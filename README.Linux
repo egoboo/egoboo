@@ -1,0 +1,23 @@
+Egoboo Linux quick install notes:
+
+untar (which you already did if you are reading this)
+cd game
+<If you want to change the install prefix edit Makefile.unix and  egoboo.sh
+ accordingly>
+make -f Makefile.unix
+<as root>
+make -f Makefile.unix install
+
+tar xvfz egoboo-data-<version>.tar.gz
+cd egoboo-data-<version>
+<as root>
+mkdir /usr/share/egoboo
+cp -a * /usr/share/egoboo
+
+Note: replace /usr by whatever you changed the prefix to if you modified it.
+
+Type egoboo <enter>
+
+Enjoy!
+
+Please send any Linux port questions and bugreports to: j.w.r.degoede@hhs.nl
