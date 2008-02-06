@@ -1,0 +1,605 @@
+2007-06-11 Zefz <zefzsoftwares@hotmail.com>
+	* Fixed the pause button to work correctly.
+	* Some particle expansion have been... expanded.
+	* Moved all logging to log.txt and did some major improvements
+	   to some of the logging. Fatal error exits now properly tries to clean
+	   the memory Egoboo uses too. In addition the game doesn't quit
+                     immediently some minor file is missing, instead it logs a warning.
+	* Removed a memory leak.
+	* Any Skill ID can now be added as an expansion.
+
+2007-03-11 Zefz <zefzsoftwares@hotmail.com>
+	* Minor corrections to the frame rate counter.
+	* Cleaned away some of the old RTS code.
+	* And added a setup option to disable developer debugging
+                     messaging popping up ingame.
+
+2007-02-11 Hans de Goede <j.w.r.degoede@hhs.nl>
+	* Both Tim Smith and I have been working on a Linux / Unix port,
+	  first I merged my and Tim's port into one best of both port. This
+	  commit merges this best of both port into current egoboo svn.
+	* Fix egoboo Unix port to also run on X servers running in 16 bpp
+	  colordepth
+
+2007-26-10 Jonathan Fischer <jonathan@mohiji.org>
+	* Replaced the GPL stuff Zefz added with the proper verbage from
+	  the FSF website.
+	* Some small cleanups related to logging.
+	* General merge from the Egoboo Resurrection codebase into the
+	  Egoboo 2.x one
+
+2007-08-10 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Added a few new script AI functions
+	* Did some cleaning in the code
+	* Renewed and added the GNU Public License to all source files
+
+2007-18-09 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Optimized the sound and music code
+	* Removed various minor bugs
+	* Worked some on high quality shadows and overlay effects
+	* Added new particle expansions
+	* SetPassageMusic now works correctly with SDL_Mixer
+	* TargetDropMoney AI script function added
+	* Bunch of other AI scripts added
+	* Improved the game structure loading system
+	* Improved some error messaging responds (Make debugging easier)
+
+2007-13-08 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Finished video options in the menu
+	* Also did the audio settings menu
+	* Added the pause function
+	* Added panic escape button (CTRL+Q)
+	* Removed egobooutril.c and .h from the project (Unused?)
+	* Some minor bugfixing
+	* Cleaned up the code some, removed a lot of outdated stuff
+	* Todo: Enchantment end sound still needs to be done
+
+2007-13-08 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Added and fixed a few scripting functions
+	* Fixed the blips not working (Those sparkles around the icon and map markers)
+	* Worked a little more on the menu
+
+2007-09-08 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Enabled antialasing, shading, prespective correction and dither for OpenGL 
+	   graphic rendering
+	* Added SDL_Mixer!!
+                  * Disabled many silly warning messages
+	* Ingame music
+	* Sound fading & positional (copyed some from aleous here, credits to him)
+	* New script functions for sound & music
+	* Egoboo now reads the setup for music volume
+
+2007-14-07 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Added exp penality system upon death
+                  * Added a few new script functions and script variables
+
+2007-15-03 Jonathan Fischer <jfischer@csusm.edu>
+	* Did some major improvements to the Menu User intreface...
+	* Random name generation fixed
+
+2007-14-03 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Fixed nullicon bug (Credits to Denis Jaimes for that)
+	* Camera zoom has been reset again
+
+2007-15-01 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Split modules into 2 types, import modules and non import modules
+	* Fixed module unlock system error
+	* Added new script variables targetmoney and targetammo
+
+2007-07-01 Zefz aka Johan Jansen <zefzsoftwares@hotmail.com>
+	* Fixed the IfCleanedUp script function not working correctly
+	* Modified camera zoom
+	* Increased number of models and particles egoboo can run at
+          	   the same time (Needed for huge modules like Bishopia)
+	* Fixed if respawn valid value not working
+	* Modified some minor menu stuff
+	* Added a DoNothing function (For AI scripts)
+	* Compiled egoboo using SDL-1.2.11
+
+2005-06-01 Jonathan Fischer <jfischer@csusm.edu>
+	* Added code for checking whether a filename points to 
+	  directory to win-file.c & proto.h.  Unix port is coming
+	  on that.
+	* Continued work on the network code.
+	* Began cleanup of file system handling code; making sure that
+	  what I need is available to get up and running on the Mac.
+
+2005-05-25 Jonathan Fischer <jfischer@csusm.edu>
+	* Added a new build/ directory for keeping 
+	  project files for various build systems in.
+	* Continuing work on network code.
+
+2005-05-23 Jonathan Fischer <jfischer@csusm.edu>
+    * Added new UI code, 'cause debugging with the
+      current menu system is difficult
+    * Some tests for the UI are in testmenu.c, I'll
+      start converting the existing menus in the next
+      update.
+
+2005-05-19 Jonathan Fischer <jfischer@csusm.edu>
+	* Replaced almost all DirectPlay code with
+	  equivalent ENet code.
+	* Re-enabled networking in setup.txt
+
+2005-05-19 Jonathan Fischer <jfischer@csusm.edu>
+	* Added enet to the project
+	* Fixed some compilation warnings
+	* Switched to building with SDL-1.2.8 (any difference?)
+	* Default to windowed mode for now.
+
+2001-12-08 Benjamin Bishop <bishop@cs.uga.edu>
+	* Many new goodies in town.mod
+	* Mana potions for elf
+	* Windows import/skin bug squashed
+
+2001-12-03 Benjamin Bishop <bishop@cs.uga.edu>
+	* Incorporated JT's transparency fix
+	* Defaulted Alim to skin 2
+	* Fixedup exitarea object in rogue mod
+
+2001-11-30 Benjamin Bishop <bishop@cs.uga.edu>
+	* 2.2 STABILITY RELEASE CANDIDATE
+	* Reverted back to this copy (5 months old)	X
+	  for stability
+	* Incorporated NVIDIA fix from JT		X
+	* Patched particle bugs that JT fix tickled	X
+	* Broke into developer/stable packs		X
+	* Added information to title screen		X
+	* Fixed level icons  				X
+	* Made mana-replenish adjustments		X
+	* Deathmatch level				
+	* Fix up town.mod
+	  allow exporting				X
+	  add magic book vendor
+	  add sheep/shepard
+	  add guards
+	* Balanced character items			X
+	* Add identify spellbook
+	* Clean up wizard.mod
+	* Zambinis mana pool enough?
+
+2001-06-06 Benjamin Bishop <bishop@cs.uga.edu>
+	* We're back! CVS now up on pika
+
+2001-03-14 Morgan Aldridge <classic@sover.net>
+	* fixed GLTexture_LoadA() for big endian processors in 
+	  GLTexture.c
+
+2001-03-11 Benjamin Bishop <bishop@cs.uga.edu>
+	* Fixed MANY things in cartman.
+	  Cartman now works in SDL (without mesh editing)
+	  Can import/export mods
+	  fonts work
+	  kludged in a workaround for big tiles
+	  Lightmap is loaded/saved properly
+	* Finished up palash.mod
+
+2001-03-10 Benjamin Bishop <bishop@cs.uga.edu>
+	* Fixed dreaded import/export bug. Import directory was getting
+	  clobbered early in graphic.c
+	* Updated title bmp for palash
+	* Removed game title screen (bloated filesize)
+	* Working on porting cartman to SDL so I can finish fixing
+	  palash
+
+2001-03-09 Benjamin Bishop <bishop@cs.uga.edu>
+	* Removed big windows zip file from CVS
+	* Fixed up palash.mod problems (slot conflict and sound bugs in
+          load_one_wave - some problems remain)
+	* Fixed up sound files in palash.mod - palash now works
+	* Removed a bunch of diagnostic crap
+
+2001-03-05 Dan Olson <theoddone@quakefiles.com>
+	* Fix some building issues for Linux systems.
+
+2001-03-01 Germain Sauvé <gersauve@cgocable.ca>
+	* Added FindClose to win_file.c
+	* Small fix to configfile.c
+
+2001-02-17 Morgan Aldridge <classic@sover.net>
+	* fixed a call to the FILENAME() macro in setup_characters() in
+	char.c
+	* more work on porting load_mesh() and all the md2 loading code to
+	big endian processors in game.c
+	* added a  small function for Mac endian conversions in egobootypedef.h
+
+2001-02-07 Morgan Aldridge <classic@sover.net>
+	* Fixed DirGetNext() in mac-file.c so that it now makes sure the
+	file matches the type from the search string... that fixed a bunch
+	of issues with file loading.
+
+2001-02-04 Benjamin Bishop <bishop@cs.uga.edu>
+	* Looks like timing is working now. Had to uncomment the 
+	  allclock line in game.c
+	* attempted to add pacos elf.mod and crypt.mod levels, but
+	  couldn't get them running. I'll look at this in more detail
+	  later. Pal-ash also seems to be not working.
+
+2001-02-03 Benjamin Bishop <bishop@cs.uga.edu>
+	* Changed icons to reflect status of modules
+	* Added boogers dungeon to the cvs
+	* Mouse buttons work better. Multiple presses are getting
+	  screwed up though.
+
+2001-0203 Daniel Burrows <Daniel_Burrows@brown.edu>
+	* Turn GL_CULL_FACE and GL_DEPTH_TEST off while rendering text.
+	  This fixes the "mysterious vanishing text messages" bug when you
+	  return to the menu after playing a game.
+	* draw_wrap_string now calls BeginText() and EndText().  There may be
+	  other things that get fixed, but it at least fixes the end-module text.
+
+2001-0202 Daniel Burrows <Daniel_Burrows@brown.edu>
+	* Make sure that FRAMESKIP and ONESECOND have reasonable values,
+	  even on non-Windows systems.  (I was hoping this would fix the
+	  framerate problems, but it doesn't seem to have; however, it's still
+	  more "correct" than having completely wrong numbers)
+
+2001-02-02 Benjamin Bishop <bishop@cs.uga.edu>
+	* Did case sanatize of egoboo files, cvs had been ignoring the .obj
+	  extended directories.
+	* Fixed up a number of things broken by the case change.
+	* "Fixed" Gnome mod to not depend on rogue for debugging purposes
+
+2001-02-02 Daniel Burrows <Daniel_Burrows@brown.edu>
+	* Fix the FPS counter.  UNIX clocks don't tick at the same rate as
+	Windows ones!  Changed TIMER_TICKS_PER_SECOND to CLOCKS_PER_SEC (the
+	canonical POSIX define) and added a #define for broken systems.
+
+2001-01-31 Daniel Burrows <Daniel_Burrows@brown.edu>
+        * Eh, the return type of fgetc is an int, not an unsigned char.
+          goto_colon in game.c was using a char, which is guaranteed to
+          miss EOF (gcc was even complaining about it..)
+
+2001-01-28 Morgan Aldridge <classic@sover.net>
+	* working on converting the md2 loader to work on big endian processors:
+	* added Endian.h in the Mac includes in egobootypedef.h
+	* porting rip_md2_header(), rip_md2_frames(), rip_md2_frame_name(),
+	rip_md2_commands() in game.c
+
+2001-01-27 Daniel Burrows <Daniel_Burrows@brown.edu>
+	* Changed many upper-case or capitalized filenames to lower-case.
+	* Fixed a potential format-string problem in char.c
+	* Added a new global "pending_click", which is set to TRUE when a click
+	event is emitted by SDL.  See menu.c for use.  (really, this is a hack,
+	but it fits better with the rest of the code than doing this the
+	"right way")  It is set by read_input in input.c.
+	* Changed copy_directory_to_host to copy_directory in menu.c.  This will
+	have to be undone when the network code is ported, but for now it allows
+	imports to work.
+
+2001-01-27 Morgan Aldridge <classic@sover.net>
+	* made gHardwareSpec extern so it isn't defined multiple times
+
+2001-01-27 Germain Sauvé <gersauve@cgocable.ca>
+	* Added SLD_PauseAudio before closing the sound system
+
+2001-01-25 Germain Sauvé <gersauve@cgocable.ca>
+	* Added sound options in Setup.txt
+	* Removed _inline from prthitawall and chrhitawall
+
+2001-01-21 Germain Sauvé <gersauve@cgocable.ca>
+	* Ported most of the sound ( still looping sound to do )
+	* Fixed sound bug when sound was off
+
+2001-01-16 Christian Laforte <claforte@mailandnews.com>
+	* Removed all references to particlescale, since we now
+	  do the billboarding in world coordinates.
+	* Clean-up of graphic.c. Removed most of the D3D code, except for
+	  stuff that hasn't been implemented yet (ground fog and colorkeying
+	  mostly.)
+
+2001-01-17 Germain Sauvé <gersauve@cgocable.ca>
+	* Remove some BeginXDMode ine graphic.c, graphicptr.c and graphicmad.c
+	* Inverted s and t for reflected particules
+
+2001-01-16 Germain Sauvé <gersauve@cgocable.ca>
+	* Remove the screensize multiplication for particule size
+
+2001-01-16 Christian Laforte <claforte@mailandnews.com>
+	* Finished porting shadows 
+	  (render_shadow doesn't blend correctly though)
+
+2001-01-15 Christian Laforte <claforte@mailandnews.com>
+	* Fixed and enabled particles. Looks great! ;-)
+	  for more information on OpenGL billboarding:
+		http://nate.scuzzy.net/docs/billboard.html
+	* Also fixed particle reflection, started porting shadows.
+
+2001-01-15 Benjamin Bishop <bishop@cs.uga.edu>
+	* Disabled lighting entirely. This temporarily fixed the
+	  character lighting problems. 
+	* Need to do: Particles
+	* Need to do: Camera fix 
+	* Need to do: Input (space isn't working, mouse buttons working wrong)
+	* Need to do: Proper lighting
+	* Need to do: Sound
+
+2001-01-14 Morgan Aldridge <classic@sover.net>
+	* fixed more FILENAME() macro calls
+
+2001-01-14 Christian Laforte <claforte@mailandnews.com>
+	* Checked-in Germain's new setup.txt
+	* Fudged the projection matrix to look more like D3D version.
+
+2001-01-14 Germain Sauvé <gersauve@cgocable.ca>
+	* Added option the grab and hide the mouse in setup.txt (no more #ifdef )
+
+2001-01-14 Christian Laforte <claforte@mailandnews.com>
+	* Potential fix for inverted colors on Mac. (in GLTexture.c, inverted
+	  the RGB masks.)
+	* #ifdef-ed the workarounds for mouse cursors on MacOS and Linux.
+
+2001-01-14 Germain Sauvé <gersauve@cgocable.ca>
+	* Added some cross-platform typedef. ex: typedef Sint32 LONG
+
+2001-01-13 Matthew Fairfax <mfairfa@clemson.edu>
+	* Tweaked the font code on the Mesa 3.0 drivers and got it working
+
+2001-01-13 Morgan Aldridge <classic@sover.net>
+	* Working on removing double calls to the FILENAME() macro in
+	game.c and graphic.c
+	* Commented out the call to hide the cursor in sdlinit() for
+	debug reasons (can't use my debugger without a cursor)
+	* Updated get_module_data() (in module.c) to use the FILENAME()
+	macro when loading module files
+	* Took out the calls to the FILENAME() macro in reset_particles()
+	in particle.c
+
+2001-01-13 Matthew Fairfax <mfairfa@clemson.edu>
+	* Tweaked font drawing code (hopefully will fix the problem)
+	* Disabled Alpha test but characters are still rendering transparent correctly!
+	  Someone else must have done something that fixed it?
+
+2001-01-13 Christian Laforte <claforte@mailandnews.com>
+	* Minor optimizations of make_light_table, Begin/End 2D/3D,
+	  goto_colon. (changed game.c, graphic.c, proto.h, script.c)
+
+2001-01-12 Christian Laforte <claforte@mailandnews.com>
+	* Minor clean-up of graphic.c
+	  (should have no impact on execution.)
+	* Additional clean-up of camera.c, egoboo.h, game.c and graphic.c.
+	  Also optimized reading the MD2 file.
+
+2001-1-12 Morgan Aldridge <classic@sover.net>
+	* converted a couple more variables to BOOL in egoboo.h so they
+	would work with code in the ConfigFile code
+	* one line in draw_scene_sadreflection() (graphic.c) was causing
+	problems (it shouldn't have) so I had to do it the long way
+	* Updated the CodeWarrior Pro 5 project with all the new files
+
+2001-01-11 Christian Laforte <claforte@mailandnews.com>
+	* Minor clean-up of graphicmad.c and graphicfan.c 
+	  (should have no impact on execution.)
+
+2001-01-11 Matthew Fairfax <mfairfa@clemson.edu>
+	* Fixed black line in font by adding 0.001 to fx1 and fy1
+	* Fixed character trasnparency by enabling Alpha test
+
+2001-01-11 Germain Sauvé <gersauve@cgocable.ca>
+	* Created graphicfan.c, graphicmad.c and graphicprt.c 
+	* Ported the water rendering code ( almost )
+	* Added glcolor to MAD
+
+2001-01-10 Germain Sauvé <gersauve@cgocable.ca>
+	* Remove Begin3DMode form render_fan, render_mad, render_prt and the 
+	like. Put Begin3DMode in draw_scene. Replace Begin3DMode by
+	glLoadMatrixf(mView.v);
+	glMultMatrixf(mWorld.v);
+	
+
+2001-01-09 Dan Olson <theoddone@quakefiles.com>
+	* Fixed perspective and other rendering bugs using Christian's matrix
+	  patch as well as reversing all the glFrontFace calls.  We were
+	  previously viewing the back faces of all the polygons, which caused
+	  the rendering bugs.
+	* Oops, this time I really did break status bars :)  Culling Disabled
+	  in Begin2DMode for now.
+
+2000-01-09 Nicholas Vining <mordred@lokigames.com>
+
+	* added atexit(SDL_Quit) to graphic.c in the hope that it'll stop
+	locking my mouse cursor when egoboo crashes.
+	* Turned off mouse locking. Sucky. At some point we should
+	have a key to disable it, but for now hopefully it will inspire
+	somebody to add keyboard input.
+		* UPDATE: Pulled at Christian LaForte's request, but locking
+		  still isn't a long term solution..
+
+2001-01-08 Dan Olson <theoddone@quakefiles.com>
+	* Fixed some of the depth buffer things as suggested by Matty Noble
+	  on the mailing list.
+
+2001-01-07 Christian Laforte <claforte@mailandnews.com>
+	* Got the keyboard working. We can now move the characters!
+	* Updated the scancode list (scancode.txt) for SDL.
+	* Temporarily forced networkon to FALSE.
+	* Temporarily forced autoturncamera to FALSE.
+	* Minor clean-up of game.c and network.c
+
+2001-01-07 Dan Olson <theoddone@quakefiles.com>
+	* Partial fix of bad alpha on models
+
+2001-01-07 Benjamin Bishop <bishop@cs.uga.edu>
+	* Cleaned up Begin3D
+	* fixed newline compile warning on new headers
+	* fixed draw_one_bar which fixed character stats
+	* fixed draw_map
+
+2001-01-07 Christian Laforte <claforte@mailandnews.com>
+	* Additional cleanup of graphic.c
+	* Moved enchant functions that were left in graphic.c to enchant.c
+
+2001-01-07 Nicholas Vining <mordred@lokigames.com>
+	* Put errorlog.txt in the current directory instead of in basicdat.
+	This created a few amusing filenames in the wrong places on my system.
+
+2001-01-07 Christian Laforte <claforte@mailandnews.com>
+	* Use the world transformation matrix.
+	  The character models now display at the right position
+	  (at least in advent.mod).
+	* Cleanup of graphic.c (removed duplicated functions, esthetic changes)
+
+2001-01-07 Christian Laforte <claforte@mailandnews.com>
+	* Merged in Germain's change to egoboo.dsp and mine.
+	* Commented-out some unused variables in graphic.c
+	* Attempt to check-in Germain's new setup.txt
+
+2001-01-06 Germain Sauvé <gersauve@cgocable.ca>
+	* Implemented the ConfigFile in read_setup
+	* Added egoobootypedef.h so you don't need to include
+	egoboo.h to have basic type definitions
+	* Added egoboostrutil
+
+2001-01-06 Dan Olson <theoddone@quakefiles.com>
+	* Partial porting of render_prt()
+	* Cleanups to make the code compile under Linux again
+	* Now grabs mouse cursor, this makes it nice under X11
+	* fixed up a few commented out things and added an SDL_Quit in
+	  an error function.
+
+2001-01-06 Dan Olson <theoddone@quakefiles.com>
+	* Modified mouse input code to make the movement sane in-game.
+
+2001-01-06 Christian Laforte <claforte@mailandnews.com>
+	* Fixed crash when loading MD2 models. It was caused by opening the
+	  file without specifying that it was binary.
+	* Now call load_all_objects, reset_players and setup_characters
+	  for Little-endian (Intel-based) machines. The MD2 file format
+	  needs some more massaging for big-endian machines.
+
+2001-01-06 Christian Laforte <claforte@mailandnews.com>
+	* Merged Ben's perspective fix with Germain's latest check-in.
+	* In main_game(), uncommented the call to update_game.
+	* In update_game(), commented out the while condition in
+	  the sync loop, so that important functions such as move_characters
+	  get called.
+
+2001-01-06 Germain Sauvé <gersauve@cgocable.ca>
+	* Put Begin3DMode in draw_scene ( was call in render_fan )
+
+2001-01-06 Benjamin Bishop <bishop@cs.uga.edu>
+	* Fixed perspective call in graphic.c
+	* Looking at how to rotate the up direction in Begin3D
+
+2001-01-06 Dan Olson <theoddone@quakefiles.com>
+	* Major updates to graphic.c, render_fan appears to work now, others
+	  should also work including render_texmad and draw_map
+	* General fixup and some whitespace cleanups in other places
+        * Addition of GLVERTEX structure for easier porting of rendering
+          functions.
+
+2001-01-06 Christian Laforte <claforte@mailandnews.com>
+	* Commented out some unused variables in camera.c, char.c,
+	  game.c and graphic.c
+	* Changed VC6 project so that it compiles egoboo.exe in the egoboo\
+	  directory.
+
+2001-01-04 Dan Olson <theoddone@quakefiles.com>
+	* Fixed server takedown on my hardware at program exit. (It wasn't
+	  calling SDL_Quit)  If there's a better spot for that let me know.
+	* Removal of more various /* PORT */ comment blocks in graphics.c,
+	  mostly glEnable's and glDisable's.
+
+2001-01-04 Dan Olson <theoddone@quakefiles.com>
+	* Fixed up a small function in graphic.c
+	* Removed (apparently) useless -lXv from the link line
+
+2001-01-03 Germain Sauvé <gersauve@cgocable.ca>
+	* Added a lot of FILENAME() in functions interacting with files. There
+	is probably a lot of redundant calls to FILENAME but it won't hurt.
+	* Added #include <math.h> in mathstuff.h
+
+2001-01-03 Nicholas Vining <mordred@lokigames.com>
+
+	* Fixes to the Makefile, mathstuff.c, and a few more things
+	to get this to compile again after Morgan's latest wave of changes.
+
+2000-12-16 Morgan Aldridge <classic@sover.net>
+	* fixed load_all_menu_images() so it uses the FILENAME()
+		macro to load directories - now the MacOS Version
+		loads menus correctly
+
+2000-12-14 Morgan Aldridge <classic@sover.net>
+	* Moved math stuff from graphics.c, proto.h, egoboo.h
+		to mathstuff.c and mathstuff.h.
+
+2000-12-13 Benjamin Bishop <bishop@cs.uga.edu>
+        * DONE: render fan is now getting called, looks
+          like reasonable data
+        * now drawing mesh verts to be displayed
+        * TODO: need to get gluLookAt right
+        * TODO: why is camera spinning?
+
+2000-12-13 Morgan Aldridge <classic@sover.net>
+	* Added a ProjectBuilder project in hopes of eventually
+	getting it to compile under Mac OS X.
+
+2000-12-13 Benjamin Bishop <bishop@cs.uga.edu>
+	* Finished up _CNV changes
+	* TODO: render_fan is not getting called
+	  since the camera code is not telling it
+	  to draw anything
+
+2000-12-12 Morgan Aldridge <classic@sover.net>
+	* Added mac-file.c, still needs work and testing
+
+2000-12-12 Benjamin Bishop <bishop@cs.uga.edu>
+	* Fixed up load_mesh and mesh init stuff
+        * Ported most of remaining char.c 
+	* Added _CNV macro for GLMATRIX conversion
+	* Added show_stats back from oblivion
+
+2000-12-10 Gary A. Clark <clarkg@fireserve.net>
+
+        * Fixed proto.h so inline becomes __inline for VisualC
+
+2000-12-08 Germain Sauvé <gersauve@cgocable.ca>
+
+	* Added configfile.h and configfile.c
+	TODO: include them in egoboo ( change setup.txt )
+
+=======
+2000-12-8 Morgan Aldridge <classic@sover.net>
+	
+	* UPDATE: ported the texture loading stuff in load_one_object()
+		to the GLTexture code
+	* TODO: finish implementing the alpha value for textures and
+		make it work in the code that uses the texture loader
+
+2000-12-7 Nicholas Vining <mordred@lokigames.com>
+	
+	* Changed definition of TRUE and FALSE. TRUE is (!FALSE), so that
+ 	  if you have something like this:
+	
+	  if ((foo & 0x2) == TRUE)
+
+	  it will work.
+
+	* Minor change.log cleanups. Put new entries at the top! :-)
+
+2000-12-6 Benjamin Bishop <bishop@cs.uga.edu>
+
+	* Added GLMATRIX and GLVECTOR types
+	* Wrote in equivalent D3D matrix routines
+	* Got load_all_objects mostly working
+	* Now with heavy diagnostic garbage
+	TODO: Need to load textures in load_one_object
+
+2000-12-5 Benjamin Bishop <bishop@cs.uga.edu>
+
+	* Working on draw_blip and bindtexture problem
+	* UPDATE: got draw_blip workin, looks kinds funny
+	* Fixed up mouse ordering. Middle and right buttons
+  	  were reversed
+	* Updated comments as to what is working on initialization
+	* found that its dying on read_wawalite
+	* fixed up light code in graphic.c now dying on bars
+	* fixed up (i think) bars pointer check
+	* Now getting to main game loop
+
+2000-12-1 Gary A. Clark <clarkg@fireserve.net>
+
+	* Added change.log :)
+	* Fonts work on black background, but mouse cursor is alpha-ized
+	DONE: Use in texture alpha so leters overwrite background
+	UPDATE: Added a mouse cursor to the font 
