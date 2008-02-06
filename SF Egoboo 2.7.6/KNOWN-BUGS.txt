@@ -1,0 +1,21 @@
+- Changing video settings, Save&Return to menu, then returning to video menu shows settings are not changed...
+
+- Screenshots don't work (New camera?)
+
+- When loading a saved game, then exiting the saved game, and then
+ starting a new player you get a message: "Press space to respawn" and
+ 
+pressing space does nothing.
+
+
+Workaround: when you want to start a new player after loading a saved game,
+completely exit egoboo and start it again.
+
+
+- Items that are dropped are thrown out with a too high force. While coins do the opposite
+when dropped.
+
+- Whenever a spellbook is dropped, it plays the wrong animation sequence. Currently it
+runs the spellbok burns away when dropped.
+
+- Items inside chests/(inventories?) can still spawn particles. (Still running AI scripts?)
