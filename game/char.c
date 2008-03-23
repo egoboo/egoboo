@@ -1912,7 +1912,7 @@ void character_swipe( CHR_REF ichr, SLOT slot )
           else
           {
             // Attached particles get a strength bonus for reeling...
-            if ( pipcauseknockback[prtpip[particle]] ) dampen = ( REELBASE + ( chrstrength_fp8[ichr] / REEL ) ) * 3; //Extra knockback?
+            if ( pipcauseknockback[prtpip[particle]] ) dampen = ( REELBASE + ( chrstrength_fp8[ichr] / REEL ) ) * 4; //Extra knockback?
             else dampen = REELBASE + ( chrstrength_fp8[ichr] / REEL );      //No, do normal
 
             prtaccum_vel[particle].x += -(1.0f - dampen) * prtvel[particle].x;
@@ -3561,7 +3561,7 @@ bool_t remove_from_platform( Uint16 object )
   chronwhichplatform[object] = MAXCHR;
   chrlevel[object]           = chrlevel[platform];
 
-  if ( chrisplayer[object] )
+  if ( chrisplayer[object] && CData.DevMode )
     debug_message( 1, "removel %s(%s) from platform", chrname[object], capclassname[chrmodel[object]] );
 
 
@@ -3588,7 +3588,7 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
 
   chrlevel[object] = chrpos[platform].z + chrbumpheight[platform];
 
-  if ( chrisplayer[object] )
+  if ( chrisplayer[object] && CData.DevMode )
     debug_message( 1, "attached %s(%s) to platform", chrname[object], capclassname[chrmodel[object]] );
 
   return btrue;
@@ -4149,9 +4149,20 @@ void do_bumping( float dUpdate )
                     }
 
                     //Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                    if ( pipintdamagebonus[pip] ) prtdamage[prtb].ibase += (( chrintelligence_fp8[prt_owner] - 3584 ) * 0.25 );   //+1 bonus for every 4 points of intelligence
-                    if ( pipwisdamagebonus[pip] ) prtdamage[prtb].ibase += (( chrwisdom_fp8[prt_owner] - 3584 ) * 0.25 );  //and/or wisdom above 14. Below 14 gives -1 instead!
-
+                    //+1 (256) bonus for every 4 points of intelligence and/or wisdom above 14. Below 14 gives -1 instead!
+					//Enemy IDAM spells damage is reduced by 1% per defender's wisdom, opposite for WDAM spells
+					if ( pipintdamagebonus[pip] )
+					{
+						prtdamage[prtb].ibase += (( chrintelligence_fp8[prt_owner] - 3584 ) * 0.25 );		//First increase damage by the attacker
+						if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
+						prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrwisdom_fp8[chra] > 8 ));		//Then reduce it by defender
+					}
+					if ( pipwisdamagebonus[pip] )	//Same with divine spells
+					{
+						prtdamage[prtb].ibase += (( chrwisdom_fp8[prt_owner] - 3584 ) * 0.25 );
+						if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
+						prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrintelligence_fp8[chra] > 8 ));
+					}
                     //Force Pancake animation?
                     if ( pipcausepancake[pip] )
                     {

@@ -111,6 +111,16 @@ void damage_character( CHR_REF character, Uint16 direction,
       return;
     }
 
+    // Mana damage (Deal damage to mana)
+    if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_MANA )
+    {
+      chrmana_fp8[character] -= damage;
+      if ( chrmana_fp8[character] < 0 )
+      {
+        chrmana_fp8[character] = 0;
+      }
+      return;
+    }
 
     // Invert damage to heal
     if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_INVERT )
@@ -197,7 +207,7 @@ void damage_character( CHR_REF character, Uint16 direction,
           {
             // Call for help if below 1/2 life
             if ( chrlife_fp8[character] < ( chrlifemax_fp8[character] >> 1 ) ) //Zefz: Removed, because it caused guards to attack
-              call_for_help( character );                    //when dispelling overlay spells (Faerie Light)
+              call_for_help( character );										//when dispelling overlay spells (Faerie Light)
 
             // Spawn blud particles
             if ( capbludlevel[model] > BLUD_NONE && ( damagetype < DAMAGE_HOLY || capbludlevel[model] == BLUD_ULTRA ) )

@@ -599,7 +599,7 @@ void load_basic_textures( char *modname )
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.particle_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[0], CStringTmp1, TRANSCOLOR ) )
     {
-      log_warning( "!!!!Particle bitmap could not be found!!!! Missing File = \"%s\"/n", CStringTmp1 );
+      log_warning( "!!!!Particle bitmap could not be found!!!! Missing File = \"%s\"\n", CStringTmp1 );
     }
   };
 
@@ -3946,11 +3946,16 @@ void draw_text( GLTexture * pfnt )
       CHR_REF pla_chr = pla_get_character( 0 );
 
       y += draw_string( pfnt, 0, y, NULL, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
-      y += draw_string( pfnt, 0, y, NULL, "wldframe %d, wldclock %d, allclock %d", wldframe, wldclock, allclock );
-      y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrpos[pla_chr].x, chrpos[pla_chr].y, chrpos[pla_chr].z );
-      y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrvel[pla_chr].x, chrvel[pla_chr].y, chrvel[pla_chr].z );
-    }
+      
+	  //Spit out some extra debug info
+	  if(CData.DevMode) 
+	  {
+		  y += draw_string( pfnt, 0, y, NULL, "wldframe %d, wldclock %d, allclock %d", wldframe, wldclock, allclock );
+          y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrpos[pla_chr].x, chrpos[pla_chr].y, chrpos[pla_chr].z );
+          y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrvel[pla_chr].x, chrvel[pla_chr].y, chrvel[pla_chr].z );
 
+	  }
+	}
     {
       CHR_REF ichr, iref;
       GLVector tint = {0.5, 1.0, 1.0, 1.0};
@@ -4394,11 +4399,11 @@ void sdlinit( int argc, char **argv )
   log_info("Initializing main SDL services version %i.%i.%i... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
   if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
   {
-    log_info("Failed!\n");
+    log_message("Failed!\n");
     log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
     exit( 1 );
   }
-  else log_info("Succeeded!\n");
+  else log_message("Succeeded!\n");
 
   atexit( SDL_Quit );
 
@@ -4522,9 +4527,9 @@ void load_graphics()
   }
 
   //Check which particle image to load
-  if ( CData.particletype      == PART_NORMAL ) strncpy( CData.particle_bitmap, "particle_normal.png" , sizeof( STRING ) );
-  else if ( CData.particletype == PART_SMOOTH ) strncpy( CData.particle_bitmap, "particle_smooth.png" , sizeof( STRING ) );
-  else if ( CData.particletype == PART_FAST )   strncpy( CData.particle_bitmap, "particle_fast.png" , sizeof( STRING ) );
+  if ( CData.particletype      == PART_NORMAL ) strncpy( CData.particle_bitmap, "particle_normal.bmp" , sizeof( STRING ) );
+  else if ( CData.particletype == PART_SMOOTH ) strncpy( CData.particle_bitmap, "particle_smooth.bmp" , sizeof( STRING ) );
+  else if ( CData.particletype == PART_FAST )   strncpy( CData.particle_bitmap, "particle_fast.bmp" , sizeof( STRING ) );
 
   //Turn on vsync if wanted
   if(CData.vsync)

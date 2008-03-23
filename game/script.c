@@ -1294,6 +1294,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, ClearMusicPassage);
   REGISTER_FUNCTION( opcode_lst, IfOperatorIsLinux);
   REGISTER_FUNCTION( opcode_lst, IfTargetIsOwner);
+//  REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -4252,6 +4253,15 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 	  //This function proceeds if the target is the characters owner
       returncode = loc_aitarget == loc_aiowner;
       break;
+
+  /*  case F_SetCameraSwing:
+	  //This function sets the camera swing rate
+	  camswing = 0;
+      camswingrate = scr_globals.tmpargument;
+      camswingamp = scr_globals.tmpdistance;
+      returncode = loc_aitarget == loc_aiowner;
+      break;*/
+
 
     case F_End:
       break;

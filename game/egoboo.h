@@ -865,8 +865,6 @@ EXTERN int                     joyaplayer  EQ( 0 );
 EXTERN int                     joybplayer  EQ( 0 );
 
 //Interface stuff
-#define TRIMX 640
-#define TRIMY 480
 
 EXTERN IRect                    iconrect;                   // The 32x32 icon rectangle
 EXTERN IRect                    trimrect;                   // The menu trim rectangle
@@ -907,14 +905,6 @@ EXTERN Uint32       maptwist_lr[256];            // For surface normal of mesh
 EXTERN Uint32        maptwist_ud[256];            //
 EXTERN vect3           mapnrm[256];                // For sliding down steep hills
 EXTERN bool_t          maptwistflat[256];             //
-
-//Camera stuff
-#define TRACKXAREALOW     100
-#define TRACKXAREAHIGH    180
-#define TRACKYAREAMINLOW  320
-#define TRACKYAREAMAXLOW  460
-#define TRACKYAREAMINHIGH 460
-#define TRACKYAREAMAXHIGH 600
 
 
 typedef enum order_t
