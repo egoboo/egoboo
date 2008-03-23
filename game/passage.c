@@ -222,14 +222,12 @@ Uint16 who_is_blocking_passage_ID( Uint32 passage, IDSZ idsz )
   //float tlx, tly, brx, bry;
   CHR_REF character;
   Uint16 sTmp;
-  float bumpsize;
 
   // Look at each character
   for ( character = 0; character < MAXCHR; character++ )
   {
     if ( !VALID_CHR( character ) || chr_in_pack( character ) ) continue;
 
-    bumpsize = chrbumpsize[character];
     if ( !chrisitem[character] && chralive[character] )
     {
       if ( passage_check_any( character, passage, NULL ) )
@@ -452,11 +450,11 @@ bool_t passage_check_all( CHR_REF ichr, Uint16 pass, Uint16 * powner )
 
   if ( !VALID_CHR( ichr ) || pass >= numpassage ) return retval;
 
-  x_min = chrpos[ichr].x - chrbumpsize[ichr];
-  x_max = chrpos[ichr].x + chrbumpsize[ichr];
+  x_min = chrbmpdata[ichr].cv.x_min;
+  x_max = chrbmpdata[ichr].cv.x_max;
 
-  y_min = chrpos[ichr].y - chrbumpsize[ichr];
-  y_max = chrpos[ichr].y + chrbumpsize[ichr];
+  y_min = chrbmpdata[ichr].cv.x_min;
+  y_max = chrbmpdata[ichr].cv.x_max;
 
   retval = ( x_min > MESH_FAN_TO_INT( passtlx[pass] ) && x_max < MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) &&
            ( y_min > MESH_FAN_TO_INT( passtly[pass] ) && y_max < MESH_FAN_TO_INT( passbry[pass] + 1 ) );
@@ -484,11 +482,11 @@ bool_t passage_check_any( CHR_REF ichr, Uint16 pass, Uint16 * powner )
 
   if ( !VALID_CHR( ichr ) || pass >= numpassage ) return bfalse;
 
-  x_min = chrpos[ichr].x - chrbumpsize[ichr];
-  x_max = chrpos[ichr].x + chrbumpsize[ichr];
+  x_min = chrbmpdata[ichr].cv.x_min;
+  x_max = chrbmpdata[ichr].cv.x_max;
 
-  y_min = chrpos[ichr].y - chrbumpsize[ichr];
-  y_max = chrpos[ichr].y + chrbumpsize[ichr];
+  y_min = chrbmpdata[ichr].cv.y_min;
+  y_max = chrbmpdata[ichr].cv.y_max;
 
   if ( x_max < MESH_FAN_TO_INT( passtlx[pass] ) || x_min > MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) return bfalse;
   if ( y_max < MESH_FAN_TO_INT( passtly[pass] ) || y_min > MESH_FAN_TO_INT( passbry[pass] + 1 ) ) return bfalse;

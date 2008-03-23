@@ -837,10 +837,10 @@ void weld_select()
       cnt++;
     }
     x+=cnt>>1;  y+=cnt>>1;
-    x=x/numselect;
-    y=y/numselect;
-    z=z/numselect;
-    a=a/numselect;
+    x /= numselect;
+    y /= numselect;
+    z /= numselect;
+    a /= numselect;
     cnt = 0;
     while(cnt < numselect)
     {
@@ -3064,13 +3064,17 @@ int set_vrta(Uint32 vert)
 {
   int newa, x, y, z, brx, bry, brz, deltaz, dist, cnt;
   int newlevel, distance, disx, disy;
-  vect3 pos = {x,y,0};
+  vect3 pos;
 
 
   // To make life easier
   x = meshvrtx[vert]*FOURNUM;
   y = meshvrty[vert]*FOURNUM;
   z = meshvrtz[vert];
+
+  pos.x = x;
+  pos.y = y;
+  pos.z = 0;
 
 
   // Directional light
@@ -3999,7 +4003,6 @@ void check_keys(char *modname)
       {
         cart_pos_x+=CAMRATE;
       }
-      bound_camera();
     }
     if(SDLKEYDOWN(SDLK_END))
     {

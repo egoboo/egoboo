@@ -348,7 +348,7 @@ void move_camera( float dUpdate )
         // The character is mounted
         pos.x += chrpos[attachedto].x;
         pos.y += chrpos[attachedto].y;
-        pos.z += chrpos[attachedto].z + 0.9 * chrbumpheight[character];
+        pos.z += chrpos[attachedto].z + 0.9 * chrbmpdata[character].calc_height;
 
         level += chrlevel[attachedto];
 
@@ -361,7 +361,7 @@ void move_camera( float dUpdate )
         // The character is on foot
         pos.x += chrpos[character].x;
         pos.y += chrpos[character].y;
-        pos.z += chrpos[character].z + 0.9 * chrbumpheight[character];
+        pos.z += chrpos[character].z + 0.9 * chrbmpdata[character].calc_height;
 
         level += chrlevel[character];
 

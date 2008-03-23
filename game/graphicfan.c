@@ -247,24 +247,28 @@ void render_fan( Uint32 fan, char tex_loaded )
     v[cnt].col.b = FP8_TO_FLOAT( meshvrtlb_fp8[badvertex] );
     v[cnt].col.a = 1.0f;
 
-#ifdef DEBUG_MESHFX
+#if defined(DEBUG_MESHFX) && defined(_DEBUG)
 
-    if ( HAS_SOME_BITS( fx, MESHFX_WALL ) )
+    if(CData.DevMode)
     {
-      v[cnt].col.r /= 5.0f;
-      v[cnt].col.r += 0.8f;
-    }
 
-    if ( HAS_SOME_BITS( fx, MESHFX_IMPASS ) )
-    {
-      v[cnt].col.g /= 5.0f;
-      v[cnt].col.g += 0.8f;
-    }
+      if ( HAS_SOME_BITS( fx, MESHFX_WALL ) )
+      {
+        v[cnt].col.r /= 5.0f;
+        v[cnt].col.r += 0.8f;
+      }
 
-    if ( HAS_SOME_BITS( fx, MESHFX_SLIPPY ) )
-    {
-      v[cnt].col.b /= 5.0f;
-      v[cnt].col.b += 0.8f;
+      if ( HAS_SOME_BITS( fx, MESHFX_IMPASS ) )
+      {
+        v[cnt].col.g /= 5.0f;
+        v[cnt].col.g += 0.8f;
+      }
+
+      if ( HAS_SOME_BITS( fx, MESHFX_SLIPPY ) )
+      {
+        v[cnt].col.b /= 5.0f;
+        v[cnt].col.b += 0.8f;
+      }
     }
 
 #endif
@@ -278,8 +282,11 @@ void render_fan( Uint32 fan, char tex_loaded )
     v[cnt].s = meshcommandu[type][badvertex] + offu;
     v[cnt].t = meshcommandv[type][badvertex] + offv;
 
-#ifdef DEBUG_NORMALS
-    mesh_calc_normal_pos( fan, v[cnt].pos.x, v[cnt].pos.y, &v[cnt].n );
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+    if(CData.DevMode)
+    {
+      mesh_calc_normal_pos( fan, v[cnt].pos.x, v[cnt].pos.y, &v[cnt].n );
+    }
 #endif
 
     badvertex++;
@@ -344,7 +351,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     }
 
 
-#ifdef DEBUG_NORMALS
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
     if ( CData.DevMode )
     {
 
@@ -830,7 +837,7 @@ void make_renderlist()
 {
   int fan, fan_count;
   bool_t inview;
-  unsigned next_wldframe = 0;
+  static Uint32 next_wldframe = 0;
 
   // make a delay
   if(wldframe < next_wldframe) return;
@@ -1026,17 +1033,17 @@ void do_dynalight()
           light_b = meshvrtab_fp8[vertex];
 
           mesh_calc_normal( pos, &nrm );
-          light_r += lightambicol.x * 255;
-          light_g += lightambicol.y * 255;
-          light_b += lightambicol.z * 255;
+          light_r += lightambicol.r * 255;
+          light_g += lightambicol.g * 255;
+          light_b += lightambicol.b * 255;
 
 
           ftmp = DotProduct( nrm, lightspekdir );
           if ( ftmp > 0 )
           {
-            light_r += lightspekcol.x * 255 * ftmp * ftmp;
-            light_g += lightspekcol.y * 255 * ftmp * ftmp;
-            light_b += lightspekcol.z * 255 * ftmp * ftmp;
+            light_r += lightspekcol.r * 255 * ftmp * ftmp;
+            light_g += lightspekcol.g * 255 * ftmp * ftmp;
+            light_b += lightspekcol.b * 255 * ftmp * ftmp;
           };
 
           cnt = 0;

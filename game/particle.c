@@ -298,7 +298,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
             tvel = sqrt( xvel * xvel + yvel * yvel ) / velocity;   // This is the number of steps...
             if ( tvel > 0 )
             {
-              zvel = ( chrpos[prt_target].z + ( chrbumpsize[prt_target] >> 1 ) - pos.z ) / tvel;  // This is the zvel alteration
+              zvel = ( chrpos[prt_target].z + ( chrbmpdata[prt_target].calc_size * 0.5f ) - pos.z ) / tvel;  // This is the zvel alteration
               if ( zvel < - ( pipzaimspd[glob_pip] >> 1 ) ) zvel = - ( pipzaimspd[glob_pip] >> 1 );
               if ( zvel > pipzaimspd[glob_pip] ) zvel = pipzaimspd[glob_pip];
             }
@@ -448,7 +448,7 @@ Uint32 __prthitawall( PRT_REF particle, vect3 * norm )
     collision_bits |= MESHFX_WALL;
   }
 
-  retval = mesh_hitawall( prtpos[particle], prtbumpsize[particle], collision_bits );
+  retval = mesh_hitawall( prtpos[particle], prtbumpsize[particle], prtbumpsize[particle], collision_bits );
 
   if( 0!=retval && NULL!=norm )
   {
@@ -460,7 +460,7 @@ Uint32 __prthitawall( PRT_REF particle, vect3 * norm )
     pos.y = prtpos_old[particle].y;
     pos.z = prtpos_old[particle].z;
 
-    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], collision_bits ) )
+    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], prtbumpsize[particle], collision_bits ) )
     {
       norm->x = SGN(prtpos[particle].x - prtpos_old[particle].x);
     }
@@ -469,7 +469,7 @@ Uint32 __prthitawall( PRT_REF particle, vect3 * norm )
     pos.y = prtpos[particle].y;
     pos.z = prtpos_old[particle].z;
 
-    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], collision_bits ) )
+    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], prtbumpsize[particle], collision_bits ) )
     {
       norm->y = SGN(prtpos[particle].y - prtpos_old[particle].y);
     }
@@ -478,7 +478,7 @@ Uint32 __prthitawall( PRT_REF particle, vect3 * norm )
     pos.y = prtpos_old[particle].y;
     pos.z = prtpos[particle].z;
 
-    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], collision_bits ) )
+    if( 0!=mesh_hitawall( pos, prtbumpsize[particle], prtbumpsize[particle], collision_bits ) )
     {
       norm->z = SGN(prtpos[particle].z - prtpos_old[particle].z);
     }
@@ -691,7 +691,7 @@ void move_particles( float dUpdate )
 
           prtaccum_acc[iprt].x += ( chrpos[prt_target].x - prtpos[iprt].x ) * loc_homingaccel * 4.0f;
           prtaccum_acc[iprt].y += ( chrpos[prt_target].y - prtpos[iprt].y ) * loc_homingaccel * 4.0f;
-          prtaccum_acc[iprt].z += ( chrpos[prt_target].z + ( chrbumpheight[prt_target] >> 1 ) - prtpos[iprt].z ) * loc_homingaccel * 4.0f;
+          prtaccum_acc[iprt].z += ( chrpos[prt_target].z + ( chrbmpdata[prt_target].calc_height * 0.5f ) - prtpos[iprt].z ) * loc_homingaccel * 4.0f;
         }
       }
     }
@@ -845,7 +845,6 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
   int cnt;
   Sint16 x, y, z;
   int distance, bestdistance;
-  Uint16 frame;
   Uint16 facing, bestvertex;
   Uint16 amount;
   Uint16 pip;
@@ -864,7 +863,7 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
     model = chrmodel[character];
     vertices = madvertices[model];
     direction = chrturn_lr[character] - vec_to_turn( -prtvel[particle].x, -prtvel[particle].y );
-    if ( HAS_SOME_BITS( madframefx[chrframe[character]], MADFX_INVICTUS ) )
+    if ( HAS_SOME_BITS( madframefx[chrmodel[character]][chrframe[character]], MADFX_INVICTUS ) )
     {
       // I Frame
       if ( HAS_SOME_BITS( pipdamfx[pip], DAMFX_BLOC ) )
@@ -903,6 +902,23 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
         {
           // A single particle ( arrow? ) has been stuck in the character...
           // Find best vertex to attach to
+
+          Uint32 ilast, inext;
+          MD2_Model * pmdl;
+          MD2_Frame * plast, * pnext;
+          float flip;
+
+          model = chrmodel[character];
+          inext = chrframe[character];
+          ilast = chrframelast[character];
+          flip = chrflip[character];
+
+          assert( MAXMODEL != VALIDATE_MDL( model ) );
+
+          pmdl  = mad_md2[model];
+          plast = md2_get_Frame(pmdl, ilast);
+          pnext = md2_get_Frame(pmdl, inext);
+
           bestvertex = 0;
           bestdistance = 9999999;
           z =  prtpos[particle].z - ( chrpos[character].z + RAISE );
@@ -913,19 +929,24 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
           y = 8192;
           x = -y * fsin;
           y = y * fcos;
-          z <<= 10;///chrscale[character];
-          frame = madframestart[chrmodel[character]];
-          cnt = 0;
-          while ( cnt < vertices )
+          
+          for (cnt = 0; cnt < vertices; cnt++ )
           {
-            distance = ABS( x - madvrtx[frame][vertices-cnt-1] ) + ABS( y - madvrty[frame][vertices-cnt-1] ) + ABS( z - madvrtz[frame][vertices-cnt-1] );
+            vect3 vpos;
+
+            vpos.x = pnext->vertices[cnt].x + (plast->vertices[cnt].x - pnext->vertices[cnt].x)*flip;
+            vpos.y = pnext->vertices[cnt].y + (plast->vertices[cnt].y - pnext->vertices[cnt].y)*flip;
+            vpos.z = pnext->vertices[cnt].z + (plast->vertices[cnt].z - pnext->vertices[cnt].z)*flip;
+
+            distance = ABS( x - vpos.x ) + ABS( y - vpos.y ) + ABS( z - vpos.z );
             if ( distance < bestdistance )
             {
               bestdistance = distance;
               bestvertex = cnt;
             }
-            cnt++;
+ 
           }
+
           spawn_one_particle( 1.0f, chrpos[character], 0, prtmodel[particle], pipbumpspawnpip[pip],
                               character, bestvertex + 1, prtteam[particle], prt_get_owner( particle ), cnt, character );
         }
@@ -1313,5 +1334,37 @@ PRT_REF prt_get_bumpnext( PRT_REF iprt )
 
   prtbumpnext[iprt] = VALIDATE_PRT( prtbumpnext[iprt] );
   return prtbumpnext[iprt];
+};
+
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_calculate_bumpers(PRT_REF iprt)
+{
+  float ftmp;
+
+  if( !VALID_PRT(iprt) ) return bfalse;
+
+  prtbmpdata[iprt].mids_lo = prtpos[iprt];
+
+  // calculate the particle radius
+  ftmp = FP8_TO_FLOAT(prtsize_fp8[iprt]) * 0.5f;
+
+  // calculate the "perfect" bbox for a sphere
+  prtbmpdata[iprt].cv.x_min = prtpos[iprt].x - ftmp - 0.001f;
+  prtbmpdata[iprt].cv.x_max = prtpos[iprt].x + ftmp + 0.001f;
+
+  prtbmpdata[iprt].cv.y_min = prtpos[iprt].y - ftmp - 0.001f;
+  prtbmpdata[iprt].cv.y_max = prtpos[iprt].y + ftmp + 0.001f;
+
+  prtbmpdata[iprt].cv.z_min = prtpos[iprt].z - ftmp - 0.001f;
+  prtbmpdata[iprt].cv.z_max = prtpos[iprt].z + ftmp + 0.001f;
+
+  prtbmpdata[iprt].cv.xy_min = prtpos[iprt].x - ftmp * SQRT_TWO - 0.001f;
+  prtbmpdata[iprt].cv.xy_max = prtpos[iprt].x + ftmp * SQRT_TWO + 0.001f;
+
+  prtbmpdata[iprt].cv.yx_min = prtpos[iprt].y - ftmp * SQRT_TWO - 0.001f;
+  prtbmpdata[iprt].cv.yx_max = prtpos[iprt].y + ftmp * SQRT_TWO + 0.001f;
+
+  return btrue;
 };
 

@@ -65,11 +65,11 @@ typedef struct glvertex_t
 #define EQ(x)
 #endif
 
-EXTERN const char VERSION[] EQ( "2.7.5" );   // Version of the game
-EXTERN bool_t    game_single_frame EQ( bfalse );  //Is the game paused?
-EXTERN bool_t    game_do_frame EQ( bfalse );  //Is the game paused?
-EXTERN bool_t    gamepaused EQ( bfalse );  //Is the game paused?
-EXTERN bool_t    startpause EQ( btrue );   //Pause button avalible?
+EXTERN const char VERSION[] EQ( "2.7.x" );   // Version of the game
+EXTERN bool_t     game_single_frame EQ( bfalse );  //Is the game paused?
+EXTERN bool_t     game_do_frame EQ( bfalse );  //Is the game paused?
+EXTERN bool_t     gamepaused EQ( bfalse );  //Is the game paused?
+EXTERN bool_t     startpause EQ( btrue );   //Pause button avalible?
 
 #define NETREFRESH          1000                    // Every second
 #define NONETWORK           numservice              //
@@ -154,7 +154,7 @@ typedef enum gender_e
 
 #define RETURNAND           63                      // Return mana every so often
 #define MANARETURNSHIFT     4                       //
-#define DAMAGE_HURT         INT_TO_FP8(1)           // 1 point of damage = hurt
+#define DAMAGE_HURT         INT_TO_FP8(1)           // 1 point of damage == hurt
 
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
 #define MAXSTAT             16                      // Maximum status displays
@@ -456,11 +456,11 @@ typedef enum latch_button_e
 #define MD2LIGHTINDICES                 163         // MD2's store vertices as x,y,z,normal
 
 #define MAXTEXTURE                      512         // Max number of textures
-#define MAXVERTICES                     1024 //768  // Max number of points in a model
+#define MAXVERTICES                    1024         // Max number of points in a model
 #define MAXCOMMAND                      256         // Max number of commands
 #define MAXCOMMANDSIZE                  64          // Max number of points in a command
 #define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
-#define MAXMODEL                        201         // Max number of models (Different object slots)
+#define MAXMODEL                        256         // Max number of models
 #define MAXEVE                          MAXMODEL    // One enchant type per model
 #define MAXENCHANT                      128         // Number of enchantments
 #define MAXFRAME                        (128*32)    // Max number of frames in all models
@@ -865,6 +865,8 @@ EXTERN int                     joyaplayer  EQ( 0 );
 EXTERN int                     joybplayer  EQ( 0 );
 
 //Interface stuff
+#define TRIMX 640
+#define TRIMY 480
 
 EXTERN IRect                    iconrect;                   // The 32x32 icon rectangle
 EXTERN IRect                    trimrect;                   // The menu trim rectangle
@@ -905,7 +907,6 @@ EXTERN Uint32       maptwist_lr[256];            // For surface normal of mesh
 EXTERN Uint32        maptwist_ud[256];            //
 EXTERN vect3           mapnrm[256];                // For sliding down steep hills
 EXTERN bool_t          maptwistflat[256];             //
-
 
 typedef enum order_t
 {
@@ -985,14 +986,80 @@ CHR_REF prt_get_owner( PRT_REF iprt );
 CHR_REF prt_get_target( PRT_REF iprt );
 CHR_REF prt_get_attachedtochr( PRT_REF iprt );
 
-EXTERN int             numfreechr EQ( 0 );             // For allocation
+typedef struct vertex_data_blended_t
+{
+  Uint32  frame0;
+  Uint32  frame1;
+  Uint32  vrtmin;
+  Uint32  vrtmax;
+  float   lerp;
+  bool_t  needs_lighting;
+
+  // Storage for blended vertices
+  vect3 *Vertices;
+  vect3 *Normals;
+  vect4 *Colors;
+  vect2 *Texture;
+  float *Ambient;      // Lighting hack ( Ooze )
+} VData_Blended;
+
+void VData_Blended_construct(VData_Blended * v);
+void VData_Blended_destruct(VData_Blended * v);
+VData_Blended * VData_Blended_new();
+void VData_Blended_delete(VData_Blended * v);
+void VData_Blended_Allocate(VData_Blended * v, size_t verts);
+void VData_Blended_Deallocate(VData_Blended * v);
+
+typedef struct lighting_data_t
+{
+  vect4   emission, diffuse, specular;
+  GLfloat shininess[1];
+} LData;
+
+typedef struct collision_volume_t
+{
+  int   level;
+  float x_min, x_max;
+  float y_min, y_max;
+  float z_min, z_max;
+  float xy_min, xy_max;
+  float yx_min, yx_max;
+} CVolume;
+
+typedef CVolume CVolume_Tree[8];
+
+typedef struct bump_data_t
+{
+  Uint8 shadow;      // Size of shadow
+  Uint8 size;        // Size of bumpers
+  Uint8 sizebig;     // For octagonal bumpers
+  Uint8 height;      // Distance from head to toe
+
+  bool_t calc_is_platform;
+  bool_t calc_is_mount;
+
+  float  calc_size;
+  float  calc_size_big;
+  float  calc_height;
+
+  CVolume        cv;
+  CVolume_Tree * cv_tree;
+  vect3   mids_hi, mids_lo;
+} BData;
+
+EXTERN int             numfreechr EQ( -1 );         // For allocation
 EXTERN Uint16          freechrlist[MAXCHR];        //
-EXTERN GLMatrix        chrmatrix[MAXCHR];   // Character's matrix
-EXTERN bool_t          chrmatrixvalid[MAXCHR];     // Did we make one yet?
-EXTERN char            chrname[MAXCHR][MAXCAPNAMESIZE];  // Character name
+EXTERN Uint16          chrcollisionlevel EQ(2);
 EXTERN bool_t          chron[MAXCHR];              // Does it exist?
+EXTERN char            chrname[MAXCHR][MAXCAPNAMESIZE];  // Character name
 EXTERN bool_t          chrgopoof[MAXCHR];          // is poof requested?
 EXTERN bool_t          chrfreeme[MAXCHR];          // is free_one_character() requested?
+EXTERN GLMatrix        chrmatrix[MAXCHR];   // Character's matrix
+EXTERN bool_t          chrmatrixvalid[MAXCHR];     // Did we make one yet?
+EXTERN Uint16          chrmodel[MAXCHR];           // Character's model
+EXTERN Uint16          chrbasemodel[MAXCHR];       // The true form
+EXTERN VData_Blended   chrvdata[MAXCHR];           // pre-processed per-vertex lighting data
+EXTERN LData           chrldata[MAXCHR];           // pre-processed matrial parameters
 EXTERN bool_t          chralive[MAXCHR];           // Is it alive?
 EXTERN bool_t          chrinwhichpack[MAXCHR];     // Is it in whose inventory?
 EXTERN Uint16          chrnextinpack[MAXCHR];      // Link to the next item
@@ -1060,15 +1127,13 @@ EXTERN Uint16          chrturn_lr[MAXCHR];   // Character's rotation 0 to 65535
 EXTERN Uint16          chrmapturn_lr[MAXCHR];       //
 EXTERN Uint16          chrmapturn_ud[MAXCHR];       //
 EXTERN Uint16          chrtexture[MAXCHR];         // Character's skin
-EXTERN Uint16          chrmodel[MAXCHR];           // Character's model
-EXTERN Uint16          chrbasemodel[MAXCHR];       // The true form
 EXTERN bool_t          chractionready[MAXCHR];     // Ready to play a new one
 EXTERN ACTION          chraction[MAXCHR];          // Character's action
 EXTERN bool_t          chrkeepaction[MAXCHR];      // Keep the action playing
 EXTERN bool_t          chrloopaction[MAXCHR];      // Loop it too
 EXTERN ACTION          chrnextaction[MAXCHR];      // Character's action to play next
 EXTERN Uint16          chrframe[MAXCHR];           // Character's frame
-EXTERN Uint16          chrlastframe[MAXCHR];       // Character's last frame
+EXTERN Uint16          chrframelast[MAXCHR];       // Character's last frame
 EXTERN float           chrflip[MAXCHR];
 EXTERN Uint8           chrlip_fp8[MAXCHR];             // Character's frame in betweening
 EXTERN Uint8           chrvrtar_fp8[MAXCHR][MAXVERTICES];// Lighting hack ( Ooze )
@@ -1096,14 +1161,8 @@ EXTERN bool_t          chrismount[MAXCHR];         // Can you ride it?
 EXTERN Uint8           chrredshift[MAXCHR];        // Color channel shifting
 EXTERN Uint8           chrgrnshift[MAXCHR];        //
 EXTERN Uint8           chrblushift[MAXCHR];        //
-EXTERN Uint8           chrshadowsize[MAXCHR];      // Size of shadow
-EXTERN Uint8           chrbumpsize[MAXCHR];        // Size of bumpers
-EXTERN Uint8           chrbumpsizebig[MAXCHR];     // For octagonal bumpers
-EXTERN Uint8           chrbumpheight[MAXCHR];      // Distance from head to toe
-EXTERN Uint8           chrshadowsizesave[MAXCHR];  // Without size modifiers
-EXTERN Uint8           chrbumpsizesave[MAXCHR];    //
-EXTERN Uint8           chrbumpsizebigsave[MAXCHR]; //
-EXTERN Uint8           chrbumpheightsave[MAXCHR];  //
+EXTERN BData           chrbmpdata[MAXCHR];           // character bump size data
+EXTERN BData           chrbmpdata_save[MAXCHR];
 EXTERN Uint16          chrbumpnext[MAXCHR];        // Next character on fanblock
 EXTERN float           chrbumpdampen[MAXCHR];      // Character bump mass
 EXTERN Uint16          chrdirectionlast[MAXCHR];   // Direction of last attack/healing
@@ -1174,9 +1233,8 @@ EXTERN CHR_REF         chraibumplast[MAXCHR];        // Last character it was bu
 EXTERN CHR_REF         chraiattacklast[MAXCHR];      // Last character it was attacked by
 EXTERN CHR_REF         chraihitlast[MAXCHR];         // Last character it hit
 
-EXTERN Sint8           chrloopingchannel[MAXCHR];	// Channel number of the loop sound the character is playing
-EXTERN float           chrloopingvolume[MAXCHR];	// Sound volume of the channel	
-
+EXTERN Sint8           chrloopingchannel[MAXCHR];    // Channel number of the loop so
+EXTERN float           chrloopingvolume[MAXCHR];     // Sound volume of the channel	
 
 // [BEGIN] Character states that are like skill expansions
 EXTERN bool_t     chrinvictus[MAXCHR];          // Totally invincible?
@@ -1290,10 +1348,10 @@ EXTERN Uint16          evecontspawntime[MAXEVE];               // Spawn timer
 EXTERN Uint8           evecontspawnamount[MAXEVE];             // Spawn amount
 EXTERN Uint16          evecontspawnfacingadd[MAXEVE];          // Spawn in circle
 EXTERN Uint16          evecontspawnpip[MAXEVE];                // Spawn type ( local )
-EXTERN Sint8           eveendsound[MAXEVE];                   // Sound on end (-1 for none)
+EXTERN Sint8           eveendsound[MAXEVE];                    // Sound on end (-1 for none)
 EXTERN Uint16          evefrequency[MAXEVE];                   // Sound frequency
 EXTERN Uint16          eveoverlay[MAXEVE];                     // Spawn an overlay?
-EXTERN bool_t		   evecanseekurse[MAXEVE];					//Allow target to see kurses?   
+EXTERN bool_t          evecanseekurse[MAXEVE];                 // Allow target to see kurses?
 
 EXTERN Uint8           encon[MAXENCHANT];                      // Enchantment on
 EXTERN Uint16          enceve[MAXENCHANT];                     // The type
@@ -1369,6 +1427,7 @@ EXTERN Uint8           prtbumpheight[MAXPRT];                      // Bounding b
 EXTERN float           prtbumpstrength[MAXPRT];                    // The amount of interaction
 EXTERN float           prtweight[MAXPRT];                          // The mass of the particle
 EXTERN PRT_REF         prtbumpnext[MAXPRT];                        // Next particle on fanblock
+EXTERN BData           prtbmpdata[MAXPRT];                         // particle bump size data
 EXTERN PAIR            prtdamage[MAXPRT];                          // For strength
 EXTERN DAMAGE          prtdamagetype[MAXPRT];                      // Damage type
 EXTERN CHR_REF         prtowner[MAXPRT];                           // The character that is attacking
@@ -1419,36 +1478,22 @@ EXTERN char            modsummary[SUMMARYLINES][SUMMARYSIZE];      // Quest desc
 //------------------------------------
 //Model stuff
 //------------------------------------
-// TEMPORARY: Needs to be moved out of egoboo.h eventually
-extern Md2Model *md2_models[MAXMODEL];          // Md2 models
 
 #define MAXFRAMESPERANIM 16
 
 EXTERN int             globalnumicon;                              // Number of icons
 EXTERN Uint16          madloadframe;                               // Where to load next
 EXTERN bool_t          madused[MAXMODEL];                          // Model slot
-EXTERN char            madname[MAXMODEL][128];                     // Model name
+EXTERN STRING          madname[MAXMODEL];                          // Model name
+EXTERN MD2_Model *     mad_md2[MAXMODEL];                          // Md2 model pointer
 EXTERN Uint16          madskintoicon[MAXTEXTURE];                  // Skin to icon
 EXTERN Uint16          madskins[MAXMODEL];                         // Number of skins
 EXTERN Uint16          madskinstart[MAXMODEL];                     // Starting skin of model
-EXTERN Uint16          madframes[MAXMODEL];                        // Number of frames
-EXTERN Uint16          madframestart[MAXMODEL];                    // Starting frame of model
 EXTERN Uint16          madmsgstart[MAXMODEL];                      // The first message
 EXTERN Uint16          madvertices[MAXMODEL];                      // Number of vertices
 EXTERN Uint16          madtransvertices[MAXMODEL];                 // Number to transform
-EXTERN Uint16          madcommands[MAXMODEL];                      // Number of commands
-//EXTERN float           madscale[MAXMODEL];                         // Multiply by value
-EXTERN GLenum          madcommandtype[MAXMODEL][MAXCOMMAND];       // Fan or strip
-EXTERN Uint8           madcommandsize[MAXMODEL][MAXCOMMAND];       // Entries used by command
-EXTERN Uint16          madcommandvrt[MAXMODEL][MAXCOMMANDENTRIES]; // Which vertex
-EXTERN float           madcommandu[MAXMODEL][MAXCOMMANDENTRIES];   // Texture position
-EXTERN float           madcommandv[MAXMODEL][MAXCOMMANDENTRIES];   //
-EXTERN float           madvrtx[MAXFRAME][MAXVERTICES];             // Vertex position
-EXTERN float           madvrty[MAXFRAME][MAXVERTICES];             //
-EXTERN float           madvrtz[MAXFRAME][MAXVERTICES];             //
-EXTERN Uint8           madvrta[MAXFRAME][MAXVERTICES];             // Light index of vertex
-EXTERN Uint8           madframelip[MAXFRAME];                      // 0-15, How far into action is each frame
-EXTERN Uint16          madframefx[MAXFRAME];                       // Invincibility, Spawning
+EXTERN Uint8  *        madframelip[MAXMODEL];                      // 0-15, How far into action is each frame
+EXTERN Uint16 *        madframefx[MAXMODEL];                       // Invincibility, Spawning
 EXTERN Uint16          madframeliptowalkframe[MAXMODEL][LIPT_COUNT][MAXFRAMESPERANIM];    // For walk animations
 EXTERN Uint16          madai[MAXMODEL];                            // AI for each model
 EXTERN bool_t          madactionvalid[MAXMODEL][MAXACTION];        // bfalse if not valid
@@ -2086,7 +2131,7 @@ typedef enum script_opcode_e
   F_SignalTarget, // 255
   F_SetTargetToWhoeverIsInPassage, // 256
   F_IfCharacterWasABook, // 257
-  F_SetEnchantBoostValues, // 258              // Scripted AI functions (v0.90)
+  F_SetEnchantBoostValues, // 258              : Scripted AI functions (v0.90)
   F_SpawnCharacterXYZ, // 259
   F_SpawnExactCharacterXYZ, // 260
   F_ChangeTargetClass, // 261
@@ -2117,6 +2162,13 @@ typedef enum script_opcode_e
   F_DisableExport, // 286
   F_EnableExport, // 287
   F_GetTargetState, // 288
+  F_SetSpeech, // 289
+  F_SetMoveSpeech, // 290
+  F_SetSecondMoveSpeech, // 291
+  F_SetAttackSpeech, // 292
+  F_SetAssistSpeech, // 293
+  F_SetTerrainSpeech, // 294
+  F_SetSelectSpeech, // 295
   F_ClearEndText, // 296
   F_AddEndText, // 297
   F_PlayMusic, // 298
@@ -2151,24 +2203,24 @@ typedef enum script_opcode_e
   F_MakeNameUnknown, // 327
   F_SpawnExactParticleEndSpawn, // 328
   F_SpawnPoofSpeedSpacingDamage, // 329
-  F_GiveExperienceToGoodTeam, // 330
-  F_DoNothing, // 331 // Scripted AI functions (v0.95)
-  F_DazeTarget, // 332
-  F_GrogTarget, // 333
+  F_GiveExperienceToGoodTeam,           // 330
+  F_DoNothing,                          // 331 : Scripted AI functions (v0.95)
+  F_DazeTarget,                         // 332
+  F_GrogTarget,                         // 333
   F_IfEquipped,                         //
-  F_DropTargetMoney,                    // Scripted AI functions (v1.00)
-  F_GetTargetContent,              
+  F_DropTargetMoney,                    //
+  F_GetTargetContent,                   //
   F_DropTargetKeys,                     //
-  F_JoinTeam,                    
+  F_JoinTeam,                           //
   F_TargetJoinTeam,                     //
   F_ClearMusicPassage,                  //
-  F_AddQuest,                           // 
+  F_AddQuest,                           // Scripted AI functions (v1.00)
   F_BeatQuest,                          //
-  F_IfTargetHasQuest,
+  F_IfTargetHasQuest,                   //
   F_IfTargetHasNotFullMana,
   F_IfJumping,
   F_IfOperatorIsLinux,
-  F_IfTargetIsOwner						// Scripted AI functions (v1.05)
+  F_IfTargetIsOwner                     // Scripted AI functions (v1.05)
 } OPCODE;
 
 typedef enum script_operation_e
@@ -2281,8 +2333,8 @@ EXTERN float pairfrom, pairto;
 
 
 //Passages
-EXTERN Uint32 numpassage;             //Number of passages in the module
-EXTERN int passtlx[MAXPASS];       //Passage positions
+EXTERN Uint32 numpassage;             // Number of passages in the module
+EXTERN int passtlx[MAXPASS];       // Passage positions
 EXTERN int passtly[MAXPASS];
 EXTERN int passbrx[MAXPASS];
 EXTERN int passbry[MAXPASS];
@@ -2559,51 +2611,52 @@ typedef struct configurable_data_t
   //------------------------------------
   //Setup Variables
   //------------------------------------
-  bool_t zreflect;              // Reflection z buffering?
-  int    maxtotalmeshvertices;  // of vertices
-  bool_t fullscreen;            // Start in CData.fullscreen?
-  int    scrd;                   // Screen bit depth
-  int    scrx;                 // Screen X size
-  int    scry;                 // Screen Y size
-  int    scrz;                  // Screen z-buffer depth ( 8 unsupported )
-  int    maxmessage;    //
-  bool_t messageon;           // Messages?
-  int    wraptolerance;     // Status bar
-  bool_t  staton;                 // Draw the status bars?
-  bool_t  render_overlay;          //Draw overlay?
-  bool_t  render_background;  // Do we render the water as a background?
-  GLenum  perspective;        // Perspective correct textures?
-  bool_t  dither;             // Dithering?
-  Uint8   reffadeor;              // 255 = Don't fade reflections
-  GLenum  shading;             //Gourad CData.shading?
-  bool_t  antialiasing;       //Antialiasing?
-  bool_t  refon;              // Reflections?
-  bool_t  shaon;              // Shadows?
-  int     texturefilter;       //Texture filtering?
-  bool_t  wateron;             // Water overlays?
-  bool_t  shasprite;          // Shadow sprites?
-  bool_t  twolayerwateron;        // Two layer water?
-  bool_t  overlayvalid;               // Allow large overlay?
-  bool_t  backgroundvalid;            // Allow large background?
-  bool_t  fogallowed;          //Draw fog? (Not implemented!)
+  bool_t zreflect;                   // Reflection z buffering?
+  int    maxtotalmeshvertices;       // of vertices
+  bool_t fullscreen;                 // Start in CData.fullscreen?
+  int    scrd;                       // Screen bit depth
+  int    scrx;                       // Screen X size
+  int    scry;                       // Screen Y size
+  int    scrz;                       // Screen z-buffer depth ( 8 unsupported )
+  int    maxmessage;                 //
+  bool_t messageon;                  // Messages?
+  int    wraptolerance;              // Status bar
+  bool_t  staton;                    // Draw the status bars?
+  bool_t  render_overlay;            // Draw overlay?
+  bool_t  render_background;         // Do we render the water as a background?
+  GLenum  perspective;               // Perspective correct textures?
+  bool_t  dither;                    // Dithering?
+  Uint8   reffadeor;                 // 255 = Don't fade reflections
+  GLenum  shading;                   // Gourad CData.shading?
+  bool_t  antialiasing;              // Antialiasing?
+  bool_t  refon;                     // Reflections?
+  bool_t  shaon;                     // Shadows?
+  int     texturefilter;             // Texture filtering?
+  bool_t  wateron;                   // Water overlays?
+  bool_t  shasprite;                 // Shadow sprites?
+  bool_t  phongon;                   // Do phong overlay? (Outdated?)
+  bool_t  twolayerwateron;           // Two layer water?
+  bool_t  overlayvalid;              // Allow large overlay?
+  bool_t  backgroundvalid;           // Allow large background?
+  bool_t  fogallowed;                // Draw fog? (Not implemented!)
   int     particletype;              // Particle Effects image
-  bool_t  vsync;				//Wait for vertical sync?
-  bool_t  gfxacceleration;		//Force OpenGL graphics acceleration?
+  bool_t  vsync;				             // Wait for vertical sync?
+  bool_t  gfxacceleration;		       // Force OpenGL graphics acceleration?
 
-  bool_t  soundvalid;     //Allow playing of sound?
-  bool_t  musicvalid;     // Allow music and loops?
-  int     musicvolume;    //The sound volume of music
-  int     soundvolume;    //Volume of sounds played
-  int     maxsoundchannel;   //Max number of sounds playing at the same time
-  int     buffersize;     //Buffer size set in setup.txt
+  bool_t  soundvalid;        // Allow playing of sound?
+  bool_t  musicvalid;        // Allow music and loops?
+  int     musicvolume;       // The sound volume of music
+  int     soundvolume;       // Volume of sounds played
+  int     maxsoundchannel;   // Max number of sounds playing at the same time
+  int     buffersize;        // Buffer size set in setup.txt
 
-  Uint8 autoturncamera;             // Type of camera control...
+  Uint8 autoturncamera;           // Type of camera control...
 
   bool_t  networkon;              // Try to connect?
-  int     lag;                                // Lag tolerance
-  STRING  nethostname;                            // Name for hosting session
-  STRING  netmessagename;                         // Name for messages
-  Uint8 fpson;               // FPS displayed?
+  int     lag;                    // Lag tolerance
+  STRING  nethostname;            // Name for hosting session
+  STRING  netmessagename;         // Name for messages
+  Uint8 fpson;                    // FPS displayed?
 
   // Debug options
   SDL_GrabMode GrabMouse;

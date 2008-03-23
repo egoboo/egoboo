@@ -101,25 +101,23 @@ typedef struct options_data_t
   bool_t  render_background;  // Do we render the water as a background?
   GLenum  perspective;        // Perspective correct textures?
   bool_t  dither;             // Dithering?
-  Uint8   reffadeor;              // 255 = Don't fade reflections
-  GLenum  shading;             //Gourad CData.shading?
-  bool_t  antialiasing;       //Antialiasing?
-  bool_t  refon;              // Reflections?
-  bool_t  shaon;              // Shadows?
-  int     texturefilter;       //Texture filtering?
-  bool_t  wateron;             // Water overlays?
-  bool_t  shasprite;          // Shadow sprites?
-  bool_t  twolayerwateron;        // Two layer water?
+  Uint8   reffadeor;                  // 255 = Don't fade reflections
+  GLenum  shading;                    // Gourad shading?
+  bool_t  antialiasing;               // Antialiasing?
+  bool_t  refon;                      // Reflections?
+  bool_t  shaon;                      // Shadows?
+  int     texturefilter;              // Texture filtering?
+  bool_t  wateron;                    // Water overlays?
+  bool_t  shasprite;                  // Shadow sprites?
+  bool_t  phongon;                    // Do phong overlay?
+  bool_t  twolayerwateron;            // Two layer water?
   bool_t  overlayvalid;               // Allow large overlay?
   bool_t  backgroundvalid;            // Allow large background?
   bool_t  fogallowed;                 //
   int     particletype;               // Particle Effects image
-  //int     particlelimit;            // Max number of particles
   Uint8   autoturncamera;             // Type of camera control...
-  bool_t   vsync;						 // Wait for vertical sync?
-  bool_t   gfxacceleration;             // Force OpenGL GFX acceleration?
-
-
+  bool_t  vsync;						          // Wait for vertical sync?
+  bool_t  gfxacceleration;            // Force OpenGL GFX acceleration?
 } OPTIONS_DATA;
 
 OPTIONS_DATA OData;
@@ -203,19 +201,19 @@ static const char *mnu_audioOptionsText[] =
 
 static const char *mnu_videoOptionsText[] =
 {
-  "N/A",  //Antialaising
-  "N/A",  //Particle Effects
-  "N/A",  //Fast & ugly
-  "N/A",  //Fullscreen
-  "N/A",  //Reflections
-  "N/A",  //Texture filtering
-  "N/A",  //Shadows
-  "N/A",  //Z bit
-  "N/A",  //Force Vsync
-  "N/A",  //3D effects
-  "N/A",  //Multi water layer
-  "N/A",  //Max messages
-  "N/A",  //Screen resolution
+  "N/A",  // Antialaising
+  "N/A",  // Particle Effects
+  "N/A",  // Fast & ugly
+  "N/A",  // Fullscreen
+  "N/A",  // Reflections
+  "N/A",  // Texture filtering
+  "N/A",  // Shadows
+  "N/A",  // Z bit
+  "N/A",  // Force V-Synch
+  "N/A",  // 3D effects
+  "N/A",  // Multi water layer
+  "N/A",  // Max messages
+  "N/A",  // Screen resolution
   "Save Settings",
   ""
 };
@@ -278,14 +276,14 @@ static void init_options_data()
   OData.texturefilter = CData.texturefilter;
   OData.wateron = CData.wateron;
   OData.shasprite = CData.shasprite;
+  OData.phongon = CData.phongon;
   OData.twolayerwateron = CData.twolayerwateron;
   OData.overlayvalid = CData.overlayvalid;
   OData.backgroundvalid = CData.backgroundvalid;
-  OData.fogallowed = CData.fogallowed;
-  OData.particletype = CData.particletype;
-  //OData.particlelimit = CData.particlelimit;
+  OData.fogallowed     = CData.fogallowed;
+  OData.particletype   = CData.particletype;
   OData.autoturncamera = CData.autoturncamera;
-  OData.vsync = CData.vsync;
+  OData.vsync          = CData.vsync;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -323,14 +321,14 @@ static void update_options_data()
   CData.texturefilter = OData.texturefilter;
   CData.wateron = OData.wateron;
   CData.shasprite = OData.shasprite;
+  CData.phongon = OData.phongon;
   CData.twolayerwateron = OData.twolayerwateron;
   CData.overlayvalid = OData.overlayvalid;
   CData.backgroundvalid = OData.backgroundvalid;
   CData.fogallowed = OData.fogallowed;
-  CData.particletype = OData.particletype;
+  //CData.particletype = OData.particletype;
   //CData.particlelimit = OData.particlelimit;
   CData.autoturncamera = OData.autoturncamera;
-  CData.vsync = OData.vsync;
 };
 
 
@@ -2121,19 +2119,35 @@ int mnu_doVideoOptions( float deltaTime )
         }
       }
 
-      //Fog
+      ////Fog
+      //fnt_drawTextBox( mnu_Font, "Fog Effects:", mnu_buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
+      //if ( BUTTON_UP == ui_doButton( &mnu_widgetList[8] ) )
+      //{
+      //  if ( OData.fogallowed )
+      //  {
+      //    OData.fogallowed = bfalse;
+      //    mnu_widgetList[8].text = "Disable";
+      //  }
+      //  else
+      //  {
+      //    OData.fogallowed = btrue;
+      //    mnu_widgetList[8].text = "Enable";
+      //  }
+      //}
+
+      //V-Synch
       fnt_drawTextBox( mnu_Font, "Wait for Vsync:", mnu_buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
       if ( BUTTON_UP == ui_doButton( &mnu_widgetList[8] ) )
       {
-        if ( OData.vsync )
+        if ( OData.fogallowed )
         {
           OData.vsync = bfalse;
-          mnu_widgetList[8].text = "No";
+          mnu_widgetList[8].text = "Off";
         }
         else
         {
           OData.vsync = btrue;
-          mnu_widgetList[8].text = "Yes";
+          mnu_widgetList[8].text = "On";
         }
       }
 
@@ -2547,27 +2561,37 @@ void mnu_saveSettings()
   {
     /*GRAPHIC PART*/
     fputs( "{GRAPHIC}\n", setupfile );
+
     snprintf( write, sizeof( write ), "[MAX_NUMBER_VERTICES] : \"%i\"\n", OData.maxtotalmeshvertices / 1024 );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[COLOR_DEPTH] : \"%i\"\n", OData.scrd );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[Z_DEPTH] : \"%i\"\n", OData.scrz );
     fputs( write, setupfile );
+
     if ( OData.fullscreen ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[FULLSCREEN] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.zreflect ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[Z_REFLECTION] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[SCREENSIZE_X] : \"%i\"\n", OData.scrx );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[SCREENSIZE_Y] : \"%i\"\n", OData.scry );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[MAX_TEXT_MESSAGE] : \"%i\"\n", OData.maxmessage );
     fputs( write, setupfile );
+
     if ( OData.staton ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[STATUS_BAR] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( GL_NICEST == OData.perspective ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[PERSPECTIVE_CORRECT] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
@@ -2613,73 +2637,98 @@ void mnu_saveSettings()
 
     snprintf( write, sizeof( write ), "[TEXTURE_FILTERING] : \"%s\"\n", mnu_filternamebuffer );
     fputs( write, setupfile );
+
     if ( OData.shading == GL_SMOOTH ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[GOURAUD_SHADING] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.antialiasing ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[ANTIALIASING] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.dither ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[DITHERING] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.refon ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[REFLECTION] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.shaon ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[SHADOWS] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.shasprite ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[SHADOW_AS_SPRITE] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
+    if ( OData.phongon ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+    snprintf( write, sizeof( write ), "[PHONG] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.fogallowed ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[FOG] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.reffadeor == 0 ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[FLOOR_REFLECTION_FADEOUT] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.twolayerwateron ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[MULTI_LAYER_WATER] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.overlayvalid ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[OVERLAY] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.backgroundvalid ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[BACKGROUND] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( OData.particletype == PART_SMOOTH ) TxtTmp = "SMOOTH";
     else if ( OData.particletype == PART_NORMAL ) TxtTmp = "NORMAL";
     else if ( OData.particletype == PART_FAST ) TxtTmp = "FAST";
     snprintf( write, sizeof( write ), "[PARTICLE_EFFECTS] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
-	if ( OData.vsync ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+
+    if ( OData.vsync ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[VERTICAL_SYNC] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
-	if ( OData.gfxacceleration ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+
+    if ( OData.gfxacceleration ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[FORCE_GFX_ACCEL] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
 
     /*SOUND PART*/
     snprintf( write, sizeof( write ), "\n{SOUND}\n" );
     fputs( write, setupfile );
+
     if ( OData.musicvalid ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[MUSIC] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[MUSIC_VOLUME] : \"%i\"\n", OData.musicvolume );
     fputs( write, setupfile );
+
     if ( OData.soundvalid ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[SOUND] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[SOUND_VOLUME] : \"%i\"\n", OData.soundvolume );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[OUTPUT_BUFFER_SIZE] : \"%i\"\n", OData.buffersize );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[MAX_SOUND_CHANNEL] : \"%i\"\n", OData.maxsoundchannel );
     fputs( write, setupfile );
 
     /*CAMERA PART*/
     snprintf( write, sizeof( write ), "\n{CONTROL}\n" );
     fputs( write, setupfile );
+
     switch ( OData.autoturncamera )
     {
       case 255: TxtTmp = "GOOD";
@@ -2698,30 +2747,38 @@ void mnu_saveSettings()
     /*NETWORK PART*/
     snprintf( write, sizeof( write ), "\n{NETWORK}\n" );
     fputs( write, setupfile );
+
     if ( CData.networkon ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[NETWORK_ON] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     TxtTmp = CData.nethostname;
     snprintf( write, sizeof( write ), "[HOST_NAME] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     TxtTmp = CData.netmessagename;
     snprintf( write, sizeof( write ), "[MULTIPLAYER_NAME] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     snprintf( write, sizeof( write ), "[LAG_TOLERANCE] : \"%i\"\n", CData.lag );
     fputs( write, setupfile );
 
     /*DEBUG PART*/
     snprintf( write, sizeof( write ), "\n{DEBUG}\n" );
     fputs( write, setupfile );
+
     if ( CData.fpson ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[DISPLAY_FPS] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( CData.HideMouse ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[HIDE_MOUSE] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( SDL_GRAB_ON == CData.GrabMouse ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[GRAB_MOUSE] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
+
     if ( CData.DevMode ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[DEVELOPER_MODE] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );

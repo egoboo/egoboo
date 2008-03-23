@@ -157,7 +157,7 @@ int mesh_clip_block_y( int block_y );
 
 bool_t mesh_check( float x, float y );
 
-Uint32 mesh_hitawall( vect3 pos, float size, Uint32 collision_bits );
+Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits );
 
 Uint32 mesh_test_bits( int fan, Uint32 bits );
 bool_t mesh_has_some_bits( int fan, Uint32 bits );

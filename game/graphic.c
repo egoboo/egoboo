@@ -269,6 +269,25 @@ void release_all_titleimages()
 }
 
 //---------------------------------------------------------------------------------------------
+void init_all_models()
+{
+  // ZZ> This function initializes the models
+
+  int cnt;
+  for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+  {
+    capclassname[cnt][0] = '\0';
+    madused[cnt] = bfalse;
+    strcpy(madname[cnt], "*NONE*");
+    mad_md2[cnt] = NULL;
+    madframelip[cnt] = NULL;
+    madframefx[cnt]  = NULL;
+  }
+
+  madloadframe = 0;
+}
+
+//---------------------------------------------------------------------------------------------
 void release_all_models()
 {
   // ZZ> This function clears out all of the models
@@ -277,13 +296,9 @@ void release_all_models()
   {
     capclassname[cnt][0] = 0;
     madused[cnt] = bfalse;
-    madname[cnt][0] = '*';
-    madname[cnt][1] = 'N';
-    madname[cnt][2] = 'O';
-    madname[cnt][3] = 'N';
-    madname[cnt][4] = 'E';
-    madname[cnt][5] = '*';
-    madname[cnt][6] = 0;
+    strcpy(madname[cnt], "*NONE*");
+
+    free_one_md2( cnt );
   }
   madloadframe = 0;
 }
@@ -684,20 +699,17 @@ void load_basic_textures( char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-ACTION action_number()
+ACTION action_number(char * szName)
 {
   // ZZ> This function returns the number of the action in cFrameName, or
   //     it returns ACTION_INVALID if it could not find a match
   ACTION cnt;
-  char first, second;
 
+  if(NULL==szName || '\0' == szName[0] || '\0' == szName[1]) return ACTION_INVALID;
 
-  first  = cFrameName[0];
-  second = cFrameName[1];
   for ( cnt = 0; cnt < MAXACTION; cnt++ )
   {
-    if ( first == cActionName[cnt][0] && second == cActionName[cnt][1] )
-      return cnt;
+    if ( 0 == strncmp(szName, cActionName[cnt], 2) ) return cnt;
   }
 
   return ACTION_INVALID;
@@ -779,11 +791,13 @@ void get_walk_frame( Uint16 object, LIPT lip_trans, ACTION action )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_framefx( int frame )
+Uint16 get_framefx( char * szName )
 {
   // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
   //     Drop timings
   Uint16 fx = 0;
+
+  if(NULL == szName || '\0' == szName[0] || '\0' == szName[1] ) return 0;
 
   if ( test_frame_name( 'I' ) )
     fx |= MADFX_INVICTUS;
@@ -815,61 +829,71 @@ void get_framefx( int frame )
     fx |= MADFX_FOOTFALL;
   if ( test_frame_name( 'P' ) )
     fx |= MADFX_POOF;
-  madframefx[frame] = fx;
+
+  return fx;
 }
 
 //--------------------------------------------------------------------------------------------
-void make_framelip( Uint16 object, ACTION action )
+void make_framelip( Uint16 imdl, ACTION action )
 {
   // ZZ> This helps make walking look right
   int frame, framesinaction;
 
-  if ( madactionvalid[object][action] )
+  if ( madactionvalid[imdl][action] )
   {
-    framesinaction = madactionend[object][action] - madactionstart[object][action];
-    frame = madactionstart[object][action];
-    while ( frame < madactionend[object][action] )
+    framesinaction = madactionend[imdl][action] - madactionstart[imdl][action];
+    frame = madactionstart[imdl][action];
+    while ( frame < madactionend[imdl][action] )
     {
-      madframelip[frame] = ( frame - madactionstart[object][action] ) * 15 / framesinaction;
-      madframelip[frame] = ( madframelip[frame] ) & 15;
+      madframelip[imdl][frame] = ( frame - madactionstart[imdl][action] ) * 15 / framesinaction;
+      madframelip[imdl][frame] = ( madframelip[imdl][frame] ) % 16;
       frame++;
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------
-void get_actions( Uint16 object )
+void get_actions( Uint16 mdl )
 {
   // ZZ> This function creates the frame lists for each action based on the
   //     name of each md2 frame in the model
   int frame, framesinaction;
   ACTION action, lastaction;
+  int         iFrameCount;
+  MD2_Model * m;
+  char      * szName;
 
+  if( mdl>=MAXMODEL || !madused[mdl] ) return;
+
+  m = mad_md2[mdl];
+  if(NULL == m) return;
 
   // Clear out all actions and reset to invalid
   action = 0;
   while ( action < MAXACTION )
   {
-    madactionvalid[object][action] = bfalse;
+    madactionvalid[mdl][action] = bfalse;
     action++;
   }
 
+  iFrameCount = md2_get_numFrames(m);
+  if(0 == iFrameCount) return;
 
   // Set the primary dance action to be the first frame, just as a default
-  madactionvalid[object][ACTION_DA] = btrue;
-  madactionstart[object][ACTION_DA] = madframestart[object];
-  madactionend[object][ACTION_DA] = madframestart[object] + 1;
+  madactionvalid[mdl][ACTION_DA] = btrue;
+  madactionstart[mdl][ACTION_DA] = 0;
+  madactionend[mdl][ACTION_DA]   = 1;
 
-
+  
   // Now go huntin' to see what each frame is, look for runs of same action
-  rip_md2_frame_name( 0 );
-
-  lastaction = action_number();  framesinaction = 0;
-  frame = 0;
-  while ( frame < madframes[object] )
+  szName = md2_get_Frame(m, 0)->name;
+  lastaction = action_number(szName);  
+  framesinaction = 0;
+  for ( frame = 0; frame < iFrameCount; frame++ )
   {
-    rip_md2_frame_name( frame );
-    action = action_number();
+    MD2_Frame * pFrame = md2_get_Frame(m, frame);
+    szName = pFrame->name;
+    action = action_number(szName);
     if ( lastaction == action )
     {
       framesinaction++;
@@ -879,114 +903,120 @@ void get_actions( Uint16 object )
       // Write the old action
       if ( lastaction < MAXACTION )
       {
-        madactionvalid[object][lastaction] = btrue;
-        madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
-        madactionend[object][lastaction] = madframestart[object] + frame;
+        madactionvalid[mdl][lastaction] = btrue;
+        madactionstart[mdl][lastaction] = frame - framesinaction;
+        madactionend[mdl][lastaction]   = frame;
       }
       framesinaction = 1;
       lastaction = action;
     }
-    get_framefx( madframestart[object] + frame );
-    frame++;
+    madframefx[mdl][frame] = get_framefx( szName );
   }
+
   // Write the old action
   if ( lastaction < MAXACTION )
   {
-    madactionvalid[object][lastaction] = btrue;
-    madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
-    madactionend[object][lastaction] = madframestart[object] + frame;
+    madactionvalid[mdl][lastaction] = btrue;
+    madactionstart[mdl][lastaction] = frame - framesinaction;
+    madactionend[mdl][lastaction]   = frame;
   }
 
   // Make sure actions are made valid if a similar one exists
-  action_copy_correct( object, ACTION_DA, ACTION_DB );   // All dances should be safe
-  action_copy_correct( object, ACTION_DB, ACTION_DC );
-  action_copy_correct( object, ACTION_DC, ACTION_DD );
-  action_copy_correct( object, ACTION_DB, ACTION_DC );
-  action_copy_correct( object, ACTION_DA, ACTION_DB );
-  action_copy_correct( object, ACTION_UA, ACTION_UB );
-  action_copy_correct( object, ACTION_UB, ACTION_UC );
-  action_copy_correct( object, ACTION_UC, ACTION_UD );
-  action_copy_correct( object, ACTION_TA, ACTION_TB );
-  action_copy_correct( object, ACTION_TC, ACTION_TD );
-  action_copy_correct( object, ACTION_CA, ACTION_CB );
-  action_copy_correct( object, ACTION_CC, ACTION_CD );
-  action_copy_correct( object, ACTION_SA, ACTION_SB );
-  action_copy_correct( object, ACTION_SC, ACTION_SD );
-  action_copy_correct( object, ACTION_BA, ACTION_BB );
-  action_copy_correct( object, ACTION_BC, ACTION_BD );
-  action_copy_correct( object, ACTION_LA, ACTION_LB );
-  action_copy_correct( object, ACTION_LC, ACTION_LD );
-  action_copy_correct( object, ACTION_XA, ACTION_XB );
-  action_copy_correct( object, ACTION_XC, ACTION_XD );
-  action_copy_correct( object, ACTION_FA, ACTION_FB );
-  action_copy_correct( object, ACTION_FC, ACTION_FD );
-  action_copy_correct( object, ACTION_PA, ACTION_PB );
-  action_copy_correct( object, ACTION_PC, ACTION_PD );
-  action_copy_correct( object, ACTION_ZA, ACTION_ZB );
-  action_copy_correct( object, ACTION_ZC, ACTION_ZD );
-  action_copy_correct( object, ACTION_WA, ACTION_WB );
-  action_copy_correct( object, ACTION_WB, ACTION_WC );
-  action_copy_correct( object, ACTION_WC, ACTION_WD );
-  action_copy_correct( object, ACTION_DA, ACTION_WD );   // All walks should be safe
-  action_copy_correct( object, ACTION_WC, ACTION_WD );
-  action_copy_correct( object, ACTION_WB, ACTION_WC );
-  action_copy_correct( object, ACTION_WA, ACTION_WB );
-  action_copy_correct( object, ACTION_JA, ACTION_JB );
-  action_copy_correct( object, ACTION_JB, ACTION_JC );
-  action_copy_correct( object, ACTION_DA, ACTION_JC );  // All jumps should be safe
-  action_copy_correct( object, ACTION_JB, ACTION_JC );
-  action_copy_correct( object, ACTION_JA, ACTION_JB );
-  action_copy_correct( object, ACTION_HA, ACTION_HB );
-  action_copy_correct( object, ACTION_HB, ACTION_HC );
-  action_copy_correct( object, ACTION_HC, ACTION_HD );
-  action_copy_correct( object, ACTION_HB, ACTION_HC );
-  action_copy_correct( object, ACTION_HA, ACTION_HB );
-  action_copy_correct( object, ACTION_KA, ACTION_KB );
-  action_copy_correct( object, ACTION_KB, ACTION_KC );
-  action_copy_correct( object, ACTION_KC, ACTION_KD );
-  action_copy_correct( object, ACTION_KB, ACTION_KC );
-  action_copy_correct( object, ACTION_KA, ACTION_KB );
-  action_copy_correct( object, ACTION_MH, ACTION_MI );
-  action_copy_correct( object, ACTION_DA, ACTION_MM );
-  action_copy_correct( object, ACTION_MM, ACTION_MN );
+  action_copy_correct( mdl, ACTION_DA, ACTION_DB );   // All dances should be safe
+  action_copy_correct( mdl, ACTION_DB, ACTION_DC );
+  action_copy_correct( mdl, ACTION_DC, ACTION_DD );
+  action_copy_correct( mdl, ACTION_DB, ACTION_DC );
+  action_copy_correct( mdl, ACTION_DA, ACTION_DB );
+  action_copy_correct( mdl, ACTION_UA, ACTION_UB );
+  action_copy_correct( mdl, ACTION_UB, ACTION_UC );
+  action_copy_correct( mdl, ACTION_UC, ACTION_UD );
+  action_copy_correct( mdl, ACTION_TA, ACTION_TB );
+  action_copy_correct( mdl, ACTION_TC, ACTION_TD );
+  action_copy_correct( mdl, ACTION_CA, ACTION_CB );
+  action_copy_correct( mdl, ACTION_CC, ACTION_CD );
+  action_copy_correct( mdl, ACTION_SA, ACTION_SB );
+  action_copy_correct( mdl, ACTION_SC, ACTION_SD );
+  action_copy_correct( mdl, ACTION_BA, ACTION_BB );
+  action_copy_correct( mdl, ACTION_BC, ACTION_BD );
+  action_copy_correct( mdl, ACTION_LA, ACTION_LB );
+  action_copy_correct( mdl, ACTION_LC, ACTION_LD );
+  action_copy_correct( mdl, ACTION_XA, ACTION_XB );
+  action_copy_correct( mdl, ACTION_XC, ACTION_XD );
+  action_copy_correct( mdl, ACTION_FA, ACTION_FB );
+  action_copy_correct( mdl, ACTION_FC, ACTION_FD );
+  action_copy_correct( mdl, ACTION_PA, ACTION_PB );
+  action_copy_correct( mdl, ACTION_PC, ACTION_PD );
+  action_copy_correct( mdl, ACTION_ZA, ACTION_ZB );
+  action_copy_correct( mdl, ACTION_ZC, ACTION_ZD );
+  action_copy_correct( mdl, ACTION_WA, ACTION_WB );
+  action_copy_correct( mdl, ACTION_WB, ACTION_WC );
+  action_copy_correct( mdl, ACTION_WC, ACTION_WD );
+  action_copy_correct( mdl, ACTION_DA, ACTION_WD );   // All walks should be safe
+  action_copy_correct( mdl, ACTION_WC, ACTION_WD );
+  action_copy_correct( mdl, ACTION_WB, ACTION_WC );
+  action_copy_correct( mdl, ACTION_WA, ACTION_WB );
+  action_copy_correct( mdl, ACTION_JA, ACTION_JB );
+  action_copy_correct( mdl, ACTION_JB, ACTION_JC );
+  action_copy_correct( mdl, ACTION_DA, ACTION_JC );  // All jumps should be safe
+  action_copy_correct( mdl, ACTION_JB, ACTION_JC );
+  action_copy_correct( mdl, ACTION_JA, ACTION_JB );
+  action_copy_correct( mdl, ACTION_HA, ACTION_HB );
+  action_copy_correct( mdl, ACTION_HB, ACTION_HC );
+  action_copy_correct( mdl, ACTION_HC, ACTION_HD );
+  action_copy_correct( mdl, ACTION_HB, ACTION_HC );
+  action_copy_correct( mdl, ACTION_HA, ACTION_HB );
+  action_copy_correct( mdl, ACTION_KA, ACTION_KB );
+  action_copy_correct( mdl, ACTION_KB, ACTION_KC );
+  action_copy_correct( mdl, ACTION_KC, ACTION_KD );
+  action_copy_correct( mdl, ACTION_KB, ACTION_KC );
+  action_copy_correct( mdl, ACTION_KA, ACTION_KB );
+  action_copy_correct( mdl, ACTION_MH, ACTION_MI );
+  action_copy_correct( mdl, ACTION_DA, ACTION_MM );
+  action_copy_correct( mdl, ACTION_MM, ACTION_MN );
 
 
   // Create table for doing transition from one type of walk to another...
   // Clear 'em all to start
-  for ( frame = 0; frame < madframes[object]; frame++ )
-    madframelip[frame+madframestart[object]] = 0;
+  for ( frame = 0; frame < iFrameCount; frame++ )
+    madframelip[mdl][frame] = 0;
 
   // Need to figure out how far into action each frame is
-  make_framelip( object, ACTION_WA );
-  make_framelip( object, ACTION_WB );
-  make_framelip( object, ACTION_WC );
+  make_framelip( mdl, ACTION_WA );
+  make_framelip( mdl, ACTION_WB );
+  make_framelip( mdl, ACTION_WC );
+
   // Now do the same, in reverse, for walking animations
-  get_walk_frame( object, LIPT_DA, ACTION_DA );
-  get_walk_frame( object, LIPT_WA, ACTION_WA );
-  get_walk_frame( object, LIPT_WB, ACTION_WB );
-  get_walk_frame( object, LIPT_WC, ACTION_WC );
+  get_walk_frame( mdl, LIPT_DA, ACTION_DA );
+  get_walk_frame( mdl, LIPT_WA, ACTION_WA );
+  get_walk_frame( mdl, LIPT_WB, ACTION_WB );
+  get_walk_frame( mdl, LIPT_WC, ACTION_WC );
 }
 
 //--------------------------------------------------------------------------------------------
-void make_mad_equally_lit( int model )
+void make_mad_equally_lit( Uint16 model )
 {
   // ZZ> This function makes ultra low poly models look better
-  int frame, cnt, vert;
+  int frame, vert;
+  int iFrames, iVerts;
+  MD2_Model * m;
 
-  if ( madused[model] )
+  if(model > MAXMODEL || !madused[model]) return;
+
+  m = mad_md2[model];
+  if(NULL == m) return;
+
+  iFrames = md2_get_numFrames(m);
+  iVerts  = md2_get_numVertices(m);
+  
+  for ( frame = 0; frame < iFrames; frame++ )
   {
-    frame = madframestart[model];
-    for ( cnt = 0; cnt < madframes[model]; cnt++ )
+    MD2_Frame * f = md2_get_Frame(m, frame);
+    for ( vert = 0; vert < iVerts; vert++ )
     {
-      vert = 0;
-      while ( vert < MAXVERTICES )
-      {
-        madvrta[frame][vert] = EQUALLIGHTINDEX;
-        vert++;
-      }
-      frame++;
+      f->vertices[vert].normal = EQUALLIGHTINDEX;
     }
   }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1070,7 +1100,6 @@ int load_one_object( int skin, char* tmploadname )
 #endif
 
   load_one_md2( newloadname, object );
-  md2_models[object] = md2_loadFromFile( newloadname );
 
 
   // Fix lighting if need be
@@ -1515,13 +1544,13 @@ void read_wawalite( char *modname )
       lightspek *= lightambi;
     }
 
-    lightspekcol.x = 
-    lightspekcol.y = 
-    lightspekcol.z = lightspek;
+    lightspekcol.r = 
+    lightspekcol.g = 
+    lightspekcol.b = lightspek;
 
-    lightambicol.x =
-    lightambicol.y =
-    lightambicol.z = lightambi;
+    lightambicol.r =
+    lightambicol.g =
+    lightambicol.b = lightambi;
 
     // Read tile data third
     hillslide = fget_next_float( fileread );
@@ -1776,16 +1805,16 @@ void render_shadow( CHR_REF character )
   GLVertex v[4];
 
   float x, y;
-  float level;
-  float height, size_umbra, size_penumbra;
+  float level, height;
+  float size_umbra_x,size_umbra_y, size_penumbra_x,size_penumbra_y;
   float height_factor, ambient_factor, tile_factor;
   float alpha_umbra, alpha_penumbra, alpha_character, light_character;
   Sint8 hide;
   int i;
   Uint16 chrlightambi = chrlightambir_fp8[character] + chrlightambig_fp8[character] + chrlightambib_fp8[character];
   Uint16 chrlightspek = chrlightspekr_fp8[character] + chrlightspekg_fp8[character] + chrlightspekb_fp8[character];
-  float  globlightambi = lightambicol.x + lightambicol.y + lightambicol.z;
-  float  globlightspek = lightspekcol.x + lightspekcol.y + lightspekcol.z;
+  float  globlightambi = lightambicol.r + lightambicol.g + lightambicol.b;
+  float  globlightspek = lightspekcol.r + lightspekcol.g + lightspekcol.b;
 
   hide = caphidestate[chrmodel[character]];
   if ( hide != NOHIDE && hide == chraistate[character] ) return;
@@ -1798,7 +1827,7 @@ void render_shadow( CHR_REF character )
 
   tile_factor = mesh_has_some_bits( chronwhichfan[character], MESHFX_WATER ) ? 0.5 : 1.0;
 
-  height_factor   = MAX( MIN(( 5 * chrbumpsize[character] / height ), 1 ), 0 );
+  height_factor   = MAX( MIN(( 5 * chrbmpdata[character].calc_size / height ), 1 ), 0 );
   ambient_factor  = ( float )( chrlightspek ) / ( float )( chrlightambi + chrlightspek );
   ambient_factor  = 0.5f * ( ambient_factor + globlightspek / ( globlightambi + globlightspek ) );
   alpha_character = FP8_TO_FLOAT( chralpha_fp8[character] );
@@ -1813,8 +1842,10 @@ void render_shadow( CHR_REF character )
   };
 
 
-  size_umbra    = ( chrbumpsize[character] - height / 30.0 );
-  size_penumbra = ( chrbumpsize[character] + height / 30.0 );
+  size_umbra_x    = ( chrbmpdata[character].cv.x_max - chrbmpdata[character].cv.x_min - height / 30.0 );
+  size_umbra_y    = ( chrbmpdata[character].cv.y_max - chrbmpdata[character].cv.y_min - height / 30.0 );
+  size_penumbra_x = ( chrbmpdata[character].cv.x_max - chrbmpdata[character].cv.x_min + height / 30.0 );
+  size_penumbra_y = ( chrbmpdata[character].cv.y_max - chrbmpdata[character].cv.y_min + height / 30.0 );
 
   alpha_umbra    = alpha_character * height_factor * ambient_factor * light_character * tile_factor;
   alpha_penumbra = alpha_character * height_factor * ambient_factor * light_character * tile_factor;
@@ -1837,22 +1868,22 @@ void render_shadow( CHR_REF character )
   v[3].s = CALCULATE_PRT_U0( 238 );
   v[3].t = CALCULATE_PRT_V1( 255 );
 
-  if ( size_penumbra > 0 )
+  if ( size_penumbra_x > 0 && size_penumbra_y > 0 )
   {
-    v[0].pos.x = x + size_penumbra;
-    v[0].pos.y = y - size_penumbra;
+    v[0].pos.x = x + size_penumbra_x;
+    v[0].pos.y = y - size_penumbra_y;
     v[0].pos.z = level;
 
-    v[1].pos.x = x + size_penumbra;
-    v[1].pos.y = y + size_penumbra;
+    v[1].pos.x = x + size_penumbra_x;
+    v[1].pos.y = y + size_penumbra_y;
     v[1].pos.z = level;
 
-    v[2].pos.x = x - size_penumbra;
-    v[2].pos.y = y + size_penumbra;
+    v[2].pos.x = x - size_penumbra_x;
+    v[2].pos.y = y + size_penumbra_y;
     v[2].pos.z = level;
 
-    v[3].pos.x = x - size_penumbra;
-    v[3].pos.y = y - size_penumbra;
+    v[3].pos.x = x - size_penumbra_x;
+    v[3].pos.y = y - size_penumbra_y;
     v[3].pos.z = level;
 
     ATTRIB_PUSH( "render_shadow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT | GL_CURRENT_BIT );
@@ -1878,22 +1909,22 @@ void render_shadow( CHR_REF character )
     ATTRIB_POP( "render_shadow" );
   };
 
-  if ( size_umbra > 0 )
+  if ( size_umbra_x > 0 && size_umbra_y > 0 )
   {
-    v[0].pos.x = x + size_umbra;
-    v[0].pos.y = y - size_umbra;
+    v[0].pos.x = x + size_umbra_x;
+    v[0].pos.y = y - size_umbra_y;
     v[0].pos.z = level + 0.1;
 
-    v[1].pos.x = x + size_umbra;
-    v[1].pos.y = y + size_umbra;
+    v[1].pos.x = x + size_umbra_x;
+    v[1].pos.y = y + size_umbra_y;
     v[1].pos.z = level + 0.1;
 
-    v[2].pos.x = x - size_umbra;
-    v[2].pos.y = y + size_umbra;
+    v[2].pos.x = x - size_umbra_x;
+    v[2].pos.y = y + size_umbra_y;
     v[2].pos.z = level + 0.1;
 
-    v[3].pos.x = x - size_umbra;
-    v[3].pos.y = y - size_umbra;
+    v[3].pos.x = x - size_umbra_x;
+    v[3].pos.y = y - size_umbra_y;
     v[3].pos.z = level + 0.1;
 
     ATTRIB_PUSH( "render_shadow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT );
@@ -1946,7 +1977,7 @@ void render_shadow( CHR_REF character )
 //    height = chrmatrix[character]_CNV(3, 2) - level;
 //    if (height > 255)  return;
 //    if (height < 0) height = 0;
-//    size = chrshadowsize[character] - FP8_MUL(height, chrshadowsize[character]);
+//    size = chrbmpdata[character].calc_shadowsize - FP8_MUL(height, chrbmpdata[character].calc_shadowsize);
 //    if (size < 1) return;
 //    ambi = chrlightspek_fp8[character] >> 4;  // LUL >>3;
 //    trans = ((255 - height) >> 1) + 64;
@@ -2339,7 +2370,7 @@ void render_good_shadows()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
       tnc = dolist[cnt];
-      if ( chrshadowsize[tnc] != 0 || capforceshadow[chrmodel[tnc]] && mesh_has_no_bits( chronwhichfan[tnc], MESHFX_SHINY ) )
+      if ( chrbmpdata[tnc].shadow != 0 || capforceshadow[chrmodel[tnc]] && mesh_has_no_bits( chronwhichfan[tnc], MESHFX_SHINY ) )
         render_shadow( tnc );
     }
   }
@@ -2367,7 +2398,7 @@ void render_good_shadows()
 //      tnc = dolist[cnt];
 //      //if(chrattachedto[tnc] == MAXCHR)
 //      //{
-//      if (chrshadowsize[tnc] != 0 || capforceshadow[chrmodel[tnc]] && HAS_NO_BITS(meshfx[chronwhichfan[tnc]], MESHFX_SHINY))
+//      if (chrbmpdata[tnc].calc_shadowsize != 0 || capforceshadow[chrmodel[tnc]] && HAS_NO_BITS(meshfx[chronwhichfan[tnc]], MESHFX_SHINY))
 //        render_bad_shadow(tnc);
 //      //}
 //    }
@@ -2707,8 +2738,8 @@ void render_water_highlights()
   ATTRIB_PUSH( "render_water_highlights", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT );
   {
     GLfloat light_position[] = { 10000*lightspekdir.x, 10000*lightspekdir.y, 10000*lightspekdir.z, 1.0 };
-    GLfloat lmodel_ambient[] = { lightambicol.x, lightambicol.y, lightambicol.z, 1.0 };
-    GLfloat light_diffuse[]  = { lightspekcol.x, lightspekcol.y, lightspekcol.z, 1.0 };
+    GLfloat lmodel_ambient[] = { lightambicol.r, lightambicol.g, lightambicol.b, 1.0 };
+    GLfloat light_diffuse[]  = { lightspekcol.r, lightspekcol.g, lightspekcol.b, 1.0 };
 
     glDepthMask( GL_FALSE );
     glEnable( GL_DEPTH_TEST );
@@ -2795,8 +2826,8 @@ void render_character_highlights()
   {
     GLfloat light_none[]     = {0, 0, 0, 0};
     GLfloat light_position[] = { 10000*lightspekdir.x, 10000*lightspekdir.y, 10000*lightspekdir.z, 1.0 };
-    GLfloat lmodel_ambient[] = { lightambicol.x, lightambicol.y, lightambicol.z, 1.0 };
-    GLfloat light_specular[] = { lightspekcol.x, lightspekcol.y, lightspekcol.z, 1.0 };
+    GLfloat lmodel_ambient[] = { lightambicol.r, lightambicol.g, lightambicol.b, 1.0 };
+    GLfloat light_specular[] = { lightspekcol.r, lightspekcol.g, lightspekcol.b, 1.0 };
 
     glDisable( GL_CULL_FACE );
 
@@ -2934,6 +2965,14 @@ void draw_scene_zreflection()
   ATTRIB_GUARD_OPEN( inp_attrib_stack );
   render_particles();
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
+
+  // render the collision volumes
+#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+  if(CData.DevMode)
+  {
+    cv_list_draw();
+  };
+#endif
 };
 
 
@@ -3014,7 +3053,7 @@ void draw_scene_zreflection()
 //        tnc = dolist[cnt];
 //        if(chrattachedto[tnc] == MAXCHR)
 //        {
-//          if(((chrlight_fp8[tnc]==255 && chralpha_fp8[tnc]==255) || capforceshadow[chrmodel[tnc]]) && chrshadowsize[tnc]!=0)
+//          if(((chrlight_fp8[tnc]==255 && chralpha_fp8[tnc]==255) || capforceshadow[chrmodel[tnc]]) && chrbmpdata[tnc].calc_shadowsize!=0)
 //            render_bad_shadow(tnc);
 //        }
 //      }
@@ -3034,7 +3073,7 @@ void draw_scene_zreflection()
 //        tnc = dolist[cnt];
 //        if(chrattachedto[tnc] == MAXCHR)
 //        {
-//          if(((chrlight_fp8[tnc]==255 && chralpha_fp8[tnc]==255) || capforceshadow[chrmodel[tnc]]) && chrshadowsize[tnc]!=0)
+//          if(((chrlight_fp8[tnc]==255 && chralpha_fp8[tnc]==255) || capforceshadow[chrmodel[tnc]]) && chrbmpdata[tnc].calc_shadowsize!=0)
 //            render_shadow(tnc);
 //        }
 //      }
@@ -3946,16 +3985,15 @@ void draw_text( GLTexture * pfnt )
       CHR_REF pla_chr = pla_get_character( 0 );
 
       y += draw_string( pfnt, 0, y, NULL, "%2.3f FPS, %2.3f UPS", stabilized_fps, stabilized_ups );
-      
-	  //Spit out some extra debug info
-	  if(CData.DevMode) 
-	  {
-		  y += draw_string( pfnt, 0, y, NULL, "wldframe %d, wldclock %d, allclock %d", wldframe, wldclock, allclock );
-          y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrpos[pla_chr].x, chrpos[pla_chr].y, chrpos[pla_chr].z );
-          y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrvel[pla_chr].x, chrvel[pla_chr].y, chrvel[pla_chr].z );
 
-	  }
-	}
+      if( CData.DevMode )
+      {
+        y += draw_string( pfnt, 0, y, NULL, "wldframe %d, wldclock %d, allclock %d", wldframe, wldclock, allclock );
+        y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrpos[pla_chr].x, chrpos[pla_chr].y, chrpos[pla_chr].z );
+        y += draw_string( pfnt, 0, y, NULL, "<%3.2f,%3.2f,%3.2f>", chrvel[pla_chr].x, chrvel[pla_chr].y, chrvel[pla_chr].z );
+      }
+    }
+
     {
       CHR_REF ichr, iref;
       GLVector tint = {0.5, 1.0, 1.0, 1.0};
@@ -4399,11 +4437,17 @@ void sdlinit( int argc, char **argv )
   log_info("Initializing main SDL services version %i.%i.%i... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
   if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
   {
+    log_info("Failed!\n");
     log_message("Failed!\n");
+
     log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
     exit( 1 );
   }
-  else log_message("Succeeded!\n");
+  else
+  {
+    log_info("Success!\n");
+    log_message("Failed!\n");
+  }
 
   atexit( SDL_Quit );
 
@@ -4424,10 +4468,9 @@ void sdlinit( int argc, char **argv )
 
   /* Set the OpenGL Attributes */
 #ifndef __unix__
-  /* Under Unix we cannot specify these, we just get whatever format
-  the framebuffer has, specifying depths > the framebuffer one
-  will cause SDL_SetVideoMode to fail with:
-  Unable to set video mode: Couldn't find matching GLX visual */
+  // Under Unix we cannot specify these, we just get whatever format
+  // the framebuffer has, specifying depths > the framebuffer one
+  // will cause SDL_SetVideoMode to fail with: "Unable to set video mode: Couldn't find matching GLX visual"
   SDL_GL_SetAttribute( SDL_GL_RED_SIZE, colordepth );
   SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, colordepth );
   SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,  colordepth );
@@ -4443,15 +4486,19 @@ void sdlinit( int argc, char **argv )
   }
   video_mode_chaged = bfalse;
 
-	//DEBUG TEST
 	//Enable antialiasing X16
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
 	glEnable(GL_MULTISAMPLE_ARB);
-	//DEBUG TEST END 
+	//glEnable(GL_MULTISAMPLE);
 
   //Force OpenGL hardware acceleration
-  if(CData.gfxacceleration)	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  if(CData.gfxacceleration)
+  {
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  }
+
+
 
   // grab all the available video modes
   video_mode_list = SDL_ListModes( displaySurface->format, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN | SDL_OPENGL | SDL_HWACCEL | SDL_SRCALPHA );
@@ -4531,18 +4578,16 @@ void load_graphics()
   else if ( CData.particletype == PART_SMOOTH ) strncpy( CData.particle_bitmap, "particle_smooth.bmp" , sizeof( STRING ) );
   else if ( CData.particletype == PART_FAST )   strncpy( CData.particle_bitmap, "particle_fast.bmp" , sizeof( STRING ) );
 
-  //Turn on vsync if wanted
-  if(CData.vsync)
+  if( CData.vsync )
   {
 	  // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this  nvidia extension instead.
-	  #if defined __unix__
-		SDL_putenv("__GL_SYNC_TO_VBLANK=1");
-	  #else
-		/* Turn on vsync, this works on Windows. */
-		SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
-	  #endif
+#if defined(__unix__)
+	    SDL_putenv("__GL_SYNC_TO_VBLANK=1");
+#else
+	  /* Turn on vsync, this works on Windows. */
+	    SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+#endif
   }
-
 }
 
 /* obsolete graphics functions */

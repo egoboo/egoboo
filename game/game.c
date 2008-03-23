@@ -1010,7 +1010,12 @@ void remove_enchant( Uint16 enchantindex )
   }
 
   // And remove see kurse enchantment
-  if(evecanseekurse[enchantindex] == btrue && capcanseekurse[character] == bfalse) chrcanseekurse[character] = bfalse;
+  if(evecanseekurse[enchantindex] && !capcanseekurse[character]) 
+  {
+    chrcanseekurse[character] = bfalse;
+  }
+
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1536,8 +1541,9 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
         add++;
       }
 
-	  //Enchant to allow see kurses?
-	  if(evecanseekurse[enchantindex]) chrcanseekurse[target] = btrue;
+	    //Enchant to allow see kurses?
+	    chrcanseekurse[target] = chrcanseekurse[target] || evecanseekurse[enchantindex];
+
 
       // Create an overlay character?
       encoverlay[enchantindex] = MAXCHR;
@@ -1559,7 +1565,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
             chrlip_fp8[overlay] = 0;
             chrflip[overlay] = 0.0f;
             chrframe[overlay] = madactionstart[chrmodel[overlay]][ACTION_MJ];
-            chrlastframe[overlay] = chrframe[overlay];
+            chrframelast[overlay] = chrframe[overlay];
             chractionready[overlay] = bfalse;
           }
           chrlight_fp8[overlay] = 254;  // Assume it's transparent...
@@ -1769,13 +1775,19 @@ void read_setup( char* filename )
     CData.shasprite = CData_default.shasprite;
   }
 
+  //Draw phong mapping?
+  if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "PHONG", &CData.phongon ) == 0 )
+  {
+    CData.phongon = CData_default.phongon;
+  }
+
   //Draw water with more layers?
   if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "MULTI_LAYER_WATER", &CData.twolayerwateron ) == 0 )
   {
     CData.twolayerwateron = CData_default.twolayerwateron;
   }
 
-  //This is not implemented
+  //TODO: This is not implemented
   if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "OVERLAY", &CData.overlayvalid ) == 0 )
   {
     CData.overlayvalid = CData_default.overlayvalid;
@@ -1821,18 +1833,18 @@ void read_setup( char* filename )
       userAnisotropy = 1 << tmplevel;
     }
   }
-  else if ( lTmpStr[0] == 'L' || lTmpStr[0] == 'l' )  CData.texturefilter = TX_LINEAR;
-  else if ( lTmpStr[0] == 'B' || lTmpStr[0] == 'b' )  CData.texturefilter = TX_BILINEAR;
-  else if ( lTmpStr[0] == 'T' || lTmpStr[0] == 't' )  CData.texturefilter = TX_TRILINEAR_2;
-  else if ( lTmpStr[0] == 'A' || lTmpStr[0] == 'a' )  CData.texturefilter = TX_ANISOTROPIC + log2Anisotropy;
+  else if ( toupper(lTmpStr[0]) == 'L')  CData.texturefilter = TX_LINEAR;
+  else if ( toupper(lTmpStr[0]) == 'B')  CData.texturefilter = TX_BILINEAR;
+  else if ( toupper(lTmpStr[0]) == 'T')  CData.texturefilter = TX_TRILINEAR_2;
+  else if ( toupper(lTmpStr[0]) == 'A')  CData.texturefilter = TX_ANISOTROPIC + log2Anisotropy;
 
   if ( GetConfigValue( lConfigSetup, lCurSectionName, "PARTICLE_EFFECTS", lTmpStr, 24 ) == 0 )
   {
     CData.particletype = PART_NORMAL; //Default
   }
-  else if ( lTmpStr[0] == 'N' || lTmpStr[0] == 'n' )  CData.particletype = PART_NORMAL;
-  else if ( lTmpStr[0] == 'S' || lTmpStr[0] == 's' )  CData.particletype = PART_SMOOTH;
-  else if ( lTmpStr[0] == 'F' || lTmpStr[0] == 'f' )  CData.particletype = PART_FAST;
+  else if ( toupper(lTmpStr[0]) == 'N' )  CData.particletype = PART_NORMAL;
+  else if ( toupper(lTmpStr[0]) == 'S' )  CData.particletype = PART_SMOOTH;
+  else if ( toupper(lTmpStr[0]) == 'F' )  CData.particletype = PART_FAST;
 
   //Do vertical sync?
   if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "VERTICAL_SYNC", &CData.backgroundvalid ) == 0 )
@@ -1845,7 +1857,6 @@ void read_setup( char* filename )
   {
     CData.gfxacceleration = CData_default.gfxacceleration;
   }
-
 
   /*********************************************
 
@@ -2043,161 +2054,29 @@ void make_lightdirectionlookup()
   }
 }
 
-float sinlut[MAXLIGHTROTATION];
-float coslut[MAXLIGHTROTATION];
 
 //---------------------------------------------------------------------------------------------
-float spek_global_lighting( int rotation, int normal, vect3 lite )
-{
-  // ZZ> This function helps make_spektable
-  float fTmp, flite;
-  vect3 nrm;
-  float sinrot, cosrot;
-
-  nrm.x = -kMd2Normals[normal][0];
-  nrm.y = kMd2Normals[normal][1];
-  nrm.z = kMd2Normals[normal][2];
-
-  sinrot = sinlut[rotation];
-  cosrot = coslut[rotation];
-  fTmp   = cosrot * nrm.x + sinrot * nrm.y;
-  nrm.y = cosrot * nrm.y - sinrot * nrm.x;
-  nrm.x = fTmp;
-
-  fTmp = DotProduct( nrm, lite );
-  flite = 0.0f;
-  if ( fTmp > 0 ) flite = fTmp * fTmp;
-
-  return flite;
-}
-
-//---------------------------------------------------------------------------------------------
-float spek_local_lighting( int rotation, int normal )
-{
-  // ZZ> This function helps make_spektable
-  float fTmp, flite;
-  vect3 nrm;
-  float sinrot, cosrot;
-
-  nrm.x = -kMd2Normals[normal][0];
-  nrm.y = kMd2Normals[normal][1];
-
-  sinrot = sinlut[rotation];
-  cosrot = coslut[rotation];
-
-  fTmp = cosrot * nrm.x + sinrot * nrm.y;
-
-  flite = 0.0f;
-  if ( fTmp > 0.0f )  flite = fTmp * fTmp;
-
-  return flite;
-}
-
-//---------------------------------------------------------------------------------------------
-void make_speklut()
-{
-  // ZZ > Build a lookup table for sin/cos
-
-  int cnt;
-
-  for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
-  {
-    sinlut[cnt] = sin( TWO_PI * cnt / MAXLIGHTROTATION );
-    coslut[cnt] = cos( TWO_PI * cnt / MAXLIGHTROTATION );
-  }
-};
-
-//---------------------------------------------------------------------------------------------
-void make_spektable( vect3 lite )
-{
-  // ZZ> This function makes a light table to fake directional lighting
-  int cnt, tnc;
-  float flight;
-  vect3 loc_lite = lite;
-
-  flight = loc_lite.x * loc_lite.x + loc_lite.y * loc_lite.y + loc_lite.z * loc_lite.z;
-  if ( flight > 0 )
-  {
-    flight = sqrt( flight );
-    loc_lite.x /= flight;
-    loc_lite.y /= flight;
-    loc_lite.z /= flight;
-    for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
-    {
-      for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
-      {
-        spek_global[tnc][cnt] = spek_global_lighting( tnc, cnt, loc_lite );
-        spek_local[tnc][cnt]  = spek_local_lighting( tnc, cnt );
-      }
-    }
-  }
-  else
-  {
-    for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
-    {
-      for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
-      {
-        spek_global[tnc][cnt] = 0;
-        spek_local[tnc][cnt]  = spek_local_lighting( tnc, cnt );
-      }
-    }
-  }
-
-  // Fill in index number 162 for the spike mace
-  for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
-  {
-    spek_global[tnc][MD2LIGHTINDICES-1] = 0;
-    spek_local[tnc][cnt]                = 0;
-  }
-}
-
-//---------------------------------------------------------------------------------------------
-void make_lighttospek( void )
-{
-  // ZZ> This function makes a light table to fake directional lighting
-  int cnt, tnc;
-  //  Uint8 spek;
-  //  float fTmp, fPow;
-
-
-  // New routine
-  for ( cnt = 0; cnt < MAXSPEKLEVEL; cnt++ )
-  {
-    for ( tnc = 0; tnc < 256; tnc++ )
-    {
-      lighttospek[cnt][tnc] = FLOAT_TO_FP8( pow( FP8_TO_FLOAT( tnc ), 1.0 + cnt / 2.0f ) );
-      lighttospek[cnt][tnc] = MIN( 255, lighttospek[cnt][tnc] );
-
-      //fTmp = FP8_TO_FLOAT(tnc);
-      //fPow = (fTmp*4.0)+1;
-      //fTmp = pow(fTmp, fPow);
-      //fTmp = fTmp*cnt/FP8_TO_FLOAT(MAXSPEKLEVEL);
-      //if(fTmp<0) fTmp=0;
-      //if(fTmp>255) fTmp=255;
-      //spek = fTmp;
-      //spek >>=1;
-      //lighttospek[cnt][tnc] = spek;
-    }
-  }
-}
-
-//---------------------------------------------------------------------------------------------
-int vertexconnected( int modelindex, int vertex )
+int vertexconnected( MD2_Model * m, int vertex )
 {
   // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
-  int cnt, tnc, entry;
 
-  entry = 0;
-  for ( cnt = 0; cnt < madcommands[modelindex]; cnt++ )
+  MD2_GLCommand * g;
+  int commands, entry;
+
+  if(NULL == m) return 0;
+
+  g = md2_get_Commands(m);
+  if(NULL == g) return 0;
+
+  for( /*nothing*/; NULL != g; g = g->next)
   {
-    for ( tnc = 0; tnc < madcommandsize[modelindex][cnt]; tnc++ )
+    commands = g->command_count;
+    for(entry = 0; entry<commands; entry++)
     {
-      if ( madcommandvrt[modelindex][entry] == vertex )
+      if(g->data[entry].index == vertex)
       {
-        // The vertex is used
         return 1;
       }
-      entry++;
     }
   }
 
@@ -2206,16 +2085,20 @@ int vertexconnected( int modelindex, int vertex )
 }
 
 //---------------------------------------------------------------------------------------------
-void get_madtransvertices( int modelindex )
+int count_madtransvertices( MD2_Model * m )
 {
   // ZZ> This function gets the number of vertices to transform for a model...
   //     That means every one except the grip ( unconnected ) vertices
-  int cnt, trans = 0;
+  int cnt, vrtcount, trans = 0;
 
-  for ( cnt = 0; cnt < madvertices[modelindex]; cnt++ )
-    trans += vertexconnected( modelindex, cnt );
+  if(NULL == m) return 0;
 
-  madtransvertices[modelindex] = trans;
+  vrtcount = md2_get_numVertices(m);
+
+  for ( cnt = 0; cnt < vrtcount; cnt++ )
+    trans += vertexconnected( m, cnt );
+
+  return trans;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -2238,324 +2121,344 @@ int rip_md2_header( void )
   return btrue;
 }
 
+////---------------------------------------------------------------------------------------------
+//void fix_md2_normals( Uint16 modelindex )
+//{
+//  // ZZ> This function helps light not flicker so much
+//  int cnt, tnc;
+//  Uint8 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
+//  Uint8 indexofnextnextnextnext;
+//  Uint32 frame;
+//
+//  frame = madframestart[modelindex];
+//  cnt = 0;
+//  while ( cnt < madvertices[modelindex] )
+//  {
+//    tnc = 0;
+//    while ( tnc < madframes[modelindex] )
+//    {
+//      indexofcurrent = madvrta[frame][cnt];
+//      indexofnext = madvrta[frame+1][cnt];
+//      indexofnextnext = madvrta[frame+2][cnt];
+//      indexofnextnextnext = madvrta[frame+3][cnt];
+//      indexofnextnextnextnext = madvrta[frame+4][cnt];
+//      if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
+//      {
+//        madvrta[frame+1][cnt] = indexofcurrent;
+//      }
+//      if ( indexofcurrent == indexofnextnextnext )
+//      {
+//        if ( indexofnext != indexofcurrent )
+//        {
+//          madvrta[frame+1][cnt] = indexofcurrent;
+//        }
+//        if ( indexofnextnext != indexofcurrent )
+//        {
+//          madvrta[frame+2][cnt] = indexofcurrent;
+//        }
+//      }
+//      if ( indexofcurrent == indexofnextnextnextnext )
+//      {
+//        if ( indexofnext != indexofcurrent )
+//        {
+//          madvrta[frame+1][cnt] = indexofcurrent;
+//        }
+//        if ( indexofnextnext != indexofcurrent )
+//        {
+//          madvrta[frame+2][cnt] = indexofcurrent;
+//        }
+//        if ( indexofnextnextnext != indexofcurrent )
+//        {
+//          madvrta[frame+3][cnt] = indexofcurrent;
+//        }
+//      }
+//      tnc++;
+//    }
+//    cnt++;
+//  }
+//}
+//
 //---------------------------------------------------------------------------------------------
-void fix_md2_normals( Uint16 modelindex )
-{
-  // ZZ> This function helps light not flicker so much
-  int cnt, tnc;
-  Uint8 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
-  Uint8 indexofnextnextnextnext;
-  Uint32 frame;
-
-  frame = madframestart[modelindex];
-  cnt = 0;
-  while ( cnt < madvertices[modelindex] )
-  {
-    tnc = 0;
-    while ( tnc < madframes[modelindex] )
-    {
-      indexofcurrent = madvrta[frame][cnt];
-      indexofnext = madvrta[frame+1][cnt];
-      indexofnextnext = madvrta[frame+2][cnt];
-      indexofnextnextnext = madvrta[frame+3][cnt];
-      indexofnextnextnextnext = madvrta[frame+4][cnt];
-      if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
-      {
-        madvrta[frame+1][cnt] = indexofcurrent;
-      }
-      if ( indexofcurrent == indexofnextnextnext )
-      {
-        if ( indexofnext != indexofcurrent )
-        {
-          madvrta[frame+1][cnt] = indexofcurrent;
-        }
-        if ( indexofnextnext != indexofcurrent )
-        {
-          madvrta[frame+2][cnt] = indexofcurrent;
-        }
-      }
-      if ( indexofcurrent == indexofnextnextnextnext )
-      {
-        if ( indexofnext != indexofcurrent )
-        {
-          madvrta[frame+1][cnt] = indexofcurrent;
-        }
-        if ( indexofnextnext != indexofcurrent )
-        {
-          madvrta[frame+2][cnt] = indexofcurrent;
-        }
-        if ( indexofnextnextnext != indexofcurrent )
-        {
-          madvrta[frame+3][cnt] = indexofcurrent;
-        }
-      }
-      tnc++;
-    }
-    cnt++;
-  }
-}
-
-//---------------------------------------------------------------------------------------------
-void rip_md2_commands( Uint16 modelindex )
-{
-  // ZZ> This function converts an md2's GL commands into our little command list thing
-  int iTmp;
-  float fTmpu, fTmpv;
-  int iNumVertices;
-  int tnc;
-
-  char* cpCharPointer = ( char* ) cLoadBuffer;
-  int* ipIntPointer = ( int* ) cLoadBuffer;
-  float* fpFloatPointer = ( float* ) cLoadBuffer;
-
-  // Number of GL commands in the MD2
-  int iNumCommands = ipIntPointer[9];
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  iNumCommands = SDL_Swap32( iNumCommands );
-#endif
-
-  // Offset (in DWORDS) from the start of the file to the gl command list.
-  int iCommandOffset = ipIntPointer[15] >> 2;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  iCommandOffset = SDL_Swap32( iCommandOffset );
-#endif
-
-  // Read in each command
-  // iNumCommands isn't the number of commands, rather the number of dwords in
-  // the command list...  Use iCommandCount to figure out how many we use
-  int iCommandCount = 0;
-  int entry = 0;
-
-  int cnt = 0;
-  while ( cnt < iNumCommands )
-  {
-    iNumVertices = ipIntPointer[iCommandOffset];
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    iNumVertices = SDL_Swap32( iNumVertices );
-#endif
-
-    iCommandOffset++;
-    cnt++;
-
-    if ( iNumVertices != 0 )
-    {
-      if ( iNumVertices < 0 )
-      {
-        // Fans start with a negative
-        iNumVertices = -iNumVertices;
-        // PORT: madcommandtype[modelindex][iCommandCount] = (Uint8) D3DPT_TRIANGLEFAN;
-        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_FAN;
-        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
-      }
-      else
-      {
-        // Strips start with a positive
-        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_STRIP;
-        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
-      }
-
-      // Read in vertices for each command
-      tnc = 0;
-      while ( tnc < iNumVertices )
-      {
-        fTmpu = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-        fTmpv = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-        iTmp = ipIntPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-        fTmpu = LoadFloatByteswapped( &fTmpu );
-        fTmpv = LoadFloatByteswapped( &fTmpv );
-        iTmp = SDL_Swap32( iTmp );
-#endif
-        madcommandu[modelindex][entry] = fTmpu - ( .5 / 64 ); // GL doesn't align correctly
-        madcommandv[modelindex][entry] = fTmpv - ( .5 / 64 ); // with D3D
-        madcommandvrt[modelindex][entry] = ( Uint16 ) iTmp;
-        entry++;
-        tnc++;
-      }
-      iCommandCount++;
-    }
-  }
-  madcommands[modelindex] = iCommandCount;
-}
-
-//---------------------------------------------------------------------------------------------
-int rip_md2_frame_name( int frame )
-{
-  // ZZ> This function gets frame names from the load buffer, it returns
-  //     btrue if the name in cFrameName[] is valid
-  int iFrameOffset;
-  int iNumVertices;
-  int iNumFrames;
-  int cnt;
-  int* ipNamePointer;
-  int* ipIntPointer;
-  bool_t foundname;
-
-  // Jump to the Frames section of the md2 data
-  ipNamePointer = ( int* ) cFrameName;
-  ipIntPointer = ( int* ) cLoadBuffer;
-
-
-  iNumVertices = ipIntPointer[6];
-  iNumFrames = ipIntPointer[10];
-  iFrameOffset = ipIntPointer[14] >> 2;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  iNumVertices = SDL_Swap32( iNumVertices );
-  iNumFrames = SDL_Swap32( iNumFrames );
-  iFrameOffset = SDL_Swap32( iFrameOffset );
-#endif
-
-
-  // Chug through each frame
-  foundname = bfalse;
-  cnt = 0;
-  while ( cnt < iNumFrames && !foundname )
-  {
-    iFrameOffset += 6;
-    if ( cnt == frame )
-    {
-      ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-      ipNamePointer[1] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-      ipNamePointer[2] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-      ipNamePointer[3] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-      foundname = btrue;
-    }
-    else
-    {
-      iFrameOffset += 4;
-    }
-    iFrameOffset += iNumVertices;
-    cnt++;
-  }
-  cFrameName[15] = 0;  // Make sure it's null terminated
-  return foundname;
-}
+//void rip_md2_commands( Uint16 modelindex )
+//{
+//  // ZZ> This function converts an md2's GL commands into our little command list thing
+//  int iTmp;
+//  float fTmpu, fTmpv;
+//  int iNumVertices;
+//  int tnc;
+//
+//  char* cpCharPointer = ( char* ) cLoadBuffer;
+//  int* ipIntPointer = ( int* ) cLoadBuffer;
+//  float* fpFloatPointer = ( float* ) cLoadBuffer;
+//
+//  // Number of GL commands in the MD2
+//  int iNumCommands = ipIntPointer[9];
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//  iNumCommands = SDL_Swap32( iNumCommands );
+//#endif
+//
+//  // Offset (in DWORDS) from the start of the file to the gl command list.
+//  int iCommandOffset = ipIntPointer[15] >> 2;
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//  iCommandOffset = SDL_Swap32( iCommandOffset );
+//#endif
+//
+//  // Read in each command
+//  // iNumCommands isn't the number of commands, rather the number of dwords in
+//  // the command list...  Use iCommandCount to figure out how many we use
+//  int iCommandCount = 0;
+//  int entry = 0;
+//
+//  int cnt = 0;
+//  while ( cnt < iNumCommands )
+//  {
+//    iNumVertices = ipIntPointer[iCommandOffset];
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//    iNumVertices = SDL_Swap32( iNumVertices );
+//#endif
+//
+//    iCommandOffset++;
+//    cnt++;
+//
+//    if ( iNumVertices != 0 )
+//    {
+//      if ( iNumVertices < 0 )
+//      {
+//        // Fans start with a negative
+//        iNumVertices = -iNumVertices;
+//        // PORT: madcommandtype[modelindex][iCommandCount] = (Uint8) D3DPT_TRIANGLEFAN;
+//        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_FAN;
+//        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
+//      }
+//      else
+//      {
+//        // Strips start with a positive
+//        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_STRIP;
+//        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
+//      }
+//
+//      // Read in vertices for each command
+//      tnc = 0;
+//      while ( tnc < iNumVertices )
+//      {
+//        fTmpu = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
+//        fTmpv = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
+//        iTmp = ipIntPointer[iCommandOffset];  iCommandOffset++;  cnt++;
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//        fTmpu = LoadFloatByteswapped( &fTmpu );
+//        fTmpv = LoadFloatByteswapped( &fTmpv );
+//        iTmp = SDL_Swap32( iTmp );
+//#endif
+//        madcommandu[modelindex][entry] = fTmpu - ( .5 / 64 ); // GL doesn't align correctly
+//        madcommandv[modelindex][entry] = fTmpv - ( .5 / 64 ); // with D3D
+//        madcommandvrt[modelindex][entry] = ( Uint16 ) iTmp;
+//        entry++;
+//        tnc++;
+//      }
+//      iCommandCount++;
+//    }
+//  }
+//  madcommands[modelindex] = iCommandCount;
+//}
 
 //---------------------------------------------------------------------------------------------
-void rip_md2_frames( Uint16 modelindex )
-{
-  // ZZ> This function gets frames from the load buffer and adds them to
-  //     the indexed model
-  Uint8 cTmpx, cTmpy, cTmpz;
-  Uint8 cTmpNormalIndex;
-  float fRealx, fRealy, fRealz;
-  float fScalex, fScaley, fScalez;
-  float fTranslatex, fTranslatey, fTranslatez;
-  int iFrameOffset;
-  int iNumVertices;
-  int iNumFrames;
-  int cnt, tnc;
-  char* cpCharPointer;
-  int* ipIntPointer;
-  float* fpFloatPointer;
-
-
-  // Jump to the Frames section of the md2 data
-  cpCharPointer = ( char* ) cLoadBuffer;
-  ipIntPointer = ( int* ) cLoadBuffer;
-  fpFloatPointer = ( float* ) cLoadBuffer;
-
-
-  iNumVertices = ipIntPointer[6];
-  iNumFrames = ipIntPointer[10];
-  iFrameOffset = ipIntPointer[14] >> 2;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  iNumVertices = SDL_Swap32( iNumVertices );
-  iNumFrames = SDL_Swap32( iNumFrames );
-  iFrameOffset = SDL_Swap32( iFrameOffset );
-#endif
-
-
-  // Read in each frame
-  madframestart[modelindex] = madloadframe;
-  madframes[modelindex] = iNumFrames;
-  madvertices[modelindex] = iNumVertices;
-  //madscale[modelindex] = (float)(1.0 / 320.0 * 256.0); // Scale each vertex float to fit it in a short
-  cnt = 0;
-  while ( cnt < iNumFrames && madloadframe < MAXFRAME )
-  {
-    fScalex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-    fScaley = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-    fScalez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-    fTranslatex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-    fTranslatey = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-    fTranslatez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    fScalex = LoadFloatByteswapped( &fScalex );
-    fScaley = LoadFloatByteswapped( &fScaley );
-    fScalez = LoadFloatByteswapped( &fScalez );
-
-    fTranslatex = LoadFloatByteswapped( &fTranslatex );
-    fTranslatey = LoadFloatByteswapped( &fTranslatey );
-    fTranslatez = LoadFloatByteswapped( &fTranslatez );
-#endif
-
-    iFrameOffset += 4;
-    tnc = 0;
-    while ( tnc < iNumVertices )
-    {
-      // This should work because it's reading a single character
-      cTmpx = cpCharPointer[( iFrameOffset<<2 )];
-      cTmpy = cpCharPointer[( iFrameOffset<<2 ) +1];
-      cTmpz = cpCharPointer[( iFrameOffset<<2 ) +2];
-      cTmpNormalIndex = cpCharPointer[( iFrameOffset<<2 ) +3];
-      fRealx = ( cTmpx * fScalex ) + fTranslatex;
-      fRealy = ( cTmpy * fScaley ) + fTranslatey;
-      fRealz = ( cTmpz * fScalez ) + fTranslatez;
-      madvrtx[madloadframe][tnc] = -fRealx * 3.5;
-      madvrty[madloadframe][tnc] = fRealy * 3.5;
-      madvrtz[madloadframe][tnc] = fRealz * 3.5;
-      madvrta[madloadframe][tnc] = cTmpNormalIndex;
-      iFrameOffset++;
-      tnc++;
-    }
-    madloadframe++;
-    cnt++;
-  }
-}
+//char * rip_md2_frame_name( MD2_Model * m, int frame )
+//{
+//  // ZZ> This function gets frame names from the load buffer, it returns
+//  //     btrue if the name in cFrameName[] is valid
+//  int iFrameOffset;
+//  int iNumVertices;
+//  int iNumFrames;
+//  int cnt;
+//  MD2_Frame * pFrame;
+//  char      * pFrameName;
+//  bool_t foundname;
+//
+//
+//  if(NULL == m) return bfalse;
+//
+//  // Jump to the Frames section of the md2 data
+//  
+//
+//  ipNamePointer = ( int* ) pFrame->name;
+//
+//
+//  iNumVertices = ipIntPointer[6];
+//  iNumFrames = ipIntPointer[10];
+//  iFrameOffset = ipIntPointer[14] >> 2;
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//  iNumVertices = SDL_Swap32( iNumVertices );
+//  iNumFrames = SDL_Swap32( iNumFrames );
+//  iFrameOffset = SDL_Swap32( iFrameOffset );
+//#endif
+//
+//
+//  // Chug through each frame
+//  foundname = bfalse;
+//  
+//  for ( cnt = 0; cnt < iNumFrames && !foundname; cnt++ )
+//  {
+//    pFrame     = md2_get_Frame(m , frame);
+//    pFrameName = pFrame->name;
+//
+//    iFrameOffset += 6;
+//    if ( cnt == frame )
+//    {
+//      ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
+//      ipNamePointer[1] = ipIntPointer[iFrameOffset]; iFrameOffset++;
+//      ipNamePointer[2] = ipIntPointer[iFrameOffset]; iFrameOffset++;
+//      ipNamePointer[3] = ipIntPointer[iFrameOffset]; iFrameOffset++;
+//      foundname = btrue;
+//    }
+//    else
+//    {
+//      iFrameOffset += 4;
+//    }
+//    iFrameOffset += iNumVertices;
+//    cnt++;
+//  }
+//  cFrameName[15] = 0;  // Make sure it's null terminated
+//  return foundname;
+//}
 
 //---------------------------------------------------------------------------------------------
-int load_one_md2( char* szLoadname, Uint16 modelindex )
+//void rip_md2_frames( MD2_Model * m )
+//{
+//  // ZZ> This function gets frames from the load buffer and adds them to
+//  //     the indexed model
+//  Uint8 cTmpx, cTmpy, cTmpz;
+//  Uint8 cTmpNormalIndex;
+//  float fRealx, fRealy, fRealz;
+//  float fScalex, fScaley, fScalez;
+//  float fTranslatex, fTranslatey, fTranslatez;
+//  int iFrameOffset;
+//  int iNumVertices;
+//  int iNumFrames;
+//  int cnt, tnc;
+//  char* cpCharPointer;
+//  int* ipIntPointer;
+//  float* fpFloatPointer;
+//
+//  if(NULL == m) return;
+//
+//
+//  // Jump to the Frames section of the md2 data
+//  cpCharPointer = ( char* ) cLoadBuffer;
+//  ipIntPointer = ( int* ) cLoadBuffer;
+//  fpFloatPointer = ( float* ) cLoadBuffer;
+//
+//
+//  iNumVertices = md2_get_numVertices(m);
+//  iNumFrames   = md2_get_numFrames(m);
+//
+//  
+//  for( cnt = 0; cnt < iNumFrames; cnt++ )
+//  {
+//    MD2_Frame * = MD2_Frame(m, cnt);
+//
+//    fScalex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//    fScaley = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//    fScalez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//    fTranslatex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//    fTranslatey = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//    fTranslatez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
+//
+//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+//    fScalex = LoadFloatByteswapped( &fScalex );
+//    fScaley = LoadFloatByteswapped( &fScaley );
+//    fScalez = LoadFloatByteswapped( &fScalez );
+//
+//    fTranslatex = LoadFloatByteswapped( &fTranslatex );
+//    fTranslatey = LoadFloatByteswapped( &fTranslatey );
+//    fTranslatez = LoadFloatByteswapped( &fTranslatez );
+//#endif
+//
+//    iFrameOffset += 4;
+//    tnc = 0;
+//    while ( tnc < iNumVertices )
+//    {
+//      // This should work because it's reading a single character
+//      cTmpx = cpCharPointer[( iFrameOffset<<2 )];
+//      cTmpy = cpCharPointer[( iFrameOffset<<2 ) +1];
+//      cTmpz = cpCharPointer[( iFrameOffset<<2 ) +2];
+//      cTmpNormalIndex = cpCharPointer[( iFrameOffset<<2 ) +3];
+//      fRealx = ( cTmpx * fScalex ) + fTranslatex;
+//      fRealy = ( cTmpy * fScaley ) + fTranslatey;
+//      fRealz = ( cTmpz * fScalez ) + fTranslatez;
+//      madvrtx[madloadframe][tnc] = -fRealx * 3.5;
+//      madvrty[madloadframe][tnc] = fRealy * 3.5;
+//      madvrtz[madloadframe][tnc] = fRealz * 3.5;
+//      madvrta[madloadframe][tnc] = cTmpNormalIndex;
+//      iFrameOffset++;
+//      tnc++;
+//    }
+//    madloadframe++;
+//    cnt++;
+//  }
+//}
+
+//---------------------------------------------------------------------------------------------
+int load_one_md2( char * szLoadname, Uint16 imdl )
 {
   // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
   //    int iFileHandleRead;
+
   size_t iBytesRead = 0;
-  int iReturnValue;
+  int iFrames;
 
-  // Read the input file
-  FILE *file = fs_fileOpen( PRI_NONE, NULL, szLoadname, "rb" );
-  if ( NULL == file ) return bfalse;
+  // make sure this model is empty
+  if(NULL != mad_md2[imdl])
+  {
+    free_one_md2(imdl);
+  }
 
-  // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
-  iBytesRead = fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
-  if ( iBytesRead == 0 )
-    return bfalse;
+  // load the actual md2 data
+  mad_md2[imdl] = md2_load( szLoadname, NULL );
+  if(NULL == mad_md2[imdl]) return bfalse;
 
-  // Check the header
-  // TODO: Verify that the header's filesize correspond to iBytesRead.
-  iReturnValue = rip_md2_header();
-  if ( 0 == iReturnValue )
-    return bfalse;
-
-  // Get the frame vertices
-  rip_md2_frames( modelindex );
-  // Get the commands
-  rip_md2_commands( modelindex );
-  // Fix them normals
-  //fix_md2_normals(modelindex);
   // Figure out how many vertices to transform
-  get_madtransvertices( modelindex );
+  madvertices[imdl]      = md2_get_numVertices( mad_md2[imdl] );
+  madtransvertices[imdl] = count_madtransvertices( mad_md2[imdl] );
 
-  fs_fileClose( file );
+  iFrames = md2_get_numFrames(mad_md2[imdl]);
 
+  madframelip[imdl] = calloc(sizeof(Uint8),  iFrames);
+  madframefx[imdl]  = calloc(sizeof(Uint16), iFrames);
   return btrue;
+}
+
+//---------------------------------------------------------------------------------------------
+void free_one_md2( Uint16 imdl )
+{
+  // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
+  //    int iFileHandleRead;
+
+  if(imdl > MAXMODEL) return;
+
+  if(NULL != mad_md2[imdl])
+  {
+    md2_delete(mad_md2[imdl]);
+    mad_md2[imdl] = NULL;
+  }
+
+  if(NULL != madframelip[imdl])
+  {
+    free(madframelip[imdl]);
+    madframelip[imdl] = NULL;
+  };
+
+  if(NULL != madframefx[imdl])
+  {
+    free(madframefx[imdl]);
+    madframefx[imdl] = NULL;
+  };
+
+  
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2623,7 +2526,7 @@ void show_stat( Uint16 statindex )
 
       // Stats
       debug_message( 1, " STR:%2.1f ~WIS:%2.1f ~INT:%2.1f", FP8_TO_FLOAT( chrstrength_fp8[character] ), FP8_TO_FLOAT( chrwisdom_fp8[character] ), FP8_TO_FLOAT( chrintelligence_fp8[character] ) );
-      debug_message( 1, " DEX:%2.1f ~LVL:%4.1f ~DEF:%2.1f", FP8_TO_FLOAT( chrdexterity_fp8[character] ), calc_chr_level( character ), (FP8_TO_FLOAT( chrdefense_fp8[character] )) );
+      debug_message( 1, " DEX:%2.1f ~LVL:%4.1f ~DEF:%2.1f", FP8_TO_FLOAT( chrdexterity_fp8[character] ), calc_chr_level( character ), FP8_TO_FLOAT( chrdefense_fp8[character] ) );
 
       statdelay = 10;
     }
@@ -2825,7 +2728,7 @@ void play_action( CHR_REF character, ACTION action, bool_t actionready )
     chraction[character] = action;
     chrlip_fp8[character] = 0;
     chrflip[character] = 0.0f;
-    chrlastframe[character] = chrframe[character];
+    chrframelast[character] = chrframe[character];
     chrframe[character] = madactionstart[chrmodel[character]][chraction[character]];
     chractionready[character] = actionready;
   }
@@ -2840,7 +2743,7 @@ void set_frame( CHR_REF character, Uint16 frame, Uint8 lip )
   chraction[character] = ACTION_DA;
   chrlip_fp8[character] = ( lip << 6 );
   chrflip[character] = lip * 0.25;
-  chrlastframe[character] = madactionstart[chrmodel[character]][ACTION_DA] + frame;
+  chrframelast[character] = madactionstart[chrmodel[character]][ACTION_DA] + frame;
   chrframe[character] = madactionstart[chrmodel[character]][ACTION_DA] + frame + 1;
   chractionready[character] = btrue;
 }
@@ -3228,6 +3131,7 @@ void begin_integration()
     VectorClear( prtaccum_acc[cnt].v );
     VectorClear( prtaccum_vel[cnt].v );
     VectorClear( prtaccum_pos[cnt].v );
+    prt_calculate_bumpers(cnt);
   };
 
 };
@@ -3588,10 +3492,6 @@ void update_game( float dUpdate )
       move_particles( dUpdate );
       PROFILE_END( move_particles );
 
-      PROFILE_BEGIN( make_character_matrices );
-      make_character_matrices();
-      PROFILE_END( make_character_matrices );
-
       PROFILE_BEGIN( attach_particles );
       attach_particles();
       PROFILE_END( attach_particles );
@@ -3603,6 +3503,11 @@ void update_game( float dUpdate )
     }
     do_integration(dUpdate);
 
+    PROFILE_BEGIN( make_character_matrices );
+    make_character_matrices();
+    PROFILE_END( make_character_matrices );
+
+
     PROFILE_BEGIN( stat_return );
     stat_return( dUpdate );
     PROFILE_END( stat_return );
@@ -3610,7 +3515,6 @@ void update_game( float dUpdate )
     PROFILE_BEGIN( pit_kill );
     pit_kill( dUpdate );
     PROFILE_END( pit_kill );
-
 
     // Generate the new seed
     randsave += * (( Uint32* ) & kMd2Normals[wldframe&127][0] );
@@ -3848,7 +3752,7 @@ void set_default_config_data(CONFIG_DATA * pcon)
   strncpy( pcon->waterlow_bitmap, "waterlow.bmp" , sizeof( STRING ) );
   strncpy( pcon->phong_bitmap, "phong.bmp" , sizeof( STRING ) );
   strncpy( pcon->plan_bitmap, "plan.bmp" , sizeof( STRING ) );
-  strncpy( pcon->blip_bitmap, "blip.png" , sizeof( STRING ) );
+  strncpy( pcon->blip_bitmap, "blip9.png" , sizeof( STRING ) );
   strncpy( pcon->font_bitmap, "font.png" , sizeof( STRING ) );
   strncpy( pcon->icon_bitmap, "icon.bmp" , sizeof( STRING ) );
   strncpy( pcon->bars_bitmap, "bars.png" , sizeof( STRING ) );
@@ -3930,6 +3834,7 @@ void set_default_config_data(CONFIG_DATA * pcon)
   pcon->texturefilter = TX_LINEAR;
   pcon->wateron = btrue;
   pcon->shasprite = bfalse;
+  pcon->phongon = btrue;                // Do phong overlay? OUTDATED?
   pcon->zreflect = bfalse;
   pcon->reffadeor = 255;              // 255 = Don't fade reflections
   pcon->twolayerwateron = bfalse;        // Two layer water?
@@ -4041,6 +3946,9 @@ int proc_program( int argc, char **argv )
           return bfalse;
         }
         load_mesh_fans();
+
+        // set up the MD2 models
+        init_all_models();
 
         // Make lookup tables
         make_textureoffset();
@@ -4379,8 +4287,11 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
 
         update_timers();
 
-#ifdef DEBUG_UPDATE_CLAMP
-        log_info( "wldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
+#if defined(DEBUG_UPDATE_CLAMP) && defined(_DEBUG)
+        if(CData.DevMode)
+        {
+          log_info( "wldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
+        };
 #endif
 
         // This is the control loop
@@ -4426,36 +4337,36 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
         //  if ( lightspekdir.z > 0 )
         //  {
         //    // do the filtering
-        //    lightspekcol.x = exp(( 1.0f -  1.0f  / lightspekdir.z ) * 0.1f );
-        //    lightspekcol.y = exp(( 5.0f -  5.0f  / lightspekdir.z ) * 0.1f );
-        //    lightspekcol.z = exp(( 16.0f - 16.0f / lightspekdir.z ) * 0.1f );
+        //    lightspekcol.r = exp(( 1.0f -  1.0f  / lightspekdir.z ) * 0.1f );
+        //    lightspekcol.g = exp(( 5.0f -  5.0f  / lightspekdir.z ) * 0.1f );
+        //    lightspekcol.b = exp(( 16.0f - 16.0f / lightspekdir.z ) * 0.1f );
 
-        //    lightambicol.x = ( 1.0f - lightspekcol.x );
-        //    lightambicol.y = ( 1.0f - lightspekcol.y );
-        //    lightambicol.z = ( 1.0f - lightspekcol.z );
+        //    lightambicol.r = ( 1.0f - lightspekcol.r );
+        //    lightambicol.g = ( 1.0f - lightspekcol.g );
+        //    lightambicol.b = ( 1.0f - lightspekcol.b );
 
         //    // do the intensity
-        //    lightspekcol.x *= ABS( lightspekdir.z ) * lightspek;
-        //    lightspekcol.y *= ABS( lightspekdir.z ) * lightspek;
-        //    lightspekcol.z *= ABS( lightspekdir.z ) * lightspek;
+        //    lightspekcol.r *= ABS( lightspekdir.z ) * lightspek;
+        //    lightspekcol.g *= ABS( lightspekdir.z ) * lightspek;
+        //    lightspekcol.b *= ABS( lightspekdir.z ) * lightspek;
 
-        //    if(lightambicol.x + lightambicol.y + lightambicol.z > 0)
+        //    if(lightambicol.r + lightambicol.g + lightambicol.b > 0)
         //    {
-        //      ftmp = ( lightspekcol.x + lightspekcol.y + lightspekcol.z ) / (lightambicol.x + lightambicol.y + lightambicol.z);
-        //      lightambicol.x = 0.025f + (1.0f-0.025f) * ftmp * lightambicol.x + ABS( lightspekdir.z ) * lightambi;
-        //      lightambicol.y = 0.044f + (1.0f-0.044f) * ftmp * lightambicol.y + ABS( lightspekdir.z ) * lightambi;
-        //      lightambicol.z = 0.100f + (0.9f-0.100f) * ftmp * lightambicol.z + ABS( lightspekdir.z ) * lightambi;
+        //      ftmp = ( lightspekcol.r + lightspekcol.g + lightspekcol.b ) / (lightambicol.r + lightambicol.g + lightambicol.b);
+        //      lightambicol.r = 0.025f + (1.0f-0.025f) * ftmp * lightambicol.r + ABS( lightspekdir.z ) * lightambi;
+        //      lightambicol.g = 0.044f + (1.0f-0.044f) * ftmp * lightambicol.g + ABS( lightspekdir.z ) * lightambi;
+        //      lightambicol.b = 0.100f + (0.9f-0.100f) * ftmp * lightambicol.b + ABS( lightspekdir.z ) * lightambi;
         //    };
         //  }
         //  else
         //  {
-        //    lightspekcol.x = 0.0f;
-        //    lightspekcol.y = 0.0f;
-        //    lightspekcol.z = 0.0f;
+        //    lightspekcol.r = 0.0f;
+        //    lightspekcol.g = 0.0f;
+        //    lightspekcol.b = 0.0f;
 
-        //    lightambicol.x = 0.025 + lightambi;
-        //    lightambicol.y = 0.044 + lightambi;
-        //    lightambicol.z = 0.100 + lightambi;
+        //    lightambicol.r = 0.025 + lightambi;
+        //    lightambicol.g = 0.044 + lightambi;
+        //    lightambicol.b = 0.100 + lightambi;
         //  };
 
         //  make_spektable( lightspekdir );
@@ -4502,8 +4413,11 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
           dUpdate -= 1.0f;
           ups_loops++;
 
-#ifdef DEBUG_UPDATE_CLAMP
-          log_info( "\t\twldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
+#if defined(DEBUG_UPDATE_CLAMP) && defined(_DEBUG)
+          if(CData.DevMode)
+          {
+            log_info( "\t\twldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
+          }
 #endif
 
           move_camera( UPDATESCALE );

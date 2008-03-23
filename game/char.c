@@ -33,6 +33,84 @@ Uint16  bumplistchrnum[MAXMESHFAN/16];                  // Number on the block
 Uint16  bumplistprt[MAXMESHFAN/16];                     // For particle collisions
 Uint16  bumplistprtnum[MAXMESHFAN/16];                  // Number on the block
 
+Uint32  cv_list_count = 0;
+CVolume cv_list[1000];
+
+void cv_list_add( CVolume * cv)
+{
+  if(NULL == cv || cv_list_count > 1000) return;
+  cv_list[cv_list_count++] = *cv;
+};
+
+void cv_list_clear()
+{
+  cv_list_count = 0;
+};
+
+//--------------------------------------------------------------------------------------------
+CVolume cvolume_merge(CVolume * pv1, CVolume * pv2)
+{
+  CVolume rv;
+
+  rv.level = -1;
+
+  if(NULL==pv1 && NULL==pv2)
+  {
+    return rv;
+  }
+  else if(NULL==pv2)
+  {
+    return *pv1;
+  }
+  else if(NULL==pv1)
+  {
+    return *pv2;
+  }
+  else
+  {
+    bool_t binvalid;
+
+    // check for uninitialized volumes
+    if(-1==pv1->level && -1==pv2->level)
+    {
+      return rv;
+    }
+    else if(-1==pv1->level)
+    {
+      return *pv2;
+    }
+    else if(-1==pv2->level)
+    {
+      return *pv1;
+    };
+
+    // merge the volumes
+
+    rv.x_min = MIN(pv1->x_min, pv2->x_min);
+    rv.x_max = MAX(pv1->x_max, pv2->x_max);
+
+    rv.y_min = MIN(pv1->y_min, pv2->y_min);
+    rv.y_max = MAX(pv1->y_max, pv2->y_max);
+
+    rv.z_min = MIN(pv1->z_min, pv2->z_min);
+    rv.z_max = MAX(pv1->z_max, pv2->z_max);
+
+    rv.xy_min = MIN(pv1->xy_min, pv2->xy_min);
+    rv.xy_max = MAX(pv1->xy_max, pv2->xy_max);
+
+    rv.yx_min = MIN(pv1->yx_min, pv2->yx_min);
+    rv.yx_max = MAX(pv1->yx_max, pv2->yx_max);
+
+    // check for an invalid volume
+    binvalid = (rv.x_min >= rv.x_max) || (rv.y_min >= rv.y_max) || (rv.z_min >= rv.z_max);
+    binvalid = binvalid ||(rv.xy_min >= rv.xy_max) || (rv.yx_min >= rv.yx_max);
+
+    rv.level = binvalid ? -1 : 1;
+  }
+
+  return rv;
+}
+
 
 
 //--------------------------------------------------------------------------------------------
@@ -44,41 +122,47 @@ void flash_character_height( CHR_REF character, Uint8 valuelow, Sint16 low,
   // ZZ> This function sets a character's lighting depending on vertex height...
   //     Can make feet dark and head light...
   int cnt;
-  Uint16 frame;
-  Sint16 z;
-  Uint16 model = chrmodel[character];
+  Uint16 model;
+  float z, flip;
+
+  Uint32 ilast, inext;
+  MD2_Model * pmdl;
+  MD2_Frame * plast, * pnext;
+
+  model = chrmodel[character];
+  inext = chrframe[character];
+  ilast = chrframelast[character];
+  flip = chrflip[character];
 
   assert( MAXMODEL != VALIDATE_MDL( model ) );
 
-
-  frame = chrframe[character];
-  cnt = 0;
-  while ( cnt < madtransvertices[model] )
+  pmdl  = mad_md2[model];
+  plast = md2_get_Frame(pmdl, ilast);
+  pnext = md2_get_Frame(pmdl, inext);
+  
+  for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
   {
-    z = madvrtz[frame][cnt];
+    z = pnext->vertices[cnt].z + (pnext->vertices[cnt].z - plast->vertices[cnt].z) * flip;
+
     if ( z < low )
     {
       chrvrtar_fp8[character][cnt] =
-        chrvrtag_fp8[character][cnt] =
-          chrvrtab_fp8[character][cnt] = valuelow;
+      chrvrtag_fp8[character][cnt] =
+      chrvrtab_fp8[character][cnt] = valuelow;
+    }
+    else if ( z > high )
+    {
+      chrvrtar_fp8[character][cnt] =
+      chrvrtag_fp8[character][cnt] =
+      chrvrtab_fp8[character][cnt] = valuehigh;
     }
     else
     {
-      if ( z > high )
-      {
-        chrvrtar_fp8[character][cnt] =
-          chrvrtag_fp8[character][cnt] =
-            chrvrtab_fp8[character][cnt] = valuehigh;
-      }
-      else
-      {
-        chrvrtar_fp8[character][cnt] =
-          chrvrtag_fp8[character][cnt] =
-            chrvrtab_fp8[character][cnt] = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                                           ( valuelow * ( high - z ) / ( high - low ) );
-      }
+      float ftmp = (float)( z - low ) / (float)( high - low );
+      chrvrtar_fp8[character][cnt] =
+      chrvrtag_fp8[character][cnt] =
+      chrvrtab_fp8[character][cnt] = valuelow + (valuehigh - valuelow) * ftmp;
     }
-    cnt++;
   }
 }
 
@@ -310,13 +394,34 @@ void make_turntosin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t make_one_character_matrix( Uint16 cnt )
+bool_t matrix_compare_3x3(GLMatrix * pm1, GLMatrix * pm2)
+{
+  // BB > compare two 3x3 matrices to see if the transformation is the same
+
+  int i,j;
+
+  for(i=0;i<3;i++)
+  {
+    for(j=0;j<3;j++)
+    {
+      if( (*pm1)_CNV(i,j) != (*pm2)_CNV(i,j) ) bfalse;
+    };
+  };
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t make_one_character_matrix( CHR_REF cnt )
 {
   // ZZ> This function sets one character's matrix
   Uint16 tnc;
+  GLMatrix mat_old;
+  bool_t recalc_bumper = bfalse;
 
   if ( !VALID_CHR( cnt ) ) return bfalse;
 
+  mat_old = chrmatrix[cnt];
   chrmatrixvalid[cnt] = bfalse;
 
   if ( chroverlay[cnt] )
@@ -326,7 +431,6 @@ bool_t make_one_character_matrix( Uint16 cnt )
 
     if ( VALID_CHR( tnc ) )
     {
-
       chrpos[cnt].x = chrmatrix[tnc]_CNV( 3, 0 );
       chrpos[cnt].y = chrmatrix[tnc]_CNV( 3, 1 );
       chrpos[cnt].z = chrmatrix[tnc]_CNV( 3, 2 );
@@ -346,6 +450,8 @@ bool_t make_one_character_matrix( Uint16 cnt )
       chrmatrix[cnt]_CNV( 2, 2 ) *= chrpancakepos[cnt].z;
 
       chrmatrixvalid[cnt] = btrue;
+
+      recalc_bumper = matrix_compare_3x3(&mat_old, &chrmatrix[cnt]);
     }
   }
   else
@@ -357,7 +463,15 @@ bool_t make_one_character_matrix( Uint16 cnt )
                      chrpos[cnt].x, chrpos[cnt].y, chrpos[cnt].z );
 
     chrmatrixvalid[cnt] = btrue;
+
+    recalc_bumper = matrix_compare_3x3(&mat_old, &chrmatrix[cnt]);
   }
+
+  if(chrmatrixvalid[cnt] && recalc_bumper)
+  {
+    // invalidate the cached bumper data
+    chrbmpdata[cnt].cv.level = -1;
+  };
 
   return chrmatrixvalid[cnt];
 }
@@ -372,6 +486,14 @@ void free_one_character( CHR_REF ichr )
 
   fprintf( stdout, "free_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", chrmodel[ichr], capclassname[chrmodel[ichr]], ichr );
 
+  //remove any collision volume octree
+  if(NULL != chrbmpdata[ichr].cv_tree)
+  {
+    free( chrbmpdata[ichr].cv_tree );
+    chrbmpdata[ichr].cv_tree = NULL;
+  }
+
+  // add it to the free list
   freechrlist[numfreechr] = ichr;
   numfreechr++;
 
@@ -435,6 +557,7 @@ void free_one_character( CHR_REF ichr )
   chron[ichr] = bfalse;
   chralive[ichr] = bfalse;
   chrinwhichpack[ichr] = MAXCHR;
+  VData_Blended_Deallocate(&chrvdata[ichr]);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -457,9 +580,10 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
 {
   // ZZ> This function sets one particle's position to be attached to a character.
   //     It will kill the particle if the character is no longer around
-  Uint16 vertex, model, frame, lastframe;
+  Uint16 vertex, model;
   float flip;
   GLVector point, nupoint;
+
 
   // Check validity of attachment
   if ( !VALID_CHR( character ) || chr_in_pack( character ) )
@@ -482,34 +606,42 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
     }
     else
     {
+      Uint32 ilast, inext;
+      MD2_Model * pmdl;
+      MD2_Frame * plast, * pnext;
+
       model = chrmodel[character];
-      frame = chrframe[character];
-      lastframe = chrlastframe[character];
+      inext = chrframe[character];
+      ilast = chrframelast[character];
       flip = chrflip[character];
 
       assert( MAXMODEL != VALIDATE_MDL( model ) );
+
+      pmdl  = mad_md2[model];
+      plast = md2_get_Frame(pmdl, ilast);
+      pnext = md2_get_Frame(pmdl, inext);
 
       //handle possible invalid values
       vertex = ( madvertices[model] >= vertoffset ) ? madvertices[model] - vertoffset : madvertices[model] - GRIP_LAST;
 
       // Calculate grip point locations with linear interpolation and other silly things
-      if ( frame == lastframe )
+      if ( inext == ilast )
       {
-        point.x = madvrtx[lastframe][vertex];
-        point.y = madvrty[lastframe][vertex];
-        point.z = madvrtz[lastframe][vertex];
+        point.x = plast->vertices[vertex].x;
+        point.y = plast->vertices[vertex].y;
+        point.z = plast->vertices[vertex].z;
         point.w = 1;
       }
       else
       {
-        point.x = madvrtx[lastframe][vertex] + ( madvrtx[frame][vertex] - madvrtx[lastframe][vertex] ) * flip;
-        point.y = madvrty[lastframe][vertex] + ( madvrty[frame][vertex] - madvrty[lastframe][vertex] ) * flip;
-        point.z = madvrtz[lastframe][vertex] + ( madvrtz[frame][vertex] - madvrtz[lastframe][vertex] ) * flip;
+        point.x = plast->vertices[vertex].x + ( pnext->vertices[vertex].x - plast->vertices[vertex].x ) * flip;
+        point.y = plast->vertices[vertex].y + ( pnext->vertices[vertex].y - plast->vertices[vertex].y ) * flip;
+        point.z = plast->vertices[vertex].z + ( pnext->vertices[vertex].z - plast->vertices[vertex].z ) * flip;
         point.w = 1;
       }
 
       // Do the transform
-      TransformVerticesFull( &chrmatrix[character], &point, &nupoint, 1 );
+      Transform4_Full( &chrmatrix[character], &point, &nupoint, 1 );
 
       prtpos[particle].x = nupoint.x;
       prtpos[particle].y = nupoint.y;
@@ -526,64 +658,86 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
 }
 
 //--------------------------------------------------------------------------------------------
-#define POINTS 4
-
 bool_t make_one_weapon_matrix( CHR_REF ichr )
 {
   // ZZ> This function sets one weapon's matrix, based on who it's attached to
-
   int cnt;
   CHR_REF imount;
-  Uint16 vertex, model, frame, lastframe;
-  float flip;
-  GLVector point[POINTS], nupoint[POINTS];
+  Uint16 vertex;
+  GLMatrix mat_old;
+  bool_t recalc_bumper = bfalse;
 
   // check this character
-  if ( !VALID_CHR( ichr ) ) return bfalse;
+  if ( !VALID_CHR( ichr ) )  return bfalse;
 
   // invalidate the matrix
   chrmatrixvalid[ichr] = bfalse;
 
   // check that the mount is valid
   imount = chr_get_attachedto( ichr );
-  if ( !VALID_CHR( imount ) ) return bfalse;
-
-  // check the mount's model
-  model = chrmodel[imount];
-  assert( MAXMODEL != VALIDATE_MDL( model ) );
-
-  // get the frame properties
-  frame = chrframe[imount];
-  lastframe = chrlastframe[imount];
-  flip = chrflip[imount];
-
-  // Calculate grip point locations with linear interpolation and other silly things
-  for ( cnt = 0; cnt < POINTS; cnt++ )
+  if ( !VALID_CHR( imount ) ) 
   {
-    vertex = chrattachedgrip[ichr][cnt];
-    if ( frame == lastframe )
-    {
-      point[cnt].x = madvrtx[lastframe][vertex];
-      point[cnt].y = madvrty[lastframe][vertex];
-      point[cnt].z = madvrtz[lastframe][vertex];
-      point[cnt].w = 1.0f;
-    }
-    else
-    {
-      point[cnt].x = madvrtx[lastframe][vertex] + ( madvrtx[frame][vertex] - madvrtx[lastframe][vertex] ) * flip;
-      point[cnt].y = madvrty[lastframe][vertex] + ( madvrty[frame][vertex] - madvrty[lastframe][vertex] ) * flip;
-      point[cnt].z = madvrtz[lastframe][vertex] + ( madvrtz[frame][vertex] - madvrtz[lastframe][vertex] ) * flip;
-      point[cnt].w = 1.0f;
-    }
+    chrmatrix[ichr] = ZeroMatrix();
+    return bfalse;
   }
 
-  // Do the transform
-  TransformVerticesFull( &chrmatrix[imount], point, nupoint, POINTS );
+  mat_old = chrmatrix[ichr];
 
-  // Calculate weapon's matrix based on positions of grip points
-  // chrscale is recomputed at time of attachment
-  chrmatrix[ichr] = FourPoints( nupoint[0], nupoint[1], nupoint[2], nupoint[3], 1.0 );
-  chrmatrixvalid[ichr] = btrue;
+  if(0xFFFF == chrattachedgrip[ichr][0])
+  {
+    // Calculate weapon's matrix
+    chrmatrix[ichr] = ScaleXYZRotateXYZTranslate( 1, 1, 1, 0, 0, chrturn_lr[ichr] + chrturn_lr[imount], chrpos[imount].x, chrpos[imount].y, chrpos[imount].z);
+    chrmatrixvalid[ichr] = btrue;
+
+    recalc_bumper = matrix_compare_3x3(&mat_old, &chrmatrix[ichr]);
+  }
+  else if(0xFFFF == chrattachedgrip[ichr][1])
+  {
+    // do the linear interpolation  
+    vertex = chrattachedgrip[ichr][0];
+    md2_blend_vertices(imount, vertex, vertex);
+
+    // Calculate weapon's matrix
+    chrmatrix[ichr] = ScaleXYZRotateXYZTranslate( 1, 1, 1, 0, 0, chrturn_lr[ichr] + chrturn_lr[imount], chrvdata[imount].Vertices[vertex].x, chrvdata[imount].Vertices[vertex].y, chrvdata[imount].Vertices[vertex].z);
+    chrmatrixvalid[ichr] = btrue;
+
+    recalc_bumper = matrix_compare_3x3(&mat_old, &chrmatrix[ichr]);
+  }
+  else
+  {
+    GLVector point[GRIP_SIZE], nupoint[GRIP_SIZE];
+
+    // do the linear interpolation
+    vertex = chrattachedgrip[ichr][0];
+    md2_blend_vertices(imount, vertex, vertex+GRIP_SIZE);
+    
+    for ( cnt = 0; cnt < GRIP_SIZE; cnt++ )
+    {
+      point[cnt].x = chrvdata[imount].Vertices[vertex+cnt].x;
+      point[cnt].y = chrvdata[imount].Vertices[vertex+cnt].y;
+      point[cnt].z = chrvdata[imount].Vertices[vertex+cnt].z;
+      point[cnt].w = 1.0f; 
+    };
+
+    // Do the transform
+    Transform4_Full( &chrmatrix[imount], point, nupoint, GRIP_SIZE );
+
+    // Calculate weapon's matrix based on positions of grip points
+    // chrscale is recomputed at time of attachment
+    chrmatrix[ichr] = FourPoints( nupoint[0], nupoint[1], nupoint[2], nupoint[3], 1.0 );
+    chrpos[ichr].x = (chrmatrix[ichr])_CNV(3,0);
+    chrpos[ichr].y = (chrmatrix[ichr])_CNV(3,1);
+    chrpos[ichr].z = (chrmatrix[ichr])_CNV(3,2);
+    chrmatrixvalid[ichr] = btrue;
+
+    recalc_bumper = matrix_compare_3x3(&mat_old, &chrmatrix[ichr]);
+  };
+
+  if(chrmatrixvalid[ichr] && recalc_bumper)
+  {
+    // invalidate the cached bumper data
+    md2_calculate_bumpers(ichr, 0);
+  };
 
   return chrmatrixvalid[ichr];
 }
@@ -749,19 +903,37 @@ CHR_REF prt_search_target( float prtx, float prty, Uint16 facing,
 void free_all_characters()
 {
   // ZZ> This function resets the character allocation list
-  Uint16 cnt;
+  CHR_REF cnt;
+  bool_t do_initialization;
+
+  do_initialization = (-1 == numfreechr);
 
   nolocalplayers = btrue;
   numfreechr = 0;
   while ( numfreechr < MAXCHR )
   {
-  
-    // silence all looping sounds
-    if( INVALID_CHANNEL != chrloopingchannel[numfreechr] )
+    
+    if(do_initialization)
     {
-      stop_sound( chrloopingchannel[numfreechr] );
+      // initialize a non-existant collision volume octree
+      chrbmpdata[numfreechr].cv_tree = NULL;
+
+      // initialize the looping sounds
       chrloopingchannel[numfreechr] = INVALID_CHANNEL;
-    };
+    }
+    else if(NULL != chrbmpdata[numfreechr].cv_tree)
+    {
+      // remove existing collision volume octree
+      free( chrbmpdata[numfreechr].cv_tree );
+      chrbmpdata[numfreechr].cv_tree = NULL;
+
+      // silence all looping sounds
+      if( INVALID_CHANNEL != chrloopingchannel[numfreechr] )
+      {
+        stop_sound( chrloopingchannel[numfreechr] );
+        chrloopingchannel[numfreechr] = INVALID_CHANNEL;
+      };
+    }
 
     // reset some values
     chron[numfreechr] = bfalse;
@@ -769,8 +941,9 @@ void free_all_characters()
     chrstaton[numfreechr] = bfalse;
     chrmatrixvalid[numfreechr] = bfalse;
     chrmodel[numfreechr] = MAXMODEL;
+    VData_Blended_Deallocate(&chrvdata[numfreechr]);
     chrname[numfreechr][0] = '\0';
-
+    
     // invalidate pack
     chrnuminpack[numfreechr] = 0;
     chrinwhichpack[numfreechr] = MAXCHR;
@@ -801,55 +974,72 @@ Uint32 __chrhitawall( CHR_REF ichr, vect3 * norm )
   //     ichr is not allowed to cross
 
   Uint32 retval;
+  vect3  pos, size;
 
   if ( !VALID_CHR( ichr ) || 0.0f == chrbumpstrength[ichr] ) return 0;
 
-  retval = mesh_hitawall( chrpos[ichr], chrbumpsize[ichr], chrstoppedby[ichr] );
+  pos.x = ( chrbmpdata[ichr].cv.x_max + chrbmpdata[ichr].cv.x_min ) * 0.5f;
+  pos.y = ( chrbmpdata[ichr].cv.y_max + chrbmpdata[ichr].cv.y_min ) * 0.5f;
+  pos.z =   chrbmpdata[ichr].cv.z_min;
+
+  size.x = ( chrbmpdata[ichr].cv.x_max - chrbmpdata[ichr].cv.x_min ) * 0.5f;
+  size.y = ( chrbmpdata[ichr].cv.y_max - chrbmpdata[ichr].cv.y_min ) * 0.5f;
+  size.z = ( chrbmpdata[ichr].cv.z_max - chrbmpdata[ichr].cv.z_min ) * 0.5f;
+
+  retval = mesh_hitawall( pos, size.x, size.y, chrstoppedby[ichr] );
 
   if( 0!=retval && NULL!=norm )
   {
-    vect3 pos;
+    vect3 pos2;
 
     VectorClear( norm->v );
 
-    if( 0 != mesh_hitawall( chrpos_old[ichr], chrbumpsize[ichr], chrstoppedby[ichr] ) )
+    pos2.x = pos.x + chrpos[ichr].x - chrpos_old[ichr].x;
+    pos2.y = pos.y + chrpos[ichr].y - chrpos_old[ichr].y;
+    pos2.z = pos.z + chrpos[ichr].z - chrpos_old[ichr].z;
+
+    if( 0 != mesh_hitawall( pos2, size.x, size.y, chrstoppedby[ichr] ) )
     {
       return 0;
     }
    
-    pos.x = chrpos[ichr].x;
-    pos.y = chrpos_old[ichr].y;
-    pos.z = chrpos_old[ichr].z;
+    pos2.x = pos.x;
+    pos2.y = pos.y + chrpos[ichr].y - chrpos_old[ichr].y;
+    pos2.z = pos.z + chrpos[ichr].z - chrpos_old[ichr].z;
 
-    if( 0 != mesh_hitawall( pos, chrbumpsize[ichr], chrstoppedby[ichr] ) )
+    if( 0 != mesh_hitawall( pos2, size.x, size.y, chrstoppedby[ichr] ) )
     {
       norm->x = -SGN(chrpos[ichr].x - chrpos_old[ichr].x);
     }
 
-    pos.x = chrpos_old[ichr].x;
-    pos.y = chrpos[ichr].y;
-    pos.z = chrpos_old[ichr].z;
+    pos2.x = pos.x + chrpos[ichr].x - chrpos_old[ichr].x;
+    pos2.y = pos.y;
+    pos2.z = pos.z + chrpos[ichr].z - chrpos_old[ichr].z;
 
-    if( 0 != mesh_hitawall( pos, chrbumpsize[ichr], chrstoppedby[ichr] ) )
+    if( 0 != mesh_hitawall( pos2, size.x, size.y, chrstoppedby[ichr] ) )
     {
       norm->y = -SGN(chrpos[ichr].y - chrpos_old[ichr].y);
     }
 
-    pos.x = chrpos_old[ichr].x;
-    pos.y = chrpos_old[ichr].y;
-    pos.z = chrpos[ichr].z;
+    pos2.x = pos.x + chrpos[ichr].x - chrpos_old[ichr].x;
+    pos2.y = pos.y + chrpos[ichr].y - chrpos_old[ichr].y;
+    pos2.z = pos.z;
 
-    if( 0 != mesh_hitawall( pos, chrbumpsize[ichr], chrstoppedby[ichr] ) )
+    if( 0 != mesh_hitawall( pos, size.x, size.y, chrstoppedby[ichr] ) )
     {
       norm->z = -SGN(chrpos[ichr].z - chrpos_old[ichr].z);
     }
 
-    *norm = Normalize( *norm );
-
     if( ABS(norm->x) + ABS(norm->y) + ABS(norm->z) == 0.0f)
     {
       retval = 0;
+      norm->z = 1.0f;
     }
+    else
+    {
+      *norm = Normalize( *norm );
+    };
+
   }
 
   return retval;
@@ -1121,10 +1311,10 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
     }
     else
     {
-      chrattachedgrip[ichr][0] =
-      chrattachedgrip[ichr][1] =
-      chrattachedgrip[ichr][2] =
-      chrattachedgrip[ichr][3] = madvertices[model] - 1;
+      chrattachedgrip[ichr][0] = madvertices[model] - 1;
+      chrattachedgrip[ichr][1] = 0xFFFF;
+      chrattachedgrip[ichr][2] = 0xFFFF;
+      chrattachedgrip[ichr][3] = 0xFFFF;
     }
   }
 
@@ -1132,7 +1322,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
 
 
   // Run the held animation
-  if ( chrismount[imount] && slot == SLOT_SADDLE )
+  if ( chrbmpdata[imount].calc_is_mount && slot == SLOT_SADDLE )
   {
     // Riding imount
     play_action( ichr, ACTION_MI, btrue );
@@ -1155,7 +1345,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
     // Set the alert
     chralert[ichr] |= ALERT_GRABBED;
   }
-  else if ( chrismount[imount] )
+  else if ( chrbmpdata[imount].calc_is_mount )
   {
     chrteam[imount] = chrteam[ichr];
     // Set the alert
@@ -1538,10 +1728,11 @@ void drop_all_items( CHR_REF character )
 bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
 {
   // ZZ> This function makes the character pick up an item if there's one around
-  vect3 posa, posb, posc, point;
+  vect4 posa, point;
+  vect3 posb, posc;
   float dist, mindist;
   CHR_REF iobject, minchr, iholder, ipacker, owner = MAXCHR;
-  Uint16 vertex, model, frame, passage, cnt, price;
+  Uint16 vertex, model, passage, cnt, price;
   bool_t inshop, can_disarm, can_pickpocket, bfound, ballowed;
   GRIP grip;
   float grab_width, grab_height;
@@ -1563,40 +1754,32 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
   grip  = slot_to_grip( slot );
 
   // !!!!base the grab distance off of the character size!!!!
-  grab_width  = ( chrbumpsizebig[ichr] + chrbumpsize[ichr] ) / 2.0f * 1.5f;
-  grab_height = chrbumpheight[ichr] / 2.0f * 1.5f;
+  grab_width  = ( chrbmpdata[ichr].calc_size_big + chrbmpdata[ichr].calc_size ) / 2.0f * 1.5f;
+  grab_height = chrbmpdata[ichr].calc_height / 2.0f * 1.5f;
 
   // Do we have a matrix???
   if ( chrmatrixvalid[ichr] )
   {
     // Transform the weapon grip from model to world space
-    frame = chrframe[ichr];
+    vertex = chrattachedgrip[ichr][0];
 
-    if ( madvertices[model] > grip && grip > 0 )
-      vertex = madvertices[model] - grip;
+    if(0xFFFF == vertex)
+    {
+      point.x = chrpos[ichr].x;
+      point.y = chrpos[ichr].y;
+      point.z = chrpos[ichr].z;
+      point.w = 1.0f;
+    }
     else
-      vertex = madvertices[model] - 1;
-
-
-    // Calculate grip point locations
-    point.x = madvrtx[frame][vertex];
-    point.y = madvrty[frame][vertex];
-    point.z = madvrtz[frame][vertex];
-
+    {
+      point.x = chrvdata[ichr].Vertices[vertex].x;
+      point.y = chrvdata[ichr].Vertices[vertex].y;
+      point.z = chrvdata[ichr].Vertices[vertex].z;
+      point.w = 1.0f;
+    }
 
     // Do the transform
-    posa.x = ( point.x * chrmatrix[ichr]_CNV( 0, 0 ) +
-           point.y * chrmatrix[ichr]_CNV( 1, 0 ) +
-           point.z * chrmatrix[ichr]_CNV( 2, 0 ) );
-    posa.y = ( point.x * chrmatrix[ichr]_CNV( 0, 1 ) +
-           point.y * chrmatrix[ichr]_CNV( 1, 1 ) +
-           point.z * chrmatrix[ichr]_CNV( 2, 1 ) );
-    posa.z = ( point.x * chrmatrix[ichr]_CNV( 0, 2 ) +
-           point.y * chrmatrix[ichr]_CNV( 1, 2 ) +
-           point.z * chrmatrix[ichr]_CNV( 2, 2 ) );
-    posa.x += chrmatrix[ichr]_CNV( 3, 0 );
-    posa.y += chrmatrix[ichr]_CNV( 3, 1 );
-    posa.z += chrmatrix[ichr]_CNV( 3, 2 );
+    Transform4_Full( &chrmatrix[ichr], &posa, &point, 1 );
   }
   else
   {
@@ -1658,7 +1841,7 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
       trg_intelligence_fp8 = chrintelligence_fp8[ipacker];
       trg_team = chrteam[ipacker];
       posb     = chrpos[ipacker];
-      posb.z  += chrbumpheight[ipacker] / 2;
+      posb.z  += chrbmpdata[ipacker].calc_height / 2;
     };
 
     // First check absolute value diamond
@@ -1913,7 +2096,7 @@ void character_swipe( CHR_REF ichr, SLOT slot )
           {
             // Attached particles get a strength bonus for reeling...
             if ( pipcauseknockback[prtpip[particle]] ) dampen = ( REELBASE + ( chrstrength_fp8[ichr] / REEL ) ) * 4; //Extra knockback?
-            else dampen = REELBASE + ( chrstrength_fp8[ichr] / REEL );      //No, do normal
+            else dampen = REELBASE + ( chrstrength_fp8[ichr] / REEL );      // No, do normal
 
             prtaccum_vel[particle].x += -(1.0f - dampen) * prtvel[particle].x;
             prtaccum_vel[particle].y += -(1.0f - dampen) * prtvel[particle].y;
@@ -2071,7 +2254,7 @@ void move_characters( float dUpdate )
           float volume, weight;
 
           weight = chrweight[ichr] + chrholdingweight[ichr];
-          volume = ( chrbumpheight[ichr] + 1 ) * (( chrbumpsizebig[ichr] + 1 ) * ( chrbumpsizebig[ichr] + 1 ) + ( chrbumpsize[ichr] + 1 ) * ( chrbumpsize[ichr] + 1 ) ) * 0.5;
+          volume = ( chrbmpdata[ichr].cv.z_max - chrbmpdata[ichr].cv.z_min ) * ( chrbmpdata[ichr].cv.x_max - chrbmpdata[ichr].cv.x_min ) * ( chrbmpdata[ichr].cv.y_max - chrbmpdata[ichr].cv.y_min );
 
           // this adjusts the buoyancy so that the default adventurer gets a buoyancy of 0.3
           buoy = 0.3f * ( weight / volume ) * 1196.0f;
@@ -2079,7 +2262,7 @@ void move_characters( float dUpdate )
           if ( buoy > 1.0f ) buoy = 1.0f;
         };
 
-        lerp = ( float )( watersurfacelevel - chrpos[ichr].z ) / ( float ) chrbumpheight[ichr];
+        lerp = ( float )( watersurfacelevel - chrpos[ichr].z ) / ( float ) ( chrbmpdata[ichr].cv.z_max - chrbmpdata[ichr].cv.z_min );
         if ( lerp > 1.0f ) lerp = 1.0f;
         if ( lerp < 0.0f ) lerp = 0.0f;
 
@@ -2174,7 +2357,7 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_STOP ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_STOP ) )
         {
           dvx = 0;
           dvy = 0;
@@ -2694,25 +2877,25 @@ void move_characters( float dUpdate )
       if ( chrlip_fp8[ichr] == 192 )
       {
         // Check frame effects
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_ACTLEFT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_ACTLEFT ) )
           character_swipe( ichr, SLOT_LEFT );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_ACTRIGHT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_ACTRIGHT ) )
           character_swipe( ichr, SLOT_RIGHT );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_GRABLEFT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_GRABLEFT ) )
           character_grab_stuff( ichr, SLOT_LEFT, bfalse );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_GRABRIGHT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_GRABRIGHT ) )
           character_grab_stuff( ichr, SLOT_RIGHT, bfalse );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_CHARLEFT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_CHARLEFT ) )
           character_grab_stuff( ichr, SLOT_LEFT, btrue );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_CHARRIGHT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_CHARRIGHT ) )
           character_grab_stuff( ichr, SLOT_RIGHT, btrue );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_DROPLEFT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_DROPLEFT ) )
           detach_character_from_mount( chr_get_holdingwhich( ichr, SLOT_LEFT ), bfalse, btrue );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_DROPRIGHT ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_DROPRIGHT ) )
           detach_character_from_mount( chr_get_holdingwhich( ichr, SLOT_RIGHT ), bfalse, btrue );
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_POOF ) && !chrisplayer[ichr] )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_POOF ) && !chrisplayer[ichr] )
           chrgopoof[ichr] = btrue;
-        if ( HAS_SOME_BITS( madframefx[chrframe[ichr]], MADFX_FOOTFALL ) )
+        if ( HAS_SOME_BITS( madframefx[chrmodel[ichr]][chrframe[ichr]], MADFX_FOOTFALL ) )
         {
           if ( INVALID_SOUND != capfootfallsound[imdl] )
           {
@@ -2727,7 +2910,7 @@ void move_characters( float dUpdate )
       {
         chrflip[ichr] -= 1.0f;
         // Change frames
-        chrlastframe[ichr] = chrframe[ichr];
+        chrframelast[ichr] = chrframe[ichr];
         chrframe[ichr]++;
         if ( chrframe[ichr] == madactionend[imdl][chraction[ichr]] )
         {
@@ -2735,7 +2918,7 @@ void move_characters( float dUpdate )
           if ( chrkeepaction[ichr] )
           {
             // Keep the last frame going
-            chrframe[ichr] = chrlastframe[ichr];
+            chrframe[ichr] = chrframelast[ichr];
           }
           else
           {
@@ -2771,7 +2954,7 @@ void move_characters( float dUpdate )
     // Get running, walking, sneaking, or dancing, from speed
     if ( !chrkeepaction[ichr] && !chrloopaction[ichr] )
     {
-      framelip = madframelip[chrframe[ichr]];  // 0 - 15...  Way through animation
+      framelip = madframelip[chrmodel[ichr]][chrframe[ichr]];  // 0 - 15...  Way through animation
       if ( chractionready[ichr] && chrlip_fp8[ichr] == 0 && grounded && chrflyheight[ichr] == 0 && ( framelip&7 ) < 2 )
       {
         // Do the motion stuff
@@ -3014,7 +3197,7 @@ void setup_characters( char *modname )
           give_experience( lastcharacter, 100, XP_DIRECT );
         }
       }
-      if ( ghost )	//Outdated, should be removed....
+      if ( ghost )  // Outdated, should be removed.
       {
         // Make the character a ghost !!!BAD!!!  Can do with enchants
         chralpha_fp8[lastcharacter] = 128;
@@ -3349,7 +3532,7 @@ float get_one_level( CHR_REF character )
   platform = chr_get_onwhichplatform( character );
   if ( VALID_CHR( platform ) )
   {
-    float ftmp = chrpos[platform].z + chrbumpheight[platform];
+    float ftmp = chrbmpdata[platform].cv.z_max;
     level = MAX( level, ftmp );
   }
 
@@ -3408,7 +3591,7 @@ void make_onwhichfan( void )
     ripplesize = 0.0f;
     if ( INVALID_FAN != chronwhichfan[character] && mesh_has_some_bits( chronwhichfan[character], MESHFX_WATER ) )
     {
-      splashstrength = chrbumpsizebig[character] / 45.0f * chrbumpsize[character] / 30.0f;
+      splashstrength = chrbmpdata[character].calc_size_big / 45.0f * chrbmpdata[character].calc_size / 30.0f;
       if ( chrvel[character].z > 0.0f ) splashstrength *= 0.5;
       splashstrength *= ABS( chrvel[character].z ) / 10.0f;
       splashstrength *= chrbumpstrength[character];
@@ -3417,15 +3600,15 @@ void make_onwhichfan( void )
         is_inwater = btrue;
       }
 
-      ripplesize = ( chrbumpsize[character] + chrbumpsizebig[character] ) * 0.5f;
-      if ( chrpos[character].z + chrbumpheight[character] < watersurfacelevel )
+      ripplesize = ( chrbmpdata[character].calc_size + chrbmpdata[character].calc_size_big ) * 0.5f;
+      if ( chrbmpdata[character].cv.z_max < watersurfacelevel )
       {
         is_underwater = btrue;
       }
 
       // scale the ripple strength
-      ripplestrength = - ( chrpos[character].z - watersurfacelevel ) * ( chrpos[character].z + chrbumpheight[character] - watersurfacelevel );
-      ripplestrength /= 0.75f * chrbumpheight[character] * chrbumpheight[character];
+      ripplestrength = - ( chrbmpdata[character].cv.z_min - watersurfacelevel ) * ( chrbmpdata[character].cv.z_max - watersurfacelevel );
+      ripplestrength /= 0.75f * chrbmpdata[character].calc_height * chrbmpdata[character].calc_height;
       ripplestrength *= ripplesize / 37.5f * chrbumpstrength[character];
       ripplestrength = MAX( 0.0f, ripplestrength );
     };
@@ -3576,7 +3759,7 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
   if ( !VALID_CHR( object ) || !VALID_CHR( platform ) ) return
       bfalse;
 
-  if ( !chrisplatform[platform] )
+  if ( !chrbmpdata[platform].calc_is_platform )
     return bfalse;
 
   chronwhichplatform[object]  = platform;
@@ -3586,9 +3769,9 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
   chrjumpready[object]  = btrue;
   chrjumpnumber[object] = chrjumpnumberreset[object];
 
-  chrlevel[object] = chrpos[platform].z + chrbumpheight[platform];
+  chrlevel[object] = chrbmpdata[platform].cv.z_max;
 
-  if ( chrisplayer[object] && CData.DevMode )
+  if ( chrisplayer[object] )
     debug_message( 1, "attached %s(%s) to platform", chrname[object], capclassname[chrmodel[object]] );
 
   return btrue;
@@ -3627,10 +3810,10 @@ void create_bumplists()
     hide = caphidestate[chrmodel[ichr]];
     if ( hide != NOHIDE && hide == chraistate[ichr] ) continue;
 
-    ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrpos[ichr].x - chrbumpsize[ichr] ) );
-    ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrpos[ichr].x + chrbumpsize[ichr] ) );
-    iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrpos[ichr].y - chrbumpsize[ichr] ) );
-    iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrpos[ichr].y + chrbumpsize[ichr] ) );
+    ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[ichr].cv.x_min ) );
+    ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[ichr].cv.x_max ) );
+    iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[ichr].cv.y_min ) );
+    iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[ichr].cv.y_max ) );
 
     for ( ix = ix_min; ix <= ix_max; ix++ )
     {
@@ -3666,17 +3849,473 @@ void create_bumplists()
 };
 
 
+//--------------------------------------------------------------------------------------------
+bool_t find_collision_volume( vect3 * ppa, CVolume * pva, vect3 * ppb, CVolume * pvb, bool_t exclude_vert, CVolume * pcv)
+{
+  bool_t retval = bfalse, bfound;
+  CVolume cv, tmp_cv;
+  float ftmp;
+
+  if( NULL == ppa || NULL == pva || NULL == ppb || NULL == pvb ) return bfalse;
+
+
+  //---- do the preliminary collision test ----
+
+  // do diagonal
+  cv.xy_min = MAX(pva->xy_min + ppa->x + ppa->y, pvb->xy_min + ppb->x + ppb->y);
+  cv.xy_max = MIN(pva->xy_max + ppa->x + ppa->y, pvb->xy_max + ppb->x + ppb->y);
+  if(cv.xy_min >= cv.xy_max) return bfalse;
+
+  cv.yx_min = MAX(pva->yx_min - ppa->x + ppa->y, pvb->yx_min - ppb->x + ppb->y);
+  cv.yx_max = MIN(pva->yx_max - ppa->x + ppa->y, pvb->yx_max - ppb->x + ppb->y);
+  if(cv.yx_min >= cv.yx_max) return bfalse;
+
+  // do square
+  cv.x_min = MAX(pva->x_min + ppa->x, pvb->x_min + ppb->x);
+  cv.x_max = MIN(pva->x_max + ppa->x, pvb->x_max + ppb->x);
+  if(cv.x_min >= cv.x_max) return bfalse;
+
+  cv.y_min = MAX(pva->y_min + ppa->y, pvb->y_min + ppb->y);
+  cv.y_max = MIN(pva->y_max + ppa->y, pvb->y_max + ppb->y);
+  if(cv.y_min >= cv.y_max) return bfalse;
+
+  // do vert
+  cv.z_min = MAX(pva->z_min + ppa->z, pvb->z_min + ppb->z);
+  cv.z_max = MIN(pva->z_max + ppa->z, pvb->z_max + ppb->z);
+  if(!exclude_vert && cv.z_min >= cv.z_max) return bfalse;
+
+  //---- limit the collision volume ----
+
+  tmp_cv = cv;
+
+
+  //=================================================================
+  // treat the edges of the square bbox as line segments and clip them using the 
+  // diagonal bbox
+  //=================================================================
+  // do the y segments
+  bfound = bfalse;
+  {
+    // do the y = x_min segment
+
+    float y_min, y_max;
+    bool_t bexcluded = bfalse;
+
+    bexcluded = bfalse;
+    y_min = cv.y_min;
+    y_max = cv.y_max;
+
+    if(!bexcluded)
+    {
+      ftmp = -cv.x_min + cv.xy_min;
+      y_min = MAX(y_min, ftmp);
+
+      ftmp = -cv.x_min + cv.xy_max;
+      y_max = MIN(y_max, ftmp);
+
+      bexcluded = y_min >= y_max;
+    }
+
+    if(!bexcluded)
+    {
+      ftmp = cv.yx_min + cv.x_min;
+      y_min = MAX(y_min, ftmp);
+
+      ftmp = cv.x_min + cv.yx_max;
+      y_max = MIN(y_max, ftmp);
+
+      bexcluded = y_min >= y_max;
+    };
+
+    // if this line segment still exists, use it to define the collision colume
+    if(!bexcluded)
+    {
+      if(!bfound)
+      {
+        tmp_cv.y_min = y_min;
+        tmp_cv.y_max = y_max;
+      }
+      else
+      {
+        tmp_cv.y_min = MIN(tmp_cv.y_min, y_min);
+        tmp_cv.y_max = MAX(tmp_cv.y_max, y_max);
+      }
+      assert(tmp_cv.y_min <= tmp_cv.y_max);
+      bfound = btrue;
+    }
+  }
+
+  //=================================================================
+  {
+    // do the y = x_max segment
+
+    float y_min, y_max;
+    bool_t bexcluded = bfalse;
+
+    //---------------------
+
+    bexcluded = bfalse;
+    y_min = cv.y_min;
+    y_max = cv.y_max;
+
+    if(!bexcluded)
+    {
+      ftmp = -cv.x_max + cv.xy_min;
+      y_min = MAX(y_min, ftmp);
+
+      ftmp = -cv.x_max + cv.xy_max;
+      y_max = MIN(y_max, ftmp);
+
+      bexcluded = y_min >= y_max;
+    }
+
+
+    if(!bexcluded)
+    {
+      ftmp = cv.yx_min + cv.x_max;
+      y_min = MAX(y_min, ftmp);
+
+      ftmp = cv.x_max + cv.yx_max;
+      y_max = MIN(y_max, ftmp);
+
+      bexcluded = y_min >= y_max;
+    };
+
+    // if this line segment still exists, use it to define the collision colume
+    if(!bexcluded)
+    {
+
+      if(!bfound)
+      {
+        tmp_cv.y_min = y_min;
+        tmp_cv.y_max = y_max;
+      }
+      else
+      {
+        tmp_cv.y_min = MIN(tmp_cv.y_min, y_min);
+        tmp_cv.y_max = MAX(tmp_cv.y_max, y_max);
+      };
+      assert(tmp_cv.y_min <= tmp_cv.y_max);
+
+      bfound = btrue;
+    }
+  }
+
+  //=================================================================
+  // do the x segments
+  bfound = bfalse;
+  {
+    // do the x = y_min segment
+
+    float x_min, x_max;
+    bool_t bexcluded = bfalse;
+
+    bexcluded = bfalse;
+    x_min = cv.x_min;
+    x_max = cv.x_max;
+
+    if(!bexcluded)
+    {
+      ftmp = cv.xy_min - cv.y_min;
+      x_min = MAX(x_min, ftmp);
+
+      ftmp = -cv.yx_min + cv.y_min;
+      x_max = MIN(x_max, ftmp);
+
+      bexcluded = x_min >= x_max;
+    }
+
+
+    if(!bexcluded)
+    {
+      ftmp = -cv.yx_max + cv.y_min;
+      x_min = MAX(x_min, ftmp);
+
+      ftmp = cv.xy_max - cv.y_min;
+      x_max = MIN(x_max, ftmp);
+
+      bexcluded = x_min >= x_max;
+    }
+
+    // if this line segment still exists, use it to define the collision colume
+    if(!bexcluded)
+    {
+      if(!bfound)
+      {
+        tmp_cv.x_min = x_min;
+        tmp_cv.x_max = x_max;
+      }
+      else
+      {
+        tmp_cv.x_min = MIN(tmp_cv.x_min, x_min);
+        tmp_cv.x_max = MAX(tmp_cv.x_max, x_max);
+      }
+      assert(tmp_cv.x_min <= tmp_cv.x_max);
+      bfound = btrue;
+    }
+
+
+  }
+
+  //=================================================================
+  {
+    // do the x = y_max segment
+
+    float x_min, x_max;
+    bool_t bexcluded = bfalse;
+
+    bexcluded = bfalse;
+    x_min = cv.x_min;
+    x_max = cv.x_max;
+
+    if(!bexcluded)
+    {
+      ftmp = cv.xy_min - cv.y_max;
+      x_min = MAX(x_min, ftmp);
+
+      ftmp = -cv.yx_min + cv.y_max;
+      x_max = MIN(x_max, ftmp);
+
+      bexcluded = x_min >= x_max;
+    }
+
+
+    if(!bexcluded)
+    {
+      ftmp = -cv.yx_max + cv.y_max;
+      x_min = MAX(x_min, ftmp);
+
+      ftmp = cv.xy_max - cv.y_max;
+      x_max = MIN(x_max, ftmp);
+
+      bexcluded = x_min >= x_max;
+    }
+
+    // if this line segment still exists, use it to define the collision colume
+    if(!bexcluded)
+    {
+      if(!bfound)
+      {
+        tmp_cv.x_min = x_min;
+        tmp_cv.x_max = x_max;
+      }
+      else
+      {
+        tmp_cv.x_min = MIN(tmp_cv.x_min, x_min);
+        tmp_cv.x_max = MAX(tmp_cv.x_max, x_max);
+      };
+      assert(tmp_cv.x_min <= tmp_cv.x_max);
+      bfound = btrue;
+    }
+  }
+
+
+  if(NULL != pcv)
+  {
+    *pcv = tmp_cv;
+  }
+
+  return btrue;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_is_inside( CHR_REF chra, float lerp, CHR_REF chrb, bool_t exclude_vert )
+{
+  // BB > Find whether an active point of chra is "inside" chrb's bounding volume. 
+  //      Abstraction of the old algorithm to see whether a character cpold be "above" another 
+
+  float ftmp;
+  BData * ba, * bb;
+
+  if( !VALID_CHR(chra) || !VALID_CHR(chrb) ) return bfalse;
+
+  ba = &chrbmpdata[chra];
+  bb = &chrbmpdata[chrb];
+
+  //---- vertical ----
+  if( !exclude_vert )
+  {
+    ftmp = ba->mids_lo.z + (ba->mids_hi.z - ba->mids_lo.z) * lerp;
+    if( ftmp < bb->cv.z_min + bb->mids_lo.z || ftmp > bb->cv.z_max + bb->mids_lo.z ) return bfalse;
+  }
+  
+  //---- diamond ----
+  if( bb->cv.level > 1 )
+  {
+    ftmp = ba->mids_lo.x + ba->mids_lo.y;
+    if( ftmp < bb->cv.xy_min + bb->mids_lo.x + bb->mids_lo.y || ftmp > bb->cv.xy_max + bb->mids_lo.x + bb->mids_lo.y ) return bfalse;
+  
+    ftmp = -ba->mids_lo.x + ba->mids_lo.y;
+    if( ftmp < bb->cv.yx_min - bb->mids_lo.x + bb->mids_lo.y || ftmp > bb->cv.yx_max - bb->mids_lo.x + bb->mids_lo.y ) return bfalse;
+  };
+
+  //---- square ----
+  ftmp = ba->mids_lo.x;
+  if( ftmp < bb->cv.x_min + bb->mids_lo.x || ftmp > bb->cv.x_max + bb->mids_lo.x ) return bfalse;
+
+  ftmp = ba->mids_lo.y;
+  if( ftmp < bb->cv.y_min + bb->mids_lo.y || ftmp > bb->cv.y_max + bb->mids_lo.y ) return bfalse;
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_do_collision( CHR_REF chra, CHR_REF chrb, bool_t exclude_height, CVolume * cv)
+{
+  // BB > use the bounding boxes to determine whether a collision has occurred.
+  //      there are currently 3 levels of collision detection.
+  //      level 1 - the basic square axis-aligned bounding box
+  //      level 2 - the octagon bounding box calculated from the actual vertex positions
+  //      level 3 - an "octree" of bounding bounding boxes calculated from the actual trianglr positions
+  //  the level is chosen by the global variable chrcollisionlevel
+
+  bool_t retval = bfalse;
+  
+  // set the minimum bumper level for object a
+  if(chrbmpdata[chra].cv.level < 1)
+  {
+    md2_calculate_bumpers(chra, 1);
+  }
+
+  // set the minimum bumper level for object b
+  if(chrbmpdata[chrb].cv.level < 1)
+  {
+    md2_calculate_bumpers(chrb, 1);
+  }
+
+  // find the simplest collision volume
+  find_collision_volume( &chrpos[chra], &chrbmpdata[chra].cv, &chrpos[chrb], &chrbmpdata[chrb].cv, exclude_height, cv);
+
+  if ( chrcollisionlevel>1 && retval )
+  {
+    bool_t was_refined = bfalse;
+
+    // refine the bumper
+    if(chrbmpdata[chra].cv.level < 2)
+    {
+      md2_calculate_bumpers(chra, 2);
+      was_refined = btrue;
+    }
+
+    // refine the bumper
+    if(chrbmpdata[chrb].cv.level < 2)
+    {
+      md2_calculate_bumpers(chrb, 2);
+      was_refined = btrue;
+    }
+
+    if(was_refined)
+    {
+      retval = find_collision_volume( &chrpos[chra], &chrbmpdata[chra].cv, &chrpos[chrb], &chrbmpdata[chrb].cv, exclude_height, cv);
+    };
+
+    if(chrcollisionlevel>2 && retval)
+    {
+      was_refined = bfalse;
+
+      // refine the bumper
+      if(chrbmpdata[chra].cv.level < 3)
+      {
+        md2_calculate_bumpers(chra, 3);
+        was_refined = btrue;
+      }
+
+      // refine the bumper
+      if(chrbmpdata[chrb].cv.level < 3)
+      {
+        md2_calculate_bumpers(chrb, 3);
+        was_refined = btrue;
+      }
+
+      assert(NULL != chrbmpdata[chra].cv_tree);
+      assert(NULL != chrbmpdata[chrb].cv_tree);
+
+      if(was_refined)
+      {
+        int cnt, tnc;
+        CVolume cv3, tmp_cv;
+        bool_t loc_retval;
+
+        retval = bfalse;
+        cv3.level = -1;
+        for(cnt=0; cnt<8; cnt++)
+        {
+          if(-1 == (*chrbmpdata[chra].cv_tree)[cnt].level) continue;
+
+          for(tnc=0; tnc<8; tnc++)
+          {
+            if(-1 == (*chrbmpdata[chrb].cv_tree)[cnt].level) continue;
+
+            loc_retval = find_collision_volume( &chrpos[chra], &((*chrbmpdata[chra].cv_tree)[cnt]), &chrpos[chrb], &((*chrbmpdata[chrb].cv_tree)[cnt]), exclude_height, &tmp_cv);
+
+            if(loc_retval)
+            {
+              retval = btrue;
+              cv3 = cvolume_merge(&cv3, &tmp_cv);
+
+#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+              if(CData.DevMode)
+              {              
+                cv_list_add( &tmp_cv );
+              }
+#endif
+            }
+          };
+        };
+
+        if(retval)
+        {
+          *cv = cv3;
+        };
+      };
+    };
+  }
+
+#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+  if(CData.DevMode && retval)
+  {
+    cv_list_add( cv );
+  }
+#endif
+
+  return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t prt_do_collision( CHR_REF chra, PRT_REF prtb, bool_t exclude_height )
+{
+  bool_t retval = find_collision_volume( &chrpos[chra], &chrbmpdata[chra].cv, &chrpos[prtb], &chrbmpdata[prtb].cv, bfalse, NULL );
+
+  if ( retval )
+  {
+    bool_t was_refined = bfalse;
+
+    // refine the bumper
+    if(chrbmpdata[chra].cv.level < 2)
+    {
+      md2_calculate_bumpers(chra, 2);
+      was_refined = btrue;
+    }
+
+    if(was_refined)
+    {
+      retval = find_collision_volume( &chrpos[chra], &chrbmpdata[chra].cv, &chrpos[prtb], &chrbmpdata[prtb].cv, bfalse, NULL );
+    };
+  }
+
+  return retval;
+}
 
 //--------------------------------------------------------------------------------------------
 void do_bumping( float dUpdate )
 {
   // ZZ> This function sets handles characters hitting other characters or particles
-  CHR_REF chra, chrb, prtb;
-  Uint16 pip, direction;
+  CHR_REF chra, chrb;
   Uint32 fanblock;
-  int cnt, tnc, dist, chrinblock, prtinblock, enchant, temp;
-  vect3 diff, apos, bpos, acc, nrm;
-  float scale;
+  int cnt, tnc, chrinblock, prtinblock;
+  vect3 apos, bpos;
 
   float loc_platkeep, loc_platascend, loc_platstick;
 
@@ -3684,9 +4323,9 @@ void do_bumping( float dUpdate )
   loc_platkeep   = 1.0 - loc_platascend;
   loc_platstick  = pow( platstick, 1.0 / dUpdate );
 
-
   create_bumplists();
 
+  cv_list_clear();
 
   // Check collisions with other characters and bump particles
   // Only check each pair once
@@ -3695,177 +4334,152 @@ void do_bumping( float dUpdate )
     chrinblock = bumplistchrnum[fanblock];
     prtinblock = bumplistprtnum[fanblock];
 
-    // remove bad platforms
-    for ( cnt = 0, chra = bumplistchr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra );
-          cnt++, chra = chr_get_bumpnext( chra ) )
-    {
-      apos = chrpos[chra];
+    //// remove bad platforms
+    //for ( cnt = 0, chra = bumplistchr[fanblock];
+    //      cnt < chrinblock && VALID_CHR( chra );
+    //      cnt++, chra = chr_get_bumpnext( chra ) )
+    //{
+    //  // detach character from invalid platforms
+    //  chrb  = chr_get_onwhichplatform( chra );
+    //  if ( VALID_CHR( chrb ) )
+    //  {
+    //    if ( !chr_is_inside( chra, 0.0f, chrb, btrue ) ||
+    //         chrbmpdata[chrb].cv.z_min  > chrbmpdata[chrb].cv.z_max - PLATTOLERANCE )
+    //    {
+    //      remove_from_platform( chra );
+    //    }
+    //  }
+    //};
 
-      // detach character from invalid platforms
-      chrb  = chr_get_onwhichplatform( chra );
-      if ( VALID_CHR( chrb ) )
-      {
+    //// do attachments
+    //for ( cnt = 0, chra = bumplistchr[fanblock];
+    //      cnt < chrinblock && VALID_CHR( chra );
+    //      cnt++, chra = chr_get_bumpnext( chra ) )
+    //{
+    //  // Do platforms (no interaction with held or mounted items)
+    //  if ( chr_attached( chra ) ) continue;
 
-        bpos = chrpos[chrb];
+    //  for ( chrb = chr_get_bumpnext( chra ), tnc = cnt + 1;
+    //        tnc < chrinblock && VALID_CHR( chrb );
+    //        tnc++, chrb = chr_get_bumpnext( chrb ) )
+    //  {
+    //    // do not put something on a platform that is being carried by someone
+    //    if ( chr_attached( chrb ) ) continue;
 
-        diff.x = ABS( apos.x - bpos.x );
-        diff.y = ABS( apos.y - bpos.y );
-        diff.z = ABS( apos.z - bpos.z );
+    //    // do not consider anything that is already a item/platform combo
+    //    if ( chronwhichplatform[chra] == chrb || chronwhichplatform[chrb] == chra ) continue;
 
-        if (( diff.x + diff.y > chrbumpsizebig[chra] && diff.x + diff.y > chrbumpsizebig[chrb] ) ||
-            ( diff.x > chrbumpsize[chra] && diff.x > chrbumpsize[chrb] ) ||
-            ( diff.y > chrbumpsize[chra] && diff.y > chrbumpsize[chrb] ) ||
-            apos.z < bpos.z + chrbumpheight[chrb] - PLATTOLERANCE )
-        {
-          remove_from_platform( chra );
-        }
-      }
-    };
+    //    if ( chr_is_inside( chra, 0.0f, chrb, btrue) )
+    //    {
+    //      // check for compatibility
+    //      if ( chrbmpdata[chrb].calc_is_platform )
+    //      {
+    //        // check for overlap in the z direction
+    //        if ( chrpos[chra].z > MAX( chrbmpdata[chrb].cv.z_min, chrbmpdata[chrb].cv.z_max - PLATTOLERANCE ) && chrlevel[chra] < chrbmpdata[chrb].cv.z_max )
+    //        {
+    //          // A is inside, coming from above
+    //          attach_to_platform( chra, chrb );
+    //        }
+    //      }
+    //    }
+    //    
+    //    if( chr_is_inside( chrb, 0.0f, chra, btrue) )
+    //    {
+    //      if ( chrbmpdata[chra].calc_is_platform )
+    //      {
+    //        // check for overlap in the z direction
+    //        if ( chrpos[chrb].z > MAX( chrbmpdata[chra].cv.z_min, chrbmpdata[chra].cv.z_max - PLATTOLERANCE ) && chrlevel[chrb] < chrbmpdata[chra].cv.z_max )
+    //        {
+    //          // A is inside, coming from above
+    //          attach_to_platform( chrb, chra );
+    //        }
+    //      }
+    //    }
 
-    // do attachments
-    for ( cnt = 0, chra = bumplistchr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra );
-          cnt++, chra = chr_get_bumpnext( chra ) )
-    {
-      apos = chrpos[chra];
+    //  }
+    //}
 
-      // Do platforms (no interaction with held or mounted items)
-      if ( chr_attached( chra ) ) continue;
+    //// Do mounting
+    //for ( cnt = 0, chra = bumplistchr[fanblock];
+    //      cnt < chrinblock && VALID_CHR( chra );
+    //      cnt++, chra = chr_get_bumpnext( chra ) )
+    //{
+    //  if ( chr_attached( chra ) ) continue;
 
-      for ( chrb = chr_get_bumpnext( chra ), tnc = cnt + 1;
-            tnc < chrinblock && VALID_CHR( chrb );
-            tnc++, chrb = chr_get_bumpnext( chrb ) )
-      {
-        // do not put something on a platform that is being carried by someone
-        if ( chr_attached( chrb ) ) continue;
+    //  for ( chrb = chr_get_bumpnext( chra ), tnc = cnt + 1;
+    //        tnc < chrinblock && VALID_CHR( chrb );
+    //        tnc++, chrb = chr_get_bumpnext( chrb ) )
+    //  {
 
-        // do not consider anything that is already a item/platform combo
-        if ( chronwhichplatform[chra] == chrb || chronwhichplatform[chrb] == chra ) continue;
+    //    // do not mount something that is being carried by someone
+    //    if ( chr_attached( chrb ) ) continue;
 
-        bpos = chrpos[chrb];
+    //    if ( chr_is_inside( chra, 0.0f, chrb, btrue)   )
+    //    {
 
-        // First check absolute value diamond
-        diff.x = ABS( apos.x - bpos.x );
-        diff.y = ABS( apos.y - bpos.y );
-        dist = diff.x + diff.y;
-        if ( dist < chrbumpsizebig[chra] || dist < chrbumpsizebig[chrb] )
-        {
-          // Then check bounding box square...  Square+Diamond=Octagon
-          if (( diff.x < chrbumpsize[chra] || diff.x < chrbumpsize[chrb] ) &&
-              ( diff.y < chrbumpsize[chra] || diff.y < chrbumpsize[chrb] ) )
-          {
-            // check for compatibility
-            if ( chrisplatform[chrb] )
-            {
-              // check for overlap in the z direction
-              if ( apos.z > bpos.z + MAX( 0, chrbumpheight[chrb] - PLATTOLERANCE ) && chrlevel[chra] < bpos.z + chrbumpheight[chrb] )
-              {
-                // A is inside, coming from above
-                attach_to_platform( chra, chrb );
-              }
-            }
+    //      // Now see if either is on top the other like a platform
+    //      if ( chrpos[chra].z > chrbmpdata[chrb].cv.z_max - PLATTOLERANCE && chrpos[chra].z < chrbmpdata[chrb].cv.z_max + PLATTOLERANCE / 5 )
+    //      {
+    //        // Is A falling on B?
+    //        if ( chrvel[chra].z < chrvel[chrb].z )
+    //        {
+    //          if ( chrflyheight[chra] == 0 && chralive[chra] && madactionvalid[chrmodel[chra]][ACTION_MI] && !chrisitem[chra] )
+    //          {
+    //            if ( chralive[chrb] && chrismount[chrb] && !chr_using_slot( chrb, SLOT_SADDLE ) )
+    //            {
+    //              remove_from_platform( chra );
+    //              if ( !attach_character_to_mount( chra, chrb, SLOT_SADDLE ) )
+    //              {
+    //                // failed mount is a bump
+    //                chralert[chra] |= ALERT_BUMPED;
+    //                chralert[chrb] |= ALERT_BUMPED;
+    //                chraibumplast[chra] = chrb;
+    //                chraibumplast[chrb] = chra;
+    //              };
+    //            }
+    //          }
+    //        }
+    //      }
 
-            if ( chrisplatform[chra] )
-            {
-              // check for overlap in the z direction
-              if ( bpos.z > apos.z + MAX( 0, chrbumpheight[chra] - PLATTOLERANCE ) && chrlevel[chrb] < apos.z + chrbumpheight[chra] )
-              {
-                // A is inside, coming from above
-                attach_to_platform( chrb, chra );
-              }
-            }
-          }
-        }
-      }
-    }
+    //    }
 
-    // Do mounting
-    for ( cnt = 0, chra = bumplistchr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra );
-          cnt++, chra = chr_get_bumpnext( chra ) )
-    {
-      if ( chr_attached( chra ) ) continue;
-
-      apos = chrpos[chra];
-
-      for ( chrb = chr_get_bumpnext( chra ), tnc = cnt + 1;
-            tnc < chrinblock && VALID_CHR( chrb );
-            tnc++, chrb = chr_get_bumpnext( chrb ) )
-      {
-
-        // do not mount something that is being carried by someone
-        if ( chr_attached( chrb ) ) continue;
-
-        bpos = chrpos[chrb];
-
-        // First check absolute value diamond
-        diff.x = ABS( apos.x - bpos.x );
-        diff.y = ABS( apos.y - bpos.y );
-        dist = diff.x + diff.y;
-        if ( dist < chrbumpsizebig[chra] || dist < chrbumpsizebig[chrb] )
-        {
-          // Then check bounding box square...  Square+Diamond=Octagon
-          if (( diff.x < chrbumpsize[chra] || diff.x < chrbumpsize[chrb] ) &&
-              ( diff.y < chrbumpsize[chra] || diff.y < chrbumpsize[chrb] ) )
-          {
-
-            // Now see if either is on top the other like a platform
-            if ( apos.z > bpos.z + chrbumpheight[chrb] - PLATTOLERANCE && apos.z < bpos.z + chrbumpheight[chrb] + PLATTOLERANCE / 5 )
-            {
-              // Is A falling on B?
-              if ( chrvel[chra].z < chrvel[chrb].z )
-              {
-                if ( chrflyheight[chra] == 0 && chralive[chra] && madactionvalid[chrmodel[chra]][ACTION_MI] && !chrisitem[chra] )
-                {
-                  if ( chralive[chrb] && chrismount[chrb] && !chr_using_slot( chrb, SLOT_SADDLE ) )
-                  {
-                    remove_from_platform( chra );
-                    if ( !attach_character_to_mount( chra, chrb, SLOT_SADDLE ) )
-                    {
-                      // failed mount is a bump
-                      chralert[chra] |= ALERT_BUMPED;
-                      chralert[chrb] |= ALERT_BUMPED;
-                      chraibumplast[chra] = chrb;
-                      chraibumplast[chrb] = chra;
-                    };
-                  }
-                }
-              }
-            }
-
-            if ( bpos.z > apos.z + chrbumpheight[chra] - PLATTOLERANCE && bpos.z < apos.z + chrbumpheight[chra] + PLATTOLERANCE / 5 )
-            {
-              // Is B falling on A?
-              if ( chrvel[chrb].z < chrvel[chra].z )
-              {
-                if ( chrflyheight[chrb] == 0 && chralive[chrb] && madactionvalid[chrmodel[chrb]][ACTION_MI] && !chrisitem[chrb] )
-                {
-                  if ( chralive[chra] && chrismount[chra] && !chr_using_slot( chra, SLOT_SADDLE ) )
-                  {
-                    remove_from_platform( chrb );
-                    if ( !attach_character_to_mount( chrb, chra, SLOT_SADDLE ) )
-                    {
-                      // failed mount is a bump
-                      chralert[chra] |= ALERT_BUMPED;
-                      chralert[chrb] |= ALERT_BUMPED;
-                      chraibumplast[chra] = chrb;
-                      chraibumplast[chrb] = chra;
-                    };
-                  };
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    //    if( chr_is_inside( chrb, 0.0f, chra, btrue)   )
+    //    {
+    //      if ( chrpos[chrb].z > chrbmpdata[chra].cv.z_max - PLATTOLERANCE && chrpos[chrb].z < chrbmpdata[chra].cv.z_max + PLATTOLERANCE / 5 )
+    //      {
+    //        // Is B falling on A?
+    //        if ( chrvel[chrb].z < chrvel[chra].z )
+    //        {
+    //          if ( chrflyheight[chrb] == 0 && chralive[chrb] && madactionvalid[chrmodel[chrb]][ACTION_MI] && !chrisitem[chrb] )
+    //          {
+    //            if ( chralive[chra] && chrismount[chra] && !chr_using_slot( chra, SLOT_SADDLE ) )
+    //            {
+    //              remove_from_platform( chrb );
+    //              if ( !attach_character_to_mount( chrb, chra, SLOT_SADDLE ) )
+    //              {
+    //                // failed mount is a bump
+    //                chralert[chra] |= ALERT_BUMPED;
+    //                chralert[chrb] |= ALERT_BUMPED;
+    //                chraibumplast[chra] = chrb;
+    //                chraibumplast[chrb] = chra;
+    //              };
+    //            };
+    //          }
+    //        }
+    //      }
+    //    }
+    //  }
+    //}
 
     // do collisions
     for ( cnt = 0, chra = bumplistchr[fanblock];
           cnt < chrinblock && VALID_CHR( chra );
           cnt++, chra = chr_get_bumpnext( chra ) )
     {
+      float lerpa;
+      lerpa = (chrpos[chra].z - chrlevel[chra]) / PLATTOLERANCE;
+      lerpa = CLIP(lerpa, 0, 1);
+
       apos = chrpos[chra];
 
       // don't do object-object collisions if they won't feel each other
@@ -3876,9 +4490,10 @@ void do_bumping( float dUpdate )
             tnc < chrinblock && VALID_CHR( chrb );
             tnc++, chrb = chr_get_bumpnext( chrb ) )
       {
-        float bumpstrength = chrbumpstrength[chra] * chrbumpstrength[chrb];
+        CVolume cv;
+        float lerpb;
 
-        assert( chra != chrb );
+        float bumpstrength = chrbumpstrength[chra] * chrbumpstrength[chrb];
 
         // don't do object-object collisions if they won't feel eachother
         if ( bumpstrength == 0.0f ) continue;
@@ -3891,492 +4506,594 @@ void do_bumping( float dUpdate )
 
         bpos = chrpos[chrb];
 
-        // First check absolute value diamond
-        diff.x = ABS( apos.x - bpos.x );
-        diff.y = ABS( apos.y - bpos.y );
-        dist = diff.x + diff.y;
-        if ( dist < chrbumpsizebig[chra] || dist < chrbumpsizebig[chrb] )
+        lerpb = (chrpos[chrb].z - chrlevel[chrb]) / PLATTOLERANCE;
+        lerpb = CLIP(lerpb, 0, 1);
+
+        if ( chr_do_collision( chra, chrb, bfalse, &cv) )
         {
-          // Then check bounding box square...  Square+Diamond=Octagon
-          if (( diff.x < chrbumpsize[chra] || diff.x < chrbumpsize[chrb] ) &&
-              ( diff.y < chrbumpsize[chra] || diff.y < chrbumpsize[chrb] ) )
+          vect3 depth, ovlap, nrm, diffa, diffb;
+          float ftmp, dotprod, pressure;
+          float cr, m0, m1, psum, msum, udif, u0, u1, ln_cr;
+          bool_t bfound;
+
+          depth.x = (cv.x_max - cv.x_min);
+          ovlap.x = depth.x / MIN(chrbmpdata[chra].cv.x_max - chrbmpdata[chra].cv.x_min, chrbmpdata[chrb].cv.x_max - chrbmpdata[chrb].cv.x_min);
+          ovlap.x = CLIP(ovlap.x,-1,1);
+          nrm.x = 1.0f / ovlap.x;
+
+          depth.y = (cv.y_max - cv.y_min);
+          ovlap.y = depth.y / MIN(chrbmpdata[chra].cv.y_max - chrbmpdata[chra].cv.y_min, chrbmpdata[chrb].cv.y_max - chrbmpdata[chrb].cv.y_min);
+          ovlap.y = CLIP(ovlap.y,-1,1);
+          nrm.y = 1.0f / ovlap.y;
+
+          depth.z = (cv.z_max - cv.z_min);
+          ovlap.z = depth.z / MIN(chrbmpdata[chra].cv.z_max - chrbmpdata[chra].cv.z_min, chrbmpdata[chrb].cv.z_max - chrbmpdata[chrb].cv.z_min);
+          ovlap.z = CLIP(ovlap.z,-1,1);
+          nrm.z = 1.0f / ovlap.z;
+
+          nrm = Normalize(nrm);
+
+          pressure = (depth.x / 30.0f) * (depth.y / 30.0f) * (depth.z / 30.0f);
+
+          if(ovlap.x != 1.0)
           {
-            vect3 press;
-            float ftmp;
-            float cr, m0, m1, psum, msum, udif, u0, u1;
-            bool_t bfound;
-
-            press.z = MIN( apos.z + chrbumpheight[chra], bpos.z + chrbumpheight[chrb] ) - MAX( apos.z, bpos.z );
-
-            if ( press.z < 0.0 ) continue;
-
-            press.z /= MIN( chrbumpheight[chra], chrbumpheight[chrb] );
-
-            press.x = MIN( apos.x + chrbumpsize[chra], bpos.x + chrbumpsize[chrb] ) - MAX( apos.x - chrbumpsize[chra], bpos.x - chrbumpsize[chrb] );
-            press.x /= 2.0f * MIN( chrbumpsize[chra], chrbumpsize[chrb] );
-
-            press.y = MIN( apos.y + chrbumpsize[chra], bpos.y + chrbumpsize[chrb] ) - MAX( apos.y - chrbumpsize[chra], bpos.y - chrbumpsize[chrb] );
-            press.y /= 2.0f * MIN( chrbumpsize[chra], chrbumpsize[chrb] );
-
-
-            // calculate a coefficient of restitution
-            ftmp = diff.x * diff.x + diff.y * diff.y;
-            cr = chrbumpdampen[chrb] * chrbumpdampen[chra] * bumpstrength * press.z * ( diff.x * diff.x * press.x + diff.y * diff.y * press.y ) / ftmp;
-
-            // determine a usable mass
-            if (( chrweight[chra] < 0 && chrweight[chrb] < 0 ) || ( chrweight[chra] == chrweight[chrb] ) )
-            {
-              m0 = m1 = 1.0f;
-            }
-            else if ( chrweight[chra] < 0 || chrweight[chrb] == 0 )
-            {
-              m0 = 1.0f; m1 = 0.0f;
-            }
-            else if ( chrweight[chrb] < 0 || chrweight[chra] == 0 )
-            {
-              m1 = 1.0f; m0 = 0.0f;
-            }
-            else
-            {
-              m0 = chrweight[chra];
-              m1 = chrweight[chrb];
-            }
-            msum = m0 + m1;
-
-            bfound = bfalse;
-            if (( chrpos[chra].x - chrpos[chrb].x ) * ( chrvel[chra].x - chrvel[chrb].x ) < 0.0f )
-            {
-              u0 = chrvel[chra].x;
-              u1 = chrvel[chrb].x;
-
-              psum = m0 * u0 + m1 * u1;
-              udif = u1 - u0;
-
-              chrvel[chra].x = ( psum - m1 * udif * cr ) / msum;
-              chrvel[chrb].x = ( psum + m0 * udif * cr ) / msum;
-
-              //chrpos[chra].x -= chrvel[chra].x*dUpdate;
-              //chrpos[chrb].x -= chrvel[chrb].x*dUpdate;
-
-              bfound = btrue;
-            }
-
-
-
-            if (( chrpos[chra].y - chrpos[chrb].y ) * ( chrvel[chra].y - chrvel[chrb].y ) < 0.0f )
-            {
-              u0 = chrvel[chra].y;
-              u1 = chrvel[chrb].y;
-
-              psum = m0 * u0 + m1 * u1;
-              udif = u1 - u0;
-
-              chrvel[chra].y = ( psum - m1 * udif * cr ) / msum;
-              chrvel[chrb].y = ( psum + m0 * udif * cr ) / msum;
-
-              //chrpos[chra].y -= chrvel[chra].y*dUpdate;
-              //chrpos[chrb].y -= chrvel[chrb].y*dUpdate;
-
-              bfound = btrue;
-            }
-
-            if ( press.x > 0 && press.z > 0 )
-            {
-              float ftmp = MIN( apos.x + chrbumpsize[chra], bpos.x + chrbumpsize[chrb] ) - MAX( apos.x - chrbumpsize[chra], bpos.x - chrbumpsize[chrb] );
-              if ( apos.x - bpos.x < 0.0f ) ftmp *= -1.0f;
-
-              chrpos[chra].x += m1 / ( m0 + m1 ) * ftmp * 0.5 * press.z;
-              chrpos[chrb].x -= m0 / ( m0 + m1 ) * ftmp * 0.5 * press.z;
-              bfound = btrue;
-            }
-
-            if ( press.y > 0 && press.z > 0 )
-            {
-              float ftmp = MIN( apos.y + chrbumpsize[chra], bpos.y + chrbumpsize[chrb] ) - MAX( apos.y - chrbumpsize[chra], bpos.y - chrbumpsize[chrb] );
-              if ( apos.y - bpos.y < 0.0f ) ftmp *= -1.0f;
-
-              chrpos[chra].y += m1 / ( m0 + m1 ) * ftmp * 0.5f * press.z;
-              chrpos[chrb].y -= m0 / ( m0 + m1 ) * ftmp * 0.5f * press.z;
-              bfound = btrue;
-            }
-
-            if ( bfound )
-            {
-              apos = chrpos[chra];
-              chralert[chra] |= ALERT_BUMPED;
-              chralert[chrb] |= ALERT_BUMPED;
-              chraibumplast[chra] = chrb;
-              chraibumplast[chrb] = chra;
-            };
+            diffa.x = chrbmpdata[chra].mids_lo.x - (cv.x_max + cv.x_min) * 0.5f;
+            diffb.x = chrbmpdata[chrb].mids_lo.x - (cv.x_max + cv.x_min) * 0.5f;
           }
+          else
+          {
+            diffa.x = chrbmpdata[chra].mids_lo.x - chrbmpdata[chrb].mids_lo.x;
+            diffb.x =-diffa.x;
+          }
+
+          if(ovlap.y != 1.0)
+          {
+            diffa.y = chrbmpdata[chra].mids_lo.y - (cv.y_max + cv.y_min) * 0.5f;
+            diffb.y = chrbmpdata[chrb].mids_lo.y - (cv.y_max + cv.y_min) * 0.5f;
+          }
+          else
+          {
+            diffa.y = chrbmpdata[chra].mids_lo.y - chrbmpdata[chrb].mids_lo.y;
+            diffb.y =-diffa.y;
+          }
+
+          if(ovlap.y != 1.0)
+          {
+            diffa.z = chrbmpdata[chra].mids_lo.z - (cv.z_max + cv.z_min) * 0.5f;
+            diffa.z += (chrbmpdata[chra].mids_hi.z - chrbmpdata[chra].mids_lo.z) * lerpa;
+
+            diffb.z = chrbmpdata[chrb].mids_lo.z - (cv.z_max + cv.z_min) * 0.5f;
+            diffb.z += (chrbmpdata[chrb].mids_hi.z - chrbmpdata[chrb].mids_lo.z) * lerpb;
+          }
+          else
+          {
+            diffa.z  = chrbmpdata[chra].mids_lo.z - chrbmpdata[chrb].mids_lo.z;
+            diffa.z += (chrbmpdata[chra].mids_hi.z - chrbmpdata[chra].mids_lo.z) * lerpa;
+            diffa.z -= (chrbmpdata[chrb].mids_hi.z - chrbmpdata[chrb].mids_lo.z) * lerpb;
+
+            diffb.z =-diffa.z;
+          }
+
+          diffa = Normalize(diffa);
+          diffb = Normalize(diffb);
+
+          if(diffa.x < 0) nrm.x *= -1.0f;
+          if(diffa.y < 0) nrm.y *= -1.0f;
+          if(diffa.z < 0) nrm.z *= -1.0f;
+
+          dotprod = DotProduct(diffa, nrm);
+          if(dotprod != 0.0f)
+          {
+            diffa.x = pressure * dotprod * nrm.x;
+            diffa.y = pressure * dotprod * nrm.y;
+            diffa.z = pressure * dotprod * nrm.z;
+          }
+          else
+          {
+            diffa.x = pressure * nrm.x;
+            diffa.y = pressure * nrm.y;
+            diffa.z = pressure * nrm.z;
+          };
+
+          dotprod = DotProduct(diffb, nrm);
+          if(dotprod != 0.0f)
+          {
+            diffb.x = pressure * dotprod * nrm.x;
+            diffb.y = pressure * dotprod * nrm.y;
+            diffb.z = pressure * dotprod * nrm.z;
+          }
+          else
+          {
+            diffb.x = - pressure * nrm.x;
+            diffb.y = - pressure * nrm.y;
+            diffb.z = - pressure * nrm.z;
+          };
+
+          // calculate a coefficient of restitution
+          //ftmp = nrm.x * nrm.x + nrm.y * nrm.y;
+          //cr = chrbumpdampen[chrb] * chrbumpdampen[chra] * bumpstrength * ovlap.z * ( nrm.x * nrm.x * ovlap.x + nrm.y * nrm.y * ovlap.y ) / ftmp;
+
+          // determine a usable mass
+          m0 = -1;
+          m1 = -1;
+          if ( chrweight[chra] < 0 && chrweight[chrb] < 0 )
+          {
+            m0 = m1 = 110.0f;
+          }
+          else if (chrweight[chra] == 0 && chrweight[chrb] == 0)
+          {
+            m0 = m1 = 1.0f;
+          }
+          else
+          {
+            m0 = (chrweight[chra] == 0.0f) ? 1.0 : chrweight[chra];
+            m1 = (chrweight[chrb] == 0.0f) ? 1.0 : chrweight[chrb];
+          }
+
+          bfound = btrue;
+          cr = chrbumpdampen[chrb] * chrbumpdampen[chra];
+          //ln_cr = log(cr);
+
+          if( m0 > 0.0f && bumpstrength > 0.0f )
+          {
+            float k = 250.0f / m0;
+            float gamma = 0.5f * (1.0f - cr) * (1.0f - cr);
+            
+            //if(cr != 0.0f)
+            //{
+            //  gamma = 2.0f * ABS(ln_cr) * sqrt( k / (ln_cr*ln_cr + PI*PI) );
+            //}
+            //else
+            //{
+            //  gamma = 2.0f * sqrt(k);
+            //}
+
+            chraccum_acc[chra].x += (diffa.x * k  - chrvel[chra].x * gamma) * bumpstrength;
+            chraccum_acc[chra].y += (diffa.y * k  - chrvel[chra].y * gamma) * bumpstrength;
+            chraccum_acc[chra].z += (diffa.z * k  - chrvel[chra].z * gamma) * bumpstrength;
+          }
+
+          if( m1 > 0.0f && bumpstrength > 0.0f )
+          {
+            float k = 250.0f / m1;
+            float gamma = 0.5f * (1.0f - cr) * (1.0f - cr);
+
+            //if(cr != 0.0f)
+            //{
+            //  gamma = 2.0f * ABS(ln_cr) * sqrt( k / (ln_cr*ln_cr + PI*PI) );
+            //}
+            //else
+            //{
+            //  gamma = 2.0f * sqrt(k);
+            //}
+
+            chraccum_acc[chrb].x += (diffb.x * k  - chrvel[chrb].x * gamma) * bumpstrength;
+            chraccum_acc[chrb].y += (diffb.y * k  - chrvel[chrb].y * gamma) * bumpstrength;
+            chraccum_acc[chrb].z += (diffb.z * k  - chrvel[chrb].z * gamma) * bumpstrength;
+          }
+
+
+          //bfound = bfalse;
+          //if (( chrbmpdata[chra].mids_lo.x - chrbmpdata[chrb].mids_lo.x ) * ( chrvel[chra].x - chrvel[chrb].x ) < 0.0f )
+          //{
+          //  u0 = chrvel[chra].x;
+          //  u1 = chrvel[chrb].x;
+
+          //  psum = m0 * u0 + m1 * u1;
+          //  udif = u1 - u0;
+
+          //  chrvel[chra].x = ( psum - m1 * udif * cr ) / msum;
+          //  chrvel[chrb].x = ( psum + m0 * udif * cr ) / msum;
+
+          //  //chrbmpdata[chra].mids_lo.x -= chrvel[chra].x*dUpdate;
+          //  //chrbmpdata[chrb].mids_lo.x -= chrvel[chrb].x*dUpdate;
+
+          //  bfound = btrue;
+          //}
+
+
+
+          //if (( chrbmpdata[chra].mids_lo.y - chrbmpdata[chrb].mids_lo.y ) * ( chrvel[chra].y - chrvel[chrb].y ) < 0.0f )
+          //{
+          //  u0 = chrvel[chra].y;
+          //  u1 = chrvel[chrb].y;
+
+          //  psum = m0 * u0 + m1 * u1;
+          //  udif = u1 - u0;
+
+          //  chrvel[chra].y = ( psum - m1 * udif * cr ) / msum;
+          //  chrvel[chrb].y = ( psum + m0 * udif * cr ) / msum;
+
+          //  //chrbmpdata[chra].mids_lo.y -= chrvel[chra].y*dUpdate;
+          //  //chrbmpdata[chrb].mids_lo.y -= chrvel[chrb].y*dUpdate;
+
+          //  bfound = btrue;
+          //}
+
+          //if ( ovlap.x > 0 && ovlap.z > 0 )
+          //{
+          //  chrbmpdata[chra].mids_lo.x += m1 / ( m0 + m1 ) * ovlap.y * 0.5 * ovlap.z;
+          //  chrbmpdata[chrb].mids_lo.x -= m0 / ( m0 + m1 ) * ovlap.y * 0.5 * ovlap.z;
+          //  bfound = btrue;
+          //}
+
+          //if ( ovlap.y > 0 && ovlap.z > 0 )
+          //{
+          //  chrbmpdata[chra].mids_lo.y += m1 / ( m0 + m1 ) * ovlap.x * 0.5f * ovlap.z;
+          //  chrbmpdata[chrb].mids_lo.y -= m0 / ( m0 + m1 ) * ovlap.x * 0.5f * ovlap.z;
+          //  bfound = btrue;
+          //}
+
+          if ( bfound )
+          {
+            //apos = chrpos[chra];
+            chralert[chra] |= ALERT_BUMPED;
+            chralert[chrb] |= ALERT_BUMPED;
+            chraibumplast[chra] = chrb;
+            chraibumplast[chrb] = chra;
+          };
         }
       }
     };
 
     // Now check collisions with every bump particle in same area
-    for ( cnt = 0, chra = bumplistchr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra );
-          cnt++, chra = chr_get_bumpnext( chra ) )
-    {
-      IDSZ chridvulnerability, eveidremove;
-      float chrbump = 1.0f;
+    //for ( cnt = 0, chra = bumplistchr[fanblock];
+    //      cnt < chrinblock && VALID_CHR( chra );
+    //      cnt++, chra = chr_get_bumpnext( chra ) )
+    //{
+    //  IDSZ chridvulnerability, eveidremove;
+    //  float chrbump = 1.0f;
 
-      apos = chrpos[chra];
-      chridvulnerability = capidsz[chrmodel[chra]][IDSZ_VULNERABILITY];
-      chrbump = chrbumpstrength[chra];
+    //  apos = chrpos[chra];
+    //  chridvulnerability = capidsz[chrmodel[chra]][IDSZ_VULNERABILITY];
+    //  chrbump = chrbumpstrength[chra];
 
-      // Check for object-particle interaction
-      for ( tnc = 0, prtb = bumplistprt[fanblock];
-            tnc < prtinblock && MAXPRT != prtb;
-            tnc++ , prtb = prt_get_bumpnext( prtb ) )
-      {
-        float bumpstrength, prtbump;
-        bool_t chr_is_vulnerable;
+    //  // Check for object-particle interaction
+    //  for ( tnc = 0, prtb = bumplistprt[fanblock];
+    //        tnc < prtinblock && MAXPRT != prtb;
+    //        tnc++ , prtb = prt_get_bumpnext( prtb ) )
+    //  {
+    //    float bumpstrength, prtbump;
+    //    bool_t chr_is_vulnerable;
 
-        CHR_REF prt_owner = prt_get_owner( prtb );
-        CHR_REF prt_attached = prt_get_attachedtochr( prtb );
+    //    CHR_REF prt_owner = prt_get_owner( prtb );
+    //    CHR_REF prt_attached = prt_get_attachedtochr( prtb );
 
-        pip = prtpip[prtb];
-        bpos = prtpos[prtb];
+    //    pip = prtpip[prtb];
+    //    bpos = prtpos[prtb];
 
-        chr_is_vulnerable = !chrinvictus[chra] && ( IDSZ_NONE != chridvulnerability ) && CAP_INHERIT_IDSZ( prtmodel[prtb], chridvulnerability );
+    //    chr_is_vulnerable = !chrinvictus[chra] && ( IDSZ_NONE != chridvulnerability ) && CAP_INHERIT_IDSZ( prtmodel[prtb], chridvulnerability );
 
-        prtbump = prtbumpstrength[prtb];
-        bumpstrength = chr_is_vulnerable ? 1.0f : chrbump * prtbump;
+    //    prtbump = prtbumpstrength[prtb];
+    //    bumpstrength = chr_is_vulnerable ? 1.0f : chrbump * prtbump;
 
-        if ( 0.0f == bumpstrength ) continue;
+    //    if ( 0.0f == bumpstrength ) continue;
 
-        // First check absolute value diamond
-        diff.x = ABS( apos.x - bpos.x );
-        diff.y = ABS( apos.y - bpos.y );
-        dist = diff.x + diff.y;
-        if ( dist < chrbumpsizebig[chra] || dist < prtbumpsizebig[prtb] )
-        {
-          // Then check bounding box square...  Square+Diamond=Octagon
-          if (( diff.x < chrbumpsize[chra]  || diff.x < prtbumpsize[prtb] ) &&
-              ( diff.y < chrbumpsize[chra]  || diff.y < prtbumpsize[prtb] ) &&
-              ( bpos.z > apos.z - prtbumpheight[prtb] && bpos.z < apos.z + chrbumpheight[chra] + prtbumpheight[prtb] ) )
-          {
-            vect3 pvel;
+    //    // First check absolute value diamond
+    //    diff.x = ABS( apos.x - bpos.x );
+    //    diff.y = ABS( apos.y - bpos.y );
+    //    dist = diff.x + diff.y;
+    //    if ( prt_do_collision( chra, prtb, bfalse ) )
+    //    {
+    //      vect3 pvel;
 
-            if ( MAXCHR != prt_get_attachedtochr( prtb ) )
-            {
-              pvel.x = ( prtpos[prtb].x - prtpos_old[prtb].x ) / dUpdate;
-              pvel.y = ( prtpos[prtb].y - prtpos_old[prtb].y ) / dUpdate;
-              pvel.z = ( prtpos[prtb].z - prtpos_old[prtb].z ) / dUpdate;
-            }
-            else
-            {
-              pvel = prtvel[prtb];
-            }
+    //      if ( MAXCHR != prt_get_attachedtochr( prtb ) )
+    //      {
+    //        pvel.x = ( prtpos[prtb].x - prtpos_old[prtb].x ) / dUpdate;
+    //        pvel.y = ( prtpos[prtb].y - prtpos_old[prtb].y ) / dUpdate;
+    //        pvel.z = ( prtpos[prtb].z - prtpos_old[prtb].z ) / dUpdate;
+    //      }
+    //      else
+    //      {
+    //        pvel = prtvel[prtb];
+    //      }
 
-            if ( bpos.z > apos.z + chrbumpheight[chra] + pvel.z && pvel.z < 0 && chrisplatform[chra] && !VALID_CHR( prt_attached ) )
-            {
-              // Particle is falling on A
-              prtaccum_pos[prtb].z += apos.z + chrbumpheight[chra] - prtpos[prtb].z;
+    //      if ( bpos.z > chrbmpdata[chra].cv.z_max + pvel.z && pvel.z < 0 && chrbmpdata[chra].calc_is_platform && !VALID_CHR( prt_attached ) )
+    //      {
+    //        // Particle is falling on A
+    //        prtaccum_pos[prtb].z += chrbmpdata[chra].cv.z_max - prtpos[prtb].z;
 
-              prtaccum_vel[prtb].z = - (1.0f - pipdampen[pip] * chrbumpdampen[chra]) * prtvel[prtb].z;
+    //        prtaccum_vel[prtb].z = - (1.0f - pipdampen[pip] * chrbumpdampen[chra]) * prtvel[prtb].z;
 
-              prtaccum_acc[prtb].x += ( pvel.x - chrvel[chra].x ) * ( 1.0 - loc_platstick ) + chrvel[chra].x;
-              prtaccum_acc[prtb].y += ( pvel.y - chrvel[chra].y ) * ( 1.0 - loc_platstick ) + chrvel[chra].y;
-            }
+    //        prtaccum_acc[prtb].x += ( pvel.x - chrvel[chra].x ) * ( 1.0 - loc_platstick ) + chrvel[chra].x;
+    //        prtaccum_acc[prtb].y += ( pvel.y - chrvel[chra].y ) * ( 1.0 - loc_platstick ) + chrvel[chra].y;
+    //      }
 
-            // Check reaffirmation of particles
-            if ( prt_attached != chra )
-            {
-              if ( chrreloadtime[chra] == 0 )
-              {
-                if ( chrreaffirmdamagetype[chra] == prtdamagetype[prtb] && chrdamagetime[chra] == 0 )
-                {
-                  reaffirm_attached_particles( chra );
-                }
-              }
-            }
+    //      // Check reaffirmation of particles
+    //      if ( prt_attached != chra )
+    //      {
+    //        if ( chrreloadtime[chra] == 0 )
+    //        {
+    //          if ( chrreaffirmdamagetype[chra] == prtdamagetype[prtb] && chrdamagetime[chra] == 0 )
+    //          {
+    //            reaffirm_attached_particles( chra );
+    //          }
+    //        }
+    //      }
 
-            // Check for missile treatment
-            if (( chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_SHIFT ) != DAMAGE_SHIFT ||
-                MIS_NORMAL == chrmissiletreatment[chra]  ||
-                VALID_CHR( prt_attached ) ||
-                ( prt_owner == chra && !pipfriendlyfire[pip] ) ||
-                ( chrmana_fp8[chrmissilehandler[chra]] < ( chrmissilecost[chra] << 4 ) && !chrcanchannel[chrmissilehandler[chra]] ) )
-            {
-              if (( teamhatesteam[prtteam[prtb]][chrteam[chra]] || ( pipfriendlyfire[pip] && (( chra != prt_owner && chra != chrattachedto[prt_owner] ) || piponlydamagefriendly[pip] ) ) ) && !chrinvictus[chra] )
-              {
-                spawn_bump_particles( chra, prtb );  // Catch on fire
+    //      // Check for missile treatment
+    //      if (( chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_SHIFT ) != DAMAGE_SHIFT ||
+    //            MIS_NORMAL == chrmissiletreatment[chra]  ||
+    //            VALID_CHR( prt_attached ) ||
+    //            ( prt_owner == chra && !pipfriendlyfire[pip] ) ||
+    //            ( chrmana_fp8[chrmissilehandler[chra]] < ( chrmissilecost[chra] << 4 ) && !chrcanchannel[chrmissilehandler[chra]] ) )
+    //      {
+    //        if (( teamhatesteam[prtteam[prtb]][chrteam[chra]] || ( pipfriendlyfire[pip] && (( chra != prt_owner && chra != chrattachedto[prt_owner] ) || piponlydamagefriendly[pip] ) ) ) && !chrinvictus[chra] )
+    //        {
+    //          spawn_bump_particles( chra, prtb );  // Catch on fire
 
-                if (( prtdamage[prtb].ibase > 0 ) && ( prtdamage[prtb].irand > 0 ) )
-                {
-                  if ( chrdamagetime[chra] == 0 && prt_attached != chra && HAS_NO_BITS( pipdamfx[pip], DAMFX_ARRO ) )
-                  {
+    //          if (( prtdamage[prtb].ibase > 0 ) && ( prtdamage[prtb].irand > 0 ) )
+    //          {
+    //            if ( chrdamagetime[chra] == 0 && prt_attached != chra && HAS_NO_BITS( pipdamfx[pip], DAMFX_ARRO ) )
+    //            {
 
-                    // Normal prtb damage
-                    if ( pipallowpush[pip] )
-                    {
-                      float ftmp = 0.2;
+    //              // Normal prtb damage
+    //              if ( pipallowpush[pip] )
+    //              {
+    //                float ftmp = 0.2;
 
-                      if ( chrweight[chra] < 0 )
-                      {
-                        ftmp = 0;
-                      }
-                      else if ( chrweight[chra] != 0 )
-                      {
-                        ftmp *= ( 1.0f + chrbumpdampen[chra] ) * prtweight[prtb] / chrweight[chra];
-                      }
+    //                if ( chrweight[chra] < 0 )
+    //                {
+    //                  ftmp = 0;
+    //                }
+    //                else if ( chrweight[chra] != 0 )
+    //                {
+    //                  ftmp *= ( 1.0f + chrbumpdampen[chra] ) * prtweight[prtb] / chrweight[chra];
+    //                }
 
-                      chraccum_vel[chra].x += pvel.x * ftmp;
-                      chraccum_vel[chra].y += pvel.y * ftmp;
-                      chraccum_vel[chra].z += pvel.z * ftmp;
+    //                chraccum_vel[chra].x += pvel.x * ftmp;
+    //                chraccum_vel[chra].y += pvel.y * ftmp;
+    //                chraccum_vel[chra].z += pvel.z * ftmp;
 
-                      prtaccum_vel[prtb].x += -chrbumpdampen[chra] * pvel.x - prtvel[prtb].x;
-                      prtaccum_vel[prtb].y += -chrbumpdampen[chra] * pvel.y - prtvel[prtb].y;
-                      prtaccum_vel[prtb].z += -chrbumpdampen[chra] * pvel.z - prtvel[prtb].z;
-                    }
+    //                prtaccum_vel[prtb].x += -chrbumpdampen[chra] * pvel.x - prtvel[prtb].x;
+    //                prtaccum_vel[prtb].y += -chrbumpdampen[chra] * pvel.y - prtvel[prtb].y;
+    //                prtaccum_vel[prtb].z += -chrbumpdampen[chra] * pvel.z - prtvel[prtb].z;
+    //              }
 
-                    direction = RAD_TO_TURN( atan2( pvel.y, pvel.x ) );
-                    direction = 32768 + chrturn_lr[chra] - direction;
+    //              direction = RAD_TO_TURN( atan2( pvel.y, pvel.x ) );
+    //              direction = 32768 + chrturn_lr[chra] - direction;
 
-                    // Check all enchants to see if they are removed
-                    enchant = chrfirstenchant[chra];
-                    while ( enchant != MAXENCHANT )
-                    {
-                      eveidremove = everemovedbyidsz[enceve[enchant]];
-                      temp = encnextenchant[enchant];
-                      if ( eveidremove != IDSZ_NONE && CAP_INHERIT_IDSZ( prtmodel[prtb], eveidremove ) )
-                      {
-                        remove_enchant( enchant );
-                      }
-                      enchant = temp;
-                    }
+    //              // Check all enchants to see if they are removed
+    //              enchant = chrfirstenchant[chra];
+    //              while ( enchant != MAXENCHANT )
+    //              {
+    //                eveidremove = everemovedbyidsz[enceve[enchant]];
+    //                temp = encnextenchant[enchant];
+    //                if ( eveidremove != IDSZ_NONE && CAP_INHERIT_IDSZ( prtmodel[prtb], eveidremove ) )
+    //                {
+    //                  remove_enchant( enchant );
+    //                }
+    //                enchant = temp;
+    //              }
 
-                    //Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                    //+1 (256) bonus for every 4 points of intelligence and/or wisdom above 14. Below 14 gives -1 instead!
-					//Enemy IDAM spells damage is reduced by 1% per defender's wisdom, opposite for WDAM spells
-					if ( pipintdamagebonus[pip] )
-					{
-						prtdamage[prtb].ibase += (( chrintelligence_fp8[prt_owner] - 3584 ) * 0.25 );		//First increase damage by the attacker
-						if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
-						prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrwisdom_fp8[chra] > 8 ));		//Then reduce it by defender
-					}
-					if ( pipwisdamagebonus[pip] )	//Same with divine spells
-					{
-						prtdamage[prtb].ibase += (( chrwisdom_fp8[prt_owner] - 3584 ) * 0.25 );
-						if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
-						prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrintelligence_fp8[chra] > 8 ));
-					}
-                    //Force Pancake animation?
-                    if ( pipcausepancake[pip] )
-                    {
-                      vect3 panc;
-                      Uint16 rotate_cos, rotate_sin;
-                      float cv, sv;
+    //              //Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+    //              //+1 (256) bonus for every 4 points of intelligence and/or wisdom above 14. Below 14 gives -1 instead!
+    //			        //Enemy IDAM spells damage is reduced by 1% per defender's wisdom, opposite for WDAM spells
+    //			        if ( pipintdamagebonus[pip] )
+    //					    {
+    //						    prtdamage[prtb].ibase += (( chrintelligence_fp8[prt_owner] - 3584 ) * 0.25 );		//First increase damage by the attacker
+    //						    if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
+    //						    prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrwisdom_fp8[chra] > 8 ));		//Then reduce it by defender
+    //					    }
+    //					    if ( pipwisdamagebonus[pip] )	//Same with divine spells
+    //					    {
+    //						    prtdamage[prtb].ibase += (( chrwisdom_fp8[prt_owner] - 3584 ) * 0.25 );
+    //						    if(!chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_INVERT || !chrdamagemodifier_fp8[chra][prtdamagetype[prtb]]&DAMAGE_CHARGE) 
+    //						    prtdamage[prtb].ibase -= (prtdamage[prtb].ibase * ( chrintelligence_fp8[chra] > 8 ));
+    //					    }
 
-                      // just a guess
-                      panc.x = 0.25 * ABS( pvel.x ) * 2.0f / ( float )( 1 + chrbumpsize[chra] + chrbumpsizebig[chra] );
-                      panc.y = 0.25 * ABS( pvel.y ) * 2.0f / ( float )( 1 + chrbumpsize[chra] + chrbumpsizebig[chra] );
-                      panc.z = 0.25 * ABS( pvel.z ) / ( float )( 1 + chrbumpheight[chra] );
+    //              //Force Pancake animation?
+    //              if ( pipcausepancake[pip] )
+    //              {
+    //                vect3 panc;
+    //                Uint16 rotate_cos, rotate_sin;
+    //                float cv, sv;
 
-                      rotate_sin = chrturn_lr[chra] >> 2;
-                      rotate_cos = ( rotate_sin + TRIGTABLE_SHIFT ) & TRIGTABLE_MASK;
+    //                // just a guess
+    //                panc.x = 0.25 * ABS( pvel.x ) * 2.0f / ( float )( 1 + chrbmpdata[chra].cv.x_max - chrbmpdata[chra].cv.x_min  );
+    //                panc.y = 0.25 * ABS( pvel.y ) * 2.0f / ( float )( 1 + chrbmpdata[chra].cv.y_max - chrbmpdata[chra].cv.y_min );
+    //                panc.z = 0.25 * ABS( pvel.z ) * 2.0f / ( float )( 1 + chrbmpdata[chra].cv.z_max - chrbmpdata[chra].cv.z_min );
 
-                      cv = turntosin[rotate_cos];
-                      sv = turntosin[rotate_sin];
+    //                rotate_sin = chrturn_lr[chra] >> 2;
+    //                rotate_cos = ( rotate_sin + TRIGTABLE_SHIFT ) & TRIGTABLE_MASK;
 
-                      chrpancakevel[chra].x = - ( panc.x * cv - panc.y * sv );
-                      chrpancakevel[chra].y = - ( panc.x * sv + panc.y * cv );
-                      chrpancakevel[chra].z = -panc.z;
-                    }
+    //                cv = turntosin[rotate_cos];
+    //                sv = turntosin[rotate_sin];
 
-                    // Damage the character
-                    if ( chr_is_vulnerable )
-                    {
-                      PAIR ptemp;
-                      ptemp.ibase = prtdamage[prtb].ibase * 2.0f * bumpstrength;
-                      ptemp.irand = prtdamage[prtb].irand * 2.0f * bumpstrength;
-                      damage_character( chra, direction, &ptemp, prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
-                      chralert[chra] |= ALERT_HITVULNERABLE;
-                      cost_mana( chra, pipmanadrain[pip]*2, prt_owner );  //Do mana drain too
-                    }
-                    else
-                    {
-                      PAIR ptemp;
-                      ptemp.ibase = prtdamage[prtb].ibase * bumpstrength;
-                      ptemp.irand = prtdamage[prtb].irand * bumpstrength;
+    //                chrpancakevel[chra].x = - ( panc.x * cv - panc.y * sv );
+    //                chrpancakevel[chra].y = - ( panc.x * sv + panc.y * cv );
+    //                chrpancakevel[chra].z = -panc.z;
+    //              }
 
-                      damage_character( chra, direction, &prtdamage[prtb], prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
-                      cost_mana( chra, pipmanadrain[pip], prt_owner );  //Do mana drain too
-                    }
+    //              // Damage the character
+    //              if ( chr_is_vulnerable )
+    //              {
+    //                PAIR ptemp;
+    //                ptemp.ibase = prtdamage[prtb].ibase * 2.0f * bumpstrength;
+    //                ptemp.irand = prtdamage[prtb].irand * 2.0f * bumpstrength;
+    //                damage_character( chra, direction, &ptemp, prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
+    //                chralert[chra] |= ALERT_HITVULNERABLE;
+    //                cost_mana( chra, pipmanadrain[pip]*2, prt_owner );  //Do mana drain too
+    //              }
+    //              else
+    //              {
+    //                PAIR ptemp;
+    //                ptemp.ibase = prtdamage[prtb].ibase * bumpstrength;
+    //                ptemp.irand = prtdamage[prtb].irand * bumpstrength;
 
-                    // Do confuse effects
-                    if ( HAS_NO_BITS( madframefx[chrframe[chra]], MADFX_INVICTUS ) || HAS_SOME_BITS( pipdamfx[pip], DAMFX_BLOC ) )
-                    {
+    //                damage_character( chra, direction, &prtdamage[prtb], prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
+    //                cost_mana( chra, pipmanadrain[pip], prt_owner );  //Do mana drain too
+    //              }
 
-                      if ( pipgrogtime[pip] != 0 && capcanbegrogged[chrmodel[chra]] )
-                      {
-                        chrgrogtime[chra] += pipgrogtime[pip] * bumpstrength;
-                        if ( chrgrogtime[chra] < 0 )
-                        {
-                          chrgrogtime[chra] = -1;
-                          debug_message( 1, "placing infinite grog on %s (%s)", chrname[chra], capclassname[chrmodel[chra]] );
-                        }
-                        chralert[chra] |= ALERT_GROGGED;
-                      }
+    //              // Do confuse effects
+    //              if ( HAS_NO_BITS( madframefx[chrmodel[chra]][chrframe[chra]], MADFX_INVICTUS ) || HAS_SOME_BITS( pipdamfx[pip], DAMFX_BLOC ) )
+    //              {
 
-                      if ( pipdazetime[pip] != 0 && capcanbedazed[chrmodel[chra]] )
-                      {
-                        chrdazetime[chra] += pipdazetime[pip] * bumpstrength;
-                        if ( chrdazetime[chra] < 0 )
-                        {
-                          chrdazetime[chra] = -1;
-                          debug_message( 1, "placing infinite daze on %s (%s)", chrname[chra], capclassname[chrmodel[chra]] );
-                        };
-                        chralert[chra] |= ALERT_DAZED;
-                      }
-                    }
+    //                if ( pipgrogtime[pip] != 0 && capcanbegrogged[chrmodel[chra]] )
+    //                {
+    //                  chrgrogtime[chra] += pipgrogtime[pip] * bumpstrength;
+    //                  if ( chrgrogtime[chra] < 0 )
+    //                  {
+    //                    chrgrogtime[chra] = -1;
+    //                    debug_message( 1, "placing infinite grog on %s (%s)", chrname[chra], capclassname[chrmodel[chra]] );
+    //                  }
+    //                  chralert[chra] |= ALERT_GROGGED;
+    //                }
 
-                    // Notify the attacker of a scored hit
-                    if ( VALID_CHR( prt_owner ) )
-                    {
-                      chralert[prt_owner] |= ALERT_SCOREDAHIT;
-                      chraihitlast[prt_owner] = chra;
-                    }
-                  }
+    //                if ( pipdazetime[pip] != 0 && capcanbedazed[chrmodel[chra]] )
+    //                {
+    //                  chrdazetime[chra] += pipdazetime[pip] * bumpstrength;
+    //                  if ( chrdazetime[chra] < 0 )
+    //                  {
+    //                    chrdazetime[chra] = -1;
+    //                    debug_message( 1, "placing infinite daze on %s (%s)", chrname[chra], capclassname[chrmodel[chra]] );
+    //                  };
+    //                  chralert[chra] |= ALERT_DAZED;
+    //                }
+    //              }
 
-                  if (( wldframe&31 ) == 0 && prt_attached == chra )
-                  {
-                    // Attached prtb damage ( Burning )
-                    if ( pipxyvel[pip].ibase == 0 )
-                    {
-                      // Make character limp
-                      chrvel[chra].x = 0;
-                      chrvel[chra].y = 0;
-                    }
-                    damage_character( chra, 32768, &prtdamage[prtb], prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
-                    cost_mana( chra, pipmanadrain[pip], prt_owner );  //Do mana drain too
+    //              // Notify the attacker of a scored hit
+    //              if ( VALID_CHR( prt_owner ) )
+    //              {
+    //                chralert[prt_owner] |= ALERT_SCOREDAHIT;
+    //                chraihitlast[prt_owner] = chra;
+    //              }
+    //            }
 
-                  }
-                }
+    //            if (( wldframe&31 ) == 0 && prt_attached == chra )
+    //            {
+    //              // Attached prtb damage ( Burning )
+    //              if ( pipxyvel[pip].ibase == 0 )
+    //              {
+    //                // Make character limp
+    //                chrvel[chra].x = 0;
+    //                chrvel[chra].y = 0;
+    //              }
+    //              damage_character( chra, 32768, &prtdamage[prtb], prtdamagetype[prtb], prtteam[prtb], prt_owner, pipdamfx[pip] );
+    //              cost_mana( chra, pipmanadrain[pip], prt_owner );  //Do mana drain too
 
-                if ( pipendbump[pip] )
-                {
-                  if ( pipbumpmoney[pip] )
-                  {
-                    if ( chrcangrabmoney[chra] && chralive[chra] && chrdamagetime[chra] == 0 && chrmoney[chra] != MAXMONEY )
-                    {
-                      if ( chrismount[chra] )
-                      {
-                        CHR_REF irider = chr_get_holdingwhich( chra, SLOT_SADDLE );
+    //            }
+    //          }
 
-                        // Let mounts collect money for their riders
-                        if ( VALID_CHR( irider ) )
-                        {
-                          chrmoney[irider] += pipbumpmoney[pip];
-                          if ( chrmoney[irider] > MAXMONEY ) chrmoney[irider] = MAXMONEY;
-                          if ( chrmoney[irider] <        0 ) chrmoney[irider] = 0;
-                          prtgopoof[prtb] = btrue;
-                        }
-                      }
-                      else
-                      {
-                        // Normal money collection
-                        chrmoney[chra] += pipbumpmoney[pip];
-                        if ( chrmoney[chra] > MAXMONEY ) chrmoney[chra] = MAXMONEY;
-                        if ( chrmoney[chra] < 0 ) chrmoney[chra] = 0;
-                        prtgopoof[prtb] = btrue;
-                      }
-                    }
-                  }
-                  else
-                  {
-                    // Only hit one character, not several
-                    prtdamage[prtb].ibase *= 1.0f - bumpstrength;
-                    prtdamage[prtb].irand *= 1.0f - bumpstrength;
+    //          if ( pipendbump[pip] )
+    //          {
+    //            if ( pipbumpmoney[pip] )
+    //            {
+    //              if ( chrcangrabmoney[chra] && chralive[chra] && chrdamagetime[chra] == 0 && chrmoney[chra] != MAXMONEY )
+    //              {
+    //                if ( chrismount[chra] )
+    //                {
+    //                  CHR_REF irider = chr_get_holdingwhich( chra, SLOT_SADDLE );
 
-                    if ( prtdamage[prtb].ibase == 0 && prtdamage[prtb].irand <= 1 )
-                    {
-                      prtgopoof[prtb] = btrue;
-                    };
-                  }
-                }
-              }
-            }
-            else if ( prt_owner != chra )
-            {
-              cost_mana( chrmissilehandler[chra], ( chrmissilecost[chra] << 4 ), prt_owner );
+    //                  // Let mounts collect money for their riders
+    //                  if ( VALID_CHR( irider ) )
+    //                  {
+    //                    chrmoney[irider] += pipbumpmoney[pip];
+    //                    if ( chrmoney[irider] > MAXMONEY ) chrmoney[irider] = MAXMONEY;
+    //                    if ( chrmoney[irider] <        0 ) chrmoney[irider] = 0;
+    //                    prtgopoof[prtb] = btrue;
+    //                  }
+    //                }
+    //                else
+    //                {
+    //                  // Normal money collection
+    //                  chrmoney[chra] += pipbumpmoney[pip];
+    //                  if ( chrmoney[chra] > MAXMONEY ) chrmoney[chra] = MAXMONEY;
+    //                  if ( chrmoney[chra] < 0 ) chrmoney[chra] = 0;
+    //                  prtgopoof[prtb] = btrue;
+    //                }
+    //              }
+    //            }
+    //            else
+    //            {
+    //              // Only hit one character, not several
+    //              prtdamage[prtb].ibase *= 1.0f - bumpstrength;
+    //              prtdamage[prtb].irand *= 1.0f - bumpstrength;
 
-              // Treat the missile
-              switch ( chrmissiletreatment[chra] )
-              {
-                case MIS_DEFLECT:
-                  {
-                    // Use old position to find normal
-                    acc.x = prtpos[prtb].x - pvel.x * dUpdate;
-                    acc.y = prtpos[prtb].y - pvel.y * dUpdate;
-                    acc.x = chrpos[chra].x - acc.x;
-                    acc.y = chrpos[chra].y - acc.y;
-                    // Find size of normal
-                    scale = acc.x * acc.x + acc.y * acc.y;
-                    if ( scale > 0 )
-                    {
-                      // Make the normal a unit normal
-                      scale = sqrt( scale );
-                      nrm.x = acc.x / scale;
-                      nrm.y = acc.y / scale;
+    //              if ( prtdamage[prtb].ibase == 0 && prtdamage[prtb].irand <= 1 )
+    //              {
+    //                prtgopoof[prtb] = btrue;
+    //              };
+    //            }
+    //          }
+    //        }
+    //      }
+    //      else if ( prt_owner != chra )
+    //      {
+    //        cost_mana( chrmissilehandler[chra], ( chrmissilecost[chra] << 4 ), prt_owner );
 
-                      // Deflect the incoming ray off the normal
-                      scale = ( pvel.x * nrm.x + pvel.y * nrm.y ) * 2;
-                      acc.x = scale * nrm.x;
-                      acc.y = scale * nrm.y;
-                      prtaccum_vel[prtb].x += -acc.x;
-                      prtaccum_vel[prtb].y += -acc.y;
-                    }
-                  }
-                  break;
+    //        // Treat the missile
+    //        switch ( chrmissiletreatment[chra] )
+    //        {
+    //          case MIS_DEFLECT:
+    //            {
+    //              // Use old position to find normal
+    //              acc.x = prtpos[prtb].x - pvel.x * dUpdate;
+    //              acc.y = prtpos[prtb].y - pvel.y * dUpdate;
+    //              acc.x = chrpos[chra].x - acc.x;
+    //              acc.y = chrpos[chra].y - acc.y;
+    //              // Find size of normal
+    //              scale = acc.x * acc.x + acc.y * acc.y;
+    //              if ( scale > 0 )
+    //              {
+    //                // Make the normal a unit normal
+    //                scale = sqrt( scale );
+    //                nrm.x = acc.x / scale;
+    //                nrm.y = acc.y / scale;
 
-                case MIS_REFLECT:
-                  {
-                    // Reflect it back in the direction it came
-                    prtaccum_vel[prtb].x += -2.0f * prtvel[prtb].x;
-                    prtaccum_vel[prtb].y += -2.0f * prtvel[prtb].y;
-                  };
-                  break;
-              };
+    //                // Deflect the incoming ray off the normal
+    //                scale = ( pvel.x * nrm.x + pvel.y * nrm.y ) * 2;
+    //                acc.x = scale * nrm.x;
+    //                acc.y = scale * nrm.y;
+    //                prtaccum_vel[prtb].x += -acc.x;
+    //                prtaccum_vel[prtb].y += -acc.y;
+    //              }
+    //            }
+    //            break;
+
+    //          case MIS_REFLECT:
+    //            {
+    //              // Reflect it back in the direction it came
+    //              prtaccum_vel[prtb].x += -2.0f * prtvel[prtb].x;
+    //              prtaccum_vel[prtb].y += -2.0f * prtvel[prtb].y;
+    //            };
+    //            break;
+    //        };
 
 
-              // Change the owner of the missile
-              if ( !piphoming[pip] )
-              {
-                prtteam[prtb] = chrteam[chra];
-                prt_owner = chra;
-              }
-            }
-          }
-        }
-      }
-    }
+    //        // Change the owner of the missile
+    //        if ( !piphoming[pip] )
+    //        {
+    //          prtteam[prtb] = chrteam[chra];
+    //          prt_owner = chra;
+    //        }
+    //      }
+    //    }
+    //  }
+    //}
 
     // do platform physics
-    for ( cnt = 0, chra = bumplistchr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra );
-          cnt++, chra = chr_get_bumpnext( chra ) )
-    {
-      // detach character from invalid platforms
-      chrb  = chr_get_onwhichplatform( chra );
-      if ( !VALID_CHR( chrb ) ) continue;
+    //for ( cnt = 0, chra = bumplistchr[fanblock];
+    //      cnt < chrinblock && VALID_CHR( chra );
+    //      cnt++, chra = chr_get_bumpnext( chra ) )
+    //{
+    //  // detach character from invalid platforms
+    //  chrb  = chr_get_onwhichplatform( chra );
+    //  if ( !VALID_CHR( chrb ) ) continue;
 
-      if ( chrpos[chra].z < chrpos[chrb].z + chrbumpheight[chrb] + RAISE )
-      {
-        chrpos[chra].z = chrpos[chrb].z + chrbumpheight[chrb] + RAISE;
-        //(chrpos[chra].z) * loc_platkeep + chrlevel[chra] * loc_platascend;
-        if ( chrvel[chra].z < chrvel[chrb].z )
-        {
-          chrvel[chra].z = - ( chrvel[chra].z - chrvel[chrb].z ) * chrbumpdampen[chra] * chrbumpdampen[chrb] + chrvel[chrb].z;
-        };
-      }
+    //  if ( chrpos[chra].z < chrbmpdata[chrb].cv.z_max + RAISE )
+    //  {
+    //    chrpos[chra].z = chrbmpdata[chrb].cv.z_max + RAISE;
+    //    if ( chrvel[chra].z < chrvel[chrb].z )
+    //    {
+    //      chrvel[chra].z = - ( chrvel[chra].z - chrvel[chrb].z ) * chrbumpdampen[chra] * chrbumpdampen[chrb] + chrvel[chrb].z;
+    //    };
+    //  }
 
-      chrvel[chra].x = ( chrvel[chra].x - chrvel[chrb].x ) * ( 1.0 - loc_platstick ) + chrvel[chrb].x;
-      chrvel[chra].y = ( chrvel[chra].y - chrvel[chrb].y ) * ( 1.0 - loc_platstick ) + chrvel[chrb].y;
-      chrturn_lr[chra] += ( chrturn_lr[chrb] - chrturn_lr_old[chrb] ) * ( 1.0 - loc_platstick );
-    }
+    //  chrvel[chra].x = ( chrvel[chra].x - chrvel[chrb].x ) * ( 1.0 - loc_platstick ) + chrvel[chrb].x;
+    //  chrvel[chra].y = ( chrvel[chra].y - chrvel[chrb].y ) * ( 1.0 - loc_platstick ) + chrvel[chrb].y;
+    //  chrturn_lr[chra] += ( chrturn_lr[chrb] - chrturn_lr_old[chrb] ) * ( 1.0 - loc_platstick );
+    //}
 
 
   };
@@ -4614,27 +5331,45 @@ void resize_characters( float dUpdate )
 {
   // ZZ> This function makes the characters get bigger or smaller, depending
   //     on their sizegoto and sizegototime
-  int cnt;
+  CHR_REF ichr;
   bool_t willgetcaught;
-  float newsize;
-  float fkeep;
+  float newsize, fkeep;
 
   fkeep = pow( 0.9995, dUpdate );
 
-  for ( cnt = 0; cnt < MAXCHR; cnt++ )
+  for ( ichr = 0; ichr < MAXCHR; ichr++ )
   {
-    if ( !VALID_CHR( cnt ) || chrsizegototime[cnt] <= 0 ) continue;
+    if ( !VALID_CHR( ichr ) || chrsizegototime[ichr] <= 0 ) continue;
 
     // Make sure it won't get caught in a wall
     willgetcaught = bfalse;
-    if ( chrsizegoto[cnt] > chrfat[cnt] )
+    if ( chrsizegoto[ichr] > chrfat[ichr] )
     {
-      chrbumpsize[cnt] += 10;
-      if ( 0 != __chrhitawall( cnt, NULL ) )
+      float x_min_save, x_max_save;
+      float y_min_save, y_max_save;
+
+      x_min_save = chrbmpdata[ichr].cv.x_min;
+      x_max_save = chrbmpdata[ichr].cv.x_max;
+
+      y_min_save = chrbmpdata[ichr].cv.y_min;
+      y_max_save = chrbmpdata[ichr].cv.y_max;
+
+      chrbmpdata[ichr].cv.x_min -= 5;
+      chrbmpdata[ichr].cv.y_min -= 5;
+
+      chrbmpdata[ichr].cv.x_max += 5;
+      chrbmpdata[ichr].cv.y_max += 5;
+
+      if ( 0 != __chrhitawall( ichr, NULL ) )
       {
         willgetcaught = btrue;
       }
-      chrbumpsize[cnt] -= 10;
+
+      chrbmpdata[ichr].cv.x_min = x_min_save;
+      chrbmpdata[ichr].cv.x_max = x_max_save;
+
+      chrbmpdata[ichr].cv.y_min = y_min_save;
+      chrbmpdata[ichr].cv.y_max = y_max_save;
     }
 
 
@@ -4642,31 +5377,34 @@ void resize_characters( float dUpdate )
     if ( willgetcaught ) continue;
 
     // Figure out how big it is
-    chrsizegototime[cnt] -= dUpdate;
-    if ( chrsizegototime[cnt] < 0 )
+    chrsizegototime[ichr] -= dUpdate;
+    if ( chrsizegototime[ichr] < 0 )
     {
-      chrsizegototime[cnt] = 0;
+      chrsizegototime[ichr] = 0;
     }
 
-    if ( chrsizegototime[cnt] > 0 )
+    if ( chrsizegototime[ichr] > 0 )
     {
-      newsize = chrfat[cnt] * fkeep + chrsizegoto[cnt] * ( 1.0f - fkeep );
+      newsize = chrfat[ichr] * fkeep + chrsizegoto[ichr] * ( 1.0f - fkeep );
     }
-    else if ( chrsizegototime[cnt] <= 0 )
+    else if ( chrsizegototime[ichr] <= 0 )
     {
-      newsize = chrfat[cnt];
+      newsize = chrfat[ichr];
     }
 
     // Make it that big...
-    chrfat[cnt]         = newsize;
-    chrshadowsize[cnt]  = chrshadowsizesave[cnt] * newsize;
-    chrbumpsize[cnt]    = chrbumpsizesave[cnt] * newsize;
-    chrbumpsizebig[cnt] = chrbumpsizebigsave[cnt] * newsize;
-    chrbumpheight[cnt]  = chrbumpheightsave[cnt] * newsize;
-    chrweight[cnt]      = capweight[chrmodel[cnt]] * newsize * newsize * newsize;  // preserve density
+    chrfat[ichr]             = newsize;
+    chrbmpdata[ichr].shadow  = chrbmpdata_save[ichr].shadow * newsize;
+    chrbmpdata[ichr].size    = chrbmpdata_save[ichr].size * newsize;
+    chrbmpdata[ichr].sizebig = chrbmpdata_save[ichr].sizebig * newsize;
+    chrbmpdata[ichr].height  = chrbmpdata_save[ichr].height * newsize;
+    chrweight[ichr]          = capweight[chrmodel[ichr]] * newsize * newsize * newsize;  // preserve density
 
     // Now come up with the magic number
-    chrscale[cnt] = newsize;
+    chrscale[ichr] = newsize;
+
+    // calculate the bumpers
+    make_one_character_matrix( ichr );
   }
 }
 
@@ -4716,15 +5454,15 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     funderf( filewrite, "Class name     : ", capclassname[profile] );
     ftruthf( filewrite, "Uniform light  : ", capuniformlit[profile] );
     fprintf( filewrite, "Maximum ammo   : %d\n", capammomax[profile] );
-    fprintf( filewrite, "Current ammo   : %d\n", chrammo[character] );
-    fgendef( filewrite, "Gender         : ", chrgender[character] );
+    fprintf( filewrite, "Current ammo   : %d\n", capammo[character] );
+    fgendef( filewrite, "Gender         : ", capgender[character] );
     fprintf( filewrite, "\n" );
 
 
 
     // Object stats
-    fprintf( filewrite, "Life color     : %d\n", chrlifecolor[character] );
-    fprintf( filewrite, "Mana color     : %d\n", chrmanacolor[character] );
+    fprintf( filewrite, "Life color     : %d\n", caplifecolor[character] );
+    fprintf( filewrite, "Mana color     : %d\n", capmanacolor[character] );
     fprintf( filewrite, "Life           : %4.2f\n", FP8_TO_FLOAT( chrlifemax_fp8[character] ) );
     fpairof( filewrite, "Life up        : ", &caplifeperlevel_fp8[profile] );
     fprintf( filewrite, "Mana           : %4.2f\n", FP8_TO_FLOAT( chrmanamax_fp8[character] ) );
@@ -4748,26 +5486,26 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     // More physical attributes
     fprintf( filewrite, "Size           : %4.2f\n", chrsizegoto[character] );
     fprintf( filewrite, "Size up        : %4.2f\n", capsizeperlevel[profile] );
-    fprintf( filewrite, "Shadow size    : %d\n", chrshadowsize[profile] );
-    fprintf( filewrite, "Bump size      : %d\n", chrbumpsize[profile] );
-    fprintf( filewrite, "Bump height    : %d\n", chrbumpheight[profile] );
-    fprintf( filewrite, "Bump dampen    : %4.2f\n", chrbumpdampen[profile] );
-    fprintf( filewrite, "Weight         : %d\n", chrweight[profile] < 0.0f ? 0xFF : ( Uint8 ) chrweight[profile] );
+    fprintf( filewrite, "Shadow size    : %d\n", capshadowsize[profile] );
+    fprintf( filewrite, "Bump size      : %d\n", capbumpsize[profile] );
+    fprintf( filewrite, "Bump height    : %d\n", capbumpheight[profile] );
+    fprintf( filewrite, "Bump dampen    : %4.2f\n", capbumpdampen[profile] );
+    fprintf( filewrite, "Weight         : %d\n", capweight[profile] < 0.0f ? 0xFF : ( Uint8 ) capweight[profile] );
     fprintf( filewrite, "Jump power     : %4.2f\n", capjump[profile] );
     fprintf( filewrite, "Jump number    : %d\n", capjumpnumber[profile] );
     fprintf( filewrite, "Sneak speed    : %d\n", capsneakspd[profile] );
     fprintf( filewrite, "Walk speed     : %d\n", capwalkspd[profile] );
     fprintf( filewrite, "Run speed      : %d\n", caprunspd[profile] );
-    fprintf( filewrite, "Fly to height  : %d\n", chrflyheight[profile] );
+    fprintf( filewrite, "Fly to height  : %d\n", capflyheight[profile] );
     fprintf( filewrite, "Flashing AND   : %d\n", capflashand[profile] );
-    fprintf( filewrite, "Alpha blending : %d\n", chralpha_fp8[profile] );
-    fprintf( filewrite, "Light blending : %d\n", chrlight_fp8[profile] );
-    ftruthf( filewrite, "Transfer blend : ", chrtransferblend[profile] );
-    fprintf( filewrite, "Sheen          : %d\n", chrsheen_fp8[profile] );
-    ftruthf( filewrite, "Phong mapping  : ", chrenviro[profile] );
-    fprintf( filewrite, "Texture X add  : %4.2f\n", chruoffvel[profile] / (float)UINT16_SIZE );
-    fprintf( filewrite, "Texture Y add  : %4.2f\n", chrvoffvel[profile] / (float)UINT16_SIZE );
-    ftruthf( filewrite, "Sticky butt    : ", chrstickybutt[profile] );
+    fprintf( filewrite, "Alpha blending : %d\n", capalpha_fp8[profile] );
+    fprintf( filewrite, "Light blending : %d\n", caplight_fp8[profile] );
+    ftruthf( filewrite, "Transfer blend : ", captransferblend[profile] );
+    fprintf( filewrite, "Sheen          : %d\n", capsheen_fp8[profile] );
+    ftruthf( filewrite, "Phong mapping  : ", capenviro[profile] );
+    fprintf( filewrite, "Texture X add  : %4.2f\n", capuoffvel[profile] / (float)UINT16_SIZE );
+    fprintf( filewrite, "Texture Y add  : %4.2f\n", capvoffvel[profile] / (float)UINT16_SIZE );
+    ftruthf( filewrite, "Sticky butt    : ", capstickybutt[profile] );
     fprintf( filewrite, "\n" );
 
 
@@ -4823,7 +5561,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     fprintf( filewrite, "EXP for 4th    : %d\n", capexperienceforlevel[profile][3] );
     fprintf( filewrite, "EXP for 5th    : %d\n", capexperienceforlevel[profile][4] );
     fprintf( filewrite, "EXP for 6th    : %d\n", capexperienceforlevel[profile][5] );
-    fprintf( filewrite, "Starting EXP   : %d\n", chrexperience[character] );
+    fprintf( filewrite, "Starting EXP   : %d\n", capexperience[character] );
     fprintf( filewrite, "EXP worth      : %d\n", capexperienceworth[profile] );
     fprintf( filewrite, "EXP exchange   : %5.3f\n", capexperienceexchange[profile] );
     fprintf( filewrite, "EXPSECRET      : %4.2f\n", capexperiencerate[profile][0] );
@@ -4853,7 +5591,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     ftruthf( filewrite, "Is an item     : ", capisitem[profile] );
     ftruthf( filewrite, "Is a mount     : ", capismount[profile] );
     ftruthf( filewrite, "Is stackable   : ", capisstackable[profile] );
-    ftruthf( filewrite, "Name known     : ", chrnameknown[character] );
+    ftruthf( filewrite, "Name known     : ", capnameknown[character] );
     ftruthf( filewrite, "Usage known    : ", capusageknown[profile] );
     ftruthf( filewrite, "Is exportable  : ", capcancarrytonextmodule[profile] );
     ftruthf( filewrite, "Requires skill : ", capneedskillidtouse[profile] );
@@ -4952,7 +5690,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
 
 
     // Expansions
-    fprintf( filewrite, ":[GOLD] %d\n", chrmoney[character] );
+    fprintf( filewrite, ":[GOLD] %d\n", capmoney[character] );
 
     if ( capskindressy[profile]&1 ) fprintf( filewrite, ":[DRES] 0\n" );
     if ( capskindressy[profile]&2 ) fprintf( filewrite, ":[DRES] 1\n" );
@@ -4965,21 +5703,21 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     if ( capisranged[profile] ) fprintf( filewrite, ":[RANG] 1\n" );
     if ( caphidestate[profile] != NOHIDE ) fprintf( filewrite, ":[HIDE] %d\n", caphidestate[profile] );
     if ( capisequipment[profile] ) fprintf( filewrite, ":[EQUI] 1\n" );
-    if ( chrbumpsizebig[character] == chrbumpsize[character]*2 ) fprintf( filewrite, ":[SQUA] 1\n" );
-    if ( chricon[character] != capusageknown[profile] ) fprintf( filewrite, ":[ICON] %d\n", chricon[character] );
+    if ( capbumpsizebig[character] >= capbumpsize[character] ) fprintf( filewrite, ":[SQUA] 1\n" );
+    if ( capicon[character] != capusageknown[profile] ) fprintf( filewrite, ":[ICON] %d\n", capicon[character] );
     if ( capforceshadow[profile] ) fprintf( filewrite, ":[SHAD] 1\n" );
 
     //Skill expansions
-    if ( chrcanseekurse[character] )  fprintf( filewrite, ":[CKUR] 1\n" );
-    if ( chrcanusearcane[character] ) fprintf( filewrite, ":[WMAG] 1\n" );
-    if ( chrcanjoust[character] )     fprintf( filewrite, ":[JOUS] 1\n" );
-    if ( chrcanusedivine[character] ) fprintf( filewrite, ":[HMAG] 1\n" );
-    if ( chrcandisarm[character] )    fprintf( filewrite, ":[DISA] 1\n" );
-    if ( chrcanusetech[character] )   fprintf( filewrite, ":[TECH] 1\n" );
-    if ( chrcanbackstab[character] )  fprintf( filewrite, ":[STAB] 1\n" );
-    if ( chrcanuseadvancedweapons[character] ) fprintf( filewrite, ":[AWEP] 1\n" );
-    if ( chrcanusepoison[character] ) fprintf( filewrite, ":[POIS] 1\n" );
-    if ( chrcanread[character] )  fprintf( filewrite, ":[READ] 1\n" );
+    if ( capcanseekurse[character] )  fprintf( filewrite, ":[CKUR] 1\n" );
+    if ( capcanusearcane[character] ) fprintf( filewrite, ":[WMAG] 1\n" );
+    if ( capcanjoust[character] )     fprintf( filewrite, ":[JOUS] 1\n" );
+    if ( capcanusedivine[character] ) fprintf( filewrite, ":[HMAG] 1\n" );
+    if ( capcandisarm[character] )    fprintf( filewrite, ":[DISA] 1\n" );
+    if ( capcanusetech[character] )   fprintf( filewrite, ":[TECH] 1\n" );
+    if ( capcanbackstab[character] )  fprintf( filewrite, ":[STAB] 1\n" );
+    if ( capcanuseadvancedweapons[character] ) fprintf( filewrite, ":[AWEP] 1\n" );
+    if ( capcanusepoison[character] ) fprintf( filewrite, ":[POIS] 1\n" );
+    if ( capcanread[character] )  fprintf( filewrite, ":[READ] 1\n" );
 
     //General exported character information
     fprintf( filewrite, ":[PLAT] %d\n", capcanuseplatforms[profile] );
@@ -5914,3 +6652,905 @@ CHR_REF pla_get_character( PLA_REF iplayer )
   plachr[iplayer] = VALIDATE_CHR( plachr[iplayer] );
   return plachr[iplayer];
 };
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void VData_Blended_construct(VData_Blended * v)
+{
+  if(NULL == v) return;
+
+  v->Vertices = NULL;
+  v->Normals  = NULL;
+  v->Colors   = NULL;
+  v->Texture  = NULL;
+  v->Ambient  = NULL;
+
+  v->frame0 = 0;
+  v->frame1 = 0;
+  v->vrtmin = 0;
+  v->vrtmax = 0;
+  v->lerp   = 0.0f;
+  v->needs_lighting = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void VData_Blended_destruct(VData_Blended * v)
+{
+  VData_Blended_Deallocate(v);
+};
+
+
+//--------------------------------------------------------------------------------------------
+void VData_Blended_Deallocate(VData_Blended * v)
+{
+  if(NULL == v) return;
+
+  if(NULL!=v->Vertices)
+  {
+    free( v->Vertices );
+    v->Vertices = NULL;
+  } 
+
+  if(NULL!=v->Normals)
+  {
+    free( v->Normals );
+    v->Normals = NULL;
+  } 
+
+  if(NULL!=v->Colors)
+  {
+    free( v->Colors );
+    v->Colors = NULL;
+  } 
+
+  if(NULL!=v->Texture)
+  {
+    free( v->Texture );
+    v->Texture = NULL;
+  } 
+
+  if(NULL!=v->Ambient)
+  {
+    free( v->Ambient );
+    v->Ambient = NULL;
+  } 
+}
+
+//--------------------------------------------------------------------------------------------
+VData_Blended * VData_Blended_new()
+{
+  VData_Blended * retval = calloc(sizeof(VData_Blended), 1);
+  if(NULL != retval)
+  {
+    VData_Blended_construct(retval);
+  };
+  return retval;
+};
+
+//--------------------------------------------------------------------------------------------
+void VData_Blended_delete(VData_Blended * v)
+{
+  if(NULL != v) return;
+
+  VData_Blended_destruct(v);
+  free(v);
+};
+
+//--------------------------------------------------------------------------------------------
+void VData_Blended_Allocate(VData_Blended * v, size_t verts)
+{
+  if(NULL == v) return;
+
+  VData_Blended_destruct(v);
+
+  v->Vertices = calloc( sizeof(vect3), verts);
+  v->Normals  = calloc( sizeof(vect3), verts);
+  v->Colors   = calloc( sizeof(vect4), verts);
+  v->Texture  = calloc( sizeof(vect2), verts);
+  v->Ambient  = calloc( sizeof(float), verts);
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_cvolume_reinit(CHR_REF ichr, CVolume * pcv)
+{
+  if(!VALID_CHR(ichr) || NULL == pcv) return bfalse;
+
+  pcv->x_min = chrpos[ichr].x - chrbmpdata[ichr].size * chrscale[ichr] * chrpancakepos[ichr].x;
+  pcv->y_min = chrpos[ichr].y - chrbmpdata[ichr].size * chrscale[ichr] * chrpancakepos[ichr].y;
+  pcv->z_min = chrpos[ichr].z;
+
+  pcv->x_max = chrpos[ichr].x + chrbmpdata[ichr].size * chrscale[ichr] * chrpancakepos[ichr].x;
+  pcv->y_max = chrpos[ichr].y + chrbmpdata[ichr].size * chrscale[ichr] * chrpancakepos[ichr].y;
+  pcv->z_max = chrpos[ichr].z + chrbmpdata[ichr].height * chrscale[ichr] * chrpancakepos[ichr].z;
+
+  pcv->xy_min = -(chrpos[ichr].x + chrpos[ichr].y) - chrbmpdata[ichr].sizebig * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+  pcv->xy_max = -(chrpos[ichr].x + chrpos[ichr].y) + chrbmpdata[ichr].sizebig * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+
+  pcv->yx_min = -(-chrpos[ichr].x + chrpos[ichr].y) - chrbmpdata[ichr].sizebig * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+  pcv->yx_max = -(-chrpos[ichr].x + chrpos[ichr].y) + chrbmpdata[ichr].sizebig * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+
+  pcv->level = -1;
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_bdata_reinit(CHR_REF ichr, BData * pbd)
+{
+  if(!VALID_CHR(ichr) || NULL == pbd) return bfalse;
+
+  pbd->calc_is_platform   = chrisplatform[ichr];
+  pbd->calc_is_mount      = chrismount[ichr];
+
+  pbd->mids_lo = pbd->mids_hi = chrpos[ichr];
+  pbd->mids_hi.z += pbd->height * 0.5f;
+
+  pbd->calc_size     = pbd->size    * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+  pbd->calc_size_big = pbd->sizebig * chrscale[ichr] * (chrpancakepos[ichr].x + chrpancakepos[ichr].y) * 0.5f;
+
+  chr_cvolume_reinit(ichr, &pbd->cv);
+
+  return btrue;
+};
+
+
+//--------------------------------------------------------------------------------------------
+bool_t md2_calculate_bumpers_0( CHR_REF ichr )
+{
+  bool_t rv = bfalse;
+
+  if( !VALID_CHR(ichr) ) return bfalse;
+
+  chrbmpdata[ichr].cv_tree = NULL;
+
+  rv = chr_bdata_reinit( ichr, &chrbmpdata[ichr] );
+
+  chrbmpdata[ichr].cv.level = 0;
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+//bool_t md2_calculate_bumpers_1(CHR_REF ichr)
+//{
+//  BData * bd;
+//  Uint16 imdl;
+//  MD2_Model * pmdl;
+//  const MD2_Frame * fl, * fc;
+//  float lerp;
+//  vect3 xdir, ydir, zdir;
+//  vect3 points[8], bbmax, bbmin;
+//  int cnt;
+//
+//  CVolume cv;
+//
+//  if( !VALID_CHR(ichr) ) return bfalse;
+//  bd = &chrbmpdata[ichr];
+//
+//  imdl = chrmodel[ichr];
+//  if(!VALID_MDL(imdl) || !chrmatrixvalid[ichr] )
+//  {
+//    set_default_bump_data( ichr );
+//    return bfalse;
+//  };
+//
+//  pmdl = mad_md2[imdl];
+//  if(NULL == pmdl)
+//  {
+//    set_default_bump_data( ichr );
+//    return bfalse;
+//  }
+//
+//  fl = md2_get_Frame(pmdl, chrframelast[ichr]);
+//  fc = md2_get_Frame(pmdl, chrframe[ichr] );
+//  lerp = chrflip[ichr];
+//
+//  if(NULL==fl && NULL==fc)
+//  {
+//    set_default_bump_data( ichr );
+//    return bfalse;
+//  };
+//
+//  xdir.x = (chrmatrix[ichr])_CNV(0,0);
+//  xdir.y = (chrmatrix[ichr])_CNV(0,1);
+//  xdir.z = (chrmatrix[ichr])_CNV(0,2);
+//
+//  ydir.x = (chrmatrix[ichr])_CNV(1,0);
+//  ydir.y = (chrmatrix[ichr])_CNV(1,1);
+//  ydir.z = (chrmatrix[ichr])_CNV(1,2);
+//
+//  zdir.x = (chrmatrix[ichr])_CNV(2,0);
+//  zdir.y = (chrmatrix[ichr])_CNV(2,1);
+//  zdir.z = (chrmatrix[ichr])_CNV(2,2);
+//
+//  if(NULL==fl || lerp >= 1.0f)
+//  {
+//    bbmin.x = MIN(fc->bbmin[0], fc->bbmax[0]);
+//    bbmin.y = MIN(fc->bbmin[1], fc->bbmax[1]);
+//    bbmin.z = MIN(fc->bbmin[2], fc->bbmax[2]);
+//
+//    bbmax.x = MAX(fc->bbmin[0], fc->bbmax[0]);
+//    bbmax.y = MAX(fc->bbmin[1], fc->bbmax[1]);
+//    bbmax.z = MAX(fc->bbmin[2], fc->bbmax[2]);
+//  }
+//  else if(NULL==fc || lerp <= 0.0f)
+//  {
+//    bbmin.x = MIN(fl->bbmin[0], fl->bbmax[0]);
+//    bbmin.y = MIN(fl->bbmin[1], fl->bbmax[1]);
+//    bbmin.z = MIN(fl->bbmin[2], fl->bbmax[2]);
+//
+//    bbmax.x = MAX(fl->bbmin[0], fl->bbmax[0]);
+//    bbmax.y = MAX(fl->bbmin[1], fl->bbmax[1]);
+//    bbmax.z = MAX(fl->bbmin[2], fl->bbmax[2]);
+//  }
+//  else
+//  {
+//    vect3 tmpmin, tmpmax;
+//
+//    tmpmin.x = fl->bbmin[0] + (fc->bbmin[0]-fl->bbmin[0])*lerp;
+//    tmpmin.y = fl->bbmin[1] + (fc->bbmin[1]-fl->bbmin[1])*lerp;
+//    tmpmin.z = fl->bbmin[2] + (fc->bbmin[2]-fl->bbmin[2])*lerp;
+//
+//    tmpmax.x = fl->bbmax[0] + (fc->bbmax[0]-fl->bbmax[0])*lerp;
+//    tmpmax.y = fl->bbmax[1] + (fc->bbmax[1]-fl->bbmax[1])*lerp;
+//    tmpmax.z = fl->bbmax[2] + (fc->bbmax[2]-fl->bbmax[2])*lerp;
+//
+//    bbmin.x = MIN(tmpmin.x, tmpmax.x);
+//    bbmin.y = MIN(tmpmin.y, tmpmax.y);
+//    bbmin.z = MIN(tmpmin.z, tmpmax.z);
+//
+//    bbmax.x = MAX(tmpmin.x, tmpmax.x);
+//    bbmax.y = MAX(tmpmin.y, tmpmax.y);
+//    bbmax.z = MAX(tmpmin.z, tmpmax.z);
+//  };
+//
+//  cnt = 0;
+//  points[cnt].x = bbmax.x;
+//  points[cnt].y = bbmax.y;
+//  points[cnt].z = bbmax.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmin.x;
+//  points[cnt].y = bbmax.y;
+//  points[cnt].z = bbmax.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmax.x;
+//  points[cnt].y = bbmin.y;
+//  points[cnt].z = bbmax.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmin.x;
+//  points[cnt].y = bbmin.y;
+//  points[cnt].z = bbmax.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmax.x;
+//  points[cnt].y = bbmax.y;
+//  points[cnt].z = bbmin.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmin.x;
+//  points[cnt].y = bbmax.y;
+//  points[cnt].z = bbmin.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmax.x;
+//  points[cnt].y = bbmin.y;
+//  points[cnt].z = bbmin.z;
+//
+//  cnt++;
+//  points[cnt].x = bbmin.x;
+//  points[cnt].y = bbmin.y;
+//  points[cnt].z = bbmin.z;
+//
+//  cv.x_min  = cv.x_max  = points[0].x*xdir.x + points[0].y*ydir.x + points[0].z*zdir.x;
+//  cv.y_min  = cv.y_max  = points[0].x*xdir.y + points[0].y*ydir.y + points[0].z*zdir.y;
+//  cv.z_min  = cv.z_max  = points[0].x*xdir.z + points[0].y*ydir.z + points[0].z*zdir.z;
+//  cv.xy_min = cv.xy_max = cv.x_min + cv.y_min;
+//  cv.yx_min = cv.yx_max = cv.x_min - cv.y_min;
+//
+//  for(cnt=1; cnt<8; cnt++)
+//  {
+//    float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
+//
+//    tmp_x = points[cnt].x*xdir.x + points[cnt].y*ydir.x + points[cnt].z*zdir.x;
+//    if(tmp_x < cv.x_min) cv.x_min = tmp_x - 0.001f;
+//    else if(tmp_x > cv.x_max) cv.x_max = tmp_x + 0.001f;
+//
+//    tmp_y = points[cnt].x*xdir.y + points[cnt].y*ydir.y + points[cnt].z*zdir.y;
+//    if(tmp_y < cv.y_min) cv.y_min = tmp_y - 0.001f;
+//    else if(tmp_y > cv.y_max) cv.y_max = tmp_y + 0.001f;
+//
+//    tmp_z = points[cnt].x*xdir.z + points[cnt].y*ydir.z + points[cnt].z*zdir.z;
+//    if(tmp_z < cv.z_min) cv.z_min = tmp_z - 0.001f;
+//    else if(tmp_z > cv.z_max) cv.z_max = tmp_z + 0.001f;
+//
+//    tmp_xy = tmp_x + tmp_y;
+//    if(tmp_xy < cv.xy_min) cv.xy_min = tmp_xy - 0.001f;
+//    else if(tmp_xy > cv.xy_max) cv.xy_max = tmp_xy + 0.001f;
+//
+//    tmp_yx = -tmp_x + tmp_y;
+//    if(tmp_yx < cv.yx_min) cv.yx_min = tmp_yx - 0.001f;
+//    else if(tmp_yx > cv.yx_max) cv.yx_max = tmp_yx + 0.001f;
+//  };
+//
+//  bd->calc_is_platform  = bd->calc_is_platform && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+//  bd->calc_is_mount     = bd->calc_is_mount    && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+//
+//  bd->cv.x_min  = cv.x_min  * 4.125 + chrpos[ichr].x;
+//  bd->cv.y_min  = cv.y_min  * 4.125 + chrpos[ichr].y;
+//  bd->cv.z_min  = cv.z_min  * 4.125 + chrpos[ichr].z;
+//  bd->cv.xy_min = cv.xy_min * 4.125 + ( chrpos[ichr].x + chrpos[ichr].y);
+//  bd->cv.yx_min = cv.yx_min * 4.125 + (-chrpos[ichr].x + chrpos[ichr].y);
+//
+//
+//  bd->cv.x_max  = cv.x_max  * 4.125 + chrpos[ichr].x;
+//  bd->cv.y_max  = cv.y_max  * 4.125 + chrpos[ichr].y;
+//  bd->cv.z_max  = cv.z_max  * 4.125 + chrpos[ichr].z;
+//  bd->cv.xy_max = cv.xy_max * 4.125 + ( chrpos[ichr].x + chrpos[ichr].y);
+//  bd->cv.yx_max = cv.yx_max * 4.125 + (-chrpos[ichr].x + chrpos[ichr].y);
+//
+//  bd->mids_lo.x = (cv.x_min + cv.x_max) * 0.5f * 4.125 + chrpos[ichr].x;
+//  bd->mids_lo.y = (cv.y_min + cv.y_max) * 0.5f * 4.125 + chrpos[ichr].y;
+//  bd->mids_hi.z = (cv.z_min + cv.z_max) * 0.5f * 4.125 + chrpos[ichr].z;
+//
+//  bd->mids_lo   = bd->mids_hi;
+//  bd->mids_lo.z = cv.z_min * 4.125  + chrpos[ichr].z;
+//
+//  bd->calc_height   = bd->cv.z_max;
+//  bd->calc_size     = MAX( bd->cv.x_max, bd->cv.y_max ) - MIN( bd->cv.x_min, bd->cv.y_min );
+//  bd->calc_size_big = 0.5f * ( MAX( bd->cv.xy_max, bd->cv.yx_max) - MIN( bd->cv.xy_min, bd->cv.yx_min) );
+//
+//  if(bd->calc_size_big < bd->calc_size*1.1)
+//  {
+//    bd->calc_size     *= -1;
+//  }
+//  else if (bd->calc_size*2 < bd->calc_size_big*1.1)
+//  {
+//    bd->calc_size_big *= -1;
+//  }
+//
+//  return btrue;
+//};
+//
+//
+
+//--------------------------------------------------------------------------------------------
+bool_t md2_calculate_bumpers_1(CHR_REF ichr)
+{
+  BData * bd;
+  Uint16 imdl;
+  MD2_Model * pmdl;
+  const MD2_Frame * fl, * fc;
+  float lerp;
+  vect3 xdir, ydir, zdir;
+  vect3 points[8], bbmax, bbmin;
+  int cnt;
+
+  CVolume cv;
+
+  if( !VALID_CHR(ichr) ) return bfalse;
+  bd = &chrbmpdata[ichr];
+
+  imdl = chrmodel[ichr];
+  if(!VALID_MDL(imdl) || !chrmatrixvalid[ichr] )
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  };
+
+  xdir.x = (chrmatrix[ichr])_CNV(0,0);
+  xdir.y = (chrmatrix[ichr])_CNV(0,1);
+  xdir.z = (chrmatrix[ichr])_CNV(0,2);
+
+  ydir.x = (chrmatrix[ichr])_CNV(1,0);
+  ydir.y = (chrmatrix[ichr])_CNV(1,1);
+  ydir.z = (chrmatrix[ichr])_CNV(1,2);
+
+  zdir.x = (chrmatrix[ichr])_CNV(2,0);
+  zdir.y = (chrmatrix[ichr])_CNV(2,1);
+  zdir.z = (chrmatrix[ichr])_CNV(2,2);
+
+  bd->calc_is_platform  = bd->calc_is_platform && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+  bd->calc_is_mount     = bd->calc_is_mount    && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+
+  pmdl = mad_md2[imdl];
+  if(NULL == pmdl)
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  }
+
+  fl = md2_get_Frame(pmdl, chrframelast[ichr]);
+  fc = md2_get_Frame(pmdl, chrframe[ichr] );
+  lerp = chrflip[ichr];
+
+  if(NULL==fl && NULL==fc)
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  };
+
+
+  if(NULL==fl || lerp >= 1.0f)
+  {
+    bbmin.x = fc->bbmin[0];
+    bbmin.y = fc->bbmin[1];
+    bbmin.z = fc->bbmin[2];
+
+    bbmax.x = fc->bbmax[0];
+    bbmax.y = fc->bbmax[1];
+    bbmax.z = fc->bbmax[2];
+  }
+  else if(NULL==fc || lerp <= 0.0f)
+  {
+    bbmin.x = fl->bbmin[0];
+    bbmin.y = fl->bbmin[1];
+    bbmin.z = fl->bbmin[2];
+
+    bbmax.x = fl->bbmax[0];
+    bbmax.y = fl->bbmax[1];
+    bbmax.z = fl->bbmax[2];
+  }
+  else
+  {
+    bbmin.x = MIN(fl->bbmin[0], fc->bbmin[0]);
+    bbmin.y = MIN(fl->bbmin[1], fc->bbmin[1]);
+    bbmin.z = MIN(fl->bbmin[2], fc->bbmin[2]);
+
+    bbmax.x = MAX(fl->bbmax[0], fc->bbmax[0]);
+    bbmax.y = MAX(fl->bbmax[1], fc->bbmax[1]);
+    bbmax.z = MAX(fl->bbmax[2], fc->bbmax[2]);
+  };
+
+  cnt = 0;
+  points[cnt].x = bbmax.x;
+  points[cnt].y = bbmax.y;
+  points[cnt].z = bbmax.z;
+
+  cnt++;
+  points[cnt].x = bbmin.x;
+  points[cnt].y = bbmax.y;
+  points[cnt].z = bbmax.z;
+
+  cnt++;
+  points[cnt].x = bbmax.x;
+  points[cnt].y = bbmin.y;
+  points[cnt].z = bbmax.z;
+
+  cnt++;
+  points[cnt].x = bbmin.x;
+  points[cnt].y = bbmin.y;
+  points[cnt].z = bbmax.z;
+
+  cnt++;
+  points[cnt].x = bbmax.x;
+  points[cnt].y = bbmax.y;
+  points[cnt].z = bbmin.z;
+
+  cnt++;
+  points[cnt].x = bbmin.x;
+  points[cnt].y = bbmax.y;
+  points[cnt].z = bbmin.z;
+
+  cnt++;
+  points[cnt].x = bbmax.x;
+  points[cnt].y = bbmin.y;
+  points[cnt].z = bbmin.z;
+
+  cnt++;
+  points[cnt].x = bbmin.x;
+  points[cnt].y = bbmin.y;
+  points[cnt].z = bbmin.z;
+
+  cv.x_min  = cv.x_max  = points[0].x*xdir.x + points[0].y*ydir.x + points[0].z*zdir.x;
+  cv.y_min  = cv.y_max  = points[0].x*xdir.y + points[0].y*ydir.y + points[0].z*zdir.y;
+  cv.z_min  = cv.z_max  = points[0].x*xdir.z + points[0].y*ydir.z + points[0].z*zdir.z;
+  cv.xy_min = cv.xy_max = cv.x_min + cv.y_min;
+  cv.yx_min = cv.yx_max = cv.x_min - cv.y_min;
+
+  for(cnt=1; cnt<8; cnt++)
+  {
+    float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
+
+    tmp_x = points[cnt].x*xdir.x + points[cnt].y*ydir.x + points[cnt].z*zdir.x;
+    if(tmp_x < cv.x_min) cv.x_min = tmp_x - 0.001f;
+    else if(tmp_x > cv.x_max) cv.x_max = tmp_x + 0.001f;
+
+    tmp_y = points[cnt].x*xdir.y + points[cnt].y*ydir.y + points[cnt].z*zdir.y;
+    if(tmp_y < cv.y_min) cv.y_min = tmp_y - 0.001f;
+    else if(tmp_y > cv.y_max) cv.y_max = tmp_y + 0.001f;
+
+    tmp_z = points[cnt].x*xdir.z + points[cnt].y*ydir.z + points[cnt].z*zdir.z;
+    if(tmp_z < cv.z_min) cv.z_min = tmp_z - 0.001f;
+    else if(tmp_z > cv.z_max) cv.z_max = tmp_z + 0.001f;
+
+    tmp_xy = tmp_x + tmp_y;
+    if(tmp_xy < cv.xy_min) cv.xy_min = tmp_xy - 0.001f;
+    else if(tmp_xy > cv.xy_max) cv.xy_max = tmp_xy + 0.001f;
+
+    tmp_yx = -tmp_x + tmp_y;
+    if(tmp_yx < cv.yx_min) cv.yx_min = tmp_yx - 0.001f;
+    else if(tmp_yx > cv.yx_max) cv.yx_max = tmp_yx + 0.001f;
+  };
+
+  bd->cv.x_min  = cv.x_min  * 4.125;
+  bd->cv.y_min  = cv.y_min  * 4.125;
+  bd->cv.z_min  = cv.z_min  * 4.125;
+  bd->cv.xy_min = cv.xy_min * 4.125;
+  bd->cv.yx_min = cv.yx_min * 4.125;
+
+  bd->cv.x_max  = cv.x_max  * 4.125;
+  bd->cv.y_max  = cv.y_max  * 4.125;
+  bd->cv.z_max  = cv.z_max  * 4.125;
+  bd->cv.xy_max = cv.xy_max * 4.125;
+  bd->cv.yx_max = cv.yx_max * 4.125;
+
+  bd->mids_hi.x = (bd->cv.x_min + bd->cv.x_max) * 0.5f + chrpos[ichr].x;
+  bd->mids_hi.y = (bd->cv.y_min + bd->cv.y_max) * 0.5f + chrpos[ichr].y;
+  bd->mids_hi.z = (bd->cv.z_min + bd->cv.z_max) * 0.5f + chrpos[ichr].z;
+
+  bd->mids_lo   = bd->mids_hi;
+  bd->mids_lo.z = bd->cv.z_min + chrpos[ichr].z;
+
+  bd->calc_height   = bd->cv.z_max;
+  bd->calc_size     = MAX( MAX( bd->cv.x_max,  bd->cv.y_max ), - MIN( bd->cv.x_min,  bd->cv.y_min ) );
+  bd->calc_size_big = MAX( MAX( bd->cv.xy_max, bd->cv.yx_max), - MIN( bd->cv.xy_min, bd->cv.yx_min) );
+
+  if(bd->calc_size_big < bd->calc_size*1.1)
+  {
+    bd->calc_size     *= -1;
+  }
+  else if (bd->calc_size*2 < bd->calc_size_big*1.1)
+  {
+    bd->calc_size_big *= -1;
+  }
+
+  bd->cv.level = 1;
+
+  return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t md2_calculate_bumpers_2(CHR_REF ichr, vect3 * vrt_ary)
+{
+  BData * bd;
+  Uint16 imdl;
+  MD2_Model * pmdl;
+  vect3 xdir, ydir, zdir;
+  int cnt;
+  Uint32  vrt_count;
+  bool_t  free_array = bfalse;
+
+  CVolume cv;
+
+  if( !VALID_CHR(ichr) ) return bfalse;
+  bd = &chrbmpdata[ichr];
+
+  imdl = chrmodel[ichr];
+  if(!VALID_MDL(imdl) || !chrmatrixvalid[ichr] )
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  };
+
+  xdir.x = (chrmatrix[ichr])_CNV(0,0);
+  xdir.y = (chrmatrix[ichr])_CNV(0,1);
+  xdir.z = (chrmatrix[ichr])_CNV(0,2);
+
+  ydir.x = (chrmatrix[ichr])_CNV(1,0);
+  ydir.y = (chrmatrix[ichr])_CNV(1,1);
+  ydir.z = (chrmatrix[ichr])_CNV(1,2);
+
+  zdir.x = (chrmatrix[ichr])_CNV(2,0);
+  zdir.y = (chrmatrix[ichr])_CNV(2,1);
+  zdir.z = (chrmatrix[ichr])_CNV(2,2);
+
+  bd->calc_is_platform  = bd->calc_is_platform && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+  bd->calc_is_mount     = bd->calc_is_mount    && (zdir.z > xdir.z) && (zdir.z > ydir.z);
+
+  pmdl = mad_md2[imdl];
+  if(NULL == pmdl)
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  }
+
+  md2_blend_vertices(ichr, -1, -1);
+
+  // allocate the array
+  vrt_count = md2_get_numVertices(pmdl);
+  if(NULL == vrt_ary)
+  {
+    vrt_ary = malloc(vrt_count * sizeof(vect3));
+    if(NULL==vrt_ary)
+    {
+      return md2_calculate_bumpers_1( ichr );
+    }
+    free_array = btrue;
+  }
+
+  // transform the verts all at once, to reduce function calling overhead
+  Transform3(&chrmatrix[ichr], chrvdata[ichr].Vertices, vrt_ary, vrt_count);
+
+  cv.x_min  = cv.x_max  = vrt_ary[0].x;
+  cv.y_min  = cv.y_max  = vrt_ary[0].y;
+  cv.z_min  = cv.z_max  = vrt_ary[0].z;
+  cv.xy_min = cv.xy_max = cv.x_min + cv.y_min;
+  cv.yx_min = cv.yx_max = cv.x_min - cv.y_min;
+
+  vrt_count = madtransvertices[imdl];
+  for(cnt=1; cnt<vrt_count; cnt++)
+  {
+    float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
+
+    tmp_x = vrt_ary[cnt].x;
+    if(tmp_x < cv.x_min) cv.x_min = tmp_x - 0.001f;
+    else if(tmp_x > cv.x_max) cv.x_max = tmp_x + 0.001f;
+
+    tmp_y = vrt_ary[cnt].y;
+    if(tmp_y < cv.y_min) cv.y_min = tmp_y - 0.001f;
+    else if(tmp_y > cv.y_max) cv.y_max = tmp_y + 0.001f;
+
+    tmp_z = vrt_ary[cnt].z;
+    if(tmp_z < cv.z_min) cv.z_min = tmp_z - 0.001f;
+    else if(tmp_z > cv.z_max) cv.z_max = tmp_z + 0.001f;
+
+    tmp_xy = tmp_x + tmp_y;
+    if(tmp_xy < cv.xy_min) cv.xy_min = tmp_xy - 0.001f;
+    else if(tmp_xy > cv.xy_max) cv.xy_max = tmp_xy + 0.001f;
+
+    tmp_yx = -tmp_x + tmp_y;
+    if(tmp_yx < cv.yx_min) cv.yx_min = tmp_yx - 0.001f;
+    else if(tmp_yx > cv.yx_max) cv.yx_max = tmp_yx + 0.001f;
+  };
+
+  bd->cv = cv;
+
+  bd->mids_lo.x = (cv.x_min + cv.x_max) * 0.5f + chrpos[ichr].x;
+  bd->mids_lo.y = (cv.y_min + cv.y_max) * 0.5f + chrpos[ichr].y;
+  bd->mids_hi.z = (cv.z_min + cv.z_max) * 0.5f + chrpos[ichr].z;
+
+  bd->mids_lo   = bd->mids_hi;
+  bd->mids_lo.z = cv.z_min + chrpos[ichr].z;
+
+  bd->calc_height   = bd->cv.z_max;
+  bd->calc_size     = MAX( bd->cv.x_max, bd->cv.y_max ) - MIN( bd->cv.x_min, bd->cv.y_min );
+  bd->calc_size_big = 0.5f * ( MAX( bd->cv.xy_max, bd->cv.yx_max) - MIN( bd->cv.xy_min, bd->cv.yx_min) );
+
+  if(bd->calc_size_big < bd->calc_size*1.1)
+  {
+    bd->calc_size     *= -1;
+  }
+  else if (bd->calc_size*2 < bd->calc_size_big*1.1)
+  {
+    bd->calc_size_big *= -1;
+  }
+
+  bd->cv.level = 2;
+
+  if(free_array)
+  {
+    free( vrt_ary );
+  }
+
+  return btrue;
+};
+
+
+//--------------------------------------------------------------------------------------------
+bool_t md2_calculate_bumpers_3(CHR_REF ichr, CVolume_Tree * cv_tree)
+{
+  BData * bd;
+  Uint16 imdl;
+  MD2_Model * pmdl;
+  int cnt, tnc;
+  Uint32  tri_count, vrt_count;
+  vect3 * vrt_ary;
+  CVolume *pcv, cv_node[8];
+
+  if( !VALID_CHR(ichr) ) return bfalse;
+  bd = &chrbmpdata[ichr];
+
+  imdl = chrmodel[ichr];
+  if(!VALID_MDL(imdl) || !chrmatrixvalid[ichr] )
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  };
+
+  pmdl = mad_md2[imdl];
+  if(NULL == pmdl)
+  {
+    md2_calculate_bumpers_0( ichr );
+    return bfalse;
+  }
+
+  // allocate the array
+  vrt_count = md2_get_numVertices(pmdl);
+  vrt_ary   = malloc(vrt_count * sizeof(vect3));
+  if(NULL==vrt_ary) return md2_calculate_bumpers_1( ichr );
+
+  // make sure that we have the correct bounds
+  if(bd->cv.level < 2)
+  {
+    md2_calculate_bumpers_2(ichr, vrt_ary);
+  }
+
+  if(NULL == cv_tree) return bfalse;
+
+  // transform the verts all at once, to reduce function calling overhead
+  Transform3(&chrmatrix[ichr], chrvdata[ichr].Vertices, vrt_ary, vrt_count);
+
+  pcv = &chrbmpdata[ichr].cv;
+
+  // initialize the octree
+  for(tnc=0; tnc<8; tnc++)
+  {
+    (*cv_tree)[tnc].level = -1;
+  }
+
+  // calculate the raw CVolumes for the octree nodes
+  for(tnc=0; tnc<8; tnc++)
+  {
+    
+    if(0 == ((tnc >> 0) & 1))
+    {
+      cv_node[tnc].x_min = pcv->x_min;
+      cv_node[tnc].x_max = (pcv->x_min + pcv->x_max)*0.5f;
+    }
+    else
+    {
+      cv_node[tnc].x_min = (pcv->x_min + pcv->x_max)*0.5f;
+      cv_node[tnc].x_max = pcv->x_max;
+    };
+
+    if(0 == ((tnc >> 1) & 1))
+    {
+      cv_node[tnc].y_min = pcv->y_min;
+      cv_node[tnc].y_max = (pcv->y_min + pcv->y_max)*0.5f;
+    }
+    else
+    {
+      cv_node[tnc].y_min = (pcv->y_min + pcv->y_max)*0.5f;
+      cv_node[tnc].y_max = pcv->y_max;
+    };
+    
+    if(0 == ((tnc >> 2) & 1))
+    {
+      cv_node[tnc].z_min = pcv->z_min;
+      cv_node[tnc].z_max = (pcv->z_min + pcv->z_max)*0.5f;
+    }
+    else
+    {
+      cv_node[tnc].z_min = (pcv->z_min + pcv->z_max)*0.5f;
+      cv_node[tnc].z_max = pcv->z_max;
+    };
+
+    cv_node[tnc].level = 0;
+  }
+
+  tri_count = pmdl->m_numTriangles;
+  for(cnt=0; cnt < tri_count; cnt++)
+  {
+    float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
+    CVolume cv_tri;
+    short * tri = pmdl->m_triangles[cnt].vertexIndices;
+    int ivrt = tri[0];
+
+    // find the collision volume for this triangle
+    tmp_x = vrt_ary[ivrt].x;
+    cv_tri.x_min = cv_tri.x_max = tmp_x;
+
+    tmp_y = vrt_ary[ivrt].y;
+    cv_tri.y_min = cv_tri.y_max = tmp_y;
+
+    tmp_z = vrt_ary[ivrt].z;
+    cv_tri.z_min = cv_tri.z_max = tmp_z;
+
+    tmp_xy = tmp_x + tmp_y;
+    cv_tri.xy_min = cv_tri.xy_max = tmp_xy;
+
+    tmp_yx = -tmp_x + tmp_y;
+    cv_tri.yx_min = cv_tri.yx_max = tmp_yx;
+    
+    for(tnc=1; tnc<3; tnc++)
+    {
+      ivrt = tri[tnc];
+
+      tmp_x = vrt_ary[ivrt].x;
+      if(tmp_x < cv_tri.x_min) cv_tri.x_min = tmp_x - 0.001f;
+      else if(tmp_x > cv_tri.x_max) cv_tri.x_max = tmp_x + 0.001f;
+
+      tmp_y = vrt_ary[ivrt].y;
+      if(tmp_y < cv_tri.y_min) cv_tri.y_min = tmp_y - 0.001f;
+      else if(tmp_y > cv_tri.y_max) cv_tri.y_max = tmp_y + 0.001f;
+
+      tmp_z = vrt_ary[ivrt].z;
+      if(tmp_z < cv_tri.z_min) cv_tri.z_min = tmp_z - 0.001f;
+      else if(tmp_z > cv_tri.z_max) cv_tri.z_max = tmp_z + 0.001f;
+
+      tmp_xy = tmp_x + tmp_y;
+      if(tmp_xy < cv_tri.xy_min) cv_tri.xy_min = tmp_xy - 0.001f;
+      else if(tmp_xy > cv_tri.xy_max) cv_tri.xy_max = tmp_xy + 0.001f;
+
+      tmp_yx = -tmp_x + tmp_y;
+      if(tmp_yx < cv_tri.yx_min) cv_tri.yx_min = tmp_yx - 0.001f;
+      else if(tmp_yx > cv_tri.yx_max) cv_tri.yx_max = tmp_yx + 0.001f;
+    };
+
+    cv_tri.level = 0;
+
+    // add the triangle to the octree 
+    for(tnc=0; tnc<8; tnc++)
+    {
+      if(cv_tri.x_min >= cv_node[tnc].x_max || cv_tri.x_max <= cv_node[tnc].x_min) continue;
+      if(cv_tri.y_min >= cv_node[tnc].y_max || cv_tri.y_max <= cv_node[tnc].y_min) continue;
+      if(cv_tri.z_min >= cv_node[tnc].z_max || cv_tri.z_max <= cv_node[tnc].z_min) continue;
+
+      //there is an overlap with the default otree cv
+      (*cv_tree)[tnc] = cvolume_merge(&(*cv_tree)[tnc], &cv_tri);
+    }
+    
+  };
+
+
+  bd->cv.level = 3;
+
+  free( vrt_ary );
+
+  return btrue;
+};
+
+
+//--------------------------------------------------------------------------------------------
+bool_t md2_calculate_bumpers(CHR_REF ichr, int level)
+{
+  bool_t retval = bfalse;
+
+  if(chrbmpdata[ichr].cv.level >= level) return btrue;
+
+  switch(level)
+  {    
+    case 2:
+      // the collision volume is an octagon, the ranges are calculated using the model's vertices
+      retval = md2_calculate_bumpers_2(ichr, NULL);
+      break;
+
+    case 3:
+      {
+        // calculate the octree collision volume
+        if(NULL == chrbmpdata[ichr].cv_tree)
+        {
+          chrbmpdata[ichr].cv_tree = calloc(1, sizeof(CVolume_Tree));
+        };
+        retval = md2_calculate_bumpers_3(ichr, chrbmpdata[ichr].cv_tree);
+      };
+      break;
+
+    case 1:
+      // the collision volume is a simple axis-aligned bounding box, the range is calculated from the
+      // md2's bounding box
+      retval = md2_calculate_bumpers_1(ichr);
+
+    default:
+    case 0:
+      // make the simplest estimation of the bounding box using the data in data.txt
+      retval = md2_calculate_bumpers_0(ichr);
+  };
+
+  return retval;
+};
+
+//--------------------------------------------------------------------------------------------
+void cv_list_draw()
+{
+  int cnt;
+
+  for(cnt=0; cnt<cv_list_count; cnt++)
+  {
+    draw_CVolume( &(cv_list[cnt]) );
+  };
+}

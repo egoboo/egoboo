@@ -316,7 +316,7 @@ int get_indentation()
 
   if ( cnt > 15 )
   {
-    log_message( "SCRIPT ERROR FOUND: %s (%d) - %d levels of indentation\n", globalparsename, scr_intern.line_num, cnt );
+    log_warning( "SCRIPT ERROR FOUND: %s (%d) - %d levels of indentation\n", globalparsename, scr_intern.line_num, cnt );
     parseerror = btrue;
     cnt = 15;
   };
@@ -653,7 +653,7 @@ void log_code( int ainumber, char* savename )
 }
 
 //------------------------------------------------------------------------------
-int ai_goto_colon( Uint8 read )
+int ai_goto_colon( int read )
 {
   // ZZ> This function goes to spot after the next colon
   Uint8 cTmp;
@@ -1243,6 +1243,13 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, DisableExport);
   REGISTER_FUNCTION( opcode_lst, EnableExport);
   REGISTER_FUNCTION( opcode_lst, GetTargetState);
+  REGISTER_FUNCTION( opcode_lst, SetSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetMoveSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetSecondMoveSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetAttackSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetAssistSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetTerrainSpeech);
+  REGISTER_FUNCTION( opcode_lst, SetSelectSpeech);
   REGISTER_FUNCTION( opcode_lst, ClearEndText);
   REGISTER_FUNCTION( opcode_lst, AddEndText);
   REGISTER_FUNCTION( opcode_lst, PlayMusic);
@@ -1326,6 +1333,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfHeldInLeftSaddle, "IfHeldInLeftHand" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, ClearEndText, "ClearEndMessage" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, AddEndText, "AddEndMessage" );
+//  REGISTER_FUNCTION_ALIAS( opcode_lst, IfJumping, "IfTargetJumping" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, StopSoundLoop, "StopSound" );
 
   log_info( "load_ai_codes() - loading external script constants\n" );
@@ -1644,8 +1652,8 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetBumpHeight:
       // This function changes a character's bump height
-      chrbumpheight[ichr] = scr_globals.tmpargument * chrfat[ichr];
-      chrbumpheightsave[ichr] = scr_globals.tmpargument;
+      //chrbmpdata[ichr].height = scr_globals.tmpargument * chrfat[ichr];
+      //chrbmpdata_save[ichr].height = scr_globals.tmpargument;
       break;
 
     case F_IfTargetHasID:
@@ -1739,7 +1747,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
           chraction[ichr] = scr_globals.tmpargument;
           chrlip_fp8[ichr] = 0;
           chrflip[ichr] = 0.0f;
-          chrlastframe[ichr] = chrframe[ichr];
+          chrframelast[ichr] = chrframe[ichr];
           chrframe[ichr] = madactionstart[loc_model][scr_globals.tmpargument];
           chractionready[ichr] = bfalse;
           returncode = btrue;
@@ -1789,7 +1797,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
             chraction[loc_aitarget] = scr_globals.tmpargument;
             chrlip_fp8[loc_aitarget] = 0;
             chrflip[loc_aitarget] = 0.0f;
-            chrlastframe[loc_aitarget] = chrframe[loc_aitarget];
+            chrframelast[loc_aitarget] = chrframe[loc_aitarget];
             chrframe[loc_aitarget] = madactionstart[chrmodel[loc_aitarget]][scr_globals.tmpargument];
             chractionready[loc_aitarget] = bfalse;
             returncode = btrue;
@@ -1906,7 +1914,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
           chraction[ichr] = scr_globals.tmpargument;
           chrlip_fp8[ichr] = 0;
           chrflip[ichr] = 0.0f;
-          chrlastframe[ichr] = chrframe[ichr];
+          chrframelast[ichr] = chrframe[ichr];
           chrframe[ichr] = madactionstart[loc_model][scr_globals.tmpargument];
           chractionready[ichr] = bfalse;
           returncode = btrue;
@@ -1997,7 +2005,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_GetBumpHeight:
       // Get the characters bump height
-      scr_globals.tmpargument = chrbumpheight[ichr];
+      scr_globals.tmpargument = chrbmpdata[ichr].calc_height;
       break;
 
     case F_IfReaffirmed:
@@ -2651,12 +2659,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetBumpSize:
       // This function sets the character's bump size
-      fTmp = chrbumpsizebig[ichr];
-      fTmp /= chrbumpsize[ichr];  // 1.5 or 2.0
-      chrbumpsize[ichr] = scr_globals.tmpargument * chrfat[ichr];
-      chrbumpsizebig[ichr] = fTmp * chrbumpsize[ichr];
-      chrbumpsizesave[ichr] = scr_globals.tmpargument;
-      chrbumpsizebigsave[ichr] = fTmp * chrbumpsizesave[ichr];
+      //fTmp = chrbmpdata[ichr].calc_size_big;
+      //fTmp /= chrbmpdata[ichr].calc_size;  // 1.5 or 2.0
+      //chrbmpdata[ichr].size = scr_globals.tmpargument * chrfat[ichr];
+      //chrbmpdata[ichr].sizebig = fTmp * chrbmpdata[ichr].calc_size;
+      //chrbmpdata_save[ichr].size = scr_globals.tmpargument;
+      //chrbmpdata_save[ichr].sizebig = fTmp * chrbmpdata_save[ichr].size;
       break;
 
     case F_IfNotDropped:
@@ -3120,7 +3128,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
           chrlip_fp8[loc_aichild] = 0;
           chrflip[loc_aichild] = 0.0f;
           chrframe[loc_aichild] = madactionstart[chrmodel[loc_aichild]][scr_globals.tmpargument];
-          chrlastframe[loc_aichild] = chrframe[loc_aichild];
+          chrframelast[loc_aichild] = chrframe[loc_aichild];
           chractionready[loc_aichild] = bfalse;
           returncode = btrue;
         }
@@ -3506,7 +3514,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_attachedto(sTmp);
         if ( VALID_CHR( sTmp ) )
         {
-          returncode = chrismount[sTmp];
+          returncode = chrbmpdata[sTmp].calc_is_mount;
         }
       }
       break;
@@ -3536,8 +3544,8 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetShadowSize:
       // This function changes a character's shadow size
-      chrshadowsize[ichr] = scr_globals.tmpargument * chrfat[ichr];
-      chrshadowsizesave[ichr] = scr_globals.tmpargument;
+      //chrbmpdata[ichr].shadow = scr_globals.tmpargument * chrfat[ichr];
+      //chrbmpdata_save[ichr].shadow = scr_globals.tmpargument;
       break;
 
     case F_SignalTarget:
@@ -3728,7 +3736,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
           chrlip_fp8[loc_aitarget] = 0;
           chrflip[loc_aitarget] = 0.0f;
           chrframe[loc_aitarget] = madactionstart[chrmodel[loc_aitarget]][scr_globals.tmpargument];
-          chrlastframe[loc_aitarget] = chrframe[loc_aitarget];
+          chrframelast[loc_aitarget] = chrframe[loc_aitarget];
           chractionready[loc_aitarget] = bfalse;
           returncode = btrue;
         }
@@ -3968,11 +3976,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       break;
 
     case F_IfTargetIsAMount:
-      returncode = chrismount[loc_aitarget];
+      returncode = chrbmpdata[loc_aitarget].calc_is_mount;
       break;
 
     case F_IfTargetIsAPlatform:
-      returncode = chrisplatform[loc_aitarget];
+      returncode = chrbmpdata[loc_aitarget].calc_is_platform;
       break;
 
     case F_AddStat:
@@ -4256,11 +4264,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
   /*  case F_SetCameraSwing:
 	  //This function sets the camera swing rate
-	  camswing = 0;
+	    camswing = 0;
       camswingrate = scr_globals.tmpargument;
       camswingamp = scr_globals.tmpdistance;
       returncode = loc_aitarget == loc_aiowner;
       break;*/
+
 
 
     case F_End:
@@ -4786,7 +4795,7 @@ void let_character_think( CHR_REF character, float dUpdate )
       chrlatchy[character] = chraigotoy[character][chraigoto[character]] - chrpos[character].y;
 
       fnum = chrlatchx[character] * chrlatchx[character] + chrlatchy[character] * chrlatchy[character];
-      fden = fnum + 25 * chrbumpsize[character] * chrbumpsize[character];
+      fden = fnum + 25 * chrbmpdata[character].calc_size * chrbmpdata[character].calc_size;
       if ( fnum > 0.0f )
       {
         float ftmp = 1.0f / sqrt( fnum ) * fnum / fden;

@@ -40,6 +40,8 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
+#define INLINE __inline
+
 extern float LoadFloatByteswapped( float *ptr );
 
 typedef struct rect_sint32_t

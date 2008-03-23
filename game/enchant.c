@@ -21,6 +21,8 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "egoboo.h"
 #include "mesh.h"
 
+#include <assert.h>
+
 //--------------------------------------------------------------------------------------------
 void do_enchant_spawn( float dUpdate )
 {
@@ -122,6 +124,7 @@ void damage_character( CHR_REF character, Uint16 direction,
       return;
     }
 
+
     // Invert damage to heal
     if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_INVERT )
       damage = -damage;
@@ -142,7 +145,7 @@ void damage_character( CHR_REF character, Uint16 direction,
         if ( HAS_SOME_BITS( effects, DAMFX_BLOC ) )
         {
           // Only damage if hitting from proper direction
-          if ( HAS_SOME_BITS( madframefx[chrframe[character]], MADFX_INVICTUS ) )
+          if ( HAS_SOME_BITS( madframefx[chrmodel[character]][chrframe[character]], MADFX_INVICTUS ) )
           {
             // I Frame...
             direction -= capiframefacing[model];
@@ -207,7 +210,7 @@ void damage_character( CHR_REF character, Uint16 direction,
           {
             // Call for help if below 1/2 life
             if ( chrlife_fp8[character] < ( chrlifemax_fp8[character] >> 1 ) ) //Zefz: Removed, because it caused guards to attack
-              call_for_help( character );										//when dispelling overlay spells (Faerie Light)
+              call_for_help( character );                    //when dispelling overlay spells (Faerie Light)
 
             // Spawn blud particles
             if ( capbludlevel[model] > BLUD_NONE && ( damagetype < DAMAGE_HOLY || capbludlevel[model] == BLUD_ULTRA ) )
@@ -250,6 +253,8 @@ void damage_character( CHR_REF character, Uint16 direction,
             chrisplatform[character] = btrue;
             chrbumpdampen[character] /= 2.0;
             action = ACTION_KA;
+			      stop_sound(chrloopingchannel[character]);		//Stop sound loops
+			      chrloopingchannel[character] = -1;
             // Give kill experience
             experience = capexperienceworth[model] + ( chrexperience[character] * capexperienceexchange[model] );
             if ( VALID_CHR( attacker ) )
@@ -328,7 +333,7 @@ void damage_character( CHR_REF character, Uint16 direction,
             for ( tnc = 0; tnc < MAXWAVE; tnc++ )
             {
               //TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-              //stop_sound(chrmodel[character]);
+              stop_sound(chrmodel[character]);
             }
 
             // Afford it one last thought if it's an AI
@@ -560,7 +565,7 @@ void tilt_characters_to_terrain()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
+CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
                             Uint8 skin, Uint16 facing, char *name, Uint16 override )
 {
   // ZZ> This function spawns a character and returns the character's index number
@@ -634,6 +639,9 @@ Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
   chrnextinpack[ichr] = MAXCHR;
   chrnuminpack[ichr] = 0;
   chrmodel[ichr] = profile;
+  VData_Blended_construct( &chrvdata[numfreechr] );
+  VData_Blended_Allocate( &chrvdata[numfreechr], md2_get_numVertices(mad_md2[profile]) );
+
   chrbasemodel[ichr] = profile;
   chrstoppedby[ichr] = capstoppedby[profile];
   chrlifeheal[ichr] = caplifeheal_fp8[profile];
@@ -647,6 +655,9 @@ Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
   chrcanbecrushed[ichr] = bfalse;
   chrdamageboost[ichr] = 0;
   chricon[ichr] = capicon[profile];
+
+  //Ready for loop sound
+  chrloopingchannel[ichr] = -1;
 
   // Enchant stuff
   chrfirstenchant[ichr] = MAXENCHANT;
@@ -797,16 +808,16 @@ Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
   chrsizegoto[ichr] = chrfat[ichr];
   chrsizegototime[ichr] = 0;
 
-  chrshadowsizesave[ichr]  = capshadowsize[profile];
-  chrbumpsizesave[ichr]    = capbumpsize[profile];
-  chrbumpsizebigsave[ichr] = capbumpsizebig[profile];
-  chrbumpheightsave[ichr]  = capbumpheight[profile];
+  chrbmpdata_save[ichr].shadow  = capshadowsize[profile];
+  chrbmpdata_save[ichr].size    = capbumpsize[profile];
+  chrbmpdata_save[ichr].sizebig = capbumpsizebig[profile];
+  chrbmpdata_save[ichr].height  = capbumpheight[profile];
 
-  chrshadowsize[ichr]   = capshadowsize[profile]  * chrfat[ichr];
-  chrbumpsize[ichr]     = capbumpsize[profile]    * chrfat[ichr];
-  chrbumpsizebig[ichr]  = capbumpsizebig[profile] * chrfat[ichr];
-  chrbumpheight[ichr]   = capbumpheight[profile]  * chrfat[ichr];
-  chrbumpstrength[ichr] = capbumpstrength[profile] * FP8_TO_FLOAT( capalpha_fp8[profile] );
+  chrbmpdata[ichr].shadow   = capshadowsize[profile]  * chrfat[ichr];
+  chrbmpdata[ichr].size     = capbumpsize[profile]    * chrfat[ichr];
+  chrbmpdata[ichr].sizebig  = capbumpsizebig[profile] * chrfat[ichr];
+  chrbmpdata[ichr].height   = capbumpheight[profile]  * chrfat[ichr];
+  chrbumpstrength[ichr]   = capbumpstrength[profile] * FP8_TO_FLOAT( capalpha_fp8[profile] );
 
 
 
@@ -878,8 +889,8 @@ Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
   chrnextaction[ichr] = ACTION_DA;
   chrlip_fp8[ichr] = 0;
   chrflip[ichr] = 0.0f;
-  chrframe[ichr] = madframestart[chrmodel[ichr]];
-  chrlastframe[ichr] = chrframe[ichr];
+  chrframe[ichr] = 0;
+  chrframelast[ichr] = chrframe[ichr];
   chrpassage[ichr] = 0;
   chrholdingweight[ichr] = 0;
   chronwhichplatform[ichr] = MAXCHR;
@@ -952,6 +963,10 @@ Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
 
   chrloopingchannel[numfreechr] = INVALID_CHANNEL;
 
+  // calculate the bumpers
+  assert(NULL == chrbmpdata[ichr].cv_tree);
+  make_one_character_matrix( ichr );
+
   return ichr;
 }
 
@@ -994,19 +1009,19 @@ void respawn_character( CHR_REF character )
   chrnextaction[character] = ACTION_DA;
   chrlip_fp8[character] = 0;
   chrflip[character] = 0.0f;
-  chrframe[character] = madframestart[profile];
-  chrlastframe[character] = chrframe[character];
+  chrframe[character] = 0;
+  chrframelast[character] = chrframe[character];
   chrisplatform[character] = capisplatform[profile];
   chrflyheight[character] = capflyheight[profile];
   chrbumpdampen[character] = capbumpdampen[profile];
 
-  chrbumpsizesave[character]    = capbumpsize[profile];
-  chrbumpsizebigsave[character] = capbumpsizebig[profile];
-  chrbumpheightsave[character]  = capbumpheight[profile];
+  chrbmpdata_save[character].size    = capbumpsize[profile];
+  chrbmpdata_save[character].sizebig = capbumpsizebig[profile];
+  chrbmpdata_save[character].height  = capbumpheight[profile];
 
-  chrbumpsize[character]     = capbumpsize[profile] * chrfat[character];
-  chrbumpsizebig[character]  = capbumpsizebig[profile] * chrfat[character];
-  chrbumpheight[character]   = capbumpheight[profile] * chrfat[character];
+  chrbmpdata[character].size     = capbumpsize[profile] * chrfat[character];
+  chrbmpdata[character].sizebig  = capbumpsizebig[profile] * chrfat[character];
+  chrbmpdata[character].height   = capbumpheight[profile] * chrfat[character];
   chrbumpstrength[character] = capbumpstrength[profile] * FP8_TO_FLOAT( capalpha_fp8[profile] );
 
   // clear the alert and leave the state alone
@@ -1143,6 +1158,10 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
 
   // Stuff that must be set
   chrmodel[ichr]     = new_profile;
+  VData_Blended_destruct( &chrvdata[numfreechr] );
+  VData_Blended_construct( &chrvdata[numfreechr] );
+  VData_Blended_Allocate( &chrvdata[numfreechr], md2_get_numVertices(mad_md2[new_profile]) );
+
   chrstoppedby[ichr] = capstoppedby[new_profile];
   chrlifeheal[ichr]  = caplifeheal_fp8[new_profile];
   chrmanacost[ichr]  = capmanacost_fp8[new_profile];
@@ -1179,16 +1198,16 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   chrjumptime[ichr] = DELAY_JUMP;
 
   // Character size and bumping
-  chrshadowsizesave[ichr]  = capshadowsize[new_profile];
-  chrbumpsizesave[ichr]    = capbumpsize[new_profile];
-  chrbumpsizebigsave[ichr] = capbumpsizebig[new_profile];
-  chrbumpheightsave[ichr]  = capbumpheight[new_profile];
+  chrbmpdata_save[ichr].shadow  = capshadowsize[new_profile];
+  chrbmpdata_save[ichr].size    = capbumpsize[new_profile];
+  chrbmpdata_save[ichr].sizebig = capbumpsizebig[new_profile];
+  chrbmpdata_save[ichr].height  = capbumpheight[new_profile];
 
-  chrshadowsize[ichr]   = capshadowsize[new_profile] * chrfat[ichr];
-  chrbumpsize[ichr]     = capbumpsize[new_profile] * chrfat[ichr];
-  chrbumpsizebig[ichr]  = capbumpsizebig[new_profile] * chrfat[ichr];
-  chrbumpheight[ichr]   = capbumpheight[new_profile] * chrfat[ichr];
-  chrbumpstrength[ichr] = capbumpstrength[new_profile] * FP8_TO_FLOAT( capalpha_fp8[new_profile] );
+  chrbmpdata[ichr].shadow   = capshadowsize[new_profile] * chrfat[ichr];
+  chrbmpdata[ichr].size     = capbumpsize[new_profile] * chrfat[ichr];
+  chrbmpdata[ichr].sizebig  = capbumpsizebig[new_profile] * chrfat[ichr];
+  chrbmpdata[ichr].height   = capbumpheight[new_profile] * chrfat[ichr];
+  chrbumpstrength[ichr]     = capbumpstrength[new_profile] * FP8_TO_FLOAT( capalpha_fp8[new_profile] );
 
   chrbumpdampen[ichr] = capbumpdampen[new_profile];
   chrweight[ichr] = capweight[new_profile] * chrfat[ichr] * chrfat[ichr] * chrfat[ichr];     // preserve density
@@ -1204,10 +1223,10 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
 
     if( !VALID_MDL(imodel) )
     {
-      chrattachedgrip[ichr][0] =
-      chrattachedgrip[ichr][1] =
-      chrattachedgrip[ichr][2] =
-      chrattachedgrip[ichr][3] = 0;
+      chrattachedgrip[ichr][0] = 0;
+      chrattachedgrip[ichr][1] = 0xFFFF;
+      chrattachedgrip[ichr][2] = 0xFFFF;
+      chrattachedgrip[ichr][3] = 0xFFFF;
     }
     else if ( madvertices[imodel] > vrtoffset && vrtoffset > 0 )
     {
@@ -1219,10 +1238,10 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
     }
     else
     {
-      chrattachedgrip[ichr][0] =
-      chrattachedgrip[ichr][1] =
-      chrattachedgrip[ichr][2] =
-      chrattachedgrip[ichr][3] = madvertices[imodel] - 1;
+      chrattachedgrip[ichr][0] = madvertices[imodel] - 1;
+      chrattachedgrip[ichr][1] = 0xFFFF;
+      chrattachedgrip[ichr][2] = 0xFFFF;
+      chrattachedgrip[ichr][3] = 0xFFFF;
     }
   }
 
@@ -1260,11 +1279,10 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   chrnextaction[ichr] = ACTION_DA;
   chrlip_fp8[ichr] = 0;
   chrflip[ichr] = 0.0f;
-  chrframe[ichr] = madframestart[new_profile];
-  chrlastframe[ichr] = chrframe[ichr];
+  chrframe[ichr] = 0;
+  chrframelast[ichr] = chrframe[ichr];
   chrholdingweight[ichr] = 0;
   chronwhichplatform[ichr] = MAXCHR;
-
 
   // Set the new_skin
   change_armor( ichr, new_skin );
@@ -1274,14 +1292,15 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   chrreaffirmdamagetype[ichr] = capattachedprtreaffirmdamagetype[new_profile];
   reaffirm_attached_particles( ichr );
 
+  make_one_character_matrix(ichr);
 
   // Set up initial fade in lighting
   tnc = 0;
   while ( tnc < madtransvertices[chrmodel[ichr]] )
   {
     chrvrtar_fp8[ichr][tnc] =
-      chrvrtag_fp8[ichr][tnc] =
-        chrvrtab_fp8[ichr][tnc] = 0;
+    chrvrtag_fp8[ichr][tnc] =
+    chrvrtab_fp8[ichr][tnc] = 0;
     tnc++;
   }
 }
@@ -1382,10 +1401,10 @@ CHR_REF chr_search_nearby_target( CHR_REF character, bool_t ask_items,
   search_besttarget = MAXCHR;
 
   // Current fanblock
-  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrpos[character].x - chrbumpsize[character] ) );
-  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrpos[character].x + chrbumpsize[character] ) );
-  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrpos[character].y - chrbumpsize[character] ) );
-  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrpos[character].y + chrbumpsize[character] ) );
+  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[character].cv.x_min ) );
+  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[character].cv.x_max ) );
+  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[character].cv.y_min ) );
+  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[character].cv.y_max ) );
 
   for( ix = ix_min; ix<=ix_max; ix++ )
   {
@@ -1760,14 +1779,11 @@ void set_alerts( CHR_REF character, float dUpdate )
 {
   // ZZ> This function polls some alert conditions
 
-  float waythresh;
-
   chraitime[character] -= dUpdate;
   if ( chraitime[character] < 0 ) chraitime[character] = 0.0f;
 
-  waythresh = ( WAYTHRESH + chrbumpsize[character] ) * 0.5f;
-  if ( ABS( chrpos[character].x - chraigotox[character][chraigoto[character]] ) < waythresh &&
-       ABS( chrpos[character].y - chraigotoy[character][chraigoto[character]] ) < waythresh )
+  if ( ABS( chrpos[character].x - chraigotox[character][chraigoto[character]] ) < WAYTHRESH &&
+       ABS( chrpos[character].y - chraigotoy[character][chraigoto[character]] ) < WAYTHRESH )
   {
     chralert[character] |= ALERT_ATWAYPOINT;
     chraigoto[character]++;
@@ -2019,7 +2035,8 @@ void load_one_enchant_profile( char* szLoadName, Uint16 profile )
   eveendsound[profile] = INVALID_SOUND;
   evestayifnoowner[profile] = 0;
   eveoverlay[profile] = 0;
-  evecanseekurse[profile] = 0;
+  evecanseekurse[profile] = bfalse;
+
   // Read expansions
   while ( fgoto_colon_yesno( fileread ) )
   {
@@ -2033,7 +2050,7 @@ void load_one_enchant_profile( char* szLoadName, Uint16 profile )
     else if ( MAKE_IDSZ( "SEND" ) == idsz )  eveendsound[profile] = FIX_SOUND( iTmp );
     else if ( MAKE_IDSZ( "STAY" ) == idsz )  evestayifnoowner[profile] = iTmp;
     else if ( MAKE_IDSZ( "OVER" ) == idsz )  eveoverlay[profile] = iTmp;
-    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  evecanseekurse[profile] = iTmp;
+    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  eveoverlay[profile] = (bfalse != iTmp);
   }
 
   evevalid[profile] = btrue;

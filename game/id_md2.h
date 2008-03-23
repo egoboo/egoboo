@@ -22,7 +22,8 @@
 #ifndef Egoboo_id_md2_h
 #define Egoboo_id_md2_h
 
-struct md2_header
+#pragma pack(push,1)
+typedef struct id_md2_header_t
 {
   int magic; // should be 844121161( or "IDP2")
   int version; // should be 8
@@ -41,39 +42,46 @@ struct md2_header
   int offsetFrames;
   int offsetGlCommands;
   int offsetEnd;
-};
+} md2_header;
 
-struct md2_skinname
+typedef struct id_md2_skinname_t
 {
   char name[64];
-};
+} md2_skinname;
 
-struct md2_vertex
+typedef struct id_md2_vertex_t
 {
   unsigned char vertex[3];
-  unsigned char  lightNormalIndex;
-};
+  unsigned char lightNormalIndex;
+} md2_vertex;
 
-struct md2_texcoord
+typedef struct id_md2_texcoord_t
 {
   short s, t;
-};
+} md2_texcoord;
 
-struct md2_triangle
+typedef struct id_md2_triangle
 {
   short vertexIndices[3];
   short texCoordIndices[3];
-};
+} md2_triangle;
 
-struct md2_frame
+typedef struct id_md2_frame_t
 {
   float scale[3];
   float translate[3];
   char name[16];
-  struct md2_vertex vertices[1];
-};
+  md2_vertex vertices[];
+} md2_frame;
 
-enum Md2Constant
+typedef struct id_md2_gldata_t
+{
+  float  s,t;
+  int    index;
+} md2_gldata;
+#pragma pack(pop)
+
+enum id_md2_constant_e
 {
   MD2_MAX_TRIANGLES = 4096,
   MD2_MAX_VERTICES = 2048,

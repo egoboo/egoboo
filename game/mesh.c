@@ -1,7 +1,5 @@
 #include "egoboo.h"
 #include "mesh.h"
-#include "log.h"
-
 
 Uint32  numfanblock  = 0;                                   // Number of collision areas
 Uint16  bumplistchr[MAXMESHFAN/16];                     // For character collisions
@@ -237,59 +235,62 @@ void load_mesh_fans()
   log_info("Loading fan types of the terrain... ");
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.fans_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
-  if ( NULL != fileread )
+  if ( NULL == fileread )
   {
-    log_message("Succeeded!\n");
-    numfantype = fget_next_int( fileread );
-    fantype = 0;
-    bigfantype = MAXMESHTYPE / 2; // Duplicate for 64x64 tiles
-    while ( fantype < numfantype )
+    log_message("Failed!\n");
+    return bfalse;
+  }
+
+  log_message("Succeeded!\n");
+  numfantype = fget_next_int( fileread );
+  fantype = 0;
+  bigfantype = MAXMESHTYPE / 2; // Duplicate for 64x64 tiles
+  while ( fantype < numfantype )
+  {
+    vertices = fget_next_int( fileread );
+    meshcommandnumvertices[fantype] = vertices;
+    meshcommandnumvertices[bigfantype] = vertices;  // Dupe
+    cnt = 0;
+    while ( cnt < vertices )
     {
-      vertices = fget_next_int( fileread );
-      meshcommandnumvertices[fantype] = vertices;
-      meshcommandnumvertices[bigfantype] = vertices;  // Dupe
+      meshcommandref[fantype][cnt] =
+      meshcommandref[bigfantype][cnt] = fget_next_int( fileread );
+
+      meshcommandu[fantype][cnt] =
+      meshcommandu[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
+
+      meshcommandv[fantype][cnt] =
+      meshcommandv[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
+      cnt++;
+    }
+
+
+    numcommand = fget_next_int( fileread );
+    meshcommands[fantype] = numcommand;
+    meshcommands[bigfantype] = numcommand;  // Dupe
+    entry = 0;
+    command = 0;
+    while ( command < numcommand )
+    {
+      commandsize = fget_next_int( fileread );
+      meshcommandsize[fantype][command] = commandsize;
+      meshcommandsize[bigfantype][command] = commandsize;  // Dupe
       cnt = 0;
-      while ( cnt < vertices )
+      while ( cnt < commandsize )
       {
-        meshcommandref[fantype][cnt] =
-        meshcommandref[bigfantype][cnt] = fget_next_int( fileread );
-
-        meshcommandu[fantype][cnt] =
-        meshcommandu[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
-
-        meshcommandv[fantype][cnt] =
-        meshcommandv[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
+        itmp = fget_next_int( fileread );
+        meshcommandvrt[fantype][entry] = itmp;
+        meshcommandvrt[bigfantype][entry] = itmp;  // Dupe
+        entry++;
         cnt++;
       }
-
-
-      numcommand = fget_next_int( fileread );
-      meshcommands[fantype] = numcommand;
-      meshcommands[bigfantype] = numcommand;  // Dupe
-      entry = 0;
-      command = 0;
-      while ( command < numcommand )
-      {
-        commandsize = fget_next_int( fileread );
-        meshcommandsize[fantype][command] = commandsize;
-        meshcommandsize[bigfantype][command] = commandsize;  // Dupe
-        cnt = 0;
-        while ( cnt < commandsize )
-        {
-          itmp = fget_next_int( fileread );
-          meshcommandvrt[fantype][entry] = itmp;
-          meshcommandvrt[bigfantype][entry] = itmp;  // Dupe
-          entry++;
-          cnt++;
-        }
-        command++;
-      }
-      fantype++;
-      bigfantype++;  // Dupe
+      command++;
     }
-    fs_fileClose( fileread );
+    fantype++;
+    bigfantype++;  // Dupe
   }
-  else log_message("Failed!\n");
+  fs_fileClose( fileread );
+
 
 
   // Correct all of them silly texture positions for seamless tiling
@@ -750,7 +751,7 @@ void free_mesh_memory()
 //--------------------------------------------------------------------------------------------
 void mesh_set_colora( int fan_x, int fan_y, int color )
 {
-  Uint32 fan, vert, numvert, cnt;
+  Uint32 cnt, fan, vert, numvert;
 
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return;
@@ -771,7 +772,7 @@ void mesh_set_colora( int fan_x, int fan_y, int color )
 //--------------------------------------------------------------------------------------------
 void set_fan_colorl( int fan_x, int fan_y, int color )
 {
-  Uint32 fan, vert, numvert, cnt;
+  Uint32 cnt, fan, vert, numvert;
 
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return;
@@ -964,18 +965,18 @@ bool_t mesh_check( float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_hitawall( vect3 pos, float size, Uint32 collision_bits )
+Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits )
 {
   // ZZ> This function returns nonzero if <pos.x,pos.y> is in an invalid tile
 
   int fan_x, fan_x_min, fan_x_max, fan_y, fan_y_min, fan_y_max;
   Uint32 fan, pass = 0;
 
-  fan_x_min = ( pos.x - size < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x - size );
-  fan_x_max = ( pos.x + size < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x + size );
+  fan_x_min = ( pos.x - size_x < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x - size_x );
+  fan_x_max = ( pos.x + size_x < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x + size_x );
 
-  fan_y_min = ( pos.y - size < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.y - size );
-  fan_y_max = ( pos.y + size < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.y + size );
+  fan_y_min = ( pos.y - size_y < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.y - size_y );
+  fan_y_max = ( pos.y + size_y < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.y + size_y );
 
   for ( fan_x = fan_x_min; fan_x <= fan_x_max; fan_x++ )
   {

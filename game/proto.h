@@ -65,7 +65,7 @@ void parse_line_by_line();
 Uint32 jump_goto( int index );
 void parse_jumps( int ainumber );
 void log_code( int ainumber, char* savename );
-int ai_goto_colon( Uint8 read );
+int ai_goto_colon( int read );
 void fget_code( FILE * pfile );
 void load_ai_codes( char* loadname );
 Uint32 load_ai_script( char *loadname );
@@ -78,7 +78,6 @@ void prime_titleimage();
 void prime_icons();
 void release_all_icons();
 void release_all_titleimages();
-void release_all_models();
 void reset_sounds();
 void release_map();
 void release_module( void );
@@ -131,14 +130,7 @@ void make_lightdirectionlookup();
 float spek_global_lighting( int rotation, int inormal, vect3 lite );
 void make_spektable( vect3 lite );
 void make_lighttospek( void );
-int vertexconnected( int modelindex, int vertex );
-void get_madtransvertices( int modelindex );
-int rip_md2_header( void );
-void fix_md2_normals( Uint16 modelindex );
-void rip_md2_commands( Uint16 modelindex );
-int rip_md2_frame_name( int frame );
-void rip_md2_frames( Uint16 modelindex );
-int load_one_md2( char* szLoadname, Uint16 modelindex );
+
 
 //Sound and music stuff
 void load_all_music_sounds();
@@ -180,7 +172,7 @@ void keep_weapons_with_holders();
 void make_enviro( void );
 void make_prtlist( void );
 void make_turntosin( void );
-bool_t make_one_character_matrix( Uint16 cnt );
+bool_t make_one_character_matrix( CHR_REF cnt );
 void free_one_particle_no_sound( PRT_REF particle );
 void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound );
 void free_one_particle( PRT_REF particle );
@@ -244,7 +236,7 @@ void naming_names( int profile );
 void read_naming( int profile, char *szLoadname );
 void prime_names( void );
 void tilt_characters_to_terrain();
-Uint16 spawn_one_character( vect3 pos, int profile, TEAM team,
+CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
                             Uint8 skin, Uint16 facing, char *name, Uint16 override );
 
 void respawn_character( CHR_REF character );
@@ -317,12 +309,12 @@ void resize_characters( float dUpdate );
 void update_game( float dUpdate );
 void update_timers();
 void load_basic_textures( char *modname );
-ACTION action_number();
+ACTION action_number(char * szName);
 Uint16 action_frame();
 bool_t test_frame_name( char letter );
 void action_copy_correct( Uint16 object, ACTION actiona, ACTION actionb );
 void get_walk_frame( Uint16 object, LIPT lip_trans, ACTION action );
-void get_framefx( int frame );
+Uint16 get_framefx( char * szName );
 void make_framelip( Uint16 object, ACTION action );
 void get_actions( Uint16 object );
 
@@ -392,7 +384,7 @@ void export_one_character_skin( char *szSaveName, CHR_REF character );
 int load_one_character_profile( char *szLoadName );
 Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int pip );
 void reset_particles( char* modname );
-void make_mad_equally_lit( int model );
+void make_mad_equally_lit( Uint16 model );
 bool_t fget_message( FILE* fileread );
 bool_t fget_next_message( FILE* fileread );
 void load_all_messages( char *loadname, Uint16 object );
@@ -544,6 +536,29 @@ char * convert_underscores( char *strout, size_t insize, char * strin );
 bool_t passage_check_any( CHR_REF ichr, Uint16 pass, Uint16 * powner );
 bool_t passage_check_all( CHR_REF ichr, Uint16 pass, Uint16 * powner );
 bool_t passage_check( CHR_REF ichr, Uint16 pass, Uint16 * powner );
+
+// MD2 Stuff
+typedef struct ego_md2_model_t MD2_Model;
+
+int vertexconnected( MD2_Model * m, int vertex );
+int count_madtransvertices( MD2_Model * m );
+int rip_md2_header( void );
+char * rip_md2_frame_name( MD2_Model * m, int frame );
+int load_one_md2( char* szLoadname, Uint16 modelindex );
+void free_one_md2( Uint16 imdl );
+void release_all_models();
+void init_all_models();
+
+void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax);
+void md2_blend_lighting(CHR_REF ichr);
+bool_t md2_calculate_bumpers(CHR_REF ichr, int level);
+bool_t prt_calculate_bumpers(PRT_REF iprt);
+
+typedef struct collision_volume_t CVolume;
+void cv_list_add( CVolume * cv);
+void cv_list_clear();
+void cv_list_draw();
+void draw_CVolume( CVolume * cv );
 
 
 #endif //#ifndef _PROTO_H_

@@ -1,56 +1,45 @@
-Microsoft Visual Studio Solution File, Format Version 9.00
-# Visual C++ Express 2005
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs7.vcproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game_vs7", "game\game_vs7.vcproj", "{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F4A0A221-1948-4A47-846B-8DE949633638} = {F4A0A221-1948-4A47-846B-8DE949633638}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet_vs7", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Debug.ActiveCfg = Debug|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Debug.Build.0 = Debug|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Release.ActiveCfg = Release|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Release.Build.0 = Release|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.ActiveCfg = Debug|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.Build.0 = Debug|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.ActiveCfg = Release|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
-		DLL MT  Debug|Win32 = DLL MT  Debug|Win32
-		DLL MT|Win32 = DLL MT|Win32
-		DLL MTD Debug|Win32 = DLL MTD Debug|Win32
-		DLL MTD|Win32 = DLL MTD|Win32
-		DLL ST  Debug|Win32 = DLL ST  Debug|Win32
-		DLL ST|Win32 = DLL ST|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Debug|Win32.ActiveCfg = Debug|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Debug|Win32.Build.0 = Debug|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Release|Win32.ActiveCfg = Release|Win32
+		{CD0D6B0F-606C-452C-BE5D-E21A33F8D233}.Release|Win32.Build.0 = Release|Win32
 		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MT  Debug|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MT  Debug|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MT|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MT|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MTD Debug|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MTD Debug|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MTD|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL MTD|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL ST  Debug|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL ST  Debug|Win32.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL ST|Win32.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.DLL ST|Win32.Build.0 = Debug|Win32
 		{F4A0A221-1948-4A47-846B-8DE949633638}.Release|Win32.ActiveCfg = Release|Win32
 		{F4A0A221-1948-4A47-846B-8DE949633638}.Release|Win32.Build.0 = Release|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.Debug|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MT  Debug|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MT  Debug|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MT|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MT|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MTD Debug|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MTD Debug|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MTD|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL MTD|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL ST  Debug|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL ST  Debug|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL ST|Win32.ActiveCfg = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.DLL ST|Win32.Build.0 = Debug|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release|Win32.ActiveCfg = Release|Win32
-		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

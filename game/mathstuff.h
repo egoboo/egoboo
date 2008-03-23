@@ -32,6 +32,7 @@
 #define INV_SQRT_TWO        0.70710678118654752440084436210485f
 #define PI                  3.1415926535897932384626433832795f
 #define TWO_PI              6.283185307179586476925286766559f
+#define INV_TWO_PI          0.15915494309189533576888376337251f
 #define PI_OVER_TWO         1.5707963267948966192313216916398f
 #define PI_OVER_FOUR        0.78539816339744830961566084581988f
 #define SHORT_TO_RAD        (TWO_PI / (float)(1<<16))
@@ -56,8 +57,8 @@
 #define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)(1<<8) )
 #define FLOAT_TO_FP8(XX)   ( (Uint32)((XX)*(float)(1<<8)) )
 
-#define FP8_TO_INT(XX)     ( (XX) >> 8 )				//Same as value/256
-#define INT_TO_FP8(XX)     ( (XX) << 8 )				//Same as value*256
+#define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
+#define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
 #define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
 
@@ -78,6 +79,11 @@
 #define SGN(a) ( ((a)>0) ? 1 : -1 )
 #endif
 
+#ifndef CLIP
+#define CLIP(A, B, C) MIN(MAX(A,B),C)
+#endif
+
+
 /**> MACROS <**/
 #define _CNV(i,j) .v[4*i+j]
 #define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( GLMatrix ) )
@@ -86,10 +92,14 @@
 
 /**> DATA STRUCTURES <**/
 #pragma pack(push,1)
-typedef struct glmatrix_t { float v[16]; } GLMatrix;
-typedef union glvector_t { float v[4]; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } GLVector;
-typedef union vector3_t { float v[3]; struct { float x, y, z; }; } vect3;
+typedef struct matrix_4x4_t { float v[16]; } matrix_4x4;
+typedef union vector2_t { float _v[2]; struct { float x, y; }; struct { float u, v; }; struct { float s, t; }; } vect2;
+typedef union vector3_t { float v[3]; struct { float x, y, z; }; struct { float r, g, b; }; } vect3;
+typedef union vector4_t { float v[4]; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } vect4;
 #pragma pack(pop)
+
+typedef matrix_4x4 GLMatrix;
+typedef vect4 GLVector;
 
 
 /**> GLOBAL VARIABLES <**/
@@ -124,8 +134,13 @@ GLMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
 GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector forw, GLVector up, float scale );
 GLMatrix ViewMatrix( const vect3 from, const vect3 at, const vect3 world_up, const float roll );
 GLMatrix ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
-void TransformVerticesFull( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
-void TransformVertices( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
+
+void Transform4_Full( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
+void Transform4( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
+
+void Transform3_Full( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+void Transform3( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+
 
 Uint16 vec_to_turn( float dx, float dy );
 void turn_to_vec( Uint16 turn, float * dx, float * dy );

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="7,10"
 	Name="enet"
 	ProjectGUID="{F4A0A221-1948-4A47-846B-8DE949633638}"
 	Keyword="Win32Proj"

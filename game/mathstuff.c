@@ -302,9 +302,9 @@ GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector frw, GLVector up, floa
   wid.z -= ori.z;  frw.z -= ori.z;  up.z -= ori.z;
 
   // fix -x scaling on the input
-  wid.x *= -1.0; // HUK
-  wid.y *= -1.0; // HUK
-  wid.z *= -1.0; // HUK
+  //wid.x *= -1.0; // HUK
+  //wid.y *= -1.0; // HUK
+  //wid.z *= -1.0; // HUK
 
   wid = NormalizeGL( wid );
   frw = NormalizeGL( frw );
@@ -325,9 +325,9 @@ GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector frw, GLVector up, floa
   ( tmp ) _CNV( 2, 2 ) = scale * up.z;       //2,2
   ( tmp ) _CNV( 2, 3 ) = 0;       //2,3
 
-  ( tmp ) _CNV( 3, 0 ) = scale * ori.x;       //3,0
-  ( tmp ) _CNV( 3, 1 ) = scale * ori.y;       //3,1
-  ( tmp ) _CNV( 3, 2 ) = scale * ori.z;       //3,2
+  ( tmp ) _CNV( 3, 0 ) = ori.x;       //3,0
+  ( tmp ) _CNV( 3, 1 ) = ori.y;       //3,1
+  ( tmp ) _CNV( 3, 2 ) = ori.z;       //3,2
   ( tmp ) _CNV( 3, 3 ) = 1;       //3,3
 
   return tmp;
@@ -399,23 +399,40 @@ GLMatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.
 // Isn't tested!!!!
-void TransformVerticesFull( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
+void Transform4_Full( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
 {
   GLVector *psrc = pSourceV, *pdst = pDestV;
   GLMatrix *pmat = pMatrix;
   while ( NumVertor-- > 0 )
   {
-    ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8] + ( *psrc ).w * ( *pmat ).v[12];
-    ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9] + ( *psrc ).w * ( *pmat ).v[13];
-    ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10] + ( *psrc ).w * ( *pmat ).v[14];
-    ( *pdst ).w = ( *psrc ).x * ( *pmat ).v[3] + ( *psrc ).y * ( *pmat ).v[7] + ( *psrc ).z * ( *pmat ).v[11] + ( *psrc ).w * ( *pmat ).v[15];
+    if(0.0f == ( *psrc ).w)
+    {
+      ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8];
+      ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9];
+      ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10];
+      ( *pdst ).w = ( *psrc ).x * ( *pmat ).v[3] + ( *psrc ).y * ( *pmat ).v[7] + ( *psrc ).z * ( *pmat ).v[11];
+    }
+    else if(1.0f == ( *psrc ).w)
+    {
+      ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8] + ( *pmat ).v[12];
+      ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9] + ( *pmat ).v[13];
+      ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10] + ( *pmat ).v[14];
+      ( *pdst ).w = ( *psrc ).x * ( *pmat ).v[3] + ( *psrc ).y * ( *pmat ).v[7] + ( *psrc ).z * ( *pmat ).v[11] + ( *pmat ).v[15];
+    }
+    else
+    {
+      ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8] + ( *psrc ).w * ( *pmat ).v[12];
+      ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9] + ( *psrc ).w * ( *pmat ).v[13];
+      ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10] + ( *psrc ).w * ( *pmat ).v[14];
+      ( *pdst ).w = ( *psrc ).x * ( *pmat ).v[3] + ( *psrc ).y * ( *pmat ).v[7] + ( *psrc ).z * ( *pmat ).v[11] + ( *psrc ).w * ( *pmat ).v[15];
+    }
     psrc++;
     pdst++;
   }
 }
 
 //----------------------------------------------------
-void TransformVertices( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
+void Transform4( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
 {
   GLVector *psrc = pSourceV, *pdst = pDestV;
   GLMatrix *pmat = pMatrix;
@@ -425,6 +442,36 @@ void TransformVertices( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[
     ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9];
     ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10];
     ( *pdst ).w = ( *psrc ).x * ( *pmat ).v[3] + ( *psrc ).y * ( *pmat ).v[7] + ( *psrc ).z * ( *pmat ).v[11];
+    psrc++;
+    pdst++;
+  }
+}
+
+//----------------------------------------------------
+void Transform3_Full( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
+{
+  vect3 *psrc = pSourceV, *pdst = pDestV;
+  GLMatrix *pmat = pMatrix;
+  while ( NumVertor-- > 0 )
+  {
+    ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8] + ( *pmat ).v[12];
+    ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9] + ( *pmat ).v[13];
+    ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10] + ( *pmat ).v[14];
+    psrc++;
+    pdst++;
+  }
+}
+
+//----------------------------------------------------
+void Transform3( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
+{
+  vect3 *psrc = pSourceV, *pdst = pDestV;
+  GLMatrix *pmat = pMatrix;
+  while ( NumVertor-- > 0 )
+  {
+    ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8];
+    ( *pdst ).y = ( *psrc ).x * ( *pmat ).v[1] + ( *psrc ).y * ( *pmat ).v[5] + ( *psrc ).z * ( *pmat ).v[ 9];
+    ( *pdst ).z = ( *psrc ).x * ( *pmat ).v[2] + ( *psrc ).y * ( *pmat ).v[6] + ( *psrc ).z * ( *pmat ).v[10];
     psrc++;
     pdst++;
   }
