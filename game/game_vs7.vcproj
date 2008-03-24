@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)\enet&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;DEBUG_BBOX"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -146,16 +146,40 @@
 				RelativePath=".\Clock.c">
 			</File>
 			<File
-				RelativePath=".\common-file.c">
-			</File>
-			<File
 				RelativePath=".\configfile.c">
 			</File>
 			<File
-				RelativePath=".\egoboostrutil.c">
+				RelativePath=".\egoboo_math.c">
+			</File>
+			<File
+				RelativePath=".\egoboo_strutil.c">
 			</File>
 			<File
 				RelativePath=".\enchant.c">
+			</File>
+			<File
+				RelativePath=".\file_common.c">
+			</File>
+			<File
+				RelativePath=".\file_lin.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\file_mac.m">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\file_win.c">
 			</File>
 			<File
 				RelativePath=".\Font.c">
@@ -167,19 +191,16 @@
 				RelativePath=".\game.c">
 			</File>
 			<File
-				RelativePath=".\gltexture.c">
-			</File>
-			<File
 				RelativePath=".\graphic.c">
 			</File>
 			<File
-				RelativePath=".\graphicfan.c">
+				RelativePath=".\graphic_fan.c">
 			</File>
 			<File
-				RelativePath=".\graphicmad.c">
+				RelativePath=".\graphic_mad.c">
 			</File>
 			<File
-				RelativePath=".\graphicprt.c">
+				RelativePath=".\graphic_prt.c">
 			</File>
 			<File
 				RelativePath=".\id_normals.c">
@@ -192,9 +213,6 @@
 			</File>
 			<File
 				RelativePath=".\MainLoop.c">
-			</File>
-			<File
-				RelativePath=".\mathstuff.c">
 			</File>
 			<File
 				RelativePath=".\Md2.c">
@@ -212,6 +230,9 @@
 				RelativePath=".\network.c">
 			</File>
 			<File
+				RelativePath=".\ogl_texture.c">
+			</File>
+			<File
 				RelativePath=".\particle.c">
 			</File>
 			<File
@@ -227,10 +248,37 @@
 				RelativePath=".\sound.c">
 			</File>
 			<File
-				RelativePath=".\sys_win32.c">
+				RelativePath=".\System_lin.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\System_mac.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\System_win32.c">
 			</File>
 			<File
 				RelativePath=".\Task.c">
+			</File>
+			<File
+				RelativePath=".\test_sdl.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Ticker.c">
@@ -240,24 +288,6 @@
 			</File>
 			<File
 				RelativePath=".\Ui.c">
-			</File>
-			<File
-				RelativePath=".\win-file.c">
-			</File>
-			<File
-				RelativePath=".\xml_support.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -277,10 +307,13 @@
 				RelativePath=".\egoboo.h">
 			</File>
 			<File
-				RelativePath=".\egoboostrutil.h">
+				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
-				RelativePath=".\egobootypedef.h">
+				RelativePath=".\egoboo_strutil.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_types.h">
 			</File>
 			<File
 				RelativePath=".\Font.h">
@@ -289,7 +322,7 @@
 				RelativePath=".\Frustum.h">
 			</File>
 			<File
-				RelativePath=".\gltexture.h">
+				RelativePath=".\graphic.h">
 			</File>
 			<File
 				RelativePath=".\id_md2.h">
@@ -301,9 +334,6 @@
 				RelativePath=".\Log.h">
 			</File>
 			<File
-				RelativePath=".\mathstuff.h">
-			</File>
-			<File
 				RelativePath=".\Md2.h">
 			</File>
 			<File
@@ -311,6 +341,18 @@
 			</File>
 			<File
 				RelativePath=".\mesh.h">
+			</File>
+			<File
+				RelativePath=".\Network.h">
+			</File>
+			<File
+				RelativePath=".\ogl_include.c">
+			</File>
+			<File
+				RelativePath=".\ogl_include.h">
+			</File>
+			<File
+				RelativePath=".\ogl_texture.h">
 			</File>
 			<File
 				RelativePath=".\proto.h">
@@ -360,45 +402,27 @@
 				RelativePath=".\cartman.c">
 			</File>
 			<File
-				RelativePath=".\mouse3.c">
+				RelativePath=".\obsolete\cartman_mouse3.c">
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\scale.c">
+				RelativePath=".\obsolete\cartman_scale.c">
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\standard.c">
+				RelativePath=".\obsolete\cartman_standard.c">
 				<FileConfiguration
 					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
 					ExcludedFromBuild="TRUE">
 					<Tool
 						Name="VCCLCompilerTool"/>

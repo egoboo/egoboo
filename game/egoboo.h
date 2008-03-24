@@ -26,7 +26,7 @@
 #define _EGOBOO_H_
 
 /* Typedefs for various platforms */
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -40,21 +40,10 @@
 #include <SDL_opengl.h>
 
 #include "proto.h"
-#include "gltexture.h" /* OpenGL texture loader */
-#include "mathstuff.h" /* vector and matrix math */
+#include "ogl_texture.h" /* OpenGL texture loader */
+#include "egoboo_math.h" /* vector and matrix math */
 #include "configfile.h"
 #include "Md2.h"
-
-typedef struct glvertex_t
-{
-  GLVector pos;
-  GLVector col;
-  Uint32 color; // should replace r,g,b,a and be called by glColor4ubv
-  GLfloat s, t; // u and v in D3D I guess
-  vect3 nrm;
-  vect3 up;
-  vect3 rt;
-} GLVertex;
 
 // The following magic allows this include to work in multiple files
 #ifdef DECLARE_GLOBALS
@@ -803,16 +792,16 @@ EXTERN int                     cornerlowy;                 //
 EXTERN int                     cornerhighy;                //
 
 /*OpenGL Textures*/
-EXTERN  GLTexture       TxTexture[MAXTEXTURE];        /* All textures */
-EXTERN  GLTexture       TxIcon[MAXTEXTURE+1];       /* icons */
-EXTERN  GLTexture       TxTitleImage[MAXMODULE];      /* title images */
-EXTERN  GLTexture       TxTrim;
-EXTERN  GLTexture       TxTrimX;                                        /* trim */
-EXTERN  GLTexture       TxTrimY;                                        /* trim */
-EXTERN  GLTexture       TxFont;                                         /* font */
-EXTERN  GLTexture       TxBars;                                         /* status bars */
-EXTERN  GLTexture       TxBlip;                                         /* you are here texture */
-EXTERN  GLTexture       TxMap;
+EXTERN  GLtexture       TxTexture[MAXTEXTURE];        /* All textures */
+EXTERN  GLtexture       TxIcon[MAXTEXTURE+1];       /* icons */
+EXTERN  GLtexture       TxTitleImage[MAXMODULE];      /* title images */
+EXTERN  GLtexture       TxTrim;
+EXTERN  GLtexture       TxTrimX;                                        /* trim */
+EXTERN  GLtexture       TxTrimY;                                        /* trim */
+EXTERN  GLtexture       TxFont;                                         /* font */
+EXTERN  GLtexture       TxBars;                                         /* status bars */
+EXTERN  GLtexture       TxBlip;                                         /* you are here texture */
+EXTERN  GLtexture       TxMap;
 
 //Particle Texture Types
 typedef enum part_type
@@ -844,9 +833,9 @@ EXTERN int   log2Anisotropy;                  // Max levels of anisotropy
 EXTERN bool_t      video_mode_chaged EQ( bfalse );
 EXTERN SDL_Rect ** video_mode_list EQ( NULL );
 
-EXTERN GLMatrix mView;           // View Matrix
-EXTERN GLMatrix mProjection;     // Projection Matrix
-EXTERN GLMatrix mProjectionBig;  // Larger projection matrix for frustum culling
+EXTERN GLmatrix mView;           // View Matrix
+EXTERN GLmatrix mProjection;     // Projection Matrix
+EXTERN GLmatrix mProjectionBig;  // Larger projection matrix for frustum culling
 
 
 //Input player control
@@ -1054,7 +1043,7 @@ EXTERN bool_t          chron[MAXCHR];              // Does it exist?
 EXTERN char            chrname[MAXCHR][MAXCAPNAMESIZE];  // Character name
 EXTERN bool_t          chrgopoof[MAXCHR];          // is poof requested?
 EXTERN bool_t          chrfreeme[MAXCHR];          // is free_one_character() requested?
-EXTERN GLMatrix        chrmatrix[MAXCHR];   // Character's matrix
+EXTERN matrix_4x4      chrmatrix[MAXCHR];          // Character's matrix
 EXTERN bool_t          chrmatrixvalid[MAXCHR];     // Did we make one yet?
 EXTERN Uint16          chrmodel[MAXCHR];           // Character's model
 EXTERN Uint16          chrbasemodel[MAXCHR];       // The true form

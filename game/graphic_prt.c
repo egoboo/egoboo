@@ -19,8 +19,9 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ogl_include.h"
 #include "egoboo.h"
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "Log.h"
 #include "Mesh.h"
 #include <assert.h>
@@ -245,7 +246,7 @@ void render_antialias_prt( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_SOLID ) continue;
 
       {
-        GLVector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
+        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
 
         // Figure out the sprite's size based on distance
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
@@ -331,7 +332,7 @@ void render_solid_prt( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_SOLID ) continue;
 
       {
-        GLVector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
+        GLvector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
 
         // [claforte] Fudge the value.
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;
@@ -415,7 +416,7 @@ void render_transparent_prt( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_ALPHA ) continue;
 
       {
-        GLVector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
+        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
 
         // Figure out the sprite's size based on distance
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.5f;  // [claforte] Fudge the value.
@@ -501,7 +502,7 @@ void render_light_prt( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_LIGHT ) continue;
 
       {
-        GLVector color_component = {FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), 1.0f};
+        GLvector color_component = {FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), 1.0f};
 
         // [claforte] Fudge the value.
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.5f;
@@ -688,7 +689,7 @@ void render_antialias_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
 
       {
 
-        GLVector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
+        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
 
         // Figure out the sprite's size based on distance
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
@@ -773,7 +774,7 @@ void render_solid_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_SOLID ) continue;
 
       {
-        GLVector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
+        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
 
         // [claforte] Fudge the value.
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;
@@ -859,7 +860,7 @@ void render_transparent_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       if ( prttype[prt] != PRTTYPE_ALPHA ) continue;
 
       {
-        GLVector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
+        GLvector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
 
         // Figure out the sprite's size based on distance
         size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;  // [claforte] Fudge the value.
@@ -935,7 +936,7 @@ void render_light_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
 
     for ( cnt = 0; cnt < vrtcount; cnt++ )
     {
-      GLVector color_component = { FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), 1.0f};
+      GLvector color_component = { FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), 1.0f};
 
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;

@@ -3,9 +3,9 @@
  @brief ENet packet management functions
 */
 #include <string.h>
-#define ENET_BUILDING_LIB 1
-#include "enet/memory.h"
-#include "enet/enet.h"
+
+#include "memory.h"
+#include "enet.h"
 
 /** @defgroup Packet ENet packet functions 
     @{ 

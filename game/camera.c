@@ -20,7 +20,7 @@
 */
 
 #include "egoboo.h"
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "Frustum.h"
 #include <assert.h>
 
@@ -118,7 +118,7 @@ void camera_calc_turn_lr()
 }
 
 //--------------------------------------------------------------------------------------------
-void screen_dump_matrix( GLMatrix a )
+void screen_dump_matrix( matrix_4x4 a )
 {
   int i, j;
   STRING buffer1 = {0};
@@ -139,7 +139,7 @@ void screen_dump_matrix( GLMatrix a )
 }
 
 //--------------------------------------------------------------------------------------------
-void stdout_dump_matrix( GLMatrix a )
+void stdout_dump_matrix( matrix_4x4 a )
 {
   int i, j;
 
@@ -167,7 +167,7 @@ void stdout_dump_matrix( GLMatrix a )
 //  float numstep;
 //  float zproject;
 //  float xfin, yfin, zfin;
-//  GLMatrix mTemp;
+//  matrix_4x4 mTemp;
 //
 //  // Range
 //  ztemp = campos.z;

@@ -20,7 +20,7 @@
 */
 
 #include "egoboo.h" // GAC - Needed for Win32 stuff
-#include "gltexture.h"
+#include "ogl_texture.h"
 #include <SDL_image.h>
 
 //--------------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ int powerOfTwo( int input )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * image, Uint32 key )
+Uint32 GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key )
 {
   SDL_Surface * screen;
   SDL_PixelFormat * pformat;
@@ -178,7 +178,7 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * im
 
 
 //--------------------------------------------------------------------------------------------
-Uint32 GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filename, Uint32 key )
+Uint32 GLTexture_Load( GLenum tx_target, GLtexture *texture, const char *filename, Uint32 key )
 {
   SDL_Surface * image;
 
@@ -194,50 +194,50 @@ Uint32 GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filenam
 }
 
 /********************> GLTexture_GetTextureID() <*****/
-GLuint  GLTexture_GetTextureID( GLTexture *texture )
+GLuint  GLTexture_GetTextureID( GLtexture *texture )
 {
   return texture->textureID;
 }
 
 /********************> GLTexture_GetImageHeight() <*****/
-GLsizei  GLTexture_GetImageHeight( GLTexture *texture )
+GLsizei  GLTexture_GetImageHeight( GLtexture *texture )
 {
   return texture->imgH;
 }
 
 /********************> GLTexture_GetImageWidth() <*****/
-GLsizei  GLTexture_GetImageWidth( GLTexture *texture )
+GLsizei  GLTexture_GetImageWidth( GLtexture *texture )
 {
   return texture->imgW;
 }
 
 /********************> GLTexture_GetTextureWidth() <*****/
-GLsizei  GLTexture_GetTextureWidth( GLTexture *texture )
+GLsizei  GLTexture_GetTextureWidth( GLtexture *texture )
 {
   return texture->txW;
 }
 
 /********************> GLTexture_GetTextureHeight() <*****/
-GLsizei  GLTexture_GetTextureHeight( GLTexture *texture )
+GLsizei  GLTexture_GetTextureHeight( GLtexture *texture )
 {
   return texture->txH;
 }
 
 
 /********************> GLTexture_SetAlpha() <*****/
-void  GLTexture_SetAlpha( GLTexture *texture, GLfloat alpha )
+void  GLTexture_SetAlpha( GLtexture *texture, GLfloat alpha )
 {
   texture->alpha = alpha;
 }
 
 /********************> GLTexture_GetAlpha() <*****/
-GLfloat  GLTexture_GetAlpha( GLTexture *texture )
+GLfloat  GLTexture_GetAlpha( GLtexture *texture )
 {
   return texture->alpha;
 }
 
 /********************> GLTexture_Release() <*****/
-void  GLTexture_Release( GLTexture *texture )
+void  GLTexture_Release( GLtexture *texture )
 {
   if ( NULL == texture ) return;
 
@@ -253,7 +253,7 @@ void  GLTexture_Release( GLTexture *texture )
 }
 
 /********************> GLTexture_Release() <*****/
-void GLTexture_Bind( GLTexture *texture, int filt_type )
+void GLTexture_Bind( GLtexture *texture, int filt_type )
 {
   if ( NULL == texture ) return;
 

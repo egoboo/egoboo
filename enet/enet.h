@@ -12,19 +12,21 @@ extern "C"
 
 #include <stdlib.h>
 
-#include "enet/types.h"
-#include "enet/protocol.h"
-#include "enet/list.h"
+#include "types.h"
+#include "protocol.h"
+#include "list.h"
 
 #ifdef WIN32
-#include "enet/win32.h"
+#include "win32.h"
 #else
-#include "enet/unix.h"
+#include "unix.h"
 #endif
 
 #ifdef ENET_API
 #undef ENET_API
 #endif
+
+#define ENET_BUILDING_LIB
 
 #if defined WIN32
 #if defined ENET_DLL

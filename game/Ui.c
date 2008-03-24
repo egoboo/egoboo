@@ -20,6 +20,7 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "graphic.h"
 #include "Ui.h"
 #include "Log.h"
 #include "egoboo.h"
@@ -291,7 +292,7 @@ bool_t ui_shrinkWidget( ui_Widget * pw2, ui_Widget * pw1, int pixels )
 };
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLTexture *img, int x, int y, int width, int height )
+bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height )
 {
   if ( NULL == pw ) return bfalse;
 

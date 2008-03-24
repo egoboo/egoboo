@@ -1,16 +1,17 @@
+//***********************************************************************
+//
+//  - "Talk to me like I'm a 3 year old!" Programming Lessons -
+//
+//  $Author:  DigiBen  digiben@gametutorials.com
+//
+//  $Program:  Frustum Culling
+// 
+//  $Description: Demonstrates checking if shapes are in view 
+// 
+//  $Date:   8/28/01
+//
 //***********************************************************************//
-//                   //
-//  - "Talk to me like I'm a 3 year old!" Programming Lessons -   //
-//                                                                       //
-//  $Author:  DigiBen  digiben@gametutorials.com    //
-//                   //
-//  $Program:  Frustum Culling          //
-//                   //
-//  $Description: Demonstrates checking if shapes are in view   //
-//                   //
-//  $Date:   8/28/01            //
-//                   //
-//***********************************************************************//
+
 #include "frustum.h"
 #include <SDL_opengl.h>
 #include <math.h>

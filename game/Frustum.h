@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 
 typedef float frustum_data_t[6][4];
 

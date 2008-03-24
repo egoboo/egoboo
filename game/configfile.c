@@ -65,6 +65,7 @@
 
 #include "proto.h"
 #include "configfile.h"
+#include "egoboo_strutil.h"
 
 // Change any non alphanumeric character or space or underscore to an underscore
 // It is use for the section and key name

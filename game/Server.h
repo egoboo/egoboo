@@ -23,7 +23,7 @@
 #ifndef egoboo_Server_h
 #define egoboo_Server_h
 
-#include "enet/enet.h"
+#include "enet.h"
 #include "Network.h"
 #include "egoboo.h"
 

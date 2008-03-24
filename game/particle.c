@@ -20,7 +20,7 @@
 */
 
 #include "egoboo.h"
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "Log.h"
 #include "mesh.h"
 

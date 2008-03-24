@@ -199,289 +199,301 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-			>
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\camera.c"
-				>
+				RelativePath=".\camera.c">
 			</File>
 			<File
-				RelativePath=".\char.c"
-				>
+				RelativePath=".\char.c">
 			</File>
 			<File
-				RelativePath=".\Client.c"
-				>
+				RelativePath=".\Client.c">
 			</File>
 			<File
-				RelativePath=".\Clock.c"
-				>
+				RelativePath=".\Clock.c">
 			</File>
 			<File
-				RelativePath=".\common-file.c"
-				>
+				RelativePath=".\configfile.c">
 			</File>
 			<File
-				RelativePath=".\configfile.c"
-				>
+				RelativePath=".\egoboo_math.c">
 			</File>
 			<File
-				RelativePath=".\egoboostrutil.c"
-				>
+				RelativePath=".\egoboo_strutil.c">
 			</File>
 			<File
-				RelativePath=".\enchant.c"
-				>
+				RelativePath=".\enchant.c">
 			</File>
 			<File
-				RelativePath=".\Font.c"
-				>
+				RelativePath=".\file_common.c">
 			</File>
 			<File
-				RelativePath=".\Frustum.c"
-				>
+				RelativePath=".\file_lin.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\game.c"
-				>
+				RelativePath=".\file_mac.m">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\gltexture.c"
-				>
+				RelativePath=".\file_win.c">
 			</File>
 			<File
-				RelativePath=".\graphic.c"
-				>
+				RelativePath=".\Font.c">
 			</File>
 			<File
-				RelativePath=".\graphicfan.c"
-				>
+				RelativePath=".\Frustum.c">
 			</File>
 			<File
-				RelativePath=".\graphicmad.c"
-				>
+				RelativePath=".\game.c">
 			</File>
 			<File
-				RelativePath=".\graphicprt.c"
-				>
+				RelativePath=".\graphic.c">
 			</File>
 			<File
-				RelativePath=".\id_normals.c"
-				>
+				RelativePath=".\graphic_fan.c">
 			</File>
 			<File
-				RelativePath=".\input.c"
-				>
+				RelativePath=".\graphic_mad.c">
 			</File>
 			<File
-				RelativePath=".\Log.c"
-				>
+				RelativePath=".\graphic_prt.c">
 			</File>
 			<File
-				RelativePath=".\MainLoop.c"
-				>
+				RelativePath=".\id_normals.c">
 			</File>
 			<File
-				RelativePath=".\mathstuff.c"
-				>
+				RelativePath=".\input.c">
 			</File>
 			<File
-				RelativePath=".\Md2.c"
-				>
+				RelativePath=".\Log.c">
 			</File>
 			<File
-				RelativePath=".\menu.c"
-				>
+				RelativePath=".\MainLoop.c">
 			</File>
 			<File
-				RelativePath=".\mesh.c"
-				>
+				RelativePath=".\Md2.c">
 			</File>
 			<File
-				RelativePath=".\module.c"
-				>
+				RelativePath=".\menu.c">
 			</File>
 			<File
-				RelativePath=".\network.c"
-				>
+				RelativePath=".\mesh.c">
 			</File>
 			<File
-				RelativePath=".\particle.c"
-				>
+				RelativePath=".\module.c">
 			</File>
 			<File
-				RelativePath=".\passage.c"
-				>
+				RelativePath=".\network.c">
 			</File>
 			<File
-				RelativePath=".\script.c"
-				>
+				RelativePath=".\ogl_texture.c">
 			</File>
 			<File
-				RelativePath=".\SDL_GetPixel.c"
-				>
+				RelativePath=".\particle.c">
 			</File>
 			<File
-				RelativePath=".\SDL_Pixel.h"
-				>
+				RelativePath=".\passage.c">
 			</File>
 			<File
-				RelativePath=".\SDL_PutPixel.c"
-				>
+				RelativePath=".\script.c">
 			</File>
 			<File
-				RelativePath=".\SDL_rotozoom.c"
-				>
+				RelativePath=".\Server.c">
 			</File>
 			<File
-				RelativePath=".\Server.c"
-				>
+				RelativePath=".\sound.c">
 			</File>
 			<File
-				RelativePath=".\sound.c"
-				>
+				RelativePath=".\System_lin.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\sys_win32.c"
-				>
+				RelativePath=".\System_mac.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Task.c"
-				>
+				RelativePath=".\System_win32.c">
 			</File>
 			<File
-				RelativePath=".\Ticker.c"
-				>
+				RelativePath=".\Task.c">
 			</File>
 			<File
-				RelativePath=".\Timer.c"
-				>
+				RelativePath=".\test_sdl.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Ui.c"
-				>
+				RelativePath=".\Ticker.c">
 			</File>
 			<File
-				RelativePath=".\win-file.c"
-				>
+				RelativePath=".\Timer.c">
+			</File>
+			<File
+				RelativePath=".\Ui.c">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\Client.h"
-				>
+				RelativePath=".\Client.h">
 			</File>
 			<File
-				RelativePath=".\Clock.h"
-				>
+				RelativePath=".\Clock.h">
 			</File>
 			<File
-				RelativePath=".\configfile.h"
-				>
+				RelativePath=".\configfile.h">
 			</File>
 			<File
-				RelativePath=".\egoboo.h"
-				>
+				RelativePath=".\egoboo.h">
 			</File>
 			<File
-				RelativePath=".\egoboostrutil.h"
-				>
+				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
-				RelativePath=".\egobootypedef.h"
-				>
+				RelativePath=".\egoboo_strutil.h">
 			</File>
 			<File
-				RelativePath=".\Font.h"
-				>
+				RelativePath=".\egoboo_types.h">
 			</File>
 			<File
-				RelativePath=".\Frustum.h"
-				>
+				RelativePath=".\Font.h">
 			</File>
 			<File
-				RelativePath=".\gltexture.h"
-				>
+				RelativePath=".\Frustum.h">
 			</File>
 			<File
-				RelativePath=".\id_md2.h"
-				>
+				RelativePath=".\graphic.h">
 			</File>
 			<File
-				RelativePath=".\id_normals.h"
-				>
+				RelativePath=".\id_md2.h">
 			</File>
 			<File
-				RelativePath=".\Log.h"
-				>
+				RelativePath=".\id_normals.h">
 			</File>
 			<File
-				RelativePath=".\mathstuff.h"
-				>
+				RelativePath=".\Log.h">
 			</File>
 			<File
-				RelativePath=".\Md2.h"
-				>
+				RelativePath=".\Md2.h">
 			</File>
 			<File
-				RelativePath=".\Menu.h"
-				>
+				RelativePath=".\Menu.h">
 			</File>
 			<File
-				RelativePath=".\mesh.h"
-				>
+				RelativePath=".\mesh.h">
 			</File>
 			<File
-				RelativePath=".\Network.h"
-				>
+				RelativePath=".\Network.h">
 			</File>
 			<File
-				RelativePath=".\proto.h"
-				>
+				RelativePath=".\ogl_include.c">
 			</File>
 			<File
-				RelativePath=".\SDL_rotozoom.h"
-				>
+				RelativePath=".\ogl_include.h">
 			</File>
 			<File
-				RelativePath=".\Server.h"
-				>
+				RelativePath=".\ogl_texture.h">
 			</File>
 			<File
-				RelativePath=".\System.h"
-				>
+				RelativePath=".\proto.h">
 			</File>
 			<File
-				RelativePath=".\Task.h"
-				>
+				RelativePath=".\Server.h">
 			</File>
 			<File
-				RelativePath=".\Ticker.h"
-				>
+				RelativePath=".\System.h">
 			</File>
 			<File
-				RelativePath=".\Timer.h"
-				>
+				RelativePath=".\Task.h">
 			</File>
 			<File
-				RelativePath=".\Ui.h"
-				>
+				RelativePath=".\Ticker.h">
+			</File>
+			<File
+				RelativePath=".\Timer.h">
+			</File>
+			<File
+				RelativePath=".\Ui.h">
 			</File>
 		</Filter>
 		<Filter
-			Name="Resource Files"
-			>
+			Name="SDL extensions"
+			Filter="">
 			<File
-				RelativePath="..\res\egoboo.ico"
-				>
+				RelativePath=".\SDL_GetPixel.c">
 			</File>
 			<File
-				RelativePath="..\res\egoboo.rc"
-				>
+				RelativePath=".\SDL_Pixel.h">
+			</File>
+			<File
+				RelativePath=".\SDL_PutPixel.c">
+			</File>
+			<File
+				RelativePath=".\SDL_rotozoom.c">
+			</File>
+			<File
+				RelativePath=".\SDL_rotozoom.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="cartman"
+			Filter="">
+			<File
+				RelativePath=".\cartman.c">
+			</File>
+			<File
+				RelativePath=".\obsolete\cartman_mouse3.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\obsolete\cartman_scale.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\obsolete\cartman_standard.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>

@@ -23,7 +23,7 @@
 #ifndef egoboo_System_h
 #define egoboo_System_h
 
-int sys_frameStep();
+int    sys_frameStep();
 
 void   sys_initialize(); // Allow any setup necessary for platform specific code
 void   sys_shutdown();   // Allow any necessary cleanup for platform specific code

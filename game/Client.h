@@ -23,9 +23,9 @@
 #ifndef egoboo_Client_h
 #define egoboo_Client_h
 
-#include "enet/enet.h"
+#include "enet.h"
 #include "Network.h"
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 #include "egoboo.h"
 
 typedef struct client_state_t

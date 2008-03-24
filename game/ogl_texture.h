@@ -1,3 +1,5 @@
+#pragma once
+
 /* Egoboo - gltexture.c
  * Loads BMP files into OpenGL textures.
  */
@@ -22,14 +24,13 @@
 #ifndef _GLTEXTURE_H_
 #define _GLTEXTURE_H_
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include "ogl_include.h"
 
-#define INVALID_TEXTURE ((GLuint)(-1))
-#define INVALID_KEY     ((Uint32)(-1))
+#define INVALID_TEXTURE (~(GLuint)0)
+#define INVALID_KEY     (~(Uint32)0)
 
-/**> DATA STRUCTURE: GLTexture <**/
-typedef struct gltexture_t
+/**> DATA STRUCTURE: GLtexture <**/
+typedef struct ogl_texture_t
 {
   GLuint textureID;    /* The OpenGL texture number */
   GLint   internalFormat;  /* GL_RGB or GL_RGBA */
@@ -37,21 +38,21 @@ typedef struct gltexture_t
   GLsizei txH,  txW;     /* the height/width of the the OpenGL texture (must be a power of two) */
   GLfloat alpha;      /* the alpha for the texture */
   GLenum  texture_target;
-} GLTexture;
+} GLtexture;
 
 
-/**> FUNCTION PROTOTYPES: GLTexture <**/
-Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * image, Uint32 key );
-Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filename, Uint32 key );
-GLuint  GLTexture_GetTextureID( GLTexture *texture );
-GLsizei GLTexture_GetImageHeight( GLTexture *texture );
-GLsizei GLTexture_GetImageWidth( GLTexture *texture );
-GLsizei GLTexture_GetTextureWidth( GLTexture *texture );
-GLsizei GLTexture_GetTextureHeight( GLTexture *texture );
-void    GLTexture_SetAlpha( GLTexture *texture, GLfloat alpha );
-GLfloat GLTexture_GetAlpha( GLTexture *texture );
-void    GLTexture_Release( GLTexture *texture );
-void    GLTexture_Bind( GLTexture * texture, int filt_type );
+/**> FUNCTION PROTOTYPES: GLtexture <**/
+Uint32  GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key );
+Uint32  GLTexture_Load( GLenum tx_target, GLtexture *texture, const char *filename, Uint32 key );
+GLuint  GLTexture_GetTextureID( GLtexture *texture );
+GLsizei GLTexture_GetImageHeight( GLtexture *texture );
+GLsizei GLTexture_GetImageWidth( GLtexture *texture );
+GLsizei GLTexture_GetTextureWidth( GLtexture *texture );
+GLsizei GLTexture_GetTextureHeight( GLtexture *texture );
+void    GLTexture_SetAlpha( GLtexture *texture, GLfloat alpha );
+GLfloat GLTexture_GetAlpha( GLtexture *texture );
+void    GLTexture_Release( GLtexture *texture );
+void    GLTexture_Bind( GLtexture * texture, int filt_type );
 
 
 #endif

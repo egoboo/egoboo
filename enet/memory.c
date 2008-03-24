@@ -2,9 +2,9 @@
  @file memory.c
  @brief ENet memory management functions
 */
-#define ENET_BUILDING_LIB 1
-#include "enet/types.h"
-#include "enet/memory.h"
+
+#include "types.h"
+#include "memory.h"
 
 void *
 enet_malloc (size_t size)

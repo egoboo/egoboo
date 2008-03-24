@@ -2,40 +2,48 @@
 
 TARGET=egoboo2x.exe
 SOURCES=camera.c\
+	cartman.c\
 	char.c\
 	Client.c\
 	Clock.c\
-	common-file.c\
 	configfile.c\
-	egoboostrutil.c\
+	egoboo_math.c\
+	egoboo_strutil.c\
 	enchant.c\
+	file_common.c\
+	file_win.c\
 	Font.c\
+	Frustum.c\
 	game.c\
-	gltexture.c\
 	graphic.c\
-	graphicfan.c\
-	graphicmad.c\
-	graphicprt.c\
+	graphic_fan.c\
+	graphic_mad.c\
+	graphic_prt.c\
 	id_normals.c\
 	input.c\
 	Log.c\
 	MainLoop.c\
-	mathstuff.c\
 	Md2.c\
 	menu.c\
+	mesh.c\
 	module.c\
 	network.c\
+	ogl_include.c\
+	ogl_texture.c\
 	particle.c\
 	passage.c\
 	script.c\
+	SDL_GetPixel.c\
+	SDL_PutPixel.c\
+	SDL_rotozoom.c\
 	Server.c\
 	sound.c\
-	sys_win32.c\
+	System_win32.c\
 	Task.c\
 	Ticker.c\
 	Timer.c\
-	Ui.c\
-	win-file.c
+	Ui.c
+
 
 OBJECTS=$(SOURCES:%.c=%.o)
 

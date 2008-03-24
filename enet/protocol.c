@@ -4,11 +4,11 @@
 */
 #include <stdio.h>
 #include <string.h>
-#define ENET_BUILDING_LIB 1
-#include "enet/utility.h"
-#include "enet/memory.h"
-#include "enet/time.h"
-#include "enet/enet.h"
+
+#include "utility.h"
+#include "memory.h"
+#include "time.h"
+#include "enet.h"
 
 static enet_uint32 timeCurrent;
 

@@ -23,12 +23,10 @@
 #ifndef _CONFIGFILE_H_
 #define _CONFIGFILE_H_
 
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "egoboostrutil.h"
 
 #define MAX_CONFIG_SECTION_LENGTH  64
 #define MAX_CONFIG_KEY_LENGTH   64

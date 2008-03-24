@@ -2,8 +2,8 @@
  @file list.c
  @brief ENet linked list functions
 */
-#define ENET_BUILDING_LIB 1
-#include "enet/list.h"
+
+#include "list.h"
 
 /** 
     @defgroup list ENet linked list utility functions

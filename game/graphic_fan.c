@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ogl_include.h"
 #include "Log.h"
 #include "egoboo.h"
 #include "mesh.h"
@@ -184,7 +185,7 @@ void render_fan( Uint32 fan, char tex_loaded )
   Uint16 cnt, tnc, entry, vertex;
   Uint32 badvertex;
   float offu, offv;
-  GLVector light_flat;
+  GLvector light_flat;
   vect3 nrm, pos;
 
   // vertex is a value from 0-15, for the meshcommandref/u/v variables

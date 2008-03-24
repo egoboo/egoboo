@@ -23,7 +23,7 @@
 #include "Network.h"
 #include "Log.h"
 #include "egoboo.h"
-#include <enet/enet.h>
+#include "enet.h"
 
 ServerState AServerState;
 

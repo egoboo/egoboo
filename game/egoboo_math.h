@@ -26,7 +26,7 @@
 /**> HEADER FILES <**/
 //#include "egoboo.h"
 #include <math.h>
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 
 #define SQRT_TWO            1.4142135623730950488016887242097f
 #define INV_SQRT_TWO        0.70710678118654752440084436210485f
@@ -86,7 +86,7 @@
 
 /**> MACROS <**/
 #define _CNV(i,j) .v[4*i+j]
-#define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( GLMatrix ) )
+#define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( matrix_4x4 ) )
 
 #define INT_TO_BOOL(XX) (0!=(XX))
 
@@ -98,9 +98,6 @@ typedef union vector3_t { float v[3]; struct { float x, y, z; }; struct { float 
 typedef union vector4_t { float v[4]; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } vect4;
 #pragma pack(pop)
 
-typedef matrix_4x4 GLMatrix;
-typedef vect4 GLVector;
-
 
 /**> GLOBAL VARIABLES <**/
 #define TRIGTABLE_SIZE (1<<14)
@@ -110,36 +107,35 @@ extern float turntosin[TRIGTABLE_SIZE];           // Convert chrturn>>2...  to s
 
 
 /**> FUNCTION PROTOTYPES <**/
-vect3 VSub( vect3 A, vect3 B );
-vect3 Normalize( vect3 vec );
+vect3 VSub        ( vect3 A, vect3 B );
+vect3 Normalize   ( vect3 A );
 vect3 CrossProduct( vect3 A, vect3 B );
-float DotProduct( vect3 A, vect3 B );
+float DotProduct  ( vect3 A, vect3 B );
 
-GLVector VSubGL( GLVector A, GLVector B );
-GLVector NormalizeGL( GLVector vec );
-GLVector CrossProductGL( GLVector A, GLVector B );
-float DotProductGL( GLVector A, GLVector B );
+vect4 VSub4        ( vect4 A, vect4 B );
+vect4 Normalize4   ( vect4 A );
+vect4 CrossProduct4( vect4 A, vect4 B );
+float DotProduct4  ( vect4 A, vect4 B );
 
+matrix_4x4 IdentityMatrix( void );
+matrix_4x4 ZeroMatrix( void );
+matrix_4x4 MatrixTranspose( const matrix_4x4 a );
+matrix_4x4 MatrixMult( const matrix_4x4 a, const matrix_4x4 b );
+matrix_4x4 Translate( const float dx, const float dy, const float dz );
+matrix_4x4 RotateX( const float rads );
+matrix_4x4 RotateY( const float rads );
+matrix_4x4 RotateZ( const float rads );
+matrix_4x4 ScaleXYZ( const float sizex, const float sizey, const float sizez );
+matrix_4x4 ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz );
+matrix_4x4 FourPoints( vect4 ori, vect4 wid, vect4 forw, vect4 up, float scale );
+matrix_4x4 ViewMatrix( const vect3 from, const vect3 at, const vect3 world_up, const float roll );
+matrix_4x4 ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 
-GLMatrix IdentityMatrix( void );
-GLMatrix ZeroMatrix( void );
-GLMatrix MatrixTranspose( const GLMatrix a );
-GLMatrix MatrixMult( const GLMatrix a, const GLMatrix b );
-GLMatrix Translate( const float dx, const float dy, const float dz );
-GLMatrix RotateX( const float rads );
-GLMatrix RotateY( const float rads );
-GLMatrix RotateZ( const float rads );
-GLMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez );
-GLMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz );
-GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector forw, GLVector up, float scale );
-GLMatrix ViewMatrix( const vect3 from, const vect3 at, const vect3 world_up, const float roll );
-GLMatrix ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
+void Transform4_Full( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
+void Transform4( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
 
-void Transform4_Full( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
-void Transform4( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor );
-
-void Transform3_Full( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
-void Transform3( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+void Transform3_Full( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+void Transform3( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
 
 
 Uint16 vec_to_turn( float dx, float dy );

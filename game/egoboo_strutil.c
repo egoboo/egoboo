@@ -19,7 +19,7 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboostrutil.h"
+#include "egoboo_strutil.h"
 
 // TrimStr remove all space and tabs in the beginning and at the end of the string
 void TrimStr( char *pStr )

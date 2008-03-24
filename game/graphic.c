@@ -20,8 +20,9 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "graphic.h"
 #include "egoboo.h"
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "Log.h"
 #include "Ui.h"
 #include "mesh.h"
@@ -37,6 +38,11 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef __unix__
 #include <unistd.h>
 #endif
+
+static int draw_wrap_string( GLtexture * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... );
+static int draw_status( GLtexture * pfnt, CHR_REF character, int x, int y );
+static void draw_text( GLtexture * pfnt );
+
 
 // Defined in egoboo.h
 SDL_Surface *displaySurface = NULL;
@@ -143,7 +149,7 @@ void End2DMode( void )
 
 //--------------------------------------------------------------------------------------------
 static GLint text_begin_level = 0;
-void BeginText( GLTexture * pfnt )
+void BeginText( GLtexture * pfnt )
 {
   assert( 0 == text_begin_level );
 
@@ -3193,7 +3199,7 @@ void draw_scene_zreflection()
 //  // Done rendering
 //};
 
-bool_t draw_texture_box( GLTexture * ptx, FRect * tx_rect, FRect * sc_rect )
+bool_t draw_texture_box( GLtexture * ptx, FRect * tx_rect, FRect * sc_rect )
 {
   FRect rtmp;
 
@@ -3571,7 +3577,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_string( GLTexture * pfnt, float x, float y, GLfloat tint[], char * szFormat, ... )
+int draw_string( GLtexture * pfnt, float x, float y, GLfloat tint[], char * szFormat, ... )
 {
   // ZZ> This function spits a line of null terminated text onto the backbuffer
   char cTmp;
@@ -3670,7 +3676,7 @@ int length_of_word( char *szText )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_wrap_string( GLTexture * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... )
+int draw_wrap_string( GLtexture * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... )
 {
   // ZZ> This function spits a line of null terminated text onto the backbuffer,
   //     wrapping over the right side and returning the new y value
@@ -3768,7 +3774,7 @@ int draw_wrap_string( GLTexture * pfnt, float x, float y, GLfloat tint[], float 
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_status( GLTexture * pfnt, CHR_REF character, int x, int y )
+int draw_status( GLtexture * pfnt, CHR_REF character, int x, int y )
 {
   // ZZ> This function shows a character's icon, status and inventory
   //     The x,y coordinates are the top left point of the image to draw
@@ -3904,7 +3910,7 @@ bool_t do_map()
 }
 
 //--------------------------------------------------------------------------------------------
-int do_messages( GLTexture * pfnt, int x, int y )
+int do_messages( GLtexture * pfnt, int x, int y )
 {
   int cnt, tnc;
   int ystt = y;
@@ -3934,7 +3940,7 @@ int do_messages( GLTexture * pfnt, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int do_status( GLTexture * pfnt, int x, int y)
+int do_status( GLtexture * pfnt, int x, int y)
 {
   int cnt;
   int ystt = y;
@@ -3951,7 +3957,7 @@ int do_status( GLTexture * pfnt, int x, int y)
 };
 
 //--------------------------------------------------------------------------------------------
-void draw_text( GLTexture * pfnt )
+void draw_text( GLtexture * pfnt )
 {
   // ZZ> This function spits out some words
   char text[512];
@@ -3996,7 +4002,7 @@ void draw_text( GLTexture * pfnt )
 
     {
       CHR_REF ichr, iref;
-      GLVector tint = {0.5, 1.0, 1.0, 1.0};
+      GLvector tint = {0.5, 1.0, 1.0, 1.0};
       
       ichr = pla_get_character( 0 );
       if( VALID_CHR( ichr) )

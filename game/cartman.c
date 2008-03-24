@@ -1,5 +1,5 @@
 #include <stdio.h>			// For printf and such
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 #include "egoboo.h"
 #include "UI.h"
 #include "Log.h"
@@ -99,25 +99,25 @@ int		brushsize = 3;		// Size of raise/lower terrain brush
 int		brushamount = 50;	// Amount of raise/lower
 
 
-GLTexture    imgcursor;		// Cursor image
-GLTexture    imgpoint[16];		// Vertex image
-GLTexture    imgpointon[16];	// Vertex image ( Selected )
-GLTexture    imgref;		// Meshfx images
-GLTexture    imgdrawref;		//
-GLTexture    imganim;		//
-GLTexture    imgwater;		//
-GLTexture    imgwall;		//
-GLTexture    imgimpass;		//
-GLTexture    imgdamage;		//
-GLTexture    imgslippy;		//
-GLTexture    bmptemp;		// A temporary bitmap
-GLTexture    bmpdbuff;		// The double buffer bitmap
+GLtexture    imgcursor;		// Cursor image
+GLtexture    imgpoint[16];		// Vertex image
+GLtexture    imgpointon[16];	// Vertex image ( Selected )
+GLtexture    imgref;		// Meshfx images
+GLtexture    imgdrawref;		//
+GLtexture    imganim;		//
+GLtexture    imgwater;		//
+GLtexture    imgwall;		//
+GLtexture    imgimpass;		//
+GLtexture    imgdamage;		//
+GLtexture    imgslippy;		//
+GLtexture    bmptemp;		// A temporary bitmap
+GLtexture    bmpdbuff;		// The double buffer bitmap
 SDL_Surface *bmphitemap;		// Heightmap image
-GLTexture    bmpsmalltile[MAXTILE];	// Tiles
-GLTexture    bmpbigtile[MAXTILE];	//
-GLTexture    bmptinysmalltile[MAXTILE];	// Plan tiles
-GLTexture    bmptinybigtile[MAXTILE];	//
-GLTexture    bmpfanoff;		//
+GLtexture    bmpsmalltile[MAXTILE];	// Tiles
+GLtexture    bmpbigtile[MAXTILE];	//
+GLtexture    bmptinysmalltile[MAXTILE];	// Plan tiles
+GLtexture    bmptinybigtile[MAXTILE];	//
+GLtexture    bmpfanoff;		//
 int		numsmalltile = 0;	//
 int		numbigtile = 0;		//
 
@@ -143,7 +143,7 @@ int		mouseinwinrecty;	//
 Uint8	mouseinwinfx = MESHFX_NOREFLECT;//
 
 #define MAXWIN 8			           // Number of windows
-GLTexture	window_tx[MAXWIN];	   // Window images
+GLtexture	window_tx[MAXWIN];	   // Window images
 bool_t    windowon[MAXWIN];	     // Draw it?
 int		    windowborderx[MAXWIN]; // Window border size
 int		    windowbordery[MAXWIN]; //
@@ -257,7 +257,7 @@ void clear_to_color( int window, GLfloat color[] )
 
 
 //------------------------------------------------------------------------------
-void draw_blit_sprite(int window, GLTexture * sprite, int x, int y)
+void draw_blit_sprite(int window, GLtexture * sprite, int x, int y)
 {
   FRect dst;
 
@@ -626,9 +626,9 @@ void make_hitemap(void)
 }
 
 //------------------------------------------------------------------------------
-GLTexture * tiny_tile_at(int x, int y)
+GLtexture * tiny_tile_at(int x, int y)
 {
-  GLTexture * retval = NULL;
+  GLtexture * retval = NULL;
   Uint16 tile, basetile;
   Uint8 type, fx;
   Uint32 fan;
@@ -705,7 +705,7 @@ void make_planmap(void)
     while(x < meshsizex)
     {
       FRect dst = {putx, puty, putx + TINYX, puty + TINYY};
-      GLTexture * tmp = tiny_tile_at(x, y);
+      GLtexture * tmp = tiny_tile_at(x, y);
       draw_texture_box(tmp, NULL, &dst);
 
       putx+=TINYX;
@@ -1350,9 +1350,9 @@ void num_free_vertex()
 }
 
 //------------------------------------------------------------------------------
-GLTexture * tile_at(int x, int y)
+GLtexture * tile_at(int x, int y)
 {
-  GLTexture * retval = NULL;
+  GLtexture * retval = NULL;
   Uint16 tile, basetile;
   Uint8 type, fx;
   Uint32 fan;
@@ -2541,7 +2541,7 @@ void cart_load_module(char *modname)
 //------------------------------------------------------------------------------
 void render_tile_window(int window)
 {
-  GLTexture *bmptile;
+  GLtexture *bmptile;
   int x, y, xstt, ystt, cntx, cnty, numx, numy, mapx, mapy, mapxstt, mapystt;
   int cnt;
 
@@ -2595,7 +2595,7 @@ void render_tile_window(int window)
 //------------------------------------------------------------------------------
 void render_fx_window(int window)
 {
-  GLTexture * bmptile;
+  GLtexture * bmptile;
   int x, y, xstt, ystt, cntx, cnty, numx, numy, mapx, mapy, mapxstt, mapystt;
   Uint32 fan;
 

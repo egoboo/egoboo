@@ -21,6 +21,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "egoboo.h"
 #include "Log.h"
+#include "egoboo_strutil.h"
 
 //--------------------------------------------------------------------------------------------
 void release_module( void )

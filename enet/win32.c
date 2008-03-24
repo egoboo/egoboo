@@ -5,8 +5,8 @@
 #ifdef WIN32
 
 #include <time.h>
-#define ENET_BUILDING_LIB 1
-#include "enet/enet.h"
+
+#include "enet.h"
 
 static enet_uint32 timeBase = 0;
 

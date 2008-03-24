@@ -18,13 +18,15 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "Network.h"
 #include "Client.h"
 #include "Server.h"
 #include "Log.h"
 #include "egoboo.h"
 #include "mesh.h"
+#include "egoboo_strutil.h"
+
 #include <assert.h>
 
 Uint32  numfanblock;                                    // Number of collision areas
@@ -394,7 +396,7 @@ void make_turntosin( void )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t matrix_compare_3x3(GLMatrix * pm1, GLMatrix * pm2)
+bool_t matrix_compare_3x3(GLmatrix * pm1, GLmatrix * pm2)
 {
   // BB > compare two 3x3 matrices to see if the transformation is the same
 
@@ -416,7 +418,7 @@ bool_t make_one_character_matrix( CHR_REF cnt )
 {
   // ZZ> This function sets one character's matrix
   Uint16 tnc;
-  GLMatrix mat_old;
+  matrix_4x4 mat_old;
   bool_t recalc_bumper = bfalse;
 
   if ( !VALID_CHR( cnt ) ) return bfalse;
@@ -582,7 +584,7 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
   //     It will kill the particle if the character is no longer around
   Uint16 vertex, model;
   float flip;
-  GLVector point, nupoint;
+  GLvector point, nupoint;
 
 
   // Check validity of attachment
@@ -664,7 +666,7 @@ bool_t make_one_weapon_matrix( CHR_REF ichr )
   int cnt;
   CHR_REF imount;
   Uint16 vertex;
-  GLMatrix mat_old;
+  matrix_4x4 mat_old;
   bool_t recalc_bumper = bfalse;
 
   // check this character
@@ -705,7 +707,7 @@ bool_t make_one_weapon_matrix( CHR_REF ichr )
   }
   else
   {
-    GLVector point[GRIP_SIZE], nupoint[GRIP_SIZE];
+    GLvector point[GRIP_SIZE], nupoint[GRIP_SIZE];
 
     // do the linear interpolation
     vertex = chrattachedgrip[ichr][0];

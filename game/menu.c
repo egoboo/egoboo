@@ -451,7 +451,7 @@ int initMenus()
 int mnu_doMain( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright;
   static float lerp;
   static int menuChoice = 0;
@@ -581,7 +581,7 @@ int mnu_doMain( float deltaTime )
 int mnu_doSinglePlayer( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright;
   static int menuChoice;
   int result = 0;
@@ -694,7 +694,7 @@ int mnu_doChooseModule( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
   static int startIndex;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright, wtmp;
   static int validModules[MAXMODULE];
   static int numValidModules;
@@ -1122,14 +1122,14 @@ void import_selected_players()
 int mnu_doChoosePlayer( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright, wtmp;
   static bool_t bquit = bfalse;
   int result = 0;
   static int numVertical, numHorizontal;
   int i, j, k, m, x, y;
   int player;
-  static GLTexture TxInput[4];
+  static GLtexture TxInput[4];
   static Uint32 BitsInput[4];
 
   switch ( menuState )
@@ -1329,7 +1329,7 @@ int mnu_doChoosePlayer( float deltaTime )
 int mnu_doOptions( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright;
   static float lerp;
   static int menuChoice = 0;
@@ -1461,7 +1461,7 @@ int mnu_doOptions( float deltaTime )
 int mnu_doAudioOptions( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright;
   static float lerp;
   static int menuChoice = 0;
@@ -1691,7 +1691,7 @@ int mnu_doAudioOptions( float deltaTime )
 int mnu_doVideoOptions( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static GLTexture background;
+  static GLtexture background;
   static ui_Widget wBackground, wCopyright;
   static float lerp;
   static int menuChoice = 0;

@@ -24,8 +24,8 @@
 #define egoboo_ui_h
 
 #include "Font.h"
-#include "gltexture.h"
-#include "egobootypedef.h"
+#include "ogl_texture.h"
+#include "egoboo_types.h"
 #include <SDL.h>
 
 #define UI_Nothing (UI_ID)(-1)
@@ -55,7 +55,7 @@ typedef struct ui_widget_t
   UI_ID id;
   Font * pfont;
   char *text;
-  GLTexture *img;
+  GLtexture *img;
   int x;
   int y;
   int width;
@@ -91,7 +91,7 @@ Font* ui_getFont();
 
 bool_t ui_copyWidget( ui_Widget * pw2, ui_Widget * pw1 );
 bool_t ui_shrinkWidget( ui_Widget * pw2, ui_Widget * pw1, int pixels );
-bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLTexture *img, int x, int y, int width, int height );
+bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height );
 bool_t ui_widgetAddMask( ui_Widget * pw, Uint32 mbits );
 bool_t ui_widgetRemoveMask( ui_Widget * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget * pw, Uint32 mbits );

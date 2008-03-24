@@ -22,13 +22,13 @@
 #ifndef _EGOBOOSTRUTIL_H_
 #define _EGOBOOSTRUTIL_H_
 
-#include "egobootypedef.h"
+#include "egoboo_types.h"
 #include <string.h>
 #include <ctype.h>
 
-extern void TrimStr( char *pStr );
-
-
+void TrimStr( char *pStr );
+char * convert_underscores( char *strout, size_t insize, char * strin );
+char * convert_spaces( char *strout, size_t insize, char * strin );
 
 #endif // #ifndef _EGOBOOSTRUTIL_H_
 

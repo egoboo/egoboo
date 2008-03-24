@@ -1,5 +1,6 @@
 #include "egoboo.h"
 #include "mesh.h"
+#include "Log.h"
 
 Uint32  numfanblock  = 0;                                   // Number of collision areas
 Uint16  bumplistchr[MAXMESHFAN/16];                     // For character collisions
@@ -238,7 +239,7 @@ void load_mesh_fans()
   if ( NULL == fileread )
   {
     log_message("Failed!\n");
-    return bfalse;
+    return;
   }
 
   log_message("Succeeded!\n");

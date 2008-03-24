@@ -22,7 +22,7 @@
 #ifndef egoboo_Network_h
 #define egoboo_Network_h
 
-#include <enet/enet.h>
+#include "enet.h"
 #include "egoboo.h"
 
 #define SHORTLATCH 1024.0

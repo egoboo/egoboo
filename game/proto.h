@@ -22,8 +22,8 @@
 #ifndef _PROTO_H_
 #define _PROTO_H_
 
-#include "egobootypedef.h"
-#include "mathstuff.h"
+#include "egoboo_types.h"
+#include "egoboo_math.h"
 
 #include <SDL_mixer.h> // for Mix_* stuff.
 #include <SDL_opengl.h>
@@ -43,8 +43,6 @@ typedef enum blud_level_e BLUD_LEVEL;
 typedef enum respawn_mode_e RESPAWN_MODE;
 typedef enum idsz_index_e IDSZ_INDEX;
 typedef enum color_e COLR;
-
-typedef struct gltexture_t GLTexture;
 
 void load_graphics();
 
@@ -422,18 +420,12 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, float x, float y );
 void draw_map( float x, float y );
 int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks );
-int draw_string( GLTexture * pfnt, float x, float y, GLfloat tint[], char * szFormat, ... );
 int length_of_word( char *szText );
-int draw_wrap_string( GLTexture * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... );
-int draw_status( GLTexture * pfnt, CHR_REF character, int x, int y );
-void draw_text( GLTexture * pfnt );
 bool_t request_pageflip();
 bool_t do_pageflip();
 bool_t do_clear();
 void draw_scene();
 void draw_main( float );
-bool_t draw_texture_box( GLTexture * ptx, FRect * tx_rect, FRect * sc_rect );
-
 
 bool_t prt_search_target_in_block( int block_x, int block_y, float prtx, float prty, Uint16 facing,
                                    bool_t request_friends, bool_t allow_anyone, TEAM team,
@@ -519,12 +511,6 @@ void fs_findClose();
 void render_mad_lit( CHR_REF character );
 void render_particle_reflections();
 void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode );
-
-void BeginText( GLTexture * pfnt );
-void EndText( void );
-
-void Begin2DMode( void );
-void End2DMode( void );
 
 void make_speklut();
 

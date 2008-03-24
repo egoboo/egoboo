@@ -20,9 +20,9 @@
 */
 
 /**> HEADER FILES <**/
-#include "mathstuff.h"
+#include "egoboo_math.h"
 #include "mesh.h"
-#include <SDL_opengl.h>
+//#include <SDL_opengl.h>
 
 float turntosin[TRIGTABLE_SIZE];
 
@@ -87,17 +87,17 @@ float DotProduct( vect3 A, vect3 B )
 { return ( A.x*B.x + A.y*B.y + A.z*B.z ); }
 
 //---------------------------------------------------------------------------------------------
-GLVector VSubGL( GLVector A, GLVector B )
+vect4 GLVSub( vect4 A, vect4 B )
 {
-  GLVector tmp;
+  vect4 tmp;
   tmp.x = A.x - B.x; tmp.y = A.y - B.y; tmp.z = A.z - B.z;
   return ( tmp );
 }
 
 //---------------------------------------------------------------------------------------------
-GLVector NormalizeGL( GLVector vec )
+vect4 GLNormalize( vect4 vec )
 {
-  GLVector tmp = vec;
+  vect4 tmp = vec;
   float len;
 
   len = ( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
@@ -117,9 +117,9 @@ GLVector NormalizeGL( GLVector vec )
 }
 
 //---------------------------------------------------------------------------------------------
-GLVector CrossProductGL( GLVector A, GLVector B )
+vect4 GLCrossProduct( vect4 A, vect4 B )
 {
-  GLVector tmp;
+  vect4 tmp;
   tmp.x = A.y * B.z - A.z * B.y;
   tmp.y = A.z * B.x - A.x * B.z;
   tmp.z = A.x * B.y - A.y * B.x;
@@ -127,16 +127,16 @@ GLVector CrossProductGL( GLVector A, GLVector B )
 }
 
 //---------------------------------------------------------------------------------------------
-float DotProductGL( GLVector A, GLVector B )
+float GLDotProduct( vect4 A, vect4 B )
 { return ( A.x*B.x + A.y*B.y + A.z*B.z ); }
 
 //---------------------------------------------------------------------------------------------
 //Math Stuff-----------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 //inline D3DMATRIX IdentityMatrix()
-GLMatrix IdentityMatrix()
+matrix_4x4 IdentityMatrix()
 {
-  GLMatrix tmp;
+  matrix_4x4 tmp;
 
   ( tmp ) _CNV( 0, 0 ) = 1; ( tmp ) _CNV( 1, 0 ) = 0; ( tmp ) _CNV( 2, 0 ) = 0; ( tmp ) _CNV( 3, 0 ) = 0;
   ( tmp ) _CNV( 0, 1 ) = 0; ( tmp ) _CNV( 1, 1 ) = 1; ( tmp ) _CNV( 2, 1 ) = 0; ( tmp ) _CNV( 3, 1 ) = 0;
@@ -147,9 +147,9 @@ GLMatrix IdentityMatrix()
 
 //--------------------------------------------------------------------------------------------
 //inline D3DMATRIX ZeroMatrix(void)  // initializes matrix to zero
-GLMatrix ZeroMatrix( void )
+matrix_4x4 ZeroMatrix( void )
 {
-  GLMatrix ret;
+  matrix_4x4 ret;
   int i, j;
 
   for ( i = 0; i < 4; i++ )
@@ -161,9 +161,9 @@ GLMatrix ZeroMatrix( void )
 
 //--------------------------------------------------------------------------------------------
 //inline D3DMATRIX MatrixMult(const D3DMATRIX a, const D3DMATRIX b)
-GLMatrix MatrixTranspose( const GLMatrix a )
+matrix_4x4 MatrixTranspose( const matrix_4x4 a )
 {
-  GLMatrix ret;
+  matrix_4x4 ret;
   int i, j;
 
   for ( i = 0; i < 4; i++ )
@@ -175,9 +175,9 @@ GLMatrix MatrixTranspose( const GLMatrix a )
 
 //--------------------------------------------------------------------------------------------
 //inline D3DMATRIX MatrixMult(const D3DMATRIX a, const D3DMATRIX b)
-GLMatrix MatrixMult( const GLMatrix a, const GLMatrix b )
+matrix_4x4 MatrixMult( const matrix_4x4 a, const matrix_4x4 b )
 {
-  GLMatrix ret;
+  matrix_4x4 ret;
   int i, j, k;
 
   for ( i = 0; i < 4; i++ )
@@ -193,9 +193,9 @@ GLMatrix MatrixMult( const GLMatrix a, const GLMatrix b )
 
 //--------------------------------------------------------------------------------------------
 //D3DMATRIX Translate(const float dx, const float dy, const float dz)
-GLMatrix Translate( const float dx, const float dy, const float dz )
+matrix_4x4 Translate( const float dx, const float dy, const float dz )
 {
-  GLMatrix ret = IdentityMatrix();
+  matrix_4x4 ret = IdentityMatrix();
   ( ret ) _CNV( 3, 0 ) = dx;
   ( ret ) _CNV( 3, 1 ) = dy;
   ( ret ) _CNV( 3, 2 ) = dz;
@@ -204,11 +204,11 @@ GLMatrix Translate( const float dx, const float dy, const float dz )
 
 //--------------------------------------------------------------------------------------------
 //D3DMATRIX RotateX(const float rads)
-GLMatrix RotateX( const float rads )
+matrix_4x4 RotateX( const float rads )
 {
   float cosine = ( float ) cos( rads );
   float sine   = ( float ) sin( rads );
-  GLMatrix ret = IdentityMatrix();
+  matrix_4x4 ret = IdentityMatrix();
   ( ret ) _CNV( 1, 1 ) =  cosine;
   ( ret ) _CNV( 2, 2 ) =  cosine;
   ( ret ) _CNV( 1, 2 ) = -sine;
@@ -218,11 +218,11 @@ GLMatrix RotateX( const float rads )
 
 //--------------------------------------------------------------------------------------------
 //D3DMATRIX RotateY(const float rads)
-GLMatrix RotateY( const float rads )
+matrix_4x4 RotateY( const float rads )
 {
   float cosine = ( float ) cos( rads );
   float sine   = ( float ) sin( rads );
-  GLMatrix ret = IdentityMatrix();
+  matrix_4x4 ret = IdentityMatrix();
   ( ret ) _CNV( 0, 0 ) =  cosine;  //0,0
   ( ret ) _CNV( 2, 2 ) =  cosine;  //2,2
   ( ret ) _CNV( 0, 2 ) =  sine;    //0,2
@@ -232,11 +232,11 @@ GLMatrix RotateY( const float rads )
 
 //--------------------------------------------------------------------------------------------
 //D3DMATRIX RotateZ(const float rads)
-GLMatrix RotateZ( const float rads )
+matrix_4x4 RotateZ( const float rads )
 {
   float cosine = ( float ) cos( rads );
   float sine   = ( float ) sin( rads );
-  GLMatrix ret = IdentityMatrix();
+  matrix_4x4 ret = IdentityMatrix();
   ( ret ) _CNV( 0, 0 ) =  cosine;  //0,0
   ( ret ) _CNV( 1, 1 ) =  cosine;  //1,1
   ( ret ) _CNV( 0, 1 ) = -sine;    //0,1
@@ -246,9 +246,9 @@ GLMatrix RotateZ( const float rads )
 
 //--------------------------------------------------------------------------------------------
 //D3DMATRIX ScaleXYZ(const float sizex, const float sizey, const float sizez)
-GLMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
+matrix_4x4 ScaleXYZ( const float sizex, const float sizey, const float sizez )
 {
-  GLMatrix ret = IdentityMatrix();
+  matrix_4x4 ret = IdentityMatrix();
   ( ret ) _CNV( 0, 0 ) = sizex;   //0,0
   ( ret ) _CNV( 1, 1 ) = sizey;   //1,1
   ( ret ) _CNV( 2, 2 ) = sizez;   //2,2
@@ -256,7 +256,7 @@ GLMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 }
 
 //--------------------------------------------------------------------------------------------
-GLMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz )
+matrix_4x4 ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz )
 {
   float cx = turntosin[( turnx+TRIGTABLE_SHIFT ) & TRIGTABLE_MASK];
   float sx = turntosin[turnx & TRIGTABLE_MASK];
@@ -268,7 +268,7 @@ GLMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
   float cxsy = cx * sy;
   float sxcy = sx * cy;
   float cxcy = cx * cy;
-  GLMatrix ret;
+  matrix_4x4 ret;
 
   ( ret ) _CNV( 0, 0 ) = sizex * ( cy * cz );    //0,0
   ( ret ) _CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  //0,1
@@ -293,9 +293,9 @@ GLMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
 }
 
 //--------------------------------------------------------------------------------------------
-GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector frw, GLVector up, float scale )
+matrix_4x4 FourPoints( vect4 ori, vect4 wid, vect4 frw, vect4 up, float scale )
 {
-  GLMatrix tmp;
+  matrix_4x4 tmp;
 
   wid.x -= ori.x;  frw.x -= ori.x;  up.x -= ori.x;
   wid.y -= ori.y;  frw.y -= ori.y;  up.y -= ori.y;
@@ -306,9 +306,9 @@ GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector frw, GLVector up, floa
   //wid.y *= -1.0; // HUK
   //wid.z *= -1.0; // HUK
 
-  wid = NormalizeGL( wid );
-  frw = NormalizeGL( frw );
-  up  = NormalizeGL( up );
+  wid = GLNormalize( wid );
+  frw = GLNormalize( frw );
+  up  = GLNormalize( up );
 
   ( tmp ) _CNV( 0, 0 ) = scale * wid.x;       //0,0
   ( tmp ) _CNV( 0, 1 ) = scale * wid.y;       //0,1
@@ -333,76 +333,16 @@ GLMatrix FourPoints( GLVector ori, GLVector wid, GLVector frw, GLVector up, floa
   return tmp;
 }
 
-//--------------------------------------------------------------------------------------------
-// MN This probably should be replaced by a call to gluLookAt, don't see why we need to make our own...
-GLMatrix ViewMatrix( const vect3 from,     // camera location
-                     const vect3 at,        // camera look-at target
-                     const vect3 world_up,  // world’s up, usually 0, 0, 1
-                     const float roll )     // clockwise roll around viewing direction, in radians
-{
-
-  GLMatrix view;
-
-  ATTRIB_PUSH( "ViewMatrix", GL_TRANSFORM_BIT );
-  {
-    glMatrixMode( GL_MODELVIEW );
-    glPushMatrix();
-    glLoadIdentity();
-    glScalef( -1, 1, 1 );
-
-    if ( roll > .001 )
-    {
-      glMultMatrixf( RotateZ( roll ).v );
-    }
-
-    gluLookAt( from.x, from.y, from.z, at.x, at.y, at.z, world_up.x, world_up.y, world_up.z );
-
-    glGetFloatv( GL_MODELVIEW_MATRIX, view.v );
-
-    glPopMatrix();
-  }
-  ATTRIB_POP( "ViewMatrix" );
-
-  return view;
-}
-
-//--------------------------------------------------------------------------------------------
-GLMatrix ProjectionMatrix( const float near_plane,    // distance to near clipping plane
-                           const float far_plane,      // distance to far clipping plane
-                           const float fov )           // field of view angle, in radians
-{
-  GLMatrix proj;
-
-  ATTRIB_PUSH( "ProjectionMatrix", GL_TRANSFORM_BIT );
-  {
-    GLint viewport[ 4 ];
-
-    //use OpenGl to create our projection matrix
-    glGetIntegerv( GL_VIEWPORT, viewport );
-
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    gluPerspective( fov, ( float )( viewport[ 2 ] - viewport[ 0 ] ) / ( float )( viewport[ 3 ] - viewport[ 1 ] ), near_plane, far_plane );
-    glGetFloatv( GL_PROJECTION_MATRIX, proj.v );
-    glPopMatrix();
-  }
-  ATTRIB_POP( "ProjectionMatrix" );
-
-  return proj;
-}
-
-
 //----------------------------------------------------
 // GS - Normally we souldn't this function but I found it in the rendering of the particules.
 //
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.
 // Isn't tested!!!!
-void Transform4_Full( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
+void Transform4_Full( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor )
 {
-  GLVector *psrc = pSourceV, *pdst = pDestV;
-  GLMatrix *pmat = pMatrix;
+  vect4 *psrc = pSourceV, *pdst = pDestV;
+  matrix_4x4 *pmat = pMatrix;
   while ( NumVertor-- > 0 )
   {
     if(0.0f == ( *psrc ).w)
@@ -432,10 +372,10 @@ void Transform4_Full( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[],
 }
 
 //----------------------------------------------------
-void Transform4( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint32 NumVertor )
+void Transform4( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor )
 {
-  GLVector *psrc = pSourceV, *pdst = pDestV;
-  GLMatrix *pmat = pMatrix;
+  vect4 *psrc = pSourceV, *pdst = pDestV;
+  matrix_4x4 *pmat = pMatrix;
   while ( NumVertor-- > 0 )
   {
     ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8];
@@ -448,10 +388,10 @@ void Transform4( GLMatrix *pMatrix, GLVector pSourceV[], GLVector pDestV[], Uint
 }
 
 //----------------------------------------------------
-void Transform3_Full( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
+void Transform3_Full( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
 {
   vect3 *psrc = pSourceV, *pdst = pDestV;
-  GLMatrix *pmat = pMatrix;
+  matrix_4x4 *pmat = pMatrix;
   while ( NumVertor-- > 0 )
   {
     ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8] + ( *pmat ).v[12];
@@ -463,10 +403,10 @@ void Transform3_Full( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint3
 }
 
 //----------------------------------------------------
-void Transform3( GLMatrix *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
+void Transform3( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor )
 {
   vect3 *psrc = pSourceV, *pdst = pDestV;
-  GLMatrix *pmat = pMatrix;
+  matrix_4x4 *pmat = pMatrix;
   while ( NumVertor-- > 0 )
   {
     ( *pdst ).x = ( *psrc ).x * ( *pmat ).v[0] + ( *psrc ).y * ( *pmat ).v[4] + ( *psrc ).z * ( *pmat ).v[ 8];

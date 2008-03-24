@@ -31,8 +31,9 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "System.h"
 #include "id_md2.h"
 #include "Menu.h"
-#include <SDL_endian.h>
+#include "egoboo_strutil.h"
 
+#include <SDL_endian.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
