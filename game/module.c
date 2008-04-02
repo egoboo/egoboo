@@ -234,6 +234,7 @@ void load_module( char *smallname )
   load_map( modname );
   load_blip_bitmap( modname );
 
+  //Log all object slots used if in DevMode
   if ( CData.DevMode )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.slotused_file );
@@ -243,13 +244,15 @@ void load_module( char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t get_module_data( int modnumber, char *szLoadName )
+bool_t get_module_data(int modnumber, char *szLoadName )
 {
   // ZZ> This function loads the module data file
   FILE *fileread;
   char reference[128];
+  STRING playername;
   Uint32 idsz;
-  int iTmp;
+  Sint16 iTmp;
+  bool_t playerhasquest;
 
   fileread = fs_fileOpen( PRI_NONE, NULL, szLoadName, "r" );
   if ( NULL != fileread )
@@ -259,7 +262,18 @@ bool_t get_module_data( int modnumber, char *szLoadName )
     fget_next_name( fileread, modlongname[modnumber], sizeof( modlongname[modnumber] ) );
     fget_next_string( fileread, reference, sizeof( reference ) );
     idsz = fget_next_idsz( fileread );
-    if ( module_reference_matches( reference, idsz ) )
+
+	//Check all selected players directories
+	playerhasquest = bfalse;
+	iTmp = 0;
+	while ( playerhasquest && bfalse || iTmp < numloadplayer)
+	{
+	  snprintf( playername, sizeof( playername ), "%s", loadplayerdir[iTmp] );
+      if( check_player_quest( playername, idsz ) >= 0 ) playerhasquest = btrue;
+	  iTmp++;
+	}
+
+   if( module_reference_matches( reference, idsz ) || playerhasquest )
     {
       globalname = szLoadName;
       modimportamount[modnumber] = fget_next_int( fileread );
@@ -276,7 +290,6 @@ bool_t get_module_data( int modnumber, char *szLoadName )
         iTmp++;
       }
       modrank[modnumber][iTmp] = 0;
-
 
 
       // Read the expansions

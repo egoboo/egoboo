@@ -4364,29 +4364,10 @@ void load_menu()
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.font_bitmap );
   snprintf( CStringTmp2, sizeof( CStringTmp2 ), "%s/%s", CData.basicdat_dir, CData.fontdef_file );
   load_font( CStringTmp1, CStringTmp2 );
-  load_all_menu_images();
+  //load_all_menu_images();
 }
 
 //--------------------------------------------------------------------------------------------
-void do_cursor()
-{
-  // This function implements a mouse cursor
-  read_input( NULL );
-  cursorx = mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > CData.scrx - 16 )  cursorx = CData.scrx - 16;
-  cursory = mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > CData.scry - 24 )  cursory = CData.scry - 24;
-  clicked = bfalse;
-  if ( mousebutton[0] && !pressed )
-  {
-    clicked = btrue;
-  }
-  pressed = mousebutton[0];
-
-  BeginText( &TxFont );
-  {
-    draw_one_font( 95, cursorx - 5, cursory - 7 );
-  }
-  EndText();
-}
 
 /********************> Reshape3D() <*****/
 void Reshape3D( int w, int h )
@@ -4443,7 +4424,6 @@ void sdlinit( int argc, char **argv )
   log_info("Initializing main SDL services version %i.%i.%i... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL);
   if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
   {
-    log_info("Failed!\n");
     log_message("Failed!\n");
 
     log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
@@ -4451,15 +4431,14 @@ void sdlinit( int argc, char **argv )
   }
   else
   {
-    log_info("Success!\n");
-    log_message("Failed!\n");
+    log_message("Success!\n");
   }
 
   atexit( SDL_Quit );
 
   // log the video driver info
   SDL_VideoDriverName( strbuffer, 256 );
-  if ( CData.DevMode ) log_info( "Video Driver - %s\n", strbuffer );
+  log_info( "Using Video Driver - %s\n", strbuffer );
 
   colordepth = CData.scrd / 3;
 
@@ -4492,11 +4471,13 @@ void sdlinit( int argc, char **argv )
   }
   video_mode_chaged = bfalse;
 
-	//Enable antialiasing X16
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-	glEnable(GL_MULTISAMPLE_ARB);
-	//glEnable(GL_MULTISAMPLE);
+  //Debug
+  //Enable antialiasing X16
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+  glEnable(GL_MULTISAMPLE_ARB);
+  //glEnable(GL_MULTISAMPLE);
+  //Debug end
 
   //Force OpenGL hardware acceleration
   if(CData.gfxacceleration)
@@ -4504,9 +4485,7 @@ void sdlinit( int argc, char **argv )
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
   }
 
-
-
-  // grab all the available video modes
+  //Grab all the available video modes
   video_mode_list = SDL_ListModes( displaySurface->format, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN | SDL_OPENGL | SDL_HWACCEL | SDL_SRCALPHA );
   log_info( "Detecting avalible video modes...\n" );
   for ( cnt = 0; NULL != video_mode_list[cnt]; ++cnt )
@@ -4580,10 +4559,11 @@ void load_graphics()
   }
 
   //Check which particle image to load
-  if ( CData.particletype      == PART_NORMAL ) strncpy( CData.particle_bitmap, "particle_normal.bmp" , sizeof( STRING ) );
-  else if ( CData.particletype == PART_SMOOTH ) strncpy( CData.particle_bitmap, "particle_smooth.bmp" , sizeof( STRING ) );
-  else if ( CData.particletype == PART_FAST )   strncpy( CData.particle_bitmap, "particle_fast.bmp" , sizeof( STRING ) );
+  if ( CData.particletype      == PART_NORMAL ) strncpy( CData.particle_bitmap, "particle_normal.png" , sizeof( STRING ) );
+  else if ( CData.particletype == PART_SMOOTH ) strncpy( CData.particle_bitmap, "particle_smooth.png" , sizeof( STRING ) );
+  else if ( CData.particletype == PART_FAST )   strncpy( CData.particle_bitmap, "particle_fast.png" , sizeof( STRING ) );
 
+  //Wait for vertical synchronization?
   if( CData.vsync )
   {
 	  // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this  nvidia extension instead.
@@ -4628,4 +4608,25 @@ void load_graphics()
 //    End2DMode();
 //  }
 //}
+//-------------------------------------------------------------------------------------------------
+//void do_cursor()
+//{
+//  // This function implements a mouse cursor
+//  read_input( NULL );
+//  cursorx = mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > CData.scrx - 16 )  cursorx = CData.scrx - 16;
+//  cursory = mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > CData.scry - 24 )  cursory = CData.scry - 24;
+//  clicked = bfalse;
+//  if ( mousebutton[0] && !pressed )
+//  {
+//    clicked = btrue;
+//  }
+//  pressed = mousebutton[0];
+//
+//  BeginText( &TxFont );
+//  {
+//    draw_one_font( 95, cursorx - 5, cursory - 7 );
+//  }
+//  EndText();
+//}
+
 #endif

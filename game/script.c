@@ -1301,7 +1301,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, ClearMusicPassage);
   REGISTER_FUNCTION( opcode_lst, IfOperatorIsLinux);
   REGISTER_FUNCTION( opcode_lst, IfTargetIsOwner);
-//  REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
+  REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -4208,7 +4208,6 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
         returncode = add_quest_idsz( cTmp, scr_globals.tmpargument );
-        //Todo: Should we add the quest idsz into all the players quest.txt?
       }
       break;
 
@@ -4262,15 +4261,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = loc_aitarget == loc_aiowner;
       break;
 
-  /*  case F_SetCameraSwing:
+    case F_SetCameraSwing:
 	  //This function sets the camera swing rate
-	    camswing = 0;
+	  camswing = 0;
       camswingrate = scr_globals.tmpargument;
       camswingamp = scr_globals.tmpdistance;
-      returncode = loc_aitarget == loc_aiowner;
-      break;*/
-
-
+      break;
 
     case F_End:
       break;

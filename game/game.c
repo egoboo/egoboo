@@ -4496,7 +4496,7 @@ int proc_menuLoop( double frameDuration, bool_t cleanup )
         prime_icons();
         prime_titleimage();
         make_textureoffset();    // THIS SHOULD WORK
-        load_all_menu_images();
+        //load_all_menu_images();
         initMenus();             //Start the game menu
 
         // initialize the bitmap font so we can use the cursor

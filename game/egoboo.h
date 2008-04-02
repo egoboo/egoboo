@@ -147,7 +147,6 @@ typedef enum gender_e
 
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
 #define MAXSTAT             16                      // Maximum status displays
-#define MAXLOCO             3                       // Maximum number of local players
 
 #define JOYBUTTON           8                       // Maximum number of joystick buttons
 #define MOUSEBUTTON         4
@@ -155,7 +154,7 @@ typedef enum gender_e
 #define MAXTOTALMESSAGE     1024                    //
 #define MESSAGESIZE         80                      //
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-#define DELAY_MESSAGE         200                     // Time to keep the message alive
+#define DELAY_MESSAGE       200                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
 
 typedef enum mad_effects_bits_e
@@ -650,7 +649,7 @@ EXTERN bool_t                    readytostart;               // Ready to hit the
 EXTERN bool_t                    waitingforplayers;          // Has everyone talked to the host?
 EXTERN bool_t                    somelocalpladead;            // Has someone died?
 EXTERN bool_t                    alllocalpladead;            // Has everyone died?
-EXTERN bool_t                    respawnvalid;               // Can players respawn with Spacebar?
+EXTERN bool_t                    respawnvalid;               // Can players respawn with JUMP button?
 EXTERN bool_t                    respawnanytime;             // True if it's a small level...
 EXTERN bool_t                    importvalid;                // Can it import?
 EXTERN bool_t                    exportvalid;                // Can it export?
@@ -839,8 +838,8 @@ EXTERN GLmatrix mProjectionBig;  // Larger projection matrix for frustum culling
 
 
 //Input player control
-EXTERN int                     numloadplayer  EQ( 0 );
-#define MAXLOADPLAYER     100
+EXTERN int                     numloadplayer  EQ( 0 );		//Number of players playing
+#define MAXLOADPLAYER		   100
 EXTERN char                    loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
 EXTERN char                    loadplayerdir[MAXLOADPLAYER][16];
 EXTERN int                     nullicon  EQ( 0 );
@@ -848,15 +847,8 @@ EXTERN int                     keybicon  EQ( 0 );
 EXTERN int                     mousicon  EQ( 0 );
 EXTERN int                     joyaicon  EQ( 0 );
 EXTERN int                     joybicon  EQ( 0 );
-EXTERN int                     keybplayer  EQ( 0 );
-EXTERN int                     mousplayer  EQ( 0 );
-EXTERN int                     joyaplayer  EQ( 0 );
-EXTERN int                     joybplayer  EQ( 0 );
 
 //Interface stuff
-#define TRIMX 640
-#define TRIMY 480
-
 EXTERN IRect                    iconrect;                   // The 32x32 icon rectangle
 EXTERN IRect                    trimrect;                   // The menu trim rectangle
 
@@ -2209,7 +2201,8 @@ typedef enum script_opcode_e
   F_IfTargetHasNotFullMana,
   F_IfJumping,
   F_IfOperatorIsLinux,
-  F_IfTargetIsOwner                     // Scripted AI functions (v1.05)
+  F_IfTargetIsOwner,                     // Scripted AI functions (v1.05)
+  F_SetCameraSwing
 } OPCODE;
 
 typedef enum script_operation_e
@@ -2348,9 +2341,6 @@ EXTERN Uint32 antialiastrans_fp8  EQ( 0xC0 );
 
 
 //Network Stuff
-//#define CHARVEL 5.0
-
-
 #define MAXPLAYER   (1<<3)                          // 2 to a power...  2^3
 
 EXTERN int               numpla;                                 // Number of players

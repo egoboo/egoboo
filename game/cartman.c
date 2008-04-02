@@ -1,6 +1,7 @@
 #include <stdio.h>			// For printf and such
 #include "egoboo_types.h"
 #include "egoboo.h"
+#include "graphic.h"
 #include "UI.h"
 #include "Log.h"
 #include "Mesh.h"

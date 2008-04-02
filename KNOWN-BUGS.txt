@@ -1,4 +1,5 @@
 - Changing video settings, Save&Return to menu, then returning to video menu shows settings are not changed...
+workaround: restart game to get it correct or change settings manually in setup.txt
 
 - Screenshots don't work (New camera?)
 
@@ -19,3 +20,5 @@ when dropped.
 runs the spellbok burns away when dropped.
 
 - Items inside chests/(inventories?) can still spawn particles. (Still running AI scripts?)
+
+- Hp meters are buggy when changed

@@ -117,7 +117,7 @@ extern float   meshtileoffv[MAXTILETYPE];                          //
 
 bool_t get_mesh_memory();
 void free_mesh_memory();
-void load_mesh_fans();
+bool_t load_mesh_fans();
 void make_fanstart();
 void make_twist();
 bool_t load_mesh( char *modname );

@@ -196,39 +196,39 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\include\enet\enet.h"
+				RelativePath=".\enet.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\list.h"
+				RelativePath=".\list.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\memory.h"
+				RelativePath=".\memory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\protocol.h"
+				RelativePath=".\protocol.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\time.h"
+				RelativePath=".\time.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\types.h"
+				RelativePath=".\types.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\unix.h"
+				RelativePath=".\unix.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\utility.h"
+				RelativePath=".\utility.h"
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\win32.h"
+				RelativePath=".\win32.h"
 				>
 			</File>
 		</Filter>

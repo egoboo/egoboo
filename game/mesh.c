@@ -211,7 +211,7 @@ bool_t load_mesh( char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_mesh_fans()
+bool_t load_mesh_fans()
 {
   // ZZ> This function loads fan types for the terrain
   int cnt, entry;
@@ -239,7 +239,7 @@ void load_mesh_fans()
   if ( NULL == fileread )
   {
     log_message("Failed!\n");
-    return;
+    return bfalse;
   }
 
   log_message("Succeeded!\n");
@@ -331,6 +331,8 @@ void load_mesh_fans()
     meshtileoffv[entry] = offy;
     entry++;
   }
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

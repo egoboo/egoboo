@@ -6245,12 +6245,6 @@ void check_player_import( char *dirname )
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.joybicon_bitmap );
   joybicon = globalnumicon;
   load_one_icon( CStringTmp1 );
-
-
-  keybplayer = 0;
-  mousplayer = 0;
-  joyaplayer = 0;
-  joybplayer = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -7222,7 +7216,7 @@ bool_t md2_calculate_bumpers_2(CHR_REF ichr, vect3 * vrt_ary)
   Uint16 imdl;
   MD2_Model * pmdl;
   vect3 xdir, ydir, zdir;
-  int cnt;
+  Uint32 cnt;
   Uint32  vrt_count;
   bool_t  free_array = bfalse;
 
@@ -7348,7 +7342,7 @@ bool_t md2_calculate_bumpers_3(CHR_REF ichr, CVolume_Tree * cv_tree)
   BData * bd;
   Uint16 imdl;
   MD2_Model * pmdl;
-  int cnt, tnc;
+  Uint32 cnt, tnc;
   Uint32  tri_count, vrt_count;
   vect3 * vrt_ary;
   CVolume *pcv, cv_node[8];
@@ -7549,7 +7543,7 @@ bool_t md2_calculate_bumpers(CHR_REF ichr, int level)
 //--------------------------------------------------------------------------------------------
 void cv_list_draw()
 {
-  int cnt;
+  Uint32 cnt;
 
   for(cnt=0; cnt<cv_list_count; cnt++)
   {

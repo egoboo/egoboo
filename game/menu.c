@@ -143,7 +143,7 @@ static float  mnu_modelAngle = 0;
 static Uint32 mnu_modelIndex = 0;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-const char mnu_copyrightText[] = "Welcome to Egoboo!\nhttp://home.no.net/egoboo\nVersion 2.7.x";
+const char mnu_copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion 2.7.x";
 static int mnu_copyrightLeft = 0;
 static int mnu_copyrightTop  = 0;
 
@@ -326,7 +326,7 @@ static void update_options_data()
   CData.overlayvalid = OData.overlayvalid;
   CData.backgroundvalid = OData.backgroundvalid;
   CData.fogallowed = OData.fogallowed;
-  //CData.particletype = OData.particletype;
+  CData.particletype = OData.particletype;
   //CData.particlelimit = OData.particlelimit;
   CData.autoturncamera = OData.autoturncamera;
 };
@@ -709,7 +709,11 @@ int mnu_doChooseModule( float deltaTime )
   switch ( menuState )
   {
     case MM_Begin:
-      // Load font & background
+
+      //Reload all avalible modules (Hidden ones may pop up after the player has completed one)
+      load_all_menu_images();
+      
+	  // Load font & background
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
@@ -736,6 +740,8 @@ int mnu_doChooseModule( float deltaTime )
           }
         }
       }
+
+	  //Starter modules
       else
       {
         for ( i = 0;i < globalnummodule; i++ )
@@ -1307,6 +1313,7 @@ int mnu_doChoosePlayer( float deltaTime )
 
       if ( mnu_selectedPlayerCount > 0 )
       {
+        load_all_menu_images();		//Reload all avalible modules
         import_selected_players();
         result = 1;
       }
