@@ -2451,7 +2451,7 @@ void move_characters( float dUpdate )
             // Play the jump sound
             if ( INVALID_SOUND != capjumpsound[imdl] )
             {
-              play_sound( 1.0f, chrpos[ichr], capwavelist[imdl][capjumpsound[imdl]], 0 );
+              play_sound( 1.0f, chrpos[ichr], capwavelist[imdl][capjumpsound[imdl]], 0, imdl, capjumpsound[imdl] );
             };
           }
           else if ( chrjumpnumber[ichr] > 0 && ( chrjumpready[ichr] || chrjumpnumberreset[ichr] > 1 ) )
@@ -2473,7 +2473,7 @@ void move_characters( float dUpdate )
               // Play the jump sound (Boing!)
               if ( INVALID_SOUND != capjumpsound[imdl] )
               {
-                play_sound( MIN( 1.0f, chrjump[ichr] / 50.0f ), chrpos[ichr], capwavelist[imdl][capjumpsound[imdl]], 0  );
+                play_sound( MIN( 1.0f, chrjump[ichr] / 50.0f ), chrpos[ichr], capwavelist[imdl][capjumpsound[imdl]], 0, imdl, capjumpsound[imdl] );
               }
             };
 
@@ -2902,7 +2902,7 @@ void move_characters( float dUpdate )
           if ( INVALID_SOUND != capfootfallsound[imdl] )
           {
             float volume = ( ABS( chrvel[ichr].x ) +  ABS( chrvel[ichr].y ) ) / capsneakspd[imdl];
-            play_sound( MIN( 1.0f, volume ), chrpos[ichr], capwavelist[imdl][capfootfallsound[imdl]], 0  );
+            play_sound( MIN( 1.0f, volume ), chrpos[ichr], capwavelist[imdl][capfootfallsound[imdl]], 0, imdl, capfootfallsound[imdl] );
           }
         }
       }
@@ -3773,7 +3773,7 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
 
   chrlevel[object] = chrbmpdata[platform].cv.z_max;
 
-  if ( chrisplayer[object] )
+  if ( chrisplayer[object] && CData.DevMode )
     debug_message( 1, "attached %s(%s) to platform", chrname[object], capclassname[chrmodel[object]] );
 
   return btrue;
@@ -5974,7 +5974,7 @@ int load_one_character_profile( char *szLoadName )
 
   // Experience and level data
   capexperienceforlevel[object][0] = 0;
-  for ( level = 1; level < MAXLEVEL; level++ )
+  for ( level = 1; level < BASELEVELS; level++ )
     { capexperienceforlevel[object][level] = fget_next_int( fileread ); }
 
   fget_next_pair( fileread, &capexperience[object] );

@@ -1583,7 +1583,7 @@ void read_wawalite( char *modname )
 
     // Read extra data
     meshexploremode = fget_next_bool( fileread );
-    usefaredge = fget_next_bool( fileread );
+    //usefaredge = fget_next_bool( fileread );			//Obsolete
     camswing = 0;
     camswingrate = fget_next_float( fileread );
     camswingamp = fget_next_float( fileread );

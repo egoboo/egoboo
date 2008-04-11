@@ -1655,13 +1655,14 @@ int mnu_doAudioOptions( float deltaTime )
         mnu_widgetList[5].text = OData.sz_buffersize;
       }
 
+	  //Save settings button
       if ( BUTTON_UP == ui_doButton( &mnu_widgetList[6] ) )
       {
         //save settings and go back
         mnu_saveSettings();
         if ( OData.musicvalid ) play_music( 0, 0, -1 );
-        else if ( mixeron ) Mix_PauseMusic();
-        if ( !OData.musicvalid && !OData.soundvalid )
+		else if ( OData.soundvalid ) Mix_PauseMusic();
+        else 
         {
           Mix_CloseAudio();
           mixeron = bfalse;

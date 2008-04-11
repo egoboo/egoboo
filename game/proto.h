@@ -136,7 +136,7 @@ void stop_music(int fadetime);
 void load_global_waves( char *modname );
 bool_t sdlmixer_initialize();
 void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_pos, Uint16 ear_turn_lr  );
-int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops  );
+int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber  );
 void stop_sound( int whichchannel );
 void play_music( int songnumber, int fadetime, int loops );
 
@@ -458,7 +458,7 @@ bool_t get_module_data( int modnumber, char *szLoadName );
 bool_t get_module_summary( char *szLoadName );
 void load_all_menu_images();
 void load_blip_bitmap( char * modname );
-void draw_module_tag( int module, int y );
+
 int get_skin( char *filename );
 bool_t check_skills( int who, Uint32 whichskill );
 void check_player_import( char *dirname );

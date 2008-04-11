@@ -111,11 +111,11 @@ void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound )
   //Play local sound or else global (coins for example)
   if ( MAXMODEL != prtmodel[particle] )
   {
-    play_sound( intensity, prtpos[particle], capwavelist[prtmodel[particle]][sound], 0  );
+    play_sound( intensity, prtpos[particle], capwavelist[prtmodel[particle]][sound], 0, prtmodel[particle], sound );
   }
   else
   {
-    play_sound( intensity, prtpos[particle], globalwave[sound], 0  );
+    play_sound( intensity, prtpos[particle], globalwave[sound], 0, prtmodel[particle], sound );
   };
 }
 

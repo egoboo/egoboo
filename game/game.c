@@ -923,7 +923,7 @@ void remove_enchant( Uint16 enchantindex )
   character = enctarget[enchantindex];
   if ( INVALID_SOUND != eveendsound[eve] )
   {
-    play_sound( 1.0f, chrpos_old[character], capwavelist[eve][eveendsound[eve]], 0 );
+    play_sound( 1.0f, chrpos_old[character], capwavelist[eve][eveendsound[eve]], 0, character, eveendsound[eve] );
   };
 
 
@@ -1854,7 +1854,7 @@ void read_setup( char* filename )
   }
 
   //Force openGL hardware acceleration
-  if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "VERTICAL_SYNC", &CData.backgroundvalid ) == 0 )
+  if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "GFX_ACCELERATION", &CData.backgroundvalid ) == 0 )
   {
     CData.gfxacceleration = CData_default.gfxacceleration;
   }
@@ -3937,7 +3937,7 @@ int proc_program( int argc, char **argv )
         net_initialize();
 
         // initialize the sound system
-        sdlmixer_initialize();
+        mixeron = sdlmixer_initialize();
         load_all_music_sounds();
 
         // allocate the maximum amount of mesh memory

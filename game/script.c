@@ -2191,7 +2191,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_aitarget ) )
       {
-        returncode = chralive[loc_aitarget] &&  chrlifemax_fp8[loc_aitarget] > 0 && chrlife_fp8[loc_aitarget] < chrlifemax_fp8[loc_aitarget] - DAMAGE_HURT;
+        returncode = chralive[loc_aitarget] &&  chrlifemax_fp8[loc_aitarget] > 0 && chrlife_fp8[loc_aitarget] < chrlifemax_fp8[loc_aitarget] - MINDAMAGE;
       }
       break;
 
@@ -2205,7 +2205,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( INVALID_SOUND != scr_globals.tmpargument && chrpos_old[ichr].z > PITNOSOUND )
       {
-        returncode = ( INVALID_SOUND != play_sound( 1.0f, chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0  ) );
+        returncode = ( INVALID_SOUND != play_sound( 1.0f, chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0, ichr, scr_globals.tmpargument ) );
       }
       break;
 
@@ -3010,7 +3010,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       if ( moduleActive && (0 <= scr_globals.tmpargument) && (chrpos_old[ichr].z > PITNOSOUND) && (chrloopingchannel[ichr] == INVALID_SOUND))
       {
         //You could use this, but right now there's no way to stop the sound later, so it's better not to start it
-        chrloopingchannel[ichr] = play_sound( 1.0f, chrpos[ichr], capwavelist[loc_model][scr_globals.tmpargument], -1 );
+        chrloopingchannel[ichr] = play_sound( 1.0f, chrpos[ichr], capwavelist[loc_model][scr_globals.tmpargument], -1, loc_model, scr_globals.tmpargument );
         chrloopingvolume[ichr] = 1.0f;
       }
       break;
@@ -3221,7 +3221,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       if ( INVALID_SOUND != scr_globals.tmpargument && scr_globals.tmpdistance >= 0 )
       {
         volume = scr_globals.tmpdistance;
-        returncode = ( INVALID_SOUND != play_sound( MIN( 1.0f, volume / 255.0f ), chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0 ) );
+        returncode = ( INVALID_SOUND != play_sound( MIN( 1.0f, volume / 255.0f ), chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument ) );
       }
       break;
 
@@ -3652,7 +3652,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( INVALID_SOUND != scr_globals.tmpargument )
       {
-        returncode = ( INVALID_SOUND != play_sound( 1.0f, camtrackpos, capwavelist[loc_model][scr_globals.tmpargument], 0  ) );
+        returncode = ( INVALID_SOUND != play_sound( 1.0f, camtrackpos, capwavelist[loc_model][scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument ) );
       }
       break;
 
@@ -4237,7 +4237,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_aitarget ) )
       {
-        returncode = chralive[loc_aitarget] && chrmanamax_fp8[loc_aitarget] > 0 && chrmana_fp8[loc_aitarget] < chrmanamax_fp8[loc_aitarget] - DAMAGE_HURT;
+        returncode = chralive[loc_aitarget] && chrmanamax_fp8[loc_aitarget] > 0 && chrmana_fp8[loc_aitarget] < chrmanamax_fp8[loc_aitarget] - MINDAMAGE;
       };
       break;
 

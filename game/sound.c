@@ -38,7 +38,6 @@ bool_t sdlmixer_initialize()
     }
     else log_message( "Succeeded!\n" );
 
-    mixeron = btrue;
     return btrue;
   }
   else return bfalse;
@@ -98,7 +97,7 @@ void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_po
 
 };
 
-int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops )
+int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber )
 {
   // This function plays a specified sound
 
@@ -106,7 +105,7 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops )
 
   if ( loadedwave == NULL )
   {
-    log_warning( "Sound file not correctly loaded (Not found?).\n" );
+    log_warning( "Sound file not correctly loaded (Not found?), Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
     return INVALID_CHANNEL;
   }
 
@@ -114,7 +113,7 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops )
 
   if( INVALID_CHANNEL == channel )
   {
-    log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
+    log_warning( "All sound channels are currently in use. Sound is NOT playing. Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
   }
   else
   {

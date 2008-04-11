@@ -22,3 +22,11 @@ runs the spellbok burns away when dropped.
 - Items inside chests/(inventories?) can still spawn particles. (Still running AI scripts?)
 
 - Hp meters are buggy when changed
+
+- "killed" objects still run AI scripts.
+
+- The options menu is buggy. It doesnt save and sometimes load settings correctly.
+workaround: change settings manually in setup.txt (altough opening the setup menu will change
+some settings, even if you do not specify it to do so)
+
+- SetTargetToNearestBlahID doesn't work correctly. It targets anything.

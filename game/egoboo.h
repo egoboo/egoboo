@@ -109,8 +109,8 @@ EXTERN Uint16  endtextindex[8];
 
 #define LOWSTAT             INT_TO_FP8(  1)      // Worst...
 #define PERFECTSTAT         INT_TO_FP8( 75)      // Perfect...
-#define HIGHSTAT            INT_TO_FP8( 99)      // Absolute MAX strength...
-#define PERFECTBIG          INT_TO_FP8(127)      // Perfect life or mana...
+#define HIGHSTAT            INT_TO_FP8( 99)      // Absolute MAX strength... (Magic boosts, etc.)
+#define PERFECTBIG          INT_TO_FP8(125)      // Perfect life or mana...
 #define MINDAMAGE           INT_TO_FP8(  1)      // Minimum damage for hurt animation
 #define MSGDISTANCE         2000                 // Range for SendMessageNear
 
@@ -141,9 +141,7 @@ typedef enum gender_e
   GEN_RANDOM,
 } GENDER;
 
-#define RETURNAND           63                      // Return mana every so often
-#define MANARETURNSHIFT     4                       //
-#define DAMAGE_HURT         INT_TO_FP8(1)           // 1 point of damage == hurt
+#define MANARETURNSHIFT     4                       // Tweak for making mana return balanced
 
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
 #define MAXSTAT             16                      // Maximum status displays
@@ -173,8 +171,6 @@ typedef enum mad_effects_bits_e
   MADFX_POOF           = 1 << 11                     // P  Poof
 } MADFX_BITS;
 
-#define GRABSIZE            90.0                    // Grab tolerance
-
 typedef enum lip_transition_e
 {
   LIPT_DA = 0,                                  // For smooth transitions 'tween
@@ -183,8 +179,6 @@ typedef enum lip_transition_e
   LIPT_WC,                                      //
   LIPT_COUNT
 } LIPT;
-
-#define NULLICON            0                       // Empty hand image
 
 #define MAXPRTPIP           1024                    // Particle templates
 
@@ -237,7 +231,7 @@ typedef enum damage_e
 #define MAXSTOR             8                       // Storage data
 #define STORAND             7                       //
 
-#define MAXWAY              8                       // Waypoints
+#define MAXWAY              8                       // Max number of Waypoints
 #define WAYTHRESH           128                     // Threshold for reaching waypoint
 #define MAXLINESIZE         1024                    //
 #define MAXAI               129                     //
@@ -246,7 +240,7 @@ typedef enum damage_e
 #define AISMAXCOMPILESIZE   (MAXAI*MAXCODE)         // For parsing AI scripts
 
 #define MAXCAPNAMESIZE      32                      // Character class names
-#define MAXLEVEL            6                       // Levels 0-5
+#define BASELEVELS          6                       // The first 0-5 base levels
 
 typedef enum idsz_index_e
 {
@@ -424,20 +418,23 @@ typedef enum latch_button_e
 #define TICKX                           8           // X size of each tick
 #define MAXTICK                         (NUMTICK*5) // Max number of ticks to draw
 
+//------------------------
+//Camera Stuff
+//------------------------
 #define TURNSPD                         .01         // Cutoff for turning or same direction
 #define CAMKEYTURN                      5           // Keyboard camera rotation
 #define CAMJOYTURN                      5           // Joystick camera rotation
-
 
 // Multi cam
 #define MINZOOM                         100         // Camera distance
 #define MAXZOOM                         600         //
 #define MINZADD                         100         // Camera height
 #define MAXZADD                         3000
-//#define MINUPDOWN                       (.18*PI)//(.24*PI)    // Camera updown angle
-//#define MAXUPDOWN                       (.18*PI)
 
 
+//------------------------
+//Model Stuff
+//------------------------
 #define MD2START                        0x32504449  // MD2 files start with these four bytes
 #define MD2MAXLOADSIZE                  (512*1024)  // Don't load any models bigger than 512k
 #define EQUALLIGHTINDEX                 162         // I added an extra index to do the spikey mace...
@@ -460,6 +457,7 @@ typedef enum latch_button_e
 #define MAXDYNA                         8           // Number of dynamic lights
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
 
+// Object slots
 typedef enum slot_e
 {
   SLOT_LEFT,
@@ -476,7 +474,6 @@ typedef enum slot_e
 } SLOT;
 
 EXTERN SLOT _slot;
-
 #define GRIP_SIZE                        4
 #define GRIP_VERTICES                    (2*GRIP_SIZE)   // Each model has 8 grip vertices
 typedef enum grip_e
@@ -499,6 +496,7 @@ GRIP slot_to_grip( SLOT s );
 Uint16 slot_to_latch( Uint16 object, SLOT s );
 Uint16 slot_to_offset( SLOT s );
 
+
 #define CHOPPERMODEL                    32          //
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
 #define MAXCHOP                         (MAXMODEL*CHOPPERMODEL)
@@ -507,12 +505,6 @@ Uint16 slot_to_offset( SLOT s );
 
 
 
-typedef enum particle_type
-{
-  PRTTYPE_LIGHT = 0,                         // Magic effect particle
-  PRTTYPE_SOLID,                             // Sprite particle
-  PRTTYPE_ALPHA,                             // Smoke particle
-} PRTTYPE;
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000.0f
@@ -531,12 +523,13 @@ typedef enum particle_type
 #define STOPBOUNCINGPART                1.0f         // To make particles stop bouncing
 
 #define TRANSCOLOR                      0           // Transparent color
-#define DELAY_BORE                        (rand()&255)+120
-#define DELAY_CAREFUL                     50
+#define DELAY_BORE                      (rand()&255)+120
+#define DELAY_CAREFUL                   50
 #define REEL                            7600.0      // Dampen for melee knock back
 #define REELBASE                        .35         //
 
 
+// Tile animation
 EXTERN int    animtileupdateand  EQ( 7 );                        // New tile every 7 frames
 EXTERN Uint16 animtileframeand  EQ( 3 );              // Only 4 frames
 EXTERN Uint16 animtilebaseand  EQ( 0xfffc );          //
@@ -567,7 +560,7 @@ typedef enum team_e
   TEAM_EVIL            = 'E' -'A',                      // E
   TEAM_GOOD            = 'G' -'A',                      // G
   TEAM_NULL            = 'N' -'A',                      // N
-  TEAM_ZIPPY           = 'Z' -'A',
+  TEAM_ZIPPY           = 'Z' -'A',						// Z
   TEAM_DAMAGE,                                          // For damage tiles
   TEAM_COUNT                                              // Teams A-Z, +1 more for damage tiles
 } TEAM;
@@ -642,8 +635,6 @@ EXTERN bool_t                    keyon  EQ( btrue );                // Is the ke
 EXTERN bool_t                    joyaon  EQ( bfalse );               // Is the holy joystick alive?
 EXTERN bool_t                    joybon  EQ( bfalse );               // Is the other joystick alive?
 EXTERN bool_t                    serviceon  EQ( bfalse );        // Do I need to free the interface?
-//EXTERN bool_t                    menuaneeded  EQ(bfalse);         // Give them MENUA?
-//EXTERN bool_t                    menuactive  EQ(bfalse);         // Menu running?
 EXTERN bool_t                    hostactive  EQ( bfalse );       // Hosting?
 EXTERN bool_t                    readytostart;               // Ready to hit the Start Game button?
 EXTERN bool_t                    waitingforplayers;          // Has everyone talked to the host?
@@ -693,9 +684,9 @@ EXTERN int                     cursory  EQ( 0 );              //
 EXTERN float                   mouselatcholdx  EQ( 0 );       // For sustain
 EXTERN float                   mouselatcholdy  EQ( 0 );       //
 EXTERN Uint8                   mousebutton[MOUSEBUTTON];             // Mouse button states
-EXTERN bool_t                    pressed EQ( 0 );                //
-EXTERN bool_t                    clicked EQ( 0 );                //
-EXTERN bool_t         pending_click EQ( 0 );
+EXTERN bool_t                  pressed EQ( 0 );                //
+EXTERN bool_t                  clicked EQ( 0 );                //
+EXTERN bool_t				   pending_click EQ( 0 );
 // EWWWW. GLOBALS ARE EVIL.
 
 //Input Control
@@ -704,11 +695,11 @@ EXTERN bool_t         pending_click EQ( 0 );
 //EXTERN char                    keypress[256];              // Keyboard new hits
 EXTERN float                   joyax  EQ( 0 );                // Joystick A
 EXTERN float                   joyay  EQ( 0 );                //
-EXTERN Uint8           joyabutton[JOYBUTTON];      //
+EXTERN Uint8				   joyabutton[JOYBUTTON];      //
 EXTERN float                   joybx  EQ( 0 );                // Joystick B
 EXTERN float                   joyby  EQ( 0 );                //
-EXTERN Uint8           joybbutton[JOYBUTTON];      //
-EXTERN Uint8           msb, jab, jbb;              // Button masks
+EXTERN Uint8				   joybbutton[JOYBUTTON];      //
+EXTERN Uint8				   msb, jab, jbb;              // Button masks
 
 
 //Weather and water gfx
@@ -753,9 +744,9 @@ extern vect3                   lightambicol;
 
 //Fog stuff
 EXTERN bool_t          fogon  EQ( bfalse );            // Do ground fog?
-EXTERN float                   fogbottom  EQ( 0.0 );          //
-EXTERN float                   fogtop  EQ( 100 );             //
-EXTERN float                   fogdistance  EQ( 100 );        //
+EXTERN float           fogbottom  EQ( 0.0 );          //
+EXTERN float           fogtop  EQ( 100 );             //
+EXTERN float           fogdistance  EQ( 100 );        //
 EXTERN Uint8           fogred  EQ( 255 );             //  Fog collour
 EXTERN Uint8           foggrn  EQ( 255 );             //
 EXTERN Uint8           fogblu  EQ( 255 );             //
@@ -763,7 +754,6 @@ EXTERN bool_t          fogaffectswater;
 
 
 //Camera control stuff
-
 EXTERN int                     camswing  EQ( 0 );             // Camera swingin'
 EXTERN int                     camswingrate  EQ( 0 );         //
 EXTERN float                   camswingamp  EQ( 0 );          //
@@ -852,25 +842,25 @@ EXTERN int                     joybicon  EQ( 0 );
 EXTERN IRect                    iconrect;                   // The 32x32 icon rectangle
 EXTERN IRect                    trimrect;                   // The menu trim rectangle
 
-EXTERN int                       fontoffset;                 // Line up fonts from top of screen
-EXTERN SDL_Rect              fontrect[NUMFONT];          // The font rectangles
-EXTERN Uint8                fontxspacing[NUMFONT];      // The spacing stuff
-EXTERN Uint8                fontyspacing;               //
+EXTERN int                      fontoffset;                 // Line up fonts from top of screen
+EXTERN SDL_Rect					fontrect[NUMFONT];          // The font rectangles
+EXTERN Uint8					fontxspacing[NUMFONT];      // The spacing stuff
+EXTERN Uint8					fontyspacing;               //
 
 EXTERN IRect                    tabrect[NUMBAR];            // The tab rectangles
 
 EXTERN IRect                    barrect[NUMBAR];            // The bar rectangles
 
 EXTERN IRect                    bliprect[NUMBAR];           // The blip rectangles
-EXTERN Uint16                    blipwidth;
-EXTERN Uint16                    blipheight;
+EXTERN Uint16                   blipwidth;
+EXTERN Uint16                   blipheight;
 
-EXTERN float                     mapscale EQ( 1.0 );
+EXTERN float                    mapscale EQ( 1.0 );
 EXTERN IRect                    maprect;                    // The map rectangle
 
-#define SPARKLESIZE 28
-#define SPARKLEADD 2
-#define MAPSIZE 96
+#define SPARKLESIZE 28			//Size of blips and sparkles
+#define SPARKLEADD 2			//Time between sparkling
+#define MAPSIZE 96				//Minimap size
 
 //Lightning effects
 EXTERN int                     numdynalight;               // Number of dynamic lights
@@ -879,13 +869,13 @@ EXTERN int                     dynadistance[MAXDYNA];      // The distances
 EXTERN vect3                   dynalightlist[MAXDYNA];    // Light position
 EXTERN float                   dynalightlevel[MAXDYNA];    // Light level
 EXTERN float                   dynalightfalloff[MAXDYNA];  // Light falloff
-EXTERN Uint8               lightdirectionlookup[UINT16_SIZE];// For lighting characters
+EXTERN Uint8				   lightdirectionlookup[UINT16_SIZE];// For lighting characters
 EXTERN float                   spek_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
 EXTERN float                   spek_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
-EXTERN Uint8               cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
+EXTERN Uint8				   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
-EXTERN Uint32       maptwist_lr[256];            // For surface normal of mesh
-EXTERN Uint32        maptwist_ud[256];            //
+EXTERN Uint32          maptwist_lr[256];            // For surface normal of mesh
+EXTERN Uint32          maptwist_ud[256];            //
 EXTERN vect3           mapnrm[256];                // For sliding down steep hills
 EXTERN bool_t          maptwistflat[256];             //
 
@@ -899,6 +889,7 @@ typedef enum order_t
   MESSAGE_ENTERPASSAGE
 } ORDER;
 
+//Colors of blips and sparkles
 typedef enum color_e
 {
   COLOR_WHITE = 0,
@@ -909,6 +900,7 @@ typedef enum color_e
   COLOR_PURPLE
 } COLOR;
 
+//AI movement constants
 typedef enum move_t
 {
   MOVE_MELEE = 300,
@@ -1235,7 +1227,7 @@ EXTERN bool_t     chrcandisarm[MAXCHR];               // Disarm and find traps [
 EXTERN bool_t     chrcanbackstab[MAXCHR];             // Backstab and murder [STAB]
 EXTERN bool_t     chrcanuseadvancedweapons[MAXCHR];   // Advanced weapons usage [AWEP]
 EXTERN bool_t     chrcanusepoison[MAXCHR];            // Use poison without err [POIS]
-EXTERN bool_t     chrcanread[MAXCHR];     // Can read books and scrolls
+EXTERN bool_t     chrcanread[MAXCHR];				  // Can read books and scrolls
 // [END]  Skill Expansions
 
 void calc_cap_experience( Uint16 object );
@@ -1245,8 +1237,8 @@ float calc_chr_level( Uint16 object );
 #define SEEKURSEAND         31                      // Blacking flash
 #define SEEINVISIBLE        128                     // Cutoff for invisible characters
 #define INVISIBLE           20                      // The character can't be detected
-EXTERN bool_t                    localseeinvisible;
-EXTERN bool_t                    localseekurse;
+EXTERN bool_t               localseeinvisible;		// Someone in the vincinity can see invisible
+EXTERN bool_t               localseekurse;			// ditto above, just kurses instead
 
 
 //------------------------------------
@@ -1361,6 +1353,13 @@ typedef enum disenchant_mode_e
 //------------------------------------
 //Particle variables
 //------------------------------------
+typedef enum particle_type
+{
+  PRTTYPE_LIGHT = 0,                         // Magic effect particle
+  PRTTYPE_SOLID,                             // Sprite particle
+  PRTTYPE_ALPHA,                             // Smoke particle
+} PRTTYPE;
+
 #define SPAWN_NOCHARACTER        255                 // For particles that spawn characters...
 
 EXTERN float           textureoffset[256];         // For moving textures
@@ -1483,8 +1482,9 @@ EXTERN Uint16          madactionend[MAXMODEL][MAXACTION];          // One past l
 EXTERN Uint16          madprtpip[MAXMODEL][PRTPIP_PEROBJECT_COUNT];    // Local particles
 
 
+//------------------------
 // Character profiles
-
+//------------------------
 #define CAP_INHERIT_IDSZ(model,idsz) (capidsz[model][IDSZ_PARENT] == (IDSZ)(idsz) || capidsz[model][IDSZ_TYPE] == (IDSZ)(idsz))
 #define CAP_INHERIT_IDSZ_RANGE(model,idszmin,idszmax) ( (capidsz[model][IDSZ_PARENT] >= (IDSZ)(idszmin && capidsz[model][IDSZ_PARENT] <= (IDSZ)(idszmax))) || (capidsz[model][IDSZ_TYPE] >= (IDSZ)(idszmin && capidsz[model][IDSZ_TYPE] <= (IDSZ)(idszmax))) )
 
@@ -1554,7 +1554,7 @@ EXTERN Uint16        capiframefacing[MAXMODEL];                  // Invincibilit
 EXTERN Uint16        capiframeangle[MAXMODEL];                   //
 EXTERN Uint16        capnframefacing[MAXMODEL];                  // Normal frame
 EXTERN Uint16        capnframeangle[MAXMODEL];                   //
-EXTERN int           capexperienceforlevel[MAXMODEL][MAXLEVEL];  // Experience needed for next level
+EXTERN int           capexperienceforlevel[MAXMODEL][BASELEVELS];  // Experience needed for next level
 EXTERN float         capexperienceconst[MAXMODEL];
 EXTERN float         capexperiencecoeff[MAXMODEL];
 EXTERN PAIR          capexperience[MAXMODEL];                    // Starting experience
@@ -1726,7 +1726,7 @@ DEFINE_GUID(NETWORKID, 0xa0f72de8, 0x2c17, 0x11d3, 0xb7, 0xfe, 0x44, 0x45, 0x53,
 #define NETNAMESIZE 16
 #define MAXSESSION 16
 #define MAXNETPLAYER 8
-EXTERN Uint32      randsave;         //Used in network timer
+EXTERN Uint32				   randsave;         //Used in network timer
 EXTERN int                     networkservice;
 EXTERN int                     numservice  EQ( 0 );                           // How many we found
 EXTERN char                    netservicename[MAXSERVICE][NETNAMESIZE];    // Names of services
@@ -1746,6 +1746,7 @@ EXTERN float           lighttoenviroy[256];                                // En
 EXTERN Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
 
 
+//Physics
 EXTERN float           hillslide  EQ( 1.00 );                                 //
 EXTERN float           slippyfriction  EQ( 1.00 );   //1.05 for Chevron          // Friction
 EXTERN float           airfriction  EQ( .95 );                                //
@@ -1753,7 +1754,6 @@ EXTERN float           waterfriction  EQ( .85 );                              //
 EXTERN float           noslipfriction  EQ( 0.95 );                            //
 EXTERN float           platstick  EQ( .040 );                                 //
 EXTERN float           gravity  EQ(( float ) - 1.0 );                         // Gravitational accel
-
 
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 
@@ -1766,17 +1766,14 @@ EXTERN int     search_bestdistance;
 EXTERN CHR_REF search_nearest;
 EXTERN float   search_distance;
 
-
-
-
 EXTERN Uint8   asciitofont[256];                                   // Conversion table
 
 
 // Display messages
 EXTERN Uint16  msgtimechange EQ( 0 );                                  //
 EXTERN Uint16  msgstart EQ( 0 );                                       // The message queue
-EXTERN Sint16    msgtime[MAXMESSAGE];                                //
-EXTERN char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];            // The displayed text
+EXTERN Sint16  msgtime[MAXMESSAGE];                                //
+EXTERN char    msgtextdisplay[MAXMESSAGE][MESSAGESIZE];            // The displayed text
 
 
 // Message files
@@ -1801,15 +1798,15 @@ EXTERN int endtextwrite;
 
 // This is for random naming
 EXTERN Uint16          numchop  EQ( 0 );              // The number of name parts
-EXTERN Uint32            chopwrite  EQ( 0 );            // The data pointer
-EXTERN char                    chopdata[CHOPDATACHUNK];    // The name parts
+EXTERN Uint32          chopwrite  EQ( 0 );            // The data pointer
+EXTERN char            chopdata[CHOPDATACHUNK];    // The name parts
 EXTERN Uint16          chopstart[MAXCHOP];         // The first character of each part
 EXTERN Uint16          capsectionsize[MAXMODEL][MAXSECTION];   // Number of choices, 0
 EXTERN Uint16          capsectionstart[MAXMODEL][MAXSECTION];  //
-EXTERN char                    namingnames[MAXCAPNAMESIZE];// The name returned by the function
+EXTERN char            namingnames[MAXCAPNAMESIZE];// The name returned by the function
 
 // These are for the AI script loading/parsing routines
-extern int                     iNumAis;
+extern int                   iNumAis;
 #define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
 #define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
 #define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
@@ -1852,6 +1849,8 @@ typedef enum alert_bits_e
   ALERT_TAKENOUT                   = 1 << 31
 } ALERT_BITS;
 
+
+//All the AI functions
 typedef enum script_opcode_e
 {
   F_IfSpawned = 0, // 0                     // Scripted AI functions (v0.10)
@@ -2185,7 +2184,7 @@ typedef enum script_opcode_e
   F_SpawnExactParticleEndSpawn, // 328
   F_SpawnPoofSpeedSpacingDamage, // 329
   F_GiveExperienceToGoodTeam,           // 330
-  F_DoNothing,                          // 331 : Scripted AI functions (v0.95)
+  F_DoNothing,                          // Scripted AI functions (v0.95)
   F_DazeTarget,                         // 332
   F_GrogTarget,                         // 333
   F_IfEquipped,                         //
@@ -2198,11 +2197,11 @@ typedef enum script_opcode_e
   F_AddQuest,                           // Scripted AI functions (v1.00)
   F_BeatQuest,                          //
   F_IfTargetHasQuest,                   //
-  F_IfTargetHasNotFullMana,
-  F_IfJumping,
-  F_IfOperatorIsLinux,
-  F_IfTargetIsOwner,                     // Scripted AI functions (v1.05)
-  F_SetCameraSwing
+  F_IfTargetHasNotFullMana,				//
+  F_IfJumping,							//
+  F_IfOperatorIsLinux,					//
+  F_IfTargetIsOwner,                    // Scripted AI functions (v1.05)
+  F_SetCameraSwing						//
 } OPCODE;
 
 typedef enum script_operation_e
@@ -2368,10 +2367,10 @@ EXTERN bool_t         mixeron EQ( bfalse );           //Is the SDL_Mixer loaded?
 #define MAXWAVE         16                            // Up to 16 waves per model
 #define VOLMIN          -4000                         // Minumum Volume level
 #define VOLUMERATIO     7                             // Volume ratio
-EXTERN Mix_Chunk  *capwavelist[MAXMODEL][MAXWAVE];    //sounds in a object
-EXTERN Mix_Chunk  *globalwave[MAXWAVE];               //All sounds loaded into memory
-EXTERN Mix_Chunk  *wave;                             //Used for playing one selected sound file
-EXTERN int         channel;                           //Which channel the current sound is using
+EXTERN Mix_Chunk	  *capwavelist[MAXMODEL][MAXWAVE];    //sounds in a object
+EXTERN Mix_Chunk	  *globalwave[MAXWAVE];               //All sounds loaded into memory
+EXTERN Mix_Chunk	  *wave;                             //Used for playing one selected sound file
+EXTERN int			  channel;                           //Which channel the current sound is using
 
 #define INVALID_SOUND   (-1)
 #define INVALID_CHANNEL (-1)
@@ -2645,7 +2644,7 @@ typedef struct configurable_data_t
 
 } CONFIG_DATA;
 
-EXTERN bool_t          usefaredge;                     // Far edge maps? (Outdoor)
+//EXTERN bool_t          usefaredge; //obsolete                    // Far edge maps? (Outdoor)
 EXTERN float		   doturntime;                     // Time for smooth turn
 
 EXTERN STRING      CStringTmp1, CStringTmp2;
