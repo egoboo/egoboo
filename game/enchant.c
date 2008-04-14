@@ -320,7 +320,6 @@ void damage_character( CHR_REF character, Uint16 direction,
                 }
                 tnc++;
               }
-
               // The team now has no leader
               teamleader[chrteam[character]] = search_best_leader( chrteam[character], character );
             }
@@ -333,7 +332,7 @@ void damage_character( CHR_REF character, Uint16 direction,
             for ( tnc = 0; tnc < MAXWAVE; tnc++ )
             {
               //TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-              stop_sound(chrmodel[character]);
+              //stop_sound(chrmodel[character]);
             }
 
             // Afford it one last thought if it's an AI

@@ -50,7 +50,7 @@ void draw_CVolume( CVolume * cv );
 void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
 {
   const MD2_Frame *pfrom, *pto;
-  Uint32 numVertices, i;
+  Sint32 numVertices, i;
   vect2  off;
   Uint16 imdl;
   MD2_Model * pmdl;

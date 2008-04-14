@@ -1,5 +1,6 @@
-// mac-file.c
-
+/* Egoboo - mac-file.c
+*  Windows specific filesystem functions.
+*/
 /*
     This file is part of Egoboo.
 

@@ -4840,8 +4840,9 @@ void let_ai_think( float dUpdate )
     };
 
     // Do not exclude items in packs. In NetHack, eggs can hatch while in your pack...
-    if ( !chr_in_pack( character ) || chralive[character] )
-    {
+    //if ( !chr_in_pack( character ) || chralive[character] )  //Todo: This will need to be handled differently...
+    if ( !chr_in_pack( character ) && chralive[character] )    //      we do not want all objects in pack run AI scripts
+    {														   //      (Only the one that really need it, such as eggs)
       allow_thinking = btrue;
     }
 

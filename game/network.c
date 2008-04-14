@@ -876,8 +876,11 @@ void net_initialize()
 //--------------------------------------------------------------------------------------------
 void net_shutDown()
 {
-  log_info( "net_shutDown: Turning off networking.\n" );
-  enet_deinitialize();
+  if ( CData.networkon )
+  {
+	  log_info( "net_shutDown: Turning off networking.\n" );
+	  enet_deinitialize();
+  }
 }
 
 //--------------------------------------------------------------------------------------------

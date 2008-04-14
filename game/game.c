@@ -1,5 +1,6 @@
 /* Egoboo - game.c
-*/
+ * The main game loop and functions
+ */
 
 /*
 This file is part of Egoboo.
@@ -38,11 +39,6 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-
-
-#define INITGUID
-#define NAME "Boo"
-#define TITLE "Boo"
 
 #define RELEASE(x) if (x) {x->Release(); x=NULL;}
 
@@ -111,19 +107,21 @@ ACTION what_action( char cTmp )
 bool_t memory_cleanUp()
 {
   //ZF> This function releases all loaded things in memory and cleans up everything properly
-  bool_t result = bfalse;
-
-  close_session();       //Turn off networking
-  if ( moduleActive ) release_module(); //Remove memory loaded by a module
+  log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
+  gameActive = bfalse;
+  
+  close_session();					  //Turn off networking
+  release_module();					  //Remove memory loaded by a module
   if ( mixeron ) Mix_CloseAudio();    //Close audio systems
-  ui_shutdown();       //Shut down support systems
+  ui_shutdown();			          //Shutdown various support systems
   net_shutDown();
   clock_shutdown( g_clk_state );
   sys_shutdown();
-  SDL_Quit();        //Quit SDL
+  free_mesh_memory();				  //Free the mesh memory
+  SDL_Quit();						  //Quit main SDL
 
-  result = btrue;
-  return result;  //Todo: Need to do a check here if the functions above worked
+  log_message("Success!\n");
+  return btrue;
 }
 
 //------------------------------------------------------------------------------
@@ -155,59 +153,6 @@ void make_newloadname( char *modname, char *appendname, char *newloadname )
   newloadname[cnt] = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-void load_global_waves( char *modname )
-{
-  // ZZ> This function loads the global waves
-  STRING tmploadname, newloadname;
-  int cnt;
-
-  if ( CData.soundvalid )
-  {
-    // load in the sounds local to this module
-    snprintf( tmploadname, sizeof( tmploadname ), "%s%s/", modname, CData.gamedat_dir );
-    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
-    {
-      snprintf( newloadname, sizeof( newloadname ), "%ssound%d.wav", tmploadname, cnt );
-      globalwave[cnt] = Mix_LoadWAV( newloadname );
-    };
-
-    //These sounds are always standard, but DO NOT override sounds that were loaded local to this module
-    if ( NULL == globalwave[GSOUND_COINGET] )
-    {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
-      globalwave[GSOUND_COINGET] = Mix_LoadWAV( CStringTmp1 );
-    };
-
-    if ( NULL == globalwave[GSOUND_DEFEND] )
-    {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
-      globalwave[GSOUND_DEFEND] = Mix_LoadWAV( CStringTmp1 );
-    }
-
-    if ( NULL == globalwave[GSOUND_COINFALL] )
-    {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
-      globalwave[GSOUND_COINFALL] = Mix_LoadWAV( CStringTmp1 );
-    };
-  }
-
-  /*  The Global Sounds
-  * 0 - Pick up coin
-  * 1 - Defend clank
-  * 2 - Weather Effect
-  * 3 - Hit Water tile (Splash)
-  * 4 - Coin falls on ground
-
-  //These new values todo should determine sound and particle effects (examples below)
-  Weather Type: DROPS, RAIN, SNOW, LAVABUBBLE (Which weather effect to spawn)
-  Water Type: LAVA, WATER, DARK (To determine sound and particle effects)
-
-  //We shold also add standard particles that can be used everywhere (Located and
-  //loaded in globalparticles folder) such as these below.
-  Particle Effect: REDBLOOD, SMOKE, HEALCLOUD
-  */
-}
 
 
 //---------------------------------------------------------------------------------------------
@@ -311,6 +256,10 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
     snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.credits_file );
     fs_copyFile( fromfile, tofile );
 
+	snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.quest_file );
+    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.quest_file );
+    fs_copyFile( fromfile, tofile );
+
 
     // Copy all of the particle files
     tnc = 0;
@@ -324,7 +273,6 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
 
 
     // Copy all of the sound files
-
     for ( tnc = 0; tnc < MAXWAVE; tnc++ )
     {
       snprintf( fromfile, sizeof( fromfile ), "%s/sound%d.wav", fromdir, tnc );
@@ -405,7 +353,7 @@ void quit_module( void )
   hostactive = bfalse;
   export_all_local_players();
   gamepaused = bfalse;
-  if ( CData.soundvalid ) Mix_FadeOutChannel( -1, 500 );    //Stop all sounds that are playing
+  stop_sound(-1);    //Stop all sounds that are playing
 }
 
 //--------------------------------------------------------------------------------------------
@@ -415,17 +363,12 @@ void quit_game( void )
 
   log_info( "Exiting Egoboo %s the good way...\n", VERSION );
 
-  if ( gameActive )
-  {
-    gameActive = bfalse;
-  }
-
   if ( moduleActive )
   {
     quit_module();
   }
 
-  free_mesh_memory();
+  memory_cleanUp();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -474,13 +417,6 @@ bool_t fgoto_colon_yesno( FILE* fileread )
 //--------------------------------------------------------------------------------------------
 //Tag Reading---------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void reset_tags()
-{
-  //This function resets the tags
-  numscantag = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 int read_tag( FILE *fileread )
 {
   // ZZ> This function finds the next tag, returning btrue if it found one
@@ -502,7 +438,7 @@ void read_all_tags( char *szFilename )
   // ZZ> This function reads the scancode.txt file
   FILE* fileread;
 
-  reset_tags();
+  numscantag = 0;	//Reset the tags first
   fileread = fs_fileOpen( PRI_WARN, NULL, szFilename, "r" );
   if ( NULL == fileread )
   {
@@ -519,7 +455,7 @@ int tag_value( char *string )
 {
   // ZZ> This function matches the string with its tag, and returns the value...
   //     It will return 255 if there are no matches.
-  int cnt;
+  Uint32 cnt;
 
   cnt = 0;
   while ( cnt < numscantag )
@@ -2977,11 +2913,7 @@ void give_experience( CHR_REF character, int amount, EXPERIENCE xptype )
     if ( chrisplayer[character] )
     {
       debug_message( 1, "%s gained a level!!!", chrname[character] );
-
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.lvlup_sound );
-      wave = Mix_LoadWAV( CStringTmp1 );
-
-      Mix_PlayChannel( -1, wave, 0 );
+	  play_sound(1.0f, chrpos[character], globalwave[GSOUND_LEVELUP], 0, character, GSOUND_LEVELUP);
     }
     chrexperiencelevel[character]++;
 
@@ -3938,7 +3870,7 @@ int proc_program( int argc, char **argv )
 
         // initialize the sound system
         mixeron = sdlmixer_initialize();
-        load_all_music_sounds();
+		musicinmemory = load_all_music_sounds();
 
         // allocate the maximum amount of mesh memory
         if ( !get_mesh_memory() )
@@ -4194,7 +4126,6 @@ int proc_program( int argc, char **argv )
         PROFILE_FREE( move_water );
 
         quit_game();
-        if ( !memory_cleanUp() ) log_message( "WARNING! COULD NOT CLEAN MEMORY AND SHUTDOWN SUPPORT SYSTEMS!!\n" );
       }
       retval = -1;
       procState = PROC_Begin;
@@ -5309,6 +5240,7 @@ bool_t fget_next_name( FILE* fileread, char *szName, size_t lnName )
 //--------------------------------------------------------------------------------------------
 int fget_int( FILE* fileread )
 {
+  // This reads the first integer found in a file and returns it
   int iTmp = 0;
 
   if ( feof( fileread ) ) return iTmp;

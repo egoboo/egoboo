@@ -76,7 +76,7 @@ typedef enum respawn_mode_e
   RESPAWN_ANYTIME
 } RESPAWN_MODE;
 
-#define DELAY_RESIZE            50                      // Time it takes to resize a character
+#define DELAY_RESIZE         50                      // Time it takes to resize a character
 #define WATCHMIN            .01                     //
 
 #define PRTLEVELFIX         20                      // Fix for shooting over cliffs
@@ -963,8 +963,8 @@ typedef struct vertex_data_blended_t
 {
   Uint32  frame0;
   Uint32  frame1;
-  Uint32  vrtmin;
-  Uint32  vrtmax;
+  Sint32  vrtmin;
+  Sint32  vrtmax;
   float   lerp;
   bool_t  needs_lighting;
 
@@ -1080,7 +1080,7 @@ EXTERN float           chrmaxaccel[MAXCHR];        // Maximum acceleration
 EXTERN float           chrscale[MAXCHR];           // Character's size (useful)
 EXTERN float           chrfat[MAXCHR];             // Character's size (legible)
 EXTERN float           chrsizegoto[MAXCHR];        // Character's size goto ( legible )
-EXTERN float           chrsizegototime[MAXCHR];    // Time left in siez change
+EXTERN float           chrsizegototime[MAXCHR];    // Time left in size change
 EXTERN float           chrdampen[MAXCHR];          // Bounciness
 EXTERN float           chrbumpstrength[MAXMODEL];  // ghost-like interaction with objects?
 EXTERN float           chrlevel[MAXCHR];           // Height under character
@@ -1096,7 +1096,7 @@ EXTERN Uint16          chruoffset_fp8[MAXCHR];         // For moving textures
 EXTERN Uint16          chrvoffset_fp8[MAXCHR];         //
 EXTERN Uint16          chruoffvel[MAXCHR];         // Moving texture speed
 EXTERN Uint16          chrvoffvel[MAXCHR];         //
-EXTERN Uint16          chrturn_lr[MAXCHR];   // Character's rotation 0 to 65535
+EXTERN Uint16          chrturn_lr[MAXCHR];			// Character's rotation 0 to 65535
 EXTERN Uint16          chrmapturn_lr[MAXCHR];       //
 EXTERN Uint16          chrmapturn_ud[MAXCHR];       //
 EXTERN Uint16          chrtexture[MAXCHR];         // Character's skin
@@ -1140,7 +1140,7 @@ EXTERN Uint16          chrbumpnext[MAXCHR];        // Next character on fanblock
 EXTERN float           chrbumpdampen[MAXCHR];      // Character bump mass
 EXTERN Uint16          chrdirectionlast[MAXCHR];   // Direction of last attack/healing
 EXTERN Uint8           chrdamagetypelast[MAXCHR];  // Last damage type
-EXTERN bool_t          chrisplatform[MAXCHR];        // Can it be stood on
+EXTERN bool_t          chrisplatform[MAXCHR];      // Can it be stood on
 EXTERN Uint8           chrturnmode[MAXCHR];        // Turning mode
 EXTERN Uint8           chrsneakspd[MAXCHR];        // Sneaking if above this speed
 EXTERN Uint8           chrwalkspd[MAXCHR];         // Walking if above this speed
@@ -1149,11 +1149,11 @@ EXTERN DAMAGE          chrdamagetargettype[MAXCHR];// Type of damage for AI Dama
 EXTERN DAMAGE          chrreaffirmdamagetype[MAXCHR]; // For relighting torches
 EXTERN Uint8           chrdamagemodifier_fp8[MAXCHR][MAXDAMAGETYPE];  // Resistances and inversion
 EXTERN float           chrdamagetime[MAXCHR];      // Invincibility timer
-EXTERN Uint8           chrdefense_fp8[MAXCHR];         // Base defense rating
+EXTERN Uint8           chrdefense_fp8[MAXCHR];     // Base defense rating
 EXTERN float           chrweight[MAXCHR];          // Weight ( for pressure plates )
 EXTERN Uint8           chrpassage[MAXCHR];         // The passage associated with this character
-EXTERN Uint32          chrmessage[MAXCHR];           // The last order given the character
-EXTERN Uint8           chrmessagedata[MAXCHR];         // The rank of the character on the order chain
+EXTERN Uint32          chrmessage[MAXCHR];         // The last order given the character
+EXTERN Uint8           chrmessagedata[MAXCHR];     // The rank of the character on the order chain
 EXTERN Uint16          chronwhichplatform[MAXCHR]; // What are we standing on?
 EXTERN Uint16          chrholdingweight[MAXCHR];   // For weighted buttons
 EXTERN Sint32          chrmoney[MAXCHR];           // Money
@@ -2384,6 +2384,7 @@ typedef enum global_sound_t
   GSOUND_WEATHER,                  // 2 - Weather Effect
   GSOUND_SPLASH,                   // 3 - Hit Water tile (Splash)
   GSOUND_COINFALL,                 // 4 - Coin falls on ground
+  GSOUND_LEVELUP,				   // 5 - Level up sound
   GSOUND_COUNT = MAXWAVE
 };
 
@@ -2416,7 +2417,7 @@ typedef enum input_bits_e
 //Key/Control input defenitions
 #define MAXTAG              128                     // Number of tags in scancode.txt
 #define TAGSIZE             32                      // Size of each tag
-EXTERN int numscantag;
+EXTERN Uint32 numscantag;
 EXTERN char tagname[MAXTAG][TAGSIZE];               // Scancode names
 EXTERN Uint32 tagvalue[MAXTAG];                     // Scancode values
 

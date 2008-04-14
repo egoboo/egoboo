@@ -41,7 +41,8 @@ void sys_initialize()
 }
 
 void sys_shutdown()
-{}
+{
+}
 
 double sys_getTime()
 {

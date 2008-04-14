@@ -29,7 +29,7 @@ bool_t sdlmixer_initialize()
   {
     log_info( "Initializing SDL_mixer audio services version %i.%i.%i... ", MIX_MAJOR_VERSION, MIX_MINOR_VERSION, MIX_PATCHLEVEL);
     Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, CData.buffersize );
-    Mix_VolumeMusic( CData.musicvolume );  //*1.28
+    Mix_VolumeMusic( CData.musicvolume );
     Mix_AllocateChannels( CData.maxsoundchannel );
     if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, CData.buffersize ) != 0 )
     {
@@ -49,6 +49,7 @@ bool_t sdlmixer_initialize()
 
 void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_pos, Uint16 ear_turn_lr  )
 {
+  // BB> This function modifies how the sound is played according to intesity, distance, position, etc.
   float dist_xyz2, dist_xy2, volume;
   float vl, vr, dx, dy;
   int vol_left, vol_right;
@@ -99,13 +100,14 @@ void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_po
 
 int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber )
 {
-  // This function plays a specified sound
+  // ZF> This function plays a specified sound
+  // (Or returns -1 (INVALID_CHANNEL) if it failed to play the sound)
 
   if ( !CData.soundvalid ) return INVALID_CHANNEL;
 
   if ( loadedwave == NULL )
   {
-    log_warning( "Sound file not correctly loaded (Not found?), Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
+    log_warning( "Sound file not correctly loaded (Not found?) - Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
     return INVALID_CHANNEL;
   }
 
@@ -113,7 +115,7 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
 
   if( INVALID_CHANNEL == channel )
   {
-    log_warning( "All sound channels are currently in use. Sound is NOT playing. Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
+    log_warning( "All sound channels are currently in use. Sound is NOT playing - Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
   }
   else
   {
@@ -127,25 +129,90 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
 //------------------------------------------------------------------------------
 void stop_sound( int whichchannel )
 {
-  //This function is used for stopping a looped sound, but can be used to stop
-  //a particular sound too. If whichchannel is -1, all playing channels will fade out.
-  if ( CData.soundvalid ) Mix_FadeOutChannel( whichchannel, 400 );
+  // ZF> This function is used for stopping a looped sound, but can be used to stop
+  // a particular sound too. If whichchannel is -1, all playing channels will fade out.
+  if ( CData.soundvalid ) Mix_FadeOutChannel( whichchannel, 400 ); //400 ms is nice
+}
+
+//--------------------------------------------------------------------------------------------
+void load_global_waves( char *modname )
+{
+  // ZZ> This function loads the global waves used in all modules
+  STRING tmploadname, newloadname;
+  Uint8 cnt;
+
+  if ( CData.soundvalid )
+  {
+    // load in the sounds local to this module
+    snprintf( tmploadname, sizeof( tmploadname ), "%s%s/", modname, CData.gamedat_dir );
+    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
+    {
+      snprintf( newloadname, sizeof( newloadname ), "%ssound%d.wav", tmploadname, cnt );
+      globalwave[cnt] = Mix_LoadWAV( newloadname );
+    };
+
+    //These sounds are always standard, but DO NOT override sounds that were loaded local to this module
+    if ( NULL == globalwave[GSOUND_COINGET] )
+    {
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
+      globalwave[GSOUND_COINGET] = Mix_LoadWAV( CStringTmp1 );
+    };
+
+    if ( NULL == globalwave[GSOUND_DEFEND] )
+    {
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
+      globalwave[GSOUND_DEFEND] = Mix_LoadWAV( CStringTmp1 );
+    }
+
+    if ( NULL == globalwave[GSOUND_COINFALL] )
+    {
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
+      globalwave[GSOUND_COINFALL] = Mix_LoadWAV( CStringTmp1 );
+    };
+
+    if ( NULL == globalwave[GSOUND_LEVELUP] )
+    {
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.lvlup_sound );
+      globalwave[GSOUND_LEVELUP] = Mix_LoadWAV( CStringTmp1 );
+    };
+  }
+
+  /*  The Global Sounds
+  * 0 - Pick up coin
+  * 1 - Defend clank
+  * 2 - Weather Effect
+  * 3 - Hit Water tile (Splash)
+  * 4 - Coin falls on ground
+  * 5 - Level up
+
+  //These new values todo should determine sound and particle effects (examples below)
+  Weather Type: DROPS, RAIN, SNOW, LAVABUBBLE (Which weather effect to spawn)
+  Water Type: LAVA, WATER, DARK (To determine sound and particle effects)
+
+  //We shold also add standard particles that can be used everywhere (Located and
+  //loaded in globalparticles folder) such as these below.
+  Particle Effect: REDBLOOD, SMOKE, HEALCLOUD
+  */
 }
 
 //------------------------------------------------------------------------------
 //Music Stuff-------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void load_all_music_sounds()
+bool_t load_all_music_sounds()
 {
-  //This function loads all of the music sounds
+  //ZF> This function loads all of the music sounds
   STRING songname;
   FILE *playlist;
-  int cnt;
+  Uint8 cnt;
 
   //Open the playlist listing all music files
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.music_dir, CData.playlist_file );
   playlist = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
-  if ( playlist == NULL ) log_warning( "Error opening playlist.txt\n" );
+  if ( playlist == NULL )
+  {
+	  log_warning( "Error opening playlist.txt\n" );
+	  return bfalse;
+  }
 
   // Load the music data into memory
   if ( CData.musicvalid && !musicinmemory )
@@ -158,14 +225,14 @@ void load_all_music_sounds()
       instrumenttosound[cnt] = Mix_LoadMUS( CStringTmp1 );
       cnt++;
     }
-    musicinmemory = btrue;
   }
   fs_fileClose( playlist );
+  return btrue;
 }
 
 void play_music( int songnumber, int fadetime, int loops )
 {
-  //This functions plays a specified track loaded into memory
+  // ZF> This functions plays a specified track loaded into memory
   if ( songplaying != songnumber && CData.musicvalid )
   {
     Mix_FadeOutMusic( fadetime );
@@ -176,7 +243,7 @@ void play_music( int songnumber, int fadetime, int loops )
 
 void stop_music(int fadetime)
 {
-  //This function sets music track to pause
+  //ZF> This function sets music track to pause
   if ( CData.musicvalid )
   {
     Mix_FadeOutMusic(fadetime);

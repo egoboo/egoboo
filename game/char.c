@@ -6164,8 +6164,7 @@ int get_skin( char *filename )
 {
   // ZZ> This function reads the skin.txt file...
   FILE*   fileread;
-  int skin;
-
+  Uint8   skin;
 
   skin = 0;
   fileread = fs_fileOpen( PRI_NONE, NULL, filename, "r" );
@@ -6282,19 +6281,15 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
   STRING newloadname;
   IDSZ newidsz;
   bool_t foundidsz = bfalse;
-  int result = -2;
-  int iTmp;
+  Sint8 result = -2;
+  Sint8 iTmp;
 
   //Always return "true" for [NONE] IDSZ checks
   if (idsz == IDSZ_NONE) result = -1;
 
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
-  if ( NULL == fileread )
-  {
-    log_warning( "File could not be read. (%s)\n", newloadname );
-    return result;
-  };
+  if ( NULL == fileread ) return result;
 
   // Check each expansion
   while ( fgoto_colon_yesno( fileread ) && !foundidsz )
@@ -6321,27 +6316,19 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   // ZF> This function writes a IDSZ into a player quest.txt file, returns btrue if succeeded
   FILE *filewrite;
   STRING newloadname;
-  bool_t result = bfalse;
 
   // Only add quest IDSZ if it doesnt have it already
-  if (check_player_quest(whichplayer, idsz) >= -1)
-  {
-    return result;
-  };
+  if (check_player_quest(whichplayer, idsz) >= -1) return bfalse;
 
   // Try to open the file in read and append mode
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
   filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "a+" );
-  if ( NULL == filewrite )
-  {
-    log_warning( "Could not write into %s\n", newloadname );
-    return result;
-  };
+  if ( NULL == filewrite ) return bfalse;
 
   fprintf( filewrite, "\n:[%4s]: 0", undo_idsz( idsz ) );
   fs_fileClose( filewrite );
 
-  return result;
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6360,21 +6347,14 @@ bool_t beat_quest_idsz( char *whichplayer, IDSZ idsz )
   //     and returns btrue if it succeeded.
   FILE *filewrite;
   STRING newloadname;
-  bool_t result = bfalse;
   bool_t foundidsz = bfalse;
   IDSZ newidsz;
-  int QuestLevel;
-
-  //TODO: This also needs to be done
+  Uint8 QuestLevel;
 
   // Try to open the file in read/write mode
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
   filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "w+" );
-  if ( NULL == filewrite )
-  {
-    log_warning( "Could not write into %s\n", newloadname );
-    return result;
-  };
+  if ( NULL == filewrite ) return bfalse;
 
   //Now check each expansion until we find correct IDSZ
   while ( fgoto_colon_yesno( filewrite ) && !foundidsz )
@@ -6384,13 +6364,19 @@ bool_t beat_quest_idsz( char *whichplayer, IDSZ idsz )
     {
       foundidsz = btrue;
       QuestLevel = fget_int( filewrite );
-      if ( QuestLevel == -1 ) result = bfalse;  //Is quest is already finished?
-      break;
+      if ( QuestLevel == -1 ) 
+	  {  
+		  fs_fileClose( filewrite );
+		  return bfalse;  //Is quest is already finished?
+	  }
+
+	  //TODO: Replace QuestLevel in quest.txt with -1
+	  break;
     }
   }
   fs_fileClose( filewrite );
 
-  return result;
+  return foundidsz;
 }
 
 //--------------------------------------------------------------------------------------------

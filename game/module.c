@@ -27,17 +27,20 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 void release_module( void )
 {
   // ZZ> This function frees up memory used by the module
-  release_all_textures();
-  release_all_icons();
-  release_map();
-
-  // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
-  if ( mixeron)
+  if( moduleActive )
   {
-    Mix_CloseAudio();
-    songplaying = -1;
-    Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, CData.buffersize );
-    Mix_AllocateChannels( CData.maxsoundchannel );
+	  release_all_textures();
+	  release_all_icons();
+	  release_map();
+
+	  // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
+	  if ( mixeron)
+	  {
+		Mix_CloseAudio();
+		songplaying = -1;
+		Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, CData.buffersize );
+		Mix_AllocateChannels( CData.maxsoundchannel );
+	  }
   }
 }
 

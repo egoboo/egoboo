@@ -85,13 +85,11 @@ void make_newloadname( char *modname, char *appendname, char *newloadname );
 void export_one_character( CHR_REF character, Uint16 owner, int number );
 void export_all_local_players( void );
 void quit_module( void );
-void quit_game( void );
 void fgoto_colon( FILE* fileread );
 bool_t fgoto_colon_yesno( FILE* fileread );
 char fget_first_letter( FILE* fileread );
 
 //Tags
-void reset_tags();
 int read_tag( FILE *fileread );
 void read_all_tags( char *szFilename );
 int tag_value( char *string );
@@ -103,8 +101,6 @@ bool_t control_joyb_is_pressed( CONTROL control );
 
 //Enchants
 void free_all_enchants();
-
-
 void load_one_enchant_profile( char* szLoadName, Uint16 profile );
 Uint16 get_free_enchant();
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
@@ -131,7 +127,7 @@ void make_lighttospek( void );
 
 
 //Sound and music stuff
-void load_all_music_sounds();
+bool_t load_all_music_sounds();
 void stop_music(int fadetime);
 void load_global_waves( char *modname );
 bool_t sdlmixer_initialize();
