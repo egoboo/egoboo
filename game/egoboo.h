@@ -1698,7 +1698,7 @@ EXTERN bool_t          piptargetcaster[MAXPRTPIP];                 // Target cas
 EXTERN bool_t          pipspawnenchant[MAXPRTPIP];                 // Spawn enchant?
 EXTERN bool_t          pipneedtarget[MAXPRTPIP];                   // Need a target?
 EXTERN bool_t          piponlydamagefriendly[MAXPRTPIP];           // Only friends?
-EXTERN bool_t          piphateonly[MAXPRTPIP];      // Only enemies? !!BAD NOT DONE!!
+EXTERN bool_t          piphateonly[MAXPRTPIP];                     // Only enemies? !!BAD NOT DONE!!
 EXTERN bool_t          pipstartontarget[MAXPRTPIP];                // Start on target?
 EXTERN int             pipzaimspd[MAXPRTPIP];                      // [ZSPD] For Z aiming
 EXTERN Uint16          pipdamfx[MAXPRTPIP];                        // Damage effects
@@ -2189,12 +2189,14 @@ typedef enum script_opcode_e
   F_AddQuest,                           // Scripted AI functions (v1.00)
   F_BeatQuest,                          //
   F_IfTargetHasQuest,                   //
+  F_SetQuestLevel, 						//
   F_IfTargetHasNotFullMana,				//
   F_IfJumping,							//
   F_IfOperatorIsLinux,					//
   F_IfTargetIsOwner,                    // Scripted AI functions (v1.05)
   F_SetCameraSwing,						//
-  F_AdjustQuest 						//
+  F_EnableRespawn,						//
+  F_DisableRespawn						//
 } OPCODE;
 
 typedef enum script_operation_e
@@ -2532,7 +2534,7 @@ typedef struct configurable_data_t
   STRING menu_gnome_bitmap;
 
 
-  STRING slotused_file;
+  STRING debug_file;
   STRING passage_file;
   STRING aicodes_file;
   STRING actions_file;

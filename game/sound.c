@@ -185,7 +185,7 @@ void load_global_waves( char *modname )
   * 4 - Coin falls on ground
   * 5 - Level up
 
-  //These new values todo should determine sound and particle effects (examples below)
+  //TODO: These new values should determine sound and particle effects (examples below)
   Weather Type: DROPS, RAIN, SNOW, LAVABUBBLE (Which weather effect to spawn)
   Water Type: LAVA, WATER, DARK (To determine sound and particle effects)
 

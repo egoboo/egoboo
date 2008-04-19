@@ -502,7 +502,7 @@ int mnu_doMain( float deltaTime )
       // Background
       glColor4f( 1, 1, 1, 1 );
       ui_drawImage( &wBackground );
-
+	 
       // "Copyright" text
       ui_drawTextBox( &wCopyright, 20 );
 
@@ -1332,7 +1332,6 @@ int mnu_doChoosePlayer( float deltaTime )
 
 
 //--------------------------------------------------------------------------------------------
-//TODO: This needs to be finished
 int mnu_doOptions( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
@@ -1595,7 +1594,7 @@ int mnu_doAudioOptions( float deltaTime )
       {
         switch ( OData.maxsoundchannel )
         {
-          case 32:
+          case 128:
             OData.maxsoundchannel = 8;
             break;
 
@@ -1609,6 +1608,14 @@ int mnu_doAudioOptions( float deltaTime )
 
           case 24:
             OData.maxsoundchannel = 32;
+            break;
+
+          case 32:
+            OData.maxsoundchannel = 64;
+            break;
+
+          case 64:
+            OData.maxsoundchannel = 128;
             break;
 
           default:
@@ -1667,7 +1674,11 @@ int mnu_doAudioOptions( float deltaTime )
           Mix_CloseAudio();
           mixeron = bfalse;
         }
-        menuState = MM_Leaving;
+
+		//If the number of sound channels changed, allocate them properly
+		if( OData.maxsoundchannel != CData.maxsoundchannel ) Mix_AllocateChannels( OData.maxsoundchannel );
+        
+		menuState = MM_Leaving;
       }
 
       break;

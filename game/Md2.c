@@ -41,7 +41,7 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
 
   // Open up the file, and make sure it's a MD2 model
   f = fopen(fileName, "rb");
-  //f = fs_fileOpen( PRI_NONE, NULL, fileName, "rb" );     //Todo: we should use this instead
+  //f = fs_fileOpen( PRI_NONE, NULL, fileName, "rb" );     //TODO: we should use this instead
 
   if (f == NULL) return NULL;
 

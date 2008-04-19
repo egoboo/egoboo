@@ -573,19 +573,21 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // ZZ> This function spawns a character and returns the character's index number
   //     if it worked, MAXCHR otherwise
   int ichr, tnc;
+  FILE *filewrite;
 
   // Open file for debug info logging
+  if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a" );
 
   // Make sure the team is valid
   if ( team >= TEAM_COUNT ) team %= TEAM_COUNT;
 
-
   // Get a new character
   if ( !madused[profile] )
   {
-    if(CData.DevMode) log_warning( "spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
+	if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
     //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
-    return MAXCHR;
+    fs_fileClose( filewrite );
+	return MAXCHR;
   }
 
   ichr = MAXCHR;
@@ -610,9 +612,10 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-      if(CData.DevMode) log_warning("spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
+	  if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
       //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
-      return MAXCHR;
+      fs_fileClose( filewrite );
+	  return MAXCHR;
     }
   }
   else
@@ -621,14 +624,20 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-	  if(CData.DevMode) log_warning("spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
+	  if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
       //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
-      return MAXCHR;
+      fs_fileClose( filewrite );
+	  return MAXCHR;
     }
   }
 
+
   //fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
-  if(CData.DevMode) log_info("spawn_one_character() - profile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
+  if(CData.DevMode) 
+  {
+	  fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
+      fs_fileClose( filewrite );
+  }
 
   // IMPORTANT!!!
   chrindolist[ichr] = bfalse;

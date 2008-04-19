@@ -194,6 +194,7 @@ void load_module( char *smallname )
 
   load_all_objects( modname );  // This is broken and needs to be fixed (is it really?)
 
+
   if ( !load_mesh( modname ) )
   {
     log_error( "Load problems with the mesh.\n" );
@@ -238,11 +239,7 @@ void load_module( char *smallname )
   load_blip_bitmap( modname );
 
   //Log all object slots used if in DevMode
-  if ( CData.DevMode )
-  {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.slotused_file );
-    log_madused( CStringTmp1 );
-  };
+  if ( CData.DevMode ) log_madused( CData.debug_file );
 
 }
 

@@ -2343,7 +2343,7 @@ void move_characters( float dUpdate )
           dvy = -dvy;
         }
 
-        // Switch x and y for daze
+        // Switch x and y for grog
         if ( chrgrogtime[ichr] > 0.0f )
         {
           dvmax = dvx;
@@ -6334,15 +6334,6 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int modify_quest_level( char *whichplayer, IDSZ idsz, int adjustment )
-// ZF> This function increases or decreases a Quest IDSZ quest level by the amount determined in
-// adjustment. It then returns the current quest level it now has (Or -1 if not found).
-{
-  //TODO
-  return -1;
-}
-
-//--------------------------------------------------------------------------------------------
 int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 {
 // ZF> This function increases or decreases a Quest IDSZ quest level by the amount determined in
@@ -6378,16 +6369,17 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 		  //First close the file, rename it and reopen it for reading
 		  fs_fileClose( fileread );
 		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-		  snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_quest.txt", CData.players_dir, whichplayer);
+		  snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
 		  rename(newloadname, copybuffer); 
           fileread = fs_fileOpen( PRI_NONE, NULL, copybuffer, "r" );
 
-		  //Then make the new Quest.txt with the proper modifications
+		  //Then make the new Quest.txt and add the new modifications
 		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
           newfile = fs_fileOpen( PRI_WARN, NULL, newloadname, "w" );
 		  fprintf(newfile, "//This file keeps order of all the quests for the player\n");
 		  fprintf(newfile, "//The number after the IDSZ shows the quest level. -2 means it is completed.\n");
           
+		  //Now read the old quest file and copy each line to the new one
 		  while ( fgoto_colon_yesno( fileread ))
 		  {
 			  newidsz = fget_idsz( fileread );
@@ -6415,10 +6407,10 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
   }
   fs_fileClose( fileread );
   
-  //Delete any temp buffer files
+  //Delete the old quest file
   if(foundidsz)
   {
-    snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_quest.txt", CData.players_dir, whichplayer);
+	snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
 	fs_deleteFile( copybuffer );
   }
   return NewQuestLevel;

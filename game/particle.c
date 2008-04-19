@@ -192,12 +192,19 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   Uint16 glob_pip = MAXPRTPIP;
   float weight;
   Uint16 prt_target;
+  FILE *filewrite;
+ 
+  if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a" );
 
   if ( local_pip >= MAXPRTPIP )
   {
     //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : local_pip == %d is an invalid value\n", local_pip );
-	if(CData.DevMode) log_warning("spawn_one_particle() - Failed to spawn : local_pip == %d is an invalid value\n", local_pip );
-    return MAXPRT;
+	if(CData.DevMode) 
+	{
+		fprintf(filewrite, "WARNING: spawn_one_particle() - Failed to spawn : local_pip == %d is an invalid value\n", local_pip );
+		fs_fileClose( filewrite );
+	}
+	return MAXPRT;
   }
 
   // Convert from local local_pip to global local_pip
@@ -214,7 +221,11 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   if ( iprt == MAXPRT )
   {
     //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
-	if(CData.DevMode) log_warning( "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
+	if(CData.DevMode) 
+	{
+		fprintf(filewrite, "WARNING: spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
+		fs_fileClose( filewrite );
+	}
     return MAXPRT;
   }
 
@@ -223,8 +234,8 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   if ( VALID_CHR( characterattach ) ) weight = MAX( weight, chrweight[characterattach] );
   prtweight[iprt] = weight;
 
-  //fprintf(stdout, "spawn_one_particle() - \n\tlocal local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
-
+  if(CData.DevMode) fprintf( filewrite, "SUCCESS: spawn_one_particle() - local local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
+  
   // Necessary data for any part
   prton[iprt] = btrue;
   prtgopoof[iprt] = bfalse;
@@ -251,13 +262,9 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   prtdynalightlevel[iprt]   = pipdynalevel[glob_pip] * intensity;
   prtdynalightfalloff[iprt] = pipdynafalloff[glob_pip];
 
-
-
   // Set character attachments ( characterattach==MAXCHR means none )
   prtattachedtochr[iprt] = characterattach;
   prtvertoffset[iprt] = grip;
-
-
 
   // Targeting...
   offsetfacing = 0;
@@ -313,8 +320,11 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
     if ( !VALID_CHR( prt_target ) && pipneedtarget[glob_pip] )
     {
       //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
-	  if(CData.DevMode) log_warning("spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
-
+		if(CData.DevMode)
+		{
+			fprintf( filewrite, "WARNING: spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
+		    fs_fileClose( filewrite );
+		}
       free_one_particle( iprt );
       return MAXPRT;
     }
@@ -331,6 +341,10 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
     // Correct facing for randomness
     offsetfacing += generate_dither( &pipfacing[glob_pip], INT_TO_FP8( 1 ) );
   }
+
+  //We don't need to log any debug info anymore
+  if(CData.DevMode) fs_fileClose( filewrite );
+
   facing += pipfacing[glob_pip].ibase + offsetfacing;
   prtfacing[iprt] = facing;
   facing >>= 2;
@@ -1166,7 +1180,7 @@ Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int local_pip
   piprotatetoface[ipip] = fget_next_bool( fileread );
   fgoto_colon( fileread );   //BAD! Not used
   pipmanadrain[numpip] = fget_next_fixed( fileread );   //Mana drain (Mana damage)
-  piplifedrain[numpip] = fget_next_fixed( fileread );   //Life drain (Mana damage)
+  piplifedrain[numpip] = fget_next_fixed( fileread );   //Life drain (Life steal)
 
 
 
@@ -1189,8 +1203,7 @@ Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int local_pip
     idsz = fget_idsz( fileread );
     iTmp = fget_int( fileread );
 
-    if ( MAKE_IDSZ( "TURN" ) == idsz )
-      piprotatewithattached[ipip] = INT_TO_BOOL( iTmp );
+    if ( MAKE_IDSZ( "TURN" ) == idsz ) piprotatewithattached[ipip] = INT_TO_BOOL( iTmp );
     else if ( MAKE_IDSZ( "ZSPD" ) == idsz )  pipzaimspd[ipip] = iTmp;
     else if ( MAKE_IDSZ( "FSND" ) == idsz )  pipsoundfloor[ipip] = FIX_SOUND( iTmp );
     else if ( MAKE_IDSZ( "WSND" ) == idsz )  pipsoundwall[ipip] = FIX_SOUND( iTmp );
@@ -1216,13 +1229,65 @@ Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int local_pip
 }
 
 //--------------------------------------------------------------------------------------------
+void load_global_particles()
+{
+  // ZF> Load in the standard global particles ( the coins for example )
+  // This should only be needed done once at the start of the game
+
+  log_info("load_global_particles() - Loading global particles into memory... ");
+  //Defend particle
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_file );
+  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  {
+    log_message("Failed!\n");
+    log_error( "Data file was not found! (%s)\n", CStringTmp1 );
+  }
+
+  //Money 1
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money1_file );
+  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  {
+	log_message("Failed!\n");
+    log_error( "Data file was not found! (%s)\n", CStringTmp1 );
+  }
+
+  //Money 5
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money5_file );
+  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  {
+    log_message("Failed!\n");
+    log_error( "Data file was not found! (%s)\n", CStringTmp1 );
+  }
+
+  //Money 25
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money25_file );
+  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  {
+    log_message("Failed!\n");
+    log_error( "Data file was not found! (%s)\n", CStringTmp1 );
+  }
+
+  //Money 100
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money100_file );
+  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  {
+	log_message("Failed!\n");
+    log_error( "Data file was not found! (%s)\n", CStringTmp1 );
+  }
+
+  //Everything went fine
+  log_message("Succeeded!\n");
+
+}
+
+//--------------------------------------------------------------------------------------------
 void reset_particles( char* modname )
 {
   // ZZ> This resets all particle data and reads in the coin and water particles
   int cnt, object;
 
   // Load in the standard global particles ( the coins for example )
-  //BAD! This should only be needed once at the start of the game
+  // BAD! This should only be needed once at the start of the game, using load_global_particles()
   numpip = 0;
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money1_file );

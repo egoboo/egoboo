@@ -1,0 +1,9 @@
+This is the todo list what needs to be done yet in Egoboo:
+- Create the Input Controls section of the Options Menu
+- Add a Plugin/Mods section in the menu
+- Ingame menu interface
+- Module Linking
+- Networking
+- Improve the object loading system
+- Improve the code structure
+- Make latest revision build properly in linux

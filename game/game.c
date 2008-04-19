@@ -120,7 +120,7 @@ bool_t memory_cleanUp()
   free_mesh_memory();				  //Free the mesh memory
   SDL_Quit();						  //Quit main SDL
 
-  log_message("Success!\n");
+  log_message("Succeeded!\n");
   return btrue;
 }
 
@@ -1724,7 +1724,7 @@ void read_setup( char* filename )
     CData.twolayerwateron = CData_default.twolayerwateron;
   }
 
-  //TODO: This is not implemented
+  //This is not implemented
   if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "OVERLAY", &CData.overlayvalid ) == 0 )
   {
     CData.overlayvalid = CData_default.overlayvalid;
@@ -1833,7 +1833,7 @@ void read_setup( char* filename )
     CData.maxsoundchannel = CData_default.maxsoundchannel;
   }
   if ( CData.maxsoundchannel < 8 ) CData.maxsoundchannel = 8;
-  if ( CData.maxsoundchannel > 32 ) CData.maxsoundchannel = 32;
+  if ( CData.maxsoundchannel > 128 ) CData.maxsoundchannel = 128;
 
   //The output buffer size
   if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "OUPUT_BUFFER_SIZE", &CData.buffersize ) == 0 )
@@ -1954,17 +1954,22 @@ void log_madused( char *savename )
   FILE* hFileWrite;
   int cnt;
 
-  hFileWrite = fs_fileOpen( PRI_NONE, NULL, savename, "w" );
+  hFileWrite = fs_fileOpen( PRI_NONE, NULL, savename, "a" );
   if ( hFileWrite )
   {
-    fprintf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-    fprintf( hFileWrite, "%d of %d frames used...\n", madloadframe, MAXFRAME );
+    fprintf( hFileWrite, "\n\nSlot usage for objects in last module loaded...\n" );
+    fprintf( hFileWrite, "-----------------------------------------------\n" );
+	fprintf( hFileWrite, "%d of %d frames used...\n", madloadframe, MAXFRAME );
     cnt = 0;
     while ( cnt < MAXMODEL )
     {
       fprintf( hFileWrite, "%3d %32s %s\n", cnt, capclassname[cnt], madname[cnt] );
       cnt++;
     }
+
+    fprintf( hFileWrite, "\n\nDebug info after initial spawning and loading is complete...\n" );
+    fprintf( hFileWrite, "-----------------------------------------------\n" );
+	
     fs_fileClose( hFileWrite );
   }
 }
@@ -2486,7 +2491,7 @@ void check_stats()
     if ( SDLKEYDOWN( SDLK_7 ) )  show_stat( 6 );
     if ( SDLKEYDOWN( SDLK_8 ) )  show_stat( 7 );
 
-    // !!!BAD!!!  CHEAT
+    // Debug cheat codes (Gives xp to stat characters)
     if ( CData.DevMode && SDLKEYDOWN( SDLK_x ) )
     {
       if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR( plachr[0] ) )  give_experience( plachr[0], 25, XP_DIRECT );
@@ -3698,7 +3703,7 @@ void set_default_config_data(CONFIG_DATA * pcon)
   strncpy( pcon->menu_gnome_bitmap, "menu_gnome.png" , sizeof( STRING ) );
 
 
-  strncpy( pcon->slotused_file, "slotused.txt" , sizeof( STRING ) );
+  strncpy( pcon->debug_file, "debug.txt" , sizeof( STRING ) );
   strncpy( pcon->passage_file, "passage.txt" , sizeof( STRING ) );
   strncpy( pcon->aicodes_file, "aicodes.txt" , sizeof( STRING ) );
   strncpy( pcon->actions_file, "actions.txt" , sizeof( STRING ) );
@@ -3871,6 +3876,9 @@ int proc_program( int argc, char **argv )
         // initialize the sound system
         mixeron = sdlmixer_initialize();
 		musicinmemory = load_all_music_sounds();
+
+		// Load all global particles used in all modules
+		//load_global_particles(); //TODO: this should be used here
 
         // allocate the maximum amount of mesh memory
         if ( !get_mesh_memory() )
@@ -4241,7 +4249,7 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
         
 
         //Do game pause if needed
-        //Check for pause key   //TODO: What to do in network games?
+        //Check for pause key
         if ( !SDLKEYDOWN( SDLK_F8 ) ) startpause = btrue;
         if ( SDLKEYDOWN( SDLK_F8 ) && keyon && startpause )
         {

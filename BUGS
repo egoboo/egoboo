@@ -1,3 +1,7 @@
+- Not sure if this is a bug: If egoboo finds a script error when running a module with the Debug version (as opposed to the release binary),
+  the game crashes. (something to do with assert failed in script.c line 478)
+  Solution: Running the game in release binary shows where the script error is and you can fix it.
+
 - Changing video settings, Save&Return to menu, then returning to video menu shows settings are not changed...
 workaround: restart game to get it correct or change settings manually in setup.txt
 

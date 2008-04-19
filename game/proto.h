@@ -46,7 +46,6 @@ typedef enum color_e COLR;
 
 void load_graphics();
 
-void empty_import_directory( void );
 void insert_space( size_t position );
 void copy_one_line( size_t write );
 size_t load_one_line( size_t read );
@@ -76,7 +75,6 @@ void prime_titleimage();
 void prime_icons();
 void release_all_icons();
 void release_all_titleimages();
-void reset_sounds();
 void release_map();
 void release_module( void );
 void close_session();
@@ -313,7 +311,8 @@ void make_framelip( Uint16 object, ACTION action );
 void get_actions( Uint16 object );
 
 
-//File read and write functions
+//File managment functions
+void empty_import_directory( void );
 bool_t undo_pair_fp8( PAIR * ppair, RANGE * prange );
 bool_t fget_pair_fp8( FILE* fileread, PAIR * ppair );
 bool_t fget_next_pair_fp8( FILE* fileread, PAIR * ppair );
@@ -380,6 +379,8 @@ void export_one_character_skin( char *szSaveName, CHR_REF character );
 int load_one_character_profile( char *szLoadName );
 Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int pip );
 void reset_particles( char* modname );
+void load_global_particles();
+
 void make_mad_equally_lit( Uint16 model );
 bool_t fget_message( FILE* fileread );
 bool_t fget_next_message( FILE* fileread );
@@ -398,7 +399,7 @@ void make_randie();
 void load_module( char *smallname );
 void render_prt();
 void render_shadow( CHR_REF character );
-void render_bad_shadow( CHR_REF character );
+//void render_bad_shadow( CHR_REF character );
 void render_refprt();
 void render_fan( Uint32 fan, char tex_loaded );
 void render_fan_ref( Uint32 fan, char tex_loaded, float level );

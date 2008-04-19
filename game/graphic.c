@@ -357,7 +357,7 @@ void reset_end_text()
   {
     if ( numpla == 0 )
     {
-      // No players???  RTS module???
+      // No players???
       snprintf( endtext, sizeof( endtext ), "The game has ended..." );
       endtextwrite = 21;
     }
@@ -1200,7 +1200,7 @@ void load_all_objects( char *modname )
 {
   // ZZ> This function loads a module's objects
   const char *filehandle;
-  FILE* fileread;
+  FILE* fileread, *filewrite;
   STRING newloadname, filename;
   int cnt;
   int skin;
@@ -1238,6 +1238,17 @@ void load_all_objects( char *modname )
   }
 
   //empty_import_directory();  // Free up that disk space...
+
+  // If in Developer mode, create a new debug.txt file for debug info logging
+  if( CData.DevMode )
+  {
+    filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "w" );
+	fprintf( filewrite, "DEBUG INFORMATION FOR MODULE: \"%s\" \n", modname );
+	fprintf( filewrite, "This document logs extra debugging information for the last module loaded.\n");
+    fprintf( filewrite, "\nSpawning log after module has started...\n");
+    fprintf( filewrite, "-----------------------------------------------\n" );
+    fs_fileClose( filewrite );
+  }
 
   // Search for .obj directories and load them
   importobject = -100;
@@ -4430,7 +4441,7 @@ void sdlinit( int argc, char **argv )
   }
   else
   {
-    log_message("Success!\n");
+    log_message("Succeeded!\n");
   }
 
   atexit( SDL_Quit );

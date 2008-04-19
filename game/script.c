@@ -1291,6 +1291,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, AddQuest);
   REGISTER_FUNCTION( opcode_lst, BeatQuest);
   REGISTER_FUNCTION( opcode_lst, IfTargetHasQuest);
+  REGISTER_FUNCTION( opcode_lst, SetQuestLevel);
   REGISTER_FUNCTION( opcode_lst, IfTargetHasNotFullMana);
   REGISTER_FUNCTION( opcode_lst, IfJumping);
   REGISTER_FUNCTION( opcode_lst, DropTargetKeys);
@@ -1302,7 +1303,8 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, IfOperatorIsLinux);
   REGISTER_FUNCTION( opcode_lst, IfTargetIsOwner);
   REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
-  REGISTER_FUNCTION( opcode_lst, AdjustQuest);
+  REGISTER_FUNCTION( opcode_lst, EnableRespawn);
+  REGISTER_FUNCTION( opcode_lst, DisableRespawn);
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -1502,7 +1504,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_FindPath:
       // This function adds enough waypoints to get from one point to another
 	  // And only proceeds if the target is not the character himself
-      // !!!BAD!!! Todo: Only adds one straight waypoint...
+      // !!!BAD!!! TODO: Only adds one straight waypoint...
 
 	  //First setup the variables needed for the target waypoint
 	  if(loc_aitarget != ichr)
@@ -4227,12 +4229,28 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetHasQuest:
       //This function proceeds if the target has the unfinished quest specified in tmpargument
+	  //and sets tmpx to the Quest Level of the specified quest.
       if ( chrisplayer[loc_aitarget] )
       {
         snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
         iTmp = check_player_quest( cTmp, scr_globals.tmpargument );
-        if ( iTmp > -1 ) returncode = btrue;
+        if ( iTmp > -1 )
+		{
+		  returncode = btrue;
+		  scr_globals.tmpx = iTmp;
+		}
         else returncode = bfalse;
+      }
+      break;
+
+	case F_SetQuestLevel:
+      //This function modifies the quest level for a specific quest IDSZ
+	  //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
+	  returncode = bfalse;
+	  if ( chrisplayer[loc_aitarget] && scr_globals.tmpdistance != 0 )
+      {
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
+		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, scr_globals.tmpdistance ) != -1) returncode = btrue;
       }
       break;
 
@@ -4272,15 +4290,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       camswingamp = scr_globals.tmpdistance;
       break;
 
-	case F_AdjustQuest:
-      //This function modifies the quest level for a specific quest IDSZ
-	  //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
-	  returncode = bfalse;
-	  if ( chrisplayer[loc_aitarget] && scr_globals.tmpdistance != 0 )
-      {
-        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
-		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, scr_globals.tmpdistance ) != -1) returncode = btrue;
-      }
+    case F_EnableRespawn:
+      // This function turns respawn with JUMP button on
+      respawnvalid = btrue;
+      break;
+
+    case F_DisableRespawn:
+      // This function turns respawning with JUMP button off
+      respawnvalid = bfalse;
       break;
 
     case F_End:
@@ -4855,7 +4872,7 @@ void let_ai_think( float dUpdate )
     };
 
     // Do not exclude items in packs. In NetHack, eggs can hatch while in your pack...
-    //if ( !chr_in_pack( character ) || chralive[character] )  //Todo: This will need to be handled differently...
+    //if ( !chr_in_pack( character ) || chralive[character] )  //TODO: This will need to be handled differently...
     if ( !chr_in_pack( character ) && chralive[character] )    //      we do not want all objects in pack run AI scripts
     {														   //      (Only the one that really need it, such as eggs)
       allow_thinking = btrue;
