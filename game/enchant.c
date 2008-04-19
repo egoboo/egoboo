@@ -20,6 +20,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "egoboo.h"
 #include "mesh.h"
+#include "log.h"
 
 #include <assert.h>
 
@@ -255,6 +256,7 @@ void damage_character( CHR_REF character, Uint16 direction,
             action = ACTION_KA;
 			      stop_sound(chrloopingchannel[character]);		//Stop sound loops
 			      chrloopingchannel[character] = -1;
+
             // Give kill experience
             experience = capexperienceworth[model] + ( chrexperience[character] * capexperienceexchange[model] );
             if ( VALID_CHR( attacker ) )
@@ -332,7 +334,8 @@ void damage_character( CHR_REF character, Uint16 direction,
             for ( tnc = 0; tnc < MAXWAVE; tnc++ )
             {
               //TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-              //stop_sound(chrmodel[character]);
+              //           this might prevent death sound from playing
+			  //stop_sound(chrmodel[character]);
             }
 
             // Afford it one last thought if it's an AI
@@ -571,6 +574,8 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   //     if it worked, MAXCHR otherwise
   int ichr, tnc;
 
+  // Open file for debug info logging
+
   // Make sure the team is valid
   if ( team >= TEAM_COUNT ) team %= TEAM_COUNT;
 
@@ -578,7 +583,8 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Get a new character
   if ( !madused[profile] )
   {
-    fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
+    if(CData.DevMode) log_warning( "spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
+    //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
     return MAXCHR;
   }
 
@@ -604,7 +610,8 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-      fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
+      if(CData.DevMode) log_warning("spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
+      //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
       return MAXCHR;
     }
   }
@@ -614,12 +621,14 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-      fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
+	  if(CData.DevMode) log_warning("spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
+      //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
       return MAXCHR;
     }
   }
 
-  fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
+  //fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
+  if(CData.DevMode) log_info("spawn_one_character() - profile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
 
   // IMPORTANT!!!
   chrindolist[ichr] = bfalse;

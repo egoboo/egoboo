@@ -1098,9 +1098,8 @@ int load_one_object( int skin, char* tmploadname )
     // still no luck !
     if ( access( newloadname, R_OK ) )
     {
-      fprintf( stderr, "ERROR: cannot open: %s\n", newloadname );
-      SDL_Quit();
-      exit( 1 );
+      //fprintf( stderr, "ERROR: cannot open: %s\n", newloadname );
+	  log_error( "Cannot open file: %s\n", newloadname );
     }
   }
 #endif
@@ -4566,7 +4565,7 @@ void load_graphics()
   //Wait for vertical synchronization?
   if( CData.vsync )
   {
-	  // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this  nvidia extension instead.
+	  // Fedora 7 doesn't suuport SDL_GL_SWAP_CONTROL, but we use this nvidia extension instead.
 #if defined(__unix__)
 	    SDL_putenv("__GL_SYNC_TO_VBLANK=1");
 #else

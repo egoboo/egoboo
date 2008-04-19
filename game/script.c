@@ -1302,6 +1302,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, IfOperatorIsLinux);
   REGISTER_FUNCTION( opcode_lst, IfTargetIsOwner);
   REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
+  REGISTER_FUNCTION( opcode_lst, AdjustQuest);
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -2746,11 +2747,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_DisplayDebugMessage:
       // This function spits out a debug message
-      debug_message( 1, "aistate %d, aicontent %d, target %d", chraistate[ichr], chraicontent[ichr], chraitarget[ichr] );
-      debug_message( 1, "tmpx %d, tmpy %d", scr_globals.tmpx, scr_globals.tmpy );
-      debug_message( 1, "tmpdistance %d, tmpturn %d", scr_globals.tmpdistance, scr_globals.tmpturn );
-      debug_message( 1, "tmpargument %d, selfturn %d", scr_globals.tmpargument, chrturn_lr[ichr] );
-      break;
+	  if(CData.DevMode)
+	  {
+		  debug_message( 1, "aistate %d, aicontent %d, target %d", chraistate[ichr], chraicontent[ichr], chraitarget[ichr] );
+		  debug_message( 1, "tmpx %d, tmpy %d", scr_globals.tmpx, scr_globals.tmpy );
+		  debug_message( 1, "tmpdistance %d, tmpturn %d", scr_globals.tmpdistance, scr_globals.tmpturn );
+		  debug_message( 1, "tmpargument %d, selfturn %d", scr_globals.tmpargument, chrturn_lr[ichr] );
+	  }
+	break;
 
     case F_BlackTarget:
       // This function makes the target flash black
@@ -4213,11 +4217,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_BeatQuest:
       //This function marks a IDSZ in the targets quest.txt as beaten
-      if ( chrisplayer[loc_aitarget] )
+	  returncode = bfalse;
+	  if ( chrisplayer[loc_aitarget] )
       {
         snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
-        returncode = beat_quest_idsz( cTmp, scr_globals.tmpargument );
-        //Todo: Should we beat the quest idsz into all the players quest.txt?
+		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, 0 ) != -1) returncode = btrue;
       }
       break;
 
@@ -4266,6 +4270,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 	  camswing = 0;
       camswingrate = scr_globals.tmpargument;
       camswingamp = scr_globals.tmpdistance;
+      break;
+
+	case F_AdjustQuest:
+      //This function modifies the quest level for a specific quest IDSZ
+	  //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
+	  returncode = bfalse;
+	  if ( chrisplayer[loc_aitarget] && scr_globals.tmpdistance != 0 )
+      {
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
+		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, scr_globals.tmpdistance ) != -1) returncode = btrue;
+      }
       break;
 
     case F_End:

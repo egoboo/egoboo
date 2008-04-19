@@ -25,6 +25,8 @@
 #ifndef _EGOBOO_H_
 #define _EGOBOO_H_
 
+
+
 /* Typedefs for various platforms */
 #include "egoboo_types.h"
 
@@ -62,10 +64,7 @@ EXTERN bool_t     startpause EQ( btrue );   //Pause button avalible?
 
 #define NETREFRESH          1000                    // Every second
 #define NONETWORK           numservice              //
-#define MAXMODULE           100                     // Number of modules
 #define TITLESIZE           128                     // Size of a title image
-#define MAXSEQUENCE         256                     // Number of tracks in sequence
-#define MAXIMPORT           (32*9)                  // Number of subdirs in IMPORT directory
 
 #define NOSPARKLE           255
 
@@ -87,18 +86,18 @@ typedef enum respawn_mode_e
 #define PITDEPTH            -30                     // Depth to kill character
 #define PITNOSOUND          -256                    // Stop sound at bottom of pits...
 
-EXTERN Uint16  endtextindex[8];
-
-#define EXPKEEP 0.85                                // Experience to keep when respawning
-
 #define DISMOUNTZVEL        16
 #define DISMOUNTZVELFLY     4
 
-#define EDGE                128                     // Camera bounds
-#define FARTRACK            1200                    // For outside modules...
-#define EDGETRACK           800                     // Camtrack bounds
-
+//Max and limit stuff
+#define MAXMODULE           100                     // Number of modules
+#define MAXIMPORT           (32*9)                  // Number of subdirs in IMPORT directory
 #define MAXNUMINPACK        6                       // Max number of items to carry in pack
+#define MAXPASS             256                     // Maximum number of passages ( mul 32 )
+#define MAXSTAT             16                      // Maximum status displays
+#define MAXXP				((1<<30)-1)             // Maximum experience (Sint32 32)
+#define MAXMONEY			9999                    // Maximum money
+#define EXPKEEP 0.85                                // Experience to keep when respawning
 
 #define NOHIDE              127                     // Don't hide
 
@@ -142,9 +141,6 @@ typedef enum gender_e
 } GENDER;
 
 #define MANARETURNSHIFT     4                       // Tweak for making mana return balanced
-
-#define MAXPASS             256                     // Maximum number of passages ( mul 32 )
-#define MAXSTAT             16                      // Maximum status displays
 
 #define JOYBUTTON           8                       // Maximum number of joystick buttons
 #define MOUSEBUTTON         4
@@ -223,16 +219,17 @@ typedef enum damage_e
 #define DELAY_DAMAGETILE      32                      // Invincibility time
 #define DELAY_DAMAGE          16                      // Invincibility time
 #define DELAY_DEFEND          16                      // Invincibility time
-#define DROPXYVEL           8                       //
-#define DROPZVEL            7                       //
-#define JUMPATTACKVEL       -2                      //
-#define WATERJUMP           12                      //
+#define DROPXYVEL             8                       //
+#define DROPZVEL              7                       //
+#define JUMPATTACKVEL         -2                      //
+#define WATERJUMP             12                      //
 
-#define MAXSTOR             8                       // Storage data
-#define STORAND             7                       //
+//AI Storage data
+#define MAXSTOR             16  
+#define STORAND             7
 
 #define MAXWAY              8                       // Max number of Waypoints
-#define WAYTHRESH           128                     // Threshold for reaching waypoint
+#define WAYTHRESH           64 //128                     // Threshold for reaching waypoint
 #define MAXLINESIZE         1024                    //
 #define MAXAI               129                     //
 #define MAXCODE             1024                    // Number of lines in AICODES.TXT
@@ -445,11 +442,11 @@ typedef enum latch_button_e
 #define MAXCOMMAND                      256         // Max number of commands
 #define MAXCOMMANDSIZE                  64          // Max number of points in a command
 #define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
-#define MAXMODEL                        256         // Max number of models
+#define MAXMODEL                        256         // Max number of unique models
 #define MAXEVE                          MAXMODEL    // One enchant type per model
 #define MAXENCHANT                      128         // Number of enchantments
 #define MAXFRAME                        (128*32)    // Max number of frames in all models
-#define MAXCHR                          350         // Max number of characters
+#define MAXCHR                          350         // Max number of active characters ingame
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
 #define MAXLIGHTROTATION                256         // Number of premade light maps
@@ -549,11 +546,6 @@ EXTERN Uint16 bookicon  EQ( 0 );                      // The first book icon
 #define BEHIND 32768                                //
 #define LEFT 49152                                  //
 #define RIGHT 16384                                 //
-
-
-#define MAXXP    ((1<<30)-1)                               // Maximum experience (Sint32 32)
-#define MAXMONEY 9999                                      // Maximum money
-
 
 typedef enum team_e
 {
@@ -1197,7 +1189,7 @@ EXTERN float           chraigotox[MAXCHR][MAXWAY]; // Waypoint
 EXTERN float           chraigotoy[MAXCHR][MAXWAY]; // Waypoint
 EXTERN int             chraix[MAXCHR][MAXSTOR];    // Temporary values...  SetXY
 EXTERN int             chraiy[MAXCHR][MAXSTOR];    //
-EXTERN bool_t          chraimorphed[MAXCHR];       //Some various other stuff
+EXTERN bool_t          chraimorphed[MAXCHR];       // Some various other stuff
 
 EXTERN CHR_REF         chraitarget[MAXCHR];        // Who the AI is after
 EXTERN CHR_REF         chraiowner[MAXCHR];         // The character's owner
@@ -2201,7 +2193,8 @@ typedef enum script_opcode_e
   F_IfJumping,							//
   F_IfOperatorIsLinux,					//
   F_IfTargetIsOwner,                    // Scripted AI functions (v1.05)
-  F_SetCameraSwing						//
+  F_SetCameraSwing,						//
+  F_AdjustQuest 						//
 } OPCODE;
 
 typedef enum script_operation_e
@@ -2366,10 +2359,8 @@ EXTERN int               numplayerrespond;                       //
 EXTERN bool_t         mixeron EQ( bfalse );           //Is the SDL_Mixer loaded?
 #define MAXWAVE         16                            // Up to 16 waves per model
 #define VOLMIN          -4000                         // Minumum Volume level
-#define VOLUMERATIO     7                             // Volume ratio
 EXTERN Mix_Chunk	  *capwavelist[MAXMODEL][MAXWAVE];    //sounds in a object
 EXTERN Mix_Chunk	  *globalwave[MAXWAVE];               //All sounds loaded into memory
-EXTERN Mix_Chunk	  *wave;                             //Used for playing one selected sound file
 EXTERN int			  channel;                           //Which channel the current sound is using
 
 #define INVALID_SOUND   (-1)

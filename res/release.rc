@@ -19,4 +19,4 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-IDI_ICON1               ICON    DISCARDABLE     "egoboo.ico"
+IDI_ICON1               ICON    DISCARDABLE     "release.ico";

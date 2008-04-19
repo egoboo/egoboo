@@ -6,9 +6,9 @@
 
 int main( int argc, char* argv[] )
 {
-  SDL_Init( 0 );
   int f, c;
   Uint16 fmt;
+  SDL_Init( 0 );
   Mix_QuerySpec( &f, &fmt, &c );
   TTF_Init();
   TTF_Quit();

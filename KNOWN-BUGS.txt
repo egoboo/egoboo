@@ -19,8 +19,6 @@ when dropped.
 - Whenever a spellbook is dropped, it plays the wrong animation sequence. Currently it
 runs the spellbok burns away when dropped.
 
-- Items inside chests/(inventories?) can still spawn particles. (Still running AI scripts?)
-
 - Hp meters are buggy when changed
 
 - "killed" objects still run AI scripts.

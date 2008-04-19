@@ -195,7 +195,8 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
 
   if ( local_pip >= MAXPRTPIP )
   {
-    fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : local_pip == %d is an invalid value\n", local_pip );
+    //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : local_pip == %d is an invalid value\n", local_pip );
+	if(CData.DevMode) log_warning("spawn_one_particle() - Failed to spawn : local_pip == %d is an invalid value\n", local_pip );
     return MAXPRT;
   }
 
@@ -212,7 +213,8 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   iprt = get_free_particle( pipforce[glob_pip] );
   if ( iprt == MAXPRT )
   {
-    fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
+    //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
+	if(CData.DevMode) log_warning( "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
     return MAXPRT;
   }
 
@@ -310,7 +312,8 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
     // Does it go away?
     if ( !VALID_CHR( prt_target ) && pipneedtarget[glob_pip] )
     {
-      fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
+      //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
+	  if(CData.DevMode) log_warning("spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
 
       free_one_particle( iprt );
       return MAXPRT;

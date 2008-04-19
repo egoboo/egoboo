@@ -250,7 +250,7 @@ bool_t module_reference_matches( char *szLoadName, IDSZ idsz );
 void add_module_idsz( char *szLoadName, IDSZ idsz );
 
 bool_t add_quest_idsz( char *whichplayer, IDSZ idsz );
-bool_t beat_quest_idsz( char *whichplayer, IDSZ idsz );
+int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment );
 int check_player_quest( char *whichplayer, IDSZ idsz );
 
 bool_t run_function( Uint32 value, CHR_REF character );
@@ -312,6 +312,8 @@ Uint16 get_framefx( char * szName );
 void make_framelip( Uint16 object, ACTION action );
 void get_actions( Uint16 object );
 
+
+//File read and write functions
 bool_t undo_pair_fp8( PAIR * ppair, RANGE * prange );
 bool_t fget_pair_fp8( FILE* fileread, PAIR * ppair );
 bool_t fget_next_pair_fp8( FILE* fileread, PAIR * ppair );

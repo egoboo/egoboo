@@ -1,4 +1,5 @@
 /* Egoboo - char.c
+*  Character, monster and object handling.
 */
 
 /*
@@ -486,7 +487,7 @@ void free_one_character( CHR_REF ichr )
 
   if ( !VALID_CHR( ichr ) ) return;
 
-  fprintf( stdout, "free_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", chrmodel[ichr], capclassname[chrmodel[ichr]], ichr );
+  //fprintf( stdout, "free_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", chrmodel[ichr], capclassname[chrmodel[ichr]], ichr );
 
   //remove any collision volume octree
   if(NULL != chrbmpdata[ichr].cv_tree)
@@ -5420,14 +5421,17 @@ void export_one_character_name( char *szSaveName, CHR_REF character )
   // Can it export?
   profile = chrmodel[character];
   filewrite = fs_fileOpen( PRI_FAIL, "export_one_character_name()", szSaveName, "w" );
-  if ( filewrite )
+  if ( NULL == filewrite )
   {
-    convert_spaces( chrname[character], sizeof( chrname[character] ), chrname[character] );
-    fprintf( filewrite, ":%s\n", chrname[character] );
-    fprintf( filewrite, ":STOP\n\n" );
-    fs_fileClose( filewrite );
+    log_error( "Error writing file (%s)\n", szSaveName );  //Something went wrong
+    return;
   }
-  else log_error( "Error writing file (%s)\n", szSaveName );
+
+  convert_spaces( chrname[character], sizeof( chrname[character] ), chrname[character] );
+  fprintf( filewrite, ":%s\n", chrname[character] );
+  fprintf( filewrite, ":STOP\n\n" );
+  fs_fileClose( filewrite );
+  return;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6276,7 +6280,6 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
   // ZF> This function checks if the specified player has the IDSZ in his or her quest.txt
   // and returns the quest level of that specific quest (Or -2 if it is not found, -1 if it is finished)
 
-  //TODO: should also check if the IDSZ isnt beaten
   FILE *fileread;
   STRING newloadname;
   IDSZ newidsz;
@@ -6298,8 +6301,7 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
     if ( newidsz == idsz )
     {
       foundidsz = btrue;
-      //iTmp = fget_int(fileread);  //Read value behind colon (TODO)
-      iTmp = 0; //BAD should be read value
+      iTmp = fget_int( fileread );  //Read value behind colon and IDSZ
       result = iTmp;
     }
   }
@@ -6341,42 +6343,85 @@ int modify_quest_level( char *whichplayer, IDSZ idsz, int adjustment )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t beat_quest_idsz( char *whichplayer, IDSZ idsz )
+int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 {
-  // ZF> This function marks a IDSZ in the quest.txt file as beaten (-1)
-  //     and returns btrue if it succeeded.
-  FILE *filewrite;
-  STRING newloadname;
+// ZF> This function increases or decreases a Quest IDSZ quest level by the amount determined in
+// adjustment. It then returns the current quest level it now has.
+// It returns -1 if failed and if the adjustment is 0, the quest is marked as beaten...
+ 
+  FILE *newfile, *fileread;
+  STRING newloadname, copybuffer;
   bool_t foundidsz = bfalse;
   IDSZ newidsz;
-  Uint8 QuestLevel;
+  Sint8 NewQuestLevel = -1, QuestLevel;
 
   // Try to open the file in read/write mode
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-  filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "w+" );
-  if ( NULL == filewrite ) return bfalse;
+  fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
+  if ( NULL == fileread ) return NewQuestLevel;
 
   //Now check each expansion until we find correct IDSZ
-  while ( fgoto_colon_yesno( filewrite ) && !foundidsz )
+  while ( fgoto_colon_yesno( fileread ) && !foundidsz )
   {
-    newidsz = fget_idsz( filewrite );
+    newidsz = fget_idsz( fileread );
     if ( newidsz == idsz )
     {
       foundidsz = btrue;
-      QuestLevel = fget_int( filewrite );
-      if ( QuestLevel == -1 ) 
+      QuestLevel = fget_int( fileread );
+      if ( QuestLevel == -1 )					//Quest is already finished, do not modify
 	  {  
-		  fs_fileClose( filewrite );
-		  return bfalse;  //Is quest is already finished?
+		  fs_fileClose( fileread );
+		  return NewQuestLevel;
 	  }
+	  else
+	  {
+		  //First close the file, rename it and reopen it for reading
+		  fs_fileClose( fileread );
+		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+		  snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_quest.txt", CData.players_dir, whichplayer);
+		  rename(newloadname, copybuffer); 
+          fileread = fs_fileOpen( PRI_NONE, NULL, copybuffer, "r" );
 
-	  //TODO: Replace QuestLevel in quest.txt with -1
-	  break;
+		  //Then make the new Quest.txt with the proper modifications
+		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+          newfile = fs_fileOpen( PRI_WARN, NULL, newloadname, "w" );
+		  fprintf(newfile, "//This file keeps order of all the quests for the player\n");
+		  fprintf(newfile, "//The number after the IDSZ shows the quest level. -2 means it is completed.\n");
+          
+		  while ( fgoto_colon_yesno( fileread ))
+		  {
+			  newidsz = fget_idsz( fileread );
+			  if ( newidsz != idsz )
+			  {
+				QuestLevel = fget_int( fileread );
+				snprintf( copybuffer, sizeof( copybuffer ), ":[%s] %i\n",  undo_idsz(newidsz), QuestLevel );
+                fprintf( newfile, copybuffer );
+			  }
+			  else	//This is where we actually modify the part we need
+			  {
+				  QuestLevel = fget_int( fileread );
+				  if(QuestLevel == 0) NewQuestLevel = -1;
+				  else 
+				  {
+					  NewQuestLevel = QuestLevel + adjustment;
+					  if(NewQuestLevel < 0) NewQuestLevel = 0;
+				  }
+				  fprintf(newfile, ":[%s] %i\n", undo_idsz(idsz), NewQuestLevel);
+			  }
+		  }		  
+		  fs_fileClose( newfile );
+	  }
     }
   }
-  fs_fileClose( filewrite );
-
-  return foundidsz;
+  fs_fileClose( fileread );
+  
+  //Delete any temp buffer files
+  if(foundidsz)
+  {
+    snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_quest.txt", CData.players_dir, whichplayer);
+	fs_deleteFile( copybuffer );
+  }
+  return NewQuestLevel;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -139,7 +139,7 @@ void screen_dump_matrix( matrix_4x4 a )
 }
 
 //--------------------------------------------------------------------------------------------
-void stdout_dump_matrix( matrix_4x4 a )
+/*void stdout_dump_matrix( matrix_4x4 a )
 {
   int i, j;
 
@@ -153,7 +153,7 @@ void stdout_dump_matrix( matrix_4x4 a )
     fprintf( stdout, "\n" );
   }
   fprintf( stdout, "\n" );
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 //void project_view()

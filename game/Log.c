@@ -117,7 +117,7 @@ void log_error( const char *format, ... )
   va_end( args );
 
   //Close down various stuff and release memory
-  if ( !memory_cleanUp() ) log_message( "WARNING! COULD NOT CLEAN MEMORY AND SHUTDOWN SUPPORT SYSTEMS!!\n" );
+  memory_cleanUp();
   fflush( logFile );
   exit( -1 );
 }
