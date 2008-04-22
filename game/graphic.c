@@ -4438,6 +4438,13 @@ void sdlinit( int argc, char **argv )
 
   atexit( SDL_Quit );
 
+
+ //Force OpenGL hardware acceleration (This must be done before video mode)
+  if(CData.gfxacceleration)
+  {
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+  }
+
   // log the video driver info
   SDL_VideoDriverName( strbuffer, 256 );
   log_info( "Using Video Driver - %s\n", strbuffer );
@@ -4449,7 +4456,7 @@ void sdlinit( int argc, char **argv )
   theSurface = SDL_LoadBMP( CStringTmp1 );
   if ( theSurface == NULL )
   {
-    log_warning( "Unable to load icon (basicdat/icon.bmp)\n" );
+    log_warning( "Unable to load icon (%s)\n", CStringTmp1 );
   }
   SDL_WM_SetIcon( theSurface, NULL );
 
@@ -4473,19 +4480,6 @@ void sdlinit( int argc, char **argv )
   }
   video_mode_chaged = bfalse;
 
-  //Debug
-  //Enable antialiasing X16
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-  SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
-  glEnable(GL_MULTISAMPLE_ARB);
-  //glEnable(GL_MULTISAMPLE);
-  //Debug end
-
-  //Force OpenGL hardware acceleration
-  if(CData.gfxacceleration)
-  {
-    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-  }
 
   //Grab all the available video modes
   video_mode_list = SDL_ListModes( displaySurface->format, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_FULLSCREEN | SDL_OPENGL | SDL_HWACCEL | SDL_SRCALPHA );

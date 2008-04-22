@@ -266,7 +266,7 @@ bool_t get_module_data(int modnumber, char *szLoadName )
 	playerhasquest = bfalse;
 	iTmp = 0;
 	
-	while ( playerhasquest == bfalse && iTmp < numloadplayer)
+	while ( !playerhasquest && iTmp < numloadplayer)
 	{
 	  snprintf( playername, sizeof( playername ), "%s", loadplayerdir[iTmp] );
       if( check_player_quest( playername, idsz ) >= 0 ) playerhasquest = btrue;

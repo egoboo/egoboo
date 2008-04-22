@@ -1,5 +1,3 @@
-- The panic button (CTRL+Q) makes the game crash
-
 - Starting xp for NPC and monsters does not give them level ups
 
 - Object size is not correct. Mephit wings are way bigger and do not move anymore. Deamon Lord too (Uses same model)
@@ -7,9 +5,6 @@
 - Not sure if this is a bug: If egoboo finds a script error when running a module with the Debug version (as opposed to the release binary),
   the game crashes. (something to do with assert failed in script.c line 478)
   Solution: Running the game in release binary shows where the script error is and you can fix it.
-
-- Changing video settings, Save&Return to menu, then returning to video menu shows settings are not changed...
-workaround: restart game to get it correct or change settings manually in setup.txt
 
 - Screenshots don't work (New camera?)
 
@@ -32,9 +27,5 @@ runs the spellbok burns away when dropped.
 - Hp meters are buggy when changed
 
 - "killed" objects still run AI scripts.
-
-- The options menu is buggy. It doesnt save and sometimes load settings correctly.
-workaround: change settings manually in setup.txt (altough opening the setup menu will change
-some settings, even if you do not specify it to do so)
 
 - SetTargetToNearestBlahID doesn't work correctly. It targets anything.

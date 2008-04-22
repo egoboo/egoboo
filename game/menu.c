@@ -1453,7 +1453,7 @@ int mnu_doOptions( float deltaTime )
       menuState = MM_Begin; // Make sure this all resets next time mnu_doMain is called
 
       // Export some of the menu options
-      update_options_data();
+      //update_options_data();
 
       // Set the next menu to load
       result = menuChoice;
@@ -1477,6 +1477,7 @@ int mnu_doAudioOptions( float deltaTime )
   switch ( menuState )
   {
     case MM_Begin:
+
       // set up menu variables
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
@@ -1677,7 +1678,10 @@ int mnu_doAudioOptions( float deltaTime )
 
 		//If the number of sound channels changed, allocate them properly
 		if( OData.maxsoundchannel != CData.maxsoundchannel ) Mix_AllocateChannels( OData.maxsoundchannel );
-        
+	  
+		//Update options data, user may have changed settings last time she accessed the video menu
+        update_options_data();
+
 		menuState = MM_Leaving;
       }
 
@@ -1838,6 +1842,7 @@ int mnu_doVideoOptions( float deltaTime )
       if ( OData.fullscreen ) mnu_widgetList[3].text = "True";
       else mnu_widgetList[3].text = "False";
 
+	  //Reflections
       if ( OData.refon )
       {
         mnu_widgetList[4].text = "Low";
@@ -1850,11 +1855,13 @@ int mnu_doVideoOptions( float deltaTime )
       else mnu_widgetList[4].text = "Off";
 
 
+	  //Max messages
       snprintf( OData.sz_maxmessage, sizeof( OData.sz_maxmessage ), "%i", OData.maxmessage );
       if ( OData.maxmessage > MAXMESSAGE || OData.maxmessage < 0 ) OData.maxmessage = MAXMESSAGE - 1;
       if ( OData.maxmessage == 0 ) snprintf( OData.sz_maxmessage, sizeof( OData.sz_maxmessage ), "None" );         //Set to default
       mnu_widgetList[11].text = OData.sz_maxmessage;
 
+	  //Shadows
       if ( OData.shaon )
       {
         mnu_widgetList[6].text = "Normal";
@@ -1862,6 +1869,7 @@ int mnu_doVideoOptions( float deltaTime )
       }
       else mnu_widgetList[6].text = "Off";
 
+	  //Z depth
       if ( OData.scrz != 32 && OData.scrz != 16 && OData.scrz != 24 )
       {
         OData.scrz = 16;       //Set to default
@@ -1869,9 +1877,11 @@ int mnu_doVideoOptions( float deltaTime )
       snprintf( OData.sz_scrz, sizeof( OData.sz_scrz ), "%i", OData.scrz );      //Convert the integer to a char we can use
       mnu_widgetList[7].text = OData.sz_scrz;
 
+	  //Vsync
       if ( OData.vsync ) mnu_widgetList[8].text = "Yes";
       else mnu_widgetList[8].text = "No";
 
+	  //3D effects
       if ( OData.dither )
       {
         mnu_widgetList[9].text = "Okay";
@@ -2275,7 +2285,10 @@ int mnu_doVideoOptions( float deltaTime )
 
         //Reload some of the graphics
         load_graphics();
-      }
+	  
+		//Update options data, user may have changed settings last time she accessed the video menu
+        update_options_data();
+	  }
 
       if ( menuChoice != 0 )
       {

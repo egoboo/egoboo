@@ -1789,7 +1789,7 @@ void read_setup( char* filename )
   }
 
   //Force openGL hardware acceleration
-  if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "GFX_ACCELERATION", &CData.backgroundvalid ) == 0 )
+  if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "FORCE_GFX_ACCEL", &CData.backgroundvalid ) == 0 )
   {
     CData.gfxacceleration = CData_default.gfxacceleration;
   }
@@ -3795,7 +3795,7 @@ void set_default_config_data(CONFIG_DATA * pcon)
   pcon->fogallowed = btrue;          //
   pcon->particletype = PART_NORMAL;
   pcon->vsync = bfalse;
-  pcon->gfxacceleration = btrue;
+  pcon->gfxacceleration = bfalse;
   pcon->soundvalid = bfalse;     //Allow playing of sound?
   pcon->musicvalid = bfalse;     // Allow music and loops?
   pcon->networkon  = btrue;              // Try to connect?
