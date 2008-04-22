@@ -584,9 +584,11 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Get a new character
   if ( !madused[profile] )
   {
-	if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
-    //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
-    fs_fileClose( filewrite );
+	if(CData.DevMode) 
+	{
+	  fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
+	  fs_fileClose( filewrite );
+	}
 	return MAXCHR;
   }
 
@@ -612,9 +614,11 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-	  if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
-      //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
-      fs_fileClose( filewrite );
+	  if(CData.DevMode) 
+	  {
+        fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
+        fs_fileClose( filewrite );
+	  }
 	  return MAXCHR;
     }
   }
@@ -624,15 +628,15 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-	  if(CData.DevMode) fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
-      //fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
-      fs_fileClose( filewrite );
+	  if(CData.DevMode) 
+	  {
+	    fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
+        fs_fileClose( filewrite );
+	  }
 	  return MAXCHR;
     }
   }
 
-
-  //fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
   if(CData.DevMode) 
   {
 	  fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );

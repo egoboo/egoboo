@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C++ Express 2008
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game_vs9", "game\game_vs9.vcproj", "{DCD532D6-14A8-49B0-8187-9A817732973B}"
 	ProjectSection(ProjectDependencies) = postProject
 		{58E92930-56AC-40BD-9FCC-93DCF3E02D38} = {58E92930-56AC-40BD-9FCC-93DCF3E02D38}
@@ -10,17 +10,27 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Debug|Win64 = Debug|Win64
 		Release|Win32 = Release|Win32
+		Release|Win64 = Release|Win64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{DCD532D6-14A8-49B0-8187-9A817732973B}.Debug|Win32.ActiveCfg = Debug|Win32
 		{DCD532D6-14A8-49B0-8187-9A817732973B}.Debug|Win32.Build.0 = Debug|Win32
+		{DCD532D6-14A8-49B0-8187-9A817732973B}.Debug|Win64.ActiveCfg = Debug|x64
+		{DCD532D6-14A8-49B0-8187-9A817732973B}.Debug|Win64.Build.0 = Debug|x64
 		{DCD532D6-14A8-49B0-8187-9A817732973B}.Release|Win32.ActiveCfg = Release|Win32
 		{DCD532D6-14A8-49B0-8187-9A817732973B}.Release|Win32.Build.0 = Release|Win32
+		{DCD532D6-14A8-49B0-8187-9A817732973B}.Release|Win64.ActiveCfg = Release|x64
+		{DCD532D6-14A8-49B0-8187-9A817732973B}.Release|Win64.Build.0 = Release|x64
 		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Debug|Win32.ActiveCfg = Debug|Win32
 		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Debug|Win32.Build.0 = Debug|Win32
+		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Debug|Win64.ActiveCfg = Debug|x64
+		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Debug|Win64.Build.0 = Debug|x64
 		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Release|Win32.ActiveCfg = Release|Win32
 		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Release|Win32.Build.0 = Release|Win32
+		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Release|Win64.ActiveCfg = Release|x64
+		{58E92930-56AC-40BD-9FCC-93DCF3E02D38}.Release|Win64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

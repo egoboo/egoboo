@@ -4141,14 +4141,6 @@ void draw_text( GLtexture * pfnt )
       draw_string( pfnt, -90 + CData.scrx / 2, 0 + CData.scry / 2, NULL, text  );
     }
 
-    //Pressed panic button
-    if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
-    {
-      log_info( "User pressed escape button (LCTRL+Q)... Quitting game.\n" );
-      gameActive = bfalse;
-      moduleActive = bfalse;
-    }
-
     // TIMER
     if ( timeron )
     {
@@ -4303,7 +4295,7 @@ void load_all_menu_images()
     fprintf( filesave, "This file logs all of the modules found\n" );
     fprintf( filesave, "** Denotes an invalid module (Or locked)\n\n" );
   }
-  else log_warning( "Could not write to modules.txt\n" );
+  else log_warning( "Could not write to %s\n", CData.modules_file );
 
   // Search for .mod directories
   FileName = fs_findFirstFile( CData.modules_dir, "mod" );
@@ -4437,7 +4429,7 @@ void sdlinit( int argc, char **argv )
     log_message("Failed!\n");
 
     log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
-    exit( 1 );
+	//exit( 1 );
   }
   else
   {
@@ -4477,7 +4469,7 @@ void sdlinit( int argc, char **argv )
   if ( displaySurface == NULL )
   {
     log_error( "Unable to set video mode: %s\n", SDL_GetError() );
-    exit( 1 );
+    //exit( 1 );
   }
   video_mode_chaged = bfalse;
 

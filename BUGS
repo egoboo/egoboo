@@ -1,3 +1,9 @@
+- The panic button (CTRL+Q) makes the game crash
+
+- Starting xp for NPC and monsters does not give them level ups
+
+- Object size is not correct. Mephit wings are way bigger and do not move anymore. Deamon Lord too (Uses same model)
+
 - Not sure if this is a bug: If egoboo finds a script error when running a module with the Debug version (as opposed to the release binary),
   the game crashes. (something to do with assert failed in script.c line 478)
   Solution: Running the game in release binary shows where the script error is and you can fix it.

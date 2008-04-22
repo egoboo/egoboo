@@ -103,23 +103,6 @@ void free_one_particle_no_sound( PRT_REF particle )
 }
 
 //--------------------------------------------------------------------------------------------
-void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound )
-{
-  //This function plays a sound effect for a particle
-  if ( INVALID_SOUND == sound ) return;
-
-  //Play local sound or else global (coins for example)
-  if ( MAXMODEL != prtmodel[particle] )
-  {
-    play_sound( intensity, prtpos[particle], capwavelist[prtmodel[particle]][sound], 0, prtmodel[particle], sound );
-  }
-  else
-  {
-    play_sound( intensity, prtpos[particle], globalwave[sound], 0, prtmodel[particle], sound );
-  };
-}
-
-//--------------------------------------------------------------------------------------------
 void free_one_particle( PRT_REF particle )
 {
   // ZZ> This function sticks a particle back on the free particle stack and
@@ -198,8 +181,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
 
   if ( local_pip >= MAXPRTPIP )
   {
-    //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : local_pip == %d is an invalid value\n", local_pip );
-	if(CData.DevMode) 
+    if(CData.DevMode) 
 	{
 		fprintf(filewrite, "WARNING: spawn_one_particle() - Failed to spawn : local_pip == %d is an invalid value\n", local_pip );
 		fs_fileClose( filewrite );
@@ -220,10 +202,9 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   iprt = get_free_particle( pipforce[glob_pip] );
   if ( iprt == MAXPRT )
   {
-    //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
-	if(CData.DevMode) 
+    if(CData.DevMode) 
 	{
-		fprintf(filewrite, "WARNING: spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
+		fprintf(filewrite, "WARNING: spawn_one_particle() - Failed to spawn : get_free_particle() returned invalid value %d\n", iprt );
 		fs_fileClose( filewrite );
 	}
     return MAXPRT;
@@ -234,7 +215,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   if ( VALID_CHR( characterattach ) ) weight = MAX( weight, chrweight[characterattach] );
   prtweight[iprt] = weight;
 
-  if(CData.DevMode) fprintf( filewrite, "SUCCESS: spawn_one_particle() - local local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
+  //if(CData.DevMode) fprintf( filewrite, "SUCCESS: spawn_one_particle() - local local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
   
   // Necessary data for any part
   prton[iprt] = btrue;
@@ -319,12 +300,11 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
     // Does it go away?
     if ( !VALID_CHR( prt_target ) && pipneedtarget[glob_pip] )
     {
-      //fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
-		if(CData.DevMode)
-		{
-			fprintf( filewrite, "WARNING: spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
-		    fs_fileClose( filewrite );
-		}
+      if(CData.DevMode)
+	  {
+		fprintf( filewrite, "WARNING: spawn_one_particle() - Failed to spawn : pip requires target and no target specified\n", iprt );
+	    fs_fileClose( filewrite );
+      }
       free_one_particle( iprt );
       return MAXPRT;
     }

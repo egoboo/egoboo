@@ -78,7 +78,7 @@ void release_all_titleimages();
 void release_map();
 void release_module( void );
 void close_session();
-bool_t memory_cleanUp();
+void memory_cleanUp();
 void make_newloadname( char *modname, char *appendname, char *newloadname );
 void export_one_character( CHR_REF character, Uint16 owner, int number );
 void export_all_local_players( void );
@@ -140,6 +140,7 @@ void render_particle_reflections();
 void render_mad_lit( CHR_REF character );
 void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode );
 
+//Passage control functions
 bool_t open_passage( Uint32 passage );
 void check_passage_music();
 int break_passage( Uint32 passage, Uint16 starttile, Uint16 frames,
@@ -154,6 +155,10 @@ Uint32 add_shop_passage( Uint16 owner, Uint32 passage );
 Uint32 add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint32 mask );
 void flash_character_height( CHR_REF character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
+
+
+
+
 void flash_character( CHR_REF character, Uint8 value );
 void add_to_dolist( Uint16 cnt );
 void order_dolist( void );

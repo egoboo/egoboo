@@ -2191,12 +2191,13 @@ typedef enum script_opcode_e
   F_IfTargetHasQuest,                   //
   F_SetQuestLevel, 						//
   F_IfTargetHasNotFullMana,				//
-  F_IfJumping,							//
+  F_IfDoingAction,							//
   F_IfOperatorIsLinux,					//
   F_IfTargetIsOwner,                    // Scripted AI functions (v1.05)
   F_SetCameraSwing,						//
   F_EnableRespawn,						//
-  F_DisableRespawn						//
+  F_DisableRespawn,						//
+  F_IfButtonPressed						//
 } OPCODE;
 
 typedef enum script_operation_e

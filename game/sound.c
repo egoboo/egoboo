@@ -98,6 +98,7 @@ void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_po
 
 };
 
+//------------------------------------------------------------------------------
 int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber )
 {
   // ZF> This function plays a specified sound
@@ -125,6 +126,22 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
   return channel;
 }
 
+//--------------------------------------------------------------------------------------------
+void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound )
+{
+  //This function plays a sound effect for a particle
+  if ( INVALID_SOUND == sound ) return;
+
+  //Play local sound or else global (coins for example)
+  if ( MAXMODEL != prtmodel[particle] )
+  {
+    play_sound( intensity, prtpos[particle], capwavelist[prtmodel[particle]][sound], 0, prtmodel[particle], sound );
+  }
+  else
+  {
+    play_sound( intensity, prtpos[particle], globalwave[sound], 0, prtmodel[particle], sound );
+  };
+}
 
 //------------------------------------------------------------------------------
 void stop_sound( int whichchannel )
@@ -230,6 +247,7 @@ bool_t load_all_music_sounds()
   return btrue;
 }
 
+//------------------------------------------------------------------------------
 void play_music( int songnumber, int fadetime, int loops )
 {
   // ZF> This functions plays a specified track loaded into memory
@@ -241,6 +259,7 @@ void play_music( int songnumber, int fadetime, int loops )
   }
 }
 
+//------------------------------------------------------------------------------
 void stop_music(int fadetime)
 {
   //ZF> This function sets music track to pause

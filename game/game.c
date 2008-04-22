@@ -104,7 +104,7 @@ ACTION what_action( char cTmp )
 }
 
 //------------------------------------------------------------------------------
-bool_t memory_cleanUp()
+void memory_cleanUp()
 {
   //ZF> This function releases all loaded things in memory and cleans up everything properly
   log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
@@ -119,9 +119,7 @@ bool_t memory_cleanUp()
   sys_shutdown();
   free_mesh_memory();				  //Free the mesh memory
   SDL_Quit();						  //Quit main SDL
-
   log_message("Succeeded!\n");
-  return btrue;
 }
 
 //------------------------------------------------------------------------------
@@ -369,6 +367,7 @@ void quit_game( void )
   }
 
   memory_cleanUp();
+  exit(0);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2503,7 +2502,22 @@ void check_stats()
       if ( SDLKEYDOWN( SDLK_7 ) && VALID_CHR( plachr[6] ) )  give_experience( plachr[6], 25, XP_DIRECT );
       if ( SDLKEYDOWN( SDLK_8 ) && VALID_CHR( plachr[7] ) )  give_experience( plachr[7], 25, XP_DIRECT );
       statdelay = 0;
-    }
+    }    
+
+	//CTRL+M - show or hide map
+	if ( CData.DevMode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN (SDLK_LCTRL ) )
+    {
+	  if(mapon) 
+	  {
+		  mapon = bfalse;
+		  youarehereon = bfalse;
+	  }
+	  else 
+	  {
+		  mapon = btrue;
+		  youarehereon = btrue;
+	  }
+	}
   }
 }
 
@@ -4047,6 +4061,8 @@ int proc_program( int argc, char **argv )
         {
           log_info( "User pressed escape button (LCTRL+Q)... Quitting game gracefully.\n" );
           procState = PROC_Leaving;
+		  memory_cleanUp();
+		  exit(0);
         }
 
 

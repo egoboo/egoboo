@@ -6315,7 +6315,7 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
 {
-  // ZF> This function writes a IDSZ into a player quest.txt file, returns btrue if succeeded
+  // ZF> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
   FILE *filewrite;
   STRING newloadname;
 
@@ -6324,7 +6324,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
 
   // Try to open the file in read and append mode
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-  filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "a+" );
+  filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "a" );
   if ( NULL == filewrite ) return bfalse;
 
   fprintf( filewrite, "\n:[%4s]: 0", undo_idsz( idsz ) );
@@ -6338,13 +6338,13 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 {
 // ZF> This function increases or decreases a Quest IDSZ quest level by the amount determined in
 // adjustment. It then returns the current quest level it now has.
-// It returns -1 if failed and if the adjustment is 0, the quest is marked as beaten...
+// It returns -2 if failed and if the adjustment is 0, the quest is marked as beaten...
  
   FILE *newfile, *fileread;
   STRING newloadname, copybuffer;
   bool_t foundidsz = bfalse;
   IDSZ newidsz;
-  Sint8 NewQuestLevel = -1, QuestLevel;
+  Sint8 NewQuestLevel = -2, QuestLevel;
 
   // Try to open the file in read/write mode
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
@@ -6377,7 +6377,7 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
           newfile = fs_fileOpen( PRI_WARN, NULL, newloadname, "w" );
 		  fprintf(newfile, "//This file keeps order of all the quests for the player\n");
-		  fprintf(newfile, "//The number after the IDSZ shows the quest level. -2 means it is completed.\n");
+		  fprintf(newfile, "//The number after the IDSZ shows the quest level. -1 means it is completed.\n");
           
 		  //Now read the old quest file and copy each line to the new one
 		  while ( fgoto_colon_yesno( fileread ))
@@ -6386,19 +6386,19 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 			  if ( newidsz != idsz )
 			  {
 				QuestLevel = fget_int( fileread );
-				snprintf( copybuffer, sizeof( copybuffer ), ":[%s] %i\n",  undo_idsz(newidsz), QuestLevel );
+				snprintf( copybuffer, sizeof( copybuffer ), "\n:[%s] %i",  undo_idsz(newidsz), QuestLevel );
                 fprintf( newfile, copybuffer );
 			  }
 			  else	//This is where we actually modify the part we need
 			  {
 				  QuestLevel = fget_int( fileread );
-				  if(QuestLevel == 0) NewQuestLevel = -1;
+				  if(adjustment == 0) NewQuestLevel = -1;
 				  else 
 				  {
 					  NewQuestLevel = QuestLevel + adjustment;
 					  if(NewQuestLevel < 0) NewQuestLevel = 0;
 				  }
-				  fprintf(newfile, ":[%s] %i\n", undo_idsz(idsz), NewQuestLevel);
+				  fprintf(newfile, "\n:[%s] %i", undo_idsz(idsz), NewQuestLevel);
 			  }
 		  }		  
 		  fs_fileClose( newfile );

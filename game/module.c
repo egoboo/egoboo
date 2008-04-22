@@ -253,7 +253,6 @@ bool_t get_module_data(int modnumber, char *szLoadName )
   Uint32 idsz;
   Sint16 iTmp;
   bool_t playerhasquest;
-
   fileread = fs_fileOpen( PRI_NONE, NULL, szLoadName, "r" );
   if ( NULL != fileread )
   {
@@ -266,14 +265,16 @@ bool_t get_module_data(int modnumber, char *szLoadName )
 	//Check all selected players directories
 	playerhasquest = bfalse;
 	iTmp = 0;
-	while ( playerhasquest && bfalse || iTmp < numloadplayer)
+	
+	while ( playerhasquest == bfalse && iTmp < numloadplayer)
 	{
 	  snprintf( playername, sizeof( playername ), "%s", loadplayerdir[iTmp] );
       if( check_player_quest( playername, idsz ) >= 0 ) playerhasquest = btrue;
 	  iTmp++;
 	}
 
-   if( module_reference_matches( reference, idsz ) || playerhasquest )
+	//Check for unlocked modules (Both in Quest IDSZ and Module IDSZ). Skip this if in DevMode.
+  	if( CData.DevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
       globalname = szLoadName;
       modimportamount[modnumber] = fget_next_int( fileread );
@@ -284,7 +285,8 @@ bool_t get_module_data(int modnumber, char *szLoadName )
       fget_next_bool( fileread );  // modrtscontrol[modnumber]
       fget_next_string( fileread, generictext, sizeof( generictext ) );
       iTmp = 0;
-      while ( iTmp < RANKSIZE - 1 )
+
+	  while ( iTmp < RANKSIZE - 1 )
       {
         modrank[modnumber][iTmp] = generictext[iTmp];
         iTmp++;
@@ -294,9 +296,11 @@ bool_t get_module_data(int modnumber, char *szLoadName )
 
       // Read the expansions
       return btrue;
-    }
+
+	}
   }
   return bfalse;
+
 }
 
 //--------------------------------------------------------------------------------------------

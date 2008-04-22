@@ -680,34 +680,6 @@ void fget_code( FILE * pfile )
   opcode_lst.count++;
 }
 
-//------------------------------------------------------------------------------
-//void load_ai_codes(char* loadname)
-//{
-//  // ZZ> This function loads all of the function and variable names
-//  FILE* fileread;
-//  int read;
-//
-//  opcode_lst.count = 0;
-//  fileread = fs_fileOpen(PRI_NONE, NULL, loadname, "rb");
-//  if (NULL != fileread)
-//  {
-//    scr_intern.load_size = (int)fread(&cLoadBuffer[0], 1, MD2MAXLOADSIZE, fileread);
-//    read = 0;
-//    read = ai_goto_colon(read);
-//    while (read != scr_intern.load_size)
-//    {
-//      fget_code(read);
-//      read = ai_goto_colon(read);
-//    }
-//    fs_fileClose(fileread);
-//  }
-//  else log_warning("Could not load script AI functions or variables (%s)\n", loadname);
-//}
-
-// Don't use the aicodes file, just register them in the program.
-// There will never be a reason to change them, and it will prevent transcription mistakes between the
-// source code and the aicodes.txt file
-
 #define REGISTER_OPCODE(LIST,TYPE,CODE,NAME)  { strncpy(LIST.opcode[LIST.count].name, NAME, MAXCODENAMESIZE); LIST.opcode[LIST.count].type = (Uint8)TYPE; LIST.opcode[LIST.count].value = (Uint16)CODE; LIST.count++; }
 #define REGISTER_FUNCTION(LIST,NAME)          { strncpy(LIST.opcode[LIST.count].name, #NAME, MAXCODENAMESIZE); LIST.opcode[LIST.count].type = (Uint8)'F'; LIST.opcode[LIST.count].value = (Uint16)F_##NAME; LIST.count++; }
 #define REGISTER_FUNCTION_ALIAS(LIST,NAME,ALIAS)          { strncpy(LIST.opcode[LIST.count].name, ALIAS, MAXCODENAMESIZE); LIST.opcode[LIST.count].type = (Uint8)'F'; LIST.opcode[LIST.count].value = (Uint16)F_##NAME; LIST.count++; }
@@ -1293,7 +1265,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, IfTargetHasQuest);
   REGISTER_FUNCTION( opcode_lst, SetQuestLevel);
   REGISTER_FUNCTION( opcode_lst, IfTargetHasNotFullMana);
-  REGISTER_FUNCTION( opcode_lst, IfJumping);
+  REGISTER_FUNCTION( opcode_lst, IfDoingAction);
   REGISTER_FUNCTION( opcode_lst, DropTargetKeys);
   REGISTER_FUNCTION( opcode_lst, TargetJoinTeam);
   REGISTER_FUNCTION( opcode_lst, GetTargetContent);
@@ -1305,6 +1277,8 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, SetCameraSwing);
   REGISTER_FUNCTION( opcode_lst, EnableRespawn);
   REGISTER_FUNCTION( opcode_lst, DisableRespawn);
+  REGISTER_FUNCTION( opcode_lst, IfButtonPressed);
+  
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -4223,7 +4197,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 	  if ( chrisplayer[loc_aitarget] )
       {
         snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
-		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, 0 ) != -1) returncode = btrue;
+		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, 0 ) == -2) returncode = btrue;
       }
       break;
 
@@ -4263,9 +4237,9 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       };
       break;
 
-    case F_IfJumping:
-      //This function proceeds if the character is preforming a jump animation
-      returncode = chraction[ichr] >= ACTION_JA && chraction[ichr] <= ACTION_JC;
+    case F_IfDoingAction:
+      //This function proceeds if the character is preforming the animation specified in tmpargument
+		returncode = chraction[ichr] >= scr_globals.tmpargument && chraction[ichr] <= scr_globals.tmpargument;
       break;
 
     case F_IfOperatorIsLinux:
@@ -4299,6 +4273,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // This function turns respawning with JUMP button off
       respawnvalid = bfalse;
       break;
+
+	case F_IfButtonPressed:
+	  // This proceeds if the character is a player and pressing the latch specified in tmpargument
+      returncode = HAS_SOME_BITS( chrlatchbutton[ichr], scr_globals.tmpargument ) && chrisplayer[ichr];
+	  break;
 
     case F_End:
       break;
@@ -4886,6 +4865,34 @@ void let_ai_think( float dUpdate )
 
 
 }
+
+//------------------------------------------------------------------------------
+//void load_ai_codes(char* loadname)
+//{
+//  // ZZ> This function loads all of the function and variable names
+//  FILE* fileread;
+//  int read;
+//
+//  opcode_lst.count = 0;
+//  fileread = fs_fileOpen(PRI_NONE, NULL, loadname, "rb");
+//  if (NULL != fileread)
+//  {
+//    scr_intern.load_size = (int)fread(&cLoadBuffer[0], 1, MD2MAXLOADSIZE, fileread);
+//    read = 0;
+//    read = ai_goto_colon(read);
+//    while (read != scr_intern.load_size)
+//    {
+//      fget_code(read);
+//      read = ai_goto_colon(read);
+//    }
+//    fs_fileClose(fileread);
+//  }
+//  else log_warning("Could not load script AI functions or variables (%s)\n", loadname);
+//}
+
+// Don't use the aicodes file, just register them in the program.
+// There will never be a reason to change them, and it will prevent transcription mistakes between the
+// source code and the aicodes.txt file
 
 
 
