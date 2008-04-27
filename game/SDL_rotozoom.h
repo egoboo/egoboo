@@ -17,15 +17,15 @@ extern "C" {
 #endif
 
 #ifndef M_PI
-#define M_PI	3.141592654
+#define M_PI  3.141592654
 #endif
 
 #include <SDL.h>
 
   /* ---- Defines */
 
-#define SMOOTHING_OFF		0
-#define SMOOTHING_ON		1
+#define SMOOTHING_OFF    0
+#define SMOOTHING_ON    1
 
   /* ---- Structures */
 
@@ -53,7 +53,7 @@ extern "C" {
 #define DLLINTERFACE
 #endif
 
-  /* 
+  /*
 
   rotozoomSurface()
 
@@ -72,7 +72,7 @@ extern "C" {
   /* DLLINTERFACE */ void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
     int *dstheight);
 
-  /* 
+  /*
 
   zoomSurface()
 
@@ -95,4 +95,4 @@ extern "C" {
 };
 #endif
 
-#endif				/* _SDL_rotozoom_h */
+#endif        /* _SDL_rotozoom_h */

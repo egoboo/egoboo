@@ -20,10 +20,15 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ogl_include.h"
-#include "egoboo.h"
-#include "egoboo_math.h"
 #include "Log.h"
 #include "Mesh.h"
+#include "particle.h"
+#include "camera.h"
+#include "char.h"
+
+#include "egoboo_math.h"
+#include "egoboo.h"
+
 #include <assert.h>
 
 typedef enum prt_ori_t
@@ -34,7 +39,7 @@ typedef enum prt_ori_t
   ori_b
 } PRT_ORI;
 
-int prtorientation[256] =
+int particle_orientation[256] =
 {
   ori_b, ori_b, ori_v, ori_v, ori_b, ori_b, ori_b, ori_b, ori_v, ori_b, ori_v, ori_b, ori_b, ori_v, ori_b, ori_b,
   ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v, ori_v,
@@ -81,14 +86,14 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
   assert( NULL != dist  );
 
   chr = prt_get_attachedtochr( prt );
-  pip = prtpip[prt];
+  pip = PrtList[prt].pip;
 
   rotate = 0;
-  image = FP8_TO_INT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
-  ori = prtorientation[image];
+  image = FP8_TO_INT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
+  ori = particle_orientation[image];
 
   // if the velocity is zero, convert the projectile to a billboard
-  if (( ori == ori_p ) && ABS( prtvel[prt].x ) + ABS( prtvel[prt].y ) + ABS( prtvel[prt].z ) < 0.1 )
+  if (( ori == ori_p ) && ABS( PrtList[prt].vel.x ) + ABS( PrtList[prt].vel.y ) + ABS( PrtList[prt].vel.z ) < 0.1 )
   {
     ori = ori_b;
     rotate += 16384;
@@ -98,13 +103,13 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
   vec1.y = 0;
   vec1.z = 1;
 
-  vec2.x = campos.x - prtpos[prt].x;
-  vec2.y = campos.y - prtpos[prt].y;
-  vec2.z = campos.z - prtpos[prt].z;
+  vec2.x = GCamera.pos.x - PrtList[prt].pos.x;
+  vec2.y = GCamera.pos.y - PrtList[prt].pos.y;
+  vec2.z = GCamera.pos.z - PrtList[prt].pos.z;
 
-  vect_out.x = mView.v[ 2];
-  vect_out.y = mView.v[ 6];
-  vect_out.z = mView.v[10];
+  vect_out.x = GCamera.mView.v[ 2];
+  vect_out.y = GCamera.mView.v[ 6];
+  vect_out.z = GCamera.mView.v[10];
 
   *dist = DotProduct(vect_out, vec2);
 
@@ -116,7 +121,7 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
         vector_right = Normalize( CrossProduct( vec1, vec2 ) );
         vector_up    = vec1;
 
-        rotate += prtrotate[prt] + 8192;
+        rotate += PrtList[prt].rotate + 8192;
       };
       break;
 
@@ -126,7 +131,7 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
         vector_right = Normalize( CrossProduct( vec1, vec2 ) );
         vector_up    = Normalize( CrossProduct( vec1, vector_right ) );
 
-        rotate += prtrotate[prt] - 24576;
+        rotate += PrtList[prt].rotate - 24576;
       };
       break;
 
@@ -137,17 +142,17 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
 
         CHR_REF prt_target = prt_get_target( prt );
 
-        if ( ABS( prtvel[prt].x ) + ABS( prtvel[prt].y ) + ABS( prtvel[prt].z ) > 0.0f )
+        if ( ABS( PrtList[prt].vel.x ) + ABS( PrtList[prt].vel.y ) + ABS( PrtList[prt].vel.z ) > 0.0f )
         {
-          vec_vel.x = prtvel[prt].x;
-          vec_vel.y = prtvel[prt].y;
-          vec_vel.z = prtvel[prt].z;
+          vec_vel.x = PrtList[prt].vel.x;
+          vec_vel.y = PrtList[prt].vel.y;
+          vec_vel.z = PrtList[prt].vel.z;
         }
         else if ( VALID_CHR( prt_target ) && VALID_CHR( prt_target ) )
         {
-          vec_vel.x = chrpos[prt_target].x - prtpos[prt].x;
-          vec_vel.y = chrpos[prt_target].y - prtpos[prt].y;
-          vec_vel.z = chrpos[prt_target].z - prtpos[prt].z;
+          vec_vel.x = ChrList[prt_target].pos.x - PrtList[prt].pos.x;
+          vec_vel.y = ChrList[prt_target].pos.y - PrtList[prt].pos.y;
+          vec_vel.z = ChrList[prt_target].pos.z - PrtList[prt].pos.z;
         }
         else
         {
@@ -156,9 +161,9 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
           vec_vel.z = 1;
         };
 
-        vec2.x = campos.x - prtpos[prt].x;
-        vec2.y = campos.y - prtpos[prt].y;
-        vec2.z = campos.z - prtpos[prt].z;
+        vec2.x = GCamera.pos.x - PrtList[prt].pos.x;
+        vec2.y = GCamera.pos.y - PrtList[prt].pos.y;
+        vec2.z = GCamera.pos.z - PrtList[prt].pos.z;
 
         vec1 = Normalize( vec_vel );
         vec3 = CrossProduct( vec1, Normalize( vec2 ) );
@@ -166,7 +171,7 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
         vector_right = vec3;
         vector_up    = vec1;
 
-        rotate += prtrotate[prt] - 8192;
+        rotate += PrtList[prt].rotate - 8192;
       }
       break;
 
@@ -175,26 +180,26 @@ void get_vectors( Uint16 prt, vect3 * vert, vect3 * horiz, float * dist )
     case ori_b:
       {
         // this is the simple billboard
-        //vector_right.x = mView.v[0];
-        //vector_right.y = mView.v[4];
-        //vector_right.z = mView.v[8];
+        //vector_right.x = GCamera.mView.v[0];
+        //vector_right.y = GCamera.mView.v[4];
+        //vector_right.z = GCamera.mView.v[8];
 
-        //vector_up.x = mView.v[1];
-        //vector_up.y = mView.v[5];
-        //vector_up.z = mView.v[9];
+        //vector_up.x = GCamera.mView.v[1];
+        //vector_up.y = GCamera.mView.v[5];
+        //vector_up.z = GCamera.mView.v[9];
 
         vector_right = Normalize( CrossProduct( vec1, vec2 ) );
         vector_up    = Normalize( CrossProduct( vector_right, vec2 ) );
 
-        rotate += prtrotate[prt] - 24576;
+        rotate += PrtList[prt].rotate - 24576;
       };
 
       break;
   };
 
-  if ( VALID_CHR( chr ) && piprotatewithattached[pip] )
+  if ( VALID_CHR( chr ) && PipList[pip].rotatewithattached )
   {
-    rotate += chrturn_lr[chr];
+    rotate += ChrList[chr].turn_lr;
   }
 
   rotate >>= 2;
@@ -240,16 +245,16 @@ void render_antialias_prt( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Render solid ones twice...  For Antialias
-      if ( prttype[prt] != PRTTYPE_SOLID ) continue;
+      if ( PrtList[prt].type != PRTTYPE_SOLID ) continue;
 
       {
-        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
+        GLvector color_component = {FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
 
         // Figure out the sprite's size based on distance
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -270,7 +275,7 @@ void render_antialias_prt( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -326,16 +331,16 @@ void render_solid_prt( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw sprites this round
-      if ( prttype[prt] != PRTTYPE_SOLID ) continue;
+      if ( PrtList[prt].type != PRTTYPE_SOLID ) continue;
 
       {
-        GLvector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
+        GLvector color_component = { FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), 1};
 
         // [claforte] Fudge the value.
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.25f;
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -356,7 +361,7 @@ void render_solid_prt( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -410,16 +415,16 @@ void render_transparent_prt( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw transparent sprites this round
-      if ( prttype[prt] != PRTTYPE_ALPHA ) continue;
+      if ( PrtList[prt].type != PRTTYPE_ALPHA ) continue;
 
       {
-        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
+        GLvector color_component = {FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), FP8_TO_FLOAT( PrtList[prt].alpha_fp8 ) };
 
         // Figure out the sprite's size based on distance
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.5f;  // [claforte] Fudge the value.
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.5f;  // [claforte] Fudge the value.
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -440,7 +445,7 @@ void render_transparent_prt( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -496,16 +501,16 @@ void render_light_prt( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw lights this round
-      if ( prttype[prt] != PRTTYPE_LIGHT ) continue;
+      if ( PrtList[prt].type != PRTTYPE_LIGHT ) continue;
 
       {
-        GLvector color_component = {FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ), 1.0f};
+        GLvector color_component = {FP8_TO_FLOAT( PrtList[prt].alpha_fp8 ), FP8_TO_FLOAT( PrtList[prt].alpha_fp8 ), FP8_TO_FLOAT( PrtList[prt].alpha_fp8 ), 1.0f};
 
         // [claforte] Fudge the value.
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.5f;
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.5f;
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -526,7 +531,7 @@ void render_light_prt( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -597,22 +602,17 @@ void render_particles()
   GLVertex v[MAXPRT];
   Uint16 cnt, numparticle;
 
-  if ( INVALID_TEXTURE == GLTexture_GetTextureID( &TxTexture[particletexture] ) )
-    return;
-  prttexw = TxTexture[particletexture].imgW;
-  prttexh = TxTexture[particletexture].imgH;
-  prttexwscale = ( float ) TxTexture[particletexture].imgW / ( float ) TxTexture[particletexture].txW;
-  prttexhscale = ( float ) TxTexture[particletexture].imgH / ( float ) TxTexture[particletexture].txH;
+  if ( INVALID_TEXTURE == GLTexture_GetTextureID( &TxTexture[particletexture] ) ) return;
 
   // Original points
   numparticle = 0;
   for ( cnt = 0; cnt < MAXPRT; cnt++ )
   {
-    if ( !VALID_PRT( cnt ) || !prtinview[cnt] || prtgopoof[cnt] || prtsize_fp8[cnt] == 0 ) continue;
+    if ( !VALID_PRT( cnt ) || !PrtList[cnt].inview || PrtList[cnt].gopoof || PrtList[cnt].size_fp8 == 0 ) continue;
 
-    v[numparticle].pos.x = ( float ) prtpos[cnt].x;
-    v[numparticle].pos.y = ( float ) prtpos[cnt].y;
-    v[numparticle].pos.z = ( float ) prtpos[cnt].z;
+    v[numparticle].pos.x = ( float ) PrtList[cnt].pos.x;
+    v[numparticle].pos.y = ( float ) PrtList[cnt].pos.y;
+    v[numparticle].pos.z = ( float ) PrtList[cnt].pos.z;
 
     // !!!!!PRE CALCULATE the billboard vectors so you only have to do it ONCE!!!!!!!
     get_vectors( cnt, &v[numparticle].up, &v[numparticle].rt, &v[numparticle].col.r );
@@ -624,7 +624,7 @@ void render_particles()
 
   if ( 0 == numparticle ) return;
 
-  // sort particles by distance 
+  // sort particles by distance
   sort_particles( v, numparticle );
 
   ATTRIB_PUSH( "render_particles", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_POLYGON_BIT );
@@ -682,17 +682,17 @@ void render_antialias_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Render solid ones twice...  For Antialias
-      if ( prttype[prt] != PRTTYPE_SOLID ) continue;
+      if ( PrtList[prt].type != PRTTYPE_SOLID ) continue;
 
       {
 
-        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
+        GLvector color_component = {FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), FP8_TO_FLOAT( antialiastrans_fp8 ) };
 
         // Figure out the sprite's size based on distance
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -713,7 +713,7 @@ void render_antialias_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -768,16 +768,16 @@ void render_solid_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw sprites this round
-      if ( prttype[prt] != PRTTYPE_SOLID ) continue;
+      if ( PrtList[prt].type != PRTTYPE_SOLID ) continue;
 
       {
-        GLvector color_component = {FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), 1};
+        GLvector color_component = {FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), 1};
 
         // [claforte] Fudge the value.
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.25f;
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -798,7 +798,7 @@ void render_solid_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -854,16 +854,16 @@ void render_transparent_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw transparent sprites this round
-      if ( prttype[prt] != PRTTYPE_ALPHA ) continue;
+      if ( PrtList[prt].type != PRTTYPE_ALPHA ) continue;
 
       {
-        GLvector color_component = { FP8_TO_FLOAT( prtlightr_fp8[prt] ), FP8_TO_FLOAT( prtlightg_fp8[prt] ), FP8_TO_FLOAT( prtlightb_fp8[prt] ), FP8_TO_FLOAT( prtalpha_fp8[prt] ) };
+        GLvector color_component = { FP8_TO_FLOAT( PrtList[prt].lightr_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightg_fp8 ), FP8_TO_FLOAT( PrtList[prt].lightb_fp8 ), FP8_TO_FLOAT( PrtList[prt].alpha_fp8 ) };
 
         // Figure out the sprite's size based on distance
-        size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.25f;  // [claforte] Fudge the value.
+        size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.25f;  // [claforte] Fudge the value.
 
         // Calculate the position of the four corners of the billboard
         // used to display the particle.
@@ -884,7 +884,7 @@ void render_transparent_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
         // Fill in the rest of the data
-        image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+        image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
         vtlist[0].s = CALCULATE_PRT_U0( image );
         vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -936,18 +936,18 @@ void render_light_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
 
     for ( cnt = 0; cnt < vrtcount; cnt++ )
     {
-      GLvector color_component = { FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), FP8_TO_FLOAT( prtalpha_fp8[cnt] ), 1.0f};
+      GLvector color_component = { FP8_TO_FLOAT( PrtList[cnt].alpha_fp8 ), FP8_TO_FLOAT( PrtList[cnt].alpha_fp8 ), FP8_TO_FLOAT( PrtList[cnt].alpha_fp8 ), 1.0f};
 
       // Get the index from the color slot
       prt = ( Uint16 ) vrtlist[cnt].color;
       chr = prt_get_attachedtochr( prt );
-      pip = prtpip[prt];
+      pip = PrtList[prt].pip;
 
       // Draw lights this round
-      if ( prttype[prt] != PRTTYPE_LIGHT ) continue;
+      if ( PrtList[prt].type != PRTTYPE_LIGHT ) continue;
 
       // [claforte] Fudge the value.
-      size = FP8_TO_FLOAT( prtsize_fp8[prt] ) * 0.5f;
+      size = FP8_TO_FLOAT( PrtList[prt].size_fp8 ) * 0.5f;
 
       // Calculate the position of the four corners of the billboard
       // used to display the particle.
@@ -968,7 +968,7 @@ void render_light_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       vtlist[3].pos.z = vrtlist[cnt].pos.z + (( -vrtlist[cnt].rt.z + vrtlist[cnt].up.z ) * size );
 
       // Fill in the rest of the data
-      image = FP8_TO_FLOAT( prtimage_fp8[prt] + prtimagestt_fp8[prt] );
+      image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
       vtlist[0].s = CALCULATE_PRT_U0( image );
       vtlist[0].t = CALCULATE_PRT_V0( image );
@@ -1013,14 +1013,14 @@ void render_particle_reflections()
   numparticle = 0;
   for ( cnt = 0; cnt < MAXPRT; cnt++ )
   {
-    if ( !VALID_PRT( cnt ) || !prtinview[cnt] || prtsize_fp8[cnt] == 0 ) continue;
+    if ( !VALID_PRT( cnt ) || !PrtList[cnt].inview || PrtList[cnt].size_fp8 == 0 ) continue;
 
-    if ( mesh_has_some_bits( prtonwhichfan[cnt], MESHFX_SHINY ) )
+    if ( mesh_has_some_bits( PrtList[cnt].onwhichfan, MESHFX_SHINY ) )
     {
-      level = prtlevel[cnt];
-      v[numparticle].pos.x = prtpos[cnt].x;
-      v[numparticle].pos.y = prtpos[cnt].y;
-      v[numparticle].pos.z = level + level - prtpos[cnt].z;
+      level = PrtList[cnt].level;
+      v[numparticle].pos.x = PrtList[cnt].pos.x;
+      v[numparticle].pos.y = PrtList[cnt].pos.y;
+      v[numparticle].pos.z = level + level - PrtList[cnt].pos.z;
 
       // !!!!!PRE CALCULATE the billboard vectors so you only have to do it ONCE!!!!!!!
       get_vectors( cnt, &v[numparticle].up, &v[numparticle].rt, &v[numparticle].col.r );

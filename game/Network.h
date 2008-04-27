@@ -24,6 +24,42 @@
 
 #include "enet.h"
 #include "egoboo.h"
+#include "input.h"
+
+#define NETREFRESH          1000                    // Every second
+#define NONETWORK           GNet.num_service              //
+
+// The ID number for host searches
+// {A0F72DE8-2C17-11d3-B7FE-444553540000}
+/* PORT
+DEFINE_GUID(NETWORKID, 0xa0f72de8, 0x2c17, 0x11d3, 0xb7, 0xfe, 0x44, 0x45, 0x53, 0x54, 0x0, 0x0);
+*/
+#define MAXSERVICE 16
+#define NETNAMESIZE 16
+#define MAXSESSION 16
+#define MAXNETPLAYER 8
+EXTERN Uint32      randsave;         //Used in network timer
+
+typedef struct network_info_t
+{
+  bool_t                  messagemode;             // Input text from keyboard?
+  Uint8                   messagedelay;            // For slowing down input
+  int                     messagewrite;            // The cursor position
+  int                     messagewritemin;         // The starting cursor position
+  char                    message[MESSAGESIZE];    // The input message
+
+  int                     num_service;                           // How many we found
+  int                     service;
+  char                    servicename[MAXSERVICE][NETNAMESIZE];    // Names of services
+
+  int                     num_session;                           // How many we found
+  char                    sessionname[MAXSESSION][NETNAMESIZE];    // Names of sessions
+
+  int                     num_player;                            // How many we found
+  char                    playername[MAXNETPLAYER][NETNAMESIZE];   // Names of machines
+} NETWORK_INFO;
+
+extern NETWORK_INFO GNet;
 
 #define SHORTLATCH 1024.0
 #define MAXSENDSIZE 8192

@@ -48,8 +48,8 @@ struct ui_context_t
   int mousePressed;
   bool_t mouseVisible;
 
-  Font *defaultFont;
-  Font *activeFont;
+  TTFont *defaultFont;
+  TTFont *activeFont;
 };
 
 static UiContext ui_context;
@@ -77,11 +77,6 @@ int ui_initialize( const char *default_font, int default_font_size )
 //--------------------------------------------------------------------------------------------
 void ui_shutdown()
 {
-  if ( ui_context.defaultFont )
-  {
-    fnt_freeFont( ui_context.defaultFont );
-  }
-
   memset( &ui_context, 0, sizeof( ui_context ) );
 }
 
@@ -123,15 +118,17 @@ void ui_handleSDLEvent( SDL_Event *evt )
 }
 
 //--------------------------------------------------------------------------------------------
-static ui_begin_level = 0;
 bool_t ui_frame_enabled = bfalse;
+int    ui_begin_level = 0;
 void ui_beginFrame( float deltaTime )
 {
+
   SDL_Surface *screen;
 
   screen = SDL_GetVideoSurface();
 
   assert( 0 == ui_begin_level );
+
   glGetIntegerv( GL_ATTRIB_STACK_DEPTH, &ui_begin_level );
   ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_POLYGON_BIT | GL_TEXTURE_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
 
@@ -185,8 +182,6 @@ void ui_endFrame()
 
   glGetIntegerv( GL_ATTRIB_STACK_DEPTH, &ui_end_level );
   assert( ui_begin_level == ui_end_level );
-
-  ui_begin_level = 0;
 
   // Clear input states at the end of the frame
   ui_context.mousePressed = ui_context.mouseReleased = 0;
@@ -261,7 +256,7 @@ void ui_sethot( ui_Widget * pw )
 }
 
 //--------------------------------------------------------------------------------------------
-Font* ui_getFont()
+TTFont* ui_getFont()
 {
   return ( ui_context.activeFont != NULL ) ? ui_context.activeFont : ui_context.defaultFont;
 }
@@ -292,7 +287,7 @@ bool_t ui_shrinkWidget( ui_Widget * pw2, ui_Widget * pw1, int pixels )
 };
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height )
+bool_t ui_initWidget( ui_Widget * pw, UI_ID id, TTFont * pfont, const char *text, GLtexture *img, int x, int y, int width, int height )
 {
   if ( NULL == pw ) return bfalse;
 
@@ -496,7 +491,7 @@ void ui_drawImage( ui_Widget * pWidget )
  */
 void ui_drawTextBox( ui_Widget * pWidget, int spacing )
 {
-  Font *font = ui_getFont();
+  TTFont *font = ui_getFont();
   fnt_drawTextBox( font, pWidget->text, pWidget->x, pWidget->y, pWidget->width, pWidget->height, spacing );
 }
 
@@ -509,7 +504,7 @@ ui_buttonValues ui_doButton( ui_Widget * pWidget )
   int result;
   int text_w, text_h;
   int text_x, text_y;
-  Font *font;
+  TTFont *font;
 
   // Do all the logic type work for the button
   result = ui_buttonBehavior( pWidget );
@@ -562,7 +557,7 @@ ui_buttonValues ui_doImageButton( ui_Widget * pWidget )
 ui_buttonValues ui_doImageButtonWithText( ui_Widget * pWidget )
 {
   int result;
-  Font *font;
+  TTFont *font;
   int text_x, text_y;
   int text_w, text_h;
   ui_Widget wtmp;
@@ -606,12 +601,12 @@ void ui_doCursor()
   //      Turn off the mouse as a Game Controller while the menu is on.
   // !!!! This is a pretty ugly patch !!!!
 
-  if(!ui_context.mouseVisible) 
+  if(!ui_context.mouseVisible)
     return;
 
   // must use Begin2DMode() and BeginText() to get OpenGL in the right state
   Begin2DMode();
-  BeginText( &TxFont );
+  BeginText( &(bmfont.tex) );
   {
     draw_one_font( 95, ui_context.mouseX - 5, ui_context.mouseY - 7 );
   };

@@ -3,19 +3,19 @@
 #define NUMRAND 16384
 //#define RANDIE randie[entry]); entry=(entry+1)&(NUMRAND-1
 
-int		timclock = 0;
-int		dunframe = 0;
-int		secframe = 0;
-unsigned char	lastsecframe = 0;
-volatile int	minsecframe = 10000;
-int		worldclock = 0;
-//int		seed;
-//Uint16	randie[NUMRAND];
-Uint16	entry;
-char		charread;
+int    timclock = 0;
+int    dunframe = 0;
+int    secframe = 0;
+unsigned char  lastsecframe = 0;
+volatile int  minsecframe = 10000;
+int    worldclock = 0;
+//int    seed;
+//Uint16  randie[NUMRAND];
+Uint16  entry;
+char    charread;
 FILE            *fileread;
 char            nameread[80];
-char		fpstext[256][8];
+char    fpstext[256][8];
 
 void show_info(void);
 

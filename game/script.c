@@ -21,10 +21,19 @@
 
 #include <assert.h>
 
-#include "egoboo.h"
 #include "egoboo_math.h"
+#include "script.h"
+#include "char.h"
+#include "particle.h"
 #include "Log.h"
 #include "mesh.h"
+#include "input.h"
+#include "mad.h"
+#include "passage.h"
+#include "camera.h"
+#include "enchant.h"
+#include "egoboo_utility.h"
+#include "egoboo.h"
 
 SCRIPT_GLOBAL_VALUES scr_globals = {0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -72,7 +81,7 @@ SCRIPT_GLOBAL_VALUES scr_globals = {0, 0, 0, 0, 0, 0, 0, 0};
 #define GET_INDENT(XX) ( ((XX) & INDENT_BITS) >> INDENT_SHIFT )
 #define PUT_INDENT(XX) ( ((XX) << INDENT_SHIFT) & INDENT_BITS )
 
-#define IS_END(XX) 
+#define IS_END(XX)
 typedef struct opcode_element_t
 {
   Uint8           type;
@@ -486,7 +495,7 @@ size_t tell_code( size_t read )
     // Throw out an error code if we're loggin' 'em
     if ( '=' != cWordBuffer[0] || '\0' != cWordBuffer[1])
     {
-      assert(bfalse);       
+      assert(bfalse);
       log_message( "SCRIPT ERROR FOUND: %s (%d) - %s undefined\n", globalparsename, scr_intern.line_num, cWordBuffer );
 
       parseerror = btrue;
@@ -679,6 +688,8 @@ void fget_code( FILE * pfile )
   opcode_lst.opcode[opcode_lst.count].value = iTmp;
   opcode_lst.count++;
 }
+
+
 
 #define REGISTER_OPCODE(LIST,TYPE,CODE,NAME)  { strncpy(LIST.opcode[LIST.count].name, NAME, MAXCODENAMESIZE); LIST.opcode[LIST.count].type = (Uint8)TYPE; LIST.opcode[LIST.count].value = (Uint16)CODE; LIST.count++; }
 #define REGISTER_FUNCTION(LIST,NAME)          { strncpy(LIST.opcode[LIST.count].name, #NAME, MAXCODENAMESIZE); LIST.opcode[LIST.count].type = (Uint8)'F'; LIST.opcode[LIST.count].value = (Uint16)F_##NAME; LIST.count++; }
@@ -1278,7 +1289,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION( opcode_lst, EnableRespawn);
   REGISTER_FUNCTION( opcode_lst, DisableRespawn);
   REGISTER_FUNCTION( opcode_lst, IfButtonPressed);
-  
+
 
   // register all the function !!!ALIASES!!!
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfAtLastWaypoint, "IfPutAway" );
@@ -1300,7 +1311,7 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfStateIs5, "IfStateIsRetreat" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfStateIs6, "IfStateIsCharge" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfStateIs7, "IfStateIsCombat" );
-  REGISTER_FUNCTION_ALIAS( opcode_lst, IfXIsEqualToY, "IfYIsEqualToX" ); 
+  REGISTER_FUNCTION_ALIAS( opcode_lst, IfXIsEqualToY, "IfYIsEqualToX" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, DisplayDebugMessage, "DebugMessage" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, DisplayMessageNear, "SendMessageNear" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfNotPutAway, "IfNotTakenOut" );
@@ -1310,7 +1321,6 @@ void load_ai_codes( char* loadname )
   REGISTER_FUNCTION_ALIAS( opcode_lst, IfHeldInLeftSaddle, "IfHeldInLeftHand" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, ClearEndText, "ClearEndMessage" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, AddEndText, "AddEndMessage" );
-//  REGISTER_FUNCTION_ALIAS( opcode_lst, IfJumping, "IfTargetJumping" );
   REGISTER_FUNCTION_ALIAS( opcode_lst, StopSoundLoop, "StopSound" );
 
   log_info( "load_ai_codes() - loading external script constants\n" );
@@ -1332,6 +1342,7 @@ void load_ai_codes( char* loadname )
 }
 
 
+//------------------------------------------------------------------------------
 Uint32 load_ai_script( char *loadname )
 {
   // ZZ> This function loads a script to memory and
@@ -1369,7 +1380,7 @@ void reset_ai_script()
 
   scr_intern.script_index = 0;
   for ( cnt = 0; cnt < MAXMODEL; cnt++ )
-    madai[cnt] = 0;
+    MadList[cnt].ai = 0;
 
   scr_intern.script_count = 0;
 }
@@ -1397,121 +1408,121 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
   CHR_REF loc_aitarget = chr_get_aitarget( ichr );
   CHR_REF loc_aiowner  = chr_get_aiowner( ichr );
   CHR_REF loc_aichild  = chr_get_aichild( ichr );
-  CHR_REF loc_leader   = team_get_leader( chrteam[ichr] );
+  CHR_REF loc_leader   = team_get_leader( ChrList[ichr].team );
 
-  Uint16  loc_model    = chrmodel[ichr];
+  Uint16  loc_model    = ChrList[ichr].model;
 
   // Figure out which function to run
   switch ( valuecode )
   {
     case F_IfSpawned:
       // Proceed only if it's a new character
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_SPAWNED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_SPAWNED );
       break;
 
     case F_IfTimeOut:
       // Proceed only if time alert is set
-      returncode = ( chraitime[ichr] == 0.0f );
+      returncode = ( ChrList[ichr].aitime == 0.0f );
       break;
 
     case F_IfAtWaypoint:
       // Proceed only if the character reached a waypoint
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_ATWAYPOINT );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_ATWAYPOINT );
       break;
 
     case F_IfAtLastWaypoint:
       // Proceed only if the character reached its last waypoint
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_ATLASTWAYPOINT );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_ATLASTWAYPOINT );
       break;
 
     case F_IfAttacked:
       // Proceed only if the character was damaged
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_ATTACKED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_ATTACKED );
       break;
 
     case F_IfBumped:
       // Proceed only if the character was bumped
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_BUMPED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_BUMPED );
       break;
 
     case F_IfSignaled:
-      // Proceed only if the character was ordered
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_SIGNALED );
+      // Proceed only if the character was GOrder.ed
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_SIGNALED );
       break;
 
     case F_IfCalledForHelp:
       // Proceed only if the character was called for help
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_CALLEDFORHELP );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_CALLEDFORHELP );
       break;
 
     case F_SetContent:
       // Set the content
-      chraicontent[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].aicontent = scr_globals.tmpargument;
       break;
 
     case F_IfKilled:
       // Proceed only if the character's been killed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_KILLED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_KILLED );
       break;
 
     case F_IfTargetKilled:
       // Proceed only if the character's target has just died
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_TARGETKILLED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_TARGETKILLED );
       break;
 
     case F_ClearWaypoints:
       // Clear out all waypoints
-      chraigoto[ichr] = 0;
-      chraigotoadd[ichr] = 0;
-      chraigotox[ichr][0] = chrpos[ichr].x;
-      chraigotoy[ichr][0] = chrpos[ichr].y;
+      ChrList[ichr].aigoto = 0;
+      ChrList[ichr].aigotoadd = 0;
+      ChrList[ichr].aigotox[0] = ChrList[ichr].pos.x;
+      ChrList[ichr].aigotoy[0] = ChrList[ichr].pos.y;
       break;
 
     case F_AddWaypoint:
       // Add a waypoint to the waypoint list
-      chraigotox[ichr][chraigotoadd[ichr]] = scr_globals.tmpx;
-      chraigotoy[ichr][chraigotoadd[ichr]] = scr_globals.tmpy;
-      chraigotoadd[ichr]++;
-      if ( chraigotoadd[ichr] > MAXWAY )  chraigotoadd[ichr] = MAXWAY - 1;
+      ChrList[ichr].aigotox[ChrList[ichr].aigotoadd] = scr_globals.tmpx;
+      ChrList[ichr].aigotoy[ChrList[ichr].aigotoadd] = scr_globals.tmpy;
+      ChrList[ichr].aigotoadd++;
+      if ( ChrList[ichr].aigotoadd > MAXWAY )  ChrList[ichr].aigotoadd = MAXWAY - 1;
       break;
 
     case F_FindPath:
       // This function adds enough waypoints to get from one point to another
-	  // And only proceeds if the target is not the character himself
-      // !!!BAD!!! TODO: Only adds one straight waypoint...
+    // And only proceeds if the target is not the character himself
+      // !!!BAD!!! Todo: Only adds one straight waypoint...
 
-	  //First setup the variables needed for the target waypoint
-	  if(loc_aitarget != ichr)
-	  {
-	    if(scr_globals.tmpdistance != MOVE_FOLLOW)
-		{
-			scr_globals.tmpx = chrpos[loc_aitarget].x;
-			scr_globals.tmpy = chrpos[loc_aitarget].y;
-		}
-		else
-		{
-			scr_globals.tmpx = (rand() & 1023) - 512 + chrpos[loc_aitarget].x;
-			scr_globals.tmpy = (rand() & 1023) - 512 + chrpos[loc_aitarget].y;
-		}
-		if(scr_globals.tmpdistance == MOVE_RETREAT) scr_globals.tmpturn = (rand() & 32767) + scr_globals.tmpturn + 16384;
-		else scr_globals.tmpturn = vec_to_turn( scr_globals.tmpx - chrpos[ichr].x, scr_globals.tmpy - chrpos[ichr].y );
-		if(scr_globals.tmpdistance == MOVE_CHARGE || MOVE_RETREAT) reset_character_accel( ichr ); //Force 100% speed
+    //First setup the variables needed for the target waypoint
+    if(loc_aitarget != ichr)
+    {
+      if(scr_globals.tmpdistance != MOVE_FOLLOW)
+    {
+      scr_globals.tmpx = ChrList[loc_aitarget].pos.x;
+      scr_globals.tmpy = ChrList[loc_aitarget].pos.y;
+    }
+    else
+    {
+      scr_globals.tmpx = (rand() & 1023) - 512 + ChrList[loc_aitarget].pos.x;
+      scr_globals.tmpy = (rand() & 1023) - 512 + ChrList[loc_aitarget].pos.y;
+    }
+    if(scr_globals.tmpdistance == MOVE_RETREAT) scr_globals.tmpturn = (rand() & 32767) + scr_globals.tmpturn + 16384;
+    else scr_globals.tmpturn = vec_to_turn( scr_globals.tmpx - ChrList[ichr].pos.x, scr_globals.tmpy - ChrList[ichr].pos.y );
+    if(scr_globals.tmpdistance == MOVE_CHARGE || MOVE_RETREAT) reset_character_accel( ichr ); //Force 100% speed
 
-		//Secondly we run the Compass function (If we are not in follow mode)
-		if(scr_globals.tmpdistance != MOVE_FOLLOW)
-		{
-			sTmp = ( scr_globals.tmpturn + 16384 );
-			scr_globals.tmpx -= turntosin[( sTmp>>2 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
-			scr_globals.tmpy -= turntosin[( scr_globals.tmpturn>>2 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
-		}
+    //Secondly we run the Compass function (If we are not in follow mode)
+    if(scr_globals.tmpdistance != MOVE_FOLLOW)
+    {
+      sTmp = ( scr_globals.tmpturn + 16384 );
+      scr_globals.tmpx -= turntosin[( sTmp>>2 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
+      scr_globals.tmpy -= turntosin[( scr_globals.tmpturn>>2 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
+    }
 
-		//Then we add the waypoint(s), without clearing existing ones...
-		chraigotox[ichr][chraigotoadd[ichr]] = scr_globals.tmpx;
-		chraigotoy[ichr][chraigotoadd[ichr]] = scr_globals.tmpy;
-		chraigotoadd[ichr]++;
-		if ( chraigotoadd[ichr] > MAXWAY )  chraigotoadd[ichr] = MAXWAY - 1;
-	  }
-	break;
+    //Then we add the waypoint(s), without clearing existing ones...
+    ChrList[ichr].aigotox[ChrList[ichr].aigotoadd] = scr_globals.tmpx;
+    ChrList[ichr].aigotoy[ChrList[ichr].aigotoadd] = scr_globals.tmpy;
+    ChrList[ichr].aigotoadd++;
+    if ( ChrList[ichr].aigotoadd > MAXWAY )  ChrList[ichr].aigotoadd = MAXWAY - 1;
+    }
+  break;
 
     case F_Compass:
       // This function changes tmpx and tmpy in a circlular manner according
@@ -1524,25 +1535,25 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_GetTargetArmorPrice:
       // This function gets the armor cost for the given skin
       sTmp = scr_globals.tmpargument  % MAXSKIN;
-      scr_globals.tmpx = capskincost[chrmodel[loc_aitarget]][sTmp];
+      scr_globals.tmpx = CapList[ChrList[loc_aitarget].model].skincost[sTmp];
       break;
 
     case F_SetTime:
       // This function resets the time
-      chraitime[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].aitime = scr_globals.tmpargument;
       break;
 
     case F_GetContent:
       // Get the content
-      scr_globals.tmpargument = chraicontent[ichr];
+      scr_globals.tmpargument = ChrList[ichr].aicontent;
       break;
 
     case F_JoinTargetTeam:
       // This function allows the character to leave its own team and join another
       returncode = bfalse;
-      if ( chron[loc_aitarget] )
+      if ( ChrList[loc_aitarget].on )
       {
-        switch_team( ichr, chrteam[loc_aitarget] );
+        switch_team( ichr, ChrList[loc_aitarget].team );
         returncode = btrue;
       }
       break;
@@ -1553,7 +1564,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -1564,7 +1575,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -1575,7 +1586,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -1587,7 +1598,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         CHR_REF attacklast = chr_get_aiattacklast( ichr );
         if ( VALID_CHR( attacklast ) )
         {
-          chraitarget[ichr] = attacklast;
+          ChrList[ichr].aitarget = attacklast;
         }
         else
         {
@@ -1599,38 +1610,38 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_SetTargetToWhoeverBumped:
       // This function sets the target to whoever bumped into the
       // character last.  It never fails
-      chraitarget[ichr] = chr_get_aibumplast( ichr );
+      ChrList[ichr].aitarget = chr_get_aibumplast( ichr );
       break;
 
     case F_SetTargetToWhoeverCalledForHelp:
       // This function sets the target to whoever needs help
-      chraitarget[ichr] = team_get_sissy( chrteam[ichr] );
+      ChrList[ichr].aitarget = team_get_sissy( ChrList[ichr].team );
       break;
 
     case F_SetTargetToOldTarget:
       // This function reverts to the target with whom the script started
-      chraitarget[ichr] = scr_globals.oldtarget;
+      ChrList[ichr].aitarget = scr_globals.oldtarget;
       break;
 
     case F_SetTurnModeToVelocity:
       // This function sets the turn mode
-      chrturnmode[ichr] = TURNMODE_VELOCITY;
+      ChrList[ichr].turnmode = TURNMODE_VELOCITY;
       break;
 
     case F_SetTurnModeToWatch:
       // This function sets the turn mode
-      chrturnmode[ichr] = TURNMODE_WATCH;
+      ChrList[ichr].turnmode = TURNMODE_WATCH;
       break;
 
     case F_SetTurnModeToSpin:
       // This function sets the turn mode
-      chrturnmode[ichr] = TURNMODE_SPIN;
+      ChrList[ichr].turnmode = TURNMODE_SPIN;
       break;
 
     case F_SetBumpHeight:
       // This function changes a character's bump height
-      //chrbmpdata[ichr].height = scr_globals.tmpargument * chrfat[ichr];
-      //chrbmpdata_save[ichr].height = scr_globals.tmpargument;
+      //ChrList[ichr].bmpdata.height = scr_globals.tmpargument * ChrList[ichr].fat;
+      //ChrList[ichr].bmpdata_save.height = scr_globals.tmpargument;
       break;
 
     case F_IfTargetHasID:
@@ -1638,7 +1649,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_aitarget ) )
       {
-        returncode = CAP_INHERIT_IDSZ( chrmodel[loc_aitarget], scr_globals.tmpargument );
+        returncode = CAP_INHERIT_IDSZ( ChrList[loc_aitarget].model, scr_globals.tmpargument );
       };
       break;
 
@@ -1649,7 +1660,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       sTmp  = chr_get_nextinpack( loc_aitarget );
       while ( VALID_CHR( sTmp ) )
       {
-        if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+        if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
         {
           returncode = btrue;
           break;
@@ -1662,7 +1673,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_holdingwhich( loc_aitarget, _slot );
         if ( VALID_CHR( sTmp ) )
         {
-          if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+          if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
             returncode = btrue;
         }
       }
@@ -1678,7 +1689,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         for ( _slot = SLOT_LEFT; _slot <= SLOT_RIGHT; _slot = ( SLOT )( _slot + 1 ) )
         {
           sTmp = chr_get_holdingwhich( loc_aitarget, _slot );
-          if ( VALID_CHR( sTmp ) && CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+          if ( VALID_CHR( sTmp ) && CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
           {
             scr_globals.tmpargument = slot_to_latch( loc_aitarget, _slot );
             returncode = btrue;
@@ -1704,12 +1715,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_Walk:
       reset_character_accel( ichr );
-      chrmaxaccel[ichr] *= .66;
+      ChrList[ichr].maxaccel *= .66;
       break;
 
     case F_Sneak:
       reset_character_accel( ichr );
-      chrmaxaccel[ichr] *= .33;
+      ChrList[ichr].maxaccel *= .33;
       break;
 
     case F_DoAction:
@@ -1717,16 +1728,16 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // It will fail if the action is invalid or if the character is doing
       // something else already
       returncode = bfalse;
-      if ( scr_globals.tmpargument < MAXACTION && chractionready[ichr] )
+      if ( scr_globals.tmpargument < MAXACTION && ChrList[ichr].actionready )
       {
-        if ( madactionvalid[loc_model][scr_globals.tmpargument] )
+        if ( MadList[loc_model].actionvalid[scr_globals.tmpargument] )
         {
-          chraction[ichr] = scr_globals.tmpargument;
-          chrlip_fp8[ichr] = 0;
-          chrflip[ichr] = 0.0f;
-          chrframelast[ichr] = chrframe[ichr];
-          chrframe[ichr] = madactionstart[loc_model][scr_globals.tmpargument];
-          chractionready[ichr] = bfalse;
+          ChrList[ichr].action = scr_globals.tmpargument;
+          ChrList[ichr].lip_fp8 = 0;
+          ChrList[ichr].flip = 0.0f;
+          ChrList[ichr].framelast = ChrList[ichr].frame;
+          ChrList[ichr].frame = MadList[loc_model].actionstart[scr_globals.tmpargument];
+          ChrList[ichr].actionready = bfalse;
           returncode = btrue;
         }
       }
@@ -1734,7 +1745,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_KeepAction:
       // This function makes the current animation halt on the last frame
-      chrkeepaction[ichr] = btrue;
+      ChrList[ichr].keepaction = btrue;
       break;
 
     case F_SignalTeam:
@@ -1752,9 +1763,9 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         {
           if ( _slot == SLOT_SADDLE )
           {
-            chrvel[sTmp].z     = DISMOUNTZVEL;
-            chrpos[sTmp].z    += DISMOUNTZVEL;
-            chrjumptime[sTmp] = DELAY_JUMP;
+            ChrList[sTmp].vel.z     = DISMOUNTZVEL;
+            ChrList[sTmp].pos.z    += DISMOUNTZVEL;
+            ChrList[sTmp].jumptime = DELAY_JUMP;
           }
         }
       };
@@ -1765,18 +1776,18 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // It will fail if the action is invalid or if the target is doing
       // something else already
       returncode = bfalse;
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
-        if ( scr_globals.tmpargument < MAXACTION && chractionready[loc_aitarget] )
+        if ( scr_globals.tmpargument < MAXACTION && ChrList[loc_aitarget].actionready )
         {
-          if ( madactionvalid[chrmodel[loc_aitarget]][scr_globals.tmpargument] )
+          if ( MadList[ChrList[loc_aitarget].model].actionvalid[scr_globals.tmpargument] )
           {
-            chraction[loc_aitarget] = scr_globals.tmpargument;
-            chrlip_fp8[loc_aitarget] = 0;
-            chrflip[loc_aitarget] = 0.0f;
-            chrframelast[loc_aitarget] = chrframe[loc_aitarget];
-            chrframe[loc_aitarget] = madactionstart[chrmodel[loc_aitarget]][scr_globals.tmpargument];
-            chractionready[loc_aitarget] = bfalse;
+            ChrList[loc_aitarget].action = scr_globals.tmpargument;
+            ChrList[loc_aitarget].lip_fp8 = 0;
+            ChrList[loc_aitarget].flip = 0.0f;
+            ChrList[loc_aitarget].framelast = ChrList[loc_aitarget].frame;
+            ChrList[loc_aitarget].frame = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
+            ChrList[loc_aitarget].actionready = bfalse;
             returncode = btrue;
           }
         }
@@ -1808,10 +1819,10 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_GoPoof:
       // This function flags the character to be removed from the game
       returncode = bfalse;
-      if ( !chrisplayer[ichr] )
+      if ( !ChrList[ichr].isplayer )
       {
         returncode = btrue;
-        chrgopoof[ichr] = btrue;
+        ChrList[ichr].gopoof = btrue;
       }
       break;
 
@@ -1824,7 +1835,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       sTmp  = chr_get_nextinpack( tTmp );
       while ( VALID_CHR( sTmp ) )
       {
-        if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+        if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
         {
           returncode = btrue;
           iTmp = sTmp;
@@ -1842,7 +1853,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_holdingwhich( loc_aitarget, _slot );
         if ( VALID_CHR( sTmp ) )
         {
-          if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+          if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
           {
             returncode = btrue;
             tTmp = MAXCHR;
@@ -1855,27 +1866,27 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
       if ( returncode )
       {
-        if ( chrammo[iTmp] <= 1 )
+        if ( ChrList[iTmp].ammo <= 1 )
         {
           // Poof the item
           if ( chr_in_pack( iTmp ) )
           {
             // Remove from the pack
-            chrnextinpack[tTmp]  = chr_get_nextinpack( iTmp );
-            chrnuminpack[loc_aitarget]--;
-            chrfreeme[iTmp] = btrue;
+            ChrList[tTmp].nextinpack  = chr_get_nextinpack( iTmp );
+            ChrList[loc_aitarget].numinpack--;
+            ChrList[iTmp].freeme = btrue;
           }
           else
           {
             // Drop from hand
             detach_character_from_mount( iTmp, btrue, bfalse );
-            chrfreeme[iTmp] = btrue;
+            ChrList[iTmp].freeme = btrue;
           }
         }
         else
         {
           // Cost one ammo
-          chrammo[iTmp]--;
+          ChrList[iTmp].ammo--;
         }
       }
       break;
@@ -1886,14 +1897,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( scr_globals.tmpargument < MAXACTION )
       {
-        if ( madactionvalid[loc_model][scr_globals.tmpargument] )
+        if ( MadList[loc_model].actionvalid[scr_globals.tmpargument] )
         {
-          chraction[ichr] = scr_globals.tmpargument;
-          chrlip_fp8[ichr] = 0;
-          chrflip[ichr] = 0.0f;
-          chrframelast[ichr] = chrframe[ichr];
-          chrframe[ichr] = madactionstart[loc_model][scr_globals.tmpargument];
-          chractionready[ichr] = bfalse;
+          ChrList[ichr].action = scr_globals.tmpargument;
+          ChrList[ichr].lip_fp8 = 0;
+          ChrList[ichr].flip = 0.0f;
+          ChrList[ichr].framelast = ChrList[ichr].frame;
+          ChrList[ichr].frame = MadList[loc_model].actionstart[scr_globals.tmpargument];
+          ChrList[ichr].actionready = bfalse;
           returncode = btrue;
         }
       }
@@ -1901,12 +1912,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfHealed:
       // Proceed only if the character was healed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_HEALED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_HEALED );
       break;
 
     case F_DisplayMessage:
       // This function sends a message to the players
-      display_message( madmsgstart[loc_model] + scr_globals.tmpargument, ichr );
+      display_message( MadList[loc_model].msg_start + scr_globals.tmpargument, ichr );
       break;
 
     case F_CallForHelp:
@@ -1921,32 +1932,32 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetState:
       // This function sets the character's state variable
-      chraistate[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].aistate = scr_globals.tmpargument;
       break;
 
     case F_GetState:
       // This function reads the character's state variable
-      scr_globals.tmpargument = chraistate[ichr];
+      scr_globals.tmpargument = ChrList[ichr].aistate;
       break;
 
     case F_IfStateIs:
       // This function fails if the character's state is inequal to tmpargument
-      returncode = ( scr_globals.tmpargument == chraistate[ichr] );
+      returncode = ( scr_globals.tmpargument == ChrList[ichr].aistate );
       break;
 
     case F_IfTargetCanOpenStuff:
       // This function fails if the target can't open stuff
-      returncode = chropenstuff[loc_aitarget];
+      returncode = ChrList[loc_aitarget].openstuff;
       break;
 
     case F_IfGrabbed:
       // Proceed only if the character was picked up
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_GRABBED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_GRABBED );
       break;
 
     case F_IfDropped:
       // Proceed only if the character was dropped
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_DROPPED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_DROPPED );
       break;
 
     case F_SetTargetToWhoeverIsHolding:
@@ -1955,7 +1966,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( chr_attached( ichr ) )
       {
-        chraitarget[ichr] = chr_get_attachedto( ichr );
+        ChrList[ichr].aitarget = chr_get_attachedto( ichr );
         returncode = btrue;
       }
       break;
@@ -1965,7 +1976,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         // This function applies little bit of love to the character's target.
         // The amount is set in tmpargument
         PAIR ptemp = {scr_globals.tmpargument, 1};
-        damage_character( loc_aitarget, 0, &ptemp, chrdamagetargettype[ichr], chrteam[ichr], ichr, DAMFX_BLOC );
+        damage_character( loc_aitarget, 0, &ptemp, ChrList[ichr].damagetargettype, ChrList[ichr].team, ichr, DAMFX_BLOC );
       }
       break;
 
@@ -1976,38 +1987,38 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetWeatherTime:
       // Set the weather timer
-      weathertimereset = scr_globals.tmpargument;
-      weathertime = scr_globals.tmpargument;
+      GWeather.timereset = scr_globals.tmpargument;
+      GWeather.time = scr_globals.tmpargument;
       break;
 
     case F_GetBumpHeight:
       // Get the characters bump height
-      scr_globals.tmpargument = chrbmpdata[ichr].calc_height;
+      scr_globals.tmpargument = ChrList[ichr].bmpdata.calc_height;
       break;
 
     case F_IfReaffirmed:
       // Proceed only if the character was reaffirmed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_REAFFIRMED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_REAFFIRMED );
       break;
 
     case F_UnkeepAction:
       // This function makes the current animation start again
-      chrkeepaction[ichr] = bfalse;
+      ChrList[ichr].keepaction = bfalse;
       break;
 
     case F_IfTargetIsOnOtherTeam:
       // This function proceeds only if the target is on another team
-      returncode = ( chralive[loc_aitarget] && chrteam[loc_aitarget] != chrteam[ichr] );
+      returncode = ( ChrList[loc_aitarget].alive && ChrList[loc_aitarget].team != ChrList[ichr].team );
       break;
 
     case F_IfTargetIsOnHatedTeam:
       // This function proceeds only if the target is on an enemy team
-      returncode = ( chralive[loc_aitarget] && teamhatesteam[chrteam[ichr]][chrteam[loc_aitarget]] && !chrinvictus[loc_aitarget] );
+      returncode = ( ChrList[loc_aitarget].alive && TeamList[ChrList[ichr].team].hatesteam[ChrList[loc_aitarget].team] && !ChrList[loc_aitarget].invictus );
       break;
 
     case F_PressLatchButton:
       // This function sets the latch buttons
-      chrlatchbutton[ichr] |= scr_globals.tmpargument;
+      ChrList[ichr].latch.b |= scr_globals.tmpargument;
       break;
 
     case F_SetTargetToTargetOfLeader:
@@ -2016,25 +2027,25 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_leader ) )
       {
-        chraitarget[ichr] = chr_get_aitarget( loc_leader );
+        ChrList[ichr].aitarget = chr_get_aitarget( loc_leader );
         returncode = btrue;
       }
       break;
 
     case F_IfLeaderKilled:
       // This function proceeds only if the character's leader has just died
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_LEADERKILLED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_LEADERKILLED );
       break;
 
     case F_BecomeLeader:
       // This function makes the character the team leader
-      teamleader[chrteam[ichr]] = ichr;
+      TeamList[ChrList[ichr].team].leader = ichr;
       break;
 
     case F_ChangeTargetArmor:
       // This function sets the target's armor type and returns the old type
       // as tmpargument and the new type as tmpx
-      iTmp = ( chrtexture[loc_aitarget] - madskinstart[chrmodel[loc_aitarget]] ) % MAXSKIN;
+      iTmp = ( ChrList[loc_aitarget].texture - MadList[ChrList[loc_aitarget].model].skinstart ) % MAXSKIN;
       scr_globals.tmpx = change_armor( loc_aitarget, scr_globals.tmpargument );
       scr_globals.tmpargument = iTmp;  // The character's old armor
       break;
@@ -2042,16 +2053,16 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_GiveMoneyToTarget:
       // This function transfers money from the character to the target, and sets
       // tmpargument to the amount transferred
-      iTmp = chrmoney[ichr];
-      tTmp = chrmoney[loc_aitarget];
+      iTmp = ChrList[ichr].money;
+      tTmp = ChrList[loc_aitarget].money;
       iTmp -= scr_globals.tmpargument;
       tTmp += scr_globals.tmpargument;
       if ( iTmp < 0 ) { tTmp += iTmp;  scr_globals.tmpargument += iTmp;  iTmp = 0; }
       if ( tTmp < 0 ) { iTmp += tTmp;  scr_globals.tmpargument += tTmp;  tTmp = 0; }
       if ( iTmp > MAXMONEY ) { iTmp = MAXMONEY; }
       if ( tTmp > MAXMONEY ) { tTmp = MAXMONEY; }
-      chrmoney[ichr] = iTmp;
-      chrmoney[loc_aitarget] = tTmp;
+      ChrList[ichr].money = iTmp;
+      ChrList[loc_aitarget].money = tTmp;
       break;
 
     case F_DropKeys:
@@ -2076,7 +2087,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       }
       else
       {
-        chraitarget[ichr] = loc_leader;
+        ChrList[ichr].aitarget = loc_leader;
       }
       break;
 
@@ -2085,23 +2096,23 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         vect3 chr_pos = {scr_globals.tmpx, scr_globals.tmpy, 0};
 
         // This function spawns a ichr, failing if x,y is invalid
-        sTmp = spawn_one_character( chr_pos, loc_model, chrteam[ichr], 0, scr_globals.tmpturn, NULL, MAXCHR );
+        sTmp = spawn_one_character( chr_pos, loc_model, ChrList[ichr].team, 0, scr_globals.tmpturn, NULL, MAXCHR );
         returncode = bfalse;
         if ( VALID_CHR( sTmp ) )
         {
           if ( 0 != __chrhitawall( sTmp, NULL ) )
           {
-            chrfreeme[sTmp] = btrue;
+            ChrList[sTmp].freeme = btrue;
           }
           else
           {
-            tTmp = chrturn_lr[ichr] >> 2;
-            chrvel[sTmp].x += turntosin[( tTmp+8192+TRIGTABLE_SHIFT ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
-            chrvel[sTmp].y += turntosin[( tTmp+8192 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
-            chrpassage[sTmp] = chrpassage[ichr];
-            chriskursed[sTmp] = bfalse;
-            chraichild[ichr] = sTmp;
-            chraiowner[sTmp] = loc_aiowner;
+            tTmp = ChrList[ichr].turn_lr >> 2;
+            ChrList[sTmp].vel.x += turntosin[( tTmp+8192+TRIGTABLE_SHIFT ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
+            ChrList[sTmp].vel.y += turntosin[( tTmp+8192 ) & TRIGTABLE_MASK] * scr_globals.tmpdistance;
+            ChrList[sTmp].passage = ChrList[ichr].passage;
+            ChrList[sTmp].iskursed = bfalse;
+            ChrList[ichr].aichild = sTmp;
+            ChrList[sTmp].aiowner = loc_aiowner;
             returncode = btrue;
           }
         }
@@ -2115,12 +2126,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_ChangeTile:
       // This function changes the floor image under the character
-      mesh_set_tile( MESH_FLOAT_TO_FAN( chrpos[ichr].x ), MESH_FLOAT_TO_FAN( chrpos[ichr].y ), scr_globals.tmpargument & 0xFF );
+      mesh_set_tile( MESH_FLOAT_TO_FAN( ChrList[ichr].pos.x ), MESH_FLOAT_TO_FAN( ChrList[ichr].pos.y ), scr_globals.tmpargument & 0xFF );
       break;
 
     case F_IfUsed:
       // This function proceeds only if the character has been used
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_USED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_USED );
       break;
 
     case F_DropMoney:
@@ -2140,7 +2151,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetHasVulnerabilityID:
       // This function proceeds if ID matches tmpargument
-      returncode = ( capidsz[chrmodel[loc_aitarget]][IDSZ_VULNERABILITY] == ( IDSZ ) scr_globals.tmpargument );
+      returncode = ( CapList[ChrList[loc_aitarget].model].idsz[IDSZ_VULNERABILITY] == ( IDSZ ) scr_globals.tmpargument );
       break;
 
     case F_CleanUp:
@@ -2150,7 +2161,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfCleanedUp:
       // This function proceeds only if the character was told to clean up
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_CLEANEDUP );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_CLEANEDUP );
       break;
 
     case F_IfSitting:
@@ -2168,21 +2179,21 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_aitarget ) )
       {
-        returncode = chralive[loc_aitarget] &&  chrlifemax_fp8[loc_aitarget] > 0 && chrlife_fp8[loc_aitarget] < chrlifemax_fp8[loc_aitarget] - MINDAMAGE;
+        returncode = ChrList[loc_aitarget].alive &&  ChrList[loc_aitarget].lifemax_fp8 > 0 && ChrList[loc_aitarget].life_fp8 < ChrList[loc_aitarget].lifemax_fp8 - DAMAGE_HURT;
       }
       break;
 
     case F_IfTargetIsAPlayer:
       // This function proceeds only if the target is a player ( may not be local )
-      returncode = chrisplayer[loc_aitarget];
+      returncode = ChrList[loc_aitarget].isplayer;
       break;
 
     case F_PlaySound:
       // This function plays a sound
       returncode = bfalse;
-      if ( INVALID_SOUND != scr_globals.tmpargument && chrpos_old[ichr].z > PITNOSOUND )
+      if ( INVALID_SOUND != scr_globals.tmpargument && ChrList[ichr].pos_old.z > PITNOSOUND )
       {
-        returncode = ( INVALID_SOUND != play_sound( 1.0f, chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0, ichr, scr_globals.tmpargument ) );
+        returncode = ( INVALID_SOUND != play_sound( 1.0f, ChrList[ichr].pos_old, CapList[loc_model].wavelist[scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument) );
       }
       break;
 
@@ -2193,26 +2204,26 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
-        tTmp = spawn_one_particle( 1.0f, chrpos[ichr], chrturn_lr[ichr], loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, ChrList[ichr].pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, ChrList[ichr].team, tTmp, 0, MAXCHR );
 
         if ( VALID_PRT( tTmp ) )
         {
           // Detach the particle
           attach_particle_to_character( tTmp, ichr, scr_globals.tmpdistance );
-          prtattachedtochr[tTmp] = MAXCHR;
+          PrtList[tTmp].attachedtochr = MAXCHR;
 
           // Correct X, Y, Z spacing
-          prtpos[tTmp].x += scr_globals.tmpx;
-          prtpos[tTmp].y += scr_globals.tmpy;
-          prtpos[tTmp].z += pipzspacing[prtpip[tTmp]].ibase;
+          PrtList[tTmp].pos.x += scr_globals.tmpx;
+          PrtList[tTmp].pos.y += scr_globals.tmpy;
+          PrtList[tTmp].pos.z += PipList[PrtList[tTmp].pip].zspacing.ibase;
 
           // Don't spawn in walls
           if ( 0 != __prthitawall( tTmp, NULL ) )
           {
-            prtpos[tTmp].x = chrpos[ichr].x;
+            PrtList[tTmp].pos.x = ChrList[ichr].pos.x;
             if ( 0 != __prthitawall( tTmp, NULL ) )
             {
-              prtpos[tTmp].y = chrpos[ichr].y;
+              PrtList[tTmp].pos.y = ChrList[ichr].pos.y;
             }
           }
           returncode = btrue;
@@ -2222,11 +2233,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetIsAlive:
       // This function proceeds only if the target is alive
-      returncode = chralive[loc_aitarget];
+      returncode = ChrList[loc_aitarget].alive;
       break;
 
     case F_Stop:
-      chrmaxaccel[ichr] = 0;
+      ChrList[ichr].maxaccel = 0;
       break;
 
     case F_DisaffirmCharacter:
@@ -2244,17 +2255,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetIsMale:
       // This function proceeds only if the target is male
-      returncode = ( chrgender[ichr] == GEN_MALE );
+      returncode = ( ChrList[ichr].gender == GEN_MALE );
       break;
 
     case F_IfTargetIsFemale:
       // This function proceeds only if the target is female
-      returncode = ( chrgender[ichr] == GEN_FEMALE );
+      returncode = ( ChrList[ichr].gender == GEN_FEMALE );
       break;
 
     case F_SetTargetToSelf:
       // This function sets the target to the character
-      chraitarget[ichr] = ichr;
+      ChrList[ichr].aitarget = ichr;
       break;
 
     case F_SetTargetToRider:
@@ -2263,48 +2274,48 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( chr_using_slot( ichr, SLOT_SADDLE ) )
       {
-        chraitarget[ichr] = chr_get_holdingwhich( ichr, SLOT_SADDLE );
+        ChrList[ichr].aitarget = chr_get_holdingwhich( ichr, SLOT_SADDLE );
         returncode = btrue;
       }
       break;
 
     case F_GetAttackTurn:
       // This function sets tmpturn to the direction of the last attack
-      scr_globals.tmpturn = chrdirectionlast[ichr];
+      scr_globals.tmpturn = ChrList[ichr].directionlast;
       break;
 
     case F_GetDamageType:
       // This function gets the last type of damage
-      scr_globals.tmpargument = chrdamagetypelast[ichr];
+      scr_globals.tmpargument = ChrList[ichr].damagetypelast;
       break;
 
     case F_BecomeSpell:
       // This function turns the spellbook character into a spell based on its
       // content
-      chrmoney[ichr] = ( chrtexture[ichr] - madskinstart[loc_model] ) % MAXSKIN;
-      change_character( ichr, chraicontent[ichr], 0, LEAVE_NONE );
-      chraicontent[ichr] = 0;  // Reset so it doesn't mess up
-      chraistate[ichr]   = 0;  // Reset so it doesn't mess up
-      chraimorphed[ichr] = btrue;
+      ChrList[ichr].money = ( ChrList[ichr].texture - MadList[loc_model].skinstart ) % MAXSKIN;
+      change_character( ichr, ChrList[ichr].aicontent, 0, LEAVE_NONE );
+      ChrList[ichr].aicontent = 0;  // Reset so it doesn't mess up
+      ChrList[ichr].aistate   = 0;  // Reset so it doesn't mess up
+      ChrList[ichr].aimorphed = btrue;
       break;
 
     case F_BecomeSpellbook:
       // This function turns the spell into a spellbook, and sets the content
       // accordingly
-      chraicontent[ichr] = loc_model;
-      change_character( ichr, SPELLBOOK, chrmoney[ichr] % MAXSKIN, LEAVE_NONE );
-      chraistate[ichr] = 0;  // Reset so it doesn't burn up
-      chraimorphed[ichr] = btrue;
+      ChrList[ichr].aicontent = loc_model;
+      change_character( ichr, SPELLBOOK, ChrList[ichr].money % MAXSKIN, LEAVE_NONE );
+      ChrList[ichr].aistate = 0;  // Reset so it doesn't burn up
+      ChrList[ichr].aimorphed = btrue;
       break;
 
     case F_IfScoredAHit:
       // Proceed only if the character scored a hit
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_SCOREDAHIT );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_SCOREDAHIT );
       break;
 
     case F_IfDisaffirmed:
       // Proceed only if the character was disaffirmed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_DISAFFIRMED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_DISAFFIRMED );
       break;
 
     case F_DecodeOrder:
@@ -2312,20 +2323,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // target ( if valid )
 
       returncode = bfalse;
-      sTmp = chrmessage[ichr] >> 20;
+      sTmp = ChrList[ichr].message >> 20;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr]  = sTmp;
-        scr_globals.tmpx        = (( chrmessage[ichr] >> 12 ) & 0x00FF ) << 8;
-        scr_globals.tmpy        = (( chrmessage[ichr] >>  4 ) & 0x00FF ) << 8;
-        scr_globals.tmpargument = chrmessage[ichr] & 0x000F;
+        ChrList[ichr].aitarget  = sTmp;
+        scr_globals.tmpx        = (( ChrList[ichr].message >> 12 ) & 0x00FF ) << 8;
+        scr_globals.tmpy        = (( ChrList[ichr].message >>  4 ) & 0x00FF ) << 8;
+        scr_globals.tmpargument = ChrList[ichr].message & 0x000F;
         returncode = btrue;
       }
       break;
 
     case F_SetTargetToWhoeverWasHit:
       // This function sets the target to whoever the character hit last,
-      chraitarget[ichr] = chr_get_aihitlast( ichr );
+      ChrList[ichr].aitarget = chr_get_aihitlast( ichr );
       break;
 
     case F_SetTargetToWideEnemy:
@@ -2334,49 +2345,49 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
 
     case F_IfChanged:
       // Proceed only if the character was polymorphed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_CHANGED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_CHANGED );
       break;
 
     case F_IfInWater:
       // Proceed only if the character got wet
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_INWATER );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_INWATER );
       break;
 
     case F_IfBored:
       // Proceed only if the character is bored
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_BORED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_BORED );
       break;
 
     case F_IfTooMuchBaggage:
       // Proceed only if the character tried to grab too much
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_TOOMUCHBAGGAGE );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_TOOMUCHBAGGAGE );
       break;
 
     case F_IfGrogged:
       // Proceed only if the character was grogged
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_GROGGED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_GROGGED );
       break;
 
     case F_IfDazed:
       // Proceed only if the character was dazed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_DAZED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_DAZED );
       break;
 
     case F_IfTargetHasSpecialID:
       // This function proceeds if ID matches tmpargument
-      returncode = ( capidsz[chrmodel[loc_aitarget]][IDSZ_SPECIAL] == ( IDSZ ) scr_globals.tmpargument );
+      returncode = ( CapList[ChrList[loc_aitarget].model].idsz[IDSZ_SPECIAL] == ( IDSZ ) scr_globals.tmpargument );
       break;
 
     case F_PressTargetLatchButton:
       // This function sets the target's latch buttons
-      chrlatchbutton[loc_aitarget] |= scr_globals.tmpargument;
+      ChrList[loc_aitarget].latch.b |= scr_globals.tmpargument;
       break;
 
     case F_IfInvisible:
@@ -2386,34 +2397,34 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfArmorIs:
       // This function passes if the character's skin is tmpargument
-      tTmp = ( chrtexture[ichr] - madskinstart[loc_model] ) % MAXSKIN;
+      tTmp = ( ChrList[ichr].texture - MadList[loc_model].skinstart ) % MAXSKIN;
       returncode = ( tTmp == scr_globals.tmpargument );
       break;
 
     case F_GetTargetGrogTime:
       // This function returns tmpargument as the grog time, and passes if it is not 0
-      scr_globals.tmpargument = chrgrogtime[ichr];
+      scr_globals.tmpargument = ChrList[ichr].grogtime;
       returncode = ( scr_globals.tmpargument != 0 );
       break;
 
     case F_GetTargetDazeTime:
       // This function returns tmpargument as the daze time, and passes if it is not 0
-      scr_globals.tmpargument = chrdazetime[ichr];
+      scr_globals.tmpargument = ChrList[ichr].dazetime;
       returncode = ( scr_globals.tmpargument != 0 );
       break;
 
     case F_SetDamageType:
       // This function sets the bump damage type
-      chrdamagetargettype[ichr] = scr_globals.tmpargument & ( MAXDAMAGETYPE - 1 );
+      ChrList[ichr].damagetargettype = scr_globals.tmpargument & ( MAXDAMAGETYPE - 1 );
       break;
 
     case F_SetWaterLevel:
       // This function raises and lowers the module's water
-      fTmp = ( scr_globals.tmpargument / 10.0 ) - waterdouselevel;
-      watersurfacelevel += fTmp;
-      waterdouselevel += fTmp;
+      fTmp = ( scr_globals.tmpargument / 10.0 ) - GWater.douselevel;
+      GWater.surfacelevel += fTmp;
+      GWater.douselevel += fTmp;
       for ( iTmp = 0; iTmp < MAXWATERLAYER; iTmp++ )
-        waterlayerz[iTmp] += fTmp;
+        GWater.layerz[iTmp] += fTmp;
       break;
 
     case F_EnchantTarget:
@@ -2438,20 +2449,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         // Yeah!  It worked!
         sTmp = chr_get_aitarget( ichr );
         detach_character_from_mount( sTmp, btrue, bfalse );
-        chrpos_old[sTmp] = chrpos[sTmp];
+        ChrList[sTmp].pos_old = ChrList[sTmp].pos;
 
-        chrpos[sTmp].x = scr_globals.tmpx;
-        chrpos[sTmp].y = scr_globals.tmpy;
-        chrpos[sTmp].z = scr_globals.tmpdistance;
+        ChrList[sTmp].pos.x = scr_globals.tmpx;
+        ChrList[sTmp].pos.y = scr_globals.tmpy;
+        ChrList[sTmp].pos.z = scr_globals.tmpdistance;
         if ( 0 != __chrhitawall( sTmp, NULL ) )
         {
           // No it didn't...
-          chrpos[sTmp] = chrpos_old[sTmp];
+          ChrList[sTmp].pos = ChrList[sTmp].pos_old;
           returncode = bfalse;
         }
         else
         {
-          chrpos_old[sTmp] = chrpos[sTmp];
+          ChrList[sTmp].pos_old = ChrList[sTmp].pos;
           returncode = btrue;
         }
       }
@@ -2465,20 +2476,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IncreaseAmmo:
       // This function increases the ammo by one
-      if ( chrammo[ichr] < chrammomax[ichr] )
+      if ( ChrList[ichr].ammo < ChrList[ichr].ammomax )
       {
-        chrammo[ichr]++;
+        ChrList[ichr].ammo++;
       }
       break;
 
     case F_UnkurseTarget:
       // This function unkurses the target
-      chriskursed[loc_aitarget] = bfalse;
+      ChrList[loc_aitarget].iskursed = bfalse;
       break;
 
     case F_GiveExperienceToTargetTeam:
       // This function gives experience to everyone on the target's team
-      give_team_experience( chrteam[loc_aitarget], scr_globals.tmpargument, scr_globals.tmpdistance );
+      give_team_experience( ChrList[loc_aitarget].team, scr_globals.tmpargument, scr_globals.tmpdistance );
       break;
 
     case F_IfUnarmed:
@@ -2541,62 +2552,62 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetRedShift:
       // This function alters a character's coloration
-      chrredshift[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].redshift = scr_globals.tmpargument;
       break;
 
     case F_SetGreenShift:
       // This function alters a character's coloration
-      chrgrnshift[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].grnshift = scr_globals.tmpargument;
       break;
 
     case F_SetBlueShift:
       // This function alters a character's coloration
-      chrblushift[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].blushift = scr_globals.tmpargument;
       break;
 
     case F_SetLight:
       // This function alters a character's transparency
-      chrlight_fp8[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].light_fp8 = scr_globals.tmpargument;
       break;
 
     case F_SetAlpha:
       // This function alters a character's transparency
-      chralpha_fp8[ichr]    = scr_globals.tmpargument;
-      chrbumpstrength[ichr] = capbumpstrength[loc_model] * FP8_TO_FLOAT( scr_globals.tmpargument );
+      ChrList[ichr].alpha_fp8    = scr_globals.tmpargument;
+      ChrList[ichr].bumpstrength = CapList[loc_model].bumpstrength * FP8_TO_FLOAT( scr_globals.tmpargument );
       break;
 
     case F_IfHitFromBehind:
       // This function proceeds if the character was attacked from behind
       returncode = bfalse;
-      if ( chrdirectionlast[ichr] >= BEHIND - 8192 && chrdirectionlast[ichr] < BEHIND + 8192 )
+      if ( ChrList[ichr].directionlast >= BEHIND - 8192 && ChrList[ichr].directionlast < BEHIND + 8192 )
         returncode = btrue;
       break;
 
     case F_IfHitFromFront:
       // This function proceeds if the character was attacked from the front
       returncode = bfalse;
-      if ( chrdirectionlast[ichr] >= 49152 + 8192 || chrdirectionlast[ichr] < FRONT + 8192 )
+      if ( ChrList[ichr].directionlast >= 49152 + 8192 || ChrList[ichr].directionlast < FRONT + 8192 )
         returncode = btrue;
       break;
 
     case F_IfHitFromLeft:
       // This function proceeds if the character was attacked from the left
       returncode = bfalse;
-      if ( chrdirectionlast[ichr] >= LEFT - 8192 && chrdirectionlast[ichr] < LEFT + 8192 )
+      if ( ChrList[ichr].directionlast >= LEFT - 8192 && ChrList[ichr].directionlast < LEFT + 8192 )
         returncode = btrue;
       break;
 
     case F_IfHitFromRight:
       // This function proceeds if the character was attacked from the right
       returncode = bfalse;
-      if ( chrdirectionlast[ichr] >= RIGHT - 8192 && chrdirectionlast[ichr] < RIGHT + 8192 )
+      if ( ChrList[ichr].directionlast >= RIGHT - 8192 && ChrList[ichr].directionlast < RIGHT + 8192 )
         returncode = btrue;
       break;
 
     case F_IfTargetIsOnSameTeam:
       // This function proceeds only if the target is on another team
       returncode = bfalse;
-      if ( chrteam[loc_aitarget] == chrteam[ichr] )
+      if ( ChrList[loc_aitarget].team == ChrList[ichr].team )
         returncode = btrue;
       break;
 
@@ -2607,13 +2618,13 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_UndoEnchant:
       // This function undoes the last enchant
-      returncode = ( chrundoenchant[ichr] != MAXENCHANT );
-      remove_enchant( chrundoenchant[ichr] );
+      returncode = ( ChrList[ichr].undoenchant != MAXENCHANT );
+      remove_enchant( ChrList[ichr].undoenchant );
       break;
 
     case F_GetWaterLevel:
       // This function gets the douse level for the water, returning it in tmpargument
-      scr_globals.tmpargument = waterdouselevel * 10;
+      scr_globals.tmpargument = GWater.douselevel * 10;
       break;
 
     case F_CostTargetMana:
@@ -2626,7 +2637,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
       {
-        if ( capidsz[chrmodel[loc_aitarget]][tTmp] == ( IDSZ ) scr_globals.tmpargument )
+        if ( CapList[ChrList[loc_aitarget].model].idsz[tTmp] == ( IDSZ ) scr_globals.tmpargument )
         {
           returncode = btrue;
           break;
@@ -2636,17 +2647,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetBumpSize:
       // This function sets the character's bump size
-      //fTmp = chrbmpdata[ichr].calc_size_big;
-      //fTmp /= chrbmpdata[ichr].calc_size;  // 1.5 or 2.0
-      //chrbmpdata[ichr].size = scr_globals.tmpargument * chrfat[ichr];
-      //chrbmpdata[ichr].sizebig = fTmp * chrbmpdata[ichr].calc_size;
-      //chrbmpdata_save[ichr].size = scr_globals.tmpargument;
-      //chrbmpdata_save[ichr].sizebig = fTmp * chrbmpdata_save[ichr].size;
+      //fTmp = ChrList[ichr].bmpdata.calc_size_big;
+      //fTmp /= ChrList[ichr].bmpdata.calc_size;  // 1.5 or 2.0
+      //ChrList[ichr].bmpdata.size = scr_globals.tmpargument * ChrList[ichr].fat;
+      //ChrList[ichr].bmpdata.sizebig = fTmp * ChrList[ichr].bmpdata.calc_size;
+      //ChrList[ichr].bmpdata_save.size = scr_globals.tmpargument;
+      //ChrList[ichr].bmpdata_save.sizebig = fTmp * ChrList[ichr].bmpdata_save.size;
       break;
 
     case F_IfNotDropped:
       // This function passes if a kursed item could not be dropped
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_NOTDROPPED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_NOTDROPPED );
       break;
 
     case F_IfYIsLessThanX:
@@ -2656,65 +2667,65 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetFlyHeight:
       // This function sets a character's fly height
-      chrflyheight[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].flyheight = scr_globals.tmpargument;
       break;
 
     case F_IfBlocked:
       // This function passes if the character blocked an attack
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_BLOCKED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_BLOCKED );
       break;
 
     case F_IfTargetIsDefending:
-      returncode = ( chraction[loc_aitarget] >= ACTION_PA && chraction[loc_aitarget] <= ACTION_PD );
+      returncode = ( ChrList[loc_aitarget].action >= ACTION_PA && ChrList[loc_aitarget].action <= ACTION_PD );
       break;
 
     case F_IfTargetIsAttacking:
-      returncode = ( chraction[loc_aitarget] >= ACTION_UA && chraction[loc_aitarget] <= ACTION_FD );
+      returncode = ( ChrList[loc_aitarget].action >= ACTION_UA && ChrList[loc_aitarget].action <= ACTION_FD );
       break;
 
     case F_IfStateIs0:
-      returncode = ( 0 == chraistate[ichr] );
+      returncode = ( 0 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs1:
-      returncode = ( 1 == chraistate[ichr] );
+      returncode = ( 1 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs2:
-      returncode = ( 2 == chraistate[ichr] );
+      returncode = ( 2 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs3:
-      returncode = ( 3 == chraistate[ichr] );
+      returncode = ( 3 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs4:
-      returncode = ( 4 == chraistate[ichr] );
+      returncode = ( 4 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs5:
-      returncode = ( 5 == chraistate[ichr] );
+      returncode = ( 5 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs6:
-      returncode = ( 6 == chraistate[ichr] );
+      returncode = ( 6 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs7:
-      returncode = ( 7 == chraistate[ichr] );
+      returncode = ( 7 == ChrList[ichr].aistate );
       break;
 
     case F_IfContentIs:
-      returncode = ( scr_globals.tmpargument == chraicontent[ichr] );
+      returncode = ( scr_globals.tmpargument == ChrList[ichr].aicontent );
       break;
 
     case F_SetTurnModeToWatchTarget:
       // This function sets the turn mode
-      chrturnmode[ichr] = TURNMODE_WATCHTARGET;
+      ChrList[ichr].turnmode = TURNMODE_WATCHTARGET;
       break;
 
     case F_IfStateIsNot:
-      returncode = ( scr_globals.tmpargument != chraistate[ichr] );
+      returncode = ( scr_globals.tmpargument != ChrList[ichr].aistate );
       break;
 
     case F_IfXIsEqualToY:
@@ -2723,14 +2734,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_DisplayDebugMessage:
       // This function spits out a debug message
-	  if(CData.DevMode)
-	  {
-		  debug_message( 1, "aistate %d, aicontent %d, target %d", chraistate[ichr], chraicontent[ichr], chraitarget[ichr] );
-		  debug_message( 1, "tmpx %d, tmpy %d", scr_globals.tmpx, scr_globals.tmpy );
-		  debug_message( 1, "tmpdistance %d, tmpturn %d", scr_globals.tmpdistance, scr_globals.tmpturn );
-		  debug_message( 1, "tmpargument %d, selfturn %d", scr_globals.tmpargument, chrturn_lr[ichr] );
-	  }
-	break;
+      if( CData.DevMode )
+      {
+        debug_message( 1, "aistate %d, aicontent %d, target %d", ChrList[ichr].aistate, ChrList[ichr].aicontent, ChrList[ichr].aitarget );
+        debug_message( 1, "tmpx %d, tmpy %d", scr_globals.tmpx, scr_globals.tmpy );
+        debug_message( 1, "tmpdistance %d, tmpturn %d", scr_globals.tmpdistance, scr_globals.tmpturn );
+        debug_message( 1, "tmpargument %d, selfturn %d", scr_globals.tmpargument, ChrList[ichr].turn_lr );
+      }
+      break;
 
     case F_BlackTarget:
       // This function makes the target flash black
@@ -2739,26 +2750,26 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_DisplayMessageNear:
       // This function sends a message if the camera is in the nearby area.
-      iTmp = ABS( chrpos_old[ichr].x - camtrackpos.x ) + ABS( chrpos_old[ichr].y - camtrackpos.y );
+      iTmp = ABS( ChrList[ichr].pos_old.x - GCamera.trackpos.x ) + ABS( ChrList[ichr].pos_old.y - GCamera.trackpos.y );
       if ( iTmp < MSGDISTANCE )
       {
-        display_message( madmsgstart[loc_model] + scr_globals.tmpargument, ichr );
+        display_message( MadList[loc_model].msg_start + scr_globals.tmpargument, ichr );
       }
       break;
 
     case F_IfHitGround:
       // This function passes if the character just hit the ground
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_HITGROUND );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_HITGROUND );
       break;
 
     case F_IfNameIsKnown:
       // This function passes if the character's name is known
-      returncode = chrnameknown[ichr];
+      returncode = ChrList[ichr].nameknown;
       break;
 
     case F_IfUsageIsKnown:
       // This function passes if the character's usage is known
-      returncode = capusageknown[loc_model];
+      returncode = CapList[loc_model].usageknown;
       break;
 
     case F_IfHoldingItemID:
@@ -2771,7 +2782,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_holdingwhich( ichr, _slot );
         if ( VALID_CHR( sTmp ) )
         {
-          if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+          if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
           {
             scr_globals.tmpargument = slot_to_latch( ichr, _slot );
             returncode = btrue;
@@ -2791,8 +2802,8 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = chr_get_holdingwhich( ichr, _slot );
         if ( VALID_CHR( tTmp ) )
         {
-          sTmp = chrmodel[tTmp];
-          if ( capisranged[sTmp] && ( chrammomax[tTmp] == 0 || ( chrammo[tTmp] > 0 && chrammoknown[tTmp] ) ) )
+          sTmp = ChrList[tTmp].model;
+          if ( CapList[sTmp].isranged && ( ChrList[tTmp].ammomax == 0 || ( ChrList[tTmp].ammo > 0 && ChrList[tTmp].ammoknown ) ) )
           {
             scr_globals.tmpargument = slot_to_latch( ichr, _slot );
             returncode = btrue;
@@ -2812,7 +2823,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_holdingwhich( ichr, _slot );
         if ( VALID_CHR( sTmp ) )
         {
-          if ( !capisranged[chrmodel[sTmp]] && capweaponaction[chrmodel[sTmp]] != ACTION_PA )
+          if ( !CapList[ChrList[sTmp].model].isranged && CapList[ChrList[sTmp].model].weaponaction != ACTION_PA )
           {
             scr_globals.tmpargument = slot_to_latch( ichr, _slot );
             returncode = btrue;
@@ -2830,7 +2841,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       for ( _slot = SLOT_LEFT; _slot <= SLOT_RIGHT; _slot = ( SLOT )( _slot + 1 ) )
       {
         sTmp = chr_get_holdingwhich( ichr, _slot );
-        if ( VALID_CHR( sTmp ) && capweaponaction[chrmodel[sTmp]] == ACTION_PA )
+        if ( VALID_CHR( sTmp ) && CapList[ChrList[sTmp].model].weaponaction == ACTION_PA )
         {
           scr_globals.tmpargument = slot_to_latch( ichr, _slot );
           returncode = btrue;
@@ -2840,71 +2851,71 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfKursed:
       // This function passes if the character is kursed
-      returncode = chriskursed[ichr];
+      returncode = ChrList[ichr].iskursed;
       break;
 
     case F_IfTargetIsKursed:
       // This function passes if the target is kursed
-      returncode = chriskursed[loc_aitarget];
+      returncode = ChrList[loc_aitarget].iskursed;
       break;
 
     case F_IfTargetIsDressedUp:
       // This function passes if the character's skin is dressy
-      iTmp = ( chrtexture[ichr] - madskinstart[loc_model] ) % MAXSKIN;
+      iTmp = ( ChrList[ichr].texture - MadList[loc_model].skinstart ) % MAXSKIN;
       iTmp = 1 << iTmp;
-      returncode = (( capskindressy[loc_model] & iTmp ) != 0 );
+      returncode = (( CapList[loc_model].skindressy & iTmp ) != 0 );
       break;
 
     case F_IfOverWater:
       // This function passes if the character is on a water tile
-      returncode = mesh_has_some_bits( chronwhichfan[ichr], MESHFX_WATER ) && wateriswater;
+      returncode = mesh_has_some_bits( ChrList[ichr].onwhichfan, MESHFX_WATER ) && GWater.iswater;
       break;
 
     case F_IfThrown:
       // This function passes if the character was thrown
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_THROWN );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_THROWN );
       break;
 
     case F_MakeNameKnown:
       // This function makes the name of an item/character known.
-      chrnameknown[ichr] = btrue;
-      chricon[ichr] = btrue;
+      ChrList[ichr].nameknown = btrue;
+      ChrList[ichr].icon = btrue;
       break;
 
     case F_MakeUsageKnown:
       // This function makes the usage of an item known...  For XP gains from
       // using an unknown potion or such
-      capusageknown[loc_model] = btrue;
+      CapList[loc_model].usageknown = btrue;
       break;
 
     case F_StopTargetMovement:
       // This function makes the target stop moving temporarily
-      chrvel[loc_aitarget].x = 0;
-      chrvel[loc_aitarget].y = 0;
-      if ( chrvel[loc_aitarget].z > 0 ) chrvel[loc_aitarget].z = gravity;
+      ChrList[loc_aitarget].vel.x = 0;
+      ChrList[loc_aitarget].vel.y = 0;
+      if ( ChrList[loc_aitarget].vel.z > 0 ) ChrList[loc_aitarget].vel.z = gravity;
       break;
 
     case F_SetXY:
       // This function stores tmpx and tmpy in the storage array
-      chraix[ichr][scr_globals.tmpargument&STORAND] = scr_globals.tmpx;
-      chraiy[ichr][scr_globals.tmpargument&STORAND] = scr_globals.tmpy;
+      ChrList[ichr].aix[scr_globals.tmpargument&STORAND] = scr_globals.tmpx;
+      ChrList[ichr].aiy[scr_globals.tmpargument&STORAND] = scr_globals.tmpy;
       break;
 
     case F_GetXY:
       // This function gets previously stored data, setting tmpx and tmpy
-      scr_globals.tmpx = chraix[ichr][scr_globals.tmpargument&STORAND];
-      scr_globals.tmpy = chraiy[ichr][scr_globals.tmpargument&STORAND];
+      scr_globals.tmpx = ChrList[ichr].aix[scr_globals.tmpargument&STORAND];
+      scr_globals.tmpy = ChrList[ichr].aiy[scr_globals.tmpargument&STORAND];
       break;
 
     case F_AddXY:
       // This function adds tmpx and tmpy to the storage array
-      chraix[ichr][scr_globals.tmpargument&STORAND] += scr_globals.tmpx;
-      chraiy[ichr][scr_globals.tmpargument&STORAND] += scr_globals.tmpy;
+      ChrList[ichr].aix[scr_globals.tmpargument&STORAND] += scr_globals.tmpx;
+      ChrList[ichr].aiy[scr_globals.tmpargument&STORAND] += scr_globals.tmpy;
       break;
 
     case F_MakeAmmoKnown:
       // This function makes the ammo of an item/character known.
-      chrammoknown[ichr] = btrue;
+      ChrList[ichr].ammoknown = btrue;
       break;
 
     case F_SpawnAttachedParticle:
@@ -2914,7 +2925,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
-        tTmp = spawn_one_particle( 1.0f, chrpos[ichr], chrturn_lr[ichr], loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, ChrList[ichr].pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, ChrList[ichr].team, tTmp, 0, MAXCHR );
         returncode = VALID_PRT( tTmp );
       }
       break;
@@ -2927,15 +2938,15 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         vect3 prt_pos = {scr_globals.tmpx, scr_globals.tmpy, scr_globals.tmpdistance};
         tTmp = ichr;
         if ( chr_attached( tTmp ) )  tTmp = chr_get_attachedto( tTmp );
-        tTmp = spawn_one_particle( 1.0f, prt_pos, chrturn_lr[ichr], loc_model, scr_globals.tmpargument, MAXCHR, 0, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, prt_pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, MAXCHR, 0, ChrList[ichr].team, tTmp, 0, MAXCHR );
         returncode = VALID_PRT( tTmp );
       };
       break;
 
     case F_AccelerateTarget:
       // This function changes the target's speeds
-      chrvel[loc_aitarget].x += scr_globals.tmpx;
-      chrvel[loc_aitarget].y += scr_globals.tmpy;
+      ChrList[loc_aitarget].vel.x += scr_globals.tmpx;
+      ChrList[loc_aitarget].vel.y += scr_globals.tmpy;
       break;
 
     case F_IfDistanceIsMoreThanTurn:
@@ -2945,12 +2956,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfCrushed:
       // This function proceeds only if the character was crushed
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_CRUSHED );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_CRUSHED );
       break;
 
     case F_MakeCrushValid:
       // This function makes doors able to close on this object
-      chrcanbecrushed[ichr] = btrue;
+      ChrList[ichr].canbecrushed = btrue;
       break;
 
     case F_SetTargetToLowestTarget:
@@ -2965,60 +2976,60 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
           holder = attached;
           attached = chr_get_attachedto(holder);
         }
-        chraitarget[ichr] = holder;
+        ChrList[ichr].aitarget = holder;
       };
       break;
 
     case F_IfNotPutAway:
       // This function proceeds only if the character couln't be put in the pack
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_NOTPUTAWAY );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_NOTPUTAWAY );
       break;
 
     case F_IfTakenOut:
       // This function proceeds only if the character was taken out of the pack
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_TAKENOUT );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_TAKENOUT );
       break;
 
     case F_IfAmmoOut:
       // This function proceeds only if the character has no ammo
-      returncode = ( chrammo[ichr] == 0 );
+      returncode = ( ChrList[ichr].ammo == 0 );
       break;
 
     case F_PlaySoundLooped:
       // This function plays a looped sound
-	  returncode = bfalse;
-      if ( moduleActive && (0 <= scr_globals.tmpargument) && (chrpos_old[ichr].z > PITNOSOUND) && (chrloopingchannel[ichr] == INVALID_SOUND))
+    returncode = bfalse;
+      if ( moduleActive && (0 <= scr_globals.tmpargument) && (ChrList[ichr].pos_old.z > PITNOSOUND) && (ChrList[ichr].loopingchannel == INVALID_SOUND))
       {
         //You could use this, but right now there's no way to stop the sound later, so it's better not to start it
-        chrloopingchannel[ichr] = play_sound( 1.0f, chrpos[ichr], capwavelist[loc_model][scr_globals.tmpargument], -1, loc_model, scr_globals.tmpargument );
-        chrloopingvolume[ichr] = 1.0f;
+        ChrList[ichr].loopingchannel = play_sound( 1.0f, ChrList[ichr].pos, CapList[loc_model].wavelist[scr_globals.tmpargument], -1, loc_model, scr_globals.tmpargument);
+        ChrList[ichr].loopingvolume = 1.0f;
       }
       break;
 
     case F_StopSoundLoop:
       // This function stops playing a sound
-      if( INVALID_CHANNEL != chrloopingchannel[ichr] )
+      if( INVALID_CHANNEL != ChrList[ichr].loopingchannel )
       {
-        stop_sound( chrloopingchannel[ichr] );
-        chrloopingchannel[ichr] = INVALID_CHANNEL;
+        stop_sound( ChrList[ichr].loopingchannel );
+        ChrList[ichr].loopingchannel = INVALID_CHANNEL;
       };
       break;
 
     case F_HealSelf:
       // This function heals the ichr, without setting the alert or modifying
       // the amount
-      if ( chralive[ichr] )
+      if ( ChrList[ichr].alive )
       {
-        iTmp = chrlife_fp8[ichr] + scr_globals.tmpargument;
-        if ( iTmp > chrlifemax_fp8[ichr] ) iTmp = chrlifemax_fp8[ichr];
+        iTmp = ChrList[ichr].life_fp8 + scr_globals.tmpargument;
+        if ( iTmp > ChrList[ichr].lifemax_fp8 ) iTmp = ChrList[ichr].lifemax_fp8;
         if ( iTmp < 1 ) iTmp = 1;
-        chrlife_fp8[ichr] = iTmp;
+        ChrList[ichr].life_fp8 = iTmp;
       }
       break;
 
     case F_Equip:
       // This function flags the character as being equipped
-      chrisequipped[ichr] = btrue;
+      ChrList[ichr].isequipped = btrue;
       break;
 
     case F_IfTargetHasItemIDEquipped:
@@ -3027,7 +3038,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       sTmp  = chr_get_nextinpack( loc_aitarget );
       while ( VALID_CHR( sTmp ) )
       {
-        if ( sTmp != ichr && chrisequipped[sTmp] && CAP_INHERIT_IDSZ( chrmodel[sTmp], scr_globals.tmpargument ) )
+        if ( sTmp != ichr && ChrList[sTmp].isequipped && CAP_INHERIT_IDSZ( ChrList[sTmp].model, scr_globals.tmpargument ) )
         {
           returncode = btrue;
           break;
@@ -3041,12 +3052,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetOwnerToTarget:
       // This function sets the owner
-      chraiowner[ichr] = chr_get_aitarget( ichr );
+      ChrList[ichr].aiowner = chr_get_aitarget( ichr );
       break;
 
     case F_SetTargetToOwner:
       // This function sets the target to the owner
-      chraitarget[ichr] = loc_aiowner;
+      ChrList[ichr].aitarget = loc_aiowner;
       break;
 
     case F_SetFrame:
@@ -3063,23 +3074,23 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetReloadTime:
       // This function makes weapons fire slower
-      chrreloadtime[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].reloadtime = scr_globals.tmpargument;
       break;
 
     case F_SetTargetToWideBlahID:
       // This function sets the target based on the settings of
       // tmpargument and tmpdistance
-      sTmp = chr_search_wide_target( ichr, 
+      sTmp = chr_search_wide_target( ichr,
                                      HAS_ALL_BITS( scr_globals.tmpdistance, SEARCH_ITEMS   ),
                                      HAS_ALL_BITS( scr_globals.tmpdistance, SEARCH_FRIENDS ),
                                      HAS_ALL_BITS( scr_globals.tmpdistance, SEARCH_ENEMIES ),
                                      HAS_ALL_BITS( scr_globals.tmpdistance, SEARCH_DEAD    ),
-                                     scr_globals.tmpargument, 
+                                     scr_globals.tmpargument,
                                      HAS_ALL_BITS( scr_globals.tmpdistance, SEARCH_INVERT  ) );
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3087,11 +3098,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_PoofTarget:
       // This function makes the target go away
       returncode = bfalse;
-      if ( VALID_CHR( loc_aitarget ) && !chrisplayer[loc_aitarget] )
+      if ( VALID_CHR( loc_aitarget ) && !ChrList[loc_aitarget].isplayer )
       {
         // tell target to go away
-        chrgopoof[loc_aitarget] = btrue;
-        chraitarget[ichr] = ichr;
+        ChrList[loc_aitarget].gopoof = btrue;
+        ChrList[ichr].aitarget = ichr;
         returncode = btrue;
       }
       break;
@@ -3102,14 +3113,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( scr_globals.tmpargument < MAXACTION )
       {
-        if ( madactionvalid[chrmodel[loc_aichild]][scr_globals.tmpargument] )
+        if ( MadList[ChrList[loc_aichild].model].actionvalid[scr_globals.tmpargument] )
         {
-          chraction[loc_aichild] = scr_globals.tmpargument;
-          chrlip_fp8[loc_aichild] = 0;
-          chrflip[loc_aichild] = 0.0f;
-          chrframe[loc_aichild] = madactionstart[chrmodel[loc_aichild]][scr_globals.tmpargument];
-          chrframelast[loc_aichild] = chrframe[loc_aichild];
-          chractionready[loc_aichild] = bfalse;
+          ChrList[loc_aichild].action = scr_globals.tmpargument;
+          ChrList[loc_aichild].lip_fp8 = 0;
+          ChrList[loc_aichild].flip = 0.0f;
+          ChrList[loc_aichild].frame = MadList[ChrList[loc_aichild].model].actionstart[scr_globals.tmpargument];
+          ChrList[loc_aichild].framelast = ChrList[loc_aichild].frame;
+          ChrList[loc_aichild].actionready = bfalse;
           returncode = btrue;
         }
       }
@@ -3122,12 +3133,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetSpeedPercent:
       reset_character_accel( ichr );
-      chrmaxaccel[ichr] *= scr_globals.tmpargument / 100.0;
+      ChrList[ichr].maxaccel *= scr_globals.tmpargument / 100.0;
       break;
 
     case F_SetChildState:
       // This function sets the child's state
-      chraistate[loc_aichild] = scr_globals.tmpargument;
+      ChrList[loc_aichild].aistate = scr_globals.tmpargument;
       break;
 
     case F_SpawnAttachedSizedParticle:
@@ -3138,10 +3149,10 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
 
-        tTmp = spawn_one_particle( 1.0f, chrpos[ichr], chrturn_lr[ichr], loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, ChrList[ichr].pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, ChrList[ichr].team, tTmp, 0, MAXCHR );
         if ( VALID_PRT( tTmp ) )
         {
-          prtsize_fp8[tTmp] = scr_globals.tmpturn;
+          PrtList[tTmp].size_fp8 = scr_globals.tmpturn;
           returncode = btrue;
         }
       }
@@ -3151,7 +3162,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // This function sets the character's armor type and returns the old type
       // as tmpargument and the new type as tmpx
       scr_globals.tmpx = scr_globals.tmpargument;
-      iTmp = ( chrtexture[ichr] - madskinstart[loc_model] ) % MAXSKIN;
+      iTmp = ( ChrList[ichr].texture - MadList[loc_model].skinstart ) % MAXSKIN;
       scr_globals.tmpx = change_armor( ichr, scr_globals.tmpargument );
       scr_globals.tmpargument = iTmp;  // The character's old armor
       break;
@@ -3169,13 +3180,13 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         float dx, dy, d2, ftmpx, ftmpy, ftmp;
 
         returncode = bfalse;
-        dx = chrpos[loc_aitarget].x - chrpos[ichr].x;
-        dy = chrpos[loc_aitarget].y - chrpos[ichr].y;
+        dx = ChrList[loc_aitarget].pos.x - ChrList[ichr].pos.x;
+        dy = ChrList[loc_aitarget].pos.y - ChrList[ichr].pos.y;
         d2 = dx * dx + dy * dy;
 
         if ( d2 > 0.0f )
         {
-          // use non-inverse function to get direction vec from chrturn[]
+          // use non-inverse function to get direction vec from ChrList[].turn
           turn_to_vec( ichr, &ftmpx, &ftmpy );
 
           // calc the dotproduct
@@ -3201,7 +3212,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       if ( INVALID_SOUND != scr_globals.tmpargument && scr_globals.tmpdistance >= 0 )
       {
         volume = scr_globals.tmpdistance;
-        returncode = ( INVALID_SOUND != play_sound( MIN( 1.0f, volume / 255.0f ), chrpos_old[ichr], capwavelist[loc_model][scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument ) );
+        returncode = ( INVALID_SOUND != play_sound( MIN( 1.0f, volume / 255.0f ), ChrList[ichr].pos_old, CapList[loc_model].wavelist[scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument ) );
       }
       break;
 
@@ -3213,13 +3224,13 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
 
-        tTmp = spawn_one_particle( 1.0f, chrpos[ichr], scr_globals.tmpturn, loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, ChrList[ichr].pos, scr_globals.tmpturn, loc_model, scr_globals.tmpargument, ichr, scr_globals.tmpdistance, ChrList[ichr].team, tTmp, 0, MAXCHR );
         returncode = VALID_PRT( bfalse );
       }
       break;
 
     case F_IfStateIsOdd:
-      returncode = HAS_SOME_BITS( chraistate[ichr], 1 );
+      returncode = HAS_SOME_BITS( ChrList[ichr].aistate, 1 );
       break;
 
     case F_SetTargetToDistantEnemy:
@@ -3229,7 +3240,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3242,19 +3253,19 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         // Yeah!  It worked!
         detach_character_from_mount( ichr, btrue, bfalse );
-        chrpos_old[ichr] = chrpos[ichr];
+        ChrList[ichr].pos_old = ChrList[ichr].pos;
 
-        chrpos[ichr].x = scr_globals.tmpx;
-        chrpos[ichr].y = scr_globals.tmpy;
+        ChrList[ichr].pos.x = scr_globals.tmpx;
+        ChrList[ichr].pos.y = scr_globals.tmpy;
         if ( 0 != __chrhitawall( ichr, NULL ) )
         {
           // No it didn't...
-          chrpos[ichr] = chrpos_old[ichr];
+          ChrList[ichr].pos = ChrList[ichr].pos_old;
           returncode = bfalse;
         }
         else
         {
-          chrpos_old[ichr] = chrpos[ichr];
+          ChrList[ichr].pos_old = ChrList[ichr].pos;
           returncode = btrue;
         }
       }
@@ -3262,71 +3273,71 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_GiveStrengthToTarget:
       // Permanently boost the target's strength
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrstrength_fp8[loc_aitarget], PERFECTSTAT, &iTmp );
-        chrstrength_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].strength_fp8, PERFECTSTAT, &iTmp );
+        ChrList[loc_aitarget].strength_fp8 += iTmp;
       }
       break;
 
     case F_GiveWisdomToTarget:
       // Permanently boost the target's wisdom
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrwisdom_fp8[loc_aitarget], PERFECTSTAT, &iTmp );
-        chrwisdom_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].wisdom_fp8, PERFECTSTAT, &iTmp );
+        ChrList[loc_aitarget].wisdom_fp8 += iTmp;
       }
       break;
 
     case F_GiveIntelligenceToTarget:
       // Permanently boost the target's intelligence
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrintelligence_fp8[loc_aitarget], PERFECTSTAT, &iTmp );
-        chrintelligence_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].intelligence_fp8, PERFECTSTAT, &iTmp );
+        ChrList[loc_aitarget].intelligence_fp8 += iTmp;
       }
       break;
 
     case F_GiveDexterityToTarget:
       // Permanently boost the target's dexterity
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrdexterity_fp8[loc_aitarget], PERFECTSTAT, &iTmp );
-        chrdexterity_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].dexterity_fp8, PERFECTSTAT, &iTmp );
+        ChrList[loc_aitarget].dexterity_fp8 += iTmp;
       }
       break;
 
     case F_GiveLifeToTarget:
       // Permanently boost the target's life
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( LOWSTAT, chrlifemax_fp8[loc_aitarget], PERFECTBIG, &iTmp );
-        chrlifemax_fp8[loc_aitarget] += iTmp;
+        getadd( LOWSTAT, ChrList[loc_aitarget].lifemax_fp8, PERFECTBIG, &iTmp );
+        ChrList[loc_aitarget].lifemax_fp8 += iTmp;
         if ( iTmp < 0 )
         {
-          getadd( 1, chrlife_fp8[loc_aitarget], PERFECTBIG, &iTmp );
+          getadd( 1, ChrList[loc_aitarget].life_fp8, PERFECTBIG, &iTmp );
         }
-        chrlife_fp8[loc_aitarget] += iTmp;
+        ChrList[loc_aitarget].life_fp8 += iTmp;
       }
       break;
 
     case F_GiveManaToTarget:
       // Permanently boost the target's mana
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrmanamax_fp8[loc_aitarget], PERFECTBIG, &iTmp );
-        chrmanamax_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].manamax_fp8, PERFECTBIG, &iTmp );
+        ChrList[loc_aitarget].manamax_fp8 += iTmp;
         if ( iTmp < 0 )
         {
-          getadd( 0, chrmana_fp8[loc_aitarget], PERFECTBIG, &iTmp );
+          getadd( 0, ChrList[loc_aitarget].mana_fp8, PERFECTBIG, &iTmp );
         }
-        chrmana_fp8[loc_aitarget] += iTmp;
+        ChrList[loc_aitarget].mana_fp8 += iTmp;
       }
       break;
 
@@ -3349,9 +3360,9 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         {
           if ( scr_globals.tmpargument < NUMBAR && scr_globals.tmpargument >= 0 )
           {
-            blipx[numblip] = mesh_fraction_x( scr_globals.tmpx ) * MAPSIZE * mapscale;
-            blipy[numblip] = mesh_fraction_y( scr_globals.tmpy ) * MAPSIZE * mapscale ;
-            blipc[numblip] = scr_globals.tmpargument;
+            BlipList[numblip].x = mesh_fraction_x( scr_globals.tmpx ) * MAPSIZE * mapscale;
+            BlipList[numblip].y = mesh_fraction_y( scr_globals.tmpy ) * MAPSIZE * mapscale ;
+            BlipList[numblip].c = scr_globals.tmpargument;
             numblip++;
           }
         }
@@ -3360,17 +3371,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_HealTarget:
       // Give some life to the target
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 1, chrlife_fp8[loc_aitarget], chrlifemax_fp8[loc_aitarget], &iTmp );
-        chrlife_fp8[loc_aitarget] += iTmp;
+        getadd( 1, ChrList[loc_aitarget].life_fp8, ChrList[loc_aitarget].lifemax_fp8, &iTmp );
+        ChrList[loc_aitarget].life_fp8 += iTmp;
         // Check all enchants to see if they are removed
-        iTmp = chrfirstenchant[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].firstenchant;
         while ( iTmp != MAXENCHANT )
         {
-          sTmp = encnextenchant[iTmp];
-          if ( MAKE_IDSZ( "HEAL" ) == everemovedbyidsz[enceve[iTmp]] )
+          sTmp = EncList[iTmp].nextenchant;
+          if ( MAKE_IDSZ( "HEAL" ) == EveList[EncList[iTmp].eve].removedbyidsz )
           {
             remove_enchant( iTmp );
           }
@@ -3381,19 +3392,19 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_PumpTarget:
       // Give some mana to the target
-      if ( chralive[loc_aitarget] )
+      if ( ChrList[loc_aitarget].alive )
       {
         iTmp = scr_globals.tmpargument;
-        getadd( 0, chrmana_fp8[loc_aitarget], chrmanamax_fp8[loc_aitarget], &iTmp );
-        chrmana_fp8[loc_aitarget] += iTmp;
+        getadd( 0, ChrList[loc_aitarget].mana_fp8, ChrList[loc_aitarget].manamax_fp8, &iTmp );
+        ChrList[loc_aitarget].mana_fp8 += iTmp;
       }
       break;
 
     case F_CostAmmo:
       // Take away one ammo
-      if ( chrammo[ichr] > 0 )
+      if ( ChrList[ichr].ammo > 0 )
       {
-        chrammo[ichr]--;
+        ChrList[ichr].ammo--;
       }
       break;
 
@@ -3404,7 +3415,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = btrue;
         for ( tTmp = 0; tTmp < IDSZ_COUNT; tTmp++ )
         {
-          if ( capidsz[loc_model][tTmp] != capidsz[chrmodel[iTmp]][tTmp] )
+          if ( CapList[loc_model].idsz[tTmp] != CapList[ChrList[iTmp].model].idsz[tTmp] )
           {
             sTmp = bfalse;
             break;
@@ -3413,7 +3424,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
         if ( sTmp )
         {
-          chrnameknown[iTmp] = btrue;
+          ChrList[iTmp].nameknown = btrue;
         }
       }
       break;
@@ -3426,49 +3437,49 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
 
-        tTmp = spawn_one_particle( 1.0f, chrpos[ichr], chrturn_lr[ichr], loc_model, scr_globals.tmpargument, tTmp, scr_globals.tmpdistance, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, ChrList[ichr].pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, tTmp, scr_globals.tmpdistance, ChrList[ichr].team, tTmp, 0, MAXCHR );
         returncode = VALID_PRT( tTmp );
       };
       break;
 
     case F_SetTargetReloadTime:
       // This function sets the target's reload time
-      chrreloadtime[loc_aitarget] = scr_globals.tmpargument;
+      ChrList[loc_aitarget].reloadtime = scr_globals.tmpargument;
       break;
 
     case F_SetFogLevel:
       // This function raises and lowers the module's fog
-      fTmp = ( scr_globals.tmpargument / 10.0 ) - fogtop;
-      fogtop += fTmp;
-      fogdistance += fTmp;
-      fogon = CData.fogallowed;
-      if ( fogdistance < 1.0 )  fogon = bfalse;
+      fTmp = ( scr_globals.tmpargument / 10.0 ) - GFog.top;
+      GFog.top += fTmp;
+      GFog.distance += fTmp;
+      GFog.on = CData.fogallowed;
+      if ( GFog.distance < 1.0 )  GFog.on = bfalse;
       break;
 
     case F_GetFogLevel:
       // This function gets the fog level
-      scr_globals.tmpargument = fogtop * 10;
+      scr_globals.tmpargument = GFog.top * 10;
       break;
 
     case F_SetFogTAD:
       // This function changes the fog color
-      fogred = scr_globals.tmpturn;
-      foggrn = scr_globals.tmpargument;
-      fogblu = scr_globals.tmpdistance;
+      GFog.red = scr_globals.tmpturn;
+      GFog.grn = scr_globals.tmpargument;
+      GFog.blu = scr_globals.tmpdistance;
       break;
 
     case F_SetFogBottomLevel:
       // This function sets the module's bottom fog level...
-      fTmp = ( scr_globals.tmpargument / 10.0 ) - fogbottom;
-      fogbottom += fTmp;
-      fogdistance -= fTmp;
-      fogon = CData.fogallowed;
-      if ( fogdistance < 1.0 )  fogon = bfalse;
+      fTmp = ( scr_globals.tmpargument / 10.0 ) - GFog.bottom;
+      GFog.bottom += fTmp;
+      GFog.distance -= fTmp;
+      GFog.on = CData.fogallowed;
+      if ( GFog.distance < 1.0 )  GFog.on = bfalse;
       break;
 
     case F_GetFogBottomLevel:
       // This function gets the fog level
-      scr_globals.tmpargument = fogbottom * 10;
+      scr_globals.tmpargument = GFog.bottom * 10;
       break;
 
     case F_CorrectActionForHand:
@@ -3476,7 +3487,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // tmpargument must be set to one of the A actions beforehand...
       if ( chr_attached( ichr ) )
       {
-        if ( chrinwhichslot[ichr] == SLOT_RIGHT )
+        if ( ChrList[ichr].inwhichslot == SLOT_RIGHT )
         {
           // C or D
           scr_globals.tmpargument += 2;
@@ -3494,7 +3505,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         sTmp = chr_get_attachedto(sTmp);
         if ( VALID_CHR( sTmp ) )
         {
-          returncode = chrbmpdata[sTmp].calc_is_mount;
+          returncode = ChrList[sTmp].bmpdata.calc_is_mount;
         }
       }
       break;
@@ -3503,13 +3514,13 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // This function makes a blippie thing go around the icon
       if ( scr_globals.tmpargument < NUMBAR && scr_globals.tmpargument > -1 )
       {
-        chrsparkle[ichr] = scr_globals.tmpargument;
+        ChrList[ichr].sparkle = scr_globals.tmpargument;
       }
       break;
 
     case F_UnsparkleIcon:
       // This function stops the blippie thing
-      chrsparkle[ichr] = NOSPARKLE;
+      ChrList[ichr].sparkle = NOSPARKLE;
       break;
 
     case F_GetTileXY:
@@ -3524,16 +3535,16 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetShadowSize:
       // This function changes a character's shadow size
-      //chrbmpdata[ichr].shadow = scr_globals.tmpargument * chrfat[ichr];
-      //chrbmpdata_save[ichr].shadow = scr_globals.tmpargument;
+      //ChrList[ichr].bmpdata.shadow = scr_globals.tmpargument * ChrList[ichr].fat;
+      //ChrList[ichr].bmpdata_save.shadow = scr_globals.tmpargument;
       break;
 
     case F_SignalTarget:
-      // This function orders one specific character...  The target
+      // This function GOrder.s one specific character...  The target
       // Be careful in using this, always checking IDSZ first
-      chrmessage[loc_aitarget] = scr_globals.tmpargument;
-      chrmessagedata[loc_aitarget] = 0;
-      chralert[loc_aitarget] |= ALERT_SIGNALED;
+      ChrList[loc_aitarget].message = scr_globals.tmpargument;
+      ChrList[loc_aitarget].messagedata = 0;
+      ChrList[loc_aitarget].alert |= ALERT_SIGNALED;
       break;
 
     case F_SetTargetToWhoeverIsInPassage:
@@ -3542,7 +3553,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3550,19 +3561,19 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_IfCharacterWasABook:
       // This function proceeds if the base model is the same as the current
       // model or if the base model is SPELLBOOK
-      returncode = ( chrbasemodel[ichr] == SPELLBOOK ||
-                     chrbasemodel[ichr] == loc_model );
+      returncode = ( ChrList[ichr].basemodel == SPELLBOOK ||
+                     ChrList[ichr].basemodel == loc_model );
       break;
 
     case F_SetEnchantBoostValues:
       // This function sets the boost values for the last enchantment
-      iTmp = chrundoenchant[ichr];
+      iTmp = ChrList[ichr].undoenchant;
       if ( iTmp != MAXENCHANT )
       {
-        encownermana[iTmp] = scr_globals.tmpargument;
-        encownerlife[iTmp] = scr_globals.tmpdistance;
-        enctargetmana[iTmp] = scr_globals.tmpx;
-        enctargetlife[iTmp] = scr_globals.tmpy;
+        EncList[iTmp].ownermana = scr_globals.tmpargument;
+        EncList[iTmp].ownerlife = scr_globals.tmpdistance;
+        EncList[iTmp].targetmana = scr_globals.tmpx;
+        EncList[iTmp].targetlife = scr_globals.tmpy;
       }
       break;
 
@@ -3571,20 +3582,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         vect3 chr_pos = {scr_globals.tmpx, scr_globals.tmpy, scr_globals.tmpdistance};
 
         // This function spawns a ichr, failing if x,y,z is invalid
-        sTmp = spawn_one_character( chr_pos, loc_model, chrteam[ichr], 0, scr_globals.tmpturn, NULL, MAXCHR );
+        sTmp = spawn_one_character( chr_pos, loc_model, ChrList[ichr].team, 0, scr_globals.tmpturn, NULL, MAXCHR );
         returncode = bfalse;
         if ( VALID_CHR( sTmp ) )
         {
           if ( 0 != __chrhitawall( sTmp, NULL ) )
           {
-            chrfreeme[sTmp] = btrue;
+            ChrList[sTmp].freeme = btrue;
           }
           else
           {
-            chriskursed[sTmp] = bfalse;
-            chraichild[ichr] = sTmp;
-            chrpassage[sTmp] = chrpassage[ichr];
-            chraiowner[sTmp] = loc_aiowner;
+            ChrList[sTmp].iskursed = bfalse;
+            ChrList[ichr].aichild = sTmp;
+            ChrList[sTmp].passage = ChrList[ichr].passage;
+            ChrList[sTmp].aiowner = loc_aiowner;
             returncode = btrue;
           }
         }
@@ -3597,20 +3608,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         vect3 chr_pos = {scr_globals.tmpx, scr_globals.tmpy, scr_globals.tmpdistance};
 
-        sTmp = spawn_one_character( chr_pos, scr_globals.tmpargument, chrteam[ichr], 0, scr_globals.tmpturn, NULL, MAXCHR );
+        sTmp = spawn_one_character( chr_pos, scr_globals.tmpargument, ChrList[ichr].team, 0, scr_globals.tmpturn, NULL, MAXCHR );
         returncode = bfalse;
         if ( VALID_CHR( sTmp ) )
         {
           if ( 0 != __chrhitawall( sTmp, NULL ) )
           {
-            chrfreeme[sTmp] = btrue;
+            ChrList[sTmp].freeme = btrue;
           }
           else
           {
-            chriskursed[sTmp] = bfalse;
-            chraichild[ichr] = sTmp;
-            chrpassage[sTmp] = chrpassage[ichr];
-            chraiowner[sTmp] = loc_aiowner;
+            ChrList[sTmp].iskursed = bfalse;
+            ChrList[ichr].aichild = sTmp;
+            ChrList[sTmp].passage = ChrList[ichr].passage;
+            ChrList[sTmp].aiowner = loc_aiowner;
             returncode = btrue;
           }
         }
@@ -3623,7 +3634,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       if ( VALID_CHR( loc_aitarget ) )
       {
         change_character( loc_aitarget, scr_globals.tmpargument, 0, LEAVE_ALL );
-        chraimorphed[loc_aitarget] = btrue;
+        ChrList[loc_aitarget].aimorphed = btrue;
       };
       break;
 
@@ -3632,7 +3643,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( INVALID_SOUND != scr_globals.tmpargument )
       {
-        returncode = ( INVALID_SOUND != play_sound( 1.0f, camtrackpos, capwavelist[loc_model][scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument ) );
+        returncode = ( INVALID_SOUND != play_sound( 1.0f, GCamera.trackpos, CapList[loc_model].wavelist[scr_globals.tmpargument], 0, loc_model, scr_globals.tmpargument) );
       }
       break;
 
@@ -3645,10 +3656,10 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
 
-        tTmp = spawn_one_particle( 1.0f, prt_pos, chrturn_lr[ichr], loc_model, scr_globals.tmpargument, MAXCHR, 0, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, prt_pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, MAXCHR, 0, ChrList[ichr].team, tTmp, 0, MAXCHR );
         if ( VALID_PRT( tTmp ) )
         {
-          prttarget[tTmp] = chr_get_aitarget( ichr );
+          PrtList[tTmp].target = chr_get_aitarget( ichr );
           returncode = btrue;
         }
       }
@@ -3675,20 +3686,20 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       for ( _slot = SLOT_LEFT; _slot <= SLOT_RIGHT; _slot = ( SLOT )( _slot + 1 ) )
       {
         sTmp = chr_get_holdingwhich( loc_aitarget, _slot );
-        chriskursed[sTmp] = bfalse;
+        ChrList[sTmp].iskursed = bfalse;
       };
 
       sTmp  = chr_get_nextinpack( loc_aitarget );
       while ( VALID_CHR( sTmp ) )
       {
-        chriskursed[sTmp] = bfalse;
+        ChrList[sTmp].iskursed = bfalse;
         sTmp  = chr_get_nextinpack( sTmp );
       }
       break;
 
     case F_IfTargetIsSneaking:
       // This function proceeds if the target is doing ACTION_DA or ACTION_WA
-      returncode = ( chraction[loc_aitarget] == ACTION_DA || chraction[loc_aitarget] == ACTION_WA );
+      returncode = ( ChrList[loc_aitarget].action == ACTION_DA || ChrList[loc_aitarget].action == ACTION_WA );
       break;
 
     case F_DropItems:
@@ -3699,9 +3710,9 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_RespawnTarget:
       // This function respawns the target at its current location
       sTmp = chr_get_aitarget( ichr );
-      chrpos_old[sTmp] = chrpos[sTmp];
+      ChrList[sTmp].pos_old = ChrList[sTmp].pos;
       respawn_character( sTmp );
-      chrpos[sTmp] = chrpos_old[sTmp];
+      ChrList[sTmp].pos = ChrList[sTmp].pos_old;
       break;
 
     case F_TargetDoActionSetFrame:
@@ -3710,14 +3721,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( scr_globals.tmpargument < MAXACTION )
       {
-        if ( madactionvalid[chrmodel[loc_aitarget]][scr_globals.tmpargument] )
+        if ( MadList[ChrList[loc_aitarget].model].actionvalid[scr_globals.tmpargument] )
         {
-          chraction[loc_aitarget] = scr_globals.tmpargument;
-          chrlip_fp8[loc_aitarget] = 0;
-          chrflip[loc_aitarget] = 0.0f;
-          chrframe[loc_aitarget] = madactionstart[chrmodel[loc_aitarget]][scr_globals.tmpargument];
-          chrframelast[loc_aitarget] = chrframe[loc_aitarget];
-          chractionready[loc_aitarget] = bfalse;
+          ChrList[loc_aitarget].action = scr_globals.tmpargument;
+          ChrList[loc_aitarget].lip_fp8 = 0;
+          ChrList[loc_aitarget].flip = 0.0f;
+          ChrList[loc_aitarget].frame = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
+          ChrList[loc_aitarget].framelast = ChrList[loc_aitarget].frame;
+          ChrList[loc_aitarget].actionready = bfalse;
           returncode = btrue;
         }
       }
@@ -3725,7 +3736,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetCanSeeInvisible:
       // This function proceeds if the target can see invisible
-      returncode = chrcanseeinvisible[loc_aitarget];
+      returncode = ChrList[loc_aitarget].canseeinvisible;
       break;
 
     case F_SetTargetToNearestBlahID:
@@ -3740,7 +3751,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3752,7 +3763,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3764,7 +3775,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3776,7 +3787,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
@@ -3799,29 +3810,29 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       sTmp = chr_get_attachedto( ichr );
       if ( VALID_CHR( sTmp ) )
       {
-        returncode = ( chrholdingwhich[sTmp][SLOT_SADDLE] == ichr );
+        returncode = ( ChrList[sTmp].holdingwhich[SLOT_SADDLE] == ichr );
       }
       break;
 
     case F_NotAnItem:
       // This function makes the character a non-item character
-      chrisitem[ichr] = bfalse;
+      ChrList[ichr].isitem = bfalse;
       break;
 
     case F_SetChildAmmo:
       // This function sets the child's ammo
-      chrammo[loc_aichild] = scr_globals.tmpargument;
+      ChrList[loc_aichild].ammo = scr_globals.tmpargument;
       break;
 
     case F_IfHitVulnerable:
       // This function proceeds if the character was hit by a weapon with the
       // correct vulnerability IDSZ...  [SILV] for Werewolves...
-      returncode = HAS_SOME_BITS( chralert[ichr], ALERT_HITVULNERABLE );
+      returncode = HAS_SOME_BITS( ChrList[ichr].alert, ALERT_HITVULNERABLE );
       break;
 
     case F_IfTargetIsFlying:
       // This function proceeds if the character target is flying
-      returncode = ( chrflyheight[loc_aitarget] > 0 );
+      returncode = ( ChrList[loc_aitarget].flyheight > 0 );
       break;
 
     case F_IdentifyTarget:
@@ -3829,17 +3840,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // Proceeds if the target was unknown
       returncode = bfalse;
       sTmp = chr_get_aitarget( ichr );
-      if ( chrammomax[sTmp] != 0 )  chrammoknown[sTmp] = btrue;
-      if ( chrname[sTmp][0] != 'B' ||
-           chrname[sTmp][1] != 'l' ||
-           chrname[sTmp][2] != 'a' ||
-           chrname[sTmp][3] != 'h' ||
-           chrname[sTmp][4] != 0 )
+      if ( ChrList[sTmp].ammomax != 0 )  ChrList[sTmp].ammoknown = btrue;
+      if ( ChrList[sTmp].name[0] != 'B' ||
+           ChrList[sTmp].name[1] != 'l' ||
+           ChrList[sTmp].name[2] != 'a' ||
+           ChrList[sTmp].name[3] != 'h' ||
+           ChrList[sTmp].name[4] != 0 )
       {
-        returncode = !chrnameknown[sTmp];
-        chrnameknown[sTmp] = btrue;
+        returncode = !ChrList[sTmp].nameknown;
+        ChrList[sTmp].nameknown = btrue;
       }
-      capusageknown[chrmodel[sTmp]] = btrue;
+      CapList[ChrList[sTmp].model].usageknown = btrue;
       break;
 
     case F_BeatModule:
@@ -3849,7 +3860,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_EndModule:
       // This function presses the Escape key
-      sdlkeybuffer[SDLK_ESCAPE] = 1;
+      keyb.state[SDLK_ESCAPE] = 1;
       break;
 
     case F_DisableExport:
@@ -3864,7 +3875,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_GetTargetState:
       // This function sets tmpargument to the state of the target
-      scr_globals.tmpargument = chraistate[loc_aitarget];
+      scr_globals.tmpargument = ChrList[loc_aitarget].aistate;
       break;
 
     case F_ClearEndText:
@@ -3875,7 +3886,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_AddEndText:
       // This function appends a message to the end-module text buffer
-      append_end_text( madmsgstart[loc_model] + scr_globals.tmpargument, ichr );
+      append_end_text( MadList[loc_model].msg_start + scr_globals.tmpargument, ichr );
       break;
 
     case F_PlayMusic:
@@ -3894,7 +3905,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_MakeCrushInvalid:
       // This function makes doors unable to close on this object
-      chrcanbecrushed[ichr] = bfalse;
+      ChrList[ichr].canbecrushed = bfalse;
       break;
 
     case F_StopMusic:
@@ -3909,7 +3920,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_AccelerateUp:
       // This function changes the character's up down velocity
-      chrvel[ichr].z += scr_globals.tmpargument / 100.0;
+      ChrList[ichr].vel.z += scr_globals.tmpargument / 100.0;
       break;
 
     case F_FlashVariableHeight:
@@ -3920,55 +3931,55 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetDamageTime:
       // This function makes the character invincible for a little while
-      chrdamagetime[ichr] = scr_globals.tmpargument;
+      ChrList[ichr].damagetime = scr_globals.tmpargument;
       break;
 
     case F_IfStateIs8:
-      returncode = ( 8 == chraistate[ichr] );
+      returncode = ( 8 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs9:
-      returncode = ( 9 == chraistate[ichr] );
+      returncode = ( 9 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs10:
-      returncode = ( 10 == chraistate[ichr] );
+      returncode = ( 10 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs11:
-      returncode = ( 11 == chraistate[ichr] );
+      returncode = ( 11 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs12:
-      returncode = ( 12 == chraistate[ichr] );
+      returncode = ( 12 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs13:
-      returncode = ( 13 == chraistate[ichr] );
+      returncode = ( 13 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs14:
-      returncode = ( 14 == chraistate[ichr] );
+      returncode = ( 14 == ChrList[ichr].aistate );
       break;
 
     case F_IfStateIs15:
-      returncode = ( 15 == chraistate[ichr] );
+      returncode = ( 15 == ChrList[ichr].aistate );
       break;
 
     case F_IfTargetIsAMount:
-      returncode = chrbmpdata[loc_aitarget].calc_is_mount;
+      returncode = ChrList[loc_aitarget].bmpdata.calc_is_mount;
       break;
 
     case F_IfTargetIsAPlatform:
-      returncode = chrbmpdata[loc_aitarget].calc_is_platform;
+      returncode = ChrList[loc_aitarget].bmpdata.calc_is_platform;
       break;
 
     case F_AddStat:
-      if ( !chrstaton[ichr] ) add_stat( ichr );
+      if ( !ChrList[ichr].staton ) add_stat( ichr );
       break;
 
     case F_DisenchantTarget:
-      returncode = ( chrfirstenchant[loc_aitarget] != MAXENCHANT );
+      returncode = ( ChrList[loc_aitarget].firstenchant != MAXENCHANT );
       disenchant_character( loc_aitarget );
       break;
 
@@ -3982,21 +3993,21 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       break;
 
     case F_SetVolumeNearestTeammate:
-	  //This sets the volume for the looping sounds of all the character's teammates
-		if(moduleActive && scr_globals.tmpdistance >= 0 && CData.soundvalid)
+    //This sets the volume for the looping sounds of all the character's teammates
+    if(moduleActive && scr_globals.tmpdistance >= 0 && CData.soundvalid)
       {
           //Go through all teammates
           sTmp = 0;
           while(sTmp < MAXCHR)
           {
-              if(chron[sTmp] && chralive[sTmp] && chrteam[sTmp] == chrteam[ichr])
+              if(ChrList[sTmp].on && ChrList[sTmp].alive && ChrList[sTmp].team == ChrList[ichr].team)
               {
-			    //And set their volume to tmpdistance
-		  	    if(scr_globals.tmpdistance >= 0 && chrloopingchannel[sTmp] != INVALID_SOUND)
-			    {
-					Mix_Volume(chrloopingchannel[sTmp], scr_globals.tmpdistance);
-			    }
-			  }
+          //And set their volume to tmpdistance
+            if(scr_globals.tmpdistance >= 0 && ChrList[sTmp].loopingchannel != INVALID_SOUND)
+          {
+          Mix_Volume(ChrList[sTmp].loopingchannel, scr_globals.tmpdistance);
+          }
+        }
               sTmp++;
           }
       }
@@ -4013,21 +4024,21 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // tmpx is amount needed
       // tmpy is cost of new skin
       sTmp = chr_get_aitarget( ichr );    // The target
-      tTmp = chrmodel[sTmp];           // The target's model
-      iTmp =  capskincost[tTmp][scr_globals.tmpargument % MAXSKIN];
+      tTmp = ChrList[sTmp].model;           // The target's model
+      iTmp =  CapList[tTmp].skincost[scr_globals.tmpargument % MAXSKIN];
       scr_globals.tmpy = iTmp;                // Cost of new skin
-      iTmp -= capskincost[tTmp][( chrtexture[sTmp] - madskinstart[tTmp] ) % MAXSKIN];   // Refund
-      if ( iTmp > chrmoney[sTmp] )
+      iTmp -= CapList[tTmp].skincost[( ChrList[sTmp].texture - MadList[tTmp].skinstart ) % MAXSKIN];   // Refund
+      if ( iTmp > ChrList[sTmp].money )
       {
         // Not enough...
-        scr_globals.tmpx = iTmp - chrmoney[sTmp];  // Amount needed
+        scr_globals.tmpx = iTmp - ChrList[sTmp].money;  // Amount needed
         returncode = bfalse;
       }
       else
       {
         // Pay for it...  Cost may be negative after refund...
-        chrmoney[sTmp] -= iTmp;
-        if ( chrmoney[sTmp] > MAXMONEY )  chrmoney[sTmp] = MAXMONEY;
+        ChrList[sTmp].money -= iTmp;
+        if ( ChrList[sTmp].money > MAXMONEY )  ChrList[sTmp].money = MAXMONEY;
         scr_globals.tmpx = 0;
         returncode = btrue;
       }
@@ -4060,14 +4071,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
-        chraitarget[ichr] = sTmp;
+        ChrList[ichr].aitarget = sTmp;
         returncode = btrue;
       }
       break;
 
     case F_MakeNameUnknown:
       // This function makes the name of an item/character unknown.
-      chrnameknown[ichr] = bfalse;
+      ChrList[ichr].nameknown = bfalse;
       break;
 
     case F_SpawnExactParticleEndSpawn:
@@ -4079,10 +4090,10 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
         tTmp = ichr;
         if ( chr_attached( ichr ) )  tTmp = chr_get_attachedto( ichr );
 
-        tTmp = spawn_one_particle( 1.0f, prt_pos, chrturn_lr[ichr], loc_model, scr_globals.tmpargument, MAXCHR, 0, chrteam[ichr], tTmp, 0, MAXCHR );
+        tTmp = spawn_one_particle( 1.0f, prt_pos, ChrList[ichr].turn_lr, loc_model, scr_globals.tmpargument, MAXCHR, 0, ChrList[ichr].team, tTmp, 0, MAXCHR );
         if ( VALID_PRT( tTmp ) )
         {
-          prtspawncharacterstate[tTmp] = scr_globals.tmpturn;
+          PrtList[tTmp].spawncharacterstate = scr_globals.tmpturn;
           returncode = btrue;
         }
       }
@@ -4095,34 +4106,34 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       sTmp = loc_model;
       if ( MAXMODEL != sTmp )
       {
-        if ( capgopoofprttype[sTmp] <= PRTPIP_PEROBJECT_COUNT )
+        if ( CapList[sTmp].gopoofprttype <= PRTPIP_PEROBJECT_COUNT )
         {
-          sTmp = madprtpip[sTmp][capgopoofprttype[sTmp]];
+          sTmp = MadList[sTmp].prtpip[CapList[sTmp].gopoofprttype];
         }
         else
         {
-          sTmp = capgopoofprttype[sTmp];
+          sTmp = CapList[sTmp].gopoofprttype;
         }
 
         if ( MAXPRTPIP != sTmp )
         {
           // store the base values
-          iTmp = pipxyvel[sTmp].ibase;
-          tTmp = pipxyspacing[sTmp].ibase;
-          test = pipdamage_fp8[sTmp].ibase;
+          iTmp = PipList[sTmp].xyvel.ibase;
+          tTmp = PipList[sTmp].xyspacing.ibase;
+          test = PipList[sTmp].damage_fp8.ibase;
 
           // set some temporary values
-          pipxyvel[sTmp].ibase = scr_globals.tmpx;
-          pipxyspacing[sTmp].ibase = scr_globals.tmpy;
-          pipdamage_fp8[sTmp].ibase = scr_globals.tmpargument;
+          PipList[sTmp].xyvel.ibase = scr_globals.tmpx;
+          PipList[sTmp].xyspacing.ibase = scr_globals.tmpy;
+          PipList[sTmp].damage_fp8.ibase = scr_globals.tmpargument;
 
           // do the poof
           spawn_poof( ichr, loc_model );
 
           // Restore the saved values
-          pipxyvel[sTmp].ibase = iTmp;
-          pipxyspacing[sTmp].ibase = tTmp;
-          pipdamage_fp8[sTmp].ibase = test;
+          PipList[sTmp].xyvel.ibase = iTmp;
+          PipList[sTmp].xyspacing.ibase = tTmp;
+          PipList[sTmp].damage_fp8.ibase = test;
         };
       }
       break;
@@ -4138,17 +4149,17 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_DazeTarget:
       //This function dazes the target for a duration equal to tmpargument
-      chrdazetime[loc_aitarget] += scr_globals.tmpargument;
+      ChrList[loc_aitarget].dazetime += scr_globals.tmpargument;
       break;
 
     case F_GrogTarget:
       //This function grogs the target for a duration equal to tmpargument
-      chrgrogtime[loc_aitarget] += scr_globals.tmpargument;
+      ChrList[loc_aitarget].grogtime += scr_globals.tmpargument;
       break;
 
     case F_IfEquipped:
       //This proceeds if the character is equipped
-      returncode = chrisequipped[ichr];
+      returncode = ChrList[ichr].isequipped;
       break;
 
     case F_DropTargetMoney:
@@ -4158,7 +4169,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_GetTargetContent:
       //This sets tmpargument to the current target's content value
-      scr_globals.tmpargument = chraicontent[loc_aitarget];
+      scr_globals.tmpargument = ChrList[loc_aitarget].aicontent;
       break;
 
     case F_DropTargetKeys:
@@ -4184,47 +4195,47 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_AddQuest:
       //This function adds a quest idsz set in tmpargument into the targets quest.txt
-      if ( chrisplayer[loc_aitarget] )
+      if ( ChrList[loc_aitarget].isplayer )
       {
-        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", ChrList[loc_aitarget].name );
         returncode = add_quest_idsz( cTmp, scr_globals.tmpargument );
       }
       break;
 
     case F_BeatQuest:
       //This function marks a IDSZ in the targets quest.txt as beaten
-	  returncode = bfalse;
-	  if ( chrisplayer[loc_aitarget] )
+      returncode = bfalse;
+      if ( ChrList[loc_aitarget].isplayer )
       {
-        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
-		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, 0 ) == -2) returncode = btrue;
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", ChrList[loc_aitarget].name );
+        if(modify_quest_idsz( cTmp, scr_globals.tmpargument, 0 ) == -2) returncode = btrue;
       }
       break;
 
     case F_IfTargetHasQuest:
       //This function proceeds if the target has the unfinished quest specified in tmpargument
-	  //and sets tmpx to the Quest Level of the specified quest.
-      if ( chrisplayer[loc_aitarget] )
+      //and sets tmpx to the Quest Level of the specified quest.
+      if ( ChrList[loc_aitarget].isplayer )
       {
-        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", ChrList[loc_aitarget].name );
         iTmp = check_player_quest( cTmp, scr_globals.tmpargument );
         if ( iTmp > -1 )
-		{
-		  returncode = btrue;
-		  scr_globals.tmpx = iTmp;
-		}
+        {
+          returncode = btrue;
+          scr_globals.tmpx = iTmp;
+        }
         else returncode = bfalse;
       }
       break;
 
-	case F_SetQuestLevel:
+    case F_SetQuestLevel:
       //This function modifies the quest level for a specific quest IDSZ
-	  //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
-	  returncode = bfalse;
-	  if ( chrisplayer[loc_aitarget] && scr_globals.tmpdistance != 0 )
+      //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
+      returncode = bfalse;
+      if ( ChrList[loc_aitarget].isplayer && scr_globals.tmpdistance != 0 )
       {
-        snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[loc_aitarget] );
-		if(modify_quest_idsz( cTmp, scr_globals.tmpargument, scr_globals.tmpdistance ) != -1) returncode = btrue;
+        snprintf( cTmp, sizeof( cTmp ), "%s.obj", ChrList[loc_aitarget].name );
+        if(modify_quest_idsz( cTmp, scr_globals.tmpargument, scr_globals.tmpdistance ) != -1) returncode = btrue;
       }
       break;
 
@@ -4233,35 +4244,35 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( VALID_CHR( loc_aitarget ) )
       {
-        returncode = chralive[loc_aitarget] && chrmanamax_fp8[loc_aitarget] > 0 && chrmana_fp8[loc_aitarget] < chrmanamax_fp8[loc_aitarget] - MINDAMAGE;
+        returncode = ChrList[loc_aitarget].alive && ChrList[loc_aitarget].manamax_fp8 > 0 && ChrList[loc_aitarget].mana_fp8 < ChrList[loc_aitarget].manamax_fp8 - DAMAGE_MIN;
       };
       break;
 
     case F_IfDoingAction:
       //This function proceeds if the character is preforming the animation specified in tmpargument
-		returncode = chraction[ichr] >= scr_globals.tmpargument && chraction[ichr] <= scr_globals.tmpargument;
+      returncode = ChrList[ichr].action >= scr_globals.tmpargument && ChrList[ichr].action <= scr_globals.tmpargument;
       break;
 
     case F_IfOperatorIsLinux:
       //This function proceeds if the computer is running a UNIX OS
-	  
-	  #ifdef __unix__  
-	  returncode = btrue;		//Player running Linux
-      #else	
-	  returncode = bfalse;		//Player running something else.
-	  #endif
+
+    #ifdef __unix__
+    returncode = btrue;    //Player running Linux
+      #else
+    returncode = bfalse;    //Player running something else.
+    #endif
       break;
 
     case F_IfTargetIsOwner:
-	  //This function proceeds if the target is the characters owner
+    //This function proceeds if the target is the characters owner
       returncode = loc_aitarget == loc_aiowner;
       break;
 
     case F_SetCameraSwing:
-	  //This function sets the camera swing rate
-	  camswing = 0;
-      camswingrate = scr_globals.tmpargument;
-      camswingamp = scr_globals.tmpdistance;
+      //This function sets the camera swing rate
+      GCamera.swing = 0;
+      GCamera.swingrate = scr_globals.tmpargument;
+      GCamera.swingamp = scr_globals.tmpdistance;
       break;
 
     case F_EnableRespawn:
@@ -4274,10 +4285,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       respawnvalid = bfalse;
       break;
 
-	case F_IfButtonPressed:
-	  // This proceeds if the character is a player and pressing the latch specified in tmpargument
-      returncode = HAS_SOME_BITS( chrlatchbutton[ichr], scr_globals.tmpargument ) && chrisplayer[ichr];
-	  break;
+    case F_IfButtonPressed:
+      // This proceeds if the character is a player and pressing the latch specified in tmpargument
+      returncode = HAS_SOME_BITS( ChrList[ichr].latch.b, scr_globals.tmpargument ) && ChrList[ichr].isplayer;
+      break;
+
+
 
     case F_End:
       break;
@@ -4328,7 +4341,7 @@ void run_operand( Uint32 value, CHR_REF character )
   CHR_REF loc_aitarget = chr_get_aitarget( character );
   CHR_REF loc_aiowner  = chr_get_aiowner( character );
   CHR_REF loc_aichild  = chr_get_aichild( character );
-  CHR_REF loc_leader   = team_get_leader( chrteam[character] );
+  CHR_REF loc_leader   = team_get_leader( ChrList[character].team );
 
   // Get the operation code
   if ( IS_CONSTANT(value) )
@@ -4367,141 +4380,141 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_SELF_X:
-        iTmp = chrpos[character].x;
+        iTmp = ChrList[character].pos.x;
         break;
 
       case VAR_SELF_Y:
-        iTmp = chrpos[character].y;
+        iTmp = ChrList[character].pos.y;
         break;
 
       case VAR_SELF_TURN:
-        iTmp = chrturn_lr[character];
+        iTmp = ChrList[character].turn_lr;
         break;
 
       case VAR_SELF_COUNTER:
-        iTmp = chrmessagedata[character];
+        iTmp = ChrList[character].messagedata;
         break;
 
       case VAR_SELF_ORDER:
-        iTmp = chrmessage[character];
+        iTmp = ChrList[character].message;
         break;
 
       case VAR_SELF_MORALE:
-        iTmp = teammorale[chrbaseteam[character]];
+        iTmp = TeamList[ChrList[character].baseteam].morale;
         break;
 
       case VAR_SELF_LIFE:
-        iTmp = chrlife_fp8[character];
+        iTmp = ChrList[character].life_fp8;
         break;
 
       case VAR_TARGET_X:
-        iTmp = chrpos[loc_aitarget].x;
+        iTmp = ChrList[loc_aitarget].pos.x;
         break;
 
       case VAR_TARGET_Y:
-        iTmp = chrpos[loc_aitarget].y;
+        iTmp = ChrList[loc_aitarget].pos.y;
         break;
 
       case VAR_TARGET_DISTANCE:
-        iTmp = sqrt(( chrpos[loc_aitarget].x - chrpos[character].x ) * ( chrpos[loc_aitarget].x - chrpos[character].x ) +
-                    ( chrpos[loc_aitarget].y - chrpos[character].y ) * ( chrpos[loc_aitarget].y - chrpos[character].y ) +
-                    ( chrpos[loc_aitarget].z - chrpos[character].z ) * ( chrpos[loc_aitarget].z - chrpos[character].z ) );
+        iTmp = sqrt(( ChrList[loc_aitarget].pos.x - ChrList[character].pos.x ) * ( ChrList[loc_aitarget].pos.x - ChrList[character].pos.x ) +
+                    ( ChrList[loc_aitarget].pos.y - ChrList[character].pos.y ) * ( ChrList[loc_aitarget].pos.y - ChrList[character].pos.y ) +
+                    ( ChrList[loc_aitarget].pos.z - ChrList[character].pos.z ) * ( ChrList[loc_aitarget].pos.z - ChrList[character].pos.z ) );
         break;
 
       case VAR_TARGET_TURN:
-        iTmp = chrturn_lr[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].turn_lr;
         break;
 
       case VAR_LEADER_X:
-        iTmp = chrpos[character].x;
+        iTmp = ChrList[character].pos.x;
         if ( VALID_CHR( loc_leader ) )
-          iTmp = chrpos[loc_leader].x;
+          iTmp = ChrList[loc_leader].pos.x;
         break;
 
       case VAR_LEADER_Y:
-        iTmp = chrpos[character].y;
+        iTmp = ChrList[character].pos.y;
         if ( VALID_CHR( loc_leader ) )
-          iTmp = chrpos[loc_leader].y;
+          iTmp = ChrList[loc_leader].pos.y;
         break;
 
       case VAR_LEADER_DISTANCE:
         iTmp = 10000;
         if ( VALID_CHR( loc_leader ) )
-          iTmp = ABS(( int )( chrpos[loc_leader].x - chrpos[character].x ) ) +
-                 ABS(( int )( chrpos[loc_leader].y - chrpos[character].y ) );
+          iTmp = ABS(( int )( ChrList[loc_leader].pos.x - ChrList[character].pos.x ) ) +
+                 ABS(( int )( ChrList[loc_leader].pos.y - ChrList[character].pos.y ) );
         break;
 
       case VAR_LEADER_TURN:
-        iTmp = chrturn_lr[character];
+        iTmp = ChrList[character].turn_lr;
         if ( VALID_CHR( loc_leader ) )
-          iTmp = chrturn_lr[loc_leader];
+          iTmp = ChrList[loc_leader].turn_lr;
         break;
 
       case VAR_GOTO_X:
-        iTmp = chraigotox[character][chraigoto[character]];
+        iTmp = ChrList[character].aigotox[ChrList[character].aigoto];
         break;
 
       case VAR_GOTO_Y:
-        iTmp = chraigotoy[character][chraigoto[character]];
+        iTmp = ChrList[character].aigotoy[ChrList[character].aigoto];
         break;
 
       case VAR_GOTO_DISTANCE:
-        iTmp = ABS(( int )( chraigotox[character][chraigoto[character]] - chrpos[character].x ) ) +
-               ABS(( int )( chraigotoy[character][chraigoto[character]] - chrpos[character].y ) );
+        iTmp = ABS(( int )( ChrList[character].aigotox[ChrList[character].aigoto] - ChrList[character].pos.x ) ) +
+               ABS(( int )( ChrList[character].aigotoy[ChrList[character].aigoto] - ChrList[character].pos.y ) );
         break;
 
       case VAR_TARGET_TURNTO:
-        iTmp = vec_to_turn( chrpos[loc_aitarget].x - chrpos[character].x, chrpos[loc_aitarget].y - chrpos[character].y );
+        iTmp = vec_to_turn( ChrList[loc_aitarget].pos.x - ChrList[character].pos.x, ChrList[loc_aitarget].pos.y - ChrList[character].pos.y );
         break;
 
       case VAR_PASSAGE:
-        iTmp = chrpassage[character];
+        iTmp = ChrList[character].passage;
         break;
 
       case VAR_WEIGHT:
-        iTmp = chrholdingweight[character];
+        iTmp = ChrList[character].holdingweight;
         break;
 
       case VAR_SELF_ALTITUDE:
-        iTmp = chrpos[character].z - chrlevel[character];
+        iTmp = ChrList[character].pos.z - ChrList[character].level;
         break;
 
       case VAR_SELF_ID:
-        iTmp = capidsz[chrmodel[character]][IDSZ_TYPE];
+        iTmp = CapList[ChrList[character].model].idsz[IDSZ_TYPE];
         break;
 
       case VAR_SELF_HATEID:
-        iTmp = capidsz[chrmodel[character]][IDSZ_HATE];
+        iTmp = CapList[ChrList[character].model].idsz[IDSZ_HATE];
         break;
 
       case VAR_SELF_MANA:
-        iTmp = chrmana_fp8[character];
-        if ( chrcanchannel[character] )  iTmp += chrlife_fp8[character];
+        iTmp = ChrList[character].mana_fp8;
+        if ( ChrList[character].canchannel )  iTmp += ChrList[character].life_fp8;
         break;
 
       case VAR_TARGET_STR:
-        iTmp = chrstrength_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].strength_fp8;
         break;
 
       case VAR_TARGET_WIS:
-        iTmp = chrwisdom_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].wisdom_fp8;
         break;
 
       case VAR_TARGET_INT:
-        iTmp = chrintelligence_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].intelligence_fp8;
         break;
 
       case VAR_TARGET_DEX:
-        iTmp = chrdexterity_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].dexterity_fp8;
         break;
 
       case VAR_TARGET_LIFE:
-        iTmp = chrlife_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].life_fp8;
         break;
 
       case VAR_TARGET_MANA:
-        iTmp = chrmana_fp8[loc_aitarget];
-        if ( chrcanchannel[loc_aitarget] )  iTmp += chrlife_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].mana_fp8;
+        if ( ChrList[loc_aitarget].canchannel )  iTmp += ChrList[loc_aitarget].life_fp8;
         break;
 
       case VAR_TARGET_LEVEL:
@@ -4509,51 +4522,51 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_TARGET_SPEEDX:
-        iTmp = chrvel[loc_aitarget].x;
+        iTmp = ChrList[loc_aitarget].vel.x;
         break;
 
       case VAR_TARGET_SPEEDY:
-        iTmp = chrvel[loc_aitarget].y;
+        iTmp = ChrList[loc_aitarget].vel.y;
         break;
 
       case VAR_TARGET_SPEEDZ:
-        iTmp = chrvel[loc_aitarget].z;
+        iTmp = ChrList[loc_aitarget].vel.z;
         break;
 
       case VAR_SELF_SPAWNX:
-        iTmp = chrstt[character].x;
+        iTmp = ChrList[character].stt.x;
         break;
 
       case VAR_SELF_SPAWNY:
-        iTmp = chrstt[character].y;
+        iTmp = ChrList[character].stt.y;
         break;
 
       case VAR_SELF_STATE:
-        iTmp = chraistate[character];
+        iTmp = ChrList[character].aistate;
         break;
 
       case VAR_SELF_STR:
-        iTmp = chrstrength_fp8[character];
+        iTmp = ChrList[character].strength_fp8;
         break;
 
       case VAR_SELF_WIS:
-        iTmp = chrwisdom_fp8[character];
+        iTmp = ChrList[character].wisdom_fp8;
         break;
 
       case VAR_SELF_INT:
-        iTmp = chrintelligence_fp8[character];
+        iTmp = ChrList[character].intelligence_fp8;
         break;
 
       case VAR_SELF_DEX:
-        iTmp = chrdexterity_fp8[character];
+        iTmp = ChrList[character].dexterity_fp8;
         break;
 
       case VAR_SELF_MANAFLOW:
-        iTmp = chrmanaflow_fp8[character];
+        iTmp = ChrList[character].manaflow_fp8;
         break;
 
       case VAR_TARGET_MANAFLOW:
-        iTmp = chrmanaflow_fp8[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].manaflow_fp8;
         break;
 
       case VAR_SELF_ATTACHED:
@@ -4561,7 +4574,7 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_SWINGTURN:
-        iTmp = camswing << 2;
+        iTmp = GCamera.swing << 2;
         break;
 
       case VAR_XYDISTANCE:
@@ -4569,15 +4582,15 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_SELF_Z:
-        iTmp = chrpos[character].z;
+        iTmp = ChrList[character].pos.z;
         break;
 
       case VAR_TARGET_ALTITUDE:
-        iTmp = chrpos[loc_aitarget].z - chrlevel[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].pos.z - ChrList[loc_aitarget].level;
         break;
 
       case VAR_TARGET_Z:
-        iTmp = chrpos[loc_aitarget].z;
+        iTmp = ChrList[loc_aitarget].pos.z;
         break;
 
       case VAR_SELF_INDEX:
@@ -4585,57 +4598,57 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_OWNER_X:
-        iTmp = chrpos[loc_aiowner].x;
+        iTmp = ChrList[loc_aiowner].pos.x;
         break;
 
       case VAR_OWNER_Y:
-        iTmp = chrpos[loc_aiowner].y;
+        iTmp = ChrList[loc_aiowner].pos.y;
         break;
 
       case VAR_OWNER_TURN:
-        iTmp = chrturn_lr[loc_aiowner];
+        iTmp = ChrList[loc_aiowner].turn_lr;
         break;
 
       case VAR_OWNER_DISTANCE:
-        iTmp = sqrt(( chrpos[loc_aiowner].x - chrpos[character].x ) * ( chrpos[loc_aiowner].x - chrpos[character].x ) +
-                    ( chrpos[loc_aiowner].y - chrpos[character].y ) * ( chrpos[loc_aiowner].y - chrpos[character].y ) +
-                    ( chrpos[loc_aiowner].z - chrpos[character].z ) * ( chrpos[loc_aiowner].z - chrpos[character].z ) );
+        iTmp = sqrt(( ChrList[loc_aiowner].pos.x - ChrList[character].pos.x ) * ( ChrList[loc_aiowner].pos.x - ChrList[character].pos.x ) +
+                    ( ChrList[loc_aiowner].pos.y - ChrList[character].pos.y ) * ( ChrList[loc_aiowner].pos.y - ChrList[character].pos.y ) +
+                    ( ChrList[loc_aiowner].pos.z - ChrList[character].pos.z ) * ( ChrList[loc_aiowner].pos.z - ChrList[character].pos.z ) );
         break;
 
       case VAR_OWNER_TURNTO:
-        iTmp = vec_to_turn( chrpos[loc_aiowner].x - chrpos[character].x, chrpos[loc_aiowner].y - chrpos[character].y );
+        iTmp = vec_to_turn( ChrList[loc_aiowner].pos.x - ChrList[character].pos.x, ChrList[loc_aiowner].pos.y - ChrList[character].pos.y );
         break;
 
       case VAR_XYTURNTO:
-        iTmp = vec_to_turn( scr_globals.tmpx - chrpos[character].x, scr_globals.tmpy - chrpos[character].y );
+        iTmp = vec_to_turn( scr_globals.tmpx - ChrList[character].pos.x, scr_globals.tmpy - ChrList[character].pos.y );
         break;
 
       case VAR_SELF_MONEY:
-        iTmp = chrmoney[character];
+        iTmp = ChrList[character].money;
         break;
 
       case VAR_SELF_ACCEL:
-        iTmp = ( chrmaxaccel[character] * 100.0 );
+        iTmp = ( ChrList[character].maxaccel * 100.0 );
         break;
 
       case VAR_TARGET_EXP:
-        iTmp = chrexperience[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].experience;
         break;
 
       case VAR_SELF_AMMO:
-        iTmp = chrammo[character];
+        iTmp = ChrList[character].ammo;
         break;
 
       case VAR_TARGET_AMMO:
-        iTmp = chrammo[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].ammo;
         break;
 
       case VAR_TARGET_MONEY:
-        iTmp = chrmoney[loc_aitarget];
+        iTmp = ChrList[loc_aitarget].money;
         break;
 
       case VAR_TARGET_TURNAWAY:
-        iTmp = vec_to_turn( chrpos[character].x - chrpos[loc_aitarget].x, chrpos[character].y - chrpos[loc_aitarget].y );
+        iTmp = vec_to_turn( ChrList[character].pos.x - ChrList[loc_aitarget].pos.x, ChrList[character].pos.y - ChrList[loc_aitarget].pos.y );
         break;
 
       case VAR_SELF_LEVEL:
@@ -4643,9 +4656,9 @@ void run_operand( Uint32 value, CHR_REF character )
         break;
 
       case VAR_SPAWN_DISTANCE:
-        iTmp = sqrt(( chrstt[character].x - chrpos[character].x ) * ( chrstt[character].x - chrpos[character].x ) +
-                    ( chrstt[character].y - chrpos[character].y ) * ( chrstt[character].y - chrpos[character].y ) +
-                    ( chrstt[character].z - chrpos[character].z ) * ( chrstt[character].z - chrpos[character].z ) );
+        iTmp = sqrt(( ChrList[character].stt.x - ChrList[character].pos.x ) * ( ChrList[character].stt.x - ChrList[character].pos.x ) +
+                    ( ChrList[character].stt.y - ChrList[character].pos.y ) * ( ChrList[character].stt.y - ChrList[character].pos.y ) +
+                    ( ChrList[character].stt.z - ChrList[character].pos.z ) * ( ChrList[character].stt.z - ChrList[character].pos.z ) );
         break;
 
     }
@@ -4710,25 +4723,25 @@ void let_character_think( CHR_REF character, float dUpdate )
 
   // Make life easier
   scr_globals.oldtarget = chr_get_aitarget( character );
-  aicode = chraitype[character];
+  aicode = ChrList[character].aitype;
 
 
   // Figure out alerts that weren't already set
   set_alerts( character, dUpdate );
 
   // Clear the button latches
-  if ( !chrisplayer[character] )
+  if ( !ChrList[character].isplayer )
   {
-    chrlatchbutton[character] = 0;
+    ChrList[character].latch.b = 0;
   }
 
 
   // Reset the target if it can't be seen
-  if ( !chrcanseeinvisible[character] && chralive[character] )
+  if ( !ChrList[character].canseeinvisible && ChrList[character].alive )
   {
     if ( chr_is_invisible( character ) )
     {
-      chraitarget[character] = character;
+      ChrList[character].aitarget = character;
     }
   }
 
@@ -4784,41 +4797,41 @@ void let_character_think( CHR_REF character, float dUpdate )
 
 
   // Set latches
-  if ( !chrisplayer[character] && aicode != 0 )
+  if ( !ChrList[character].isplayer && aicode != 0 )
   {
     CHR_REF rider = chr_get_holdingwhich( character, SLOT_SADDLE );
 
-    if ( chrismount[character] && VALID_CHR( rider ) && !chrisitem[rider] )
+    if ( ChrList[character].ismount && VALID_CHR( rider ) && !ChrList[rider].isitem )
     {
       // Mount
-      chrlatchx[character] = chrlatchx[rider];
-      chrlatchy[character] = chrlatchy[rider];
+      ChrList[character].latch.x = ChrList[rider].latch.x;
+      ChrList[character].latch.y = ChrList[rider].latch.y;
     }
     else
     {
       float fnum, fden;
       // Normal AI
-      chrlatchx[character] = chraigotox[character][chraigoto[character]] - chrpos[character].x;
-      chrlatchy[character] = chraigotoy[character][chraigoto[character]] - chrpos[character].y;
+      ChrList[character].latch.x = ChrList[character].aigotox[ChrList[character].aigoto] - ChrList[character].pos.x;
+      ChrList[character].latch.y = ChrList[character].aigotoy[ChrList[character].aigoto] - ChrList[character].pos.y;
 
-      fnum = chrlatchx[character] * chrlatchx[character] + chrlatchy[character] * chrlatchy[character];
-      fden = fnum + 25 * chrbmpdata[character].calc_size * chrbmpdata[character].calc_size;
+      fnum = ChrList[character].latch.x * ChrList[character].latch.x + ChrList[character].latch.y * ChrList[character].latch.y;
+      fden = fnum + 25 * ChrList[character].bmpdata.calc_size * ChrList[character].bmpdata.calc_size;
       if ( fnum > 0.0f )
       {
         float ftmp = 1.0f / sqrt( fnum ) * fnum / fden;
-        chrlatchx[character] *= ftmp;
-        chrlatchy[character] *= ftmp;
+        ChrList[character].latch.x *= ftmp;
+        ChrList[character].latch.y *= ftmp;
       }
     }
   }
 
 
   // Clear alerts for next time around
-  chralert[character] = 0;
-  if ( chraimorphed[character] )
+  ChrList[character].alert = 0;
+  if ( ChrList[character].aimorphed )
   {
-    chralert[character] |= ALERT_CHANGED;
-    chraimorphed[character] = bfalse;
+    ChrList[character].alert |= ALERT_CHANGED;
+    ChrList[character].aimorphed = bfalse;
   };
 }
 
@@ -4838,22 +4851,22 @@ void let_ai_think( float dUpdate )
     allow_thinking = bfalse;
 
     // Cleaned up characters shouldn't be alert to anything else
-    if ( HAS_SOME_BITS( chralert[character], ALERT_CRUSHED ) )
+    if ( HAS_SOME_BITS( ChrList[character].alert, ALERT_CRUSHED ) )
     {
-      chralert[character] = ALERT_CRUSHED;
+      ChrList[character].alert = ALERT_CRUSHED;
       allow_thinking = btrue;
     }
 
-    if ( HAS_SOME_BITS( chralert[character], ALERT_CLEANEDUP ) )
+    if ( HAS_SOME_BITS( ChrList[character].alert, ALERT_CLEANEDUP ) )
     {
-      chralert[character] = ALERT_CLEANEDUP;
+      ChrList[character].alert = ALERT_CLEANEDUP;
       allow_thinking = btrue;
     };
 
     // Do not exclude items in packs. In NetHack, eggs can hatch while in your pack...
-    //if ( !chr_in_pack( character ) || chralive[character] )  //TODO: This will need to be handled differently...
-    if ( !chr_in_pack( character ) && chralive[character] )    //      we do not want all objects in pack run AI scripts
-    {														   //      (Only the one that really need it, such as eggs)
+    // this may need to be handled differently. Currently dead things are thinking too much...
+    if ( !chr_in_pack( character ) || ChrList[character].alive )
+    {
       allow_thinking = btrue;
     }
 
@@ -4866,7 +4879,13 @@ void let_ai_think( float dUpdate )
 
 }
 
+
+
 //------------------------------------------------------------------------------
+// Don't use the aicodes file, just register them in the program.
+// There will never be a reason to change them, and it will prevent transcription mistakes between the
+// source code and the aicodes.txt file
+
 //void load_ai_codes(char* loadname)
 //{
 //  // ZZ> This function loads all of the function and variable names
@@ -4889,10 +4908,4 @@ void let_ai_think( float dUpdate )
 //  }
 //  else log_warning("Could not load script AI functions or variables (%s)\n", loadname);
 //}
-
-// Don't use the aicodes file, just register them in the program.
-// There will never be a reason to change them, and it will prevent transcription mistakes between the
-// source code and the aicodes.txt file
-
-
 

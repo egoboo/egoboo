@@ -1,8 +1,9 @@
 #pragma once
 
 #include "egoboo_types.h"
+#include "egoboo_math.h"
 
-
+#define MAPID                           0x4470614d     // The string 'MapD'
 
 #define MAXMESHFAN                      (512*512)      // Terrain mesh size
 #define MAXMESHSIZEY                    1024           // Max fans in y direction
@@ -76,44 +77,75 @@ typedef enum fan_type_t
   STAIR_NS    //  25  Twelve Faced Stair (NS)...
 } FAN_TYPE;
 
-extern bool_t  meshexploremode;                            // Explore mode?
+extern Uint32  Mesh_Block_X[( MAXMESHSIZEY/4 ) +1];
+extern Uint32  Mesh_Fan_X[MAXMESHSIZEY];                         // Which fan to start a row with
+
+typedef struct mesh_info_t
+{
+  bool_t  exploremode;                            // Explore mode?
+  int     size_x;                                          // Size in fansquares
+  int     size_y;                                          //
+  float   edge_x;                                          // Limits !!!BAD!!!
+  float   edge_y;                                          //
+  Uint16  last_texture;                                    // Last texture used
+} MESH_INFO;
+
+extern MESH_INFO mesh;
 
 
-extern int     meshsizex;                                          // Size in fansquares
-extern int     meshsizey;                                          //
-extern float   meshedgex;                                          // Limits !!!BAD!!!
-extern float   meshedgey;                                          //
-extern Uint16  meshlasttexture;                                    // Last texture used
-extern Uint8   meshtype[MAXMESHFAN];                               // Command type
-extern Uint8   meshfx[MAXMESHFAN];                                 // Special effects flags
-extern Uint8   meshtwist[MAXMESHFAN];                              //
-extern bool_t  meshinrenderlist[MAXMESHFAN];                       //
-extern Uint16  meshtile[MAXMESHFAN];                               // Get texture from this
-extern Uint32  meshvrtstart[MAXMESHFAN];                           // Which vertex to start at
-extern vect3   meshvrtmins[MAXMESHFAN];                            // what is the minimum extent of the fan
-extern vect3   meshvrtmaxs[MAXMESHFAN];                            // what is the maximum extent of the tile
-extern Uint32  meshblockstart[( MAXMESHSIZEY/4 ) +1];
-extern Uint32  meshfanstart[MAXMESHSIZEY];                         // Which fan to start a row with
-extern float*  floatmemory;                                                 // For malloc
-extern float*  meshvrtx;                                           // Vertex position
-extern float*  meshvrty;                                           //
-extern float*  meshvrtz;                                           // Vertex elevation
-extern Uint8*  meshvrtar_fp8;                                           // Vertex base light
-extern Uint8*  meshvrtag_fp8;                                           // Vertex base light
-extern Uint8*  meshvrtab_fp8;                                           // Vertex base light
-extern Uint8*  meshvrtlr_fp8;                                           // Vertex light
-extern Uint8*  meshvrtlg_fp8;                                           // Vertex light
-extern Uint8*  meshvrtlb_fp8;                                           // Vertex light
-extern Uint8   meshcommands[MAXMESHTYPE];                          // Number of commands
-extern Uint8   meshcommandsize[MAXMESHTYPE][MAXMESHCOMMAND];       // Entries in each command
-extern Uint16  meshcommandvrt[MAXMESHTYPE][MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
-extern Uint8   meshcommandnumvertices[MAXMESHTYPE];                // Number of vertices
-extern Uint8   meshcommandref[MAXMESHTYPE][MAXMESHVERTICES];       // Lighting references
-extern float   meshcommandu[MAXMESHTYPE][MAXMESHVERTICES];         // Vertex texture posi
-extern float   meshcommandv[MAXMESHTYPE][MAXMESHVERTICES];         //
-extern float   meshtileoffu[MAXTILETYPE];                          // Tile texture offset
-extern float   meshtileoffv[MAXTILETYPE];                          //
+typedef struct mesh_fan_t
+{
+  Uint8   type;                               // Command type
+  Uint8   fx;                                 // Special effects flags
+  Uint8   twist;                              //
+  bool_t  inrenderlist;                       //
+  Uint16  tile;                               // Get texture from this
+  Uint32  vrt_start;                           // Which vertex to start at
+  vect3   vrt_mins;                            // what is the minimum extent of the fan
+  vect3   vrt_maxs;                            // what is the maximum extent of the tile
+} MESH_FAN;
 
+extern MESH_FAN Mesh_Fan[MAXMESHFAN];
+
+
+typedef struct mesh_memory_t
+{
+  float*  base;                                                 // For malloc
+  float*  vrt_x;                                           // Vertex position
+  float*  vrt_y;                                           //
+  float*  vrt_z;                                           // Vertex elevation
+  Uint8*  vrt_ar_fp8;                                           // Vertex base light
+  Uint8*  vrt_ag_fp8;                                           // Vertex base light
+  Uint8*  vrt_ab_fp8;                                           // Vertex base light
+  Uint8*  vrt_lr_fp8;                                           // Vertex light
+  Uint8*  vrt_lg_fp8;                                           // Vertex light
+  Uint8*  vrt_lb_fp8;                                           // Vertex light
+} MESH_MEMORY;
+
+extern MESH_MEMORY Mesh_Mem;
+
+typedef struct mesh_command_t
+{
+  Uint8   count;                          // Number of commands
+  Uint8   size[MAXMESHCOMMAND];       // Entries in each command
+
+  Uint8   vrt_count;                // Number of vertices
+  Uint16  vrt[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
+
+  Uint8   ref[MAXMESHVERTICES];       // Lighting references
+  float   u[MAXMESHVERTICES];         // Vertex texture posi
+  float   v[MAXMESHVERTICES];         //
+} MESH_COMMAND;
+
+MESH_COMMAND Mesh_Cmd[MAXMESHTYPE];
+
+typedef struct mesh_tile_t
+{
+  float   off_u;                          // Tile texture offset
+  float   off_v;                          //
+} MESH_TILE;
+
+extern MESH_TILE Mesh_Tile[MAXTILETYPE];
 
 bool_t get_mesh_memory();
 void free_mesh_memory();

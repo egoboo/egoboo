@@ -1,6 +1,6 @@
 #define MAXSAMP 640                     // Maximum output size scaler can do
 #define THRESHSAMP 12                   // Number of hits needed for solid
-#define CLEARCOLOR 0			// Transparent color
+#define CLEARCOLOR 0      // Transparent color
 //------------------------------------------------------------------------------
 //void scale_blit(GLtexture* bmpsource, GLtexture* bmpdest, int light)
 //{
@@ -61,7 +61,7 @@
 //      scnt = 0;
 //      ycnt = 0;
 //      while(ycnt < 4)
-//      {      
+//      {
 //        xcnt = 0;
 //        while(xcnt < 4)
 //        {
@@ -70,7 +70,7 @@
 //          {
 //            red += goodpal[samp].r;  grn += goodpal[samp].g;  blu += goodpal[samp].b;
 //            scnt++;
-//          } 
+//          }
 //          xcnt++;
 //        }
 //        ycnt++;
@@ -155,7 +155,7 @@
 //      red = 0; grn = 0; blu = 0;
 //      ycnt = 0;
 //      while(ycnt < 4)
-//      {      
+//      {
 //        xcnt = 0;
 //        while(xcnt < 4)
 //        {

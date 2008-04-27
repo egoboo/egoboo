@@ -5,9 +5,9 @@
 //  $Author:  DigiBen  digiben@gametutorials.com
 //
 //  $Program:  Frustum Culling
-// 
-//  $Description: Demonstrates checking if shapes are in view 
-// 
+//
+//  $Description: Demonstrates checking if shapes are in view
+//
 //  $Date:   8/28/01
 //
 //***********************************************************************//
@@ -106,25 +106,25 @@ void Frustum_CalculateFrustum( Frustum *pf, float proj[], float modl[] )
   //// Now that we have our modelview and projection matrix, if we combine these 2 matrices,
   //// it will give us our clipping planes.  To combine 2 matrices, we multiply them.
 
-  //clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
-  //clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
-  //clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
-  //clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+  //clip[ 0] = ModList[ 0].l * proj[ 0] + ModList[ 1].l * proj[ 4] + ModList[ 2].l * proj[ 8] + ModList[ 3].l * proj[12];
+  //clip[ 1] = ModList[ 0].l * proj[ 1] + ModList[ 1].l * proj[ 5] + ModList[ 2].l * proj[ 9] + ModList[ 3].l * proj[13];
+  //clip[ 2] = ModList[ 0].l * proj[ 2] + ModList[ 1].l * proj[ 6] + ModList[ 2].l * proj[10] + ModList[ 3].l * proj[14];
+  //clip[ 3] = ModList[ 0].l * proj[ 3] + ModList[ 1].l * proj[ 7] + ModList[ 2].l * proj[11] + ModList[ 3].l * proj[15];
 
-  //clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
-  //clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
-  //clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
-  //clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+  //clip[ 4] = ModList[ 4].l * proj[ 0] + ModList[ 5].l * proj[ 4] + ModList[ 6].l * proj[ 8] + ModList[ 7].l * proj[12];
+  //clip[ 5] = ModList[ 4].l * proj[ 1] + ModList[ 5].l * proj[ 5] + ModList[ 6].l * proj[ 9] + ModList[ 7].l * proj[13];
+  //clip[ 6] = ModList[ 4].l * proj[ 2] + ModList[ 5].l * proj[ 6] + ModList[ 6].l * proj[10] + ModList[ 7].l * proj[14];
+  //clip[ 7] = ModList[ 4].l * proj[ 3] + ModList[ 5].l * proj[ 7] + ModList[ 6].l * proj[11] + ModList[ 7].l * proj[15];
 
-  //clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
-  //clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
-  //clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
-  //clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+  //clip[ 8] = ModList[ 8].l * proj[ 0] + ModList[ 9].l * proj[ 4] + ModList[10].l * proj[ 8] + ModList[11].l * proj[12];
+  //clip[ 9] = ModList[ 8].l * proj[ 1] + ModList[ 9].l * proj[ 5] + ModList[10].l * proj[ 9] + ModList[11].l * proj[13];
+  //clip[10] = ModList[ 8].l * proj[ 2] + ModList[ 9].l * proj[ 6] + ModList[10].l * proj[10] + ModList[11].l * proj[14];
+  //clip[11] = ModList[ 8].l * proj[ 3] + ModList[ 9].l * proj[ 7] + ModList[10].l * proj[11] + ModList[11].l * proj[15];
 
-  //clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
-  //clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
-  //clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
-  //clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+  //clip[12] = ModList[12].l * proj[ 0] + ModList[13].l * proj[ 4] + ModList[14].l * proj[ 8] + ModList[15].l * proj[12];
+  //clip[13] = ModList[12].l * proj[ 1] + ModList[13].l * proj[ 5] + ModList[14].l * proj[ 9] + ModList[15].l * proj[13];
+  //clip[14] = ModList[12].l * proj[ 2] + ModList[13].l * proj[ 6] + ModList[14].l * proj[10] + ModList[15].l * proj[14];
+  //clip[15] = ModList[12].l * proj[ 3] + ModList[13].l * proj[ 7] + ModList[14].l * proj[11] + ModList[15].l * proj[15];
 
   // Now we actually want to get the sides of the frustum.  To do this we take
   // the clipping planes we received above and extract the sides from them.

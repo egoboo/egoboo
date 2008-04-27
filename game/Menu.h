@@ -23,6 +23,14 @@
 #ifndef egoboo_Menu_h
 #define egoboo_Menu_h
 
+#include "char.h"
+
+//Input player control
+#define MAXLOADPLAYER     100
+extern int                     numloadplayer; //  EQ( 0 );
+extern char                    loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
+extern char                    loadplayerdir[MAXLOADPLAYER][16];
+
 void mnu_frameStep();
 void mnu_saveSettings();
 void mnu_service_select();

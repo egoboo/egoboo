@@ -19,8 +19,28 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
+#include "passage.h"
 #include "mesh.h"
+#include "char.h"
+#include "script.h"
+
+#include "egoboo_utility.h"
+#include "egoboo.h"
+
+Uint32 numpassage;             // Number of passages in the module
+int    passtlx[MAXPASS];       // Passage positions
+int    passtly[MAXPASS];
+int    passbrx[MAXPASS];
+int    passbry[MAXPASS];
+int    passagemusic[MAXPASS];  //Music track appointed to the specific passage
+Uint32 passmask[MAXPASS];
+bool_t passopen[MAXPASS];   // Is the passage open?
+Uint16 passowner[MAXPASS];  // Who controls the passage?
+
+// For shops
+Uint16 numshoppassage;
+Uint16 shoppassage[MAXPASS];  // The passage number
+Uint16 shopowner[MAXPASS];    // Who gets the gold?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,20 +86,20 @@ bool_t break_passage( Uint32 passage, Uint16 starttile, Uint16 frames, Uint16 be
   {
     if ( !VALID_CHR( character ) || chr_in_pack( character ) ) continue;
 
-    if ( chrweight[character] > 20 && chrflyheight[character] == 0 && chrpos[character].z < ( chrlevel[character] + 20 ) && !chr_attached( character ) )
+    if ( ChrList[character].weight > 20 && ChrList[character].flyheight == 0 && ChrList[character].pos.z < ( ChrList[character].level + 20 ) && !chr_attached( character ) )
     {
       if ( passage_check( character, passage, NULL ) )
       {
-        fan_x = MESH_FLOAT_TO_FAN( chrpos[character].x );
-        fan_y = MESH_FLOAT_TO_FAN( chrpos[character].y );
+        fan_x = MESH_FLOAT_TO_FAN( ChrList[character].pos.x );
+        fan_y = MESH_FLOAT_TO_FAN( ChrList[character].pos.y );
 
         // The character is in the passage, so might need to break...
         tile =  mesh_get_tile( fan_x, fan_y );
         if ( tile >= starttile && tile < endtile )
         {
           // Remember where the hit occured...
-          scr_globals.tmpx = chrpos[character].x;
-          scr_globals.tmpy = chrpos[character].y;
+          scr_globals.tmpx = ChrList[character].pos.x;
+          scr_globals.tmpy = ChrList[character].pos.y;
           useful = btrue;
 
           // Change the tile
@@ -168,7 +188,7 @@ Uint16 who_is_blocking_passage( Uint32 passage )
 
     if ( passage_check_any( character, passage, NULL ) )
     {
-      if ( chralive[character] && !chrisitem[character] )
+      if ( ChrList[character].alive && !ChrList[character].isitem )
       {
         // Found a live one
         return character;
@@ -202,7 +222,7 @@ void check_passage_music()
     // Look at each character
     for ( character = 0; character < MAXCHR; character++ )
     {
-      if ( !VALID_CHR( character ) || chr_in_pack( character ) || !chrisplayer[character] ) continue;
+      if ( !VALID_CHR( character ) || chr_in_pack( character ) || !ChrList[character].isplayer ) continue;
 
       if ( passage_check_any( character, passage, NULL ) )
       {
@@ -228,7 +248,7 @@ Uint16 who_is_blocking_passage_ID( Uint32 passage, IDSZ idsz )
   {
     if ( !VALID_CHR( character ) || chr_in_pack( character ) ) continue;
 
-    if ( !chrisitem[character] && chralive[character] )
+    if ( !ChrList[character].isitem && ChrList[character].alive )
     {
       if ( passage_check_any( character, passage, NULL ) )
       {
@@ -238,7 +258,7 @@ Uint16 who_is_blocking_passage_ID( Uint32 passage, IDSZ idsz )
         sTmp  = chr_get_nextinpack( character );
         while ( VALID_CHR( sTmp ) )
         {
-          if ( CAP_INHERIT_IDSZ( chrmodel[sTmp], idsz ) )
+          if ( CAP_INHERIT_IDSZ( ChrList[sTmp].model, idsz ) )
           {
             // It has the item...
             return character;
@@ -249,7 +269,7 @@ Uint16 who_is_blocking_passage_ID( Uint32 passage, IDSZ idsz )
         for ( _slot = SLOT_BEGIN; _slot < SLOT_COUNT; _slot = ( SLOT )( _slot + 1 ) )
         {
           sTmp = chr_get_holdingwhich( character, _slot );
-          if ( VALID_CHR( sTmp ) && CAP_INHERIT_IDSZ( chrmodel[sTmp], idsz ) )
+          if ( VALID_CHR( sTmp ) && CAP_INHERIT_IDSZ( ChrList[sTmp].model, idsz ) )
           {
             // It has the item...
             return character;
@@ -290,7 +310,7 @@ bool_t close_passage( Uint32 passage )
 
       if ( passage_check( character, passage, NULL ) )
       {
-        if ( !chrcanbecrushed[character] )
+        if ( !ChrList[character].canbecrushed )
         {
           // door cannot close
           return bfalse;
@@ -308,7 +328,7 @@ bool_t close_passage( Uint32 passage )
     for ( cnt = 0; cnt < numcrushed; cnt++ )
     {
       character = crushedcharacters[cnt];
-      chralert[character] |= ALERT_CRUSHED;
+      ChrList[character].alert |= ALERT_CRUSHED;
     }
 
     useful = useful || ( numcrushed != 0 );
@@ -450,11 +470,11 @@ bool_t passage_check_all( CHR_REF ichr, Uint16 pass, Uint16 * powner )
 
   if ( !VALID_CHR( ichr ) || pass >= numpassage ) return retval;
 
-  x_min = chrbmpdata[ichr].cv.x_min;
-  x_max = chrbmpdata[ichr].cv.x_max;
+  x_min = ChrList[ichr].bmpdata.cv.x_min;
+  x_max = ChrList[ichr].bmpdata.cv.x_max;
 
-  y_min = chrbmpdata[ichr].cv.x_min;
-  y_max = chrbmpdata[ichr].cv.x_max;
+  y_min = ChrList[ichr].bmpdata.cv.x_min;
+  y_max = ChrList[ichr].bmpdata.cv.x_max;
 
   retval = ( x_min > MESH_FAN_TO_INT( passtlx[pass] ) && x_max < MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) &&
            ( y_min > MESH_FAN_TO_INT( passtly[pass] ) && y_max < MESH_FAN_TO_INT( passbry[pass] + 1 ) );
@@ -482,11 +502,11 @@ bool_t passage_check_any( CHR_REF ichr, Uint16 pass, Uint16 * powner )
 
   if ( !VALID_CHR( ichr ) || pass >= numpassage ) return bfalse;
 
-  x_min = chrbmpdata[ichr].cv.x_min;
-  x_max = chrbmpdata[ichr].cv.x_max;
+  x_min = ChrList[ichr].bmpdata.cv.x_min;
+  x_max = ChrList[ichr].bmpdata.cv.x_max;
 
-  y_min = chrbmpdata[ichr].cv.y_min;
-  y_max = chrbmpdata[ichr].cv.y_max;
+  y_min = ChrList[ichr].bmpdata.cv.y_min;
+  y_max = ChrList[ichr].bmpdata.cv.y_max;
 
   if ( x_max < MESH_FAN_TO_INT( passtlx[pass] ) || x_min > MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) return bfalse;
   if ( y_max < MESH_FAN_TO_INT( passtly[pass] ) || y_min > MESH_FAN_TO_INT( passbry[pass] + 1 ) ) return bfalse;
@@ -510,8 +530,8 @@ bool_t passage_check( CHR_REF ichr, Uint16 pass, Uint16 * powner )
 
   if ( !VALID_CHR( ichr ) || pass >= numpassage ) return retval;
 
-  retval = ( chrpos[ichr].x > MESH_FAN_TO_INT( passtlx[pass] ) && chrpos[ichr].x < MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) &&
-           ( chrpos[ichr].y > MESH_FAN_TO_INT( passtly[pass] ) && chrpos[ichr].y < MESH_FAN_TO_INT( passbry[pass] + 1 ) );
+  retval = ( ChrList[ichr].pos.x > MESH_FAN_TO_INT( passtlx[pass] ) && ChrList[ichr].pos.x < MESH_FAN_TO_INT( passbrx[pass] + 1 ) ) &&
+           ( ChrList[ichr].pos.y > MESH_FAN_TO_INT( passtly[pass] ) && ChrList[ichr].pos.y < MESH_FAN_TO_INT( passbry[pass] + 1 ) );
 
   if ( retval )
   {

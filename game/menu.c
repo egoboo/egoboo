@@ -27,8 +27,16 @@
 #include "Ui.h"
 #include "Menu.h"
 #include "Log.h"
+#include "input.h"
+#include "graphic.h"
+
 #include "egoboo.h"
+
 #include <assert.h>
+
+int   numloadplayer = 0;
+char  loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
+char  loadplayerdir[MAXLOADPLAYER][16];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -116,7 +124,7 @@ typedef struct options_data_t
   bool_t  fogallowed;                 //
   int     particletype;               // Particle Effects image
   Uint8   autoturncamera;             // Type of camera control...
-  bool_t  vsync;						          // Wait for vertical sync?
+  bool_t  vsync;                      // Wait for vertical sync?
   bool_t  gfxacceleration;            // Force OpenGL GFX acceleration?
 } OPTIONS_DATA;
 
@@ -226,7 +234,7 @@ static int mnu_buttonTop = 0;
 static bool_t mnu_startNewPlayer = bfalse;
 
 /* The font used for drawing text.  It's smaller than the button font */
-static Font *mnu_Font = NULL;
+static TTFont *mnu_Font = NULL;
 
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_removeSelectedPlayerInput( int player, Uint32 input );
@@ -326,7 +334,7 @@ static void update_options_data()
   CData.overlayvalid = OData.overlayvalid;
   CData.backgroundvalid = OData.backgroundvalid;
   CData.fogallowed = OData.fogallowed;
-  CData.particletype = OData.particletype;
+  //CData.particletype = OData.particletype;
   //CData.particlelimit = OData.particlelimit;
   CData.autoturncamera = OData.autoturncamera;
 };
@@ -502,7 +510,7 @@ int mnu_doMain( float deltaTime )
       // Background
       glColor4f( 1, 1, 1, 1 );
       ui_drawImage( &wBackground );
-	 
+
       // "Copyright" text
       ui_drawTextBox( &wCopyright, 20 );
 
@@ -712,8 +720,8 @@ int mnu_doChooseModule( float deltaTime )
 
       //Reload all avalible modules (Hidden ones may pop up after the player has completed one)
       load_all_menu_images();
-      
-	  // Load font & background
+
+      // Load font & background
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
@@ -724,7 +732,7 @@ int mnu_doChooseModule( float deltaTime )
       mnu_selectedModule = -1;
       modsummaryval      = -2;
 
-      // Find the module's that we want to allow loading for.  If mnu_startNewPlayer
+      // Find the modules that we want to allow loading for.  If mnu_startNewPlayer
       // is true, we want ones that don't allow imports (e.g. starter modules).
       // Otherwise, we want modules that allow imports
       memset( validModules, 0, sizeof( int ) * MAXMODULE );
@@ -733,20 +741,19 @@ int mnu_doChooseModule( float deltaTime )
       {
         for ( i = 0;i < globalnummodule; i++ )
         {
-          if ( modimportamount[i] >= mnu_selectedPlayerCount )
+          if ( ModList[i].importamount >= mnu_selectedPlayerCount )
           {
             validModules[numValidModules] = i;
             numValidModules++;
           }
         }
       }
-
-	  //Starter modules
       else
       {
+        // Starter modules
         for ( i = 0;i < globalnummodule; i++ )
         {
-          if ( modimportamount[i] == 0 && modmaxplayers[i] == 1 )
+          if ( ModList[i].importamount == 0 && ModList[i].maxplayers == 1 )
           {
             validModules[numValidModules] = i;
             numValidModules++;
@@ -848,27 +855,27 @@ int mnu_doChooseModule( float deltaTime )
         x = 21 + 5;
         glColor4f( 1, 1, 1, 1 );
         fnt_drawText( mnu_Font, moduleMenuOffsetX + x, moduleMenuOffsetY + y,
-                      modlongname[validModules[mnu_selectedModule]] );
+                      ModList[validModules[mnu_selectedModule]].longname );
         y += 20;
 
-        snprintf( txtBuffer, sizeof( txtBuffer ), "Difficulty: %s", modrank[validModules[mnu_selectedModule]] );
+        snprintf( txtBuffer, sizeof( txtBuffer ), "Difficulty: %s", ModList[validModules[mnu_selectedModule]].rank );
         fnt_drawText( mnu_Font, moduleMenuOffsetX + x, moduleMenuOffsetY + y, txtBuffer );
         y += 20;
 
-        if ( modmaxplayers[validModules[mnu_selectedModule]] > 1 )
+        if ( ModList[validModules[mnu_selectedModule]].maxplayers > 1 )
         {
-          if ( modminplayers[validModules[mnu_selectedModule]] == modmaxplayers[validModules[mnu_selectedModule]] )
+          if ( ModList[validModules[mnu_selectedModule]].minplayers == ModList[validModules[mnu_selectedModule]].maxplayers )
           {
-            snprintf( txtBuffer, sizeof( txtBuffer ), "%d Players", modminplayers[validModules[mnu_selectedModule]] );
+            snprintf( txtBuffer, sizeof( txtBuffer ), "%d Players", ModList[validModules[mnu_selectedModule]].minplayers );
           }
           else
           {
-            snprintf( txtBuffer, sizeof( txtBuffer ), "%d - %d Players", modminplayers[validModules[mnu_selectedModule]], modmaxplayers[validModules[mnu_selectedModule]] );
+            snprintf( txtBuffer, sizeof( txtBuffer ), "%d - %d Players", ModList[validModules[mnu_selectedModule]].minplayers, ModList[validModules[mnu_selectedModule]].maxplayers );
           }
         }
         else
         {
-          if ( modimportamount[validModules[mnu_selectedModule]] == 0 )
+          if ( ModList[validModules[mnu_selectedModule]].importamount == 0 )
           {
             snprintf( txtBuffer, sizeof( txtBuffer ), "Starter Module" );
           }
@@ -881,7 +888,7 @@ int mnu_doChooseModule( float deltaTime )
         y += 20;
 
         // And finally, the summary
-        snprintf( txtBuffer, sizeof( txtBuffer ), "%s/%s/%s/%s", CData.modules_dir, modloadname[validModules[mnu_selectedModule]], CData.gamedat_dir, CData.mnu_file );
+        snprintf( txtBuffer, sizeof( txtBuffer ), "%s/%s/%s/%s", CData.modules_dir, ModList[validModules[mnu_selectedModule]].loadname, CData.gamedat_dir, CData.mnu_file );
         if ( validModules[mnu_selectedModule] != modsummaryval )
         {
           if ( get_module_summary( txtBuffer ) ) modsummaryval = validModules[mnu_selectedModule];
@@ -914,13 +921,13 @@ int mnu_doChooseModule( float deltaTime )
         mnu_selectedModule = validModules[mnu_selectedModule];
 
         // Save the name of the module that we've picked
-        strncpy( pickedmodule, modloadname[mnu_selectedModule], 64 );
+        strncpy( pickedmodule, ModList[mnu_selectedModule].loadname, 64 );
 
         // If the module allows imports, return 1.  Else, return 2
-        if ( modimportamount[mnu_selectedModule] > 0 )
+        if ( ModList[mnu_selectedModule].importamount > 0 )
         {
           importvalid = btrue;
-          importamount = modimportamount[mnu_selectedModule];
+          importamount = ModList[mnu_selectedModule].importamount;
           result = 1;
         }
         else
@@ -929,13 +936,13 @@ int mnu_doChooseModule( float deltaTime )
           result = 2;
         }
 
-        exportvalid = modallowexport[mnu_selectedModule];
-        playeramount = modmaxplayers[mnu_selectedModule];
+        exportvalid = ModList[mnu_selectedModule].allowexport;
+        playeramount = ModList[mnu_selectedModule].maxplayers;
 
         respawnvalid = bfalse;
         respawnanytime = bfalse;
-        if ( modrespawnvalid[mnu_selectedModule] != RESPAWN_NONE ) respawnvalid = btrue;
-        if ( modrespawnvalid[mnu_selectedModule] == RESPAWN_ANYTIME ) respawnanytime = btrue;
+        if ( ModList[mnu_selectedModule].respawnvalid != RESPAWN_NONE ) respawnvalid = btrue;
+        if ( ModList[mnu_selectedModule].respawnvalid == RESPAWN_ANYTIME ) respawnanytime = btrue;
 
       }
       break;
@@ -1313,7 +1320,7 @@ int mnu_doChoosePlayer( float deltaTime )
 
       if ( mnu_selectedPlayerCount > 0 )
       {
-        load_all_menu_images();		//Reload all avalible modules
+        load_all_menu_images();           // Reload all avalilable modules
         import_selected_players();
         result = 1;
       }
@@ -1477,7 +1484,6 @@ int mnu_doAudioOptions( float deltaTime )
   switch ( menuState )
   {
     case MM_Begin:
-
       // set up menu variables
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
@@ -1604,10 +1610,6 @@ int mnu_doAudioOptions( float deltaTime )
             break;
 
           case 16:
-            OData.maxsoundchannel = 24;
-            break;
-
-          case 24:
             OData.maxsoundchannel = 32;
             break;
 
@@ -1620,7 +1622,7 @@ int mnu_doAudioOptions( float deltaTime )
             break;
 
           default:
-            OData.maxsoundchannel = 16;
+            OData.maxsoundchannel = 64;
             break;
 
         }
@@ -1663,26 +1665,34 @@ int mnu_doAudioOptions( float deltaTime )
         mnu_widgetList[5].text = OData.sz_buffersize;
       }
 
-	  //Save settings button
       if ( BUTTON_UP == ui_doButton( &mnu_widgetList[6] ) )
       {
         //save settings and go back
         mnu_saveSettings();
-        if ( OData.musicvalid ) play_music( 0, 0, -1 );
-		else if ( OData.soundvalid ) Mix_PauseMusic();
-        else 
+        if ( OData.musicvalid ) 
+        {
+          play_music( 0, 0, -1 );
+        }
+        else if ( OData.soundvalid ) 
+        {
+          Mix_PauseMusic();
+        }
+        else
         {
           Mix_CloseAudio();
           mixeron = bfalse;
         }
 
-		//If the number of sound channels changed, allocate them properly
-		if( OData.maxsoundchannel != CData.maxsoundchannel ) Mix_AllocateChannels( OData.maxsoundchannel );
-	  
-		//Update options data, user may have changed settings last time she accessed the video menu
+        //If the number of sound channels changed, allocate them properly
+        if( OData.maxsoundchannel != CData.maxsoundchannel ) 
+        {
+          Mix_AllocateChannels( OData.maxsoundchannel );
+        }
+
+        //Update options data, user may have changed settings last time she accessed the video menu
         update_options_data();
 
-		menuState = MM_Leaving;
+        menuState = MM_Leaving;
       }
 
       break;
@@ -1842,7 +1852,7 @@ int mnu_doVideoOptions( float deltaTime )
       if ( OData.fullscreen ) mnu_widgetList[3].text = "True";
       else mnu_widgetList[3].text = "False";
 
-	  //Reflections
+      // Reflections
       if ( OData.refon )
       {
         mnu_widgetList[4].text = "Low";
@@ -1855,13 +1865,13 @@ int mnu_doVideoOptions( float deltaTime )
       else mnu_widgetList[4].text = "Off";
 
 
-	  //Max messages
+      // Max messages
       snprintf( OData.sz_maxmessage, sizeof( OData.sz_maxmessage ), "%i", OData.maxmessage );
       if ( OData.maxmessage > MAXMESSAGE || OData.maxmessage < 0 ) OData.maxmessage = MAXMESSAGE - 1;
       if ( OData.maxmessage == 0 ) snprintf( OData.sz_maxmessage, sizeof( OData.sz_maxmessage ), "None" );         //Set to default
       mnu_widgetList[11].text = OData.sz_maxmessage;
 
-	  //Shadows
+      // Shadows
       if ( OData.shaon )
       {
         mnu_widgetList[6].text = "Normal";
@@ -1869,7 +1879,7 @@ int mnu_doVideoOptions( float deltaTime )
       }
       else mnu_widgetList[6].text = "Off";
 
-	  //Z depth
+      // Z depth
       if ( OData.scrz != 32 && OData.scrz != 16 && OData.scrz != 24 )
       {
         OData.scrz = 16;       //Set to default
@@ -1877,11 +1887,11 @@ int mnu_doVideoOptions( float deltaTime )
       snprintf( OData.sz_scrz, sizeof( OData.sz_scrz ), "%i", OData.scrz );      //Convert the integer to a char we can use
       mnu_widgetList[7].text = OData.sz_scrz;
 
-	  //Vsync
+      // Vsync
       if ( OData.vsync ) mnu_widgetList[8].text = "Yes";
       else mnu_widgetList[8].text = "No";
 
-	  //3D effects
+      // 3D Effects
       if ( OData.dither )
       {
         mnu_widgetList[9].text = "Okay";
@@ -2285,10 +2295,10 @@ int mnu_doVideoOptions( float deltaTime )
 
         //Reload some of the graphics
         load_graphics();
-	  
-		//Update options data, user may have changed settings last time she accessed the video menu
+
+        //Update options data, user may have changed settings last time she accessed the video menu
         update_options_data();
-	  }
+      }
 
       if ( menuChoice != 0 )
       {
@@ -2328,7 +2338,7 @@ int mnu_doVideoOptions( float deltaTime )
 int mnu_doShowResults( float deltaTime )
 {
   static MenuStates menuState = MM_Begin;
-  static Font *font;
+  static TTFont *font;
   int x, y, i, result = 0;
 
   switch ( menuState )
@@ -2352,7 +2362,7 @@ int mnu_doShowResults( float deltaTime )
       y = 35;
       glColor4f( 1, 1, 1, 1 );
 
-      fnt_drawTextFormatted( font, x, y, "Module selected: %s", modlongname[mnu_selectedModule] );
+      fnt_drawTextFormatted( font, x, y, "Module selected: %s", ModList[mnu_selectedModule].longname );
       y += 35;
 
       if ( importvalid )
@@ -2780,15 +2790,15 @@ void mnu_saveSettings()
     snprintf( write, sizeof( write ), "\n{NETWORK}\n" );
     fputs( write, setupfile );
 
-    if ( CData.networkon ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+    if ( CData.network_on ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     snprintf( write, sizeof( write ), "[NETWORK_ON] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
 
-    TxtTmp = CData.nethostname;
+    TxtTmp = CData.net_hostname;
     snprintf( write, sizeof( write ), "[HOST_NAME] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
 
-    TxtTmp = CData.netmessagename;
+    TxtTmp = CData.net_messagename;
     snprintf( write, sizeof( write ), "[MULTIPLAYER_NAME] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
 
@@ -2873,7 +2883,7 @@ void mnu_enterMenuMode()
 
   SDL_WM_GrabInput( SDL_GRAB_OFF );
   SDL_ShowCursor( SDL_DISABLE );
-  mouseon = bfalse;
+  mous.on = bfalse;
 };
 
 void mnu_exitMenuMode()
@@ -2882,6 +2892,6 @@ void mnu_exitMenuMode()
 
   SDL_WM_GrabInput( CData.GrabMouse );
   SDL_ShowCursor( CData.HideMouse ? SDL_DISABLE : SDL_ENABLE );
-  mouseon = btrue;
+  mous.on = btrue;
 };
 

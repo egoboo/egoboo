@@ -113,7 +113,6 @@ FILE * fs_fileOpen( PRIORITY priority, const char * src, const char * fname, con
   else
   {
     fptmp = fopen( fname, mode );
-
     if ( NULL == fptmp )
     {
       switch ( priority )

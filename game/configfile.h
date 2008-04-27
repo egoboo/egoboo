@@ -59,28 +59,28 @@ typedef struct config_file_t
 
 
 // util
-extern void ConvertToKeyCharacters( char *pStr );
+void ConvertToKeyCharacters( char *pStr );
 
 //
-extern ConfigFilePtr OpenConfigFile( const char *pPath );
+ConfigFilePtr OpenConfigFile( const char *pPath );
 
 //
-extern Sint32 GetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, char *pValue, Sint32 pValueBufferLength );
-extern Sint32 GetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, bool_t *pBool );
-extern Sint32 GetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt );
+Sint32 GetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, char *pValue, Sint32 pValueBufferLength );
+Sint32 GetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, bool_t *pBool );
+Sint32 GetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt );
 
 //
-extern Sint32 SetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, const char *pValue );
-extern Sint32 SetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, bool_t pBool );
-extern Sint32 SetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pInt );
-extern Sint32 SetConfigFloatValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, float pFloat );
+Sint32 SetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, const char *pValue );
+Sint32 SetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, bool_t pBool );
+Sint32 SetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pInt );
+Sint32 SetConfigFloatValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, float pFloat );
 
 //
-extern void CloseConfigFile( ConfigFilePtr pConfigFile );
+void CloseConfigFile( ConfigFilePtr pConfigFile );
 
 //
-extern void SaveConfigFile( ConfigFilePtr pConfigFile );
-extern Sint32 SaveConfigFileAs( ConfigFilePtr pConfigFile, const char *pPath );
+void SaveConfigFile( ConfigFilePtr pConfigFile );
+Sint32 SaveConfigFileAs( ConfigFilePtr pConfigFile, const char *pPath );
 
 
 #endif // #ifndef _CONFIGFILE_H_

@@ -25,6 +25,7 @@
 
 #include "enet.h"
 #include "Network.h"
+#include "char.h"
 #include "egoboo.h"
 
 typedef struct GameState GameState;

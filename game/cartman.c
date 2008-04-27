@@ -1,16 +1,18 @@
-#include <stdio.h>			// For printf and such
+#include <stdio.h>      // For printf and such
 #include "egoboo_types.h"
 #include "egoboo.h"
 #include "graphic.h"
+#include "input.h"
 #include "UI.h"
 #include "Log.h"
 #include "Mesh.h"
+#include "graphic.h"
 #include "SDL_Pixel.h"
 #include <SDL_image.h>
 
-#define NEARLOW  0.0 //16.0		// For autoweld
-#define NEARHI 128.0 //112.0		//
-#define BARRIERHEIGHT 14.0		//
+#define NEARLOW  0.0 //16.0    // For autoweld
+#define NEARHI 128.0 //112.0    //
+#define BARRIERHEIGHT 14.0    //
 
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
@@ -25,10 +27,10 @@ const Uint32 bmask = 0x0000ff00;
 const Uint32 amask = 0x000000ff;
 #endif
 
-#define MAXLIGHT 100
+#define MAXLIGHT  100
 #define MAXRADIUS 500*FOURNUM
 #define MINRADIUS 50*FOURNUM
-//#define MAXLEVEL 255
+#define MAXHEIGHT 255
 #define MINLEVEL 50
 int numwritten = 0;
 int numattempt = 0;
@@ -45,125 +47,124 @@ int direct = 16;
 int cart_pos_x = 0;
 int cart_pos_y = 0;
 
-#define VERSION 005			// Version number
-#define YEAR 1999			// Year
-#define NAME "Cartman"			// Program name
+#define VERSION 005      // Version number
+#define YEAR 1999      // Year
+#define NAME "Cartman"      // Program name
 
-#define KEYDELAY 12			// Delay for keyboard
-#define MAXTILE 256			//
-#define TINYX 4 //8				// Plan tiles
-#define TINYY 4 //8				//
-#define SMALLX 31			// Small tiles
-#define SMALLY 31			//
-#define BIGX 63				// Big tiles
-#define BIGY 63				//
-#define CAMRATE 8			// Arrow key movement rate
-#define MAXSELECT 2560			// Max points that can be selected
-#define FOURNUM 4.137			// Magic number
-#define FIXNUM  4.125 // 4.150		// Magic number
-#define MAPID 0x4470614d		// The string... MapD
+#define KEYDELAY 12      // Delay for keyboard
+#define MAXTILE 256      //
+#define TINYX 4 //8        // Plan tiles
+#define TINYY 4 //8        //
+#define SMALLX 31      // Small tiles
+#define SMALLY 31      //
+#define BIGX 63        // Big tiles
+#define BIGY 63        //
+#define CAMRATE 8      // Arrow key movement rate
+#define MAXSELECT 2560      // Max points that can be selected
+#define FOURNUM 4.137      // Magic number
+#define FIXNUM  4.125 // 4.150    // Magic number
 
-#define FADEBORDER 64			// Darkness at the edge of map
+#define FADEBORDER 64      // Darkness at the edge of map
 
 
 
 
 typedef enum cart_win_type_bits_e
 {
-  WINNOTHING = 0,		       	// Window display mode
-  WINTILE    = 1 << 0,			//
-  WINVERTEX  = 1 << 1,			//
-  WINSIDE    = 1 << 2,			//
-  WINFX      = 1 << 3				//
+  WINNOTHING = 0,             // Window display mode
+  WINTILE    = 1 << 0,      //
+  WINVERTEX  = 1 << 1,      //
+  WINSIDE    = 1 << 2,      //
+  WINFX      = 1 << 3        //
 };
 
-//#define ONSIZE 600			// Max size of raise mesh
-#define ONSIZE 264			// Max size of raise mesh
+//#define ONSIZE 600      // Max size of raise mesh
+#define ONSIZE 264      // Max size of raise mesh
 
 
 
-#define MAXMESHLINE 64			// Number of lines in a fan schematic
+#define MAXMESHLINE 64      // Number of lines in a fan schematic
 #define MAXTOTALMESHVERTICES (128*128*6)  // (512*512*6)//
-#define CHAINEND 0xffffffff		// End of vertex chain
-#define VERTEXUNUSED 0			// Check meshvrta to see if used
-#define MAXPOINTS 20480			// Max number of points to draw
+#define CHAINEND 0xffffffff    // End of vertex chain
+#define VERTEXUNUSED 0      // Check meshvrta to see if used
+#define MAXPOINTS 20480      // Max number of points to draw
 
 
-char		loadname[80];		// Text
-int		SCRX = 640;		// Screen size
-int		SCRY = 480;		//
-int		OUTX = 640;		// Output size <= Screen size
-int		OUTY = 480;		//
+char    loadname[80];    // Text
+int    SCRX = 640;    // Screen size
+int    SCRY = 480;    //
+int    OUTX = 640;    // Output size <= Screen size
+int    OUTY = 480;    //
 
 
-int		brushsize = 3;		// Size of raise/lower terrain brush
-int		brushamount = 50;	// Amount of raise/lower
+int    brushsize = 3;    // Size of raise/lower terrain brush
+int    brushamount = 50;  // Amount of raise/lower
 
 
-GLtexture    imgcursor;		// Cursor image
-GLtexture    imgpoint[16];		// Vertex image
-GLtexture    imgpointon[16];	// Vertex image ( Selected )
-GLtexture    imgref;		// Meshfx images
-GLtexture    imgdrawref;		//
-GLtexture    imganim;		//
-GLtexture    imgwater;		//
-GLtexture    imgwall;		//
-GLtexture    imgimpass;		//
-GLtexture    imgdamage;		//
-GLtexture    imgslippy;		//
-GLtexture    bmptemp;		// A temporary bitmap
-GLtexture    bmpdbuff;		// The double buffer bitmap
-SDL_Surface *bmphitemap;		// Heightmap image
-GLtexture    bmpsmalltile[MAXTILE];	// Tiles
-GLtexture    bmpbigtile[MAXTILE];	//
-GLtexture    bmptinysmalltile[MAXTILE];	// Plan tiles
-GLtexture    bmptinybigtile[MAXTILE];	//
-GLtexture    bmpfanoff;		//
-int		numsmalltile = 0;	//
-int		numbigtile = 0;		//
+GLtexture    imgcursor;    // Cursor image
+GLtexture    imgpoint[16];    // Vertex image
+GLtexture    imgpointon[16];  // Vertex image ( Selected )
+GLtexture    imgref;    // Meshfx images
+GLtexture    imgdrawref;    //
+GLtexture    imganim;    //
+GLtexture    imgwater;    //
+GLtexture    imgwall;    //
+GLtexture    imgimpass;    //
+GLtexture    imgdamage;    //
+GLtexture    imgslippy;    //
+GLtexture    bmptemp;    // A temporary bitmap
+GLtexture    bmpdbuff;    // The double buffer bitmap
+SDL_Surface *bmphitemap;    // Heightmap image
+GLtexture    bmpsmalltile[MAXTILE];  // Tiles
+GLtexture    bmpbigtile[MAXTILE];  //
+GLtexture    bmptinysmalltile[MAXTILE];  // Plan tiles
+GLtexture    bmptinybigtile[MAXTILE];  //
+GLtexture    bmpfanoff;    //
+int    numsmalltile = 0;  //
+int    numbigtile = 0;    //
 
-int		numpointsonscreen = 0;
-Uint32	pointsonscreen[MAXPOINTS];
-int		numselect = 0;
-Uint32	select[MAXSELECT];
+int    numpointsonscreen = 0;
+Uint32  pointsonscreen[MAXPOINTS];
+int    numselect = 0;
+Uint32  select[MAXSELECT];
 
 
-float		debugx = -1;		// Blargh
-float		debugy = -1;		//
-int		mouseinwin = -1;	// More mouse data
-int		mouseinwinx = -1;	//
-int		mouseinwiny = -1;	//
-Uint16	mouseinwinmode = 0;	// Window mode
-Uint32	mouseinwinonfan = 0;	// Fan mouse is on
-Uint16	mouseinwintile = 0;	// Tile
-Uint16	mouseinwinpresser = 0;	// Random add for tiles
-Uint8	mouseinwintype = 0;	// Fan type
-int		mouseinwinrect = 0;	// Rectangle drawing
-int		mouseinwinrectx;	//
-int		mouseinwinrecty;	//
-Uint8	mouseinwinfx = MESHFX_NOREFLECT;//
+float    debugx = -1;    // Blargh
+float    debugy = -1;    //
+int    mouseinwin = -1;  // More mouse data
+int    mouseinwinx = -1;  //
+int    mouseinwiny = -1;  //
+Uint16  mouseinwinmode = 0;  // Window mode
+Uint32  mouseinwinonfan = 0;  // Fan mouse is on
+Uint16  mouseinwintile = 0;  // Tile
+Uint16  mouseinwinpresser = 0;  // Random add for tiles
+Uint8  mouseinwintype = 0;  // Fan type
+int    mouseinwinrect = 0;  // Rectangle drawing
+int    mouseinwinrectx;  //
+int    mouseinwinrecty;  //
+Uint8  mouseinwinfx = MESHFX_NOREFLECT;//
 
-#define MAXWIN 8			           // Number of windows
-GLtexture	window_tx[MAXWIN];	   // Window images
-bool_t    windowon[MAXWIN];	     // Draw it?
-int		    windowborderx[MAXWIN]; // Window border size
-int		    windowbordery[MAXWIN]; //
+#define MAXWIN 8                 // Number of windows
+GLtexture  window_tx[MAXWIN];     // Window images
+bool_t    windowon[MAXWIN];       // Draw it?
+int        windowborderx[MAXWIN]; // Window border size
+int        windowbordery[MAXWIN]; //
 SDL_Rect  window_rect[MAXWIN];    // Window size
-Uint16	  windowmode[MAXWIN];	   // Window display mode
+Uint16    windowmode[MAXWIN];     // Window display mode
 
 
-int		colordepth = 8;		// 256 colors
-int		keydelay = 0;		//
+int    colordepth = 8;    // 256 colors
+int    keydelay = 0;    //
 
 
-Uint32 atvertex = 0;			// Current vertex check for new
-Uint32 numfreevertices = 0;		// Number of free vertices
-float  meshedgez;			//
-Uint8	 meshvrta[MAXTOTALMESHVERTICES];	// Vertex base light, 0=unused
-Uint32 meshvrtnext[MAXTOTALMESHVERTICES]; // Next vertex in fan
-Uint32 meshnumline[MAXMESHTYPE];	// Number of lines to draw
-Uint8  meshlinestart[MAXMESHTYPE][MAXMESHLINE];
-Uint8  meshlineend[MAXMESHTYPE][MAXMESHLINE];
+Uint32 atvertex = 0;      // Current vertex check for new
+Uint32 numfreevertices = 0;    // Number of free vertices
+float  meshedgez;      //
+Uint8  Mesh_Mem.vrt_a[MAXTOTALMESHVERTICES];  // Vertex base light, 0=unused
+Uint32 Mesh_Mem.vrt_next[MAXTOTALMESHVERTICES]; // Next vertex in fan
+Uint32 Mesh[MAXMESHTYPE].numline;  // Number of lines to draw
+Uint8  Mesh[MAXMESHTYPE].linestart[MAXMESHLINE];
+Uint8  Mesh[MAXMESHTYPE].lineend[MAXMESHLINE];
 
 
 
@@ -297,7 +298,7 @@ void alter_light(int x, int y)
   if(radius > MAXRADIUS)  radius = MAXRADIUS;
   if(radius < MINRADIUS)  radius = MINRADIUS;
   lightradius[numlight] = radius;
-  if(level > MAXLEVEL) level = MAXLEVEL;
+  if(level > MAXHEIGHT) level = MAXHEIGHT;
   if(level < MINLEVEL) level = MINLEVEL;
   lightlevel[numlight] = level;
 
@@ -344,10 +345,10 @@ void draw_light(int window, int number)
 //------------------------------------------------------------------------------
 int dist_from_border(int x, int y)
 {
-  if(x > meshedgex / 2.0f) x = meshedgex-x-1;
+  if(x > mesh.edge_x / 2.0f) x = mesh.edge_x-x-1;
   if(x < 0) x = 0;
 
-  if(y > meshedgey / 2.0f) y = meshedgey-y-1;
+  if(y > mesh.edge_y / 2.0f) y = mesh.edge_y-y-1;
   if(y < 0) y = 0;
 
   return ( (x < y) ? x : y );
@@ -356,8 +357,8 @@ int dist_from_border(int x, int y)
 //------------------------------------------------------------------------------
 int dist_from_edge(int x, int y)
 {
-  if(x > (meshsizex>>1)) x = meshsizex-x-1;
-  if(y > (meshsizey>>1)) y = meshsizey-y-1;
+  if(x > (mesh.size_x>>1)) x = mesh.size_x-x-1;
+  if(y > (mesh.size_y>>1)) y = mesh.size_y-y-1;
 
   return ( (x < y) ? x : y );
 }
@@ -390,34 +391,34 @@ void set_barrier_height(int x, int y)
   {
     if( mesh_has_some_bits( fan, MESHFX_WALL ) )
     {
-      type = meshtype[fan];
+      type = Mesh_Fan[fan].type;
       noedges = btrue;
-      vert = meshvrtstart[fan];
+      vert = Mesh_Fan[fan].vrt_start;
       cnt = 0;
-      while(cnt < meshcommandnumvertices[type])
+      while(cnt < Mesh_Cmd[type].vrt_count)
       {
         bestprox = 2*(NEARHI-NEARLOW)/3.0;
         if(fan_is_floor(x+1, y))
         {
-          prox = NEARHI-meshcommandu[type][cnt];
+          prox = NEARHI-Mesh_Cmd[type].u[cnt];
           if(prox < bestprox) bestprox = prox;
           noedges = bfalse;
         }
         if(fan_is_floor(x, y+1))
         {
-          prox = NEARHI-meshcommandv[type][cnt];
+          prox = NEARHI-Mesh_Cmd[type].v[cnt];
           if(prox < bestprox) bestprox = prox;
           noedges = bfalse;
         }
         if(fan_is_floor(x-1, y))
         {
-          prox = meshcommandu[type][cnt]-NEARLOW;
+          prox = Mesh_Cmd[type].u[cnt]-NEARLOW;
           if(prox < bestprox) bestprox = prox;
           noedges = bfalse;
         }
         if(fan_is_floor(x, y-1))
         {
-          prox = meshcommandv[type][cnt]-NEARLOW;
+          prox = Mesh_Cmd[type].v[cnt]-NEARLOW;
           if(prox < bestprox) bestprox = prox;
           noedges = bfalse;
         }
@@ -426,29 +427,29 @@ void set_barrier_height(int x, int y)
           // Surrounded by walls on all 4 sides, but it may be a corner piece
           if(fan_is_floor(x+1, y+1))
           {
-            prox = NEARHI-meshcommandu[type][cnt];
-            tprox = NEARHI-meshcommandv[type][cnt];
+            prox = NEARHI-Mesh_Cmd[type].u[cnt];
+            tprox = NEARHI-Mesh_Cmd[type].v[cnt];
             if(tprox > prox) prox = tprox;
             if(prox < bestprox) bestprox = prox;
           }
           if(fan_is_floor(x+1, y-1))
           {
-            prox = NEARHI-meshcommandu[type][cnt];
-            tprox = meshcommandv[type][cnt]-NEARLOW;
+            prox = NEARHI-Mesh_Cmd[type].u[cnt];
+            tprox = Mesh_Cmd[type].v[cnt]-NEARLOW;
             if(tprox > prox) prox = tprox;
             if(prox < bestprox) bestprox = prox;
           }
           if(fan_is_floor(x-1, y+1))
           {
-            prox = meshcommandu[type][cnt]-NEARLOW;
-            tprox = NEARHI-meshcommandv[type][cnt];
+            prox = Mesh_Cmd[type].u[cnt]-NEARLOW;
+            tprox = NEARHI-Mesh_Cmd[type].v[cnt];
             if(tprox > prox) prox = tprox;
             if(prox < bestprox) bestprox = prox;
           }
           if(fan_is_floor(x-1, y-1))
           {
-            prox = meshcommandu[type][cnt]-NEARLOW;
-            tprox = meshcommandv[type][cnt]-NEARLOW;
+            prox = Mesh_Cmd[type].u[cnt]-NEARLOW;
+            tprox = Mesh_Cmd[type].v[cnt]-NEARLOW;
             if(tprox > prox) prox = tprox;
             if(prox < bestprox) bestprox = prox;
           }
@@ -457,8 +458,8 @@ void set_barrier_height(int x, int y)
         bestprox = bestprox*scale*BARRIERHEIGHT/window_rect[mouseinwin].h;
         if(bestprox > meshedgez) bestprox = meshedgez;
         if(bestprox < 0) bestprox = 0;
-        meshvrtz[vert] = bestprox;
-        vert = meshvrtnext[vert];
+        Mesh_Mem.vrt_z[vert] = bestprox;
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
     }
@@ -471,10 +472,10 @@ void fix_walls()
   int x, y;
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       set_barrier_height(x, y);
       x++;
@@ -490,15 +491,15 @@ void impass_edges(int amount)
   Uint32 fan;
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       if(dist_from_edge(x, y) < amount)
       {
         fan = mesh_convert_fan(x, y);
-        meshfx[fan] |= MESHFX_IMPASS;
+        Mesh_Fan[fan].fx |= MESHFX_IMPASS;
       }
       x++;
     }
@@ -530,12 +531,12 @@ Uint8 get_fan_twist(Uint32 fan)
   int zx, zy, vt0, vt1, vt2, vt3;
   Uint8 twist;
 
-  vt0 = meshvrtstart[fan];
-  vt1 = meshvrtnext[vt0];
-  vt2 = meshvrtnext[vt1];
-  vt3 = meshvrtnext[vt2];
-  zx = (meshvrtz[vt0]+meshvrtz[vt3]-meshvrtz[vt1]-meshvrtz[vt2])/SLOPE;
-  zy = (meshvrtz[vt2]+meshvrtz[vt3]-meshvrtz[vt0]-meshvrtz[vt1])/SLOPE;
+  vt0 = Mesh_Fan[fan].vrt_start;
+  vt1 = Mesh_Mem.vrt_next[vt0];
+  vt2 = Mesh_Mem.vrt_next[vt1];
+  vt3 = Mesh_Mem.vrt_next[vt2];
+  zx = (Mesh_Mem.vrt_z[vt0]+Mesh_Mem.vrt_z[vt3]-Mesh_Mem.vrt_z[vt1]-Mesh_Mem.vrt_z[vt2])/SLOPE;
+  zy = (Mesh_Mem.vrt_z[vt2]+Mesh_Mem.vrt_z[vt3]-Mesh_Mem.vrt_z[vt0]-Mesh_Mem.vrt_z[vt1])/SLOPE;
   twist = get_twist(zx, zy);
 
 
@@ -572,15 +573,15 @@ Uint8 get_fan_twist(Uint32 fan)
 //  int zleft, zright,zdone;    // Weighted height of each side
 //
 //
-//  if((y>>7) >= meshsizey || (x>>7) >= meshsizex)
+//  if((y>>7) >= mesh.size_y || (x>>7) >= mesh.size_x)
 //    return 0;
-//  fan = meshfanstart[y>>7]+(x>>7);
+//  fan = Mesh[y>>7].fanstart+(x>>7);
 //  x = x&127;
 //  y = y&127;
-//  z0 = meshvrtz[meshvrtstart[fan]+0];
-//  z1 = meshvrtz[meshvrtstart[fan]+1];
-//  z2 = meshvrtz[meshvrtstart[fan]+2];
-//  z3 = meshvrtz[meshvrtstart[fan]+3];
+//  z0 = Mesh_Mem.vrt__start[Mesh_Fan[fan]+0].vrtz;
+//  z1 = Mesh_Mem.vrt__start[Mesh_Fan[fan]+1].vrtz;
+//  z2 = Mesh_Mem.vrt__start[Mesh_Fan[fan]+2].vrtz;
+//  z3 = Mesh_Mem.vrt__start[Mesh_Fan[fan]+3].vrtz;
 //
 //  zleft = (z0*(128-y)+z3*y)>>7;
 //  zright = (z1*(128-y)+z2*y)>>7;
@@ -592,24 +593,24 @@ Uint8 get_fan_twist(Uint32 fan)
 void make_hitemap(void)
 {
   int x, y, pixx, pixy, level, fan;
- 
+
   if(NULL != bmphitemap) SDL_FreeSurface(bmphitemap);
-  bmphitemap = SDL_CreateRGBSurface(SDL_SWSURFACE, meshsizex<<2, meshsizey<<2, 32, rmask, gmask, bmask, amask);
+  bmphitemap = SDL_CreateRGBSurface(SDL_SWSURFACE, mesh.size_x<<2, mesh.size_y<<2, 32, rmask, gmask, bmask, amask);
   if(NULL == bmphitemap) return;
 
   y = 16;
   pixy = 0;
-  while(pixy < (meshsizey<<2))
+  while(pixy < (mesh.size_y<<2))
   {
     x = 16;
     pixx = 0;
-    while(pixx < (meshsizex<<2))
+    while(pixx < (mesh.size_x<<2))
     {
       vect3 pos = {x,y,0};
 
       level=(mesh_get_level(mesh_get_fan(pos), x, y, bfalse)*255/meshedgez);  // level is 0 to 255
       if(level > 252) level = 252;
-      fan = meshfanstart[pixy>>2]+(pixx>>2);
+      fan = Mesh[pixy>>2].fanstart+(pixx>>2);
 
       if( mesh_has_all_bits(fan, MESHFX_WALL | MESHFX_IMPASS) ) level = 255;   // Both
       else if( mesh_has_all_bits(fan, MESHFX_WALL)   ) level = 253;         // Wall
@@ -634,20 +635,20 @@ GLtexture * tiny_tile_at(int x, int y)
   Uint8 type, fx;
   Uint32 fan;
 
-  if(x < 0 || x >= meshsizex || y < 0 || y >= meshsizey)
+  if(x < 0 || x >= mesh.size_x || y < 0 || y >= mesh.size_y)
   {
     return retval;
   }
 
   fan = mesh_convert_fan(x, y);
-  if(meshtile[fan]==INVALID_FAN)
+  if(Mesh_Fan[fan].tile==INVALID_FAN)
   {
     return NULL;
   }
 
-  tile = meshtile[fan];
-  type = meshtype[fan];
-  fx = meshfx[fan];
+  tile = Mesh_Fan[fan].tile;
+  type = Mesh_Fan[fan].type;
+  fx = Mesh_Fan[fan].fx;
 
   // Animate the tiles
   if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
@@ -655,16 +656,16 @@ GLtexture * tiny_tile_at(int x, int y)
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
       // Big tiles
-      basetile = tile & animtilebigbaseand;// Animation set
-      tile += animtileframeadd << 1;         // Animated tile
-      tile = ( tile & animtilebigframeand ) + basetile;
+      basetile = tile & GTile_Anim.bigbaseand;// Animation set
+      tile += GTile_Anim.frameadd << 1;         // Animated tile
+      tile = ( tile & GTile_Anim.bigframeand ) + basetile;
     }
     else
     {
       // Small tiles
-      basetile = tile & animtilebaseand;// Animation set
-      tile += animtileframeadd;         // Animated tile
-      tile = ( tile & animtileframeand ) + basetile;
+      basetile = tile & GTile_Anim.baseand;// Animation set
+      tile += GTile_Anim.frameadd;         // Animated tile
+      tile = ( tile & GTile_Anim.frameand ) + basetile;
     }
   }
 
@@ -692,18 +693,18 @@ void make_planmap(void)
   if(!bmptemp)  return;
 
   if(NULL != bmphitemap) SDL_FreeSurface(bmphitemap);
-  bmphitemap = SDL_CreateRGBSurface(SDL_SWSURFACE, meshsizex*TINYX, meshsizey*TINYY, 32, rmask, gmask, bmask, amask);
+  bmphitemap = SDL_CreateRGBSurface(SDL_SWSURFACE, mesh.size_x*TINYX, mesh.size_y*TINYY, 32, rmask, gmask, bmask, amask);
   if(!bmphitemap) return;
 
 
   do_clear();
   puty = 0;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     putx = 0;
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       FRect dst = {putx, puty, putx + TINYX, puty + TINYY};
       GLtexture * tmp = tiny_tile_at(x, y);
@@ -752,19 +753,19 @@ int get_vertex(int x, int y, int num)
   Uint32 fan;
 
   vert = -1;
-  if(x>=0 && y>=0 && x<meshsizex && y<meshsizey)
+  if(x>=0 && y>=0 && x<mesh.size_x && y<mesh.size_y)
   {
     fan = mesh_convert_fan(x, y);
-    if(meshcommandnumvertices[meshtype[fan]]>num)
+    if(Mesh_Cmd[Mesh_Fan[fan].type].vrt_count>num)
     {
-      vert = meshvrtstart[fan];
+      vert = Mesh_Fan[fan].vrt_start;
       cnt = 0;
       while(cnt < num)
       {
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         if(vert==-1)
         {
-          log_error("BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n" "%d VERTICES ALLOWED...\n\n", num, x, y , meshcommandnumvertices[meshtype[fan]]);
+          log_error("BAD GET_VERTEX NUMBER(2nd), %d at %d, %d...\n" "%d VERTICES ALLOWED...\n\n", num, x, y , Mesh_Cmd[Mesh_Fan[fan].type].vrt_count);
         }
         cnt++;
       }
@@ -784,21 +785,21 @@ int nearest_vertex(int x, int y, float nearx, float neary)
 
 
   bestvert = -1;
-  if(x>=0 && y>=0 && x<meshsizex && y<meshsizey)
+  if(x>=0 && y>=0 && x<mesh.size_x && y<mesh.size_y)
   {
     fan = mesh_convert_fan(x, y);
-    num = meshcommandnumvertices[meshtype[fan]];
-    vert = meshvrtstart[fan];
-    vert = meshvrtnext[vert];
-    vert = meshvrtnext[vert];
-    vert = meshvrtnext[vert];
-    vert = meshvrtnext[vert];
+    num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+    vert = Mesh_Fan[fan].vrt_start;
+    vert = Mesh_Mem.vrt_next[vert];
+    vert = Mesh_Mem.vrt_next[vert];
+    vert = Mesh_Mem.vrt_next[vert];
+    vert = Mesh_Mem.vrt_next[vert];
     bestprox = 9000;
     cnt = 4;
     while(cnt < num)
     {
-      proxx = meshcommandu[meshtype[fan]][cnt]-nearx;
-      proxy = meshcommandv[meshtype[fan]][cnt]-neary;
+      proxx = Mesh[Mesh_Fan[fan].type].commandu[cnt]-nearx;
+      proxy = Mesh[Mesh_Fan[fan].type].commandv[cnt]-neary;
       if(proxx < 0) proxx=-proxx;
       if(proxy < 0) proxy=-proxy;
       prox = proxx+proxy;
@@ -807,7 +808,7 @@ int nearest_vertex(int x, int y, float nearx, float neary)
         bestvert = vert;
         bestprox = prox;
       }
-      vert = meshvrtnext[vert];
+      vert = Mesh_Mem.vrt_next[vert];
       cnt++;
     }
   }
@@ -831,10 +832,10 @@ void weld_select()
     while(cnt < numselect)
     {
       vert = select[cnt];
-      x+=meshvrtx[vert];
-      y+=meshvrty[vert];
-      z+=meshvrtz[vert];
-      a+=meshvrta[vert];
+      x+=Mesh_Mem.vrt_x[vert];
+      y+=Mesh_Mem.vrt_y[vert];
+      z+=Mesh_Mem.vrt_z[vert];
+      a+=Mesh_Mem.vrt_a[vert];
       cnt++;
     }
     x+=cnt>>1;  y+=cnt>>1;
@@ -846,10 +847,10 @@ void weld_select()
     while(cnt < numselect)
     {
       vert = select[cnt];
-      meshvrtx[vert]=x;
-      meshvrty[vert]=y;
-      meshvrtz[vert]=z;
-      meshvrta[vert]=a;
+      Mesh_Mem.vrt_x[vert]=x;
+      Mesh_Mem.vrt_y[vert]=y;
+      Mesh_Mem.vrt_z[vert]=z;
+      Mesh_Mem.vrt_a[vert]=a;
       cnt++;
     }
   }
@@ -951,12 +952,12 @@ void fan_onscreen(Uint32 fan)
   Uint32 vert;
 
 
-  vert = meshvrtstart[fan];
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
-  while(cnt < meshcommandnumvertices[meshtype[fan]])
+  while(cnt < Mesh_Cmd[Mesh_Fan[fan].type].vrt_count)
   {
     pointsonscreen[numpointsonscreen] = vert;  numpointsonscreen++;
-    vert = meshvrtnext[vert];
+    vert = Mesh_Mem.vrt_next[vert];
     cnt++;
   }
   return;
@@ -982,13 +983,13 @@ void make_onscreen(void)
   cnty = 0;
   while(cnty < numy)
   {
-    if(mapy>=0 && mapy<meshsizey)
+    if(mapy>=0 && mapy<mesh.size_y)
     {
       mapx = mapxstt;
       cntx = 0;
       while(cntx < numx)
       {
-        if(mapx>=0 && mapx<meshsizex)
+        if(mapx>=0 && mapx<mesh.size_x)
         {
           fan = mesh_convert_fan(mapx, mapy);
           fan_onscreen(fan);
@@ -1017,19 +1018,19 @@ void draw_top_fan(int window, int fan, int x, int y)
 
   set_window_viewport( window );
 
-  fantype = meshtype[fan];
+  fantype = Mesh_Fan[fan].type;
   color = make_color(16, 16, 31);
   if(fantype>=MAXMESHTYPE/2)
   {
     color = make_color(31, 16, 16);
   }
 
-  vert = meshvrtstart[fan];
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
-  while(cnt < meshcommandnumvertices[fantype])
+  while(cnt < Mesh_Cmd[fantype].vrt_count)
   {
     faketoreal[cnt] = vert;
-    vert = meshvrtnext[vert];
+    vert = Mesh_Mem.vrt_next[vert];
     cnt++;
   }
 
@@ -1037,14 +1038,14 @@ void draw_top_fan(int window, int fan, int x, int y)
   glBegin(GL_LINES);
   glColor3fv(color);
   cnt = 0;
-  while(cnt < meshnumline[fantype])
+  while(cnt < Mesh[fantype].numline)
   {
-    stt = faketoreal[meshlinestart[fantype][cnt]];
-    end = faketoreal[meshlineend[fantype][cnt]];
+    stt = faketoreal[Mesh[fantype].linestart[cnt]];
+    end = faketoreal[Mesh[fantype].lineend[cnt]];
 
-    glVertex2f(meshvrtx[stt]+x, meshvrty[stt]+y);
-    glVertex2f(meshvrtx[end]+x, meshvrty[end]+y);
-    
+    glVertex2f(Mesh_Mem.vrt_x[stt]+x, Mesh_Mem.vrt_y[stt]+y);
+    glVertex2f(Mesh_Mem.vrt_x[end]+x, Mesh_Mem.vrt_y[end]+y);
+
     cnt++;
   }
   glEnd();
@@ -1052,23 +1053,23 @@ void draw_top_fan(int window, int fan, int x, int y)
 
 
   cnt = 0;
-  while(cnt < meshcommandnumvertices[fantype])
+  while(cnt < Mesh_Cmd[fantype].vrt_count)
   {
     vert = faketoreal[cnt];
-    size = (meshvrtz[vert] * 16.0f)/(meshedgez+1);
-    if(meshvrtz[vert] >= 0)
+    size = (Mesh_Mem.vrt_z[vert] * 16.0f)/(meshedgez+1);
+    if(Mesh_Mem.vrt_z[vert] >= 0)
     {
       if(vert_selected(vert))
       {
         draw_blit_sprite(-1, &imgpointon[size],
-          meshvrtx[vert]+x-(imgpointon[size].txW>>1),
-          meshvrty[vert]+y-(imgpointon[size].txH>>1));
+          Mesh_Mem.vrt_x[vert]+x-(imgpointon[size].txW>>1),
+          Mesh_Mem.vrt_y[vert]+y-(imgpointon[size].txH>>1));
       }
       else
       {
         draw_blit_sprite(-1, &imgpoint[size],
-          meshvrtx[vert]+x-(imgpoint[size].txW>>1),
-          meshvrty[vert]+y-(imgpoint[size].txH>>1));
+          Mesh_Mem.vrt_x[vert]+x-(imgpoint[size].txW>>1),
+          Mesh_Mem.vrt_y[vert]+y-(imgpoint[size].txH>>1));
       }
     }
     cnt++;
@@ -1091,19 +1092,19 @@ void draw_side_fan(int window, int fan, int x, int y)
 
   set_window_viewport( window );
 
-  fantype = meshtype[fan];
+  fantype = Mesh_Fan[fan].type;
   color = make_color(16, 16, 31);
   if(fantype>=MAXMESHTYPE/2)
   {
     color = make_color(31, 16, 16);
   }
 
-  vert = meshvrtstart[fan];
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
-  while(cnt < meshcommandnumvertices[fantype])
+  while(cnt < Mesh_Cmd[fantype].vrt_count)
   {
     faketoreal[cnt] = vert;
-    vert = meshvrtnext[vert];
+    vert = Mesh_Mem.vrt_next[vert];
     cnt++;
   }
 
@@ -1111,14 +1112,14 @@ void draw_side_fan(int window, int fan, int x, int y)
   glBegin(GL_LINES);
   glColor3fv( color );
   cnt = 0;
-  while(cnt < meshnumline[fantype])
+  while(cnt < Mesh[fantype].numline)
   {
-    stt = faketoreal[meshlinestart[fantype][cnt]];
-    end = faketoreal[meshlineend[fantype][cnt]];
-    if(meshvrtz[stt] >= 0 && meshvrtz[end] >= 0)
+    stt = faketoreal[Mesh[fantype].linestart[cnt]];
+    end = faketoreal[Mesh[fantype].lineend[cnt]];
+    if(Mesh_Mem.vrt_z[stt] >= 0 && Mesh_Mem.vrt_z[end] >= 0)
     {
-      glVertex2f( meshvrtx[stt]+x, -(meshvrtz[stt] / 16.0f)+y );
-      glVertex2f( meshvrtx[end]+x, -(meshvrtz[end] / 16.0f)+y );
+      glVertex2f( Mesh_Mem.vrt_x[stt]+x, -(Mesh_Mem.vrt_z[stt] / 16.0f)+y );
+      glVertex2f( Mesh_Mem.vrt_x[end]+x, -(Mesh_Mem.vrt_z[end] / 16.0f)+y );
     }
     cnt++;
   }
@@ -1127,22 +1128,22 @@ void draw_side_fan(int window, int fan, int x, int y)
 
   size = 5;
   cnt = 0;
-  while(cnt < meshcommandnumvertices[fantype])
+  while(cnt < Mesh_Cmd[fantype].vrt_count)
   {
     vert = faketoreal[cnt];
-    if(meshvrtz[vert] >= 0)
+    if(Mesh_Mem.vrt_z[vert] >= 0)
     {
       if(vert_selected(vert))
       {
         draw_blit_sprite(window, &imgpointon[size],
-          meshvrtx[vert]+x-(imgpointon[size].txW>>1),
-          -(meshvrtz[vert] / 16.0f)+y-(imgpointon[size].txH>>1));
+          Mesh_Mem.vrt_x[vert]+x-(imgpointon[size].txW>>1),
+          -(Mesh_Mem.vrt_z[vert] / 16.0f)+y-(imgpointon[size].txH>>1));
       }
       else
       {
         draw_blit_sprite(window, &imgpoint[size],
-          meshvrtx[vert]+x-(imgpoint[size].txW>>1),
-          -(meshvrtz[vert] / 16.0f)+y-(imgpoint[size].txH>>1));
+          Mesh_Mem.vrt_x[vert]+x-(imgpoint[size].txW>>1),
+          -(Mesh_Mem.vrt_z[vert] / 16.0f)+y-(imgpoint[size].txH>>1));
       }
     }
     cnt++;
@@ -1166,19 +1167,19 @@ void draw_schematic(int window, int fantype, int x, int y)
   glBegin(GL_LINES);
   glColor4fv( color );
   cnt = 0;
-  while(cnt < meshnumline[fantype])
+  while(cnt < Mesh[fantype].numline)
   {
-    stt = meshlinestart[fantype][cnt];
-    end = meshlineend[fantype][cnt];
+    stt = Mesh[fantype].linestart[cnt];
+    end = Mesh[fantype].lineend[cnt];
 
-    glVertex2f( meshcommandu[fantype][stt]+x, meshcommandv[fantype][stt]+y );
-    glVertex2f( meshcommandu[fantype][end]+x, meshcommandv[fantype][end]+y );
+    glVertex2f( Mesh_Cmd[fantype].u[stt]+x, Mesh_Cmd[fantype].v[stt]+y );
+    glVertex2f( Mesh_Cmd[fantype].u[end]+x, Mesh_Cmd[fantype].v[end]+y );
 
     cnt++;
   }
   glEnd();
 
-  
+
 }
 
 //------------------------------------------------------------------------------
@@ -1189,12 +1190,12 @@ void add_line(int fantype, int start, int end)
 
   // Make sure line isn't already in list
   cnt = 0;
-  while(cnt < meshnumline[fantype])
+  while(cnt < Mesh[fantype].numline)
   {
-    if((meshlinestart[fantype][cnt]==start &&
-      meshlineend[fantype][cnt]==end) ||
-      (meshlineend[fantype][cnt]==start &&
-      meshlinestart[fantype][cnt]==end))
+    if((Mesh[fantype].linestart[cnt]==start &&
+      Mesh[fantype].lineend[cnt]==end) ||
+      (Mesh[fantype].lineend[cnt]==start &&
+      Mesh[fantype].linestart[cnt]==end))
     {
       return;
     }
@@ -1203,9 +1204,9 @@ void add_line(int fantype, int start, int end)
 
 
   // Add it in
-  meshlinestart[fantype][cnt]=start;
-  meshlineend[fantype][cnt]=end;
-  meshnumline[fantype]++;
+  Mesh[fantype].linestart[cnt]=start;
+  Mesh[fantype].lineend[cnt]=end;
+  Mesh[fantype].numline++;
 
   return;
 }
@@ -1220,7 +1221,7 @@ void free_vertices()
   cnt = 0;
   while(cnt < MAXTOTALMESHVERTICES)
   {
-    meshvrta[cnt] = VERTEXUNUSED;
+    Mesh_Mem.vrt_a[cnt] = VERTEXUNUSED;
     cnt++;
   }
   atvertex = 0;
@@ -1238,7 +1239,7 @@ int get_free_vertex()
   if(numfreevertices!=0)
   {
     cnt = 0;
-    while(cnt < MAXTOTALMESHVERTICES && meshvrta[atvertex]!=VERTEXUNUSED)
+    while(cnt < MAXTOTALMESHVERTICES && Mesh_Mem.vrt_a[atvertex]!=VERTEXUNUSED)
     {
       atvertex++;
       if(atvertex == MAXTOTALMESHVERTICES)
@@ -1247,9 +1248,9 @@ int get_free_vertex()
       }
       cnt++;
     }
-    if(meshvrta[atvertex]==VERTEXUNUSED)
+    if(Mesh_Mem.vrt_a[atvertex]==VERTEXUNUSED)
     {
-      meshvrta[atvertex]=60;
+      Mesh_Mem.vrt_a[atvertex]=60;
       return btrue;
     }
   }
@@ -1265,18 +1266,18 @@ void remove_fan(int fan)
   Uint32 numvert;
 
 
-  numvert = meshcommandnumvertices[meshtype[fan]];
-  vert = meshvrtstart[fan];
+  numvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
   while(cnt < numvert)
   {
-    meshvrta[vert] = VERTEXUNUSED;
+    Mesh_Mem.vrt_a[vert] = VERTEXUNUSED;
     numfreevertices++;
-    vert = meshvrtnext[vert];
+    vert = Mesh_Mem.vrt_next[vert];
     cnt++;
   }
-  meshtype[fan] = 0;
-  meshfx[fan] = MESHFX_NOREFLECT;
+  Mesh_Fan[fan].type = 0;
+  Mesh_Fan[fan].fx = MESHFX_NOREFLECT;
 }
 
 //------------------------------------------------------------------------------
@@ -1289,10 +1290,10 @@ int add_fan(int fan, int x, int y)
   Uint32 vertexlist[17];
 
 
-  numvert = meshcommandnumvertices[meshtype[fan]];
+  numvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
   if(numfreevertices >= numvert)
   {
-    meshfx[fan] = MESHFX_NOREFLECT;
+    Mesh_Fan[fan].fx = MESHFX_NOREFLECT;
     cnt = 0;
     while(cnt < numvert)
     {
@@ -1303,7 +1304,7 @@ int add_fan(int fan, int x, int y)
         cnt = 0;
         while(cnt < numvert)
         {
-          meshvrta[vertexlist[cnt]]=60;
+          Mesh[vertexlist[cnt]].vrta=60;
           cnt++;
         }
         return bfalse;
@@ -1318,13 +1319,13 @@ int add_fan(int fan, int x, int y)
     while(cnt < numvert)
     {
       vertex = vertexlist[cnt];
-      meshvrtx[vertex] = x + (meshcommandu[meshtype[fan]][cnt] / 4.0f);
-      meshvrty[vertex] = y + (meshcommandv[meshtype[fan]][cnt] / 4.0f);
-      meshvrtz[vertex] = 0;
-      meshvrtnext[vertex] = vertexlist[cnt+1];
+      Mesh_Mem.vrt_x[vertex] = x + (Mesh[Mesh_Fan[fan].type].commandu[cnt] / 4.0f);
+      Mesh_Mem.vrt_y[vertex] = y + (Mesh[Mesh_Fan[fan].type].commandv[cnt] / 4.0f);
+      Mesh_Mem.vrt_z[vertex] = 0;
+      Mesh_Mem.vrt_next[vertex] = vertexlist[cnt+1];
       cnt++;
     }
-    meshvrtstart[fan] = vertexlist[0];
+    Mesh_Fan[fan].vrt_start = vertexlist[0];
     numfreevertices-=numvert;
     return btrue;
   }
@@ -1341,7 +1342,7 @@ void num_free_vertex()
   cnt = 0;
   while(cnt < MAXTOTALMESHVERTICES)
   {
-    if(meshvrta[cnt]==VERTEXUNUSED)
+    if(Mesh_Mem.vrt_a[cnt]==VERTEXUNUSED)
     {
       num++;
     }
@@ -1358,20 +1359,20 @@ GLtexture * tile_at(int x, int y)
   Uint8 type, fx;
   Uint32 fan;
 
-  if(x < 0 || x >= meshsizex || y < 0 || y >= meshsizey)
+  if(x < 0 || x >= mesh.size_x || y < 0 || y >= mesh.size_y)
   {
     return retval;
   }
 
   fan = mesh_convert_fan(x, y);
-  if(meshtile[fan]==INVALID_FAN)
+  if(Mesh_Fan[fan].tile==INVALID_FAN)
   {
     return NULL;
   }
 
-  tile = meshtile[fan];
-  type = meshtype[fan];
-  fx = meshfx[fan];
+  tile = Mesh_Fan[fan].tile;
+  type = Mesh_Fan[fan].type;
+  fx = Mesh_Fan[fan].fx;
 
   // Animate the tiles
   if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
@@ -1379,16 +1380,16 @@ GLtexture * tile_at(int x, int y)
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
       // Big tiles
-      basetile = tile & animtilebigbaseand;// Animation set
-      tile += animtileframeadd << 1;         // Animated tile
-      tile = ( tile & animtilebigframeand ) + basetile;
+      basetile = tile & GTile_Anim.bigbaseand;// Animation set
+      tile += GTile_Anim.frameadd << 1;         // Animated tile
+      tile = ( tile & GTile_Anim.bigframeand ) + basetile;
     }
     else
     {
       // Small tiles
-      basetile = tile & animtilebaseand;// Animation set
-      tile += animtileframeadd;         // Animated tile
-      tile = ( tile & animtileframeand ) + basetile;
+      basetile = tile & GTile_Anim.baseand;// Animation set
+      tile += GTile_Anim.frameadd;         // Animated tile
+      tile = ( tile & GTile_Anim.frameand ) + basetile;
     }
   }
 
@@ -1409,7 +1410,7 @@ int fan_at(int x, int y)
 {
   int fan;
 
-  if(x < 0 || x >= meshsizex || y < 0 || y >= meshsizey)
+  if(x < 0 || x >= mesh.size_x || y < 0 || y >= mesh.size_y)
   {
     return INVALID_FAN;
   }
@@ -1473,21 +1474,21 @@ void weld_3(int x, int y)
 //------------------------------------------------------------------------------
 void weld_cnt(int x, int y, int cnt, Uint32 fan)
 {
-  if(meshcommandu[meshtype[fan]][cnt] < NEARLOW+1 ||
-    meshcommandv[meshtype[fan]][cnt] < NEARLOW+1 ||
-    meshcommandu[meshtype[fan]][cnt] > NEARHI-1 ||
-    meshcommandv[meshtype[fan]][cnt] > NEARHI-1)
+  if(Mesh[Mesh_Fan[fan].type].commandu[cnt] < NEARLOW+1 ||
+    Mesh[Mesh_Fan[fan].type].commandv[cnt] < NEARLOW+1 ||
+    Mesh[Mesh_Fan[fan].type].commandu[cnt] > NEARHI-1 ||
+    Mesh[Mesh_Fan[fan].type].commandv[cnt] > NEARHI-1)
   {
     clear_select();
     add_select(get_vertex(x, y, cnt));
-    if(meshcommandu[meshtype[fan]][cnt] < NEARLOW+1)
-      add_select(nearest_vertex(x-1, y, NEARHI, meshcommandv[meshtype[fan]][cnt]));
-    if(meshcommandv[meshtype[fan]][cnt] < NEARLOW+1)
-      add_select(nearest_vertex(x, y-1, meshcommandu[meshtype[fan]][cnt], NEARHI));
-    if(meshcommandu[meshtype[fan]][cnt] > NEARHI-1)
-      add_select(nearest_vertex(x+1, y, NEARLOW, meshcommandv[meshtype[fan]][cnt]));
-    if(meshcommandv[meshtype[fan]][cnt] > NEARHI-1)
-      add_select(nearest_vertex(x, y+1, meshcommandu[meshtype[fan]][cnt], NEARLOW));
+    if(Mesh[Mesh_Fan[fan].type].commandu[cnt] < NEARLOW+1)
+      add_select(nearest_vertex(x-1, y, NEARHI, Mesh[Mesh_Fan[fan].type].commandv[cnt]));
+    if(Mesh[Mesh_Fan[fan].type].commandv[cnt] < NEARLOW+1)
+      add_select(nearest_vertex(x, y-1, Mesh[Mesh_Fan[fan].type].commandu[cnt], NEARHI));
+    if(Mesh[Mesh_Fan[fan].type].commandu[cnt] > NEARHI-1)
+      add_select(nearest_vertex(x+1, y, NEARLOW, Mesh[Mesh_Fan[fan].type].commandv[cnt]));
+    if(Mesh[Mesh_Fan[fan].type].commandv[cnt] > NEARHI-1)
+      add_select(nearest_vertex(x, y+1, Mesh[Mesh_Fan[fan].type].commandu[cnt], NEARLOW));
     weld_select();
     clear_select();
   }
@@ -1516,7 +1517,7 @@ void fix_vertices(int x, int y)
   fix_corners(x, y);
   fan = mesh_convert_fan(x, y);
   cnt = 4;
-  while(cnt < meshcommandnumvertices[meshtype[fan]])
+  while(cnt < Mesh_Cmd[Mesh_Fan[fan].type].vrt_count)
   {
     weld_cnt(x, y, cnt, fan);
     cnt++;
@@ -1530,10 +1531,10 @@ void fix_mesh(void)
   int x, y;
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       //      fix_corners(x, y);
       fix_vertices(x, y);
@@ -1551,7 +1552,7 @@ char tile_is_different(int x, int y, Uint16 tileset,
 {
   // ZZ> bfalse if of same set, btrue if different
   Uint32 fan;
-  if(x < 0 || x >= meshsizex || y < 0 || y >= meshsizey)
+  if(x < 0 || x >= mesh.size_x || y < 0 || y >= mesh.size_y)
   {
     return bfalse;
   }
@@ -1559,10 +1560,10 @@ char tile_is_different(int x, int y, Uint16 tileset,
   fan = mesh_convert_fan(x, y);
   if(tileand == 192)
   {
-    if(meshtile[fan] >= 48) return bfalse;
+    if(Mesh_Fan[fan].tile >= 48) return bfalse;
   }
 
-  if((meshtile[fan]&tileand) == tileset)
+  if((Mesh_Fan[fan].tile&tileand) == tileset)
   {
     return bfalse;
   }
@@ -1754,13 +1755,13 @@ void trim_mesh_tile(Uint16 tileset, Uint16 tileand)
 
   tileset = tileset&tileand;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      if((meshtile[fan]&tileand) == tileset)
+      if((Mesh_Fan[fan].tile&tileand) == tileset)
       {
         if(tileand == 192)
         {
@@ -1772,7 +1773,7 @@ void trim_mesh_tile(Uint16 tileset, Uint16 tileand)
         }
         if(code != 255)
         {
-          meshtile[fan] = tileset + code;
+          Mesh_Fan[fan].tile = tileset + code;
         }
       }
       x++;
@@ -1792,15 +1793,15 @@ void fx_mesh_tile(Uint16 tileset, Uint16 tileand, Uint8 fx)
 
   tileset = tileset&tileand;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      if((meshtile[fan]&tileand) == tileset)
+      if((Mesh_Fan[fan].tile&tileand) == tileset)
       {
-        meshfx[fan] = fx;
+        Mesh_Fan[fan].fx = fx;
       }
       x++;
     }
@@ -1817,27 +1818,27 @@ void set_mesh_tile(Uint16 tiletoset)
   int x, y;
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      if(meshtile[fan] == tiletoset)
+      if(Mesh_Fan[fan].tile == tiletoset)
       {
         switch(mouseinwinpresser)
         {
         case 0:
-          meshtile[fan]=mouseinwintile;
+          Mesh_Fan[fan].tile=mouseinwintile;
           break;
         case 1:
-          meshtile[fan]=(mouseinwintile&0xfffe)+(rand()&1);
+          Mesh_Fan[fan].tile=(mouseinwintile&0xfffe)+(rand()&1);
           break;
         case 2:
-          meshtile[fan]=(mouseinwintile&0xfffc)+(rand()&3);
+          Mesh_Fan[fan].tile=(mouseinwintile&0xfffc)+(rand()&3);
           break;
         case 3:
-          meshtile[fan]=(mouseinwintile&0xfff0)+(rand()&6);
+          Mesh_Fan[fan].tile=(mouseinwintile&0xfff0)+(rand()&6);
           break;
         }
       }
@@ -1858,24 +1859,24 @@ void setup_mesh(void)
   free_vertices();
   printf("Mesh file not found, so creating a new one...\n");
   printf("Number of tiles in X direction ( 32-512 ):  ");
-  scanf("%d", &meshsizex);
+  scanf("%d", &mesh.size_x);
   printf("Number of tiles in Y direction ( 32-512 ):  ");
-  scanf("%d", &meshsizey);
-  meshedgex = (meshsizex*SMALLX)-1;
-  meshedgey = (meshsizey*SMALLY)-1;
+  scanf("%d", &mesh.size_y);
+  mesh.edge_x = (mesh.size_x*SMALLX)-1;
+  mesh.edge_y = (mesh.size_y*SMALLY)-1;
   meshedgez = 180<<4;
 
 
   fan = 0;
   y = 0;
   tile = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
-      meshtype[fan] = 2+0;
-      meshtile[fan] = (((x&1)+(y&1))&1)+62;
+      Mesh_Fan[fan].type = 2+0;
+      Mesh_Fan[fan].tile = (((x&1)+(y&1))&1)+62;
       if(add_fan(fan, x*31, y*31)==bfalse)
       {
         log_error("NOT ENOUGH VERTICES!!!\n\n");
@@ -1942,7 +1943,7 @@ void rip_big_tiles(SDL_Surface* bmpload)
     while(x < 256)
     {
       SDL_Rect src = {x, y, x + BIGX, y + BIGY};
-     
+
       SDL_BlitSurface(bmpload, &src, bmpsmall, &bmpsmall->clip_rect);
       GLTexture_Convert(GL_TEXTURE_2D, &bmpbigtile[numbigtile], bmpsmall, INVALID_KEY);
 
@@ -1975,12 +1976,12 @@ void rip_tiles(SDL_Surface * bmpload)
 //  char ctmp;
 //
 //  cnt = 0;
-//  ctmp = modname[cnt];
+//  ctmp = ModList[cnt].name;
 //  while(ctmp != 0)
 //  {
 //    newloadname[cnt] = ctmp;
 //    cnt++;
-//    ctmp = modname[cnt];
+//    ctmp = ModList[cnt].name;
 //  }
 //  tnc = 0;
 //  ctmp = appendname[tnc];
@@ -2019,7 +2020,7 @@ void cart_load_basic_textures(char *modname)
   surface = IMG_Load(newloadname);
   rip_tiles(surface);
 
-  //bmpfanoff = SDL_CreateRGBSurface(SDL_SWSURFACE, SMALLX, SMALLY, 32, rmask, gmask, bmask, amask);  
+  //bmpfanoff = SDL_CreateRGBSurface(SDL_SWSURFACE, SMALLX, SMALLY, 32, rmask, gmask, bmask, amask);
   //draw_blit_sprite(bmpfanoff, imgpointon[10], (SMALLX-(*imgpointon[10]).txW)/2, (SMALLY-(*imgpointon[10]).txH)/2);
   return;
 }
@@ -2037,11 +2038,11 @@ void cart_load_basic_textures(char *modname)
 //{
 //  Uint32 fan, numfan;
 //
-//  numfan = meshsizex*meshsizey;
+//  numfan = mesh.size_x*mesh.size_y;
 //  fan = 0;
 //  while(fan < numfan)
 //  {
-//    meshtwist[fan]=get_fan_twist(fan);
+//    Mesh_Fan[fan].twist=get_fan_twist(fan);
 //    fan++;
 //  }
 //
@@ -2057,19 +2058,19 @@ int count_vertices()
 
   totalvert = 0;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      num = meshcommandnumvertices[meshtype[fan]];
-      vert = meshvrtstart[fan];
+      num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+      vert = Mesh_Fan[fan].vrt_start;
       cnt = 0;
       while(cnt < num)
       {
         totalvert++;
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -2122,53 +2123,53 @@ void save_mesh(char *modname)
     //    This didn't work for some reason...
     //    itmp=MAXTOTALMESHVERTICES-numfreevertices;  SAVE;
     itmp = count_vertices();  SAVE;
-    itmp=meshsizex;  SAVE;
-    itmp=meshsizey;  SAVE;
+    itmp=mesh.size_x;  SAVE;
+    itmp=mesh.size_y;  SAVE;
 
     // Write tile data
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        itmp = (meshtype[fan]<<24)+(meshfx[fan]<<16)+meshtile[fan];  SAVE;
+        itmp = (Mesh_Fan[fan].type<<24)+(Mesh_Fan[fan].fx<<16)+Mesh_Fan[fan].tile;  SAVE;
         x++;
       }
       y++;
-    } 
+    }
 
     // Write twist data
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        ctmp = meshtwist[fan];  numwritten+=fwrite(&ctmp, 1, 1, filewrite);
+        ctmp = Mesh_Fan[fan].twist;  numwritten+=fwrite(&ctmp, 1, 1, filewrite);
         numattempt++;
         x++;
       }
       y++;
-    } 
+    }
 
     // Write x vertices
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        num = meshcommandnumvertices[meshtype[fan]];
-        vert = meshvrtstart[fan];
+        num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+        vert = Mesh_Fan[fan].vrt_start;
         cnt = 0;
         while(cnt < num)
         {
-          ftmp = meshvrtx[vert]*FIXNUM;  SAVEF;
-          vert = meshvrtnext[vert];
+          ftmp = Mesh_Mem.vrt_x[vert]*FIXNUM;  SAVEF;
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
         x++;
@@ -2178,19 +2179,19 @@ void save_mesh(char *modname)
 
     // Write y vertices
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        num = meshcommandnumvertices[meshtype[fan]];
-        vert = meshvrtstart[fan];
+        num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+        vert = Mesh_Fan[fan].vrt_start;
         cnt = 0;
         while(cnt < num)
         {
-          ftmp = meshvrty[vert]*FIXNUM;  SAVEF;
-          vert = meshvrtnext[vert];
+          ftmp = Mesh_Mem.vrt_y[vert]*FIXNUM;  SAVEF;
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
         x++;
@@ -2200,19 +2201,19 @@ void save_mesh(char *modname)
 
     // Write z vertices
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        num = meshcommandnumvertices[meshtype[fan]];
-        vert = meshvrtstart[fan];
+        num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+        vert = Mesh_Fan[fan].vrt_start;
         cnt = 0;
         while(cnt < num)
         {
-          ftmp = meshvrtz[vert]*FIXNUM;  SAVEF;
-          vert = meshvrtnext[vert];
+          ftmp = Mesh_Mem.vrt_z[vert]*FIXNUM;  SAVEF;
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
         x++;
@@ -2223,20 +2224,20 @@ void save_mesh(char *modname)
 
     // Write a vertices
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        num = meshcommandnumvertices[meshtype[fan]];
-        vert = meshvrtstart[fan];
+        num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+        vert = Mesh_Fan[fan].vrt_start;
         cnt = 0;
         while(cnt < num)
         {
-          ctmp = meshvrta[vert];  numwritten+=fwrite(&ctmp, 1, 1, filewrite);
+          ctmp = Mesh_Mem.vrt_a[vert];  numwritten+=fwrite(&ctmp, 1, 1, filewrite);
           numattempt++;
-          vert = meshvrtnext[vert];
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
         x++;
@@ -2267,11 +2268,11 @@ void save_mesh(char *modname)
 //    free_vertices();
 //    fread(&itmp, 4, 1, fileread);  if(itmp != MAPID) return bfalse;
 //    fread(&itmp, 4, 1, fileread);  numvert = itmp;
-//    fread(&itmp, 4, 1, fileread);  meshsizex = itmp;
-//    fread(&itmp, 4, 1, fileread);  meshsizey = itmp;
-//    numfan = meshsizex*meshsizey;
-//    meshedgex = (meshsizex*SMALLX)-1;
-//    meshedgey = (meshsizey*SMALLY)-1;
+//    fread(&itmp, 4, 1, fileread);  mesh.size_x = itmp;
+//    fread(&itmp, 4, 1, fileread);  mesh.size_y = itmp;
+//    numfan = mesh.size_x*mesh.size_y;
+//    mesh.edge_x = (mesh.size_x*SMALLX)-1;
+//    mesh.edge_y = (mesh.size_y*SMALLY)-1;
 //    meshedgez = 180<<4;
 //    numfreevertices = MAXTOTALMESHVERTICES-numvert;
 //
@@ -2281,9 +2282,9 @@ void save_mesh(char *modname)
 //    while(fan < numfan)
 //    {
 //      fread(&itmp, 4, 1, fileread);
-//      meshtype[fan] = itmp>>24;
-//      meshfx[fan] = itmp>>16;
-//      meshtile[fan] = itmp;
+//      Mesh_Fan[fan].type = itmp>>24;
+//      Mesh_Fan[fan].fx = itmp>>16;
+//      Mesh_Fan[fan].tile = itmp;
 //      fan++;
 //    }
 //    // Load normal data
@@ -2291,7 +2292,7 @@ void save_mesh(char *modname)
 //    while(fan < numfan)
 //    {
 //      fread(&itmp, 1, 1, fileread);
-//      meshtwist[fan] = itmp;
+//      Mesh_Fan[fan].twist = itmp;
 //      fan++;
 //    }
 //
@@ -2305,7 +2306,7 @@ void save_mesh(char *modname)
 //    while(cnt < numvert)
 //    {
 //      fread(&ftmp, 4, 1, fileread);
-//      meshvrtx[cnt] = ftmp/FIXNUM;
+//      Mesh_Mem.vrt_x[cnt] = ftmp/FIXNUM;
 //      cnt++;
 //    }
 //    // Load vertex y data
@@ -2313,7 +2314,7 @@ void save_mesh(char *modname)
 //    while(cnt < numvert)
 //    {
 //      fread(&ftmp, 4, 1, fileread);
-//      meshvrty[cnt] = ftmp/FIXNUM;
+//      Mesh_Mem.vrt_y[cnt] = ftmp/FIXNUM;
 //      cnt++;
 //    }
 //    // Load vertex z data
@@ -2321,8 +2322,8 @@ void save_mesh(char *modname)
 //    while(cnt < numvert)
 //    {
 //      fread(&ftmp, 4, 1, fileread);
-//      meshvrtz[cnt] = ftmp/FIXNUM;
-////      meshvrtz[cnt] = 0;
+//      Mesh_Mem.vrt_z[cnt] = ftmp/FIXNUM;
+////      Mesh_Mem.vrt_z[cnt] = 0;
 //      cnt++;
 //    }
 //    // Load vertex a data
@@ -2330,7 +2331,7 @@ void save_mesh(char *modname)
 //    while(cnt < numvert)
 //    {
 ////      fread(&itmp, 1, 1, fileread);
-//      meshvrta[cnt] = 60;  // !!!BAD!!!
+//      Mesh_Mem.vrt_a[cnt] = 60;  // !!!BAD!!!
 //      cnt++;
 //    }
 //
@@ -2338,22 +2339,22 @@ void save_mesh(char *modname)
 //    make_fanstart();
 //    vert = 0;
 //    y = 0;
-//    while(y < meshsizey)
+//    while(y < mesh.size_y)
 //    {
 //      x = 0;
-//      while(x < meshsizex)
+//      while(x < mesh.size_x)
 //      {
 //        fan = mesh_convert_fan(x, y);
-//        num = meshcommandnumvertices[meshtype[fan]];
-//        meshvrtstart[fan] = vert;
+//        num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
+//        Mesh_Fan[fan].vrt_start = vert;
 //        cnt = 0;
 //        while(cnt < num)
 //        {
-//          meshvrtnext[vert] = vert+1;
+//          Mesh_Mem.vrt_next[vert] = vert+1;
 //          vert++;
 //          cnt++;
 //        }
-//        meshvrtnext[vert-1] = CHAINEND;
+//        Mesh_Mem.vrt_next[vert-1] = CHAINEND;
 //        x++;
 //      }
 //      y++;
@@ -2373,15 +2374,15 @@ void move_select(int x, int y, int z)
   while(cnt < numselect)
   {
     vert = select[cnt];
-    newx = meshvrtx[vert]+x;
-    newy = meshvrty[vert]+y;
-    newz = meshvrtz[vert]+z;
-    if(newx<0)  x=0-meshvrtx[vert];
-    if(newx>meshedgex) x=meshedgex-meshvrtx[vert];
-    if(newy<0)  y=0-meshvrty[vert];
-    if(newy>meshedgey) y=meshedgey-meshvrty[vert];
-    if(newz<0)  z=0-meshvrtz[vert];
-    if(newz>meshedgez) z=meshedgez-meshvrtz[vert];
+    newx = Mesh_Mem.vrt_x[vert]+x;
+    newy = Mesh_Mem.vrt_y[vert]+y;
+    newz = Mesh_Mem.vrt_z[vert]+z;
+    if(newx<0)  x=0-Mesh_Mem.vrt_x[vert];
+    if(newx>mesh.edge_x) x=mesh.edge_x-Mesh_Mem.vrt_x[vert];
+    if(newy<0)  y=0-Mesh_Mem.vrt_y[vert];
+    if(newy>mesh.edge_y) y=mesh.edge_y-Mesh_Mem.vrt_y[vert];
+    if(newz<0)  z=0-Mesh_Mem.vrt_z[vert];
+    if(newz>meshedgez) z=meshedgez-Mesh_Mem.vrt_z[vert];
     cnt++;
   }
 
@@ -2391,22 +2392,22 @@ void move_select(int x, int y, int z)
   while(cnt < numselect)
   {
     vert = select[cnt];
-    newx = meshvrtx[vert]+x;
-    newy = meshvrty[vert]+y;
-    newz = meshvrtz[vert]+z;
+    newx = Mesh_Mem.vrt_x[vert]+x;
+    newy = Mesh_Mem.vrt_y[vert]+y;
+    newz = Mesh_Mem.vrt_z[vert]+z;
 
 
     if(newx<0)  newx=0;
-    if(newx>meshedgex)  newx=meshedgex;
+    if(newx>mesh.edge_x)  newx=mesh.edge_x;
     if(newy<0)  newy=0;
-    if(newy>meshedgey)  newy=meshedgey;
+    if(newy>mesh.edge_y)  newy=mesh.edge_y;
     if(newz<0)  newz=0;
     if(newz>meshedgez)  newz=meshedgez;
 
 
-    meshvrtx[vert]=newx;
-    meshvrty[vert]=newy;
-    meshvrtz[vert]=newz;
+    Mesh_Mem.vrt_x[vert]=newx;
+    Mesh_Mem.vrt_y[vert]=newy;
+    Mesh_Mem.vrt_z[vert]=newz;
     cnt++;
   }
   return;
@@ -2422,7 +2423,7 @@ void set_select_no_bound_z(int z)
   while(cnt < numselect)
   {
     vert = select[cnt];
-    meshvrtz[vert]=z;
+    Mesh_Mem.vrt_z[vert]=z;
     cnt++;
   }
   return;
@@ -2437,24 +2438,24 @@ void move_mesh_z(int z, Uint16 tiletype, Uint16 tileand)
 
   tiletype = tiletype & tileand;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      if((meshtile[fan]&tileand) == tiletype)
+      if((Mesh_Fan[fan].tile&tileand) == tiletype)
       {
-        vert = meshvrtstart[fan];
-        totalvert = meshcommandnumvertices[meshtype[fan]];
+        vert = Mesh_Fan[fan].vrt_start;
+        totalvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
         cnt = 0;
         while(cnt < totalvert)
         {
-          newz = meshvrtz[vert]+z;
+          newz = Mesh_Mem.vrt_z[vert]+z;
           if(newz<0)  newz=0;
           if(newz>meshedgez) newz=meshedgez;
-          meshvrtz[vert] = newz;
-          vert = meshvrtnext[vert];
+          Mesh_Mem.vrt_z[vert] = newz;
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
       }
@@ -2471,22 +2472,22 @@ void move_vert(int vert, int x, int y, int z)
   int newx, newy, newz;
 
 
-  newx = meshvrtx[vert]+x;
-  newy = meshvrty[vert]+y;
-  newz = meshvrtz[vert]+z;
+  newx = Mesh_Mem.vrt_x[vert]+x;
+  newy = Mesh_Mem.vrt_y[vert]+y;
+  newz = Mesh_Mem.vrt_z[vert]+z;
 
 
   if(newx<0)  newx=0;
-  if(newx>meshedgex)  newx=meshedgex;
+  if(newx>mesh.edge_x)  newx=mesh.edge_x;
   if(newy<0)  newy=0;
-  if(newy>meshedgey)  newy=meshedgey;
+  if(newy>mesh.edge_y)  newy=mesh.edge_y;
   if(newz<0)  newz=0;
   if(newz>meshedgez)  newz=meshedgez;
 
 
-  meshvrtx[vert]=newx;
-  meshvrty[vert]=newy;
-  meshvrtz[vert]=newz;
+  Mesh_Mem.vrt_x[vert]=newx;
+  Mesh_Mem.vrt_y[vert]=newy;
+  Mesh_Mem.vrt_z[vert]=newz;
 
 
   return;
@@ -2503,8 +2504,8 @@ void raise_mesh(int x, int y, int amount, int size)
   while(cnt < numpointsonscreen)
   {
     vert = pointsonscreen[cnt];
-    disx = meshvrtx[vert]-(x/FOURNUM);
-    disy = meshvrty[vert]-(y/FOURNUM);
+    disx = Mesh_Mem.vrt_x[vert]-(x/FOURNUM);
+    disy = Mesh_Mem.vrt_y[vert]-(y/FOURNUM);
     dis = sqrt(disx*disx+disy*disy);
 
 
@@ -2569,7 +2570,7 @@ void render_tile_window(int window)
       FRect dst = {x, y, x + SMALLX, y + SMALLY};
 
       bmptile = tile_at(mapx, mapy);
-      
+
       draw_texture_box(bmptile, NULL, &dst);
 
       mapx++;
@@ -2679,13 +2680,13 @@ void render_vertex_window(int window)
   cnty = 0;
   while(cnty < numy)
   {
-    if(mapy>=0 && mapy<meshsizey)
+    if(mapy>=0 && mapy<mesh.size_y)
     {
       mapx = mapxstt;
       cntx = 0;
       while(cntx < numx)
       {
-        if(mapx>=0 && mapx<meshsizex)
+        if(mapx>=0 && mapx<mesh.size_x)
         {
           fan = mesh_convert_fan(mapx, mapy);
           draw_top_fan(window, fan, x, y);
@@ -2707,7 +2708,7 @@ void render_vertex_window(int window)
   }
 
 
-  if((SDLKEYDOWN(SDLK_p) || ((msb&2) && numselect == 0)) && mouseinwinmode==WINVERTEX)
+  if((SDLKEYDOWN(SDLK_p) || ((mous.latch.b&2) && numselect == 0)) && mouseinwinmode==WINVERTEX)
   {
     raise_mesh(mouseinwinx, mouseinwiny, brushamount, brushsize);
   }
@@ -2739,13 +2740,13 @@ void render_side_window(int window)
   cnty = 0;
   while(cnty < numy)
   {
-    if(mapy>=0 && mapy<meshsizey)
+    if(mapy>=0 && mapy<mesh.size_y)
     {
       mapx = mapxstt;
       cntx = 0;
       while(cntx < numx)
       {
-        if(mapx>=0 && mapx<meshsizex)
+        if(mapx>=0 && mapx<mesh.size_x)
         {
           fan = mesh_convert_fan(mapx, mapy);
           draw_side_fan(window, fan, x, y);
@@ -2893,13 +2894,13 @@ void bound_camera(void)
   {
     cart_pos_y = 0;
   }
-  if(cart_pos_x > meshsizex*SMALLX)
+  if(cart_pos_x > mesh.size_x*SMALLX)
   {
-    cart_pos_x = meshsizex*SMALLX;
-  } 
-  if(cart_pos_y > meshsizey*SMALLY)
+    cart_pos_x = mesh.size_x*SMALLX;
+  }
+  if(cart_pos_y > mesh.size_y*SMALLY)
   {
-    cart_pos_y = meshsizey*SMALLY;
+    cart_pos_y = mesh.size_y*SMALLY;
   }
   return;
 }
@@ -2953,10 +2954,10 @@ void rect_select(void)
     while(cnt < numpointsonscreen && numselect<MAXSELECT)
     {
       vert = pointsonscreen[cnt];
-      if(meshvrtx[vert]>=tlx &&
-        meshvrtx[vert]<=brx &&
-        meshvrty[vert]>=tly &&
-        meshvrty[vert]<=bry)
+      if(Mesh_Mem.vrt_x[vert]>=tlx &&
+        Mesh_Mem.vrt_x[vert]<=brx &&
+        Mesh_Mem.vrt_y[vert]>=tly &&
+        Mesh_Mem.vrt_y[vert]<=bry)
       {
         add_select(vert);
       }
@@ -2981,10 +2982,10 @@ void rect_select(void)
     while(cnt < numpointsonscreen && numselect<MAXSELECT)
     {
       vert = pointsonscreen[cnt];
-      if(meshvrtx[vert]>=tlx &&
-        meshvrtx[vert]<=brx &&
-        -(meshvrtz[vert] / 16.0f)+y>=tly &&
-        -(meshvrtz[vert] / 16.0f)+y<=bry)
+      if(Mesh_Mem.vrt_x[vert]>=tlx &&
+        Mesh_Mem.vrt_x[vert]<=brx &&
+        -(Mesh_Mem.vrt_z[vert] / 16.0f)+y>=tly &&
+        -(Mesh_Mem.vrt_z[vert] / 16.0f)+y<=bry)
       {
         add_select(vert);
       }
@@ -3020,10 +3021,10 @@ void rect_unselect(void)
     while(cnt < numpointsonscreen && numselect<MAXSELECT)
     {
       vert = pointsonscreen[cnt];
-      if(meshvrtx[vert]>=tlx &&
-        meshvrtx[vert]<=brx &&
-        meshvrty[vert]>=tly &&
-        meshvrty[vert]<=bry)
+      if(Mesh_Mem.vrt_x[vert]>=tlx &&
+        Mesh_Mem.vrt_x[vert]<=brx &&
+        Mesh_Mem.vrt_y[vert]>=tly &&
+        Mesh_Mem.vrt_y[vert]<=bry)
       {
         remove_select(vert);
       }
@@ -3048,10 +3049,10 @@ void rect_unselect(void)
     while(cnt < numpointsonscreen && numselect<MAXSELECT)
     {
       vert = pointsonscreen[cnt];
-      if(meshvrtx[vert]>=tlx &&
-        meshvrtx[vert]<=brx &&
-        -(meshvrtz[vert] / 16.0f)+y>=tly &&
-        -(meshvrtz[vert] / 16.0f)+y<=bry)
+      if(Mesh_Mem.vrt_x[vert]>=tlx &&
+        Mesh_Mem.vrt_x[vert]<=brx &&
+        -(Mesh_Mem.vrt_z[vert] / 16.0f)+y>=tly &&
+        -(Mesh_Mem.vrt_z[vert] / 16.0f)+y<=bry)
       {
         remove_select(vert);
       }
@@ -3069,9 +3070,9 @@ int set_vrta(Uint32 vert)
 
 
   // To make life easier
-  x = meshvrtx[vert]*FOURNUM;
-  y = meshvrty[vert]*FOURNUM;
-  z = meshvrtz[vert];
+  x = Mesh_Mem.vrt_x[vert]*FOURNUM;
+  y = Mesh_Mem.vrt_y[vert]*FOURNUM;
+  z = Mesh_Mem.vrt_z[vert];
 
   pos.x = x;
   pos.y = y;
@@ -3113,17 +3114,17 @@ int set_vrta(Uint32 vert)
   newa+=ambi;
   if(newa <= 0) newa = 1;
   if(newa > 255) newa = 255;
-  meshvrta[vert]=newa;
+  Mesh_Mem.vrt_a[vert]=newa;
 
 
 
   // Edge fade
-  dist = dist_from_border(meshvrtx[vert], meshvrty[vert]);
+  dist = dist_from_border(Mesh_Mem.vrt_x[vert], Mesh_Mem.vrt_y[vert]);
   if(dist <= FADEBORDER)
   {
     newa = newa*dist/FADEBORDER;
     if(newa==VERTEXUNUSED)  newa=1;
-    meshvrta[vert]=newa;
+    Mesh_Mem.vrt_a[vert]=newa;
   }
 
 
@@ -3138,19 +3139,19 @@ void calc_vrta()
 
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      vert = meshvrtstart[fan];
-      num = meshcommandnumvertices[meshtype[fan]];
+      vert = Mesh_Fan[fan].vrt_start;
+      num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
       cnt = 0;
       while(cnt < num)
       {
         set_vrta(vert);
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -3168,19 +3169,19 @@ void level_vrtz()
 
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      vert = meshvrtstart[fan];
-      num = meshcommandnumvertices[meshtype[fan]];
+      vert = Mesh_Fan[fan].vrt_start;
+      num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
       cnt = 0;
       while(cnt < num)
       {
-        meshvrtz[vert] = 0;
-        vert = meshvrtnext[vert];
+        Mesh_Mem.vrt_z[vert] = 0;
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -3215,22 +3216,22 @@ void jitter_mesh()
 
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      vert = meshvrtstart[fan];
-      num = meshcommandnumvertices[meshtype[fan]];
+      vert = Mesh_Fan[fan].vrt_start;
+      num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
       cnt = 0;
       while(cnt < num)
       {
         clear_select();
         add_select(vert);
-        //        srand(meshvrtx[vert]+meshvrty[vert]+dunframe);
+        //        srand(Mesh_Mem.vrt_x[vert]+Mesh_Mem.vrt_y[vert]+dunframe);
         move_select((rand()&7)-3,(rand()&7)-3,(rand()&63)-32);
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -3253,21 +3254,21 @@ void flatten_mesh()
   if(height < 0)  height = 0;
   if(height > meshedgez) height = meshedgez;
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      vert = meshvrtstart[fan];
-      num = meshcommandnumvertices[meshtype[fan]];
+      vert = Mesh_Fan[fan].vrt_start;
+      num = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
       cnt = 0;
       while(cnt < num)
       {
-        if(meshvrtz[vert] > height - 50)
-          if(meshvrtz[vert] < height + 50)
-            meshvrtz[vert] = height;
-        vert = meshvrtnext[vert];
+        if(Mesh_Mem.vrt_z[vert] > height - 50)
+          if(Mesh_Mem.vrt_z[vert] < height + 50)
+            Mesh_Mem.vrt_z[vert] = height;
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -3282,7 +3283,7 @@ void flatten_mesh()
 //------------------------------------------------------------------------------
 //void move_camera()
 //{
-//  if(((msb&4) || SDLKEYDOWN(SDLK_m)) && mouseinwin!=-1)
+//  if(((mous.latch.b&4) || SDLKEYDOWN(SDLK_m)) && mouseinwin!=-1)
 //  {
 //    cart_pos_x+=mcx;
 //    cart_pos_y+=mcy;
@@ -3304,7 +3305,7 @@ void flatten_mesh()
 //  {
 //    flatten_mesh();
 //  }
-//  if(msb&1)
+//  if(mous.latch.b&1)
 //  {
 //    if(mouseinwinrect==bfalse)
 //    {
@@ -3317,7 +3318,7 @@ void flatten_mesh()
 //  {
 //    if(mouseinwinrect==btrue)
 //    {
-//      if(numselect!=0 && !SDLKEYDOWN(SDLK_LALT) &&  !SDLKEYDOWN(SDLK_RALT) &&  
+//      if(numselect!=0 && !SDLKEYDOWN(SDLK_LALT) &&  !SDLKEYDOWN(SDLK_RALT) &&
 //                         !SDLKEYDOWN(SDLK_LCTRL) && !SDLKEYDOWN(SDLK_RCTRL))
 //      {
 //        clear_select();
@@ -3333,7 +3334,7 @@ void flatten_mesh()
 //      mouseinwinrect = bfalse;
 //    }
 //  }
-//  if(msb&2)
+//  if(mous.latch.b&2)
 //  {
 //    move_select(mcx, 0, -(mcy<<4));
 //    bound_mouse();
@@ -3401,13 +3402,13 @@ void flatten_mesh()
 //  mouseinwinx = ui_getMouseX() - window_rect[cnt].x-windowborderx[cnt]+cart_pos_x-69;
 //  mouseinwiny = ui_getMouseY() - window_rect[cnt].y-windowbordery[cnt]+cart_pos_y-69;
 //  if(mouseinwinx < 0 ||
-//     mouseinwinx >= SMALLX*meshsizex ||
+//     mouseinwinx >= SMALLX*mesh.size_x ||
 //     mouseinwiny < 0 ||
-//     mouseinwiny >= SMALLY*meshsizey)
+//     mouseinwiny >= SMALLY*mesh.size_y)
 //  {
 //    mouseinwinx = mouseinwinx*FOURNUM;
 //    mouseinwiny = mouseinwiny*FOURNUM;
-//    if(msb&2)
+//    if(mous.latch.b&2)
 //    {
 //       mouseinwintype = 0+0;
 //       mouseinwintile = 0xffff;
@@ -3417,8 +3418,8 @@ void flatten_mesh()
 //  {
 //    mouseinwinx = mouseinwinx*FOURNUM;
 //    mouseinwiny = mouseinwiny*FOURNUM;
-//    if(mouseinwinx >= (meshsizex<<7))  mouseinwinx = (meshsizex<<7)-1;
-//    if(mouseinwiny >= (meshsizey<<7))  mouseinwiny = (meshsizey<<7)-1;
+//    if(mouseinwinx >= (mesh.size_x<<7))  mouseinwinx = (mesh.size_x<<7)-1;
+//    if(mouseinwiny >= (mesh.size_y<<7))  mouseinwiny = (mesh.size_y<<7)-1;
 //    debugx = mouseinwinx/128.0;
 //    debugy = mouseinwiny/128.0;
 //    x = mouseinwinx>>7;
@@ -3432,14 +3433,14 @@ void flatten_mesh()
 //    }
 //    if(SDLKEYDOWN(SDLK_k)&&addinglight==bfalse)
 //    {
-//      add_light(mouseinwinx, mouseinwiny, MINRADIUS, MAXLEVEL);
+//      add_light(mouseinwinx, mouseinwiny, MINRADIUS, MAXHEIGHT);
 //      addinglight = btrue;
 //    }
 //    if(addinglight)
 //    {
 //      alter_light(mouseinwinx, mouseinwiny);
 //    }
-//    if(msb&1)
+//    if(mous.latch.b&1)
 //    {
 //      keyt = SDLKEYDOWN(SDLK_t);
 //      keyv = SDLKEYDOWN(SDLK_v);
@@ -3448,55 +3449,55 @@ void flatten_mesh()
 //        if(!keyv)
 //        {
 //          // Save corner heights
-//          vert = meshvrtstart[mouseinwinonfan];
-//          tl = meshvrtz[vert];
-//          vert = meshvrtnext[vert];
-//          tr = meshvrtz[vert];
-//          vert = meshvrtnext[vert];
-//          br = meshvrtz[vert];
-//          vert = meshvrtnext[vert];
-//          bl = meshvrtz[vert];
+//          vert = Mesh_Fan[mouseinwinonfan].vrt_start;
+//          tl = Mesh_Mem.vrt_z[vert];
+//          vert = Mesh_Mem.vrt_next[vert];
+//          tr = Mesh_Mem.vrt_z[vert];
+//          vert = Mesh_Mem.vrt_next[vert];
+//          br = Mesh_Mem.vrt_z[vert];
+//          vert = Mesh_Mem.vrt_next[vert];
+//          bl = Mesh_Mem.vrt_z[vert];
 //        }
 //        remove_fan(mouseinwinonfan);
 //      }
 //      switch(mouseinwinpresser)
 //      {
 //        case 0:
-//          meshtile[mouseinwinonfan]=mouseinwintile;
+//          Mesh_Fan[mouseinwinonfan].tile=mouseinwintile;
 //          break;
 //        case 1:
-//          meshtile[mouseinwinonfan]=(mouseinwintile&0xfffe)+(rand()&1);
+//          Mesh_Fan[mouseinwinonfan].tile=(mouseinwintile&0xfffe)+(rand()&1);
 //          break;
 //        case 2:
-//          meshtile[mouseinwinonfan]=(mouseinwintile&0xfffc)+(rand()&3);
+//          Mesh_Fan[mouseinwinonfan].tile=(mouseinwintile&0xfffc)+(rand()&3);
 //          break;
 //        case 3:
-//          meshtile[mouseinwinonfan]=(mouseinwintile&0xfff0)+(rand()&6);
+//          Mesh_Fan[mouseinwinonfan].tile=(mouseinwintile&0xfff0)+(rand()&6);
 //          break;
 //      }
 //      if(!keyt)
 //      {
-//        meshtype[mouseinwinonfan]=mouseinwintype;
+//        Mesh_Fan[mouseinwinonfan].type=mouseinwintype;
 //        add_fan(mouseinwinonfan, (mouseinwinx>>7)*31, (mouseinwiny>>7)*31);
-//        meshfx[mouseinwinonfan]=mouseinwinfx;
+//        Mesh_Fan[mouseinwinonfan].fx=mouseinwinfx;
 //        if(!keyv)
 //        {
 //          // Return corner heights
-//          vert = meshvrtstart[mouseinwinonfan];
-//          meshvrtz[vert] = tl;
-//          vert = meshvrtnext[vert];
-//          meshvrtz[vert] = tr;
-//          vert = meshvrtnext[vert];
-//          meshvrtz[vert] = br;
-//          vert = meshvrtnext[vert];
-//          meshvrtz[vert] = bl;
+//          vert = Mesh_Fan[mouseinwinonfan].vrt_start;
+//          Mesh_Mem.vrt_z[vert] = tl;
+//          vert = Mesh_Mem.vrt_next[vert];
+//          Mesh_Mem.vrt_z[vert] = tr;
+//          vert = Mesh_Mem.vrt_next[vert];
+//          Mesh_Mem.vrt_z[vert] = br;
+//          vert = Mesh_Mem.vrt_next[vert];
+//          Mesh_Mem.vrt_z[vert] = bl;
 //        }
 //      }
 //    }
-//    if(msb&2)
+//    if(mous.latch.b&2)
 //    {
-//      mouseinwintype = meshtype[mouseinwinonfan];
-//      mouseinwintile = meshtile[mouseinwinonfan];
+//      mouseinwintype = Mesh_Fan[mouseinwinonfan].type;
+//      mouseinwintile = Mesh_Fan[mouseinwinonfan].tile;
 //    }
 //  }
 //
@@ -3513,17 +3514,17 @@ void flatten_mesh()
 //  mouseinwinx = ui_getMouseX() - window_rect[cnt].x-windowborderx[cnt]+cart_pos_x-69;
 //  mouseinwiny = ui_getMouseY() - window_rect[cnt].y-windowbordery[cnt]+cart_pos_y-69;
 //  if(mouseinwinx < 0 ||
-//     mouseinwinx >= SMALLX*meshsizex ||
+//     mouseinwinx >= SMALLX*mesh.size_x ||
 //     mouseinwiny < 0 ||
-//     mouseinwiny >= SMALLY*meshsizey)
+//     mouseinwiny >= SMALLY*mesh.size_y)
 //  {
 //  }
 //  else
 //  {
 //    mouseinwinx = mouseinwinx*FOURNUM;
 //    mouseinwiny = mouseinwiny*FOURNUM;
-//    if(mouseinwinx >= (meshsizex<<7))  mouseinwinx = (meshsizex<<7)-1;
-//    if(mouseinwiny >= (meshsizey<<7))  mouseinwiny = (meshsizey<<7)-1;
+//    if(mouseinwinx >= (mesh.size_x<<7))  mouseinwinx = (mesh.size_x<<7)-1;
+//    if(mouseinwiny >= (mesh.size_y<<7))  mouseinwiny = (mesh.size_y<<7)-1;
 //    debugx = mouseinwinx/128.0;
 //    debugy = mouseinwiny/128.0;
 //    x = mouseinwinx>>7;
@@ -3531,13 +3532,13 @@ void flatten_mesh()
 //    mouseinwinonfan = mesh_convert_fan(x, y);
 //
 //
-//    if(msb&1)
+//    if(mous.latch.b&1)
 //    {
-//      meshfx[mouseinwinonfan] = mouseinwinfx;
+//      Mesh_Fan[mouseinwinonfan].fx = mouseinwinfx;
 //    }
-//    if(msb&2)
+//    if(mous.latch.b&2)
 //    {
-//      mouseinwinfx = meshfx[mouseinwinonfan];
+//      mouseinwinfx = Mesh_Fan[mouseinwinonfan].fx;
 //    }
 //  }
 //
@@ -3569,7 +3570,7 @@ void flatten_mesh()
 //  {
 //    set_select_no_bound_z(127<<2);
 //  }
-//  if(msb&1)
+//  if(mous.latch.b&1)
 //  {
 //    if(mouseinwinrect==bfalse)
 //    {
@@ -3582,7 +3583,7 @@ void flatten_mesh()
 //  {
 //    if(mouseinwinrect==btrue)
 //    {
-//      if(numselect!=0 && !SDLKEYDOWN(SDLK_ALT) && !SDLKEYDOWN(SDLK_ALTGR) && 
+//      if(numselect!=0 && !SDLKEYDOWN(SDLK_ALT) && !SDLKEYDOWN(SDLK_ALTGR) &&
 //                         !SDLKEYDOWN(SDLK_LCTRL) && !SDLKEYDOWN(SDLK_RCTRL))
 //      {
 //        clear_select();
@@ -3598,7 +3599,7 @@ void flatten_mesh()
 //      mouseinwinrect = bfalse;
 //    }
 //  }
-//  if(msb&2)
+//  if(mous.latch.b&2)
 //  {
 //    move_select(mcx, mcy, 0);
 //    bound_mouse();
@@ -3668,35 +3669,35 @@ void clear_mesh()
   if(mouseinwintile != INVALID_FAN)
   {
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
         remove_fan(fan);
         switch(mouseinwinpresser)
         {
         case 0:
-          meshtile[fan]=mouseinwintile;
+          Mesh_Fan[fan].tile=mouseinwintile;
           break;
         case 1:
-          meshtile[fan]=(mouseinwintile&0xfffe)+(rand()&1);
+          Mesh_Fan[fan].tile=(mouseinwintile&0xfffe)+(rand()&1);
           break;
         case 2:
           if(mouseinwintype >= 32)
-            meshtile[fan]=(mouseinwintile&0xfff8)+(rand()&6);
+            Mesh_Fan[fan].tile=(mouseinwintile&0xfff8)+(rand()&6);
           else
-            meshtile[fan]=(mouseinwintile&0xfffc)+(rand()&3);
+            Mesh_Fan[fan].tile=(mouseinwintile&0xfffc)+(rand()&3);
           break;
         case 3:
-          meshtile[fan]=(mouseinwintile&0xfff0)+(rand()&6);
+          Mesh_Fan[fan].tile=(mouseinwintile&0xfff0)+(rand()&6);
           break;
         }
-        meshtype[fan]=mouseinwintype;
-        if(mouseinwintype<=1) meshtype[fan] = rand()&1;
+        Mesh_Fan[fan].type=mouseinwintype;
+        if(mouseinwintype<=1) Mesh_Fan[fan].type = rand()&1;
         if(mouseinwintype == 32 || mouseinwintype == 33)
-          meshtype[fan] = 32 + (rand()&1);
+          Mesh_Fan[fan].type = 32 + (rand()&1);
         add_fan(fan, x*31, y*31);
         x++;
       }
@@ -3717,13 +3718,13 @@ void three_e_mesh()
   if(mouseinwintile != INVALID_FAN)
   {
     y = 0;
-    while(y < meshsizey)
+    while(y < mesh.size_y)
     {
       x = 0;
-      while(x < meshsizex)
+      while(x < mesh.size_x)
       {
         fan = mesh_convert_fan(x, y);
-        if(meshtile[fan]==0x3F)  meshtile[fan]=0x3E;
+        if(Mesh_Fan[fan].tile==0x3F)  Mesh_Fan[fan].tile=0x3E;
         x++;
       }
       y++;
@@ -3754,18 +3755,18 @@ void ease_up_mesh(int zadd)
   Uint32 fan, vert;
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
-      vert = meshvrtstart[fan];
+      vert = Mesh_Fan[fan].vrt_start;
       cnt = 0;
-      while(cnt < meshcommandnumvertices[meshtype[fan]])
+      while(cnt < Mesh_Cmd[Mesh_Fan[fan].type].vrt_count)
       {
         move_vert(vert, 0, 0, zadd);
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       x++;
@@ -3783,16 +3784,16 @@ void select_connected()
 
 
   y = 0;
-  while(y < meshsizey)
+  while(y < mesh.size_y)
   {
     x = 0;
-    while(x < meshsizex)
+    while(x < mesh.size_x)
     {
       fan = mesh_convert_fan(x, y);
       selectfan = bfalse;
-      totalvert = meshcommandnumvertices[meshtype[fan]];
+      totalvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
       cnt = 0;
-      vert = meshvrtstart[fan];
+      vert = Mesh_Fan[fan].vrt_start;
       while(cnt < totalvert)
       {
 
@@ -3807,17 +3808,17 @@ void select_connected()
           tnc++;
         }
         if(found) selectfan = btrue;
-        vert = meshvrtnext[vert];
+        vert = Mesh_Mem.vrt_next[vert];
         cnt++;
       }
       if(selectfan)
       {
         cnt = 0;
-        vert = meshvrtstart[fan];
+        vert = Mesh_Fan[fan].vrt_start;
         while(cnt < totalvert)
         {
           add_select(vert);
-          vert = meshvrtnext[vert];
+          vert = Mesh_Mem.vrt_next[vert];
           cnt++;
         }
       }
@@ -3890,30 +3891,30 @@ void check_keys(char *modname)
     }
     if(SDLKEYDOWN(SDLK_z))
     {
-      set_mesh_tile(meshtile[mouseinwinonfan]);
+      set_mesh_tile(Mesh_Fan[mouseinwinonfan].tile);
       keydelay=KEYDELAY;
     }
     if(SDLKEYDOWN(SDLK_LSHIFT))
     {
-      if(meshtype[mouseinwinonfan] >= (MAXMESHTYPE>>1))
+      if(Mesh_Fan[mouseinwinonfan].type >= (MAXMESHTYPE>>1))
       {
-        fx_mesh_tile(meshtile[mouseinwinonfan], 192, mouseinwinfx);
+        fx_mesh_tile(Mesh_Fan[mouseinwinonfan].tile, 192, mouseinwinfx);
       }
       else
       {
-        fx_mesh_tile(meshtile[mouseinwinonfan], 240, mouseinwinfx);
+        fx_mesh_tile(Mesh_Fan[mouseinwinonfan].tile, 240, mouseinwinfx);
       }
       keydelay=KEYDELAY;
     }
     if(SDLKEYDOWN(SDLK_x))
     {
-      if(meshtype[mouseinwinonfan] >= (MAXMESHTYPE>>1))
+      if(Mesh_Fan[mouseinwinonfan].type >= (MAXMESHTYPE>>1))
       {
-        trim_mesh_tile(meshtile[mouseinwinonfan], 192);
+        trim_mesh_tile(Mesh_Fan[mouseinwinonfan].tile, 192);
       }
       else
       {
-        trim_mesh_tile(meshtile[mouseinwinonfan], 240);
+        trim_mesh_tile(Mesh_Fan[mouseinwinonfan].tile, 240);
       }
       keydelay=KEYDELAY;
     }
@@ -3961,7 +3962,7 @@ void check_keys(char *modname)
     if(SDLKEYDOWN(SDLK_INSERT))
     {
       mouseinwintype=(mouseinwintype-1)&(MAXMESHTYPE-1);
-      while(meshnumline[mouseinwintype]==0)
+      while(Mesh[mouseinwintype].numline==0)
       {
         mouseinwintype=(mouseinwintype-1)&(MAXMESHTYPE-1);
       }
@@ -3970,7 +3971,7 @@ void check_keys(char *modname)
     if(SDLKEYDOWN(SDLK_BACKSPACE))
     {
       mouseinwintype=(mouseinwintype+1)&(MAXMESHTYPE-1);
-      while(meshnumline[mouseinwintype]==0)
+      while(Mesh[mouseinwintype].numline==0)
       {
         mouseinwintype=(mouseinwintype+1)&(MAXMESHTYPE-1);
       }
@@ -4064,8 +4065,8 @@ void check_keys(char *modname)
 //  int x, y;
 //  Uint8 col, loc;
 //
-//  col = make_color(31, 31, 31);			// White color
-//  loc = make_color(3, 3, 3);				// Gray color
+//  col = make_color(31, 31, 31);      // White color
+//  loc = make_color(3, 3, 3);        // Gray color
 //  bmptemp = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, 32, rmask, gmask, bmask, amask);
 //
 //  // Simple triangle
@@ -4103,7 +4104,7 @@ void load_img(void)
   {
     bmpother = SDL_CreateRGBSurface(SDL_SWSURFACE, (cnt>>1)+4, ((cnt+1)>>1)+4, 32, rmask, gmask, bmask, amask);
     SDL_BlitSurface(bmptemp, &bmptemp->clip_rect, bmpother, &bmpother->clip_rect);
-  
+
     GLTexture_Convert( GL_TEXTURE_2D, &imgpoint[cnt], bmpother, INVALID_KEY);
 
     SDL_FreeSurface( bmpother );
@@ -4118,7 +4119,7 @@ void load_img(void)
   {
     bmpother = SDL_CreateRGBSurface(SDL_SWSURFACE, (cnt>>1)+4, ((cnt+1)>>1)+4, 32, rmask, gmask, bmask, amask);
     SDL_BlitSurface(bmptemp, &bmptemp->clip_rect, bmpother, &bmpother->clip_rect);
-  
+
     GLTexture_Convert( GL_TEXTURE_2D, &imgpointon[cnt] , bmpother, INVALID_KEY);
 
     SDL_FreeSurface( bmpother );
@@ -4148,31 +4149,31 @@ void draw_lotsa_stuff(void)
   // Tell which tile we're in
   x = debugx * 128;
   y = debugy * 128;
-  draw_string( &TxFont,  0, 226, make_color(31, 31, 31), "X = %6.2f (%d)", debugx, x);
-  draw_string( &TxFont,  0, 234, make_color(31, 31, 31), "Y = %6.2f (%d)", debugy, y);
+  draw_string( &bmfont,  0, 226, make_color(31, 31, 31), "X = %6.2f (%d)", debugx, x);
+  draw_string( &bmfont,  0, 234, make_color(31, 31, 31), "Y = %6.2f (%d)", debugy, y);
 
 
   // Tell user what keys are important
-  draw_string( &TxFont,  0, OUTY-120, make_color(31, 31, 31), "O = Overlay (Water)");
-  draw_string( &TxFont,  0, OUTY-112, make_color(31, 31, 31), "R = Reflective");
-  draw_string( &TxFont,  0, OUTY-104, make_color(31, 31, 31), "D = Draw Reflection");
-  draw_string( &TxFont,  0, OUTY- 96, make_color(31, 31, 31), "A = Animated");
-  draw_string( &TxFont,  0, OUTY- 88, make_color(31, 31, 31), "B = Barrier (Slit)");
-  draw_string( &TxFont,  0, OUTY- 80, make_color(31, 31, 31), "I = Impassable (Wall)");
-  draw_string( &TxFont,  0, OUTY- 72, make_color(31, 31, 31), "H = Hurt");
-  draw_string( &TxFont,  0, OUTY- 64, make_color(31, 31, 31), "S = Slippy");
+  draw_string( &bmfont,  0, OUTY-120, make_color(31, 31, 31), "O = Overlay (Water)");
+  draw_string( &bmfont,  0, OUTY-112, make_color(31, 31, 31), "R = Reflective");
+  draw_string( &bmfont,  0, OUTY-104, make_color(31, 31, 31), "D = Draw Reflection");
+  draw_string( &bmfont,  0, OUTY- 96, make_color(31, 31, 31), "A = Animated");
+  draw_string( &bmfont,  0, OUTY- 88, make_color(31, 31, 31), "B = Barrier (Slit)");
+  draw_string( &bmfont,  0, OUTY- 80, make_color(31, 31, 31), "I = Impassable (Wall)");
+  draw_string( &bmfont,  0, OUTY- 72, make_color(31, 31, 31), "H = Hurt");
+  draw_string( &bmfont,  0, OUTY- 64, make_color(31, 31, 31), "S = Slippy");
 
 
   // Vertices left
-  draw_string( &TxFont,  0, OUTY-56, make_color(31, 31, 31), "Vertices %d", numfreevertices);
+  draw_string( &bmfont,  0, OUTY-56, make_color(31, 31, 31), "Vertices %d", numfreevertices);
 
 
   // Misc data
-  draw_string( &TxFont,  0, OUTY-40, make_color(31, 31, 31), "Ambient   %d", ambi);
-  draw_string( &TxFont,  0, OUTY-32, make_color(31, 31, 31), "Ambicut   %d", ambicut);
-  draw_string( &TxFont,  0, OUTY-24, make_color(31, 31, 31), "Direct    %d", direct);
-  draw_string( &TxFont,  0, OUTY-16, make_color(31, 31, 31), "Brush amount %d", brushamount);
-  draw_string( &TxFont,  0, OUTY-8,  make_color(31, 31, 31), "Brush size   %d", brushsize);
+  draw_string( &bmfont,  0, OUTY-40, make_color(31, 31, 31), "Ambient   %d", ambi);
+  draw_string( &bmfont,  0, OUTY-32, make_color(31, 31, 31), "Ambicut   %d", ambicut);
+  draw_string( &bmfont,  0, OUTY-24, make_color(31, 31, 31), "Direct    %d", direct);
+  draw_string( &bmfont,  0, OUTY-16, make_color(31, 31, 31), "Brush amount %d", brushamount);
+  draw_string( &bmfont,  0, OUTY-8,  make_color(31, 31, 31), "Brush size   %d", brushsize);
 
 
   // Cursor
@@ -4226,15 +4227,15 @@ void draw_lotsa_stuff(void)
       tile+=add;
       cnt++;
     }
-    draw_string( &TxFont,  0, 32, make_color(31, 31, 31), "Tile 0x%02x", mouseinwintile);
-    draw_string( &TxFont,  0, 40, make_color(31, 31, 31), "Eats %d verts", meshcommandnumvertices[mouseinwintype]);
+    draw_string( &bmfont,  0, 32, make_color(31, 31, 31), "Tile 0x%02x", mouseinwintile);
+    draw_string( &bmfont,  0, 40, make_color(31, 31, 31), "Eats %d verts", Mesh_Cmd[mouseinwintype].vrt_count);
     if(mouseinwintype>=MAXMESHTYPE/2)
     {
-      draw_string( &TxFont,  0, 56, make_color(31, 16, 16), "63x63 Tile");
+      draw_string( &bmfont,  0, 56, make_color(31, 16, 16), "63x63 Tile");
     }
     else
     {
-      draw_string( &TxFont,  0, 56, make_color(16, 16, 31), "31x31 Tile");
+      draw_string( &bmfont,  0, 56, make_color(16, 16, 31), "31x31 Tile");
     }
 
     draw_schematic(-1, mouseinwintype, 0, 64);
@@ -4268,7 +4269,7 @@ void draw_lotsa_stuff(void)
 
   if(numattempt > 0)
   {
-    draw_string( &TxFont,  0, 0, make_color(31, 31, 31), "numwritten %d/%d", numwritten, numattempt);
+    draw_string( &bmfont,  0, 0, make_color(31, 31, 31), "numwritten %d/%d", numwritten, numattempt);
   }
 
 
@@ -4290,7 +4291,7 @@ void draw_slider(int tlx, int tly, int brx, int bry, int* pvalue,
 
   // Pick a new value
   value = *pvalue;
-  if(ui_getMouseX() >= tlx && ui_getMouseX() <= brx && ui_getMouseY() >= tly && ui_getMouseY() <= bry && msb)
+  if(ui_getMouseX() >= tlx && ui_getMouseX() <= brx && ui_getMouseY() >= tly && ui_getMouseY() <= bry && mous.latch.b)
   {
     value = (((ui_getMouseY() - tly)*(maxvalue-minvalue))/(bry - tly)) + minvalue;
   }
@@ -4335,23 +4336,23 @@ void show_info(void)
 //------------------------------------------------------------------------------
 int cartman(char * modulename)
 {
-  show_info();						// Text title
+  show_info();            // Text title
 
-  load_all_windows();					// Load windows
-  load_img();						// Load other images
-  load_mesh_fans();					// Get fan data
-  cart_load_module(modulename);				// Load the module
-  render_all_windows();					// Create basic windows
+  load_all_windows();          // Load windows
+  load_img();            // Load other images
+  load_mesh_fans();          // Get fan data
+  cart_load_module(modulename);        // Load the module
+  render_all_windows();          // Create basic windows
 
-  while(!SDLKEYDOWN(SDLK_ESCAPE) && !SDLKEYDOWN(SDLK_F1))			// Main loop
-  {	
+  while(!SDLKEYDOWN(SDLK_ESCAPE) && !SDLKEYDOWN(SDLK_F1))      // Main loop
+  {
 
     render_all_windows();
     cart_draw_main();
   }
 
 
-  show_info();						// Ending statistics
+  show_info();            // Ending statistics
 
   return 0;
 }

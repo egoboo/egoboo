@@ -20,9 +20,8 @@
 */
 
 #include "MD2.h"
-//#include "proto.h"
 #include "id_md2.h"
-#include <SDL_endian.h>		// TODO: Roll my own endian stuff so that I don't have to include
+#include <SDL_endian.h>    // TODO: Roll my own endian stuff so that I don't have to include
                           // SDL outside of the stuff that touches video/audio/input/etc.
                           // Not a high priority
 
@@ -41,13 +40,11 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
 
   // Open up the file, and make sure it's a MD2 model
   f = fopen(fileName, "rb");
-  //f = fs_fileOpen( PRI_NONE, NULL, fileName, "rb" );     //TODO: we should use this instead
-
   if (f == NULL) return NULL;
 
   fread(&header, sizeof(header), 1, f);
 
-  // Convert the byte ordering in the header, if we need to
+  // Convert the byte GOrder.ing in the header, if we need to
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
   header.magic            = SDL_Swap32BE(header.magic);
   header.version          = SDL_Swap32BE(header.version);
@@ -113,7 +110,7 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
   fseek(f, header.offsetTriangles, SEEK_SET);
   fread(model->m_triangles, sizeof(md2_triangle), header.numTriangles, f);
 
-  // Convert the byte ordering on the triangles, if necessary
+  // Convert the byte GOrder.ing on the triangles, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
   for(int i = 0;i < header.numTriangles;i++)
   {
@@ -140,7 +137,7 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
     fread(frame_buffer, header.frameSize, 1, f);
     frame = (md2_frame*)frame_buffer;
 
-    // Convert the byte ordering on the scale & translate vectors, if necessary
+    // Convert the byte GOrder.ing on the scale & translate vectors, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
     frame->scale[0] = swapFloat(frame->scale[0]);
     frame->scale[1] = swapFloat(frame->scale[1]);
@@ -291,7 +288,7 @@ const MD2_Frame *md2_get_Frame(MD2_Model * m, int index)
 //    return NULL;
 //  }
 //
-//  modelCache[string(fileName)] = model;
+//  ModList[string(fileName)].elCache = model;
 //  return model;
 //}
 //
@@ -299,20 +296,20 @@ const MD2_Frame *md2_get_Frame(MD2_Model * m, int index)
 
 void MD2_GLCommand_construct(MD2_GLCommand * m)
 {
-  m->next = NULL; 
-  m->data = NULL; 
+  m->next = NULL;
+  m->data = NULL;
 };
 
-void MD2_GLCommand_destruct(MD2_GLCommand * m) 
+void MD2_GLCommand_destruct(MD2_GLCommand * m)
 {
-  if(NULL==m) return; 
+  if(NULL==m) return;
 
-  if(NULL!=m->next) 
+  if(NULL!=m->next)
   {
     MD2_GLCommand_delete(m->next);
     m->next = NULL;
   };
-  
+
   if(NULL!=m->data)
   {
     free(m->data);
@@ -320,35 +317,35 @@ void MD2_GLCommand_destruct(MD2_GLCommand * m)
   }
 };
 
-MD2_GLCommand * MD2_GLCommand_new()  
+MD2_GLCommand * MD2_GLCommand_new()
 {
-  MD2_GLCommand * m; 
-  m = calloc(sizeof(MD2_GLCommand),1); 
-  MD2_GLCommand_construct(m); 
-  return m; 
+  MD2_GLCommand * m;
+  m = calloc(sizeof(MD2_GLCommand),1);
+  MD2_GLCommand_construct(m);
+  return m;
 };
 
 MD2_GLCommand * MD2_GLCommand_new_vector(int n)
 {
-  int i;  
-  MD2_GLCommand * v = calloc(sizeof(MD2_GLCommand),n); 
-  for(i=0; i<n; i++) MD2_GLCommand_construct(&v[i]); 
-  return v; 
+  int i;
+  MD2_GLCommand * v = calloc(sizeof(MD2_GLCommand),n);
+  for(i=0; i<n; i++) MD2_GLCommand_construct(&v[i]);
+  return v;
 }
 
-void MD2_GLCommand_delete(MD2_GLCommand * m) 
-{ 
-  if(NULL==m) return; 
-  MD2_GLCommand_destruct(m); 
-  free(m); 
+void MD2_GLCommand_delete(MD2_GLCommand * m)
+{
+  if(NULL==m) return;
+  MD2_GLCommand_destruct(m);
+  free(m);
 };
 
-void MD2_GLCommand_delete_vector(MD2_GLCommand * v, int n) 
-{ 
-  int i; 
-  if(NULL==v || 0 == n) return; 
-  for(i=0; i<n; i++) MD2_GLCommand_destruct(&v[i]); 
-  free(v); 
+void MD2_GLCommand_delete_vector(MD2_GLCommand * v, int n)
+{
+  int i;
+  if(NULL==v || 0 == n) return;
+  for(i=0; i<n; i++) MD2_GLCommand_destruct(&v[i]);
+  free(v);
 };
 
 
@@ -418,33 +415,33 @@ void md2_destruct(MD2_Model * m)
   md2_deallocate(m);
 }
 
-MD2_Model * md2_new()  
+MD2_Model * md2_new()
 {
-  MD2_Model * m; 
-  m = calloc(sizeof(MD2_Model),1); 
-  md2_construct(m); 
-  return m; 
+  MD2_Model * m;
+  m = calloc(sizeof(MD2_Model),1);
+  md2_construct(m);
+  return m;
 };
 
 MD2_Model * md2_new_vector(int n)
 {
-  int i;  
-  MD2_Model * v = calloc(sizeof(MD2_Model),n); 
-  for(i=0; i<n; i++) md2_construct(&v[i]); 
-  return v; 
+  int i;
+  MD2_Model * v = calloc(sizeof(MD2_Model),n);
+  for(i=0; i<n; i++) md2_construct(&v[i]);
+  return v;
 }
 
-void md2_delete(MD2_Model * m) 
-{ 
-  if(NULL==m) return; 
-  md2_destruct(m); 
-  free(m); 
+void md2_delete(MD2_Model * m)
+{
+  if(NULL==m) return;
+  md2_destruct(m);
+  free(m);
 };
 
-void md2_delete_vector(MD2_Model * v, int n) 
-{ 
-  int i; 
-  if(NULL==v || 0 == n) return; 
-  for(i=0; i<n; i++) md2_destruct(&v[i]); 
-  free(v); 
+void md2_delete_vector(MD2_Model * v, int n)
+{
+  int i;
+  if(NULL==v || 0 == n) return;
+  for(i=0; i<n; i++) md2_destruct(&v[i]);
+  free(v);
 };

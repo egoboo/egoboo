@@ -15,31 +15,36 @@
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			CharacterSet="0"
+			WholeProgramOptimization="TRUE">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)\enet&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;DEBUG_BBOX"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="FALSE"
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
+				EnableEnhancedInstructionSet="2"
 				UsePrecompiledHeader="0"
+				PrecompiledHeaderThrough=""
 				BrowseInformation="1"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				DebugInformationFormat="3"
+				CompileAs="1"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL_image_d.lib SDL_d.lib SDLmain_d.lib SDL_ttf_d.lib SDL_mixer_d.lib opengl32.lib glu32.lib ws2_32.lib shlwapi.lib SHFolder.lib Shell32.lib"
+				AdditionalDependencies="SDL_image.lib SDL.lib SDLmain.lib SDL_ttf.lib SDL_mixer.lib opengl32.lib glu32.lib ws2_32.lib shlwapi.lib shell32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
+				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"
 				SubSystem="1"
@@ -155,6 +160,9 @@
 				RelativePath=".\egoboo_strutil.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_utility.c">
+			</File>
+			<File
 				RelativePath=".\enchant.c">
 			</File>
 			<File
@@ -212,6 +220,9 @@
 				RelativePath=".\Log.c">
 			</File>
 			<File
+				RelativePath=".\Mad.c">
+			</File>
+			<File
 				RelativePath=".\MainLoop.c">
 			</File>
 			<File
@@ -228,6 +239,9 @@
 			</File>
 			<File
 				RelativePath=".\network.c">
+			</File>
+			<File
+				RelativePath=".\ogl_include.c">
 			</File>
 			<File
 				RelativePath=".\ogl_texture.c">
@@ -272,15 +286,6 @@
 				RelativePath=".\Task.c">
 			</File>
 			<File
-				RelativePath=".\test_sdl.c">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\Ticker.c">
 			</File>
 			<File
@@ -294,6 +299,12 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\camera.h">
+			</File>
+			<File
+				RelativePath=".\char.h">
+			</File>
 			<File
 				RelativePath=".\Client.h">
 			</File>
@@ -316,6 +327,12 @@
 				RelativePath=".\egoboo_types.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_utility.h">
+			</File>
+			<File
+				RelativePath=".\enchant.h">
+			</File>
+			<File
 				RelativePath=".\Font.h">
 			</File>
 			<File
@@ -331,7 +348,13 @@
 				RelativePath=".\id_normals.h">
 			</File>
 			<File
+				RelativePath=".\input.h">
+			</File>
+			<File
 				RelativePath=".\Log.h">
+			</File>
+			<File
+				RelativePath=".\Mad.h">
 			</File>
 			<File
 				RelativePath=".\Md2.h">
@@ -346,7 +369,7 @@
 				RelativePath=".\Network.h">
 			</File>
 			<File
-				RelativePath=".\ogl_include.c">
+				RelativePath=".\object.h">
 			</File>
 			<File
 				RelativePath=".\ogl_include.h">
@@ -355,10 +378,22 @@
 				RelativePath=".\ogl_texture.h">
 			</File>
 			<File
+				RelativePath=".\particle.h">
+			</File>
+			<File
+				RelativePath=".\passage.h">
+			</File>
+			<File
 				RelativePath=".\proto.h">
 			</File>
 			<File
+				RelativePath=".\script.h">
+			</File>
+			<File
 				RelativePath=".\Server.h">
+			</File>
+			<File
+				RelativePath=".\sound.h">
 			</File>
 			<File
 				RelativePath=".\System.h">
@@ -400,6 +435,12 @@
 			Filter="">
 			<File
 				RelativePath=".\cartman.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\obsolete\cartman_mouse3.c">
@@ -429,6 +470,15 @@
 				</FileConfiguration>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\test_sdl.c">
+			<FileConfiguration
+				Name="Debug|Win32"
+				ExcludedFromBuild="TRUE">
+				<Tool
+					Name="VCCLCompilerTool"/>
+			</FileConfiguration>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

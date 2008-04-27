@@ -63,7 +63,7 @@ void sv_talkToRemotes( ServerState * ss )
   // ZZ> This function sends the character data to all the remote machines
   Uint32 uiTime, ichr;
 
-  if ( !hostactive || !CData.networkon ) return;
+  if ( !hostactive || !CData.network_on ) return;
 
   if ( wldframe > STARTTALK )
   {
@@ -78,7 +78,7 @@ void sv_talkToRemotes( ServerState * ss )
     uiTime &= LAGAND;
     for ( ichr = 0; ichr < MAXCHR; ichr++ )
     {
-      if ( chron[ichr] )
+      if ( ChrList[ichr].on )
       {
         packet_addUnsignedShort( ichr );                                 // The character index
         packet_addUnsignedByte( ss->timelatchbutton[ichr][uiTime] );       // Player button states
@@ -113,16 +113,16 @@ void sv_letPlayersJoin()
 
         // save the player data here.
         enet_address_get_host( &event.peer->address, hostName, 64 );
-        strncpy( netplayername[numplayer], hostName, 16 );
+        strncpy( GNet.playername[GNet.num_player], hostName, 16 );
 
-        event.peer->data = & ( net_playerInfo[numplayer] );
-        numplayer++;
+        event.peer->data = & ( net_playerInfo[GNet.num_player] );
+        GNet.num_player++;
 
         break;
 
       case ENET_EVENT_TYPE_RECEIVE:
         log_info( "sv_letPlayersJoin: Recieved a packet when we weren't expecting it...\n" );
-        log_info( "\tIt came from %x:%u\n", event.peer->address.host, event.peer->address.port );
+        log_info( "\tIt GCamera.e from %x:%u\n", event.peer->address.host, event.peer->address.port );
 
         // clean up the packet
         enet_packet_destroy( event.packet );
@@ -144,7 +144,7 @@ int sv_hostGame()
   // ZZ> This function tries to host a new session
   ENetAddress address;
 
-  if ( CData.networkon )
+  if ( CData.network_on )
   {
     // Try to create a new session
     address.host = ENET_HOST_ANY;
@@ -199,7 +199,7 @@ bool_t sv_handlePacket( ServerState * ss, ENetEvent *event )
       log_info( "TO_HOSTMODULEOK\n" );
 
       playersready++;
-      if ( playersready >= numplayer )
+      if ( playersready >= GNet.num_player )
       {
         readytostart = btrue;
       }
@@ -222,7 +222,7 @@ bool_t sv_handlePacket( ServerState * ss, ENetEvent *event )
       log_info( "TO_HOST_IMLOADED\n" );
 
       playersloaded++;
-      if ( playersloaded == numplayer )
+      if ( playersloaded == GNet.num_player )
       {
         // Let the games begin...
         waitingforplayers = bfalse;
@@ -244,13 +244,13 @@ bool_t sv_handlePacket( ServerState * ss, ENetEvent *event )
       while(cnt < MAXSELECT)
       {
       who = packet_readUnsignedByte();
-      orderwho[whichorder][cnt] = who;
+      GOrder.who[whichorder][cnt] = who;
       cnt++;
       }
       what = packet_readUnsignedInt();
-      when = wldframe + CData.orderlag;
-      orderwhat[whichorder] = what;
-      orderwhen[whichorder] = when;
+      when = wldframe + CData.GOrder.lag;
+      GOrder.what[whichorder] = what;
+      GOrder.when[whichorder] = when;
 
 
       // Send the order off to everyone else
@@ -259,7 +259,7 @@ bool_t sv_handlePacket( ServerState * ss, ENetEvent *event )
       cnt = 0;
       while(cnt < MAXSELECT)
       {
-      packet_addUnsignedByte(orderwho[whichorder][cnt]);
+      packet_addUnsignedByte(GOrder.who[whichorder][cnt]);
       cnt++;
       }
       packet_addUnsignedInt(what);
@@ -365,16 +365,16 @@ void sv_unbufferLatches( ServerState * ss )
     ss->latchbutton[cnt] = ss->timelatchbutton[cnt][uiTime];
 
     // Let players respawn
-    if ( respawnvalid && HAS_SOME_BITS( chrlatchbutton[cnt], LATCHBUTTON_RESPAWN ) )
+    if ( respawnvalid && HAS_SOME_BITS( ChrList[cnt].latch.b, LATCHBUTTON_RESPAWN ) )
     {
-      if ( !chralive[cnt] )
+      if ( !ChrList[cnt].alive )
       {
         respawn_character( cnt );
-        teamleader[chrteam[cnt]] = cnt;
-        chralert[cnt] |= ALERT_CLEANEDUP;
+        TeamList[ChrList[cnt].team].leader = cnt;
+        ChrList[cnt].alert |= ALERT_CLEANEDUP;
 
         // Cost some experience for doing this...  Never lose a level
-        chrexperience[cnt] *= EXPKEEP;
+        ChrList[cnt].experience *= EXPKEEP;
       }
       ss->latchbutton[cnt] &= ~LATCHBUTTON_RESPAWN;
     }

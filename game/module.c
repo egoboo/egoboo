@@ -19,28 +19,35 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
 #include "Log.h"
+#include "sound.h"
+#include "Mesh.h"
+#include "Particle.h"
+#include "script.h"
+#include "menu.h"
+
 #include "egoboo_strutil.h"
+#include "egoboo_utility.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 void release_module( void )
 {
   // ZZ> This function frees up memory used by the module
-  if( moduleActive )
-  {
-	  release_all_textures();
-	  release_all_icons();
-	  release_map();
 
-	  // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
-	  if ( mixeron)
-	  {
-		Mix_CloseAudio();
-		songplaying = -1;
-		Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, CData.buffersize );
-		Mix_AllocateChannels( CData.maxsoundchannel );
-	  }
+  if(!moduleActive) return;
+
+  release_all_textures();
+  release_all_icons();
+  release_map();
+
+  // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
+  if ( mixeron)
+  {
+    Mix_CloseAudio();
+    songplaying = -1;
+    Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, CData.buffersize );
+    Mix_AllocateChannels( CData.maxsoundchannel );
   }
 }
 
@@ -137,7 +144,7 @@ int find_module( char *smallname )
   index = -1;
   while ( cnt < globalnummodule )
   {
-    if ( strcmp( smallname, modloadname[cnt] ) == 0 )
+    if ( strcmp( smallname, ModList[cnt].loadname ) == 0 )
     {
       index = cnt;
       cnt = globalnummodule;
@@ -194,7 +201,6 @@ void load_module( char *smallname )
 
   load_all_objects( modname );  // This is broken and needs to be fixed (is it really?)
 
-
   if ( !load_mesh( modname ) )
   {
     log_error( "Load problems with the mesh.\n" );
@@ -238,69 +244,70 @@ void load_module( char *smallname )
   load_map( modname );
   load_blip_bitmap( modname );
 
-  //Log all object slots used if in DevMode
-  if ( CData.DevMode ) log_madused( CData.debug_file );
+  if ( CData.DevMode )
+  {
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.debug_file );
+    log_madused( CData.debug_file );
+  };
 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t get_module_data(int modnumber, char *szLoadName )
+bool_t get_module_data( int modnumber, char *szLoadName )
 {
   // ZZ> This function loads the module data file
   FILE *fileread;
   char reference[128];
   STRING playername;
   Uint32 idsz;
-  Sint16 iTmp;
+  int iTmp;
   bool_t playerhasquest;
+
   fileread = fs_fileOpen( PRI_NONE, NULL, szLoadName, "r" );
   if ( NULL != fileread )
   {
     // Read basic data
     globalname = szLoadName;
-    fget_next_name( fileread, modlongname[modnumber], sizeof( modlongname[modnumber] ) );
+    fget_next_name( fileread, ModList[modnumber].longname, sizeof( ModList[modnumber].longname ) );
     fget_next_string( fileread, reference, sizeof( reference ) );
     idsz = fget_next_idsz( fileread );
 
-	//Check all selected players directories
-	playerhasquest = bfalse;
-	iTmp = 0;
-	
-	while ( !playerhasquest && iTmp < numloadplayer)
-	{
-	  snprintf( playername, sizeof( playername ), "%s", loadplayerdir[iTmp] );
+    //Check all selected players directories
+    playerhasquest = bfalse;
+    iTmp = 0;
+    while ( !playerhasquest && iTmp < numloadplayer)
+    {
+      snprintf( playername, sizeof( playername ), "%s", loadplayerdir[iTmp] );
       if( check_player_quest( playername, idsz ) >= 0 ) playerhasquest = btrue;
-	  iTmp++;
-	}
+      iTmp++;
+    }
 
-	//Check for unlocked modules (Both in Quest IDSZ and Module IDSZ). Skip this if in DevMode.
+    //Check for unlocked modules (Both in Quest IDSZ and Module IDSZ). Skip this if in DevMode.
   	if( CData.DevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
       globalname = szLoadName;
-      modimportamount[modnumber] = fget_next_int( fileread );
-      modallowexport[modnumber] = fget_next_bool( fileread );
-      modminplayers[modnumber] = fget_next_int( fileread );
-      modmaxplayers[modnumber] = fget_next_int( fileread );
-      modrespawnvalid[modnumber] = fget_next_respawn( fileread );
-      fget_next_bool( fileread );  // modrtscontrol[modnumber]
+      ModList[modnumber].importamount = fget_next_int( fileread );
+      ModList[modnumber].allowexport = fget_next_bool( fileread );
+      ModList[modnumber].minplayers = fget_next_int( fileread );
+      ModList[modnumber].maxplayers = fget_next_int( fileread );
+      ModList[modnumber].respawnvalid = fget_next_respawn( fileread );
+      fget_next_bool( fileread );  // ModList[modnumber].GRTS.control
       fget_next_string( fileread, generictext, sizeof( generictext ) );
       iTmp = 0;
-
-	  while ( iTmp < RANKSIZE - 1 )
+      while ( iTmp < RANKSIZE - 1 )
       {
-        modrank[modnumber][iTmp] = generictext[iTmp];
+        ModList[modnumber].rank[iTmp] = generictext[iTmp];
         iTmp++;
       }
-      modrank[modnumber][iTmp] = 0;
+      ModList[modnumber].rank[iTmp] = 0;
+
 
 
       // Read the expansions
       return btrue;
-
-	}
+    }
   }
   return bfalse;
-
 }
 
 //--------------------------------------------------------------------------------------------

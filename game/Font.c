@@ -1,4 +1,4 @@
-/* Egoboo - Font.c
+/* Egoboo - TTF_Font.c
  * True-type font drawing functionality.  Uses Freetype 2 & OpenGL
  * to do it's business.
  */
@@ -34,11 +34,16 @@
 #define vsnprintf _vsnprintf
 #endif
 
-struct font_t
+BMFont bmfont;
+
+static int      fnt_count = 0;
+static TTFont * fnt_registry[256];
+
+struct ttfont_t
 {
   TTF_Font *ttfFont;
 
-  GLuint texture;
+  GLuint  texture;
   GLfloat texCoords[4];
 };
 
@@ -115,9 +120,32 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
   return 1;
 }
 
-Font* fnt_loadFont( const char *fileName, int pointSize )
+static void fnt_quit(void)
 {
-  Font *newFont;
+  // BB > automatically unregister and delete all fonts that have been opened and TTF_Quit()
+
+  int i;
+  TTFont * pfnt;
+  bool_t close_fonts;
+
+  close_fonts = TTF_WasInit();
+
+  for(i=0; i<fnt_count; i++)
+  {
+    pfnt = fnt_registry[i];
+    if(close_fonts && NULL!=pfnt->ttfFont) TTF_CloseFont(pfnt->ttfFont);
+    free(pfnt);
+
+    fnt_registry[i] = NULL;
+  }
+  fnt_count = 0;
+
+  TTF_Quit();
+}
+
+TTFont* fnt_loadFont( const char *fileName, int pointSize )
+{
+  TTFont   *newFont;
   TTF_Font *ttfFont;
 
   // Make sure the TTF library was initialized
@@ -125,7 +153,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
   {
     if ( TTF_Init() != -1 )
     {
-      atexit( TTF_Quit );
+      atexit( fnt_quit );
     }
     else
     {
@@ -143,24 +171,52 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
   }
 
   // Everything looks good
-  newFont = ( Font* ) malloc( sizeof( Font ) );
+  newFont = ( TTFont* ) malloc( sizeof( TTFont ) );
   newFont->ttfFont = ttfFont;
   newFont->texture = 0;
+
+  // register the font
+  fnt_registry[fnt_count++] = newFont;
 
   return newFont;
 }
 
-void fnt_freeFont( Font *font )
+void fnt_freeFont( TTFont *font )
 {
-  if ( font )
+  int i,j;
+  TTFont * pfnt = NULL;
+
+  if ( NULL == font ) return;
+
+  // make sure the font was registered
+  for(i=0; i<fnt_count; i++)
   {
-    TTF_CloseFont( font->ttfFont );
-    glDeleteTextures( 1, &font->texture );
-    free( font );
+    if(font == fnt_registry[i])
+    {
+      pfnt = fnt_registry[i];
+
+      // remove it from the registry
+      for(j=i;j<fnt_count-1; j++)
+      {
+        fnt_registry[j] = fnt_registry[j+1];
+      }
+      fnt_registry[j] = NULL;
+
+      break;
+    }
   }
+
+  // is it a registered font?
+  if(NULL != pfnt)
+  {
+    if(NULL != pfnt->ttfFont) { TTF_CloseFont( pfnt->ttfFont); }
+    glDeleteTextures( 1, &pfnt->texture );
+  }
+
+  free( font );
 }
 
-void fnt_drawText( Font *font, int x, int y, const char *text )
+void fnt_drawText( TTFont *font, int x, int y, const char *text )
 {
   SDL_Surface *textSurf;
   SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
@@ -197,7 +253,7 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
   }
 }
 
-void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
+void fnt_getTextSize( TTFont *font, const char *text, int *width, int *height )
 {
   if ( font )
   {
@@ -217,7 +273,7 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int height, int spacing )
+void fnt_drawTextBox( TTFont *font, const char *text, int x, int y, int width, int height, int spacing )
 {
   size_t len;
   char *buffer, *line;
@@ -242,7 +298,7 @@ void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int
   free( buffer );
 }
 
-void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height )
+void fnt_getTextBoxSize( TTFont *font, const char *text, int spacing, int *width, int *height )
 {
   char *buffer, *line;
   size_t len;
@@ -269,7 +325,7 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
   free( buffer );
 }
 
-void fnt_drawTextFormatted( Font * fnt, int x, int y, const char *format, ... )
+void fnt_drawTextFormatted( TTFont * fnt, int x, int y, const char *format, ... )
 {
   va_list args;
   char buffer[256];

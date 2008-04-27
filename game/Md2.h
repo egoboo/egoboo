@@ -38,7 +38,7 @@
 typedef struct ego_md2_vertex_t
 {
   float x, y, z;
-  unsigned normal;	// index to id-normal array
+  unsigned normal;  // index to id-normal array
 } MD2_Vertex;
 
 typedef struct ego_md2_texcoord_t
@@ -49,7 +49,7 @@ typedef struct ego_md2_texcoord_t
 typedef struct ego_md2_frame_t
 {
   char name[16];
-  float bbmin[3], bbmax[3];		// axis-aligned bounding box limits
+  float bbmin[3], bbmax[3];    // axis-aligned bounding box limits
   MD2_Vertex *vertices;
 } MD2_Frame;
 #pragma pack(pop)
@@ -89,7 +89,7 @@ typedef struct ego_md2_model_t
   MD2_TexCoord  *m_texCoords;
   MD2_Triangle  *m_triangles;
   MD2_Frame     *m_frames;
-  MD2_GLCommand *m_commands;  
+  MD2_GLCommand *m_commands;
 } MD2_Model;
 
 void md2_construct(MD2_Model * m);

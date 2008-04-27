@@ -52,7 +52,6 @@ void log_init()
   if ( logFile == NULL )
   {
     logFile = fs_fileOpen( PRI_NONE, NULL, CData.log_file, "wt" );
-    atexit( log_shutdown );
   }
 }
 
@@ -109,7 +108,7 @@ void log_warning( const char *format, ... )
 void log_error( const char *format, ... )
 {
   // This function writes an error message into the logging document (log.txt)
-  // Never test for an error condition you don't know how to handle.
+  //Never test for an error condition you don't know how to handle.
   va_list args;
 
   va_start( args, format );
@@ -117,7 +116,6 @@ void log_error( const char *format, ... )
   va_end( args );
 
   //Close down various stuff and release memory
-  memory_cleanUp();
   fflush( logFile );
   exit( -1 );
 }

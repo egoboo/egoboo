@@ -1,6 +1,6 @@
 /* Egoboo - id_normals.c
  * Md2 model lighting normal lookup table
- * This looks very ugly
+ * I think this looks very ugly - Zefz
  */
 
 /*

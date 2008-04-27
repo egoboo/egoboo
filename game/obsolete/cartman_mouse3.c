@@ -1,6 +1,6 @@
-int             msx, msy, msxold, msyold, msb, mcx, mcy;
-int		mstlx, mstly, msbrx, msbry;
-int		mousespeed = 2;
+int             msx, msy, msxold, msyold, mous.latch.b, mcx, mcy;
+int    mstlx, mstly, msbrx, msbry;
+int    mousespeed = 2;
 
 //------------------------------------------------------------------------------
 void moson(void)
@@ -21,7 +21,7 @@ void mosdo(void)
   get_mouse_mickeys(&mcx, &mcy);
   msx+=mcx;
   msy+=mcy;
-  msb = mouse_b;
+  mous.latch.b = mouse_b;
 //  limit(0, &msx, OUTX-1);
 //  limit(0, &msy, OUTY-1);
   limit(mstlx, &msx, msbrx);

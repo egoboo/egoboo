@@ -18,11 +18,25 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
+#include "enchant.h"
 #include "mesh.h"
+#include "char.h"
 #include "log.h"
+#include "passage.h"
+#include "particle.h"
+
+#include "egoboo_utility.h"
+#include "egoboo.h"
 
 #include <assert.h>
+
+SEARCH_CONTEXT g_search;
+
+EVE EveList[MAXEVE];
+ENC EncList[MAXENCHANT];
+
+Uint16  numfreeenchant = 0;             // For allocating new ones
+Uint16  freeenchant[MAXENCHANT];    //
 
 //--------------------------------------------------------------------------------------------
 void do_enchant_spawn( float dUpdate )
@@ -35,26 +49,26 @@ void do_enchant_spawn( float dUpdate )
   cnt = 0;
   while ( cnt < MAXENCHANT )
   {
-    if ( encon[cnt] )
+    if ( EncList[cnt].on )
     {
-      eve = enceve[cnt];
-      if ( evecontspawnamount[eve] > 0 )
+      eve = EncList[cnt].eve;
+      if ( EveList[eve].contspawnamount > 0 )
       {
-        encspawntime[cnt] -= dUpdate;
-        if ( encspawntime[cnt] <= 0 ) encspawntime[cnt] = 0;
+        EncList[cnt].spawntime -= dUpdate;
+        if ( EncList[cnt].spawntime <= 0 ) EncList[cnt].spawntime = 0;
 
-        if ( encspawntime[cnt] == 0 )
+        if ( EncList[cnt].spawntime == 0 )
         {
-          character = enctarget[cnt];
-          encspawntime[cnt] = evecontspawntime[eve];
-          facing = chrturn_lr[character];
+          character = EncList[cnt].target;
+          EncList[cnt].spawntime = EveList[eve].contspawntime;
+          facing = ChrList[character].turn_lr;
           tnc = 0;
-          while ( tnc < evecontspawnamount[eve] )
+          while ( tnc < EveList[eve].contspawnamount )
           {
-            particle = spawn_one_particle( 1.0f, chrpos[character],
-                                           facing, eve, evecontspawnpip[eve],
-                                           MAXCHR, GRIP_LAST, chrteam[encowner[cnt]], encowner[cnt], tnc, MAXCHR );
-            facing += evecontspawnfacingadd[eve];
+            particle = spawn_one_particle( 1.0f, ChrList[character].pos,
+                                           facing, eve, EveList[eve].contspawnpip,
+                                           MAXCHR, GRIP_LAST, ChrList[EncList[cnt].owner].team, EncList[cnt].owner, tnc, MAXCHR );
+            facing += EveList[eve].contspawnfacingadd;
             tnc++;
           }
         }
@@ -69,9 +83,9 @@ void do_enchant_spawn( float dUpdate )
 void disenchant_character( Uint16 cnt )
 {
   // ZZ> This function removes all enchantments from a character
-  while ( chrfirstenchant[cnt] != MAXENCHANT )
+  while ( ChrList[cnt].firstenchant != MAXENCHANT )
   {
-    remove_enchant( chrfirstenchant[cnt] );
+    remove_enchant( ChrList[cnt].firstenchant );
   }
 }
 
@@ -92,79 +106,79 @@ void damage_character( CHR_REF character, Uint16 direction,
   Uint16 experience, model, left, right;
 
   if ( NULL == pdam ) return;
-  if ( chrisplayer[character] && CData.DevMode ) return;
+  if ( ChrList[character].isplayer && CData.DevMode ) return;
 
-  if ( chralive[character] && pdam->ibase >= 0 && pdam->irand >= 1 )
+  if ( ChrList[character].alive && pdam->ibase >= 0 && pdam->irand >= 1 )
   {
     // Lessen damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
     // This can also be used to lessen effectiveness of healing
     damage = generate_unsigned( pdam );
     basedamage = damage;
-    damage >>= ( chrdamagemodifier_fp8[character][damagetype] & DAMAGE_SHIFT );
+    damage >>= ( ChrList[character].damagemodifier_fp8[damagetype] & DAMAGE_SHIFT );
 
 
     // Allow charging (Invert damage to mana)
-    if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_CHARGE )
+    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_CHARGE )
     {
-      chrmana_fp8[character] += damage;
-      if ( chrmana_fp8[character] > chrmanamax_fp8[character] )
+      ChrList[character].mana_fp8 += damage;
+      if ( ChrList[character].mana_fp8 > ChrList[character].manamax_fp8 )
       {
-        chrmana_fp8[character] = chrmanamax_fp8[character];
+        ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
       }
       return;
     }
 
     // Mana damage (Deal damage to mana)
-    if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_MANA )
+    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_MANA )
     {
-      chrmana_fp8[character] -= damage;
-      if ( chrmana_fp8[character] < 0 )
+      ChrList[character].mana_fp8 -= damage;
+      if ( ChrList[character].mana_fp8 < 0 )
       {
-        chrmana_fp8[character] = 0;
+        ChrList[character].mana_fp8 = 0;
       }
       return;
     }
 
 
     // Invert damage to heal
-    if ( chrdamagemodifier_fp8[character][damagetype]&DAMAGE_INVERT )
+    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_INVERT )
       damage = -damage;
 
 
     // Remember the damage type
-    chrdamagetypelast[character] = damagetype;
-    chrdirectionlast[character] = direction;
+    ChrList[character].damagetypelast = damagetype;
+    ChrList[character].directionlast = direction;
 
 
     // Do it already
     if ( damage > 0 )
     {
       // Only damage if not invincible
-      if ( chrdamagetime[character] == 0 && !chrinvictus[character] )
+      if ( ChrList[character].damagetime == 0 && !ChrList[character].invictus )
       {
-        model = chrmodel[character];
+        model = ChrList[character].model;
         if ( HAS_SOME_BITS( effects, DAMFX_BLOC ) )
         {
           // Only damage if hitting from proper direction
-          if ( HAS_SOME_BITS( madframefx[chrmodel[character]][chrframe[character]], MADFX_INVICTUS ) )
+          if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].frame], MADFX_INVICTUS ) )
           {
             // I Frame...
-            direction -= capiframefacing[model];
-            left = ( ~capiframeangle[model] );
-            right = capiframeangle[model];
+            direction -= CapList[model].iframefacing;
+            left = ( ~CapList[model].iframeangle );
+            right = CapList[model].iframeangle;
 
             // Check for shield
-            if ( chraction[character] >= ACTION_PA && chraction[character] <= ACTION_PD )
+            if ( ChrList[character].action >= ACTION_PA && ChrList[character].action <= ACTION_PD )
             {
               // Using a shield?
-              if ( chraction[character] < ACTION_PC )
+              if ( ChrList[character].action < ACTION_PC )
               {
                 // Check left hand
                 CHR_REF iholder = chr_get_holdingwhich( character, SLOT_LEFT );
                 if ( VALID_CHR( iholder ) )
                 {
-                  left  = ~capiframeangle[iholder];
-                  right = capiframeangle[iholder];
+                  left  = ~CapList[iholder].iframeangle;
+                  right = CapList[iholder].iframeangle;
                 }
               }
               else
@@ -173,8 +187,8 @@ void damage_character( CHR_REF character, Uint16 direction,
                 CHR_REF iholder = chr_get_holdingwhich( character, SLOT_RIGHT );
                 if ( VALID_CHR( iholder ) )
                 {
-                  left  = ~capiframeangle[iholder];
-                  right = capiframeangle[iholder];
+                  left  = ~CapList[iholder].iframeangle;
+                  right = CapList[iholder].iframeangle;
                 }
               }
             }
@@ -182,9 +196,9 @@ void damage_character( CHR_REF character, Uint16 direction,
           else
           {
             // N Frame
-            direction -= capnframefacing[model];
-            left = ( ~capnframeangle[model] );
-            right = capnframeangle[model];
+            direction -= CapList[model].nframefacing;
+            left = ( ~CapList[model].nframeangle );
+            right = CapList[model].nframeangle;
           }
           // Check that direction
           if ( direction > left || direction < right )
@@ -199,43 +213,43 @@ void damage_character( CHR_REF character, Uint16 direction,
         {
           if ( HAS_SOME_BITS( effects, DAMFX_ARMO ) )
           {
-            chrlife_fp8[character] -= damage;
+            ChrList[character].life_fp8 -= damage;
           }
           else
           {
-            chrlife_fp8[character] -= FP8_MUL( damage, chrdefense_fp8[character] );
+            ChrList[character].life_fp8 -= FP8_MUL( damage, ChrList[character].defense_fp8 );
           }
 
 
-          if ( basedamage > MINDAMAGE )
+          if ( basedamage > DAMAGE_MIN )
           {
             // Call for help if below 1/2 life
-            if ( chrlife_fp8[character] < ( chrlifemax_fp8[character] >> 1 ) ) //Zefz: Removed, because it caused guards to attack
+            if ( ChrList[character].life_fp8 < ( ChrList[character].lifemax_fp8 >> 1 ) ) //Zefz: Removed, because it caused guards to attack
               call_for_help( character );                    //when dispelling overlay spells (Faerie Light)
 
             // Spawn blud particles
-            if ( capbludlevel[model] > BLUD_NONE && ( damagetype < DAMAGE_HOLY || capbludlevel[model] == BLUD_ULTRA ) )
+            if ( CapList[model].bludlevel > BLUD_NONE && ( damagetype < DAMAGE_HOLY || CapList[model].bludlevel == BLUD_ULTRA ) )
             {
-              spawn_one_particle( 1.0f, chrpos[character],
-                                  chrturn_lr[character] + direction, chrmodel[character], capbludprttype[model],
-                                  MAXCHR, GRIP_LAST, chrteam[character], character, 0, MAXCHR );
+              spawn_one_particle( 1.0f, ChrList[character].pos,
+                                  ChrList[character].turn_lr + direction, ChrList[character].model, CapList[model].bludprttype,
+                                  MAXCHR, GRIP_LAST, ChrList[character].team, character, 0, MAXCHR );
             }
             // Set attack alert if it wasn't an accident
             if ( team == TEAM_DAMAGE )
             {
-              chraiattacklast[character] = MAXCHR;
+              ChrList[character].aiattacklast = MAXCHR;
             }
             else
             {
               // Don't alert the character too much if under constant fire
-              if ( chrcarefultime[character] == 0 )
+              if ( ChrList[character].carefultime == 0 )
               {
                 // Don't let characters chase themselves...  That would be silly
                 if ( attacker != character )
                 {
-                  chralert[character] |= ALERT_ATTACKED;
-                  chraiattacklast[character] = attacker;
-                  chrcarefultime[character] = DELAY_CAREFUL;
+                  ChrList[character].alert |= ALERT_ATTACKED;
+                  ChrList[character].aiattacklast = attacker;
+                  ChrList[character].carefultime = DELAY_CAREFUL;
                 }
               }
             }
@@ -244,35 +258,34 @@ void damage_character( CHR_REF character, Uint16 direction,
 
           // Taking damage action
           action = ACTION_HA;
-          if ( chrlife_fp8[character] < 0 )
+          if ( ChrList[character].life_fp8 < 0 )
           {
             // Character has died
-            chralive[character] = bfalse;
+            ChrList[character].alive = bfalse;
             disenchant_character( character );
-            chrkeepaction[character] = btrue;
-            chrlife_fp8[character] = -1;
-            chrisplatform[character] = btrue;
-            chrbumpdampen[character] /= 2.0;
+            ChrList[character].keepaction = btrue;
+            ChrList[character].life_fp8 = -1;
+            ChrList[character].isplatform = btrue;
+            ChrList[character].bumpdampen /= 2.0;
             action = ACTION_KA;
-			      stop_sound(chrloopingchannel[character]);		//Stop sound loops
-			      chrloopingchannel[character] = -1;
-
+            stop_sound(ChrList[character].loopingchannel);    //Stop sound loops
+            ChrList[character].loopingchannel = -1;
             // Give kill experience
-            experience = capexperienceworth[model] + ( chrexperience[character] * capexperienceexchange[model] );
+            experience = CapList[model].experienceworth + ( ChrList[character].experience * CapList[model].experienceexchange );
             if ( VALID_CHR( attacker ) )
             {
               // Set target
-              chraitarget[character] = attacker;
-              if ( team == TEAM_DAMAGE )  chraitarget[character] = character;
-              if ( team == TEAM_NULL )  chraitarget[character] = character;
+              ChrList[character].aitarget = attacker;
+              if ( team == TEAM_DAMAGE )  ChrList[character].aitarget = character;
+              if ( team == TEAM_NULL )  ChrList[character].aitarget = character;
               // Award direct kill experience
-              if ( teamhatesteam[chrteam[attacker]][chrteam[character]] )
+              if ( TeamList[ChrList[attacker].team].hatesteam[ChrList[character].team] )
               {
                 give_experience( attacker, experience, XP_KILLENEMY );
               }
 
               // Check for hated
-              if ( CAP_INHERIT_IDSZ( model, capidsz[chrmodel[attacker]][IDSZ_HATE] ) )
+              if ( CAP_INHERIT_IDSZ( model, CapList[ChrList[attacker].model].idsz[IDSZ_HATE] ) )
               {
                 give_experience( attacker, experience, XP_KILLHATED );
               }
@@ -293,13 +306,13 @@ void damage_character( CHR_REF character, Uint16 direction,
             tnc = 0;
             while ( tnc < MAXCHR )
             {
-              if ( chron[tnc] && chralive[tnc] )
+              if ( ChrList[tnc].on && ChrList[tnc].alive )
               {
-                if ( chraitarget[tnc] == character )
+                if ( ChrList[tnc].aitarget == character )
                 {
-                  chralert[tnc] |= ALERT_TARGETKILLED;
+                  ChrList[tnc].alert |= ALERT_TARGETKILLED;
                 }
-                if ( !teamhatesteam[chrteam[tnc]][team] && teamhatesteam[chrteam[tnc]][chrteam[character]] )
+                if ( !TeamList[ChrList[tnc].team].hatesteam[team] && TeamList[ChrList[tnc].team].hatesteam[ChrList[character].team] )
                 {
                   // All allies get team experience, but only if they also hate the dead guy's team
                   give_experience( tnc, experience, XP_TEAMKILL );
@@ -309,21 +322,22 @@ void damage_character( CHR_REF character, Uint16 direction,
             }
 
             // Check if it was a leader
-            if ( team_get_leader( chrteam[character] ) == character )
+            if ( team_get_leader( ChrList[character].team ) == character )
             {
               // It was a leader, so set more alerts
               tnc = 0;
               while ( tnc < MAXCHR )
               {
-                if ( chron[tnc] && chrteam[tnc] == chrteam[character] )
+                if ( ChrList[tnc].on && ChrList[tnc].team == ChrList[character].team )
                 {
                   // All folks on the leaders team get the alert
-                  chralert[tnc] |= ALERT_LEADERKILLED;
+                  ChrList[tnc].alert |= ALERT_LEADERKILLED;
                 }
                 tnc++;
               }
+
               // The team now has no leader
-              teamleader[chrteam[character]] = search_best_leader( chrteam[character], character );
+              TeamList[ChrList[character].team].leader = search_best_leader( ChrList[character].team, character );
             }
 
             detach_character_from_mount( character, btrue, bfalse );
@@ -334,51 +348,51 @@ void damage_character( CHR_REF character, Uint16 direction,
             for ( tnc = 0; tnc < MAXWAVE; tnc++ )
             {
               //TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-              //           this might prevent death sound from playing
-			  //stop_sound(chrmodel[character]);
+              //           This may stop death sounds
+              //stop_sound(ChrList[character].model);
             }
 
             // Afford it one last thought if it's an AI
-            teammorale[chrbaseteam[character]]--;
-            chrteam[character] = chrbaseteam[character];
-            chralert[character] = ALERT_KILLED;
-            chrsparkle[character] = NOSPARKLE;
-            chraitime[character] = 1;  // No timeout...
+            TeamList[ChrList[character].baseteam].morale--;
+            ChrList[character].team = ChrList[character].baseteam;
+            ChrList[character].alert = ALERT_KILLED;
+            ChrList[character].sparkle = NOSPARKLE;
+            ChrList[character].aitime = 1;  // No timeout...
             let_character_think( character, 1.0f );
           }
           else
           {
-            if ( basedamage > MINDAMAGE )
+            if ( basedamage > DAMAGE_MIN )
             {
               action += ( rand() & 3 );
               play_action( character, action, bfalse );
 
               // Make the character invincible for a limited time only
               if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
-                chrdamagetime[character] = DELAY_DAMAGE;
+                ChrList[character].damagetime = DELAY_DAMAGE;
             }
           }
         }
         else
         {
           // Spawn a defend particle
-          spawn_one_particle( chrbumpstrength[character], chrpos[character], chrturn_lr[character], MAXMODEL, PRTPIP_DEFEND, MAXCHR, GRIP_LAST, TEAM_NULL, MAXCHR, 0, MAXCHR );
-          chrdamagetime[character] = DELAY_DEFEND;
-          chralert[character] |= ALERT_BLOCKED;
+          spawn_one_particle( ChrList[character].bumpstrength, ChrList[character].pos, ChrList[character].turn_lr, MAXMODEL, PRTPIP_DEFEND, MAXCHR, GRIP_LAST, TEAM_NULL, MAXCHR, 0, MAXCHR );
+          ChrList[character].damagetime = DELAY_DEFEND;
+          ChrList[character].alert |= ALERT_BLOCKED;
         }
       }
     }
     else if ( damage < 0 )
     {
-      chrlife_fp8[character] -= damage;
-      if ( chrlife_fp8[character] > chrlifemax_fp8[character] )  chrlife_fp8[character] = chrlifemax_fp8[character];
+      ChrList[character].life_fp8 -= damage;
+      if ( ChrList[character].life_fp8 > ChrList[character].lifemax_fp8 )  ChrList[character].life_fp8 = ChrList[character].lifemax_fp8;
 
       // Isssue an alert
-      chralert[character] |= ALERT_HEALED;
-      chraiattacklast[character] = attacker;
+      ChrList[character].alert |= ALERT_HEALED;
+      ChrList[character].aiattacklast = attacker;
       if ( team != TEAM_DAMAGE )
       {
-        chraiattacklast[character] = MAXCHR;
+        ChrList[character].aiattacklast = MAXCHR;
       }
     }
   }
@@ -390,27 +404,27 @@ void kill_character( CHR_REF character, Uint16 killer )
   // ZZ> This function kills a character...  MAXCHR killer for accidental death
   Uint8 modifier;
 
-  if ( !chralive[character] ) return;
+  if ( !ChrList[character].alive ) return;
 
-  chrdamagetime[character] = 0;
-  chrlife_fp8[character] = 1;
-  modifier = chrdamagemodifier_fp8[character][DAMAGE_CRUSH];
-  chrdamagemodifier_fp8[character][DAMAGE_CRUSH] = 1;
+  ChrList[character].damagetime = 0;
+  ChrList[character].life_fp8 = 1;
+  modifier = ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH];
+  ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = 1;
   if ( VALID_CHR( killer ) )
   {
     PAIR ptemp = {512, 1};
-    damage_character( character, 0, &ptemp, DAMAGE_CRUSH, chrteam[killer], killer, DAMFX_ARMO | DAMFX_BLOC );
+    damage_character( character, 0, &ptemp, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFX_ARMO | DAMFX_BLOC );
   }
   else
   {
     PAIR ptemp = {512, 1};
     damage_character( character, 0, &ptemp, DAMAGE_CRUSH, TEAM_DAMAGE, chr_get_aibumplast( character ), DAMFX_ARMO | DAMFX_BLOC );
   }
-  chrdamagemodifier_fp8[character][DAMAGE_CRUSH] = modifier;
+  ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = modifier;
 
   // try something here.
-  chrisplatform[character] = btrue;
-  chrismount[character]  = bfalse;
+  ChrList[character].isplatform = btrue;
+  ChrList[character].ismount  = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,15 +436,15 @@ void spawn_poof( CHR_REF character, Uint16 profile )
   int iTmp;
 
 
-  sTmp = chrturn_lr[character];
+  sTmp = ChrList[character].turn_lr;
   iTmp = 0;
   origin = chr_get_aiowner( character );
-  while ( iTmp < capgopoofprtamount[profile] )
+  while ( iTmp < CapList[profile].gopoofprtamount )
   {
-    spawn_one_particle( 1.0f, chrpos_old[character],
-                        sTmp, profile, capgopoofprttype[profile],
-                        MAXCHR, GRIP_LAST, chrteam[character], origin, iTmp, MAXCHR );
-    sTmp += capgopoofprtfacingadd[profile];
+    spawn_one_particle( 1.0f, ChrList[character].pos_old,
+                        sTmp, profile, CapList[profile].gopoofprttype,
+                        MAXCHR, GRIP_LAST, ChrList[character].team, origin, iTmp, MAXCHR );
+    sTmp += CapList[profile].gopoofprtfacingadd;
     iTmp++;
   }
 }
@@ -442,7 +456,7 @@ void naming_names( int profile )
   int read, write, section, mychop;
   char cTmp;
 
-  if ( capsectionsize[profile][0] == 0 )
+  if ( CapList[profile].sectionsize[0] == 0 )
   {
     namingnames[0] = 'B';
     namingnames[1] = 'l';
@@ -456,9 +470,9 @@ void naming_names( int profile )
     section = 0;
     while ( section < MAXSECTION )
     {
-      if ( capsectionsize[profile][section] != 0 )
+      if ( CapList[profile].sectionsize[section] != 0 )
       {
-        mychop = capsectionstart[profile][section] + ( rand() % capsectionsize[profile][section] );
+        mychop = CapList[profile].sectionstart[section] + ( rand() % CapList[profile].sectionsize[section] );
         read = chopstart[mychop];
         cTmp = chopdata[read];
         while ( cTmp != 0 && write < MAXCAPNAMESIZE - 1 )
@@ -514,8 +528,8 @@ void read_naming( int profile, char *szLoadname )
     }
     else
     {
-      capsectionsize[profile][section] = chopinsection;
-      capsectionstart[profile][section] = numchop - chopinsection;
+      CapList[profile].sectionsize[section] = chopinsection;
+      CapList[profile].sectionstart[section] = numchop - chopinsection;
       section++;
       chopinsection = 0;
     }
@@ -538,8 +552,8 @@ void prime_names( void )
     tnc = 0;
     while ( tnc < MAXSECTION )
     {
-      capsectionstart[cnt][tnc] = MAXCHOP;
-      capsectionsize[cnt][tnc] = 0;
+      CapList[cnt].sectionstart[tnc] = MAXCHOP;
+      CapList[cnt].sectionsize[tnc] = 0;
       tnc++;
     }
     cnt++;
@@ -556,11 +570,11 @@ void tilt_characters_to_terrain()
   cnt = 0;
   while ( cnt < MAXCHR )
   {
-    if ( chrstickybutt[cnt] && chron[cnt] && chronwhichfan[cnt] != INVALID_FAN )
+    if ( ChrList[cnt].stickybutt && ChrList[cnt].on && ChrList[cnt].onwhichfan != INVALID_FAN )
     {
-      twist = mesh_get_twist( chronwhichfan[cnt] );
-      chrmapturn_lr[cnt] = maptwist_lr[twist];
-      chrmapturn_ud[cnt] = maptwist_ud[twist];
+      twist = mesh_get_twist( ChrList[cnt].onwhichfan );
+      ChrList[cnt].mapturn_lr = maptwist_lr[twist];
+      ChrList[cnt].mapturn_ud = maptwist_ud[twist];
     }
     cnt++;
   }
@@ -573,23 +587,26 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // ZZ> This function spawns a character and returns the character's index number
   //     if it worked, MAXCHR otherwise
   int ichr, tnc;
-  FILE *filewrite;
+  FILE * filewrite;
+  CHR  * pchr;
 
-  // Open file for debug info logging
+  // open file for debug info logging
   if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a" );
 
   // Make sure the team is valid
   if ( team >= TEAM_COUNT ) team %= TEAM_COUNT;
 
+
   // Get a new character
-  if ( !madused[profile] )
+  if ( !MadList[profile].used )
   {
-	if(CData.DevMode) 
-	{
-	  fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: model %d doesn't exist\n", profile );
-	  fs_fileClose( filewrite );
-	}
-	return MAXCHR;
+    if(CData.DevMode)
+    {
+      fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
+      fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : model %d doesn't exist\n", profile );
+      fs_fileClose( filewrite );
+    }
+    return MAXCHR;
   }
 
   ichr = MAXCHR;
@@ -614,12 +631,13 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-	  if(CData.DevMode) 
-	  {
-        fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: cannot find override index %d\n", override );
+      if(CData.DevMode)
+      {
+        fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
+        fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : cannot find override index %d\n", override );
         fs_fileClose( filewrite );
-	  }
-	  return MAXCHR;
+      }
+      return MAXCHR;
     }
   }
   else
@@ -628,307 +646,315 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-	  if(CData.DevMode) 
-	  {
-	    fprintf( filewrite, "WARNING: spawn_one_character() - Failed to spawn: get_free_character() returned invalid value %d\n", ichr );
+      if(CData.DevMode)
+      {
+        fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
+        fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : get_free_character() returned invalid value %d\n", ichr );
         fs_fileClose( filewrite );
-	  }
-	  return MAXCHR;
+      }
+      return MAXCHR;
     }
   }
 
-  if(CData.DevMode) 
+  if(CData.DevMode)
   {
-	  fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, capclassname[profile] == \"%s\", index == %d\n", profile, capclassname[profile], ichr );
-      fs_fileClose( filewrite );
+    fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, CapList[profile].classname == \"%s\", index == %d\n", profile, CapList[profile].classname, ichr );
+    fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, CapList[profile].classname == \"%s\", index == %d\n", profile, CapList[profile].classname, ichr );
+    fs_fileClose( filewrite );
   }
 
+  // "simplify" the notation
+  pchr = ChrList + ichr;
+
+  // clear any old data
+  memset(pchr, 0, sizeof(CHR));
+
   // IMPORTANT!!!
-  chrindolist[ichr] = bfalse;
-  chrisequipped[ichr] = bfalse;
-  chrsparkle[ichr] = NOSPARKLE;
-  chroverlay[ichr] = bfalse;
-  chrmissilehandler[ichr] = ichr;
+  pchr->indolist = bfalse;
+  pchr->isequipped = bfalse;
+  pchr->sparkle = NOSPARKLE;
+  pchr->overlay = bfalse;
+  pchr->missilehandler = ichr;
 
   // Set up model stuff
-  chron[ichr] = btrue;
-  chrfreeme[ichr] = bfalse;
-  chrgopoof[ichr] = bfalse;
-  chrreloadtime[ichr] = 0;
-  chrinwhichslot[ichr] = SLOT_NONE;
-  chrinwhichpack[ichr] = MAXCHR;
-  chrnextinpack[ichr] = MAXCHR;
-  chrnuminpack[ichr] = 0;
-  chrmodel[ichr] = profile;
-  VData_Blended_construct( &chrvdata[numfreechr] );
-  VData_Blended_Allocate( &chrvdata[numfreechr], md2_get_numVertices(mad_md2[profile]) );
+  pchr->on = btrue;
+  pchr->freeme = bfalse;
+  pchr->gopoof = bfalse;
+  pchr->reloadtime = 0;
+  pchr->inwhichslot = SLOT_NONE;
+  pchr->inwhichpack = MAXCHR;
+  pchr->nextinpack = MAXCHR;
+  pchr->numinpack = 0;
+  pchr->model = profile;
+  VData_Blended_construct( &(pchr->vdata) );
+  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(MadList[profile]._md2) );
 
-  chrbasemodel[ichr] = profile;
-  chrstoppedby[ichr] = capstoppedby[profile];
-  chrlifeheal[ichr] = caplifeheal_fp8[profile];
-  chrmanacost[ichr] = capmanacost_fp8[profile];
-  chrinwater[ichr] = bfalse;
-  chrnameknown[ichr] = capnameknown[profile];
-  chrammoknown[ichr] = capnameknown[profile];
-  chrhitready[ichr] = btrue;
-  chrboretime[ichr] = DELAY_BORE;
-  chrcarefultime[ichr] = DELAY_CAREFUL;
-  chrcanbecrushed[ichr] = bfalse;
-  chrdamageboost[ichr] = 0;
-  chricon[ichr] = capicon[profile];
+  pchr->basemodel = profile;
+  pchr->stoppedby = CapList[profile].stoppedby;
+  pchr->lifeheal = CapList[profile].lifeheal_fp8;
+  pchr->manacost = CapList[profile].manacost_fp8;
+  pchr->inwater = bfalse;
+  pchr->nameknown = CapList[profile].nameknown;
+  pchr->ammoknown = CapList[profile].nameknown;
+  pchr->hitready = btrue;
+  pchr->boretime = DELAY_BORE;
+  pchr->carefultime = DELAY_CAREFUL;
+  pchr->canbecrushed = bfalse;
+  pchr->damageboost = 0;
+  pchr->icon = CapList[profile].icon;
 
   //Ready for loop sound
-  chrloopingchannel[ichr] = -1;
+  pchr->loopingchannel = -1;
 
   // Enchant stuff
-  chrfirstenchant[ichr] = MAXENCHANT;
-  chrundoenchant[ichr] = MAXENCHANT;
-  chrcanseeinvisible[ichr] = capcanseeinvisible[profile];
-  chrcanchannel[ichr] = bfalse;
-  chrmissiletreatment[ichr] = MIS_NORMAL;
-  chrmissilecost[ichr] = 0;
+  pchr->firstenchant = MAXENCHANT;
+  pchr->undoenchant = MAXENCHANT;
+  pchr->canseeinvisible = CapList[profile].canseeinvisible;
+  pchr->canchannel = bfalse;
+  pchr->missiletreatment = MIS_NORMAL;
+  pchr->missilecost = 0;
 
   //Skill Expansions
-  chrcanseekurse[ichr] = capcanseekurse[profile];
-  chrcanusedivine[ichr] = capcanusedivine[profile];
-  chrcanusearcane[ichr] = capcanusearcane[profile];
-  chrcandisarm[ichr] = capcandisarm[profile];
-  chrcanjoust[ichr] = capcanjoust[profile];
-  chrcanusetech[ichr] = capcanusetech[profile];
-  chrcanusepoison[ichr] = capcanusepoison[profile];
-  chrcanuseadvancedweapons[ichr] = capcanuseadvancedweapons[profile];
-  chrcanbackstab[ichr] = capcanbackstab[profile];
-  chrcanread[ichr] = capcanread[profile];
+  pchr->canseekurse = CapList[profile].canseekurse;
+  pchr->canusedivine = CapList[profile].canusedivine;
+  pchr->canusearcane = CapList[profile].canusearcane;
+  pchr->candisarm = CapList[profile].candisarm;
+  pchr->canjoust = CapList[profile].canjoust;
+  pchr->canusetech = CapList[profile].canusetech;
+  pchr->canusepoison = CapList[profile].canusepoison;
+  pchr->canuseadvancedweapons = CapList[profile].canuseadvancedweapons;
+  pchr->canbackstab = CapList[profile].canbackstab;
+  pchr->canread = CapList[profile].canread;
 
 
   // Kurse state
-  chriskursed[ichr] = (( rand() % 100 ) < capkursechance[profile] );
-  if ( !capisitem[profile] )  chriskursed[ichr] = bfalse;
+  pchr->iskursed = (( rand() % 100 ) < CapList[profile].kursechance );
+  if ( !CapList[profile].isitem )  pchr->iskursed = bfalse;
 
 
   // Ammo
-  chrammomax[ichr] = capammomax[profile];
-  chrammo[ichr] = capammo[profile];
+  pchr->ammomax = CapList[profile].ammomax;
+  pchr->ammo = CapList[profile].ammo;
 
 
   // Gender
-  chrgender[ichr] = capgender[profile];
-  if ( chrgender[ichr] == GEN_RANDOM )  chrgender[ichr] = GEN_FEMALE + ( rand() & 1 );
+  pchr->gender = CapList[profile].gender;
+  if ( pchr->gender == GEN_RANDOM )  pchr->gender = GEN_FEMALE + ( rand() & 1 );
 
   // Team stuff
-  chrteam[ichr] = team;
-  chrbaseteam[ichr] = team;
-  chrmessagedata[ichr] = teammorale[team];
-  if ( !capinvictus[profile] )  teammorale[team]++;
-  chrmessage[ichr] = 0;
+  pchr->team = team;
+  pchr->baseteam = team;
+  pchr->messagedata = TeamList[team].morale;
+  if ( !CapList[profile].invictus )  TeamList[team].morale++;
+  pchr->message = 0;
   // Firstborn becomes the leader
   if ( !VALID_CHR( team_get_leader( team ) ) )
   {
-    teamleader[team] = ichr;
+    TeamList[team].leader = ichr;
   }
 
   // Skin
-  if ( capskinoverride[profile] != NOSKINOVERRIDE )
+  if ( CapList[profile].skinoverride != NOSKINOVERRIDE )
   {
-    skin = capskinoverride[profile] % MAXSKIN;
+    skin = CapList[profile].skinoverride % MAXSKIN;
   }
-  if ( skin >= madskins[profile] )
+  if ( skin >= MadList[profile].skins )
   {
     skin = 0;
-    if ( madskins[profile] > 1 )
+    if ( MadList[profile].skins > 1 )
     {
-      skin = rand() % madskins[profile];
+      skin = rand() % MadList[profile].skins;
     }
   }
-  chrtexture[ichr] = madskinstart[profile] + skin;
+  pchr->texture = MadList[profile].skinstart + skin;
 
   // Life and Mana
-  chralive[ichr] = btrue;
-  chrlifecolor[ichr] = caplifecolor[profile];
-  chrmanacolor[ichr] = capmanacolor[profile];
-  chrlifemax_fp8[ichr] = generate_unsigned( &caplife_fp8[profile] );
-  chrlife_fp8[ichr] = chrlifemax_fp8[ichr];
-  chrlifereturn[ichr] = caplifereturn_fp8[profile];
-  chrmanamax_fp8[ichr] = generate_unsigned( &capmana_fp8[profile] );
-  chrmanaflow_fp8[ichr] = generate_unsigned( &capmanaflow_fp8[profile] );
-  chrmanareturn_fp8[ichr] = generate_unsigned( &capmanareturn_fp8[profile] );  //>> MANARETURNSHIFT;
-  chrmana_fp8[ichr] = chrmanamax_fp8[ichr];
+  pchr->alive = btrue;
+  pchr->lifecolor = CapList[profile].lifecolor;
+  pchr->manacolor = CapList[profile].manacolor;
+  pchr->lifemax_fp8 = generate_unsigned( &CapList[profile].life_fp8 );
+  pchr->life_fp8 = pchr->lifemax_fp8;
+  pchr->lifereturn = CapList[profile].lifereturn_fp8;
+  pchr->manamax_fp8 = generate_unsigned( &CapList[profile].mana_fp8 );
+  pchr->manaflow_fp8 = generate_unsigned( &CapList[profile].manaflow_fp8 );
+  pchr->manareturn_fp8 = generate_unsigned( &CapList[profile].manareturn_fp8 );  //>> MANARETURNSHIFT;
+  pchr->mana_fp8 = pchr->manamax_fp8;
 
   // SWID
-  chrstrength_fp8[ichr] = generate_unsigned( &capstrength_fp8[profile] );
-  chrwisdom_fp8[ichr] = generate_unsigned( &capwisdom_fp8[profile] );
-  chrintelligence_fp8[ichr] = generate_unsigned( &capintelligence_fp8[profile] );
-  chrdexterity_fp8[ichr] = generate_unsigned( &capdexterity_fp8[profile] );
+  pchr->strength_fp8 = generate_unsigned( &CapList[profile].strength_fp8 );
+  pchr->wisdom_fp8 = generate_unsigned( &CapList[profile].wisdom_fp8 );
+  pchr->intelligence_fp8 = generate_unsigned( &CapList[profile].intelligence_fp8 );
+  pchr->dexterity_fp8 = generate_unsigned( &CapList[profile].dexterity_fp8 );
 
   // Damage
-  chrdefense_fp8[ichr] = capdefense_fp8[profile][skin];
-  chrreaffirmdamagetype[ichr] = capattachedprtreaffirmdamagetype[profile];
-  chrdamagetargettype[ichr] = capdamagetargettype[profile];
+  pchr->defense_fp8 = CapList[profile].defense_fp8[skin];
+  pchr->reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
+  pchr->damagetargettype = CapList[profile].damagetargettype;
   tnc = 0;
   while ( tnc < MAXDAMAGETYPE )
   {
-    chrdamagemodifier_fp8[ichr][tnc] = capdamagemodifier_fp8[profile][tnc][skin];
+    pchr->damagemodifier_fp8[tnc] = CapList[profile].damagemodifier_fp8[tnc][skin];
     tnc++;
   }
 
   // AI stuff
-  chraitype[ichr] = madai[chrmodel[ichr]];
-  chrisplayer[ichr] = bfalse;
-  chrislocalplayer[ichr] = bfalse;
-  chralert[ichr] = ALERT_SPAWNED;
-  chraistate[ichr] = capstateoverride[profile];
-  chraicontent[ichr] = capcontentoverride[profile];
-  chraitarget[ichr] = ichr;
-  chraiowner[ichr] = ichr;
-  chraichild[ichr] = ichr;
-  chraitime[ichr] = 0;
+  pchr->aitype = MadList[pchr->model].ai;
+  pchr->isplayer = bfalse;
+  pchr->islocalplayer = bfalse;
+  pchr->alert = ALERT_SPAWNED;
+  pchr->aistate = CapList[profile].stateoverride;
+  pchr->aicontent = CapList[profile].contentoverride;
+  pchr->aitarget = ichr;
+  pchr->aiowner = ichr;
+  pchr->aichild = ichr;
+  pchr->aitime = 0;
   tnc = 0;
   while ( tnc < MAXSTOR )
   {
-    chraix[ichr][tnc] = 0;
-    chraiy[ichr][tnc] = 0;
+    pchr->aix[tnc] = 0;
+    pchr->aiy[tnc] = 0;
     tnc++;
   }
-  chraimorphed[ichr] = bfalse;
+  pchr->aimorphed = bfalse;
 
-  chrlatchx[ichr] = 0;
-  chrlatchy[ichr] = 0;
-  chrlatchbutton[ichr] = 0;
-  chrturnmode[ichr] = TURNMODE_VELOCITY;
+  pchr->latch.x = 0;
+  pchr->latch.y = 0;
+  pchr->latch.b = 0;
+  pchr->turnmode = TURNMODE_VELOCITY;
 
   // Flags
-  chrstickybutt[ichr] = capstickybutt[profile];
-  chropenstuff[ichr] = capcanopenstuff[profile];
-  chrtransferblend[ichr] = captransferblend[profile];
-  chrenviro[ichr] = capenviro[profile];
-  chrwaterwalk[ichr] = capwaterwalk[profile];
-  chrisplatform[ichr] = capisplatform[profile];
-  chrisitem[ichr] = capisitem[profile];
-  chrinvictus[ichr] = capinvictus[profile];
-  chrismount[ichr] = capismount[profile];
-  chrcangrabmoney[ichr] = capcangrabmoney[profile];
+  pchr->stickybutt = CapList[profile].stickybutt;
+  pchr->openstuff = CapList[profile].canopenstuff;
+  pchr->transferblend = CapList[profile].transferblend;
+  pchr->enviro = CapList[profile].enviro;
+  pchr->waterwalk = CapList[profile].waterwalk;
+  pchr->isplatform = CapList[profile].isplatform;
+  pchr->isitem = CapList[profile].isitem;
+  pchr->invictus = CapList[profile].invictus;
+  pchr->ismount = CapList[profile].ismount;
+  pchr->cangrabmoney = CapList[profile].cangrabmoney;
 
   // Jumping
-  chrjump[ichr] = capjump[profile];
-  chrjumpready[ichr] = btrue;
-  chrjumpnumber[ichr] = 1;
-  chrjumpnumberreset[ichr] = capjumpnumber[profile];
-  chrjumptime[ichr] = DELAY_JUMP;
+  pchr->jump = CapList[profile].jump;
+  pchr->jumpready = btrue;
+  pchr->jumpnumber = 1;
+  pchr->jumpnumberreset = CapList[profile].jumpnumber;
+  pchr->jumptime = DELAY_JUMP;
 
   // Other junk
-  chrflyheight[ichr] = capflyheight[profile];
-  chrmaxaccel[ichr] = capmaxaccel[profile][skin];
-  chralpha_fp8[ichr] = capalpha_fp8[profile];
-  chrlight_fp8[ichr] = caplight_fp8[profile];
-  chrflashand[ichr] = capflashand[profile];
-  chrsheen_fp8[ichr] = capsheen_fp8[profile];
-  chrdampen[ichr] = capdampen[profile];
+  pchr->flyheight = CapList[profile].flyheight;
+  pchr->maxaccel = CapList[profile].maxaccel[skin];
+  pchr->alpha_fp8 = CapList[profile].alpha_fp8;
+  pchr->light_fp8 = CapList[profile].light_fp8;
+  pchr->flashand = CapList[profile].flashand;
+  pchr->sheen_fp8 = CapList[profile].sheen_fp8;
+  pchr->dampen = CapList[profile].dampen;
 
   // Character size and bumping
-  chrfat[ichr] = capsize[profile];
-  chrsizegoto[ichr] = chrfat[ichr];
-  chrsizegototime[ichr] = 0;
+  pchr->fat = CapList[profile].size;
+  pchr->sizegoto = pchr->fat;
+  pchr->sizegototime = 0;
 
-  chrbmpdata_save[ichr].shadow  = capshadowsize[profile];
-  chrbmpdata_save[ichr].size    = capbumpsize[profile];
-  chrbmpdata_save[ichr].sizebig = capbumpsizebig[profile];
-  chrbmpdata_save[ichr].height  = capbumpheight[profile];
+  pchr->bmpdata_save.shadow  = CapList[profile].shadowsize;
+  pchr->bmpdata_save.size    = CapList[profile].bumpsize;
+  pchr->bmpdata_save.sizebig = CapList[profile].bumpsizebig;
+  pchr->bmpdata_save.height  = CapList[profile].bumpheight;
 
-  chrbmpdata[ichr].shadow   = capshadowsize[profile]  * chrfat[ichr];
-  chrbmpdata[ichr].size     = capbumpsize[profile]    * chrfat[ichr];
-  chrbmpdata[ichr].sizebig  = capbumpsizebig[profile] * chrfat[ichr];
-  chrbmpdata[ichr].height   = capbumpheight[profile]  * chrfat[ichr];
-  chrbumpstrength[ichr]   = capbumpstrength[profile] * FP8_TO_FLOAT( capalpha_fp8[profile] );
+  pchr->bmpdata.shadow   = CapList[profile].shadowsize  * pchr->fat;
+  pchr->bmpdata.size     = CapList[profile].bumpsize    * pchr->fat;
+  pchr->bmpdata.sizebig  = CapList[profile].bumpsizebig * pchr->fat;
+  pchr->bmpdata.height   = CapList[profile].bumpheight  * pchr->fat;
+  pchr->bumpstrength   = CapList[profile].bumpstrength * FP8_TO_FLOAT( CapList[profile].alpha_fp8 );
 
 
 
-  chrbumpdampen[ichr] = capbumpdampen[profile];
-  chrweight[ichr] = capweight[profile] * chrfat[ichr] * chrfat[ichr] * chrfat[ichr];   // preserve density
-  chraibumplast[ichr] = ichr;
-  chraiattacklast[ichr] = MAXCHR;
-  chraihitlast[ichr] = ichr;
+  pchr->bumpdampen = CapList[profile].bumpdampen;
+  pchr->weight = CapList[profile].weight * pchr->fat * pchr->fat * pchr->fat;   // preserve density
+  pchr->aibumplast = ichr;
+  pchr->aiattacklast = MAXCHR;
+  pchr->aihitlast = ichr;
 
   // Grip info
-  chrinwhichslot[ichr] = SLOT_NONE;
-  chrattachedto[ichr] = MAXCHR;
+  pchr->inwhichslot = SLOT_NONE;
+  pchr->attachedto = MAXCHR;
   for ( _slot = SLOT_BEGIN; _slot < SLOT_COUNT; _slot = ( SLOT )( _slot + 1 ) )
   {
-    chrholdingwhich[ichr][_slot] = MAXCHR;
+    pchr->holdingwhich[_slot] = MAXCHR;
   }
 
   // Image rendering
-  chruoffset_fp8[ichr] = 0;
-  chrvoffset_fp8[ichr] = 0;
-  chruoffvel[ichr] = capuoffvel[profile];
-  chrvoffvel[ichr] = capvoffvel[profile];
-  chrredshift[ichr] = 0;
-  chrgrnshift[ichr] = 0;
-  chrblushift[ichr] = 0;
+  pchr->uoffset_fp8 = 0;
+  pchr->voffset_fp8 = 0;
+  pchr->uoffvel = CapList[profile].uoffvel;
+  pchr->voffvel = CapList[profile].voffvel;
+  pchr->redshift = 0;
+  pchr->grnshift = 0;
+  pchr->blushift = 0;
 
 
   // Movement
-  chrsneakspd[ichr] = capsneakspd[profile];
-  chrwalkspd[ichr] = capwalkspd[profile];
-  chrrunspd[ichr] = caprunspd[profile];
+  pchr->sneakspd = CapList[profile].sneakspd;
+  pchr->walkspd = CapList[profile].walkspd;
+  pchr->runspd = CapList[profile].runspd;
 
   // Set up position
-  chrpos[ichr].x = pos.x;
-  chrpos[ichr].y = pos.y;
-  chrturn_lr[ichr] = facing;
-  chronwhichfan[ichr] = mesh_get_fan( chrpos[ichr] );
-  chrlevel[ichr] = mesh_get_level( chronwhichfan[ichr], chrpos[ichr].x, chrpos[ichr].y, chrwaterwalk[ichr] ) + RAISE;
-  if ( pos.z < chrlevel[ichr] ) pos.z = chrlevel[ichr];
-  chrpos[ichr].z = pos.z;
+  pchr->pos.x = pos.x;
+  pchr->pos.y = pos.y;
+  pchr->turn_lr = facing;
+  pchr->onwhichfan = mesh_get_fan( pchr->pos );
+  pchr->level = mesh_get_level( pchr->onwhichfan, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
+  if ( pos.z < pchr->level ) pos.z = pchr->level;
+  pchr->pos.z = pos.z;
 
-  chrstt[ichr]         = chrpos[ichr];
-  chrpos_old[ichr]     = chrpos[ichr];
-  chrturn_lr_old[ichr] = chrturn_lr[ichr];
+  pchr->stt         = pchr->pos;
+  pchr->pos_old     = pchr->pos;
+  pchr->turn_lr_old = pchr->turn_lr;
 
-  chrlightturn_lrr[ichr] = 0;
-  chrlightturn_lrg[ichr] = 0;
-  chrlightturn_lrb[ichr] = 0;
+  pchr->lightturn_lrr = 0;
+  pchr->lightturn_lrg = 0;
+  pchr->lightturn_lrb = 0;
 
-  chrvel[ichr].x = 0;
-  chrvel[ichr].y = 0;
-  chrvel[ichr].z = 0;
-  chrtrgvel[ichr].x = 0;
-  chrtrgvel[ichr].y = 0;
-  chrtrgvel[ichr].z = 0;
-  chrmapturn_lr[ichr] = 32768;  // These two mean on level surface
-  chrmapturn_ud[ichr] = 32768;
-  chrscale[ichr] = chrfat[ichr]; // * madscale[chrmodel[ichr]] * 4;
+  pchr->vel.x = 0;
+  pchr->vel.y = 0;
+  pchr->vel.z = 0;
+  pchr->trgvel.x = 0;
+  pchr->trgvel.y = 0;
+  pchr->trgvel.z = 0;
+  pchr->mapturn_lr = 32768;  // These two mean on level surface
+  pchr->mapturn_ud = 32768;
+  pchr->scale = pchr->fat; // * MadList[pchr->model].scale * 4;
 
   // AI and action stuff
-  chraigoto[ichr] = 0;
-  chraigotoadd[ichr] = 1;
-  chraigotox[ichr][0] = chrpos[ichr].x;
-  chraigotoy[ichr][0] = chrpos[ichr].y;
-  chractionready[ichr] = btrue;
-  chrkeepaction[ichr] = bfalse;
-  chrloopaction[ichr] = bfalse;
-  chraction[ichr] = ACTION_DA;
-  chrnextaction[ichr] = ACTION_DA;
-  chrlip_fp8[ichr] = 0;
-  chrflip[ichr] = 0.0f;
-  chrframe[ichr] = 0;
-  chrframelast[ichr] = chrframe[ichr];
-  chrpassage[ichr] = 0;
-  chrholdingweight[ichr] = 0;
-  chronwhichplatform[ichr] = MAXCHR;
+  pchr->aigoto = 0;
+  pchr->aigotoadd = 1;
+  pchr->aigotox[0] = pchr->pos.x;
+  pchr->aigotoy[0] = pchr->pos.y;
+  pchr->actionready = btrue;
+  pchr->keepaction = bfalse;
+  pchr->loopaction = bfalse;
+  pchr->action = ACTION_DA;
+  pchr->nextaction = ACTION_DA;
+  pchr->lip_fp8 = 0;
+  pchr->flip = 0.0f;
+  pchr->frame = 0;
+  pchr->framelast = pchr->frame;
+  pchr->passage = 0;
+  pchr->holdingweight = 0;
+  pchr->onwhichplatform = MAXCHR;
 
   // Timers set to 0
-  chrgrogtime[ichr] = 0.0f;
-  chrdazetime[ichr] = 0.0f;
+  pchr->grogtime = 0.0f;
+  pchr->dazetime = 0.0f;
 
   // Money is added later
-  chrmoney[ichr] = capmoney[profile];
+  pchr->money = CapList[profile].money;
 
   // Name the character
   if ( name == NULL )
   {
     // Generate a random name
     naming_names( profile );
-    strncpy( chrname[ichr], namingnames, sizeof( chrname[ichr] ) );
+    strncpy( pchr->name, namingnames, sizeof( pchr->name ) );
   }
   else
   {
@@ -936,56 +962,56 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
     tnc = 0;
     while ( tnc < MAXCAPNAMESIZE - 1 )
     {
-      chrname[ichr][tnc] = name[tnc];
+      pchr->name[tnc] = name[tnc];
       tnc++;
     }
-    chrname[ichr][tnc] = 0;
+    pchr->name[tnc] = 0;
   }
 
   // Set up initial fade in lighting
   tnc = 0;
-  while ( tnc < madtransvertices[chrmodel[ichr]] )
+  while ( tnc < MadList[pchr->model].transvertices )
   {
-    chrvrtar_fp8[ichr][tnc] = 0;
-    chrvrtag_fp8[ichr][tnc] = 0;
-    chrvrtab_fp8[ichr][tnc] = 0;
+    pchr->vrtar_fp8[tnc] = 0;
+    pchr->vrtag_fp8[tnc] = 0;
+    pchr->vrtab_fp8[tnc] = 0;
     tnc++;
   }
 
   // Particle attachments
   tnc = 0;
-  while ( tnc < capattachedprtamount[profile] )
+  while ( tnc < CapList[profile].attachedprtamount )
   {
-    spawn_one_particle( 1.0f, chrpos[ichr],
-                        0, chrmodel[ichr], capattachedprttype[profile],
-                        ichr, GRIP_LAST + tnc, chrteam[ichr], ichr, tnc, MAXCHR );
+    spawn_one_particle( 1.0f, pchr->pos,
+                        0, pchr->model, CapList[profile].attachedprttype,
+                        ichr, GRIP_LAST + tnc, pchr->team, ichr, tnc, MAXCHR );
     tnc++;
   }
-  chrreaffirmdamagetype[ichr] = capattachedprtreaffirmdamagetype[profile];
+  pchr->reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
 
 
   // Experience
-  if ( capleveloverride[profile] != 0 )
+  if ( CapList[profile].leveloverride != 0 )
   {
-    while ( chrexperiencelevel[ichr] < capleveloverride[profile] )
+    while ( pchr->experiencelevel < CapList[profile].leveloverride )
     {
       give_experience( ichr, 100, XP_DIRECT );
     }
   }
   else
   {
-    chrexperience[ichr] = generate_unsigned( &capexperience[profile] );
-    chrexperiencelevel[ichr] = calc_chr_level( ichr );
+    pchr->experience = generate_unsigned( &CapList[profile].experience );
+    pchr->experiencelevel = calc_chr_level( ichr );
   }
 
 
-  chrpancakepos[ichr].x = chrpancakepos[ichr].y = chrpancakepos[ichr].z = 1.0;
-  chrpancakevel[ichr].x = chrpancakevel[ichr].y = chrpancakevel[ichr].z = 0.0f;
+  pchr->pancakepos.x = pchr->pancakepos.y = pchr->pancakepos.z = 1.0;
+  pchr->pancakevel.x = pchr->pancakevel.y = pchr->pancakevel.z = 0.0f;
 
-  chrloopingchannel[numfreechr] = INVALID_CHANNEL;
+  pchr->loopingchannel = INVALID_CHANNEL;
 
   // calculate the bumpers
-  assert(NULL == chrbmpdata[ichr].cv_tree);
+  assert(NULL == pchr->bmpdata.cv_tree);
   make_one_character_matrix( ichr );
 
   return ichr;
@@ -997,60 +1023,60 @@ void respawn_character( CHR_REF character )
   // ZZ> This function respawns a character
   Uint16 item, profile;
 
-  if ( !VALID_CHR( character ) || chralive[character] ) return;
+  if ( !VALID_CHR( character ) || ChrList[character].alive ) return;
 
-  profile = chrmodel[character];
+  profile = ChrList[character].model;
 
   spawn_poof( character, profile );
   disaffirm_attached_particles( character );
-  chralive[character] = btrue;
-  chrboretime[character] = DELAY_BORE;
-  chrcarefultime[character] = DELAY_CAREFUL;
-  chrlife_fp8[character] = chrlifemax_fp8[character];
-  chrmana_fp8[character] = chrmanamax_fp8[character];
-  chrpos[character].x = chrstt[character].x;
-  chrpos[character].y = chrstt[character].y;
-  chrpos[character].z = chrstt[character].z;
-  chrvel[character].x = 0;
-  chrvel[character].y = 0;
-  chrvel[character].z = 0;
-  chrtrgvel[character].x = 0;
-  chrtrgvel[character].y = 0;
-  chrtrgvel[character].z = 0;
-  chrteam[character] = chrbaseteam[character];
-  chrcanbecrushed[character] = bfalse;
-  chrmapturn_lr[character] = 32768;  // These two mean on level surface
-  chrmapturn_ud[character] = 32768;
-  if ( !VALID_CHR( team_get_leader( chrteam[character] ) ) )  teamleader[chrteam[character]] = character;
-  if ( !chrinvictus[character] )  teammorale[chrbaseteam[character]]++;
-  chractionready[character] = btrue;
-  chrkeepaction[character] = bfalse;
-  chrloopaction[character] = bfalse;
-  chraction[character] = ACTION_DA;
-  chrnextaction[character] = ACTION_DA;
-  chrlip_fp8[character] = 0;
-  chrflip[character] = 0.0f;
-  chrframe[character] = 0;
-  chrframelast[character] = chrframe[character];
-  chrisplatform[character] = capisplatform[profile];
-  chrflyheight[character] = capflyheight[profile];
-  chrbumpdampen[character] = capbumpdampen[profile];
+  ChrList[character].alive = btrue;
+  ChrList[character].boretime = DELAY_BORE;
+  ChrList[character].carefultime = DELAY_CAREFUL;
+  ChrList[character].life_fp8 = ChrList[character].lifemax_fp8;
+  ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
+  ChrList[character].pos.x = ChrList[character].stt.x;
+  ChrList[character].pos.y = ChrList[character].stt.y;
+  ChrList[character].pos.z = ChrList[character].stt.z;
+  ChrList[character].vel.x = 0;
+  ChrList[character].vel.y = 0;
+  ChrList[character].vel.z = 0;
+  ChrList[character].trgvel.x = 0;
+  ChrList[character].trgvel.y = 0;
+  ChrList[character].trgvel.z = 0;
+  ChrList[character].team = ChrList[character].baseteam;
+  ChrList[character].canbecrushed = bfalse;
+  ChrList[character].mapturn_lr = 32768;  // These two mean on level surface
+  ChrList[character].mapturn_ud = 32768;
+  if ( !VALID_CHR( team_get_leader( ChrList[character].team ) ) )  TeamList[ChrList[character].team].leader = character;
+  if ( !ChrList[character].invictus )  TeamList[ChrList[character].baseteam].morale++;
+  ChrList[character].actionready = btrue;
+  ChrList[character].keepaction = bfalse;
+  ChrList[character].loopaction = bfalse;
+  ChrList[character].action = ACTION_DA;
+  ChrList[character].nextaction = ACTION_DA;
+  ChrList[character].lip_fp8 = 0;
+  ChrList[character].flip = 0.0f;
+  ChrList[character].frame = 0;
+  ChrList[character].framelast = ChrList[character].frame;
+  ChrList[character].isplatform = CapList[profile].isplatform;
+  ChrList[character].flyheight = CapList[profile].flyheight;
+  ChrList[character].bumpdampen = CapList[profile].bumpdampen;
 
-  chrbmpdata_save[character].size    = capbumpsize[profile];
-  chrbmpdata_save[character].sizebig = capbumpsizebig[profile];
-  chrbmpdata_save[character].height  = capbumpheight[profile];
+  ChrList[character].bmpdata_save.size    = CapList[profile].bumpsize;
+  ChrList[character].bmpdata_save.sizebig = CapList[profile].bumpsizebig;
+  ChrList[character].bmpdata_save.height  = CapList[profile].bumpheight;
 
-  chrbmpdata[character].size     = capbumpsize[profile] * chrfat[character];
-  chrbmpdata[character].sizebig  = capbumpsizebig[profile] * chrfat[character];
-  chrbmpdata[character].height   = capbumpheight[profile] * chrfat[character];
-  chrbumpstrength[character] = capbumpstrength[profile] * FP8_TO_FLOAT( capalpha_fp8[profile] );
+  ChrList[character].bmpdata.size     = CapList[profile].bumpsize * ChrList[character].fat;
+  ChrList[character].bmpdata.sizebig  = CapList[profile].bumpsizebig * ChrList[character].fat;
+  ChrList[character].bmpdata.height   = CapList[profile].bumpheight * ChrList[character].fat;
+  ChrList[character].bumpstrength = CapList[profile].bumpstrength * FP8_TO_FLOAT( CapList[profile].alpha_fp8 );
 
   // clear the alert and leave the state alone
-  chralert[character] = ALERT_NONE;
-  chraitarget[character] = character;
-  chraitime[character] = 0;
-  chrgrogtime[character] = 0.0f;
-  chrdazetime[character] = 0.0f;
+  ChrList[character].alert = ALERT_NONE;
+  ChrList[character].aitarget = character;
+  ChrList[character].aitime = 0;
+  ChrList[character].grogtime = 0.0f;
+  ChrList[character].dazetime = 0.0f;
   reaffirm_attached_particles( character );
 
 
@@ -1058,10 +1084,10 @@ void respawn_character( CHR_REF character )
   item  = chr_get_nextinpack( character );
   while ( VALID_CHR( item ) )
   {
-    if ( chrisequipped[item] )
+    if ( ChrList[item].isequipped )
     {
-      chrisequipped[item] = bfalse;
-      chralert[item] |= ALERT_ATLASTWAYPOINT;  // doubles as PutAway
+      ChrList[item].isequipped = bfalse;
+      ChrList[item].alert |= ALERT_ATLASTWAYPOINT;  // doubles as PutAway
     }
     item  = chr_get_nextinpack( item );
   }
@@ -1076,47 +1102,47 @@ Uint16 change_armor( CHR_REF character, Uint16 skin )
 
 
   // Remove armor enchantments
-  enchant = chrfirstenchant[character];
+  enchant = ChrList[character].firstenchant;
   while ( enchant < MAXENCHANT )
   {
     for ( cnt = SETSLASHMODIFIER; cnt <= SETZAPMODIFIER; cnt++ )
     {
       unset_enchant_value( enchant, cnt );
     }
-    enchant = encnextenchant[enchant];
+    enchant = EncList[enchant].nextenchant;
   }
 
 
   // Change the skin
-  sTmp = chrmodel[character];
-  if ( skin > madskins[sTmp] )  skin = 0;
-  chrtexture[character] = madskinstart[sTmp] + skin;
+  sTmp = ChrList[character].model;
+  if ( skin > MadList[sTmp].skins )  skin = 0;
+  ChrList[character].texture = MadList[sTmp].skinstart + skin;
 
 
   // Change stats associated with skin
-  chrdefense_fp8[character] = capdefense_fp8[sTmp][skin];
+  ChrList[character].defense_fp8 = CapList[sTmp].defense_fp8[skin];
   iTmp = 0;
   while ( iTmp < MAXDAMAGETYPE )
   {
-    chrdamagemodifier_fp8[character][iTmp] = capdamagemodifier_fp8[sTmp][iTmp][skin];
+    ChrList[character].damagemodifier_fp8[iTmp] = CapList[sTmp].damagemodifier_fp8[iTmp][skin];
     iTmp++;
   }
-  chrmaxaccel[character] = capmaxaccel[sTmp][skin];
+  ChrList[character].maxaccel = CapList[sTmp].maxaccel[skin];
 
 
   // Reset armor enchantments
   // These should really be done in reverse order ( Start with last enchant ), but
   // I don't care at this point !!!BAD!!!
-  enchant = chrfirstenchant[character];
+  enchant = ChrList[character].firstenchant;
   while ( enchant < MAXENCHANT )
   {
     for ( cnt = SETSLASHMODIFIER; cnt <= SETZAPMODIFIER; cnt++ )
     {
-      set_enchant_value( enchant, cnt, enceve[enchant] );
+      set_enchant_value( enchant, cnt, EncList[enchant].eve );
     };
-    add_enchant_value( enchant, ADDACCEL, enceve[enchant] );
-    add_enchant_value( enchant, ADDDEFENSE, enceve[enchant] );
-    enchant = encnextenchant[enchant];
+    add_enchant_value( enchant, ADDACCEL, EncList[enchant].eve );
+    add_enchant_value( enchant, ADDDEFENSE, EncList[enchant].eve );
+    enchant = EncList[enchant].nextenchant;
   }
   return skin;
 }
@@ -1130,20 +1156,20 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   Uint16 sTmp;
   CHR_REF item, imount;
 
-  if ( new_profile > MAXMODEL || !madused[new_profile] ) return;
+  if ( new_profile > MAXMODEL || !MadList[new_profile].used ) return;
 
   for ( _slot = SLOT_BEGIN; _slot < SLOT_COUNT; _slot = ( SLOT )( _slot + 1 ) )
   {
     sTmp = chr_get_holdingwhich( ichr, _slot );
-    if ( !capslotvalid[new_profile][_slot] )
+    if ( !CapList[new_profile].slotvalid[_slot] )
     {
       if ( detach_character_from_mount( sTmp, btrue, btrue ) )
       {
         if ( _slot == SLOT_SADDLE )
         {
-          chraccum_vel[sTmp].z += DISMOUNTZVEL;
-          chraccum_pos[sTmp].z += DISMOUNTZVEL;
-          chrjumptime[sTmp]  = DELAY_JUMP;
+          ChrList[sTmp].accum_vel.z += DISMOUNTZVEL;
+          ChrList[sTmp].accum_pos.z += DISMOUNTZVEL;
+          ChrList[sTmp].jumptime  = DELAY_JUMP;
         };
       }
     }
@@ -1158,12 +1184,12 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
     case LEAVE_FIRST:
       {
         // Remove all enchantments except top one
-        enchant = chrfirstenchant[ichr];
+        enchant = ChrList[ichr].firstenchant;
         if ( enchant != MAXENCHANT )
         {
-          while ( encnextenchant[enchant] != MAXENCHANT )
+          while ( EncList[enchant].nextenchant != MAXENCHANT )
           {
-            remove_enchant( encnextenchant[enchant] );
+            remove_enchant( EncList[enchant].nextenchant );
           }
         }
       }
@@ -1178,91 +1204,91 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   }
 
   // Stuff that must be set
-  chrmodel[ichr]     = new_profile;
-  VData_Blended_destruct( &chrvdata[numfreechr] );
-  VData_Blended_construct( &chrvdata[numfreechr] );
-  VData_Blended_Allocate( &chrvdata[numfreechr], md2_get_numVertices(mad_md2[new_profile]) );
+  ChrList[ichr].model     = new_profile;
+  VData_Blended_destruct( &(ChrList[numfreechr].vdata) );
+  VData_Blended_construct( &(ChrList[numfreechr].vdata) );
+  VData_Blended_Allocate( &(ChrList[numfreechr].vdata), md2_get_numVertices(MadList[new_profile]._md2) );
 
-  chrstoppedby[ichr] = capstoppedby[new_profile];
-  chrlifeheal[ichr]  = caplifeheal_fp8[new_profile];
-  chrmanacost[ichr]  = capmanacost_fp8[new_profile];
+  ChrList[ichr].stoppedby = CapList[new_profile].stoppedby;
+  ChrList[ichr].lifeheal  = CapList[new_profile].lifeheal_fp8;
+  ChrList[ichr].manacost  = CapList[new_profile].manacost_fp8;
 
   // Ammo
-  chrammomax[ichr] = capammomax[new_profile];
-  chrammo[ichr] = capammo[new_profile];
+  ChrList[ichr].ammomax = CapList[new_profile].ammomax;
+  ChrList[ichr].ammo = CapList[new_profile].ammo;
   // Gender
-  if ( capgender[new_profile] != GEN_RANDOM ) // GEN_RANDOM means keep old gender
+  if ( CapList[new_profile].gender != GEN_RANDOM ) // GEN_RANDOM means keep old gender
   {
-    chrgender[ichr] = capgender[new_profile];
+    ChrList[ichr].gender = CapList[new_profile].gender;
   }
 
 
   // AI stuff
-  chraitype[ichr] = madai[new_profile];
-  chraistate[ichr] = 0;
-  chraitime[ichr] = 0;
-  chrlatchx[ichr] = 0;
-  chrlatchy[ichr] = 0;
-  chrlatchbutton[ichr] = 0;
-  chrturnmode[ichr] = TURNMODE_VELOCITY;
+  ChrList[ichr].aitype = MadList[new_profile].ai;
+  ChrList[ichr].aistate = 0;
+  ChrList[ichr].aitime = 0;
+  ChrList[ichr].latch.x = 0;
+  ChrList[ichr].latch.y = 0;
+  ChrList[ichr].latch.b = 0;
+  ChrList[ichr].turnmode = TURNMODE_VELOCITY;
 
   // Flags
-  chrstickybutt[ichr] = capstickybutt[new_profile];
-  chropenstuff[ichr] = capcanopenstuff[new_profile];
-  chrtransferblend[ichr] = captransferblend[new_profile];
-  chrenviro[ichr] = capenviro[new_profile];
-  chrisplatform[ichr] = capisplatform[new_profile];
-  chrisitem[ichr] = capisitem[new_profile];
-  chrinvictus[ichr] = capinvictus[new_profile];
-  chrismount[ichr] = capismount[new_profile];
-  chrcangrabmoney[ichr] = capcangrabmoney[new_profile];
-  chrjumptime[ichr] = DELAY_JUMP;
+  ChrList[ichr].stickybutt = CapList[new_profile].stickybutt;
+  ChrList[ichr].openstuff = CapList[new_profile].canopenstuff;
+  ChrList[ichr].transferblend = CapList[new_profile].transferblend;
+  ChrList[ichr].enviro = CapList[new_profile].enviro;
+  ChrList[ichr].isplatform = CapList[new_profile].isplatform;
+  ChrList[ichr].isitem = CapList[new_profile].isitem;
+  ChrList[ichr].invictus = CapList[new_profile].invictus;
+  ChrList[ichr].ismount = CapList[new_profile].ismount;
+  ChrList[ichr].cangrabmoney = CapList[new_profile].cangrabmoney;
+  ChrList[ichr].jumptime = DELAY_JUMP;
 
   // Character size and bumping
-  chrbmpdata_save[ichr].shadow  = capshadowsize[new_profile];
-  chrbmpdata_save[ichr].size    = capbumpsize[new_profile];
-  chrbmpdata_save[ichr].sizebig = capbumpsizebig[new_profile];
-  chrbmpdata_save[ichr].height  = capbumpheight[new_profile];
+  ChrList[ichr].bmpdata_save.shadow  = CapList[new_profile].shadowsize;
+  ChrList[ichr].bmpdata_save.size    = CapList[new_profile].bumpsize;
+  ChrList[ichr].bmpdata_save.sizebig = CapList[new_profile].bumpsizebig;
+  ChrList[ichr].bmpdata_save.height  = CapList[new_profile].bumpheight;
 
-  chrbmpdata[ichr].shadow   = capshadowsize[new_profile] * chrfat[ichr];
-  chrbmpdata[ichr].size     = capbumpsize[new_profile] * chrfat[ichr];
-  chrbmpdata[ichr].sizebig  = capbumpsizebig[new_profile] * chrfat[ichr];
-  chrbmpdata[ichr].height   = capbumpheight[new_profile] * chrfat[ichr];
-  chrbumpstrength[ichr]     = capbumpstrength[new_profile] * FP8_TO_FLOAT( capalpha_fp8[new_profile] );
+  ChrList[ichr].bmpdata.shadow   = CapList[new_profile].shadowsize * ChrList[ichr].fat;
+  ChrList[ichr].bmpdata.size     = CapList[new_profile].bumpsize * ChrList[ichr].fat;
+  ChrList[ichr].bmpdata.sizebig  = CapList[new_profile].bumpsizebig * ChrList[ichr].fat;
+  ChrList[ichr].bmpdata.height   = CapList[new_profile].bumpheight * ChrList[ichr].fat;
+  ChrList[ichr].bumpstrength     = CapList[new_profile].bumpstrength * FP8_TO_FLOAT( CapList[new_profile].alpha_fp8 );
 
-  chrbumpdampen[ichr] = capbumpdampen[new_profile];
-  chrweight[ichr] = capweight[new_profile] * chrfat[ichr] * chrfat[ichr] * chrfat[ichr];     // preserve density
-  chrscale[ichr] = chrfat[ichr];
+  ChrList[ichr].bumpdampen = CapList[new_profile].bumpdampen;
+  ChrList[ichr].weight = CapList[new_profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;     // preserve density
+  ChrList[ichr].scale = ChrList[ichr].fat;
 
 
   // Character scales...  Magic numbers
   imount = chr_get_attachedto( ichr );
   if ( VALID_CHR( imount ) )
   {
-    Uint16 imodel =  chrmodel[imount];
-    Uint16 vrtoffset = slot_to_offset( chrinwhichslot[ichr] );
+    Uint16 imodel =  ChrList[imount].model;
+    Uint16 vrtoffset = slot_to_offset( ChrList[ichr].inwhichslot );
 
     if( !VALID_MDL(imodel) )
     {
-      chrattachedgrip[ichr][0] = 0;
-      chrattachedgrip[ichr][1] = 0xFFFF;
-      chrattachedgrip[ichr][2] = 0xFFFF;
-      chrattachedgrip[ichr][3] = 0xFFFF;
+      ChrList[ichr].attachedgrip[0] = 0;
+      ChrList[ichr].attachedgrip[1] = 0xFFFF;
+      ChrList[ichr].attachedgrip[2] = 0xFFFF;
+      ChrList[ichr].attachedgrip[3] = 0xFFFF;
     }
-    else if ( madvertices[imodel] > vrtoffset && vrtoffset > 0 )
+    else if ( MadList[imodel].vertices > vrtoffset && vrtoffset > 0 )
     {
-      tnc = madvertices[imodel] - vrtoffset;
-      chrattachedgrip[ichr][0] = tnc;
-      chrattachedgrip[ichr][1] = tnc + 1;
-      chrattachedgrip[ichr][2] = tnc + 2;
-      chrattachedgrip[ichr][3] = tnc + 3;
+      tnc = MadList[imodel].vertices - vrtoffset;
+      ChrList[ichr].attachedgrip[0] = tnc;
+      ChrList[ichr].attachedgrip[1] = tnc + 1;
+      ChrList[ichr].attachedgrip[2] = tnc + 2;
+      ChrList[ichr].attachedgrip[3] = tnc + 3;
     }
     else
     {
-      chrattachedgrip[ichr][0] = madvertices[imodel] - 1;
-      chrattachedgrip[ichr][1] = 0xFFFF;
-      chrattachedgrip[ichr][2] = 0xFFFF;
-      chrattachedgrip[ichr][3] = 0xFFFF;
+      ChrList[ichr].attachedgrip[0] = MadList[imodel].vertices - 1;
+      ChrList[ichr].attachedgrip[1] = 0xFFFF;
+      ChrList[ichr].attachedgrip[2] = 0xFFFF;
+      ChrList[ichr].attachedgrip[3] = 0xFFFF;
     }
   }
 
@@ -1271,57 +1297,57 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
     item = chr_get_holdingwhich( ichr, _slot );
     if ( VALID_CHR( item ) )
     {
-      tnc = madvertices[chrmodel[ichr]] - slot_to_grip( _slot );
-      chrattachedgrip[item][0] = tnc;
-      chrattachedgrip[item][1] = tnc + 1;
-      chrattachedgrip[item][2] = tnc + 2;
-      chrattachedgrip[item][3] = tnc + 3;
+      tnc = MadList[ChrList[ichr].model].vertices - slot_to_grip( _slot );
+      ChrList[item].attachedgrip[0] = tnc;
+      ChrList[item].attachedgrip[1] = tnc + 1;
+      ChrList[item].attachedgrip[2] = tnc + 2;
+      ChrList[item].attachedgrip[3] = tnc + 3;
     }
   }
 
   // Image rendering
-  chruoffset_fp8[ichr] = 0;
-  chrvoffset_fp8[ichr] = 0;
-  chruoffvel[ichr] = capuoffvel[new_profile];
-  chrvoffvel[ichr] = capvoffvel[new_profile];
+  ChrList[ichr].uoffset_fp8 = 0;
+  ChrList[ichr].voffset_fp8 = 0;
+  ChrList[ichr].uoffvel = CapList[new_profile].uoffvel;
+  ChrList[ichr].voffvel = CapList[new_profile].voffvel;
 
 
   // Movement
-  chrsneakspd[ichr] = capsneakspd[new_profile];
-  chrwalkspd[ichr] = capwalkspd[new_profile];
-  chrrunspd[ichr] = caprunspd[new_profile];
+  ChrList[ichr].sneakspd = CapList[new_profile].sneakspd;
+  ChrList[ichr].walkspd = CapList[new_profile].walkspd;
+  ChrList[ichr].runspd = CapList[new_profile].runspd;
 
 
   // AI and action stuff
-  chractionready[ichr] = btrue;
-  chrkeepaction[ichr] = bfalse;
-  chrloopaction[ichr] = bfalse;
-  chraction[ichr] = ACTION_DA;
-  chrnextaction[ichr] = ACTION_DA;
-  chrlip_fp8[ichr] = 0;
-  chrflip[ichr] = 0.0f;
-  chrframe[ichr] = 0;
-  chrframelast[ichr] = chrframe[ichr];
-  chrholdingweight[ichr] = 0;
-  chronwhichplatform[ichr] = MAXCHR;
+  ChrList[ichr].actionready = btrue;
+  ChrList[ichr].keepaction = bfalse;
+  ChrList[ichr].loopaction = bfalse;
+  ChrList[ichr].action = ACTION_DA;
+  ChrList[ichr].nextaction = ACTION_DA;
+  ChrList[ichr].lip_fp8 = 0;
+  ChrList[ichr].flip = 0.0f;
+  ChrList[ichr].frame = 0;
+  ChrList[ichr].framelast = ChrList[ichr].frame;
+  ChrList[ichr].holdingweight = 0;
+  ChrList[ichr].onwhichplatform = MAXCHR;
 
   // Set the new_skin
   change_armor( ichr, new_skin );
 
 
   // Reaffirm them particles...
-  chrreaffirmdamagetype[ichr] = capattachedprtreaffirmdamagetype[new_profile];
+  ChrList[ichr].reaffirmdamagetype = CapList[new_profile].attachedprtreaffirmdamagetype;
   reaffirm_attached_particles( ichr );
 
   make_one_character_matrix(ichr);
 
   // Set up initial fade in lighting
   tnc = 0;
-  while ( tnc < madtransvertices[chrmodel[ichr]] )
+  while ( tnc < MadList[ChrList[ichr].model].transvertices )
   {
-    chrvrtar_fp8[ichr][tnc] =
-    chrvrtag_fp8[ichr][tnc] =
-    chrvrtab_fp8[ichr][tnc] = 0;
+    ChrList[ichr].vrtar_fp8[tnc] =
+    ChrList[ichr].vrtag_fp8[tnc] =
+    ChrList[ichr].vrtab_fp8[tnc] = 0;
     tnc++;
   }
 }
@@ -1349,63 +1375,63 @@ CHR_REF chr_search_target_in_block( int block_x, int block_y, CHR_REF character,
   if ( !VALID_CHR( character ) ) return MAXCHR;
 
   fanblock = mesh_convert_block( block_x, block_y );
-  team = chrteam[character];
-  for ( cnt = 0, charb = bumplistchr[fanblock];
-        cnt < bumplistchrnum[fanblock] && VALID_CHR( charb );
+  team = ChrList[character].team;
+  for ( cnt = 0, charb = bumplist.chr[fanblock];
+        cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb );
         cnt++, charb = chr_get_bumpnext(charb) )
   {
     // don't find stupid stuff
-    if ( !VALID_CHR( charb ) || 0.0f == chrbumpstrength[charb] ) continue;
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
 
     // don't find yourself or any of the items you're holding
-    if ( character == charb || chrattachedto[charb] == character || chrinwhichpack[charb] == character ) continue;
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
 
     // don't find your mount or your master
-    if ( chrattachedto[character] == charb || chrinwhichpack[character] == charb ) continue;
+    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
 
     // don't find anything you can't see
     if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
 
     // if we need to find friends, don't find enemies
-    if ( require_friends && teamhatesteam[team][chrteam[charb]] ) continue;
+    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
 
     // if we need to find enemies, don't find friends or invictus
-    if ( require_enemies && ( !teamhatesteam[team][chrteam[charb]] || chrinvictus[charb] ) ) continue;
+    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
 
     // if we require being alive, don't accept dead things
-    if ( require_alive && !chralive[charb] ) continue;
+    if ( require_alive && !ChrList[charb].alive ) continue;
 
     // if we require not an item, don't accept items
-    if ( require_noitems && chrisitem[charb] ) continue;
+    if ( require_noitems && ChrList[charb].isitem ) continue;
 
     ballowed = bfalse;
     if ( IDSZ_NONE == idsz )
     {
       ballowed = btrue;
     }
-    else if ( CAP_INHERIT_IDSZ( chrmodel[charb], idsz ) )
+    else if ( CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
     {
       ballowed = !excludeid;
     }
 
     if ( ballowed )
     {
-      diff.x = chrpos[character].x - chrpos[charb].x;
-      diff.y = chrpos[character].y - chrpos[charb].y;
-      diff.z = chrpos[character].z - chrpos[charb].z;
+      diff.x = ChrList[character].pos.x - ChrList[charb].pos.x;
+      diff.y = ChrList[character].pos.y - ChrList[charb].pos.y;
+      diff.z = ChrList[character].pos.z - ChrList[charb].pos.z;
 
       dist = DotProduct(diff, diff);
-      if ( search_initialize || dist < search_distance )
+      if ( g_search.initialize || dist < g_search.distance )
       {
-        search_distance   = dist;
-        search_besttarget = charb;
-        search_initialize = bfalse;
+        g_search.distance   = dist;
+        g_search.besttarget = charb;
+        g_search.initialize = bfalse;
       }
     }
 
   }
 
-  return search_besttarget;
+  return g_search.besttarget;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1414,18 +1440,18 @@ CHR_REF chr_search_nearby_target( CHR_REF character, bool_t ask_items,
 {
   // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
   int ix,ix_min,ix_max, iy,iy_min,iy_max;
-  bool_t seeinvisible = chrcanseeinvisible[character];
+  bool_t seeinvisible = ChrList[character].canseeinvisible;
 
   if ( !VALID_CHR( character ) || chr_in_pack( character ) ) return MAXCHR;
 
-  search_initialize = btrue;
-  search_besttarget = MAXCHR;
+  g_search.initialize = btrue;
+  g_search.besttarget = MAXCHR;
 
   // Current fanblock
-  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[character].cv.x_min ) );
-  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( chrbmpdata[character].cv.x_max ) );
-  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[character].cv.y_min ) );
-  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( chrbmpdata[character].cv.y_max ) );
+  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_min ) );
+  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_max ) );
+  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_min ) );
+  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_max ) );
 
   for( ix = ix_min; ix<=ix_max; ix++ )
   {
@@ -1435,7 +1461,7 @@ CHR_REF chr_search_nearby_target( CHR_REF character, bool_t ask_items,
     };
   };
 
-  return ( VALID_CHR(search_besttarget) && (search_besttarget!=character) ? search_besttarget : MAXCHR );
+  return ( VALID_CHR(g_search.besttarget) && (g_search.besttarget!=character) ? g_search.besttarget : MAXCHR );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1447,14 +1473,14 @@ bool_t cost_mana( CHR_REF character, int amount, Uint16 killer )
   int iTmp;
 
 
-  iTmp = chrmana_fp8[character] - amount;
+  iTmp = ChrList[character].mana_fp8 - amount;
   if ( iTmp < 0 )
   {
-    chrmana_fp8[character] = 0;
-    if ( chrcanchannel[character] )
+    ChrList[character].mana_fp8 = 0;
+    if ( ChrList[character].canchannel )
     {
-      chrlife_fp8[character] += iTmp;
-      if ( chrlife_fp8[character] <= 0 )
+      ChrList[character].life_fp8 += iTmp;
+      if ( ChrList[character].life_fp8 <= 0 )
       {
         kill_character( character, character );
       }
@@ -1464,10 +1490,10 @@ bool_t cost_mana( CHR_REF character, int amount, Uint16 killer )
   }
   else
   {
-    chrmana_fp8[character] = iTmp;
-    if ( iTmp > chrmanamax_fp8[character] )
+    ChrList[character].mana_fp8 = iTmp;
+    if ( iTmp > ChrList[character].manamax_fp8 )
     {
-      chrmana_fp8[character] = chrmanamax_fp8[character];
+      ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
     }
   }
   return btrue;
@@ -1487,29 +1513,29 @@ CHR_REF chr_search_distant_target( CHR_REF character, int maxdist, bool_t ask_en
 
   if ( !VALID_CHR( character ) ) return MAXCHR;
 
-  team = chrteam[character];
+  team = ChrList[character].team;
   minchr = MAXCHR;
   mindist = maxdist;
   for ( charb = 0; charb < MAXCHR; charb++ )
   {
     // don't find stupid items
-    if ( !VALID_CHR( charb ) || 0.0f == chrbumpstrength[charb] ) continue;
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
 
     // don't find yourself or items you are carrying
-    if ( character == charb || chrattachedto[charb] == character || chrinwhichpack[charb] == character ) continue;
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
 
     // don't find thigs you can't see
-    if (( !chrcanseeinvisible[character] && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
+    if (( !ChrList[character].canseeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
 
     // don't find dead things if not asked for
-    if ( require_alive && ( !chralive[charb] || chrisitem[charb] ) ) continue;
+    if ( require_alive && ( !ChrList[charb].alive || ChrList[charb].isitem ) ) continue;
 
     // don't find enemies unless asked for
-    if ( ask_enemies && ( !teamhatesteam[team][chrteam[charb]] || chrinvictus[charb] ) ) continue;
+    if ( ask_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
 
-    xdist = chrpos[charb].x - chrpos[character].x;
-    ydist = chrpos[charb].y - chrpos[character].y;
-    zdist = chrpos[charb].z - chrpos[character].z;
+    xdist = ChrList[charb].pos.x - ChrList[character].pos.x;
+    ydist = ChrList[charb].pos.y - ChrList[character].pos.y;
+    zdist = ChrList[charb].pos.z - ChrList[character].pos.z;
     dist = xdist * xdist + ydist * ydist + zdist * zdist;
 
     if ( dist < mindist )
@@ -1528,21 +1554,21 @@ void switch_team( CHR_REF character, TEAM team )
   // ZZ> This function makes a character join another team...
   if ( team < TEAM_COUNT )
   {
-    if ( !chrinvictus[character] )
+    if ( !ChrList[character].invictus )
     {
-      teammorale[chrbaseteam[character]]--;
-      teammorale[team]++;
+      TeamList[ChrList[character].baseteam].morale--;
+      TeamList[team].morale++;
     }
-    if (( !chrismount[character] || !chr_using_slot( character, SLOT_SADDLE ) ) &&
-        ( !chrisitem[character]  || !chr_attached( character ) ) )
+    if (( !ChrList[character].ismount || !chr_using_slot( character, SLOT_SADDLE ) ) &&
+        ( !ChrList[character].isitem  || !chr_attached( character ) ) )
     {
-      chrteam[character] = team;
+      ChrList[character].team = team;
     }
 
-    chrbaseteam[character] = team;
+    ChrList[character].baseteam = team;
     if ( !VALID_CHR( team_get_leader( team ) ) )
     {
-      teamleader[team] = character;
+      TeamList[team].leader = character;
     }
   }
 }
@@ -1569,48 +1595,48 @@ void chr_search_nearest_in_block( int block_x, int block_y, CHR_REF character, b
   // if character is not defined, return
   if ( !VALID_CHR( character ) ) return;
 
-  team     = chrteam[character];
-  charb    = bumplistchr[fanblock];
-  for ( cnt = 0; cnt < bumplistchrnum[fanblock] && VALID_CHR( charb ); cnt++, charb = chr_get_bumpnext(charb) )
+  team     = ChrList[character].team;
+  charb    = bumplist.chr[fanblock];
+  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb ); cnt++, charb = chr_get_bumpnext(charb) )
   {
     // don't find stupid stuff
-    if ( !VALID_CHR( charb ) || 0.0f == chrbumpstrength[charb] ) continue;
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
 
     // don't find yourself or any of the items you're holding
-    if ( character == charb || chrattachedto[charb] == character || chrinwhichpack[charb] == character ) continue;
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
 
     // don't find your mount or your master
-    if ( chrattachedto[character] == charb || chrinwhichpack[character] == charb ) continue;
+    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
 
     // don't find anything you can't see
     if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
 
     // if we need to find friends, don't find enemies
-    if ( require_friends && teamhatesteam[team][chrteam[charb]] ) continue;
+    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
 
     // if we need to find enemies, don't find friends or invictus
-    if ( require_enemies && ( !teamhatesteam[team][chrteam[charb]] || chrinvictus[charb] ) ) continue;
+    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
 
     // if we require being alive, don't accept dead things
-    if ( require_alive && !chralive[charb] ) continue;
+    if ( require_alive && !ChrList[charb].alive ) continue;
 
     // if we require not an item, don't accept items
-    if ( require_noitems && chrisitem[charb] ) continue;
+    if ( require_noitems && ChrList[charb].isitem ) continue;
 
-    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( chrmodel[charb], idsz ) )
+    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
     {
-      xdis = chrpos[character].x - chrpos[charb].x;
-      ydis = chrpos[character].y - chrpos[charb].y;
-      zdis = chrpos[character].z - chrpos[charb].z;
+      xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+      ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
+      zdis = ChrList[character].pos.z - ChrList[charb].pos.z;
       xdis *= xdis;
       ydis *= ydis;
       zdis *= zdis;
       dis = xdis + ydis + zdis;
-      if ( search_initialize || dis < search_distance )
+      if ( g_search.initialize || dis < g_search.distance )
       {
-        search_nearest  = charb;
-        search_distance = dis;
-        search_initialize = bfalse;
+        g_search.nearest  = charb;
+        g_search.distance = dis;
+        g_search.initialize = bfalse;
       }
     }
   }
@@ -1622,18 +1648,18 @@ CHR_REF chr_search_nearest_target( CHR_REF character, bool_t ask_items,
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
-  bool_t seeinvisible = chrcanseeinvisible[character];
+  bool_t seeinvisible = ChrList[character].canseeinvisible;
 
   if ( !VALID_CHR( character ) ) return MAXCHR;
 
   // Current fanblock
-  x = MESH_FLOAT_TO_BLOCK( chrpos[character].x );
-  y = MESH_FLOAT_TO_BLOCK( chrpos[character].y );
+  x = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
+  y = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
 
-  search_initialize = btrue;
+  g_search.initialize = btrue;
   chr_search_nearest_in_block( x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
 
-  if ( !VALID_CHR( search_nearest ) )
+  if ( !VALID_CHR( g_search.nearest ) )
   {
     chr_search_nearest_in_block( x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
     chr_search_nearest_in_block( x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
@@ -1641,7 +1667,7 @@ CHR_REF chr_search_nearest_target( CHR_REF character, bool_t ask_items,
     chr_search_nearest_in_block( x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
-  if ( !VALID_CHR( search_nearest ) )
+  if ( !VALID_CHR( g_search.nearest ) )
   {
     chr_search_nearest_in_block( x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
     chr_search_nearest_in_block( x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
@@ -1649,10 +1675,10 @@ CHR_REF chr_search_nearest_target( CHR_REF character, bool_t ask_items,
     chr_search_nearest_in_block( x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
-  if ( search_nearest == character )
+  if ( g_search.nearest == character )
     return MAXCHR;
   else
-    return search_nearest;
+    return g_search.nearest;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1663,31 +1689,31 @@ CHR_REF chr_search_wide_target( CHR_REF character, bool_t ask_items,
   int ix, iy;
   CHR_REF target;
   char seeinvisible;
-  seeinvisible = chrcanseeinvisible[character];
+  seeinvisible = ChrList[character].canseeinvisible;
 
   if ( !VALID_CHR( character ) ) return MAXCHR;
 
-  search_initialize = btrue;
-  search_besttarget = MAXCHR;
+  g_search.initialize = btrue;
+  g_search.besttarget = MAXCHR;
 
   // Current fanblock
-  ix = MESH_FLOAT_TO_BLOCK( chrpos[character].x );
-  iy = MESH_FLOAT_TO_BLOCK( chrpos[character].y );
+  ix = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
+  iy = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
 
   target = chr_search_target_in_block( ix + 0, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( search_besttarget ) && search_besttarget != character )  return search_besttarget;
+  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
 
   target = chr_search_target_in_block( ix - 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix + 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix + 0, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix + 0, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( search_besttarget ) && search_besttarget != character )  return search_besttarget;
+  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
 
   target = chr_search_target_in_block( ix - 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix + 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix - 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
   target = chr_search_target_in_block( ix + 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( search_besttarget ) && search_besttarget != character )  return search_besttarget;
+  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
 
   return MAXCHR;
 }
@@ -1700,14 +1726,14 @@ void issue_clean( CHR_REF character )
   Uint16 cnt;
 
 
-  team = chrteam[character];
+  team = ChrList[character].team;
   cnt = 0;
   while ( cnt < MAXCHR )
   {
-    if ( chrteam[cnt] == team && !chralive[cnt] )
+    if ( ChrList[cnt].team == team && !ChrList[cnt].alive )
     {
-      chraitime[cnt] = 2;  // Don't let it think too much...
-      chralert[cnt] = ALERT_CLEANEDUP;
+      ChrList[cnt].aitime = 2;  // Don't let it think too much...
+      ChrList[cnt].alert = ALERT_CLEANEDUP;
     }
     cnt++;
   }
@@ -1724,15 +1750,15 @@ int restock_ammo( CHR_REF character, IDSZ idsz )
   amount = 0;
   if ( character < MAXCHR )
   {
-    if ( chron[character] )
+    if ( ChrList[character].on )
     {
-      model = chrmodel[character];
+      model = ChrList[character].model;
       if ( CAP_INHERIT_IDSZ( model, idsz ) )
       {
-        if ( chrammo[character] < chrammomax[character] )
+        if ( ChrList[character].ammo < ChrList[character].ammomax )
         {
-          amount = chrammomax[character] - chrammo[character];
-          chrammo[character] = chrammomax[character];
+          amount = ChrList[character].ammomax - ChrList[character].ammo;
+          ChrList[character].ammo = ChrList[character].ammomax;
         }
       }
     }
@@ -1745,9 +1771,9 @@ void signal_target( Uint16 target, Uint16 upper, Uint16 lower )
 {
   if ( !VALID_CHR( target ) ) return;
 
-  chrmessage[target] = ( upper << 16 ) | lower;
-  chrmessagedata[target] = 0;
-  chralert[target] |= ALERT_SIGNALED;
+  ChrList[target].message = ( upper << 16 ) | lower;
+  ChrList[target].messagedata = 0;
+  ChrList[target].alert |= ALERT_SIGNALED;
 };
 
 
@@ -1759,15 +1785,15 @@ void signal_team( CHR_REF character, Uint32 message )
   Uint8 counter;
   Uint16 cnt;
 
-  team = chrteam[character];
+  team = ChrList[character].team;
   counter = 0;
   for ( cnt = 0; cnt < MAXCHR; cnt++ )
   {
-    if ( !VALID_CHR( cnt ) || chrteam[cnt] != team ) continue;
+    if ( !VALID_CHR( cnt ) || ChrList[cnt].team != team ) continue;
 
-    chrmessage[cnt] = message;
-    chrmessagedata[cnt] = counter;
-    chralert[cnt] |= ALERT_SIGNALED;
+    ChrList[cnt].message = message;
+    ChrList[cnt].messagedata = counter;
+    ChrList[cnt].alert |= ALERT_SIGNALED;
     counter++;
   }
 }
@@ -1784,13 +1810,13 @@ void signal_idsz_index( Uint32 order, IDSZ idsz, IDSZ_INDEX index )
   {
     if ( !VALID_CHR( cnt ) ) continue;
 
-    model = chrmodel[cnt];
+    model = ChrList[cnt].model;
 
-    if ( capidsz[model][index] != idsz ) continue;
+    if ( CapList[model].idsz[index] != idsz ) continue;
 
-    chrmessage[cnt]       = order;
-    chrmessagedata[cnt] = counter;
-    chralert[cnt] |= ALERT_SIGNALED;
+    ChrList[cnt].message       = order;
+    ChrList[cnt].messagedata = counter;
+    ChrList[cnt].alert |= ALERT_SIGNALED;
     counter++;
   }
 }
@@ -1800,20 +1826,20 @@ void set_alerts( CHR_REF character, float dUpdate )
 {
   // ZZ> This function polls some alert conditions
 
-  chraitime[character] -= dUpdate;
-  if ( chraitime[character] < 0 ) chraitime[character] = 0.0f;
+  ChrList[character].aitime -= dUpdate;
+  if ( ChrList[character].aitime < 0 ) ChrList[character].aitime = 0.0f;
 
-  if ( ABS( chrpos[character].x - chraigotox[character][chraigoto[character]] ) < WAYTHRESH &&
-       ABS( chrpos[character].y - chraigotoy[character][chraigoto[character]] ) < WAYTHRESH )
+  if ( ABS( ChrList[character].pos.x - ChrList[character].aigotox[ChrList[character].aigoto] ) < WAYTHRESH &&
+       ABS( ChrList[character].pos.y - ChrList[character].aigotoy[ChrList[character].aigoto] ) < WAYTHRESH )
   {
-    chralert[character] |= ALERT_ATWAYPOINT;
-    chraigoto[character]++;
-    if ( chraigoto[character] == chraigotoadd[character] )
+    ChrList[character].alert |= ALERT_ATWAYPOINT;
+    ChrList[character].aigoto++;
+    if ( ChrList[character].aigoto == ChrList[character].aigotoadd )
     {
-      chraigoto[character] = 0;
-      if ( !capisequipment[chrmodel[character]] )
+      ChrList[character].aigoto = 0;
+      if ( !CapList[ChrList[character].model].isequipment )
       {
-        chralert[character] |= ALERT_ATLASTWAYPOINT;
+        ChrList[character].alert |= ALERT_ATLASTWAYPOINT;
       }
     }
   }
@@ -1827,7 +1853,7 @@ void free_all_enchants()
   while ( numfreeenchant < MAXENCHANT )
   {
     freeenchant[numfreeenchant] = numfreeenchant;
-    encon[numfreeenchant] = bfalse;
+    EncList[numfreeenchant].on = bfalse;
     numfreeenchant++;
   }
 }
@@ -1863,200 +1889,200 @@ void load_one_enchant_profile( char* szLoadName, Uint16 profile )
   IDSZ idsz;
 
   globalname = szLoadName;
-  evevalid[profile] = bfalse;
+  EveList[profile].valid = bfalse;
   fileread = fs_fileOpen( PRI_NONE, NULL, szLoadName, "r" );
   if ( NULL == fileread ) return;
 
   // btrue/bfalse values
-  everetarget[profile] = fget_next_bool( fileread );
-  eveoverride[profile] = fget_next_bool( fileread );
-  everemoveoverridden[profile] = fget_next_bool( fileread );
-  evekillonend[profile] = fget_next_bool( fileread );
-  evepoofonend[profile] = fget_next_bool( fileread );
+  EveList[profile].retarget = fget_next_bool( fileread );
+  EveList[profile].override = fget_next_bool( fileread );
+  EveList[profile].removeoverridden = fget_next_bool( fileread );
+  EveList[profile].killonend = fget_next_bool( fileread );
+  EveList[profile].poofonend = fget_next_bool( fileread );
 
 
   // More stuff
-  evetime[profile] = fget_next_int( fileread );
-  eveendmessage[profile] = fget_next_int( fileread );
+  EveList[profile].time = fget_next_int( fileread );
+  EveList[profile].endmessage = fget_next_int( fileread );
   // make -1 the "never-ending enchant" marker
-  if ( evetime[profile] == 0 ) evetime[profile] = -1;
+  if ( EveList[profile].time == 0 ) EveList[profile].time = -1;
 
 
   // Drain stuff
-  eveownermana[profile] = fget_next_fixed( fileread );
-  evetargetmana[profile] = fget_next_fixed( fileread );
-  eveendifcantpay[profile] = fget_next_bool( fileread );
-  eveownerlife[profile] = fget_next_fixed( fileread );
-  evetargetlife[profile] = fget_next_fixed( fileread );
+  EveList[profile].ownermana = fget_next_fixed( fileread );
+  EveList[profile].targetmana = fget_next_fixed( fileread );
+  EveList[profile].endifcantpay = fget_next_bool( fileread );
+  EveList[profile].ownerlife = fget_next_fixed( fileread );
+  EveList[profile].targetlife = fget_next_fixed( fileread );
 
 
   // Specifics
-  evedontdamagetype[profile] = fget_next_damage( fileread );
-  eveonlydamagetype[profile] = fget_next_damage( fileread );
-  everemovedbyidsz[profile] = fget_next_idsz( fileread );
+  EveList[profile].dontdamagetype = fget_next_damage( fileread );
+  EveList[profile].onlydamagetype = fget_next_damage( fileread );
+  EveList[profile].removedbyidsz = fget_next_idsz( fileread );
 
 
   // Now the set values
   num = 0;
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_damage_modifier( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_damage_modifier( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_int( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_int( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_bool( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_bool( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_bool( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_bool( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
   cTmp = fget_first_letter( fileread );
-  evesetvalue[profile][num] = MIS_NORMAL;
+  EveList[profile].setvalue[num] = MIS_NORMAL;
   switch ( toupper( cTmp ) )
   {
-    case 'R': evesetvalue[profile][num] = MIS_REFLECT; break;
-    case 'D': evesetvalue[profile][num] = MIS_DEFLECT; break;
+    case 'R': EveList[profile].setvalue[num] = MIS_REFLECT; break;
+    case 'D': EveList[profile].setvalue[num] = MIS_DEFLECT; break;
   };
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_float( fileread ) * 16;
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_float( fileread ) * 16;
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_bool( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_bool( fileread );
   num++;
 
-  evesetyesno[profile][num] = fget_next_bool( fileread );
-  evesetvalue[profile][num] = fget_bool( fileread );
+  EveList[profile].setyesno[num] = fget_next_bool( fileread );
+  EveList[profile].setvalue[num] = fget_bool( fileread );
   num++;
 
 
   // Now read in the add values
   num = 0;
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 16;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 16;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 127;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 127;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 127;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 127;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 127;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 127;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_int( fileread );
+  EveList[profile].addvalue[num] = fget_next_int( fileread );
   num++;
 
-  eveaddvalue[profile][num] = fget_next_int( fileread );
+  EveList[profile].addvalue[num] = fget_next_int( fileread );
   num++;
 
-  eveaddvalue[profile][num] = fget_next_int( fileread );
+  EveList[profile].addvalue[num] = fget_next_int( fileread );
   num++;
 
-  eveaddvalue[profile][num] = fget_next_int( fileread );
+  EveList[profile].addvalue[num] = fget_next_int( fileread );
   num++;
 
-  eveaddvalue[profile][num] = fget_next_int( fileread );
+  EveList[profile].addvalue[num] = fget_next_int( fileread );
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
-  eveaddvalue[profile][num] = fget_next_float( fileread ) * 4;
+  EveList[profile].addvalue[num] = fget_next_float( fileread ) * 4;
   num++;
 
 
   // Clear expansions...
-  evecontspawntime[profile] = 0;
-  evecontspawnamount[profile] = 0;
-  evecontspawnfacingadd[profile] = 0;
-  evecontspawnpip[profile] = 0;
-  eveendsound[profile] = INVALID_SOUND;
-  evestayifnoowner[profile] = 0;
-  eveoverlay[profile] = 0;
-  evecanseekurse[profile] = bfalse;
+  EveList[profile].contspawntime = 0;
+  EveList[profile].contspawnamount = 0;
+  EveList[profile].contspawnfacingadd = 0;
+  EveList[profile].contspawnpip = 0;
+  EveList[profile].endsound = INVALID_SOUND;
+  EveList[profile].stayifnoowner = 0;
+  EveList[profile].overlay = 0;
+  EveList[profile].canseekurse = bfalse;
 
   // Read expansions
   while ( fgoto_colon_yesno( fileread ) )
@@ -2064,17 +2090,17 @@ void load_one_enchant_profile( char* szLoadName, Uint16 profile )
     idsz = fget_idsz( fileread );
     iTmp = fget_int( fileread );
 
-    if ( MAKE_IDSZ( "AMOU" ) == idsz )  evecontspawnamount[profile] = iTmp;
-    else if ( MAKE_IDSZ( "TYPE" ) == idsz )  evecontspawnpip[profile] = iTmp;
-    else if ( MAKE_IDSZ( "TIME" ) == idsz )  evecontspawntime[profile] = iTmp;
-    else if ( MAKE_IDSZ( "FACE" ) == idsz )  evecontspawnfacingadd[profile] = iTmp;
-    else if ( MAKE_IDSZ( "SEND" ) == idsz )  eveendsound[profile] = FIX_SOUND( iTmp );
-    else if ( MAKE_IDSZ( "STAY" ) == idsz )  evestayifnoowner[profile] = iTmp;
-    else if ( MAKE_IDSZ( "OVER" ) == idsz )  eveoverlay[profile] = iTmp;
-    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  eveoverlay[profile] = (bfalse != iTmp);
+    if ( MAKE_IDSZ( "AMOU" ) == idsz )  EveList[profile].contspawnamount = iTmp;
+    else if ( MAKE_IDSZ( "TYPE" ) == idsz )  EveList[profile].contspawnpip = iTmp;
+    else if ( MAKE_IDSZ( "TIME" ) == idsz )  EveList[profile].contspawntime = iTmp;
+    else if ( MAKE_IDSZ( "FACE" ) == idsz )  EveList[profile].contspawnfacingadd = iTmp;
+    else if ( MAKE_IDSZ( "SEND" ) == idsz )  EveList[profile].endsound = FIX_SOUND( iTmp );
+    else if ( MAKE_IDSZ( "STAY" ) == idsz )  EveList[profile].stayifnoowner = iTmp;
+    else if ( MAKE_IDSZ( "OVER" ) == idsz )  EveList[profile].overlay = iTmp;
+    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  EveList[profile].overlay = (bfalse != iTmp);
   }
 
-  evevalid[profile] = btrue;
+  EveList[profile].valid = btrue;
 
   // All done ( finally )
   fs_fileClose( fileread );
@@ -2098,108 +2124,108 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
   // ZZ> This function unsets a set value
   CHR_REF character;
 
-  if ( encsetyesno[enchantindex][valueindex] )
+  if ( EncList[enchantindex].setyesno[valueindex] )
   {
-    character = enctarget[enchantindex];
+    character = EncList[enchantindex].target;
     switch ( valueindex )
     {
       case SETDAMAGETYPE:
-        chrdamagetargettype[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagetargettype = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETNUMBEROFJUMPS:
-        chrjumpnumberreset[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].jumpnumberreset = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETLIFEBARCOLOR:
-        chrlifecolor[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].lifecolor = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETMANABARCOLOR:
-        chrmanacolor[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].manacolor = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETSLASHMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_SLASH] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_SLASH] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETCRUSHMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_CRUSH] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETPOKEMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_POKE] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_POKE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETHOLYMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_HOLY] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_HOLY] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETEVILMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_EVIL] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_EVIL] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETFIREMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_FIRE] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_FIRE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETICEMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_ICE] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_ICE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETZAPMODIFIER:
-        chrdamagemodifier_fp8[character][DAMAGE_ZAP] = encsetsave[enchantindex][valueindex];
+        ChrList[character].damagemodifier_fp8[DAMAGE_ZAP] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETFLASHINGAND:
-        chrflashand[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].flashand = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETLIGHTBLEND:
-        chrlight_fp8[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].light_fp8 = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETALPHABLEND:
-        chralpha_fp8[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].alpha_fp8 = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETSHEEN:
-        chrsheen_fp8[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].sheen_fp8 = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETFLYTOHEIGHT:
-        chrflyheight[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].flyheight = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETWALKONWATER:
-        chrwaterwalk[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].waterwalk = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETCANSEEINVISIBLE:
-        chrcanseeinvisible[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].canseeinvisible = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETMISSILETREATMENT:
-        chrmissiletreatment[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].missiletreatment = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETCOSTFOREACHMISSILE:
-        chrmissilecost[character] = encsetsave[enchantindex][valueindex];
-        chrmissilehandler[character] = character;
+        ChrList[character].missilecost = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].missilehandler = character;
         break;
 
       case SETMORPH:
         // Need special handler for when this is removed
-        change_character( character, chrbasemodel[character], encsetsave[enchantindex][valueindex], LEAVE_ALL );
-        chraimorphed[character] = btrue;
+        change_character( character, ChrList[character].basemodel, EncList[enchantindex].setsave[valueindex], LEAVE_ALL );
+        ChrList[character].aimorphed = btrue;
         break;
 
       case SETCHANNEL:
-        chrcanchannel[character] = encsetsave[enchantindex][valueindex];
+        ChrList[character].canchannel = EncList[enchantindex].setsave[valueindex];
         break;
 
     }
-    encsetyesno[enchantindex][valueindex] = bfalse;
+    EncList[enchantindex].setyesno[valueindex] = bfalse;
   }
 }
 
@@ -2210,92 +2236,92 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
   float fvaluetoadd;
   int valuetoadd;
 
-  CHR_REF character = enctarget[enchantindex];
+  CHR_REF character = EncList[enchantindex].target;
   switch ( valueindex )
   {
     case ADDJUMPPOWER:
-      fvaluetoadd = encaddsave[enchantindex][valueindex] / 16.0;
-      chrjump[character] -= fvaluetoadd;
+      fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 16.0;
+      ChrList[character].jump -= fvaluetoadd;
       break;
 
     case ADDBUMPDAMPEN:
-      fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0;
-      chrbumpdampen[character] -= fvaluetoadd;
+      fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0;
+      ChrList[character].bumpdampen -= fvaluetoadd;
       break;
 
     case ADDBOUNCINESS:
-      fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0;
-      chrdampen[character] -= fvaluetoadd;
+      fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0;
+      ChrList[character].dampen -= fvaluetoadd;
       break;
 
     case ADDDAMAGE:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrdamageboost[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].damageboost -= valuetoadd;
       break;
 
     case ADDSIZE:
-      fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0;
-      chrsizegoto[character] -= fvaluetoadd;
-      chrsizegototime[character] = DELAY_RESIZE;
+      fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0;
+      ChrList[character].sizegoto -= fvaluetoadd;
+      ChrList[character].sizegototime = DELAY_RESIZE;
       break;
 
     case ADDACCEL:
-      fvaluetoadd = encaddsave[enchantindex][valueindex] / 1000.0;
-      chrmaxaccel[character] -= fvaluetoadd;
+      fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 1000.0;
+      ChrList[character].maxaccel -= fvaluetoadd;
       break;
 
     case ADDRED:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrredshift[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].redshift -= valuetoadd;
       break;
 
     case ADDGRN:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrgrnshift[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].grnshift -= valuetoadd;
       break;
 
     case ADDBLU:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrblushift[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].blushift -= valuetoadd;
       break;
 
     case ADDDEFENSE:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrdefense_fp8[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].defense_fp8 -= valuetoadd;
       break;
 
     case ADDMANA:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrmanamax_fp8[character] -= valuetoadd;
-      chrmana_fp8[character] -= valuetoadd;
-      if ( chrmana_fp8[character] < 0 ) chrmana_fp8[character] = 0;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].manamax_fp8 -= valuetoadd;
+      ChrList[character].mana_fp8 -= valuetoadd;
+      if ( ChrList[character].mana_fp8 < 0 ) ChrList[character].mana_fp8 = 0;
       break;
 
     case ADDLIFE:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrlifemax_fp8[character] -= valuetoadd;
-      chrlife_fp8[character] -= valuetoadd;
-      if ( chrlife_fp8[character] < 1 ) chrlife_fp8[character] = 1;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].lifemax_fp8 -= valuetoadd;
+      ChrList[character].life_fp8 -= valuetoadd;
+      if ( ChrList[character].life_fp8 < 1 ) ChrList[character].life_fp8 = 1;
       break;
 
     case ADDSTRENGTH:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrstrength_fp8[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].strength_fp8 -= valuetoadd;
       break;
 
     case ADDWISDOM:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrwisdom_fp8[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].wisdom_fp8 -= valuetoadd;
       break;
 
     case ADDINTELLIGENCE:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrintelligence_fp8[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].intelligence_fp8 -= valuetoadd;
       break;
 
     case ADDDEXTERITY:
-      valuetoadd = encaddsave[enchantindex][valueindex];
-      chrdexterity_fp8[character] -= valuetoadd;
+      valuetoadd = EncList[enchantindex].addsave[valueindex];
+      ChrList[character].dexterity_fp8 -= valuetoadd;
       break;
 
   }

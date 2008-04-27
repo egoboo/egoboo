@@ -59,7 +59,7 @@ ClockState * clock_create_state()
 {
   ClockState * cs;
 
-  cs = ( ClockState * ) malloc( sizeof( ClockState ) );
+  cs = ( ClockState * ) calloc( 1, sizeof( ClockState ) );
   clock_state_init( cs );
 
   return cs;
@@ -83,9 +83,11 @@ void clock_free_state( ClockState * cs )
   if ( cs->frameHistory != NULL )
   {
     free( cs->frameHistory );
+    cs->frameHistory = NULL;
   };
 
   free( cs );
+  cs = NULL;
 };
 
 
@@ -126,17 +128,19 @@ void clock_setFrameHistoryWindow( ClockState * cs, int size )
   cs->frameHistoryWindow = ( size > 1 ) ? size : 1;
   history = ( double* ) malloc( sizeof( double ) * cs->frameHistoryWindow );
 
-  if ( cs->frameHistory != NULL )
+  if (NULL == cs->frameHistory)
+  {
+    memset( history, 0, sizeof( double ) * cs->frameHistoryWindow );
+  }
+  else
   {
     // Copy over the older history.  Make sure that only the size of the
     // smaller buffer is copied
     less = ( cs->frameHistoryWindow < oldSize ) ? cs->frameHistoryWindow : oldSize;
     memcpy( history, cs->frameHistory, less );
+
     free( cs->frameHistory );
-  }
-  else
-  {
-    memset( history, 0, sizeof( double ) * cs->frameHistoryWindow );
+    cs->frameHistory = NULL;
   }
 
   cs->frameHistoryHead = 0;

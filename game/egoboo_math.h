@@ -28,6 +28,11 @@
 #include <math.h>
 #include "egoboo_types.h"
 
+#define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
+#define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))
+#define HAS_NO_BITS(XX,YY)   (0 == ((XX)&(YY)))
+#define MISSING_BITS(XX,YY)  (HAS_SOME_BITS(XX,YY) && !HAS_ALL_BITS(XX,YY))
+
 #define SQRT_TWO            1.4142135623730950488016887242097f
 #define INV_SQRT_TWO        0.70710678118654752440084436210485f
 #define PI                  3.1415926535897932384626433832795f
@@ -41,15 +46,29 @@
 #define DEG_TO_RAD          0.017453292519943295769236907684886f
 #define RAD_TO_DEG          57.295779513082320876798154814105
 
+#ifndef UINT32_SIZE
 #define UINT32_SIZE         (1<<32)
-#define UINT32_MAX          (UINT32_SIZE-1)
+#endif
 
+#ifndef UINT32_MAX
+#define UINT32_MAX          ((1<<32)-1)
+#endif
+
+#ifndef UINT16_SIZE
 #define UINT16_SIZE         (1<<16)
-#define UINT16_MAX          (UINT16_SIZE-1)
+#endif
 
+#ifndef UINT16_MAX
+#define UINT16_MAX          ((1<<16)-1)
+#endif
+
+#ifndef UINT8_SIZE
 #define UINT8_SIZE          (1<< 8)
-#define UINT8_MAX           (UINT8_SIZE-1)
+#endif
 
+#ifndef UINT8_MAX
+#define UINT8_MAX           ((1<< 8)-1)
+#endif
 
 #define RAD_TO_TURN(XX)     ((Uint16)(((XX) + PI) * RAD_TO_SHORT))
 #define TURN_TO_RAD(XX)     (((float)(XX))*SHORT_TO_RAD - PI)

@@ -52,14 +52,14 @@ enum ui_button_bits_e
 
 typedef struct ui_widget_t
 {
-  UI_ID id;
-  Font * pfont;
-  char *text;
+  UI_ID      id;
+  TTFont    *pfont;
+  char      *text;
   GLtexture *img;
-  int x;
-  int y;
-  int width;
-  int height;
+  int        x;
+  int        y;
+  int        width;
+  int        height;
   Uint32 mask, state, timeout;
 } ui_Widget;
 
@@ -83,15 +83,15 @@ ui_buttonValues  ui_doImageButtonWithText( ui_Widget * pWidget );
 //int  ui_doTextBox(ui_Widget * pWidget);
 
 // Utility functions
-void ui_doCursor();
-int  ui_mouseInside( int x, int y, int width, int height );
-void ui_setActive( UI_ID id );
-void ui_setHot( UI_ID id );
-Font* ui_getFont();
+void    ui_doCursor();
+int     ui_mouseInside( int x, int y, int width, int height );
+void    ui_setActive( UI_ID id );
+void    ui_setHot( UI_ID id );
+TTFont* ui_getFont();
 
 bool_t ui_copyWidget( ui_Widget * pw2, ui_Widget * pw1 );
 bool_t ui_shrinkWidget( ui_Widget * pw2, ui_Widget * pw1, int pixels );
-bool_t ui_initWidget( ui_Widget * pw, UI_ID id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height );
+bool_t ui_initWidget( ui_Widget * pw, UI_ID id, TTFont * pfont, const char *text, GLtexture *img, int x, int y, int width, int height );
 bool_t ui_widgetAddMask( ui_Widget * pw, Uint32 mbits );
 bool_t ui_widgetRemoveMask( ui_Widget * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget * pw, Uint32 mbits );

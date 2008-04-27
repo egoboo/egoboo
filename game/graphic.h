@@ -22,9 +22,58 @@
 
 #pragma once
 
+#include <SDL.h>
 #include "ogl_texture.h"
+#include "Font.h"
+#include "mesh.h"
 
-int draw_string( GLtexture * pfnt, float x, float y, GLfloat tint[], char * szFormat, ... );
+#define TABAND              31                      // Tab size
+
+#define TRANSCOLOR                      0           // Transparent color
+
+// Global lighting stuff
+extern float                   lightspek;
+extern vect3                   lightspekdir;
+extern vect3                   lightspekcol;
+extern float                   lightambi;
+extern vect3                   lightambicol;
+
+typedef struct renderlist_t
+{
+  int     num_totl;                            // Number to render, total
+  Uint32  totl[MAXMESHRENDER];                 // List of which to render, total
+
+  int     num_shine;                           // ..., reflective
+  Uint32  shine[MAXMESHRENDER];                // ..., reflective
+
+  int     num_reflc;                           // ..., has reflection
+  Uint32  reflc[MAXMESHRENDER];                // ..., has reflection
+
+  int     num_norm;                            // ..., not reflective, has no reflection
+  Uint32  norm[MAXMESHRENDER];                 // ..., not reflective, has no reflection
+
+  int     num_watr;                            // ..., water
+  Uint32  watr[MAXMESHRENDER];                 // ..., water
+} RENDERLIST;
+
+extern RENDERLIST renderlist;
+
+//Setup values
+typedef struct cursor_t
+{
+  int      x;              // Cursor position
+  int      y;              //
+  bool_t   pressed;        //
+  bool_t   clicked;        //
+  bool_t   pending;
+} CURSOR;
+
+extern CURSOR cursor;
+
+// JF - Added so that the video mode might be determined outside of the graphics code
+extern SDL_Surface *displaySurface;
+
+int draw_string( BMFont * pfnt, float x, float y, GLfloat tint[], char * szFormat, ... );
 bool_t draw_texture_box( GLtexture * ptx, FRect * tx_rect, FRect * sc_rect );
 
 void BeginText( GLtexture * pfnt );

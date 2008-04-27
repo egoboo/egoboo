@@ -24,6 +24,8 @@
 #include "Client.h"
 #include "Server.h"
 #include "Log.h"
+#include "input.h"
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
@@ -37,6 +39,8 @@ ENetHost* net_myHost = NULL;
 ENetPeer* net_gameHost = NULL;
 ENetPeer* net_playerPeers[MAXPLAYER];
 NetPlayerInfo net_playerInfo[MAXNETPLAYER];
+
+NETWORK_INFO GNet;
 
 bool_t net_amHost = bfalse;
 PACKET gPacket;
@@ -352,7 +356,7 @@ void net_sendPacketToOnePlayerGuaranteed( int player )
   if ( NULL == net_myHost ) return;
 
   packet = enet_packet_create( gPacket.buffer, gPacket.size, ENET_PACKET_FLAG_RELIABLE );
-  if ( player < numplayer )
+  if ( player < GNet.num_player )
   {
     enet_peer_send( &net_myHost->peers[player], NET_GUARANTEED_CHANNEL, packet );
   }
@@ -428,7 +432,7 @@ void net_copyFileToAllPlayersOld( char *source, char *dest )
   int fileisdir;
   char cTmp;
 
-  if ( !CData.networkon  || !hostactive || NULL == net_myHost ) return;
+  if ( !CData.network_on  || !hostactive || NULL == net_myHost ) return;
 
   log_info( "net_copyFileToAllPlayers: %s, %s\n", source, dest );
 
@@ -716,13 +720,13 @@ void net_copyDirectoryToAllPlayers( char *dirname, char *todirname )
 void net_sayHello()
 {
   // ZZ> This function lets everyone know we're here
-  if ( CData.networkon )
+  if ( CData.network_on )
   {
     if ( hostactive )
     {
       log_info( "net_sayHello: Server saying hello.\n" );
       playersloaded++;
-      if ( playersloaded >= numplayer )
+      if ( playersloaded >= GNet.num_player )
       {
         waitingforplayers = bfalse;
       }
@@ -839,8 +843,8 @@ void net_initialize()
 {
   // ZZ> This starts up the network and logs whatever goes on
   serviceon = bfalse;
-  numsession = 0;
-  numservice = 0;
+  GNet.num_session = 0;
+  GNet.num_service = 0;
 
   // Clear all the state variables to 0 to start.
   memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAXPLAYER );
@@ -849,26 +853,26 @@ void net_initialize()
   memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
   memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
 
-  if ( CData.networkon )
+  if ( CData.network_on )
   {
     // initialize enet
     log_info( "net_initialize: Initializing enet..." );
     if ( enet_initialize() != 0 )
     {
       log_message( "Failed!\n" );
-      CData.networkon = bfalse;
+      CData.network_on = bfalse;
       serviceon = bfalse;
     }
     else
     {
       log_message( "Succeeded!\n" );
       serviceon = btrue;
-      numservice = 1;
+      GNet.num_service = 1;
     }
   }
   else
   {
-    // We're not doing networking this time...
+    // We're not doing GNet.working this time...
     log_info( "net_initialize: Networking not enabled.\n" );
   }
 }
@@ -876,11 +880,10 @@ void net_initialize()
 //--------------------------------------------------------------------------------------------
 void net_shutDown()
 {
-  if ( CData.networkon )
-  {
-	  log_info( "net_shutDown: Turning off networking.\n" );
-	  enet_deinitialize();
-  }
+  if( !CData.network_on ) return;
+
+  log_info( "net_shutDown: Turning off GNet.working.\n" );
+  enet_deinitialize();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -995,7 +998,7 @@ void close_session()
   ENetEvent event;
 
   // ZZ> This function gets the computer out of a network game
-  if ( !CData.networkon ) return;
+  if ( !CData.network_on ) return;
 
   if ( net_amHost )
   {
@@ -1050,23 +1053,23 @@ int add_player( CHR_REF character, Uint16 player, Uint8 device )
 {
   // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
 
-  if ( player >= MAXPLAYER || plavalid[player] ) return bfalse;
+  if ( player >= MAXPLAYER || PlaList[player].valid ) return bfalse;
 
-  chrisplayer[character] = btrue;
-  plachr[player] = character;
-  plavalid[player] = btrue;
-  pladevice[player] = device;
+  ChrList[character].isplayer = btrue;
+  PlaList[player].chr = character;
+  PlaList[player].valid = btrue;
+  PlaList[player].device = device;
   if ( device != INBITS_NONE )  nolocalplayers = bfalse;
-  plalatchx[player] = 0;
-  plalatchy[player] = 0;
-  plalatchbutton[player] = 0;
+  PlaList[player].latch.x = 0;
+  PlaList[player].latch.y = 0;
+  PlaList[player].latch.b = 0;
 
   cl_resetTimeLatches( &AClientState, character );
   sv_resetTimeLatches( &AServerState, character );
 
   if ( INBITS_NONE != device )
   {
-    chrislocalplayer[character] = btrue;
+    ChrList[character].islocalplayer = btrue;
     numlocalpla++;
   }
   numpla++;
@@ -1082,7 +1085,7 @@ void clear_messages()
   cnt = 0;
   while ( cnt < MAXMESSAGE )
   {
-    msgtime[cnt] = 0;
+    GMsg.time[cnt] = 0;
     cnt++;
   }
 }
@@ -1097,19 +1100,19 @@ void check_add( Uint8 key, char bigletter, char littleletter )
   if(!keypress[key])
   {
   keypress[key] = btrue;
-  if(netmessagewrite < MESSAGESIZE-2)
+  if(GNet.messagewrite < MESSAGESIZE-2)
   {
   if(SDLKEYDOWN(SDLK_LSHIFT) || SDLKEYDOWN(SDLK_RSHIFT))
   {
-  netmessage[netmessagewrite] = bigletter;
+  GNet.message[GNet.messagewrite] = bigletter;
   }
   else
   {
-  netmessage[netmessagewrite] = littleletter;
+  GNet.message[GNet.messagewrite] = littleletter;
   }
-  netmessagewrite++;
-  netmessage[netmessagewrite] = '?'; // The flashing input cursor
-  netmessage[netmessagewrite+1] = 0;
+  GNet.messagewrite++;
+  GNet.message[GNet.messagewrite] = '?'; // The flashing input cursor
+  GNet.message[GNet.messagewrite+1] = 0;
   }
   }
   }
@@ -1130,7 +1133,7 @@ void input_net_message()
   char cTmp;
 
 
-  if(netmessagemode)
+  if(GNet.messagemode)
   {
   // Add new letters
   check_add(DIK_A, 'A', 'a');
@@ -1189,27 +1192,27 @@ void input_net_message()
 
 
   // Make cursor flash
-  if(netmessagewrite < MESSAGESIZE-1)
+  if(GNet.messagewrite < MESSAGESIZE-1)
   {
   if((wldframe & 8) == 0)
   {
-  netmessage[netmessagewrite] = '#';
+  GNet.message[GNet.messagewrite] = '#';
   }
   else
   {
-  netmessage[netmessagewrite] = '+';
+  GNet.message[GNet.messagewrite] = '+';
   }
   }
 
 
   // Check backspace and return
-  if(netmessagedelay == 0)
+  if(GNet.messagedelay == 0)
   {
   if(SDLKEYDOWN(SDLK_BACK))
   {
-  if(netmessagewrite < MESSAGESIZE)  netmessage[netmessagewrite] = 0;
-  if(netmessagewrite > netmessagewritemin) netmessagewrite--;
-  netmessagedelay = 3;
+  if(GNet.messagewrite < MESSAGESIZE)  GNet.message[GNet.messagewrite] = 0;
+  if(GNet.messagewrite > GNet.messagewritemin) GNet.messagewrite--;
+  GNet.messagedelay = 3;
   }
 
 
@@ -1217,57 +1220,57 @@ void input_net_message()
   if(SDLKEYDOWN(SDLK_RETURN))
   {
   // Is it long enough to bother?
-  if(netmessagewrite > 0)
+  if(GNet.messagewrite > 0)
   {
   // Yes, so send it
-  netmessage[netmessagewrite] = 0;
-  if(CData.networkon)
+  GNet.message[GNet.messagewrite] = 0;
+  if(CData.network_on)
   {
   start_building_packet();
   add_packet_us(TO_ANY_TEXT);
-  add_packet_sz(netmessage);
+  add_packet_sz(GNet.message);
   send_packet_to_all_players();
   }
   }
-  netmessagemode = bfalse;
-  netmessagedelay = 20;
+  GNet.messagemode = bfalse;
+  GNet.messagedelay = 20;
   }
   }
   else
   {
-  netmessagedelay--;
+  GNet.messagedelay--;
   }
   }
   else
   {
   // Input a new message?
-  if(netmessagedelay == 0)
+  if(GNet.messagedelay == 0)
   {
   if(SDLKEYDOWN(SDLK_RETURN))
   {
   // Copy the name
   cnt = 0;
-  cTmp = CData.netmessagename[cnt];
+  cTmp = CData.net_messagename[cnt];
   while(cTmp != 0 && cnt < 64)
   {
-  netmessage[cnt] = cTmp;
+  GNet.message[cnt] = cTmp;
   cnt++;
-  cTmp = CData.netmessagename[cnt];
+  cTmp = CData.net_messagename[cnt];
   }
-  netmessage[cnt] = '>';  cnt++;
-  netmessage[cnt] = ' ';  cnt++;
-  netmessage[cnt] = '?';
-  netmessage[cnt+1] = 0;
-  netmessagewrite = cnt;
-  netmessagewritemin = cnt;
+  GNet.message[cnt] = '>';  cnt++;
+  GNet.message[cnt] = ' ';  cnt++;
+  GNet.message[cnt] = '?';
+  GNet.message[cnt+1] = 0;
+  GNet.messagewrite = cnt;
+  GNet.messagewritemin = cnt;
 
-  netmessagemode = btrue;
-  netmessagedelay = 20;
+  GNet.messagemode = btrue;
+  GNet.messagedelay = 20;
   }
   }
   else
   {
-  netmessagedelay--;
+  GNet.messagedelay--;
   }
   }
   */
@@ -1282,7 +1285,7 @@ bool_t listen_for_packets()
   ENetEvent event;
   bool_t retval = bfalse;
 
-  if ( !CData.networkon || NULL == net_myHost ) return bfalse;
+  if ( !CData.network_on || NULL == net_myHost ) return bfalse;
 
   // Listen for new messages
   while ( 0 != enet_host_service( net_myHost, &event, 0 ) )
@@ -1338,15 +1341,15 @@ void find_open_sessions()
   DPSESSIONDESC2      sessionDesc;
   HRESULT             hr;
 
-  if(CData.networkon)
+  if(CData.network_on)
   {
-  numsession = 0;
+  GNet.num_session = 0;
   if(globalnetworkerr)  fprintf(globalnetworkerr, "  Looking for open games...\n");
   ZeroMemory(&sessionDesc, sizeof(DPSESSIONDESC2));
   sessionDesc.dwSize = sizeof(DPSESSIONDESC2);
   sessionDesc.guidApplication = NETWORKID;
   hr = lpDirectPlay3A->EnumSessions(&sessionDesc, 0, SessionsCallback, hGlobalWindow, DPENUMSESSIONS_AVAILABLE);
-  if(globalnetworkerr)  fprintf(globalnetworkerr, "    %d sessions found\n", numsession);
+  if(globalnetworkerr)  fprintf(globalnetworkerr, "    %d sessions found\n", GNet.num_session);
   }
   */
 }
@@ -1378,35 +1381,35 @@ void stop_players_from_joining()
 //    what = (target << 24) | (x << 14) | (y << 4) | (order&15);
 //    if(hostactive)
 //    {
-//     when = wldframe + CData.orderlag;
+//     when = wldframe + CData.GOrder.lag;
 //     whichorder = get_empty_order();
 //     if(whichorder != MAXORDER)
 //     {
 //      // Add a new order on own machine
-//      orderwhen[whichorder] = when;
-//      orderwhat[whichorder] = what;
+//      GOrder.when[whichorder] = when;
+//      GOrder.what[whichorder] = what;
 //      cnt = 0;
 //      while(cnt < numrtsselect)
 //      {
-//       orderwho[whichorder][cnt] = rtsselect[cnt];
+//       GOrder.who[whichorder][cnt] = GRTS.select[cnt];
 //       cnt++;
 //      }
 //      while(cnt < MAXSELECT)
 //      {
-//       orderwho[whichorder][cnt] = MAXCHR;
+//       GOrder.who[whichorder][cnt] = MAXCHR;
 //       cnt++;
 //      }
 //
 //
 //      // Send the order off to everyone else
-//      if(CData.networkon)
+//      if(CData.network_on)
 //      {
 //       net_startNewPacket();
 //       packet_addUnsignedShort(TO_REMOTE_RTS);
 //       cnt = 0;
 //       while(cnt < MAXSELECT)
 //       {
-//        packet_addUnsignedByte(orderwho[whichorder][cnt]);
+//        packet_addUnsignedByte(GOrder.who[whichorder][cnt]);
 //        cnt++;
 //       }
 //       packet_addUnsignedInt(what);
@@ -1423,7 +1426,7 @@ void stop_players_from_joining()
 //     cnt = 0;
 //     while(cnt < numrtsselect)
 //     {
-//      packet_addUnsignedByte(rtsselect[cnt]);
+//      packet_addUnsignedByte(GRTS.select[cnt]);
 //      cnt++;
 //     }
 //     while(cnt < MAXSELECT)

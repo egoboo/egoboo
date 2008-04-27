@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "egoboo.h"
 #include "enet.h"
+#include "input.h"
 
 // Global ClientState instance
 ClientState AClientState;
@@ -42,7 +43,7 @@ int cl_joinGame( const char* hostname )
   ENetAddress address;
   ENetEvent event;
 
-  if ( CData.networkon )
+  if ( CData.network_on )
   {
     log_info( "cl_joinGame: Creating client network connection... " );
     // Create my host thingamabober
@@ -90,7 +91,7 @@ void cl_talkToHost( ClientState * cs )
   Uint8 player;
 
   // Start talkin'
-  if ( CData.networkon && wldframe > STARTTALK && !hostactive && numlocalpla > 0 )
+  if ( CData.network_on && wldframe > STARTTALK && !hostactive && numlocalpla > 0 )
   {
     Uint32 ichr;
     Uint32 time = ( wldframe + 1 ) & LAGAND;
@@ -102,7 +103,7 @@ void cl_talkToHost( ClientState * cs )
     for ( player = 0; player < MAXPLAYER; player++ )
     {
       // Find the local players
-      if ( !VALID_PLA( player ) || INBITS_NONE == pladevice[player] ) continue;
+      if ( !VALID_PLA( player ) || INBITS_NONE == PlaList[player].device ) continue;
 
       ichr = pla_get_character( player );
       if ( VALID_CHR( ichr ) )
@@ -139,9 +140,9 @@ void cl_unbufferLatches( ClientState * cs )
     dframes = ( float )( cs->timelatchvalid[cnt][uiTime] - stamp );
 
     // copy the data over
-    chrlatchx[cnt]      = cs->timelatchx[cnt][uiTime];
-    chrlatchy[cnt]      = cs->timelatchy[cnt][uiTime];
-    chrlatchbutton[cnt] = cs->timelatchbutton[cnt][uiTime];
+    ChrList[cnt].latch.x      = cs->timelatchx[cnt][uiTime];
+    ChrList[cnt].latch.y      = cs->timelatchy[cnt][uiTime];
+    ChrList[cnt].latch.b = cs->timelatchbutton[cnt][uiTime];
 
     // set the data to invalid
     cs->timelatchvalid[cnt][uiTime] = bfalse;
@@ -233,13 +234,13 @@ bool_t cl_handlePacket( ClientState * cs, ENetEvent *event )
       while(cnt < MAXSELECT)
       {
       who = packet_readUnsignedByte();
-      orderwho[whichorder][cnt] = who;
+      GOrder.who[whichorder][cnt] = who;
       cnt++;
       }
       what = packet_readUnsignedInt();
       when = packet_readUnsignedInt();
-      orderwhat[whichorder] = what;
-      orderwhen[whichorder] = when;
+      GOrder.what[whichorder] = what;
+      GOrder.when[whichorder] = when;
       }*/
 
       retval = btrue;
@@ -427,9 +428,9 @@ void cl_bufferLatches( ClientState * cs )
     {
       cs->timelatchvalid[ichr][uiTime]  = btrue;
       cs->timelatchstamp[ichr][uiTime]  = stamp;
-      cs->timelatchbutton[ichr][uiTime] = plalatchbutton[player];
-      cs->timelatchx[ichr][uiTime]      = (( Sint32 )( plalatchx[player] * SHORTLATCH ) ) / SHORTLATCH;
-      cs->timelatchy[ichr][uiTime]      = (( Sint32 )( plalatchy[player] * SHORTLATCH ) ) / SHORTLATCH;
+      cs->timelatchbutton[ichr][uiTime] = PlaList[player].latch.b;
+      cs->timelatchx[ichr][uiTime]      = (( Sint32 )( PlaList[player].latch.x * SHORTLATCH ) ) / SHORTLATCH;
+      cs->timelatchy[ichr][uiTime]      = (( Sint32 )( PlaList[player].latch.y * SHORTLATCH ) ) / SHORTLATCH;
     }
   }
 

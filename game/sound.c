@@ -19,8 +19,21 @@ You should have received a copy of the GNU General Public License
 along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
+#include "sound.h"
 #include "Log.h"
+#include "camera.h"
+#include "egoboo_utility.h"
+#include "char.h"
+#include "particle.h"
+#include "egoboo.h"
+
+bool_t mixeron       = bfalse;    // Is the SDL_Mixer loaded?
+bool_t musicinmemory = bfalse;    // Is the music loaded in memory?
+int    songplaying   = -1;        // Current song that is playing
+
+Mix_Music * instrumenttosound[MAXPLAYLISTLENGTH]; //This is a specific music file loaded into memory
+Mix_Chunk * globalwave[MAXWAVE];                  //All sounds loaded into memory
+
 
 //This function enables the use of SDL_Mixer functions, returns btrue if success
 bool_t sdlmixer_initialize()
@@ -49,7 +62,8 @@ bool_t sdlmixer_initialize()
 
 void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_pos, Uint16 ear_turn_lr  )
 {
-  // BB> This function modifies how the sound is played according to intesity, distance, position, etc.
+  // BB > This functions modifies an already playing 3d sound sound according position, orientation, etc.
+  //      Modeled after physical parameters, but does not model doppler shift...
   float dist_xyz2, dist_xy2, volume;
   float vl, vr, dx, dy;
   int vol_left, vol_right;
@@ -90,7 +104,7 @@ void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_po
       vr = (1.0f + ftmp) * 0.5f;
     }
   }
-  
+
   vol_left  = MIN(255, 255 * vl * volume);
   vol_right = MIN(255, 255 * vr * volume);
 
@@ -98,17 +112,18 @@ void sound_apply_mods( int channel, float intensity, vect3 snd_pos, vect3 ear_po
 
 };
 
-//------------------------------------------------------------------------------
-int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber )
+int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, int whichobject, int soundnumber)
 {
   // ZF> This function plays a specified sound
   // (Or returns -1 (INVALID_CHANNEL) if it failed to play the sound)
+
+  int channel;
 
   if ( !CData.soundvalid ) return INVALID_CHANNEL;
 
   if ( loadedwave == NULL )
   {
-    log_warning( "Sound file not correctly loaded (Not found?) - Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
+    log_warning( "Sound file not correctly loaded (Not found?) - Object \"%s\" is trying to play sound%i.wav\n", CapList[ChrList[whichobject].model].classname, soundnumber );
     return INVALID_CHANNEL;
   }
 
@@ -116,11 +131,11 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
 
   if( INVALID_CHANNEL == channel )
   {
-    log_warning( "All sound channels are currently in use. Sound is NOT playing - Object \"%s\" is trying to play sound%i.wav\n", capclassname[chrmodel[whichobject]], soundnumber );
+    log_warning( "All sound channels are currently in use. Sound is NOT playing - Object \"%s\" is trying to play sound%i.wav\n", CapList[ChrList[whichobject].model].classname, soundnumber );
   }
   else
   {
-    sound_apply_mods( channel, intensity, pos, camtrackpos, camturn_lr);
+    sound_apply_mods( channel, intensity, pos, GCamera.trackpos, GCamera.turn_lr);
   };
 
   return channel;
@@ -133,15 +148,16 @@ void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound )
   if ( INVALID_SOUND == sound ) return;
 
   //Play local sound or else global (coins for example)
-  if ( MAXMODEL != prtmodel[particle] )
+  if ( MAXMODEL != PrtList[particle].model )
   {
-    play_sound( intensity, prtpos[particle], capwavelist[prtmodel[particle]][sound], 0, prtmodel[particle], sound );
+    play_sound( intensity, PrtList[particle].pos, CapList[PrtList[particle].model].wavelist[sound], 0, PrtList[particle].model, sound );
   }
   else
   {
-    play_sound( intensity, prtpos[particle], globalwave[sound], 0, prtmodel[particle], sound );
+    play_sound( intensity, PrtList[particle].pos, globalwave[sound], 0, PrtList[particle].model, sound );
   };
 }
+
 
 //------------------------------------------------------------------------------
 void stop_sound( int whichchannel )
@@ -212,6 +228,7 @@ void load_global_waves( char *modname )
   */
 }
 
+
 //------------------------------------------------------------------------------
 //Music Stuff-------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -235,7 +252,7 @@ bool_t load_all_music_sounds()
   if ( CData.musicvalid && !musicinmemory )
   {
     cnt = 0;
-    while ( cnt < MAXPLAYLISTLENGHT && !feof( playlist ) )
+    while ( cnt < MAXPLAYLISTLENGTH && !feof( playlist ) )
     {
       fget_next_string( playlist, songname, sizeof( songname ) );
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.music_dir, songname );

@@ -19,124 +19,218 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
+#include "input.h"
 #include "Ui.h"
+#include "Log.h"
+#include "Network.h"
+
+#include "egoboo_utility.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
-void read_mouse()
-{
-  int x, y, b;
+//--------------------------------------------------------------------------------------------
 
-  if ( mouseon )
+int    numpla = 0;                                 // Number of players
+
+PLAYER PlaList[MAXPLAYER];
+
+MOUSE mous =
+{
+  btrue,            // on
+  2.0f,             // sense
+  0.9f,             // sustain
+  0.1f,             // cover
+  {0.0f, 0.0f, 0},  // latch
+  {0.0f, 0.0f, 0},  // latch_old
+  {0.0f, 0.0f, 0},  // dlatch
+  0,                // z
+};
+
+JOYSTICK joy[2] =
+{
+  // "joya"
+  {
+    NULL,            // sdl_device
+    bfalse,          // on
+    {0.0f, 0.0f, 0}  // latch
+  },
+
+  // "joyb"
+  {
+    NULL,            // sdl_device
+    bfalse,          // on
+    {0.0f, 0.0f, 0}  // latch
+  }
+};
+
+KEYBOARD keyb =
+{
+  btrue,            //  on
+  NULL,             //  state
+  {0.0f, 0.0f, 0}   // latch
+};
+
+//--------------------------------------------------------------------------------------------
+
+//Key/Control input defenitions
+#define MAXTAG              128                     // Number of tags in scancode.txt
+#define TAGSIZE             32                      // Size of each tag
+
+typedef struct scancode_data_t
+{
+  char   name[TAGSIZE];             // Scancode names
+  Uint32 value;                     // Scancode values
+} SCANCODE_DATA;
+
+typedef struct scantag_list_t
+{
+  int           count;
+  SCANCODE_DATA data[MAXTAG];
+} SCANTAG_LIST;
+
+SCANTAG_LIST tags;
+
+//--------------------------------------------------------------------------------------------
+typedef struct control_data_t
+{
+  int    value;             // The scancode or mask
+  bool_t is_key;            // Is it a key?
+} CONTROL_DATA;
+
+CONTROL_DATA control_list[INPUT_COUNT][CONTROL_COUNT];
+
+
+//--------------------------------------------------------------------------------------------
+// Tags
+static void reset_tags();
+static int read_tag( FILE *fileread );
+static int tag_value( char *string );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void input_setup()
+{
+  if ( SDL_NumJoysticks() > 0 )
+  {
+    joy[0].sdl_device = SDL_JoystickOpen( 0 );
+    joy[0].on = (NULL != joy[0].sdl_device);
+  }
+
+  if ( SDL_NumJoysticks() > 1 )
+  {
+    joy[1].sdl_device = SDL_JoystickOpen( 1 );
+    joy[1].on = (NULL != joy[1].sdl_device);
+  }
+
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t read_mouse(MOUSE * pm)
+{
+  int x,y,b;
+
+  if(NULL == pm) return bfalse;
+
+  if ( pm->on )
   {
     b = SDL_GetRelativeMouseState( &x, &y );
 
-    mousedx = x;
-    mousedy = y;
+    pm->dlatch.x = x;
+    pm->dlatch.y = y;
 
-    mousex += x; if ( mousex < 0 ) mousex = 0; if ( mousex > CData.scrx ) mousex = CData.scrx;
-    mousey += y; if ( mousey < 0 ) mousey = 0; if ( mousey > CData.scry ) mousey = CData.scry;
+    pm->latch.x += pm->dlatch.x;
+    pm->latch.x = CLIP(pm->latch.x, 0, CData.scrx);
 
-    mousebutton[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
-    mousebutton[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
-    mousebutton[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0;  // Middle is 2 on SDL
-    mousebutton[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
+    pm->latch.y += pm->dlatch.y;
+    pm->latch.y = CLIP(pm->latch.y, 0, CData.scry);
+
+    pm->button[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
+    pm->button[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
+    pm->button[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0;  // Middle is 2 on SDL
+    pm->button[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
   }
   else
   {
-    SDL_GetMouseState( &mousex, &mousey );
+    SDL_GetMouseState( &x, &y );
 
-    mousedx = mousedy = 0;
+    pm->latch.x = x;
+    pm->latch.y = y;
 
-    mousebutton[0] = 0;
-    mousebutton[1] = 0;
-    mousebutton[2] = 0;
-    mousebutton[3] = 0;
+    pm->dlatch.x = pm->dlatch.y = 0;
+
+    pm->button[0] = 0;
+    pm->button[1] = 0;
+    pm->button[2] = 0;
+    pm->button[3] = 0;
   };
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void read_key()
+bool_t read_key(KEYBOARD * pk)
 {
-  sdlkeybuffer = SDL_GetKeyState( NULL );
+  if(NULL == pk) return bfalse;
+
+  pk->state = SDL_GetKeyState( NULL );
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-#define JOYMASK (0xFF00)
-void read_joystick()
+bool_t read_joystick(JOYSTICK * pj)
 {
   int button;
   float jx, jy;
   const float jthresh = .5;
 
-  if (( !joyaon || NULL == sdljoya ) && ( !joybon || NULL == sdljoyb ) )
-  {
-    joyax = joyay = 0.0f;
-    jab = 0;
+  if(NULL == pj) return bfalse;
 
-    joybx = joyby = 0.0f;
-    jbb = 0;
-    return;
+  if (!pj->on || NULL == pj->sdl_device )
+  {
+    pj->latch.x = pj->latch.y = 0.0f;
+    pj->latch.b = 0;
+
+    joy[1].latch.x = joy[1].latch.y = 0.0f;
+    joy[1].latch.b = 0;
+
+    return (NULL != pj->sdl_device);
   };
 
+  jx = ((Sint16)(SDL_JoystickGetAxis( pj->sdl_device, 0 ) >> 8)) / ( float )( 0xFF );
+  jy = ((Sint16)(SDL_JoystickGetAxis( pj->sdl_device, 1 ) >> 8)) / ( float )( 0xFF );
 
-  SDL_JoystickUpdate();
-
-  if ( joyaon )
+  pj->latch.x = 0.0f;
+  pj->latch.y = 0.0f;
+  if ( ABS( jx ) + ABS( jy ) > 0.0f )
   {
-    jx = ( float )(( Sint16 )( SDL_JoystickGetAxis( sdljoya, 0 ) & JOYMASK ) ) / ( float )( 1 << 15 );
-    jy = ( float )(( Sint16 )( SDL_JoystickGetAxis( sdljoya, 1 ) & JOYMASK ) ) / ( float )( 1 << 15 );
+    pj->latch.x = jx;
+    pj->latch.y = jy;
 
-    joyax = 0.0f;
-    joyay = 0.0f;
-    if ( ABS( jx ) + ABS( jy ) > 0.0f )
-    {
-      joyax = jx;
-      joyay = jy;
+    jx = sqrt(( jx * jx + jy * jy ) * 0.5f );
+    jy = ( jx - jthresh * jx / ( jthresh + fabs( jx ) ) ) * ( jthresh + 1.0f );
 
-      jx = sqrt(( jx * jx + jy * jy ) * 0.5f );
-      jy = ( jx - jthresh * jx / ( jthresh + fabs( jx ) ) ) * ( jthresh + 1.0f );
-
-      joyax *= jy / jx / sqrt( 2.0f );
-      joyay *= jy / jx / sqrt( 2.0f );
-    }
-
-    button = SDL_JoystickNumButtons( sdljoya );
-    while ( button >= 0 )
-    {
-      joyabutton[button] = SDL_JoystickGetButton( sdljoya, button );
-      button--;
-    }
+    pj->latch.x *= jy / jx / sqrt( 2.0f );
+    pj->latch.y *= jy / jx / sqrt( 2.0f );
   }
 
-  if ( joybon )
+  button = SDL_JoystickNumButtons( pj->sdl_device );
+  while ( button >= 0 )
   {
-    jx = ( float )(( Sint16 )( SDL_JoystickGetAxis( sdljoyb, 0 ) & JOYMASK ) ) / ( float )( 1 << 15 );
-    jy = ( float )(( Sint16 )( SDL_JoystickGetAxis( sdljoyb, 1 ) & JOYMASK ) ) / ( float )( 1 << 15 );
-
-    joybx = ( jx - jthresh * jx / ( jthresh + fabs( jx ) ) ) * ( jthresh + 1.0f );
-    joyby = ( jy - jthresh * jy / ( jthresh + fabs( jy ) ) ) * ( jthresh + 1.0f );
-
-    if ( ABS( joybx ) + ABS( joyby ) > 0 )
-    {
-      jx = sqrt( joybx * joybx + joyby * joyby );
-      joybx /= jx;
-      joyby /= jx;
-    }
-
-    button = SDL_JoystickNumButtons( sdljoyb );
-    while ( button >= 0 )
-    {
-      joybbutton[button] = SDL_JoystickGetButton( sdljoyb, button );
-      button--;
-    }
+    pj->button[button] = SDL_JoystickGetButton( pj->sdl_device, button );
+    button--;
   }
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_press()
+bool_t reset_press(KEYBOARD * pk)
 {
   // ZZ> This function resets key press information
+
+  return (NULL != pk);
+
   /*PORT
       int cnt;
       cnt = 0;
@@ -148,51 +242,180 @@ void reset_press()
   */
 }
 
+
 //--------------------------------------------------------------------------------------------
-void read_input()
+//Tag Reading---------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void reset_tags()
 {
-  // ZZ> This function gets all the current player input states
-  int cnt;
-  SDL_Event evt;
+  //This function resets the tags
+  tags.count = 0;
+}
 
-  // Run through SDL's event loop to get info in the way that we want
-  // it for the Gui code
-  while ( SDL_PollEvent( &evt ) )
+//--------------------------------------------------------------------------------------------
+int read_tag( FILE *fileread )
+{
+  // ZZ> This function finds the next tag, returning btrue if it found one
+  if ( tags.count < MAXTAG )
   {
-    ui_handleSDLEvent( &evt );
-
-    switch ( evt.type )
+    if ( fget_next_string( fileread, tags.data[tags.count].name, sizeof( tags.data[tags.count].name ) ) )
     {
-      case SDL_MOUSEBUTTONDOWN:
-        pending_click = btrue;
-        break;
+      tags.data[tags.count].value = fget_int( fileread );
+      tags.count++;
+      return btrue;
+    }
+  }
+  return bfalse;
+}
 
-      case SDL_MOUSEBUTTONUP:
-        pending_click = bfalse;
-        break;
+//--------------------------------------------------------------------------------------------
+void read_all_tags( char *szFilename )
+{
+  // ZZ> This function reads the scancode.txt file
+  FILE* fileread;
 
+  reset_tags();
+  fileread = fs_fileOpen( PRI_WARN, NULL, szFilename, "r" );
+  if ( NULL == fileread )
+  {
+    log_warning("Could not read input codes (%s)\n", szFilename);
+    return;
+  };
+
+  while ( read_tag( fileread ) );
+  fs_fileClose( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+int tag_value( char *string )
+{
+  // ZZ> This function matches the string with its tag, and returns the value...
+  //     It will return 255 if there are no matches.
+  int cnt;
+
+  for (cnt = 0; cnt < tags.count; cnt++ )
+  {
+    if (0 == strcmp( string, tags.data[cnt].name ))
+    {
+      // They match
+      return tags.data[cnt].value;
     }
   }
 
-  // Get immediate mode state for the rest of the game
-  read_key();
-  read_mouse();
-  read_joystick();
-
-  // Joystick mask
-  jab = 0;
-  jbb = 0;
-  for ( cnt = 0; cnt < JOYBUTTON; cnt++ )
-  {
-    jab |= ( joyabutton[cnt] << cnt );
-    jbb |= ( joybbutton[cnt] << cnt );
-  }
-
-  // Mouse mask
-  msb = 0;
-  for ( cnt = 0; cnt < 4; cnt++ )
-  {
-    msb |= ( mousebutton[cnt] << cnt );
-  }
+  // No matches
+  return -1;
 }
 
+//--------------------------------------------------------------------------------------------
+void read_controls( char *szFilename )
+{
+  // ZZ> This function reads the controls.txt file
+  FILE* fileread;
+  char currenttag[TAGSIZE];
+  int tnc;
+  INPUT_TYPE   input;
+  CONTROL_LIST control;
+
+  log_info( "read_controls() - reading control settings from the %s file.\n", szFilename );
+
+  fileread = fs_fileOpen( PRI_WARN, NULL, szFilename, "r" );
+  if ( NULL != fileread )
+  {
+    input = INPUT_KEYB;
+    for ( control = KEY_FIRST, tnc = 0; control < KEY_LAST; control = ( CONTROL_LIST )( control + 1 ), tnc++ )
+    {
+      fget_next_string( fileread, currenttag, sizeof( currenttag ) );
+      control_list[input][tnc].value = tag_value( currenttag );
+      control_list[input][tnc].is_key = ( currenttag[0] == 'K' );
+    }
+
+    input = INPUT_MOUS;
+    for ( control = MOS_FIRST, tnc = 0; control < MOS_LAST; control = ( CONTROL_LIST )( control + 1 ), tnc++ )
+    {
+      fget_next_string( fileread, currenttag, sizeof( currenttag ) );
+      control_list[input][tnc].value = tag_value( currenttag );
+      control_list[input][tnc].is_key = ( currenttag[0] == 'K' );
+    }
+
+    input = INPUT_JOYA;
+    for ( control = JOA_FIRST, tnc = 0; control < JOA_LAST; control = ( CONTROL_LIST )( control + 1 ), tnc++ )
+    {
+      fget_next_string( fileread, currenttag, sizeof( currenttag ) );
+      control_list[input][tnc].value = tag_value( currenttag );
+      control_list[input][tnc].is_key = ( currenttag[0] == 'K' );
+    }
+
+    input = INPUT_JOYB;
+    for ( control = JOB_FIRST, tnc = 0; control < JOB_LAST; control = ( CONTROL_LIST )( control + 1 ), tnc++ )
+    {
+      fget_next_string( fileread, currenttag, sizeof( currenttag ) );
+      control_list[input][tnc].value = tag_value( currenttag );
+      control_list[input][tnc].is_key = ( currenttag[0] == 'K' );
+    }
+
+    fs_fileClose( fileread );
+  }
+  else log_warning( "Could not load input settings (%s)\n", szFilename );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t key_is_pressed( int keycode )
+{
+  // ZZ> This function returns btrue if the given control is pressed...
+  if ( GNet.messagemode )  return bfalse;
+
+  if ( keyb.state )
+    return SDLKEYDOWN( keycode );
+  else
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t control_key_is_pressed( CONTROL control )
+{
+  // ZZ> This function returns btrue if the given control is pressed...
+
+  if ( control_list[INPUT_KEYB][control].is_key )
+    return key_is_pressed( control_list[INPUT_KEYB][control].value );
+  else
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t control_mouse_is_pressed( CONTROL control )
+{
+  // ZZ> This function returns btrue if the given control is pressed...
+  bool_t retval = bfalse;
+
+  if ( control_list[INPUT_MOUS][control].is_key )
+  {
+    retval = key_is_pressed( control_list[INPUT_MOUS][control].value );
+  }
+  else
+  {
+    retval = ( mous.latch.b == control_list[INPUT_MOUS][control].value );
+  }
+
+  return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t control_joy_is_pressed( int joy_num, CONTROL control )
+{
+  // ZZ> This function returns btrue if the given control is pressed...
+  INPUT_TYPE it;
+  bool_t retval = bfalse;
+
+  it = (joy_num == 0) ? INPUT_JOYA : INPUT_JOYB;
+
+  if ( control_list[it][control].is_key )
+  {
+    retval = key_is_pressed( control_list[it][control].value );
+  }
+  else
+  {
+    retval = ( joy[joy_num].latch.b == control_list[it][control].value );
+  }
+
+  return retval;
+}

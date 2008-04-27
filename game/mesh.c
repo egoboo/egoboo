@@ -20,52 +20,20 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo.h"
 #include "mesh.h"
 #include "Log.h"
+#include "char.h"
 
-Uint32  numfanblock  = 0;                                   // Number of collision areas
-Uint16  bumplistchr[MAXMESHFAN/16];                     // For character collisions
-Uint16  bumplistchrnum[MAXMESHFAN/16];                  // Number on the block
-Uint16  bumplistprt[MAXMESHFAN/16];                     // For particle collisions
-Uint16  bumplistprtnum[MAXMESHFAN/16];                  // Number on the block
-bool_t  meshexploremode  = bfalse;                          // Explore mode?
-int     meshsizex;                                          // Size in fansquares
-int     meshsizey;                                          //
-float   meshedgex;                                          // Limits !!!BAD!!!
-float   meshedgey;                                          //
-float   meshedgez;                                          //
-Uint16  meshlasttexture;                                    // Last texture used
-Uint8   meshtype[MAXMESHFAN];                               // Command type
-Uint8   meshfx[MAXMESHFAN];                                 // Special effects flags
-Uint8   meshtwist[MAXMESHFAN];                              //
-bool_t  meshinrenderlist[MAXMESHFAN];                       //
-Uint16  meshtile[MAXMESHFAN];                               // Get texture from this
-Uint32  meshvrtstart[MAXMESHFAN];                           // Which vertex to start at
-vect3   meshvrtmins[MAXMESHFAN];                            // what is the minimum extent of the fan
-vect3   meshvrtmaxs[MAXMESHFAN];                            // what is the maximum extent of the tile
+#include "egoboo_utility.h"
+#include "egoboo.h"
 
-Uint32  meshblockstart[( MAXMESHSIZEY/4 ) +1];
-Uint32  meshfanstart[MAXMESHSIZEY];                         // Which fan to start a row with
-float*  floatmemory   = NULL;                               // For malloc
-float*  meshvrtx      = NULL;                               // Vertex position
-float*  meshvrty      = NULL;                               //
-float*  meshvrtz      = NULL;                               // Vertex elevation
-Uint8*  meshvrtar_fp8 = NULL;                               // Vertex base light
-Uint8*  meshvrtag_fp8 = NULL;                               // Vertex base light
-Uint8*  meshvrtab_fp8 = NULL;                               // Vertex base light
-Uint8*  meshvrtlr_fp8 = NULL;                               // Vertex light
-Uint8*  meshvrtlg_fp8 = NULL;                               // Vertex light
-Uint8*  meshvrtlb_fp8 = NULL;                               // Vertex light
-Uint8   meshcommands[MAXMESHTYPE];                          // Number of commands
-Uint8   meshcommandsize[MAXMESHTYPE][MAXMESHCOMMAND];       // Entries in each command
-Uint16  meshcommandvrt[MAXMESHTYPE][MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
-Uint8   meshcommandnumvertices[MAXMESHTYPE];                // Number of vertices
-Uint8   meshcommandref[MAXMESHTYPE][MAXMESHVERTICES];       // Lighting references
-float   meshcommandu[MAXMESHTYPE][MAXMESHVERTICES];         // Vertex texture posi
-float   meshcommandv[MAXMESHTYPE][MAXMESHVERTICES];         //
-float   meshtileoffu[MAXTILETYPE];                          // Tile texture offset
-float   meshtileoffv[MAXTILETYPE];                          //
+MESH_INFO   mesh;
+MESH_FAN    Mesh_Fan[MAXMESHFAN];
+MESH_TILE   Mesh_Tile[MAXTILETYPE];
+MESH_MEMORY Mesh_Mem;
+
+Uint32  Mesh_Block_X[( MAXMESHSIZEY/4 ) +1];
+Uint32  Mesh_Fan_X[MAXMESHSIZEY];                         // Which fan to start a row with
 
 
 //--------------------------------------------------------------------------------------------
@@ -88,25 +56,25 @@ bool_t load_mesh( char *modname )
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
   fread( &itmp, 4, 1, fileread );  if ( itmp != MAPID ) return bfalse;
   fread( &itmp, 4, 1, fileread );  numvert = itmp;
-  fread( &itmp, 4, 1, fileread );  meshsizex = itmp;
-  fread( &itmp, 4, 1, fileread );  meshsizey = itmp;
+  fread( &itmp, 4, 1, fileread );  mesh.size_x = itmp;
+  fread( &itmp, 4, 1, fileread );  mesh.size_y = itmp;
 #else
   fread( &itmp, 4, 1, fileread );  if (( int ) SDL_Swap32( itmp ) != MAPID ) return bfalse;
   fread( &itmp, 4, 1, fileread );  numvert = ( int ) SDL_Swap32( itmp );
-  fread( &itmp, 4, 1, fileread );  meshsizex = ( int ) SDL_Swap32( itmp );
-  fread( &itmp, 4, 1, fileread );  meshsizey = ( int ) SDL_Swap32( itmp );
+  fread( &itmp, 4, 1, fileread );  mesh.size_x = ( int ) SDL_Swap32( itmp );
+  fread( &itmp, 4, 1, fileread );  mesh.size_y = ( int ) SDL_Swap32( itmp );
 #endif
 
-  numfan = meshsizex * meshsizey;
-  meshedgex = meshsizex * 128;
-  meshedgey = meshsizey * 128;
-  numfanblock = (( meshsizex >> 2 ) ) * (( meshsizey >> 2 ) );    // MESHSIZEX MUST BE MULTIPLE OF 4
-  watershift = 3;
-  if ( meshsizex > 16 )  watershift++;
-  if ( meshsizex > 32 )  watershift++;
-  if ( meshsizex > 64 )  watershift++;
-  if ( meshsizex > 128 )  watershift++;
-  if ( meshsizex > 256 )  watershift++;
+  numfan = mesh.size_x * mesh.size_y;
+  mesh.edge_x = mesh.size_x * 128;
+  mesh.edge_y = mesh.size_y * 128;
+  bumplist.num_blocks = (( mesh.size_x >> 2 ) ) * (( mesh.size_y >> 2 ) );    // MESHSIZEX MUST BE MULTIPLE OF 4
+  GWater.shift = 3;
+  if ( mesh.size_x > 16 )  GWater.shift++;
+  if ( mesh.size_x > 32 )  GWater.shift++;
+  if ( mesh.size_x > 64 )  GWater.shift++;
+  if ( mesh.size_x > 128 )  GWater.shift++;
+  if ( mesh.size_x > 256 )  GWater.shift++;
 
 
   // Load fan data
@@ -119,9 +87,9 @@ bool_t load_mesh( char *modname )
     itmp = SDL_Swap32( itmp );
 #endif
 
-    meshtype[fan] = itmp >> 24;
-    meshfx[fan] = itmp >> 16;
-    meshtile[fan] = itmp;
+    Mesh_Fan[fan].type = itmp >> 24;
+    Mesh_Fan[fan].fx = itmp >> 16;
+    Mesh_Fan[fan].tile = itmp;
 
     fan++;
   }
@@ -130,7 +98,7 @@ bool_t load_mesh( char *modname )
   while ( fan < numfan )
   {
     fread( &itmp, 1, 1, fileread );
-    meshtwist[fan] = itmp;
+    Mesh_Fan[fan].twist = itmp;
     fan++;
   }
 
@@ -141,10 +109,10 @@ bool_t load_mesh( char *modname )
   {
     fread( &ftmp, 4, 1, fileread );
 
-    meshvrtx[cnt] = ftmp;
+    Mesh_Mem.vrt_x[cnt] = ftmp;
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    meshvrtx[cnt] = LoadFloatByteswapped( &meshvrtx[cnt] );
+    Mesh_Mem.vrt_x[cnt] = LoadFloatByteswapped( &Mesh_Mem.vrt_x[cnt] );
 #endif
     cnt++;
   }
@@ -156,10 +124,10 @@ bool_t load_mesh( char *modname )
   {
     fread( &ftmp, 4, 1, fileread );
 
-    meshvrty[cnt] = ftmp;
+    Mesh_Mem.vrt_y[cnt] = ftmp;
 
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    meshvrty[cnt] = LoadFloatByteswapped( &meshvrty[cnt] );
+    Mesh_Mem.vrt_y[cnt] = LoadFloatByteswapped( &Mesh_Mem.vrt_y[cnt] );
 #endif
 
     cnt++;
@@ -173,9 +141,9 @@ bool_t load_mesh( char *modname )
     fread( &ftmp, 4, 1, fileread );
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    meshvrtz[cnt] = ftmp / 16.0;  // Cartman uses 4 bit fixed point for Z
+    Mesh_Mem.vrt_z[cnt] = ftmp / 16.0;  // Cartman uses 4 bit fixed point for Z
 #else
-    meshvrtz[cnt] = ( LoadFloatByteswapped( &ftmp ) ) / 16.0;   // Cartman uses 4 bit fixed point for Z
+    Mesh_Mem.vrt_z[cnt] = ( LoadFloatByteswapped( &ftmp ) ) / 16.0;   // Cartman uses 4 bit fixed point for Z
 #endif
 
     cnt++;
@@ -187,13 +155,13 @@ bool_t load_mesh( char *modname )
   {
     fread( &itmp, 1, 1, fileread );
 
-    meshvrtar_fp8[cnt] = 0; // itmp;
-    meshvrtag_fp8[cnt] = 0; // itmp;
-    meshvrtab_fp8[cnt] = 0; // itmp;
-
-    meshvrtlr_fp8[cnt] = 0;
-    meshvrtlg_fp8[cnt] = 0;
-    meshvrtlb_fp8[cnt] = 0;
+    Mesh_Mem.vrt_ar_fp8[cnt] = 0; // itmp;
+    Mesh_Mem.vrt_ag_fp8[cnt] = 0; // itmp;
+    Mesh_Mem.vrt_ab_fp8[cnt] = 0; // itmp;
+                       
+    Mesh_Mem.vrt_lr_fp8[cnt] = 0;
+    Mesh_Mem.vrt_lg_fp8[cnt] = 0;
+    Mesh_Mem.vrt_lb_fp8[cnt] = 0;
 
     cnt++;
   }
@@ -203,27 +171,27 @@ bool_t load_mesh( char *modname )
   make_fanstart();
 
   vert = 0;
-  fancount = meshsizey * meshsizex;
+  fancount = mesh.size_y * mesh.size_x;
   for ( fan = 0; fan < fancount; fan++ )
   {
-    int vrtcount = meshcommandnumvertices[meshtype[fan]];
+    int vrtcount = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
     int vrtstart = vert;
 
-    meshvrtstart[fan] = vrtstart;
+    Mesh_Fan[fan].vrt_start = vrtstart;
 
-    meshvrtmins[fan].x = meshvrtmaxs[fan].x = meshvrtx[vrtstart];
-    meshvrtmins[fan].y = meshvrtmaxs[fan].y = meshvrty[vrtstart];
-    meshvrtmins[fan].z = meshvrtmaxs[fan].z = meshvrtz[vrtstart];
+    Mesh_Fan[fan].vrt_mins.x = Mesh_Fan[fan].vrt_maxs.x = Mesh_Mem.vrt_x[vrtstart];
+    Mesh_Fan[fan].vrt_mins.y = Mesh_Fan[fan].vrt_maxs.y = Mesh_Mem.vrt_y[vrtstart];
+    Mesh_Fan[fan].vrt_mins.z = Mesh_Fan[fan].vrt_maxs.z = Mesh_Mem.vrt_z[vrtstart];
 
     for ( vrt = vrtstart + 1; vrt < vrtstart + vrtcount; vrt++ )
     {
-      meshvrtmins[fan].x = MIN( meshvrtmins[fan].x, meshvrtx[vrt] );
-      meshvrtmins[fan].y = MIN( meshvrtmins[fan].y, meshvrty[vrt] );
-      meshvrtmins[fan].z = MIN( meshvrtmins[fan].z, meshvrtz[vrt] );
-
-      meshvrtmaxs[fan].x = MAX( meshvrtmaxs[fan].x, meshvrtx[vrt] );
-      meshvrtmaxs[fan].y = MAX( meshvrtmaxs[fan].y, meshvrty[vrt] );
-      meshvrtmaxs[fan].z = MAX( meshvrtmaxs[fan].z, meshvrtz[vrt] );
+      Mesh_Fan[fan].vrt_mins.x = MIN( Mesh_Fan[fan].vrt_mins.x, Mesh_Mem.vrt_x[vrt] );
+      Mesh_Fan[fan].vrt_mins.y = MIN( Mesh_Fan[fan].vrt_mins.y, Mesh_Mem.vrt_y[vrt] );
+      Mesh_Fan[fan].vrt_mins.z = MIN( Mesh_Fan[fan].vrt_mins.z, Mesh_Mem.vrt_z[vrt] );
+                                                                              
+      Mesh_Fan[fan].vrt_maxs.x = MAX( Mesh_Fan[fan].vrt_maxs.x, Mesh_Mem.vrt_x[vrt] );
+      Mesh_Fan[fan].vrt_maxs.y = MAX( Mesh_Fan[fan].vrt_maxs.y, Mesh_Mem.vrt_y[vrt] );
+      Mesh_Fan[fan].vrt_maxs.z = MAX( Mesh_Fan[fan].vrt_maxs.z, Mesh_Mem.vrt_z[vrt] );
     }
 
     vert += vrtcount;
@@ -248,8 +216,8 @@ bool_t load_mesh_fans()
   entry = 0;
   while ( entry < MAXMESHTYPE )
   {
-    meshcommandnumvertices[entry] = 0;
-    meshcommands[entry] = 0;
+    Mesh_Cmd[entry].vrt_count = 0;
+    Mesh_Cmd[entry].count = 0;
     entry++;
   }
 
@@ -271,39 +239,39 @@ bool_t load_mesh_fans()
   while ( fantype < numfantype )
   {
     vertices = fget_next_int( fileread );
-    meshcommandnumvertices[fantype] = vertices;
-    meshcommandnumvertices[bigfantype] = vertices;  // Dupe
+    Mesh_Cmd[fantype].vrt_count = vertices;
+    Mesh_Cmd[bigfantype].vrt_count = vertices;  // Dupe
     cnt = 0;
     while ( cnt < vertices )
     {
-      meshcommandref[fantype][cnt] =
-      meshcommandref[bigfantype][cnt] = fget_next_int( fileread );
+      Mesh_Cmd[fantype].ref[cnt] =
+      Mesh_Cmd[bigfantype].ref[cnt] = fget_next_int( fileread );
 
-      meshcommandu[fantype][cnt] =
-      meshcommandu[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
+      Mesh_Cmd[fantype].u[cnt] =
+      Mesh_Cmd[bigfantype].u[cnt] = fget_next_float( fileread );   // Dupe
 
-      meshcommandv[fantype][cnt] =
-      meshcommandv[bigfantype][cnt] = fget_next_float( fileread );   // Dupe
+      Mesh_Cmd[fantype].v[cnt] =
+      Mesh_Cmd[bigfantype].v[cnt] = fget_next_float( fileread );   // Dupe
       cnt++;
     }
 
 
     numcommand = fget_next_int( fileread );
-    meshcommands[fantype] = numcommand;
-    meshcommands[bigfantype] = numcommand;  // Dupe
+    Mesh_Cmd[fantype].count = numcommand;
+    Mesh_Cmd[bigfantype].count = numcommand;  // Dupe
     entry = 0;
     command = 0;
     while ( command < numcommand )
     {
       commandsize = fget_next_int( fileread );
-      meshcommandsize[fantype][command] = commandsize;
-      meshcommandsize[bigfantype][command] = commandsize;  // Dupe
+      Mesh_Cmd[fantype].size[command] = commandsize;
+      Mesh_Cmd[bigfantype].size[command] = commandsize;  // Dupe
       cnt = 0;
       while ( cnt < commandsize )
       {
         itmp = fget_next_int( fileread );
-        meshcommandvrt[fantype][entry] = itmp;
-        meshcommandvrt[bigfantype][entry] = itmp;  // Dupe
+        Mesh_Cmd[fantype].vrt[entry] = itmp;
+        Mesh_Cmd[bigfantype].vrt[entry] = itmp;  // Dupe
         entry++;
         cnt++;
       }
@@ -321,10 +289,10 @@ bool_t load_mesh_fans()
   while ( entry < MAXMESHTYPE / 2 )
   {
     cnt = 0;
-    while ( cnt < meshcommandnumvertices[entry] )
+    while ( cnt < Mesh_Cmd[entry].vrt_count )
     {
-      meshcommandu[entry][cnt] = (( .6 / 32 ) + ( meshcommandu[entry][cnt] * 30.8 / 32 ) ) / 8;
-      meshcommandv[entry][cnt] = (( .6 / 32 ) + ( meshcommandv[entry][cnt] * 30.8 / 32 ) ) / 8;
+      Mesh_Cmd[entry].u[cnt] = (( .6 / 32 ) + ( Mesh_Cmd[entry].u[cnt] * 30.8 / 32 ) ) / 8;
+      Mesh_Cmd[entry].v[cnt] = (( .6 / 32 ) + ( Mesh_Cmd[entry].v[cnt] * 30.8 / 32 ) ) / 8;
       cnt++;
     }
     entry++;
@@ -333,10 +301,10 @@ bool_t load_mesh_fans()
   while ( entry < MAXMESHTYPE )
   {
     cnt = 0;
-    while ( cnt < meshcommandnumvertices[entry] )
+    while ( cnt < Mesh_Cmd[entry].vrt_count )
     {
-      meshcommandu[entry][cnt] = (( .6 / 64 ) + ( meshcommandu[entry][cnt] * 62.8 / 64 ) ) / 4;
-      meshcommandv[entry][cnt] = (( .6 / 64 ) + ( meshcommandv[entry][cnt] * 62.8 / 64 ) ) / 4;
+      Mesh_Cmd[entry].u[cnt] = (( .6 / 64 ) + ( Mesh_Cmd[entry].u[cnt] * 62.8 / 64 ) ) / 4;
+      Mesh_Cmd[entry].v[cnt] = (( .6 / 64 ) + ( Mesh_Cmd[entry].v[cnt] * 62.8 / 64 ) ) / 4;
       cnt++;
     }
     entry++;
@@ -349,8 +317,8 @@ bool_t load_mesh_fans()
   {
     offx = ( entry & 7 ) / 8.0;
     offy = ( entry >> 3 ) / 8.0;
-    meshtileoffu[entry] = offx;
-    meshtileoffv[entry] = offy;
+    Mesh_Tile[entry].off_u = offx;
+    Mesh_Tile[entry].off_v = offy;
     entry++;
   }
 
@@ -366,16 +334,16 @@ void make_fanstart()
 
 
   cnt = 0;
-  while ( cnt < meshsizey )
+  while ( cnt < mesh.size_y )
   {
-    meshfanstart[cnt] = meshsizex * cnt;
+    Mesh_Fan_X[cnt] = mesh.size_x * cnt;
     cnt++;
   }
 
   cnt = 0;
-  while ( cnt < ( meshsizey >> 2 ) )
+  while ( cnt < ( mesh.size_y >> 2 ) )
   {
-    meshblockstart[cnt] = ( meshsizex >> 2 ) * cnt;
+    Mesh_Block_X[cnt] = ( mesh.size_x >> 2 ) * cnt;
     cnt++;
   }
 }
@@ -448,31 +416,31 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
   {
     float dzdx, dzdy, dx, dy;
     float z0, z1, z2, z3;
-    int vrtstart = meshvrtstart[fan];
+    int vrtstart = Mesh_Fan[fan].vrt_start;
 
     position.x = 0;
     position.y = 0;
     position.z = 0;
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-      position.x += meshvrtx[vrtstart + cnt];
-      position.y += meshvrty[vrtstart + cnt];
-      position.z += meshvrtz[vrtstart + cnt];
+      position.x += Mesh_Mem.vrt_x[vrtstart + cnt];
+      position.y += Mesh_Mem.vrt_y[vrtstart + cnt];
+      position.z += Mesh_Mem.vrt_z[vrtstart + cnt];
     };
     position.x /= 4.0f;
     position.y /= 4.0f;
     position.z /= 4.0f;
 
     dx = 1;
-    if ( meshvrtx[vrtstart + 0] > meshvrtx[vrtstart + 1] ) dx *= -1;
+    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 1] ) dx *= -1;
 
     dy = 1;
-    if ( meshvrtx[vrtstart + 0] > meshvrtx[vrtstart + 3] ) dy *= -1;
+    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 3] ) dy *= -1;
 
-    z0 = meshvrtz[vrtstart + 0];
-    z1 = meshvrtz[vrtstart + 1];
-    z2 = meshvrtz[vrtstart + 2];
-    z3 = meshvrtz[vrtstart + 3];
+    z0 = Mesh_Mem.vrt_z[vrtstart + 0];
+    z1 = Mesh_Mem.vrt_z[vrtstart + 1];
+    z2 = Mesh_Mem.vrt_z[vrtstart + 2];
+    z3 = Mesh_Mem.vrt_z[vrtstart + 3];
 
     // find the derivatives of the height function used to find level
     dzdx = 0.5 * ( z1 - z0 + z2 - z3 );
@@ -527,18 +495,18 @@ bool_t mesh_calc_normal_pos( int fan, vect3 pos, vect3 * pnrm )
     float dzdx, dzdy, dx, dy;
     float z0, z1, z2, z3;
     float fx, fy;
-    int vrtstart = meshvrtstart[fan];
+    int vrtstart = Mesh_Fan[fan].vrt_start;
 
     dx = 1;
-    if ( meshvrtx[vrtstart + 0] > meshvrtx[vrtstart + 1] ) dx = -1;
+    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 1] ) dx = -1;
 
     dy = 1;
-    if ( meshvrty[vrtstart + 0] > meshvrty[vrtstart + 3] ) dy = -1;
+    if ( Mesh_Mem.vrt_y[vrtstart + 0] > Mesh_Mem.vrt_y[vrtstart + 3] ) dy = -1;
 
-    z0 = meshvrtz[vrtstart + 0];
-    z1 = meshvrtz[vrtstart + 1];
-    z2 = meshvrtz[vrtstart + 2];
-    z3 = meshvrtz[vrtstart + 3];
+    z0 = Mesh_Mem.vrt_z[vrtstart + 0];
+    z1 = Mesh_Mem.vrt_z[vrtstart + 1];
+    z2 = Mesh_Mem.vrt_z[vrtstart + 2];
+    z3 = Mesh_Mem.vrt_z[vrtstart + 3];
 
     pos.x = MESH_FLOAT_TO_FAN( pos.x );
     pos.y = MESH_FLOAT_TO_FAN( pos.y );
@@ -587,7 +555,7 @@ bool_t mesh_calc_normal( vect3 pos, vect3 * pnrm )
   vect3 normal;
 
   fan = mesh_get_fan( pos );
-  if ( INVALID_TILE == fan )
+  if ( INVALID_FAN == fan )
   {
     normal.x = 0.0f;
     normal.y = 0.0f;
@@ -598,18 +566,18 @@ bool_t mesh_calc_normal( vect3 pos, vect3 * pnrm )
     float dzdx, dzdy, dx, dy;
     float z0, z1, z2, z3;
     float fx, fy;
-    int vrtstart = meshvrtstart[fan];
+    int vrtstart = Mesh_Fan[fan].vrt_start;
 
     dx = 1;
-    if ( meshvrtx[vrtstart + 0] > meshvrtx[vrtstart + 1] ) dx = -1;
+    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 1] ) dx = -1;
 
     dy = 1;
-    if ( meshvrty[vrtstart + 0] > meshvrty[vrtstart + 3] ) dy = -1;
+    if ( Mesh_Mem.vrt_y[vrtstart + 0] > Mesh_Mem.vrt_y[vrtstart + 3] ) dy = -1;
 
-    z0 = meshvrtz[vrtstart + 0];
-    z1 = meshvrtz[vrtstart + 1];
-    z2 = meshvrtz[vrtstart + 2];
-    z3 = meshvrtz[vrtstart + 3];
+    z0 = Mesh_Mem.vrt_z[vrtstart + 0];
+    z1 = Mesh_Mem.vrt_z[vrtstart + 1];
+    z2 = Mesh_Mem.vrt_z[vrtstart + 2];
+    z3 = Mesh_Mem.vrt_z[vrtstart + 3];
 
     pos.x = MESH_FLOAT_TO_FAN( pos.x );
     pos.y = MESH_FLOAT_TO_FAN( pos.y );
@@ -667,18 +635,18 @@ Uint32 mesh_get_fan( vect3 pos )
   ix = MESH_FLOAT_TO_FAN( pos.x );
   iy = MESH_FLOAT_TO_FAN( pos.y );
 
-  testfan = ix + meshfanstart[iy];
+  testfan = ix + Mesh_Fan_X[iy];
 
-  ivert = meshvrtstart[testfan];
-  minx = maxx = meshvrtx[ivert];
-  miny = maxy = meshvrty[ivert];
+  ivert = Mesh_Fan[testfan].vrt_start;
+  minx = maxx = Mesh_Mem.vrt_x[ivert];
+  miny = maxy = Mesh_Mem.vrt_y[ivert];
   for ( i = 1;i < 4;i++, ivert++ )
   {
-    minx = MIN( minx, meshvrtx[ivert] );
-    maxx = MAX( maxx, meshvrtx[ivert] );
+    minx = MIN( minx, Mesh_Mem.vrt_x[ivert] );
+    maxx = MAX( maxx, Mesh_Mem.vrt_x[ivert] );
 
-    miny = MIN( miny, meshvrty[ivert] );
-    maxy = MAX( maxy, meshvrty[ivert] );
+    miny = MIN( miny, Mesh_Mem.vrt_y[ivert] );
+    maxy = MAX( maxy, Mesh_Mem.vrt_y[ivert] );
   };
 
   if ( pos.x < minx ) { ix--; bfound = btrue; }
@@ -686,10 +654,10 @@ Uint32 mesh_get_fan( vect3 pos )
   if ( pos.y < miny ) { iy--; bfound = btrue; }
   else if ( pos.y > maxy ) { iy++; bfound = btrue; }
 
-  if ( ix < 0 || iy < 0 || ix > meshsizex || iy > meshsizey )
+  if ( ix < 0 || iy < 0 || ix > mesh.size_x || iy > mesh.size_y )
     testfan = INVALID_FAN;
   else if ( bfound )
-    testfan = ix + meshfanstart[iy];
+    testfan = ix + Mesh_Fan_X[iy];
 
   return testfan;
 };
@@ -708,7 +676,7 @@ Uint32 mesh_get_block( vect3 pos )
 float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk )
 {
   // ZZ> This function returns the height of a point within a mesh fan, precise
-  //     If waterwalk is nonzero and the fan is watery, then the level returned is the
+  //     If waterwalk is nonzero and the fan is GWater.y, then the level returned is the
   //     level of the water.
   float z0, z1, z2, z3;         // Height of each fan corner
   float zleft, zright, zdone;   // Weighted height of each side
@@ -723,10 +691,10 @@ float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk )
   fy = y - (( int ) y );
 
 
-  z0 = meshvrtz[meshvrtstart[fan] + 0];
-  z1 = meshvrtz[meshvrtstart[fan] + 1];
-  z2 = meshvrtz[meshvrtstart[fan] + 2];
-  z3 = meshvrtz[meshvrtstart[fan] + 3];
+  z0 = Mesh_Mem.vrt_z[Mesh_Fan[fan].vrt_start + 0];
+  z1 = Mesh_Mem.vrt_z[Mesh_Fan[fan].vrt_start + 1];
+  z2 = Mesh_Mem.vrt_z[Mesh_Fan[fan].vrt_start + 2];
+  z3 = Mesh_Mem.vrt_z[Mesh_Fan[fan].vrt_start + 3];
 
   zleft = ( z0 * ( 1.0f - fy ) + z3 * fy );
   zright = ( z1 * ( 1.0f - fy ) + z2 * fy );
@@ -734,9 +702,9 @@ float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk )
 
   if ( waterwalk )
   {
-    if ( watersurfacelevel > zdone && mesh_has_some_bits( fan, MESHFX_WATER ) && wateriswater )
+    if ( GWater.surfacelevel > zdone && mesh_has_some_bits( fan, MESHFX_WATER ) && GWater.iswater )
     {
-      return watersurfacelevel;
+      return GWater.surfacelevel;
     }
   }
 
@@ -747,29 +715,29 @@ float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk )
 bool_t get_mesh_memory()
 {
   // ZZ> This function gets a load of memory for the terrain mesh
-  floatmemory = ( float * ) malloc( CData.maxtotalmeshvertices * BYTESFOREACHVERTEX );
-  if ( floatmemory == NULL )
+  Mesh_Mem.base = ( float * ) malloc( CData.maxtotalmeshvertices * BYTESFOREACHVERTEX );
+  if ( Mesh_Mem.base == NULL )
     return bfalse;
 
-  meshvrtx = &floatmemory[0];
-  meshvrty = &meshvrtx[CData.maxtotalmeshvertices];
-  meshvrtz = &meshvrty[CData.maxtotalmeshvertices];
-  meshvrtar_fp8 = ( Uint8 * ) & meshvrtz[CData.maxtotalmeshvertices];
-  meshvrtag_fp8 = &meshvrtar_fp8[CData.maxtotalmeshvertices];
-  meshvrtab_fp8 = &meshvrtag_fp8[CData.maxtotalmeshvertices];
-  meshvrtlr_fp8 = &meshvrtab_fp8[CData.maxtotalmeshvertices];
-  meshvrtlg_fp8 = &meshvrtlr_fp8[CData.maxtotalmeshvertices];
-  meshvrtlb_fp8 = &meshvrtlg_fp8[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_x = &Mesh_Mem.base[0];
+  Mesh_Mem.vrt_y = &Mesh_Mem.vrt_x[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_z = &Mesh_Mem.vrt_y[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_ar_fp8 = ( Uint8 * ) & Mesh_Mem.vrt_z[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_ag_fp8 = &Mesh_Mem.vrt_ar_fp8[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_ab_fp8 = &Mesh_Mem.vrt_ag_fp8[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_lr_fp8 = &Mesh_Mem.vrt_ab_fp8[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_lg_fp8 = &Mesh_Mem.vrt_lr_fp8[CData.maxtotalmeshvertices];
+  Mesh_Mem.vrt_lb_fp8 = &Mesh_Mem.vrt_lg_fp8[CData.maxtotalmeshvertices];
   return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 void free_mesh_memory()
 {
-  if ( floatmemory != NULL )
+  if ( Mesh_Mem.base != NULL )
   {
-    free( floatmemory );
-    floatmemory = NULL;
+    free( Mesh_Mem.base );
+    Mesh_Mem.base = NULL;
   }
 }
 
@@ -781,14 +749,14 @@ void mesh_set_colora( int fan_x, int fan_y, int color )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return;
 
-  vert = meshvrtstart[fan];
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
-  numvert = meshcommandnumvertices[meshtype[fan]];
+  numvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
   while ( cnt < numvert )
   {
-    meshvrtar_fp8[vert] = color;
-    meshvrtag_fp8[vert] = color;
-    meshvrtab_fp8[vert] = color;
+    Mesh_Mem.vrt_ar_fp8[vert] = color;
+    Mesh_Mem.vrt_ag_fp8[vert] = color;
+    Mesh_Mem.vrt_ab_fp8[vert] = color;
     vert++;
     cnt++;
   }
@@ -802,14 +770,14 @@ void set_fan_colorl( int fan_x, int fan_y, int color )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return;
 
-  vert = meshvrtstart[fan];
+  vert = Mesh_Fan[fan].vrt_start;
   cnt = 0;
-  numvert = meshcommandnumvertices[meshtype[fan]];
+  numvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
   while ( cnt < numvert )
   {
-    meshvrtlr_fp8[vert] = color;
-    meshvrtlg_fp8[vert] = color;
-    meshvrtlb_fp8[vert] = color;
+    Mesh_Mem.vrt_lr_fp8[vert] = color;
+    Mesh_Mem.vrt_lg_fp8[vert] = color;
+    Mesh_Mem.vrt_lb_fp8[vert] = color;
     vert++;
     cnt++;
   }
@@ -827,7 +795,7 @@ bool_t mesh_clear_fan_bits( int fan_x, int fan_y, Uint32 bits )
 
   retval = mesh_has_some_bits( fan, bits );
 
-  meshfx[fan] &= ~bits;
+  Mesh_Fan[fan].fx &= ~bits;
 
   return retval;
 };
@@ -841,9 +809,9 @@ bool_t mesh_add_fan_bits( int fan_x, int fan_y, Uint32 bits )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return retval;
 
-  retval = MISSING_BITS( meshfx[fan], bits );
+  retval = MISSING_BITS( Mesh_Fan[fan].fx, bits );
 
-  meshfx[fan] |= bits;
+  Mesh_Fan[fan].fx |= bits;
 
   return retval;
 };
@@ -857,9 +825,9 @@ bool_t mesh_set_fan_bits( int fan_x, int fan_y, Uint32 bits )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return retval;
 
-  retval = ( meshfx[fan] != bits );
+  retval = ( Mesh_Fan[fan].fx != bits );
 
-  meshfx[fan] = bits;
+  Mesh_Fan[fan].fx = bits;
 
   return retval;
 };
@@ -872,9 +840,9 @@ int mesh_bump_tile( int fan_x, int fan_y )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return 0;
 
-  meshtile[fan]++;
+  Mesh_Fan[fan].tile++;
 
-  return meshtile[fan];
+  return Mesh_Fan[fan].tile;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -885,7 +853,7 @@ Uint32 mesh_get_tile( int fan_x, int fan_y )
   fan = mesh_convert_fan( fan_x, fan_y );
   if ( INVALID_FAN == fan ) return INVALID_TILE;
 
-  return meshtile[fan];
+  return Mesh_Fan[fan].tile;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -899,7 +867,7 @@ bool_t mesh_set_tile( int fan_x, int fan_y, Uint32 become )
 
   if ( become != 0 )
   {
-    meshtile[fan] = become;
+    Mesh_Fan[fan].tile = become;
     retval = btrue;
   }
 
@@ -911,9 +879,9 @@ Uint32 mesh_convert_fan( int fan_x, int fan_y )
 {
   // BB > convert <fan_x,fan_y> to a fanblock
 
-  if ( fan_x < 0 || fan_x > meshsizex || fan_y < 0 || fan_y > meshsizey ) return INVALID_FAN;
+  if ( fan_x < 0 || fan_x > mesh.size_x || fan_y < 0 || fan_y > mesh.size_y ) return INVALID_FAN;
 
-  return fan_x + meshfanstart[fan_y];
+  return fan_x + Mesh_Fan_X[fan_y];
 };
 
 //--------------------------------------------------------------------------------------------
@@ -921,16 +889,16 @@ Uint32 mesh_convert_block( int block_x, int block_y )
 {
   // BB > convert <block_x,block_y> to a fanblock
 
-  if ( block_x < 0 || block_x > ( meshsizex >> 2 ) || block_y < 0 || block_y > ( meshsizey >> 2 ) ) return INVALID_FAN;
+  if ( block_x < 0 || block_x > ( mesh.size_x >> 2 ) || block_y < 0 || block_y > ( mesh.size_y >> 2 ) ) return INVALID_FAN;
 
-  return block_x + meshblockstart[block_y];
+  return block_x + Mesh_Block_X[block_y];
 };
 
 //--------------------------------------------------------------------------------------------
 float mesh_clip_x( float x )
 {
   if ( x <      0.0f )  x = 0.0f;
-  if ( x > meshedgex )  x = meshedgex;
+  if ( x > mesh.edge_x )  x = mesh.edge_x;
 
   return x;
 }
@@ -939,7 +907,7 @@ float mesh_clip_x( float x )
 float mesh_clip_y( float y )
 {
   if ( y <      0.0f )  y = 0.0f;
-  if ( y > meshedgey )  y = meshedgey;
+  if ( y > mesh.edge_y )  y = mesh.edge_y;
 
   return y;
 }
@@ -948,7 +916,7 @@ float mesh_clip_y( float y )
 int mesh_clip_fan_x( int ix )
 {
   if ( ix < 0 )  ix = 0;
-  if ( ix > meshsizex - 1 )  ix = meshsizex - 1;
+  if ( ix > mesh.size_x - 1 )  ix = mesh.size_x - 1;
 
   return ix;
 };
@@ -957,7 +925,7 @@ int mesh_clip_fan_x( int ix )
 int mesh_clip_fan_y( int iy )
 {
   if ( iy < 0 )  iy = 0;
-  if ( iy > meshsizey - 1 )  iy = meshsizey - 1;
+  if ( iy > mesh.size_y - 1 )  iy = mesh.size_y - 1;
 
   return iy;
 };
@@ -966,7 +934,7 @@ int mesh_clip_fan_y( int iy )
 int mesh_clip_block_x( int ix )
 {
   if ( ix < 0 )  ix = 0;
-  if ( ix > ( meshsizex >> 2 ) - 1 )  ix = ( meshsizex >> 2 ) - 1;
+  if ( ix > ( mesh.size_x >> 2 ) - 1 )  ix = ( mesh.size_x >> 2 ) - 1;
 
   return ix;
 };
@@ -975,7 +943,7 @@ int mesh_clip_block_x( int ix )
 int mesh_clip_block_y( int iy )
 {
   if ( iy < 0 )  iy = 0;
-  if ( iy > ( meshsizey >> 2 ) - 1 )  iy = ( meshsizey >> 2 ) - 1;
+  if ( iy > ( mesh.size_y >> 2 ) - 1 )  iy = ( mesh.size_y >> 2 ) - 1;
 
   return iy;
 };
@@ -983,8 +951,8 @@ int mesh_clip_block_y( int iy )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_check( float x, float y )
 {
-  if ( x < 0 || x > meshedgex ) return bfalse;
-  if ( y < 0 || y > meshedgex ) return bfalse;
+  if ( x < 0 || x > mesh.edge_x ) return bfalse;
+  if ( y < 0 || y > mesh.edge_x ) return bfalse;
 
   return btrue;
 }
@@ -1011,7 +979,7 @@ Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bi
       pos.y = MESH_FAN_TO_INT( fan_y ) + ( 1 << 6 );
 
       fan = mesh_get_fan( pos );
-      if ( INVALID_FAN != fan ) pass |= meshfx[ fan ];
+      if ( INVALID_FAN != fan ) pass |= Mesh_Fan[ fan ].fx;
     };
   };
 
@@ -1023,7 +991,7 @@ Uint32 mesh_get_bits( int fan, Uint32 bits )
 {
   if ( INVALID_FAN == fan ) return 0;
 
-  return meshfx[fan] & bits;
+  return Mesh_Fan[fan].fx & bits;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1031,7 +999,7 @@ bool_t mesh_has_some_bits( int fan, Uint32 bits )
 {
   if ( INVALID_FAN == fan ) return 0;
 
-  return HAS_SOME_BITS( meshfx[fan], bits );
+  return HAS_SOME_BITS( Mesh_Fan[fan].fx, bits );
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1039,7 +1007,7 @@ bool_t mesh_has_no_bits( int fan, Uint32 bits )
 {
   if ( INVALID_FAN == fan ) return 0;
 
-  return HAS_NO_BITS( meshfx[fan], bits );
+  return HAS_NO_BITS( Mesh_Fan[fan].fx, bits );
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1047,19 +1015,19 @@ bool_t mesh_has_all_bits( int fan, Uint32 bits )
 {
   if ( INVALID_FAN == fan ) return 0;
 
-  return HAS_ALL_BITS( meshfx[fan], bits );
+  return HAS_ALL_BITS( Mesh_Fan[fan].fx, bits );
 };
 
 //--------------------------------------------------------------------------------------------
 float mesh_fraction_x( float x )
 {
-  return x / meshedgex;
+  return x / mesh.edge_x;
 };
 
 //--------------------------------------------------------------------------------------------
 float mesh_fraction_y( float y )
 {
-  return y / meshedgey;
+  return y / mesh.edge_y;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1067,19 +1035,19 @@ bool_t mesh_in_renderlist( int fan )
 {
   if ( INVALID_FAN == fan ) return bfalse;
 
-  return meshinrenderlist[fan];
+  return Mesh_Fan[fan].inrenderlist;
 };
 
 //--------------------------------------------------------------------------------------------
 void mesh_remove_renderlist( int fan )
 {
-  meshinrenderlist[fan] = bfalse;
+  Mesh_Fan[fan].inrenderlist = bfalse;
 };
 
 //--------------------------------------------------------------------------------------------
 void mesh_add_renderlist( int fan )
 {
-  meshinrenderlist[fan] = btrue;
+  Mesh_Fan[fan].inrenderlist = btrue;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -1089,7 +1057,7 @@ Uint8 mesh_get_twist( int fan )
 
   if ( INVALID_FAN != fan )
   {
-    retval = meshtwist[fan];
+    retval = Mesh_Fan[fan].twist;
   }
 
   return retval;
