@@ -527,7 +527,7 @@ void parse_line_by_line()
   size_t read, line;
   Uint32 highbits;
   size_t parseposition;
-  int operands;
+  Uint32 operands;
 
 
   line = 0;

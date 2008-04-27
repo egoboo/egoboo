@@ -116,6 +116,7 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
 {
   // ZF> This function plays a specified sound
   // (Or returns -1 (INVALID_CHANNEL) if it failed to play the sound)
+  Sint8 channel;
 
   int channel;
 

@@ -216,7 +216,8 @@ Zoomes 8bit palette/Y 'src' surface to 'dst' surface.
 
 int zoomSurfaceY(SDL_Surface * src, SDL_Surface * dst)
 {
-  Uint32 x, y, sx, sy, *sax, *say, *csax, *csay, csx, csy;
+  Uint32 sx, sy, *sax, *say, *csax, *csay, csx, csy;
+  int x, y;
   Uint8 *sp, *dp, *csp;
   int dgap;
 

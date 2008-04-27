@@ -19,6 +19,8 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "egoboo_types.h"
+
 #ifndef Egoboo_id_md2_h
 #define Egoboo_id_md2_h
 
@@ -34,7 +36,7 @@ typedef struct id_md2_header_t
   int numVertices;
   int numTexCoords;
   int numTriangles;
-  int numGlCommands;
+  Uint32 numGlCommands;
   int numFrames;
   int offsetSkins;
   int offsetTexCoords;

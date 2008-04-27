@@ -687,7 +687,6 @@ void remove_enchant( Uint16 enchantindex )
   };
 
 
-
   // Unset enchant values, doing morph last (opposite order to spawn_enchant)
   unset_enchant_value( enchantindex, SETCHANNEL );
   for ( cnt = SETCOSTFOREACHMISSILE; cnt >= SETCOSTFOREACHMISSILE; cnt-- )
@@ -754,8 +753,6 @@ void remove_enchant( Uint16 enchantindex )
     ChrList[overlay].invictus = bfalse;
     kill_character( overlay, MAXCHR );
   }
-
-
 
 
 

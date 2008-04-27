@@ -606,7 +606,7 @@ EXTERN int endtextwrite;
 // Status displays
 EXTERN int numstat  EQ( 0 );
 EXTERN Uint16 statlist[MAXSTAT];
-EXTERN int statdelay  EQ( 0 );
+EXTERN Uint16 statdelay  EQ( 0 );
 EXTERN Uint32 particletrans  EQ( 0x80 );
 EXTERN Uint32 antialiastrans_fp8  EQ( 0xC0 );
 

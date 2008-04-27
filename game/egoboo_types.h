@@ -23,8 +23,7 @@
 #define Egoboo_egobootypedef_h
 
 #ifdef WIN32
-#define WIN32_LEAN_AND_MEAN    // Speeds up compile times a bit.  We don't need everything
-// in windows.h
+#define WIN32_LEAN_AND_MEAN    // Speeds up compile times a bit.  We don't need everything in windows.h
 
 // Turn off warnings that we don't care about.
 #pragma warning(disable : 4305) // truncation from 'double' to 'float'
