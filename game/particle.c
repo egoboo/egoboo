@@ -899,7 +899,7 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
     model = ChrList[character].model;
     vertices = MadList[model].vertices;
     direction = ChrList[character].turn_lr - vec_to_turn( -PrtList[particle].vel.x, -PrtList[particle].vel.y );
-    if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].frame], MADFX_INVICTUS ) )
+    if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].anim.next], MADFX_INVICTUS ) )
     {
       // I Frame
       if ( HAS_SOME_BITS( PipList[pip].damfx, DAMFX_BLOC ) )
@@ -945,13 +945,13 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
           float flip;
 
           model = ChrList[character].model;
-          inext = ChrList[character].frame;
-          ilast = ChrList[character].framelast;
-          flip = ChrList[character].flip;
+          inext = ChrList[character].anim.next;
+          ilast = ChrList[character].anim.last;
+          flip = ChrList[character].anim.flip;
 
           assert( MAXMODEL != VALIDATE_MDL( model ) );
 
-          pmdl  = MadList[model]._md2;
+          pmdl  = MadList[model].md2_ptr;
           plast = md2_get_Frame(pmdl, ilast);
           pnext = md2_get_Frame(pmdl, inext);
 
@@ -1075,7 +1075,7 @@ void do_weather_spawn( float dUpdate )
 
 
 //--------------------------------------------------------------------------------------------
-Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int local_pip )
+Uint32 load_one_pip( char *szLoadName, Uint16 object, int local_pip )
 {
   // ZZ> This function loads a particle template, returning MAXPRTPIP if the file wasn't
   //     found
@@ -1256,7 +1256,7 @@ void load_global_particles()
   log_info("load_global_particles() - Loading global particles into memory... ");
   //Defend particle
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_message("Failed!\n");
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
@@ -1264,7 +1264,7 @@ void load_global_particles()
 
   //Money 1
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money1_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_message("Failed!\n");
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
@@ -1272,7 +1272,7 @@ void load_global_particles()
 
   //Money 5
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money5_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_message("Failed!\n");
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
@@ -1280,7 +1280,7 @@ void load_global_particles()
 
   //Money 25
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money25_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_message("Failed!\n");
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
@@ -1288,7 +1288,7 @@ void load_global_particles()
 
   //Money 100
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money100_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_message("Failed!\n");
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
@@ -1310,57 +1310,57 @@ void reset_particles( char* modname )
   numpip = 0;
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money1_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money5_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money25_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.money100_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   //Load module specific information
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.weather4_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.weather5_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.splash_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.ripple_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }
 
   //This is also global...
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_file );
-  if ( MAXPRTPIP == load_one_particle_profile( CStringTmp1, 0, 0 ) )
+  if ( MAXPRTPIP == load_one_pip( CStringTmp1, 0, 0 ) )
   {
     log_error( "Data file was not found! (%s)\n", CStringTmp1 );
   }

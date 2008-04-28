@@ -81,9 +81,6 @@
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
 #define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
 
-
-#define ABS(X)  (((X) > 0) ? (X) : -(X))
-
 /* Neither Linux nor Mac OS X seem to have MIN and MAX defined, so if they
  * haven't already been found, define them here. */
 #ifndef MAX
@@ -102,6 +99,10 @@
 #define CLIP(A, B, C) MIN(MAX(A,B),C)
 #endif
 
+#ifndef ABS
+#define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
+
 
 /**> MACROS <**/
 #define _CNV(i,j) .v[4*i+j]
@@ -116,6 +117,14 @@ typedef union vector2_t { float _v[2]; struct { float x, y; }; struct { float u,
 typedef union vector3_t { float v[3]; struct { float x, y, z; }; struct { float r, g, b; }; } vect3;
 typedef union vector4_t { float v[4]; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } vect4;
 #pragma pack(pop)
+
+// !yuck! put the axis-aligned bounding box definition here
+
+typedef struct aa_bbox_t
+{
+  vect3 mins;
+  vect3 maxs;
+} AA_BBOX;
 
 
 /**> GLOBAL VARIABLES <**/

@@ -15,8 +15,8 @@
 #define MAXMESHCOMMANDSIZE              32             // Max trigs in each command
 #define MAXTILETYPE                     256            // Max number of tile images
 #define MAXMESHRENDER                   1024*8           // Max number of tiles to draw
-#define INVALID_TILE                    ((Uint16)(-1)) // Don't draw the fansquare if tile = this
-#define INVALID_FAN                     ((Uint32)(-1)) // Character not on a fan ( maybe )
+#define INVALID_TILE                    (~(Uint16)0) // Don't draw the fansquare if tile = this
+#define INVALID_FAN                     (~(Uint32)0) // Character not on a fan ( maybe )
 
 #define FAN_BITS 7
 #define MESH_FAN_TO_INT(XX)    ( (XX) << FAN_BITS )
@@ -100,9 +100,8 @@ typedef struct mesh_fan_t
   Uint8   twist;                              //
   bool_t  inrenderlist;                       //
   Uint16  tile;                               // Get texture from this
-  Uint32  vrt_start;                           // Which vertex to start at
-  vect3   vrt_mins;                            // what is the minimum extent of the fan
-  vect3   vrt_maxs;                            // what is the maximum extent of the tile
+  Uint32  vrt_start;                          // Which vertex to start at
+  AA_BBOX bbox;                               // what is the minimum extent of the fan
 } MESH_FAN;
 
 extern MESH_FAN Mesh_Fan[MAXMESHFAN];

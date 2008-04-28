@@ -160,7 +160,7 @@ void damage_character( CHR_REF character, Uint16 direction,
         if ( HAS_SOME_BITS( effects, DAMFX_BLOC ) )
         {
           // Only damage if hitting from proper direction
-          if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].frame], MADFX_INVICTUS ) )
+          if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].anim.next], MADFX_INVICTUS ) )
           {
             // I Frame...
             direction -= CapList[model].iframefacing;
@@ -168,10 +168,10 @@ void damage_character( CHR_REF character, Uint16 direction,
             right = CapList[model].iframeangle;
 
             // Check for shield
-            if ( ChrList[character].action >= ACTION_PA && ChrList[character].action <= ACTION_PD )
+            if ( ChrList[character].action.now >= ACTION_PA && ChrList[character].action.now <= ACTION_PD )
             {
               // Using a shield?
-              if ( ChrList[character].action < ACTION_PC )
+              if ( ChrList[character].action.now < ACTION_PC )
               {
                 // Check left hand
                 CHR_REF iholder = chr_get_holdingwhich( character, SLOT_LEFT );
@@ -263,7 +263,7 @@ void damage_character( CHR_REF character, Uint16 direction,
             // Character has died
             ChrList[character].alive = bfalse;
             disenchant_character( character );
-            ChrList[character].keepaction = btrue;
+            ChrList[character].action.keep = btrue;
             ChrList[character].life_fp8 = -1;
             ChrList[character].isplatform = btrue;
             ChrList[character].bumpdampen /= 2.0;
@@ -687,7 +687,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->numinpack = 0;
   pchr->model = profile;
   VData_Blended_construct( &(pchr->vdata) );
-  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(MadList[profile]._md2) );
+  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(MadList[profile].md2_ptr) );
 
   pchr->basemodel = profile;
   pchr->stoppedby = CapList[profile].stoppedby;
@@ -929,15 +929,14 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->aigotoadd = 1;
   pchr->aigotox[0] = pchr->pos.x;
   pchr->aigotoy[0] = pchr->pos.y;
-  pchr->actionready = btrue;
-  pchr->keepaction = bfalse;
-  pchr->loopaction = bfalse;
-  pchr->action = ACTION_DA;
-  pchr->nextaction = ACTION_DA;
-  pchr->lip_fp8 = 0;
-  pchr->flip = 0.0f;
-  pchr->frame = 0;
-  pchr->framelast = pchr->frame;
+  pchr->action.ready = btrue;
+  pchr->action.keep = bfalse;
+  pchr->action.loop = bfalse;
+  pchr->action.now = ACTION_DA;
+  pchr->action.next = ACTION_DA;
+  pchr->anim.lip_fp8 = 0;
+  pchr->anim.flip = 0.0f;
+  pchr->anim.last = pchr->anim.next = 0;
   pchr->passage = 0;
   pchr->holdingweight = 0;
   pchr->onwhichplatform = MAXCHR;
@@ -1049,17 +1048,20 @@ void respawn_character( CHR_REF character )
   ChrList[character].mapturn_ud = 32768;
   if ( !VALID_CHR( team_get_leader( ChrList[character].team ) ) )  TeamList[ChrList[character].team].leader = character;
   if ( !ChrList[character].invictus )  TeamList[ChrList[character].baseteam].morale++;
-  ChrList[character].actionready = btrue;
-  ChrList[character].keepaction = bfalse;
-  ChrList[character].loopaction = bfalse;
-  ChrList[character].action = ACTION_DA;
-  ChrList[character].nextaction = ACTION_DA;
-  ChrList[character].lip_fp8 = 0;
-  ChrList[character].flip = 0.0f;
-  ChrList[character].frame = 0;
-  ChrList[character].framelast = ChrList[character].frame;
+
+  ChrList[character].action.ready = btrue;
+  ChrList[character].action.keep = bfalse;
+  ChrList[character].action.loop = bfalse;
+  ChrList[character].action.now = ACTION_DA;
+  ChrList[character].action.next = ACTION_DA;
+
+  ChrList[character].anim.lip_fp8 = 0;
+  ChrList[character].anim.flip = 0.0f;
+  ChrList[character].anim.next = 0;
+  ChrList[character].anim.last  = ChrList[character].anim.next;
+
   ChrList[character].isplatform = CapList[profile].isplatform;
-  ChrList[character].flyheight = CapList[profile].flyheight;
+  ChrList[character].flyheight  = CapList[profile].flyheight;
   ChrList[character].bumpdampen = CapList[profile].bumpdampen;
 
   ChrList[character].bmpdata_save.size    = CapList[profile].bumpsize;
@@ -1207,7 +1209,7 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   ChrList[ichr].model     = new_profile;
   VData_Blended_destruct( &(ChrList[numfreechr].vdata) );
   VData_Blended_construct( &(ChrList[numfreechr].vdata) );
-  VData_Blended_Allocate( &(ChrList[numfreechr].vdata), md2_get_numVertices(MadList[new_profile]._md2) );
+  VData_Blended_Allocate( &(ChrList[numfreechr].vdata), md2_get_numVertices(MadList[new_profile].md2_ptr) );
 
   ChrList[ichr].stoppedby = CapList[new_profile].stoppedby;
   ChrList[ichr].lifeheal  = CapList[new_profile].lifeheal_fp8;
@@ -1319,15 +1321,17 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
 
 
   // AI and action stuff
-  ChrList[ichr].actionready = btrue;
-  ChrList[ichr].keepaction = bfalse;
-  ChrList[ichr].loopaction = bfalse;
-  ChrList[ichr].action = ACTION_DA;
-  ChrList[ichr].nextaction = ACTION_DA;
-  ChrList[ichr].lip_fp8 = 0;
-  ChrList[ichr].flip = 0.0f;
-  ChrList[ichr].frame = 0;
-  ChrList[ichr].framelast = ChrList[ichr].frame;
+  ChrList[ichr].action.ready = btrue;
+  ChrList[ichr].action.keep = bfalse;
+  ChrList[ichr].action.loop = bfalse;
+  ChrList[ichr].action.now = ACTION_DA;
+  ChrList[ichr].action.next = ACTION_DA;
+
+  ChrList[ichr].anim.lip_fp8 = 0;
+  ChrList[ichr].anim.flip = 0.0f;
+  ChrList[ichr].anim.next = 0;
+  ChrList[ichr].anim.last = ChrList[ichr].anim.next;
+
   ChrList[ichr].holdingweight = 0;
   ChrList[ichr].onwhichplatform = MAXCHR;
 

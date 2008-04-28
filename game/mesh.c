@@ -179,19 +179,19 @@ bool_t load_mesh( char *modname )
 
     Mesh_Fan[fan].vrt_start = vrtstart;
 
-    Mesh_Fan[fan].vrt_mins.x = Mesh_Fan[fan].vrt_maxs.x = Mesh_Mem.vrt_x[vrtstart];
-    Mesh_Fan[fan].vrt_mins.y = Mesh_Fan[fan].vrt_maxs.y = Mesh_Mem.vrt_y[vrtstart];
-    Mesh_Fan[fan].vrt_mins.z = Mesh_Fan[fan].vrt_maxs.z = Mesh_Mem.vrt_z[vrtstart];
+    Mesh_Fan[fan].bbox.mins.x = Mesh_Fan[fan].bbox.maxs.x = Mesh_Mem.vrt_x[vrtstart];
+    Mesh_Fan[fan].bbox.mins.y = Mesh_Fan[fan].bbox.maxs.y = Mesh_Mem.vrt_y[vrtstart];
+    Mesh_Fan[fan].bbox.mins.z = Mesh_Fan[fan].bbox.maxs.z = Mesh_Mem.vrt_z[vrtstart];
 
     for ( vrt = vrtstart + 1; vrt < vrtstart + vrtcount; vrt++ )
     {
-      Mesh_Fan[fan].vrt_mins.x = MIN( Mesh_Fan[fan].vrt_mins.x, Mesh_Mem.vrt_x[vrt] );
-      Mesh_Fan[fan].vrt_mins.y = MIN( Mesh_Fan[fan].vrt_mins.y, Mesh_Mem.vrt_y[vrt] );
-      Mesh_Fan[fan].vrt_mins.z = MIN( Mesh_Fan[fan].vrt_mins.z, Mesh_Mem.vrt_z[vrt] );
+      Mesh_Fan[fan].bbox.mins.x = MIN( Mesh_Fan[fan].bbox.mins.x, Mesh_Mem.vrt_x[vrt] );
+      Mesh_Fan[fan].bbox.mins.y = MIN( Mesh_Fan[fan].bbox.mins.y, Mesh_Mem.vrt_y[vrt] );
+      Mesh_Fan[fan].bbox.mins.z = MIN( Mesh_Fan[fan].bbox.mins.z, Mesh_Mem.vrt_z[vrt] );
                                                                               
-      Mesh_Fan[fan].vrt_maxs.x = MAX( Mesh_Fan[fan].vrt_maxs.x, Mesh_Mem.vrt_x[vrt] );
-      Mesh_Fan[fan].vrt_maxs.y = MAX( Mesh_Fan[fan].vrt_maxs.y, Mesh_Mem.vrt_y[vrt] );
-      Mesh_Fan[fan].vrt_maxs.z = MAX( Mesh_Fan[fan].vrt_maxs.z, Mesh_Mem.vrt_z[vrt] );
+      Mesh_Fan[fan].bbox.maxs.x = MAX( Mesh_Fan[fan].bbox.maxs.x, Mesh_Mem.vrt_x[vrt] );
+      Mesh_Fan[fan].bbox.maxs.y = MAX( Mesh_Fan[fan].bbox.maxs.y, Mesh_Mem.vrt_y[vrt] );
+      Mesh_Fan[fan].bbox.maxs.z = MAX( Mesh_Fan[fan].bbox.maxs.z, Mesh_Mem.vrt_z[vrt] );
     }
 
     vert += vrtcount;

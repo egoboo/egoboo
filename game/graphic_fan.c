@@ -80,7 +80,7 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
   offu = Mesh_Tile[tile].off_u;          // Texture offsets
   offv = Mesh_Tile[tile].off_v;          //
 
-  texture = ( tile >> 6 ) + 1;              // 64 tiles in each 256x256 texture
+  texture = ( tile >> 6 ) + TX_TILE_0;              // 64 tiles in each 256x256 texture
   vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
   commands = Mesh_Cmd[type].count;          // Number of commands
 
@@ -219,7 +219,7 @@ void render_fan( Uint32 fan, char tex_loaded )
   offu = Mesh_Tile[tile].off_u;          // Texture offsets
   offv = Mesh_Tile[tile].off_v;          //
 
-  texture = ( tile >> 6 ) + 1;              // 64 tiles in each 256x256 texture
+  texture = ( tile >> 6 ) + TX_TILE_0;              // 64 tiles in each 256x256 texture
   vertices = Mesh_Cmd[type].vrt_count;      // Number of vertices
   commands = Mesh_Cmd[type].count;          // Number of commands
 
@@ -447,7 +447,7 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   offv = GWater.layerv[layer];          //
   frame = GWater.layerframe[layer];     // Frame
 
-  texture = layer + 5;                    // Water starts at texture 5
+  texture = layer + TX_WATER_TOP;                    // Water starts at texture 5
   vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
   commands = Mesh_Cmd[type].count;          // Number of commands
 
@@ -558,18 +558,16 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   //Uint32 ambi, spek;
   // DWORD GFog.spec;
 
-
-
   // vertex is a value from 0-15, for the meshcommandref/u/v variables
   // badvertex is a value that references the actual vertex number
 
   // To make life easier
-  type = 0;                           // Command type ( index to points in fan )
-  offu = GWater.layeru[layer];          // Texture offsets
-  offv = GWater.layerv[layer];          //
+  type  = 0;                           // Command type ( index to points in fan )
+  offu  = GWater.layeru[layer];          // Texture offsets
+  offv  = GWater.layerv[layer];          //
   frame = GWater.layerframe[layer];     // Frame
 
-  texture = layer + 5;                    // Water starts at texture 5
+  texture  = layer + TX_WATER_TOP;                    // Water starts at texture 5
   vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
   commands = Mesh_Cmd[type].count;          // Number of commands
 
@@ -849,7 +847,7 @@ void make_renderlist()
   fan_count = mesh.size_x * mesh.size_y;
   for ( fan = 0; fan < fan_count; fan++ )
   {
-    inview = Frustum_BBoxInFrustum( &gFrustum, Mesh_Fan[fan].vrt_mins.v, Mesh_Fan[fan].vrt_maxs.v );
+    inview = Frustum_BBoxInFrustum( &gFrustum, Mesh_Fan[fan].bbox.mins.v, Mesh_Fan[fan].bbox.maxs.v );
 
     Mesh_Fan[fan].inrenderlist = bfalse;
 

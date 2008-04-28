@@ -298,7 +298,7 @@ void init_all_models()
     CapList[cnt].classname[0] = '\0';
     MadList[cnt].used = bfalse;
     strcpy(MadList[cnt].name, "*NONE*");
-    MadList[cnt]._md2 = NULL;
+    MadList[cnt].md2_ptr = NULL;
     MadList[cnt].framelip = NULL;
     MadList[cnt].framefx  = NULL;
   }
@@ -317,7 +317,7 @@ void release_all_models()
     MadList[cnt].used = bfalse;
     strcpy(MadList[cnt].name, "*NONE*");
 
-    free_one_md2( cnt );
+    free_one_mad( cnt );
   }
   madloadframe = 0;
 }
@@ -626,12 +626,14 @@ void load_basic_textures( char *modname )
   // ZZ> This function loads the standard textures for a module
   // BB> In each case, try to load one stored with the module first.
 
+
+
   // Particle sprites
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, "particle.bmp" );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[0], CStringTmp1, TRANSCOLOR ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_PARTICLE], CStringTmp1, TRANSCOLOR ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.particle_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[0], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_PARTICLE], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "!!!!Particle bitmap could not be found!!!! Missing File = \"%s\"\n", CStringTmp1 );
     }
@@ -639,40 +641,40 @@ void load_basic_textures( char *modname )
 
   // Module background tiles
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile0_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[1], CStringTmp1, TRANSCOLOR ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_0], CStringTmp1, TRANSCOLOR ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile0_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[1], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_0], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 0 could not be found. Missing File = \"%s\"\n", CData.tile0_bitmap );
     }
   };
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile1_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,   &TxTexture[2], CStringTmp1, TRANSCOLOR ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,   &TxTexture[TX_TILE_1], CStringTmp1, TRANSCOLOR ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile1_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[2], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_1], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 1 could not be found. Missing File = \"%s\"\n", CData.tile1_bitmap );
     }
   };
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile2_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[3], CStringTmp1, TRANSCOLOR ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_2], CStringTmp1, TRANSCOLOR ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile2_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[3], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_2], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 2 could not be found. Missing File = \"%s\"\n", CData.tile2_bitmap );
     }
   };
 
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile3_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[4], CStringTmp1, TRANSCOLOR ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_3], CStringTmp1, TRANSCOLOR ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile3_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[4], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_3], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 3 could not be found. Missing File = \"%s\"\n", CData.tile3_bitmap );
     }
@@ -681,10 +683,10 @@ void load_basic_textures( char *modname )
 
   // Water textures
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.watertop_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[5], CStringTmp1, INVALID_KEY ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_TOP], CStringTmp1, INVALID_KEY ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.watertop_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[5], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_TOP], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Water Layer 1 could not be found. Missing File = \"%s\"\n", CData.watertop_bitmap );
     }
@@ -692,10 +694,10 @@ void load_basic_textures( char *modname )
 
   // This is also used as far background
   snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.waterlow_bitmap );
-  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[6], CStringTmp1, INVALID_KEY ) )
+  if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_LOW], CStringTmp1, INVALID_KEY ) )
   {
     snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.waterlow_bitmap );
-    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[6], CStringTmp1, TRANSCOLOR ) )
+    if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_LOW], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Water Layer 0 could not be found. Missing File = \"%s\"\n", CData.waterlow_bitmap );
     }
@@ -705,10 +707,10 @@ void load_basic_textures( char *modname )
   // BB > this is handled differently now and is not needed
   // Texture 7 is the phong map
   //snprintf(CStringTmp1, sizeof(CStringTmp1), "%s%s/%s", modname, CData.gamedat_dir, CData.phong_bitmap);
-  //if(INVALID_TEXTURE==GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[7], CStringTmp1, INVALID_KEY))
+  //if(INVALID_TEXTURE==GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[TX_PHONG], CStringTmp1, INVALID_KEY))
   //{
   //  snprintf(CStringTmp1, sizeof(CStringTmp1), "%s/%s", CData.basicdat_dir, CData.phong_bitmap);
-  //  GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[7], CStringTmp1, TRANSCOLOR );
+  //  GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[TX_PHONG], CStringTmp1, TRANSCOLOR );
   //  {
   //    log_warning("Phong Bitmap Layer 1 could not be found. Missing File = \"%s\"", CData.phong_bitmap);
   //  }
@@ -720,81 +722,42 @@ void load_basic_textures( char *modname )
 
 
 //--------------------------------------------------------------------------------------------
-int load_one_object( int skin, char* tmploadname )
+Uint16 load_one_object( int skin, char* szObjectname )
 {
-  // ZZ> This function loads one object and returns the number of skins
-  Uint16 object;
+  // ZZ> This function loads one iobj and returns the number of skins
+  Uint16 iobj;
   int numskins, numicon, skin_index;
   STRING newloadname, loc_loadpath, wavename;
   int cnt;
 
-  // Load the object data file and get the object number
-  snprintf( newloadname, sizeof( newloadname ), "%s/%s", tmploadname, CData.data_file );
-  object = load_one_character_profile( newloadname );
+  // generate an index for this object
+  snprintf( newloadname, sizeof( newloadname ), "%s/%s", szObjectname, CData.data_file );
+  iobj = object_generate_index(newloadname);
 
+  // Append a slash to the szObjectname
+  strncpy( loc_loadpath, szObjectname, sizeof( loc_loadpath ) );
+  strncat( loc_loadpath, "/", sizeof( loc_loadpath ) );
 
-  // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-  strncpy( MadList[object].name, tmploadname, sizeof( MadList[object].name ) );
+  // Load the iobj data file
+  iobj = load_one_cap(loc_loadpath, iobj);
 
-  // Append a slash to the tmploadname
-  strncpy( loc_loadpath, tmploadname, sizeof( loc_loadpath ) );
-  strncat( loc_loadpath, "/", sizeof( STRING ) );
-
-  // Load the AI script for this object
-  snprintf( newloadname, sizeof( newloadname ), "%s%s", loc_loadpath, CData.script_file );
-
-  // Create a reference to the one we just loaded
-  MadList[object].ai = load_ai_script( newloadname );
-  if ( MAXAI == MadList[object].ai )
-  {
-    // use the default script
-    MadList[object].ai = 0;
-  }
-
-
-  // Load the object model
-  make_newloadname( loc_loadpath, "tris.md2", newloadname );
-
-#ifdef __unix__
-  // unix is case sensitive, but sometimes this file is called tris.MD2
-  if ( access( newloadname, R_OK ) )
-  {
-    make_newloadname( loc_loadpath, "tris.MD2", newloadname );
-    // still no luck !
-    if ( access( newloadname, R_OK ) )
-    {
-      log_error( stderr, "ERROR: cannot open: %s\n", newloadname );
-    }
-  }
-#endif
-
-  load_one_md2( newloadname, object );
-
+  // load the model data
+  load_one_mad( loc_loadpath, iobj );
 
   // Fix lighting if need be
-  if ( CapList[object].uniformlit )
+  if ( CapList[iobj].uniformlit )
   {
-    make_mad_equally_lit( object );
+    make_mad_equally_lit( iobj );
   }
-
-
-  // Create the actions table for this object
-  get_actions( object );
-
-
-  // Copy entire actions to save frame space COPY.TXT
-  snprintf( newloadname, sizeof( newloadname ), "%s%s", loc_loadpath, CData.copy_file );
-  check_copy( newloadname, object );
-
 
   // Load the messages for this object
   make_newloadname( loc_loadpath, CData.message_file, newloadname );
-  load_all_messages( newloadname, object );
+  load_all_messages( newloadname, iobj );
 
 
   // Load the random naming table for this object
   make_newloadname( loc_loadpath, CData.naming_file, newloadname );
-  read_naming( object, newloadname );
+  read_naming( iobj, newloadname );
 
 
   // Load the particles for this object
@@ -802,7 +765,7 @@ int load_one_object( int skin, char* tmploadname )
   {
     MadList[MAXMODEL].prtpip[cnt] = MAXPRTPIP;
     snprintf( newloadname, sizeof( newloadname ), "%spart%d.txt", loc_loadpath, cnt );
-    load_one_particle_profile( newloadname, object, cnt );
+    load_one_pip( newloadname, iobj, cnt );
   }
 
 
@@ -810,21 +773,19 @@ int load_one_object( int skin, char* tmploadname )
   for ( cnt = 0; cnt < MAXWAVE; cnt++ )
   {
     snprintf( wavename, sizeof( wavename ), "%ssound%d.wav", loc_loadpath, cnt );
-    CapList[object].wavelist[cnt] = Mix_LoadWAV( wavename );
+    CapList[iobj].wavelist[cnt] = Mix_LoadWAV( wavename );
   }
 
 
   // Load the enchantment for this object
   make_newloadname( loc_loadpath, CData.enchant_file, newloadname );
-  load_one_enchant_profile( newloadname, object );
+  load_one_enchant_profile( newloadname, iobj );
 
 
   // Load the skins and icons
-  MadList[object].skinstart = skin;
+  MadList[iobj].skinstart = skin;
   numskins = 0;
   numicon = 0;
-
-
   for ( skin_index = 0; skin_index < MAXSKIN; skin_index++ )
   {
     snprintf( newloadname, sizeof( newloadname ), "%stris%d.bmp", loc_loadpath, skin_index );
@@ -834,7 +795,7 @@ int load_one_object( int skin, char* tmploadname )
       snprintf( newloadname, sizeof( newloadname ), "%sicon%d.bmp", loc_loadpath, skin_index );
       if ( INVALID_TEXTURE != GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon], newloadname, INVALID_KEY ) )
       {
-        if ( object == SPELLBOOK && bookicon == 0 )
+        if ( iobj == SPELLBOOK && bookicon == 0 )
           bookicon = globalnumicon;
 
         while ( numicon < numskins )
@@ -847,12 +808,12 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
 
-  MadList[object].skins = numskins;
+  MadList[iobj].skins = numskins;
   if ( numskins == 0 )
   {
     // If we didn't get a skin, set it to the water texture
-    MadList[object].skinstart = 5;
-    MadList[object].skins = 1;
+    MadList[iobj].skinstart = TX_WATER_TOP;
+    MadList[iobj].skins = 1;
   }
 
 
@@ -1785,11 +1746,16 @@ void light_characters()
   Uint16 i0, i1, i2, i3;
   Uint16 spek, ambi;
   Uint32 vrtstart;
+  Uint32 fan;
 
 
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
+    fan = ChrList[tnc].onwhichfan;
+
+    if(INVALID_FAN == fan) continue;
+
     vrtstart = Mesh_Fan[ChrList[tnc].onwhichfan].vrt_start;
 
     x = ChrList[tnc].pos.x;
@@ -2149,7 +2115,7 @@ void render_normal_fans()
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-      texture = cnt + 1;
+      texture = cnt + TX_TILE_0;
       mesh.last_texture = texture;
       GLTexture_Bind( &TxTexture[texture], CData.texturefilter );
       for ( tnc = 0; tnc < renderlist.num_norm; tnc++ )
@@ -2190,7 +2156,7 @@ void render_shiny_fans()
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-      texture = cnt + 1;
+      texture = cnt + TX_TILE_0;
       mesh.last_texture = texture;
       GLTexture_Bind( &TxTexture[texture], CData.texturefilter );
       for ( tnc = 0; tnc < renderlist.num_shine; tnc++ )
@@ -2232,7 +2198,7 @@ void render_shiny_fans()
 //
 //    for (cnt = 0; cnt < 4; cnt++)
 //    {
-//      texture = cnt + 1;
+//      texture = cnt + TX_TILE_0;
 //      mesh.last_texture = texture;
 //      GLTexture_Bind(&TxTexture[texture], CData.texturefilter);
 //      for (tnc = 0; tnc < renderlist.num_reflc; tnc++)
@@ -2276,7 +2242,7 @@ void render_reflected_fans_ref()
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-      texture = cnt + 1;
+      texture = cnt + TX_TILE_0;
       mesh.last_texture = texture;
       GLTexture_Bind( &TxTexture[texture], CData.texturefilter );
       for ( tnc = 0; tnc < renderlist.num_shine; tnc++ )
@@ -2321,7 +2287,7 @@ void render_reflected_fans_ref()
 //
 //    for (cnt = 0; cnt < 4; cnt++)
 //    {
-//      texture = cnt + 1;
+//      texture = cnt + TX_TILE_0;
 //      mesh.last_texture = texture;
 //      GLTexture_Bind(&TxTexture[texture], CData.texturefilter);
 //      for (tnc = 0; tnc < renderlist.num_reflc; tnc++)
@@ -2858,7 +2824,7 @@ void draw_scene_zreflection()
 //      envirosave = ChrList[tnc].enviro;
 //      texturesave = ChrList[tnc].texture;
 //      ChrList[tnc].enviro = btrue;
-//      ChrList[tnc].texture = 7;  // The phong map texture...
+//      ChrList[tnc].texture = TX_PHONG;  // The phong map texture...
 //      render_enviromad(tnc, (ChrList[tnc].alpha_fp8 * spek_global[ChrList[tnc].sheen_fp8][ChrList[tnc].light_fp8]) / 2, GL_TEXTURE_2D);
 //      ChrList[tnc].texture = texturesave;
 //      ChrList[tnc].enviro = envirosave;
@@ -3907,7 +3873,7 @@ void draw_scene()
   // Render the background
   if ( CData.render_background )
   {
-    render_background( 6 );   // 6 is the texture for waterlow.bmp
+    render_background( TX_WATER_LOW );   // TX_WATER_LOW == 6 is the texture for waterlow.bmp
   }
 
   draw_scene_zreflection();
@@ -3915,7 +3881,7 @@ void draw_scene()
   //Foreground overlay
   if ( CData.render_overlay )
   {
-    render_foreground_overlay( 5 );   // Texture 5 is watertop.bmp
+    render_foreground_overlay( TX_WATER_TOP );   // TX_WATER_TOP ==  5 is watertop.bmp
   }
 
   End3DMode();

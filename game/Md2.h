@@ -26,9 +26,7 @@
  * Textures, so see Texture.h for details.
  */
 
-#ifndef egoboo_Md2_h
-#define egoboo_Md2_h
-
+#pragma once
 
 #include "id_md2.h"
 #include <SDL_opengl.h>
@@ -119,7 +117,5 @@ INLINE const MD2_TexCoord  *md2_get_TexCoords(MD2_Model * m) { return m->m_texCo
 INLINE const MD2_Triangle  *md2_get_Triangles(MD2_Model * m) { return m->m_triangles; }
 INLINE const MD2_GLCommand *md2_get_Commands(MD2_Model * m)  { return m->m_commands;  }
 
-#endif // include guard
-
-
+//char * rip_md2_frame_name( MD2_Model * m, int frame );
 

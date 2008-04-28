@@ -70,7 +70,7 @@ extern NETWORK_INFO GNet;
 #define LAGAND      63                              //
 #define STARTTALK   10                              //
 
-#define INVALID_TIMESTAMP ((Uint32)(-1))
+#define INVALID_TIMESTAMP (~(Uint32)0)
 
 #define TO_ANY_TEXT         25935                               // Message headers
 #define TO_HOST_MODULEOK    14951                               //

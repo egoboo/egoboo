@@ -158,13 +158,13 @@ void flash_character_height( CHR_REF character, Uint8 valuelow, Sint16 low,
   MD2_Frame * plast, * pnext;
 
   model = ChrList[character].model;
-  inext = ChrList[character].frame;
-  ilast = ChrList[character].framelast;
-  flip = ChrList[character].flip;
+  inext = ChrList[character].anim.next;
+  ilast = ChrList[character].anim.last;
+  flip = ChrList[character].anim.flip;
 
   assert( MAXMODEL != VALIDATE_MDL( model ) );
 
-  pmdl  = MadList[model]._md2;
+  pmdl  = MadList[model].md2_ptr;
   plast = md2_get_Frame(pmdl, ilast);
   pnext = md2_get_Frame(pmdl, inext);
 
@@ -611,26 +611,30 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
   Uint16 vertex, model;
   float flip;
   GLvector point, nupoint;
+  PRT * pprt;
+  CHR * pchr;
 
 
   // Check validity of attachment
-  if ( !VALID_CHR( character ) || chr_in_pack( character ) )
+  if ( !VALID_CHR( character ) || chr_in_pack( character ) || !VALID_PRT( particle ) )
   {
     PrtList[particle].gopoof = btrue;
     return;
   }
 
+  pprt = PrtList + particle;
+  pchr = ChrList + character;
 
   // Do we have a matrix???
-  if ( ChrList[character].matrixvalid )
+  if ( pchr->matrixvalid )
   {
     // Transform the weapon grip from model to world space
 
     if ( vertoffset == GRIP_ORIGIN )
     {
-      PrtList[particle].pos.x = ChrList[character].matrix _CNV( 3, 0 );
-      PrtList[particle].pos.y = ChrList[character].matrix _CNV( 3, 1 );
-      PrtList[particle].pos.z = ChrList[character].matrix _CNV( 3, 2 );
+      pprt->pos.x = pchr->matrix _CNV( 3, 0 );
+      pprt->pos.y = pchr->matrix _CNV( 3, 1 );
+      pprt->pos.z = pchr->matrix _CNV( 3, 2 );
     }
     else
     {
@@ -638,14 +642,14 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
       MD2_Model * pmdl;
       MD2_Frame * plast, * pnext;
 
-      model = ChrList[character].model;
-      inext = ChrList[character].frame;
-      ilast = ChrList[character].framelast;
-      flip = ChrList[character].flip;
+      model = pchr->model;
+      inext = pchr->anim.next;
+      ilast = pchr->anim.last;
+      flip  = pchr->anim.flip;
 
       assert( MAXMODEL != VALIDATE_MDL( model ) );
 
-      pmdl  = MadList[model]._md2;
+      pmdl  = MadList[model].md2_ptr;
       plast = md2_get_Frame(pmdl, ilast);
       pnext = md2_get_Frame(pmdl, inext);
 
@@ -669,19 +673,19 @@ void attach_particle_to_character( PRT_REF particle, CHR_REF character, Uint16 v
       }
 
       // Do the transform
-      Transform4_Full( &(ChrList[character].matrix), &point, &nupoint, 1 );
+      Transform4_Full( &(pchr->matrix), &point, &nupoint, 1 );
 
-      PrtList[particle].pos.x = nupoint.x;
-      PrtList[particle].pos.y = nupoint.y;
-      PrtList[particle].pos.z = nupoint.z;
+      pprt->pos.x = nupoint.x;
+      pprt->pos.y = nupoint.y;
+      pprt->pos.z = nupoint.z;
     }
   }
   else
   {
     // No matrix, so just wing it...
-    PrtList[particle].pos.x = ChrList[character].pos.x;
-    PrtList[particle].pos.y = ChrList[character].pos.y;
-    PrtList[particle].pos.z = ChrList[character].pos.z;
+    pprt->pos.x = pchr->pos.x;
+    pprt->pos.y = pchr->pos.y;
+    pprt->pos.z = pchr->pos.z;
   }
 }
 
@@ -1238,7 +1242,7 @@ bool_t detach_character_from_mount( CHR_REF ichr, bool_t ignorekurse, bool_t dos
 
 
   // Turn looping off
-  ChrList[ichr].loopaction = bfalse;
+  ChrList[ichr].action.loop = bfalse;
 
 
   // Reset the team if it is a imount
@@ -1354,7 +1358,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
   {
     // Riding imount
     play_action( ichr, ACTION_MI, btrue );
-    ChrList[ichr].loopaction = btrue;
+    ChrList[ichr].action.loop = btrue;
   }
   else
   {
@@ -1362,7 +1366,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
     if ( ChrList[ichr].isitem )
     {
       // Item grab
-      ChrList[ichr].keepaction = btrue;
+      ChrList[ichr].action.keep = btrue;
     }
   }
 
@@ -2031,7 +2035,7 @@ void character_swipe( CHR_REF ichr, SLOT slot )
 
   weapon = chr_get_holdingwhich( ichr, slot );
   spawngrip = GRIP_LAST;
-  action = ChrList[ichr].action;
+  action = ChrList[ichr].action.now;
   // See if it's an unarmed attack...
   if ( !VALID_CHR( weapon ) )
   {
@@ -2191,7 +2195,7 @@ void move_characters( float dUpdate )
   Uint8 speed, framelip;
   float maxvel, dvx, dvy, dvmax;
   ACTION action;
-  bool_t actionready, allowedtoattack, watchtarget, grounded, dojumptimer;
+  bool_t   ready, allowedtoattack, watchtarget, grounded, dojumptimer;
   TURNMODE loc_turnmode;
   float ftmp, level;
 
@@ -2200,6 +2204,8 @@ void move_characters( float dUpdate )
   float loc_flydampen, loc_traction;
   float turnfactor;
   vect3 nrm = {0.0f, 0.0f, 0.0f};
+  CHR * pchr;
+  MAD * pmad;
 
 
   loc_airfriction    = airfriction;
@@ -2213,30 +2219,33 @@ void move_characters( float dUpdate )
   {
     if ( !VALID_CHR( ichr ) ) continue;
 
+    pchr = ChrList + ichr;
+
     // Character's old location
-    ChrList[ichr].turn_lr_old = ChrList[ichr].turn_lr;
+    pchr->turn_lr_old = pchr->turn_lr;
 
     if ( chr_in_pack( ichr ) ) continue;
 
     // get the model
-    imdl = VALIDATE_MDL( ChrList[ichr].model );
+    imdl = VALIDATE_MDL( pchr->model );
     assert( MAXMODEL != imdl );
+    pmad = MadList + pchr->model;
 
     // get the imount
     imount = chr_get_attachedto(ichr);
 
     // get the level
-    level = ChrList[ichr].level;
+    level = pchr->level;
 
     // TURNMODE_VELOCITY acts strange when someone is mounted on a "bucking" imount, like the gelfeet
-    loc_turnmode = ChrList[ichr].turnmode;
+    loc_turnmode = pchr->turnmode;
     if ( VALID_CHR( imount ) ) loc_turnmode = TURNMODE_NONE;
 
     // make characters slide downhill
-    twist = mesh_get_twist( ChrList[ichr].onwhichfan );
+    twist = mesh_get_twist( pchr->onwhichfan );
 
     // calculate the normal GDyna.mically from the mesh coordinates
-    if ( !mesh_calc_normal( ChrList[ichr].pos, &nrm ) )
+    if ( !mesh_calc_normal( pchr->pos, &nrm ) )
     {
       nrm = mapnrm[twist];
     };
@@ -2246,34 +2255,34 @@ void move_characters( float dUpdate )
     // scale the turn rate by the dexterity.
     // For zero dexterity, rate is half speed
     // For maximum dexterity, rate is 1.5 normal rate
-    //turnfactor = (3.0f * (float)ChrList[ichr].dexterity_fp8 / (float)PERFECTSTAT + 1.0f) / 2.0f;
+    //turnfactor = (3.0f * (float)pchr->dexterity_fp8 / (float)PERFECTSTAT + 1.0f) / 2.0f;
 
     grounded    = bfalse;
 
     // Down that ol' damage timer
-    ChrList[ichr].damagetime -= dUpdate;
-    if ( ChrList[ichr].damagetime < 0 ) ChrList[ichr].damagetime = 0.0f;
+    pchr->damagetime -= dUpdate;
+    if ( pchr->damagetime < 0 ) pchr->damagetime = 0.0f;
 
     // Texture movement
-    ChrList[ichr].uoffset_fp8 += ChrList[ichr].uoffvel * dUpdate;
-    ChrList[ichr].voffset_fp8 += ChrList[ichr].voffvel * dUpdate;
+    pchr->uoffset_fp8 += pchr->uoffvel * dUpdate;
+    pchr->voffset_fp8 += pchr->voffvel * dUpdate;
 
     // calculate the Character's environment
     {
       float wt;
-      float air_traction = ( ChrList[ichr].flyheight == 0.0f ) ? ( 1.0 - airfriction ) : airfriction;
+      float air_traction = ( pchr->flyheight == 0.0f ) ? ( 1.0 - airfriction ) : airfriction;
 
       wt = 0.0f;
       loc_traction   = 0;
       horiz_friction = 0;
       vert_friction  = 0;
 
-      if ( ChrList[ichr].inwater )
+      if ( pchr->inwater )
       {
         // we are partialy under water
         float buoy, lerp;
 
-        if ( ChrList[ichr].weight < 0.0f || ChrList[ichr].holdingweight < 0.0f )
+        if ( pchr->weight < 0.0f || pchr->holdingweight < 0.0f )
         {
           buoy = 0.0f;
         }
@@ -2281,8 +2290,8 @@ void move_characters( float dUpdate )
         {
           float volume, weight;
 
-          weight = ChrList[ichr].weight + ChrList[ichr].holdingweight;
-          volume = ( ChrList[ichr].bmpdata.cv.z_max - ChrList[ichr].bmpdata.cv.z_min ) * ( ChrList[ichr].bmpdata.cv.x_max - ChrList[ichr].bmpdata.cv.x_min ) * ( ChrList[ichr].bmpdata.cv.y_max - ChrList[ichr].bmpdata.cv.y_min );
+          weight = pchr->weight + pchr->holdingweight;
+          volume = ( pchr->bmpdata.cv.z_max - pchr->bmpdata.cv.z_min ) * ( pchr->bmpdata.cv.x_max - pchr->bmpdata.cv.x_min ) * ( pchr->bmpdata.cv.y_max - pchr->bmpdata.cv.y_min );
 
           // this adjusts the buoyancy so that the default adventurer gets a buoyancy of 0.3
           buoy = 0.3f * ( weight / volume ) * 1196.0f;
@@ -2290,33 +2299,33 @@ void move_characters( float dUpdate )
           if ( buoy > 1.0f ) buoy = 1.0f;
         };
 
-        lerp = ( float )( GWater.surfacelevel - ChrList[ichr].pos.z ) / ( float ) ( ChrList[ichr].bmpdata.cv.z_max - ChrList[ichr].bmpdata.cv.z_min );
+        lerp = ( float )( GWater.surfacelevel - pchr->pos.z ) / ( float ) ( pchr->bmpdata.cv.z_max - pchr->bmpdata.cv.z_min );
         if ( lerp > 1.0f ) lerp = 1.0f;
         if ( lerp < 0.0f ) lerp = 0.0f;
 
         loc_traction   += waterfriction * lerp;
         horiz_friction += waterfriction * lerp;
         vert_friction  += waterfriction * lerp;
-        ChrList[ichr].accum_acc.z             -= buoy * gravity  * lerp;
+        pchr->accum_acc.z             -= buoy * gravity  * lerp;
 
         wt += lerp;
       }
 
-      if ( ChrList[ichr].pos.z < level + PLATTOLERANCE )
+      if ( pchr->pos.z < level + PLATTOLERANCE )
       {
         // we are close to something
         bool_t is_slippy;
-        float lerp = ( level + PLATTOLERANCE - ChrList[ichr].pos.z ) / ( float ) PLATTOLERANCE;
+        float lerp = ( level + PLATTOLERANCE - pchr->pos.z ) / ( float ) PLATTOLERANCE;
         if ( lerp > 1.0f ) lerp = 1.0f;
         if ( lerp < 0.0f ) lerp = 0.0f;
 
-        if ( VALID_CHR( ChrList[ichr].onwhichplatform ) )
+        if ( VALID_CHR( pchr->onwhichplatform ) )
         {
           is_slippy = bfalse;
         }
         else
         {
-          is_slippy = ( INVALID_FAN != ChrList[ichr].onwhichfan ) && mesh_has_some_bits( ChrList[ichr].onwhichfan, MESHFX_SLIPPY );
+          is_slippy = ( INVALID_FAN != pchr->onwhichfan ) && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY );
         }
 
         if ( is_slippy )
@@ -2348,28 +2357,28 @@ void move_characters( float dUpdate )
         vert_friction  /= wt;
       };
 
-      grounded = ( ChrList[ichr].pos.z < level + PLATTOLERANCE / 20.0f );
+      grounded = ( pchr->pos.z < level + PLATTOLERANCE / 20.0f );
     }
 
     // do volontary movement
-    if ( ChrList[ichr].alive )
+    if ( pchr->alive )
     {
       // Apply the latches
       if ( !VALID_CHR( imount ) )
       {
         // Character latches for generalized movement
-        dvx = ChrList[ichr].latch.x;
-        dvy = ChrList[ichr].latch.y;
+        dvx = pchr->latch.x;
+        dvy = pchr->latch.y;
 
         // Reverse movements for daze
-        if ( ChrList[ichr].dazetime > 0.0f )
+        if ( pchr->dazetime > 0.0f )
         {
           dvx = -dvx;
           dvy = -dvy;
         }
 
         // Switch x and y for grog
-        if ( ChrList[ichr].grogtime > 0.0f )
+        if ( pchr->grogtime > 0.0f )
         {
           dvmax = dvx;
           dvx = dvy;
@@ -2381,42 +2390,42 @@ void move_characters( float dUpdate )
         {
           if (( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
           {
-            ChrList[ichr].turn_lr = terp_dir( ChrList[ichr].turn_lr, dvx, dvy, dUpdate * turnfactor );
+            pchr->turn_lr = terp_dir( pchr->turn_lr, dvx, dvy, dUpdate * turnfactor );
           }
         }
 
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_STOP ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_STOP ) )
         {
           dvx = 0;
           dvy = 0;
         }
 
         // TODO : change to line(s) below
-        maxvel = ChrList[ichr].maxaccel / ( 1.0 - noslipfriction );
+        maxvel = pchr->maxaccel / ( 1.0 - noslipfriction );
         // set a minimum speed of 6 to fix some stupid slow speeds
-        //maxvel = 1.5f * MAX(MAX(3,ChrList[ichr].runspd), MAX(ChrList[ichr].walkspd,ChrList[ichr].sneakspd));
-        ChrList[ichr].trgvel.x = dvx * maxvel;
-        ChrList[ichr].trgvel.y = dvy * maxvel;
-        ChrList[ichr].trgvel.z = 0;
+        //maxvel = 1.5f * MAX(MAX(3,pchr->runspd), MAX(pchr->walkspd,pchr->sneakspd));
+        pchr->trgvel.x = dvx * maxvel;
+        pchr->trgvel.y = dvy * maxvel;
+        pchr->trgvel.z = 0;
 
-        if ( ChrList[ichr].maxaccel > 0.0f )
+        if ( pchr->maxaccel > 0.0f )
         {
-          dvx = ( ChrList[ichr].trgvel.x - ChrList[ichr].vel.x );
-          dvy = ( ChrList[ichr].trgvel.y - ChrList[ichr].vel.y );
+          dvx = ( pchr->trgvel.x - pchr->vel.x );
+          dvy = ( pchr->trgvel.y - pchr->vel.y );
 
           // TODO : change to line(s) below
-          dvmax = ChrList[ichr].maxaccel;
+          dvmax = pchr->maxaccel;
           // Limit to max acceleration
           //if(maxvel==0.0)
           //{
-          //  dvmax = 2.0f * ChrList[ichr].maxaccel;
+          //  dvmax = 2.0f * pchr->maxaccel;
           //}
           //else
           //{
           //  float ftmp;
-          //  chrvel2 = ChrList[ichr].vel.x*ChrList[ichr].vel.x + ChrList[ichr].vel.y*ChrList[ichr].vel.y;
+          //  chrvel2 = pchr->vel.x*pchr->vel.x + pchr->vel.y*pchr->vel.y;
           //  ftmp = MIN(1.0 , chrvel2/maxvel/maxvel);
-          //  dvmax   = 2.0f * ChrList[ichr].maxaccel * (1.0-ftmp);
+          //  dvmax   = 2.0f * pchr->maxaccel * (1.0-ftmp);
           //};
 
           if ( dvx < -dvmax ) dvx = -dvmax;
@@ -2427,8 +2436,8 @@ void move_characters( float dUpdate )
           loc_traction *= 11.0f;                    // 11.0f corrects traction so that it gives full traction for non-slip floors in advent.mod
           loc_traction = MIN( 1.0, loc_traction );
 
-          ChrList[ichr].accum_acc.x += dvx * loc_traction * nrm.z;
-          ChrList[ichr].accum_acc.y += dvy * loc_traction * nrm.z;
+          pchr->accum_acc.x += dvx * loc_traction * nrm.z;
+          pchr->accum_acc.y += dvy * loc_traction * nrm.z;
         };
       }
 
@@ -2442,76 +2451,76 @@ void move_characters( float dUpdate )
           CHR_REF ai_target = chr_get_aitarget( ichr );
           if ( VALID_CHR( ai_target ) && ichr != ai_target )
           {
-            ChrList[ichr].turn_lr = terp_dir( ChrList[ichr].turn_lr, ChrList[ai_target].pos.x - ChrList[ichr].pos.x, ChrList[ai_target].pos.y - ChrList[ichr].pos.y, dUpdate * turnfactor );
+            pchr->turn_lr = terp_dir( pchr->turn_lr, ChrList[ai_target].pos.x - pchr->pos.x, ChrList[ai_target].pos.y - pchr->pos.y, dUpdate * turnfactor );
           };
         }
 
         // Get direction from ACTUAL change in velocity
         if ( loc_turnmode == TURNMODE_VELOCITY )
         {
-          if ( ChrList[ichr].isplayer )
-            ChrList[ichr].turn_lr = terp_dir( ChrList[ichr].turn_lr, ChrList[ichr].trgvel.x, ChrList[ichr].trgvel.y, dUpdate * turnfactor );
+          if ( pchr->isplayer )
+            pchr->turn_lr = terp_dir( pchr->turn_lr, pchr->trgvel.x, pchr->trgvel.y, dUpdate * turnfactor );
           else
-            ChrList[ichr].turn_lr = terp_dir( ChrList[ichr].turn_lr, ChrList[ichr].trgvel.x, ChrList[ichr].trgvel.y, dUpdate * turnfactor / 4.0f );
+            pchr->turn_lr = terp_dir( pchr->turn_lr, pchr->trgvel.x, pchr->trgvel.y, dUpdate * turnfactor / 4.0f );
         }
 
         // Otherwise make it spin
         else if ( loc_turnmode == TURNMODE_SPIN )
         {
-          ChrList[ichr].turn_lr += SPINRATE * dUpdate * turnfactor;
+          pchr->turn_lr += SPINRATE * dUpdate * turnfactor;
         }
       };
 
       // Character latches for generalized buttons
-      if ( LATCHBUTTON_NONE != ChrList[ichr].latch.b )
+      if ( LATCHBUTTON_NONE != pchr->latch.b )
       {
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_JUMP ) && ChrList[ichr].jumptime == 0.0f )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && pchr->jumptime == 0.0f )
         {
           if ( detach_character_from_mount( ichr, btrue, btrue ) )
           {
-            ChrList[ichr].jumptime = DELAY_JUMP;
-            ChrList[ichr].accum_vel.z += ( ChrList[ichr].flyheight == 0 ) ? DISMOUNTZVEL : DISMOUNTZVELFLY;
-            if ( ChrList[ichr].jumpnumberreset != JUMPINFINITE && ChrList[ichr].jumpnumber > 0 )
-              ChrList[ichr].jumpnumber -= dUpdate;
+            pchr->jumptime = DELAY_JUMP;
+            pchr->accum_vel.z += ( pchr->flyheight == 0 ) ? DISMOUNTZVEL : DISMOUNTZVELFLY;
+            if ( pchr->jumpnumberreset != JUMPINFINITE && pchr->jumpnumber > 0 )
+              pchr->jumpnumber -= dUpdate;
 
             // Play the jump sound
             if ( INVALID_SOUND != CapList[imdl].jumpsound )
             {
-              play_sound( 1.0f, ChrList[ichr].pos, CapList[imdl].wavelist[CapList[imdl].jumpsound], 0, imdl, CapList[imdl].jumpsound );
+              play_sound( 1.0f, pchr->pos, CapList[imdl].wavelist[CapList[imdl].jumpsound], 0, imdl, CapList[imdl].jumpsound );
             };
           }
-          else if ( ChrList[ichr].jumpnumber > 0 && ( ChrList[ichr].jumpready || ChrList[ichr].jumpnumberreset > 1 ) )
+          else if ( pchr->jumpnumber > 0 && ( pchr->jumpready || pchr->jumpnumberreset > 1 ) )
           {
             // Make the character jump
-            if ( ChrList[ichr].inwater && !grounded )
+            if ( pchr->inwater && !grounded )
             {
-              ChrList[ichr].accum_vel.z += WATERJUMP / 3.0f;
-              ChrList[ichr].jumptime = DELAY_JUMP / 3.0f;
+              pchr->accum_vel.z += WATERJUMP / 3.0f;
+              pchr->jumptime = DELAY_JUMP / 3.0f;
             }
             else
             {
-              ChrList[ichr].accum_vel.z += ChrList[ichr].jump * 2.0f;
-              ChrList[ichr].jumptime = DELAY_JUMP;
+              pchr->accum_vel.z += pchr->jump * 2.0f;
+              pchr->jumptime = DELAY_JUMP;
 
               // Set to jump animation if not doing anything better
-              if ( ChrList[ichr].actionready )    play_action( ichr, ACTION_JA, btrue );
+              if ( pchr->action.ready )    play_action( ichr, ACTION_JA, btrue );
 
               // Play the jump sound (Boing!)
               if ( INVALID_SOUND != CapList[imdl].jumpsound )
               {
-                play_sound( MIN( 1.0f, ChrList[ichr].jump / 50.0f ), ChrList[ichr].pos, CapList[imdl].wavelist[CapList[imdl].jumpsound], 0, imdl, CapList[imdl].jumpsound );
+                play_sound( MIN( 1.0f, pchr->jump / 50.0f ), pchr->pos, CapList[imdl].wavelist[CapList[imdl].jumpsound], 0, imdl, CapList[imdl].jumpsound );
               }
             };
 
-            ChrList[ichr].hitready  = btrue;
-            ChrList[ichr].jumpready = bfalse;
-            if ( ChrList[ichr].jumpnumberreset != JUMPINFINITE ) ChrList[ichr].jumpnumber -= dUpdate;
+            pchr->hitready  = btrue;
+            pchr->jumpready = bfalse;
+            if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber -= dUpdate;
           }
         }
 
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_ALTLEFT ) && ChrList[ichr].actionready && ChrList[ichr].reloadtime == 0 )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
-          ChrList[ichr].reloadtime = DELAY_GRAB;
+          pchr->reloadtime = DELAY_GRAB;
           if ( !chr_using_slot( ichr, SLOT_LEFT ) )
           {
             // Grab left
@@ -2524,9 +2533,9 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_ALTRIGHT ) && ChrList[ichr].actionready && ChrList[ichr].reloadtime == 0 )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
-          ChrList[ichr].reloadtime = DELAY_GRAB;
+          pchr->reloadtime = DELAY_GRAB;
           if ( !chr_using_slot( ichr, SLOT_RIGHT ) )
           {
             // Grab right
@@ -2539,9 +2548,9 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_PACKLEFT ) && ChrList[ichr].actionready && ChrList[ichr].reloadtime == 0 )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
-          ChrList[ichr].reloadtime = DELAY_PACK;
+          pchr->reloadtime = DELAY_PACK;
           item = chr_get_holdingwhich( ichr, SLOT_LEFT );
           if ( VALID_CHR( item ) )
           {
@@ -2566,9 +2575,9 @@ void move_characters( float dUpdate )
           play_action( ichr, ACTION_MG, bfalse );
         }
 
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_PACKRIGHT ) && ChrList[ichr].actionready && ChrList[ichr].reloadtime == 0 )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
-          ChrList[ichr].reloadtime = DELAY_PACK;
+          pchr->reloadtime = DELAY_PACK;
           item = chr_get_holdingwhich( ichr, SLOT_RIGHT );
           if ( VALID_CHR( item ) )
           {
@@ -2593,7 +2602,7 @@ void move_characters( float dUpdate )
           play_action( ichr, ACTION_MG, bfalse );
         }
 
-        if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_LEFT ) && ChrList[ichr].reloadtime == 0 )
+        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && pchr->reloadtime == 0 )
         {
           // Which weapon?
           weapon = chr_get_holdingwhich( ichr, SLOT_LEFT );
@@ -2607,7 +2616,7 @@ void move_characters( float dUpdate )
 
           // Can it do it?
           allowedtoattack = btrue;
-          if ( !MadList[imdl].actionvalid[action] || ChrList[weapon].reloadtime > 0 ||
+          if ( !pmad->actionvalid[action] || ChrList[weapon].reloadtime > 0 ||
                ( CapList[ChrList[weapon].model].needskillidtouse && !check_skills( ichr, CapList[ChrList[weapon].model].idsz[IDSZ_SKILL] ) ) )
           {
             allowedtoattack = bfalse;
@@ -2615,10 +2624,10 @@ void move_characters( float dUpdate )
             {
               // This character can't use this weapon
               ChrList[weapon].reloadtime = 50;
-              if ( ChrList[ichr].staton )
+              if ( pchr->staton )
               {
                 // Tell the player that they can't use this weapon
-                debug_message( 1, "%s can't use this item...", ChrList[ichr].name );
+                debug_message( 1, "%s can't use this item...", pchr->name );
               }
             }
           }
@@ -2639,9 +2648,9 @@ void move_characters( float dUpdate )
             if ( VALID_CHR( imount ) )
             {
               allowedtoattack = CapList[ChrList[imount].model].ridercanattack;
-              if ( ChrList[imount].ismount && ChrList[imount].alive && !ChrList[imount].isplayer && ChrList[imount].actionready )
+              if ( ChrList[imount].ismount && ChrList[imount].alive && !ChrList[imount].isplayer && ChrList[imount].action.ready )
               {
-                if (( action != ACTION_PA || !allowedtoattack ) && ChrList[ichr].actionready )
+                if (( action != ACTION_PA || !allowedtoattack ) && pchr->action.ready )
                 {
                   play_action( imount, ( ACTION )( ACTION_UA + ( rand() &1 ) ), bfalse );
                   ChrList[imount].alert |= ALERT_USED;
@@ -2657,20 +2666,18 @@ void move_characters( float dUpdate )
             // Attack button
             if ( allowedtoattack )
             {
-              if ( ChrList[ichr].actionready && MadList[imdl].actionvalid[action] )
+              if ( pchr->action.ready && pmad->actionvalid[action] )
               {
                 // Check mana cost
-                if ( ChrList[ichr].mana_fp8 >= ChrList[weapon].manacost || ChrList[ichr].canchannel )
+                if ( pchr->mana_fp8 >= ChrList[weapon].manacost || pchr->canchannel )
                 {
                   cost_mana( ichr, ChrList[weapon].manacost, weapon );
                   // Check life healing
-                  ChrList[ichr].life_fp8 += ChrList[weapon].lifeheal;
-                  if ( ChrList[ichr].life_fp8 > ChrList[ichr].lifemax_fp8 )  ChrList[ichr].life_fp8 = ChrList[ichr].lifemax_fp8;
-                  actionready = bfalse;
-                  if ( action == ACTION_PA )
-                    actionready = btrue;
+                  pchr->life_fp8 += ChrList[weapon].lifeheal;
+                  if ( pchr->life_fp8 > pchr->lifemax_fp8 )  pchr->life_fp8 = pchr->lifemax_fp8;
+                  ready = ( action == ACTION_PA );
                   action += rand() & 1;
-                  play_action( ichr, action, actionready );
+                  play_action( ichr, action, ready );
                   if ( weapon != ichr )
                   {
                     // Make the weapon attack too
@@ -2680,14 +2687,14 @@ void move_characters( float dUpdate )
                   else
                   {
                     // Flag for unarmed attack
-                    ChrList[ichr].alert |= ALERT_USED;
+                    pchr->alert |= ALERT_USED;
                   }
                 }
               }
             }
           }
         }
-        else if ( HAS_SOME_BITS( ChrList[ichr].latch.b, LATCHBUTTON_RIGHT ) && ChrList[ichr].reloadtime == 0 )
+        else if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && pchr->reloadtime == 0 )
         {
           // Which weapon?
           weapon = chr_get_holdingwhich( ichr, SLOT_RIGHT );
@@ -2701,7 +2708,7 @@ void move_characters( float dUpdate )
 
           // Can it do it?
           allowedtoattack = btrue;
-          if ( !MadList[imdl].actionvalid[action] || ChrList[weapon].reloadtime > 0 ||
+          if ( !pmad->actionvalid[action] || ChrList[weapon].reloadtime > 0 ||
                ( CapList[ChrList[weapon].model].needskillidtouse && !check_skills( ichr, CapList[ChrList[weapon].model].idsz[IDSZ_SKILL] ) ) )
           {
             allowedtoattack = bfalse;
@@ -2709,10 +2716,10 @@ void move_characters( float dUpdate )
             {
               // This character can't use this weapon
               ChrList[weapon].reloadtime = 50;
-              if ( ChrList[ichr].staton )
+              if ( pchr->staton )
               {
                 // Tell the player that they can't use this weapon
-                debug_message( 1, "%s can't use this item...", ChrList[ichr].name );
+                debug_message( 1, "%s can't use this item...", pchr->name );
               }
             }
           }
@@ -2732,9 +2739,9 @@ void move_characters( float dUpdate )
             if ( VALID_CHR( imount ) )
             {
               allowedtoattack = CapList[ChrList[imount].model].ridercanattack;
-              if ( ChrList[imount].ismount && ChrList[imount].alive && !ChrList[imount].isplayer && ChrList[imount].actionready )
+              if ( ChrList[imount].ismount && ChrList[imount].alive && !ChrList[imount].isplayer && ChrList[imount].action.ready )
               {
-                if (( action != ACTION_PC || !allowedtoattack ) && ChrList[ichr].actionready )
+                if (( action != ACTION_PC || !allowedtoattack ) && pchr->action.ready )
                 {
                   play_action( imount, ( ACTION )( ACTION_UC + ( rand() &1 ) ), bfalse );
                   ChrList[imount].alert |= ALERT_USED;
@@ -2750,20 +2757,18 @@ void move_characters( float dUpdate )
             // Attack button
             if ( allowedtoattack )
             {
-              if ( ChrList[ichr].actionready && MadList[imdl].actionvalid[action] )
+              if ( pchr->action.ready && pmad->actionvalid[action] )
               {
                 // Check mana cost
-                if ( ChrList[ichr].mana_fp8 >= ChrList[weapon].manacost || ChrList[ichr].canchannel )
+                if ( pchr->mana_fp8 >= ChrList[weapon].manacost || pchr->canchannel )
                 {
                   cost_mana( ichr, ChrList[weapon].manacost, weapon );
                   // Check life healing
-                  ChrList[ichr].life_fp8 += ChrList[weapon].lifeheal;
-                  if ( ChrList[ichr].life_fp8 > ChrList[ichr].lifemax_fp8 )  ChrList[ichr].life_fp8 = ChrList[ichr].lifemax_fp8;
-                  actionready = bfalse;
-                  if ( action == ACTION_PC )
-                    actionready = btrue;
+                  pchr->life_fp8 += ChrList[weapon].lifeheal;
+                  if ( pchr->life_fp8 > pchr->lifemax_fp8 )  pchr->life_fp8 = pchr->lifemax_fp8;
+                  ready = ( action == ACTION_PC );
                   action += rand() & 1;
-                  play_action( ichr, action, actionready );
+                  play_action( ichr, action, ready );
                   if ( weapon != ichr )
                   {
                     // Make the weapon attack too
@@ -2773,7 +2778,7 @@ void move_characters( float dUpdate )
                   else
                   {
                     // Flag for unarmed attack
-                    ChrList[ichr].alert |= ALERT_USED;
+                    pchr->alert |= ALERT_USED;
                   }
                 }
               }
@@ -2786,21 +2791,21 @@ void move_characters( float dUpdate )
 
 
     // Integrate the z direction
-    if ( 0.0f != ChrList[ichr].flyheight )
+    if ( 0.0f != pchr->flyheight )
     {
-      if ( level < 0 ) ChrList[ichr].accum_pos.z += level - ChrList[ichr].pos.z; // Don't fall in pits...
-      ChrList[ichr].accum_acc.z += ( level + ChrList[ichr].flyheight - ChrList[ichr].pos.z ) * FLYDAMPEN;
+      if ( level < 0 ) pchr->accum_pos.z += level - pchr->pos.z; // Don't fall in pits...
+      pchr->accum_acc.z += ( level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
 
       vert_friction = 1.0;
     }
-    else if ( ChrList[ichr].pos.z > level + PLATTOLERANCE )
+    else if ( pchr->pos.z > level + PLATTOLERANCE )
     {
-      ChrList[ichr].accum_acc.z += gravity;
+      pchr->accum_acc.z += gravity;
     }
     else
     {
       float lerp_normal, lerp_tang;
-      lerp_tang = ( level + PLATTOLERANCE - ChrList[ichr].pos.z ) / ( float ) PLATTOLERANCE;
+      lerp_tang = ( level + PLATTOLERANCE - pchr->pos.z ) / ( float ) PLATTOLERANCE;
       if ( lerp_tang > 1.0f ) lerp_tang = 1.0f;
       if ( lerp_tang < 0.0f ) lerp_tang = 0.0f;
 
@@ -2810,38 +2815,38 @@ void move_characters( float dUpdate )
       if ( lerp_normal < 0.2f ) lerp_normal = 0.2f;
 
       // slippy hills make characters slide
-      if ( ChrList[ichr].weight > 0 && GWater.iswater && !ChrList[ichr].inwater && INVALID_FAN != ChrList[ichr].onwhichfan && mesh_has_some_bits( ChrList[ichr].onwhichfan, MESHFX_SLIPPY ) )
+      if ( pchr->weight > 0 && GWater.iswater && !pchr->inwater && INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY ) )
       {
-        ChrList[ichr].accum_acc.x -= nrm.x * gravity * lerp_tang * hillslide;
-        ChrList[ichr].accum_acc.y -= nrm.y * gravity * lerp_tang * hillslide;
-        ChrList[ichr].accum_acc.z += nrm.z * gravity * lerp_normal;
+        pchr->accum_acc.x -= nrm.x * gravity * lerp_tang * hillslide;
+        pchr->accum_acc.y -= nrm.y * gravity * lerp_tang * hillslide;
+        pchr->accum_acc.z += nrm.z * gravity * lerp_normal;
       }
       else
       {
-        ChrList[ichr].accum_acc.z += gravity * lerp_normal;
+        pchr->accum_acc.z += gravity * lerp_normal;
       };
     }
 
     // Apply friction for next time
-    ChrList[ichr].accum_acc.x -= ( 1.0f - horiz_friction ) * ChrList[ichr].vel.x;
-    ChrList[ichr].accum_acc.y -= ( 1.0f - horiz_friction ) * ChrList[ichr].vel.y;
-    ChrList[ichr].accum_acc.z -= ( 1.0f - vert_friction ) * ChrList[ichr].vel.z;
+    pchr->accum_acc.x -= ( 1.0f - horiz_friction ) * pchr->vel.x;
+    pchr->accum_acc.y -= ( 1.0f - horiz_friction ) * pchr->vel.y;
+    pchr->accum_acc.z -= ( 1.0f - vert_friction ) * pchr->vel.z;
 
     // reset the jump
-    ChrList[ichr].jumpready  = grounded || ChrList[ichr].inwater;
-    if ( ChrList[ichr].jumptime == 0.0f )
+    pchr->jumpready  = grounded || pchr->inwater;
+    if ( pchr->jumptime == 0.0f )
     {
-      if ( grounded && ChrList[ichr].jumpnumber < ChrList[ichr].jumpnumberreset )
+      if ( grounded && pchr->jumpnumber < pchr->jumpnumberreset )
       {
-        ChrList[ichr].jumpnumber = ChrList[ichr].jumpnumberreset;
-        ChrList[ichr].jumptime   = DELAY_JUMP;
+        pchr->jumpnumber = pchr->jumpnumberreset;
+        pchr->jumptime   = DELAY_JUMP;
       }
-      else if ( ChrList[ichr].inwater && ChrList[ichr].jumpnumber < 1 )
+      else if ( pchr->inwater && pchr->jumpnumber < 1 )
       {
         // "Swimming"
-        ChrList[ichr].jumpready  = btrue;
-        ChrList[ichr].jumptime   = DELAY_JUMP / 3.0f;
-        ChrList[ichr].jumpnumber += 1;
+        pchr->jumpready  = btrue;
+        pchr->jumptime   = DELAY_JUMP / 3.0f;
+        pchr->jumpnumber += 1;
       }
     };
 
@@ -2850,11 +2855,11 @@ void move_characters( float dUpdate )
     if ( grounded )
     {
       // only slippy, non-flat surfaces don't allow jumps
-      if ( INVALID_FAN != ChrList[ichr].onwhichfan && mesh_has_some_bits( ChrList[ichr].onwhichfan, MESHFX_SLIPPY ) )
+      if ( INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY ) )
       {
         if ( !maptwistflat[twist] )
         {
-          ChrList[ichr].jumpready = bfalse;
+          pchr->jumpready = bfalse;
           dojumptimer       = bfalse;
         };
       }
@@ -2862,111 +2867,108 @@ void move_characters( float dUpdate )
 
     if ( dojumptimer )
     {
-      ChrList[ichr].jumptime  -= dUpdate;
-      if ( ChrList[ichr].jumptime < 0 ) ChrList[ichr].jumptime = 0.0f;
+      pchr->jumptime  -= dUpdate;
+      if ( pchr->jumptime < 0 ) pchr->jumptime = 0.0f;
     }
 
     // Characters with sticky butts lie on the surface of the mesh
-    if ( grounded && ( ChrList[ichr].stickybutt || !ChrList[ichr].alive ) )
+    if ( grounded && ( pchr->stickybutt || !pchr->alive ) )
     {
-      ChrList[ichr].mapturn_lr = ChrList[ichr].mapturn_lr * 0.9 + maptwist_lr[twist] * 0.1;
-      ChrList[ichr].mapturn_ud = ChrList[ichr].mapturn_ud * 0.9 + maptwist_ud[twist] * 0.1;
+      pchr->mapturn_lr = pchr->mapturn_lr * 0.9 + maptwist_lr[twist] * 0.1;
+      pchr->mapturn_ud = pchr->mapturn_ud * 0.9 + maptwist_ud[twist] * 0.1;
     }
 
     // Animate the character
 
     // do pancake anim
-    ChrList[ichr].pancakevel.x *= 0.90;
-    ChrList[ichr].pancakevel.y *= 0.90;
-    ChrList[ichr].pancakevel.z *= 0.90;
+    pchr->pancakevel.x *= 0.90;
+    pchr->pancakevel.y *= 0.90;
+    pchr->pancakevel.z *= 0.90;
 
-    ChrList[ichr].pancakepos.x += ChrList[ichr].pancakevel.x * dUpdate;
-    ChrList[ichr].pancakepos.y += ChrList[ichr].pancakevel.y * dUpdate;
-    ChrList[ichr].pancakepos.z += ChrList[ichr].pancakevel.z * dUpdate;
+    pchr->pancakepos.x += pchr->pancakevel.x * dUpdate;
+    pchr->pancakepos.y += pchr->pancakevel.y * dUpdate;
+    pchr->pancakepos.z += pchr->pancakevel.z * dUpdate;
 
-    if ( ChrList[ichr].pancakepos.x < 0 ) { ChrList[ichr].pancakepos.x = 0.001; ChrList[ichr].pancakevel.x *= -0.5f; };
-    if ( ChrList[ichr].pancakepos.y < 0 ) { ChrList[ichr].pancakepos.y = 0.001; ChrList[ichr].pancakevel.y *= -0.5f; };
-    if ( ChrList[ichr].pancakepos.z < 0 ) { ChrList[ichr].pancakepos.z = 0.001; ChrList[ichr].pancakevel.z *= -0.5f; };
+    if ( pchr->pancakepos.x < 0 ) { pchr->pancakepos.x = 0.001; pchr->pancakevel.x *= -0.5f; };
+    if ( pchr->pancakepos.y < 0 ) { pchr->pancakepos.y = 0.001; pchr->pancakevel.y *= -0.5f; };
+    if ( pchr->pancakepos.z < 0 ) { pchr->pancakepos.z = 0.001; pchr->pancakevel.z *= -0.5f; };
 
-    ChrList[ichr].pancakevel.x += ( 1.0f - ChrList[ichr].pancakepos.x ) * dUpdate / 10.0f;
-    ChrList[ichr].pancakevel.y += ( 1.0f - ChrList[ichr].pancakepos.y ) * dUpdate / 10.0f;
-    ChrList[ichr].pancakevel.z += ( 1.0f - ChrList[ichr].pancakepos.z ) * dUpdate / 10.0f;
+    pchr->pancakevel.x += ( 1.0f - pchr->pancakepos.x ) * dUpdate / 10.0f;
+    pchr->pancakevel.y += ( 1.0f - pchr->pancakepos.y ) * dUpdate / 10.0f;
+    pchr->pancakevel.z += ( 1.0f - pchr->pancakepos.z ) * dUpdate / 10.0f;
 
     // so the model's animation
-    ChrList[ichr].flip += dUpdate * 0.25;
-    ftmp = ChrList[ichr].flip;
-    while ( ftmp > 0.25f || ChrList[ichr].flip > 1.0f )
+    pchr->anim.flip += dUpdate * 0.25;
+    while ( pchr->anim.flip > 0.25f )
     {
       // convert flip into lip
-      ftmp -= 0.25f;
-      ChrList[ichr].lip_fp8 += 64;
+      pchr->anim.flip -= 0.25f;
+      pchr->anim.lip_fp8 += 64;
 
       // handle the mad fx
-      if ( ChrList[ichr].lip_fp8 == 192 )
+      if ( pchr->anim.lip_fp8 == 192 )
       {
         // Check frame effects
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_ACTLEFT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_ACTLEFT ) )
           character_swipe( ichr, SLOT_LEFT );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_ACTRIGHT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_ACTRIGHT ) )
           character_swipe( ichr, SLOT_RIGHT );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_GRABLEFT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_GRABLEFT ) )
           character_grab_stuff( ichr, SLOT_LEFT, bfalse );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_GRABRIGHT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_GRABRIGHT ) )
           character_grab_stuff( ichr, SLOT_RIGHT, bfalse );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_CHARLEFT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_CHARLEFT ) )
           character_grab_stuff( ichr, SLOT_LEFT, btrue );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_CHARRIGHT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_CHARRIGHT ) )
           character_grab_stuff( ichr, SLOT_RIGHT, btrue );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_DROPLEFT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_DROPLEFT ) )
           detach_character_from_mount( chr_get_holdingwhich( ichr, SLOT_LEFT ), bfalse, btrue );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_DROPRIGHT ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_DROPRIGHT ) )
           detach_character_from_mount( chr_get_holdingwhich( ichr, SLOT_RIGHT ), bfalse, btrue );
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_POOF ) && !ChrList[ichr].isplayer )
-          ChrList[ichr].gopoof = btrue;
-        if ( HAS_SOME_BITS( MadList[ChrList[ichr].model].framefx[ChrList[ichr].frame], MADFX_FOOTFALL ) )
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_POOF ) && !pchr->isplayer )
+          pchr->gopoof = btrue;
+        if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_FOOTFALL ) )
         {
           if ( INVALID_SOUND != CapList[imdl].footfallsound )
           {
-            float volume = ( ABS( ChrList[ichr].vel.x ) +  ABS( ChrList[ichr].vel.y ) ) / CapList[imdl].sneakspd;
-            play_sound( MIN( 1.0f, volume ), ChrList[ichr].pos, CapList[imdl].wavelist[CapList[imdl].footfallsound], 0, imdl, CapList[imdl].footfallsound );
+            float volume = ( ABS( pchr->vel.x ) +  ABS( pchr->vel.y ) ) / CapList[imdl].sneakspd;
+            play_sound( MIN( 1.0f, volume ), pchr->pos, CapList[imdl].wavelist[CapList[imdl].footfallsound], 0, imdl, CapList[imdl].footfallsound );
           }
         }
       }
 
       // change frames
-      if ( ChrList[ichr].lip_fp8 == 0 )
+      if ( pchr->anim.lip_fp8 == 0 )
       {
-        ChrList[ichr].flip -= 1.0f;
         // Change frames
-        ChrList[ichr].framelast = ChrList[ichr].frame;
-        ChrList[ichr].frame++;
-        if ( ChrList[ichr].frame == MadList[imdl].actionend[ChrList[ichr].action] )
+        pchr->anim.last = pchr->anim.next;
+        pchr->anim.next++;
+
+        if ( pchr->anim.next >= pmad->actionend[pchr->action.now] )
         {
           // Action finished
-          if ( ChrList[ichr].keepaction )
+          if ( pchr->action.keep )
           {
             // Keep the last frame going
-            ChrList[ichr].frame = ChrList[ichr].framelast;
+            pchr->anim.next = pchr->anim.last;
           }
-          else
+          else if ( !pchr->action.loop )
           {
-            if ( !ChrList[ichr].loopaction )
-            {
-              // Go on to the next action
-              ChrList[ichr].action  = ChrList[ichr].nextaction;
-              ChrList[ichr].nextaction = ACTION_DA;
-            }
-            else
-            {
-              // See if the character is mounted...
-              if ( VALID_CHR(imount) )
-              {
-                ChrList[ichr].action = ACTION_MI;
-              }
-            }
-            ChrList[ichr].frame = MadList[imdl].actionstart[ChrList[ichr].action];
+            // Go on to the next action
+            pchr->action.now  = pchr->action.next;
+            pchr->action.next = ACTION_DA;
+
+            pchr->anim.next = pmad->actionstart[pchr->action.now];
           }
-          ChrList[ichr].actionready = btrue;
+          else if ( VALID_CHR(imount) )
+          {
+            // See if the character is mounted...
+            pchr->action.now = ACTION_MI;
+
+            pchr->anim.next = pmad->actionstart[pchr->action.now];
+          }
+
+          pchr->action.ready = btrue;
         }
       }
 
@@ -2975,70 +2977,70 @@ void move_characters( float dUpdate )
 
 
     // Do "Be careful!" delay
-    ChrList[ichr].carefultime -= dUpdate;
-    if ( ChrList[ichr].carefultime <= 0 ) ChrList[ichr].carefultime = 0;
+    pchr->carefultime -= dUpdate;
+    if ( pchr->carefultime <= 0 ) pchr->carefultime = 0;
 
 
     // Get running, walking, sneaking, or dancing, from speed
-    if ( !ChrList[ichr].keepaction && !ChrList[ichr].loopaction )
+    if ( !pchr->action.keep && !pchr->action.loop )
     {
-      framelip = MadList[ChrList[ichr].model].framelip[ChrList[ichr].frame];  // 0 - 15...  Way through animation
-      if ( ChrList[ichr].actionready && ChrList[ichr].lip_fp8 == 0 && grounded && ChrList[ichr].flyheight == 0 && ( framelip&7 ) < 2 )
+      framelip = pmad->framelip[pchr->anim.next];  // 0 - 15...  Way through animation
+      if ( pchr->action.ready && pchr->anim.lip_fp8 == 0 && grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
       {
         // Do the motion stuff
-        speed = ABS( ChrList[ichr].vel.x ) + ABS( ChrList[ichr].vel.y );
-        if ( speed < ChrList[ichr].sneakspd )
+        speed = ABS( pchr->vel.x ) + ABS( pchr->vel.y );
+        if ( speed < pchr->sneakspd )
         {
-          //                        ChrList[ichr].nextaction = ACTION_DA;
+          //                        pchr->action.next = ACTION_DA;
           // Do boredom
-          ChrList[ichr].boretime -= dUpdate;
-          if ( ChrList[ichr].boretime <= 0 ) ChrList[ichr].boretime = 0;
+          pchr->boretime -= dUpdate;
+          if ( pchr->boretime <= 0 ) pchr->boretime = 0;
 
-          if ( ChrList[ichr].boretime <= 0 )
+          if ( pchr->boretime <= 0 )
           {
-            ChrList[ichr].alert |= ALERT_BORED;
-            ChrList[ichr].boretime = DELAY_BORE;
+            pchr->alert |= ALERT_BORED;
+            pchr->boretime = DELAY_BORE;
           }
           else
           {
             // Do standstill
-            if ( ChrList[ichr].action > ACTION_DD )
+            if ( pchr->action.now > ACTION_DD )
             {
-              ChrList[ichr].action = ACTION_DA;
-              ChrList[ichr].frame = MadList[imdl].actionstart[ChrList[ichr].action];
+              pchr->action.now = ACTION_DA;
+              pchr->anim.next = pmad->actionstart[pchr->action.now];
             }
           }
         }
         else
         {
-          ChrList[ichr].boretime = DELAY_BORE;
-          if ( speed < ChrList[ichr].walkspd )
+          pchr->boretime = DELAY_BORE;
+          if ( speed < pchr->walkspd )
           {
-            ChrList[ichr].nextaction = ACTION_WA;
-            if ( ChrList[ichr].action != ACTION_WA )
+            pchr->action.next = ACTION_WA;
+            if ( pchr->action.now != ACTION_WA )
             {
-              ChrList[ichr].frame = MadList[imdl].frameliptowalkframe[LIPT_WA][framelip];
-              ChrList[ichr].action = ACTION_WA;
+              pchr->anim.next = pmad->frameliptowalkframe[LIPT_WA][framelip];
+              pchr->action.now = ACTION_WA;
             }
           }
           else
           {
-            if ( speed < ChrList[ichr].runspd )
+            if ( speed < pchr->runspd )
             {
-              ChrList[ichr].nextaction = ACTION_WB;
-              if ( ChrList[ichr].action != ACTION_WB )
+              pchr->action.next = ACTION_WB;
+              if ( pchr->action.now != ACTION_WB )
               {
-                ChrList[ichr].frame = MadList[imdl].frameliptowalkframe[LIPT_WB][framelip];
-                ChrList[ichr].action = ACTION_WB;
+                pchr->anim.next = pmad->frameliptowalkframe[LIPT_WB][framelip];
+                pchr->action.now = ACTION_WB;
               }
             }
             else
             {
-              ChrList[ichr].nextaction = ACTION_WC;
-              if ( ChrList[ichr].action != ACTION_WC )
+              pchr->action.next = ACTION_WC;
+              if ( pchr->action.now != ACTION_WC )
               {
-                ChrList[ichr].frame = MadList[imdl].frameliptowalkframe[LIPT_WC][framelip];
-                ChrList[ichr].action = ACTION_WC;
+                pchr->anim.next = pmad->frameliptowalkframe[LIPT_WC][framelip];
+                pchr->action.now = ACTION_WC;
               }
             }
           }
@@ -3074,9 +3076,9 @@ void setup_characters( char *modname )
 
 
   // Turn some back on
+  currentcharacter = MAXCHR;
   snprintf( newloadname, sizeof( newloadname ), "%s%s/%s", modname, CData.gamedat_dir, CData.spawn_file );
   fileread = fs_fileOpen( PRI_FAIL, "setup_characters()", newloadname, "r" );
-  currentcharacter = MAXCHR;
   if ( NULL == fileread )
   {
     log_error( "Error loading module: %s\n", newloadname );  //Something went wrong
@@ -4954,7 +4956,7 @@ void do_bumping( float dUpdate )
     //              }
 
     //              // Do confuse effects
-    //              if ( HAS_NO_BITS( MadList[ChrList[chra].model].framefx[ChrList[chra].frame], MADFX_INVICTUS ) || HAS_SOME_BITS( PipList[pip].damfx, DAMFX_BLOC ) )
+    //              if ( HAS_NO_BITS( MadList[ChrList[chra].model].framefx[ChrList[chra].anim.next], MADFX_INVICTUS ) || HAS_SOME_BITS( PipList[pip].damfx, DAMFX_BLOC ) )
     //              {
 
     //                if ( PipList[pip].grogtime != 0 && CapList[ChrList[chra].model].canbegrogged )
@@ -5833,137 +5835,166 @@ float calc_chr_level( Uint16 object )
   return level;
 };
 
+//--------------------------------------------------------------------------------------------
+Uint16 object_generate_index( char *szLoadName )
+{
+  // ZZ > This reads the object slot in CData.data_file that the profile
+  //      is assigned to.  Errors in this number may cause the program to abort
+
+  FILE* fileread;
+  int iobj = MAXMODEL;
+
+  // Open the file
+  fileread = fs_fileOpen( PRI_FAIL, "object_generate_index()", szLoadName, "r" );
+  if ( fileread == NULL )
+  {
+    // The data file wasn't found
+    log_error( "Data.txt could not be correctly read! (%s) \n", szLoadName );
+    return iobj;
+  }
+
+  globalname = szLoadName;
+  // Read in the iobj slot
+  iobj = fget_next_int( fileread );
+  if ( iobj < 0 )
+  {
+    if ( importobject < 0 )
+    {
+      log_error( "Object slot number %i is invalid. (%s) \n", iobj, szLoadName );
+    }
+    else
+    {
+      iobj = importobject;
+    }
+  }
+
+  fs_fileClose(fileread);
+
+  return iobj;
+}
+
 
 //--------------------------------------------------------------------------------------------
-int load_one_character_profile( char *szLoadName )
+Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
 {
-  // ZZ> This function fills a character profile with data from CData.data_file, returning
-  // the object slot that the profile was stuck into.  It may cause the program
-  // to abort if bad things happen.
+  // ZZ> This function fills a character profile with data from CData.data_file
+
   FILE* fileread;
-  int object = MAXMODEL;
   int skin, cnt;
   int iTmp;
   char cTmp;
   int damagetype, level, xptype;
   IDSZ idsz;
+  CAP * pcap;
+  STRING szLoadname;
+
+  // generate the full path name of "data.txt"
+  snprintf( szLoadname, sizeof( szLoadname ), "%s%s", szObjectpath, CData.data_file );
 
   // Open the file
-  fileread = fs_fileOpen( PRI_FAIL, "load_one_character_profile()", szLoadName, "r" );
+  fileread = fs_fileOpen( PRI_FAIL, "object_generate_index()", szLoadname, "r" );
   if ( fileread == NULL )
   {
     // The data file wasn't found
-    log_error( "Data.txt could not be correctly read! (%s) \n", szLoadName );
-    return object;
+    log_error( "Data.txt could not be correctly read! (%s) \n", szLoadname );
+    return icap;
   }
 
-  globalname = szLoadName;
-  // Read in the object slot
-  object = fget_next_int( fileread );
-  if ( object < 0 )
-  {
-    if ( importobject < 0 )
-    {
-      log_error( "Object slot number %i is invalid. (%s) \n", object, szLoadName );
-    }
-    else
-    {
-      object = importobject;
-    }
-  }
+  // make the notation "easier"
+  pcap = CapList + icap;
 
+  // skip over the slot information
+  fget_next_int( fileread );
+  
   // Read in the real general data
-  fget_next_name( fileread, CapList[object].classname, sizeof( CapList[object].classname ) );
-
+  fget_next_name( fileread, pcap->classname, sizeof( pcap->classname ) );
 
   // Make sure we don't load over an existing model
-  if ( MadList[object].used )
+  if ( pcap->used )
   {
-    log_error( "Object slot %i is already used. (%s)\n", object, szLoadName );
+    log_error( "Character profile slot %i is already used. (%s)\n", icap, szLoadname );
   }
-  MadList[object].used = btrue;
-
 
   // Light cheat
-  CapList[object].uniformlit = fget_next_bool( fileread );
+  pcap->uniformlit = fget_next_bool( fileread );
 
   // Ammo
-  CapList[object].ammomax = fget_next_int( fileread );
-  CapList[object].ammo = fget_next_int( fileread );
+  pcap->ammomax = fget_next_int( fileread );
+  pcap->ammo = fget_next_int( fileread );
 
   // Gender
-  CapList[object].gender = fget_next_gender( fileread );
+  pcap->gender = fget_next_gender( fileread );
 
-  // Read in the object stats
-  CapList[object].lifecolor = fget_next_int( fileread );
-  CapList[object].manacolor = fget_next_int( fileread );
-  fget_next_pair_fp8( fileread, &CapList[object].life_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].lifeperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].mana_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].manaperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].manareturn_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].manareturnperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].manaflow_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].manaflowperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].strength_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].strengthperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].wisdom_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].wisdomperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].intelligence_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].intelligenceperlevel_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].dexterity_fp8 );
-  fget_next_pair_fp8( fileread, &CapList[object].dexterityperlevel_fp8 );
+  // Read in the icap stats
+  pcap->lifecolor = fget_next_int( fileread );
+  pcap->manacolor = fget_next_int( fileread );
+  fget_next_pair_fp8( fileread, &pcap->life_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->lifeperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->mana_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->manaperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->manareturn_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->manareturnperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->manaflow_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->manaflowperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->strength_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->strengthperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->wisdom_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->wisdomperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->intelligence_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->intelligenceperlevel_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->dexterity_fp8 );
+  fget_next_pair_fp8( fileread, &pcap->dexterityperlevel_fp8 );
 
   // More physical attributes
-  CapList[object].size = fget_next_float( fileread );
-  CapList[object].sizeperlevel = fget_next_float( fileread );
-  CapList[object].shadowsize = fget_next_int( fileread );
-  CapList[object].bumpsize = fget_next_int( fileread );
-  CapList[object].bumpheight = fget_next_int( fileread );
-  CapList[object].bumpdampen = fget_next_float( fileread );
-  CapList[object].weight = fget_next_int( fileread );
-  if ( CapList[object].weight == 255.0f ) CapList[object].weight = -1.0f;
-  if ( CapList[object].weight ==   0.0f ) CapList[object].weight = 1.0f;
+  pcap->size = fget_next_float( fileread );
+  pcap->sizeperlevel = fget_next_float( fileread );
+  pcap->shadowsize = fget_next_int( fileread );
+  pcap->bumpsize = fget_next_int( fileread );
+  pcap->bumpheight = fget_next_int( fileread );
+  pcap->bumpdampen = fget_next_float( fileread );
+  pcap->weight = fget_next_int( fileread );
+  if ( pcap->weight == 255.0f ) pcap->weight = -1.0f;
+  if ( pcap->weight ==   0.0f ) pcap->weight = 1.0f;
 
-  CapList[object].bumpstrength = ( CapList[object].bumpsize > 0.0f ) ? 1.0f : 0.0f;
-  if ( CapList[object].bumpsize   == 0.0f ) CapList[object].bumpsize   = 1.0f;
-  if ( CapList[object].bumpheight == 0.0f ) CapList[object].bumpheight = 1.0f;
-  if ( CapList[object].weight     == 0.0f ) CapList[object].weight     = 1.0f;
+  pcap->bumpstrength = ( pcap->bumpsize > 0.0f ) ? 1.0f : 0.0f;
+  if ( pcap->bumpsize   == 0.0f ) pcap->bumpsize   = 1.0f;
+  if ( pcap->bumpheight == 0.0f ) pcap->bumpheight = 1.0f;
+  if ( pcap->weight     == 0.0f ) pcap->weight     = 1.0f;
 
-  CapList[object].jump = fget_next_float( fileread );
-  CapList[object].jumpnumber = fget_next_int( fileread );
-  CapList[object].sneakspd = fget_next_int( fileread );
-  CapList[object].walkspd = fget_next_int( fileread );
-  CapList[object].runspd = fget_next_int( fileread );
-  CapList[object].flyheight = fget_next_int( fileread );
-  CapList[object].flashand = fget_next_int( fileread );
-  CapList[object].alpha_fp8 = fget_next_int( fileread );
-  CapList[object].light_fp8 = fget_next_int( fileread );
-  if ( CapList[object].light_fp8 < 0xff )
+  pcap->jump = fget_next_float( fileread );
+  pcap->jumpnumber = fget_next_int( fileread );
+  pcap->sneakspd = fget_next_int( fileread );
+  pcap->walkspd = fget_next_int( fileread );
+  pcap->runspd = fget_next_int( fileread );
+  pcap->flyheight = fget_next_int( fileread );
+  pcap->flashand = fget_next_int( fileread );
+  pcap->alpha_fp8 = fget_next_int( fileread );
+  pcap->light_fp8 = fget_next_int( fileread );
+  if ( pcap->light_fp8 < 0xff )
   {
-    CapList[object].alpha_fp8 = MIN( CapList[object].alpha_fp8, 0xff - CapList[object].light_fp8 );
+    pcap->alpha_fp8 = MIN( pcap->alpha_fp8, 0xff - pcap->light_fp8 );
   };
 
-  CapList[object].transferblend = fget_next_bool( fileread );
-  CapList[object].sheen_fp8 = fget_next_int( fileread );
-  CapList[object].enviro = fget_next_bool( fileread );
-  CapList[object].uoffvel = fget_next_float( fileread ) * (float)UINT16_MAX;
-  CapList[object].voffvel = fget_next_float( fileread ) * (float)UINT16_MAX;
-  CapList[object].stickybutt = fget_next_bool( fileread );
+  pcap->transferblend = fget_next_bool( fileread );
+  pcap->sheen_fp8 = fget_next_int( fileread );
+  pcap->enviro = fget_next_bool( fileread );
+  pcap->uoffvel = fget_next_float( fileread ) * (float)UINT16_MAX;
+  pcap->voffvel = fget_next_float( fileread ) * (float)UINT16_MAX;
+  pcap->stickybutt = fget_next_bool( fileread );
 
 
   // Invulnerability data
-  CapList[object].invictus = fget_next_bool( fileread );
-  CapList[object].nframefacing = fget_next_int( fileread );
-  CapList[object].nframeangle = fget_next_int( fileread );
-  CapList[object].iframefacing = fget_next_int( fileread );
-  CapList[object].iframeangle = fget_next_int( fileread );
+  pcap->invictus = fget_next_bool( fileread );
+  pcap->nframefacing = fget_next_int( fileread );
+  pcap->nframeangle = fget_next_int( fileread );
+  pcap->iframefacing = fget_next_int( fileread );
+  pcap->iframeangle = fget_next_int( fileread );
   // Resist burning and stuck arrows with nframe angle of 1 or more
-  if ( CapList[object].nframeangle > 0 )
+  if ( pcap->nframeangle > 0 )
   {
-    if ( CapList[object].nframeangle == 1 )
+    if ( pcap->nframeangle == 1 )
     {
-      CapList[object].nframeangle = 0;
+      pcap->nframeangle = 0;
     }
   }
 
@@ -5971,13 +6002,13 @@ int load_one_character_profile( char *szLoadName )
   // Skin defenses ( 4 skins )
   fgoto_colon( fileread );
   for ( skin = 0; skin < MAXSKIN; skin++ )
-    { CapList[object].defense_fp8[skin] = 255 - fget_int( fileread ); };
+    { pcap->defense_fp8[skin] = 255 - fget_int( fileread ); };
 
   for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
   {
     fgoto_colon( fileread );
     for ( skin = 0;skin < MAXSKIN;skin++ )
-      { CapList[object].damagemodifier_fp8[damagetype][skin] = fget_int( fileread ); };
+      { pcap->damagemodifier_fp8[damagetype][skin] = fget_int( fileread ); };
   }
 
   for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
@@ -5988,203 +6019,206 @@ int load_one_character_profile( char *szLoadName )
       cTmp = fget_first_letter( fileread );
       switch ( toupper( cTmp ) )
       {
-        case 'T': CapList[object].damagemodifier_fp8[damagetype][skin] |= DAMAGE_INVERT; break;
-        case 'C': CapList[object].damagemodifier_fp8[damagetype][skin] |= DAMAGE_CHARGE; break;
-        case 'M': CapList[object].damagemodifier_fp8[damagetype][skin] |= DAMAGE_MANA;   break;
+        case 'T': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_INVERT; break;
+        case 'C': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_CHARGE; break;
+        case 'M': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_MANA;   break;
       };
     }
   }
 
   fgoto_colon( fileread );
   for ( skin = 0;skin < MAXSKIN;skin++ )
-    { CapList[object].maxaccel[skin] = fget_float( fileread ) / 80.0; };
+    { pcap->maxaccel[skin] = fget_float( fileread ) / 80.0; };
 
 
   // Experience and level data
-  CapList[object].experienceforlevel[0] = 0;
+  pcap->experienceforlevel[0] = 0;
   for ( level = 1; level < BASELEVELS; level++ )
-    { CapList[object].experienceforlevel[level] = fget_next_int( fileread ); }
+    { pcap->experienceforlevel[level] = fget_next_int( fileread ); }
 
-  fget_next_pair( fileread, &CapList[object].experience );
-  CapList[object].experienceworth = fget_next_int( fileread );
-  CapList[object].experienceexchange = fget_next_float( fileread );
+  fget_next_pair( fileread, &pcap->experience );
+  pcap->experienceworth = fget_next_int( fileread );
+  pcap->experienceexchange = fget_next_float( fileread );
 
   for ( xptype = 0; xptype < XP_COUNT; xptype++ )
-    { CapList[object].experiencerate[xptype] = fget_next_float( fileread ) + 0.001f; }
+    { pcap->experiencerate[xptype] = fget_next_float( fileread ) + 0.001f; }
 
 
   // IDSZ tags
   for ( cnt = 0; cnt < IDSZ_COUNT; cnt++ )
-    { CapList[object].idsz[cnt] = fget_next_idsz( fileread ); }
+    { pcap->idsz[cnt] = fget_next_idsz( fileread ); }
 
 
   // Item and damage flags
-  CapList[object].isitem = fget_next_bool( fileread );
-  CapList[object].ismount = fget_next_bool( fileread );
-  CapList[object].isstackable = fget_next_bool( fileread );
-  CapList[object].nameknown = fget_next_bool( fileread );
-  CapList[object].usageknown = fget_next_bool( fileread );
-  CapList[object].cancarrytonextmodule = fget_next_bool( fileread );
-  CapList[object].needskillidtouse = fget_next_bool( fileread );
-  CapList[object].isplatform = fget_next_bool( fileread );
-  CapList[object].cangrabmoney = fget_next_bool( fileread );
-  CapList[object].canopenstuff = fget_next_bool( fileread );
+  pcap->isitem = fget_next_bool( fileread );
+  pcap->ismount = fget_next_bool( fileread );
+  pcap->isstackable = fget_next_bool( fileread );
+  pcap->nameknown = fget_next_bool( fileread );
+  pcap->usageknown = fget_next_bool( fileread );
+  pcap->cancarrytonextmodule = fget_next_bool( fileread );
+  pcap->needskillidtouse = fget_next_bool( fileread );
+  pcap->isplatform = fget_next_bool( fileread );
+  pcap->cangrabmoney = fget_next_bool( fileread );
+  pcap->canopenstuff = fget_next_bool( fileread );
 
 
 
   // More item and damage stuff
-  CapList[object].damagetargettype = fget_next_damage( fileread );
-  CapList[object].weaponaction = fget_next_action( fileread );
+  pcap->damagetargettype = fget_next_damage( fileread );
+  pcap->weaponaction = fget_next_action( fileread );
 
 
   // Particle attachments
-  CapList[object].attachedprtamount = fget_next_int( fileread );
-  CapList[object].attachedprtreaffirmdamagetype = fget_next_damage( fileread );
-  CapList[object].attachedprttype = fget_next_int( fileread );
+  pcap->attachedprtamount = fget_next_int( fileread );
+  pcap->attachedprtreaffirmdamagetype = fget_next_damage( fileread );
+  pcap->attachedprttype = fget_next_int( fileread );
 
 
   // Character hands
-  CapList[object].slotvalid[SLOT_LEFT] = fget_next_bool( fileread );
-  CapList[object].slotvalid[SLOT_RIGHT] = fget_next_bool( fileread );
-  if ( CapList[object].ismount )
+  pcap->slotvalid[SLOT_LEFT] = fget_next_bool( fileread );
+  pcap->slotvalid[SLOT_RIGHT] = fget_next_bool( fileread );
+  if ( pcap->ismount )
   {
-    CapList[object].slotvalid[SLOT_SADDLE] = CapList[object].slotvalid[SLOT_LEFT];
-    CapList[object].slotvalid[SLOT_LEFT]   = bfalse;
-    //CapList[object].slotvalid[SLOT_RIGHT]  = bfalse;
+    pcap->slotvalid[SLOT_SADDLE] = pcap->slotvalid[SLOT_LEFT];
+    pcap->slotvalid[SLOT_LEFT]   = bfalse;
+    //pcap->slotvalid[SLOT_RIGHT]  = bfalse;
   };
 
 
 
   // Attack order ( weapon )
-  CapList[object].attackattached = fget_next_bool( fileread );
-  CapList[object].attackprttype = fget_next_int( fileread );
+  pcap->attackattached = fget_next_bool( fileread );
+  pcap->attackprttype = fget_next_int( fileread );
 
 
   // GoPoof
-  CapList[object].gopoofprtamount = fget_next_int( fileread );
-  CapList[object].gopoofprtfacingadd = fget_next_int( fileread );
-  CapList[object].gopoofprttype = fget_next_int( fileread );
+  pcap->gopoofprtamount = fget_next_int( fileread );
+  pcap->gopoofprtfacingadd = fget_next_int( fileread );
+  pcap->gopoofprttype = fget_next_int( fileread );
 
 
   // Blud
-  CapList[object].bludlevel = fget_next_blud( fileread );
-  CapList[object].bludprttype = fget_next_int( fileread );
+  pcap->bludlevel = fget_next_blud( fileread );
+  pcap->bludprttype = fget_next_int( fileread );
 
 
   // Stuff I forgot
-  CapList[object].waterwalk = fget_next_bool( fileread );
-  CapList[object].dampen = fget_next_float( fileread );
+  pcap->waterwalk = fget_next_bool( fileread );
+  pcap->dampen = fget_next_float( fileread );
 
 
   // More stuff I forgot
-  CapList[object].lifeheal_fp8 = fget_next_fixed( fileread );
-  CapList[object].manacost_fp8 = fget_next_fixed( fileread );
-  CapList[object].lifereturn_fp8 = fget_next_int( fileread );
-  CapList[object].stoppedby = fget_next_int( fileread ) | MESHFX_IMPASS;
+  pcap->lifeheal_fp8 = fget_next_fixed( fileread );
+  pcap->manacost_fp8 = fget_next_fixed( fileread );
+  pcap->lifereturn_fp8 = fget_next_int( fileread );
+  pcap->stoppedby = fget_next_int( fileread ) | MESHFX_IMPASS;
 
   for ( skin = 0;skin < MAXSKIN;skin++ )
-    { fget_next_name( fileread, CapList[object].skinname[skin], sizeof( CapList[object].skinname[skin] ) ); };
+    { fget_next_name( fileread, pcap->skinname[skin], sizeof( pcap->skinname[skin] ) ); };
 
   for ( skin = 0;skin < MAXSKIN;skin++ )
-    { CapList[object].skincost[skin] = fget_next_int( fileread ); };
+    { pcap->skincost[skin] = fget_next_int( fileread ); };
 
-  CapList[object].strengthdampen = fget_next_float( fileread );
+  pcap->strengthdampen = fget_next_float( fileread );
 
 
 
   // Another memory lapse
-  CapList[object].ridercanattack = !fget_next_bool( fileread );
-  CapList[object].canbedazed = fget_next_bool( fileread );
-  CapList[object].canbegrogged = fget_next_bool( fileread );
+  pcap->ridercanattack = !fget_next_bool( fileread );
+  pcap->canbedazed = fget_next_bool( fileread );
+  pcap->canbegrogged = fget_next_bool( fileread );
   fget_next_int( fileread );   // !!!BAD!!! Life add
   fget_next_int( fileread );   // !!!BAD!!! Mana add
-  CapList[object].canseeinvisible = fget_next_bool( fileread );
-  CapList[object].kursechance = fget_next_int( fileread );
+  pcap->canseeinvisible = fget_next_bool( fileread );
+  pcap->kursechance = fget_next_int( fileread );
 
-  iTmp = fget_next_int( fileread ); CapList[object].footfallsound = FIX_SOUND( iTmp );
-  iTmp = fget_next_int( fileread ); CapList[object].jumpsound     = FIX_SOUND( iTmp );
+  iTmp = fget_next_int( fileread ); pcap->footfallsound = FIX_SOUND( iTmp );
+  iTmp = fget_next_int( fileread ); pcap->jumpsound     = FIX_SOUND( iTmp );
 
 
 
   // Clear expansions...
-  CapList[object].skindressy = bfalse;
-  CapList[object].resistbumpspawn = bfalse;
-  CapList[object].istoobig = bfalse;
-  CapList[object].reflect = btrue;
-  CapList[object].alwaysdraw = bfalse;
-  CapList[object].isranged = bfalse;
-  CapList[object].hidestate = NOHIDE;
-  CapList[object].isequipment = bfalse;
-  CapList[object].bumpsizebig = CapList[object].bumpsize * SQRT_TWO;
-  CapList[object].money = 0;
-  CapList[object].icon = CapList[object].usageknown;
-  CapList[object].forceshadow = bfalse;
-  CapList[object].skinoverride = NOSKINOVERRIDE;
-  CapList[object].contentoverride = 0;
-  CapList[object].stateoverride = 0;
-  CapList[object].leveloverride = 0;
-  CapList[object].canuseplatforms = !CapList[object].isplatform;
+  pcap->skindressy = bfalse;
+  pcap->resistbumpspawn = bfalse;
+  pcap->istoobig = bfalse;
+  pcap->reflect = btrue;
+  pcap->alwaysdraw = bfalse;
+  pcap->isranged = bfalse;
+  pcap->hidestate = NOHIDE;
+  pcap->isequipment = bfalse;
+  pcap->bumpsizebig = pcap->bumpsize * SQRT_TWO;
+  pcap->money = 0;
+  pcap->icon = pcap->usageknown;
+  pcap->forceshadow = bfalse;
+  pcap->skinoverride = NOSKINOVERRIDE;
+  pcap->contentoverride = 0;
+  pcap->stateoverride = 0;
+  pcap->leveloverride = 0;
+  pcap->canuseplatforms = !pcap->isplatform;
 
   //Reset Skill Expansions
-  CapList[object].canseekurse = bfalse;
-  CapList[object].canusearcane = bfalse;
-  CapList[object].canjoust = bfalse;
-  CapList[object].canusedivine = bfalse;
-  CapList[object].candisarm = bfalse;
-  CapList[object].canusetech = bfalse;
-  CapList[object].canbackstab = bfalse;
-  CapList[object].canusepoison = bfalse;
-  CapList[object].canuseadvancedweapons = bfalse;
+  pcap->canseekurse = bfalse;
+  pcap->canusearcane = bfalse;
+  pcap->canjoust = bfalse;
+  pcap->canusedivine = bfalse;
+  pcap->candisarm = bfalse;
+  pcap->canusetech = bfalse;
+  pcap->canbackstab = bfalse;
+  pcap->canusepoison = bfalse;
+  pcap->canuseadvancedweapons = bfalse;
 
   // Read expansions
   while ( fgoto_colon_yesno( fileread ) )
   {
     idsz = fget_idsz( fileread );
     iTmp = fget_int( fileread );
-    if ( MAKE_IDSZ( "GOLD" ) == idsz )  CapList[object].money = iTmp;
-    else if ( MAKE_IDSZ( "STUK" ) == idsz )  CapList[object].resistbumpspawn = !INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "PACK" ) == idsz )  CapList[object].istoobig = !INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "VAMP" ) == idsz )  CapList[object].reflect = !INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "DRAW" ) == idsz )  CapList[object].alwaysdraw = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "RANG" ) == idsz )  CapList[object].isranged = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "HIDE" ) == idsz )  CapList[object].hidestate = iTmp;
-    else if ( MAKE_IDSZ( "EQUI" ) == idsz )  CapList[object].isequipment = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "SQUA" ) == idsz )  CapList[object].bumpsizebig = CapList[object].bumpsize * 2.0f;
-    else if ( MAKE_IDSZ( "ICON" ) == idsz )  CapList[object].icon = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "SHAD" ) == idsz )  CapList[object].forceshadow = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "SKIN" ) == idsz )  CapList[object].skinoverride = iTmp % MAXSKIN;
-    else if ( MAKE_IDSZ( "CONT" ) == idsz )  CapList[object].contentoverride = iTmp;
-    else if ( MAKE_IDSZ( "STAT" ) == idsz )  CapList[object].stateoverride = iTmp;
-    else if ( MAKE_IDSZ( "LEVL" ) == idsz )  CapList[object].leveloverride = iTmp;
-    else if ( MAKE_IDSZ( "PLAT" ) == idsz )  CapList[object].canuseplatforms = INT_TO_BOOL( iTmp );
-    else if ( MAKE_IDSZ( "RIPP" ) == idsz )  CapList[object].ripple = INT_TO_BOOL( iTmp );
+    if ( MAKE_IDSZ( "GOLD" ) == idsz )  pcap->money = iTmp;
+    else if ( MAKE_IDSZ( "STUK" ) == idsz )  pcap->resistbumpspawn = !INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "PACK" ) == idsz )  pcap->istoobig = !INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "VAMP" ) == idsz )  pcap->reflect = !INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "DRAW" ) == idsz )  pcap->alwaysdraw = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "RANG" ) == idsz )  pcap->isranged = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "HIDE" ) == idsz )  pcap->hidestate = iTmp;
+    else if ( MAKE_IDSZ( "EQUI" ) == idsz )  pcap->isequipment = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "SQUA" ) == idsz )  pcap->bumpsizebig = pcap->bumpsize * 2.0f;
+    else if ( MAKE_IDSZ( "ICON" ) == idsz )  pcap->icon = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "SHAD" ) == idsz )  pcap->forceshadow = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "SKIN" ) == idsz )  pcap->skinoverride = iTmp % MAXSKIN;
+    else if ( MAKE_IDSZ( "CONT" ) == idsz )  pcap->contentoverride = iTmp;
+    else if ( MAKE_IDSZ( "STAT" ) == idsz )  pcap->stateoverride = iTmp;
+    else if ( MAKE_IDSZ( "LEVL" ) == idsz )  pcap->leveloverride = iTmp;
+    else if ( MAKE_IDSZ( "PLAT" ) == idsz )  pcap->canuseplatforms = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "RIPP" ) == idsz )  pcap->ripple = INT_TO_BOOL( iTmp );
 
     //Skill Expansions
     // [CKUR] Can it see kurses?
-    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  CapList[object].canseekurse  = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "CKUR" ) == idsz )  pcap->canseekurse  = INT_TO_BOOL( iTmp );
     // [WMAG] Can the character use arcane spellbooks?
-    else if ( MAKE_IDSZ( "WMAG" ) == idsz )  CapList[object].canusearcane = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "WMAG" ) == idsz )  pcap->canusearcane = INT_TO_BOOL( iTmp );
     // [JOUS] Can the character joust with a lance?
-    else if ( MAKE_IDSZ( "JOUS" ) == idsz )  CapList[object].canjoust     = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "JOUS" ) == idsz )  pcap->canjoust     = INT_TO_BOOL( iTmp );
     // [HMAG] Can the character use divine spells?
-    else if ( MAKE_IDSZ( "HMAG" ) == idsz )  CapList[object].canusedivine = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "HMAG" ) == idsz )  pcap->canusedivine = INT_TO_BOOL( iTmp );
     // [TECH] Able to use items technological items?
-    else if ( MAKE_IDSZ( "TECH" ) == idsz )  CapList[object].canusetech   = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "TECH" ) == idsz )  pcap->canusetech   = INT_TO_BOOL( iTmp );
     // [DISA] Find and disarm traps?
-    else if ( MAKE_IDSZ( "DISA" ) == idsz )  CapList[object].candisarm    = INT_TO_BOOL( iTmp );
+    else if ( MAKE_IDSZ( "DISA" ) == idsz )  pcap->candisarm    = INT_TO_BOOL( iTmp );
     // [STAB] Backstab and murder?
-    else if ( idsz == MAKE_IDSZ( "STAB" ) )  CapList[object].canbackstab  = INT_TO_BOOL( iTmp );
+    else if ( idsz == MAKE_IDSZ( "STAB" ) )  pcap->canbackstab  = INT_TO_BOOL( iTmp );
     // [AWEP] Profiency with advanced weapons?
-    else if ( idsz == MAKE_IDSZ( "AWEP" ) )  CapList[object].canuseadvancedweapons = INT_TO_BOOL( iTmp );
+    else if ( idsz == MAKE_IDSZ( "AWEP" ) )  pcap->canuseadvancedweapons = INT_TO_BOOL( iTmp );
     // [POIS] Use poison without err?
-    else if ( idsz == MAKE_IDSZ( "POIS" ) )  CapList[object].canusepoison = INT_TO_BOOL( iTmp );
+    else if ( idsz == MAKE_IDSZ( "POIS" ) )  pcap->canusepoison = INT_TO_BOOL( iTmp );
   }
 
   fs_fileClose( fileread );
 
-  calc_cap_experience( object );
+  calc_cap_experience( icap );
 
-  return object;
+  // tell everyone that we loaded correctly
+  pcap->used = btrue;
+
+  return icap;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6236,7 +6270,7 @@ void check_player_import( char *dirname )
       skin = get_skin( filename );
 
       snprintf( filename, sizeof( filename ), "%s/%s/tris.md2", dirname, foundfile );
-      load_one_md2( filename, numloadplayer );
+      load_one_mad( filename, numloadplayer );
 
       snprintf( filename, sizeof( filename ), "%s/%s/icon%d.bmp", dirname, foundfile, skin );
       load_one_icon( filename );
@@ -6879,16 +6913,16 @@ bool_t md2_calculate_bumpers_0( CHR_REF ichr )
 //    return bfalse;
 //  };
 //
-//  pmdl = MadList[imdl]._md2;
+//  pmdl = MadList[imdl].md2_ptr;
 //  if(NULL == pmdl)
 //  {
 //    set_default_bump_data( ichr );
 //    return bfalse;
 //  }
 //
-//  fl = md2_get_Frame(pmdl, ChrList[ichr].framelast);
-//  fc = md2_get_Frame(pmdl, ChrList[ichr].frame );
-//  lerp = ChrList[ichr].flip;
+//  fl = md2_get_Frame(pmdl, ChrList[ichr].anim.last);
+//  fc = md2_get_Frame(pmdl, ChrList[ichr].anim.next );
+//  lerp = ChrList[ichr].anim.flip;
 //
 //  if(NULL==fl && NULL==fc)
 //  {
@@ -7100,16 +7134,16 @@ bool_t md2_calculate_bumpers_1(CHR_REF ichr)
   bd->calc_is_platform  = bd->calc_is_platform && (zdir.z > xdir.z) && (zdir.z > ydir.z);
   bd->calc_is_mount     = bd->calc_is_mount    && (zdir.z > xdir.z) && (zdir.z > ydir.z);
 
-  pmdl = MadList[imdl]._md2;
+  pmdl = MadList[imdl].md2_ptr;
   if(NULL == pmdl)
   {
     md2_calculate_bumpers_0( ichr );
     return bfalse;
   }
 
-  fl = md2_get_Frame(pmdl, ChrList[ichr].framelast);
-  fc = md2_get_Frame(pmdl, ChrList[ichr].frame );
-  lerp = ChrList[ichr].flip;
+  fl = md2_get_Frame(pmdl, ChrList[ichr].anim.last);
+  fc = md2_get_Frame(pmdl, ChrList[ichr].anim.next );
+  lerp = ChrList[ichr].anim.flip;
 
   if(NULL==fl && NULL==fc)
   {
@@ -7295,7 +7329,7 @@ bool_t md2_calculate_bumpers_2(CHR_REF ichr, vect3 * vrt_ary)
   bd->calc_is_platform  = bd->calc_is_platform && (zdir.z > xdir.z) && (zdir.z > ydir.z);
   bd->calc_is_mount     = bd->calc_is_mount    && (zdir.z > xdir.z) && (zdir.z > ydir.z);
 
-  pmdl = MadList[imdl]._md2;
+  pmdl = MadList[imdl].md2_ptr;
   if(NULL == pmdl)
   {
     md2_calculate_bumpers_0( ichr );
@@ -7405,7 +7439,7 @@ bool_t md2_calculate_bumpers_3(CHR_REF ichr, CVolume_Tree * cv_tree)
     return bfalse;
   };
 
-  pmdl = MadList[imdl]._md2;
+  pmdl = MadList[imdl].md2_ptr;
   if(NULL == pmdl)
   {
     md2_calculate_bumpers_0( ichr );

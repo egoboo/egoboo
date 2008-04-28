@@ -2,6 +2,7 @@
 
 #include "object.h"
 
+#include "egoboo_math.h"
 #include "egoboo.h"
 
 #define MAXMODEL                        MAXPROFILE  // Max number of models
@@ -19,8 +20,7 @@ extern Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
 // This stuff is for actions
 typedef enum action_e
 {
-  ACTION_ST = 0,
-  ACTION_DA = ACTION_ST,// :DA Dance ( Standing still )
+  ACTION_DA = 0,        // :DA Dance ( Standing still )
   ACTION_DB,            // :DB Dance ( Bored )
   ACTION_DC,            // :DC Dance ( Bored )
   ACTION_DD,            // :DD Dance ( Bored )
@@ -97,6 +97,9 @@ typedef enum action_e
   ACTION_MM,            // :MM Held Left
   ACTION_MN,            // :MN Held Right
   MAXACTION,            //                      // Number of action types
+
+  ACTION_ST = ACTION_DA,
+
   ACTION_INVALID        = 0xffff                // Action not valid for this character
 } ACTION;
 
@@ -152,12 +155,35 @@ extern Uint16          madloadframe;                               // Where to l
 
 extern Uint16 skintoicon[MAXTEXTURE];                  // Skin to icon
 
+typedef struct bbox_list_t
+{
+  int       count;
+  AA_BBOX * list;
+} BBOX_LIST;
+
+BBOX_LIST * bbox_list_new(BBOX_LIST * lst);
+BBOX_LIST * bbox_list_delete(BBOX_LIST * lst);
+BBOX_LIST * bbox_list_renew(BBOX_LIST * lst);
+BBOX_LIST * bbox_list_alloc(BBOX_LIST * lst, int count);
+BBOX_LIST * bbox_list_realloc(BBOX_LIST * lst, int count);
+
+typedef struct bbox_array_t
+{
+  int         count;
+  BBOX_LIST * list;
+} BBOX_ARY;
+
+BBOX_ARY * bbox_ary_new(BBOX_ARY * ary);
+BBOX_ARY * bbox_ary_delete(BBOX_ARY * ary);
+BBOX_ARY * bbox_ary_renew(BBOX_ARY * ary);
+BBOX_ARY * bbox_ary_alloc(BBOX_ARY * ary, int count);
+
 
 typedef struct mad_t
 {
   bool_t          used;                          // Model slot
   STRING          name;                          // Model name
-  MD2_Model *     _md2;                          // Md2 model pointer
+  MD2_Model *     md2_ptr;                          // Md2 model pointer
   Uint16          skins;                         // Number of skins
   Uint16          skinstart;                     // Starting skin of model
   Uint16          msg_start;                      // The first message
@@ -171,6 +197,9 @@ typedef struct mad_t
   Uint16          actionstart[MAXACTION];        // First frame of anim
   Uint16          actionend[MAXACTION];          // One past last frame
   Uint16          prtpip[PRTPIP_PEROBJECT_COUNT];    // Local particles
+
+  int             bbox_frames;
+  BBOX_ARY *      bbox_arrays;
 } MAD;
 
 extern MAD MadList[MAXMODEL];
@@ -188,3 +217,10 @@ void   make_framelip( Uint16 object, ACTION action );
 void   get_actions( Uint16 object );
 void make_mad_equally_lit( Uint16 model );
 
+bool_t mad_generate_bbox_tree(int max_level, MAD * pmad);
+
+MAD *  mad_new(MAD * pmad);
+MAD *  mad_delete(MAD * pmad);
+MAD *  mad_renew(MAD * pmad);
+Uint16 load_one_mad( char* szLoadname, Uint16 modelindex );
+void free_one_mad( Uint16 imdl );

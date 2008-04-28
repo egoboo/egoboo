@@ -237,14 +237,13 @@ void load_basic_textures( char *modname );
 void export_one_character_name( char *szSaveName, CHR_REF character );
 void export_one_character_profile( char *szSaveName, CHR_REF character );
 void export_one_character_skin( char *szSaveName, CHR_REF character );
-int load_one_character_profile( char *szLoadName );
-Uint32 load_one_particle_profile( char *szLoadName, Uint16 object, int pip );
+Uint32 load_one_pip( char *szLoadName, Uint16 object, int pip );
 void reset_particles( char* modname );
 
 
 void load_all_messages( char *loadname, Uint16 object );
 void check_copy( char* loadname, Uint16 object );
-int load_one_object( int skin, char* tmploadname );
+Uint16 load_one_object( int skin, char* tmploadname );
 void load_all_objects( char *modname );
 bool_t load_bars( char* szBitmap );
 void load_map( char* szModule );
@@ -380,10 +379,8 @@ bool_t passage_check( CHR_REF ichr, Uint16 pass, Uint16 * powner );
 typedef struct ego_md2_model_t MD2_Model;
 
 int vertexconnected( MD2_Model * m, int vertex );
-int count_madtransvertices( MD2_Model * m );
-char * rip_md2_frame_name( MD2_Model * m, int frame );
-int load_one_md2( char* szLoadname, Uint16 modelindex );
-void free_one_md2( Uint16 imdl );
+int mad_calc_transvertices( MD2_Model * m );
+
 void release_all_models();
 void init_all_models();
 

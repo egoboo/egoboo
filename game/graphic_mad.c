@@ -56,20 +56,25 @@ void draw_CVolume( CVolume * cv );
 //
 void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
 {
+  MD2_Model * pmd2;
+  CHR * pchr;
+  MAD * pmad;
   const MD2_Frame *pfrom, *pto;
+
   Sint32 numVertices, i;
   vect2  off;
   Uint16 imdl;
-  MD2_Model * pmdl;
   float lerp;
 
   if( !VALID_CHR(ichr) ) return;
+  pchr = ChrList + ichr;
+  imdl = pchr->model;
 
-  imdl = ChrList[ichr].model;
-  if( !VALID_MDL(imdl) ) return;
+  if( !VALID_MDL(imdl) || !MadList[imdl].used) return;
+  pmad = MadList + imdl;
 
-  pmdl = MadList[imdl]._md2;
-  if(NULL == pmdl) return;
+  pmd2 = pmad->md2_ptr;
+  if(NULL == pmd2) return;
 
   // handle "default" argument
   if(vrtmin<0)
@@ -80,24 +85,24 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
   // handle "default" argument
   if(vrtmax<0)
   {
-    vrtmax = md2_get_numVertices(pmdl);
+    vrtmax = md2_get_numVertices(pmd2);
   }
 
   // check pto see if the blend is already cached
-  if( (ChrList[ichr].framelast  == ChrList[ichr].vdata.frame0) &&
-      (ChrList[ichr].frame == ChrList[ichr].vdata.frame1) &&
-      (vrtmin         >= ChrList[ichr].vdata.vrtmin) &&
-      (vrtmax         <= ChrList[ichr].vdata.vrtmax) &&
-      (ChrList[ichr].flip  == ChrList[ichr].vdata.lerp))
+  if( (pchr->anim.last == pchr->vdata.frame0) &&
+      (pchr->anim.next == pchr->vdata.frame1) &&
+      (vrtmin         >= pchr->vdata.vrtmin) &&
+      (vrtmax         <= pchr->vdata.vrtmax) &&
+      (pchr->anim.flip  == pchr->vdata.lerp))
       return;
 
 
-  pfrom  = md2_get_Frame(pmdl, ChrList[ichr].framelast);
-  pto    = md2_get_Frame(pmdl, ChrList[ichr].frame);
-  lerp  = ChrList[ichr].flip;
+  pfrom  = md2_get_Frame(pmd2, pchr->anim.last);
+  pto    = md2_get_Frame(pmd2, pchr->anim.next);
+  lerp  = pchr->anim.flip;
 
-  off.u = FP8_TO_FLOAT(ChrList[ichr].uoffset_fp8);
-  off.v = FP8_TO_FLOAT(ChrList[ichr].voffset_fp8);
+  off.u = FP8_TO_FLOAT(pchr->uoffset_fp8);
+  off.v = FP8_TO_FLOAT(pchr->voffset_fp8);
 
   // do some error trapping
   if(NULL==pfrom && NULL==pto) return;
@@ -106,34 +111,34 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
   else if(pfrom==pto  ) lerp = 0.0f;
 
   // do the interpolating
-  numVertices = md2_get_numVertices(pmdl);
+  numVertices = md2_get_numVertices(pmd2);
 
   if (lerp <= 0)
   {
     // copy the vertices in frame 'pfrom' over
     for (i=vrtmin; i<numVertices && i<=vrtmax; i++)
     {
-      ChrList[ichr].vdata.Vertices[i].x = pfrom->vertices[i].x;
-      ChrList[ichr].vdata.Vertices[i].y = pfrom->vertices[i].y;
-      ChrList[ichr].vdata.Vertices[i].z = pfrom->vertices[i].z;
+      pchr->vdata.Vertices[i].x = pfrom->vertices[i].x;
+      pchr->vdata.Vertices[i].y = pfrom->vertices[i].y;
+      pchr->vdata.Vertices[i].z = pfrom->vertices[i].z;
 
-      ChrList[ichr].vdata.Vertices[i].x *= -1;
+      pchr->vdata.Vertices[i].x *= -1;
 
-      ChrList[ichr].vdata.Vertices[i].x  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].y  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].z  *= 4.125;
+      pchr->vdata.Vertices[i].x  *= 4.125;
+      pchr->vdata.Vertices[i].y  *= 4.125;
+      pchr->vdata.Vertices[i].z  *= 4.125;
 
-      ChrList[ichr].vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0];
-      ChrList[ichr].vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1];
-      ChrList[ichr].vdata.Normals[i].z = kMd2Normals[pfrom->vertices[i].normal][2];
+      pchr->vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0];
+      pchr->vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1];
+      pchr->vdata.Normals[i].z = kMd2Normals[pfrom->vertices[i].normal][2];
 
-      ChrList[ichr].vdata.Normals[i].x *= -1;
+      pchr->vdata.Normals[i].x *= -1;
 
-      if(ChrList[ichr].enviro)
+      if(pchr->enviro)
       {
-        ChrList[ichr].vdata.Texture[i].s  = off.u + CLIP((1-ChrList[ichr].vdata.Normals[i].z)/2.0f,0,1);
-        ChrList[ichr].vdata.Texture[i].t  = off.v + atan2(ChrList[ichr].vdata.Normals[i].y, ChrList[ichr].vdata.Normals[i].x)*INV_TWO_PI - ChrList[ichr].turn_lr/(float)(1<<16);
-        ChrList[ichr].vdata.Texture[i].t -= atan2(ChrList[ichr].pos.y-GCamera.pos.y, ChrList[ichr].pos.x-GCamera.pos.x)*INV_TWO_PI;
+        pchr->vdata.Texture[i].s  = off.u + CLIP((1-pchr->vdata.Normals[i].z)/2.0f,0,1);
+        pchr->vdata.Texture[i].t  = off.v + atan2(pchr->vdata.Normals[i].y, pchr->vdata.Normals[i].x)*INV_TWO_PI - pchr->turn_lr/(float)(1<<16);
+        pchr->vdata.Texture[i].t -= atan2(pchr->pos.y-GCamera.pos.y, pchr->pos.x-GCamera.pos.x)*INV_TWO_PI;
       };
     }
   }
@@ -142,27 +147,27 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
     // copy the vertices in frame 'pto'
     for (i=vrtmin; i<numVertices && i<=vrtmax; i++)
     {
-      ChrList[ichr].vdata.Vertices[i].x = pto->vertices[i].x;
-      ChrList[ichr].vdata.Vertices[i].y = pto->vertices[i].y;
-      ChrList[ichr].vdata.Vertices[i].z = pto->vertices[i].z;
+      pchr->vdata.Vertices[i].x = pto->vertices[i].x;
+      pchr->vdata.Vertices[i].y = pto->vertices[i].y;
+      pchr->vdata.Vertices[i].z = pto->vertices[i].z;
 
-      ChrList[ichr].vdata.Vertices[i].x  *= -1;
+      pchr->vdata.Vertices[i].x  *= -1;
 
-      ChrList[ichr].vdata.Vertices[i].x  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].y  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].z  *= 4.125;
+      pchr->vdata.Vertices[i].x  *= 4.125;
+      pchr->vdata.Vertices[i].y  *= 4.125;
+      pchr->vdata.Vertices[i].z  *= 4.125;
 
-      ChrList[ichr].vdata.Normals[i].x = kMd2Normals[pto->vertices[i].normal][0];
-      ChrList[ichr].vdata.Normals[i].y = kMd2Normals[pto->vertices[i].normal][1];
-      ChrList[ichr].vdata.Normals[i].z = kMd2Normals[pto->vertices[i].normal][2];
+      pchr->vdata.Normals[i].x = kMd2Normals[pto->vertices[i].normal][0];
+      pchr->vdata.Normals[i].y = kMd2Normals[pto->vertices[i].normal][1];
+      pchr->vdata.Normals[i].z = kMd2Normals[pto->vertices[i].normal][2];
 
-      ChrList[ichr].vdata.Normals[i].x  *= -1;
+      pchr->vdata.Normals[i].x  *= -1;
 
-      if(ChrList[ichr].enviro)
+      if(pchr->enviro)
       {
-        ChrList[ichr].vdata.Texture[i].s  = off.u + CLIP((1-ChrList[ichr].vdata.Normals[i].z)/2.0f,0,1);
-        ChrList[ichr].vdata.Texture[i].t  = off.v + atan2(ChrList[ichr].vdata.Normals[i].y, ChrList[ichr].vdata.Normals[i].x )*INV_TWO_PI - ChrList[ichr].turn_lr/(float)(1<<16);
-        ChrList[ichr].vdata.Texture[i].t -= atan2(ChrList[ichr].pos.y-GCamera.pos.y, ChrList[ichr].pos.x-GCamera.pos.x )*INV_TWO_PI;
+        pchr->vdata.Texture[i].s  = off.u + CLIP((1-pchr->vdata.Normals[i].z)/2.0f,0,1);
+        pchr->vdata.Texture[i].t  = off.v + atan2(pchr->vdata.Normals[i].y, pchr->vdata.Normals[i].x )*INV_TWO_PI - pchr->turn_lr/(float)(1<<16);
+        pchr->vdata.Texture[i].t -= atan2(pchr->pos.y-GCamera.pos.y, pchr->pos.x-GCamera.pos.x )*INV_TWO_PI;
       };
     }
   }
@@ -171,42 +176,42 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
     // mix the vertices
     for (i=vrtmin; i<numVertices && i<=vrtmax; i++)
     {
-      ChrList[ichr].vdata.Vertices[i].x = pfrom->vertices[i].x + (pto->vertices[i].x - pfrom->vertices[i].x) * lerp;
-      ChrList[ichr].vdata.Vertices[i].y = pfrom->vertices[i].y + (pto->vertices[i].y - pfrom->vertices[i].y) * lerp;
-      ChrList[ichr].vdata.Vertices[i].z = pfrom->vertices[i].z + (pto->vertices[i].z - pfrom->vertices[i].z) * lerp;
+      pchr->vdata.Vertices[i].x = pfrom->vertices[i].x + (pto->vertices[i].x - pfrom->vertices[i].x) * lerp;
+      pchr->vdata.Vertices[i].y = pfrom->vertices[i].y + (pto->vertices[i].y - pfrom->vertices[i].y) * lerp;
+      pchr->vdata.Vertices[i].z = pfrom->vertices[i].z + (pto->vertices[i].z - pfrom->vertices[i].z) * lerp;
 
-      ChrList[ichr].vdata.Vertices[i].x  *= -1;
+      pchr->vdata.Vertices[i].x  *= -1;
 
-      ChrList[ichr].vdata.Vertices[i].x  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].y  *= 4.125;
-      ChrList[ichr].vdata.Vertices[i].z  *= 4.125;
+      pchr->vdata.Vertices[i].x  *= 4.125;
+      pchr->vdata.Vertices[i].y  *= 4.125;
+      pchr->vdata.Vertices[i].z  *= 4.125;
 
-      ChrList[ichr].vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0] + (kMd2Normals[pto->vertices[i].normal][0] - kMd2Normals[pfrom->vertices[i].normal][0]) * lerp;
-      ChrList[ichr].vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1] + (kMd2Normals[pto->vertices[i].normal][1] - kMd2Normals[pfrom->vertices[i].normal][1]) * lerp;
-      ChrList[ichr].vdata.Normals[i].z = kMd2Normals[pfrom->vertices[i].normal][2] + (kMd2Normals[pto->vertices[i].normal][2] - kMd2Normals[pfrom->vertices[i].normal][2]) * lerp;
+      pchr->vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0] + (kMd2Normals[pto->vertices[i].normal][0] - kMd2Normals[pfrom->vertices[i].normal][0]) * lerp;
+      pchr->vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1] + (kMd2Normals[pto->vertices[i].normal][1] - kMd2Normals[pfrom->vertices[i].normal][1]) * lerp;
+      pchr->vdata.Normals[i].z = kMd2Normals[pfrom->vertices[i].normal][2] + (kMd2Normals[pto->vertices[i].normal][2] - kMd2Normals[pfrom->vertices[i].normal][2]) * lerp;
 
-      ChrList[ichr].vdata.Normals[i].x  *= -1;
+      pchr->vdata.Normals[i].x  *= -1;
 
-      if(ChrList[ichr].enviro)
+      if(pchr->enviro)
       {
-        ChrList[ichr].vdata.Texture[i].s  = off.u + CLIP((1-ChrList[ichr].vdata.Normals[i].z)/2.0f,0,1);
-        ChrList[ichr].vdata.Texture[i].t  = off.v + atan2(ChrList[ichr].vdata.Normals[i].y, ChrList[ichr].vdata.Normals[i].x)*INV_TWO_PI - ChrList[ichr].turn_lr/(float)(1<<16);
-        ChrList[ichr].vdata.Texture[i].t -= atan2(ChrList[ichr].pos.y-GCamera.pos.y, ChrList[ichr].pos.x-GCamera.pos.x)*INV_TWO_PI;
+        pchr->vdata.Texture[i].s  = off.u + CLIP((1-pchr->vdata.Normals[i].z)/2.0f,0,1);
+        pchr->vdata.Texture[i].t  = off.v + atan2(pchr->vdata.Normals[i].y, pchr->vdata.Normals[i].x)*INV_TWO_PI - pchr->turn_lr/(float)(1<<16);
+        pchr->vdata.Texture[i].t -= atan2(pchr->pos.y-GCamera.pos.y, pchr->pos.x-GCamera.pos.x)*INV_TWO_PI;
       };
     }
   }
 
 
   // cache the blend parameters
-  ChrList[ichr].vdata.frame0 = ChrList[ichr].framelast;
-  ChrList[ichr].vdata.frame1 = ChrList[ichr].frame;
-  ChrList[ichr].vdata.vrtmin = vrtmin;
-  ChrList[ichr].vdata.vrtmax = vrtmax;
-  ChrList[ichr].vdata.lerp   = ChrList[ichr].flip;
-  ChrList[ichr].vdata.needs_lighting = btrue;
+  pchr->vdata.frame0 = pchr->anim.last;
+  pchr->vdata.frame1 = pchr->anim.next;
+  pchr->vdata.vrtmin = vrtmin;
+  pchr->vdata.vrtmax = vrtmax;
+  pchr->vdata.lerp   = pchr->anim.flip;
+  pchr->vdata.needs_lighting = btrue;
 
   // invalidate the cached bumper data
-  ChrList[ichr].bmpdata.cv.level = -1;
+  pchr->bmpdata.cv.level = -1;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -222,43 +227,53 @@ void md2_blend_lighting(CHR_REF ichr)
   Uint16 trans;
   vect2  offset;
 
-  VData_Blended * vd;
-  MD2_Model * model;
   Uint32 i, numVertices;
+  VData_Blended * vd;
+  Uint16          imdl;
+  MD2_Model     * pmd2;
+  CHR           * pchr;
+  MAD           * pmad;
+  CAP           * pcap;
 
   if( !VALID_CHR(ichr) ) return;
+  pchr = ChrList + ichr;
+  imdl = pchr->model;
+  vd = &(pchr->vdata);
 
-  vd = &(ChrList[ichr].vdata);
-  if(!vd->needs_lighting) return;
+  if( !VALID_MDL(imdl) || !MadList[imdl].used) return;
+  pmad = MadList + imdl;
+  pmd2 = pmad->md2_ptr;
 
-  model = MadList[ ChrList[ichr].model]._md2;
-  if(NULL==model) return;
+  if(NULL == pmd2) return;
 
-  sheen_fp8       = ChrList[ichr].sheen_fp8;
+  if( !VALID_MDL(imdl) || !CapList[imdl].used) return;
+  pcap = CapList + imdl;
+
+  sheen_fp8       = pchr->sheen_fp8;
   spekularity_fp8 = FLOAT_TO_FP8( ( float )sheen_fp8 / ( float )MAXSPEKLEVEL );
 
-  lightrotationr = ChrList[ichr].turn_lr + ChrList[ichr].lightturn_lrr;
-  lightrotationg = ChrList[ichr].turn_lr + ChrList[ichr].lightturn_lrg;
-  lightrotationb = ChrList[ichr].turn_lr + ChrList[ichr].lightturn_lrb;
+  lightrotationr = pchr->turn_lr + pchr->lightturn_lrr;
+  lightrotationg = pchr->turn_lr + pchr->lightturn_lrg;
+  lightrotationb = pchr->turn_lr + pchr->lightturn_lrb;
 
-  ambilevelr_fp8 = ChrList[ichr].lightambir_fp8;
-  ambilevelg_fp8 = ChrList[ichr].lightambig_fp8;
-  ambilevelb_fp8 = ChrList[ichr].lightambib_fp8;
+  ambilevelr_fp8 = pchr->lightambir_fp8;
+  ambilevelg_fp8 = pchr->lightambig_fp8;
+  ambilevelb_fp8 = pchr->lightambib_fp8;
 
-  speklevelr_fp8 = ChrList[ichr].lightspekr_fp8;
-  speklevelg_fp8 = ChrList[ichr].lightspekg_fp8;
-  speklevelb_fp8 = ChrList[ichr].lightspekb_fp8;
+  speklevelr_fp8 = pchr->lightspekr_fp8;
+  speklevelg_fp8 = pchr->lightspekg_fp8;
+  speklevelb_fp8 = pchr->lightspekb_fp8;
 
-  offset.u = textureoffset[ FP8_TO_INT( ChrList[ichr].uoffset_fp8 )];
-  offset.v = textureoffset[ FP8_TO_INT( ChrList[ichr].voffset_fp8 )];
+  offset.u = textureoffset[ FP8_TO_INT( pchr->uoffset_fp8 )];
+  offset.v = textureoffset[ FP8_TO_INT( pchr->voffset_fp8 )];
 
-  rs = ChrList[ichr].redshift;
-  gs = ChrList[ichr].grnshift;
-  bs = ChrList[ichr].blushift;
+  rs = pchr->redshift;
+  gs = pchr->grnshift;
+  bs = pchr->blushift;
 
-  trans = CapList[ChrList[ichr].model].alpha_fp8;
+  trans = pcap->alpha_fp8;
 
-  numVertices = md2_get_numVertices(model);
+  numVertices = md2_get_numVertices(pmd2);
   if(CData.shading != GL_FLAT)
   {
 
@@ -341,7 +356,7 @@ void draw_textured_md2_opengl(CHR_REF ichr)
 
   Uint16          imdl = ChrList[ichr].model;
   VData_Blended * vd   = &(ChrList[ichr].vdata);
-  MD2_Model     * pmdl = MadList[imdl]._md2;
+  MD2_Model     * pmdl = MadList[imdl].md2_ptr;
 
   md2_blend_vertices(ichr, -1, -1);
   md2_blend_lighting(ichr);
@@ -410,7 +425,7 @@ void draw_enviromapped_md2_opengl(CHR_REF ichr)
 
   Uint16          imdl = ChrList[ichr].model;
   VData_Blended * vd   = &(ChrList[ichr].vdata);
-  MD2_Model     * pmdl = MadList[imdl]._md2;
+  MD2_Model     * pmdl = MadList[imdl].md2_ptr;
 
   md2_blend_vertices(ichr, -1, -1);
   md2_blend_lighting(ichr);
@@ -672,7 +687,7 @@ void render_refmad( int ichr, Uint8 trans_fp8 )
   float level = ChrList[ichr].level;
   float zpos = ( ChrList[ichr].matrix ) _CNV( 3, 2 ) - level;
   int   model = ChrList[ichr].model;
-  Uint16 lastframe = ChrList[ichr].framelast;
+  Uint16 lastframe = ChrList[ichr].anim.last;
   Uint8 sheensave;
   bool_t fog_save;
 

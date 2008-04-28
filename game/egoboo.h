@@ -359,6 +359,18 @@ EXTERN FOG_INFO GFog;
 
 
 /*OpenGL Textures*/
+typedef enum tx_type_e
+{
+  TX_PARTICLE = 0,
+  TX_TILE_0,
+  TX_TILE_1,
+  TX_TILE_2,
+  TX_TILE_3,
+  TX_WATER_TOP,
+  TX_WATER_LOW,
+  TX_PHONG
+} TX_TYPE;
+
 EXTERN  GLtexture       TxTexture[MAXTEXTURE];        /* All textures */
 EXTERN  GLtexture       TxIcon[MAXTEXTURE+1];       /* icons */
 EXTERN  GLtexture       TxTitleImage[MAXMODULE];      /* title images */

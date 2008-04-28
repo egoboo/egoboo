@@ -1728,16 +1728,18 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       // It will fail if the action is invalid or if the character is doing
       // something else already
       returncode = bfalse;
-      if ( scr_globals.tmpargument < MAXACTION && ChrList[ichr].actionready )
+      if ( scr_globals.tmpargument < MAXACTION && ChrList[ichr].action.ready )
       {
         if ( MadList[loc_model].actionvalid[scr_globals.tmpargument] )
         {
-          ChrList[ichr].action = scr_globals.tmpargument;
-          ChrList[ichr].lip_fp8 = 0;
-          ChrList[ichr].flip = 0.0f;
-          ChrList[ichr].framelast = ChrList[ichr].frame;
-          ChrList[ichr].frame = MadList[loc_model].actionstart[scr_globals.tmpargument];
-          ChrList[ichr].actionready = bfalse;
+          ChrList[ichr].action.now = scr_globals.tmpargument;
+          ChrList[ichr].action.ready = bfalse;
+
+          ChrList[ichr].anim.lip_fp8 = 0;
+          ChrList[ichr].anim.flip = 0.0f;
+          ChrList[ichr].anim.last = ChrList[ichr].anim.next;
+          ChrList[ichr].anim.next = MadList[loc_model].actionstart[scr_globals.tmpargument];
+
           returncode = btrue;
         }
       }
@@ -1745,7 +1747,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_KeepAction:
       // This function makes the current animation halt on the last frame
-      ChrList[ichr].keepaction = btrue;
+      ChrList[ichr].action.keep = btrue;
       break;
 
     case F_SignalTeam:
@@ -1778,16 +1780,18 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       returncode = bfalse;
       if ( ChrList[loc_aitarget].alive )
       {
-        if ( scr_globals.tmpargument < MAXACTION && ChrList[loc_aitarget].actionready )
+        if ( scr_globals.tmpargument < MAXACTION && ChrList[loc_aitarget].action.ready )
         {
           if ( MadList[ChrList[loc_aitarget].model].actionvalid[scr_globals.tmpargument] )
           {
-            ChrList[loc_aitarget].action = scr_globals.tmpargument;
-            ChrList[loc_aitarget].lip_fp8 = 0;
-            ChrList[loc_aitarget].flip = 0.0f;
-            ChrList[loc_aitarget].framelast = ChrList[loc_aitarget].frame;
-            ChrList[loc_aitarget].frame = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
-            ChrList[loc_aitarget].actionready = bfalse;
+            ChrList[loc_aitarget].action.now = scr_globals.tmpargument;
+            ChrList[loc_aitarget].action.ready = bfalse;
+
+            ChrList[loc_aitarget].anim.lip_fp8 = 0;
+            ChrList[loc_aitarget].anim.flip    = 0.0f;
+            ChrList[loc_aitarget].anim.last    = ChrList[loc_aitarget].anim.next;
+            ChrList[loc_aitarget].anim.next    = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
+
             returncode = btrue;
           }
         }
@@ -1899,12 +1903,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         if ( MadList[loc_model].actionvalid[scr_globals.tmpargument] )
         {
-          ChrList[ichr].action = scr_globals.tmpargument;
-          ChrList[ichr].lip_fp8 = 0;
-          ChrList[ichr].flip = 0.0f;
-          ChrList[ichr].framelast = ChrList[ichr].frame;
-          ChrList[ichr].frame = MadList[loc_model].actionstart[scr_globals.tmpargument];
-          ChrList[ichr].actionready = bfalse;
+          ChrList[ichr].action.now   = scr_globals.tmpargument;
+          ChrList[ichr].action.ready = bfalse;
+
+          ChrList[ichr].anim.lip_fp8 = 0;
+          ChrList[ichr].anim.flip    = 0.0f;
+          ChrList[ichr].anim.last    = ChrList[ichr].anim.next;
+          ChrList[ichr].anim.next    = MadList[loc_model].actionstart[scr_globals.tmpargument];
+
           returncode = btrue;
         }
       }
@@ -2003,7 +2009,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_UnkeepAction:
       // This function makes the current animation start again
-      ChrList[ichr].keepaction = bfalse;
+      ChrList[ichr].action.keep = bfalse;
       break;
 
     case F_IfTargetIsOnOtherTeam:
@@ -2676,11 +2682,11 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       break;
 
     case F_IfTargetIsDefending:
-      returncode = ( ChrList[loc_aitarget].action >= ACTION_PA && ChrList[loc_aitarget].action <= ACTION_PD );
+      returncode = ( ChrList[loc_aitarget].action.now >= ACTION_PA && ChrList[loc_aitarget].action.now <= ACTION_PD );
       break;
 
     case F_IfTargetIsAttacking:
-      returncode = ( ChrList[loc_aitarget].action >= ACTION_UA && ChrList[loc_aitarget].action <= ACTION_FD );
+      returncode = ( ChrList[loc_aitarget].action.now >= ACTION_UA && ChrList[loc_aitarget].action.now <= ACTION_FD );
       break;
 
     case F_IfStateIs0:
@@ -3115,12 +3121,13 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         if ( MadList[ChrList[loc_aichild].model].actionvalid[scr_globals.tmpargument] )
         {
-          ChrList[loc_aichild].action = scr_globals.tmpargument;
-          ChrList[loc_aichild].lip_fp8 = 0;
-          ChrList[loc_aichild].flip = 0.0f;
-          ChrList[loc_aichild].frame = MadList[ChrList[loc_aichild].model].actionstart[scr_globals.tmpargument];
-          ChrList[loc_aichild].framelast = ChrList[loc_aichild].frame;
-          ChrList[loc_aichild].actionready = bfalse;
+          ChrList[loc_aichild].action.now = scr_globals.tmpargument;
+          ChrList[loc_aichild].action.ready = bfalse;
+
+          ChrList[loc_aichild].anim.lip_fp8 = 0;
+          ChrList[loc_aichild].anim.flip    = 0.0f;
+          ChrList[loc_aichild].anim.next    = MadList[ChrList[loc_aichild].model].actionstart[scr_globals.tmpargument];
+          ChrList[loc_aichild].anim.last    = ChrList[loc_aichild].anim.next;
           returncode = btrue;
         }
       }
@@ -3699,7 +3706,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfTargetIsSneaking:
       // This function proceeds if the target is doing ACTION_DA or ACTION_WA
-      returncode = ( ChrList[loc_aitarget].action == ACTION_DA || ChrList[loc_aitarget].action == ACTION_WA );
+      returncode = ( ChrList[loc_aitarget].action.now == ACTION_DA || ChrList[loc_aitarget].action.now == ACTION_WA );
       break;
 
     case F_DropItems:
@@ -3723,12 +3730,14 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
       {
         if ( MadList[ChrList[loc_aitarget].model].actionvalid[scr_globals.tmpargument] )
         {
-          ChrList[loc_aitarget].action = scr_globals.tmpargument;
-          ChrList[loc_aitarget].lip_fp8 = 0;
-          ChrList[loc_aitarget].flip = 0.0f;
-          ChrList[loc_aitarget].frame = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
-          ChrList[loc_aitarget].framelast = ChrList[loc_aitarget].frame;
-          ChrList[loc_aitarget].actionready = bfalse;
+          ChrList[loc_aitarget].action.now = scr_globals.tmpargument;
+          ChrList[loc_aitarget].action.ready = bfalse;
+
+          ChrList[loc_aitarget].anim.lip_fp8 = 0;
+          ChrList[loc_aitarget].anim.flip    = 0.0f;
+          ChrList[loc_aitarget].anim.next    = MadList[ChrList[loc_aitarget].model].actionstart[scr_globals.tmpargument];
+          ChrList[loc_aitarget].anim.last    = ChrList[loc_aitarget].anim.next;
+
           returncode = btrue;
         }
       }
@@ -4250,7 +4259,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_IfDoingAction:
       //This function proceeds if the character is preforming the animation specified in tmpargument
-      returncode = ChrList[ichr].action >= scr_globals.tmpargument && ChrList[ichr].action <= scr_globals.tmpargument;
+      returncode = ChrList[ichr].action.now >= scr_globals.tmpargument && ChrList[ichr].action.now <= scr_globals.tmpargument;
       break;
 
     case F_IfOperatorIsLinux:

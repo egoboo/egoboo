@@ -192,6 +192,7 @@ extern int           importobject;
 
 typedef struct cap_t
 {
+  bool_t        used;
   short         importslot;
   char          classname[MAXCAPNAMESIZE];     // Class name
   Sint8         skinoverride;                  // -1 or 0-3.. For import
@@ -354,6 +355,23 @@ extern int             numfreechr;         // For allocation
 extern Uint16          freechrlist[MAXCHR];        //
 extern Uint16          chrcollisionlevel;
 
+typedef struct action_info_t
+{
+  bool_t  keep;      // Keep the action playing?
+  bool_t  loop;      // Loop it too?
+  bool_t  ready;     // Ready to play a new one?
+  ACTION  now;       // Character's current action
+  ACTION  next;      // Character's next    action
+} ACTION_INFO;
+
+typedef struct animation_info_t
+{
+  Uint16          next;       // Character's frame
+  Uint16          last;       // Character's last frame
+  float           flip;
+  Uint8           lip_fp8;    // Character's low-res frame in betweening
+} ANIM_INFO;
+
 typedef struct chr_t
 {
   bool_t          on;              // Does it exist?
@@ -431,15 +449,11 @@ typedef struct chr_t
   Uint16          mapturn_lr;       //
   Uint16          mapturn_ud;       //
   Uint16          texture;         // Character's skin
-  bool_t          actionready;     // Ready to play a new one
-  ACTION          action;          // Character's action
-  bool_t          keepaction;      // Keep the action playing
-  bool_t          loopaction;      // Loop it too
-  ACTION          nextaction;      // Character's action to play next
-  Uint16          frame;           // Character's frame
-  Uint16          framelast;       // Character's last frame
-  float           flip;
-  Uint8           lip_fp8;             // Character's frame in betweening
+
+  ACTION_INFO     action;
+
+  ANIM_INFO       anim;
+
   Uint8           vrtar_fp8[MAXVERTICES];// Lighting hack ( Ooze )
   Uint8           vrtag_fp8[MAXVERTICES];// Lighting hack ( Ooze )
   Uint8           vrtab_fp8[MAXVERTICES];// Lighting hack ( Ooze )
@@ -514,12 +528,12 @@ typedef struct chr_t
   vect3           pancakevel;
 
 
-  Uint16          aitype;          // The AI script to run
   bool_t          icon;            // Show the icon?
   bool_t          cangrabmoney;    // Picks up coins?
   bool_t          isplayer;        // btrue = player
   bool_t          islocalplayer;   // btrue = local player
 
+  Uint16          aitype;          // The AI script to run
   int             aistate;         // Short term memory for AI
   int             aicontent;       // More short term memory
   float           aitime;          // AI Timer
@@ -586,7 +600,7 @@ bool_t make_one_weapon_matrix( Uint16 cnt );
 void make_character_matrices();
 int get_free_character();
 Uint32 __chrhitawall( CHR_REF character, vect3 * norm );
-void play_action( CHR_REF character, ACTION action, bool_t actionready );
+void play_action( CHR_REF character, ACTION action, bool_t ready );
 void set_frame( CHR_REF character, Uint16 frame, Uint8 lip );
 bool_t detach_character_from_mount( CHR_REF character, bool_t ignorekurse, bool_t doshop );
 void drop_money( CHR_REF character, Uint16 money );
@@ -643,3 +657,6 @@ CHR_REF chr_get_aichild( CHR_REF ichr );
 CHR_REF chr_get_aiattacklast( CHR_REF ichr );
 CHR_REF chr_get_aibumplast( CHR_REF ichr );
 CHR_REF chr_get_aihitlast( CHR_REF ichr );
+
+Uint16 object_generate_index( char *szLoadName );
+Uint16 load_one_cap( char *szLoadName, Uint16 icap );

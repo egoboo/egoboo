@@ -1319,12 +1319,12 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
           // Start out with ActionMJ...  Object activated
           if ( MadList[ChrList[overlay].model].actionvalid[ACTION_MJ] )
           {
-            ChrList[overlay].action = ACTION_MJ;
-            ChrList[overlay].lip_fp8 = 0;
-            ChrList[overlay].flip = 0.0f;
-            ChrList[overlay].frame = MadList[ChrList[overlay].model].actionstart[ACTION_MJ];
-            ChrList[overlay].framelast = ChrList[overlay].frame;
-            ChrList[overlay].actionready = bfalse;
+            ChrList[overlay].action.now = ACTION_MJ;
+            ChrList[overlay].anim.lip_fp8 = 0;
+            ChrList[overlay].anim.flip = 0.0f;
+            ChrList[overlay].anim.next = MadList[ChrList[overlay].model].actionstart[ACTION_MJ];
+            ChrList[overlay].anim.last = ChrList[overlay].anim.next;
+            ChrList[overlay].action.ready = bfalse;
           }
           ChrList[overlay].light_fp8 = 254;  // Assume it's transparent...
         }
@@ -1848,7 +1848,7 @@ int vertexconnected( MD2_Model * m, int vertex )
 }
 
 //---------------------------------------------------------------------------------------------
-int count_madtransvertices( MD2_Model * m )
+int mad_calc_transvertices( MD2_Model * m )
 {
   // ZZ> This function gets the number of vertices to transform for a model...
   //     That means every one except the grip ( unconnected ) vertices
@@ -1862,366 +1862,6 @@ int count_madtransvertices( MD2_Model * m )
     trans += vertexconnected( m, cnt );
 
   return trans;
-}
-
-////---------------------------------------------------------------------------------------------
-//int rip_md2_header( void )
-//{
-//  // ZZ> This function makes sure an md2 is really an md2
-//  int iTmp;
-//  int* ipIntPointer;
-//
-//  // Check the file type
-//  ipIntPointer = ( int* ) cLoadBuffer;
-//  iTmp = ipIntPointer[0];
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//  iTmp = SDL_Swap32( iTmp );
-//#endif
-//
-//  if ( iTmp != MD2START ) return bfalse;
-//
-//  return btrue;
-//}
-//
-////---------------------------------------------------------------------------------------------
-//void fix_md2_normals( Uint16 modelindex )
-//{
-//  // ZZ> This function helps light not flicker so much
-//  int cnt, tnc;
-//  Uint8 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
-//  Uint8 indexofnextnextnextnext;
-//  Uint32 frame;
-//
-//  frame = MadList[modelindex].framestart;
-//  cnt = 0;
-//  while ( cnt < MadList[modelindex].vertices )
-//  {
-//    tnc = 0;
-//    while ( tnc < MadList[modelindex].frames )
-//    {
-//      indexofcurrent = MadList[frame].vrta[cnt];
-//      indexofnext = MadList[frame+1].vrta[cnt];
-//      indexofnextnext = MadList[frame+2].vrta[cnt];
-//      indexofnextnextnext = MadList[frame+3].vrta[cnt];
-//      indexofnextnextnextnext = MadList[frame+4].vrta[cnt];
-//      if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
-//      {
-//        MadList[frame+1].vrta[cnt] = indexofcurrent;
-//      }
-//      if ( indexofcurrent == indexofnextnextnext )
-//      {
-//        if ( indexofnext != indexofcurrent )
-//        {
-//          MadList[frame+1].vrta[cnt] = indexofcurrent;
-//        }
-//        if ( indexofnextnext != indexofcurrent )
-//        {
-//          MadList[frame+2].vrta[cnt] = indexofcurrent;
-//        }
-//      }
-//      if ( indexofcurrent == indexofnextnextnextnext )
-//      {
-//        if ( indexofnext != indexofcurrent )
-//        {
-//          MadList[frame+1].vrta[cnt] = indexofcurrent;
-//        }
-//        if ( indexofnextnext != indexofcurrent )
-//        {
-//          MadList[frame+2].vrta[cnt] = indexofcurrent;
-//        }
-//        if ( indexofnextnextnext != indexofcurrent )
-//        {
-//          MadList[frame+3].vrta[cnt] = indexofcurrent;
-//        }
-//      }
-//      tnc++;
-//    }
-//    cnt++;
-//  }
-//}
-//
-//---------------------------------------------------------------------------------------------
-//void rip_md2_commands( Uint16 modelindex )
-//{
-//  // ZZ> This function converts an md2's GL commands into our little command list thing
-//  int iTmp;
-//  float fTmpu, fTmpv;
-//  int iNumVertices;
-//  int tnc;
-//
-//  char* cpCharPointer = ( char* ) cLoadBuffer;
-//  int* ipIntPointer = ( int* ) cLoadBuffer;
-//  float* fpFloatPointer = ( float* ) cLoadBuffer;
-//
-//  // Number of GL commands in the MD2
-//  int iNumCommands = ipIntPointer[9];
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//  iNumCommands = SDL_Swap32( iNumCommands );
-//#endif
-//
-//  // Offset (in DWORDS) from the start of the file to the gl command list.
-//  int iCommandOffset = ipIntPointer[15] >> 2;
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//  iCommandOffset = SDL_Swap32( iCommandOffset );
-//#endif
-//
-//  // Read in each command
-//  // iNumCommands isn't the number of commands, rather the number of dwords in
-//  // the command list...  Use iCommandCount to figure out how many we use
-//  int iCommandCount = 0;
-//  int entry = 0;
-//
-//  int cnt = 0;
-//  while ( cnt < iNumCommands )
-//  {
-//    iNumVertices = ipIntPointer[iCommandOffset];
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//    iNumVertices = SDL_Swap32( iNumVertices );
-//#endif
-//
-//    iCommandOffset++;
-//    cnt++;
-//
-//    if ( iNumVertices != 0 )
-//    {
-//      if ( iNumVertices < 0 )
-//      {
-//        // Fans start with a negative
-//        iNumVertices = -iNumVertices;
-//        // PORT: MadList[modelindex].commandtype[iCommandCount] = (Uint8) D3DPT_TRIANGLEFAN;
-//        MadList[modelindex].commandtype[iCommandCount] = GL_TRIANGLE_FAN;
-//        MadList[modelindex].commandsize[iCommandCount] = ( Uint8 ) iNumVertices;
-//      }
-//      else
-//      {
-//        // Strips start with a positive
-//        MadList[modelindex].commandtype[iCommandCount] = GL_TRIANGLE_STRIP;
-//        MadList[modelindex].commandsize[iCommandCount] = ( Uint8 ) iNumVertices;
-//      }
-//
-//      // Read in vertices for each command
-//      tnc = 0;
-//      while ( tnc < iNumVertices )
-//      {
-//        fTmpu = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-//        fTmpv = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-//        iTmp = ipIntPointer[iCommandOffset];  iCommandOffset++;  cnt++;
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//        fTmpu = LoadFloatByteswapped( &fTmpu );
-//        fTmpv = LoadFloatByteswapped( &fTmpv );
-//        iTmp = SDL_Swap32( iTmp );
-//#endif
-//        MadList[modelindex].commandu[entry] = fTmpu - ( .5 / 64 ); // GL doesn't align correctly
-//        MadList[modelindex].commandv[entry] = fTmpv - ( .5 / 64 ); // with D3D
-//        MadList[modelindex].commandvrt[entry] = ( Uint16 ) iTmp;
-//        entry++;
-//        tnc++;
-//      }
-//      iCommandCount++;
-//    }
-//  }
-//  MadList[modelindex].commands = iCommandCount;
-//}
-
-//---------------------------------------------------------------------------------------------
-//char * rip_md2_frame_name( MD2_Model * m, int frame )
-//{
-//  // ZZ> This function gets frame names from the load buffer, it returns
-//  //     btrue if the name in cFrameName[] is valid
-//  int iFrameOffset;
-//  int iNumVertices;
-//  int iNumFrames;
-//  int cnt;
-//  MD2_Frame * pFrame;
-//  char      * pFrameName;
-//  bool_t foundname;
-//
-//
-//  if(NULL == m) return bfalse;
-//
-//  // Jump to the Frames section of the md2 data
-//
-//
-//  ipNamePointer = ( int* ) pFrame->name;
-//
-//
-//  iNumVertices = ipIntPointer[6];
-//  iNumFrames = ipIntPointer[10];
-//  iFrameOffset = ipIntPointer[14] >> 2;
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//  iNumVertices = SDL_Swap32( iNumVertices );
-//  iNumFrames = SDL_Swap32( iNumFrames );
-//  iFrameOffset = SDL_Swap32( iFrameOffset );
-//#endif
-//
-//
-//  // Chug through each frame
-//  foundname = bfalse;
-//
-//  for ( cnt = 0; cnt < iNumFrames && !foundname; cnt++ )
-//  {
-//    pFrame     = md2_get_Frame(m , frame);
-//    pFrameName = pFrame->name;
-//
-//    iFrameOffset += 6;
-//    if ( cnt == frame )
-//    {
-//      ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-//      ipNamePointer[1] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-//      ipNamePointer[2] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-//      ipNamePointer[3] = ipIntPointer[iFrameOffset]; iFrameOffset++;
-//      foundname = btrue;
-//    }
-//    else
-//    {
-//      iFrameOffset += 4;
-//    }
-//    iFrameOffset += iNumVertices;
-//    cnt++;
-//  }
-//  cFrameName[15] = 0;  // Make sure it's null terminated
-//  return foundname;
-//}
-
-//---------------------------------------------------------------------------------------------
-//void rip_md2_frames( MD2_Model * m )
-//{
-//  // ZZ> This function gets frames from the load buffer and adds them to
-//  //     the indexed model
-//  Uint8 cTmpx, cTmpy, cTmpz;
-//  Uint8 cTmpNormalIndex;
-//  float fRealx, fRealy, fRealz;
-//  float fScalex, fScaley, fScalez;
-//  float fTranslatex, fTranslatey, fTranslatez;
-//  int iFrameOffset;
-//  int iNumVertices;
-//  int iNumFrames;
-//  int cnt, tnc;
-//  char* cpCharPointer;
-//  int* ipIntPointer;
-//  float* fpFloatPointer;
-//
-//  if(NULL == m) return;
-//
-//
-//  // Jump to the Frames section of the md2 data
-//  cpCharPointer = ( char* ) cLoadBuffer;
-//  ipIntPointer = ( int* ) cLoadBuffer;
-//  fpFloatPointer = ( float* ) cLoadBuffer;
-//
-//
-//  iNumVertices = md2_get_numVertices(m);
-//  iNumFrames   = md2_get_numFrames(m);
-//
-//
-//  for( cnt = 0; cnt < iNumFrames; cnt++ )
-//  {
-//    MD2_Frame * = MD2_Frame(m, cnt);
-//
-//    fScalex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//    fScaley = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//    fScalez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//    fTranslatex = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//    fTranslatey = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//    fTranslatez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
-//
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//    fScalex = LoadFloatByteswapped( &fScalex );
-//    fScaley = LoadFloatByteswapped( &fScaley );
-//    fScalez = LoadFloatByteswapped( &fScalez );
-//
-//    fTranslatex = LoadFloatByteswapped( &fTranslatex );
-//    fTranslatey = LoadFloatByteswapped( &fTranslatey );
-//    fTranslatez = LoadFloatByteswapped( &fTranslatez );
-//#endif
-//
-//    iFrameOffset += 4;
-//    tnc = 0;
-//    while ( tnc < iNumVertices )
-//    {
-//      // This should work because it's reading a single character
-//      cTmpx = cpCharPointer[( iFrameOffset<<2 )];
-//      cTmpy = cpCharPointer[( iFrameOffset<<2 ) +1];
-//      cTmpz = cpCharPointer[( iFrameOffset<<2 ) +2];
-//      cTmpNormalIndex = cpCharPointer[( iFrameOffset<<2 ) +3];
-//      fRealx = ( cTmpx * fScalex ) + fTranslatex;
-//      fRealy = ( cTmpy * fScaley ) + fTranslatey;
-//      fRealz = ( cTmpz * fScalez ) + fTranslatez;
-//      MadList[madloadframe].vrtx[tnc] = -fRealx * 3.5;
-//      MadList[madloadframe].vrty[tnc] = fRealy * 3.5;
-//      MadList[madloadframe].vrtz[tnc] = fRealz * 3.5;
-//      MadList[madloadframe].vrta[tnc] = cTmpNormalIndex;
-//      iFrameOffset++;
-//      tnc++;
-//    }
-//    madloadframe++;
-//    cnt++;
-//  }
-//}
-
-//---------------------------------------------------------------------------------------------
-int load_one_md2( char * szLoadname, Uint16 imdl )
-{
-  // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
-  //    int iFileHandleRead;
-
-  size_t iBytesRead = 0;
-  int iFrames;
-
-  // make sure this model is empty
-  if(NULL != MadList[imdl]._md2)
-  {
-    free_one_md2(imdl);
-  }
-
-  // load the actual md2 data
-  MadList[imdl]._md2 = md2_load( szLoadname, NULL );
-  if(NULL == MadList[imdl]._md2) return bfalse;
-
-  // Figure out how many vertices to transform
-  MadList[imdl].vertices      = md2_get_numVertices( MadList[imdl]._md2 );
-  MadList[imdl].transvertices = count_madtransvertices( MadList[imdl]._md2 );
-
-  iFrames = md2_get_numFrames(MadList[imdl]._md2);
-
-  MadList[imdl].framelip = calloc(sizeof(Uint8),  iFrames);
-  MadList[imdl].framefx  = calloc(sizeof(Uint16), iFrames);
-  return btrue;
-}
-
-//---------------------------------------------------------------------------------------------
-void free_one_md2( Uint16 imdl )
-{
-  // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
-  //    int iFileHandleRead;
-
-  if(imdl > MAXMODEL) return;
-
-  if(NULL != MadList[imdl]._md2)
-  {
-    md2_delete(MadList[imdl]._md2);
-    MadList[imdl]._md2 = NULL;
-  }
-
-  if(NULL != MadList[imdl].framelip)
-  {
-    free(MadList[imdl].framelip);
-    MadList[imdl].framelip = NULL;
-  };
-
-  if(NULL != MadList[imdl].framefx)
-  {
-    free(MadList[imdl].framefx);
-    MadList[imdl].framefx = NULL;
-  };
-
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2489,19 +2129,33 @@ void move_water( float dUpdate )
 }
 
 //--------------------------------------------------------------------------------------------
-void play_action( CHR_REF character, ACTION action, bool_t actionready )
+void play_action( CHR_REF character, ACTION action, bool_t ready )
 {
   // ZZ> This function starts a generic action for a character
-  if ( MadList[ChrList[character].model].actionvalid[action] )
+
+  CHR * pchr;
+  MAD * pmad;
+
+  if(!VALID_CHR(character)) return;
+
+  pchr = ChrList + character;
+
+  if(!VALID_MDL(pchr->model) || !MadList[pchr->model].used) return;
+
+  pmad = MadList + pchr->model;
+
+  if ( pmad->actionvalid[action] )
   {
-    ChrList[character].nextaction = ACTION_DA;
-    ChrList[character].action = action;
-    ChrList[character].lip_fp8 = 0;
-    ChrList[character].flip = 0.0f;
-    ChrList[character].framelast = ChrList[character].frame;
-    ChrList[character].frame = MadList[ChrList[character].model].actionstart[ChrList[character].action];
-    ChrList[character].actionready = actionready;
+    pchr->action.next  = ACTION_DA;
+    pchr->action.now   = action;
+    pchr->action.ready = ready;
+
+    pchr->anim.lip_fp8 = 0;
+    pchr->anim.flip    = 0.0f;
+    pchr->anim.last    = pchr->anim.next;
+    pchr->anim.next    = pmad->actionstart[pchr->action.now];
   }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2509,13 +2163,50 @@ void set_frame( CHR_REF character, Uint16 frame, Uint8 lip )
 {
   // ZZ> This function sets the frame for a character explicitly...  This is used to
   //     rotate Tank turrets
-  ChrList[character].nextaction = ACTION_DA;
-  ChrList[character].action = ACTION_DA;
-  ChrList[character].lip_fp8 = ( lip << 6 );
-  ChrList[character].flip = lip * 0.25;
-  ChrList[character].framelast = MadList[ChrList[character].model].actionstart[ACTION_DA] + frame;
-  ChrList[character].frame = MadList[ChrList[character].model].actionstart[ACTION_DA] + frame + 1;
-  ChrList[character].actionready = btrue;
+
+  Uint16 start, end;
+  CHR * pchr;
+  MAD * pmad;
+
+  if(!VALID_CHR(character)) return;
+
+  pchr = ChrList + character;
+
+  if(!VALID_MDL(pchr->model) || !MadList[pchr->model].used) return;
+
+  pmad = MadList + pchr->model;
+
+  pchr->action.next  = ACTION_DA;
+  pchr->action.now   = ACTION_DA;
+  pchr->action.ready = btrue;
+
+  pchr->anim.lip_fp8 = ( lip << 6 );
+  pchr->anim.flip    = lip * 0.25;
+
+  start = pmad->actionstart[pchr->action.now];
+  end   = pmad->actionstart[pchr->action.now];
+
+  if(start == end)
+  {
+    pchr->anim.last = 
+    pchr->anim.next = start;
+  }
+  else
+  {
+    pchr->anim.last    = start + frame;
+    if(pchr->anim.last > end)
+    {
+      pchr->anim.last = (pchr->anim.last - end) % (end - start) + end;
+    };
+
+    pchr->anim.next    = pchr->anim.last + 1;
+    if(pchr->anim.next > end)
+    {
+      pchr->anim.next = (pchr->anim.next - end) % (end - start) + end;
+    };
+  }
+
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3674,6 +3365,18 @@ int proc_program( int argc, char **argv )
 
         // initialize system dependent services
         sys_initialize();
+
+        // make sure the arrays are initialized to some specific initial value
+        memset(CapList,  0, MAXCAP * sizeof(CAP));
+        memset(ChrList,  0, MAXCHR * sizeof(CHR));
+        memset(EveList,  0, MAXEVE * sizeof(EVE));
+        memset(EncList,  0, MAXENCHANT * sizeof(ENC));
+        memset(PlaList,  0, MAXPLAYER * sizeof(PLAYER));
+        memset(MadList,  0, MAXMODEL * sizeof(MAD));
+        memset(PipList,  0, MAXPRTPIP * sizeof(PIP));
+        memset(PrtList,  0, MAXPRT * sizeof(PRT));
+        memset(BlipList, 0, MAXBLIP * sizeof(BLIP));
+        memset(ModList,  0, MAXMODULE * sizeof(MOD_DATA));
 
         // initialize the clock
         g_clk_state = clock_create_state();
