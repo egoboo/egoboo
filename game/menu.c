@@ -1669,11 +1669,11 @@ int mnu_doAudioOptions( float deltaTime )
       {
         //save settings and go back
         mnu_saveSettings();
-        if ( OData.musicvalid ) 
+        if ( OData.musicvalid )
         {
           play_music( 0, 0, -1 );
         }
-        else if ( OData.soundvalid ) 
+        else if ( OData.soundvalid )
         {
           Mix_PauseMusic();
         }
@@ -1684,7 +1684,7 @@ int mnu_doAudioOptions( float deltaTime )
         }
 
         //If the number of sound channels changed, allocate them properly
-        if( OData.maxsoundchannel != CData.maxsoundchannel ) 
+        if( OData.maxsoundchannel != CData.maxsoundchannel )
         {
           Mix_AllocateChannels( OData.maxsoundchannel );
         }

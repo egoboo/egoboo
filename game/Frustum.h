@@ -1,4 +1,4 @@
-// This file is an experimental addition to Egoboo. 
+// This file is an experimental addition to Egoboo.
 
 #pragma once
 

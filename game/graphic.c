@@ -40,10 +40,6 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include <assert.h>
 #include <stdarg.h>
 
-#ifdef WIN32
-#define vsnprintf _vsnprintf
-#endif
-
 #ifdef __unix__
 #include <unistd.h>
 #endif
@@ -3944,7 +3940,7 @@ void load_all_menu_images()
     fprintf( filesave, "This file logs all of the modules found\n" );
     fprintf( filesave, "** Denotes an invalid module (Or locked)\n\n" );
   }
-  else 
+  else
   {
     log_warning( "Could not write to %s\n", CData.modules_file );
   }

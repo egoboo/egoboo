@@ -21,6 +21,7 @@
 
 #include "Task.h"
 #include "Clock.h"
+
 #include <stddef.h>
 #include <string.h>
 #include <stdlib.h>
@@ -98,8 +99,8 @@ void task_remove( const char *taskName )
 
       if ( aTask == task_list ) task_list = aTask->next;
 
-      free( aTask->name );
-      free( aTask );
+      if( NULL != aTask->name ) { free(aTask->name); aTask->name = NULL; };
+      if( NULL != aTask )       { free(aTask); aTask = NULL; };
       return;
     }
     aTask = aTask->next;

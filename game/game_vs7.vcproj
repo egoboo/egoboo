@@ -155,6 +155,9 @@
 				RelativePath=".\configfile.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_config.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_math.c">
 			</File>
 			<File
@@ -240,6 +243,9 @@
 			</File>
 			<File
 				RelativePath=".\Md2.c">
+			</File>
+			<File
+				RelativePath=".\Md2.inl">
 			</File>
 			<File
 				RelativePath=".\menu.c">

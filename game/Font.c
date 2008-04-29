@@ -134,7 +134,7 @@ static void fnt_quit(void)
   {
     pfnt = fnt_registry[i];
     if(close_fonts && NULL!=pfnt->ttfFont) TTF_CloseFont(pfnt->ttfFont);
-    free(pfnt);
+    FREE(pfnt);
 
     fnt_registry[i] = NULL;
   }
@@ -213,7 +213,7 @@ void fnt_freeFont( TTFont *font )
     glDeleteTextures( 1, &pfnt->texture );
   }
 
-  free( font );
+  FREE( font );
 }
 
 void fnt_drawText( TTFont *font, int x, int y, const char *text )
@@ -295,7 +295,7 @@ void fnt_drawTextBox( TTFont *font, const char *text, int x, int y, int width, i
     y += spacing;
     line = strtok( NULL, "\n" );
   }
-  free( buffer );
+  FREE( buffer );
 }
 
 void fnt_getTextBoxSize( TTFont *font, const char *text, int spacing, int *width, int *height )
@@ -322,7 +322,7 @@ void fnt_getTextBoxSize( TTFont *font, const char *text, int spacing, int *width
 
     line = strtok( NULL, "\n" );
   }
-  free( buffer );
+  FREE( buffer );
 }
 
 void fnt_drawTextFormatted( TTFont * fnt, int x, int y, const char *format, ... )

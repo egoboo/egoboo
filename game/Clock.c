@@ -67,11 +67,7 @@ ClockState * clock_create_state()
 
 ClockState * clock_recreate_state( ClockState * cs )
 {
-  if ( cs->frameHistory != NULL )
-  {
-    free( cs->frameHistory );
-    cs->frameHistory = NULL;
-  };
+  FREE ( cs->frameHistory );
 
   clock_state_init( cs );
   return cs;
@@ -80,18 +76,9 @@ ClockState * clock_recreate_state( ClockState * cs )
 
 void clock_free_state( ClockState * cs )
 {
-  if ( cs->frameHistory != NULL )
-  {
-    free( cs->frameHistory );
-    cs->frameHistory = NULL;
-  };
-
-  free( cs );
-  cs = NULL;
+  FREE ( cs->frameHistory );
+  FREE ( cs );
 };
-
-
-
 
 void clock_init( ClockState * cs )
 {
@@ -139,8 +126,7 @@ void clock_setFrameHistoryWindow( ClockState * cs, int size )
     less = ( cs->frameHistoryWindow < oldSize ) ? cs->frameHistoryWindow : oldSize;
     memcpy( history, cs->frameHistory, less );
 
-    free( cs->frameHistory );
-    cs->frameHistory = NULL;
+    FREE( cs->frameHistory );
   }
 
   cs->frameHistoryHead = 0;

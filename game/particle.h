@@ -32,7 +32,7 @@ typedef enum dyna_mode_e
 
 //Lightning effects
 typedef struct dynalight_info_t
-{ 
+{
   int                     count;               // Number of dynamic lights
   int                     distancetobeat;      // The number to beat
 
@@ -42,7 +42,7 @@ extern DYNALIGHT_INFO GDyna;
 
 #define DYNALIGHT_MEMBERS                \
   float level;   /* Light level    */ \
-  float falloff; /* Light falloff  */ 
+  float falloff; /* Light falloff  */
 
 typedef struct dynalight_list_t
 {

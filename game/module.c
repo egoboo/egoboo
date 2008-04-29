@@ -283,7 +283,7 @@ bool_t get_module_data( int modnumber, char *szLoadName )
     }
 
     //Check for unlocked modules (Both in Quest IDSZ and Module IDSZ). Skip this if in DevMode.
-  	if( CData.DevMode || playerhasquest || module_reference_matches( reference, idsz ) )
+    if( CData.DevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
       globalname = szLoadName;
       ModList[modnumber].importamount = fget_next_int( fileread );

@@ -22,24 +22,11 @@
 #ifndef Egoboo_egobootypedef_h
 #define Egoboo_egobootypedef_h
 
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN    // Speeds up compile times a bit.  We don't need everything in windows.h
+#include "egoboo_config.h"
+#include "egoboo_config.h"
 
-// Turn off warnings that we don't care about.
-#pragma warning(disable : 4305) // truncation from 'double' to 'float'
-#pragma warning(disable : 4244) // conversion from 'double' to 'float'
-#pragma warning(disable : 4554) // possibly operator precendence error
-//#pragma warning(disable : 4761)
-
-// Windows defines snprintf as _snprintf; that's kind of a pain, so redefine it here
-#define snprintf _snprintf
-
-#endif
-
-#include <SDL.h>
 #include <SDL_endian.h>
-
-#define INLINE __inline
+#include <SDL_types.h>
 
 extern float LoadFloatByteswapped( float *ptr );
 
@@ -91,26 +78,6 @@ typedef Uint16 CHR_REF;
 typedef Uint16 TEAM_REF;
 typedef Uint16 PRT_REF;
 typedef Uint16 PLA_REF;
-
-
-#undef DEBUG_ATTRIB
-
-#if defined(DEBUG_ATTRIB) && defined(_DEBUG)
-#    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); glPushAttrib(BITS); log_info("PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
-#    define ATTRIB_POP(TXT)           { GLint xx=0; glPopAttrib(); glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); log_info("POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
-#    define ATTRIB_GUARD_OPEN(XX)     { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&XX); log_info("OPEN ATTRIB_GUARD: before attrib stack push. level == %d\n", XX); }
-#    define ATTRIB_GUARD_CLOSE(XX,YY) { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&YY); if(XX!=YY) log_error("CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY); else log_info("CLOSE ATTRIB_GUARD: after attrib stack pop. level == %d\n", XX); }
-#elif defined(_DEBUG)
-#    define ATTRIB_PUSH(TXT, BITS)    glPushAttrib(BITS);
-#    define ATTRIB_POP(TXT)           glPopAttrib();
-#    define ATTRIB_GUARD_OPEN(XX)     { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&XX);  }
-#    define ATTRIB_GUARD_CLOSE(XX,YY) { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&YY); assert(XX==YY); if(XX!=YY) log_error("CLOSE ATTRIB_GUARD: after attrib stack pop. level conflict %d != %d\n", XX, YY);  }
-#else
-#    define ATTRIB_PUSH(TXT, BITS)    glPushAttrib(BITS);
-#    define ATTRIB_POP(TXT)           glPopAttrib();
-#    define ATTRIB_GUARD_OPEN(XX)
-#    define ATTRIB_GUARD_CLOSE(XX,YY)
-#endif
 
 
 #endif // include guard

@@ -243,8 +243,8 @@ bool_t load_all_music_sounds()
   playlist = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
   if ( playlist == NULL )
   {
-	  log_warning( "Error opening playlist.txt\n" );
-	  return bfalse;
+    log_warning( "Error opening playlist.txt\n" );
+    return bfalse;
   }
 
   // Load the music data into memory

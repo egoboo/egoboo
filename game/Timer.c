@@ -69,7 +69,7 @@ void timer_shutdown()
   while ( node != NULL )
   {
     next = node->next;
-    free( node );
+    if( NULL != node ) { free(node); node = NULL; };
     node = next;
   }
 
@@ -154,7 +154,7 @@ void timer_removeTimer( Timer *t )
       node->previous->next = node->next;
       node->next->previous = node->previous;
     }
-    free( node );
+    if( NULL != node ) { free(node); node = NULL; };
     timersInUse--;
   }
 }

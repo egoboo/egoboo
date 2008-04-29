@@ -2,6 +2,7 @@
 #include "Mad.h"
 #include "script.h"
 #include "Log.h"
+#include "Md2.inl"
 
 #include <assert.h>
 
@@ -433,14 +434,14 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
   if(NULL == pmd2) return bfalse;
 
   // check the triangle list
-  if(0 == pmd2->m_numTriangles || NULL == pmd2->m_triangles) return bfalse;
-  tri_count = pmd2->m_numTriangles;
-  ptri_lst  = pmd2->m_triangles;
+  if(0 == md2_get_numTriangles(pmd2) || NULL == md2_get_Triangles(pmd2)) return bfalse;
+  tri_count = md2_get_numTriangles(pmd2);
+  ptri_lst  = md2_get_Triangles(pmd2);
 
   // check for valid frame
-  if(0 == pmd2->m_numFrames || NULL == pmd2->m_frames || frame > pmd2->m_numFrames) return bfalse;
-  pframe    = pmd2->m_frames + frame;
-  vrt_count = pmd2->m_numVertices;
+  if(0 == md2_get_numFrames(pmd2) || frame > md2_get_numFrames(pmd2)) return bfalse;
+  pframe    = md2_get_Frame(pmd2, frame);
+  vrt_count = md2_get_numVertices(pmd2);
 
   // do some bbox pre-calculation
   origin.x = pframe->bbmin[0];
@@ -626,12 +627,12 @@ bool_t mad_cull_bbox_list(int max_lod, BBOX_LIST *plst, BBOX_LIST *pcull)
         if(cull_divisions > lst_divisions)
         {
           // find the integer position of the pbb_cull box
-          
+
           ix = (idx_cull >> (0*cull_divisions)) & (cull_per_axis-1);
           iy = (idx_cull >> (1*cull_divisions)) & (cull_per_axis-1);
           iz = (idx_cull >> (2*cull_divisions)) & (cull_per_axis-1);
 
-          // convert this to a position in pbb_lst 
+          // convert this to a position in pbb_lst
           ix >>= (cull_divisions - lst_divisions);
           iy >>= (cull_divisions - lst_divisions);
           iz >>= (cull_divisions - lst_divisions);
@@ -688,11 +689,11 @@ bool_t mad_optimize_bbox_tree(MAD * pmad)
   if(NULL == pmad->bbox_arrays || 0 == pmad->bbox_frames) return btrue;
 
   // go through every frame
-  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+  iframes = MIN(pmad->bbox_frames, md2_get_numFrames(pmd2));
   for(i=0; i<iframes; i++)
   {
     pary    = pmad->bbox_arrays + i;
-    pframe  = pmd2->m_frames + i;
+    pframe  = md2_get_Frame(pmd2, i);
     max_lod = pary->count - 1;
 
     for(j=max_lod; j>=0; j--)
@@ -709,14 +710,14 @@ bool_t mad_optimize_bbox_tree(MAD * pmad)
 
   }
 
-  // convert the bbox weight variable to an "efficiency" variable 
-  // that might be used when testing collisions or displaying bboxes, etc. 
+  // convert the bbox weight variable to an "efficiency" variable
+  // that might be used when testing collisions or displaying bboxes, etc.
   for(i=0; i<iframes; i++)
   {
     float max_weight;
 
     pary    = pmad->bbox_arrays + i;
-    pframe  = pmd2->m_frames + i;
+    pframe  = md2_get_Frame(pmd2, i);
     max_lod = pary->count - 1;
 
     if(NULL == pary) continue;
@@ -900,9 +901,7 @@ bool_t mad_delete_bbox_tree(MAD * pmad)
     bbox_ary_delete(pmad->bbox_arrays + i);
   }
 
-  free(pmad->bbox_arrays);
-  pmad->bbox_arrays = NULL;
-
+  FREE(pmad->bbox_arrays);
   pmad->bbox_frames = 0;
 
   return btrue;
@@ -928,13 +927,13 @@ static bool_t mad_scale_bbox_tree(MAD * pmad)
   if(NULL==pmad) return bfalse;
   pmd2 = pmad->md2_ptr;
 
-  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse; 
+  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse;
 
-  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+  iframes = MIN(pmad->bbox_frames, md2_get_numFrames(pmd2));
   for(i=0; i<iframes; i++)
   {
     pary   = pmad->bbox_arrays + i;
-    pframe = pmd2->m_frames + i;
+    pframe = md2_get_Frame(pmd2, i);
 
     if(NULL == pary) continue;
 
@@ -1001,13 +1000,13 @@ static bool_t mad_scale_bbox_tree(MAD * pmad)
 //  if(NULL==pmad) return bfalse;
 //  pmd2 = pmad->md2_ptr;
 //
-//  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse; 
+//  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse;
 //
-//  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+//  iframes = MIN(pmad->bbox_frames, md2_get_numFrames(pmd2));
 //  for(i=0; i<pmad->bbox_frames; i++)
 //  {
 //    pary   = pmad->bbox_arrays + i;
-//    pframe = pmd2->m_frames + i;
+//    pframe = md2_get_Frame(pmd2, i);
 //
 //    if(NULL == pary) continue;
 //
@@ -1059,7 +1058,7 @@ static bool_t mad_scale_bbox_tree(MAD * pmad)
 //    }
 //    if(bbox_count < XXXX * YYYY)
 //    {
-//      // too inefficient replace it with 
+//      // too inefficient replace it with
 //    }
 //
 //}
@@ -1067,7 +1066,7 @@ static bool_t mad_scale_bbox_tree(MAD * pmad)
 //--------------------------------------------------------------------------------------------
 bool_t mad_generate_bbox_tree(int max_level, MAD * pmad)
 {
-  // BB > Make a series of progressively refined BBox lists. 
+  // BB > Make a series of progressively refined BBox lists.
   //      The list will have null nodes for every level of detail where
   //      the bounding volumes are not significantly different from a single bounding box
 
@@ -1113,7 +1112,7 @@ bool_t mad_generate_bbox_tree(int max_level, MAD * pmad)
       if( !mad_simplify_bbox_list(max_level, j, pmad->bbox_arrays[i].list + j, pmad->bbox_arrays[i].list + j + 1) )
       {
         // there was an error or the bbox list is completely full
-  
+
         // remove the last bbox list
         bbox_list_delete(pmad->bbox_arrays[i].list + j);
 
@@ -1148,9 +1147,9 @@ BBOX_LIST * bbox_list_delete(BBOX_LIST * lst)
 {
   if(NULL == lst) return NULL;
 
-  if(lst->count && NULL!=lst->list)
+  if( lst->count > 0 )
   {
-    free(lst->list);
+    FREE(lst->list);
   }
 
   lst->count = 0;
@@ -1240,8 +1239,7 @@ BBOX_ARY * bbox_ary_delete(BBOX_ARY * ary)
       bbox_list_delete(ary->list + i);
     }
 
-    free(ary->list);
-    ary->list = NULL;
+    FREE(ary->list);
   }
 
   ary->count = 0;
@@ -1299,17 +1297,8 @@ MAD *  mad_delete(MAD * pmad)
     pmad->md2_ptr = NULL;
   }
 
-  if(NULL != pmad->framelip)
-  {
-    free(pmad->framelip);
-    pmad->framelip = NULL;
-  };
-
-  if(NULL != pmad->framefx)
-  {
-    free(pmad->framefx);
-    pmad->framefx = NULL;
-  };
+  FREE(pmad->framelip);
+  FREE(pmad->framefx);
 
   mad_delete_bbox_tree(pmad);
 
@@ -1445,7 +1434,7 @@ bool_t bbox_gl_draw(AA_BBOX * pbbox)
     glVertex3f(pmax->x, pmin->y, pmax->z);
     glVertex3f(pmax->x, pmax->y, pmax->z);
     glVertex3f(pmin->x, pmax->y, pmax->z);
-    
+
     // Back Face
     glVertex3f(pmin->x, pmin->y, pmin->z);
     glVertex3f(pmin->x, pmax->y, pmin->z);
@@ -1457,19 +1446,19 @@ bool_t bbox_gl_draw(AA_BBOX * pbbox)
     glVertex3f(pmin->x, pmax->y, pmax->z);
     glVertex3f(pmax->x, pmax->y, pmax->z);
     glVertex3f(pmax->x, pmax->y, pmin->z);
-    
-    // Bottom Face       
+
+    // Bottom Face
     glVertex3f(pmin->x, pmin->y, pmin->z);
     glVertex3f(pmax->x, pmin->y, pmin->z);
     glVertex3f(pmax->x, pmin->y, pmax->z);
     glVertex3f(pmin->x, pmin->y, pmax->z);
-    
+
     // Right face
     glVertex3f(pmax->x, pmin->y, pmin->z);
     glVertex3f(pmax->x, pmax->y, pmin->z);
     glVertex3f(pmax->x, pmax->y, pmax->z);
     glVertex3f(pmax->x, pmin->y, pmax->z);
-    
+
     // Left Face
     glVertex3f(pmin->x, pmin->y, pmin->z);
     glVertex3f(pmin->x, pmin->y, pmax->z);
@@ -1495,7 +1484,7 @@ bool_t mad_display_bbox_ary(BBOX_ARY * pary, int level)
 
     plst = pary->list + i;
 
-    if(NULL == plst) 
+    if(NULL == plst)
       continue;
 
     for(j=0; j<plst->count; j++)
@@ -1545,7 +1534,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
     glMultMatrixf( matrix.v );
     matrix _CNV( 3, 2 ) -= RAISE;
 
-    if(frame1 >=0 && frame1 < pmd2->m_numFrames && frame1 < pmad->bbox_frames)
+    if(frame1 >=0 && frame1 < md2_get_numFrames(pmd2) && frame1 < pmad->bbox_frames)
     {
       pary = pmad->bbox_arrays + frame1;
 
@@ -1555,7 +1544,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
       };
     }
 
-    if(frame2 >=0 && frame2 < pmd2->m_numFrames && frame2 < pmad->bbox_frames)
+    if(frame2 >=0 && frame2 < md2_get_numFrames(pmd2) && frame2 < pmad->bbox_frames)
     {
       pary = pmad->bbox_arrays + frame2;
 
@@ -1571,7 +1560,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
   ATTRIB_POP( "mad_display_bbox");
 
   return btrue;
-  
+
 }
 
 
@@ -1600,13 +1589,13 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 //  pmd2 = pmad->md2_ptr->m_numFrames;
 //
 //  // check the triangle list
-//  if(0 == pmd2->m_numTriangles || NULL == pmd2->m_triangles) return bfalse;
-//  tri_count = pmd2->m_numTriangles;
-//  ptri_lst  = pmd2->m_triangles;
+//  if(0 == md2_get_numTriangles(pmd2) || NULL == md2_get_Triangles(pmd2)) return bfalse;
+//  tri_count = md2_get_numTriangles(pmd2);
+//  ptri_lst  = md2_get_Triangles(pmd2);
 //
 //  // check for valid frame
-//  if(0 == pmd2->m_numFrames || NULL == pmd2->m_frames || frame > pmd2->m_numFrames) return bfalse;
-//  pframe    = pmd2->m_frames + frame;
+//  if(0 == md2_get_numFrames(pmd2) || NULL == md2_get_Frames(pmd2) || frame > md2_get_numFrames(pmd2)) return bfalse;
+//  pframe    = md2_get_Frame(pmd2, frame);
 //  vrt_count = pframe->vertices;
 //
 //  // allocate a bbox list that has the required number of bboxes
@@ -1721,7 +1710,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 //    //
 //    // The parametric equation of a triangle is given by
 //    //
-//    //     <x,y,z> = u * uvec + v * vvec + ovec, 
+//    //     <x,y,z> = u * uvec + v * vvec + ovec,
 //    //
 //    // where u and v stay within the range [0,1], and uvec = p1 - p0, vvec = p2-p1, and ovec = p0, with
 //    // p0, p1, and p2, being the corner points of the triangle
@@ -1746,7 +1735,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 //
 //        // the vector equation for the intersection of the triangle is
 //        // <height,y,z> = u*uvec + v*vvec + ovec;
-//        
+//
 //        // height-ovec.x = u*uvec.x + v*vvec.x
 //        // y - ovec.y = u*uvec.y + v*vvec.y
 //        // z - ovec.z = u*uvec.z + v*vvec.z
@@ -1806,7 +1795,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 //        tmp_bb.mins.z = MIN(z0,z1);
 //        tmp_bb.maxs.z = MAX(z0,z1);
 //
-//        
+//
 //
 //
 //
@@ -1816,7 +1805,7 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 //    }
 //    else if(ABS(nrm.y) == max_comp)
 //    {
-//      // triangle is facing in the y direction, 
+//      // triangle is facing in the y direction,
 //    }
 //    else
 //    {

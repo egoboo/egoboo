@@ -30,12 +30,12 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "enchant.h"
 #include "passage.h"
 #include "Menu.h"
+#include "Md2.inl"
 
 #include "egoboo_math.h"
 #include "egoboo_strutil.h"
 #include "egoboo_utility.h"
 #include "egoboo.h"
-
 
 #include <assert.h>
 
@@ -517,8 +517,7 @@ void free_one_character( CHR_REF ichr )
   //remove any collision volume octree
   if(NULL != ChrList[ichr].bmpdata.cv_tree)
   {
-    free( ChrList[ichr].bmpdata.cv_tree );
-    ChrList[ichr].bmpdata.cv_tree = NULL;
+    FREE( ChrList[ichr].bmpdata.cv_tree );
   }
 
   // add it to the free list
@@ -956,8 +955,7 @@ void free_all_characters()
     else if(NULL != ChrList[numfreechr].bmpdata.cv_tree)
     {
       // remove existing collision volume octree
-      free( ChrList[numfreechr].bmpdata.cv_tree );
-      ChrList[numfreechr].bmpdata.cv_tree = NULL;
+      FREE( ChrList[numfreechr].bmpdata.cv_tree );
 
       // silence all looping sounds
       if( INVALID_CHANNEL != ChrList[numfreechr].loopingchannel )
@@ -5905,7 +5903,7 @@ Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
 
   // skip over the slot information
   fget_next_int( fileread );
-  
+
   // Read in the real general data
   fget_next_name( fileread, pcap->classname, sizeof( pcap->classname ) );
 
@@ -6365,7 +6363,7 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
     }
   }
 
-  fs_fileClose( fileread ); 
+  fs_fileClose( fileread );
 
   return result;
 }
@@ -6393,13 +6391,35 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
+bool_t fcopy_line(FILE * fileread, FILE * filewrite)
+{
+  // BB > copy a line of arbitrary length, in chunks of length
+  //      sizeof(linebuffer)
+
+  char linebuffer[64];
+
+  if(NULL == fileread || NULL == filewrite) return bfalse;
+  if( feof(fileread) || feof(filewrite) ) return bfalse;
+
+  fgets(linebuffer, sizeof(linebuffer), fileread);
+  fputs(linebuffer, filewrite);
+  while( strlen(linebuffer) == sizeof(linebuffer) )
+  {
+    fgets(linebuffer, sizeof(linebuffer), fileread);
+    fputs(linebuffer, filewrite);
+  }
+
+  return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
 int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
 {
   // ZF> This function increases or decreases a Quest IDSZ quest level by the amount determined in
-  // adjustment. It then returns the current quest level it now has.
-  // It returns -2 if failed and if the adjustment is 0, the quest is marked as beaten...
- 
-  FILE *newfile, *fileread;
+  //     adjustment. It then returns the current quest level it now has.
+  //     It returns -2 if failed and if the adjustment is 0, the quest is marked as beaten...
+
+  FILE *filewrite, *fileread;
   STRING newloadname, copybuffer;
   bool_t foundidsz = bfalse;
   IDSZ newidsz;
@@ -6411,67 +6431,89 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
   if ( NULL == fileread ) return NewQuestLevel;
 
   //Now check each expansion until we find correct IDSZ
-  while ( fgoto_colon_yesno( fileread ) && !foundidsz )
+  while ( fgoto_colon_yesno( fileread ) )
   {
     newidsz = fget_idsz( fileread );
+
     if ( newidsz == idsz )
     {
       foundidsz = btrue;
       QuestLevel = fget_int( fileread );
-      if ( QuestLevel == -1 )					//Quest is already finished, do not modify
-	  {  
-		  fs_fileClose( fileread );
-		  return NewQuestLevel;
-	  }
-	  else
-	  {
-		  //First close the file, rename it and reopen it for reading
-		  fs_fileClose( fileread );
-		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-		  snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
-		  rename(newloadname, copybuffer); 
-          fileread = fs_fileOpen( PRI_NONE, NULL, copybuffer, "r" );
 
-		  //Then make the new Quest.txt and add the new modifications
-		  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-          newfile = fs_fileOpen( PRI_WARN, NULL, newloadname, "w" );
-		  fprintf(newfile, "//This file keeps order of all the quests for the player\n");
-		  fprintf(newfile, "//The number after the IDSZ shows the quest level. -1 means it is completed.\n");
-          
-		  //Now read the old quest file and copy each line to the new one
-		  while ( fgoto_colon_yesno( fileread ))
-		  {
-			  newidsz = fget_idsz( fileread );
-			  if ( newidsz != idsz )
-			  {
-				QuestLevel = fget_int( fileread );
-				snprintf( copybuffer, sizeof( copybuffer ), "\n:[%s] %i",  undo_idsz(newidsz), QuestLevel );
-                fprintf( newfile, copybuffer );
-			  }
-			  else	//This is where we actually modify the part we need
-			  {
-				  QuestLevel = fget_int( fileread );
-				  if(adjustment == 0) NewQuestLevel = -1;
-				  else 
-				  {
-					  NewQuestLevel = QuestLevel + adjustment;
-					  if(NewQuestLevel < 0) NewQuestLevel = 0;
-				  }
-				  fprintf(newfile, "\n:[%s] %i", undo_idsz(idsz), NewQuestLevel);
-			  }
-		  }		  
-		  fs_fileClose( newfile );
-	  }
+      if ( QuestLevel == -1 )					//Quest is already finished, do not modify
+      {
+        fs_fileClose( fileread );
+        return NewQuestLevel;
+      }
+
+      // break out of the while loop
+      break;
     }
   }
-  fs_fileClose( fileread );
-  
-  //Delete the old quest file
+
   if(foundidsz)
   {
-	snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
-	fs_deleteFile( copybuffer );
+    // modify the CData.quest_file
+
+    char ctmp;
+
+    //First close the file, rename it and reopen it for reading
+    fs_fileClose( fileread );
+
+    // create a "tmp_*" copy of the file
+    snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+    snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
+    fs_copyFile( newloadname, copybuffer );
+
+    // open the tmp file for reading and overwrite the original file
+    fileread  = fs_fileOpen( PRI_NONE, NULL, copybuffer, "r" );
+    filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "w" );
+
+    // read the tmp file line-by line
+    while( !feof(fileread) )
+    {
+      ctmp = fgetc(fileread);
+      ungetc(ctmp, fileread);
+
+      if( ctmp == '/' )
+      {
+        // copy comments exactly
+
+        fcopy_line(fileread, filewrite);
+      }
+      else if( fgoto_colon_yesno( fileread ) )
+      {
+        // scan the line for quest info
+        newidsz = fget_idsz( fileread );
+        QuestLevel = fget_int( fileread );
+
+        // modify it
+        if ( newidsz == idsz )
+        {
+          if(adjustment == 0) 
+          {
+            QuestLevel = -1;
+          }
+          else
+          {
+            QuestLevel += adjustment;
+            if(QuestLevel < 0) QuestLevel = 0;
+          }
+          NewQuestLevel = QuestLevel;
+        }
+
+        // re-emit it
+        fprintf(filewrite, "\n:[%s] %i", undo_idsz(idsz), QuestLevel);
+      }
+    }
+
+    // get rid of the tmp file
+    fs_fileClose( filewrite );
+    fs_deleteFile( copybuffer );
   }
+
+  fs_fileClose( fileread );
+
   return NewQuestLevel;
 }
 
@@ -6764,35 +6806,11 @@ void VData_Blended_Deallocate(VData_Blended * v)
 {
   if(NULL == v) return;
 
-  if(NULL!=v->Vertices)
-  {
-    free( v->Vertices );
-    v->Vertices = NULL;
-  }
-
-  if(NULL!=v->Normals)
-  {
-    free( v->Normals );
-    v->Normals = NULL;
-  }
-
-  if(NULL!=v->Colors)
-  {
-    free( v->Colors );
-    v->Colors = NULL;
-  }
-
-  if(NULL!=v->Texture)
-  {
-    free( v->Texture );
-    v->Texture = NULL;
-  }
-
-  if(NULL!=v->Ambient)
-  {
-    free( v->Ambient );
-    v->Ambient = NULL;
-  }
+  FREE( v->Vertices );
+  FREE( v->Normals );
+  FREE( v->Colors );
+  FREE( v->Texture );
+  FREE( v->Ambient );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6812,7 +6830,7 @@ void VData_Blended_delete(VData_Blended * v)
   if(NULL != v) return;
 
   VData_Blended_destruct(v);
-  free(v);
+  FREE(v);
 };
 
 //--------------------------------------------------------------------------------------------
@@ -7411,7 +7429,7 @@ bool_t md2_calculate_bumpers_2(CHR_REF ichr, vect3 * vrt_ary)
 
   if(free_array)
   {
-    free( vrt_ary );
+    FREE( vrt_ary );
   }
 
   return btrue;
@@ -7515,7 +7533,8 @@ bool_t md2_calculate_bumpers_3(CHR_REF ichr, CVolume_Tree * cv_tree)
   {
     float tmp_x, tmp_y, tmp_z, tmp_xy, tmp_yx;
     CVolume cv_tri;
-    short * tri = pmdl->m_triangles[cnt].vertexIndices;
+    MD2_Triangle * pmd2_tri = md2_get_Triangle(pmdl, cnt);
+    short * tri = pmd2_tri->vertexIndices;
     int ivrt = tri[0];
 
     // find the collision volume for this triangle
@@ -7574,10 +7593,9 @@ bool_t md2_calculate_bumpers_3(CHR_REF ichr, CVolume_Tree * cv_tree)
 
   };
 
-
   bd->cv.level = 3;
 
-  free( vrt_ary );
+  FREE( vrt_ary );
 
   return btrue;
 };

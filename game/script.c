@@ -4239,7 +4239,7 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
 
     case F_SetQuestLevel:
       //This function modifies the quest level for a specific quest IDSZ
-      //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	  
+      //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)	
       returncode = bfalse;
       if ( ChrList[loc_aitarget].isplayer && scr_globals.tmpdistance != 0 )
       {
@@ -4265,11 +4265,12 @@ bool_t run_function( Uint32 value, CHR_REF ichr )
     case F_IfOperatorIsLinux:
       //This function proceeds if the computer is running a UNIX OS
 
-    #ifdef __unix__
-    returncode = btrue;    //Player running Linux
+      #ifdef __unix__
+        returncode = btrue;    //Player running Linux
       #else
-    returncode = bfalse;    //Player running something else.
-    #endif
+        returncode = bfalse;    //Player running something else.
+      #endif
+
       break;
 
     case F_IfTargetIsOwner:

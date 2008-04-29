@@ -27,6 +27,7 @@
 #include "sound.h"
 #include "char.h"
 #include "enchant.h"
+#include "Md2.inl"
 
 #include "egoboo_math.h"
 #include "egoboo_utility.h"
@@ -203,7 +204,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
 
   if ( local_pip >= MAXPRTPIP )
   {
-    if( CData.DevMode ) 
+    if( CData.DevMode )
     {
       fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : local_pip == %d is an invalid value\n", local_pip );
       fprintf( filewrite, "WARN: spawn_one_particle() - failed to spawn : local_pip == %d is an invalid value\n", local_pip );
@@ -225,7 +226,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   iprt = get_free_particle( PipList[glob_pip].force );
   if ( iprt == MAXPRT )
   {
-    if( CData.DevMode ) 
+    if( CData.DevMode )
     {
       fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : get_free_particle() returned invalid value %d\n", iprt );
       fprintf( filewrite, "WARN: spawn_one_particle() - failed to spawn : get_free_particle() returned invalid value %d\n", iprt );
@@ -239,7 +240,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   if ( VALID_CHR( characterattach ) ) weight = MAX( weight, ChrList[characterattach].weight );
   PrtList[iprt].weight = weight;
 
-  //if( CData.DevMode ) 
+  //if( CData.DevMode )
   //{
   //  fprintf( stderr, "spawn_one_particle() - \n\tlocal local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
   //  fprintf( filewrite, "SUCCESS: spawn_one_particle() - local local_pip == %d, global local_pip == %d, part == %d\n", local_pip, glob_pip, iprt);
@@ -339,7 +340,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
     // Does it go away?
     if ( !VALID_CHR( prt_target ) && PipList[glob_pip].needtarget )
     {
-      if( CData.DevMode ) 
+      if( CData.DevMode )
       {
         fprintf( stderr, "spawn_one_particle() - \n\tfailed to spawn : pip requires target and no target specified\n", iprt );
         fprintf( filewrite, "WARN: spawn_one_particle() - failed to spawn : pip requires target and no target specified\n", iprt );

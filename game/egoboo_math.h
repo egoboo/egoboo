@@ -27,6 +27,7 @@
 //#include "egoboo.h"
 #include <math.h>
 #include "egoboo_types.h"
+#include "egoboo_config.h"
 
 #define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
 #define HAS_ALL_BITS(XX,YY)  ((YY) == ((XX)&(YY)))

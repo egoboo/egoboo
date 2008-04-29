@@ -18,7 +18,7 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MD2.h"
+#include "MD2.inl"
 #include "id_md2.h"
 #include "egoboo_math.h"
 #include <SDL_endian.h>    // TODO: Roll my own endian stuff so that I don't have to include
@@ -246,23 +246,7 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
   return model;
 }
 
-const MD2_SkinName *md2_get_Skin(MD2_Model * m, int index)
-{
-  if(index >= 0 && index < m->m_numSkins)
-  {
-    return &m->m_skins[index];
-  }
-  return NULL;
-}
 
-const MD2_Frame *md2_get_Frame(MD2_Model * m, int index)
-{
-  if(index >= 0 && index < m->m_numFrames)
-  {
-    return &m->m_frames[index];
-  }
-  return NULL;
-}
 
 
 //MD2_Model* MD2_Manager::loadFromFile(const char *fileName, MD2_Model* mdl)
@@ -307,11 +291,7 @@ void MD2_GLCommand_destruct(MD2_GLCommand * m)
     m->next = NULL;
   };
 
-  if(NULL!=m->data)
-  {
-    free(m->data);
-    m->data = NULL;
-  }
+  FREE(m->data);
 };
 
 MD2_GLCommand * MD2_GLCommand_new()
@@ -334,7 +314,7 @@ void MD2_GLCommand_delete(MD2_GLCommand * m)
 {
   if(NULL==m) return;
   MD2_GLCommand_destruct(m);
-  free(m);
+  FREE(m);
 };
 
 void MD2_GLCommand_delete_vector(MD2_GLCommand * v, int n)
@@ -342,7 +322,7 @@ void MD2_GLCommand_delete_vector(MD2_GLCommand * v, int n)
   int i;
   if(NULL==v || 0 == n) return;
   for(i=0; i<n; i++) MD2_GLCommand_destruct(&v[i]);
-  free(v);
+  FREE(v);
 };
 
 
@@ -363,47 +343,29 @@ void md2_construct(MD2_Model * m)
 
 void md2_deallocate(MD2_Model * m)
 {
-  if(m->m_skins != NULL)
-  {
-    free( m->m_skins );
-    m->m_skins = NULL;
-    m->m_numSkins = 0;
-  }
+  FREE( m->m_skins );
+  m->m_numSkins = 0;
 
-  if(m->m_texCoords != NULL)
-  {
-    free( m->m_texCoords );
-    m->m_texCoords = NULL;
-    m->m_numTexCoords = 0;
-  }
+  FREE(m->m_texCoords);
+  m->m_numTexCoords = 0;
 
-  if(m->m_triangles != NULL)
-  {
-    free( m->m_triangles );
-    m->m_triangles = NULL;
-    m->m_numTriangles = 0;
-  }
+  FREE(m->m_triangles);
+  m->m_numTriangles = 0;
 
   if(m->m_frames != NULL)
   {
     int i;
     for(i = 0;i < m->m_numFrames; i++)
     {
-      if(m->m_frames[i].vertices != NULL)
-      {
-        free( m->m_frames[i].vertices );
-      }
+      FREE(m->m_frames[i].vertices)
     }
-    free( m->m_frames );
-    m->m_frames = NULL;
+    FREE( m->m_frames );
     m->m_numFrames = 0;
   }
 
-  if(m->m_commands!=NULL)
-  {
-    free( m->m_commands );
-    m->m_commands = NULL;
-  }
+  FREE(m->m_commands);
+  m->m_numCommands = 0;
+
 };
 
 void md2_destruct(MD2_Model * m)
@@ -432,7 +394,7 @@ void md2_delete(MD2_Model * m)
 {
   if(NULL==m) return;
   md2_destruct(m);
-  free(m);
+  FREE(m);
 };
 
 void md2_delete_vector(MD2_Model * v, int n)
@@ -440,7 +402,7 @@ void md2_delete_vector(MD2_Model * v, int n)
   int i;
   if(NULL==v || 0 == n) return;
   for(i=0; i<n; i++) md2_destruct(&v[i]);
-  free(v);
+  FREE(v);
 };
 
 

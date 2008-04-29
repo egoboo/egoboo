@@ -23,7 +23,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "graphic.h"
 #include "char.h"
 #include "Mad.h"
-#include "Md2.h"
+#include "Md2.inl"
 #include "id_md2.h"
 #include "Log.h"
 #include "input.h"

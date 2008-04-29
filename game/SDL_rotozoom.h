@@ -44,13 +44,13 @@ extern "C" {
   /* ---- Prototypes */
 
 #ifdef WIN32
-#ifdef BUILD_DLL
-#define DLLINTERFACE __declspec(dllexport)
+#    ifdef BUILD_DLL
+#        define DLLINTERFACE __declspec(dllexport)
+#    else
+#        define DLLINTERFACE __declspec(dllimport)
+#    endif
 #else
-#define DLLINTERFACE __declspec(dllimport)
-#endif
-#else
-#define DLLINTERFACE
+#    define DLLINTERFACE
 #endif
 
   /*

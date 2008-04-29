@@ -1,6 +1,6 @@
 /* Egoboo - Mesh.c
  * This part handles mesh related stuff.
- * 
+ *
  */
 
 /*
@@ -158,7 +158,7 @@ bool_t load_mesh( char *modname )
     Mesh_Mem.vrt_ar_fp8[cnt] = 0; // itmp;
     Mesh_Mem.vrt_ag_fp8[cnt] = 0; // itmp;
     Mesh_Mem.vrt_ab_fp8[cnt] = 0; // itmp;
-                       
+
     Mesh_Mem.vrt_lr_fp8[cnt] = 0;
     Mesh_Mem.vrt_lg_fp8[cnt] = 0;
     Mesh_Mem.vrt_lb_fp8[cnt] = 0;
@@ -188,7 +188,7 @@ bool_t load_mesh( char *modname )
       Mesh_Fan[fan].bbox.mins.x = MIN( Mesh_Fan[fan].bbox.mins.x, Mesh_Mem.vrt_x[vrt] );
       Mesh_Fan[fan].bbox.mins.y = MIN( Mesh_Fan[fan].bbox.mins.y, Mesh_Mem.vrt_y[vrt] );
       Mesh_Fan[fan].bbox.mins.z = MIN( Mesh_Fan[fan].bbox.mins.z, Mesh_Mem.vrt_z[vrt] );
-                                                                              
+
       Mesh_Fan[fan].bbox.maxs.x = MAX( Mesh_Fan[fan].bbox.maxs.x, Mesh_Mem.vrt_x[vrt] );
       Mesh_Fan[fan].bbox.maxs.y = MAX( Mesh_Fan[fan].bbox.maxs.y, Mesh_Mem.vrt_y[vrt] );
       Mesh_Fan[fan].bbox.maxs.z = MAX( Mesh_Fan[fan].bbox.maxs.z, Mesh_Mem.vrt_z[vrt] );
@@ -734,11 +734,8 @@ bool_t get_mesh_memory()
 //--------------------------------------------------------------------------------------------
 void free_mesh_memory()
 {
-  if ( Mesh_Mem.base != NULL )
-  {
-    free( Mesh_Mem.base );
-    Mesh_Mem.base = NULL;
-  }
+  FREE ( Mesh_Mem.base );
+  memset(&Mesh_Mem, 0, sizeof(MESH_MEMORY));
 }
 
 //--------------------------------------------------------------------------------------------

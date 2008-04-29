@@ -24,6 +24,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "log.h"
 #include "passage.h"
 #include "particle.h"
+#include "Md2.inl"
 
 #include "egoboo_utility.h"
 #include "egoboo.h"
@@ -35,7 +36,7 @@ SEARCH_CONTEXT g_search;
 EVE EveList[MAXEVE];
 ENC EncList[MAXENCHANT];
 
-Uint16  numfreeenchant = 0;             // For allocating new ones
+Uint16  numfreeenchant = 0;         // For allocating new ones
 Uint16  freeenchant[MAXENCHANT];    //
 
 //--------------------------------------------------------------------------------------------

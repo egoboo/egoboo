@@ -26,10 +26,6 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifdef WIN32
-#define vsnprintf _vsnprintf
-#endif
-
 #define MAX_LOG_MESSAGE 1024
 
 static FILE *logFile = NULL;

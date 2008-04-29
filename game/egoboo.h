@@ -26,6 +26,7 @@
 
 /* Typedefs for various platforms */
 #include "egoboo_types.h"
+#include "egoboo_config.h"
 
 #include <stdlib.h>
 #include <stdarg.h>

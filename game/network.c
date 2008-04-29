@@ -30,10 +30,6 @@
 #include <stdarg.h>
 #include <assert.h>
 
-#ifdef WIN32
-#define vsnprintf _vsnprintf
-#endif
-
 // ENet host & client identifiers
 ENetHost* net_myHost = NULL;
 ENetPeer* net_gameHost = NULL;
@@ -961,8 +957,7 @@ void net_updateFileTransfers()
           packet = enet_packet_create( transferBuffer, transferSize, ENET_PACKET_FLAG_RELIABLE );
           enet_peer_send( state->target, NET_GUARANTEED_CHANNEL, packet );
 
-          free( transferBuffer );
-          transferBuffer = NULL;
+          FREE( transferBuffer );
           transferSize = 0;
 
           net_waitingForXferAck = 1;

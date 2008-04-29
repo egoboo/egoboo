@@ -1,6 +1,6 @@
 /* Egoboo - graphic.h
- * 
- * 
+ *
+ *
  */
 
 /*

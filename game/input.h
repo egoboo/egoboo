@@ -2,6 +2,8 @@
 
 #include "egoboo_types.h"
 
+#include <SDL.h>
+
 typedef enum control_list_e
 {
   KEY_JUMP = 0,

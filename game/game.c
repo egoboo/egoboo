@@ -40,6 +40,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "script.h"
 #include "enchant.h"
 #include "camera.h"
+#include "Md2.inl"
 
 #include "egoboo_utility.h"
 #include "egoboo_strutil.h"
@@ -128,7 +129,7 @@ void memory_cleanUp()
   log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
 
   gameActive = bfalse;
-  
+
   close_session();					  //Turn off networking
   release_module();					  //Remove memory loaded by a module
   if ( mixeron ) Mix_CloseAudio();    //Close audio systems
@@ -310,7 +311,7 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
     fs_copyFile( fromfile, tofile );
 
 
-	  snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.quest_file );
+    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.quest_file );
     snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.quest_file );
     fs_copyFile( fromfile, tofile );
 
@@ -2024,8 +2025,10 @@ bool_t dump_screenshot()
   glReadPixels( 0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels );
 
   for ( i = 0; i < screen->h; i++ )
+  {
     memcpy((( char * ) temp->pixels ) + temp->pitch * i, pixels + 3 * screen->w * ( screen->h - i - 1 ), screen->w * 3 );
-  free( pixels );
+  }
+  FREE( pixels );
 
   // find the next EGO??.BMP file for writing
   i = 0;
@@ -2188,7 +2191,7 @@ void set_frame( CHR_REF character, Uint16 frame, Uint8 lip )
 
   if(start == end)
   {
-    pchr->anim.last = 
+    pchr->anim.last =
     pchr->anim.next = start;
   }
   else
@@ -2437,7 +2440,7 @@ void give_experience( CHR_REF character, int amount, EXPERIENCE xptype )
     if ( ChrList[character].isplayer )
     {
       debug_message( 1, "%s gained a level!!!", ChrList[character].name );
-	    play_sound(1.0f, ChrList[character].pos, globalwave[GSOUND_LEVELUP], 0, character, GSOUND_LEVELUP);
+      play_sound(1.0f, ChrList[character].pos, globalwave[GSOUND_LEVELUP], 0, character, GSOUND_LEVELUP);
     }
     ChrList[character].experiencelevel++;
 
@@ -3589,8 +3592,8 @@ int proc_program( int argc, char **argv )
           //      register all of the memory deallocation routines with atexit() so they will
           //      be called automatically on a return from the main function or a call to exit()
 
-		      // memory_cleanUp();
-		      // exit(0);
+          // memory_cleanUp();
+          // exit(0);
         }
 
 

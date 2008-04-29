@@ -695,7 +695,7 @@ Sint32 SetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const ch
     }
     if ( lLentghtNewValue >= lLengthValue )
     {
-      free( pConfigFile->CurrentValue->Value );
+      FREE( pConfigFile->CurrentValue->Value );
       pConfigFile->CurrentValue->Value = ( char * ) malloc( lLentghtNewValue  + 1 );
       memset( pConfigFile->CurrentValue->Value, 0, lLentghtNewValue + 1 );
     }
@@ -761,23 +761,17 @@ void CloseConfigFile( ConfigFilePtr pConfigFile )
     lTempValue = lTempSection->FirstValue;
     while ( lTempValue != NULL )
     {
-      if ( lTempValue->Value != NULL )
-      {
-        free( lTempValue->Value );
-      }
-      if ( lTempValue->Commentary != NULL )
-      {
-        free( lTempValue->Commentary );
-      }
+      FREE ( lTempValue->Value );
+      FREE ( lTempValue->Commentary );
       lDoomedValue = lTempValue;
       lTempValue = lTempValue->NextValue;
-      free( lDoomedValue );
+      FREE( lDoomedValue );
     }
     lDoomedSection = lTempSection;
     lTempSection = lTempSection->NextSection;
-    free( lDoomedSection );
+    FREE( lDoomedSection );
   }
-  free( pConfigFile );
+  FREE( pConfigFile );
 }
 
 // SaveConfigValue saves the value from pValue at the current position
