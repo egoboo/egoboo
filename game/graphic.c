@@ -2624,6 +2624,7 @@ void draw_scene_zreflection()
   };
 #endif
 
+#if defined(DEBUG_BBOX) && defined(_DEBUG)
   if(CData.DevMode)
   {
     int i;
@@ -2635,6 +2636,7 @@ void draw_scene_zreflection()
       mad_display_bbox_tree(2, ChrList[i].matrix, MadList + ChrList[i].model, ChrList[i].anim.last, ChrList[i].anim.next );
     }
   };
+#endif
 
 };
 

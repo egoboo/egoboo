@@ -20,8 +20,6 @@ typedef enum control_list_e
   KEY_DOWN,
   KEY_LEFT,
   KEY_RIGHT,
-  KEY_FIRST = KEY_JUMP,
-  KEY_LAST,
 
   MOS_JUMP,
   MOS_LEFT_USE,
@@ -31,9 +29,6 @@ typedef enum control_list_e
   MOS_RIGHT_GET,
   MOS_RIGHT_PACK,
   MOS_CAMERA,
-  MOS_FIRST = MOS_JUMP,
-  MOS_LAST,
-
 
   JOA_JUMP,
   JOA_LEFT_USE,
@@ -43,9 +38,8 @@ typedef enum control_list_e
   JOA_RIGHT_GET,
   JOA_RIGHT_PACK,
   JOA_CAMERA,
-  JOA_FIRST = JOA_JUMP,
-  JOA_LAST,
 
+  JOB_JUMP,
   JOB_LEFT_USE,
   JOB_LEFT_GET,
   JOB_LEFT_PACK,
@@ -53,10 +47,18 @@ typedef enum control_list_e
   JOB_RIGHT_GET,
   JOB_RIGHT_PACK,
   JOB_CAMERA,
+  CONTROL_LIST_COUNT,
 
-  JOB_FIRST = JOB_LEFT_USE,
-  JOB_LAST,
+  // !!!! OMG !!!! - these aliases have to be last or they mess up the automatic ordering
+  KEY_FIRST = KEY_JUMP,
+  MOS_FIRST = MOS_JUMP,
+  JOA_FIRST = JOA_JUMP,
+  JOB_FIRST = JOB_JUMP,
 
+  KEY_LAST = MOS_FIRST,
+  MOS_LAST = JOA_FIRST,
+  JOA_LAST = JOB_FIRST,
+  JOB_LAST = CONTROL_LIST_COUNT
 
 } CONTROL_LIST;
 
