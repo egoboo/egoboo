@@ -224,3 +224,5 @@ MAD *  mad_delete(MAD * pmad);
 MAD *  mad_renew(MAD * pmad);
 Uint16 load_one_mad( char* szLoadname, Uint16 modelindex );
 void free_one_mad( Uint16 imdl );
+
+bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame1, int frame2);

@@ -122,8 +122,15 @@ typedef union vector4_t { float v[4]; struct { float x, y, z, w; }; struct { flo
 
 typedef struct aa_bbox_t
 {
-  vect3 mins;
-  vect3 maxs;
+  int    sub_used;
+  float  weight;
+
+  bool_t used;
+  int    level;
+  int    address;
+
+  vect3  mins;
+  vect3  maxs;
 } AA_BBOX;
 
 

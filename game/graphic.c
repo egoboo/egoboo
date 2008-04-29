@@ -2623,6 +2623,19 @@ void draw_scene_zreflection()
     cv_list_draw();
   };
 #endif
+
+  if(CData.DevMode)
+  {
+    int i;
+
+    for(i=0; i<MAXCHR; i++)
+    {
+      if(!ChrList[i].on) continue;
+
+      mad_display_bbox_tree(2, ChrList[i].matrix, MadList + ChrList[i].model, ChrList[i].anim.last, ChrList[i].anim.next );
+    }
+  };
+
 };
 
 

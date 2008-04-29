@@ -3,6 +3,8 @@
 #include "script.h"
 #include "Log.h"
 
+#include <assert.h>
+
 MAD MadList[MAXMODEL];
 
 float  spek_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -386,7 +388,7 @@ bool_t bbox_list_contract(BBOX_LIST *pnew)
 
   for(i=0, j=0; i<pnew->count; i++)
   {
-    if(pnew->list[i].mins.x == pnew->list[i].maxs.x) continue;
+    if(!pnew->list[i].used) continue;
 
     if(i!=j)
     {
@@ -422,6 +424,8 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
   int            tri_count;
   md2_triangle * ptri_lst;
 
+  vect3 diff, origin;
+
   // erase any existing data in the BBOX_LIST
   if(NULL == bbox_list_renew(plist)) return bfalse;
 
@@ -438,21 +442,30 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
   pframe    = pmd2->m_frames + frame;
   vrt_count = pmd2->m_numVertices;
 
+  // do some bbox pre-calculation
+  origin.x = pframe->bbmin[0];
+  origin.y = pframe->bbmin[1];
+  origin.z = pframe->bbmin[2];
+
+  diff.x = pframe->bbmax[0] - origin.x;
+  diff.y = pframe->bbmax[1] - origin.y;
+  diff.z = pframe->bbmax[2] - origin.z;
+
   // allocate a bbox list that has the required number of bboxes
   num_per_axis     = 1 << (  bbox_divisions);
   bbox_alloc_count = 1 << (3*bbox_divisions);
   bbox_list_alloc( plist, bbox_alloc_count );
 
-  // initialize the data with "invalid" bboxes (i.e. they have zero volume)
+  // initialize the data with "invalid" bboxes
   for(i=0; i<bbox_alloc_count; i++)
   {
-    ix = (i >> (0*bbox_divisions)) & (num_per_axis-1);
-    iy = (i >> (1*bbox_divisions)) & (num_per_axis-1);
-    iz = (i >> (2*bbox_divisions)) & (num_per_axis-1);
+    AA_BBOX * pbbox = plist->list + i;
 
-    plist->list[i].mins.x = plist->list[i].maxs.x =  ix / (float)num_per_axis;
-    plist->list[i].maxs.y = plist->list[i].mins.y =  iy / (float)num_per_axis;
-    plist->list[i].maxs.z = plist->list[i].mins.z =  iz / (float)num_per_axis;
+    pbbox->used     = bfalse;
+    pbbox->level    = bbox_divisions;
+    pbbox->address  = i;
+    pbbox->weight   = 1.0f;
+    pbbox->sub_used = 8;
   }
 
   // for each triangle in the tri_list, calculate its bbox and,
@@ -496,16 +509,15 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
     // if a vertex is invalid, skip the triangle
     if(j<3) continue;
 
-
     // calculate the integer limits of the triangle's bbox
-    ix_min = (tmp_bb.mins.x - pframe->bbmin[0]) / (pframe->bbmax[0]-pframe->bbmin[0]) * num_per_axis;
-    ix_max = (tmp_bb.maxs.x - pframe->bbmin[0]) / (pframe->bbmax[0]-pframe->bbmin[0]) * num_per_axis;
+    ix_min = (tmp_bb.mins.x - origin.x) / diff.x * num_per_axis;
+    ix_max = (tmp_bb.maxs.x - origin.x) / diff.x * num_per_axis;
 
-    iy_min = (tmp_bb.mins.y - pframe->bbmin[1]) / (pframe->bbmax[1]-pframe->bbmin[1]) * num_per_axis;
-    iy_max = (tmp_bb.maxs.y - pframe->bbmin[1]) / (pframe->bbmax[1]-pframe->bbmin[1]) * num_per_axis;
+    iy_min = (tmp_bb.mins.y - origin.y) / diff.y * num_per_axis;
+    iy_max = (tmp_bb.maxs.y - origin.y) / diff.y * num_per_axis;
 
-    iz_min = (tmp_bb.mins.z - pframe->bbmin[2]) / (pframe->bbmax[2]-pframe->bbmin[2]) * num_per_axis;
-    iz_max = (tmp_bb.maxs.z - pframe->bbmin[2]) / (pframe->bbmax[2]-pframe->bbmin[2]) * num_per_axis;
+    iz_min = (tmp_bb.mins.z - origin.z) / diff.z * num_per_axis;
+    iz_max = (tmp_bb.maxs.z - origin.z) / diff.z * num_per_axis;
 
     // insert valid nodes into the data
     for(ix=ix_min; ix<=ix_max; ix++)
@@ -514,23 +526,30 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
       {
         for(iz=iz_min; iz<=iz_max; iz++)
         {
+          AA_BBOX * pbbox;
+          int idx;
 
           // calculate the index from the integer positions
-          int idx = ((ix & (num_per_axis-1)) << (0*bbox_divisions)) |
-                    ((iy & (num_per_axis-1)) << (1*bbox_divisions)) |
-                    ((iz & (num_per_axis-1)) << (2*bbox_divisions)) ;
+          idx = ((ix & (num_per_axis-1)) << (0*bbox_divisions)) |
+                ((iy & (num_per_axis-1)) << (1*bbox_divisions)) |
+                ((iz & (num_per_axis-1)) << (2*bbox_divisions)) ;
 
-          if( (plist->list[idx].mins.x == plist->list[idx].maxs.x) )
+          pbbox = plist->list + idx;
+
+          if( !pbbox->used )
           {
+            assert(pbbox->address == idx && pbbox->level == bbox_divisions);
 
-            plist->list[idx].mins.x =  (ix + 0) / (float)num_per_axis;
-            plist->list[idx].maxs.x =  (ix + 1) / (float)num_per_axis;
+            pbbox->used    = btrue;
 
-            plist->list[idx].mins.y =  (iy + 0) / (float)num_per_axis;
-            plist->list[idx].maxs.y =  (iy + 1) / (float)num_per_axis;
+            pbbox->mins.x =  (ix + 0) / (float)num_per_axis;
+            pbbox->maxs.x =  (ix + 1) / (float)num_per_axis;
 
-            plist->list[idx].mins.z =  (iz + 0) / (float)num_per_axis;
-            plist->list[idx].maxs.z =  (iz + 1) / (float)num_per_axis;
+            pbbox->mins.y =  (iy + 0) / (float)num_per_axis;
+            pbbox->maxs.y =  (iy + 1) / (float)num_per_axis;
+
+            pbbox->mins.z =  (iz + 0) / (float)num_per_axis;
+            pbbox->maxs.z =  (iz + 1) / (float)num_per_axis;
 
             bbox_count++;
           }
@@ -539,31 +558,197 @@ bool_t mad_generate_bbox_list(BBOX_LIST *plist, MD2_Model * pmd2, int frame, int
     }
   }
 
-  if(bbox_count == bbox_alloc_count)
-  {
-    // this bbox is completely full. It doesn't help us at all
-    bbox_list_delete(plist);
-    return bfalse;
-  }
-  else if(bbox_count > bbox_alloc_count * 0.75f)
-  {
-    // this bbox is not efficient enough. It doesn't help us at all
-    bbox_list_delete(plist);
-    return bfalse;
-  }
-  else
+  //if(bbox_count == bbox_alloc_count)
+  //{
+  //  // this bbox is completely full. It doesn't help us at all
+  //  bbox_list_delete(plist);
+  //  return bfalse;
+  //}
+  //else if(bbox_count > bbox_alloc_count * 0.75f)
+  //{
+  //  // this bbox is not efficient enough. It doesn't help us at all
+  //  bbox_list_delete(plist);
+  //  return bfalse;
+  //}
+  //else
   {
     return bbox_list_contract(plist);
   };
 };
+//--------------------------------------------------------------------------------------------
+bool_t mad_cull_bbox_list(int max_lod, BBOX_LIST *plst, BBOX_LIST *pcull)
+{
+  int ix, iy, iz;
+  int i, j, k;
+  int lst_divisions, lst_per_axis, cull_divisions, cull_per_axis;
+
+  if(NULL == plst || NULL == pcull) return bfalse;
+
+  if(0 == plst->count || 0 == pcull->count) return btrue;
+
+  // collapse inefficient bounding boxes in pcull
+  for(i=0; i<plst->count; i++)
+  {
+    AA_BBOX * pbb_lst;
+    int       idx_lst;
+    bool_t    found;
+    int       lst_full_weight;
+
+    pbb_lst = plst->list + i;
+
+    lst_full_weight = 1 << (3*(max_lod - pbb_lst->level));
+
+    // collapse inefficient bounding boxes
+    assert( pbb_lst->sub_used <= 8 );
+
+    if( pbb_lst->sub_used > 6 )
+    {
+      // all of the 8 bboxes under this bbox are used
+      // they are "degenerate" with this bbox and should be culled
+
+      idx_lst       = pbb_lst->address;
+      lst_divisions = pbb_lst->level;
+      lst_per_axis  = 1 << lst_divisions;
+
+      // scan through pcull to find the bboxes under this one
+      found = bfalse;
+      for(j=0; j<pcull->count; j++)
+      {
+        AA_BBOX * pbb_cull = pcull->list + j;
+        int       idx_cull;
+
+        if(!pbb_cull->used) continue;
+
+        idx_cull       = pbb_cull->address;
+        cull_divisions = pbb_cull->level;
+        cull_per_axis  = 1 << cull_divisions;
+
+        if(cull_divisions > lst_divisions)
+        {
+          // find the integer position of the pbb_cull box
+          
+          ix = (idx_cull >> (0*cull_divisions)) & (cull_per_axis-1);
+          iy = (idx_cull >> (1*cull_divisions)) & (cull_per_axis-1);
+          iz = (idx_cull >> (2*cull_divisions)) & (cull_per_axis-1);
+
+          // convert this to a position in pbb_lst 
+          ix >>= (cull_divisions - lst_divisions);
+          iy >>= (cull_divisions - lst_divisions);
+          iz >>= (cull_divisions - lst_divisions);
+
+          // find the address in pbb_lst
+          k = ((ix & (lst_per_axis-1)) << (0*lst_divisions)) |
+              ((iy & (lst_per_axis-1)) << (1*lst_divisions)) |
+              ((iz & (lst_per_axis-1)) << (2*lst_divisions));
+
+          // compare this address to the address of pbb_lst
+          if(k == idx_lst)
+          {
+            // found a match
+            //if(!found)
+            //{
+            //  memcpy(pbb_cull, pbb_lst, sizeof(AA_BBOX));
+            //  found = btrue;
+            //}
+            //else
+            {
+              pbb_cull->used = bfalse;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  bbox_list_contract(pcull);
+
+  return btrue;
+}
+
+
+
+
+
+//--------------------------------------------------------------------------------------------
+bool_t mad_optimize_bbox_tree(MAD * pmad)
+{
+  // BB > optimize the bbox tree by culling inefficient bboxes from the more detailed lists
+
+  int i,j,k, iframes, max_lod;
+  BBOX_ARY  * pary;
+  BBOX_LIST * pcull, * plst;
+  AA_BBOX   * pbbox;
+  MD2_Model * pmd2;
+  MD2_Frame * pframe;
+
+  if(NULL == pmad) return bfalse;
+
+  pmd2 = pmad->md2_ptr;
+
+  if(NULL == pmad->bbox_arrays || 0 == pmad->bbox_frames) return btrue;
+
+  // go through every frame
+  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+  for(i=0; i<iframes; i++)
+  {
+    pary    = pmad->bbox_arrays + i;
+    pframe  = pmd2->m_frames + i;
+    max_lod = pary->count - 1;
+
+    for(j=max_lod; j>=0; j--)
+    {
+      pcull = pary->list + j;
+
+      for(k=j-1; k>=1; k--)
+      {
+        plst = pary->list + k;
+
+        mad_cull_bbox_list(max_lod, plst, pcull);
+      }
+    }
+
+  }
+
+  // convert the bbox weight variable to an "efficiency" variable 
+  // that might be used when testing collisions or displaying bboxes, etc. 
+  for(i=0; i<iframes; i++)
+  {
+    float max_weight;
+
+    pary    = pmad->bbox_arrays + i;
+    pframe  = pmd2->m_frames + i;
+    max_lod = pary->count - 1;
+
+    if(NULL == pary) continue;
+
+    for(j=0; j<pary->count; j++)
+    {
+      plst = pary->list + j;
+      if(NULL == plst) continue;
+
+      max_weight = 1 << (3*(max_lod-j));
+
+      for(k=0; k<plst->count; k++)
+      {
+        pbbox = plst->list + k;
+
+        if(NULL == pbbox) continue;
+
+        pbbox->weight /= max_weight;
+      }
+    };
+  };
+
+  return btrue;
+}
 
 //--------------------------------------------------------------------------------------------
 // need to find some way to collect the data into larger sized blocks
-bool_t mad_simplify_bbox_list(int new_divisions, BBOX_LIST *pnew, BBOX_LIST *pold)
+static bool_t mad_simplify_bbox_list(int max_divisions, int new_divisions, BBOX_LIST *pnew, BBOX_LIST *pold)
 {
   int ix,ix_min,ix_max, iy,iy_min,iy_max, iz,iz_min,iz_max;
   int i;
-  int bbox_count;
+  int bbox_count, full_weight, full_weight_last;
   int new_per_axis, new_alloc_count, old_divisions, old_per_axis;
 
   // erase any existing data in the BBOX_LIST
@@ -572,19 +757,29 @@ bool_t mad_simplify_bbox_list(int new_divisions, BBOX_LIST *pnew, BBOX_LIST *pol
   // check for valid lists
   if(NULL == pold) return bfalse;
 
+  full_weight = 1 << (3*(max_divisions-new_divisions));
+  full_weight_last = full_weight >> 3;
+
   if(0 == new_divisions)
   {
-
     if(0 != pold->count)
     {
+      // this one must be used
+      bbox_list_new( pnew );
       bbox_list_alloc( pnew, 1 );
 
-      pnew->list[0].mins.x =  0;
-      pnew->list[0].maxs.x =  1;
-      pnew->list[0].mins.y =  0;
-      pnew->list[0].maxs.y =  1;
-      pnew->list[0].mins.z =  0;
-      pnew->list[0].maxs.z =  1;
+      pnew->list[0].address = 0;
+      pnew->list[0].level   = 0;
+      pnew->list[0].used    = btrue;
+      pnew->list[0].weight  = full_weight;
+
+      pnew->list[0].mins.x = 0;
+      pnew->list[0].mins.y = 0;
+      pnew->list[0].mins.z = 0;
+
+      pnew->list[0].maxs.x = 1;
+      pnew->list[0].maxs.y = 1;
+      pnew->list[0].maxs.z = 1;
     }
 
     return btrue;
@@ -599,29 +794,41 @@ bool_t mad_simplify_bbox_list(int new_divisions, BBOX_LIST *pnew, BBOX_LIST *pol
   new_alloc_count = 1 << (3 * new_divisions);
   bbox_list_alloc( pnew, new_alloc_count );
 
+  // initialize pnew with "invalid" bboxes
+  for(i=0; i<new_alloc_count; i++)
+  {
+    AA_BBOX * pbbox = pnew->list + i;
+
+    pbbox->used     = bfalse;
+    pbbox->level    = new_divisions;
+    pbbox->address  = i;
+    pbbox->weight   = 0;
+    pbbox->sub_used = 0;
+  }
+
   // insert valid nodes into the data
   bbox_count = 0;
   for(i=0; i<pold->count; i++)
   {
+    float fweight, fused;
+    int   idx_new, ivol;
+
     AA_BBOX * pbb_old = pold->list + i;
-    int idx_new;
 
-    if (pbb_old->mins.x == pbb_old->maxs.x) continue;
+    if (!pbb_old->used) continue;
 
-    ix_min = pbb_old->mins.x * old_per_axis;
-    ix_max = pbb_old->maxs.x * old_per_axis - 0.125f/old_per_axis;
-    ix_min >>= 1;
-    ix_max >>= 1;
+    ix_min = pbb_old->mins.x * new_per_axis;
+    ix_max = pbb_old->maxs.x * new_per_axis - 0.125f/new_per_axis;
 
-    iy_min = pbb_old->mins.y * old_per_axis;
-    iy_max = pbb_old->maxs.y * old_per_axis - 0.125f/old_per_axis/2;
-    iy_min >>= 1;
-    iy_min >>= 1;
+    iy_min = pbb_old->mins.y * new_per_axis;
+    iy_max = pbb_old->maxs.y * new_per_axis - 0.125f/new_per_axis;
 
-    iz_min = pbb_old->mins.z * old_per_axis;
-    iz_max = pbb_old->maxs.z * old_per_axis - 0.125f/old_per_axis/2;
-    iz_min >>= 1;
-    iz_max >>= 1;
+    iz_min = pbb_old->mins.z * new_per_axis;
+    iz_max = pbb_old->maxs.z * new_per_axis - 0.125f/new_per_axis;
+
+    ivol    = (ix_max-ix_min + 1) * (iy_max-iy_min + 1) * (iz_max-iz_min + 1);
+    fweight = pbb_old->weight   / (float)ivol;
+    fused   = pbb_old->sub_used / (float)ivol;
 
     for(ix=ix_min; ix<=ix_max; ix++)
     {
@@ -629,40 +836,50 @@ bool_t mad_simplify_bbox_list(int new_divisions, BBOX_LIST *pnew, BBOX_LIST *pol
       {
         for(iz=iz_min; iz<=iz_max; iz++)
         {
+          AA_BBOX * pbbox;
+
           idx_new = ((ix & (new_per_axis-1)) << (0*new_divisions)) |
                     ((iy & (new_per_axis-1)) << (1*new_divisions)) |
                     ((iz & (new_per_axis-1)) << (2*new_divisions));
 
-          if(pnew->list[idx_new].mins.x == pnew->list[idx_new].maxs.x)
-          {
+          pbbox = pnew->list + idx_new;
 
-            pnew->list[idx_new].mins.x =  (ix + 0) / (float)new_per_axis;
-            pnew->list[idx_new].maxs.x =  (ix + 1) / (float)new_per_axis;
-            pnew->list[idx_new].mins.y =  (iy + 0) / (float)new_per_axis;
-            pnew->list[idx_new].maxs.y =  (iy + 1) / (float)new_per_axis;
-            pnew->list[idx_new].mins.z =  (iz + 0) / (float)new_per_axis;
-            pnew->list[idx_new].maxs.z =  (iz + 1) / (float)new_per_axis;
+          if(!pbbox->used)
+          {
+            assert(pbbox->level == new_divisions && pbbox->address == idx_new);
+
+            pbbox->used    = btrue;
+
+            pbbox->mins.x =  (ix + 0) / (float)new_per_axis;
+            pbbox->maxs.x =  (ix + 1) / (float)new_per_axis;
+            pbbox->mins.y =  (iy + 0) / (float)new_per_axis;
+            pbbox->maxs.y =  (iy + 1) / (float)new_per_axis;
+            pbbox->mins.z =  (iz + 0) / (float)new_per_axis;
+            pbbox->maxs.z =  (iz + 1) / (float)new_per_axis;
 
             bbox_count++;
           }
+
+          pbbox->weight   += fweight;
+          pbbox->sub_used += (fused >= 6) ? 1 : 0;
         }
       }
     }
   };
 
-  if(bbox_count == new_alloc_count)
-  {
-    // this bbox is completely full. It doesn't help us at all
-    bbox_list_delete(pnew);
-    return bfalse;
-  }
-  if(bbox_count > new_alloc_count * 0.75f)
-  {
-    // this bbox is not efficient enough. there's not enough reason to keep it around
-    bbox_list_delete(pnew);
-    return bfalse;
-  }
-  else
+  //if(bbox_count == new_alloc_count)
+  //{
+  //  // this bbox is completely full. It doesn't help us at all
+  //  bbox_list_delete(pnew);
+  //  return bfalse;
+  //}
+  //else if(bbox_count > new_alloc_count * 0.75f)
+  //{
+  //  // this bbox is not efficient enough. there's not enough reason to keep it around
+  //  bbox_list_delete(pnew);
+  //  return bfalse;
+  //}
+  //else
   {
     return bbox_list_contract(pnew);
   };
@@ -692,8 +909,168 @@ bool_t mad_delete_bbox_tree(MAD * pmad)
 }
 
 //--------------------------------------------------------------------------------------------
+static bool_t mad_scale_bbox_tree(MAD * pmad)
+{
+  // BB > scale bounding boxes to the size of the object
+
+  int i, j, k;
+  int iframes;
+
+  MD2_Model * pmd2;
+  MD2_Frame * pframe;
+
+  BBOX_ARY  * pary;
+  BBOX_LIST * plst;
+  AA_BBOX   * pbbox;
+
+  vect3 diff, origin;
+
+  if(NULL==pmad) return bfalse;
+  pmd2 = pmad->md2_ptr;
+
+  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse; 
+
+  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+  for(i=0; i<iframes; i++)
+  {
+    pary   = pmad->bbox_arrays + i;
+    pframe = pmd2->m_frames + i;
+
+    if(NULL == pary) continue;
+
+    // 4.125 is the silly Egoboo md2 scaling.
+    // Has something to do with the vertical resolution in Cartman?
+    // x *= -1 is the right handed to left handed transformation...
+    diff.x = 4.125 * (pframe->bbmax[0] - pframe->bbmin[0]);
+    diff.y = 4.125 * (pframe->bbmax[1] - pframe->bbmin[1]);
+    diff.z = 4.125 * (pframe->bbmax[2] - pframe->bbmin[2]);
+
+    origin.x = 4.125 * pframe->bbmin[0];
+    origin.y = 4.125 * pframe->bbmin[1];
+    origin.z = 4.125 * pframe->bbmin[2];
+
+
+    for(j=0; j<pary->count; j++)
+    {
+      plst = pary->list + j;
+
+      if(NULL == plst) continue;
+
+      for(k=0; k<plst->count; k++)
+      {
+        pbbox = plst->list + k;
+
+        if(NULL == pbbox) continue;
+
+        pbbox->mins.x = pbbox->mins.x * diff.x + origin.x;
+        pbbox->mins.y = pbbox->mins.y * diff.y + origin.y;
+        pbbox->mins.z = pbbox->mins.z * diff.z + origin.z;
+
+        pbbox->maxs.x = pbbox->maxs.x * diff.x + origin.x;
+        pbbox->maxs.y = pbbox->maxs.y * diff.y + origin.y;
+        pbbox->maxs.z = pbbox->maxs.z * diff.z + origin.z;
+
+        pbbox->mins.x *= -1;
+        pbbox->maxs.x *= -1;
+      }
+    }
+
+  };
+
+  return btrue;
+
+}
+
+//--------------------------------------------------------------------------------------------
+//bool_t mad_optimize_bbox_tree(int max_level, MAD * pmad)
+//{
+//  // BB > try to collapse some of the bounding boxes on the more detailed levels
+//
+//  int i, j, k;
+//  int iframes;
+//
+//  MD2_Model * pmd2;
+//  MD2_Frame * pframe;
+//
+//  BBOX_ARY  * pary;
+//  BBOX_LIST * plst_base, * plst_test;
+//  AA_BBOX   * pbbox;
+//
+//  vect3 diff, origin;
+//
+//  if(NULL==pmad) return bfalse;
+//  pmd2 = pmad->md2_ptr;
+//
+//  if(0 == pmad->bbox_frames || NULL == pmad->bbox_arrays) return bfalse; 
+//
+//  iframes = MIN(pmad->bbox_frames, pmd2->m_numFrames);
+//  for(i=0; i<pmad->bbox_frames; i++)
+//  {
+//    pary   = pmad->bbox_arrays + i;
+//    pframe = pmd2->m_frames + i;
+//
+//    if(NULL == pary) continue;
+//
+//    for(base_level = 1; base_level < pary->count; level++)
+//    {
+//      plst_base = pary->list + base_level;
+//
+//      base_per_axis = 1 << (  base_level);
+//      base_count    = 1 << (3*base_level);
+//
+//      for(test_level = 1; test_level < pary->count; level++)
+//      {
+//        plst_test = pary->list + test_level;
+//
+//        test_per_axis = 1 << (  test_level);
+//        test_count    = 1 << (3*test_level);
+//
+//
+//      }
+//
+//    }
+//
+//    bbox_count = 0;
+//    scan_size = 1 << (level_diff);
+//    for(idx=0; idx<1; idx++)
+//    {
+//      for(idy=0; idy<1; idy++)
+//      {
+//        for(idz=0; idz<1; idz++)
+//        {
+//          AA_BBOX * pbbox;
+//
+//          ix = ix_min + idx;
+//          iy = iy_min + idy;
+//          iz = iz_min + idz;
+//
+//          index = (ix & (per_level-1)) << (0*level) |
+//                  (iy & (per_level-1)) << (1*level) |
+//                  (iz & (per_level-1)) << (2*level);
+//
+//          pbbox = plst_test->list + index;
+//
+//          if(pbbox->used)
+//          {
+//            bbox_count++;
+//          }
+//        }
+//      }
+//    }
+//    if(bbox_count < XXXX * YYYY)
+//    {
+//      // too inefficient replace it with 
+//    }
+//
+//}
+
+//--------------------------------------------------------------------------------------------
 bool_t mad_generate_bbox_tree(int max_level, MAD * pmad)
 {
+  // BB > Make a series of progressively refined BBox lists. 
+  //      The list will have null nodes for every level of detail where
+  //      the bounding volumes are not significantly different from a single bounding box
+
   int i,j;
 
   if(NULL == pmad) return bfalse;
@@ -733,17 +1110,25 @@ bool_t mad_generate_bbox_tree(int max_level, MAD * pmad)
     // generate all of the remaining bbox collections by simplifying
     for(j=max_level-1; j>=0; j--)
     {
-      if( !mad_simplify_bbox_list(j, pmad->bbox_arrays[i].list + j, pmad->bbox_arrays[i].list + j + 1) )
+      if( !mad_simplify_bbox_list(max_level, j, pmad->bbox_arrays[i].list + j, pmad->bbox_arrays[i].list + j + 1) )
       {
         // there was an error or the bbox list is completely full
   
         // remove the last bbox list
         bbox_list_delete(pmad->bbox_arrays[i].list + j);
 
+        mad_optimize_bbox_tree(pmad);
+
+        mad_scale_bbox_tree(pmad);
+
         return btrue;
       };
     };
   };
+
+  mad_optimize_bbox_tree(pmad);
+
+  mad_scale_bbox_tree(pmad);
 
   return btrue;
 }
@@ -1009,7 +1394,7 @@ Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
   pmad->vertices      = md2_get_numVertices( pmad->md2_ptr );
   pmad->transvertices = mad_calc_transvertices( pmad->md2_ptr );
 
-  // allocate the extra animation data
+  // a5llocate the extra animation data
   iFrames = md2_get_numFrames(pmad->md2_ptr);
   pmad->framelip = calloc(sizeof(Uint8),  iFrames);
   pmad->framefx  = calloc(sizeof(Uint16), iFrames);
@@ -1041,6 +1426,155 @@ void free_one_mad( Uint16 imdl )
 
   mad_delete(pmad);
 }
+
+bool_t bbox_gl_draw(AA_BBOX * pbbox)
+{
+  vect3 * pmin, * pmax;
+
+  if(NULL == pbbox) return bfalse;
+
+  pmin = &(pbbox->mins);
+  pmax = &(pbbox->maxs);
+
+  // !!!! there must be an optimized way of doing this !!!!
+
+  glBegin(GL_QUADS);
+  {
+    // Front Face
+    glVertex3f(pmin->x, pmin->y, pmax->z);
+    glVertex3f(pmax->x, pmin->y, pmax->z);
+    glVertex3f(pmax->x, pmax->y, pmax->z);
+    glVertex3f(pmin->x, pmax->y, pmax->z);
+    
+    // Back Face
+    glVertex3f(pmin->x, pmin->y, pmin->z);
+    glVertex3f(pmin->x, pmax->y, pmin->z);
+    glVertex3f(pmax->x, pmax->y, pmin->z);
+    glVertex3f(pmax->x, pmin->y, pmin->z);
+
+    // Top Face
+    glVertex3f(pmin->x, pmax->y, pmin->z);
+    glVertex3f(pmin->x, pmax->y, pmax->z);
+    glVertex3f(pmax->x, pmax->y, pmax->z);
+    glVertex3f(pmax->x, pmax->y, pmin->z);
+    
+    // Bottom Face       
+    glVertex3f(pmin->x, pmin->y, pmin->z);
+    glVertex3f(pmax->x, pmin->y, pmin->z);
+    glVertex3f(pmax->x, pmin->y, pmax->z);
+    glVertex3f(pmin->x, pmin->y, pmax->z);
+    
+    // Right face
+    glVertex3f(pmax->x, pmin->y, pmin->z);
+    glVertex3f(pmax->x, pmax->y, pmin->z);
+    glVertex3f(pmax->x, pmax->y, pmax->z);
+    glVertex3f(pmax->x, pmin->y, pmax->z);
+    
+    // Left Face
+    glVertex3f(pmin->x, pmin->y, pmin->z);
+    glVertex3f(pmin->x, pmin->y, pmax->z);
+    glVertex3f(pmin->x, pmax->y, pmax->z);
+    glVertex3f(pmin->x, pmax->y, pmin->z);
+  }
+  glEnd();
+
+  return btrue;
+}
+
+bool_t mad_display_bbox_ary(BBOX_ARY * pary, int level)
+{
+  BBOX_LIST * plst;
+  AA_BBOX   * pbbox;
+  int i, j;
+
+  if(NULL == pary) return bfalse;
+
+  for(i=0; i<=level; i++)
+  {
+    if(i >= pary->count) continue;
+
+    plst = pary->list + i;
+
+    if(NULL == plst) 
+      continue;
+
+    for(j=0; j<plst->count; j++)
+    {
+      pbbox = plst->list + j;
+
+      if(NULL == pbbox) continue;
+
+      bbox_gl_draw(pbbox);
+    }
+  };
+
+  return btrue;
+};
+
+bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame1, int frame2 )
+{
+  MD2_Model * pmd2;
+  BBOX_ARY  * pary;
+
+  if(NULL == pmad) return bfalse;
+
+  pmd2 = pmad->md2_ptr;
+  if(NULL == pmd2) return bfalse;
+
+  ATTRIB_PUSH( "mad_display_bbox_tree", GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_DEPTH_BUFFER_BIT | GL_TRANSFORM_BIT );
+  {
+    // don't write into the depth buffer
+    glDepthMask( GL_FALSE );
+    glEnable(GL_DEPTH_TEST);
+
+    // fix the poorly chosen normals...
+    glDisable( GL_CULL_FACE );
+
+    // make them transparent
+    glEnable(GL_BLEND);
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+    // choose a "white" texture
+    glBindTexture(GL_TEXTURE_2D, -1);
+
+    glMatrixMode(GL_MODELVIEW);
+
+    glMatrixMode( GL_MODELVIEW );
+    glPushMatrix();
+    matrix _CNV( 3, 2 ) += RAISE;
+    glMultMatrixf( matrix.v );
+    matrix _CNV( 3, 2 ) -= RAISE;
+
+    if(frame1 >=0 && frame1 < pmd2->m_numFrames && frame1 < pmad->bbox_frames)
+    {
+      pary = pmad->bbox_arrays + frame1;
+
+      if(NULL != pary)
+      {
+        mad_display_bbox_ary(pary, level);
+      };
+    }
+
+    if(frame2 >=0 && frame2 < pmd2->m_numFrames && frame2 < pmad->bbox_frames)
+    {
+      pary = pmad->bbox_arrays + frame2;
+
+      if(NULL != pary)
+      {
+        mad_display_bbox_ary(pary, level);
+      };
+    }
+
+    glPopMatrix();
+
+  }
+  ATTRIB_POP( "mad_display_bbox");
+
+  return btrue;
+  
+}
+
+
 
 ////--------------------------------------------------------------------------------------------
 //bool_t mad_generate_bbox_level(int bbox_divisions, int frame, MAD * pmad)
