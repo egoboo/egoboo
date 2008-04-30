@@ -252,17 +252,17 @@ void md2_blend_lighting(CHR_REF ichr)
   sheen_fp8       = pchr->sheen_fp8;
   spekularity_fp8 = FLOAT_TO_FP8( ( float )sheen_fp8 / ( float )MAXSPEKLEVEL );
 
-  lightrotationr = pchr->turn_lr + pchr->lightturn_lrr;
-  lightrotationg = pchr->turn_lr + pchr->lightturn_lrg;
-  lightrotationb = pchr->turn_lr + pchr->lightturn_lrb;
+  lightrotationr = pchr->turn_lr + pchr->tlight.turn_lr.r;
+  lightrotationg = pchr->turn_lr + pchr->tlight.turn_lr.g;
+  lightrotationb = pchr->turn_lr + pchr->tlight.turn_lr.b;
 
-  ambilevelr_fp8 = pchr->lightambir_fp8;
-  ambilevelg_fp8 = pchr->lightambig_fp8;
-  ambilevelb_fp8 = pchr->lightambib_fp8;
+  ambilevelr_fp8 = pchr->tlight.ambi_fp8.r;
+  ambilevelg_fp8 = pchr->tlight.ambi_fp8.g;
+  ambilevelb_fp8 = pchr->tlight.ambi_fp8.b;
 
-  speklevelr_fp8 = pchr->lightspekr_fp8;
-  speklevelg_fp8 = pchr->lightspekg_fp8;
-  speklevelb_fp8 = pchr->lightspekb_fp8;
+  speklevelr_fp8 = pchr->tlight.spek_fp8.r;
+  speklevelg_fp8 = pchr->tlight.spek_fp8.g;
+  speklevelb_fp8 = pchr->tlight.spek_fp8.b;
 
   offset.u = textureoffset[ FP8_TO_INT( pchr->uoffset_fp8 )];
   offset.v = textureoffset[ FP8_TO_INT( pchr->voffset_fp8 )];
@@ -396,9 +396,10 @@ void draw_textured_md2_opengl(CHR_REF ichr)
   if(CData.shading != GL_FLAT) glDisableClientState(GL_NORMAL_ARRAY);
 
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if DEBUG_NORMALS && defined(_DEBUG)
   if ( CData.DevMode )
   {
+    int cnt;
     int verts = MadList[imdl].transvertices;
 
     glBegin( GL_LINES );
@@ -461,9 +462,10 @@ void draw_enviromapped_md2_opengl(CHR_REF ichr)
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if DEBUG_NORMALS && defined(_DEBUG)
   if ( CData.DevMode )
   {
+    int cnt;
     int verts = MadList[imdl].transvertices;
 
     glBegin( GL_LINES );
@@ -563,7 +565,7 @@ void render_mad_lit( CHR_REF ichr )
   }
   ATTRIB_POP( "render_mad_lit" );
 
-#if defined(DEBUG_BBOX) && defined(_DEBUG)
+#if DEBUG_BBOX && defined(_DEBUG)
   if(CData.DevMode)
   {
     draw_Chr_BBox(ichr);
@@ -611,7 +613,7 @@ void render_texmad(CHR_REF ichr, Uint8 trans)
   }
   ATTRIB_POP( "render_texmad" );
 
-#if defined(DEBUG_BBOX) && defined(_DEBUG)
+#if DEBUG_BBOX && defined(_DEBUG)
   if(CData.DevMode)
   {
     draw_Chr_BBox(ichr);
@@ -671,7 +673,7 @@ void render_mad( CHR_REF ichr, Uint8 trans )
   // ZZ> This function picks the actual function to use
   Sint8 hide = CapList[ChrList[ichr].model].hidestate;
 
-  if ( hide == NOHIDE || hide != ChrList[ichr].aistate )
+  if ( hide == NOHIDE || hide != ChrList[ichr].aistate.state )
   {
     if ( ChrList[ichr].enviro )
       render_enviromad( ichr, trans );

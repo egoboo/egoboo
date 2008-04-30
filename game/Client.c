@@ -140,9 +140,9 @@ void cl_unbufferLatches( ClientState * cs )
     dframes = ( float )( cs->timelatchvalid[cnt][uiTime] - stamp );
 
     // copy the data over
-    ChrList[cnt].latch.x      = cs->timelatchx[cnt][uiTime];
-    ChrList[cnt].latch.y      = cs->timelatchy[cnt][uiTime];
-    ChrList[cnt].latch.b = cs->timelatchbutton[cnt][uiTime];
+    ChrList[cnt].aistate.latch.x      = cs->timelatchx[cnt][uiTime];
+    ChrList[cnt].aistate.latch.y      = cs->timelatchy[cnt][uiTime];
+    ChrList[cnt].aistate.latch.b = cs->timelatchbutton[cnt][uiTime];
 
     // set the data to invalid
     cs->timelatchvalid[cnt][uiTime] = bfalse;

@@ -365,13 +365,13 @@ void sv_unbufferLatches( ServerState * ss )
     ss->latchbutton[cnt] = ss->timelatchbutton[cnt][uiTime];
 
     // Let players respawn
-    if ( respawnvalid && HAS_SOME_BITS( ChrList[cnt].latch.b, LATCHBUTTON_RESPAWN ) )
+    if ( respawnvalid && HAS_SOME_BITS( ChrList[cnt].aistate.latch.b, LATCHBUTTON_RESPAWN ) )
     {
       if ( !ChrList[cnt].alive )
       {
         respawn_character( cnt );
         TeamList[ChrList[cnt].team].leader = cnt;
-        ChrList[cnt].alert |= ALERT_CLEANEDUP;
+        ChrList[cnt].aistate.alert |= ALERT_CLEANEDUP;
 
         // Cost some experience for doing this...  Never lose a level
         ChrList[cnt].experience *= EXPKEEP;

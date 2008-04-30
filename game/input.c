@@ -93,7 +93,7 @@ SCANTAG_LIST tags;
 //--------------------------------------------------------------------------------------------
 typedef struct control_data_t
 {
-  int    value;             // The scancode or mask
+  Uint32 value;             // The scancode or mask
   bool_t is_key;            // Is it a key?
 } CONTROL_DATA;
 

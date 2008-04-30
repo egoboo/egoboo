@@ -380,7 +380,7 @@ void reset_end_text()
 }
 
 //--------------------------------------------------------------------------------------------
-void append_end_text( int message, CHR_REF character )
+void append_end_text( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF character )
 {
   // ZZ> This function appends a message to the end-module text
   int read, cnt;
@@ -461,27 +461,27 @@ void append_end_text( int message, CHR_REF character )
         }
         if ( cTmp == 'd' ) // tmpdistance value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpdistance );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpdistance );
         }
         if ( cTmp == 'x' ) // tmpx value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpx );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpx );
         }
         if ( cTmp == 'y' ) // tmpy value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpy );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpy );
         }
         if ( cTmp == 'D' ) // tmpdistance value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpdistance );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpdistance );
         }
         if ( cTmp == 'X' ) // tmpx value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpx );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpx );
         }
         if ( cTmp == 'Y' ) // tmpy value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpy );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpy );
         }
         if ( cTmp == 'a' ) // Character's ammo
         {
@@ -1033,10 +1033,10 @@ void make_water()
 
 
   layer = 0;
-  while ( layer < GWater.num_layer )
+  while ( layer < GWater.layer_count )
   {
-    GWater.layeru[layer] = 0;
-    GWater.layerv[layer] = 0;
+    GWater.layer[layer].u = 0;
+    GWater.layer[layer].v = 0;
     frame = 0;
     while ( frame < MAXWATERFRAME )
     {
@@ -1046,39 +1046,39 @@ void make_water()
       {
         tmp_sin = sin(( frame * TWO_PI / MAXWATERFRAME ) + ( PI * point / WATERPOINTS ) + ( PI_OVER_TWO * layer / MAXWATERLAYER ) );
         tmp_cos = cos(( frame * TWO_PI / MAXWATERFRAME ) + ( PI * point / WATERPOINTS ) + ( PI_OVER_TWO * layer / MAXWATERLAYER ) );
-        GWater.layerzadd[layer][frame][mode][point]  = tmp_sin * GWater.layeramp[layer];
+        GWater.layer[layer].zadd[frame][mode][point]  = tmp_sin * GWater.layer[layer].amp;
       }
 
       // Now mirror and copy data to other three modes
       mode++;
-      GWater.layerzadd[layer][frame][mode][0] = GWater.layerzadd[layer][frame][0][1];
-      //GWater.layercolor[layer][frame][mode][0] = GWater.layercolor[layer][frame][0][1];
-      GWater.layerzadd[layer][frame][mode][1] = GWater.layerzadd[layer][frame][0][0];
-      //GWater.layercolor[layer][frame][mode][1] = GWater.layercolor[layer][frame][0][0];
-      GWater.layerzadd[layer][frame][mode][2] = GWater.layerzadd[layer][frame][0][3];
-      //GWater.layercolor[layer][frame][mode][2] = GWater.layercolor[layer][frame][0][3];
-      GWater.layerzadd[layer][frame][mode][3] = GWater.layerzadd[layer][frame][0][2];
-      //GWater.layercolor[layer][frame][mode][3] = GWater.layercolor[layer][frame][0][2];
+      GWater.layer[layer].zadd[frame][mode][0] = GWater.layer[layer].zadd[frame][0][1];
+      //GWater.layer[layer].color[frame][mode][0] = GWater.layer[layer].color[frame][0][1];
+      GWater.layer[layer].zadd[frame][mode][1] = GWater.layer[layer].zadd[frame][0][0];
+      //GWater.layer[layer].color[frame][mode][1] = GWater.layer[layer].color[frame][0][0];
+      GWater.layer[layer].zadd[frame][mode][2] = GWater.layer[layer].zadd[frame][0][3];
+      //GWater.layer[layer].color[frame][mode][2] = GWater.layer[layer].color[frame][0][3];
+      GWater.layer[layer].zadd[frame][mode][3] = GWater.layer[layer].zadd[frame][0][2];
+      //GWater.layer[layer].color[frame][mode][3] = GWater.layer[layer].color[frame][0][2];
       mode++;
 
-      GWater.layerzadd[layer][frame][mode][0] = GWater.layerzadd[layer][frame][0][3];
-      //GWater.layercolor[layer][frame][mode][0] = GWater.layercolor[layer][frame][0][3];
-      GWater.layerzadd[layer][frame][mode][1] = GWater.layerzadd[layer][frame][0][2];
-      //GWater.layercolor[layer][frame][mode][1] = GWater.layercolor[layer][frame][0][2];
-      GWater.layerzadd[layer][frame][mode][2] = GWater.layerzadd[layer][frame][0][1];
-      //GWater.layercolor[layer][frame][mode][2] = GWater.layercolor[layer][frame][0][1];
-      GWater.layerzadd[layer][frame][mode][3] = GWater.layerzadd[layer][frame][0][0];
-      //GWater.layercolor[layer][frame][mode][3] = GWater.layercolor[layer][frame][0][0];
+      GWater.layer[layer].zadd[frame][mode][0] = GWater.layer[layer].zadd[frame][0][3];
+      //GWater.layer[layer].color[frame][mode][0] = GWater.layer[layer].color[frame][0][3];
+      GWater.layer[layer].zadd[frame][mode][1] = GWater.layer[layer].zadd[frame][0][2];
+      //GWater.layer[layer].color[frame][mode][1] = GWater.layer[layer].color[frame][0][2];
+      GWater.layer[layer].zadd[frame][mode][2] = GWater.layer[layer].zadd[frame][0][1];
+      //GWater.layer[layer].color[frame][mode][2] = GWater.layer[layer].color[frame][0][1];
+      GWater.layer[layer].zadd[frame][mode][3] = GWater.layer[layer].zadd[frame][0][0];
+      //GWater.layer[layer].color[frame][mode][3] = GWater.layer[layer].color[frame][0][0];
       mode++;
 
-      GWater.layerzadd[layer][frame][mode][0] = GWater.layerzadd[layer][frame][0][2];
-      //GWater.layercolor[layer][frame][mode][0] = GWater.layercolor[layer][frame][0][2];
-      GWater.layerzadd[layer][frame][mode][1] = GWater.layerzadd[layer][frame][0][3];
-      //GWater.layercolor[layer][frame][mode][1] = GWater.layercolor[layer][frame][0][3];
-      GWater.layerzadd[layer][frame][mode][2] = GWater.layerzadd[layer][frame][0][0];
-      //GWater.layercolor[layer][frame][mode][2] = GWater.layercolor[layer][frame][0][0];
-      GWater.layerzadd[layer][frame][mode][3] = GWater.layerzadd[layer][frame][0][1];
-      //GWater.layercolor[layer][frame][mode][3] = GWater.layercolor[layer][frame][0][1];
+      GWater.layer[layer].zadd[frame][mode][0] = GWater.layer[layer].zadd[frame][0][2];
+      //GWater.layer[layer].color[frame][mode][0] = GWater.layer[layer].color[frame][0][2];
+      GWater.layer[layer].zadd[frame][mode][1] = GWater.layer[layer].zadd[frame][0][3];
+      //GWater.layer[layer].color[frame][mode][1] = GWater.layer[layer].color[frame][0][3];
+      GWater.layer[layer].zadd[frame][mode][2] = GWater.layer[layer].zadd[frame][0][0];
+      //GWater.layer[layer].color[frame][mode][2] = GWater.layer[layer].color[frame][0][0];
+      GWater.layer[layer].zadd[frame][mode][3] = GWater.layer[layer].zadd[frame][0][1];
+      //GWater.layer[layer].color[frame][mode][3] = GWater.layer[layer].color[frame][0][1];
       frame++;
     }
     layer++;
@@ -1122,7 +1122,7 @@ void read_wawalite( char *modname )
 
 
     // Read water data first
-    GWater.num_layer = fget_next_int( fileread );
+    GWater.layer_count = fget_next_int( fileread );
     GWater.spekstart = fget_next_int( fileread );
     GWater.speklevel_fp8 = fget_next_int( fileread );
     GWater.douselevel = fget_next_int( fileread );
@@ -1131,38 +1131,38 @@ void read_wawalite( char *modname )
     GWater.iswater = fget_next_bool( fileread );
     CData.render_overlay = fget_next_bool( fileread ) && CData.overlayvalid;
     CData.render_background = fget_next_bool( fileread ) && CData.backgroundvalid;
-    GWater.layerdistx[0] = fget_next_float( fileread );
-    GWater.layerdisty[0] = fget_next_float( fileread );
-    GWater.layerdistx[1] = fget_next_float( fileread );
-    GWater.layerdisty[1] = fget_next_float( fileread );
+    GWater.layer[0].distx = fget_next_float( fileread );
+    GWater.layer[0].disty = fget_next_float( fileread );
+    GWater.layer[1].distx = fget_next_float( fileread );
+    GWater.layer[1].disty = fget_next_float( fileread );
     foregroundrepeat = fget_next_int( fileread );
     backgroundrepeat = fget_next_int( fileread );
 
 
-    GWater.layerz[0] = fget_next_int( fileread );
-    GWater.layeralpha_fp8[0] = fget_next_int( fileread );
-    GWater.layerframeadd[0] = fget_next_int( fileread );
-    GWater.lightlevel_fp8[0] = fget_next_int( fileread );
-    GWater.lightadd_fp8[0] = fget_next_int( fileread );
-    GWater.layeramp[0] = fget_next_float( fileread );
-    GWater.layeruadd[0] = fget_next_float( fileread );
-    GWater.layervadd[0] = fget_next_float( fileread );
+    GWater.layer[0].z = fget_next_int( fileread );
+    GWater.layer[0].alpha_fp8 = fget_next_int( fileread );
+    GWater.layer[0].frameadd = fget_next_int( fileread );
+    GWater.layer[0].lightlevel_fp8 = fget_next_int( fileread );
+    GWater.layer[0].lightadd_fp8 = fget_next_int( fileread );
+    GWater.layer[0].amp = fget_next_float( fileread );
+    GWater.layer[0].uadd = fget_next_float( fileread );
+    GWater.layer[0].vadd = fget_next_float( fileread );
 
-    GWater.layerz[1] = fget_next_int( fileread );
-    GWater.layeralpha_fp8[1] = fget_next_int( fileread );
-    GWater.layerframeadd[1] = fget_next_int( fileread );
-    GWater.lightlevel_fp8[1] = fget_next_int( fileread );
-    GWater.lightadd_fp8[1] = fget_next_int( fileread );
-    GWater.layeramp[1] = fget_next_float( fileread );
-    GWater.layeruadd[1] = fget_next_float( fileread );
-    GWater.layervadd[1] = fget_next_float( fileread );
+    GWater.layer[1].z = fget_next_int( fileread );
+    GWater.layer[1].alpha_fp8 = fget_next_int( fileread );
+    GWater.layer[1].frameadd = fget_next_int( fileread );
+    GWater.layer[1].lightlevel_fp8 = fget_next_int( fileread );
+    GWater.layer[1].lightadd_fp8 = fget_next_int( fileread );
+    GWater.layer[1].amp = fget_next_float( fileread );
+    GWater.layer[1].uadd = fget_next_float( fileread );
+    GWater.layer[1].vadd = fget_next_float( fileread );
 
-    GWater.layeru[0] = 0;
-    GWater.layerv[0] = 0;
-    GWater.layeru[1] = 0;
-    GWater.layerv[1] = 0;
-    GWater.layerframe[0] = rand() & WATERFRAMEAND;
-    GWater.layerframe[1] = rand() & WATERFRAMEAND;
+    GWater.layer[0].u = 0;
+    GWater.layer[0].v = 0;
+    GWater.layer[1].u = 0;
+    GWater.layer[1].v = 0;
+    GWater.layer[0].frame = rand() & WATERFRAMEAND;
+    GWater.layer[1].frame = rand() & WATERFRAMEAND;
 
     // Read light data second
     lightspekdir.x = fget_next_float( fileread );
@@ -1256,14 +1256,14 @@ void read_wawalite( char *modname )
     }
 
     // Allow slow machines to ignore the fancy stuff
-    if ( !CData.twolayerwateron && GWater.num_layer > 1 )
+    if ( !CData.twolayerwateron && GWater.layer_count > 1 )
     {
       int iTmp;
-      GWater.num_layer = 1;
-      iTmp = GWater.layeralpha_fp8[0];
-      iTmp = FP8_MUL( GWater.layeralpha_fp8[1], iTmp ) + iTmp;
+      GWater.layer_count = 1;
+      iTmp = GWater.layer[0].alpha_fp8;
+      iTmp = FP8_MUL( GWater.layer[1].alpha_fp8, iTmp ) + iTmp;
       if ( iTmp > 255 ) iTmp = 255;
-      GWater.layeralpha_fp8[0] = iTmp;
+      GWater.layer[0].alpha_fp8 = iTmp;
     }
 
 
@@ -1295,8 +1295,8 @@ void render_background( Uint16 texture )
   x = CData.scrx << 6;
   y = CData.scry << 6;
   z = -100;
-  u = GWater.layeru[1];
-  v = GWater.layerv[1];
+  u = GWater.layer[1].u;
+  v = GWater.layer[1].v;
   size = x + y + 1;
   sinsize = turntosin[( 3*2047 ) & TRIGTABLE_MASK] * size;   // why 3/8 of a turn???
   cossize = turntosin[( 3*2047 + TRIGTABLE_SHIFT ) & TRIGTABLE_MASK] * size;   // why 3/8 of a turn???
@@ -1367,8 +1367,8 @@ void render_foreground_overlay( Uint16 texture )
   x = CData.scrx << 6;
   y = CData.scry << 6;
   z = 0;
-  u = GWater.layeru[1];
-  v = GWater.layerv[1];
+  u = GWater.layer[1].u;
+  v = GWater.layer[1].v;
   size = x + y + 1;
   rotate = 16384 + 8192;
   rotate >>= 2;
@@ -1448,13 +1448,13 @@ void render_shadow( CHR_REF character )
   float alpha_umbra, alpha_penumbra, alpha_character, light_character;
   Sint8 hide;
   int i;
-  Uint16 chrlightambi = ChrList[character].lightambir_fp8 + ChrList[character].lightambig_fp8 + ChrList[character].lightambib_fp8;
-  Uint16 chrlightspek = ChrList[character].lightspekr_fp8 + ChrList[character].lightspekg_fp8 + ChrList[character].lightspekb_fp8;
+  Uint16 chrlightambi = ChrList[character].tlight.ambi_fp8.r + ChrList[character].tlight.ambi_fp8.g + ChrList[character].tlight.ambi_fp8.b;
+  Uint16 chrlightspek = ChrList[character].tlight.spek_fp8.r + ChrList[character].tlight.spek_fp8.g + ChrList[character].tlight.spek_fp8.b;
   float  globlightambi = lightambicol.r + lightambicol.g + lightambicol.b;
   float  globlightspek = lightspekcol.r + lightspekcol.g + lightspekcol.b;
 
   hide = CapList[ChrList[character].model].hidestate;
-  if ( hide != NOHIDE && hide == ChrList[character].aistate ) return;
+  if ( hide != NOHIDE && hide == ChrList[character].aistate.state ) return;
 
   // Original points
   level = ChrList[character].level;
@@ -1606,7 +1606,7 @@ void render_shadow( CHR_REF character )
 //
 //
 //  hide = CapList[ChrList[character].model].hidestate;
-//  if (hide == NOHIDE || hide != ChrList[character].aistate)
+//  if (hide == NOHIDE || hide != ChrList[character].aistate.state)
 //  {
 //    // Original points
 //    level = ChrList[character].level;
@@ -1764,8 +1764,8 @@ void light_characters()
     i2 = Mesh_Mem.vrt_lr_fp8[vrtstart + 2];
     i3 = Mesh_Mem.vrt_lr_fp8[vrtstart + 3];
     calc_chr_lighting( x, y, i0, i1, i2, i3, &spek, &ambi );
-    ChrList[tnc].lightambir_fp8 = ambi;
-    ChrList[tnc].lightspekr_fp8 = spek;
+    ChrList[tnc].tlight.ambi_fp8.r = ambi;
+    ChrList[tnc].tlight.spek_fp8.r = spek;
 
     if ( !mesh.exploremode )
     {
@@ -1775,11 +1775,11 @@ void light_characters()
       i3 = (( i3 & 0xf0 ) << 0 ) & 0x00f0;
       i2 = (( i2 & 0xf0 ) >> 4 ) & 0x000f;
       i0 = i0 | i1 | i3 | i2;
-      ChrList[tnc].lightturn_lrr = ( lightdirectionlookup[i0] << 8 );
+      ChrList[tnc].tlight.turn_lr.r = ( lightdirectionlookup[i0] << 8 );
     }
     else
     {
-      ChrList[tnc].lightturn_lrr = 0;
+      ChrList[tnc].tlight.turn_lr.r = 0;
     }
 
     i0 = Mesh_Mem.vrt_lg_fp8[vrtstart + 0];
@@ -1787,8 +1787,8 @@ void light_characters()
     i3 = Mesh_Mem.vrt_lg_fp8[vrtstart + 2];
     i2 = Mesh_Mem.vrt_lg_fp8[vrtstart + 3];
     calc_chr_lighting( x, y, i0, i1, i2, i3, &spek, &ambi );
-    ChrList[tnc].lightambig_fp8 = ambi;
-    ChrList[tnc].lightspekg_fp8 = spek;
+    ChrList[tnc].tlight.ambi_fp8.g = ambi;
+    ChrList[tnc].tlight.spek_fp8.g = spek;
 
     if ( !mesh.exploremode )
     {
@@ -1798,11 +1798,11 @@ void light_characters()
       i3 = (( i3 & 0xf0 ) << 0 ) & 0x00f0;
       i2 = (( i2 & 0xf0 ) >> 4 ) & 0x000f;
       i0 = i0 | i1 | i3 | i2;
-      ChrList[tnc].lightturn_lrg = ( lightdirectionlookup[i0] << 8 );
+      ChrList[tnc].tlight.turn_lr.g = ( lightdirectionlookup[i0] << 8 );
     }
     else
     {
-      ChrList[tnc].lightturn_lrg = 0;
+      ChrList[tnc].tlight.turn_lr.g = 0;
     }
 
     i0 = Mesh_Mem.vrt_lb_fp8[vrtstart + 0];
@@ -1810,8 +1810,8 @@ void light_characters()
     i3 = Mesh_Mem.vrt_lb_fp8[vrtstart + 2];
     i2 = Mesh_Mem.vrt_lb_fp8[vrtstart + 3];
     calc_chr_lighting( x, y, i0, i1, i2, i3, &spek, &ambi );
-    ChrList[tnc].lightambib_fp8 = ambi;
-    ChrList[tnc].lightspekb_fp8 = spek;
+    ChrList[tnc].tlight.ambi_fp8.b = ambi;
+    ChrList[tnc].tlight.spek_fp8.b = spek;
 
     if ( !mesh.exploremode )
     {
@@ -1821,11 +1821,11 @@ void light_characters()
       i3 = (( i3 & 0xf0 ) << 0 ) & 0x00f0;
       i2 = (( i2 & 0xf0 ) >> 4 ) & 0x000f;
       i0 = i0 | i1 | i3 | i2;
-      ChrList[tnc].lightturn_lrb = ( lightdirectionlookup[i0] << 8 );
+      ChrList[tnc].tlight.turn_lr.b = ( lightdirectionlookup[i0] << 8 );
     }
     else
     {
-      ChrList[tnc].lightturn_lrb = 0;
+      ChrList[tnc].tlight.turn_lr.b = 0;
     }
   }
 }
@@ -1860,9 +1860,9 @@ void light_particles()
           character = prt_get_attachedtochr( cnt );
           if ( VALID_CHR( character ) )
           {
-            PrtList[cnt].lightr_fp8 = ChrList[character].lightspekr_fp8 + ChrList[character].lightambir_fp8;
-            PrtList[cnt].lightg_fp8 = ChrList[character].lightspekg_fp8 + ChrList[character].lightambig_fp8;
-            PrtList[cnt].lightb_fp8 = ChrList[character].lightspekb_fp8 + ChrList[character].lightambib_fp8;
+            PrtList[cnt].lightr_fp8 = ChrList[character].tlight.spek_fp8.r + ChrList[character].tlight.ambi_fp8.r;
+            PrtList[cnt].lightg_fp8 = ChrList[character].tlight.spek_fp8.g + ChrList[character].tlight.ambi_fp8.g;
+            PrtList[cnt].lightb_fp8 = ChrList[character].tlight.spek_fp8.b + ChrList[character].tlight.ambi_fp8.b;
           }
           else if ( INVALID_FAN != PrtList[cnt].onwhichfan )
           {
@@ -1896,7 +1896,7 @@ void render_water()
   int cnt;
 
   // Bottom layer first
-  if ( !CData.render_background && GWater.num_layer > 1 )
+  if ( !CData.render_background && GWater.layer_count > 1 )
   {
     cnt = 0;
     while ( cnt < renderlist.num_watr )
@@ -1907,7 +1907,7 @@ void render_water()
   }
 
   // Top layer second
-  if ( !CData.render_overlay && GWater.num_layer > 0 )
+  if ( !CData.render_overlay && GWater.layer_count > 0 )
   {
     cnt = 0;
     while ( cnt < renderlist.num_watr )
@@ -1925,9 +1925,9 @@ void render_water_lit()
   int cnt;
 
   // Bottom layer first
-  if ( !CData.render_background && GWater.num_layer > 1 )
+  if ( !CData.render_background && GWater.layer_count > 1 )
   {
-    float ambi_level = FP8_TO_FLOAT( GWater.lightadd_fp8[1] + GWater.lightlevel_fp8[1] );
+    float ambi_level = FP8_TO_FLOAT( GWater.layer[1].lightadd_fp8 + GWater.layer[1].lightlevel_fp8 );
     float spek_level =  FP8_TO_FLOAT( GWater.speklevel_fp8 );
     float spekularity = MIN( 40, spek_level / ambi_level ) + 2;
     GLfloat mat_none[]      = {0, 0, 0, 0};
@@ -1959,11 +1959,12 @@ void render_water_lit()
   }
 
   // Top layer second
-  if ( !CData.render_overlay && GWater.num_layer > 0 )
+  if ( !CData.render_overlay && GWater.layer_count > 0 )
   {
-    float ambi_level = ( GWater.lightadd_fp8[1] + GWater.lightlevel_fp8[1] ) / 255.0;
+    float ambi_level = ( GWater.layer[1].lightadd_fp8 + GWater.layer[1].lightlevel_fp8 ) / 255.0;
     float spek_level =  FP8_TO_FLOAT( GWater.speklevel_fp8 );
     float spekularity = MIN( 40, spek_level / ambi_level ) + 2;
+
     GLfloat mat_none[]      = {0, 0, 0, 0};
     GLfloat mat_ambient[]   = { ambi_level, ambi_level, ambi_level, 1.0 };
     GLfloat mat_diffuse[]   = { spek_level, spek_level, spek_level, 1.0 };
@@ -2613,14 +2614,14 @@ void draw_scene_zreflection()
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
 
   // render the collision volumes
-#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+#if DEBUG_CVOLUME && defined(_DEBUG)
   if(CData.DevMode)
   {
     cv_list_draw();
   };
 #endif
 
-#if defined(DEBUG_BBOX) && defined(_DEBUG)
+#if DEBUG_BBOX && defined(_DEBUG)
   if(CData.DevMode)
   {
     int i;

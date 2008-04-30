@@ -468,4 +468,15 @@ typedef struct script_global_values_t
   Sint32 operationsum;
 } SCRIPT_GLOBAL_VALUES;
 
-extern SCRIPT_GLOBAL_VALUES scr_globals;
+extern SCRIPT_GLOBAL_VALUES _scr_globals;
+
+bool_t  search_tile_in_passage( SCRIPT_GLOBAL_VALUES * pgscr, Uint32 passage, Uint32 tiletype );
+bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF character );
+void set_operand( SCRIPT_GLOBAL_VALUES * pg_scr, Uint8 variable );
+void run_operand( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF character );
+void let_character_think( CHR_REF character, float dUpdate );
+void let_ai_think( float dUpdate );
+
+void display_message( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF character );
+bool_t break_passage( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint32 meshfxor );
+void append_end_text( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF character );

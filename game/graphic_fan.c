@@ -244,8 +244,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     v[cnt].col.b = FP8_TO_FLOAT( Mesh_Mem.vrt_lb_fp8[badvertex] );
     v[cnt].col.a = 1.0f;
 
-#if defined(DEBUG_MESHFX) && defined(_DEBUG)
-
+#if DEBUG_MESHFX && defined(_DEBUG)
     if(CData.DevMode)
     {
 
@@ -279,10 +278,11 @@ void render_fan( Uint32 fan, char tex_loaded )
     v[cnt].s = Mesh_Cmd[type].u[cnt] + offu;
     v[cnt].t = Mesh_Cmd[type].v[cnt] + offv;
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if DEBUG_NORMALS && defined(_DEBUG)
     if(CData.DevMode)
     {
-      mesh_calc_normal_pos( fan, v[cnt].pos.x, v[cnt].pos.y, &v[cnt].n );
+      vect3 * pv3 = (vect3 *) &(v[cnt].pos.v);
+      mesh_calc_normal_pos( fan, *pv3, &(v[cnt].nrm) );
     }
 #endif
 
@@ -348,7 +348,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     }
 
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if DEBUG_NORMALS && defined(_DEBUG)
     if ( CData.DevMode )
     {
 
@@ -443,9 +443,9 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
 
   // To make life easier
   type = 0;                           // Command type ( index to points in fan )
-  offu = GWater.layeru[layer];          // Texture offsets
-  offv = GWater.layerv[layer];          //
-  frame = GWater.layerframe[layer];     // Frame
+  offu = GWater.layer[layer].u;          // Texture offsets
+  offv = GWater.layer[layer].v;          //
+  frame = GWater.layer[layer].frame;     // Frame
 
   texture = layer + TX_WATER_TOP;                    // Water starts at texture 5
   vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
@@ -458,20 +458,20 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   {
     v[cnt].pos.x = Mesh_Mem.vrt_x[badvertex];
     v[cnt].pos.y = Mesh_Mem.vrt_y[badvertex];
-    v[cnt].pos.z = GWater.layerzadd[layer][frame][mode][cnt] + GWater.layerz[layer];
+    v[cnt].pos.z = GWater.layer[layer].zadd[frame][mode][cnt] + GWater.layer[layer].z;
 
     if ( !GWater.light )
     {
       v[cnt].col.r = FP8_TO_FLOAT( Mesh_Mem.vrt_lr_fp8[badvertex] );
       v[cnt].col.g = FP8_TO_FLOAT( Mesh_Mem.vrt_lg_fp8[badvertex] );
       v[cnt].col.b = FP8_TO_FLOAT( Mesh_Mem.vrt_lb_fp8[badvertex] );
-      v[cnt].col.a = FP8_TO_FLOAT( GWater.layeralpha_fp8[layer] );
+      v[cnt].col.a = FP8_TO_FLOAT( GWater.layer[layer].alpha_fp8 );
     }
     else
     {
-      v[cnt].col.r = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lr_fp8[badvertex], GWater.layeralpha_fp8[layer] ) );
-      v[cnt].col.g = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lg_fp8[badvertex], GWater.layeralpha_fp8[layer] ) );
-      v[cnt].col.b = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lb_fp8[badvertex], GWater.layeralpha_fp8[layer] ) );
+      v[cnt].col.r = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lr_fp8[badvertex], GWater.layer[layer].alpha_fp8 ) );
+      v[cnt].col.g = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lg_fp8[badvertex], GWater.layer[layer].alpha_fp8 ) );
+      v[cnt].col.b = FP8_TO_FLOAT( FP8_MUL( Mesh_Mem.vrt_lb_fp8[badvertex], GWater.layer[layer].alpha_fp8 ) );
       v[cnt].col.a = 1.0f;
     }
 
@@ -563,9 +563,9 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
 
   // To make life easier
   type  = 0;                           // Command type ( index to points in fan )
-  offu  = GWater.layeru[layer];          // Texture offsets
-  offv  = GWater.layerv[layer];          //
-  frame = GWater.layerframe[layer];     // Frame
+  offu  = GWater.layer[layer].u;          // Texture offsets
+  offv  = GWater.layer[layer].v;          //
+  frame = GWater.layer[layer].frame;     // Frame
 
   texture  = layer + TX_WATER_TOP;                    // Water starts at texture 5
   vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
@@ -577,10 +577,10 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   {
     v[cnt].pos.x = Mesh_Mem.vrt_x[badvertex];
     v[cnt].pos.y = Mesh_Mem.vrt_y[badvertex];
-    v[cnt].pos.z = GWater.layerzadd[layer][frame][mode][cnt] + GWater.layerz[layer];
+    v[cnt].pos.z = GWater.layer[layer].zadd[frame][mode][cnt] + GWater.layer[layer].z;
 
     v[cnt].col.r = v[cnt].col.g = v[cnt].col.b = 1.0f;
-    v[cnt].col.a = FP8_TO_FLOAT( GWater.layeralpha_fp8[layer] );
+    v[cnt].col.a = FP8_TO_FLOAT( GWater.layer[layer].alpha_fp8 );
 
     badvertex++;
   };

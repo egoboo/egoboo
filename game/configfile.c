@@ -71,7 +71,6 @@
 // It is use for the section and key name
 void ConvertToKeyCharacters( char *pStr )
 {
-  Sint32 lCompt = 0;
 
   if ( pStr == NULL )
   {

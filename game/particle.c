@@ -135,8 +135,8 @@ void free_one_particle( PRT_REF particle )
     child = spawn_one_character( PrtList[particle].pos, PrtList[particle].model, PrtList[particle].team, 0, PrtList[particle].facing, NULL, MAXCHR );
     if ( VALID_CHR( child ) )
     {
-      ChrList[child].aistate = PrtList[particle].spawncharacterstate;
-      ChrList[child].aiowner = prt_get_owner( particle );
+      ChrList[child].aistate.state = PrtList[particle].spawncharacterstate;
+      ChrList[child].aistate.owner = prt_get_owner( particle );
     }
   }
   play_particle_sound( 1.0f, particle, PipList[PrtList[particle].pip].soundend );
@@ -199,6 +199,7 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
   Uint16 prt_target;
   FILE * filewrite;
   PRT * pprt;
+  SEARCH_CONTEXT loc_search;
 
   if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a");
 
@@ -312,11 +313,11 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
       }
 
       // Find a target
-      pprt->target = prt_search_target( pos.x, pos.y, facing, PipList[glob_pip].targetangle, PipList[glob_pip].onlydamagefriendly, bfalse, team, characterorigin, oldtarget );
+      pprt->target = prt_search_target( search_new(&loc_search), pos.x, pos.y, facing, PipList[glob_pip].targetangle, PipList[glob_pip].onlydamagefriendly, bfalse, team, characterorigin, oldtarget );
       prt_target = prt_get_target( iprt );
       if ( VALID_CHR( prt_target ) )
       {
-        offsetfacing -= g_search.useangle;
+        offsetfacing -= loc_search.useangle;
 
         if ( PipList[glob_pip].zaimspd != 0 )
         {
@@ -550,7 +551,7 @@ void disaffirm_attached_particles( CHR_REF character )
   // Set the alert for disaffirmation ( wet torch )
   if ( useful )
   {
-    ChrList[character].alert |= ALERT_DISAFFIRMED;
+    ChrList[character].aistate.alert |= ALERT_DISAFFIRMED;
   };
 }
 
@@ -591,7 +592,7 @@ void reaffirm_attached_particles( CHR_REF character )
   }
 
   // Set the alert for reaffirmation ( for exploding barrels with fire )
-  ChrList[character].alert |= ALERT_REAFFIRMED;
+  ChrList[character].aistate.alert |= ALERT_REAFFIRMED;
 }
 
 //--------------------------------------------------------------------------------------------

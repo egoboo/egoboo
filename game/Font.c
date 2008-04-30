@@ -23,9 +23,12 @@
 #include "ogl_texture.h"
 #include "Font.h"
 #include "Log.h"
+#include "egoboo.h"
+
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
@@ -253,15 +256,15 @@ void fnt_drawText( TTFont *font, int x, int y, const char *text )
   }
 }
 
-void fnt_getTextSize( TTFont *font, const char *text, int *width, int *height )
+void fnt_getTextSize( TTFont *font, const char *text, int *pwidth, int *pheight )
 {
   if ( font )
   {
-    TTF_SizeText( font->ttfFont, text, width, height );
+    TTF_SizeText( font->ttfFont, text, pwidth, pheight );
   }
 }
 
-/** font_drawTextBox
+/** fnt_drawTextBox
  * Draws a text string into a box, splitting it into lines according to newlines in the string.
  * NOTE: Doesn't pay attention to the width/height arguments yet.
  *
@@ -273,8 +276,10 @@ void fnt_getTextSize( TTFont *font, const char *text, int *width, int *height )
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox( TTFont *font, const char *text, int x, int y, int width, int height, int spacing )
+void fnt_drawTextBox( TTFont *font, const char *text, int x, int y,  int width, int height, int spacing )
 {
+  GLint matrix_mode;
+  GLint viewport_save[4];
   size_t len;
   char *buffer, *line;
 
@@ -282,6 +287,22 @@ void fnt_drawTextBox( TTFont *font, const char *text, int x, int y, int width, i
 
   // If text is empty, there's nothing to draw
   if ( NULL == text || '\0' == text[0] ) return;
+
+  //if(0 != width && 0 != height)
+  //{
+  //  //grab the old viewoprt info
+  //  glGetIntegerv (GL_VIEWPORT, viewport_save);
+  //  glGetIntegerv(GL_MATRIX_MODE, &matrix_mode);
+
+  //  // forcefully clip the active region to the given box
+
+  //  glMatrixMode( GL_PROJECTION );                            /* GL_TRANSFORM_BIT */
+  //  glPushMatrix();
+  //  glLoadIdentity();
+  //  glOrtho( x, x + width, y + height, y, -1, 1 );
+
+  //  glViewport(x,CData.scry-y-height,width,height);
+  //}
 
   // Split the passed in text into separate lines
   len = strlen( text );
@@ -296,6 +317,15 @@ void fnt_drawTextBox( TTFont *font, const char *text, int x, int y, int width, i
     line = strtok( NULL, "\n" );
   }
   FREE( buffer );
+
+  //if(0 != width && 0 != height)
+  //{
+  //  glMatrixMode( matrix_mode );                            /* GL_TRANSFORM_BIT */
+  //  glPopMatrix();
+
+  //  // restore the old viewport
+  //  glViewport(viewport_save[0],viewport_save[1],viewport_save[2],viewport_save[3]);
+  //}
 }
 
 void fnt_getTextBoxSize( TTFont *font, const char *text, int spacing, int *width, int *height )

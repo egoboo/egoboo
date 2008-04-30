@@ -204,8 +204,9 @@ typedef struct mad_t
 
 extern MAD MadList[MAXMODEL];
 
-#define VALID_MDL(XX) ( ((XX)>=0) && ((XX)<MAXMODEL) )
-#define VALIDATE_MDL(XX) ( VALID_MDL(XX) ? (XX) : MAXMODEL )
+#define VALID_MDL_RANGE(XX) ( ((XX)>=0) && ((XX)<MAXMODEL) )
+#define VALID_MDL(XX)       ( VALID_MDL_RANGE(XX) )
+#define VALIDATE_MDL(XX)    ( VALID_MDL(XX) ? (XX) : MAXMODEL )
 
 ACTION action_number(char * szName);
 Uint16 action_frame();

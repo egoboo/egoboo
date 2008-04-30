@@ -364,6 +364,8 @@ typedef struct action_info_t
   ACTION  next;      // Character's next    action
 } ACTION_INFO;
 
+ACTION_INFO * action_info_new( ACTION_INFO * a);
+
 typedef struct animation_info_t
 {
   Uint16          next;       // Character's frame
@@ -372,32 +374,87 @@ typedef struct animation_info_t
   Uint8           lip_fp8;    // Character's low-res frame in betweening
 } ANIM_INFO;
 
+ANIM_INFO * anim_info_new( ANIM_INFO * a );
+
+typedef vect2 WAYPOINT;
+
+typedef struct waypoint_list_t
+{
+  int      head, tail;
+  WAYPOINT pos[MAXWAY];
+} WP_LIST;
+
+WP_LIST * wp_list_new(WP_LIST * w, vect3 * pos);
+bool_t    wp_list_advance(WP_LIST * wl);
+bool_t    wp_list_add(WP_LIST * wl, float x, float y);
+
+INLINE float wp_list_x( WP_LIST * wl ) { return wl->pos[wl->tail].x; };
+INLINE float wp_list_y( WP_LIST * wl ) { return wl->pos[wl->tail].y; };
+
+
+typedef struct ai_state_t
+{
+  Uint16          type;          // The AI script to run
+  int             state;         // Short term memory for AI
+  int             content;       // More short term memory
+  float           time;          // AI Timer
+  WP_LIST         wp;
+  int             x[MAXSTOR];    // Temporary values...  SetXY
+  int             y[MAXSTOR];    //
+  bool_t          morphed;       //Some various other stuff
+  CHR_REF         target;        // Who the AI is after
+  CHR_REF         owner;         // The character's owner
+  CHR_REF         child;         // The character's child
+  CHR_REF         bumplast;        // Last character it was bumped by
+  CHR_REF         attacklast;      // Last character it was attacked by
+  CHR_REF         hitlast;         // Last character it hit
+
+  Uint16          directionlast;   // Direction of last attack/healing
+  Uint8           damagetypelast;  // Last damage type
+  Uint8           turnmode;        // Turning mode
+  Uint32          alert;           // Alerts for AI script
+  vect3           trgvel;          // target's velocity
+  LATCH           latch;           // latches
+} AI_STATE;
+
+AI_STATE * ai_state_new(AI_STATE * a, Uint16 ichr);
+AI_STATE * ai_state_renew(AI_STATE * a, Uint16 ichr);
+
+
+typedef struct chr_terrain_light_t
+{
+  vect3_ui08      ambi_fp8; // 0-255, terrain light
+  vect3_ui08      spek_fp8; // 0-255, terrain light
+  vect3_ui16      turn_lr;  // Character's light rotation 0 to 65535
+} CHR_TLIGHT;
+
 typedef struct chr_t
 {
   bool_t          on;              // Does it exist?
   char            name[MAXCAPNAMESIZE];  // Character name
   bool_t          gopoof;          // is poof requested?
   bool_t          freeme;          // is free_one_character() requested?
+
+
   matrix_4x4      matrix;          // Character's matrix
   bool_t          matrixvalid;     // Did we make one yet?
+
   Uint16          model;           // Character's model
   Uint16          basemodel;       // The true form
-  VData_Blended   vdata;           // pre-processed per-vertex lighting data
-  LData           ldata;           // pre-processed matrial parameters
+
   bool_t          alive;           // Is it alive?
+
   bool_t          inwhichpack;     // Is it in whose inventory?
   Uint16          nextinpack;      // Link to the next item
   Uint8           numinpack;       // How many
+
   bool_t          openstuff;       // Can it open chests/doors?
-  Uint8           lifecolor;       // Bar color
-  Uint8           sparkle;         // Sparkle color or 0 for off
-  Sint16          life_fp8;            // Basic character stats
-  Sint16          lifemax_fp8;         //   All 8.8 fixed point
-  Uint16          lifeheal;        //
-  Uint8           manacolor;       // Bar color
-  Uint8           ammomax;         // Ammo stuff
-  Uint8           ammo;            //
-  GENDER          gender;          // Gender
+
+  // stats
+  Sint16          life_fp8;            // 
+  Sint16          lifemax_fp8;         //
+  Uint16          lifeheal;            //
+  Sint16          lifereturn;          // Regeneration/poison
   Sint16          mana_fp8;            // Mana stuff
   Sint16          manamax_fp8;         //
   Sint16          manaflow_fp8;        //
@@ -406,150 +463,156 @@ typedef struct chr_t
   Sint16          wisdom_fp8;          // Wisdom
   Sint16          intelligence_fp8;    // Intelligence
   Sint16          dexterity_fp8;       // Dexterity
-  bool_t          stickybutt;      // Rests on floor
-  bool_t          enviro;          // Environment map?
-  bool_t          inwater;         //
-  Uint32          alert;           // Alerts for AI script
-  float           flyheight;       // Height to stabilize at
-  TEAM            team;            // Character's team
-  TEAM            baseteam;        // Character's starting team
+  int             experience;          // Experience
+  int             experiencelevel;     // Experience Level
+  Sint32          money;               // Money
+  Uint8           ammomax;             // Ammo stuff
+  Uint8           ammo;                //
+  GENDER          gender;              // Gender
+
+  // stat graphic info
+  Uint8           sparkle;         // Sparkle color or 0 for off
+  Uint8           lifecolor;       // Bar color
+  Uint8           manacolor;       // Bar color
   bool_t          staton;          // Display stats?
+  bool_t          icon;            // Show the icon?
+
+  // position info
   vect3           stt;             // Starting position
   vect3           pos;             // Character's position
-  vect3           trgvel;          // Character's target velocity
+  Uint16          turn_lr;   // Character's rotation 0 to 65535
   vect3           vel;             // Character's velocity
-  vect3           pos_old;          // Character's last position
-  Uint16          turn_lr_old;         //
-  vect3           accum_acc;         //
-  vect3           accum_vel;         //
-  vect3           accum_pos;         //
-  LATCH           latch;           // Character latches
-  float           reloadtime;      // Time before another shot
+  vect3           pos_old;         // Character's last position
+  Uint16          turn_lr_old;     //
+  Uint16          mapturn_lr;       //
+  Uint16          mapturn_ud;       //
+
+  // physics info
+  vect3           accum_acc;       //
+  vect3           accum_vel;       //
+  vect3           accum_pos;       //
+  float           flyheight;       // Height to stabilize at
+  bool_t          stickybutt;      // Rests on floor
+  bool_t          inwater;         //
   float           maxaccel;        // Maximum acceleration
-  float           scale;           // Character's size (useful)
-  float           fat;             // Character's size (legible)
-  float           sizegoto;        // Character's size goto ( legible )
-  float           sizegototime;    // Time left in siez change
   float           dampen;          // Bounciness
   float           bumpstrength;    // ghost-like interaction with objects?
   float           level;           // Height under character
   bool_t          levelvalid;      // Has height been stored?
+
+  AI_STATE        aistate;           // ai-specific into
+
+
   float           jump;            // Jump power
   float           jumptime;        // Delay until next jump
   float           jumpnumber;      // Number of jumps remaining
   Uint8           jumpnumberreset; // Number of jumps total, 255=Flying
   bool_t          jumpready;       // For standing on a platform character
+
   Uint32          onwhichfan;      // Where the char is
   bool_t          indolist;        // Has it been added yet?
+
+  Uint16          texture;         // Character's skin
   Uint16          uoffset_fp8;         // For moving textures
   Uint16          voffset_fp8;         //
   Uint16          uoffvel;         // Moving texture speed
   Uint16          voffvel;         //
-  Uint16          turn_lr;   // Character's rotation 0 to 65535
-  Uint16          mapturn_lr;       //
-  Uint16          mapturn_ud;       //
-  Uint16          texture;         // Character's skin
 
   ACTION_INFO     action;
-
   ANIM_INFO       anim;
 
-  Uint8           vrtar_fp8[MAXVERTICES];// Lighting hack ( Ooze )
-  Uint8           vrtag_fp8[MAXVERTICES];// Lighting hack ( Ooze )
-  Uint8           vrtab_fp8[MAXVERTICES];// Lighting hack ( Ooze )
-  Uint16          holdingwhich[SLOT_COUNT]; // !=MAXCHR if character is holding something
-  Uint16          attachedto;      // !=MAXCHR if character is a held weapon
-  Uint16          attachedgrip[GRIP_SIZE];   // Vertices which describe the weapon grip
-  Uint8           alpha_fp8;           // 255 = Solid, 0 = Invisible
-  Uint8           light_fp8;           // 1 = Light, 0 = Normal
-  Uint8           flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
-  Uint8           lightambir_fp8;      // 0-255, terrain light
-  Uint8           lightambig_fp8;      // 0-255, terrain light
-  Uint8           lightambib_fp8;      // 0-255, terrain light
-  Uint8           lightspekr_fp8;      // 0-255, terrain light
-  Uint8           lightspekg_fp8;      // 0-255, terrain light
-  Uint8           lightspekb_fp8;      // 0-255, terrain light
-  Uint16          lightturn_lrr;  // Character's light rotation 0 to 65535
-  Uint16          lightturn_lrg;  // Character's light rotation 0 to 65535
-  Uint16          lightturn_lrb;  // Character's light rotation 0 to 65535
+  TEAM            team;            // Character's team
+  TEAM            baseteam;        // Character's starting team
+
+  // lighting info
+  vect3_ui08      vrta_fp8[MAXVERTICES];  // Lighting hack ( Ooze )
+  CHR_TLIGHT      tlight;                 // terrain lighting info
+  VData_Blended   vdata;                  // pre-processed per-vertex lighting data
+  LData           ldata;                  // pre-processed matrial parameters
+  Uint8           alpha_fp8;                 // 255 = Solid, 0 = Invisible
+  Uint8           light_fp8;                 // 1 = Light, 0 = Normal
+  Uint8           flashand;                  // 1,3,7,15,31 = Flash, 255 = Don't
   Uint8           sheen_fp8;           // 0-15, how shiny it is
-  bool_t          transferblend;   // Give transparency to weapons?
-  bool_t          isitem;          // Is it grabbable?
-  bool_t          ismount;         // Can you ride it?
-  Uint8           redshift;        // Color channel shifting
-  Uint8           grnshift;        //
-  Uint8           blushift;        //
+  bool_t          transferblend;       // Give transparency to weapons?
+  Uint8           redshift;            // Color channel shifting
+  Uint8           grnshift;            //
+  Uint8           blushift;            //
+  bool_t          enviro;              // Environment map?
+
+  Uint16          holdingwhich[SLOT_COUNT];  // !=MAXCHR if character is holding something
+  Uint16          attachedto;                // !=MAXCHR if character is a held weapon
+  Uint16          attachedgrip[GRIP_SIZE];   // Vertices which describe the weapon grip
+
+
+  // bumber info
   BData           bmpdata;           // character bump size data
   BData           bmpdata_save;
   Uint16          bumpnext;        // Next character on fanblock
   float           bumpdampen;      // Character bump mass
-  Uint16          directionlast;   // Direction of last attack/healing
-  Uint8           damagetypelast;  // Last damage type
-  bool_t          isplatform;        // Can it be stood on
-  Uint8           turnmode;        // Turning mode
+
   Uint8           sneakspd;        // Sneaking if above this speed
   Uint8           walkspd;         // Walking if above this speed
   Uint8           runspd;          // Running if above this speed
+
   DAMAGE          damagetargettype;// Type of damage for AI DamageTarget
   DAMAGE          reaffirmdamagetype; // For relighting torches
   Uint8           damagemodifier_fp8[MAXDAMAGETYPE];  // Resistances and inversion
   float           damagetime;      // Invincibility timer
   Uint8           defense_fp8;         // Base defense rating
   float           weight;          // Weight ( for pressure plates )
+
   Uint8           passage;         // The passage associated with this character
+
   Uint32          message;           // The last order given the character
-  Uint8           messagedata;         // The rank of the character on the order chain
+  Uint8           messagedata;       // The rank of the character on the order chain
+
+  bool_t          isplatform;        // Can it be stood on
   Uint16          onwhichplatform; // What are we standing on?
   Uint16          holdingweight;   // For weighted buttons
-  Sint32          money;           // Money
-  Sint16          lifereturn;      // Regeneration/poison
+  SLOT            inwhichslot;     // SLOT_LEFT or SLOT_RIGHT or SLOT_SADDLE
+  bool_t          isequipped;      // For boots and rings and stuff
+
+
   Sint16          manacost;        // Mana cost to use
   Uint32          stoppedby;       // Collision mask
-  int             experience;      // Experience
-  int             experiencelevel; // Experience Level
+
+  // timers
   Sint16          grogtime;        // Grog timer
   Sint16          dazetime;        // Daze timer
+  float           boretime;        // Boredom timer
+  float           carefultime;     // "You hurt me!" timer
+  float           reloadtime;      // Time before another shot
+
+  bool_t          isitem;          // Is it grabbable?
+  bool_t          ismount;         // Can you ride it?
   bool_t          nameknown;       // Is the name known?
   bool_t          ammoknown;       // Is the ammo known?
   bool_t          hitready;        // Was it just dropped?
-  float           boretime;        // Boredom timer
-  float           carefultime;     // "You hurt me!" timer
   bool_t          canbecrushed;    // Crush in a door?
-  SLOT            inwhichslot;     // SLOT_LEFT or SLOT_RIGHT or SLOT_SADDLE
-  bool_t          isequipped;      // For boots and rings and stuff
-  Uint16          firstenchant;    // Linked list for enchants
-  Uint16          undoenchant;     // Last enchantment spawned
-  MISSLE_TYPE     missiletreatment;// For deflection, etc.
-  Uint8           missilecost;     // Mana cost for each one
-  Uint16          missilehandler;  // Who pays the bill for each one...
-  Uint16          damageboost;     // Add to swipe damage
-  bool_t          overlay;         // Is this an overlay?  Track aitarget...
-  vect3           pancakepos;
-  vect3           pancakevel;
-
-
-  bool_t          icon;            // Show the icon?
   bool_t          cangrabmoney;    // Picks up coins?
   bool_t          isplayer;        // btrue = player
   bool_t          islocalplayer;   // btrue = local player
 
-  Uint16          aitype;          // The AI script to run
-  int             aistate;         // Short term memory for AI
-  int             aicontent;       // More short term memory
-  float           aitime;          // AI Timer
-  Uint8           aigoto;          // Which waypoint
-  Uint8           aigotoadd;       // Where to stick next
-  float           aigotox[MAXWAY]; // Waypoint
-  float           aigotoy[MAXWAY]; // Waypoint
-  int             aix[MAXSTOR];    // Temporary values...  SetXY
-  int             aiy[MAXSTOR];    //
-  bool_t          aimorphed;       //Some various other stuff
-  CHR_REF         aitarget;        // Who the AI is after
-  CHR_REF         aiowner;         // The character's owner
-  CHR_REF         aichild;         // The character's child
-  CHR_REF         aibumplast;        // Last character it was bumped by
-  CHR_REF         aiattacklast;      // Last character it was attacked by
-  CHR_REF         aihitlast;         // Last character it hit
+  // enchant info
+  Uint16          firstenchant;    // Linked list for enchants
+  Uint16          undoenchant;     // Last enchantment spawned
+
+  // missle info
+  MISSLE_TYPE     missiletreatment;// For deflection, etc.
+  Uint8           missilecost;     // Mana cost for each one
+  Uint16          missilehandler;  // Who pays the bill for each one...
+
+  Uint16          damageboost;     // Add to swipe damage
+  bool_t          overlay;         // Is this an overlay?  Track aitarget...
+
+
+  // matrix mods
+  float           scale;           // Character's size (useful)
+  float           fat;             // Character's size (legible)
+  float           sizegoto;        // Character's size goto ( legible )
+  float           sizegototime;    // Time left in siez change
+  vect3           pancakepos;
+  vect3           pancakevel;
 
   Sint8           loopingchannel;    // Channel number of the loop so
   float           loopingvolume;     // Sound volume of the channel
@@ -634,8 +697,8 @@ void character_swipe( Uint16 cnt, SLOT slot );
 void despawn_characters();
 void move_characters( float dUpdate );
 
-
-#define VALID_CHR(XX)   ( ((XX)>=0) && ((XX)<MAXCHR) && ChrList[XX].on )
+#define VALID_CHR_RANGE(XX) (((XX)>=0) && ((XX)<MAXCHR))
+#define VALID_CHR(XX)    ( VALID_CHR_RANGE(XX) && ChrList[XX].on )
 #define VALIDATE_CHR(XX) ( VALID_CHR(XX) ? (XX) : MAXCHR )
 
 bool_t chr_in_pack( CHR_REF character );

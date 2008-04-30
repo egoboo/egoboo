@@ -70,7 +70,7 @@ bool_t open_passage( Uint32 passage )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t break_passage( Uint32 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint32 meshfxor )
+bool_t break_passage( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 passage, Uint16 starttile, Uint16 frames, Uint16 become, Uint32 meshfxor )
 {
   // ZZ> This function breaks the tiles of a passage if there is a character standing
   //     on 'em...  Turns the tiles into damage terrain if it reaches last frame.
@@ -98,8 +98,8 @@ bool_t break_passage( Uint32 passage, Uint16 starttile, Uint16 frames, Uint16 be
         if ( tile >= starttile && tile < endtile )
         {
           // Remember where the hit occured...
-          scr_globals.tmpx = ChrList[character].pos.x;
-          scr_globals.tmpy = ChrList[character].pos.y;
+          pg_scr->tmpx = ChrList[character].pos.x;
+          pg_scr->tmpy = ChrList[character].pos.y;
           useful = btrue;
 
           // Change the tile
@@ -137,9 +137,9 @@ void flash_passage( Uint32 passage, Uint8 color )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t search_tile_in_passage( Uint32 passage, Uint32 tiletype )
+bool_t search_tile_in_passage( SCRIPT_GLOBAL_VALUES * pgscr, Uint32 passage, Uint32 tiletype )
 {
-  // ZZ> This function finds the next tile in the passage, scr_globals.tmpx and scr_globals.tmpy
+  // ZZ> This function finds the next tile in the passage, pgscr->tmpx and pgscr->tmpy
   //     must be set first, and are set on a find...  Returns btrue or bfalse
   //     depending on if it finds one or not
   int fan_x, fan_y;
@@ -147,8 +147,8 @@ bool_t search_tile_in_passage( Uint32 passage, Uint32 tiletype )
   if ( passage >= numpassage ) return bfalse;
 
   // Do the first row
-  fan_x = MESH_INT_TO_FAN( scr_globals.tmpx );
-  fan_y = MESH_INT_TO_FAN( scr_globals.tmpy );
+  fan_x = MESH_INT_TO_FAN( pgscr->tmpx );
+  fan_y = MESH_INT_TO_FAN( pgscr->tmpy );
 
   if ( fan_x < passtlx[passage] )  fan_x = passtlx[passage];
   if ( fan_y < passtly[passage] )  fan_y = passtly[passage];
@@ -159,8 +159,8 @@ bool_t search_tile_in_passage( Uint32 passage, Uint32 tiletype )
     {
       if ( tiletype == mesh_get_tile( fan_x, fan_y ) )
       {
-        scr_globals.tmpx = MESH_FAN_TO_INT( fan_x ) + ( 1 << 6 );
-        scr_globals.tmpy = MESH_FAN_TO_INT( fan_y ) + ( 1 << 6 );
+        pgscr->tmpx = MESH_FAN_TO_INT( fan_x ) + ( 1 << 6 );
+        pgscr->tmpy = MESH_FAN_TO_INT( fan_y ) + ( 1 << 6 );
         return btrue;
       }
     }
@@ -328,7 +328,7 @@ bool_t close_passage( Uint32 passage )
     for ( cnt = 0; cnt < numcrushed; cnt++ )
     {
       character = crushedcharacters[cnt];
-      ChrList[character].alert |= ALERT_CRUSHED;
+      ChrList[character].aistate.alert |= ALERT_CRUSHED;
     }
 
     useful = useful || ( numcrushed != 0 );

@@ -383,15 +383,15 @@ void move_camera( float dUpdate )
   if ( CData.render_overlay )
   {
     // Do fg distance effect
-    GWater.layeru[0] += vel.x * GWater.layerdistx[0] * dUpdate;
-    GWater.layerv[0] += vel.y * GWater.layerdisty[0] * dUpdate;
+    GWater.layer[0].u += vel.x * GWater.layer[0].distx * dUpdate;
+    GWater.layer[0].v += vel.y * GWater.layer[0].disty * dUpdate;
   }
 
   if ( CData.render_background )
   {
     // Do bg distance effect
-    GWater.layeru[1] += vel.x * GWater.layerdistx[1] * dUpdate;
-    GWater.layerv[1] += vel.y * GWater.layerdisty[1] * dUpdate;
+    GWater.layer[1].u += vel.x * GWater.layer[1].distx * dUpdate;
+    GWater.layer[1].v += vel.y * GWater.layer[1].disty * dUpdate;
   }
 
   // Get ready to scroll...

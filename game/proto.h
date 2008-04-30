@@ -90,7 +90,7 @@ Uint16 get_free_enchant();
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 int get_free_message( void );
-void display_message( int message, CHR_REF character );
+
 void remove_enchant( Uint16 enchantindex );
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
@@ -129,10 +129,7 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode );
 // Passage control functions
 bool_t open_passage( Uint32 passage );
 void check_passage_music();
-int break_passage( Uint32 passage, Uint16 starttile, Uint16 frames,
-                   Uint16 become, Uint32 meshfxor );
 void flash_passage( Uint32 passage, Uint8 color );
-bool_t  search_tile_in_passage( Uint32 passage, Uint32 tiletype );
 Uint16 who_is_blocking_passage( Uint32 passage );
 Uint16 who_is_blocking_passage_ID( Uint32 passage, IDSZ idsz );
 bool_t close_passage( Uint32 passage );
@@ -151,7 +148,6 @@ void make_prtlist( void );
 void make_turntosin( void );
 void debug_message( int time, const char *format, ... );
 void reset_end_text();
-void append_end_text( int message, CHR_REF character );
 
 void do_enchant_spawn( float dUpdate );
 
@@ -193,11 +189,8 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz );
 int    modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment );
 int    check_player_quest( char *whichplayer, IDSZ idsz );
 
-bool_t run_function( Uint32 value, CHR_REF character );
-void set_operand( Uint8 variable );
-void run_operand( Uint32 value, CHR_REF character );
-void let_character_think( CHR_REF character, float dUpdate );
-void let_ai_think( float dUpdate );
+
+
 
 void make_textureoffset( void );
 int add_player( CHR_REF character, Uint16 player, Uint8 device );
@@ -282,32 +275,6 @@ bool_t do_pageflip();
 bool_t do_clear();
 void draw_scene();
 void draw_main( float );
-
-bool_t prt_search_target_in_block( int block_x, int block_y, float prtx, float prty, Uint16 facing,
-                                   bool_t request_friends, bool_t allow_anyone, TEAM team,
-                                   Uint16 donttarget, Uint16 oldtarget );
-CHR_REF prt_search_target( float prtx, float prty, Uint16 facing,
-                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
-                           TEAM team, Uint16 donttarget, Uint16 oldtarget );
-
-CHR_REF chr_search_distant_target( CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead );
-
-void chr_search_nearest_in_block( int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz );
-
-CHR_REF chr_search_nearest_target( CHR_REF character, bool_t ask_items,
-                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz );
-
-CHR_REF chr_search_wide_target( CHR_REF character, bool_t ask_items,
-                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid );
-
-CHR_REF chr_search_target_in_block( int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
-                                    bool_t excludeid );
-
-CHR_REF chr_search_nearby_target( CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz );
-
 
 bool_t load_one_title_image( int titleimage, char *szLoadName );
 bool_t get_module_data( int modnumber, char *szLoadName );

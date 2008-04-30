@@ -480,7 +480,6 @@ void ui_drawImage( ui_Widget * pWidget )
 //--------------------------------------------------------------------------------------------
 /** ui_drawTextBox
  * Draws a pWidget->text string into a box, splitting it into lines according to newlines in the string.
- * NOTE: Doesn't pay attention to the pWidget->width/pWidget->height arguments yet.
  *
  * pWidget->text    - The pWidget->text to draw
  * pWidget->x       - The pWidget->x position to start drawing at
@@ -513,18 +512,24 @@ ui_buttonValues ui_doButton( ui_Widget * pWidget )
   ui_drawButton( pWidget );
 
   // And then draw the pWidget->text that goes on top of the button
-  font = ui_getFont();
-  if ( font && NULL != pWidget->text )
+  font = pWidget->pfont;
+  if(NULL == font) { font = ui_getFont(); };
+  
+  if ( NULL != font && NULL != pWidget->text )
   {
     // find the pWidget->width & pWidget->height of the pWidget->text to be drawn, so that it can be centered inside
     // the button
-    fnt_getTextSize( font, pWidget->text, &text_w, &text_h );
 
-    text_x = ( pWidget->width - text_w ) / 2 + pWidget->x;
+    fnt_getTextBoxSize( font, pWidget->text, 20, &text_w, &text_h );
+
+    text_w = MIN(text_w, pWidget->width );
+    text_h = MIN(text_h, pWidget->height);
+
+    text_x = ( pWidget->width  - text_w ) / 2 + pWidget->x;
     text_y = ( pWidget->height - text_h ) / 2 + pWidget->y;
 
     glColor3f( 1, 1, 1 );
-    fnt_drawText( font, text_x, text_y, pWidget->text );
+    fnt_drawTextBox( font, pWidget->text, text_x, text_y, text_w, text_h, 20 );
   }
 
   return result;

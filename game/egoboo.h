@@ -305,31 +305,41 @@ typedef struct weather_info_t
 
 EXTERN WEATHER_INFO GWeather;
 
+typedef struct water_layer_t
+{
+  Uint8     lightlevel_fp8; // General light amount (0-63)
+  Uint8     lightadd_fp8;   // Ambient light amount (0-63)
+  Uint8     alpha_fp8;      // Transparency
+
+  float     u;              // Coordinates of texture
+  float     v;              //
+  float     uadd;           // Texture movement
+  float     vadd;           //
+
+  float     amp;            // Amplitude of waves
+  float     z;              // Base height of water
+  float     zadd[MAXWATERFRAME][WATERMODE][WATERPOINTS];
+  Uint8     color[MAXWATERFRAME][WATERMODE][WATERPOINTS];
+  Uint16    frame;          // Frame
+  Uint16    frameadd;       // Speed
+
+  float     distx;          // For distant backgrounds
+  float     disty;          //
+} WATER_LAYER;
+
 typedef struct water_info_t
 {
   Uint8     shift ; // EQ( 3 );
-  int       num_layer; // EQ( 0 );              // Number of layers
   float     surfacelevel; // EQ( 0 );          // Surface level for water striders
   float     douselevel; // EQ( 0 );            // Surface level for torches
   bool_t    light; // EQ( 0 );                 // Is it light ( default is alpha )
   Uint8     spekstart; // EQ( 128 );           // Specular begins at which light value
   Uint8     speklevel_fp8; // EQ( 128 );           // General specular amount (0-255)
   bool_t    iswater ; // EQ( btrue );          // Is it water?  ( Or lava... )
-  Uint8     lightlevel_fp8[MAXWATERLAYER]; // General light amount (0-63)
-  Uint8     lightadd_fp8[MAXWATERLAYER];   // Ambient light amount (0-63)
-  float     layerz[MAXWATERLAYER];     // Base height of water
-  Uint8     layeralpha_fp8[MAXWATERLAYER]; // Transparency
-  float     layeramp[MAXWATERLAYER];   // Amplitude of waves
-  float     layeru[MAXWATERLAYER];     // Coordinates of texture
-  float     layerv[MAXWATERLAYER];     //
-  float     layeruadd[MAXWATERLAYER];  // Texture movement
-  float     layervadd[MAXWATERLAYER];  //
-  float     layerzadd[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
-  Uint8     layercolor[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
-  Uint16    layerframe[MAXWATERLAYER]; // Frame
-  Uint16    layerframeadd[MAXWATERLAYER];      // Speed
-  float     layerdistx[MAXWATERLAYER];         // For distant backgrounds
-  float     layerdisty[MAXWATERLAYER];         //
+
+  int         layer_count; // EQ( 0 );              // Number of layers
+  WATER_LAYER layer[MAXWATERLAYER];
+
   Uint32    spek[256];             // Specular highlights
 } WATER_INFO;
 
@@ -577,7 +587,9 @@ typedef struct search_context_t
   float   distance;
 } SEARCH_CONTEXT;
 
-extern SEARCH_CONTEXT g_search;
+SEARCH_CONTEXT * search_new(SEARCH_CONTEXT * psearch);
+
+extern SEARCH_CONTEXT _g_search;
 
 
 
@@ -787,3 +799,27 @@ void setup_characters( char *modname );
 void read_input();
 
 
+bool_t prt_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, float prtx, float prty, Uint16 facing,
+                                   bool_t request_friends, bool_t allow_anyone, TEAM team,
+                                   Uint16 donttarget, Uint16 oldtarget );
+CHR_REF prt_search_target( SEARCH_CONTEXT * psearch, float prtx, float prty, Uint16 facing,
+                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
+                           TEAM team, Uint16 donttarget, Uint16 oldtarget );
+
+CHR_REF chr_search_distant_target( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead );
+
+void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz );
+
+CHR_REF chr_search_nearest_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz );
+
+CHR_REF chr_search_wide_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid );
+
+CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
+                                    bool_t excludeid );
+
+CHR_REF chr_search_nearby_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz );

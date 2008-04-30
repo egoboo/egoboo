@@ -31,6 +31,7 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "passage.h"
 #include "Menu.h"
 #include "Md2.inl"
+#include "script.h"
 
 #include "egoboo_math.h"
 #include "egoboo_strutil.h"
@@ -174,22 +175,22 @@ void flash_character_height( CHR_REF character, Uint8 valuelow, Sint16 low,
 
     if ( z < low )
     {
-      ChrList[character].vrtar_fp8[cnt] =
-      ChrList[character].vrtag_fp8[cnt] =
-      ChrList[character].vrtab_fp8[cnt] = valuelow;
+      ChrList[character].vrta_fp8[cnt].r =
+      ChrList[character].vrta_fp8[cnt].g =
+      ChrList[character].vrta_fp8[cnt].b = valuelow;
     }
     else if ( z > high )
     {
-      ChrList[character].vrtar_fp8[cnt] =
-      ChrList[character].vrtag_fp8[cnt] =
-      ChrList[character].vrtab_fp8[cnt] = valuehigh;
+      ChrList[character].vrta_fp8[cnt].r =
+      ChrList[character].vrta_fp8[cnt].g =
+      ChrList[character].vrta_fp8[cnt].b = valuehigh;
     }
     else
     {
       float ftmp = (float)( z - low ) / (float)( high - low );
-      ChrList[character].vrtar_fp8[cnt] =
-      ChrList[character].vrtag_fp8[cnt] =
-      ChrList[character].vrtab_fp8[cnt] = valuelow + (valuehigh - valuelow) * ftmp;
+      ChrList[character].vrta_fp8[cnt].r =
+      ChrList[character].vrta_fp8[cnt].g =
+      ChrList[character].vrta_fp8[cnt].b = valuelow + (valuehigh - valuelow) * ftmp;
     }
   }
 }
@@ -206,9 +207,9 @@ void flash_character( CHR_REF character, Uint8 value )
   cnt = 0;
   while ( cnt < MadList[model].transvertices )
   {
-    ChrList[character].vrtar_fp8[cnt] =
-      ChrList[character].vrtag_fp8[cnt] =
-        ChrList[character].vrtab_fp8[cnt] = value;
+    ChrList[character].vrta_fp8[cnt].r =
+    ChrList[character].vrta_fp8[cnt].g =
+    ChrList[character].vrta_fp8[cnt].b = value;
     cnt++;
   }
 }
@@ -557,14 +558,14 @@ void free_one_character( CHR_REF ichr )
   {
     if ( ChrList[cnt].on )
     {
-      if ( ChrList[cnt].aitarget == ichr )
+      if ( ChrList[cnt].aistate.target == ichr )
       {
-        ChrList[cnt].alert |= ALERT_TARGETKILLED;
-        ChrList[cnt].aitarget = cnt;
+        ChrList[cnt].aistate.alert |= ALERT_TARGETKILLED;
+        ChrList[cnt].aistate.target = cnt;
       }
       if ( team_get_leader( ChrList[cnt].team ) == ichr )
       {
-        ChrList[cnt].alert |= ALERT_LEADERKILLED;
+        ChrList[cnt].aistate.alert |= ALERT_LEADERKILLED;
       }
     }
     cnt++;
@@ -846,7 +847,7 @@ int get_free_character()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t prt_search_target_in_block( int block_x, int block_y, float prtx, float prty, Uint16 facing,
+bool_t prt_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, float prtx, float prty, Uint16 facing,
                                    bool_t request_friends, bool_t allow_anyone, TEAM team,
                                    Uint16 donttarget, Uint16 oldtarget )
 {
@@ -876,58 +877,25 @@ bool_t prt_search_target_in_block( int block_x, int block_y, float prtx, float p
     if ( allow_anyone || ( request_friends && !TeamList[team].hatesteam[ChrList[charb].team] ) || ( request_enemies && TeamList[team].hatesteam[ChrList[charb].team] ) )
     {
       local_distance = ABS( ChrList[charb].pos.x - prtx ) + ABS( ChrList[charb].pos.y - prty );
-      if ( local_distance < g_search.bestdistance )
+      if ( local_distance < psearch->bestdistance )
       {
         local_angle = facing - vec_to_turn( ChrList[charb].pos.x - prtx, ChrList[charb].pos.y - prty );
-        if ( local_angle < g_search.bestangle || local_angle > ( 65535 - g_search.bestangle ) )
+        if ( local_angle < psearch->bestangle || local_angle > ( 65535 - psearch->bestangle ) )
         {
           bfound = btrue;
-          g_search.besttarget   = charb;
-          g_search.bestdistance = local_distance;
-          g_search.useangle     = local_angle;
+          psearch->besttarget   = charb;
+          psearch->bestdistance = local_distance;
+          psearch->useangle     = local_angle;
           if ( local_angle  > 32767 )
-            g_search.bestangle = UINT16_SIZE - local_angle;
+            psearch->bestangle = UINT16_SIZE - local_angle;
           else
-            g_search.bestangle = local_angle;
+            psearch->bestangle = local_angle;
         }
       }
     }
   }
 
   return bfound;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF prt_search_target( float prtx, float prty, Uint16 facing,
-                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
-                           TEAM team, Uint16 donttarget, Uint16 oldtarget )
-{
-  // This function finds the best target for the given parameters
-  bool_t done, btmp;
-  int block_x, block_y;
-
-  block_x = MESH_FLOAT_TO_BLOCK( prtx );
-  block_y = MESH_FLOAT_TO_BLOCK( prty );
-  g_search.besttarget   = MAXCHR;
-  g_search.bestdistance = 9999;
-  g_search.bestangle    = targetangle;
-  done = bfalse;
-
-  prt_search_target_in_block( block_x + 0, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  if ( VALID_CHR( g_search.besttarget ) ) return g_search.besttarget;
-
-  prt_search_target_in_block( block_x + 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( block_x - 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( block_x + 0, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( block_x + 0, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  if ( VALID_CHR( g_search.besttarget ) ) return g_search.besttarget;
-
-  btmp = prt_search_target_in_block( block_x + 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( block_x + 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( block_x - 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( block_x - 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-
-  return g_search.besttarget;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1130,7 +1098,7 @@ bool_t detach_character_from_mount( CHR_REF ichr, bool_t ignorekurse, bool_t dos
   // Don't allow living characters to drop kursed weapons
   if ( !ignorekurse && ChrList[ichr].iskursed && ChrList[imount].alive )
   {
-    ChrList[ichr].alert |= ALERT_NOTDROPPED;
+    ChrList[ichr].aistate.alert |= ALERT_NOTDROPPED;
     return bfalse;
   }
 
@@ -1215,7 +1183,7 @@ bool_t detach_character_from_mount( CHR_REF ichr, bool_t ignorekurse, bool_t dos
       if ( ChrList[iowner].money < 0 )  ChrList[iowner].money = 0;
       if ( ChrList[imount].money > MAXMONEY )  ChrList[imount].money = MAXMONEY;
 
-      ChrList[iowner].alert |= ALERT_SIGNALED;
+      ChrList[iowner].aistate.alert |= ALERT_SIGNALED;
       ChrList[iowner].message = price;  // Tell iowner how much...
       ChrList[iowner].messagedata = 0;  // 0 for buying an item
     }
@@ -1223,7 +1191,7 @@ bool_t detach_character_from_mount( CHR_REF ichr, bool_t ignorekurse, bool_t dos
 
   // Make sure it works right
   ChrList[ichr].hitready = btrue;
-  ChrList[ichr].alert   |= ALERT_DROPPED;
+  ChrList[ichr].aistate.alert   |= ALERT_DROPPED;
   if ( inshop )
   {
     // Drop straight down to avoid theft
@@ -1247,10 +1215,10 @@ bool_t detach_character_from_mount( CHR_REF ichr, bool_t ignorekurse, bool_t dos
   if ( ChrList[imount].ismount )
   {
     ChrList[imount].team = ChrList[imount].baseteam;
-    ChrList[imount].alert |= ALERT_DROPPED;
+    ChrList[imount].aistate.alert |= ALERT_DROPPED;
   }
   ChrList[ichr].team = ChrList[ichr].baseteam;
-  ChrList[ichr].alert |= ALERT_DROPPED;
+  ChrList[ichr].aistate.alert |= ALERT_DROPPED;
 
 
   // Reset transparency
@@ -1373,7 +1341,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
   {
     ChrList[ichr].team = ChrList[imount].team;
     // Set the alert
-    ChrList[ichr].alert |= ALERT_GRABBED;
+    ChrList[ichr].aistate.alert |= ALERT_GRABBED;
   }
   else if ( ChrList[imount].bmpdata.calc_is_mount )
   {
@@ -1381,7 +1349,7 @@ bool_t attach_character_to_mount( CHR_REF ichr, Uint16 imount, SLOT slot )
     // Set the alert
     if ( !ChrList[imount].isitem )
     {
-      ChrList[imount].alert |= ALERT_GRABBED;
+      ChrList[imount].aistate.alert |= ALERT_GRABBED;
     }
   }
 
@@ -1574,7 +1542,7 @@ bool_t add_item_to_character_pack( Uint16 iitem, CHR_REF ichr )
       // Only some were transfered,
       ChrList[iitem].ammo += ChrList[istack].ammo - ChrList[istack].ammomax;
       ChrList[istack].ammo = ChrList[istack].ammomax;
-      ChrList[ichr].alert |= ALERT_TOOMUCHBAGGAGE;
+      ChrList[ichr].aistate.alert |= ALERT_TOOMUCHBAGGAGE;
     }
   }
   else
@@ -1582,21 +1550,21 @@ bool_t add_item_to_character_pack( Uint16 iitem, CHR_REF ichr )
     // Make sure we have room for another iitem
     if ( ChrList[ichr].numinpack >= MAXNUMINPACK )
     {
-      ChrList[ichr].alert |= ALERT_TOOMUCHBAGGAGE;
+      ChrList[ichr].aistate.alert |= ALERT_TOOMUCHBAGGAGE;
       return bfalse;
     }
 
     // Take the item out of hand
     if ( detach_character_from_mount( iitem, btrue, bfalse ) )
     {
-      ChrList[iitem].alert &= ~ALERT_DROPPED;
+      ChrList[iitem].aistate.alert &= ~ALERT_DROPPED;
     }
 
     if ( pack_push_front( iitem, ichr ) )
     {
       // put out torches, etc.
       disaffirm_attached_particles( iitem );
-      ChrList[iitem].alert |= ALERT_ATLASTWAYPOINT;
+      ChrList[iitem].aistate.alert |= ALERT_ATLASTWAYPOINT;
 
       // Remove the iitem from play
       ChrList[iitem].hitready    = bfalse;
@@ -1627,7 +1595,7 @@ Uint16 get_item_from_character_pack( CHR_REF character, SLOT slot, bool_t ignore
   if ( ChrList[item].iskursed && ChrList[item].isequipped && !ignorekurse )
   {
     // Flag the last item as not removed
-    ChrList[item].alert |= ALERT_NOTPUTAWAY;  // Doubles as IfNotTakenOut
+    ChrList[item].aistate.alert |= ALERT_NOTPUTAWAY;  // Doubles as IfNotTakenOut
 
     // push it back on the front of the list
     pack_push_front( item, character );
@@ -1641,8 +1609,8 @@ Uint16 get_item_from_character_pack( CHR_REF character, SLOT slot, bool_t ignore
     attach_character_to_mount( item, character, slot );
 
     // fix some item values
-    ChrList[item].alert &= ( ~ALERT_GRABBED );
-    ChrList[item].alert |= ALERT_TAKENOUT;
+    ChrList[item].aistate.alert &= ( ~ALERT_GRABBED );
+    ChrList[item].aistate.alert |= ALERT_TAKENOUT;
     //ChrList[item].team   = ChrList[character].team;
   }
 
@@ -1685,7 +1653,7 @@ void drop_keys( CHR_REF character )
           ChrList[character].numinpack--;
 
           ChrList[item].hitready = btrue;
-          ChrList[item].alert |= ALERT_DROPPED;
+          ChrList[item].aistate.alert |= ALERT_DROPPED;
 
           direction = RANDIE;
           ChrList[item].turn_lr = direction + 32768;
@@ -1734,7 +1702,7 @@ void drop_all_items( CHR_REF character )
       if ( detach_character_from_mount( item, btrue, btrue ) )
       {
         ChrList[item].hitready = btrue;
-        ChrList[item].alert |= ALERT_DROPPED;
+        ChrList[item].aistate.alert |= ALERT_DROPPED;
         ChrList[item].pos.x = ChrList[character].pos.x;
         ChrList[item].pos.y = ChrList[character].pos.y;
         ChrList[item].pos.z = ChrList[character].pos.z;
@@ -1891,8 +1859,8 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
       if ( !ballowed )
       {
         // if we fail, we get attacked
-        ChrList[iholder].alert |= ALERT_ATTACKED;
-        ChrList[iholder].aibumplast = ichr;
+        ChrList[iholder].aistate.alert |= ALERT_ATTACKED;
+        ChrList[iholder].aistate.bumplast = ichr;
       }
       else  // must be in a pack
       {
@@ -1909,8 +1877,8 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
       if ( !ballowed )
       {
         // if we fail, we get attacked
-        ChrList[iholder].alert |= ALERT_ATTACKED;
-        ChrList[iholder].aibumplast = ichr;
+        ChrList[iholder].aistate.alert |= ALERT_ATTACKED;
+        ChrList[iholder].aistate.bumplast = ichr;
       }
       else
       {
@@ -1970,7 +1938,7 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
     else
     {
       // Pay the shop owner, or don't allow grab...
-      ChrList[owner].alert |= ALERT_SIGNALED;
+      ChrList[owner].aistate.alert |= ALERT_SIGNALED;
       price = CapList[ChrList[minchr].model].skincost[( ChrList[minchr].texture - MadList[ChrList[minchr].model].skinstart ) % MAXSKIN];
       if ( CapList[ChrList[minchr].model].isstackable )
       {
@@ -2012,7 +1980,7 @@ bool_t character_grab_stuff( CHR_REF ichr, SLOT slot, bool_t people )
     // Lift the item a little and quit...
     ChrList[minchr].accum_vel.z += DROPZVEL;
     ChrList[minchr].hitready = btrue;
-    ChrList[minchr].alert |= ALERT_DROPPED;
+    ChrList[minchr].aistate.alert |= ALERT_DROPPED;
   };
 
   return ballowed;
@@ -2053,7 +2021,7 @@ void character_swipe( CHR_REF ichr, SLOT slot )
     {
       ChrList[thrown].iskursed = bfalse;
       ChrList[thrown].ammo = 1;
-      ChrList[thrown].alert |= ALERT_THROWN;
+      ChrList[thrown].aistate.alert |= ALERT_THROWN;
 
       velocity = 0.0f;
       if ( ChrList[ichr].weight >= 0.0f )
@@ -2202,9 +2170,10 @@ void move_characters( float dUpdate )
   float loc_flydampen, loc_traction;
   float turnfactor;
   vect3 nrm = {0.0f, 0.0f, 0.0f};
+
+  AI_STATE * pstate;
   CHR * pchr;
   MAD * pmad;
-
 
   loc_airfriction    = airfriction;
   loc_waterfriction  = waterfriction;
@@ -2218,6 +2187,7 @@ void move_characters( float dUpdate )
     if ( !VALID_CHR( ichr ) ) continue;
 
     pchr = ChrList + ichr;
+    pstate = &(pchr->aistate);
 
     // Character's old location
     pchr->turn_lr_old = pchr->turn_lr;
@@ -2236,7 +2206,7 @@ void move_characters( float dUpdate )
     level = pchr->level;
 
     // TURNMODE_VELOCITY acts strange when someone is mounted on a "bucking" imount, like the gelfeet
-    loc_turnmode = pchr->turnmode;
+    loc_turnmode = pstate->turnmode;
     if ( VALID_CHR( imount ) ) loc_turnmode = TURNMODE_NONE;
 
     // make characters slide downhill
@@ -2365,8 +2335,8 @@ void move_characters( float dUpdate )
       if ( !VALID_CHR( imount ) )
       {
         // Character latches for generalized movement
-        dvx = pchr->latch.x;
-        dvy = pchr->latch.y;
+        dvx = pstate->latch.x;
+        dvy = pstate->latch.y;
 
         // Reverse movements for daze
         if ( pchr->dazetime > 0.0f )
@@ -2402,14 +2372,14 @@ void move_characters( float dUpdate )
         maxvel = pchr->maxaccel / ( 1.0 - noslipfriction );
         // set a minimum speed of 6 to fix some stupid slow speeds
         //maxvel = 1.5f * MAX(MAX(3,pchr->runspd), MAX(pchr->walkspd,pchr->sneakspd));
-        pchr->trgvel.x = dvx * maxvel;
-        pchr->trgvel.y = dvy * maxvel;
-        pchr->trgvel.z = 0;
+        pstate->trgvel.x = dvx * maxvel;
+        pstate->trgvel.y = dvy * maxvel;
+        pstate->trgvel.z = 0;
 
         if ( pchr->maxaccel > 0.0f )
         {
-          dvx = ( pchr->trgvel.x - pchr->vel.x );
-          dvy = ( pchr->trgvel.y - pchr->vel.y );
+          dvx = ( pstate->trgvel.x - pchr->vel.x );
+          dvy = ( pstate->trgvel.y - pchr->vel.y );
 
           // TODO : change to line(s) below
           dvmax = pchr->maxaccel;
@@ -2457,9 +2427,9 @@ void move_characters( float dUpdate )
         if ( loc_turnmode == TURNMODE_VELOCITY )
         {
           if ( pchr->isplayer )
-            pchr->turn_lr = terp_dir( pchr->turn_lr, pchr->trgvel.x, pchr->trgvel.y, dUpdate * turnfactor );
+            pchr->turn_lr = terp_dir( pchr->turn_lr, pstate->trgvel.x, pstate->trgvel.y, dUpdate * turnfactor );
           else
-            pchr->turn_lr = terp_dir( pchr->turn_lr, pchr->trgvel.x, pchr->trgvel.y, dUpdate * turnfactor / 4.0f );
+            pchr->turn_lr = terp_dir( pchr->turn_lr, pstate->trgvel.x, pstate->trgvel.y, dUpdate * turnfactor / 4.0f );
         }
 
         // Otherwise make it spin
@@ -2470,9 +2440,9 @@ void move_characters( float dUpdate )
       };
 
       // Character latches for generalized buttons
-      if ( LATCHBUTTON_NONE != pchr->latch.b )
+      if ( LATCHBUTTON_NONE != pstate->latch.b )
       {
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_JUMP ) && pchr->jumptime == 0.0f )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_JUMP ) && pchr->jumptime == 0.0f )
         {
           if ( detach_character_from_mount( ichr, btrue, btrue ) )
           {
@@ -2516,7 +2486,7 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_ALTLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
           pchr->reloadtime = DELAY_GRAB;
           if ( !chr_using_slot( ichr, SLOT_LEFT ) )
@@ -2531,7 +2501,7 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_ALTRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
           pchr->reloadtime = DELAY_GRAB;
           if ( !chr_using_slot( ichr, SLOT_RIGHT ) )
@@ -2546,7 +2516,7 @@ void move_characters( float dUpdate )
           }
         }
 
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_PACKLEFT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
           pchr->reloadtime = DELAY_PACK;
           item = chr_get_holdingwhich( ichr, SLOT_LEFT );
@@ -2555,7 +2525,7 @@ void move_characters( float dUpdate )
             if (( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
             {
               // The item couldn't be put away
-              ChrList[item].alert |= ALERT_NOTPUTAWAY;
+              ChrList[item].aistate.alert |= ALERT_NOTPUTAWAY;
             }
             else
             {
@@ -2573,7 +2543,7 @@ void move_characters( float dUpdate )
           play_action( ichr, ACTION_MG, bfalse );
         }
 
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_PACKRIGHT ) && pchr->action.ready && pchr->reloadtime == 0 )
         {
           pchr->reloadtime = DELAY_PACK;
           item = chr_get_holdingwhich( ichr, SLOT_RIGHT );
@@ -2582,7 +2552,7 @@ void move_characters( float dUpdate )
             if (( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
             {
               // The item couldn't be put away
-              ChrList[item].alert |= ALERT_NOTPUTAWAY;
+              ChrList[item].aistate.alert |= ALERT_NOTPUTAWAY;
             }
             else
             {
@@ -2600,7 +2570,7 @@ void move_characters( float dUpdate )
           play_action( ichr, ACTION_MG, bfalse );
         }
 
-        if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_LEFT ) && pchr->reloadtime == 0 )
+        if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_LEFT ) && pchr->reloadtime == 0 )
         {
           // Which weapon?
           weapon = chr_get_holdingwhich( ichr, SLOT_LEFT );
@@ -2635,7 +2605,7 @@ void move_characters( float dUpdate )
             allowedtoattack = bfalse;
             if ( ChrList[weapon].reloadtime == 0 )
             {
-              ChrList[weapon].alert |= ALERT_USED;
+              ChrList[weapon].aistate.alert |= ALERT_USED;
             }
           }
 
@@ -2651,7 +2621,7 @@ void move_characters( float dUpdate )
                 if (( action != ACTION_PA || !allowedtoattack ) && pchr->action.ready )
                 {
                   play_action( imount, ( ACTION )( ACTION_UA + ( rand() &1 ) ), bfalse );
-                  ChrList[imount].alert |= ALERT_USED;
+                  ChrList[imount].aistate.alert |= ALERT_USED;
                 }
                 else
                 {
@@ -2680,19 +2650,19 @@ void move_characters( float dUpdate )
                   {
                     // Make the weapon attack too
                     play_action( weapon, ACTION_MJ, bfalse );
-                    ChrList[weapon].alert |= ALERT_USED;
+                    ChrList[weapon].aistate.alert |= ALERT_USED;
                   }
                   else
                   {
                     // Flag for unarmed attack
-                    pchr->alert |= ALERT_USED;
+                    pstate->alert |= ALERT_USED;
                   }
                 }
               }
             }
           }
         }
-        else if ( HAS_SOME_BITS( pchr->latch.b, LATCHBUTTON_RIGHT ) && pchr->reloadtime == 0 )
+        else if ( HAS_SOME_BITS( pstate->latch.b, LATCHBUTTON_RIGHT ) && pchr->reloadtime == 0 )
         {
           // Which weapon?
           weapon = chr_get_holdingwhich( ichr, SLOT_RIGHT );
@@ -2726,7 +2696,7 @@ void move_characters( float dUpdate )
             allowedtoattack = bfalse;
             if ( ChrList[weapon].reloadtime == 0 )
             {
-              ChrList[weapon].alert |= ALERT_USED;
+              ChrList[weapon].aistate.alert |= ALERT_USED;
             }
           }
 
@@ -2742,7 +2712,7 @@ void move_characters( float dUpdate )
                 if (( action != ACTION_PC || !allowedtoattack ) && pchr->action.ready )
                 {
                   play_action( imount, ( ACTION )( ACTION_UC + ( rand() &1 ) ), bfalse );
-                  ChrList[imount].alert |= ALERT_USED;
+                  ChrList[imount].aistate.alert |= ALERT_USED;
                 }
                 else
                 {
@@ -2771,12 +2741,12 @@ void move_characters( float dUpdate )
                   {
                     // Make the weapon attack too
                     play_action( weapon, ACTION_MJ, bfalse );
-                    ChrList[weapon].alert |= ALERT_USED;
+                    ChrList[weapon].aistate.alert |= ALERT_USED;
                   }
                   else
                   {
                     // Flag for unarmed attack
-                    pchr->alert |= ALERT_USED;
+                    pstate->alert |= ALERT_USED;
                   }
                 }
               }
@@ -2996,7 +2966,7 @@ void move_characters( float dUpdate )
 
           if ( pchr->boretime <= 0 )
           {
-            pchr->alert |= ALERT_BORED;
+            pstate->alert |= ALERT_BORED;
             pchr->boretime = DELAY_BORE;
           }
           else
@@ -3132,7 +3102,7 @@ void setup_characters( char *modname )
       ChrList[lastcharacter].money += money;
       if ( ChrList[lastcharacter].money > MAXMONEY )  ChrList[lastcharacter].money = MAXMONEY;
       if ( ChrList[lastcharacter].money < 0 )  ChrList[lastcharacter].money = 0;
-      ChrList[lastcharacter].aicontent = content;
+      ChrList[lastcharacter].aistate.content = content;
       ChrList[lastcharacter].passage = passage;
       if ( !VALID_CHR( attach ) )
       {
@@ -3149,7 +3119,7 @@ void setup_characters( char *modname )
           {
             // actually do the attachment to the inventory
             Uint16 tmpchr = chr_get_attachedto(lastcharacter);
-            ChrList[lastcharacter].alert |= ALERT_GRABBED;                       // Make spellbooks change
+            ChrList[lastcharacter].aistate.alert |= ALERT_GRABBED;                       // Make spellbooks change
 
             // fake that it was grabbed by the left hand
             ChrList[lastcharacter].attachedto = VALIDATE_CHR(currentcharacter);  // Make grab work
@@ -3670,7 +3640,7 @@ void make_onwhichfan( void )
       ChrList[character].inwater = is_inwater;
       if ( GWater.iswater && is_inwater )
       {
-        ChrList[character].alert |= ALERT_INWATER;
+        ChrList[character].aistate.alert |= ALERT_INWATER;
       }
     }
     else if ( is_inwater && ripplestrength > 0.0f )
@@ -3773,7 +3743,9 @@ bool_t remove_from_platform( Uint16 object )
   ChrList[object].level           = ChrList[platform].level;
 
   if ( ChrList[object].isplayer && CData.DevMode )
-    debug_message( 1, "removel %s(%s) from platform", ChrList[object].name, CapList[ChrList[object].model].classname );
+  {
+    debug_message( 1, "removed %s(%s) from platform", ChrList[object].name, CapList[ChrList[object].model].classname );
+  }
 
 
   return btrue;
@@ -3792,7 +3764,9 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
 
   ChrList[object].onwhichplatform  = platform;
   if ( ChrList[object].weight > 0.0f )
+  {
     ChrList[platform].holdingweight += ChrList[object].weight;
+  }
 
   ChrList[object].jumpready  = btrue;
   ChrList[object].jumpnumber = ChrList[object].jumpnumberreset;
@@ -3800,7 +3774,9 @@ bool_t attach_to_platform( Uint16 object, Uint16 platform )
   ChrList[object].level = ChrList[platform].bmpdata.cv.z_max;
 
   if ( ChrList[object].isplayer )
+  {
     debug_message( 1, "attached %s(%s) to platform", ChrList[object].name, CapList[ChrList[object].model].classname );
+  }
 
   return btrue;
 };
@@ -3836,7 +3812,7 @@ void create_bumplists()
 
     // do not include hidden objects
     hide = CapList[ChrList[ichr].model].hidestate;
-    if ( hide != NOHIDE && hide == ChrList[ichr].aistate ) continue;
+    if ( hide != NOHIDE && hide == ChrList[ichr].aistate.state ) continue;
 
     ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[ichr].bmpdata.cv.x_min ) );
     ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[ichr].bmpdata.cv.x_max ) );
@@ -4283,7 +4259,7 @@ bool_t chr_do_collision( CHR_REF chra, CHR_REF chrb, bool_t exclude_height, CVol
               retval = btrue;
               cv3 = cvolume_merge(&cv3, &tmp_cv);
 
-#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+#if DEBUG_CVOLUME && defined(_DEBUG)
               if(CData.DevMode)
               {
                 cv_list_add( &tmp_cv );
@@ -4301,7 +4277,7 @@ bool_t chr_do_collision( CHR_REF chra, CHR_REF chrb, bool_t exclude_height, CVol
     };
   }
 
-#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+#if DEBUG_CVOLUME && defined(_DEBUG)
   if(CData.DevMode && retval)
   {
     cv_list_add( cv );
@@ -4459,10 +4435,10 @@ void do_bumping( float dUpdate )
     //              if ( !attach_character_to_mount( chra, chrb, SLOT_SADDLE ) )
     //              {
     //                // failed mount is a bump
-    //                ChrList[chra].alert |= ALERT_BUMPED;
-    //                ChrList[chrb].alert |= ALERT_BUMPED;
-    //                ChrList[chra].aibumplast = chrb;
-    //                ChrList[chrb].aibumplast = chra;
+    //                ChrList[chra].aistate.alert |= ALERT_BUMPED;
+    //                ChrList[chrb].aistate.alert |= ALERT_BUMPED;
+    //                ChrList[chra].aistate.bumplast = chrb;
+    //                ChrList[chrb].aistate.bumplast = chra;
     //              };
     //            }
     //          }
@@ -4486,10 +4462,10 @@ void do_bumping( float dUpdate )
     //              if ( !attach_character_to_mount( chrb, chra, SLOT_SADDLE ) )
     //              {
     //                // failed mount is a bump
-    //                ChrList[chra].alert |= ALERT_BUMPED;
-    //                ChrList[chrb].alert |= ALERT_BUMPED;
-    //                ChrList[chra].aibumplast = chrb;
-    //                ChrList[chrb].aibumplast = chra;
+    //                ChrList[chra].aistate.alert |= ALERT_BUMPED;
+    //                ChrList[chrb].aistate.alert |= ALERT_BUMPED;
+    //                ChrList[chra].aistate.bumplast = chrb;
+    //                ChrList[chrb].aistate.bumplast = chra;
     //              };
     //            };
     //          }
@@ -4755,10 +4731,10 @@ void do_bumping( float dUpdate )
           if ( bfound )
           {
             //apos = ChrList[chra].pos;
-            ChrList[chra].alert |= ALERT_BUMPED;
-            ChrList[chrb].alert |= ALERT_BUMPED;
-            ChrList[chra].aibumplast = chrb;
-            ChrList[chrb].aibumplast = chra;
+            ChrList[chra].aistate.alert |= ALERT_BUMPED;
+            ChrList[chrb].aistate.alert |= ALERT_BUMPED;
+            ChrList[chra].aistate.bumplast = chrb;
+            ChrList[chrb].aistate.bumplast = chra;
           };
         }
       }
@@ -4940,7 +4916,7 @@ void do_bumping( float dUpdate )
     //                ptemp.ibase = PrtList[prtb].damage.ibase * 2.0f * bumpstrength;
     //                ptemp.irand = PrtList[prtb].damage.irand * 2.0f * bumpstrength;
     //                damage_character( chra, direction, &ptemp, PrtList[prtb].damagetype, PrtList[prtb].team, prt_owner, PipList[pip].damfx );
-    //                ChrList[chra].alert |= ALERT_HITVULNERABLE;
+    //                ChrList[chra].aistate.alert |= ALERT_HITVULNERABLE;
     //                cost_mana( chra, PipList[pip].manadrain*2, prt_owner );  //Do mana drain too
     //              }
     //              else
@@ -4965,7 +4941,7 @@ void do_bumping( float dUpdate )
     //                    ChrList[chra].grogtime = -1;
     //                    debug_message( 1, "placing infinite grog on %s (%s)", ChrList[chra].name, CapList[ChrList[chra].model].classname );
     //                  }
-    //                  ChrList[chra].alert |= ALERT_GROGGED;
+    //                  ChrList[chra].aistate.alert |= ALERT_GROGGED;
     //                }
 
     //                if ( PipList[pip].dazetime != 0 && CapList[ChrList[chra].model].canbedazed )
@@ -4976,15 +4952,15 @@ void do_bumping( float dUpdate )
     //                    ChrList[chra].dazetime = -1;
     //                    debug_message( 1, "placing infinite daze on %s (%s)", ChrList[chra].name, CapList[ChrList[chra].model].classname );
     //                  };
-    //                  ChrList[chra].alert |= ALERT_DAZED;
+    //                  ChrList[chra].aistate.alert |= ALERT_DAZED;
     //                }
     //              }
 
     //              // Notify the attacker of a scored hit
     //              if ( VALID_CHR( prt_owner ) )
     //              {
-    //                ChrList[prt_owner].alert |= ALERT_SCOREDAHIT;
-    //                ChrList[prt_owner].aihitlast = chra;
+    //                ChrList[prt_owner].aistate.alert |= ALERT_SCOREDAHIT;
+    //                ChrList[prt_owner].aistate.hitlast = chra;
     //              }
     //            }
 
@@ -5752,8 +5728,8 @@ void export_one_character_profile( char *szSaveName, CHR_REF character )
     //General exported character information
     fprintf( filewrite, ":[PLAT] %d\n", CapList[profile].canuseplatforms );
     fprintf( filewrite, ":[SKIN] %d\n", ( ChrList[character].texture - MadList[profile].skinstart ) % MAXSKIN );
-    fprintf( filewrite, ":[CONT] %d\n", ChrList[character].aicontent );
-    fprintf( filewrite, ":[STAT] %d\n", ChrList[character].aistate );
+    fprintf( filewrite, ":[CONT] %d\n", ChrList[character].aistate.content );
+    fprintf( filewrite, ":[STAT] %d\n", ChrList[character].aistate.state );
     fprintf( filewrite, ":[LEVL] %d\n", ChrList[character].experiencelevel );
     fs_fileClose( filewrite );
   }
@@ -6696,8 +6672,8 @@ CHR_REF chr_get_aitarget( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aitarget = VALIDATE_CHR( ChrList[ichr].aitarget );
-  return ChrList[ichr].aitarget;
+  ChrList[ichr].aistate.target = VALIDATE_CHR( ChrList[ichr].aistate.target );
+  return ChrList[ichr].aistate.target;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -6705,8 +6681,8 @@ CHR_REF chr_get_aiowner( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aiowner = VALIDATE_CHR( ChrList[ichr].aiowner );
-  return ChrList[ichr].aiowner;
+  ChrList[ichr].aistate.owner = VALIDATE_CHR( ChrList[ichr].aistate.owner );
+  return ChrList[ichr].aistate.owner;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -6714,8 +6690,8 @@ CHR_REF chr_get_aichild( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aichild = VALIDATE_CHR( ChrList[ichr].aichild );
-  return ChrList[ichr].aichild;
+  ChrList[ichr].aistate.child = VALIDATE_CHR( ChrList[ichr].aistate.child );
+  return ChrList[ichr].aistate.child;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -6723,8 +6699,8 @@ CHR_REF chr_get_aiattacklast( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aiattacklast = VALIDATE_CHR( ChrList[ichr].aiattacklast );
-  return ChrList[ichr].aiattacklast;
+  ChrList[ichr].aistate.attacklast = VALIDATE_CHR( ChrList[ichr].aistate.attacklast );
+  return ChrList[ichr].aistate.attacklast;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -6732,8 +6708,8 @@ CHR_REF chr_get_aibumplast( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aibumplast = VALIDATE_CHR( ChrList[ichr].aibumplast );
-  return ChrList[ichr].aibumplast;
+  ChrList[ichr].aistate.bumplast = VALIDATE_CHR( ChrList[ichr].aistate.bumplast );
+  return ChrList[ichr].aistate.bumplast;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -6741,8 +6717,8 @@ CHR_REF chr_get_aihitlast( CHR_REF ichr )
 {
   if ( !VALID_CHR( ichr ) ) return MAXCHR;
 
-  ChrList[ichr].aihitlast = VALIDATE_CHR( ChrList[ichr].aihitlast );
-  return ChrList[ichr].aihitlast;
+  ChrList[ichr].aistate.hitlast = VALIDATE_CHR( ChrList[ichr].aistate.hitlast );
+  return ChrList[ichr].aistate.hitlast;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -7650,3 +7626,529 @@ void cv_list_draw()
     draw_CVolume( &(cv_list[cnt]) );
   };
 }
+
+//--------------------------------------------------------------------------------------------
+WP_LIST * wp_list_new(WP_LIST * w, vect3 * pos)
+{
+  w->tail = 0;
+  w->head = 1;
+
+  if(NULL == pos)
+  {
+    w->pos[0].x = w->pos[0].y = 0;
+  }
+  else
+  {
+    w->pos[0].x = pos->x;
+    w->pos[0].y = pos->y;
+  }
+
+  return w;
+}
+
+AI_STATE * ai_state_new(AI_STATE * a, Uint16 ichr)
+{
+  int tnc;
+
+  CHR * pchr;
+  MAD * pmad;
+  CAP * pcap;
+
+  if(NULL == a) return NULL;
+
+  memset(a, 0, sizeof(AI_STATE));
+
+  if( !VALID_CHR_RANGE(ichr) ) return NULL;
+
+  pchr = ChrList + ichr;
+
+  if( !VALID_MDL_RANGE(pchr->model) ) return NULL;
+
+  pmad = MadList + pchr->model;
+  pcap = CapList + pchr->model;
+
+  a->type    = pmad->ai;
+  a->alert   = ALERT_SPAWNED;
+  a->state   = pcap->stateoverride;
+  a->content = pcap->contentoverride;
+  a->target  = ichr;
+  a->owner   = ichr;
+  a->child   = ichr;
+  a->time    = 0;
+
+  tnc = 0;
+  while ( tnc < MAXSTOR )
+  {
+    a->x[tnc] = 0;
+    a->y[tnc] = 0;
+    tnc++;
+  }
+
+  wp_list_new( &(a->wp), &(pchr->pos) );
+
+  a->morphed = bfalse;
+
+  a->latch.x = 0;
+  a->latch.y = 0;
+  a->latch.b = 0;
+  a->turnmode = TURNMODE_VELOCITY;
+
+  a->bumplast   = ichr;
+  a->attacklast = MAXCHR;
+  a->hitlast    = ichr;
+
+  a->trgvel.x = 0;
+  a->trgvel.y = 0;
+  a->trgvel.z = 0;
+
+  return a;
+};
+
+
+AI_STATE * ai_state_renew(AI_STATE * a, Uint16 ichr)
+{
+  int tnc;
+
+  if(NULL == a) return NULL;
+
+  if( !VALID_CHR_RANGE(ichr) )
+  {
+    memset(a, 0, sizeof(AI_STATE));
+    return NULL;
+  }
+
+  a->alert = ALERT_NONE;
+  a->target = ichr;
+  a->time = 0;
+  a->trgvel.x = 0;
+  a->trgvel.y = 0;
+  a->trgvel.z = 0;
+
+  return a;
+};
+
+ACTION_INFO * action_info_new( ACTION_INFO * a)
+{
+  if(NULL == a) return NULL;
+
+  a->ready = btrue;
+  a->keep  = bfalse;
+  a->loop  = bfalse;
+  a->now   = ACTION_DA;
+  a->next  = ACTION_DA;
+
+  return a;
+}
+
+ANIM_INFO * anim_info_new( ANIM_INFO * a )
+{
+  if(NULL == a) return NULL;
+
+  a->lip_fp8 = 0;
+  a->flip    = 0.0f;
+  a->next    = a->last = 0;
+
+  return a;
+};
+
+
+//--------------------------------------------------------------------------------------------
+void damage_character( CHR_REF ichr, Uint16 direction,
+                       PAIR * pdam, DAMAGE damagetype, TEAM team,
+                       Uint16 attacker, Uint16 effects )
+{
+  // ZZ> This function calculates and applies damage to a character.  It also
+  //     sets alerts and begins actions.  Blocking and frame invincibility
+  //     are done here too.  Direction is FRONT if the attack is coming head on,
+  //     RIGHT if from the right, BEHIND if from the back, LEFT if from the
+  //     left.
+
+  int tnc;
+  ACTION action;
+  int damage, basedamage;
+  Uint16 experience, model, left, right;
+  AI_STATE * pstate;
+  CHR * pchr;
+  MAD * pmad;
+  CAP * pcap;
+
+  if( !VALID_CHR(ichr) ) return;
+
+  pchr   = ChrList + ichr;
+  pstate = &(pchr->aistate);
+
+  if ( NULL == pdam ) return;
+  if ( pchr->isplayer && CData.DevMode ) return;
+
+  if ( pchr->alive && pdam->ibase >= 0 && pdam->irand >= 1 )
+  {
+    // Lessen damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
+    // This can also be used to lessen effectiveness of healing
+    damage = generate_unsigned( pdam );
+    basedamage = damage;
+    damage >>= ( pchr->damagemodifier_fp8[damagetype] & DAMAGE_SHIFT );
+
+
+    // Allow charging (Invert damage to mana)
+    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_CHARGE )
+    {
+      pchr->mana_fp8 += damage;
+      if ( pchr->mana_fp8 > pchr->manamax_fp8 )
+      {
+        pchr->mana_fp8 = pchr->manamax_fp8;
+      }
+      return;
+    }
+
+    // Mana damage (Deal damage to mana)
+    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_MANA )
+    {
+      pchr->mana_fp8 -= damage;
+      if ( pchr->mana_fp8 < 0 )
+      {
+        pchr->mana_fp8 = 0;
+      }
+      return;
+    }
+
+
+    // Invert damage to heal
+    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_INVERT )
+      damage = -damage;
+
+
+    // Remember the damage type
+    pstate->damagetypelast = damagetype;
+    pstate->directionlast = direction;
+
+
+    // Do it already
+    if ( damage > 0 )
+    {
+      // Only damage if not invincible
+      if ( pchr->damagetime == 0 && !pchr->invictus )
+      {
+        model = pchr->model;
+        pmad = MadList + model;
+        pcap = CapList + model;
+        if ( HAS_SOME_BITS( effects, DAMFX_BLOC ) )
+        {
+          // Only damage if hitting from proper direction
+          if ( HAS_SOME_BITS( pmad->framefx[pchr->anim.next], MADFX_INVICTUS ) )
+          {
+            // I Frame...
+            direction -= pcap->iframefacing;
+            left = ( ~pcap->iframeangle );
+            right = pcap->iframeangle;
+
+            // Check for shield
+            if ( pchr->action.now >= ACTION_PA && pchr->action.now <= ACTION_PD )
+            {
+              // Using a shield?
+              if ( pchr->action.now < ACTION_PC )
+              {
+                // Check left hand
+                CHR_REF iholder = chr_get_holdingwhich( ichr, SLOT_LEFT );
+                if ( VALID_CHR( iholder ) )
+                {
+                  left  = ~CapList[iholder].iframeangle;
+                  right = CapList[iholder].iframeangle;
+                }
+              }
+              else
+              {
+                // Check right hand
+                CHR_REF iholder = chr_get_holdingwhich( ichr, SLOT_RIGHT );
+                if ( VALID_CHR( iholder ) )
+                {
+                  left  = ~CapList[iholder].iframeangle;
+                  right = CapList[iholder].iframeangle;
+                }
+              }
+            }
+          }
+          else
+          {
+            // N Frame
+            direction -= pcap->nframefacing;
+            left = ( ~pcap->nframeangle );
+            right = pcap->nframeangle;
+          }
+          // Check that direction
+          if ( direction > left || direction < right )
+          {
+            damage = 0;
+          }
+        }
+
+
+
+        if ( damage != 0 )
+        {
+          if ( HAS_SOME_BITS( effects, DAMFX_ARMO ) )
+          {
+            pchr->life_fp8 -= damage;
+          }
+          else
+          {
+            pchr->life_fp8 -= FP8_MUL( damage, pchr->defense_fp8 );
+          }
+
+
+          if ( basedamage > DAMAGE_MIN )
+          {
+            // Call for help if below 1/2 life
+            if ( pchr->life_fp8 < ( pchr->lifemax_fp8 >> 1 ) ) //Zefz: Removed, because it caused guards to attack
+              call_for_help( ichr );                    //when dispelling overlay spells (Faerie Light)
+
+            // Spawn blud particles
+            if ( pcap->bludlevel > BLUD_NONE && ( damagetype < DAMAGE_HOLY || pcap->bludlevel == BLUD_ULTRA ) )
+            {
+              spawn_one_particle( 1.0f, pchr->pos,
+                                  pchr->turn_lr + direction, pchr->model, pcap->bludprttype,
+                                  MAXCHR, GRIP_LAST, pchr->team, ichr, 0, MAXCHR );
+            }
+            // Set attack alert if it wasn't an accident
+            if ( team == TEAM_DAMAGE )
+            {
+              pstate->attacklast = MAXCHR;
+            }
+            else
+            {
+              // Don't alert the ichr too much if under constant fire
+              if ( pchr->carefultime == 0 )
+              {
+                // Don't let ichrs chase themselves...  That would be silly
+                if ( attacker != ichr )
+                {
+                  pstate->alert |= ALERT_ATTACKED;
+                  pstate->attacklast = attacker;
+                  pchr->carefultime = DELAY_CAREFUL;
+                }
+              }
+            }
+          }
+
+
+          // Taking damage action
+          action = ACTION_HA;
+          if ( pchr->life_fp8 < 0 )
+          {
+            // Character has died
+            pchr->alive = bfalse;
+            disenchant_character( ichr );
+            pchr->action.keep = btrue;
+            pchr->life_fp8 = -1;
+            pchr->isplatform = btrue;
+            pchr->bumpdampen /= 2.0;
+            action = ACTION_KA;
+            stop_sound(pchr->loopingchannel);    //Stop sound loops
+            pchr->loopingchannel = -1;
+            // Give kill experience
+            experience = pcap->experienceworth + ( pchr->experience * pcap->experienceexchange );
+            if ( VALID_CHR( attacker ) )
+            {
+              // Set target
+              pstate->target = attacker;
+              if ( team == TEAM_DAMAGE )  pstate->target = ichr;
+              if ( team == TEAM_NULL )  pstate->target = ichr;
+              // Award direct kill experience
+              if ( TeamList[ChrList[attacker].team].hatesteam[pchr->team] )
+              {
+                give_experience( attacker, experience, XP_KILLENEMY );
+              }
+
+              // Check for hated
+              if ( CAP_INHERIT_IDSZ( model, CapList[ChrList[attacker].model].idsz[IDSZ_HATE] ) )
+              {
+                give_experience( attacker, experience, XP_KILLHATED );
+              }
+            }
+
+            // Clear all shop passages that it owned...
+            tnc = 0;
+            while ( tnc < numshoppassage )
+            {
+              if ( shopowner[tnc] == ichr )
+              {
+                shopowner[tnc] = NOOWNER;
+              }
+              tnc++;
+            }
+
+            // Let the other characters know it died
+            tnc = 0;
+            while ( tnc < MAXCHR )
+            {
+              if ( ChrList[tnc].on && ChrList[tnc].alive )
+              {
+                if ( ChrList[tnc].aistate.target == ichr )
+                {
+                  ChrList[tnc].aistate.alert |= ALERT_TARGETKILLED;
+                }
+                if ( !TeamList[ChrList[tnc].team].hatesteam[team] && TeamList[ChrList[tnc].team].hatesteam[pchr->team] )
+                {
+                  // All allies get team experience, but only if they also hate the dead guy's team
+                  give_experience( tnc, experience, XP_TEAMKILL );
+                }
+              }
+              tnc++;
+            }
+
+            // Check if it was a leader
+            if ( team_get_leader( pchr->team ) == ichr )
+            {
+              // It was a leader, so set more alerts
+              tnc = 0;
+              while ( tnc < MAXCHR )
+              {
+                if ( ChrList[tnc].on && ChrList[tnc].team == pchr->team )
+                {
+                  // All folks on the leaders team get the alert
+                  ChrList[tnc].aistate.alert |= ALERT_LEADERKILLED;
+                }
+                tnc++;
+              }
+
+              // The team now has no leader
+              TeamList[pchr->team].leader = search_best_leader( pchr->team, ichr );
+            }
+
+            detach_character_from_mount( ichr, btrue, bfalse );
+            action += ( rand() & 3 );
+            play_action( ichr, action, bfalse );
+
+            // Turn off all sounds if it's a player
+            for ( tnc = 0; tnc < MAXWAVE; tnc++ )
+            {
+              //TODO Zefz: Do we need this? This makes all sounds a ichr makes stop when it dies...
+              //           This may stop death sounds
+              //stop_sound(pchr->model);
+            }
+
+            // Afford it one last thought if it's an AI
+            TeamList[pchr->baseteam].morale--;
+            pchr->team = pchr->baseteam;
+            pstate->alert = ALERT_KILLED;
+            pchr->sparkle = NOSPARKLE;
+            pstate->time = 1;  // No timeout...
+            let_character_think( ichr, 1.0f );
+          }
+          else
+          {
+            if ( basedamage > DAMAGE_MIN )
+            {
+              action += ( rand() & 3 );
+              play_action( ichr, action, bfalse );
+
+              // Make the ichr invincible for a limited time only
+              if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
+                pchr->damagetime = DELAY_DAMAGE;
+            }
+          }
+        }
+        else
+        {
+          // Spawn a defend particle
+          spawn_one_particle( pchr->bumpstrength, pchr->pos, pchr->turn_lr, MAXMODEL, PRTPIP_DEFEND, MAXCHR, GRIP_LAST, TEAM_NULL, MAXCHR, 0, MAXCHR );
+          pchr->damagetime = DELAY_DEFEND;
+          pstate->alert |= ALERT_BLOCKED;
+        }
+      }
+    }
+    else if ( damage < 0 )
+    {
+      pchr->life_fp8 -= damage;
+      if ( pchr->life_fp8 > pchr->lifemax_fp8 )  pchr->life_fp8 = pchr->lifemax_fp8;
+
+      // Isssue an alert
+      pstate->alert |= ALERT_HEALED;
+      pstate->attacklast = attacker;
+      if ( team != TEAM_DAMAGE )
+      {
+        pstate->attacklast = MAXCHR;
+      }
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+void kill_character( CHR_REF ichr, Uint16 killer )
+{
+  // ZZ> This function kills a ichr...  MAXCHR killer for accidental death
+
+  Uint8 modifier;
+  CHR * pchr;
+
+  if( !VALID_CHR(ichr) ) return;
+
+  pchr = ChrList + ichr;
+
+  if ( !pchr->alive ) return;
+
+  pchr->damagetime = 0;
+  pchr->life_fp8 = 1;
+  modifier = pchr->damagemodifier_fp8[DAMAGE_CRUSH];
+  pchr->damagemodifier_fp8[DAMAGE_CRUSH] = 1;
+  if ( VALID_CHR( killer ) )
+  {
+    PAIR ptemp = {512, 1};
+    damage_character( ichr, 0, &ptemp, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFX_ARMO | DAMFX_BLOC );
+  }
+  else
+  {
+    PAIR ptemp = {512, 1};
+    damage_character( ichr, 0, &ptemp, DAMAGE_CRUSH, TEAM_DAMAGE, chr_get_aibumplast( ichr ), DAMFX_ARMO | DAMFX_BLOC );
+  }
+  pchr->damagemodifier_fp8[DAMAGE_CRUSH] = modifier;
+
+  // try something here.
+  pchr->isplatform = btrue;
+  pchr->ismount    = bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t wp_list_advance(WP_LIST * wl)
+{
+  // BB > return value of btrue means wp_list is empty
+
+  bool_t retval = bfalse;
+
+  if(NULL == wl) return retval;
+
+  if( wl->tail != wl->head )
+  {
+    // advance the tail and let it wrap around
+    wl->tail = (wl->tail + 1) % MAXWAY;
+  }
+
+  if ( wl->tail == wl->head )
+  {
+    retval = btrue;
+  }
+
+  return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t wp_list_add(WP_LIST * wl, float x, float y)
+{
+  // BB > add a point to the waypoint list. 
+  //      returns bfalse if the list is full (?or should it advance the tail?)
+
+  bool_t retval = bfalse;
+  int    test;
+
+  if(NULL == wl) return retval;
+
+  test = (wl->head + 1) % MAXWAY;
+
+  if(test == wl->tail) return bfalse;
+
+  wl->pos[wl->head].x = x;
+  wl->pos[wl->head].y = y;
+
+  wl->head = test;
+
+  return btrue;
+};

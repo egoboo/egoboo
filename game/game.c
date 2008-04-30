@@ -456,7 +456,7 @@ int get_free_message( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void display_message( int message, CHR_REF character )
+void display_message( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF character )
 {
   // ZZ> This function sticks a message in the display queue and sets its timer
   int slot, read, write, cnt;
@@ -539,27 +539,27 @@ void display_message( int message, CHR_REF character )
         }
         if ( cTmp == 'd' ) // tmpdistance value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpdistance );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpdistance );
         }
         if ( cTmp == 'x' ) // tmpx value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpx );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpx );
         }
         if ( cTmp == 'y' ) // tmpy value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%d", scr_globals.tmpy );
+          snprintf( szTmp, sizeof( szTmp ), "%d", pg_scr->tmpy );
         }
         if ( cTmp == 'D' ) // tmpdistance value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpdistance );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpdistance );
         }
         if ( cTmp == 'X' ) // tmpx value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpx );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpx );
         }
         if ( cTmp == 'Y' ) // tmpy value
         {
-          snprintf( szTmp, sizeof( szTmp ), "%2d", scr_globals.tmpy );
+          snprintf( szTmp, sizeof( szTmp ), "%2d", pg_scr->tmpy );
         }
         if ( cTmp == 'a' ) // Character's ammo
         {
@@ -662,6 +662,10 @@ void remove_enchant( Uint16 enchantindex )
   Uint16 lastenchant, currentenchant;
   int add, cnt;
 
+  SCRIPT_GLOBAL_VALUES g_scr;
+
+  memset(&g_scr, 0, sizeof(SCRIPT_GLOBAL_VALUES));
+
   if ( enchantindex >= MAXENCHANT || !EncList[enchantindex].on ) return;
 
   // grab the profile
@@ -732,8 +736,9 @@ void remove_enchant( Uint16 enchantindex )
   // See if we spit out an end message
   if ( EveList[eve].endmessage >= 0 )
   {
-    display_message( MadList[eve].msg_start + EveList[eve].endmessage, EncList[enchantindex].target );
+    display_message( &g_scr, MadList[eve].msg_start + EveList[eve].endmessage, EncList[enchantindex].target );
   }
+
   // Check to see if we spawn a poof
   if ( EveList[eve].poofonend )
   {
@@ -950,7 +955,7 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
           EncList[enchantindex].setsave[valueindex] = ( ChrList[character].texture - MadList[ChrList[character].model].skinstart ) % MAXSKIN;
           // Special handler for morph
           change_character( character, enchanttype, 0, LEAVE_ALL );
-          ChrList[character].aimorphed = btrue;
+          ChrList[character].aistate.morphed = btrue;
           break;
 
         case SETCHANNEL:
@@ -1312,8 +1317,8 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
         if ( overlay < MAXCHR )
         {
           EncList[enchantindex].overlay = overlay;  // Kill this character on end...
-          ChrList[overlay].aitarget = target;
-          ChrList[overlay].aistate = EveList[enchanttype].overlay;
+          ChrList[overlay].aistate.target = target;
+          ChrList[overlay].aistate.state = EveList[enchanttype].overlay;
           ChrList[overlay].overlay = btrue;
 
 
@@ -2121,13 +2126,13 @@ void move_water( float dUpdate )
 
   for ( layer = 0; layer < MAXWATERLAYER; layer++ )
   {
-    GWater.layeru[layer] += GWater.layeruadd[layer] * dUpdate;
-    GWater.layerv[layer] += GWater.layervadd[layer] * dUpdate;
-    if ( GWater.layeru[layer] > 1.0 )  GWater.layeru[layer] -= 1.0;
-    if ( GWater.layerv[layer] > 1.0 )  GWater.layerv[layer] -= 1.0;
-    if ( GWater.layeru[layer] < -1.0 )  GWater.layeru[layer] += 1.0;
-    if ( GWater.layerv[layer] < -1.0 )  GWater.layerv[layer] += 1.0;
-    GWater.layerframe[layer] = (( int )( GWater.layerframe[layer] + GWater.layerframeadd[layer] * dUpdate ) ) & WATERFRAMEAND;
+    GWater.layer[layer].u += GWater.layer[layer].uadd * dUpdate;
+    GWater.layer[layer].v += GWater.layer[layer].vadd * dUpdate;
+    if ( GWater.layer[layer].u > 1.0 )  GWater.layer[layer].u -= 1.0;
+    if ( GWater.layer[layer].v > 1.0 )  GWater.layer[layer].v -= 1.0;
+    if ( GWater.layer[layer].u < -1.0 )  GWater.layer[layer].u += 1.0;
+    if ( GWater.layer[layer].v < -1.0 )  GWater.layer[layer].v += 1.0;
+    GWater.layer[layer].frame = (( int )( GWater.layer[layer].frame + GWater.layer[layer].frameadd * dUpdate ) ) & WATERFRAMEAND;
   }
 }
 
@@ -2400,7 +2405,7 @@ void call_for_help( CHR_REF character )
     if ( !VALID_CHR( cnt ) || cnt == character ) continue;
     if ( !TeamList[ChrList[cnt].baseteam].hatesteam[team] )
     {
-      ChrList[cnt].alert |= ALERT_CALLEDFORHELP;
+      ChrList[cnt].aistate.alert |= ALERT_CALLEDFORHELP;
     };
   }
 
@@ -2554,16 +2559,16 @@ void check_respawn()
   for ( cnt = 0; cnt < MAXCHR; cnt++ )
   {
     // Let players respawn
-    if ( respawnvalid && !ChrList[cnt].alive && HAS_SOME_BITS( ChrList[cnt].latch.b, LATCHBUTTON_RESPAWN ) )
+    if ( respawnvalid && !ChrList[cnt].alive && HAS_SOME_BITS( ChrList[cnt].aistate.latch.b, LATCHBUTTON_RESPAWN ) )
     {
       respawn_character( cnt );
       TeamList[ChrList[cnt].team].leader = cnt;
-      ChrList[cnt].alert |= ALERT_CLEANEDUP;
+      ChrList[cnt].aistate.alert |= ALERT_CLEANEDUP;
 
       // Cost some experience for doing this...
       ChrList[cnt].experience *= EXPKEEP;
     }
-    ChrList[cnt].latch.b &= ~LATCHBUTTON_RESPAWN;
+    ChrList[cnt].aistate.latch.b &= ~LATCHBUTTON_RESPAWN;
   }
 
 };
@@ -2643,7 +2648,7 @@ bool_t chr_collide_mesh(CHR_REF ichr)
 
     if ( ChrList[ichr].hitready )
     {
-      ChrList[ichr].alert |= ALERT_HITGROUND;
+      ChrList[ichr].aistate.alert |= ALERT_HITGROUND;
       ChrList[ichr].hitready = bfalse;
     };
   }
@@ -3320,7 +3325,6 @@ void set_default_config_data(CONFIG_DATA * pcon)
 };
 
 //--------------------------------------------------------------------------------------------
-#undef DEBUG_UPDATE_CLAMP
 
 typedef enum proc_states_e
 {
@@ -3773,7 +3777,7 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
 
         update_timers();
 
-#if defined(DEBUG_UPDATE_CLAMP) && defined(_DEBUG)
+#if DEBUG_UPDATE_CLAMP && defined(_DEBUG)
         if(CData.DevMode)
         {
           log_info( "wldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
@@ -3899,7 +3903,7 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
           dUpdate -= 1.0f;
           ups_loops++;
 
-#if defined(DEBUG_UPDATE_CLAMP) && defined(_DEBUG)
+#if DEBUG_UPDATE_CLAMP && defined(_DEBUG)
           if(CData.DevMode)
           {
             log_info( "\t\twldframe == %d\t dframe == %2.4f\n", wldframe, dUpdate );
@@ -4275,4 +4279,356 @@ void read_input()
   {
     mous.latch.b |= ( mous.button[cnt] << cnt );
   }
+}
+
+//--------------------------------------------------------------------------------------------
+SEARCH_CONTEXT * search_new(SEARCH_CONTEXT * psearch)
+{
+  if(NULL == psearch) return NULL;
+
+  psearch->initialize = btrue;
+
+  psearch->bestdistance = 9999;
+  psearch->besttarget   = MAXCHR;
+  psearch->bestangle    = 0;
+
+  return psearch;
+};
+
+//--------------------------------------------------------------------------------------------
+CHR_REF prt_search_target( SEARCH_CONTEXT * psearch, float prtx, float prty, Uint16 facing,
+                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
+                           TEAM team, Uint16 donttarget, Uint16 oldtarget )
+{
+  // This function finds the best target for the given parameters
+  bool_t done, btmp;
+  int block_x, block_y;
+
+  block_x = MESH_FLOAT_TO_BLOCK( prtx );
+  block_y = MESH_FLOAT_TO_BLOCK( prty );
+
+  psearch->besttarget   = MAXCHR;
+  psearch->bestdistance = 9999;
+  psearch->bestangle    = targetangle;
+  done = bfalse;
+
+  prt_search_target_in_block( psearch, block_x + 0, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  if ( VALID_CHR( psearch->besttarget ) ) return psearch->besttarget;
+
+  prt_search_target_in_block( psearch, block_x + 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  prt_search_target_in_block( psearch, block_x - 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  prt_search_target_in_block( psearch, block_x + 0, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  prt_search_target_in_block( psearch, block_x + 0, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  if ( VALID_CHR( psearch->besttarget ) ) return psearch->besttarget;
+
+  btmp = prt_search_target_in_block( psearch, block_x + 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  btmp = prt_search_target_in_block( psearch, block_x + 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  btmp = prt_search_target_in_block( psearch, block_x - 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  btmp = prt_search_target_in_block( psearch, block_x - 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+
+  return psearch->besttarget;
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
+                                    bool_t excludeid )
+{
+  // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target was found
+
+  int cnt;
+  CHR_REF charb;
+  Uint32 fanblock;
+  TEAM team;
+  vect3 diff;
+  float dist;
+
+  bool_t require_friends =  ask_friends && !ask_enemies;
+  bool_t require_enemies = !ask_friends &&  ask_enemies;
+  bool_t require_alive   = !ask_dead;
+  bool_t require_noitems = !ask_items;
+  bool_t ballowed;
+
+  if ( !VALID_CHR( character ) ) return MAXCHR;
+
+  fanblock = mesh_convert_block( block_x, block_y );
+  team = ChrList[character].team;
+  for ( cnt = 0, charb = bumplist.chr[fanblock];
+        cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb );
+        cnt++, charb = chr_get_bumpnext(charb) )
+  {
+    // don't find stupid stuff
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
+
+    // don't find yourself or any of the items you're holding
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
+
+    // don't find your mount or your master
+    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
+
+    // don't find anything you can't see
+    if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
+
+    // if we need to find friends, don't find enemies
+    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
+
+    // if we need to find enemies, don't find friends or invictus
+    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
+
+    // if we require being alive, don't accept dead things
+    if ( require_alive && !ChrList[charb].alive ) continue;
+
+    // if we require not an item, don't accept items
+    if ( require_noitems && ChrList[charb].isitem ) continue;
+
+    ballowed = bfalse;
+    if ( IDSZ_NONE == idsz )
+    {
+      ballowed = btrue;
+    }
+    else if ( CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
+    {
+      ballowed = !excludeid;
+    }
+
+    if ( ballowed )
+    {
+      diff.x = ChrList[character].pos.x - ChrList[charb].pos.x;
+      diff.y = ChrList[character].pos.y - ChrList[charb].pos.y;
+      diff.z = ChrList[character].pos.z - ChrList[charb].pos.z;
+
+      dist = DotProduct(diff, diff);
+      if ( psearch->initialize || dist < psearch->distance )
+      {
+        psearch->distance   = dist;
+        psearch->besttarget = charb;
+        psearch->initialize = bfalse;
+      }
+    }
+
+  }
+
+  return psearch->besttarget;
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF chr_search_nearby_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz )
+{
+  // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
+  int ix,ix_min,ix_max, iy,iy_min,iy_max;
+  bool_t seeinvisible = ChrList[character].canseeinvisible;
+
+  if ( !VALID_CHR( character ) || chr_in_pack( character ) ) return MAXCHR;
+
+  psearch->initialize = btrue;
+  psearch->besttarget = MAXCHR;
+
+  // Current fanblock
+  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_min ) );
+  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_max ) );
+  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_min ) );
+  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_max ) );
+
+  for( ix = ix_min; ix<=ix_max; ix++ )
+  {
+    for( iy=iy_min; iy<=iy_max; iy++ )
+    {
+      chr_search_target_in_block( psearch, ix, iy, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, ask_idsz, bfalse );
+    };
+  };
+
+  return ( VALID_CHR(psearch->besttarget) && (psearch->besttarget!=character) ? psearch->besttarget : MAXCHR );
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF chr_search_distant_target( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead )
+{
+  // ZZ> This function finds a target, or it returns MAXCHR if it can't find one...
+  //     maxdist should be the square of the actual psearch->bestdistance you want to use
+  //     as the cutoff...
+  int charb, xdist, ydist, zdist;
+  bool_t require_alive   = !ask_dead;
+  TEAM team;
+
+  if ( !VALID_CHR( character ) ) return MAXCHR;
+
+  team = ChrList[character].team;
+  psearch->besttarget = MAXCHR;
+  psearch->bestdistance = maxdist;
+  for ( charb = 0; charb < MAXCHR; charb++ )
+  {
+    // don't find stupid items
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
+
+    // don't find yourself or items you are carrying
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
+
+    // don't find thigs you can't see
+    if (( !ChrList[character].canseeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
+
+    // don't find dead things if not asked for
+    if ( require_alive && ( !ChrList[charb].alive || ChrList[charb].isitem ) ) continue;
+
+    // don't find enemies unless asked for
+    if ( ask_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
+
+    xdist = ChrList[charb].pos.x - ChrList[character].pos.x;
+    ydist = ChrList[charb].pos.y - ChrList[character].pos.y;
+    zdist = ChrList[charb].pos.z - ChrList[character].pos.z;
+    psearch->bestdistance = xdist * xdist + ydist * ydist + zdist * zdist;
+
+    if ( psearch->bestdistance < psearch->bestdistance )
+    {
+      psearch->bestdistance = psearch->bestdistance;
+      psearch->besttarget   = charb;
+    };
+  }
+
+  return psearch->besttarget;
+}
+
+//--------------------------------------------------------------------------------------------
+void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz )
+{
+  // ZZ> This is a good little helper
+  float dis, xdis, ydis, zdis;
+  int cnt;
+  TEAM team;
+  CHR_REF charb;
+  Uint32 fanblock;
+  bool_t require_friends =  ask_friends && !ask_enemies;
+  bool_t require_enemies = !ask_friends &&  ask_enemies;
+  bool_t require_alive   = !ask_dead;
+  bool_t require_noitems = !ask_items;
+
+
+  // blocks that are off the mesh are not stored
+  fanblock = mesh_convert_block( block_x, block_y );
+
+  // if character is not defined, return
+  if ( !VALID_CHR( character ) ) return;
+
+  team     = ChrList[character].team;
+  charb    = bumplist.chr[fanblock];
+  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb ); cnt++, charb = chr_get_bumpnext(charb) )
+  {
+    // don't find stupid stuff
+    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
+
+    // don't find yourself or any of the items you're holding
+    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
+
+    // don't find your mount or your master
+    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
+
+    // don't find anything you can't see
+    if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
+
+    // if we need to find friends, don't find enemies
+    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
+
+    // if we need to find enemies, don't find friends or invictus
+    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
+
+    // if we require being alive, don't accept dead things
+    if ( require_alive && !ChrList[charb].alive ) continue;
+
+    // if we require not an item, don't accept items
+    if ( require_noitems && ChrList[charb].isitem ) continue;
+
+    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
+    {
+      xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+      ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
+      zdis = ChrList[character].pos.z - ChrList[charb].pos.z;
+      xdis *= xdis;
+      ydis *= ydis;
+      zdis *= zdis;
+      dis = xdis + ydis + zdis;
+      if ( psearch->initialize || dis < psearch->distance )
+      {
+        psearch->nearest  = charb;
+        psearch->distance = dis;
+        psearch->initialize = bfalse;
+      }
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF chr_search_nearest_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz )
+{
+  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
+  int x, y;
+  bool_t seeinvisible = ChrList[character].canseeinvisible;
+
+  if ( !VALID_CHR( character ) ) return MAXCHR;
+
+  // Current fanblock
+  x = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
+  y = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
+
+  psearch->initialize = btrue;
+  chr_search_nearest_in_block( psearch, x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+
+  if ( !VALID_CHR( psearch->nearest ) )
+  {
+    chr_search_nearest_in_block( psearch, x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x + 0, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+  };
+
+  if ( !VALID_CHR( psearch->nearest ) )
+  {
+    chr_search_nearest_in_block( psearch, x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x - 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_nearest_in_block( psearch, x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+  };
+
+  if ( psearch->nearest == character )
+    return MAXCHR;
+  else
+    return psearch->nearest;
+}
+
+//--------------------------------------------------------------------------------------------
+CHR_REF chr_search_wide_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid )
+{
+  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
+  int ix, iy;
+  CHR_REF target;
+  char seeinvisible;
+  seeinvisible = ChrList[character].canseeinvisible;
+
+  if ( !VALID_CHR( character ) ) return MAXCHR;
+
+  psearch->initialize = btrue;
+  psearch->besttarget = MAXCHR;
+
+  // Current fanblock
+  ix = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
+  iy = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
+
+  target = chr_search_target_in_block( psearch, ix + 0, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+
+  target = chr_search_target_in_block( psearch, ix - 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix + 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix + 0, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix + 0, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+
+  target = chr_search_target_in_block( psearch, ix - 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix + 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix - 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  target = chr_search_target_in_block( psearch, ix + 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+
+  return MAXCHR;
 }

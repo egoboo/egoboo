@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)\enet&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;DEBUG_BBOX"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="FALSE"
@@ -32,7 +32,7 @@
 				UsePrecompiledHeader="0"
 				PrecompiledHeaderThrough=""
 				BrowseInformation="1"
-				WarningLevel="3"
+				WarningLevel="4"
 				Detect64BitPortabilityProblems="TRUE"
 				DebugInformationFormat="3"
 				CompileAs="1"/>
@@ -153,9 +153,6 @@
 			</File>
 			<File
 				RelativePath=".\configfile.c">
-			</File>
-			<File
-				RelativePath=".\egoboo_config.h">
 			</File>
 			<File
 				RelativePath=".\egoboo_math.c">
@@ -347,6 +344,9 @@
 			</File>
 			<File
 				RelativePath=".\egoboo.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_config.h">
 			</File>
 			<File
 				RelativePath=".\egoboo_math.h">

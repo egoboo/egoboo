@@ -207,7 +207,7 @@ static const char *mnu_audioOptionsText[] =
   ""
 };
 
-static const char *mnu_videoOptionsText[] =
+static const char * mnu_videoOptionsText[] =
 {
   "N/A",  // Antialaising
   "N/A",  // Particle Effects
@@ -619,7 +619,7 @@ int mnu_doSinglePlayer( float deltaTime )
       ui_drawImage( &wBackground );
 
       // "Copyright" text
-      fnt_drawTextBox( mnu_Font, mnu_copyrightText, mnu_copyrightLeft, mnu_copyrightTop, 0, 0, 20 );
+      ui_drawTextBox( &wCopyright, 20 );
 
       mnu_drawSlidyButtons();
       mnu_updateSlidyButtons( -deltaTime );
@@ -635,7 +635,7 @@ int mnu_doSinglePlayer( float deltaTime )
       ui_drawImage( &wBackground );
 
       // "Copyright" text
-      fnt_drawTextBox( mnu_Font, mnu_copyrightText, mnu_copyrightLeft, mnu_copyrightTop, 0, 0, 20 );
+      ui_drawTextBox(  &wCopyright, 20  );
 
       // Buttons
       if ( BUTTON_UP == ui_doButton( &mnu_widgetList[0] ) )
@@ -1728,7 +1728,10 @@ int mnu_doVideoOptions( float deltaTime )
   static ui_Widget wBackground, wCopyright;
   static float lerp;
   static int menuChoice = 0;
+  static STRING button_txt;
   int result = 0;
+
+  static STRING mnu_text[13];
 
   int dmode_min,  dmode, imode_min = 0, cnt;
 
@@ -1742,20 +1745,20 @@ int mnu_doVideoOptions( float deltaTime )
       ui_initWidget( &wBackground, UI_Invalid, ui_getFont(), NULL, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
       ui_initWidget( &wCopyright,  UI_Invalid, ui_getFont(), mnu_copyrightText, NULL, mnu_copyrightLeft, mnu_copyrightTop, 0, 0 );
 
-      ui_initWidget( &mnu_widgetList[ 0],  0, mnu_Font, mnu_videoOptionsText[ 0], NULL, mnu_buttonLeft + 150, displaySurface->h - 215, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 1],  1, mnu_Font, mnu_videoOptionsText[ 1], NULL, mnu_buttonLeft + 150, displaySurface->h - 180, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 2],  2, mnu_Font, mnu_videoOptionsText[ 2], NULL, mnu_buttonLeft + 150, displaySurface->h - 145, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 3],  3, mnu_Font, mnu_videoOptionsText[ 3], NULL, mnu_buttonLeft + 150, displaySurface->h - 110, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 4],  4, mnu_Font, mnu_videoOptionsText[ 4], NULL, mnu_buttonLeft + 150, displaySurface->h - 250, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 5],  5, mnu_Font, mnu_videoOptionsText[ 5], NULL, mnu_buttonLeft + 150, displaySurface->h - 285, 130, 30 );
-      ui_initWidget( &mnu_widgetList[ 6],  6, mnu_Font, mnu_videoOptionsText[ 6], NULL, mnu_buttonLeft + 150, displaySurface->h - 320, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 7],  7, mnu_Font, mnu_videoOptionsText[ 7], NULL, mnu_buttonLeft + 450, displaySurface->h - 320, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 8],  8, mnu_Font, mnu_videoOptionsText[ 8], NULL, mnu_buttonLeft + 450, displaySurface->h - 285, 100, 30 );
-      ui_initWidget( &mnu_widgetList[ 9],  9, mnu_Font, mnu_videoOptionsText[ 9], NULL, mnu_buttonLeft + 450, displaySurface->h - 250, 100, 30 );
-      ui_initWidget( &mnu_widgetList[10], 10, mnu_Font, mnu_videoOptionsText[10], NULL, mnu_buttonLeft + 450, displaySurface->h - 215, 100, 30 );
-      ui_initWidget( &mnu_widgetList[11], 11, mnu_Font, mnu_videoOptionsText[11], NULL, mnu_buttonLeft + 450, displaySurface->h - 145,  75, 30 );
-      ui_initWidget( &mnu_widgetList[12], 12, mnu_Font, mnu_videoOptionsText[12], NULL, mnu_buttonLeft + 450, displaySurface->h - 110, 125, 30 );
-      ui_initWidget( &mnu_widgetList[13], 13, mnu_Font, mnu_videoOptionsText[13], NULL, mnu_buttonLeft +   0, displaySurface->h -  60, 200, 30 );
+      ui_initWidget( &mnu_widgetList[ 0],  0, mnu_Font, mnu_text[ 0], NULL, mnu_buttonLeft + 150, displaySurface->h - 215, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 1],  1, mnu_Font, mnu_text[ 1], NULL, mnu_buttonLeft + 150, displaySurface->h - 180, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 2],  2, mnu_Font, mnu_text[ 2], NULL, mnu_buttonLeft + 150, displaySurface->h - 145, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 3],  3, mnu_Font, mnu_text[ 3], NULL, mnu_buttonLeft + 150, displaySurface->h - 110, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 4],  4, mnu_Font, mnu_text[ 4], NULL, mnu_buttonLeft + 150, displaySurface->h - 250, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 5],  5, mnu_Font, mnu_text[ 5], NULL, mnu_buttonLeft + 150, displaySurface->h - 285, 130, 30 );
+      ui_initWidget( &mnu_widgetList[ 6],  6, mnu_Font, mnu_text[ 6], NULL, mnu_buttonLeft + 150, displaySurface->h - 320, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 7],  7, mnu_Font, mnu_text[ 7], NULL, mnu_buttonLeft + 450, displaySurface->h - 320, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 8],  8, mnu_Font, mnu_text[ 8], NULL, mnu_buttonLeft + 450, displaySurface->h - 285, 100, 30 );
+      ui_initWidget( &mnu_widgetList[ 9],  9, mnu_Font, mnu_text[ 9], NULL, mnu_buttonLeft + 450, displaySurface->h - 250, 100, 30 );
+      ui_initWidget( &mnu_widgetList[10], 10, mnu_Font, mnu_text[10], NULL, mnu_buttonLeft + 450, displaySurface->h - 215, 100, 30 );
+      ui_initWidget( &mnu_widgetList[11], 11, mnu_Font, mnu_text[11], NULL, mnu_buttonLeft + 450, displaySurface->h - 145,  75, 30 );
+      ui_initWidget( &mnu_widgetList[12], 12, mnu_Font, mnu_text[12], NULL, mnu_buttonLeft + 450, displaySurface->h - 110, 125, 30 );
+      ui_initWidget( &mnu_widgetList[13], 13, mnu_Font, mnu_text[13], NULL, mnu_buttonLeft +   0, displaySurface->h -  60, 200, 30 );
       menuChoice = 0;
 
       //scan the video_mode_list to find the mode closest to our own
@@ -1817,32 +1820,31 @@ int mnu_doVideoOptions( float deltaTime )
 
       if ( OData.texturefilter == TX_UNFILTERED )
       {
-        mnu_widgetList[5].text = "Unfiltered";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Unfiltered" );
       }
       else if ( OData.texturefilter == TX_LINEAR )
       {
-        mnu_widgetList[5].text = "Linear";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Linear" );
       }
       else if ( OData.texturefilter == TX_MIPMAP )
       {
-        mnu_widgetList[5].text = "Mipmap";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Mipmap" );
       }
       else if ( OData.texturefilter == TX_BILINEAR )
       {
-        mnu_widgetList[5].text = "Bilinear";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Bilinear" );
       }
       else if ( OData.texturefilter == TX_TRILINEAR_1 )
       {
-        mnu_widgetList[5].text = "Tlinear 1";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Tlinear 1" );
       }
       else if ( OData.texturefilter == TX_TRILINEAR_2 )
       {
-        mnu_widgetList[5].text = "Tlinear 2";
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Tlinear 2" );
       }
       else if ( OData.texturefilter >= TX_ANISOTROPIC )
       {
-        snprintf( mnu_filternamebuffer, sizeof( mnu_filternamebuffer ), "%s%d", "AIso ", userAnisotropy ),
-        mnu_widgetList[5].text = mnu_filternamebuffer;
+        snprintf( mnu_widgetList[5].text, sizeof( STRING ), "%s%d", "AIso ", userAnisotropy );
       }
 
       if ( OData.autoturncamera == btrue ) mnu_widgetList[2].text = "On";
@@ -2067,39 +2069,38 @@ int mnu_doVideoOptions( float deltaTime )
         if ( OData.texturefilter == TX_UNFILTERED )
         {
           OData.texturefilter++;
-          mnu_widgetList[5].text = "Linear";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Linear");
         }
         else if ( OData.texturefilter == TX_LINEAR )
         {
           OData.texturefilter++;
-          mnu_widgetList[5].text = "Mipmap";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Mipmap");
         }
         else if ( OData.texturefilter == TX_MIPMAP )
         {
           OData.texturefilter++;
-          mnu_widgetList[5].text = "Bilinear";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Bilinear");
         }
         else if ( OData.texturefilter == TX_BILINEAR )
         {
           OData.texturefilter++;
-          mnu_widgetList[5].text = "Tlinear 1";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Tlinear 1");
         }
         else if ( OData.texturefilter == TX_TRILINEAR_1 )
         {
           OData.texturefilter++;
-          mnu_widgetList[5].text = "Tlinear 2";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Tlinear 2");
         }
         else if ( OData.texturefilter >= TX_TRILINEAR_2 && OData.texturefilter < TX_ANISOTROPIC + log2Anisotropy - 1 )
         {
           OData.texturefilter++;
           userAnisotropy = 1 << ( OData.texturefilter - TX_ANISOTROPIC + 1 );
-          snprintf( mnu_filternamebuffer, sizeof( mnu_filternamebuffer ), "%s%d", "AIso ", userAnisotropy ),
-          mnu_widgetList[5].text = mnu_filternamebuffer;
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "%s%d", "AIso ", userAnisotropy );
         }
         else
         {
           OData.texturefilter = TX_UNFILTERED;
-          mnu_widgetList[5].text = "Unfiltered";
+          snprintf( mnu_widgetList[5].text, sizeof( STRING ), "Unfiltered");
         }
       }
 

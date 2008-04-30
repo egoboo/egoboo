@@ -3,9 +3,11 @@
 #include <SDL_opengl.h>
 #include "egoboo_math.h"
 
-#undef DEBUG_ATTRIB
+#ifndef EGOBOO_CONFIG
+#    error Somehow, egoboo_config.h is not included in this file...
+#endif
 
-#if defined(DEBUG_ATTRIB) && defined(_DEBUG)
+#if DEBUG_ATTRIB && defined(_DEBUG)
 #    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); glPushAttrib(BITS); log_info("PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
 #    define ATTRIB_POP(TXT)           { GLint xx=0; glPopAttrib(); glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); log_info("POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
 #    define ATTRIB_GUARD_OPEN(XX)     { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&XX); log_info("OPEN ATTRIB_GUARD: before attrib stack push. level == %d\n", XX); }

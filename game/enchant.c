@@ -25,13 +25,14 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "passage.h"
 #include "particle.h"
 #include "Md2.inl"
+#include "script.h"
 
 #include "egoboo_utility.h"
 #include "egoboo.h"
 
 #include <assert.h>
 
-SEARCH_CONTEXT g_search;
+SEARCH_CONTEXT _g_search;
 
 EVE EveList[MAXEVE];
 ENC EncList[MAXENCHANT];
@@ -88,344 +89,6 @@ void disenchant_character( Uint16 cnt )
   {
     remove_enchant( ChrList[cnt].firstenchant );
   }
-}
-
-//char.c
-//--------------------------------------------------------------------------------------------
-void damage_character( CHR_REF character, Uint16 direction,
-                       PAIR * pdam, DAMAGE damagetype, TEAM team,
-                       Uint16 attacker, Uint16 effects )
-{
-  // ZZ> This function calculates and applies damage to a character.  It also
-  //     sets alerts and begins actions.  Blocking and frame invincibility
-  //     are done here too.  Direction is FRONT if the attack is coming head on,
-  //     RIGHT if from the right, BEHIND if from the back, LEFT if from the
-  //     left.
-  int tnc;
-  ACTION action;
-  int damage, basedamage;
-  Uint16 experience, model, left, right;
-
-  if ( NULL == pdam ) return;
-  if ( ChrList[character].isplayer && CData.DevMode ) return;
-
-  if ( ChrList[character].alive && pdam->ibase >= 0 && pdam->irand >= 1 )
-  {
-    // Lessen damage for resistance, 0 = Weakness, 1 = Normal, 2 = Resist, 3 = Big Resist
-    // This can also be used to lessen effectiveness of healing
-    damage = generate_unsigned( pdam );
-    basedamage = damage;
-    damage >>= ( ChrList[character].damagemodifier_fp8[damagetype] & DAMAGE_SHIFT );
-
-
-    // Allow charging (Invert damage to mana)
-    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_CHARGE )
-    {
-      ChrList[character].mana_fp8 += damage;
-      if ( ChrList[character].mana_fp8 > ChrList[character].manamax_fp8 )
-      {
-        ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
-      }
-      return;
-    }
-
-    // Mana damage (Deal damage to mana)
-    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_MANA )
-    {
-      ChrList[character].mana_fp8 -= damage;
-      if ( ChrList[character].mana_fp8 < 0 )
-      {
-        ChrList[character].mana_fp8 = 0;
-      }
-      return;
-    }
-
-
-    // Invert damage to heal
-    if ( ChrList[character].damagemodifier_fp8[damagetype]&DAMAGE_INVERT )
-      damage = -damage;
-
-
-    // Remember the damage type
-    ChrList[character].damagetypelast = damagetype;
-    ChrList[character].directionlast = direction;
-
-
-    // Do it already
-    if ( damage > 0 )
-    {
-      // Only damage if not invincible
-      if ( ChrList[character].damagetime == 0 && !ChrList[character].invictus )
-      {
-        model = ChrList[character].model;
-        if ( HAS_SOME_BITS( effects, DAMFX_BLOC ) )
-        {
-          // Only damage if hitting from proper direction
-          if ( HAS_SOME_BITS( MadList[ChrList[character].model].framefx[ChrList[character].anim.next], MADFX_INVICTUS ) )
-          {
-            // I Frame...
-            direction -= CapList[model].iframefacing;
-            left = ( ~CapList[model].iframeangle );
-            right = CapList[model].iframeangle;
-
-            // Check for shield
-            if ( ChrList[character].action.now >= ACTION_PA && ChrList[character].action.now <= ACTION_PD )
-            {
-              // Using a shield?
-              if ( ChrList[character].action.now < ACTION_PC )
-              {
-                // Check left hand
-                CHR_REF iholder = chr_get_holdingwhich( character, SLOT_LEFT );
-                if ( VALID_CHR( iholder ) )
-                {
-                  left  = ~CapList[iholder].iframeangle;
-                  right = CapList[iholder].iframeangle;
-                }
-              }
-              else
-              {
-                // Check right hand
-                CHR_REF iholder = chr_get_holdingwhich( character, SLOT_RIGHT );
-                if ( VALID_CHR( iholder ) )
-                {
-                  left  = ~CapList[iholder].iframeangle;
-                  right = CapList[iholder].iframeangle;
-                }
-              }
-            }
-          }
-          else
-          {
-            // N Frame
-            direction -= CapList[model].nframefacing;
-            left = ( ~CapList[model].nframeangle );
-            right = CapList[model].nframeangle;
-          }
-          // Check that direction
-          if ( direction > left || direction < right )
-          {
-            damage = 0;
-          }
-        }
-
-
-
-        if ( damage != 0 )
-        {
-          if ( HAS_SOME_BITS( effects, DAMFX_ARMO ) )
-          {
-            ChrList[character].life_fp8 -= damage;
-          }
-          else
-          {
-            ChrList[character].life_fp8 -= FP8_MUL( damage, ChrList[character].defense_fp8 );
-          }
-
-
-          if ( basedamage > DAMAGE_MIN )
-          {
-            // Call for help if below 1/2 life
-            if ( ChrList[character].life_fp8 < ( ChrList[character].lifemax_fp8 >> 1 ) ) //Zefz: Removed, because it caused guards to attack
-              call_for_help( character );                    //when dispelling overlay spells (Faerie Light)
-
-            // Spawn blud particles
-            if ( CapList[model].bludlevel > BLUD_NONE && ( damagetype < DAMAGE_HOLY || CapList[model].bludlevel == BLUD_ULTRA ) )
-            {
-              spawn_one_particle( 1.0f, ChrList[character].pos,
-                                  ChrList[character].turn_lr + direction, ChrList[character].model, CapList[model].bludprttype,
-                                  MAXCHR, GRIP_LAST, ChrList[character].team, character, 0, MAXCHR );
-            }
-            // Set attack alert if it wasn't an accident
-            if ( team == TEAM_DAMAGE )
-            {
-              ChrList[character].aiattacklast = MAXCHR;
-            }
-            else
-            {
-              // Don't alert the character too much if under constant fire
-              if ( ChrList[character].carefultime == 0 )
-              {
-                // Don't let characters chase themselves...  That would be silly
-                if ( attacker != character )
-                {
-                  ChrList[character].alert |= ALERT_ATTACKED;
-                  ChrList[character].aiattacklast = attacker;
-                  ChrList[character].carefultime = DELAY_CAREFUL;
-                }
-              }
-            }
-          }
-
-
-          // Taking damage action
-          action = ACTION_HA;
-          if ( ChrList[character].life_fp8 < 0 )
-          {
-            // Character has died
-            ChrList[character].alive = bfalse;
-            disenchant_character( character );
-            ChrList[character].action.keep = btrue;
-            ChrList[character].life_fp8 = -1;
-            ChrList[character].isplatform = btrue;
-            ChrList[character].bumpdampen /= 2.0;
-            action = ACTION_KA;
-            stop_sound(ChrList[character].loopingchannel);    //Stop sound loops
-            ChrList[character].loopingchannel = -1;
-            // Give kill experience
-            experience = CapList[model].experienceworth + ( ChrList[character].experience * CapList[model].experienceexchange );
-            if ( VALID_CHR( attacker ) )
-            {
-              // Set target
-              ChrList[character].aitarget = attacker;
-              if ( team == TEAM_DAMAGE )  ChrList[character].aitarget = character;
-              if ( team == TEAM_NULL )  ChrList[character].aitarget = character;
-              // Award direct kill experience
-              if ( TeamList[ChrList[attacker].team].hatesteam[ChrList[character].team] )
-              {
-                give_experience( attacker, experience, XP_KILLENEMY );
-              }
-
-              // Check for hated
-              if ( CAP_INHERIT_IDSZ( model, CapList[ChrList[attacker].model].idsz[IDSZ_HATE] ) )
-              {
-                give_experience( attacker, experience, XP_KILLHATED );
-              }
-            }
-
-            // Clear all shop passages that it owned...
-            tnc = 0;
-            while ( tnc < numshoppassage )
-            {
-              if ( shopowner[tnc] == character )
-              {
-                shopowner[tnc] = NOOWNER;
-              }
-              tnc++;
-            }
-
-            // Let the other characters know it died
-            tnc = 0;
-            while ( tnc < MAXCHR )
-            {
-              if ( ChrList[tnc].on && ChrList[tnc].alive )
-              {
-                if ( ChrList[tnc].aitarget == character )
-                {
-                  ChrList[tnc].alert |= ALERT_TARGETKILLED;
-                }
-                if ( !TeamList[ChrList[tnc].team].hatesteam[team] && TeamList[ChrList[tnc].team].hatesteam[ChrList[character].team] )
-                {
-                  // All allies get team experience, but only if they also hate the dead guy's team
-                  give_experience( tnc, experience, XP_TEAMKILL );
-                }
-              }
-              tnc++;
-            }
-
-            // Check if it was a leader
-            if ( team_get_leader( ChrList[character].team ) == character )
-            {
-              // It was a leader, so set more alerts
-              tnc = 0;
-              while ( tnc < MAXCHR )
-              {
-                if ( ChrList[tnc].on && ChrList[tnc].team == ChrList[character].team )
-                {
-                  // All folks on the leaders team get the alert
-                  ChrList[tnc].alert |= ALERT_LEADERKILLED;
-                }
-                tnc++;
-              }
-
-              // The team now has no leader
-              TeamList[ChrList[character].team].leader = search_best_leader( ChrList[character].team, character );
-            }
-
-            detach_character_from_mount( character, btrue, bfalse );
-            action += ( rand() & 3 );
-            play_action( character, action, bfalse );
-
-            // Turn off all sounds if it's a player
-            for ( tnc = 0; tnc < MAXWAVE; tnc++ )
-            {
-              //TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-              //           This may stop death sounds
-              //stop_sound(ChrList[character].model);
-            }
-
-            // Afford it one last thought if it's an AI
-            TeamList[ChrList[character].baseteam].morale--;
-            ChrList[character].team = ChrList[character].baseteam;
-            ChrList[character].alert = ALERT_KILLED;
-            ChrList[character].sparkle = NOSPARKLE;
-            ChrList[character].aitime = 1;  // No timeout...
-            let_character_think( character, 1.0f );
-          }
-          else
-          {
-            if ( basedamage > DAMAGE_MIN )
-            {
-              action += ( rand() & 3 );
-              play_action( character, action, bfalse );
-
-              // Make the character invincible for a limited time only
-              if ( HAS_NO_BITS( effects, DAMFX_TIME ) )
-                ChrList[character].damagetime = DELAY_DAMAGE;
-            }
-          }
-        }
-        else
-        {
-          // Spawn a defend particle
-          spawn_one_particle( ChrList[character].bumpstrength, ChrList[character].pos, ChrList[character].turn_lr, MAXMODEL, PRTPIP_DEFEND, MAXCHR, GRIP_LAST, TEAM_NULL, MAXCHR, 0, MAXCHR );
-          ChrList[character].damagetime = DELAY_DEFEND;
-          ChrList[character].alert |= ALERT_BLOCKED;
-        }
-      }
-    }
-    else if ( damage < 0 )
-    {
-      ChrList[character].life_fp8 -= damage;
-      if ( ChrList[character].life_fp8 > ChrList[character].lifemax_fp8 )  ChrList[character].life_fp8 = ChrList[character].lifemax_fp8;
-
-      // Isssue an alert
-      ChrList[character].alert |= ALERT_HEALED;
-      ChrList[character].aiattacklast = attacker;
-      if ( team != TEAM_DAMAGE )
-      {
-        ChrList[character].aiattacklast = MAXCHR;
-      }
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------
-void kill_character( CHR_REF character, Uint16 killer )
-{
-  // ZZ> This function kills a character...  MAXCHR killer for accidental death
-  Uint8 modifier;
-
-  if ( !ChrList[character].alive ) return;
-
-  ChrList[character].damagetime = 0;
-  ChrList[character].life_fp8 = 1;
-  modifier = ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH];
-  ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = 1;
-  if ( VALID_CHR( killer ) )
-  {
-    PAIR ptemp = {512, 1};
-    damage_character( character, 0, &ptemp, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFX_ARMO | DAMFX_BLOC );
-  }
-  else
-  {
-    PAIR ptemp = {512, 1};
-    damage_character( character, 0, &ptemp, DAMAGE_CRUSH, TEAM_DAMAGE, chr_get_aibumplast( character ), DAMFX_ARMO | DAMFX_BLOC );
-  }
-  ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = modifier;
-
-  // try something here.
-  ChrList[character].isplatform = btrue;
-  ChrList[character].ismount  = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -587,9 +250,14 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 {
   // ZZ> This function spawns a character and returns the character's index number
   //     if it worked, MAXCHR otherwise
+
   int ichr, tnc;
   FILE * filewrite;
+
+  AI_STATE * pstate;
   CHR  * pchr;
+  CAP  * pcap;
+  MAD  * pmad;
 
   // open file for debug info logging
   if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a" );
@@ -597,9 +265,11 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Make sure the team is valid
   if ( team >= TEAM_COUNT ) team %= TEAM_COUNT;
 
+  pcap = CapList + profile;
+  pmad = MadList + profile;
 
   // Get a new character
-  if ( !MadList[profile].used )
+  if ( !pmad->used )
   {
     if(CData.DevMode)
     {
@@ -659,13 +329,14 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
   if(CData.DevMode)
   {
-    fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, CapList[profile].classname == \"%s\", index == %d\n", profile, CapList[profile].classname, ichr );
-    fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, CapList[profile].classname == \"%s\", index == %d\n", profile, CapList[profile].classname, ichr );
+    fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, pcap->classname == \"%s\", index == %d\n", profile, pcap->classname, ichr );
+    fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, pcap->classname == \"%s\", index == %d\n", profile, pcap->classname, ichr );
     fs_fileClose( filewrite );
   }
 
   // "simplify" the notation
-  pchr = ChrList + ichr;
+  pchr   = ChrList + ichr;
+  pstate = &(pchr->aistate);
 
   // clear any old data
   memset(pchr, 0, sizeof(CHR));
@@ -688,21 +359,21 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->numinpack = 0;
   pchr->model = profile;
   VData_Blended_construct( &(pchr->vdata) );
-  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(MadList[profile].md2_ptr) );
+  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(pmad->md2_ptr) );
 
   pchr->basemodel = profile;
-  pchr->stoppedby = CapList[profile].stoppedby;
-  pchr->lifeheal = CapList[profile].lifeheal_fp8;
-  pchr->manacost = CapList[profile].manacost_fp8;
+  pchr->stoppedby = pcap->stoppedby;
+  pchr->lifeheal = pcap->lifeheal_fp8;
+  pchr->manacost = pcap->manacost_fp8;
   pchr->inwater = bfalse;
-  pchr->nameknown = CapList[profile].nameknown;
-  pchr->ammoknown = CapList[profile].nameknown;
+  pchr->nameknown = pcap->nameknown;
+  pchr->ammoknown = pcap->nameknown;
   pchr->hitready = btrue;
   pchr->boretime = DELAY_BORE;
   pchr->carefultime = DELAY_CAREFUL;
   pchr->canbecrushed = bfalse;
   pchr->damageboost = 0;
-  pchr->icon = CapList[profile].icon;
+  pchr->icon = pcap->icon;
 
   //Ready for loop sound
   pchr->loopingchannel = -1;
@@ -710,43 +381,43 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Enchant stuff
   pchr->firstenchant = MAXENCHANT;
   pchr->undoenchant = MAXENCHANT;
-  pchr->canseeinvisible = CapList[profile].canseeinvisible;
+  pchr->canseeinvisible = pcap->canseeinvisible;
   pchr->canchannel = bfalse;
   pchr->missiletreatment = MIS_NORMAL;
   pchr->missilecost = 0;
 
   //Skill Expansions
-  pchr->canseekurse = CapList[profile].canseekurse;
-  pchr->canusedivine = CapList[profile].canusedivine;
-  pchr->canusearcane = CapList[profile].canusearcane;
-  pchr->candisarm = CapList[profile].candisarm;
-  pchr->canjoust = CapList[profile].canjoust;
-  pchr->canusetech = CapList[profile].canusetech;
-  pchr->canusepoison = CapList[profile].canusepoison;
-  pchr->canuseadvancedweapons = CapList[profile].canuseadvancedweapons;
-  pchr->canbackstab = CapList[profile].canbackstab;
-  pchr->canread = CapList[profile].canread;
+  pchr->canseekurse = pcap->canseekurse;
+  pchr->canusedivine = pcap->canusedivine;
+  pchr->canusearcane = pcap->canusearcane;
+  pchr->candisarm = pcap->candisarm;
+  pchr->canjoust = pcap->canjoust;
+  pchr->canusetech = pcap->canusetech;
+  pchr->canusepoison = pcap->canusepoison;
+  pchr->canuseadvancedweapons = pcap->canuseadvancedweapons;
+  pchr->canbackstab = pcap->canbackstab;
+  pchr->canread = pcap->canread;
 
 
   // Kurse state
-  pchr->iskursed = (( rand() % 100 ) < CapList[profile].kursechance );
-  if ( !CapList[profile].isitem )  pchr->iskursed = bfalse;
+  pchr->iskursed = (( rand() % 100 ) < pcap->kursechance );
+  if ( !pcap->isitem )  pchr->iskursed = bfalse;
 
 
   // Ammo
-  pchr->ammomax = CapList[profile].ammomax;
-  pchr->ammo = CapList[profile].ammo;
+  pchr->ammomax = pcap->ammomax;
+  pchr->ammo = pcap->ammo;
 
 
   // Gender
-  pchr->gender = CapList[profile].gender;
+  pchr->gender = pcap->gender;
   if ( pchr->gender == GEN_RANDOM )  pchr->gender = GEN_FEMALE + ( rand() & 1 );
 
   // Team stuff
   pchr->team = team;
   pchr->baseteam = team;
   pchr->messagedata = TeamList[team].morale;
-  if ( !CapList[profile].invictus )  TeamList[team].morale++;
+  if ( !pcap->invictus )  TeamList[team].morale++;
   pchr->message = 0;
   // Firstborn becomes the leader
   if ( !VALID_CHR( team_get_leader( team ) ) )
@@ -755,125 +426,104 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   }
 
   // Skin
-  if ( CapList[profile].skinoverride != NOSKINOVERRIDE )
+  if ( pcap->skinoverride != NOSKINOVERRIDE )
   {
-    skin = CapList[profile].skinoverride % MAXSKIN;
+    skin = pcap->skinoverride % MAXSKIN;
   }
-  if ( skin >= MadList[profile].skins )
+  if ( skin >= pmad->skins )
   {
     skin = 0;
-    if ( MadList[profile].skins > 1 )
+    if ( pmad->skins > 1 )
     {
-      skin = rand() % MadList[profile].skins;
+      skin = rand() % pmad->skins;
     }
   }
-  pchr->texture = MadList[profile].skinstart + skin;
+  pchr->texture = pmad->skinstart + skin;
 
   // Life and Mana
   pchr->alive = btrue;
-  pchr->lifecolor = CapList[profile].lifecolor;
-  pchr->manacolor = CapList[profile].manacolor;
-  pchr->lifemax_fp8 = generate_unsigned( &CapList[profile].life_fp8 );
+  pchr->lifecolor = pcap->lifecolor;
+  pchr->manacolor = pcap->manacolor;
+  pchr->lifemax_fp8 = generate_unsigned( &pcap->life_fp8 );
   pchr->life_fp8 = pchr->lifemax_fp8;
-  pchr->lifereturn = CapList[profile].lifereturn_fp8;
-  pchr->manamax_fp8 = generate_unsigned( &CapList[profile].mana_fp8 );
-  pchr->manaflow_fp8 = generate_unsigned( &CapList[profile].manaflow_fp8 );
-  pchr->manareturn_fp8 = generate_unsigned( &CapList[profile].manareturn_fp8 );  //>> MANARETURNSHIFT;
+  pchr->lifereturn = pcap->lifereturn_fp8;
+  pchr->manamax_fp8 = generate_unsigned( &pcap->mana_fp8 );
+  pchr->manaflow_fp8 = generate_unsigned( &pcap->manaflow_fp8 );
+  pchr->manareturn_fp8 = generate_unsigned( &pcap->manareturn_fp8 );  //>> MANARETURNSHIFT;
   pchr->mana_fp8 = pchr->manamax_fp8;
 
   // SWID
-  pchr->strength_fp8 = generate_unsigned( &CapList[profile].strength_fp8 );
-  pchr->wisdom_fp8 = generate_unsigned( &CapList[profile].wisdom_fp8 );
-  pchr->intelligence_fp8 = generate_unsigned( &CapList[profile].intelligence_fp8 );
-  pchr->dexterity_fp8 = generate_unsigned( &CapList[profile].dexterity_fp8 );
+  pchr->strength_fp8 = generate_unsigned( &pcap->strength_fp8 );
+  pchr->wisdom_fp8 = generate_unsigned( &pcap->wisdom_fp8 );
+  pchr->intelligence_fp8 = generate_unsigned( &pcap->intelligence_fp8 );
+  pchr->dexterity_fp8 = generate_unsigned( &pcap->dexterity_fp8 );
 
   // Damage
-  pchr->defense_fp8 = CapList[profile].defense_fp8[skin];
-  pchr->reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
-  pchr->damagetargettype = CapList[profile].damagetargettype;
+  pchr->defense_fp8 = pcap->defense_fp8[skin];
+  pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
+  pchr->damagetargettype = pcap->damagetargettype;
   tnc = 0;
   while ( tnc < MAXDAMAGETYPE )
   {
-    pchr->damagemodifier_fp8[tnc] = CapList[profile].damagemodifier_fp8[tnc][skin];
+    pchr->damagemodifier_fp8[tnc] = pcap->damagemodifier_fp8[tnc][skin];
     tnc++;
   }
 
-  // AI stuff
-  pchr->aitype = MadList[pchr->model].ai;
   pchr->isplayer = bfalse;
   pchr->islocalplayer = bfalse;
-  pchr->alert = ALERT_SPAWNED;
-  pchr->aistate = CapList[profile].stateoverride;
-  pchr->aicontent = CapList[profile].contentoverride;
-  pchr->aitarget = ichr;
-  pchr->aiowner = ichr;
-  pchr->aichild = ichr;
-  pchr->aitime = 0;
-  tnc = 0;
-  while ( tnc < MAXSTOR )
-  {
-    pchr->aix[tnc] = 0;
-    pchr->aiy[tnc] = 0;
-    tnc++;
-  }
-  pchr->aimorphed = bfalse;
 
-  pchr->latch.x = 0;
-  pchr->latch.y = 0;
-  pchr->latch.b = 0;
-  pchr->turnmode = TURNMODE_VELOCITY;
+  // AI stuff
+  ai_state_new(pstate, ichr);
 
   // Flags
-  pchr->stickybutt = CapList[profile].stickybutt;
-  pchr->openstuff = CapList[profile].canopenstuff;
-  pchr->transferblend = CapList[profile].transferblend;
-  pchr->enviro = CapList[profile].enviro;
-  pchr->waterwalk = CapList[profile].waterwalk;
-  pchr->isplatform = CapList[profile].isplatform;
-  pchr->isitem = CapList[profile].isitem;
-  pchr->invictus = CapList[profile].invictus;
-  pchr->ismount = CapList[profile].ismount;
-  pchr->cangrabmoney = CapList[profile].cangrabmoney;
+  pchr->stickybutt = pcap->stickybutt;
+  pchr->openstuff = pcap->canopenstuff;
+  pchr->transferblend = pcap->transferblend;
+  pchr->enviro = pcap->enviro;
+  pchr->waterwalk = pcap->waterwalk;
+  pchr->isplatform = pcap->isplatform;
+  pchr->isitem = pcap->isitem;
+  pchr->invictus = pcap->invictus;
+  pchr->ismount = pcap->ismount;
+  pchr->cangrabmoney = pcap->cangrabmoney;
 
   // Jumping
-  pchr->jump = CapList[profile].jump;
+  pchr->jump = pcap->jump;
   pchr->jumpready = btrue;
   pchr->jumpnumber = 1;
-  pchr->jumpnumberreset = CapList[profile].jumpnumber;
+  pchr->jumpnumberreset = pcap->jumpnumber;
   pchr->jumptime = DELAY_JUMP;
 
   // Other junk
-  pchr->flyheight = CapList[profile].flyheight;
-  pchr->maxaccel = CapList[profile].maxaccel[skin];
-  pchr->alpha_fp8 = CapList[profile].alpha_fp8;
-  pchr->light_fp8 = CapList[profile].light_fp8;
-  pchr->flashand = CapList[profile].flashand;
-  pchr->sheen_fp8 = CapList[profile].sheen_fp8;
-  pchr->dampen = CapList[profile].dampen;
+  pchr->flyheight = pcap->flyheight;
+  pchr->maxaccel = pcap->maxaccel[skin];
+  pchr->alpha_fp8 = pcap->alpha_fp8;
+  pchr->light_fp8 = pcap->light_fp8;
+  pchr->flashand = pcap->flashand;
+  pchr->sheen_fp8 = pcap->sheen_fp8;
+  pchr->dampen = pcap->dampen;
 
   // Character size and bumping
-  pchr->fat = CapList[profile].size;
+  pchr->fat = pcap->size;
   pchr->sizegoto = pchr->fat;
   pchr->sizegototime = 0;
 
-  pchr->bmpdata_save.shadow  = CapList[profile].shadowsize;
-  pchr->bmpdata_save.size    = CapList[profile].bumpsize;
-  pchr->bmpdata_save.sizebig = CapList[profile].bumpsizebig;
-  pchr->bmpdata_save.height  = CapList[profile].bumpheight;
+  pchr->bmpdata_save.shadow  = pcap->shadowsize;
+  pchr->bmpdata_save.size    = pcap->bumpsize;
+  pchr->bmpdata_save.sizebig = pcap->bumpsizebig;
+  pchr->bmpdata_save.height  = pcap->bumpheight;
 
-  pchr->bmpdata.shadow   = CapList[profile].shadowsize  * pchr->fat;
-  pchr->bmpdata.size     = CapList[profile].bumpsize    * pchr->fat;
-  pchr->bmpdata.sizebig  = CapList[profile].bumpsizebig * pchr->fat;
-  pchr->bmpdata.height   = CapList[profile].bumpheight  * pchr->fat;
-  pchr->bumpstrength   = CapList[profile].bumpstrength * FP8_TO_FLOAT( CapList[profile].alpha_fp8 );
+  pchr->bmpdata.shadow   = pcap->shadowsize  * pchr->fat;
+  pchr->bmpdata.size     = pcap->bumpsize    * pchr->fat;
+  pchr->bmpdata.sizebig  = pcap->bumpsizebig * pchr->fat;
+  pchr->bmpdata.height   = pcap->bumpheight  * pchr->fat;
+  pchr->bumpstrength   = pcap->bumpstrength * FP8_TO_FLOAT( pcap->alpha_fp8 );
 
 
 
-  pchr->bumpdampen = CapList[profile].bumpdampen;
-  pchr->weight = CapList[profile].weight * pchr->fat * pchr->fat * pchr->fat;   // preserve density
-  pchr->aibumplast = ichr;
-  pchr->aiattacklast = MAXCHR;
-  pchr->aihitlast = ichr;
+  pchr->bumpdampen = pcap->bumpdampen;
+  pchr->weight = pcap->weight * pchr->fat * pchr->fat * pchr->fat;   // preserve density
+
 
   // Grip info
   pchr->inwhichslot = SLOT_NONE;
@@ -886,17 +536,17 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Image rendering
   pchr->uoffset_fp8 = 0;
   pchr->voffset_fp8 = 0;
-  pchr->uoffvel = CapList[profile].uoffvel;
-  pchr->voffvel = CapList[profile].voffvel;
+  pchr->uoffvel = pcap->uoffvel;
+  pchr->voffvel = pcap->voffvel;
   pchr->redshift = 0;
   pchr->grnshift = 0;
   pchr->blushift = 0;
 
 
   // Movement
-  pchr->sneakspd = CapList[profile].sneakspd;
-  pchr->walkspd = CapList[profile].walkspd;
-  pchr->runspd = CapList[profile].runspd;
+  pchr->sneakspd = pcap->sneakspd;
+  pchr->walkspd = pcap->walkspd;
+  pchr->runspd = pcap->runspd;
 
   // Set up position
   pchr->pos.x = pos.x;
@@ -911,33 +561,21 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->pos_old     = pchr->pos;
   pchr->turn_lr_old = pchr->turn_lr;
 
-  pchr->lightturn_lrr = 0;
-  pchr->lightturn_lrg = 0;
-  pchr->lightturn_lrb = 0;
+  pchr->tlight.turn_lr.r = 0;
+  pchr->tlight.turn_lr.g = 0;
+  pchr->tlight.turn_lr.b = 0;
 
   pchr->vel.x = 0;
   pchr->vel.y = 0;
   pchr->vel.z = 0;
-  pchr->trgvel.x = 0;
-  pchr->trgvel.y = 0;
-  pchr->trgvel.z = 0;
   pchr->mapturn_lr = 32768;  // These two mean on level surface
   pchr->mapturn_ud = 32768;
   pchr->scale = pchr->fat; // * MadList[pchr->model].scale * 4;
 
-  // AI and action stuff
-  pchr->aigoto = 0;
-  pchr->aigotoadd = 1;
-  pchr->aigotox[0] = pchr->pos.x;
-  pchr->aigotoy[0] = pchr->pos.y;
-  pchr->action.ready = btrue;
-  pchr->action.keep = bfalse;
-  pchr->action.loop = bfalse;
-  pchr->action.now = ACTION_DA;
-  pchr->action.next = ACTION_DA;
-  pchr->anim.lip_fp8 = 0;
-  pchr->anim.flip = 0.0f;
-  pchr->anim.last = pchr->anim.next = 0;
+  // action stuff
+  action_info_new( &(pchr->action) );
+  anim_info_new( &(pchr->anim) );
+
   pchr->passage = 0;
   pchr->holdingweight = 0;
   pchr->onwhichplatform = MAXCHR;
@@ -947,7 +585,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->dazetime = 0.0f;
 
   // Money is added later
-  pchr->money = CapList[profile].money;
+  pchr->money = pcap->money;
 
   // Name the character
   if ( name == NULL )
@@ -972,35 +610,35 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   tnc = 0;
   while ( tnc < MadList[pchr->model].transvertices )
   {
-    pchr->vrtar_fp8[tnc] = 0;
-    pchr->vrtag_fp8[tnc] = 0;
-    pchr->vrtab_fp8[tnc] = 0;
+    pchr->vrta_fp8[tnc].r = 0;
+    pchr->vrta_fp8[tnc].g = 0;
+    pchr->vrta_fp8[tnc].b = 0;
     tnc++;
   }
 
   // Particle attachments
   tnc = 0;
-  while ( tnc < CapList[profile].attachedprtamount )
+  while ( tnc < pcap->attachedprtamount )
   {
     spawn_one_particle( 1.0f, pchr->pos,
-                        0, pchr->model, CapList[profile].attachedprttype,
+                        0, pchr->model, pcap->attachedprttype,
                         ichr, GRIP_LAST + tnc, pchr->team, ichr, tnc, MAXCHR );
     tnc++;
   }
-  pchr->reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
+  pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
 
 
   // Experience
-  if ( CapList[profile].leveloverride != 0 )
+  if ( pcap->leveloverride != 0 )
   {
-    while ( pchr->experiencelevel < CapList[profile].leveloverride )
+    while ( pchr->experiencelevel < pcap->leveloverride )
     {
       give_experience( ichr, 100, XP_DIRECT );
     }
   }
   else
   {
-    pchr->experience = generate_unsigned( &CapList[profile].experience );
+    pchr->experience = generate_unsigned( &pcap->experience );
     pchr->experiencelevel = calc_chr_level( ichr );
   }
 
@@ -1018,82 +656,80 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 }
 
 //--------------------------------------------------------------------------------------------
-void respawn_character( CHR_REF character )
+void respawn_character( CHR_REF ichr )
 {
-  // ZZ> This function respawns a character
+  // ZZ> This function respawns a ichr
   Uint16 item, profile;
+  CHR * pchr;
+  CAP * pcap;
+  AI_STATE * pstate;
 
-  if ( !VALID_CHR( character ) || ChrList[character].alive ) return;
+  if ( !VALID_CHR( ichr )  ) return;
 
-  profile = ChrList[character].model;
+  pchr = ChrList + ichr;
+  pstate = &(pchr->aistate);
 
-  spawn_poof( character, profile );
-  disaffirm_attached_particles( character );
-  ChrList[character].alive = btrue;
-  ChrList[character].boretime = DELAY_BORE;
-  ChrList[character].carefultime = DELAY_CAREFUL;
-  ChrList[character].life_fp8 = ChrList[character].lifemax_fp8;
-  ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
-  ChrList[character].pos.x = ChrList[character].stt.x;
-  ChrList[character].pos.y = ChrList[character].stt.y;
-  ChrList[character].pos.z = ChrList[character].stt.z;
-  ChrList[character].vel.x = 0;
-  ChrList[character].vel.y = 0;
-  ChrList[character].vel.z = 0;
-  ChrList[character].trgvel.x = 0;
-  ChrList[character].trgvel.y = 0;
-  ChrList[character].trgvel.z = 0;
-  ChrList[character].team = ChrList[character].baseteam;
-  ChrList[character].canbecrushed = bfalse;
-  ChrList[character].mapturn_lr = 32768;  // These two mean on level surface
-  ChrList[character].mapturn_ud = 32768;
-  if ( !VALID_CHR( team_get_leader( ChrList[character].team ) ) )  TeamList[ChrList[character].team].leader = character;
-  if ( !ChrList[character].invictus )  TeamList[ChrList[character].baseteam].morale++;
+  if( pchr->alive ) return;
 
-  ChrList[character].action.ready = btrue;
-  ChrList[character].action.keep = bfalse;
-  ChrList[character].action.loop = bfalse;
-  ChrList[character].action.now = ACTION_DA;
-  ChrList[character].action.next = ACTION_DA;
+  profile = pchr->model;
+  pcap = CapList + profile;
 
-  ChrList[character].anim.lip_fp8 = 0;
-  ChrList[character].anim.flip = 0.0f;
-  ChrList[character].anim.next = 0;
-  ChrList[character].anim.last  = ChrList[character].anim.next;
+  spawn_poof( ichr, profile );
+  disaffirm_attached_particles( ichr );
+  pchr->alive = btrue;
+  pchr->boretime = DELAY_BORE;
+  pchr->carefultime = DELAY_CAREFUL;
+  pchr->life_fp8 = pchr->lifemax_fp8;
+  pchr->mana_fp8 = pchr->manamax_fp8;
+  pchr->pos.x = pchr->stt.x;
+  pchr->pos.y = pchr->stt.y;
+  pchr->pos.z = pchr->stt.z;
+  pchr->vel.x = 0;
+  pchr->vel.y = 0;
+  pchr->vel.z = 0;
+  pchr->team = pchr->baseteam;
+  pchr->canbecrushed = bfalse;
+  pchr->mapturn_lr = 32768;  // These two mean on level surface
+  pchr->mapturn_ud = 32768;
+  if ( !VALID_CHR( team_get_leader( pchr->team ) ) )  TeamList[pchr->team].leader = ichr;
+  if ( !pchr->invictus )  TeamList[pchr->baseteam].morale++;
 
-  ChrList[character].isplatform = CapList[profile].isplatform;
-  ChrList[character].flyheight  = CapList[profile].flyheight;
-  ChrList[character].bumpdampen = CapList[profile].bumpdampen;
+  action_info_new( &(pchr->action) );
+  anim_info_new( &(pchr->anim) );
 
-  ChrList[character].bmpdata_save.size    = CapList[profile].bumpsize;
-  ChrList[character].bmpdata_save.sizebig = CapList[profile].bumpsizebig;
-  ChrList[character].bmpdata_save.height  = CapList[profile].bumpheight;
+  pchr->isplatform = pcap->isplatform;
+  pchr->flyheight  = pcap->flyheight;
+  pchr->bumpdampen = pcap->bumpdampen;
 
-  ChrList[character].bmpdata.size     = CapList[profile].bumpsize * ChrList[character].fat;
-  ChrList[character].bmpdata.sizebig  = CapList[profile].bumpsizebig * ChrList[character].fat;
-  ChrList[character].bmpdata.height   = CapList[profile].bumpheight * ChrList[character].fat;
-  ChrList[character].bumpstrength = CapList[profile].bumpstrength * FP8_TO_FLOAT( CapList[profile].alpha_fp8 );
+  pchr->bmpdata_save.size    = pcap->bumpsize;
+  pchr->bmpdata_save.sizebig = pcap->bumpsizebig;
+  pchr->bmpdata_save.height  = pcap->bumpheight;
+
+  pchr->bmpdata.size     = pcap->bumpsize * pchr->fat;
+  pchr->bmpdata.sizebig  = pcap->bumpsizebig * pchr->fat;
+  pchr->bmpdata.height   = pcap->bumpheight * pchr->fat;
+  pchr->bumpstrength     = pcap->bumpstrength * FP8_TO_FLOAT( pcap->alpha_fp8 );
 
   // clear the alert and leave the state alone
-  ChrList[character].alert = ALERT_NONE;
-  ChrList[character].aitarget = character;
-  ChrList[character].aitime = 0;
-  ChrList[character].grogtime = 0.0f;
-  ChrList[character].dazetime = 0.0f;
-  reaffirm_attached_particles( character );
+  ai_state_renew(pstate, ichr);
 
+  pchr->grogtime = 0.0f;
+  pchr->dazetime = 0.0f;
+
+  reaffirm_attached_particles( ichr );
 
   // Let worn items come back
-  item  = chr_get_nextinpack( character );
+  item  = chr_get_nextinpack( ichr );
   while ( VALID_CHR( item ) )
   {
     if ( ChrList[item].isequipped )
     {
       ChrList[item].isequipped = bfalse;
-      ChrList[item].alert |= ALERT_ATLASTWAYPOINT;  // doubles as PutAway
+      ChrList[item].aistate.alert |= ALERT_ATLASTWAYPOINT;  // doubles as PutAway
     }
     item  = chr_get_nextinpack( item );
   }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1227,13 +863,13 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
 
 
   // AI stuff
-  ChrList[ichr].aitype = MadList[new_profile].ai;
-  ChrList[ichr].aistate = 0;
-  ChrList[ichr].aitime = 0;
-  ChrList[ichr].latch.x = 0;
-  ChrList[ichr].latch.y = 0;
-  ChrList[ichr].latch.b = 0;
-  ChrList[ichr].turnmode = TURNMODE_VELOCITY;
+  ChrList[ichr].aistate.type = MadList[new_profile].ai;
+  ChrList[ichr].aistate.state = 0;
+  ChrList[ichr].aistate.time = 0;
+  ChrList[ichr].aistate.latch.x = 0;
+  ChrList[ichr].aistate.latch.y = 0;
+  ChrList[ichr].aistate.latch.b = 0;
+  ChrList[ichr].aistate.turnmode = TURNMODE_VELOCITY;
 
   // Flags
   ChrList[ichr].stickybutt = CapList[new_profile].stickybutt;
@@ -1350,123 +986,11 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   tnc = 0;
   while ( tnc < MadList[ChrList[ichr].model].transvertices )
   {
-    ChrList[ichr].vrtar_fp8[tnc] =
-    ChrList[ichr].vrtag_fp8[tnc] =
-    ChrList[ichr].vrtab_fp8[tnc] = 0;
+    ChrList[ichr].vrta_fp8[tnc].r =
+    ChrList[ichr].vrta_fp8[tnc].g =
+    ChrList[ichr].vrta_fp8[tnc].b = 0;
     tnc++;
   }
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_search_target_in_block( int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
-                                    bool_t excludeid )
-{
-  // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target was found
-
-  int cnt;
-  CHR_REF charb;
-  Uint32 fanblock;
-  TEAM team;
-  vect3 diff;
-  float dist;
-
-  bool_t require_friends =  ask_friends && !ask_enemies;
-  bool_t require_enemies = !ask_friends &&  ask_enemies;
-  bool_t require_alive   = !ask_dead;
-  bool_t require_noitems = !ask_items;
-  bool_t ballowed;
-
-  if ( !VALID_CHR( character ) ) return MAXCHR;
-
-  fanblock = mesh_convert_block( block_x, block_y );
-  team = ChrList[character].team;
-  for ( cnt = 0, charb = bumplist.chr[fanblock];
-        cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb );
-        cnt++, charb = chr_get_bumpnext(charb) )
-  {
-    // don't find stupid stuff
-    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
-
-    // don't find yourself or any of the items you're holding
-    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
-
-    // don't find your mount or your master
-    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
-
-    // don't find anything you can't see
-    if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
-
-    // if we need to find friends, don't find enemies
-    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
-
-    // if we need to find enemies, don't find friends or invictus
-    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
-
-    // if we require being alive, don't accept dead things
-    if ( require_alive && !ChrList[charb].alive ) continue;
-
-    // if we require not an item, don't accept items
-    if ( require_noitems && ChrList[charb].isitem ) continue;
-
-    ballowed = bfalse;
-    if ( IDSZ_NONE == idsz )
-    {
-      ballowed = btrue;
-    }
-    else if ( CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
-    {
-      ballowed = !excludeid;
-    }
-
-    if ( ballowed )
-    {
-      diff.x = ChrList[character].pos.x - ChrList[charb].pos.x;
-      diff.y = ChrList[character].pos.y - ChrList[charb].pos.y;
-      diff.z = ChrList[character].pos.z - ChrList[charb].pos.z;
-
-      dist = DotProduct(diff, diff);
-      if ( g_search.initialize || dist < g_search.distance )
-      {
-        g_search.distance   = dist;
-        g_search.besttarget = charb;
-        g_search.initialize = bfalse;
-      }
-    }
-
-  }
-
-  return g_search.besttarget;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_search_nearby_target( CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz )
-{
-  // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
-  int ix,ix_min,ix_max, iy,iy_min,iy_max;
-  bool_t seeinvisible = ChrList[character].canseeinvisible;
-
-  if ( !VALID_CHR( character ) || chr_in_pack( character ) ) return MAXCHR;
-
-  g_search.initialize = btrue;
-  g_search.besttarget = MAXCHR;
-
-  // Current fanblock
-  ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_min ) );
-  ix_max = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_max ) );
-  iy_min = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_min ) );
-  iy_max = MESH_FLOAT_TO_BLOCK( mesh_clip_y( ChrList[character].bmpdata.cv.y_max ) );
-
-  for( ix = ix_min; ix<=ix_max; ix++ )
-  {
-    for( iy=iy_min; iy<=iy_max; iy++ )
-    {
-      chr_search_target_in_block( ix, iy, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, ask_idsz, bfalse );
-    };
-  };
-
-  return ( VALID_CHR(g_search.besttarget) && (g_search.besttarget!=character) ? g_search.besttarget : MAXCHR );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1505,55 +1029,6 @@ bool_t cost_mana( CHR_REF character, int amount, Uint16 killer )
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_distant_target( CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead )
-{
-  // ZZ> This function finds a target, or it returns MAXCHR if it can't find one...
-  //     maxdist should be the square of the actual dist you want to use
-  //     as the cutoff...
-  int charb, dist, mindist, xdist, ydist, zdist;
-  Uint16 minchr = MAXCHR;
-  bool_t require_friends = !ask_enemies;
-  bool_t require_alive   = !ask_dead;
-  TEAM team;
-
-  if ( !VALID_CHR( character ) ) return MAXCHR;
-
-  team = ChrList[character].team;
-  minchr = MAXCHR;
-  mindist = maxdist;
-  for ( charb = 0; charb < MAXCHR; charb++ )
-  {
-    // don't find stupid items
-    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
-
-    // don't find yourself or items you are carrying
-    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
-
-    // don't find thigs you can't see
-    if (( !ChrList[character].canseeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
-
-    // don't find dead things if not asked for
-    if ( require_alive && ( !ChrList[charb].alive || ChrList[charb].isitem ) ) continue;
-
-    // don't find enemies unless asked for
-    if ( ask_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
-
-    xdist = ChrList[charb].pos.x - ChrList[character].pos.x;
-    ydist = ChrList[charb].pos.y - ChrList[character].pos.y;
-    zdist = ChrList[charb].pos.z - ChrList[character].pos.z;
-    dist = xdist * xdist + ydist * ydist + zdist * zdist;
-
-    if ( dist < mindist )
-    {
-      mindist = dist;
-      minchr  = charb;
-    };
-  }
-
-  return minchr;
-}
-
-//--------------------------------------------------------------------------------------------
 void switch_team( CHR_REF character, TEAM team )
 {
   // ZZ> This function makes a character join another team...
@@ -1579,151 +1054,6 @@ void switch_team( CHR_REF character, TEAM team )
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_search_nearest_in_block( int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz )
-{
-  // ZZ> This is a good little helper
-  float dis, xdis, ydis, zdis;
-  int cnt;
-  TEAM team;
-  CHR_REF charb;
-  Uint32 fanblock;
-  bool_t require_friends =  ask_friends && !ask_enemies;
-  bool_t require_enemies = !ask_friends &&  ask_enemies;
-  bool_t require_alive   = !ask_dead;
-  bool_t require_noitems = !ask_items;
-
-
-  // blocks that are off the mesh are not stored
-  fanblock = mesh_convert_block( block_x, block_y );
-
-  // if character is not defined, return
-  if ( !VALID_CHR( character ) ) return;
-
-  team     = ChrList[character].team;
-  charb    = bumplist.chr[fanblock];
-  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb ); cnt++, charb = chr_get_bumpnext(charb) )
-  {
-    // don't find stupid stuff
-    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
-
-    // don't find yourself or any of the items you're holding
-    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
-
-    // don't find your mount or your master
-    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
-
-    // don't find anything you can't see
-    if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
-
-    // if we need to find friends, don't find enemies
-    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
-
-    // if we need to find enemies, don't find friends or invictus
-    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
-
-    // if we require being alive, don't accept dead things
-    if ( require_alive && !ChrList[charb].alive ) continue;
-
-    // if we require not an item, don't accept items
-    if ( require_noitems && ChrList[charb].isitem ) continue;
-
-    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
-    {
-      xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
-      ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
-      zdis = ChrList[character].pos.z - ChrList[charb].pos.z;
-      xdis *= xdis;
-      ydis *= ydis;
-      zdis *= zdis;
-      dis = xdis + ydis + zdis;
-      if ( g_search.initialize || dis < g_search.distance )
-      {
-        g_search.nearest  = charb;
-        g_search.distance = dis;
-        g_search.initialize = bfalse;
-      }
-    }
-  }
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_search_nearest_target( CHR_REF character, bool_t ask_items,
-                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz )
-{
-  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
-  int x, y;
-  bool_t seeinvisible = ChrList[character].canseeinvisible;
-
-  if ( !VALID_CHR( character ) ) return MAXCHR;
-
-  // Current fanblock
-  x = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
-  y = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
-
-  g_search.initialize = btrue;
-  chr_search_nearest_in_block( x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-
-  if ( !VALID_CHR( g_search.nearest ) )
-  {
-    chr_search_nearest_in_block( x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x + 0, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-  };
-
-  if ( !VALID_CHR( g_search.nearest ) )
-  {
-    chr_search_nearest_in_block( x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x - 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-  };
-
-  if ( g_search.nearest == character )
-    return MAXCHR;
-  else
-    return g_search.nearest;
-}
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_search_wide_target( CHR_REF character, bool_t ask_items,
-                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid )
-{
-  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
-  int ix, iy;
-  CHR_REF target;
-  char seeinvisible;
-  seeinvisible = ChrList[character].canseeinvisible;
-
-  if ( !VALID_CHR( character ) ) return MAXCHR;
-
-  g_search.initialize = btrue;
-  g_search.besttarget = MAXCHR;
-
-  // Current fanblock
-  ix = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
-  iy = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
-
-  target = chr_search_target_in_block( ix + 0, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
-
-  target = chr_search_target_in_block( ix - 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix + 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix + 0, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix + 0, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
-
-  target = chr_search_target_in_block( ix - 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix + 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix - 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( ix + 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( g_search.besttarget ) && g_search.besttarget != character )  return g_search.besttarget;
-
-  return MAXCHR;
-}
-
-//--------------------------------------------------------------------------------------------
 void issue_clean( CHR_REF character )
 {
   // ZZ> This function issues a clean up order to all teammates
@@ -1737,8 +1067,8 @@ void issue_clean( CHR_REF character )
   {
     if ( ChrList[cnt].team == team && !ChrList[cnt].alive )
     {
-      ChrList[cnt].aitime = 2;  // Don't let it think too much...
-      ChrList[cnt].alert = ALERT_CLEANEDUP;
+      ChrList[cnt].aistate.time = 2;  // Don't let it think too much...
+      ChrList[cnt].aistate.alert = ALERT_CLEANEDUP;
     }
     cnt++;
   }
@@ -1778,7 +1108,7 @@ void signal_target( Uint16 target, Uint16 upper, Uint16 lower )
 
   ChrList[target].message = ( upper << 16 ) | lower;
   ChrList[target].messagedata = 0;
-  ChrList[target].alert |= ALERT_SIGNALED;
+  ChrList[target].aistate.alert |= ALERT_SIGNALED;
 };
 
 
@@ -1798,7 +1128,7 @@ void signal_team( CHR_REF character, Uint32 message )
 
     ChrList[cnt].message = message;
     ChrList[cnt].messagedata = counter;
-    ChrList[cnt].alert |= ALERT_SIGNALED;
+    ChrList[cnt].aistate.alert |= ALERT_SIGNALED;
     counter++;
   }
 }
@@ -1819,34 +1149,52 @@ void signal_idsz_index( Uint32 order, IDSZ idsz, IDSZ_INDEX index )
 
     if ( CapList[model].idsz[index] != idsz ) continue;
 
-    ChrList[cnt].message       = order;
-    ChrList[cnt].messagedata = counter;
-    ChrList[cnt].alert |= ALERT_SIGNALED;
+    ChrList[cnt].message        = order;
+    ChrList[cnt].messagedata    = counter;
+    ChrList[cnt].aistate.alert |= ALERT_SIGNALED;
     counter++;
   }
 }
 
 //--------------------------------------------------------------------------------------------
-void set_alerts( CHR_REF character, float dUpdate )
+bool_t ai_state_advance_wp(AI_STATE * a, bool_t do_atlastwaypoint)
+{
+  if(NULL == a) return bfalse;
+
+  a->alert |= ALERT_ATWAYPOINT;
+
+  if( wp_list_advance( &(a->wp) ) )
+  {
+    // waypoint list is at or past its end
+    if ( do_atlastwaypoint )
+    {
+      a->alert |= ALERT_ATLASTWAYPOINT;
+    }
+  }
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void set_alerts( CHR_REF ichr, float dUpdate )
 {
   // ZZ> This function polls some alert conditions
 
-  ChrList[character].aitime -= dUpdate;
-  if ( ChrList[character].aitime < 0 ) ChrList[character].aitime = 0.0f;
+  AI_STATE * pstate;
+  CHR      * pchr;
 
-  if ( ABS( ChrList[character].pos.x - ChrList[character].aigotox[ChrList[character].aigoto] ) < WAYTHRESH &&
-       ABS( ChrList[character].pos.y - ChrList[character].aigotoy[ChrList[character].aigoto] ) < WAYTHRESH )
+  if( !VALID_CHR(ichr) ) return;
+
+  pchr   = ChrList + ichr;
+  pstate = &(pchr->aistate);
+
+  pstate->time -= dUpdate;
+  if ( pstate->time < 0 ) pstate->time = 0.0f;
+
+  if ( ABS( pchr->pos.x - wp_list_x(&(pstate->wp)) ) < WAYTHRESH &&
+       ABS( pchr->pos.y - wp_list_y(&(pstate->wp)) ) < WAYTHRESH )
   {
-    ChrList[character].alert |= ALERT_ATWAYPOINT;
-    ChrList[character].aigoto++;
-    if ( ChrList[character].aigoto == ChrList[character].aigotoadd )
-    {
-      ChrList[character].aigoto = 0;
-      if ( !CapList[ChrList[character].model].isequipment )
-      {
-        ChrList[character].alert |= ALERT_ATLASTWAYPOINT;
-      }
-    }
+    ai_state_advance_wp(pstate, !CapList[pchr->model].isequipment);
   }
 }
 
@@ -2222,7 +1570,7 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
       case SETMORPH:
         // Need special handler for when this is removed
         change_character( character, ChrList[character].basemodel, EncList[enchantindex].setsave[valueindex], LEAVE_ALL );
-        ChrList[character].aimorphed = btrue;
+        ChrList[character].aistate.morphed = btrue;
         break;
 
       case SETCHANNEL:
