@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include "egoboo_config.h"
 
 typedef enum slot_e SLOT;

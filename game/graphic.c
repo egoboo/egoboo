@@ -53,9 +53,9 @@ CURSOR cursor =
   bfalse,      //  pending
 };
 
-static int draw_wrap_string( BMFont * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... );
-static int draw_status(  BMFont *  pfnt , CHR_REF character, int x, int y );
-static void draw_text(  BMFont *  pfnt  );
+static int  draw_wrap_string( BMFont * pfnt, float x, float y, GLfloat tint[], float maxx, char * szFormat, ... );
+static int  draw_status( BMFont *  pfnt , CHR_REF character, int x, int y );
+static void draw_text( BMFont *  pfnt  );
 
 
 // Defined in egoboo.h
@@ -1306,26 +1306,26 @@ void render_background( Uint16 texture )
   vtlist[0].pos.x = x + cossize;
   vtlist[0].pos.y = y - sinsize;
   vtlist[0].pos.z = z;
-  vtlist[0].s = 0 + u;
-  vtlist[0].t = 0 + v;
+  vtlist[0].tx.s = 0 + u;
+  vtlist[0].tx.t = 0 + v;
 
   vtlist[1].pos.x = x + sinsize;
   vtlist[1].pos.y = y + cossize;
   vtlist[1].pos.z = z;
-  vtlist[1].s = loc_backgroundrepeat + u;
-  vtlist[1].t = 0 + v;
+  vtlist[1].tx.s = loc_backgroundrepeat + u;
+  vtlist[1].tx.t = 0 + v;
 
   vtlist[2].pos.x = x - cossize;
   vtlist[2].pos.y = y + sinsize;
   vtlist[2].pos.z = z;
-  vtlist[2].s = loc_backgroundrepeat + u;
-  vtlist[2].t = loc_backgroundrepeat + v;
+  vtlist[2].tx.s = loc_backgroundrepeat + u;
+  vtlist[2].tx.t = loc_backgroundrepeat + v;
 
   vtlist[3].pos.x = x - sinsize;
   vtlist[3].pos.y = y - cossize;
   vtlist[3].pos.z = z;
-  vtlist[3].s = 0 + u;
-  vtlist[3].t = loc_backgroundrepeat + v;
+  vtlist[3].tx.s = 0 + u;
+  vtlist[3].tx.t = loc_backgroundrepeat + v;
 
   //-------------------------------------------------
   ATTRIB_PUSH( "render_background", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_TEXTURE_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
@@ -1341,7 +1341,7 @@ void render_background( Uint16 texture )
     glBegin( GL_TRIANGLE_FAN );
     for ( i = 0; i < 4; i++ )
     {
-      glTexCoord2f( vtlist[i].s, vtlist[i].t );
+      glTexCoord2fv( vtlist[i].tx._v );
       glVertex3fv( vtlist[i].pos.v );
     }
     glEnd();
@@ -1381,26 +1381,26 @@ void render_foreground_overlay( Uint16 texture )
   vtlist[0].pos.x = x + cossize;
   vtlist[0].pos.y = y - sinsize;
   vtlist[0].pos.z = z;
-  vtlist[0].s = 0 + u;
-  vtlist[0].t = 0 + v;
+  vtlist[0].tx.s = 0 + u;
+  vtlist[0].tx.t = 0 + v;
 
   vtlist[1].pos.x = x + sinsize;
   vtlist[1].pos.y = y + cossize;
   vtlist[1].pos.z = z;
-  vtlist[1].s = loc_foregroundrepeat + u;
-  vtlist[1].t = v;
+  vtlist[1].tx.s = loc_foregroundrepeat + u;
+  vtlist[1].tx.t = v;
 
   vtlist[2].pos.x = x - cossize;
   vtlist[2].pos.y = y + sinsize;
   vtlist[2].pos.z = z;
-  vtlist[2].s = loc_foregroundrepeat + u;
-  vtlist[2].t = loc_foregroundrepeat + v;
+  vtlist[2].tx.s = loc_foregroundrepeat + u;
+  vtlist[2].tx.t = loc_foregroundrepeat + v;
 
   vtlist[3].pos.x = x - sinsize;
   vtlist[3].pos.y = y - cossize;
   vtlist[3].pos.z = z;
-  vtlist[3].s = u;
-  vtlist[3].t = loc_foregroundrepeat + v;
+  vtlist[3].tx.s = u;
+  vtlist[3].tx.t = loc_foregroundrepeat + v;
 
   //-------------------------------------------------
   ATTRIB_PUSH( "render_forground_overlay", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_TEXTURE_BIT | GL_HINT_BIT | GL_CURRENT_BIT | GL_POLYGON_BIT );
@@ -1426,7 +1426,7 @@ void render_foreground_overlay( Uint16 texture )
     glBegin( GL_TRIANGLE_FAN );
     for ( i = 0; i < 4; i++ )
     {
-      glTexCoord2f( vtlist[i].s, vtlist[i].t );
+      glTexCoord2fv( vtlist[i].tx._v );
       glVertex3fv( vtlist[i].pos.v );
     }
     glEnd();
@@ -1459,7 +1459,7 @@ void render_shadow( CHR_REF character )
   // Original points
   level = ChrList[character].level;
   level += SHADOWRAISE;
-  height = ChrList[character].matrix _CNV( 3, 2 ) - level;
+  height = ChrList[character].matrix.CNV( 3, 2 ) - level;
   if ( height < 0 ) height = 0;
 
   tile_factor = mesh_has_some_bits( ChrList[character].onwhichfan, MESHFX_WATER ) ? 0.5 : 1.0;
@@ -1489,21 +1489,21 @@ void render_shadow( CHR_REF character )
 
   if ( FLOAT_TO_FP8( alpha_umbra ) == 0 && FLOAT_TO_FP8( alpha_penumbra ) == 0 ) return;
 
-  x = ChrList[character].matrix _CNV( 3, 0 );
-  y = ChrList[character].matrix _CNV( 3, 1 );
+  x = ChrList[character].matrix.CNV( 3, 0 );
+  y = ChrList[character].matrix.CNV( 3, 1 );
 
   //GOOD SHADOW
-  v[0].s = CALCULATE_PRT_U0( 238 );
-  v[0].t = CALCULATE_PRT_V0( 238 );
+  v[0].tx.s = CALCULATE_PRT_U0( 238 );
+  v[0].tx.t = CALCULATE_PRT_V0( 238 );
 
-  v[1].s = CALCULATE_PRT_U1( 255 );
-  v[1].t = CALCULATE_PRT_V0( 238 );
+  v[1].tx.s = CALCULATE_PRT_U1( 255 );
+  v[1].tx.t = CALCULATE_PRT_V0( 238 );
 
-  v[2].s = CALCULATE_PRT_U1( 255 );
-  v[2].t = CALCULATE_PRT_V1( 255 );
+  v[2].tx.s = CALCULATE_PRT_U1( 255 );
+  v[2].tx.t = CALCULATE_PRT_V1( 255 );
 
-  v[3].s = CALCULATE_PRT_U0( 238 );
-  v[3].t = CALCULATE_PRT_V1( 255 );
+  v[3].tx.s = CALCULATE_PRT_U0( 238 );
+  v[3].tx.t = CALCULATE_PRT_V1( 255 );
 
   if ( size_penumbra_x > 0 && size_penumbra_y > 0 )
   {
@@ -1538,7 +1538,7 @@ void render_shadow( CHR_REF character )
       glColor4f( alpha_penumbra, alpha_penumbra, alpha_penumbra, 1.0 );
       for ( i = 0; i < 4; i++ )
       {
-        glTexCoord2f( v[i].s, v[i].t );
+        glTexCoord2fv( v[i].tx._v );
         glVertex3fv( v[i].pos.v );
       }
       glEnd();
@@ -1581,7 +1581,7 @@ void render_shadow( CHR_REF character )
       glColor4f( alpha_penumbra, alpha_penumbra, alpha_penumbra, 1.0 );
       for ( i = 0; i < 4; i++ )
       {
-        glTexCoord2f( v[i].s, v[i].t );
+        glTexCoord2fv( v[i].tx._v );
         glVertex3fv( v[i].pos.v );
       }
       glEnd();
@@ -1611,7 +1611,7 @@ void render_shadow( CHR_REF character )
 //    // Original points
 //    level = ChrList[character].level;
 //    level += SHADOWRAISE;
-//    height = ChrList[character].matrix _CNV(3, 2) - level;
+//    height = ChrList[character].matrix.CNV(3, 2) - level;
 //    if (height > 255)  return;
 //    if (height < 0) height = 0;
 //    size = ChrList[character].bmpdata.calc_shadowsize - FP8_MUL(height, ChrList[character].bmpdata.calc_shadowsize);
@@ -1619,8 +1619,8 @@ void render_shadow( CHR_REF character )
 //    ambi = ChrList[character].lightspek_fp8 >> 4;  // LUL >>3;
 //    trans = ((255 - height) >> 1) + 64;
 //
-//    x = ChrList[character].matrix _CNV(3, 0);
-//    y = ChrList[character].matrix _CNV(3, 1);
+//    x = ChrList[character].matrix.CNV(3, 0);
+//    y = ChrList[character].matrix.CNV(3, 1);
 //    v[0].pos.x = (float) x + size;
 //    v[0].pos.y = (float) y - size;
 //    v[0].pos.z = (float) level;
@@ -2572,7 +2572,6 @@ void draw_scene_zreflection()
     }
   }
 
-
   ATTRIB_GUARD_OPEN( inp_attrib_stack );
   render_solid_characters();
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
@@ -2604,6 +2603,7 @@ void draw_scene_zreflection()
   render_character_highlights();
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
 
+
   ATTRIB_GUARD_OPEN( inp_attrib_stack );
   render_water_highlights();
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
@@ -2614,14 +2614,16 @@ void draw_scene_zreflection()
   ATTRIB_GUARD_CLOSE( inp_attrib_stack, out_attrib_stack );
 
   // render the collision volumes
-#if DEBUG_CVOLUME && defined(_DEBUG)
+#if defined(DEBUG_CVOLUME) && defined(_DEBUG)
+
   if(CData.DevMode)
   {
     cv_list_draw();
   };
+
 #endif
 
-#if DEBUG_BBOX && defined(_DEBUG)
+#if defined(DEBUG_BBOX) && defined(_DEBUG)
   if(CData.DevMode)
   {
     int i;
@@ -2633,6 +2635,7 @@ void draw_scene_zreflection()
       mad_display_bbox_tree(2, ChrList[i].matrix, MadList + ChrList[i].model, ChrList[i].anim.last, ChrList[i].anim.next );
     }
   };
+
 #endif
 
 };
@@ -3762,10 +3765,10 @@ void draw_text( BMFont *  pfnt )
     {
       // White debug mode
       y += draw_string( pfnt, 0, y, NULL, "!!!DEBUG MODE-7!!!" );
-      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ) _CNV( 0, 0 ), ( GCamera.mView ) _CNV( 1, 0 ), ( GCamera.mView ) _CNV( 2, 0 ), ( GCamera.mView ) _CNV( 3, 0 ) );
-      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ) _CNV( 0, 1 ), ( GCamera.mView ) _CNV( 1, 1 ), ( GCamera.mView ) _CNV( 2, 1 ), ( GCamera.mView ) _CNV( 3, 1 ) );
-      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ) _CNV( 0, 2 ), ( GCamera.mView ) _CNV( 1, 2 ), ( GCamera.mView ) _CNV( 2, 2 ), ( GCamera.mView ) _CNV( 3, 2 ) );
-      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ) _CNV( 0, 3 ), ( GCamera.mView ) _CNV( 1, 3 ), ( GCamera.mView ) _CNV( 2, 3 ), ( GCamera.mView ) _CNV( 3, 3 ) );
+      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ).CNV( 0, 0 ), ( GCamera.mView ).CNV( 1, 0 ), ( GCamera.mView ).CNV( 2, 0 ), ( GCamera.mView ).CNV( 3, 0 ) );
+      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ).CNV( 0, 1 ), ( GCamera.mView ).CNV( 1, 1 ), ( GCamera.mView ).CNV( 2, 1 ), ( GCamera.mView ).CNV( 3, 1 ) );
+      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ).CNV( 0, 2 ), ( GCamera.mView ).CNV( 1, 2 ), ( GCamera.mView ).CNV( 2, 2 ), ( GCamera.mView ).CNV( 3, 2 ) );
+      y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f %f %f", ( GCamera.mView ).CNV( 0, 3 ), ( GCamera.mView ).CNV( 1, 3 ), ( GCamera.mView ).CNV( 2, 3 ), ( GCamera.mView ).CNV( 3, 3 ) );
       y += draw_string( pfnt, 0, y, NULL, "~x %f, %f", GCamera.centerpos.x, GCamera.trackpos.x );
       y += draw_string( pfnt, 0, y, NULL, "~y %f %f", GCamera.centerpos.y, GCamera.trackpos.y );
       y += draw_string( pfnt, 0, y, NULL, "~turn %d %d", CData.autoturncamera, doturntime );
@@ -3953,7 +3956,7 @@ void load_all_menu_images()
   {
     strncpy( ModList[globalnummodule].loadname, FileName, sizeof( ModList[globalnummodule].loadname ) );
     snprintf( loadname, sizeof( loadname ), "%s/%s/%s/%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.mnu_file );
-    if ( get_module_data( globalnummodule, loadname ) )
+    if ( module_read_data( globalnummodule, loadname ) )
     {
       snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s/%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.title_bitmap );
       if ( load_one_title_image( globalnummodule, CStringTmp1 ) )

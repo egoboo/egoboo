@@ -25,7 +25,7 @@
 
 #include "Font.h"
 #include "ogl_texture.h"
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include <SDL.h>
 
 #define UI_Nothing (UI_ID)(-1)

@@ -1,8 +1,10 @@
-#include "egoboo_utility.h"
 #include "Mad.h"
 #include "script.h"
 #include "Log.h"
 #include "Md2.inl"
+
+#include "graphic.h"
+#include "egoboo_utility.h"
 
 #include <assert.h>
 
@@ -937,16 +939,13 @@ static bool_t mad_scale_bbox_tree(MAD * pmad)
 
     if(NULL == pary) continue;
 
-    // 4.125 is the silly Egoboo md2 scaling.
-    // Has something to do with the vertical resolution in Cartman?
-    // x *= -1 is the right handed to left handed transformation...
-    diff.x = 4.125 * (pframe->bbmax[0] - pframe->bbmin[0]);
-    diff.y = 4.125 * (pframe->bbmax[1] - pframe->bbmin[1]);
-    diff.z = 4.125 * (pframe->bbmax[2] - pframe->bbmin[2]);
+    diff.x = (pframe->bbmax[0] - pframe->bbmin[0]);
+    diff.y = (pframe->bbmax[1] - pframe->bbmin[1]);
+    diff.z = (pframe->bbmax[2] - pframe->bbmin[2]);
 
-    origin.x = 4.125 * pframe->bbmin[0];
-    origin.y = 4.125 * pframe->bbmin[1];
-    origin.z = 4.125 * pframe->bbmin[2];
+    origin.x = pframe->bbmin[0];
+    origin.y = pframe->bbmin[1];
+    origin.z = pframe->bbmin[2];
 
 
     for(j=0; j<pary->count; j++)
@@ -1315,6 +1314,7 @@ MAD *  mad_renew(MAD * pmad)
   return mad_new(pmad);
 };
 
+
 //---------------------------------------------------------------------------------------------
 Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
 {
@@ -1374,6 +1374,13 @@ Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
   pmad->md2_ptr = md2_load( szLoadname, NULL );
   if(NULL == pmad->md2_ptr) return MAXMODEL;
 
+  // BB > Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
+  //      1 tile = 128x128 units. Previously, this was handled by sprinkling a bunch of
+  //      commands that multiplied various quantities by 4 or by 4.125 throughout the code.
+  //      It was very counterintuitive, and caused me no end of headaches...  Of course the
+  //      solution is to scale the model!
+  md2_scale_model(pmad->md2_ptr, 4);
+
   // generate a bbox structure for each frame of the animation
   // this is dynamically allocated, mad_delete() or mad_renew() must be called
   // to make all of that go away
@@ -1422,50 +1429,54 @@ bool_t bbox_gl_draw(AA_BBOX * pbbox)
 
   if(NULL == pbbox) return bfalse;
 
-  pmin = &(pbbox->mins);
-  pmax = &(pbbox->maxs);
-
-  // !!!! there must be an optimized way of doing this !!!!
-
-  glBegin(GL_QUADS);
+  glPushMatrix();
   {
-    // Front Face
-    glVertex3f(pmin->x, pmin->y, pmax->z);
-    glVertex3f(pmax->x, pmin->y, pmax->z);
-    glVertex3f(pmax->x, pmax->y, pmax->z);
-    glVertex3f(pmin->x, pmax->y, pmax->z);
+    pmin = &(pbbox->mins);
+    pmax = &(pbbox->maxs);
 
-    // Back Face
-    glVertex3f(pmin->x, pmin->y, pmin->z);
-    glVertex3f(pmin->x, pmax->y, pmin->z);
-    glVertex3f(pmax->x, pmax->y, pmin->z);
-    glVertex3f(pmax->x, pmin->y, pmin->z);
+    // !!!! there must be an optimized way of doing this !!!!
 
-    // Top Face
-    glVertex3f(pmin->x, pmax->y, pmin->z);
-    glVertex3f(pmin->x, pmax->y, pmax->z);
-    glVertex3f(pmax->x, pmax->y, pmax->z);
-    glVertex3f(pmax->x, pmax->y, pmin->z);
+    glBegin(GL_QUADS);
+    {
+      // Front Face
+      glVertex3f(pmin->x, pmin->y, pmax->z);
+      glVertex3f(pmax->x, pmin->y, pmax->z);
+      glVertex3f(pmax->x, pmax->y, pmax->z);
+      glVertex3f(pmin->x, pmax->y, pmax->z);
 
-    // Bottom Face
-    glVertex3f(pmin->x, pmin->y, pmin->z);
-    glVertex3f(pmax->x, pmin->y, pmin->z);
-    glVertex3f(pmax->x, pmin->y, pmax->z);
-    glVertex3f(pmin->x, pmin->y, pmax->z);
+      // Back Face
+      glVertex3f(pmin->x, pmin->y, pmin->z);
+      glVertex3f(pmin->x, pmax->y, pmin->z);
+      glVertex3f(pmax->x, pmax->y, pmin->z);
+      glVertex3f(pmax->x, pmin->y, pmin->z);
 
-    // Right face
-    glVertex3f(pmax->x, pmin->y, pmin->z);
-    glVertex3f(pmax->x, pmax->y, pmin->z);
-    glVertex3f(pmax->x, pmax->y, pmax->z);
-    glVertex3f(pmax->x, pmin->y, pmax->z);
+      // Top Face
+      glVertex3f(pmin->x, pmax->y, pmin->z);
+      glVertex3f(pmin->x, pmax->y, pmax->z);
+      glVertex3f(pmax->x, pmax->y, pmax->z);
+      glVertex3f(pmax->x, pmax->y, pmin->z);
 
-    // Left Face
-    glVertex3f(pmin->x, pmin->y, pmin->z);
-    glVertex3f(pmin->x, pmin->y, pmax->z);
-    glVertex3f(pmin->x, pmax->y, pmax->z);
-    glVertex3f(pmin->x, pmax->y, pmin->z);
+      // Bottom Face
+      glVertex3f(pmin->x, pmin->y, pmin->z);
+      glVertex3f(pmax->x, pmin->y, pmin->z);
+      glVertex3f(pmax->x, pmin->y, pmax->z);
+      glVertex3f(pmin->x, pmin->y, pmax->z);
+
+      // Right face
+      glVertex3f(pmax->x, pmin->y, pmin->z);
+      glVertex3f(pmax->x, pmax->y, pmin->z);
+      glVertex3f(pmax->x, pmax->y, pmax->z);
+      glVertex3f(pmax->x, pmin->y, pmax->z);
+
+      // Left Face
+      glVertex3f(pmin->x, pmin->y, pmin->z);
+      glVertex3f(pmin->x, pmin->y, pmax->z);
+      glVertex3f(pmin->x, pmax->y, pmax->z);
+      glVertex3f(pmin->x, pmax->y, pmin->z);
+    }
+    glEnd();
   }
-  glEnd();
+  glPopMatrix();
 
   return btrue;
 }
@@ -1524,35 +1535,35 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     // choose a "white" texture
-    glBindTexture(GL_TEXTURE_2D, -1);
-
-    glMatrixMode(GL_MODELVIEW);
+    glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
 
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    matrix _CNV( 3, 2 ) += RAISE;
+    matrix.CNV( 3, 2 ) += RAISE;
     glMultMatrixf( matrix.v );
-    matrix _CNV( 3, 2 ) -= RAISE;
+    matrix.CNV( 3, 2 ) -= RAISE;
 
-    if(frame1 >=0 && frame1 < md2_get_numFrames(pmd2) && frame1 < pmad->bbox_frames)
-    {
-      pary = pmad->bbox_arrays + frame1;
 
-      if(NULL != pary)
+      if(frame1 >=0 && frame1 < md2_get_numFrames(pmd2) && frame1 < pmad->bbox_frames)
       {
-        mad_display_bbox_ary(pary, level);
-      };
-    }
+        pary = pmad->bbox_arrays + frame1;
 
-    if(frame2 >=0 && frame2 < md2_get_numFrames(pmd2) && frame2 < pmad->bbox_frames)
-    {
-      pary = pmad->bbox_arrays + frame2;
+        if(NULL != pary)
+        {
+          mad_display_bbox_ary(pary, level);
+        };
+      }
 
-      if(NULL != pary)
+      if(frame2 >=0 && frame2 < md2_get_numFrames(pmd2) && frame2 < pmad->bbox_frames)
       {
-        mad_display_bbox_ary(pary, level);
-      };
-    }
+        pary = pmad->bbox_arrays + frame2;
+
+        if(NULL != pary)
+        {
+          mad_display_bbox_ary(pary, level);
+        };
+      }
+
 
     glPopMatrix();
 

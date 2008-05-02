@@ -750,14 +750,14 @@ enet_protocol_receive_incoming_commands (ENetHost * host, ENetEvent * event)
        
        switch (enet_protocol_handle_incoming_commands (host, event))
        {
-       case 1:
-          return 1;
-       
-       case -1:
-          return -1;
+        case 1:
+            return 1;
+         
+        case -1:
+            return -1;
 
-       default:
-          break;
+        default:
+            break;
        }
     }
 

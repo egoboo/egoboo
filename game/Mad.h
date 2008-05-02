@@ -5,11 +5,11 @@
 #include "egoboo_math.h"
 #include "egoboo.h"
 
-#define MAXMODEL                        MAXPROFILE  // Max number of models
+#define MAXMODEL                        MAXPROFILE   // Max number of models
 //#define MD2START                        0x32504449  // MD2 files start with these four bytes
-#define MD2MAXLOADSIZE                  (512*1024)  // Don't load any models bigger than 512k
-#define EQUALLIGHTINDEX                 162         // I added an extra index to do the spikey mace...
-#define MD2LIGHTINDICES                 163         // MD2's store vertices as x,y,z,normal
+#define MD2MAXLOADSIZE                  (512*1024)   // Don't load any models bigger than 512k
+#define EQUALLIGHTINDEX                 162          // I added an extra index to do the spikey mace...
+#define MD2LIGHTINDICES                 163          // MD2's store vertices as x,y,z,normal
 
 extern float           spek_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
 extern float           spek_local[MAXLIGHTROTATION][MD2LIGHTINDICES];

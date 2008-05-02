@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include "egoboo_math.h"
 
 #define MAXPROFILE 1024
@@ -118,26 +118,26 @@ typedef enum slot_e
   SLOT_LEFT,
   SLOT_RIGHT,
   SLOT_SADDLE,          // keep a slot open for a possible "saddle" for future use
-  SLOT_COUNT,
 
   // other values
-  SLOT_INVENTORY,        // this is a virtual "slot" that really means the inventory
+  SLOT_INVENTORY,       // this is a virtual "slot" that really means the inventory
   SLOT_NONE,
 
   // aliases
   SLOT_BEGIN = SLOT_LEFT,
+  SLOT_COUNT = SLOT_INVENTORY
 } SLOT;
 
 extern SLOT _slot;
 
-#define GRIP_SIZE                        4
-#define GRIP_VERTICES                    (2*GRIP_SIZE)   // Each model has 8 grip vertices
+#define GRIP_SIZE           4
+#define GRIP_VERTICES      (2*GRIP_SIZE)   // Each model has 8 grip vertices
 typedef enum grip_e
 {
-  GRIP_ORIGIN   = 0,                        // Grip at mount's origin
-  GRIP_LAST     = 1,                        // Grip at mount's last vertex
+  GRIP_ORIGIN   = 0,                                  // Grip at mount's origin
+  GRIP_LAST     = 1,                                  // Grip at mount's last vertex
   GRIP_RIGHT    = (( SLOT_RIGHT + 1 ) * GRIP_SIZE ),  // Grip at mount's right hand
-  GRIP_LEFT     = (( SLOT_LEFT + 1 ) * GRIP_SIZE ),  // Grip at mount's left hand
+  GRIP_LEFT     = (( SLOT_LEFT  + 1 ) * GRIP_SIZE ),  // Grip at mount's left hand
 
   // other values
   GRIP_NONE,

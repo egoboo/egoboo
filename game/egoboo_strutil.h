@@ -22,7 +22,7 @@
 #ifndef _EGOBOOSTRUTIL_H_
 #define _EGOBOOSTRUTIL_H_
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include "egoboo_config.h"
 
 #include <string.h>

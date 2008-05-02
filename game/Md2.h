@@ -92,4 +92,4 @@ void md2_deallocate(MD2_Model * m);
 
 
 //char * rip_md2_frame_name( MD2_Model * m, int frame );
-
+void md2_scale_model(MD2_Model * pmd2, float scale);

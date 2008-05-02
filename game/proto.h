@@ -22,7 +22,7 @@
 #ifndef _PROTO_H_
 #define _PROTO_H_
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include "egoboo_math.h"
 
 #include <SDL_mixer.h> // for Mix_* stuff.
@@ -74,7 +74,7 @@ void prime_icons();
 void release_all_icons();
 void release_all_titleimages();
 void release_map();
-void release_module( void );
+void module_release( void );
 void close_session();
 void make_newloadname( char *modname, char *appendname, char *newloadname );
 void export_all_local_players( void );
@@ -145,7 +145,6 @@ void make_dolist( void );
 void keep_weapons_with_holders();
 void make_enviro( void );
 void make_prtlist( void );
-void make_turntosin( void );
 void debug_message( int time, const char *format, ... );
 void reset_end_text();
 
@@ -246,7 +245,7 @@ void read_wawalite( char *modname );
 void reset_teams();
 void reset_messages();
 void make_randie();
-void load_module( char *smallname );
+void module_load( char *smallname );
 void render_prt();
 void render_shadow( CHR_REF character );
 //void render_bad_shadow( CHR_REF character );
@@ -277,8 +276,8 @@ void draw_scene();
 void draw_main( float );
 
 bool_t load_one_title_image( int titleimage, char *szLoadName );
-bool_t get_module_data( int modnumber, char *szLoadName );
-bool_t get_module_summary( char *szLoadName );
+bool_t module_read_data( int modnumber, char *szLoadName );
+bool_t module_read_summary( char *szLoadName );
 void load_all_menu_images();
 void load_blip_bitmap( char * modname );
 

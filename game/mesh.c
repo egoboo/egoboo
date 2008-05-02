@@ -24,6 +24,7 @@
 #include "Log.h"
 #include "char.h"
 
+#include "cartman.h"
 #include "egoboo_utility.h"
 #include "egoboo.h"
 
@@ -35,6 +36,11 @@ MESH_MEMORY Mesh_Mem;
 Uint32  Mesh_Block_X[( MAXMESHSIZEY/4 ) +1];
 Uint32  Mesh_Fan_X[MAXMESHSIZEY];                         // Which fan to start a row with
 
+//--------------------------------------------------------------------------------------------
+bool_t allocate_bumplist(size_t blocks)
+{
+  return bumplist_allocate( &bumplist, blocks );
+};
 
 //--------------------------------------------------------------------------------------------
 bool_t load_mesh( char *modname )
@@ -52,106 +58,74 @@ bool_t load_mesh( char *modname )
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "rb" );
   if ( NULL == fileread ) return bfalse;
 
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-  fread( &itmp, 4, 1, fileread );  if ( itmp != MAPID ) return bfalse;
-  fread( &itmp, 4, 1, fileread );  numvert = itmp;
-  fread( &itmp, 4, 1, fileread );  mesh.size_x = itmp;
-  fread( &itmp, 4, 1, fileread );  mesh.size_y = itmp;
-#else
-  fread( &itmp, 4, 1, fileread );  if (( int ) SDL_Swap32( itmp ) != MAPID ) return bfalse;
-  fread( &itmp, 4, 1, fileread );  numvert = ( int ) SDL_Swap32( itmp );
-  fread( &itmp, 4, 1, fileread );  mesh.size_x = ( int ) SDL_Swap32( itmp );
-  fread( &itmp, 4, 1, fileread );  mesh.size_y = ( int ) SDL_Swap32( itmp );
-#endif
+  fread( &itmp, 4, 1, fileread );  if (SDL_SwapLE32( itmp ) != MAPID ) return bfalse;
+  fread( &itmp, 4, 1, fileread );  numvert     = SDL_SwapLE32( itmp );
+  fread( &itmp, 4, 1, fileread );  mesh.size_x = SDL_SwapLE32( itmp );
+  fread( &itmp, 4, 1, fileread );  mesh.size_y = SDL_SwapLE32( itmp );
 
   numfan = mesh.size_x * mesh.size_y;
   mesh.edge_x = mesh.size_x * 128;
   mesh.edge_y = mesh.size_y * 128;
-  bumplist.num_blocks = (( mesh.size_x >> 2 ) ) * (( mesh.size_y >> 2 ) );    // MESHSIZEX MUST BE MULTIPLE OF 4
-  GWater.shift = 3;
-  if ( mesh.size_x > 16 )  GWater.shift++;
-  if ( mesh.size_x > 32 )  GWater.shift++;
-  if ( mesh.size_x > 64 )  GWater.shift++;
-  if ( mesh.size_x > 128 )  GWater.shift++;
-  if ( mesh.size_x > 256 )  GWater.shift++;
 
+  // MESHSIZEX MUST BE MULTIPLE OF 4
+  if( mesh.size_x & 3 )
+  {
+    log_error( "Mesh size must be a multiple of 4 in the x direction" );
+  }
+
+  // allocate the bumplist
+  allocate_bumplist( ( mesh.size_x >> 2 ) * ( mesh.size_y >> 2 ) );  
+
+  // calculate the proper GWater.shift
+  itmp = mesh.size_x >> 2;
+  for(GWater.shift = 0; itmp != 0; GWater.shift++)
+  {
+    itmp >>= 1;
+  };
 
   // Load fan data
-  fan = 0;
-  while ( fan < numfan )
+  for ( fan = 0; fan < numfan;  fan++)
   {
     fread( &itmp, 4, 1, fileread );
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    itmp = SDL_Swap32( itmp );
-#endif
+    itmp = SDL_SwapLE32( itmp );
 
     Mesh_Fan[fan].type = itmp >> 24;
-    Mesh_Fan[fan].fx = itmp >> 16;
+    Mesh_Fan[fan].fx   = itmp >> 16;
     Mesh_Fan[fan].tile = itmp;
-
-    fan++;
   }
+
   // Load fan data
-  fan = 0;
-  while ( fan < numfan )
+  for ( fan = 0; fan < numfan; fan++ )
   {
     fread( &itmp, 1, 1, fileread );
     Mesh_Fan[fan].twist = itmp;
-    fan++;
   }
-
 
   // Load vertex fan_x data
-  cnt = 0;
-  while ( cnt < numvert )
+  for( cnt = 0;  cnt < numvert; cnt++ )
   {
     fread( &ftmp, 4, 1, fileread );
-
-    Mesh_Mem.vrt_x[cnt] = ftmp;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    Mesh_Mem.vrt_x[cnt] = LoadFloatByteswapped( &Mesh_Mem.vrt_x[cnt] );
-#endif
-    cnt++;
+    Mesh_Mem.vrt_x[cnt] = SwapLE_float( ftmp );
   }
-
 
   // Load vertex fan_y data
-  cnt = 0;
-  while ( cnt < numvert )
+  for( cnt = 0; cnt < numvert; cnt++ )
   {
     fread( &ftmp, 4, 1, fileread );
-
-    Mesh_Mem.vrt_y[cnt] = ftmp;
-
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    Mesh_Mem.vrt_y[cnt] = LoadFloatByteswapped( &Mesh_Mem.vrt_y[cnt] );
-#endif
-
-    cnt++;
+    Mesh_Mem.vrt_y[cnt] = SwapLE_float( ftmp );
   }
-
 
   // Load vertex z data
   cnt = 0;
-  while ( cnt < numvert )
+  for( cnt = 0; cnt < numvert; cnt++ )
   {
     fread( &ftmp, 4, 1, fileread );
-
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-    Mesh_Mem.vrt_z[cnt] = ftmp / 16.0;  // Cartman uses 4 bit fixed point for Z
-#else
-    Mesh_Mem.vrt_z[cnt] = ( LoadFloatByteswapped( &ftmp ) ) / 16.0;   // Cartman uses 4 bit fixed point for Z
-#endif
-
-    cnt++;
+    Mesh_Mem.vrt_z[cnt] = SwapLE_float( ftmp )  / 16.0;  // Cartman uses 4 bit fixed point for Z
   }
 
-  // Load vertex a data
-  cnt = 0;
-  while ( cnt < numvert )
+  // Load vertex lighting data
+  
+  for ( cnt = 0; cnt < numvert; cnt++ )
   {
     fread( &itmp, 1, 1, fileread );
 
@@ -162,8 +136,6 @@ bool_t load_mesh( char *modname )
     Mesh_Mem.vrt_lr_fp8[cnt] = 0;
     Mesh_Mem.vrt_lg_fp8[cnt] = 0;
     Mesh_Mem.vrt_lb_fp8[cnt] = 0;
-
-    cnt++;
   }
 
   fs_fileClose( fileread );
@@ -201,23 +173,22 @@ bool_t load_mesh( char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
+#define TX_FUDGE 0.6f
+
 bool_t load_mesh_fans()
 {
   // ZZ> This function loads fan types for the terrain
   int cnt, entry;
   int numfantype, fantype, bigfantype, vertices;
   int numcommand, command, commandsize;
-  int itmp;
   FILE* fileread;
-  float offx, offy;
-
 
   // Initialize all mesh types to 0
   entry = 0;
   while ( entry < MAXMESHTYPE )
   {
     Mesh_Cmd[entry].vrt_count = 0;
-    Mesh_Cmd[entry].count = 0;
+    Mesh_Cmd[entry].cmd_count = 0;
     entry++;
   }
 
@@ -231,95 +202,93 @@ bool_t load_mesh_fans()
     log_message("Failed!\n");
     return bfalse;
   }
-
   log_message("Succeeded!\n");
+
+  fantype    = 0;               // 32 x 32 tiles
+  bigfantype = MAXMESHTYPE / 2; // 64 x 64 tiles
   numfantype = fget_next_int( fileread );
-  fantype = 0;
-  bigfantype = MAXMESHTYPE / 2; // Duplicate for 64x64 tiles
-  while ( fantype < numfantype )
+  for ( /* nothing */; fantype < numfantype; fantype++, bigfantype++ )
   {
-    vertices = fget_next_int( fileread );
-    Mesh_Cmd[fantype].vrt_count = vertices;
-    Mesh_Cmd[bigfantype].vrt_count = vertices;  // Dupe
-    cnt = 0;
-    while ( cnt < vertices )
+    vertices                       =
+    Mesh_Cmd[   fantype].vrt_count = 
+    Mesh_Cmd[bigfantype].vrt_count = fget_next_int( fileread );  // Dupe
+    
+    for ( cnt = 0; cnt < vertices; cnt++ )
     {
-      Mesh_Cmd[fantype].ref[cnt] =
+      Mesh_Cmd[   fantype].ref[cnt] =
       Mesh_Cmd[bigfantype].ref[cnt] = fget_next_int( fileread );
 
-      Mesh_Cmd[fantype].u[cnt] =
-      Mesh_Cmd[bigfantype].u[cnt] = fget_next_float( fileread );   // Dupe
+      Mesh_Cmd[   fantype].tx[cnt].u =
+      Mesh_Cmd[bigfantype].tx[cnt].u = fget_next_float( fileread );
 
-      Mesh_Cmd[fantype].v[cnt] =
-      Mesh_Cmd[bigfantype].v[cnt] = fget_next_float( fileread );   // Dupe
-      cnt++;
+      Mesh_Cmd[   fantype].tx[cnt].v =
+      Mesh_Cmd[bigfantype].tx[cnt].v = fget_next_float( fileread );
     }
 
+    numcommand                     = 
+    Mesh_Cmd[   fantype].cmd_count =
+    Mesh_Cmd[bigfantype].cmd_count = fget_next_int( fileread );  // Dupe
 
-    numcommand = fget_next_int( fileread );
-    Mesh_Cmd[fantype].count = numcommand;
-    Mesh_Cmd[bigfantype].count = numcommand;  // Dupe
-    entry = 0;
-    command = 0;
-    while ( command < numcommand )
+    for ( entry = 0, command = 0; command < numcommand; command++ )
     {
-      commandsize = fget_next_int( fileread );
-      Mesh_Cmd[fantype].size[command] = commandsize;
-      Mesh_Cmd[bigfantype].size[command] = commandsize;  // Dupe
-      cnt = 0;
-      while ( cnt < commandsize )
+      commandsize                            =
+      Mesh_Cmd[   fantype].cmd_size[command] =
+      Mesh_Cmd[bigfantype].cmd_size[command] = fget_next_int( fileread );  // Dupe
+
+      for ( cnt = 0; cnt < commandsize; cnt++ )
       {
-        itmp = fget_next_int( fileread );
-        Mesh_Cmd[fantype].vrt[entry] = itmp;
-        Mesh_Cmd[bigfantype].vrt[entry] = itmp;  // Dupe
+        Mesh_Cmd[   fantype].vrt[entry] = 
+        Mesh_Cmd[bigfantype].vrt[entry] = fget_next_int( fileread );  // Dupe
         entry++;
-        cnt++;
       }
-      command++;
     }
-    fantype++;
-    bigfantype++;  // Dupe
+
   }
   fs_fileClose( fileread );
 
 
 
-  // Correct all of them silly texture positions for seamless tiling
-  entry = 0;
-  while ( entry < MAXMESHTYPE / 2 )
-  {
-    cnt = 0;
-    while ( cnt < Mesh_Cmd[entry].vrt_count )
+  // Correct silly Cartman 32-pixel-wide textures to Egoboo's 256 pixel wide textures
+  
+  for ( cnt = 0; cnt < MAXMESHTYPE / 2; cnt++ )
+  {    
+    for ( entry = 0; entry < Mesh_Cmd[cnt].vrt_count; entry++ )
     {
-      Mesh_Cmd[entry].u[cnt] = (( .6 / 32 ) + ( Mesh_Cmd[entry].u[cnt] * 30.8 / 32 ) ) / 8;
-      Mesh_Cmd[entry].v[cnt] = (( .6 / 32 ) + ( Mesh_Cmd[entry].v[cnt] * 30.8 / 32 ) ) / 8;
-      cnt++;
+      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].u * ( 32.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].v * ( 32.0f - TX_FUDGE ) ) / 256.0f;
     }
-    entry++;
-  }
-  // Do for big tiles too
-  while ( entry < MAXMESHTYPE )
-  {
-    cnt = 0;
-    while ( cnt < Mesh_Cmd[entry].vrt_count )
+
+    // blank the unused values
+    for ( /* nothing */; entry < MAXMESHVERTICES; entry++ )
     {
-      Mesh_Cmd[entry].u[cnt] = (( .6 / 64 ) + ( Mesh_Cmd[entry].u[cnt] * 62.8 / 64 ) ) / 4;
-      Mesh_Cmd[entry].v[cnt] = (( .6 / 64 ) + ( Mesh_Cmd[entry].v[cnt] * 62.8 / 64 ) ) / 4;
-      cnt++;
+      Mesh_Cmd[cnt].tx[entry].u = -1.0f;
+      Mesh_Cmd[cnt].tx[entry].v = -1.0f;
     }
-    entry++;
   }
 
+  // Correct silly Cartman 64-pixel-wide textures to Egoboo's 256 pixel wide textures
+  for ( cnt = MAXMESHTYPE / 2; cnt < MAXMESHTYPE; cnt++ )
+  {
+    for ( entry = 0; entry < Mesh_Cmd[cnt].vrt_count; entry++ )
+    {
+      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].u * ( 64.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].v * ( 64.0f - TX_FUDGE ) ) / 256.0f;
+    }
+
+    // blank the unused values
+    for ( /* nothing */; entry < MAXMESHVERTICES; entry++ )
+    {
+      Mesh_Cmd[cnt].tx[entry].u = -1.0f;
+      Mesh_Cmd[cnt].tx[entry].v = -1.0f;
+    }
+  }
 
   // Make tile texture offsets
-  entry = 0;
-  while ( entry < MAXTILETYPE )
+  // 64 tiles per texture, 4 textures
+  for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
   {
-    offx = ( entry & 7 ) / 8.0;
-    offy = ( entry >> 3 ) / 8.0;
-    Mesh_Tile[entry].off_u = offx;
-    Mesh_Tile[entry].off_v = offy;
-    entry++;
+    Mesh_Tile[cnt].off.u = ( ( cnt >> 0 ) & 7 ) / 8.0f;
+    Mesh_Tile[cnt].off.v = ( ( cnt >> 3 ) & 7 ) / 8.0f;
   }
 
   return btrue;
@@ -332,19 +301,14 @@ void make_fanstart()
   //     fan number given an x,y pair
   int cnt;
 
-
-  cnt = 0;
-  while ( cnt < mesh.size_y )
+  for ( cnt = 0; cnt < mesh.size_y; cnt++ )
   {
     Mesh_Fan_X[cnt] = mesh.size_x * cnt;
-    cnt++;
   }
 
-  cnt = 0;
-  while ( cnt < ( mesh.size_y >> 2 ) )
+  for ( cnt = 0; cnt < ( mesh.size_y >> 2 ); cnt++ )
   {
     Mesh_Block_X[cnt] = ( mesh.size_x >> 2 ) * cnt;
-    cnt++;
   }
 }
 

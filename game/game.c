@@ -131,7 +131,7 @@ void memory_cleanUp()
   gameActive = bfalse;
 
   close_session();					  //Turn off networking
-  release_module();					  //Remove memory loaded by a module
+  module_release();					  //Remove memory loaded by a module
   if ( mixeron ) Mix_CloseAudio();    //Close audio systems
   ui_shutdown();			          //Shutdown various support systems
   net_shutDown();
@@ -465,7 +465,7 @@ void display_message( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF charac
   char cTmp, lTmp;
 
   CHR_REF target = chr_get_aitarget( character );
-  CHR_REF owner = chr_get_aiowner( character );
+  CHR_REF owner  = chr_get_aiowner( character );
   if ( message < GMsg.total )
   {
     slot = get_free_message();
@@ -3712,7 +3712,7 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
         // Start a new module
         srand(( Uint32 ) - 1 );
 
-        load_module( pickedmodule );   // :TODO: Seems to be the next part to fix
+        module_load( pickedmodule );   // :TODO: Seems to be the next part to fix
 
         make_onwhichfan();
         reset_camera();
@@ -3947,7 +3947,7 @@ int proc_gameLoop( double frameDuration, bool_t cleanup )
       {
         quit_module();
 
-        release_module();
+        module_release();
         close_session();
 
         // Let the normal OS mouse cursor work
@@ -4063,7 +4063,7 @@ int proc_menuLoop( double frameDuration, bool_t cleanup )
       {
         quit_module();
 
-        release_module();
+        module_release();
         close_session();
 
         // Let the normal OS mouse cursor work
@@ -4116,12 +4116,14 @@ SLOT grip_to_slot( GRIP g )
 
       if ( 0 == ( g % GRIP_SIZE ) )
       {
-        s = ( g / GRIP_SIZE ) - GRIP_SIZE;
-        if ( s < 0 ) s = SLOT_NONE;
+        s = ( g / GRIP_SIZE ) - 1;
+        if ( s <  0          ) s = SLOT_NONE;
         if ( s >= SLOT_COUNT ) s = SLOT_NONE;
       }
       else
+      {
         s = SLOT_NONE;
+      }
 
       break;
   };
@@ -4147,7 +4149,7 @@ GRIP slot_to_grip( SLOT s )
     default:
       //try to do this mathematically
 
-      g = s * GRIP_SIZE + GRIP_SIZE;
+      g = (s + 1) * GRIP_SIZE;
       if ( g > GRIP_RIGHT ) g = GRIP_ORIGIN;
   }
 
@@ -4288,7 +4290,7 @@ SEARCH_CONTEXT * search_new(SEARCH_CONTEXT * psearch)
 
   psearch->initialize = btrue;
 
-  psearch->bestdistance = 9999;
+  psearch->bestdistance = 9999999;
   psearch->besttarget   = MAXCHR;
   psearch->bestangle    = 0;
 
@@ -4296,45 +4298,49 @@ SEARCH_CONTEXT * search_new(SEARCH_CONTEXT * psearch)
 };
 
 //--------------------------------------------------------------------------------------------
-CHR_REF prt_search_target( SEARCH_CONTEXT * psearch, float prtx, float prty, Uint16 facing,
-                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
-                           TEAM team, Uint16 donttarget, Uint16 oldtarget )
+bool_t prt_search_wide( SEARCH_CONTEXT * psearch, PRT_REF iprt, Uint16 facing,
+                        Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
+                        TEAM team, Uint16 donttarget, Uint16 oldtarget )
 {
   // This function finds the best target for the given parameters
-  bool_t done, btmp;
+
   int block_x, block_y;
+  
+  if( !VALID_PRT(iprt) ) return bfalse;
 
-  block_x = MESH_FLOAT_TO_BLOCK( prtx );
-  block_y = MESH_FLOAT_TO_BLOCK( prty );
+  block_x = MESH_FLOAT_TO_BLOCK( PrtList[iprt].pos.x );
+  block_y = MESH_FLOAT_TO_BLOCK( PrtList[iprt].pos.y );
 
-  psearch->besttarget   = MAXCHR;
-  psearch->bestdistance = 9999;
-  psearch->bestangle    = targetangle;
-  done = bfalse;
+  // initialize the search
+  search_new(psearch);
 
-  prt_search_target_in_block( psearch, block_x + 0, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  if ( VALID_CHR( psearch->besttarget ) ) return psearch->besttarget;
+  prt_search_block( psearch, block_x + 0, block_y + 0, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
 
-  prt_search_target_in_block( psearch, block_x + 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( psearch, block_x - 1, block_y + 0, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( psearch, block_x + 0, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  prt_search_target_in_block( psearch, block_x + 0, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  if ( VALID_CHR( psearch->besttarget ) ) return psearch->besttarget;
+  if ( !VALID_CHR( psearch->besttarget ) )
+  {
+    prt_search_block( psearch, block_x + 1, block_y + 0, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x - 1, block_y + 0, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x + 0, block_y + 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x + 0, block_y - 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  }
 
-  btmp = prt_search_target_in_block( psearch, block_x + 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( psearch, block_x + 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( psearch, block_x - 1, block_y + 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
-  btmp = prt_search_target_in_block( psearch, block_x - 1, block_y - 1, prtx, prty, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  if( !VALID_CHR( psearch->besttarget ) )
+  {
+    prt_search_block( psearch, block_x + 1, block_y + 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x + 1, block_y - 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x - 1, block_y + 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+    prt_search_block( psearch, block_x - 1, block_y - 1, iprt, facing, request_friends, allow_anyone, team, donttarget, oldtarget );
+  }
 
-  return psearch->besttarget;
+  return VALID_CHR( psearch->besttarget );
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
-                                    bool_t excludeid )
+bool_t chr_search_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                         bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
+                         bool_t excludeid )
 {
-  // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target was found
+  // ZZ> This is a good little helper, that btrue if a suitable target was found
 
   int cnt;
   CHR_REF charb;
@@ -4349,7 +4355,7 @@ CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int b
   bool_t require_noitems = !ask_items;
   bool_t ballowed;
 
-  if ( !VALID_CHR( character ) ) return MAXCHR;
+  if ( !VALID_CHR( character ) || !bumplist.valid ) return bfalse;
 
   fanblock = mesh_convert_block( block_x, block_y );
   team = ChrList[character].team;
@@ -4408,21 +4414,25 @@ CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int b
 
   }
 
-  return psearch->besttarget;
+  return VALID_CHR(psearch->besttarget);
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_nearby_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz )
+bool_t chr_search_nearby( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                          bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz )
 {
-  // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
+  // ZZ> This function finds a target from the blocks that the character is overlapping. Returns btrue if found.
+
   int ix,ix_min,ix_max, iy,iy_min,iy_max;
-  bool_t seeinvisible = ChrList[character].canseeinvisible;
+  bool_t seeinvisible;
 
-  if ( !VALID_CHR( character ) || chr_in_pack( character ) ) return MAXCHR;
+  if ( !VALID_CHR( character ) || chr_in_pack( character ) ) return bfalse;
 
-  psearch->initialize = btrue;
-  psearch->besttarget = MAXCHR;
+  // initialize the search
+  search_new(psearch);
+
+  // grab seeinvisible from the character
+  seeinvisible = ChrList[character].canseeinvisible;
 
   // Current fanblock
   ix_min = MESH_FLOAT_TO_BLOCK( mesh_clip_x( ChrList[character].bmpdata.cv.x_min ) );
@@ -4434,27 +4444,34 @@ CHR_REF chr_search_nearby_target( SEARCH_CONTEXT * psearch, CHR_REF character, b
   {
     for( iy=iy_min; iy<=iy_max; iy++ )
     {
-      chr_search_target_in_block( psearch, ix, iy, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, ask_idsz, bfalse );
+      chr_search_block( psearch, ix, iy, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, ask_idsz, bfalse );
     };
   };
 
-  return ( VALID_CHR(psearch->besttarget) && (psearch->besttarget!=character) ? psearch->besttarget : MAXCHR );
+  if ( psearch->besttarget==character )
+  {
+    psearch->besttarget = MAXCHR;
+  }
+
+  return VALID_CHR(psearch->besttarget);
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_distant_target( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead )
+bool_t chr_search_distant( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead )
 {
   // ZZ> This function finds a target, or it returns MAXCHR if it can't find one...
   //     maxdist should be the square of the actual psearch->bestdistance you want to use
   //     as the cutoff...
+
   int charb, xdist, ydist, zdist;
   bool_t require_alive   = !ask_dead;
   TEAM team;
 
-  if ( !VALID_CHR( character ) ) return MAXCHR;
+  if ( !VALID_CHR( character ) ) return bfalse;
+
+  search_new(psearch);
 
   team = ChrList[character].team;
-  psearch->besttarget = MAXCHR;
   psearch->bestdistance = maxdist;
   for ( charb = 0; charb < MAXCHR; charb++ )
   {
@@ -4485,14 +4502,16 @@ CHR_REF chr_search_distant_target( SEARCH_CONTEXT * psearch, CHR_REF character, 
     };
   }
 
-  return psearch->besttarget;
+  return VALID_CHR(psearch->besttarget);
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz )
+bool_t chr_search_block_nearest( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                               bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz )
 {
+
   // ZZ> This is a good little helper
+
   float dis, xdis, ydis, zdis;
   int cnt;
   TEAM team;
@@ -4508,7 +4527,7 @@ void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int blo
   fanblock = mesh_convert_block( block_x, block_y );
 
   // if character is not defined, return
-  if ( !VALID_CHR( character ) ) return;
+  if ( !VALID_CHR( character ) ) return bfalse;
 
   team     = ChrList[character].team;
   charb    = bumplist.chr[fanblock];
@@ -4555,80 +4574,92 @@ void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int blo
       }
     }
   }
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_nearest_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz )
+bool_t chr_search_wide_nearest( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                 bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
+
   int x, y;
   bool_t seeinvisible = ChrList[character].canseeinvisible;
 
-  if ( !VALID_CHR( character ) ) return MAXCHR;
+  if ( !VALID_CHR( character ) ) return bfalse;
 
   // Current fanblock
   x = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
   y = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
 
   psearch->initialize = btrue;
-  chr_search_nearest_in_block( psearch, x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+  chr_search_block_nearest( psearch, x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
 
   if ( !VALID_CHR( psearch->nearest ) )
   {
-    chr_search_nearest_in_block( psearch, x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x + 0, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 0, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
   if ( !VALID_CHR( psearch->nearest ) )
   {
-    chr_search_nearest_in_block( psearch, x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x - 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_nearest_in_block( psearch, x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
   if ( psearch->nearest == character )
-    return MAXCHR;
-  else
-    return psearch->nearest;
+    psearch->nearest = MAXCHR;
+
+  return VALID_CHR(psearch->nearest);
 }
 
 //--------------------------------------------------------------------------------------------
-CHR_REF chr_search_wide_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid )
+bool_t chr_search_wide( SEARCH_CONTEXT * psearch, CHR_REF chr_ref, bool_t ask_items,
+                        bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid )
 {
-  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
-  int ix, iy;
-  CHR_REF target;
-  char seeinvisible;
-  seeinvisible = ChrList[character].canseeinvisible;
+  // ZZ> This function finds an object, or it returns bfalse if it can't find one
 
-  if ( !VALID_CHR( character ) ) return MAXCHR;
+  int     ix, iy;
+  bool_t  seeinvisible;
+  bool_t  found;
 
-  psearch->initialize = btrue;
-  psearch->besttarget = MAXCHR;
+  if ( !VALID_CHR( chr_ref ) ) return MAXCHR;
+
+  // make sure the search context is clear
+  search_new(psearch);
+
+  // get seeinvisible from the chr_ref
+  seeinvisible = ChrList[chr_ref].canseeinvisible;
 
   // Current fanblock
-  ix = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
-  iy = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
+  ix = MESH_FLOAT_TO_BLOCK( ChrList[chr_ref].pos.x );
+  iy = MESH_FLOAT_TO_BLOCK( ChrList[chr_ref].pos.y );
 
-  target = chr_search_target_in_block( psearch, ix + 0, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+  chr_search_block( psearch, ix + 0, iy + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+  found = VALID_CHR( psearch->besttarget ) && (psearch->besttarget != chr_ref);
 
-  target = chr_search_target_in_block( psearch, ix - 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix + 1, iy + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix + 0, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix + 0, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+  if( !found )
+  {
+    chr_search_block( psearch, ix - 1, iy + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix + 1, iy + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix + 0, iy - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix + 0, iy + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    found = VALID_CHR( psearch->besttarget ) && (psearch->besttarget != chr_ref);
+  }
 
-  target = chr_search_target_in_block( psearch, ix - 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix + 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix - 1, iy - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  target = chr_search_target_in_block( psearch, ix + 1, iy + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
-  if ( VALID_CHR( psearch->besttarget ) && psearch->besttarget != character )  return psearch->besttarget;
+  if( !found )
+  {
+    chr_search_block( psearch, ix - 1, iy + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix + 1, iy - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix - 1, iy - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    chr_search_block( psearch, ix + 1, iy + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz, excludeid );
+    found = VALID_CHR( psearch->besttarget ) && (psearch->besttarget != chr_ref);
+  }
 
-  return MAXCHR;
+  return found;
 }

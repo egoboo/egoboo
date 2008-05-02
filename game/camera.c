@@ -23,6 +23,7 @@
 #include "Frustum.h"
 #include "input.h"
 #include "char.h"
+#include "log.h"
 
 #include "egoboo_math.h"
 #include "egoboo.h"
@@ -134,7 +135,7 @@ void screen_dump_matrix( matrix_4x4 a )
     snprintf( buffer1, sizeof( buffer1 ), "  " );
     for ( i = 0; i < 4; i++ )
     {
-      snprintf( buffer2, sizeof( buffer2 ), "%2.4f ", ( a ) _CNV( i, j ) );
+      snprintf( buffer2, sizeof( buffer2 ), "%2.4f ", a.CNV( i, j ) );
       strncat( buffer1, buffer2, sizeof( buffer1 ) );
     };
     debug_message( 1, buffer1 );
@@ -152,7 +153,7 @@ void stdout_dump_matrix( matrix_4x4 a )
     fprintf( stdout, "  " );
     for ( i = 0; i < 4; i++ )
     {
-      fprintf( stdout, "%2.4f ", ( a ) _CNV( i, j ) );
+      fprintf( stdout, "%2.4f ", a.CNV( i, j ) );
     };
     fprintf( stdout, "\n" );
   }
@@ -188,7 +189,7 @@ void move_camera( float dUpdate )
   int cnt, locoalive;  // Used in rts remove? -> int band,
   vect3 pos, vel, move;
   float level;
-  CHR_REF character;
+  CHR_REF chr_ref;
   Uint16 turnsin, turncos;
   float ftmp;
   float fkeep, fnew;
@@ -217,36 +218,36 @@ void move_camera( float dUpdate )
   {
     if ( !VALID_PLA( cnt ) || INBITS_NONE == PlaList[cnt].device ) continue;
 
-    character = pla_get_character( cnt );
-    if ( VALID_CHR( character ) && ChrList[character].alive )
+    chr_ref = pla_get_character( cnt );
+    if ( VALID_CHR( chr_ref ) && ChrList[chr_ref].alive )
     {
-      CHR_REF attachedto = chr_get_attachedto( character );
+      CHR_REF attachedto_ref = chr_get_attachedto( chr_ref );
 
-      if ( VALID_CHR( attachedto ) )
+      if ( VALID_CHR( attachedto_ref ) )
       {
-        // The character is mounted
-        pos.x += ChrList[attachedto].pos.x;
-        pos.y += ChrList[attachedto].pos.y;
-        pos.z += ChrList[attachedto].pos.z + 0.9 * ChrList[character].bmpdata.calc_height;
+        // The chr_ref is mounted
+        pos.x += ChrList[attachedto_ref].pos.x;
+        pos.y += ChrList[attachedto_ref].pos.y;
+        pos.z += ChrList[attachedto_ref].pos.z + 0.9 * ChrList[chr_ref].bmpdata.calc_height;
 
-        level += ChrList[attachedto].level;
+        level += ChrList[attachedto_ref].level;
 
-        vel.x += ChrList[attachedto].vel.x;
-        vel.y += ChrList[attachedto].vel.y;
-        vel.z += ChrList[attachedto].vel.z;
+        vel.x += ChrList[attachedto_ref].vel.x;
+        vel.y += ChrList[attachedto_ref].vel.y;
+        vel.z += ChrList[attachedto_ref].vel.z;
       }
       else
       {
-        // The character is on foot
-        pos.x += ChrList[character].pos.x;
-        pos.y += ChrList[character].pos.y;
-        pos.z += ChrList[character].pos.z + 0.9 * ChrList[character].bmpdata.calc_height;
+        // The chr_ref is on foot
+        pos.x += ChrList[chr_ref].pos.x;
+        pos.y += ChrList[chr_ref].pos.y;
+        pos.z += ChrList[chr_ref].pos.z + 0.9 * ChrList[chr_ref].bmpdata.calc_height;
 
-        level += ChrList[character].level;
+        level += ChrList[chr_ref].level;
 
-        vel.x += ChrList[character].vel.x;
-        vel.y += ChrList[character].vel.y;
-        vel.z += ChrList[character].vel.z;
+        vel.x += ChrList[chr_ref].vel.x;
+        vel.y += ChrList[chr_ref].vel.y;
+        vel.z += ChrList[chr_ref].vel.z;
       };
 
       locoalive++;
@@ -489,13 +490,13 @@ void reset_camera()
 //  // Topleft
 //  mTemp = MatrixMult(RotateY(-rotmeshtopside * 0.5f * DEG_TO_RAD), GCamera.mView);
 //  mTemp = MatrixMult(RotateX(rotmeshup * 0.5f * DEG_TO_RAD), mTemp);
-//  zproject = (mTemp)_CNV(2, 2);        //2,2
+//  zproject = mTemp.CNV(2, 2);        //2,2
 //  // Camera must look down
 //  if (zproject < 0)
 //  {
 //    numstep = -ztemp / zproject;
-//    xfin = GCamera.pos.x + (numstep * (mTemp)_CNV(0, 2));  // xgg   //0,2
-//    yfin = GCamera.pos.y + (numstep * (mTemp)_CNV(1, 2));     //1,2
+//    xfin = GCamera.pos.x + (numstep * mTemp.CNV(0, 2));  // xgg   //0,2
+//    yfin = GCamera.pos.y + (numstep * mTemp.CNV(1, 2));     //1,2
 //    zfin = 0;
 //    cornerx[0] = xfin;
 //    cornery[0] = yfin;
@@ -505,13 +506,13 @@ void reset_camera()
 //  // Topright
 //  mTemp = MatrixMult(RotateY(rotmeshtopside * 0.5f * DEG_TO_RAD), GCamera.mView);
 //  mTemp = MatrixMult(RotateX(rotmeshup * 0.5f * DEG_TO_RAD), mTemp);
-//  zproject = (mTemp)_CNV(2, 2);        //2,2
+//  zproject = mTemp.CNV(2, 2);        //2,2
 //  // Camera must look down
 //  if (zproject < 0)
 //  {
 //    numstep = -ztemp / zproject;
-//    xfin = GCamera.pos.x + (numstep * (mTemp)_CNV(0, 2));  // xgg   //0,2
-//    yfin = GCamera.pos.y + (numstep * (mTemp)_CNV(1, 2));     //1,2
+//    xfin = GCamera.pos.x + (numstep * mTemp.CNV(0, 2));  // xgg   //0,2
+//    yfin = GCamera.pos.y + (numstep * mTemp.CNV(1, 2));     //1,2
 //    zfin = 0;
 //    cornerx[1] = xfin;
 //    cornery[1] = yfin;
@@ -521,13 +522,13 @@ void reset_camera()
 //  // Bottomright
 //  mTemp = MatrixMult(RotateY(rotmeshbottomside * 0.5f * DEG_TO_RAD), GCamera.mView);
 //  mTemp = MatrixMult(RotateX(-rotmeshdown * 0.5f * DEG_TO_RAD), mTemp);
-//  zproject = (mTemp)_CNV(2, 2);        //2,2
+//  zproject = mTemp.CNV(2, 2);        //2,2
 //  // Camera must look down
 //  if (zproject < 0)
 //  {
 //    numstep = -ztemp / zproject;
-//    xfin = GCamera.pos.x + (numstep * (mTemp)_CNV(0, 2));  // xgg   //0,2
-//    yfin = GCamera.pos.y + (numstep * (mTemp)_CNV(1, 2));     //1,2
+//    xfin = GCamera.pos.x + (numstep * mTemp.CNV(0, 2));  // xgg   //0,2
+//    yfin = GCamera.pos.y + (numstep * mTemp.CNV(1, 2));     //1,2
 //    zfin = 0;
 //    cornerx[2] = xfin;
 //    cornery[2] = yfin;
@@ -537,13 +538,13 @@ void reset_camera()
 //  // Bottomleft
 //  mTemp = MatrixMult(RotateY(-rotmeshbottomside * 0.5f * DEG_TO_RAD), GCamera.mView);
 //  mTemp = MatrixMult(RotateX(-rotmeshdown * 0.5f * DEG_TO_RAD), mTemp);
-//  zproject = (mTemp)_CNV(2, 2);        //2,2
+//  zproject = mTemp.CNV(2, 2);        //2,2
 //  // Camera must look down
 //  if (zproject < 0)
 //  {
 //    numstep = -ztemp / zproject;
-//    xfin = GCamera.pos.x + (numstep * (mTemp)_CNV(0, 2));  // xgg   //0,2
-//    yfin = GCamera.pos.y + (numstep * (mTemp)_CNV(1, 2));     //1,2
+//    xfin = GCamera.pos.x + (numstep * mTemp.CNV(0, 2));  // xgg   //0,2
+//    yfin = GCamera.pos.y + (numstep * mTemp.CNV(1, 2));     //1,2
 //    zfin = 0;
 //    cornerx[3] = xfin;
 //    cornery[3] = yfin;

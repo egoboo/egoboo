@@ -19,14 +19,12 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _MATHSTUFF_H_
-#define _MATHSTUFF_H_
-
+#pragma once
 
 /**> HEADER FILES <**/
-//#include "egoboo.h"
 #include <math.h>
-#include "egoboo_types.h"
+
+#include "egoboo_types.inl"
 #include "egoboo_config.h"
 
 #define HAS_SOME_BITS(XX,YY) (0 != ((XX)&(YY)))
@@ -106,7 +104,7 @@
 
 
 /**> MACROS <**/
-#define _CNV(i,j) .v[4*i+j]
+#define CNV(i,j) v[4*i+j]
 #define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( matrix_4x4 ) )
 
 #define INT_TO_BOOL(XX) (0!=(XX))
@@ -169,17 +167,19 @@ matrix_4x4 FourPoints( vect4 ori, vect4 wid, vect4 forw, vect4 up, float scale )
 matrix_4x4 ViewMatrix( const vect3 from, const vect3 at, const vect3 world_up, const float roll );
 matrix_4x4 ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 
-void Transform4_Full( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
-void Transform4( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
+void Transform4_Full( float pre_scale, float post_scale, matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
+void Transform4( float pre_scale, float post_scale, matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
+void Translate4( matrix_4x4 *pMatrix, vect4 pSourceV[], vect4 pDestV[], Uint32 NumVertor );
 
-void Transform3_Full( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
-void Transform3( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
-
+void Transform3_Full( float pre_scale, float post_scale, matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+void Transform3( float pre_scale, float post_scale, matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
+void Translate3( matrix_4x4 *pMatrix, vect3 pSourceV[], vect3 pDestV[], Uint32 NumVertor );
 
 Uint16 vec_to_turn( float dx, float dy );
 void turn_to_vec( Uint16 turn, float * dx, float * dy );
 
 void VectorClear( float v[] );
 
-#endif
+void make_turntosin( void );
 
+bool_t matrix_compare_3x3(matrix_4x4 * pm1, matrix_4x4 * pm2);

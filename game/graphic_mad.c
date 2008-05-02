@@ -124,10 +124,6 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
 
       pchr->vdata.Vertices[i].x *= -1;
 
-      pchr->vdata.Vertices[i].x  *= 4.125;
-      pchr->vdata.Vertices[i].y  *= 4.125;
-      pchr->vdata.Vertices[i].z  *= 4.125;
-
       pchr->vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0];
       pchr->vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1];
       pchr->vdata.Normals[i].z = kMd2Normals[pfrom->vertices[i].normal][2];
@@ -153,10 +149,6 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
 
       pchr->vdata.Vertices[i].x  *= -1;
 
-      pchr->vdata.Vertices[i].x  *= 4.125;
-      pchr->vdata.Vertices[i].y  *= 4.125;
-      pchr->vdata.Vertices[i].z  *= 4.125;
-
       pchr->vdata.Normals[i].x = kMd2Normals[pto->vertices[i].normal][0];
       pchr->vdata.Normals[i].y = kMd2Normals[pto->vertices[i].normal][1];
       pchr->vdata.Normals[i].z = kMd2Normals[pto->vertices[i].normal][2];
@@ -181,10 +173,6 @@ void md2_blend_vertices(CHR_REF ichr, Sint32 vrtmin, Sint32 vrtmax)
       pchr->vdata.Vertices[i].z = pfrom->vertices[i].z + (pto->vertices[i].z - pfrom->vertices[i].z) * lerp;
 
       pchr->vdata.Vertices[i].x  *= -1;
-
-      pchr->vdata.Vertices[i].x  *= 4.125;
-      pchr->vdata.Vertices[i].y  *= 4.125;
-      pchr->vdata.Vertices[i].z  *= 4.125;
 
       pchr->vdata.Normals[i].x = kMd2Normals[pfrom->vertices[i].normal][0] + (kMd2Normals[pto->vertices[i].normal][0] - kMd2Normals[pfrom->vertices[i].normal][0]) * lerp;
       pchr->vdata.Normals[i].y = kMd2Normals[pfrom->vertices[i].normal][1] + (kMd2Normals[pto->vertices[i].normal][1] - kMd2Normals[pfrom->vertices[i].normal][1]) * lerp;
@@ -376,41 +364,46 @@ void draw_textured_md2_opengl(CHR_REF ichr)
   glEnableClientState(GL_COLOR_ARRAY);
   glColorPointer (4, GL_FLOAT, 0, vd->Colors[0].v);
 
-  cmd  = md2_get_Commands(pmdl);
-  for (/*nothing */; NULL!=cmd; cmd = cmd->next)
-  {
-    Uint32 i;
-    glBegin(cmd->gl_mode);
 
-    cmd_count = cmd->command_count;
-    for(i=0; i<cmd_count; i++)
+    cmd  = md2_get_Commands(pmdl);
+    for (/*nothing */; NULL!=cmd; cmd = cmd->next)
     {
-      glTexCoord2f( cmd->data[i].s + off.u, cmd->data[i].t + off.v );
-      glArrayElement( cmd->data[i].index );
+      Uint32 i;
+      glBegin(cmd->gl_mode);
+
+      cmd_count = cmd->command_count;
+      for(i=0; i<cmd_count; i++)
+      {
+        glTexCoord2f( cmd->data[i].s + off.u, cmd->data[i].t + off.v );
+        glArrayElement( cmd->data[i].index );
+      }
+      glEnd();
     }
-    glEnd();
-  }
+
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
   if(CData.shading != GL_FLAT) glDisableClientState(GL_NORMAL_ARRAY);
 
 
-#if DEBUG_NORMALS && defined(_DEBUG)
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
   if ( CData.DevMode )
   {
     int cnt;
     int verts = MadList[imdl].transvertices;
 
-    glBegin( GL_LINES );
-    glLineWidth( 2.0f );
-    glColor4f( 1, 1, 1, 1 );
-    for ( cnt = 0; cnt < verts; cnt++ )
-    {
-      glVertex3fv( vd->Vertices[cnt].v );
-      glVertex3f( vd->Vertices[cnt].x + vd->Normals[cnt].x*10, vd->Vertices[cnt].y + vd->Normals[cnt].y*10, vd->Vertices[cnt].z + vd->Normals[cnt].z*10 );
-    };
-    glEnd();
+
+      glBegin( GL_LINES );
+      glLineWidth( 2.0f );
+      glColor4f( 1, 1, 1, 1 );
+      for ( cnt = 0; cnt < verts; cnt++ )
+      {
+        glVertex3fv( vd->Vertices[cnt].v );
+        glVertex3f( vd->Vertices[cnt].x + vd->Normals[cnt].x*10, vd->Vertices[cnt].y + vd->Normals[cnt].y*10, vd->Vertices[cnt].z + vd->Normals[cnt].z*10 );
+      };
+      glEnd();
+
+
   }
 #endif
 
@@ -443,40 +436,45 @@ void draw_enviromapped_md2_opengl(CHR_REF ichr)
   glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   glTexCoordPointer(2, GL_FLOAT, 0, vd->Texture[0]._v);
 
-  cmd = md2_get_Commands(pmdl);
-  for (/*nothing */; NULL!=cmd; cmd = cmd->next)
-  {
-    Uint32 i;
-    glBegin(cmd->gl_mode);
 
-    cmd_count = cmd->command_count;
-    for(i=0; i<cmd_count; i++)
+    cmd = md2_get_Commands(pmdl);
+    for (/*nothing */; NULL!=cmd; cmd = cmd->next)
     {
-      glArrayElement( cmd->data[i].index );
+      Uint32 i;
+      glBegin(cmd->gl_mode);
+
+      cmd_count = cmd->command_count;
+      for(i=0; i<cmd_count; i++)
+      {
+        glArrayElement( cmd->data[i].index );
+      }
+      glEnd();
     }
-    glEnd();
-  }
+
 
   glDisableClientState(GL_VERTEX_ARRAY);
   glDisableClientState(GL_COLOR_ARRAY);
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
 
-#if DEBUG_NORMALS && defined(_DEBUG)
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
   if ( CData.DevMode )
   {
     int cnt;
     int verts = MadList[imdl].transvertices;
 
-    glBegin( GL_LINES );
-    glLineWidth( 2.0f );
-    glColor4f( 1, 1, 1, 1 );
-    for ( cnt = 0; cnt < verts; cnt++ )
-    {
-      glVertex3fv( vd->Vertices[cnt].v );
-      glVertex3f( vd->Vertices[cnt].x + vd->Normals[cnt].x*10, vd->Vertices[cnt].y + vd->Normals[cnt].y*10, vd->Vertices[cnt].z + vd->Normals[cnt].z*10 );
-    };
-    glEnd();
+
+      glBegin( GL_LINES );
+      glLineWidth( 2.0f );
+      glColor4f( 1, 1, 1, 1 );
+      for ( cnt = 0; cnt < verts; cnt++ )
+      {
+        glVertex3fv( vd->Vertices[cnt].v );
+        glVertex3f( vd->Vertices[cnt].x + vd->Normals[cnt].x*10, vd->Vertices[cnt].y + vd->Normals[cnt].y*10, vd->Vertices[cnt].z + vd->Normals[cnt].z*10 );
+      };
+      glEnd();
+
+
   }
 #endif
 }
@@ -540,16 +538,16 @@ void render_mad_lit( CHR_REF ichr )
   {
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    ChrList[ichr].matrix _CNV( 3, 2 ) += RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) += RAISE;
     glMultMatrixf( ChrList[ichr].matrix.v );
-    ChrList[ichr].matrix _CNV( 3, 2 ) -= RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) -= RAISE;
 
     glEnable( GL_DEPTH_TEST );
     glDepthFunc( GL_LEQUAL );
 
     if (SDLKEYDOWN(SDLK_F7))
     {
-      glBindTexture(GL_TEXTURE_2D, -1);
+      glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
     }
     else
     {
@@ -559,13 +557,13 @@ void render_mad_lit( CHR_REF ichr )
 
     draw_textured_md2_opengl(ichr);
 
+
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-
   }
   ATTRIB_POP( "render_mad_lit" );
 
-#if DEBUG_BBOX && defined(_DEBUG)
+#if defined(DEBUG_BBOX) && defined(_DEBUG)
   if(CData.DevMode)
   {
     draw_Chr_BBox(ichr);
@@ -589,9 +587,9 @@ void render_texmad(CHR_REF ichr, Uint8 trans)
   {
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    ChrList[ichr].matrix _CNV( 3, 2 ) += RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) += RAISE;
     glMultMatrixf( ChrList[ichr].matrix.v );
-    ChrList[ichr].matrix _CNV( 3, 2 ) -= RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) -= RAISE;
 
     glEnable( GL_DEPTH_TEST );
     glDepthFunc( GL_LEQUAL );
@@ -599,7 +597,7 @@ void render_texmad(CHR_REF ichr, Uint8 trans)
     // Choose texture and matrix
     if (SDLKEYDOWN(SDLK_F7))
     {
-      glBindTexture(GL_TEXTURE_2D, -1);
+      glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
     }
     else
     {
@@ -613,7 +611,7 @@ void render_texmad(CHR_REF ichr, Uint8 trans)
   }
   ATTRIB_POP( "render_texmad" );
 
-#if DEBUG_BBOX && defined(_DEBUG)
+#if defined(DEBUG_BBOX) && defined(_DEBUG)
   if(CData.DevMode)
   {
     draw_Chr_BBox(ichr);
@@ -635,9 +633,9 @@ void render_enviromad(CHR_REF ichr, Uint8 trans)
   {
     glMatrixMode( GL_MODELVIEW );
     glPushMatrix();
-    ChrList[ichr].matrix _CNV( 3, 2 ) += RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) += RAISE;
     glMultMatrixf( ChrList[ichr].matrix.v );
-    ChrList[ichr].matrix _CNV( 3, 2 ) -= RAISE;
+    ChrList[ichr].matrix.CNV( 3, 2 ) -= RAISE;
 
     glEnable( GL_DEPTH_TEST );
     glDepthFunc( GL_LEQUAL );
@@ -645,7 +643,7 @@ void render_enviromad(CHR_REF ichr, Uint8 trans)
     // Choose texture and matrix
     if ( SDLKEYDOWN(SDLK_F7) )
     {
-      glBindTexture(GL_TEXTURE_2D, -1);
+      glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
     }
     else
     {
@@ -687,7 +685,7 @@ void render_refmad( int ichr, Uint8 trans_fp8 )
 {
   int alphatmp_fp8;
   float level = ChrList[ichr].level;
-  float zpos = ( ChrList[ichr].matrix ) _CNV( 3, 2 ) - level;
+  float zpos = ( ChrList[ichr].matrix ).CNV( 3, 2 ) - level;
   int   model = ChrList[ichr].model;
   Uint16 lastframe = ChrList[ichr].anim.last;
   Uint8 sheensave;
@@ -705,20 +703,20 @@ void render_refmad( int ichr, Uint8 trans_fp8 )
   ChrList[ichr].grnshift += 1;
   ChrList[ichr].blushift += 1;
   ChrList[ichr].sheen_fp8 >>= 1;
-  ( ChrList[ichr].matrix ) _CNV( 0, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 0, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 1, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 1, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 2, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 2, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 3, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 3, 2 ) + level + level;
+  ( ChrList[ichr].matrix ).CNV( 0, 2 ) = - ( ChrList[ichr].matrix ).CNV( 0, 2 );
+  ( ChrList[ichr].matrix ).CNV( 1, 2 ) = - ( ChrList[ichr].matrix ).CNV( 1, 2 );
+  ( ChrList[ichr].matrix ).CNV( 2, 2 ) = - ( ChrList[ichr].matrix ).CNV( 2, 2 );
+  ( ChrList[ichr].matrix ).CNV( 3, 2 ) = - ( ChrList[ichr].matrix ).CNV( 3, 2 ) + level + level;
   fog_save = GFog.on;
   GFog.on  = bfalse;
 
   render_mad( ichr, alphatmp_fp8 );
 
   GFog.on = fog_save;
-  ( ChrList[ichr].matrix ) _CNV( 0, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 0, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 1, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 1, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 2, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 2, 2 );
-  ( ChrList[ichr].matrix ) _CNV( 3, 2 ) = - ( ChrList[ichr].matrix ) _CNV( 3, 2 ) + level + level;
+  ( ChrList[ichr].matrix ).CNV( 0, 2 ) = - ( ChrList[ichr].matrix ).CNV( 0, 2 );
+  ( ChrList[ichr].matrix ).CNV( 1, 2 ) = - ( ChrList[ichr].matrix ).CNV( 1, 2 );
+  ( ChrList[ichr].matrix ).CNV( 2, 2 ) = - ( ChrList[ichr].matrix ).CNV( 2, 2 );
+  ( ChrList[ichr].matrix ).CNV( 3, 2 ) = - ( ChrList[ichr].matrix ).CNV( 3, 2 ) + level + level;
   ChrList[ichr].sheen_fp8 = sheensave;
   ChrList[ichr].redshift -= 1;
   ChrList[ichr].grnshift -= 1;
@@ -915,116 +913,120 @@ void draw_Chr_BBox(CHR_REF ichr)
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     // choose a "white" texture
-    glBindTexture(GL_TEXTURE_2D, -1);
+    glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
 
-    if(cv->level > 1)
-    {
-      // DIAGONAL BBOX
 
-      glColor4f(0.5,1,1,.1);
 
-      p1_x = 0.5f * (cv->xy_max - cv->yx_max) + pos.x;
-      p1_y = 0.5f * (cv->xy_max + cv->yx_max) + pos.y;
-      p2_x = 0.5f * (cv->xy_max - cv->yx_min) + pos.x;
-      p2_y = 0.5f * (cv->xy_max + cv->yx_min) + pos.y;
+      if(cv->level > 1)
+      {
+        // DIAGONAL BBOX
 
+        glColor4f(0.5,1,1,.1);
+
+        p1_x = 0.5f * (cv->xy_max - cv->yx_max) + pos.x;
+        p1_y = 0.5f * (cv->xy_max + cv->yx_max) + pos.y;
+        p2_x = 0.5f * (cv->xy_max - cv->yx_min) + pos.x;
+        p2_y = 0.5f * (cv->xy_max + cv->yx_min) + pos.y;
+
+        glBegin(GL_QUADS);
+          glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
+          glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glEnd();
+
+        p1_x = 0.5f * (cv->xy_max - cv->yx_min) + pos.x;
+        p1_y = 0.5f * (cv->xy_max + cv->yx_min) + pos.y;
+        p2_x = 0.5f * (cv->xy_min - cv->yx_min) + pos.x;
+        p2_y = 0.5f * (cv->xy_min + cv->yx_min) + pos.y;
+
+        glBegin(GL_QUADS);
+          glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
+          glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glEnd();
+
+        p1_x = 0.5f * (cv->xy_min - cv->yx_min) + pos.x;
+        p1_y = 0.5f * (cv->xy_min + cv->yx_min) + pos.y;
+        p2_x = 0.5f * (cv->xy_min - cv->yx_max) + pos.x;
+        p2_y = 0.5f * (cv->xy_min + cv->yx_max) + pos.y;
+
+        glBegin(GL_QUADS);
+          glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
+          glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glEnd();
+
+        p1_x = 0.5f * (cv->xy_min - cv->yx_max) + pos.x;
+        p1_y = 0.5f * (cv->xy_min + cv->yx_max) + pos.y;
+        p2_x = 0.5f * (cv->xy_max - cv->yx_max) + pos.x;
+        p2_y = 0.5f * (cv->xy_max + cv->yx_max) + pos.y;
+
+        glBegin(GL_QUADS);
+          glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
+          glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
+          glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glEnd();
+      }
+
+      //------------------------------------------------
+
+      // SQUARE BBOX
+
+      glColor4f(1,0.5,1,.1);
+
+      // XZ FACE, min Y
       glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
-        glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
       glEnd();
 
-      p1_x = 0.5f * (cv->xy_max - cv->yx_min) + pos.x;
-      p1_y = 0.5f * (cv->xy_max + cv->yx_min) + pos.y;
-      p2_x = 0.5f * (cv->xy_min - cv->yx_min) + pos.x;
-      p2_y = 0.5f * (cv->xy_min + cv->yx_min) + pos.y;
-
+      // YZ FACE, min X
       glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
-        glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
       glEnd();
 
-      p1_x = 0.5f * (cv->xy_min - cv->yx_min) + pos.x;
-      p1_y = 0.5f * (cv->xy_min + cv->yx_min) + pos.y;
-      p2_x = 0.5f * (cv->xy_min - cv->yx_max) + pos.x;
-      p2_y = 0.5f * (cv->xy_min + cv->yx_max) + pos.y;
-
+      // XZ FACE, max Y
       glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
-        glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
       glEnd();
 
-      p1_x = 0.5f * (cv->xy_min - cv->yx_max) + pos.x;
-      p1_y = 0.5f * (cv->xy_min + cv->yx_max) + pos.y;
-      p2_x = 0.5f * (cv->xy_max - cv->yx_max) + pos.x;
-      p2_y = 0.5f * (cv->xy_max + cv->yx_max) + pos.y;
-
+      // YZ FACE, max X
       glBegin(GL_QUADS);
-        glVertex3f(p1_x, p1_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_min + pos.z);
-        glVertex3f(p2_x, p2_y, cv->z_max + pos.z);
-        glVertex3f(p1_x, p1_y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
       glEnd();
-    }
 
-  //------------------------------------------------
+      // XY FACE, min Z
+      glBegin(GL_QUADS);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
+      glEnd();
 
-    // SQUARE BBOX
+      // XY FACE, max Z
+      glBegin(GL_QUADS);
+        glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
+        glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
+      glEnd();
 
-    glColor4f(1,0.5,1,.1);
 
-    // XZ FACE, min Y
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-    glEnd();
-
-    // YZ FACE, min X
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-    glEnd();
-
-  // XZ FACE, max Y
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-    glEnd();
-
-    // YZ FACE, max X
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-    glEnd();
-
-    // XY FACE, min Z
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_min + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_min + pos.z);
-    glEnd();
-
-    // XY FACE, max Z
-    glBegin(GL_QUADS);
-      glVertex3f(cv->x_min + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_min + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_max + pos.y, cv->z_max + pos.z);
-      glVertex3f(cv->x_max + pos.x, cv->y_min + pos.y, cv->z_max + pos.z);
-    glEnd();
   }
   ATTRIB_POP( "draw_Chr_BBox" );
 };
@@ -1050,65 +1052,69 @@ void draw_CVolume( CVolume * cv )
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
     // choose a "white" texture
-    glBindTexture(GL_TEXTURE_2D, -1);
+    glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE);
 
-    ////if(cv->level > 1)
-    ////{
-    //  // DIAGONAL BBOX
 
-    //  float p1_x, p1_y;
-    //  float p2_x, p2_y;
 
-    //  glColor4f(0.5,1,1,.1);
+      ////if(cv->level > 1)
+      ////{
+      //  // DIAGONAL BBOX
 
-    //  p1_x = 0.5f * (cv->xy_max - cv->yx_max);
-    //  p1_y = 0.5f * (cv->xy_max + cv->yx_max);
-    //  p2_x = 0.5f * (cv->xy_max - cv->yx_min);
-    //  p2_y = 0.5f * (cv->xy_max + cv->yx_min);
+      //  float p1_x, p1_y;
+      //  float p2_x, p2_y;
 
-    //  glBegin(GL_QUADS);
-    //    glVertex3f(p1_x, p1_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_max);
-    //    glVertex3f(p1_x, p1_y, cv->z_max);
-    //  glEnd();
+      //  glColor4f(0.5,1,1,.1);
 
-    //  p1_x = 0.5f * (cv->xy_max - cv->yx_min);
-    //  p1_y = 0.5f * (cv->xy_max + cv->yx_min);
-    //  p2_x = 0.5f * (cv->xy_min - cv->yx_min);
-    //  p2_y = 0.5f * (cv->xy_min + cv->yx_min);
+      //  p1_x = 0.5f * (cv->xy_max - cv->yx_max);
+      //  p1_y = 0.5f * (cv->xy_max + cv->yx_max);
+      //  p2_x = 0.5f * (cv->xy_max - cv->yx_min);
+      //  p2_y = 0.5f * (cv->xy_max + cv->yx_min);
 
-    //  glBegin(GL_QUADS);
-    //    glVertex3f(p1_x, p1_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_max);
-    //    glVertex3f(p1_x, p1_y, cv->z_max);
-    //  glEnd();
+      //  glBegin(GL_QUADS);
+      //    glVertex3f(p1_x, p1_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_max);
+      //    glVertex3f(p1_x, p1_y, cv->z_max);
+      //  glEnd();
 
-    //  p1_x = 0.5f * (cv->xy_min - cv->yx_min);
-    //  p1_y = 0.5f * (cv->xy_min + cv->yx_min);
-    //  p2_x = 0.5f * (cv->xy_min - cv->yx_max);
-    //  p2_y = 0.5f * (cv->xy_min + cv->yx_max);
+      //  p1_x = 0.5f * (cv->xy_max - cv->yx_min);
+      //  p1_y = 0.5f * (cv->xy_max + cv->yx_min);
+      //  p2_x = 0.5f * (cv->xy_min - cv->yx_min);
+      //  p2_y = 0.5f * (cv->xy_min + cv->yx_min);
 
-    //  glBegin(GL_QUADS);
-    //    glVertex3f(p1_x, p1_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_max);
-    //    glVertex3f(p1_x, p1_y, cv->z_max);
-    //  glEnd();
+      //  glBegin(GL_QUADS);
+      //    glVertex3f(p1_x, p1_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_max);
+      //    glVertex3f(p1_x, p1_y, cv->z_max);
+      //  glEnd();
 
-    //  p1_x = 0.5f * (cv->xy_min - cv->yx_max);
-    //  p1_y = 0.5f * (cv->xy_min + cv->yx_max);
-    //  p2_x = 0.5f * (cv->xy_max - cv->yx_max);
-    //  p2_y = 0.5f * (cv->xy_max + cv->yx_max);
+      //  p1_x = 0.5f * (cv->xy_min - cv->yx_min);
+      //  p1_y = 0.5f * (cv->xy_min + cv->yx_min);
+      //  p2_x = 0.5f * (cv->xy_min - cv->yx_max);
+      //  p2_y = 0.5f * (cv->xy_min + cv->yx_max);
 
-    //  glBegin(GL_QUADS);
-    //    glVertex3f(p1_x, p1_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_min);
-    //    glVertex3f(p2_x, p2_y, cv->z_max);
-    //    glVertex3f(p1_x, p1_y, cv->z_max);
-    //  glEnd();
-    ////}
+      //  glBegin(GL_QUADS);
+      //    glVertex3f(p1_x, p1_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_max);
+      //    glVertex3f(p1_x, p1_y, cv->z_max);
+      //  glEnd();
+
+      //  p1_x = 0.5f * (cv->xy_min - cv->yx_max);
+      //  p1_y = 0.5f * (cv->xy_min + cv->yx_max);
+      //  p2_x = 0.5f * (cv->xy_max - cv->yx_max);
+      //  p2_y = 0.5f * (cv->xy_max + cv->yx_max);
+
+      //  glBegin(GL_QUADS);
+      //    glVertex3f(p1_x, p1_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_min);
+      //    glVertex3f(p2_x, p2_y, cv->z_max);
+      //    glVertex3f(p1_x, p1_y, cv->z_max);
+      //  glEnd();
+
+      ////}
+
 
   //------------------------------------------------
 
@@ -1163,6 +1169,8 @@ void draw_CVolume( CVolume * cv )
       glVertex3f(cv->x_max, cv->y_max, cv->z_max);
       glVertex3f(cv->x_max, cv->y_min, cv->z_max);
     glEnd();
+
+
   }
   ATTRIB_POP( "draw_CVolume" );
 };

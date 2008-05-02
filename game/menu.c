@@ -891,7 +891,7 @@ int mnu_doChooseModule( float deltaTime )
         snprintf( txtBuffer, sizeof( txtBuffer ), "%s/%s/%s/%s", CData.modules_dir, ModList[validModules[mnu_selectedModule]].loadname, CData.gamedat_dir, CData.mnu_file );
         if ( validModules[mnu_selectedModule] != modsummaryval )
         {
-          if ( get_module_summary( txtBuffer ) ) modsummaryval = validModules[mnu_selectedModule];
+          if ( module_read_summary( txtBuffer ) ) modsummaryval = validModules[mnu_selectedModule];
         };
 
         for ( i = 0;i < SUMMARYLINES;i++ )

@@ -45,7 +45,7 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
   Uint16 texture;
   Uint16 cnt, tnc, entry, vertex;
   Uint32 badvertex;
-  float offu, offv;
+  vect2 off;
   int light_flat_r, light_flat_g, light_flat_b;
 
   // vertex is a value from 0-15, for the meshcommandref/u/v variables
@@ -77,12 +77,12 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
     }
   }
 
-  offu = Mesh_Tile[tile].off_u;          // Texture offsets
-  offv = Mesh_Tile[tile].off_v;          //
+  off.u = Mesh_Tile[tile].off.u;          // Texture offsets
+  off.v = Mesh_Tile[tile].off.v;          //
 
-  texture = ( tile >> 6 ) + TX_TILE_0;              // 64 tiles in each 256x256 texture
-  vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
-  commands = Mesh_Cmd[type].count;          // Number of commands
+  texture = ( tile >> 6 ) + TX_TILE_0;   // 64 tiles in each 256x256 texture
+  vertices = Mesh_Cmd[type].vrt_count;   // Number of vertices
+  commands = Mesh_Cmd[type].cmd_count;   // Number of commands
 
   // Original points
   badvertex = Mesh_Fan[fan].vrt_start;          // Get big reference value
@@ -103,14 +103,14 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
     v[cnt].pos.x = Mesh_Mem.vrt_x[badvertex];
     v[cnt].pos.y = Mesh_Mem.vrt_y[badvertex];
     v[cnt].pos.z = level - ftmp;
+
     v[cnt].col.r = FP8_TO_FLOAT( Mesh_Mem.vrt_lr_fp8[badvertex] );
     v[cnt].col.g = FP8_TO_FLOAT( Mesh_Mem.vrt_lg_fp8[badvertex] );
     v[cnt].col.b = FP8_TO_FLOAT( Mesh_Mem.vrt_lb_fp8[badvertex] );
-    v[cnt].s = Mesh_Cmd[type].u[badvertex] + offu;
-    v[cnt].t = Mesh_Cmd[type].v[badvertex] + offv;
 
     badvertex++;
   }
+
   light_flat_r /= vertices;
   light_flat_g /= vertices;
   light_flat_b /= vertices;
@@ -134,11 +134,13 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
       for ( cnt = 0; cnt < commands; cnt++ )
       {
         glBegin( GL_TRIANGLE_FAN );
-        for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+        for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
         {
           vertex = Mesh_Cmd[type].vrt[entry];
-          glTexCoord2f( Mesh_Cmd[type].u[vertex] + offu, Mesh_Cmd[type].v[vertex] + offv );
+
+          glTexCoord2f( Mesh_Cmd[type].tx[vertex].u + off.u, Mesh_Cmd[type].tx[vertex].v + off.v );
           glVertex3fv( v[vertex].pos.v );
+
           entry++;
         }
         glEnd();
@@ -151,11 +153,12 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
       for ( cnt = 0; cnt < commands; cnt++ )
       {
         glBegin( GL_TRIANGLE_FAN );
-        for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+        for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
         {
           vertex = Mesh_Cmd[type].vrt[entry];
+
+          glTexCoord2f( Mesh_Cmd[type].tx[vertex].u + off.u, Mesh_Cmd[type].tx[vertex].v + off.v );
           glColor3fv( v[vertex].col.v );
-          glTexCoord2f( Mesh_Cmd[type].u[vertex] + offu, Mesh_Cmd[type].v[vertex] + offv );
           glVertex3fv( v[vertex].pos.v );
 
           entry++;
@@ -180,7 +183,7 @@ void render_fan( Uint32 fan, char tex_loaded )
   Uint16 texture;
   Uint16 cnt, tnc, entry, vertex;
   Uint32 badvertex;
-  float offu, offv;
+  vect2 off;
   GLvector light_flat;
   vect3 nrm, pos;
 
@@ -216,25 +219,24 @@ void render_fan( Uint32 fan, char tex_loaded )
     }
   }
 
-  offu = Mesh_Tile[tile].off_u;          // Texture offsets
-  offv = Mesh_Tile[tile].off_v;          //
+  off.u = Mesh_Tile[tile].off.u;          // Texture offsets
+  off.v = Mesh_Tile[tile].off.v;          //
 
-  texture = ( tile >> 6 ) + TX_TILE_0;              // 64 tiles in each 256x256 texture
-  vertices = Mesh_Cmd[type].vrt_count;      // Number of vertices
-  commands = Mesh_Cmd[type].count;          // Number of commands
+  texture = ( tile >> 6 ) + TX_TILE_0;   // 64 tiles in each 256x256 texture
+  vertices = Mesh_Cmd[type].vrt_count;   // Number of vertices
+  commands = Mesh_Cmd[type].cmd_count;   // Number of commands
 
   // Original points
-  badvertex = Mesh_Fan[fan].vrt_start;          // Get big reference value
+  badvertex = Mesh_Fan[fan].vrt_start;   // Get big reference value
 
   if ( texture != tex_loaded ) return;
 
   light_flat.r =
-    light_flat.g =
-      light_flat.b =
-        light_flat.a = 0.0f;
+  light_flat.g =
+  light_flat.b =
+  light_flat.a = 0.0f;
   for ( cnt = 0; cnt < vertices; cnt++ )
   {
-
     v[cnt].pos.x = Mesh_Mem.vrt_x[badvertex];
     v[cnt].pos.y = Mesh_Mem.vrt_y[badvertex];
     v[cnt].pos.z = Mesh_Mem.vrt_z[badvertex];
@@ -244,7 +246,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     v[cnt].col.b = FP8_TO_FLOAT( Mesh_Mem.vrt_lb_fp8[badvertex] );
     v[cnt].col.a = 1.0f;
 
-#if DEBUG_MESHFX && defined(_DEBUG)
+#if defined(DEBUG_MESHFX) && defined(_DEBUG)
     if(CData.DevMode)
     {
 
@@ -274,11 +276,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     light_flat.b += v[cnt].col.b;
     light_flat.a += v[cnt].col.a;
 
-
-    v[cnt].s = Mesh_Cmd[type].u[cnt] + offu;
-    v[cnt].t = Mesh_Cmd[type].v[cnt] + offv;
-
-#if DEBUG_NORMALS && defined(_DEBUG)
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
     if(CData.DevMode)
     {
       vect3 * pv3 = (vect3 *) &(v[cnt].pos.v);
@@ -296,8 +294,6 @@ void render_fan( Uint32 fan, char tex_loaded )
     light_flat.b /= vertices;
     light_flat.a /= vertices;
   };
-
-
 
   // Change texture if need be
   if ( mesh.last_texture != texture )
@@ -317,11 +313,13 @@ void render_fan( Uint32 fan, char tex_loaded )
       for ( cnt = 0; cnt < commands; cnt++ )
       {
         glBegin( GL_TRIANGLE_FAN );
-        for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+        for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
         {
           vertex = Mesh_Cmd[type].vrt[entry];
-          glTexCoord2f( Mesh_Cmd[type].u[vertex] + offu, Mesh_Cmd[type].v[vertex] + offv );
+
+          glTexCoord2f( Mesh_Cmd[type].tx[vertex].u + off.u, Mesh_Cmd[type].tx[vertex].v + off.v );
           glVertex3fv( v[vertex].pos.v );
+
           entry++;
         }
         glEnd();
@@ -334,11 +332,12 @@ void render_fan( Uint32 fan, char tex_loaded )
       for ( cnt = 0; cnt < commands; cnt++ )
       {
         glBegin( GL_TRIANGLE_FAN );
-        for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+        for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
         {
           vertex = Mesh_Cmd[type].vrt[entry];
+
           glColor4fv( v[vertex].col.v );
-          glTexCoord2f( Mesh_Cmd[type].u[vertex] + offu, Mesh_Cmd[type].v[vertex] + offv );
+          glTexCoord2f( Mesh_Cmd[type].tx[vertex].u + off.u, Mesh_Cmd[type].tx[vertex].v + off.v );
           glVertex3fv( v[vertex].pos.v );
 
           entry++;
@@ -348,10 +347,9 @@ void render_fan( Uint32 fan, char tex_loaded )
     }
 
 
-#if DEBUG_NORMALS && defined(_DEBUG)
+#if defined(DEBUG_NORMALS) && defined(_DEBUG)
     if ( CData.DevMode )
     {
-
       glBegin( GL_LINES );
       {
         glLineWidth( 1.5f );
@@ -372,6 +370,7 @@ void render_fan( Uint32 fan, char tex_loaded )
       glEnd();
     }
 #endif
+
   }
   ATTRIB_POP( "render_fan" );
 
@@ -436,20 +435,20 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   Uint16 texture, frame;
   Uint16 cnt, tnc, entry, vertex;
   Uint32 badvertex;
-  float offu, offv;
+  vect2  off;
 
   // vertex is a value from 0-15, for the meshcommandref/u/v variables
   // badvertex is a value that references the actual vertex number
 
   // To make life easier
-  type = 0;                           // Command type ( index to points in fan )
-  offu = GWater.layer[layer].u;          // Texture offsets
-  offv = GWater.layer[layer].v;          //
-  frame = GWater.layer[layer].frame;     // Frame
+  type   = 0;                              // Command type ( index to points in fan )
+  off.u  = GWater.layer[layer].u;         // Texture offsets
+  off.v  = GWater.layer[layer].v;         //
+  frame  = GWater.layer[layer].frame;     // Frame
 
-  texture = layer + TX_WATER_TOP;                    // Water starts at texture 5
-  vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
-  commands = Mesh_Cmd[type].count;          // Number of commands
+  texture = layer + TX_WATER_TOP;        // Water starts at texture 5
+  vertices = Mesh_Cmd[type].vrt_count;   // Number of vertices
+  commands = Mesh_Cmd[type].cmd_count;   // Number of commands
 
 
   // figure the ambient light
@@ -475,47 +474,18 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
       v[cnt].col.a = 1.0f;
     }
 
-
-    // !!!BAD!!!  Debug code for show what mode means...
-    //red = 50;
-    //grn = 50;
-    //blu = 50;
-    //switch(mode)
-    //{
-    //    case 0:
-    //      red = 255;
-    //      break;
-
-    //    case 1:
-    //      grn = 255;
-    //      break;
-
-    //    case 2:
-    //      blu = 255;
-    //      break;
-
-    //    case 3:
-    //      red = 255;
-    //      grn = 255;
-    //      blu = 255;
-    //      break;
-
-    //}
-    //ambi = 0xbf000000 | (red<<16) | (grn<<8) | (blu);
-    // !!!BAD!!!
-
     badvertex++;
   };
 
   // Render each command
-  v[0].s = 1 + offu;
-  v[0].t = 0 + offv;
-  v[1].s = 1 + offu;
-  v[1].t = 1 + offv;
-  v[2].s = 0 + offu;
-  v[2].t = 1 + offv;
-  v[3].s = 0 + offu;
-  v[3].t = 0 + offv;
+  v[0].tx.s = 1 + off.u;
+  v[0].tx.t = 0 + off.v;
+  v[1].tx.s = 1 + off.u;
+  v[1].tx.t = 1 + off.v;
+  v[2].tx.s = 0 + off.u;
+  v[2].tx.t = 1 + off.v;
+  v[3].tx.s = 0 + off.u;
+  v[3].tx.t = 0 + off.v;
 
   ATTRIB_PUSH( "render_water_fan", GL_TEXTURE_BIT | GL_CURRENT_BIT );
   {
@@ -525,11 +495,11 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
     for ( cnt = 0; cnt < commands; cnt++ )
     {
       glBegin( GL_TRIANGLE_FAN );
-      for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+      for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
       {
         vertex = Mesh_Cmd[type].vrt[entry];
         glColor4fv( v[vertex].col.v );
-        glTexCoord2fv( &v[vertex].s );
+        glTexCoord2fv( v[vertex].tx._v );
         glVertex3fv( v[vertex].pos.v );
 
         entry++;
@@ -545,6 +515,7 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
 void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
 {
   // ZZ> This function draws a water fan
+
   GLVertex v[MAXMESHVERTICES];
   Uint16 type;
   Uint16 commands;
@@ -552,8 +523,9 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   Uint16 texture, frame;
   Uint16 cnt, tnc, entry, vertex;
   Uint32 badvertex;
+  vect2  off;
+
   // Uint8 red, grn, blu;
-  float offu, offv;
   // float z;
   //Uint32 ambi, spek;
   // DWORD GFog.spec;
@@ -562,14 +534,14 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   // badvertex is a value that references the actual vertex number
 
   // To make life easier
-  type  = 0;                           // Command type ( index to points in fan )
-  offu  = GWater.layer[layer].u;          // Texture offsets
-  offv  = GWater.layer[layer].v;          //
+  type  = 0;                             // Command type ( index to points in fan )
+  off.u  = GWater.layer[layer].u;         // Texture offsets
+  off.v  = GWater.layer[layer].v;         //
   frame = GWater.layer[layer].frame;     // Frame
 
-  texture  = layer + TX_WATER_TOP;                    // Water starts at texture 5
-  vertices = Mesh_Cmd[type].vrt_count;// Number of vertices
-  commands = Mesh_Cmd[type].count;          // Number of commands
+  texture  = layer + TX_WATER_TOP;       // Water starts at texture 5
+  vertices = Mesh_Cmd[type].vrt_count;   // Number of vertices
+  commands = Mesh_Cmd[type].cmd_count;   // Number of commands
 
 
   badvertex = Mesh_Fan[fan].vrt_start;          // Get big reference value
@@ -586,14 +558,14 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   };
 
   // Render each command
-  v[0].s = 1 + offu;
-  v[0].t = 0 + offv;
-  v[1].s = 1 + offu;
-  v[1].t = 1 + offv;
-  v[2].s = 0 + offu;
-  v[2].t = 1 + offv;
-  v[3].s = 0 + offu;
-  v[3].t = 0 + offv;
+  v[0].tx.s = 1 + off.u;
+  v[0].tx.t = 0 + off.v;
+  v[1].tx.s = 1 + off.u;
+  v[1].tx.t = 1 + off.v;
+  v[2].tx.s = 0 + off.u;
+  v[2].tx.t = 1 + off.v;
+  v[3].tx.s = 0 + off.u;
+  v[3].tx.t = 0 + off.v;
 
   ATTRIB_PUSH( "render_water_fan_lit", GL_TEXTURE_BIT | GL_CURRENT_BIT );
   {
@@ -608,11 +580,11 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
     for ( cnt = 0; cnt < commands; cnt++ )
     {
       glBegin( GL_TRIANGLE_FAN );
-      for ( tnc = 0; tnc < Mesh_Cmd[type].size[cnt]; tnc++ )
+      for ( tnc = 0; tnc < Mesh_Cmd[type].cmd_size[cnt]; tnc++ )
       {
         vertex = Mesh_Cmd[type].vrt[entry];
         glColor4fv( v[vertex].col.v );
-        glTexCoord2fv( &v[vertex].s );
+        glTexCoord2fv( v[vertex].tx._v );
         glVertex3fv( v[vertex].pos.v );
 
         entry++;
@@ -623,210 +595,7 @@ void render_water_fan_lit( Uint32 fan, Uint8 layer, Uint8 mode )
   ATTRIB_POP( "render_water_fan_lit" );
 }
 
-//--------------------------------------------------------------------------------------------
-//void make_renderlist()
-//{
-//  // ZZ> This function figures out which mesh fans to draw
-//  int cnt, fan, fanx, fany;
-//  int row, run, numrow;
-//  int xlist[4], ylist[4];
-//  int leftnum, leftlist[4];
-//  int rightnum, rightlist[4];
-//  int fanrowstart[128], fanrowrun[128];
-//  int x, stepx, divx, basex;
-//  int from, to;
-//
-//
-//  // Clear old render lists
-//  for (cnt = 0; cnt < renderlist.num_totl; cnt++)
-//  {
-//    fan = renderlist.totl[cnt];
-//    mesh_remove_renderlist(fan);
-//  }
-//  renderlist.num_totl = 0;
-//  renderlist.num_shine = 0;
-//  renderlist.num_reflc = 0;
-//  renderlist.num_norm = 0;
-//  renderlist.num_watr = 0;
-//
-//  // It works better this way...
-//  cornery[cornerlistlowtohighy[3]] += 256;
-//
-//  // Make life simpler
-//  xlist[0] = cornerx[cornerlistlowtohighy[0]];
-//  xlist[1] = cornerx[cornerlistlowtohighy[1]];
-//  xlist[2] = cornerx[cornerlistlowtohighy[2]];
-//  xlist[3] = cornerx[cornerlistlowtohighy[3]];
-//  ylist[0] = cornery[cornerlistlowtohighy[0]];
-//  ylist[1] = cornery[cornerlistlowtohighy[1]];
-//  ylist[2] = cornery[cornerlistlowtohighy[2]];
-//  ylist[3] = cornery[cornerlistlowtohighy[3]];
-//
-//  // Find the center line
-//  divx = ylist[3] - ylist[0]; if (divx < 1) return;
-//  stepx = xlist[3] - xlist[0];
-//  basex = xlist[0];
-//
-//
-//  // Find the points in each edge
-//  leftlist[0] = 0;  leftnum = 1;
-//  rightlist[0] = 0;  rightnum = 1;
-//  if (xlist[1] < (stepx*(ylist[1] - ylist[0]) / divx) + basex)
-//  {
-//    leftlist[leftnum] = 1;  leftnum++;
-//    cornerx[1] -= 512;
-//  }
-//  else
-//  {
-//    rightlist[rightnum] = 1;  rightnum++;
-//    cornerx[1] += 512;
-//  }
-//  if (xlist[2] < (stepx*(ylist[2] - ylist[0]) / divx) + basex)
-//  {
-//    leftlist[leftnum] = 2;  leftnum++;
-//    cornerx[2] -= 512;
-//  }
-//  else
-//  {
-//    rightlist[rightnum] = 2;  rightnum++;
-//    cornerx[2] += 512;
-//  }
-//  leftlist[leftnum] = 3;  leftnum++;
-//  rightlist[rightnum] = 3;  rightnum++;
-//
-//
-//  // Make the left edge ( rowstart )
-//  fany = MESH_INT_TO_FAN(ylist[0]);
-//  row = 0;
-//  cnt = 1;
-//  while (cnt < leftnum)
-//  {
-//    from = leftlist[cnt-1];  to = leftlist[cnt];
-//    x = xlist[from];
-//    divx = ylist[to] - ylist[from];
-//    stepx = 0;
-//    if (divx > 0)
-//    {
-//      stepx = MESH_FAN_TO_INT(xlist[to] - xlist[from]) / divx;
-//    }
-//    x -= 256;
-//
-//    run = MESH_INT_TO_FAN(ylist[to]);
-//    while (fany < run)
-//    {
-//      if (fany >= 0 && fany < mesh.size_y)
-//      {
-//        fanx = MESH_INT_TO_FAN(x);
-//        if (fanx < 0)  fanx = 0;
-//        if (fanx >= mesh.size_x)  fanx = mesh.size_x - 1;
-//        fanrowstart[row] = fanx;
-//        row++;
-//      }
-//      x += stepx;
-//      fany++;
-//    }
-//    cnt++;
-//  }
-//  numrow = row;
-//
-//
-//  // Make the right edge ( rowrun )
-//  fany = MESH_INT_TO_FAN(ylist[0]);
-//  row = 0;
-//  cnt = 1;
-//  while (cnt < rightnum)
-//  {
-//    from = rightlist[cnt-1];  to = rightlist[cnt];
-//    x = xlist[from];
-//    //x+=128;
-//    divx = ylist[to] - ylist[from];
-//    stepx = 0;
-//    if (divx > 0)
-//    {
-//      stepx = MESH_FAN_TO_INT(xlist[to] - xlist[from]) / divx;
-//    }
-//
-//    run = MESH_INT_TO_FAN(ylist[to]);
-//    while (fany < run)
-//    {
-//      if (fany >= 0 && fany < mesh.size_y)
-//      {
-//        fanx = MESH_INT_TO_FAN(x);
-//        if (fanx < 0)  fanx = 0;
-//        if (fanx >= mesh.size_x - 1)  fanx = mesh.size_x - 1;//-2
-//        fanrowrun[row] = ABS(fanx - fanrowstart[row]) + 1;
-//        row++;
-//      }
-//      x += stepx;
-//      fany++;
-//    }
-//    cnt++;
-//  }
-//
-//  if (numrow != row)
-//  {
-//    log_error("ROW error (%i, %i)\n", numrow, row);
-//  }
-//
-//  // Fill 'em up again
-//  fany = MESH_INT_TO_FAN(ylist[0]);
-//  if (fany < 0) fany = 0;
-//  if (fany >= mesh.size_y) fany = mesh.size_y - 1;
-//  row = 0;
-//  while (row < numrow)
-//  {
-//    cnt = mesh_convert_fan(fanrowstart[row], fany);
-//    run = fanrowrun[row];
-//    fanx = 0;
-//    while (fanx < run)
-//    {
-//      if (renderlist.num_totl<MAXMESHRENDER)
-//      {
-//        bool_t is_shine, is_noref, is_norml, is_water;
-//
-//        is_shine = mesh_has_some_bits(cnt, MESHFX_SHINY);
-//        is_noref = mesh_has_no_bits(cnt, MESHFX_NOREFLECT);
-//        is_norml = !is_shine;
-//        is_water = mesh_has_some_bits(cnt, MESHFX_WATER);
-//
-//        // Put each tile in basic list
-//        renderlist.totl[renderlist.num_totl] = cnt;
-//        renderlist.num_totl++;
-//        mesh_add_renderlist(cnt);
-//
-//        // Put each tile in one other list, for shadows and relections
-//        if (!is_noref)
-//        {
-//          renderlist.reflc[renderlist.num_reflc] = cnt;
-//          renderlist.num_reflc++;
-//        }
-//
-//        if (is_shine)
-//        {
-//          renderlist.shine[renderlist.num_shine] = cnt;
-//          renderlist.num_shine++;
-//        }
-//
-//        if (is_norml)
-//        {
-//          renderlist.norm[renderlist.num_norm] = cnt;
-//          renderlist.num_norm++;
-//        }
-//
-//        if (is_water)
-//        {
-//          renderlist.watr[renderlist.num_watr] = cnt;
-//          renderlist.num_watr++;
-//        }
-//      };
-//
-//      cnt++;
-//      fanx++;
-//    }
-//    row++;
-//    fany++;
-//  }
-//}
+
 
 void make_renderlist()
 {
@@ -1128,3 +897,208 @@ void do_dynalight()
   }
 };
 
+
+//--------------------------------------------------------------------------------------------
+//void make_renderlist()
+//{
+//  // ZZ> This function figures out which mesh fans to draw
+//  int cnt, fan, fanx, fany;
+//  int row, run, numrow;
+//  int xlist[4], ylist[4];
+//  int leftnum, leftlist[4];
+//  int rightnum, rightlist[4];
+//  int fanrowstart[128], fanrowrun[128];
+//  int x, stepx, divx, basex;
+//  int from, to;
+//
+//
+//  // Clear old render lists
+//  for (cnt = 0; cnt < renderlist.num_totl; cnt++)
+//  {
+//    fan = renderlist.totl[cnt];
+//    mesh_remove_renderlist(fan);
+//  }
+//  renderlist.num_totl = 0;
+//  renderlist.num_shine = 0;
+//  renderlist.num_reflc = 0;
+//  renderlist.num_norm = 0;
+//  renderlist.num_watr = 0;
+//
+//  // It works better this way...
+//  cornery[cornerlistlowtohighy[3]] += 256;
+//
+//  // Make life simpler
+//  xlist[0] = cornerx[cornerlistlowtohighy[0]];
+//  xlist[1] = cornerx[cornerlistlowtohighy[1]];
+//  xlist[2] = cornerx[cornerlistlowtohighy[2]];
+//  xlist[3] = cornerx[cornerlistlowtohighy[3]];
+//  ylist[0] = cornery[cornerlistlowtohighy[0]];
+//  ylist[1] = cornery[cornerlistlowtohighy[1]];
+//  ylist[2] = cornery[cornerlistlowtohighy[2]];
+//  ylist[3] = cornery[cornerlistlowtohighy[3]];
+//
+//  // Find the center line
+//  divx = ylist[3] - ylist[0]; if (divx < 1) return;
+//  stepx = xlist[3] - xlist[0];
+//  basex = xlist[0];
+//
+//
+//  // Find the points in each edge
+//  leftlist[0] = 0;  leftnum = 1;
+//  rightlist[0] = 0;  rightnum = 1;
+//  if (xlist[1] < (stepx*(ylist[1] - ylist[0]) / divx) + basex)
+//  {
+//    leftlist[leftnum] = 1;  leftnum++;
+//    cornerx[1] -= 512;
+//  }
+//  else
+//  {
+//    rightlist[rightnum] = 1;  rightnum++;
+//    cornerx[1] += 512;
+//  }
+//  if (xlist[2] < (stepx*(ylist[2] - ylist[0]) / divx) + basex)
+//  {
+//    leftlist[leftnum] = 2;  leftnum++;
+//    cornerx[2] -= 512;
+//  }
+//  else
+//  {
+//    rightlist[rightnum] = 2;  rightnum++;
+//    cornerx[2] += 512;
+//  }
+//  leftlist[leftnum] = 3;  leftnum++;
+//  rightlist[rightnum] = 3;  rightnum++;
+//
+//
+//  // Make the left edge ( rowstart )
+//  fany = MESH_INT_TO_FAN(ylist[0]);
+//  row = 0;
+//  cnt = 1;
+//  while (cnt < leftnum)
+//  {
+//    from = leftlist[cnt-1];  to = leftlist[cnt];
+//    x = xlist[from];
+//    divx = ylist[to] - ylist[from];
+//    stepx = 0;
+//    if (divx > 0)
+//    {
+//      stepx = MESH_FAN_TO_INT(xlist[to] - xlist[from]) / divx;
+//    }
+//    x -= 256;
+//
+//    run = MESH_INT_TO_FAN(ylist[to]);
+//    while (fany < run)
+//    {
+//      if (fany >= 0 && fany < mesh.size_y)
+//      {
+//        fanx = MESH_INT_TO_FAN(x);
+//        if (fanx < 0)  fanx = 0;
+//        if (fanx >= mesh.size_x)  fanx = mesh.size_x - 1;
+//        fanrowstart[row] = fanx;
+//        row++;
+//      }
+//      x += stepx;
+//      fany++;
+//    }
+//    cnt++;
+//  }
+//  numrow = row;
+//
+//
+//  // Make the right edge ( rowrun )
+//  fany = MESH_INT_TO_FAN(ylist[0]);
+//  row = 0;
+//  cnt = 1;
+//  while (cnt < rightnum)
+//  {
+//    from = rightlist[cnt-1];  to = rightlist[cnt];
+//    x = xlist[from];
+//    //x+=128;
+//    divx = ylist[to] - ylist[from];
+//    stepx = 0;
+//    if (divx > 0)
+//    {
+//      stepx = MESH_FAN_TO_INT(xlist[to] - xlist[from]) / divx;
+//    }
+//
+//    run = MESH_INT_TO_FAN(ylist[to]);
+//    while (fany < run)
+//    {
+//      if (fany >= 0 && fany < mesh.size_y)
+//      {
+//        fanx = MESH_INT_TO_FAN(x);
+//        if (fanx < 0)  fanx = 0;
+//        if (fanx >= mesh.size_x - 1)  fanx = mesh.size_x - 1;//-2
+//        fanrowrun[row] = ABS(fanx - fanrowstart[row]) + 1;
+//        row++;
+//      }
+//      x += stepx;
+//      fany++;
+//    }
+//    cnt++;
+//  }
+//
+//  if (numrow != row)
+//  {
+//    log_error("ROW error (%i, %i)\n", numrow, row);
+//  }
+//
+//  // Fill 'em up again
+//  fany = MESH_INT_TO_FAN(ylist[0]);
+//  if (fany < 0) fany = 0;
+//  if (fany >= mesh.size_y) fany = mesh.size_y - 1;
+//  row = 0;
+//  while (row < numrow)
+//  {
+//    cnt = mesh_convert_fan(fanrowstart[row], fany);
+//    run = fanrowrun[row];
+//    fanx = 0;
+//    while (fanx < run)
+//    {
+//      if (renderlist.num_totl<MAXMESHRENDER)
+//      {
+//        bool_t is_shine, is_noref, is_norml, is_water;
+//
+//        is_shine = mesh_has_some_bits(cnt, MESHFX_SHINY);
+//        is_noref = mesh_has_no_bits(cnt, MESHFX_NOREFLECT);
+//        is_norml = !is_shine;
+//        is_water = mesh_has_some_bits(cnt, MESHFX_WATER);
+//
+//        // Put each tile in basic list
+//        renderlist.totl[renderlist.num_totl] = cnt;
+//        renderlist.num_totl++;
+//        mesh_add_renderlist(cnt);
+//
+//        // Put each tile in one other list, for shadows and relections
+//        if (!is_noref)
+//        {
+//          renderlist.reflc[renderlist.num_reflc] = cnt;
+//          renderlist.num_reflc++;
+//        }
+//
+//        if (is_shine)
+//        {
+//          renderlist.shine[renderlist.num_shine] = cnt;
+//          renderlist.num_shine++;
+//        }
+//
+//        if (is_norml)
+//        {
+//          renderlist.norm[renderlist.num_norm] = cnt;
+//          renderlist.num_norm++;
+//        }
+//
+//        if (is_water)
+//        {
+//          renderlist.watr[renderlist.num_watr] = cnt;
+//          renderlist.num_watr++;
+//        }
+//      };
+//
+//      cnt++;
+//      fanx++;
+//    }
+//    row++;
+//    fany++;
+//  }
+//}

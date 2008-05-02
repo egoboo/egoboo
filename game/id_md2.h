@@ -19,7 +19,7 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 
 #ifndef Egoboo_id_md2_h
 #define Egoboo_id_md2_h

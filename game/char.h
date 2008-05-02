@@ -240,9 +240,9 @@ typedef struct cap_t
   float         weight;                        // Weight
   float         jump;                          // Jump power
   Uint8         jumpnumber;                    // Number of jumps ( Ninja )
-  Uint8         sneakspd;                      // Sneak threshold
-  Uint8         walkspd;                       // Walk threshold
-  Uint8         runspd;                        // Run threshold
+  Uint8         spd_sneak;                      // Sneak threshold
+  Uint8         spd_walk;                       // Walk threshold
+  Uint8         spd_run;                        // Run threshold
   Uint8         flyheight;                     // Fly height
   Uint8         flashand;                      // Flashing rate
   Uint8         alpha_fp8;                     // Transparency
@@ -550,9 +550,9 @@ typedef struct chr_t
   Uint16          bumpnext;        // Next character on fanblock
   float           bumpdampen;      // Character bump mass
 
-  Uint8           sneakspd;        // Sneaking if above this speed
-  Uint8           walkspd;         // Walking if above this speed
-  Uint8           runspd;          // Running if above this speed
+  Uint8           spd_sneak;        // Sneaking if above this speed
+  Uint8           spd_walk;         // Walking if above this speed
+  Uint8           spd_run;          // Running if above this speed
 
   DAMAGE          damagetargettype;// Type of damage for AI DamageTarget
   DAMAGE          reaffirmdamagetype; // For relighting torches
@@ -643,12 +643,18 @@ extern CHR ChrList[MAXCHR];
 
 typedef struct bumplist_t
 {
-  Uint32  num_blocks;                                    // Number of collision areas
-  Uint16  chr[MAXMESHFAN/16];                     // For character collisions
-  Uint16  num_chr[MAXMESHFAN/16];                  // Number on the block
-  Uint16  prt[MAXMESHFAN/16];                     // For particle collisions
-  Uint16  num_prt[MAXMESHFAN/16];                  // Number on the block
+  bool_t   valid;
+  Uint32   num_blocks;              // Number of collision areas
+  Uint16 * chr;                     // For character collisions
+  Uint16 * num_chr;                 // Number on the block
+  Uint16 * prt;                     // For particle collisions
+  Uint16 * num_prt;                 // Number on the block
 } BUMPLIST;
+
+BUMPLIST * bumplist_new(BUMPLIST * b);
+void       bumplist_delete(BUMPLIST * b);
+BUMPLIST * bumplist_renew(BUMPLIST * b);
+bool_t     bumplist_allocate(BUMPLIST * b, int size);
 
 extern BUMPLIST bumplist;
 
@@ -723,3 +729,5 @@ CHR_REF chr_get_aihitlast( CHR_REF ichr );
 
 Uint16 object_generate_index( char *szLoadName );
 Uint16 load_one_cap( char *szLoadName, Uint16 icap );
+
+bool_t chr_bdata_reinit(CHR_REF ichr, BData * pbd);

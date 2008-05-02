@@ -27,9 +27,13 @@ void log_shutdown( void );
 
 void log_setLoggingLevel( int level );
 
+// these send messages to "log.txt"
 void log_message( const char *format, ... );
 void log_info( const char *format, ... );
 void log_warning( const char *format, ... );
 void log_error( const char *format, ... );
+
+// these send messages to "debug.txt"
+void log_debug( const char *format, ... );
 
 #endif // include guard

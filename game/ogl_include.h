@@ -7,7 +7,7 @@
 #    error Somehow, egoboo_config.h is not included in this file...
 #endif
 
-#if DEBUG_ATTRIB && defined(_DEBUG)
+#if defined(DEBUG_ATTRIB) && defined(_DEBUG)
 #    define ATTRIB_PUSH(TXT, BITS)    { GLint xx=0; glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); glPushAttrib(BITS); log_info("PUSH  ATTRIB: %s before attrib stack push. level == %d\n", TXT, xx); }
 #    define ATTRIB_POP(TXT)           { GLint xx=0; glPopAttrib(); glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&xx); log_info("POP   ATTRIB: %s after attrib stack pop. level == %d\n", TXT, xx); }
 #    define ATTRIB_GUARD_OPEN(XX)     { glGetIntegerv(GL_ATTRIB_STACK_DEPTH,&XX); log_info("OPEN ATTRIB_GUARD: before attrib stack push. level == %d\n", XX); }
@@ -31,8 +31,9 @@ typedef struct ogl_vertex_t
 {
   GLvector pos;
   GLvector col;
-  Uint32 color; // should replace r,g,b,a and be called by glColor4ubv
-  GLfloat s, t; // u and v in D3D I guess
+  Uint32 color;  // should replace r,g,b,a and be called by glColor4ubv
+
+  vect2 tx;      // u and v in D3D I guess
   vect3 nrm;
   vect3 up;
   vect3 rt;

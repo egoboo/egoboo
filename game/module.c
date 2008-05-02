@@ -31,7 +31,13 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
-void release_module( void )
+void release_bumplist(void)
+{
+  bumplist_renew( &bumplist );
+};
+
+//--------------------------------------------------------------------------------------------
+void module_release( void )
 {
   // ZZ> This function frees up memory used by the module
 
@@ -40,33 +46,33 @@ void release_module( void )
   release_all_textures();
   release_all_icons();
   release_map();
+  release_bumplist();
 
   // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
-  if ( mixeron)
+  if ( mixeron )
   {
     Mix_CloseAudio();
     songplaying = -1;
     Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, CData.buffersize );
     Mix_AllocateChannels( CData.maxsoundchannel );
   }
+
+
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t module_reference_matches( char *szLoadName, IDSZ idsz )
 {
   // ZZ> This function returns btrue if the named module has the required IDSZ
+
   FILE *fileread;
   STRING newloadname;
   IDSZ newidsz;
   bool_t foundidsz;
   int cnt;
 
-
-  if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
-    return btrue;
-
-  if ( idsz == IDSZ_NONE )
-    return btrue;
+  if ( 0 == strcmp(szLoadName, "NONE") ) return btrue;
+  if ( idsz == IDSZ_NONE ) return btrue;
 
   foundidsz = bfalse;
   snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s/%s", CData.modules_dir, szLoadName, CData.gamedat_dir, CData.mnu_file );
@@ -116,6 +122,7 @@ bool_t module_reference_matches( char *szLoadName, IDSZ idsz )
 void add_module_idsz( char *szLoadName, IDSZ idsz )
 {
   // ZZ> This function appends an IDSZ to the module's menu.txt file
+
   FILE *filewrite;
   STRING newloadname;
 
@@ -155,7 +162,7 @@ int find_module( char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_module( char *smallname )
+void module_load( char *smallname )
 {
   // ZZ> This function loads a module
   STRING modname;
@@ -253,7 +260,7 @@ void load_module( char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t get_module_data( int modnumber, char *szLoadName )
+bool_t module_read_data( int modnumber, char *szLoadName )
 {
   // ZZ> This function loads the module data file
   FILE *fileread;
@@ -311,7 +318,7 @@ bool_t get_module_data( int modnumber, char *szLoadName )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t get_module_summary( char *szLoadName )
+bool_t module_read_summary( char *szLoadName )
 {
   // ZZ> This function gets the quest description out of the module's menu file
   FILE *fileread;

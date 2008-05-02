@@ -1,6 +1,6 @@
 #pragma once
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 
 #include <SDL.h>
 

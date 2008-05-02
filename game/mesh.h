@@ -1,22 +1,22 @@
 #pragma once
 
-#include "egoboo_types.h"
+#include "egoboo_types.inl"
 #include "egoboo_math.h"
 
 #define MAPID                           0x4470614d     // The string 'MapD'
 
 #define MAXMESHFAN                      (512*512)      // Terrain mesh size
 #define MAXMESHSIZEY                    1024           // Max fans in y direction
-#define BYTESFOREACHVERTEX              (3*sizeof(float) + 6*sizeof(int))
+#define BYTESFOREACHVERTEX              (3*sizeof(float) + 6*sizeof(Uint8))
 #define MAXMESHVERTICES                 16             // Fansquare vertices
 #define MAXMESHTYPE                     64             // Number of fansquare command types
 #define MAXMESHCOMMAND                  4              // Draw up to 4 fans
 #define MAXMESHCOMMANDENTRIES           32             // Fansquare command list size
 #define MAXMESHCOMMANDSIZE              32             // Max trigs in each command
-#define MAXTILETYPE                     256            // Max number of tile images
-#define MAXMESHRENDER                   1024*8           // Max number of tiles to draw
-#define INVALID_TILE                    (~(Uint16)0) // Don't draw the fansquare if tile = this
-#define INVALID_FAN                     (~(Uint32)0) // Character not on a fan ( maybe )
+#define MAXTILETYPE                     (64*4)         // Max number of tile images
+#define MAXMESHRENDER                   (1024*8)       // Max number of tiles to draw
+#define INVALID_TILE                    (~(Uint16)0)   // Don't draw the fansquare if tile = this
+#define INVALID_FAN                     (~(Uint32)0)   // Character not on a fan ( maybe )
 
 #define FAN_BITS 7
 #define MESH_FAN_TO_INT(XX)    ( (XX) << FAN_BITS )
@@ -125,23 +125,20 @@ extern MESH_MEMORY Mesh_Mem;
 
 typedef struct mesh_command_t
 {
-  Uint8   count;                          // Number of commands
-  Uint8   size[MAXMESHCOMMAND];       // Entries in each command
-
-  Uint8   vrt_count;                // Number of vertices
+  Uint8   cmd_count;                  // Number of commands
+  Uint8   cmd_size[MAXMESHCOMMAND];   // Entries in each command
   Uint16  vrt[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
 
+  Uint8   vrt_count;                  // Number of vertices
   Uint8   ref[MAXMESHVERTICES];       // Lighting references
-  float   u[MAXMESHVERTICES];         // Vertex texture posi
-  float   v[MAXMESHVERTICES];         //
+  vect2   tx[MAXMESHVERTICES];
 } MESH_COMMAND;
 
 MESH_COMMAND Mesh_Cmd[MAXMESHTYPE];
 
 typedef struct mesh_tile_t
 {
-  float   off_u;                          // Tile texture offset
-  float   off_v;                          //
+  vect2   off;                          // Tile texture offset
 } MESH_TILE;
 
 extern MESH_TILE Mesh_Tile[MAXTILETYPE];

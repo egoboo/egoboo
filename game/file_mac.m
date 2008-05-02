@@ -268,7 +268,7 @@ void empty_import_directory()
 }
 
 // Pulled from egobootypedef.h
-float LoadFloatByteswapped( float *ptr )
+float SwapLE_float( float *ptr )
 {
   int i;
   float *fptr;

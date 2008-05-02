@@ -161,6 +161,12 @@
 				RelativePath=".\egoboo_strutil.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_types.c">
+			</File>
+			<File
+				RelativePath=".\egoboo_types.inl">
+			</File>
+			<File
 				RelativePath=".\egoboo_utility.c">
 			</File>
 			<File
@@ -478,6 +484,9 @@
 					<Tool
 						Name="VCCLCompilerTool"/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\cartman.h">
 			</File>
 			<File
 				RelativePath=".\obsolete\cartman_mouse3.c">

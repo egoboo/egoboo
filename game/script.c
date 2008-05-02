@@ -1566,18 +1566,19 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_SetTargetToNearbyEnemy:
       // This function finds a nearby enemy, and proceeds only if there is one
 
-      sTmp = chr_search_nearby_target(search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      returncode = chr_search_nearby(search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.besttarget;
       }
+
       break;
 
     case F_SetTargetToTargetLeftHand:
       // This function sets the target to the target's left item
       sTmp = chr_get_holdingwhich( pstate->target, SLOT_LEFT );
+
       returncode = bfalse;
       if ( VALID_CHR( sTmp ) )
       {
@@ -2353,12 +2354,12 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_SetTargetToWideEnemy:
       // This function finds an enemy, and proceeds only if there is one
-      sTmp = chr_search_wide_target( search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE, bfalse );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+
+      returncode = chr_search_wide( search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE, bfalse );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.besttarget;
       }
       break;
 
@@ -3090,20 +3091,19 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       break;
 
     case F_SetTargetToWideBlahID:
-      // This function sets the target based on the settings of
-      // tmpargument and tmpdistance
-      sTmp = chr_search_wide_target( search_new(&loc_search), ichr,
-                                     HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ITEMS   ),
-                                     HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_FRIENDS ),
-                                     HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ENEMIES ),
-                                     HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_DEAD    ),
-                                     pg_scr->tmpargument,
-                                     HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_INVERT  ) );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      // This function sets the target based on the settings of tmpargument and tmpdistance
+
+      returncode = chr_search_wide( search_new(&loc_search), ichr,
+                                    HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ITEMS   ),
+                                    HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_FRIENDS ),
+                                    HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ENEMIES ),
+                                    HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_DEAD    ),
+                                    pg_scr->tmpargument,
+                                    HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_INVERT  ) );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.besttarget;
       }
       break;
 
@@ -3249,12 +3249,12 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_SetTargetToDistantEnemy:
       // This function finds an enemy, within a certain distance to the ichr, and
       // proceeds only if there is one
-      sTmp = chr_search_distant_target( search_new(&loc_search), ichr, pg_scr->tmpdistance, btrue, bfalse );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+
+      returncode = chr_search_distant( search_new(&loc_search), ichr, pg_scr->tmpdistance, btrue, bfalse );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.besttarget;
       }
       break;
 
@@ -3758,17 +3758,15 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function finds the nearest target that meets the
       // requirements
 
-      sTmp = chr_search_nearest_target( search_new(&loc_search), ichr,
-                                        HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ITEMS   ),
-                                        HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_FRIENDS ),
-                                        HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ENEMIES ),
-                                        HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_DEAD    ),
-                                        pg_scr->tmpargument );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      returncode = chr_search_wide_nearest( search_new(&loc_search), ichr,
+                                            HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ITEMS   ),
+                                            HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_FRIENDS ),
+                                            HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_ENEMIES ),
+                                            HAS_SOME_BITS( pg_scr->tmpdistance, SEARCH_DEAD    ),
+                                            pg_scr->tmpargument );
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.nearest;
       }
       break;
 
@@ -3776,12 +3774,11 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function finds the nearest target that meets the
       // requirements
 
-      sTmp = chr_search_nearest_target( search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      returncode = chr_search_wide_nearest( search_new(&loc_search), ichr, bfalse, bfalse, btrue, bfalse, IDSZ_NONE );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.nearest;
       }
       break;
 
@@ -3789,13 +3786,11 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function finds the nearest target that meets the
       // requirements
 
-      search_new(&loc_search);
-      sTmp = chr_search_nearest_target( &loc_search, ichr, bfalse, btrue, bfalse, bfalse, IDSZ_NONE );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      returncode = chr_search_wide_nearest( search_new(&loc_search), ichr, bfalse, btrue, bfalse, bfalse, IDSZ_NONE );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.nearest;
       }
       break;
 
@@ -3803,12 +3798,11 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function finds the nearest target that meets the
       // requirements
 
-      sTmp = chr_search_nearest_target( search_new(&loc_search), ichr, bfalse, btrue, btrue, bfalse, IDSZ_NONE );
-      returncode = bfalse;
-      if ( VALID_CHR( sTmp ) )
+      returncode = chr_search_wide_nearest( search_new(&loc_search), ichr, bfalse, btrue, btrue, bfalse, IDSZ_NONE );
+
+      if ( returncode )
       {
-        pstate->target = sTmp;
-        returncode = btrue;
+        pstate->target = loc_search.nearest;
       }
       break;
 

@@ -616,7 +616,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
     src_converted = 0;
   } else {
     /*
-    * New source surface is 32bit with a defined RGBA GOrder.ing
+    * New source surface is 32bit with a defined RGBA ordering
     */
     rz_src =
       SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
@@ -666,7 +666,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
     rz_dst = NULL;
     if (is32bit) {
       /*
-      * Target surface is 32bit with source RGBA/ABGR GOrder.ing
+      * Target surface is 32bit with source RGBA/ABGR ordering
       */
       rz_dst =
         SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight, 32,
@@ -736,7 +736,7 @@ SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int s
     rz_dst = NULL;
     if (is32bit) {
       /*
-      * Target surface is 32bit with source RGBA/ABGR GOrder.ing
+      * Target surface is 32bit with source RGBA/ABGR ordering
       */
       rz_dst =
         SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight, 32,
@@ -862,7 +862,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
     src_converted = 0;
   } else {
     /*
-    * New source surface is 32bit with a defined RGBA GOrder.ing
+    * New source surface is 32bit with a defined RGBA ordering
     */
     rz_src =
       SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
@@ -880,7 +880,7 @@ SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smoo
   rz_dst = NULL;
   if (is32bit) {
     /*
-    * Target surface is 32bit with source RGBA/ABGR GOrder.ing
+    * Target surface is 32bit with source RGBA/ABGR ordering
     */
     rz_dst =
       SDL_CreateRGBSurface(SDL_SWSURFACE, dstwidth, dstheight, 32,

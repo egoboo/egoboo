@@ -277,24 +277,24 @@ void render_antialias_prt( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         // Go on and draw it
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );  //[claforte] should use alpha_component instead of 0.5?
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2fv( &vtlist[i].s );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -363,23 +363,23 @@ void render_solid_prt( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2fv( &vtlist[i].s );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -447,24 +447,24 @@ void render_transparent_prt( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         // Go on and draw it
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );  //[claforte] should use alpha_component instead of 0.5?
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2f( vtlist[i].s, vtlist[i].t );
+          glTexCoord2fv( vtlist[i].tx._v  );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -533,24 +533,24 @@ void render_light_prt( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         // Go on and draw it
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2f( vtlist[i].s, vtlist[i].t );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -715,24 +715,24 @@ void render_antialias_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         // Go on and draw it
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2f( vtlist[i].s, vtlist[i].t );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -800,23 +800,23 @@ void render_solid_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2f( vtlist[i].s, vtlist[i].t );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -886,24 +886,24 @@ void render_transparent_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
         // Fill in the rest of the data
         image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-        vtlist[0].s = CALCULATE_PRT_U0( image );
-        vtlist[0].t = CALCULATE_PRT_V0( image );
+        vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[1].s = CALCULATE_PRT_U1( image );
-        vtlist[1].t = CALCULATE_PRT_V0( image );
+        vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-        vtlist[2].s = CALCULATE_PRT_U1( image );
-        vtlist[2].t = CALCULATE_PRT_V1( image );
+        vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+        vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-        vtlist[3].s = CALCULATE_PRT_U0( image );
-        vtlist[3].t = CALCULATE_PRT_V1( image );
+        vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+        vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
         // Go on and draw it
         glBegin( GL_TRIANGLE_FAN );
         glColor4fv( color_component.v );  //[claforte] should use alpha_component instead of 0.5?
         for ( i = 0; i < 4; i++ )
         {
-          glTexCoord2f( vtlist[i].s, vtlist[i].t );
+          glTexCoord2fv( vtlist[i].tx._v );
           glVertex3fv( vtlist[i].pos.v );
         }
         glEnd();
@@ -970,24 +970,24 @@ void render_light_prt_ref( Uint32 vrtcount, GLVertex * vrtlist )
       // Fill in the rest of the data
       image = FP8_TO_FLOAT( PrtList[prt].image_fp8 + PrtList[prt].imagestt_fp8 );
 
-      vtlist[0].s = CALCULATE_PRT_U0( image );
-      vtlist[0].t = CALCULATE_PRT_V0( image );
+      vtlist[0].tx.s = CALCULATE_PRT_U0( image );
+      vtlist[0].tx.t = CALCULATE_PRT_V0( image );
 
-      vtlist[1].s = CALCULATE_PRT_U1( image );
-      vtlist[1].t = CALCULATE_PRT_V0( image );
+      vtlist[1].tx.s = CALCULATE_PRT_U1( image );
+      vtlist[1].tx.t = CALCULATE_PRT_V0( image );
 
-      vtlist[2].s = CALCULATE_PRT_U1( image );
-      vtlist[2].t = CALCULATE_PRT_V1( image );
+      vtlist[2].tx.s = CALCULATE_PRT_U1( image );
+      vtlist[2].tx.t = CALCULATE_PRT_V1( image );
 
-      vtlist[3].s = CALCULATE_PRT_U0( image );
-      vtlist[3].t = CALCULATE_PRT_V1( image );
+      vtlist[3].tx.s = CALCULATE_PRT_U0( image );
+      vtlist[3].tx.t = CALCULATE_PRT_V1( image );
 
       // Go on and draw it
       glBegin( GL_TRIANGLE_FAN );
       glColor4fv( color_component.v );
       for ( i = 0; i < 4; i++ )
       {
-        glTexCoord2f( vtlist[i].s, vtlist[i].t );
+        glTexCoord2fv( vtlist[i].tx._v );
         glVertex3fv( vtlist[i].pos.v );
       }
       glEnd();

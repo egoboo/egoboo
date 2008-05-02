@@ -41,26 +41,24 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
 
   fread(&header, sizeof(header), 1, f);
 
-  // Convert the byte GOrder.ing in the header, if we need to
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  header.magic            = SDL_Swap32BE(header.magic);
-  header.version          = SDL_Swap32BE(header.version);
-  header.skinWidth        = SDL_Swap32BE(header.skinWidth);
-  header.skinHeight       = SDL_Swap32BE(header.skinHeight);
-  header.frameSize        = SDL_Swap32BE(header.frameSize);
-  header.numSkins         = SDL_Swap32BE(header.numSkins);
-  header.numVertices      = SDL_Swap32BE(header.numVertices);
-  header.numTexCoords     = SDL_Swap32BE(header.numTexCoords);
-  header.numTriangles     = SDL_Swap32BE(header.numTriangles);
-  header.numGlCommands    = SDL_Swap32BE(header.numGlCommands);
-  header.numFrames        = SDL_Swap32BE(header.numFrames);
-  header.offsetSkins      = SDL_Swap32BE(header.offsetSkins);
-  header.offsetTexCoords  = SDL_Swap32BE(header.offsetTexCoords);
-  header.offsetTriangles  = SDL_Swap32BE(header.offsetTriangles);
-  header.offsetFrames     = SDL_Swap32BE(header.offsetFrames);
-  header.offsetGlCommands = SDL_Swap32BE(header.offsetGlCommands);
-  header.offsetEnd        = SDL_Swap32BE(header.offsetEnd);
-#endif
+  // Convert the byte ordering in the header, if we need to
+  header.magic            = SDL_SwapLE32(header.magic);
+  header.version          = SDL_SwapLE32(header.version);
+  header.skinWidth        = SDL_SwapLE32(header.skinWidth);
+  header.skinHeight       = SDL_SwapLE32(header.skinHeight);
+  header.frameSize        = SDL_SwapLE32(header.frameSize);
+  header.numSkins         = SDL_SwapLE32(header.numSkins);
+  header.numVertices      = SDL_SwapLE32(header.numVertices);
+  header.numTexCoords     = SDL_SwapLE32(header.numTexCoords);
+  header.numTriangles     = SDL_SwapLE32(header.numTriangles);
+  header.numGlCommands    = SDL_SwapLE32(header.numGlCommands);
+  header.numFrames        = SDL_SwapLE32(header.numFrames);
+  header.offsetSkins      = SDL_SwapLE32(header.offsetSkins);
+  header.offsetTexCoords  = SDL_SwapLE32(header.offsetTexCoords);
+  header.offsetTriangles  = SDL_SwapLE32(header.offsetTriangles);
+  header.offsetFrames     = SDL_SwapLE32(header.offsetFrames);
+  header.offsetGlCommands = SDL_SwapLE32(header.offsetGlCommands);
+  header.offsetEnd        = SDL_SwapLE32(header.offsetEnd);
 
   if(header.magic != MD2_MAGIC_NUMBER || header.version != MD2_VERSION)
   {
@@ -93,11 +91,10 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
     md2_texcoord tc;
     fread(&tc, sizeof(tc), 1, f);
 
-    // Convert the byte order of the texture coordinates, if we need to
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-    tc.s = SDL_Swap16(tc.s);
-    tc.t = SDL_Swap16(tc.t);
-#endif
+    // auto-convert the byte ordering of the texture coordinates
+    tc.s = SDL_SwapLE16(tc.s);
+    tc.t = SDL_SwapLE16(tc.t);
+
     model->m_texCoords[i].s = tc.s / (float)header.skinWidth;
     model->m_texCoords[i].t = tc.t / (float)header.skinHeight;
   }
@@ -107,17 +104,15 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
   fseek(f, header.offsetTriangles, SEEK_SET);
   fread(model->m_triangles, sizeof(md2_triangle), header.numTriangles, f);
 
-  // Convert the byte GOrder.ing on the triangles, if necessary
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-  for(int i = 0;i < header.numTriangles;i++)
+  // auto-convert the byte ordering on the triangles
+  for(i = 0;i < header.numTriangles; i++)
   {
     for(v = 0;v < 3;v++)
     {
-      model->m_triangles[i].vertexIndices[v]   = SDL_Swap16(model->triangles[i].vertexIndices[v]);
-      model->m_triangles[i].texCoordIndices[v] = SDL_Swap16(model->triangles[i].texCoordIndices[v]);
+      model->m_triangles[i].vertexIndices[v]   = SDL_SwapLE16(model->m_triangles[i].vertexIndices[v]);
+      model->m_triangles[i].texCoordIndices[v] = SDL_SwapLE16(model->m_triangles[i].texCoordIndices[v]);
     }
   }
-#endif
 
   // Load the skin names.  Again, I can load them directly
   fseek(f, header.offsetSkins, SEEK_SET);
@@ -134,7 +129,7 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
     fread(frame_buffer, header.frameSize, 1, f);
     frame = (md2_frame*)frame_buffer;
 
-    // Convert the byte GOrder.ing on the scale & translate vectors, if necessary
+    // Convert the byte ordering on the scale & translate vectors, if necessary
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
     frame->scale[0] = swapFloat(frame->scale[0]);
     frame->scale[1] = swapFloat(frame->scale[1]);
@@ -197,9 +192,11 @@ MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
       //read the number of commands in the strip
       Sint32 commands;
       fread(&commands, sizeof(Sint32), 1, f);
+
+      // auto-convert the byte ordering
       commands = SDL_SwapLE32(commands);
-      if(commands==0)
-        break;
+
+      if(commands==0) break;
 
       cmd = MD2_GLCommand_new();
       cmd->command_count = commands;
@@ -406,6 +403,37 @@ void md2_delete_vector(MD2_Model * v, int n)
 };
 
 
+//---------------------------------------------------------------------------------------------
+void md2_scale_model(MD2_Model * pmd2, float scale)
+{
+  // BB > scale every vertex in the md2 by the given amount
+
+  int cnt, tnc, i; 
+  int num_frames, num_verts;
+  MD2_Frame * pframe;
+
+  num_frames = pmd2->m_numFrames;
+  num_verts  = pmd2->m_numVertices;
+
+  for(cnt=0; cnt<num_frames; cnt++)
+  {
+    pframe = pmd2->m_frames + cnt;
+
+    for(i=0; i<3; i++)
+    {
+      pframe->bbmax[i]    *= scale;
+      pframe->bbmin[i]    *= scale;
+    }
+
+    for(tnc=0; tnc<num_verts; tnc++)
+    {
+      pframe->vertices[tnc].x *= scale;
+      pframe->vertices[tnc].y *= scale;
+      pframe->vertices[tnc].z *= scale;
+    }
+  }
+}
+
 
 ////---------------------------------------------------------------------------------------------
 //int rip_md2_header( void )
@@ -554,11 +582,11 @@ void md2_delete_vector(MD2_Model * v, int n)
 //        fTmpv = fpFloatPointer[iCommandOffset];  iCommandOffset++;  cnt++;
 //        iTmp = ipIntPointer[iCommandOffset];  iCommandOffset++;  cnt++;
 //
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//        fTmpu = LoadFloatByteswapped( &fTmpu );
-//        fTmpv = LoadFloatByteswapped( &fTmpv );
-//        iTmp = SDL_Swap32( iTmp );
-//#endif
+//        // auto-convert the byte ordering
+//        fTmpu = SwapLE_float( fTmpu );
+//        fTmpv = SwapLE_float( fTmpv );
+//        iTmp = SDL_SwapLE32( iTmp );
+//
 //        MadList[modelindex].commandu[entry] = fTmpu - ( .5 / 64 ); // GL doesn't align correctly
 //        MadList[modelindex].commandv[entry] = fTmpv - ( .5 / 64 ); // with D3D
 //        MadList[modelindex].commandvrt[entry] = ( Uint16 ) iTmp;
@@ -674,15 +702,14 @@ void md2_delete_vector(MD2_Model * v, int n)
 //    fTranslatey = fpFloatPointer[iFrameOffset]; iFrameOffset++;
 //    fTranslatez = fpFloatPointer[iFrameOffset]; iFrameOffset++;
 //
-//#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-//    fScalex = LoadFloatByteswapped( &fScalex );
-//    fScaley = LoadFloatByteswapped( &fScaley );
-//    fScalez = LoadFloatByteswapped( &fScalez );
+//    auto-convert the byte ordering
+//    fScalex = SwapLE_float( fScalex );
+//    fScaley = SwapLE_float( fScaley );
+//    fScalez = SwapLE_float( fScalez );
 //
-//    fTranslatex = LoadFloatByteswapped( &fTranslatex );
-//    fTranslatey = LoadFloatByteswapped( &fTranslatey );
-//    fTranslatez = LoadFloatByteswapped( &fTranslatez );
-//#endif
+//    fTranslatex = SwapLE_float( fTranslatex );
+//    fTranslatey = SwapLE_float( fTranslatey );
+//    fTranslatez = SwapLE_float( fTranslatez );
 //
 //    iFrameOffset += 4;
 //    tnc = 0;

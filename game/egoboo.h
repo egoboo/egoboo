@@ -24,9 +24,15 @@
 
 #pragma once
 
-/* Typedefs for various platforms */
-#include "egoboo_types.h"
-#include "egoboo_config.h"
+#include "proto.h"
+#include "configfile.h"
+#include "Md2.h"
+
+#include "ogl_texture.h"        // OpenGL texture loader
+
+#include "egoboo_config.h"          // system dependent configuration information
+#include "egoboo_math.h"            // vector and matrix math
+#include "egoboo_types.inl"           // Typedefs for egoboo
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -37,21 +43,15 @@
 #include <time.h>
 #include <math.h>
 
-#include <SDL_opengl.h>
 
-#include "proto.h"
-#include "ogl_texture.h" /* OpenGL texture loader */
-#include "egoboo_math.h" /* vector and matrix math */
-#include "configfile.h"
-#include "Md2.h"
 
 // The following magic allows this include to work in multiple files
 #ifdef DECLARE_GLOBALS
-#define EXTERN
-#define EQ(x) =x;
+#    define EXTERN
+#    define EQ(x) =x;
 #else
-#define EXTERN extern
-#define EQ(x)
+#    define EXTERN extern
+#    define EQ(x)
 #endif
 
 EXTERN const char VERSION[] EQ( "2.7.x" );   // Version of the game
@@ -799,27 +799,27 @@ void setup_characters( char *modname );
 void read_input();
 
 
-bool_t prt_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, float prtx, float prty, Uint16 facing,
-                                   bool_t request_friends, bool_t allow_anyone, TEAM team,
-                                   Uint16 donttarget, Uint16 oldtarget );
-CHR_REF prt_search_target( SEARCH_CONTEXT * psearch, float prtx, float prty, Uint16 facing,
-                           Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
-                           TEAM team, Uint16 donttarget, Uint16 oldtarget );
+bool_t prt_search_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, PRT_REF iprt, Uint16 facing,
+                         bool_t request_friends, bool_t allow_anyone, TEAM team,
+                         Uint16 donttarget, Uint16 oldtarget );
+bool_t prt_search_wide( SEARCH_CONTEXT * psearch, PRT_REF iprt, Uint16 facing,
+                        Uint16 targetangle, bool_t request_friends, bool_t allow_anyone,
+                        TEAM team, Uint16 donttarget, Uint16 oldtarget );
 
-CHR_REF chr_search_distant_target( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead );
+bool_t chr_search_distant( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead );
 
-void chr_search_nearest_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz );
+bool_t chr_search_block_nearest( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                               bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz );
 
-CHR_REF chr_search_nearest_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                   bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz );
+bool_t chr_search_wide_nearest( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz );
 
-CHR_REF chr_search_wide_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid );
+bool_t chr_search_wide( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                        bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz, bool_t excludeid );
 
-CHR_REF chr_search_target_in_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
-                                    bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
-                                    bool_t excludeid );
+bool_t chr_search_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+                         bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz,
+                         bool_t excludeid );
 
-CHR_REF chr_search_nearby_target( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
-                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz );
+bool_t chr_search_nearby( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+                          bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ ask_idsz );

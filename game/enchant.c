@@ -544,9 +544,9 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
 
   // Movement
-  pchr->sneakspd = pcap->sneakspd;
-  pchr->walkspd = pcap->walkspd;
-  pchr->runspd = pcap->runspd;
+  pchr->spd_sneak = pcap->spd_sneak;
+  pchr->spd_walk = pcap->spd_walk;
+  pchr->spd_run = pcap->spd_run;
 
   // Set up position
   pchr->pos.x = pos.x;
@@ -650,6 +650,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
   // calculate the bumpers
   assert(NULL == pchr->bmpdata.cv_tree);
+  chr_bdata_reinit( ichr, &(pchr->bmpdata) );
   make_one_character_matrix( ichr );
 
   return ichr;
@@ -787,20 +788,31 @@ Uint16 change_armor( CHR_REF character, Uint16 skin )
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
-                       Uint8 leavewhich )
+void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin, Uint8 leavewhich )
 {
   // ZZ> This function polymorphs a character, changing stats, dropping weapons
   int tnc, enchant;
   Uint16 sTmp;
   CHR_REF item, imount;
+  CHR * pchr;
+  MAD * pmad;
+  CAP * pcap;
 
-  if ( new_profile > MAXMODEL || !MadList[new_profile].used ) return;
+  if( !VALID_CHR(ichr) ) return;
+
+  pchr = ChrList + ichr;
+
+  if ( !VALID_MDL_RANGE(new_profile) ) return;
+  
+  pmad = MadList + new_profile;
+  if( !pmad->used ) return;
+
+  pcap = CapList + new_profile;
 
   for ( _slot = SLOT_BEGIN; _slot < SLOT_COUNT; _slot = ( SLOT )( _slot + 1 ) )
   {
     sTmp = chr_get_holdingwhich( ichr, _slot );
-    if ( !CapList[new_profile].slotvalid[_slot] )
+    if ( !pcap->slotvalid[_slot] )
     {
       if ( detach_character_from_mount( sTmp, btrue, btrue ) )
       {
@@ -817,13 +829,12 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   // Remove particles
   disaffirm_attached_particles( ichr );
 
-
   switch ( leavewhich )
   {
     case LEAVE_FIRST:
       {
         // Remove all enchantments except top one
-        enchant = ChrList[ichr].firstenchant;
+        enchant = pchr->firstenchant;
         if ( enchant != MAXENCHANT )
         {
           while ( EncList[enchant].nextenchant != MAXENCHANT )
@@ -843,61 +854,60 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   }
 
   // Stuff that must be set
-  ChrList[ichr].model     = new_profile;
-  VData_Blended_destruct( &(ChrList[numfreechr].vdata) );
-  VData_Blended_construct( &(ChrList[numfreechr].vdata) );
-  VData_Blended_Allocate( &(ChrList[numfreechr].vdata), md2_get_numVertices(MadList[new_profile].md2_ptr) );
+  pchr->model     = new_profile;
+  VData_Blended_destruct( &(pchr->vdata) );
+  VData_Blended_construct( &(pchr->vdata) );
+  VData_Blended_Allocate( &(pchr->vdata), md2_get_numVertices(pmad->md2_ptr) );
 
-  ChrList[ichr].stoppedby = CapList[new_profile].stoppedby;
-  ChrList[ichr].lifeheal  = CapList[new_profile].lifeheal_fp8;
-  ChrList[ichr].manacost  = CapList[new_profile].manacost_fp8;
+  pchr->stoppedby = pcap->stoppedby;
+  pchr->lifeheal  = pcap->lifeheal_fp8;
+  pchr->manacost  = pcap->manacost_fp8;
 
   // Ammo
-  ChrList[ichr].ammomax = CapList[new_profile].ammomax;
-  ChrList[ichr].ammo = CapList[new_profile].ammo;
+  pchr->ammomax = pcap->ammomax;
+  pchr->ammo = pcap->ammo;
   // Gender
-  if ( CapList[new_profile].gender != GEN_RANDOM ) // GEN_RANDOM means keep old gender
+  if ( pcap->gender != GEN_RANDOM ) // GEN_RANDOM means keep old gender
   {
-    ChrList[ichr].gender = CapList[new_profile].gender;
+    pchr->gender = pcap->gender;
   }
 
-
   // AI stuff
-  ChrList[ichr].aistate.type = MadList[new_profile].ai;
-  ChrList[ichr].aistate.state = 0;
-  ChrList[ichr].aistate.time = 0;
-  ChrList[ichr].aistate.latch.x = 0;
-  ChrList[ichr].aistate.latch.y = 0;
-  ChrList[ichr].aistate.latch.b = 0;
-  ChrList[ichr].aistate.turnmode = TURNMODE_VELOCITY;
+  pchr->aistate.type = pmad->ai;
+  pchr->aistate.state = 0;
+  pchr->aistate.time = 0;
+  pchr->aistate.latch.x = 0;
+  pchr->aistate.latch.y = 0;
+  pchr->aistate.latch.b = 0;
+  pchr->aistate.turnmode = TURNMODE_VELOCITY;
 
   // Flags
-  ChrList[ichr].stickybutt = CapList[new_profile].stickybutt;
-  ChrList[ichr].openstuff = CapList[new_profile].canopenstuff;
-  ChrList[ichr].transferblend = CapList[new_profile].transferblend;
-  ChrList[ichr].enviro = CapList[new_profile].enviro;
-  ChrList[ichr].isplatform = CapList[new_profile].isplatform;
-  ChrList[ichr].isitem = CapList[new_profile].isitem;
-  ChrList[ichr].invictus = CapList[new_profile].invictus;
-  ChrList[ichr].ismount = CapList[new_profile].ismount;
-  ChrList[ichr].cangrabmoney = CapList[new_profile].cangrabmoney;
-  ChrList[ichr].jumptime = DELAY_JUMP;
+  pchr->stickybutt = pcap->stickybutt;
+  pchr->openstuff = pcap->canopenstuff;
+  pchr->transferblend = pcap->transferblend;
+  pchr->enviro = pcap->enviro;
+  pchr->isplatform = pcap->isplatform;
+  pchr->isitem = pcap->isitem;
+  pchr->invictus = pcap->invictus;
+  pchr->ismount = pcap->ismount;
+  pchr->cangrabmoney = pcap->cangrabmoney;
+  pchr->jumptime = DELAY_JUMP;
 
   // Character size and bumping
-  ChrList[ichr].bmpdata_save.shadow  = CapList[new_profile].shadowsize;
-  ChrList[ichr].bmpdata_save.size    = CapList[new_profile].bumpsize;
-  ChrList[ichr].bmpdata_save.sizebig = CapList[new_profile].bumpsizebig;
-  ChrList[ichr].bmpdata_save.height  = CapList[new_profile].bumpheight;
+  pchr->bmpdata_save.shadow  = pcap->shadowsize;
+  pchr->bmpdata_save.size    = pcap->bumpsize;
+  pchr->bmpdata_save.sizebig = pcap->bumpsizebig;
+  pchr->bmpdata_save.height  = pcap->bumpheight;
 
-  ChrList[ichr].bmpdata.shadow   = CapList[new_profile].shadowsize * ChrList[ichr].fat;
-  ChrList[ichr].bmpdata.size     = CapList[new_profile].bumpsize * ChrList[ichr].fat;
-  ChrList[ichr].bmpdata.sizebig  = CapList[new_profile].bumpsizebig * ChrList[ichr].fat;
-  ChrList[ichr].bmpdata.height   = CapList[new_profile].bumpheight * ChrList[ichr].fat;
-  ChrList[ichr].bumpstrength     = CapList[new_profile].bumpstrength * FP8_TO_FLOAT( CapList[new_profile].alpha_fp8 );
+  pchr->bmpdata.shadow   = pcap->shadowsize * pchr->fat;
+  pchr->bmpdata.size     = pcap->bumpsize * pchr->fat;
+  pchr->bmpdata.sizebig  = pcap->bumpsizebig * pchr->fat;
+  pchr->bmpdata.height   = pcap->bumpheight * pchr->fat;
+  pchr->bumpstrength     = pcap->bumpstrength * FP8_TO_FLOAT( pcap->alpha_fp8 );
 
-  ChrList[ichr].bumpdampen = CapList[new_profile].bumpdampen;
-  ChrList[ichr].weight = CapList[new_profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;     // preserve density
-  ChrList[ichr].scale = ChrList[ichr].fat;
+  pchr->bumpdampen = pcap->bumpdampen;
+  pchr->weight = pcap->weight * pchr->fat * pchr->fat * pchr->fat;     // preserve density
+  pchr->scale = pchr->fat;
 
 
   // Character scales...  Magic numbers
@@ -905,29 +915,29 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
   if ( VALID_CHR( imount ) )
   {
     Uint16 imodel =  ChrList[imount].model;
-    Uint16 vrtoffset = slot_to_offset( ChrList[ichr].inwhichslot );
+    Uint16 vrtoffset = slot_to_offset( pchr->inwhichslot );
 
     if( !VALID_MDL(imodel) )
     {
-      ChrList[ichr].attachedgrip[0] = 0;
-      ChrList[ichr].attachedgrip[1] = 0xFFFF;
-      ChrList[ichr].attachedgrip[2] = 0xFFFF;
-      ChrList[ichr].attachedgrip[3] = 0xFFFF;
+      pchr->attachedgrip[0] = 0;
+      pchr->attachedgrip[1] = 0xFFFF;
+      pchr->attachedgrip[2] = 0xFFFF;
+      pchr->attachedgrip[3] = 0xFFFF;
     }
     else if ( MadList[imodel].vertices > vrtoffset && vrtoffset > 0 )
     {
       tnc = MadList[imodel].vertices - vrtoffset;
-      ChrList[ichr].attachedgrip[0] = tnc;
-      ChrList[ichr].attachedgrip[1] = tnc + 1;
-      ChrList[ichr].attachedgrip[2] = tnc + 2;
-      ChrList[ichr].attachedgrip[3] = tnc + 3;
+      pchr->attachedgrip[0] = tnc;
+      pchr->attachedgrip[1] = tnc + 1;
+      pchr->attachedgrip[2] = tnc + 2;
+      pchr->attachedgrip[3] = tnc + 3;
     }
     else
     {
-      ChrList[ichr].attachedgrip[0] = MadList[imodel].vertices - 1;
-      ChrList[ichr].attachedgrip[1] = 0xFFFF;
-      ChrList[ichr].attachedgrip[2] = 0xFFFF;
-      ChrList[ichr].attachedgrip[3] = 0xFFFF;
+      pchr->attachedgrip[0] = MadList[imodel].vertices - 1;
+      pchr->attachedgrip[1] = 0xFFFF;
+      pchr->attachedgrip[2] = 0xFFFF;
+      pchr->attachedgrip[3] = 0xFFFF;
     }
   }
 
@@ -936,82 +946,78 @@ void change_character( CHR_REF ichr, Uint16 new_profile, Uint8 new_skin,
     item = chr_get_holdingwhich( ichr, _slot );
     if ( VALID_CHR( item ) )
     {
-      tnc = MadList[ChrList[ichr].model].vertices - slot_to_grip( _slot );
-      ChrList[item].attachedgrip[0] = tnc;
-      ChrList[item].attachedgrip[1] = tnc + 1;
-      ChrList[item].attachedgrip[2] = tnc + 2;
-      ChrList[item].attachedgrip[3] = tnc + 3;
+      int i, grip_offset;
+      int vrtcount = MadList[pchr->model].vertices;
+
+      grip_offset = slot_to_grip( _slot );
+
+      if(vrtcount >= grip_offset + GRIP_SIZE)
+      {
+        // valid grip
+        grip_offset = vrtcount - grip_offset;
+        for(i=0; i<GRIP_SIZE; i++)
+        {
+          ChrList[item].attachedgrip[i] = grip_offset + i;
+        };
+      }
+      else
+      {
+        // invalid grip.
+        for(i=0; i<GRIP_SIZE; i++)
+        {
+          ChrList[item].attachedgrip[i] = 0xFFFF;
+        };
+      }
     }
   }
 
   // Image rendering
-  ChrList[ichr].uoffset_fp8 = 0;
-  ChrList[ichr].voffset_fp8 = 0;
-  ChrList[ichr].uoffvel = CapList[new_profile].uoffvel;
-  ChrList[ichr].voffvel = CapList[new_profile].voffvel;
-
+  pchr->uoffset_fp8 = 0;
+  pchr->voffset_fp8 = 0;
+  pchr->uoffvel = pcap->uoffvel;
+  pchr->voffvel = pcap->voffvel;
 
   // Movement
-  ChrList[ichr].sneakspd = CapList[new_profile].sneakspd;
-  ChrList[ichr].walkspd = CapList[new_profile].walkspd;
-  ChrList[ichr].runspd = CapList[new_profile].runspd;
-
+  pchr->spd_sneak = pcap->spd_sneak;
+  pchr->spd_walk  = pcap->spd_walk;
+  pchr->spd_run   = pcap->spd_run;
 
   // AI and action stuff
-  ChrList[ichr].action.ready = btrue;
-  ChrList[ichr].action.keep = bfalse;
-  ChrList[ichr].action.loop = bfalse;
-  ChrList[ichr].action.now = ACTION_DA;
-  ChrList[ichr].action.next = ACTION_DA;
+  action_info_new( &(pchr->action) );
+  anim_info_new( &(pchr->anim) );
 
-  ChrList[ichr].anim.lip_fp8 = 0;
-  ChrList[ichr].anim.flip = 0.0f;
-  ChrList[ichr].anim.next = 0;
-  ChrList[ichr].anim.last = ChrList[ichr].anim.next;
-
-  ChrList[ichr].holdingweight = 0;
-  ChrList[ichr].onwhichplatform = MAXCHR;
+  pchr->holdingweight = 0;
+  pchr->onwhichplatform = MAXCHR;
 
   // Set the new_skin
   change_armor( ichr, new_skin );
 
-
   // Reaffirm them particles...
-  ChrList[ichr].reaffirmdamagetype = CapList[new_profile].attachedprtreaffirmdamagetype;
+  pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
   reaffirm_attached_particles( ichr );
 
   make_one_character_matrix(ichr);
-
-  // Set up initial fade in lighting
-  tnc = 0;
-  while ( tnc < MadList[ChrList[ichr].model].transvertices )
-  {
-    ChrList[ichr].vrta_fp8[tnc].r =
-    ChrList[ichr].vrta_fp8[tnc].g =
-    ChrList[ichr].vrta_fp8[tnc].b = 0;
-    tnc++;
-  }
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t cost_mana( CHR_REF character, int amount, Uint16 killer )
+bool_t cost_mana( CHR_REF chr_ref, int amount, Uint16 killer )
 {
-  // ZZ> This function takes mana from a character ( or gives mana ),
-  //     and returns btrue if the character had enough to pay, or bfalse
+  // ZZ> This function takes mana from a chr_ref ( or gives mana ),
+  //     and returns btrue if the chr_ref had enough to pay, or bfalse
   //     otherwise
   int iTmp;
 
 
-  iTmp = ChrList[character].mana_fp8 - amount;
+  iTmp = ChrList[chr_ref].mana_fp8 - amount;
   if ( iTmp < 0 )
   {
-    ChrList[character].mana_fp8 = 0;
-    if ( ChrList[character].canchannel )
+    ChrList[chr_ref].mana_fp8 = 0;
+    if ( ChrList[chr_ref].canchannel )
     {
-      ChrList[character].life_fp8 += iTmp;
-      if ( ChrList[character].life_fp8 <= 0 )
+      ChrList[chr_ref].life_fp8 += iTmp;
+      if ( ChrList[chr_ref].life_fp8 <= 0 )
       {
-        kill_character( character, character );
+        kill_character( chr_ref, chr_ref );
       }
       return btrue;
     }
@@ -1019,49 +1025,49 @@ bool_t cost_mana( CHR_REF character, int amount, Uint16 killer )
   }
   else
   {
-    ChrList[character].mana_fp8 = iTmp;
-    if ( iTmp > ChrList[character].manamax_fp8 )
+    ChrList[chr_ref].mana_fp8 = iTmp;
+    if ( iTmp > ChrList[chr_ref].manamax_fp8 )
     {
-      ChrList[character].mana_fp8 = ChrList[character].manamax_fp8;
+      ChrList[chr_ref].mana_fp8 = ChrList[chr_ref].manamax_fp8;
     }
   }
   return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void switch_team( CHR_REF character, TEAM team )
+void switch_team( CHR_REF chr_ref, TEAM team )
 {
-  // ZZ> This function makes a character join another team...
+  // ZZ> This function makes a chr_ref join another team...
   if ( team < TEAM_COUNT )
   {
-    if ( !ChrList[character].invictus )
+    if ( !ChrList[chr_ref].invictus )
     {
-      TeamList[ChrList[character].baseteam].morale--;
+      TeamList[ChrList[chr_ref].baseteam].morale--;
       TeamList[team].morale++;
     }
-    if (( !ChrList[character].ismount || !chr_using_slot( character, SLOT_SADDLE ) ) &&
-        ( !ChrList[character].isitem  || !chr_attached( character ) ) )
+    if (( !ChrList[chr_ref].ismount || !chr_using_slot( chr_ref, SLOT_SADDLE ) ) &&
+        ( !ChrList[chr_ref].isitem  || !chr_attached( chr_ref ) ) )
     {
-      ChrList[character].team = team;
+      ChrList[chr_ref].team = team;
     }
 
-    ChrList[character].baseteam = team;
+    ChrList[chr_ref].baseteam = team;
     if ( !VALID_CHR( team_get_leader( team ) ) )
     {
-      TeamList[team].leader = character;
+      TeamList[team].leader = chr_ref;
     }
   }
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_clean( CHR_REF character )
+void issue_clean( CHR_REF chr_ref )
 {
   // ZZ> This function issues a clean up order to all teammates
   TEAM team;
   Uint16 cnt;
 
 
-  team = ChrList[character].team;
+  team = ChrList[chr_ref].team;
   cnt = 0;
   while ( cnt < MAXCHR )
   {
@@ -1075,7 +1081,7 @@ void issue_clean( CHR_REF character )
 }
 
 //--------------------------------------------------------------------------------------------
-int restock_ammo( CHR_REF character, IDSZ idsz )
+int restock_ammo( CHR_REF chr_ref, IDSZ idsz )
 {
   // ZZ> This function restocks the characters ammo, if it needs ammo and if
   //     either its parent or type idsz match the given idsz.  This
@@ -1083,17 +1089,17 @@ int restock_ammo( CHR_REF character, IDSZ idsz )
   int amount, model;
 
   amount = 0;
-  if ( character < MAXCHR )
+  if ( chr_ref < MAXCHR )
   {
-    if ( ChrList[character].on )
+    if ( ChrList[chr_ref].on )
     {
-      model = ChrList[character].model;
+      model = ChrList[chr_ref].model;
       if ( CAP_INHERIT_IDSZ( model, idsz ) )
       {
-        if ( ChrList[character].ammo < ChrList[character].ammomax )
+        if ( ChrList[chr_ref].ammo < ChrList[chr_ref].ammomax )
         {
-          amount = ChrList[character].ammomax - ChrList[character].ammo;
-          ChrList[character].ammo = ChrList[character].ammomax;
+          amount = ChrList[chr_ref].ammomax - ChrList[chr_ref].ammo;
+          ChrList[chr_ref].ammo = ChrList[chr_ref].ammomax;
         }
       }
     }
@@ -1102,25 +1108,25 @@ int restock_ammo( CHR_REF character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-void signal_target( Uint16 target, Uint16 upper, Uint16 lower )
+void signal_target( CHR_REF target_ref, Uint16 upper, Uint16 lower )
 {
-  if ( !VALID_CHR( target ) ) return;
+  if ( !VALID_CHR( target_ref ) ) return;
 
-  ChrList[target].message = ( upper << 16 ) | lower;
-  ChrList[target].messagedata = 0;
-  ChrList[target].aistate.alert |= ALERT_SIGNALED;
+  ChrList[target_ref].message = ( upper << 16 ) | lower;
+  ChrList[target_ref].messagedata = 0;
+  ChrList[target_ref].aistate.alert |= ALERT_SIGNALED;
 };
 
 
 //--------------------------------------------------------------------------------------------
-void signal_team( CHR_REF character, Uint32 message )
+void signal_team( CHR_REF chr_ref, Uint32 message )
 {
   // ZZ> This function issues an message for help to all teammates
   TEAM team;
   Uint8 counter;
   Uint16 cnt;
 
-  team = ChrList[character].team;
+  team = ChrList[chr_ref].team;
   counter = 0;
   for ( cnt = 0; cnt < MAXCHR; cnt++ )
   {

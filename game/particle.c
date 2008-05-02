@@ -313,7 +313,11 @@ PRT_REF spawn_one_particle( float intensity, vect3 pos,
       }
 
       // Find a target
-      pprt->target = prt_search_target( search_new(&loc_search), pos.x, pos.y, facing, PipList[glob_pip].targetangle, PipList[glob_pip].onlydamagefriendly, bfalse, team, characterorigin, oldtarget );
+      if( prt_search_wide( search_new(&loc_search), iprt, facing, PipList[glob_pip].targetangle, PipList[glob_pip].onlydamagefriendly, bfalse, team, characterorigin, oldtarget ) )
+      {
+        pprt->target = loc_search.besttarget;
+      };
+
       prt_target = prt_get_target( iprt );
       if ( VALID_CHR( prt_target ) )
       {
@@ -800,8 +804,8 @@ void attach_particles()
 {
   // ZZ> This function attaches particles to their characters so everything gets
   //     drawn right
-  int cnt;
 
+  int cnt;
 
   for ( cnt = 0; cnt < MAXPRT; cnt++ )
   {
@@ -817,7 +821,9 @@ void attach_particles()
 
     // Correct facing so swords knock characters in the right direction...
     if ( HAS_SOME_BITS( PipList[PrtList[cnt].pip].damfx, DAMFX_TURN ) )
+    {
       PrtList[cnt].facing = ChrList[prt_attachedto].turn_lr;
+    }
   }
 }
 
@@ -959,6 +965,7 @@ void spawn_bump_particles( CHR_REF character, PRT_REF particle )
 
           bestvertex = 0;
           bestdistance = 9999999;
+
           z =  PrtList[particle].pos.z - ( ChrList[character].pos.z + RAISE );
           facing = PrtList[particle].facing - ChrList[character].turn_lr - 16384;
           facing >>= 2;

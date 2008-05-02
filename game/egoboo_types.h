@@ -19,16 +19,12 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef Egoboo_egobootypedef_h
-#define Egoboo_egobootypedef_h
+#pragma once
 
-#include "egoboo_config.h"
 #include "egoboo_config.h"
 
 #include <SDL_endian.h>
 #include <SDL_types.h>
-
-extern float LoadFloatByteswapped( float *ptr );
 
 typedef struct rect_sint32_t
 {
@@ -79,6 +75,9 @@ typedef Uint16 TEAM_REF;
 typedef Uint16 PRT_REF;
 typedef Uint16 PLA_REF;
 
-
-#endif // include guard
+typedef union float_int_convert_u 
+{ 
+  float f; 
+  Uint32 i; 
+} FCONVERT;
 

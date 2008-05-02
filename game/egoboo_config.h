@@ -52,10 +52,10 @@
 
 #endif
 
-#define DEBUG_ATTRIB       btrue
-#define DEBUG_NORMALS      btrue
+#undef DEBUG_ATTRIB
+#undef DEBUG_NORMALS
+#undef DEBUG_BBOX
 
-#define DEBUG_BBOX         bfalse
-#define DEBUG_UPDATE_CLAMP bfalse
-#define DEBUG_MESHFX       bfalse
-#define DEBUG_CVOLUME      bfalse
+#undef DEBUG_UPDATE_CLAMP
+#define DEBUG_MESHFX
+#undef DEBUG_CVOLUME

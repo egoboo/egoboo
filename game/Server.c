@@ -122,7 +122,7 @@ void sv_letPlayersJoin()
 
       case ENET_EVENT_TYPE_RECEIVE:
         log_info( "sv_letPlayersJoin: Recieved a packet when we weren't expecting it...\n" );
-        log_info( "\tIt GCamera.e from %x:%u\n", event.peer->address.host, event.peer->address.port );
+        log_info( "\tIt came from %x:%u\n", event.peer->address.host, event.peer->address.port );
 
         // clean up the packet
         enet_packet_destroy( event.packet );

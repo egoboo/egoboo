@@ -1,72 +1,29 @@
-#include <stdio.h>      // For printf and such
-#include "egoboo_types.h"
-#include "egoboo.h"
+#include "cartman.h"
+
 #include "graphic.h"
 #include "input.h"
 #include "UI.h"
 #include "Log.h"
 #include "Mesh.h"
 #include "graphic.h"
+#include "egoboo_types.inl"
+#include "egoboo.h"
+
+#include <stdio.h>      // For printf and such
 #include "SDL_Pixel.h"
 #include <SDL_image.h>
 
-#define NEARLOW  0.0 //16.0    // For autoweld
-#define NEARHI 128.0 //112.0    //
-#define BARRIERHEIGHT 14.0    //
-
-
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-const Uint32 rmask = 0x000000ff;
-const Uint32 gmask = 0x0000ff00;
-const Uint32 bmask = 0x00ff0000;
-const Uint32 amask = 0xff000000;
+  const Uint32 rmask = 0x000000ff;
+  const Uint32 gmask = 0x0000ff00;
+  const Uint32 bmask = 0x00ff0000;
+  const Uint32 amask = 0xff000000;
 #else
-const Uint32 rmask = 0xff000000;
-const Uint32 gmask = 0x00ff0000;
-const Uint32 bmask = 0x0000ff00;
-const Uint32 amask = 0x000000ff;
+  const Uint32 rmask = 0xff000000;
+  const Uint32 gmask = 0x00ff0000;
+  const Uint32 bmask = 0x0000ff00;
+  const Uint32 amask = 0x000000ff;
 #endif
-
-#define MAXLIGHT  100
-#define MAXRADIUS 500*FOURNUM
-#define MINRADIUS 50*FOURNUM
-#define MAXHEIGHT 255
-#define MINLEVEL 50
-int numwritten = 0;
-int numattempt = 0;
-int numlight;
-int addinglight;
-int lightx[MAXLIGHT];
-int lighty[MAXLIGHT];
-Uint8 lightlevel[MAXLIGHT];
-int lightradius[MAXLIGHT];
-int ambi = 22;
-int ambicut = 1;
-int direct = 16;
-
-int cart_pos_x = 0;
-int cart_pos_y = 0;
-
-#define VERSION 005      // Version number
-#define YEAR 1999      // Year
-#define NAME "Cartman"      // Program name
-
-#define KEYDELAY 12      // Delay for keyboard
-#define MAXTILE 256      //
-#define TINYX 4 //8        // Plan tiles
-#define TINYY 4 //8        //
-#define SMALLX 31      // Small tiles
-#define SMALLY 31      //
-#define BIGX 63        // Big tiles
-#define BIGY 63        //
-#define CAMRATE 8      // Arrow key movement rate
-#define MAXSELECT 2560      // Max points that can be selected
-#define FOURNUM 4.137      // Magic number
-#define FIXNUM  4.125 // 4.150    // Magic number
-
-#define FADEBORDER 64      // Darkness at the edge of map
-
-
 
 
 typedef enum cart_win_type_bits_e
@@ -78,17 +35,35 @@ typedef enum cart_win_type_bits_e
   WINFX      = 1 << 3        //
 };
 
-//#define ONSIZE 600      // Max size of raise mesh
-#define ONSIZE 264      // Max size of raise mesh
+#define MAXSELECT 2560      // Max points that can be selected
 
+#define NEARLOW         0.0 //16.0    // For autoweld
+#define NEARHI        128.0 //112.0    //
 
+#define TINYX 4 //8        // Plan tiles
+#define TINYY 4 //8        //
+#define SMALLX 31      // Small tiles
+#define SMALLY 31      //
+#define BIGX 63        // Big tiles
+#define BIGY 63        //
 
-#define MAXMESHLINE 64      // Number of lines in a fan schematic
-#define MAXTOTALMESHVERTICES (128*128*6)  // (512*512*6)//
 #define CHAINEND 0xffffffff    // End of vertex chain
-#define VERTEXUNUSED 0      // Check meshvrta to see if used
-#define MAXPOINTS 20480      // Max number of points to draw
+#define VERTEXUNUSED 0         // Check meshvrta to see if used
 
+int   numwritten = 0;
+int   numattempt = 0;
+int   numlight;
+int   addinglight;
+int   lightx[MAXLIGHT];
+int   lighty[MAXLIGHT];
+Uint8 lightlevel[MAXLIGHT];
+int   lightradius[MAXLIGHT];
+int   ambi = 22;
+int   ambicut = 1;
+int   direct = 16;
+
+int cart_pos_x = 0;
+int cart_pos_y = 0;
 
 char    loadname[80];    // Text
 int    SCRX = 640;    // Screen size
@@ -120,35 +95,35 @@ GLtexture    bmpbigtile[MAXTILE];  //
 GLtexture    bmptinysmalltile[MAXTILE];  // Plan tiles
 GLtexture    bmptinybigtile[MAXTILE];  //
 GLtexture    bmpfanoff;    //
-int    numsmalltile = 0;  //
-int    numbigtile = 0;    //
+int          numsmalltile = 0;  //
+int          numbigtile = 0;    //
 
-int    numpointsonscreen = 0;
+int     numpointsonscreen = 0;
 Uint32  pointsonscreen[MAXPOINTS];
-int    numselect = 0;
+int     numselect = 0;
 Uint32  select[MAXSELECT];
 
 
 float    debugx = -1;    // Blargh
 float    debugy = -1;    //
-int    mouseinwin = -1;  // More mouse data
-int    mouseinwinx = -1;  //
-int    mouseinwiny = -1;  //
-Uint16  mouseinwinmode = 0;  // Window mode
-Uint32  mouseinwinonfan = 0;  // Fan mouse is on
-Uint16  mouseinwintile = 0;  // Tile
-Uint16  mouseinwinpresser = 0;  // Random add for tiles
-Uint8  mouseinwintype = 0;  // Fan type
-int    mouseinwinrect = 0;  // Rectangle drawing
-int    mouseinwinrectx;  //
-int    mouseinwinrecty;  //
-Uint8  mouseinwinfx = MESHFX_NOREFLECT;//
+int      mouseinwin = -1;  // More mouse data
+int      mouseinwinx = -1;  //
+int      mouseinwiny = -1;  //
+Uint16   mouseinwinmode = 0;  // Window mode
+Uint32   mouseinwinonfan = 0;  // Fan mouse is on
+Uint16   mouseinwintile = 0;  // Tile
+Uint16   mouseinwinpresser = 0;  // Random add for tiles
+Uint8    mouseinwintype = 0;  // Fan type
+int      mouseinwinrect = 0;  // Rectangle drawing
+int      mouseinwinrectx;  //
+int      mouseinwinrecty;  //
+Uint8    mouseinwinfx = MESHFX_NOREFLECT;//
 
 #define MAXWIN 8                 // Number of windows
-GLtexture  window_tx[MAXWIN];     // Window images
+GLtexture window_tx[MAXWIN];     // Window images
 bool_t    windowon[MAXWIN];       // Draw it?
-int        windowborderx[MAXWIN]; // Window border size
-int        windowbordery[MAXWIN]; //
+int       windowborderx[MAXWIN]; // Window border size
+int       windowbordery[MAXWIN]; //
 SDL_Rect  window_rect[MAXWIN];    // Window size
 Uint16    windowmode[MAXWIN];     // Window display mode
 
@@ -200,7 +175,7 @@ void draw_rect(int window, GLfloat color[], float xl, float yt, float xr, float 
 {
   set_window_viewport( window );
 
-  glBindTexture( GL_TEXTURE_2D, -1 );
+  glBindTexture( GL_TEXTURE_2D, INVALID_TEXTURE );
 
   if(NULL != color)
   {
@@ -4329,7 +4304,7 @@ void cart_draw_main(void)
 //------------------------------------------------------------------------------
 void show_info(void)
 {
-  log_info("%s - Version %01d.%02d\n", NAME, VERSION/100, VERSION%100);
+  log_info("%s - Version %01d.%02d\n", CARTMAN_NAME, CARTMAN_VERSION/100, CARTMAN_VERSION%100);
   return;
 }
 
