@@ -1,0 +1,115 @@
+# note if you change the prefix also update egoboo.sh
+PREFIX   := /home/neptunium/egoboo-2.6
+EGO_SRC  := camera.c char.c Client.c Clock.c common-file.c configfile.c \
+					  egoboostrutil.c enchant.c Font.c game.c gltexture.c graphicfan.c \
+					  graphicmad.c graphic.c graphicprt.c id_normals.c input.c \
+					  lin-file.c Log.c MainLoop.c mathstuff.c Md2.c menu.c module.c \
+					  network.c particle.c passage.c script.c Server.c sound.c \
+					  sys_lin.c Task.c Ticker.c Timer.c Ui.c
+EGO_OBJ  := ${EGO_SRC:.c=.o}
+ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \
+						../enet/packet.c ../enet/peer.c ../enet/protocol.c \
+						../enet/unix.c
+ENET_OBJ := ${ENET_SRC:.c=.o}
+
+SDL_CONF  := sdl-config
+SDLCONF_I := $(shell ${SDL_CONF} --cflags)
+SDLCONF_L := $(shell ${SDL_CONF} --libs)
+
+CC      := gcc
+OPT     := -Os
+INC     := -I. -I.. ${SDLCONF_I}
+CFLAGS  := ${OPT} ${INC}
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU
+
+EGO_BIN := egoboo
+
+all: ${EGO_BIN}
+#	test_sdl
+	
+
+# test_sdl.o: test_sdl.c
+# 	${CC} ${CFLAGS} -o $@ -c $^ || make blurb_abort
+# test_sdl: test_sdl.o
+# 	${CC} -o $@ $^ ${LDFLAGS} || make blurb_abort
+# 	./test_sdl || make blurb_abort
+# blurb_abort:
+# 	@echo -e "\nFailed to compile/link/run test program -- make sure the required libs are installed\n"
+# 	@exit 1
+
+${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
+	${CC} -o $@ $^ ${LDFLAGS}
+
+install: ${EGO_BIN}
+	mkdir -p ${PREFIX}/bin
+	mkdir -p ${PREFIX}/libexec
+	install -m 755 ${EGO_BIN} ${PREFIX}/libexec
+	install -p -m 755 ${EGO_BIN}.sh ${PREFIX}/bin/${EGO_BIN}
+
+clean:
+	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN} test_sdl.o test_sdl
+
+# cleaned up dependencies
+# camera.o: camera.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# char.o: char.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# Client.o: Client.c Client.h
+# Clock.o: Clock.c proto.h egobootypedef.h Clock.h Log.h
+# common-file.o: common-file.c egoboo.h egobootypedef.h \
+#   proto.h gltexture.h mathstuff.h \
+#   configfile.h egoboostrutil.h Md2.h Log.h
+# configfile.o: configfile.c configfile.h egobootypedef.h \
+#   egoboostrutil.h
+# egoboostrutil.o: egoboostrutil.c egoboostrutil.h egobootypedef.h
+# enchant.o: enchant.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# Font.o: Font.c Font.h
+# game.o: game.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h Ui.h \
+#   Font.h Clock.h
+# gltexture.o: gltexture.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# graphic.o: graphic.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# graphicfan.o: graphicfan.c egoboo.h egobootypedef.h \
+#   proto.h gltexture.h mathstuff.h \
+#   configfile.h egoboostrutil.h Md2.h Log.h
+# graphicmad.o: graphicmad.c egoboo.h egobootypedef.h \
+#   proto.h gltexture.h mathstuff.h \
+#   configfile.h egoboostrutil.h Md2.h Log.h id_md2.h
+# graphicprt.o: graphicprt.c egoboo.h egobootypedef.h \
+# proto.h gltexture.h mathstuff.h \
+#   configfile.h egoboostrutil.h Md2.h Log.h
+# id_normals.o: id_normals.c id_md2.h
+# input.o: input.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h Ui.h \
+#   Font.h
+# lin-file.o: lin-file.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# Log.o: Log.c Log.h
+# MainLoop.o: MainLoop.c Log.h Clock.h System.h Server.h Client.h Menu.h
+# mathstuff.o: mathstuff.c mathstuff.h egobootypedef.h
+# Md2.o: Md2.c Md2.h egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Log.h
+# menu.o: menu.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h Ui.h \
+#   Font.h Menu.h
+# module.o: module.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# network.o: network.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# particle.o: particle.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# passage.o: passage.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# script.o: script.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# Server.o: Server.c Server.h
+# sound.o: sound.c egoboo.h egobootypedef.h proto.h \
+#   gltexture.h mathstuff.h configfile.h egoboostrutil.h Md2.h Log.h
+# sys_lin.o: sys_lin.c
+# Task.o: Task.c Task.h Clock.h
+# Ticker.o: Ticker.c Ticker.h Clock.h
+# Timer.o: Timer.c Timer.h Clock.h
+# Ui.o: Ui.c Ui.h Font.h gltexture.h
