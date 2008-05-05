@@ -25,7 +25,23 @@
 #include <sys/stat.h>
 #include <sys/dir.h>
 
+typedef struct fs_find_info_lin_t
+{
+  glob_t last_find_glob;
+  size_t glob_find_index;
+} FS_FIND_INFO_LIN;
+
 //File Routines-----------------------------------------------------------
+FS_FIND_INFO * fs_find_info_new(FS_FIND_INFO * i)
+{
+  if(NULL==i) return i;
+
+  i->type = FS_WIN32;
+  i->L    = calloc(1, sizeof(FS_FIND_INFO_LIN));
+
+  return i;
+};
+
 void fs_init()
 {
 }
@@ -90,19 +106,18 @@ void empty_import_directory( void )
   system( "rm -rf import/temp*.obj\n" );
 }
 
-static glob_t last_find_glob;
-static size_t glob_find_index;
+
 
 // Read the first directory entry
-const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
+const char *fs_findFirstFile( FS_FIND_INFO * i, const char *searchDir, const char *searchExtension )
 {
   char pattern[PATH_MAX];
   char *last_slash;
 
   if ( searchExtension )
-    snprintf( pattern, PATH_MAX, "%s/*.%s", searchDir, searchExtension );
+    snprintf( pattern, PATH_MAX, "%s" SLASH_STRING "*.%s", searchDir, searchExtension );
   else
-    snprintf( pattern, PATH_MAX, "%s/*", searchDir );
+    snprintf( pattern, PATH_MAX, "%s" SLASH_STRING "*", searchDir );
 
   last_find_glob.gl_offs = 0;
   glob( pattern, GLOB_NOSORT, NULL, &last_find_glob );
@@ -120,7 +135,7 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 }
 
 // Read the next directory entry (NULL if done)
-const char *fs_findNextFile( void )
+const char *fs_findNextFile( FS_FIND_INFO * i )
 {
   char *last_slash;
 
@@ -137,7 +152,9 @@ const char *fs_findNextFile( void )
 }
 
 // Close anything left open
-void fs_findClose()
+void fs_findClose(FS_FIND_INFO * i)
 {
-  globfree( &last_find_glob );
+  globfree( &(i->L->last_find_glob) );
+
+  fs_file_info_delete(i);
 }

@@ -30,18 +30,18 @@
 #define MESH_BLOCK_TO_FLOAT(XX)  ( (float)(XX) * (float)(1<<BLOCK_BITS) )
 #define MESH_FLOAT_TO_BLOCK(XX)  ( (XX) / (float)(1<<BLOCK_BITS))
 
-typedef enum mesh_effects_e
+typedef enum mpd_effect_bits_e
 {
-  MESHFX_REF                     =      0,         // 0 This tile is drawn 1st
-  MESHFX_NOREFLECT               = 1 << 0,         // 0 This tile IS reflected in the floors
-  MESHFX_SHINY                   = 1 << 1,         // 1 Draw reflection of characters
-  MESHFX_ANIM                    = 1 << 2,         // 2 Animated tile ( 4 frame )
-  MESHFX_WATER                   = 1 << 3,         // 3 Render water above surface ( Water details are set per module )
-  MESHFX_WALL                    = 1 << 4,         // 4 Wall ( Passable by ghosts, particles )
-  MESHFX_IMPASS                  = 1 << 5,         // 5 Impassable
-  MESHFX_DAMAGE                  = 1 << 6,         // 6 Damage
-  MESHFX_SLIPPY                  = 1 << 7          // 7 Ice or normal
-} MESHFX_BITS;
+  MPDFX_REF                     =      0,         // 0 This tile is drawn 1st
+  MPDFX_NOREFLECT               = 1 << 0,         // 0 This tile IS reflected in the floors
+  MPDFX_SHINY                   = 1 << 1,         // 1 Draw reflection of characters
+  MPDFX_ANIM                    = 1 << 2,         // 2 Animated tile ( 4 frame )
+  MPDFX_WATER                   = 1 << 3,         // 3 Render water above surface ( Water details are set per module )
+  MPDFX_WALL                    = 1 << 4,         // 4 Wall ( Passable by ghosts, particles )
+  MPDFX_IMPASS                  = 1 << 5,         // 5 Impassable
+  MPDFX_DAMAGE                  = 1 << 6,         // 6 Damage
+  MPDFX_SLIPPY                  = 1 << 7          // 7 Ice or normal
+} MPDFX_BITS;
 
 #define SLOPE                           800     // Slope increments for terrain normals
 #define SLIDE                           .04         // Acceleration for steep hills
@@ -143,6 +143,42 @@ typedef struct mesh_tile_t
 
 extern MESH_TILE Mesh_Tile[MAXTILETYPE];
 
+typedef struct bumplist_node_t
+{
+  Uint32 ref;
+  Uint32 next; 
+} BUMPLIST_NODE;
+
+typedef struct bumplist_t
+{
+  bool_t   valid;
+  Uint32   num_blocks;              // Number of collision areas
+
+  Uint16 * chr;                     // For character collisions
+  Uint16 * num_chr;                 // Number on the block
+  BUMPLIST_NODE * chr_list;         //
+
+  Uint16 * prt;                     // For particle collisions
+  Uint16 * num_prt;                 // Number on the block
+  BUMPLIST_NODE * prt_list;         //
+} BUMPLIST;
+
+BUMPLIST * bumplist_new(BUMPLIST * b);
+void       bumplist_delete(BUMPLIST * b);
+BUMPLIST * bumplist_renew(BUMPLIST * b);
+bool_t     bumplist_allocate(BUMPLIST * b, int size);
+
+bool_t     bumplist_insert_chr(BUMPLIST * b, Uint32 block, CHR_REF chr_ref);
+bool_t     bumplist_insert_prt(BUMPLIST * b, Uint32 block, PRT_REF prt_ref);
+CHR_REF    bumplist_get_next_chr(BUMPLIST * b, CHR_REF ichr );
+PRT_REF    bumplist_get_next_prt(BUMPLIST * b, PRT_REF iprt );
+
+CHR_REF    bumplist_get_chr_head(BUMPLIST * b, Uint32 block);
+PRT_REF    bumplist_get_prt_head(BUMPLIST * b, Uint32 block);
+bool_t     bumplist_clear( BUMPLIST * b );
+
+extern BUMPLIST bumplist;
+
 bool_t get_mesh_memory();
 void free_mesh_memory();
 bool_t load_mesh_fans();
@@ -185,7 +221,7 @@ int mesh_clip_block_y( int block_y );
 
 bool_t mesh_check( float x, float y );
 
-Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits );
+Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits, vect3 * nrm );
 
 Uint32 mesh_test_bits( int fan, Uint32 bits );
 bool_t mesh_has_some_bits( int fan, Uint32 bits );

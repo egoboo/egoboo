@@ -20,9 +20,10 @@
 */
 
 #include "egoboo_strutil.h"
+#include "egoboo_config.h"
 
-// TrimStr remove all space and tabs in the beginning and at the end of the string
-void TrimStr( char *pStr )
+// str_trim remove all space and tabs in the beginning and at the end of the string
+void str_trim( char *pStr )
 {
   Sint32 DebPos, EndPos, CurPos;
 
@@ -63,7 +64,7 @@ void TrimStr( char *pStr )
   }
 }
 
-char * convert_underscores( char *strout, size_t insize, char * strin )
+char * str_convert_underscores( char *strout, size_t insize, char * strin )
 {
   char *pin = strin, *pout = strout, *plast = pout + insize;
 
@@ -82,7 +83,7 @@ char * convert_underscores( char *strout, size_t insize, char * strin )
   return strout;
 };
 
-char * convert_spaces( char *strout, size_t insize, char * strin )
+char * str_convert_spaces( char *strout, size_t insize, char * strin )
 {
   char chrlast = 0;
   char *pin = strin, *pout = strout, *plast = pout + insize;
@@ -131,3 +132,19 @@ char * convert_spaces( char *strout, size_t insize, char * strin )
 
   return strout;
 };
+
+
+char * str_append_slash(char * str, size_t size)
+{
+  size_t len;
+
+  if(NULL == str || '\0' == str[0]) return NULL;
+
+  len = strlen( str );
+  if ( str[len-1] != '/' && str[len-1] != '\\' )
+  {
+    strncat(str, SLASH_STRING, size);
+  }
+
+  return str;
+}

@@ -223,7 +223,10 @@ bool_t mad_generate_bbox_tree(int max_level, MAD * pmad);
 MAD *  mad_new(MAD * pmad);
 MAD *  mad_delete(MAD * pmad);
 MAD *  mad_renew(MAD * pmad);
-Uint16 load_one_mad( char* szLoadname, Uint16 modelindex );
+Uint16 load_one_mad( char * szModpath, char * szObjectname, Uint16 modelindex );
 void free_one_mad( Uint16 imdl );
 
 bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame1, int frame2);
+void load_copy_file( char * szModpath, char * szObjectname, Uint16 object );
+
+void mad_clear_pips();

@@ -164,7 +164,7 @@ void make_newloadname( char *modname, char *appendname, char *newloadname )
 //  if ( CData.soundvalid )
 //  {
 //    // load in the sounds local to this module
-//    snprintf( tmploadname, sizeof( tmploadname ), "%s%s/", modname, CData.gamedat_dir );
+//    snprintf( tmploadname, sizeof( tmploadname ), "%s%s" SLASH_STRING, modname, CData.gamedat_dir );
 //    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
 //    {
 //      snprintf( newloadname, sizeof( newloadname ), "%ssound%d.wav", tmploadname, cnt );
@@ -174,19 +174,19 @@ void make_newloadname( char *modname, char *appendname, char *newloadname )
 //    //These sounds are always standard, but DO NOT override sounds that were loaded local to this module
 //    if ( NULL == globalwave[GSOUND_COINGET] )
 //    {
-//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
+//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
 //      globalwave[GSOUND_COINGET] = Mix_LoadWAV( CStringTmp1 );
 //    };
 //
 //    if ( NULL == globalwave[GSOUND_DEFEND] )
 //    {
-//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
+//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
 //      globalwave[GSOUND_DEFEND] = Mix_LoadWAV( CStringTmp1 );
 //    }
 //
 //    if ( NULL == globalwave[GSOUND_COINFALL] )
 //    {
-//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
+//      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
 //      globalwave[GSOUND_COINFALL] = Mix_LoadWAV( CStringTmp1 );
 //    };
 //  }
@@ -229,16 +229,16 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
   {
     STRING tmpname;
     // TWINK_BO.OBJ
-    snprintf( todirname, sizeof( todirname ), "%s/", CData.players_dir );
+    snprintf( todirname, sizeof( todirname ), "%s" SLASH_STRING, CData.players_dir );
 
-    convert_spaces( todirname, sizeof( tmpname ), ChrList[owner].name );
+    str_convert_spaces( todirname, sizeof( tmpname ), ChrList[owner].name );
     strncat( todirname, ".obj", sizeof( tmpname ) );
 
     // Is it a character or an item?
     if ( owner != character )
     {
       // Item is a subdirectory of the owner directory...
-      snprintf( todirfullname, sizeof( todirfullname ), "%s/%d.obj", todirname, number );
+      snprintf( todirfullname, sizeof( todirfullname ), "%s" SLASH_STRING "%d.obj", todirname, number );
     }
     else
     {
@@ -248,7 +248,7 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
 
 
     // players/twink.obj or players/twink.obj/sword.obj
-    snprintf( todir, sizeof( todir ), "%s/%s", CData.players_dir, todirfullname );
+    snprintf( todir, sizeof( todir ), "%s" SLASH_STRING "%s", CData.players_dir, todirfullname );
 
     // modules/advent.mod/objects/advent.obj
     strncpy( fromdir, MadList[profile].name, sizeof( fromdir ) );
@@ -259,7 +259,7 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
       tnc = 0;
       while ( tnc < 8 )
       {
-        snprintf( tofile, sizeof( tofile ), "%s/%d.obj", todir, tnc );   /*.OBJ*/
+        snprintf( tofile, sizeof( tofile ), "%s" SLASH_STRING "%d.obj", todir, tnc );   /*.OBJ*/
         fs_removeDirectoryAndContents( tofile );
         tnc++;
       }
@@ -271,56 +271,56 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
 
 
     // Build the DATA.TXT file
-    snprintf( tofile, sizeof( tofile ), "%s/%s", todir, CData.data_file );    /*DATA.TXT*/
+    snprintf( tofile, sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.data_file );    /*DATA.TXT*/
     export_one_character_profile( tofile, character );
 
 
     // Build the SKIN.TXT file
-    snprintf( tofile, sizeof( tofile ), "%s/%s", todir, CData.skin_file );    /*SKIN.TXT*/
+    snprintf( tofile, sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.skin_file );    /*SKIN.TXT*/
     export_one_character_skin( tofile, character );
 
 
     // Build the NAMING.TXT file
-    snprintf( tofile, sizeof( tofile ), "%s/%s", todir, CData.naming_file );    /*NAMING.TXT*/
+    snprintf( tofile, sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.naming_file );    /*NAMING.TXT*/
     export_one_character_name( tofile, character );
 
 
     // Copy all of the misc. data files
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.message_file );   /*MESSAGE.TXT*/
-    snprintf( tofile, sizeof( tofile ), "%s/%s", todir, CData.message_file );   /*MESSAGE.TXT*/
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.message_file );   /*MESSAGE.TXT*/
+    snprintf( tofile, sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.message_file );   /*MESSAGE.TXT*/
     fs_copyFile( fromfile, tofile );
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/tris.md2", fromdir );    /*TRIS.MD2*/
-    snprintf( tofile,   sizeof( tofile ), "%s/tris.md2", todir );    /*TRIS.MD2*/
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "tris.md2", fromdir );    /*TRIS.MD2*/
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "tris.md2", todir );    /*TRIS.MD2*/
     fs_copyFile( fromfile, tofile );
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.copy_file );    /*COPY.TXT*/
-    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.copy_file );    /*COPY.TXT*/
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.copy_file );    /*COPY.TXT*/
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.copy_file );    /*COPY.TXT*/
     fs_copyFile( fromfile, tofile );
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.script_file );
-    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.script_file );
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.script_file );
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.script_file );
     fs_copyFile( fromfile, tofile );
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.enchant_file );
-    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.enchant_file );
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.enchant_file );
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.enchant_file );
     fs_copyFile( fromfile, tofile );
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.credits_file );
-    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.credits_file );
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.credits_file );
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.credits_file );
     fs_copyFile( fromfile, tofile );
 
 
-    snprintf( fromfile, sizeof( fromfile ), "%s/%s", fromdir, CData.quest_file );
-    snprintf( tofile,   sizeof( tofile ), "%s/%s", todir, CData.quest_file );
+    snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "%s", fromdir, CData.quest_file );
+    snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "%s", todir, CData.quest_file );
     fs_copyFile( fromfile, tofile );
 
     // Copy all of the particle files
     tnc = 0;
     while ( tnc < PRTPIP_PEROBJECT_COUNT )
     {
-      snprintf( fromfile, sizeof( fromfile ), "%s/part%d.txt", fromdir, tnc );
-      snprintf( tofile,   sizeof( tofile ), "%s/part%d.txt", todir,   tnc );
+      snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "part%d.txt", fromdir, tnc );
+      snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "part%d.txt", todir,   tnc );
       fs_copyFile( fromfile, tofile );
       tnc++;
     }
@@ -330,8 +330,8 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
 
     for ( tnc = 0; tnc < MAXWAVE; tnc++ )
     {
-      snprintf( fromfile, sizeof( fromfile ), "%s/sound%d.wav", fromdir, tnc );
-      snprintf( tofile,   sizeof( tofile ), "%s/sound%d.wav", todir,   tnc );
+      snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "sound%d.wav", fromdir, tnc );
+      snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "sound%d.wav", todir,   tnc );
       fs_copyFile( fromfile, tofile );
     }
 
@@ -340,12 +340,12 @@ void export_one_character( CHR_REF character, Uint16 owner, int number )
     tnc = 0;
     while ( tnc < 4 )
     {
-      snprintf( fromfile, sizeof( fromfile ), "%s/tris%d.bmp", fromdir, tnc );
-      snprintf( tofile,   sizeof( tofile ), "%s/tris%d.bmp", todir,   tnc );
+      snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "tris%d.bmp", fromdir, tnc );
+      snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "tris%d.bmp", todir,   tnc );
       fs_copyFile( fromfile, tofile );
 
-      snprintf( fromfile, sizeof( fromfile ), "%s/icon%d.bmp", fromdir, tnc );
-      snprintf( tofile,   sizeof( tofile ), "%s/icon%d.bmp", todir,   tnc );
+      snprintf( fromfile, sizeof( fromfile ), "%s" SLASH_STRING "icon%d.bmp", fromdir, tnc );
+      snprintf( tofile,   sizeof( tofile ), "%s" SLASH_STRING "icon%d.bmp", todir,   tnc );
       fs_copyFile( fromfile, tofile );
       tnc++;
     }
@@ -535,7 +535,7 @@ void display_message( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF charac
         }
         if ( cTmp >= '0' && cTmp <= '0' + ( MAXSKIN - 1 ) )  // Target's skin name
         {
-          eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
+          eread = CapList[ChrList[target].model].skin[cTmp-'0'].name;
         }
         if ( cTmp == 'd' ) // tmpdistance value
         {
@@ -859,43 +859,43 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
           break;
 
         case SETSLASHMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_SLASH];
-          ChrList[character].damagemodifier_fp8[DAMAGE_SLASH] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_SLASH];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_SLASH] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETCRUSHMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH];
-          ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_CRUSH];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_CRUSH] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETPOKEMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_POKE];
-          ChrList[character].damagemodifier_fp8[DAMAGE_POKE] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_POKE];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_POKE] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETHOLYMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_HOLY];
-          ChrList[character].damagemodifier_fp8[DAMAGE_HOLY] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_HOLY];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_HOLY] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETEVILMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_EVIL];
-          ChrList[character].damagemodifier_fp8[DAMAGE_EVIL] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_EVIL];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_EVIL] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETFIREMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_FIRE];
-          ChrList[character].damagemodifier_fp8[DAMAGE_FIRE] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_FIRE];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_FIRE] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETICEMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_ICE];
-          ChrList[character].damagemodifier_fp8[DAMAGE_ICE] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_ICE];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_ICE] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETZAPMODIFIER:
-          EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier_fp8[DAMAGE_ZAP];
-          ChrList[character].damagemodifier_fp8[DAMAGE_ZAP] = EveList[enchanttype].setvalue[valueindex];
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin.damagemodifier_fp8[DAMAGE_ZAP];
+          ChrList[character].skin.damagemodifier_fp8[DAMAGE_ZAP] = EveList[enchanttype].setvalue[valueindex];
           break;
 
         case SETFLASHINGAND:
@@ -952,7 +952,7 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
           break;
 
         case SETMORPH:
-          EncList[enchantindex].setsave[valueindex] = ( ChrList[character].texture - MadList[ChrList[character].model].skinstart ) % MAXSKIN;
+          EncList[enchantindex].setsave[valueindex] = ChrList[character].skin_ref % MAXSKIN;
           // Special handler for morph
           change_character( character, enchanttype, 0, LEAVE_ALL );
           ChrList[character].aistate.morphed = btrue;
@@ -1079,12 +1079,12 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
       break;
 
     case ADDACCEL:
-      fnewvalue = ChrList[character].maxaccel;
+      fnewvalue = ChrList[character].skin.maxaccel;
       fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 25.0;
       fgetadd( 0, fnewvalue, 1.5, &fvaluetoadd );
       valuetoadd = fvaluetoadd * 1000.0; // Get save value
       fvaluetoadd = valuetoadd / 1000.0;
-      ChrList[character].maxaccel += fvaluetoadd;
+      ChrList[character].skin.maxaccel += fvaluetoadd;
       break;
 
     case ADDRED:
@@ -1109,10 +1109,10 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
       break;
 
     case ADDDEFENSE:
-      newvalue = ChrList[character].defense_fp8;
+      newvalue = ChrList[character].skin.defense_fp8;
       valuetoadd = EveList[enchanttype].addvalue[valueindex];
       getadd( 55, newvalue, 255, &valuetoadd );   // Don't fix again!
-      ChrList[character].defense_fp8 += valuetoadd;
+      ChrList[character].skin.defense_fp8 += valuetoadd;
       break;
 
     case ADDMANA:
@@ -1241,7 +1241,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
       // Make sure it's valid
       if ( EveList[enchanttype].dontdamagetype != DAMAGE_NULL )
       {
-        if (( ChrList[target].damagemodifier_fp8[EveList[enchanttype].dontdamagetype]&7 ) >= 3 )   // Invert | Shift = 7
+        if (( ChrList[target].skin.damagemodifier_fp8[EveList[enchanttype].dontdamagetype]&7 ) >= 3 )   // Invert | Shift = 7
         {
           return MAXENCHANT;
         }
@@ -1935,7 +1935,7 @@ void show_stat( Uint16 statindex )
 
       // Stats
       debug_message( 1, " STR:%2.1f ~WIS:%2.1f ~INT:%2.1f", FP8_TO_FLOAT( ChrList[character].strength_fp8 ), FP8_TO_FLOAT( ChrList[character].wisdom_fp8 ), FP8_TO_FLOAT( ChrList[character].intelligence_fp8 ) );
-      debug_message( 1, " DEX:%2.1f ~LVL:%4.1f ~DEF:%2.1f", FP8_TO_FLOAT( ChrList[character].dexterity_fp8 ), calc_chr_level( character ), FP8_TO_FLOAT( ChrList[character].defense_fp8 ) );
+      debug_message( 1, " DEX:%2.1f ~LVL:%4.1f ~DEF:%2.1f", FP8_TO_FLOAT( ChrList[character].dexterity_fp8 ), calc_chr_level( character ), FP8_TO_FLOAT( ChrList[character].skin.defense_fp8 ) );
 
       statdelay = 10;
     }
@@ -2532,7 +2532,7 @@ void setup_alliances( char *modname )
 
 
   // Load the file
-  snprintf( newloadname, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.alliance_file );
+  snprintf( newloadname, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.alliance_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
   if ( NULL != fileread )
   {
@@ -2607,49 +2607,52 @@ bool_t chr_collide_mesh(CHR_REF ichr)
   float meshlevel;
   vect3 norm;
   bool_t hitmesh = bfalse;
+  CHR * pchr;
 
   if( !VALID_CHR(ichr) ) return hitmesh;
 
+  pchr = ChrList + ichr;
+
   if ( 0 != __chrhitawall( ichr, &norm ) )
   {
-    float dotprod = DotProduct(norm, ChrList[ichr].vel);
+    float dotprod = DotProduct(norm, pchr->vel);
 
     if(dotprod < 0.0f)
     {
       // do the reflection
-      ChrList[ichr].accum_vel.x += -(1.0f + ChrList[ichr].dampen) * dotprod * norm.x - ChrList[ichr].vel.x;
-      ChrList[ichr].accum_vel.y += -(1.0f + ChrList[ichr].dampen) * dotprod * norm.y - ChrList[ichr].vel.y;
-      ChrList[ichr].accum_vel.z += -(1.0f + ChrList[ichr].dampen) * dotprod * norm.z - ChrList[ichr].vel.z;
+      pchr->accum_vel.x += -(1.0f + pchr->dampen) * dotprod * norm.x - pchr->vel.x;
+      pchr->accum_vel.y += -(1.0f + pchr->dampen) * dotprod * norm.y - pchr->vel.y;
+      pchr->accum_vel.z += -(1.0f + pchr->dampen) * dotprod * norm.z - pchr->vel.z;
 
       // if there is reflection, go back to the last valid position
-      if( 0.0f != norm.x ) ChrList[ichr].accum_pos.x += ChrList[ichr].pos_old.x - ChrList[ichr].pos.x;
-      if( 0.0f != norm.y ) ChrList[ichr].accum_pos.y += ChrList[ichr].pos_old.y - ChrList[ichr].pos.y;
-      if( 0.0f != norm.z ) ChrList[ichr].accum_pos.z += ChrList[ichr].pos_old.z - ChrList[ichr].pos.z;
+      if( 0.0f != norm.x ) pchr->accum_pos.x += pchr->pos_old.x - pchr->pos.x;
+      if( 0.0f != norm.y ) pchr->accum_pos.y += pchr->pos_old.y - pchr->pos.y;
+      if( 0.0f != norm.z ) pchr->accum_pos.z += pchr->pos_old.z - pchr->pos.z;
 
       hitmesh = btrue;
     };
   }
 
-  meshlevel = mesh_get_level( ChrList[ichr].onwhichfan, ChrList[ichr].pos.x, ChrList[ichr].pos.y, CapList[ChrList[ichr].model].waterwalk );
-  if( ChrList[ichr].pos.z < meshlevel )
+  meshlevel = mesh_get_level( pchr->onwhichfan, pchr->pos.x, pchr->pos.y, CapList[pchr->model].waterwalk );
+  if( pchr->pos.z < meshlevel )
   {
     hitmesh = btrue;
 
-    ChrList[ichr].accum_pos.z += meshlevel + 0.001f - ChrList[ichr].pos.z;
+    pchr->accum_pos.z += meshlevel + 0.001f - pchr->pos.z;
 
-    if ( ChrList[ichr].vel.z < -STOPBOUNCING )
+    if ( pchr->vel.z < -STOPBOUNCING )
     {
-      ChrList[ichr].accum_vel.z += -ChrList[ichr].vel.z * ( 1.0f + ChrList[ichr].dampen );
+      pchr->accum_vel.z += -pchr->vel.z * ( 1.0f + pchr->dampen );
     }
-    else if ( ChrList[ichr].vel.z < STOPBOUNCING )
+    else if ( pchr->vel.z < STOPBOUNCING )
     {
-      ChrList[ichr].accum_vel.z += -ChrList[ichr].vel.z;
+      pchr->accum_vel.z += -pchr->vel.z;
     }
 
-    if ( ChrList[ichr].hitready )
+    if ( pchr->hitready )
     {
-      ChrList[ichr].aistate.alert |= ALERT_HITGROUND;
-      ChrList[ichr].hitready = bfalse;
+      pchr->aistate.alert |= ALERT_HITGROUND;
+      pchr->hitready = bfalse;
     };
   }
 
@@ -3242,8 +3245,8 @@ void set_default_config_data(CONFIG_DATA * pcon)
   strncpy( pcon->money5_file, "5money.txt" , sizeof( STRING ) );
   strncpy( pcon->money25_file, "25money.txt" , sizeof( STRING ) );
   strncpy( pcon->money100_file, "100money.txt" , sizeof( STRING ) );
-  strncpy( pcon->weather4_file, "weather4.txt" , sizeof( STRING ) );
-  strncpy( pcon->weather5_file, "weather5.txt" , sizeof( STRING ) );
+  strncpy( pcon->weather1_file, "weather4.txt" , sizeof( STRING ) );
+  strncpy( pcon->weather2_file, "weather5.txt" , sizeof( STRING ) );
   strncpy( pcon->script_file, "script.txt" , sizeof( STRING ) );
   strncpy( pcon->ripple_file, "ripple.txt" , sizeof( STRING ) );
   strncpy( pcon->scancode_file, "scancode.txt" , sizeof( STRING ) );
@@ -3392,16 +3395,16 @@ int proc_program( int argc, char **argv )
 
         read_setup( CData.setup_file );
 
-        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.scancode_file );
+        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.scancode_file );
         read_all_tags( CStringTmp1 );
 
         read_controls( CData.controls_file );
         reset_ai_script();
 
-        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.aicodes_file );
+        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.aicodes_file );
         load_ai_codes( CStringTmp1 );
 
-        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.actions_file );
+        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.actions_file );
         load_action_names( CStringTmp1 );
 
         // initialize the SDL and OpenGL
@@ -3978,7 +3981,7 @@ int proc_menuLoop( double frameDuration, bool_t cleanup )
   {
     case PROC_Begin:
       {
-        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.uifont_ttf );
+        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.uifont_ttf );
         ui_initialize( CStringTmp1, CData.uifont_points );
 
         //Load stuff into memory
@@ -3989,8 +3992,8 @@ int proc_menuLoop( double frameDuration, bool_t cleanup )
         initMenus();             //Start the game menu
 
         // initialize the bitmap font so we can use the cursor
-        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.font_bitmap );
-        snprintf( CStringTmp2, sizeof( CStringTmp2 ), "%s/%s", CData.basicdat_dir, CData.fontdef_file );
+        snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.font_bitmap );
+        snprintf( CStringTmp2, sizeof( CStringTmp2 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.fontdef_file );
         if ( !load_font( CStringTmp1, CStringTmp2 ) )
         {
           log_warning( "UI unable to use load bitmap font for cursor. Files missing from %s directory\n", CData.basicdat_dir );
@@ -4199,14 +4202,14 @@ Uint16 slot_to_latch( Uint16 object, SLOT s )
 
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages( char *loadname, Uint16 object )
+void load_all_messages( char *szObjectpath, char *szObjectname, Uint16 object )
 {
   // ZZ> This function loads all of an objects messages
   FILE *fileread;
 
 
   MadList[object].msg_start = 0;
-  fileread = fs_fileOpen( PRI_NONE, NULL, loadname, "r" );
+  fileread = fs_fileOpen( PRI_NONE, NULL, inherit_fname(szObjectpath, szObjectname, CData.message_file), "r" );
   if ( NULL != fileread )
   {
     MadList[object].msg_start = GMsg.total;
@@ -4360,9 +4363,11 @@ bool_t chr_search_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR
   fanblock = mesh_convert_block( block_x, block_y );
   team = ChrList[character].team;
   for ( cnt = 0, charb = bumplist.chr[fanblock];
-        cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb );
-        cnt++, charb = chr_get_bumpnext(charb) )
+        cnt < bumplist.num_chr[fanblock] && VALID_CHR_RANGE(charb);
+        cnt++, charb = bumplist_get_next_chr(&bumplist, charb) )
   {
+    assert( VALID_CHR( charb ) );
+
     // don't find stupid stuff
     if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
 
@@ -4459,12 +4464,12 @@ bool_t chr_search_nearby( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t as
 //--------------------------------------------------------------------------------------------
 bool_t chr_search_distant( SEARCH_CONTEXT * psearch, CHR_REF character, int maxdist, bool_t ask_enemies, bool_t ask_dead )
 {
-  // ZZ> This function finds a target, or it returns MAXCHR if it can't find one...
-  //     maxdist should be the square of the actual psearch->bestdistance you want to use
+  // ZZ> This function finds a target, or it returns bfalse if it can't find one...
+  //     maxdist should be the square of the actual distance you want to use
   //     as the cutoff...
 
   int charb, xdist, ydist, zdist;
-  bool_t require_alive   = !ask_dead;
+  bool_t require_alive = !ask_dead;
   TEAM team;
 
   if ( !VALID_CHR( character ) ) return bfalse;
@@ -4506,69 +4511,70 @@ bool_t chr_search_distant( SEARCH_CONTEXT * psearch, CHR_REF character, int maxd
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_search_block_nearest( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF character, bool_t ask_items,
+bool_t chr_search_block_nearest( SEARCH_CONTEXT * psearch, int block_x, int block_y, CHR_REF chra_ref, bool_t ask_items,
                                bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, bool_t seeinvisible, IDSZ idsz )
 {
 
   // ZZ> This is a good little helper
 
   float dis, xdis, ydis, zdis;
-  int cnt;
-  TEAM team;
-  CHR_REF charb;
-  Uint32 fanblock;
+  int   cnt;
+  TEAM    team;
+  CHR_REF chrb_ref;
+  Uint32  fanblock;
   bool_t require_friends =  ask_friends && !ask_enemies;
   bool_t require_enemies = !ask_friends &&  ask_enemies;
   bool_t require_alive   = !ask_dead;
   bool_t require_noitems = !ask_items;
 
+  // if chra_ref is not defined, return
+  if ( !VALID_CHR( chra_ref ) || !bumplist.valid ) return bfalse;
 
   // blocks that are off the mesh are not stored
   fanblock = mesh_convert_block( block_x, block_y );
 
-  // if character is not defined, return
-  if ( !VALID_CHR( character ) ) return bfalse;
-
-  team     = ChrList[character].team;
-  charb    = bumplist.chr[fanblock];
-  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR( charb ); cnt++, charb = chr_get_bumpnext(charb) )
+  team     = ChrList[chra_ref].team;
+  chrb_ref = bumplist.chr[fanblock];
+  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR_RANGE( chrb_ref ); cnt++, chrb_ref = bumplist_get_next_chr(&bumplist, chrb_ref) )
   {
+    assert( VALID_CHR( chrb_ref ) );
+
     // don't find stupid stuff
-    if ( !VALID_CHR( charb ) || 0.0f == ChrList[charb].bumpstrength ) continue;
+    if ( !VALID_CHR( chrb_ref ) || 0.0f == ChrList[chrb_ref].bumpstrength ) continue;
 
     // don't find yourself or any of the items you're holding
-    if ( character == charb || ChrList[charb].attachedto == character || ChrList[charb].inwhichpack == character ) continue;
+    if ( chra_ref == chrb_ref || ChrList[chrb_ref].attachedto == chra_ref || ChrList[chrb_ref].inwhichpack == chra_ref ) continue;
 
     // don't find your mount or your master
-    if ( ChrList[character].attachedto == charb || ChrList[character].inwhichpack == charb ) continue;
+    if ( ChrList[chra_ref].attachedto == chrb_ref || ChrList[chra_ref].inwhichpack == chrb_ref ) continue;
 
     // don't find anything you can't see
-    if (( !seeinvisible && chr_is_invisible( charb ) ) || chr_in_pack( charb ) ) continue;
+    if (( !seeinvisible && chr_is_invisible( chrb_ref ) ) || chr_in_pack( chrb_ref ) ) continue;
 
     // if we need to find friends, don't find enemies
-    if ( require_friends && TeamList[team].hatesteam[ChrList[charb].team] ) continue;
+    if ( require_friends && TeamList[team].hatesteam[ChrList[chrb_ref].team] ) continue;
 
     // if we need to find enemies, don't find friends or invictus
-    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[charb].team] || ChrList[charb].invictus ) ) continue;
+    if ( require_enemies && ( !TeamList[team].hatesteam[ChrList[chrb_ref].team] || ChrList[chrb_ref].invictus ) ) continue;
 
     // if we require being alive, don't accept dead things
-    if ( require_alive && !ChrList[charb].alive ) continue;
+    if ( require_alive && !ChrList[chrb_ref].alive ) continue;
 
     // if we require not an item, don't accept items
-    if ( require_noitems && ChrList[charb].isitem ) continue;
+    if ( require_noitems && ChrList[chrb_ref].isitem ) continue;
 
-    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( ChrList[charb].model, idsz ) )
+    if ( IDSZ_NONE == idsz || CAP_INHERIT_IDSZ( ChrList[chrb_ref].model, idsz ) )
     {
-      xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
-      ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
-      zdis = ChrList[character].pos.z - ChrList[charb].pos.z;
+      xdis = ChrList[chra_ref].pos.x - ChrList[chrb_ref].pos.x;
+      ydis = ChrList[chra_ref].pos.y - ChrList[chrb_ref].pos.y;
+      zdis = ChrList[chra_ref].pos.z - ChrList[chrb_ref].pos.z;
       xdis *= xdis;
       ydis *= ydis;
       zdis *= zdis;
       dis = xdis + ydis + zdis;
       if ( psearch->initialize || dis < psearch->distance )
       {
-        psearch->nearest  = charb;
+        psearch->nearest  = chrb_ref;
         psearch->distance = dis;
         psearch->initialize = bfalse;
       }
@@ -4579,40 +4585,42 @@ bool_t chr_search_block_nearest( SEARCH_CONTEXT * psearch, int block_x, int bloc
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_search_wide_nearest( SEARCH_CONTEXT * psearch, CHR_REF character, bool_t ask_items,
+bool_t chr_search_wide_nearest( SEARCH_CONTEXT * psearch, CHR_REF chr_ref, bool_t ask_items,
                                  bool_t ask_friends, bool_t ask_enemies, bool_t ask_dead, IDSZ idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
 
   int x, y;
-  bool_t seeinvisible = ChrList[character].canseeinvisible;
+  bool_t seeinvisible = ChrList[chr_ref].canseeinvisible;
 
-  if ( !VALID_CHR( character ) ) return bfalse;
+  if ( !VALID_CHR( chr_ref ) ) return bfalse;
 
   // Current fanblock
-  x = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.x );
-  y = MESH_FLOAT_TO_BLOCK( ChrList[character].pos.y );
+  x = MESH_FLOAT_TO_BLOCK( ChrList[chr_ref].pos.x );
+  y = MESH_FLOAT_TO_BLOCK( ChrList[chr_ref].pos.y );
 
-  psearch->initialize = btrue;
-  chr_search_block_nearest( psearch, x + 0, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+  // initialize the search
+  search_new(psearch);
+
+  chr_search_block_nearest( psearch, x + 0, y + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
 
   if ( !VALID_CHR( psearch->nearest ) )
   {
-    chr_search_block_nearest( psearch, x - 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x + 1, y + 0, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x + 0, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x + 0, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y + 0, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 0, y - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 0, y + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
   if ( !VALID_CHR( psearch->nearest ) )
   {
-    chr_search_block_nearest( psearch, x - 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x + 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x - 1, y - 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
-    chr_search_block_nearest( psearch, x + 1, y + 1, character, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x - 1, y - 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
+    chr_search_block_nearest( psearch, x + 1, y + 1, chr_ref, ask_items, ask_friends, ask_enemies, ask_dead, seeinvisible, idsz );
   };
 
-  if ( psearch->nearest == character )
+  if ( psearch->nearest == chr_ref )
     psearch->nearest = MAXCHR;
 
   return VALID_CHR(psearch->nearest);

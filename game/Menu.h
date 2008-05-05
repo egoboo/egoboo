@@ -27,9 +27,14 @@
 
 //Input player control
 #define MAXLOADPLAYER     100
-extern int                     numloadplayer; //  EQ( 0 );
-extern char                    loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
-extern char                    loadplayerdir[MAXLOADPLAYER][16];
+typedef struct load_player_info_t
+{
+  char name[MAXCAPNAMESIZE];
+  char dir[16];
+} LOAD_PLAYER_INFO;
+
+extern int       loadplayer_count;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 void mnu_frameStep();
 void mnu_saveSettings();

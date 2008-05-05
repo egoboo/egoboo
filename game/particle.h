@@ -64,8 +64,6 @@ typedef struct dynalight_pip_t
 } DYNALIGHT_PIP;
 
 // Particle profiles
-extern int             numpip;
-
 typedef struct pip_t
 {
   Uint8           force;                        // Force spawn?
@@ -141,6 +139,7 @@ typedef struct pip_t
   bool_t          rotatewithattached;           // do attached particles rotate with the object?
 } PIP;
 
+extern int piplist_count;
 extern PIP PipList[MAXPRTPIP];
 
 typedef struct dynalight_prt_t
@@ -197,7 +196,7 @@ typedef struct prt_t
   Uint8           bumpheight;                      // Bounding box height
   float           bumpstrength;                    // The amount of interaction
   float           weight;                          // The mass of the particle
-  PRT_REF         bumpnext;                        // Next particle on fanblock
+
   BData           bmpdata;                         // particle bump size data
   PAIR            damage;                          // For strength
   DAMAGE          damagetype;                      // Damage type
@@ -215,7 +214,6 @@ extern Uint16          particletexture;                            // All in one
 #define VALID_PRT(XX) ( ((XX)>=0) && ((XX)<MAXPRT) && PrtList[XX].on )
 #define VALIDATE_PRT(XX) ( VALID_PRT(XX) ? (XX) : MAXPRT )
 
-PRT_REF prt_get_bumpnext( PRT_REF iprt );
 CHR_REF prt_get_owner( PRT_REF iprt );
 CHR_REF prt_get_target( PRT_REF iprt );
 
@@ -244,3 +242,4 @@ CHR_REF prt_get_owner( PRT_REF iprt );
 CHR_REF prt_get_target( PRT_REF iprt );
 CHR_REF prt_get_attachedtochr( PRT_REF iprt );
 
+Uint32 load_one_pip( char * szModpath, char * szObjectname, char * szFname, int override );

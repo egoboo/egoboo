@@ -39,7 +39,7 @@ int powerOfTwo( int input )
 //--------------------------------------------------------------------------------------------
 Uint32 GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key )
 {
-  SDL_Surface * screen;
+  SDL_Surface     * screen;
   SDL_PixelFormat * pformat;
   SDL_PixelFormat   tmpformat;
 
@@ -80,6 +80,9 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * im
     int i;
 
     // create the mask
+    // this will work if both endian systems think they have "RGBA" graphics
+    // if you need a different pixel format (ARGB or BGRA or whatever) this section
+    // will have to be changed to reflect that
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
     tmpformat.Amask = ( Uint32 )( 0xFF << 24 );
     tmpformat.Bmask = ( Uint32 )( 0xFF << 16 );
@@ -92,12 +95,24 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * im
     tmpformat.Rmask = ( Uint32 )( 0xFF << 24 );
 #endif
 
-    tmpformat.BitsPerPixel  = 32;
-    tmpformat.BytesPerPixel =  4;
 
-    for ( i = 0; i < 32 && ( tmpformat.Amask& ( 1 << i ) ) == 0; i++ );
-    tmpformat.Ashift = i;
-    tmpformat.Aloss  = 0;
+    tmpformat.BitsPerPixel  = screen->format->BitsPerPixel;
+    tmpformat.BytesPerPixel = screen->format->BytesPerPixel;
+
+    for ( i = 0; i < CData.scrz && ( tmpformat.Amask & ( 1 << i ) ) == 0; i++ );
+    if( 0 == (tmpformat.Amask & ( 1 << i )) )
+    {
+      // no alpha bits available
+      tmpformat.Ashift = 0;
+      tmpformat.Aloss  = 8;
+    }
+    else
+    {
+      // normal alpha channel
+      tmpformat.Ashift = i;
+      tmpformat.Aloss  = 0;
+    }
+
 
     pformat = &tmpformat;
   }
@@ -117,8 +132,6 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * im
     //convert the image format to the correct format
     SDL_Surface * tmp;
     Uint32 convert_flags = SDL_SWSURFACE;
-    //if(image->flags & SDL_SRCALPHA) convert_flags |= SDL_SRCALPHA;
-    //if(image->flags & SDL_SRCCOLORKEY) convert_flags |= SDL_SRCCOLORKEY;
     tmp = SDL_ConvertSurface( image, pformat, convert_flags );
     SDL_FreeSurface( image );
     image = tmp;
@@ -326,12 +339,12 @@ bool_t handle_opengl_error()
 
   switch ( glGetError() )
   {
-    case GL_INVALID_ENUM:      fprintf( stderr, "GLenum argument out of range\n" ); break;
-    case GL_INVALID_VALUE:     fprintf( stderr, "Numeric argument out of range\n" ); break;
-    case GL_INVALID_OPERATION: fprintf( stderr, "Operation illegal in current state\n" ); break;
-    case GL_STACK_OVERFLOW:    fprintf( stderr, "Command would cause a stack overflow\n" ); break;
-    case GL_STACK_UNDERFLOW:   fprintf( stderr, "Command would cause a stack underflow\n" ); break;
-    case GL_OUT_OF_MEMORY:     fprintf( stderr, "Not enough memory left to execute command\n" ); break;
+    case GL_INVALID_ENUM:      fprintf( stderr, "GLenum argument out of range" ); break;
+    case GL_INVALID_VALUE:     fprintf( stderr, "Numeric argument out of range" ); break;
+    case GL_INVALID_OPERATION: fprintf( stderr, "Operation illegal in current state" ); break;
+    case GL_STACK_OVERFLOW:    fprintf( stderr, "Command would cause a stack overflow" ); break;
+    case GL_STACK_UNDERFLOW:   fprintf( stderr, "Command would cause a stack underflow" ); break;
+    case GL_OUT_OF_MEMORY:     fprintf( stderr, "Not enough memory left to execute command" ); break;
     default: berror = bfalse; break;
   };
 

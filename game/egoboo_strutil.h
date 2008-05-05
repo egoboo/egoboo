@@ -19,8 +19,7 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef _EGOBOOSTRUTIL_H_
-#define _EGOBOOSTRUTIL_H_
+#pragma once
 
 #include "egoboo_types.inl"
 #include "egoboo_config.h"
@@ -28,9 +27,9 @@
 #include <string.h>
 #include <ctype.h>
 
-void TrimStr( char *pStr );
-char * convert_underscores( char *strout, size_t insize, char * strin );
-char * convert_spaces( char *strout, size_t insize, char * strin );
+void str_trim( char *pStr );
+char * str_convert_underscores( char *strout, size_t insize, char * strin );
+char * str_convert_spaces( char *strout, size_t insize, char * strin );
 
-#endif // #ifndef _EGOBOOSTRUTIL_H_
+char * str_append_slash(char * str, size_t size);
 

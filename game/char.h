@@ -188,12 +188,32 @@ EXTERN Uint16          chopstart[MAXCHOP];         // The first character of eac
 EXTERN char            namingnames[MAXCAPNAMESIZE];// The name returned by the function
 
 // Character profiles
-extern int           importobject;
+typedef struct import_info_t
+{
+  bool_t valid;                // Can it import?
+  int    object;
+  int    player;
+  int    amount;
+  Sint16 slot_lst[MAXPROFILE];
+} IMPORT_INFO;
+
+bool_t import_info_clear(IMPORT_INFO * ii);
+bool_t import_info_add(IMPORT_INFO * ii, int obj);
+
+extern IMPORT_INFO import;
+
+typedef struct skin_t
+{
+  Uint8         defense_fp8;                // Defense for each skin
+  char          name[MAXCAPNAMESIZE];   // Skin name
+  Uint16        cost;                   // Store prices
+  Uint8         damagemodifier_fp8[MAXDAMAGETYPE];
+  float         maxaccel;                   // Acceleration for each skin
+} SKIN;
 
 typedef struct cap_t
 {
   bool_t        used;
-  short         importslot;
   char          classname[MAXCAPNAMESIZE];     // Class name
   Sint8         skinoverride;                  // -1 or 0-3.. For import
   Uint8         leveloverride;                 // 0 for normal
@@ -297,11 +317,7 @@ typedef struct cap_t
   Uint8         kursechance;                   // Chance of being kursed
   Sint8         hidestate;                       // Don't draw when...
 
-  Uint8         defense_fp8[MAXSKIN];                // Defense for each skin
-  char          skinname[MAXSKIN][MAXCAPNAMESIZE];   // Skin name
-  Uint16        skincost[MAXSKIN];                   // Store prices
-  Uint8         damagemodifier_fp8[MAXDAMAGETYPE][MAXSKIN];
-  float         maxaccel[MAXSKIN];                   // Acceleration for each skin
+  SKIN          skin[MAXSKIN];
   Mix_Chunk *   wavelist[MAXWAVE];                    //sounds in a object
 
   // [BEGIN] Character template parameters that are like Skill Expansions
@@ -494,7 +510,6 @@ typedef struct chr_t
   float           flyheight;       // Height to stabilize at
   bool_t          stickybutt;      // Rests on floor
   bool_t          inwater;         //
-  float           maxaccel;        // Maximum acceleration
   float           dampen;          // Bounciness
   float           bumpstrength;    // ghost-like interaction with objects?
   float           level;           // Height under character
@@ -512,9 +527,8 @@ typedef struct chr_t
   Uint32          onwhichfan;      // Where the char is
   bool_t          indolist;        // Has it been added yet?
 
-  Uint16          texture;         // Character's skin
-  Uint16          uoffset_fp8;         // For moving textures
-  Uint16          voffset_fp8;         //
+  Uint16          uoffset_fp8;     // For moving textures
+  Uint16          voffset_fp8;     //
   Uint16          uoffvel;         // Moving texture speed
   Uint16          voffvel;         //
 
@@ -547,18 +561,19 @@ typedef struct chr_t
   // bumber info
   BData           bmpdata;           // character bump size data
   BData           bmpdata_save;
-  Uint16          bumpnext;        // Next character on fanblock
   float           bumpdampen;      // Character bump mass
 
   Uint8           spd_sneak;        // Sneaking if above this speed
   Uint8           spd_walk;         // Walking if above this speed
   Uint8           spd_run;          // Running if above this speed
 
-  DAMAGE          damagetargettype;// Type of damage for AI DamageTarget
+  DAMAGE          damagetargettype;   // Type of damage for AI DamageTarget
   DAMAGE          reaffirmdamagetype; // For relighting torches
-  Uint8           damagemodifier_fp8[MAXDAMAGETYPE];  // Resistances and inversion
-  float           damagetime;      // Invincibility timer
-  Uint8           defense_fp8;         // Base defense rating
+  float           damagetime;         // Invincibility timer
+
+  Uint16          skin_ref;           // which skin
+  SKIN            skin;               // skin data
+
   float           weight;          // Weight ( for pressure plates )
 
   Uint8           passage;         // The passage associated with this character
@@ -641,23 +656,6 @@ typedef struct chr_t
 
 extern CHR ChrList[MAXCHR];
 
-typedef struct bumplist_t
-{
-  bool_t   valid;
-  Uint32   num_blocks;              // Number of collision areas
-  Uint16 * chr;                     // For character collisions
-  Uint16 * num_chr;                 // Number on the block
-  Uint16 * prt;                     // For particle collisions
-  Uint16 * num_prt;                 // Number on the block
-} BUMPLIST;
-
-BUMPLIST * bumplist_new(BUMPLIST * b);
-void       bumplist_delete(BUMPLIST * b);
-BUMPLIST * bumplist_renew(BUMPLIST * b);
-bool_t     bumplist_allocate(BUMPLIST * b, int size);
-
-extern BUMPLIST bumplist;
-
 void calc_cap_experience( Uint16 object );
 int calc_chr_experience( Uint16 object, float level );
 float calc_chr_level( Uint16 object );
@@ -717,7 +715,6 @@ CHR_REF chr_get_nextinpack( CHR_REF ichr );
 CHR_REF chr_get_onwhichplatform( CHR_REF ichr );
 CHR_REF chr_get_inwhichpack( CHR_REF ichr );
 CHR_REF chr_get_attachedto( CHR_REF ichr );
-CHR_REF chr_get_bumpnext( CHR_REF ichr );
 CHR_REF chr_get_holdingwhich( CHR_REF ichr, SLOT slot );
 
 CHR_REF chr_get_aitarget( CHR_REF ichr );
@@ -728,6 +725,8 @@ CHR_REF chr_get_aibumplast( CHR_REF ichr );
 CHR_REF chr_get_aihitlast( CHR_REF ichr );
 
 Uint16 object_generate_index( char *szLoadName );
-Uint16 load_one_cap( char *szLoadName, Uint16 icap );
+Uint16 load_one_cap( char * szModpath, char *szObjectname, Uint16 icap );
 
 bool_t chr_bdata_reinit(CHR_REF ichr, BData * pbd);
+
+int get_skin( char * szModpath, char * szObjectname );

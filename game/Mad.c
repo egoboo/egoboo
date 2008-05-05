@@ -2,6 +2,7 @@
 #include "script.h"
 #include "Log.h"
 #include "Md2.inl"
+#include "particle.h"
 
 #include "graphic.h"
 #include "egoboo_utility.h"
@@ -348,16 +349,14 @@ void make_mad_equally_lit( Uint16 model )
 }
 
 //--------------------------------------------------------------------------------------------
-void check_copy( char* loadname, Uint16 object )
+void load_copy_file( char * szObjectpath, char * szObjectname, Uint16 object )
 {
   // ZZ> This function copies a model's actions
   FILE *fileread;
   ACTION actiona, actionb;
   char szOne[16], szTwo[16];
 
-
-  MadList[object].msg_start = 0;
-  fileread = fs_fileOpen( PRI_NONE, NULL, loadname, "r" );
+  fileread = fs_fileOpen(PRI_NONE, "load_copy_file()", inherit_fname(szObjectpath, szObjectname, CData.copy_file), "r");
   if ( NULL != fileread )
   {
     while ( fget_next_string( fileread, szOne, sizeof( szOne ) ) )
@@ -374,6 +373,7 @@ void check_copy( char* loadname, Uint16 object )
     }
     fs_fileClose( fileread );
   }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1316,13 +1316,12 @@ MAD *  mad_renew(MAD * pmad)
 
 
 //---------------------------------------------------------------------------------------------
-Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
+Uint16 load_one_mad( char * szObjectpath, char * szObjectname, Uint16 imdl )
 {
   // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
   //    int iFileHandleRead;
 
   STRING szLoadname;
-  size_t iBytesRead = 0;
   int iFrames;
   MAD * pmad;
 
@@ -1341,37 +1340,19 @@ Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
   if(NULL == mad_renew(pmad)) return MAXMODEL;
 
   // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-  strncpy( pmad->name, szObjectname, sizeof( pmad->name ) );
+  strncpy( pmad->name, szObjectpath, sizeof( pmad->name ) );
+  strncat( pmad->name, szObjectname, sizeof( pmad->name ) );
 
   // Load the AI script for this object
-  snprintf( szLoadname, sizeof( szLoadname ), "%s%s", szObjectname, CData.script_file );
-
-  // Create a reference to the one we just loaded
-  pmad->ai = load_ai_script( szLoadname );
+  pmad->ai = load_ai_script( szObjectpath, szObjectname );
   if ( MAXAI == pmad->ai )
   {
     // use the default script
     pmad->ai = 0;
   }
 
-  // Load the object model
-  make_newloadname( szObjectname, "tris.md2", szLoadname );
-
-#ifdef __unix__
-  // unix is case sensitive, but sometimes this file is called tris.MD2
-  if ( access( szLoadname, R_OK ) )
-  {
-    make_newloadname( szObjectname, "tris.MD2", szLoadname );
-    // still no luck !
-    if ( access( szObjectname, R_OK ) )
-    {
-      log_error( stderr, "ERROR: cannot open: %s\n", szLoadname );
-    }
-  }
-#endif
-
   // load the actual md2 data
-  pmad->md2_ptr = md2_load( szLoadname, NULL );
+  pmad->md2_ptr = md2_load( inherit_fname(szObjectpath, szObjectname, "tris.md2"), NULL );
   if(NULL == pmad->md2_ptr) return MAXMODEL;
 
   // BB > Egoboo md2 models were designed with 1 tile = 32x32 units, but internally Egoboo uses
@@ -1390,7 +1371,7 @@ Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
   pmad->vertices      = md2_get_numVertices( pmad->md2_ptr );
   pmad->transvertices = mad_calc_transvertices( pmad->md2_ptr );
 
-  // a5llocate the extra animation data
+  // allocate the extra animation data
   iFrames = md2_get_numFrames(pmad->md2_ptr);
   pmad->framelip = calloc(sizeof(Uint8),  iFrames);
   pmad->framefx  = calloc(sizeof(Uint16), iFrames);
@@ -1401,9 +1382,11 @@ Uint16 load_one_mad( char * szObjectname, Uint16 imdl )
   // Create the actions table for this object
   get_actions( imdl );
 
-  // Copy entire actions to save frame space COPY.TXT
-  snprintf( szLoadname, sizeof( szLoadname ), "%s%s", szObjectname, CData.copy_file );
-  check_copy( szLoadname, imdl );
+  // zero out the messages
+  MadList[imdl].msg_start = 0;
+
+  // Copy entire actions to save frame space "COPY.TXT"
+  load_copy_file( szObjectpath, szObjectname, imdl );
 
   return imdl;
 }
@@ -1572,6 +1555,21 @@ bool_t mad_display_bbox_tree(int level, matrix_4x4 matrix, MAD * pmad, int frame
 
   return btrue;
 
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_clear_pips()
+{
+  int cnt, object;
+
+  // Now clear out the local pips
+  for ( object = 0; object < MAXMODEL; object++ )
+  {
+    for ( cnt = 0; cnt < PRTPIP_PEROBJECT_COUNT; cnt++ )
+    {
+      MadList[object].prtpip[cnt] = MAXPRTPIP;
+    }
+  }
 }
 
 

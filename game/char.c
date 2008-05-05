@@ -41,7 +41,6 @@ along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <assert.h>
 
-BUMPLIST bumplist = {0};
 Uint32  cv_list_count = 0;
 CVolume cv_list[1000];
 SLOT    _slot;
@@ -54,8 +53,6 @@ Uint16  freechrlist[MAXCHR];     //
 
 Uint16  chrcollisionlevel = 2;
 
-int    importobject;
-
 TILE_DAMAGE GTile_Dam;
 
 
@@ -64,7 +61,7 @@ CHR ChrList[MAXCHR];
 
 TEAM_INFO TeamList[TEAM_COUNT];
 
-
+IMPORT_INFO import;
 
 void cv_list_add( CVolume * cv)
 {
@@ -499,7 +496,7 @@ void free_one_character( CHR_REF chr_ref )
 
   if ( !VALID_CHR( chr_ref ) ) return;
 
-  fprintf( stdout, "free_one_character() - \n\tprofile == %d, CapList[profile].classname == \"%s\", index == %d\n", ChrList[chr_ref].model, CapList[ChrList[chr_ref].model].classname, chr_ref );
+  log_debug( "free_one_character() - \n\tprofile == %d, CapList[profile].classname == \"%s\", index == %d\n", ChrList[chr_ref].model, CapList[ChrList[chr_ref].model].classname, chr_ref );
 
   //remove any collision volume octree
   if(NULL != ChrList[chr_ref].bmpdata.cv_tree)
@@ -864,8 +861,11 @@ bool_t prt_search_block( SEARCH_CONTEXT * psearch, int block_x, int block_y, PRT
   fanblock = mesh_convert_block( block_x, block_y );
   if ( INVALID_FAN == fanblock ) return bfound;
 
-  for ( cnt = 0, chrb_ref = VALID_CHR( bumplist.chr[fanblock] ); cnt < bumplist.num_chr[fanblock] && VALID_CHR( chrb_ref ); cnt++, chrb_ref = chr_get_bumpnext( chrb_ref ) )
+  chrb_ref = bumplist_get_chr_head(&bumplist, fanblock);
+  for ( cnt = 0; cnt < bumplist.num_chr[fanblock] && VALID_CHR_RANGE( chrb_ref ); cnt++, chrb_ref = bumplist_get_next_chr(&bumplist, chrb_ref) )
   {
+    assert( VALID_CHR( chrb_ref ) );
+
     // don't find stupid stuff
     if ( !VALID_CHR( chrb_ref ) || 0.0f == ChrList[chrb_ref].bumpstrength ) continue;
 
@@ -973,73 +973,114 @@ Uint32 __chrhitawall( CHR_REF chr_ref, vect3 * norm )
   //     chr_ref is not allowed to cross
 
   Uint32 retval;
-  vect3  pos, size;
+  vect3  pos, size, test_norm, tmp_norm;
+  CHR * pchr;
 
   if ( !VALID_CHR( chr_ref ) || 0.0f == ChrList[chr_ref].bumpstrength ) return 0;
 
-  pos.x = ( ChrList[chr_ref].bmpdata.cv.x_max + ChrList[chr_ref].bmpdata.cv.x_min ) * 0.5f;
-  pos.y = ( ChrList[chr_ref].bmpdata.cv.y_max + ChrList[chr_ref].bmpdata.cv.y_min ) * 0.5f;
-  pos.z =   ChrList[chr_ref].bmpdata.cv.z_min;
+  pchr = ChrList + chr_ref;
 
-  size.x = ( ChrList[chr_ref].bmpdata.cv.x_max - ChrList[chr_ref].bmpdata.cv.x_min ) * 0.5f;
-  size.y = ( ChrList[chr_ref].bmpdata.cv.y_max - ChrList[chr_ref].bmpdata.cv.y_min ) * 0.5f;
-  size.z = ( ChrList[chr_ref].bmpdata.cv.z_max - ChrList[chr_ref].bmpdata.cv.z_min ) * 0.5f;
+  VectorClear( tmp_norm.v );
 
-  retval = mesh_hitawall( pos, size.x, size.y, ChrList[chr_ref].stoppedby );
+  pos.x = ( pchr->bmpdata.cv.x_max + pchr->bmpdata.cv.x_min ) * 0.5f;
+  pos.y = ( pchr->bmpdata.cv.y_max + pchr->bmpdata.cv.y_min ) * 0.5f;
+  pos.z =   pchr->bmpdata.cv.z_min;
 
-  if( 0!=retval && NULL!=norm )
+  size.x = ( pchr->bmpdata.cv.x_max - pchr->bmpdata.cv.x_min ) * 0.5f;
+  size.y = ( pchr->bmpdata.cv.y_max - pchr->bmpdata.cv.y_min ) * 0.5f;
+  size.z = ( pchr->bmpdata.cv.z_max - pchr->bmpdata.cv.z_min ) * 0.5f;
+
+  retval = mesh_hitawall( pos, size.x, size.y, pchr->stoppedby, NULL );
+  test_norm.z = 0;
+
+  if(0 != retval)
   {
-    vect3 pos2;
+    vect3 diff, pos2;
 
-    VectorClear( norm->v );
+    diff.x = pchr->pos.x - pchr->pos_old.x;
+    diff.y = pchr->pos.y - pchr->pos_old.y;
+    diff.z = pchr->pos.z - pchr->pos_old.z;
 
-    pos2.x = pos.x + ChrList[chr_ref].pos.x - ChrList[chr_ref].pos_old.x;
-    pos2.y = pos.y + ChrList[chr_ref].pos.y - ChrList[chr_ref].pos_old.y;
-    pos2.z = pos.z + ChrList[chr_ref].pos.z - ChrList[chr_ref].pos_old.z;
+    pos2.x = pos.x - diff.x;
+    pos2.y = pos.y - diff.y;
+    pos2.z = pos.z - diff.z;
 
-    if( 0 != mesh_hitawall( pos2, size.x, size.y, ChrList[chr_ref].stoppedby ) )
+    if( 0 != mesh_hitawall( pos2, size.x, size.y, pchr->stoppedby, NULL ) )
     {
+      // this is an "invalid" object. It's old position is also *inside* the wall
+      // this could hapen if the object spawns inside a blocked region, if a script
+      // turns a region off, or something silly like that. DO NOTHING
+
+      if( NULL != norm && 0.0f == ABS(tmp_norm.x) + ABS(tmp_norm.y) + ABS(tmp_norm.z))
+      {
+        // !absolutely nothing worked!
+        retval = 0;
+        norm->x = 0.0f;
+        norm->y = 0.0f;
+        norm->z = 1.0f;
+      }
+
       return 0;
     }
 
-    pos2.x = pos.x;
-    pos2.y = pos.y + ChrList[chr_ref].pos.y - ChrList[chr_ref].pos_old.y;
-    pos2.z = pos.z + ChrList[chr_ref].pos.z - ChrList[chr_ref].pos_old.z;
-
-    if( 0 != mesh_hitawall( pos2, size.x, size.y, ChrList[chr_ref].stoppedby ) )
-    {
-      norm->x = -SGN(ChrList[chr_ref].pos.x - ChrList[chr_ref].pos_old.x);
-    }
-
-    pos2.x = pos.x + ChrList[chr_ref].pos.x - ChrList[chr_ref].pos_old.x;
+    // check for a wall in the y-z plane
+    pos2.x = pos.x - diff.x;
     pos2.y = pos.y;
-    pos2.z = pos.z + ChrList[chr_ref].pos.z - ChrList[chr_ref].pos_old.z;
-
-    if( 0 != mesh_hitawall( pos2, size.x, size.y, ChrList[chr_ref].stoppedby ) )
-    {
-      norm->y = -SGN(ChrList[chr_ref].pos.y - ChrList[chr_ref].pos_old.y);
-    }
-
-    pos2.x = pos.x + ChrList[chr_ref].pos.x - ChrList[chr_ref].pos_old.x;
-    pos2.y = pos.y + ChrList[chr_ref].pos.y - ChrList[chr_ref].pos_old.y;
     pos2.z = pos.z;
-
-    if( 0 != mesh_hitawall( pos, size.x, size.y, ChrList[chr_ref].stoppedby ) )
+    if( 0 == mesh_hitawall( pos2, size.x, size.y, pchr->stoppedby, NULL ) )
     {
-      norm->z = -SGN(ChrList[chr_ref].pos.z - ChrList[chr_ref].pos_old.z);
+      tmp_norm.x += -diff.x;
     }
 
-    if( ABS(norm->x) + ABS(norm->y) + ABS(norm->z) == 0.0f)
+    // check for a wall in the x-z plane
+    pos2.x = pos.x;
+    pos2.y = pos.y - diff.y;
+    pos2.z = pos.z;
+    if( 0 == mesh_hitawall( pos2, size.x, size.y, pchr->stoppedby, NULL ) )
     {
+      tmp_norm.y += -diff.y;
+    }
+
+    // if the "simple" method doesn't work, then just bounce?
+    if( ABS(tmp_norm.x) + ABS(tmp_norm.y) + ABS(tmp_norm.z) == 0.0f)
+    {
+      tmp_norm.x = -diff.x;
+      tmp_norm.y = -diff.y;
+    }
+
+    // if the "simple" method doesn't work, then just bounce?
+    if( ABS(tmp_norm.x) + ABS(tmp_norm.y) + ABS(tmp_norm.z) == 0.0f)
+    {
+      tmp_norm.x = -pchr->vel.x;
+      tmp_norm.y = -pchr->vel.y;
+    }
+
+    // as an absolute last resort, use the average normal of the "wall" collision
+    // likely not to work, since a lot of "walls" are just closed doorways...
+    if( ABS(tmp_norm.x) + ABS(tmp_norm.y) + ABS(tmp_norm.z) == 0.0f)
+    {
+      tmp_norm.x = test_norm.x;
+      tmp_norm.y = test_norm.y;
+    }
+
+  }
+
+  if(NULL != norm)
+  {
+    if( ABS(tmp_norm.x) + ABS(tmp_norm.y) + ABS(tmp_norm.z) == 0.0f)
+    {
+      // !absolutely nothing worked!
       retval = 0;
+      norm->x = 0.0f;
+      norm->y = 0.0f;
       norm->z = 1.0f;
     }
     else
     {
-      *norm = Normalize( *norm );
+      *norm = Normalize( tmp_norm );
     };
-
   }
+
 
   return retval;
 }
@@ -1062,7 +1103,7 @@ void reset_character_accel( CHR_REF chr_ref )
 
   // Set the starting value
   assert( MAXMODEL != VALIDATE_MDL( ChrList[chr_ref].model ) );
-  ChrList[chr_ref].maxaccel = CapList[ChrList[chr_ref].model].maxaccel[( ChrList[chr_ref].texture - MadList[ChrList[chr_ref].model].skinstart ) % MAXSKIN];
+  ChrList[chr_ref].skin.maxaccel = CapList[ChrList[chr_ref].model].skin[ChrList[chr_ref].skin_ref % MAXSKIN].maxaccel;
 
   // Put the acceleration enchants back on
   enchant = ChrList[chr_ref].firstenchant;
@@ -1153,15 +1194,15 @@ bool_t detach_character_from_mount( CHR_REF chr_ref, bool_t ignorekurse, bool_t 
 
   // Check for shop passages
   inshop = bfalse;
-  if ( ChrList[chr_ref].isitem && numshoppassage != 0 && doshop )
+  if ( ChrList[chr_ref].isitem && shop_count != 0 && doshop )
   {
-    for ( cnt = 0; cnt < numshoppassage; cnt++ )
+    for ( cnt = 0; cnt < shop_count; cnt++ )
     {
-      passage = shoppassage[cnt];
+      passage = ShopList[cnt].passage;
 
       if ( passage_check_any( chr_ref, passage, NULL ) )
       {
-        iowner = shopowner[passage];
+        iowner = ShopList[passage].owner;
         inshop = ( NOOWNER != iowner );
         break;
       }
@@ -1174,7 +1215,7 @@ bool_t detach_character_from_mount( CHR_REF chr_ref, bool_t ignorekurse, bool_t 
       assert( MAXMODEL != VALIDATE_MDL( model ) );
 
       // Give the imount its money back, alert the shop iowner
-      price = CapList[model].skincost[( ChrList[chr_ref].texture - MadList[model].skinstart ) % MAXSKIN];
+      price = CapList[model].skin[ChrList[chr_ref].skin_ref % MAXSKIN].cost;
       if ( CapList[model].isstackable )
       {
         price *= ChrList[chr_ref].ammo;
@@ -1367,8 +1408,8 @@ bool_t attach_character_to_mount( CHR_REF chr_ref, CHR_REF mount_ref, SLOT slot 
 //--------------------------------------------------------------------------------------------
 CHR_REF stack_in_pack( CHR_REF item_ref, CHR_REF chr_ref )
 {
-  // ZZ> This function looks in the chr_ref's pack for an item_ref similar
-  //     to the one given.  If it finds one, it returns the similar item_ref's
+  // ZZ> This function looks in the chraracter's pack for an item similar
+  //     to the one given.  If it finds one, it returns the similar item's
   //     index number, otherwise it returns MAXCHR.
   Uint16 inpack, id;
   bool_t allok;
@@ -1385,11 +1426,11 @@ CHR_REF stack_in_pack( CHR_REF item_ref, CHR_REF chr_ref )
     inpack = chr_get_nextinpack( chr_ref );
     inpack_mdl = ChrList[inpack].model;
 
-    assert( MAXMODEL != VALIDATE_MDL( inpack_mdl ) );
-
     allok = bfalse;
     while ( VALID_CHR( inpack ) && !allok )
     {
+      assert( MAXMODEL != VALIDATE_MDL( inpack_mdl ) );
+
       allok = btrue;
       if ( inpack_mdl != item_mdl )
       {
@@ -1839,6 +1880,7 @@ bool_t character_grab_stuff( CHR_REF chr_ref, SLOT slot, bool_t people )
       trg_chr              = packer_ref;
       trg_strength_fp8     = ChrList[packer_ref].strength_fp8;
       trg_intelligence_fp8 = ChrList[packer_ref].intelligence_fp8;
+
       trg_team = ChrList[packer_ref].team;
       posb     = ChrList[packer_ref].pos;
       posb.z  += ChrList[packer_ref].bmpdata.calc_height / 2;
@@ -1908,7 +1950,7 @@ bool_t character_grab_stuff( CHR_REF chr_ref, SLOT slot, bool_t people )
   ballowed = bfalse;
   if ( mesh_check( ChrList[minchr_ref].pos.x, ChrList[minchr_ref].pos.y ) )
   {
-    if ( numshoppassage == 0 )
+    if ( shop_count == 0 )
     {
       ballowed = btrue;
     }
@@ -1916,13 +1958,13 @@ bool_t character_grab_stuff( CHR_REF chr_ref, SLOT slot, bool_t people )
     {
 
       // loop through just in case there are overlapping shops with one owner_ref deceased
-      for ( cnt = 0; cnt < numshoppassage && !inshop; cnt++ )
+      for ( cnt = 0; cnt < shop_count && !inshop; cnt++ )
       {
-        passage = shoppassage[cnt];
+        passage = ShopList[cnt].passage;
 
         if ( passage_check_any( minchr_ref, passage, NULL ) )
         {
-          owner_ref  = shopowner[passage];
+          owner_ref  = ShopList[passage].owner;
           inshop = ( NOOWNER != owner_ref );
         };
       };
@@ -1941,7 +1983,7 @@ bool_t character_grab_stuff( CHR_REF chr_ref, SLOT slot, bool_t people )
     {
       // Pay the shop owner_ref, or don't allow grab...
       ChrList[owner_ref].aistate.alert |= ALERT_SIGNALED;
-      price = CapList[ChrList[minchr_ref].model].skincost[( ChrList[minchr_ref].texture - MadList[ChrList[minchr_ref].model].skinstart ) % MAXSKIN];
+      price = CapList[ChrList[minchr_ref].model].skin[ChrList[minchr_ref].skin_ref % MAXSKIN].cost;
       if ( CapList[ChrList[minchr_ref].model].isstackable )
       {
         price *= ChrList[minchr_ref].ammo;
@@ -2219,7 +2261,7 @@ void move_characters( float dUpdate )
     // calculate the normal GDyna.mically from the mesh coordinates
     if ( !mesh_calc_normal( pchr->pos, &nrm ) )
     {
-      nrm = mapnrm[twist];
+      nrm = twist_table[twist].nrm;
     };
 
     // TODO : replace with line(s) below
@@ -2297,7 +2339,7 @@ void move_characters( float dUpdate )
         }
         else
         {
-          is_slippy = ( INVALID_FAN != pchr->onwhichfan ) && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY );
+          is_slippy = ( INVALID_FAN != pchr->onwhichfan ) && mesh_has_some_bits( pchr->onwhichfan, MPDFX_SLIPPY );
         }
 
         if ( is_slippy )
@@ -2373,20 +2415,20 @@ void move_characters( float dUpdate )
         }
 
         // TODO : change to line(s) below
-        maxvel = pchr->maxaccel / ( 1.0 - noslipfriction );
+        maxvel = pchr->skin.maxaccel / ( 1.0 - noslipfriction );
         // set a minimum speed of 6 to fix some stupid slow speeds
         //maxvel = 1.5f * MAX(MAX(3,pchr->spd_run), MAX(pchr->spd_walk,pchr->spd_sneak));
         pstate->trgvel.x = dvx * maxvel;
         pstate->trgvel.y = dvy * maxvel;
         pstate->trgvel.z = 0;
 
-        if ( pchr->maxaccel > 0.0f )
+        if ( pchr->skin.maxaccel > 0.0f )
         {
           dvx = ( pstate->trgvel.x - pchr->vel.x );
           dvy = ( pstate->trgvel.y - pchr->vel.y );
 
           // TODO : change to line(s) below
-          dvmax = pchr->maxaccel;
+          dvmax = pchr->skin.maxaccel;
           // Limit to max acceleration
           //if(maxvel==0.0)
           //{
@@ -2787,7 +2829,7 @@ void move_characters( float dUpdate )
       if ( lerp_normal < 0.2f ) lerp_normal = 0.2f;
 
       // slippy hills make characters slide
-      if ( pchr->weight > 0 && GWater.iswater && !pchr->inwater && INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY ) )
+      if ( pchr->weight > 0 && GWater.iswater && !pchr->inwater && INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MPDFX_SLIPPY ) )
       {
         pchr->accum_acc.x -= nrm.x * gravity * lerp_tang * hillslide;
         pchr->accum_acc.y -= nrm.y * gravity * lerp_tang * hillslide;
@@ -2827,12 +2869,12 @@ void move_characters( float dUpdate )
     if ( grounded )
     {
       // only slippy, non-flat surfaces don't allow jumps
-      if ( INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MESHFX_SLIPPY ) )
+      if ( INVALID_FAN != pchr->onwhichfan && mesh_has_some_bits( pchr->onwhichfan, MPDFX_SLIPPY ) )
       {
-        if ( !maptwistflat[twist] )
+        if ( !twist_table[twist].flat )
         {
           pchr->jumpready = bfalse;
-          dojumptimer       = bfalse;
+          dojumptimer     = bfalse;
         };
       }
     }
@@ -2846,8 +2888,8 @@ void move_characters( float dUpdate )
     // Characters with sticky butts lie on the surface of the mesh
     if ( grounded && ( pchr->stickybutt || !pchr->alive ) )
     {
-      pchr->mapturn_lr = pchr->mapturn_lr * 0.9 + maptwist_lr[twist] * 0.1;
-      pchr->mapturn_ud = pchr->mapturn_ud * 0.9 + maptwist_ud[twist] * 0.1;
+      pchr->mapturn_lr = pchr->mapturn_lr * 0.9 + twist_table[twist].lr * 0.1;
+      pchr->mapturn_ud = pchr->mapturn_ud * 0.9 + twist_table[twist].ud * 0.1;
     }
 
     // Animate the character
@@ -3049,7 +3091,7 @@ void setup_characters( char *modname )
 
   // Turn some back on
   currentcharacter = MAXCHR;
-  snprintf( newloadname, sizeof( newloadname ), "%s%s/%s", modname, CData.gamedat_dir, CData.spawn_file );
+  snprintf( newloadname, sizeof( newloadname ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.spawn_file );
   fileread = fs_fileOpen( PRI_FAIL, "setup_characters()", newloadname, "r" );
   if ( NULL == fileread )
   {
@@ -3060,7 +3102,7 @@ void setup_characters( char *modname )
 
   while ( fget_next_string( fileread, myname, sizeof( myname ) ) )
   {
-    convert_underscores( myname, sizeof( myname ), myname );
+    str_convert_underscores( myname, sizeof( myname ), myname );
 
     name = myname;
     if ( 0 == strcmp( "NONE", myname ) )
@@ -3148,7 +3190,7 @@ void setup_characters( char *modname )
       // Turn on player input devices
       if ( stat )
       {
-        if ( importamount == 0 )
+        if ( import.amount == 0 )
         {
           if ( numstat == 0 )
           {
@@ -3156,14 +3198,14 @@ void setup_characters( char *modname )
             add_player( lastcharacter, numstat, INBITS_MOUS | INBITS_KEYB | INBITS_JOYA | INBITS_JOYB );
           };
         }
-        else if ( numstat < importamount )
+        else if ( numstat < import.amount )
         {
           // Multiplayer module
           itislocal = bfalse;
           tnc = 0;
-          while ( tnc < numimport )
+          while ( tnc < localplayer_count )
           {
-            if ( CapList[ChrList[lastcharacter].model].importslot == localslot[tnc] )
+            if ( import.slot_lst[ChrList[lastcharacter].model] == localplayer_slot[tnc] )
             {
               itislocal = btrue;
               localnumber = tnc;
@@ -3176,7 +3218,7 @@ void setup_characters( char *modname )
           if ( itislocal )
           {
             // It's a local player
-            add_player( lastcharacter, numstat, localcontrol[localnumber] );
+            add_player( lastcharacter, numstat, localplayer_control[localnumber] );
           }
           else
           {
@@ -3591,7 +3633,7 @@ void make_onwhichfan( void )
     is_inwater = is_underwater = bfalse;
     splashstrength = 0.0f;
     ripplesize = 0.0f;
-    if ( INVALID_FAN != ChrList[chr_ref].onwhichfan && mesh_has_some_bits( ChrList[chr_ref].onwhichfan, MESHFX_WATER ) )
+    if ( INVALID_FAN != ChrList[chr_ref].onwhichfan && mesh_has_some_bits( ChrList[chr_ref].onwhichfan, MPDFX_WATER ) )
     {
       splashstrength = ChrList[chr_ref].bmpdata.calc_size_big / 45.0f * ChrList[chr_ref].bmpdata.calc_size / 30.0f;
       if ( ChrList[chr_ref].vel.z > 0.0f ) splashstrength *= 0.5;
@@ -3678,20 +3720,20 @@ void make_onwhichfan( void )
     }
 
     // damage tile stuff
-    if ( mesh_has_some_bits( ChrList[chr_ref].onwhichfan, MESHFX_DAMAGE ) && ChrList[chr_ref].pos.z <= GWater.surfacelevel + DAMAGERAISE )
+    if ( mesh_has_some_bits( ChrList[chr_ref].onwhichfan, MPDFX_DAMAGE ) && ChrList[chr_ref].pos.z <= GWater.surfacelevel + DAMAGERAISE )
     {
       Uint8 loc_damagemodifier;
       CHR_REF imount;
 
       // augment the rider's damage immunity with the mount's
-      loc_damagemodifier = ChrList[chr_ref].damagemodifier_fp8[GTile_Dam.type];
+      loc_damagemodifier = ChrList[chr_ref].skin.damagemodifier_fp8[GTile_Dam.type];
       imount = chr_get_attachedto(chr_ref);
       if ( VALID_CHR(imount) )
       {
         Uint8 modbits1, modbits2, modshift1, modshift2;
         Uint8 tmp_damagemodifier;
 
-        tmp_damagemodifier = ChrList[imount].damagemodifier_fp8[GTile_Dam.type];
+        tmp_damagemodifier = ChrList[imount].skin.damagemodifier_fp8[GTile_Dam.type];
 
         modbits1  = loc_damagemodifier & (~DAMAGE_SHIFT);
         modshift1 = loc_damagemodifier & DAMAGE_SHIFT;
@@ -3795,14 +3837,7 @@ void create_bumplists()
   Uint8   hidestate;
 
   // Clear the lists
-  for ( fanblock = 0; fanblock < bumplist.num_blocks; fanblock++ )
-  {
-    bumplist.valid             = bfalse;
-    bumplist.num_chr[fanblock] = 0;
-    bumplist.chr[fanblock]     = MAXCHR;
-    bumplist.num_prt[fanblock] = 0;
-    bumplist.prt[fanblock]     = MAXPRT;
-  }
+  bumplist_clear(&bumplist);
 
   // Fill 'em back up
   for ( chr_ref = 0; chr_ref < MAXCHR; chr_ref++ )
@@ -3830,10 +3865,7 @@ void create_bumplists()
         if ( INVALID_FAN == fanblock ) continue;
 
         // Insert before any other characters on the block
-        entry_ref = bumplist.chr[fanblock];
-        ChrList[chr_ref].bumpnext = entry_ref;
-        bumplist.chr[fanblock]    = chr_ref;
-        bumplist.num_chr[fanblock]++;
+        bumplist_insert_chr(&bumplist, fanblock, chr_ref);
       }
     }
   };
@@ -3848,10 +3880,7 @@ void create_bumplists()
     if ( INVALID_FAN == fanblock ) continue;
 
     // Insert before any other particles on the block
-    entry_ref = bumplist.prt[fanblock];
-    PrtList[prt_ref].bumpnext = entry_ref;
-    bumplist.prt[fanblock] = prt_ref;
-    bumplist.num_prt[fanblock]++;
+    bumplist_insert_prt(&bumplist, fanblock, prt_ref);
   }
 
   bumplist.valid = btrue;
@@ -4343,10 +4372,11 @@ void do_bumping( float dUpdate )
     prtinblock = bumplist.num_prt[fanblock];
 
     //// remove bad platforms
-    //for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-    //      cnt < chrinblock && VALID_CHR( chra_ref );
-    //      cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    //for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+    //      cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+    //      cnt++, chra_ref = bumplist_get_next_chr( chra_ref ) )
     //{
+    //  VALID_CHR( chra_ref );
     //  // detach character from invalid platforms
     //  chrb_ref  = chr_get_onwhichplatform( chra_ref );
     //  if ( VALID_CHR( chrb_ref ) )
@@ -4360,17 +4390,21 @@ void do_bumping( float dUpdate )
     //};
 
     //// do attachments
-    //for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-    //      cnt < chrinblock && VALID_CHR( chra_ref );
-    //      cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    //for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+    //      cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+    //      cnt++, chra_ref = bumplist_get_next_chr( chra_ref ) )
     //{
+    //  assert(VALID_CHR( chra_ref ));
+    //
     //  // Do platforms (no interaction with held or mounted items)
     //  if ( chr_attached( chra_ref ) ) continue;
 
-    //  for ( chrb_ref = chr_get_bumpnext( chra_ref ), tnc = cnt + 1;
-    //        tnc < chrinblock && VALID_CHR( chrb_ref );
-    //        tnc++, chrb_ref = chr_get_bumpnext( chrb_ref ) )
+    //  for ( chrb_ref = bumplist_get_next_chr( chra_ref ), tnc = cnt + 1;
+    //        tnc < chrinblock && VALID_CHR_RANGE( chrb_ref );
+    //        tnc++, chrb_ref = bumplist_get_next_chr( chrb_ref ) )
     //  {
+    //    assert(VALID_CHR( chrb_ref ));
+    //
     //    // do not put something on a platform that is being carried by someone
     //    if ( chr_attached( chrb_ref ) ) continue;
 
@@ -4408,17 +4442,20 @@ void do_bumping( float dUpdate )
     //}
 
     //// Do mounting
-    //for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-    //      cnt < chrinblock && VALID_CHR( chra_ref );
-    //      cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    //for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+    //      cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+    //      cnt++, chra_ref = bumplist_get_next_chr( chra_ref ) )
     //{
+    //  assert(VALID_CHR( chra_ref ));
+    //
     //  if ( chr_attached( chra_ref ) ) continue;
 
-    //  for ( chrb_ref = chr_get_bumpnext( chra_ref ), tnc = cnt + 1;
-    //        tnc < chrinblock && VALID_CHR( chrb_ref );
-    //        tnc++, chrb_ref = chr_get_bumpnext( chrb_ref ) )
+    //  for ( chrb_ref = bumplist_get_next_chr( chra_ref ), tnc = cnt + 1;
+    //        tnc < chrinblock && VALID_CHR_RANGE( chrb_ref );
+    //        tnc++, chrb_ref = bumplist_get_next_chr( chrb_ref ) )
     //  {
-
+    //    assert(VALID_CHR( chrb_ref ));
+    //
     //    // do not mount something that is being carried by someone
     //    if ( chr_attached( chrb_ref ) ) continue;
 
@@ -4480,11 +4517,14 @@ void do_bumping( float dUpdate )
     //}
 
     // do collisions
-    for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-          cnt < chrinblock && VALID_CHR( chra_ref );
-          cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+          cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+          cnt++, chra_ref = bumplist_get_next_chr(&bumplist, chra_ref) )
     {
       float lerpa;
+
+      assert(VALID_CHR( chra_ref ));
+    
       lerpa = (ChrList[chra_ref].pos.z - ChrList[chra_ref].level) / PLATTOLERANCE;
       lerpa = CLIP(lerpa, 0, 1);
 
@@ -4494,14 +4534,16 @@ void do_bumping( float dUpdate )
       if ( ChrList[chra_ref].bumpstrength == 0.0f ) continue;
 
       // Do collisions (but not with attached items/characers)
-      for ( chrb_ref = chr_get_bumpnext( chra_ref ), tnc = cnt + 1;
-            tnc < chrinblock && VALID_CHR( chrb_ref );
-            tnc++, chrb_ref = chr_get_bumpnext( chrb_ref ) )
+      for ( chrb_ref = bumplist_get_next_chr(&bumplist, chra_ref), tnc = cnt + 1;
+            tnc < chrinblock && VALID_CHR_RANGE( chrb_ref );
+            tnc++, chrb_ref = bumplist_get_next_chr(&bumplist, chrb_ref) )
       {
         CVolume cv;
-        float lerpb;
+        float lerpb, bumpstrength;
 
-        float bumpstrength = ChrList[chra_ref].bumpstrength * ChrList[chrb_ref].bumpstrength;
+        assert(VALID_CHR( chrb_ref ));
+
+        bumpstrength = ChrList[chra_ref].bumpstrength * ChrList[chrb_ref].bumpstrength;
 
         // don't do object-object collisions if they won't feel eachother
         if ( bumpstrength == 0.0f ) continue;
@@ -4745,21 +4787,24 @@ void do_bumping( float dUpdate )
     };
 
     // Now check collisions with every bump particle in same area
-    //for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-    //      cnt < chrinblock && VALID_CHR( chra_ref );
-    //      cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    //for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+    //      cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+    //      cnt++, chra_ref = bumplist_get_next_chr( chra_ref ) )
     //{
     //  IDSZ chridvulnerability, eveidremove;
     //  float chrbump = 1.0f;
+
+    //  assert(VALID_CHR( chra_ref ));
+    //
 
     //  apos = ChrList[chra_ref].pos;
     //  chridvulnerability = CapList[ChrList[chra_ref].model].idsz[IDSZ_VULNERABILITY];
     //  chrbump = ChrList[chra_ref].bumpstrength;
 
     //  // Check for object-particle interaction
-    //  for ( tnc = 0, prtb = bumplist.prt[fanblock];
-    //        tnc < prtinblock && MAXPRT != prtb;
-    //        tnc++ , prtb = prt_get_bumpnext( prtb ) )
+    //  for ( tnc = 0, prtb = bumplist_get_prt_head(&bumplist, fanblock);
+    //        tnc < prtinblock && VALID_CHR_RANGE( prtb );
+    //        tnc++ , prtb = bumplist_get_next_prt( prtb ) )
     //  {
     //    float bumpstrength, prtbump;
     //    bool_t chr_is_vulnerable;
@@ -5081,11 +5126,14 @@ void do_bumping( float dUpdate )
     //}
 
     // do platform physics
-    //for ( cnt = 0, chra_ref = bumplist.chr[fanblock];
-    //      cnt < chrinblock && VALID_CHR( chra_ref );
-    //      cnt++, chra_ref = chr_get_bumpnext( chra_ref ) )
+    //for ( cnt = 0, chra_ref = bumplist_get_chr_head(&bumplist, fanblock);
+    //      cnt < chrinblock && VALID_CHR_RANGE( chra_ref );
+    //      cnt++, chra_ref = bumplist_get_next_chr( chra_ref ) )
     //{
     //  // detach character from invalid platforms
+
+    //  assert(VALID_CHR( chra_ref ));
+    //
     //  chrb_ref  = chr_get_onwhichplatform( chra_ref );
     //  if ( !VALID_CHR( chrb_ref ) ) continue;
 
@@ -5433,7 +5481,7 @@ void export_one_character_name( char *szSaveName, CHR_REF chr_ref )
       return;
   }
 
-  convert_spaces( ChrList[chr_ref].name, sizeof( ChrList[chr_ref].name ), ChrList[chr_ref].name );
+  str_convert_spaces( ChrList[chr_ref].name, sizeof( ChrList[chr_ref].name ), ChrList[chr_ref].name );
   fprintf( filewrite, ":%s\n", ChrList[chr_ref].name );
   fprintf( filewrite, ":STOP\n\n" );
   fs_fileClose( filewrite );
@@ -5446,7 +5494,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF chr_ref )
   //     it is assumed that all enchantments have been done away with
   FILE* filewrite;
   int profile;
-  int damagetype, skin;
+  int damagetype, iskin;
   char types[10] = "SCPHEFIZ";
   char codes[4];
 
@@ -5533,34 +5581,34 @@ void export_one_character_profile( char *szSaveName, CHR_REF chr_ref )
 
     // Skin defenses
     fprintf( filewrite, "Base defense   : " );
-    for ( skin = 0; skin < MAXSKIN; skin++ ) { fprintf( filewrite, "%3d ", 255 - CapList[profile].defense_fp8[skin] ); }
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ ) { fprintf( filewrite, "%3d ", 255 - CapList[profile].skin[iskin].defense_fp8 ); }
     fprintf( filewrite, "\n" );
 
     for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
     {
       fprintf( filewrite, "%c damage shift :", types[damagetype] );
-      for ( skin = 0; skin < MAXSKIN; skin++ ) { fprintf( filewrite, "%3d ", CapList[profile].damagemodifier_fp8[damagetype][skin]&DAMAGE_SHIFT ); };
+      for ( iskin = 0; iskin < MAXSKIN; iskin++ ) { fprintf( filewrite, "%3d ", CapList[profile].skin[iskin].damagemodifier_fp8[damagetype]&DAMAGE_SHIFT ); };
       fprintf( filewrite, "\n" );
     }
 
     for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
     {
       fprintf( filewrite, "%c damage code  : ", types[damagetype] );
-      for ( skin = 0; skin < MAXSKIN; skin++ )
+      for ( iskin = 0; iskin < MAXSKIN; iskin++ )
       {
-        codes[skin] = 'F';
-        if ( CapList[profile].damagemodifier_fp8[damagetype][skin]&DAMAGE_CHARGE ) codes[skin] = 'C';
-        if ( CapList[profile].damagemodifier_fp8[damagetype][skin]&DAMAGE_INVERT ) codes[skin] = 'T';
-        if ( CapList[profile].damagemodifier_fp8[damagetype][skin]&DAMAGE_MANA )   codes[skin] = 'M';
-        fprintf( filewrite, "%3c ", codes[skin] );
-      }
+        codes[iskin] = 'F';
+        if ( CapList[profile].skin[iskin].damagemodifier_fp8[damagetype] & DAMAGE_CHARGE ) codes[iskin] = 'C';
+        if ( CapList[profile].skin[iskin].damagemodifier_fp8[damagetype] & DAMAGE_INVERT ) codes[iskin] = 'T';
+        if ( CapList[profile].skin[iskin].damagemodifier_fp8[damagetype] & DAMAGE_MANA   ) codes[iskin] = 'M';
+        fprintf( filewrite, "%3c ", codes[iskin] );
+      } 
       fprintf( filewrite, "\n" );
     }
 
     fprintf( filewrite, "Acceleration   : " );
-    for ( skin = 0; skin < MAXSKIN; skin++ )
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ )
     {
-      fprintf( filewrite, "%3.0f ", CapList[profile].maxaccel[skin]*80 );
+      fprintf( filewrite, "%3.0f ", CapList[profile].skin[iskin].maxaccel*80 );
     }
     fprintf( filewrite, "\n" );
 
@@ -5670,16 +5718,16 @@ void export_one_character_profile( char *szSaveName, CHR_REF chr_ref )
     fprintf( filewrite, "Life return    : %d\n", CapList[profile].lifereturn_fp8 );
     fprintf( filewrite, "Stopped by     : %d\n", CapList[profile].stoppedby );
 
-    for ( skin = 0; skin < MAXSKIN; skin++ )
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ )
     {
       STRING stmp;
-      snprintf( stmp, sizeof( stmp ), "Skin %d name    : ", skin );
-      funderf( filewrite, stmp, CapList[profile].skinname[skin] );
+      snprintf( stmp, sizeof( stmp ), "Skin %d name    : ", iskin );
+      funderf( filewrite, stmp, CapList[profile].skin[iskin].name );
     };
 
-    for ( skin = 0; skin < MAXSKIN; skin++ )
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ )
     {
-      fprintf( filewrite, "Skin %d cost    : %d\n", skin, CapList[profile].skincost[skin] );
+      fprintf( filewrite, "Skin %d cost    : %d\n", iskin, CapList[profile].skin[iskin].cost );
     };
 
     fprintf( filewrite, "STR dampen     : %5.3f\n", CapList[profile].strengthdampen );
@@ -5732,7 +5780,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF chr_ref )
 
     //General exported chr_ref information
     fprintf( filewrite, ":[PLAT] %d\n", CapList[profile].canuseplatforms );
-    fprintf( filewrite, ":[SKIN] %d\n", ( ChrList[chr_ref].texture - MadList[profile].skinstart ) % MAXSKIN );
+    fprintf( filewrite, ":[SKIN] %d\n", ChrList[chr_ref].skin_ref % MAXSKIN );
     fprintf( filewrite, ":[CONT] %d\n", ChrList[chr_ref].aistate.content );
     fprintf( filewrite, ":[STAT] %d\n", ChrList[chr_ref].aistate.state );
     fprintf( filewrite, ":[LEVL] %d\n", ChrList[chr_ref].experiencelevel );
@@ -5743,7 +5791,7 @@ void export_one_character_profile( char *szSaveName, CHR_REF chr_ref )
 //--------------------------------------------------------------------------------------------
 void export_one_character_skin( char *szSaveName, CHR_REF chr_ref )
 {
-  // ZZ> This function creates a skin.txt file for the given chr_ref.
+  // ZZ> This function creates a SKIN.TXT file for the given chr_ref.
   FILE* filewrite;
   int profile;
 
@@ -5755,7 +5803,7 @@ void export_one_character_skin( char *szSaveName, CHR_REF chr_ref )
   if ( NULL != filewrite )
   {
     fprintf( filewrite, "This file is used only by the import menu\n" );
-    fprintf( filewrite, ": %d\n", ( ChrList[chr_ref].texture - MadList[profile].skinstart ) % MAXSKIN );
+    fprintf( filewrite, ": %d\n", ChrList[chr_ref].skin_ref % MAXSKIN );
     fs_fileClose( filewrite );
   }
 }
@@ -5833,17 +5881,18 @@ Uint16 object_generate_index( char *szLoadName )
   }
 
   globalname = szLoadName;
+
   // Read in the iobj slot
   iobj = fget_next_int( fileread );
   if ( iobj < 0 )
   {
-    if ( importobject < 0 )
+    if ( import.object < 0 )
     {
       log_error( "Object slot number %i is invalid. (%s) \n", iobj, szLoadName );
     }
     else
     {
-      iobj = importobject;
+      iobj = import.object;
     }
   }
 
@@ -5854,12 +5903,12 @@ Uint16 object_generate_index( char *szLoadName )
 
 
 //--------------------------------------------------------------------------------------------
-Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
+Uint16 load_one_cap( char * szObjectpath, char *szObjectname, Uint16 icap )
 {
   // ZZ> This function fills a character profile with data from CData.data_file
 
   FILE* fileread;
-  int skin, cnt;
+  int iskin, cnt;
   int iTmp;
   char cTmp;
   int damagetype, level, xptype;
@@ -5867,11 +5916,8 @@ Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
   CAP * pcap;
   STRING szLoadname;
 
-  // generate the full path name of "data.txt"
-  snprintf( szLoadname, sizeof( szLoadname ), "%s%s", szObjectpath, CData.data_file );
-
   // Open the file
-  fileread = fs_fileOpen( PRI_FAIL, "object_generate_index()", szLoadname, "r" );
+  fileread = fs_fileOpen( PRI_NONE, "load_one_cap()", inherit_fname(szObjectpath, szObjectname, CData.data_file), "r");
   if ( fileread == NULL )
   {
     // The data file wasn't found
@@ -5980,34 +6026,34 @@ Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
 
   // Skin defenses ( 4 skins )
   fgoto_colon( fileread );
-  for ( skin = 0; skin < MAXSKIN; skin++ )
-    { pcap->defense_fp8[skin] = 255 - fget_int( fileread ); };
+  for ( iskin = 0; iskin < MAXSKIN; iskin++ )
+    { pcap->skin[iskin].defense_fp8 = 255 - fget_int( fileread ); };
 
   for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
   {
     fgoto_colon( fileread );
-    for ( skin = 0;skin < MAXSKIN;skin++ )
-      { pcap->damagemodifier_fp8[damagetype][skin] = fget_int( fileread ); };
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ )
+      { pcap->skin[iskin].damagemodifier_fp8[damagetype] = fget_int( fileread ); };
   }
 
   for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
   {
     fgoto_colon( fileread );
-    for ( skin = 0; skin < MAXSKIN; skin++ )
+    for ( iskin = 0; iskin < MAXSKIN; iskin++ )
     {
       cTmp = fget_first_letter( fileread );
       switch ( toupper( cTmp ) )
       {
-        case 'T': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_INVERT; break;
-        case 'C': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_CHARGE; break;
-        case 'M': pcap->damagemodifier_fp8[damagetype][skin] |= DAMAGE_MANA;   break;
+        case 'T': pcap->skin[iskin].damagemodifier_fp8[damagetype] |= DAMAGE_INVERT; break;
+        case 'C': pcap->skin[iskin].damagemodifier_fp8[damagetype] |= DAMAGE_CHARGE; break;
+        case 'M': pcap->skin[iskin].damagemodifier_fp8[damagetype] |= DAMAGE_MANA;   break;
       };
     }
   }
 
   fgoto_colon( fileread );
-  for ( skin = 0;skin < MAXSKIN;skin++ )
-    { pcap->maxaccel[skin] = fget_float( fileread ) / 80.0; };
+  for ( iskin = 0; iskin < MAXSKIN; iskin++ )
+    { pcap->skin[iskin].maxaccel = fget_float( fileread ) / 80.0; };
 
 
   // Experience and level data
@@ -6090,13 +6136,13 @@ Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
   pcap->lifeheal_fp8 = fget_next_fixed( fileread );
   pcap->manacost_fp8 = fget_next_fixed( fileread );
   pcap->lifereturn_fp8 = fget_next_int( fileread );
-  pcap->stoppedby = fget_next_int( fileread ) | MESHFX_IMPASS;
+  pcap->stoppedby = fget_next_int( fileread ) | MPDFX_IMPASS;
 
-  for ( skin = 0;skin < MAXSKIN;skin++ )
-    { fget_next_name( fileread, pcap->skinname[skin], sizeof( pcap->skinname[skin] ) ); };
+  for ( iskin = 0; iskin < MAXSKIN; iskin++ )
+    { fget_next_name( fileread, pcap->skin[iskin].name, sizeof( pcap->skin[iskin].name ) ); };
 
-  for ( skin = 0;skin < MAXSKIN;skin++ )
-    { pcap->skincost[skin] = fget_next_int( fileread ); };
+  for ( iskin = 0; iskin < MAXSKIN; iskin++ )
+    { pcap->skin[iskin].cost = fget_next_int( fileread ); };
 
   pcap->strengthdampen = fget_next_float( fileread );
 
@@ -6201,15 +6247,15 @@ Uint16 load_one_cap( char *szObjectpath, Uint16 icap )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_skin( char *filename )
+int get_skin( char * szObjectpath, char * szObjectname )
 {
-  // ZZ> This function reads the skin.txt file...
+  // ZZ> This function reads the SKIN.TXT file...
+
   FILE* fileread;
   Uint8 skin;
 
-
   skin = 0;
-  fileread = fs_fileOpen( PRI_NONE, NULL, filename, "r" );
+  fileread = fs_fileOpen( PRI_NONE, "get_skin()", inherit_fname(szObjectpath, szObjectname, CData.skin_file), "r" );
   if ( NULL != fileread )
   {
     skin = fget_next_int( fileread );
@@ -6220,72 +6266,53 @@ int get_skin( char *filename )
 }
 
 //--------------------------------------------------------------------------------------------
-void check_player_import( char *dirname )
+void check_player_import()
 {
   // ZZ> This function figures out which players may be imported, and loads basic
   //     data for each
-  char searchname[128];
-  char filename[128];
+
+  STRING searchname, filename, filepath;
   int skin;
   bool_t keeplooking;
   const char *foundfile;
-
+  FS_FIND_INFO fs_finfo;
 
   // Set up...
-  numloadplayer = 0;
+  loadplayer_count = 0;
 
   // Search for all objects
-  snprintf( searchname, sizeof( searchname ), "%s/*.obj", dirname );
-  foundfile = fs_findFirstFile( dirname, "obj" );
+  fs_find_info_new( &fs_finfo );
+  snprintf( searchname, sizeof( searchname ), "%s" SLASH_STRING "*.obj", CData.players_dir );
+  foundfile = fs_findFirstFile( &fs_finfo, CData.players_dir, NULL, "*.obj" );
   keeplooking = 1;
   if ( foundfile != NULL )
   {
-    while ( keeplooking && numloadplayer < MAXLOADPLAYER )
+    snprintf( filepath, sizeof( filename ), "%s" SLASH_STRING "%s" SLASH_STRING, CData.players_dir, foundfile );
+
+    while (loadplayer_count < MAXLOADPLAYER )
     {
       prime_names();
-      strncpy( loadplayerdir[numloadplayer], foundfile, sizeof( loadplayerdir[numloadplayer] ) );
 
-      snprintf( filename, sizeof( filename ), "%s/%s/%s", dirname, foundfile, CData.skin_file );
-      skin = get_skin( filename );
+      strncpy( loadplayer[loadplayer_count].dir, foundfile, sizeof( loadplayer[loadplayer_count].dir ) );
 
-      snprintf( filename, sizeof( filename ), "%s/%s/tris.md2", dirname, foundfile );
-      load_one_mad( filename, numloadplayer );
+      skin = get_skin( filename, NULL );
 
-      snprintf( filename, sizeof( filename ), "%s/%s/icon%d.bmp", dirname, foundfile, skin );
-      load_one_icon( filename );
+      load_one_mad( filepath, NULL, loadplayer_count );
 
-      snprintf( filename, sizeof( filename ), "%s/%s/naming.txt", dirname, foundfile );
-      read_naming( 0, filename );
+      snprintf( filename, sizeof( filename ), "icon%d.bmp", skin );
+      load_one_icon( filepath, NULL, filename);
+
+      read_naming( filename, NULL, 0);
       naming_names( 0 );
-      strncpy( loadplayername[numloadplayer], namingnames, sizeof( loadplayername[numloadplayer] ) );
+      strncpy( loadplayer[loadplayer_count].name, namingnames, sizeof( loadplayer[loadplayer_count].name ) );
 
-      numloadplayer++;
+      loadplayer_count++;
 
-      foundfile = fs_findNextFile();
-      if ( foundfile == NULL ) keeplooking = 0; else keeplooking = 1;
+      foundfile = fs_findNextFile(&fs_finfo);
+      if (NULL == foundfile) break;
     }
   }
-  fs_findClose();
-
-  nullicon = globalnumicon;
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.nullicon_bitmap );
-  load_one_icon( CStringTmp1 );
-
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.keybicon_bitmap );
-  keybicon = globalnumicon;
-  load_one_icon( CStringTmp1 );
-
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.mousicon_bitmap );
-  mousicon = globalnumicon;
-  load_one_icon( CStringTmp1 );
-
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.joyaicon_bitmap );
-  joyaicon = globalnumicon;
-  load_one_icon( CStringTmp1 );
-
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.joybicon_bitmap );
-  joybicon = globalnumicon;
-  load_one_icon( CStringTmp1 );
+  fs_findClose(&fs_finfo);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -6328,7 +6355,7 @@ int check_player_quest( char *whichplayer, IDSZ idsz )
   //Always return "true" for [NONE] IDSZ checks
   if (idsz == IDSZ_NONE) result = -1;
 
-  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+  snprintf( newloadname, sizeof( newloadname ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.players_dir, whichplayer, CData.quest_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
   if ( NULL == fileread ) return result;
 
@@ -6361,7 +6388,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   if (check_player_quest(whichplayer, idsz) >= -1) return bfalse;
 
   // Try to open the file in read and append mode
-  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+  snprintf( newloadname, sizeof( newloadname ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.players_dir, whichplayer, CData.quest_file );
   filewrite = fs_fileOpen( PRI_NONE, NULL, newloadname, "a" );
   if ( NULL == filewrite ) return bfalse;
 
@@ -6407,7 +6434,7 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
   Sint8 NewQuestLevel = -2, QuestLevel;
 
   // Try to open the file in read/write mode
-  snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
+  snprintf( newloadname, sizeof( newloadname ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.players_dir, whichplayer, CData.quest_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
   if ( NULL == fileread ) return NewQuestLevel;
 
@@ -6442,8 +6469,8 @@ int modify_quest_idsz( char *whichplayer, IDSZ idsz, int adjustment )
     fs_fileClose( fileread );
 
     // create a "tmp_*" copy of the file
-    snprintf( newloadname, sizeof( newloadname ), "%s/%s/%s", CData.players_dir, whichplayer, CData.quest_file );
-    snprintf( copybuffer, sizeof( copybuffer ), "%s/%s/tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
+    snprintf( newloadname, sizeof( newloadname ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.players_dir, whichplayer, CData.quest_file );
+    snprintf( copybuffer, sizeof( copybuffer ), "%s" SLASH_STRING "%s" SLASH_STRING "tmp_%s", CData.players_dir, whichplayer, CData.quest_file);
     fs_copyFile( newloadname, copybuffer );
 
     // open the tmp file for reading and overwrite the original file
@@ -6649,27 +6676,6 @@ CHR_REF chr_get_attachedto( CHR_REF chr_ref )
   ChrList[chr_ref].attachedto = VALIDATE_CHR( ChrList[chr_ref].attachedto );
   if( !VALID_CHR( ChrList[chr_ref].attachedto ) ) ChrList[chr_ref].inwhichslot = SLOT_NONE;
   return ChrList[chr_ref].attachedto;
-};
-
-//--------------------------------------------------------------------------------------------
-CHR_REF chr_get_bumpnext( CHR_REF chr_ref )
-{
-  CHR_REF bumpnext;
-
-  if ( !VALID_CHR( chr_ref ) ) return MAXCHR;
-
-#if defined(_DEBUG) || !defined(NDEBUG)
-  bumpnext = ChrList[chr_ref].bumpnext;
-  if ( bumpnext < MAXCHR && !ChrList[bumpnext].on && ChrList[bumpnext].bumpnext < MAXCHR )
-  {
-    // this is an invalid configuration
-    assert( bfalse );
-    return chr_get_bumpnext( bumpnext );
-  }
-#endif
-
-  ChrList[chr_ref].bumpnext = VALIDATE_CHR( ChrList[chr_ref].bumpnext );
-  return ChrList[chr_ref].bumpnext;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -7798,11 +7804,11 @@ void damage_character( CHR_REF chr_ref, Uint16 direction,
     // This can also be used to lessen effectiveness of healing
     damage = generate_unsigned( pdam );
     basedamage = damage;
-    damage >>= ( pchr->damagemodifier_fp8[damagetype] & DAMAGE_SHIFT );
+    damage >>= ( pchr->skin.damagemodifier_fp8[damagetype] & DAMAGE_SHIFT );
 
 
     // Allow charging (Invert damage to mana)
-    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_CHARGE )
+    if ( pchr->skin.damagemodifier_fp8[damagetype]&DAMAGE_CHARGE )
     {
       pchr->mana_fp8 += damage;
       if ( pchr->mana_fp8 > pchr->manamax_fp8 )
@@ -7813,7 +7819,7 @@ void damage_character( CHR_REF chr_ref, Uint16 direction,
     }
 
     // Mana damage (Deal damage to mana)
-    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_MANA )
+    if ( pchr->skin.damagemodifier_fp8[damagetype]&DAMAGE_MANA )
     {
       pchr->mana_fp8 -= damage;
       if ( pchr->mana_fp8 < 0 )
@@ -7825,7 +7831,7 @@ void damage_character( CHR_REF chr_ref, Uint16 direction,
 
 
     // Invert damage to heal
-    if ( pchr->damagemodifier_fp8[damagetype]&DAMAGE_INVERT )
+    if ( pchr->skin.damagemodifier_fp8[damagetype]&DAMAGE_INVERT )
       damage = -damage;
 
 
@@ -7903,7 +7909,7 @@ void damage_character( CHR_REF chr_ref, Uint16 direction,
           }
           else
           {
-            pchr->life_fp8 -= FP8_MUL( damage, pchr->defense_fp8 );
+            pchr->life_fp8 -= FP8_MUL( damage, pchr->skin.defense_fp8 );
           }
 
 
@@ -7979,11 +7985,11 @@ void damage_character( CHR_REF chr_ref, Uint16 direction,
 
             // Clear all shop passages that it owned...
             tnc = 0;
-            while ( tnc < numshoppassage )
+            while ( tnc < shop_count )
             {
-              if ( shopowner[tnc] == chr_ref )
+              if ( ShopList[tnc].owner == chr_ref )
               {
-                shopowner[tnc] = NOOWNER;
+                ShopList[tnc].owner = NOOWNER;
               }
               tnc++;
             }
@@ -8100,8 +8106,8 @@ void kill_character( CHR_REF chr_ref, Uint16 killer )
 
   pchr->damagetime = 0;
   pchr->life_fp8 = 1;
-  modifier = pchr->damagemodifier_fp8[DAMAGE_CRUSH];
-  pchr->damagemodifier_fp8[DAMAGE_CRUSH] = 1;
+  modifier = pchr->skin.damagemodifier_fp8[DAMAGE_CRUSH];
+  pchr->skin.damagemodifier_fp8[DAMAGE_CRUSH] = 1;
   if ( VALID_CHR( killer ) )
   {
     PAIR ptemp = {512, 1};
@@ -8112,7 +8118,7 @@ void kill_character( CHR_REF chr_ref, Uint16 killer )
     PAIR ptemp = {512, 1};
     damage_character( chr_ref, 0, &ptemp, DAMAGE_CRUSH, TEAM_DAMAGE, chr_get_aibumplast( chr_ref ), DAMFX_ARMO | DAMFX_BLOC );
   }
-  pchr->damagemodifier_fp8[DAMAGE_CRUSH] = modifier;
+  pchr->skin.damagemodifier_fp8[DAMAGE_CRUSH] = modifier;
 
   // try something here.
   pchr->isplatform = btrue;
@@ -8165,64 +8171,28 @@ bool_t wp_list_add(WP_LIST * wl, float x, float y)
   return btrue;
 };
 
-
 //--------------------------------------------------------------------------------------------
-BUMPLIST * bumplist_new(BUMPLIST * b)
+bool_t import_info_clear(IMPORT_INFO * ii)
 {
-  if(NULL == b) return NULL;
+  int cnt;
 
-  memset(b, 0, sizeof(BUMPLIST));
+  if(NULL == ii) return bfalse;
 
-  return b;
-};
+  ii->player = -1;
 
-//--------------------------------------------------------------------------------------------
-void bumplist_delete(BUMPLIST * b)
-{
-  if(NULL == b) return;
-
-  b->valid = bfalse;
-
-  if(0 == b->num_blocks) return;
-
-  b->num_blocks = 0;
-
-  FREE(b->num_chr);
-  FREE(b->chr);
-
-  FREE(b->num_prt);
-  FREE(b->prt);
-}
-
-//--------------------------------------------------------------------------------------------
-BUMPLIST * bumplist_renew(BUMPLIST * b)
-{
-  if(NULL == b) return NULL;
-
-  bumplist_delete(b);
-  return bumplist_new(b);
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t bumplist_allocate(BUMPLIST * b, int size)
-{
-  if(NULL == b) return bfalse;
-
-  if(size <= 0)
-  {
-    bumplist_renew(b);
-  }
-  else
-  {
-    b->valid      = bfalse;
-    b->num_blocks = size;
-
-    b->num_chr = calloc(size, sizeof(Uint16));
-    b->chr     = calloc(size, sizeof(Uint16));
-
-    b->num_prt = calloc(size, sizeof(Uint16));
-    b->prt     = calloc(size, sizeof(Uint16));
-  }
+  for ( cnt = 0; cnt < MAXPROFILE; cnt++ )
+    ii->slot_lst[cnt] = 10000;
 
   return btrue;
-};
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t import_info_add(IMPORT_INFO * ii, int obj)
+{
+  if(NULL == ii || obj < 0 || obj>=MAXPROFILE) return bfalse;
+  
+  ii->object = obj;
+  ii->slot_lst[obj] = obj;
+
+  return btrue;
+}

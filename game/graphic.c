@@ -208,17 +208,15 @@ void release_all_textures()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_one_icon( char *szLoadName )
+void load_one_icon( char * szModname, char * szObjectname, char * szFilename )
 {
   // ZZ> This function is used to load an icon.  Most icons are loaded
   //     without this function though...
 
-  if ( INVALID_TEXTURE != GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon], szLoadName, INVALID_KEY ) )
+  if ( INVALID_TEXTURE != GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon],  inherit_fname(szModname, szObjectname, szFilename), INVALID_KEY ) )
   {
-    /* PORT
-    DDSetColorKey(lpDDSIcon[globalnumicon], 0); */
+    globalnumicon++;
   }
-  globalnumicon++;
 
 }
 
@@ -457,7 +455,7 @@ void append_end_text( SCRIPT_GLOBAL_VALUES * pg_scr, int message, CHR_REF charac
         }
         if ( cTmp >= '0' && cTmp <= '0' + ( MAXSKIN - 1 ) )  // Target's skin name
         {
-          eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
+          eread = CapList[ChrList[target].model].skin[cTmp-'0'].name;
         }
         if ( cTmp == 'd' ) // tmpdistance value
         {
@@ -625,10 +623,10 @@ void load_basic_textures( char *modname )
 
 
   // Particle sprites
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, "particle.bmp" );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, "particle.bmp" );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_PARTICLE], CStringTmp1, TRANSCOLOR ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.particle_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.particle_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_PARTICLE], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "!!!!Particle bitmap could not be found!!!! Missing File = \"%s\"\n", CStringTmp1 );
@@ -636,40 +634,40 @@ void load_basic_textures( char *modname )
   };
 
   // Module background tiles
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile0_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.tile0_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_0], CStringTmp1, TRANSCOLOR ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile0_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.tile0_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_0], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 0 could not be found. Missing File = \"%s\"\n", CData.tile0_bitmap );
     }
   };
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile1_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.tile1_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,   &TxTexture[TX_TILE_1], CStringTmp1, TRANSCOLOR ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile1_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.tile1_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_1], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 1 could not be found. Missing File = \"%s\"\n", CData.tile1_bitmap );
     }
   };
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile2_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.tile2_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_2], CStringTmp1, TRANSCOLOR ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile2_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.tile2_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_2], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 2 could not be found. Missing File = \"%s\"\n", CData.tile2_bitmap );
     }
   };
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.tile3_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.tile3_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_3], CStringTmp1, TRANSCOLOR ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.tile3_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.tile3_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_TILE_3], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Tile 3 could not be found. Missing File = \"%s\"\n", CData.tile3_bitmap );
@@ -678,10 +676,10 @@ void load_basic_textures( char *modname )
 
 
   // Water textures
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.watertop_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.watertop_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_TOP], CStringTmp1, INVALID_KEY ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.watertop_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.watertop_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_TOP], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Water Layer 1 could not be found. Missing File = \"%s\"\n", CData.watertop_bitmap );
@@ -689,10 +687,10 @@ void load_basic_textures( char *modname )
   };
 
   // This is also used as far background
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.waterlow_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.waterlow_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_LOW], CStringTmp1, INVALID_KEY ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.waterlow_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.waterlow_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[TX_WATER_LOW], CStringTmp1, TRANSCOLOR ) )
     {
       log_warning( "Water Layer 0 could not be found. Missing File = \"%s\"\n", CData.waterlow_bitmap );
@@ -702,10 +700,10 @@ void load_basic_textures( char *modname )
 
   // BB > this is handled differently now and is not needed
   // Texture 7 is the phong map
-  //snprintf(CStringTmp1, sizeof(CStringTmp1), "%s%s/%s", modname, CData.gamedat_dir, CData.phong_bitmap);
+  //snprintf(CStringTmp1, sizeof(CStringTmp1), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.phong_bitmap);
   //if(INVALID_TEXTURE==GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[TX_PHONG], CStringTmp1, INVALID_KEY))
   //{
-  //  snprintf(CStringTmp1, sizeof(CStringTmp1), "%s/%s", CData.basicdat_dir, CData.phong_bitmap);
+  //  snprintf(CStringTmp1, sizeof(CStringTmp1), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.phong_bitmap);
   //  GLTexture_Load(GL_TEXTURE_2D,  &TxTexture[TX_PHONG], CStringTmp1, TRANSCOLOR );
   //  {
   //    log_warning("Phong Bitmap Layer 1 could not be found. Missing File = \"%s\"", CData.phong_bitmap);
@@ -713,177 +711,6 @@ void load_basic_textures( char *modname )
   //};
 
 
-}
-
-
-
-//--------------------------------------------------------------------------------------------
-Uint16 load_one_object( int skin, char* szObjectname )
-{
-  // ZZ> This function loads one iobj and returns the number of skins
-  Uint16 iobj;
-  int numskins, numicon, skin_index;
-  STRING newloadname, loc_loadpath, wavename;
-  int cnt;
-
-  // generate an index for this object
-  snprintf( newloadname, sizeof( newloadname ), "%s/%s", szObjectname, CData.data_file );
-  iobj = object_generate_index(newloadname);
-
-  // Append a slash to the szObjectname
-  strncpy( loc_loadpath, szObjectname, sizeof( loc_loadpath ) );
-  strncat( loc_loadpath, "/", sizeof( loc_loadpath ) );
-
-  // Load the iobj data file
-  iobj = load_one_cap(loc_loadpath, iobj);
-
-  // load the model data
-  load_one_mad( loc_loadpath, iobj );
-
-  // Fix lighting if need be
-  if ( CapList[iobj].uniformlit )
-  {
-    make_mad_equally_lit( iobj );
-  }
-
-  // Load the messages for this object
-  make_newloadname( loc_loadpath, CData.message_file, newloadname );
-  load_all_messages( newloadname, iobj );
-
-
-  // Load the random naming table for this object
-  make_newloadname( loc_loadpath, CData.naming_file, newloadname );
-  read_naming( iobj, newloadname );
-
-
-  // Load the particles for this object
-  for ( cnt = 0; cnt < PRTPIP_PEROBJECT_COUNT; cnt++ )
-  {
-    MadList[MAXMODEL].prtpip[cnt] = MAXPRTPIP;
-    snprintf( newloadname, sizeof( newloadname ), "%spart%d.txt", loc_loadpath, cnt );
-    load_one_pip( newloadname, iobj, cnt );
-  }
-
-
-  // Load the waves for this object
-  for ( cnt = 0; cnt < MAXWAVE; cnt++ )
-  {
-    snprintf( wavename, sizeof( wavename ), "%ssound%d.wav", loc_loadpath, cnt );
-    CapList[iobj].wavelist[cnt] = Mix_LoadWAV( wavename );
-  }
-
-
-  // Load the enchantment for this object
-  make_newloadname( loc_loadpath, CData.enchant_file, newloadname );
-  load_one_enchant_profile( newloadname, iobj );
-
-
-  // Load the skins and icons
-  MadList[iobj].skinstart = skin;
-  numskins = 0;
-  numicon = 0;
-  for ( skin_index = 0; skin_index < MAXSKIN; skin_index++ )
-  {
-    snprintf( newloadname, sizeof( newloadname ), "%stris%d.bmp", loc_loadpath, skin_index );
-    if ( INVALID_TEXTURE != GLTexture_Load( GL_TEXTURE_2D,  &TxTexture[skin+numskins], newloadname, TRANSCOLOR ) )
-    {
-      numskins++;
-      snprintf( newloadname, sizeof( newloadname ), "%sicon%d.bmp", loc_loadpath, skin_index );
-      if ( INVALID_TEXTURE != GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon], newloadname, INVALID_KEY ) )
-      {
-        if ( iobj == SPELLBOOK && bookicon == 0 )
-          bookicon = globalnumicon;
-
-        while ( numicon < numskins )
-        {
-          skintoicon[skin+numicon] = globalnumicon;
-          numicon++;
-        }
-        globalnumicon++;
-      }
-    }
-  }
-
-  MadList[iobj].skins = numskins;
-  if ( numskins == 0 )
-  {
-    // If we didn't get a skin, set it to the water texture
-    MadList[iobj].skinstart = TX_WATER_TOP;
-    MadList[iobj].skins = 1;
-  }
-
-
-  return numskins;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_objects( char *modname )
-{
-  // ZZ> This function loads a module's objects
-  const char *filehandle;
-  FILE* fileread, *filewrite;
-  STRING newloadname, filename;
-  int cnt;
-  int skin;
-  int importplayer;
-
-  // Clear the import slots...
-  for ( cnt = 0; cnt < MAXMODEL; cnt++ )
-    CapList[cnt].importslot = 10000;
-
-  // Load the import directory
-  importplayer = -1;
-  skin = 8;  // Character skins start at 8...  Trust me
-  if ( importvalid )
-  {
-    for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
-    {
-      snprintf( filename, sizeof( filename ), "%s/temp%04d.obj", CData.import_dir, cnt );
-      // Make sure the object exists...
-      snprintf( newloadname, sizeof( newloadname ), "%s/%s", filename, CData.data_file );
-      fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "r" );
-      if ( NULL == fileread ) continue;
-
-      fs_fileClose( fileread );
-
-      // Load it...
-      if (( cnt % 9 ) == 0 )
-      {
-        importplayer++;
-      }
-
-      importobject = cnt;
-      CapList[importobject].importslot = cnt;
-      skin += load_one_object( skin, filename );
-    }
-  }
-
-  //empty_import_directory();  // Free up that disk space...
-
-  // If in Developer mode, create a new debug.txt file for debug info logging
-  if( CData.DevMode )
-  {
-    filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "w" );
-    fprintf( filewrite, "DEBUG INFORMATION FOR MODULE: \"%s\" \n", modname );
-    fprintf( filewrite, "This document logs extra debugging information for the last module loaded.\n");
-    fprintf( filewrite, "\nSpawning log after module has started...\n");
-    fprintf( filewrite, "-----------------------------------------------\n" );
-    fs_fileClose( filewrite );
-  }
-
-  // Search for .obj directories and load them
-  importobject = -100;
-  snprintf( newloadname, sizeof( newloadname ), "%s%s/", modname, CData.objects_dir );
-  filehandle = fs_findFirstFile( newloadname, "obj" );
-
-  while ( NULL != filehandle )
-  {
-    snprintf( filename, sizeof( filename ), "%s%s", newloadname, filehandle );
-    skin += load_one_object( skin, filename );
-    filehandle = fs_findNextFile();
-  }
-
-  fs_findClose();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -925,7 +752,7 @@ void load_map( char* szModule )
   numblip = 0;
 
   // Load the images
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", szModule, CData.gamedat_dir, CData.plan_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", szModule, CData.gamedat_dir, CData.plan_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D, &TxMap, CStringTmp1, INVALID_KEY ) )
     log_warning( "Cannot load map: %s\n", CStringTmp1 );
 
@@ -962,7 +789,7 @@ bool_t load_font( char* szBitmap, char* szSpacing )
   xsize = GLTexture_GetImageWidth( &(bmfont.tex) );
   ysize = GLTexture_GetImageHeight( &(bmfont.tex) );
   if ( xsize == 0 || ysize == 0 )
-    log_warning( "Bad font size! (basicdat/%s) - X size: %i , Y size: %i\n", szBitmap, xsize, ysize );
+    log_warning( "Bad font size! (basicdat" SLASH_STRING "%s) - X size: %i , Y size: %i\n", szBitmap, xsize, ysize );
 
 
   // Figure out the general size of each font
@@ -1105,7 +932,7 @@ void read_wawalite( char *modname )
   // ZZ> This function sets up water and lighting for the module
   FILE* fileread;
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.wawalite_file );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.wawalite_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
   if ( NULL != fileread )
   {
@@ -1462,7 +1289,7 @@ void render_shadow( CHR_REF character )
   height = ChrList[character].matrix.CNV( 3, 2 ) - level;
   if ( height < 0 ) height = 0;
 
-  tile_factor = mesh_has_some_bits( ChrList[character].onwhichfan, MESHFX_WATER ) ? 0.5 : 1.0;
+  tile_factor = mesh_has_some_bits( ChrList[character].onwhichfan, MPDFX_WATER ) ? 0.5 : 1.0;
 
   height_factor   = MAX( MIN(( 5 * ChrList[character].bmpdata.calc_size / height ), 1 ), 0 );
   ambient_factor  = ( float )( chrlightspek ) / ( float )( chrlightambi + chrlightspek );
@@ -2017,7 +1844,7 @@ void render_good_shadows()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
       tnc = dolist[cnt];
-      if ( ChrList[tnc].bmpdata.shadow != 0 || CapList[ChrList[tnc].model].forceshadow && mesh_has_no_bits( ChrList[tnc].onwhichfan, MESHFX_SHINY ) )
+      if ( ChrList[tnc].bmpdata.shadow != 0 || CapList[ChrList[tnc].model].forceshadow && mesh_has_no_bits( ChrList[tnc].onwhichfan, MPDFX_SHINY ) )
         render_shadow( tnc );
     }
   }
@@ -2045,7 +1872,7 @@ void render_good_shadows()
 //      tnc = dolist[cnt];
 //      //if(ChrList[tnc].attachedto == MAXCHR)
 //      //{
-//      if (ChrList[tnc].bmpdata.calc_shadowsize != 0 || CapList[ChrList[tnc].model].forceshadow && HAS_NO_BITS(Mesh[ChrList[tnc].onwhichfan].fx, MESHFX_SHINY))
+//      if (ChrList[tnc].bmpdata.calc_shadowsize != 0 || CapList[ChrList[tnc].model].forceshadow && HAS_NO_BITS(Mesh[ChrList[tnc].onwhichfan].fx, MPDFX_SHINY))
 //        render_bad_shadow(tnc);
 //      //}
 //    }
@@ -2077,7 +1904,7 @@ void render_character_reflections()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
       tnc = dolist[cnt];
-      if ( mesh_has_some_bits( ChrList[tnc].onwhichfan, MESHFX_SHINY ) )
+      if ( mesh_has_some_bits( ChrList[tnc].onwhichfan, MPDFX_SHINY ) )
         render_refmad( tnc, ChrList[tnc].alpha_fp8 / 2 );
     }
   }
@@ -2684,7 +2511,7 @@ void draw_scene_zreflection()
 //    for (cnt = 0; cnt < numdolist; cnt++)
 //    {
 //      tnc = dolist[cnt];
-//      if((Mesh[ChrList[tnc].onwhichfan].fx&MESHFX_SHINY))
+//      if((Mesh[ChrList[tnc].onwhichfan].fx&MPDFX_SHINY))
 //        render_refmad(tnc, ChrList[tnc].alpha_fp8&ChrList[tnc].light_fp8);
 //    }
 //
@@ -2837,11 +2664,11 @@ void draw_scene_zreflection()
 //      glBlendFunc(GL_ONE, GL_ONE);
 //
 //      envirosave = ChrList[tnc].enviro;
-//      texturesave = ChrList[tnc].texture;
+//      texturesave = ChrList[tnc].skin + MadList[ChrList[tnc].model].skinstart;
 //      ChrList[tnc].enviro = btrue;
-//      ChrList[tnc].texture = TX_PHONG;  // The phong map texture...
+//      ChrList[tnc].skin + MadList[ChrList[tnc].model].skinstart = TX_PHONG;  // The phong map texture...
 //      render_enviromad(tnc, (ChrList[tnc].alpha_fp8 * spek_global[ChrList[tnc].sheen_fp8][ChrList[tnc].light_fp8]) / 2, GL_TEXTURE_2D);
-//      ChrList[tnc].texture = texturesave;
+//      ChrList[tnc].skin + MadList[ChrList[tnc].model].skinstart = texturesave;
 //      ChrList[tnc].enviro = envirosave;
 //    };
 //    ATTRIB_POP("zref");
@@ -3475,13 +3302,13 @@ int draw_status( BMFont * pfnt, CHR_REF character, int x, int y )
 
 
   // Draw the icons
-  draw_one_icon( skintoicon[ChrList[character].texture], x + 40, y, ChrList[character].sparkle );
+  draw_one_icon( skintoicon[ChrList[character].skin_ref + MadList[ChrList[character].model].skinstart], x + 40, y, ChrList[character].sparkle );
   item = chr_get_holdingwhich( character, SLOT_LEFT );
   if ( VALID_CHR( item ) )
   {
     if ( ChrList[item].icon )
     {
-      draw_one_icon( skintoicon[ChrList[item].texture], x + 8, y, ChrList[item].sparkle );
+      draw_one_icon( skintoicon[ChrList[item].skin_ref + MadList[ChrList[item].model].skinstart], x + 8, y, ChrList[item].sparkle );
       if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
       {
         if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3502,7 +3329,7 @@ int draw_status( BMFont * pfnt, CHR_REF character, int x, int y )
   {
     if ( ChrList[item].icon )
     {
-      draw_one_icon( skintoicon[ChrList[item].texture], x + 72, y, ChrList[item].sparkle );
+      draw_one_icon( skintoicon[ChrList[item].skin_ref + MadList[ChrList[item].model].skinstart], x + 72, y, ChrList[item].sparkle );
       if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
       {
         if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3729,14 +3556,14 @@ void draw_text( BMFont *  pfnt )
       y += draw_string( pfnt, 0, y, NULL, "~CAM %f %f", GCamera.pos.x, GCamera.pos.y );
 
       y += draw_string( pfnt, 0, y, NULL, "  PLA0DEF %d %d %d %d %d %d %d %d",
-                ChrList[pla_chr].damagemodifier_fp8[0]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[1]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[2]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[3]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[4]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[5]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[6]&DAMAGE_SHIFT,
-                ChrList[pla_chr].damagemodifier_fp8[7]&DAMAGE_SHIFT );
+                ChrList[pla_chr].skin.damagemodifier_fp8[0]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[1]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[2]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[3]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[4]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[5]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[6]&DAMAGE_SHIFT,
+                ChrList[pla_chr].skin.damagemodifier_fp8[7]&DAMAGE_SHIFT );
 
       y += draw_string( pfnt, 0, y, NULL, "~PLA0 %5.1f %5.1f", ChrList[pla_chr].pos.x / 128.0, ChrList[pla_chr].pos.y / 128.0  );
 
@@ -3755,7 +3582,7 @@ void draw_text( BMFont *  pfnt )
       y += draw_string( pfnt, 0, y, NULL, "~MACHINE %d", localmachine );
       y += draw_string( pfnt, 0, y, NULL, "~EXPORT %d", exportvalid );
       y += draw_string( pfnt, 0, y, NULL, "~FOGAFF %d", GFog.affectswater );
-      y += draw_string( pfnt, 0, y, NULL, "~PASS %d/%d", numshoppassage, numpassage );
+      y += draw_string( pfnt, 0, y, NULL, "~PASS %d" SLASH_STRING "%d", shop_count, passage_count );
       y += draw_string( pfnt, 0, y, NULL, "~NETPLAYERS %d", GNet.num_player );
       y += draw_string( pfnt, 0, y, NULL, "~DAMAGEPART %d", GTile_Dam.parttype );
     }
@@ -3934,8 +3761,12 @@ void load_all_menu_images()
   const char *FileName;
   FILE* filesave;
 
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
+
   // Convert searchname
-  strcpy( searchname, "modules/*.mod" );
+  strcpy( searchname, "modules" SLASH_STRING "*.mod" );
 
   // Log a directory list
   filesave = fs_fileOpen( PRI_NONE, NULL, CData.modules_file, "w" );
@@ -3950,15 +3781,15 @@ void load_all_menu_images()
   }
 
   // Search for .mod directories
-  FileName = fs_findFirstFile( CData.modules_dir, "mod" );
+  FileName = fs_findFirstFile( &fs_finfo, CData.modules_dir, NULL, "*.mod" );
   globalnummodule = 0;
   while ( FileName && globalnummodule < MAXMODULE )
   {
     strncpy( ModList[globalnummodule].loadname, FileName, sizeof( ModList[globalnummodule].loadname ) );
-    snprintf( loadname, sizeof( loadname ), "%s/%s/%s/%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.mnu_file );
+    snprintf( loadname, sizeof( loadname ), "%s" SLASH_STRING "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.mnu_file );
     if ( module_read_data( globalnummodule, loadname ) )
     {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s/%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.title_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.modules_dir, FileName, CData.gamedat_dir, CData.title_bitmap );
       if ( load_one_title_image( globalnummodule, CStringTmp1 ) )
       {
         fprintf( filesave, "%02d.  %s\n", globalnummodule, ModList[globalnummodule].longname );
@@ -3973,9 +3804,9 @@ void load_all_menu_images()
     {
       fprintf( filesave, "**.  %s\n", FileName );
     }
-    FileName = fs_findNextFile();
+    FileName = fs_findNextFile(&fs_finfo);
   }
-  fs_findClose();
+  fs_findClose(&fs_finfo);
   if ( filesave != NULL ) fs_fileClose( filesave );
 }
 
@@ -3985,10 +3816,10 @@ void load_blip_bitmap( char * modname )
   //This function loads the blip bitmaps
   int cnt;
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s/%s", modname, CData.gamedat_dir, CData.blip_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.blip_bitmap );
   if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxBlip, CStringTmp1, INVALID_KEY ) )
   {
-    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.blip_bitmap );
+    snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.blip_bitmap );
     if ( INVALID_TEXTURE == GLTexture_Load( GL_TEXTURE_2D,  &TxBlip, CStringTmp1, INVALID_KEY ) )
     {
       log_warning( "Blip bitmap not loaded. Missing file = \"%s\"\n", CStringTmp1 );
@@ -4015,8 +3846,8 @@ void load_menu()
   // ZZ> This function loads all of the menu data...  Images are loaded into system
   // memory
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.font_bitmap );
-  snprintf( CStringTmp2, sizeof( CStringTmp2 ), "%s/%s", CData.basicdat_dir, CData.fontdef_file );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.font_bitmap );
+  snprintf( CStringTmp2, sizeof( CStringTmp2 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.fontdef_file );
   load_font( CStringTmp1, CStringTmp2 );
   //load_all_menu_images();
 }
@@ -4101,7 +3932,7 @@ void sdlinit( int argc, char **argv )
   colordepth = CData.scrd / 3;
 
   /* Setup the cute windows manager icon */
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.icon_bitmap );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.icon_bitmap );
   theSurface = SDL_LoadBMP( CStringTmp1 );
   if ( theSurface == NULL )
   {

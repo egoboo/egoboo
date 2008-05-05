@@ -48,14 +48,32 @@
 #ifdef WIN32
 
     // Speeds up compile times a bit.  We don't need everything in windows.h
-#    define WIN32_LEAN_AND_MEAN  
+#    define WIN32_LEAN_AND_MEAN 
+
+    // special win32 macro that lets windows know that you are going to be 
+    // starting from a console.  This is useful because you can get real-time
+    // output to the screen, just by using printf()!
+#    ifdef _CONSOLE
+#        define CONSOLE_MODE
+#    else
+#        undef  CONSOLE_MODE
+#    endif
+
+#    define SLASH_STRING "\\"
+#    define SLASH_CHAR   '\\'
+
+#else
+
+#    define SLASH_STRING "/"
+#    define SLASH_CHAR   '/'
 
 #endif
 
 #undef DEBUG_ATTRIB
-#undef DEBUG_NORMALS
+#define DEBUG_MESH_NORMALS
+#undef DEBUG_CHR_NORMALS
 #undef DEBUG_BBOX
 
 #undef DEBUG_UPDATE_CLAMP
-#define DEBUG_MESHFX
+#undef DEBUG_MESHFX
 #undef DEBUG_CVOLUME

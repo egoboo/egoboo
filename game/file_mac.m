@@ -200,7 +200,7 @@ const char *fs_findNextFile()
 }
 
 // Stop the current find operation
-void fs_findClose()
+void fs_findClose(&fs_finfo)
 {
   if (fs_dirEnum != nil)
   {
@@ -230,7 +230,7 @@ const char *fs_findFirstFile(const char *path, const char *extension)
   
   if(fs_dirEnum != nil)
   {
-    fs_findClose();
+    fs_findClose(&fs_finfo);
   }
   
   // If the path given is a relative one, we need to derive the full path

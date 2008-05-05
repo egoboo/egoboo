@@ -637,11 +637,14 @@ void net_copyDirectoryToHost( char *dirname, char *todirname )
   char fromname[128];
   char toname[128];
   const char *searchResult;
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
 
   log_info( "net_copyDirectoryToHost: %s, %s\n", dirname, todirname );
   // Search for all files
-  snprintf( searchname, sizeof( searchname ), "%s/*", dirname );
-  searchResult = fs_findFirstFile( dirname, NULL );
+  snprintf( searchname, sizeof( searchname ), "%s" SLASH_STRING "*", dirname );
+  searchResult = fs_findFirstFile( &fs_finfo, dirname, NULL, "*" );
   if ( searchResult != NULL )
   {
     // Make the new directory
@@ -654,22 +657,22 @@ void net_copyDirectoryToHost( char *dirname, char *todirname )
       // that we don't want to copy.  This keeps repository
       // directories, /., and /.. from being copied
       // Also avoid copying directories in general.
-      snprintf( fromname, sizeof( fromname ), "%s/%s", dirname, searchResult );
+      snprintf( fromname, sizeof( fromname ), "%s" SLASH_STRING "%s", dirname, searchResult );
       if ( searchResult[0] == '.' || fs_fileIsDirectory( fromname ) )
       {
-        searchResult = fs_findNextFile();
+        searchResult = fs_findNextFile(&fs_finfo);
         continue;
       }
 
-      snprintf( fromname, sizeof( fromname ), "%s/%s", dirname, searchResult );
-      snprintf( toname, sizeof( toname ), "%s/%s", todirname, searchResult );
+      snprintf( fromname, sizeof( fromname ), "%s" SLASH_STRING "%s", dirname, searchResult );
+      snprintf( toname, sizeof( toname ), "%s" SLASH_STRING "%s", todirname, searchResult );
 
       net_copyFileToHost( fromname, toname );
-      searchResult = fs_findNextFile();
+      searchResult = fs_findNextFile(&fs_finfo);
     }
   }
 
-  fs_findClose();
+  fs_findClose(&fs_finfo);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -680,11 +683,14 @@ void net_copyDirectoryToAllPlayers( char *dirname, char *todirname )
   char fromname[128];
   char toname[128];
   const char *searchResult;
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
 
   log_info( "net_copyDirectoryToAllPlayers: %s, %s\n", dirname, todirname );
   // Search for all files
-  snprintf( searchname, sizeof( searchname ), "%s/*.*", dirname );
-  searchResult = fs_findFirstFile( dirname, NULL );
+  snprintf( searchname, sizeof( searchname ), "%s" SLASH_STRING "*.*", dirname );
+  searchResult = fs_findFirstFile( &fs_finfo, dirname, NULL, "*" );
   if ( searchResult != NULL )
   {
     // Make the new directory
@@ -698,18 +704,18 @@ void net_copyDirectoryToAllPlayers( char *dirname, char *todirname )
       // directories, /., and /.. from being copied
       if ( searchResult[0] == '.' )
       {
-        searchResult = fs_findNextFile();
+        searchResult = fs_findNextFile(&fs_finfo);
         continue;
       }
 
-      snprintf( fromname, sizeof( fromname ), "%s/%s", dirname, searchResult );
-      snprintf( toname, sizeof( toname ), "%s/%s", todirname, searchResult );
+      snprintf( fromname, sizeof( fromname ), "%s" SLASH_STRING "%s", dirname, searchResult );
+      snprintf( toname, sizeof( toname ), "%s" SLASH_STRING "%s", todirname, searchResult );
       net_copyFileToAllPlayers( fromname, toname );
 
-      searchResult = fs_findNextFile();
+      searchResult = fs_findNextFile(&fs_finfo);
     }
   }
-  fs_findClose();
+  fs_findClose(&fs_finfo);
 }
 
 //--------------------------------------------------------------------------------------------

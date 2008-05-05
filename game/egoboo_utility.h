@@ -79,6 +79,10 @@ void funderf( FILE* filewrite, char* text, char* usename );
 bool_t fget_message( FILE* fileread );
 bool_t fget_next_message( FILE* fileread );
 
-void fgoto_colon( FILE* fileread );
+void   fgoto_colon( FILE* fileread );
 bool_t fgoto_colon_yesno( FILE* fileread );
-char fget_first_letter( FILE* fileread );
+char   fget_first_letter( FILE* fileread );
+
+
+//FILE * inherit_fopen(char * szObjPath, char * szObject, char *szFname, char * mode);
+const char * inherit_fname(char * szObjPath, char * szObject, char *szFname );

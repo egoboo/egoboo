@@ -386,7 +386,7 @@ void draw_textured_md2_opengl(CHR_REF ichr)
   if(CData.shading != GL_FLAT) glDisableClientState(GL_NORMAL_ARRAY);
 
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if defined(DEBUG_CHR_NORMALS) && defined(_DEBUG)
   if ( CData.DevMode )
   {
     int cnt;
@@ -457,7 +457,7 @@ void draw_enviromapped_md2_opengl(CHR_REF ichr)
   glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   glDisableClientState(GL_NORMAL_ARRAY);
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if defined(DEBUG_CHR_NORMALS) && defined(_DEBUG)
   if ( CData.DevMode )
   {
     int cnt;
@@ -485,7 +485,7 @@ void calc_lighting_data( CHR_REF ichr )
   Uint8  sheen_fp8       = ChrList[ichr].sheen_fp8;
   float  spekularity_fp8 = FLOAT_TO_FP8(( float ) sheen_fp8 / ( float ) MAXSPEKLEVEL );
   Uint16 model           = ChrList[ichr].model;
-  Uint16 texture         = ChrList[ichr].texture;
+  Uint16 texture         = ChrList[ichr].skin_ref + MadList[ChrList[ichr].model].skinstart;
 
   Uint8 rs = ChrList[ichr].redshift;
   Uint8 gs = ChrList[ichr].grnshift;
@@ -551,7 +551,7 @@ void render_mad_lit( CHR_REF ichr )
     }
     else
     {
-      texture = ChrList[ichr].texture;
+      texture = ChrList[ichr].skin_ref + MadList[ChrList[ichr].model].skinstart;
       GLTexture_Bind( &TxTexture[texture], CData.texturefilter );
     }
 
@@ -578,7 +578,7 @@ void render_texmad(CHR_REF ichr, Uint8 trans)
   Uint16 texture;
   if(!VALID_CHR(ichr)) return;
 
-  texture = ChrList[ichr].texture;
+  texture = ChrList[ichr].skin_ref + MadList[ChrList[ichr].model].skinstart;
 
   md2_blend_vertices(ichr, -1, -1);
   md2_blend_lighting(ichr);
@@ -627,7 +627,7 @@ void render_enviromad(CHR_REF ichr, Uint8 trans)
 
   if(!VALID_CHR(ichr)) return;
 
-  texture = ChrList[ichr].texture;
+  texture = ChrList[ichr].skin_ref + MadList[ChrList[ichr].model].skinstart;
 
   ATTRIB_PUSH( "render_enviromad", GL_TRANSFORM_BIT | GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT );
   {

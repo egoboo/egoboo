@@ -59,7 +59,7 @@ void render_fan_ref( Uint32 fan, char tex_loaded, float level )
     return;
 
   // Animate the tiles
-  if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
+  if ( HAS_SOME_BITS( fx, MPDFX_ANIM ) )
   {
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
@@ -194,14 +194,13 @@ void render_fan( Uint32 fan, char tex_loaded )
   Uint8  fx   = Mesh_Fan[fan].fx;                 // Fx bits
   Uint16 type = Mesh_Fan[fan].type;               // Command type ( index to points in fan )
 
-  if ( tile == INVALID_TILE )
-    return;
+  if ( tile == INVALID_TILE ) return;
 
   mesh_calc_normal_fan( fan, &nrm, &pos );
 
 
   // Animate the tiles
-  if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
+  if ( HAS_SOME_BITS( fx, MPDFX_ANIM ) )
   {
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
@@ -222,7 +221,7 @@ void render_fan( Uint32 fan, char tex_loaded )
   off.u = Mesh_Tile[tile].off.u;          // Texture offsets
   off.v = Mesh_Tile[tile].off.v;          //
 
-  texture = ( tile >> 6 ) + TX_TILE_0;   // 64 tiles in each 256x256 texture
+  texture = ( tile >> 6 ) + TX_TILE_0;   // (1 << 6) == 64 tiles in each 256x256 texture
   vertices = Mesh_Cmd[type].vrt_count;   // Number of vertices
   commands = Mesh_Cmd[type].cmd_count;   // Number of commands
 
@@ -250,19 +249,19 @@ void render_fan( Uint32 fan, char tex_loaded )
     if(CData.DevMode)
     {
 
-      if ( HAS_SOME_BITS( fx, MESHFX_WALL ) )
+      if ( HAS_SOME_BITS( fx, MPDFX_WALL ) )
       {
         v[cnt].col.r /= 5.0f;
         v[cnt].col.r += 0.8f;
       }
 
-      if ( HAS_SOME_BITS( fx, MESHFX_IMPASS ) )
+      if ( HAS_SOME_BITS( fx, MPDFX_IMPASS ) )
       {
         v[cnt].col.g /= 5.0f;
         v[cnt].col.g += 0.8f;
       }
 
-      if ( HAS_SOME_BITS( fx, MESHFX_SLIPPY ) )
+      if ( HAS_SOME_BITS( fx, MPDFX_SLIPPY ) )
       {
         v[cnt].col.b /= 5.0f;
         v[cnt].col.b += 0.8f;
@@ -276,7 +275,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     light_flat.b += v[cnt].col.b;
     light_flat.a += v[cnt].col.a;
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
     if(CData.DevMode)
     {
       vect3 * pv3 = (vect3 *) &(v[cnt].pos.v);
@@ -347,7 +346,7 @@ void render_fan( Uint32 fan, char tex_loaded )
     }
 
 
-#if defined(DEBUG_NORMALS) && defined(_DEBUG)
+#if defined(DEBUG_MESH_NORMALS) && defined(_DEBUG)
     if ( CData.DevMode )
     {
       glBegin( GL_LINES );
@@ -366,7 +365,7 @@ void render_fan( Uint32 fan, char tex_loaded )
       glLineWidth( 3.0f );
       glColor4f( 1, 1, 1, 1 );
       glVertex3fv( pos.v );
-      glVertex3f( pos.x + nrm.x, pos.y + nrm.y, pos.z + nrm.z );
+      glVertex3f( pos.x + nrm.x*128, pos.y + nrm.y*128, pos.z + nrm.z*128 );
       glEnd();
     }
 #endif
@@ -626,10 +625,10 @@ void make_renderlist()
 
       Mesh_Fan[fan].inrenderlist = btrue;
 
-      is_shine = mesh_has_all_bits( fan, MESHFX_SHINY );
-      is_noref = mesh_has_all_bits( fan, MESHFX_NOREFLECT );
+      is_shine = mesh_has_all_bits( fan, MPDFX_SHINY );
+      is_noref = mesh_has_all_bits( fan, MPDFX_NOREFLECT );
       is_norml = !is_shine;
-      is_water = mesh_has_some_bits( fan, MESHFX_WATER );
+      is_water = mesh_has_some_bits( fan, MPDFX_WATER );
 
       // Put each tile in basic list
       renderlist.totl[renderlist.num_totl] = fan;
@@ -1059,10 +1058,10 @@ void do_dynalight()
 //      {
 //        bool_t is_shine, is_noref, is_norml, is_water;
 //
-//        is_shine = mesh_has_some_bits(cnt, MESHFX_SHINY);
-//        is_noref = mesh_has_no_bits(cnt, MESHFX_NOREFLECT);
+//        is_shine = mesh_has_some_bits(cnt, MPDFX_SHINY);
+//        is_noref = mesh_has_no_bits(cnt, MPDFX_NOREFLECT);
 //        is_norml = !is_shine;
-//        is_water = mesh_has_some_bits(cnt, MESHFX_WATER);
+//        is_water = mesh_has_some_bits(cnt, MPDFX_WATER);
 //
 //        // Put each tile in basic list
 //        renderlist.totl[renderlist.num_totl] = cnt;

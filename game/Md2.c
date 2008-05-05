@@ -25,18 +25,16 @@
                            // SDL outside of the stuff that touches video/audio/input/etc.
                            // Not a high priority
 
-MD2_Model* md2_load(const char *fileName, MD2_Model* mdl)
+MD2_Model* md2_load(char * szFilename, MD2_Model* mdl)
 {
+  FILE * f;
   md2_header header;
-  FILE *f;
   int i, v;
   MD2_Model *model;
   int bfound;
 
-  if(fileName == NULL) return NULL;
-
   // Open up the file, and make sure it's a MD2 model
-  f = fopen(fileName, "rb");
+  f = fopen(szFilename, "rb");
   if (f == NULL) return NULL;
 
   fread(&header, sizeof(header), 1, f);

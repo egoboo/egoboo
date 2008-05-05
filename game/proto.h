@@ -63,12 +63,12 @@ void log_code( int ainumber, char* savename );
 int ai_goto_colon( int read );
 void fget_code( FILE * pfile );
 void load_ai_codes( char* loadname );
-Uint32 load_ai_script( char *loadname );
+Uint32 load_ai_script( char * szModpath, char * szObjectname );
 void reset_ai_script();
 ACTION what_action( char cTmp );
 float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk );
 void release_all_textures();
-void load_one_icon( char *szLoadName );
+void load_one_icon( char * szModname, char * szObjectname, char * szFilename );
 void prime_titleimage();
 void prime_icons();
 void release_all_icons();
@@ -85,10 +85,7 @@ void quit_module( void );
 void free_all_enchants();
 
 
-void load_one_enchant_profile( char* szLoadName, Uint16 profile );
-Uint16 get_free_enchant();
-void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
-void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
+
 int get_free_message( void );
 
 void remove_enchant( Uint16 enchantindex );
@@ -173,7 +170,7 @@ void give_team_experience( TEAM team, int amount, EXPERIENCE xptype );
 void disenchant_character( CHR_REF character );
 
 void naming_names( int profile );
-void read_naming( int profile, char *szLoadname );
+void read_naming( char * szModpath, char * szObjectname, int profile );
 void prime_names( void );
 
 
@@ -229,14 +226,11 @@ void load_basic_textures( char *modname );
 void export_one_character_name( char *szSaveName, CHR_REF character );
 void export_one_character_profile( char *szSaveName, CHR_REF character );
 void export_one_character_skin( char *szSaveName, CHR_REF character );
-Uint32 load_one_pip( char *szLoadName, Uint16 object, int pip );
 void reset_particles( char* modname );
 
 
-void load_all_messages( char *loadname, Uint16 object );
-void check_copy( char* loadname, Uint16 object );
-Uint16 load_one_object( int skin, char* tmploadname );
-void load_all_objects( char *modname );
+void load_all_messages( char *szModpath, char *szObjectname, Uint16 object );
+
 bool_t load_bars( char* szBitmap );
 void load_map( char* szModule );
 bool_t load_font( char* szBitmap, char* szSpacing );
@@ -281,9 +275,9 @@ bool_t module_read_summary( char *szLoadName );
 void load_all_menu_images();
 void load_blip_bitmap( char * modname );
 
-int get_skin( char *filename );
+
 bool_t check_skills( int who, Uint32 whichskill );
-void check_player_import( char *dirname );
+void check_player_import();
 void reset_timers();
 void reset_camera();
 void sdlinit( int argc, char **argv );
@@ -320,9 +314,37 @@ void fs_removeDirectoryAndContents( const char *dirname );
 void fs_copyDirectory( const char *sourceDir, const char *destDir );
 
 // Enumerate directory contents
-const char *fs_findFirstFile( const char *path, const char *extension );
-const char *fs_findNextFile( void );
-void fs_findClose();
+typedef enum fs_type_e
+{
+  FS_UNKNOWN = -1,
+  FS_WIN32 = 0,
+  FS_LIN,
+  FS_MAC
+} FS_TYPE;
+
+typedef struct fs_find_info_win32_t FS_FIND_INFO_WIN32;
+typedef struct fs_find_info_lin_t   FS_FIND_INFO_LIN;
+typedef struct fs_find_info_mac_t   FS_FIND_INFO_MAC;
+
+typedef struct fs_find_info_t
+{
+  FS_TYPE type;
+
+  union
+  {
+    FS_FIND_INFO_WIN32 * W;
+    FS_FIND_INFO_LIN   * L;
+    FS_FIND_INFO_MAC   * M;
+  };
+
+} FS_FIND_INFO;
+
+FS_FIND_INFO * fs_find_info_new(FS_FIND_INFO * i);
+bool_t         fs_find_info_delete(FS_FIND_INFO * i);
+
+const char *fs_findFirstFile(FS_FIND_INFO * i, const char *searchPath, const char *searchBody, const char *searchExtension );
+const char *fs_findNextFile(FS_FIND_INFO * i);
+void fs_findClose(FS_FIND_INFO * i);
 
 
 
@@ -334,8 +356,8 @@ void make_speklut();
 
 bool_t handle_opengl_error();
 
-char * convert_spaces( char *strout, size_t insize, char * strin );
-char * convert_underscores( char *strout, size_t insize, char * strin );
+char * str_convert_spaces( char *strout, size_t insize, char * strin );
+char * str_convert_underscores( char *strout, size_t insize, char * strin );
 
 bool_t passage_check_any( CHR_REF ichr, Uint16 pass, Uint16 * powner );
 bool_t passage_check_all( CHR_REF ichr, Uint16 pass, Uint16 * powner );

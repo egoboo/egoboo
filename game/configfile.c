@@ -77,7 +77,7 @@ void ConvertToKeyCharacters( char *pStr )
     return;
   }
 
-  convert_spaces( pStr, ( size_t )( -1 ), pStr );
+  str_convert_spaces( pStr, ( size_t )( -1 ), pStr );
 }
 
 

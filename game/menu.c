@@ -34,9 +34,8 @@
 
 #include <assert.h>
 
-int   numloadplayer = 0;
-char  loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
-char  loadplayerdir[MAXLOADPLAYER][16];
+int              loadplayer_count = 0;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -239,6 +238,26 @@ static TTFont *mnu_Font = NULL;
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_removeSelectedPlayerInput( int player, Uint32 input );
 
+
+//--------------------------------------------------------------------------------------------
+void load_global_icons()
+{
+  globalnumicon = nullicon = 0;
+  load_one_icon( CData.basicdat_dir, NULL, CData.nullicon_bitmap );
+
+  globalnumicon = keybicon = 1;
+  load_one_icon( CData.basicdat_dir, NULL, CData.keybicon_bitmap );
+
+  globalnumicon = mousicon = 2;
+  load_one_icon( CData.basicdat_dir, NULL, CData.mousicon_bitmap );
+
+  globalnumicon = joyaicon = 3;
+  load_one_icon( CData.basicdat_dir, NULL, CData.joyaicon_bitmap );
+
+  globalnumicon = joybicon = 4;
+  load_one_icon( CData.basicdat_dir, NULL, CData.joybicon_bitmap );
+}
+
 //--------------------------------------------------------------------------------------------
 static void init_options_data()
 {
@@ -418,7 +437,7 @@ int initMenus()
 {
   int i;
 
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.uifont_ttf );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.uifont_ttf );
   mnu_Font = fnt_loadFont( CStringTmp1, CData.uifont_points2 );
   if ( NULL == mnu_Font )
   {
@@ -470,7 +489,7 @@ int mnu_doMain( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_main_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_main_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_TEXTURE );
       menuChoice = 0;
       menuState = MM_Entering;
@@ -598,7 +617,7 @@ int mnu_doSinglePlayer( float deltaTime )
   {
     case MM_Begin:
       // Load resources for this menu
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_advent_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_advent_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
       menuChoice = 0;
 
@@ -722,7 +741,7 @@ int mnu_doChooseModule( float deltaTime )
       load_all_menu_images();
 
       // Load font & background
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
       ui_initWidget( &wBackground, UI_Invalid, ui_getFont(), NULL, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
@@ -888,7 +907,7 @@ int mnu_doChooseModule( float deltaTime )
         y += 20;
 
         // And finally, the summary
-        snprintf( txtBuffer, sizeof( txtBuffer ), "%s/%s/%s/%s", CData.modules_dir, ModList[validModules[mnu_selectedModule]].loadname, CData.gamedat_dir, CData.mnu_file );
+        snprintf( txtBuffer, sizeof( txtBuffer ), "%s" SLASH_STRING "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.modules_dir, ModList[validModules[mnu_selectedModule]].loadname, CData.gamedat_dir, CData.mnu_file );
         if ( validModules[mnu_selectedModule] != modsummaryval )
         {
           if ( module_read_summary( txtBuffer ) ) modsummaryval = validModules[mnu_selectedModule];
@@ -926,13 +945,13 @@ int mnu_doChooseModule( float deltaTime )
         // If the module allows imports, return 1.  Else, return 2
         if ( ModList[mnu_selectedModule].importamount > 0 )
         {
-          importvalid = btrue;
-          importamount = ModList[mnu_selectedModule].importamount;
+          import.valid = btrue;
+          import.amount = ModList[mnu_selectedModule].importamount;
           result = 1;
         }
         else
         {
-          importvalid = bfalse;
+          import.valid = bfalse;
           result = 2;
         }
 
@@ -956,7 +975,7 @@ int mnu_doChooseModule( float deltaTime )
 static bool_t mnu_checkSelectedPlayer( int player )
 {
   int i;
-  if ( player < 0 || player > numloadplayer ) return bfalse;
+  if ( player < 0 || player > loadplayer_count ) return bfalse;
 
   for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
   {
@@ -970,7 +989,7 @@ static bool_t mnu_checkSelectedPlayer( int player )
 static Uint32 mnu_getSelectedPlayer( int player )
 {
   Sint32 i;
-  if ( player < 0 || player > numloadplayer ) return bfalse;
+  if ( player < 0 || player > loadplayer_count ) return bfalse;
 
   for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
   {
@@ -983,7 +1002,7 @@ static Uint32 mnu_getSelectedPlayer( int player )
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_addSelectedPlayer( int player )
 {
-  if ( player < 0 || player > numloadplayer || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
+  if ( player < 0 || player > loadplayer_count || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
   if ( mnu_checkSelectedPlayer( player ) ) return bfalse;
 
   mnu_selectedPlayer[mnu_selectedPlayerCount] = player;
@@ -999,7 +1018,7 @@ static bool_t mnu_removeSelectedPlayer( int player )
   int i;
   bool_t found = bfalse;
 
-  if ( player < 0 || player > numloadplayer || mnu_selectedPlayerCount <= 0 ) return bfalse;
+  if ( player < 0 || player > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
 
   if ( mnu_selectedPlayerCount == 1 )
   {
@@ -1101,7 +1120,7 @@ void import_selected_players()
   // ZZ > Build the import directory
 
   char srcDir[64], destDir[64];
-  int i, loadplayer;
+  int i, iplayer;
 
   // clear out the old directory
   empty_import_directory();
@@ -1109,22 +1128,22 @@ void import_selected_players()
   //make sure the directory exists
   fs_createDirectory( CData.import_dir );
 
-  for ( numimport = 0; numimport < mnu_selectedPlayerCount; numimport++ )
+  for ( localplayer_count = 0; localplayer_count < mnu_selectedPlayerCount; localplayer_count++ )
   {
-    loadplayer = mnu_selectedPlayer[numimport];
-    localcontrol[numimport] = mnu_selectedInput[numimport];
-    localslot[numimport]    = 9 * numimport;
+    iplayer = mnu_selectedPlayer[localplayer_count];
+    localplayer_control[localplayer_count] = mnu_selectedInput[localplayer_count];
+    localplayer_slot[localplayer_count]    = 9 * localplayer_count;
 
     // Copy the character to the import directory
-    snprintf( srcDir,  sizeof( srcDir ),  "%s/%s", CData.players_dir, loadplayerdir[loadplayer] );
-    snprintf( destDir, sizeof( destDir ), "%s/temp%04d.obj", CData.import_dir, localslot[numimport] );
+    snprintf( srcDir,  sizeof( srcDir ),  "%s" SLASH_STRING "%s", CData.players_dir, loadplayer[iplayer].dir );
+    snprintf( destDir, sizeof( destDir ), "%s" SLASH_STRING "temp%04d.obj", CData.import_dir, localplayer_slot[localplayer_count] );
     fs_copyDirectory( srcDir, destDir );
 
     // Copy all of the character's items to the import directory
     for ( i = 0; i < 8; i++ )
     {
-      snprintf( srcDir, sizeof( srcDir ), "%s/%s/%d.obj", CData.players_dir, loadplayerdir[loadplayer], i );
-      snprintf( destDir, sizeof( destDir ), "%s/temp%04d.obj", CData.import_dir, localslot[numimport] + i + 1 );
+      snprintf( srcDir, sizeof( srcDir ), "%s" SLASH_STRING "%s" SLASH_STRING "%d.obj", CData.players_dir, loadplayer[iplayer].dir, i );
+      snprintf( destDir, sizeof( destDir ), "%s" SLASH_STRING "temp%04d.obj", CData.import_dir, localplayer_slot[localplayer_count] + i + 1 );
 
       fs_copyDirectory( srcDir, destDir );
     }
@@ -1151,22 +1170,22 @@ int mnu_doChoosePlayer( float deltaTime )
       mnu_selectedPlayerCount = 0;
       mnu_selectedPlayer[0] = 0;
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_sleepy_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.keybicon_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.keybicon_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &TxInput[0], CStringTmp1, INVALID_KEY );
       BitsInput[0] = INBITS_KEYB;
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.mousicon_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mousicon_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &TxInput[1], CStringTmp1, INVALID_KEY );
       BitsInput[1] = INBITS_MOUS;
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.joyaicon_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.joyaicon_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &TxInput[2], CStringTmp1, INVALID_KEY );
       BitsInput[2] = INBITS_JOYA;
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.joybicon_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.joybicon_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &TxInput[3], CStringTmp1, INVALID_KEY );
       BitsInput[3] = INBITS_JOYB;
 
@@ -1174,7 +1193,10 @@ int mnu_doChoosePlayer( float deltaTime )
       ui_initWidget( &wCopyright,  UI_Invalid, ui_getFont(), mnu_copyrightText, NULL, mnu_copyrightLeft, mnu_copyrightTop, 0, 0 );
 
       // load information for all the players that could be imported
-      check_player_import( CData.players_dir );
+      check_player_import();
+
+      // load icons necessary for the menu page
+      load_global_icons();
 
       // set the configuration
       ui_initWidget( &mnu_widgetList[0], 0, mnu_Font, "Select Module", NULL, 40, CData.scry - 35*3, 200, 30 );
@@ -1228,14 +1250,14 @@ int mnu_doChoosePlayer( float deltaTime )
 
       player = 0;
       m = 2;
-      for ( i = 0; i < numHorizontal && player < numloadplayer; i++ )
+      for ( i = 0; i < numHorizontal && player < loadplayer_count; i++ )
       {
-        for ( j = 0; j < numVertical && player < numloadplayer; j++, player++ )
+        for ( j = 0; j < numVertical && player < loadplayer_count; j++, player++ )
         {
           Uint32 splayer;
 
           mnu_widgetList[m].img  = &TxIcon[player];
-          mnu_widgetList[m].text = loadplayername[player];
+          mnu_widgetList[m].text = loadplayer[player].name;
 
           splayer = mnu_getSelectedPlayer( player );
 
@@ -1356,7 +1378,7 @@ int mnu_doOptions( float deltaTime )
 
       init_options_data();
 
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
       ui_initWidget( &wBackground, UI_Invalid, ui_getFont(), NULL, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
@@ -1485,7 +1507,7 @@ int mnu_doAudioOptions( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
       ui_initWidget( &wBackground, UI_Invalid, ui_getFont(), NULL, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
@@ -1739,7 +1761,7 @@ int mnu_doVideoOptions( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.mnu_dir, CData.menu_gnome_bitmap );
       GLTexture_Load( GL_TEXTURE_2D, &background, CStringTmp1, INVALID_KEY );
 
       ui_initWidget( &wBackground, UI_Invalid, ui_getFont(), NULL, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
@@ -2366,11 +2388,11 @@ int mnu_doShowResults( float deltaTime )
       fnt_drawTextFormatted( font, x, y, "Module selected: %s", ModList[mnu_selectedModule].longname );
       y += 35;
 
-      if ( importvalid )
+      if ( import.valid )
       {
         for ( i = 0; i < mnu_selectedPlayerCount; i++ )
         {
-          fnt_drawTextFormatted( font, x, y, "Player selected: %s", loadplayername[mnu_selectedPlayer[i]] );
+          fnt_drawTextFormatted( font, x, y, "Player selected: %s", loadplayer[mnu_selectedPlayer[i]].name );
           y += 35;
         };
       }

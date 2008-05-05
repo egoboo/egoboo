@@ -117,7 +117,7 @@ Uint8    mouseinwintype = 0;  // Fan type
 int      mouseinwinrect = 0;  // Rectangle drawing
 int      mouseinwinrectx;  //
 int      mouseinwinrecty;  //
-Uint8    mouseinwinfx = MESHFX_NOREFLECT;//
+Uint8    mouseinwinfx = MPDFX_NOREFLECT;//
 
 #define MAXWIN 8                 // Number of windows
 GLtexture window_tx[MAXWIN];     // Window images
@@ -347,7 +347,7 @@ bool_t fan_is_floor(float x, float y)
   fan = mesh_get_fan( pos );
   if( INVALID_FAN != fan )
   {
-    return mesh_has_no_bits(fan, MESHFX_WALL | MESHFX_IMPASS);
+    return mesh_has_no_bits(fan, MPDFX_WALL | MPDFX_IMPASS);
   }
 
   return bfalse;
@@ -364,7 +364,7 @@ void set_barrier_height(int x, int y)
   fan = mesh_get_fan(pos);
   if(fan != -1)
   {
-    if( mesh_has_some_bits( fan, MESHFX_WALL ) )
+    if( mesh_has_some_bits( fan, MPDFX_WALL ) )
     {
       type = Mesh_Fan[fan].type;
       noedges = btrue;
@@ -474,7 +474,7 @@ void impass_edges(int amount)
       if(dist_from_edge(x, y) < amount)
       {
         fan = mesh_convert_fan(x, y);
-        Mesh_Fan[fan].fx |= MESHFX_IMPASS;
+        Mesh_Fan[fan].fx |= MPDFX_IMPASS;
       }
       x++;
     }
@@ -587,9 +587,9 @@ void make_hitemap(void)
       if(level > 252) level = 252;
       fan = Mesh[pixy>>2].fanstart+(pixx>>2);
 
-      if( mesh_has_all_bits(fan, MESHFX_WALL | MESHFX_IMPASS) ) level = 255;   // Both
-      else if( mesh_has_all_bits(fan, MESHFX_WALL)   ) level = 253;         // Wall
-      else if( mesh_has_all_bits(fan, MESHFX_IMPASS) ) level = 254;         // Impass
+      if( mesh_has_all_bits(fan, MPDFX_WALL | MPDFX_IMPASS) ) level = 255;   // Both
+      else if( mesh_has_all_bits(fan, MPDFX_WALL)   ) level = 253;         // Wall
+      else if( mesh_has_all_bits(fan, MPDFX_IMPASS) ) level = 254;         // Impass
 
       SDL_PutPixel(bmphitemap, pixx, pixy, level);
 
@@ -626,7 +626,7 @@ GLtexture * tiny_tile_at(int x, int y)
   fx = Mesh_Fan[fan].fx;
 
   // Animate the tiles
-  if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
+  if ( HAS_SOME_BITS( fx, MPDFX_ANIM ) )
   {
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
@@ -1252,7 +1252,7 @@ void remove_fan(int fan)
     cnt++;
   }
   Mesh_Fan[fan].type = 0;
-  Mesh_Fan[fan].fx = MESHFX_NOREFLECT;
+  Mesh_Fan[fan].fx = MPDFX_NOREFLECT;
 }
 
 //------------------------------------------------------------------------------
@@ -1268,7 +1268,7 @@ int add_fan(int fan, int x, int y)
   numvert = Mesh_Cmd[Mesh_Fan[fan].type].vrt_count;
   if(numfreevertices >= numvert)
   {
-    Mesh_Fan[fan].fx = MESHFX_NOREFLECT;
+    Mesh_Fan[fan].fx = MPDFX_NOREFLECT;
     cnt = 0;
     while(cnt < numvert)
     {
@@ -1350,7 +1350,7 @@ GLtexture * tile_at(int x, int y)
   fx = Mesh_Fan[fan].fx;
 
   // Animate the tiles
-  if ( HAS_SOME_BITS( fx, MESHFX_ANIM ) )
+  if ( HAS_SOME_BITS( fx, MPDFX_ANIM ) )
   {
     if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
@@ -1979,19 +1979,19 @@ void cart_load_basic_textures(char *modname)
   char newloadname[256];
   SDL_Surface * surface;
 
-  snprintf(newloadname, sizeof(newloadname), "%s\\gamedat\\tile0.bmp", modname);
+  snprintf(newloadname, sizeof(newloadname), "%s" SLASH_STRING "gamedat\\tile0.bmp", modname);
   surface = IMG_Load(newloadname);
   rip_tiles(surface);
 
-  snprintf(newloadname, sizeof(newloadname), "%s\\gamedat\\tile1.bmp", modname);
+  snprintf(newloadname, sizeof(newloadname), "%s" SLASH_STRING "gamedat\\tile1.bmp", modname);
   surface = IMG_Load(newloadname);
   rip_tiles(surface);
 
-  snprintf(newloadname, sizeof(newloadname), "%s\\gamedat\\tile2.bmp", modname);
+  snprintf(newloadname, sizeof(newloadname), "%s" SLASH_STRING "gamedat\\tile2.bmp", modname);
   surface = IMG_Load(newloadname);
   rip_tiles(surface);
 
-  snprintf(newloadname, sizeof(newloadname), "%s\\gamedat\\tile3.bmp", modname);
+  snprintf(newloadname, sizeof(newloadname), "%s" SLASH_STRING "gamedat\\tile3.bmp", modname);
   surface = IMG_Load(newloadname);
   rip_tiles(surface);
 
@@ -2603,21 +2603,21 @@ void render_fx_window(int window)
       fan = fan_at(mapx, mapy);
       if(fan!=-1)
       {
-        if( mesh_has_no_bits( fan, MESHFX_NOREFLECT ) )
+        if( mesh_has_no_bits( fan, MPDFX_NOREFLECT ) )
           draw_blit_sprite(window, &imgref, x, y);
-        if( mesh_has_some_bits( fan, MESHFX_SHINY ) )
+        if( mesh_has_some_bits( fan, MPDFX_SHINY ) )
           draw_blit_sprite(window, &imgdrawref, x+16, y);
-        if( mesh_has_some_bits( fan, MESHFX_ANIM ) )
+        if( mesh_has_some_bits( fan, MPDFX_ANIM ) )
           draw_blit_sprite(window, &imganim, x, y+16);
-        if( mesh_has_some_bits( fan, MESHFX_WALL ) )
+        if( mesh_has_some_bits( fan, MPDFX_WALL ) )
           draw_blit_sprite(window, &imgwall, x+15, y+15);
-        if( mesh_has_some_bits( fan, MESHFX_IMPASS ) )
+        if( mesh_has_some_bits( fan, MPDFX_IMPASS ) )
           draw_blit_sprite(window, &imgimpass, x+15+8, y+15);
-        if( mesh_has_some_bits( fan, MESHFX_DAMAGE ) )
+        if( mesh_has_some_bits( fan, MPDFX_DAMAGE ) )
           draw_blit_sprite(window, &imgdamage, x+15, y+15+8);
-        if( mesh_has_some_bits( fan, MESHFX_SLIPPY ) )
+        if( mesh_has_some_bits( fan, MPDFX_SLIPPY ) )
           draw_blit_sprite(window, &imgslippy, x+15+8, y+15+8);
-        if( mesh_has_some_bits( fan, MESHFX_WATER ) )
+        if( mesh_has_some_bits( fan, MPDFX_WATER ) )
           draw_blit_sprite(window, &imgwater, x, y);
       }
       mapx++;
@@ -3814,49 +3814,49 @@ void check_keys(char *modname)
     // Hurt
     if(SDLKEYDOWN(SDLK_h))
     {
-      toggle_fx(MESHFX_DAMAGE);
+      toggle_fx(MPDFX_DAMAGE);
       keydelay=KEYDELAY;
     }
     // Impassable
     if(SDLKEYDOWN(SDLK_i))
     {
-      toggle_fx(MESHFX_IMPASS);
+      toggle_fx(MPDFX_IMPASS);
       keydelay=KEYDELAY;
     }
     // Barrier
     if(SDLKEYDOWN(SDLK_b))
     {
-      toggle_fx(MESHFX_WALL);
+      toggle_fx(MPDFX_WALL);
       keydelay=KEYDELAY;
     }
     // Overlay
     if(SDLKEYDOWN(SDLK_o))
     {
-      toggle_fx(MESHFX_WATER);
+      toggle_fx(MPDFX_WATER);
       keydelay=KEYDELAY;
     }
     // Reflective
     if(SDLKEYDOWN(SDLK_r))
     {
-      toggle_fx(MESHFX_NOREFLECT);
+      toggle_fx(MPDFX_NOREFLECT);
       keydelay=KEYDELAY;
     }
     // Draw reflections
     if(SDLKEYDOWN(SDLK_d))
     {
-      toggle_fx(MESHFX_SHINY);
+      toggle_fx(MPDFX_SHINY);
       keydelay=KEYDELAY;
     }
     // Animated
     if(SDLKEYDOWN(SDLK_a))
     {
-      toggle_fx(MESHFX_ANIM);
+      toggle_fx(MPDFX_ANIM);
       keydelay=KEYDELAY;
     }
     // Slippy
     if(SDLKEYDOWN(SDLK_s))
     {
-      toggle_fx(MESHFX_SLIPPY);
+      toggle_fx(MPDFX_SLIPPY);
       keydelay=KEYDELAY;
     }
     if(SDLKEYDOWN(SDLK_g))
@@ -4217,28 +4217,28 @@ void draw_lotsa_stuff(void)
   }
 
   // FX selection
-  if( HAS_NO_BITS( mouseinwinfx, MESHFX_NOREFLECT ) )
+  if( HAS_NO_BITS( mouseinwinfx, MPDFX_NOREFLECT ) )
     draw_blit_sprite(-1, &imgref, 0, 200);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_SHINY ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_SHINY ) )
     draw_blit_sprite(-1, &imgdrawref, 16, 200);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_ANIM ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_ANIM ) )
     draw_blit_sprite(-1, &imganim, 0, 216);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_WALL ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_WALL ) )
     draw_blit_sprite(-1, &imgwall, 15, 215);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_IMPASS ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_IMPASS ) )
     draw_blit_sprite(-1, &imgimpass, 15+8, 215);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_DAMAGE ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_DAMAGE ) )
     draw_blit_sprite(-1, &imgdamage, 15, 215+8);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_SLIPPY ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_SLIPPY ) )
     draw_blit_sprite(-1, &imgslippy, 15+8, 215+8);
 
-  if( HAS_SOME_BITS( mouseinwinfx, MESHFX_WATER ) )
+  if( HAS_SOME_BITS( mouseinwinfx, MPDFX_WATER ) )
     draw_blit_sprite(-1, &imgwater, 0, 200);
 
 

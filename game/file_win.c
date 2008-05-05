@@ -19,14 +19,29 @@
     along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "egoboo_strutil.h"
 #include "egoboo.h"
+
 #include "Log.h"
 #include <windows.h>
 #include <shlobj.h>
 #include <shlwapi.h>
 
-WIN32_FIND_DATA win32_wfdData;
-HANDLE win32_hFind;
+typedef struct fs_find_info_win32_t
+{
+  WIN32_FIND_DATA win32_wfdData;
+  HANDLE          win32_hFind;
+} FS_FIND_INFO_WIN32;
+
+FS_FIND_INFO * fs_find_info_new(FS_FIND_INFO * i)
+{
+  if(NULL==i) return i;
+
+  i->type = FS_WIN32;
+  i->W    = calloc(1, sizeof(FS_FIND_INFO_WIN32));
+
+  return i;
+};
 
 // Paths that the game will deal with
 char win32_tempPath[MAX_PATH] = {0};
@@ -50,14 +65,14 @@ void fs_init()
   GetTempPath( MAX_PATH, win32_tempPath );
   strncpy( win32_importPath, win32_tempPath, MAX_PATH );
   strncat( win32_importPath, CData.import_dir, MAX_PATH );
-  strncat( win32_importPath, "\\", MAX_PATH );
+  strncat( win32_importPath, SLASH_STRING, MAX_PATH );
 
 
   // The save path goes into the user's ApplicationData directory,
   // according to Microsoft's standards.  Will people like this, or
   // should I stick saves someplace easier to find, like My Documents?
   SHGetFolderPath( NULL, CSIDL_PERSONAL, NULL, 0, win32_savePath );
-  strncat( win32_savePath, "\\egoboo\\", MAX_PATH );
+  strncat( win32_savePath, SLASH_STRING "egoboo" SLASH_STRING, MAX_PATH );
 
   // Last, try and determine where the game data is.  First, try the working
   // directory.  If it's not there, try the directory where the executable
@@ -158,66 +173,71 @@ HANDLE win32_hFind;
 
 //---------------------------------------------------------------------------------------------
 // Read the first directory entry
-const char *fs_findFirstFile( const char *searchDir, const char *searchExtension )
+const char *fs_findFirstFile( FS_FIND_INFO * i, const char *searchDir, const char *searchBody, const char *searchExtension )
 {
   char searchSpec[MAX_PATH];
   size_t len;
 
-  len = strlen( searchDir ) + 1;
-  if ( searchDir[len] != '/' || searchDir[len] != '\\' )
+  if( NULL == i || FS_WIN32 != i->type ) return NULL;
+
+  strncpy( searchSpec, searchDir, MAX_PATH );
+  str_append_slash( searchSpec, MAX_PATH );
+
+  if ( searchBody != NULL )
   {
-    _snprintf( searchSpec, MAX_PATH, "%s\\", searchDir );
-  }
-  else
-  {
-    strncpy( searchSpec, searchDir, MAX_PATH );
+    _snprintf( searchSpec, MAX_PATH, "%s%s", searchSpec, searchBody );
   }
 
   if ( searchExtension != NULL )
   {
-    _snprintf( searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension );
-  }
-  else
-  {
-    strncat( searchSpec, "*", MAX_PATH );
+    _snprintf( searchSpec, MAX_PATH, "%s%s", searchSpec, searchExtension );
   }
 
-  win32_hFind = FindFirstFile( searchSpec, &win32_wfdData );
-  if ( win32_hFind == INVALID_HANDLE_VALUE )
+
+  i->W->win32_hFind = FindFirstFile( searchSpec, &(i->W->win32_wfdData) );
+  if ( i->W->win32_hFind == INVALID_HANDLE_VALUE )
   {
     return NULL;
   }
 
-  return win32_wfdData.cFileName;
+  return i->W->win32_wfdData.cFileName;
 }
 
 //---------------------------------------------------------------------------------------------
 // Read the next directory entry (NULL if done)
-const char *fs_findNextFile( void )
+const char *fs_findNextFile( FS_FIND_INFO * i )
 {
-  if ( win32_hFind == NULL || win32_hFind == INVALID_HANDLE_VALUE )
+  if(NULL == i || FS_WIN32 != i->type) return NULL;
+
+  if ( i->W->win32_hFind == NULL || i->W->win32_hFind == INVALID_HANDLE_VALUE )
   {
     return NULL;
   }
 
-  if ( !FindNextFile( win32_hFind, &win32_wfdData ) )
+  if ( !FindNextFile( i->W->win32_hFind, &(i->W->win32_wfdData) ) )
   {
     return NULL;
   }
-  return win32_wfdData.cFileName;
+
+  return i->W->win32_wfdData.cFileName;
 }
 
 //---------------------------------------------------------------------------------------------
 // Close anything left open
-void fs_findClose()
+void fs_findClose(FS_FIND_INFO * i)
 {
-  FindClose( win32_hFind );
-  win32_hFind = NULL;
+
+  if(NULL != i && FS_WIN32 == i->type)
+  {
+    FindClose( i->W->win32_hFind );
+  };
+
+  fs_find_info_delete(i);
 }
 
 int DirGetAttrib( char *fromdir )
 {
-  return ( GetFileAttributes( fromdir ) );
+  return GetFileAttributes( fromdir );
 }
 
 //---------------------------------------------------------------------------------------------
@@ -231,7 +251,7 @@ void empty_import_directory( void )
   char *fileName;
 
   // List all the files in the directory
-  _snprintf( searchName, MAX_PATH, "import\\*.obj" );
+  _snprintf( searchName, MAX_PATH, "import" SLASH_STRING "*.obj" );
   hFind = FindFirstFile( searchName, &wfdData );
   while ( hFind != NULL && hFind != INVALID_HANDLE_VALUE )
   {
@@ -239,7 +259,7 @@ void empty_import_directory( void )
     // Ignore files that start with a ., like .svn for example.
     if ( fileName[0] != '.' )
     {
-      _snprintf( filePath, MAX_PATH, "import\\%s", fileName );
+      _snprintf( filePath, MAX_PATH, "import" SLASH_STRING "%s", fileName );
       if ( fs_fileIsDirectory( filePath ) )
       {
         fs_removeDirectoryAndContents( filePath );

@@ -29,8 +29,9 @@
 #define MAX_LOG_MESSAGE 1024
 
 static FILE *logFile = NULL;
+static FILE *debugFile = NULL;
 static char logBuffer[MAX_LOG_MESSAGE];
-static int logLevel = 1;
+static int  logLevel = 1;
 
 static void writeLogMessage( const char *prefix, const char *format, va_list args )
 {
@@ -43,11 +44,27 @@ static void writeLogMessage( const char *prefix, const char *format, va_list arg
   }
 }
 
+static void writeDebugMessage( const char *prefix, const char *format, va_list args )
+{
+  if ( logFile != NULL )
+  {
+    vsnprintf( logBuffer, MAX_LOG_MESSAGE - 1, format, args );
+    fputs( prefix, debugFile );
+    fputs( logBuffer, debugFile );
+    fflush( debugFile );
+  }
+}
+
 void log_init()
 {
   if ( logFile == NULL )
   {
     logFile = fs_fileOpen( PRI_NONE, NULL, CData.log_file, "wt" );
+  }
+
+  if ( debugFile == NULL )
+  {
+    debugFile = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "wt" );
   }
 }
 
@@ -57,6 +74,12 @@ void log_shutdown()
   {
     fs_fileClose( logFile );
     logFile = NULL;
+  }
+
+  if ( debugFile != NULL )
+  {
+    fs_fileClose( debugFile );
+    debugFile = NULL;
   }
 }
 
@@ -114,4 +137,24 @@ void log_error( const char *format, ... )
   //Close down various stuff and release memory
   fflush( logFile );
   exit( -1 );
+}
+
+
+void log_debug( const char *format, ... )
+{
+  va_list args;
+
+  if ( CData.DevMode && logLevel >= 1 )
+  {
+    va_start( args, format );
+    writeDebugMessage( "DEBUG: ", format, args );
+
+#ifdef CONSOLE_MODE
+    vfprintf( stdout, format, args );
+#endif
+
+    va_end( args );
+  }
+
+
 }

@@ -34,6 +34,7 @@
 #include "enchant.h"
 #include "egoboo_utility.h"
 #include "egoboo.h"
+#include "passage.h"
 
 #define FUNCTION_FLAG_BIT 0x80000000
 #define CONSTANT_FLAG_BIT 0x80000000
@@ -889,14 +890,14 @@ void load_ai_codes( char* loadname )
   REGISTER_OPCODE( opcode_lst, 'C', XP_KILLHATED, "EXPREVENGE" );
   REGISTER_OPCODE( opcode_lst, 'C', XP_TEAMKILL, "EXPTEAMWORK" );
   REGISTER_OPCODE( opcode_lst, 'C', XP_TALKGOOD, "EXPROLEPLAY" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_NOREFLECT, "FXNOREFLECT" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_SHINY,     "FXDRAWREFLECT" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_ANIM,      "FXANIM" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_WATER,     "FXWATER" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_WALL,      "FXBARRIER" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_IMPASS,    "FXIMPASS" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_DAMAGE,    "FXDAMAGE" );
-  REGISTER_OPCODE( opcode_lst, 'C', MESHFX_SLIPPY,    "FXSLIPPY" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_NOREFLECT, "FXNOREFLECT" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_SHINY,     "FXDRAWREFLECT" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_ANIM,      "FXANIM" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_WATER,     "FXWATER" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_WALL,      "FXBARRIER" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_IMPASS,    "FXIMPASS" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_DAMAGE,    "FXDAMAGE" );
+  REGISTER_OPCODE( opcode_lst, 'C', MPDFX_SLIPPY,    "FXSLIPPY" );
   REGISTER_OPCODE( opcode_lst, 'C', GRIP_SADDLE, "GRIPONLY" );
   REGISTER_OPCODE( opcode_lst, 'C', GRIP_LEFT,   "GRIPLEFT" );
   REGISTER_OPCODE( opcode_lst, 'C', GRIP_RIGHT,  "GRIPRIGHT" );
@@ -1341,7 +1342,7 @@ void load_ai_codes( char* loadname )
 
 
 //------------------------------------------------------------------------------
-Uint32 load_ai_script( char *loadname )
+Uint32 load_ai_script( char * szObjectpath, char * szObjectname )
 {
   // ZZ> This function loads a script to memory and
   //     returns bfalse if it fails to do so
@@ -1349,8 +1350,9 @@ Uint32 load_ai_script( char *loadname )
   Uint32 retval = MAXAI;
 
   scr_intern.line_num = 0;
-  globalparsename = loadname;  // For error logging in log.TXT
-  fileread = fs_fileOpen( PRI_NONE, NULL, loadname, "rb" );
+  globalparsename = szObjectname;  // For error logging in log.TXT
+
+  fileread = fs_fileOpen(PRI_NONE, "load_ai_script()", inherit_fname(szObjectpath, szObjectname, CData.script_file), "r");
   if ( NULL == fileread || scr_intern.script_count >= MAXAI )
     return retval;
 
@@ -1540,7 +1542,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_GetTargetArmorPrice:
       // This function gets the armor cost for the given skin
       sTmp = pg_scr->tmpargument  % MAXSKIN;
-      pg_scr->tmpx = CapList[ChrList[pstate->target].model].skincost[sTmp];
+      pg_scr->tmpx = CapList[ChrList[pstate->target].model].skin[sTmp].cost;
       break;
 
     case F_SetTime:
@@ -1722,12 +1724,12 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_Walk:
       reset_character_accel( ichr );
-      pchr->maxaccel *= .66;
+      pchr->skin.maxaccel *= .66;
       break;
 
     case F_Sneak:
       reset_character_accel( ichr );
-      pchr->maxaccel *= .33;
+      pchr->skin.maxaccel *= .33;
       break;
 
     case F_DoAction:
@@ -1821,9 +1823,9 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function proceeds only if the passage specified by tmpargument
       // is both valid and open
       returncode = bfalse;
-      if ( pg_scr->tmpargument < numpassage && pg_scr->tmpargument >= 0 )
+      if ( pg_scr->tmpargument < passage_count && pg_scr->tmpargument >= 0 )
       {
-        returncode = passopen[pg_scr->tmpargument];
+        returncode = PassList[pg_scr->tmpargument].open;
       }
       break;
 
@@ -2058,7 +2060,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_ChangeTargetArmor:
       // This function sets the target's armor type and returns the old type
       // as tmpargument and the new type as tmpx
-      iTmp = ( ChrList[pstate->target].texture - MadList[ChrList[pstate->target].model].skinstart ) % MAXSKIN;
+      iTmp = ChrList[pstate->target].skin_ref % MAXSKIN;
       pg_scr->tmpx = change_armor( pstate->target, pg_scr->tmpargument );
       pg_scr->tmpargument = iTmp;  // The character's old armor
       break;
@@ -2250,7 +2252,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       break;
 
     case F_Stop:
-      pchr->maxaccel = 0;
+      pchr->skin.maxaccel = 0;
       break;
 
     case F_DisaffirmCharacter:
@@ -2305,7 +2307,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_BecomeSpell:
       // This function turns the spellbook character into a spell based on its
       // content
-      pchr->money = ( pchr->texture - pmad->skinstart ) % MAXSKIN;
+      pchr->money = pchr->skin_ref % MAXSKIN;
       change_character( ichr, pstate->content, 0, LEAVE_NONE );
       pstate->content = 0;  // Reset so it doesn't mess up
       pstate->state   = 0;  // Reset so it doesn't mess up
@@ -2410,7 +2412,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_IfArmorIs:
       // This function passes if the character's skin is tmpargument
-      tTmp = ( pchr->texture - pmad->skinstart ) % MAXSKIN;
+      tTmp = pchr->skin_ref % MAXSKIN;
       returncode = ( tTmp == pg_scr->tmpargument );
       break;
 
@@ -2874,14 +2876,14 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_IfTargetIsDressedUp:
       // This function passes if the character's skin is dressy
-      iTmp = ( pchr->texture - pmad->skinstart ) % MAXSKIN;
+      iTmp = pchr->skin_ref % MAXSKIN;
       iTmp = 1 << iTmp;
       returncode = (( pcap->skindressy & iTmp ) != 0 );
       break;
 
     case F_IfOverWater:
       // This function passes if the character is on a water tile
-      returncode = mesh_has_some_bits( pchr->onwhichfan, MESHFX_WATER ) && GWater.iswater;
+      returncode = mesh_has_some_bits( pchr->onwhichfan, MPDFX_WATER ) && GWater.iswater;
       break;
 
     case F_IfThrown:
@@ -3146,7 +3148,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_SetSpeedPercent:
       reset_character_accel( ichr );
-      pchr->maxaccel *= pg_scr->tmpargument / 100.0;
+      pchr->skin.maxaccel *= pg_scr->tmpargument / 100.0;
       break;
 
     case F_SetChildState:
@@ -3175,7 +3177,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // This function sets the character's armor type and returns the old type
       // as tmpargument and the new type as tmpx
       pg_scr->tmpx = pg_scr->tmpargument;
-      iTmp = ( pchr->texture - pmad->skinstart ) % MAXSKIN;
+      iTmp = pchr->skin_ref % MAXSKIN;
       pg_scr->tmpx = change_armor( ichr, pg_scr->tmpargument );
       pg_scr->tmpargument = iTmp;  // The character's old armor
       break;
@@ -3914,7 +3916,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
     case F_SetMusicPassage:
       // This function makes the given passage play music if a player enters it
       // tmpargument is the passage to set and tmpdistance is the music track to play...
-      passagemusic[pg_scr->tmpargument] = pg_scr->tmpdistance;
+      PassList[pg_scr->tmpargument].music = pg_scr->tmpdistance;
       break;
 
     case F_MakeCrushInvalid:
@@ -4039,9 +4041,9 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
       // tmpy is cost of new skin
       sTmp = chr_get_aitarget( ichr );    // The target
       tTmp = ChrList[sTmp].model;           // The target's model
-      iTmp =  CapList[tTmp].skincost[pg_scr->tmpargument % MAXSKIN];
+      iTmp =  CapList[tTmp].skin[pg_scr->tmpargument % MAXSKIN].cost;
       pg_scr->tmpy = iTmp;                // Cost of new skin
-      iTmp -= CapList[tTmp].skincost[( ChrList[sTmp].texture - MadList[tTmp].skinstart ) % MAXSKIN];   // Refund
+      iTmp -= CapList[tTmp].skin[ChrList[sTmp].skin_ref % MAXSKIN].cost;   // Refund
       if ( iTmp > ChrList[sTmp].money )
       {
         // Not enough...
@@ -4203,7 +4205,7 @@ bool_t run_function( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
 
     case F_ClearMusicPassage:
       //This clears the music for an specified passage
-      passagemusic[pg_scr->tmpargument] = INVALID_SOUND;
+      PassList[pg_scr->tmpargument].music = INVALID_SOUND;
       break;
 
 
@@ -4650,7 +4652,7 @@ void run_operand( SCRIPT_GLOBAL_VALUES * pg_scr, Uint32 value, CHR_REF ichr )
         break;
 
       case VAR_SELF_ACCEL:
-        iTmp = ( pchr->maxaccel * 100.0 );
+        iTmp = ( pchr->skin.maxaccel * 100.0 );
         break;
 
       case VAR_TARGET_EXP:

@@ -28,6 +28,43 @@
 #endif
 
 //--------------------------------------------------------------------------------------------
+bool_t fs_find_info_delete(FS_FIND_INFO * i)
+{
+  bool_t retval = bfalse;
+
+  if(NULL == i) return bfalse;
+  if(FS_UNKNOWN == i->type) return bfalse;
+
+  // this is not strictly necessary, since FREE() or free() doesn't care about the type of its argument
+  switch(i->type)
+  {
+    case FS_WIN32:
+      FREE(i->W);
+      retval = btrue;
+      break;
+
+    case FS_LIN:
+      FREE(i->L);
+      retval = btrue;
+      break;
+
+    case FS_MAC:
+      FREE(i->M);
+      retval = btrue;
+      break;
+
+    default:
+    case FS_UNKNOWN:
+      // do nothing since the data structure is corrupt
+      break;
+  };
+
+  i->type = FS_UNKNOWN;
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // FIXME: Doesn't handle deleting directories recursively yet.
 void fs_removeDirectoryAndContents( const char *dirname )
@@ -36,15 +73,18 @@ void fs_removeDirectoryAndContents( const char *dirname )
   //     and the directory itself
   char filePath[MAX_PATH];
   const char *fileName;
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
 
   // List all the files in the directory
-  fileName = fs_findFirstFile( dirname, NULL );
+  fileName = fs_findFirstFile( &fs_finfo, dirname, NULL, "*" );
   while ( fileName != NULL )
   {
     // Ignore files that start with a ., like .svn for example.
     if ( fileName[0] != '.' )
     {
-      snprintf( filePath, MAX_PATH, "%s/%s", dirname, fileName );
+      snprintf( filePath, MAX_PATH, "%s" SLASH_STRING "%s", dirname, fileName );
       if ( fs_fileIsDirectory( filePath ) )
       {
         //fs_removeDirectoryAndContents(filePath);
@@ -55,9 +95,9 @@ void fs_removeDirectoryAndContents( const char *dirname )
       }
     }
 
-    fileName = fs_findNextFile();
+    fileName = fs_findNextFile(&fs_finfo);
   }
-  fs_findClose();
+  fs_findClose(&fs_finfo);
   fs_removeDirectory( dirname );
 }
 
@@ -67,9 +107,12 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
   // ZZ> This function copies all files in a directory
   char srcPath[MAX_PATH], destPath[MAX_PATH];
   const char *fileName;
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
 
   // List all the files in the directory
-  fileName = fs_findFirstFile( sourceDir, NULL );
+  fileName = fs_findFirstFile( &fs_finfo, sourceDir, NULL, "*" );
   if ( fileName != NULL )
   {
     // Make sure the destination directory exists
@@ -80,16 +123,16 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
       // Ignore files that begin with a .
       if ( fileName[0] != '.' )
       {
-        snprintf( srcPath, MAX_PATH, "%s/%s", sourceDir, fileName );
-        snprintf( destPath, MAX_PATH, "%s/%s", destDir, fileName );
+        snprintf( srcPath, MAX_PATH, "%s" SLASH_STRING "%s", sourceDir, fileName );
+        snprintf( destPath, MAX_PATH, "%s" SLASH_STRING "%s", destDir, fileName );
         fs_copyFile( srcPath, destPath );
       }
 
-      fileName = fs_findNextFile();
+      fileName = fs_findNextFile(&fs_finfo);
     }
     while ( fileName != NULL );
   }
-  fs_findClose();
+  fs_findClose(&fs_finfo);
 }
 
 //--------------------------------------------------------------------------------------------

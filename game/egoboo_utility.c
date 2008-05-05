@@ -1,10 +1,12 @@
+#include "egoboo_utility.h"
+
 #include "char.h"
 #include "particle.h"
 #include "Mad.h"
 #include "particle.h"
 #include "Log.h"
 
-#include "egoboo_utility.h"
+#include "egoboo_strutil.h"
 
 #include <assert.h>
 
@@ -476,7 +478,7 @@ void funderf( FILE* filewrite, char* text, char* usename )
   //     a name with underscore spaces
   STRING tmpstr;
 
-  convert_spaces( tmpstr, sizeof( tmpstr ), usename );
+  str_convert_spaces( tmpstr, sizeof( tmpstr ), usename );
   fprintf( filewrite, "%s%s\n", text, tmpstr );
 }
 
@@ -612,7 +614,7 @@ bool_t fget_name( FILE* fileread, char *szName, size_t lnName )
   // a zero return value from fscanf() means that no fields were filled
   if ( fget_string( fileread, szTmp, sizeof( szTmp ) ) )
   {
-    convert_underscores( szName, lnName, szTmp );
+    str_convert_underscores( szName, lnName, szTmp );
     retval = btrue;
   };
 
@@ -877,4 +879,155 @@ bool_t fget_next_string( FILE* fileread, char *szLine, size_t lnLine )
   };
 
   return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+const char * inherit_fname(char * szObjPath, char * szObject, char *szFname )
+{
+  static STRING ret_fname;
+  FILE * loc_pfile;
+  STRING loc_fname, szTemp, inherit_line;
+  bool_t found;
+
+  STRING ifile;
+  STRING itype;
+  Uint32 icrc;
+
+  FS_FIND_INFO fs_finfo;
+
+  fs_find_info_new( &fs_finfo );
+ 
+  // blank the static string
+  ret_fname[0] = '\0';
+
+  if(NULL == szObject)
+  {
+    // do not search
+    strcpy(ret_fname, szObjPath);
+    str_append_slash(ret_fname, sizeof(ret_fname));
+    strcat(ret_fname, szFname);
+    return ret_fname;
+  }
+
+  strcpy(loc_fname, szObjPath);
+  str_append_slash(ret_fname, sizeof(ret_fname));
+  strcat(loc_fname, szObject);
+  str_append_slash( loc_fname, sizeof( loc_fname ) );
+  strcat(loc_fname, "inherit.txt");
+  loc_pfile = fs_fileOpen(PRI_NONE, "loc_fname()", loc_fname, "r");
+  if(NULL == loc_pfile)
+  {
+    strcpy(ret_fname, szObjPath);
+    str_append_slash(ret_fname, sizeof(ret_fname));
+    strcat(ret_fname, szObject);
+    str_append_slash(ret_fname, sizeof(ret_fname));
+    strcat(ret_fname, szFname);
+
+    return ret_fname;
+  };
+
+   // try to match the given file
+  found = bfalse;
+  while( fget_next_string( loc_pfile, ifile, sizeof(STRING) ) )
+  {
+    if( 0 == strcmp(ifile, szFname) )
+    {
+      // "-"
+      fget_string( loc_pfile, inherit_line, sizeof(STRING) );
+
+      // CRC
+      icrc = fget_int( loc_pfile );
+
+      // "-"
+      fget_string( loc_pfile, inherit_line, sizeof(STRING) );
+
+      // type
+      fget_string( loc_pfile, itype, sizeof(STRING) );
+
+      found = btrue;
+
+      break;
+    }
+  }
+
+  if(!found)
+  {
+    strcpy(ret_fname, szObjPath);
+    str_append_slash(ret_fname, sizeof(ret_fname));
+    strcat(ret_fname, szObject);
+    str_append_slash(ret_fname, sizeof(ret_fname));
+    strcat(ret_fname, szFname);
+  }
+  else
+  {
+    const char * name_ptr = NULL;
+
+    sprintf(ret_fname, "%u*%s", icrc, itype);
+
+    if( 0 == strcmp(".wav", itype) )
+    {
+      // search in the sounds directory
+
+      name_ptr = fs_findFirstFile( &fs_finfo, "objects" SLASH_STRING "_sounds" SLASH_STRING, ret_fname, NULL);
+
+      if(NULL != name_ptr)
+      {
+        sprintf(ret_fname, "objects" SLASH_STRING "_sounds" SLASH_STRING "%s", name_ptr);
+      }
+
+      fs_findClose(&fs_finfo);
+    }
+    else if ( 0 == strncmp( ifile, "icon" , 4 ) && 0 == strcmp(".bmp", itype) )
+    {
+      // search in the icons directory
+
+      name_ptr = fs_findFirstFile( &fs_finfo, "objects" SLASH_STRING "_icons" SLASH_STRING, ret_fname, NULL);
+
+      if(NULL != name_ptr)
+      {
+        sprintf(ret_fname, "objects" SLASH_STRING "_icons" SLASH_STRING "%s", name_ptr);
+      }
+
+      fs_findClose(&fs_finfo);
+    }
+    else if ( 0 == strncmp( ifile, "part" , 4 ) && 0 == strcmp(".txt", itype) )
+    {
+      // search in the particles directory
+
+      name_ptr = fs_findFirstFile( &fs_finfo, "objects" SLASH_STRING "_particles" SLASH_STRING, ret_fname, NULL);
+
+      if(NULL != name_ptr)
+      {
+        sprintf(ret_fname, "objects" SLASH_STRING "_particles" SLASH_STRING "%s", name_ptr);
+      }
+
+      fs_findClose(&fs_finfo);
+    }
+    else
+    {
+      STRING tmpfname;
+
+      strcpy(tmpfname, "objects");
+      str_append_slash( tmpfname, sizeof(tmpfname) );
+      strcat(tmpfname, szObject );
+      str_append_slash( tmpfname, sizeof(tmpfname) );
+
+      name_ptr = fs_findFirstFile( &fs_finfo, tmpfname, ret_fname, NULL);
+
+      if(NULL != name_ptr)
+      {
+        sprintf(ret_fname, "%s%s", tmpfname, name_ptr);
+      }
+
+      fs_findClose(&fs_finfo);
+    }
+  };
+
+
+
+
+  fs_fileClose(loc_pfile);
+
+  return ret_fname;
+
 }

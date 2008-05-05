@@ -155,14 +155,14 @@ void naming_names( int profile )
 }
 
 //--------------------------------------------------------------------------------------------
-void read_naming( int profile, char *szLoadname )
+void read_naming( char * szModpath, char * szObjectname, int profile)
 {
   // ZZ> This function reads a naming file
   FILE *fileread;
   int section, chopinsection, cnt;
   char mychop[32], cTmp;
 
-  fileread = fs_fileOpen( PRI_NONE, NULL, szLoadname, "r" );
+  fileread = fs_fileOpen( PRI_NONE, NULL, inherit_fname(szModpath, szObjectname, CData.naming_file), "r" );
   if ( NULL == fileread ) return;
 
   section = 0;
@@ -237,8 +237,8 @@ void tilt_characters_to_terrain()
     if ( ChrList[cnt].stickybutt && ChrList[cnt].on && ChrList[cnt].onwhichfan != INVALID_FAN )
     {
       twist = mesh_get_twist( ChrList[cnt].onwhichfan );
-      ChrList[cnt].mapturn_lr = maptwist_lr[twist];
-      ChrList[cnt].mapturn_ud = maptwist_ud[twist];
+      ChrList[cnt].mapturn_lr = twist_table[twist].lr;
+      ChrList[cnt].mapturn_ud = twist_table[twist].ud;
     }
     cnt++;
   }
@@ -246,21 +246,17 @@ void tilt_characters_to_terrain()
 
 //--------------------------------------------------------------------------------------------
 CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
-                            Uint8 skin, Uint16 facing, char *name, Uint16 override )
+                            Uint8 iskin, Uint16 facing, char *name, Uint16 override )
 {
   // ZZ> This function spawns a character and returns the character's index number
   //     if it worked, MAXCHR otherwise
 
   int ichr, tnc;
-  FILE * filewrite;
 
   AI_STATE * pstate;
   CHR  * pchr;
   CAP  * pcap;
   MAD  * pmad;
-
-  // open file for debug info logging
-  if( CData.DevMode ) filewrite = fs_fileOpen( PRI_NONE, NULL, CData.debug_file, "a" );
 
   // Make sure the team is valid
   if ( team >= TEAM_COUNT ) team %= TEAM_COUNT;
@@ -271,12 +267,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Get a new character
   if ( !pmad->used )
   {
-    if(CData.DevMode)
-    {
-      fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : model %d doesn't exist\n", profile );
-      fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : model %d doesn't exist\n", profile );
-      fs_fileClose( filewrite );
-    }
+    log_debug( "WARNING: spawn_one_character() - failed to spawn : model %d doesn't exist\n", profile );
     return MAXCHR;
   }
 
@@ -302,12 +293,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-      if(CData.DevMode)
-      {
-        fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : cannot find override index %d\n", override );
-        fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : cannot find override index %d\n", override );
-        fs_fileClose( filewrite );
-      }
+      log_debug( "WARNING: spawn_one_character() - failed to spawn : cannot find override index %d\n", override );
       return MAXCHR;
     }
   }
@@ -317,22 +303,12 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
     if ( MAXCHR == ichr )
     {
-      if(CData.DevMode)
-      {
-        fprintf( stderr, "spawn_one_character() - \n\tfailed to spawn : get_free_character() returned invalid value %d\n", ichr );
-        fprintf( filewrite, "WARNING: spawn_one_character() - failed to spawn : get_free_character() returned invalid value %d\n", ichr );
-        fs_fileClose( filewrite );
-      }
+      log_debug( "WARNING: spawn_one_character() - failed to spawn : get_free_character() returned invalid value %d\n", ichr );
       return MAXCHR;
     }
   }
 
-  if(CData.DevMode)
-  {
-    fprintf( stdout, "spawn_one_character() - \n\tprofile == %d, pcap->classname == \"%s\", index == %d\n", profile, pcap->classname, ichr );
-    fprintf( filewrite, "SUCCESS: spawn_one_character() - profile == %d, pcap->classname == \"%s\", index == %d\n", profile, pcap->classname, ichr );
-    fs_fileClose( filewrite );
-  }
+  log_debug( "spawn_one_character() - profile == %d, classname == \"%s\", index == %d\n", profile, pcap->classname, ichr );
 
   // "simplify" the notation
   pchr   = ChrList + ichr;
@@ -428,17 +404,17 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   // Skin
   if ( pcap->skinoverride != NOSKINOVERRIDE )
   {
-    skin = pcap->skinoverride % MAXSKIN;
+    iskin = pcap->skinoverride % MAXSKIN;
   }
-  if ( skin >= pmad->skins )
+  if ( iskin >= pmad->skins )
   {
-    skin = 0;
+    iskin = 0;
     if ( pmad->skins > 1 )
     {
-      skin = rand() % pmad->skins;
+      iskin = rand() % pmad->skins;
     }
   }
-  pchr->texture = pmad->skinstart + skin;
+  pchr->skin_ref = iskin;
 
   // Life and Mana
   pchr->alive = btrue;
@@ -459,13 +435,13 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
   pchr->dexterity_fp8 = generate_unsigned( &pcap->dexterity_fp8 );
 
   // Damage
-  pchr->defense_fp8 = pcap->defense_fp8[skin];
+  pchr->skin.defense_fp8 = pcap->skin[iskin].defense_fp8;
   pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
   pchr->damagetargettype = pcap->damagetargettype;
   tnc = 0;
   while ( tnc < MAXDAMAGETYPE )
   {
-    pchr->damagemodifier_fp8[tnc] = pcap->damagemodifier_fp8[tnc][skin];
+    pchr->skin.damagemodifier_fp8[tnc] = pcap->skin[iskin].damagemodifier_fp8[tnc];
     tnc++;
   }
 
@@ -496,7 +472,7 @@ CHR_REF spawn_one_character( vect3 pos, int profile, TEAM team,
 
   // Other junk
   pchr->flyheight = pcap->flyheight;
-  pchr->maxaccel = pcap->maxaccel[skin];
+  pchr->skin.maxaccel = pcap->skin[iskin].maxaccel;
   pchr->alpha_fp8 = pcap->alpha_fp8;
   pchr->light_fp8 = pcap->light_fp8;
   pchr->flashand = pcap->flashand;
@@ -734,7 +710,7 @@ void respawn_character( CHR_REF ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 change_armor( CHR_REF character, Uint16 skin )
+Uint16 change_armor( CHR_REF character, Uint16 iskin )
 {
   // ZZ> This function changes the armor of the character
   Uint16 enchant, sTmp;
@@ -755,19 +731,19 @@ Uint16 change_armor( CHR_REF character, Uint16 skin )
 
   // Change the skin
   sTmp = ChrList[character].model;
-  if ( skin > MadList[sTmp].skins )  skin = 0;
-  ChrList[character].texture = MadList[sTmp].skinstart + skin;
+  if ( iskin > MadList[sTmp].skins )  iskin = 0;
+  ChrList[character].skin_ref  = iskin;
 
 
   // Change stats associated with skin
-  ChrList[character].defense_fp8 = CapList[sTmp].defense_fp8[skin];
+  ChrList[character].skin.defense_fp8 = CapList[sTmp].skin[iskin].defense_fp8;
   iTmp = 0;
   while ( iTmp < MAXDAMAGETYPE )
   {
-    ChrList[character].damagemodifier_fp8[iTmp] = CapList[sTmp].damagemodifier_fp8[iTmp][skin];
+    ChrList[character].skin.damagemodifier_fp8[iTmp] = CapList[sTmp].skin[iskin].damagemodifier_fp8[iTmp];
     iTmp++;
   }
-  ChrList[character].maxaccel = CapList[sTmp].maxaccel[skin];
+  ChrList[character].skin.maxaccel = CapList[sTmp].skin[iskin].maxaccel;
 
 
   // Reset armor enchantments
@@ -784,7 +760,8 @@ Uint16 change_armor( CHR_REF character, Uint16 skin )
     add_enchant_value( enchant, ADDDEFENSE, EncList[enchant].eve );
     enchant = EncList[enchant].nextenchant;
   }
-  return skin;
+
+  return iskin;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1238,7 +1215,7 @@ Uint32 fget_damage_modifier( FILE * fileread )
 };
 
 //--------------------------------------------------------------------------------------------
-void load_one_enchant_profile( char* szLoadName, Uint16 profile )
+void load_one_eve( char * szObjectpath, char * szObjectname, Uint16 profile )
 {
   // ZZ> This function loads the enchantment associated with an object
   FILE* fileread;
@@ -1247,9 +1224,9 @@ void load_one_enchant_profile( char* szLoadName, Uint16 profile )
   int num;
   IDSZ idsz;
 
-  globalname = szLoadName;
+  globalname = szObjectname;
   EveList[profile].valid = bfalse;
-  fileread = fs_fileOpen( PRI_NONE, NULL, szLoadName, "r" );
+  fileread = fs_fileOpen( PRI_NONE, NULL, inherit_fname(szObjectpath, szObjectname, CData.enchant_file), "r" );
   if ( NULL == fileread ) return;
 
   // btrue/bfalse values
@@ -1505,35 +1482,35 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
         break;
 
       case SETSLASHMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_SLASH] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_SLASH] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETCRUSHMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_CRUSH] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_CRUSH] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETPOKEMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_POKE] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_POKE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETHOLYMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_HOLY] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_HOLY] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETEVILMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_EVIL] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_EVIL] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETFIREMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_FIRE] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_FIRE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETICEMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_ICE] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_ICE] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETZAPMODIFIER:
-        ChrList[character].damagemodifier_fp8[DAMAGE_ZAP] = EncList[enchantindex].setsave[valueindex];
+        ChrList[character].skin.damagemodifier_fp8[DAMAGE_ZAP] = EncList[enchantindex].setsave[valueindex];
         break;
 
       case SETFLASHINGAND:
@@ -1626,7 +1603,7 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
 
     case ADDACCEL:
       fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 1000.0;
-      ChrList[character].maxaccel -= fvaluetoadd;
+      ChrList[character].skin.maxaccel -= fvaluetoadd;
       break;
 
     case ADDRED:
@@ -1646,7 +1623,7 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
 
     case ADDDEFENSE:
       valuetoadd = EncList[enchantindex].addsave[valueindex];
-      ChrList[character].defense_fp8 -= valuetoadd;
+      ChrList[character].skin.defense_fp8 -= valuetoadd;
       break;
 
     case ADDMANA:

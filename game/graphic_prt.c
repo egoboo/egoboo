@@ -1015,7 +1015,7 @@ void render_particle_reflections()
   {
     if ( !VALID_PRT( cnt ) || !PrtList[cnt].inview || PrtList[cnt].size_fp8 == 0 ) continue;
 
-    if ( mesh_has_some_bits( PrtList[cnt].onwhichfan, MESHFX_SHINY ) )
+    if ( mesh_has_some_bits( PrtList[cnt].onwhichfan, MPDFX_SHINY ) )
     {
       level = PrtList[cnt].level;
       v[numparticle].pos.x = PrtList[cnt].pos.x;

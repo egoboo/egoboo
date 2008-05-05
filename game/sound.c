@@ -130,7 +130,14 @@ int play_sound( float intensity, vect3 pos, Mix_Chunk *loadedwave, int loops, in
 
   if( INVALID_CHANNEL == channel )
   {
-    log_warning( "All sound channels are currently in use. Sound is NOT playing - Object \"%s\" is trying to play sound%i.wav\n", CapList[ChrList[whichobject].model].classname, soundnumber );
+    if(whichobject < 0)
+    {
+      log_warning( "All sound channels are currently in use. Global sound %d NOT playing\n", -whichobject );
+    }
+    else
+    {
+      log_warning( "All sound channels are currently in use. Sound is NOT playing - Object \"%s\" is trying to play sound%i.wav\n", CapList[ChrList[whichobject].model].classname, soundnumber );
+    };
   }
   else
   {
@@ -153,7 +160,7 @@ void play_particle_sound( float intensity, PRT_REF particle, Sint8 sound )
   }
   else
   {
-    play_sound( intensity, PrtList[particle].pos, globalwave[sound], 0, PrtList[particle].model, sound );
+    play_sound( intensity, PrtList[particle].pos, globalwave[sound], 0, -sound, sound );
   };
 }
 
@@ -176,7 +183,7 @@ void load_global_waves( char *modname )
   if ( CData.soundvalid )
   {
     // load in the sounds local to this module
-    snprintf( tmploadname, sizeof( tmploadname ), "%s%s/", modname, CData.gamedat_dir );
+    snprintf( tmploadname, sizeof( tmploadname ), "%s%s" SLASH_STRING, modname, CData.gamedat_dir );
     for ( cnt = 0; cnt < MAXWAVE; cnt++ )
     {
       snprintf( newloadname, sizeof( newloadname ), "%ssound%d.wav", tmploadname, cnt );
@@ -186,25 +193,25 @@ void load_global_waves( char *modname )
     //These sounds are always standard, but DO NOT override sounds that were loaded local to this module
     if ( NULL == globalwave[GSOUND_COINGET] )
     {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinget_sound );
       globalwave[GSOUND_COINGET] = Mix_LoadWAV( CStringTmp1 );
     };
 
     if ( NULL == globalwave[GSOUND_DEFEND] )
     {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.defend_sound );
       globalwave[GSOUND_DEFEND] = Mix_LoadWAV( CStringTmp1 );
     }
 
     if ( NULL == globalwave[GSOUND_COINFALL] )
     {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.coinfall_sound );
       globalwave[GSOUND_COINFALL] = Mix_LoadWAV( CStringTmp1 );
     };
 
     if ( NULL == globalwave[GSOUND_LEVELUP] )
     {
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.globalparticles_dir, CData.lvlup_sound );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.globalparticles_dir, CData.lvlup_sound );
       globalwave[GSOUND_LEVELUP] = Mix_LoadWAV( CStringTmp1 );
     };
   }
@@ -239,7 +246,7 @@ bool_t load_all_music_sounds()
   Uint8 cnt;
 
   //Open the playlist listing all music files
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.music_dir, CData.playlist_file );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.music_dir, CData.playlist_file );
   playlist = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
   if ( playlist == NULL )
   {
@@ -254,7 +261,7 @@ bool_t load_all_music_sounds()
     while ( cnt < MAXPLAYLISTLENGTH && !feof( playlist ) )
     {
       fget_next_string( playlist, songname, sizeof( songname ) );
-      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s/%s", CData.basicdat_dir, CData.music_dir, songname );
+      snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.music_dir, songname );
       instrumenttosound[cnt] = Mix_LoadMUS( CStringTmp1 );
       cnt++;
     }

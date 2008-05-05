@@ -3,20 +3,27 @@
 #include "egoboo_types.inl"
 
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
+#define NOOWNER             65535
 
 //Passages
-extern Uint32 numpassage;             // Number of passages in the module
-extern int    passtlx[MAXPASS];       // Passage positions
-extern int    passtly[MAXPASS];
-extern int    passbrx[MAXPASS];
-extern int    passbry[MAXPASS];
-extern int    passagemusic[MAXPASS];  //Music track appointed to the specific passage
-extern Uint32 passmask[MAXPASS];
-extern bool_t passopen[MAXPASS];   // Is the passage open?
-extern Uint16 passowner[MAXPASS];  // Who controls the passage?
+typedef struct passage_t
+{
+  IRect   area;            // Passage positions
+  int     music;           // Music track appointed to the specific passage
+  Uint32  mask;
+  bool_t  open;            // Is the passage open?
+  CHR_REF owner;           // Who controls the passage?
+} PASSAGE;
+
+extern Uint32  passage_count;             // Number of passages in the module
+extern PASSAGE PassList[MAXPASS];
+
+typedef struct shop_t
+{
+  Uint16 passage;  // The passage number
+  Uint16 owner;    // Who gets the gold?
+} SHOP;
 
 // For shops
-extern Uint16 numshoppassage;
-extern Uint16 shoppassage[MAXPASS];  // The passage number
-extern Uint16 shopowner[MAXPASS];    // Who gets the gold?
-#define NOOWNER 65535
+extern Uint16 shop_count;
+extern SHOP ShopList[MAXPASS];

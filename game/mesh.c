@@ -23,6 +23,7 @@
 #include "mesh.h"
 #include "Log.h"
 #include "char.h"
+#include "particle.h"
 
 #include "cartman.h"
 #include "egoboo_utility.h"
@@ -33,12 +34,17 @@ MESH_FAN    Mesh_Fan[MAXMESHFAN];
 MESH_TILE   Mesh_Tile[MAXTILETYPE];
 MESH_MEMORY Mesh_Mem;
 
+BUMPLIST bumplist = {bfalse, 0};
+
 Uint32  Mesh_Block_X[( MAXMESHSIZEY/4 ) +1];
 Uint32  Mesh_Fan_X[MAXMESHSIZEY];                         // Which fan to start a row with
 
 //--------------------------------------------------------------------------------------------
-bool_t allocate_bumplist(size_t blocks)
+bool_t allocate_bumplist(int blocks)
 {
+  bumplist.chr_list = calloc(MAXCHR, sizeof(BUMPLIST_NODE));
+  bumplist.prt_list = calloc(MAXPRT, sizeof(BUMPLIST_NODE));
+
   return bumplist_allocate( &bumplist, blocks );
 };
 
@@ -54,7 +60,7 @@ bool_t load_mesh( char *modname )
   int numvert, numfan;
   int vert, vrt;
 
-  snprintf( newloadname, sizeof( newloadname ), "%s%s/%s", modname, CData.gamedat_dir, CData.mesh_file );
+  snprintf( newloadname, sizeof( newloadname ), "%s%s" SLASH_STRING "%s", modname, CData.gamedat_dir, CData.mesh_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, newloadname, "rb" );
   if ( NULL == fileread ) return bfalse;
 
@@ -173,7 +179,7 @@ bool_t load_mesh( char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-#define TX_FUDGE 0.6f
+#define TX_FUDGE 0.5f
 
 bool_t load_mesh_fans()
 {
@@ -195,7 +201,7 @@ bool_t load_mesh_fans()
 
   // Open the file and go to it
   log_info("Loading fan types of the terrain... ");
-  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s/%s", CData.basicdat_dir, CData.fans_file );
+  snprintf( CStringTmp1, sizeof( CStringTmp1 ), "%s" SLASH_STRING "%s", CData.basicdat_dir, CData.fans_file );
   fileread = fs_fileOpen( PRI_NONE, NULL, CStringTmp1, "r" );
   if ( NULL == fileread )
   {
@@ -254,8 +260,8 @@ bool_t load_mesh_fans()
   {    
     for ( entry = 0; entry < Mesh_Cmd[cnt].vrt_count; entry++ )
     {
-      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].u * ( 32.0f - TX_FUDGE ) ) / 256.0f;
-      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].v * ( 32.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].u * ( 31.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE + Mesh_Cmd[cnt].tx[entry].v * ( 31.0f - TX_FUDGE ) ) / 256.0f;
     }
 
     // blank the unused values
@@ -271,8 +277,8 @@ bool_t load_mesh_fans()
   {
     for ( entry = 0; entry < Mesh_Cmd[cnt].vrt_count; entry++ )
     {
-      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].u * ( 64.0f - TX_FUDGE ) ) / 256.0f;
-      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].v * ( 64.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].u = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].u * ( 63.0f - TX_FUDGE ) ) / 256.0f;
+      Mesh_Cmd[cnt].tx[entry].v = ( TX_FUDGE  + Mesh_Cmd[cnt].tx[entry].v * ( 63.0f - TX_FUDGE ) ) / 256.0f;
     }
 
     // blank the unused values
@@ -330,8 +336,8 @@ void make_twist()
 
     fy = y - 7;  // -7 to 8
     fx = x - 7;  // -7 to 8
-    maptwist_ud[cnt] = 32768 + fy * SLOPE;
-    maptwist_lr[cnt] = 32768 + fx * SLOPE;
+    twist_table[cnt].ud = 32768 + fy * SLOPE;
+    twist_table[cnt].lr = 32768 + fx * SLOPE;
 
     ftmp = fx * fx + fy * fy;
     if ( ftmp > 121.0f )
@@ -351,11 +357,12 @@ void make_twist()
     xslide = fx;
     yslide = fy;
 
-    mapnrm[cnt].x = fx;
-    mapnrm[cnt].y = -fy;
-    mapnrm[cnt].z = fz;
+    twist_table[cnt].nrm.x =  fx;
+    twist_table[cnt].nrm.y = -fy;
+    twist_table[cnt].nrm.z =  fz;
+    twist_table[cnt].nrm = Normalize(twist_table[cnt].nrm);
 
-    maptwistflat[cnt] = fz > ( 1.0 - SLIDEFIX );
+    twist_table[cnt].flat = fz > ( 1.0 - SLIDEFIX );
   }
 }
 
@@ -372,9 +379,7 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
     normal.y = 0.0f;
     normal.z = MESH_FAN_TO_FLOAT( 1 );
 
-    position.x =
-      position.y =
-        position.z = 0.0f;
+    VectorClear( position.v );
   }
   else
   {
@@ -382,9 +387,7 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
     float z0, z1, z2, z3;
     int vrtstart = Mesh_Fan[fan].vrt_start;
 
-    position.x = 0;
-    position.y = 0;
-    position.z = 0;
+    VectorClear( position.v );
     for ( cnt = 0; cnt < 4; cnt++ )
     {
       position.x += Mesh_Mem.vrt_x[vrtstart + cnt];
@@ -396,10 +399,10 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
     position.z /= 4.0f;
 
     dx = 1;
-    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 1] ) dx *= -1;
+    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 1] ) dx = -1;
 
     dy = 1;
-    if ( Mesh_Mem.vrt_x[vrtstart + 0] > Mesh_Mem.vrt_x[vrtstart + 3] ) dy *= -1;
+    if ( Mesh_Mem.vrt_y[vrtstart + 0] > Mesh_Mem.vrt_y[vrtstart + 3] ) dy = -1;
 
     z0 = Mesh_Mem.vrt_z[vrtstart + 0];
     z1 = Mesh_Mem.vrt_z[vrtstart + 1];
@@ -407,8 +410,8 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
     z3 = Mesh_Mem.vrt_z[vrtstart + 3];
 
     // find the derivatives of the height function used to find level
-    dzdx = 0.5 * ( z1 - z0 + z2 - z3 );
-    dzdy = 0.5 * ( z3 - z0 + z2 - z1 );
+    dzdx = 0.5f * ( z1 - z0 + z2 - z3 );
+    dzdy = 0.5f * ( z3 - z0 + z2 - z1 );
 
     // use these to compute the normal
     normal.x = -dy * dzdx;
@@ -430,7 +433,7 @@ bool_t mesh_calc_normal_fan( int fan, vect3 * pnrm, vect3 * ppos )
 
   if ( NULL != pnrm )
   {
-    *pnrm = normal;
+    *pnrm = Normalize(normal);
   };
 
   if ( NULL != ppos )
@@ -496,7 +499,6 @@ bool_t mesh_calc_normal_pos( int fan, vect3 pos, vect3 * pnrm )
       normal.z *= -1.0f;
     };
 
-    normal = Normalize( normal );
   };
 
 
@@ -505,7 +507,7 @@ bool_t mesh_calc_normal_pos( int fan, vect3 pos, vect3 * pnrm )
 
   if ( NULL != pnrm )
   {
-    *pnrm = normal;
+    *pnrm = Normalize(normal);
   };
 
   return retval;
@@ -576,7 +578,7 @@ bool_t mesh_calc_normal( vect3 pos, vect3 * pnrm )
 
   if ( NULL != pnrm )
   {
-    *pnrm = normal;
+    *pnrm = Normalize(normal);
   };
 
   return retval;
@@ -666,7 +668,7 @@ float mesh_get_level( Uint32 fan, float x, float y, bool_t waterwalk )
 
   if ( waterwalk )
   {
-    if ( GWater.surfacelevel > zdone && mesh_has_some_bits( fan, MESHFX_WATER ) && GWater.iswater )
+    if ( GWater.surfacelevel > zdone && mesh_has_some_bits( fan, MPDFX_WATER ) && GWater.iswater )
     {
       return GWater.surfacelevel;
     }
@@ -919,12 +921,18 @@ bool_t mesh_check( float x, float y )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits )
+Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bits, vect3 * nrm )
 {
   // ZZ> This function returns nonzero if <pos.x,pos.y> is in an invalid tile
 
+  vect3 loc_pos;
   int fan_x, fan_x_min, fan_x_max, fan_y, fan_y_min, fan_y_max;
   Uint32 fan, pass = 0;
+
+  if(NULL != nrm)
+  {
+    VectorClear(nrm->v);
+  }
 
   fan_x_min = ( pos.x - size_x < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x - size_x );
   fan_x_max = ( pos.x + size_x < 0 ) ? 0 : MESH_FLOAT_TO_FAN( pos.x + size_x );
@@ -936,13 +944,42 @@ Uint32 mesh_hitawall( vect3 pos, float size_x, float size_y, Uint32 collision_bi
   {
     for ( fan_y = fan_y_min; fan_y <= fan_y_max; fan_y++ )
     {
-      pos.x = MESH_FAN_TO_INT( fan_x ) + ( 1 << 6 );
-      pos.y = MESH_FAN_TO_INT( fan_y ) + ( 1 << 6 );
+      Uint32 bits;
+      float  level, lerp;
 
-      fan = mesh_get_fan( pos );
-      if ( INVALID_FAN != fan ) pass |= Mesh_Fan[ fan ].fx;
+      loc_pos.x = MESH_FAN_TO_INT( fan_x ) + ( 1 << 6 );
+      loc_pos.y = MESH_FAN_TO_INT( fan_y ) + ( 1 << 6 );
+      loc_pos.z = pos.z;
+
+      fan = mesh_get_fan( loc_pos );
+      if ( INVALID_FAN != fan ) 
+      {
+        bits = Mesh_Fan[ fan ].fx;
+        pass |= bits;
+
+        if(0 != (bits & collision_bits) && NULL != nrm)
+        {
+          //level = mesh_get_level(fan, loc_pos.x, loc_pos.y, bfalse);
+
+          //lerp = (level + PLATTOLERANCE - loc_pos.z) / PLATTOLERANCE;
+          //lerp = CLIP(lerp, 0, 1);
+
+          //if(lerp>0)
+          {
+            lerp = 1.0f;
+            nrm->x += lerp * twist_table[ Mesh_Fan[ fan ].twist ].nrm.x;
+            nrm->y += lerp * twist_table[ Mesh_Fan[ fan ].twist ].nrm.y;
+            nrm->z += lerp * twist_table[ Mesh_Fan[ fan ].twist ].nrm.z;
+          }
+        }
+      }
     };
   };
+
+  if(0 != (pass & collision_bits) && NULL != nrm)
+  {
+    *nrm = Normalize(*nrm);
+  }
 
   return pass & collision_bits;
 }
@@ -1022,4 +1059,197 @@ Uint8 mesh_get_twist( int fan )
   }
 
   return retval;
+};
+
+//--------------------------------------------------------------------------------------------
+BUMPLIST * bumplist_new(BUMPLIST * b)
+{
+  if(NULL == b) return NULL;
+
+  memset(b, 0, sizeof(BUMPLIST));
+
+  return b;
+};
+
+//--------------------------------------------------------------------------------------------
+void bumplist_delete(BUMPLIST * b)
+{
+  if(NULL == b) return;
+
+  b->valid = bfalse;
+
+  if(0 == b->num_blocks) return;
+
+  b->num_blocks = 0;
+
+  FREE(b->num_chr);
+  FREE(b->chr);
+
+  FREE(b->num_prt);
+  FREE(b->prt);
+}
+
+//--------------------------------------------------------------------------------------------
+BUMPLIST * bumplist_renew(BUMPLIST * b)
+{
+  if(NULL == b) return NULL;
+
+  bumplist_delete(b);
+  return bumplist_new(b);
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t bumplist_allocate(BUMPLIST * b, int size)
+{
+  if(NULL == b) return bfalse;
+
+  if(size <= 0)
+  {
+    bumplist_renew(b);
+  }
+  else
+  {
+    b->num_chr = calloc(size, sizeof(Uint16));
+    b->chr     = calloc(size, sizeof(Uint16));
+
+    b->num_prt = calloc(size, sizeof(Uint16));
+    b->prt     = calloc(size, sizeof(Uint16));
+
+    if(NULL != b->num_chr && NULL != b->chr && NULL != b->num_prt && NULL != b->prt)
+    {
+      b->valid      = btrue;
+      b->num_blocks = size;
+    }
+  }
+
+  return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t bumplist_insert_chr(BUMPLIST * b, Uint32 block, CHR_REF chr_ref)
+{
+  // BB > insert a character into the bumplist at fanblock.
+
+  if(NULL == b || !b->valid) return bfalse;
+
+  b->chr_list[chr_ref].ref  = chr_ref;
+  b->chr_list[chr_ref].next = b->chr[block];
+
+  b->chr[block] = chr_ref;
+  b->num_chr[block]++;
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t bumplist_insert_prt(BUMPLIST * b, Uint32 block, PRT_REF prt_ref)
+{
+  // BB > insert a particle into the bumplist at fanblock.
+
+  if(NULL == b || !b->valid) return bfalse;
+
+  b->prt_list[prt_ref].ref  = prt_ref;
+  b->prt_list[prt_ref].next = b->prt[block];
+
+  b->prt[block] = prt_ref;
+  b->num_prt[block]++;
+
+  return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+CHR_REF bumplist_get_next_chr( BUMPLIST * b, CHR_REF chr_ref )
+{
+  Uint32  nodenext;
+  CHR_REF bumpnext;
+
+  if(NULL == b || !b->valid) return MAXPRT;
+
+  nodenext = b->chr_list[chr_ref].next;
+  bumpnext = b->chr_list[nodenext].ref;
+
+  // scan until we find the next valid particle
+  while( MAXPRT != nodenext && !VALID_PRT(bumpnext) )
+  {
+    nodenext = b->chr_list[bumpnext].next;
+    bumpnext = b->chr_list[nodenext].ref;
+  }
+
+  return bumpnext;
+};
+
+//--------------------------------------------------------------------------------------------
+PRT_REF bumplist_get_next_prt( BUMPLIST * b, PRT_REF prt_ref )
+{
+  Uint32  nodenext;
+  PRT_REF bumpnext;
+
+  if(NULL == b || !b->valid) return MAXPRT;
+
+  nodenext = b->prt_list[prt_ref].next;
+  bumpnext = b->prt_list[nodenext].ref;
+
+  // scan until we find the next valid particle
+  while( MAXPRT != nodenext && !VALID_PRT(bumpnext) )
+  {
+    nodenext = b->prt_list[bumpnext].next;
+    bumpnext = b->prt_list[nodenext].ref;
+  }
+
+  return bumpnext;
+
+};
+
+//--------------------------------------------------------------------------------------------
+CHR_REF    bumplist_get_chr_head(BUMPLIST * b, Uint32 block)
+{
+  if(NULL == b || !b->valid) return MAXCHR;
+  if(block > b->num_blocks)  return MAXCHR;
+
+  return b->chr[block];
+};
+
+//--------------------------------------------------------------------------------------------
+PRT_REF    bumplist_get_prt_head(BUMPLIST * b, Uint32 block)
+{
+  if(NULL == b || !b->valid) return MAXPRT;
+  if(block > b->num_blocks)  return MAXPRT;
+
+  return b->prt[block];
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t bumplist_clear( BUMPLIST * b )
+{
+  Uint32 cnt;
+
+  if(NULL == b || !b->valid) return bfalse;
+  if( 0 == b->num_blocks)    return btrue;
+
+  for ( cnt = 0; cnt < b->num_blocks; cnt++ )
+  {
+    b->valid        = bfalse;
+
+    b->num_chr[cnt] = 0;
+    b->chr[cnt]     = MAXCHR;
+
+    b->num_prt[cnt] = 0;
+    b->prt[cnt]     = MAXPRT;
+  }
+
+  for ( cnt = 0; cnt < MAXCHR; cnt++ )
+  {
+    b->chr_list[cnt].next = MAXCHR;
+    b->chr_list[cnt].ref  = cnt;
+  }
+
+  for ( cnt = 0; cnt < MAXPRT; cnt++ )
+  {
+    b->prt_list[cnt].next = MAXCHR;
+    b->prt_list[cnt].ref  = cnt;
+  }
+
+  return btrue;
+
 };

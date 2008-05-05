@@ -271,13 +271,11 @@ EXTERN bool_t                    somelocalpladead;            // Has someone die
 EXTERN bool_t                    alllocalpladead;            // Has everyone died?
 EXTERN bool_t                    respawnvalid;               // Can players respawn with Spacebar?
 EXTERN bool_t                    respawnanytime;             // True if it's a small level...
-EXTERN bool_t                    importvalid;                // Can it import?
 EXTERN bool_t                    exportvalid;                // Can it export?
 EXTERN bool_t                    nolocalplayers;             // Are there any local players?
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
 
 #define DELAY_TURN 16
-EXTERN int                     importamount;               // Number of imports for this module
 EXTERN int                     playeramount;               //
 EXTERN Uint32                  seed  EQ( 0 );              // The module seed
 EXTERN char                    pickedmodule[64];           // The module load name
@@ -287,9 +285,10 @@ EXTERN int                     playersloaded;              //
 
 //Networking
 EXTERN int                     localmachine  EQ( 0 );         // 0 is host, 1 is 1st remote, 2 is 2nd...
-EXTERN int                     numimport;                  // Number of imports from this machine
-EXTERN Uint8                   localcontrol[16];           // For local imports
-EXTERN short                   localslot[16];              // For local imports
+
+EXTERN int                     localplayer_count;                  // Number of imports from this machine
+EXTERN Uint8                   localplayer_control[16];           // For local imports
+EXTERN short                   localplayer_slot[16];              // For local imports
 
 // EWWWW. GLOBALS ARE EVIL.
 
@@ -379,7 +378,8 @@ typedef enum tx_type_e
   TX_TILE_3,
   TX_WATER_TOP,
   TX_WATER_LOW,
-  TX_PHONG
+  TX_PHONG,
+  TX_LAST
 } TX_TYPE;
 
 EXTERN  GLtexture       TxTexture[MAXTEXTURE];        /* All textures */
@@ -456,10 +456,15 @@ EXTERN Uint8                   lightdirectionlookup[UINT16_SIZE];// For lighting
 #define BUFFER_SIZE     (4 * MEG)
 EXTERN Uint8             cLoadBuffer[BUFFER_SIZE];         // Where to put an MD2
 
-EXTERN Uint32       maptwist_lr[256];           // For surface normal of mesh
-EXTERN Uint32       maptwist_ud[256];           //
-EXTERN vect3        mapnrm[256];                // For sliding down steep hills
-EXTERN bool_t       maptwistflat[256];          //
+typedef struct twist_entry_t
+{
+  Uint32       lr;           // For surface normal of mesh
+  Uint32       ud;           //
+  vect3        nrm;          // For sliding down steep hills
+  bool_t       flat;         //
+} TWIST_ENTRY;
+
+EXTERN TWIST_ENTRY twist_table[256];
 
 typedef enum order_t
 {
@@ -696,8 +701,8 @@ typedef struct configurable_data_t
   STRING money5_file;
   STRING money25_file;
   STRING money100_file;
-  STRING weather4_file;
-  STRING weather5_file;
+  STRING weather1_file;
+  STRING weather2_file;
   STRING script_file;
   STRING ripple_file;
   STRING scancode_file;
