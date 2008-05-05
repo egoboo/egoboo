@@ -45,7 +45,7 @@ static int selectedPlayer = 0;
 static int selectedModule = 0;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-const char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion 2.6.0";
+const char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion 2.6.1";
 static int copyrightLeft = 0;
 static int copyrightTop  = 0;
 

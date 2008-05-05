@@ -743,9 +743,45 @@ unsigned char run_function(unsigned int value, int character)
             if(chraigotoadd[character]>MAXWAY)  chraigotoadd[character]=MAXWAY-1;
             break;
         case FFINDPATH:
-            // This function adds enough waypoints to get from one point to another
-            // !!!BAD!!!
-            break;
+			//Yep this is it
+			if(chrmodel[chraitarget[character]] != character)
+			  {
+				if(valuetmpdistance != MOVE_FOLLOW)
+				{
+					valuetmpx = chrxpos[chraitarget[ chrmodel[chraitarget[character]] ]];
+					valuetmpy = chrypos[chraitarget[ chrmodel[chraitarget[character]] ]];
+				}
+				else
+				{
+					valuetmpx = (rand() & 1023) - 512 + chrxpos[chraitarget[ chrmodel[chraitarget[character]] ]];
+					valuetmpy = (rand() & 1023) - 512 + chrypos[chraitarget[ chrmodel[chraitarget[character]] ]];
+				}
+				if(valuetmpdistance == MOVE_RETREAT) valuetmpturn = (rand() & 32767) + valuetmpturn + 16384;
+				else
+				{
+				    valuetmpturn = atan2(chrypos[chraitarget[character]]-chrypos[character], chrxpos[chraitarget[character]]-chrxpos[character])*65535/(2*PI);
+					valuetmpturn+=32768;
+					valuetmpturn = valuetmpturn&65535;
+				}
+				if(valuetmpdistance == MOVE_CHARGE || MOVE_RETREAT) reset_character_accel( character ); //Force 100% speed
+
+				//Secondly we run the Compass function (If we are not in follow mode)
+				if(valuetmpdistance != MOVE_FOLLOW)
+				{
+					sTmp = (valuetmpturn+16384);
+					valuetmpx = valuetmpx-turntosin[sTmp>>2]*valuetmpdistance;
+					valuetmpy = valuetmpy-turntosin[valuetmpturn>>2]*valuetmpdistance;
+    			}
+
+				//Then we add the waypoint(s), without clearing existing ones...
+				chraigotox[character][chraigotoadd[character]] = valuetmpx;
+				chraigotoy[character][chraigotoadd[character]] = valuetmpy;
+				chraigotoadd[character]++;
+				if ( chraigotoadd[character] > MAXWAY )  chraigotoadd[character] = MAXWAY - 1;
+			  }
+
+			break;
+
         case FCOMPASS:
             // This function changes tmpx and tmpy in a circlular manner according
             // to tmpturn and tmpdistance
@@ -3058,6 +3094,14 @@ unsigned char run_function(unsigned int value, int character)
             //This function dazes the target for a duration equal to tmpargument
             chrdazetime[chraitarget[character]]+=valuetmpargument;
 			break;
+		case FENABLERESPAWN:
+		  // This function turns respawn with JUMP button on
+		  respawnvalid = btrue;
+		  break;
+		case FDISABLERESPAWN:
+		  // This function turns respawn with JUMP button off
+		  respawnvalid = bfalse;
+		  break;
     }
 
 

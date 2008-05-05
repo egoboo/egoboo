@@ -61,7 +61,7 @@ typedef struct {
 #define EQ(x)
 #endif
 
-EXTERN char					VERSION[] EQ("2.6.0");  // Version of the game
+EXTERN char					VERSION[] EQ("2.6.1");  // Version of the game
 #define PI                  3.1415929               //
 EXTERN bool_t				gamepaused EQ(bfalse);	//Is the game paused?
 
@@ -217,8 +217,8 @@ EXTERN int wraptolerance  EQ(80);					// Status bar
 #define JUMPATTACKVEL       -2                      //
 #define WATERJUMP           12                      //
 
-#define MAXSTOR             8                       // Storage data
-#define STORAND             7                       //
+#define MAXSTOR             16                       // Storage data
+#define STORAND             15                       //
 
 #define MAXWAY              8                       // Waypoints
 #define WAYTHRESH           128                     // Threshold for reaching waypoint
@@ -1620,6 +1620,13 @@ EXTERN unsigned short          capsectionstart[MAXMODEL][MAXSECTION];  //
 EXTERN char                    namingnames[MAXCAPNAMESIZE];// The name returned by the function
 
 
+//These are for FindPath function only
+#define   MOVE_MELEE	300
+#define   MOVE_RANGED	600
+#define   MOVE_DISTANCE 175
+#define   MOVE_RETREAT	900
+#define   MOVE_CHARGE	111
+#define   MOVE_FOLLOW	0
 
 // These are for the AI script loading/parsing routines
 extern int                     iNumAis;
@@ -1991,6 +1998,8 @@ extern int                     iNumAis;
 #define FDONOTHING                          331 // Scripted AI functions (v0.95)
 #define FGROGTARGET                         332 //
 #define FDAZETARGET                         333 //
+#define FENABLERESPAWN                      334 //
+#define FDISABLERESPAWN                     335 //
 
 #define OPADD 0								// +
 #define OPSUB 1								// -

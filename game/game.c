@@ -27,7 +27,6 @@
 #include "Log.h"
 #include <SDL_endian.h>
 
-
 #define INITGUID
 #define NAME "Boo"
 #define TITLE "Boo"
