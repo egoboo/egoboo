@@ -58,6 +58,7 @@ void insert_space(int position)
             cTmp=cSwap;
             position++;
         }
+        cLineBuffer[position] = 0; // or cTmp as cTmp == 0
     }
 }
 
@@ -93,7 +94,7 @@ int load_one_line(int read)
     // Parse to start to maintain indentation
     iLineSize = 0;
     stillgoing = btrue;
-    while(stillgoing)
+    while(stillgoing && read < iLoadSize)
     {
         cTmp = cLoadBuffer[read];
         stillgoing = bfalse;
@@ -109,7 +110,7 @@ int load_one_line(int read)
     // Parse to comment or end of line
     foundtext = bfalse;
     stillgoing = btrue;
-    while(stillgoing)
+    while(stillgoing && read < iLoadSize)
     {
         cTmp = cLoadBuffer[read];  read++;
         if(cTmp=='\t')
@@ -125,7 +126,11 @@ int load_one_line(int read)
         if(cTmp == '/' && cLoadBuffer[read] == '/')
             stillgoing=bfalse;
     }
-    iLineSize--;  cLineBuffer[iLineSize]=0;
+    if (stillgoing == bfalse)
+        iLineSize--;
+    
+    cLineBuffer[iLineSize]=0;
+    
     if(iLineSize>=1)
     {
         if(cLineBuffer[iLineSize-1]==' ')
@@ -170,7 +175,8 @@ int load_parsed_line(int read)
         cLineBuffer[iLineSize]=cTmp;  iLineSize++;
         read++;  cTmp = cLoadBuffer[read];
     }
-    cLineBuffer[iLineSize]=0;  iLineSize++; read++;
+    cLineBuffer[iLineSize]=0;
+    read++; // skip terminating zero for next call of load_parsed_line()
     return read;
 }
 
@@ -315,7 +321,7 @@ int tell_code(int read)
 
     // Skip spaces
     cTmp=cLineBuffer[read];
-    while(cTmp==' ' || cTmp==0)
+    while(cTmp==' ')
     {
         read++;
         cTmp=cLineBuffer[read];

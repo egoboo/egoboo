@@ -442,14 +442,15 @@ unsigned char goto_colon_yesno(FILE* fileread)
     //     bfalse if there are no more
     char cTmp;
 
-    fscanf(fileread, "%c", &cTmp);
-    while(cTmp != ':')
+    do
     {
         if(fscanf(fileread, "%c", &cTmp)==EOF)
         {
             return bfalse;
         }
     }
+    while(cTmp != ':');
+    
     return btrue;
 }
 
@@ -2271,6 +2272,21 @@ void rip_md2_commands(unsigned short modelindex)
     madcommands[modelindex] = iCommandCount;
 }
 
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+float LoadFloatByteswapped( float *ptr )
+{
+  union {
+    float f;
+    int i;
+  } u;
+
+  u.f = *ptr;
+  u.i = SDL_Swap32(u.i);
+
+  return u.f;
+}
+#endif
+
 //---------------------------------------------------------------------------------------------
 int rip_md2_frame_name(int frame)
 {
@@ -3455,7 +3471,7 @@ void update_timers()
     lstclock = allclock;
     allclock = SDL_GetTicks()-sttclock;
     fpsclock+=allclock-lstclock;
-    if(fpsclock >= CLOCKS_PER_SEC)
+    if(fpsclock >= TICKS_PER_SEC)
     {
         create_szfpstext(fpsframe);
         fpsclock = 0;

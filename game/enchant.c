@@ -522,7 +522,7 @@ void tilt_characters_to_terrain()
     cnt = 0;
     while(cnt < MAXCHR)
     {
-        if(chrstickybutt[cnt]&&chron[cnt])
+        if(chrstickybutt[cnt] && chron[cnt] && chronwhichfan[cnt] != OFFEDGE)
         {
             twist = meshtwist[chronwhichfan[cnt]];
             chrturnmaplr[cnt] = maplrtwist[twist];

@@ -23,6 +23,11 @@
 #include "egoboo.h"
 #include "Log.h"
 
+#ifdef __unix__
+#include <unistd.h>
+#define min(a,b) ( ((a)<(b))? (a):(b) )
+#endif
+
 // Defined in egoboo.h
 SDL_Surface *displaySurface = NULL;
 bool_t	gTextureOn = bfalse;
@@ -1123,6 +1128,22 @@ int load_one_object(int skin, char* tmploadname)
     //printf(" DIAG: load object model\n");
     // Load the object model
     make_newloadname(tmploadname, "tris.md2", newloadname);
+
+#ifdef __unix__
+    // unix is case sensitive, but sometimes this file is called tris.MD2
+    if (access(newloadname, R_OK))
+    {
+        make_newloadname(tmploadname, "tris.MD2", newloadname);
+        // still no luck !
+        if (access(newloadname, R_OK))
+        {
+            fprintf(stderr, "ERROR: cannot open: %s\n", newloadname);
+            SDL_Quit ();
+            exit(1);
+        }
+    }
+#endif
+        
     load_one_md2(newloadname, object);
 	md2_models[object] = md2_loadFromFile(newloadname);
 
@@ -1298,7 +1319,7 @@ void load_all_objects(char *modname)
 
     // Log all of the script errors
     //printf(" DIAG: opening ParseErr\n");
-    globalparseerr = fopen("basicdat/ParseErr.txt", "w");
+    globalparseerr = fopen("ParseErr.txt", "w");
 	parseerror = bfalse;
     fprintf(globalparseerr, "This file documents typos found in the AI scripts...\n");
 
@@ -4037,7 +4058,7 @@ void load_all_menu_images()
     strcpy(searchname, "modules/*.mod");
 
     // Log a directory list
-    filesave = fopen("basicdat/modules.txt", "w");
+    filesave = fopen("modules.txt", "w");
 	if ( filesave != NULL )
 	{
 		fprintf(filesave, "This file logs all of the modules found\n");
@@ -4329,6 +4350,14 @@ void sdlinit(int argc, char **argv)
 	}
 	
 	atexit(SDL_Quit);
+
+#ifdef __unix__
+	/* GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
+	   will cause SDL_SetVideoMode to fail with:
+	   Unable to set video mode: Couldn't find matching GLX visual */
+	if (scrd == 32)
+		scrd = 24;
+#endif
 
 	colordepth=scrd/3;
 

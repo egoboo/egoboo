@@ -410,12 +410,11 @@ EXTERN int rotmeshdown;                                    //
 #define PRTSOLIDSPRITE                  1           // Sprite particle
 #define PRTALPHASPRITE                  2           // Smoke particle
 
-#ifndef CLOCK_PER_SEC
-#define CLOCKS_PER_SEC          1000        // Windows ticks 1000 times per second
-#endif
+/* SDL_GetTicks() always returns milli seconds */
+#define TICKS_PER_SEC                   1000
 
-#define FRAMESKIP                       CLOCKS_PER_SEC/50 //20          // 1000/20 = 50 game updates per second
-#define ONESECOND                       (CLOCKS_PER_SEC/FRAMESKIP)
+#define FRAMESKIP                       TICKS_PER_SEC/50 //20          // 1000/20 = 50 game updates per second
+#define ONESECOND                       (TICKS_PER_SEC/FRAMESKIP)
 #define STOPBOUNCING                    0.1 //1.0         // To make objects stop bouncing
 #define STOPBOUNCINGPART                5.0         // To make particles stop bouncing
 
@@ -1612,7 +1611,7 @@ EXTERN float md2normals[MD2LIGHTINDICES][3];
 
 // This is for random naming
 EXTERN unsigned short          numchop  EQ(0);                // The number of name parts
-EXTERN unsigned short          chopwrite  EQ(0);              // The data pointer
+EXTERN unsigned int            chopwrite  EQ(0);              // The data pointer
 EXTERN char                    chopdata[CHOPDATACHUNK];    // The name parts
 EXTERN unsigned short          chopstart[MAXCHOP];         // The first character of each part
 EXTERN unsigned short          capsectionsize[MAXMODEL][MAXSECTION];   // Number of choices, 0
@@ -1662,7 +1661,7 @@ extern int                     iNumAis;
 #define ALERTIFTHROWN                       268435456   // 28
 #define ALERTIFCRUSHED                      536870912   // 29
 #define ALERTIFNOTPUTAWAY                   1073741824  // 30
-#define ALERTIFTAKENOUT                     2147483648  // 31
+#define ALERTIFTAKENOUT                     2147483648u // 31
 
 #define FIFSPAWNED                          0   // Scripted AI functions (v0.10)
 #define FIFTIMEOUT                          1   //

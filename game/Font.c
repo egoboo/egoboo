@@ -28,6 +28,10 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
+#ifdef __unix__
+#define max(a,b) ( ((a)>(b))? (a):(b) )
+#endif
+
 struct Font
 {
 	TTF_Font *ttfFont;
