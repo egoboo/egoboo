@@ -45,7 +45,7 @@ static int selectedPlayer = 0;
 static int selectedModule = 0;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-const char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion 2.6.1";
+const char copyrightText[] = "Welcome to Egoboo!\nhttp://egoboo.sourceforge.net\nVersion 2.6.1b";
 static int copyrightLeft = 0;
 static int copyrightTop  = 0;
 
@@ -961,7 +961,7 @@ int doAudioOptions(float deltaTime)
 		{
 			switch(maxsoundchannel)
 			{
-				case 32:
+				case 128:
 					maxsoundchannel = 8;
 				break;
 
@@ -975,6 +975,14 @@ int doAudioOptions(float deltaTime)
 
 				case 24:
 					maxsoundchannel = 32;
+				break;
+
+				case 32:
+					maxsoundchannel = 64;
+				break;
+
+				case 64:
+					maxsoundchannel = 128;
 				break;
 
 				default:

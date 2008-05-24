@@ -61,7 +61,7 @@ typedef struct {
 #define EQ(x)
 #endif
 
-EXTERN char					VERSION[] EQ("2.6.1");  // Version of the game
+EXTERN char					VERSION[] EQ("2.6.1b");  // Version of the game
 #define PI                  3.1415929               //
 EXTERN bool_t				gamepaused EQ(bfalse);	//Is the game paused?
 
@@ -2335,8 +2335,12 @@ EXTERN unsigned short globalnearest;
 EXTERN float globaldistance;
 
 #define ABS(X)  (((X) > 0) ? (X) : -(X))
+
+#ifdef __unix__
 #define min(x, y)  (((x) > (y)) ? (y) : (x))
 #define max(x, y)  (((x) > (y)) ? (x) : (y))
+#endif
+
 
 // SDL specific declarations
 EXTERN SDL_Joystick *sdljoya EQ(NULL);

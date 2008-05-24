@@ -3737,7 +3737,7 @@ void stat_return()
         {
             if(chron[cnt]&&(!chrinpack[cnt])&&chralive[cnt])
             {
-                chrmana[cnt]+=chrmanareturn[cnt];
+                chrmana[cnt]+=chrmanareturn[cnt] >> MANARETURNSHIFT;
                 if(chrmana[cnt] < 0)
                     chrmana[cnt] = 0;
                 if(chrmana[cnt] > chrmanamax[cnt])
@@ -4094,7 +4094,7 @@ void export_one_character_profile(char *szSaveName, unsigned short character)
         fpairof(filewrite, "Life up        : ", caplifeperlevelbase[profile], caplifeperlevelrand[profile]);
         fprintf(filewrite, "Mana           : %4.2f\n", chrmanamax[character]/256.0);
         fpairof(filewrite, "Mana up        : ", capmanaperlevelbase[profile], capmanaperlevelrand[profile]);
-        fprintf(filewrite, "Mana return    : %4.2f\n", chrmanareturn[character]/16.0);
+        fprintf(filewrite, "Mana return    : %4.2f\n", chrmanareturn[character]/256.0);
         fpairof(filewrite, "Mana return up : ", capmanareturnperlevelbase[profile], capmanareturnperlevelrand[profile]);
         fprintf(filewrite, "Mana flow      : %4.2f\n", chrmanaflow[character]/256.0);
         fpairof(filewrite, "Mana flow up   : ", capmanaflowperlevelbase[profile], capmanaflowperlevelrand[profile]);

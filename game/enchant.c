@@ -675,7 +675,7 @@ int spawn_one_character(float x, float y, float z, int profile, unsigned char te
             chrlifereturn[cnt] = caplifereturn[profile];
             chrmanamax[cnt] = generate_number(capmanabase[profile], capmanarand[profile]);
             chrmanaflow[cnt] = generate_number(capmanaflowbase[profile], capmanaflowrand[profile]);
-            chrmanareturn[cnt] = generate_number(capmanareturnbase[profile], capmanareturnrand[profile])>>MANARETURNSHIFT;
+            chrmanareturn[cnt] = generate_number(capmanareturnbase[profile], capmanareturnrand[profile]);
             chrmana[cnt] = chrmanamax[cnt];
             // SWID
             chrstrength[cnt] = generate_number(capstrengthbase[profile], capstrengthrand[profile]);

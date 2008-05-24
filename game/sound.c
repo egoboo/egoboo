@@ -102,7 +102,11 @@ void load_all_music_sounds()
 
 	//Open the playlist listing all music files
 	playlist = fopen("basicdat/music/playlist.txt", "r");
-	if (playlist == NULL) log_warning("Error opening playlist.txt");
+	if (playlist == NULL) 
+	{
+		log_warning("Error opening playlist.txt\n");
+		return;
+	}
 
     // Load the music data into memory
     if(musicvalid && !musicinmemory)

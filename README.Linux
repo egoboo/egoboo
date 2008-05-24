@@ -18,8 +18,8 @@ Step 4: Compile the source.
 * make -f Makefile.unix
 
 Step 5: Install Egoboo as root. Type:
-* sudo make -f Makefile.unix (Ubuntu)
-* su -c 'make -f Makefile.unix' (Debian)
+* sudo make -f Makefile.unix install (Ubuntu)
+* su -c 'make -f Makefile.unix install' (Debian)
 
 Step 6: Get and untar the data.
 * Get the egoboo-data-<version>.tar.gz
