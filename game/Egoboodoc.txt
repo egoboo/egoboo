@@ -1,0 +1,537 @@
+TEXTURES
+--------
+
+    BASIC TEXTURES, THAT MUST EXIST WITH GIVEN NAMES (INCLUDING DIRECTORIES)
+    ------------------------------------------------------------------------
+
+    Following the description as in Code: 
+    Routine "load_basic_textures"
+
+    Textures for the particle system:
+    txTexture[0]: "basicdat/particle.bmp"		
+
+    Textures for walls and bottom: 		
+    txTexture[1]: "[module]/gamedat/tile0.bmp"
+    txTexture[2]: "[module]/gamedat/tile1.bmp"
+    txTexture[3]: "[module]/gamedat/tile2.bmp"
+    txTexture[4]: "[module]/gamedat/tile3.bmp"
+
+    Water textures:
+    txTexture[5]: "[module]/gamedat/watertop.bmp"
+    txTexture[6]: "[module]/gamedat/waterlow.bmp 
+
+    Phong map:
+    txTexture[7]: "[module]/gamedat/phong.bmp"
+
+
+THE MESH
+--------
+The mesh is a description of the whole maze. The maximum size is 64 by 64 tiles. 
+A tile in EGOBOO is called a "FAN".
+
+The type of the file is controlled by the first four bytes. 
+Must be MAPID 0x4470614d // The string... "MapD"
+
+
+Limits:
+    MAXMESHFAN                      (512*512)   // terrain mesh size 
+    MAXMESHSIZEY                    1024        // Max fans in y direction
+
+    BYTESFOREACHVERTEX              14          // 14 bytes each
+    MAXMESHVERTICES                 16          // Fansquare vertices
+    MAXMESHTYPE                     64          // Number of fansquare command types
+    MAXMESHCOMMAND                  4           // Draw up to 4 fans
+    MAXMESHCOMMANDENTRIES           32          // Fansquare command list size
+    MAXMESHCOMMANDSIZE              32          // Max trigs in each command
+    MAXTILETYPE                     256         // Max number of tile images
+    MAXMESHRENDER                   1024        // Max number of tiles to draw
+    FANOFF                          0xffff      // Don't draw the fansquare if tile = this
+    OFFEDGE                         0           // Character not on a fan ( maybe )
+
+ 
+    The mesh is loaded from file "[module]/gamedat/level.mpd" with 
+    the Routine "load_mesh(char *modname)" 
+
+    Variables used:
+    unsigned int    numfanblock = 0;		     	// Number of collision areas
+    unsigned short  meshbumplistchr[MAXMESHFAN/16];   	// For character collisions
+    unsigned short  meshbumplistchrnum[MAXMESHFAN/16];  // Number on the block
+    unsigned short  meshbumplistprt[MAXMESHFAN/16];     // For particle collisions
+    unsigned short  meshbumplistprtnum[MAXMESHFAN/16];  // Number on the block
+    unsigned char   meshexploremode = FALSE;            // Explore mode?
+    int             maxtotalmeshvertices  = (256*256*6);// Max number of vertices
+    int             meshsizex;                          // Size in fansquares
+    int             meshsizey;                          //
+    float           meshedgex;                          // Limits of mesh  !!!BAD!!!
+    float           meshedgey;                          //
+    unsigned short  meshlasttexture;                    // Last texture used
+    unsigned char   meshtype[MAXMESHFAN];               // Command type
+    unsigned char   meshfx[MAXMESHFAN];                 // Special effects flags
+    unsigned char   meshtwist[MAXMESHFAN];              //
+    unsigned char   meshinrenderlist[MAXMESHFAN];       // Display fan? yes/no
+    unsigned short  meshtile[MAXMESHFAN];               // Get texture from this
+    unsigned int    meshvrtstart[MAXMESHFAN];           // Which vertex to start at
+    unsigned int    meshblockstart[(MAXMESHSIZEY/4)+1]; 
+    unsigned int    meshfanstart[MAXMESHSIZEY];         // Which fan to start a row with
+
+Format of Mapfile:
+    Bytes  0 .. 3:    	Must be MAPID 0x4470614d // The string... "MapD"
+    Bytes  4 .. 7:    	numvert: INT Number of Vertices
+    Bytes  8 .. 11:	meshsizex: Mesh size in x-direction
+    Bytes  12 .. 15: 	meshsizey: Mesh size in y-direction
+
+    // int numfan  = meshsizex*meshsizey
+   
+    First Step:
+    	Numfan times:
+        Load meshtype data
+    	Read INT into itmp
+        Split this into this values:
+            meshtype[fan] = itmp >> 24;
+	    meshfx[fan]   = itmp >> 16;
+	    meshtile[fan] = itmp & 0xFFFF;  
+
+    Second Step: 
+        Load fan data	
+	Numfan times:
+    	Read UNSIGNED CHAR into ctmp
+        meshtwist[fan] = ctmp
+
+    Third Step:
+        Load vertex x data
+        Numvert times:
+        read FLOAT into ftmp
+	meshvrtx[cnt] = ftmp
+
+    Fourth Step:
+	Load vertex y data
+        Numvert times:
+	read FLOAT into ftmp
+	meshvrty[cnt] = ftmp
+ 
+    Fifth step:
+	Load vertex z data  
+	Numvert times:
+	read FLOAT into ftmp
+        meshvrtz[cnt] = ftmp / 16.0;  // Cartman uses 4 bit fixed point for Z  	
+
+    Sixth Step:
+	Get vertex lighting data. 
+	Numvert times:
+	If fullbright:
+	    Just set the maximum value
+	        meshvrta[cnt] = 255;
+	        meshvrtl[cnt] = 255;
+	Otherwise: 	
+	    Read UNSIGNED CHAR into ctmp
+	    meshvrta[cnt] = ctmp;
+	    meshvrtl[cnt] = 0;
+        
+    Seventh Step:
+    After the map is read, there is some more work to do:
+    make_fanstart();
+	Build a look up table to ease calculating the
+        fan number given an x,y pair
+
+        For cnt = 0 .. meshsizey: 
+            meshfanstart[cnt] = meshsizex * cnt
+                    
+        For cnt = 0 .. (meshsizey >> 2):
+            meshblockstart[cnt] = (meshsizex >> 2) * cnt
+	        
+    Calculate the display vertices for the mesh:  
+       for meshsizey
+    	   for meshsizex	
+	       fan = meshfanstart[y]+x;
+	       meshvrtstart[fan] = vert;	
+	       vert+=meshcommandnumvertices[meshtype[fan]];
+
+    Additional needed data:
+	meshedgex   = meshsizex*128;
+    	meshedgey   = meshsizey*128;   
+        numfanblock = ((meshsizex>>2))*((meshsizey>>2));  // MESHSIZEX MUST BE MULTIPLE OF 4 
+        watershift = 3;
+    	if(meshsizex > 16)  watershift = 4;
+        if(meshsizex > 32)  watershift = 5;
+        if(meshsizex > 64)  watershift = 6;
+        if(meshsizex > 128)  watershift = 7;
+        if(meshsizex > 256)  watershift = 8;
+ 
+
+RENDERING A FAN
+---------------
+Fan means a tile in the maze.
+
+Used Data:
+    DATA FOR MESH FANS
+Additional:
+    meshlasttexture
+
+Vertex is a value from 0-15, for the meshcommandref/u/v variables
+Badvertex is a value that references the actual vertex number
+
+
+RENDER A WATER FAN
+------------------
+
+Rendered with "render_water_fan"
+
+Used Data:
+waterlayeru[layer];
+waterlayerv[layer];
+waterlayerframe[layer];
+waterlayerzadd[layer];
+waterlayerz[layer];
+waterlayercolor[layer]
+waterlayeralpha[layer]
+
+
+Setting up the textureoffset for moving textures:
+Stored in
+    textureoffset[cnt];
+
+
+DATA FOR MESH FANS
+------------------
+
+Loaded by "load__mesh_fans"
+DATA in "FANS.TXT"
+
+USED VARIABLES
+unsigned char   meshcommands[MAXMESHTYPE];                          // Number of commands
+unsigned char   meshcommandsize[MAXMESHTYPE][MAXMESHCOMMAND];       // Entries in each command
+unsigned short  meshcommandvrt[MAXMESHTYPE][MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
+unsigned char   meshcommandnumvertices[MAXMESHTYPE];                // Number of vertices
+float           meshcommandu[MAXMESHTYPE][MAXMESHVERTICES];         // Vertex texture position
+float           meshcommandv[MAXMESHTYPE][MAXMESHVERTICES];         //
+float           meshtileoffu[MAXTILETYPE];                          // Tile texture offset
+float           meshtileoffv[MAXTILETYPE];
+
+start of bigfantype at (MAXMESHTYPE/2)
+
+As Struct:
+struct {
+   unsigned char   count;	 		// Number of commands
+   unsigned char   size[MAXMESHCOMMAND];	// Entries in each command
+   unsigned short  vrt[MAXMESHCOMMANDENTRIES];	// Fansquare vertex list
+   unsigned char   numvertices;                 // Number of vertices
+   float u[MAXMESHVERTICES];			// SMALL FANTYPE, BIG FANTYPE
+   float v[MAXMESHVERTICES];                    // Vertex texture position
+} meshcommand[MAXMESHTYPE];
+
+struct {
+    float offu;                          // Tile texture offset
+    float offv;	
+} meshtile[MAXTILETYPE];
+
+	// Number of Fan Types: 26
+	numfantype: 26
+
+Init:
+	fantype = 0;
+        bigfantype = MAXMESHTYPE/2
+
+       	FANTYPE 	0	// Two Faced Ground...
+       	// Vertices: 4
+       	numvertices:  4              // numvertices[fantype] / numvertices[bigfantype]
+       	// Ref: 0    U: 0.00    V: 0.00
+       	meshcommandu: 0.00, 1.00, 1.00, 0.00  // meshcommandu[fantype][cnt] = ftmp;
+				              // meshcommandu[bigfantype][cnt] = ftmp 
+       	meshcommandv: 0.00, 0.00, 1.00, 1.00  // meshcommandv[fantype][cnt] = ftmp;
+				              // meshcommandv[bigfantype][cnt] = ftmp 
+       	// Commands 1:
+       	count: 1
+       	// Command Size: 4
+       	size: 4
+       	vtrt: 1, 2, 3, 0 //  meshcommandsize[fantype][command] = commandsize;
+                	 // meshcommandsize[bigfantype][command] = commandsize;  // Dupe
+
+       	FANTYPE 1	//  Two Faced Ground...
+       	numvertices: 4
+       	meshcommandu: 0.00, 1.00, 1.00, 0.00
+       	meshcommandv: 0.00, 0.00, 1.00, 1.00
+       	count: 1
+       	size:  4
+       	vrt:   0, 1, 2, 3
+
+       	FANTYPE 2	// Four Faced Ground...
+       	numvertices: 5
+       	meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.50
+       	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.50
+       	count: 1
+       	size:  6
+       	vrt:   4, 3, 0, 1, 2, 3
+
+	FANTYPE 3  	// Eight Faced Ground...
+	numvertices: 9
+	meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.50, 1.00, 0.50, 0.00, 0.50
+	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.50, 1.00, 0.50, 0.50
+	count: 1
+	size:  10
+	vrt:   8, 3, 7, 0, 4, 1, 5, 2, 6, 3
+
+        FANTYPE 4  	// Ten Face Pillar...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 0.66, 0.33
+	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.33, 0.66, 0.66
+        count: 2
+        size:  8
+        vrt:   7, 3, 0, 4, 5, 6, 2, 3
+        size:  6
+        vrt:   5, 4, 0, 1, 2, 6
+
+	FANTYPE 5	// Eighteen Faced Pillar...
+        numvertices:  16
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 1.00, 1.00,
+        	      0.66, 0.33, 0.00, 0.00, 0.33, 0.66, 0.66,  0.33
+	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.33, 0.66,
+                      1.00, 1.00, 0.66, 0.33, 0.33, 0.33, 0.66, 0.66
+        count: 4
+        size:  10
+        vrt:   15, 3, 10, 11, 12, 13, 14, 8, 9, 3
+        size:  8
+        vrt:   13, 12, 4, 5, 1, 6, 7, 14
+        size:  4
+        vrt:   12, 11, 0, 4
+        size:  4
+        vrt:   14, 7, 2, 8
+
+        FANTYPE 6  	// Blank...
+        numvertices: 0
+        count: 0
+
+        FANTYPE 7  	// Blank...
+        numvertices: 0
+        count: 0
+
+        FANTYPE 8	// Six Faced Wall (WE)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 0.00, 0.00
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.66, 0.66, 0.33
+        count: 2
+        size:  6
+        vrt:   5, 2, 3, 6, 7, 4
+        size:  4
+        vrt:   4, 7, 0, 1
+
+	FANTYPE 9	//  Six Faced Wall (NS)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 0.00, 0.00
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.66, 0.66, 0.33
+        count: 2
+        size:  6
+        vrt:   7, 3, 0, 4, 5, 6
+        size:  4
+        vrt:   6, 5, 1, 2
+
+	FANTYPE 10	// Blank...
+        numvertices: 0
+        count: 0
+
+	FANTYPE 11	// Blank...
+        numvertices: 0
+        count: 0
+
+	FANTYPE 12	// Eight Faced Wall (W)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.66, 0.66
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.66, 0.33, 0.33, 0.66
+        count: 2
+        size:  8
+        vrt:   7, 3, 4, 5, 6, 1, 2, 3
+        size:  4
+        vrt:   1, 6, 5, 0
+
+	FANTYPE 13	// Eight Faced Wall (N)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 0.66, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.66, 0.66
+        count: 2
+        size:  8
+        vrt:   7, 3, 0, 4, 5, 6, 2, 3
+        size:  4
+        vrt:   2, 6, 5, 1
+
+	FANTYPE 14      // Eight Faced Wall (E)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 0.33, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.66, 0.33, 0.66
+        count: 2
+        size:  8
+        vrt:   6, 3, 0, 1, 4, 5, 7, 3
+        size:  4
+        vrt:   3, 7, 5, 2
+
+	FANTYPE 15	//   Eight Faced Wall (S)...
+        numvertices: 8
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.66, 0.33, 0.33, 0.66
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 1.00, 1.00, 0.33, 0.33
+        count: 2
+        size:  8
+        vrt:   7, 5, 6, 0, 1, 2, 4, 5
+        size:  4
+        vrt:   0, 6, 5, 3
+
+	FANTYPE 16	//  Ten Faced Wall (WS)...
+        numvertices: 10
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.66, 0.33, 0.00, 0.00, 0.66, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 1.00, 1.00, 0.66, 0.33, 0.33, 0.66
+        count: 2
+        size:  8
+        vrt:   9, 3, 6, 7, 8, 4, 5, 3
+        size:  6
+        vrt:   8, 7, 0, 1, 2, 4
+
+	FANTYPE 17	//   Ten Faced Wall (NW)...
+        numvertices: 10
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 0.00, 0.00, 0.33, 0.66
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.66, 0.33, 0.33, 0.66
+        count: 2
+        size:  8
+        vrt:   8, 6, 7, 0, 4, 5, 9, 6
+        size:  6
+        vrt:   9, 5, 1, 2, 3, 6
+
+        FANTYPE 18	//  Ten Faced Wall (NE)...
+        numvertices: 10
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 1.00, 1.00, 0.66, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.33, 0.66, 0.33, 0.66
+	count: 2
+        size:  8
+        vrt:   8, 9, 4, 5, 1, 6, 7, 9
+        size:  6
+        vrt:   9, 7, 2, 3, 0, 4
+
+	FANTYPE 19	//  Ten Faced Wall (ES)...
+        numvertices: 10
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 0.66, 0.33, 0.33, 0.66
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.66, 1.00, 1.00, 0.33, 0.66
+        count: 2
+        size:  8
+        vrt:   9, 7, 8, 4, 5, 2, 6, 7
+        size:  6
+        vrt:   8, 7, 3, 0, 1, 4
+
+        FANTYPE 20	//   Twelve Faced Wall (WSE)...
+        numvertices: 12
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 0.66, 0.33,
+                      0.00, 0.00, 0.66, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.33, 0.66, 1.00, 1.00,
+                      0.66, 0.33, 0.66, 0.66
+        count: 3
+        size:  9
+        vrt:   11, 3, 8, 9, 4, 10, 6, 7, 3
+        size:  5
+        vrt:   10, 4, 5, 2, 6
+        size:  4
+        vrt:   4, 9, 0, 1
+
+        FANTYPE 21	//  Twelve Faced Wall (NWS)...
+        numvertices: 12
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 0.66, 0.33,
+                      0.00, 0.00, 0.33, 0.33
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 1.00, 1.00,
+                      0.66, 0.33, 0.33, 0.66
+	count: 3
+        size:  9
+        vrt:   10, 8, 9, 0, 4, 5, 6, 11, 8
+        size:  5
+        vrt:   11, 6, 7, 3, 8
+        size:  4
+        vrt:   6, 5, 1, 2
+
+	FANTYPE 22	//   Twelve Faced Wall (ENW)...
+        numvertices: 12
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 1.00, 1.00,
+                      0.00, 0.00, 0.33, 0.66
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.33, 0.66,
+                      0.66, 0.33, 0.33, 0.33
+	count: 3
+        size:  9
+        vrt:   11, 8, 10, 4, 5, 1, 6, 7, 8
+        size:  5
+        vrt:   10, 8, 9, 0, 4
+        size:  4
+        vrt:   8, 7, 2, 3
+
+	FANTYPE 23	//   Twelve Faced Wall (SEN)...
+        numvertices: 12
+        meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.33, 0.66, 1.00, 1.00, 0.66, 0.33, 0.66, 0.66 
+        meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.33, 0.66, 1.00, 1.00, 0.33, 0.66
+        count: 3
+        size:  9
+        vrt:  11, 9, 4, 10, 6, 7, 2, 8, 9
+	size:  5
+	vrt:  10, 4, 5, 1, 6
+	size:  4
+	vrt:   4, 9, 3, 0
+
+        FANTYPE 24  	// Twelve Faced Stair (WE)...
+	numvertices: 14
+	meshcommandu: 0.00, 1.00, 1.00, 0.00, 0.16, 0.33, 0.50, 0.66,
+		      0.83, 0.83, 0.66, 0.50, 0.33, 0.16	
+	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.00, 0.00, 0.00, 0.00,
+		      0.00, 1.00, 1.00, 1.00, 1.00, 1.00 	
+        count: 3
+	size:  6
+	vrt:   13, 3, 0, 4, 5, 12
+	size:  6
+        vrt:   11, 12, 5, 6, 7, 10
+	size:  6
+	vrt:   9, 10, 7, 8, 1, 2
+
+	FANTYPE 25	//   Twelve Faced Stair (NS)...
+	numvertices: 14
+	meshcommandu: 0.00, 1.00, 1.00, 0.00, 1.00, 1.00, 1.00, 1.00,
+		      1.00, 0.00, 0.00, 0.00, 0.00, 0.00
+	meshcommandv: 0.00, 0.00, 1.00, 1.00, 0.16, 0.33, 0.50, 0.66,
+		      0.83, 0.83, 0.66, 0.50, 0.33, 0.16	
+	count: 3
+        size:  6
+        vrt:   13, 0, 1, 4, 5, 12
+ 	size:  6
+	vrt:   11, 12, 5, 6, 7, 10
+	size:  6
+	vrt:   9, 10, 7, 8, 2, 3
+
+    The texture positions will be corrected after loading for seamless tiling.  
+    With the following code:
+
+    entry = 0;
+    while(entry < MAXMESHTYPE/2)
+    {
+        cnt = 0;
+        while(cnt < meshcommandnumvertices[entry])
+        {
+            meshcommandu[entry][cnt] = ((.6/32)+(meshcommandu[entry][cnt]*30.8/32))/8;
+            meshcommandv[entry][cnt] = ((.6/32)+(meshcommandv[entry][cnt]*30.8/32))/8;
+            cnt++;
+        }
+        entry++;
+    }
+    // Do for big tiles too
+    while(entry < MAXMESHTYPE)
+    {
+        cnt = 0;
+        while(cnt < meshcommandnumvertices[entry])
+        {
+            meshcommandu[entry][cnt] = ((.6/64)+(meshcommandu[entry][cnt]*62.8/64))/4;
+            meshcommandv[entry][cnt] = ((.6/64)+(meshcommandv[entry][cnt]*62.8/64))/4;
+            cnt++;
+        }
+        entry++;
+    }
+
+    And as last step, the tile texture offsets are generated:	
+    
+    entry = 0;
+    while(entry < MAXTILETYPE) {
+        offx = (entry &  7) / 8.0;
+        offy = (entry >> 3) / 8.0;
+        meshtileoffu[entry] = offx;
+        meshtileoffv[entry] = offy;
+        entry++;
+    }
+
+
+

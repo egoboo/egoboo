@@ -1,0 +1,41 @@
+How to compile and install egoboo on Debian/Ubuntu Linux.
+(This should work on other linux systems, but the packages (if any) might be different)
+
+Step 1: Make sure you have these packages, and if you don't install them:
+* libsdl-image1.2-dev
+* libsdl-mixer1.2-dev
+* libsdl1.2-dev
+* libsdl-ttf2.0-dev
+* build-essential
+
+Step 2: Untar the source code.
+* Either use a graphical interface or type: tar -xzf egoboo-<version>.tar.gz
+
+Step 3: Open a console (or terminal) and cd to the game directory in the main egoboo folder.
+* cd ~/egoboo-<version>/game (Assuming that the directory is in your home folder)
+
+Step 4: Compile the source.
+* make -f Makefile.unix
+
+Step 5: Install Egoboo. Type:
+* make -f Makefile.unix install
+
+Step 6: Get and untar the data.
+* Get the egoboo-data-<version>.tar.gz
+* Untar it using a graphical interface or using 'tar -xzf egoboo-data-<version>.tar.gz
+
+Step 7: Install the data.
+* cd egoboo-data-<version>
+* mkdir ~/.local/share/egoboo
+* cp -r * ~/.local/share/egoboo
+* exit
+
+Step 8: Create a menu item. (Optional)
+** TODO!
+
+Step 9: Start Egoboo! (Mandatory!)
+* Either use your menu item or type '~/.local/bin/egoboo'.
+* Enjoy!
+
+If you experience problems, please ask in the Egoboo Fourms at
+http://egoboo.sourceforge.com/forum/. Thank you. 
