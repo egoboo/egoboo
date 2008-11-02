@@ -1,0 +1,486 @@
+# depslib dependency file v1.0
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\client.c
+	"Client.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\client.h
+
+1225657486 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\clock.c
+	"proto.h"
+	"Clock.h"
+	"Log.h"
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+
+1225657675 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\proto.h
+	"egobootypedef.h"
+	<SDL_mixer.h>
+
+1225656890 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\egobootypedef.h
+	<SDL.h>
+	<SDL_endian.h>
+
+1199076516 c:\sdks\sdl\include\sdl.h
+	"SDL_main.h"
+	"SDL_stdinc.h"
+	"SDL_audio.h"
+	"SDL_cdrom.h"
+	"SDL_cpuinfo.h"
+	"SDL_endian.h"
+	"SDL_error.h"
+	"SDL_events.h"
+	"SDL_loadso.h"
+	"SDL_mutex.h"
+	"SDL_rwops.h"
+	"SDL_thread.h"
+	"SDL_timer.h"
+	"SDL_video.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_main.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_stdinc.h
+	"SDL_config.h"
+	<sys/types.h>
+	<stdio.h>
+	<stdlib.h>
+	<stddef.h>
+	<stdarg.h>
+	<stdlib.h>
+	<malloc.h>
+	<stddef.h>
+	<stdarg.h>
+	<memory.h>
+	<string.h>
+	<strings.h>
+	<inttypes.h>
+	<stdint.h>
+	<ctype.h>
+	<iconv.h>
+	"begin_code.h"
+	<alloca.h>
+	<malloc.h>
+	<malloc.h>
+	<malloc.h>
+	<stdlib.h>
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_config.h
+	"SDL_platform.h"
+	"SDL_config_dreamcast.h"
+	"SDL_config_macos.h"
+	"SDL_config_macosx.h"
+	"SDL_config_symbian.h"
+	"SDL_config_win32.h"
+	"SDL_config_os2.h"
+	"SDL_config_minimal.h"
+
+1199076516 c:\sdks\sdl\include\sdl_platform.h
+
+1199076516 c:\sdks\sdl\include\sdl_config_dreamcast.h
+	"SDL_platform.h"
+
+1199076516 c:\sdks\sdl\include\sdl_config_macos.h
+	"SDL_platform.h"
+	<MacTypes.h>
+
+1199076516 c:\sdks\sdl\include\sdl_config_macosx.h
+	"SDL_platform.h"
+	<AvailabilityMacros.h>
+
+1199076516 c:\sdks\sdl\include\sdl_config_symbian.h
+	"SDL_platform.h"
+	<stdarg.h>
+	<stddef.h>
+
+1199076516 c:\sdks\sdl\include\sdl_config_win32.h
+	"SDL_platform.h"
+
+1199076516 c:\sdks\sdl\include\sdl_config_os2.h
+	"SDL_platform.h"
+
+1217689829 c:\sdks\sdl\include\sdl_config_minimal.h
+	"SDL_platform.h"
+	<stdarg.h>
+
+1199076516 c:\sdks\sdl\include\begin_code.h
+
+1199076516 c:\sdks\sdl\include\close_code.h
+
+1199076516 c:\sdks\sdl\include\sdl_audio.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_endian.h"
+	"SDL_mutex.h"
+	"SDL_thread.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_error.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_endian.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_mutex.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_thread.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_mutex.h"
+	"begin_code.h"
+	<process.h>
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_rwops.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_cdrom.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_cpuinfo.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_events.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_active.h"
+	"SDL_keyboard.h"
+	"SDL_mouse.h"
+	"SDL_joystick.h"
+	"SDL_quit.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_active.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_keyboard.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_keysym.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_keysym.h
+
+1199076516 c:\sdks\sdl\include\sdl_mouse.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_video.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_video.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"SDL_rwops.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_joystick.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_quit.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+
+1199076516 c:\sdks\sdl\include\sdl_loadso.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_version.h
+	"SDL_stdinc.h"
+	"begin_code.h"
+	"close_code.h"
+
+1184474021 c:\sdks\sdl_mixer\sdl_mixer.h
+	"SDL_types.h"
+	"SDL_rwops.h"
+	"SDL_audio.h"
+	"SDL_endian.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199076516 c:\sdks\sdl\include\sdl_types.h
+	"SDL_stdinc.h"
+
+1225657487 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\clock.h
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\log.h
+
+1211678038 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\font.c
+	"Font.h"
+	<stdlib.h>
+	<stddef.h>
+	<string.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<SDL_ttf.h>
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\font.h
+
+1199076516 c:\sdks\sdl\include\sdl_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
+
+1184475768 c:\sdks\sdl_ttf\sdl_ttf.h
+	"SDL.h"
+	"begin_code.h"
+	"close_code.h"
+
+1225656147 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\link.c
+	"Link.h"
+	"proto.h"
+	"egoboo.h"
+
+1225656147 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\link.h
+	"egobootypedef.h"
+
+1225657675 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\egoboo.h
+	"egobootypedef.h"
+	<stdlib.h>
+	<stdarg.h>
+	<stdio.h>
+	<string.h>
+	<fcntl.h>
+	<ctype.h>
+	<time.h>
+	<math.h>
+	<SDL_opengl.h>
+	"proto.h"
+	"gltexture.h"
+	"mathstuff.h"
+	"configfile.h"
+	"Md2.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\gltexture.h
+	<SDL.h>
+	<SDL_opengl.h>
+
+1225657487 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\mathstuff.h
+	<math.h>
+	"egobootypedef.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\configfile.h
+	"egobootypedef.h"
+	<stdio.h>
+	<stdlib.h>
+	"egoboostrutil.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\egoboostrutil.h
+	"egobootypedef.h"
+	<string.h>
+	<ctype.h>
+
+1210103836 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\md2.h
+
+1219357160 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\log.c
+	"Log.h"
+	<stdlib.h>
+	<stdio.h>
+	<stdarg.h>
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\md2.c
+	"Md2.h"
+	"egoboo.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\server.c
+	"Server.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\server.h
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\ui.c
+	"Ui.h"
+	<string.h>
+	<SDL_opengl.h>
+
+1225657487 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\ui.h
+	"Font.h"
+	"gltexture.h"
+	<SDL.h>
+
+1225657487 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\camera.c
+	"egoboo.h"
+
+1225657674 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\char.c
+	"egoboo.h"
+	"Log.h"
+
+1225652568 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\common-file.c
+	"egoboo.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\configfile.c
+	"configfile.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\egoboostrutil.c
+	"egoboostrutil.h"
+
+1225657675 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\enchant.c
+	"egoboo.h"
+
+1225657674 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\game.c
+	"egoboo.h"
+	"Clock.h"
+	"Link.h"
+	"Ui.h"
+	"Font.h"
+	"Log.h"
+	<SDL_endian.h>
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\gltexture.c
+	"egoboo.h"
+	"gltexture.h"
+
+1225657674 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\graphic.c
+	"egoboo.h"
+	"Log.h"
+	<unistd.h>
+
+1225657675 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\graphicfan.c
+	"egoboo.h"
+
+1225657674 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\graphicmad.c
+	"egoboo.h"
+	"Md2.h"
+	"id_md2.h"
+	<SDL_opengl.h>
+
+1225657728 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\id_md2.h
+
+1225657675 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\graphicprt.c
+	"egoboo.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\id_normals.c
+	"id_md2.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\input.c
+	"egoboo.h"
+	"Ui.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\mathstuff.c
+	"mathstuff.h"
+
+1225652929 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\menu.c
+	"egoboo.h"
+	"Ui.h"
+	"Menu.h"
+	"Log.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\menu.h
+
+1225652929 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\module.c
+	"egoboo.h"
+	"Log.h"
+
+1225655904 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\network.c
+	"egoboo.h"
+	"Log.h"
+	<enet/enet.h>
+	<stdio.h>
+	<stdarg.h>
+	<assert.h>
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\enet.h
+	<stdlib.h>
+	"enet/types.h"
+	"enet/protocol.h"
+	"enet/list.h"
+	"enet/win32.h"
+	"enet/unix.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\types.h
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\protocol.h
+	"enet/types.h"
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\list.h
+	<stdlib.h>
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\win32.h
+	<stdlib.h>
+	<winsock2.h>
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\enet\include\enet\unix.h
+	<stdlib.h>
+	<sys/types.h>
+	<netinet/in.h>
+
+1225652929 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\particle.c
+	"egoboo.h"
+	"Log.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\passage.c
+	"egoboo.h"
+
+1225653674 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\script.c
+	"egoboo.h"
+	"Log.h"
+	"Link.h"
+
+1225652929 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\sound.c
+	"egoboo.h"
+	"Log.h"
+
+1210014004 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\sys_win32.c
+	"proto.h"
+	"Log.h"
+	"System.h"
+	<windows.h>
+
+1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\system.h
+
+1225652568 source:d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\win-file.c
+	"egoboo.h"
+	"Log.h"
+	<windows.h>
+	<shlobj.h>
+	<shlwapi.h>
+

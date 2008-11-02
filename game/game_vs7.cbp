@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="game" />
+		<Option pch_mode="2" />
+		<Option compiler="msvctk" />
+		<Build>
+			<Target title="Debug Win32 - gcc">
+				<Option platforms="Windows;" />
+				<Option output="Debug\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug_gcc" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-DWIN32" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_CONSOLE" />
+					<Add directory="..\enet\include" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_mixer" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+					<Add directory="..\game" />
+				</Compiler>
+				<Linker>
+					<Add option="-pg -lgmon" />
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="..\enet\Debug" />
+					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
+					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
+					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
+					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32 - gcc">
+				<Option platforms="Windows;" />
+				<Option output="Release\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release_gcc" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-W" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_CONSOLE" />
+					<Add directory="..\enet\include" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_mixer" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+					<Add directory="..\game" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="SDL_image" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="Winmm" />
+					<Add library="shlwapi" />
+					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
+					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
+					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
+					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+					<Add directory="..\enet\Release" />
+				</Linker>
+			</Target>
+			<Target title="Debug Blah-nix">
+				<Option platforms="Unix;" />
+				<Option output="Debug\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug_nix" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_CONSOLE" />
+					<Add directory="\usr\include" />
+					<Add directory="\usr\include\SDL" />
+					<Add directory="$(SolutionDir)\enet\include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-pg" />
+					<Add library="libSDLmain" />
+					<Add library="libSDL" />
+					<Add library="libSDL_ttf" />
+					<Add library="libSDL_image" />
+					<Add library="libSDL_mixer" />
+					<Add library="libGL" />
+					<Add library="libGLU" />
+					<Add library="libenet" />
+					<Add directory="$(SolutionDir)\enet" />
+					<Add directory="\usr\lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Blah-nix">
+				<Option platforms="Unix;" />
+				<Option output="Release\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release_nix" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
+					<Add option="-pedantic" />
+					<Add option="-W" />
+					<Add option="-Wall" />
+					<Add option="-DNDEBUG" />
+					<Add directory="\usr\include" />
+					<Add directory="\usr\include\SDL" />
+					<Add directory="$(SolutionDir)\enet\include" />
+				</Compiler>
+				<Linker>
+					<Add library="libSDL" />
+					<Add library="libSDLmain" />
+					<Add library="libSDL_ttf" />
+					<Add library="libSDL_image" />
+					<Add library="libSDL_mixer" />
+					<Add library="libGL" />
+					<Add library="libGLU" />
+					<Add library="libenet" />
+					<Add directory="$(SolutionDir)\enet" />
+					<Add directory="\usr\lib" />
+				</Linker>
+			</Target>
+			<Target title="Debug OsX">
+				<Option platforms="Mac;" />
+				<Option output="Debug\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug_mac" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-pg" />
+					<Add option="-g" />
+					<Add option="-O0" />
+					<Add option="-D_DEBUG" />
+					<Add option="-D_CONSOLE" />
+					<Add directory="$(SolutionDir)\enet\include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(SolutionDir)\enet\include" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-pg" />
+				</Linker>
+			</Target>
+			<Target title="Release OsX">
+				<Option platforms="Mac;" />
+				<Option output="Release\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release_mac" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-Os" />
+					<Add option="-pedantic" />
+					<Add option="-W" />
+					<Add option="-Wall" />
+					<Add option="-DNDEBUG" />
+					<Add directory="$(SolutionDir)\enet\include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(SolutionDir)\enet\include" />
+				</ResourceCompiler>
+			</Target>
+			<Target title="Debug Win32 - msvc">
+				<Option platforms="Windows;" />
+				<Option output="Debug\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Debug_msvc" />
+				<Option type="1" />
+				<Option compiler="msvctk" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="/MDd" />
+					<Add option="/Gd" />
+					<Add option="/Od" />
+					<Add option="/Wp64" />
+					<Add option="/Wall" />
+					<Add option="/Zi /D_DEBUG" />
+					<Add option="/DWIN32" />
+					<Add option="/D_DEBUG" />
+					<Add option="/D_WINDOWS" />
+					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
+					<Add option="/D_CONSOLE" />
+					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_mixer" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+					<Add directory="$(SolutionDir)\game" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(SolutionDir)\res" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="/DEBUG" />
+					<Add option="-s" />
+					<Add option="-pg" />
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_image" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="shlwapi" />
+					<Add library="Winmm" />
+					<Add directory="..\enet\Debug" />
+					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
+					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
+					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
+					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32 - msvc">
+				<Option platforms="Windows;" />
+				<Option output="Release\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option object_output="Release" />
+				<Option type="0" />
+				<Option compiler="msvctk" />
+				<Compiler>
+					<Add option="/MD" />
+					<Add option="/Gd" />
+					<Add option="/GA" />
+					<Add option="/GL" />
+					<Add option="/arch:SSE2" />
+					<Add option="/G7" />
+					<Add option="/O2" />
+					<Add option="/Og" />
+					<Add option="/W1" />
+					<Add option="/DWIN32" />
+					<Add option="/DNDEBUG" />
+					<Add option="/D_WINDOWS" />
+					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
+					<Add option="/D_CONSOLE" />
+					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="C:\SDKs\SDL\include" />
+					<Add directory="C:\SDKs\SDL_image" />
+					<Add directory="C:\SDKs\SDL_mixer" />
+					<Add directory="C:\SDKs\SDL_ttf" />
+					<Add directory="$(SolutionDir)\game" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(SolutionDir)\res" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="SDLmain" />
+					<Add library="SDL" />
+					<Add library="SDL_ttf" />
+					<Add library="SDL_mixer" />
+					<Add library="SDL_image" />
+					<Add library="opengl32" />
+					<Add library="glu32" />
+					<Add library="ws2_32" />
+					<Add library="Winmm" />
+					<Add library="shlwapi" />
+					<Add directory="..\enet\Release" />
+					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
+					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
+					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
+					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Unit filename="Client.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Client.h" />
+		<Unit filename="Clock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Clock.h" />
+		<Unit filename="Font.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Font.h" />
+		<Unit filename="Link.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Link.h" />
+		<Unit filename="Log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Log.h" />
+		<Unit filename="Md2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Md2.h" />
+		<Unit filename="Menu.h" />
+		<Unit filename="Server.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Server.h" />
+		<Unit filename="System.h" />
+		<Unit filename="Task.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Ticker.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Timer.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Ui.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Ui.h" />
+		<Unit filename="camera.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="char.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="common-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="configfile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="configfile.h" />
+		<Unit filename="egoboo.h" />
+		<Unit filename="egoboostrutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboostrutil.h" />
+		<Unit filename="egobootypedef.h" />
+		<Unit filename="enchant.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="game.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gltexture.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gltexture.h" />
+		<Unit filename="graphic.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graphicfan.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graphicmad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="graphicprt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="id_md2.h" />
+		<Unit filename="id_normals.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="input.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="linux-file.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="linux-file_old.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="mathstuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="mathstuff.h" />
+		<Unit filename="menu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="module.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="network.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="particle.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="passage.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="proto.h" />
+		<Unit filename="script.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sound.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sys_linux.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="sys_win32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="win-file.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\res\egoboo.ico" />
+		<Unit filename="..\res\egoboo.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="Debug Win32 - msvc" />
+			<Option target="Release Win32 - msvc" />
+		</Unit>
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

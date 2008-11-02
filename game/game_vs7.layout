@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug Win32 - gcc" />
+	<File name="Client.c" open="0" top="0" tabpos="0">
+		<Cursor position="716" topLine="0" />
+	</File>
+	<File name="Clock.c" open="1" top="0" tabpos="21">
+		<Cursor position="4882" topLine="177" />
+	</File>
+	<File name="Clock.h" open="1" top="0" tabpos="22">
+		<Cursor position="1557" topLine="25" />
+	</File>
+	<File name="Link.c" open="1" top="0" tabpos="4">
+		<Cursor position="3063" topLine="96" />
+	</File>
+	<File name="Link.h" open="1" top="0" tabpos="5">
+		<Cursor position="355" topLine="0" />
+	</File>
+	<File name="Md2.h" open="1" top="0" tabpos="27">
+		<Cursor position="851" topLine="21" />
+	</File>
+	<File name="Ui.h" open="1" top="0" tabpos="23">
+		<Cursor position="987" topLine="15" />
+	</File>
+	<File name="camera.c" open="1" top="0" tabpos="14">
+		<Cursor position="8438" topLine="243" />
+	</File>
+	<File name="char.c" open="1" top="0" tabpos="3">
+		<Cursor position="167378" topLine="3978" />
+	</File>
+	<File name="egoboo.h" open="1" top="0" tabpos="15">
+		<Cursor position="136774" topLine="2284" />
+	</File>
+	<File name="egobootypedef.h" open="1" top="0" tabpos="1">
+		<Cursor position="861" topLine="18" />
+	</File>
+	<File name="enchant.c" open="1" top="0" tabpos="16">
+		<Cursor position="82716" topLine="2032" />
+	</File>
+	<File name="game.c" open="1" top="0" tabpos="7">
+		<Cursor position="118025" topLine="3823" />
+	</File>
+	<File name="graphic.c" open="1" top="0" tabpos="8">
+		<Cursor position="122554" topLine="3750" />
+	</File>
+	<File name="graphicfan.c" open="1" top="0" tabpos="24">
+		<Cursor position="7254" topLine="199" />
+	</File>
+	<File name="graphicmad.c" open="1" top="0" tabpos="9">
+		<Cursor position="31913" topLine="826" />
+	</File>
+	<File name="graphicprt.c" open="1" top="0" tabpos="13">
+		<Cursor position="1158" topLine="39" />
+	</File>
+	<File name="id_md2.h" open="1" top="1" tabpos="28">
+		<Cursor position="1352" topLine="46" />
+	</File>
+	<File name="mathstuff.c" open="1" top="0" tabpos="17">
+		<Cursor position="5349" topLine="152" />
+	</File>
+	<File name="mathstuff.h" open="1" top="0" tabpos="18">
+		<Cursor position="2048" topLine="43" />
+	</File>
+	<File name="menu.c" open="1" top="0" tabpos="12">
+		<Cursor position="57082" topLine="2181" />
+	</File>
+	<File name="module.c" open="1" top="0" tabpos="25">
+		<Cursor position="7980" topLine="227" />
+	</File>
+	<File name="network.c" open="1" top="0" tabpos="2">
+		<Cursor position="49934" topLine="1904" />
+	</File>
+	<File name="particle.c" open="1" top="0" tabpos="10">
+		<Cursor position="34794" topLine="947" />
+	</File>
+	<File name="passage.c" open="1" top="0" tabpos="19">
+		<Cursor position="17560" topLine="509" />
+	</File>
+	<File name="proto.h" open="1" top="0" tabpos="20">
+		<Cursor position="19463" topLine="460" />
+	</File>
+	<File name="script.c" open="1" top="0" tabpos="6">
+		<Cursor position="115849" topLine="3501" />
+	</File>
+	<File name="sound.c" open="1" top="0" tabpos="11">
+		<Cursor position="4728" topLine="132" />
+	</File>
+	<File name="sys_win32.c" open="1" top="0" tabpos="26">
+		<Cursor position="972" topLine="24" />
+	</File>
+	<File name="..\res\egoboo.rc" open="0" top="0" tabpos="4">
+		<Cursor position="0" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>
