@@ -28,8 +28,16 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
-#ifdef __unix__
-#define max(a,b) ( ((a)>(b))? (a):(b) )
+#ifndef ABS
+#define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
+
+#ifndef MIN
+#define MIN(x, y)  (((x) > (y)) ? (y) : (x))
+#endif
+
+#ifndef MAX
+#define MAX(x, y)  (((x) > (y)) ? (x) : (y))
 #endif
 
 struct Font

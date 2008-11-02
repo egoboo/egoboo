@@ -2352,11 +2352,16 @@ EXTERN unsigned int controliskey[MAXCONTROL];             // Is it a key?
 EXTERN unsigned short globalnearest;
 EXTERN float globaldistance;
 
+#ifndef ABS
 #define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
 
-#ifdef __unix__
-#define min(x, y)  (((x) > (y)) ? (y) : (x))
-#define max(x, y)  (((x) > (y)) ? (x) : (y))
+#ifndef MIN
+#define MIN(x, y)  (((x) > (y)) ? (y) : (x))
+#endif
+
+#ifndef MAX
+#define MAX(x, y)  (((x) > (y)) ? (x) : (y))
 #endif
 
 

@@ -28,8 +28,16 @@
 #define NET_DONE_SENDING_FILES 10009
 #define NET_NUM_FILES_TO_SEND  10010
 
-#ifdef __unix__
-#define max(a,b) ( ((a)>(b))? (a):(b) )
+#ifndef ABS
+#define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
+
+#ifndef MIN
+#define MIN(x, y)  (((x) > (y)) ? (y) : (x))
+#endif
+
+#ifndef MAX
+#define MAX(x, y)  (((x) > (y)) ? (x) : (y))
 #endif
 
 //--------------------------------------------------------------------------------------------
@@ -506,7 +514,7 @@ int doChooseModule(float deltaTime)
 		}
 
 		// Clamp startIndex to 0
-		startIndex = max(0, startIndex);
+		startIndex = MAX(0, startIndex);
 
 		// Draw buttons for the modules that can be selected
 		x = 93;

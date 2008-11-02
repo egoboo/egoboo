@@ -40,8 +40,6 @@
 #include <SDL.h>
 #include <SDL_endian.h>
 
-extern float LoadFloatByteswapped(float *ptr);
-
 typedef struct rect_t
 {
 	Sint32 left;
@@ -52,16 +50,31 @@ typedef struct rect_t
 
 typedef char bool_t;
 enum {
-	btrue = 1,
+	btrue = (1==1),
 	bfalse = (!btrue)
 };
 
-// Mac OS X doesn't seem to have max() defined, or at least I don't know
-// what header it's in.  So define it here.  The function's implemented
-// in mac-file.m, as it's the only Mac specific file at the moment.
-#ifndef max
-int max(int a, int b);
+// define a LoadFloatByteswapped() "function" to work on both big and little endian systems
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+     extern float LoadFloatByteswapped(float *ptr);
+#else
+#    define LoadFloatByteswapped( PTR ) (NULL == PTR ? 0 : *PTR)
 #endif
+
+// Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the 
+// fastest and most cross-platform solution
+#ifndef ABS
+#define ABS(X)  (((X) > 0) ? (X) : -(X))
+#endif
+
+#ifndef MIN
+#define MIN(x, y)  (((x) > (y)) ? (y) : (x))
+#endif
+
+#ifndef MAX
+#define MAX(x, y)  (((x) > (y)) ? (x) : (y))
+#endif
+
 
 #endif // include guard
 

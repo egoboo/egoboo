@@ -25,7 +25,7 @@
 
 #ifdef __unix__
 #include <unistd.h>
-#define min(a,b) ( ((a)<(b))? (a):(b) )
+#define MIN(a,b) ( ((a)<(b))? (a):(b) )
 #endif
 
 // Defined in egoboo.h
@@ -1428,7 +1428,7 @@ void load_map(char* szModule)
 	// Load the images
     sprintf(szMap, "%sgamedat/plan.bmp", szModule);
 	GLTexture_Load(&TxMap, szMap);
-	if (GLTexture_GetTextureID != INVALID_TX_ID) mapvalid = btrue;
+	if (GLTexture_GetTextureID(&TxMap) != INVALID_TX_ID) mapvalid = btrue;
 
     // Set up the rectangles
     maprect.left   = 0;
@@ -1880,7 +1880,7 @@ void render_foreground_overlay(unsigned short texture)
 	sinsize = turntosin[rotate]*size;
 	cossize = turntosin[(rotate+4096)&16383]*size;
 
-  loc_foregroundrepeat = foregroundrepeat * min(x/scrx, y/scrx) / 4.0;
+  loc_foregroundrepeat = foregroundrepeat * MIN(x/scrx, y/scrx) / 4.0;
   
 
   vtlist[0].x = x + cossize;

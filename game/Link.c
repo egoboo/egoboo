@@ -30,7 +30,7 @@ bool_t link_export_all()
     character = plaindex[cnt];
     if(!chron[character] || !chralive[character]) continue;
 
-    is_local == (0 != pladevice[cnt]);
+    is_local = (0 != pladevice[cnt]);
 
     // copy the values to the import values
     strcpy( loadplayerdir[tnc], chrname[character] );

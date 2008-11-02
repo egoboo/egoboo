@@ -29,10 +29,10 @@
 		<Cursor position="167378" topLine="3978" />
 	</File>
 	<File name="egoboo.h" open="1" top="0" tabpos="15">
-		<Cursor position="136774" topLine="2284" />
+		<Cursor position="139942" topLine="2269" />
 	</File>
 	<File name="egobootypedef.h" open="1" top="0" tabpos="1">
-		<Cursor position="861" topLine="18" />
+		<Cursor position="1477" topLine="34" />
 	</File>
 	<File name="enchant.c" open="1" top="0" tabpos="16">
 		<Cursor position="82716" topLine="2032" />
@@ -52,8 +52,11 @@
 	<File name="graphicprt.c" open="1" top="0" tabpos="13">
 		<Cursor position="1158" topLine="39" />
 	</File>
-	<File name="id_md2.h" open="1" top="1" tabpos="28">
+	<File name="id_md2.h" open="1" top="0" tabpos="28">
 		<Cursor position="1352" topLine="46" />
+	</File>
+	<File name="mac-file.m" open="1" top="1" tabpos="29">
+		<Cursor position="5939" topLine="254" />
 	</File>
 	<File name="mathstuff.c" open="1" top="0" tabpos="17">
 		<Cursor position="5349" topLine="152" />
