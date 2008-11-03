@@ -3,7 +3,7 @@ PREFIX	:= ${HOME}/.local
 EGO_SRC  := camera.c char.c Client.c Clock.c common-file.c configfile.c \
                  egoboostrutil.c enchant.c Font.c game.c gltexture.c graphicfan.c \
                  graphicmad.c graphic.c graphicprt.c id_normals.c input.c \
-                 linux-file.c Log.c mathstuff.c Md2.c menu.c module.c \
+                 linux-file.c Log.c Link.c mathstuff.c Md2.c menu.c module.c \
                  network.c particle.c passage.c script.c Server.c sound.c \
                  sys_linux.c Ui.c
 EGO_OBJ  := ${EGO_SRC:.c=.o}
@@ -28,13 +28,13 @@ all: ${EGO_BIN}
    
 
 ${EGO_BIN}: ${EGO_OBJ} ${ENET_OBJ}
-   ${CC} -o $@ $^ ${LDFLAGS}
+	${CC} -o $@ $^ ${LDFLAGS}
 
 install: ${EGO_BIN}
-   mkdir -p ${PREFIX}/bin
-   mkdir -p ${PREFIX}/libexec
-   install -m 755 ${EGO_BIN} ${PREFIX}/libexec
-   install -p -m 755 ${EGO_BIN}.sh ${PREFIX}/bin/${EGO_BIN}
+	mkdir -p ${PREFIX}/bin
+	mkdir -p ${PREFIX}/libexec
+	install -m 755 ${EGO_BIN} ${PREFIX}/libexec
+	install -p -m 755 ${EGO_BIN}.sh ${PREFIX}/bin/${EGO_BIN}
 
 clean:
-   rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN} test_sdl.o test_sdl
+	rm -f ${ENET_OBJ} ${EGO_OBJ} ${EGO_BIN} test_sdl.o test_sdl

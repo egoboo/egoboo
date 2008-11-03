@@ -19,5 +19,4 @@ float LoadFloatByteswapped( float *ptr )
 
   return u.f;
 }
-else
 #endif

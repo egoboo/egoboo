@@ -326,15 +326,15 @@ void export_all_players(bool_t require_local)
     if(!chron[character] || !chralive[character]) continue;
 
     // Export the character
-    number = 0;
-    export_one_character(character, character, number++, is_local);
+    export_one_character(character, character, 0, is_local);
 
     // Export the left hand item
-    item = chrholdingwhich[character][0];
+    number = 0;
+    item = chrholdingwhich[character][number];
     if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number++, is_local);
 
     // Export the right hand item
-    item = chrholdingwhich[character][1];
+    item = chrholdingwhich[character][number];
     if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number++, is_local);
 
     // Export the inventory
@@ -458,7 +458,7 @@ unsigned char goto_colon_yesno(FILE* fileread)
         }
     }
     while(cTmp != ':');
-    
+
     return btrue;
 }
 
@@ -567,10 +567,10 @@ unsigned char control_key_is_pressed(unsigned char control)
 {
     // ZZ> This function returns btrue if the given control is pressed...
     if(netmessagemode)  return bfalse;
-	
+
 	if (sdlkeybuffer)
-	    return (sdlkeybuffer[controlvalue[control]]!=0); 
-	else 
+	    return (sdlkeybuffer[controlvalue[control]]!=0);
+	else
 		return bfalse;
 }
 
@@ -913,7 +913,7 @@ void remove_enchant(unsigned short enchantindex)
             }
 
 
-            // Play the end sound	    
+            // Play the end sound
             character = enctarget[enchantindex];
 			//if(eveawveindex[enchantindex] > 0) play_sound(chroldx[character], chroldy[character], capwaveindex[chrmodel[encspawner[enchantindex]]][evewaveindex[enchantindex]);
 
@@ -1607,13 +1607,13 @@ void get_name(FILE* fileread, char *szName)
 void read_setup(char* filename)
 	{
     // ZZ> This function loads the setup file
-	
+
 	ConfigFilePtr lConfigSetup;
 	char lCurSectionName[64];
 	bool_t lTempBool;
 	Sint32 lTmpInt;
 	char lTmpStr[24];
-	
+
 
 	lConfigSetup = OpenConfigFile( filename );
 	if ( lConfigSetup == NULL )
@@ -1632,7 +1632,7 @@ void read_setup(char* filename)
 		*********************************************/
 
 		strcpy( lCurSectionName, "GRAPHIC" );
-		
+
 		//Draw z reflection?
 		if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "Z_REFLECTION", &zreflect ) == 0 )
 			{
@@ -1651,7 +1651,7 @@ void read_setup(char* filename)
 			{
 			fullscreen = bfalse; // default
 			}
-		
+
 		//Screen Size
 		if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "SCREENSIZE_X", &lTmpInt ) == 0 )
 			{
@@ -1687,7 +1687,7 @@ void read_setup(char* filename)
         maxmessage = lTmpInt;
         if(maxmessage < 1)  { maxmessage = 1;  messageon = bfalse; }
         if(maxmessage > MAXMESSAGE)  { maxmessage = MAXMESSAGE; }
-		
+
 		//Show status bars? (Life, mana, character icons, etc.)
 		if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "STATUS_BAR", &staton ) == 0 )
 			{
@@ -1704,7 +1704,7 @@ void read_setup(char* filename)
 			{
 			perspective = bfalse; // default
 			}
-		
+
 		//Enable dithering? (Reduces quality but increases preformance)
 		if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "DITHERING", &dither ) == 0 )
 			{
@@ -1853,7 +1853,7 @@ void read_setup(char* filename)
 		*********************************************/
 
 		strcpy( lCurSectionName, "CONTROL" );
-		
+
 		//Camera control mode
 		if ( GetConfigValue( lConfigSetup, lCurSectionName, "AUTOTURN_CAMERA", lTmpStr, 24) == 0 )
 			{
@@ -2122,7 +2122,7 @@ void get_madtransvertices(int modelindex)
 
     for (cnt = 0; cnt < madvertices[modelindex]; cnt++)
         trans += vertexconnected(modelindex, cnt);
-    
+
     madtransvertices[modelindex] = trans;
 }
 
@@ -2132,7 +2132,7 @@ int rip_md2_header(void)
     // ZZ> This function makes sure an md2 is really an md2
     int iTmp;
     int* ipIntPointer;
- 
+
     // Check the file type
     ipIntPointer = (int*) cLoadBuffer;
     #ifdef SDL_LIL_ENDIAN
@@ -2141,7 +2141,7 @@ int rip_md2_header(void)
     iTmp = SDL_Swap32( ipIntPointer[0] );
     #endif
     if(iTmp != MD2START ) return bfalse;
-    
+
     return btrue;
 }
 
@@ -2221,14 +2221,14 @@ void rip_md2_commands(unsigned short modelindex)
     #else
     int iNumCommands = SDL_Swap32( ipIntPointer[9] );
     #endif
-    
+
 	// Offset (in DWORDS) from the start of the file to the gl command list.
 	#ifdef SDL_LIL_ENDIAN
-	int iCommandOffset = ipIntPointer[15]>>2;	
+	int iCommandOffset = ipIntPointer[15]>>2;
 	#else
 	int iCommandOffset = SDL_Swap32( ipIntPointer[15] )>>2;
 	#endif
-	
+
     // Read in each command
     // iNumCommands isn't the number of commands, rather the number of dwords in
     // the command list...  Use iCommandCount to figure out how many we use
@@ -2302,7 +2302,7 @@ int rip_md2_frame_name(int frame)
     // Jump to the Frames section of the md2 data
     ipNamePointer = (int*) cFrameName;
     ipIntPointer = (int*) cLoadBuffer;
-    
+
     #ifdef SDL_LIL_ENDIAN
     iNumVertices = ipIntPointer[6];
     iNumFrames = ipIntPointer[10];
@@ -2362,7 +2362,7 @@ void rip_md2_frames(unsigned short modelindex)
     cpCharPointer = (char*) cLoadBuffer;
     ipIntPointer = (int*) cLoadBuffer;
     fpFloatPointer = (float*) cLoadBuffer;
-    
+
     #ifdef SDL_LIL_ENDIAN
     iNumVertices = ipIntPointer[6];
     iNumFrames = ipIntPointer[10];
@@ -2451,9 +2451,9 @@ int load_one_md2(char* szLoadname, unsigned short modelindex)
     // Check the header
     // TODO: Verify that the header's filesize correspond to iBytesRead.
 	iReturnValue = rip_md2_header();
-    if (iReturnValue == bfalse) 
+    if (iReturnValue == bfalse)
 		  return bfalse;
-    
+
 	// Get the frame vertices
     rip_md2_frames(modelindex);
     // Get the commands
@@ -2482,14 +2482,14 @@ void make_enviro(void)
         x = md2normals[cnt][0];
         y = md2normals[cnt][1];
         x = (atan2(y, x)+PI)/(PI);
-        x--; 
+        x--;
 
-		if(x < 0) 
+		if(x < 0)
 			x--;
 
         indextoenvirox[cnt] = x;
     }
-    
+
 	for (cnt = 0; cnt < 256; cnt++)
     {
         z = cnt / 256.0;  // Z is between 0 and 1
@@ -2569,26 +2569,26 @@ void show_armor(unsigned short statindex)
         {
             character = statlist[statindex];
 			skinlevel = chrtexture[character] - madskinstart[chrmodel[character]];
-            
+
 			//Armor Name
             sprintf(text, "=%s=", capskinname[chrmodel[character]]);
             debug_message(text);
 
             //Armor Stats
-			sprintf(text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255-capdefense[chrmodel[character]][skinlevel], 
-				capdamagemodifier[chrmodel[character]][0][skinlevel]&DAMAGESHIFT,  
-				capdamagemodifier[chrmodel[character]][1][skinlevel]&DAMAGESHIFT,  
+			sprintf(text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255-capdefense[chrmodel[character]][skinlevel],
+				capdamagemodifier[chrmodel[character]][0][skinlevel]&DAMAGESHIFT,
+				capdamagemodifier[chrmodel[character]][1][skinlevel]&DAMAGESHIFT,
 				capdamagemodifier[chrmodel[character]][2][skinlevel]&DAMAGESHIFT );
             debug_message(text);
-			
-			sprintf(text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i", 
-				capdamagemodifier[chrmodel[character]][3][skinlevel]&DAMAGESHIFT,  
-				capdamagemodifier[chrmodel[character]][4][skinlevel]&DAMAGESHIFT,  
-				capdamagemodifier[chrmodel[character]][5][skinlevel]&DAMAGESHIFT,  
-				capdamagemodifier[chrmodel[character]][6][skinlevel]&DAMAGESHIFT, 
+
+			sprintf(text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+				capdamagemodifier[chrmodel[character]][3][skinlevel]&DAMAGESHIFT,
+				capdamagemodifier[chrmodel[character]][4][skinlevel]&DAMAGESHIFT,
+				capdamagemodifier[chrmodel[character]][5][skinlevel]&DAMAGESHIFT,
+				capdamagemodifier[chrmodel[character]][6][skinlevel]&DAMAGESHIFT,
 				capdamagemodifier[chrmodel[character]][7][skinlevel]&DAMAGESHIFT);
             debug_message(text);
-			
+
 			if(capskindressy[chrmodel[character]]) sprintf(tmps, "Light Armor");
 			else								   sprintf(tmps, "Heavy Armor");
 			sprintf(text, " Type: %s", tmps);
@@ -2620,7 +2620,7 @@ void show_full_status(unsigned short statindex)
         if(statindex < numstat)
         {
             character = statlist[statindex];
-			
+
 			//Enchanted?
 			while(i != MAXENCHANT)
 			{
@@ -2633,17 +2633,17 @@ void show_full_status(unsigned short statindex)
             debug_message(text);
 
             //Armor Stats
-			sprintf(text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 
-				255-chrdefense[character], 
-				chrdamagemodifier[character][0]&DAMAGESHIFT,  
-				chrdamagemodifier[character][1]&DAMAGESHIFT,  
+			sprintf(text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
+				255-chrdefense[character],
+				chrdamagemodifier[character][0]&DAMAGESHIFT,
+				chrdamagemodifier[character][1]&DAMAGESHIFT,
 				chrdamagemodifier[character][2]&DAMAGESHIFT );
             debug_message(text);
 			sprintf(text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-				chrdamagemodifier[character][3]&DAMAGESHIFT,  
-				chrdamagemodifier[character][4]&DAMAGESHIFT,  
-				chrdamagemodifier[character][5]&DAMAGESHIFT,  
-				chrdamagemodifier[character][6]&DAMAGESHIFT, 
+				chrdamagemodifier[character][3]&DAMAGESHIFT,
+				chrdamagemodifier[character][4]&DAMAGESHIFT,
+				chrdamagemodifier[character][5]&DAMAGESHIFT,
+				chrdamagemodifier[character][6]&DAMAGESHIFT,
 				chrdamagemodifier[character][7]&DAMAGESHIFT);
             debug_message(text);
 			//Speed and jumps
@@ -2672,7 +2672,7 @@ void show_magic_status(unsigned short statindex)
         if(statindex < numstat)
         {
             character = statlist[statindex];
-			
+
 			//Enchanted?
 			while(i != MAXENCHANT)
 			{
@@ -2702,7 +2702,7 @@ void show_magic_status(unsigned short statindex)
 			if(chrflyheight[character] > 0)    sprintf(tmpa, "Yes");
 			else							   sprintf(tmpa, "No");
 			if(chrmissiletreatment[character] == MISREFLECT)       sprintf(tmpb, "Reflect");
-			else if(chrmissiletreatment[character] == MISREFLECT)  sprintf(tmpb, "Deflect");						   
+			else if(chrmissiletreatment[character] == MISREFLECT)  sprintf(tmpb, "Deflect");
 		    else												   sprintf(tmpb, "None");
 			sprintf(text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb);
 			debug_message(text);
@@ -2758,7 +2758,7 @@ void check_stats()
 	        if(SDLKEYDOWN(SDLK_8))  show_magic_status(7);
 		}
 
-		
+
 		//Display character stats?
 		else
 		{
@@ -2772,7 +2772,7 @@ void check_stats()
 	        if(SDLKEYDOWN(SDLK_8))  show_stat(7);
 		}
 
-		
+
 		// !!!BAD!!!  CHEAT
         if(SDLKEYDOWN(SDLK_x))
         {
@@ -2826,7 +2826,7 @@ bool_t dump_screenshot()
            0x00FF0000, 0x0000FF00, 0x000000FF, 0
        #endif
            );
-    
+
     if (temp == NULL)
         return bfalse;
 
@@ -2865,7 +2865,7 @@ bool_t dump_screenshot()
 
     sprintf(buff2, "Saved to %s", buff);
     debug_message(buff2);
-    
+
     return btrue;
 }
 
@@ -2897,7 +2897,7 @@ void move_to_top(unsigned short character)
             oldloc = cnt;
             cnt = numstat;
         }
-    
+
     // Change position
     if(oldloc < numstat)
     {
@@ -3019,7 +3019,7 @@ int generate_number(int numbase, int numrand)
 	    log_warning("One of the data pairs is wrong! (%i and %i) Cannot be 0 or less.\n", numbase, numrand);
 		numrand = numbase;
 	}
-    
+
 	return tmp;
 }
 
@@ -3037,19 +3037,19 @@ void drop_money(unsigned short character, unsigned short money)
         tfives = money/25;  money -= (tfives<<5)-(tfives<<3)+tfives;
         fives = money/5;  money -= (fives<<2)+fives;
         ones = money;
-        
+
 		for (cnt = 0; cnt < ones; cnt++)
             spawn_one_particle(chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN1, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR);
-        
+
 		for (cnt = 0; cnt < fives; cnt++)
             spawn_one_particle(chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN5, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR);
-        
+
 		for (cnt = 0; cnt < tfives; cnt++)
             spawn_one_particle(chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN25, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR);
 
         for (cnt = 0; cnt < huns; cnt++)
             spawn_one_particle(chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN100, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR);
-        
+
 		chrdamagetime[character] = DAMAGETIME;  // So it doesn't grab it again
     }
 }
@@ -3113,7 +3113,7 @@ void give_experience(int character, int amount, unsigned char xptype)
                     debug_message(text);
                 }
                 chrexperiencelevel[character]++;
-				
+
 				//BAD!! Prevents multiple levels !!BAD
 				chrexperience[character] = xpneeded;
 
@@ -3443,7 +3443,7 @@ int load_mesh(char *modname)
     fread(&itmp, 4, 1, fileread);  meshsizex = ( int )SDL_Swap32( itmp );
     fread(&itmp, 4, 1, fileread);  meshsizey = ( int )SDL_Swap32( itmp );
     #endif
-    
+
     numfan = meshsizex*meshsizey;
     meshedgex = meshsizex*128;
     meshedgey = meshsizey*128;
@@ -3461,7 +3461,7 @@ int load_mesh(char *modname)
     while(fan < numfan)
     {
       fread(&itmp, 4, 1, fileread);
-      
+
       #ifdef SDL_LIL_ENDIAN
       meshtype[fan] = itmp>>24;
       meshfx[fan] = itmp>>16;
@@ -3471,7 +3471,7 @@ int load_mesh(char *modname)
       meshfx[fan] = SDL_Swap32( itmp )>>16;
       meshtile[fan] = SDL_Swap32( itmp );
       #endif
-      
+
       fan++;
     }
     // Load fan data
@@ -3479,13 +3479,13 @@ int load_mesh(char *modname)
     while(fan < numfan)
     {
       fread(&itmp, 1, 1, fileread);
-      
+
       #ifdef SDL_LIL_ENDIAN
       meshtwist[fan] = itmp;
       #else
       meshtwist[fan] = SDL_Swap32( itmp );
       #endif
-      
+
       fan++;
     }
 
@@ -3495,13 +3495,13 @@ int load_mesh(char *modname)
     while(cnt < numvert)
     {
       fread(&ftmp, 4, 1, fileread);
-      
+
       #ifdef SDL_LIL_ENDIAN
       meshvrtx[cnt] = ftmp;
       #else
       meshvrtx[cnt] = LoadFloatByteswapped( &ftmp );
       #endif
-      
+
       cnt++;
     }
     // Load vertex y data
@@ -3509,13 +3509,13 @@ int load_mesh(char *modname)
     while(cnt < numvert)
     {
       fread(&ftmp, 4, 1, fileread);
-      
+
       #ifdef SDL_LIL_ENDIAN
       meshvrty[cnt] = ftmp;
       #else
       meshvrty[cnt] = LoadFloatByteswapped( &ftmp );
       #endif
-      
+
       cnt++;
     }
     // Load vertex z data
@@ -3523,13 +3523,13 @@ int load_mesh(char *modname)
     while(cnt < numvert)
     {
       fread(&ftmp, 4, 1, fileread);
-      
+
       #ifdef SDL_LIL_ENDIAN
       meshvrtz[cnt] = ftmp/16.0;  // Cartman uses 4 bit fixed point for Z
       #else
       meshvrtz[cnt] = (LoadFloatByteswapped( &ftmp ))/16.0;  // Cartman uses 4 bit fixed point for Z
       #endif
-      
+
       cnt++;
     }
 	// GS - set to if(1) to disable lighting!!!!
@@ -3551,14 +3551,14 @@ int load_mesh(char *modname)
       while(cnt < numvert)
       {
         fread(&itmp, 1, 1, fileread);
-        
+
         #ifdef SDL_LIL_ENDIAN
         meshvrta[cnt] = itmp;
         #else
         meshvrta[cnt] = SDL_Swap32( itmp );
         #endif
         meshvrtl[cnt] = 0;
-        
+
         cnt++;
       }
     }
@@ -3609,7 +3609,7 @@ void update_game()
             if(chralive[plaindex[cnt]] == bfalse)
             {
                 numdead++;
-                if (SDLKEYDOWN(SDLK_SPACE && respawnvalid == btrue)) 
+                if (SDLKEYDOWN(SDLK_SPACE && respawnvalid == btrue))
 				{
                 	respawn_character(plaindex[cnt]);
 					chrexperience[cnt] = (chrexperience[cnt])*EXPKEEP;	//Apply xp Penality
@@ -3636,7 +3636,7 @@ void update_game()
 
     // This is the main game loop
     msgtimechange = 0;
-    
+
 	// [claforte Jan 6th 2001]
 	// TODO: Put that back in place once networking is functional.
     while(wldclock < allclock && (numplatimes > 0 || rtscontrol))
@@ -3672,7 +3672,7 @@ void update_game()
         wldframe++;
         msgtimechange++;
         if(statdelay > 0)  statdelay--;
-        
+
 		//statclock++;
 		statclock+=FRAMESKIP;
     }
@@ -4046,9 +4046,9 @@ extern int initMenus();
 int SDL_main(int argc, char **argv)
 {
     // ZZ> This is where the program starts and all the high level stuff happens
-    struct glvector t1={0,0,0}; 
-    struct glvector t2={0,0,-1}; 
-    struct glvector t3={0,1,0}; 
+    struct glvector t1={0,0,0};
+    struct glvector t2={0,0,-1};
+    struct glvector t3={0,1,0};
 	double frameDuration;
 	int menuActive = 1;
 	int menuResult;
@@ -4056,7 +4056,7 @@ int SDL_main(int argc, char **argv)
 	// Initialize logging first, so that we can use it everywhere.
 	log_init();
 	log_setLoggingLevel(2);
-	
+
 	// start initializing the various subsystems
 	log_message("Starting Egoboo %s...\n", VERSION);
 
@@ -4070,7 +4070,7 @@ int SDL_main(int argc, char **argv)
     reset_ai_script();
     load_ai_codes("basicdat/aicodes.txt");
     load_action_names("basicdat/actions.txt");
-	
+
     sdlinit(argc,argv);
     glinit(argc,argv);
 	net_initialize();
@@ -4107,7 +4107,7 @@ int SDL_main(int argc, char **argv)
     prime_icons();
     prime_titleimage();
     make_textureoffset();  // THIS SHOULD WORK
-    make_lightdirectionlookup(); // THIS SHOULD WORK 
+    make_lightdirectionlookup(); // THIS SHOULD WORK
     make_turntosin();  // THIS SHOULD WORK
     make_enviro(); // THIS SHOULD WORK
     load_mesh_fans(); // THIS SHOULD WORK
@@ -4141,7 +4141,7 @@ int SDL_main(int argc, char **argv)
 			// do menus
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			read_input();
-		
+
 			//Pressed panic button
 			if(SDLKEYDOWN(SDLK_q) && SDLKEYDOWN(SDLK_LCTRL))
 			{
@@ -4192,7 +4192,7 @@ int SDL_main(int argc, char **argv)
 				// Start a new module
 				seed = time(NULL);
 				srand(seed);
-	
+
 
 				load_module(pickedmodule);  // :TODO: Seems to be the next part to fix
 
@@ -4227,7 +4227,7 @@ int SDL_main(int argc, char **argv)
 
 
 					if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
- 
+
 					//Todo zefz: where to put this?
 					//Check for pause key		//TODO: What to do in network games?
 					if(SDLKEYDOWN(SDLK_F8) && keyon && pausekeyready)
@@ -4245,7 +4245,7 @@ int SDL_main(int argc, char **argv)
 						update_timers();
 						check_passage_music();
 
-						// NETWORK PORT 
+						// NETWORK PORT
 						listen_for_packets();
 						if(waitingforplayers == bfalse)
 						{
@@ -4288,7 +4288,7 @@ int SDL_main(int argc, char **argv)
 			}
 		}
     }
-	
+
     quit_game();
 	Mix_CloseAudio();
     release_grfx();

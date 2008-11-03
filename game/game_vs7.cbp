@@ -301,6 +301,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Clock.h" />
+		<Unit filename="Egoboodoc.txt" />
 		<Unit filename="Font.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -313,6 +314,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Log.h" />
+		<Unit filename="Makefile" />
+		<Unit filename="Makefile.unix" />
 		<Unit filename="Md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -339,6 +342,7 @@
 		<Unit filename="camera.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="change.log" />
 		<Unit filename="char.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -350,6 +354,10 @@
 		</Unit>
 		<Unit filename="configfile.h" />
 		<Unit filename="egoboo.h" />
+		<Unit filename="egoboo.sh" />
+		<Unit filename="egobooendian.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="egoboostrutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -358,9 +366,15 @@
 		<Unit filename="enchant.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="enet" />
 		<Unit filename="game.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="game_vs7.cbp" />
+		<Unit filename="game_vs7.depend" />
+		<Unit filename="game_vs7.layout" />
+		<Unit filename="game_vs7.vcproj" />
+		<Unit filename="game_vs9.vcproj" />
 		<Unit filename="gltexture.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -386,12 +400,10 @@
 		</Unit>
 		<Unit filename="linux-file.c">
 			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="Debug Blah-nix" />
+			<Option target="Release Blah-nix" />
 		</Unit>
-		<Unit filename="linux-file_old.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="mac-file.m" />
 		<Unit filename="mathstuff.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -420,13 +432,27 @@
 		</Unit>
 		<Unit filename="sys_linux.c">
 			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="Debug Blah-nix" />
+			<Option target="Release Blah-nix" />
+		</Unit>
+		<Unit filename="sys_mac.c">
+			<Option compilerVar="CC" />
+			<Option target="Debug OsX" />
+			<Option target="Release OsX" />
 		</Unit>
 		<Unit filename="sys_win32.c">
 			<Option compilerVar="CC" />
+			<Option target="Debug Win32 - gcc" />
+			<Option target="Release Win32 - gcc" />
+			<Option target="Debug Win32 - msvc" />
+			<Option target="Release Win32 - msvc" />
 		</Unit>
 		<Unit filename="win-file.c">
 			<Option compilerVar="CC" />
+			<Option target="Debug Win32 - gcc" />
+			<Option target="Release Win32 - gcc" />
+			<Option target="Debug Win32 - msvc" />
+			<Option target="Release Win32 - msvc" />
 		</Unit>
 		<Unit filename="..\res\egoboo.ico" />
 		<Unit filename="..\res\egoboo.rc">
