@@ -331,13 +331,15 @@ void export_all_players(bool_t require_local)
     // Export the left hand item
     number = 0;
     item = chrholdingwhich[character][number];
-    if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number++, is_local);
+    if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number, is_local);
 
     // Export the right hand item
+    number = 1;
     item = chrholdingwhich[character][number];
-    if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number++, is_local);
+    if(item != MAXCHR && chrisitem[item])  export_one_character(item, character, number, is_local);
 
     // Export the inventory
+    number = 2;
     item = chrnextinpack[character];
     while(item != MAXCHR)
     {

@@ -8,10 +8,10 @@
 		<Cursor position="4882" topLine="177" />
 	</File>
 	<File name="Clock.h" open="1" top="0" tabpos="22">
-		<Cursor position="1557" topLine="25" />
+		<Cursor position="1557" topLine="20" />
 	</File>
 	<File name="Link.c" open="1" top="0" tabpos="4">
-		<Cursor position="3062" topLine="96" />
+		<Cursor position="613" topLine="10" />
 	</File>
 	<File name="Link.h" open="1" top="0" tabpos="5">
 		<Cursor position="355" topLine="0" />
@@ -26,10 +26,10 @@
 		<Cursor position="8438" topLine="243" />
 	</File>
 	<File name="char.c" open="1" top="0" tabpos="3">
-		<Cursor position="167378" topLine="3978" />
+		<Cursor position="170490" topLine="4052" />
 	</File>
-	<File name="egoboo.h" open="1" top="0" tabpos="15">
-		<Cursor position="139942" topLine="2269" />
+	<File name="egoboo.h" open="1" top="1" tabpos="15">
+		<Cursor position="6074" topLine="141" />
 	</File>
 	<File name="egobooendian.c" open="1" top="0" tabpos="32">
 		<Cursor position="425" topLine="0" />
@@ -41,10 +41,10 @@
 		<Cursor position="82716" topLine="2032" />
 	</File>
 	<File name="game.c" open="1" top="0" tabpos="7">
-		<Cursor position="118025" topLine="3823" />
+		<Cursor position="130649" topLine="3879" />
 	</File>
 	<File name="graphic.c" open="1" top="0" tabpos="8">
-		<Cursor position="122554" topLine="3750" />
+		<Cursor position="37991" topLine="1163" />
 	</File>
 	<File name="graphicfan.c" open="1" top="0" tabpos="24">
 		<Cursor position="7254" topLine="199" />
@@ -65,7 +65,7 @@
 		<Cursor position="5349" topLine="152" />
 	</File>
 	<File name="mathstuff.h" open="1" top="0" tabpos="18">
-		<Cursor position="2048" topLine="43" />
+		<Cursor position="2048" topLine="42" />
 	</File>
 	<File name="menu.c" open="1" top="0" tabpos="12">
 		<Cursor position="57082" topLine="2181" />
@@ -89,13 +89,13 @@
 		<Cursor position="115849" topLine="3501" />
 	</File>
 	<File name="sound.c" open="1" top="0" tabpos="11">
-		<Cursor position="4728" topLine="132" />
+		<Cursor position="4728" topLine="123" />
 	</File>
 	<File name="sys_linux.c" open="1" top="0" tabpos="30">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="sys_mac.c" open="1" top="1" tabpos="29">
-		<Cursor position="114" topLine="0" />
+	<File name="sys_mac.c" open="1" top="0" tabpos="29">
+		<Cursor position="280" topLine="1" />
 	</File>
 	<File name="sys_win32.c" open="1" top="0" tabpos="26">
 		<Cursor position="972" topLine="24" />
