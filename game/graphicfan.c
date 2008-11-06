@@ -55,7 +55,7 @@ void render_fan( Uint32 fan )
   // Animate the tiles
   if ( fx & MESHFXANIM )
   {
-    if ( type >= ( MAXMESHTYPE>>1 ) )
+    if ( type >= ( MAXMESHTYPE >> 1 ) )
     {
       // Big tiles
       basetile = tile & biganimtilebaseand;// Animation set
@@ -73,7 +73,7 @@ void render_fan( Uint32 fan )
   offu = meshtileoffu[tile];          // Texture offsets
   offv = meshtileoffv[tile];          //
 
-  texture = ( tile>>6 )+1;                // 64 tiles in each 256x256 texture
+  texture = ( tile >> 6 ) + 1;            // 64 tiles in each 256x256 texture
   vertices = meshcommandnumvertices[type];// Number of vertices
   commands = meshcommands[type];          // Number of commands
 
@@ -87,7 +87,7 @@ void render_fan( Uint32 fan )
 //  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
   glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
-  glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX )-2*sizeof( GLfloat ), &v[0].s );
+  glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
   // glColorPointer... not needed?
 
 // TODO: Implement OpenGL fog effects
@@ -178,7 +178,7 @@ void render_fan( Uint32 fan )
     {
       vertex = meshcommandvrt[type][entry];
       glColor3fv( &v[vertex].r );
-      glTexCoord2f ( meshcommandu[type][vertex]+offu, meshcommandv[type][vertex]+offv );
+      glTexCoord2f ( meshcommandu[type][vertex] + offu, meshcommandv[type][vertex] + offv );
       glVertex3fv ( &v[vertex].x );
 
 //            vtlist[tnc].dvSX = vt[vertex].dvSX;
@@ -227,7 +227,7 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   offv = waterlayerv[layer];          //
   frame = waterlayerframe[layer];     // Frame
 
-  texture = layer+5;                      // Water starts at texture 5
+  texture = layer + 5;                    // Water starts at texture 5
   vertices = meshcommandnumvertices[type];// Number of vertices
   commands = meshcommands[type];          // Number of commands
 
@@ -290,10 +290,10 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
     {
       v[cnt].x = meshvrtx[badvertex];
       v[cnt].y = meshvrty[badvertex];
-      v[cnt].z = waterlayerzadd[layer][frame][mode][cnt]+waterlayerz[layer];
+      v[cnt].z = waterlayerzadd[layer][frame][mode][cnt] + waterlayerz[layer];
 
-      ambi = ( Uint32 ) meshvrtl[badvertex]>>1;
-      ambi+= waterlayercolor[layer][frame][mode][cnt];
+      ambi = ( Uint32 ) meshvrtl[badvertex] >> 1;
+      ambi += waterlayercolor[layer][frame][mode][cnt];
       v[cnt].r = v[cnt].g = v[cnt].b = ( float )ambi / 255.0f;
       /*
       ambi = (ambi<<8)|ambi;
@@ -351,14 +351,14 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
 
   // Render each command
   entry = 0;
-  v[0].s = 1+offu;
-  v[0].t = 0+offv;
-  v[1].s = 1+offu;
-  v[1].t = 1+offv;
-  v[2].s = 0+offu;
-  v[2].t = 1+offv;
-  v[3].s = 0+offu;
-  v[3].t = 0+offv;
+  v[0].s = 1 + offu;
+  v[0].t = 0 + offv;
+  v[1].s = 1 + offu;
+  v[1].t = 1 + offv;
+  v[2].s = 0 + offu;
+  v[2].t = 1 + offv;
+  v[3].s = 0 + offu;
+  v[3].t = 0 + offv;
   for ( cnt = 0; cnt < commands; cnt++ )
   {
     glBegin ( GL_TRIANGLE_FAN );

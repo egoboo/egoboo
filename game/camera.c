@@ -29,7 +29,7 @@ void camera_look_at( float x, float y )
   camzgoto = camzadd;
   if ( doturntime != 0 )
   {
-    camturnleftright = ( 1.5f*PI )-ATAN2( y-camy, x-camx );  // xgg
+    camturnleftright = ( 1.5f * PI ) - ATAN2( y - camy, x - camx );  // xgg
   }
 }
 
@@ -37,11 +37,11 @@ void dump_matrix( glMatrix a )
 {
   int i; int j;
 
-  for ( j=0;j<4;j++ )
+  for ( j = 0;j < 4;j++ )
   {
     printf( "  " );
-    for ( i=0;i<4;i++ )
-      printf( "%f ",( a )_CNV( i,j ) );
+    for ( i = 0;i < 4;i++ )
+      printf( "%f ", ( a )_CNV( i, j ) );
     printf( "\n" );
   }
 }
@@ -68,15 +68,15 @@ void project_view()
   // printf("DIAG: dumping mView\n"); dump_matrix(mView);
   // printf("cam xyz,zoom = %f %f %f %f\n",camx,camy,camz,camzoom);
 
-  mTemp = MatrixMult( RotateY( -rotmeshtopside*PI/360 ), mView );
-  mTemp = MatrixMult( RotateX( rotmeshup*PI/360 ), mTemp );
-  zproject = ( mTemp )_CNV( 2,2 );              //2,2
+  mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), mView );
+  mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+  zproject = ( mTemp )_CNV( 2, 2 );             //2,2
   // Camera must look down
   if ( zproject < 0 )
   {
-    numstep = -ztemp/zproject;
-    xfin = camx+( numstep*( mTemp )_CNV( 0,2 ) );  // xgg      //0,2
-    yfin = camy+( numstep*( mTemp )_CNV( 1,2 ) );    //1,2
+    numstep = -ztemp / zproject;
+    xfin = camx + ( numstep * ( mTemp )_CNV( 0, 2 ) );  // xgg      //0,2
+    yfin = camy + ( numstep * ( mTemp )_CNV( 1, 2 ) );    //1,2
     zfin = 0;
     cornerx[0] = xfin;
     cornery[0] = yfin;
@@ -85,15 +85,15 @@ void project_view()
   }
 
   // Topright
-  mTemp = MatrixMult( RotateY( rotmeshtopside*PI/360 ), mView );
-  mTemp = MatrixMult( RotateX( rotmeshup*PI/360 ), mTemp );
-  zproject = ( mTemp )_CNV( 2,2 );              //2,2
+  mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), mView );
+  mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+  zproject = ( mTemp )_CNV( 2, 2 );             //2,2
   // Camera must look down
   if ( zproject < 0 )
   {
-    numstep = -ztemp/zproject;
-    xfin = camx+( numstep*( mTemp )_CNV( 0,2 ) );  // xgg      //0,2
-    yfin = camy+( numstep*( mTemp )_CNV( 1,2 ) );    //1,2
+    numstep = -ztemp / zproject;
+    xfin = camx + ( numstep * ( mTemp )_CNV( 0, 2 ) );  // xgg      //0,2
+    yfin = camy + ( numstep * ( mTemp )_CNV( 1, 2 ) );    //1,2
     zfin = 0;
     cornerx[1] = xfin;
     cornery[1] = yfin;
@@ -102,15 +102,15 @@ void project_view()
   }
 
   // Bottomright
-  mTemp = MatrixMult( RotateY( rotmeshbottomside*PI/360 ), mView );
-  mTemp = MatrixMult( RotateX( -rotmeshdown*PI/360 ), mTemp );
-  zproject = ( mTemp )_CNV( 2,2 );              //2,2
+  mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), mView );
+  mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+  zproject = ( mTemp )_CNV( 2, 2 );             //2,2
   // Camera must look down
   if ( zproject < 0 )
   {
-    numstep = -ztemp/zproject;
-    xfin = camx+( numstep*( mTemp )_CNV( 0,2 ) );  // xgg      //0,2
-    yfin = camy+( numstep*( mTemp )_CNV( 1,2 ) );    //1,2
+    numstep = -ztemp / zproject;
+    xfin = camx + ( numstep * ( mTemp )_CNV( 0, 2 ) );  // xgg      //0,2
+    yfin = camy + ( numstep * ( mTemp )_CNV( 1, 2 ) );    //1,2
     zfin = 0;
     cornerx[2] = xfin;
     cornery[2] = yfin;
@@ -119,15 +119,15 @@ void project_view()
   }
 
   // Bottomleft
-  mTemp = MatrixMult( RotateY( -rotmeshbottomside*PI/360 ), mView );
-  mTemp = MatrixMult( RotateX( -rotmeshdown*PI/360 ), mTemp );
-  zproject = ( mTemp )_CNV( 2,2 );              //2,2
+  mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), mView );
+  mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+  zproject = ( mTemp )_CNV( 2, 2 );             //2,2
   // Camera must look down
   if ( zproject < 0 )
   {
-    numstep = -ztemp/zproject;
-    xfin = camx+( numstep*( mTemp )_CNV( 0,2 ) );  // xgg      //0,2
-    yfin = camy+( numstep*( mTemp )_CNV( 1,2 ) );    //1,2
+    numstep = -ztemp / zproject;
+    xfin = camx + ( numstep * ( mTemp )_CNV( 0, 2 ) );  // xgg      //0,2
+    yfin = camy + ( numstep * ( mTemp )_CNV( 1, 2 ) );    //1,2
     zfin = 0;
     cornerx[3] = xfin;
     cornery[3] = yfin;
@@ -146,17 +146,17 @@ void project_view()
   for ( cnt = 0; cnt < 4; cnt++ )
   {
     if ( cornerx[cnt] < cornerlowx )
-      cornerlowx=cornerx[cnt];
+      cornerlowx = cornerx[cnt];
     if ( cornery[cnt] < cornerlowy )
     {
-      cornerlowy=cornery[cnt];
+      cornerlowy = cornery[cnt];
       cornerlistlowtohighy[0] = cnt;
     }
     if ( cornerx[cnt] > cornerhighx )
-      cornerhighx=cornerx[cnt];
+      cornerhighx = cornerx[cnt];
     if ( cornery[cnt] > cornerhighy )
     {
-      cornerhighy=cornery[cnt];
+      cornerhighy = cornery[cnt];
       cornerlistlowtohighy[3] = cnt;
     }
   }
@@ -195,7 +195,7 @@ void make_camera_matrix()
   mView = MatrixMult( Translate( camx, -camy, camz ), mView );  // xgg
   if ( camswingamp > 0.001f )
   {
-    camroll = turntosin[camswing]*camswingamp;
+    camroll = turntosin[camswing] * camswingamp;
     mView = MatrixMult( RotateY( camroll ), mView );
   }
   mView = MatrixMult( RotateZ( camturnleftright ), mView );
@@ -222,16 +222,16 @@ void bound_camtrack()
   if ( usefaredge )
   {
     if ( camtrackx < FARTRACK )  camtrackx = FARTRACK;
-    if ( camtrackx > meshedgex-FARTRACK )  camtrackx = meshedgex-FARTRACK;
+    if ( camtrackx > meshedgex - FARTRACK )  camtrackx = meshedgex - FARTRACK;
     if ( camtracky < FARTRACK )  camtracky = FARTRACK;
-    if ( camtracky > meshedgey-FARTRACK )  camtracky = meshedgey-FARTRACK;
+    if ( camtracky > meshedgey - FARTRACK )  camtracky = meshedgey - FARTRACK;
   }
   else
   {
     if ( camtrackx < EDGETRACK )  camtrackx = EDGETRACK;
-    if ( camtrackx > meshedgex-EDGETRACK )  camtrackx = meshedgex-EDGETRACK;
+    if ( camtrackx > meshedgex - EDGETRACK )  camtrackx = meshedgex - EDGETRACK;
     if ( camtracky < EDGETRACK )  camtracky = EDGETRACK;
-    if ( camtracky > meshedgey-EDGETRACK )  camtracky = meshedgey-EDGETRACK;
+    if ( camtracky > meshedgey - EDGETRACK )  camtracky = meshedgey - EDGETRACK;
   }
 }
 
@@ -243,11 +243,11 @@ void adjust_camera_angle( int height )
 
 
   if ( height < MINZADD )  height = MINZADD;
-  percentmax = ( height-MINZADD )/( float )( MAXZADD-MINZADD );
-  percentmin = 1.0f-percentmax;
+  percentmax = ( height - MINZADD ) / ( float )( MAXZADD - MINZADD );
+  percentmin = 1.0f - percentmax;
 
-  camturnupdown = ( ( MINUPDOWN*percentmin )+( MAXUPDOWN*percentmax ) );
-  camzoom = ( MINZOOM*percentmin )+( MAXZOOM*percentmax );
+  camturnupdown = ( ( MINUPDOWN * percentmin ) + ( MAXUPDOWN * percentmax ) );
+  camzoom = ( MINZOOM * percentmin ) + ( MAXZOOM * percentmax );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -279,33 +279,33 @@ void move_camera()
       character = plaindex[cnt];
       if ( chralive[character] )
       {
-        if ( chrattachedto[character]==MAXCHR )
+        if ( chrattachedto[character] == MAXCHR )
         {
           // The character is on foot
-          x+=chrxpos[character];
-          y+=chrypos[character];
-          z+=chrzpos[character];
-          level+=chrlevel[character];
+          x += chrxpos[character];
+          y += chrypos[character];
+          z += chrzpos[character];
+          level += chrlevel[character];
         }
         else
         {
           // The character is mounted
-          x+=chrxpos[chrattachedto[character]];
-          y+=chrypos[chrattachedto[character]];
-          z+=chrzpos[chrattachedto[character]];
-          level+=chrlevel[chrattachedto[character]];
+          x += chrxpos[chrattachedto[character]];
+          y += chrypos[chrattachedto[character]];
+          z += chrzpos[chrattachedto[character]];
+          level += chrlevel[chrattachedto[character]];
         }
         locoalive++;
       }
     }
   }
 
-  if ( locoalive>0 )
+  if ( locoalive > 0 )
   {
-    x=x/locoalive;
-    y=y/locoalive;
-    z=z/locoalive;
-    level=level/locoalive;
+    x = x / locoalive;
+    y = y / locoalive;
+    z = z / locoalive;
+    level = level / locoalive;
   }
   else
   {
@@ -317,29 +317,29 @@ void move_camera()
   camtrackxvel = -camtrackx;
   camtrackyvel = -camtracky;
   camtrackzvel = -camtrackz;
-  camtrackx = ( camtrackx+x )/2.0f;
-  camtracky = ( camtracky+y )/2.0f;
-  camtrackz = ( camtrackz+z )/2.0f;
-  camtracklevel = ( camtracklevel+level )/2.0f;
+  camtrackx = ( camtrackx + x ) / 2.0f;
+  camtracky = ( camtracky + y ) / 2.0f;
+  camtrackz = ( camtrackz + z ) / 2.0f;
+  camtracklevel = ( camtracklevel + level ) / 2.0f;
 
 
-  camturnadd=camturnadd*camsustain;
-  camzadd = ( camzadd*3.0f + camzaddgoto )/4.0f;
-  camz = ( camz*3.0f + camzgoto )/4.0f;
+  camturnadd = camturnadd * camsustain;
+  camzadd = ( camzadd * 3.0f + camzaddgoto ) / 4.0f;
+  camz = ( camz * 3.0f + camzgoto ) / 4.0f;
   // Camera controls
-  if ( autoturncamera == 255 && numlocalpla==1 )
+  if ( autoturncamera == 255 && numlocalpla == 1 )
   {
     if ( mouseon )
       if ( !control_mouse_is_pressed( MOS_CAMERA ) )
-        camturnadd-=( mousex*0.5f );
+        camturnadd -= ( mousex * 0.5f );
     if ( keyon )
-      camturnadd+=( control_key_is_pressed( KEY_LEFT )-control_key_is_pressed( KEY_RIGHT ) )*( CAMKEYTURN );
+      camturnadd += ( control_key_is_pressed( KEY_LEFT ) - control_key_is_pressed( KEY_RIGHT ) ) * ( CAMKEYTURN );
     if ( joyaon )
       if ( !control_joya_is_pressed( JOA_CAMERA ) )
-        camturnadd-=joyax*CAMJOYTURN;
+        camturnadd -= joyax * CAMJOYTURN;
     if ( joybon )
       if ( !control_joyb_is_pressed( JOB_CAMERA ) )
-        camturnadd-=joybx*CAMJOYTURN;
+        camturnadd -= joybx * CAMJOYTURN;
   }
   else
   {
@@ -347,8 +347,8 @@ void move_camera()
     {
       if ( control_mouse_is_pressed( MOS_CAMERA ) )
       {
-        camturnadd+=( mousex/3.0f );
-        camzaddgoto+=( float ) mousey/3.0f;
+        camturnadd += ( mousex / 3.0f );
+        camzaddgoto += ( float ) mousey / 3.0f;
         if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
         if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
         doturntime = TURNTIME;  // Sticky turn...
@@ -359,8 +359,8 @@ void move_camera()
     {
       if ( control_joya_is_pressed( JOA_CAMERA ) )
       {
-        camturnadd+=joyax*CAMJOYTURN;
-        camzaddgoto+=joyay*CAMJOYTURN;
+        camturnadd += joyax * CAMJOYTURN;
+        camzaddgoto += joyay * CAMJOYTURN;
         if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
         if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
         doturntime = TURNTIME;  // Sticky turn...
@@ -371,8 +371,8 @@ void move_camera()
     {
       if ( control_joyb_is_pressed( JOB_CAMERA ) )
       {
-        camturnadd+=joybx*CAMJOYTURN;
-        camzaddgoto+=joyby*CAMJOYTURN;
+        camturnadd += joybx * CAMJOYTURN;
+        camzaddgoto += joyby * CAMJOYTURN;
         if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
         if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
         doturntime = TURNTIME;  // Sticky turn...
@@ -382,20 +382,20 @@ void move_camera()
   // Keyboard camera controls
   if ( keyon )
   {
-    if ( control_key_is_pressed( KEY_CAMERA_LEFT )||control_key_is_pressed( KEY_CAMERA_RIGHT ) )
+    if ( control_key_is_pressed( KEY_CAMERA_LEFT ) || control_key_is_pressed( KEY_CAMERA_RIGHT ) )
     {
-      camturnadd+=( control_key_is_pressed( KEY_CAMERA_LEFT )-control_key_is_pressed( KEY_CAMERA_RIGHT ) )*CAMKEYTURN;
+      camturnadd += ( control_key_is_pressed( KEY_CAMERA_LEFT ) - control_key_is_pressed( KEY_CAMERA_RIGHT ) ) * CAMKEYTURN;
       doturntime = TURNTIME;  // Sticky turn...
     }
-    if ( control_key_is_pressed( KEY_CAMERA_IN )||control_key_is_pressed( KEY_CAMERA_OUT ) )
+    if ( control_key_is_pressed( KEY_CAMERA_IN ) || control_key_is_pressed( KEY_CAMERA_OUT ) )
     {
-      camzaddgoto+=( control_key_is_pressed( KEY_CAMERA_OUT )-control_key_is_pressed( KEY_CAMERA_IN ) )*CAMKEYTURN;
+      camzaddgoto += ( control_key_is_pressed( KEY_CAMERA_OUT ) - control_key_is_pressed( KEY_CAMERA_IN ) ) * CAMKEYTURN;
       if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
       if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
     }
   }
-  camx-=( float ) ( ( mView )_CNV( 0,0 ) )*camturnadd;  // xgg
-  camy+=( float ) ( ( mView )_CNV( 1,0 ) )*-camturnadd;
+  camx -= ( float ) ( ( mView )_CNV( 0, 0 ) ) * camturnadd;  // xgg
+  camy += ( float ) ( ( mView )_CNV( 1, 0 ) ) * -camturnadd;
 
   // Make it not break...
   // bound_camtrack();
@@ -408,28 +408,28 @@ void move_camera()
   if ( overlayon )
   {
     // Do fg distance effect
-    waterlayeru[0] += camtrackxvel*waterlayerdistx[0];
-    waterlayerv[0] += camtrackyvel*waterlayerdisty[0];
+    waterlayeru[0] += camtrackxvel * waterlayerdistx[0];
+    waterlayerv[0] += camtrackyvel * waterlayerdisty[0];
   }
-  if ( clearson==bfalse )
+  if ( !clearson )
   {
     // Do bg distance effect
-    waterlayeru[1] += camtrackxvel*waterlayerdistx[1];
-    waterlayerv[1] += camtrackyvel*waterlayerdisty[1];
+    waterlayeru[1] += camtrackxvel * waterlayerdistx[1];
+    waterlayerv[1] += camtrackyvel * waterlayerdisty[1];
   }
 
   // Center on target for doing rotation...
   if ( doturntime != 0 )
   {
-    camcenterx = camcenterx*0.9f + camtrackx*0.1f;
-    camcentery = camcentery*0.9f + camtracky*0.1f;
+    camcenterx = camcenterx * 0.9f + camtrackx * 0.1f;
+    camcentery = camcentery * 0.9f + camtracky * 0.1f;
   }
 
   // Create a tolerance area for walking without camera movement
   x = camtrackx - camx;
   y = camtracky - camy;
-  newx = -( ( mView )_CNV( 0,0 ) * x + ( mView )_CNV( 1,0 ) * y ); // newx = -(mView(0,0) * x + mView(1,0) * y);
-  newy = -( ( mView )_CNV( 0,1 ) * x + ( mView )_CNV( 1,1 ) * y );   // newy = -(mView(0,1) * x + mView(1,1) * y);
+  newx = -( ( mView )_CNV( 0, 0 ) * x + ( mView )_CNV( 1, 0 ) * y ); // newx = -(mView(0,0) * x + mView(1,0) * y);
+  newy = -( ( mView )_CNV( 0, 1 ) * x + ( mView )_CNV( 1, 1 ) * y ); // newy = -(mView(0,1) * x + mView(1,1) * y);
 
 
   // Debug information
@@ -478,16 +478,16 @@ void move_camera()
     }
   }
 
-  turnsin = ( camturnleftrightone*16383 );
-  turnsin = turnsin&16383;
-  turncos = ( turnsin+4096 )&16383;
-  camcenterx += ( movex*turntosin[turncos]+movey*turntosin[turnsin] );
-  camcentery += ( -movex*turntosin[turnsin]+movey*turntosin[turncos] );
+  turnsin = ( camturnleftrightone * 16383 );
+  turnsin = turnsin & 16383;
+  turncos = ( turnsin + 4096 ) & 16383;
+  camcenterx += ( movex * turntosin[turncos] + movey * turntosin[turnsin] );
+  camcentery += ( -movex * turntosin[turnsin] + movey * turntosin[turncos] );
 
   // Finish up the camera
-  camera_look_at( camcenterx,camcentery );
-  camx=( float ) camcenterx+( camzoom*SIN( camturnleftright ) );
-  camy=( float ) camcentery+( camzoom*COS( camturnleftright ) );
+  camera_look_at( camcenterx, camcentery );
+  camx = ( float ) camcenterx + ( camzoom * SIN( camturnleftright ) );
+  camy = ( float ) camcentery + ( camzoom * COS( camturnleftright ) );
   // bound_camera();
 //        adjust_camera_angle(camz-camtracklevel);
   adjust_camera_angle( camz );
@@ -502,8 +502,8 @@ void reset_camera()
   int cnt, save;
 
   camswing = 0;
-  camx = meshedgex/2;
-  camy = meshedgey/2;
+  camx = meshedgex / 2;
+  camy = meshedgey / 2;
   camz = 1500;
   camzoom = 1000;
   camtrackxvel = 0;
@@ -519,10 +519,10 @@ void reset_camera()
   camzadd = 1500;
   camzaddgoto = 1500;
   camzgoto = 1500;
-  camturnleftright = ( float ) ( -PI/4 );
-  camturnleftrightone = ( float ) ( -PI/4 )/( TWO_PI );
+  camturnleftright = ( float ) ( -PI / 4 );
+  camturnleftrightone = ( float ) ( -PI / 4 ) / ( TWO_PI );
   camturnleftrightshort = 0;
-  camturnupdown = ( float ) ( PI/4 );
+  camturnupdown = ( float ) ( PI / 4 );
   camroll = 0;
 
   // Now move the camera towards the players

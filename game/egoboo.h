@@ -47,10 +47,10 @@
 
 typedef struct
 {
-  GLfloat x,y,z,w;
-  GLfloat r,g,b,a;
+  GLfloat x, y, z, w;
+  GLfloat r, g, b, a;
   Uint32   color; // should replace r,g,b,a and be called by glColor4ubv
-  GLfloat s,t;  // u and v in D3D I guess
+  GLfloat s, t; // u and v in D3D I guess
 } GLVERTEX;
 
 // The following magic allows this include to work in multiple files
@@ -433,9 +433,9 @@ EXTERN Sint32              fpsclock  EQ( 0 );             // The number of ticks
 EXTERN Uint32                   wldframe  EQ( 0 );             // The number of frames that should have been drawn
 EXTERN Uint32                   allframe  EQ( 0 );             // The total number of frames drawn so far
 EXTERN Uint32                   fpsframe  EQ( 0 );             // The number of frames drawn this second
-EXTERN Uint8                   statclock  EQ( 0 );            // For stat regeneration
-EXTERN Uint8                   pitclock  EQ( 0 );             // For pit kills
-EXTERN Uint8                   outofsync  EQ( 0 );
+EXTERN Uint32                   statclock  EQ( 0 );            // For stat regeneration
+EXTERN Uint32                   pitclock  EQ( 0 );             // For pit kills
+EXTERN Uint32                   outofsync  EQ( 0 );
 
 EXTERN Uint8                   pitskill  EQ( bfalse );          // Do they kill?
 EXTERN Uint8      parseerror  EQ( 0 );
@@ -605,12 +605,12 @@ EXTERN float                   camtracklevel;              //
 EXTERN float                   camzadd  EQ( 800 );            // Camera height above terrain
 EXTERN float                   camzaddgoto  EQ( 800 );        // Desired z position
 EXTERN float                   camzgoto  EQ( 800 );           //
-EXTERN float                   camturnleftright  EQ(( float )( -PI/4 ) );   // Camera rotations
-EXTERN float                   camturnleftrightone  EQ(( float )( -PI/4 )/( TWO_PI ) );
+EXTERN float                   camturnleftright  EQ( ( float )( -PI / 4 ) );   // Camera rotations
+EXTERN float                   camturnleftrightone  EQ( ( float )( -PI / 4 ) / ( TWO_PI ) );
 EXTERN Uint16                  camturnleftrightshort  EQ( 0 );
 EXTERN float                   camturnadd  EQ( 0 );           // Turning rate
 EXTERN float                   camsustain  EQ( 0.80f );         // Turning rate falloff
-EXTERN float                   camturnupdown  EQ(( float )( PI/4 ) );
+EXTERN float                   camturnupdown  EQ( ( float )( PI / 4 ) );
 EXTERN float                   camroll  EQ( 0 );              //
 EXTERN float                   cornerx[4];                 // Render area corners
 EXTERN float                   cornery[4];                 //
@@ -1382,7 +1382,7 @@ EXTERN float           airfriction  EQ( 0.95f );                                
 EXTERN float           waterfriction  EQ( 0.85f );                              //
 EXTERN float           noslipfriction  EQ( 0.95f );                            //
 EXTERN float           platstick  EQ( 0.040f );                                 //
-EXTERN float           gravity  EQ(( float ) -1.0f );                          // Gravitational accel
+EXTERN float           gravity  EQ( ( float ) - 1.0f );                        // Gravitational accel
 EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
 EXTERN Uint8           damagetiletype  EQ( DAMAGEFIRE );                      // Type of damage
 

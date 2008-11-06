@@ -25,15 +25,15 @@
 
 typedef struct Ticker
 {
-	double lastTime;
-	double tickInterval;
-	int numTicks;
+  double lastTime;
+  double tickInterval;
+  int numTicks;
 }Ticker;
 
-extern void ticker_initWithInterval(Ticker *ticker, double interval);
-extern void ticker_initWithFrequency(Ticker *ticker, int freq);
+extern void ticker_initWithInterval( Ticker *ticker, double interval );
+extern void ticker_initWithFrequency( Ticker *ticker, int freq );
 
-extern void ticker_update(Ticker *ticker);
-extern int  ticker_tick(Ticker *ticker);
+extern void ticker_update( Ticker *ticker );
+extern int  ticker_tick( Ticker *ticker );
 
 #endif // include guard

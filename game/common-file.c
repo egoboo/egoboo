@@ -45,7 +45,8 @@ void fs_removeDirectoryAndContents( const char *dirname )
       if ( fs_fileIsDirectory( filePath ) )
       {
         // fs_removeDirectoryAndContents(filePath);
-      } else
+      }
+      else
       {
         fs_deleteFile( filePath );
       }
@@ -81,7 +82,8 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
       }
 
       fileName = fs_findNextFile();
-    } while ( fileName != NULL );
+    }
+    while ( fileName != NULL );
   }
   fs_findClose();
 }

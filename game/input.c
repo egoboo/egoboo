@@ -25,17 +25,17 @@
 //--------------------------------------------------------------------------------------------
 void read_mouse()
 {
-  int x,y,b;
+  int x, y, b;
   if ( menuactive )
-    b = SDL_GetMouseState( &x,&y );
+    b = SDL_GetMouseState( &x, &y );
   else
-    b = SDL_GetRelativeMouseState( &x,&y );
+    b = SDL_GetRelativeMouseState( &x, &y );
   mousex = x; // mousex and mousey are the wrong type to use in above call
   mousey = y;
-  mousebutton[0] = ( b&SDL_BUTTON( 1 ) ) ? 1:0;
-  mousebutton[1] = ( b&SDL_BUTTON( 3 ) ) ? 1:0;
-  mousebutton[2] = ( b&SDL_BUTTON( 2 ) ) ? 1:0; // Middle is 2 on SDL
-  mousebutton[3] = ( b&SDL_BUTTON( 4 ) ) ? 1:0;
+  mousebutton[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
+  mousebutton[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
+  mousebutton[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0; // Middle is 2 on SDL
+  mousebutton[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -53,10 +53,10 @@ void read_joystick()
   if ( joyaon )
   {
     SDL_JoystickUpdate();
-    joyax = SDL_JoystickGetAxis( sdljoya,0 ) / 32;
-    if ( joyax<100 && joyax>-100 ) joyax=0;
-    joyay = SDL_JoystickGetAxis( sdljoya,1 ) / 32;
-    if ( joyay<100 && joyay>-100 ) joyay=0;
+    joyax = SDL_JoystickGetAxis( sdljoya, 0 ) / 32;
+    if ( joyax < 100 && joyax > -100 ) joyax = 0;
+    joyay = SDL_JoystickGetAxis( sdljoya, 1 ) / 32;
+    if ( joyay < 100 && joyay > -100 ) joyay = 0;
     button = SDL_JoystickNumButtons( sdljoya );
     while ( button >= 0 )
     {
@@ -67,10 +67,10 @@ void read_joystick()
   if ( joybon )
   {
     SDL_JoystickUpdate();
-    joybx = SDL_JoystickGetAxis( sdljoyb,0 ) / 32;
-    if ( joybx<100 && joybx>-100 ) joybx=0;
-    joyby = SDL_JoystickGetAxis( sdljoyb,1 ) / 32;
-    if ( joyby<100 && joyby>-100 ) joyby=0;
+    joybx = SDL_JoystickGetAxis( sdljoyb, 0 ) / 32;
+    if ( joybx < 100 && joybx > -100 ) joybx = 0;
+    joyby = SDL_JoystickGetAxis( sdljoyb, 1 ) / 32;
+    if ( joyby < 100 && joyby > -100 ) joyby = 0;
     button = SDL_JoystickNumButtons( sdljoyb );
     while ( button >= 0 )
     {
@@ -121,13 +121,13 @@ void read_input()
   cnt = 0;
   while ( cnt < JOYBUTTON )
   {
-    jab |= ( joyabutton[cnt]<<cnt );
-    jbb |= ( joybbutton[cnt]<<cnt );
+    jab |= ( joyabutton[cnt] << cnt );
+    jbb |= ( joybbutton[cnt] << cnt );
     cnt++;
   }
 
 
   // Mouse mask
-  msb=( mousebutton[3]<<3 )|( mousebutton[2]<<2 )|( mousebutton[1]<<1 )|( mousebutton[0]<<0 );
+  msb = ( mousebutton[3] << 3 ) | ( mousebutton[2] << 2 ) | ( mousebutton[1] << 1 ) | ( mousebutton[0] << 0 );
 }
 

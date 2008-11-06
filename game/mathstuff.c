@@ -27,32 +27,32 @@
 glVector vsub( glVector A, glVector B )
 {
   glVector tmp;
-  tmp.x=A.x-B.x; tmp.y=A.y-B.y; tmp.z=A.z-B.z;
+  tmp.x = A.x - B.x; tmp.y = A.y - B.y; tmp.z = A.z - B.z;
   return( tmp );
 }
 
 glVector Normalize( glVector vec )
 {
-  glVector tmp=vec;
+  glVector tmp = vec;
   float len;
-  len= SQRT( vec.x*vec.x+vec.y*vec.y+vec.z*vec.z );
-  tmp.x/=len;
-  tmp.y/=len;
-  tmp.z/=len;
+  len = SQRT( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
+  tmp.x /= len;
+  tmp.y /= len;
+  tmp.z /= len;
   return( tmp );
 }
 
 glVector CrossProduct( glVector A, glVector B )
 {
   glVector tmp;
-  tmp.x=A.y*B.z-A.z*B.y;
-  tmp.y=A.z*B.x-A.x*B.z;
-  tmp.z=A.x*B.y-A.y*B.x;
+  tmp.x = A.y * B.z - A.z * B.y;
+  tmp.y = A.z * B.x - A.x * B.z;
+  tmp.z = A.x * B.y - A.y * B.x;
   return( tmp );
 }
 
 float DotProduct( glVector A, glVector B )
-{ return( A.x*B.x+A.y*B.y+A.z*B.z ); }
+{ return( A.x*B.x + A.y*B.y + A.z*B.z ); }
 
 //---------------------------------------------------------------------------------------------
 // Math Stuff-----------------------------------------------------------------------------------
@@ -62,10 +62,10 @@ glMatrix IdentityMatrix()
 {
   glMatrix tmp;
 
-  ( tmp )_CNV( 0,0 )=1; ( tmp )_CNV( 1,0 )=0; ( tmp )_CNV( 2,0 )=0; ( tmp )_CNV( 3,0 )=0;
-  ( tmp )_CNV( 0,1 )=0; ( tmp )_CNV( 1,1 )=1; ( tmp )_CNV( 2,1 )=0; ( tmp )_CNV( 3,1 )=0;
-  ( tmp )_CNV( 0,2 )=0; ( tmp )_CNV( 1,2 )=0; ( tmp )_CNV( 2,2 )=1; ( tmp )_CNV( 3,2 )=0;
-  ( tmp )_CNV( 0,3 )=0; ( tmp )_CNV( 1,3 )=0; ( tmp )_CNV( 2,3 )=0; ( tmp )_CNV( 3,3 )=1;
+  ( tmp )_CNV( 0, 0 ) = 1; ( tmp )_CNV( 1, 0 ) = 0; ( tmp )_CNV( 2, 0 ) = 0; ( tmp )_CNV( 3, 0 ) = 0;
+  ( tmp )_CNV( 0, 1 ) = 0; ( tmp )_CNV( 1, 1 ) = 1; ( tmp )_CNV( 2, 1 ) = 0; ( tmp )_CNV( 3, 1 ) = 0;
+  ( tmp )_CNV( 0, 2 ) = 0; ( tmp )_CNV( 1, 2 ) = 0; ( tmp )_CNV( 2, 2 ) = 1; ( tmp )_CNV( 3, 2 ) = 0;
+  ( tmp )_CNV( 0, 3 ) = 0; ( tmp )_CNV( 1, 3 ) = 0; ( tmp )_CNV( 2, 3 ) = 0; ( tmp )_CNV( 3, 3 ) = 1;
   return( tmp );
 }
 
@@ -74,11 +74,11 @@ glMatrix IdentityMatrix()
 glMatrix ZeroMatrix( void )
 {
   glMatrix ret;
-  int i,j;
+  int i, j;
 
-  for ( i=0; i<4; i++ )
-    for ( j=0; j<4; j++ )
-      ( ret )_CNV( i,j )=0;
+  for ( i = 0; i < 4; i++ )
+    for ( j = 0; j < 4; j++ )
+      ( ret )_CNV( i, j ) = 0;
   return ret;
 }
 
@@ -87,12 +87,12 @@ glMatrix ZeroMatrix( void )
 glMatrix MatrixMult( const glMatrix a, const glMatrix b )
 {
   glMatrix ret = ZeroMatrix();
-  int i,j,k;
+  int i, j, k;
 
-  for ( i=0; i<4; i++ )
-    for ( j=0; j<4; j++ )
-      for ( k=0; k<4; k++ )
-        ( ret )_CNV( i,j ) += ( a )_CNV( k,j ) * ( b )_CNV( i,k );
+  for ( i = 0; i < 4; i++ )
+    for ( j = 0; j < 4; j++ )
+      for ( k = 0; k < 4; k++ )
+        ( ret )_CNV( i, j ) += ( a )_CNV( k, j ) * ( b )_CNV( i, k );
   return ret;
 }
 
@@ -101,9 +101,9 @@ glMatrix MatrixMult( const glMatrix a, const glMatrix b )
 glMatrix Translate( const float dx, const float dy, const float dz )
 {
   glMatrix ret = IdentityMatrix();
-  ( ret )_CNV( 3,0 ) = dx;
-  ( ret )_CNV( 3,1 ) = dy;
-  ( ret )_CNV( 3,2 ) = dz;
+  ( ret )_CNV( 3, 0 ) = dx;
+  ( ret )_CNV( 3, 1 ) = dy;
+  ( ret )_CNV( 3, 2 ) = dz;
   return ret;
 }
 
@@ -114,10 +114,10 @@ glMatrix RotateX( const float rads )
   float cosine = COS( rads );
   float sine = SIN( rads );
   glMatrix ret = IdentityMatrix();
-  ( ret )_CNV( 1,1 ) = cosine;
-  ( ret )_CNV( 2,2 ) = cosine;
-  ( ret )_CNV( 1,2 ) = -sine;
-  ( ret )_CNV( 2,1 ) = sine;
+  ( ret )_CNV( 1, 1 ) = cosine;
+  ( ret )_CNV( 2, 2 ) = cosine;
+  ( ret )_CNV( 1, 2 ) = -sine;
+  ( ret )_CNV( 2, 1 ) = sine;
   return ret;
 }
 
@@ -128,10 +128,10 @@ glMatrix RotateY( const float rads )
   float cosine = COS( rads );
   float sine = SIN( rads );
   glMatrix ret = IdentityMatrix();
-  ( ret )_CNV( 0,0 ) = cosine;  //0,0
-  ( ret )_CNV( 2,2 ) = cosine;  //2,2
-  ( ret )_CNV( 0,2 ) = sine;  //0,2
-  ( ret )_CNV( 2,0 ) = -sine;  //2,0
+  ( ret )_CNV( 0, 0 ) = cosine; //0,0
+  ( ret )_CNV( 2, 2 ) = cosine; //2,2
+  ( ret )_CNV( 0, 2 ) = sine; //0,2
+  ( ret )_CNV( 2, 0 ) = -sine; //2,0
   return ret;
 }
 
@@ -142,10 +142,10 @@ glMatrix RotateZ( const float rads )
   float cosine = COS( rads );
   float sine = SIN( rads );
   glMatrix ret = IdentityMatrix();
-  ( ret )_CNV( 0,0 ) = cosine;  //0,0
-  ( ret )_CNV( 1,1 ) = cosine;  //1,1
-  ( ret )_CNV( 0,1 ) = -sine;  //0,1
-  ( ret )_CNV( 1,0 ) = sine;  //1,0
+  ( ret )_CNV( 0, 0 ) = cosine; //0,0
+  ( ret )_CNV( 1, 1 ) = cosine; //1,1
+  ( ret )_CNV( 0, 1 ) = -sine; //0,1
+  ( ret )_CNV( 1, 0 ) = sine; //1,0
   return ret;
 }
 
@@ -154,9 +154,9 @@ glMatrix RotateZ( const float rads )
 glMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 {
   glMatrix ret = IdentityMatrix();
-  ( ret )_CNV( 0,0 ) = sizex;  //0,0
-  ( ret )_CNV( 1,1 ) = sizey;  //1,1
-  ( ret )_CNV( 2,2 ) = sizez;  //2,2
+  ( ret )_CNV( 0, 0 ) = sizex; //0,0
+  ( ret )_CNV( 1, 1 ) = sizey; //1,1
+  ( ret )_CNV( 2, 2 ) = sizez; //2,2
   return ret;
 }
 
@@ -172,30 +172,30 @@ glMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
   float sy = turntosin[turny];
   float cz = turntosin[( turnz+4096 )&16383];
   float sz = turntosin[turnz];
-  float sxsy = sx*sy;
-  float cxsy = cx*sy;
-  float sxcy = sx*cy;
-  float cxcy = cx*cy;
+  float sxsy = sx * sy;
+  float cxsy = cx * sy;
+  float sxcy = sx * cy;
+  float cxcy = cx * cy;
   glMatrix ret;
-  ( ret )_CNV( 0,0 ) = sizex*( cy*cz );      //0,0
-  ( ret )_CNV( 0,1 ) = sizex*( sxsy*cz+cx*sz );  //0,1
-  ( ret )_CNV( 0,2 ) = sizex*( -cxsy*cz+sx*sz );  //0,2
-  ( ret )_CNV( 0,3 ) = 0;        //0,3
+  ( ret )_CNV( 0, 0 ) = sizex * ( cy * cz ); //0,0
+  ( ret )_CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  //0,1
+  ( ret )_CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );  //0,2
+  ( ret )_CNV( 0, 3 ) = 0;       //0,3
 
-  ( ret )_CNV( 1,0 ) = sizey*( -cy*sz );      //1,0
-  ( ret )_CNV( 1,1 ) = sizey*( -sxsy*sz+cx*cz );  //1,1
-  ( ret )_CNV( 1,2 ) = sizey*( cxsy*sz+sx*cz );  //1,2
-  ( ret )_CNV( 1,3 ) = 0;        //1,3
+  ( ret )_CNV( 1, 0 ) = sizey * ( -cy * sz ); //1,0
+  ( ret )_CNV( 1, 1 ) = sizey * ( -sxsy * sz + cx * cz );  //1,1
+  ( ret )_CNV( 1, 2 ) = sizey * ( cxsy * sz + sx * cz );  //1,2
+  ( ret )_CNV( 1, 3 ) = 0;       //1,3
 
-  ( ret )_CNV( 2,0 ) = sizez*( sy );  //2,0
-  ( ret )_CNV( 2,1 ) = sizez*( -sxcy );      //2,1
-  ( ret )_CNV( 2,2 ) = sizez*( cxcy );      //2,2
-  ( ret )_CNV( 2,3 ) = 0;        //2,3
+  ( ret )_CNV( 2, 0 ) = sizez * ( sy );  //2,0
+  ( ret )_CNV( 2, 1 ) = sizez * ( -sxcy );   //2,1
+  ( ret )_CNV( 2, 2 ) = sizez * ( cxcy );   //2,2
+  ( ret )_CNV( 2, 3 ) = 0;       //2,3
 
-  ( ret )_CNV( 3,0 ) = tx;        //3,0
-  ( ret )_CNV( 3,1 ) = ty;        //3,1
-  ( ret )_CNV( 3,2 ) = tz;        //3,2
-  ( ret )_CNV( 3,3 ) = 1;        //3,3
+  ( ret )_CNV( 3, 0 ) = tx;       //3,0
+  ( ret )_CNV( 3, 1 ) = ty;       //3,1
+  ( ret )_CNV( 3, 2 ) = tz;       //3,2
+  ( ret )_CNV( 3, 3 ) = 1;       //3,3
   return ret;
 }
 
@@ -208,31 +208,31 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
                      float scale )
 {
   glMatrix tmp;
-  widx-=orix;  forx-=orix;  upx-=orix;
-  widx=-widx;  // HUK
-  widy-=oriy;  fory-=oriy;  upy-=oriy;
-  widy=-widy; // HUK
-  widz-=oriz;  forz-=oriz;  upz-=oriz;
-  widz=-widz; // HUK
-  widx=widx*scale;  forx=forx*scale;  upx=upx*scale;
-  widy=widy*scale;  fory=fory*scale;  upy=upy*scale;
-  widz=widz*scale;  forz=forz*scale;  upz=upz*scale;
-  ( tmp )_CNV( 0,0 )=widx;              //0,0
-  ( tmp )_CNV( 0,1 )=widy;              //0,1
-  ( tmp )_CNV( 0,2 )=widz;              //0,2
-  ( tmp )_CNV( 0,3 )=0;                //0,3
-  ( tmp )_CNV( 1,0 )=forx;              //1,0
-  ( tmp )_CNV( 1,1 )=fory;              //1,1
-  ( tmp )_CNV( 1,2 )=forz;              //1,2
-  ( tmp )_CNV( 1,3 )=0;                //1,3
-  ( tmp )_CNV( 2,0 )=upx;              //2,0
-  ( tmp )_CNV( 2,1 )=upy;              //2,1
-  ( tmp )_CNV( 2,2 )=upz;              //2,2
-  ( tmp )_CNV( 2,3 )=0;              //2,3
-  ( tmp )_CNV( 3,0 )=orix;              //3,0
-  ( tmp )_CNV( 3,1 )=oriy;              //3,1
-  ( tmp )_CNV( 3,2 )=oriz;              //3,2
-  ( tmp )_CNV( 3,3 )=1;              //3,3
+  widx -= orix;  forx -= orix;  upx -= orix;
+  widx = -widx;  // HUK
+  widy -= oriy;  fory -= oriy;  upy -= oriy;
+  widy = -widy; // HUK
+  widz -= oriz;  forz -= oriz;  upz -= oriz;
+  widz = -widz; // HUK
+  widx = widx * scale;  forx = forx * scale;  upx = upx * scale;
+  widy = widy * scale;  fory = fory * scale;  upy = upy * scale;
+  widz = widz * scale;  forz = forz * scale;  upz = upz * scale;
+  ( tmp )_CNV( 0, 0 ) = widx;           //0,0
+  ( tmp )_CNV( 0, 1 ) = widy;           //0,1
+  ( tmp )_CNV( 0, 2 ) = widz;           //0,2
+  ( tmp )_CNV( 0, 3 ) = 0;             //0,3
+  ( tmp )_CNV( 1, 0 ) = forx;           //1,0
+  ( tmp )_CNV( 1, 1 ) = fory;           //1,1
+  ( tmp )_CNV( 1, 2 ) = forz;           //1,2
+  ( tmp )_CNV( 1, 3 ) = 0;             //1,3
+  ( tmp )_CNV( 2, 0 ) = upx;           //2,0
+  ( tmp )_CNV( 2, 1 ) = upy;           //2,1
+  ( tmp )_CNV( 2, 2 ) = upz;           //2,2
+  ( tmp )_CNV( 2, 3 ) = 0;           //2,3
+  ( tmp )_CNV( 3, 0 ) = orix;           //3,0
+  ( tmp )_CNV( 3, 1 ) = oriy;           //3,1
+  ( tmp )_CNV( 3, 2 ) = oriz;           //3,2
+  ( tmp )_CNV( 3, 3 ) = 1;           //3,3
   return( tmp );
 }
 
@@ -250,23 +250,23 @@ glMatrix ViewMatrix( const glVector from,     // camera location
   glMatrix view = IdentityMatrix();
   glVector up, right, view_dir;
 
-  view_dir = Normalize( vsub( at,from ) );
+  view_dir = Normalize( vsub( at, from ) );
   right = CrossProduct( world_up, view_dir );
   up = CrossProduct( view_dir, right );
   right = Normalize( right );
   up = Normalize( up );
-  ( view )_CNV( 0,0 ) = right.x;        //0,0
-  ( view )_CNV( 1,0 ) = right.y;        //1,0
-  ( view )_CNV( 2,0 ) = right.z;        //2,0
-  ( view )_CNV( 0,1 ) = up.x;          //0,1
-  ( view )_CNV( 1,1 ) = up.y;          //1,1
-  ( view )_CNV( 2,1 ) = up.z;          //2,1
-  ( view )_CNV( 0,2 ) = view_dir.x;        //0,2
-  ( view )_CNV( 1,2 ) = view_dir.y;        //1,2
-  ( view )_CNV( 2,2 ) = view_dir.z;      //2,2
-  ( view )_CNV( 3,0 ) = -DotProduct( right, from );    //3,0
-  ( view )_CNV( 3,1 ) = -DotProduct( up, from );      //3,1
-  ( view )_CNV( 3,2 ) = -DotProduct( view_dir, from );  //3,2
+  ( view )_CNV( 0, 0 ) = right.x;       //0,0
+  ( view )_CNV( 1, 0 ) = right.y;       //1,0
+  ( view )_CNV( 2, 0 ) = right.z;       //2,0
+  ( view )_CNV( 0, 1 ) = up.x;         //0,1
+  ( view )_CNV( 1, 1 ) = up.y;         //1,1
+  ( view )_CNV( 2, 1 ) = up.z;         //2,1
+  ( view )_CNV( 0, 2 ) = view_dir.x;       //0,2
+  ( view )_CNV( 1, 2 ) = view_dir.y;       //1,2
+  ( view )_CNV( 2, 2 ) = view_dir.z;     //2,2
+  ( view )_CNV( 3, 0 ) = -DotProduct( right, from );   //3,0
+  ( view )_CNV( 3, 1 ) = -DotProduct( up, from );     //3,1
+  ( view )_CNV( 3, 2 ) = -DotProduct( view_dir, from ); //3,2
 
   if ( roll != 0.0f )
   {
@@ -285,15 +285,15 @@ glMatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
                            const float far_plane,      // distance to far clipping plane
                            const float fov )           // field of view angle, in radians
 {
-  float c = COS( fov*0.5f );
-  float s = SIN( fov*0.5f );
-  float Q = s/( 1.0f - near_plane/far_plane );
+  float c = COS( fov * 0.5f );
+  float s = SIN( fov * 0.5f );
+  float Q = s / ( 1.0f - near_plane / far_plane );
   glMatrix ret = ZeroMatrix();
-  ( ret )_CNV( 0,0 ) = c;          //0,0
-  ( ret )_CNV( 1,1 ) = c;          //1,1
-  ( ret )_CNV( 2,2 ) = Q;          //2,2
-  ( ret )_CNV( 3,2 ) = -Q*near_plane;    //3,2
-  ( ret )_CNV( 2,3 ) = s;          //2,3
+  ( ret )_CNV( 0, 0 ) = c;         //0,0
+  ( ret )_CNV( 1, 1 ) = c;         //1,1
+  ( ret )_CNV( 2, 2 ) = Q;         //2,2
+  ( ret )_CNV( 3, 2 ) = -Q * near_plane; //3,2
+  ( ret )_CNV( 2, 3 ) = s;         //2,3
   return ret;
 }
 

@@ -69,26 +69,26 @@
 
 
 typedef struct glmatrix { float v[16]; } glMatrix;
-typedef struct glvector { float x,y,z,w; } glVector;
+typedef struct glvector { float x, y, z, w; } glVector;
 
 /**> GLOBAL VARIABLES <**/
 extern float                   turntosin[16384];           // Convert chrturn>>2...  to sine
 
 /**> FUNCTION PROTOTYPES <**/
-glVector vsub(glVector A, glVector B);
-glVector Normalize(glVector vec);
-glVector CrossProduct(glVector A, glVector B);
-float DotProduct(glVector A, glVector B);
-glMatrix IdentityMatrix(void);
-glMatrix ZeroMatrix(void);
-glMatrix MatrixMult(const glMatrix a, const glMatrix b);
-glMatrix Translate(const float dx, const float dy, const float dz);
-glMatrix RotateX(const float rads);
-glMatrix RotateY(const float rads);
-glMatrix RotateZ(const float rads);
-glMatrix ScaleXYZ(const float sizex, const float sizey, const float sizez);
-glMatrix ScaleXYZRotateXYZTranslate(const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz);
-glMatrix FourPoints(float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale);
-glMatrix ViewMatrix(const glVector from, const glVector at, const glVector world_up, const float roll);
-glMatrix ProjectionMatrix(const float near_plane, const float far_plane, const float fov);
+glVector vsub( glVector A, glVector B );
+glVector Normalize( glVector vec );
+glVector CrossProduct( glVector A, glVector B );
+float DotProduct( glVector A, glVector B );
+glMatrix IdentityMatrix( void );
+glMatrix ZeroMatrix( void );
+glMatrix MatrixMult( const glMatrix a, const glMatrix b );
+glMatrix Translate( const float dx, const float dy, const float dz );
+glMatrix RotateX( const float rads );
+glMatrix RotateY( const float rads );
+glMatrix RotateZ( const float rads );
+glMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez );
+glMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz );
+glMatrix FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
+glMatrix ViewMatrix( const glVector from, const glVector at, const glVector world_up, const float roll );
+glMatrix ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 void  TransformVertices( glMatrix *pMatrix, glVector *pSourceV, glVector *pDestV, Uint32  pNumVertor );

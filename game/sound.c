@@ -67,7 +67,7 @@ void load_global_waves( char *modname )
 // This function enables the use of SDL_Mixer functions, returns btrue if success
 bool_t sdlmixer_initialize()
 {
-  if (( musicvalid || soundvalid ) && !mixeron )
+  if ( ( musicvalid || soundvalid ) && !mixeron )
   {
     log_info( "Initializing SDL_mixer audio services...\n" );
     Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize );
@@ -92,10 +92,10 @@ int play_sound( float xpos, float ypos, Mix_Chunk *loadedwave )
   if ( soundvalid )
   {
     int distance, volume, pan;
-    distance = SQRT( POW( ABS( camtrackx-xpos ), 2 ) + POW( ABS( camtracky-ypos ), 2 ) ); // Ugly, but just the distance formula
+    distance = SQRT( POW( ABS( camtrackx - xpos ), 2 ) + POW( ABS( camtracky - ypos ), 2 ) ); // Ugly, but just the distance formula
     if ( listening ) distance *= 0.66f;
-    volume = (( distance / VOLUMERATIO ) * ( 1 + ( soundvolume / 100 ) ) ); // adjust volume with ratio and sound volume
-    pan = 57.3f * (( 1.5f*PI )-ATAN2( camy-ypos, camx-xpos ) - camturnleftright ); // Convert the camera angle to the nearest integer degree
+    volume = ( ( distance / VOLUMERATIO ) * ( 1 + ( soundvolume / 100 ) ) ); // adjust volume with ratio and sound volume
+    pan = 57.3f * ( ( 1.5f * PI ) - ATAN2( camy - ypos, camx - xpos ) - camturnleftright ); // Convert the camera angle to the nearest integer degree
     if ( pan < 0 ) pan += 360;
     if ( pan > 360 ) pan -= 360;
     if ( volume < 255 )
@@ -106,18 +106,18 @@ int play_sound( float xpos, float ypos, Mix_Chunk *loadedwave )
       }
 
       channel = Mix_PlayChannel( -1, loadedwave, 0 );
-      if ( channel !=-1 )
+      if ( channel != -1 )
       {
         Mix_SetDistance( channel, volume );
         if ( pan < 180 )
         {
-          if ( pan < 90 ) Mix_SetPanning( channel, 255 - ( pan * 2.83f ),255 );
-          else Mix_SetPanning( channel, 255 - (( 180 - pan ) * 2.83f ),255 );
+          if ( pan < 90 ) Mix_SetPanning( channel, 255 - ( pan * 2.83f ), 255 );
+          else Mix_SetPanning( channel, 255 - ( ( 180 - pan ) * 2.83f ), 255 );
         }
         else
         {
-          if ( pan < 270 ) Mix_SetPanning( channel, 255, 255 - (( pan - 180 ) * 2.83f ) );
-          else Mix_SetPanning( channel, 255, 255 - (( 360 - pan ) * 2.83f ) );
+          if ( pan < 270 ) Mix_SetPanning( channel, 255, 255 - ( ( pan - 180 ) * 2.83f ) );
+          else Mix_SetPanning( channel, 255, 255 - ( ( 360 - pan ) * 2.83f ) );
         }
       }
       else log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
@@ -159,7 +159,7 @@ void load_all_music_sounds()
     {
       goto_colon_yesno( playlist );
       fscanf( playlist, "%s", songname );
-      sprintf( loadpath,( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
+      sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
       instrumenttosound[cnt] = Mix_LoadMUS( loadpath );
       cnt++;
     }

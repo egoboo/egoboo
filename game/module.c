@@ -86,7 +86,7 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
 
 
     // Now check expansions
-    while ( goto_colon_yesno( fileread ) && foundidsz == bfalse )
+    while ( goto_colon_yesno( fileread ) && !foundidsz )
     {
       newidsz = get_idsz( fileread );
       if ( newidsz == idsz )
@@ -110,17 +110,17 @@ void add_module_idsz( char *szLoadName, Uint32 idsz )
   char chara, charb, charc, chard;
 
   // Only add if there isn't one already
-  if ( module_reference_matches( szLoadName, idsz ) == bfalse )
+  if ( !module_reference_matches( szLoadName, idsz ) )
   {
     // Try to open the file in append mode
     sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
     filewrite = fopen( newloadname, "a" );
     if ( filewrite )
     {
-      chara = (( idsz>>15 )&31 )+'A';
-      charb = (( idsz>>10 )&31 )+'A';
-      charc = (( idsz>>5 )&31 )+'A';
-      chard = (( idsz )&31 )+'A';
+      chara = ( ( idsz >> 15 ) & 31 ) + 'A';
+      charb = ( ( idsz >> 10 ) & 31 ) + 'A';
+      charc = ( ( idsz >> 5 ) & 31 ) + 'A';
+      chard = ( ( idsz ) & 31 ) + 'A';
       fprintf( filewrite, "\n:[%c%c%c%c]\n", chara, charb, charc, chard );
       fclose( filewrite );
     }
@@ -270,7 +270,7 @@ int get_module_data( int modnumber, char *szLoadName )
       if ( cTmp == 'T' || cTmp == 't' )  modrtscontrol[modnumber] = btrue;
       goto_colon( fileread );  fscanf( fileread, "%s", generictext );
       iTmp = 0;
-      while ( iTmp < RANKSIZE-1 )
+      while ( iTmp < RANKSIZE - 1 )
       {
         modrank[modnumber][iTmp] = generictext[iTmp];
         iTmp++;
@@ -321,7 +321,7 @@ int get_module_summary( char *szLoadName )
       goto_colon( fileread );  fscanf( fileread, "%s", szLine );
       tnc = 0;
       cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
-      while ( tnc < SUMMARYSIZE-1 && cTmp != 0 )
+      while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
       {
         modsummary[cnt][tnc] = cTmp;
         tnc++;

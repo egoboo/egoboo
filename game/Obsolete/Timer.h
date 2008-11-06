@@ -25,17 +25,17 @@
 
 typedef struct Timer
 {
-	double currentTime;
-	double frameTime;
-	float timeScale;
-	int isPaused;
+  double currentTime;
+  double frameTime;
+  float timeScale;
+  int isPaused;
 }Timer;
 
-void timer_init();		// Initialize the timer code
-void timer_shutdown();	// Turn off the timer code
-void timer_update();	// Update all registered timers
+void timer_init();  // Initialize the timer code
+void timer_shutdown(); // Turn off the timer code
+void timer_update(); // Update all registered timers
 
-void timer_addTimer(Timer *t);		// Add a timer for the system to watch
-void timer_removeTimer(Timer *t);	// Tell the system to stop watching this timer
+void timer_addTimer( Timer *t );  // Add a timer for the system to watch
+void timer_removeTimer( Timer *t ); // Tell the system to stop watching this timer
 
 #endif // include guard

@@ -25,7 +25,6 @@
 #include "egoboo_config.h"
 
 #include <SDL_types.h>
-#include <SDL_endian.h>
 
 typedef struct s_rect
 {
@@ -44,12 +43,7 @@ enum
 
 #define Make_IDSZ(chA, chB, chC, chD) (((chA-'A')<<15)|((chB-'A')<<10)|((chC-'A')<<5)|(chD-'A'))
 
-// define a LoadFloatByteswapped() "function" to work on both big and little endian systems
-#if SDL_BYTEORDER != SDL_LIL_ENDIAN
-extern float LoadFloatByteswapped( float *ptr );
-#else
-#    define LoadFloatByteswapped( PTR ) (NULL == PTR ? 0 : *PTR)
-#endif
+
 
 
 #endif // include guard

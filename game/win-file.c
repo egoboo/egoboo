@@ -242,7 +242,7 @@ void empty_import_directory( void )
       }
     }
 
-    if ( FindNextFile( hFind, &wfdData ) == bfalse ) break;
+    if ( !FindNextFile( hFind, &wfdData ) ) break;
   }
   FindClose( hFind );
 }

@@ -62,7 +62,7 @@ void fs_copyFile( const char *source, const char *dest )
     return;
   }
 
-  while (( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
+  while ( ( bytes_read = fread( buf, 1, sizeof( buf ), sourcef ) ) )
     fwrite( buf, 1, bytes_read, destf );
 
   fclose( sourcef );

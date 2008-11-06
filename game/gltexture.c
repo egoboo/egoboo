@@ -108,7 +108,8 @@ void    GLTexture_Load( GLTexture *texture, const char *filename )
       {
         // Bitmaps come in BGR format by default...
         gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGB, tempSurface->w, tempSurface->h, GL_BGR_EXT, GL_UNSIGNED_BYTE, tempSurface->pixels );
-      } else
+      }
+      else
       {
         gluBuild2DMipmaps( GL_TEXTURE_2D, GL_RGB, tempSurface->w, tempSurface->h, GL_RGB, GL_UNSIGNED_BYTE, tempSurface->pixels );
       }
@@ -119,7 +120,8 @@ void    GLTexture_Load( GLTexture *texture, const char *filename )
       {
         // Bitmaps come in BGR format by default...
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tempSurface->w, tempSurface->h, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE, tempSurface->pixels );
-      } else
+      }
+      else
       {
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, tempSurface->w, tempSurface->h, 0, GL_RGB, GL_UNSIGNED_BYTE, tempSurface->pixels );
       }
@@ -138,7 +140,7 @@ void    GLTexture_LoadA( GLTexture *texture, const char *filename, Uint32  key )
 
   /* The key param indicates which color to set alpha to 0.  All other values are 0xFF. */
   SDL_Surface  *tempSurface, *imageSurface;
-  Sint16  x,y;
+  Sint16  x, y;
   Uint32   *p;
 
   /* Load the bitmap into an SDL_Surface */

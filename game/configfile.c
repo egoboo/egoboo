@@ -707,7 +707,7 @@ Sint32 SetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const ch
 // SetConfigBooleanValue saves a boolean in a value specified by pSection and pKey
 Sint32 SetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pBool )
 {
-  if ( pBool == btrue )
+  if ( pBool )
   {
     // save the value with btrue
     return SetConfigValue( pConfigFile, pSection, pKey, "TRUE" );

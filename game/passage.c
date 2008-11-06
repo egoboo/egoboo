@@ -35,7 +35,7 @@ int open_passage( int passage )
   useful = bfalse;
   if ( passage < numpassage )
   {
-    useful = ( passopen[passage]==bfalse );
+    useful = ( !passopen[passage] );
     passopen[passage] = btrue;
     y = passtly[passage];
     while ( y <= passbry[passage] )
@@ -43,8 +43,8 @@ int open_passage( int passage )
       x = passtlx[passage];
       while ( x <= passbrx[passage] )
       {
-        fan = meshfanstart[y]+x;
-        meshfx[fan] = meshfx[fan]&( 255-MESHFXWALL-MESHFXIMPASS-MESHFXSLIPPY );
+        fan = meshfanstart[y] + x;
+        meshfx[fan] = meshfx[fan] & ( 255 - MESHFXWALL - MESHFXIMPASS - MESHFXSLIPPY );
         x++;
       }
       y++;
@@ -65,7 +65,7 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
   int useful, character;
 
 
-  endtile = starttile+frames-1;
+  endtile = starttile + frames - 1;
   useful = bfalse;
   if ( passage < numpassage )
   {
@@ -74,16 +74,16 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
     {
       if ( chron[character] && !chrinpack[character] )
       {
-        if ( chrweight[character] > 20 && chrflyheight[character] == 0 && chrzpos[character] < ( chrlevel[character]+20 ) && chrattachedto[character]==MAXCHR )
+        if ( chrweight[character] > 20 && chrflyheight[character] == 0 && chrzpos[character] < ( chrlevel[character] + 20 ) && chrattachedto[character] == MAXCHR )
         {
-          x = chrxpos[character];  x = x>>7;
-          if ( x>=passtlx[passage] && x<=passbrx[passage] )
+          x = chrxpos[character];  x = x >> 7;
+          if ( x >= passtlx[passage] && x <= passbrx[passage] )
           {
-            y = chrypos[character];  y = y>>7;
-            if ( y>=passtly[passage] && y<=passbry[passage] )
+            y = chrypos[character];  y = y >> 7;
+            if ( y >= passtly[passage] && y <= passbry[passage] )
             {
               // The character is in the passage, so might need to break...
-              fan = meshfanstart[y]+x;
+              fan = meshfanstart[y] + x;
               tile = meshtile[fan];
               if ( tile >= starttile && tile < endtile )
               {
@@ -95,7 +95,7 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
                 tile++;
                 if ( tile == endtile )
                 {
-                  meshfx[fan]|=meshfxor;
+                  meshfx[fan] |= meshfxor;
                   if ( become != 0 )
                   {
                     tile = become;
@@ -129,7 +129,7 @@ void flash_passage( int passage, Uint8 color )
       x = passtlx[passage];
       while ( x <= passbrx[passage] )
       {
-        fan = meshfanstart[y]+x;
+        fan = meshfanstart[y] + x;
         vert = meshvrtstart[fan];
         cnt = 0;
         numvert = meshcommandnumvertices[meshtype[fan]];
@@ -167,7 +167,7 @@ Uint8 find_tile_in_passage( int passage, int tiletype )
     {
       while ( x <= passbrx[passage] )
       {
-        fan = meshfanstart[y]+x;
+        fan = meshfanstart[y] + x;
         if ( meshtile[fan] == tiletype )
         {
           valuetmpx = ( x << 7 ) + 64;
@@ -186,7 +186,7 @@ Uint8 find_tile_in_passage( int passage, int tiletype )
       x = passtlx[passage];
       while ( x <= passbrx[passage] )
       {
-        fan = meshfanstart[y]+x;
+        fan = meshfanstart[y] + x;
         if ( meshtile[fan] == tiletype )
         {
           valuetmpx = ( x << 7 ) + 64;
@@ -213,10 +213,10 @@ Uint16 who_is_blocking_passage( int passage )
 
 
   // Passage area
-  tlx = ( passtlx[passage]<<7 )-CLOSETOLERANCE;
-  tly = ( passtly[passage]<<7 )-CLOSETOLERANCE;
-  brx = (( passbrx[passage]+1 )<<7 )+CLOSETOLERANCE;
-  bry = (( passbry[passage]+1 )<<7 )+CLOSETOLERANCE;
+  tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+  tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+  brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+  bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
 
   // Look at each character
@@ -227,13 +227,13 @@ Uint16 who_is_blocking_passage( int passage )
     if ( chron[character] )
     {
       bumpsize = chrbumpsize[character];
-      if (( !chrinpack[character] ) && chrattachedto[character]==MAXCHR && bumpsize!=0 )
+      if ( ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && bumpsize != 0 )
       {
-        if ( chrxpos[character]>tlx-bumpsize && chrxpos[character]<brx+bumpsize )
+        if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
         {
-          if ( chrypos[character]>tly-bumpsize && chrypos[character]<bry+bumpsize )
+          if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
           {
-            if ( chralive[character] && chrisitem[character]==bfalse )
+            if ( chralive[character] && !chrisitem[character] )
             {
               // Found a live one
               return character;
@@ -271,10 +271,10 @@ void check_passage_music()
     if ( passagemusic[passage] != -1 )       // Only check passages that have music assigned to them
     {
       // Passage area
-      tlx = ( passtlx[passage]<<7 )-CLOSETOLERANCE;
-      tly = ( passtly[passage]<<7 )-CLOSETOLERANCE;
-      brx = (( passbrx[passage]+1 )<<7 )+CLOSETOLERANCE;
-      bry = (( passbry[passage]+1 )<<7 )+CLOSETOLERANCE;
+      tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+      tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+      brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+      bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
       // Look at each character
       character = 0;
@@ -284,13 +284,13 @@ void check_passage_music()
         if ( chron[character] )
         {
           bumpsize = chrbumpsize[character];
-          if (( !chrinpack[character] ) && chrattachedto[character]==MAXCHR && bumpsize!=0 )
+          if ( ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && bumpsize != 0 )
           {
-            if ( chrxpos[character]>tlx-bumpsize && chrxpos[character]<brx+bumpsize )
+            if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
             {
-              if ( chrypos[character]>tly-bumpsize && chrypos[character]<bry+bumpsize )
+              if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
               {
-                if ( chralive[character] && chrisitem[character]==bfalse && chrisplayer[character] )
+                if ( chralive[character] && !chrisitem[character] && chrisplayer[character] )
                 {
                   // Found a player, start music track
                   play_music( passagemusic[passage], 0, -1 );
@@ -318,10 +318,10 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 
 
   // Passage area
-  tlx = ( passtlx[passage]<<7 )-CLOSETOLERANCE;
-  tly = ( passtly[passage]<<7 )-CLOSETOLERANCE;
-  brx = (( passbrx[passage]+1 )<<7 )+CLOSETOLERANCE;
-  bry = (( passbry[passage]+1 )<<7 )+CLOSETOLERANCE;
+  tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+  tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+  brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+  bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
 
   // Look at each character
@@ -331,11 +331,11 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
     if ( chron[character] )
     {
       bumpsize = chrbumpsize[character];
-      if (( !chrisitem[character] ) && bumpsize!=0 && chrinpack[character]==0 )
+      if ( ( !chrisitem[character] ) && bumpsize != 0 && chrinpack[character] == 0 )
       {
-        if ( chrxpos[character]>tlx-bumpsize && chrxpos[character]<brx+bumpsize )
+        if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
         {
-          if ( chrypos[character]>tly-bumpsize && chrypos[character]<bry+bumpsize )
+          if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
           {
             if ( chralive[character] )
             {
@@ -345,7 +345,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
               sTmp = chrnextinpack[character];
               while ( sTmp != MAXCHR )
               {
-                if ( capidsz[chrmodel[sTmp]][IDSZPARENT]==idsz || capidsz[chrmodel[sTmp]][IDSZTYPE]==idsz )
+                if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == idsz || capidsz[chrmodel[sTmp]][IDSZTYPE] == idsz )
                 {
                   // It has the item...
                   return character;
@@ -357,7 +357,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
               if ( sTmp != MAXCHR )
               {
                 sTmp = chrmodel[sTmp];
-                if ( capidsz[sTmp][IDSZPARENT]==idsz || capidsz[sTmp][IDSZTYPE]==idsz )
+                if ( capidsz[sTmp][IDSZPARENT] == idsz || capidsz[sTmp][IDSZTYPE] == idsz )
                 {
                   // It has the item...
                   return character;
@@ -368,7 +368,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
               if ( sTmp != MAXCHR )
               {
                 sTmp = chrmodel[sTmp];
-                if ( capidsz[sTmp][IDSZPARENT]==idsz || capidsz[sTmp][IDSZTYPE]==idsz )
+                if ( capidsz[sTmp][IDSZPARENT] == idsz || capidsz[sTmp][IDSZTYPE] == idsz )
                 {
                   // It has the item...
                   return character;
@@ -401,25 +401,25 @@ int close_passage( int passage )
   Uint16 crushedcharacters[MAXCHR];
 
 
-  if (( passmask[passage]&( MESHFXIMPASS|MESHFXWALL ) ) )
+  if ( ( passmask[passage]&( MESHFXIMPASS | MESHFXWALL ) ) )
   {
     // Make sure it isn't blocked
-    tlx = ( passtlx[passage]<<7 )-CLOSETOLERANCE;
-    tly = ( passtly[passage]<<7 )-CLOSETOLERANCE;
-    brx = (( passbrx[passage]+1 )<<7 )+CLOSETOLERANCE;
-    bry = (( passbry[passage]+1 )<<7 )+CLOSETOLERANCE;
+    tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+    tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+    brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+    bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
     numcrushed = 0;
     character = 0;
     while ( character < MAXCHR )
     {
       bumpsize = chrbumpsize[character];
-      if ( chron[character]&&( !chrinpack[character] )&&chrattachedto[character]==MAXCHR&&chrbumpsize[character]!=0 )
+      if ( chron[character] && ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && chrbumpsize[character] != 0 )
       {
-        if ( chrxpos[character]>tlx-bumpsize && chrxpos[character]<brx+bumpsize )
+        if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
         {
-          if ( chrypos[character]>tly-bumpsize && chrypos[character]<bry+bumpsize )
+          if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
           {
-            if ( chrcanbecrushed[character]==bfalse )
+            if ( !chrcanbecrushed[character] )
             {
               return bfalse;
             }
@@ -455,8 +455,8 @@ int close_passage( int passage )
       x = passtlx[passage];
       while ( x <= passbrx[passage] )
       {
-        fan = meshfanstart[y]+x;
-        meshfx[fan] = meshfx[fan]|passmask[passage];
+        fan = meshfanstart[y] + x;
+        meshfx[fan] = meshfx[fan] | passmask[passage];
         x++;
       }
       y++;
@@ -500,13 +500,13 @@ void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
 {
   // ZZ> This function creates a passage area
   if ( tlx < 0 )  tlx = 0;
-  if ( tlx > meshsizex-1 )  tlx = meshsizex-1;
+  if ( tlx > meshsizex - 1 )  tlx = meshsizex - 1;
   if ( tly < 0 )  tly = 0;
-  if ( tly > meshsizey-1 )  tly = meshsizey-1;
+  if ( tly > meshsizey - 1 )  tly = meshsizey - 1;
   if ( brx < 0 )  brx = 0;
-  if ( brx > meshsizex-1 )  brx = meshsizex-1;
+  if ( brx > meshsizex - 1 )  brx = meshsizex - 1;
   if ( bry < 0 )  bry = 0;
-  if ( bry > meshsizey-1 )  bry = meshsizey-1;
+  if ( bry > meshsizey - 1 )  bry = meshsizey - 1;
   if ( numpassage < MAXPASS )
   {
     passtlx[numpassage] = tlx;
@@ -517,9 +517,9 @@ void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
     passagemusic[numpassage] = -1;          // Set no song as default
     numpassage++;
     if ( open )
-      passopen[numpassage-1]=btrue;
+      passopen[numpassage-1] = btrue;
     else
-      passopen[numpassage-1]=bfalse;
+      passopen[numpassage-1] = bfalse;
   }
 }
 
@@ -550,7 +550,7 @@ void setup_passage( char *modname )
       open = bfalse;
       if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
       cTmp = get_first_letter( fileread );
-      mask = MESHFXIMPASS|MESHFXWALL;
+      mask = MESHFXIMPASS | MESHFXWALL;
       if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFXIMPASS;
       cTmp = get_first_letter( fileread );
       if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFXSLIPPY;

@@ -88,11 +88,11 @@ void move_water( void )
   {
     waterlayeru[layer] += waterlayeruadd[layer];
     waterlayerv[layer] += waterlayervadd[layer];
-    if ( waterlayeru[layer]>1.0f )  waterlayeru[layer]-=1.0f;
-    if ( waterlayerv[layer]>1.0f )  waterlayerv[layer]-=1.0f;
-    if ( waterlayeru[layer]<-1.0f )  waterlayeru[layer]+=1.0f;
-    if ( waterlayerv[layer]<-1.0f )  waterlayerv[layer]+=1.0f;
-    waterlayerframe[layer]=( waterlayerframe[layer]+waterlayerframeadd[layer] )&WATERFRAMEAND;
+    if ( waterlayeru[layer] > 1.0f )  waterlayeru[layer] -= 1.0f;
+    if ( waterlayerv[layer] > 1.0f )  waterlayerv[layer] -= 1.0f;
+    if ( waterlayeru[layer] < -1.0f )  waterlayeru[layer] += 1.0f;
+    if ( waterlayerv[layer] < -1.0f )  waterlayerv[layer] += 1.0f;
+    waterlayerframe[layer] = ( waterlayerframe[layer] + waterlayerframeadd[layer] ) & WATERFRAMEAND;
   }
 }
 
@@ -126,7 +126,7 @@ void load_mesh_fans()
     goto_colon( fileread );
     fscanf( fileread, "%d", &numfantype );
     fantype = 0;
-    bigfantype = MAXMESHTYPE/2; // Duplicate for 64x64 tiles
+    bigfantype = MAXMESHTYPE / 2; // Duplicate for 64x64 tiles
     while ( fantype < numfantype )
     {
       goto_colon( fileread );
@@ -183,15 +183,15 @@ void load_mesh_fans()
 
   // Correct all of them silly texture positions for seamless tiling
   entry = 0;
-  while ( entry < MAXMESHTYPE/2 )
+  while ( entry < MAXMESHTYPE / 2 )
   {
     cnt = 0;
     while ( cnt < meshcommandnumvertices[entry] )
     {
 //            meshcommandu[entry][cnt] = ((0.5f/32)+(meshcommandu[entry][cnt]*31/32))/8;
 //            meshcommandv[entry][cnt] = ((0.5f/32)+(meshcommandv[entry][cnt]*31/32))/8;
-      meshcommandu[entry][cnt] = ( ( 0.6f/32 )+( meshcommandu[entry][cnt]*30.8f/32 ) )/8;
-      meshcommandv[entry][cnt] = ( ( 0.6f/32 )+( meshcommandv[entry][cnt]*30.8f/32 ) )/8;
+      meshcommandu[entry][cnt] = ( ( 0.6f / 32 ) + ( meshcommandu[entry][cnt] * 30.8f / 32 ) ) / 8;
+      meshcommandv[entry][cnt] = ( ( 0.6f / 32 ) + ( meshcommandv[entry][cnt] * 30.8f / 32 ) ) / 8;
       cnt++;
     }
     entry++;
@@ -204,8 +204,8 @@ void load_mesh_fans()
     {
 //            meshcommandu[entry][cnt] = ((0.5f/64)+(meshcommandu[entry][cnt]*63/64))/4;
 //            meshcommandv[entry][cnt] = ((0.5f/64)+(meshcommandv[entry][cnt]*63/64))/4;
-      meshcommandu[entry][cnt] = ( ( 0.6f/64 )+( meshcommandu[entry][cnt]*62.8f/64 ) )/4;
-      meshcommandv[entry][cnt] = ( ( 0.6f/64 )+( meshcommandv[entry][cnt]*62.8f/64 ) )/4;
+      meshcommandu[entry][cnt] = ( ( 0.6f / 64 ) + ( meshcommandu[entry][cnt] * 62.8f / 64 ) ) / 4;
+      meshcommandv[entry][cnt] = ( ( 0.6f / 64 ) + ( meshcommandv[entry][cnt] * 62.8f / 64 ) ) / 4;
       cnt++;
     }
     entry++;
@@ -216,8 +216,8 @@ void load_mesh_fans()
   entry = 0;
   while ( entry < MAXTILETYPE )
   {
-    offx = ( entry&7 )/8.0f;
-    offy = ( entry>>3 )/8.0f;
+    offx = ( entry & 7 ) / 8.0f;
+    offy = ( entry >> 3 ) / 8.0f;
     meshtileoffu[entry] = offx;
     meshtileoffv[entry] = offy;
     entry++;
@@ -235,13 +235,13 @@ void make_fanstart()
   cnt = 0;
   while ( cnt < meshsizey )
   {
-    meshfanstart[cnt] = meshsizex*cnt;
+    meshfanstart[cnt] = meshsizex * cnt;
     cnt++;
   }
   cnt = 0;
-  while ( cnt < ( meshsizey>>2 ) )
+  while ( cnt < ( meshsizey >> 2 ) )
   {
-    meshblockstart[cnt] = ( meshsizex>>2 )*cnt;
+    meshblockstart[cnt] = ( meshsizex >> 2 ) * cnt;
     cnt++;
   }
 }
@@ -259,15 +259,15 @@ void make_lighttospek( void )
   {
     for ( tnc = 0; tnc < 256; tnc++ )
     {
-      fTmp = tnc/256.0f;
-      fPow = ( fTmp*4.0f )+1;
+      fTmp = tnc / 256.0f;
+      fPow = ( fTmp * 4.0f ) + 1;
       fTmp = POW( fTmp, fPow );
-      fTmp = fTmp*cnt*255.0f/MAXSPEKLEVEL;
-      if ( fTmp<0 ) fTmp=0;
-      if ( fTmp>255 ) fTmp=255;
+      fTmp = fTmp * cnt * 255.0f / MAXSPEKLEVEL;
+      if ( fTmp < 0 ) fTmp = 0;
+      if ( fTmp > 255 ) fTmp = 255;
       spek = fTmp;
-      spek = spek>>1;
-      lighttospek[cnt][tnc] = ( 0xff000000 )|( spek<<16 )|( spek<<8 )|( spek );
+      spek = spek >> 1;
+      lighttospek[cnt][tnc] = ( 0xff000000 ) | ( spek << 16 ) | ( spek << 8 ) | ( spek );
     }
   }
 }
@@ -312,7 +312,7 @@ void show_stat( Uint16 statindex )
         if ( level == 2 )
           sprintf( text, " 3rd level %s%s", gender, capclassname[chrmodel[character]] );
         if ( level >  2 )
-          sprintf( text, " %dth level %s%s", level+1, gender, capclassname[chrmodel[character]] );
+          sprintf( text, " %dth level %s%s", level + 1, gender, capclassname[chrmodel[character]] );
       }
       else
       {
@@ -321,9 +321,9 @@ void show_stat( Uint16 statindex )
 
       // Stats
       debug_message( text );
-      sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", chrstrength[character]>>8, chrwisdom[character]>>8, 255-chrdefense[character] );
+      sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", chrstrength[character] >> 8, chrwisdom[character] >> 8, 255 - chrdefense[character] );
       debug_message( text );
-      sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", chrintelligence[character]>>8, chrdexterity[character]>>8, chrexperience[character] );
+      sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", chrintelligence[character] >> 8, chrdexterity[character] >> 8, chrexperience[character] );
       debug_message( text );
       statdelay = 10;
     }
@@ -346,11 +346,11 @@ void show_armor( Uint16 statindex )
       skinlevel = chrtexture[character] - madskinstart[chrmodel[character]];
 
       // Armor Name
-      sprintf( text, "=%s=", capskinname[chrmodel[character]] );
+      sprintf( text, "=%s=", capskinname[chrmodel[character]][skinlevel] );
       debug_message( text );
 
       // Armor Stats
-      sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255-capdefense[chrmodel[character]][skinlevel],
+      sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - capdefense[chrmodel[character]][skinlevel],
                capdamagemodifier[chrmodel[character]][0][skinlevel]&DAMAGESHIFT,
                capdamagemodifier[chrmodel[character]][1][skinlevel]&DAMAGESHIFT,
                capdamagemodifier[chrmodel[character]][2][skinlevel]&DAMAGESHIFT );
@@ -409,7 +409,7 @@ void show_full_status( Uint16 statindex )
 
       // Armor Stats
       sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-               255-chrdefense[character],
+               255 - chrdefense[character],
                chrdamagemodifier[character][0]&DAMAGESHIFT,
                chrdamagemodifier[character][1]&DAMAGESHIFT,
                chrdamagemodifier[character][2]&DAMAGESHIFT );
@@ -500,13 +500,13 @@ void make_lightdirectionlookup()
 
   for ( cnt = 0; cnt < 65536; cnt++ )
   {
-    tl = ( cnt&0xf000 )>>12;
-    tr = ( cnt&0x0f00 )>>8;
-    br = ( cnt&0x00f0 )>>4;
-    bl = ( cnt&0x000f );
-    x = br+tr-bl-tl;
-    y = br+bl-tl-tr;
-    lightdirectionlookup[cnt] = ( ATAN2( -y, x )+PI )*256/( TWO_PI );
+    tl = ( cnt & 0xf000 ) >> 12;
+    tr = ( cnt & 0x0f00 ) >> 8;
+    br = ( cnt & 0x00f0 ) >> 4;
+    bl = ( cnt & 0x000f );
+    x = br + tr - bl - tl;
+    y = br + bl - tl - tr;
+    lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) * 256 / ( TWO_PI );
   }
 }
 
@@ -528,7 +528,7 @@ void display_message( int message, Uint16 character )
     msgtime[slot] = MESSAGETIME;
     // Copy the message
     read = msgindex[message];
-    cnt=0;
+    cnt = 0;
     write = 0;
     cTmp = msgtext[read];  read++;
     while ( cTmp != 0 )
@@ -686,7 +686,7 @@ void display_message( int message, Uint16 character )
           }
         }
         cTmp = *eread;  eread++;
-        while ( cTmp != 0 && write < MESSAGESIZE-1 )
+        while ( cTmp != 0 && write < MESSAGESIZE - 1 )
         {
           msgtextdisplay[slot][write] = cTmp;
           cTmp = *eread;  eread++;
@@ -696,7 +696,7 @@ void display_message( int message, Uint16 character )
       else
       {
         // Copy the letter
-        if ( write < MESSAGESIZE-1 )
+        if ( write < MESSAGESIZE - 1 )
         {
           msgtextdisplay[slot][write] = cTmp;
           write++;
@@ -755,21 +755,21 @@ int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
   //     If waterwalk is nonzero and the fan is watery, then the level returned is the
   //     level of the water.
   int z0, z1, z2, z3;         // Height of each fan corner
-  int zleft, zright,zdone;    // Weighted height of each side
+  int zleft, zright, zdone;   // Weighted height of each side
 
-  x = x&127;
-  y = y&127;
-  z0 = meshvrtz[meshvrtstart[fan]+0];
-  z1 = meshvrtz[meshvrtstart[fan]+1];
-  z2 = meshvrtz[meshvrtstart[fan]+2];
-  z3 = meshvrtz[meshvrtstart[fan]+3];
+  x = x & 127;
+  y = y & 127;
+  z0 = meshvrtz[meshvrtstart[fan] + 0];
+  z1 = meshvrtz[meshvrtstart[fan] + 1];
+  z2 = meshvrtz[meshvrtstart[fan] + 2];
+  z3 = meshvrtz[meshvrtstart[fan] + 3];
 
-  zleft = ( z0*( 128-y )+z3*y )>>7;
-  zright = ( z1*( 128-y )+z2*y )>>7;
-  zdone = ( zleft*( 128-x )+zright*x )>>7;
+  zleft = ( z0 * ( 128 - y ) + z3 * y ) >> 7;
+  zright = ( z1 * ( 128 - y ) + z2 * y ) >> 7;
+  zdone = ( zleft * ( 128 - x ) + zright * x ) >> 7;
   if ( waterwalk )
   {
-    if ( watersurfacelevel>zdone && ( meshfx[fan]&MESHFXWATER ) && wateriswater )
+    if ( watersurfacelevel > zdone && ( meshfx[fan]&MESHFXWATER ) && wateriswater )
     {
       return watersurfacelevel;
     }
@@ -828,7 +828,7 @@ void prime_titleimage()
   int cnt;
 
   for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-    TxTitleImage[cnt].textureID=0;
+    TxTitleImage[cnt].textureID = 0;
 
   // titlerect.x = 0;
   // titlerect.w = TITLESIZE;
@@ -842,17 +842,17 @@ void prime_icons()
   // ZZ> This function sets the icon pointers to NULL
   int cnt;
 
-  for ( cnt = 0; cnt < MAXTEXTURE+1; cnt++ )
+  for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
   {
     // lpDDSIcon[cnt]=NULL;
-    TxIcon[cnt].textureID=-1;
-    madskintoicon[cnt]=0;
+    TxIcon[cnt].textureID = -1;
+    madskintoicon[cnt] = 0;
   }
   iconrect.left = 0;
   iconrect.right = 32;
   iconrect.top = 0;
   iconrect.bottom = 32;
-  globalnumicon=0;
+  globalnumicon = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -861,7 +861,7 @@ void release_all_icons()
   // ZZ> This function clears out all of the icons
   int cnt;
 
-  for ( cnt = 0; cnt < MAXTEXTURE+1; cnt++ )
+  for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     GLTexture_Release( &TxIcon[cnt] );
 
   prime_icons();  /* Do we need this? */
@@ -894,7 +894,7 @@ void release_all_models()
     madname[cnt][5] = '*';
     madname[cnt][6] = 0;
   }
-  madloadframe=0;
+  madloadframe = 0;
 }
 
 
@@ -971,11 +971,11 @@ void append_end_text( int message, Uint16 character )
 
   target = chraitarget[character];
   owner = chraiowner[character];
-  if ( message<msgtotal )
+  if ( message < msgtotal )
   {
     // Copy the message
     read = msgindex[message];
-    cnt=0;
+    cnt = 0;
     cTmp = msgtext[read];  read++;
     while ( cTmp != 0 )
     {
@@ -1133,7 +1133,7 @@ void append_end_text( int message, Uint16 character )
         }
         // Copy the generated text
         cTmp = *eread;  eread++;
-        while ( cTmp != 0 && endtextwrite < MAXENDTEXT-1 )
+        while ( cTmp != 0 && endtextwrite < MAXENDTEXT - 1 )
         {
           endtext[endtextwrite] = cTmp;
           cTmp = *eread;  eread++;
@@ -1143,7 +1143,7 @@ void append_end_text( int message, Uint16 character )
       else
       {
         // Copy the letter
-        if ( endtextwrite < MAXENDTEXT-1 )
+        if ( endtextwrite < MAXENDTEXT - 1 )
         {
           endtext[endtextwrite] = cTmp;
           endtextwrite++;
@@ -1162,17 +1162,17 @@ void make_textureoffset( void )
   // ZZ> This function sets up for moving textures
   int cnt;
   for ( cnt = 0; cnt < 256; cnt++ )
-    textureoffset[cnt] = cnt*1.0f/256;
+    textureoffset[cnt] = cnt * 1.0f / 256;
 }
 
 //--------------------------------------------------------------------------------------------
 void create_szfpstext( int frames )
 {
   // ZZ> This function fills in the number of frames in "000 Frames per Second"
-  frames = frames&511;
-  szfpstext[0] = '0'+( frames/100 );
-  szfpstext[1] = '0'+( ( frames/10 )%10 );
-  szfpstext[2] = '0'+( frames%10 );
+  frames = frames & 511;
+  szfpstext[0] = '0' + ( frames / 100 );
+  szfpstext[1] = '0' + ( ( frames / 10 ) % 10 );
+  szfpstext[2] = '0' + ( frames % 10 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1204,7 +1204,7 @@ void make_renderlist()
   // Make sure it doesn't die ugly !!!BAD!!!
 
   // It works better this way...
-  cornery[cornerlistlowtohighy[3]]+=256;
+  cornery[cornerlistlowtohighy[3]] += 256;
 
   // Make life simpler
   xlist[0] = cornerx[cornerlistlowtohighy[0]];
@@ -1217,65 +1217,65 @@ void make_renderlist()
   ylist[3] = cornery[cornerlistlowtohighy[3]];
 
   // Find the center line
-  divx = ylist[3]-ylist[0]; if ( divx < 1 ) return;
-  stepx = xlist[3]-xlist[0];
+  divx = ylist[3] - ylist[0]; if ( divx < 1 ) return;
+  stepx = xlist[3] - xlist[0];
   basex = xlist[0];
 
 
   // Find the points in each edge
   leftlist[0] = 0;  leftnum = 1;
   rightlist[0] = 0;  rightnum = 1;
-  if ( xlist[1] < ( stepx*( ylist[1]-ylist[0] )/divx )+basex )
+  if ( xlist[1] < ( stepx*( ylist[1] - ylist[0] ) / divx ) + basex )
   {
     leftlist[leftnum] = 1;  leftnum++;
-    cornerx[1]-=512;
+    cornerx[1] -= 512;
   }
   else
   {
     rightlist[rightnum] = 1;  rightnum++;
-    cornerx[1]+=512;
+    cornerx[1] += 512;
   }
-  if ( xlist[2] < ( stepx*( ylist[2]-ylist[0] )/divx )+basex )
+  if ( xlist[2] < ( stepx*( ylist[2] - ylist[0] ) / divx ) + basex )
   {
     leftlist[leftnum] = 2;  leftnum++;
-    cornerx[2]-=512;
+    cornerx[2] -= 512;
   }
   else
   {
     rightlist[rightnum] = 2;  rightnum++;
-    cornerx[2]+=512;
+    cornerx[2] += 512;
   }
   leftlist[leftnum] = 3;  leftnum++;
   rightlist[rightnum] = 3;  rightnum++;
 
 
   // Make the left edge ( rowstart )
-  fany = ylist[0]>>7;
+  fany = ylist[0] >> 7;
   row = 0;
   cnt = 1;
   while ( cnt < leftnum )
   {
     from = leftlist[cnt-1];  to = leftlist[cnt];
     x = xlist[from];
-    divx = ylist[to]-ylist[from];
+    divx = ylist[to] - ylist[from];
     stepx = 0;
     if ( divx > 0 )
     {
-      stepx = ( ( xlist[to]-xlist[from] )<<7 )/divx;
+      stepx = ( ( xlist[to] - xlist[from] ) << 7 ) / divx;
     }
-    x-=256;
-    run = ylist[to]>>7;
+    x -= 256;
+    run = ylist[to] >> 7;
     while ( fany < run )
     {
       if ( fany >= 0 && fany < meshsizey )
       {
-        fanx = x>>7;
+        fanx = x >> 7;
         if ( fanx < 0 )  fanx = 0;
-        if ( fanx >= meshsizex )  fanx = meshsizex-1;
+        if ( fanx >= meshsizex )  fanx = meshsizex - 1;
         fanrowstart[row] = fanx;
         row++;
       }
-      x+=stepx;
+      x += stepx;
       fany++;
     }
     cnt++;
@@ -1284,7 +1284,7 @@ void make_renderlist()
 
 
   // Make the right edge ( rowrun )
-  fany = ylist[0]>>7;
+  fany = ylist[0] >> 7;
   row = 0;
   cnt = 1;
   while ( cnt < rightnum )
@@ -1292,24 +1292,24 @@ void make_renderlist()
     from = rightlist[cnt-1];  to = rightlist[cnt];
     x = xlist[from];
     // x+=128;
-    divx = ylist[to]-ylist[from];
+    divx = ylist[to] - ylist[from];
     stepx = 0;
     if ( divx > 0 )
     {
-      stepx = ( ( xlist[to]-xlist[from] )<<7 )/divx;
+      stepx = ( ( xlist[to] - xlist[from] ) << 7 ) / divx;
     }
-    run = ylist[to]>>7;
+    run = ylist[to] >> 7;
     while ( fany < run )
     {
       if ( fany >= 0 && fany < meshsizey )
       {
-        fanx = x>>7;
+        fanx = x >> 7;
         if ( fanx < 0 )  fanx = 0;
-        if ( fanx >= meshsizex-1 )  fanx = meshsizex-1;//-2
-        fanrowrun[row] = ABS( fanx-fanrowstart[row] )+1;
+        if ( fanx >= meshsizex - 1 )  fanx = meshsizex - 1;//-2
+        fanrowrun[row] = ABS( fanx - fanrowstart[row] ) + 1;
         row++;
       }
-      x+=stepx;
+      x += stepx;
       fany++;
     }
     cnt++;
@@ -1321,13 +1321,13 @@ void make_renderlist()
   }
 
   // Fill 'em up again
-  fany = ylist[0]>>7;
+  fany = ylist[0] >> 7;
   if ( fany < 0 ) fany = 0;
-  if ( fany >= meshsizey ) fany = meshsizey-1;
+  if ( fany >= meshsizey ) fany = meshsizey - 1;
   row = 0;
   while ( row < numrow )
   {
-    cnt = meshfanstart[fany]+fanrowstart[row];
+    cnt = meshfanstart[fany] + fanrowstart[row];
     run = fanrowrun[row];
     fanx = 0;
     while ( fanx < run )
@@ -1368,8 +1368,8 @@ void figure_out_what_to_draw()
   // Make the render list for the mesh
   make_renderlist();
 
-  camturnleftrightone = ( camturnleftright )/( TWO_PI );
-  camturnleftrightshort = camturnleftrightone*65536;
+  camturnleftrightone = ( camturnleftright ) / ( TWO_PI );
+  camturnleftrightshort = camturnleftrightone * 65536;
 
   // Request matrices needed for local machine
   make_dolist();
@@ -1380,7 +1380,7 @@ void figure_out_what_to_draw()
 void animate_tiles()
 {
   // This function changes the animated tile frame
-  if ( ( wldframe & animtileupdateand )==0 )
+  if ( ( wldframe & animtileupdateand ) == 0 )
   {
     animtileframeadd = ( animtileframeadd + 1 ) & animtileframeand;
   }
@@ -1458,13 +1458,13 @@ Uint16 test_frame_name( char letter )
 {
   // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
   //     of the frame name matches the input argument
-  if ( cFrameName[4]==letter ) return btrue;
-  if ( cFrameName[4]==0 ) return bfalse;
-  if ( cFrameName[5]==letter ) return btrue;
-  if ( cFrameName[5]==0 ) return bfalse;
-  if ( cFrameName[6]==letter ) return btrue;
-  if ( cFrameName[6]==0 ) return bfalse;
-  if ( cFrameName[7]==letter ) return btrue;
+  if ( cFrameName[4] == letter ) return btrue;
+  if ( cFrameName[4] == 0 ) return bfalse;
+  if ( cFrameName[5] == letter ) return btrue;
+  if ( cFrameName[5] == 0 ) return bfalse;
+  if ( cFrameName[6] == letter ) return btrue;
+  if ( cFrameName[6] == 0 ) return bfalse;
+  if ( cFrameName[7] == letter ) return btrue;
   return bfalse;
 }
 
@@ -1473,14 +1473,14 @@ void action_copy_correct( int object, Uint16 actiona, Uint16 actionb )
 {
   // ZZ> This function makes sure both actions are valid if either of them
   //     are valid.  It will copy start and ends to mirror the valid action.
-  if ( madactionvalid[object][actiona]==madactionvalid[object][actionb] )
+  if ( madactionvalid[object][actiona] == madactionvalid[object][actionb] )
   {
     // They are either both valid or both invalid, in either case we can't help
   }
   else
   {
     // Fix the invalid one
-    if ( madactionvalid[object][actiona]==bfalse )
+    if ( !madactionvalid[object][actiona] )
     {
       // Fix actiona
       madactionvalid[object][actiona] = btrue;
@@ -1502,16 +1502,16 @@ void get_walk_frame( int object, int lip, int action )
 {
   // ZZ> This helps make walking look right
   int frame = 0;
-  int framesinaction = madactionend[object][action]-madactionstart[object][action];
+  int framesinaction = madactionend[object][action] - madactionstart[object][action];
 
   while ( frame < 16 )
   {
     int framealong = 0;
     if ( framesinaction > 0 )
     {
-      framealong = ( ( frame*framesinaction/16 ) + 2 )%framesinaction;
+      framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
     }
-    madframeliptowalkframe[object][lip][frame]=madactionstart[object][action]+framealong;
+    madframeliptowalkframe[object][lip][frame] = madactionstart[object][action] + framealong;
     frame++;
   }
 }
@@ -1524,35 +1524,35 @@ void get_framefx( int frame )
   Uint16 fx = 0;
 
   if ( test_frame_name( 'I' ) )
-    fx=fx|MADFXINVICTUS;
+    fx = fx | MADFXINVICTUS;
   if ( test_frame_name( 'L' ) )
   {
     if ( test_frame_name( 'A' ) )
-      fx=fx|MADFXACTLEFT;
+      fx = fx | MADFXACTLEFT;
     if ( test_frame_name( 'G' ) )
-      fx=fx|MADFXGRABLEFT;
+      fx = fx | MADFXGRABLEFT;
     if ( test_frame_name( 'D' ) )
-      fx=fx|MADFXDROPLEFT;
+      fx = fx | MADFXDROPLEFT;
     if ( test_frame_name( 'C' ) )
-      fx=fx|MADFXCHARLEFT;
+      fx = fx | MADFXCHARLEFT;
   }
   if ( test_frame_name( 'R' ) )
   {
     if ( test_frame_name( 'A' ) )
-      fx=fx|MADFXACTRIGHT;
+      fx = fx | MADFXACTRIGHT;
     if ( test_frame_name( 'G' ) )
-      fx=fx|MADFXGRABRIGHT;
+      fx = fx | MADFXGRABRIGHT;
     if ( test_frame_name( 'D' ) )
-      fx=fx|MADFXDROPRIGHT;
+      fx = fx | MADFXDROPRIGHT;
     if ( test_frame_name( 'C' ) )
-      fx=fx|MADFXCHARRIGHT;
+      fx = fx | MADFXCHARRIGHT;
   }
   if ( test_frame_name( 'S' ) )
-    fx=fx|MADFXSTOP;
+    fx = fx | MADFXSTOP;
   if ( test_frame_name( 'F' ) )
-    fx=fx|MADFXFOOTFALL;
+    fx = fx | MADFXFOOTFALL;
   if ( test_frame_name( 'P' ) )
-    fx=fx|MADFXPOOF;
+    fx = fx | MADFXPOOF;
   madframefx[frame] = fx;
 }
 
@@ -1564,12 +1564,12 @@ void make_framelip( int object, int action )
 
   if ( madactionvalid[object][action] )
   {
-    framesinaction = madactionend[object][action]-madactionstart[object][action];
+    framesinaction = madactionend[object][action] - madactionstart[object][action];
     frame = madactionstart[object][action];
     while ( frame < madactionend[object][action] )
     {
-      madframelip[frame] = ( frame-madactionstart[object][action] )*15/framesinaction;
-      madframelip[frame] = ( madframelip[frame] )&15;
+      madframelip[frame] = ( frame - madactionstart[object][action] ) * 15 / framesinaction;
+      madframelip[frame] = ( madframelip[frame] ) & 15;
       frame++;
     }
   }
@@ -1588,15 +1588,15 @@ void get_actions( int object )
   action = 0;
   while ( action < MAXACTION )
   {
-    madactionvalid[object][action]=bfalse;
+    madactionvalid[object][action] = bfalse;
     action++;
   }
 
 
   // Set the primary dance action to be the first frame, just as a default
-  madactionvalid[object][ACTIONDA]=btrue;
-  madactionstart[object][ACTIONDA]=madframestart[object];
-  madactionend[object][ACTIONDA]=madframestart[object]+1;
+  madactionvalid[object][ACTIONDA] = btrue;
+  madactionstart[object][ACTIONDA] = madframestart[object];
+  madactionend[object][ACTIONDA] = madframestart[object] + 1;
 
 
   // Now go huntin' to see what each frame is, look for runs of same action
@@ -1618,22 +1618,22 @@ void get_actions( int object )
       // Write the old action
       if ( lastaction < MAXACTION )
       {
-        madactionvalid[object][lastaction]=btrue;
-        madactionstart[object][lastaction]=madframestart[object]+frame-framesinaction;
-        madactionend[object][lastaction]=madframestart[object]+frame;
+        madactionvalid[object][lastaction] = btrue;
+        madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
+        madactionend[object][lastaction] = madframestart[object] + frame;
       }
       framesinaction = 1;
       lastaction = action;
     }
-    get_framefx( madframestart[object]+frame );
+    get_framefx( madframestart[object] + frame );
     frame++;
   }
   // Write the old action
   if ( lastaction < MAXACTION )
   {
-    madactionvalid[object][lastaction]=btrue;
-    madactionstart[object][lastaction]=madframestart[object]+frame-framesinaction;
-    madactionend[object][lastaction]=madframestart[object]+frame;
+    madactionvalid[object][lastaction] = btrue;
+    madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
+    madactionend[object][lastaction] = madframestart[object] + frame;
   }
 
   // Make sure actions are made valid if a similar one exists
@@ -1720,7 +1720,7 @@ void make_mad_equally_lit( int model )
       vert = 0;
       while ( vert < MAXVERTICES )
       {
-        madvrta[frame][vert]=EQUALLIGHTINDEX;
+        madvrta[frame][vert] = EQUALLIGHTINDEX;
         vert++;
       }
       frame++;
@@ -1747,9 +1747,9 @@ void check_copy( char* loadname, int object )
       actiona = what_action( szOne[0] );
       actionb = what_action( szTwo[0] );
       action_copy_correct( object, actiona, actionb );
-      action_copy_correct( object, actiona+1, actionb+1 );
-      action_copy_correct( object, actiona+2, actionb+2 );
-      action_copy_correct( object, actiona+3, actionb+3 );
+      action_copy_correct( object, actiona + 1, actionb + 1 );
+      action_copy_correct( object, actiona + 2, actionb + 2 );
+      action_copy_correct( object, actiona + 3, actionb + 3 );
     }
     fclose( fileread );
   }
@@ -1782,7 +1782,7 @@ int load_one_object( int skin, char* tmploadname )
     cnt++;
     ctmp = tmploadname[cnt];
   }
-  madname[object][cnt]=0;
+  madname[object][cnt] = 0;
 
 
   // printf(" DIAG: appending slash\n");
@@ -1797,7 +1797,7 @@ int load_one_object( int skin, char* tmploadname )
   if ( load_ai_script( newloadname ) )
   {
     // Create a reference to the one we just loaded
-    madai[object]=iNumAis-1;
+    madai[object] = iNumAis - 1;
   }
 
 
@@ -1895,8 +1895,8 @@ int load_one_object( int skin, char* tmploadname )
     {
       while ( numicon < numskins )
       {
-        madskintoicon[skin+numicon]=globalnumicon;
-        if ( object==SPELLBOOK )  bookicon = globalnumicon;
+        madskintoicon[skin+numicon] = globalnumicon;
+        if ( object == SPELLBOOK )  bookicon = globalnumicon;
         numicon++;
       }
       globalnumicon++;
@@ -1913,9 +1913,9 @@ int load_one_object( int skin, char* tmploadname )
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // Port to new alpha code
-      while ( numicon<numskins )
+      while ( numicon < numskins )
       {
-        madskintoicon[skin+numicon]=globalnumicon;
+        madskintoicon[skin+numicon] = globalnumicon;
         numicon++;
       }
       globalnumicon++;
@@ -1932,9 +1932,9 @@ int load_one_object( int skin, char* tmploadname )
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
-      while ( numicon<numskins )
+      while ( numicon < numskins )
       {
-        madskintoicon[skin+numicon]=globalnumicon;
+        madskintoicon[skin+numicon] = globalnumicon;
         numicon++;
       }
       globalnumicon++;
@@ -1951,9 +1951,9 @@ int load_one_object( int skin, char* tmploadname )
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
-      while ( numicon<numskins )
+      while ( numicon < numskins )
       {
-        madskintoicon[skin+numicon]=globalnumicon;
+        madskintoicon[skin+numicon] = globalnumicon;
         numicon++;
       }
       globalnumicon++;
@@ -2021,7 +2021,7 @@ void load_all_objects( char *modname )
         {
           importplayer++;
         }
-        importobject = ( ( importplayer )*9 )+( cnt%9 );
+        importobject = ( ( importplayer ) * 9 ) + ( cnt % 9 );
         capimportslot[importobject] = cnt;
         skin += load_one_object( skin, filename );
       }
@@ -2036,7 +2036,7 @@ void load_all_objects( char *modname )
   // printf(" DIAG: Searching for .objs\n");
   importobject = -100;
   make_newloadname( modname, "objects" SLASH_STR, newloadname );
-  filehandle= fs_findFirstFile( newloadname, "obj" );
+  filehandle = fs_findFirstFile( newloadname, "obj" );
 
   keeplooking = btrue;
   if ( filehandle != NULL )
@@ -2077,8 +2077,8 @@ void load_bars( char* szBitmap )
   {
     tabrect[cnt].left = 0;
     tabrect[cnt].right = TABX;
-    tabrect[cnt].top = cnt*BARY;
-    tabrect[cnt].bottom = ( cnt+1 )*BARY;
+    tabrect[cnt].top = cnt * BARY;
+    tabrect[cnt].bottom = ( cnt + 1 ) * BARY;
     barrect[cnt].left = TABX;
     barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
     barrect[cnt].top = tabrect[cnt].top;
@@ -2144,13 +2144,13 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
 
 
   // Figure out the general size of each font
-  ydiv = ysize/NUMFONTY;
-  xdiv = xsize/NUMFONTX;
+  ydiv = ysize / NUMFONTY;
+  xdiv = xsize / NUMFONTX;
 
 
   // Figure out where each font is and its spacing
   fileread = fopen( szSpacing, "r" );
-  if ( fileread==NULL )
+  if ( fileread == NULL )
     log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
 
   globalname = szSpacing;
@@ -2166,15 +2166,15 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   fontoffset = scry - yspacing;
 
   // Mark all as unused
-  for ( i=0; i < 255; i++ )
+  for ( i = 0; i < 255; i++ )
     asciitofont[i] = 255;
 
-  for ( i=0; i < 96; i++ )
+  for ( i = 0; i < 96; i++ )
   {
     goto_colon( fileread );
     fscanf( fileread, "%c%d", &cTmp, &xspacing );
     if ( asciitofont[cTmp] == 255 ) asciitofont[cTmp] = cnt;
-    if ( xstt+xspacing+1 > 255 )
+    if ( xstt + xspacing + 1 > 255 )
     {
       xstt = 0;
       ystt += yspacing;
@@ -2182,16 +2182,16 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
     fontrect[cnt].x = xstt;
     fontrect[cnt].w = xspacing;
     fontrect[cnt].y = ystt;
-    fontrect[cnt].h = yspacing-2;
-    fontxspacing[cnt] = xspacing+1;
-    xstt += xspacing+1;
+    fontrect[cnt].h = yspacing - 2;
+    fontxspacing[cnt] = xspacing + 1;
+    xstt += xspacing + 1;
     cnt++;
   }
   fclose( fileread );
 
 
   // Space between lines
-  fontyspacing = ( yspacing>>1 )+FONTADD;
+  fontyspacing = ( yspacing >> 1 ) + FONTADD;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2216,9 +2216,9 @@ void make_water()
       mode = 0;
       for ( point = 0; point < WATERPOINTS; point++ )
       {
-        temp = SIN( ( frame*TWO_PI/MAXWATERFRAME )+( TWO_PI*point/WATERPOINTS )+( TWO_PI*layer/MAXWATERLAYER ) );
-        waterlayerzadd[layer][frame][mode][point] = temp*waterlayeramp[layer];
-        waterlayercolor[layer][frame][mode][point] = ( waterlightlevel[layer]*( temp+1.0f ) )+waterlightadd[layer];
+        temp = SIN( ( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( TWO_PI * layer / MAXWATERLAYER ) );
+        waterlayerzadd[layer][frame][mode][point] = temp * waterlayeramp[layer];
+        waterlayercolor[layer][frame][mode][point] = ( waterlightlevel[layer] * ( temp + 1.0f ) ) + waterlightadd[layer];
       }
 
       // Now mirror and copy data to other three modes
@@ -2262,10 +2262,10 @@ void make_water()
     spek = 0;
     if ( cnt > waterspekstart )
     {
-      temp = cnt-waterspekstart;
-      temp = temp/( 256-waterspekstart );
-      temp = temp*temp;
-      spek = temp*waterspeklevel;
+      temp = cnt - waterspekstart;
+      temp = temp / ( 256 - waterspekstart );
+      temp = temp * temp;
+      spek = temp * waterspeklevel;
     }
 
     // [claforte] Probably need to replace this with a
@@ -2312,16 +2312,16 @@ void read_wawalite( char *modname )
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
-    if ( cTmp=='T' || cTmp=='t' )  waterlight = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  waterlight = btrue;
     else waterlight = bfalse;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     wateriswater = bfalse;
-    if ( cTmp=='T' || cTmp=='t' )  wateriswater = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  wateriswater = btrue;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
-    if ( ( cTmp=='T' || cTmp=='t' ) && overlayvalid )  overlayon = btrue;
+    if ( ( cTmp == 'T' || cTmp == 't' ) && overlayvalid )  overlayon = btrue;
     else overlayon = bfalse;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
-    if ( ( cTmp=='T' || cTmp=='t' ) && backgroundvalid )  clearson = bfalse;
+    if ( ( cTmp == 'T' || cTmp == 't' ) && backgroundvalid )  clearson = bfalse;
     else clearson = btrue;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[0] = fTmp;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[0] = fTmp;
@@ -2353,8 +2353,8 @@ void read_wawalite( char *modname )
     waterlayerv[0] = 0;
     waterlayeru[1] = 0;
     waterlayerv[1] = 0;
-    waterlayerframe[0] = rand()&WATERFRAMEAND;
-    waterlayerframe[1] = rand()&WATERFRAMEAND;
+    waterlayerframe[0] = rand() & WATERFRAMEAND;
+    waterlayerframe[1] = rand() & WATERFRAMEAND;
     // Read light data second
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lx = fTmp;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  ly = fTmp;
@@ -2369,31 +2369,31 @@ void read_wawalite( char *modname )
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileupdateand = iTmp;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
-    biganimtileframeand = ( iTmp<<1 )+1;
+    biganimtileframeand = ( iTmp << 1 ) + 1;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
-    if ( cTmp=='S' || cTmp=='s' )  damagetiletype = DAMAGESLASH;
-    if ( cTmp=='C' || cTmp=='c' )  damagetiletype = DAMAGECRUSH;
-    if ( cTmp=='P' || cTmp=='p' )  damagetiletype = DAMAGEPOKE;
-    if ( cTmp=='H' || cTmp=='h' )  damagetiletype = DAMAGEHOLY;
-    if ( cTmp=='E' || cTmp=='e' )  damagetiletype = DAMAGEEVIL;
-    if ( cTmp=='F' || cTmp=='f' )  damagetiletype = DAMAGEFIRE;
-    if ( cTmp=='I' || cTmp=='i' )  damagetiletype = DAMAGEICE;
-    if ( cTmp=='Z' || cTmp=='z' )  damagetiletype = DAMAGEZAP;
+    if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGESLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGECRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGEPOKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  damagetiletype = DAMAGEHOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  damagetiletype = DAMAGEEVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  damagetiletype = DAMAGEFIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  damagetiletype = DAMAGEICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGEZAP;
     // Read weather data fourth
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     weatheroverwater = bfalse;
-    if ( cTmp=='T' || cTmp=='t' )  weatheroverwater = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  weatheroverwater = btrue;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  weathertimereset = iTmp;
     weathertime = weathertimereset;
     weatherplayer = 0;
     // Read extra data
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     meshexploremode = bfalse;
-    if ( cTmp=='T' || cTmp=='t' )  meshexploremode = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  meshexploremode = btrue;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     usefaredge = bfalse;
-    if ( cTmp=='T' || cTmp=='t' )  usefaredge = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
     camswing = 0;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  camswingrate = fTmp;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  camswingamp = fTmp;
@@ -2418,12 +2418,12 @@ void read_wawalite( char *modname )
       fogon = fogallowed;
       fscanf( fileread, "%f", &fTmp );  fogtop = fTmp;
       goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogbottom = fTmp;
-      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp*255;
-      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp*255;
-      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp*255;
+      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
+      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
+      goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
       goto_colon( fileread );  cTmp = get_first_letter( fileread );
       if ( cTmp == 'F' || cTmp == 'f' )  fogaffectswater = bfalse;
-      fogdistance = ( fogtop-fogbottom );
+      fogdistance = ( fogtop - fogbottom );
       if ( fogdistance < 1.0f )  fogon = bfalse;
 
 
@@ -2439,11 +2439,11 @@ void read_wawalite( char *modname )
     }
 
     // Allow slow machines to ignore the fancy stuff
-    if ( twolayerwateron == bfalse && numwaterlayer > 1 )
+    if ( !twolayerwateron && numwaterlayer > 1 )
     {
       numwaterlayer = 1;
       iTmp = waterlayeralpha[0];
-      iTmp = ( ( waterlayeralpha[1]*iTmp )>>8 ) + iTmp;
+      iTmp = ( ( waterlayeralpha[1] * iTmp ) >> 8 ) + iTmp;
       if ( iTmp > 255 ) iTmp = 255;
       waterlayeralpha[0] = iTmp;
     }
@@ -2481,16 +2481,16 @@ void render_background( Uint16 texture )
   glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
 
   // Figure out the screen coordinates of its corners
-  x = scrx/2.0f;
-  y = scry/2.0f;
+  x = scrx / 2.0f;
+  y = scry / 2.0f;
   z = 0.99999f;
   u = waterlayeru[1];
   v = waterlayerv[1];
-  rotate=16384+8192-camturnleftrightshort;
-  rotate = rotate>>2;
+  rotate = 16384 + 8192 - camturnleftrightshort;
+  rotate = rotate >> 2;
   size = x + y + 1;
-  sinsize = turntosin[rotate]*size;
-  cossize = turntosin[( rotate+4096 )&16383]*size;
+  sinsize = turntosin[rotate] * size;
+  cossize = turntosin[( rotate+4096 )&16383] * size;
 
   light = ( 0xffffffff );
   glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -2499,29 +2499,29 @@ void render_background( Uint16 texture )
   vtlist[0].y = y - sinsize;
   vtlist[0].z = z;
   // vtlist[0].dcSpecular = 0;
-  vtlist[0].s = 0+u;
-  vtlist[0].t = 0+v;
+  vtlist[0].s = 0 + u;
+  vtlist[0].t = 0 + v;
 
   vtlist[1].x = x + sinsize;
   vtlist[1].y = y + cossize;
   vtlist[1].z = z;
   // vtlist[1].dcSpecular = 0;
-  vtlist[1].s = backgroundrepeat+u;
-  vtlist[1].t = 0+v;
+  vtlist[1].s = backgroundrepeat + u;
+  vtlist[1].t = 0 + v;
 
   vtlist[2].x = x - cossize;
   vtlist[2].y = y + sinsize;
   vtlist[2].z = z;
   // vtlist[2].dcSpecular = 0;
-  vtlist[2].s = backgroundrepeat+u;
-  vtlist[2].t = backgroundrepeat+v;
+  vtlist[2].s = backgroundrepeat + u;
+  vtlist[2].t = backgroundrepeat + v;
 
   vtlist[3].x = x - sinsize;
   vtlist[3].y = y - cossize;
   vtlist[3].z = z;
   // vtlist[3].dcSpecular = 0;
-  vtlist[3].s = 0+u;
-  vtlist[3].t = backgroundrepeat+v;
+  vtlist[3].s = 0 + u;
+  vtlist[3].t = backgroundrepeat + v;
 
   glBegin ( GL_TRIANGLE_FAN );
   for ( i = 0; i < 4; i++ )
@@ -2545,46 +2545,46 @@ void render_foreground_overlay( Uint16 texture )
   float loc_foregroundrepeat;
 
   // Figure out the screen coordinates of its corners
-  x = scrx<<6;
-  y = scry<<6;
+  x = scrx << 6;
+  y = scry << 6;
   z = 0;
   u = waterlayeru[1];
   v = waterlayerv[1];
   size = x + y + 1;
-  rotate=16384+8192-camturnleftrightshort;
-  rotate = rotate>>2;
-  sinsize = turntosin[rotate]*size;
-  cossize = turntosin[( rotate+4096 )&16383]*size;
+  rotate = 16384 + 8192 - camturnleftrightshort;
+  rotate = rotate >> 2;
+  sinsize = turntosin[rotate] * size;
+  cossize = turntosin[( rotate+4096 )&16383] * size;
 
-  loc_foregroundrepeat = foregroundrepeat * MIN( x/scrx, y/scrx ) / 4.0f;
+  loc_foregroundrepeat = foregroundrepeat * MIN( x / scrx, y / scrx ) / 4.0f;
 
 
   vtlist[0].x = x + cossize;
   vtlist[0].y = y - sinsize;
   vtlist[0].z = z;
-  vtlist[0].s = 0+u;
-  vtlist[0].t = 0+v;
+  vtlist[0].s = 0 + u;
+  vtlist[0].t = 0 + v;
 
   vtlist[1].x = x + sinsize;
   vtlist[1].y = y + cossize;
   vtlist[1].z = z;
-  vtlist[1].s = loc_foregroundrepeat+u;
+  vtlist[1].s = loc_foregroundrepeat + u;
   vtlist[1].t = v;
 
   vtlist[2].x = x - cossize;
   vtlist[2].y = y + sinsize;
   vtlist[2].z = z;
-  vtlist[2].s = loc_foregroundrepeat+u;
-  vtlist[2].t = loc_foregroundrepeat+v;
+  vtlist[2].s = loc_foregroundrepeat + u;
+  vtlist[2].t = loc_foregroundrepeat + v;
 
   vtlist[3].x = x - sinsize;
   vtlist[3].y = y - cossize;
   vtlist[3].z = z;
   vtlist[3].s = u;
-  vtlist[3].t = loc_foregroundrepeat+v;
+  vtlist[3].t = loc_foregroundrepeat + v;
 
   //-------------------------------------------------
-  glPushAttrib( GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT|GL_HINT_BIT );
+  glPushAttrib( GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_HINT_BIT );
 
   glHint( GL_POINT_SMOOTH_HINT, GL_NICEST ); // make sure that the texture is as smooth as possible
 
@@ -2594,7 +2594,7 @@ void render_foreground_overlay( Uint16 texture )
   glDepthFunc( GL_ALWAYS ); // make it appear over the top of everything
 
   glEnable( GL_BLEND );
-  glBlendFunc( GL_SRC_ALPHA,GL_ONE_MINUS_SRC_COLOR ); // make the texture a filter
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR ); // make the texture a filter
 
   glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
 
@@ -2630,18 +2630,18 @@ void render_shadow( int character )
     // Original points
     level = chrlevel[character];
     level += SHADOWRAISE;
-    height = chrmatrix[character]_CNV( 3,2 )-level;
-    if ( height<0 ) height = 0;
+    height = chrmatrix[character]_CNV( 3, 2 ) - level;
+    if ( height < 0 ) height = 0;
 
-    size_umbra    = 1.5f*( chrbumpsize[character] - height/30.0f );
-    size_penumbra = 1.5f*( chrbumpsize[character] + height/30.0f );
+    size_umbra    = 1.5f * ( chrbumpsize[character] - height / 30.0f );
+    size_penumbra = 1.5f * ( chrbumpsize[character] + height / 30.0f );
 
-    if ( height>0 )
+    if ( height > 0 )
     {
-      float factor_penumbra = ( 1.5f )*( ( chrbumpsize[character] )/size_penumbra );
-      float factor_umbra = ( 1.5f )*( ( chrbumpsize[character] )/size_umbra );
-      alpha_umbra = 0.3f/factor_umbra/factor_umbra/1.5f;
-      alpha_penumbra = 0.3f/factor_penumbra/factor_penumbra/1.5f;
+      float factor_penumbra = ( 1.5f ) * ( ( chrbumpsize[character] ) / size_penumbra );
+      float factor_umbra = ( 1.5f ) * ( ( chrbumpsize[character] ) / size_umbra );
+      alpha_umbra = 0.3f / factor_umbra / factor_umbra / 1.5f;
+      alpha_penumbra = 0.3f / factor_penumbra / factor_penumbra / 1.5f;
     }
     else
     {
@@ -2667,8 +2667,8 @@ void render_shadow( int character )
     }
     }*/
 
-    x = chrmatrix[character]_CNV( 3,0 );
-    y = chrmatrix[character]_CNV( 3,1 );
+    x = chrmatrix[character]_CNV( 3, 0 );
+    y = chrmatrix[character]_CNV( 3, 1 );
 
     // Choose texture.
     glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[particletexture] ) );
@@ -2691,22 +2691,22 @@ void render_shadow( int character )
     glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
     glDepthMask( GL_FALSE );
 
-    if ( size_penumbra>0 )
+    if ( size_penumbra > 0 )
     {
-      v[0].x = x+size_penumbra;
-      v[0].y = y-size_penumbra;
+      v[0].x = x + size_penumbra;
+      v[0].y = y - size_penumbra;
       v[0].z = level;
 
-      v[1].x = x+size_penumbra;
-      v[1].y = y+size_penumbra;
+      v[1].x = x + size_penumbra;
+      v[1].y = y + size_penumbra;
       v[1].z = level;
 
-      v[2].x = x-size_penumbra;
-      v[2].y = y+size_penumbra;
+      v[2].x = x - size_penumbra;
+      v[2].y = y + size_penumbra;
       v[2].z = level;
 
-      v[3].x = x-size_penumbra;
-      v[3].y = y-size_penumbra;
+      v[3].x = x - size_penumbra;
+      v[3].y = y - size_penumbra;
       v[3].z = level;
 
       glBegin( GL_TRIANGLE_FAN );
@@ -2719,23 +2719,23 @@ void render_shadow( int character )
       glEnd();
     };
 
-    if ( size_umbra>0 )
+    if ( size_umbra > 0 )
     {
-      v[0].x = x+size_umbra;
-      v[0].y = y-size_umbra;
-      v[0].z = level+0.1f;
+      v[0].x = x + size_umbra;
+      v[0].y = y - size_umbra;
+      v[0].z = level + 0.1f;
 
-      v[1].x = x+size_umbra;
-      v[1].y = y+size_umbra;
-      v[1].z = level+0.1f;
+      v[1].x = x + size_umbra;
+      v[1].y = y + size_umbra;
+      v[1].z = level + 0.1f;
 
-      v[2].x = x-size_umbra;
-      v[2].y = y+size_umbra;
-      v[2].z = level+0.1f;
+      v[2].x = x - size_umbra;
+      v[2].y = y + size_umbra;
+      v[2].z = level + 0.1f;
 
-      v[3].x = x-size_umbra;
-      v[3].y = y-size_umbra;
-      v[3].z = level+0.1f;
+      v[3].x = x - size_umbra;
+      v[3].y = y - size_umbra;
+      v[3].z = level + 0.1f;
 
       glBegin( GL_TRIANGLE_FAN );
       glColor4f( alpha_umbra, alpha_umbra, alpha_umbra, 1.0f );
@@ -2772,14 +2772,14 @@ void render_bad_shadow( int character )
   {
     // Original points
     level = chrlevel[character];
-    level+=SHADOWRAISE;
-    height = chrmatrix[character]_CNV( 3,2 )-level;
+    level += SHADOWRAISE;
+    height = chrmatrix[character]_CNV( 3, 2 ) - level;
     if ( height > 255 )  return;
     if ( height < 0 ) height = 0;
-    size = chrshadowsize[character]-( ( height*chrshadowsize[character] )>>8 );
+    size = chrshadowsize[character] - ( ( height * chrshadowsize[character] ) >> 8 );
     if ( size < 1 ) return;
-    ambi = chrlightlevel[character]>>4;  // LUL >>3;
-    trans = ( ( 255-height )>>1 )+64;
+    ambi = chrlightlevel[character] >> 4;  // LUL >>3;
+    trans = ( ( 255 - height ) >> 1 ) + 64;
     /*      if(fogon)
             {
                 z = (chrlevel[character]);
@@ -2798,24 +2798,24 @@ void render_bad_shadow( int character )
                 }
             }*/
     // light = (trans<<24) | (ambi<<16) | (ambi<<8) | ambi;
-    glColor4f( ambi/255.0f, ambi/255.0f, ambi/255.0f, trans/255.0f );
+    glColor4f( ambi / 255.0f, ambi / 255.0f, ambi / 255.0f, trans / 255.0f );
 
-    x = chrmatrix[character]_CNV( 3,0 );
-    y = chrmatrix[character]_CNV( 3,1 );
-    v[0].x = ( float ) x+size;
-    v[0].y = ( float ) y-size;
+    x = chrmatrix[character]_CNV( 3, 0 );
+    y = chrmatrix[character]_CNV( 3, 1 );
+    v[0].x = ( float ) x + size;
+    v[0].y = ( float ) y - size;
     v[0].z = ( float ) level;
 
-    v[1].x = ( float ) x+size;
-    v[1].y = ( float ) y+size;
+    v[1].x = ( float ) x + size;
+    v[1].y = ( float ) y + size;
     v[1].z = ( float ) level;
 
-    v[2].x = ( float ) x-size;
-    v[2].y = ( float ) y+size;
+    v[2].x = ( float ) x - size;
+    v[2].y = ( float ) y + size;
     v[2].z = ( float ) level;
 
-    v[3].x = ( float ) x-size;
-    v[3].y = ( float ) y-size;
+    v[3].x = ( float ) x - size;
+    v[3].y = ( float ) y - size;
     v[3].z = ( float ) level;
 
     // Choose texture and matrix
@@ -2860,64 +2860,64 @@ void light_characters()
     tnc = dolist[cnt];
     x = chrxpos[tnc];
     y = chrypos[tnc];
-    x = ( x&127 )>>5;  // From 0 to 3
-    y = ( y&127 )>>5;  // From 0 to 3
+    x = ( x & 127 ) >> 5;  // From 0 to 3
+    y = ( y & 127 ) >> 5;  // From 0 to 3
     light = 0;
-    tl = meshvrtl[meshvrtstart[chronwhichfan[tnc]]+0];
-    tr = meshvrtl[meshvrtstart[chronwhichfan[tnc]]+1];
-    br = meshvrtl[meshvrtstart[chronwhichfan[tnc]]+2];
-    bl = meshvrtl[meshvrtstart[chronwhichfan[tnc]]+3];
+    tl = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 0];
+    tr = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 1];
+    br = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 2];
+    bl = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 3];
 
     // Interpolate lighting level using tile corners
     switch ( x )
     {
       case 0:
-        light+=tl<<1;
-        light+=bl<<1;
+        light += tl << 1;
+        light += bl << 1;
         break;
       case 1:
       case 2:
-        light+=tl;
-        light+=tr;
-        light+=bl;
-        light+=br;
+        light += tl;
+        light += tr;
+        light += bl;
+        light += br;
         break;
       case 3:
-        light+=tr<<1;
-        light+=br<<1;
+        light += tr << 1;
+        light += br << 1;
         break;
     }
     switch ( y )
     {
       case 0:
-        light+=tl<<1;
-        light+=tr<<1;
+        light += tl << 1;
+        light += tr << 1;
         break;
       case 1:
       case 2:
-        light+=tl;
-        light+=tr;
-        light+=bl;
-        light+=br;
+        light += tl;
+        light += tr;
+        light += bl;
+        light += br;
         break;
       case 3:
-        light+=bl<<1;
-        light+=br<<1;
+        light += bl << 1;
+        light += br << 1;
         break;
     }
-    light=light>>3;
+    light = light >> 3;
     chrlightlevel[tnc] = light;
 
 
-    if ( meshexploremode==bfalse )
+    if ( !meshexploremode )
     {
       // Look up light direction using corners again
-      tl = ( tl<<8 )&0xf000;
-      tr = ( tr<<4 )&0x0f00;
-      br = ( br )&0x00f0;
-      bl = bl>>4;
-      tl = tl|tr|br|bl;
-      chrlightturnleftright[tnc] = ( lightdirectionlookup[tl]<<8 );
+      tl = ( tl << 8 ) & 0xf000;
+      tr = ( tr << 4 ) & 0x0f00;
+      br = ( br ) & 0x00f0;
+      bl = bl >> 4;
+      tl = tl | tr | br | bl;
+      chrlightturnleftright[tnc] = ( lightdirectionlookup[tl] << 8 );
     }
     else
     {
@@ -2966,17 +2966,17 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
 
   if ( fanx >= 0 && fanx < meshsizex && fany >= 0 && fany < meshsizey )
   {
-    fan = fanx+meshfanstart[fany];
+    fan = fanx + meshfanstart[fany];
     vertex = meshvrtstart[fan];
     lastvertex = vertex + meshcommandnumvertices[meshtype[fan]];
     while ( vertex < lastvertex )
     {
       light = meshvrta[vertex];
-      x = prtxpos[particle]-meshvrtx[vertex];
-      y = prtypos[particle]-meshvrty[vertex];
-      level = ( x*x + y*y )/prtdynalightfalloff[particle];
-      level = 255-level;
-      level=level*prtdynalightlevel[particle];
+      x = prtxpos[particle] - meshvrtx[vertex];
+      y = prtypos[particle] - meshvrty[vertex];
+      level = ( x * x + y * y ) / prtdynalightfalloff[particle];
+      level = 255 - level;
+      level = level * prtdynalightlevel[particle];
       if ( level > light )
       {
         if ( level > 255 ) level = 255;
@@ -3012,15 +3012,15 @@ void do_dynalight()
         {
           fanx = prtxpos[cnt];
           fany = prtypos[cnt];
-          fanx = fanx>>7;
-          fany = fany>>7;
+          fanx = fanx >> 7;
+          fany = fany >> 7;
           addy = -DYNAFANS;
           while ( addy <= DYNAFANS )
           {
             addx = -DYNAFANS;
             while ( addx <= DYNAFANS )
             {
-              set_fan_light( fanx+addx, fany+addy, cnt );
+              set_fan_light( fanx + addx, fany + addy, cnt );
               addx++;
             }
             addy++;
@@ -3048,13 +3048,13 @@ void do_dynalight()
           cnt = 0;
           while ( cnt < numdynalight )
           {
-            x = dynalightlistx[cnt]-meshvrtx[vertex];
-            y = dynalightlisty[cnt]-meshvrty[vertex];
-            level = ( x*x + y*y )/dynalightfalloff[cnt];
-            level = 255-level;
+            x = dynalightlistx[cnt] - meshvrtx[vertex];
+            y = dynalightlisty[cnt] - meshvrty[vertex];
+            level = ( x * x + y * y ) / dynalightfalloff[cnt];
+            level = 255 - level;
             if ( level > 0 )
             {
-              light+=level*dynalightlevel[cnt];
+              light += level * dynalightlevel[cnt];
             }
             cnt++;
           }
@@ -3090,7 +3090,7 @@ void render_water()
       if ( meshfx[meshrenderlist[cnt]]&MESHFXWATER )
       {
         // !!!BAD!!! Water will get screwed up if meshsizex is odd
-        render_water_fan( meshrenderlist[cnt], 1, ( ( meshrenderlist[cnt]>>watershift )&2 )+( meshrenderlist[cnt]&1 ) );
+        render_water_fan( meshrenderlist[cnt], 1, ( ( meshrenderlist[cnt] >> watershift )&2 ) + ( meshrenderlist[cnt]&1 ) );
       }
       cnt++;
     }
@@ -3104,7 +3104,7 @@ void render_water()
       if ( meshfx[meshrenderlist[cnt]]&MESHFXWATER )
       {
         // !!!BAD!!! Water will get screwed up if meshsizex is odd
-        render_water_fan( meshrenderlist[cnt], 0, ( ( meshrenderlist[cnt]>>watershift )&2 )+( meshrenderlist[cnt]&1 ) );
+        render_water_fan( meshrenderlist[cnt], 0, ( ( meshrenderlist[cnt] >> watershift )&2 ) + ( meshrenderlist[cnt]&1 ) );
       }
       cnt++;
     }
@@ -3201,7 +3201,7 @@ void draw_scene_sadreflection()
         tnc = dolist[cnt];
         if ( chrattachedto[tnc] == MAXCHR )
         {
-          if ( ( ( chrlight[tnc]==255 && chralpha[tnc]==255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc]!=0 )
+          if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
           {
             render_bad_shadow( tnc );
           }
@@ -3222,7 +3222,7 @@ void draw_scene_sadreflection()
         tnc = dolist[cnt];
         if ( chrattachedto[tnc] == MAXCHR )
         {
-          if ( ( ( chrlight[tnc]==255 && chralpha[tnc]==255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc]!=0 )
+          if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
           {
             render_shadow( tnc );
           }
@@ -3241,7 +3241,7 @@ void draw_scene_sadreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chralpha[tnc]==255 && chrlight[tnc]==255 )
+    if ( chralpha[tnc] == 255 && chrlight[tnc] == 255 )
       render_mad( tnc, 255 );
   }
 
@@ -3254,7 +3254,7 @@ void draw_scene_sadreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chralpha[tnc]!=255 && chrlight[tnc]==255 )
+    if ( chralpha[tnc] != 255 && chrlight[tnc] == 255 )
     {
       trans = chralpha[tnc];
       if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
@@ -3270,7 +3270,7 @@ void draw_scene_sadreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chrlight[tnc]!=255 )
+    if ( chrlight[tnc] != 255 )
     {
       trans = chrlight[tnc];
       if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
@@ -3278,13 +3278,13 @@ void draw_scene_sadreflection()
     }
 
     // Do phong highlights
-    if ( phongon && chralpha[tnc]==255 && chrlight[tnc]==255 && chrenviro[tnc]==bfalse && chrsheen[tnc] > 0 )
+    if ( phongon && chralpha[tnc] == 255 && chrlight[tnc] == 255 && !chrenviro[tnc] && chrsheen[tnc] > 0 )
     {
       Uint16 texturesave;
       chrenviro[tnc] = btrue;
       texturesave = chrtexture[tnc];
       chrtexture[tnc] = 7;  // The phong map texture...
-      render_mad( tnc, chrsheen[tnc]<<4 );
+      render_mad( tnc, chrsheen[tnc] << 4 );
       chrtexture[tnc] = texturesave;
       chrenviro[tnc] = bfalse;
     }
@@ -3322,7 +3322,7 @@ void draw_scene_zreflection()
   glDepthMask( GL_FALSE );
 
   // Render the background
-  if ( clearson == bfalse )
+  if ( !clearson )
     render_background( 6 );  // 6 is the texture for waterlow.bmp
 
   meshlasttexture = 0;
@@ -3392,7 +3392,7 @@ void draw_scene_zreflection()
         tnc = dolist[cnt];
         if ( chrattachedto[tnc] == MAXCHR )
         {
-          if ( ( ( chrlight[tnc]==255 && chralpha[tnc]==255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc]!=0 )
+          if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
             render_bad_shadow( tnc );
         }
       }
@@ -3411,7 +3411,7 @@ void draw_scene_zreflection()
         tnc = dolist[cnt];
         if ( chrattachedto[tnc] == MAXCHR )
         {
-          if ( ( ( chrlight[tnc]==255 && chralpha[tnc]==255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc]!=0 )
+          if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
             render_shadow( tnc );
         }
       }
@@ -3428,7 +3428,7 @@ void draw_scene_zreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chralpha[tnc]==255 && chrlight[tnc]==255 )
+    if ( chralpha[tnc] == 255 && chrlight[tnc] == 255 )
       render_mad( tnc, 255 );
   }
 
@@ -3442,7 +3442,7 @@ void draw_scene_zreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chralpha[tnc]!=255 && chrlight[tnc]==255 )
+    if ( chralpha[tnc] != 255 && chrlight[tnc] == 255 )
     {
       trans = chralpha[tnc];
       if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
@@ -3460,7 +3460,7 @@ void draw_scene_zreflection()
   for ( cnt = 0; cnt < numdolist; cnt++ )
   {
     tnc = dolist[cnt];
-    if ( chrlight[tnc]!=255 )
+    if ( chrlight[tnc] != 255 )
     {
       trans = chrlight[tnc];
       if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
@@ -3468,13 +3468,13 @@ void draw_scene_zreflection()
     }
 
     // Do phong highlights
-    if ( phongon && chralpha[tnc]==255 && chrlight[tnc]==255 && chrenviro[tnc]==bfalse && chrsheen[tnc] > 0 )
+    if ( phongon && chralpha[tnc] == 255 && chrlight[tnc] == 255 && !chrenviro[tnc] && chrsheen[tnc] > 0 )
     {
       Uint16 texturesave;
       chrenviro[tnc] = btrue;
       texturesave = chrtexture[tnc];
       chrtexture[tnc] = 7;  // The phong map texture...
-      render_mad( tnc, chrsheen[tnc]<<4 );
+      render_mad( tnc, chrsheen[tnc] << 4 );
       chrtexture[tnc] = texturesave;
       chrenviro[tnc] = bfalse;
     }
@@ -3502,14 +3502,14 @@ void draw_scene_zreflection()
 bool_t get_mesh_memory()
 {
   // ZZ> This function gets a load of memory for the terrain mesh
-  floatmemory = ( float * ) malloc( maxtotalmeshvertices*BYTESFOREACHVERTEX );
+  floatmemory = ( float * ) malloc( maxtotalmeshvertices * BYTESFOREACHVERTEX );
   if ( floatmemory == NULL )
     return bfalse;
 
   meshvrtx = &floatmemory[0];
   meshvrty = &floatmemory[1*maxtotalmeshvertices];
   meshvrtz = &floatmemory[2*maxtotalmeshvertices];
-  meshvrta = ( Uint8 * ) &floatmemory[3*maxtotalmeshvertices];
+  meshvrta = ( Uint8 * ) & floatmemory[3*maxtotalmeshvertices];
   meshvrtl = &meshvrta[maxtotalmeshvertices];
   return btrue;
 }
@@ -3517,7 +3517,7 @@ bool_t get_mesh_memory()
 //--------------------------------------------------------------------------------------------
 void draw_blip( Uint8 color, int x, int y )
 {
-  float xl,xr,yt,yb;
+  float xl, xr, yt, yb;
   int width, height;
 
   // ZZ> This function draws a blip
@@ -3528,17 +3528,17 @@ void draw_blip( Uint8 color, int x, int y )
     glNormal3f( 0.0f, 0.0f, 1.0f );
 
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBlip ) );
-    xl = ( ( float )bliprect[color].left )/32;
-    xr = ( ( float )bliprect[color].right )/32;
-    yt = ( ( float )bliprect[color].top )/4;
-    yb = ( ( float )bliprect[color].bottom )/4;
-    width = bliprect[color].right-bliprect[color].left; height=bliprect[color].bottom-bliprect[color].top;
+    xl = ( ( float )bliprect[color].left ) / 32;
+    xr = ( ( float )bliprect[color].right ) / 32;
+    yt = ( ( float )bliprect[color].top ) / 4;
+    yb = ( ( float )bliprect[color].bottom ) / 4;
+    width = bliprect[color].right - bliprect[color].left; height = bliprect[color].bottom - bliprect[color].top;
 
     glBegin( GL_QUADS );
-    glTexCoord2f( xl, yb );   glVertex2i( x-1,       scry-y-1-height );
-    glTexCoord2f( xr, yb );   glVertex2i( x-1+width, scry-y-1-height );
-    glTexCoord2f( xr, yt );   glVertex2i( x-1+width, scry-y-1 );
-    glTexCoord2f( xl, yt );   glVertex2i( x-1,       scry-y-1 );
+    glTexCoord2f( xl, yb );   glVertex2i( x - 1,       scry - y - 1 - height );
+    glTexCoord2f( xr, yb );   glVertex2i( x - 1 + width, scry - y - 1 - height );
+    glTexCoord2f( xr, yt );   glVertex2i( x - 1 + width, scry - y - 1 );
+    glTexCoord2f( xl, yt );   glVertex2i( x - 1,       scry - y - 1 );
     glEnd();
 
   }
@@ -3549,32 +3549,32 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 {
   // ZZ> This function draws an icon
   int position, blipx, blipy;
-  float xl,xr,yt,yb;
+  float xl, xr, yt, yb;
   int width, height;
 
-  if ( TxIcon[icontype].textureID>=0 ) // if(lpDDSIcon[icontype])
+  if ( TxIcon[icontype].textureID >= 0 ) // if(lpDDSIcon[icontype])
   {
     EnableTexturing();    // Enable texture mapping
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
     // lpDDSBack->BltFast(x, y, lpDDSIcon[icontype], &iconrect, DDBLTFAST_NOCOLORKEY);
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxIcon[icontype] ) );
-    xl=( ( float )iconrect.left )/32;
-    xr=( ( float )iconrect.right )/32;
-    yt=( ( float )iconrect.top )/32;
-    yb=( ( float )iconrect.bottom )/32;
-    width=iconrect.right-iconrect.left; height=iconrect.bottom-iconrect.top;
+    xl = ( ( float )iconrect.left ) / 32;
+    xr = ( ( float )iconrect.right ) / 32;
+    yt = ( ( float )iconrect.top ) / 32;
+    yb = ( ( float )iconrect.bottom ) / 32;
+    width = iconrect.right - iconrect.left; height = iconrect.bottom - iconrect.top;
     glBegin( GL_QUADS );
-    glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-    glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-    glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-    glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+    glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+    glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+    glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+    glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
     glEnd();
   }
 
   if ( sparkle != NOSPARKLE )
   {
-    position = wldframe&31;
+    position = wldframe & 31;
     position = ( SPARKLESIZE * position >> 5 );
 
     blipx = x + SPARKLEADD + position;
@@ -3600,24 +3600,24 @@ void draw_one_font( int fonttype, int x, int y )
 {
   // ZZ> This function draws a letter or number
   // GAC> Very nasty version for starters.  Lots of room for improvement.
-  GLfloat dx,dy,fx1,fx2,fy1,fy2;
-  GLuint x2,y2;
+  GLfloat dx, dy, fx1, fx2, fy1, fy2;
+  GLuint x2, y2;
 
   y = fontoffset - y;
   x2 = x + fontrect[fonttype].w;
   y2 = y + fontrect[fonttype].h;
-  dx = 2.0f/512;
-  dy = 1.0f/256;
-  fx1 = fontrect[fonttype].x*dx + 0.001f;
-  fx2 = ( fontrect[fonttype].x+fontrect[fonttype].w )*dx - 0.001f;
-  fy1 = fontrect[fonttype].y*dy + 0.001f;
-  fy2 = ( fontrect[fonttype].y+fontrect[fonttype].h )*dy;
+  dx = 2.0f / 512;
+  dy = 1.0f / 256;
+  fx1 = fontrect[fonttype].x * dx + 0.001f;
+  fx2 = ( fontrect[fonttype].x + fontrect[fonttype].w ) * dx - 0.001f;
+  fy1 = fontrect[fonttype].y * dy + 0.001f;
+  fy2 = ( fontrect[fonttype].y + fontrect[fonttype].h ) * dy;
 
   glBegin( GL_QUADS );
-  glTexCoord2f( fx1,fy2 );   glVertex2i( x, y );
-  glTexCoord2f( fx2,fy2 );   glVertex2i( x2, y );
-  glTexCoord2f( fx2,fy1 );   glVertex2i( x2,y2 );
-  glTexCoord2f( fx1,fy1 );   glVertex2i( x,y2 );
+  glTexCoord2f( fx1, fy2 );   glVertex2i( x, y );
+  glTexCoord2f( fx2, fy2 );   glVertex2i( x2, y );
+  glTexCoord2f( fx2, fy1 );   glVertex2i( x2, y2 );
+  glTexCoord2f( fx1, fy1 );   glVertex2i( x, y2 );
   glEnd();
 }
 
@@ -3634,10 +3634,10 @@ void draw_map( int x, int y )
 
   glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxMap ) );
   glBegin( GL_QUADS );
-  glTexCoord2f ( 0.0f, 1.0f ); glVertex2i ( x,   scry-y-MAPSIZE );
-  glTexCoord2f ( 1.0f, 1.0f ); glVertex2i ( x+MAPSIZE, scry-y-MAPSIZE );
-  glTexCoord2f ( 1.0f, 0.0f ); glVertex2i ( x+MAPSIZE, scry-y );
-  glTexCoord2f ( 0.0f, 0.0f ); glVertex2i ( x,   scry-y );
+  glTexCoord2f ( 0.0f, 1.0f ); glVertex2i ( x,   scry - y - MAPSIZE );
+  glTexCoord2f ( 1.0f, 1.0f ); glVertex2i ( x + MAPSIZE, scry - y - MAPSIZE );
+  glTexCoord2f ( 1.0f, 0.0f ); glVertex2i ( x + MAPSIZE, scry - y );
+  glTexCoord2f ( 0.0f, 0.0f ); glVertex2i ( x,   scry - y );
   glEnd();
 }
 
@@ -3652,46 +3652,46 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
   EnableTexturing();               // Enable texture mapping
   glColor4f( 1, 1, 1, 1 );
 
-  if ( maxticks>0 && ticks >= 0 )
+  if ( maxticks > 0 && ticks >= 0 )
   {
     // Draw the tab
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-    xl=( ( float )tabrect[bartype].left )/128;
-    xr=( ( float )tabrect[bartype].right )/128;
-    yt=( ( float )tabrect[bartype].top )/128;
-    yb=( ( float )tabrect[bartype].bottom )/128;
-    width=tabrect[bartype].right-tabrect[bartype].left; height=tabrect[bartype].bottom-tabrect[bartype].top;
+    xl = ( ( float )tabrect[bartype].left ) / 128;
+    xr = ( ( float )tabrect[bartype].right ) / 128;
+    yt = ( ( float )tabrect[bartype].top ) / 128;
+    yb = ( ( float )tabrect[bartype].bottom ) / 128;
+    width = tabrect[bartype].right - tabrect[bartype].left; height = tabrect[bartype].bottom - tabrect[bartype].top;
     glBegin( GL_QUADS );
-    glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-    glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-    glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-    glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+    glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+    glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+    glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+    glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
     glEnd();
 
     // Error check
-    if ( maxticks>MAXTICK ) maxticks = MAXTICK;
-    if ( ticks>maxticks ) ticks = maxticks;
+    if ( maxticks > MAXTICK ) maxticks = MAXTICK;
+    if ( ticks > maxticks ) ticks = maxticks;
 
     // Draw the full rows of ticks
-    x+=TABX;
+    x += TABX;
     while ( ticks >= NUMTICK )
     {
       barrect[bartype].right = BARX;
       glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-      xl=( ( float )barrect[bartype].left )/128;
-      xr=( ( float )barrect[bartype].right )/128;
-      yt=( ( float )barrect[bartype].top )/128;
-      yb=( ( float )barrect[bartype].bottom )/128;
-      width=barrect[bartype].right-barrect[bartype].left; height=barrect[bartype].bottom-barrect[bartype].top;
+      xl = ( ( float )barrect[bartype].left ) / 128;
+      xr = ( ( float )barrect[bartype].right ) / 128;
+      yt = ( ( float )barrect[bartype].top ) / 128;
+      yb = ( ( float )barrect[bartype].bottom ) / 128;
+      width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
       glBegin( GL_QUADS );
-      glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-      glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-      glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-      glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+      glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+      glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+      glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+      glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
       glEnd();
-      y+=BARY;
-      ticks-=NUMTICK;
-      maxticks-=NUMTICK;
+      y += BARY;
+      ticks -= NUMTICK;
+      maxticks -= NUMTICK;
     }
 
 
@@ -3699,38 +3699,38 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 )
     {
       // Draw the filled ones
-      barrect[bartype].right = ( ticks<<3 )+TABX;
+      barrect[bartype].right = ( ticks << 3 ) + TABX;
       glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-      xl=( ( float )barrect[bartype].left )/128;
-      xr=( ( float )barrect[bartype].right )/128;
-      yt=( ( float )barrect[bartype].top )/128;
-      yb=( ( float )barrect[bartype].bottom )/128;
-      width=barrect[bartype].right-barrect[bartype].left; height=barrect[bartype].bottom-barrect[bartype].top;
+      xl = ( ( float )barrect[bartype].left ) / 128;
+      xr = ( ( float )barrect[bartype].right ) / 128;
+      yt = ( ( float )barrect[bartype].top ) / 128;
+      yb = ( ( float )barrect[bartype].bottom ) / 128;
+      width = barrect[bartype].right - barrect[bartype].left; height = barrect[bartype].bottom - barrect[bartype].top;
       glBegin( GL_QUADS );
-      glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-      glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-      glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-      glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+      glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+      glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+      glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+      glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
       glEnd();
 
       // Draw the empty ones
-      noticks = maxticks-ticks;
-      if ( noticks > ( NUMTICK-ticks ) ) noticks = ( NUMTICK-ticks );
-      barrect[0].right = ( noticks<<3 )+TABX;
+      noticks = maxticks - ticks;
+      if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
+      barrect[0].right = ( noticks << 3 ) + TABX;
       glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-      xl=( ( float )barrect[0].left )/128;
-      xr=( ( float )barrect[0].right )/128;
-      yt=( ( float )barrect[0].top )/128;
-      yb=( ( float )barrect[0].bottom )/128;
-      width=barrect[0].right-barrect[0].left; height=barrect[0].bottom-barrect[0].top;
+      xl = ( ( float )barrect[0].left ) / 128;
+      xr = ( ( float )barrect[0].right ) / 128;
+      yt = ( ( float )barrect[0].top ) / 128;
+      yb = ( ( float )barrect[0].bottom ) / 128;
+      width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
       glBegin( GL_QUADS );
-      glTexCoord2f( xl, yb );   glVertex2i( ( ticks<<3 )+x,       scry-y-height );
-      glTexCoord2f( xr, yb );   glVertex2i( ( ticks<<3 )+x+width, scry-y-height );
-      glTexCoord2f( xr, yt );   glVertex2i( ( ticks<<3 )+x+width, scry-y );
-      glTexCoord2f( xl, yt );   glVertex2i( ( ticks<<3 )+x,       scry-y );
+      glTexCoord2f( xl, yb );   glVertex2i( ( ticks << 3 ) + x,       scry - y - height );
+      glTexCoord2f( xr, yb );   glVertex2i( ( ticks << 3 ) + x + width, scry - y - height );
+      glTexCoord2f( xr, yt );   glVertex2i( ( ticks << 3 ) + x + width, scry - y );
+      glTexCoord2f( xl, yt );   glVertex2i( ( ticks << 3 ) + x,       scry - y );
       glEnd();
-      maxticks-=NUMTICK;
-      y+=BARY;
+      maxticks -= NUMTICK;
+      y += BARY;
     }
 
 
@@ -3739,39 +3739,39 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     {
       barrect[0].right = BARX;
       glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-      xl=( ( float )barrect[0].left )/128;
-      xr=( ( float )barrect[0].right )/128;
-      yt=( ( float )barrect[0].top )/128;
-      yb=( ( float )barrect[0].bottom )/128;
-      width=barrect[0].right-barrect[0].left; height=barrect[0].bottom-barrect[0].top;
+      xl = ( ( float )barrect[0].left ) / 128;
+      xr = ( ( float )barrect[0].right ) / 128;
+      yt = ( ( float )barrect[0].top ) / 128;
+      yb = ( ( float )barrect[0].bottom ) / 128;
+      width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
       glBegin( GL_QUADS );
-      glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-      glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-      glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-      glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+      glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+      glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+      glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+      glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
       glEnd();
-      y+=BARY;
-      maxticks-=NUMTICK;
+      y += BARY;
+      maxticks -= NUMTICK;
     }
 
 
     // Draw the last of the empty ones
     if ( maxticks > 0 )
     {
-      barrect[0].right = ( maxticks<<3 )+TABX;
+      barrect[0].right = ( maxticks << 3 ) + TABX;
       glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxBars ) );
-      xl=( ( float )barrect[0].left )/128;
-      xr=( ( float )barrect[0].right )/128;
-      yt=( ( float )barrect[0].top )/128;
-      yb=( ( float )barrect[0].bottom )/128;
-      width=barrect[0].right-barrect[0].left; height=barrect[0].bottom-barrect[0].top;
+      xl = ( ( float )barrect[0].left ) / 128;
+      xr = ( ( float )barrect[0].right ) / 128;
+      yt = ( ( float )barrect[0].top ) / 128;
+      yb = ( ( float )barrect[0].bottom ) / 128;
+      width = barrect[0].right - barrect[0].left; height = barrect[0].bottom - barrect[0].top;
       glBegin( GL_QUADS );
-      glTexCoord2f( xl, yb );   glVertex2i( x,       scry-y-height );
-      glTexCoord2f( xr, yb );   glVertex2i( x+width, scry-y-height );
-      glTexCoord2f( xr, yt );   glVertex2i( x+width, scry-y );
-      glTexCoord2f( xl, yt );   glVertex2i( x,       scry-y );
+      glTexCoord2f( xl, yb );   glVertex2i( x,       scry - y - height );
+      glTexCoord2f( xr, yb );   glVertex2i( x + width, scry - y - height );
+      glTexCoord2f( xr, yt );   glVertex2i( x + width, scry - y );
+      glTexCoord2f( xl, yt );   glVertex2i( x,       scry - y );
       glEnd();
-      y+=BARY;
+      y += BARY;
     }
   }
 
@@ -3783,7 +3783,7 @@ void BeginText( void )
 {
   EnableTexturing();    // Enable texture mapping
   glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxFont ) );
-  glAlphaFunc( GL_GREATER,0 );
+  glAlphaFunc( GL_GREATER, 0 );
   glEnable( GL_ALPHA_TEST );
   glDisable( GL_DEPTH_TEST );
   glDisable( GL_CULL_FACE );
@@ -3812,7 +3812,7 @@ void draw_string( char *szText, int x, int y )
     {
       // Use squiggle for tab
       x = x & ( ~TABAND );
-      x+=TABAND+1;
+      x += TABAND + 1;
     }
     else if ( cTmp == '\n' )
     {
@@ -3823,9 +3823,9 @@ void draw_string( char *szText, int x, int y )
       // Normal letter
       cTmp = asciitofont[cTmp];
       draw_one_font( cTmp, x, y );
-      x+=fontxspacing[cTmp];
+      x += fontxspacing[cTmp];
     }
-    cTmp=szText[cnt];
+    cTmp = szText[cnt];
     cnt++;
   }
   EndText();
@@ -3846,11 +3846,11 @@ int length_of_word( char *szText )
   {
     if ( cTmp == ' ' )
     {
-      x+=fontxspacing[asciitofont[cTmp]];
+      x += fontxspacing[asciitofont[cTmp]];
     }
     else if ( cTmp == '~' )
     {
-      x+=TABAND+1;
+      x += TABAND + 1;
     }
     cnt++;
     cTmp = szText[cnt];
@@ -3873,13 +3873,13 @@ int draw_wrap_string( char *szText, int x, int y, int maxx )
   //     wrapping over the right side and returning the new y value
   int sttx = x;
   Uint8 cTmp = szText[0];
-  int newy = y+fontyspacing;
+  int newy = y + fontyspacing;
   Uint8 newword = btrue;
   int cnt = 1;
 
   BeginText();
 
-  maxx = maxx+sttx;
+  maxx = maxx + sttx;
 
   while ( cTmp != 0 )
   {
@@ -3892,12 +3892,12 @@ int draw_wrap_string( char *szText, int x, int y, int maxx )
       if ( endx > maxx )
       {
         // Wrap the end and cut off spaces and tabs
-        x = sttx+fontyspacing;
-        y+=fontyspacing;
-        newy+=fontyspacing;
+        x = sttx + fontyspacing;
+        y += fontyspacing;
+        newy += fontyspacing;
         while ( cTmp == ' ' || cTmp == '~' )
         {
-          cTmp=szText[cnt];
+          cTmp = szText[cnt];
           cnt++;
         }
       }
@@ -3908,22 +3908,22 @@ int draw_wrap_string( char *szText, int x, int y, int maxx )
       {
         // Use squiggle for tab
         x = x & ( ~TABAND );
-        x+=TABAND+1;
+        x += TABAND + 1;
       }
       else if ( cTmp == '\n' )
       {
         x = sttx;
-        y+=fontyspacing;
-        newy+=fontyspacing;
+        y += fontyspacing;
+        newy += fontyspacing;
       }
       else
       {
         // Normal letter
         cTmp = asciitofont[cTmp];
         draw_one_font( cTmp, x, y );
-        x+=fontxspacing[cTmp];
+        x += fontxspacing[cTmp];
       }
-      cTmp=szText[cnt];
+      cTmp = szText[cnt];
       if ( cTmp == '~' || cTmp == ' ' )
       {
         newword = btrue;
@@ -3944,10 +3944,10 @@ int draw_status( Uint16 character, int x, int y )
   char cTmp;
   char *readtext;
 
-  int life = chrlife[character]>>8;
-  int lifemax = chrlifemax[character]>>8;
-  int mana = chrmana[character]>>8;
-  int manamax = chrmanamax[character]>>8;
+  int life = chrlife[character] >> 8;
+  int lifemax = chrlifemax[character] >> 8;
+  int mana = chrmana[character] >> 8;
+  int manamax = chrmanamax[character] >> 8;
   int cnt = lifemax;
 
   /* [claforte] This can be removed
@@ -3979,61 +3979,61 @@ int draw_status( Uint16 character, int x, int y )
       generictext[cnt] = cTmp;
   }
   generictext[6] = 0;
-  draw_string( generictext, x+8, y ); y+=fontyspacing;
+  draw_string( generictext, x + 8, y ); y += fontyspacing;
 
 
   // Write the character's money
   sprintf( generictext, "$%4d", chrmoney[character] );
-  draw_string( generictext, x+8, y ); y+=fontyspacing+8;
+  draw_string( generictext, x + 8, y ); y += fontyspacing + 8;
 
 
   // Draw the icons
-  draw_one_icon( madskintoicon[chrtexture[character]], x+40, y, chrsparkle[character] );
+  draw_one_icon( madskintoicon[chrtexture[character]], x + 40, y, chrsparkle[character] );
   item = chrholdingwhich[character][0];
-  if ( item!=MAXCHR )
+  if ( item != MAXCHR )
   {
     if ( chricon[item] )
     {
-      draw_one_icon( madskintoicon[chrtexture[item]], x+8, y, chrsparkle[item] );
-      if ( chrammomax[item]!=0 && chrammoknown[item] )
+      draw_one_icon( madskintoicon[chrtexture[item]], x + 8, y, chrsparkle[item] );
+      if ( chrammomax[item] != 0 && chrammoknown[item] )
       {
-        if ( capisstackable[chrmodel[item]]==bfalse || chrammo[item]>1 )
+        if ( !capisstackable[chrmodel[item]] || chrammo[item] > 1 )
         {
           // Show amount of ammo left
           sprintf( generictext, "%2d", chrammo[item] );
-          draw_string( generictext, x+8, y-8 );
+          draw_string( generictext, x + 8, y - 8 );
         }
       }
     }
     else
-      draw_one_icon( bookicon+( chrmoney[item]&3 ), x+8, y, chrsparkle[item] );
+      draw_one_icon( bookicon + ( chrmoney[item]&3 ), x + 8, y, chrsparkle[item] );
   }
   else
-    draw_one_icon( nullicon, x+8, y, NOSPARKLE );
+    draw_one_icon( nullicon, x + 8, y, NOSPARKLE );
 
   item = chrholdingwhich[character][1];
-  if ( item!=MAXCHR )
+  if ( item != MAXCHR )
   {
     if ( chricon[item] )
     {
-      draw_one_icon( madskintoicon[chrtexture[item]], x+72, y, chrsparkle[item] );
-      if ( chrammomax[item]!=0 && chrammoknown[item] )
+      draw_one_icon( madskintoicon[chrtexture[item]], x + 72, y, chrsparkle[item] );
+      if ( chrammomax[item] != 0 && chrammoknown[item] )
       {
-        if ( capisstackable[chrmodel[item]]==bfalse || chrammo[item]>1 )
+        if ( !capisstackable[chrmodel[item]] || chrammo[item] > 1 )
         {
           // Show amount of ammo left
           sprintf( generictext, "%2d", chrammo[item] );
-          draw_string( generictext, x+72, y-8 );
+          draw_string( generictext, x + 72, y - 8 );
         }
       }
     }
     else
-      draw_one_icon( bookicon+( chrmoney[item]&3 ), x+72, y, chrsparkle[item] );
+      draw_one_icon( bookicon + ( chrmoney[item]&3 ), x + 72, y, chrsparkle[item] );
   }
   else
-    draw_one_icon( nullicon, x+72, y, NOSPARKLE );
+    draw_one_icon( nullicon, x + 72, y, NOSPARKLE );
 
-  y+=32;
+  y += 32;
 
   // Draw the bars
   if ( chralive[character] )
@@ -4059,16 +4059,16 @@ void draw_text()
   if ( staton )
   {
     for ( cnt = 0; cnt < numstat && y < scry; cnt++ )
-      y = draw_status( statlist[cnt], scrx-BARX, y );
+      y = draw_status( statlist[cnt], scrx - BARX, y );
   }
 
   // Map display
   if ( mapon && mapvalid )
   {
-    draw_map( 0, scry-MAPSIZE );
+    draw_map( 0, scry - MAPSIZE );
 
     for ( cnt = 0; cnt < numblip; cnt++ )
-      draw_blip( blipc[cnt], blipx[cnt], blipy[cnt]+scry-MAPSIZE );
+      draw_blip( blipc[cnt], blipx[cnt], blipy[cnt] + scry - MAPSIZE );
 
     if ( youarehereon && ( wldframe&8 ) )
     {
@@ -4078,7 +4078,7 @@ void draw_text()
         {
           tnc = plaindex[cnt];
           if ( chralive[tnc] )
-            draw_blip( 0, chrxpos[tnc]*MAPSIZE/meshedgex, ( chrypos[tnc]*MAPSIZE/meshedgey )+scry-MAPSIZE );
+            draw_blip( 0, chrxpos[tnc]*MAPSIZE / meshedgex, ( chrypos[tnc]*MAPSIZE / meshedgey ) + scry - MAPSIZE );
         }
       }
     }
@@ -4090,20 +4090,20 @@ void draw_text()
   if ( outofsync )
   {
     sprintf( text, "OUT OF SYNC..." );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
   }
 
   if ( parseerror )
   {
     sprintf( text, "SCRIPT ERROR ( SEE LOG.TXT )" );
     draw_string( text, 0, y );
-    y+=fontyspacing;
+    y += fontyspacing;
   }
 
   if ( fpson )
   {
     draw_string( szfpstext, 0, y );
-    y+=fontyspacing;
+    y += fontyspacing;
   }
 
 
@@ -4111,82 +4111,82 @@ void draw_text()
   {
     // In-Game help
     sprintf( text, "!!!MOUSE HELP!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     if ( rtscontrol )
     {
       sprintf( text, "  Left Drag to select units" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Left Click to order them" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
 
     }
     else
     {
       sprintf( text, "  Edit CONTROLS.TXT to change" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Left Click to use an item" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Left and Right Click to grab" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Middle Click to jump" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  A and S keys do stuff" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
     }
     sprintf( text, "  Right Drag to move camera" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
   }
   if ( SDLKEYDOWN( SDLK_F2 ) )
   {
     // In-Game help
     sprintf( text, "!!!JOYSTICK HELP!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     if ( rtscontrol )
     {
       sprintf( text, "  Joystick not available" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
     }
     else
     {
       sprintf( text, "  Edit CONTROLS.TXT to change" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Hit the buttons" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  You'll figure it out" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
     }
   }
   if ( SDLKEYDOWN( SDLK_F3 ) )
   {
     // In-Game help
     sprintf( text, "!!!KEYBOARD HELP!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     if ( rtscontrol )
     {
       sprintf( text, "  Keyboard not available" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
     }
     else
     {
       sprintf( text, "  Edit CONTROLS.TXT to change" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  TGB control one hand" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  YHN control the other" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Keypad to move and jump" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
       sprintf( text, "  Number keys for stats" );
-      draw_string( text, 0, y );  y+=fontyspacing;
+      draw_string( text, 0, y );  y += fontyspacing;
     }
   }
   if ( SDLKEYDOWN( SDLK_F5 ) )
   {
     // Debug information
     sprintf( text, "!!!DEBUG MODE-5!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  CAM %f %f", camx, camy );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     tnc = plaindex[0];
     sprintf( text, "  PLA0DEF %d %d %d %d %d %d %d %d",
              chrdamagemodifier[tnc][0]&3,
@@ -4197,62 +4197,62 @@ void draw_text()
              chrdamagemodifier[tnc][5]&3,
              chrdamagemodifier[tnc][6]&3,
              chrdamagemodifier[tnc][7]&3 );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     tnc = plaindex[0];
-    sprintf( text, "  PLA0 %5.1f %5.1f", chrxpos[tnc]/128.0f, chrypos[tnc]/128.0f );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    sprintf( text, "  PLA0 %5.1f %5.1f", chrxpos[tnc] / 128.0f, chrypos[tnc] / 128.0f );
+    draw_string( text, 0, y );  y += fontyspacing;
     tnc = plaindex[1];
-    sprintf( text, "  PLA1 %5.1f %5.1f", chrxpos[tnc]/128.0f, chrypos[tnc]/128.0f );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    sprintf( text, "  PLA1 %5.1f %5.1f", chrxpos[tnc] / 128.0f, chrypos[tnc] / 128.0f );
+    draw_string( text, 0, y );  y += fontyspacing;
   }
   if ( SDLKEYDOWN( SDLK_F6 ) )
   {
     // More debug information
     sprintf( text, "!!!DEBUG MODE-6!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  FREEPRT %d", numfreeprt );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  FREECHR %d",  numfreechr );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  MACHINE %d", localmachine );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  EXPORT %d", exportvalid );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  FOGAFF %d", fogaffectswater );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  PASS %d/%d", numshoppassage, numpassage );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  NETPLAYERS %d", numplayer );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "  DAMAGEPART %d", damagetileparttype );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
   }
   if ( SDLKEYDOWN( SDLK_F7 ) )
   {
     // White debug mode
     sprintf( text, "!!!DEBUG MODE-7!!!" );
-    draw_string( text, 0, y );  y+=fontyspacing;
-    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0,0 ), ( mView )_CNV( 1,0 ), ( mView )_CNV( 2,0 ), ( mView )_CNV( 3,0 ) );
-    draw_string( text, 0, y );  y+=fontyspacing;
-    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0,1 ), ( mView )_CNV( 1,1 ), ( mView )_CNV( 2,1 ), ( mView )_CNV( 3,1 ) );
-    draw_string( text, 0, y );  y+=fontyspacing;
-    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0,2 ), ( mView )_CNV( 1,2 ), ( mView )_CNV( 2,2 ), ( mView )_CNV( 3,2 ) );
-    draw_string( text, 0, y );  y+=fontyspacing;
-    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0,3 ), ( mView )_CNV( 1,3 ), ( mView )_CNV( 2,3 ), ( mView )_CNV( 3,3 ) );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
+    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0, 0 ), ( mView )_CNV( 1, 0 ), ( mView )_CNV( 2, 0 ), ( mView )_CNV( 3, 0 ) );
+    draw_string( text, 0, y );  y += fontyspacing;
+    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0, 1 ), ( mView )_CNV( 1, 1 ), ( mView )_CNV( 2, 1 ), ( mView )_CNV( 3, 1 ) );
+    draw_string( text, 0, y );  y += fontyspacing;
+    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0, 2 ), ( mView )_CNV( 1, 2 ), ( mView )_CNV( 2, 2 ), ( mView )_CNV( 3, 2 ) );
+    draw_string( text, 0, y );  y += fontyspacing;
+    sprintf( text, "CAM %f %f %f %f", ( mView )_CNV( 0, 3 ), ( mView )_CNV( 1, 3 ), ( mView )_CNV( 2, 3 ), ( mView )_CNV( 3, 3 ) );
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "x %f", camcenterx );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "y %f", camcentery );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
     sprintf( text, "turn %d %d", autoturncamera, doturntime );
-    draw_string( text, 0, y );  y+=fontyspacing;
+    draw_string( text, 0, y );  y += fontyspacing;
   }
 
   // Draw paused text
   if ( gamepaused && !SDLKEYDOWN( SDLK_F11 ) )
   {
     sprintf( text, "GAME PAUSED" );
-    draw_string( text, -90 + scrx/2, 0 + scry/2 );
+    draw_string( text, -90 + scrx / 2, 0 + scry / 2 );
   }
 
   // Pressed panic button
@@ -4264,18 +4264,18 @@ void draw_text()
 
   if ( timeron )
   {
-    fifties = ( timervalue%50 )<<1;
-    seconds = ( ( timervalue/50 )%60 );
-    minutes = ( timervalue/3000 );
+    fifties = ( timervalue % 50 ) << 1;
+    seconds = ( ( timervalue / 50 ) % 60 );
+    minutes = ( timervalue / 3000 );
     sprintf( text, "=%d:%02d:%02d=", minutes, seconds, fifties );
     draw_string( text, 0, y );
-    y+=fontyspacing;
+    y += fontyspacing;
   }
   if ( waitingforplayers )
   {
     sprintf( text, "Waiting for players..." );
     draw_string( text, 0, y );
-    y+=fontyspacing;
+    y += fontyspacing;
   }
   if ( !rtscontrol )
   {
@@ -4290,7 +4290,7 @@ void draw_text()
         sprintf( text, "PRESS ESCAPE TO QUIT" );
       }
       draw_string( text, 0, y );
-      y+=fontyspacing;
+      y += fontyspacing;
     }
     else
     {
@@ -4298,7 +4298,7 @@ void draw_text()
       {
         sprintf( text, "VICTORY!  PRESS ESCAPE" );
         draw_string( text, 0, y );
-        y+=fontyspacing;
+        y += fontyspacing;
       }
     }
   }
@@ -4307,7 +4307,7 @@ void draw_text()
   // Network message input
   if ( netmessagemode )
   {
-    y = draw_wrap_string( netmessage, 0, y, scrx-wraptolerance );
+    y = draw_wrap_string( netmessage, 0, y, scrx - wraptolerance );
   }
 
 
@@ -4319,9 +4319,9 @@ void draw_text()
 
     for ( cnt = 0; cnt < maxmessage; cnt++ )
     {
-      if ( msgtime[tnc]>0 )
+      if ( msgtime[tnc] > 0 )
       {
-        y = draw_wrap_string( msgtextdisplay[tnc], 0, y, scrx-wraptolerance );
+        y = draw_wrap_string( msgtextdisplay[tnc], 0, y, scrx - wraptolerance );
         msgtime[tnc] -= msgtimechange;
       }
       tnc++;
@@ -4473,8 +4473,8 @@ void draw_titleimage( int image, int x, int y )
     glNormal3f( 0, 0, 1 );  // glNormal3f( 0, 1, 0 );
 
     /* Calculate the texture width & height */
-    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTitleImage[image] )/GLTexture_GetDimensions( &TxTitleImage[image] ) );
-    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTitleImage[image] )/GLTexture_GetDimensions( &TxTitleImage[image] ) );
+    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
+    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
 
     /* Bind the texture */
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTitleImage[image] ) );
@@ -4483,8 +4483,8 @@ void draw_titleimage( int image, int x, int y )
     glBegin( GL_QUADS );
     glTexCoord2f( 0, 1 );  glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
     glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
-    glTexCoord2f( txWidth, 1-txHeight );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y );
-    glTexCoord2f( 0, 1-txHeight );  glVertex2f( x, scry - y );
+    glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y );
+    glTexCoord2f( 0, 1 - txHeight );  glVertex2f( x, scry - y );
     glEnd();
 
     End2DMode();
@@ -4496,17 +4496,17 @@ void do_cursor()
 {
   // This function implements a mouse cursor
   read_input( NULL );
-  cursorx=mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx-16 )  cursorx = scrx-16;
-  cursory=mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry-24 )  cursory = scry-24;
+  cursorx = mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx - 16 )  cursorx = scrx - 16;
+  cursory = mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry - 24 )  cursory = scry - 24;
   clicked = bfalse;
-  if ( mousebutton[0] && pressed == bfalse )
+  if ( mousebutton[0] && !pressed )
   {
     clicked = btrue;
   }
   pressed = mousebutton[0];
   BeginText();  // Needed to setup text mode
   // draw_one_font(11, cursorx-5, cursory-7);
-  draw_one_font( 95, cursorx-5, cursory-7 );
+  draw_one_font( 95, cursorx - 5, cursory - 7 );
   EndText();    // Needed when done with text mode
 }
 
@@ -4572,7 +4572,7 @@ void sdlinit( int argc, char **argv )
   int     colordepth;
   SDL_Surface *theSurface;
 
-  if ( SDL_Init( SDL_INIT_VIDEO|SDL_INIT_AUDIO|SDL_INIT_JOYSTICK ) < 0 )
+  if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
   {
     log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
   }
@@ -4587,10 +4587,10 @@ void sdlinit( int argc, char **argv )
     scrd = 24;
 #endif
 
-  colordepth=scrd/3;
+  colordepth = scrd / 3;
 
   /* Setup the cute windows manager icon */
-  theSurface =SDL_LoadBMP( "basicdat" SLASH_STR "icon.bmp" );
+  theSurface = SDL_LoadBMP( "basicdat" SLASH_STR "icon.bmp" );
   if ( theSurface == NULL )
   {
     log_error( "Unable to load icon (basicdat" SLASH_STR "icon.bmp)\n" );
@@ -4625,7 +4625,8 @@ void sdlinit( int argc, char **argv )
     SDL_ShowCursor( 0 );  // Hide the mouse cursor
   }
 
-  if ( SDL_NumJoysticks() > 0 ) {
+  if ( SDL_NumJoysticks() > 0 )
+  {
     sdljoya = SDL_JoystickOpen( 0 );
     joyaon = btrue;
   }
@@ -4659,7 +4660,7 @@ bool_t dump_screenshot()
   if ( temp == NULL )
     return bfalse;
 
-  pixels = malloc( 3*screen->w * screen->h );
+  pixels = malloc( 3 * screen->w * screen->h );
   if ( pixels == NULL )
   {
     SDL_FreeSurface( temp );
@@ -4668,8 +4669,8 @@ bool_t dump_screenshot()
 
   glReadPixels( 0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels );
 
-  for ( i=0; i < screen->h; i++ )
-    memcpy( ( ( char * ) temp->pixels ) + temp->pitch * i, pixels + 3 * screen->w * ( screen->h-i-1 ), screen->w * 3 );
+  for ( i = 0; i < screen->h; i++ )
+    memcpy( ( ( char * ) temp->pixels ) + temp->pitch * i, pixels + 3 * screen->w * ( screen->h - i - 1 ), screen->w * 3 );
   free( pixels );
 
   // find the next EGO??.BMP file for writing
@@ -4679,7 +4680,7 @@ bool_t dump_screenshot()
 
   while ( !savefound && ( i < 100 ) )
   {
-    sprintf( buff, "ego%02d.bmp",i );
+    sprintf( buff, "ego%02d.bmp", i );
 
     // lame way of checking if the file already exists...
     test = fopen( buff, "rb" );
@@ -4711,7 +4712,7 @@ bool_t dump_screenshot()
 void check_stats()
 {
   // ZZ> This function lets the players check character stats
-  if ( netmessagemode == bfalse )
+  if ( !netmessagemode )
   {
     // Display armor stats?
     if ( SDLKEYDOWN( SDLK_LSHIFT ) )
@@ -4770,8 +4771,8 @@ void check_stats()
     // !!!BAD!!!  CHEAT
     if ( SDLKEYDOWN( SDLK_x ) )
     {
-      if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0]<MAXCHR )  give_experience( plaindex[0], 25, XPDIRECT );
-      if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1]<MAXCHR )  give_experience( plaindex[1], 25, XPDIRECT );
+      if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  give_experience( plaindex[0], 25, XPDIRECT );
+      if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  give_experience( plaindex[1], 25, XPDIRECT );
       statdelay = 0;
     }
     if ( SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
@@ -4781,7 +4782,7 @@ void check_stats()
     }
     if ( SDLKEYDOWN( SDLK_z ) )
     {
-      if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0]<MAXCHR )  chrlife[plaindex[0]]+=128;
+      if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  chrlife[plaindex[0]] += 128;
     }
   }
 }

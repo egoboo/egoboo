@@ -192,7 +192,8 @@ int ui_buttonBehavior( UI_ID id, int x, int y, int width, int height )
 
       ui_setactive( UI_Nothing );
     }
-  } else if ( ui_context.hot == id )
+  }
+  else if ( ui_context.hot == id )
   {
     if ( ui_context.mousePressed == 1 )
     {
@@ -237,7 +238,8 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
     {
       w = img->imgWidth;
       h = img->imgHeight;
-    } else
+    }
+    else
     {
       w = width;
       h = height;

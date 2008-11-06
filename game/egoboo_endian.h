@@ -19,29 +19,13 @@
 //*
 //********************************************************************************************
 
-#ifdef __msvc__
-// Turn off warnings that we don't care about.
-#    pragma warning(disable : 4305) // truncation from 'double' to 'float'
-#    pragma warning(disable : 4244) // conversion from 'double' to 'float'
-#    pragma warning(disable : 4554) // possibly operator precendence error
-//#    pragma warning(disable : 4761)
-#endif
+#include "egobootypedef.h"
 
-#ifdef __unix__
-#    include <unistd.h>
-#endif
+#include <SDL_endian.h>
 
-#ifdef WIN32
-// Speeds up compile times a bit.  We don't need everything in windows.h
-#    define WIN32_LEAN_AND_MEAN
-// Windows defines snprintf as _snprintf; that's kind of a pain, so redefine it here
-#    define snprintf _snprintf
-#endif
-
-#ifdef WIN32
-#    define SLASH_STR "\\"
-#    define SLASH_CHR '\\'
+// define a LoadFloatByteswapped() "function" to work on both big and little endian systems
+#if SDL_BYTEORDER != SDL_LIL_ENDIAN
+extern float LoadFloatByteswapped( float *ptr );
 #else
-#    define SLASH_STR "/"
-#    define SLASH_CHR '/'
+#    define LoadFloatByteswapped( PTR ) (NULL == PTR ? 0.0f : *PTR)
 #endif

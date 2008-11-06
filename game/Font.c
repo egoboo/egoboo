@@ -76,7 +76,7 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
   }
 
   // Save the alpha blending attributes
-  saved_flags = surface->flags&( SDL_SRCALPHA|SDL_RLEACCELOK );
+  saved_flags = surface->flags & ( SDL_SRCALPHA | SDL_RLEACCELOK );
   saved_alpha = surface->format->alpha;
   if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
   {
@@ -119,7 +119,8 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     if ( TTF_Init() != -1 )
     {
       atexit( TTF_Quit );
-    } else
+    }
+    else
     {
       printf( "fnt_loadFont: Could not initialize SDL_TTF!\n" );
       return NULL;

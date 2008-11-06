@@ -20,13 +20,17 @@
 
 //#define MENU_DEMO    // Uncomment this to build just the menu demo
 #define DECLARE_GLOBALS
+
+#include <time.h>
+
 #include "egoboo.h"
 #include "Clock.h"
 #include "Link.h"
 #include "Ui.h"
 #include "Font.h"
 #include "Log.h"
-#include <SDL_endian.h>
+
+#include "egoboo_endian.h"
 
 #include "char.h"
 #include "camera.h"
@@ -41,16 +45,16 @@ int what_action( char cTmp )
   // ZZ> This function changes a letter into an action code
   int action;
   action = ACTIONDA;
-  if ( cTmp=='U' || cTmp=='u' )  action = ACTIONUA;
-  if ( cTmp=='T' || cTmp=='t' )  action = ACTIONTA;
-  if ( cTmp=='S' || cTmp=='s' )  action = ACTIONSA;
-  if ( cTmp=='C' || cTmp=='c' )  action = ACTIONCA;
-  if ( cTmp=='B' || cTmp=='b' )  action = ACTIONBA;
-  if ( cTmp=='L' || cTmp=='l' )  action = ACTIONLA;
-  if ( cTmp=='X' || cTmp=='x' )  action = ACTIONXA;
-  if ( cTmp=='F' || cTmp=='f' )  action = ACTIONFA;
-  if ( cTmp=='P' || cTmp=='p' )  action = ACTIONPA;
-  if ( cTmp=='Z' || cTmp=='z' )  action = ACTIONZA;
+  if ( cTmp == 'U' || cTmp == 'u' )  action = ACTIONUA;
+  if ( cTmp == 'T' || cTmp == 't' )  action = ACTIONTA;
+  if ( cTmp == 'S' || cTmp == 's' )  action = ACTIONSA;
+  if ( cTmp == 'C' || cTmp == 'c' )  action = ACTIONCA;
+  if ( cTmp == 'B' || cTmp == 'b' )  action = ACTIONBA;
+  if ( cTmp == 'L' || cTmp == 'l' )  action = ACTIONLA;
+  if ( cTmp == 'X' || cTmp == 'x' )  action = ACTIONXA;
+  if ( cTmp == 'F' || cTmp == 'f' )  action = ACTIONFA;
+  if ( cTmp == 'P' || cTmp == 'p' )  action = ACTIONPA;
+  if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTIONZA;
   return action;
 }
 
@@ -102,7 +106,7 @@ void export_one_character( int character, int owner, int number, bool_t is_local
   disenchant_character( character );
 
   profile = chrmodel[character];
-  if ( ( capcancarrytonextmodule[profile] || capisitem[profile]==bfalse ) && exportvalid )
+  if ( ( capcancarrytonextmodule[profile] || !capisitem[profile] ) && exportvalid )
   {
     // TWINK_BO.OBJ
     sprintf( todirname, "badname.obj" );
@@ -352,7 +356,7 @@ Uint8 goto_colon_yesno( FILE* fileread )
 
   do
   {
-    if ( fscanf( fileread, "%c", &cTmp )==EOF )
+    if ( fscanf( fileread, "%c", &cTmp ) == EOF )
     {
       return bfalse;
     }
@@ -426,7 +430,7 @@ int tag_value( char *string )
   cnt = 0;
   while ( cnt < numscantag )
   {
-    if ( strcmp( string, tagname[cnt] )==0 )
+    if ( strcmp( string, tagname[cnt] ) == 0 )
     {
       // They match
       return tagvalue[cnt];
@@ -469,7 +473,7 @@ Uint8 control_key_is_pressed( Uint8 control )
   if ( netmessagemode )  return bfalse;
 
   if ( sdlkeybuffer )
-    return ( sdlkeybuffer[controlvalue[control]]!=0 );
+    return ( sdlkeybuffer[controlvalue[control]] != 0 );
   else
     return bfalse;
 }
@@ -483,13 +487,13 @@ Uint8 control_mouse_is_pressed( Uint8 control )
     if ( netmessagemode )  return bfalse;
 
     if ( sdlkeybuffer )
-      return ( sdlkeybuffer[controlvalue[control]]!=0 );
+      return ( sdlkeybuffer[controlvalue[control]] != 0 );
     else
       return bfalse;
   }
   else
   {
-    return ( msb==controlvalue[control] );
+    return ( msb == controlvalue[control] );
   }
   return bfalse;
 }
@@ -503,13 +507,13 @@ Uint8 control_joya_is_pressed( Uint8 control )
     if ( netmessagemode )  return bfalse;
 
     if ( sdlkeybuffer )
-      return ( sdlkeybuffer[controlvalue[control]]!=0 );
+      return ( sdlkeybuffer[controlvalue[control]] != 0 );
     else
       return bfalse;
   }
   else
   {
-    return ( jab==controlvalue[control] );
+    return ( jab == controlvalue[control] );
   }
   return bfalse;
 }
@@ -523,13 +527,13 @@ Uint8 control_joyb_is_pressed( Uint8 control )
     if ( netmessagemode )  return bfalse;
 
     if ( sdlkeybuffer )
-      return ( sdlkeybuffer[controlvalue[control]]!=0 );
+      return ( sdlkeybuffer[controlvalue[control]] != 0 );
     else
       return bfalse;
   }
   else
   {
-    return ( jbb==controlvalue[control] );
+    return ( jbb == controlvalue[control] );
   }
   return bfalse;
 }
@@ -545,10 +549,10 @@ void undo_idsz( int idsz )
   }
   else
   {
-    valueidsz[0] = ( ( idsz>>15 )&31 ) + 'A';
-    valueidsz[1] = ( ( idsz>>10 )&31 ) + 'A';
-    valueidsz[2] = ( ( idsz>>5 )&31 ) + 'A';
-    valueidsz[3] = ( ( idsz )&31 ) + 'A';
+    valueidsz[0] = ( ( idsz >> 15 ) & 31 ) + 'A';
+    valueidsz[1] = ( ( idsz >> 10 ) & 31 ) + 'A';
+    valueidsz[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
+    valueidsz[3] = ( ( idsz ) & 31 ) + 'A';
     valueidsz[4] = 0;
   }
   return;
@@ -564,13 +568,13 @@ int get_idsz( FILE* fileread )
   char cTmp = get_first_letter( fileread );
   if ( cTmp == '[' )
   {
-    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp-'A';  idsz=idsz|( cTmp<<15 );
-    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp-'A';  idsz=idsz|( cTmp<<10 );
-    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp-'A';  idsz=idsz|( cTmp<<5 );
-    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp-'A';  idsz=idsz|( cTmp );
+    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 15 );
+    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 10 );
+    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 5 );
+    fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp );
   }
 
-  test = Make_IDSZ( 'N','O','N','E' );  // [NONE]
+  test = Make_IDSZ( 'N', 'O', 'N', 'E' );  // [NONE]
 
   if ( idsz == test )
     idsz = IDSZNONE;
@@ -597,12 +601,12 @@ void getadd( int min, int value, int max, int* valuetoadd )
   //     to not overflow the min and max bounds
   int newvalue;
 
-  newvalue = value+( *valuetoadd );
+  newvalue = value + ( *valuetoadd );
   if ( newvalue < min )
   {
     // Increase valuetoadd to fit
-    *valuetoadd = min-value;
-    if ( *valuetoadd > 0 )  *valuetoadd=0;
+    *valuetoadd = min - value;
+    if ( *valuetoadd > 0 )  *valuetoadd = 0;
     return;
   }
 
@@ -610,8 +614,8 @@ void getadd( int min, int value, int max, int* valuetoadd )
   if ( newvalue > max )
   {
     // Decrease valuetoadd to fit
-    *valuetoadd = max-value;
-    if ( *valuetoadd < 0 )  *valuetoadd=0;
+    *valuetoadd = max - value;
+    if ( *valuetoadd < 0 )  *valuetoadd = 0;
   }
 }
 
@@ -623,12 +627,12 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
   float newvalue;
 
 
-  newvalue = value+( *valuetoadd );
+  newvalue = value + ( *valuetoadd );
   if ( newvalue < min )
   {
     // Increase valuetoadd to fit
-    *valuetoadd = min-value;
-    if ( *valuetoadd > 0 )  *valuetoadd=0;
+    *valuetoadd = min - value;
+    if ( *valuetoadd > 0 )  *valuetoadd = 0;
     return;
   }
 
@@ -636,8 +640,8 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
   if ( newvalue > max )
   {
     // Decrease valuetoadd to fit
-    *valuetoadd = max-value;
-    if ( *valuetoadd < 0 )  *valuetoadd=0;
+    *valuetoadd = max - value;
+    if ( *valuetoadd < 0 )  *valuetoadd = 0;
   }
 }
 
@@ -680,10 +684,10 @@ void get_name( FILE* fileread, char *szName )
 
   fscanf( fileread, "%s", szTmp );
   cnt = 0;
-  while ( cnt < MAXCAPNAMESIZE-1 )
+  while ( cnt < MAXCAPNAMESIZE - 1 )
   {
     cTmp = szTmp[cnt];
-    if ( cTmp=='_' )  cTmp=' ';
+    if ( cTmp == '_' )  cTmp = ' ';
     szName[cnt] = cTmp;
     cnt++;
   }
@@ -1073,10 +1077,10 @@ float light_for_normal( int rotation, int normal, float lx, float ly, float lz, 
   nz = kMd2Normals[normal][2];
   sinrot = sinlut[rotation];
   cosrot = coslut[rotation];
-  fTmp = cosrot*nx + sinrot*ny;
-  ny = cosrot*ny - sinrot*nx;
+  fTmp = cosrot * nx + sinrot * ny;
+  ny = cosrot * ny - sinrot * nx;
   nx = fTmp;
-  fTmp = nx*lx + ny*ly + nz*lz + ambi;
+  fTmp = nx * lx + ny * ly + nz * lz + ambi;
   if ( fTmp < ambi ) fTmp = ambi;
   return fTmp;
 }
@@ -1092,25 +1096,25 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
   // Build a lookup table for sin/cos
   for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
   {
-    sinlut[cnt] = SIN( TWO_PI*cnt/MAXLIGHTROTATION );
-    coslut[cnt] = COS( TWO_PI*cnt/MAXLIGHTROTATION );
+    sinlut[cnt] = SIN( TWO_PI * cnt / MAXLIGHTROTATION );
+    coslut[cnt] = COS( TWO_PI * cnt / MAXLIGHTROTATION );
   }
 
-  for ( cnt = 0; cnt < MD2LIGHTINDICES-1; cnt++ )  // Spikey mace
+  for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
   {
     for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
     {
-      lev = MAXLIGHTLEVEL-1;
-      itmp = ( 255*light_for_normal( tnc,
-                                     cnt,
-                                     lx*lev/MAXLIGHTLEVEL,
-                                     ly*lev/MAXLIGHTLEVEL,
-                                     lz*lev/MAXLIGHTLEVEL,
-                                     ambi ) );
+      lev = MAXLIGHTLEVEL - 1;
+      itmp = ( 255 * light_for_normal( tnc,
+                                       cnt,
+                                       lx * lev / MAXLIGHTLEVEL,
+                                       ly * lev / MAXLIGHTLEVEL,
+                                       lz * lev / MAXLIGHTLEVEL,
+                                       ambi ) );
       // This creates the light value for each level entry
       while ( lev >= 0 )
       {
-        itmptwo = ( ( ( lev*itmp/( MAXLIGHTLEVEL-1 ) ) ) );
+        itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
         if ( itmptwo > 255 )  itmptwo = 255;
         lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
         lev--;
@@ -1120,12 +1124,12 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
   // Fill in index number 162 for the spike mace
   for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
   {
-    lev = MAXLIGHTLEVEL-1;
+    lev = MAXLIGHTLEVEL - 1;
     itmp = 255;
     // This creates the light value for each level entry
     while ( lev >= 0 )
     {
-      itmptwo = ( ( ( lev*itmp/( MAXLIGHTLEVEL-1 ) ) ) );
+      itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
       if ( itmptwo > 255 )  itmptwo = 255;
       lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
       lev--;
@@ -1268,9 +1272,9 @@ void rip_md2_commands( Uint16 modelindex )
 
   // Offset (in DWORDS) from the start of the file to the gl command list.
 #ifdef SDL_LIL_ENDIAN
-  int iCommandOffset = ipIntPointer[15]>>2;
+  int iCommandOffset = ipIntPointer[15] >> 2;
 #else
-  int iCommandOffset = SDL_Swap32( ipIntPointer[15] )>>2;
+  int iCommandOffset = SDL_Swap32( ipIntPointer[15] ) >> 2;
 #endif
 
   // Read in each command
@@ -1316,8 +1320,8 @@ void rip_md2_commands( Uint16 modelindex )
         fTmpv = LoadFloatByteswapped( &fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
         iTmp = SDL_Swap32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
 #endif
-        madcommandu[modelindex][entry] = fTmpu-( 0.5f/64 ); // GL doesn't align correctly
-        madcommandv[modelindex][entry] = fTmpv-( 0.5f/64 ); // with D3D
+        madcommandu[modelindex][entry] = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
+        madcommandv[modelindex][entry] = fTmpv - ( 0.5f / 64 ); // with D3D
         madcommandvrt[modelindex][entry] = ( Uint16 ) iTmp;
         entry++;
         tnc++;
@@ -1348,11 +1352,11 @@ int rip_md2_frame_name( int frame )
 #ifdef SDL_LIL_ENDIAN
   iNumVertices = ipIntPointer[6];
   iNumFrames = ipIntPointer[10];
-  iFrameOffset = ipIntPointer[14]>>2;
+  iFrameOffset = ipIntPointer[14] >> 2;
 #else
   iNumVertices = SDL_Swap32( ipIntPointer[6] );
   iNumFrames = SDL_Swap32( ipIntPointer[10] );
-  iFrameOffset = SDL_Swap32( ipIntPointer[14] )>>2;
+  iFrameOffset = SDL_Swap32( ipIntPointer[14] ) >> 2;
 #endif
 
 
@@ -1361,7 +1365,7 @@ int rip_md2_frame_name( int frame )
   cnt = 0;
   while ( cnt < iNumFrames && !foundname )
   {
-    iFrameOffset+=6;
+    iFrameOffset += 6;
     if ( cnt == frame )
     {
       ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
@@ -1372,9 +1376,9 @@ int rip_md2_frame_name( int frame )
     }
     else
     {
-      iFrameOffset+=4;
+      iFrameOffset += 4;
     }
-    iFrameOffset+=iNumVertices;
+    iFrameOffset += iNumVertices;
     cnt++;
   }
   cFrameName[15] = 0;  // Make sure it's null terminated
@@ -1408,11 +1412,11 @@ void rip_md2_frames( Uint16 modelindex )
 #ifdef SDL_LIL_ENDIAN
   iNumVertices = ipIntPointer[6];
   iNumFrames = ipIntPointer[10];
-  iFrameOffset = ipIntPointer[14]>>2;
+  iFrameOffset = ipIntPointer[14] >> 2;
 #else
   iNumVertices = SDL_Swap32( ipIntPointer[6] );
   iNumFrames = SDL_Swap32( ipIntPointer[10] );
-  iFrameOffset = SDL_Swap32( ipIntPointer[14] )>>2;
+  iFrameOffset = SDL_Swap32( ipIntPointer[14] ) >> 2;
 #endif
 
 
@@ -1420,7 +1424,7 @@ void rip_md2_frames( Uint16 modelindex )
   madframestart[modelindex] = madloadframe;
   madframes[modelindex] = iNumFrames;
   madvertices[modelindex] = iNumVertices;
-  madscale[modelindex] = ( float ) ( 1.0f/320.0f );  // Scale each vertex float to fit it in a short
+  madscale[modelindex] = ( float ) ( 1.0f / 320.0f );  // Scale each vertex float to fit it in a short
   cnt = 0;
   while ( cnt < iNumFrames && madloadframe < MAXFRAME )
   {
@@ -1441,7 +1445,7 @@ void rip_md2_frames( Uint16 modelindex )
 #endif
 
 
-    iFrameOffset+=4;
+    iFrameOffset += 4;
     tnc = 0;
     while ( tnc < iNumVertices )
     {
@@ -1450,16 +1454,16 @@ void rip_md2_frames( Uint16 modelindex )
       cTmpy = cpCharPointer[( iFrameOffset<<2 )+1];
       cTmpz = cpCharPointer[( iFrameOffset<<2 )+2];
       cTmpNormalIndex = cpCharPointer[( iFrameOffset<<2 )+3];
-      fRealx = ( cTmpx*fScalex )+fTranslatex;
-      fRealy = ( cTmpy*fScaley )+fTranslatey;
-      fRealz = ( cTmpz*fScalez )+fTranslatez;
+      fRealx = ( cTmpx * fScalex ) + fTranslatex;
+      fRealy = ( cTmpy * fScaley ) + fTranslatey;
+      fRealz = ( cTmpz * fScalez ) + fTranslatez;
 //            fRealx = (cTmpx*fScalex);
 //            fRealy = (cTmpy*fScaley);
 //            fRealz = (cTmpz*fScalez);
 //            madvrtx[madloadframe][tnc] = (signed short) (fRealx*256); // HUK
-      madvrtx[madloadframe][tnc] = ( signed short ) ( -fRealx*256 );
-      madvrty[madloadframe][tnc] = ( signed short ) ( fRealy*256 );
-      madvrtz[madloadframe][tnc] = ( signed short ) ( fRealz*256 );
+      madvrtx[madloadframe][tnc] = ( signed short ) ( -fRealx * 256 );
+      madvrty[madloadframe][tnc] = ( signed short ) ( fRealy * 256 );
+      madvrtz[madloadframe][tnc] = ( signed short ) ( fRealz * 256 );
       madvrta[madloadframe][tnc] = cTmpNormalIndex;
       iFrameOffset++;
       tnc++;
@@ -1478,7 +1482,7 @@ int load_one_md2( char* szLoadname, Uint16 modelindex )
   int iReturnValue;
 
   // Read the input file
-  FILE *file = fopen( szLoadname,"rb" );
+  FILE *file = fopen( szLoadname, "rb" );
   if ( !file )
   {
     log_warning( "Cannot load file! (%s)\n", szLoadname );
@@ -1493,7 +1497,7 @@ int load_one_md2( char* szLoadname, Uint16 modelindex )
   // Check the header
   // TODO: Verify that the header's filesize correspond to iBytesRead.
   iReturnValue = rip_md2_header();
-  if ( iReturnValue == bfalse )
+  if ( !iReturnValue )
     return bfalse;
 
   // Get the frame vertices
@@ -1523,7 +1527,7 @@ void make_enviro( void )
   {
     x = kMd2Normals[cnt][0];
     y = kMd2Normals[cnt][1];
-    x = ( ATAN2( y, x )+PI )/( PI );
+    x = ( ATAN2( y, x ) + PI ) / ( PI );
     x--;
 
     if ( x < 0 )
@@ -1618,7 +1622,7 @@ void set_frame( Uint16 character, Uint16 frame, Uint8 lip )
   //     rotate Tank turrets
   chrnextaction[character] = ACTIONDA;
   chraction[character] = ACTIONDA;
-  chrlip[character] = ( lip<<6 );
+  chrlip[character] = ( lip << 6 );
   chrlastframe[character] = madactionstart[chrmodel[character]][ACTIONDA] + frame;
   chrframe[character] = madactionstart[chrmodel[character]][ACTIONDA] + frame + 1;
   chractionready[character] = btrue;
@@ -1634,7 +1638,7 @@ int generate_number( int numbase, int numrand )
   tmp = numbase;
   if ( numrand > 0 )
   {
-    tmp+=( rand()%numrand );
+    tmp += ( rand() % numrand );
   }
   else
   {
@@ -1665,9 +1669,9 @@ void setup_alliances( char *modname )
     while ( goto_colon_yesno( fileread ) )
     {
       fscanf( fileread, "%s", szTemp );
-      teama = ( szTemp[0]-'A' )%MAXTEAM;
+      teama = ( szTemp[0] - 'A' ) % MAXTEAM;
       fscanf( fileread, "%s", szTemp );
-      teamb = ( szTemp[0]-'A' )%MAXTEAM;
+      teamb = ( szTemp[0] - 'A' ) % MAXTEAM;
       teamhatesteam[teama][teamb] = bfalse;
     }
     fclose( fileread );
@@ -1686,42 +1690,42 @@ void make_twist()
   cnt = 0;
   while ( cnt < 256 )
   {
-    y = cnt>>4;
-    x = cnt&15;
-    y = y-7;  // -7 to 8
-    x = x-7;  // -7 to 8
-    mapudtwist[cnt] = 32768+y*SLOPE;
-    maplrtwist[cnt] = 32768+x*SLOPE;
-    if ( ABS( y ) >=7 ) y=y<<1;
-    if ( ABS( x ) >=7 ) x=x<<1;
-    xslide = x*SLIDE;
-    yslide = y*SLIDE;
+    y = cnt >> 4;
+    x = cnt & 15;
+    y = y - 7;  // -7 to 8
+    x = x - 7;  // -7 to 8
+    mapudtwist[cnt] = 32768 + y * SLOPE;
+    maplrtwist[cnt] = 32768 + x * SLOPE;
+    if ( ABS( y ) >= 7 ) y = y << 1;
+    if ( ABS( x ) >= 7 ) x = x << 1;
+    xslide = x * SLIDE;
+    yslide = y * SLIDE;
     if ( xslide < 0 )
     {
-      xslide+=SLIDEFIX;
+      xslide += SLIDEFIX;
       if ( xslide > 0 )
-        xslide=0;
+        xslide = 0;
     }
     else
     {
-      xslide-=SLIDEFIX;
+      xslide -= SLIDEFIX;
       if ( xslide < 0 )
-        xslide=0;
+        xslide = 0;
     }
     if ( yslide < 0 )
     {
-      yslide+=SLIDEFIX;
+      yslide += SLIDEFIX;
       if ( yslide > 0 )
-        yslide=0;
+        yslide = 0;
     }
     else
     {
-      yslide-=SLIDEFIX;
+      yslide -= SLIDEFIX;
       if ( yslide < 0 )
-        yslide=0;
+        yslide = 0;
     }
-    veludtwist[cnt] = -yslide*hillslide;
-    vellrtwist[cnt] = xslide*hillslide;
+    veludtwist[cnt] = -yslide * hillslide;
+    vellrtwist[cnt] = xslide * hillslide;
     flattwist[cnt] = bfalse;
     if ( ABS( veludtwist[cnt] ) + ABS( vellrtwist[cnt] ) < SLIDEFIX*4 )
     {
@@ -1759,10 +1763,10 @@ int load_mesh( char *modname )
     fread( &itmp, 4, 1, fileread );  meshsizey = ( int )SDL_Swap32( itmp );
 #endif
 
-    numfan = meshsizex*meshsizey;
-    meshedgex = meshsizex*128;
-    meshedgey = meshsizey*128;
-    numfanblock = ( ( meshsizex>>2 ) )*( ( meshsizey>>2 ) );  // MESHSIZEX MUST BE MULTIPLE OF 4
+    numfan = meshsizex * meshsizey;
+    meshedgex = meshsizex * 128;
+    meshedgey = meshsizey * 128;
+    numfanblock = ( ( meshsizex >> 2 ) ) * ( ( meshsizey >> 2 ) );  // MESHSIZEX MUST BE MULTIPLE OF 4
     watershift = 3;
     if ( meshsizex > 16 )  watershift++;
     if ( meshsizex > 32 )  watershift++;
@@ -1778,12 +1782,12 @@ int load_mesh( char *modname )
       fread( &itmp, 4, 1, fileread );
 
 #ifdef SDL_LIL_ENDIAN
-      meshtype[fan] = itmp>>24;
-      meshfx[fan] = itmp>>16;
+      meshtype[fan] = itmp >> 24;
+      meshfx[fan] = itmp >> 16;
       meshtile[fan] = itmp;
 #else
-      meshtype[fan] = SDL_Swap32( itmp )>>24;
-      meshfx[fan] = SDL_Swap32( itmp )>>16;
+      meshtype[fan] = SDL_Swap32( itmp ) >> 24;
+      meshfx[fan] = SDL_Swap32( itmp ) >> 16;
       meshtile[fan] = SDL_Swap32( itmp );
 #endif
 
@@ -1840,9 +1844,9 @@ int load_mesh( char *modname )
       fread( &ftmp, 4, 1, fileread );
 
 #ifdef SDL_LIL_ENDIAN
-      meshvrtz[cnt] = ftmp/16.0f;  // Cartman uses 4 bit fixed point for Z
+      meshvrtz[cnt] = ftmp / 16.0f;  // Cartman uses 4 bit fixed point for Z
 #else
-      meshvrtz[cnt] = ( LoadFloatByteswapped( &ftmp ) )/16.0f;  // Cartman uses 4 bit fixed point for Z
+      meshvrtz[cnt] = ( LoadFloatByteswapped( &ftmp ) ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
 #endif
 
       cnt++;
@@ -1890,9 +1894,9 @@ int load_mesh( char *modname )
       x = 0;
       while ( x < meshsizex )
       {
-        fan = meshfanstart[y]+x;
+        fan = meshfanstart[y] + x;
         meshvrtstart[fan] = vert;
-        vert+=meshcommandnumvertices[meshtype[fan]];
+        vert += meshcommandnumvertices[meshtype[fan]];
         x++;
       }
       y++;
@@ -1921,13 +1925,13 @@ void update_game()
   {
     if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
     {
-      if ( chralive[plaindex[cnt]] == bfalse )
+      if ( !chralive[plaindex[cnt]] )
       {
         numdead++;
-        if ( SDLKEYDOWN( SDLK_SPACE && respawnvalid == btrue ) )
+        if ( SDLKEYDOWN( SDLK_SPACE && respawnvalid ) )
         {
           respawn_character( plaindex[cnt] );
-          chrexperience[cnt] = ( chrexperience[cnt] )*EXPKEEP;  // Apply xp Penality
+          chrexperience[cnt] = ( chrexperience[cnt] ) * EXPKEEP;  // Apply xp Penality
         }
       }
       else
@@ -1975,33 +1979,35 @@ void update_game()
     pit_kill();
 
     // Generate the new seed
-    randsave += *( ( Uint32* ) &kMd2Normals[wldframe&127][0] );
-    randsave += *( ( Uint32* ) &kMd2Normals[randsave&127][1] );
+    randsave += *( ( Uint32* ) & kMd2Normals[wldframe&127][0] );
+    randsave += *( ( Uint32* ) & kMd2Normals[randsave&127][1] );
 
     // Stuff for which sync doesn't matter
     animate_tiles();
     move_water();
 
     // Timers
-    wldclock+=FRAMESKIP;
+    wldclock += FRAMESKIP;
+    statclock += FRAMESKIP;
+
     wldframe++;
     msgtimechange++;
     if ( statdelay > 0 )  statdelay--;
-    statclock+=FRAMESKIP;
   }
-  if ( rtscontrol == bfalse )
+
+  if ( !rtscontrol )
   {
     if ( numplatimes == 0 )
     {
       // The remote ran out of messages, and is now twiddling its thumbs...
       // Make it go slower so it doesn't happen again
-      wldclock+=25;
+      wldclock += 25;
     }
-    if ( numplatimes > 3 && hostactive == bfalse )
+    if ( numplatimes > 3 && !hostactive )
     {
       // The host has too many messages, and is probably experiencing control
       // lag...  Speed it up so it gets closer to sync
-      wldclock-=5;
+      wldclock -= 5;
     }
   }
 }
@@ -2011,8 +2017,8 @@ void update_timers()
 {
   // ZZ> This function updates the game timers
   lstclock = allclock;
-  allclock = SDL_GetTicks()-sttclock;
-  fpsclock+=allclock-lstclock;
+  allclock = SDL_GetTicks() - sttclock;
+  fpsclock += allclock - lstclock;
   if ( fpsclock >= TICKS_PER_SEC )
   {
     create_szfpstext( fpsframe );
@@ -2029,18 +2035,18 @@ void read_pair( FILE* fileread )
   float  fBase, fRand;
 
   fscanf( fileread, "%f", &fBase );  // The first number
-  pairbase = fBase*256;
+  pairbase = fBase * 256;
   cTmp = get_first_letter( fileread );  // The hyphen
-  if ( cTmp!='-' )
+  if ( cTmp != '-' )
   {
     // Not in correct format, so fail
     pairrand = 1;
     return;
   }
   fscanf( fileread, "%f", &fRand );  // The second number
-  pairrand = fRand*256;
-  pairrand = pairrand-pairbase;
-  if ( pairrand<1 )
+  pairrand = fRand * 256;
+  pairrand = pairrand - pairbase;
+  if ( pairrand < 1 )
     pairrand = 1;
 }
 
@@ -2050,8 +2056,8 @@ void undo_pair( int base, int rand )
   // ZZ> This function generates a damage/stat pair ( eg. 3-6.5f )
   //     from the base and random values.  It set pairfrom and
   //     pairto
-  pairfrom = base/256.0f;
-  pairto = rand/256.0f;
+  pairfrom = base / 256.0f;
+  pairto = rand / 256.0f;
   if ( pairfrom < 0.0f )
   {
     pairfrom = 0.0f;
@@ -2202,26 +2208,26 @@ void get_message( FILE* fileread )
   char szTmp[256];
 
 
-  if ( msgtotal<MAXTOTALMESSAGE )
+  if ( msgtotal < MAXTOTALMESSAGE )
   {
-    if ( msgtotalindex>=MESSAGEBUFFERSIZE )
+    if ( msgtotalindex >= MESSAGEBUFFERSIZE )
     {
-      msgtotalindex = MESSAGEBUFFERSIZE-1;
+      msgtotalindex = MESSAGEBUFFERSIZE - 1;
     }
-    msgindex[msgtotal]=msgtotalindex;
+    msgindex[msgtotal] = msgtotalindex;
     fscanf( fileread, "%s", szTmp );
     szTmp[255] = 0;
     cTmp = szTmp[0];
     cnt = 1;
-    while ( cTmp!=0 && msgtotalindex<MESSAGEBUFFERSIZE-1 )
+    while ( cTmp != 0 && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
     {
-      if ( cTmp=='_' )  cTmp=' ';
+      if ( cTmp == '_' )  cTmp = ' ';
       msgtext[msgtotalindex] = cTmp;
       msgtotalindex++;
       cTmp = szTmp[cnt];
       cnt++;
     }
-    msgtext[msgtotalindex]=0;  msgtotalindex++;
+    msgtext[msgtotalindex] = 0;  msgtotalindex++;
     msgtotal++;
   }
 }
@@ -2290,10 +2296,10 @@ void reset_messages()
   // ZZ> This makes messages safe to use
   int cnt;
 
-  msgtotal=0;
-  msgtotalindex=0;
-  msgtimechange=0;
-  msgstart=0;
+  msgtotal = 0;
+  msgtotalindex = 0;
+  msgtimechange = 0;
+  msgstart = 0;
   cnt = 0;
   while ( cnt < MAXMESSAGE )
   {
@@ -2320,7 +2326,7 @@ void make_randie()
   cnt = 0;
   while ( cnt < MAXRAND )
   {
-    randie[cnt] = rand()<<1;
+    randie[cnt] = rand() << 1;
     cnt++;
   }
 
@@ -2367,9 +2373,9 @@ extern int initMenus();
 int SDL_main( int argc, char **argv )
 {
   // ZZ> This is where the program starts and all the high level stuff happens
-  glVector t1={0,0,0};
-  glVector t2={0,0,-1};
-  glVector t3={0,1,0};
+  glVector t1 = {0, 0, 0};
+  glVector t2 = {0, 0, -1};
+  glVector t3 = {0, 1, 0};
   double frameDuration;
   int menuActive = 1;
   int menuResult;
@@ -2392,8 +2398,8 @@ int SDL_main( int argc, char **argv )
   load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
   load_action_names( "basicdat" SLASH_STR "actions.txt" );
 
-  sdlinit( argc,argv );
-  glinit( argc,argv );
+  sdlinit( argc, argv );
+  glinit( argc, argv );
   net_initialize();
   ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
   sdlmixer_initialize();
@@ -2410,13 +2416,13 @@ int SDL_main( int argc, char **argv )
   }
 
   // Matrix init stuff (from remove.c)
-  rotmeshtopside = ( ( float )scrx/scry )*ROTMESHTOPSIDE/( 1.33333f );
-  rotmeshbottomside = ( ( float )scrx/scry )*ROTMESHBOTTOMSIDE/( 1.33333f );
-  rotmeshup = ( ( float )scrx/scry )*ROTMESHUP/( 1.33333f );
-  rotmeshdown = ( ( float )scrx/scry )*ROTMESHDOWN/( 1.33333f );
+  rotmeshtopside = ( ( float )scrx / scry ) * ROTMESHTOPSIDE / ( 1.33333f );
+  rotmeshbottomside = ( ( float )scrx / scry ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
+  rotmeshup = ( ( float )scrx / scry ) * ROTMESHUP / ( 1.33333f );
+  rotmeshdown = ( ( float )scrx / scry ) * ROTMESHDOWN / ( 1.33333f );
   mWorld = IdentityMatrix();
-  mViewSave = ViewMatrix( t1,t2,t3,0 );
-  mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV*PI/180 ) ); // 60 degree FOV
+  mViewSave = ViewMatrix( t1, t2, t3, 0 );
+  mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
   mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), mProjection ); // Fix Z value...
   mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), mProjection );  // HUK // ...'cause it needs it
 
@@ -2493,7 +2499,7 @@ int SDL_main( int argc, char **argv )
           }
           break;
 
-        case -1:
+        case - 1:
           // The user selected "Quit"
           menuActive = 0;
           gameactive = bfalse;
@@ -2503,7 +2509,8 @@ int SDL_main( int argc, char **argv )
       ui_endFrame();
 
       SDL_GL_SwapBuffers();
-    } else
+    }
+    else
     {
       // Do the game
       // Did we get through all the menus?
@@ -2577,7 +2584,7 @@ int SDL_main( int argc, char **argv )
 
             // NETWORK PORT
             listen_for_packets();
-            if ( waitingforplayers == bfalse )
+            if ( !waitingforplayers )
             {
               cl_talkToHost();
               update_game();

@@ -156,7 +156,7 @@ void render_prt()
     if ( prttype[prt] == PRTSOLIDSPRITE )
     {
       float color_component = prtlight[prt] / 255.0f;
-      light = ( 0xff000000 )|( prtlight[prt]<<16 )|( prtlight[prt]<<8 )|( prtlight[prt] );
+      light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
       glColor4f( color_component, color_component, color_component, 1.0f );
 
       // [claforte] Fudge the value.
@@ -178,7 +178,7 @@ void render_prt()
       vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
       // Fill in the rest of the data
-      image = ( ( Uint16 )( prtimage[prt]+prtimagestt[prt] ) )>>8;
+      image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
 
       // vtlist[0].dcColor = light;
       // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
@@ -261,8 +261,8 @@ void render_prt()
       vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
       // Fill in the rest of the data
-      image = ( ( Uint16 )( prtimage[prt]+prtimagestt[prt] ) )>>8;
-      light = ( 0xff000000 )|( prtlight[prt]<<16 )|( prtlight[prt]<<8 )|( prtlight[prt] );
+      image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+      light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
 
       // vtlist[0].dcColor = light;
       // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
@@ -330,7 +330,7 @@ void render_prt()
 
 
       // Fill in the rest of the data
-      image = ( ( Uint16 )( prtimage[prt]+prtimagestt[prt] ) )>>8;
+      image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
 
       // vtlist[0].dcColor = light;
       // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
@@ -397,17 +397,17 @@ void render_refprt()
   cnt = 0;
   while ( cnt < MAXPRT )
   {
-    if ( prtinview[cnt]&&prtsize[cnt] != 0 )
+    if ( prtinview[cnt] && prtsize[cnt] != 0 )
     {
       if ( meshfx[prtonwhichfan[cnt]] & MESHFXDRAWREF )
       {
         level = prtlevel[cnt];
         v[numparticle].x = ( float ) prtxpos[cnt];
         v[numparticle].y = ( float ) prtypos[cnt];
-        v[numparticle].z = ( float ) -prtzpos[cnt]+level+level;
+        v[numparticle].z = ( float ) - prtzpos[cnt] + level + level;
         if ( prtattachedtocharacter[cnt] != MAXCHR )
         {
-          v[numparticle].z += RAISE+RAISE;
+          v[numparticle].z += RAISE + RAISE;
         }
         v[numparticle].color = cnt;  // Store an index in the color slot...
         numparticle++;
@@ -450,13 +450,13 @@ void render_refprt()
       vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
       // Fill in the rest of the data
-      startalpha = ( int )( 255+v[cnt].z-level );
+      startalpha = ( int )( 255 + v[cnt].z - level );
       if ( startalpha < 0 ) startalpha = 0;
-      startalpha = ( startalpha|reffadeor )>>1;  // Fix for Riva owners
+      startalpha = ( startalpha | reffadeor ) >> 1;  // Fix for Riva owners
       if ( startalpha > 255 ) startalpha = 255;
       if ( startalpha > 0 )
       {
-        image = ( ( Uint16 )( prtimage[prt]+prtimagestt[prt] ) )>>8;
+        image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
         // light = (startalpha<<24)|usealpha;
         glColor4f( 1.0f, 1.0f, 1.0f, startalpha / 255.0f );
 
@@ -521,14 +521,14 @@ void render_refprt()
       vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
       // Fill in the rest of the data
-      startalpha = ( int )( 255+v[cnt].z-level );
+      startalpha = ( int )( 255 + v[cnt].z - level );
       if ( startalpha < 0 ) startalpha = 0;
-      startalpha = ( startalpha|reffadeor )>>( 1+prttype[prt] );  // Fix for Riva owners
+      startalpha = ( startalpha | reffadeor ) >> ( 1 + prttype[prt] );  // Fix for Riva owners
       if ( startalpha > 255 ) startalpha = 255;
       if ( startalpha > 0 )
       {
         float color_component = prtlight[prt] / 16.0f;
-        image = ( ( Uint16 )( prtimage[prt]+prtimagestt[prt] ) )>>8;
+        image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
         glColor4f( color_component, color_component, color_component, startalpha / 255.0f );
 
         // vtlist[0].dcSpecular = vt[cnt].dcSpecular;

@@ -124,7 +124,7 @@
 	<File name="input.c" open="1" top="0" tabpos="41">
 		<Cursor position="2540" topLine="55" />
 	</File>
-	<File name="linux-file.c" open="1" top="0" tabpos="58">
+	<File name="linux-file.c" open="1" top="0" tabpos="56">
 		<Cursor position="200" topLine="0" />
 	</File>
 	<File name="mac-file.m" open="1" top="0" tabpos="55">
@@ -166,16 +166,16 @@
 	<File name="sound.c" open="1" top="0" tabpos="11">
 		<Cursor position="5883" topLine="163" />
 	</File>
-	<File name="sys_linux.c" open="1" top="0" tabpos="59">
+	<File name="sys_linux.c" open="1" top="0" tabpos="57">
 		<Cursor position="0" topLine="0" />
 	</File>
-	<File name="sys_mac.c" open="1" top="0" tabpos="61">
+	<File name="sys_mac.c" open="1" top="0" tabpos="59">
 		<Cursor position="273" topLine="6" />
 	</File>
 	<File name="sys_win32.c" open="1" top="0" tabpos="26">
 		<Cursor position="972" topLine="12" />
 	</File>
-	<File name="win-file.c" open="1" top="0" tabpos="60">
+	<File name="win-file.c" open="1" top="0" tabpos="58">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="..\res\egoboo.rc" open="0" top="0" tabpos="4">

@@ -1,6 +1,4 @@
-#include "egobootypedef.h"
-
-#include <SDL_endian.h>
+#include "egoboo_endian.h"
 
 
 //---------------------------------------------------------------------------------------------
@@ -9,7 +7,8 @@
 #if SDL_BYTEORDER != SDL_LIL_ENDIAN
 float LoadFloatByteswapped( float *ptr )
 {
-  union {
+  union
+  {
     float f;
     int i;
   } u;

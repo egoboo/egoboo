@@ -73,7 +73,7 @@ bool_t link_follow( Link_t list[], int ilink )
   bool_t retval = bfalse;
   Link_t * plink;
 
-  if ( ilink < 0 || ilink>=LINK_COUNT ) return bfalse;
+  if ( ilink < 0 || ilink >= LINK_COUNT ) return bfalse;
   plink = list + ilink;
 
   if ( !plink->valid ) return bfalse;
@@ -108,7 +108,7 @@ bool_t link_build( const char * fname, Link_t list[] )
   if ( NULL == pfile ) return bfalse;
 
   i = 0;
-  while ( goto_colon_yesno( pfile ) && i<LINK_COUNT )
+  while ( goto_colon_yesno( pfile ) && i < LINK_COUNT )
   {
     fscanf( pfile, "%s", list[i].modname );
     list[i].valid = btrue;

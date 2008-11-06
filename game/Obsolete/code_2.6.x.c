@@ -57,7 +57,7 @@
 #define SPLASHTOLERANCE     10                      //
 #define CLOSETOLERANCE      2                       // For closing doors
 
- #define JUMPATTACKVEL       -2                      //
+#define JUMPATTACKVEL       -2                      //
 #define MAXSTOR             16                       // Storage data
 #define STORAND             15                       //
 
@@ -71,7 +71,7 @@
 #define MAXCODENAMESIZE     64                      //
 
 #define SPINRATE            200                     // How fast spinners spin
- #define MAXLEVEL            6                       // Basic Levels 0-5
+#define MAXLEVEL            6                       // Basic Levels 0-5
 #define FLYDAMPEN           .001                    // Levelling rate for flyers
 
 #define JUMPINFINITE        255                     // Flying character
@@ -128,18 +128,18 @@ char enum_desc[100];                                //
 */
 
 
-EXTERN unsigned char           pitskill  EQ(bfalse);            // Do they kill?
-EXTERN unsigned char parseerror  EQ(0);
- EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
+EXTERN unsigned char           pitskill  EQ( bfalse );          // Do they kill?
+EXTERN unsigned char parseerror  EQ( 0 );
+EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
 EXTERN bool_t                    allselect;                  // Select entire team at start?
 #define TURNTIME 16
 //PORT: Use sdlkeybuffer instead.
 //EXTERN char                    keybuffer[256];             // Keyboard key states
 //EXTERN char                    keypress[256];              // Keyboard new hits
-//EXTERN	GLTexture	TxTrimX;									//OpenGL trim surface
-//EXTERN	GLTexture	TxTrimY;									//OpenGL trim surface
-EXTERN	GLTexture		TxTrim;
-//EXTERN	GLTexture		TxTrim;
+//EXTERN GLTexture TxTrimX;         //OpenGL trim surface
+//EXTERN GLTexture TxTrimY;         //OpenGL trim surface
+EXTERN GLTexture  TxTrim;
+//EXTERN GLTexture  TxTrim;
 //EXTERN  GLTexture       TxTrimX;                                        /* trim */
 //EXTERN  GLTexture       TxTrimY;                                        /* trim */
 //#define TRIMX 640
@@ -483,10 +483,10 @@ EXTERN rect_t                    trimrect;                   // The menu trim re
 #define FGETTARGETSTATE                     288 //
 #define FIFEQUIPPED                         289 //Redone in v 0.95
 #define FDROPTARGETMONEY                    290 //
-#define FGETTARGETCONTENT	                291 //
+#define FGETTARGETCONTENT                 291 //
 #define FDROPTARGETKEYS                     292 //
-#define FJOINTEAM		                    293 //
-#define FTARGETJOINTEAM	                    294 //
+#define FJOINTEAM                      293 //
+#define FTARGETJOINTEAM                     294 //
 #define FCLEARMUSICPASSAGE                  295 //Below is original code again
 #define FCLEARENDMESSAGE                    296 //
 #define FADDENDMESSAGE                      297 //
@@ -528,22 +528,22 @@ EXTERN rect_t                    trimrect;                   // The menu trim re
 #define FDAZETARGET                         333 //
 #define FENABLERESPAWN                      334 //
 #define FDISABLERESPAWN                     335 //
-#define FIFHOLDERSCOREDAHIT				    336 //
-#define FIFHOLDERBLOCKED				    337 //
-#define FGETSKILLLEVEL   				    338 //
-#define FIFTARGETHASNOTFULLMANA   			339 //
-#define FENABLELISTENSKILL   				340 //
-#define FSETTARGETTOLASTITEMUSED   			341 //
-#define FFOLLOWLINK				   			342 //
+#define FIFHOLDERSCOREDAHIT        336 //
+#define FIFHOLDERBLOCKED        337 //
+#define FGETSKILLLEVEL           338 //
+#define FIFTARGETHASNOTFULLMANA      339 //
+#define FENABLELISTENSKILL       340 //
+#define FSETTARGETTOLASTITEMUSED      341 //
+#define FFOLLOWLINK          342 //
 
-#define OPADD 0								// +
-#define OPSUB 1								// -
-#define OPAND 2								// &
-#define OPSHR 3								// >
-#define OPSHL 4								// <
-#define OPMUL 5								// *
-#define OPDIV 6								// /
-#define OPMOD 7								// %
+#define OPADD 0        // +
+#define OPSUB 1        // -
+#define OPAND 2        // &
+#define OPSHR 3        // >
+#define OPSHL 4        // <
+#define OPMUL 5        // *
+#define OPDIV 6        // /
+#define OPMOD 7        // %
 
 #define VARTMPX             0
 #define VARTMPY             1
@@ -615,17 +615,17 @@ EXTERN rect_t                    trimrect;                   // The menu trim re
 #define VARTARGETAMMO       67
 #define VARTARGETMONEY      68
 #define VARTARGETTURNAWAY   69
-#define VARSELFLEVEL	    70
-#define VARTARGETRELOADTIME	71
+#define VARSELFLEVEL     70
+#define VARTARGETRELOADTIME 71
 
-EXTERN unsigned short valueoldtarget EQ(0);
+EXTERN unsigned short valueoldtarget EQ( 0 );
 #define NOOWNER 65535
-EXTERN Uint32 particletrans  EQ(0x80000000);
-EXTERN Uint32 antialiastrans  EQ(0xC0000000);
+EXTERN Uint32 particletrans  EQ( 0x80000000 );
+EXTERN Uint32 antialiastrans  EQ( 0xC0000000 );
 
-#define VOLMIN          -4000						// Minumum Volume level
+#define VOLMIN          -4000      // Minumum Volume level
 #ifndef ABS
- #define ABS(X)  (((X) > 0) ? (X) : -(X))
+#define ABS(X)  (((X) > 0) ? (X) : -(X))
 #endif
 #ifndef MIN
 #define MIN(x, y)  (((x) > (y)) ? (y) : (x))
@@ -638,124 +638,124 @@ EXTERN Uint32 antialiastrans  EQ(0xC0000000);
 //--------------------------------------------------------------------------------------------
 void flash_select()
 {
-   // ZZ> This function makes the selected characters blink
-    int cnt;
-    unsigned char value;
+  // ZZ> This function makes the selected characters blink
+  int cnt;
+  unsigned char value;
 
-    if((wldframe&31)==0 && allselect==bfalse)
+  if ( ( wldframe&31 ) == 0 && allselect == bfalse )
+  {
+    value = ( ( wldframe & 32 ) << 3 ) - ( ( wldframe & 32 ) >> 5 );
+    cnt = 0;
+    while ( cnt < numrtsselect )
     {
-        value = ((wldframe&32)<<3) - ((wldframe&32)>>5);
-        cnt = 0;
-        while(cnt < numrtsselect)
-        {
-            flash_character(rtsselect[cnt], value);
-            cnt++;
-        }
+      flash_character( rtsselect[cnt], value );
+      cnt++;
     }
+  }
 }
 
 
 //--------------------------------------------------------------------------------------------
 //OBSOLETE
-void general_error(int a, int b, char *szerrortext)
+void general_error( int a, int b, char *szerrortext )
 {
-    // ZZ> This function displays an error message
-    // Steinbach's Guideline for Systems Programming:
-    //   Never test for an error condition you don't know how to handle.
-    char                buf[256];
-    FILE*               filewrite;
-    sprintf(buf, "%d, %d... %s\n", 0, 0, szerrortext);
+  // ZZ> This function displays an error message
+  // Steinbach's Guideline for Systems Programming:
+  //   Never test for an error condition you don't know how to handle.
+  char                buf[256];
+  FILE*               filewrite;
+  sprintf( buf, "%d, %d... %s\n", 0, 0, szerrortext );
 
-    fprintf(stderr,"ERROR: %s\n",szerrortext);
+  fprintf( stderr, "ERROR: %s\n", szerrortext );
 
-    filewrite = fopen("errorlog.txt", "w");
-    if(filewrite)
-    {
-        fprintf(filewrite, "I'M MELTING\n");
-        fprintf(filewrite, "%d, %d... %s\n", a, b, szerrortext);
-        fclose(filewrite);
-    }
-    release_module();
-    close_session();
+  filewrite = fopen( "errorlog.txt", "w" );
+  if ( filewrite )
+  {
+    fprintf( filewrite, "I'M MELTING\n" );
+    fprintf( filewrite, "%d, %d... %s\n", a, b, szerrortext );
+    fclose( filewrite );
+  }
+  release_module();
+  close_session();
 
-    release_grfx();
-    fclose(globalnetworkerr);
-    //DestroyWindow(hWnd);
+  release_grfx();
+  fclose( globalnetworkerr );
+  //DestroyWindow(hWnd);
 
-    SDL_Quit ();
-    exit(0);
+  SDL_Quit ();
+  exit( 0 );
 }
 
 
-void send_rts_order(int x, int y, unsigned char order, unsigned char target)
+void send_rts_order( int x, int y, unsigned char order, unsigned char target )
 {
-	// ZZ> This function asks the host to order the selected characters
-	unsigned int what, when, whichorder, cnt;
+  // ZZ> This function asks the host to order the selected characters
+  unsigned int what, when, whichorder, cnt;
 
-	if(numrtsselect > 0)
-	{
-		x = (x >> 6) & 1023;
-		y = (y >> 6) & 1023;
-		what = (target << 24) | (x << 14) | (y << 4) | (order&15);
-		if(hostactive)
-		{
-			when = wldframe + orderlag;
-			whichorder = get_empty_order();
-			if(whichorder != MAXORDER)
-			{
-				// Add a new order on own machine
-				orderwhen[whichorder] = when;
-				orderwhat[whichorder] = what;
-				cnt = 0;
-				while(cnt < numrtsselect)
-				{
-					orderwho[whichorder][cnt] = rtsselect[cnt];
-					cnt++;
-				}
-				while(cnt < MAXSELECT)
-				{
-					orderwho[whichorder][cnt] = MAXCHR;
-					cnt++;
-				}
+  if ( numrtsselect > 0 )
+  {
+    x = ( x >> 6 ) & 1023;
+    y = ( y >> 6 ) & 1023;
+    what = ( target << 24 ) | ( x << 14 ) | ( y << 4 ) | ( order & 15 );
+    if ( hostactive )
+    {
+      when = wldframe + orderlag;
+      whichorder = get_empty_order();
+      if ( whichorder != MAXORDER )
+      {
+        // Add a new order on own machine
+        orderwhen[whichorder] = when;
+        orderwhat[whichorder] = what;
+        cnt = 0;
+        while ( cnt < numrtsselect )
+        {
+          orderwho[whichorder][cnt] = rtsselect[cnt];
+          cnt++;
+        }
+        while ( cnt < MAXSELECT )
+        {
+          orderwho[whichorder][cnt] = MAXCHR;
+          cnt++;
+        }
 
 
-				// Send the order off to everyone else
-				if(networkon)
-				{
-					net_startNewPacket();
-					packet_addUnsignedShort(TO_REMOTE_RTS);
-					cnt = 0;
-					while(cnt < MAXSELECT)
-					{
-						packet_addUnsignedByte(orderwho[whichorder][cnt]);
-						cnt++;
-					}
-					packet_addUnsignedInt(what);
-					packet_addUnsignedInt(when);
-					net_sendPacketToAllPlayersGuaranteed();
-				}
-			}
-		}
-		else
-		{
-			// Send the order off to the host
-			net_startNewPacket();
-			packet_addUnsignedShort(TO_HOST_RTS);
-			cnt = 0;
-			while(cnt < numrtsselect)
-			{
-				packet_addUnsignedByte(rtsselect[cnt]);
-				cnt++;
-			}
-			while(cnt < MAXSELECT)
-			{
-				packet_addUnsignedByte(MAXCHR);
-				cnt++;
-			}
-			packet_addUnsignedInt(what);
-			net_sendPacketToHostGuaranteed();
-		}
-	}
+        // Send the order off to everyone else
+        if ( networkon )
+        {
+          net_startNewPacket();
+          packet_addUnsignedShort( TO_REMOTE_RTS );
+          cnt = 0;
+          while ( cnt < MAXSELECT )
+          {
+            packet_addUnsignedByte( orderwho[whichorder][cnt] );
+            cnt++;
+          }
+          packet_addUnsignedInt( what );
+          packet_addUnsignedInt( when );
+          net_sendPacketToAllPlayersGuaranteed();
+        }
+      }
+    }
+    else
+    {
+      // Send the order off to the host
+      net_startNewPacket();
+      packet_addUnsignedShort( TO_HOST_RTS );
+      cnt = 0;
+      while ( cnt < numrtsselect )
+      {
+        packet_addUnsignedByte( rtsselect[cnt] );
+        cnt++;
+      }
+      while ( cnt < MAXSELECT )
+      {
+        packet_addUnsignedByte( MAXCHR );
+        cnt++;
+      }
+      packet_addUnsignedInt( what );
+      net_sendPacketToHostGuaranteed();
+    }
+  }
 }
 
 /* Old Menu Code */
@@ -764,1798 +764,1800 @@ void send_rts_order(int x, int y, unsigned char order, unsigned char target)
 //--------------------------------------------------------------------------------------------
 void menu_service_select()
 {
-    // ZZ> This function lets the user choose a network service to use
-    char text[256];
-    int x, y;
-    float open;
-    int cnt;
-    int stillchoosing;
+  // ZZ> This function lets the user choose a network service to use
+  char text[256];
+  int x, y;
+  float open;
+  int cnt;
+  int stillchoosing;
 
 
-    networkservice = NONETWORK;
-    if(numservice > 0)
+  networkservice = NONETWORK;
+  if ( numservice > 0 )
+  {
+    // Open a big window
+    open = 0;
+    while ( open < 1.0 )
     {
-        // Open a big window
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            draw_trim_box_opening(0, 0, 320, fontyspacing*(numservice+4), open);
-            flip_pages();
-            open += .030;
-        }
-        // Tell the user which ones we found ( in setup_network )
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box(0, 0, scrx, scry);
-            draw_trim_box(0, 0, 320, fontyspacing*(numservice+4));
-            y = 8;
-            sprintf(text, "Network options...");
-            draw_string(text, 14, y);
-            y += fontyspacing;
-            cnt = 0;
-            while(cnt < numservice)
-            {
-                sprintf(text, "%s", netservicename[cnt]);
-                draw_string(text, 50, y);
-                y += fontyspacing;
-                cnt++;
-            }
-            sprintf(text, "No Network");
-            draw_string(text, 50, y);
-            do_cursor();
-            x = cursorx - 50;
-            y = (cursory - 8 - fontyspacing);
-            if(x > 0 && x < 300 && y >= 0)
-            {
-                y = y/fontyspacing;
-                if(y <= numservice)
-                {
-                    if(mousebutton[0] || mousebutton[1])
-                    {
-                        stillchoosing = bfalse;
-                        networkservice = y;
-                    }
-                }
-            }
-            flip_pages();
-        }
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      draw_trim_box_opening( 0, 0, 320, fontyspacing*( numservice + 4 ), open );
+      flip_pages();
+      open += .030;
     }
+    // Tell the user which ones we found ( in setup_network )
+    stillchoosing = btrue;
+    while ( stillchoosing )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      draw_trim_box( 0, 0, 320, fontyspacing*( numservice + 4 ) );
+      y = 8;
+      sprintf( text, "Network options..." );
+      draw_string( text, 14, y );
+      y += fontyspacing;
+      cnt = 0;
+      while ( cnt < numservice )
+      {
+        sprintf( text, "%s", netservicename[cnt] );
+        draw_string( text, 50, y );
+        y += fontyspacing;
+        cnt++;
+      }
+      sprintf( text, "No Network" );
+      draw_string( text, 50, y );
+      do_cursor();
+      x = cursorx - 50;
+      y = ( cursory - 8 - fontyspacing );
+      if ( x > 0 && x < 300 && y >= 0 )
+      {
+        y = y / fontyspacing;
+        if ( y <= numservice )
+        {
+          if ( mousebutton[0] || mousebutton[1] )
+          {
+            stillchoosing = bfalse;
+            networkservice = y;
+          }
+        }
+      }
+      flip_pages();
+    }
+  }
 //    turn_on_service(networkservice);
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_start_or_join()
 {
-    // ZZ> This function lets the user start or join a game for a network game
-    char text[256];
-    int x, y;
-    float open;
-    int stillchoosing;
+  // ZZ> This function lets the user start or join a game for a network game
+  char text[256];
+  int x, y;
+  float open;
+  int stillchoosing;
 
 
-    // Open another window
-    if(networkon)
+  // Open another window
+  if ( networkon )
+  {
+    open = 0;
+    while ( open < 1.0 )
     {
-        open = 0;
-        while(open < 1.0)
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      draw_trim_box_opening( 0, 0, 280, 102, open );
+      flip_pages();
+      open += .030;
+    }
+    // Give the user some options
+    stillchoosing = btrue;
+    while ( stillchoosing )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      draw_trim_box( 0, 0, 280, 102 );
+
+      // Draw the menu text
+      y = 8;
+      sprintf( text, "Game options..." );
+      draw_string( text, 14, y );
+      y += fontyspacing;
+      sprintf( text, "New Game" );
+      draw_string( text, 50, y );
+      y += fontyspacing;
+      sprintf( text, "Join Game" );
+      draw_string( text, 50, y );
+      y += fontyspacing;
+      sprintf( text, "Quit Game" );
+      draw_string( text, 50, y );
+
+      do_cursor();
+
+//   sprintf(text, "Cursor position: %03d, %03d", cursorx, cursory);
+//   draw_string(text, 14, 400);
+
+      x = cursorx - 50;
+      // The adjustments to y here were figured out empirically; I still
+      // don't understand the reasoning behind it.  I don't think the text
+      // draws where it says it's going to.
+      y = ( cursory - 21 - fontyspacing );
+
+
+
+      if ( x > 0 && x < 280 && y >= 0 )
+      {
+        y = y / fontyspacing;
+        if ( y < 3 )
         {
-			//clear_surface(lpDDSBack);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glLoadIdentity();
-			draw_trim_box_opening(0, 0, scrx, scry, open);
-			draw_trim_box_opening(0, 0, 280, 102, open);
-			flip_pages();
-			open += .030;
-		}
-        // Give the user some options
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-			//clear_surface(lpDDSBack);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glLoadIdentity();
-			draw_trim_box(0, 0, scrx, scry);
-			draw_trim_box(0, 0, 280, 102);
-
-			// Draw the menu text
-			y = 8;
-			sprintf(text, "Game options...");
-			draw_string(text, 14, y);
-			y += fontyspacing;
-			sprintf(text, "New Game");
-			draw_string(text, 50, y);
-			y += fontyspacing;
-			sprintf(text, "Join Game");
-			draw_string(text, 50, y);
-			y += fontyspacing;
-			sprintf(text, "Quit Game");
-			draw_string(text, 50, y);
-
-			do_cursor();
-
-//			sprintf(text, "Cursor position: %03d, %03d", cursorx, cursory);
-//			draw_string(text, 14, 400);
-
-			x = cursorx - 50;
-			// The adjustments to y here were figured out empirically; I still
-			// don't understand the reasoning behind it.  I don't think the text
-			// draws where it says it's going to.
-			y = (cursory - 21 - fontyspacing);
-
-
-
-            if(x > 0 && x < 280 && y >= 0)
+          if ( mousebutton[0] || mousebutton[1] )
+          {
+            if ( y == 0 )
             {
-                y = y/fontyspacing;
-                if(y < 3)
-                {
-                    if(mousebutton[0] || mousebutton[1])
-                    {
-                        if(y == 0)
-                        {
-                            if(sv_hostGame())
-                            {
-                                hostactive = btrue;
-                                nextmenu = MENUD;
-                                stillchoosing = bfalse;
-                            }
-                        }
-                        if(y == 1 && networkservice != NONETWORK)
-                        {
-                            nextmenu = MENUC;
-                            stillchoosing = bfalse;
-                        }
-                        if(y == 2)
-                        {
-                            nextmenu = MENUB;
-                            menuactive = bfalse;
-                            stillchoosing = bfalse;
-                            gameactive = bfalse;
-                        }
-                    }
-                }
+              if ( sv_hostGame() )
+              {
+                hostactive = btrue;
+                nextmenu = MENUD;
+                stillchoosing = bfalse;
+              }
             }
-            flip_pages();
+            if ( y == 1 && networkservice != NONETWORK )
+            {
+              nextmenu = MENUC;
+              stillchoosing = bfalse;
+            }
+            if ( y == 2 )
+            {
+              nextmenu = MENUB;
+              menuactive = bfalse;
+              stillchoosing = bfalse;
+              gameactive = bfalse;
+            }
+          }
         }
+      }
+      flip_pages();
+    }
+  }
+  else
+  {
+    hostactive = btrue;
+    nextmenu = MENUD;
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_module_tag( int module, int y )
+{
+  // ZZ> This function draws a module tag
+  char text[256];
+  draw_trim_box( 0, y, 136, y + 136 );
+  draw_trim_box( 132, y, scrx, y + 136 );
+  if ( module < globalnummodule )
+  {
+    draw_titleimage( module, 4, y + 4 );
+    y += 6;
+    sprintf( text, "%s", modlongname[module] );  draw_string( text, 150, y );  y += fontyspacing;
+    sprintf( text, "%s", modrank[module] );  draw_string( text, 150, y );  y += fontyspacing;
+    if ( modmaxplayers[module] > 1 )
+    {
+      if ( modminplayers[module] == modmaxplayers[module] )
+      {
+        sprintf( text, "%d players", modminplayers[module] );
+      }
+      else
+      {
+        sprintf( text, "%d-%d players", modminplayers[module], modmaxplayers[module] );
+      }
     }
     else
     {
-        hostactive = btrue;
-        nextmenu = MENUD;
+      sprintf( text, "1 player" );
     }
+    draw_string( text, 150, y );  y += fontyspacing;
+    if ( modimportamount[module] == 0 && modallowexport[module] == bfalse )
+    {
+      sprintf( text, "No Import/Export" );  draw_string( text, 150, y );  y += fontyspacing;
+    }
+    else
+    {
+      if ( modimportamount[module] == 0 )
+      {
+        sprintf( text, "No Import" );  draw_string( text, 150, y );  y += fontyspacing;
+      }
+      if ( modallowexport[module] == bfalse )
+      {
+        sprintf( text, "No Export" );  draw_string( text, 150, y );  y += fontyspacing;
+      }
+    }
+    if ( modrespawnvalid[module] == bfalse )
+    {
+      sprintf( text, "No Respawn" );  draw_string( text, 150, y );  y += fontyspacing;
+    }
+    if ( modrtscontrol[module] == btrue )
+    {
+      sprintf( text, "RTS" );  draw_string( text, 150, y );  y += fontyspacing;
+    }
+    if ( modrtscontrol[module] == ALLSELECT )
+    {
+      sprintf( text, "Diaboo RTS" );  draw_string( text, 150, y );  y += fontyspacing;
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_module_tag(int module, int y)
+void menu_pick_player( int module )
 {
-    // ZZ> This function draws a module tag
-    char text[256];
-    draw_trim_box(0, y, 136, y+136);
-    draw_trim_box(132, y, scrx, y+136);
-    if(module < globalnummodule)
-    {
-        draw_titleimage(module, 4, y+4);
-        y+=6;
-        sprintf(text, "%s", modlongname[module]);  draw_string(text, 150, y);  y+=fontyspacing;
-        sprintf(text, "%s", modrank[module]);  draw_string(text, 150, y);  y+=fontyspacing;
-        if(modmaxplayers[module] > 1)
-        {
-            if(modminplayers[module]==modmaxplayers[module])
-            {
-                sprintf(text, "%d players", modminplayers[module]);
-            }
-            else
-            {
-                sprintf(text, "%d-%d players", modminplayers[module], modmaxplayers[module]);
-            }
-        }
-        else
-        {
-            sprintf(text, "1 player");
-        }
-        draw_string(text, 150, y);  y+=fontyspacing;
-        if(modimportamount[module] == 0 && modallowexport[module]==bfalse)
-        {
-            sprintf(text, "No Import/Export");  draw_string(text, 150, y);  y+=fontyspacing;
-        }
-        else
-        {
-            if(modimportamount[module] == 0)
-            {
-                sprintf(text, "No Import");  draw_string(text, 150, y);  y+=fontyspacing;
-            }
-            if(modallowexport[module]==bfalse)
-            {
-                sprintf(text, "No Export");  draw_string(text, 150, y);  y+=fontyspacing;
-            }
-        }
-        if(modrespawnvalid[module] == bfalse)
-        {
-            sprintf(text, "No Respawn");  draw_string(text, 150, y);  y+=fontyspacing;
-        }
-        if(modrtscontrol[module] == btrue)
-        {
-            sprintf(text, "RTS");  draw_string(text, 150, y);  y+=fontyspacing;
-        }
-        if(modrtscontrol[module] == ALLSELECT)
-        {
-            sprintf(text, "Diaboo RTS");  draw_string(text, 150, y);  y+=fontyspacing;
-        }
-    }
-}
+  // ZZ> This function handles the display for picking players to import
+  int x, y;
+  float open;
+  int cnt, tnc, start, numshow;
+  int stillchoosing;
+  int import;
+  unsigned char control, sparkle;
+  char fromdir[128];
+  char todir[128];
+  int clientFilesSent = 0;
+  int hostFilesSent = 0;
+  int pending;
 
-//--------------------------------------------------------------------------------------------
-void menu_pick_player(int module)
-{
-    // ZZ> This function handles the display for picking players to import
-    int x, y;
-    float open;
-    int cnt, tnc, start, numshow;
-    int stillchoosing;
-    int import;
-    unsigned char control, sparkle;
-    char fromdir[128];
-    char todir[128];
-	int clientFilesSent = 0;
-	int hostFilesSent = 0;
-	int pending;
-
-    // Set the important flags
-    respawnvalid = bfalse;
-    respawnanytime = bfalse;
-    if(modrespawnvalid[module])  respawnvalid = btrue;
-    if(modrespawnvalid[module]==ANYTIME)  respawnanytime = btrue;
-    rtscontrol = bfalse;
-    if(modrtscontrol[module] != bfalse)
-    {
-        rtscontrol = btrue;
-        allselect = bfalse;
-        if(modrtscontrol[module] == ALLSELECT)
-            allselect = btrue;
-    }
-    exportvalid = modallowexport[module];
-    importvalid = (modimportamount[module] > 0);
-    importamount = modimportamount[module];
-    playeramount = modmaxplayers[module];
-    fs_createDirectory("import");  // Just in case...
+  // Set the important flags
+  respawnvalid = bfalse;
+  respawnanytime = bfalse;
+  if ( modrespawnvalid[module] )  respawnvalid = btrue;
+  if ( modrespawnvalid[module] == ANYTIME )  respawnanytime = btrue;
+  rtscontrol = bfalse;
+  if ( modrtscontrol[module] != bfalse )
+  {
+    rtscontrol = btrue;
+    allselect = bfalse;
+    if ( modrtscontrol[module] == ALLSELECT )
+      allselect = btrue;
+  }
+  exportvalid = modallowexport[module];
+  importvalid = ( modimportamount[module] > 0 );
+  importamount = modimportamount[module];
+  playeramount = modmaxplayers[module];
+  fs_createDirectory( "import" );  // Just in case...
 
 
-    start = 0;
-    if(importvalid)
-    {
-        // Figure out which characters are available
-        check_player_import("players");
-        numshow = (scry-80-fontyspacing-fontyspacing)>>5;
-
-
-        // Open some windows
-        y = fontyspacing + 8;
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            draw_trim_box_opening(0, 0, scrx, 40, open);
-            draw_trim_box_opening(0, scry-40, scrx, scry, open);
-            flip_pages();
-            open += .030;
-        }
-
-
-        wldframe = 0;  // For sparkle
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-            // Draw the windows
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box(0, 0, scrx, scry);
-            draw_trim_box(0, 40, scrx, scry-40);
-
-            // Draw the Up/Down buttons
-            if(start == 0)
-            {
-                // Show the instructions
-                x = (scrx-270)>>1;
-                draw_string("Setup controls", x, 10);
-            }
-            else
-            {
-                x = (scrx-40)>>1;
-                draw_string("Up", x, 10);
-            }
-            x = (scrx-80)>>1;
-            draw_string("Down", x, scry-fontyspacing-20);
-
-
-            // Draw each import character
-            y = 40+fontyspacing;
-            cnt = 0;
-            while(cnt < numshow && cnt + start < numloadplayer)
-            {
-                sparkle = NOSPARKLE;
-                if(keybplayer == (cnt+start))
-                {
-                    draw_one_icon(keybicon, 32, y, NOSPARKLE);
-                    sparkle = 0;  // White
-                }
-                else
-                    draw_one_icon(nullicon, 32, y, NOSPARKLE);
-                if(mousplayer == (cnt+start))
-                {
-                    draw_one_icon(mousicon, 64, y, NOSPARKLE);
-                    sparkle = 0;  // White
-                }
-                else
-                    draw_one_icon(nullicon, 64, y, NOSPARKLE);
-                if(joyaplayer == (cnt+start) && joyaon)
-                {
-                    draw_one_icon(joyaicon, 128, y, NOSPARKLE);
-                    sparkle = 0;  // White
-                }
-                else
-                    draw_one_icon(nullicon, 128, y, NOSPARKLE);
-                if(joybplayer == (cnt+start) && joybon)
-                {
-                    draw_one_icon(joybicon, 160, y, NOSPARKLE);
-                    sparkle = 0;  // White
-                }
-                else
-                    draw_one_icon(nullicon, 160, y, NOSPARKLE);
-                draw_one_icon((cnt+start), 96, y, sparkle);
-                draw_string(loadplayername[cnt+start], 200, y+6);
-                y+=32;
-                cnt++;
-            }
-            wldframe++;  // For sparkle
-
-
-            // Handle other stuff...
-            do_cursor();
-            if(pending_click)
-            {
-	        pending_click=bfalse;
-                if(cursory < 40 && start > 0)
-                {
-                    // Up button
-                    start--;
-                }
-                if(cursory >= (scry-40) && (start + numshow) < numloadplayer)
-                {
-                    // Down button
-                    start++;
-                }
-            }
-            if(mousebutton[0])
-            {
-                x = (cursorx - 32) >> 5;
-                y = (cursory - 44) >> 5;
-                if(y >= 0 && y < numshow)
-                {
-                    y += start;
-                    // Assign the controls
-                    if(y < numloadplayer)  // !!!BAD!!! do scroll
-                    {
-                        if(x == 0)  keybplayer = y;
-                        if(x == 1)  mousplayer = y;
-                        if(x == 3)  joyaplayer = y;
-                        if(x == 4)  joybplayer = y;
-                    }
-                }
-            }
-            if(mousebutton[1])
-            {
-                // Done picking
-                stillchoosing = bfalse;
-            }
-            flip_pages();
-        }
-        wldframe = 0;  // For sparkle
-
-
-		// Tell the user we're loading
-		y = fontyspacing + 8;
-		open = 0;
-		while(open < 1.0)
-		{
-			//clear_surface(lpDDSBack);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glLoadIdentity();
-			draw_trim_box_opening(0, 0, scrx, scry, open);
-			flip_pages();
-			open += .030;
-		}
-
-		//clear_surface(lpDDSBack);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glLoadIdentity();
-		draw_trim_box(0, 0, scrx, scry);
-		draw_string("Copying the imports...", y, y);
-		flip_pages();
-
-
-        // Now build the import directory...
-        empty_import_directory();
-        cnt = 0;
-        numimport = 0;
-        while(cnt < numloadplayer)
-        {
-            if((cnt == keybplayer && keyon)   ||
-               (cnt == mousplayer && mouseon) ||
-               (cnt == joyaplayer && joyaon)  ||
-               (cnt == joybplayer && joybon))
-            {
-                // This character has been selected
-                control = INPUTNONE;
-                if(cnt == keybplayer)  control = control | INPUTKEY;
-                if(cnt == mousplayer)  control = control | INPUTMOUSE;
-                if(cnt == joyaplayer)  control = control | INPUTJOYA;
-                if(cnt == joybplayer)  control = control | INPUTJOYB;
-                localcontrol[numimport] = control;
-//                localslot[numimport] = (numimport+(localmachine*4))*9;
-				localslot[numimport] = (numimport + localmachine) * 9;
-
-
-                // Copy the character to the import directory
-                sprintf(fromdir, "players/%s", loadplayerdir[cnt]);
-                sprintf(todir, "import/temp%04d.obj", localslot[numimport]);
-
-				// This will do a local copy if I'm already on the host machine, other
-				// wise the directory gets sent across the network to the host
-				net_copyDirectoryToHost(fromdir, todir);
-
-				// Copy all of the character's items to the import directory
-				tnc = 0;
-				while(tnc < 8)
-				{
-					sprintf(fromdir, "players/%s/%d.obj", loadplayerdir[cnt], tnc);
-					sprintf(todir, "import/temp%04d.obj", localslot[numimport]+tnc+1);
-
-					net_copyDirectoryToHost(fromdir, todir);
-					tnc++;
-				}
-
-                numimport++;
-            }
-            cnt++;
-        }
-
-		// Have clients wait until all files have been sent to the host
-		clientFilesSent = net_pendingFileTransfers();
-		if(networkon && !hostactive)
-		{
-			pending = net_pendingFileTransfers();
-
-			// Let the host know how many files you're sending it
-			net_startNewPacket();
-			packet_addUnsignedShort(NET_NUM_FILES_TO_SEND);
-			packet_addUnsignedShort((unsigned short)pending);
-			net_sendPacketToHostGuaranteed();
-
-			while(pending)
-			{
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				glLoadIdentity();
-
-				draw_trim_box(0, 0, scrx, scry);
-				y = fontyspacing + 8;
-
-				sprintf(todir, "Sending file %d of %d...", clientFilesSent - pending, clientFilesSent);
-				draw_string(todir, fontyspacing + 8, y);
-				flip_pages();
-
-				// do this to let SDL do it's window events stuff, so that windows doesn't think
-				// the game has hung while transferring files
-				do_cursor();
-
-				net_updateFileTransfers();
-
-				pending = net_pendingFileTransfers();
-			}
-
-			// Tell the host I'm done sending files
-			net_startNewPacket();
-			packet_addUnsignedShort(NET_DONE_SENDING_FILES);
-			net_sendPacketToHostGuaranteed();
-		}
-
-		if(networkon)
-		{
-			if(hostactive)
-			{
-				// Host waits for all files from all remotes
-				numfile = 0;
-				numfileexpected = 0;
-				numplayerrespond = 1;
-				while(numplayerrespond < numplayer)
-				{
-					//clear_surface(lpDDSBack);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					glLoadIdentity();
-					draw_trim_box(0, 0, scrx, scry);
-					y = fontyspacing + 8;
-					draw_string("Incoming files...", fontyspacing+8, y);  y+=fontyspacing;
-					sprintf(todir, "File %d/%d", numfile, numfileexpected);
-					draw_string(todir, fontyspacing+20, y); y+=fontyspacing;
-					sprintf(todir, "Play %d/%d", numplayerrespond, numplayer);
-					draw_string(todir, fontyspacing+20, y);
-					flip_pages();
-
-					listen_for_packets();
-
-					do_cursor();
-
-					if(SDLKEYDOWN(SDLK_ESCAPE))
-					{
-						gameactive = bfalse;
-						menuactive = bfalse;
-						close_session();
-						break;
-					}
-				}
-
-
-                // Say you're done
-                //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-                draw_trim_box(0, 0, scrx, scry);
-                y = fontyspacing + 8;
-                draw_string("Sending files to remotes...", fontyspacing+8, y);  y+=fontyspacing;
-                flip_pages();
-
-
-                // Host sends import directory to all remotes, deletes extras
-                numfilesent = 0;
-                import = 0;
-                cnt = 0;
-				if(numplayer > 1)
-				{
-					while(cnt < MAXIMPORT)
-					{
-						sprintf(todir, "import/temp%04d.obj", cnt);
-						strncpy(fromdir, todir, 128);
-						if(fs_fileIsDirectory(fromdir))
-						{
-							// Only do directories that actually exist
-							if((cnt % 9)==0) import++;
-							if(import > importamount)
-							{
-								// Too many directories
-								fs_removeDirectoryAndContents(fromdir);
-							}
-							else
-							{
-								// Ship it out
-								net_copyDirectoryToAllPlayers(fromdir, todir);
-							}
-						}
-						cnt++;
-					}
-
-					hostFilesSent = net_pendingFileTransfers();
-					pending = hostFilesSent;
-
-					// Let the client know how many are coming
-					net_startNewPacket();
-					packet_addUnsignedShort(NET_NUM_FILES_TO_SEND);
-					packet_addUnsignedShort((unsigned short)pending);
-					net_sendPacketToAllPlayersGuaranteed();
-
-					while(pending > 0)
-					{
-						glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-						glLoadIdentity();
-
-						draw_trim_box(0, 0, scrx, scry);
-						y = fontyspacing + 8;
-
-						sprintf(todir, "Sending file %d of %d...", hostFilesSent - pending, hostFilesSent);
-						draw_string(todir, fontyspacing + 8, y);
-						flip_pages();
-
-						// do this to let SDL do it's window events stuff, so that windows doesn't think
-						// the game has hung while transferring files
-						do_cursor();
-
-						net_updateFileTransfers();
-
-						pending = net_pendingFileTransfers();
-					}
-
-					// Tell the players I'm done sending files
-					net_startNewPacket();
-					packet_addUnsignedShort(NET_DONE_SENDING_FILES);
-					net_sendPacketToAllPlayersGuaranteed();
-				}
-            }
-            else
-            {
-				// Remotes wait for all files in import directory
-				log_info("menu_pick_player: Waiting for files to come from the host...\n");
-				numfile = 0;
-				numfileexpected = 0;
-				numplayerrespond = 0;
-				while(numplayerrespond < 1)
-				{
-					//clear_surface(lpDDSBack);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-					glLoadIdentity();
-					draw_trim_box(0, 0, scrx, scry);
-					y = fontyspacing + 8;
-					draw_string("Incoming files from host...", fontyspacing+8, y);  y+=fontyspacing;
-					sprintf(todir, "File %d/%d", numfile, numfileexpected);
-					draw_string(todir, fontyspacing+20, y);
-					flip_pages();
-
-					listen_for_packets();
-					do_cursor();
-
-					if(SDLKEYDOWN(SDLK_ESCAPE))
-					{
-						gameactive = bfalse;
-						menuactive = bfalse;
-						break;
-						close_session();
-					}
-                }
-            }
-        }
-    }
-    nextmenu = MENUG;
-}
-
-//--------------------------------------------------------------------------------------------
-void menu_module_loading(int module)
-{
-    // ZZ> This function handles the display for when a module is loading
-    char text[256];
-    int y;
-    float open;
-    int cnt;
+  start = 0;
+  if ( importvalid )
+  {
+    // Figure out which characters are available
+    check_player_import( "players" );
+    numshow = ( scry - 80 - fontyspacing - fontyspacing ) >> 5;
 
 
     // Open some windows
     y = fontyspacing + 8;
     open = 0;
-    while(open < 1.0)
+    while ( open < 1.0 )
     {
-        //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-        draw_trim_box_opening(0, y, 136, y+136, open);
-        draw_trim_box_opening(132, y, scrx, y+136, open);
-        draw_trim_box_opening(0, y+132, scrx, scry, open);
-        flip_pages();
-        open += .030;
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      draw_trim_box_opening( 0, 0, scrx, 40, open );
+      draw_trim_box_opening( 0, scry - 40, scrx, scry, open );
+      flip_pages();
+      open += .030;
     }
 
 
-    // Put the stuff in the windows
-    //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-    y = 0;
-    sprintf(text, "Loading...  Wait!!!");  draw_string(text, 0, y);  y+=fontyspacing;
-    y+=8;
-    draw_module_tag(module, y);
-    draw_trim_box(0, y+132, scrx, scry);
-
-
-    // Show the summary
-    sprintf(text, "modules/%s/gamedat/menu.txt", modloadname[module]);
-    get_module_summary(text);
-    y = fontyspacing+152;
-    cnt = 0;
-    while(cnt < SUMMARYLINES)
+    wldframe = 0;  // For sparkle
+    stillchoosing = btrue;
+    while ( stillchoosing )
     {
-        sprintf(text, "%s", modsummary[cnt]);  draw_string(text, 14, y);  y+=fontyspacing;
+      // Draw the windows
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      draw_trim_box( 0, 40, scrx, scry - 40 );
+
+      // Draw the Up/Down buttons
+      if ( start == 0 )
+      {
+        // Show the instructions
+        x = ( scrx - 270 ) >> 1;
+        draw_string( "Setup controls", x, 10 );
+      }
+      else
+      {
+        x = ( scrx - 40 ) >> 1;
+        draw_string( "Up", x, 10 );
+      }
+      x = ( scrx - 80 ) >> 1;
+      draw_string( "Down", x, scry - fontyspacing - 20 );
+
+
+      // Draw each import character
+      y = 40 + fontyspacing;
+      cnt = 0;
+      while ( cnt < numshow && cnt + start < numloadplayer )
+      {
+        sparkle = NOSPARKLE;
+        if ( keybplayer == ( cnt + start ) )
+        {
+          draw_one_icon( keybicon, 32, y, NOSPARKLE );
+          sparkle = 0;  // White
+        }
+        else
+          draw_one_icon( nullicon, 32, y, NOSPARKLE );
+        if ( mousplayer == ( cnt + start ) )
+        {
+          draw_one_icon( mousicon, 64, y, NOSPARKLE );
+          sparkle = 0;  // White
+        }
+        else
+          draw_one_icon( nullicon, 64, y, NOSPARKLE );
+        if ( joyaplayer == ( cnt + start ) && joyaon )
+        {
+          draw_one_icon( joyaicon, 128, y, NOSPARKLE );
+          sparkle = 0;  // White
+        }
+        else
+          draw_one_icon( nullicon, 128, y, NOSPARKLE );
+        if ( joybplayer == ( cnt + start ) && joybon )
+        {
+          draw_one_icon( joybicon, 160, y, NOSPARKLE );
+          sparkle = 0;  // White
+        }
+        else
+          draw_one_icon( nullicon, 160, y, NOSPARKLE );
+        draw_one_icon( ( cnt + start ), 96, y, sparkle );
+        draw_string( loadplayername[cnt+start], 200, y + 6 );
+        y += 32;
         cnt++;
+      }
+      wldframe++;  // For sparkle
+
+
+      // Handle other stuff...
+      do_cursor();
+      if ( pending_click )
+      {
+        pending_click = bfalse;
+        if ( cursory < 40 && start > 0 )
+        {
+          // Up button
+          start--;
+        }
+        if ( cursory >= ( scry - 40 ) && ( start + numshow ) < numloadplayer )
+        {
+          // Down button
+          start++;
+        }
+      }
+      if ( mousebutton[0] )
+      {
+        x = ( cursorx - 32 ) >> 5;
+        y = ( cursory - 44 ) >> 5;
+        if ( y >= 0 && y < numshow )
+        {
+          y += start;
+          // Assign the controls
+          if ( y < numloadplayer )  // !!!BAD!!! do scroll
+          {
+            if ( x == 0 )  keybplayer = y;
+            if ( x == 1 )  mousplayer = y;
+            if ( x == 3 )  joyaplayer = y;
+            if ( x == 4 )  joybplayer = y;
+          }
+        }
+      }
+      if ( mousebutton[1] )
+      {
+        // Done picking
+        stillchoosing = bfalse;
+      }
+      flip_pages();
     }
+    wldframe = 0;  // For sparkle
+
+
+    // Tell the user we're loading
+    y = fontyspacing + 8;
+    open = 0;
+    while ( open < 1.0 )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      flip_pages();
+      open += .030;
+    }
+
+    //clear_surface(lpDDSBack);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box( 0, 0, scrx, scry );
+    draw_string( "Copying the imports...", y, y );
     flip_pages();
-    nextmenu = MENUB;
-    menuactive = bfalse;
+
+
+    // Now build the import directory...
+    empty_import_directory();
+    cnt = 0;
+    numimport = 0;
+    while ( cnt < numloadplayer )
+    {
+      if ( ( cnt == keybplayer && keyon )   ||
+           ( cnt == mousplayer && mouseon ) ||
+           ( cnt == joyaplayer && joyaon )  ||
+           ( cnt == joybplayer && joybon ) )
+      {
+        // This character has been selected
+        control = INPUTNONE;
+        if ( cnt == keybplayer )  control = control | INPUTKEY;
+        if ( cnt == mousplayer )  control = control | INPUTMOUSE;
+        if ( cnt == joyaplayer )  control = control | INPUTJOYA;
+        if ( cnt == joybplayer )  control = control | INPUTJOYB;
+        localcontrol[numimport] = control;
+//                localslot[numimport] = (numimport+(localmachine*4))*9;
+        localslot[numimport] = ( numimport + localmachine ) * 9;
+
+
+        // Copy the character to the import directory
+        sprintf( fromdir, "players/%s", loadplayerdir[cnt] );
+        sprintf( todir, "import/temp%04d.obj", localslot[numimport] );
+
+        // This will do a local copy if I'm already on the host machine, other
+        // wise the directory gets sent across the network to the host
+        net_copyDirectoryToHost( fromdir, todir );
+
+        // Copy all of the character's items to the import directory
+        tnc = 0;
+        while ( tnc < 8 )
+        {
+          sprintf( fromdir, "players/%s/%d.obj", loadplayerdir[cnt], tnc );
+          sprintf( todir, "import/temp%04d.obj", localslot[numimport] + tnc + 1 );
+
+          net_copyDirectoryToHost( fromdir, todir );
+          tnc++;
+        }
+
+        numimport++;
+      }
+      cnt++;
+    }
+
+    // Have clients wait until all files have been sent to the host
+    clientFilesSent = net_pendingFileTransfers();
+    if ( networkon && !hostactive )
+    {
+      pending = net_pendingFileTransfers();
+
+      // Let the host know how many files you're sending it
+      net_startNewPacket();
+      packet_addUnsignedShort( NET_NUM_FILES_TO_SEND );
+      packet_addUnsignedShort( ( unsigned short )pending );
+      net_sendPacketToHostGuaranteed();
+
+      while ( pending )
+      {
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glLoadIdentity();
+
+        draw_trim_box( 0, 0, scrx, scry );
+        y = fontyspacing + 8;
+
+        sprintf( todir, "Sending file %d of %d...", clientFilesSent - pending, clientFilesSent );
+        draw_string( todir, fontyspacing + 8, y );
+        flip_pages();
+
+        // do this to let SDL do it's window events stuff, so that windows doesn't think
+        // the game has hung while transferring files
+        do_cursor();
+
+        net_updateFileTransfers();
+
+        pending = net_pendingFileTransfers();
+      }
+
+      // Tell the host I'm done sending files
+      net_startNewPacket();
+      packet_addUnsignedShort( NET_DONE_SENDING_FILES );
+      net_sendPacketToHostGuaranteed();
+    }
+
+    if ( networkon )
+    {
+      if ( hostactive )
+      {
+        // Host waits for all files from all remotes
+        numfile = 0;
+        numfileexpected = 0;
+        numplayerrespond = 1;
+        while ( numplayerrespond < numplayer )
+        {
+          //clear_surface(lpDDSBack);
+          glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+          glLoadIdentity();
+          draw_trim_box( 0, 0, scrx, scry );
+          y = fontyspacing + 8;
+          draw_string( "Incoming files...", fontyspacing + 8, y );  y += fontyspacing;
+          sprintf( todir, "File %d/%d", numfile, numfileexpected );
+          draw_string( todir, fontyspacing + 20, y ); y += fontyspacing;
+          sprintf( todir, "Play %d/%d", numplayerrespond, numplayer );
+          draw_string( todir, fontyspacing + 20, y );
+          flip_pages();
+
+          listen_for_packets();
+
+          do_cursor();
+
+          if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+          {
+            gameactive = bfalse;
+            menuactive = bfalse;
+            close_session();
+            break;
+          }
+        }
+
+
+        // Say you're done
+        //clear_surface(lpDDSBack);
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glLoadIdentity();
+        draw_trim_box( 0, 0, scrx, scry );
+        y = fontyspacing + 8;
+        draw_string( "Sending files to remotes...", fontyspacing + 8, y );  y += fontyspacing;
+        flip_pages();
+
+
+        // Host sends import directory to all remotes, deletes extras
+        numfilesent = 0;
+        import = 0;
+        cnt = 0;
+        if ( numplayer > 1 )
+        {
+          while ( cnt < MAXIMPORT )
+          {
+            sprintf( todir, "import/temp%04d.obj", cnt );
+            strncpy( fromdir, todir, 128 );
+            if ( fs_fileIsDirectory( fromdir ) )
+            {
+              // Only do directories that actually exist
+              if ( ( cnt % 9 ) == 0 ) import++;
+              if ( import > importamount )
+              {
+                // Too many directories
+                fs_removeDirectoryAndContents( fromdir );
+              }
+              else
+              {
+                // Ship it out
+                net_copyDirectoryToAllPlayers( fromdir, todir );
+              }
+            }
+            cnt++;
+          }
+
+          hostFilesSent = net_pendingFileTransfers();
+          pending = hostFilesSent;
+
+          // Let the client know how many are coming
+          net_startNewPacket();
+          packet_addUnsignedShort( NET_NUM_FILES_TO_SEND );
+          packet_addUnsignedShort( ( unsigned short )pending );
+          net_sendPacketToAllPlayersGuaranteed();
+
+          while ( pending > 0 )
+          {
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+            glLoadIdentity();
+
+            draw_trim_box( 0, 0, scrx, scry );
+            y = fontyspacing + 8;
+
+            sprintf( todir, "Sending file %d of %d...", hostFilesSent - pending, hostFilesSent );
+            draw_string( todir, fontyspacing + 8, y );
+            flip_pages();
+
+            // do this to let SDL do it's window events stuff, so that windows doesn't think
+            // the game has hung while transferring files
+            do_cursor();
+
+            net_updateFileTransfers();
+
+            pending = net_pendingFileTransfers();
+          }
+
+          // Tell the players I'm done sending files
+          net_startNewPacket();
+          packet_addUnsignedShort( NET_DONE_SENDING_FILES );
+          net_sendPacketToAllPlayersGuaranteed();
+        }
+      }
+      else
+      {
+        // Remotes wait for all files in import directory
+        log_info( "menu_pick_player: Waiting for files to come from the host...\n" );
+        numfile = 0;
+        numfileexpected = 0;
+        numplayerrespond = 0;
+        while ( numplayerrespond < 1 )
+        {
+          //clear_surface(lpDDSBack);
+          glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+          glLoadIdentity();
+          draw_trim_box( 0, 0, scrx, scry );
+          y = fontyspacing + 8;
+          draw_string( "Incoming files from host...", fontyspacing + 8, y );  y += fontyspacing;
+          sprintf( todir, "File %d/%d", numfile, numfileexpected );
+          draw_string( todir, fontyspacing + 20, y );
+          flip_pages();
+
+          listen_for_packets();
+          do_cursor();
+
+          if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+          {
+            gameactive = bfalse;
+            menuactive = bfalse;
+            break;
+            close_session();
+          }
+        }
+      }
+    }
+  }
+  nextmenu = MENUG;
+}
+
+//--------------------------------------------------------------------------------------------
+void menu_module_loading( int module )
+{
+  // ZZ> This function handles the display for when a module is loading
+  char text[256];
+  int y;
+  float open;
+  int cnt;
+
+
+  // Open some windows
+  y = fontyspacing + 8;
+  open = 0;
+  while ( open < 1.0 )
+  {
+    //clear_surface(lpDDSBack);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box_opening( 0, y, 136, y + 136, open );
+    draw_trim_box_opening( 132, y, scrx, y + 136, open );
+    draw_trim_box_opening( 0, y + 132, scrx, scry, open );
+    flip_pages();
+    open += .030;
+  }
+
+
+  // Put the stuff in the windows
+  //clear_surface(lpDDSBack);
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+  glLoadIdentity();
+  y = 0;
+  sprintf( text, "Loading...  Wait!!!" );  draw_string( text, 0, y );  y += fontyspacing;
+  y += 8;
+  draw_module_tag( module, y );
+  draw_trim_box( 0, y + 132, scrx, scry );
+
+
+  // Show the summary
+  sprintf( text, "modules/%s/gamedat/menu.txt", modloadname[module] );
+  get_module_summary( text );
+  y = fontyspacing + 152;
+  cnt = 0;
+  while ( cnt < SUMMARYLINES )
+  {
+    sprintf( text, "%s", modsummary[cnt] );  draw_string( text, 14, y );  y += fontyspacing;
+    cnt++;
+  }
+  flip_pages();
+  nextmenu = MENUB;
+  menuactive = bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_join_multiplayer()
 {
-	// JF> This function attempts to join the multiplayer game hosted
-	//     by whatever server is named in the HOST_NAME part of setup.txt
-	char text[256];
-	float open;
+  // JF> This function attempts to join the multiplayer game hosted
+  //     by whatever server is named in the HOST_NAME part of setup.txt
+  char text[256];
+  float open;
 
-	if(networkon)
-	{
-		// Do the little opening menu animation
-		open = 0;
-		while(open < 1.0)
-		{
-			//clear_surface(lpDDSBack);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glLoadIdentity();
-			draw_trim_box_opening(0, 0, scrx, scry, open);
-			flip_pages();
-			open += .030;
-		}
+  if ( networkon )
+  {
+    // Do the little opening menu animation
+    open = 0;
+    while ( open < 1.0 )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      flip_pages();
+      open += .030;
+    }
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glLoadIdentity();
-		draw_trim_box(0, 0, scrx, scry);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box( 0, 0, scrx, scry );
 
-		strncpy(text, "Attempting to join game at:", 256);
-		draw_string(text, (scrx>>1)-240, (scry>>1)-fontyspacing);
+    strncpy( text, "Attempting to join game at:", 256 );
+    draw_string( text, ( scrx >> 1 ) - 240, ( scry >> 1 ) - fontyspacing );
 
-		strncpy(text, nethostname, 256);
-		draw_string(text, (scrx>>1)-240, (scry>>1));
-		flip_pages();
+    strncpy( text, nethostname, 256 );
+    draw_string( text, ( scrx >> 1 ) - 240, ( scry >> 1 ) );
+    flip_pages();
 
-		if(cl_joinGame(nethostname))
-		{
-			nextmenu = MENUE;
-		} else
-		{
-			nextmenu = MENUB;
-		}
-	}
+    if ( cl_joinGame( nethostname ) )
+    {
+      nextmenu = MENUE;
+    }
+    else
+    {
+      nextmenu = MENUB;
+    }
+  }
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_choose_host()
 {
-    // ZZ> This function lets the player choose a host
-    char text[256];
-    int x, y;
-    float open;
-    int cnt;
-    int stillchoosing;
+  // ZZ> This function lets the player choose a host
+  char text[256];
+  int x, y;
+  float open;
+  int cnt;
+  int stillchoosing;
 
 
-    if(networkon)
+  if ( networkon )
+  {
+    // Bring up a helper window
+    open = 0;
+    while ( open < 1.0 )
     {
-        // Bring up a helper window
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            flip_pages();
-            open += .030;
-        }
-        //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-        draw_trim_box(0, 0, scrx, scry);
-        sprintf(text, "Press Enter if");
-        draw_string(text, (scrx>>1)-120, (scry>>1)-fontyspacing);
-        sprintf(text, "nothing happens");
-        draw_string(text, (scrx>>1)-120, (scry>>1));
-        flip_pages();
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      flip_pages();
+      open += .030;
+    }
+    //clear_surface(lpDDSBack);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box( 0, 0, scrx, scry );
+    sprintf( text, "Press Enter if" );
+    draw_string( text, ( scrx >> 1 ) - 120, ( scry >> 1 ) - fontyspacing );
+    sprintf( text, "nothing happens" );
+    draw_string( text, ( scrx >> 1 ) - 120, ( scry >> 1 ) );
+    flip_pages();
 
 
 
-        // Find available games
+    // Find available games
 //        find_open_sessions();       // !!!BAD!!!  Do this every now and then
 
-        // Open a big window
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            draw_trim_box_opening(0, 0, 320, fontyspacing*(numsession+4), open);
-            flip_pages();
-            open += .030;
-        }
-
-        // Tell the user which ones we found
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box(0, 0, scrx, scry);
-            draw_trim_box(0, 0, 320, fontyspacing*(numsession+4));
-            y = 8;
-            sprintf(text, "Open hosts...");
-            draw_string(text, 14, y);
-            y += fontyspacing;
-            cnt = 0;
-            while(cnt < numsession)
-            {
-                sprintf(text, "%s", netsessionname[cnt]);
-                draw_string(text, 50, y);
-                y += fontyspacing;
-                cnt++;
-            }
-            sprintf(text, "Go Back...");
-            draw_string(text, 50, y);
-            do_cursor();
-            x = cursorx - 50;
-            y = (cursory - 8 - fontyspacing);
-            if(x > 0 && x < 300 && y >= 0)
-            {
-                y = y/fontyspacing;
-                if(y <= numsession)
-                {
-                    if(mousebutton[0] || mousebutton[1])
-                    {
-                        //if(y == numsession)
-                        //{
-                        //    nextmenu = MENUB;
-                        //    stillchoosing = bfalse;
-                        //}
-                        //else
-                        {
-                            if(cl_joinGame("solace2.csusm.edu"))
-                            {
-                                nextmenu = MENUE;
-                                stillchoosing = bfalse;
-                            }
-                        }
-                    }
-                }
-            }
-            flip_pages();
-        }
-    }
-    else
+    // Open a big window
+    open = 0;
+    while ( open < 1.0 )
     {
-        // This should never happen
-        nextmenu = MENUB;
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      draw_trim_box_opening( 0, 0, 320, fontyspacing*( numsession + 4 ), open );
+      flip_pages();
+      open += .030;
     }
+
+    // Tell the user which ones we found
+    stillchoosing = btrue;
+    while ( stillchoosing )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      draw_trim_box( 0, 0, 320, fontyspacing*( numsession + 4 ) );
+      y = 8;
+      sprintf( text, "Open hosts..." );
+      draw_string( text, 14, y );
+      y += fontyspacing;
+      cnt = 0;
+      while ( cnt < numsession )
+      {
+        sprintf( text, "%s", netsessionname[cnt] );
+        draw_string( text, 50, y );
+        y += fontyspacing;
+        cnt++;
+      }
+      sprintf( text, "Go Back..." );
+      draw_string( text, 50, y );
+      do_cursor();
+      x = cursorx - 50;
+      y = ( cursory - 8 - fontyspacing );
+      if ( x > 0 && x < 300 && y >= 0 )
+      {
+        y = y / fontyspacing;
+        if ( y <= numsession )
+        {
+          if ( mousebutton[0] || mousebutton[1] )
+          {
+            //if(y == numsession)
+            //{
+            //    nextmenu = MENUB;
+            //    stillchoosing = bfalse;
+            //}
+            //else
+            {
+              if ( cl_joinGame( "solace2.csusm.edu" ) )
+              {
+                nextmenu = MENUE;
+                stillchoosing = bfalse;
+              }
+            }
+          }
+        }
+      }
+      flip_pages();
+    }
+  }
+  else
+  {
+    // This should never happen
+    nextmenu = MENUB;
+  }
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_choose_module()
 {
-    // ZZ> This function lets the host choose a module
-    int numtag;
-    char text[256];
-    int x, y, ystt;
-    float open;
-    int cnt;
-    int module;
-    int stillchoosing;
-    if(hostactive)
+  // ZZ> This function lets the host choose a module
+  int numtag;
+  char text[256];
+  int x, y, ystt;
+  float open;
+  int cnt;
+  int module;
+  int stillchoosing;
+  if ( hostactive )
+  {
+    // Figure out how many tags to display
+    numtag = ( scry - 4 - 40 ) / 132;
+    ystt = ( scry - ( numtag * 132 ) - 4 ) >> 1;
+
+
+    // Open the tag windows
+    open = 0;
+    while ( open < 1.0 )
     {
-        // Figure out how many tags to display
-        numtag = (scry-4-40)/132;
-        ystt = (scry-(numtag*132)-4)>>1;
-
-
-        // Open the tag windows
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            y = ystt;
-            cnt = 0;
-            while(cnt < numtag)
-            {
-                draw_trim_box_opening(0, y, 136, y+136, open);
-                draw_trim_box_opening(132, y, scrx, y+136, open);
-                y+=132;
-                cnt++;
-            }
-            flip_pages();
-            open += .030;
-        }
-
-
-
-
-        // Let the user pick a module
-        module = 0;
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-            // Draw the tags
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		    	glLoadIdentity();
-            draw_trim_box(0, 0, scrx, scry);
-            y = ystt;
-            cnt = 0;
-            while(cnt < numtag)
-            {
-                draw_module_tag(module+cnt, y);
-                y+=132;
-                cnt++;
-            }
-
-            // Draw the Up/Down buttons
-            sprintf(text, "Up");
-            x = (scrx-40)>>1;
-            draw_string(text, x, 10);
-            sprintf(text, "Down");
-            x = (scrx-80)>>1;
-            draw_string(text, x, scry-fontyspacing-20);
-
-
-            // Handle the mouse
-            do_cursor();
-            y = (cursory - ystt)/132;
-            if(pending_click)
-	      {
-	        pending_click=bfalse;
-                if(cursory < ystt && module > 0)
-		  {
-                    // Up button
-                    module--;
-		  }
-                if(y >= numtag && module + numtag < globalnummodule)
-		  {
-                    // Down button
-                    module++;
-		  }
-		if(cursory > ystt && y > -1 && y < numtag)
-		  {
-		    y = module + y;
-		    if((mousebutton[0] || mousebutton[1]) && y < globalnummodule)
-		      {
-			// Set start infow
-			playersready = 1;
-			seed = time(0);
-			pickedindex = y;
-			sprintf(pickedmodule, "%s", modloadname[y]);
-			readytostart = btrue;
-			stillchoosing = bfalse;
-		      }
-		  }
-	      }
-            // Check for quitters
-            if(SDLKEYDOWN(SDLK_ESCAPE) && networkservice == NONETWORK)
-            {
-                nextmenu = MENUB;
-                menuactive = bfalse;
-                stillchoosing = bfalse;
-                gameactive = bfalse;
-            }
-            flip_pages();
-        }
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      y = ystt;
+      cnt = 0;
+      while ( cnt < numtag )
+      {
+        draw_trim_box_opening( 0, y, 136, y + 136, open );
+        draw_trim_box_opening( 132, y, scrx, y + 136, open );
+        y += 132;
+        cnt++;
+      }
+      flip_pages();
+      open += .030;
     }
-    nextmenu = MENUE;
+
+
+
+
+    // Let the user pick a module
+    module = 0;
+    stillchoosing = btrue;
+    while ( stillchoosing )
+    {
+      // Draw the tags
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      y = ystt;
+      cnt = 0;
+      while ( cnt < numtag )
+      {
+        draw_module_tag( module + cnt, y );
+        y += 132;
+        cnt++;
+      }
+
+      // Draw the Up/Down buttons
+      sprintf( text, "Up" );
+      x = ( scrx - 40 ) >> 1;
+      draw_string( text, x, 10 );
+      sprintf( text, "Down" );
+      x = ( scrx - 80 ) >> 1;
+      draw_string( text, x, scry - fontyspacing - 20 );
+
+
+      // Handle the mouse
+      do_cursor();
+      y = ( cursory - ystt ) / 132;
+      if ( pending_click )
+      {
+        pending_click = bfalse;
+        if ( cursory < ystt && module > 0 )
+        {
+          // Up button
+          module--;
+        }
+        if ( y >= numtag && module + numtag < globalnummodule )
+        {
+          // Down button
+          module++;
+        }
+        if ( cursory > ystt && y > -1 && y < numtag )
+        {
+          y = module + y;
+          if ( ( mousebutton[0] || mousebutton[1] ) && y < globalnummodule )
+          {
+            // Set start infow
+            playersready = 1;
+            seed = time( 0 );
+            pickedindex = y;
+            sprintf( pickedmodule, "%s", modloadname[y] );
+            readytostart = btrue;
+            stillchoosing = bfalse;
+          }
+        }
+      }
+      // Check for quitters
+      if ( SDLKEYDOWN( SDLK_ESCAPE ) && networkservice == NONETWORK )
+      {
+        nextmenu = MENUB;
+        menuactive = bfalse;
+        stillchoosing = bfalse;
+        gameactive = bfalse;
+      }
+      flip_pages();
+    }
+  }
+  nextmenu = MENUE;
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_boot_players()
 {
-    // ZZ> This function shows all the active players and lets the host kick 'em out
-    //     !!!BAD!!!  Let the host boot players
-    char text[256];
-    int x, y, starttime, time;
-    float open;
-    int cnt, player;
-    int stillchoosing;
+  // ZZ> This function shows all the active players and lets the host kick 'em out
+  //     !!!BAD!!!  Let the host boot players
+  char text[256];
+  int x, y, starttime, time;
+  float open;
+  int cnt, player;
+  int stillchoosing;
 
 
-    numplayer = 1;
-    if(networkon)
+  numplayer = 1;
+  if ( networkon )
+  {
+    // Find players
+    sv_letPlayersJoin();
+
+    // Open a big window
+    open = 0;
+    while ( open < 1.0 )
     {
-        // Find players
-        sv_letPlayersJoin();
-
-        // Open a big window
-        open = 0;
-        while(open < 1.0)
-        {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box_opening(0, 0, scrx, scry, open);
-            draw_trim_box_opening(0, 0, 320, fontyspacing*(numplayer+4), open);
-            flip_pages();
-            open += .030;
-        }
-
-        // Tell the user which ones we found
-        starttime = SDL_GetTicks();
-        stillchoosing = btrue;
-        while(stillchoosing)
-        {
-			time = SDL_GetTicks();
-			if((time-starttime) > NETREFRESH)
-			{
-				sv_letPlayersJoin();
-				starttime = time;
-			}
-
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glLoadIdentity();
-			draw_trim_box(0, 0, scrx, scry);
-			draw_trim_box(0, 0, 320, fontyspacing*(numplayer+4));
-
-			if(hostactive)
-			{
-				y = 8;
-				sprintf(text, "Active machines...");
-				draw_string(text, 14, y);
-				y += fontyspacing;
-
-				cnt = 0;
-				while(cnt < numplayer)
-				{
-					sprintf(text, "%s", netplayername[cnt]);
-					draw_string(text, 50, y);
-					y += fontyspacing;
-					cnt++;
-				}
-
-				sprintf(text, "Start Game");
-                draw_string(text, 50, y);
-			} else
-			{
-				strncpy(text, "Connected to host:", 256);
-				draw_string(text, 14, 8);
-				draw_string(nethostname, 14, 8 + fontyspacing);
-				listen_for_packets();  // This happens implicitly for the host in sv_letPlayersJoin
-			}
-
-            do_cursor();
-            x = cursorx - 50;
-			// Again, y adjustments were figured out empirically in menu_start_or_join
-            y = (cursory - 21 - fontyspacing);
-
-            if(SDLKEYDOWN(SDLK_ESCAPE)) // !!!BAD!!!
-            {
-                nextmenu = MENUB;
-                menuactive = bfalse;
-                stillchoosing = bfalse;
-                gameactive = bfalse;
-            }
-            if(x > 0 && x < 300 && y >= 0 && (mousebutton[0] || mousebutton[1]) && hostactive)
-            {
-                // Let the host do things
-                y = y/fontyspacing;
-                if(y < numplayer && hostactive)
-                {
-                    // Boot players
-                }
-                if(y == numplayer && readytostart)
-                {
-                    // Start the modules
-                    stillchoosing = bfalse;
-                }
-            }
-            if(readytostart && hostactive == bfalse)
-            {
-                // Remotes automatically start
-                stillchoosing = bfalse;
-            }
-            flip_pages();
-        }
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box_opening( 0, 0, scrx, scry, open );
+      draw_trim_box_opening( 0, 0, 320, fontyspacing*( numplayer + 4 ), open );
+      flip_pages();
+      open += .030;
     }
-    if(networkon && hostactive)
+
+    // Tell the user which ones we found
+    starttime = SDL_GetTicks();
+    stillchoosing = btrue;
+    while ( stillchoosing )
     {
-        // Let the host coordinate start
-        stop_players_from_joining();
+      time = SDL_GetTicks();
+      if ( ( time - starttime ) > NETREFRESH )
+      {
         sv_letPlayersJoin();
+        starttime = time;
+      }
+
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      draw_trim_box( 0, 0, 320, fontyspacing*( numplayer + 4 ) );
+
+      if ( hostactive )
+      {
+        y = 8;
+        sprintf( text, "Active machines..." );
+        draw_string( text, 14, y );
+        y += fontyspacing;
+
         cnt = 0;
-        readytostart = bfalse;
-        if(numplayer == 1)
+        while ( cnt < numplayer )
         {
-            // Don't need to bother, since the host is alone
-            readytostart = btrue;
+          sprintf( text, "%s", netplayername[cnt] );
+          draw_string( text, 50, y );
+          y += fontyspacing;
+          cnt++;
         }
-        while(readytostart==bfalse)
+
+        sprintf( text, "Start Game" );
+        draw_string( text, 50, y );
+      }
+      else
+      {
+        strncpy( text, "Connected to host:", 256 );
+        draw_string( text, 14, 8 );
+        draw_string( nethostname, 14, 8 + fontyspacing );
+        listen_for_packets();  // This happens implicitly for the host in sv_letPlayersJoin
+      }
+
+      do_cursor();
+      x = cursorx - 50;
+      // Again, y adjustments were figured out empirically in menu_start_or_join
+      y = ( cursory - 21 - fontyspacing );
+
+      if ( SDLKEYDOWN( SDLK_ESCAPE ) ) // !!!BAD!!!
+      {
+        nextmenu = MENUB;
+        menuactive = bfalse;
+        stillchoosing = bfalse;
+        gameactive = bfalse;
+      }
+      if ( x > 0 && x < 300 && y >= 0 && ( mousebutton[0] || mousebutton[1] ) && hostactive )
+      {
+        // Let the host do things
+        y = y / fontyspacing;
+        if ( y < numplayer && hostactive )
         {
-            //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-            draw_trim_box(0, 0, scrx, scry);
-            y = 8;
-            sprintf(text, "Waiting for replies...");
-            draw_string(text, 14, y);
-            y += fontyspacing;
-            do_cursor();
-            if(SDLKEYDOWN(SDLK_ESCAPE)) // !!!BAD!!!
-            {
-                nextmenu = MENUB;
-                menuactive = bfalse;
-                stillchoosing = bfalse;
-                gameactive = bfalse;
-                readytostart = btrue;
-            }
-            if((cnt&63)==0)
-            {
-                sprintf(text, "  Lell...");
-                draw_string(text, 14, y);
-                player = 0;
-                while(player < numplayer-1)
-                {
-                    net_startNewPacket();
-                    packet_addUnsignedShort(TO_REMOTE_MODULE);
-                    packet_addUnsignedInt(seed);
-                    packet_addUnsignedByte(player+1);
-                    packet_addString(pickedmodule);
-//                    send_packet_to_all_players();
-                    net_sendPacketToOnePlayerGuaranteed(player);
-                    player++;
-                }
-            }
-            listen_for_packets();
-            cnt++;
-            flip_pages();
+          // Boot players
         }
+        if ( y == numplayer && readytostart )
+        {
+          // Start the modules
+          stillchoosing = bfalse;
+        }
+      }
+      if ( readytostart && hostactive == bfalse )
+      {
+        // Remotes automatically start
+        stillchoosing = bfalse;
+      }
+      flip_pages();
     }
+  }
+  if ( networkon && hostactive )
+  {
+    // Let the host coordinate start
+    stop_players_from_joining();
+    sv_letPlayersJoin();
+    cnt = 0;
+    readytostart = bfalse;
+    if ( numplayer == 1 )
+    {
+      // Don't need to bother, since the host is alone
+      readytostart = btrue;
+    }
+    while ( readytostart == bfalse )
+    {
+      //clear_surface(lpDDSBack);
+      glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+      glLoadIdentity();
+      draw_trim_box( 0, 0, scrx, scry );
+      y = 8;
+      sprintf( text, "Waiting for replies..." );
+      draw_string( text, 14, y );
+      y += fontyspacing;
+      do_cursor();
+      if ( SDLKEYDOWN( SDLK_ESCAPE ) ) // !!!BAD!!!
+      {
+        nextmenu = MENUB;
+        menuactive = bfalse;
+        stillchoosing = bfalse;
+        gameactive = bfalse;
+        readytostart = btrue;
+      }
+      if ( ( cnt&63 ) == 0 )
+      {
+        sprintf( text, "  Lell..." );
+        draw_string( text, 14, y );
+        player = 0;
+        while ( player < numplayer - 1 )
+        {
+          net_startNewPacket();
+          packet_addUnsignedShort( TO_REMOTE_MODULE );
+          packet_addUnsignedInt( seed );
+          packet_addUnsignedByte( player + 1 );
+          packet_addString( pickedmodule );
+//                    send_packet_to_all_players();
+          net_sendPacketToOnePlayerGuaranteed( player );
+          player++;
+        }
+      }
+      listen_for_packets();
+      cnt++;
+      flip_pages();
+    }
+  }
 
 
-    nextmenu=MENUF;
+  nextmenu = MENUF;
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_end_text()
 {
-    // ZZ> This function gives the player the ending text
-    float open;
-    int stillchoosing;
+  // ZZ> This function gives the player the ending text
+  float open;
+  int stillchoosing;
 //    SDL_Event ev;
 
 
-    // Open the text window
-    open = 0;
-    while(open < 1.0)
+  // Open the text window
+  open = 0;
+  while ( open < 1.0 )
+  {
+    //clear_surface(lpDDSBack);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box_opening( 0, 0, scrx, scry, open );
+    flip_pages();
+    open += .030;
+  }
+
+
+
+  // Wait for input
+  stillchoosing = btrue;
+  while ( stillchoosing )
+  {
+    // Show the text
+    //clear_surface(lpDDSBack);
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+    draw_trim_box( 0, 0, scrx, scry );
+    draw_wrap_string( endtext, 14, 8, scrx - 40 );
+
+
+
+    // Handle the mouse
+    do_cursor();
+    if ( pending_click || SDLKEYDOWN( SDLK_ESCAPE ) )
     {
-        //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-        draw_trim_box_opening(0, 0, scrx, scry, open);
-        flip_pages();
-        open += .030;
+      pending_click = bfalse;
+      stillchoosing = bfalse;
     }
-
-
-
-    // Wait for input
-    stillchoosing = btrue;
-    while(stillchoosing)
-    {
-        // Show the text
-        //clear_surface(lpDDSBack);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    			glLoadIdentity();
-        draw_trim_box(0, 0, scrx, scry);
-        draw_wrap_string(endtext, 14, 8, scrx-40);
-
-
-
-        // Handle the mouse
-        do_cursor();
-        if(pending_click || SDLKEYDOWN(SDLK_ESCAPE))
-        {
-	    pending_click = bfalse;
-            stillchoosing = bfalse;
-        }
-        flip_pages();
-    }
-    nextmenu = MENUB;
+    flip_pages();
+  }
+  nextmenu = MENUB;
 }
 
 //--------------------------------------------------------------------------------------------
 void menu_initial_text()
 {
-    // ZZ> This function gives the player the initial title screen
-    float open;
-    char text[1024];
-    int stillchoosing;
+  // ZZ> This function gives the player the initial title screen
+  float open;
+  char text[1024];
+  int stillchoosing;
 
 
-    //fprintf(stderr,"DIAG: In menu_initial_text()\n");
-    //draw_trim_box(0, 0, scrx, scry);//draw_trim_box(60, 60, 320, 200); // JUST TEST BOX
+  //fprintf(stderr,"DIAG: In menu_initial_text()\n");
+  //draw_trim_box(0, 0, scrx, scry);//draw_trim_box(60, 60, 320, 200); // JUST TEST BOX
 
-    // Open the text window
-    open = 0;
-    while(open < 1.0)
+  // Open the text window
+  open = 0;
+  while ( open < 1.0 )
+  {
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+
+    // clear_surface(lpDDSBack); PORT!
+    draw_trim_box_opening( 0, 0, scrx, scry, open );
+    flip_pages();
+    open += .030;
+  }
+
+  /*fprintf(stderr,"waiting to read a scanf\n");
+     scanf("%s",text);
+     exit(0);*/
+
+  // Wait for input
+  stillchoosing = btrue;
+  while ( stillchoosing )
+  {
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    glLoadIdentity();
+
+    // Show the text
+    // clear_surface(lpDDSBack); PORT!
+    draw_trim_box( 0, 0, scrx, scry );
+    sprintf( text, "Egoboo v2.22" );
+    draw_string( text, ( scrx >> 1 ) - 200, ( ( scry >> 1 ) - 30 ) );
+    sprintf( text, "http://egoboo.sourceforge.net" );
+    draw_string( text, ( scrx >> 1 ) - 200, ( ( scry >> 1 ) ) );
+    sprintf( text, "See controls.txt to configure input" );
+    draw_string( text, ( scrx >> 1 ) - 200, ( ( scry >> 1 ) + 30 ) );
+
+    // get input
+    read_input( NULL );
+
+    // Handle the mouse
+    do_cursor();
+    if ( pending_click || SDLKEYDOWN( SDLK_ESCAPE ) )
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	glLoadIdentity();
-
-        // clear_surface(lpDDSBack); PORT!
-        draw_trim_box_opening(0, 0, scrx, scry, open);
-        flip_pages();
-        open += .030;
+      pending_click = bfalse;
+      stillchoosing = bfalse;
     }
-
-	/*fprintf(stderr,"waiting to read a scanf\n");
-    scanf("%s",text);
-    exit(0);*/
-
-    // Wait for input
-    stillchoosing = btrue;
-    while(stillchoosing)
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	glLoadIdentity();
-
-        // Show the text
-        // clear_surface(lpDDSBack); PORT!
-        draw_trim_box(0, 0, scrx, scry);
-        sprintf(text, "Egoboo v2.22");
-        draw_string(text, (scrx>>1)-200, ((scry>>1)-30));
-        sprintf(text, "http://egoboo.sourceforge.net");
-        draw_string(text, (scrx>>1)-200, ((scry>>1)));
-        sprintf(text, "See controls.txt to configure input");
-        draw_string(text, (scrx>>1)-200, ((scry>>1)+30));
-
-		// get input
-		read_input(NULL);
-
-        // Handle the mouse
-        do_cursor();
-		if ( pending_click || SDLKEYDOWN(SDLK_ESCAPE) )
-		{
-		        pending_click = bfalse;
-			stillchoosing = bfalse;
-		}
-        flip_pages();
-    }
-    nextmenu = MENUA;
+    flip_pages();
+  }
+  nextmenu = MENUA;
 }
 
 //--------------------------------------------------------------------------------------------
 void fiddle_with_menu()
 {
-    // ZZ> This function gives a nice little menu to play around in.
+  // ZZ> This function gives a nice little menu to play around in.
 
-    menuactive = btrue;
-    readytostart = bfalse;
-    playersready = 0;
-    localmachine = 0;
-    rtslocalteam = 0;
-    numfile = 0;
-    numfilesent = 0;
-    numfileexpected = 0;
-    while(menuactive)
+  menuactive = btrue;
+  readytostart = bfalse;
+  playersready = 0;
+  localmachine = 0;
+  rtslocalteam = 0;
+  numfile = 0;
+  numfilesent = 0;
+  numfileexpected = 0;
+  while ( menuactive )
+  {
+    switch ( nextmenu )
     {
-        switch(nextmenu)
+      case MENUA:
+        // MENUA...  Let the user choose a network service
+        //printf("MENUA\n");
+        if ( menuaneeded )
         {
-            case MENUA:
-                // MENUA...  Let the user choose a network service
-                //printf("MENUA\n");
-                if(menuaneeded)
-                {
-                    menu_service_select();
-                    menuaneeded = bfalse;
-                }
-                nextmenu = MENUB;
-                break;
-            case MENUB:
-                // MENUB...  Let the user start or join
-                //printf("MENUB\n");
-                menu_start_or_join();
-                break;
-            case MENUC:
-                // MENUC...  Choose an open game to join
-                //printf("MENUC\n");
-                //menu_choose_host();
-				menu_join_multiplayer();
-                break;
-            case MENUD:
-                // MENUD...  Choose a module to run
-                //printf("MENUD\n");
-                menu_choose_module();
-                break;
-            case MENUE:
-                // MENUE...  Wait for all the players
-                //printf("MENUE\n");
-                menu_boot_players();
-                break;
-            case MENUF:
-                // MENUF...  Let the players choose characters
-                //printf("MENUF\n");
-                menu_pick_player(pickedindex);
-                break;
-            case MENUG:
-                // MENUG...  Let the user read while it loads
-                //printf("MENUG\n");
-                menu_module_loading(pickedindex);
-                break;
-            case MENUH:
-                // MENUH...  Show the end text
-                //printf("MENUH\n");
-                menu_end_text();
-                break;
-            case MENUI:
-                // MENUI...  Show the initial text
-                //printf("MENUI\n");
-                menu_initial_text();
-                break;
+          menu_service_select();
+          menuaneeded = bfalse;
         }
+        nextmenu = MENUB;
+        break;
+      case MENUB:
+        // MENUB...  Let the user start or join
+        //printf("MENUB\n");
+        menu_start_or_join();
+        break;
+      case MENUC:
+        // MENUC...  Choose an open game to join
+        //printf("MENUC\n");
+        //menu_choose_host();
+        menu_join_multiplayer();
+        break;
+      case MENUD:
+        // MENUD...  Choose a module to run
+        //printf("MENUD\n");
+        menu_choose_module();
+        break;
+      case MENUE:
+        // MENUE...  Wait for all the players
+        //printf("MENUE\n");
+        menu_boot_players();
+        break;
+      case MENUF:
+        // MENUF...  Let the players choose characters
+        //printf("MENUF\n");
+        menu_pick_player( pickedindex );
+        break;
+      case MENUG:
+        // MENUG...  Let the user read while it loads
+        //printf("MENUG\n");
+        menu_module_loading( pickedindex );
+        break;
+      case MENUH:
+        // MENUH...  Show the end text
+        //printf("MENUH\n");
+        menu_end_text();
+        break;
+      case MENUI:
+        // MENUI...  Show the initial text
+        //printf("MENUI\n");
+        menu_initial_text();
+        break;
     }
-    //printf("Left menu system\n");
+  }
+  //printf("Left menu system\n");
 }
 
 //--------------------------------------------------------------------------------------------
 void release_menu_trim()
 {
-	// ZZ> This function frees the menu trim memory
-	//GLTexture_Release( &TxTrimX );		//RELEASE(lpDDSTrimX);
-	//GLTexture_Release( &TxTrimY );		//RELEASE(lpDDSTrimY);
-	GLTexture_Release( &TxBlip );		//RELEASE(lpDDSBlip);
-	GLTexture_Release( &TxTrim );
+  // ZZ> This function frees the menu trim memory
+  //GLTexture_Release( &TxTrimX );  //RELEASE(lpDDSTrimX);
+  //GLTexture_Release( &TxTrimY );  //RELEASE(lpDDSTrimY);
+  GLTexture_Release( &TxBlip );  //RELEASE(lpDDSBlip);
+  GLTexture_Release( &TxTrim );
 
 }
 
 //--------------------------------------------------------------------------------------------
 void release_menu()
 {
-	// ZZ> This function releases all the menu images
-	GLTexture_Release( &TxFont );		//RELEASE(lpDDSFont);
-    release_all_titleimages();
-    release_all_icons();
+  // ZZ> This function releases all the menu images
+  GLTexture_Release( &TxFont );  //RELEASE(lpDDSFont);
+  release_all_titleimages();
+  release_all_icons();
 
 }
 #endif
 
-void draw_trimx(int x, int y, int length)
+void draw_trimx( int x, int y, int length )
 {
-	// ZZ> This function draws a horizontal trim bar
-	GLfloat	txWidth, txHeight, txLength;
+  // ZZ> This function draws a horizontal trim bar
+  GLfloat txWidth, txHeight, txLength;
 
-	if ( GLTexture_GetTextureID( &TxTrim ) != 0 )//if( lpDDSTrimX )
-	{
-		/*while( length > 0 )
-        {
-			trimrect.right = length;
-			if(length > TRIMX)  trimrect.right = TRIMX;
-			trimrect.bottom = 4;
-			lpDDSBack->BltFast(x, y, lpDDSTrimX, &trimrect, DDBLTFAST_NOCOLORKEY);
-			length-=TRIMX;
-			x+=TRIMX;
-		}*/
+  if ( GLTexture_GetTextureID( &TxTrim ) != 0 )//if( lpDDSTrimX )
+  {
+    /*while( length > 0 )
+          {
+     trimrect.right = length;
+     if(length > TRIMX)  trimrect.right = TRIMX;
+     trimrect.bottom = 4;
+     lpDDSBack->BltFast(x, y, lpDDSTrimX, &trimrect, DDBLTFAST_NOCOLORKEY);
+     length-=TRIMX;
+     x+=TRIMX;
+    }*/
 
-		/* Calculate the texture width, height, and length */
-		txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTrim )/GLTexture_GetDimensions( &TxTrim ) );
-		txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTrim )/GLTexture_GetDimensions( &TxTrim ) );
-		txLength = ( GLfloat )( length/GLTexture_GetImageWidth( &TxTrim ) );
+    /* Calculate the texture width, height, and length */
+    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTrim ) / GLTexture_GetDimensions( &TxTrim ) );
+    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTrim ) / GLTexture_GetDimensions( &TxTrim ) );
+    txLength = ( GLfloat )( length / GLTexture_GetImageWidth( &TxTrim ) );
 
 
-		/* Bind our texture */
-		glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTrim ) );
+    /* Bind our texture */
+    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTrim ) );
 
-		/* Draw the trim */
-		glColor4f( 1, 1, 1, 1 );
-		glBegin( GL_QUADS );
-			glTexCoord2f( 0, 1 );	glVertex2f( x, scry - y );
-			glTexCoord2f( 0, 1 - txHeight );	glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTrim ) );
-			glTexCoord2f( txWidth*txLength, 1 - txHeight );	glVertex2f( x + length, scry - y - GLTexture_GetImageHeight( &TxTrim ) );
-			glTexCoord2f( txWidth*txLength, 1 );	glVertex2f( x + length, scry - y );
-		glEnd();
-	}
+    /* Draw the trim */
+    glColor4f( 1, 1, 1, 1 );
+    glBegin( GL_QUADS );
+    glTexCoord2f( 0, 1 ); glVertex2f( x, scry - y );
+    glTexCoord2f( 0, 1 - txHeight ); glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTrim ) );
+    glTexCoord2f( txWidth*txLength, 1 - txHeight ); glVertex2f( x + length, scry - y - GLTexture_GetImageHeight( &TxTrim ) );
+    glTexCoord2f( txWidth*txLength, 1 ); glVertex2f( x + length, scry - y );
+    glEnd();
+  }
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_trimy(int x, int y, int length)
+void draw_trimy( int x, int y, int length )
 {
-	// ZZ> This function draws a vertical trim bar
-	GLfloat	txWidth, txHeight, txLength;
+  // ZZ> This function draws a vertical trim bar
+  GLfloat txWidth, txHeight, txLength;
 
-	if ( GLTexture_GetTextureID( &TxTrim ) != 0 )//if(lpDDSTrimY)
-	{
-		/*while(length > 0)
-		{
-			trimrect.bottom = length;
-			if(length > TRIMY)  trimrect.bottom = TRIMY;
-			trimrect.right = 4;
-			lpDDSBack->BltFast(x, y, lpDDSTrimY, &trimrect, DDBLTFAST_NOCOLORKEY);
-			length-=TRIMY;
-			y+=TRIMY;
-		}*/
+  if ( GLTexture_GetTextureID( &TxTrim ) != 0 )//if(lpDDSTrimY)
+  {
+    /*while(length > 0)
+    {
+     trimrect.bottom = length;
+     if(length > TRIMY)  trimrect.bottom = TRIMY;
+     trimrect.right = 4;
+     lpDDSBack->BltFast(x, y, lpDDSTrimY, &trimrect, DDBLTFAST_NOCOLORKEY);
+     length-=TRIMY;
+     y+=TRIMY;
+    }*/
 
-		/* Calculate the texture width, height, and length */
-		txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTrim )/GLTexture_GetDimensions( &TxTrim ) );
-		txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTrim )/GLTexture_GetDimensions( &TxTrim ) );
-		txLength = ( GLfloat )( length/GLTexture_GetImageHeight( &TxTrim ) );
+    /* Calculate the texture width, height, and length */
+    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTrim ) / GLTexture_GetDimensions( &TxTrim ) );
+    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTrim ) / GLTexture_GetDimensions( &TxTrim ) );
+    txLength = ( GLfloat )( length / GLTexture_GetImageHeight( &TxTrim ) );
 
-		/* Bind our texture */
-		glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTrim ) );
+    /* Bind our texture */
+    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTrim ) );
 
-		/* Draw the trim */
-		glColor4f( 1, 1, 1, 1 );
-		glBegin( GL_QUADS );
-			glTexCoord2f( 0, 1 );	glVertex2f( x, scry - y );
-			glTexCoord2f( 0, 1 - txHeight*txLength );	glVertex2f( x, scry - y - length );
-			glTexCoord2f( txWidth, 1 - txHeight*txLength );	glVertex2f( x + GLTexture_GetImageWidth( &TxTrim ), scry - y - length );
-			glTexCoord2f( txWidth, 1 );	glVertex2f( x + GLTexture_GetImageWidth( &TxTrim ), scry - y );
-		glEnd();
-	}
+    /* Draw the trim */
+    glColor4f( 1, 1, 1, 1 );
+    glBegin( GL_QUADS );
+    glTexCoord2f( 0, 1 ); glVertex2f( x, scry - y );
+    glTexCoord2f( 0, 1 - txHeight*txLength ); glVertex2f( x, scry - y - length );
+    glTexCoord2f( txWidth, 1 - txHeight*txLength ); glVertex2f( x + GLTexture_GetImageWidth( &TxTrim ), scry - y - length );
+    glTexCoord2f( txWidth, 1 ); glVertex2f( x + GLTexture_GetImageWidth( &TxTrim ), scry - y );
+    glEnd();
+  }
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_trim_box(int left, int top, int right, int bottom)
+void draw_trim_box( int left, int top, int right, int bottom )
 {
-    // ZZ> This function draws a trim rectangle
-    float l,t,r,b;
-    l=((float)left)/scrx;
-    r=((float)right)/scrx;
-    t=((float)top)/scry;
-    b=((float)bottom)/scry;
+  // ZZ> This function draws a trim rectangle
+  float l, t, r, b;
+  l = ( ( float )left ) / scrx;
+  r = ( ( float )right ) / scrx;
+  t = ( ( float )top ) / scry;
+  b = ( ( float )bottom ) / scry;
 
-	Begin2DMode();
+  Begin2DMode();
 
-	draw_trimx(left, top, right-left);
-	draw_trimx(left, bottom-4, right-left);
-	draw_trimy(left, top, bottom-top);
-	draw_trimy(right-4, top, bottom-top);
+  draw_trimx( left, top, right - left );
+  draw_trimx( left, bottom - 4, right - left );
+  draw_trimy( left, top, bottom - top );
+  draw_trimy( right - 4, top, bottom - top );
 
-	End2DMode();
+  End2DMode();
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_trim_box_opening(int left, int top, int right, int bottom, float amount)
+void draw_trim_box_opening( int left, int top, int right, int bottom, float amount )
 {
-    // ZZ> This function draws a trim rectangle, scaled around its center
-    int x = (left + right)>>1;
-    int y = (top + bottom)>>1;
-    left   = (x * (1.0-amount)) + (left * amount);
-    right  = (x * (1.0-amount)) + (right * amount);
-    top    = (y * (1.0-amount)) + (top * amount);
-    bottom = (y * (1.0-amount)) + (bottom * amount);
-    draw_trim_box(left, top, right, bottom);
+  // ZZ> This function draws a trim rectangle, scaled around its center
+  int x = ( left + right ) >> 1;
+  int y = ( top + bottom ) >> 1;
+  left   = ( x * ( 1.0 - amount ) ) + ( left * amount );
+  right  = ( x * ( 1.0 - amount ) ) + ( right * amount );
+  top    = ( y * ( 1.0 - amount ) ) + ( top * amount );
+  bottom = ( y * ( 1.0 - amount ) ) + ( bottom * amount );
+  draw_trim_box( left, top, right, bottom );
 }
 
 //--------------------------------------------------------------------------------------------
 void load_menu()
 {
-    // ZZ> This function loads all of the menu data...  Images are loaded into system
-    // memory
+  // ZZ> This function loads all of the menu data...  Images are loaded into system
+  // memory
 
-    load_font( "basicdat/font.bmp", "basicdat/font.txt", btrue );
-    //load_all_menu_images();
+  load_font( "basicdat/font.bmp", "basicdat/font.txt", btrue );
+  //load_all_menu_images();
 }
 
 //--------------------------------------------------------------------------------------------
 void do_cursor_rts()
 {
-    // This function implements the RTS mouse cursor
-    int sttx, stty, endx, endy, target, leader;
-    signed short sound;
+  // This function implements the RTS mouse cursor
+  int sttx, stty, endx, endy, target, leader;
+  signed short sound;
 
 
-    if(mousebutton[1] == 0)
+  if ( mousebutton[1] == 0 )
+  {
+    cursorx += mousex;
+    cursory += mousey;
+  }
+  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx - 16 )  cursorx = scrx - 16;
+  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry - 24 )  cursory = scry - 24;
+  move_rtsxy();
+  if ( mousebutton[0] )
+  {
+    // Moving the end select point
+    pressed = btrue;
+    rtsendx = cursorx + 5;
+    rtsendy = cursory + 7;
+
+    // Draw the selection rectangle
+    if ( allselect == bfalse )
     {
-        cursorx+=mousex;
-        cursory+=mousey;
+      sttx = rtssttx;  endx = rtsendx;  if ( sttx > endx )  {  sttx = rtsendx;  endx = rtssttx; }
+      stty = rtsstty;  endy = rtsendy;  if ( stty > endy )  {  stty = rtsendy;  endy = rtsstty; }
+      draw_trim_box( sttx, stty, endx, endy );
     }
-    if(cursorx < 6)  cursorx = 6;  if (cursorx > scrx-16)  cursorx = scrx-16;
-    if(cursory < 8)  cursory = 8;  if (cursory > scry-24)  cursory = scry-24;
-    move_rtsxy();
-    if(mousebutton[0])
+  }
+  else
+  {
+    if ( pressed )
     {
-        // Moving the end select point
-        pressed = btrue;
-        rtsendx = cursorx+5;
-        rtsendy = cursory+7;
-
-        // Draw the selection rectangle
-        if(allselect == bfalse)
+      // See if we selected anyone
+      if ( ( ABS( rtssttx - rtsendx ) + ABS( rtsstty - rtsendy ) ) > 10 && allselect == bfalse )
+      {
+        // We drew a box alright
+        sttx = rtssttx;  endx = rtsendx;  if ( sttx > endx )  {  sttx = rtsendx;  endx = rtssttx; }
+        stty = rtsstty;  endy = rtsendy;  if ( stty > endy )  {  stty = rtsendy;  endy = rtsstty; }
+        build_select( sttx, stty, endx, endy, rtslocalteam );
+      }
+      else
+      {
+        // We want to issue an order
+        if ( numrtsselect > 0 )
         {
-            sttx = rtssttx;  endx = rtsendx;  if(sttx > endx)  {  sttx = rtsendx;  endx = rtssttx; }
-            stty = rtsstty;  endy = rtsendy;  if(stty > endy)  {  stty = rtsendy;  endy = rtsstty; }
-            draw_trim_box(sttx, stty, endx, endy);
-        }
-    }
-    else
-    {
-        if(pressed)
-        {
-            // See if we selected anyone
-            if((ABS(rtssttx - rtsendx) + ABS(rtsstty - rtsendy)) > 10 && allselect == bfalse)
+          leader = rtsselect[0];
+          sttx = rtssttx - 20;  endx = rtssttx + 20;
+          stty = rtsstty - 20;  endy = rtsstty + 20;
+          target = build_select_target( sttx, stty, endx, endy, rtslocalteam );
+          if ( target == MAXCHR )
+          {
+            // No target...
+            if ( SDLKEYDOWN( SDLK_LSHIFT ) || SDLKEYDOWN( SDLK_RSHIFT ) )
             {
-                // We drew a box alright
-                sttx = rtssttx;  endx = rtsendx;  if(sttx > endx)  {  sttx = rtsendx;  endx = rtssttx; }
-                stty = rtsstty;  endy = rtsendy;  if(stty > endy)  {  stty = rtsendy;  endy = rtsstty; }
-                build_select(sttx, stty, endx, endy, rtslocalteam);
+              send_rts_order( rtsx, rtsy, RTSTERRAIN, target );
+              sound = chrwavespeech[leader][SPEECHTERRAIN];
             }
             else
             {
-                // We want to issue an order
-                if(numrtsselect > 0)
-                {
-                    leader = rtsselect[0];
-                    sttx = rtssttx-20;  endx = rtssttx+20;
-                    stty = rtsstty-20;  endy = rtsstty+20;
-                    target = build_select_target(sttx, stty, endx, endy, rtslocalteam);
-                    if(target == MAXCHR)
-                    {
-                        // No target...
-                        if(SDLKEYDOWN(SDLK_LSHIFT) || SDLKEYDOWN(SDLK_RSHIFT))
-                        {
-                            send_rts_order(rtsx, rtsy, RTSTERRAIN, target);
-                            sound = chrwavespeech[leader][SPEECHTERRAIN];
-                        }
-                        else
-                        {
-                            send_rts_order(rtsx, rtsy, RTSMOVE, target);
-                            sound = wldframe&1;  // Move or MoveAlt
-                            sound = chrwavespeech[leader][sound];
-                        }
-                    }
-                    else
-                    {
-                        if(teamhatesteam[rtslocalteam][chrteam[target]])
-                        {
-                            // Target is an enemy, so issue an attack order
-                            send_rts_order(rtsx, rtsy, RTSATTACK, target);
-                            sound = chrwavespeech[leader][SPEECHATTACK];
-                        }
-                        else
-                        {
-                            // Target is a friend, so issue an assist order
-                            send_rts_order(rtsx, rtsy, RTSASSIST, target);
-                            sound = chrwavespeech[leader][SPEECHASSIST];
-                        }
-                    }
-                    // Do unit speech at 11025 KHz
-                    if(sound >= 0 && sound < MAXWAVE)
-                    {
-                        play_sound_pvf(capwaveindex[chrmodel[leader]][sound], PANMID, VOLMAX, 11025);
-                    }
-                }
+              send_rts_order( rtsx, rtsy, RTSMOVE, target );
+              sound = wldframe & 1;  // Move or MoveAlt
+              sound = chrwavespeech[leader][sound];
             }
-            pressed = bfalse;
+          }
+          else
+          {
+            if ( teamhatesteam[rtslocalteam][chrteam[target]] )
+            {
+              // Target is an enemy, so issue an attack order
+              send_rts_order( rtsx, rtsy, RTSATTACK, target );
+              sound = chrwavespeech[leader][SPEECHATTACK];
+            }
+            else
+            {
+              // Target is a friend, so issue an assist order
+              send_rts_order( rtsx, rtsy, RTSASSIST, target );
+              sound = chrwavespeech[leader][SPEECHASSIST];
+            }
+          }
+          // Do unit speech at 11025 KHz
+          if ( sound >= 0 && sound < MAXWAVE )
+          {
+            play_sound_pvf( capwaveindex[chrmodel[leader]][sound], PANMID, VOLMAX, 11025 );
+          }
         }
-
-
-        // Moving the select point
-        rtssttx = cursorx+5;
-        rtsstty = cursory+7;
-        rtsendx = cursorx+5;
-        rtsendy = cursory+7;
+      }
+      pressed = bfalse;
     }
 
-    // GAC - Don't forget to BeginText() and EndText();
-    BeginText();
-    draw_one_font(11, cursorx-5, cursory-7);
-    EndText ();
+
+    // Moving the select point
+    rtssttx = cursorx + 5;
+    rtsstty = cursory + 7;
+    rtsendx = cursorx + 5;
+    rtsendy = cursory + 7;
+  }
+
+  // GAC - Don't forget to BeginText() and EndText();
+  BeginText();
+  draw_one_font( 11, cursorx - 5, cursory - 7 );
+  EndText ();
 }
 
 
 //--------------------------------------------------------------------------------------------
-void build_select(float tlx, float tly, float brx, float bry, Uint8 team)
+void build_select( float tlx, float tly, float brx, float bry, Uint8 team )
 {
-    // ZZ> This function checks which characters are in the selection rectangle
-/*PORT
-  D3DLVERTEX v[MAXPRT];
-    D3DTLVERTEX vt[MAXPRT];
-    int numbertocheck, character, cnt, first, sound;
+  // ZZ> This function checks which characters are in the selection rectangle
+  /*PORT
+    D3DLVERTEX v[MAXPRT];
+      D3DTLVERTEX vt[MAXPRT];
+      int numbertocheck, character, cnt, first, sound;
 
 
-    // Unselect old ones
-    clear_select();
+      // Unselect old ones
+      clear_select();
 
 
-    // Figure out who to check
-    numbertocheck = 0;
-    cnt = 0;
-    while(cnt < MAXCHR)
-    {
-        if(chrteam[cnt] == team && chron[cnt] && !chrinpack[cnt])
-        {
-            v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
-            v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
-            v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
-            v[numbertocheck].color = cnt;  // Store an index in the color slot...
-            v[numbertocheck].dwReserved = 0;
-            numbertocheck++;
-        }
-        cnt++;
-    }
+      // Figure out who to check
+      numbertocheck = 0;
+      cnt = 0;
+      while(cnt < MAXCHR)
+      {
+          if(chrteam[cnt] == team && chron[cnt] && !chrinpack[cnt])
+          {
+              v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
+              v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
+              v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
+              v[numbertocheck].color = cnt;  // Store an index in the color slot...
+              v[numbertocheck].dwReserved = 0;
+              numbertocheck++;
+          }
+          cnt++;
+      }
 
 
-    // Figure out where the points go onscreen
-    lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
-    transform_vertices(numbertocheck, v, vt);
+      // Figure out where the points go onscreen
+      lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
+      transform_vertices(numbertocheck, v, vt);
 
 
-    first = btrue;
-    cnt = 0;
-    while(cnt < numbertocheck)
-    {
-        // Only check if in front of camera
-        if(vt[cnt].dvRHW > 0)
-        {
-            // Check the rectangle
-            if(vt[cnt].dvSX > tlx && vt[cnt].dvSX < brx)
-            {
-                if(vt[cnt].dvSY > tly && vt[cnt].dvSY < bry)
-                {
-                    // Select the character
-                    character = v[cnt].color;
-                    add_select(character);
-                    if(first)
-                    {
-                        // Play the select speech for the first one picked
-                        sound = chrwavespeech[character][SPEECHSELECT];
-                        if(sound >= 0 && sound < MAXWAVE)
-                        play_sound_pvf(capwaveindex[chrmodel[character]][sound], PANMID, VOLMAX, 11025);
-                        first = bfalse;
-                    }
-                }
-            }
-        }
-        cnt++;
-    }
-*/
+      first = btrue;
+      cnt = 0;
+      while(cnt < numbertocheck)
+      {
+          // Only check if in front of camera
+          if(vt[cnt].dvRHW > 0)
+          {
+              // Check the rectangle
+              if(vt[cnt].dvSX > tlx && vt[cnt].dvSX < brx)
+              {
+                  if(vt[cnt].dvSY > tly && vt[cnt].dvSY < bry)
+                  {
+                      // Select the character
+                      character = v[cnt].color;
+                      add_select(character);
+                      if(first)
+                      {
+                          // Play the select speech for the first one picked
+                          sound = chrwavespeech[character][SPEECHSELECT];
+                          if(sound >= 0 && sound < MAXWAVE)
+                          play_sound_pvf(capwaveindex[chrmodel[character]][sound], PANMID, VOLMAX, 11025);
+                          first = bfalse;
+                      }
+                  }
+              }
+          }
+          cnt++;
+      }
+  */
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 build_select_target(float tlx, float tly, float brx, float bry, Uint8 team)
+Uint16 build_select_target( float tlx, float tly, float brx, float bry, Uint8 team )
 {
-    // ZZ> This function checks which characters are in the selection rectangle,
-    //     and returns the first one found
-/*PORT
-  D3DLVERTEX v[MAXPRT];
-    D3DTLVERTEX vt[MAXPRT];
-    int numbertocheck, character, cnt;
+  // ZZ> This function checks which characters are in the selection rectangle,
+  //     and returns the first one found
+  /*PORT
+    D3DLVERTEX v[MAXPRT];
+      D3DTLVERTEX vt[MAXPRT];
+      int numbertocheck, character, cnt;
 
 
-    // Figure out who to check
-    numbertocheck = 0;
-    // Add enemies first
-    cnt = 0;
-    while(cnt < MAXCHR)
-    {
-        if(teamhatesteam[team][chrteam[cnt]] && chron[cnt] && !chrinpack[cnt])
-        {
-            v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
-            v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
-            v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
-            v[numbertocheck].color = cnt;  // Store an index in the color slot...
-            v[numbertocheck].dwReserved = 0;
-            numbertocheck++;
-        }
-        cnt++;
-    }
-    // Add allies next
-    cnt = 0;
-    while(cnt < MAXCHR)
-    {
-        if(teamhatesteam[team][chrteam[cnt]] == bfalse && chron[cnt] && !chrinpack[cnt])
-        {
-            v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
-            v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
-            v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
-            v[numbertocheck].color = cnt;  // Store an index in the color slot...
-            v[numbertocheck].dwReserved = 0;
-            numbertocheck++;
-        }
-        cnt++;
-    }
+      // Figure out who to check
+      numbertocheck = 0;
+      // Add enemies first
+      cnt = 0;
+      while(cnt < MAXCHR)
+      {
+          if(teamhatesteam[team][chrteam[cnt]] && chron[cnt] && !chrinpack[cnt])
+          {
+              v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
+              v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
+              v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
+              v[numbertocheck].color = cnt;  // Store an index in the color slot...
+              v[numbertocheck].dwReserved = 0;
+              numbertocheck++;
+          }
+          cnt++;
+      }
+      // Add allies next
+      cnt = 0;
+      while(cnt < MAXCHR)
+      {
+          if(teamhatesteam[team][chrteam[cnt]] == bfalse && chron[cnt] && !chrinpack[cnt])
+          {
+              v[numbertocheck].x = (D3DVALUE) chrxpos[cnt];
+              v[numbertocheck].y = (D3DVALUE) chrypos[cnt];
+              v[numbertocheck].z = (D3DVALUE) chrzpos[cnt];
+              v[numbertocheck].color = cnt;  // Store an index in the color slot...
+              v[numbertocheck].dwReserved = 0;
+              numbertocheck++;
+          }
+          cnt++;
+      }
 
 
-    // Figure out where the points go onscreen
-    lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
-    transform_vertices(numbertocheck, v, vt);
+      // Figure out where the points go onscreen
+      lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
+      transform_vertices(numbertocheck, v, vt);
 
 
-    cnt = 0;
-    while(cnt < numbertocheck)
-    {
-        // Only check if in front of camera
-        if(vt[cnt].dvRHW > 0)
-        {
-            // Check the rectangle
-            if(vt[cnt].dvSX > tlx && vt[cnt].dvSX < brx)
-            {
-                if(vt[cnt].dvSY > tly && vt[cnt].dvSY < bry)
-                {
-                    // Select the character
-                    character = v[cnt].color;
-                    return character;
-                }
-            }
-        }
-        cnt++;
-    }
-    return MAXCHR;
-*/
-return 0;
+      cnt = 0;
+      while(cnt < numbertocheck)
+      {
+          // Only check if in front of camera
+          if(vt[cnt].dvRHW > 0)
+          {
+              // Check the rectangle
+              if(vt[cnt].dvSX > tlx && vt[cnt].dvSX < brx)
+              {
+                  if(vt[cnt].dvSY > tly && vt[cnt].dvSY < bry)
+                  {
+                      // Select the character
+                      character = v[cnt].color;
+                      return character;
+                  }
+              }
+          }
+          cnt++;
+      }
+      return MAXCHR;
+  */
+  return 0;
 }
 
 //--------------------------------------------------------------------------------------------
 void move_rtsxy()
 {
-    // ZZ> This function iteratively transforms the cursor back to world coordinates
-/*PORT
-  D3DLVERTEX v[1];
-    D3DTLVERTEX vt[1];
-    int numbertocheck, x, y, fan;
-    float sin, cos, trailrate, level;
+  // ZZ> This function iteratively transforms the cursor back to world coordinates
+  /*PORT
+    D3DLVERTEX v[1];
+      D3DTLVERTEX vt[1];
+      int numbertocheck, x, y, fan;
+      float sin, cos, trailrate, level;
 
 
 
-    // Figure out where the rtsxy is at on the screen
-    x = rtsx;
-    y = rtsy;
-    fan = meshfanstart[y>>7]+(x>>7);
-    level = get_level(rtsx, rtsy, fan, bfalse);
-    v[0].x = (D3DVALUE) rtsx;
-    v[0].y = (D3DVALUE) rtsy;
-    v[0].z = level;
-    v[0].color = 0;
-    v[0].dwReserved = 0;
-    numbertocheck = 1;
+      // Figure out where the rtsxy is at on the screen
+      x = rtsx;
+      y = rtsy;
+      fan = meshfanstart[y>>7]+(x>>7);
+      level = get_level(rtsx, rtsy, fan, bfalse);
+      v[0].x = (D3DVALUE) rtsx;
+      v[0].y = (D3DVALUE) rtsy;
+      v[0].z = level;
+      v[0].color = 0;
+      v[0].dwReserved = 0;
+      numbertocheck = 1;
 
 
-    // Figure out where the points go onscreen
-    lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
-    transform_vertices(numbertocheck, v, vt);
+      // Figure out where the points go onscreen
+      lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &mWorld);
+      transform_vertices(numbertocheck, v, vt);
 
 
-    if(vt[0].dvRHW < 0)
-    {
-        // Move it to camtrackxy if behind the camera
-        rtsx = camtrackx;
-        rtsy = camtracky;
-    }
-    else
-    {
-        // Move it to closer to the onscreen cursor
-        trailrate = ABS(cursorx-vt[0].dvSX) + ABS(cursory-vt[0].dvSY);
-        trailrate *= rtstrailrate;
-        sin = turntosin[camturnleftrightshort>>2]*trailrate;
-        cos = turntosin[((camturnleftrightshort>>2)+4096)&16383]*trailrate;
-        if(vt[0].dvSX < cursorx)
-        {
-            rtsx += cos;
-            rtsy -= sin;
-        }
-        else
-        {
-            rtsx -= cos;
-            rtsy += sin;
-        }
+      if(vt[0].dvRHW < 0)
+      {
+          // Move it to camtrackxy if behind the camera
+          rtsx = camtrackx;
+          rtsy = camtracky;
+      }
+      else
+      {
+          // Move it to closer to the onscreen cursor
+          trailrate = ABS(cursorx-vt[0].dvSX) + ABS(cursory-vt[0].dvSY);
+          trailrate *= rtstrailrate;
+          sin = turntosin[camturnleftrightshort>>2]*trailrate;
+          cos = turntosin[((camturnleftrightshort>>2)+4096)&16383]*trailrate;
+          if(vt[0].dvSX < cursorx)
+          {
+              rtsx += cos;
+              rtsy -= sin;
+          }
+          else
+          {
+              rtsx -= cos;
+              rtsy += sin;
+          }
 
 
 
-        if(vt[0].dvSY < cursory)
-        {
-            rtsx += sin;
-            rtsy += cos;
-        }
-        else
-        {
-            rtsx -= sin;
-            rtsy -= cos;
-        }
-    }
-*/
+          if(vt[0].dvSY < cursory)
+          {
+              rtsx += sin;
+              rtsy += cos;
+          }
+          else
+          {
+              rtsx -= sin;
+              rtsy -= cos;
+          }
+      }
+  */
 }
 
 //--------------------------------------------------------------------------------------------
 void reset_press()
 {
-    // ZZ> This function resets key press information
-/*PORT
-    int cnt;
-    cnt = 0;
-    while(cnt < 256)
-    {
-        keypress[cnt] = bfalse;
-        cnt++;
-    }
-*/
+  // ZZ> This function resets key press information
+  /*PORT
+      int cnt;
+      cnt = 0;
+      while(cnt < 256)
+      {
+          keypress[cnt] = bfalse;
+          cnt++;
+      }
+  */
 }
 
 //--------------------------------------------------------------------------------------------

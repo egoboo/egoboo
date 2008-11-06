@@ -320,6 +320,9 @@
 				RelativePath=".\egoboo_config.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_endian.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_math.h">
 			</File>
 			<File

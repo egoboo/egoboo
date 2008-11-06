@@ -26,7 +26,7 @@ float kMd2Normals[][3] =
 {
 #include "id_normals.c"
   ,
-  {0,0,0}    // Spiky Mace
+  {0, 0, 0}  // Spiky Mace
 };
 
 // TEMPORARY: Global list of Md2Models.  It's declared in egoboo.h, which

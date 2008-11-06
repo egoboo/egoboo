@@ -152,7 +152,7 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
   // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
   int cnt;
 
-  if ( plavalid[player] == bfalse )
+  if ( !plavalid[player] )
   {
     chrisplayer[character] = btrue;
     plaindex[player] = character;
@@ -210,8 +210,8 @@ void packet_addUnsignedByte( Uint8 uc )
   Uint8* ucp;
   ucp = ( Uint8* )( &packetbuffer[packethead] );
   *ucp = uc;
-  packethead+=1;
-  packetsize+=1;
+  packethead += 1;
+  packetsize += 1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -221,8 +221,8 @@ void packet_addSignedByte( Sint8 sc )
   signed char* scp;
   scp = ( signed char* )( &packetbuffer[packethead] );
   *scp = sc;
-  packethead+=1;
-  packetsize+=1;
+  packethead += 1;
+  packetsize += 1;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -233,8 +233,8 @@ void packet_addUnsignedShort( Uint16 us )
   usp = ( Uint16* )( &packetbuffer[packethead] );
 
   *usp = ENET_HOST_TO_NET_16( us );
-  packethead+=2;
-  packetsize+=2;
+  packethead += 2;
+  packetsize += 2;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -246,8 +246,8 @@ void packet_addSignedShort( Sint16 ss )
 
   *ssp = ENET_HOST_TO_NET_16( ss );
 
-  packethead+=2;
-  packetsize+=2;
+  packethead += 2;
+  packetsize += 2;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -259,8 +259,8 @@ void packet_addUnsignedInt( Uint32 ui )
 
   *uip = ENET_HOST_TO_NET_32( ui );
 
-  packethead+=4;
-  packetsize+=4;
+  packethead += 4;
+  packetsize += 4;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -272,8 +272,8 @@ void packet_addSignedInt( Sint32 si )
 
   *sip = ENET_HOST_TO_NET_32( si );
 
-  packethead+=4;
-  packetsize+=4;
+  packethead += 4;
+  packetsize += 4;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -291,9 +291,9 @@ void packet_addString( char *string )
   {
     cTmp = string[cnt];
     *cp = cTmp;
-    cp+=1;
-    packethead+=1;
-    packetsize+=1;
+    cp += 1;
+    packethead += 1;
+    packetsize += 1;
     cnt++;
   }
 }
@@ -362,7 +362,7 @@ Uint16 packet_readUnsignedShort()
 
   us = ENET_NET_TO_HOST_16( *usp );
 
-  net_readLocation+=2;
+  net_readLocation += 2;
   return us;
 }
 
@@ -376,7 +376,7 @@ Sint16 packet_readSignedShort()
 
   ss = ENET_NET_TO_HOST_16( *ssp );
 
-  net_readLocation+=2;
+  net_readLocation += 2;
   return ss;
 }
 
@@ -390,7 +390,7 @@ Uint32 packet_readUnsignedInt()
 
   ui = ENET_NET_TO_HOST_32( *uip );
 
-  net_readLocation+=4;
+  net_readLocation += 4;
   return ui;
 }
 
@@ -404,7 +404,7 @@ Sint32 packet_readSignedInt()
 
   si = ENET_NET_TO_HOST_32( *sip );
 
-  net_readLocation+=4;
+  net_readLocation += 4;
   return si;
 }
 
@@ -846,22 +846,22 @@ void cl_talkToHost()
   if ( sdlkeybuffer[SDLK_SPACE]
        && ( alllocalpladead || respawnanytime )
        && respawnvalid
-       && rtscontrol == bfalse
-       && netmessagemode == bfalse )
+       && !rtscontrol
+       && !netmessagemode )
   {
     player = 0;
     while ( player < MAXPLAYER )
     {
       if ( plavalid[player] && pladevice[player] != INPUTNONE )
       {
-        plalatchbutton[player]|=LATCHBUTTONRESPAWN;  // Press the respawn button...
+        plalatchbutton[player] |= LATCHBUTTONRESPAWN;  // Press the respawn button...
       }
       player++;
     }
   }
 
   // Start talkin'
-  if ( networkon && hostactive==bfalse && rtscontrol == bfalse )
+  if ( networkon && !hostactive && !rtscontrol )
   {
     net_startNewPacket();
     packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
@@ -893,9 +893,9 @@ void sv_talkToRemotes()
 
   if ( wldframe > STARTTALK )
   {
-    if ( hostactive && rtscontrol == bfalse )
+    if ( hostactive && !rtscontrol )
     {
-      time = wldframe+lag;
+      time = wldframe + lag;
 
       if ( networkon )
       {
@@ -925,22 +925,22 @@ void sv_talkToRemotes()
       }
       else
       {
-        time = wldframe+1;
+        time = wldframe + 1;
       }
 
 
       // Now pretend the host got the packet...
-      time = time&LAGAND;
+      time = time & LAGAND;
       player = 0;
       while ( player < MAXPLAYER )
       {
         if ( plavalid[player] )
         {
           platimelatchbutton[player][time] = plalatchbutton[player];
-          sTmp = plalatchx[player]*SHORTLATCH;
-          platimelatchx[player][time] = sTmp/SHORTLATCH;
-          sTmp = plalatchy[player]*SHORTLATCH;
-          platimelatchy[player][time] = sTmp/SHORTLATCH;
+          sTmp = plalatchx[player] * SHORTLATCH;
+          platimelatchx[player][time] = sTmp / SHORTLATCH;
+          sTmp = plalatchy[player] * SHORTLATCH;
+          platimelatchy[player][time] = sTmp / SHORTLATCH;
         }
         player++;
       }
@@ -1330,7 +1330,7 @@ void net_handlePacket( ENetEvent *event )
       if ( !hostactive )
       {
         stamp = packet_readUnsignedInt();
-        time = stamp&LAGAND;
+        time = stamp & LAGAND;
         if ( nexttimestamp == -1 )
         {
           nexttimestamp = stamp;
@@ -1365,7 +1365,7 @@ void net_handlePacket( ENetEvent *event )
             platimelatchx[player][time] = packet_readSignedShort() / SHORTLATCH;
             platimelatchy[player][time] = packet_readSignedShort() / SHORTLATCH;
           }
-          nexttimestamp = stamp+1;
+          nexttimestamp = stamp + 1;
         }
       }
       break;
@@ -1427,7 +1427,7 @@ void unbuffer_player_latches()
 
 
   // Copy the latches
-  time = wldframe&LAGAND;
+  time = wldframe & LAGAND;
   cnt = 0;
   while ( cnt < MAXPLAYER )
   {
@@ -1440,9 +1440,9 @@ void unbuffer_player_latches()
       chrlatchbutton[character] = platimelatchbutton[cnt][time];
 
       // Let players respawn
-      if (( chrlatchbutton[character] & LATCHBUTTONRESPAWN ) && respawnvalid )
+      if ( ( chrlatchbutton[character] & LATCHBUTTONRESPAWN ) && respawnvalid )
       {
-        if ( chralive[character] == bfalse )
+        if ( !chralive[character] )
         {
           respawn_character( character );
           teamleader[chrteam[character]] = character;
@@ -1727,7 +1727,7 @@ void net_updateFileTransfers()
           strcpy( p, state->destName );
           p += nameLen;
 
-          networkSize = ENET_HOST_TO_NET_32(( unsigned long )fileSize );
+          networkSize = ENET_HOST_TO_NET_32( ( unsigned long )fileSize );
           *( size_t* )p = networkSize;
           p += 4;
 

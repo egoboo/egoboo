@@ -102,7 +102,8 @@ void clock_setFrameHistoryWindow( int size )
     less = ( clk_frameHistoryWindow < oldSize ) ? clk_frameHistoryWindow : oldSize;
     memcpy( history, clk_frameHistory, less );
     free( clk_frameHistory );
-  } else
+  }
+  else
   {
     memset( history, 0, sizeof( double ) * clk_frameHistoryWindow );
   }
@@ -149,7 +150,8 @@ double clock_getExactLastFrameDuration()
   if ( clk_timeSource )
   {
     sourceTime = clk_timeSource();
-  } else
+  }
+  else
   {
     sourceTime = 0;
   }

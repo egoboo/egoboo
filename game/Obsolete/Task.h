@@ -21,12 +21,12 @@
 #ifndef egoboo_Task_h
 #define egoboo_Task_h
 
-typedef void (*TaskCallback)(float timeElapsed);
+typedef void ( *TaskCallback )( float timeElapsed );
 
-void task_register(const char *taskName, float timeInterval, TaskCallback f);
-void task_remove(const char *taskName);
-void task_pause(const char *taskName);
-void task_play(const char *taskName);
+void task_register( const char *taskName, float timeInterval, TaskCallback f );
+void task_remove( const char *taskName );
+void task_pause( const char *taskName );
+void task_play( const char *taskName );
 
 void task_updateAllTasks();
 

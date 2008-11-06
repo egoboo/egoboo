@@ -225,7 +225,7 @@ int doMainMenu( float deltaTime )
     case MM_Entering:
       // do buttons sliding in animation, and background fading in
       // background
-      glColor4f( 1, 1, 1, 1 -SlidyButtonState.lerp );
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
 
       // "Copyright" text
@@ -779,7 +779,7 @@ int doOptions( float deltaTime )
     case MM_Entering:
       // do buttons sliding in animation, and background fading in
       // background
-      glColor4f( 1, 1, 1, 1 -SlidyButtonState.lerp );
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
@@ -894,7 +894,7 @@ int doAudioOptions( float deltaTime )
     case MM_Entering:
       // do buttons sliding in animation, and background fading in
       // background
-      glColor4f( 1, 1, 1, 1 -SlidyButtonState.lerp );
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
@@ -928,9 +928,9 @@ int doAudioOptions( float deltaTime )
       glColor4f( 1, 1, 1, 1 );
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
 
-      fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h-270, 0, 0, 20 );
+      fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h - 270, 0, 0, 20 );
       // Buttons
-      if ( ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, displaySurface->h-270, 100, 30 ) == 1 )
+      if ( ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, displaySurface->h - 270, 100, 30 ) == 1 )
       {
         if ( soundvalid )
         {
@@ -944,15 +944,15 @@ int doAudioOptions( float deltaTime )
         }
       }
 
-      fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, displaySurface->h-235, 0, 0, 20 );
-      if ( ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h-235, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, displaySurface->h - 235, 0, 0, 20 );
+      if ( ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) == 1 )
       {
         sprintf( Csoundvolume, "%i", soundvolume );
         audioOptionsButtons[1] = Csoundvolume;
       }
 
-      fnt_drawTextBox( menuFont, "Music:", buttonLeft, displaySurface->h-165, 0, 0, 20 );
-      if ( ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, displaySurface->h-165, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Music:", buttonLeft, displaySurface->h - 165, 0, 0, 20 );
+      if ( ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, displaySurface->h - 165, 100, 30 ) == 1 )
       {
         if ( musicvalid )
         {
@@ -966,15 +966,15 @@ int doAudioOptions( float deltaTime )
         }
       }
 
-      fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, displaySurface->h-130, 0, 0, 20 );
-      if ( ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h-130, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, displaySurface->h - 130, 0, 0, 20 );
+      if ( ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) == 1 )
       {
         sprintf( Cmusicvolume, "%i", musicvolume );
         audioOptionsButtons[3] = Cmusicvolume;
       }
 
-      fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, displaySurface->h-200, 0, 0, 20 );
-      if ( ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, displaySurface->h-200, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
+      if ( ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, displaySurface->h - 200, 100, 30 ) == 1 )
       {
         switch ( maxsoundchannel )
         {
@@ -1011,8 +1011,8 @@ int doAudioOptions( float deltaTime )
         audioOptionsButtons[4] = Cmaxsoundchannel;
       }
 
-      fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, displaySurface->h-165, 0, 0, 20 );
-      if ( ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, displaySurface->h-165, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, displaySurface->h - 165, 0, 0, 20 );
+      if ( ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, displaySurface->h - 165, 100, 30 ) == 1 )
       {
         switch ( buffersize )
         {
@@ -1044,7 +1044,7 @@ int doAudioOptions( float deltaTime )
         audioOptionsButtons[5] = Cbuffersize;
       }
 
-      if ( ui_doButton( 7, audioOptionsButtons[6], buttonLeft, displaySurface->h-60, 200, 30 ) == 1 )
+      if ( ui_doButton( 7, audioOptionsButtons[6], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
       {
         // save settings and go back
         save_settings();
@@ -1104,7 +1104,7 @@ int doVideoOptions( float deltaTime )
     case MM_Entering:
       // do buttons sliding in animation, and background fading in
       // background
-      glColor4f( 1, 1, 1, 1 -SlidyButtonState.lerp );
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
@@ -1174,7 +1174,7 @@ int doVideoOptions( float deltaTime )
 
 
       sprintf( Cmaxmessage, "%i", maxmessage );
-      if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE-1;
+      if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
       if ( maxmessage == 0 ) sprintf( Cmaxmessage, "None" );           // Set to default
       videoOptionsButtons[11] = Cmaxmessage;
 
@@ -1249,10 +1249,10 @@ int doVideoOptions( float deltaTime )
       ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
 
       // Antialiasing Button
-      fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h-215, 0, 0, 20 );
-      if ( ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h-215, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
+      if ( ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h - 215, 100, 30 ) == 1 )
       {
-        if ( antialiasing == btrue )
+        if ( antialiasing )
         {
           videoOptionsButtons[0] = "Off";
           antialiasing = bfalse;
@@ -1265,8 +1265,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Color depth
-      fnt_drawTextBox( menuFont, "Texture Quality:", buttonLeft, displaySurface->h-180, 0, 0, 20 );
-      if ( ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h-180, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Texture Quality:", buttonLeft, displaySurface->h - 180, 0, 0, 20 );
+      if ( ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h - 180, 100, 30 ) == 1 )
       {
         switch ( scrd )
         {
@@ -1293,8 +1293,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Dithering and Gourad Shading
-      fnt_drawTextBox( menuFont, "Fast and Ugly:", buttonLeft, displaySurface->h-145, 0, 0, 20 );
-      if ( ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h-145, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Fast and Ugly:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
+      if ( ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) == 1 )
       {
         if ( dither && GL_FLAT == shading )
         {
@@ -1311,10 +1311,10 @@ int doVideoOptions( float deltaTime )
       }
 
       // Fullscreen
-      fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, displaySurface->h-110, 0, 0, 20 );
-      if ( ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, displaySurface->h-110, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, displaySurface->h - 110, 0, 0, 20 );
+      if ( ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, displaySurface->h - 110, 100, 30 ) == 1 )
       {
-        if ( fullscreen == btrue )
+        if ( fullscreen )
         {
           videoOptionsButtons[3] = "False";
           fullscreen = bfalse;
@@ -1327,10 +1327,10 @@ int doVideoOptions( float deltaTime )
       }
 
       // Reflection
-      fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, displaySurface->h-250, 0, 0, 20 );
-      if ( ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h-250, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, displaySurface->h - 250, 0, 0, 20 );
+      if ( ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h - 250, 100, 30 ) == 1 )
       {
-        if ( refon && reffadeor==0 && zreflect )
+        if ( refon && reffadeor == 0 && zreflect )
         {
           refon = bfalse;
           reffadeor = bfalse;
@@ -1339,7 +1339,7 @@ int doVideoOptions( float deltaTime )
         }
         else
         {
-          if ( refon && reffadeor==255 && !zreflect )
+          if ( refon && reffadeor == 255 && !zreflect )
           {
             videoOptionsButtons[4] = "Medium";
             reffadeor = 0;
@@ -1347,7 +1347,7 @@ int doVideoOptions( float deltaTime )
           }
           else
           {
-            if ( refon && reffadeor==0 && !zreflect )
+            if ( refon && reffadeor == 0 && !zreflect )
             {
               videoOptionsButtons[4] = "High";
               zreflect = btrue;
@@ -1364,8 +1364,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Texture Filtering
-      fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, displaySurface->h-285, 0, 0, 20 );
-      if ( ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, displaySurface->h-285, 130, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, displaySurface->h - 285, 0, 0, 20 );
+      if ( ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, displaySurface->h - 285, 130, 30 ) == 1 )
       {
         switch ( texturefilter )
         {
@@ -1398,8 +1398,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Shadows
-      fnt_drawTextBox( menuFont, "Shadows:", buttonLeft, displaySurface->h-320, 0, 0, 20 );
-      if ( ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, displaySurface->h-320, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Shadows:", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
+      if ( ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, displaySurface->h - 320, 100, 30 ) == 1 )
       {
         if ( shaon && !shasprite )
         {
@@ -1424,8 +1424,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Z bit
-      fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, displaySurface->h-320, 0, 0, 20 );
-      if ( ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, displaySurface->h-320, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
+      if ( ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, displaySurface->h - 320, 100, 30 ) == 1 )
       {
         switch ( scrz )
         {
@@ -1452,8 +1452,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Fog
-      fnt_drawTextBox( menuFont, "Fog Effects:", buttonLeft + 300, displaySurface->h-285, 0, 0, 20 );
-      if ( ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h-285, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Fog Effects:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
+      if ( ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) == 1 )
       {
         if ( fogallowed )
         {
@@ -1468,8 +1468,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Perspective correction and phong mapping
-      fnt_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, displaySurface->h-250, 0, 0, 20 );
-      if ( ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, displaySurface->h-250, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, displaySurface->h - 250, 0, 0, 20 );
+      if ( ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, displaySurface->h - 250, 100, 30 ) == 1 )
       {
         if ( phongon && perspective && overlayvalid && backgroundvalid )
         {
@@ -1504,8 +1504,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Water Quality
-      fnt_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, displaySurface->h-215, 0, 0, 20 );
-      if ( ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, displaySurface->h-215, 100, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, displaySurface->h - 215, 0, 0, 20 );
+      if ( ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, displaySurface->h - 215, 100, 30 ) == 1 )
       {
         if ( twolayerwateron )
         {
@@ -1520,8 +1520,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Text messages
-      fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, displaySurface->h-145, 0, 0, 20 );
-      if ( ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, displaySurface->h-145, 75, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, displaySurface->h - 145, 0, 0, 20 );
+      if ( ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, displaySurface->h - 145, 75, 30 ) == 1 )
       {
         if ( maxmessage != MAXMESSAGE )
         {
@@ -1539,8 +1539,8 @@ int doVideoOptions( float deltaTime )
       }
 
       // Screen Resolution
-      fnt_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, displaySurface->h-110, 0, 0, 20 );
-      if ( ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, displaySurface->h-110, 125, 30 ) == 1 )
+      fnt_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, displaySurface->h - 110, 0, 0, 20 );
+      if ( ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, displaySurface->h - 110, 125, 30 ) == 1 )
       {
         // TODO: add widescreen support
         switch ( scrx )
@@ -1572,7 +1572,7 @@ int doVideoOptions( float deltaTime )
       }
 
       // Save settings button
-      if ( ui_doButton( 14, videoOptionsButtons[13], buttonLeft, displaySurface->h-60, 200, 30 ) == 1 )
+      if ( ui_doButton( 14, videoOptionsButtons[13], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
       {
         menuChoice = 1;
         save_settings();
