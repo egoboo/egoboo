@@ -1,7 +1,4 @@
-/* Egoboo - Client.h
- * Basic skeleton for the client portion of a client-server architecture,
- * this is totally not in use yet.
- */
+#pragma once
 
 //********************************************************************************************
 //*
@@ -22,23 +19,18 @@
 //*
 //********************************************************************************************
 
-#ifndef egoboo_Client_h
-#define egoboo_Client_h
+#define FOV                             60          // Field of view
+#define CAMJOYTURN                      0.01f         // Joystick camera rotation
+#define CAMKEYTURN                      10          // Keyboard camera rotation
+#define FARTRACK            1200                    // For outside modules...
+#define EDGETRACK           800                     // Camtrack bounds
+#define TURNTIME 16              // Smooth turn
 
-typedef struct ClientState_t
-{
-  int dummy;
-}ClientState_t;
 
-// Globally accesible client state
-extern ClientState_t ClientState;
-
-int  cl_init();
-void cl_shutDown();
-void cl_frameStep();
-
-// Much more to come...
-
-// int  cl_connectToServer(...);
-// int  cl_loadModule(...);
-#endif // include guard
+// Multi cam
+#define MINZOOM                         500         // Camera distance
+#define MAXZOOM                         600         //
+#define MINZADD                         800         // Camera height
+#define MAXZADD                         1500  //1000        //
+#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+#define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)

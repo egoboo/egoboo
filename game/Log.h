@@ -16,20 +16,20 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #ifndef egoboo_Log_h
 #define egoboo_Log_h
 
 void log_init();
-void log_shutdown(void);
+void log_shutdown( void );
 
-void log_setLoggingLevel(int level);
+void log_setLoggingLevel( int level );
 
-void log_message(const char *format, ...);
-void log_info(const char *format, ...);
-void log_warning(const char *format, ...);
-void log_error(const char *format, ...);
+void log_message( const char *format, ... );
+void log_info( const char *format, ... );
+void log_warning( const char *format, ... );
+void log_error( const char *format, ... );
 
 #endif // include guard

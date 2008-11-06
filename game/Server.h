@@ -1,5 +1,5 @@
 /* Egoboo - Server.h
- * Basic skeleton for the server portion of a client-server architecture, 
+ * Basic skeleton for the server portion of a client-server architecture,
  * this is totally not in use yet.
  */
 
@@ -17,7 +17,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #ifndef egoboo_Server_h
@@ -27,8 +27,8 @@ typedef struct GameState GameState;
 
 typedef struct ServerState_t
 {
-	int dummy;
-//	GameState gameState;
+  int dummy;
+//  GameState gameState;
 }ServerState_t;
 
 // Globally accessible server state

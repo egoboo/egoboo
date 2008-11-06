@@ -314,8 +314,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Log.h" />
-		<Unit filename="Makefile" />
-		<Unit filename="Makefile.unix" />
 		<Unit filename="Md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -326,15 +324,6 @@
 		</Unit>
 		<Unit filename="Server.h" />
 		<Unit filename="System.h" />
-		<Unit filename="Task.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="Ticker.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="Timer.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="Ui.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -342,10 +331,11 @@
 		<Unit filename="camera.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="change.log" />
+		<Unit filename="camera.h" />
 		<Unit filename="char.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="char.h" />
 		<Unit filename="common-file.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -354,7 +344,6 @@
 		</Unit>
 		<Unit filename="configfile.h" />
 		<Unit filename="egoboo.h" />
-		<Unit filename="egoboo.sh" />
 		<Unit filename="egobooendian.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -366,15 +355,9 @@
 		<Unit filename="enchant.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="enet" />
 		<Unit filename="game.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="game_vs7.cbp" />
-		<Unit filename="game_vs7.depend" />
-		<Unit filename="game_vs7.layout" />
-		<Unit filename="game_vs7.vcproj" />
-		<Unit filename="game_vs9.vcproj" />
 		<Unit filename="gltexture.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -394,6 +377,7 @@
 		<Unit filename="id_md2.h" />
 		<Unit filename="id_normals.c">
 			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="input.c">
 			<Option compilerVar="CC" />
@@ -403,7 +387,10 @@
 			<Option target="Debug Blah-nix" />
 			<Option target="Release Blah-nix" />
 		</Unit>
-		<Unit filename="mac-file.m" />
+		<Unit filename="mac-file.m">
+			<Option target="Debug OsX" />
+			<Option target="Release OsX" />
+		</Unit>
 		<Unit filename="mathstuff.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -420,6 +407,7 @@
 		<Unit filename="particle.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="particle.h" />
 		<Unit filename="passage.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -427,6 +415,7 @@
 		<Unit filename="script.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="script.h" />
 		<Unit filename="sound.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -449,12 +438,13 @@
 		</Unit>
 		<Unit filename="win-file.c">
 			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="..\res\egoboo.ico">
 			<Option target="Debug Win32 - gcc" />
 			<Option target="Release Win32 - gcc" />
 			<Option target="Debug Win32 - msvc" />
 			<Option target="Release Win32 - msvc" />
 		</Unit>
-		<Unit filename="..\res\egoboo.ico" />
 		<Unit filename="..\res\egoboo.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="Debug Win32 - msvc" />

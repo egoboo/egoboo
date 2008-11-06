@@ -17,7 +17,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #ifndef egoboo_Font_h
@@ -31,14 +31,14 @@
 
 typedef struct Font Font;
 
-extern Font		*fnt_loadFont(const char *fileName, int pointSize);
-extern void		fnt_freeFont(Font *font);
+extern Font    *fnt_loadFont( const char *fileName, int pointSize );
+extern void    fnt_freeFont( Font *font );
 
-extern void		fnt_drawText(Font *font, int x, int y, const char *text);
-extern void		fnt_drawTextBox(Font *font, const char *text, int x, int y, int width, int height, int spacing);
+extern void    fnt_drawText( Font *font, int x, int y, const char *text );
+extern void    fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int height, int spacing );
 
 // Only works properly on a single line of text
-extern void		fnt_getTextSize(Font *font, const char *text, int *width, int *height);
+extern void    fnt_getTextSize( Font *font, const char *text, int *width, int *height );
 // Works for multiple-line strings, using the user-supplied spacing
-extern void		fnt_getTextBoxSize(Font *font, const char *text, int spacing, int *width, int *height);
+extern void    fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height );
 #endif // include guard

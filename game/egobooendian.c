@@ -15,7 +15,7 @@ float LoadFloatByteswapped( float *ptr )
   } u;
 
   u.f = *ptr;
-  u.i = SDL_Swap32(u.i);
+  u.i = SDL_Swap32( u.i );
 
   return u.f;
 }

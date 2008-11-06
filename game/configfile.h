@@ -16,7 +16,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 
@@ -30,36 +30,36 @@
 
 #include "egoboostrutil.h"
 
-#define MAX_CONFIG_SECTION_LENGTH		64
-#define MAX_CONFIG_KEY_LENGTH			64
-#define MAX_CONFIG_VALUE_LENGTH			256
-#define MAX_CONFIG_COMMENTARY_LENGTH	256
+#define MAX_CONFIG_SECTION_LENGTH    64
+#define MAX_CONFIG_KEY_LENGTH      64
+#define MAX_CONFIG_VALUE_LENGTH      256
+#define MAX_CONFIG_COMMENTARY_LENGTH  256
 
 typedef struct ConfigFileValue ConfigFileValue;
 typedef struct ConfigFileValue
-	{
-	char KeyName[MAX_CONFIG_KEY_LENGTH];
-	char *Value;
-	char *Commentary;
-	ConfigFileValue *NextValue;
-	} *ConfigFileValuePtr;
+{
+  char KeyName[MAX_CONFIG_KEY_LENGTH];
+  char *Value;
+  char *Commentary;
+  ConfigFileValue *NextValue;
+} *ConfigFileValuePtr;
 
 typedef struct ConfigFileSection ConfigFileSection;
 typedef struct ConfigFileSection
-	{
-	char SectionName[MAX_CONFIG_SECTION_LENGTH];
-	ConfigFileSection	*NextSection;
-	ConfigFileValuePtr	FirstValue;
-	} *ConfigFileSectionPtr;
+{
+  char SectionName[MAX_CONFIG_SECTION_LENGTH];
+  ConfigFileSection  *NextSection;
+  ConfigFileValuePtr  FirstValue;
+} *ConfigFileSectionPtr;
 
 typedef struct ConfigFile
-	{
-	FILE	*f;
-	ConfigFileSectionPtr	ConfigSectionList;
+{
+  FILE  *f;
+  ConfigFileSectionPtr  ConfigSectionList;
 
-	ConfigFileSectionPtr	CurrentSection;
-	ConfigFileValuePtr		CurrentValue;
-	} ConfigFile, *ConfigFilePtr;
+  ConfigFileSectionPtr  CurrentSection;
+  ConfigFileValuePtr    CurrentValue;
+} ConfigFile, *ConfigFilePtr;
 
 
 // util
@@ -73,11 +73,11 @@ extern Sint32 GetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, c
 extern Sint32 GetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, bool_t *pBool );
 extern Sint32 GetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, Sint32 *pInt );
 
-// 
+//
 extern Sint32 SetConfigValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, const char *pValue );
-extern Sint32 SetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pBool);
-extern Sint32 SetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pInt);
-extern Sint32 SetConfigFloatValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, float pFloat);
+extern Sint32 SetConfigBooleanValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pBool );
+extern Sint32 SetConfigIntValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, int pInt );
+extern Sint32 SetConfigFloatValue( ConfigFilePtr pConfigFile, const char *pSection, const char *pKey, float pFloat );
 
 //
 extern void CloseConfigFile( ConfigFilePtr pConfigFile );

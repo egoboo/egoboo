@@ -1,5 +1,5 @@
 /* Egoboo - System.h
- * Interface to operating system dependant stuff.  Currently only in use to 
+ * Interface to operating system dependant stuff.  Currently only in use to
  * use a higher performance timer than SDL provides on Windows machines.
  */
 
@@ -17,7 +17,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #ifndef egoboo_System_h

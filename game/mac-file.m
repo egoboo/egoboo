@@ -32,29 +32,29 @@ void fs_init()
 	// game data and save paths
 	NSString *tempDir, *homeDir, *gameDir, *workingDir;
 	const char *str;
-	
+
 	tempDir = NSTemporaryDirectory();
 	homeDir = NSHomeDirectory();
 	gameDir = [[NSBundle mainBundle] bundlePath];
 	workingDir = [[NSFileManager defaultManager] currentDirectoryPath];
 	fs_workingDir = workingDir;
-	
+
 	NSLog(@"fs_init: Temporary directory is %@", tempDir);
 	NSLog(@"fs_init: Home directory is %@", homeDir);
 	NSLog(@"fs_init: Game directory is %@", gameDir);
-	
+
 	str = [tempDir cString];
 	strcpy(fs_tempPath, str);
 	strcpy(fs_importPath, str);
 	strcat(fs_importPath, "import/");
-	
+
 	str = [homeDir cString];
 	strcpy(fs_savePath, str);
 	strcat(fs_savePath, "Documents/Egoboo/");
-	
+
 	str = [gameDir cString];
 	strcpy(fs_gamePath, str);
-	
+
 	[tempDir release];
 	[homeDir release];
 	[gameDir release];
@@ -84,11 +84,11 @@ const char *fs_getGameDirectory()
 int fs_createDirectory(const char *dirName)
 {
 	BOOL ok;
-	
+
 	NSString *path = [[NSString alloc] initWithCString: dirName];
 	ok = [[NSFileManager defaultManager] createDirectoryAtPath:path attributes:nil];
 	[path release];
-	
+
 	if (ok == YES) return 1;
 	return 0;
 }
@@ -99,7 +99,7 @@ int fs_removeDirectory(const char *dirName)
 	NSString *path = [[NSString alloc] initWithCString:dirName];
 	ok = [[NSFileManager defaultManager] removeFileAtPath:path handler:nil];
 	[path release];
-	
+
 	if (ok == YES) return 1;
 	return 0;
 }
@@ -114,7 +114,7 @@ void fs_deleteFile(const char *fileName)
 void fs_copyFile(const char *source, const char *dest)
 {
 	NSString *srcPath, *destPath;
-	
+
 	srcPath = [[NSString alloc] initWithCString:source];
 	destPath = [[NSString alloc] initWithCString:dest];
 
@@ -130,17 +130,17 @@ int fs_fileIsDirectory(const char *filename)
 	BOOL isDir = NO;
 	NSString *path;
 	NSFileManager *manager;
-	
+
 	path = [[NSString alloc] initWithCString: filename];
 	manager = [NSFileManager defaultManager];
-	
+
 	if ([manager fileExistsAtPath: path isDirectory: &isDir] && isDir)
 	{
 		return 1;
 	}
-	
+
 	return 0;
-	
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -152,12 +152,12 @@ const char *fs_findNextFile()
 {
 	NSString *fileName;
 	NSString *pathName;
-	
+
 	if(fs_dirEnum == nil)
 	{
 		return NULL;
 	}
-	
+
 	while (fileName = [fs_dirEnum nextObject] )
 	{
 		// Also, don't go down directories recursively.
@@ -167,7 +167,7 @@ const char *fs_findNextFile()
 			[fs_dirEnum skipDescendents];
 		}
 		[pathName release];
-		
+
 		if(fs_dirEnumExtension != nil)
 		{
 			if ([[fileName pathExtension] isEqualToString: fs_dirEnumExtension])
@@ -179,7 +179,7 @@ const char *fs_findNextFile()
 			return [fileName cString];
 		}
 	}
-	
+
 	return NULL;
 }
 
@@ -191,13 +191,13 @@ void fs_findClose()
 		[fs_dirEnum release];
 		fs_dirEnum = nil;
 	}
-	
+
 	if (fs_dirEnumPath != nil)
 	{
 		[fs_dirEnumPath release];
 		fs_dirEnumPath = nil;
 	}
-	
+
 	if (fs_dirEnumExtension != nil)
 	{
 		[fs_dirEnumExtension release];
@@ -211,12 +211,12 @@ void fs_findClose()
 const char *fs_findFirstFile(const char *path, const char *extension)
 {
 	NSString *searchPath;
-	
+
 	if(fs_dirEnum != nil)
 	{
 		fs_findClose();
 	}
-	
+
 	// If the path given is a relative one, we need to derive the full path
 	// for it by appending the current working directory
 	if(path[0] != '/')
@@ -225,23 +225,23 @@ const char *fs_findFirstFile(const char *path, const char *extension)
 	} else
 	{
 		searchPath = [NSString stringWithCString: path];
-	}		
-	
+	}
+
 	fs_dirEnum = [[NSFileManager defaultManager] enumeratorAtPath: searchPath];
-	
-	
+
+
 	if(extension != NULL)
 	{
 		fs_dirEnumExtension = [NSString stringWithCString: extension];
 	}
-	
+
 	fs_dirEnumPath = searchPath;
-	
+
 	if(fs_dirEnum == nil)
 	{
 		return NULL;
 	}
-	
+
 	return fs_findNextFile();
 }
 
@@ -257,10 +257,10 @@ float LoadFloatByteswapped( float *ptr )
 	int i;
 	float *fptr;
 	int *iptr = (int*)ptr;
-	
+
 	i = *iptr;
 	i = SDL_Swap32(i);
-	
+
 	fptr = (float*)(&i);
 	return *fptr;
 }
@@ -283,9 +283,4 @@ void sys_shutdown()
 
 void sys_frameStep()
 {
-}
-
-int max(int a, int b)
-{
-	return (a >  b ? a : b);
 }

@@ -17,7 +17,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #include "Font.h"
@@ -28,185 +28,173 @@
 #include <SDL_opengl.h>
 #include <SDL_ttf.h>
 
-#ifndef ABS
-#define ABS(X)  (((X) > 0) ? (X) : -(X))
-#endif
-
-#ifndef MIN
-#define MIN(x, y)  (((x) > (y)) ? (y) : (x))
-#endif
-
-#ifndef MAX
-#define MAX(x, y)  (((x) > (y)) ? (x) : (y))
-#endif
-
 struct Font
 {
-	TTF_Font *ttfFont;
+  TTF_Font *ttfFont;
 
-	GLuint texture;
-	GLfloat texCoords[4];
+  GLuint texture;
+  GLfloat texCoords[4];
 };
 
 // The next two functions are borrowed from the gl_font.c test program from SDL_ttf
-static int powerOfTwo(int input)
+static int powerOfTwo( int input )
 {
-	int value = 1;
+  int value = 1;
 
-	while (value < input)
-	{
-		value <<= 1;
-	}
-	return value;
+  while ( value < input )
+  {
+    value <<= 1;
+  }
+  return value;
 }
 
-int copySurfaceToTexture(SDL_Surface *surface, GLuint texture, GLfloat *texCoords)
+int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoords )
 {
-	int w, h;
-	SDL_Surface *image;
-	SDL_Rect area;
-	Uint32 saved_flags;
-	Uint8 saved_alpha;
+  int w, h;
+  SDL_Surface *image;
+  SDL_Rect area;
+  Uint32  saved_flags;
+  Uint8  saved_alpha;
 
-	// Use the surface width & height expanded to the next powers of two
-	w = powerOfTwo(surface->w);
-	h = powerOfTwo(surface->h);
-	texCoords[0] = 0.0f;
-	texCoords[1] = 0.0f;
-	texCoords[2] = (GLfloat)surface->w / w;
-	texCoords[3] = (GLfloat)surface->h / h;
+  // Use the surface width & height expanded to the next powers of two
+  w = powerOfTwo( surface->w );
+  h = powerOfTwo( surface->h );
+  texCoords[0] = 0.0f;
+  texCoords[1] = 0.0f;
+  texCoords[2] = ( GLfloat )surface->w / w;
+  texCoords[3] = ( GLfloat )surface->h / h;
 
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-	image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
+  image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000 );
 #else
-	image = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+  image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff );
 #endif
 
-	if(image == NULL)
-	{
-		return 0;
-	}
+  if ( image == NULL )
+  {
+    return 0;
+  }
 
-	// Save the alpha blending attributes
-	saved_flags = surface->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-	saved_alpha = surface->format->alpha;
-	if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA )
-	{
-		SDL_SetAlpha(surface, 0, 0);
-	}
+  // Save the alpha blending attributes
+  saved_flags = surface->flags&( SDL_SRCALPHA|SDL_RLEACCELOK );
+  saved_alpha = surface->format->alpha;
+  if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
+  {
+    SDL_SetAlpha( surface, 0, 0 );
+  }
 
-	// Copy the surface into the texture image
-	area.x = 0;
-	area.y = 0;
-	area.w = surface->w;
-	area.h = surface->h;
-	SDL_BlitSurface(surface, &area, image, &area);
+  // Copy the surface into the texture image
+  area.x = 0;
+  area.y = 0;
+  area.w = surface->w;
+  area.h = surface->h;
+  SDL_BlitSurface( surface, &area, image, &area );
 
-	// Restore the blending attributes
-	if ( (saved_flags & SDL_SRCALPHA) == SDL_SRCALPHA )
-	{
-		SDL_SetAlpha(surface, saved_flags, saved_alpha);
-	}
+  // Restore the blending attributes
+  if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
+  {
+    SDL_SetAlpha( surface, saved_flags, saved_alpha );
+  }
 
-	// Send the texture to OpenGL
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D,	0, GL_RGBA,	w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,	image->pixels);
+  // Send the texture to OpenGL
+  glBindTexture( GL_TEXTURE_2D, texture );
+  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+  glTexImage2D( GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
 
-	// Don't need the extra image anymore
-	SDL_FreeSurface(image);
+  // Don't need the extra image anymore
+  SDL_FreeSurface( image );
 
-	return 1;
+  return 1;
 }
 
-Font* fnt_loadFont(const char *fileName, int pointSize)
+Font* fnt_loadFont( const char *fileName, int pointSize )
 {
-	Font *newFont;
-	TTF_Font *ttfFont;
+  Font *newFont;
+  TTF_Font *ttfFont;
 
-	// Make sure the TTF library was initialized
-	if(!TTF_WasInit())
-	{
-		if(TTF_Init() != -1)
-		{
-			atexit(TTF_Quit);
-		} else
-		{
-			printf("fnt_loadFont: Could not initialize SDL_TTF!\n");
-			return NULL;
-		}
-	}
+  // Make sure the TTF library was initialized
+  if ( !TTF_WasInit() )
+  {
+    if ( TTF_Init() != -1 )
+    {
+      atexit( TTF_Quit );
+    } else
+    {
+      printf( "fnt_loadFont: Could not initialize SDL_TTF!\n" );
+      return NULL;
+    }
+  }
 
-	// Try and open the font
-	ttfFont = TTF_OpenFont(fileName, pointSize);
-	if(!ttfFont)
-	{
-		// couldn't open it, for one reason or another
-		return NULL;
-	}
+  // Try and open the font
+  ttfFont = TTF_OpenFont( fileName, pointSize );
+  if ( !ttfFont )
+  {
+    // couldn't open it, for one reason or another
+    return NULL;
+  }
 
-	// Everything looks good
-	newFont = (Font*)malloc(sizeof(Font));
-	newFont->ttfFont = ttfFont;
-	newFont->texture = 0;
+  // Everything looks good
+  newFont = ( Font* )malloc( sizeof( Font ) );
+  newFont->ttfFont = ttfFont;
+  newFont->texture = 0;
 
-	return newFont;
+  return newFont;
 }
 
-void fnt_freeFont(Font *font)
+void fnt_freeFont( Font *font )
 {
-	if(font)
-	{
-		TTF_CloseFont(font->ttfFont);
-		glDeleteTextures(1, &font->texture);
-		free(font);
-	}
+  if ( font )
+  {
+    TTF_CloseFont( font->ttfFont );
+    glDeleteTextures( 1, &font->texture );
+    free( font );
+  }
 }
 
-void fnt_drawText(Font *font, int x, int y, const char *text)
+void fnt_drawText( Font *font, int x, int y, const char *text )
 {
-	SDL_Surface *textSurf;
-	SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
+  SDL_Surface *textSurf;
+  SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
 
-	if(font)
-	{
-		// Let TTF render the text
-		textSurf = TTF_RenderText_Blended(font->ttfFont, text, color);
+  if ( font )
+  {
+    // Let TTF render the text
+    textSurf = TTF_RenderText_Blended( font->ttfFont, text, color );
 
-		// Does this font already have a texture?  If not, allocate it here
-		if(font->texture == 0)
-		{
-			glGenTextures(1, &font->texture);
-		}
+    // Does this font already have a texture?  If not, allocate it here
+    if ( font->texture == 0 )
+    {
+      glGenTextures( 1, &font->texture );
+    }
 
-		// Copy the surface to the texture
-		if(copySurfaceToTexture(textSurf, font->texture, font->texCoords))
-		{
-			// And draw the darn thing
-			glBegin(GL_TRIANGLE_STRIP);
-				glTexCoord2f(font->texCoords[0], font->texCoords[1]);
-				glVertex2i(x, y);
-				glTexCoord2f(font->texCoords[2], font->texCoords[1]);
-				glVertex2i(x + textSurf->w, y);
-				glTexCoord2f(font->texCoords[0], font->texCoords[3]);
-				glVertex2i(x, y + textSurf->h);
-				glTexCoord2f(font->texCoords[2], font->texCoords[3]);
-				glVertex2i(x + textSurf->w, y + textSurf->h);
-			glEnd();
-		}
+    // Copy the surface to the texture
+    if ( copySurfaceToTexture( textSurf, font->texture, font->texCoords ) )
+    {
+      // And draw the darn thing
+      glBegin( GL_TRIANGLE_STRIP );
+      glTexCoord2f( font->texCoords[0], font->texCoords[1] );
+      glVertex2i( x, y );
+      glTexCoord2f( font->texCoords[2], font->texCoords[1] );
+      glVertex2i( x + textSurf->w, y );
+      glTexCoord2f( font->texCoords[0], font->texCoords[3] );
+      glVertex2i( x, y + textSurf->h );
+      glTexCoord2f( font->texCoords[2], font->texCoords[3] );
+      glVertex2i( x + textSurf->w, y + textSurf->h );
+      glEnd();
+    }
 
-		// Done with the surface
-		SDL_FreeSurface(textSurf);
-	}
+    // Done with the surface
+    SDL_FreeSurface( textSurf );
+  }
 }
 
-void fnt_getTextSize(Font *font, const char *text, int *width, int *height)
+void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
 {
-	if(font)
-	{
-		TTF_SizeText(font->ttfFont, text, width, height);
-	}
+  if ( font )
+  {
+    TTF_SizeText( font->ttfFont, text, width, height );
+  }
 }
 
 /** font_drawTextBox
@@ -221,54 +209,54 @@ void fnt_getTextSize(Font *font, const char *text, int *width, int *height)
  * height  - Maximum height of the box (not implemented)
  * spacing - Amount of space to move down between lines. (usually close to your font size)
  */
-void fnt_drawTextBox(Font *font, const char *text, int x, int y, int width, int height, int spacing)
+void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int height, int spacing )
 {
-	int len;
-	char *buffer, *line;
+  int len;
+  char *buffer, *line;
 
-	if (!font) return;
+  if ( !font ) return;
 
-	// If text is empty, there's nothing to draw
-	if (!text || !text[0]) return;
+  // If text is empty, there's nothing to draw
+  if ( !text || !text[0] ) return;
 
-	// Split the passed in text into separate lines
-	len = strlen(text);
-	buffer = calloc(1, len + 1);
-	strncpy(buffer, text, len);
+  // Split the passed in text into separate lines
+  len = strlen( text );
+  buffer = calloc( 1, len + 1 );
+  strncpy( buffer, text, len );
 
-	line = strtok(buffer, "\n");
-	while (line != NULL)
-	{
-		fnt_drawText(font, x, y, line);
-		y += spacing;
-		line = strtok(NULL, "\n");
-	}
-	free(buffer);
+  line = strtok( buffer, "\n" );
+  while ( line != NULL )
+  {
+    fnt_drawText( font, x, y, line );
+    y += spacing;
+    line = strtok( NULL, "\n" );
+  }
+  free( buffer );
 }
 
-void fnt_getTextBoxSize(Font *font, const char *text, int spacing, int *width, int *height)
+void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height )
 {
-	char *buffer, *line;
-	int len;
-	int tmp_w, tmp_h;
+  char *buffer, *line;
+  int len;
+  int tmp_w, tmp_h;
 
-	if (!font) return;
-	if (!text || !text[0]) return;
+  if ( !font ) return;
+  if ( !text || !text[0] ) return;
 
-	// Split the passed in text into separate lines
-	len = strlen(text);
-	buffer = calloc(1, len + 1);
-	strncpy(buffer, text, len);
+  // Split the passed in text into separate lines
+  len = strlen( text );
+  buffer = calloc( 1, len + 1 );
+  strncpy( buffer, text, len );
 
-	line = strtok(buffer, "\n");
-	*width = *height = 0;
-	while (line != NULL)
-	{
-		TTF_SizeText(font->ttfFont, line, &tmp_w, &tmp_h);
-		*width = (*width > tmp_w) ? *width : tmp_w;
-		*height += spacing;
+  line = strtok( buffer, "\n" );
+  *width = *height = 0;
+  while ( line != NULL )
+  {
+    TTF_SizeText( font->ttfFont, line, &tmp_w, &tmp_h );
+    *width = ( *width > tmp_w ) ? *width : tmp_w;
+    *height += spacing;
 
-		line = strtok(NULL, "\n");
-	}
-	free(buffer);
+    line = strtok( NULL, "\n" );
+  }
+  free( buffer );
 }

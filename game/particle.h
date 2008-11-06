@@ -1,7 +1,4 @@
-/* Egoboo - Client.h
- * Basic skeleton for the client portion of a client-server architecture,
- * this is totally not in use yet.
- */
+#pragma once
 
 //********************************************************************************************
 //*
@@ -22,23 +19,10 @@
 //*
 //********************************************************************************************
 
-#ifndef egoboo_Client_h
-#define egoboo_Client_h
+#define PRTLEVELFIX         20                      // Fix for shooting over cliffs
 
-typedef struct ClientState_t
-{
-  int dummy;
-}ClientState_t;
-
-// Globally accesible client state
-extern ClientState_t ClientState;
-
-int  cl_init();
-void cl_shutDown();
-void cl_frameStep();
-
-// Much more to come...
-
-// int  cl_connectToServer(...);
-// int  cl_loadModule(...);
-#endif // include guard
+// Particle template
+#define DYNAOFF   0
+#define DYNAON    1
+#define DYNALOCAL 2
+#define MAXFALLOFF 1400

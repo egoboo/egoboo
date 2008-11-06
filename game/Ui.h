@@ -1,6 +1,6 @@
 /* Egoboo - Ui.h
  * A basic library for implementing user interfaces, based off of Casey Muratori's
- * IMGUI.  (https://mollyrocket.com/forums/viewtopic.php?t=134)
+ * IMGUI.  (https:// mollyrocket.com/forums/viewtopic.php?t=134)
  */
 
 /*
@@ -17,7 +17,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #ifndef egoboo_ui_h
@@ -27,7 +27,7 @@
 #include "gltexture.h"
 #include <SDL.h>
 
-typedef unsigned int UI_ID;
+typedef Uint32 UI_ID;
 #define UI_Nothing (UI_ID)(-1)
 
 // Initialize or shut down the ui system
@@ -35,35 +35,35 @@ int  ui_initialize();
 void ui_shutdown();
 
 // Pass input data from SDL to the ui
-void ui_handleSDLEvent(SDL_Event *evt);
+void ui_handleSDLEvent( SDL_Event *evt );
 
 // Allow the ui to do work that needs to be done before and after each frame
-void ui_beginFrame(float deltaTime);
+void ui_beginFrame( float deltaTime );
 void ui_endFrame();
 
 // UI controls
-int  ui_doButton(UI_ID id, const char *text, int x, int y, int width, int height);
-int  ui_doImageButton(UI_ID id, GLTexture *img, int x, int y, int width, int height);
-int  ui_doImageButtonWithText(UI_ID id, GLTexture *img, const char *text, int x, int y, int width, int height);
-//int  ui_doTextBox(UI_ID id, const char *text, int x, int y, int width, int height);
+int  ui_doButton( UI_ID id, const char *text, int x, int y, int width, int height );
+int  ui_doImageButton( UI_ID id, GLTexture *img, int x, int y, int width, int height );
+int  ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x, int y, int width, int height );
+// int  ui_doTextBox(UI_ID id, const char *text, int x, int y, int width, int height);
 
 // Utility functions
-int  ui_mouseInside(int x, int y, int width, int height);
-void ui_setActive(UI_ID id);
-void ui_setHot(UI_ID id);
+int  ui_mouseInside( int x, int y, int width, int height );
+void ui_setActive( UI_ID id );
+void ui_setHot( UI_ID id );
 Font* ui_getFont();
 
 /*****************************************************************************/
-// Most users won't need to worry about stuff below here; it's mostly for 
+// Most users won't need to worry about stuff below here; it's mostly for
 // implementing new controls.
 /*****************************************************************************/
 
 // Behaviors
-int  ui_buttonBehavior(UI_ID id, int x, int y, int width, int height);
+int  ui_buttonBehavior( UI_ID id, int x, int y, int width, int height );
 
 // Drawing
-void ui_drawButton(UI_ID id, int x, int y, int width, int height);
-void ui_drawImage(UI_ID id, GLTexture *img, int x, int y, int width, int height);
-void ui_drawTextBox(const char *text, int x, int y, int width, int height, int spacing);
+void ui_drawButton( UI_ID id, int x, int y, int width, int height );
+void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height );
+void ui_drawTextBox( const char *text, int x, int y, int width, int height, int spacing );
 
 #endif // include guard

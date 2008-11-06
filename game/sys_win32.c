@@ -16,7 +16,7 @@
     General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
+    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
 #include "proto.h"
@@ -28,16 +28,16 @@ double win32_secondsPerTick = 0;
 
 void sys_initialize()
 {
-	LARGE_INTEGER frequency;
-	unsigned int f;
+  LARGE_INTEGER frequency;
+  LONGLONG f;
 
-	log_info("Initializing high-performance counter...\n");
+  log_info( "Initializing high-performance counter...\n" );
 
-	QueryPerformanceFrequency(&frequency);
-	win32_secondsPerTick = 1.0 / frequency.QuadPart;
+  QueryPerformanceFrequency( &frequency );
+  win32_secondsPerTick = 1.0f / frequency.QuadPart;
 
-	f = frequency.QuadPart;
-	log_info("Frequency is %d hz\n", f);
+  f = frequency.QuadPart;
+  log_info( "Frequency is %ld hz\n", f );
 }
 
 void sys_shutdown()
@@ -45,13 +45,13 @@ void sys_shutdown()
 
 double sys_getTime()
 {
-	LARGE_INTEGER time;
+  LARGE_INTEGER time;
 
-	QueryPerformanceCounter(&time);
-	return time.QuadPart * win32_secondsPerTick;
+  QueryPerformanceCounter( &time );
+  return time.QuadPart * win32_secondsPerTick;
 }
 
 int sys_frameStep()
 {
-	return 0;
+  return 0;
 }

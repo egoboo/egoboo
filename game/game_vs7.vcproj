@@ -177,15 +177,6 @@
 			</File>
 			<File
 				RelativePath=".\id_normals.c">
-			</File>
-			<File
-				RelativePath=".\input.c">
-			</File>
-			<File
-				RelativePath=".\Link.c">
-			</File>
-			<File
-				RelativePath=".\linux-file.c">
 				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="TRUE">
@@ -200,7 +191,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\linux-file_old.c">
+				RelativePath=".\input.c">
+			</File>
+			<File
+				RelativePath=".\Link.c">
+			</File>
+			<File
+				RelativePath=".\linux-file.c">
 				<FileConfiguration
 					Name="Debug|Win32"
 					ExcludedFromBuild="TRUE">
@@ -292,6 +289,12 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\camera.h">
+			</File>
+			<File
+				RelativePath=".\char.h">
+			</File>
+			<File
 				RelativePath=".\Client.h">
 			</File>
 			<File
@@ -312,6 +315,12 @@
 			</File>
 			<File
 				RelativePath=".\egoboo.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_config.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
 				RelativePath=".\egoboostrutil.h">
@@ -344,7 +353,13 @@
 				RelativePath=".\Menu.h">
 			</File>
 			<File
+				RelativePath=".\particle.h">
+			</File>
+			<File
 				RelativePath=".\proto.h">
+			</File>
+			<File
+				RelativePath=".\script.h">
 			</File>
 			<File
 				RelativePath=".\Server.h">

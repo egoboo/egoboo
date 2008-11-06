@@ -1,7 +1,4 @@
-/* Egoboo - Client.h
- * Basic skeleton for the client portion of a client-server architecture,
- * this is totally not in use yet.
- */
+#pragma once
 
 //********************************************************************************************
 //*
@@ -22,23 +19,30 @@
 //*
 //********************************************************************************************
 
-#ifndef egoboo_Client_h
-#define egoboo_Client_h
+#ifdef __msvc__
+// Turn off warnings that we don't care about.
+#    pragma warning(disable : 4305) // truncation from 'double' to 'float'
+#    pragma warning(disable : 4244) // conversion from 'double' to 'float'
+#    pragma warning(disable : 4554) // possibly operator precendence error
+//#    pragma warning(disable : 4761)
+#endif
 
-typedef struct ClientState_t
-{
-  int dummy;
-}ClientState_t;
+#ifdef __unix__
+#    include <unistd.h>
+#endif
 
-// Globally accesible client state
-extern ClientState_t ClientState;
+#ifdef WIN32
+// Speeds up compile times a bit.  We don't need everything in windows.h
+#    define WIN32_LEAN_AND_MEAN        
+// Windows defines snprintf as _snprintf; that's kind of a pain, so redefine it here
+#    define snprintf _snprintf
+#endif
 
-int  cl_init();
-void cl_shutDown();
-void cl_frameStep();
 
-// Much more to come...
-
-// int  cl_connectToServer(...);
-// int  cl_loadModule(...);
-#endif // include guard
+#ifdef WIN32
+#    define SLASH_STR "\\"
+#    define SLASH_CHR '\\'
+#else
+#    define SLASH_STR "/"
+#    define SLASH_CHR '/'
+#endif
