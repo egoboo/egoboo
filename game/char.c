@@ -985,7 +985,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 {
   // ZZ> This function drops an item
   Uint16 mount, hand, enchant, cnt, passage, owner, price;
-  Uint8 inshop;
+  bool_t inshop;
   int loc;
 
 
@@ -1254,7 +1254,7 @@ Uint16 stack_in_pack( Uint16 item, Uint16 character )
   //     to the one given.  If it finds one, it returns the similar item's
   //     index number, otherwise it returns MAXCHR.
   Uint16 inpack, id;
-  Uint8 allok;
+  bool_t allok;
 
 
   if ( capisstackable[chrmodel[item]] )
@@ -1558,7 +1558,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
   int charb, hand;
   Uint16 vertex, model, frame, owner, passage, cnt, price;
   float pointx, pointy, pointz;
-  Uint8 inshop;
+  bool_t inshop;
   int loc;
 
 
@@ -1869,7 +1869,7 @@ void move_characters( void )
   float dvx, dvy, dvmax;
   Uint16 action, weapon, mount, item;
   int distance, volume;
-  Uint8 watchtarget, grounded;
+  bool_t watchtarget, grounded;
 
 
   // Move every character
@@ -2622,7 +2622,9 @@ void setup_characters( char *modname )
 {
   // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
   int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber;
-  Uint8 ghost, team, stat, cTmp;
+  bool_t ghost;
+  char cTmp;
+  Uint8 team, stat;
   char *name;
   char itislocal;
   char myname[256], newloadname[256];
@@ -3802,16 +3804,16 @@ void stat_return()
   }
 
   // Do stats
-  if ( statclock == ONESECOND )
+  if ( statclock >= ONESECOND )
   {
     // Reset the clock
-    statclock = 0;
+    statclock -= ONESECOND;
 
     // Do all the characters
     cnt = 0;
     while ( cnt < MAXCHR )
     {
-      if ( chron[cnt] && ( !chrinpack[cnt] ) && chralive[cnt] )
+      if ( chron[cnt] && !chrinpack[cnt] && chralive[cnt] )
       {
         chrmana[cnt] += ( chrmanareturn[cnt] / MANARETURNSHIFT );
         if ( chrmana[cnt] < 0 )
@@ -4175,7 +4177,7 @@ void resize_characters()
   // ZZ> This function makes the characters get bigger or smaller, depending
   //     on their sizegoto and sizegototime
   int cnt, item, mount;
-  Uint8 willgetcaught;
+  bool_t willgetcaught;
   float newsize;
 
 
@@ -6626,7 +6628,7 @@ void issue_order( Uint16 character, Uint32 order )
 {
   // ZZ> This function issues an order for help to all teammates
   Uint8 team;
-  Uint8 counter;
+  Uint16 counter;
   Uint16 cnt;
 
 
@@ -6650,7 +6652,7 @@ void issue_order( Uint16 character, Uint32 order )
 void issue_special_order( Uint32 order, Uint32 idsz )
 {
   // ZZ> This function issues an order to all characters with the a matching special IDSZ
-  Uint8 counter;
+  Uint16 counter;
   Uint16 cnt;
 
 

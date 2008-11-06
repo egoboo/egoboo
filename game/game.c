@@ -1198,8 +1198,8 @@ void fix_md2_normals( Uint16 modelindex )
 {
   // ZZ> This function helps light not flicker so much
   int cnt, tnc;
-  Uint8 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
-  Uint8 indexofnextnextnextnext;
+  Uint16 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
+  Uint16 indexofnextnextnextnext;
   Uint32 frame;
 
   frame = madframestart[modelindex];

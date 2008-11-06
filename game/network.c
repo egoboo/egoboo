@@ -840,7 +840,7 @@ void net_sayHello()
 void cl_talkToHost()
 {
   // ZZ> This function sends the latch packets to the host machine
-  Uint8 player;
+  Uint16 player;
 
   // Let the players respawn
   if ( sdlkeybuffer[SDLK_SPACE]

@@ -26,6 +26,8 @@
 
 #include <assert.h>
 
+#define END_VALUE (0x80000000 | FEND)
+
 Uint8 cLineBuffer[MAXLINESIZE];
 int                     iLoadSize;
 int                     iLineSize;
@@ -48,7 +50,7 @@ void insert_space( int position )
 {
   // ZZ> This function adds a space into the load line if there isn't one
   //     there already
-  Uint8 cTmp, cSwap;
+  char cTmp, cSwap;
 
   if ( cLineBuffer[position] != ' ' )
   {
@@ -72,7 +74,7 @@ void copy_one_line( int write )
 {
   // ZZ> This function copies the line back to the load buffer
   int read;
-  Uint8 cTmp;
+  char cTmp;
 
 
   read = 0;
@@ -93,7 +95,7 @@ int load_one_line( int read )
 {
   // ZZ> This function loads a line into the line buffer
   int stillgoing, foundtext;
-  Uint8 cTmp;
+  char cTmp;
 
 
   // Parse to start to maintain indentation
@@ -169,7 +171,7 @@ int load_one_line( int read )
 int load_parsed_line( int read )
 {
   // ZZ> This function loads a line into the line buffer
-  Uint8 cTmp;
+  char cTmp;
 
 
   // Parse to start to maintain indentation
@@ -224,7 +226,7 @@ int get_indentation()
 {
   // ZZ> This function returns the number of starting spaces in a line
   int cnt;
-  Uint8 cTmp;
+  char cTmp;
 
   cnt = 0;
   cTmp = cLineBuffer[cnt];
@@ -249,7 +251,7 @@ void fix_operators()
   // ZZ> This function puts spaces around operators to seperate words
   //     better
   int cnt;
-  Uint8 cTmp;
+  char cTmp;
 
   cnt = 0;
   while ( cnt < iLineSize )
@@ -271,7 +273,7 @@ int starts_with_capital_letter()
 {
   // ZZ> This function returns btrue if the line starts with a capital
   int cnt;
-  Uint8 cTmp;
+  char cTmp;
 
   cnt = 0;
   cTmp = cLineBuffer[cnt];
@@ -311,7 +313,7 @@ int tell_code( int read )
   //     will return the next spot to read from and stick the code number
   //     in iCodeIndex
   int cnt, wordsize, codecorrect;
-  Uint8 cTmp;
+  char cTmp;
   int idsz, test;
   char cWordBuffer[MAXCODENAMESIZE];
 
@@ -564,7 +566,7 @@ void parse_jumps( int ainumber )
     {
         index = iAisStartPosition[ainumber];
         value = iCompiledAis[index];
-        while(value != 0x80000035)  // End Function
+        while(value != END_VALUE)  // End Function
         {
             value = iCompiledAis[index];
             fprintf(filewrite, "0x%08x--0x%08x\n", index, value);
@@ -579,7 +581,7 @@ void parse_jumps( int ainumber )
 int ai_goto_colon( int read )
 {
   // ZZ> This function goes to spot after the next colon
-  Uint8 cTmp;
+  char cTmp;
 
   cTmp = cLoadBuffer[read];
   while ( cTmp != ':' && read < iLoadSize )
@@ -594,7 +596,7 @@ int ai_goto_colon( int read )
 void get_code( int read )
 {
   // ZZ> This function gets code names and other goodies
-  Uint8 cTmp;
+  char cTmp;
   int iTmp;
 
   sscanf( ( char* ) &cLoadBuffer[read], "%c%d%s", &cTmp, &iTmp, &cCodeName[iNumCode][0] );
@@ -682,7 +684,7 @@ Uint8 run_function( Uint32 value, int character )
   //     indented code that follows
 
   // Mask out the indentation
-  Uint16 valuecode = value;
+  Uint32 valuecode = value & 0x7ffffff;
 
   // Assume that the function will pass, as most do
   Uint8 returncode = btrue;
@@ -3550,9 +3552,15 @@ Uint8 run_function( Uint32 value, int character )
       valuetmpargument = chrdamagetypelast[chraitarget[character]];
       break;
 
-      // If none of the above, just skip the line
-    default: assert(bfalse); returncode = bfalse; break;
+    case FEND:
+      returncode = bfalse;
+      break;
 
+      // If none of the above, skip the line and log an error
+    default: 
+      log_warning("run_function() - ai script %d - unhandled script function %d\n", chraitype[character], valuecode );
+      returncode = bfalse; 
+      break;
   }
 
 
@@ -3590,7 +3598,6 @@ void run_operand( Uint32 value, int character )
   Uint8 opcode;
   Uint8 variable;
   int iTmp;
-
 
   // Get the operation code
   opcode = ( value >> 27 );
@@ -3934,14 +3941,16 @@ void let_character_think( int character )
 
 
   value = iCompiledAis[index];
-  while ( ( value&0x87ffffff ) != 0x80000035 ) // End Function
+  while ( END_VALUE != ( value&0x87ffffff )  ) // End Function
   {
     value = iCompiledAis[index];
+
     // Was it a function
     if ( ( value&0x80000000 ) != 0 )
     {
       // Run the function
       functionreturn = run_function( value, character );
+
       // Get the jump code
       index++;
       iTmp = iCompiledAis[index];

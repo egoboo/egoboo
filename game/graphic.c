@@ -2122,7 +2122,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   int cnt, i, y, xsize, ysize, xdiv, ydiv;
   int xstt, ystt;
   int xspacing, yspacing;
-  Uint8 cTmp;
+  char cTmp;
   FILE *fileread;
 
 

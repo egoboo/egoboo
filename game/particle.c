@@ -960,8 +960,7 @@ void do_weather_spawn()
   // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
   int particle, cnt;
   float x, y, z;
-  Uint8 foundone;
-
+  bool_t foundone;
 
   if ( weathertime > 0 )
   {

@@ -528,9 +528,10 @@ void setup_passage( char *modname )
 {
   // ZZ> This function reads the passage file
   char newloadname[256];
-  Uint8 cTmp;
+  char cTmp;
   int tlx, tly, brx, bry;
-  Uint8 open, mask;
+  bool_t open;
+  Uint8 mask;
   FILE *fileread;
 
 
