@@ -1940,7 +1940,7 @@ void update_game()
       if ( !chralive[plaindex[cnt]] )
       {
         numdead++;
-        if ( SDLKEYDOWN( SDLK_SPACE && respawnvalid ) )
+        if ( SDLKEYDOWN( SDLK_SPACE ) && respawnvalid )
         {
           respawn_character( plaindex[cnt] );
           chrexperience[cnt] = ( chrexperience[cnt] ) * EXPKEEP;  // Apply xp Penality

@@ -20,8 +20,8 @@
 //********************************************************************************************
 
 #define FOV                             60          // Field of view
-#define CAMJOYTURN                      0.01f         // Joystick camera rotation
-#define CAMKEYTURN                      10          // Keyboard camera rotation
+#define CAMJOYTURN                      (0.01f*6)         // Joystick camera rotation
+#define CAMKEYTURN                      (10*6)          // Keyboard camera rotation
 #define FARTRACK            1200                    // For outside modules...
 #define EDGETRACK           800                     // Camtrack bounds
 #define TURNTIME 16              // Smooth turn
