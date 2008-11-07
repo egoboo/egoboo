@@ -258,17 +258,20 @@ void export_all_players( bool_t require_local )
 
     // Export the character
     number = 0;
-    export_one_character( character, character, number++, is_local );
+    export_one_character( character, character, number, is_local );
 
     // Export the left hand item
-    item = chrholdingwhich[character][0];
-    if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number++, is_local );
+    number = 0;
+    item = chrholdingwhich[character][number];
+    if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number, is_local );
 
     // Export the right hand item
-    item = chrholdingwhich[character][1];
-    if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number++, is_local );
+    number = 1;
+    item = chrholdingwhich[character][number];
+    if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number, is_local );
 
     // Export the inventory
+    number = 2;
     item = chrnextinpack[character];
     while ( item != MAXCHR )
     {
@@ -302,7 +305,10 @@ void quit_module( void )
   // ZZ> This function forces a return to the menu
   moduleactive = bfalse;
   hostactive = bfalse;
+
   export_all_local_players();
+  empty_import_directory();  // Free up that disk space...
+
   gamepaused = bfalse;
   if ( soundvalid ) Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
 }
@@ -310,21 +316,27 @@ void quit_module( void )
 //--------------------------------------------------------------------------------------------
 void quit_game( void )
 {
-  log_info( "Exiting Egoboo %s the good way...\n", VERSION );
   // ZZ> This function exits the game entirely
+
+  log_info( "Exiting Egoboo %s the good way...\n", VERSION );
+
   if ( gameactive )
   {
     gameactive = bfalse;
   }
+
   if ( moduleactive )
   {
     quit_module();
   }
+
   if ( floatmemory != NULL )
   {
     free( floatmemory );
     floatmemory = NULL;
   }
+
+  empty_import_directory();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1954,8 +1966,6 @@ void update_game()
   }
 
   // This is the main game loop
-  msgtimechange = 0;
-
   // [claforte Jan 6th 2001]
   // TODO: Put that back in place once networking is functional.
   while ( wldclock < allclock && ( numplatimes > 0 || rtscontrol ) )
@@ -1987,13 +1997,12 @@ void update_game()
     move_water();
 
     // Timers
-    wldclock += FRAMESKIP;
-    statclock += FRAMESKIP;
+    wldclock  += UPDATE_SKIP;
+    statclock += UPDATE_SKIP;
 
     wldframe++;
-    msgtimechange++;
-    if ( statdelay > 0 )  statdelay--;
   }
+
 
   if ( !rtscontrol )
   {
@@ -2379,6 +2388,7 @@ int SDL_main( int argc, char **argv )
   double frameDuration;
   int menuActive = 1;
   int menuResult;
+  int frame_next=0, frame_now=0;
 
   // Initialize logging first, so that we can use it everywhere.
   log_init();
@@ -2406,6 +2416,7 @@ int SDL_main( int argc, char **argv )
 
   // Linking system
   log_info( "Initializing module linking... " );
+  empty_import_directory();
   if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
   else log_message( "Failed!\n" );
 
@@ -2602,10 +2613,19 @@ int SDL_main( int argc, char **argv )
           }
 
           // Do the display stuff
-          move_camera();
-          figure_out_what_to_draw();
-          // printf("DIAG: doing draw_main\n");
-          draw_main();
+          frame_now = SDL_GetTicks();
+          if(frame_now > frame_next)
+          {
+            frame_next = frame_now + FRAME_SKIP;
+
+            move_camera();
+            figure_out_what_to_draw();
+            // printf("DIAG: doing draw_main\n");
+            draw_main();
+
+            msgtimechange++;
+            if ( statdelay > 0 )  statdelay--;
+          }
 
           // Check for quitters
           // :TODO: nolocalplayers is not set correctly

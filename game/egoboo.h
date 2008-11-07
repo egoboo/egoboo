@@ -355,12 +355,13 @@ EXTERN int rotmeshdown;                                    //
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
-#define FRAMESKIP                       (TICKS_PER_SEC/50.0f) //20          // 1000/20 = 50 game updates per second
-#define ONESECOND                       (TICKS_PER_SEC/FRAMESKIP)
-
+#define FRAMES_PER_SEC                 30
+#define FRAME_SKIP                     ((float)TICKS_PER_SEC/(float)FRAMES_PER_SEC)
+#define UPDATES_PER_SEC                 50
+#define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
+#define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)
 
 #define TRANSCOLOR                      0           // Transparent color
-
 
 // Debug option
 EXTERN bool_t  gGrabMouse EQ( btrue );

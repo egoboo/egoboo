@@ -2028,10 +2028,6 @@ void load_all_objects( char *modname )
     }
   }
 
-
-  // printf(" DIAG: emptying directory\n");
-  empty_import_directory();  // Free up that disk space...
-
   // Search for .obj directories and load them
   // printf(" DIAG: Searching for .objs\n");
   importobject = -100;
@@ -4322,11 +4318,20 @@ void draw_text()
       if ( msgtime[tnc] > 0 )
       {
         y = draw_wrap_string( msgtextdisplay[tnc], 0, y, scrx - wraptolerance );
-        msgtime[tnc] -= msgtimechange;
+        if(msgtime[tnc] > msgtimechange)
+        {
+          msgtime[tnc] -= msgtimechange;
+        }
+        else
+        {
+          msgtime[tnc] = 0;
+        }
       }
       tnc++;
       tnc = tnc % maxmessage;
     }
+
+    msgtimechange = 0;
   }
   End2DMode();
 }

@@ -20,7 +20,7 @@
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="Link.c" open="1" top="0" tabpos="4">
-		<Cursor position="3040" topLine="91" />
+		<Cursor position="612" topLine="9" />
 	</File>
 	<File name="Link.h" open="1" top="0" tabpos="5">
 		<Cursor position="357" topLine="0" />
@@ -62,13 +62,13 @@
 		<Cursor position="511" topLine="14" />
 	</File>
 	<File name="char.c" open="1" top="0" tabpos="3">
-		<Cursor position="198119" topLine="5275" />
+		<Cursor position="152726" topLine="4240" />
 	</File>
 	<File name="char.h" open="1" top="0" tabpos="47">
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="common-file.c" open="1" top="0" tabpos="36">
-		<Cursor position="0" topLine="0" />
+		<Cursor position="2516" topLine="69" />
 	</File>
 	<File name="configfile.c" open="1" top="0" tabpos="37">
 		<Cursor position="2524" topLine="50" />
@@ -77,7 +77,7 @@
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="egoboo.h" open="1" top="0" tabpos="15">
-		<Cursor position="28423" topLine="524" />
+		<Cursor position="67998" topLine="1089" />
 	</File>
 	<File name="egobooendian.c" open="1" top="0" tabpos="29">
 		<Cursor position="388" topLine="0" />
@@ -94,8 +94,8 @@
 	<File name="enchant.c" open="1" top="0" tabpos="16">
 		<Cursor position="46949" topLine="1170" />
 	</File>
-	<File name="game.c" open="1" top="0" tabpos="7">
-		<Cursor position="24554" topLine="844" />
+	<File name="game.c" open="1" top="1" tabpos="7">
+		<Cursor position="69132" topLine="2424" />
 	</File>
 	<File name="gltexture.c" open="1" top="0" tabpos="39">
 		<Cursor position="0" topLine="0" />
@@ -104,7 +104,7 @@
 		<Cursor position="0" topLine="0" />
 	</File>
 	<File name="graphic.c" open="1" top="0" tabpos="8">
-		<Cursor position="77512" topLine="2364" />
+		<Cursor position="63923" topLine="2019" />
 	</File>
 	<File name="graphicfan.c" open="1" top="0" tabpos="24">
 		<Cursor position="7254" topLine="198" />
@@ -125,10 +125,10 @@
 		<Cursor position="2540" topLine="55" />
 	</File>
 	<File name="linux-file.c" open="1" top="0" tabpos="56">
-		<Cursor position="200" topLine="0" />
+		<Cursor position="1382" topLine="58" />
 	</File>
 	<File name="mac-file.m" open="1" top="0" tabpos="55">
-		<Cursor position="6412" topLine="265" />
+		<Cursor position="5986" topLine="234" />
 	</File>
 	<File name="mathstuff.c" open="1" top="0" tabpos="17">
 		<Cursor position="5349" topLine="144" />
@@ -160,7 +160,7 @@
 	<File name="script.c" open="1" top="0" tabpos="6">
 		<Cursor position="120252" topLine="3364" />
 	</File>
-	<File name="script.h" open="1" top="1" tabpos="42">
+	<File name="script.h" open="1" top="0" tabpos="42">
 		<Cursor position="319" topLine="26" />
 	</File>
 	<File name="sound.c" open="1" top="0" tabpos="11">
