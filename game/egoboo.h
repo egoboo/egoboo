@@ -359,7 +359,7 @@ EXTERN int rotmeshdown;                                    //
 #define FRAME_SKIP                     ((float)TICKS_PER_SEC/(float)FRAMES_PER_SEC)
 #define UPDATES_PER_SEC                 50
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
-#define ONESECOND                       (TICKS_PER_SEC/UPDATE_SKIP)
+#define ONESECOND                       TICKS_PER_SEC
 
 #define TRANSCOLOR                      0           // Transparent color
 

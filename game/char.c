@@ -3816,26 +3816,19 @@ void stat_return()
       if ( chron[cnt] && !chrinpack[cnt] && chralive[cnt] )
       {
         chrmana[cnt] += ( chrmanareturn[cnt] / MANARETURNSHIFT );
-        if ( chrmana[cnt] < 0 )
-          chrmana[cnt] = 0;
-        if ( chrmana[cnt] > chrmanamax[cnt] )
-          chrmana[cnt] = chrmanamax[cnt];
+        chrmana[cnt] = MAX(0, MIN(chrmana[cnt], chrmanamax[cnt]));
+
         chrlife[cnt] += chrlifereturn[cnt];
-        if ( chrlife[cnt] < 1 )
-          chrlife[cnt] = 1;
-        if ( chrlife[cnt] > chrlifemax[cnt] )
-          chrlife[cnt] = chrlifemax[cnt];
+        chrlife[cnt] = MAX(1, MIN(chrlife[cnt], chrlife[cnt]));
+
         if ( chrgrogtime[cnt] > 0 )
         {
           chrgrogtime[cnt]--;
-          if ( chrgrogtime[cnt] < 0 )
-            chrgrogtime[cnt] = 0;
         }
+
         if ( chrdazetime[cnt] > 0 )
         {
           chrdazetime[cnt]--;
-          if ( chrdazetime[cnt] < 0 )
-            chrdazetime[cnt] = 0;
         }
       }
       cnt++;

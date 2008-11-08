@@ -825,42 +825,63 @@ void render_mad( Uint16 character, Uint8 trans )
 void render_refmad( int tnc, Uint8 trans )
 {
   // ZZ> This function draws characters reflected in the floor
-  if ( capreflect[chrmodel[tnc]] )
-  {
-    int level = chrlevel[tnc];
-    int alphatemp = trans;
-    int zpos = ( chrmatrix[tnc] )_CNV( 3, 2 ) - level;
-    alphatemp -= zpos >> 1;
 
-    if ( alphatemp < 0 ) alphatemp = 0;
+  int level;
+  int trans_temp;
+  int zpos;
+  Uint8 sheen_save;
+  Uint8 fog_save;
+  glVector pos_save;
 
-    alphatemp = alphatemp | reffadeor;  // Fix for Riva owners
+  if ( !capreflect[chrmodel[tnc]] ) return;
 
-    if ( alphatemp > 255 ) alphatemp = 255;
+  level = chrlevel[tnc];
+  trans_temp = trans;
 
-    if ( alphatemp > 0 )
-    {
-      Uint8 sheensave = chrsheen[tnc];
-      chrredshift[tnc] += 1;
-      chrgrnshift[tnc] += 1;
-      chrblushift[tnc] += 1;
-      chrsheen[tnc] = chrsheen[tnc] >> 1;
-      ( chrmatrix[tnc] )_CNV( 0, 2 ) = -( chrmatrix[tnc] )_CNV( 0, 2 );
-      ( chrmatrix[tnc] )_CNV( 1, 2 ) = -( chrmatrix[tnc] )_CNV( 1, 2 );
-      ( chrmatrix[tnc] )_CNV( 2, 2 ) = -( chrmatrix[tnc] )_CNV( 2, 2 );
-      ( chrmatrix[tnc] )_CNV( 3, 2 ) = -( chrmatrix[tnc] )_CNV( 3, 2 ) + level + level;
-      zpos = fogon;
-      fogon = bfalse;
-      render_mad( tnc, alphatemp );
-      fogon = zpos;
-      ( chrmatrix[tnc] )_CNV( 0, 2 ) = -( chrmatrix[tnc] )_CNV( 0, 2 );
-      ( chrmatrix[tnc] )_CNV( 1, 2 ) = -( chrmatrix[tnc] )_CNV( 1, 2 );
-      ( chrmatrix[tnc] )_CNV( 2, 2 ) = -( chrmatrix[tnc] )_CNV( 2, 2 );
-      ( chrmatrix[tnc] )_CNV( 3, 2 ) = -( chrmatrix[tnc] )_CNV( 3, 2 ) + level + level;
-      chrsheen[tnc] = sheensave;
-      chrredshift[tnc] -= 1;
-      chrgrnshift[tnc] -= 1;
-      chrblushift[tnc] -= 1;
-    }
-  }
+  zpos = ( chrmatrix[tnc] )_CNV( 3, 2 ) - level;
+  if(zpos < 0) zpos = 0;
+
+  trans_temp -= zpos >> 1;
+  if ( trans_temp < 0 ) trans_temp = 0;
+
+  trans_temp |= reffadeor;  // Fix for Riva owners
+  if ( trans_temp > 255 ) trans_temp = 255;
+
+  if ( trans_temp <= 0 ) return;
+
+  chrredshift[tnc] += 1;
+  chrgrnshift[tnc] += 1;
+  chrblushift[tnc] += 1;
+
+  sheen_save = chrsheen[tnc];
+  chrsheen[tnc] >>= 1;
+
+  pos_save.x = ( chrmatrix[tnc] )_CNV( 0, 2 );
+  pos_save.y = ( chrmatrix[tnc] )_CNV( 1, 2 );
+  pos_save.z = ( chrmatrix[tnc] )_CNV( 2, 2 );
+  pos_save.w = ( chrmatrix[tnc] )_CNV( 3, 2 );
+
+  ( chrmatrix[tnc] )_CNV( 0, 2 ) = -( chrmatrix[tnc] )_CNV( 0, 2 );
+  ( chrmatrix[tnc] )_CNV( 1, 2 ) = -( chrmatrix[tnc] )_CNV( 1, 2 );
+  ( chrmatrix[tnc] )_CNV( 2, 2 ) = -( chrmatrix[tnc] )_CNV( 2, 2 );
+  ( chrmatrix[tnc] )_CNV( 3, 2 ) = -( chrmatrix[tnc] )_CNV( 3, 2 ) + level + level;
+
+  fog_save = fogon;
+  fogon    = bfalse;
+
+  render_mad( tnc, trans_temp );
+
+  fogon = fog_save;
+
+  ( chrmatrix[tnc] )_CNV( 0, 2 ) = pos_save.x;
+  ( chrmatrix[tnc] )_CNV( 1, 2 ) = pos_save.y;
+  ( chrmatrix[tnc] )_CNV( 2, 2 ) = pos_save.z;
+  ( chrmatrix[tnc] )_CNV( 3, 2 ) = pos_save.w;
+
+  chrsheen[tnc] = sheen_save;
+
+  chrredshift[tnc] -= 1;
+  chrgrnshift[tnc] -= 1;
+  chrblushift[tnc] -= 1;
+
 }

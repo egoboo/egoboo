@@ -125,8 +125,6 @@ void render_prt()
 
         // [claforte] Aaron did a horrible hack here. Fix that ASAP.
         v[numparticle].color = cnt;  // Store an index in the color slot...
-        // v[numparticle].dcSpecular = 0;  // No fog
-        // v[numparticle].dwReserved = 0;
         numparticle++;
       }
       cnt++;
@@ -180,23 +178,15 @@ void render_prt()
       // Fill in the rest of the data
       image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
 
-      // vtlist[0].dcColor = light;
-      // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
       vtlist[0].s = particleimageu[image][0];
       vtlist[0].t = particleimagev[image][0];
 
-      // vtlist[1].dcColor = light;
-      // vtlist[1].dcSpecular = vt[cnt].dcSpecular;
       vtlist[1].s = particleimageu[image][1];
       vtlist[1].t = particleimagev[image][0];
 
-      // vtlist[2].dcColor = light;
-      // vtlist[2].dcSpecular = vt[cnt].dcSpecular;
       vtlist[2].s = particleimageu[image][1];
       vtlist[2].t = particleimagev[image][1];
 
-      // vtlist[3].dcColor = light;
-      // vtlist[3].dcSpecular = vt[cnt].dcSpecular;
       vtlist[3].s = particleimageu[image][0];
       vtlist[3].t = particleimagev[image][1];
 
@@ -240,7 +230,7 @@ void render_prt()
 
       // [claforte] Fudge the value.
       // REMOVE:size = scale / 850.0f;
-      size = ( float )prtsize[prt] * 0.000917f;
+      size = ( float )prtsize[prt] * 0.00092;
 
       if ( prttype[prt] == PRTSOLIDSPRITE )
         size += 2.0f; // for antialiasing.
@@ -264,23 +254,15 @@ void render_prt()
       image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
       light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
 
-      // vtlist[0].dcColor = light;
-      // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
       vtlist[0].s = particleimageu[image][0];
       vtlist[0].t = particleimagev[image][0];
 
-      // vtlist[1].dcColor = light;
-      // vtlist[1].dcSpecular = vt[cnt].dcSpecular;
       vtlist[1].s = particleimageu[image][1];
       vtlist[1].t = particleimagev[image][0];
 
-      // vtlist[2].dcColor = light;
-      // vtlist[2].dcSpecular = vt[cnt].dcSpecular;
       vtlist[2].s = particleimageu[image][1];
       vtlist[2].t = particleimagev[image][1];
 
-      // vtlist[3].dcColor = light;
-      // vtlist[3].dcSpecular = vt[cnt].dcSpecular;
       vtlist[3].s = particleimageu[image][0];
       vtlist[3].t = particleimagev[image][1];
 
@@ -332,23 +314,15 @@ void render_prt()
       // Fill in the rest of the data
       image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
 
-      // vtlist[0].dcColor = light;
-      // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
       vtlist[0].s = particleimageu[image][0];
       vtlist[0].t = particleimagev[image][0];
 
-      // vtlist[1].dcColor = light;
-      // vtlist[1].dcSpecular = vt[cnt].dcSpecular;
       vtlist[1].s = particleimageu[image][1];
       vtlist[1].t = particleimagev[image][0];
 
-      // vtlist[2].dcColor = light;
-      // vtlist[2].dcSpecular = vt[cnt].dcSpecular;
       vtlist[2].s = particleimageu[image][1];
       vtlist[2].t = particleimagev[image][1];
 
-      // vtlist[3].dcColor = light;
-      // vtlist[3].dcSpecular = vt[cnt].dcSpecular;
       vtlist[3].s = particleimageu[image][0];
       vtlist[3].t = particleimagev[image][1];
 
@@ -432,7 +406,7 @@ void render_refprt()
     // Draw lights this round
     if ( prttype[prt] == PRTLIGHTSPRITE )
     {
-      size = ( float )( prtsize[prt] ) * 0.00156f; // 0.00092f;
+      size = ( float )( prtsize[prt] ) * 0.00156f;
 
       // Calculate the position of the four corners of the billboard
       // used to display the particle.
@@ -460,19 +434,15 @@ void render_refprt()
         // light = (startalpha<<24)|usealpha;
         glColor4f( 1.0f, 1.0f, 1.0f, startalpha / 255.0f );
 
-        // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
         vtlist[0].s = particleimageu[image][1];
         vtlist[0].t = particleimagev[image][1];
 
-        // vtlist[1].dcSpecular = vt[cnt].dcSpecular;
         vtlist[1].s = particleimageu[image][0];
         vtlist[1].t = particleimagev[image][1];
 
-        // vtlist[2].dcSpecular = vt[cnt].dcSpecular;
         vtlist[2].s = particleimageu[image][0];
         vtlist[2].t = particleimagev[image][0];
 
-        // vtlist[3].dcSpecular = vt[cnt].dcSpecular;
         vtlist[3].s = particleimageu[image][1];
         vtlist[3].t = particleimagev[image][0];
 
@@ -503,7 +473,7 @@ void render_refprt()
     if ( prttype[prt] != PRTLIGHTSPRITE )
     {
       // Figure out the sprite's size based on distance
-      size = ( float )( prtsize[prt] ) * 0.00156f; // 0.00092f;
+      size = ( float )( prtsize[prt] ) * 0.00092f;
 
       // Calculate the position of the four corners of the billboard
       // used to display the particle.
@@ -531,19 +501,15 @@ void render_refprt()
         image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
         glColor4f( color_component, color_component, color_component, startalpha / 255.0f );
 
-        // vtlist[0].dcSpecular = vt[cnt].dcSpecular;
         vtlist[0].s = particleimageu[image][1];
         vtlist[0].t = particleimagev[image][1];
 
-        // vtlist[1].dcSpecular = vt[cnt].dcSpecular;
         vtlist[1].s = particleimageu[image][0];
         vtlist[1].t = particleimagev[image][1];
 
-        // vtlist[2].dcSpecular = vt[cnt].dcSpecular;
         vtlist[2].s = particleimageu[image][0];
         vtlist[2].t = particleimagev[image][0];
 
-        // vtlist[3].dcSpecular = vt[cnt].dcSpecular;
         vtlist[3].s = particleimageu[image][1];
         vtlist[3].t = particleimagev[image][0];
 
