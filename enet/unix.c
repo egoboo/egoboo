@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <enet_time.h>
+#include <enet/enet_time.h>
 
 #define ENET_BUILDING_LIB 1
 #include "enet/enet.h"
@@ -364,4 +364,5 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
 }
 
 #endif
+
 

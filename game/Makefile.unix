@@ -1,8 +1,8 @@
 # note if you change the prefix also update egoboo.sh
 PREFIX	:= ${HOME}/.local
 EGO_SRC  := camera.c char.c Client.c Clock.c common-file.c configfile.c \
-                 egoboostrutil.c enchant.c Font.c game.c gltexture.c graphicfan.c \
-                 graphicmad.c graphic.c graphicprt.c id_normals.c input.c \
+                 egobooendian.c egoboostrutil.c enchant.c Font.c game.c gltexture.c \
+                 graphicfan.c graphicmad.c graphic.c graphicprt.c input.c \
                  linux-file.c Log.c Link.c mathstuff.c Md2.c menu.c module.c \
                  network.c particle.c passage.c script.c Server.c sound.c \
                  sys_linux.c Ui.c
