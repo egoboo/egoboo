@@ -19,7 +19,6 @@
 //*
 //********************************************************************************************
 
-#define EXPKEEP 0.85f                                // Experience to keep when respawning
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f                     //
 #define PITDEPTH            -30                     // Depth to kill character

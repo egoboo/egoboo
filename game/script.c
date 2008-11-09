@@ -3540,12 +3540,19 @@ Uint8 run_function( Uint32 value, int character )
     case FIFBACKSTABBED:
       // Proceeds if HitFromBehind, target has [DISA] skill and damage is physical
       returncode = bfalse;
-      sTmp = chrmodel[chrattacklast[character]];
-      if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
-        if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( 'D', 'I', 'S', 'A' ) )
-          iTmp = chrdamagetypelast[character];
-      if ( iTmp == DAMAGECRUSH || iTmp == DAMAGEPOKE || iTmp == DAMAGESLASH ) returncode = btrue;
-      break;
+	  if( ( chralert[character] & ALERTIFATTACKED ) != 0 )
+	  {
+		  sTmp = chrmodel[chrattacklast[character]];
+		  if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
+		  {
+			if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( 'D', 'I', 'S', 'A' ) )
+			{
+		      iTmp = chrdamagetypelast[character];
+			  if ( iTmp == DAMAGECRUSH || iTmp == DAMAGEPOKE || iTmp == DAMAGESLASH ) returncode = btrue;
+			}
+		  }
+	  }
+	  break;
 
     case FGETTARGETDAMAGETYPE:
       // This function gets the last type of damage for the target

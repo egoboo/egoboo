@@ -253,10 +253,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\id_normals.c"
-				>
-			</File>
-			<File
 				RelativePath=".\input.c"
 				>
 			</File>
@@ -504,6 +500,26 @@
 		<Filter
 			Name="Obsolete"
 			>
+			<File
+				RelativePath=".\id_normals.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath=".\MainLoop.c"
 				>

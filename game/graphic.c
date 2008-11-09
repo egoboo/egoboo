@@ -373,7 +373,7 @@ void show_armor( Uint16 statindex )
       if ( chrjumpnumberreset[character] == 1 )  sprintf( text, "Novice (1)" );
       if ( chrjumpnumberreset[character] == 2 )  sprintf( text, "Skilled (2)" );
       if ( chrjumpnumberreset[character] == 3 )  sprintf( text, "Master (3)" );
-      if ( chrjumpnumberreset[character] > 3 )   sprintf( text, "Inhuman (4+)" );
+      if ( chrjumpnumberreset[character] > 3 )   sprintf( text, "Inhuman (%i)", chrjumpnumberreset[character] );
       sprintf( tmps, "Jump Skill: %s", text );
       sprintf( text, " Speed:~%3.0f~~%s", capmaxaccel[chrmodel[character]][skinlevel]*80, tmps );
       debug_message( text );

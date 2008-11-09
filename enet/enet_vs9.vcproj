@@ -196,6 +196,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\include\enet\enet_time.h"
+				>
+			</File>
+			<File
 				RelativePath=".\include\enet\list.h"
 				>
 			</File>
@@ -205,10 +209,6 @@
 			</File>
 			<File
 				RelativePath=".\include\enet\protocol.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\enet\time.h"
 				>
 			</File>
 			<File

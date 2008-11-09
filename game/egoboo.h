@@ -66,6 +66,7 @@ EXTERN char          VERSION[] EQ( "2.6.7" );  // Version of the game
 EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
 EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
+#define EXPKEEP 0.85f                                // Experience to keep when respawning
 
 #define MAXMODULE           100                     // Number of modules
 #define TITLESIZE           128                     // Size of a title image

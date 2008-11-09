@@ -1449,7 +1449,7 @@ void unbuffer_player_latches()
           chralert[character] |= ALERTIFCLEANEDUP;
 
           // Cost some experience for doing this...  Never lose a level
-          // chrexperience[character] *= EXPKEEP;
+          chrexperience[character] *= EXPKEEP;
         }
         chrlatchbutton[character] &= 127;
       }

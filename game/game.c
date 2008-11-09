@@ -1943,7 +1943,7 @@ void update_game()
         if ( SDLKEYDOWN( SDLK_SPACE ) && respawnvalid )
         {
           respawn_character( plaindex[cnt] );
-          chrexperience[cnt] = ( chrexperience[cnt] ) * EXPKEEP;  // Apply xp Penality
+          chrexperience[cnt] *= EXPKEEP;  // Apply xp Penality
         }
       }
       else
