@@ -4594,6 +4594,7 @@ void sdlinit( int argc, char **argv )
 
   colordepth = scrd / 3;
 
+#ifndef __APPLE__
   /* Setup the cute windows manager icon */
   theSurface = SDL_LoadBMP( "basicdat" SLASH_STR "icon.bmp" );
   if ( theSurface == NULL )
@@ -4601,6 +4602,7 @@ void sdlinit( int argc, char **argv )
     log_error( "Unable to load icon (basicdat" SLASH_STR "icon.bmp)\n" );
   }
   SDL_WM_SetIcon( theSurface, NULL );
+#endif
 
   /* Set the OpenGL Attributes */
 #ifndef __unix__

@@ -7,7 +7,7 @@
 #define ENET_BUILDING_LIB 1
 #include "enet/utility.h"
 #include "enet/memory.h"
-#include "enet/time.h"
+#include "enet/enet_time.h"
 #include "enet/enet.h"
 
 static enet_uint32 timeCurrent;
@@ -1257,4 +1257,5 @@ enet_host_service (ENetHost * host, ENetEvent * event, enet_uint32 timeout)
 
     return 0; 
 }
+
 

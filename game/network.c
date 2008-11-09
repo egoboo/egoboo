@@ -129,6 +129,9 @@ void close_session()
             log_info( "close_session: Peer id %d disconnected gracefully.\n", event.peer->address.host );
             numPeers--;
             break;
+          
+          default:
+            break;
         }
       }
 
@@ -1414,6 +1417,9 @@ void listen_for_packets()
                          info->playerSlot );
           }
           break;
+        
+        default:
+          break;
       }
     }
   }
@@ -1568,6 +1574,10 @@ void sv_letPlayersJoin()
 
         // Reset that peer's data
         event.peer->data = NULL;
+        break;
+      
+      default:
+        break;
     }
   }
 }

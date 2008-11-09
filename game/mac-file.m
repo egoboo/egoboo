@@ -1,4 +1,4 @@
-// mac-file.c
+// mac-file.m
 
 // Egoboo, Copyright (C) 2000 Aaron Bishop
 
@@ -158,7 +158,7 @@ const char *fs_findNextFile()
 		return NULL;
 	}
 
-	while (fileName = [fs_dirEnum nextObject] )
+	while (( fileName = [fs_dirEnum nextObject] ))
 	{
 		// Also, don't go down directories recursively.
 		pathName = [NSString stringWithFormat: @"%@/%@", fs_dirEnumPath, fileName];
@@ -249,38 +249,4 @@ void empty_import_directory()
 {
 	fs_removeDirectory("./import");
 	fs_createDirectory("./import");
-}
-
-// Pulled from egobootypedef.h
-float LoadFloatByteswapped( float *ptr )
-{
-	int i;
-	float *fptr;
-	int *iptr = (int*)ptr;
-
-	i = *iptr;
-	i = SDL_Swap32(i);
-
-	fptr = (float*)(&i);
-	return *fptr;
-}
-
-// TEMPORARY!!!
-double sys_getTime()
-{
-	return SDL_GetTicks() / 1000.0;
-}
-
-void sys_initialize()
-{
-
-}
-
-void sys_shutdown()
-{
-
-}
-
-void sys_frameStep()
-{
 }
