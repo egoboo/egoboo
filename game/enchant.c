@@ -97,7 +97,7 @@ void remove_enchant( Uint16 enchantindex )
       else
       {
         // Search until we find it
-        currentenchant = chrfirstenchant[character];
+        lastenchant = currentenchant = chrfirstenchant[character];
         while ( currentenchant != enchantindex )
         {
           lastenchant = currentenchant;
@@ -305,7 +305,7 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
           chrmissilehandler[character] = encowner[enchantindex];
           break;
         case SETMORPH:
-          encsetsave[enchantindex][valueindex] = chrtexture[character] - madskinstart[chrmodel[character]];
+          encsetsave[enchantindex][valueindex] = (0 != (chrtexture[character] - madskinstart[chrmodel[character]]));
           // Special handler for morph
           change_character( character, enchanttype, 0, LEAVEALL ); // LEAVEFIRST);
           chralert[character] |= ALERTIFCHANGED;
@@ -330,6 +330,7 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
   Uint16 character;
 
 
+  valuetoadd = 0;
   character = enctarget[enchantindex];
   switch ( valueindex )
   {
@@ -996,7 +997,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
       test = Make_IDSZ( 'S', 'F', 'R', 'Q' );  // [SFRQ]
       if ( idsz == test )  evefrequency[profile] = iTmp;  // OUTDATED??
       test = Make_IDSZ( 'S', 'T', 'A', 'Y' );  // [STAY]
-      if ( idsz == test )  evestayifnoowner[profile] = iTmp;
+      if ( idsz == test )  evestayifnoowner[profile] = (0!=iTmp);
       test = Make_IDSZ( 'O', 'V', 'E', 'R' );  // [OVER]
       if ( idsz == test )  eveoverlay[profile] = iTmp;
       test = Make_IDSZ( 'C', 'K', 'U', 'R' );  // [CKUR]

@@ -25,6 +25,8 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+#define INVALID_TEXTURE ((GLuint)(~(GLuint)0))
+
 
 /**> DATA STRUCTURE: GLTexture <**/
 typedef struct GLTexture

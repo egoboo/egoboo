@@ -771,8 +771,8 @@ int get_free_character()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
+bool_t find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+                            bool_t onlyfriends, bool_t anyone, Uint8 team,
                             Uint16 donttarget, Uint16 oldtarget )
 {
   // ZZ> This function helps find a target, returning btrue if it found a decent target
@@ -834,11 +834,11 @@ Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
 
 //--------------------------------------------------------------------------------------------
 Uint16 find_target( float chrx, float chry, Uint16 facing,
-                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+                    Uint16 targetangle, bool_t onlyfriends, bool_t anyone,
                     Uint8 team, Uint16 donttarget, Uint16 oldtarget )
 {
   // This function finds the best target for the given parameters
-  Uint8 done;
+  bool_t done;
   int x, y;
 
   x = chrx;
@@ -848,17 +848,17 @@ Uint16 find_target( float chrx, float chry, Uint16 facing,
   globestdistance = 9999;
   globestangle = targetangle;
   done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
   if ( done ) return globesttarget;
 
 
-  done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = done || find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
   if ( done ) return globesttarget;
 
 
@@ -1005,6 +1005,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
   {
     hand = 1;
   }
+  owner = NOOWNER;
 
 
   // Rip 'em apart
@@ -1155,7 +1156,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 
 //--------------------------------------------------------------------------------------------
 void attach_character_to_mount( Uint16 character, Uint16 mount,
-                                Uint16 grip )
+                                Uint8 grip )
 {
   // ZZ> This function attaches one character to another ( the mount )
   //     at either the left or right grip
@@ -1551,6 +1552,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
   // Make life easier
   model = chrmodel[chara];
   hand = ( grip - 4 ) >> 2;  // 0 is left, 1 is right
+  owner = NOOWNER;
 
 
   // Make sure the character doesn't have something already, and that it has hands
@@ -1643,6 +1645,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
               }
               cnt++;
             }
+
             if ( inshop )
             {
               // Pay the shop owner, or don't allow grab...
@@ -1730,7 +1733,7 @@ void character_swipe( Uint16 cnt, Uint8 grip )
 {
   // ZZ> This function spawns an attack particle
   int weapon, particle, spawngrip, thrown;
-  Uint8 action;
+  Uint16 action;
   Uint16 tTmp;
   float dampen;
   float x, y, z, velocity;
@@ -1849,13 +1852,13 @@ void move_characters( void )
   // ZZ> This function handles character physics
   int cnt;
   Uint32 mapud, maplr;
-  Uint8 twist, actionready;
-  Uint8 speed, framelip, allowedtoattack;
+  Uint8 twist;
+  Uint8 speed, framelip;
   float level, friction;
   float dvx, dvy, dvmax;
   Uint16 action, weapon, mount, item;
   int distance, volume;
-  bool_t watchtarget, grounded;
+  bool_t watchtarget, grounded, allowedtoattack, actionready;
 
 
   // Move every character
@@ -2607,7 +2610,7 @@ void move_characters( void )
 void setup_characters( char *modname )
 {
   // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
-  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber;
+  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber = 0;
   bool_t ghost;
   char cTmp;
   Uint8 team, stat;
@@ -2650,6 +2653,7 @@ void setup_characters( char *modname )
       fscanf( fileread, "%f%f%f", &x, &y, &z ); x = x * 128;  y = y * 128;  z = z * 128;
       cTmp = get_first_letter( fileread );
       attach = MAXCHR;
+      grip   = GRIPLEFT;
       facing = NORTH;
       if ( cTmp == 'S' || cTmp == 's' )  facing = SOUTH;
       if ( cTmp == 'E' || cTmp == 'e' )  facing = EAST;
@@ -4603,7 +4607,7 @@ int load_one_character_profile( char *szLoadName )
   // the object slot that the profile was stuck into.  It may cause the program
   // to abort if bad things happen.
   FILE* fileread;
-  int object;
+  int object = MAXCHR;
   int iTmp;
   float fTmp;
   char cTmp;
@@ -4995,25 +4999,25 @@ int load_one_character_profile( char *szLoadName )
       test = Make_IDSZ( 'S', 'T', 'U', 'K' );  // [STUK]
       if ( idsz == test )  capresistbumpspawn[object] = 1 - iTmp;
       test = Make_IDSZ( 'P', 'A', 'C', 'K' );  // [PACK]
-      if ( idsz == test )  capistoobig[object] = 1 - iTmp;
+      if ( idsz == test )  capistoobig[object] = !(0!=iTmp);
       test = Make_IDSZ( 'V', 'A', 'M', 'P' );  // [VAMP]
-      if ( idsz == test )  capreflect[object] = 1 - iTmp;
+      if ( idsz == test )  capreflect[object] = !(0!=iTmp);
       test = Make_IDSZ( 'D', 'R', 'A', 'W' );  // [DRAW]
-      if ( idsz == test )  capalwaysdraw[object] = iTmp;
+      if ( idsz == test )  capalwaysdraw[object] = (0!=iTmp);
       test = Make_IDSZ( 'R', 'A', 'N', 'G' );  // [RANG]
-      if ( idsz == test )  capisranged[object] = iTmp;
+      if ( idsz == test )  capisranged[object] = (0!=iTmp);
       test = Make_IDSZ( 'H', 'I', 'D', 'E' );  // [HIDE]
       if ( idsz == test )  caphidestate[object] = iTmp;
       test = Make_IDSZ( 'E', 'Q', 'U', 'I' );  // [EQUI]
-      if ( idsz == test )  capisequipment[object] = iTmp;
+      if ( idsz == test )  capisequipment[object] = (0!=iTmp);
       test = Make_IDSZ( 'S', 'Q', 'U', 'A' );  // [SQUA]
       if ( idsz == test )  capbumpsizebig[object] = capbumpsize[object] << 1;
       test = Make_IDSZ( 'I', 'C', 'O', 'N' );  // [ICON]
-      if ( idsz == test )  capicon[object] = iTmp;
+      if ( idsz == test )  capicon[object] = (0!=iTmp);
       test = Make_IDSZ( 'S', 'H', 'A', 'D' );  // [SHAD]
-      if ( idsz == test )  capforceshadow[object] = iTmp;
+      if ( idsz == test )  capforceshadow[object] = (0!=iTmp);
       test = Make_IDSZ( 'C', 'K', 'U', 'R' );  // [CKUR]
-      if ( idsz == test )  capcanseekurse[object] = iTmp;
+      if ( idsz == test )  capcanseekurse[object] = (0!=iTmp);
       test = Make_IDSZ( 'S', 'K', 'I', 'N' );  // [SKIN]
       if ( idsz == test )  capskinoverride[object] = iTmp & 3;
       test = Make_IDSZ( 'C', 'O', 'N', 'T' );  // [CONT]
@@ -5023,9 +5027,9 @@ int load_one_character_profile( char *szLoadName )
       test = Make_IDSZ( 'L', 'E', 'V', 'L' );  // [LEVL]
       if ( idsz == test )  capleveloverride[object] = iTmp;
       test = Make_IDSZ( 'P', 'L', 'A', 'T' );  // [PLAT]
-      if ( idsz == test )  capcanuseplatforms[object] = iTmp;
+      if ( idsz == test )  capcanuseplatforms[object] = (0!=iTmp);
       test = Make_IDSZ( 'R', 'I', 'P', 'P' );  // [RIPP]
-      if ( idsz == test )  capripple[object] = iTmp;
+      if ( idsz == test )  capripple[object] = (0!=iTmp);
       test = Make_IDSZ( 'A', 'W', 'E', 'P' );  // [AWEP]
       if ( idsz == test )  capcanuseadvancedweapons[object] = test;
       test = Make_IDSZ( 'S', 'H', 'P', 'R' );  // [SHPR]
@@ -6243,9 +6247,9 @@ void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, Uint32 idsz,
-                            char excludeid )
+Uint16 get_target_in_block( int x, int y, Uint16 character, bool_t items,
+                            bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz,
+                            bool_t excludeid )
 {
   // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target
   //     was found
@@ -6301,12 +6305,12 @@ Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, Uint32 idsz )
+Uint16 get_nearby_target( Uint16 character, bool_t items,
+                          bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz )
 {
   // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
   int x, y;
-  char seeinvisible;
+  bool_t seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
 
@@ -6413,8 +6417,8 @@ void switch_team( int character, Uint8 team )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, Uint32 idsz )
+void get_nearest_in_block( int x, int y, Uint16 character, bool_t items,
+                           bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz )
 {
   // ZZ> This is a good little helper
   float distance, xdis, ydis;
@@ -6485,12 +6489,12 @@ void get_nearest_in_block( int x, int y, Uint16 character, char items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, Uint32 idsz )
+Uint16 get_nearest_target( Uint16 character, bool_t items,
+                           bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
-  char seeinvisible;
+  bool_t seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
 
@@ -6516,13 +6520,13 @@ Uint16 get_nearest_target( Uint16 character, char items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, Uint32 idsz, char excludeid )
+Uint16 get_wide_target( Uint16 character, bool_t items,
+                        bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz, bool_t excludeid )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
   Uint16 enemy;
-  char seeinvisible;
+  bool_t seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
   // Current fanblock

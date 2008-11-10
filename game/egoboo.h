@@ -65,7 +65,7 @@ typedef struct
 EXTERN char          VERSION[] EQ( "2.6.7" );  // Version of the game
 EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
-EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
+EXTERN bool_t        screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 
 #define MAXMODULE           100                     // Number of modules
@@ -399,11 +399,11 @@ EXTERN bool_t                   teamhatesteam[MAXTEAM][MAXTEAM];     // Don't da
 EXTERN Uint16                    teammorale[MAXTEAM];                 // Number of characters on team
 EXTERN Uint16                    teamleader[MAXTEAM];                 // The leader of the team
 EXTERN Uint16                    teamsissy[MAXTEAM];                  // Whoever called for help last
-EXTERN short                   damagetileparttype;
-EXTERN short                   damagetilepartand;
-EXTERN short                   damagetilesound;
-EXTERN short                   damagetilesoundtime;
-EXTERN int                     damagetilemindistance;
+EXTERN Sint16                   damagetileparttype;
+EXTERN Uint16                   damagetilepartand;
+EXTERN Sint16                   damagetilesound;
+EXTERN Uint16                   damagetilesoundtime;
+EXTERN Uint32                     damagetilemindistance;
 
 #define TILESOUNDTIME 16
 #define TILEREAFFIRMAND  3
@@ -415,16 +415,16 @@ EXTERN Uint16           numblip  EQ( 0 );
 EXTERN Uint16           blipx[MAXBLIP];
 EXTERN Uint16           blipy[MAXBLIP];
 EXTERN Uint8                   blipc[MAXBLIP];
-EXTERN Uint8                   mapon  EQ( bfalse );
-EXTERN Uint8                   mapvalid  EQ( bfalse );
-EXTERN Uint8                   youarehereon  EQ( bfalse );
+EXTERN bool_t                  mapon  EQ( bfalse );
+EXTERN bool_t                  mapvalid  EQ( bfalse );
+EXTERN bool_t                  youarehereon  EQ( bfalse );
 
 
 // Display
-EXTERN Uint8                   timeron  EQ( bfalse );          // Game timer displayed?
+EXTERN bool_t                  timeron  EQ( bfalse );          // Game timer displayed?
 EXTERN Uint32                   timervalue  EQ( 0 );           // Timer time ( 50ths of a second )
 EXTERN char                    szfpstext[]  EQ( "000 FPS" );
-EXTERN Uint8                   fpson  EQ( btrue );             // FPS displayed?
+EXTERN bool_t                   fpson  EQ( btrue );             // FPS displayed?
 
 // Timers
 EXTERN Sint32              sttclock;                   // GetTickCount at start
@@ -439,8 +439,8 @@ EXTERN Uint32                   statclock  EQ( 0 );            // For stat regen
 EXTERN Uint32                   pitclock  EQ( 0 );             // For pit kills
 EXTERN Uint32                   outofsync  EQ( 0 );
 
-EXTERN Uint8                   pitskill  EQ( bfalse );          // Do they kill?
-EXTERN Uint8      parseerror  EQ( 0 );
+EXTERN bool_t                   pitskill  EQ( bfalse );          // Do they kill?
+EXTERN bool_t                   parseerror  EQ( 0 );
 
 
 
@@ -496,7 +496,7 @@ extern SDL_Surface *displaySurface;
 EXTERN int                     localmachine  EQ( 0 );         // 0 is host, 1 is 1st remote, 2 is 2nd...
 EXTERN int                     numimport;                  // Number of imports from this machine
 EXTERN Uint8                   localcontrol[16];           // For local imports
-EXTERN short                   localslot[16];              // For local imports
+EXTERN Sint16                  localslot[16];              // For local imports
 
 // Setup values
 EXTERN int                     maxmessage  EQ( MAXMESSAGE );  //
@@ -505,7 +505,7 @@ EXTERN int                     scrz  EQ( 16 );                // Screen z-buffer
 EXTERN int                     scrx  EQ( 320 );               // Screen X size
 EXTERN int                     scry  EQ( 200 );               // Screen Y size
 EXTERN Uint8                   reffadeor  EQ( 0 );            // 255 = Don't fade reflections
-EXTERN Uint8                   messageon  EQ( btrue );         // Messages?
+EXTERN bool_t                  messageon  EQ( btrue );         // Messages?
 EXTERN bool_t                  overlayon  EQ( bfalse );        // Draw overlay?
 EXTERN bool_t                  perspective  EQ( bfalse );      // Perspective correct textures?
 EXTERN bool_t                  dither  EQ( bfalse );           // Dithering?
@@ -546,7 +546,7 @@ EXTERN Uint8                   msb, jab, jbb;              // Button masks
 
 // Weather and water gfx
 EXTERN Uint8                   watershift  EQ( 3 );
-EXTERN int                     weatheroverwater EQ( bfalse );       // Only spawn over water?
+EXTERN bool_t                  weatheroverwater EQ( bfalse );       // Only spawn over water?
 EXTERN int                     weathertimereset EQ( 10 );          // Rate at which weather particles spawn
 EXTERN int                     weathertime EQ( 0 );                // 0 is no weather
 EXTERN int                     weatherplayer;
@@ -556,7 +556,7 @@ EXTERN float                   waterdouselevel EQ( 0 );            // Surface le
 EXTERN Uint8                   waterlight EQ( 0 );                 // Is it light ( default is alpha )
 EXTERN Uint8                   waterspekstart EQ( 128 );           // Specular begins at which light value
 EXTERN Uint8                   waterspeklevel EQ( 128 );           // General specular amount (0-255)
-EXTERN Uint8                   wateriswater  EQ( btrue );          // Is it water?  ( Or lava... )
+EXTERN bool_t                  wateriswater  EQ( btrue );          // Is it water?  ( Or lava... )
 EXTERN Uint8                   waterlightlevel[MAXWATERLAYER]; // General light amount (0-63)
 EXTERN Uint8                   waterlightadd[MAXWATERLAYER];   // Ambient light amount (0-63)
 EXTERN float                   waterlayerz[MAXWATERLAYER];     // Base height of water
@@ -577,8 +577,8 @@ EXTERN float                   foregroundrepeat  EQ( 1 );     //
 EXTERN float                   backgroundrepeat  EQ( 1 );     //
 
 // Fog stuff
-EXTERN Uint8                   fogallowed  EQ( btrue );        //
-EXTERN Uint8                   fogon  EQ( bfalse );            // Do ground fog?
+EXTERN bool_t                  fogallowed  EQ( btrue );        //
+EXTERN bool_t                  fogon  EQ( bfalse );            // Do ground fog?
 EXTERN float                   fogbottom  EQ( 0.0f );          //
 EXTERN float                   fogtop  EQ( 100 );             //
 EXTERN float                   fogdistance  EQ( 100 );        //
@@ -728,7 +728,7 @@ EXTERN Uint8          chrinpack[MAXCHR];          // Is it in the inventory?
 EXTERN Uint8          chrwasinpack[MAXCHR];       // Temporary thing...
 EXTERN Uint16           chrnextinpack[MAXCHR];      // Link to the next item
 EXTERN Uint8          chrnuminpack[MAXCHR];       // How many
-EXTERN Uint8          chropenstuff[MAXCHR];       // Can it open chests/doors?
+EXTERN bool_t         chropenstuff[MAXCHR];       // Can it open chests/doors?
 EXTERN Uint8          chrlifecolor[MAXCHR];       // Bar color
 EXTERN Uint8          chrsparkle[MAXCHR];         // Sparkle color or 0 for off
 EXTERN Sint16            chrlife[MAXCHR];            // Basic character stats
@@ -736,7 +736,7 @@ EXTERN Sint16            chrlifemax[MAXCHR];         //   All 8.8 fixed point
 EXTERN Uint16           chrlifeheal[MAXCHR];        //
 EXTERN Uint8          chrmanacolor[MAXCHR];       // Bar color
 EXTERN Uint8          chrammomax[MAXCHR];         // Ammo stuff
-EXTERN Uint8          chrammo[MAXCHR];            //
+EXTERN Uint16          chrammo[MAXCHR];            //
 EXTERN Uint8          chrgender[MAXCHR];          // Gender
 EXTERN Sint16            chrmana[MAXCHR];            // Mana stuff
 EXTERN Sint16            chrmanamax[MAXCHR];         //
@@ -746,7 +746,7 @@ EXTERN Sint16            chrstrength[MAXCHR];        // Strength
 EXTERN Sint16            chrwisdom[MAXCHR];          // Wisdom
 EXTERN Sint16            chrintelligence[MAXCHR];    // Intelligence
 EXTERN Sint16            chrdexterity[MAXCHR];       // Dexterity
-EXTERN Uint8          chraitype[MAXCHR];          // The AI script to run
+EXTERN Uint16          chraitype[MAXCHR];          // The AI script to run
 EXTERN bool_t                    chricon[MAXCHR];            // Show the icon?
 EXTERN bool_t                    chrcangrabmoney[MAXCHR];    // Picks up coins?
 EXTERN bool_t                    chrisplayer[MAXCHR];        // btrue = player
@@ -755,8 +755,8 @@ EXTERN Uint16           chrlastitemused[MAXCHR];        // The last item the cha
 EXTERN Uint16           chraitarget[MAXCHR];        // Who the AI is after
 EXTERN Uint16           chraiowner[MAXCHR];         // The character's owner
 EXTERN Uint16           chraichild[MAXCHR];         // The character's child
-EXTERN int                     chraistate[MAXCHR];         // Short term memory for AI
-EXTERN int                     chraicontent[MAXCHR];       // More short term memory
+EXTERN Uint32                     chraistate[MAXCHR];         // Short term memory for AI
+EXTERN Uint32                     chraicontent[MAXCHR];       // More short term memory
 EXTERN Uint16           chraitime[MAXCHR];          // AI Timer
 EXTERN Uint8          chraigoto[MAXCHR];          // Which waypoint
 EXTERN Uint8          chraigotoadd[MAXCHR];       // Where to stick next
@@ -764,18 +764,18 @@ EXTERN float                   chraigotox[MAXCHR][MAXWAY]; // Waypoint
 EXTERN float                   chraigotoy[MAXCHR][MAXWAY]; // Waypoint
 EXTERN int                     chraix[MAXCHR][MAXSTOR];    // Temporary values...  SetXY
 EXTERN int                     chraiy[MAXCHR][MAXSTOR];    //
-EXTERN Uint8          chrstickybutt[MAXCHR];      // Rests on floor
-EXTERN Uint8          chrenviro[MAXCHR];          // Environment map?
+EXTERN bool_t         chrstickybutt[MAXCHR];      // Rests on floor
+EXTERN bool_t         chrenviro[MAXCHR];          // Environment map?
 EXTERN float                   chroldx[MAXCHR];            // Character's last position
 EXTERN float                   chroldy[MAXCHR];            //
 EXTERN float                   chroldz[MAXCHR];            //
-EXTERN Uint8          chrinwater[MAXCHR];         //
+EXTERN bool_t         chrinwater[MAXCHR];         //
 EXTERN Uint16           chroldturn[MAXCHR];         //
 EXTERN Uint32         chralert[MAXCHR];           // Alerts for AI script
 EXTERN Uint8          chrflyheight[MAXCHR];       // Height to stabilize at
 EXTERN Uint8          chrteam[MAXCHR];            // Character's team
 EXTERN Uint8          chrbaseteam[MAXCHR];        // Character's starting team
-EXTERN Uint8          chrstaton[MAXCHR];          // Display stats?
+EXTERN bool_t         chrstaton[MAXCHR];          // Display stats?
 EXTERN float                   chrxstt[MAXCHR];            // Starting position
 EXTERN float                   chrystt[MAXCHR];            //
 EXTERN float                   chrzstt[MAXCHR];            //
@@ -812,10 +812,10 @@ EXTERN Uint16           chrlightturnleftright[MAXCHR];// Character's light rotat
 EXTERN Uint16           chrturnmaplr[MAXCHR];       //
 EXTERN Uint16           chrturnmapud[MAXCHR];       //
 EXTERN Uint16           chrtexture[MAXCHR];         // Character's skin
-EXTERN Uint8          chrmodel[MAXCHR];           // Character's model
+EXTERN Uint16          chrmodel[MAXCHR];           // Character's model
 EXTERN Uint8          chrbasemodel[MAXCHR];       // The true form
-EXTERN Uint8          chractionready[MAXCHR];     // Ready to play a new one
-EXTERN Uint8          chraction[MAXCHR];          // Character's action
+EXTERN bool_t          chractionready[MAXCHR];     // Ready to play a new one
+EXTERN Uint16          chraction[MAXCHR];          // Character's action
 EXTERN bool_t          chrkeepaction[MAXCHR];      // Keep the action playing
 EXTERN bool_t          chrloopaction[MAXCHR];      // Loop it too
 EXTERN Uint8          chrnextaction[MAXCHR];      // Character's action to play next
@@ -832,10 +832,10 @@ EXTERN Uint8          chrlight[MAXCHR];           // 1 = Light, 0 = Normal
 EXTERN Uint8          chrflashand[MAXCHR];        // 1,3,7,15,31 = Flash, 255 = Don't
 EXTERN Uint8          chrlightlevel[MAXCHR];      // 0-255, terrain light
 EXTERN Uint8          chrsheen[MAXCHR];           // 0-15, how shiny it is
-EXTERN Uint8          chrtransferblend[MAXCHR];   // Give transparency to weapons?
-EXTERN Uint8          chrisitem[MAXCHR];          // Is it grabbable?
-EXTERN Uint8          chrinvictus[MAXCHR];        // Totally invincible?
-EXTERN Uint8          chrismount[MAXCHR];         // Can you ride it?
+EXTERN bool_t         chrtransferblend[MAXCHR];   // Give transparency to weapons?
+EXTERN bool_t         chrisitem[MAXCHR];          // Is it grabbable?
+EXTERN bool_t         chrinvictus[MAXCHR];        // Totally invincible?
+EXTERN bool_t         chrismount[MAXCHR];         // Can you ride it?
 EXTERN Uint8          chrredshift[MAXCHR];        // Color channel shifting
 EXTERN Uint8          chrgrnshift[MAXCHR];        //
 EXTERN Uint8          chrblushift[MAXCHR];        //
@@ -854,8 +854,8 @@ EXTERN Uint16           chrattacklast[MAXCHR];      // Last character it was att
 EXTERN Uint16           chrhitlast[MAXCHR];         // Last character it hit
 EXTERN Uint16           chrdirectionlast[MAXCHR];   // Direction of last attack/healing
 EXTERN Uint8          chrdamagetypelast[MAXCHR];  // Last damage type
-EXTERN Uint8          chrplatform[MAXCHR];        // Can it be stood on
-EXTERN Uint8          chrwaterwalk[MAXCHR];       // Always above watersurfacelevel?
+EXTERN bool_t         chrplatform[MAXCHR];        // Can it be stood on
+EXTERN bool_t         chrwaterwalk[MAXCHR];       // Always above watersurfacelevel?
 EXTERN Uint8          chrturnmode[MAXCHR];        // Turning mode
 EXTERN Uint8          chrsneakspd[MAXCHR];        // Sneaking if above this speed
 EXTERN Uint8          chrwalkspd[MAXCHR];         // Walking if above this speed
@@ -868,7 +868,7 @@ EXTERN Uint8          chrdefense[MAXCHR];         // Base defense rating
 EXTERN Uint16           chrweight[MAXCHR];          // Weight ( for pressure plates )
 EXTERN Uint8          chrpassage[MAXCHR];         // The passage associated with this character
 EXTERN Uint32         chrorder[MAXCHR];           // The last order given the character
-EXTERN Uint8          chrcounter[MAXCHR];         // The rank of the character on the order chain
+EXTERN Uint16          chrcounter[MAXCHR];         // The rank of the character on the order chain
 EXTERN Uint16           chrholdingweight[MAXCHR];   // For weighted buttons
 EXTERN Sint16            chrmoney[MAXCHR];           // Money
 EXTERN Sint16            chrlifereturn[MAXCHR];      // Regeneration/poison
@@ -878,17 +878,17 @@ EXTERN Uint32         chrexperience[MAXCHR];      // Experience
 EXTERN Uint8          chrexperiencelevel[MAXCHR]; // Experience Level
 EXTERN Sint16            chrgrogtime[MAXCHR];        // Grog timer
 EXTERN Sint16            chrdazetime[MAXCHR];        // Daze timer
-EXTERN Uint8          chriskursed[MAXCHR];        // Can't be dropped?
-EXTERN Uint8          chrnameknown[MAXCHR];       // Is the name known?
-EXTERN Uint8          chrammoknown[MAXCHR];       // Is the ammo known?
-EXTERN Uint8          chrhitready[MAXCHR];        // Was it just dropped?
+EXTERN bool_t         chriskursed[MAXCHR];        // Can't be dropped?
+EXTERN bool_t         chrnameknown[MAXCHR];       // Is the name known?
+EXTERN bool_t         chrammoknown[MAXCHR];       // Is the ammo known?
+EXTERN bool_t         chrhitready[MAXCHR];        // Was it just dropped?
 EXTERN Sint16            chrboretime[MAXCHR];        // Boredom timer
 EXTERN Uint8          chrcarefultime[MAXCHR];     // "You hurt me!" timer
 EXTERN bool_t          chrcanbecrushed[MAXCHR];    // Crush in a door?
 EXTERN Uint8          chrinwhichhand[MAXCHR];     // GRIPLEFT or GRIPRIGHT
-EXTERN Uint8           chrisequipped[MAXCHR];      // For boots and rings and stuff
-EXTERN Uint8           chrfirstenchant[MAXCHR];    // Linked list for enchants
-EXTERN Uint8           chrundoenchant[MAXCHR];     // Last enchantment spawned
+EXTERN bool_t          chrisequipped[MAXCHR];      // For boots and rings and stuff
+EXTERN Uint16           chrfirstenchant[MAXCHR];    // Linked list for enchants
+EXTERN Uint16           chrundoenchant[MAXCHR];     // Last enchantment spawned
 EXTERN bool_t                    chrcanchannel[MAXCHR];      //
 EXTERN bool_t                    chroverlay[MAXCHR];         // Is this an overlay?  Track aitarget...
 EXTERN Uint8           chrmissiletreatment[MAXCHR];// For deflection, etc.
@@ -938,26 +938,26 @@ EXTERN Uint16           evecontspawntime[MAXEVE];               // Spawn timer
 EXTERN Uint8           evecontspawnamount[MAXEVE];             // Spawn amount
 EXTERN Uint16           evecontspawnfacingadd[MAXEVE];          // Spawn in circle
 EXTERN Uint16           evecontspawnpip[MAXEVE];                // Spawn type ( local )
-EXTERN Uint16           evewaveindex[MAXEVE];                   // Sound on end (-1 for none)
+EXTERN Sint16           evewaveindex[MAXEVE];                   // Sound on end (-1 for none)
 EXTERN Uint16           evefrequency[MAXEVE];                   // Sound frequency
 EXTERN Uint8           eveoverlay[MAXEVE];                     // Spawn an overlay?
 EXTERN Uint16           eveseekurse[MAXEVE];                     // Spawn an overlay?
 
 EXTERN bool_t           encon[MAXENCHANT];                      // Enchantment on
-EXTERN Uint8           enceve[MAXENCHANT];                     // The type
+EXTERN Uint16           enceve[MAXENCHANT];                     // The type
 EXTERN Uint16           enctarget[MAXENCHANT];                  // Who it enchants
 EXTERN Uint16           encnextenchant[MAXENCHANT];             // Next in the list
 EXTERN Uint16           encowner[MAXENCHANT];                   // Who cast the enchant
 EXTERN Uint16           encspawner[MAXENCHANT];                 // The spellbook character
 EXTERN Uint16           encoverlay[MAXENCHANT];                 // The overlay character
-EXTERN Sint16            encownermana[MAXENCHANT];               // Boost values
-EXTERN Sint16            encownerlife[MAXENCHANT];               //
-EXTERN Sint16            enctargetmana[MAXENCHANT];              //
-EXTERN Sint16            enctargetlife[MAXENCHANT];              //
-EXTERN bool_t                  encsetyesno[MAXENCHANT][MAXEVESETVALUE];// Was it set?
-EXTERN bool_t           encsetsave[MAXENCHANT][MAXEVESETVALUE]; // The value to restore
-EXTERN Sint16            encaddsave[MAXENCHANT][MAXEVEADDVALUE]; // The value to take away
-EXTERN Sint16            enctime[MAXENCHANT];                    // Time before end
+EXTERN Sint16           encownermana[MAXENCHANT];               // Boost values
+EXTERN Sint16           encownerlife[MAXENCHANT];               //
+EXTERN Sint16           enctargetmana[MAXENCHANT];              //
+EXTERN Sint16           enctargetlife[MAXENCHANT];              //
+EXTERN bool_t           encsetyesno[MAXENCHANT][MAXEVESETVALUE];// Was it set?
+EXTERN int              encsetsave[MAXENCHANT][MAXEVESETVALUE]; // The value to restore
+EXTERN int              encaddsave[MAXENCHANT][MAXEVEADDVALUE]; // The value to take away
+EXTERN Sint16           enctime[MAXENCHANT];                    // Time before end
 EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before spawn
 
 #define MISNORMAL               0                  // Treat missiles normally
@@ -1117,12 +1117,12 @@ EXTERN float                   madcommandv[MAXMODEL][MAXCOMMANDENTRIES];   //
 EXTERN Sint16            madvrtx[MAXFRAME][MAXVERTICES];             // Vertex position
 EXTERN Sint16            madvrty[MAXFRAME][MAXVERTICES];             //
 EXTERN Sint16            madvrtz[MAXFRAME][MAXVERTICES];             //
-EXTERN Uint8           madvrta[MAXFRAME][MAXVERTICES];             // Light index of vertex
+EXTERN Uint16           madvrta[MAXFRAME][MAXVERTICES];             // Light index of vertex
 EXTERN Uint8           madframelip[MAXFRAME];                      // 0-15, How far into action is each frame
 EXTERN Uint16           madframefx[MAXFRAME];                       // Invincibility, Spawning
 EXTERN Uint16           madframeliptowalkframe[MAXMODEL][4][16];    // For walk animations
 EXTERN Uint16           madai[MAXMODEL];                            // AI for each model
-EXTERN Uint8           madactionvalid[MAXMODEL][MAXACTION];        // bfalse if not valid
+EXTERN bool_t           madactionvalid[MAXMODEL][MAXACTION];        // bfalse if not valid
 EXTERN Uint16           madactionstart[MAXMODEL][MAXACTION];        // First frame of anim
 EXTERN Uint16           madactionend[MAXMODEL][MAXACTION];          // One past last frame
 EXTERN Uint16           madprtpip[MAXMODEL][MAXPRTPIPPEROBJECT];    // Local particles
@@ -1130,7 +1130,7 @@ EXTERN Uint16           madprtpip[MAXMODEL][MAXPRTPIPPEROBJECT];    // Local par
 
 // Character profiles
 EXTERN int                   importobject;
-EXTERN short                 capimportslot[MAXMODEL];
+EXTERN Sint16                capimportslot[MAXMODEL];
 EXTERN char                  capclassname[MAXMODEL][MAXCAPNAMESIZE];     // Class name
 EXTERN char                  capskinname[MAXMODEL][4][MAXCAPNAMESIZE];   // Skin name
 EXTERN Sint8           capskinoverride[MAXMODEL];                  // -1 or 0-3.. For import
@@ -1202,7 +1202,7 @@ EXTERN Uint8           capflashand[MAXMODEL];                      // Flashing r
 EXTERN Uint8           capalpha[MAXMODEL];                         // Transparency
 EXTERN Uint8           caplight[MAXMODEL];                         // Light blending
 EXTERN bool_t           captransferblend[MAXMODEL];                 // Transfer blending to rider/weapons
-EXTERN bool_t           capsheen[MAXMODEL];                         // How shiny it is ( 0-15 )
+EXTERN Uint8           capsheen[MAXMODEL];                         // How shiny it is ( 0-15 )
 EXTERN bool_t           capenviro[MAXMODEL];                        // Phong map this baby?
 EXTERN Uint16         capuoffvel[MAXMODEL];                       // Texture movement rates
 EXTERN Uint16         capvoffvel[MAXMODEL];                       //
@@ -1402,7 +1402,7 @@ EXTERN Uint16          meshbumplistchr[MAXMESHFAN/16];                     // Fo
 EXTERN Uint16          meshbumplistchrnum[MAXMESHFAN/16];                  // Number on the block
 EXTERN Uint16          meshbumplistprt[MAXMESHFAN/16];                     // For particle collisions
 EXTERN Uint16          meshbumplistprtnum[MAXMESHFAN/16];                  // Number on the block
-EXTERN Uint8           meshexploremode  EQ( bfalse );                          // Explore mode?
+EXTERN bool_t          meshexploremode  EQ( bfalse );                          // Explore mode?
 EXTERN int             maxtotalmeshvertices  EQ( 256*256*6 );                 // of vertices
 EXTERN int             meshsizex;                                          // Size in fansquares
 EXTERN int             meshsizey;                                          //
@@ -1525,10 +1525,10 @@ extern int                     iNumAis;
 
 EXTERN int     valuetmpx EQ( 0 );
 EXTERN int     valuetmpy EQ( 0 );
-EXTERN Uint32  valuetmpturn EQ( 0 );
+EXTERN Uint16  valuetmpturn EQ( 0 );
 EXTERN int     valuetmpdistance EQ( 0 );
 EXTERN int     valuetmpargument EQ( 0 );
-EXTERN Uint32  valuelastindent EQ( 0 );
+EXTERN Uint16  valuelastindent EQ( 0 );
 EXTERN Uint16  valueoldtarget EQ( 0 );
 EXTERN int     valueoperationsum EQ( 0 );
 EXTERN Uint8   valuegopoof;
@@ -1693,7 +1693,7 @@ EXTERN int                     numplayerrespond;                       //
 #define TO_REMOTE_RTS        5143                               //
 #define TO_REMOTE_START     51390                               //
 #define TO_REMOTE_FILESENT  19903                               //
-extern Uint32  nexttimestamp;                // Expected timestamp
+extern Sint32  nexttimestamp;                // Expected timestamp
 
 
 // Sound using SDL_Mixer

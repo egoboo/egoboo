@@ -74,7 +74,7 @@ size_t      net_readLocation = 0;
 Uint32  packethead;                             // The write head
 Uint32  packetsize;                             // The size of the packet
 Uint8  packetbuffer[MAXSENDSIZE];              // The data packet
-Uint32  nexttimestamp;                          // Expected timestamp
+Sint32  nexttimestamp;                          // Expected timestamp
 
 // File transfer variables & structures
 typedef struct NetFileTransfer
@@ -244,8 +244,8 @@ void packet_addUnsignedShort( Uint16 us )
 void packet_addSignedShort( Sint16 ss )
 {
   // ZZ> This function appends a Sint16 to the packet
-  signed short* ssp;
-  ssp = ( signed short* )( &packetbuffer[packethead] );
+  Sint16* ssp;
+  ssp = ( Sint16* )( &packetbuffer[packethead] );
 
   *ssp = ENET_HOST_TO_NET_16( ss );
 
@@ -374,8 +374,8 @@ Sint16 packet_readSignedShort()
 {
   // ZZ> This function reads a Sint16 from the packet
   Sint16 ss;
-  signed short* ssp;
-  ssp = ( signed short* )( &net_readPacket->data[net_readLocation] );
+  Sint16* ssp;
+  ssp = ( Sint16* )( &net_readPacket->data[net_readLocation] );
 
   ss = ENET_NET_TO_HOST_16( *ssp );
 
@@ -843,7 +843,7 @@ void net_sayHello()
 void cl_talkToHost()
 {
   // ZZ> This function sends the latch packets to the host machine
-  Uint16 player;
+  Uint8 player;
 
   // Let the players respawn
   if ( sdlkeybuffer[SDLK_SPACE]
@@ -960,7 +960,7 @@ void net_handlePacket( ENetEvent *event )
   int filesize, newfilesize, fileposition;
   char newfile;
   Uint16 player;
-  Uint32 stamp;
+  Sint32 stamp;
   int time;
   FILE *file;
   size_t fileSize;

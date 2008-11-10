@@ -245,6 +245,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
     newrand = RANDIE;
     velocity = ( pipxyvelbase[pip] + ( newrand & pipxyvelrand[pip] ) );
     prttarget[cnt] = oldtarget;
+    offsetfacing = 0;
     if ( pipnewtargetonspawn[pip] )
     {
       if ( piptargetcaster[pip] )
@@ -1197,7 +1198,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
       test = Make_IDSZ( 'W', 'S', 'N', 'D' );  // [WSND]
       if ( idsz == test )  pipsoundwall[numpip] = iTmp;
       test = Make_IDSZ( 'W', 'E', 'N', 'D' );  // [WEND]
-      if ( idsz == test )  pipendwall[numpip] = iTmp;
+      if ( idsz == test )  pipendwall[numpip] = (0!=iTmp);
       test = Make_IDSZ( 'A', 'R', 'M', 'O' );  // [ARMO]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXARMO;
       test = Make_IDSZ( 'B', 'L', 'O', 'C' );  // [BLOC]
@@ -1207,15 +1208,15 @@ int load_one_particle( char *szLoadName, int object, int pip )
       test = Make_IDSZ( 'T', 'I', 'M', 'E' );  // [TIME]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXTIME;
       test = Make_IDSZ( 'P', 'U', 'S', 'H' );  // [PUSH]
-      if ( idsz == test )  pipallowpush[numpip] = iTmp;
+      if ( idsz == test )  pipallowpush[numpip] = (0!=iTmp);
       test = Make_IDSZ( 'D', 'L', 'E', 'V' );  // [DLEV]
       if ( idsz == test )  pipdynalightleveladd[numpip] = iTmp / 1000.0f;
       test = Make_IDSZ( 'D', 'R', 'A', 'D' );  // [DRAD]
       if ( idsz == test )  pipdynalightfalloffadd[numpip] = iTmp / 1000.0f;
       test = Make_IDSZ( 'I', 'D', 'A', 'M' );  // [IDAM]
-      if ( idsz == test )  pipintdamagebonus[numpip] = iTmp;
+      if ( idsz == test )  pipintdamagebonus[numpip] = (0!=iTmp);
       test = Make_IDSZ( 'W', 'D', 'A', 'M' );  // [WDAM]
-      if ( idsz == test )  pipwisdamagebonus[numpip] = iTmp;
+      if ( idsz == test )  pipwisdamagebonus[numpip] = (0!=iTmp);
     }
 
 

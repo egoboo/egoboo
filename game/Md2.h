@@ -22,11 +22,13 @@
 #ifndef egoboo_Md2_h
 #define egoboo_Md2_h
 
+#include "egobootypedef.h"
+
 
 typedef struct Md2Vertex
 {
   float x, y, z;
-  unsigned normal;  // index to id-normal array
+  Uint32 normal;  // index to id-normal array
 } Md2Vertex;
 
 typedef struct Md2TexCoord
@@ -36,8 +38,8 @@ typedef struct Md2TexCoord
 
 typedef struct Md2Triangle
 {
-  short vertexIndices[3];
-  short texCoordIndices[3];
+  Uint16 vertexIndices[3];
+  Uint16 texCoordIndices[3];
 } Md2Triangle;
 
 typedef struct Md2Frame
@@ -54,11 +56,11 @@ typedef struct Md2SkinName
 
 typedef struct Md2Model
 {
-  int numVertices;
-  int numTexCoords;
-  int numTriangles;
-  int numSkins;
-  int numFrames;
+  Uint32 numVertices;
+  Uint32 numTexCoords;
+  Uint32 numTriangles;
+  Uint32 numSkins;
+  Uint32 numFrames;
 
   Md2SkinName *skins;
   Md2TexCoord *texCoords;

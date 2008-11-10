@@ -479,7 +479,7 @@ void read_controls( char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_key_is_pressed( Uint8 control )
+bool_t control_key_is_pressed( Uint8 control )
 {
   // ZZ> This function returns btrue if the given control is pressed...
   if ( netmessagemode )  return bfalse;
@@ -491,7 +491,7 @@ Uint8 control_key_is_pressed( Uint8 control )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_mouse_is_pressed( Uint8 control )
+bool_t control_mouse_is_pressed( Uint8 control )
 {
   // ZZ> This function returns btrue if the given control is pressed...
   if ( controliskey[control] )
@@ -511,7 +511,7 @@ Uint8 control_mouse_is_pressed( Uint8 control )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_joya_is_pressed( Uint8 control )
+bool_t control_joya_is_pressed( Uint8 control )
 {
   // ZZ> This function returns btrue if the given control is pressed...
   if ( controliskey[control] )
@@ -531,7 +531,7 @@ Uint8 control_joya_is_pressed( Uint8 control )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_joyb_is_pressed( Uint8 control )
+bool_t control_joyb_is_pressed( Uint8 control )
 {
   // ZZ> This function returns btrue if the given control is pressed...
   if ( controliskey[control] )
@@ -1472,10 +1472,10 @@ void rip_md2_frames( Uint16 modelindex )
 //            fRealx = (cTmpx*fScalex);
 //            fRealy = (cTmpy*fScaley);
 //            fRealz = (cTmpz*fScalez);
-//            madvrtx[madloadframe][tnc] = (signed short) (fRealx*256); // HUK
-      madvrtx[madloadframe][tnc] = ( signed short ) ( -fRealx * 256 );
-      madvrty[madloadframe][tnc] = ( signed short ) ( fRealy * 256 );
-      madvrtz[madloadframe][tnc] = ( signed short ) ( fRealz * 256 );
+//            madvrtx[madloadframe][tnc] = ( Sint16 ) (fRealx*256); // HUK
+      madvrtx[madloadframe][tnc] = ( Sint16 ) ( -fRealx * 256 );
+      madvrty[madloadframe][tnc] = ( Sint16 ) ( fRealy * 256 );
+      madvrtz[madloadframe][tnc] = ( Sint16 ) ( fRealz * 256 );
       madvrta[madloadframe][tnc] = cTmpNormalIndex;
       iFrameOffset++;
       tnc++;
@@ -1613,7 +1613,7 @@ void sort_stat()
     }
 }
 //--------------------------------------------------------------------------------------------
-void play_action( Uint16 character, Uint16 action, Uint8 actionready )
+void play_action( Uint16 character, Uint16 action, bool_t actionready )
 {
   // ZZ> This function starts a generic action for a character
   if ( madactionvalid[chrmodel[character]][action] )
@@ -2081,7 +2081,7 @@ void undo_pair( int base, int rand )
 }
 
 //--------------------------------------------------------------------------------------------
-void ftruthf( FILE* filewrite, char* text, Uint8 truth )
+void ftruthf( FILE* filewrite, char* text, bool_t truth )
 {
   // ZZ> This function kinda mimics fprintf for the output of
   //     btrue bfalse statements

@@ -404,6 +404,7 @@ void render_refprt()
     prt = ( Uint16 ) v[cnt].color;
 
     // Draw lights this round
+    level = 0;
     if ( prttype[prt] == PRTLIGHTSPRITE )
     {
       size = ( float )( prtsize[prt] ) * 0.00156f;

@@ -679,7 +679,7 @@ void reset_ai_script()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 run_function( Uint32 value, int character )
+bool_t run_function( Uint32 value, int character )
 {
   // ZZ> This function runs a script function for the AI.
   //     It returns bfalse if the script should jump over the
@@ -689,7 +689,7 @@ Uint8 run_function( Uint32 value, int character )
   Uint32 valuecode = value & 0x7ffffff;
 
   // Assume that the function will pass, as most do
-  Uint8 returncode = btrue;
+  bool_t returncode = btrue;
 
   Uint16 sTmp;
   float fTmp;
@@ -798,7 +798,7 @@ Uint8 run_function( Uint32 value, int character )
           valuetmpturn += 32768;
           valuetmpturn = valuetmpturn & 65535;
         }
-        if ( valuetmpdistance == MOVE_CHARGE || MOVE_RETREAT ) reset_character_accel( character ); // Force 100% speed
+        if ( valuetmpdistance == MOVE_CHARGE || valuetmpdistance == MOVE_RETREAT ) reset_character_accel( character ); // Force 100% speed
 
         // Secondly we run the Compass function (If we are not in follow mode)
         if ( valuetmpdistance != MOVE_FOLLOW )
@@ -3926,7 +3926,7 @@ void let_character_think( int character )
   Uint32 index;
   Uint32 value;
   Uint32 iTmp;
-  Uint8 functionreturn;
+  bool_t functionreturn;
   int operands;
 
 

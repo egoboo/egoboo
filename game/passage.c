@@ -496,7 +496,7 @@ void add_shop_passage( int owner, int passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
+void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
   // ZZ> This function creates a passage area
   if ( tlx < 0 )  tlx = 0;

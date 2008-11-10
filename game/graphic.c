@@ -336,7 +336,7 @@ void show_armor( Uint16 statindex )
 {
   // ZF> This function shows detailed armor information for the character
   char text[64], tmps[64];
-  short character, skinlevel;
+  Uint16 character, skinlevel;
 
   if ( statdelay == 0 )
   {
@@ -388,7 +388,7 @@ void show_full_status( Uint16 statindex )
 {
   // ZF> This function shows detailed armor information for the character including magic
   char text[64], tmps[64];
-  short character;
+  Uint16 character;
   int i = 0;
   if ( statdelay == 0 )
   {
@@ -440,7 +440,7 @@ void show_magic_status( Uint16 statindex )
 {
   // ZF> Displays special enchantment effects for the character
   char text[64], tmpa[64], tmpb[64];
-  short character;
+  Uint16 character;
   int i = 0;
   if ( statdelay == 0 )
   {
@@ -506,7 +506,7 @@ void make_lightdirectionlookup()
     bl = ( cnt & 0x000f );
     x = br + tr - bl - tl;
     y = br + bl - tl - tr;
-    lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) * 256 / ( TWO_PI );
+    lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) / ( TWO_PI ) * 256;
   }
 }
 
@@ -749,7 +749,7 @@ void End2DMode( void )
 }
 
 //---------------------------------------------------------------------------------------------
-int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
+int get_level( Uint8 x, Uint8 y, Uint32 fan, bool_t waterwalk )
 {
   // ZZ> This function returns the height of a point within a mesh fan, precise
   //     If waterwalk is nonzero and the fan is watery, then the level returned is the
@@ -828,7 +828,7 @@ void prime_titleimage()
   int cnt;
 
   for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-    TxTitleImage[cnt].textureID = 0;
+    TxTitleImage[cnt].textureID = INVALID_TEXTURE;
 
   // titlerect.x = 0;
   // titlerect.w = TITLESIZE;
@@ -845,7 +845,7 @@ void prime_icons()
   for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
   {
     // lpDDSIcon[cnt]=NULL;
-    TxIcon[cnt].textureID = -1;
+    TxIcon[cnt].textureID = INVALID_TEXTURE;
     madskintoicon[cnt] = 0;
   }
   iconrect.left = 0;
@@ -2045,7 +2045,7 @@ void load_all_objects( char *modname )
 
       filehandle = fs_findNextFile();
 
-      keeplooking = ( filehandle != NULL );
+      keeplooking = ( NULL != filehandle );
     }
   }
 
@@ -2902,7 +2902,7 @@ void light_characters()
         break;
     }
     light = light >> 3;
-    chrlightlevel[tnc] = light;
+    chrlightlevel[tnc] = MIN(light, 255);
 
 
     if ( !meshexploremode )
@@ -3548,7 +3548,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
   float xl, xr, yt, yb;
   int width, height;
 
-  if ( TxIcon[icontype].textureID >= 0 ) // if(lpDDSIcon[icontype])
+  if ( TxIcon[icontype].textureID != INVALID_TEXTURE ) // if(lpDDSIcon[icontype])
   {
     EnableTexturing();    // Enable texture mapping
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );

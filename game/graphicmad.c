@@ -830,7 +830,7 @@ void render_refmad( int tnc, Uint8 trans )
   int trans_temp;
   int zpos;
   Uint8 sheen_save;
-  Uint8 fog_save;
+  bool_t fog_save;
   glVector pos_save;
 
   if ( !capreflect[chrmodel[tnc]] ) return;
