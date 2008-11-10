@@ -26,6 +26,8 @@
 
 #include <assert.h>
 
+char smokey_debug_text[256] = {0};
+
 #define END_VALUE (0x80000000 | FEND)
 
 Uint8 cLineBuffer[MAXLINESIZE];
@@ -757,17 +759,22 @@ Uint8 run_function( Uint32 value, int character )
     case FCLEARWAYPOINTS:
       // Clear out all waypoints
       chraigoto[character] = 0;
-      chraigotoadd[character] = 0;
+      chraigotoadd[character] = 1;
       chraigotox[character][0] = chrxpos[character];
       chraigotoy[character][0] = chrypos[character];
       break;
 
     case FADDWAYPOINT:
       // Add a waypoint to the waypoint list
+      iTmp = (chraigotoadd[character] + 1) % MAXWAY;
+      if(iTmp == chraigoto[character])
+      {
+        chraigoto[character] = (chraigoto[character] + 1) % MAXWAY;
+      }
+
       chraigotox[character][chraigotoadd[character]] = valuetmpx;
       chraigotoy[character][chraigotoadd[character]] = valuetmpy;
-      chraigotoadd[character]++;
-      if ( chraigotoadd[character] > MAXWAY )  chraigotoadd[character] = MAXWAY - 1;
+      chraigotoadd[character] = iTmp;
       break;
 
     case FFINDPATH:
@@ -797,15 +804,20 @@ Uint8 run_function( Uint32 value, int character )
         if ( valuetmpdistance != MOVE_FOLLOW )
         {
           sTmp = ( valuetmpturn + 16384 );
-          valuetmpx = valuetmpx - turntosin[sTmp>>2] * valuetmpdistance;
+          valuetmpx = valuetmpx - turntocos[valuetmpturn>>2] * valuetmpdistance;
           valuetmpy = valuetmpy - turntosin[valuetmpturn>>2] * valuetmpdistance;
         }
 
         // Then we add the waypoint(s), without clearing existing ones...
+        iTmp = (chraigotoadd[character] + 1) % MAXWAY;
+        if(iTmp == chraigoto[character])
+        {
+          chraigoto[character] = (chraigoto[character] + 1) % MAXWAY;
+        }
+
         chraigotox[character][chraigotoadd[character]] = valuetmpx;
         chraigotoy[character][chraigotoadd[character]] = valuetmpy;
-        chraigotoadd[character]++;
-        if ( chraigotoadd[character] > MAXWAY )  chraigotoadd[character] = MAXWAY - 1;
+        chraigotoadd[character] = iTmp;
       }
 
       break;
@@ -813,9 +825,12 @@ Uint8 run_function( Uint32 value, int character )
     case FCOMPASS:
       // This function changes tmpx and tmpy in a circlular manner according
       // to tmpturn and tmpdistance
-      sTmp = ( valuetmpturn + 16384 );
-      valuetmpx = valuetmpx - turntosin[sTmp>>2] * valuetmpdistance;
-      valuetmpy = valuetmpy - turntosin[valuetmpturn>>2] * valuetmpdistance;
+      if(character == 508)
+      {
+        sprintf(smokey_debug_text, "%d - %s <%4.2f, %4.2f>, %d, %d", chraistate[character], chrname[chraiowner[character]], chrxpos[chraiowner[character]], chrypos[chraiowner[character]], valuetmpdistance, valuetmpturn);
+      }
+      valuetmpx -= turntocos[valuetmpturn>>2] * valuetmpdistance;
+      valuetmpy -= turntosin[valuetmpturn>>2] * valuetmpdistance;
       break;
 
     case FGETTARGETARMORPRICE:
@@ -1409,8 +1424,8 @@ Uint8 run_function( Uint32 value, int character )
         else
         {
           tTmp = chrturnleftright[character] >> 2;
-          chrxvel[sTmp] += turntosin[( tTmp+12288 )&16383] * valuetmpdistance;
-          chryvel[sTmp] += turntosin[( tTmp+8192 )&16383] * valuetmpdistance;
+          chrxvel[sTmp] += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
+          chryvel[sTmp] += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
           chrpassage[sTmp] = chrpassage[character];
           chriskursed[sTmp] = bfalse;
           chraichild[character] = sTmp;

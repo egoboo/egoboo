@@ -20,9 +20,33 @@
 */
 
 /**> HEADER FILES <**/
-#include "mathstuff.h"
+#include "egoboo_math.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
+float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
+
+//--------------------------------------------------------------------------------------------
+void make_turntosin( void )
+{
+  // ZZ> This function makes the lookup table for chrturn...
+  int cnt;
+  float ftmp = TWO_PI / (float)TRIG_TABLE_SIZE;
+
+  cnt = 0;
+  while ( cnt < 16384 )
+  {
+    turntosin[cnt] = SIN( cnt * ftmp );
+    turntocos[cnt] = COS( cnt * ftmp );
+    cnt++;
+  }
+}
 
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // FAKE D3D FUNCTIONS
 glVector vsub( glVector A, glVector B )
 {
@@ -166,11 +190,11 @@ glMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
    float tx, float ty, float tz)*/
 glMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz )
 {
-  float cx = turntosin[( turnx+4096 )&16383];
+  float cx = turntocos[turnx];
   float sx = turntosin[turnx];
-  float cy = turntosin[( turny+4096 )&16383];
+  float cy = turntocos[turny];
   float sy = turntosin[turny];
-  float cz = turntosin[( turnz+4096 )&16383];
+  float cz = turntocos[turnz];
   float sz = turntosin[turnz];
   float sxsy = sx * sy;
   float cxsy = cx * sy;

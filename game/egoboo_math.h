@@ -27,6 +27,14 @@
 #define PI                  3.1415926535897932384626433832795f
 #define TWO_PI              6.283185307179586476925286766559f
 
+#define TRIG_TABLE_BITS   14
+#define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
+#define TRIG_TABLE_MASK   (TRIG_TABLE_SIZE-1)
+#define TRIG_TABLE_OFFSET (TRIG_TABLE_SIZE>>2)
+
+extern float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
+extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
+
 
 // Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 // fastest and most cross-platform solution
@@ -72,7 +80,7 @@ typedef struct glmatrix { float v[16]; } glMatrix;
 typedef struct glvector { float x, y, z, w; } glVector;
 
 /**> GLOBAL VARIABLES <**/
-extern float                   turntosin[16384];           // Convert chrturn>>2...  to sine
+extern float                   turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 
 /**> FUNCTION PROTOTYPES <**/
 glVector vsub( glVector A, glVector B );
@@ -92,3 +100,6 @@ glMatrix FourPoints( float orix, float oriy, float oriz, float widx, float widy,
 glMatrix ViewMatrix( const glVector from, const glVector at, const glVector world_up, const float roll );
 glMatrix ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 void  TransformVertices( glMatrix *pMatrix, glVector *pSourceV, glVector *pDestV, Uint32  pNumVertor );
+
+
+void make_turntosin( void );

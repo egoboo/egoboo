@@ -314,8 +314,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
     // Location data from arguments
     newrand = RANDIE;
-    x = x + turntosin[( facing+12288 )&16383] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
-    y = y + turntosin[( facing+8192 )&16383] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
+    x = x + turntocos[( facing+8192 )&TRIG_TABLE_MASK] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
+    y = y + turntosin[( facing+8192 )&TRIG_TABLE_MASK] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
     if ( x < 0 )  x = 0;
     if ( x > meshedgex - 2 )  x = meshedgex - 2;
     if ( y < 0 )  y = 0;
@@ -326,8 +326,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
 
     // Velocity data
-    xvel = turntosin[( facing+12288 )&16383] * velocity;
-    yvel = turntosin[( facing+8192 )&16383] * velocity;
+    xvel = turntocos[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
+    yvel = turntosin[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
     newrand = RANDIE;
     zvel += pipzvelbase[pip] + ( newrand & pipzvelrand[pip] ) - ( pipzvelrand[pip] >> 1 );
     prtxvel[cnt] = xvel;
@@ -896,7 +896,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
           facing = prtfacing[particle] - chrturnleftright[character] - 16384;
           facing = facing >> 2;
           fsin = turntosin[facing];
-          fcos = turntosin[( facing+4096 )&16383];
+          fcos = turntocos[facing];
           y = 8192;
           x = -y * fsin;
           y = y * fcos;
@@ -1009,7 +1009,7 @@ void do_weather_spawn()
       }
     }
   }
-  camswing = ( camswing + camswingrate ) & 16383;
+  camswing = ( camswing + camswingrate ) & TRIG_TABLE_MASK;
 }
 
 //--------------------------------------------------------------------------------------------

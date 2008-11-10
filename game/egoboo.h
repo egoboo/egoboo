@@ -692,7 +692,6 @@ EXTERN float                   dynalightfalloff[MAXDYNA];  // Light falloff
 EXTERN Uint8                   lightdirectionlookup[65536];// For lighting characters
 EXTERN Uint8                   lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
 EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
-EXTERN float                   turntosin[16384];           // Convert chrturn>>2...  to sine
 
 
 EXTERN Uint32 maplrtwist[256];            // For surface normal of mesh
@@ -1796,5 +1795,7 @@ EXTERN int title_tex[512][512];
 #endif
 EXTERN int win_id;
 EXTERN GLuint texName;
+
+extern char smokey_debug_text[256];
 
 #endif

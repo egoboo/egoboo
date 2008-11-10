@@ -146,6 +146,9 @@
 				RelativePath=".\configfile.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_math.c">
+			</File>
+			<File
 				RelativePath=".\egobooendian.c">
 			</File>
 			<File
@@ -213,9 +216,6 @@
 			</File>
 			<File
 				RelativePath=".\Log.c">
-			</File>
-			<File
-				RelativePath=".\mathstuff.c">
 			</File>
 			<File
 				RelativePath=".\Md2.c">

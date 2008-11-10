@@ -2486,7 +2486,7 @@ void render_background( Uint16 texture )
   rotate = rotate >> 2;
   size = x + y + 1;
   sinsize = turntosin[rotate] * size;
-  cossize = turntosin[( rotate+4096 )&16383] * size;
+  cossize = turntocos[rotate] * size;
 
   light = ( 0xffffffff );
   glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -2550,7 +2550,7 @@ void render_foreground_overlay( Uint16 texture )
   rotate = 16384 + 8192 - camturnleftrightshort;
   rotate = rotate >> 2;
   sinsize = turntosin[rotate] * size;
-  cossize = turntosin[( rotate+4096 )&16383] * size;
+  cossize = turntocos[rotate] * size;
 
   loc_foregroundrepeat = foregroundrepeat * MIN( x / scrx, y / scrx ) / 4.0f;
 
@@ -4099,6 +4099,8 @@ void draw_text()
   if ( fpson )
   {
     draw_string( szfpstext, 0, y );
+    y += fontyspacing;
+    draw_string(smokey_debug_text, 0, y);
     y += fontyspacing;
   }
 

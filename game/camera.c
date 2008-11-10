@@ -478,11 +478,10 @@ void move_camera()
     }
   }
 
-  turnsin = ( camturnleftrightone * 16383 );
-  turnsin = turnsin & 16383;
-  turncos = ( turnsin + 4096 ) & 16383;
-  camcenterx += ( movex * turntosin[turncos] + movey * turntosin[turnsin] );
-  camcentery += ( -movex * turntosin[turnsin] + movey * turntosin[turncos] );
+  turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
+  turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
+  camcenterx += ( movex * turntocos[turnsin] + movey * turntosin[turnsin] );
+  camcentery += ( -movex * turntosin[turnsin] + movey * turntocos[turnsin] );
 
   // Finish up the camera
   camera_look_at( camcenterx, camcentery );

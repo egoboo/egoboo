@@ -184,7 +184,6 @@ void make_dolist( void );
 void keep_weapons_with_holders();
 void make_enviro( void );
 void make_prtlist( void );
-void make_turntosin( void );
 void make_one_character_matrix( Uint16 cnt );
 void free_one_particle_no_sound( int particle );
 void play_particle_sound( int particle, Sint8 sound );

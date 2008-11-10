@@ -277,20 +277,6 @@ void keep_weapons_with_holders()
 }
 
 //--------------------------------------------------------------------------------------------
-void make_turntosin( void )
-{
-  // ZZ> This function makes the lookup table for chrturn...
-  int cnt;
-
-  cnt = 0;
-  while ( cnt < 16384 )
-  {
-    turntosin[cnt] = SIN( TWO_PI * cnt / 16384.0f );
-    cnt++;
-  }
-}
-
-//--------------------------------------------------------------------------------------------
 void make_one_character_matrix( Uint16 cnt )
 {
   // ZZ> This function sets one character's matrix
@@ -1490,7 +1476,7 @@ void drop_keys( Uint16 character )
               chrxpos[item] = chrxpos[character];
               chrypos[item] = chrypos[character];
               chrzpos[item] = chrzpos[character];
-              chrxvel[item] = turntosin[cosdir>>2] * DROPXYVEL;
+              chrxvel[item] = turntocos[direction>>2] * DROPXYVEL;
               chryvel[item] = turntosin[direction>>2] * DROPXYVEL;
               chrzvel[item] = DROPZVEL;
               chrteam[item] = chrbaseteam[item];
@@ -1538,7 +1524,7 @@ void drop_all_items( Uint16 character )
             chrlevel[item] = chrlevel[character];
             chrturnleftright[item] = direction + 32768;
             cosdir = direction + 16384;
-            chrxvel[item] = turntosin[cosdir>>2] * DROPXYVEL;
+            chrxvel[item] = turntocos[direction>>2] * DROPXYVEL;
             chryvel[item] = turntosin[direction>>2] * DROPXYVEL;
             chrzvel[item] = DROPZVEL;
             chrteam[item] = chrbaseteam[item];
@@ -1780,8 +1766,8 @@ void character_swipe( Uint16 cnt, Uint8 grip )
         velocity = MAXTHROWVELOCITY;
       }
       tTmp = chrturnleftright[cnt] >> 2;
-      chrxvel[thrown] += turntosin[( tTmp+12288 )&16383] * velocity;
-      chryvel[thrown] += turntosin[( tTmp+8192 )&16383] * velocity;
+      chrxvel[thrown] += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
+      chryvel[thrown] += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
       chrzvel[thrown] = DROPZVEL;
       if ( chrammo[weapon] <= 1 )
       {
@@ -2899,14 +2885,13 @@ void set_one_player_latch( Uint16 player )
             inputx = mousex * chrmaxaccel[character] * scale;
             inputy = mousey * chrmaxaccel[character] * scale;
           }
-          turnsin = ( camturnleftrightone * 16383 );
-          turnsin = turnsin & 16383;
-          turncos = ( turnsin + 4096 ) & 16383;
+          turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
+          turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
           if ( autoturncamera == 255 &&
                numlocalpla == 1 &&
                control_mouse_is_pressed( MOS_CAMERA ) == 0 )  inputx = 0;
-          newx = ( inputx * turntosin[turncos] + inputy * turntosin[turnsin] );
-          newy = ( -inputx * turntosin[turnsin] + inputy * turntosin[turncos] );
+          newx = ( inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+          newy = (-inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
 //                    plalatchx[player]+=newx;
 //                    plalatchy[player]+=newy;
         }
@@ -2966,14 +2951,13 @@ void set_one_player_latch( Uint16 player )
             inputy = joyay * chrmaxaccel[character] * scale;
           }
         }
-        turnsin = ( camturnleftrightone * 16383 );
-        turnsin = turnsin & 16383;
-        turncos = ( turnsin + 4096 ) & 16383;
+        turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
+        turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
         if ( autoturncamera == 255 &&
              numlocalpla == 1 &&
              !control_joya_is_pressed( JOA_CAMERA ) )  inputx = 0;
-        newx = ( inputx * turntosin[turncos] + inputy * turntosin[turnsin] );
-        newy = ( -inputx * turntosin[turnsin] + inputy * turntosin[turncos] );
+        newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+        newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
         plalatchx[player] += newx;
         plalatchy[player] += newy;
       }
@@ -3023,14 +3007,13 @@ void set_one_player_latch( Uint16 player )
             inputy = joyby * chrmaxaccel[character] * scale;
           }
         }
-        turnsin = ( camturnleftrightone * 16383 );
-        turnsin = turnsin & 16383;
-        turncos = ( turnsin + 4096 ) & 16383;
+        turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
+        turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
         if ( autoturncamera == 255 &&
              numlocalpla == 1 &&
              !control_joyb_is_pressed( JOB_CAMERA ) )  inputx = 0;
-        newx = ( inputx * turntosin[turncos] + inputy * turntosin[turnsin] );
-        newy = ( -inputx * turntosin[turnsin] + inputy * turntosin[turncos] );
+        newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+        newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
         plalatchx[player] += newx;
         plalatchy[player] += newy;
       }
@@ -3067,12 +3050,11 @@ void set_one_player_latch( Uint16 player )
         inputx = ( control_key_is_pressed( KEY_RIGHT ) - control_key_is_pressed( KEY_LEFT ) ) * chrmaxaccel[character];
         inputy = ( control_key_is_pressed( KEY_DOWN ) - control_key_is_pressed( KEY_UP ) ) * chrmaxaccel[character];
       }
-      turnsin = ( camturnleftrightone * 16383 );
-      turnsin = turnsin & 16383;
-      turncos = ( turnsin + 4096 ) & 16383;
+      turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
+      turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
       if ( autoturncamera == 255 && numlocalpla == 1 )  inputx = 0;
-      newx = ( inputx * turntosin[turncos] + inputy * turntosin[turnsin] );
-      newy = ( -inputx * turntosin[turnsin] + inputy * turntosin[turncos] );
+      newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+      newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
       plalatchx[player] += newx;
       plalatchy[player] += newy;
       // Read buttons
@@ -6450,7 +6432,7 @@ void get_nearest_in_block( int x, int y, Uint16 character, char items,
     cnt = 0;
     while ( cnt < meshbumplistchrnum[fanblock] )
     {
-      if ( dead != chralive[charb] && ( seeinvisible || ( chralpha[charb] > INVISIBLE && chrlight[charb] > INVISIBLE ) ) )
+      if ( charb!=character && dead != chralive[charb] && ( seeinvisible || ( chralpha[charb] > INVISIBLE && chrlight[charb] > INVISIBLE ) ) )
       {
         if ( ( enemies && teamhatesteam[team][chrteam[charb]] ) ||
              ( items && chrisitem[charb] ) ||
@@ -6680,16 +6662,25 @@ void set_alerts( int character )
        chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
        chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
   {
+    int itmp;
+
     chralert[character] = chralert[character] | ALERTIFATWAYPOINT;
-    chraigoto[character]++;
-    if ( chraigoto[character] == chraigotoadd[character] )
+
+    itmp = (chraigoto[character] + 1) % MAXWAY;
+    if ( itmp == chraigotoadd[character] )
     {
       chraigoto[character] = 0;
+      chraigotoadd[character] = 1;
       if ( !capisequipment[chrmodel[character]] )
       {
         chralert[character] = chralert[character] | ALERTIFATLASTWAYPOINT;
       }
     }
+    else
+    {
+      chraigoto[character] = itmp;
+    }
+
   }
 }
 
