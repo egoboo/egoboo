@@ -1,49 +1,27 @@
-# Basic Makefile for Egoboo 2.x under MSYS + MinGW
+# note if you change the prefix also update egoboo.sh
+EGO_BIN	:= egoboo
+EGO_SRC	:= camera.c char.c Client.c Clock.c common-file.c configfile.c \
+                 egobooendian.c egoboostrutil.c enchant.c Font.c game.c gltexture.c \
+                 graphicfan.c graphicmad.c graphic.c graphicprt.c input.c \
+                 linux-file.c Log.c Link.c mathstuff.c Md2.c menu.c module.c \
+                 network.c particle.c passage.c script.c Server.c sound.c \
+                 sys_linux.c Ui.c
+EGO_OBJ	:= ${EGO_SRC:.c=.o}
 
-TARGET=egoboo2x.exe
-SOURCES=camera.c\
-	char.c\
-	Client.c\
-	Clock.c\
-	common-file.c\
-	configfile.c\
-	egoboostrutil.c\
-	enchant.c\
-	Font.c\
-	game.c\
-	gltexture.c\
-	graphic.c\
-	graphicfan.c\
-	graphicmad.c\
-	graphicprt.c\
-	id_normals.c\
-	input.c\
-	Log.c\
-	MainLoop.c\
-	mathstuff.c\
-	Md2.c\
-	menu.c\
-	module.c\
-	network.c\
-	particle.c\
-	passage.c\
-	script.c\
-	Server.c\
-	sound.c\
-	sys_win32.c\
-	Task.c\
-	Ticker.c\
-	Timer.c\
-	Ui.c\
-	win-file.c
+SDL_CONF  := sdl-config
+SDLCONF_I := $(shell ${SDL_CONF} --cflags)
+SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
-OBJECTS=$(SOURCES:%.c=%.o)
+CC      := gcc
+OPT     := -Os
+INC     := -I. -I../enet/include -I.. ${SDLCONF_I}
+CFLAGS  := ${OPT} ${INC}
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -l../enet/libenet.a
 
-CFLAGS=`sdl-config --cflags` -I../enet/include
-LDFLAGS=`sdl-config --libs` -L../enet -lopengl32 -lglu32 -lenet -lSDL_ttf -lws2_32 -lshlwapi -lshfolder -lshell32
+${EGO_BIN}: ${EGO_OBJ} ${CC} -o $@ $^ ${LDFLAGS}
 
-$(TARGET): $(OBJECTS)
-	$(CC) -o $(TARGET) $(OBJECTS) $(CFLAGS) $(LDFLAGS)
+all:
+	${EGO_BIN}
 
 clean:
-	-rm -f $(TARGET) $(OBJECTS)
+	rm -f ${EGO_OBJ} ${EGO_BIN} test_sdl.o test_sdl

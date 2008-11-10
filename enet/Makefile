@@ -1,13 +1,17 @@
-# Basic Makefile for Enet under MSYS + MinGW
+# Basic *nix Makefile
 
-TARGET=libenet.a
-SOURCES=host.c list.c memory.c packet.c peer.c protocol.c unix.c win32.c
-OBJECTS=$(SOURCES:%.c=%.o)
+ENET_TARGET	:= libenet.a
+ENET_SRCLST	:= host.c list.c memory.c packet.c peer.c protocol.c unix.c win32.c
+ENET_OBJLST	:= $(ENET_SRCLST:.c=.o)
 
-CFLAGS=-Iinclude
+CC      := gcc
+OPT     := -Os
+INC     := -Iinclude
+CFLAGS  := $(OPT) $(INC)
 
-$(TARGET): $(OBJECTS)
-	ar rcs $(TARGET) $(OBJECTS)
+all: $(ENET_OBJLST)
+
+	ar rcs $(ENET_TARGET) $(ENET_OBJLST)
 
 clean:
-	-rm -f $(TARGET) $(OBJECTS)
+	rm -f $(ENET_TARGET) $(ENET_OBJLST)
