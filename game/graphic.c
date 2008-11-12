@@ -2462,82 +2462,93 @@ void read_wawalite( char *modname )
 void render_background( Uint16 texture )
 {
   // ZZ> This function draws the large background
-  GLVERTEX vtlist[4];
-  Uint32  light;
-  float size;
-  Uint16 rotate;
-  float sinsize, cossize;
-  float x, y, z, u, v;
+  glVertex vtlist[4];
   int i;
+  float x, y, z;
+  float u, v;
+  float loc_backgroundrepeat;
 
 
-  // Flat shade this?
-  if ( GL_FLAT == shading ) glShadeModel ( GL_FLAT );
-
-  glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
-
-  // Figure out the screen coordinates of its corners
-  x = scrx / 2.0f;
-  y = scry / 2.0f;
+  // Figure out the coordinates of its corners
+  x = scrx << 6;
+  y = scry << 6;
   z = 0.99999f;
-  u = waterlayeru[1];
-  v = waterlayerv[1];
-  rotate = 16384 + 8192 - camturnleftrightshort;
-  rotate = rotate >> 2;
-  size = x + y + 1;
-  sinsize = turntosin[rotate] * size;
-  cossize = turntocos[rotate] * size;
+  u = waterlayeru[0];
+  v = waterlayerv[0];
+  loc_backgroundrepeat = backgroundrepeat * MIN( x / scrx, y / scrx );
 
-  light = ( 0xffffffff );
-  glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-
-  vtlist[0].x = x + cossize;
-  vtlist[0].y = y - sinsize;
+  vtlist[0].x =-x;
+  vtlist[0].y =-y;
   vtlist[0].z = z;
-  // vtlist[0].dcSpecular = 0;
   vtlist[0].s = 0 + u;
   vtlist[0].t = 0 + v;
 
-  vtlist[1].x = x + sinsize;
-  vtlist[1].y = y + cossize;
+  vtlist[1].x =+x;
+  vtlist[1].y =-y;
   vtlist[1].z = z;
-  // vtlist[1].dcSpecular = 0;
-  vtlist[1].s = backgroundrepeat + u;
+  vtlist[1].s = loc_backgroundrepeat + u;
   vtlist[1].t = 0 + v;
 
-  vtlist[2].x = x - cossize;
-  vtlist[2].y = y + sinsize;
+  vtlist[2].x =+x;
+  vtlist[2].y =+y;
   vtlist[2].z = z;
-  // vtlist[2].dcSpecular = 0;
-  vtlist[2].s = backgroundrepeat + u;
-  vtlist[2].t = backgroundrepeat + v;
+  vtlist[2].s = loc_backgroundrepeat + u;
+  vtlist[2].t = loc_backgroundrepeat + v;
 
-  vtlist[3].x = x - sinsize;
-  vtlist[3].y = y - cossize;
+  vtlist[3].x =-x;
+  vtlist[3].y =+y;
   vtlist[3].z = z;
-  // vtlist[3].dcSpecular = 0;
   vtlist[3].s = 0 + u;
-  vtlist[3].t = backgroundrepeat + v;
+  vtlist[3].t = loc_backgroundrepeat + v;
 
-  glBegin ( GL_TRIANGLE_FAN );
-  for ( i = 0; i < 4; i++ )
   {
-    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+    GLint shading_save, depthfunc_save;
+    GLboolean depthmask_save, cullface_save;
+
+    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
+
+    glGetIntegerv( GL_SHADE_MODEL, &shading_save );
+    glShadeModel( GL_FLAT );  // Flat shade this
+
+    depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
+    glDepthMask( GL_FALSE );
+
+    glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
+    glDepthFunc( GL_ALWAYS );
+
+    cullface_save = glIsEnabled( GL_CULL_FACE );
+    glDisable( GL_CULL_FACE );
+
+    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    glBegin ( GL_TRIANGLE_FAN );
+    for ( i = 0; i < 4; i++ )
+    {
+      glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+      glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+    }
+    glEnd ();
+
+    glDepthFunc( depthfunc_save );
+    glDepthMask( depthmask_save );
+    glShadeModel(shading_save);
+    if(cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
   }
-  glEnd ();
 }
 
-/* TODO: Implement this below*/
+
+
+
 //--------------------------------------------------------------------------------------------
 void render_foreground_overlay( Uint16 texture )
 {
-  GLVERTEX vtlist[4];
-  float size;
-  float sinsize, cossize;
-  float x, y, z, u, v;
+  // ZZ> This function draws the large foreground
+  glVertex vtlist[4];
   int i;
+  float size;
   Uint16 rotate;
+  float sinsize, cossize;
+  float x, y, z;
+  float u, v;
   float loc_foregroundrepeat;
 
   // Figure out the screen coordinates of its corners
@@ -2547,13 +2558,9 @@ void render_foreground_overlay( Uint16 texture )
   u = waterlayeru[1];
   v = waterlayerv[1];
   size = x + y + 1;
-  rotate = 16384 + 8192 - camturnleftrightshort;
-  rotate = rotate >> 2;
-  sinsize = turntosin[rotate] * size;
-  cossize = turntocos[rotate] * size;
-
-  loc_foregroundrepeat = foregroundrepeat * MIN( x / scrx, y / scrx ) / 4.0f;
-
+  sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+  cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+  loc_foregroundrepeat = foregroundrepeat * MIN( x / scrx, y / scrx );
 
   vtlist[0].x = x + cossize;
   vtlist[0].y = y - sinsize;
@@ -2565,7 +2572,7 @@ void render_foreground_overlay( Uint16 texture )
   vtlist[1].y = y + cossize;
   vtlist[1].z = z;
   vtlist[1].s = loc_foregroundrepeat + u;
-  vtlist[1].t = v;
+  vtlist[1].t = 0 + v;
 
   vtlist[2].x = x - cossize;
   vtlist[2].y = y + sinsize;
@@ -2576,42 +2583,75 @@ void render_foreground_overlay( Uint16 texture )
   vtlist[3].x = x - sinsize;
   vtlist[3].y = y - cossize;
   vtlist[3].z = z;
-  vtlist[3].s = u;
+  vtlist[3].s = 0 + u;
   vtlist[3].t = loc_foregroundrepeat + v;
 
-  //-------------------------------------------------
-  glPushAttrib( GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_HINT_BIT );
-
-  glHint( GL_POINT_SMOOTH_HINT, GL_NICEST ); // make sure that the texture is as smooth as possible
-
-  glShadeModel( GL_FLAT ); // Flat shade this
-
-  glDepthMask ( GL_FALSE ); // do not write into the depth buffer
-  glDepthFunc( GL_ALWAYS ); // make it appear over the top of everything
-
-  glEnable( GL_BLEND );
-  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR ); // make the texture a filter
-
-  glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
-
-  glBegin( GL_TRIANGLE_FAN );
-  glColor4f( 1.0f, 1.0f, 1.0f, 0.5f );
-  for ( i = 0; i < 4; i++ )
   {
-    glTexCoord2f( vtlist[i].s, vtlist[i].t );
-    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-  }
-  glEnd();
+    GLint shading_save, depthfunc_save, smoothhint_save;
+    GLboolean depthmask_save, cullface_save, alphatest_save;
 
-  glPopAttrib();
-  //-------------------------------------------------
+    GLint alphatestfunc_save, alphatestref_save, alphablendsrc_save, alphablenddst_save;
+    GLboolean alphablend_save;
+
+    glGetIntegerv(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
+    glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
+
+    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
+
+    glGetIntegerv( GL_SHADE_MODEL, &shading_save );
+    glShadeModel( GL_FLAT );  // Flat shade this
+
+    depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
+    glDepthMask( GL_FALSE );
+
+    glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
+    glDepthFunc( GL_ALWAYS );
+
+    cullface_save = glIsEnabled( GL_CULL_FACE );
+    glDisable( GL_CULL_FACE );
+
+    alphatest_save = glIsEnabled( GL_ALPHA_TEST );
+    glEnable( GL_ALPHA_TEST );
+
+    glGetIntegerv( GL_ALPHA_TEST_FUNC, &alphatestfunc_save );
+    glGetIntegerv( GL_ALPHA_TEST_REF, &alphatestref_save );
+    glAlphaFunc( GL_GREATER, 0 );
+
+    alphablend_save = glIsEnabled( GL_BLEND );
+    glEnable( GL_BLEND );
+
+    glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
+    glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
+
+    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+    glBegin ( GL_TRIANGLE_FAN );
+    for ( i = 0; i < 4; i++ )
+    {
+      glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+      glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+    }
+    glEnd ();
+
+    glHint( GL_POLYGON_SMOOTH_HINT, smoothhint_save );
+    glShadeModel( shading_save );
+    glDepthMask( depthmask_save );
+    glDepthFunc( depthfunc_save );
+
+    if(cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
+    if(alphatest_save) glEnable( GL_ALPHA_TEST ); else glDisable( GL_ALPHA_TEST );
+    glAlphaFunc( alphatestfunc_save, alphatestref_save );
+
+    if(alphablend_save) glEnable( GL_BLEND ); else glDisable( GL_BLEND ); 
+    glBlendFunc( alphablendsrc_save, alphablenddst_save );
+  }
 }
 
 //--------------------------------------------------------------------------------------------
 void render_shadow( int character )
 {
   // ZZ> This function draws a NIFTY shadow
-  GLVERTEX v[4];
+  glVertex v[4];
 
   float x, y;
   float level;
@@ -2752,7 +2792,7 @@ void render_shadow( int character )
 void render_bad_shadow( int character )
 {
   // ZZ> This function draws a sprite shadow
-  GLVERTEX v[4];
+  glVertex v[4];
   float size, x, y;
   Uint8 ambi;
   // DWORD light;
@@ -3106,11 +3146,6 @@ void render_water()
     }
   }
 
-  // Foreground overlay
-  if ( overlayon )
-  {
-    render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
-  }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3125,19 +3160,6 @@ void draw_scene_sadreflection()
   rect.right = 0;
   rect.top = scrx;
   rect.bottom = scry;
-
-  // ZB> Clear the z-buffer
-  glClear( GL_DEPTH_BUFFER_BIT );
-
-  // Clear the image if need be
-  if ( clearson )
-    glClear( GL_COLOR_BUFFER_BIT );
-  else
-  {
-    // Render the background
-    render_background( 6 );  // 6 is the texture for waterlow.bmp
-  }
-
 
   // Render the reflective floors
   glEnable( GL_CULL_FACE );
@@ -3259,7 +3281,7 @@ void draw_scene_sadreflection()
   }
 
   // Alpha water
-  if ( !waterlight )  render_water();
+  if ( !waterlight && (!overlayon || clearson) )  render_water();
 
   // Then do the light characters
   glBlendFunc( GL_SRC_ALPHA, GL_ONE );
@@ -3287,7 +3309,7 @@ void draw_scene_sadreflection()
   }
 
   // Light water
-  if ( waterlight )  render_water();
+  if ( waterlight && !waterlight && (!overlayon || clearson) )  render_water();
 
   // Turn Z buffer back on, alphablend off
   glDepthMask( GL_TRUE );
@@ -3317,12 +3339,7 @@ void draw_scene_zreflection()
   glDisable( GL_DEPTH_TEST );
   glDepthMask( GL_FALSE );
 
-  // Render the background
-  if ( !clearson )
-    render_background( 6 );  // 6 is the texture for waterlow.bmp
-
   meshlasttexture = 0;
-
   for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
     render_fan( meshrenderlistref[cnt] );
 
@@ -3447,7 +3464,7 @@ void draw_scene_zreflection()
   }
 
   // And alpha water floors
-  if ( !waterlight )
+  if ( !waterlight && (!overlayon || clearson) )
     render_water();
 
   // Then do the light characters
@@ -3477,7 +3494,7 @@ void draw_scene_zreflection()
   }
 
   // Do light water
-  if ( waterlight )
+  if ( waterlight && (!overlayon || clearson) )
     render_water();
 
   // Turn Z buffer back on, alphablend off
@@ -4354,16 +4371,30 @@ void draw_scene()
   light_characters();
   light_particles();
 
+  // clear the depth buffer
+  glClear( GL_DEPTH_BUFFER_BIT );
+
+  // Clear the image if need be
+  if ( clearson )
+  {
+    glClear( GL_COLOR_BUFFER_BIT );
+  }
+  else
+  {
+    // Render the background
+    render_background( 6 );  // 6 is the texture for waterlow.bmp
+  }
+
   if ( zreflect ) // DO REFLECTIONS
     draw_scene_zreflection();
   else
     draw_scene_sadreflection();
 
   // Foreground overlay
-  if ( overlayon )
-  {
-    render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
-  }
+  //if ( overlayon )
+  //{
+  //  render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
+  //}
 
   End3DMode();
 }
@@ -4373,8 +4404,6 @@ void draw_scene()
 void draw_main()
 {
   // ZZ> This function does all the drawing stuff
-  // printf("DIAG: Drawing scene nummeshrenderlistref=%d\n",nummeshrenderlistref);
-  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   draw_scene();
   draw_text();

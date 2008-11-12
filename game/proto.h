@@ -25,12 +25,11 @@
 #include "egobootypedef.h"
 #include <SDL_mixer.h> // for Mix_* stuff.
 
-// typedef struct glmatrix { float v[16]; } glMatrix;  // was v[4][4], changed for OGL compatibility
-// typedef struct glvector { float x,y,z; } glVector;
-/*glVector vsub(glVector A, glVector B);
-glVector Normalize(glVector vec);
-glVector CrossProduct(glVector A, glVector B);
-float DotProduct(glVector A, glVector B);*/
+bool_t waypoint_list_empty(Uint16 character);
+void   waypoint_clear_all(Uint16 character);
+bool_t waypoint_pop(Uint16 character, int *xpos, int *ypos);
+void   waypoint_push(Uint16 character, int xpos, int ypos);
+
 void load_graphics();
 void save_settings();
 void empty_import_directory( void );

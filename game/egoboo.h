@@ -51,7 +51,7 @@ typedef struct
   GLfloat r, g, b, a;
   Uint32   color; // should replace r,g,b,a and be called by glColor4ubv
   GLfloat s, t; // u and v in D3D I guess
-} GLVERTEX;
+} glVertex;
 
 // The following magic allows this include to work in multiple files
 #ifdef DECLARE_GLOBALS
@@ -594,6 +594,9 @@ EXTERN float                   camswingamp  EQ( 0 );          //
 EXTERN float                   camx  EQ( 0 );                 // Camera position
 EXTERN float                   camy  EQ( 1500 );              //
 EXTERN float                   camz  EQ( 1500 );               // 500-1000
+EXTERN float                   camxvel EQ( 0 );
+EXTERN float                   camyvel EQ( 0 );
+EXTERN float                   camzvel EQ( 0 );
 EXTERN float                   camzoom  EQ( 1000 );           // Distance from the trackee
 EXTERN float                   camtrackxvel;               // Change in trackee position
 EXTERN float                   camtrackyvel;               //
@@ -1490,38 +1493,38 @@ EXTERN char             namingnames[MAXCAPNAMESIZE];// The name returned by the 
 extern int                     iNumAis;
 
 // Character AI alerts
-#define ALERTIFSPAWNED                      1 << 0          // 0
-#define ALERTIFHITVULNERABLE                1 << 1          // 1
-#define ALERTIFATWAYPOINT                   1 << 2           // 2
-#define ALERTIFATLASTWAYPOINT               1 << 3           // 3
-#define ALERTIFATTACKED                     1 << 4          // 4
-#define ALERTIFBUMPED                       1 << 5          // 5
-#define ALERTIFORDERED                      1 << 6          // 6
-#define ALERTIFCALLEDFORHELP                1 << 7         // 7
-#define ALERTIFKILLED                       1 << 8         // 8
-#define ALERTIFTARGETKILLED                 1 << 9         // 9
-#define ALERTIFDROPPED                      1 << 10        // 10
-#define ALERTIFGRABBED                      1 << 11        // 11
-#define ALERTIFREAFFIRMED                   1 << 12        // 12
-#define ALERTIFLEADERKILLED                 1 << 13        // 13
-#define ALERTIFUSED                         1 << 14       // 14
-#define ALERTIFCLEANEDUP                    1 << 15       // 15
-#define ALERTIFSCOREDAHIT                   1 << 16       // 16
-#define ALERTIFHEALED                       1 << 17      // 17
-#define ALERTIFDISAFFIRMED                  1 << 18      // 18
-#define ALERTIFCHANGED                      1 << 19      // 19
-#define ALERTIFINWATER                      1 << 20     // 20
-#define ALERTIFBORED                        1 << 21     // 21
-#define ALERTIFTOOMUCHBAGGAGE               1 << 22     // 22
-#define ALERTIFGROGGED                      1 << 23     // 23
-#define ALERTIFDAZED                        1 << 24    // 24
-#define ALERTIFHITGROUND                    1 << 25    // 25
-#define ALERTIFNOTDROPPED                   1 << 26    // 26
-#define ALERTIFBLOCKED                      1 << 27   // 27
-#define ALERTIFTHROWN                       1 << 28   // 28
-#define ALERTIFCRUSHED                      1 << 29   // 29
-#define ALERTIFNOTPUTAWAY                   1 << 30  // 30
-#define ALERTIFTAKENOUT                     1 << 31 // 31
+#define ALERTIFSPAWNED                      (1 <<  0)          // 0
+#define ALERTIFHITVULNERABLE                (1 <<  1)          // 1
+#define ALERTIFATWAYPOINT                   (1 <<  2)           // 2
+#define ALERTIFATLASTWAYPOINT               (1 <<  3)           // 3
+#define ALERTIFATTACKED                     (1 <<  4)          // 4
+#define ALERTIFBUMPED                       (1 <<  5)          // 5
+#define ALERTIFORDERED                      (1 <<  6)          // 6
+#define ALERTIFCALLEDFORHELP                (1 <<  7)         // 7
+#define ALERTIFKILLED                       (1 <<  8)         // 8
+#define ALERTIFTARGETKILLED                 (1 <<  9)         // 9
+#define ALERTIFDROPPED                      (1 << 10)        // 10
+#define ALERTIFGRABBED                      (1 << 11)        // 11
+#define ALERTIFREAFFIRMED                   (1 << 12)        // 12
+#define ALERTIFLEADERKILLED                 (1 << 13)        // 13
+#define ALERTIFUSED                         (1 << 14)       // 14
+#define ALERTIFCLEANEDUP                    (1 << 15)       // 15
+#define ALERTIFSCOREDAHIT                   (1 << 16)       // 16
+#define ALERTIFHEALED                       (1 << 17)      // 17
+#define ALERTIFDISAFFIRMED                  (1 << 18)      // 18
+#define ALERTIFCHANGED                      (1 << 19)      // 19
+#define ALERTIFINWATER                      (1 << 20)     // 20
+#define ALERTIFBORED                        (1 << 21)     // 21
+#define ALERTIFTOOMUCHBAGGAGE               (1 << 22)     // 22
+#define ALERTIFGROGGED                      (1 << 23)     // 23
+#define ALERTIFDAZED                        (1 << 24)    // 24
+#define ALERTIFHITGROUND                    (1 << 25)    // 25
+#define ALERTIFNOTDROPPED                   (1 << 26)    // 26
+#define ALERTIFBLOCKED                      (1 << 27)   // 27
+#define ALERTIFTHROWN                       (1 << 28)   // 28
+#define ALERTIFCRUSHED                      (1 << 29)   // 29
+#define ALERTIFNOTPUTAWAY                   (1 << 30)  // 30
+#define ALERTIFTAKENOUT                     (1 << 31) // 31
 
 EXTERN int     valuetmpx EQ( 0 );
 EXTERN int     valuetmpy EQ( 0 );

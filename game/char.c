@@ -5851,10 +5851,8 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
 
 
       // AI and action stuff
-      chraigoto[cnt] = 0;
-      chraigotoadd[cnt] = 1;
-      chraigotox[cnt][0] = chrxpos[cnt];
-      chraigotoy[cnt][0] = chrypos[cnt];
+      waypoint_clear_all(cnt);
+
       chractionready[cnt] = btrue;
       chrkeepaction[cnt] = bfalse;
       chrloopaction[cnt] = bfalse;
@@ -6661,30 +6659,26 @@ void set_alerts( int character )
   {
     chraitime[character]--;
   }
-  if ( chrxpos[character] < chraigotox[character][chraigoto[character]] + WAYTHRESH &&
-       chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
-       chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
-       chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
+
+  if ( ABS(chrxvel[character]) + ABS(chryvel[character]) > 0 )
   {
-    int itmp;
-
-    chralert[character] = chralert[character] | ALERTIFATWAYPOINT;
-
-    itmp = (chraigoto[character] + 1) % MAXWAY;
-    if ( itmp == chraigotoadd[character] )
+    if ( chrxpos[character] < chraigotox[character][chraigoto[character]] + WAYTHRESH &&
+         chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
+         chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
+         chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
     {
-      chraigoto[character] = 0;
-      chraigotoadd[character] = 1;
-      if ( !capisequipment[chrmodel[character]] )
+      int itmp;
+
+      chralert[character] |= ALERTIFATWAYPOINT;
+
+      if( waypoint_pop(character, NULL, NULL) )
       {
-        chralert[character] = chralert[character] | ALERTIFATLASTWAYPOINT;
+        if ( !capisequipment[chrmodel[character]] )
+        {
+          chralert[character] |= ALERTIFATLASTWAYPOINT;
+        }
       }
     }
-    else
-    {
-      chraigoto[character] = itmp;
-    }
-
   }
 }
 

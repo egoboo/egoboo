@@ -149,7 +149,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
   // D3DLVERTEX v[MAXVERTICES];
   // D3DTLVERTEX vt[MAXVERTICES];
   // D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
-  GLVERTEX v[MAXVERTICES];
+  glVertex v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
   Sint32 temp;
@@ -559,7 +559,7 @@ void render_texmad( Uint16 character, Uint8 trans )
 //    D3DLVERTEX v[MAXVERTICES];
 //    D3DTLVERTEX vt[MAXVERTICES];
 //    D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
-  GLVERTEX v[MAXVERTICES];
+  glVertex v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
   Sint32 temp;

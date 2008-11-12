@@ -35,8 +35,8 @@ void render_prt()
   // D3DLVERTEX v[MAXPRT];
   // D3DTLVERTEX vt[MAXPRT];
   // D3DTLVERTEX vtlist[4];
-  GLVERTEX v[MAXPRT];
-  GLVERTEX vtlist[4];
+  glVertex v[MAXPRT];
+  glVertex vtlist[4];
   Uint16 cnt, prt, numparticle;
   Uint16 image;
 //  float scale;
@@ -343,8 +343,8 @@ void render_prt()
 void render_refprt()
 {
   // ZZ> This function draws sprites reflected in the floor
-  GLVERTEX v[MAXPRT];
-  GLVERTEX vtlist[4];
+  glVertex v[MAXPRT];
+  glVertex vtlist[4];
   Uint16 cnt, prt, numparticle;
   Uint16 image;
 //  float scale;
@@ -395,6 +395,8 @@ void render_refprt()
 
   glDisable( GL_CULL_FACE );
   glDisable( GL_DITHER );
+
+  glBlendFunc( GL_ONE, GL_ONE );
 
   // Render each particle that was on
   cnt = 0;

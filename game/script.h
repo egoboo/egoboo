@@ -32,356 +32,360 @@
 
 
 // SCRIPT FUNCTIONS
-#define FIFSPAWNED                          0   // Scripted AI functions (v0.10)
-#define FIFTIMEOUT                          1   //
-#define FIFATWAYPOINT                       2   //
-#define FIFATLASTWAYPOINT                   3   //
-#define FIFATTACKED                         4   //
-#define FIFBUMPED                           5   //
-#define FIFORDERED                          6   //
-#define FIFCALLEDFORHELP                    7   //
-#define FSETCONTENT                         8   //
-#define FIFKILLED                           9   //
-#define FIFTARGETKILLED                     10  //
-#define FCLEARWAYPOINTS                     11  //
-#define FADDWAYPOINT                        12  //
-#define FFINDPATH                           13  //
-#define FCOMPASS                            14  //
-#define FGETTARGETARMORPRICE                15  //
-#define FSETTIME                            16  //
-#define FGETCONTENT                         17  //
-#define FJOINTARGETTEAM                     18  //
-#define FSETTARGETTONEARBYENEMY             19  //
-#define FSETTARGETTOTARGETLEFTHAND          20  //
-#define FSETTARGETTOTARGETRIGHTHAND         21  //
-#define FSETTARGETTOWHOEVERATTACKED         22  //
-#define FSETTARGETTOWHOEVERBUMPED           23  //
-#define FSETTARGETTOWHOEVERCALLEDFORHELP    24  //
-#define FSETTARGETTOOLDTARGET               25  //
-#define FSETTURNMODETOVELOCITY              26  //
-#define FSETTURNMODETOWATCH                 27  //
-#define FSETTURNMODETOSPIN                  28  //
-#define FSETBUMPHEIGHT                      29  //
-#define FIFTARGETHASID                      30  //
-#define FIFTARGETHASITEMID                  31  //
-#define FIFTARGETHOLDINGITEMID              32  //
-#define FIFTARGETHASSKILLID                 33  //
-#define FELSE                               34  //
-#define FRUN                                35  //
-#define FWALK                               36  //
-#define FSNEAK                              37  //
-#define FDOACTION                           38  //
-#define FKEEPACTION                         39  //
-#define FISSUEORDER                         40  //
-#define FDROPWEAPONS                        41  //
-#define FTARGETDOACTION                     42  //
-#define FOPENPASSAGE                        43  //
-#define FCLOSEPASSAGE                       44  //
-#define FIFPASSAGEOPEN                      45  //
-#define FGOPOOF                             46  //
-#define FCOSTTARGETITEMID                   47  //
-#define FDOACTIONOVERRIDE                   48  //
-#define FIFHEALED                           49  //
-#define FSENDMESSAGE                        50  //
-#define FCALLFORHELP                        51  //
-#define FADDIDSZ                            52  //
-#define FEND                                53  //
-#define FSETSTATE                           54  // Scripted AI functions (v0.20)
-#define FGETSTATE                           55  //
-#define FIFSTATEIS                          56  //
-#define FIFTARGETCANOPENSTUFF               57  // Scripted AI functions (v0.30)
-#define FIFGRABBED                          58  //
-#define FIFDROPPED                          59  //
-#define FSETTARGETTOWHOEVERISHOLDING        60  //
-#define FDAMAGETARGET                       61  //
-#define FIFXISLESSTHANY                     62  //
-#define FSETWEATHERTIME                     63  // Scripted AI functions (v0.40)
-#define FGETBUMPHEIGHT                      64  //
-#define FIFREAFFIRMED                       65  //
-#define FUNKEEPACTION                       66  //
-#define FIFTARGETISONOTHERTEAM              67  //
-#define FIFTARGETISONHATEDTEAM              68  // Scripted AI functions (v0.50)
-#define FPRESSLATCHBUTTON                   69  //
-#define FSETTARGETTOTARGETOFLEADER          70  //
-#define FIFLEADERKILLED                     71  //
-#define FBECOMELEADER                       72  //
-#define FCHANGETARGETARMOR                  73  // Scripted AI functions (v0.60)
-#define FGIVEMONEYTOTARGET                  74  //
-#define FDROPKEYS                           75  //
-#define FIFLEADERISALIVE                    76  //
-#define FIFTARGETISOLDTARGET                77  //
-#define FSETTARGETTOLEADER                  78  //
-#define FSPAWNCHARACTER                     79  //
-#define FRESPAWNCHARACTER                   80  //
-#define FCHANGETILE                         81  //
-#define FIFUSED                             82  //
-#define FDROPMONEY                          83  //
-#define FSETOLDTARGET                       84  //
-#define FDETACHFROMHOLDER                   85  //
-#define FIFTARGETHASVULNERABILITYID         86  //
-#define FCLEANUP                            87  //
-#define FIFCLEANEDUP                        88  //
-#define FIFSITTING                          89  //
-#define FIFTARGETISHURT                     90  //
-#define FIFTARGETISAPLAYER                  91  //
-#define FPLAYSOUND                          92  //
-#define FSPAWNPARTICLE                      93  //
-#define FIFTARGETISALIVE                    94  //
-#define FSTOP                               95  //
-#define FDISAFFIRMCHARACTER                 96  //
-#define FREAFFIRMCHARACTER                  97  //
-#define FIFTARGETISSELF                     98  //
-#define FIFTARGETISMALE                     99  //
-#define FIFTARGETISFEMALE                   100 //
-#define FSETTARGETTOSELF                    101 // Scripted AI functions (v0.70)
-#define FSETTARGETTORIDER                   102 //
-#define FGETATTACKTURN                      103 //
-#define FGETDAMAGETYPE                      104 //
-#define FBECOMESPELL                        105 //
-#define FBECOMESPELLBOOK                    106 //
-#define FIFSCOREDAHIT                       107 //
-#define FIFDISAFFIRMED                      108 //
-#define FTRANSLATEORDER                     109 //
-#define FSETTARGETTOWHOEVERWASHIT           110 //
-#define FSETTARGETTOWIDEENEMY               111 //
-#define FIFCHANGED                          112 //
-#define FIFINWATER                          113 //
-#define FIFBORED                            114 //
-#define FIFTOOMUCHBAGGAGE                   115 //
-#define FIFGROGGED                          116 //
-#define FIFDAZED                            117 //
-#define FIFTARGETHASSPECIALID               118 //
-#define FPRESSTARGETLATCHBUTTON             119 //
-#define FIFINVISIBLE                        120 //
-#define FIFARMORIS                          121 //
-#define FGETTARGETGROGTIME                  122 //
-#define FGETTARGETDAZETIME                  123 //
-#define FSETDAMAGETYPE                      124 //
-#define FSETWATERLEVEL                      125 //
-#define FENCHANTTARGET                      126 //
-#define FENCHANTCHILD                       127 //
-#define FTELEPORTTARGET                     128 //
-#define FGIVEEXPERIENCETOTARGET             129 //
-#define FINCREASEAMMO                       130 //
-#define FUNKURSETARGET                      131 //
-#define FGIVEEXPERIENCETOTARGETTEAM         132 //
-#define FIFUNARMED                          133 //
-#define FRESTOCKTARGETAMMOIDALL             134 //
-#define FRESTOCKTARGETAMMOIDFIRST           135 //
-#define FFLASHTARGET                        136 //
-#define FSETREDSHIFT                        137 //
-#define FSETGREENSHIFT                      138 //
-#define FSETBLUESHIFT                       139 //
-#define FSETLIGHT                           140 //
-#define FSETALPHA                           141 //
-#define FIFHITFROMBEHIND                    142 //
-#define FIFHITFROMFRONT                     143 //
-#define FIFHITFROMLEFT                      144 //
-#define FIFHITFROMRIGHT                     145 //
-#define FIFTARGETISONSAMETEAM               146 //
-#define FKILLTARGET                         147 //
-#define FUNDOENCHANT                        148 //
-#define FGETWATERLEVEL                      149 //
-#define FCOSTTARGETMANA                     150 //
-#define FIFTARGETHASANYID                   151 //
-#define FSETBUMPSIZE                        152 //
-#define FIFNOTDROPPED                       153 //
-#define FIFYISLESSTHANX                     154 //
-#define FSETFLYHEIGHT                       155 //
-#define FIFBLOCKED                          156 //
-#define FIFTARGETISDEFENDING                157 //
-#define FIFTARGETISATTACKING                158 //
-#define FIFSTATEIS0                         159 //
-#define FIFSTATEIS1                         160 //
-#define FIFSTATEIS2                         161 //
-#define FIFSTATEIS3                         162 //
-#define FIFSTATEIS4                         163 //
-#define FIFSTATEIS5                         164 //
-#define FIFSTATEIS6                         165 //
-#define FIFSTATEIS7                         166 //
-#define FIFCONTENTIS                        167 //
-#define FSETTURNMODETOWATCHTARGET           168 //
-#define FIFSTATEISNOT                       169 //
-#define FIFXISEQUALTOY                      170 //
-#define FDEBUGMESSAGE                       171 //
-#define FBLACKTARGET                        172 // Scripted AI functions (v0.80)
-#define FSENDMESSAGENEAR                    173 //
-#define FIFHITGROUND                        174 //
-#define FIFNAMEISKNOWN                      175 //
-#define FIFUSAGEISKNOWN                     176 //
-#define FIFHOLDINGITEMID                    177 //
-#define FIFHOLDINGRANGEDWEAPON              178 //
-#define FIFHOLDINGMELEEWEAPON               179 //
-#define FIFHOLDINGSHIELD                    180 //
-#define FIFKURSED                           181 //
-#define FIFTARGETISKURSED                   182 //
-#define FIFTARGETISDRESSEDUP                183 //
-#define FIFOVERWATER                        184 //
-#define FIFTHROWN                           185 //
-#define FMAKENAMEKNOWN                      186 //
-#define FMAKEUSAGEKNOWN                     187 //
-#define FSTOPTARGETMOVEMENT                 188 //
-#define FSETXY                              189 //
-#define FGETXY                              190 //
-#define FADDXY                              191 //
-#define FMAKEAMMOKNOWN                      192 //
-#define FSPAWNATTACHEDPARTICLE              193 //
-#define FSPAWNEXACTPARTICLE                 194 //
-#define FACCELERATETARGET                   195 //
-#define FIFDISTANCEISMORETHANTURN           196 //
-#define FIFCRUSHED                          197 //
-#define FMAKECRUSHVALID                     198 //
-#define FSETTARGETTOLOWESTTARGET            199 //
-#define FIFNOTPUTAWAY                       200 //
-#define FIFTAKENOUT                         201 //
-#define FIFAMMOOUT                          202 //
-#define FPLAYSOUNDLOOPED                    203 //
-#define FSTOPSOUND                          204 //
-#define FHEALSELF                           205 //
-#define FEQUIP                              206 //
-#define FIFTARGETHASITEMIDEQUIPPED          207 //
-#define FSETOWNERTOTARGET                   208 //
-#define FSETTARGETTOOWNER                   209 //
-#define FSETFRAME                           210 //
-#define FBREAKPASSAGE                       211 //
-#define FSETRELOADTIME                      212 //
-#define FSETTARGETTOWIDEBLAHID              213 //
-#define FPOOFTARGET                         214 //
-#define FCHILDDOACTIONOVERRIDE              215 //
-#define FSPAWNPOOF                          216 //
-#define FSETSPEEDPERCENT                    217 //
-#define FSETCHILDSTATE                      218 //
-#define FSPAWNATTACHEDSIZEDPARTICLE         219 //
-#define FCHANGEARMOR                        220 //
-#define FSHOWTIMER                          221 //
-#define FIFFACINGTARGET                     222 //
-#define FPLAYSOUNDVOLUME                    223 //
-#define FSPAWNATTACHEDFACEDPARTICLE         224 //
-#define FIFSTATEISODD                       225 //
-#define FSETTARGETTODISTANTENEMY            226 //
-#define FTELEPORT                           227 //
-#define FGIVESTRENGTHTOTARGET               228 //
-#define FGIVEWISDOMTOTARGET                 229 //
-#define FGIVEINTELLIGENCETOTARGET           230 //
-#define FGIVEDEXTERITYTOTARGET              231 //
-#define FGIVELIFETOTARGET                   232 //
-#define FGIVEMANATOTARGET                   233 //
-#define FSHOWMAP                            234 //
-#define FSHOWYOUAREHERE                     235 //
-#define FSHOWBLIPXY                         236 //
-#define FHEALTARGET                         237 //
-#define FPUMPTARGET                         238 //
-#define FCOSTAMMO                           239 //
-#define FMAKESIMILARNAMESKNOWN              240 //
-#define FSPAWNATTACHEDHOLDERPARTICLE        241 //
-#define FSETTARGETRELOADTIME                242 //
-#define FSETFOGLEVEL                        243 //
-#define FGETFOGLEVEL                        244 //
-#define FSETFOGTAD                          245 //
-#define FSETFOGBOTTOMLEVEL                  246 //
-#define FGETFOGBOTTOMLEVEL                  247 //
-#define FCORRECTACTIONFORHAND               248 //
-#define FIFTARGETISMOUNTED                  249 //
-#define FSPARKLEICON                        250 //
-#define FUNSPARKLEICON                      251 //
-#define FGETTILEXY                          252 //
-#define FSETTILEXY                          253 //
-#define FSETSHADOWSIZE                      254 //
-#define FORDERTARGET                        255 //
-#define FSETTARGETTOWHOEVERISINPASSAGE      256 //
-#define FIFCHARACTERWASABOOK                257 //
-#define FSETENCHANTBOOSTVALUES              258 // Scripted AI functions (v0.90)
-#define FSPAWNCHARACTERXYZ                  259 //
-#define FSPAWNEXACTCHARACTERXYZ             260 //
-#define FCHANGETARGETCLASS                  261 //
-#define FPLAYFULLSOUND                      262 //
-#define FSPAWNEXACTCHASEPARTICLE            263 //
-#define FCREATEORDER                        264 //
-#define FORDERSPECIALID                     265 //
-#define FUNKURSETARGETINVENTORY             266 //
-#define FIFTARGETISSNEAKING                 267 //
-#define FDROPITEMS                          268 //
-#define FRESPAWNTARGET                      269 //
-#define FTARGETDOACTIONSETFRAME             270 //
-#define FIFTARGETCANSEEINVISIBLE            271 //
-#define FSETTARGETTONEARESTBLAHID           272 //
-#define FSETTARGETTONEARESTENEMY            273 //
-#define FSETTARGETTONEARESTFRIEND           274 //
-#define FSETTARGETTONEARESTLIFEFORM         275 //
-#define FFLASHPASSAGE                       276 //
-#define FFINDTILEINPASSAGE                  277 //
-#define FIFHELDINLEFTHAND                   278 //
-#define FNOTANITEM                          279 //
-#define FSETCHILDAMMO                       280 //
-#define FIFHITVULNERABLE                    281 //
-#define FIFTARGETISFLYING                   282 //
-#define FIDENTIFYTARGET                     283 //
-#define FBEATMODULE                         284 //
-#define FENDMODULE                          285 //
-#define FDISABLEEXPORT                      286 //
-#define FENABLEEXPORT                       287 //
-#define FGETTARGETSTATE                     288 //
-#define FIFEQUIPPED                         289 // Redone in v 0.95f
-#define FDROPTARGETMONEY                    290 //
-#define FGETTARGETCONTENT                  291 //
-#define FDROPTARGETKEYS                     292 //
-#define FJOINTEAM                        293 //
-#define FTARGETJOINTEAM                      294 //
-#define FCLEARMUSICPASSAGE                  295 // Below is original code again
-#define FCLEARENDMESSAGE                    296 //
-#define FADDENDMESSAGE                      297 //
-#define FPLAYMUSIC                          298 //
-#define FSETMUSICPASSAGE                    299 //
-#define FMAKECRUSHINVALID                   300 //
-#define FSTOPMUSIC                          301 //
-#define FFLASHVARIABLE                      302 //
-#define FACCELERATEUP                       303 //
-#define FFLASHVARIABLEHEIGHT                304 //
-#define FSETDAMAGETIME                      305 //
-#define FIFSTATEIS8                         306 //
-#define FIFSTATEIS9                         307 //
-#define FIFSTATEIS10                        308 //
-#define FIFSTATEIS11                        309 //
-#define FIFSTATEIS12                        310 //
-#define FIFSTATEIS13                        311 //
-#define FIFSTATEIS14                        312 //
-#define FIFSTATEIS15                        313 //
-#define FIFTARGETISAMOUNT                   314 //
-#define FIFTARGETISAPLATFORM                315 //
-#define FADDSTAT                            316 //
-#define FDISENCHANTTARGET                   317 //
-#define FDISENCHANTALL                      318 //
-#define FSETVOLUMENEARESTTEAMMATE           319 //
-#define FADDSHOPPASSAGE                     320 //
-#define FTARGETPAYFORARMOR                  321 //
-#define FJOINEVILTEAM                       322 //
-#define FJOINNULLTEAM                       323 //
-#define FJOINGOODTEAM                       324 //
-#define FPITSKILL                           325 //
-#define FSETTARGETTOPASSAGEID               326 //
-#define FMAKENAMEUNKNOWN                    327 //
-#define FSPAWNEXACTPARTICLEENDSPAWN         328 //
-#define FSPAWNPOOFSPEEDSPACINGDAMAGE        329 //
-#define FGIVEEXPERIENCETOGOODTEAM           330 //
-#define FDONOTHING                          331 // Scripted AI functions (v0.95)
-#define FGROGTARGET                         332 //
-#define FDAZETARGET                         333 //
-#define FENABLERESPAWN                      334 //
-#define FDISABLERESPAWN                     335 //
-#define FIFHOLDERSCOREDAHIT            336 //
-#define FIFHOLDERBLOCKED            337 //
-#define FGETSKILLLEVEL               338 //
-#define FIFTARGETHASNOTFULLMANA         339 //
-#define FENABLELISTENSKILL           340 //
-#define FSETTARGETTOLASTITEMUSED         341 //
-#define FFOLLOWLINK                 342 // Scripted AI functions (v1.00)
-#define FIFOPERATORISLINUX             343 //
-#define FIFTARGETISAWEAPON              344 //
-#define FIFSOMEONEISSTEALING         345 //
-#define FIFTARGETISARCANESPELL        346 //
-#define FIFBACKSTABBED                347 //
-#define FGETTARGETDAMAGETYPE             348 //
+enum e_AICODES
+{
+  FIFSPAWNED = 0                      ,  // = 0 Scripted AI functions (v0.10)
+  FIFTIMEOUT                          ,  // = 1   
+  FIFATWAYPOINT                       ,  // = 2   
+  FIFATLASTWAYPOINT                   ,  // = 3   
+  FIFATTACKED                         ,  // = 4   
+  FIFBUMPED                           ,  // = 5   
+  FIFORDERED                          ,  // = 6   
+  FIFCALLEDFORHELP                    ,  // = 7   
+  FSETCONTENT                         ,  // = 8   
+  FIFKILLED                           ,  // = 9   
+  FIFTARGETKILLED                     ,  // = 10  
+  FCLEARWAYPOINTS                     ,  // = 11  
+  FADDWAYPOINT                        ,  // = 12  
+  FFINDPATH                           ,  // = 13  
+  FCOMPASS                            ,  // = 14  
+  FGETTARGETARMORPRICE                ,  // = 15  
+  FSETTIME                            ,  // = 16  
+  FGETCONTENT                         ,  // = 17  
+  FJOINTARGETTEAM                     ,  // = 18  
+  FSETTARGETTONEARBYENEMY             ,  // = 19  
+  FSETTARGETTOTARGETLEFTHAND          ,  // = 20  
+  FSETTARGETTOTARGETRIGHTHAND         ,  // = 21  
+  FSETTARGETTOWHOEVERATTACKED         ,  // = 22  
+  FSETTARGETTOWHOEVERBUMPED           ,  // = 23  
+  FSETTARGETTOWHOEVERCALLEDFORHELP    ,  // = 24  
+  FSETTARGETTOOLDTARGET               ,  // = 25  
+  FSETTURNMODETOVELOCITY              ,  // = 26  
+  FSETTURNMODETOWATCH                 ,  // = 27  
+  FSETTURNMODETOSPIN                  ,  // = 28  
+  FSETBUMPHEIGHT                      ,  // = 29  
+  FIFTARGETHASID                      ,  // = 30  
+  FIFTARGETHASITEMID                  ,  // = 31  
+  FIFTARGETHOLDINGITEMID              ,  // = 32  
+  FIFTARGETHASSKILLID                 ,  // = 33  
+  FELSE                               ,  // = 34  
+  FRUN                                ,  // = 35  
+  FWALK                               ,  // = 36  
+  FSNEAK                              ,  // = 37  
+  FDOACTION                           ,  // = 38  
+  FKEEPACTION                         ,  // = 39  
+  FISSUEORDER                         ,  // = 40  
+  FDROPWEAPONS                        ,  // = 41  
+  FTARGETDOACTION                     ,  // = 42  
+  FOPENPASSAGE                        ,  // = 43  
+  FCLOSEPASSAGE                       ,  // = 44  
+  FIFPASSAGEOPEN                      ,  // = 45  
+  FGOPOOF                             ,  // = 46  
+  FCOSTTARGETITEMID                   ,  // = 47  
+  FDOACTIONOVERRIDE                   ,  // = 48  
+  FIFHEALED                           ,  // = 49  
+  FSENDMESSAGE                        ,  // = 50  
+  FCALLFORHELP                        ,  // = 51  
+  FADDIDSZ                            ,  // = 52  
+  FEND                                ,  // = 53  
+  FSETSTATE                           ,  // = 54   Scripted AI functions (v0.20)
+  FGETSTATE                           ,  // = 55  
+  FIFSTATEIS                          ,  // = 56  
+  FIFTARGETCANOPENSTUFF               ,  // = 57   Scripted AI functions (v0.30)
+  FIFGRABBED                          ,  // = 58  
+  FIFDROPPED                          ,  // = 59  
+  FSETTARGETTOWHOEVERISHOLDING        ,  // = 60  
+  FDAMAGETARGET                       ,  // = 61  
+  FIFXISLESSTHANY                     ,  // = 62  
+  FSETWEATHERTIME                     ,  // = 63   Scripted AI functions (v0.40)
+  FGETBUMPHEIGHT                      ,  // = 64  
+  FIFREAFFIRMED                       ,  // = 65  
+  FUNKEEPACTION                       ,  // = 66  
+  FIFTARGETISONOTHERTEAM              ,  // = 67  
+  FIFTARGETISONHATEDTEAM              ,  // = 68   Scripted AI functions (v0.50)
+  FPRESSLATCHBUTTON                   ,  // = 69  
+  FSETTARGETTOTARGETOFLEADER          ,  // = 70  
+  FIFLEADERKILLED                     ,  // = 71  
+  FBECOMELEADER                       ,  // = 72  
+  FCHANGETARGETARMOR                  ,  // = 73   Scripted AI functions (v0.60)
+  FGIVEMONEYTOTARGET                  ,  // = 74  
+  FDROPKEYS                           ,  // = 75  
+  FIFLEADERISALIVE                    ,  // = 76  
+  FIFTARGETISOLDTARGET                ,  // = 77  
+  FSETTARGETTOLEADER                  ,  // = 78  
+  FSPAWNCHARACTER                     ,  // = 79  
+  FRESPAWNCHARACTER                   ,  // = 80  
+  FCHANGETILE                         ,  // = 81  
+  FIFUSED                             ,  // = 82  
+  FDROPMONEY                          ,  // = 83  
+  FSETOLDTARGET                       ,  // = 84  
+  FDETACHFROMHOLDER                   ,  // = 85  
+  FIFTARGETHASVULNERABILITYID         ,  // = 86  
+  FCLEANUP                            ,  // = 87  
+  FIFCLEANEDUP                        ,  // = 88  
+  FIFSITTING                          ,  // = 89  
+  FIFTARGETISHURT                     ,  // = 90  
+  FIFTARGETISAPLAYER                  ,  // = 91  
+  FPLAYSOUND                          ,  // = 92  
+  FSPAWNPARTICLE                      ,  // = 93  
+  FIFTARGETISALIVE                    ,  // = 94  
+  FSTOP                               ,  // = 95  
+  FDISAFFIRMCHARACTER                 ,  // = 96  
+  FREAFFIRMCHARACTER                  ,  // = 97  
+  FIFTARGETISSELF                     ,  // = 98  
+  FIFTARGETISMALE                     ,  // = 99  
+  FIFTARGETISFEMALE                   ,  // = 100 
+  FSETTARGETTOSELF                    ,  // = 101  Scripted AI functions (v0.70)
+  FSETTARGETTORIDER                   ,  // = 102 
+  FGETATTACKTURN                      ,  // = 103 
+  FGETDAMAGETYPE                      ,  // = 104 
+  FBECOMESPELL                        ,  // = 105 
+  FBECOMESPELLBOOK                    ,  // = 106 
+  FIFSCOREDAHIT                       ,  // = 107 
+  FIFDISAFFIRMED                      ,  // = 108 
+  FTRANSLATEORDER                     ,  // = 109 
+  FSETTARGETTOWHOEVERWASHIT           ,  // = 110 
+  FSETTARGETTOWIDEENEMY               ,  // = 111 
+  FIFCHANGED                          ,  // = 112 
+  FIFINWATER                          ,  // = 113 
+  FIFBORED                            ,  // = 114 
+  FIFTOOMUCHBAGGAGE                   ,  // = 115 
+  FIFGROGGED                          ,  // = 116 
+  FIFDAZED                            ,  // = 117 
+  FIFTARGETHASSPECIALID               ,  // = 118 
+  FPRESSTARGETLATCHBUTTON             ,  // = 119 
+  FIFINVISIBLE                        ,  // = 120 
+  FIFARMORIS                          ,  // = 121 
+  FGETTARGETGROGTIME                  ,  // = 122 
+  FGETTARGETDAZETIME                  ,  // = 123 
+  FSETDAMAGETYPE                      ,  // = 124 
+  FSETWATERLEVEL                      ,  // = 125 
+  FENCHANTTARGET                      ,  // = 126 
+  FENCHANTCHILD                       ,  // = 127 
+  FTELEPORTTARGET                     ,  // = 128 
+  FGIVEEXPERIENCETOTARGET             ,  // = 129 
+  FINCREASEAMMO                       ,  // = 130 
+  FUNKURSETARGET                      ,  // = 131 
+  FGIVEEXPERIENCETOTARGETTEAM         ,  // = 132 
+  FIFUNARMED                          ,  // = 133 
+  FRESTOCKTARGETAMMOIDALL             ,  // = 134 
+  FRESTOCKTARGETAMMOIDFIRST           ,  // = 135 
+  FFLASHTARGET                        ,  // = 136 
+  FSETREDSHIFT                        ,  // = 137 
+  FSETGREENSHIFT                      ,  // = 138 
+  FSETBLUESHIFT                       ,  // = 139 
+  FSETLIGHT                           ,  // = 140 
+  FSETALPHA                           ,  // = 141 
+  FIFHITFROMBEHIND                    ,  // = 142 
+  FIFHITFROMFRONT                     ,  // = 143 
+  FIFHITFROMLEFT                      ,  // = 144 
+  FIFHITFROMRIGHT                     ,  // = 145 
+  FIFTARGETISONSAMETEAM               ,  // = 146 
+  FKILLTARGET                         ,  // = 147 
+  FUNDOENCHANT                        ,  // = 148 
+  FGETWATERLEVEL                      ,  // = 149 
+  FCOSTTARGETMANA                     ,  // = 150 
+  FIFTARGETHASANYID                   ,  // = 151 
+  FSETBUMPSIZE                        ,  // = 152 
+  FIFNOTDROPPED                       ,  // = 153 
+  FIFYISLESSTHANX                     ,  // = 154 
+  FSETFLYHEIGHT                       ,  // = 155 
+  FIFBLOCKED                          ,  // = 156 
+  FIFTARGETISDEFENDING                ,  // = 157 
+  FIFTARGETISATTACKING                ,  // = 158 
+  FIFSTATEIS0                         ,  // = 159 
+  FIFSTATEIS1                         ,  // = 160 
+  FIFSTATEIS2                         ,  // = 161 
+  FIFSTATEIS3                         ,  // = 162 
+  FIFSTATEIS4                         ,  // = 163 
+  FIFSTATEIS5                         ,  // = 164 
+  FIFSTATEIS6                         ,  // = 165 
+  FIFSTATEIS7                         ,  // = 166 
+  FIFCONTENTIS                        ,  // = 167 
+  FSETTURNMODETOWATCHTARGET           ,  // = 168 
+  FIFSTATEISNOT                       ,  // = 169 
+  FIFXISEQUALTOY                      ,  // = 170 
+  FDEBUGMESSAGE                       ,  // = 171 
+  FBLACKTARGET                        ,  // = 172  Scripted AI functions (v0.80)
+  FSENDMESSAGENEAR                    ,  // = 173 
+  FIFHITGROUND                        ,  // = 174 
+  FIFNAMEISKNOWN                      ,  // = 175 
+  FIFUSAGEISKNOWN                     ,  // = 176 
+  FIFHOLDINGITEMID                    ,  // = 177 
+  FIFHOLDINGRANGEDWEAPON              ,  // = 178 
+  FIFHOLDINGMELEEWEAPON               ,  // = 179 
+  FIFHOLDINGSHIELD                    ,  // = 180 
+  FIFKURSED                           ,  // = 181 
+  FIFTARGETISKURSED                   ,  // = 182 
+  FIFTARGETISDRESSEDUP                ,  // = 183 
+  FIFOVERWATER                        ,  // = 184 
+  FIFTHROWN                           ,  // = 185 
+  FMAKENAMEKNOWN                      ,  // = 186 
+  FMAKEUSAGEKNOWN                     ,  // = 187 
+  FSTOPTARGETMOVEMENT                 ,  // = 188 
+  FSETXY                              ,  // = 189 
+  FGETXY                              ,  // = 190 
+  FADDXY                              ,  // = 191 
+  FMAKEAMMOKNOWN                      ,  // = 192 
+  FSPAWNATTACHEDPARTICLE              ,  // = 193 
+  FSPAWNEXACTPARTICLE                 ,  // = 194 
+  FACCELERATETARGET                   ,  // = 195 
+  FIFDISTANCEISMORETHANTURN           ,  // = 196 
+  FIFCRUSHED                          ,  // = 197 
+  FMAKECRUSHVALID                     ,  // = 198 
+  FSETTARGETTOLOWESTTARGET            ,  // = 199 
+  FIFNOTPUTAWAY                       ,  // = 200 
+  FIFTAKENOUT                         ,  // = 201 
+  FIFAMMOOUT                          ,  // = 202 
+  FPLAYSOUNDLOOPED                    ,  // = 203 
+  FSTOPSOUND                          ,  // = 204 
+  FHEALSELF                           ,  // = 205 
+  FEQUIP                              ,  // = 206 
+  FIFTARGETHASITEMIDEQUIPPED          ,  // = 207 
+  FSETOWNERTOTARGET                   ,  // = 208 
+  FSETTARGETTOOWNER                   ,  // = 209 
+  FSETFRAME                           ,  // = 210 
+  FBREAKPASSAGE                       ,  // = 211 
+  FSETRELOADTIME                      ,  // = 212 
+  FSETTARGETTOWIDEBLAHID              ,  // = 213 
+  FPOOFTARGET                         ,  // = 214 
+  FCHILDDOACTIONOVERRIDE              ,  // = 215 
+  FSPAWNPOOF                          ,  // = 216 
+  FSETSPEEDPERCENT                    ,  // = 217 
+  FSETCHILDSTATE                      ,  // = 218 
+  FSPAWNATTACHEDSIZEDPARTICLE         ,  // = 219 
+  FCHANGEARMOR                        ,  // = 220 
+  FSHOWTIMER                          ,  // = 221 
+  FIFFACINGTARGET                     ,  // = 222 
+  FPLAYSOUNDVOLUME                    ,  // = 223 
+  FSPAWNATTACHEDFACEDPARTICLE         ,  // = 224 
+  FIFSTATEISODD                       ,  // = 225 
+  FSETTARGETTODISTANTENEMY            ,  // = 226 
+  FTELEPORT                           ,  // = 227 
+  FGIVESTRENGTHTOTARGET               ,  // = 228 
+  FGIVEWISDOMTOTARGET                 ,  // = 229 
+  FGIVEINTELLIGENCETOTARGET           ,  // = 230 
+  FGIVEDEXTERITYTOTARGET              ,  // = 231 
+  FGIVELIFETOTARGET                   ,  // = 232 
+  FGIVEMANATOTARGET                   ,  // = 233 
+  FSHOWMAP                            ,  // = 234 
+  FSHOWYOUAREHERE                     ,  // = 235 
+  FSHOWBLIPXY                         ,  // = 236 
+  FHEALTARGET                         ,  // = 237 
+  FPUMPTARGET                         ,  // = 238 
+  FCOSTAMMO                           ,  // = 239 
+  FMAKESIMILARNAMESKNOWN              ,  // = 240 
+  FSPAWNATTACHEDHOLDERPARTICLE        ,  // = 241 
+  FSETTARGETRELOADTIME                ,  // = 242 
+  FSETFOGLEVEL                        ,  // = 243 
+  FGETFOGLEVEL                        ,  // = 244 
+  FSETFOGTAD                          ,  // = 245 
+  FSETFOGBOTTOMLEVEL                  ,  // = 246 
+  FGETFOGBOTTOMLEVEL                  ,  // = 247 
+  FCORRECTACTIONFORHAND               ,  // = 248 
+  FIFTARGETISMOUNTED                  ,  // = 249 
+  FSPARKLEICON                        ,  // = 250 
+  FUNSPARKLEICON                      ,  // = 251 
+  FGETTILEXY                          ,  // = 252 
+  FSETTILEXY                          ,  // = 253 
+  FSETSHADOWSIZE                      ,  // = 254 
+  FORDERTARGET                        ,  // = 255 
+  FSETTARGETTOWHOEVERISINPASSAGE      ,  // = 256 
+  FIFCHARACTERWASABOOK                ,  // = 257 
+  FSETENCHANTBOOSTVALUES              ,  // = 258  Scripted AI functions (v0.90)
+  FSPAWNCHARACTERXYZ                  ,  // = 259 
+  FSPAWNEXACTCHARACTERXYZ             ,  // = 260 
+  FCHANGETARGETCLASS                  ,  // = 261 
+  FPLAYFULLSOUND                      ,  // = 262 
+  FSPAWNEXACTCHASEPARTICLE            ,  // = 263 
+  FCREATEORDER                        ,  // = 264 
+  FORDERSPECIALID                     ,  // = 265 
+  FUNKURSETARGETINVENTORY             ,  // = 266 
+  FIFTARGETISSNEAKING                 ,  // = 267 
+  FDROPITEMS                          ,  // = 268 
+  FRESPAWNTARGET                      ,  // = 269 
+  FTARGETDOACTIONSETFRAME             ,  // = 270 
+  FIFTARGETCANSEEINVISIBLE            ,  // = 271 
+  FSETTARGETTONEARESTBLAHID           ,  // = 272 
+  FSETTARGETTONEARESTENEMY            ,  // = 273 
+  FSETTARGETTONEARESTFRIEND           ,  // = 274 
+  FSETTARGETTONEARESTLIFEFORM         ,  // = 275 
+  FFLASHPASSAGE                       ,  // = 276 
+  FFINDTILEINPASSAGE                  ,  // = 277 
+  FIFHELDINLEFTHAND                   ,  // = 278 
+  FNOTANITEM                          ,  // = 279 
+  FSETCHILDAMMO                       ,  // = 280 
+  FIFHITVULNERABLE                    ,  // = 281 
+  FIFTARGETISFLYING                   ,  // = 282 
+  FIDENTIFYTARGET                     ,  // = 283 
+  FBEATMODULE                         ,  // = 284 
+  FENDMODULE                          ,  // = 285 
+  FDISABLEEXPORT                      ,  // = 286 
+  FENABLEEXPORT                       ,  // = 287 
+  FGETTARGETSTATE                     ,  // = 288 
+  FIFEQUIPPED                         ,  // = 289  Redone in v 0.95f
+  FDROPTARGETMONEY                    ,  // = 290 
+  FGETTARGETCONTENT                   ,  // = 291 
+  FDROPTARGETKEYS                     ,  // = 292 
+  FJOINTEAM                           ,  // = 293 
+  FTARGETJOINTEAM                     ,  // = 294 
+  FCLEARMUSICPASSAGE                  ,  // = 295  Below is original code again
+  FCLEARENDMESSAGE                    ,  // = 296 
+  FADDENDMESSAGE                      ,  // = 297 
+  FPLAYMUSIC                          ,  // = 298 
+  FSETMUSICPASSAGE                    ,  // = 299 
+  FMAKECRUSHINVALID                   ,  // = 300 
+  FSTOPMUSIC                          ,  // = 301 
+  FFLASHVARIABLE                      ,  // = 302 
+  FACCELERATEUP                       ,  // = 303 
+  FFLASHVARIABLEHEIGHT                ,  // = 304 
+  FSETDAMAGETIME                      ,  // = 305 
+  FIFSTATEIS8                         ,  // = 306 
+  FIFSTATEIS9                         ,  // = 307 
+  FIFSTATEIS10                        ,  // = 308 
+  FIFSTATEIS11                        ,  // = 309 
+  FIFSTATEIS12                        ,  // = 310 
+  FIFSTATEIS13                        ,  // = 311 
+  FIFSTATEIS14                        ,  // = 312 
+  FIFSTATEIS15                        ,  // = 313 
+  FIFTARGETISAMOUNT                   ,  // = 314 
+  FIFTARGETISAPLATFORM                ,  // = 315 
+  FADDSTAT                            ,  // = 316 
+  FDISENCHANTTARGET                   ,  // = 317 
+  FDISENCHANTALL                      ,  // = 318 
+  FSETVOLUMENEARESTTEAMMATE           ,  // = 319 
+  FADDSHOPPASSAGE                     ,  // = 320 
+  FTARGETPAYFORARMOR                  ,  // = 321 
+  FJOINEVILTEAM                       ,  // = 322 
+  FJOINNULLTEAM                       ,  // = 323 
+  FJOINGOODTEAM                       ,  // = 324 
+  FPITSKILL                           ,  // = 325 
+  FSETTARGETTOPASSAGEID               ,  // = 326 
+  FMAKENAMEUNKNOWN                    ,  // = 327 
+  FSPAWNEXACTPARTICLEENDSPAWN         ,  // = 328 
+  FSPAWNPOOFSPEEDSPACINGDAMAGE        ,  // = 329 
+  FGIVEEXPERIENCETOGOODTEAM           ,  // = 330 
+  FDONOTHING                          ,  // = 331  Scripted AI functions (v0.95)
+  FGROGTARGET                         ,  // = 332 
+  FDAZETARGET                         ,  // = 333 
+  FENABLERESPAWN                      ,  // = 334 
+  FDISABLERESPAWN                     ,  // = 335 
+  FIFHOLDERSCOREDAHIT                 ,  // = 336 
+  FIFHOLDERBLOCKED                    ,  // = 337 
+  FGETSKILLLEVEL                      ,  // = 338 
+  FIFTARGETHASNOTFULLMANA             ,  // = 339 
+  FENABLELISTENSKILL                  ,  // = 340 
+  FSETTARGETTOLASTITEMUSED            ,  // = 341 
+  FFOLLOWLINK                         ,  // = 342  Scripted AI functions (v1.00)
+  FIFOPERATORISLINUX                  ,  // = 343 
+  FIFTARGETISAWEAPON                  ,  // = 344 
+  FIFSOMEONEISSTEALING                ,  // = 345 
+  FIFTARGETISARCANESPELL              ,  // = 346 
+  FIFBACKSTABBED                      ,  // = 347 
+  FGETTARGETDAMAGETYPE                   // = 348 
+};
 
+typedef enum e_AICODES AICODES_t;
 
 // OPERATORS
 #define OPADD 0                // +

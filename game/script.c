@@ -30,17 +30,17 @@ char smokey_debug_text[256] = {0};
 
 #define END_VALUE (0x80000000 | FEND)
 
-Uint8 cLineBuffer[MAXLINESIZE];
+char                    cLineBuffer[MAXLINESIZE];
 int                     iLoadSize;
 int                     iLineSize;
 int                     iNumLine;
-Uint8 cCodeType[MAXCODE];
-Uint32 iCodeValue[MAXCODE];
-Uint8 cCodeName[MAXCODE][MAXCODENAMESIZE];
+char                    cCodeType[MAXCODE];
+Uint32                  iCodeValue[MAXCODE];
+char                    cCodeName[MAXCODE][MAXCODENAMESIZE];
 int                     iCodeIndex;
 int                     iCodeValueTmp;
 int                     iNumCode;
-Uint32 iCompiledAis[AISMAXCOMPILESIZE];
+Uint32                  iCompiledAis[AISMAXCOMPILESIZE];
 int                     iAisStartPosition[MAXAI];
 int                     iNumAis;
 int                     iAisIndex;
@@ -685,11 +685,8 @@ bool_t run_function( Uint32 value, int character )
   //     It returns bfalse if the script should jump over the
   //     indented code that follows
 
-  // Mask out the indentation
-  Uint32 valuecode = value & 0x7ffffff;
-
-  // Assume that the function will pass, as most do
-  bool_t returncode = btrue;
+  AICODES_t valuecode;
+  bool_t    returncode;
 
   Uint16 sTmp;
   float fTmp;
@@ -697,6 +694,12 @@ bool_t run_function( Uint32 value, int character )
   int volume;
   Uint32 test;
   char szDebug[256];
+
+  // Mask out the indentation
+  valuecode = value & 0x7ffffff;
+
+  // Assume that the function will pass, as most do
+  returncode = btrue;
 
   // Figure out which function to run
   switch ( valuecode )
@@ -758,23 +761,12 @@ bool_t run_function( Uint32 value, int character )
 
     case FCLEARWAYPOINTS:
       // Clear out all waypoints
-      chraigoto[character] = 0;
-      chraigotoadd[character] = 1;
-      chraigotox[character][0] = chrxpos[character];
-      chraigotoy[character][0] = chrypos[character];
+      waypoint_clear_all(character);
       break;
 
     case FADDWAYPOINT:
       // Add a waypoint to the waypoint list
-      iTmp = (chraigotoadd[character] + 1) % MAXWAY;
-      if(iTmp == chraigoto[character])
-      {
-        chraigoto[character] = (chraigoto[character] + 1) % MAXWAY;
-      }
-
-      chraigotox[character][chraigotoadd[character]] = valuetmpx;
-      chraigotoy[character][chraigotoadd[character]] = valuetmpy;
-      chraigotoadd[character] = iTmp;
+      waypoint_push(character, valuetmpx, valuetmpy);
       break;
 
     case FFINDPATH:
@@ -808,16 +800,7 @@ bool_t run_function( Uint32 value, int character )
           valuetmpy = valuetmpy - turntosin[valuetmpturn>>2] * valuetmpdistance;
         }
 
-        // Then we add the waypoint(s), without clearing existing ones...
-        iTmp = (chraigotoadd[character] + 1) % MAXWAY;
-        if(iTmp == chraigoto[character])
-        {
-          chraigoto[character] = (chraigoto[character] + 1) % MAXWAY;
-        }
-
-        chraigotox[character][chraigotoadd[character]] = valuetmpx;
-        chraigotoy[character][chraigotoadd[character]] = valuetmpy;
-        chraigotoadd[character] = iTmp;
+        waypoint_push(character, valuetmpx, valuetmpy);
       }
 
       break;
@@ -3453,6 +3436,7 @@ bool_t run_function( Uint32 value, int character )
 
     case FDONOTHING:
       // This function does nothing (For use with combination with Else function or debugging)
+      returncode = btrue; 
       break;
 
     case FGROGTARGET:
@@ -3518,7 +3502,6 @@ bool_t run_function( Uint32 value, int character )
 
       if ( chrlastitemused[character] == character ) returncode = bfalse;
       else chraitarget[character] = chrlastitemused[character];
-
       break;
 
     case FFOLLOWLINK:
@@ -3709,14 +3692,41 @@ void run_operand( Uint32 value, int character )
           iTmp = chrturnleftright[teamleader[chrteam[character]]];
         break;
       case VARGOTOX:
-        iTmp = chraigotox[character][chraigoto[character]];
+        if(waypoint_list_empty(character))
+        {
+          iTmp = chrxpos[character];
+        }
+        else
+        {
+          iTmp = chraigotox[character][chraigoto[character]];
+        }
         break;
       case VARGOTOY:
-        iTmp = chraigotoy[character][chraigoto[character]];
+        if(waypoint_list_empty(character))
+        {
+          iTmp = chrypos[character];
+        }
+        else
+        {
+          iTmp = chraigotoy[character][chraigoto[character]];
+        }
         break;
       case VARGOTODISTANCE:
-        iTmp = ABS( ( int )( chraigotox[character][chraigoto[character]] - chrxpos[character] ) ) +
-               ABS( ( int )( chraigotoy[character][chraigoto[character]] - chrypos[character] ) );
+        {
+          int ix, iy;
+          if(waypoint_list_empty(character))
+          {
+            ix = chrxpos[character];
+            iy = chrypos[character];
+          }
+          else
+          {
+            ix = chraigotox[character][chraigoto[character]];
+            iy = chraigotoy[character][chraigoto[character]];
+          }
+          iTmp = ABS( ( int )( ix - chrxpos[character] ) ) +
+                 ABS( ( int )( iy - chrypos[character] ) );
+        }
         break;
       case VARTARGETTURNTO:
         iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
@@ -4022,8 +4032,19 @@ void let_character_think( int character )
     else
     {
       // Normal AI
-      chrlatchx[character] = ( chraigotox[character][chraigoto[character]] - chrxpos[character] ) / 1000.0f;
-      chrlatchy[character] = ( chraigotoy[character][chraigoto[character]] - chrypos[character] ) / 1000.0f;
+      int ix, iy;
+      if(waypoint_list_empty(character))
+      {
+        ix = chrxpos[character];
+        iy = chrypos[character];
+      }         
+      else
+      {
+        ix = chraigotox[character][chraigoto[character]];
+        iy = chraigotoy[character][chraigoto[character]];
+      }
+      chrlatchx[character] = ( ix - chrxpos[character] ) / 1000.0f;
+      chrlatchy[character] = ( iy - chrypos[character] ) / 1000.0f;
     }
   }
 
@@ -4072,3 +4093,54 @@ void let_ai_think()
   }
 }
 
+//--------------------------------------------------------------------------------------------
+void waypoint_push(Uint16 character, int xpos, int ypos)
+{
+  // Add the waypoint(s), without clearing existing ones...
+
+  int iTmp = (chraigotoadd[character] + 1) % MAXWAY;
+
+  chraigotox[character][chraigotoadd[character]] = xpos;
+  chraigotoy[character][chraigotoadd[character]] = ypos;
+  chraigotoadd[character] = iTmp;
+
+  if(iTmp == chraigoto[character])
+  {
+    chraigoto[character] = (chraigoto[character] + 1) % MAXWAY;
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t waypoint_pop(Uint16 character, int *xpos, int *ypos)
+{
+  bool_t retval = bfalse;
+  int iTmp = (chraigoto[character] + 1) % MAXWAY; 
+
+  if(NULL != xpos) *xpos = chraigotox[character][chraigoto[character]];
+  if(NULL != ypos) *ypos = chraigotoy[character][chraigoto[character]];
+
+  if(iTmp == chraigotoadd[character])
+  {
+    waypoint_clear_all(character);
+    retval = btrue;
+  }
+  else
+  {
+    chraigoto[character] = iTmp;
+  }
+
+  return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+void waypoint_clear_all(Uint16 character)
+{
+  chraigoto[character] = 0;
+  chraigotoadd[character] = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t waypoint_list_empty(Uint16 character)
+{
+  return chraigoto[character] == chraigotoadd[character];
+}
