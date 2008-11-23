@@ -59,7 +59,7 @@
 		C4F69F600E9832AB0086650C /* graphicmad.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F440E9831820086650C /* graphicmad.c */; };
 		C4F69F610E9832AD0086650C /* graphicprt.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F450E9831820086650C /* graphicprt.c */; };
 		C4F69F630E9832B20086650C /* mac-file.m in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F470E9831820086650C /* mac-file.m */; };
-		C4F69F650E9832B80086650C /* mathstuff.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4B0E9831820086650C /* mathstuff.c */; };
+		C4F69F650E9832B80086650C /* egoboo_math.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4B0E9831820086650C /* egoboo_math.c */; };
 		C4F69F670E9832BC0086650C /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4E0E9831820086650C /* network.c */; };
 /* End PBXBuildFile section */
 
@@ -169,7 +169,7 @@
 		C4F69F450E9831820086650C /* graphicprt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = graphicprt.c; sourceTree = "<group>"; };
 		C4F69F470E9831820086650C /* mac-file.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "mac-file.m"; sourceTree = "<group>"; };
 		C4F69F4A0E9831820086650C /* Makefile.unix */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.unix; sourceTree = "<group>"; };
-		C4F69F4B0E9831820086650C /* mathstuff.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mathstuff.c; sourceTree = "<group>"; };
+		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboo_math.c; sourceTree = "<group>"; };
 		C4F69F4C0E9831820086650C /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = mathstuff.h; sourceTree = "<group>"; };
 		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menu.c; sourceTree = "<group>"; };
 		C4F69F4E0E9831820086650C /* network.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = network.c; sourceTree = "<group>"; };
@@ -309,7 +309,7 @@
 				C4F69F450E9831820086650C /* graphicprt.c */,
 				C4F69F470E9831820086650C /* mac-file.m */,
 				C4F69F4A0E9831820086650C /* Makefile.unix */,
-				C4F69F4B0E9831820086650C /* mathstuff.c */,
+				C4F69F4B0E9831820086650C /* egoboo_math.c */,
 				C4F69F4C0E9831820086650C /* mathstuff.h */,
 				C4F69F4D0E9831820086650C /* menu.c */,
 				C4F69F4E0E9831820086650C /* network.c */,
@@ -459,7 +459,7 @@
 				C4F69F600E9832AB0086650C /* graphicmad.c in Sources */,
 				C4F69F610E9832AD0086650C /* graphicprt.c in Sources */,
 				C4F69F630E9832B20086650C /* mac-file.m in Sources */,
-				C4F69F650E9832B80086650C /* mathstuff.c in Sources */,
+				C4F69F650E9832B80086650C /* egoboo_math.c in Sources */,
 				C4F69F670E9832BC0086650C /* network.c in Sources */,
 				C48332A20E98632D00B78406 /* menu.c in Sources */,
 				C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */,

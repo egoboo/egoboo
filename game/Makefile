@@ -3,7 +3,7 @@ EGO_BIN	:= egoboo
 EGO_SRC	:= camera.c char.c Client.c Clock.c common-file.c configfile.c \
                  egobooendian.c egoboostrutil.c enchant.c Font.c game.c gltexture.c \
                  graphicfan.c graphicmad.c graphic.c graphicprt.c input.c \
-                 linux-file.c Log.c Link.c mathstuff.c Md2.c menu.c module.c \
+                 linux-file.c Log.c Link.c egoboo_math.c Md2.c menu.c module.c \
                  network.c particle.c passage.c script.c Server.c sound.c \
                  sys_linux.c Ui.c
 EGO_OBJ	:= ${EGO_SRC:.c=.o}

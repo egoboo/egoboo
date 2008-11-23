@@ -1,0 +1,32 @@
+How to compile Egoboo on Mac OS X
+
+Step 1:
+
+You will need:
+- A Mac (of course!) - It should compile on both PowerPC and Intel Macs, but it has only been tested on Intel Macs.
+- Mac OS X 10.4 (Tiger) or later
+- XCode (You can find it on the Mac OS X DVD) - It hs been tested with XCode 2.4 and 2.5; I don't know if it will work with an earlier version.
+- The following frameworks:
+  - SDL 1.2 or later (from http://libsdl.org/download-1.2.php )
+  - SDL_image 1.2 or later (from http://libsdl.org/projects/SDL_image/ )
+  - SDL_mixer 1.2 or later (from http://libsdl.org/projects/SDL_mixer/ )
+  - SDL_ttf 2.0 or later (from http://libsdl.org/projects/SDL_ttf/ )
+  These should be installed into /Library/Frameworks.  If the Frameworks folder doesn't exist, create it.
+- The Egoboo source code (2.6.8 or later) and data
+
+Step 2:
+
+Extract the Egoboo source code, and open the "osx" folder inside, then open "Egoboo.xcodeproj".  You may have to look inside a "source" folder to find it.
+
+Step 3:
+
+Make sure the aactive build configuration is set to "Release" (Project->Set Active Build Configuration->Release), and build the project.
+
+Step 4:
+
+Open the "build" folder inside the "osx" folder, and then the "Release" folder inside that.  Then, drag the Egoboo application into the data folder.
+
+Step 5:
+
+Open the data folder, and open the Egoboo application inside.  Repeat as needed.
+
