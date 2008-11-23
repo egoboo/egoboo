@@ -276,6 +276,7 @@ void keep_weapons_with_holders()
   }
 }
 
+
 //--------------------------------------------------------------------------------------------
 void make_one_character_matrix( Uint16 cnt )
 {
@@ -771,8 +772,8 @@ int get_free_character()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-                            bool_t onlyfriends, bool_t anyone, Uint8 team,
+Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
                             Uint16 donttarget, Uint16 oldtarget )
 {
   // ZZ> This function helps find a target, returning btrue if it found a decent target
@@ -834,11 +835,11 @@ bool_t find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing
 
 //--------------------------------------------------------------------------------------------
 Uint16 find_target( float chrx, float chry, Uint16 facing,
-                    Uint16 targetangle, bool_t onlyfriends, bool_t anyone,
+                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
                     Uint8 team, Uint16 donttarget, Uint16 oldtarget )
 {
   // This function finds the best target for the given parameters
-  bool_t done;
+  Uint8 done;
   int x, y;
 
   x = chrx;
@@ -848,17 +849,17 @@ Uint16 find_target( float chrx, float chry, Uint16 facing,
   globestdistance = 9999;
   globestangle = targetangle;
   done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
   if ( done ) return globesttarget;
 
 
-  done = done || find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done = done || find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
   if ( done ) return globesttarget;
 
 
@@ -1005,7 +1006,6 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
   {
     hand = 1;
   }
-  owner = NOOWNER;
 
 
   // Rip 'em apart
@@ -1156,7 +1156,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 
 //--------------------------------------------------------------------------------------------
 void attach_character_to_mount( Uint16 character, Uint16 mount,
-                                Uint8 grip )
+                                Uint16 grip )
 {
   // ZZ> This function attaches one character to another ( the mount )
   //     at either the left or right grip
@@ -1524,7 +1524,6 @@ void drop_all_items( Uint16 character )
             chrzpos[item] = chrzpos[character];
             chrlevel[item] = chrlevel[character];
             chrturnleftright[item] = direction + 32768;
-            cosdir = direction + 16384;
             chrxvel[item] = turntocos[direction>>2] * DROPXYVEL;
             chryvel[item] = turntosin[direction>>2] * DROPXYVEL;
             chrzvel[item] = DROPZVEL;
@@ -1552,7 +1551,6 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
   // Make life easier
   model = chrmodel[chara];
   hand = ( grip - 4 ) >> 2;  // 0 is left, 1 is right
-  owner = NOOWNER;
 
 
   // Make sure the character doesn't have something already, and that it has hands
@@ -1645,7 +1643,6 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
               }
               cnt++;
             }
-
             if ( inshop )
             {
               // Pay the shop owner, or don't allow grab...
@@ -1678,8 +1675,6 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 }
                 // Reduce value depending on charges left
                 // else if (capisranged[chrmodel[charb]]) price -= (chrammomax[charb]-chrammo[charb])*(price/chrammomax[charb]);
-                sprintf( text, "%s bought from %s! (%s)", chrname[chara], chrname[owner], capclassname[chrmodel[owner]] );
-                debug_message( text );
 
                 chrorder[owner] = price;  // Tell owner how much...
                 if ( chrmoney[chara] >= price )
@@ -1733,7 +1728,7 @@ void character_swipe( Uint16 cnt, Uint8 grip )
 {
   // ZZ> This function spawns an attack particle
   int weapon, particle, spawngrip, thrown;
-  Uint16 action;
+  Uint8 action;
   Uint16 tTmp;
   float dampen;
   float x, y, z, velocity;
@@ -1797,7 +1792,7 @@ void character_swipe( Uint16 cnt, Uint8 grip )
       if ( capattackprttype[chrmodel[weapon]] != -1 )
       {
         particle = spawn_one_particle( chrxpos[weapon], chrypos[weapon], chrzpos[weapon], chrturnleftright[cnt], chrmodel[weapon], capattackprttype[chrmodel[weapon]], weapon, spawngrip, chrteam[cnt], cnt, 0, MAXCHR );
-        if ( particle != MAXPRT )
+        if ( particle != maxparticles )
         {
           if ( !capattackattached[chrmodel[weapon]] )
           {
@@ -1852,13 +1847,13 @@ void move_characters( void )
   // ZZ> This function handles character physics
   int cnt;
   Uint32 mapud, maplr;
-  Uint8 twist;
-  Uint8 speed, framelip;
+  Uint8 twist, actionready;
+  Uint8 speed, framelip, allowedtoattack;
   float level, friction;
   float dvx, dvy, dvmax;
   Uint16 action, weapon, mount, item;
   int distance, volume;
-  bool_t watchtarget, grounded, allowedtoattack, actionready;
+  bool_t watchtarget, grounded;
 
 
   // Move every character
@@ -2610,7 +2605,7 @@ void move_characters( void )
 void setup_characters( char *modname )
 {
   // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
-  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber = 0;
+  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber;
   bool_t ghost;
   char cTmp;
   Uint8 team, stat;
@@ -2653,7 +2648,6 @@ void setup_characters( char *modname )
       fscanf( fileread, "%f%f%f", &x, &y, &z ); x = x * 128;  y = y * 128;  z = z * 128;
       cTmp = get_first_letter( fileread );
       attach = MAXCHR;
-      grip   = GRIPLEFT;
       facing = NORTH;
       if ( cTmp == 'S' || cTmp == 's' )  facing = SOUTH;
       if ( cTmp == 'E' || cTmp == 'e' )  facing = EAST;
@@ -2889,8 +2883,9 @@ void set_one_player_latch( Uint16 player )
             inputx = mousex * chrmaxaccel[character] * scale;
             inputy = mousey * chrmaxaccel[character] * scale;
           }
-          turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
-          turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
+          turnsin = ( camturnleftrightone * 16383 );
+          turnsin = turnsin & 16383;
+          turncos = ( turnsin + 4096 ) & 16383;
           if ( autoturncamera == 255 &&
                numlocalpla == 1 &&
                control_mouse_is_pressed( MOS_CAMERA ) == 0 )  inputx = 0;
@@ -2955,8 +2950,9 @@ void set_one_player_latch( Uint16 player )
             inputy = joyay * chrmaxaccel[character] * scale;
           }
         }
-        turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
-        turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
+        turnsin = ( camturnleftrightone * 16383 );
+        turnsin = turnsin & 16383;
+        turncos = ( turnsin + 4096 ) & 16383;
         if ( autoturncamera == 255 &&
              numlocalpla == 1 &&
              !control_joya_is_pressed( JOA_CAMERA ) )  inputx = 0;
@@ -3011,8 +3007,9 @@ void set_one_player_latch( Uint16 player )
             inputy = joyby * chrmaxaccel[character] * scale;
           }
         }
-        turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
-        turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
+        turnsin = ( camturnleftrightone * 16383 );
+        turnsin = turnsin & 16383;
+        turncos = ( turnsin + 4096 ) & 16383;
         if ( autoturncamera == 255 &&
              numlocalpla == 1 &&
              !control_joyb_is_pressed( JOB_CAMERA ) )  inputx = 0;
@@ -3054,8 +3051,9 @@ void set_one_player_latch( Uint16 player )
         inputx = ( control_key_is_pressed( KEY_RIGHT ) - control_key_is_pressed( KEY_LEFT ) ) * chrmaxaccel[character];
         inputy = ( control_key_is_pressed( KEY_DOWN ) - control_key_is_pressed( KEY_UP ) ) * chrmaxaccel[character];
       }
-      turnsin = (Uint16)( camturnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
-      turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
+      turnsin = ( camturnleftrightone * 16383 );
+      turnsin = turnsin & 16383;
+      turncos = ( turnsin + 4096 ) & 16383;
       if ( autoturncamera == 255 && numlocalpla == 1 )  inputx = 0;
       newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
       newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3275,7 +3273,7 @@ void bump_characters( void )
     character++;
   }
   particle = 0;
-  while ( particle < MAXPRT )
+  while ( particle < maxparticles )
   {
     if ( prton[particle] && prtbumpsize[particle] )
     {
@@ -3917,7 +3915,7 @@ void pit_kill()
 
       // Kill any particles that fell in a pit, if they die in water...
       cnt = 0;
-      while ( cnt < MAXPRT )
+      while ( cnt < maxparticles )
       {
         if ( prton[cnt] )
         {
@@ -4607,7 +4605,7 @@ int load_one_character_profile( char *szLoadName )
   // the object slot that the profile was stuck into.  It may cause the program
   // to abort if bad things happen.
   FILE* fileread;
-  int object = MAXCHR;
+  int object;
   int iTmp;
   float fTmp;
   char cTmp;
@@ -4999,25 +4997,25 @@ int load_one_character_profile( char *szLoadName )
       test = Make_IDSZ( 'S', 'T', 'U', 'K' );  // [STUK]
       if ( idsz == test )  capresistbumpspawn[object] = 1 - iTmp;
       test = Make_IDSZ( 'P', 'A', 'C', 'K' );  // [PACK]
-      if ( idsz == test )  capistoobig[object] = !(0!=iTmp);
+      if ( idsz == test )  capistoobig[object] = 1 - iTmp;
       test = Make_IDSZ( 'V', 'A', 'M', 'P' );  // [VAMP]
-      if ( idsz == test )  capreflect[object] = !(0!=iTmp);
+      if ( idsz == test )  capreflect[object] = 1 - iTmp;
       test = Make_IDSZ( 'D', 'R', 'A', 'W' );  // [DRAW]
-      if ( idsz == test )  capalwaysdraw[object] = (0!=iTmp);
+      if ( idsz == test )  capalwaysdraw[object] = iTmp;
       test = Make_IDSZ( 'R', 'A', 'N', 'G' );  // [RANG]
-      if ( idsz == test )  capisranged[object] = (0!=iTmp);
+      if ( idsz == test )  capisranged[object] = iTmp;
       test = Make_IDSZ( 'H', 'I', 'D', 'E' );  // [HIDE]
       if ( idsz == test )  caphidestate[object] = iTmp;
       test = Make_IDSZ( 'E', 'Q', 'U', 'I' );  // [EQUI]
-      if ( idsz == test )  capisequipment[object] = (0!=iTmp);
+      if ( idsz == test )  capisequipment[object] = iTmp;
       test = Make_IDSZ( 'S', 'Q', 'U', 'A' );  // [SQUA]
       if ( idsz == test )  capbumpsizebig[object] = capbumpsize[object] << 1;
       test = Make_IDSZ( 'I', 'C', 'O', 'N' );  // [ICON]
-      if ( idsz == test )  capicon[object] = (0!=iTmp);
+      if ( idsz == test )  capicon[object] = iTmp;
       test = Make_IDSZ( 'S', 'H', 'A', 'D' );  // [SHAD]
-      if ( idsz == test )  capforceshadow[object] = (0!=iTmp);
+      if ( idsz == test )  capforceshadow[object] = iTmp;
       test = Make_IDSZ( 'C', 'K', 'U', 'R' );  // [CKUR]
-      if ( idsz == test )  capcanseekurse[object] = (0!=iTmp);
+      if ( idsz == test )  capcanseekurse[object] = iTmp;
       test = Make_IDSZ( 'S', 'K', 'I', 'N' );  // [SKIN]
       if ( idsz == test )  capskinoverride[object] = iTmp & 3;
       test = Make_IDSZ( 'C', 'O', 'N', 'T' );  // [CONT]
@@ -5027,9 +5025,9 @@ int load_one_character_profile( char *szLoadName )
       test = Make_IDSZ( 'L', 'E', 'V', 'L' );  // [LEVL]
       if ( idsz == test )  capleveloverride[object] = iTmp;
       test = Make_IDSZ( 'P', 'L', 'A', 'T' );  // [PLAT]
-      if ( idsz == test )  capcanuseplatforms[object] = (0!=iTmp);
+      if ( idsz == test )  capcanuseplatforms[object] = iTmp;
       test = Make_IDSZ( 'R', 'I', 'P', 'P' );  // [RIPP]
-      if ( idsz == test )  capripple[object] = (0!=iTmp);
+      if ( idsz == test )  capripple[object] = iTmp;
       test = Make_IDSZ( 'A', 'W', 'E', 'P' );  // [AWEP]
       if ( idsz == test )  capcanuseadvancedweapons[object] = test;
       test = Make_IDSZ( 'S', 'H', 'P', 'R' );  // [SHPR]
@@ -5851,8 +5849,10 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
 
 
       // AI and action stuff
-      waypoint_clear_all(cnt);
-
+      chraigoto[cnt] = 0;
+      chraigotoadd[cnt] = 1;
+      chraigotox[cnt][0] = chrxpos[cnt];
+      chraigotoy[cnt][0] = chrypos[cnt];
       chractionready[cnt] = btrue;
       chrkeepaction[cnt] = bfalse;
       chrloopaction[cnt] = bfalse;
@@ -6245,9 +6245,9 @@ void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_target_in_block( int x, int y, Uint16 character, bool_t items,
-                            bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz,
-                            bool_t excludeid )
+Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+                            char friends, char enemies, char dead, char seeinvisible, Uint32 idsz,
+                            char excludeid )
 {
   // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target
   //     was found
@@ -6303,12 +6303,12 @@ Uint16 get_target_in_block( int x, int y, Uint16 character, bool_t items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearby_target( Uint16 character, bool_t items,
-                          bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz )
+Uint16 get_nearby_target( Uint16 character, char items,
+                          char friends, char enemies, char dead, Uint32 idsz )
 {
   // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
   int x, y;
-  bool_t seeinvisible;
+  char seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
 
@@ -6415,8 +6415,8 @@ void switch_team( int character, Uint8 team )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_nearest_in_block( int x, int y, Uint16 character, bool_t items,
-                           bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz )
+void get_nearest_in_block( int x, int y, Uint16 character, char items,
+                           char friends, char enemies, char dead, char seeinvisible, Uint32 idsz )
 {
   // ZZ> This is a good little helper
   float distance, xdis, ydis;
@@ -6434,7 +6434,7 @@ void get_nearest_in_block( int x, int y, Uint16 character, bool_t items,
     cnt = 0;
     while ( cnt < meshbumplistchrnum[fanblock] )
     {
-      if ( charb!=character && dead != chralive[charb] && ( seeinvisible || ( chralpha[charb] > INVISIBLE && chrlight[charb] > INVISIBLE ) ) )
+      if ( dead != chralive[charb] && ( seeinvisible || ( chralpha[charb] > INVISIBLE && chrlight[charb] > INVISIBLE ) ) )
       {
         if ( ( enemies && teamhatesteam[team][chrteam[charb]] ) ||
              ( items && chrisitem[charb] ) ||
@@ -6487,12 +6487,12 @@ void get_nearest_in_block( int x, int y, Uint16 character, bool_t items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearest_target( Uint16 character, bool_t items,
-                           bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz )
+Uint16 get_nearest_target( Uint16 character, char items,
+                           char friends, char enemies, char dead, Uint32 idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
-  bool_t seeinvisible;
+  char seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
 
@@ -6518,13 +6518,13 @@ Uint16 get_nearest_target( Uint16 character, bool_t items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_wide_target( Uint16 character, bool_t items,
-                        bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz, bool_t excludeid )
+Uint16 get_wide_target( Uint16 character, char items,
+                        char friends, char enemies, char dead, Uint32 idsz, char excludeid )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
   Uint16 enemy;
-  bool_t seeinvisible;
+  char seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
 
   // Current fanblock
@@ -6659,24 +6659,19 @@ void set_alerts( int character )
   {
     chraitime[character]--;
   }
-
-  if ( ABS(chrxvel[character]) + ABS(chryvel[character]) > 0 )
+  if ( chrxpos[character] < chraigotox[character][chraigoto[character]] + WAYTHRESH &&
+       chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
+       chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
+       chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
   {
-    if ( chrxpos[character] < chraigotox[character][chraigoto[character]] + WAYTHRESH &&
-         chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
-         chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
-         chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
+    chralert[character] = chralert[character] | ALERTIFATWAYPOINT;
+    chraigoto[character]++;
+    if ( chraigoto[character] == chraigotoadd[character] )
     {
-      int itmp;
-
-      chralert[character] |= ALERTIFATWAYPOINT;
-
-      if( waypoint_pop(character, NULL, NULL) )
+      chraigoto[character] = 0;
+      if ( !capisequipment[chrmodel[character]] )
       {
-        if ( !capisequipment[chrmodel[character]] )
-        {
-          chralert[character] |= ALERTIFATLASTWAYPOINT;
-        }
+        chralert[character] = chralert[character] | ALERTIFATLASTWAYPOINT;
       }
     }
   }

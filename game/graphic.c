@@ -336,7 +336,7 @@ void show_armor( Uint16 statindex )
 {
   // ZF> This function shows detailed armor information for the character
   char text[64], tmps[64];
-  Uint16 character, skinlevel;
+  short character, skinlevel;
 
   if ( statdelay == 0 )
   {
@@ -388,7 +388,7 @@ void show_full_status( Uint16 statindex )
 {
   // ZF> This function shows detailed armor information for the character including magic
   char text[64], tmps[64];
-  Uint16 character;
+  short character;
   int i = 0;
   if ( statdelay == 0 )
   {
@@ -440,7 +440,7 @@ void show_magic_status( Uint16 statindex )
 {
   // ZF> Displays special enchantment effects for the character
   char text[64], tmpa[64], tmpb[64];
-  Uint16 character;
+  short character;
   int i = 0;
   if ( statdelay == 0 )
   {
@@ -506,7 +506,7 @@ void make_lightdirectionlookup()
     bl = ( cnt & 0x000f );
     x = br + tr - bl - tl;
     y = br + bl - tl - tr;
-    lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) / ( TWO_PI ) * 256;
+    lightdirectionlookup[cnt] = ( ATAN2( -y, x ) + PI ) * 256 / ( TWO_PI );
   }
 }
 
@@ -749,7 +749,7 @@ void End2DMode( void )
 }
 
 //---------------------------------------------------------------------------------------------
-int get_level( Uint8 x, Uint8 y, Uint32 fan, bool_t waterwalk )
+int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
 {
   // ZZ> This function returns the height of a point within a mesh fan, precise
   //     If waterwalk is nonzero and the fan is watery, then the level returned is the
@@ -828,7 +828,7 @@ void prime_titleimage()
   int cnt;
 
   for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-    TxTitleImage[cnt].textureID = INVALID_TEXTURE;
+    TxTitleImage[cnt].textureID = 0;
 
   // titlerect.x = 0;
   // titlerect.w = TITLESIZE;
@@ -845,7 +845,7 @@ void prime_icons()
   for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
   {
     // lpDDSIcon[cnt]=NULL;
-    TxIcon[cnt].textureID = INVALID_TEXTURE;
+    TxIcon[cnt].textureID = -1;
     madskintoicon[cnt] = 0;
   }
   iconrect.left = 0;
@@ -2045,7 +2045,7 @@ void load_all_objects( char *modname )
 
       filehandle = fs_findNextFile();
 
-      keeplooking = ( NULL != filehandle );
+      keeplooking = ( filehandle != NULL );
     }
   }
 
@@ -2462,7 +2462,7 @@ void read_wawalite( char *modname )
 void render_background( Uint16 texture )
 {
   // ZZ> This function draws the large background
-  glVertex vtlist[4];
+  GLVERTEX vtlist[4];
   int i;
   float x, y, z;
   float u, v;
@@ -2535,14 +2535,11 @@ void render_background( Uint16 texture )
   }
 }
 
-
-
-
 //--------------------------------------------------------------------------------------------
 void render_foreground_overlay( Uint16 texture )
 {
   // ZZ> This function draws the large foreground
-  glVertex vtlist[4];
+  GLVERTEX vtlist[4];
   int i;
   float size;
   Uint16 rotate;
@@ -2572,7 +2569,7 @@ void render_foreground_overlay( Uint16 texture )
   vtlist[1].y = y + cossize;
   vtlist[1].z = z;
   vtlist[1].s = loc_foregroundrepeat + u;
-  vtlist[1].t = 0 + v;
+  vtlist[1].t = v;
 
   vtlist[2].x = x - cossize;
   vtlist[2].y = y + sinsize;
@@ -2651,7 +2648,7 @@ void render_foreground_overlay( Uint16 texture )
 void render_shadow( int character )
 {
   // ZZ> This function draws a NIFTY shadow
-  glVertex v[4];
+  GLVERTEX v[4];
 
   float x, y;
   float level;
@@ -2792,7 +2789,7 @@ void render_shadow( int character )
 void render_bad_shadow( int character )
 {
   // ZZ> This function draws a sprite shadow
-  glVertex v[4];
+  GLVERTEX v[4];
   float size, x, y;
   Uint8 ambi;
   // DWORD light;
@@ -2942,7 +2939,7 @@ void light_characters()
         break;
     }
     light = light >> 3;
-    chrlightlevel[tnc] = MIN(light, 255);
+    chrlightlevel[tnc] = light;
 
 
     if ( !meshexploremode )
@@ -2971,7 +2968,7 @@ void light_particles()
   int character;
 
   cnt = 0;
-  while ( cnt < MAXPRT )
+  while ( cnt < maxparticles )
   {
     if ( prton[cnt] )
     {
@@ -3042,7 +3039,7 @@ void do_dynalight()
     if ( ( allframe & 7 ) == 0 )
     {
       cnt = 0;
-      while ( cnt < MAXPRT )
+      while ( cnt < maxparticles )
       {
         if ( prton[cnt] && prtdynalighton[cnt] )
         {
@@ -3145,7 +3142,6 @@ void render_water()
       cnt++;
     }
   }
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3160,6 +3156,9 @@ void draw_scene_sadreflection()
   rect.right = 0;
   rect.top = scrx;
   rect.bottom = scry;
+
+  // ZB> Clear the z-buffer
+  glClear( GL_DEPTH_BUFFER_BIT );
 
   // Render the reflective floors
   glEnable( GL_CULL_FACE );
@@ -3281,7 +3280,7 @@ void draw_scene_sadreflection()
   }
 
   // Alpha water
-  if ( !waterlight && (!overlayon || clearson) )  render_water();
+  if ( !waterlight )  render_water();
 
   // Then do the light characters
   glBlendFunc( GL_SRC_ALPHA, GL_ONE );
@@ -3309,7 +3308,7 @@ void draw_scene_sadreflection()
   }
 
   // Light water
-  if ( waterlight && !waterlight && (!overlayon || clearson) )  render_water();
+  if ( waterlight )  render_water();
 
   // Turn Z buffer back on, alphablend off
   glDepthMask( GL_TRUE );
@@ -3340,6 +3339,7 @@ void draw_scene_zreflection()
   glDepthMask( GL_FALSE );
 
   meshlasttexture = 0;
+
   for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
     render_fan( meshrenderlistref[cnt] );
 
@@ -3464,7 +3464,7 @@ void draw_scene_zreflection()
   }
 
   // And alpha water floors
-  if ( !waterlight && (!overlayon || clearson) )
+  if ( !waterlight )
     render_water();
 
   // Then do the light characters
@@ -3494,7 +3494,7 @@ void draw_scene_zreflection()
   }
 
   // Do light water
-  if ( waterlight && (!overlayon || clearson) )
+  if ( waterlight )
     render_water();
 
   // Turn Z buffer back on, alphablend off
@@ -3565,7 +3565,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
   float xl, xr, yt, yb;
   int width, height;
 
-  if ( TxIcon[icontype].textureID != INVALID_TEXTURE ) // if(lpDDSIcon[icontype])
+  if ( TxIcon[icontype].textureID >= 0 ) // if(lpDDSIcon[icontype])
   {
     EnableTexturing();    // Enable texture mapping
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -4117,8 +4117,6 @@ void draw_text()
   {
     draw_string( szfpstext, 0, y );
     y += fontyspacing;
-    draw_string(smokey_debug_text, 0, y);
-    y += fontyspacing;
   }
 
 
@@ -4390,11 +4388,14 @@ void draw_scene()
   else
     draw_scene_sadreflection();
 
+  // clear the depth buffer
+  glClear( GL_DEPTH_BUFFER_BIT );
+
   // Foreground overlay
-  //if ( overlayon )
-  //{
-  //  render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
-  //}
+  if ( overlayon )
+  {
+    render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
+  }
 
   End3DMode();
 }
@@ -4404,6 +4405,8 @@ void draw_scene()
 void draw_main()
 {
   // ZZ> This function does all the drawing stuff
+  // printf("DIAG: Drawing scene nummeshrenderlistref=%d\n",nummeshrenderlistref);
+  glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   draw_scene();
   draw_text();

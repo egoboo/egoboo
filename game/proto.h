@@ -25,11 +25,12 @@
 #include "egobootypedef.h"
 #include <SDL_mixer.h> // for Mix_* stuff.
 
-bool_t waypoint_list_empty(Uint16 character);
-void   waypoint_clear_all(Uint16 character);
-bool_t waypoint_pop(Uint16 character, int *xpos, int *ypos);
-void   waypoint_push(Uint16 character, int xpos, int ypos);
-
+// typedef struct glmatrix { float v[16]; } glMatrix;  // was v[4][4], changed for OGL compatibility
+// typedef struct glvector { float x,y,z; } glVector;
+/*glVector vsub(glVector A, glVector B);
+glVector Normalize(glVector vec);
+glVector CrossProduct(glVector A, glVector B);
+float DotProduct(glVector A, glVector B);*/
 void load_graphics();
 void save_settings();
 void empty_import_directory( void );
@@ -55,7 +56,7 @@ void load_ai_codes( char* loadname );
 int load_ai_script( char *loadname );
 void reset_ai_script();
 int what_action( char cTmp );
-int get_level( Uint8 x, Uint8 y, Uint32 fan, bool_t waterwalk );
+int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk );
 void release_all_textures();
 bool_t load_one_icon( char *szLoadName );
 bool_t load_all_global_icons();
@@ -93,10 +94,10 @@ int read_tag( FILE *fileread );
 void read_all_tags( char *szFilename );
 int tag_value( char *string );
 void read_controls( char *szFilename );
-bool_t control_key_is_pressed( Uint8 control );
-bool_t control_mouse_is_pressed( Uint8 control );
-bool_t control_joya_is_pressed( Uint8 control );
-bool_t control_joyb_is_pressed( Uint8 control );
+Uint8 control_key_is_pressed( Uint8 control );
+Uint8 control_mouse_is_pressed( Uint8 control );
+Uint8 control_joya_is_pressed( Uint8 control );
+Uint8 control_joyb_is_pressed( Uint8 control );
 void free_all_enchants();
 void undo_idsz( int idsz );
 int get_idsz( FILE* fileread );
@@ -173,7 +174,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz );
 int close_passage( int passage );
 void clear_passages();
 void add_shop_passage( int owner, int passage );
-void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
+void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
 void flash_character_height( int character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
 void flash_character( int character, Uint8 value );
@@ -194,11 +195,11 @@ void make_one_weapon_matrix( Uint16 cnt );
 void make_character_matrices();
 int get_free_particle( int force );
 int get_free_character();
-bool_t find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-                            bool_t onlyfriends, bool_t anyone, Uint8 team,
+Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
                             Uint16 donttarget, Uint16 oldtarget );
 Uint16 find_target( float chrx, float chry, Uint16 facing,
-                    Uint16 targetangle, bool_t onlyfriends, bool_t anyone,
+                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
                     Uint8 team, Uint16 donttarget, Uint16 oldtarget );
 void debug_message( char *text );
 void reset_end_text();
@@ -228,7 +229,7 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 Uint8 __chrhitawall( int character );
 void move_water( void );
-void play_action( Uint16 character, Uint16 action, bool_t actionready );
+void play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void set_frame( Uint16 character, Uint16 frame, Uint8 lip );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
@@ -256,20 +257,20 @@ void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
                        Uint8 leavewhich );
-Uint16 get_target_in_block( int x, int y, Uint16 character, bool_t items,
-                            bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz,
-                            bool_t excludeid );
-Uint16 get_nearby_target( Uint16 character, bool_t items,
-                          bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz );
+Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+                            char friends, char enemies, char dead, char seeinvisible, Uint32 idsz,
+                            char excludeid );
+Uint16 get_nearby_target( Uint16 character, char items,
+                          char friends, char enemies, char dead, Uint32 idsz );
 Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
 Uint16 find_distant_target( Uint16 character, int maxdistance );
 void switch_team( int character, Uint8 team );
-void get_nearest_in_block( int x, int y, Uint16 character, bool_t items,
-                           bool_t friends, bool_t enemies, bool_t dead, bool_t seeinvisible, Uint32 idsz );
-Uint16 get_nearest_target( Uint16 character, bool_t items,
-                           bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz );
-Uint16 get_wide_target( Uint16 character, bool_t items,
-                        bool_t friends, bool_t enemies, bool_t dead, Uint32 idsz, bool_t excludeid );
+void get_nearest_in_block( int x, int y, Uint16 character, char items,
+                           char friends, char enemies, char dead, char seeinvisible, Uint32 idsz );
+Uint16 get_nearest_target( Uint16 character, char items,
+                           char friends, char enemies, char dead, Uint32 idsz );
+Uint16 get_wide_target( Uint16 character, char items,
+                        char friends, char enemies, char dead, Uint32 idsz, char excludeid );
 void issue_clean( Uint16 character );
 int restock_ammo( Uint16 character, Uint32 idsz );
 void issue_order( Uint16 character, Uint32 order );
@@ -277,13 +278,13 @@ void issue_special_order( Uint32 order, Uint32 idsz );
 void set_alerts( int character );
 int module_reference_matches( char *szLoadName, Uint32 idsz );
 void add_module_idsz( char *szLoadName, Uint32 idsz );
-bool_t run_function( Uint32 value, int character );
+Uint8 run_function( Uint32 value, int character );
 void set_operand( Uint8 variable );
 void run_operand( Uint32 value, int character );
 void let_character_think( int character );
 void let_ai_think();
 void attach_character_to_mount( Uint16 character, Uint16 mount,
-                                Uint8 grip );
+                                Uint16 grip );
 Uint16 stack_in_pack( Uint16 item, Uint16 character );
 void add_item_to_character_pack( Uint16 item, Uint16 character );
 Uint16 get_item_from_character_pack( Uint16 character, Uint16 grip, Uint8 ignorekurse );
@@ -343,7 +344,7 @@ void make_framelip( int object, int action );
 void get_actions( int object );
 void read_pair( FILE* fileread );
 void undo_pair( int base, int rand );
-void ftruthf( FILE* filewrite, char* text, bool_t truth );
+void ftruthf( FILE* filewrite, char* text, Uint8 truth );
 void fdamagf( FILE* filewrite, char* text, Uint8 damagetype );
 void factiof( FILE* filewrite, char* text, Uint8 action );
 void fgendef( FILE* filewrite, char* text, Uint8 gender );

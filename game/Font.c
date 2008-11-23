@@ -212,7 +212,7 @@ void fnt_getTextSize( Font *font, const char *text, int *width, int *height )
  */
 void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int height, int spacing )
 {
-  size_t len;
+  int len;
   char *buffer, *line;
 
   if ( !font ) return;
@@ -238,7 +238,7 @@ void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int
 void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, int *height )
 {
   char *buffer, *line;
-  size_t len;
+  int len;
   int tmp_w, tmp_h;
 
   if ( !font ) return;

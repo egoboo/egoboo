@@ -149,7 +149,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
   // D3DLVERTEX v[MAXVERTICES];
   // D3DTLVERTEX vt[MAXVERTICES];
   // D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
-  glVertex v[MAXVERTICES];
+  GLVERTEX v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
   Sint32 temp;
@@ -559,7 +559,7 @@ void render_texmad( Uint16 character, Uint8 trans )
 //    D3DLVERTEX v[MAXVERTICES];
 //    D3DTLVERTEX vt[MAXVERTICES];
 //    D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
-  glVertex v[MAXVERTICES];
+  GLVERTEX v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
   Sint32 temp;
@@ -830,7 +830,7 @@ void render_refmad( int tnc, Uint8 trans )
   int trans_temp;
   int zpos;
   Uint8 sheen_save;
-  bool_t fog_save;
+  Uint8 fog_save;
   glVector pos_save;
 
   if ( !capreflect[chrmodel[tnc]] ) return;

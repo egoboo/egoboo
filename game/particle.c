@@ -35,7 +35,7 @@ void make_prtlist( void )
   numdynalight = 0;
   dynadistancetobeat = MAXDYNADIST;
   cnt = 0;
-  while ( cnt < MAXPRT )
+  while ( cnt < maxparticles )
   {
     prtinview[cnt] = bfalse;
     if ( prton[cnt] )
@@ -51,7 +51,7 @@ void make_prtlist( void )
         distance = disx + disy;
         if ( distance < dynadistancetobeat )
         {
-          if ( numdynalight < MAXDYNA )
+          if ( numdynalight < maxlights )
           {
             // Just add the light
             slot = numdynalight;
@@ -64,7 +64,7 @@ void make_prtlist( void )
             slot = 0;
             tnc = 1;
             dynadistancetobeat = dynadistance[0];
-            while ( tnc < MAXDYNA )
+            while ( tnc < maxlights )
             {
               if ( dynadistance[tnc] > dynadistancetobeat )
               {
@@ -78,7 +78,7 @@ void make_prtlist( void )
             // Find the new distance to beat
             tnc = 1;
             dynadistancetobeat = dynadistance[0];
-            while ( tnc < MAXDYNA )
+            while ( tnc < maxlights )
             {
               if ( dynadistance[tnc] > dynadistancetobeat )
               {
@@ -150,15 +150,15 @@ int get_free_particle( int force )
   int particle;
 
 
-  // Return MAXPRT if we can't find one
-  particle = MAXPRT;
+  // Return maxparticles if we can't find one
+  particle = maxparticles;
   if ( numfreeprt == 0 )
   {
     if ( force )
     {
       // Gotta find one, so go through the list
       particle = 0;
-      while ( particle < MAXPRT )
+      while ( particle < maxparticles )
       {
         if ( prtbumpsize[particle] == 0 )
         {
@@ -171,7 +171,7 @@ int get_free_particle( int force )
   }
   else
   {
-    if ( force || numfreeprt > ( MAXPRT / 4 ) )
+    if ( force || numfreeprt > ( maxparticles / 4 ) )
     {
       // Just grab the next one
       numfreeprt--;
@@ -199,7 +199,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
 
   cnt = get_free_particle( pipforce[pip] );
-  if ( cnt != MAXPRT )
+  if ( cnt != maxparticles )
   {
     // Necessary data for any part
     prton[cnt] = btrue;
@@ -245,7 +245,6 @@ Uint16 spawn_one_particle( float x, float y, float z,
     newrand = RANDIE;
     velocity = ( pipxyvelbase[pip] + ( newrand & pipxyvelrand[pip] ) );
     prttarget[cnt] = oldtarget;
-    offsetfacing = 0;
     if ( pipnewtargetonspawn[pip] )
     {
       if ( piptargetcaster[pip] )
@@ -292,7 +291,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
       if ( prttarget[cnt] == MAXCHR && pipneedtarget[pip] )
       {
         free_one_particle( cnt );
-        return MAXPRT;
+        return maxparticles;
       }
       // Start on top of target
       if ( prttarget[cnt] != MAXCHR && pipstartontarget[pip] )
@@ -427,7 +426,7 @@ void disaffirm_attached_particles( Uint16 character )
   Uint16 particle;
 
   particle = 0;
-  while ( particle < MAXPRT )
+  while ( particle < maxparticles )
   {
     if ( prton[particle] && prtattachedtocharacter[particle] == character )
     {
@@ -448,7 +447,7 @@ Uint16 number_of_attached_particles( Uint16 character )
 
   cnt = 0;
   particle = 0;
-  while ( particle < MAXPRT )
+  while ( particle < maxparticles )
   {
     if ( prton[particle] && prtattachedtocharacter[particle] == character )
     {
@@ -471,7 +470,7 @@ void reaffirm_attached_particles( Uint16 character )
   while ( numberattached < capattachedprtamount[chrmodel[character]] )
   {
     particle = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], 0, chrmodel[character], capattachedprttype[chrmodel[character]], character, SPAWNLAST + numberattached, chrteam[character], character, numberattached, MAXCHR );
-    if ( particle != MAXPRT )
+    if ( particle != maxparticles )
     {
       attach_particle_to_character( particle, character, prtgrip[particle] );
     }
@@ -492,7 +491,7 @@ void move_particles( void )
   float level;
 
   cnt = 0;
-  while ( cnt < MAXPRT )
+  while ( cnt < maxparticles )
   {
     if ( prton[cnt] )
     {
@@ -663,7 +662,7 @@ void move_particles( void )
             particle = spawn_one_particle( prtxpos[cnt], prtypos[cnt], prtzpos[cnt],
                                            facing, prtmodel[cnt], pipcontspawnpip[pip],
                                            MAXCHR, SPAWNLAST, prtteam[cnt], prtchr[cnt], tnc, prttarget[cnt] );
-            if ( pipfacingadd[prtpip[cnt]] != 0 && particle < MAXPRT )
+            if ( pipfacingadd[prtpip[cnt]] != 0 && particle < maxparticles )
             {
               // Hack to fix velocity
               prtxvel[particle] += prtxvel[cnt];
@@ -733,7 +732,7 @@ void attach_particles()
   int cnt;
 
   cnt = 0;
-  while ( cnt < MAXPRT )
+  while ( cnt < maxparticles )
   {
     if ( prton[cnt] && prtattachedtocharacter[cnt] != MAXCHR )
     {
@@ -751,7 +750,7 @@ void free_all_particles()
 {
   // ZZ> This function resets the particle allocation lists
   numfreeprt = 0;
-  while ( numfreeprt < MAXPRT )
+  while ( numfreeprt < maxparticles )
   {
     prton[numfreeprt] = 0;
     freeprtlist[numfreeprt] = numfreeprt;
@@ -940,7 +939,7 @@ int prt_is_over_water( int cnt )
   int x, y, fan;
 
 
-  if ( cnt < MAXPRT )
+  if ( cnt < maxparticles )
   {
     if ( prtxpos[cnt] > 0 && prtxpos[cnt] < meshedgex && prtypos[cnt] > 0 && prtypos[cnt] < meshedgey )
     {
@@ -998,7 +997,7 @@ void do_weather_spawn()
           y = chrypos[cnt];
           z = chrzpos[cnt];
           particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
-          if ( weatheroverwater && particle != MAXPRT )
+          if ( weatheroverwater && particle != maxparticles )
           {
             if ( !prt_is_over_water( particle ) )
             {
@@ -1010,7 +1009,7 @@ void do_weather_spawn()
       }
     }
   }
-  camswing = ( camswing + camswingrate ) & TRIG_TABLE_MASK;
+  camswing = ( camswing + camswingrate ) & 16383;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1198,7 +1197,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
       test = Make_IDSZ( 'W', 'S', 'N', 'D' );  // [WSND]
       if ( idsz == test )  pipsoundwall[numpip] = iTmp;
       test = Make_IDSZ( 'W', 'E', 'N', 'D' );  // [WEND]
-      if ( idsz == test )  pipendwall[numpip] = (0!=iTmp);
+      if ( idsz == test )  pipendwall[numpip] = iTmp;
       test = Make_IDSZ( 'A', 'R', 'M', 'O' );  // [ARMO]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXARMO;
       test = Make_IDSZ( 'B', 'L', 'O', 'C' );  // [BLOC]
@@ -1208,15 +1207,15 @@ int load_one_particle( char *szLoadName, int object, int pip )
       test = Make_IDSZ( 'T', 'I', 'M', 'E' );  // [TIME]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXTIME;
       test = Make_IDSZ( 'P', 'U', 'S', 'H' );  // [PUSH]
-      if ( idsz == test )  pipallowpush[numpip] = (0!=iTmp);
+      if ( idsz == test )  pipallowpush[numpip] = iTmp;
       test = Make_IDSZ( 'D', 'L', 'E', 'V' );  // [DLEV]
       if ( idsz == test )  pipdynalightleveladd[numpip] = iTmp / 1000.0f;
       test = Make_IDSZ( 'D', 'R', 'A', 'D' );  // [DRAD]
       if ( idsz == test )  pipdynalightfalloffadd[numpip] = iTmp / 1000.0f;
       test = Make_IDSZ( 'I', 'D', 'A', 'M' );  // [IDAM]
-      if ( idsz == test )  pipintdamagebonus[numpip] = (0!=iTmp);
+      if ( idsz == test )  pipintdamagebonus[numpip] = iTmp;
       test = Make_IDSZ( 'W', 'D', 'A', 'M' );  // [WDAM]
-      if ( idsz == test )  pipwisdamagebonus[numpip] = (0!=iTmp);
+      if ( idsz == test )  pipwisdamagebonus[numpip] = iTmp;
     }
 
 

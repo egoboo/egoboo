@@ -33,7 +33,6 @@ void camera_look_at( float x, float y )
   }
 }
 
-//--------------------------------------------------------------------------------------------
 void dump_matrix( glMatrix a )
 {
   int i; int j;
@@ -63,6 +62,11 @@ void project_view()
 
   // Range
   ztemp = ( camz );
+
+  // Topleft
+  // printf("DIAG: In project_view\n");
+  // printf("DIAG: dumping mView\n"); dump_matrix(mView);
+  // printf("cam xyz,zoom = %f %f %f %f\n",camx,camy,camz,camzoom);
 
   mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), mView );
   mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
@@ -196,6 +200,39 @@ void make_camera_matrix()
   }
   mView = MatrixMult( RotateZ( camturnleftright ), mView );
   mView = MatrixMult( RotateX( camturnupdown ), mView );
+  // lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_VIEW, &mView);
+//        glMatrixMode(GL_MODELVIEW);
+///        glLoadMatrixf(mView.v);
+}
+
+//--------------------------------------------------------------------------------------------
+/*void bound_camera()
+{
+    // ZZ> This function stops the camera from moving off the mesh
+    if(camx < EDGE)  camx = EDGE;
+    if(camx > meshedgex-EDGE)  camx = meshedgex-EDGE;
+    if(camy < EDGE)  camy = EDGE;
+    if(camy > meshedgey-EDGE)  camy = meshedgey-EDGE;
+}*/
+
+//--------------------------------------------------------------------------------------------
+void bound_camtrack()
+{
+  // ZZ> This function stops the camera target from moving off the mesh
+  if ( usefaredge )
+  {
+    if ( camtrackx < FARTRACK )  camtrackx = FARTRACK;
+    if ( camtrackx > meshedgex - FARTRACK )  camtrackx = meshedgex - FARTRACK;
+    if ( camtracky < FARTRACK )  camtracky = FARTRACK;
+    if ( camtracky > meshedgey - FARTRACK )  camtracky = meshedgey - FARTRACK;
+  }
+  else
+  {
+    if ( camtrackx < EDGETRACK )  camtrackx = EDGETRACK;
+    if ( camtrackx > meshedgex - EDGETRACK )  camtrackx = meshedgex - EDGETRACK;
+    if ( camtracky < EDGETRACK )  camtracky = EDGETRACK;
+    if ( camtracky > meshedgey - EDGETRACK )  camtracky = meshedgey - EDGETRACK;
+  }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -217,15 +254,12 @@ void adjust_camera_angle( int height )
 void move_camera()
 {
   // ZZ> This function moves the camera
-  int cnt, numalive, movex, movey;
-  float x, y, z, level, newx, newy, xvel, yvel, zvel;
+  int cnt, locoalive, movex, movey;
+  float x, y, z, level, newx, newy;
   Uint16 character, turnsin, turncos;
 
-  float camx_old, camy_old, camz_old; 
-
-  camx_old = camx;
-  camy_old = camy;
-  camz_old = camz;
+  // printf("DIAG: In move_camera\n");
+  // dump_matrix(mView);
 
   if ( autoturncamera )
     doturntime = 255;
@@ -235,14 +269,12 @@ void move_camera()
   x = 0;
   y = 0;
   z = 0;
-  xvel = 0;
-  yvel = 0;
-  zvel = 0;
   level = 0;
-  numalive = 0;
+  locoalive = 0;
+
   for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
   {
-    if ( plavalid[cnt] )
+    if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
     {
       character = plaindex[cnt];
       if ( chralive[character] )
@@ -253,10 +285,7 @@ void move_camera()
           x += chrxpos[character];
           y += chrypos[character];
           z += chrzpos[character];
-          xvel += chrxvel[character];
-          yvel += chryvel[character];
-          zvel += chrzvel[character];
-          level += chrlevel[character] + chrbumpheight[character]*0.9;
+          level += chrlevel[character];
         }
         else
         {
@@ -264,44 +293,35 @@ void move_camera()
           x += chrxpos[chrattachedto[character]];
           y += chrypos[chrattachedto[character]];
           z += chrzpos[chrattachedto[character]];
-          xvel += chrxvel[chrattachedto[character]];
-          yvel += chryvel[chrattachedto[character]];
-          zvel += chrzvel[chrattachedto[character]];
-          level += chrlevel[chrattachedto[character]] + chrbumpheight[chrattachedto[character]] + chrbumpheight[character]*0.9;
+          level += chrlevel[chrattachedto[character]];
         }
-        numalive++;
+        locoalive++;
       }
     }
   }
 
-  if ( numalive > 1 )
+  if ( locoalive > 0 )
   {
-    x     /= numalive;
-    y     /= numalive;
-    z     /= numalive;
-    xvel  /= numalive;
-    yvel  /= numalive;
-    zvel  /= numalive;
-    level /= numalive;
+    x = x / locoalive;
+    y = y / locoalive;
+    z = z / locoalive;
+    level = level / locoalive;
   }
-  else if ( 0 == numalive )
+  else
   {
-    xvel  = camtrackxvel;
-    yvel  = camtrackyvel;
-    zvel  = camtrackzvel;
-    x     = camtrackx;
-    y     = camtracky;
-    z     = camtrackz;
-    level = camtracklevel;
+    x = camtrackx;
+    y = camtracky;
+    z = camtrackz;
   }
 
-  camtrackx     = ( camtrackx + x ) / 2.0f;
-  camtracky     = ( camtracky + y ) / 2.0f;
-  camtrackz     = ( camtrackz + z ) / 2.0f;
-  camtrackxvel  = ( camtrackxvel + xvel ) / 2.0f;
-  camtrackyvel  = ( camtrackyvel + yvel ) / 2.0f;
-  camtrackzvel  = ( camtrackzvel + zvel ) / 2.0f;
+  camtrackxvel = -camtrackx;
+  camtrackyvel = -camtracky;
+  camtrackzvel = -camtrackz;
+  camtrackx = ( camtrackx + x ) / 2.0f;
+  camtracky = ( camtracky + y ) / 2.0f;
+  camtrackz = ( camtrackz + z ) / 2.0f;
   camtracklevel = ( camtracklevel + level ) / 2.0f;
+
 
   camturnadd = camturnadd * camsustain;
   camzadd = ( camzadd * 3.0f + camzaddgoto ) / 4.0f;
@@ -374,8 +394,29 @@ void move_camera()
       if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
     }
   }
-  camx -= ( float ) ( ( mView )_CNV( 0, 0 ) ) * camturnadd; // xgg
-  camy -= ( float ) ( ( mView )_CNV( 1, 0 ) ) * camturnadd;
+  camx -= ( float ) ( ( mView )_CNV( 0, 0 ) ) * camturnadd;  // xgg
+  camy += ( float ) ( ( mView )_CNV( 1, 0 ) ) * -camturnadd;
+
+  // Make it not break...
+  // bound_camtrack();
+  // bound_camera();
+
+  // Do distance effects for overlay and background
+  camtrackxvel += camtrackx;
+  camtrackyvel += camtracky;
+  camtrackzvel += camtrackz;
+  if ( overlayon )
+  {
+    // Do fg distance effect
+    waterlayeru[0] += camtrackxvel * waterlayerdistx[0];
+    waterlayerv[0] += camtrackyvel * waterlayerdisty[0];
+  }
+  if ( !clearson )
+  {
+    // Do bg distance effect
+    waterlayeru[1] += camtrackxvel * waterlayerdistx[1];
+    waterlayerv[1] += camtrackyvel * waterlayerdisty[1];
+  }
 
   // Center on target for doing rotation...
   if ( doturntime != 0 )
@@ -449,29 +490,7 @@ void move_camera()
 
   adjust_camera_angle( camz );
 
-  camxvel = camx - camx_old;
-  camyvel = camy - camy_old;
-  camzvel = camz - camz_old;
-
-  // Do distance effects for overlay and background
-  if ( overlayon )
-  {
-    // Do fg distance effect
-    waterlayeru[0] += - (camxvel-xvel) * waterlayerdistx[0] * (camz-camtrackz);
-    waterlayerv[0] += - (camyvel-yvel) * waterlayerdistx[0] * (camz-camtrackz);
-  }
-  if ( !clearson )
-  {
-    // Do bg distance effect
-    waterlayeru[1] += - (camxvel-xvel) * waterlayerdistx[1] * (camz-camtrackz);
-    waterlayerv[1] += - (camyvel-yvel) * waterlayerdisty[1] * (camz-camtrackz);
-  }
-
   make_camera_matrix();
-
-  // must use the matrix for angle and pos changes
-  // waterlayerdistx is like the inverse distance
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -481,9 +500,6 @@ void reset_camera()
   int cnt, save;
 
   camswing = 0;
-  camxvel = 0;
-  camyvel = 0;
-  camzvel = 0;
   camx = meshedgex / 2;
   camy = meshedgey / 2;
   camz = 1500;
@@ -493,9 +509,9 @@ void reset_camera()
   camtrackzvel = 1500;
   camcenterx = camx;
   camcentery = camy;
-  camtrackx = camx + 1500;
+  camtrackx = camx;
   camtracky = camy;
-  camtrackz = camz - 1500;
+  camtrackz = 1500;
   camturnadd = 0;
   camtracklevel = 0;
   camzadd = 1500;

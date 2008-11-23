@@ -217,6 +217,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_math.c"
+				>
+			</File>
+			<File
+				RelativePath=".\egobooendian.c"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboostrutil.c"
 				>
 			</File>
@@ -305,10 +313,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\mathstuff.c"
-				>
-			</File>
-			<File
 				RelativePath=".\Md2.c"
 				>
 			</File>
@@ -346,6 +350,26 @@
 			</File>
 			<File
 				RelativePath=".\sys_linux.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\sys_mac.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -418,6 +442,18 @@
 			</File>
 			<File
 				RelativePath=".\egoboo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_config.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_endian.h"
+				>
+			</File>
+			<File
+				RelativePath=".\egoboo_math.h"
 				>
 			</File>
 			<File

@@ -46,7 +46,7 @@ static int selectedPlayer = 0;
 static int selectedModule = 0;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.7\nBETA TEST VERSION";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.8";
 static int copyrightLeft = 0;
 static int copyrightTop  = 0;
 
@@ -110,6 +110,7 @@ const char *videoOptionsButtons[] =
   "N/A",    // Max messages
   "N/A",    // Screen resolution
   "Save Settings",
+  "N/A",    // Max particles
   ""
 };
 
@@ -947,6 +948,8 @@ int doAudioOptions( float deltaTime )
       fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, displaySurface->h - 235, 0, 0, 20 );
       if ( ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) == 1 )
       {
+		soundvolume += 5;
+		if(soundvolume > 100 || soundvolume < 0) soundvolume = 0;
         sprintf( Csoundvolume, "%i", soundvolume );
         audioOptionsButtons[1] = Csoundvolume;
       }
@@ -969,6 +972,8 @@ int doAudioOptions( float deltaTime )
       fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, displaySurface->h - 130, 0, 0, 20 );
       if ( ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) == 1 )
       {
+		musicvolume += 5;
+		if(musicvolume > 100 || musicvolume < 0) musicvolume = 0;
         sprintf( Cmusicvolume, "%i", musicvolume );
         audioOptionsButtons[3] = Cmusicvolume;
       }
@@ -1090,8 +1095,9 @@ int doVideoOptions( float deltaTime )
   static int menuChoice = 0;
   int result = 0;
   static char Cmaxmessage[128];
-  // static char Cscrd[128];
+   static char Cmaxlights[128];
   static char Cscrz[128];
+  static char Cmaxparticles[128];
 
   switch ( menuState )
   {
@@ -1192,8 +1198,9 @@ int doVideoOptions( float deltaTime )
       sprintf( Cscrz, "%i", scrz );      // Convert the integer to a char we can use
       videoOptionsButtons[7] = Cscrz;
 
-      if ( fogallowed ) videoOptionsButtons[8] = "Enable";
-      else videoOptionsButtons[8] = "Disable";
+	  sprintf( Cmaxlights, "%i", maxlights ); 
+      videoOptionsButtons[8] = Cmaxlights;
+
 
       if ( phongon )
       {
@@ -1220,6 +1227,9 @@ int doVideoOptions( float deltaTime )
 
       if ( twolayerwateron ) videoOptionsButtons[10] = "On";
       else videoOptionsButtons[10] = "Off";
+
+      sprintf( Cmaxparticles, "%i", maxparticles );      // Convert the integer to a char we can use
+      videoOptionsButtons[16] = Cmaxparticles;
 
       switch ( scrx )
       {
@@ -1451,19 +1461,51 @@ int doVideoOptions( float deltaTime )
         }
       }
 
-      // Fog
-      fnt_drawTextBox( menuFont, "Fog Effects:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
+      // Max dynamic lights
+      fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
       if ( ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) == 1 )
       {
-        if ( fogallowed )
+        switch ( maxlights )
         {
-          fogallowed = bfalse;
-          videoOptionsButtons[8] = "Disable";
-        }
-        else
-        {
-          fogallowed = btrue;
-          videoOptionsButtons[8] = "Enable";
+          case 64:
+            videoOptionsButtons[8] = "8";
+            maxlights = 8;
+            break;
+
+          case 8:
+            videoOptionsButtons[8] = "12";
+            maxlights = 12;
+            break;
+
+          case 12:
+            videoOptionsButtons[8] = "16";
+            maxlights = 16;
+            break;
+
+          case 16:
+            videoOptionsButtons[8] = "24";
+            maxlights = 24;
+            break;
+
+          case 24:
+            videoOptionsButtons[8] = "32";
+            maxlights = 32;
+            break;
+
+          case 32:
+            videoOptionsButtons[8] = "48";
+            maxlights = 48;
+            break;
+
+          case 48:
+            videoOptionsButtons[8] = "64";
+            maxlights = 64;
+            break;
+
+          default:
+            videoOptionsButtons[8] = "8";
+            maxlights = 16;
+            break;
         }
       }
 
@@ -1517,6 +1559,16 @@ int doVideoOptions( float deltaTime )
           videoOptionsButtons[10] = "On";
           twolayerwateron = btrue;
         }
+      }
+
+     // Max particles
+      fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, displaySurface->h - 180, 0, 0, 20 );
+      if ( ui_doButton( 16, videoOptionsButtons[16], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) == 1 )
+      {
+		maxparticles += 128;
+		if(maxparticles > TOTALMAXPRT || maxparticles < 256) maxparticles = 256;
+        sprintf( Cmaxparticles, "%i", maxparticles );    // Convert integer to a char we can use
+        videoOptionsButtons[16] =  Cmaxparticles;
       }
 
       // Text messages
@@ -1878,6 +1930,12 @@ void save_settings()
     fputs( write, setupfile );
     if ( backgroundvalid ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     sprintf( write, "[BACKGROUND] : \"%s\"\n", TxtTmp );
+    fputs( write, setupfile );
+    sprintf( write, "[MAX_DYNAMIC_LIGHTS] : \"%i\"\n", maxlights );
+    fputs( write, setupfile );
+    sprintf( write, "[MAX_PARTICLES] : \"%i\"\n", maxparticles );
+    fputs( write, setupfile );
+    sprintf( write, "[MAX_FPS_LIMIT] : \"%i\"\n", framelimit );
     fputs( write, setupfile );
 
     /*SOUND PART*/

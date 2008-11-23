@@ -32,11 +32,8 @@ extern void Begin3DMode();
 void render_prt()
 {
   // ZZ> This function draws the sprites for particle systems
-  // D3DLVERTEX v[MAXPRT];
-  // D3DTLVERTEX vt[MAXPRT];
-  // D3DTLVERTEX vtlist[4];
-  glVertex v[MAXPRT];
-  glVertex vtlist[4];
+  GLVERTEX v[TOTALMAXPRT];
+  GLVERTEX vtlist[4];
   Uint16 cnt, prt, numparticle;
   Uint16 image;
 //  float scale;
@@ -115,7 +112,7 @@ void render_prt()
   else
   */
   {
-    while ( cnt < MAXPRT )
+    while ( cnt < maxparticles )
     {
       if ( prtinview[cnt] && prtsize[cnt] != 0 )
       {
@@ -343,8 +340,8 @@ void render_prt()
 void render_refprt()
 {
   // ZZ> This function draws sprites reflected in the floor
-  glVertex v[MAXPRT];
-  glVertex vtlist[4];
+  GLVERTEX v[TOTALMAXPRT];
+  GLVERTEX vtlist[4];
   Uint16 cnt, prt, numparticle;
   Uint16 image;
 //  float scale;
@@ -369,7 +366,7 @@ void render_refprt()
   // Original points
   numparticle = 0;
   cnt = 0;
-  while ( cnt < MAXPRT )
+  while ( cnt < maxparticles )
   {
     if ( prtinview[cnt] && prtsize[cnt] != 0 )
     {
@@ -396,8 +393,6 @@ void render_refprt()
   glDisable( GL_CULL_FACE );
   glDisable( GL_DITHER );
 
-  glBlendFunc( GL_ONE, GL_ONE );
-
   // Render each particle that was on
   cnt = 0;
   while ( cnt < numparticle )
@@ -406,7 +401,6 @@ void render_refprt()
     prt = ( Uint16 ) v[cnt].color;
 
     // Draw lights this round
-    level = 0;
     if ( prttype[prt] == PRTLIGHTSPRITE )
     {
       size = ( float )( prtsize[prt] ) * 0.00156f;

@@ -34,7 +34,7 @@ typedef struct s_rect
   Sint32 bottom;
 }rect_t;
 
-typedef int bool_t;
+typedef char bool_t;
 enum
 {
   btrue = ( 1 == 1 ),

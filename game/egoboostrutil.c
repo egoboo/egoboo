@@ -38,7 +38,7 @@ void TrimStr( char *pStr )
   }
 
   // look for the last character in string
-  EndPos = CurPos = DebPos;
+  CurPos = DebPos;
   while ( pStr[CurPos] != 0 )
   {
     if ( !isspace( pStr[CurPos] ) )

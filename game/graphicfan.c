@@ -28,7 +28,7 @@ void render_fan( Uint32 fan )
   // D3DLVERTEX v[MAXMESHVERTICES];
   // D3DTLVERTEX vt[MAXMESHVERTICES];
   // D3DTLVERTEX vtlist[MAXMESHCOMMANDSIZE];
-  glVertex v[MAXMESHVERTICES];
+  GLVERTEX v[MAXMESHVERTICES];
   Uint16 commands;
   Uint16 vertices;
   Uint16 basetile;
@@ -87,7 +87,7 @@ void render_fan( Uint32 fan )
 //  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
   glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
-  glTexCoordPointer( 2, GL_FLOAT, sizeof( glVertex ) - 2*sizeof( GLfloat ), &v[0].s );
+  glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
   // glColorPointer... not needed?
 
 // TODO: Implement OpenGL fog effects
@@ -204,7 +204,7 @@ void render_fan( Uint32 fan )
 void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
 {
   // ZZ> This function draws a water fan
-  glVertex v[MAXMESHVERTICES];
+  GLVERTEX v[MAXMESHVERTICES];
   Uint16 type;
   Uint16 commands;
   Uint16 vertices;
@@ -381,6 +381,7 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
       entry++;
     }
     glEnd ();
-
+//            lpD3DDDevice->DrawPrimitive((D3DPRIMITIVETYPE) D3DPT_TRIANGLEFAN,
+//                                    D3DVT_TLVERTEX, (LPVOID)vtlist, tnc, NULL);
   }
 }
