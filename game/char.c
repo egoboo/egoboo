@@ -1642,7 +1642,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
             if ( inshop )
             {
               // Pay the shop owner, or don't allow grab...
-              if ( chrisitem[chara] || ( chralpha[chara] < INVISIBLE && !chrcanseeinvisible[owner] ) )
+              if ( chrisitem[chara] || ( chralpha[chara] < INVISIBLE) )
               {
                 // Pets can try to steal in addition to invisible characters
                 STRING text;
@@ -1651,7 +1651,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 debug_message( text );
 
                 // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
-                if ( generate_number( 1, 100 ) - ( chrdexterity[chara] >> 7 ) + ( chrwisdom[owner] >> 7 ) > 50 )
+                if (chrcanseeinvisible[owner] || generate_number( 1, 100 ) - ( chrdexterity[chara] >> 7 ) + ( chrwisdom[owner] >> 7 ) > 50 )
                 {
                   snprintf( text, sizeof(text), "%s was detected!!", chrname[chara] );
                   debug_message( text );
