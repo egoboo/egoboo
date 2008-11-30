@@ -314,7 +314,7 @@ int tell_code( int read )
   //     in iCodeIndex
   int cnt, wordsize, codecorrect;
   char cTmp;
-  int idsz, test;
+  IDSZ idsz;
   char cWordBuffer[MAXCODENAMESIZE];
 
 
@@ -361,8 +361,7 @@ int tell_code( int read )
     cTmp = cWordBuffer[2] - 'A';  idsz = idsz | ( cTmp << 10 );
     cTmp = cWordBuffer[3] - 'A';  idsz = idsz | ( cTmp << 5 );
     cTmp = cWordBuffer[4] - 'A';  idsz = idsz | ( cTmp );
-    test = Make_IDSZ( 'N', 'O', 'N', 'E' );  // [NONE]
-    if ( idsz == test )
+    if ( idsz == IDSZ_NONE )
     {
       idsz = IDSZNONE;
     }
@@ -694,7 +693,7 @@ Uint8 run_function( Uint32 value, int character )
   int iTmp, tTmp;
   int volume;
   Uint32 test;
-  char szDebug[256];
+  char cTmp[256];
 
   // Figure out which function to run
   switch ( valuecode )
@@ -977,7 +976,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
         {
           valuetmpargument = LATCHBUTTONLEFT;
           returncode = btrue;
@@ -988,7 +987,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR && !returncode )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
         {
           valuetmpargument = LATCHBUTTONRIGHT;
           returncode = btrue;
@@ -998,8 +997,10 @@ Uint8 run_function( Uint32 value, int character )
 
     case FIFTARGETHASSKILLID:
       // This function proceeds if ID matches tmpargument
-      returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZSKILL] == ( Uint32 ) valuetmpargument );
-      break;
+		returncode = bfalse;
+	    if(check_skills( chraitarget[character], ( IDSZ )valuetmpargument ) != 0) returncode = btrue;
+     
+	  break;
 
     case FELSE:
       // This function fails if the last one was more indented
@@ -1139,7 +1140,7 @@ Uint8 run_function( Uint32 value, int character )
       sTmp = chrnextinpack[tTmp];
       while ( sTmp != MAXCHR )
       {
-        if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == ( IDSZ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZTYPE] == ( IDSZ ) valuetmpargument )
         {
           returncode = btrue;
           iTmp = sTmp;
@@ -1156,7 +1157,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
         {
           returncode = btrue;
           iTmp = chrholdingwhich[chraitarget[character]][0];
@@ -1167,7 +1168,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
         {
           returncode = btrue;
           iTmp = chrholdingwhich[chraitarget[character]][1];
@@ -1459,7 +1460,7 @@ Uint8 run_function( Uint32 value, int character )
 
     case FIFTARGETHASVULNERABILITYID:
       // This function proceeds if ID matches tmpargument
-      returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZVULNERABILITY] == ( Uint32 ) valuetmpargument );
+      returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZVULNERABILITY] == ( IDSZ ) valuetmpargument );
       break;
 
     case FCLEANUP:
@@ -1672,7 +1673,7 @@ Uint8 run_function( Uint32 value, int character )
 
     case FIFTARGETHASSPECIALID:
       // This function proceeds if ID matches tmpargument
-      returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZSPECIAL] == ( Uint32 ) valuetmpargument );
+      returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZSPECIAL] == ( IDSZ ) valuetmpargument );
       break;
 
     case FPRESSTARGETLATCHBUTTON:
@@ -1928,7 +1929,7 @@ Uint8 run_function( Uint32 value, int character )
       tTmp = 0;
       while ( tTmp < MAXIDSZ )
       {
-        returncode |= ( capidsz[chrmodel[chraitarget[character]]][tTmp] == ( Uint32 ) valuetmpargument );
+        returncode |= ( capidsz[chrmodel[chraitarget[character]]][tTmp] == ( IDSZ ) valuetmpargument );
         tTmp++;
       }
       break;
@@ -2022,14 +2023,14 @@ Uint8 run_function( Uint32 value, int character )
 
     case FDEBUGMESSAGE:
       // This function spits out a debug message
-      sprintf( szDebug, "aistate %d, aicontent %d, target %d", chraistate[character], chraicontent[character], chraitarget[character] );
-      debug_message( szDebug );
-      sprintf( szDebug, "tmpx %d, tmpy %d", valuetmpx, valuetmpy );
-      debug_message( szDebug );
-      sprintf( szDebug, "tmpdistance %d, tmpturn %d", valuetmpdistance, valuetmpturn );
-      debug_message( szDebug );
-      sprintf( szDebug, "tmpargument %d, selfturn %d", valuetmpargument, chrturnleftright[character] );
-      debug_message( szDebug );
+      sprintf( cTmp, "aistate %d, aicontent %d, target %d", chraistate[character], chraicontent[character], chraitarget[character] );
+      debug_message( cTmp );
+      sprintf( cTmp, "tmpx %d, tmpy %d", valuetmpx, valuetmpy );
+      debug_message( cTmp );
+      sprintf( cTmp, "tmpdistance %d, tmpturn %d", valuetmpdistance, valuetmpturn );
+      debug_message( cTmp );
+      sprintf( cTmp, "tmpargument %d, selfturn %d", valuetmpargument, chrturnleftright[character] );
+      debug_message( cTmp );
       break;
 
     case FBLACKTARGET:
@@ -2068,7 +2069,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
         {
           valuetmpargument = LATCHBUTTONLEFT;
           returncode = btrue;
@@ -2079,7 +2080,7 @@ Uint8 run_function( Uint32 value, int character )
       if ( sTmp != MAXCHR )
       {
         sTmp = chrmodel[sTmp];
-        if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+        if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
         {
           valuetmpargument = LATCHBUTTONRIGHT;
           if ( returncode )  valuetmpargument = LATCHBUTTONLEFT + ( rand() & 1 );
@@ -2666,7 +2667,7 @@ Uint8 run_function( Uint32 value, int character )
         iTmp = chrfirstenchant[chraitarget[character]];
         while ( iTmp != MAXENCHANT )
         {
-          test = Make_IDSZ( 'H', 'E', 'A', 'L' );  // [HEAL]
+          test = Make_IDSZ( "HEAL" );  // [HEAL]
           sTmp = encnextenchant[iTmp];
           if ( test == everemovedbyidsz[enceve[iTmp]] )
           {
@@ -3534,7 +3535,7 @@ Uint8 run_function( Uint32 value, int character )
     case FIFTARGETISARCANESPELL:
       // Proceeds if the AI target has [IDAM] expansion.
       sTmp = chrmodel[chraitarget[character]];
-      returncode = capidsz[sTmp][IDSZSKILL] == Make_IDSZ( 'I', 'D', 'A', 'M' );
+      returncode = capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "IDAM" );
       break;
 
     case FIFBACKSTABBED:
@@ -3545,7 +3546,7 @@ Uint8 run_function( Uint32 value, int character )
 		  sTmp = chrmodel[chrattacklast[character]];
 		  if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
 		  {
-			if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( 'D', 'I', 'S', 'A' ) )
+			if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "DISA" ) )
 			{
 		      iTmp = chrdamagetypelast[character];
 			  if ( iTmp == DAMAGECRUSH || iTmp == DAMAGEPOKE || iTmp == DAMAGESLASH ) returncode = btrue;
@@ -3558,6 +3559,82 @@ Uint8 run_function( Uint32 value, int character )
       // This function gets the last type of damage for the target
       valuetmpargument = chrdamagetypelast[chraitarget[character]];
       break;
+
+    case FADDQUEST:
+    //This function adds a quest idsz set in tmpargument into the targets quest.txt
+    if ( chrisplayer[chraitarget[character]] )
+    {
+      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
+      add_quest_idsz( cTmp, valuetmpargument );
+	  returncode = btrue;
+    }
+	else returncode = bfalse;
+    break;
+
+	case FBEATQUESTALLPLAYERS:
+    //This function marks a IDSZ in the targets quest.txt as beaten
+    returncode = bfalse;
+	iTmp = 0;
+	while(iTmp < MAXCHR)
+	{
+		if ( chrisplayer[iTmp] )
+		{
+		  snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[iTmp] );
+		  if(modify_quest_idsz( cTmp, valuetmpargument, 0 ) == QUESTBEATEN) returncode = btrue;
+		}
+		iTmp++;
+	}
+    break;
+
+  case FIFTARGETHASQUEST:
+    //This function proceeds if the target has the unfinished quest specified in tmpargument
+    //and sets tmpdistance to the Quest Level of the specified quest.
+    if ( chrisplayer[chraitarget[character]] )
+    {
+      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
+      iTmp = check_player_quest( cTmp, valuetmpargument );
+      if ( iTmp > QUESTBEATEN )
+      {
+        returncode = btrue;
+        valuetmpdistance = iTmp;
+      }
+      else returncode = bfalse;
+    }
+    break;
+
+  case FSETQUESTLEVEL:
+    //This function modifies the quest level for a specific quest IDSZ
+    //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)
+    returncode = bfalse;
+    if ( chrisplayer[chraitarget[character]] && valuetmpdistance != 0 )
+    {
+      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
+      if(modify_quest_idsz( cTmp, valuetmpargument, valuetmpdistance ) > NOQUEST) returncode = btrue;
+    }
+    break;
+
+  case FADDQUESTALLPLAYERS:
+    //This function adds a quest idsz set in tmpargument into all local player's quest logs
+    //The quest level is set to tmpdistance if the level is not already higher or QUESTBEATEN
+	iTmp = 0;
+	returncode = bfalse;
+	while(iTmp < MAXPLAYER)
+	{
+		if ( chrisplayer[plaindex[iTmp]] )
+		{
+		  returncode = btrue;
+		  snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[plaindex[iTmp]] );
+		  if(!add_quest_idsz( cTmp, valuetmpargument ))				//Try to add it if not already there or beaten
+		  {
+			  Sint16 i;
+			  i = check_player_quest(cTmp, valuetmpargument);		//Get the current quest level
+			  if(i < 0 || i >= valuetmpdistance) returncode = bfalse;				//It was already beaten
+			  else modify_quest_idsz( cTmp, valuetmpargument, valuetmpdistance );//Not beaten yet, increase level by 1
+		  }
+		}
+		iTmp++;
+	}
+    break;
 
     case FEND:
       returncode = bfalse;

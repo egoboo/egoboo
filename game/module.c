@@ -20,6 +20,7 @@
 
 #include "egoboo.h"
 #include "Log.h"
+#include "Menu.h"
 
 //--------------------------------------------------------------------------------------------
 void release_module( void )
@@ -54,13 +55,15 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
   if ( idsz == IDSZNONE )
     return btrue;
 
-  // Developers mode - unlock everything.
-  if ( gDevMode ) return btrue;
-
   foundidsz = bfalse;
   sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
   fileread = fopen( newloadname, "r" );
-  if ( fileread )
+  if ( NULL == fileread )
+  {
+	  log_warning("Cannot open file! (%s)\n", newloadname);
+	  return bfalse;
+  }
+  else
   {
     // Read basic data
     globalname = szLoadName;
@@ -163,31 +166,19 @@ void load_module( char *smallname )
   timeron = bfalse;
   sprintf( modname, "modules" SLASH_STR "%s" SLASH_STR, smallname );
   make_randie();  // This should work
-  // printf("randie done\n");
   reset_teams();      // This should work
-  // printf("reset_teams done\n");
   load_one_icon( "basicdat" SLASH_STR "nullicon.bmp" );  // This works (without transparency)
-  // printf("load_one_icon done\n");
   if ( soundvalid ) load_global_waves( modname );
-  reset_particles( modname );  // This should work
-  read_wawalite( modname ); // This should work
-  // printf("read_wawa done\n");
-  make_twist();             // This should work
-  // printf("make_twist done\n");
-  reset_messages();         // This should work
-  // printf("reset messages done\n");
-  prime_names();            // This should work
-  // printf("prime_names done\n");
+  reset_particles( modname );
+  read_wawalite( modname );
+  make_twist();
+  reset_messages();
+  prime_names();
   load_basic_textures( modname );  // This should work (without colorkey stuff)
-  // printf("load_basic_tex done\n");
-  reset_ai_script();        // This should work
-  // printf("reset_ai_script done\n");
-  load_ai_script( "basicdat" SLASH_STR "script.txt" );  // This should work
-  // printf("load_ai_script done\n");
-  release_all_models();     // This should work
-  // printf("release_all_models done\n");
-  free_all_enchants();      // This should work
-  // printf("free_all_enchants done\n");
+  reset_ai_script();
+  load_ai_script( "basicdat" SLASH_STR "script.txt" );
+  release_all_models();
+  free_all_enchants();
 
   // printf("Got to load_all_objects\n");
   load_all_objects( modname ); // This is broken and needs to be fixed (is it really?)
@@ -239,9 +230,12 @@ int get_module_data( int modnumber, char *szLoadName )
   // ZZ> This function loads the module data file
   FILE *fileread;
   char reference[128];
-  Uint32 idsz;
+  STRING playername;
+  IDSZ idsz;
+  Sint16 questlevel;
   char cTmp;
   int iTmp;
+  bool_t playerhasquest = bfalse;
 
   fileread = fopen( szLoadName, "r" );
   if ( fileread )
@@ -250,8 +244,20 @@ int get_module_data( int modnumber, char *szLoadName )
     globalname = szLoadName;
     goto_colon( fileread );  get_name( fileread, modlongname[modnumber] );
     goto_colon( fileread );  fscanf( fileread, "%s", reference );
-    goto_colon( fileread );  idsz = get_idsz( fileread );
-    if ( module_reference_matches( reference, idsz ) )
+    goto_colon( fileread );  idsz = get_idsz( fileread ); questlevel = fget_int( fileread );
+
+	//Check all selected players directories
+	playerhasquest = bfalse;
+	iTmp = 0;
+	while ( !playerhasquest && iTmp < numloadplayer )
+	{
+		snprintf( playername, sizeof( playername ), "%s.obj", loadplayername[selectedPlayer] );
+		if( questlevel <= check_player_quest( playername, idsz )) playerhasquest = btrue;
+		iTmp++;
+	}
+
+	//So, do we load the module or not?
+    if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
       globalname = szLoadName;
       goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
@@ -265,9 +271,8 @@ int get_module_data( int modnumber, char *szLoadName )
       modrespawnvalid[modnumber] = bfalse;
       if ( cTmp == 'T' || cTmp == 't' )  modrespawnvalid[modnumber] = btrue;
       if ( cTmp == 'A' || cTmp == 'a' )  modrespawnvalid[modnumber] = ANYTIME;
-      goto_colon( fileread );  cTmp = get_first_letter( fileread );
+      goto_colon( fileread );		//BAD: Skip line
       modrtscontrol[modnumber] = bfalse;
-      if ( cTmp == 'T' || cTmp == 't' )  modrtscontrol[modnumber] = btrue;
       goto_colon( fileread );  fscanf( fileread, "%s", generictext );
       iTmp = 0;
       while ( iTmp < RANKSIZE - 1 )

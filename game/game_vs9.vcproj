@@ -21,6 +21,7 @@
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="0"
 			CharacterSet="2"
 			>
 			<Tool
@@ -65,7 +66,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL.lib SDLmain.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf.lib SDL_mixer.lib"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"
@@ -470,6 +471,10 @@
 			</File>
 			<File
 				RelativePath=".\gltexture.h"
+				>
+			</File>
+			<File
+				RelativePath=".\graphic.h"
 				>
 			</File>
 			<File

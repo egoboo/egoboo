@@ -323,10 +323,10 @@
 #define FGETTARGETSTATE                     288 //
 #define FIFEQUIPPED                         289 // Redone in v 0.95f
 #define FDROPTARGETMONEY                    290 //
-#define FGETTARGETCONTENT                  291 //
+#define FGETTARGETCONTENT                   291 //
 #define FDROPTARGETKEYS                     292 //
-#define FJOINTEAM                        293 //
-#define FTARGETJOINTEAM                      294 //
+#define FJOINTEAM							293 //
+#define FTARGETJOINTEAM                     294 //
 #define FCLEARMUSICPASSAGE                  295 // Below is original code again
 #define FCLEARENDMESSAGE                    296 //
 #define FADDENDMESSAGE                      297 //
@@ -368,19 +368,24 @@
 #define FDAZETARGET                         333 //
 #define FENABLERESPAWN                      334 //
 #define FDISABLERESPAWN                     335 //
-#define FIFHOLDERSCOREDAHIT            336 //
-#define FIFHOLDERBLOCKED            337 //
-#define FGETSKILLLEVEL               338 //
-#define FIFTARGETHASNOTFULLMANA         339 //
-#define FENABLELISTENSKILL           340 //
-#define FSETTARGETTOLASTITEMUSED         341 //
-#define FFOLLOWLINK                 342 // Scripted AI functions (v1.00)
-#define FIFOPERATORISLINUX             343 //
-#define FIFTARGETISAWEAPON              344 //
-#define FIFSOMEONEISSTEALING         345 //
-#define FIFTARGETISARCANESPELL        346 //
-#define FIFBACKSTABBED                347 //
-#define FGETTARGETDAMAGETYPE             348 //
+#define FIFHOLDERSCOREDAHIT					336 //
+#define FIFHOLDERBLOCKED					337 //
+#define FGETSKILLLEVEL						338 //
+#define FIFTARGETHASNOTFULLMANA				339 //
+#define FENABLELISTENSKILL					340 //
+#define FSETTARGETTOLASTITEMUSED			341 //
+#define FFOLLOWLINK							342 // Scripted AI functions (v1.00)
+#define FIFOPERATORISLINUX					343 //
+#define FIFTARGETISAWEAPON					344 //
+#define FIFSOMEONEISSTEALING				345 //
+#define FIFTARGETISARCANESPELL				346 //
+#define FIFBACKSTABBED						347 //
+#define FGETTARGETDAMAGETYPE				348 //
+#define FADDQUEST							349 //
+#define FBEATQUESTALLPLAYERS				350 //
+#define FIFTARGETHASQUEST					351 //
+#define FSETQUESTLEVEL						352 //
+#define FADDQUESTALLPLAYERS					353 //
 
 
 // OPERATORS

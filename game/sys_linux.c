@@ -10,9 +10,6 @@ void sys_initialize()
   startuptime = now.tv_sec + now.tv_usec / 1000000.0f;
 }
 
-void sys_shutdown()
-{
-}
 
 double sys_getTime()
 {

@@ -20,6 +20,7 @@
 */
 
 #include "egoboo.h"
+#include "graphic.h"
 
 //--------------------------------------------------------------------------------------------
 void render_fan( Uint32 fan )
@@ -336,8 +337,6 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    // lpD3DDDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,
-    //          txTexture[texture].GetHandle());
     glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
     meshlasttexture = texture;
   }

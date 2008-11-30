@@ -21,6 +21,7 @@
 */
 
 #include "egoboo.h"
+#include "graphic.h"
 #include "Log.h"
 
 // Defined in egoboo.h
@@ -725,6 +726,7 @@ void Begin3DMode()
 
 void End3DMode()
 {
+
 }
 
 /********************> Begin2DMode() <*****/
@@ -781,7 +783,7 @@ int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
 void release_all_textures()
 {
   // ZZ> This function clears out all of the textures
-  int cnt;
+  Uint16 cnt;
 
   for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
     GLTexture_Release( &txTexture[cnt] );
@@ -829,11 +831,6 @@ void prime_titleimage()
 
   for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     TxTitleImage[cnt].textureID = 0;
-
-  // titlerect.x = 0;
-  // titlerect.w = TITLESIZE;
-  // titlerect.y = 0;
-  // titlerect.h = TITLESIZE;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -844,7 +841,6 @@ void prime_icons()
 
   for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
   {
-    // lpDDSIcon[cnt]=NULL;
     TxIcon[cnt].textureID = -1;
     madskintoicon[cnt] = 0;
   }
@@ -881,7 +877,7 @@ void release_all_titleimages()
 void release_all_models()
 {
   // ZZ> This function clears out all of the models
-  int cnt;
+  Uint16 cnt;
   for ( cnt = 0; cnt < MAXMODEL; cnt++ )
   {
     capclassname[cnt][0] = 0;
@@ -897,14 +893,6 @@ void release_all_models()
   madloadframe = 0;
 }
 
-
-//--------------------------------------------------------------------------------------------
-void release_grfx( void )
-{
-  // ZZ> This function frees up graphics/input/sound resources.
-
-  SDL_Quit ();
-}
 
 //--------------------------------------------------------------------------------------------
 void release_map()
@@ -1393,32 +1381,32 @@ void load_basic_textures( char *modname )
   char newloadname[256];
 
   // Particle sprites
-  GLTexture_LoadA( &txTexture[0], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle.bmp", TRANSCOLOR );
+  GLTexture_LoadA( &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle.bmp", TRANSCOLOR );
 
   // Module background tiles
   make_newloadname( modname, "gamedat" SLASH_STR "tile0.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[1], newloadname, TRANSCOLOR );
+  GLTexture_LoadA( &txTexture[TX_TILE_0], newloadname, TRANSCOLOR );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile1.bmp", newloadname );
-  GLTexture_LoadA(  &txTexture[2], newloadname, TRANSCOLOR );
+  GLTexture_LoadA(  &txTexture[TX_TILE_1], newloadname, TRANSCOLOR );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile2.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[3], newloadname, TRANSCOLOR );
+  GLTexture_LoadA( &txTexture[TX_TILE_2], newloadname, TRANSCOLOR );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile3.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[4], newloadname, TRANSCOLOR );
+  GLTexture_LoadA( &txTexture[TX_TILE_3], newloadname, TRANSCOLOR );
 
   // Water textures
   make_newloadname( modname, "gamedat" SLASH_STR "watertop.bmp", newloadname );
-  GLTexture_Load( &txTexture[5], newloadname );
+  GLTexture_Load( &txTexture[TX_WATER_TOP], newloadname );
   make_newloadname( modname, "gamedat" SLASH_STR "waterlow.bmp", newloadname );
-  GLTexture_Load( &txTexture[6], newloadname );// This is also used as far background
+  GLTexture_Load( &txTexture[TX_WATER_LOW], newloadname );// This is also used as far background
 
 
   // Texture 7 is the phong map
   if ( phongon )
   {
-    GLTexture_Load( &txTexture[7], "basicdat" SLASH_STR "phong.bmp" );
+    GLTexture_Load( &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong.bmp" );
   }
 
 }
@@ -1822,15 +1810,12 @@ int load_one_object( int skin, char* tmploadname )
   md2_models[object] = md2_loadFromFile( newloadname );
 
 
-  // printf(" DIAG: fixing lighting\n");
   // Fix lighting if need be
   if ( capuniformlit[object] )
   {
     make_mad_equally_lit( object );
   }
 
-
-  // printf(" DIAG: creating actions\n");
   // Create the actions table for this object
   get_actions( object );
 
@@ -1967,7 +1952,7 @@ int load_one_object( int skin, char* tmploadname )
     // If we didn't get a skin, set it to the water texture
     madskinstart[object] = 5;
     madskins[object] = 1;
-    log_message( "NOTE: Object is missing an skin (%s)!\n", tmploadname );
+    if(gDevMode) log_message( "NOTE: Object is missing an skin (%s)!\n", tmploadname );
   }
 
 
@@ -2463,40 +2448,43 @@ void render_background( Uint16 texture )
 {
   // ZZ> This function draws the large background
   GLVERTEX vtlist[4];
-  int i;
-  float x, y, z;
-  float u, v;
+  float size;
+  float sinsize, cossize;
+  float x, y, z, u, v;
   float loc_backgroundrepeat;
-
+  Uint8 i;
 
   // Figure out the coordinates of its corners
   x = scrx << 6;
   y = scry << 6;
   z = 0.99999f;
-  u = waterlayeru[0];
-  v = waterlayerv[0];
+  size = x + y + 1;
+  sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;   // why 3/8 of a turn???
+  cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;   // why 3/8 of a turn???
+  u = waterlayeru[1];
+  v = waterlayerv[1];
   loc_backgroundrepeat = backgroundrepeat * MIN( x / scrx, y / scrx );
 
-  vtlist[0].x =-x;
-  vtlist[0].y =-y;
+  vtlist[0].x = x + cossize;
+  vtlist[0].y = y - sinsize;
   vtlist[0].z = z;
   vtlist[0].s = 0 + u;
   vtlist[0].t = 0 + v;
 
-  vtlist[1].x =+x;
-  vtlist[1].y =-y;
+  vtlist[1].x = x + sinsize;
+  vtlist[1].y = y + cossize;
   vtlist[1].z = z;
   vtlist[1].s = loc_backgroundrepeat + u;
   vtlist[1].t = 0 + v;
 
-  vtlist[2].x =+x;
-  vtlist[2].y =+y;
+  vtlist[2].x = x - cossize;
+  vtlist[2].y = y + sinsize;
   vtlist[2].z = z;
   vtlist[2].s = loc_backgroundrepeat + u;
   vtlist[2].t = loc_backgroundrepeat + v;
 
-  vtlist[3].x =-x;
-  vtlist[3].y =+y;
+  vtlist[3].x = x - sinsize;
+  vtlist[3].y = y - cossize;
   vtlist[3].z = z;
   vtlist[3].s = 0 + u;
   vtlist[3].t = loc_backgroundrepeat + v;
@@ -2542,7 +2530,6 @@ void render_foreground_overlay( Uint16 texture )
   GLVERTEX vtlist[4];
   int i;
   float size;
-  Uint16 rotate;
   float sinsize, cossize;
   float x, y, z;
   float u, v;
@@ -2682,24 +2669,6 @@ void render_shadow( int character )
       alpha_penumbra = 0.3f;
     };
 
-    /* PORT:if(g_foginfo.on)
-    {
-    alpha = (alpha>>1) + 64;
-    z = (chr.level);
-    if(z < g_foginfo.top)
-    {
-    if(z < g_foginfo.bottom)
-    {
-    alpha += 80;
-    }
-    else
-    {
-    z = 1.0f - ((z-g_foginfo.bottom)/g_foginfo.distance);
-    alpha += (80 * z);
-    }
-    }
-    }*/
-
     x = chrmatrix[character]_CNV( 3, 0 );
     y = chrmatrix[character]_CNV( 3, 1 );
 
@@ -2813,23 +2782,7 @@ void render_bad_shadow( int character )
     if ( size < 1 ) return;
     ambi = chrlightlevel[character] >> 4;  // LUL >>3;
     trans = ( ( 255 - height ) >> 1 ) + 64;
-    /*      if(fogon)
-            {
-                z = (chrlevel[character]);
-                if(z < fogtop)
-                {
-                    if(z > fogbottom)
-                    {
-                        z = ((z-fogbottom)/fogdistance);
-                        trans = (trans * z);
-                        if(trans < 64)  trans = 64;
-                    }
-                    else
-                    {
-                        trans = 64;
-                    }
-                }
-            }*/
+ 
     // light = (trans<<24) | (ambi<<16) | (ambi<<8) | ambi;
     glColor4f( ambi / 255.0f, ambi / 255.0f, ambi / 255.0f, trans / 255.0f );
 
@@ -4380,7 +4333,7 @@ void draw_scene()
   else
   {
     // Render the background
-    render_background( 6 );  // 6 is the texture for waterlow.bmp
+    render_background( TX_WATER_LOW );  // 6 is the texture for waterlow.bmp
   }
 
   if ( zreflect ) // DO REFLECTIONS
@@ -4394,7 +4347,7 @@ void draw_scene()
   // Foreground overlay
   if ( overlayon )
   {
-    render_foreground_overlay( 5 );  // Texture 5 is watertop.bmp
+    render_foreground_overlay( TX_WATER_TOP );  // Texture 5 is watertop.bmp
   }
 
   End3DMode();
@@ -4448,7 +4401,7 @@ void load_all_menu_images()
   if ( filesave != NULL )
   {
     fprintf( filesave, "This file logs all of the modules found\n" );
-    fprintf( filesave, "** Denotes an invalid module (Or unlocked)\n\n" );
+    fprintf( filesave, "** Denotes an invalid module (Or unlockable)\n\n" );
   }
 
   // Search for .mod directories
@@ -4482,10 +4435,10 @@ void load_all_menu_images()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_blip_bitmap()
+bool_t load_blip_bitmap()
 {
   // This function loads the blip bitmaps
-  int cnt;
+  Sint8 cnt;
 
   GLTexture_Load( &TxBlip, "basicdat" SLASH_STR "blip.bmp" );
 
@@ -4497,6 +4450,13 @@ void load_blip_bitmap()
     bliprect[cnt].top    = 0;
     bliprect[cnt].bottom = BLIPSIZE;
   }
+ if ( 0 == GLTexture_GetTextureID( &TxBlip ) )
+  {
+      log_warning( "Blip bitmap not loaded. Missing file = \"basicdat/blip.bmp\"\n" );
+	  return bfalse;
+  };
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4570,19 +4530,6 @@ int glinit( int argc, char **argv )
 
   // Load the current graphical settings
   load_graphics();
-
-  // DEBUG FOG
-  /*  glClearColor(0.5f,0.5f,0.5f,1.0f);            // We'll Clear To The Color Of The Fog ( Modified )
-    glFogi(GL_FOG_MODE, GL_EXP);              // Fog Mode
-    glFogfv(GL_FOG_COLOR, fogColor);            // Set Fog Color
-    glFogf(GL_FOG_DENSITY, 0.35f);              // How Dense Will The Fog Be
-    glHint(GL_FOG_HINT, GL_DONT_CARE);              // Fog Hint Value
-    glFogf(GL_FOG_START, 1.0f);                // Fog Start Depth
-    glFogf(GL_FOG_END, 5.0f);                // Fog End Depth
-  //  glFogf(GL_FOG_START, 258.0f);                // Fog Start Depth
-  //  glFogf(GL_FOG_END, 262.0f);                // Fog End Depth
-    glEnable(GL_FOG);                    // Enables GL_FOG
-    // DEBUG FOG*/
 
   // fill mode
   glPolygonMode( GL_FRONT, GL_FILL );
@@ -4860,17 +4807,31 @@ void load_graphics()
   // Enable antialiasing?
   if ( antialiasing )
   {
-    glEnable( GL_POINT_SMOOTH );
+    glEnable(GL_MULTISAMPLE_ARB);
+
     glEnable( GL_LINE_SMOOTH );
     glHint( GL_LINE_SMOOTH_HINT,    GL_NICEST );
+
+    glEnable( GL_POINT_SMOOTH );
     glHint( GL_POINT_SMOOTH_HINT,   GL_NICEST );
-    //  glEnable(GL_POLYGON_SMOOTH);          // Caused some glitches
-    //  glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+
+    glDisable( GL_POLYGON_SMOOTH );
+    glHint( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+
+    // PLEASE do not turn this on unless you use
+    //  glEnable (GL_BLEND);
+    //  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // before every single draw command
+    //
+    //glEnable(GL_POLYGON_SMOOTH);
+    //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
   }
   else
   {
+    glDisable(GL_MULTISAMPLE_ARB);
     glDisable( GL_POINT_SMOOTH );
     glDisable( GL_LINE_SMOOTH );
-//    glDisable(GL_POLYGON_SMOOTH);
+    glDisable( GL_POLYGON_SMOOTH );
   }
+
 }

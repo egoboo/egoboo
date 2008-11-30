@@ -978,28 +978,28 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
     {
       idsz = get_idsz( fileread );
       fscanf( fileread, "%c%d", &cTmp, &iTmp );
-      test = Make_IDSZ( 'A', 'M', 'O', 'U' );  // [AMOU]
+      test = Make_IDSZ( "AMOU" );  // [AMOU]
       if ( idsz == test )  evecontspawnamount[profile] = iTmp;
-      test = Make_IDSZ( 'T', 'Y', 'P', 'E' );  // [TYPE]
+      test = Make_IDSZ( "TYPE" );  // [TYPE]
       if ( idsz == test )  evecontspawnpip[profile] = iTmp;
-      test = Make_IDSZ( 'T', 'I', 'M', 'E' );  // [TIME]
+      test = Make_IDSZ( "TIME" );  // [TIME]
       if ( idsz == test )  evecontspawntime[profile] = iTmp;
-      test = Make_IDSZ( 'F', 'A', 'C', 'E' );  // [FACE]
+      test = Make_IDSZ( "FACE" );  // [FACE]
       if ( idsz == test )  evecontspawnfacingadd[profile] = iTmp;
-      test = Make_IDSZ( 'S', 'E', 'N', 'D' );  // [SEND]
+      test = Make_IDSZ( "SEND" );  // [SEND]
       if ( idsz == test )
       {
         // TODO
         // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
         if ( iTmp >= 0 && iTmp < MAXWAVE ) evewaveindex[profile] = iTmp;
       }
-      test = Make_IDSZ( 'S', 'F', 'R', 'Q' );  // [SFRQ]
+      test = Make_IDSZ( "SFQR" );  // [SFRQ]
       if ( idsz == test )  evefrequency[profile] = iTmp;  // OUTDATED??
-      test = Make_IDSZ( 'S', 'T', 'A', 'Y' );  // [STAY]
+      test = Make_IDSZ( "STAY" );  // [STAY]
       if ( idsz == test )  evestayifnoowner[profile] = iTmp;
-      test = Make_IDSZ( 'O', 'V', 'E', 'R' );  // [OVER]
+      test = Make_IDSZ( "OVER" );  // [OVER]
       if ( idsz == test )  eveoverlay[profile] = iTmp;
-      test = Make_IDSZ( 'C', 'K', 'U', 'R' );  // [CKUR]
+      test = Make_IDSZ( "CKUR" );  // [CKUR]
       if ( idsz == test )  eveseekurse[profile] = iTmp;
     }
 

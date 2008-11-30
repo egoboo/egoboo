@@ -21,6 +21,7 @@
 
 #include "egoboo.h" // GAC - Needed for Win32 stuff
 #include "gltexture.h"
+#include "graphic.h" 
 
 
 /********************> GLTexture_Load() <*****/

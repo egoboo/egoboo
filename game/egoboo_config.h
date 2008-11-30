@@ -30,6 +30,7 @@
 #ifdef __unix__
 #    include <unistd.h>
 #endif
+#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
 
 #ifdef WIN32
 // Speeds up compile times a bit.  We don't need everything in windows.h

@@ -201,6 +201,9 @@ void export_one_character( int character, int owner, int number, bool_t is_local
     sprintf( fromfile, "%s" SLASH_STR "credits.txt", fromdir );
     sprintf( tofile,   "%s" SLASH_STR "credits.txt", todir );
     fs_copyFile( fromfile, tofile );
+    sprintf( fromfile, "%s" SLASH_STR "quest.txt", fromdir );
+    sprintf( tofile,   "%s" SLASH_STR "quest.txt", todir );
+    fs_copyFile( fromfile, tofile );
 
     // Copy all of the particle files
     tnc = 0;
@@ -317,8 +320,6 @@ void quit_module( void )
 void quit_game( void )
 {
   // ZZ> This function exits the game entirely
-
-  log_info( "Exiting Egoboo %s the good way...\n", VERSION );
 
   if ( gameactive )
   {
@@ -551,13 +552,16 @@ Uint8 control_joyb_is_pressed( Uint8 control )
 }
 
 //--------------------------------------------------------------------------------------------
-void undo_idsz( int idsz )
+char * undo_idsz( IDSZ idsz )
 {
   // ZZ> This function takes an integer and makes an text IDSZ out of it.
   //     It will set valueidsz to "NONE" if the idsz is 0
+  static char value_string[5] = {"NONE"};
+
   if ( idsz == IDSZNONE )
   {
     sprintf( valueidsz, "NONE" );
+    snprintf( value_string, sizeof( value_string ), "NONE" );
   }
   else
   {
@@ -566,17 +570,24 @@ void undo_idsz( int idsz )
     valueidsz[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
     valueidsz[3] = ( ( idsz ) & 31 ) + 'A';
     valueidsz[4] = 0;
+
+	//Bad! both function return and return to global function!
+    value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
+    value_string[1] = (( idsz >> 10 ) & 31 ) + 'A';
+    value_string[2] = (( idsz >> 5 ) & 31 ) + 'A';
+    value_string[3] = (( idsz ) & 31 ) + 'A';
+    value_string[4] = 0;
   }
-  return;
+
+  return value_string;
 }
 
 //--------------------------------------------------------------------------------------------
-int get_idsz( FILE* fileread )
+IDSZ get_idsz( FILE* fileread )
 {
   // ZZ> This function reads and returns an IDSZ tag, or IDSZNONE if there wasn't one
-  int test;
 
-  int idsz = IDSZNONE;
+  IDSZ idsz = IDSZNONE;
   char cTmp = get_first_letter( fileread );
   if ( cTmp == '[' )
   {
@@ -586,12 +597,45 @@ int get_idsz( FILE* fileread )
     fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp );
   }
 
-  test = Make_IDSZ( 'N', 'O', 'N', 'E' );  // [NONE]
-
-  if ( idsz == test )
+  if ( idsz == IDSZ_NONE )
     idsz = IDSZNONE;
 
   return idsz;
+}
+//--------------------------------------------------------------------------------------------
+int fget_int( FILE* fileread )
+{
+  int iTmp = 0;
+
+  if ( feof( fileread ) ) return iTmp;
+
+  fscanf( fileread, "%d", &iTmp );
+
+  return iTmp;
+}
+
+//--------------------------------------------------------------------------------------------
+
+bool_t fcopy_line(FILE * fileread, FILE * filewrite)
+{
+  /// @details BB@> copy a line of arbitrary length, in chunks of length
+  ///      sizeof(linebuffer)
+  /// @todo This should be moved to file_common.c
+
+  char linebuffer[64];
+
+  if(NULL == fileread || NULL == filewrite) return bfalse;
+  if( feof(fileread) || feof(filewrite) ) return bfalse;
+
+  fgets(linebuffer, sizeof(linebuffer), fileread);
+  fputs(linebuffer, filewrite);
+  while( strlen(linebuffer) == sizeof(linebuffer) )
+  {
+    fgets(linebuffer, sizeof(linebuffer), fileread);
+    fputs(linebuffer, filewrite);
+  }
+
+  return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -726,7 +770,7 @@ void read_setup( char* filename )
   }
   else
   {
-    globalname = filename; // heu!?
+    globalname = filename; //To check if there are enough colons in file
 
     /*********************************************
 
@@ -1647,7 +1691,7 @@ void play_action( Uint16 character, Uint16 action, Uint8 actionready )
 }
 
 //--------------------------------------------------------------------------------------------
-void set_frame( Uint16 character, Uint16 frame, Uint8 lip )
+void set_frame( int character, int frame, Uint16 lip )
 {
   // ZZ> This function sets the frame for a character explicitly...  This is used to
   //     rotate Tank turrets
@@ -1959,7 +2003,7 @@ void update_game()
       if ( !chralive[plaindex[cnt]] )
       {
         numdead++;
-        if ( SDLKEYDOWN( SDLK_SPACE ) && respawnvalid )
+        if ( alllocalpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid )
         {
           respawn_character( plaindex[cnt] );
           chrexperience[cnt] *= EXPKEEP;  // Apply xp Penality
@@ -2469,7 +2513,7 @@ int SDL_main( int argc, char **argv )
   make_enviro(); // THIS SHOULD WORK
   load_mesh_fans(); // THIS SHOULD WORK
   load_blip_bitmap();
-  load_all_menu_images();
+  //load_all_menu_images();
   load_all_music_sounds();
   initMenus();        // Start the game menu
 
@@ -2546,13 +2590,11 @@ int SDL_main( int argc, char **argv )
       // Did we get through all the menus?
       if ( gameactive )
       {
-        // printf("MENU: game is now active\n");
         // Start a new module
         seed = time( NULL );
         srand( seed );
 
         load_module( pickedmodule );  // :TODO: Seems to be the next part to fix
-
 
         pressed = bfalse;
         make_onwhichfan();
@@ -2666,13 +2708,26 @@ int SDL_main( int argc, char **argv )
     }
   }
 
-  quit_game();
-  Mix_CloseAudio();
-  release_grfx();
-  ui_shutdown();
-  net_shutDown();
-  clock_shutdown();
-  sys_shutdown();
-
+  memory_cleanUp();
   return btrue;
+}
+
+//------------------------------------------------------------------------------
+void memory_cleanUp()
+{
+  //ZF> This function releases all loaded things in memory and cleans up everything properly
+
+  log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
+
+  // shut down all game systems
+  if(mixeron)	Mix_CloseAudio();
+  ui_shutdown();			          //Shutdown various support systems
+  quit_game();
+  SDL_Quit();
+  if(networkon) net_shutDown();
+  clock_shutdown();
+
+  log_message("Succeeded!\n");
+  log_info( "Exiting Egoboo %s the good way...\n", VERSION );
+  log_shutdown();
 }

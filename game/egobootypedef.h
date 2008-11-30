@@ -24,8 +24,9 @@
 
 #include "egoboo_config.h"
 
-#include <SDL_types.h>
+#include <SDL_stdinc.h>
 
+//RECTANGLE
 typedef struct s_rect
 {
   Sint32 left;
@@ -34,6 +35,7 @@ typedef struct s_rect
   Sint32 bottom;
 }rect_t;
 
+//BOOLEAN
 typedef char bool_t;
 enum
 {
@@ -41,9 +43,28 @@ enum
   bfalse = ( !btrue )
 };
 
-#define Make_IDSZ(chA, chB, chC, chD) (((chA-'A')<<15)|((chB-'A')<<10)|((chC-'A')<<5)|(chD-'A'))
+//BYTES
+typedef int8_t		sbyte;
+typedef uint8_t		byte;
+
+//IDSZ
+typedef Uint32 IDSZ;
+#ifndef Make_IDSZ
+#define Make_IDSZ(string) ((IDSZ)((((string)[0]-'A') << 15) | (((string)[1]-'A') << 10) | (((string)[2]-'A') << 5) | (((string)[3]-'A') << 0)))
+#endif
+
+//STRING
+typedef char STRING[256];
 
 
+//FAST CONVERSIONS
+#define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)(1<<8) )
+#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX)*(float)(1<<8)) )
+
+#define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
+#define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
+#define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
+#define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
 
 
 #endif // include guard

@@ -57,25 +57,26 @@ int load_ai_script( char *loadname );
 void reset_ai_script();
 int what_action( char cTmp );
 int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk );
-void release_all_textures();
 bool_t load_one_icon( char *szLoadName );
 bool_t load_all_global_icons();
 
+//Free memory functions
 void prime_titleimage();
 void prime_icons();
 void release_all_icons();
 void release_all_titleimages();
 void release_all_models();
-void reset_sounds();
-void release_grfx( void );
 void release_map();
-void release_module( void );
+void release_module();
 void close_session();
+void release_all_textures();
+void memory_cleanUp();
 
+//Sound
 bool_t sdlmixer_initialize();
 int play_sound( float xpos, float ypos, Mix_Chunk *loadedwave );
 void stop_sound( int whichchannel );
-void play_music( int songnumber, int fadetime, int loops );
+void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 void make_newloadname( char *modname, char *appendname, char *newloadname );
 void load_global_waves( char *modname );
 
@@ -99,14 +100,16 @@ Uint8 control_mouse_is_pressed( Uint8 control );
 Uint8 control_joya_is_pressed( Uint8 control );
 Uint8 control_joyb_is_pressed( Uint8 control );
 void free_all_enchants();
-void undo_idsz( int idsz );
-int get_idsz( FILE* fileread );
+char *  undo_idsz( IDSZ idsz );
+IDSZ get_idsz( FILE* fileread );
 void load_one_enchant_type( char* szLoadName, Uint16 profile );
 Uint16 get_free_enchant();
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 int get_free_message( void );
 void display_message( int message, Uint16 character );
+
+//Enchants
 void remove_enchant( Uint16 enchantindex );
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
@@ -117,6 +120,8 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_enchant( Uint16 owner, Uint16 target,
                       Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
+
+
 void load_action_names( char* loadname );
 void get_name( FILE* fileread, char *szName );
 void read_setup( char* filename );
@@ -136,33 +141,7 @@ int load_one_md2( char* szLoadname, Uint16 modelindex );
 void load_all_music_sounds();
 void stop_music();
 
-// void dump_matrix(glMatrix a);
-/*inline glMatrix IdentityMatrix();
-inline glMatrix ZeroMatrix(void);  // initializes matrix to zero
-inline glMatrix MatrixMult(const glMatrix a, const glMatrix b);
-glMatrix Translate(const float dx, const float dy, const float dz);
-glMatrix RotateX(const float rads);
-glMatrix RotateY(const float rads);
-glMatrix RotateZ(const float rads);
-glMatrix ScaleXYZ(const float sizex, const float sizey, const float sizez);
-glMatrix ScaleXYZRotateXYZTranslate(const float sizex, const float sizey, const float sizez,
-   Uint16 turnz, Uint16 turnx, Uint16 turny,
-   float tx, float ty, float tz);
-glMatrix FourPoints(float orix, float oriy, float oriz,
-                     float widx, float widy, float widz,
-                     float forx, float fory, float forz,
-                     float upx,  float upy,  float upz,
-                     float scale);
-inline glMatrix ViewMatrix(const glVector from,      // camera location
-                            const glVector at,        // camera look-at target
-                            const glVector world_up,  // world’s up, usually 0, 0, 1
-                            const float roll);          // clockwise roll around
-                                                       //    viewing direction,
-                                                       //    in radians
-inline glMatrix ProjectionMatrix(const float near_plane,     // distance to near clipping plane
-                                  const float far_plane,      // distance to far clipping plane
-                                  const float fov);            // field of view angle, in radians
-*/
+//Passages
 int open_passage( int passage );
 void check_passage_music();
 int break_passage( int passage, Uint16 starttile, Uint16 frames,
@@ -170,11 +149,13 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
 void flash_passage( int passage, Uint8 color );
 Uint8 find_tile_in_passage( int passage, int tiletype );
 Uint16 who_is_blocking_passage( int passage );
-Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz );
+Uint16 who_is_blocking_passage_ID( int passage, IDSZ idsz );
 int close_passage( int passage );
 void clear_passages();
 void add_shop_passage( int owner, int passage );
 void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
+
+
 void flash_character_height( int character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
 void flash_character( int character, Uint8 value );
@@ -230,7 +211,7 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 Uint8 __chrhitawall( int character );
 void move_water( void );
 void play_action( Uint16 character, Uint16 action, Uint8 actionready );
-void set_frame( Uint16 character, Uint16 frame, Uint8 lip );
+void set_frame( int character, int frame, Uint16 lip );
 void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
 void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
@@ -258,26 +239,26 @@ Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
                        Uint8 leavewhich );
 Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, Uint32 idsz,
+                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
                             char excludeid );
 Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, Uint32 idsz );
+                          char friends, char enemies, char dead, IDSZ idsz );
 Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
 Uint16 find_distant_target( Uint16 character, int maxdistance );
 void switch_team( int character, Uint8 team );
 void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, Uint32 idsz );
+                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
 Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, Uint32 idsz );
+                           char friends, char enemies, char dead, IDSZ idsz );
 Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, Uint32 idsz, char excludeid );
+                        char friends, char enemies, char dead, IDSZ idsz, char excludeid );
 void issue_clean( Uint16 character );
-int restock_ammo( Uint16 character, Uint32 idsz );
+int restock_ammo( Uint16 character, IDSZ idsz );
 void issue_order( Uint16 character, Uint32 order );
-void issue_special_order( Uint32 order, Uint32 idsz );
+void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( int character );
-int module_reference_matches( char *szLoadName, Uint32 idsz );
-void add_module_idsz( char *szLoadName, Uint32 idsz );
+int module_reference_matches( char *szLoadName, IDSZ idsz );
+void add_module_idsz( char *szLoadName, IDSZ idsz );
 Uint8 run_function( Uint32 value, int character );
 void set_operand( Uint8 variable );
 void run_operand( Uint32 value, int character );
@@ -309,16 +290,22 @@ void read_joystick();
 void read_input();
 void check_add( Uint8 key, char bigletter, char littleletter );
 void create_szfpstext( int frames );
-void camera_look_at( float x, float y );
+
 void project_view();
 void make_renderlist();
-void make_camera_matrix();
+
 void figure_out_what_to_draw();
-void bound_camtrack();
+
 void set_one_player_latch( Uint16 player );
 void set_local_latches( void );
-void adjust_camera_angle( int height );
+
+//Camera stuff
+void adjust_camera_angle( float height );
 void move_camera();
+void make_camera_matrix();
+void camera_look_at( float x, float y );
+
+
 void make_onwhichfan( void );
 void bump_characters( void );
 int prt_is_over_water( int cnt );
@@ -403,17 +390,11 @@ void flip_pages();
 void draw_scene();
 void draw_main();
 
-// REMOVE?
-void build_select( float tlx, float tly, float brx, float bry, Uint8 team );
-Uint16 build_select_target( float tlx, float tly, float brx, float bry, Uint8 team );
-void move_rtsxy();
-// REMOVE END
-
 int load_one_title_image( int titleimage, char *szLoadName );
 int get_module_data( int modnumber, char *szLoadName );
 int get_module_summary( char *szLoadName );
 void load_all_menu_images();
-void load_blip_bitmap();
+bool_t load_blip_bitmap();
 void draw_titleimage( int image, int x, int y );
 void do_cursor();
 void menu_service_select();
@@ -436,6 +417,14 @@ int glinit( int argc, char **argv );
 void gltitle();
 int DirGetAttrib( char *fromdir );
 
+int check_skills( Uint16 who, IDSZ whichskill );
+
+//---------------------------------------------------------------------------------------------
+// Quest system
+bool_t add_quest_idsz( char *whichplayer, IDSZ idsz );
+Sint16    modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment );
+Sint16    check_player_quest( char *whichplayer, IDSZ idsz );
+
 //---------------------------------------------------------------------------------------------
 // Filesystem functions
 void fs_init();
@@ -450,6 +439,8 @@ void fs_deleteFile( const char *filename );
 void fs_copyFile( const char *source, const char *dest );
 void fs_removeDirectoryAndContents( const char *dirname );
 void fs_copyDirectory( const char *sourceDir, const char *destDir );
+bool_t fcopy_line(FILE * fileread, FILE * filewrite);
+Sint32 fget_int( FILE* fileread );
 
 // Enumerate directory contents
 const char *fs_findFirstFile( const char *path, const char *extension );

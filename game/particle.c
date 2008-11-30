@@ -1025,7 +1025,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
 
 
   fileread = fopen( szLoadName, "r" );
-  if ( fileread )
+  if ( fileread != NULL )
   {
     // General data
     globalname = szLoadName;
@@ -1188,41 +1188,39 @@ int load_one_particle( char *szLoadName, int object, int pip )
     {
       idsz = get_idsz( fileread );
       fscanf( fileread, "%c%d", &cTmp, &iTmp );
-      test = Make_IDSZ( 'T', 'U', 'R', 'N' );  // [TURN]
+      test = Make_IDSZ( "TURN" );  // [TURN]
       if ( idsz == test )  pipdamfx[numpip] = DAMFXNONE;
-      test = Make_IDSZ( 'Z', 'S', 'P', 'D' );  // [ZSPD]
+      test = Make_IDSZ( "ZSPD" );  // [ZSPD]
       if ( idsz == test )  pipzaimspd[numpip] = iTmp;
-      test = Make_IDSZ( 'F', 'S', 'N', 'D' );  // [FSND]
+      test = Make_IDSZ( "FSND" );  // [FSND]
       if ( idsz == test )  pipsoundfloor[numpip] = iTmp;
-      test = Make_IDSZ( 'W', 'S', 'N', 'D' );  // [WSND]
+      test = Make_IDSZ( "WSND" );  // [WSND]
       if ( idsz == test )  pipsoundwall[numpip] = iTmp;
-      test = Make_IDSZ( 'W', 'E', 'N', 'D' );  // [WEND]
+      test = Make_IDSZ( "WEND" );  // [WEND]
       if ( idsz == test )  pipendwall[numpip] = iTmp;
-      test = Make_IDSZ( 'A', 'R', 'M', 'O' );  // [ARMO]
+      test = Make_IDSZ( "ARMO");  // [ARMO]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXARMO;
-      test = Make_IDSZ( 'B', 'L', 'O', 'C' );  // [BLOC]
+      test = Make_IDSZ( "BLOC" );  // [BLOC]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXBLOC;
-      test = Make_IDSZ( 'A', 'R', 'R', 'O' );  // [ARRO]
+      test = Make_IDSZ( "ARRO" );  // [ARRO]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXARRO;
-      test = Make_IDSZ( 'T', 'I', 'M', 'E' );  // [TIME]
+      test = Make_IDSZ( "TIME" );  // [TIME]
       if ( idsz == test )  pipdamfx[numpip] |= DAMFXTIME;
-      test = Make_IDSZ( 'P', 'U', 'S', 'H' );  // [PUSH]
+      test = Make_IDSZ( "PUSH" );  // [PUSH]
       if ( idsz == test )  pipallowpush[numpip] = iTmp;
-      test = Make_IDSZ( 'D', 'L', 'E', 'V' );  // [DLEV]
+      test = Make_IDSZ( "DLEV" );  // [DLEV]
       if ( idsz == test )  pipdynalightleveladd[numpip] = iTmp / 1000.0f;
-      test = Make_IDSZ( 'D', 'R', 'A', 'D' );  // [DRAD]
+      test = Make_IDSZ( "DRAD" );  // [DRAD]
       if ( idsz == test )  pipdynalightfalloffadd[numpip] = iTmp / 1000.0f;
-      test = Make_IDSZ( 'I', 'D', 'A', 'M' );  // [IDAM]
+      test = Make_IDSZ( "IDAM");  // [IDAM]
       if ( idsz == test )  pipintdamagebonus[numpip] = iTmp;
-      test = Make_IDSZ( 'W', 'D', 'A', 'M' );  // [WDAM]
+      test = Make_IDSZ( "WDAM" );  // [WDAM]
       if ( idsz == test )  pipwisdamagebonus[numpip] = iTmp;
     }
-
 
     // Make sure it's referenced properly
     madprtpip[object][pip] = numpip;
     numpip++;
-
 
     fclose( fileread );
     return btrue;
@@ -1252,6 +1250,7 @@ void reset_particles( char* modname )
   {
     log_error( "Data file was not found! (%s)", loadpath );
   }
+
   loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
   if ( !load_one_particle( loadpath, 0, 0 ) )
   {
@@ -1277,7 +1276,7 @@ void reset_particles( char* modname )
   make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
   if ( !load_one_particle( newloadname, 0, 0 ) )
   {
-    log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+    if(gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
@@ -1287,7 +1286,7 @@ void reset_particles( char* modname )
   make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
   if ( !load_one_particle( newloadname, 0, 0 ) )
   {
-    log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+    if(gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
@@ -1301,7 +1300,6 @@ void reset_particles( char* modname )
   {
     log_error( "Data file was not found! (%s)", loadpath );
   }
-
 
   // Now clear out the local pips
   object = 0;

@@ -45,6 +45,7 @@
 #include "configfile.h"
 #include "Md2.h"
 
+//OPENGL VERTEX
 typedef struct
 {
   GLfloat x, y, z, w;
@@ -272,11 +273,11 @@ EXTERN int rotmeshdown;                                    //
 #define EQUALLIGHTINDEX                 162         // I added an extra index to do the
 // spikey mace...
 
-#define MAXTEXTURE                      512         // Max number of textures
-#define MAXVERTICES                     1024    //128     // Max number of points in a model
+#define MAXTEXTURE                      768         // Max number of textures
+#define MAXVERTICES                     1024        // Max number of points in a model
 #define MAXCOMMAND                      256         // Max number of commands
 #define MAXCOMMANDSIZE                  64          // Max number of points in a command
-#define MAXCOMMANDENTRIES               512//256         // Max entries in a command list ( trigs )
+#define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
 #define MAXMODEL                        256         // Max number of models
 #define MAXEVE                          MAXMODEL    // One enchant type per model
 #define MAXEVESETVALUE                  24          // Number of sets
@@ -424,8 +425,8 @@ EXTERN Uint32                   statclock  EQ( 0 );            // For stat regen
 EXTERN Uint32                   pitclock  EQ( 0 );             // For pit kills
 EXTERN Uint32                   outofsync  EQ( 0 );
 
-EXTERN Uint8                   pitskill  EQ( bfalse );          // Do they kill?
-EXTERN Uint8      parseerror  EQ( 0 );
+EXTERN bool_t                  pitskill  EQ( bfalse );          // Do they kill?
+EXTERN Uint8				   parseerror  EQ( bfalse );
 
 
 
@@ -466,8 +467,8 @@ EXTERN Uint8                   netmessagedelay;            // For slowing down i
 EXTERN int                     netmessagewrite;            // The cursor position
 EXTERN int                     netmessagewritemin;         // The starting cursor position
 EXTERN char                    netmessage[MESSAGESIZE];    // The input message
-EXTERN int                     importamount;               // Number of imports for this module
-EXTERN int                     playeramount;               //
+EXTERN Uint8                     importamount;               // Number of imports for this module
+EXTERN Uint8                     playeramount;               //
 EXTERN Uint32                   seed  EQ( 0 );                 // The module seed
 EXTERN char                    pickedmodule[64];           // The module load name
 EXTERN int                     pickedindex;                // The module index number
@@ -602,10 +603,10 @@ EXTERN float                   camroll  EQ( 0 );              //
 EXTERN float                   cornerx[4];                 // Render area corners
 EXTERN float                   cornery[4];                 //
 EXTERN int                     cornerlistlowtohighy[4];    // Ordered list
-EXTERN int                     cornerlowx;                 // Render area extremes
-EXTERN int                     cornerhighx;                //
-EXTERN int                     cornerlowy;                 //
-EXTERN int                     cornerhighy;                //
+EXTERN float                     cornerlowx;                 // Render area extremes
+EXTERN float                     cornerhighx;                //
+EXTERN float                     cornerlowy;                 //
+EXTERN float                     cornerhighy;                //
 EXTERN int                     fontoffset;                 // Line up fonts from top of screen
 
 /*OpenGL Textures*/
@@ -623,8 +624,6 @@ EXTERN  GLTexture       TxBlip;                                         /* you a
 EXTERN  GLTexture       TxMap;
 EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
 
-
-
 // Anisotropic filtering - yay! :P
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
@@ -638,7 +637,7 @@ EXTERN glMatrix mProjection;                  // Projection Matrix
 
 // Input player control
 #define MAXLOADPLAYER   100
-EXTERN int                     numloadplayer  EQ( 0 );
+EXTERN Uint8                   numloadplayer  EQ( 0 );
 EXTERN char                    loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
 EXTERN char                    loadplayerdir[MAXLOADPLAYER][16];
 EXTERN int                     nullicon  EQ( 0 );
@@ -729,7 +728,7 @@ EXTERN Sint16            chrlifemax[MAXCHR];         //   All 8.8 fixed point
 EXTERN Uint16           chrlifeheal[MAXCHR];        //
 EXTERN Uint8          chrmanacolor[MAXCHR];       // Bar color
 EXTERN Uint8          chrammomax[MAXCHR];         // Ammo stuff
-EXTERN Uint8          chrammo[MAXCHR];            //
+EXTERN Uint16          chrammo[MAXCHR];            //
 EXTERN Uint8          chrgender[MAXCHR];          // Gender
 EXTERN Sint16            chrmana[MAXCHR];            // Mana stuff
 EXTERN Sint16            chrmanamax[MAXCHR];         //
@@ -739,7 +738,7 @@ EXTERN Sint16            chrstrength[MAXCHR];        // Strength
 EXTERN Sint16            chrwisdom[MAXCHR];          // Wisdom
 EXTERN Sint16            chrintelligence[MAXCHR];    // Intelligence
 EXTERN Sint16            chrdexterity[MAXCHR];       // Dexterity
-EXTERN Uint8          chraitype[MAXCHR];          // The AI script to run
+EXTERN Uint8             chraitype[MAXCHR];          // The AI script to run
 EXTERN bool_t                    chricon[MAXCHR];            // Show the icon?
 EXTERN bool_t                    chrcangrabmoney[MAXCHR];    // Picks up coins?
 EXTERN bool_t                    chrisplayer[MAXCHR];        // btrue = player
@@ -861,7 +860,7 @@ EXTERN Uint8          chrdefense[MAXCHR];         // Base defense rating
 EXTERN Uint16           chrweight[MAXCHR];          // Weight ( for pressure plates )
 EXTERN Uint8          chrpassage[MAXCHR];         // The passage associated with this character
 EXTERN Uint32         chrorder[MAXCHR];           // The last order given the character
-EXTERN Uint8          chrcounter[MAXCHR];         // The rank of the character on the order chain
+EXTERN Uint16          chrcounter[MAXCHR];         // The rank of the character on the order chain
 EXTERN Uint16           chrholdingweight[MAXCHR];   // For weighted buttons
 EXTERN Sint16            chrmoney[MAXCHR];           // Money
 EXTERN Sint16            chrlifereturn[MAXCHR];      // Regeneration/poison
@@ -889,10 +888,19 @@ EXTERN Uint8           chrmissilecost[MAXCHR];     // Mana cost for each one
 EXTERN Uint16           chrmissilehandler[MAXCHR];  // Who pays the bill for each one...
 EXTERN Uint16           chrdamageboost[MAXCHR];     // Add to swipe damage
 
-// Beta stage Skill system
-// EXTERN bool_t                    chrcanuseadvancedweapons[MAXCHR]; //
+//Skills
+EXTERN Sint8                     chrshieldproficiency[MAXCHR];  // Can it use shields?
+EXTERN bool_t                    chrcanjoust[MAXCHR]; //
+EXTERN bool_t                    chrcanuseadvancedweapons[MAXCHR]; //
 EXTERN bool_t                    chrcanseeinvisible[MAXCHR]; //
 EXTERN bool_t                    chrcanseekurse[MAXCHR];     //
+EXTERN bool_t					 chrcanusedivine[MAXCHR];
+EXTERN bool_t					 chrcanusearcane[MAXCHR];
+EXTERN bool_t					 chrcanusetech[MAXCHR];
+EXTERN bool_t					 chrcandisarm[MAXCHR];
+EXTERN bool_t					 chrcanbackstab[MAXCHR];
+EXTERN bool_t					 chrcanusepoison[MAXCHR];
+EXTERN bool_t					 chrcanread[MAXCHR];
 
 
 #define INVISIBLE           20                      // The character can't be detected
@@ -1171,7 +1179,6 @@ EXTERN bool_t           modrespawnvalid[MAXMODULE];                 // Allow res
 EXTERN int                     numlines;                                   // Lines in summary
 EXTERN char                    modsummary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
 
-
 //------------------------------------
 // Model stuff
 //------------------------------------
@@ -1304,7 +1311,7 @@ EXTERN Uint16         capexperiencerand[MAXMODEL];                //
 EXTERN Uint16         capexperienceworth[MAXMODEL];               // Amount given to killer/user
 EXTERN float                 capexperienceexchange[MAXMODEL];            // Adds to worth
 EXTERN float                 capexperiencerate[MAXMODEL][MAXEXPERIENCETYPE];
-EXTERN Uint32           capidsz[MAXMODEL][MAXIDSZ];                 // ID strings
+EXTERN IDSZ           capidsz[MAXMODEL][MAXIDSZ];                 // ID strings
 EXTERN bool_t                capisitem[MAXMODEL];                        // Is it an item?
 EXTERN bool_t                capinvictus[MAXMODEL];                      // Is it invincible?
 EXTERN bool_t                capismount[MAXMODEL];                       // Can you ride it?
@@ -1347,12 +1354,19 @@ EXTERN bool_t           capisranged[MAXMODEL];                      // Flag for 
 EXTERN Sint8           caphidestate[MAXCHR];                       // Don't draw when...
 EXTERN bool_t           capisequipment[MAXCHR];                     // Behave in silly ways
 
-// Beta skill system
-EXTERN int                   capshieldprofiency[MAXMODEL];               // Can it use shields?
-EXTERN Uint32                capcanuseadvancedweapons[MAXMODEL];         // Can it use advanced weapons?
+//skill system
+EXTERN Sint8                 capshieldproficiency[MAXMODEL];               // Can it use shields?
+EXTERN bool_t                capcanjoust[MAXMODEL];						 // Can it use advanced weapons?
+EXTERN bool_t                capcanuseadvancedweapons[MAXMODEL];         // Can it use advanced weapons?
 EXTERN bool_t                capcanseeinvisible[MAXMODEL];               // Can it see invisible?
 EXTERN bool_t                capcanseekurse[MAXMODEL];                   // Can it see kurses?
-
+EXTERN bool_t			     capcanusedivine[MAXMODEL];
+EXTERN bool_t				 capcanusearcane[MAXMODEL];
+EXTERN bool_t				 capcanusetech[MAXMODEL];
+EXTERN bool_t				 capcandisarm[MAXMODEL];
+EXTERN bool_t			     capcanbackstab[MAXMODEL];
+EXTERN bool_t				 capcanusepoison[MAXMODEL];
+EXTERN bool_t				 capcanread[MAXMODEL];
 
 // Network stuff
 #define NETREFRESH          1000                    // Every second
@@ -1708,28 +1722,29 @@ EXTERN bool_t          mixeron EQ( bfalse );    // Is the SDL_Mixer loaded?
 #define MAXWAVE         20               // Up to 16 waves per model
 #define VOLUMERATIO     7               // Volume ratio
 EXTERN Mix_Chunk    *capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
-EXTERN int              maxsoundchannel;      // Max number of sounds playing at the same time
-EXTERN int              buffersize;          // Buffer size set in setup.txt
+EXTERN Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
+EXTERN Uint16       buffersize;          // Buffer size set in setup.txt
 EXTERN Mix_Chunk    *globalwave[MAXWAVE];      // All sounds loaded into memory
 EXTERN Mix_Chunk    *sound;            // Used for playing one selected sound file
 EXTERN bool_t      soundvalid;          // Allow playing of sound?
-EXTERN int              soundvolume;        // Volume of sounds played
-EXTERN int              channel;          // Which channel the current sound is using
+EXTERN Uint8      soundvolume;        // Volume of sounds played
+EXTERN Sint16      channel;          // Which channel the current sound is using
 EXTERN bool_t      listening EQ( bfalse );  // Playrers with listen skill?
 
 // Music using SDL_Mixer
 #define MAXPLAYLISTLENGHT 25            // Max number of different tracks loaded into memory
 EXTERN bool_t      musicvalid;          // Allow music and loops?
-EXTERN int        musicvolume;        // The sound volume of music
+EXTERN Uint8        musicvolume;        // The sound volume of music
 EXTERN bool_t      musicinmemory EQ( bfalse );  // Is the music loaded in memory?
-EXTERN Mix_Music        *instrumenttosound[MAXPLAYLISTLENGHT];  // This is a specific music file loaded into memory
-EXTERN int              songplaying EQ( -1 );      // Current song that is playing
+EXTERN Mix_Music   *musictracksloaded[MAXPLAYLISTLENGHT];  // This is a specific music file loaded into memory
+EXTERN Sint8       songplaying EQ( -1 );      // Current song that is playing
 
 
 
 // Some various other stuff
 EXTERN char valueidsz[5];
 EXTERN Uint8 changed;
+#define IDSZ_NONE            Make_IDSZ("NONE")       // [NONE]
 
 // Key/Control input defenitions
 #define MAXTAG              128                     // Number of tags in scancode.txt
@@ -1780,6 +1795,10 @@ EXTERN Uint32 controliskey[MAXCONTROL];             // Is it a key?
 #define JOB_RIGHT_GET       37
 #define JOB_RIGHT_PACK      38
 #define JOB_CAMERA          39
+
+//Quest system
+#define QUESTBEATEN         -1   
+#define NOQUEST             -2
 
 // AI Targeting
 EXTERN Uint16  globalnearest;

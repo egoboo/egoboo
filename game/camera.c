@@ -178,13 +178,6 @@ void project_view()
     cornerlistlowtohighy[1] = extra[0];
     cornerlistlowtohighy[2] = extra[1];
   }
-
-  // BAD: exit here
-  // printf("Corners:\n");
-  // printf("x: %d %d\n",cornerlowx,cornerhighx);
-  // printf("y: %d %d\n",cornerlowy,cornerhighy);
-  /*printf("Exiting, camera code is broken\n");
-  exit(0);*/
 }
 
 //--------------------------------------------------------------------------------------------
@@ -206,37 +199,7 @@ void make_camera_matrix()
 }
 
 //--------------------------------------------------------------------------------------------
-/*void bound_camera()
-{
-    // ZZ> This function stops the camera from moving off the mesh
-    if(camx < EDGE)  camx = EDGE;
-    if(camx > meshedgex-EDGE)  camx = meshedgex-EDGE;
-    if(camy < EDGE)  camy = EDGE;
-    if(camy > meshedgey-EDGE)  camy = meshedgey-EDGE;
-}*/
-
-//--------------------------------------------------------------------------------------------
-void bound_camtrack()
-{
-  // ZZ> This function stops the camera target from moving off the mesh
-  if ( usefaredge )
-  {
-    if ( camtrackx < FARTRACK )  camtrackx = FARTRACK;
-    if ( camtrackx > meshedgex - FARTRACK )  camtrackx = meshedgex - FARTRACK;
-    if ( camtracky < FARTRACK )  camtracky = FARTRACK;
-    if ( camtracky > meshedgey - FARTRACK )  camtracky = meshedgey - FARTRACK;
-  }
-  else
-  {
-    if ( camtrackx < EDGETRACK )  camtrackx = EDGETRACK;
-    if ( camtrackx > meshedgex - EDGETRACK )  camtrackx = meshedgex - EDGETRACK;
-    if ( camtracky < EDGETRACK )  camtracky = EDGETRACK;
-    if ( camtracky > meshedgey - EDGETRACK )  camtracky = meshedgey - EDGETRACK;
-  }
-}
-
-//--------------------------------------------------------------------------------------------
-void adjust_camera_angle( int height )
+void adjust_camera_angle( float height )
 {
   // ZZ> This function makes the camera look downwards as it is raised up
   float percentmin, percentmax;
@@ -254,8 +217,9 @@ void adjust_camera_angle( int height )
 void move_camera()
 {
   // ZZ> This function moves the camera
-  int cnt, locoalive, movex, movey;
-  float x, y, z, level, newx, newy;
+  Uint16 cnt;
+  Sint16 locoalive;
+  float x, y, z, level, newx, newy, movex, movey;
   Uint16 character, turnsin, turncos;
 
   // printf("DIAG: In move_camera\n");
@@ -397,10 +361,6 @@ void move_camera()
   camx -= ( float ) ( ( mView )_CNV( 0, 0 ) ) * camturnadd;  // xgg
   camy += ( float ) ( ( mView )_CNV( 1, 0 ) ) * -camturnadd;
 
-  // Make it not break...
-  // bound_camtrack();
-  // bound_camera();
-
   // Do distance effects for overlay and background
   camtrackxvel += camtrackx;
   camtrackyvel += camtracky;
@@ -430,11 +390,6 @@ void move_camera()
   y = camtracky - camy;
   newx = -( ( mView )_CNV( 0, 0 ) * x + ( mView )_CNV( 1, 0 ) * y ); // newx = -(mView(0,0) * x + mView(1,0) * y);
   newy = -( ( mView )_CNV( 0, 1 ) * x + ( mView )_CNV( 1, 1 ) * y ); // newy = -(mView(0,1) * x + mView(1,1) * y);
-
-
-  // Debug information
-  // sprintf(generictext, "%f %f", newx, newy);
-  // debug_message(generictext);
 
   // Get ready to scroll...
   movex = 0;

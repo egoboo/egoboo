@@ -23,6 +23,7 @@
 #include "Md2.h"
 #include "id_md2.h"
 #include <SDL_opengl.h>
+#include "graphic.h"
 
 /* Storage for blended vertices */
 static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
@@ -751,16 +752,13 @@ void render_texmad( Uint16 character, Uint8 trans )
   // Choose texture and matrix
   if ( KEYDOWN( SDLK_F7 ) )
   {
-    // lpD3DDDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, NULL);
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
   }
   else
   {
-    // lpD3DDDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, txTexture[texture].GetHandle());
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
   }
 
-  // lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &chrmatrix[character]);
   mWorld = chrmatrix[character];
 
   // Begin3DMode();
@@ -826,7 +824,7 @@ void render_refmad( int tnc, Uint8 trans )
 {
   // ZZ> This function draws characters reflected in the floor
 
-  int level;
+  float level;
   int trans_temp;
   int zpos;
   Uint8 sheen_save;

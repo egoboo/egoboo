@@ -69,18 +69,17 @@ bool_t sdlmixer_initialize()
 {
   if ( ( musicvalid || soundvalid ) && !mixeron )
   {
-    log_info( "Initializing SDL_mixer audio services...\n" );
+    log_info( "Initializing SDL_mixer audio services... " );
     Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize );
-    Mix_VolumeMusic( musicvolume );  //*1.28f
+    Mix_VolumeMusic( musicvolume );
     Mix_AllocateChannels( maxsoundchannel );
     if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) != 0 )
     {
       log_error( "Unable to initialize audio: %s\n", Mix_GetError() );
     }
-    mixeron = btrue;
-    return btrue;
+	else log_message("Success!\n");
   }
-  else return bfalse;
+  return mixeron;
 }
 
 //------------------------------------
@@ -160,7 +159,7 @@ void load_all_music_sounds()
       goto_colon_yesno( playlist );
       fscanf( playlist, "%s", songname );
       sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
-      instrumenttosound[cnt] = Mix_LoadMUS( loadpath );
+      musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
       cnt++;
     }
     musicinmemory = btrue;
@@ -168,13 +167,13 @@ void load_all_music_sounds()
   fclose( playlist );
 }
 
-void play_music( int songnumber, int fadetime, int loops )
+void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
   // This functions plays a specified track loaded into memory
   if ( songplaying != songnumber && musicvalid )
   {
     // Mix_FadeOutMusic(fadetime);      // Stops the game too
-    Mix_PlayMusic( instrumenttosound[songnumber], loops );
+    Mix_PlayMusic( musictracksloaded[songnumber], loops );
     songplaying = songnumber;
   }
 }

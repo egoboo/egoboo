@@ -127,9 +127,9 @@ void order_dolist( void )
   // ZZ> This function orders the dolist based on distance from camera,
   //     which is needed for reflections to properly clip themselves.
   //     Order from closest to farthest
-  int cnt, tnc, character, order;
+  int tnc, character, order;
   int dist[MAXCHR];
-  Uint16 olddolist[MAXCHR];
+  Uint16 olddolist[MAXCHR], cnt;
 
 
   // Figure the distance of each
@@ -145,7 +145,7 @@ void order_dolist( void )
     }
     else
     {
-      dist[cnt] = ABS( chrxpos[character] - camx ) + ABS( chrypos[character] - camy );
+      dist[cnt] = (int) (ABS( chrxpos[character] - camx ) + ABS( chrypos[character] - camy ));
     }
     cnt++;
   }
@@ -502,12 +502,8 @@ void make_one_weapon_matrix( Uint16 cnt )
   int tnc;
   Uint16 character, vertex, model, frame, lastframe;
   Uint8 lip;
-  float pointx[POINTS];
-  float pointy[POINTS];
-  float pointz[POINTS];
-  float nupointx[POINTS];
-  float nupointy[POINTS];
-  float nupointz[POINTS];
+  float pointx[POINTS], pointy[POINTS], pointz[POINTS];
+  float nupointx[POINTS], nupointy[POINTS], nupointz[POINTS];
   int temp;
 
 
@@ -1433,7 +1429,7 @@ void drop_keys( Uint16 character )
   // ZZ> This function drops all keys ( [KEYA] to [KEYZ] ) that are in a character's
   //     inventory ( Not hands ).
   Uint16 item, lastitem, nextitem, direction, cosdir;
-  int testa, testz;
+  IDSZ testa, testz;
 
 
   if ( character < MAXCHR )
@@ -1443,8 +1439,8 @@ void drop_keys( Uint16 character )
       if ( chrzpos[character] > -2 ) // Don't lose keys in pits...
       {
         // The IDSZs to find
-        testa = Make_IDSZ( 'K', 'E', 'Y', 'A' );  // [KEYA]
-        testz = Make_IDSZ( 'K', 'E', 'Y', 'Z' );  // [KEYZ]
+        testa = Make_IDSZ( "KEYA" );  // [KEYA]
+        testz = Make_IDSZ( "KEYZ" );  // [KEYZ]
 
 
         lastitem = character;
@@ -1454,10 +1450,10 @@ void drop_keys( Uint16 character )
           nextitem = chrnextinpack[item];
           if ( item != character )  // Should never happen...
           {
-            if ( ( capidsz[chrmodel[item]][IDSZPARENT] >= ( Uint32 ) testa &&
-                   capidsz[chrmodel[item]][IDSZPARENT] <= ( Uint32 ) testz ) ||
-                 ( capidsz[chrmodel[item]][IDSZTYPE] >= ( Uint32 ) testa &&
-                   capidsz[chrmodel[item]][IDSZTYPE] <= ( Uint32 ) testz ) )
+            if ( ( capidsz[chrmodel[item]][IDSZPARENT] >= testa &&
+                   capidsz[chrmodel[item]][IDSZPARENT] <= testz ) ||
+                 ( capidsz[chrmodel[item]][IDSZTYPE] >= testa &&
+                   capidsz[chrmodel[item]][IDSZTYPE] <= testz ) )
             {
               // We found a key...
               chrinpack[item] = bfalse;
@@ -1498,7 +1494,7 @@ void drop_keys( Uint16 character )
 void drop_all_items( Uint16 character )
 {
   // ZZ> This function drops all of a character's items
-  Uint16 item, direction, cosdir, diradd;
+  Uint16 item, direction, diradd;
 
 
   if ( character < MAXCHR )
@@ -1646,18 +1642,18 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
             if ( inshop )
             {
               // Pay the shop owner, or don't allow grab...
-              if ( chrisitem[chara] || ( chrlight[chara] == 0 && !chrcanseeinvisible[owner] ) )
+              if ( chrisitem[chara] || ( chralpha[chara] < INVISIBLE && !chrcanseeinvisible[owner] ) )
               {
-                char text[64];
                 // Pets can try to steal in addition to invisible characters
+                STRING text;
                 inshop = bfalse;
-                sprintf( text, "%s stole something! (%s)", chrname[chara], capclassname[chrmodel[charb]] );
+                snprintf( text, sizeof(text), "%s stole something! (%s)", chrname[chara], capclassname[chrmodel[charb]] );
                 debug_message( text );
 
                 // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
                 if ( generate_number( 1, 100 ) - ( chrdexterity[chara] >> 7 ) + ( chrwisdom[owner] >> 7 ) > 50 )
                 {
-                  sprintf( text, "%s was detected!!", chrname[chara] );
+                  snprintf( text, sizeof(text), "%s was detected!!", chrname[chara] );
                   debug_message( text );
                   chralert[owner] |= ALERTIFORDERED;
                   chrorder[owner] = STOLEN;
@@ -1666,7 +1662,6 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
               }
               else
               {
-                char text[64];
                 chralert[owner] |= ALERTIFORDERED;
                 price = capskincost[chrmodel[charb]][0];
                 if ( capisstackable[chrmodel[charb]] )
@@ -1845,7 +1840,7 @@ void character_swipe( Uint16 cnt, Uint8 grip )
 void move_characters( void )
 {
   // ZZ> This function handles character physics
-  int cnt;
+  Uint16 cnt;
   Uint32 mapud, maplr;
   Uint8 twist, actionready;
   Uint8 speed, framelip, allowedtoattack;
@@ -2125,9 +2120,8 @@ void move_characters( void )
               // Then check if a skill is needed
               if ( capneedskillidtouse[chrmodel[weapon]] )
               {
-                if ( ( capcanuseadvancedweapons[chrmodel[cnt]] != capidsz[chrmodel[weapon]][IDSZSKILL] ) &&
-                     ( capidsz[chrmodel[cnt]][IDSZSKILL] != capidsz[chrmodel[weapon]][IDSZSKILL] ) )
-                  allowedtoattack = bfalse;
+                if (check_skills( cnt, capidsz[chrmodel[weapon]][IDSZSKILL]) == bfalse ) 
+			    allowedtoattack = bfalse;
               }
             }
 
@@ -2139,9 +2133,10 @@ void move_characters( void )
                 chrreloadtime[weapon] = 50;
                 if ( chrstaton[cnt] )
                 {
-                  // Tell the player that they can't use this weapon
-                  sprintf( generictext, "%s can't use this item...", chrname[cnt] );
-                  debug_message( generictext );
+				   // Tell the player that they can't use this weapon
+                  STRING text;
+                  snprintf( text, sizeof(text),  "%s can't use this item...", chrname[cnt] );
+                  debug_message( text );
                 }
               }
             }
@@ -2234,8 +2229,7 @@ void move_characters( void )
               // Then check if a skill is needed
               if ( capneedskillidtouse[chrmodel[weapon]] )
               {
-                if ( ( capcanuseadvancedweapons[chrmodel[cnt]] != capidsz[chrmodel[weapon]][IDSZSKILL] ) &&
-                     ( capidsz[chrmodel[cnt]][IDSZSKILL] != capidsz[chrmodel[weapon]][IDSZSKILL] ) )
+                if ( check_skills( cnt, capidsz[chrmodel[weapon]][IDSZSKILL]) == bfalse   )
                   allowedtoattack = bfalse;
               }
             }
@@ -2248,9 +2242,10 @@ void move_characters( void )
                 chrreloadtime[weapon] = 50;
                 if ( chrstaton[cnt] )
                 {
-                  // Tell the player that they can't use this weapon
-                  sprintf( generictext, "%s can't use this item...", chrname[cnt] );
-                  debug_message( generictext );
+				  // Tell the player that they can't use this weapon
+                  STRING text;
+                  snprintf( text, sizeof(text), "%s can't use this item...", chrname[cnt] );
+                  debug_message( text );
                 }
               }
             }
@@ -3233,7 +3228,8 @@ void bump_characters( void )
 {
   // ZZ> This function sets handles characters hitting other characters or particles
   Uint16 character, particle, entry, pip, direction;
-  Uint32 chara, charb, fanblock, prtidparent, prtidtype, chridvulnerability, eveidremove;
+  Uint32 chara, charb, fanblock, prtidparent, prtidtype, eveidremove;
+  IDSZ chridvulnerability;
   Sint8 hide;
   int cnt, tnc, dist, chrinblock, prtinblock, enchant, temp;
   float xa, ya, za, xb, yb, zb;
@@ -4531,7 +4527,6 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
 
 
     // Expansions
-    fprintf( filewrite, ":[GOLD] %d\n", chrmoney[character] );
     if ( capskindressy[profile]&1 )
       fprintf( filewrite, ":[DRES] 0\n" );
     if ( capskindressy[profile]&2 )
@@ -4560,18 +4555,41 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
       fprintf( filewrite, ":[ICON] %d\n", capicon[profile] );
     if ( capforceshadow[profile] )
       fprintf( filewrite, ":[SHAD] 1\n" );
-    if ( capcanseekurse[profile] )
-      fprintf( filewrite, ":[CKUR] 1\n" );
     if ( capripple[profile] == capisitem[profile] )
       fprintf( filewrite, ":[RIPP] %d\n", capripple[profile] );
-    if ( capcanuseadvancedweapons[profile] == Make_IDSZ( 'A', 'W', 'E', 'P' ) )
-      fprintf( filewrite, ":[AWEP] 1\n" );
-    fprintf( filewrite, ":[SHPR] %d\n", capshieldprofiency [profile] );
+
+	//Basic stuff that is always written
+    fprintf( filewrite, ":[GOLD] %d\n", chrmoney[character] );
     fprintf( filewrite, ":[PLAT] %d\n", capcanuseplatforms[profile] );
     fprintf( filewrite, ":[SKIN] %d\n", chrtexture[character] - madskinstart[profile] );
     fprintf( filewrite, ":[CONT] %d\n", chraicontent[character] );
     fprintf( filewrite, ":[STAT] %d\n", chraistate[character] );
     fprintf( filewrite, ":[LEVL] %d\n", chrexperiencelevel[character] );
+
+	//Copy all skill expansions
+    fprintf( filewrite, ":[SHPR] %d\n", chrshieldproficiency[character] );
+    if ( chrcanuseadvancedweapons[character] )
+      fprintf( filewrite, ":[AWEP] 1\n" );
+    if ( chrcanjoust[character] )
+      fprintf( filewrite, ":[JOUS] 1\n" );
+    if ( chrcandisarm[character] )
+      fprintf( filewrite, ":[DISA] 1\n" );
+    if ( capcanseekurse[profile] )
+      fprintf( filewrite, ":[CKUR] 1\n" );
+    if ( chrcanusepoison[character] )
+      fprintf( filewrite, ":[POIS] 1\n" );
+    if ( chrcanread[character] )
+      fprintf( filewrite, ":[READ] 1\n" );
+    if ( chrcanbackstab[character] )
+      fprintf( filewrite, ":[STAB] 1\n" );
+    if ( chrcanusedivine[character] )
+      fprintf( filewrite, ":[HMAG] 1\n" );
+    if ( chrcanusearcane[character] )
+      fprintf( filewrite, ":[WMAG] 1\n" );
+    if ( chrcanusetech[character] )
+      fprintf( filewrite, ":[TECH] 1\n" );
+
+	//The end
     fclose( filewrite );
   }
 }
@@ -4605,19 +4623,20 @@ int load_one_character_profile( char *szLoadName )
   // the object slot that the profile was stuck into.  It may cause the program
   // to abort if bad things happen.
   FILE* fileread;
-  int object;
+  Sint16 object;
   int iTmp;
   float fTmp;
   char cTmp;
-  int damagetype, level, xptype, idsz;
-  int test;
+  Uint8 damagetype, level, xptype;
+  IDSZ idsz, test;
 
   // Open the file
   fileread = fopen( szLoadName, "r" );
   // printf(" DIAG: trying to read %s\n",szLoadName);
   if ( fileread != NULL )
   {
-    globalname = szLoadName;
+    globalname = szLoadName;	//For debugging goto_colon()
+
     // Read in the object slot
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); object = iTmp;
     if ( object < 0 )
@@ -4641,9 +4660,9 @@ int load_one_character_profile( char *szLoadName )
     // Make sure we don't load over an existing model
     if ( madused[object] )
     {
-      if ( object == SPELLBOOK ) log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, globalname );
+      if ( object == SPELLBOOK ) log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
       else
-        log_error( "Object slot %i used twice (%s)\n", object, globalname );
+        log_error( "Object slot %i used twice (%s)\n", object, szLoadName );
     }
     madused[object] = btrue;
 
@@ -4983,62 +5002,92 @@ int load_one_character_profile( char *szLoadName )
     capstateoverride[object] = 0;
     capleveloverride[object] = 0;
     capcanuseplatforms[object] = !capplatform[object];
+
+	//Skills
     capcanuseadvancedweapons[object] = 0;
-    capshieldprofiency[object] = 0;
+    capcanjoust[object] = 0;
+    capcanusetech[object] = 0;
+    capcanusedivine[object] = 0;
+    capcanusearcane[object] = 0;
+    capshieldproficiency[object] = 0;
+	capcandisarm[object] = 0;
+	capcanbackstab[object] = 0;
+	capcanusepoison[object] = 0;
+	capcanread[object] = 0;
+
     // Read expansions
     while ( goto_colon_yesno( fileread ) )
     {
       idsz = get_idsz( fileread );
       fscanf( fileread, "%c%d", &cTmp, &iTmp );
-      test = Make_IDSZ( 'D', 'R', 'E', 'S' );  // [DRES]
+
+      test = Make_IDSZ( "DRES" );  // [DRES]
       if ( idsz == test )  capskindressy[object] |= 1 << iTmp;
-      test = Make_IDSZ( 'G', 'O', 'L', 'D' );  // [GOLD]
+      test = Make_IDSZ( "GOLD" );  // [GOLD]
       if ( idsz == test )  capmoney[object] = iTmp;
-      test = Make_IDSZ( 'S', 'T', 'U', 'K' );  // [STUK]
+      test = Make_IDSZ( "STUK" );  // [STUK]
       if ( idsz == test )  capresistbumpspawn[object] = 1 - iTmp;
-      test = Make_IDSZ( 'P', 'A', 'C', 'K' );  // [PACK]
+      test = Make_IDSZ( "PACK" );  // [PACK]
       if ( idsz == test )  capistoobig[object] = 1 - iTmp;
-      test = Make_IDSZ( 'V', 'A', 'M', 'P' );  // [VAMP]
+      test = Make_IDSZ( "VAMP" );  // [VAMP]
       if ( idsz == test )  capreflect[object] = 1 - iTmp;
-      test = Make_IDSZ( 'D', 'R', 'A', 'W' );  // [DRAW]
+      test = Make_IDSZ( "DRAW" );  // [DRAW]
       if ( idsz == test )  capalwaysdraw[object] = iTmp;
-      test = Make_IDSZ( 'R', 'A', 'N', 'G' );  // [RANG]
+      test = Make_IDSZ( "RANG" );  // [RANG]
       if ( idsz == test )  capisranged[object] = iTmp;
-      test = Make_IDSZ( 'H', 'I', 'D', 'E' );  // [HIDE]
+      test = Make_IDSZ( "HIDE" );  // [HIDE]
       if ( idsz == test )  caphidestate[object] = iTmp;
-      test = Make_IDSZ( 'E', 'Q', 'U', 'I' );  // [EQUI]
+      test = Make_IDSZ( "EQUI");  // [EQUI]
       if ( idsz == test )  capisequipment[object] = iTmp;
-      test = Make_IDSZ( 'S', 'Q', 'U', 'A' );  // [SQUA]
+      test = Make_IDSZ( "SQUA");  // [SQUA]
       if ( idsz == test )  capbumpsizebig[object] = capbumpsize[object] << 1;
-      test = Make_IDSZ( 'I', 'C', 'O', 'N' );  // [ICON]
+      test = Make_IDSZ( "ICON" );  // [ICON]
       if ( idsz == test )  capicon[object] = iTmp;
-      test = Make_IDSZ( 'S', 'H', 'A', 'D' );  // [SHAD]
+      test = Make_IDSZ( "SHAD" );  // [SHAD]
       if ( idsz == test )  capforceshadow[object] = iTmp;
-      test = Make_IDSZ( 'C', 'K', 'U', 'R' );  // [CKUR]
+      test = Make_IDSZ( "CKUR" );  // [CKUR]
       if ( idsz == test )  capcanseekurse[object] = iTmp;
-      test = Make_IDSZ( 'S', 'K', 'I', 'N' );  // [SKIN]
+      test = Make_IDSZ( "SKIN" );  // [SKIN]
       if ( idsz == test )  capskinoverride[object] = iTmp & 3;
-      test = Make_IDSZ( 'C', 'O', 'N', 'T' );  // [CONT]
+      test = Make_IDSZ( "CONT" );  // [CONT]
       if ( idsz == test )  capcontentoverride[object] = iTmp;
-      test = Make_IDSZ( 'S', 'T', 'A', 'T' );  // [STAT]
+      test = Make_IDSZ( "STAT" );  // [STAT]
       if ( idsz == test )  capstateoverride[object] = iTmp;
-      test = Make_IDSZ( 'L', 'E', 'V', 'L' );  // [LEVL]
+      test = Make_IDSZ( "LEVL" );  // [LEVL]
       if ( idsz == test )  capleveloverride[object] = iTmp;
-      test = Make_IDSZ( 'P', 'L', 'A', 'T' );  // [PLAT]
+      test = Make_IDSZ( "PLAT" );  // [PLAT]
       if ( idsz == test )  capcanuseplatforms[object] = iTmp;
-      test = Make_IDSZ( 'R', 'I', 'P', 'P' );  // [RIPP]
+      test = Make_IDSZ( "RIPP" );  // [RIPP]
       if ( idsz == test )  capripple[object] = iTmp;
-      test = Make_IDSZ( 'A', 'W', 'E', 'P' );  // [AWEP]
-      if ( idsz == test )  capcanuseadvancedweapons[object] = test;
-      test = Make_IDSZ( 'S', 'H', 'P', 'R' );  // [SHPR]
-      if ( idsz == test )  capshieldprofiency[object] = test;
+
+	  //Read Skills
+      test = Make_IDSZ( "AWEP" );  // [AWEP]
+      if ( idsz == test )  capcanuseadvancedweapons[object] = iTmp;
+      test = Make_IDSZ( "SHPR" );  // [SHPR]
+      if ( idsz == test )  capshieldproficiency[object] = iTmp;
+      test = Make_IDSZ( "JOUS" );  // [JOUS]
+      if ( idsz == test )  capcanjoust[object] = iTmp;
+      test = Make_IDSZ( "WMAG" );  // [WMAG]
+      if ( idsz == test )  capcanusearcane[object] = iTmp;
+      test = Make_IDSZ( "HMAG" );  // [HMAG]
+      if ( idsz == test )  capcanusedivine[object] = iTmp;
+      test = Make_IDSZ( "TECH" );  // [TECH]
+      if ( idsz == test )  capcanusetech[object] = iTmp;
+      test = Make_IDSZ( "DISA" );  // [DISA]
+      if ( idsz == test )  capcandisarm[object] = iTmp;
+      test = Make_IDSZ( "STAB" );  // [STAB]
+      if ( idsz == test )  capcanbackstab[object] = iTmp;
+      test = Make_IDSZ( "POIS" );  // [POIS]
+      if ( idsz == test )  capcanusepoison[object] = iTmp;
+      test = Make_IDSZ( "READ" );  // [READ]
+      if ( idsz == test )  capcanread[object] = iTmp;
     }
     fclose( fileread );
   }
   else
   {
     // The data file wasn't found
-    log_error( "DATA.TXT was not found!\n" );
+    log_error( "DATA.TXT was not found! (%s)\n", szLoadName );
   }
 
   return object;
@@ -5672,11 +5721,22 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
       chrfirstenchant[cnt] = MAXENCHANT;
       chrundoenchant[cnt] = MAXENCHANT;
       chrcanseeinvisible[cnt] = capcanseeinvisible[profile];
-      chrcanseekurse[cnt] = capcanseekurse[profile];
       chrcanchannel[cnt] = bfalse;
       chrmissiletreatment[cnt] = MISNORMAL;
       chrmissilecost[cnt] = 0;
 
+	  //Skillz
+	  chrcanjoust[cnt] = capcanjoust[profile];
+	  chrcanuseadvancedweapons[cnt] = capcanuseadvancedweapons[profile];
+	  chrshieldproficiency[cnt] = capshieldproficiency[profile];
+	  chrcanusedivine[cnt] = capcanusedivine[profile];
+	  chrcanusearcane[cnt] = capcanusearcane[profile];
+	  chrcanusetech[cnt] = capcanusetech[profile];
+	  chrcandisarm[cnt] = capcandisarm[profile];
+	  chrcanbackstab[cnt] = capcanbackstab[profile];
+	  chrcanusepoison[cnt] = capcanusepoison[profile];
+	  chrcanread[cnt] = capcanread[profile];
+      chrcanseekurse[cnt] = capcanseekurse[profile];
 
       // Kurse state
       chriskursed[cnt] = ( ( rand() % 100 ) < capkursechance[profile] );
@@ -6246,7 +6306,7 @@ void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
 
 //--------------------------------------------------------------------------------------------
 Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, Uint32 idsz,
+                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
                             char excludeid )
 {
   // ZZ> This is a good little helper, that returns != MAXCHR if a suitable target
@@ -6304,7 +6364,7 @@ Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
 
 //--------------------------------------------------------------------------------------------
 Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, Uint32 idsz )
+                          char friends, char enemies, char dead, IDSZ idsz )
 {
   // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
   int x, y;
@@ -6416,7 +6476,7 @@ void switch_team( int character, Uint8 team )
 
 //--------------------------------------------------------------------------------------------
 void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, Uint32 idsz )
+                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
 {
   // ZZ> This is a good little helper
   float distance, xdis, ydis;
@@ -6488,7 +6548,7 @@ void get_nearest_in_block( int x, int y, Uint16 character, char items,
 
 //--------------------------------------------------------------------------------------------
 Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, Uint32 idsz )
+                           char friends, char enemies, char dead, IDSZ idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
@@ -6519,7 +6579,7 @@ Uint16 get_nearest_target( Uint16 character, char items,
 
 //--------------------------------------------------------------------------------------------
 Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, Uint32 idsz, char excludeid )
+                        char friends, char enemies, char dead, IDSZ idsz, char excludeid )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
   int x, y;
@@ -6574,7 +6634,7 @@ void issue_clean( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int restock_ammo( Uint16 character, Uint32 idsz )
+int restock_ammo( Uint16 character, IDSZ idsz )
 {
   // ZZ> This function restocks the characters ammo, if it needs ammo and if
   //     either its parent or type idsz match the given idsz.  This
@@ -6626,7 +6686,7 @@ void issue_order( Uint16 character, Uint32 order )
 }
 
 //--------------------------------------------------------------------------------------------
-void issue_special_order( Uint32 order, Uint32 idsz )
+void issue_special_order( Uint32 order, IDSZ idsz )
 {
   // ZZ> This function issues an order to all characters with the a matching special IDSZ
   Uint16 counter;
@@ -6677,3 +6737,169 @@ void set_alerts( int character )
   }
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
+{
+  /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
+
+  FILE *filewrite;
+  char newloadname[256];
+
+  // Only add quest IDSZ if it doesnt have it already
+  if (check_player_quest(whichplayer, idsz) <= QUESTBEATEN) return bfalse;
+
+  // Try to open the file in read and append mode
+  snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );
+  filewrite = fopen( newloadname, "a" );
+  if ( NULL == filewrite )
+  {
+	  //Create the file if it does not exist
+	  filewrite = fopen( newloadname, "w" );
+	  if(NULL == filewrite) return bfalse;
+	  fprintf( filewrite, "//This file keeps order of all the quests for the player (%s)\n", whichplayer);
+      fprintf( filewrite, "//The number after the IDSZ shows the quest level. -1 means it is completed.");
+  }
+
+  fprintf( filewrite, "\n:[%4s] 0", undo_idsz( idsz ));
+  fclose( filewrite );
+
+  return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
+{
+  /// @details ZF@> This function increases or decreases a Quest IDSZ quest level by the amount determined in
+  ///     adjustment. It then returns the current quest level it now has.
+  ///     It returns NOQUEST if failed and if the adjustment is 0, the quest is marked as beaten...
+
+  FILE *filewrite, *fileread;
+  STRING newloadname, copybuffer;
+  IDSZ newidsz;
+  Sint8 NewQuestLevel = NOQUEST, QuestLevel;
+
+  //Now check each expansion until we find correct IDSZ
+  if(check_player_quest(whichplayer, idsz) <= QUESTBEATEN)  return NewQuestLevel;
+
+  else
+  {
+    // modify the CData.quest_file
+    char ctmp;
+
+    // create a "tmp_*" copy of the file
+    snprintf( newloadname, sizeof( newloadname ), "players/%s/quest.txt", whichplayer);
+    snprintf( copybuffer, sizeof( copybuffer ), "players/%s/tmp_quest.txt", whichplayer);
+    fs_copyFile( newloadname, copybuffer );
+
+    // open the tmp file for reading and overwrite the original file
+    fileread  = fopen( copybuffer, "r" );
+    filewrite = fopen( newloadname, "w" );
+
+    // read the tmp file line-by line
+    while( !feof(fileread) )
+    {
+      ctmp = fgetc(fileread);
+      ungetc(ctmp, fileread);
+
+      if( ctmp == '/' )
+      {
+        // copy comments exactly
+        fcopy_line(fileread, filewrite);
+      }
+      else if( goto_colon_yesno( fileread ) )
+      {
+        // scan the line for quest info
+        newidsz = get_idsz( fileread );
+		get_first_letter( fileread );      //Skip the ] bracket
+        QuestLevel = fget_int( fileread );
+
+        // modify it
+        if ( newidsz == idsz )
+        {
+          if(adjustment == 0)
+          {
+            QuestLevel = QUESTBEATEN;
+          }
+          else
+          {
+            QuestLevel += adjustment;
+            if(QuestLevel < 0) QuestLevel = 0;
+          }
+          NewQuestLevel = QuestLevel;
+        }
+
+        fprintf(filewrite, "\n:[%s] %i", undo_idsz(newidsz), QuestLevel);
+      }
+    }
+
+    // get rid of the tmp file
+    fclose( filewrite );
+    fs_deleteFile( copybuffer );
+  }
+
+  fclose( fileread );
+
+  return NewQuestLevel;
+}
+
+//--------------------------------------------------------------------------------------------
+Sint16 check_player_quest( char *whichplayer, IDSZ idsz )
+{
+  /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
+  /// and returns the quest level of that specific quest (Or NOQUEST if it is not found, QUESTBEATEN if it is finished)
+
+  FILE *fileread;
+  STRING newloadname;
+  IDSZ newidsz;
+  bool_t foundidsz = bfalse;
+  Sint8 result = NOQUEST;
+
+  snprintf( newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );
+  fileread = fopen( newloadname, "r" );
+  if ( NULL == fileread ) return result;
+
+  //Always return "true" for [NONE] IDSZ checks
+  if (idsz == IDSZ_NONE) result = QUESTBEATEN;
+ 
+  // Check each expansion
+  while ( !foundidsz && goto_colon_yesno( fileread ) )
+  {
+    newidsz = get_idsz( fileread );
+	if ( newidsz == idsz )
+    {
+      foundidsz = btrue;
+	  get_first_letter( fileread );   //Skip the ] bracket
+      result = fget_int( fileread );  //Read value behind colon and IDSZ
+	 }
+  }
+
+  fclose( fileread );
+
+  return result;
+}
+
+//--------------------------------------------------------------------------------------------
+int check_skills( Uint16 who, IDSZ whichskill )
+{
+  // @details ZF@> This checks if the specified character has the required skill. Returns the level
+  // of the skill. Also checks Skill expansions.
+
+  bool_t result = bfalse;
+
+  // First check the character Skill ID matches
+  // Then check for expansion skills too.
+  if ( capidsz[chrmodel[who]][IDSZSKILL]  == whichskill ) result = btrue;
+  else if ( Make_IDSZ( "AWEP" ) == whichskill ) result = chrcanuseadvancedweapons[who];
+  else if ( Make_IDSZ( "CKUR" ) == whichskill ) result = chrcanseekurse[who];
+  else if ( Make_IDSZ( "JOUS" ) == whichskill ) result = chrcanjoust[who];
+  else if ( Make_IDSZ( "SHPR" ) == whichskill ) result = chrshieldproficiency[who];
+  else if ( Make_IDSZ( "TECH" ) == whichskill ) result = chrcanusetech[who];
+  else if ( Make_IDSZ( "WMAG" ) == whichskill ) result = chrcanusearcane[who];
+  else if ( Make_IDSZ( "HMAG" ) == whichskill ) result = chrcanusedivine[who];
+  else if ( Make_IDSZ( "DISA" ) == whichskill ) result = chrcandisarm[who];
+  else if ( Make_IDSZ( "STAB" ) == whichskill ) result = chrcanbackstab[who];
+  else if ( Make_IDSZ( "POIS" ) == whichskill ) result = chrcanusepoison[who];
+  else if ( Make_IDSZ( "READ" ) == whichskill ) result = chrcanread[who];
+ 
+  return result;
+}

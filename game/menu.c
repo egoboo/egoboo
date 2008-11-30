@@ -22,6 +22,7 @@
 #include "egoboo.h"
 #include "Ui.h"
 #include "Menu.h"
+#include "graphic.h" 
 #include "Log.h"
 #include "proto.h"
 
@@ -42,8 +43,7 @@ enum MenuStates
   MM_Finish,
 };
 
-static int selectedPlayer = 0;
-static int selectedModule = 0;
+
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
 static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.8";
@@ -700,7 +700,7 @@ int doChoosePlayer( float deltaTime )
 
 
       // Buttons for going ahead
-      if ( ui_doButton( 100, "Play!", 40, 350, 200, 30 ) )
+      if ( ui_doButton( 100, "Select Player", 40, 350, 200, 30 ) )
       {
         menuState = MM_Leaving;
       }
@@ -1768,7 +1768,7 @@ int doMenu( float deltaTime )
         }
         else if ( result == 2 )
         {
-          whichMenu = ChooseModule;
+          whichMenu = ChoosePlayer;
           startNewPlayer = bfalse;
         }
         else if ( result == 3 ) whichMenu = MainMenu;
@@ -1779,14 +1779,14 @@ int doMenu( float deltaTime )
     case ChooseModule:
       result = doChooseModule( deltaTime );
       if ( result == -1 ) whichMenu = lastMenu;
-      else if ( result == 1 ) whichMenu = ChoosePlayer;
+      else if ( result == 1 ) whichMenu = TestResults;
       else if ( result == 2 ) whichMenu = TestResults;
       break;
 
     case ChoosePlayer:
       result = doChoosePlayer( deltaTime );
-      if ( result == -1 )    whichMenu = ChooseModule;
-      else if ( result == 1 )  whichMenu = TestResults;
+      if ( result == -1 )    whichMenu = lastMenu;
+      else if ( result == 1 )  whichMenu = ChooseModule;
 
       break;
 
