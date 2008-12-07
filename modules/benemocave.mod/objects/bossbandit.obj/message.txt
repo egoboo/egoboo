@@ -1,0 +1,3 @@
+Message 0: %t_put_an_end_to_%n!
+Message 1: %n_looks_better...
+Message 2: Warriors_attack!
