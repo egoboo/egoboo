@@ -1,0 +1,194 @@
+//G'NOME
+//-------------------------------------------
+//Level       Abillity
+//1			Use Technological Items, Read G'nomish, Poison Resistance, Immune vs. Grog
+//2			n/a
+//3			Listen
+//4			n/a
+//5			Crackshot
+//6			n/a
+//7			Ancient Blood
+//8			n/a
+//9			Sharpshooter
+//10		n/a
+//11        Hardy
+//12        n/a
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//------------------------------------------------------------------------------
+//Ancient blood skill
+tmpx = selflevel
+tmpy = 5            //Need level 7
+IfXIsMoreThanY
+  tmpargument = 1
+  HealSelf
+  
+//-----------------------------------------------------------------------------
+//Listen skill
+tmpx = selflevel
+tmpy = 1            //At least level 3
+IfXIsMoreThanY
+  EnableListenSkill
+
+//-----------------------------------------------------------------------------
+//Sharpshooter skill
+tmpx = selflevel
+tmpy = 7            //Need level 9
+IfXIsMoreThanY
+  IfScoredAHit
+    SetTargetToLastItemUsed
+      tmpargument = [TECH]
+      IfTargetHasSkillID
+        SetTargetToWhoeverWasHit
+        tmpargument = selfdex > 2
+        tmpargument = rand & tmpargument + 256    //1 to (dex/4) extra damage
+        DamageTarget
+  
+//-----------------------------------------------------------------------------
+//Crackshot skill
+tmpx = selflevel
+tmpy = 3            //Need level 5
+IfXIsMoreThanY
+  IfScoredAHit
+    SetTargetToLastItemUsed
+      tmpargument = [TECH]
+      IfTargetHasSkillID
+        tmpx = rand % 100
+        tmpy = selfint > 9              //% chance equal to int/2
+        IfXIsLessThanY
+          SetTargetToWhoeverWasHit
+          tmpargument = selflevel > 2   //+1 every 4 levels
+          DazeTarget
+
+//-----------------------------------------------------------------------------
+//Damage resist skill
+tmpx = selflevel
+tmpy = 9            //At least level 11
+IfXIsMoreThanY
+  IfAttacked
+    tmpargument = selflevel > 2
+    tmpargument = tmpargument * 128       //Reduce all damage by 1/2 per 4 levels
+    HealSelf
+
+//-----------------------------------------------------------------------------
+// ZZ> Yell at the player
+IfTooMuchBaggage
+  tmpargument = 12
+  PlaySound
+  tmpargument = 11
+  SendMessageNear
+  tmpargument = 100
+  SetReloadTime
+  
+
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 11
+  PlayFullSound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle healing factor
+IfTimeOut
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = [CLAW]
+    IfHoldingItemID
+      tmpargument = 256
+      HealSelf
+  tmpargument = 200
+  SetTime
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpargument = tmpdistance & 1 + 9
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpx = rand & 1
+  tmpy = 0
+  IfXIsEqualToY
+    tmpargument = 10
+    SendMessageNear
+    tmpargument = 8
+    PlaySound
+  Else
+    tmpargument = 9
+    SendMessageNear
+    tmpargument = 2
+    PlaySound
+    tmpargument = ACTIONDB
+    DoAction
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 4
+  PlaySound
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100		//The money loss formula
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  // Pick either 0 or 7, Parry or Combat
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being healed by spitting out a message and stopping retreat
+IfHealed
+  tmpargument = 8
+  SendMessageNear
+  tmpargument = 7
+  PlaySound
+
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

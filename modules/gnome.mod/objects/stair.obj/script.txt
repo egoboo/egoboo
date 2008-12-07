@@ -1,0 +1,2 @@
+// ZZ> This function makes the stair do nothing
+End				// Finished with this character
