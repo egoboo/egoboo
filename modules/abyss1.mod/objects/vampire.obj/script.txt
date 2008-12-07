@@ -1,0 +1,322 @@
+//The different states:
+//0: Wandering around looking for enemies (And following the leader)
+//1: In combat
+//2: Feared
+//3: Gass form
+
+//SPECIAL ABYSS SCRIPT
+tmpx = 0
+tmpy = selfmorale
+IfXIsEqualToY
+  tmpargument = 4
+  OpenPassage		//This opens the vampire gate when all vampires are killed
+
+//------------------------------------------------------------------------------
+//How fast can he attack?
+IfUsed
+  tmpargument = rand & 50 + 25
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+//Always have 1 vampire leader
+IfSpawned
+  BecomeLeader
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+//Gass cloud effect
+tmpargument = 1
+IfArmorIs
+  GetContent
+  tmpx = tmpargument
+  tmpy = 7
+  IfXIsMoreThanY
+    tmpargument = 5
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = rand & 100 + selfz
+    SpawnExactParticle
+    tmpargument = 0
+    SetContent
+  Else
+    GetContent
+    tmpargument = tmpargument + 1
+    SetContent
+
+//------------------------------------------------------------------------------
+// Let the character walk around
+IfTimeOut
+
+  //Turn to gass to escape?
+  tmpx = selflife
+  tmpy = 2048
+  IfXIsLessThanY	//Turn to gass if less than 8 life left
+    tmpargument = 3
+    IfStateIsNot	//Dont become gass if already gas
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = 3	//Gass mode
+      SetState
+      tmpargument = 4	//Sound effect and message
+      SendMessageNear
+      tmpargument = 5
+      PlaySound
+      SetTargetToRider
+        tmpargument = [HIDE]
+        OrderTarget	//Hide the wings
+
+  //Wandering around following lead vampire
+  IfStateIs0
+    Walk
+    SetTargetToWideEnemy		//Found a enemy, enter combat mode
+      tmpargument = rand & 20 + 10
+      SetTime
+      tmpargument = 1
+      SetState
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 200
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else  				//No enemies, wander around
+      tmpargument = rand & 65 + 60
+      SetTime
+      tmpx = rand & 1023 + selfspawnx - 511
+      tmpy = rand & 1023 + selfspawny - 511
+      Compass
+      ClearWaypoints
+      AddWaypoint
+
+  //Combat mode
+  IfStateIs1
+    IfTargetIsOnHatedTeam
+      DoNothing
+    Else
+      SetTargetToNearestEnemy
+    Run
+    tmpargument = 20
+    SetTime
+    tmpargument = 1
+    SetState
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 200
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint    
+    tmpx = targetdistance
+    tmpy = 110
+    IfXIsLessThanY			//Close enough?
+      IfFacingTarget			//Are we looking at the enemy?
+	
+    	//If the target defends, either wait or find new target
+        IfTargetIsDefending		
+          SetTargetToNearestEnemy
+          IfAttacked
+            SetTargetToWhoeverAttacked
+          tmpx = selfx
+          tmpy = selfy
+          tmpdistance = 250
+          tmpturn = targetturnto
+          Compass
+          ClearWaypoints
+          AddWaypoint
+          tmpargument = 5
+          SetTime                   //Readied attack time
+   
+        Else				//Attack the enemy
+          IfTargetIsOnHatedTeam		//Only if he is a enemy
+            tmpargument = LATCHRIGHT
+            PressLatchButton
+
+  //Feared
+  IfStateIs2
+    Run
+    tmpx = rand & 2023 - 1000 + targetx
+    tmpy = rand & 2023 - 1000 + targety
+    tmpdistance = 600
+    tmpturn = rand
+    Compass
+    ClearWaypoints
+    AddWaypoint   
+    tmpargument = 450
+    SetTime
+    tmpargument = 0
+    SetState
+
+  //Gass cloud
+  IfStateIs3     
+    tmpargument = 450
+    SetTime
+    tmpx = selflife
+    tmpy = 3000				//About 12 life should be enough
+    IfXIsMoreThanY			//Do we have enough life to return to combat?
+      tmpargument = 0			//If so, become normal again  
+      ChangeArmor			//Become visible
+      SetState  			//Return to leader or wandering mode
+      SetTime
+      SetTargetToRider
+        tmpargument = [HIDE]
+        OrderTarget	//Show the wings
+      tmpargument = 5			//Sound effect
+      PlaySound
+    Else				//Nope, still too hurt, hide and heal
+      Run
+      SetTargetToNearestEnemy
+      tmpx = rand & 2023 - 1000 + targetx
+      tmpy = rand & 2023 - 1000 + targety
+      tmpdistance = 600
+      tmpturn = rand		//Run away
+      Compass
+      ClearWaypoints
+      AddWaypoint  
+      tmpargument = 356 + rand & 456	//Regenerate extra while in gass form
+      HealSelf
+
+//------------------------------------------------------------------------------
+//What to do if enemy is dead
+IfTargetKilled
+  tmpargument = 3
+  IfStateIsNot			//Only do if not gass form
+    SetTargetToNearbyEnemy
+      tmpargument = 1		//Engage nearby enemy
+    Else
+      tmpargument = 0		//Return to leader
+    SetState
+
+
+//------------------------------------------------------------------------------
+//Handle being attacked by blocking or countering or running away
+IfAttacked
+
+  //Engage the attacker
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    GetState
+    tmpx = 2			//Only if idle of in combat mode
+    tmpy = tmpargument
+    IfXIsLessThanY
+      tmpx = targetx		//Else - counter attack
+      tmpy = targety
+      tmpdistance = 200
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 30
+      SetTime
+  Else				//Whoops, friendly fire
+    SetTargetToNearestEnemy
+  
+  //Cover in fear if damaged by holy
+  GetDamageType
+  tmpx = tmpargument
+  tmpy = DAMAGEHOLY
+  IfXIsEqualToY
+    tmpargument = 1
+    SendMessageNear
+    tmpargument = 3
+    IfStateIsNot	//Dont do this if in gass form
+      tmpargument = 2	//Become Feared
+      SetState
+    tmpargument = 4     //Play feared ouch sound
+  Else
+    tmpargument = rand & 1 + 1	//Play normal ouch sound
+
+  //Silver weapons are super effective
+  IfHitVulnerable
+    SetTargetToSelf
+    tmpargument = rand & 1500 + 1000
+    tmpdistance = DAMAGEFIRE
+    DamageTarget
+    SetTargetToOldTarget
+    tmpargument = 4    //Play feared ouch sound
+
+  //In gass form the vampire has weakness to fire and holy damage is instant kill
+  IfStateIs3
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEFIRE
+    IfXIsEqualToY
+      SetTargetToSelf
+      tmpargument = rand & 1500 + 2000
+      tmpdistance = DAMAGEFIRE
+      DamageTarget
+      SetTargetToOldTarget
+      tmpargument = 4     //Play feared ouch sound
+
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEHOLY
+    IfXIsEqualToY
+      SetTargetToWhoeverAttacked
+      tmpargument = 30
+      tmpdistance = EXPREVENGE	//Give bonus xp
+      GiveExperienceToTarget
+      SetTargetToSelf		//Holy damage is instant kill
+      KillTarget
+      tmpargument = 5
+      SendMessageNear
+
+  PlaySound
+ 
+
+
+//------------------------------------------------------------------------------
+//Always attack enemies who bump
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnHatedTeam
+    DoNothing
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+//Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 2
+    IfTargetIsSelf
+      tmpargument = 3
+  SendMessageNear
+
+  tmpargument = 3	//Play death sound
+  PlaySound
+
+  //If gass form, become normal
+  tmpargument = 1
+  IfArmorIs
+    tmpargument = 0
+    ChangeArmor
+    SetTargetToRider
+    tmpargument = [HIDE]	//Show the wings
+    OrderTarget
+    
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  // Stop flying
+  tmpargument = 0
+  SetFlyHeight
+
+  // Tell the wings to stop flappin'
+  SetTargetToRider // The wings are on gripleft, so this works
+  tmpargument = [DEAD]
+  OrderTarget
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

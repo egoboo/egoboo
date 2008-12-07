@@ -1,0 +1,6 @@
+Message 0: %t_grabbed_the_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%g_%n.
+Message 3: %t_drank_the_%n.
+Message 4: %o_gained_some_lifepower!
+Message 5: %t_looks_stronger!

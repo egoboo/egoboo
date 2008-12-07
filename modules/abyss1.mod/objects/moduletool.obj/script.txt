@@ -1,0 +1,22 @@
+//This object does some module updates
+
+// This raises the ghouls after they've died
+IfTimeOut
+  CleanUp
+  tmpargument = 30
+  SetTime
+
+//This spawns the portal in the beginning and starts the music
+IfSpawned
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+
+  tmpargument = 3
+  tmpdistance = 0
+  PlayMusic
+
+End					// All done
+

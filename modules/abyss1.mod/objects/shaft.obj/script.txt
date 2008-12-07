@@ -1,0 +1,10 @@
+//Make light
+IfSpawned
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+
+// All done
+End

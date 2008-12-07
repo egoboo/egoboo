@@ -1,0 +1,112 @@
+//This function makes an item fall to the floor when spawned
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+IfDropped				// Make it lie on floor
+  KeepAction
+IfGrabbed				// Tell them what they've won, Johnny!
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+IfHitGround
+  tmpargument = 0
+  tmpdistance = rand & 2047 + 8000
+  PlaySound
+  tmpargument = ACTIONDB
+  DoAction
+IfHeld			//Hide in hand
+  tmpargument = 1
+  SetState
+Else
+  tmpargument = 0
+  SetState
+
+//Spell stuff
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpargument = [GOOD]
+  IfTargetHasSpecialID				//Need divine spell skill
+    GetContent
+    tmpx = tmpargument
+    tmpy = 1024					//Don't overcharge
+    IfXIsLessThanY
+      tmpy = targetmanaflow			//Enough spell power?
+      IfYIsMoreThanX
+        tmpargument = 6				//Mana cost
+        CostTargetMana
+          GetContent				//Increase the charge
+          tmpargument = tmpargument + 8		//Casting Time
+          SetContent
+        
+    // Spawn particles around target
+    SetTargetToNearestFriend
+    tmpx = targetdistance
+    tmpy = 375
+    IfXIsMoreThanY			//No target in range, select caster
+      SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 1
+    SpawnExactParticle
+    SpawnExactParticle
+
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1000
+  IfXIsMoreThanY		//Enough power to activate?
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 2
+    SpawnExactParticle
+    SetOldTarget
+    SetTargetToWhoeverIsHolding
+    tmpargument = targetwis	//Heal 1 life per wisdom point (Also cures poison)
+    SetTargetToOldTarget
+    HealTarget
+    DisenchantTarget		//And remove all enchants
+    UnkurseTargetInventory		//Remove kurses
+    tmpargument = 80		//Set cooldown time
+    SetReloadTime
+    tmpargument = 3
+    SendMessageNear		//Tell what happened
+    tmpargument = 1
+    PlaySound
+  Else				
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsMoreThanY		//Only if there was a charge
+      tmpargument = 1
+      SendMessageNear		//Tell it didn't work
+      tmpargument = 2
+      PlaySound
+  tmpargument = 0
+  SetContent			//Reset counter
+
+  //Award xp and stuff for daring to do it
+  IfNameIsKnown
+    DoNothing
+  Else
+    tmpargument = 20
+    tmpdistance = EXPDARE
+    GiveExperienceToTarget
+    MakeNameKnown
+    MakeUsageKnown
+
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument < 4 + 3000
+  tmpdistance = SPAWNORIGIN
+  tmpargument = 0
+  SpawnAttachedSizedParticle
+
+End					// All done
