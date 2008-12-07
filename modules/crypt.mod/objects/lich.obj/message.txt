@@ -1,0 +1,5 @@
+Message 0: The_Lich_has_been_destroyed!
+Message 1: The_%c_was_killed_by_a_ally!
+Message 2: The_Lich_was_destroyed_by_its_own_powers!
+Message 3: Hahaha...
+Message 4: You_think_you_can_defeat_me!?

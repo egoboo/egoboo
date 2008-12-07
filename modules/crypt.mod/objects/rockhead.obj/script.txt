@@ -1,0 +1,127 @@
+//Special Script - This makes boss invincible until the idol is broken
+tmpargument = 1
+IfContentIs
+
+  //Special glow
+  SetTargetToSelf
+  FlashTarget
+  IfSpawned
+    tmpargument = 0-1
+    SetBlueShift
+    SetGreenShift
+
+  //Heal and sparklies
+  tmpargument = [LICH]
+  tmpdistance = 4
+  SetTargetToNearestBlahID
+    tmpargument = 256
+    HealTarget
+    tmpargument = 1
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    SpawnExactParticle
+
+  //Broken!
+  IfKilled
+    tmpargument = 3
+    SendMessage
+
+
+  
+
+
+IfHealed
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetTime
+
+
+
+IfAttacked
+  // Must die in 1 hit to disallow punching it open
+  tmpargument = 512
+  HealSelf
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetTime
+
+
+
+IfTimeOut
+  // Ready the pings
+  tmpargument = 0
+  SetState
+  tmpargument = 500
+  SetTime
+
+
+
+IfKilled
+  // Smash open
+  tmpargument = [GOOD]
+  IfTargetHasSpecialID
+    tmpargument = 20
+    tmpdistance = EXPROLEPLAY
+    GiveExperienceToTarget
+    tmpturn = 0
+  Else
+    tmpturn = 1
+
+  // Check for passages to open
+  tmpx = passage
+  tmpy = 0
+  IfXIsEqualToY
+    // Play the break sound
+    tmpargument = 2
+    PlaySound
+  Else
+    tmpargument = tmpx
+    OpenPassage
+    // Play the secret music
+    tmpargument = 1
+    PlaySound
+    // Give experience
+    tmpargument = 20
+    tmpdistance = EXPSECRET
+    GiveExperienceToTarget
+    tmpturn = 2
+
+  tmpargument = 0
+  IfContentIs
+    tmpargument = tmpturn
+    SendMessageNear
+
+
+
+  // Drop goodies
+  DropItems
+  tmpargument = 65535
+  DropMoney
+
+
+  // Replace self with an imposter...
+  tmpargument = 48
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpturn = selfturn
+  SpawnExactCharacterXYZ
+  GoPoof
+End
