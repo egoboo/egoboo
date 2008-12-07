@@ -1,0 +1,9 @@
+Message 0: %t_killed_a_%c!
+Message 1: The_Lumpkins_are_killing_themselves!
+Message 2: %n_is_running_away!
+Message 3: %t_got_the_last_Air_Pirate!
+Message 4: The_%c_looks_better...
+Message 5: The_%c_regains_%p_courage...
+Message 6: Unable_to_fly_the_airship_without_her_crew,_you_are_forced_to_crash_
+Message 7: land_near_Zippy_City,_a_small_town_in_Southern_Bishopia.__Hopefully_
+Message 8: you'll_be_able_to_find_the_Rogue_K'nife_metioned_in_his_telegram...

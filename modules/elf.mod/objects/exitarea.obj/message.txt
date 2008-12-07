@@ -1,0 +1,4 @@
+Message 0: You_have_to_rescue_the_faeries
+Message 1: and_lead_them_to_here...
+Message 2: You_have_freed_the_faeries!!
+

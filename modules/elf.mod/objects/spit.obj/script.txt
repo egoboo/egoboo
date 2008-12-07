@@ -1,0 +1,9 @@
+// ZZ> This function makes the spit turn when bumped
+IfBumped			// Turn
+  SetTargetToWhoeverBumped	  //
+    IfTargetCanOpenStuff	    //
+      tmpargument = ACTIONMJ	      //
+      DoAction			      //  Start the new action
+        tmpargument = 0		        //
+        SendMessage		        //
+End				// Finished with this character

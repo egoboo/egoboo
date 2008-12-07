@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Elf_Start
+Reference module ( Directory name or NONE )	: NONE
+Required reference IDSZ ( or [NONE] )		: [NONE]
+Number of imports ( 0 to 4 )                    		: 0
+Allow exporting of characters ( TRUE or FALSE )	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )     		: **
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:Faeries_have_been_captured_by
+:lumpkins_while_trying_to_rescue
+:them_you_have_been_captured
+:too,_escape_and_lead_the_little
+:ones_to_the_mushroom_ring.
+:_
+:_
+:_
+
+
+// Module expansion IDSZs ( with a colon in front )

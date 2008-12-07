@@ -1,0 +1,58 @@
+//Reset pings and messages
+IfTimeOut
+  tmpargument = 0
+  SetState
+  tmpargument = 100
+  SetTime
+
+//---------------------------------------------------------------------------------
+//Lure the player
+IfBumped
+  IfStateIs0
+    tmpargument = 1
+    SendMessageNear
+    tmpargument = 1
+    SetState
+
+//---------------------------------------------------------------------------------
+IfAttacked
+
+  // Must die in 1 hit to disallow punching it open
+  tmpargument = 512
+  HealSelf
+
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 2
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 20
+    SetTime
+
+//---------------------------------------------------------------------------------
+// Smash
+IfKilled
+  SpawnPoof	//Dusty cloud
+  tmpargument = 1
+  PlayFullSound	//Death sound
+
+  tmpargument = 49		//Unleash Zombor the secret Zombi!
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpturn = selfturn
+  SpawnExactCharacterXYZ
+    tmpargument = ACTIONMD	//Rise from the dead
+    ChildDoActionOverride
+
+  GoPoof			//And go away
+
+  tmpargument = 50
+  tmpdistance = EXPSECRET
+  GiveExperienceToTarget
+
+End
