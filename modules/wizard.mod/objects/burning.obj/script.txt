@@ -1,0 +1,78 @@
+//-----------------------------------------------------------------------------------------------
+// Create the character
+IfSpawned
+  KeepAction
+
+//-----------------------------------------------------------------------------------------------
+// Draw message
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+//-----------------------------------------------------------------------------------------------
+// Allow it to be cast
+IfUsed
+  SetTargetToWhoeverIsHolding
+  
+  //Spawn damage particles. Higher intelligence, more damage...
+  tmpargument = [WMAG]
+  IfTargetHasSkillID 
+    
+    //Make it known
+    IfTargetIsAPlayer
+      IfNameIsKnown
+        DoNothing
+      Else
+        MakeNameKnown
+        MakeUsageKnown
+        tmpargument = 30
+        GiveExperienceToTarget
+          
+    tmpx = targetmana
+    tmpy = 355
+    IfXIsMoreThanY
+      tmpargument = 356
+      CostTargetMana
+      
+      //Spawn different particles depending on mana flow
+      tmpargument = 0               //Weak fire
+      tmpx = targetmanaflow > 8
+      tmpy = 2
+      IfXIsMoreThanY
+        tmpargument = 3             //Medium fire
+      tmpy = 4
+      IfXIsMoreThanY
+        tmpargument = 5             //Strong fire
+      tmpy = 6
+      IfXIsMoreThanY
+        tmpargument = 7             //Inferno!
+        
+      //Create it!
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      SpawnExactParticle
+  
+      //Make them cast
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+      tmpargument = 35
+      SetReloadTime
+    
+//-----------------------------------------------------------------------------------------------
+// Return to spellbook, Do last!
+IfDropped
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+//-----------------------------------------------------------------------------------------------
+End
+//-----------------------------------------------------------------------------------------------

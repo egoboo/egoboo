@@ -1,0 +1,4 @@
+// Burn down
+IfKilled
+  GoPoof
+End

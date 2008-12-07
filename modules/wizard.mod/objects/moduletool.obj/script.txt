@@ -1,0 +1,20 @@
+//This object is a tool controlled by setting its content value to a specified number.
+//(Set in spawn.txt). Object is module specified and must be modified to be used
+//elsewhere...
+//Content commands:
+//0 = play music
+//Module Setting: Wizard Starter
+
+//------------------------------------------------------------------------------------
+//Play Music
+tmpargument = 12
+tmpdistance = 0
+PlayMusic
+
+//------------------------------------------------------------------------------------
+//Do last
+GoPoof
+
+//------------------------------------------------------------------------------------
+End					// All done
+//------------------------------------------------------------------------------------
