@@ -1,0 +1,8 @@
+IfSpawned
+  tmpargument=80
+  SetTime
+IfTimeOut
+  DropItems
+  GoPoof
+End					// All done
+

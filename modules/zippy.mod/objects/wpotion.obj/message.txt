@@ -1,0 +1,8 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%n.
+Message 3: %t_applied_%n.
+Message 4: %t_begins_glowing...
+Message 5: %t_turned_magical!
+Message 6: The_weapon_is_no_longer_enchanted...
+Message 7: %t_has_no_valid_weapon_to_apply_it_to.

@@ -1,0 +1,14 @@
+:Eye
+:Seer
+:Sight
+:Blind_Eye
+:Allsight
+:Truth
+:Cansee
+:Hidden
+:Seeker
+:Oracle
+:Seeing
+:True
+:Third_Eye
+:STOP

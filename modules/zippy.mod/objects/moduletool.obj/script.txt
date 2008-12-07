@@ -1,0 +1,10 @@
+//Shows the map and plays the music
+IfSpawned
+  EnableExport
+  ShowMap
+  ShowYouAreHere
+  tmpargument = 9
+  tmpdistance = 0
+  PlayMusic
+  GoPoof
+End					// All done

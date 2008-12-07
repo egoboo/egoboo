@@ -1,0 +1,139 @@
+// Get mean if characters wanna be bad
+IfAttacked
+  CallForHelp
+  JoinEvilTeam
+  tmpargument = rand & 1
+  PlaySound
+IfKilled
+  CallForHelp
+IfCalledForHelp
+  JoinEvilTeam
+IfSomeoneIsStealing     //Someone is stealing from our shop! ><
+  CallForHelp           //Call the guards!
+  JoinEvilTeam
+
+//------------------------------------------------------------------------------
+// ZZ> Setup shop...
+IfSpawned
+  tmpargument = passage
+  AddShopPassage
+
+
+  // Make the border
+  tmpargument = 2
+  tmpdistance = 0
+
+
+  // Top
+  tmpx = selfx - 192
+  tmpy = selfy - 384
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+  tmpx = tmpx + 128
+  SpawnExactParticle
+
+
+  // Bottom
+  tmpy = selfy + 384
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+  tmpx = tmpx - 128
+  SpawnExactParticle
+
+
+  // Left
+  tmpx = selfx - 384
+  tmpy = selfy - 192
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+  tmpy = tmpy + 128
+  SpawnExactParticle
+
+
+  // Right
+  tmpx = selfx + 384
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+  tmpy = tmpy - 128
+  SpawnExactParticle
+
+
+  // Show the area
+  //tmpdistance = 255
+  //FlashPassage
+
+//------------------------------------------------------------------------------
+// ZZ> Handle orders ( purchases )
+IfOrdered
+  // Counter specifies transaction ( 0, 1, or 2 )
+  // Order specifies price
+  tmpx = selforder
+  tmpy = 0
+  IfXIsEqualToY
+    tmpx = selfcounter
+    tmpy = 0
+    IfXIsEqualToY
+      // I'm not payin' for that!
+      tmpargument = 8
+      SendMessageNear
+  Else
+    // Buy/Sell
+    tmpx = selfcounter
+    tmpy = 3
+    IfXIsLessThanY
+      tmpy = 0 - 1
+      IfXIsMoreThanY
+        tmpargument = tmpx + 5
+        tmpx = selforder
+        SendMessageNear
+
+
+//------------------------------------------------------------------------------
+// ZZ> Move around...  Start at state 0
+IfTimeOut
+  IfStateIs0
+    tmpx = rand & 255 - 128 + selfspawnx
+    tmpy = rand & 255 - 128 + selfspawny
+    ClearWaypoints
+    AddWaypoint
+  tmpargument = rand & 31 + 15
+  SetTime
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  JoinEvilTeam
+  tmpargument = 2
+  tmpdistance = rand & 1027 + 11000
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

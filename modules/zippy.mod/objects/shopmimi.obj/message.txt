@@ -1,0 +1,4 @@
+Message 0: %t_killed_the_%c!
+Message 1: Watch_out_%t!__That's_a_%c!
+Message 2: %t_can't_be_fooled_by_the_%c!
+Message 3: The_%c_was_ripped_open!

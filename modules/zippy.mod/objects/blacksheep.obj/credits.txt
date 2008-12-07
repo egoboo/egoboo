@@ -1,0 +1,11 @@
+Author: 	Spyro VII & heavily modified by Zefz
+Email:		arhjr@spyrovii.info
+Description: 	Counting Sheep (Tame)
+		A more-powerful version of the zipp city sheep with more HP, 
+		and gnarly offensive skills. Has a number on its side to 
+		diffrentiat itself from its weaker kin.
+        Can go rage.
+
+With this Free Art License, you are authorised to 
+copy, distribute and freely transform the work of 
+art while respecting the rights of the originator.

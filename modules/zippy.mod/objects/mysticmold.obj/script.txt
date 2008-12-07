@@ -1,0 +1,168 @@
+//Spawned in hands/inventory of the owner
+IfSpawned
+  SetTurnModeToSpin
+  IfHeld
+    SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      SetOwnerToTarget
+      MakeNameKnown
+      tmpargument = 1
+      SetState
+      JoinTargetTeam
+
+//Ouchie
+IfAttacked
+  tmpargument = 2
+  PlaySound
+      
+//Death
+IfKilled
+  tmpargument = 2
+  PlaySound
+  tmpargument = selfmoney
+  DropMoney
+  tmpargument = 0
+  SendMessage
+      
+//Someone took us
+IfGrabbed
+
+  SetTargetToWhoeverIsHolding
+  IfNameIsKnown
+    SetOldTarget
+    SetTargetToOwner
+    IfTargetIsOldTarget  //Say hello
+      tmpargument = selfmoney
+      DropMoney
+      tmpargument = 10
+      SendMessageNear
+      IfSpawned             //Dont when just spawned
+        DoNothing
+      Else
+        tmpargument = 4
+        PlaySound             //squishy
+    Else
+      tmpargument = 9
+      SendMessageNear
+  Else                      //We got a new owner!   
+    SetOwnerToTarget
+    tmpargument = 12
+    SendMessageNear
+    MakeNameKnown
+    tmpargument = 1
+    SetState
+    JoinTargetTeam
+    
+//Let the player know what this is
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 11
+      SendMessageNear
+          
+//Sparkle friendlies
+IfUsed
+  SetTargetToWhoeverIsHolding
+    tmpargument = 50
+    SetTargetReloadTime
+  
+  //Show stats
+  IfTargetIsAPlayer
+    // Print =NAME=
+    SetTargetToSelf
+    tmpargument = 1
+    SendMessageNear      
+
+    // Level
+    tmpx = targetlevel+1
+    tmpargument = 2
+    SendMessageNear
+
+    // Physical Stats
+    tmpx = targetlife > 9
+    tmpy = 2
+    IfXIsMoreThanY
+      tmpx = 3
+    tmpargument = 4 + tmpx
+    tmpx = selfstr > 8
+    tmpy = selfwis > 8
+    SendMessageNear
+
+    // Mental Stats
+    tmpdistance = targetexp
+    tmpx = targetint > 8
+    tmpy = targetwis > 8
+    tmpargument = 8
+    SendMessageNear
+  
+      
+// ZZ> This controls the pet AI
+IfTimeOut
+  
+  tmpargument = rand & 15 + 30
+  SetTime
+  
+
+  // Play the random sound
+  tmpx = rand & 255
+  tmpy = 100
+  IfXIsLessThanY
+    tmpargument = 3
+    PlaySound
+
+  IfStateIs0
+    // Circle around start location
+    tmpx = rand & 1023 + selfx - 512
+    tmpy = rand & 1023 + selfy - 512
+    ClearWaypoints
+    AddWaypoint
+  Else
+    tmpx = ownerdistance
+    tmpy = 500
+    IfXIsMoreThanY
+      // Catch up fast
+      tmpx = ownerx
+      tmpy = ownery
+      tmpturn = ownerturnto
+      tmpdistance = 500
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else
+      // Circle around the player
+      tmpx = rand & 511 + ownerx - 256
+      tmpy = rand & 511 + ownery - 256
+      tmpturn = xyturnto
+      tmpdistance = 100
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      
+      //Attack!
+      IfHeld
+        DoNothing
+      Else
+        SetTargetToNearbyEnemy
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = 0 - 128*4
+          tmpturn = targetturnto
+          Compass
+          ClearWaypoints
+          AddWaypoint
+          tmpx = selfmana
+          tmpy = 255
+          IfXIsMoreThanY
+            tmpargument = 1
+            tmpdistance = selfz
+            tmpy = selfy
+            tmpx = selfx
+            tmpturn = targetturnto
+            SpawnExactChaseParticle
+            SetTargetToSelf
+            tmpargument = 256
+            CostTargetMana
+            tmpargument = 70
+            SetTime
+// All done
+End

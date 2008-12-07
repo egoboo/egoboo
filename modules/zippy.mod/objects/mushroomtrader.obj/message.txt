@@ -1,0 +1,5 @@
+Message 0: %n_won't_be_mixing_potions_anymore!
+Message 1: Hey_you!_Could_you_help_an_alchemist?
+Message 2: I_need_some_mushrooms_for_my_experiments...
+Message 3: I'll_trade_em'_for_some_rare_potions.
+Message 4: Thank_you!

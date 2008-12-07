@@ -1,0 +1,9 @@
+Message 0: %n_kicked_the_bucket!
+Message 1: %n_HATE
+Message 2: I'll_teach_you_a_lesson!
+Message 3: %n_was_killed_by_%t!
+Message 4: %n_had_a_little_accident...
+Message 5: Here's_yer_money..._(%x_Zenny)
+Message 6: It'll_cost_ya..._(%x_Zenny)
+Message 7: Hand's_off!_(%x_Zenny)
+Message 8: I'm_not_payin'_for_that!
