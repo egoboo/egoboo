@@ -33,6 +33,7 @@ glVector CrossProduct(glVector A, glVector B);
 float DotProduct(glVector A, glVector B);*/
 void load_graphics();
 void save_settings();
+bool_t save_input_settings(char* whichfile);
 void empty_import_directory( void );
 void insert_space( int position );
 void copy_one_line( int write );
@@ -94,6 +95,7 @@ void reset_tags();
 int read_tag( FILE *fileread );
 void read_all_tags( char *szFilename );
 int tag_value( char *string );
+char* tag_to_string( Uint32 tag, bool_t onlykeys );
 void read_controls( char *szFilename );
 Uint8 control_key_is_pressed( Uint8 control );
 Uint8 control_mouse_is_pressed( Uint8 control );

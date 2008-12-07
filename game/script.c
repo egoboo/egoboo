@@ -692,8 +692,9 @@ Uint8 run_function( Uint32 value, int character )
   float fTmp;
   int iTmp, tTmp;
   int volume;
-  Uint32 test;
+  IDSZ test;
   char cTmp[256];
+  STRING text;
 
   // Figure out which function to run
   switch ( valuecode )
@@ -3501,10 +3502,8 @@ Uint8 run_function( Uint32 value, int character )
 
     case FSETTARGETTOLASTITEMUSED:
       // This sets the target to the last item the character used
-
       if ( chrlastitemused[character] == character ) returncode = bfalse;
       else chraitarget[character] = chrlastitemused[character];
-
       break;
 
     case FFOLLOWLINK:
@@ -3532,10 +3531,20 @@ Uint8 run_function( Uint32 value, int character )
       returncode = ( chrorder[character] == STOLEN && chrcounter[character] == 3 );
       break;
 
-    case FIFTARGETISARCANESPELL:
-      // Proceeds if the AI target has [IDAM] expansion.
-      sTmp = chrmodel[chraitarget[character]];
-      returncode = capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "IDAM" );
+    case FIFTARGETISASPELL:
+      // Proceeds if the AI target has any particle with the [IDAM] or [WDAM] expansion
+	  iTmp = 0;
+	  returncode = bfalse;
+	  while(iTmp < MAXPRTPIPPEROBJECT)
+	  {
+		 
+		  if(pipintdamagebonus[madprtpip[chraitarget[character]][iTmp]] || pipwisdamagebonus[madprtpip[chraitarget[character]][iTmp]])
+		  {
+			  returncode = btrue;
+			  break;
+		  }
+		  iTmp++;
+	  }
       break;
 
     case FIFBACKSTABBED:

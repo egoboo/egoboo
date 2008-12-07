@@ -446,12 +446,32 @@ int tag_value( char *string )
     if ( strcmp( string, tagname[cnt] ) == 0 )
     {
       // They match
-      return tagvalue[cnt];
+	  return tagvalue[cnt];
     }
     cnt++;
   }
   // No matches
   return 255;
+}
+
+//--------------------------------------------------------------------------------------------
+char* tag_to_string( Uint32 tag, bool_t onlykeys )
+{
+  int cnt;
+
+  cnt = 0;
+  while ( cnt < MAXTAG )
+  {
+    if ( tag == tagvalue[cnt])
+    {
+      // They match
+	  if(onlykeys) if(tagname[cnt][0] == 'K') return tagname[cnt];
+	  else return tagname[cnt];
+    }
+    cnt++;
+  }
+  // No matches
+  return "N/A";
 }
 
 //--------------------------------------------------------------------------------------------
@@ -471,7 +491,6 @@ void read_controls( char *szFilename )
     {
       fscanf( fileread, "%s", currenttag );
       controlvalue[cnt] = tag_value( currenttag );
-      // printf("CTRL: %i, %s\n", controlvalue[cnt], currenttag);
       controliskey[cnt] = ( currenttag[0] == 'K' );
       cnt++;
     }
@@ -2513,8 +2532,8 @@ int SDL_main( int argc, char **argv )
   make_enviro(); // THIS SHOULD WORK
   load_mesh_fans(); // THIS SHOULD WORK
   load_blip_bitmap();
-  //load_all_menu_images();
   load_all_music_sounds();
+  load_all_global_icons();
   initMenus();        // Start the game menu
 
   // Let the normal OS mouse cursor work

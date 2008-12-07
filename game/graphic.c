@@ -4494,7 +4494,7 @@ void draw_titleimage( int image, int x, int y )
 void do_cursor()
 {
   // This function implements a mouse cursor
-  read_input( NULL );
+  read_input();
   cursorx = mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx - 16 )  cursorx = scrx - 16;
   cursory = mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry - 24 )  cursory = scry - 24;
   clicked = bfalse;

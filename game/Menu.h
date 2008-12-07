@@ -28,4 +28,6 @@ void menu_frameStep();
 static int selectedPlayer = 0;
 static int selectedModule = 0;
 
+static int waitingforinput = -1;
+
 #endif // include guard

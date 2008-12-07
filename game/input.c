@@ -42,7 +42,6 @@ void read_mouse()
 void read_key()
 {
   sdlkeybuffer = SDL_GetKeyState( NULL );
-//  if(sdlkeybuffer[SDLK_RETURN]) exit(1); MN: this should no longer be necessary
 }
 
 //--------------------------------------------------------------------------------------------

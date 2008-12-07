@@ -25,12 +25,12 @@
 #    pragma warning(disable : 4244) // conversion from 'double' to 'float'
 #    pragma warning(disable : 4554) // possibly operator precendence error
 //#    pragma warning(disable : 4761)
+//#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
 #endif
 
 #ifdef __unix__
 #    include <unistd.h>
 #endif
-#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
 
 #ifdef WIN32
 // Speeds up compile times a bit.  We don't need everything in windows.h

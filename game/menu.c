@@ -94,6 +94,28 @@ const char *audioOptionsButtons[] =
   ""
 };
 
+const char *inputOptionsButtons[] =
+{
+  "N/A",        // Keyboard jump
+  "N/A",        // Keyboard left use
+  "N/A",        // Keyboard left get
+  "N/A",        // Keyboard left inventory
+  "N/A",        // Keyboard Right use
+  "N/A",        // Keyboard right get
+  "N/A",        // Keyboard right inventory
+  "N/A",        // Keyboard Camera rotate X
+  "N/A",        // Keyboard Camera rotate Y
+  "N/A",        // Keyboard camera zoom +
+  "N/A",        // Keyboard camrea zoom -
+  "N/A",        // Keyboard UP
+  "N/A",        // Keyboard DOWN
+  "N/A",        // Keyboard LEFT
+  "N/A",        // Keyboard RIGHT
+  "Player 1",   // Select which player
+  "Save Settings",
+  ""
+};
+
 const char *videoOptionsButtons[] =
 {
   "N/A",    // Antialaising
@@ -870,6 +892,228 @@ int doOptions( float deltaTime )
   return result;
 }
 
+int doInputOptions( float deltaTime )
+{
+  static int menuState = MM_Begin;
+  static GLTexture background;
+  static int menuChoice = 0;
+  
+  Sint8 result = 0;
+  Uint8 player = 0;
+  Uint8 inputtype = 0;
+
+  switch ( menuState )
+  {
+    case MM_Begin:
+      // set up menu variables
+      menuChoice = 0;
+      menuState = MM_Entering;
+      // let this fall through into MM_Entering
+
+    case MM_Entering:
+      // do buttons sliding in animation, and background fading in
+      // background
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+      // Fall trough
+      menuState = MM_Running;
+      break;
+
+    case MM_Running:
+      // Do normal run
+      // Background
+      glColor4f( 1, 1, 1, 1 );
+	  fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, displaySurface->h - 470, 0, 0, 20 );
+
+	  //Are we waiting for input?
+	  if(SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;		//Someone pressed abort
+	  if(waitingforinput != -1)
+	  {
+		  Uint8 tag = 0;
+		  read_key();
+	      while(tag < MAXTAG) 
+		  {
+			 if(sdlkeybuffer[tagvalue[tag]] != 0)
+			 {
+				controlvalue[waitingforinput] = tagvalue[tag];
+				waitingforinput = -1;
+				break;
+			 }
+			 tag++;
+		  }
+	  }
+	  else
+	  {
+		  //Left hand
+		  inputOptionsButtons[0] = tag_to_string(controlvalue[KEY_LEFT_USE], btrue);
+		  inputOptionsButtons[1] = tag_to_string(controlvalue[KEY_LEFT_GET], btrue);
+		  inputOptionsButtons[2] = tag_to_string(controlvalue[KEY_LEFT_PACK], btrue);
+
+		  //Right hand
+		  inputOptionsButtons[3] = tag_to_string(controlvalue[KEY_RIGHT_USE], btrue);
+		  inputOptionsButtons[4] = tag_to_string(controlvalue[KEY_RIGHT_GET], btrue);
+		  inputOptionsButtons[5] = tag_to_string(controlvalue[KEY_RIGHT_PACK], btrue);
+
+		  //Movement
+		  inputOptionsButtons[6] = tag_to_string(controlvalue[KEY_JUMP], btrue);
+		  inputOptionsButtons[7] = tag_to_string(controlvalue[KEY_UP], btrue);
+		  inputOptionsButtons[8] = tag_to_string(controlvalue[KEY_DOWN], btrue);
+		  inputOptionsButtons[9] = tag_to_string(controlvalue[KEY_LEFT], btrue);
+		  inputOptionsButtons[10] = tag_to_string(controlvalue[KEY_RIGHT], btrue);
+
+		  //Camera
+		  inputOptionsButtons[11] = tag_to_string(controlvalue[KEY_CAMERA_IN], btrue);
+		  inputOptionsButtons[12] = tag_to_string(controlvalue[KEY_CAMERA_OUT], btrue);
+		  inputOptionsButtons[13] = tag_to_string(controlvalue[KEY_CAMERA_LEFT], btrue);
+		  inputOptionsButtons[14] = tag_to_string(controlvalue[KEY_CAMERA_RIGHT], btrue);	  
+	  }
+      //Left hand
+	  fnt_drawTextBox( menuFont, "Use:", buttonLeft, displaySurface->h - 440, 0, 0, 20 );
+      if ( ui_doButton( 1, inputOptionsButtons[0], buttonLeft + 100, displaySurface->h - 440, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_LEFT_USE;
+		  inputOptionsButtons[0] = "...";
+	  }
+
+	  fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft, displaySurface->h - 410, 0, 0, 20 );
+      if ( ui_doButton( 2, inputOptionsButtons[1], buttonLeft + 100, displaySurface->h - 410, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_LEFT_GET;
+		  inputOptionsButtons[1] = "...";
+      }
+
+	  fnt_drawTextBox( menuFont, "Inventory:", buttonLeft, displaySurface->h - 380, 0, 0, 20 );
+      if ( ui_doButton( 3, inputOptionsButtons[2], buttonLeft + 100, displaySurface->h - 380, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_LEFT_PACK;
+		  inputOptionsButtons[2] = "...";       
+      }
+
+	  //Right hand
+	  fnt_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, displaySurface->h - 470, 0, 0, 20 );
+	  fnt_drawTextBox( menuFont, "Use:", buttonLeft + 300, displaySurface->h - 440, 0, 0, 20 );
+      if ( ui_doButton( 4, inputOptionsButtons[3], buttonLeft + 400, displaySurface->h - 440, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_RIGHT_USE;
+		  inputOptionsButtons[3] = "...";        
+      }
+
+	  fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, displaySurface->h - 410, 0, 0, 20 );
+      if ( ui_doButton( 5, inputOptionsButtons[4], buttonLeft + 400, displaySurface->h - 410, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_RIGHT_GET;
+		  inputOptionsButtons[4] = "...";       
+      }
+
+	  fnt_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, displaySurface->h - 380, 0, 0, 20 );
+      if ( ui_doButton( 6, inputOptionsButtons[5], buttonLeft + 400, displaySurface->h - 380, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_RIGHT_PACK;
+		  inputOptionsButtons[5] = "...";       
+      }
+
+	  //Controls
+      fnt_drawTextBox( menuFont, "CONTROLS", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
+	  fnt_drawTextBox( menuFont, "Jump:", buttonLeft, displaySurface->h - 290, 0, 0, 20 );
+      if ( ui_doButton( 7, inputOptionsButtons[6], buttonLeft + 100, displaySurface->h - 290, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_JUMP;
+		  inputOptionsButtons[6] = "...";  
+      }
+	  fnt_drawTextBox( menuFont, "Up:", buttonLeft, displaySurface->h - 260, 0, 0, 20 );
+      if ( ui_doButton( 8, inputOptionsButtons[7], buttonLeft + 100, displaySurface->h - 260, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_UP;
+		  inputOptionsButtons[7] = "...";  
+      }
+	  fnt_drawTextBox( menuFont, "Down:", buttonLeft, displaySurface->h - 230, 0, 0, 20 );
+      if ( ui_doButton( 9, inputOptionsButtons[8], buttonLeft + 100, displaySurface->h - 230, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_DOWN;
+		  inputOptionsButtons[8] = "...";  	
+      }
+	  fnt_drawTextBox( menuFont, "Left:", buttonLeft, displaySurface->h - 200, 0, 0, 20 );
+      if ( ui_doButton( 10, inputOptionsButtons[9], buttonLeft + 100, displaySurface->h - 200, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_LEFT;
+		  inputOptionsButtons[9] = "...";  	
+      }
+	  fnt_drawTextBox( menuFont, "Right:", buttonLeft, displaySurface->h - 170, 0, 0, 20 );
+      if ( ui_doButton( 11, inputOptionsButtons[10], buttonLeft + 100, displaySurface->h - 170, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_RIGHT;
+		  inputOptionsButtons[10] = "...";  	
+      }
+
+	  //Controls
+      fnt_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
+	  fnt_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, displaySurface->h - 290, 0, 0, 20 );
+      if ( ui_doButton( 12, inputOptionsButtons[11], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_CAMERA_IN;
+		  inputOptionsButtons[11] = "...";  	
+      }
+	  fnt_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, displaySurface->h - 260, 0, 0, 20 );
+      if ( ui_doButton( 13, inputOptionsButtons[12], buttonLeft + 450, displaySurface->h - 260, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_CAMERA_OUT;
+		  inputOptionsButtons[12] = "...";  	
+      }
+      fnt_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, displaySurface->h - 230, 0, 0, 20 );
+      if ( ui_doButton( 14, inputOptionsButtons[13], buttonLeft + 450, displaySurface->h - 230, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_CAMERA_LEFT;
+		  inputOptionsButtons[13] = "...";  	
+      }
+	  fnt_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
+      if ( ui_doButton( 15, inputOptionsButtons[14], buttonLeft + 450, displaySurface->h - 200, 140, 30 ) == 1 )
+      {
+		  waitingforinput = KEY_CAMERA_RIGHT;
+		  inputOptionsButtons[14] = "...";  	
+	  }
+
+	  //The select player button
+	  {
+	  snprintf(inputOptionsButtons[15], sizeof(inputOptionsButtons[15]), "Player %i", player+1);
+	  if(ui_doImageButtonWithText( 16, &TxIcon[keybicon+player], inputOptionsButtons[15],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
+	  {
+
+		  //TODO
+		  player++;
+		  if(player > MAXPLAYER) player = 0;
+	  }
+	  }
+	  //Save settings button
+      if ( ui_doButton( 17, inputOptionsButtons[16], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
+      {
+        // save settings and go back
+        save_input_settings("controls.txt");
+        menuState = MM_Leaving;
+      }
+      break;
+
+    case MM_Leaving:
+      // Do buttons sliding out and background fading
+      // Do the same stuff as in MM_Entering, but backwards
+      glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+      // Fall trough
+      menuState = MM_Finish;
+      break;
+
+    case MM_Finish:
+      menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+      // Set the next menu to load
+      result = 1;
+      break;
+  }
+  return result;
+}
+
+
+
+//Audio options menu
 int doAudioOptions( float deltaTime )
 {
   static int menuState = MM_Begin;
@@ -1817,6 +2061,14 @@ int doMenu( float deltaTime )
       }
       break;
 
+    case InputOptions:
+      result = doInputOptions( deltaTime );
+      if ( result != 0 )
+      {
+        whichMenu = Options;
+      }
+      break;
+
     case TestResults:
       result = doShowMenuResults( deltaTime );
       if ( result != 0 )
@@ -1840,6 +2092,139 @@ int doMenu( float deltaTime )
 void menu_frameStep()
 {
 
+}
+
+bool_t save_input_settings(char* whichfile)
+{
+  // This function saves all current game settings to setup.txt
+  FILE* filewrite;
+  STRING write;
+
+  filewrite = fopen( whichfile, "w" );
+  if ( filewrite )
+  {
+    //Just some information
+    fputs( "Controls\n", filewrite );
+    fputs( "========\n", filewrite );
+    fputs( "This file lets users modify the handling of input devices.\n", filewrite );
+    fputs( "See the game manual for a list of settings and more info.\n", filewrite );
+    fputs( "Note that you can mix KEY_ type settings with other \n", filewrite );
+    fputs( "devices... Write the input after the colons!\n\n", filewrite );
+    
+	fputs( "General Controls\n", filewrite );
+    fputs( "========\n", filewrite );
+    fputs( "These are general controls and cannot be changed\n", filewrite );
+    fputs( "ESC                   - End module\n", filewrite );
+    fputs( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
+    fputs( "1 to 7                - Show character detailed stats\n", filewrite );
+    fputs( "LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
+    fputs( "LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
+    fputs( "LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
+    fputs( "F11                   - Take screenshot\n", filewrite );
+    fputs( "\n", filewrite );
+
+	//The actual settings
+	fputs( "Keyboard\n", filewrite );
+    fputs( "========\n", filewrite );
+	snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[KEY_JUMP], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[KEY_LEFT_USE], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[KEY_LEFT_GET], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Inventory: %s\n", tag_to_string(controlvalue[KEY_LEFT_PACK], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[KEY_RIGHT_USE], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Get/Drop: %s\n", tag_to_string(controlvalue[KEY_RIGHT_GET], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[KEY_RIGHT_PACK], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Send Message		: %s\n", tag_to_string(controlvalue[KEY_MESSAGE], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Camera Rotate Left	: %s\n", tag_to_string(controlvalue[KEY_CAMERA_LEFT], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Camera Rotate Right: %s\n", tag_to_string(controlvalue[KEY_CAMERA_RIGHT], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Camera Zoom In		: %s\n", tag_to_string(controlvalue[KEY_CAMERA_IN], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Camera Zoom Out	: %s\n", tag_to_string(controlvalue[KEY_CAMERA_OUT], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Up					: %s\n", tag_to_string(controlvalue[KEY_UP], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Down				: %s\n", tag_to_string(controlvalue[KEY_DOWN], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left				: %s\n", tag_to_string(controlvalue[KEY_LEFT], btrue) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right				: %s\n", tag_to_string(controlvalue[KEY_RIGHT], btrue) );
+    fputs( write, filewrite );
+
+	fputs( "\n\nMouse\n", filewrite );
+    fputs( "========\n", filewrite );
+  	snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[MOS_JUMP], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[MOS_LEFT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[MOS_LEFT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[MOS_LEFT_PACK], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[MOS_RIGHT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[MOS_RIGHT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[MOS_RIGHT_PACK], bfalse) );
+    fputs( write, filewrite );
+	snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[MOS_CAMERA], bfalse) );
+    fputs( write, filewrite );
+
+	fputs( "\n\nJoystick A\n", filewrite );
+    fputs( "========\n", filewrite );
+  	snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[JOA_JUMP], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[JOA_LEFT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOA_LEFT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[JOA_LEFT_PACK], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[JOA_RIGHT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOA_RIGHT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[JOA_RIGHT_PACK], bfalse) );
+    fputs( write, filewrite );
+	snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[JOA_CAMERA], bfalse) );
+    fputs( write, filewrite );
+
+	fputs( "\n\nJoystick B\n", filewrite );
+    fputs( "========\n", filewrite );
+  	snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[JOB_JUMP], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[JOB_LEFT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOB_LEFT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[JOB_LEFT_PACK], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[JOB_RIGHT_USE], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOB_RIGHT_GET], bfalse) );
+    fputs( write, filewrite );
+  	snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[JOB_RIGHT_PACK], bfalse) );
+    fputs( write, filewrite );
+	snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[JOB_CAMERA], bfalse) );
+    fputs( write, filewrite );
+
+	//All done
+	fclose(filewrite);
+  }
+  else
+  {
+	  log_warning("Could not save input settings (%s)!\n", whichfile);
+	  return bfalse;
+  }
+  return btrue;
 }
 
 void save_settings()

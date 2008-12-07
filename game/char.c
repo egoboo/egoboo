@@ -254,12 +254,19 @@ void keep_weapons_with_holders()
         // Copy this stuff ONLY if it's a weapon, not for mounts
         if ( chrtransferblend[character] && chrisitem[cnt] )
         {
-          if ( chralpha[character] != 255 )
-          {
-            chralpha[cnt] = chralpha[character];
-          }
 
-          // Items become partially invisible in hands of players
+		  // Items become partially invisible in hands of players
+          if ( chrisplayer[character] && chralpha[character] != 255 )
+            chralpha[cnt] = 128;
+          else
+          {
+            // Only if not naturally transparent
+            if ( capalpha[chrmodel[cnt]] == 255 )
+              chralpha[cnt] = chralpha[character];
+            else chralpha[cnt] = capalpha[chrmodel[cnt]];
+		  }
+
+		  //Do light too
           if ( chrisplayer[character] && chrlight[character] != 255 )
             chrlight[cnt] = 128;
           else

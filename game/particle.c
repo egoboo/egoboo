@@ -1028,7 +1028,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
   if ( fileread != NULL )
   {
     // General data
-    globalname = szLoadName;
+    globalname = szLoadName;    //For debugging missing colons
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     pipforce[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  pipforce[numpip] = btrue;
@@ -1157,8 +1157,9 @@ int load_one_particle( char *szLoadName, int object, int pip )
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     pipfriendlyfire[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;
-    goto_colon( fileread );  // !!Hate group only
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+	goto_colon( fileread ); cTmp = get_first_letter( fileread );
+	piphateonly[numpip] = bfalse;							//TODO: BAD not implemented yet
+	if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;
     pipnewtargetonspawn[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) pipnewtargetonspawn[numpip] = btrue;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); piptargetangle[numpip] = iTmp >> 1;

@@ -91,7 +91,7 @@ EXTERN Uint16    endtextindex[8];
 #define NOHIDE              127                     // Don't hide
 
 // Stats
-#define MANARETURNSHIFT     20                       //
+#define MANARETURNSHIFT     22                       //
 #define LOWSTAT             256                     // Worst...
 #define PERFECTSTAT         (75*256)                // Perfect...
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
@@ -337,7 +337,7 @@ EXTERN int rotmeshdown;                                    //
 #define PRTLIGHTSPRITE                  0           // Magic effect particle
 #define PRTSOLIDSPRITE                  1           // Sprite particle
 #define PRTALPHASPRITE                  2           // Smoke particle
-#define MAXPARTICLEIMAGE                256         // Number of particle images ( frames )
+#define MAXPARTICLEIMAGE                319 //255        // Number of particle images ( frames )
 
 
 
@@ -1128,6 +1128,7 @@ EXTERN Sint8                   pipsoundend[TOTALMAXPRTPIP];                     
 EXTERN Sint8                   pipsoundfloor[TOTALMAXPRTPIP];                   // Floor sound
 EXTERN Sint8                   pipsoundwall[TOTALMAXPRTPIP];                    // Ricochet sound
 EXTERN bool_t                   pipfriendlyfire[TOTALMAXPRTPIP];                 // Friendly fire
+EXTERN bool_t                   piphateonly[TOTALMAXPRTPIP];					//Only hit hategroup
 EXTERN bool_t                   piprotatetoface[TOTALMAXPRTPIP];                 // Arrows/Missiles
 EXTERN bool_t                   pipnewtargetonspawn[TOTALMAXPRTPIP];             // Get new target?
 EXTERN bool_t                   piphoming[TOTALMAXPRTPIP];                       // Homing?
@@ -1755,6 +1756,7 @@ EXTERN Uint32 tagvalue[MAXTAG];                     // Scancode values
 #define MAXCONTROL          64
 EXTERN Uint32 controlvalue[MAXCONTROL];             // The scancode or mask
 EXTERN Uint32 controliskey[MAXCONTROL];             // Is it a key?
+#define KEY_INVALID			255
 #define KEY_JUMP            0
 #define KEY_LEFT_USE        1
 #define KEY_LEFT_GET        2

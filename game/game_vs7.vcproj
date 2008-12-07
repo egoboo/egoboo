@@ -21,16 +21,14 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
-				MinimalRebuild="FALSE"
+				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				EnableFunctionLevelLinking="FALSE"
 				UsePrecompiledHeader="0"
-				BrowseInformation="1"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"
-				CompileAs="1"/>
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="4"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -41,7 +39,7 @@
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>
@@ -148,9 +146,6 @@
 				RelativePath=".\configfile.c">
 			</File>
 			<File
-				RelativePath=".\egoboo_math.c">
-			</File>
-			<File
 				RelativePath=".\egobooendian.c">
 			</File>
 			<File
@@ -218,6 +213,9 @@
 			</File>
 			<File
 				RelativePath=".\Log.c">
+			</File>
+			<File
+				RelativePath=".\mathstuff.c">
 			</File>
 			<File
 				RelativePath=".\Md2.c">

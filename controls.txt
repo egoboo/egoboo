@@ -1,0 +1,72 @@
+Controls
+========
+This file lets users modify the handling of input devices.
+See the game manual for a list of settings and more info.
+Note that you can mix KEY_ type settings with other 
+devices... Write the input after the colons!
+
+General Controls
+========
+These are general controls and cannot be changed
+ESC                   - End module
+SPACE                 - Respawn character (if dead and possible)
+1 to 7                - Show character detailed stats
+LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants
+LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included
+LEFT ALT     + 1 to 7 - Show character magic enchants
+F11                   - Take screenshot
+
+Keyboard
+========
+Jump				: KEY_SPACE
+Left Hand Use		: KEY_T
+Left Hand Get/Drop	: KEY_G
+Left Hand Inventory: KEY_B
+Right Hand Use		: KEY_Y
+Right Hand Get/Drop: KEY_H
+Right Hand Inventory: KEY_N
+Send Message		: JOY_4
+Camera Rotate Left	: KEY_E
+Camera Rotate Right: KEY_Q
+Camera Zoom In		: KEY_Z
+Camera Zoom Out	: KEY_X
+Up					: KEY_W
+Down				: KEY_S
+Left				: KEY_A
+Right				: KEY_D
+
+
+Mouse
+========
+Jump				: N/A
+Left Hand Use		: N/A
+Left Hand Get/Drop	: N/A
+Left Hand Inventory	: N/A
+Right Hand Use		: N/A
+Right Hand Get/Drop	: N/A
+Right Hand Inventory: N/A
+Camera Control Mode	: N/A
+
+
+Joystick A
+========
+Jump				: N/A
+Left Hand Use		: N/A
+Left Hand Get/Drop	: N/A
+Left Hand Inventory	: N/A
+Right Hand Use		: N/A
+Right Hand Get/Drop	: N/A
+Right Hand Inventory: N/A
+Camera Control Mode	: N/A
+
+
+Joystick B
+========
+Jump				: N/A
+Left Hand Use		: N/A
+Left Hand Get/Drop	: N/A
+Left Hand Inventory	: N/A
+Right Hand Use		: N/A
+Right Hand Get/Drop	: N/A
+Right Hand Inventory: N/A
+Camera Control Mode	: N/A
