@@ -1,0 +1,43 @@
+// ZZ> This controls the yellow faerie
+IfTimeOut
+  tmpargument = rand & 15 + 10
+  SetTime
+  IfStateIs0
+    // Circle around start location
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    tmpturn = xyturnto + 16384
+    tmpdistance = 100
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    // Look for a player
+    tmpargument = [HUMA]
+    tmpdistance = 14 // Items, friends and enemies
+    SetTargetToNearestBlahID
+      SetOwnerToTarget
+      tmpargument = 1
+      SetState
+  Else
+    tmpx = ownerdistance
+    tmpy = 300
+    IfXIsMoreThanY
+      // Catch up fast
+      tmpx = ownerx
+      tmpy = ownery
+      tmpturn = ownerturnto
+      tmpdistance = 500
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else
+      // Circle around the player
+      tmpx = ownerx
+      tmpy = ownery
+      tmpturn = xyturnto + 16384
+      tmpdistance = 100
+      Compass
+      ClearWaypoints
+      AddWaypoint
+// All done
+End
