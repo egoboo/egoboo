@@ -1,0 +1,73 @@
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnSameTeam
+    tmpargument = [KEYI]
+    IfTargetHasItemID			//brought back the idol
+      CostTargetItemID
+      EnableExport
+      BeatModule
+      tmpargument = [BEAT]
+      AddIDSZ
+      tmpargument = 125
+      tmpdistance = EXPQUEST
+      GiveExperienceToGoodTeam
+      tmpargument = 3
+      SetState
+      tmpargument = 1
+      SendMessageNear
+    IfStateIs0
+      tmpargument = 2
+      PlaySound
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = 1
+      SetState
+      tmpargument = 100
+      SetTime
+    IfStateIs2
+      tmpargument = 3
+      PlaySound
+      tmpargument = 1
+      SendMessageNear
+      tmpargument = 3
+      SetState
+      tmpargument = 100
+      SetTime
+
+//Return to greeting mode
+IfTimeOut
+  IfStateIs1
+    tmpargument = 0
+    SetState
+  IfStateIs3
+    tmpargument = 2
+    SetState
+
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    JoinEvilTeam
+
+IfTimeOut
+  tmpargument = 10
+  SetTime
+  SetTargetToWideEnemy
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = 1500
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 200
+      IfXIsLessThanY
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

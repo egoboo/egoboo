@@ -1,0 +1,16 @@
+IfBumped				//Display a message (Based on content number)
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfStateIs0				//Not looping
+      GetContent
+      SendMessageNear			//Content is which message to send
+      tmpargument = 100
+      SetTime
+      tmpargument = 1
+      SetState
+
+IfTimeOut				//Disable looping of messages
+  tmpargument = 0
+  SetState
+
+End					// All done
