@@ -1,0 +1,148 @@
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = BLUE
+ShowBlipXY
+
+
+IfKilled				// This reduces the height of the char
+  tmpargument = 6
+  PlaySound
+
+  tmpargument = 0			  // Last words...
+  SetState				  //
+  IfTargetIsOnSameTeam			  // Fragged!
+    tmpargument = 3			    //
+    IfTargetIsSelf			    // No, just a damage tile
+      tmpargument = 4			      //
+  SendMessage				  //
+  tmpargument = selfmoney			  // Drop money
+  DropMoney				  //
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+IfAttacked				// Attacked
+  SetTargetToWhoeverAttacked		  //
+    IfTargetIsAlive			    //
+      IfTargetIsOnHatedTeam		      // Go after 'em
+        tmpargument = 1			        //
+        SetState			              // Ouch!
+        tmpargument = tmpdistance & 1 + 4
+        PlaySound			        //
+      Else				      // Complain
+        tmpargument = 2			        //
+        SendMessageNear			        //
+        tmpargument = 1			        //
+        PlaySound			        //
+        SetTargetToOldTarget		        //
+    Else				    //Attacker died already
+      SetTargetToOldTarget		      //
+IfTargetKilled				// Return to follow mode
+  tmpargument = 0			  // State 0 ( Follow )
+  SetState				  //
+IfTimeOut				// This is done every so often
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1
+  IfXIsEqualToY
+    // Say "After Her"
+    tmpargument = 8
+    PlayFullSound
+
+    tmpargument = 5
+    SendMessageNear
+
+    tmpargument = 0
+    SetContent
+  Else
+    IfXIsMoreThanY
+      // Say it next time
+      tmpargument = tmpx - 1
+      SetContent
+  SetTargetToNearbyEnemy		  // Look out for enemies
+    tmpargument = 1			      //
+    SetState				      // Change to combat mode
+    tmpargument = selfhateid		      //
+    IfTargetHasID			      // Battle cry versus hate group
+      IfTargetIsOldTarget		        //
+        DoNothing
+      Else				        //
+        tmpargument = 1			          //
+        SendMessageNear			          //
+        tmpargument = 3			          //
+        PlaySound			          //
+  
+  IfStateIs0				  // State 0 ( Follow )
+    tmpargument = 100
+    SetSpeedPercent
+    tmpx = leaderdistance
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpdistance = 133        //Catch up fast!
+      SetSpeedPercent
+    tmpdistance = 100         //Walk normal
+    tmpx = leaderx			    //
+    tmpy = leadery			    //
+    tmpturn = 16384 + leaderturn	    // Stand to side
+    Compass				    //
+  
+  IfStateIs1					  // State 1 ( Combat )
+    tmpx = targetdistance		    // Close enough to attack?
+    tmpy = 200				    //
+    IfXIsLessThanY			    //
+      tmpargument = LATCHRIGHT		      // Right Attack == 2
+      PressLatchButton			      //
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+    tmpx = leaderdistance
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+    tmpx = targetx			    // Move towards enemy
+    tmpy = targety			    //
+    tmpturn = targetturnto		    //
+    tmpargument = [CUBE]
+    IfTargetHasID
+      tmpdistance = 0 - 250     //Keep away from the gelfeet
+    Else
+      tmpdistance = 200			//Else move in to attack
+    Compass				    //
+  ClearWaypoints			  //
+  AddWaypoint				  //
+  tmpargument = rand & 15 + 5			  // Try again later
+  SetTime				  //
+
+// Use shield?
+IfTargetIsAttacking
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpargument = LATCHLEFT
+      PressLatchButton
+
+
+IfBumped				// Bumped
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsOnHatedTeam			  // Try to counter
+    tmpargument = LATCHRIGHT		    //
+    PressLatchButton			    //
+  Else					  // Get around other character
+    tmpargument = 0			    // Return to follow state
+    SetTargetToNearbyEnemy		    // Look out for enemies
+      tmpargument = 1			      // Stay in combat state
+    Else				    // Revert
+      SetTargetToOldTarget		      //
+    SetState				    //
+    tmpx = rand&511+selfx-256		    //
+    tmpy = rand&511+selfy-256		    //
+    ClearWaypoints			    //
+    AddWaypoint				    //
+    tmpargument = 40			    // Try again soon
+    SetTime				    //
+
+
+// Ya!  Unarmed attack sound
+IfUsed
+  tmpargument = 7
+  PlaySound
+End					// Finished with this character

@@ -1,0 +1,158 @@
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
+
+
+IfKilled				// This reduces the height of the char
+  tmpargument = 1
+  PlaySound
+
+  tmpargument = 0			  // Last words...
+  SetState				  //
+  IfTargetIsOnSameTeam			  // Fragged!
+    tmpargument = 3			    //
+    IfTargetIsSelf			    // No, just a damage tile
+      tmpargument = 4			      //
+  SendMessage				  //
+  tmpargument = 65535			  // Drop money
+  DropMoney				  //
+  tmpargument = 45			  //
+  SetBumpHeight				  //
+  
+IfCalledForHelp				// Help others
+  SetTargetToWhoeverCalledForHelp	  //
+    IfTargetIsAlive			    // Go heal 'em
+      tmpargument = 2			      //
+      SetState				      // State 2 ( Helper )
+    Else				    // Too late
+      SetTargetToOldTarget		      //
+IfTimeOut				// This is done every so often
+  tmpargument = 2			  // Check state
+  IfStateIs				  // State 2 ( Helper )
+    IfTargetIsHurt			    // Heal wounded
+      tmpx = targetdistance		      //
+      tmpy = 300			      //
+      IfXIsLessThanY			      // In Range?
+        tmpx = 260			        //
+        tmpy = selfmana			        //
+        IfXIsLessThanY				// Enough to cast?
+          IfFacingTarget
+            tmpargument = LATCHLEFT	          // Left Attack == 1
+            PressLatchButton		          //
+        Else					// Do something else
+          tmpargument = 0		          //
+          SetState			          //
+    Else				    // Switch to follow
+      tmpargument = 0			      //
+      SetState				      //
+    tmpx = targetx			    //
+    tmpy = targety			    //
+  Else					  // Find someone to bash
+    SetTargetToNearbyEnemy		    //
+      tmpargument = 1			      //
+      SetState				      //
+      
+  IfStateIs0				  // State 0 ( Follow )
+    tmpargument = 100
+    SetSpeedPercent
+    tmpx = leaderdistance
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpdistance = 133        //Catch up fast!
+      SetSpeedPercent
+    tmpdistance = 100         //Walk normal
+    tmpx = leaderx			    //
+    tmpy = leadery			    //
+    tmpturn = 49152 + leaderturn	    // Stand to side
+    Compass		
+
+  tmpargument = 1			  //
+  IfStateIs				  // State 1 ( Combat )
+    tmpx = targetdistance		    // Close enough to attack?
+    tmpy = 200				    //
+    IfXIsLessThanY			    //
+      tmpargument = LATCHRIGHT		      // Right Attack == 2
+      PressLatchButton			      //
+    tmpy = 700
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+    tmpx = leaderdistance
+    IfXIsMoreThanY
+      tmpargument = 0
+      SetState
+    tmpx = targetx			    // Move towards enemy
+    tmpy = targety			    //
+    tmpturn = targetturnto		    //
+    tmpargument = [CUBE]
+    IfTargetHasID
+      tmpdistance = 0 - 250     //Keep away from the gelfeet
+    Else
+      tmpdistance = 200			//Else move in to attack
+    Compass				    //
+  ClearWaypoints			  //
+  AddWaypoint				  //
+  tmpargument = rand & 15 + 15		  // Try again later
+  SetTime				  //
+IfAttacked				// Counter attack if not healing
+  tmpargument = 0			  //
+  IfStateIs				  //
+    SetTargetToWhoeverAttacked		    //
+      IfTargetIsAlive			      //
+        IfTargetIsOnHatedTeam		        // Go get 'em
+          tmpargument = 1		          //
+          SetState			          //
+          tmpargument = rand & 1 + 2
+          PlaySound
+        IfTargetIsOnSameTeam		        // Yell at 'em
+          tmpargument = MESSAGEOUCH	          //
+          SendMessageNear		          //
+          SetTargetToOldTarget		          //
+          tmpargument = 4
+          tmpdistance = rand & 1023 + 11000
+          PlaySound
+      Else				      // Attacker dead already
+        SetTargetToOldTarget		        //
+IfBumped				// Bumped
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsHurt			  //
+    IfTargetIsOnOtherTeam		    // Revert
+      SetTargetToOldTarget		      //
+    Else				    // Heal 'em
+      tmpargument = 2			      // State 2 ( Helper )
+      SetState				      //
+  Else					  // Revert
+    SetTargetToOldTarget		    //
+  tmpx = rand&511+selfx-256		  //
+  tmpy = rand&511+selfy-256		  //
+  ClearWaypoints			  //
+  AddWaypoint				  //
+  tmpargument = 40			  // Try again soon
+  SetTime				  //
+IfTargetKilled				// Mode switch
+  tmpargument = 0			  // Return to follow mode
+  SetState				  //
+
+
+// Heal sound and effect
+IfUsed
+  tmpargument = 0
+  tmpdistance = 11025
+  PlayFullSound
+  tmpargument = 50
+  SetReloadTime
+  IfTargetIsOnSameTeam
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 0
+    SpawnExactParticle
+
+    tmpargument = rand & 511 + 512
+    HealTarget
+
+
+End					// Finished with this character
