@@ -1,0 +1,57 @@
+// Makes the lava rise randomly.
+IfSpawned
+  tmpargument = rand & 255 < 2 + 512
+  SetTime
+  tmpargument = 1
+  SetState
+
+IfStateIs1
+  IfTimeOut
+    tmpargument = 0
+    SendMessageNear
+    tmpargument = 250
+    SetTime
+    tmpargument = 2
+    SetState
+IfStateIs2
+  tmpx = rand & 255
+  tmpy = 15
+  IfXIsLessThanY
+    tmpargument = 0
+    tmpdistance = rand & 16383 + 8000
+    PlaySound
+  IfTimeOut
+    GetWaterLevel
+    tmpx = tmpargument
+    tmpy = 0 - 48400
+    IfXIsLessThanY
+      tmpargument = 0 - 48400 - tmpargument > 7 + 1 + tmpargument
+      SetWaterLevel
+    Else
+      tmpargument = rand & 255 < 1 + 400
+      SetTime
+      tmpargument = 3
+      SetState
+IfStateIs3
+  IfTimeOut
+    tmpargument = 1
+    SendMessageNear
+    tmpargument = 0
+    tmpdistance = 22050
+    PlaySound
+    tmpargument = 4
+    SetState
+IfStateIs4
+  GetWaterLevel
+  tmpx = tmpargument
+  tmpy = 0 - 50000
+  IfXIsMoreThanY
+    tmpargument = 0 - 50000 - tmpargument > 7 - 1 + tmpargument
+    SetWaterLevel
+  Else
+    tmpargument = rand & 255 < 2 + 512
+    SetTime
+    tmpargument = 1
+    SetState
+
+End
