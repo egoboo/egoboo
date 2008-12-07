@@ -1,0 +1,10 @@
+tmpargument = passage
+tmpdistance = [ASPK]
+SetTargetToPassageID
+    GetContent
+    SendMessageNear
+    PlayFullSound
+    GoPoof 
+
+
+End

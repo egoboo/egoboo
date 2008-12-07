@@ -1,0 +1,3 @@
+Message 0: %n_did_something_stupid...
+Message 1: %n_was_killed_by_%t!
+Message 2: Watch_yourself,_you_clumsy_oaf!
