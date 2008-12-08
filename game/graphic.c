@@ -793,8 +793,11 @@ void release_all_textures()
 // ZF> Load all the global icons used in all modules
 bool_t load_all_global_icons()
 {
+  //Setup
   bool_t result = bfalse;
+  globalnumicon = 0;
 
+  //Now load every icon
   nullicon = globalnumicon;
   result = load_one_icon( "basicdat" SLASH_STR "nullicon.bmp" );
   keybicon = globalnumicon;

@@ -899,8 +899,9 @@ int doInputOptions( float deltaTime )
   static int menuChoice = 0;
   
   Sint8 result = 0;
-  Uint8 player = 0;
-  Uint8 inputtype = 0;
+  static Uint8 player = 0;
+
+  static char Ctext[128];
 
   switch ( menuState )
   {
@@ -909,6 +910,9 @@ int doInputOptions( float deltaTime )
       menuChoice = 0;
       menuState = MM_Entering;
       // let this fall through into MM_Entering
+
+	  //Load the global icons (keyboard, mouse, etc.)
+	  if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
     case MM_Entering:
       // do buttons sliding in animation, and background fading in
@@ -1073,20 +1077,21 @@ int doInputOptions( float deltaTime )
 	  }
 
 	  //The select player button
+	 if(ui_doImageButtonWithText( 16, &TxIcon[keybicon+player], inputOptionsButtons[15],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
 	  {
-	  snprintf(inputOptionsButtons[15], sizeof(inputOptionsButtons[15]), "Player %i", player+1);
-	  if(ui_doImageButtonWithText( 16, &TxIcon[keybicon+player], inputOptionsButtons[15],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
-	  {
-
-		  //TODO
+		  //TODO: this doesnt really do anything yet
 		  player++;
-		  if(player > MAXPLAYER) player = 0;
-	  }
-	  }
+		  if(player > 3) player = 0;
+		  
+		  sprintf(Ctext, "Player %i", player+1);
+		  inputOptionsButtons[15] = Ctext;
+	 }
+
 	  //Save settings button
       if ( ui_doButton( 17, inputOptionsButtons[16], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
       {
         // save settings and go back
+		player = 0;
         save_input_settings("controls.txt");
         menuState = MM_Leaving;
       }
@@ -1912,8 +1917,9 @@ int doVideoOptions( float deltaTime )
 int doShowMenuResults( float deltaTime )
 {
   int x, y;
-  char text[128];
+  STRING text;
   Font *font;
+  Uint8 i;
 
   SDL_Surface *screen = SDL_GetVideoSurface();
   font = ui_getFont();
@@ -1923,21 +1929,34 @@ int doShowMenuResults( float deltaTime )
   x = 35;
   y = 35;
   glColor4f( 1, 1, 1, 1 );
-  snprintf( text, 128, "Module selected: %s", modloadname[selectedModule] );
+  snprintf( text, sizeof(text), "Module selected: %s", modloadname[selectedModule] );
   fnt_drawText( font, x, y, text );
   y += 35;
 
   if ( importvalid )
   {
-    snprintf( text, 128, "Player selected: %s", loadplayername[selectedPlayer] );
+    snprintf( text, sizeof(text), "Player selected: %s", loadplayername[selectedPlayer] );
   }
   else
   {
-    snprintf( text, 128, "Starting a new player." );
+    snprintf( text, sizeof(text), "Starting a new player." );
   }
   fnt_drawText( font, x, y, text );
 
-  return 1;
+	// And finally, the summary
+    y += 60;
+    snprintf( text, sizeof(text), "%s", modlongname[selectedModule] );
+    fnt_drawText( font, x, y, text );
+	y += 30;
+	snprintf( text, sizeof(text), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modloadname[selectedModule] );
+    get_module_summary( text );   
+	for ( i = 0;i < SUMMARYLINES;i++ )
+	{
+	  fnt_drawText( menuFont, x, y, modsummary[i] );
+	  y += 20;
+	}
+	
+	return 1;
 }
 
 int doNotImplemented( float deltaTime )

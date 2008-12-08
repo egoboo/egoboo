@@ -2533,15 +2533,13 @@ int SDL_main( int argc, char **argv )
   load_mesh_fans(); // THIS SHOULD WORK
   load_blip_bitmap();
   load_all_music_sounds();
-  load_all_global_icons();
   initMenus();        // Start the game menu
 
   // Let the normal OS mouse cursor work
   SDL_WM_GrabInput( SDL_GRAB_OFF );
-  SDL_ShowCursor( 1 );
+  SDL_ShowCursor( btrue );
 
   // Network's temporarily disabled
-
   clock_frameStep();
   frameDuration = clock_getFrameDuration();
   gameactive = btrue;
@@ -2556,7 +2554,7 @@ int SDL_main( int argc, char **argv )
     if ( menuActive )
     {
       // Play the menu music
-      play_music( 0, 500, -1 );
+      play_music( 0, 0, -1 );
 
       // do menus
       glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

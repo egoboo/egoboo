@@ -640,6 +640,7 @@ EXTERN glMatrix mProjection;                  // Projection Matrix
 EXTERN Uint8                   numloadplayer  EQ( 0 );
 EXTERN char                    loadplayername[MAXLOADPLAYER][MAXCAPNAMESIZE];
 EXTERN char                    loadplayerdir[MAXLOADPLAYER][16];
+EXTERN int                     playericon[MAXLOADPLAYER];
 EXTERN int                     nullicon  EQ( 0 );
 EXTERN int                     keybicon  EQ( 0 );
 EXTERN int                     mousicon  EQ( 0 );
@@ -887,6 +888,7 @@ EXTERN Uint8           chrmissiletreatment[MAXCHR];// For deflection, etc.
 EXTERN Uint8           chrmissilecost[MAXCHR];     // Mana cost for each one
 EXTERN Uint16           chrmissilehandler[MAXCHR];  // Who pays the bill for each one...
 EXTERN Uint16           chrdamageboost[MAXCHR];     // Add to swipe damage
+EXTERN bool_t           chrisshopitem[MAXCHR];     // Spawned in a shop?
 
 //Skills
 EXTERN Sint8                     chrshieldproficiency[MAXCHR];  // Can it use shields?

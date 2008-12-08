@@ -1087,7 +1087,11 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
       }
       // Reduce value depending on charges left
       // else if (capisranged[chrmodel[character]]) price -= (chrammomax[character]-chrammo[character])*(price/chrammomax[character]);
-      chrmoney[mount] += price;
+      
+	  //Items spawned within shops are more valuable
+	  if(chrisshopitem[character]) price *= 1.5;
+
+	  chrmoney[mount] += price;
       chrmoney[owner] -= price;
       if ( chrmoney[owner] < 0 )  chrmoney[owner] = 0;
       if ( chrmoney[mount] > MAXMONEY )  chrmoney[mount] = MAXMONEY;
@@ -1677,6 +1681,9 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 }
                 // Reduce value depending on charges left
                 // else if (capisranged[chrmodel[charb]]) price -= (chrammomax[charb]-chrammo[charb])*(price/chrammomax[charb]);
+
+				//Items spawned in shops are more valuable
+				if(chrisshopitem[charb]) price *= 1.5;
 
                 chrorder[owner] = price;  // Tell owner how much...
                 if ( chrmoney[chara] >= price )
@@ -5126,7 +5133,7 @@ void check_player_import( char *dirname )
   // ZZ> This function figures out which players may be imported, and loads basic
   //     data for each
   char searchname[128];
-  char filename[128];
+  STRING filename;
   int skin;
   bool_t keeplooking;
   const char *foundfile;
@@ -5134,6 +5141,7 @@ void check_player_import( char *dirname )
 
   // Set up...
   numloadplayer = 0;
+  globalnumicon = 0;
 
   // Search for all objects
   sprintf( searchname, "%s" SLASH_STR "*.obj", dirname );
@@ -5143,19 +5151,18 @@ void check_player_import( char *dirname )
   {
     while ( keeplooking && numloadplayer < MAXLOADPLAYER )
     {
-      // fprintf(stderr,"foundfile=%s keeplooking=%d numload=%d/%d\n",foundfile,keeplooking,numloadplayer,MAXLOADPLAYER);
       prime_names();
       sprintf( loadplayerdir[numloadplayer], "%s", foundfile );
 
       sprintf( filename, "%s" SLASH_STR "%s/skin.txt", dirname, foundfile );
       skin = get_skin( filename );
 
-      snprintf( filename, 128, "%s" SLASH_STR "%s/tris.md2", dirname, foundfile );
+      snprintf( filename, sizeof(filename), "%s" SLASH_STR "%s/tris.md2", dirname, foundfile );
       load_one_md2( filename, numloadplayer );
 
       sprintf( filename, "%s" SLASH_STR "%s/icon%d.bmp", dirname, foundfile, skin );
       load_one_icon( filename );
-
+	  
       sprintf( filename, "%s" SLASH_STR "%s/naming.txt", dirname, foundfile );
       read_naming( 0, filename );
       naming_names( 0 );
@@ -5168,8 +5175,6 @@ void check_player_import( char *dirname )
     }
   }
   fs_findClose();
-
-  load_all_global_icons();
 
   keybplayer = 0;
   mousplayer = 0;
@@ -5986,7 +5991,38 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
       if ( tnc > MAXXP ) tnc = MAXXP;
       chrexperience[cnt] = tnc;
       chrexperiencelevel[cnt] = capleveloverride[profile];
-    }
+
+	  //Items that are spawned inside shop passages are more expensive than normal
+      chrisshopitem[cnt] = bfalse;
+	  if(chrisitem[cnt] && !chrinpack[cnt] && chrattachedto[cnt] == MAXCHR )
+	  {
+		  float tlx, tly, brx, bry;
+		  Uint16 passage = 0;
+		  float bumpsize;
+
+		  bumpsize = chrbumpsize[cnt];
+		  while(passage < numpassage)
+		  {
+			  // Passage area
+			  tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+			  tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+			  brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+			  bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+
+			  //Check if the character is inside that passage
+  			  if ( chrxpos[cnt] > tlx - bumpsize && chrxpos[cnt] < brx + bumpsize )
+			  {
+			    if ( chrypos[cnt] > tly - bumpsize && chrypos[cnt] < bry + bumpsize )
+			    {
+					//Yep, flag as valuable (does not export)
+					chrisshopitem[cnt] = btrue;
+					break;
+			    }
+			  }
+			  passage++;
+		  }
+		}
+	  }
   }
   return cnt;
 }

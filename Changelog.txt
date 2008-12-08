@@ -1,4 +1,6 @@
 The master TODO list:
+- Make identify scroll work on items that are not in hand and show kursed/unkursed state
+- Rebalance the symbol of turning
 - GiveQuestAllPlayers not working?
 - Exploding oil when taken out? (lit lamp was held in other hand)
 - Minimize on Linux can cause textures to be buggy.
@@ -28,10 +30,12 @@ The master TODO list:
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 
 Version 2.6.x (??.??.2008)
+- New Feature: Input controls settings can now be changed in the ingame menu. 
 - New Feature: Added a new NPC to Zippy Town and in Bishopia City.
 - New Feature: The new Quest System is now in the game.
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
+- Update: Shop items are now 50% more valuable than dungeon loot items.
 - Update: The Crypt has been made slightly harder to defeat.
 - Update: Many items have a new more balanced gold value. (Credits to Clonkinator)
 - Update: The weapon 'Chiuaua' now deals triple damage and is armor piercing.
