@@ -1,0 +1,6 @@
+Message 0: %n_didn't_escape...
+Message 1: %t_killed_%n!
+Message 2: Hey!
+Message 3: I'll_give_ya_a_key,_if_ya_help_me_get_out...
+Message 4: So_is_it_a_deal?
+Message 5: Good!__My_name's_K'nife.

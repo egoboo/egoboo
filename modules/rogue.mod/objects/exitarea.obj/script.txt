@@ -1,0 +1,38 @@
+// Check the exit passage
+IfTimeOut
+  tmpargument = passage
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAMount
+      SetTargetToTargetLeftHand // Rider is held in the mount's left hand...
+    IfTargetIsAPlayer
+      ClearEndMessage
+      tmpargument = [PRIS]  // Did you lead K'nife out?
+      tmpdistance = 6
+      EnableExport
+      BeatModule
+      SetTargetToNearestBlahID
+        tmpargument = 0
+        AddEndMessage
+        tmpargument = 1
+        AddEndMessage
+        tmpargument = 2
+        AddEndMessage
+        tmpargument = 3
+        AddEndMessage
+        
+        //Special ending, add extra quest
+        tmpargument = [KNIF]
+        tmpdistance = 0           //The quest level
+        AddQuestAllPlayers        //Add it
+      Else
+        tmpargument = 4
+        AddEndMessage
+        tmpargument = 5
+        AddEndMessage
+        tmpargument = 6
+        AddEndMessage
+      tmpargument = [BEAT]
+      AddIDSZ
+  tmpargument = 10
+  SetTime
+End

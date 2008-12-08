@@ -1,0 +1,2 @@
+Message 0: %t_picked_up_a_%c.
+Message 1: The_%c_has_been_broken!
