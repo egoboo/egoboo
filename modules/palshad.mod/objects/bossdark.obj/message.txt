@@ -1,0 +1,4 @@
+Message 0: %t_smashed_a_%c!
+Message 1: The_minions_of_Darkness_have_been_defeated!
+Message 2: Maybe_it_was_too_dark,_or_maybe_you_got_caught_up_in_killing_
+Message 3: baddies...__In_either_case,_you_forgot_to_grab_the_Spork!
