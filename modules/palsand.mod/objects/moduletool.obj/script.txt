@@ -1,0 +1,35 @@
+//This is a special secret: if the module is beaten within the time limit
+//a secret module will be unlocked! Content/50 is seconds left.
+IfSpawned
+  
+  //Play Music
+  tmpargument = 4
+  tmpdistance = 0
+  PlayMusic
+  
+  //Start the timer?
+  tmpargument = 53
+  tmpdistance = [KEYS]
+  SetTargetToPassageID
+    tmpargument = [KEYS]
+    CostTargetItemID
+      tmpargument = 13500       //Start at exactly 4.5 minutes
+      SetContent
+      tmpargument = 0
+      PlayFullSound
+      tmpargument = [ARCH]
+      IssueOrder              //Activate the secret!
+  Else
+    GoPoof
+    
+//Update the timer
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpargument = tmpargument - 1
+  SetContent
+  ShowTimer
+
+
+End					// All done

@@ -1,0 +1,9 @@
+Message 0: %t_found_%n.
+Message 1: %t_already_has_something_on_%g_wrist.
+Message 2: %t's_wrist_is_too_big...
+Message 3: %t's_%c_seems_very_tight.
+Message 4: %t_slipped_on_%n.
+Message 5: %t_took_off_%n.
+Message 6: %t's_%c_won't_come_off...
+Message 7: %n_was_pulverized!
+Message 8: %t_took_%n_out_of_%g_pocket.

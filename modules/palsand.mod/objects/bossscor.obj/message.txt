@@ -1,0 +1,4 @@
+Message 0: %t_defeated_the_%c!
+Message 1: The_%c_was_defeated!
+Message 2: Nice_work_in_killing_that_Scorpion,_but_you_didn't_recover_the
+Message 3: _Spork...
