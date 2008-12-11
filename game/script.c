@@ -2644,16 +2644,16 @@ Uint8 run_function( Uint32 value, int character )
       // Add a blip
       if ( numblip < MAXBLIP )
       {
-        if ( valuetmpx > 0 && valuetmpx < meshedgex && valuetmpy > 0 && valuetmpy < meshedgey )
-        {
-          if ( valuetmpargument < NUMBAR && valuetmpargument >= 0 )
-          {
-            blipx[numblip] = valuetmpx * MAPSIZE / meshedgex;
-            blipy[numblip] = valuetmpy * MAPSIZE / meshedgey;
-            blipc[numblip] = valuetmpargument;
-            numblip++;
-          }
-        }
+		if ( valuetmpx > 0 && valuetmpx < meshedgex && valuetmpy > 0 && valuetmpy < meshedgey )
+		{
+		  if ( valuetmpargument < NUMBAR && valuetmpargument >= 0 )
+		  {
+			blipx[numblip] = valuetmpx * MAPSIZE / meshedgex;
+			blipy[numblip] = valuetmpy * MAPSIZE / meshedgey;
+			blipc[numblip] = valuetmpargument;
+			numblip++;
+		  }
+		}
       }
       break;
 
@@ -3644,6 +3644,13 @@ Uint8 run_function( Uint32 value, int character )
 		iTmp++;
 	}
     break;
+
+    case FADDBLIPALLENEMIES:
+	  // show all enemies on the minimap who match the IDSZ given in tmpargument
+	  // it show only the enemies of the AI target
+      localsenseenemies = chraitarget[character];
+	  locansensenemiesID = valuetmpargument;
+      break;
 
     case FEND:
       returncode = bfalse;

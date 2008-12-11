@@ -282,7 +282,6 @@ EXTERN int rotmeshdown;                                    //
 #define MAXEVE                          MAXMODEL    // One enchant type per model
 #define MAXEVESETVALUE                  24          // Number of sets
 #define MAXEVEADDVALUE                  16          // Number of adds
-#define MAXENCHANT                      128         // Number of enchantments
 #define MAXFRAME                        (128*32)    // Max number of frames in all models
 #define MAXCHR                          512         // Max number of characters
 
@@ -337,7 +336,7 @@ EXTERN int rotmeshdown;                                    //
 #define PRTLIGHTSPRITE                  0           // Magic effect particle
 #define PRTSOLIDSPRITE                  1           // Sprite particle
 #define PRTALPHASPRITE                  2           // Smoke particle
-#define MAXPARTICLEIMAGE                319 //255        // Number of particle images ( frames )
+#define MAXPARTICLEIMAGE                255         // Number of particle images ( frames )
 
 
 
@@ -385,7 +384,7 @@ EXTERN bool_t                   teamhatesteam[MAXTEAM][MAXTEAM];     // Don't da
 EXTERN Uint16                    teammorale[MAXTEAM];                 // Number of characters on team
 EXTERN Uint16                    teamleader[MAXTEAM];                 // The leader of the team
 EXTERN Uint16                    teamsissy[MAXTEAM];                  // Whoever called for help last
-EXTERN short                   damagetileparttype;
+EXTERN Uint16                   damagetileparttype;
 EXTERN short                   damagetilepartand;
 EXTERN short                   damagetilesound;
 EXTERN short                   damagetilesoundtime;
@@ -396,7 +395,8 @@ EXTERN int                     damagetilemindistance;
 
 
 // Minimap stuff
-#define MAXBLIP 32
+#define MAXBLIP 128
+#define NUMBLIP 6							//Blip textures
 EXTERN Uint16           numblip  EQ( 0 );
 EXTERN Uint16           blipx[MAXBLIP];
 EXTERN Uint16           blipy[MAXBLIP];
@@ -880,8 +880,8 @@ EXTERN Uint8          chrcarefultime[MAXCHR];     // "You hurt me!" timer
 EXTERN bool_t          chrcanbecrushed[MAXCHR];    // Crush in a door?
 EXTERN Uint8          chrinwhichhand[MAXCHR];     // GRIPLEFT or GRIPRIGHT
 EXTERN Uint8           chrisequipped[MAXCHR];      // For boots and rings and stuff
-EXTERN Uint8           chrfirstenchant[MAXCHR];    // Linked list for enchants
-EXTERN Uint8           chrundoenchant[MAXCHR];     // Last enchantment spawned
+EXTERN Uint16           chrfirstenchant[MAXCHR];    // Linked list for enchants
+EXTERN Uint16           chrundoenchant[MAXCHR];     // Last enchantment spawned
 EXTERN bool_t                    chrcanchannel[MAXCHR];      //
 EXTERN bool_t                    chroverlay[MAXCHR];         // Is this an overlay?  Track aitarget...
 EXTERN Uint8           chrmissiletreatment[MAXCHR];// For deflection, etc.
@@ -909,11 +909,13 @@ EXTERN bool_t					 chrcanread[MAXCHR];
 
 EXTERN bool_t                    localseeinvisible;
 EXTERN bool_t                    localseekurse;
-
+EXTERN Uint16                    localsenseenemies;
+EXTERN IDSZ                      localsenseenemiesID;
 
 //------------------------------------
 // Enchantment variables
 //------------------------------------
+#define MAXENCHANT                      150         // Number of enchantments
 EXTERN Uint16       numfreeenchant;             // For allocating new ones
 EXTERN Uint16       freeenchant[MAXENCHANT];    //
 
@@ -947,7 +949,7 @@ EXTERN Uint8           eveoverlay[MAXEVE];                     // Spawn an overl
 EXTERN Uint16           eveseekurse[MAXEVE];                     // Spawn an overlay?
 
 EXTERN bool_t           encon[MAXENCHANT];                      // Enchantment on
-EXTERN Uint8           enceve[MAXENCHANT];                     // The type
+EXTERN Uint16           enceve[MAXENCHANT];                     // The type
 EXTERN Uint16           enctarget[MAXENCHANT];                  // Who it enchants
 EXTERN Uint16           encnextenchant[MAXENCHANT];             // Next in the list
 EXTERN Uint16           encowner[MAXENCHANT];                   // Who cast the enchant

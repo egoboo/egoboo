@@ -180,41 +180,28 @@ void load_module( char *smallname )
   release_all_models();
   free_all_enchants();
 
-  // printf("Got to load_all_objects\n");
-  load_all_objects( modname ); // This is broken and needs to be fixed (is it really?)
-  // load_one_object(0, "basicdat" SLASH_STR "objects" SLASH_STR "book.obj");
+  load_all_objects( modname );
 
-  //  printf("Got to load mesh\n");
   if ( !load_mesh( modname ) )
   {
     log_error( "Uh oh! Problems loading the mesh! (%s)\n", modname );
   }
-  // printf("Got to setup_particles\n");
-  setup_particles();
-  // printf("Got to setup_passage\n");
-  setup_passage( modname );
-  // printf("Got to reset_players\n");
 
+  setup_particles();
+  setup_passage( modname );
   reset_players();
-  // printf("Got to setup_characters\n");
 
   setup_characters( modname );
 //#endif // SDL_LIL_ENDIAN
 
-  //  printf("Got to reset_end_text\n");
   reset_end_text();
-
-  // printf("Got to setup_alliances\n");
   setup_alliances( modname );
 
   // Load fonts and bars after other images, as not to hog videomem
-  // printf("Got to load_font\n");
   load_font( "basicdat" SLASH_STR "font.bmp", "basicdat" SLASH_STR "font.txt", bfalse );
-  // printf("Got to load_bars\n");
   load_bars( "basicdat" SLASH_STR "bars.bmp" );
-  // printf("Got to load_map\n");
   load_map( modname );
-  // printf("Got to log_madused\n");
+
   log_madused( "slotused.txt" );
 
 

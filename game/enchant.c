@@ -746,13 +746,13 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
 
 
     // Drain stuff
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = (Sint16) fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = (Sint16) fTmp * 256;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     eveendifcantpay[profile] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  eveendifcantpay[profile] = btrue;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = (Sint16) fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = (Sint16) fTmp * 256;
 
 
     // Specifics
@@ -901,7 +901,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
-    evesetvalue[profile][num] = fTmp;
+    evesetvalue[profile][num] = (Uint8) fTmp;
     num++;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
@@ -916,19 +916,19 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
     // Now read in the add values
     num = 0;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 16;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 16;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 127;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 127;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 127;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
     eveaddvalue[profile][num] = iTmp;
@@ -946,22 +946,22 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
     eveaddvalue[profile][num] = -iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    eveaddvalue[profile][num] = fTmp * 4;
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
     num++;
 
     // Clear expansions...

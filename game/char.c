@@ -1089,7 +1089,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
       // else if (capisranged[chrmodel[character]]) price -= (chrammomax[character]-chrammo[character])*(price/chrammomax[character]);
       
 	  //Items spawned within shops are more valuable
-	  if(chrisshopitem[character]) price *= 1.5;
+	  if(!chrisshopitem[character]) price *= 0.5;
 
 	  chrmoney[mount] += price;
       chrmoney[owner] -= price;
@@ -1678,12 +1678,12 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 if ( capisstackable[chrmodel[charb]] )
                 {
                   price = price * chrammo[charb];
-                }
+				}
                 // Reduce value depending on charges left
                 // else if (capisranged[chrmodel[charb]]) price -= (chrammomax[charb]-chrammo[charb])*(price/chrammomax[charb]);
 
 				//Items spawned in shops are more valuable
-				if(chrisshopitem[charb]) price *= 1.5;
+				if(!chrisshopitem[charb]) price *= 0.5;
 
                 chrorder[owner] = price;  // Tell owner how much...
                 if ( chrmoney[chara] >= price )
@@ -3972,6 +3972,7 @@ void reset_players()
 
   // Reset the local data stuff
   localseekurse = bfalse;
+  localsenseenemies = MAXCHR;
   localseeinvisible = bfalse;
   alllocalpladead = bfalse;
 
@@ -6258,8 +6259,8 @@ void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
     chrcangrabmoney[cnt] = capcangrabmoney[profile];
     chrjumptime[cnt] = JUMPDELAY;
     // Character size and bumping
-    chrshadowsize[cnt] = capshadowsize[profile] * chrfat[cnt];
-    chrbumpsize[cnt] = capbumpsize[profile] * chrfat[cnt];
+    chrshadowsize[cnt] = (Uint8)(capshadowsize[profile] * chrfat[cnt]);
+    chrbumpsize[cnt] = (Uint8) (capbumpsize[profile] * chrfat[cnt]);
     chrbumpsizebig[cnt] = capbumpsizebig[profile] * chrfat[cnt];
     chrbumpheight[cnt] = capbumpheight[profile] * chrfat[cnt];
 
@@ -6477,8 +6478,8 @@ Uint16 find_distant_target( Uint16 character, int maxdistance )
         {
           if ( chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
           {
-            xdistance = chrxpos[cnt] - chrxpos[character];
-            ydistance = chrypos[cnt] - chrypos[character];
+            xdistance = (int) (chrxpos[cnt] - chrxpos[character]);
+            ydistance = (int) (chrypos[cnt] - chrypos[character]);
             distance = xdistance * xdistance + ydistance * ydistance;
             if ( distance < maxdistance )
             {

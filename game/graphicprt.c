@@ -443,14 +443,9 @@ void render_refprt()
   GLVERTEX vtlist[4];
   Uint16 cnt, prt, numparticle;
   Uint16 image;
-//  float scale;
   float size;
-//  DWORD light;
   int startalpha;
-  // Uint32  usealpha = 0x00ffffff;
   float level;
-//  Uint16 rotate;
-//  float sinsize, cossize;
   int i;
 
   // Calculate the up and right vectors for billboarding.

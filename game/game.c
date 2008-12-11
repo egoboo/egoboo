@@ -2013,6 +2013,7 @@ void update_game()
   alllocalpladead = bfalse;
   localseeinvisible = bfalse;
   localseekurse = bfalse;
+
   cnt = 0;
   numdead = 0;
   while ( cnt < MAXPLAYER )

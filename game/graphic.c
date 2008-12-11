@@ -4032,9 +4032,41 @@ void draw_text()
   }
 
   // Map display
-  if ( mapon && mapvalid )
+  if ( mapvalid && mapon )
   {
     draw_map( 0, scry - MAPSIZE );
+
+	//If one of the players can sense enemies via EMP, draw them as blips on the map
+	if( localsenseenemies != MAXCHR )
+	{
+	  Uint16 iTmp = 0;
+	  while( numblip < MAXBLIP && iTmp < MAXCHR)
+	  {
+		  //Show only hated team
+		  if(chron[iTmp] && teamhatesteam[chrteam[localsenseenemies]][chrteam[iTmp]])
+		  {
+			  //Only if they match the required IDSZ ([NONE] always works)
+			  if( localsenseenemiesID == Make_IDSZ("NONE")
+			   || capidsz[iTmp][IDSZPARENT] == localsenseenemiesID
+               || capidsz[iTmp][IDSZTYPE] == localsenseenemiesID)
+			  {
+				  //Inside the map?
+				  if ( chrxpos[iTmp] < meshedgex && chrypos[iTmp] < meshedgey )
+				  {
+					  //Valid colors only
+					  if ( valuetmpargument < NUMBLIP )
+					  {
+						blipx[numblip] = chrxpos[iTmp] * MAPSIZE / meshedgex;
+						blipy[numblip] = chrypos[iTmp] * MAPSIZE / meshedgey;
+						blipc[numblip] = 0;	//Red blips
+						numblip++;
+					  }
+				  }
+			  }
+		  }
+		  iTmp++;
+	  }
+	}
 
     for ( cnt = 0; cnt < numblip; cnt++ )
       draw_blip( blipc[cnt], blipx[cnt], blipy[cnt] + scry - MAPSIZE );

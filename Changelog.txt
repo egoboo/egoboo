@@ -1,4 +1,5 @@
 The master TODO list:
+- Runes are not crushable
 - Make identify scroll work on items that are not in hand and show kursed/unkursed state
 - Rebalance the symbol of turning
 - GiveQuestAllPlayers not working?
@@ -21,9 +22,7 @@ The master TODO list:
 - Game crashes in sand palace. Mimic and tranch room.
 - XP needed formula above level 6 too steep?
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
-- A new proper place for Soulcarver
 - Brom and Mim in the adventurer starter have some strange sudden waypoints.
-- Add [SHOP] expansion to shop items.
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
 - Becoming the bad guy in Bishopia should still allow you to escape and export somehow.
 - The Deamon Lord was killed in one shot using a meteor with an Lv13 adventurer while scoring a crit.
@@ -35,6 +34,8 @@ Version 2.6.x (??.??.2008)
 - New Feature: The new Quest System is now in the game.
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
+- New Feature: Some new skills have been added and changed (classes.txt)
+- Update: The Clairvoyance spell can now also display all enemies on the map.
 - Update: Shop items are now 50% more valuable than dungeon loot items.
 - Update: The Crypt has been made slightly harder to defeat.
 - Update: Many items have a new more balanced gold value. (Credits to Clonkinator)
@@ -49,7 +50,6 @@ Version 2.6.x (??.??.2008)
 - Update: The Katana can now be used as a Simple weapon.
 - Update: Paladins can now use crossbows again.
 - Update: The Bridge spell is now more powerful than before.
-- Update: Changed the skill progression for various classes (see classes.txt)
 - Update: Reduced the difficulity of the Crypt Lich boss battle.
 - Update: The katana has increased attack range.
 - Update: The invisibility spell now costs a lot less mana to sustain.

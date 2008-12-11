@@ -25,10 +25,12 @@ Arcane Magic: Can use arcane spellbooks.
 Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
 Bow Mastery: +2 damage with all longbows.
 Butcher Form - Zombi becomes Butcher. Extra life, damage and size but somewhat reduced speed.
+Cartography: The character always has the minimap of the current dungeon/area.
 Class Mastery: +5 to all stats.
 Crackshot: % chance based on DEX to daze enemies with Gunpowder.
 Critical Strike: %2 chance per level to deal +1 damage per 2 levels. Sound effect is played.
 Crusader: Converts EVIL damage taken into mana.
+Danger Sense: This reveals all enemies on the minimap if the map has been found.
 Defender: 100% block rating with shields.
 Disarm Trap: Can detect and disarm traps. Also pick locks.
 Divine Magic: Can heal, banish and use divine runes.
@@ -48,6 +50,7 @@ Lucky: Gives a small bonus to everything.
 Magical Ampitude: Automatically identify all magic scrolls and wands.
 Mystic Intellect: Gain a vast 15 bonus to intelligence.
 Poison Use: Can use poison without err.
+Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
 Sharpshooter: Deal bonus damage based on DEX with Gunpowder weapons.
 Sneak: Can stealth while moving one step at the time. Tap keyboard movement very slowly.
 Speed: +2% extra movement speed per level.
@@ -92,6 +95,8 @@ Level       Abillity
 8			n/a
 9			Lucky
 10			n/a	
+11			n/a
+12			Cartography
 -------------------------------------------
 
 
@@ -144,6 +149,9 @@ Level       Abillity
 8			n/a
 9			n/a
 10			Halo
+11			n/a
+12			n/a
+13			Sense Undead
 -------------------------------------------
 
 
@@ -172,10 +180,14 @@ Level   Abillity
 4     - n/a
 5     - Stealth (While standing still)
 6     - n/a
-7     - Elven Senses
-8     - n/a
-9     - Bow Mastery
+7     - n/a
+8     - Bow Mastery
+9     - n/a
 10    - n/a
+11    - Elven Senses
+12    - n/a
+13    - n/a
+14    - Danger Sense
 -------------------------------------------
 
 
