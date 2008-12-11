@@ -1,0 +1,146 @@
+//Boss icicle. This is what the yeti boss uses to spawn icicles in his chamber
+// Based off icicle spell. The States:
+//  2 Icicle in the sky
+//  3 Icicle falling
+//  4 Icicle pinned somebody down
+//  5 Icicle shattered and shortly to disappear
+// Content variable usage:
+//  As icicle, tells when it has reached the proper height.
+// Known Issues:
+//  Icicles will, for some reason, slide down slopes.
+
+IfSpawned
+  // Watch out for the falling icicles!
+  tmpargument = 60
+  SetFlyHeight
+  MakeCrushValid
+  tmpargument = 2
+  SetState
+  JoinEvilTeam
+
+// Icicle event handling
+IfStateIs4				// 4. Pinned somebody and waiting
+  tmpx = 0
+  tmpy = 1
+  IfTimeOut
+    tmpx = 1
+  IfReaffirmed
+    tmpx = 1
+  IfCrushed
+    tmpx = 1
+  IfXIsEqualToY
+    UndoEnchant
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    tmpargument = 2			// *CRASH! tinkle-tinkle-tinkle...*
+    PlaySound
+    tmpargument = ACTIONKA
+    DoActionOverride
+    KeepAction
+    tmpargument = 5
+    SetState
+IfStateIs3				// 3. Falling
+  IfScoredAHit
+    SetTargetToSelf
+    SetOwnerToTarget
+    SetTargetToWhoeverWasHit
+    StopTargetMovement
+    EnchantTarget
+    tmpargument = 4			// Don't shatter on impact if I've pinned somebody
+    SetState
+    IfTargetIsAlive
+      tmpargument = 3
+      SendMessageNear
+      tmpargument = 3
+      PlaySound
+  Else
+    tmpargument = 0
+    IfReaffirmed
+      tmpargument = 1
+    SetTargetToSelf
+    tmpx = targetspeedz
+    tmpy = 0 - 2
+    IfXIsMoreThanY
+      tmpargument = 1
+    IfTimeOut
+      tmpargument = 1
+    tmpx = tmpargument
+    tmpy = 1
+    IfXIsEqualToY
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpargument = 3
+      SpawnExactParticle
+      tmpargument = 2			// *CRASH! tinkle-tinkle-tinkle...*
+      PlaySound
+      tmpargument = ACTIONKA
+      DoActionOverride
+      KeepAction
+      tmpargument = 5
+      SetState
+      tmpargument = [ICIC]
+      IssueOrder		//Tell the yeti the icicle is no more
+
+IfStateIs2				// 2. Floating on high
+  tmpx = 500
+  tmpy = selfaltitude
+  IfXIsLessThanY
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 1
+      SetContent
+  Else
+    tmpargument = 0
+    IfContentIs
+      SetTargetToSelf
+      StopTargetMovement
+      tmpargument = 500
+    Else
+      SetTargetToSelf
+      tmpargument = 1 - targetspeedz
+      tmpargument = tmpargument < 1 + tmpargument < 3 + tmpargument < 2 //long-way multiply by 100
+    AccelerateUp
+  tmpargument = 1			// Don't fall until I'm actually floating on high
+  IfContentIs
+    tmpargument = 3
+    SetTime
+    SetTargetToNearestLifeform		// Anybody to fall on?
+      tmpx = targetdistance
+      tmpy = 50
+      IfXIsLessThanY
+        IfTargetIsFlying
+          DoNothing
+        Else
+          IfTargetIsOnHatedTeam		//Dont hit the yeti
+            SetTargetToSelf
+            StopTargetMovement
+            tmpargument = 0 - 400
+            AccelerateUp
+            tmpargument = 0
+            tmpdistance = SPAWNLAST
+            SpawnAttachedParticle
+            tmpargument = 320
+            SetTime
+            tmpargument = 1
+            PlaySound
+            tmpargument = 3
+            SetState
+  IfReaffirmed
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    tmpargument = 2			// *CRASH! tinkle-tinkle-tinkle...*
+    PlaySound
+    tmpargument = ACTIONKA
+    DoActionOverride
+    KeepAction
+    tmpargument = 5
+    SetState
+
+End

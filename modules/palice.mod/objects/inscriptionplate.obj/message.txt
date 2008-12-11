@@ -1,0 +1,7 @@
+Message 0: The_inscription_is_in_G'nomish...
+Message 1: The_inscription_reads...
+Message 2: __Map_room
+Message 3: __Beware!_Rust_Monster
+Message 4: __Boss_Room
+Message 5: __Ice_Chamber
+

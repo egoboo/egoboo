@@ -1,0 +1,116 @@
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+      // Open it up
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        tmpdistance = 11025
+        PlaySound
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        // Tell the players...
+        tmpargument = 1
+        SendMessageNear
+
+
+// Someone is trying to open it
+IfBumped
+  // Can they open the chest?
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+
+
+      // Are they in front?
+      IfFacingTarget
+
+
+        // Make target crouch
+        tmpargument = ACTIONMG
+        TargetDoAction
+
+
+        // Give some experience
+        tmpargument = 5
+        tmpdistance = EXPDARE
+        GiveExperienceToTarget
+
+
+        // Open it up
+        tmpargument = ACTIONMG
+        DoAction
+          tmpargument = 1
+          SetState
+          tmpargument = 60
+          SetBumpHeight
+          KeepAction
+          tmpargument = 0
+          tmpdistance = 11025
+          PlaySound
+          // Wait a while
+          tmpargument = 40
+          SetTime
+          // Tell the players...
+          tmpargument = 2
+          SendMessageNear
+    Else
+      IfTimeOut
+        // Reset the timer
+        tmpargument = 40
+        SetTime
+
+
+        // Is there a map left?
+        IfStateIs1
+          // Make target crouch
+          tmpargument = ACTIONMG
+          TargetDoAction
+
+
+          // Show the map
+          ShowYouAreHere
+          ShowMap
+            // Give Experience
+            tmpargument = 20
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+
+
+            // Tell everyone
+            tmpargument = 0
+            SendMessage
+            tmpargument = 1
+            tmpdistance = 11025
+            PlayFullSound
+          Else
+            // Don't need two maps...
+            tmpargument = 4
+            SendMessageNear
+
+
+          // Empty the chest
+          tmpargument = 2
+          SetState
+        Else
+          // The chest is empty
+          tmpargument = 3
+          SendMessageNear
+
+
+// All done
+End

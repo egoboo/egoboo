@@ -1,0 +1,9 @@
+// spawn the frost orb
+IfSpawned
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+//  GoPoof
+End					// All done

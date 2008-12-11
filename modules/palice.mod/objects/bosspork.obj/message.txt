@@ -1,0 +1,3 @@
+Message 0: %t_found_the_%c!
+Message 1: With_the_discovery_of_the_%c,_the_lost_Lord_Bishop_seems
+Message 2: _closer_than_ever,_but_where_will_you_look_next?
