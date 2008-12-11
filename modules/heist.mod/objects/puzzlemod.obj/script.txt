@@ -1,0 +1,58 @@
+//------------------------------------------------------------------------------------
+
+//Manage all switches that are pulled
+IfOrdered
+  tmpx = selforder
+  tmpy = 1
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument + 1
+    SetContent
+  tmpx = selforder
+  tmpy = 2
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument - 1
+    SetContent
+  tmpy = 3
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument + 3
+    SetContent
+  tmpy = 4
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument - 3
+    SetContent
+  tmpy = 5
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument +5
+    SetContent
+  tmpy = 6
+  IfXIsEqualToY
+    GetContent
+    tmpargument = tmpargument -5
+    SetContent
+
+//Check if the puzzle is solved
+GetContent
+tmpx = tmpargument
+tmpy = 7			//This is the puzzle answer
+IfXIsEqualToY 
+  tmpargument = 0
+  SendMessage
+  PlaySound			//Play jingle
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = 56			//Create the key
+  tmpdistance = 900
+  SpawnExactCharacterXYZ
+  tmpargument = 20
+  tmpdistance = EXPSECRET		//Award some xp
+  GiveExperienceToGoodTeam
+  GoPoof
+
+//------------------------------------------------------------------------------------
+End					// All done
+//------------------------------------------------------------------------------------

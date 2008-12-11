@@ -1,0 +1,5 @@
+Message 0: %t_looted_the_%c!
+Message 1: The_treasure_chest_is_empty.
+Message 2: %t_opened_the_%c!
+Message 3: %t_donned_%3...
+Message 4: The_%c_has_an_armor_in_it,_but_it_is_for_a_Rogue.
