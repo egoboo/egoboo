@@ -1,0 +1,15 @@
+//This object does some module updates
+IfTimeOut
+  tmpargument = 50
+  SetTime
+  JoinEvilTeam
+  CleanUp
+  
+//This starts the music
+IfSpawned
+  tmpargument = 10
+  tmpdistance = 0
+  PlayMusic
+
+End					// All done
+

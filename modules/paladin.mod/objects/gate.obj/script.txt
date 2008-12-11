@@ -1,0 +1,28 @@
+IfSpawned
+  tmpargument = passage
+  ClosePassage
+
+// ZZ> This function makes the door open if its passage is open
+KeepAction			//
+tmpargument = passage		// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      tmpdistance = 11025	      //
+      PlaySound			      //
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    // 71 is the code for MJ
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      tmpdistance = 11025	      //
+      PlaySound			      //
+End				// Finished with this character

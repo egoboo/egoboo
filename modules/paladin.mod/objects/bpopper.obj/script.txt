@@ -1,0 +1,33 @@
+// This pops some bugs in a given area, when the statue is destroyed
+
+IfSpawned
+  JoinEvilTeam
+
+IfOrdered
+  tmpargument = 0
+  SendMessageNear
+
+  // Spawn monsters
+  tmpargument = 59
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = 20
+  tmpturn = rand
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+
+    // Popper is no longer needed...
+    GoPoof
+
+  // Wait a bit before checking again
+  tmpargument = 10
+  SetTime
+End					// All done

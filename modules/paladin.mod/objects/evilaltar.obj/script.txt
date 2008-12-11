@@ -1,0 +1,96 @@
+IfHealed
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 1
+    SetTime
+    tmpargument = 2
+    SendMessageNear
+
+//Hit by bashing weapons?
+IfAttacked
+  // Must die in 1 hit to disallow punching it open
+  tmpargument = 512
+  HealSelf
+  
+  // Spawn a defense ping
+  IfStateIs0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    tmpargument = 1
+    SetState
+    tmpargument = 50
+    SetTime
+    tmpargument = 2
+    SendMessageNear
+
+
+
+//Reset message and ping timer
+IfTimeOut
+  tmpargument = 0
+  SetState
+
+
+
+IfKilled
+  tmpargument = 18
+  OpenPassage
+  // Smash open
+  tmpargument = [GOOD]
+  IfTargetHasSpecialID
+    tmpturn = 0
+  Else
+    tmpturn = 1
+  // Check for passages to open
+  tmpx = passage
+  tmpy = 0
+  IfXIsEqualToY
+    // Play the break sound
+    tmpargument = 2
+    PlaySound
+  tmpargument = tmpturn
+  SendMessageNear
+
+  tmpargument = 4
+  SpawnParticle
+
+  // Drop goodies
+  DropItems
+  tmpargument = 65535
+  DropMoney
+
+
+  // Replace self with an imposter...
+  tmpargument = 54
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpturn = selfturn
+  SpawnExactCharacterXYZ
+  GoPoof
+
+//Drop the loot
+IfKilled
+  DropKeys
+  SetTargetToWhoeverAttacked
+  tmpargument = 150			//Award some quest xp
+  tmpdistance = EXPQUEST
+  GiveExperienceToGoodTeam
+  tmpargument = 512			//Give abillity to cast divine spells!
+  GiveManaToTarget
+
+  //Make the module spawn monsters!
+  tmpargument = 1
+  IssueOrder
+
+End

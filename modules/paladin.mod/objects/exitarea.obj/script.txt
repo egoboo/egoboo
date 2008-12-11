@@ -1,0 +1,17 @@
+// Check the exit passage
+IfTimeOut
+  DisableExport
+  tmpargument = passage
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      ClearEndMessage
+      EnableExport
+      BeatModule
+      tmpargument = 0
+      AddEndMessage
+      tmpargument = [BEAT]
+      AddIDSZ
+      EndModule
+  tmpargument = 10
+  SetTime
+End

@@ -1,0 +1,25 @@
+// This pops some ghouls in a given area, when the statue is destroyed
+
+IfOrdered
+  tmpargument = 0
+  SendMessageNear
+  // Little music blurb
+  tmpargument = 0
+  PlayFullSound
+
+  // Spawn a ghoul
+  tmpargument = 56
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = 20
+  tmpturn = rand
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+  SpawnExactCharacterXYZ
+    tmpargument = ACTIONJB
+    ChildDoActionOverride
+
+    // Popper is no longer needed...
+    GoPoof
+End					// All done

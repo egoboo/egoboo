@@ -6,16 +6,29 @@
 //4     - n/a
 //5     - Stealth (While standing still)
 //6     - n/a
-//7     - Elven Senses
-//8     - n/a
-//9     - Bow Mastery
+//7     - n/a
+//8     - Bow Mastery
+//9     - n/a
 //10    - n/a
+//11    - Elven Senses
+//12    - n/a
+//13    - n/a
+//14    - Danger Sense
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
   tmpargument = 0
   SetState
   SetContent
+  
+//-----------------------------------------------------------------------------
+//Danger sense skill
+tmpx = selflevel
+tmpy = 12          //Need level 14
+IfXIsMoreThanY
+  SetTargetToSelf           //Make sure the enemy is correct
+  tmpargument = [NONE]      //All enemies
+  AddBlipAllEnemies         //Reveal 'em all
   
 //-----------------------------------------------------------------------------
 //Go stealth mode when standing still
@@ -119,7 +132,7 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Bow Mastery skill
 tmpx = selflevel
-tmpy = 7            //At least level 9
+tmpy = 6            //At least level 9
 IfXIsMoreThanY
   IfScoredAHit
     SetTargetToLastItemUsed
@@ -128,6 +141,19 @@ IfXIsMoreThanY
       SetTargetToWhoeverWasHit
       tmpargument = 512
       DamageTarget          //+2 damage
+      
+//------------------------------------------------------------------------------
+//Invoke Elven Senses if enough xp gained
+tmpargument = 0
+IfContentIs
+  tmpx = selflevel
+  tmpy = 9          //Need level 11
+  IfXIsMoreThanY
+    SetTargetToSelf
+    SetOwnerToTarget
+    EnchantTarget 	//Give the special bonus
+    tmpargument = 1
+    SetContent
     
 //-----------------------------------------------------------------------------
 // ZZ> Gong sound
@@ -194,20 +220,6 @@ IfKilled
   UndoEnchant
   tmpargument = 0
   SetContent
-
-
-//------------------------------------------------------------------------------
-//Invoke Elven Senses if enough xp gained
-tmpargument = 0
-IfContentIs
-  SetTargetToSelf
-  tmpx = selflevel
-  tmpy = 5          //Need level 7
-  IfXIsMoreThanY
-    SetOwnerToTarget
-    EnchantTarget 	//Give the special bonus
-    tmpargument = 1
-    SetContent
     
 //------------------------------------------------------------------------------
 // ZZ> For helper AIs

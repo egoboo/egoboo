@@ -1,0 +1,3 @@
+Message 0: %t_destroyed_the_evil_altar!
+Message 1: The_evil_energies_within_the_%c_were_released!
+Message 2: This_can_only_be_destroyed_by_a_crushing_weapon...
