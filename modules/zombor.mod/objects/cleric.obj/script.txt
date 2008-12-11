@@ -1,0 +1,129 @@
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+//This is the big cheese
+IfSpawned
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 4
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  //Boss has been killed
+  JoinEvilTeam
+  tmpargument = [BOSS]
+  IssueOrder
+
+//------------------------------------------------------------------------------
+// Say ouch
+IfAttacked
+  tmpargument = rand & 1 + 1
+  PlaySound
+
+IfTimeOut
+  tmpargument = rand & 31 + 15
+  SetTime
+
+
+  //Guard
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    tmpdistance = 180000
+    SetTargetToDistantEnemy
+      tmpargument = 1
+      SetState
+      tmpargument = 3		//My god shall protect me!
+      PlayFullSound
+      tmpargument = 1
+      SendMessage
+
+  //Combat
+  IfStateIs1
+
+    //Start boss music
+    tmpdistance = 0
+    tmpargument = 16
+    PlayMusic
+    
+    SetTargetToNearestEnemy
+    tmpx = targetdistance
+    tmpy = 1700
+    IfXIsLessThanY
+      tmpy = 400
+      IfXIsMoreThanY		//Far enough away to go ranged mode
+        SetTurnModeToWatchTarget
+        tmpargument = 3
+        SetState
+      Else			//Too close, go bashing
+        SetTurnModeToVelocity
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 600
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        IfFacingTarget
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+    Else			//Target ran away
+      SetTurnModeToVelocity
+      tmpargument = 0   
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      ClearWaypoints
+      AddWaypoint
+
+//Charging for spell
+IfStateIs3
+  tmpx = targetdistance
+  tmpy = 200
+  IfXIsMoreThanY
+    tmpx = targetx
+    tmpy = targety
+    tmpturn = targetturnto
+    tmpdistance = 0 - 600
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = LATCHLEFT
+    PressLatchButton
+    
+    //Check if we are finished charging
+    GetContent
+    tmpargument = tmpargument +1
+    SetContent
+    tmpx = tmpargument
+    tmpy = 70              //charge time (holybolt time/8)
+    IfXIsMoreThanY
+      tmpargument = 1
+      SetState
+  Else
+    tmpargument = 1
+    SetState
+Else
+  tmpargument = 0
+  SetContent
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

@@ -1,0 +1,189 @@
+//Special abillities
+//LEVEL			ABILLITY
+//    1			Immune vs Grog and Daze
+//    2			n/a
+//    3			Immune vs. Banishment
+//    4			Immune vs. Kurses
+//    5			Life Steal attack
+//    6			n/a
+//    7			Butcher Form
+//    8			Daze attacks
+//    9			Explosive Death attack
+//    10		n/a
+//Each level up increases attack speed and life steal effect.
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//-----------------------------------------------------------------------------
+//Special attack powers
+IfScoredAHit
+  tmpx = selflevel
+  tmpy = 0
+  IfXIsMoreThanY				//Gain lifesteal at 2nd level
+    tmpargument = rand & 30 + selflevel*10		//Effect increases with level
+    HealSelf
+
+  tmpy = 6
+  IfXIsMoreThanY				//Gain daze attack at 8th level
+    SetTargetToWhoeverWasHit
+    GetTargetDazeTime
+    tmpx = tmpargument
+    tmpy = 1
+    IfXIsLessThanY				//Dont stack this with itself
+      tmpargument = 1
+      DazeTarget
+
+//-----------------------------------------------------------------------------
+//Immune vs. kurses abillity
+tmpx = selflevel
+tmpy = 3
+IfXIsMoreThanY					//Gain abillity at 4th level
+  SetTargetToSelf
+  UnkurseTargetInventory
+
+
+//------------------------------------------------------------------------------
+//Yell at player
+IfTooMuchBaggage
+  tmpargument = 7
+  SendMessageNear
+  tmpargument = 2
+  PlaySound
+  tmpargument = 50
+  SetReloadTime
+
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpargument = rand & 2 + 3
+  PlaySound
+
+  //Slow attacks
+  tmpargument = 15 - selflevel*3		//Attack speed increases with level
+  SetReloadTime
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = ACTIONMG
+  DoAction
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = rand & 1 + 9
+  PlaySound
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+
+  //Explosive death
+  tmpx = selflevel
+  tmpy = 7
+  IfXIsMoreThanY			//Only gain abillity at 9th level
+    tmpargument = 3
+    tmpx = rand & 50 + selfx - 25
+    tmpy = rand & 50 + selfy - 25
+    tmpdistance = selfz
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    tmpargument = 8			//Explosive sound
+    PlayFullSound
+
+  tmpargument = 4
+  PlaySound
+  tmpargument = 1
+  IfArmorIs
+    tmpargument = 5
+  Else
+    tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    IfTargetIsSelf
+      tmpargument = 4
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+  
+  //Remove enchant skill
+  UndoEnchant
+  tmpargument = 0
+  SetState
+
+//------------------------------------------------------------------------------
+//For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+//Say ouch
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 3
+    PlaySound
+    tmpargument = 2
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 3
+    PlaySound
+  
+  //Holy damage is a instant kill
+  tmpx = 3
+  tmpy = selflevel
+  IfXIsLessThanY			//Immune to instant kill after 3rd level
+    GetDamageType
+    tmpx = tmpargument
+    tmpy = DAMAGEHOLY
+    IfXIsEqualToY
+      tmpargument = 30
+      tmpdistance = EXPREVENGE
+      GiveExperienceToTarget		//Give extra xp for banish kill
+      tmpargument = 1
+      SendMessageNear
+      SetTargetToSelf
+      KillTarget
+
+//------------------------------------------------------------------------------
+//Change to butcher form at level 7 and above
+SetTargetToSelf
+tmpx = selflevel
+tmpy = 5                //7th level and above
+IfXIsMoreThanY
+  IfStateIs0
+    tmpargument = 1
+    SetState
+    SetOwnerToTarget
+    EnchantTarget		//Give the special bonus
+    tmpargument = 1
+    ChangeArmor
+
+//Spawn and respawn effects
+IfSpawned
+  tmpargument = ACTIONMD	//Rise from the dead
+  ChildDoActionOverride
+  BecomeLeader
+  tmpargument = 0
+  PlayFullSound
+  tmpargument = 8
+  SendMessage
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

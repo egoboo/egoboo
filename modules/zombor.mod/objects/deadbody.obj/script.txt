@@ -1,0 +1,14 @@
+//Bodies are dead (Duh)
+IfSpawned
+  JoinGoodTeam
+  tmpargument = rand % 4
+  ChangeArmor			//Randomize skin
+  tmpargument = ACTIONKA	//Killed
+  DoActionOverride
+  KeepAction
+  SetTargetToSelf
+  KillTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

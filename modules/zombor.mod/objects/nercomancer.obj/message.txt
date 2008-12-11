@@ -1,0 +1,13 @@
+Message 0: %t_killed_a_%c!
+Message 1: A_%c_had_some_trouble...
+Message 2: A_%c_looks_healthy...
+Message 3: Another_Zombi_joins_the_crusade!
+Message 4: %n_recharges_%g_wand!
+Message 5: Follow_me!
+Message 6: Fool!
+Message 7: Take_the_key!
+Message 8: YOU_FAILED,_YOUR_MASTER_DIED!
+Message 9: NOW_is_the_time_to_overpower_your_master!
+Message 10: Yes_I_did_it!_The_DRACOLICH,_will_be_pleased!
+Message 11: Minions,_you_are_dismissed!
+Message 12: What!?_How_dare_you_fool!
