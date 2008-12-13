@@ -1,0 +1,7 @@
+// This file contains information for copying actions to save memory...
+// The format is colon followed by the action names
+: BASH ZAP
+: BASH XBOW
+: BASH THRUST
+: BASH SLICE
+: BASH CHOP
