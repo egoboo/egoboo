@@ -1,0 +1,18 @@
+//Display message
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+  IfStateIs0
+    tmpargument = 0
+    SendMessageNear
+    tmpargument = 1
+    SetState
+
+IfTimeOut
+  tmpargument = 0
+  SetState
+  tmpargument = 150
+  SetTime
+    
+// Finish up
+End

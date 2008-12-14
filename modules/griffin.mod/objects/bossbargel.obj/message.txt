@@ -1,0 +1,5 @@
+Message 0: %n_was_slain_by_%t!
+Message 1: I_will_kill_you!
+Message 2: %n_quaffed_a_potion!
+Message 3: %n_looks_better...
+Message 4: %n's_mask_fell_off!

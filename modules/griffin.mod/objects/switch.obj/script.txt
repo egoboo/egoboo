@@ -1,0 +1,43 @@
+// Make it stay open or close
+IfSpawned
+  //If content is 1, start as on
+  tmpargument = 1
+  IfContentIs
+    tmpargument = passage
+    OpenPassage
+    tmpargument = ACTIONMG	    //Turn
+    DoAction
+  Else
+    tmpargument = passage
+    ClosePassage
+
+  KeepAction
+
+//Turn switch when bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfStateIs0
+    IfTargetIsAPlayer
+      tmpargument = passage
+      IfPassageOpen
+        ClosePassage
+        tmpargument = ACTIONMJ	    //Turn
+        DoAction
+      Else
+        OpenPassage
+        tmpargument = ACTIONMG	    //Turn
+        DoAction
+      tmpargument = 0
+      PlaySound
+      SendMessageNear
+      KeepAction
+      tmpargument = 1
+      SetState
+      tmpargument = 50
+      SetTime
+
+IfTimeOut
+  tmpargument = 0
+  SetState
+
+End				// Finished with this character

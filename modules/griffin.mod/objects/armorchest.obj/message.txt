@@ -1,0 +1,14 @@
+Message 0: %t_found_%0...
+Message 1: %t_discovered_%1...
+Message 2: %t_uncovered_%2...
+Message 3: %t_got_the_%3...
+Message 4: The_%c_has_opened.
+Message 5: %t_opened_the_%c.
+Message6: This_%c_has_armor_in_it,_but_it's_for_a_Paladin.
+Message7: This_%c_has_armor_in_it,_but_it's_for_a_G'nome.
+Message8: This_%c_has_armor_in_it,_but_it's_for_a_Soldier.
+Message9: This_%c_has_armor_in_it,_but_it's_for_an_Elf.
+Message10: This_%c_has_armor_in_it,_but_it's_for_an_Adventurer.
+Message11: This_%c_has_armor_in_it,_but_it's_for_a_Wizard.
+Message12: This_%c_has_armor_in_it,_but_it's_for_a_Healer.
+Message6: This_%c_has_armor_in_it,_but_it's_for_a_Rogue

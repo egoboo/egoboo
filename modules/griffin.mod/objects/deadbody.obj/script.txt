@@ -1,0 +1,11 @@
+//Bodies are dead (Duh)
+IfSpawned
+  tmpargument = ACTIONKA	//Killed
+  DoActionOverride
+  KeepAction
+  SetTargetToSelf
+  KillTarget
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
