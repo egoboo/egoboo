@@ -1,0 +1,14 @@
+//Future plans: Mix stuff in pots?
+
+//Spit out some funny messages
+SetTargetToRider
+  IfStateIs0
+    tmpargument = 1
+    SetState
+    tmpargument = rand & 15
+    SendMessageNear
+Else
+  tmpargument = 0
+  SetState
+
+End

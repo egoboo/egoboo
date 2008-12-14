@@ -1,0 +1,6 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_whipped_out_%n.
+Message 3: %t_quaffed_%n.
+Message 4: %t_looks_more_powerful!
+Message 5: The_potion_effect_ended...
