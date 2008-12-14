@@ -1,0 +1,23 @@
+// This file contains info for the module's menu description
+Module Name 		: Capital_City_of_Bishopia
+Reference Directory 		: palshad.mod
+Required reference IDSZ 	: [MAIN] 4
+Number of imports ( 0 to 4 ) 	: 4
+Exporting ( TRUE or FALSE ) 	: TRUE
+Minimum players ( 1 to 4 ) 	: 1
+Maximum players ( 1 to 4 ) 	: 4
+Respawning ( TRUE or FALSE ) 	: FALSE
+NOT USED		: FALSE
+Level rating ( * to  ***** ) 	: *
+
+// Module summary
+:The_capitol_city_of_Bishopia!
+:Go_shopping_in_this_gargantuan
+:city_filled_with_many_shops,_
+:people_and_rare_items!
+:_
+:_
+:_
+:_
+
+// IDZs
