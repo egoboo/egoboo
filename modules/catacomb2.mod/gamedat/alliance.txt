@@ -1,0 +1,43 @@
+// This file tells the module which teams should ally with which teams.
+// Only the first letter of a team name is used, and make sure it is
+// capital.  N is predefined to be neutral.  If one team allies with another,
+// but the other team does not reciprocate the alliance, then the first
+// team can still be killed by the second.
+
+
+Alliance:  Undead Vampire
+Alliance:  Undead Evil
+Alliance:  Undead Bat
+Alliance:  Undead Wamps
+Alliance:  Undead Lastboss
+
+Alliance:  Bat Evil
+Alliance:  Bat Undead
+Alliance:  Bat Vampire
+Alliance:  Bat Lastboss
+Alliance:  Bat Wamps
+
+Alliance:  Evil Bat
+Alliance:  Evil Vampire
+Alliance:  Evil Undead
+Alliance:  Evil Wamps
+Alliance:  Evil Lastboss
+
+Alliance:  Vampire Evil
+Alliance:  Vampire Undead
+Alliance:  Vampire Bat
+Alliance:  Vampire Wamps
+Alliance:  Vampire Lastboss
+
+
+Alliance:  Wamps Evil
+Alliance:  Wamps Undead
+Alliance:  Wamps Bat
+Alliance:  Wamps Vampire
+Alliance:  Wamps Lastboss
+
+Alliance:  Lastboss Evil
+Alliance:  Lastboss Undead
+Alliance:  Lastboss Bat
+Alliance:  Lastboss Vampire
+Alliance:  Lastboss Wamps

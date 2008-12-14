@@ -1,0 +1,24 @@
+// This file contains info for the module's menu description
+Module Name 			:Catacombs_Level_2
+Reference Directory 			:catacomb1.mod
+Required reference IDSZ 		:[MAIN] 5
+Number of imports ( 0 to 4 ) 		:4
+Exporting ( TRUE or FALSE ) 		:FALSE
+Minimum players ( 1 to 4 ) 		:1
+Maximum players ( 1 to 4 ) 		:4
+Respawning ( ANYTIME, TRUE or FALSE ) 	:TRUE
+NOT USED		  	:FALSE
+Level rating ( * to  ***** ) 		:*****
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:You_decend_deeper_into_the_ancient
+:G'nomish_buildt_catacombs_beneath
+:Bishopia_castle._You_can_feel
+:the_stinking_evil_of_undead_and
+:devilish_creatures_below,_prepeare
+:yourself!
+:_
+:_
+
+// IDZs
+
