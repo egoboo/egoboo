@@ -1,0 +1,9 @@
+Message 0: %n_is_no_more...
+Message 1: %n_HATE
+Message 2: Have_a_taste_of_me_hammer!
+Message 3: %n_was_killed_by_%t!
+Message 4: %n_somehow_killed_himself...
+Message 5: Here_you_go..._(%x_Zenny)
+Message 6: Thank_you_for_shopping_here!_(%x_Zenny)
+Message 7: Sorry_you_dont_have_enough_money..._(%x_Zenny)
+Message 8: We_don't_buy_those...
