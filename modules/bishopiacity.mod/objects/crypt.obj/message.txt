@@ -1,0 +1,8 @@
+Message 0: This_is_the_entrance_to_the_royal_catacombs!
+Message 1: This_crypt_is_open!_And_there_is_an_evil_presence_here...
+Message 2: A_NEW_MODULE_HAS_BEEN_UNLOCKED
+Message 3: This_is_the_"Crypt_of_the_Unknown_Contributors." 
+Message 4: They're_gone,_nameless,_and_forgotten_by_many. 
+Message 5: But_they_are_still_honored.
+Message 6: "This_is_the_crypt_of_someone_called_Vladula."
+Message 7: Hmm_this_is_a_mysterious_crypt...

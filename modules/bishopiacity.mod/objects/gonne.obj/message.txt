@@ -1,0 +1,3 @@
+Message 0: %t_found_a_%c.
+Message 1: No_more_fun_today...
+Message 2: The_%c_is_all_crunched_up!

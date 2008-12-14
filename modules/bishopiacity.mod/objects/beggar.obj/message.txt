@@ -1,0 +1,6 @@
+Message 0: %n_was_too_brave...
+Message 1: %n_got_killed_by_%t!
+Message 2: Alms,_alms_for_the_poor?
+Message 3: Thank_you_good_sir!
+Message 4: Thank_you_for_your_donations._Look_at_my_fancy_outfit!
+Message 5: Thank_you_my_lady!

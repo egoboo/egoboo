@@ -1,0 +1,133 @@
+//Check if the attacker batters away your shield
+//Base chance +2% per holder strength -4% per attacker
+IfHeld
+  SetTargetToWhoeverIsHolding       //Folks with the shield profiency have always 100%
+  tmpargument = [SOLD]
+  IfTargetHasID
+    IfHolderBlocked
+      tmpargument = targetreloadtime + 40
+      SetTargetReloadTime
+  Else
+    IfHolderBlocked
+      tmpx = targetstr > 6
+      SetTargetToWhoeverIsHolding
+      tmpy = targetstr > 7
+      tmpx = rand % 100 + tmpx 
+      tmpy = 80 + tmpy            //80% block rate
+      IfXIsMoreThanY
+        tmpargument = 40    //0.80 seconds
+        SetReloadTime       //is how long it takes to raise shield again
+        tmpargument = 1
+        PlaySound           //Play clong
+      Else
+        IfHolderBlocked      //So that the target becomes the attacker again
+          tmpargument = targetreloadtime + 40
+          SetTargetReloadTime
+
+//Keep track if to enchant holder or not
+IfDropped
+  tmpargument = 0
+  SetState
+IfPutAway 
+  tmpargument = 0
+  SetState
+  UndoEnchant
+IfStateIs0                  //state 0 is not held
+  UndoEnchant
+  IfGrabbed
+    tmpargument = 1
+    SetState
+  IfTakenOut
+    tmpargument = 1
+    SetState
+
+//Held, see if we need to enchant
+IfStateIs1
+  tmpargument = 2
+  SetState    
+  IfNameIsKnown
+    SetTargetToWhoeverIsHolding
+    tmpargument = [PALA]
+    IfTargetHasID
+      SetOwnerToTarget
+      EnchantTarget
+      tmpargument = 3
+      SendMessageNear          
+      SetState    
+    Else
+      tmpargument = 2
+      SendMessageNear
+
+//Magical sparklies
+IfStateIs3
+  tmpx = rand & 100
+  tmpy = 50
+  IfXIsMoreThanY		//Dont spawn too many
+    tmpargument = 1
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+
+  tmpargument = 1
+  SetState
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding
+  tmpargument = 0
+  SendMessageNear
+  IfNameIsKnown
+    DoNothing
+  Else  
+    //Identify with high wisdom
+    tmpx = rand & 31
+    tmpy = rand & 31 + targetwis > 8
+    IfXIsLessThanY				  
+      tmpargument = 25
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+      MakeNameKnown
+      
+IfTakenOut
+  IfNameIsKnown
+    DoNothing
+  Else    
+    SetTargetToWhoeverIsHolding
+    
+    //Identify with high wisdom
+    tmpx = rand & 31
+    tmpy = rand & 31 + targetwis > 8
+    IfXIsLessThanY				  
+      tmpargument = 25
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+      MakeNameKnown
+
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  //
+
+IfDropped				// Make it lie on floor
+  KeepAction
+
+End					// All done
