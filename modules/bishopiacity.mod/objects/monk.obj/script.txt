@@ -1,0 +1,87 @@
+IfSpawned
+  tmpargument = passage
+  AddShopPassage
+
+IfTimeOut
+  tmpx = rand & 225 + selfspawnx
+  tmpy = rand & 225 + selfspawny
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 15 + 30
+  SetTime
+  
+
+//------------------------------------------------------------------------------
+//Handle orders ( purchases )
+IfOrdered
+  // Counter specifies transaction ( 0, 1, or 2 )
+  // Order specifies price
+  tmpx = selforder
+  tmpy = 0
+  IfXIsEqualToY
+    tmpx = selfcounter
+    tmpy = 0
+    IfXIsEqualToY
+      // I'm not payin' for that!
+      tmpargument = 8
+      SendMessageNear
+  Else
+    // Buy/Sell
+    tmpx = selfcounter
+    tmpy = 3
+    IfXIsLessThanY
+      tmpy = 0 - 1
+      IfXIsMoreThanY
+        tmpargument = tmpx + 5
+        tmpx = selforder
+        SendMessageNear
+
+
+//-----------------------------------------------------------------------------
+IfHitGround
+  tmpargument = 0
+  PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpargument = rand % 2 + 8
+  PlaySound
+  tmpargument = ACTIONKA
+  DoAction
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  CallForHelp			//Warn friends
+  tmpargument = 7
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 65535
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by screaming
+IfAttacked
+  SetTargetToWhoeverAttacked
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
