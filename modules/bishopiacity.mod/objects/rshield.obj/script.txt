@@ -1,0 +1,73 @@
+//Check if the attacker batters away your shield
+//Base chance +1% per holder strength -1% per attacker
+IfHeld
+  IfHolderBlocked
+    tmpx = targetstr > 8
+    SetTargetToWhoeverIsHolding
+    tmpy = targetstr > 8
+    tmpx = rand % 100 - tmpx
+    tmpy = 40 + tmpy      //40% block rate
+    IfXIsMoreThanY
+      tmpargument = 35    //0.70 seconds
+      SetReloadTime       //is how long it takes to raise shield again
+      tmpargument = 1
+      PlaySound           //Play clong
+
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+
+
+//Handle kursed shield stuff
+IfNotDropped
+  tmpargument = 2
+  SendMessageNear
+IfKursed
+  tmpargument = 1	//Not droppable
+  SetContent
+IfNotPutAway
+  tmpargument = 2
+  SendMessageNear
+
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  tmpdistance = rand & 2047 + 8000	  //
+  PlaySound				  //
+
+//A small chance the player will lose the shield (Its rusty)
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpx = rand % 500
+  tmpy = 2
+  IfYIsMoreThanX
+    tmpargument = 0
+    IfContentIs		//Ignore if shield is kursed
+      DetachFromHolder
+      tmpargument = 3
+      SendMessageNear
+
+End					// All done

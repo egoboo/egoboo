@@ -1,0 +1,13 @@
+//Dont move
+KeepAction
+
+// Creak every now and then
+IfTimeOut
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = 100
+      SetTime
+End

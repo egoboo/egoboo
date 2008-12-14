@@ -1,0 +1,17 @@
+tmpargument = 1
+IfContentIs
+  SetTargetToNearestLifeform
+  tmpx = targetdistance
+  tmpy = 100
+  IfXIsLessThanY
+    IfTargetCanOpenStuff
+      tmpx = targetlevel
+      tmpy = 3
+      IfXIsMoreThanY
+        tmpargument = ACTIONMJ
+        DoAction
+        KeepAction
+        tmpargument = 0
+        SetContent
+
+End

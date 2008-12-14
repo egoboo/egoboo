@@ -1,0 +1,160 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else		// Overlay object
+    NotAnItem
+    JoinNullTeam
+    MakeNameUnknown
+    tmpargument = 1
+    SetState
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+// Spell AI...
+IfStateIs0
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 0
+        SendMessageNear
+      SetOwnerToTarget
+  // Allow it to be used
+  IfUsed
+    UndoEnchant
+      UnsparkleIcon
+      tmpargument = 50
+      SetReloadTime
+    Else
+      SetTargetToWhoeverIsHolding
+      GetContent
+      tmpx = tmpargument
+      tmpy = targetmanaflow
+      IfXIsLessThanY
+        tmpy = 1024			// Maximum charge
+        IfXIsLessThanY
+          tmpy = tmpargument
+          tmpx = 8
+          tmpargument = tmpx
+          CostTargetMana
+            tmpargument = tmpy + tmpx
+            SetContent
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 2
+            SpawnExactParticle
+      SetTargetToNearestFriend
+        IfTargetIsAlive
+          tmpx = targetdistance
+          tmpy = 250
+          IfXIsLessThanY
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 2
+            SpawnExactParticle
+  // Cast the spell
+  Else
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsMoreThanY
+      SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpy = 1023
+      IfXIsMoreThanY
+        tmpargument = ACTIONMC
+        TargetDoAction
+
+        // Find target
+        SetTargetToNearestFriend
+        IfTargetIsAlive
+          tmpx = targetdistance
+          tmpy = 250
+          IfXIsMoreThanY
+            SetTargetToWhoeverIsHolding
+        Else
+          SetTargetToWhoeverIsHolding
+
+        EnchantTarget
+          tmpargument = 3
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          SpawnExactParticle
+          tmpargument = RED
+          SparkleIcon
+          IfNameIsKnown
+            DoNothing
+          Else
+            tmpargument = 30
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+            MakeNameKnown
+          tmpargument = 2
+        Else
+          tmpargument = 1
+        SendMessageNear
+      Else
+        tmpargument = 1
+        SendMessageNear
+      tmpargument = 0
+      SetContent
+      tmpargument = 50
+      SetReloadTime
+
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+
+Else
+  tmpx = targetspeedz
+  tmpy = 0 - 5
+  IfXIsLessThanY
+    IfStateIs1
+      tmpargument = 4
+      tmpdistance = 1
+      SpawnAttachedParticle
+      tmpargument = 2
+      SetState
+  Else
+    IfStateIs2
+      DisaffirmCharacter
+      tmpy = 0 - 1
+      IfXIsMoreThanY
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        tmpargument = 0
+        SpawnExactParticle
+        tmpargument = 3
+        SetState
+        tmpargument = 35
+        SetTime
+  IfStateIs3
+    IfTimeOut
+      tmpargument = 1
+      SetState
+    Else
+      StopTargetMovement
+      tmpargument = 0
+      IfContentIs
+        BlackTarget
+      GetContent
+      tmpargument = tmpargument + 1 & 3
+      SetContent
+End

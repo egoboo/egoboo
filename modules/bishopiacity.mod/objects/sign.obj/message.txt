@@ -1,0 +1,17 @@
+Message 0: Griffin_Tower!
+Message 1: Welcome_to_Bishopia!
+Message 2: The_Docks...
+Message 3: Olafs_Junkyard
+Message 4: Council_Hall
+Message 5: The_Barracks
+Message 6: The_Paladin_Order
+Message 7: A_nonsuspicious_mansion...
+Message 8: Welcome_to_the_Bounty_Tavern!
+Message 9: Dunlar_Smithy
+Message 10: Zambini's_Magical_Emporium.
+Message 11: Mylvin_the_Alchemist
+Message 12: Le_secret_shoppe
+Message 13: Barracks_Training_ground
+Message 14: Bishopia_Graveyard
+Message 15: Gnomish_Engineers_Inc.
+Message 16: The_Armoury
