@@ -1,0 +1,16 @@
+// ZZ> This function makes an item fall to the floor when spawned
+IfUsed
+  tmpargument = 30
+  SetReloadTime
+IfDropped
+  KeepAction
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  tmpdistance = rand & 2047 + 10000	  //
+  PlaySound				  //
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+End					// All done

@@ -1,0 +1,8 @@
+Message 0: %t_grabbed_%n.
+Message 1: The_%c_shattered!
+Message 2: %t_pulled_out_%n.
+Message 3: %t_quaffed_%n.
+Message 4: %t_drank_a_potion.
+Message 5: %t_feels_charged...
+Message 6: Eughhh..._In_retrospect,_drinking_from_a_bottle_filled_with_
+Message 7: mysterious_liquid_was_probably_a_pretty_dumb_idea...

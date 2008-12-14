@@ -1,0 +1,3 @@
+Message 0: %t_squished_a_%c.
+Message 1: The_%c_was_crushed.
+Message 2: An_exit_opened!

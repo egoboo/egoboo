@@ -1,0 +1,4 @@
+Message 0: %t_took_a_%c.
+Message 1: %t's_%c_is_%k...
+Message 2: The_%c_was_smooshed!
+Message 3: The_%c_won't_go_in!
