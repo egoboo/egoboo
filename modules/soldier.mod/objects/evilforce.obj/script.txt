@@ -1,0 +1,20 @@
+//----------------------------------------------------------------------
+//Sound the player that he is stepping on something evil
+IfTimeOut
+  tmpargument = 20
+  SetTime
+  tmpx = weight
+  tmpy = 20
+  IfXIsMoreThanY
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam
+      tmpargument = 0
+      SendMessageNear
+      PlaySound
+      tmpdistance = DAMAGEEVIL
+      tmpargument = 256
+      DamageTarget
+
+//----------------------------------------------------------------------
+End
+//----------------------------------------------------------------------

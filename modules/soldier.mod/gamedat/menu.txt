@@ -1,0 +1,29 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: Soldier_Start
+Reference module ( Directory name or NONE )	: NONE
+Required reference IDSZ ( or [NONE] )		: [NONE]
+Number of imports ( 0 to 4 )			: 0
+Allow exporting of characters ( TRUE or FALSE ) 	: FALSE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 1
+Allow respawning (ANYTIME, TRUE or FALSE )	: TRUE
+NOT USED				: FALSE
+Level rating ( *, **, ***, ****, or ***** )  		: ***
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:A_paladin_named_Keldorn_has_turned
+:evil_and_joined_the_mysterious
+:necromancers_who_have_appeared.
+:He_has_captured_Lord_Hagen_and
+:taken_him_prisoner_in_a_dungeon
+:hideout_at_the_outskirts_of_the_
+:Bishopian_Plains._You_are_to_kill
+:Keldorn_and_rescue_the_Lord!
+
+
+
+// Module expansion IDSZs ( with a colon in front )
+:[BEAT]
+
+:[LORD]

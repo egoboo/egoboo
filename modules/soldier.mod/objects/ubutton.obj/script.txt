@@ -1,0 +1,29 @@
+// ZZ> This function makes the button go up or down
+tmpx = 20				// Threshold weight
+tmpy = weight				// Weight of characters on top
+IfXIsLessThanY				//
+  tmpargument = 1			  //
+  IfStateIs				  // Only go down if it's up
+    tmpargument = 1			    // NOP
+  Else					  //
+    tmpargument = ACTIONMG		    //
+    DoAction				    //
+      tmpargument = 1			      // 1 is down
+      SetState				      //
+      tmpargument = 2
+      OpenPassage			      //
+      tmpargument = 3
+      OpenPassage			      //
+      tmpargument = 4
+      OpenPassage			      //
+      tmpargument = 5
+      OpenPassage			      //
+      KeepAction			      // Make it stay on last frame
+      tmpargument = 5			      //
+      SetBumpHeight			      //
+      tmpargument = 0
+      PlaySound
+      SendMessageNear
+      tmpargument = 1
+      PlaySound
+End					// Finished with this character

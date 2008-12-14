@@ -1,0 +1,7 @@
+//Play music
+tmpargument = 2
+tmpdistance = 0
+PlayMusic
+
+GoPoof
+End					// All done

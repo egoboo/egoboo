@@ -1,0 +1,5 @@
+Message 0: %t_found_a_%c.
+Message 1: The_%c_was_flattened!
+Message 2: %t_drew_a_%c.
+Message 3: %t_can't_drop_%g_%c!
+Message 4: %t's_%c_is_kursed!

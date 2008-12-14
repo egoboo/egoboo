@@ -1,0 +1,4 @@
+//Go away
+IfKilled
+  GoPoof
+End

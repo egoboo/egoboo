@@ -1,0 +1,19 @@
+//Make them read
+IfStateIs0
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      tmpargument = [READ]
+      IfTargetHasSkillID
+        tmpargument = 1
+      Else
+        tmpargument = 0
+      SendMessageNear
+      tmpargument = 50
+      SetTime
+      SetState              //Don't loop reading
+
+IfTimeOut
+  tmpargument = 0
+  SetState
+End    

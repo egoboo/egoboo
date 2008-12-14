@@ -1,0 +1,5 @@
+Message 0: %n_was_defeated_by_%t!
+Message 1: Fool!
+Message 2: Warriors,_attack!
+Message 3: %n_looks_better!
+Message 4: %n_dropped_%g_shield!
