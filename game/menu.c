@@ -46,7 +46,7 @@ enum MenuStates
 
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.8";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.9 \nBETA TEST VERSION";
 static int copyrightLeft = 0;
 static int copyrightTop  = 0;
 

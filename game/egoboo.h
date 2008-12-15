@@ -64,7 +64,7 @@ typedef struct
 #define EQ(x)
 #endif
 
-EXTERN char          VERSION[] EQ( "2.6.8" );  // Version of the game
+EXTERN char          VERSION[] EQ( "2.6.9" );  // Version of the game
 EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
 EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
