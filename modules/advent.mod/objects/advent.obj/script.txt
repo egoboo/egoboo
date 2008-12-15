@@ -8,12 +8,15 @@
 //5			n/a			
 //6			n/a
 //7         Speed
-//8			Stealth
+//8			n/a
 //9         n/a
-//10	    n/a
-//11	    Class Mastery
+//10	    Stealth
+//11	    n/a
 //12	    n/a
 //13	    Listen
+//14	    n/a
+//15	    n/a
+//16	    Class Mastery
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -137,7 +140,7 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Listen skill
 tmpx = selflevel
-tmpy = 11            //At least level 12
+tmpy = 11            //At least level 13
 IfXIsMoreThanY
   EnableListenSkill
   
@@ -155,7 +158,7 @@ tmpargument = 0
 IfContentIs
   SetTargetToSelf
   tmpx = selflevel
-  tmpy = 5              //Need level 7
+  tmpy = 14              //Need level 16
   IfXIsMoreThanY
     SetOwnerToTarget
     EnchantTarget 	//Give the special bonus

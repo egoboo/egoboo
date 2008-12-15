@@ -84,9 +84,10 @@ IfKilled
   BeatModule
   EnableExport
 
-  // Mark this module as beaten, hidden modules may open up
-  tmpargument = [BEAT]
-  AddIDSZ
+  // Beat it...
+  tmpargument = [BENE]      //Which quest
+  tmpdistance = 1           //Quest level
+  AddQuestAllPlayers
 
   //Victory tune
   tmpargument = 14		//Music track

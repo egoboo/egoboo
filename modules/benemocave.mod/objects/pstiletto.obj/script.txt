@@ -68,7 +68,8 @@ IfUsed
       tmpargument = 5
       SendMessageNear		//Tell them what happened
       DetachFromHolder		//Drop the weapon
-      MakeNameKnown		//Tell the players its poisoned
+      IfTargetIsAPlayer
+        MakeNameKnown		//Tell the players its poisoned
 
 //Paladins dont use poisoned weapons
 IfGrabbed

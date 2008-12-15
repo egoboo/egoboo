@@ -3,6 +3,7 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
+  MakeCrushValid
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!
@@ -12,7 +13,6 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction

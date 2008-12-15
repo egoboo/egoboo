@@ -11,6 +11,28 @@
 //8         n/a
 //9         Lucky
 //10        n/a
+//11        n/a
+//12        Cartography
+//13        n/a
+//14        n/a
+//15        Danger Sense
+//-----------------------------------------------------------------------------
+//Danger sense skill
+tmpx = selflevel
+tmpy = 12          //Need level 15
+IfXIsMoreThanY
+  SetTargetToSelf           //Make sure the enemy is correct
+  tmpargument = [NONE]      //All enemies
+  AddBlipAllEnemies         //Reveal 'em all
+
+//-----------------------------------------------------------------------------
+//Carography skill
+tmpx = selflevel
+tmpy = 10            //Need level 12
+IfXIsMoreThanY
+  ShowMap
+  ShowYouAreHere
+
 //-----------------------------------------------------------------------------
 // Identify special abillity
 SetTargetToSelf
