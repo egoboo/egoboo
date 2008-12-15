@@ -26,7 +26,7 @@ Backstab: Deal extra damage when attacking sleeping creatures or enemies from be
 Bow Mastery: +2 damage with all longbows.
 Butcher Form - Zombi becomes Butcher. Extra life, damage and size but somewhat reduced speed.
 Cartography: The character always has the minimap of the current dungeon/area.
-Class Mastery: +5 to all stats.
+Class Mastery: +3 to all stats.
 Crackshot: % chance based on DEX to daze enemies with Gunpowder.
 Critical Strike: %2 chance per level to deal +1 damage per 2 levels. Sound effect is played.
 Crusader: Converts EVIL damage taken into mana.
@@ -44,11 +44,12 @@ Hardy: Reduces all damage taken by 1/2 life point per 4 character levels.
 Holy Aura: Deals holy damage to all undead who bump the character. Damage increases with level.
 Holy Smite: Deals extra damage against [EVIL] creatures. Damage increases with level.
 Jousting: Can use the lance weapon in combat.
+Last Boon: Using her last breath, the Healer heals all her remaining allies in a burst of holy light.
 Listen: Increases listen range by 33% (Works through walls and doors)
 Lore Mastery: Automatically identify everything.
 Lucky: Gives a small bonus to everything.
 Magical Ampitude: Automatically identify all magic scrolls and wands.
-Mystic Intellect: Gain a vast 15 bonus to intelligence.
+Mystic Intellect: Gain a vast 10 bonus to intelligence.
 Poison Use: Can use poison without err.
 Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
 Sharpshooter: Deal bonus damage based on DEX with Gunpowder weapons.
@@ -58,7 +59,9 @@ Stalker: Can stealth while sneaking around. Tap keyboard movement.
 Stealth: When not moving, fade away into the shadows.
 Sunder Attack: % chance to reduce enemy armor by 10. Sound effect is played.
 Teleport Mastery: Level 5 Wizard can cast teleport with 100% success and 33% less mana cost.
+Ultimate Sacrifice: In his death, the paladin engulfs his opponents in divine fury.
 Use Technological Items: Use g'nomish items and toys like gunpowder and bombs.
+Walk in Plain Sight: The character can move quickly around while being stealthed, even when near enemies.
 Weapon Mastery: +2 damage on all attacks.
 Weapon Profiency: Can use advanced weapons like big swords or axes.
 Whip Mastery: +2 extra damage with all whips.
@@ -97,6 +100,9 @@ Level       Abillity
 10			n/a	
 11			n/a
 12			Cartography
+13          n/a
+14          n/a
+15          Danger Sense
 -------------------------------------------
 
 
@@ -111,12 +117,15 @@ Level       Abillity
 5			n/a			
 6			n/a
 7           Speed
-8			Stealth
+8	        n/a
 9           n/a
-10	        n/a
-11	        Class Mastery
+10	        Stealth
+11	        n/a
 12	        n/a
 13	        Listen
+14	        n/a
+15	        n/a
+16          Class Mastery
 -------------------------------------------
 
 
@@ -133,6 +142,12 @@ Level       Abillity
 8			n/a
 9			n/a
 10			Guardian Angel
+11			n/a
+12			n/a
+13			Immune vs. Kurses
+14			n/a
+15			n/a
+16			Last Boon
 -------------------------------------------
 
 
@@ -152,6 +167,9 @@ Level       Abillity
 11			n/a
 12			n/a
 13			Sense Undead
+14			n/a
+15			n/a
+16			Ultimate Sacrifice
 -------------------------------------------
 
 
@@ -163,11 +181,15 @@ Level   Abillity
 3     - Magical Ampitude
 4     - n/a
 5     - Teleport Mastery
-6     - Elemental Staff
-7     - Mystic Intellect
-8     - n/a
-9     - Wizard's Missile
+6     - n/a
+7     - n/a
+8     - Elemental Staff
+9     - n/a
 10    - n/a
+11    - Mystic Intellect
+12    - n/a
+13    - n/a
+14    - Wizard's Missile
 -------------------------------------------
 
 
@@ -219,26 +241,32 @@ Level   Abillity
 4     - Sneak (Can move 1 step at the time while stealthing)
 5     - Listen
 6     - Stalker (Can sneak while stealthing)
-7     - Master Acrobacy
-8     - n/a
+7     - n/a
+8     - Master Acrobacy
 9     - n/a
 10    - Shade (Can move and jump while stealthing)
+11    - n/a
+12    - n/a
+13    - Walk in Plain Sight
 -------------------------------------------
 
 
 
+-------------------------------------------
 ZOMBI
--------------------------------------------
-Level  Abillity
-1     - Immune vs. Grog and Daze, Poison Resist
-2     - n/a
-3     - Immune vs. Banishment
-4     - Immune vs. Kurses
-5     -	Life Steal attack
-6     -	n/a
-7     -	Butcher Form
-8     -	Dazing Strike
-9     -	Explosive Death
-10    - n/a
+Level	    Ability
+1			Immune vs Grog and Daze
+2			n/a
+3			Immune vs. Banishment
+4			n/a
+5			Immune vs. Kurses
+6			n/a
+7			Life Steal attack
+8			n/a
+9			Butcher Form
+10		    n/a
+11		    Daze attacks
+12		    n/a
+13		    Explosive Death attack
 -------------------------------------------
 

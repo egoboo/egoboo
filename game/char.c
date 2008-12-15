@@ -1053,6 +1053,9 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
   inshop = bfalse;
   if ( chrisitem[character] && numshoppassage != 0 && doshop )
   {
+	//This is a hack that makes spellbooks in shops cost correctly
+    if(chrisshopitem[mount]) chrisshopitem[character] = btrue;
+
     cnt = 0;
     while ( cnt < numshoppassage )
     {
@@ -1086,7 +1089,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         price = price * chrammo[character];
       }
       // Reduce value depending on charges left
-      // else if (capisranged[chrmodel[character]]) price -= (chrammomax[character]-chrammo[character])*(price/chrammomax[character]);
+      else if (capisranged[chrmodel[character]] && chrammo[character] > 0) price -= (chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character]));
       
 	  //Items spawned within shops are more valuable
 	  if(!chrisshopitem[character]) price *= 0.5;
@@ -1097,7 +1100,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
       if ( chrmoney[mount] > MAXMONEY )  chrmoney[mount] = MAXMONEY;
       chralert[owner] |= ALERTIFORDERED;
       chrorder[owner] = price;  // Tell owner how much...
-      chrcounter[owner] = 0;  // 0 for buying an item
+      chrcounter[owner] = BUY;  // 0 for buying an item
     }
   }
 
@@ -1680,8 +1683,8 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                   price = price * chrammo[charb];
 				}
                 // Reduce value depending on charges left
-                // else if (capisranged[chrmodel[charb]]) price -= (chrammomax[charb]-chrammo[charb])*(price/chrammomax[charb]);
-
+                else if (capisranged[chrmodel[charb]] && chrammo[charb] > 0) price -= (chrammomax[charb]-chrammo[charb])*((float)(price/chrammomax[charb]));
+ 
 				//Items spawned in shops are more valuable
 				if(!chrisshopitem[charb]) price *= 0.5;
 
@@ -1689,7 +1692,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 if ( chrmoney[chara] >= price )
                 {
                   // Okay to buy
-                  chrcounter[owner] = 1;  // 1 for selling an item
+                  chrcounter[owner] = SELL;  // 1 for selling an item
                   chrmoney[chara] -= price;  // Skin 0 cost is price
                   chrmoney[owner] += price;
                   if ( chrmoney[owner] > MAXMONEY )  chrmoney[owner] = MAXMONEY;
@@ -2177,7 +2180,7 @@ void move_characters( void )
                   {
                     play_action( chrattachedto[cnt], ACTIONUA + ( rand()&1 ), bfalse );
                     chralert[chrattachedto[cnt]] |= ALERTIFUSED;
-                    chrlastitemused[cnt] = cnt;
+                    chrlastitemused[cnt] = mount;
                   }
                   else
                   {
@@ -4572,6 +4575,8 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
       fprintf( filewrite, ":[SHAD] 1\n" );
     if ( capripple[profile] == capisitem[profile] )
       fprintf( filewrite, ":[RIPP] %d\n", capripple[profile] );
+	if ( capisvaluable[profile] != -1 )
+	  fprintf( filewrite, ":[VALU] %d\n", capisvaluable[profile] );
 
 	//Basic stuff that is always written
     fprintf( filewrite, ":[GOLD] %d\n", chrmoney[character] );
@@ -5017,6 +5022,7 @@ int load_one_character_profile( char *szLoadName )
     capstateoverride[object] = 0;
     capleveloverride[object] = 0;
     capcanuseplatforms[object] = !capplatform[object];
+	capisvaluable[object] = 0;
 
 	//Skills
     capcanuseadvancedweapons[object] = 0;
@@ -5074,6 +5080,8 @@ int load_one_character_profile( char *szLoadName )
       if ( idsz == test )  capcanuseplatforms[object] = iTmp;
       test = Make_IDSZ( "RIPP" );  // [RIPP]
       if ( idsz == test )  capripple[object] = iTmp;
+      test = Make_IDSZ( "VALU" );  // [VALU]
+	  if ( idsz == test ) capisvaluable[object] = iTmp;
 
 	  //Read Skills
       test = Make_IDSZ( "AWEP" );  // [AWEP]
@@ -5994,36 +6002,40 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
       chrexperiencelevel[cnt] = capleveloverride[profile];
 
 	  //Items that are spawned inside shop passages are more expensive than normal
-      chrisshopitem[cnt] = bfalse;
-	  if(chrisitem[cnt] && !chrinpack[cnt] && chrattachedto[cnt] == MAXCHR )
+	  if(capisvaluable[profile]) chrisshopitem[cnt] = btrue;
+	  else
 	  {
-		  float tlx, tly, brx, bry;
-		  Uint16 passage = 0;
-		  float bumpsize;
-
-		  bumpsize = chrbumpsize[cnt];
-		  while(passage < numpassage)
+		  chrisshopitem[cnt] = bfalse;
+		  if(chrisitem[cnt] && !chrinpack[cnt] && chrattachedto[cnt] == MAXCHR)
 		  {
-			  // Passage area
-			  tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
-			  tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
-			  brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
-			  bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+			  float tlx, tly, brx, bry;
+			  Uint16 passage = 0;
+			  float bumpsize;
 
-			  //Check if the character is inside that passage
-  			  if ( chrxpos[cnt] > tlx - bumpsize && chrxpos[cnt] < brx + bumpsize )
+			  bumpsize = chrbumpsize[cnt];
+			  while(passage < numpassage)
 			  {
-			    if ( chrypos[cnt] > tly - bumpsize && chrypos[cnt] < bry + bumpsize )
-			    {
-					//Yep, flag as valuable (does not export)
-					chrisshopitem[cnt] = btrue;
-					break;
-			    }
+				  // Passage area
+				  tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
+				  tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
+				  brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+				  bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+
+				  //Check if the character is inside that passage
+  				  if ( chrxpos[cnt] > tlx - bumpsize && chrxpos[cnt] < brx + bumpsize )
+				  {
+					if ( chrypos[cnt] > tly - bumpsize && chrypos[cnt] < bry + bumpsize )
+					{
+						//Yep, flag as valuable (does not export)
+						chrisshopitem[cnt] = btrue;
+						break;
+					}
+				  }
+				  passage++;
 			  }
-			  passage++;
+			}
 		  }
-		}
-	  }
+	    }
   }
   return cnt;
 }
@@ -6790,7 +6802,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   char newloadname[256];
 
   // Only add quest IDSZ if it doesnt have it already
-  if (check_player_quest(whichplayer, idsz) <= QUESTBEATEN) return bfalse;
+  if (check_player_quest(whichplayer, idsz) >= QUESTBEATEN) return bfalse;
 
   // Try to open the file in read and append mode
   snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );

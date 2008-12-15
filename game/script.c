@@ -1548,12 +1548,12 @@ Uint8 run_function( Uint32 value, int character )
 
     case FIFTARGETISMALE:
       // This function proceeds only if the target is male
-      returncode = ( chrgender[character] == GENMALE );
+      returncode = ( chrgender[chraitarget[character]] == GENMALE );
       break;
 
     case FIFTARGETISFEMALE:
       // This function proceeds only if the target is female
-      returncode = ( chrgender[character] == GENFEMALE );
+      returncode = ( chrgender[chraitarget[character]] == GENFEMALE );
       break;
 
     case FSETTARGETTOSELF:
@@ -1588,7 +1588,7 @@ Uint8 run_function( Uint32 value, int character )
       // This function turns the spellbook character into a spell based on its
       // content
       chrmoney[character] = ( chrtexture[character] - madskinstart[chrmodel[character]] ) & 3;
-      change_character( character, chraicontent[character], 0, LEAVENONE );
+	  change_character( character, chraicontent[character], 0, LEAVENONE );
       chraicontent[character] = 0;  // Reset so it doesn't mess up
       chraistate[character] = 0;  // Reset so it doesn't mess up
       changed = btrue;
@@ -3625,7 +3625,7 @@ Uint8 run_function( Uint32 value, int character )
   case FADDQUESTALLPLAYERS:
     //This function adds a quest idsz set in tmpargument into all local player's quest logs
     //The quest level is set to tmpdistance if the level is not already higher or QUESTBEATEN
-	iTmp = 0;
+    iTmp = 0;
 	returncode = bfalse;
 	while(iTmp < MAXPLAYER)
 	{
@@ -3649,7 +3649,7 @@ Uint8 run_function( Uint32 value, int character )
 	  // show all enemies on the minimap who match the IDSZ given in tmpargument
 	  // it show only the enemies of the AI target
       localsenseenemies = chraitarget[character];
-	  locansensenemiesID = valuetmpargument;
+	  localsenseenemiesID = valuetmpargument;
       break;
 
     case FEND:

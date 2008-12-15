@@ -1,18 +1,83 @@
+__Item____________________STR damp._Comment
+
+ ~ Ranged Weapons ~
+
+- Pistol                :     0.00
+- Musketoon             :     0.00
+- Gonne                 :     0.00
+*- Longbow               :     0.02 
+*- Bag of Ninjastars     :     0.05  (Throwing a ninja star really hard actually has an effect on it!)
+
+ ~ Melee Weapons ~
+*- Whip                  :     0.01
+*- Spear                 :     0.05
+*- Knife                 :     0.06
+*- Cinquedea             :     0.06
+*- Trident               :     0.07
+*- Poisoned Stiletto     :     0.07
+*- Torch                 :     0.09
+*- Quarter Staff         :     0.09  (Come on, it's just a wooden stick after all.)
+*- Claw                  :     0.10
+*- Rusty Sword           :     0.11
+*- Sword                 :     0.12
+*- Broadsword            :     0.12
+*- Giant Dagger          :     0.12
+*- Scimitar              :     0.13
+*- Silver Scimitar       :     0.13
+*- Toilet Plunger        :     0.14
+*- Katana                :     0.15
+*- Poisoned Katana       :     0.15
+*- Shovel                :     0.16
+*- Pick                  :     0.16
+*- Hatchet               :     0.18
+*- Lance                 :     0.17
+*- Battle Axe            :     0.18
+*- Mace                  :     0.19
+*- Scythe                :     0.20
+*- Mallet                :     0.20
+*- Spike Mace            :     0.21
+*- Silver Spike Mace     :     0.21
+*- War Hammer            :     0.25  (5 bonus damage for 20 STR already. It's still pretty awesome, as that already is basically double damage.)
+
+
+ ~ Magical items ~
+*- Fire Bow              :     0.03
+*- Shock                 :     0.08
+*- The Blackstaff        :     0.09
+*- The Incisor           :     0.09
+*- Staff of Magic        :     0.09
+*- Everburning Torch     :     0.09
+*- Crime                 :     0.10 
+*- Chiuaua               :     0.12 
+*- Mage Blade            :     0.12
+*- The Sword of Evil     :     0.15
+*- Soul Carver           :     0.15
+*- Frost Sabre           :     0.17
+*- Hatchet of Wounding   :     0.18
+*- Sloth                 :     0.19  (10 base damage already hurts a ton, you shouldn't get like 20 bonus damage from STR as well then.)
+*- Sword of the Weaponm. :     0.20
+*- Vorporal Blade        :     0.20
+*- The Thunder Warpick   :     0.21
+*- Hunger                :     0.21
+*- Magic Lance           :     0.23
+*- The Bait              :     0.24
+*- Smite                 :     0.27
+*- Maul of the Titans    :     0.30  (30%'s the limit. Really.)
+*- Vengance              :     0.35  (O rly?)
+
 The master TODO list:
-- Runes are not crushable
-- Make identify scroll work on items that are not in hand and show kursed/unkursed state
-- Rebalance the symbol of turning
-- GiveQuestAllPlayers not working?
+- All keys and spells should be flagged as :[VALU] 1 (valuable)
+- Spellbooks not being spellbooks when spawning instead of dropped.
+- Wizards cannot use lamps
+- Runes crushed messages are missing
 - Exploding oil when taken out? (lit lamp was held in other hand)
 - Minimize on Linux can cause textures to be buggy.
 - Impassable tile in Zippy? (near healer) (and forgotten fortress?)
 - There are white stools in the Wizard Starter, the skins are still messed up for various thing sometimes. 
 - The ice in the Ice Palace is VERY slippery...
 - Squidgies still messing things up!
-- Selling charged items always returns same value, even if no charges are left!
 - Crusader shield IfPutAway not working. It also refills mana!
 - Overlay effects do not spawn in pits.
-- Healers need ranged attack spell
 - Restoration removes good buffs
 - Creates in G'nome starter tend to wander uphill.
 - Exp cheat works waaay to fast.
@@ -20,7 +85,6 @@ The master TODO list:
 - shield of deflection not working vs. orbstorm and float eye attacks
 - Corpses turn to zombies too slow
 - Game crashes in sand palace. Mimic and tranch room.
-- XP needed formula above level 6 too steep?
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
 - Brom and Mim in the adventurer starter have some strange sudden waypoints.
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
@@ -29,14 +93,20 @@ The master TODO list:
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 
 Version 2.6.x (??.??.2008)
+- New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.
 - New Feature: Input controls settings can now be changed in the ingame menu. 
 - New Feature: Added a new NPC to Zippy Town and in Bishopia City.
 - New Feature: The new Quest System is now in the game.
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
 - New Feature: Some new skills have been added and changed (classes.txt)
+- Update: Items now reduce in value if their charges or ammo is drained.
+- Update: Zombor's life steal and daze attacks now only apply to unarmed attacks.
+- Update: The Symbol of Turning has been tuned down a lot.
+- Update: Damage for every weapon in the game has been rebalanced.
+- Update: The Mageblade now gains bonus damage from intelligence as well as strength.
 - Update: The Clairvoyance spell can now also display all enemies on the map.
-- Update: Shop items are now 50% more valuable than dungeon loot items.
+- Update: Loot found in dungeons are sold for half value opposed to shop items.
 - Update: The Crypt has been made slightly harder to defeat.
 - Update: Many items have a new more balanced gold value. (Credits to Clonkinator)
 - Update: The weapon 'Chiuaua' now deals triple damage and is armor piercing.
@@ -57,6 +127,9 @@ Version 2.6.x (??.??.2008)
 - Update: Random potion skins for unidentified potions was removed.
 - Update: Improved some memory optimization.
 - Update: Each class can now have multiple skill IDSZ using expansions.
+- Bugfix: Fixed a random item spawning bug in Bishopia city.
+- Bugfix: The Healer is no longer charged when taking holy damage after reaching level 8.
+- Bugfix: Divine runes are now crushable in passages.
 - Bugfix: All potions should now work correctly on invisible users.
 - Bugfix: All demons should now properly be damaged by HOLY.
 - Bugfix: Fixed various bugs with the Pet Trader in Zippy town.

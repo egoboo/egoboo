@@ -263,7 +263,7 @@ EXTERN int rotmeshdown;                                    //
 #define BARY                            16//8           //
 #define NUMTICK                         10//50          // Number of ticks per row
 #define TICKX                           8//4           // X size of each tick
-#define MAXTICK                         (NUMTICK*5) // Max number of ticks to draw
+#define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
 
 #define TURNSPD                         0.01f         // Cutoff for turning or same direction
 
@@ -1358,6 +1358,7 @@ EXTERN bool_t           capalwaysdraw[MAXMODEL];                    // Always re
 EXTERN bool_t           capisranged[MAXMODEL];                      // Flag for ranged weapon
 EXTERN Sint8           caphidestate[MAXCHR];                       // Don't draw when...
 EXTERN bool_t           capisequipment[MAXCHR];                     // Behave in silly ways
+EXTERN Sint8           capisvaluable[MAXCHR];                     // Force to be valuable
 
 //skill system
 EXTERN Sint8                 capshieldproficiency[MAXMODEL];               // Can it use shields?
@@ -1660,7 +1661,8 @@ EXTERN Uint16  shoppassage[MAXPASS];  // The passage number
 EXTERN Uint16  shopowner[MAXPASS];    // Who gets the gold?
 #define NOOWNER 65535        // Shop has no owner
 #define STOLEN  65535        // Someone stole a item
-
+#define BUY  0
+#define SELL 1
 
 // Status displays
 EXTERN int numstat  EQ( 0 );

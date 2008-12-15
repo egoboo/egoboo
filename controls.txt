@@ -26,8 +26,8 @@ Right Hand Use		: KEY_Y
 Right Hand Get/Drop: KEY_H
 Right Hand Inventory: KEY_N
 Send Message		: JOY_4
-Camera Rotate Left	: KEY_E
-Camera Rotate Right: KEY_Q
+Camera Rotate Left	: KEY_Q
+Camera Rotate Right: KEY_E
 Camera Zoom In		: KEY_Z
 Camera Zoom Out	: KEY_X
 Up					: KEY_W

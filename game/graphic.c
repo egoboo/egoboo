@@ -1823,25 +1823,21 @@ int load_one_object( int skin, char* tmploadname )
   get_actions( object );
 
 
-  // printf(" DIAG: copy actions\n");
   // Copy entire actions to save frame space COPY.TXT
   make_newloadname( tmploadname, "copy.txt", newloadname );
   check_copy( newloadname, object );
 
 
-  // printf(" DIAG: loading messages\n");
   // Load the messages for this object
   make_newloadname( tmploadname, "message.txt", newloadname );
   load_all_messages( newloadname, object );
 
 
-  // printf(" DIAG: doing random naming\n");
   // Load the random naming table for this object
   make_newloadname( tmploadname, "naming.txt", newloadname );
   read_naming( object, newloadname );
 
 
-  // printf(" DIAG: loading particles\n");
   // Load the particles for this object
   for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
   {
@@ -1849,8 +1845,6 @@ int load_one_object( int skin, char* tmploadname )
     load_one_particle( newloadname, object, cnt );
   }
 
-
-  // printf(" DIAG: loading waves\n");
   // Load the waves for this object
   for ( cnt = 0; cnt < MAXWAVE; cnt++ )
   {
@@ -1859,8 +1853,6 @@ int load_one_object( int skin, char* tmploadname )
     capwaveindex[object][cnt] = Mix_LoadWAV( newloadname );
   }
 
-
-  // printf(" DIAG: loading enchantments\n");
   // Load the enchantment for this object
   make_newloadname( tmploadname, "enchant.txt", newloadname );
   load_one_enchant_type( newloadname, object );
@@ -1958,8 +1950,6 @@ int load_one_object( int skin, char* tmploadname )
     if(gDevMode) log_message( "NOTE: Object is missing an skin (%s)!\n", tmploadname );
   }
 
-
-  // printf(" DIAG: leaving load_one_obj\n");
   return numskins;
 }
 
@@ -1978,16 +1968,13 @@ void load_all_objects( char *modname )
 
 
   // Log all of the script errors
-  // printf(" DIAG: opening ParseErr\n");
   parseerror = bfalse;
 
   // Clear the import slots...
-  // printf(" DIAG: Clearing import slots\n");
   for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     capimportslot[cnt] = 10000;
 
   // Load the import directory
-  // printf(" DIAG: loading inport dir\n");
   importplayer = -1;
   importobject = -100;
   skin = 8;  // Character skins start at 8...  Trust me
@@ -2001,7 +1988,6 @@ void load_all_objects( char *modname )
       fileread = fopen( newloadname, "r" );
       if ( fileread )
       {
-        // printf("Found import slot %04d\n", cnt);
 
         fclose( fileread );
         // Load it...
@@ -2017,7 +2003,6 @@ void load_all_objects( char *modname )
   }
 
   // Search for .obj directories and load them
-  // printf(" DIAG: Searching for .objs\n");
   importobject = -100;
   make_newloadname( modname, "objects" SLASH_STR, newloadname );
   filehandle = fs_findFirstFile( newloadname, "obj" );
@@ -2042,7 +2027,6 @@ void load_all_objects( char *modname )
   skin += load_one_object( skin, filename );
 
   fs_findClose();
-  // printf(" DIAG: Done Searching for .objs\n");
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2076,7 +2060,7 @@ void load_bars( char* szBitmap )
 //--------------------------------------------------------------------------------------------
 void load_map( char* szModule )
 {
-  // ZZ> This function loads the map bitmap and the blip bitmap
+  // ZZ> This function loads the map bitmap
   char szMap[256];
 
   // Turn it all off
@@ -3501,7 +3485,8 @@ void draw_blip( Uint8 color, int x, int y )
     xr = ( ( float )bliprect[color].right ) / 32;
     yt = ( ( float )bliprect[color].top ) / 4;
     yb = ( ( float )bliprect[color].bottom ) / 4;
-    width = bliprect[color].right - bliprect[color].left; height = bliprect[color].bottom - bliprect[color].top;
+    width = bliprect[color].right - bliprect[color].left; 
+	height = bliprect[color].bottom - bliprect[color].top;
 
     glBegin( GL_QUADS );
     glTexCoord2f( xl, yb );   glVertex2i( x - 1,       scry - y - 1 - height );
@@ -3594,12 +3579,9 @@ void draw_one_font( int fonttype, int x, int y )
 void draw_map( int x, int y )
 {
   // ZZ> This function draws the map
-
-  // printf("draw map getting called\n");
-
   EnableTexturing();
   glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-  // glNormal3f( 0, 0, 1 );
+  //glNormal3f( 0.0f, 0.0f, 1.0f );
 
   glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxMap ) );
   glBegin( GL_QUADS );
@@ -4181,7 +4163,7 @@ void draw_text()
       draw_string( text, 0, y );  y += fontyspacing;
     }
   }
-  if ( SDLKEYDOWN( SDLK_F5 ) )
+  if ( gDevMode && SDLKEYDOWN( SDLK_F5 ) )
   {
     // Debug information
     sprintf( text, "!!!DEBUG MODE-5!!!" );
@@ -4206,7 +4188,7 @@ void draw_text()
     sprintf( text, "  PLA1 %5.1f %5.1f", chrxpos[tnc] / 128.0f, chrypos[tnc] / 128.0f );
     draw_string( text, 0, y );  y += fontyspacing;
   }
-  if ( SDLKEYDOWN( SDLK_F6 ) )
+  if ( gDevMode &&  SDLKEYDOWN( SDLK_F6 ) )
   {
     // More debug information
     sprintf( text, "!!!DEBUG MODE-6!!!" );
@@ -4228,7 +4210,7 @@ void draw_text()
     sprintf( text, "  DAMAGEPART %d", damagetileparttype );
     draw_string( text, 0, y );  y += fontyspacing;
   }
-  if ( SDLKEYDOWN( SDLK_F7 ) )
+  if ( gDevMode && SDLKEYDOWN( SDLK_F7 ) )
   {
     // White debug mode
     sprintf( text, "!!!DEBUG MODE-7!!!" );
@@ -4278,8 +4260,7 @@ void draw_text()
     draw_string( text, 0, y );
     y += fontyspacing;
   }
-  if ( !rtscontrol )
-  {
+
     if ( alllocalpladead || respawnanytime )
     {
       if ( respawnvalid )
@@ -4302,7 +4283,7 @@ void draw_text()
         y += fontyspacing;
       }
     }
-  }
+  
 
 
   // Network message input
@@ -4393,7 +4374,6 @@ void draw_scene()
 void draw_main()
 {
   // ZZ> This function does all the drawing stuff
-  // printf("DIAG: Drawing scene nummeshrenderlistref=%d\n",nummeshrenderlistref);
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
   draw_scene();
@@ -4474,7 +4454,7 @@ bool_t load_blip_bitmap()
 {
   // This function loads the blip bitmaps
   Sint8 cnt;
-
+  
   GLTexture_Load( &TxBlip, "basicdat" SLASH_STR "blip.bmp" );
 
   // Set up the rectangles
