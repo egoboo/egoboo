@@ -50,47 +50,37 @@ IfGrabbed
     tmpargument = 0
     SendMessageNear
 
-
+//Magic sparks
+IfTimeOut
+  tmpargument = 3
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  SpawnExactParticle
+  tmpargument = 10
+  SetTime
 
 // Give the user a bonus, but it's addictive...
 IfUsed
-  tmpargument = 80
+  tmpargument = 100
   SetReloadTime
   SetTargetToWhoeverIsHolding
-    // Enchant the target (Regeneration buff)
-    SetOwnerToTarget
-    IfHeldInLeftHand
-      SetTargetToTargetRightHand
-    Else
-      SetTargetToTargetLeftHand
-    tmpargument = [XWEP]
-    IfTargetHasAnyID
-      EnchantTarget
-        tmpargument = ACTIONMC
-        TargetDoAction
-        tmpdistance = SPAWNORIGIN
-        tmpargument = 1
-        SpawnAttachedHolderParticle
-        CostAmmo
-        tmpargument = 1
-        PlaySound
-        IfNameIsKnown
-          tmpargument = 3
-          SendMessageNear
-        Else
-          MakeUsageKnown
-          MakeSimilarNamesKnown
-          tmpargument = 4
-          IfTargetIsAPlayer
-            tmpargument = 5
-          SendMessageNear
-          tmpargument = 30
-          tmpdistance = EXPDARE
-          GiveExperienceToTarget
-    Else
-      SetTargetToWhoeverIsHolding
-      tmpargument = 7
-      SendMessageNear
+    tmpargument = ACTIONMC
+    TargetDoAction
+    tmpdistance = SPAWNORIGIN
+    tmpargument = 1
+    SpawnAttachedHolderParticle
+    CostAmmo
+    tmpargument = 1
+    PlaySound
+    tmpargument = 100               //A nifty 100 xp bonus
+    tmpdistance = EXPROLEPLAY
+    GiveExperienceToTarget
+    tmpargument = 0 - 16
+    GiveIntelligenceToTarget      //The drawback
+    SetTargetToWhoeverIsHolding
+    tmpargument = 3
+    SendMessageNear
       
   IfAmmoOut
     GoPoof
