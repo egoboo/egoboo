@@ -162,9 +162,9 @@ Spork:     NONE     119   15   9    0    S   0   0   0   0   0   F   F   Null
 
 
 // Players spawned last so passages pick 'em out first...
-Hero 00   NONE      0    18.5 54.5 0.0  N   0   0   0   0   0   T   F   Good
+Hero 00:   NONE      0    18.5 54.5 0.0  N   0   0   0   0   0   T   F   Good
 HeroAtStalkers 00   NONE      0    42.5 12 0.0  N   0   0   0   0   0   T   F   Good
-HeroAtBoss:   NONE      0    25.0 7.5 0.0  N   0   0   0   0   0   T   F   Good
+HeroAtBoss   NONE      0    25.0 7.5 0.0  N   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
   Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null

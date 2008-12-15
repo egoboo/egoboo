@@ -72,7 +72,8 @@ IfSpawned
   tmpy = 5668
   AddWaypoint
 
-
+CleanUp
+    
 //------------------------------------------------------------------------------
 // ZZ> Handle wandering around
 IfStateIs1

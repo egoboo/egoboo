@@ -937,7 +937,7 @@ int doInputOptions( float deltaTime )
 		  read_key();
 	      while(tag < MAXTAG) 
 		  {
-			 if(sdlkeybuffer[tagvalue[tag]] != 0)
+			 if(sdlkeybuffer[tagvalue[tag]] != 0  && tagvalue[tag] != SDLK_NUMLOCK)
 			 {
 				controlvalue[waitingforinput] = tagvalue[tag];
 				waitingforinput = -1;

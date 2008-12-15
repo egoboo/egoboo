@@ -1,3 +1,14 @@
+//This is special for the grub mom
+IfCleanedUp				// Respawn
+  IfTargetIsAlive			  // Make sure killer is away
+    tmpx = 1100				    //
+    tmpy = targetdistance		    //
+    IfXIsLessThanY			    //
+      RespawnCharacter			      //
+  Else					  // Killer is far away
+    RespawnCharacter			    //
+
+
 // ZZ> This function makes the character wanders around its enemy
 IfSpawned				// Make it able to be crushed
   MakeCrushValid			  //
@@ -11,10 +22,8 @@ IfCrushed
   SpawnExactParticle
   SpawnExactParticle
   GoPoof
-
   tmpargument = 1
   SendMessageNear
-
 IfKilled				// This reduces the height of the char
   IfTargetIsOnHatedTeam			  // Final words
     tmpargument = 0			    //

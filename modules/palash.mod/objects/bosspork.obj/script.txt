@@ -37,7 +37,11 @@ IfGrabbed
   tmpargument = [MAIN]
   tmpdistance = 2           //The quest level
   AddQuestAllPlayers        //Add it
-
+  
+  //This unlocks the ash domain
+  tmpargument = [BEAT]
+  AddIDSZ
+  
   // Become the export object
   SetTargetToSelf
   tmpargument = 117

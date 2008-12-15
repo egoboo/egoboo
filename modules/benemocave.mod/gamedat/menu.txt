@@ -1,6 +1,6 @@
 Module Name :Benemo_Cave
-Reference Directory :NONE
-Required reference IDSZ :[BENE] 0
+Reference Directory : NONE
+Required reference IDSZ : [BENE] 0
 Number of imports ( 0 to 4 ) :4
 Exporting ( TRUE or FALSE ) :FALSE
 Minimum players ( 1 to 4 ) :1

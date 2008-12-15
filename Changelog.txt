@@ -91,6 +91,7 @@ The master TODO list:
 - Becoming the bad guy in Bishopia should still allow you to escape and export somehow.
 - The Deamon Lord was killed in one shot using a meteor with an Lv13 adventurer while scoring a crit.
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
+- The Missile spell (aquired from the Adventurer Starter) isn't homing anymore at all, even if standing right in front of the target.
 
 Version 2.6.x (??.??.2008)
 - New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.

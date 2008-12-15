@@ -50,10 +50,10 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
   int foundidsz;
   int cnt;
 
-  if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
-    return btrue;
   if ( idsz == IDSZNONE )
     return btrue;
+  if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
+    return bfalse;
 
   foundidsz = bfalse;
   sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
@@ -231,9 +231,9 @@ int get_module_data( int modnumber, char *szLoadName )
     globalname = szLoadName;
     goto_colon( fileread );  get_name( fileread, modlongname[modnumber] );
     goto_colon( fileread );  fscanf( fileread, "%s", reference );
-    goto_colon( fileread );  idsz = get_idsz( fileread ); questlevel = fget_int( fileread );
+    goto_colon( fileread );  idsz = get_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
 
-	//Check all selected players directories
+	//Check all selected players directories !!TODO!!
 	playerhasquest = bfalse;
 	iTmp = 0;
 	while ( !playerhasquest && iTmp < numloadplayer )

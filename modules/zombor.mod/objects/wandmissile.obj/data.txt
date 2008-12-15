@@ -128,7 +128,7 @@ DamageTarget type ( SLASH, CRUSH, POKE, HOLY,
                     EVIL, FIRE, ICE, or ZAP )	: ZAP
 Attack type if it's a weapon ( UNARMED, THRUST,
                      SLICE, CHOP, BASH, LONGBOW,
-                     XBOW, FLINGED, PARRY, ZAP)	: SLICE
+                     XBOW, FLINGED, PARRY, ZAP)	: BASH
 
 
 // Particle attachments

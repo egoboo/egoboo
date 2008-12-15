@@ -629,7 +629,6 @@ int fget_int( FILE* fileread )
   if ( feof( fileread ) ) return iTmp;
 
   fscanf( fileread, "%d", &iTmp );
-
   return iTmp;
 }
 
