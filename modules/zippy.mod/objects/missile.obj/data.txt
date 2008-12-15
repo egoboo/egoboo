@@ -155,3 +155,4 @@ Jump sound     : -1
 
 :[RANG] 1
 :[ICON] 0
+:[VALU] 1       //Always sold at 100% price

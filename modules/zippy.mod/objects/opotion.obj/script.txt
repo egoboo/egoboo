@@ -1,12 +1,25 @@
+//When drunk
 IfUsed
+  
+  //Effect 1 - show map and location
   ShowMap
   ShowYouAreHere
+  
+  //Effect 2 - see invisible and kurses (permanent until death)
   SetTargetToWhoeverIsHolding
   SetOwnerToTarget
   EnchantTarget
+  
+  //Effect 3 - Reveal all enemies on the map
+  tmpargument = [NONE]              //All types
+  AddBlipAllEnemies
+  
+  //Always give some xp for insight
   tmpargument = 30
   tmpdistance = EXPSECRET
   GiveExperienceToTarget
+  
+  //The usual potion stuff
   MakeSimilarNamesKnown
   tmpargument = ACTIONMC
   TargetDoAction

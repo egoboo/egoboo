@@ -31,13 +31,11 @@ IfChanged
 
 
 // Monster AI
-IfStateIs0
-  GetState // NOP
-Else
+tmpargument = 0
+IfStateIsNot
   // Character screams
   IfAttacked
     tmpargument = 3
-    tmpdistance = rand & 2047 + 10000
     PlaySound
 
 
@@ -48,7 +46,6 @@ Else
     SetBumpHeight
     // Tell everyone it died
     tmpargument = 4
-    tmpdistance = rand & 2047 + 10000
     PlaySound
     tmpargument = 0
     IfTargetIsOnSameTeam
@@ -93,7 +90,6 @@ Else
             tmpargument = rand & 2 + ACTIONBA
             DoAction  // Couldn't use latches...
             tmpargument = rand & 1 + 1
-            tmpdistance = rand & 2047 + 10000
             PlaySound
           // Chase the enemy
           tmpx = targetx
@@ -356,4 +352,5 @@ IfStateIs0
     tmpargument = ACTIONJB
     DoAction
     KeepAction
+
 End

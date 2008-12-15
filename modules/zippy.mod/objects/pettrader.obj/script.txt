@@ -23,7 +23,7 @@ IfSpawned
     SetXY
     
     //We even randomize the starting position!
-    tmpx = rand % 3
+    tmpargument = rand % 3
     SetState
     IfStateIs0
       tmpx = 6976   //East house

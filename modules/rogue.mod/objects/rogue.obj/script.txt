@@ -6,10 +6,13 @@
 //4     - Sneak (Can move 1 step at the time while stealthing)
 //5     - Listen
 //6     - Stalker (Can sneak while stealthing)
-//7     - Master Acrobacy
-//8     - n/a
+//7     - n/a
+//8     - Master Acrobacy
 //9     - n/a
 //10    - Shade (Move and jump while stealthed)
+//11    - n/a
+//12    - n/a
+//13    - Walk in Plain Sight
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -30,7 +33,7 @@ tmpargument = 0
 IfContentIs
   SetTargetToSelf
   tmpx = selflevel
-  tmpy = 5
+  tmpy = 6
   IfXIsMoreThanY
     SetOwnerToTarget
     EnchantTarget 	//Give the special bonus

@@ -154,11 +154,8 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 3
+:[BOOK] 3
 :[HIDE] 0
 :[PLAT] 1
 :[ICON] 0
 :[SKIN] 0
-:[CONT] 0
-:[STAT] 0
-:[LEVL] 0

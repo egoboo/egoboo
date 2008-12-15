@@ -155,11 +155,8 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[GOLD] 3
+:[VALU] 1       //Always sold at 100% price
 :[RANG] 1
 :[SQUA] 1
 :[ICON] 0
 :[PLAT] 1
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 0
-:[LEVL] 0

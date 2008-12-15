@@ -12,6 +12,7 @@ IfXIsMoreThanY
 // Create the character
 IfSpawned
   KeepAction
+  MakeCrushValid
   
 //Hide in hand
 IfHeld			

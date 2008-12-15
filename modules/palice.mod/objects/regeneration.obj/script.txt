@@ -3,6 +3,7 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
+  MakeCrushValid
 IfDropped				// Make it lie on floor
   KeepAction
 IfGrabbed				// Tell them what they've won, Johnny!

@@ -154,6 +154,7 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[GOLD] 1		//Book skin
+:[VALU] 1       //Always sold at 100% price
 :[RANG] 1		//Ranged
 :[SQUA] 1		//Square formed
 :[ICON] 0

@@ -155,3 +155,4 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[HIDE] 1
+:[RANG] 1

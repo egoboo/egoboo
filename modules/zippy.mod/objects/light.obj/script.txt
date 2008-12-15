@@ -96,7 +96,6 @@ IfStateIs0
               tmpargument = WHITE
               SparkleIcon
             tmpargument = 0
-            tmpdistance = 11025
             PlaySound
 
 

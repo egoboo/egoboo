@@ -153,7 +153,8 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 2		//Book skin
+:[GOLD] 2
+:[VALU] 1       //Always sold at 100% price
 :[RANG] 1		//Ranged
 :[SQUA] 1		//Square formed
 :[ICON] 0

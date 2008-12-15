@@ -5,11 +5,15 @@
 //3     - Magical Ampitude
 //4     - n/a
 //5     - Teleport Mastery
-//6     - Elemental Staff
-//7     - Mystic Intellect
-//8     - n/a
-//9     - Wizard's Missile
+//6     - n/a
+//7     - n/a
+//8     - Elemental Staff
+//9     - n/a
 //10    - n/a
+//11    - Mystic Intellect
+//12    - n/a
+//13    - n/a
+//14    - Wizard's Missile
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -22,7 +26,7 @@ IfSpawned
 IfStateIs0
   SetTargetToSelf
   tmpx = selflevel
-  tmpy = 5              //Level 7
+  tmpy = 9              //Level 11
   IfXIsMoreThanY
     SetOwnerToTarget
     EnchantTarget 	//Give the special bonus
@@ -33,7 +37,7 @@ IfStateIs0
 //Wizard's missile skill
 IfUsed
   tmpx = selflevel
-  tmpy = 7          //Need level 9
+  tmpy = 12          //Need level 14
   IfXIsMoreThanY
     SetTargetToSelf
     tmpx = targetmana
@@ -52,7 +56,7 @@ IfUsed
 //-----------------------------------------------------------------------------
 //Elemental staff skill
 tmpx = selflevel
-tmpy = 4                //Need level 6
+tmpy = 6                //Need level 8
 IfXIsMoreThanY   
   IfScoredAHit
     SetTargetToLastItemUsed

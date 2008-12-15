@@ -1,15 +1,18 @@
 //Special abillities
-//LEVEL			ABILLITY
-//    1			Immune vs Grog and Daze
-//    2			n/a
-//    3			Immune vs. Banishment
-//    4			Immune vs. Kurses
-//    5			Life Steal attack
-//    6			n/a
-//    7			Butcher Form
-//    8			Daze attacks
-//    9			Explosive Death attack
-//    10		n/a
+//LEVEL		ABILLITY
+//1			Immune vs Grog and Daze
+//2			n/a
+//3			Immune vs. Banishment
+//4			n/a
+//5			Immune vs. Kurses
+//6			n/a
+//7			Life Steal attack
+//8			n/a
+//9			Butcher Form
+//10		n/a
+//11		Daze attacks
+//12		n/a
+//13		Explosive Death attack
 //Each level up increases attack speed and life steal effect.
 //-----------------------------------------------------------------------------
 //Reset
@@ -21,27 +24,29 @@ IfSpawned
 //-----------------------------------------------------------------------------
 //Special attack powers
 IfScoredAHit
-  tmpx = selflevel
-  tmpy = 0
-  IfXIsMoreThanY				//Gain lifesteal at 2nd level
-    tmpargument = rand & 30 + selflevel*10		//Effect increases with level
-    HealSelf
+  SetTargetToLastItemUsed
+  IfTargetIsSelf
+    tmpx = selflevel
+    tmpy = 5
+    IfXIsMoreThanY				//Gain lifesteal at 7th level
+      tmpargument = rand & 30 + selflevel*10		//Effect increases with level
+      HealSelf
 
-  tmpy = 6
-  IfXIsMoreThanY				//Gain daze attack at 8th level
-    SetTargetToWhoeverWasHit
-    GetTargetDazeTime
-    tmpx = tmpargument
-    tmpy = 1
-    IfXIsLessThanY				//Dont stack this with itself
-      tmpargument = 1
-      DazeTarget
+    tmpy = 9
+    IfXIsMoreThanY				//Gain daze attack at 11th level
+      SetTargetToWhoeverWasHit
+      GetTargetDazeTime
+      tmpx = tmpargument
+      tmpy = 1
+      IfXIsLessThanY				//Dont stack this with itself
+        tmpargument = 1
+        DazeTarget
 
 //-----------------------------------------------------------------------------
 //Immune vs. kurses abillity
 tmpx = selflevel
 tmpy = 3
-IfXIsMoreThanY					//Gain abillity at 4th level
+IfXIsMoreThanY					//Gain abillity at 5th level
   SetTargetToSelf
   UnkurseTargetInventory
 
@@ -84,8 +89,8 @@ IfKilled
 
   //Explosive death
   tmpx = selflevel
-  tmpy = 7
-  IfXIsMoreThanY			//Only gain abillity at 9th level
+  tmpy = 11
+  IfXIsMoreThanY			//Only gain abillity at 13th level
     tmpargument = 3
     tmpx = rand & 50 + selfx - 25
     tmpy = rand & 50 + selfy - 25
@@ -119,11 +124,6 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-  
-  //Remove enchant skill
-  UndoEnchant
-  tmpargument = 0
-  SetState
 
 //------------------------------------------------------------------------------
 //For helper AIs
@@ -160,10 +160,10 @@ IfAttacked
       KillTarget
 
 //------------------------------------------------------------------------------
-//Change to butcher form at level 7 and above
+//Change to butcher form at level 9 and above
 SetTargetToSelf
 tmpx = selflevel
-tmpy = 5                //7th level and above
+tmpy = 7                //9th level and above
 IfXIsMoreThanY
   IfStateIs0
     tmpargument = 1

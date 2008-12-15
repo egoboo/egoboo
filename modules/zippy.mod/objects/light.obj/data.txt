@@ -154,11 +154,8 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 0
+:[VALU] 1       //Always sold at 100% price
 :[HIDE] 0
 :[PLAT] 0
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 0
 :[ICON] 0
-:[LEVL] 0
+

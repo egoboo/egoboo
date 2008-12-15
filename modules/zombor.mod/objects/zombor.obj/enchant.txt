@@ -69,3 +69,5 @@ Strength boost ( -3.0 to 3.0 )			: 10.0
 Wisdom boost ( -3.0 to 3.0 )			: 0.0
 Intelligence boost ( -3.0 to 3.0 )		: 0.0
 Dexterity boost ( -3.0 to 3.0 )			: 0.0
+
+:[STAY] 1
