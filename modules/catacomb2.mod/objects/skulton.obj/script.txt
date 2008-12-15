@@ -1,0 +1,148 @@
+//------------------------------------------------------------------------------
+// Setup character
+IfSpawned
+  SetTargetToSelf
+  EnchantTarget 	// target is self...
+  Walk
+  BecomeLeader		//Bossy guy eh?
+
+  //Sustained by magic
+  SetTargetToSelf
+  EnchantTarget
+
+
+//------------------------------------------------------------------------------
+//New round
+IfTimeOut
+  SetTargetToWideEnemy
+    tmpx = targetdistance
+    tmpy = 500
+    IfXIsMoreThanY
+      tmpargument = 1
+    Else
+      tmpargument = 2
+    SetState
+  tmpargument = rand & 25 + 20
+  SetTime
+
+//Charge
+  IfStateIs1
+    Run							//Random approach
+    tmpx = rand & 500 + targetx - 250
+    tmpy = rand & 500 + targety - 250
+    tmpdistance = rand & 550 - 100
+    tmpturn = rand & 10000 + targetturnto - 5000
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 75
+    SetTime
+
+//Close Combat
+  IfStateIs2
+    Walk
+    tmpx = targetx				//Cling to enemy and try to hit
+    tmpy = targety
+    tmpdistance = 500
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = 25
+    SetTime
+
+    tmpx = targetdistance			//Attack stuff
+    tmpy = 200
+    IfXIsLessThanY
+      IfFacingTarget
+        IfTargetIsOnHatedTeam
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+
+
+//Return to spawn when enemy is killed
+  IfStateIs3
+    SetTargetToNearbyEnemy
+      tmpargument = 1
+      SetState
+    Else
+      tmpx = selfspawnx
+      tmpy = selfspawny
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 250
+      SetTime
+
+
+//Run away if hit enemy and then prepare to reapproach
+IfScoredAHit
+  Run
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = rand & 2400 - 1200
+  tmpturn = rand
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = 90
+  SetTime
+
+//Return to start
+IfTargetKilled
+  tmpargument = 3
+  SetState
+
+//------------------------------------------------------------------------------
+//Spawn burning footsteps
+GetContent
+tmpx = tmpargument
+tmpy = 6			//Step timer/space between steps
+IfXIsMoreThanY
+  tmpx = selfaccel
+  tmpy = 15			//Only if moving
+  IfXIsMoreThanY
+    tmpargument = 3
+    IfStateIsNot		//Don't do if not in combat
+      tmpargument = 4
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      SpawnExactParticle	//Create the step
+    tmpargument = 0
+    SetContent			//Reset step timer
+Else
+  tmpargument = tmpargument +1
+  SetContent			//Increase step timer by 1
+
+//------------------------------------------------------------------------------
+//Do victory stuff and drop loot
+IfKilled
+  DropMoney
+  DropItems
+  DropKeys
+  tmpargument = 0		//Tell them what happened
+  SendMessageNear
+  BeatModule			//finish it up
+  EnableExport
+  
+  // Mark this module as beaten, hidden modules may open up
+  tmpargument = [MAIN]
+  tmpdistance = 6           //The quest level
+  AddQuestAllPlayers        //Add it
+  
+  tmpargument = 50		//award some quest xp
+  tmpdistance = EXPQUEST
+  GiveExperienceToGoodTeam
+
+  //Death cry
+  tmpargument = 4
+  PlaySound			
+
+  //Make the body
+  tmpargument = 15
+  SetBumpHeight
+
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
