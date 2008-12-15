@@ -1,5 +1,5 @@
-Slot number    : 29
-Class name     : Torch
+Slot number    : 48
+Class name     : Rune
 Uniform light  : FALSE
 Maximum ammo   : 0
 Current ammo   : 0
@@ -15,29 +15,29 @@ Mana return    : 0.00
 Mana return up : 0.00-0.00
 Mana flow      : 0.00
 Mana flow up   : 0.00-0.00
-STR            : 0.00
+STR            : 1.00
 STR up         : 0.00-0.00
-WIS            : 0.00
+WIS            : 1.00
 WIS up         : 0.00-0.00
-INT            : 0.00
+INT            : 1.00
 INT up         : 0.00-0.00
-DEX            : 0.00
+DEX            : 1.00
 DEX up         : 0.00-0.00
 
 Size           : 1.00
 Size up        : 0.05
-Shadow size    : 15
-Bump size      : 30
+Shadow size    : 7
+Bump size      : 1
 Bump height    : 0
-Bump dampen    : 1.00
-Weight         : 2
+Bump dampen    : 0.80
+Weight         : 10
 Jump power     : 0.00
 Jump number    : 0
 Sneak speed    : 1
 Walk speed     : 3
 Run speed      : 5
 Fly to height  : 0
-Flashing AND   : 174
+Flashing AND   : 255
 Alpha blending : 255
 Light blending : 255
 Transfer blend : FALSE
@@ -78,21 +78,21 @@ EXP for 4th    : 800
 EXP for 5th    : 1600
 EXP for 6th    : 3200
 Starting EXP   : 0
-EXP worth      : 0
-EXP exchange   : 0.000
+EXP worth      : 10
+EXP exchange   : 0.010
 EXPSECRET      : 0.00
-EXPQUEST       : 0.00
+EXPQUEST       : 1.00
 EXPDARE        : 0.00
-EXPKILL        : 0.00
+EXPKILL        : 0.90
 EXPMURDER      : 0.00
-EXPREVENGE     : 0.00
-EXPTEAMWORK    : 0.00
-EXPROLEPLAY    : 0.00
+EXPREVENGE     : 2.00
+EXPTEAMWORK    : 0.10
+EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [TORC]
-IDSZ Type      : [WOOD]
+IDSZ Parent    : [RUNE]
+IDSZ Type      : [REST]
 IDSZ Skill     : [NONE]
-IDSZ Special   : [NONE]
+IDSZ Special   : [GOOD]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
 
@@ -107,12 +107,12 @@ Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
 
-Damage type    : CRUSH
-Attack type    : BASH
+Damage type    : HOLY
+Attack type    : WALK
 
-Attached parts : 1
-Reaffirm type  : FIRE
-Particle type  : 2
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
 
 Left valid     : TRUE
 Right valid    : TRUE
@@ -128,7 +128,7 @@ Blood valid    : FALSE
 Part type      : 0
 
 Waterwalking   : FALSE
-Bounce dampen  : 0.300
+Bounce dampen  : 0.400
 
 Life healing   : 0.000
 Mana cost      : 0.000
@@ -138,11 +138,11 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 5
+Skin 0 cost    : 100
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.100
+STR dampen     : 0.000
 
 No rider attak : FALSE
 Can be dazed   : FALSE
@@ -154,9 +154,5 @@ Kursed chance  : 0
 Footfall sound : -1
 Jump sound     : -1
 
-:[GOLD] 0
+:[HIDE] 1
 :[PLAT] 1
-:[SKIN] 0
-:[CONT] 0
-:[STAT] 0
-:[LEVL] 0

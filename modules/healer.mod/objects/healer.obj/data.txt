@@ -62,7 +62,7 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 14000
 
 
 // Skin defenses
-Base defense rating of skin ( eg. 2 5 10 17 )	: 10 40 60 120
+Base defense rating of skin ( eg. 2 5 10 17 )	: 10 40 60 100
 SLASH defense shift ( eg. 1 1 1 1 )		:  1  2  2  2
 CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 POKE defense shift ( eg. 1 1 1 1 )		:  2  1  1  2

@@ -138,11 +138,11 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 30
+Skin 0 cost    : 80
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
-STR dampen     : 0.250
+STR dampen     : 0.18
 
 No rider attak : FALSE
 Can be dazed   : FALSE

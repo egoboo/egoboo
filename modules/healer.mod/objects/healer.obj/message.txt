@@ -9,3 +9,4 @@ Message 7: Hello?
 Message 8: Anybody_home?
 Message 9: Hey_now!
 Message 10: Divine_power_has_ressurected_Sister_%n!
+Message 11: Sister_%n_has_given_her_last_blessing...

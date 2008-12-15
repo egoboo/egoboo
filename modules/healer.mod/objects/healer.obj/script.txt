@@ -11,6 +11,12 @@
 //8			n/a
 //9			n/a
 //10		Guardian Angel
+//11	    n/a
+//12		n/a
+//13		Immune vs. Kurses
+//14	    n/a
+//15		n/a
+//16		Last Boon
 //-----------------------------------------------------------------------------
 //Reset
 IfSpawned
@@ -18,7 +24,15 @@ IfSpawned
   SetState
   SetContent
 
-//-------------------------------------------
+//-----------------------------------------------------------------------------
+//Immune vs. kurses abillity
+tmpx = selflevel
+tmpy = 11
+IfXIsMoreThanY					//Gain abillity at 13th level
+  SetTargetToSelf
+  UnkurseTargetInventory
+  
+//-----------------------------------------------------------------------------
 //Invoke Divine Power if enough xp gained
 IfStateIs0
   SetTargetToSelf
@@ -73,6 +87,7 @@ IfTimeOut
   
 //-------------------------------------------
 //Guardian angel special skill
+//and Last boon skill
 IfKilled
   tmpx = selflevel
   tmpy = 8            //Need level 10
@@ -86,7 +101,17 @@ IfKilled
       SendMessage
       tmpargument = 12
       PlayFullSound
-
+    Else
+      tmpx = selflevel
+      tmpy = 14            //Need level 16
+      IfXIsMoreThanY
+        tmpargument = 5
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        SpawnExactParticle
+        tmpargument = 11
+        SendMessage
 //-------------------------------------------
 // Gong sound
 IfCleanedUp

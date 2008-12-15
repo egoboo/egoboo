@@ -55,11 +55,18 @@ Else
     SpawnExactParticle
     tmpargument = 100		//Set cooldown time
     SetReloadTime
-    ShowMap
-      tmpx = targetwis > 8
-      tmpy = 23
+    
+    //Do stuff
+    tmpx = targetwis > 8
+    tmpy = 23
+    IfXIsMoreThanY
+      ShowYouAreHere      //Also display position if enough WIS
+      tmpy = 26
       IfXIsMoreThanY
-        ShowYouAreHere      //Also display position if enough WIS
+        SetTargetToWhoeverIsHolding
+        tmpargument = RED //Also display enemies if enough WIS
+        AddBlipAllEnemies
+    ShowMap
       tmpargument = 3
       SendMessageNear		//Tell what happened
       tmpargument = 1

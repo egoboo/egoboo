@@ -41,8 +41,8 @@ IfKilled				// This reduces the height of the char
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
   BeatModule
-  tmpargument = [BEAT]
-  AddIDSZ
+  tmpargument = 3           //TODO: QuestBeaten
+  AddQuestAllPlayers
   EnableExport
   
   //Bloody death!
