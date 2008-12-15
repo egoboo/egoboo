@@ -1,0 +1,40 @@
+//Bodies are dead (Duh)
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor			//Randomize skin
+  tmpargument = ACTIONKA	//Killed
+  DoActionOverride
+  KeepAction
+  JoinEvilTeam
+ 
+//Check if to rise undead and rise ghouls
+IfTimeOut		
+  GetContent
+  tmpx = tmpargument
+  tmpy = 2			//2 is normal body
+  IfXIsLessThanY
+    tmpargument = rand & 300 + 300	//Distance to check
+    SetTargetToDistantEnemy
+      tmpargument = 0
+      IfContentIs
+        tmpargument = 52	//Zombi
+      Else
+        tmpargument = 47	//Ghost
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = selfturn
+      tmpdistance = selfz
+      SpawnExactCharacterXYZ
+        tmpargument = ACTIONMD	//Rise from the dead
+        ChildDoActionOverride
+        GoPoof		//Remove Body
+        tmpargument = 0 //Message and sound
+        tmpdistance = rand & 3000 + 11000
+        SendMessageNear
+        PlaySound
+  tmpargument = 5
+  SetTime
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
