@@ -1478,7 +1478,7 @@ int doVideoOptions( float deltaTime )
       else videoOptionsButtons[10] = "Off";
 
       sprintf( Cmaxparticles, "%i", maxparticles );      // Convert the integer to a char we can use
-      videoOptionsButtons[16] = Cmaxparticles;
+      videoOptionsButtons[14] = Cmaxparticles;
 
       switch ( scrx )
       {
@@ -1812,7 +1812,7 @@ int doVideoOptions( float deltaTime )
 
      // Max particles
       fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, displaySurface->h - 180, 0, 0, 20 );
-      if ( ui_doButton( 16, videoOptionsButtons[16], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) == 1 )
+      if ( ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) == 1 )
       {
 		maxparticles += 128;
 		if(maxparticles > TOTALMAXPRT || maxparticles < 256) maxparticles = 256;
