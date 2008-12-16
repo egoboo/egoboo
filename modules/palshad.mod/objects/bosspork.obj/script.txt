@@ -11,7 +11,6 @@ IfGrabbed
   EnableExport
   BeatModule
   tmpargument = 0
-  tmpdistance = 11025
   PlayFullSound
   StopMusic
 
@@ -36,7 +35,7 @@ IfGrabbed
 
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]
-  tmpdistance = 3           //The quest level
+  tmpdistance = 2           //The quest level
   AddQuestAllPlayers        //Add it
 
   // Become the export object

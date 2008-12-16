@@ -35,7 +35,7 @@ IfGrabbed
 
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]
-  tmpdistance = 2           //The quest level
+  tmpdistance = 3           //The quest level
   AddQuestAllPlayers        //Add it
   
   //This unlocks the ash domain

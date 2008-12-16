@@ -2,22 +2,21 @@
 IfSpawned
   tmpargument = passage
   ClosePassage
+  tmpargument = 100
+  SetTime
   
 //Backstabbing!
-IfAttacked
+IfBackstabbed
   SetTargetToWhoeverAttacked
-  IfHitFromBehind
-    tmpargument = [STAB]
-    IfTargetHasSkillID
-      tmpargument = 70
-      tmpdistance = EXPMURDER
-      GiveExperienceToTarget
+  tmpargument = 70
+  tmpdistance = EXPMURDER
+  GiveExperienceToTarget
       
-      SetTargetToSelf
-      KillTarget
+  SetTargetToSelf
+  KillTarget
       
-      tmpargument = 1
-      SendMessageNear
+  tmpargument = 1
+  SendMessageNear
   
 // ZZ> Death and let the player team win
 IfKilled

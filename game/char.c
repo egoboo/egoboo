@@ -974,9 +974,10 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                                   Uint8 doshop )
 {
   // ZZ> This function drops an item
-  Uint16 mount, hand, enchant, cnt, passage, owner, price;
+  Uint16 mount, hand, enchant, cnt, passage, owner;
   bool_t inshop;
   int loc;
+  float price;
 
 
   // Make sure the character is valid
@@ -1082,8 +1083,8 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     }
     if ( inshop )
     {
-      // Give the mount its money back, alert the shop owner
-      price = capskincost[chrmodel[character]][0];
+	  // Give the mount its money back, alert the shop owner
+      price = (float) capskincost[chrmodel[character]][0];
       if ( capisstackable[chrmodel[character]] )
       {
         price = price * chrammo[character];
@@ -1091,19 +1092,22 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
       // Reduce value depending on charges left
       else if (capisranged[chrmodel[character]] && chrammo[character] < chrammomax[character])
 	  {
-		  if(chrammo[character] == 0) price /= chrammomax[character];
+          if(chrammo[character] == 0)
+		  {
+			  price /= chrammomax[character];
+		  }
 		  else price -= (chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character]));
 	  }
 
 	  //Items spawned within shops are more valuable
 	  if(!chrisshopitem[character]) price *= 0.5;
 
-	  chrmoney[mount] += price;
-      chrmoney[owner] -= price;
+	  chrmoney[mount] += (Sint16) price;
+      chrmoney[owner] -= (Sint16) price;
       if ( chrmoney[owner] < 0 )  chrmoney[owner] = 0;
       if ( chrmoney[mount] > MAXMONEY )  chrmoney[mount] = MAXMONEY;
       chralert[owner] |= ALERTIFORDERED;
-      chrorder[owner] = price;  // Tell owner how much...
+      chrorder[owner] = (Uint32) price;  // Tell owner how much...
       chrcounter[owner] = BUY;  // 0 for buying an item
     }
   }
@@ -1556,10 +1560,11 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
   // ZZ> This function makes the character pick up an item if there's one around
   float xa, ya, za, xb, yb, zb, dist;
   int charb, hand;
-  Uint16 vertex, model, frame, owner, passage, cnt, price;
+  Uint16 vertex, model, frame, owner, passage, cnt;
   float pointx, pointy, pointz;
   bool_t inshop;
   int loc;
+  float price;
 
 
   // Make life easier
@@ -1681,7 +1686,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
               else
               {
                 chralert[owner] |= ALERTIFORDERED;
-                price = capskincost[chrmodel[charb]][0];
+                price = (float) capskincost[chrmodel[charb]][0];
                 if ( capisstackable[chrmodel[charb]] )
                 {
                   price = price * chrammo[charb];
@@ -1696,13 +1701,13 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
 				//Items spawned in shops are more valuable
 				if(!chrisshopitem[charb]) price *= 0.5;
 
-                chrorder[owner] = price;  // Tell owner how much...
+                chrorder[owner] = (Uint32) price;  // Tell owner how much...
                 if ( chrmoney[chara] >= price )
                 {
                   // Okay to buy
                   chrcounter[owner] = SELL;  // 1 for selling an item
-                  chrmoney[chara] -= price;  // Skin 0 cost is price
-                  chrmoney[owner] += price;
+                  chrmoney[chara] -= (Sint16) price;  // Skin 0 cost is price
+                  chrmoney[owner] += (Sint16) price;
                   if ( chrmoney[owner] > MAXMONEY )  chrmoney[owner] = MAXMONEY;
                   inshop = bfalse;
                 }

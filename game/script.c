@@ -3555,7 +3555,7 @@ Uint8 run_function( Uint32 value, int character )
 		  sTmp = chrmodel[chrattacklast[character]];
 		  if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
 		  {
-			if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "DISA" ) )
+			if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "STAB" ) )
 			{
 		      iTmp = chrdamagetypelast[character];
 			  if ( iTmp == DAMAGECRUSH || iTmp == DAMAGEPOKE || iTmp == DAMAGESLASH ) returncode = btrue;
