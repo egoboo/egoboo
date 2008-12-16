@@ -1094,9 +1094,9 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
 	  {
           if(chrammo[character] == 0)
 		  {
-			  price /= chrammomax[character];
+			  price /= 2;
 		  }
-		  else price -= (chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character]));
+		  else price -= ((chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character])))/2;
 	  }
 
 	  //Items spawned within shops are more valuable
@@ -1694,8 +1694,8 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                 // Reduce value depending on charges left
 				  else if (capisranged[chrmodel[charb]] && chrammo[charb] < chrammomax[charb])
 				  {
-					  if(chrammo[charb] == 0) price /= chrammomax[charb];
-					  else price -= (chrammomax[charb]-chrammo[charb])*((float)(price/chrammomax[charb]));
+					  if(chrammo[charb] == 0) price /= 2;
+					  else price -= ((chrammomax[charb]-chrammo[charb])*((float)(price/chrammomax[charb])))/2;
 				  }
 
 				//Items spawned in shops are more valuable

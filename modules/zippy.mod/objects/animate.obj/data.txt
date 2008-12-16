@@ -159,3 +159,4 @@ Jump sound     : -1
 :[PLAT] 1
 :[ICON] 0
 :[SKIN] 0
+:[VALU] 1
