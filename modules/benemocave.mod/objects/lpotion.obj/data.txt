@@ -196,6 +196,8 @@ Sound of Jump ( -1 for none )			: -1
 // Expansions
 :[ICON] 1	Show the icon, needed if usage not known
 :[SHAD] 1	Force a shadow
+:[CONT] 2	DELETE
+
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

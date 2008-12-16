@@ -7,37 +7,6 @@ IfSpawned
   MakeCrushValid
   MakeAmmoKnown
 
-
-//-------------------------------------------------------------------------------
-//Randomize skin
-IfSpawned
-  IfNameIsKnown
-    tmpargument = 0
-    SetState
-  Else
-    IfStateIs1
-      MakeNameKnown
-      tmpargument = 0
-      SetState
-    SetTargetToWhoeverIsHolding
-      IfTargetIsAPlayer
-        GetContent            //Don't change colour after exporting
-      Else
-        tmpargument = rand % 4
-    Else
-      tmpargument = rand % 4
-    SetContent
-
-//Change to the real skin if identified
-IfNameIsKnown
-  tmpargument = 1       //Blue for mana potion
-  ChangeArmor
-Else
-  GetContent
-  ChangeArmor
-
-
-
 //-------------------------------------------------------------------------------
 // Make it poof
 IfCrushed
@@ -135,6 +104,9 @@ IfUsed
           tmpdistance = EXPDARE
           GiveExperienceToTarget
         SetTargetToWhoeverIsHolding
+          // Decrease max mana a little
+          tmpargument = 0 - 32
+          GiveManaToTarget
           // Increase current mana
           tmpargument = rand & 2047 + 2048
           PumpTarget

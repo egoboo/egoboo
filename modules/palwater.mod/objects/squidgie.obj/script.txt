@@ -8,7 +8,10 @@ IfSpawned
 
 IfKilled
   // Handle death
-  tmpargument = 0
+  IfTargetIsSelf
+    tmpargument = 1
+  Else
+    tmpargument = 0
   SendMessageNear
   tmpargument = 30
   SetBumpSize
@@ -21,11 +24,15 @@ IfKilled
   tmpargument = 1
   PlaySound
 
+
+
 IfAttacked
   // Make noise
   SetTargetToWhoeverAttacked
   tmpargument = 0
   PlaySound
+
+
 
 IfBumped
   SetTargetToWhoeverBumped
@@ -73,6 +80,7 @@ IfTimeOut
           // Do a lightning circle
           IfStateIs0
             tmpargument = 2
+            tmpdistance = 11000
             PlaySound
             tmpargument = ACTIONUA
             DoAction

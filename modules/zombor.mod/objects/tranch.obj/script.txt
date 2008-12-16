@@ -1,7 +1,6 @@
 IfSpawned
   MakeCrushValid
 
-
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -21,19 +20,20 @@ IfDropped
 
 
 IfKilled
-  tmpargument = 0
+  IfTargetIsSelf
+    tmpargument = 2     //Sucide!
+  Else
+    tmpargument = 0     //Slain
   SendMessageNear
   tmpargument = 40
   SetBumpHeight
   tmpargument = 1
-  tmpdistance = rand & 4095 + 11000
   PlaySound
 
 
 IfAttacked
   SetTargetToWhoeverAttacked
     tmpargument = 0
-    tmpdistance = rand & 4095 + 11000
     PlaySound
 
 
@@ -73,7 +73,6 @@ IfTimeOut
 
           // Play the sound
           tmpargument = 2
-          tmpdistance = rand & 1023 + 10500
           PlaySound
       tmpx = targetx
       tmpy = targety
