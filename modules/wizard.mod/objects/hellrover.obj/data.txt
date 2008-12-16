@@ -33,7 +33,7 @@ Size ( eg. 1.0 )				: 1.5
 Size increase per level ( eg. 0.05 )		: 0.1
 Shadow size ( eg. 30, 0 is none )		: 0
 Bump size ( eg. 30 )				: 30
-Bump height ( eg. 70 )				: 60
+Bump height ( eg. 70 )				: 45
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.25
 Weight ( 0 to 255 )				: 200
 Jump power ( eg. 14.0 )				: 1.0

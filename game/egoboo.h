@@ -781,7 +781,7 @@ EXTERN float                   chrzvel[MAXCHR];            //
 EXTERN float                   chrlatchx[MAXCHR];          // Character latches
 EXTERN float                   chrlatchy[MAXCHR];          //
 EXTERN Uint8          chrlatchbutton[MAXCHR];     // Button latches
-EXTERN Uint8          chrreloadtime[MAXCHR];      // Time before another shot
+EXTERN Uint16          chrreloadtime[MAXCHR];      // Time before another shot
 EXTERN float                   chrmaxaccel[MAXCHR];        // Maximum acceleration
 EXTERN float                   chrscale[MAXCHR];           // Character's size (useful)
 EXTERN float                   chrfat[MAXCHR];             // Character's size (legible)
@@ -1026,7 +1026,7 @@ EXTERN Uint16           numdolist;                  // How many in the list
 #define TOTALMAXPRT             2048         // True max number of particles
 EXTERN Uint16           maxparticles EQ(512);                  // max number of particles
 #define TOTALMAXPRTPIP           1024                    // Particle templates
-#define MAXPRTPIPPEROBJECT  11                       // Max part*.txt per object
+#define MAXPRTPIPPEROBJECT  13                       // Max part*.txt per object
 
 EXTERN int                     numfreeprt EQ( 0 );                         // For allocation
 EXTERN Uint16           freeprtlist[TOTALMAXPRT];                        //

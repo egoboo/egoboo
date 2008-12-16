@@ -1089,8 +1089,12 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         price = price * chrammo[character];
       }
       // Reduce value depending on charges left
-      else if (capisranged[chrmodel[character]] && chrammo[character] > 0) price -= (chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character]));
-      
+      else if (capisranged[chrmodel[character]] && chrammo[character] < chrammomax[character])
+	  {
+		  if(chrammo[character] == 0) price /= chrammomax[character];
+		  else price -= (chrammomax[character]-chrammo[character])*((float)(price/chrammomax[character]));
+	  }
+
 	  //Items spawned within shops are more valuable
 	  if(!chrisshopitem[character]) price *= 0.5;
 
@@ -1683,8 +1687,12 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
                   price = price * chrammo[charb];
 				}
                 // Reduce value depending on charges left
-                else if (capisranged[chrmodel[charb]] && chrammo[charb] > 0) price -= (chrammomax[charb]-chrammo[charb])*((float)(price/chrammomax[charb]));
- 
+				  else if (capisranged[chrmodel[charb]] && chrammo[charb] < chrammomax[charb])
+				  {
+					  if(chrammo[charb] == 0) price /= chrammomax[charb];
+					  else price -= (chrammomax[charb]-chrammo[charb])*((float)(price/chrammomax[charb]));
+				  }
+
 				//Items spawned in shops are more valuable
 				if(!chrisshopitem[charb]) price *= 0.5;
 
@@ -4062,6 +4070,7 @@ void give_experience( int character, int amount, Uint8 xptype )
   int profile;
   char text[128];
 
+  if(amount == 0) return;
 
   if ( !chrinvictus[character] )
   {
@@ -4072,7 +4081,11 @@ void give_experience( int character, int amount, Uint8 xptype )
     {
       newamount = amount * capexperiencerate[profile][xptype];
     }
-    newamount += chrexperience[character];
+
+    //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
+    newamount *= (float)newamount*(1+(((chrintelligence[character]-2560)>8)/200)) + (1+(((chrwisdom[character]-2560)>8)/400));
+    
+	newamount += chrexperience[character];
     if ( newamount > MAXXP )  newamount = MAXXP;
     chrexperience[character] = newamount;
 
