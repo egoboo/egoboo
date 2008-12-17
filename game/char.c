@@ -4088,8 +4088,8 @@ void give_experience( int character, int amount, Uint8 xptype )
     }
 
     //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-    newamount *= (float)newamount*(1+(((chrintelligence[character]-2560)>8)/200)) + (1+(((chrwisdom[character]-2560)>8)/400));
-    
+    newamount = (float)newamount*(1+(((chrintelligence[character]-2560)>8)/200)) + (1+(((chrwisdom[character]-2560)>8)/400));
+
 	newamount += chrexperience[character];
     if ( newamount > MAXXP )  newamount = MAXXP;
     chrexperience[character] = newamount;
