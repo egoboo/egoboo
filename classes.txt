@@ -251,22 +251,77 @@ Level   Abillity
 -------------------------------------------
 
 
-
--------------------------------------------
 ZOMBI
+-------------------------------------------
 Level	    Ability
-1			Immune vs Grog and Daze
-2			n/a
-3			Immune vs. Banishment
-4			n/a
-5			Immune vs. Kurses
-6			n/a
-7			Life Steal attack
-8			n/a
-9			Butcher Form
-10		    n/a
-11		    Daze attacks
-12		    n/a
-13		    Explosive Death attack
+1     - Immune vs Grog and Daze
+2     - n/a
+3     - Immune vs. Banishment
+4     - n/a
+5     - Immune vs. Kurses
+6     - n/a
+7     - Life Steal attack
+8     - n/a
+9     - Butcher Form
+10    - n/a
+11    - Daze attacks
+12    - n/a
+13    - Explosive Death attack		
 -------------------------------------------
 
+
+HOBGOBLIN (Under Development)
+-------------------------------------------
+Level	Ability
+1     - n/a
+2     - n/a
+3     - n/a
+4     - n/a
+5     - n/a
+6     - n/a
+7     - n/a
+8     - n/a
+9     - n/a
+10    - n/a
+11    - n/a
+12    - n/a
+13    - n/a		
+-------------------------------------------
+
+
+VAMPYRE (Under Development)
+-------------------------------------------
+Level	Ability
+1     - n/a
+2     - n/a
+3     - n/a
+4     - n/a
+5     - n/a
+6     - n/a
+7     - n/a
+8     - n/a
+9     - n/a
+10    - n/a
+11    - n/a
+12    - n/a
+13    - n/a		
+-------------------------------------------
+
+
+ARCHER (Under Development)
+-------------------------------------------
+Level	Ability
+1     - Siege Engines (Bonus to aiming and fire rate of Balistea, bows and xbows. Also bonus damage with those weapons, It equals Level/3)
+2     - n/a
+3     - Stealth (Standing still)
+4     - Poison Use
+5     - n/a
+6     - Backstab
+7     - n/a
+8     - Critical Strike
+9     - n/a
+10    - Grogging Hit
+11    - Sneak (Can move 1 step at the time while stealthing)
+12    - n/a
+13    - Cripple (Hit with bow/xbow/Ballsita has a chance of slowing the enemy.)
+-------------------------------------------
