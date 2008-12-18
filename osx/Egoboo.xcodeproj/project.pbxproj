@@ -89,92 +89,92 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4371B6E0E97F865008919D1 /* Egoboo_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Egoboo_Prefix.pch; sourceTree = "<group>"; };
 		C4371B730E97F897008919D1 /* skull.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = skull.icns; sourceTree = "<group>"; };
 		C44819370E97F50700FF170F /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
 		C44819380E97F50700FF170F /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		C44819390E97F50700FF170F /* SDL_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_ttf.framework; path = /Library/Frameworks/SDL_ttf.framework; sourceTree = "<absolute>"; };
-		C46398950EBE6530006D617D /* Link.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Link.c; sourceTree = "<group>"; };
-		C46398960EBE6530006D617D /* Link.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Link.h; sourceTree = "<group>"; };
-		C46398C20EBE6EA8006D617D /* egobooendian.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egobooendian.c; sourceTree = "<group>"; };
+		C46398950EBE6530006D617D /* Link.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Link.c; sourceTree = "<group>"; };
+		C46398960EBE6530006D617D /* Link.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Link.h; sourceTree = "<group>"; };
+		C46398C20EBE6EA8006D617D /* egobooendian.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egobooendian.c; sourceTree = "<group>"; };
 		C469AB110EA1075B005CDBE7 /* SDLMain.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SDLMain.nib; sourceTree = "<group>"; };
 		C469AB730EA11626005CDBE7 /* sys_mac.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sys_mac.c; sourceTree = "<group>"; };
 		C46B616D0EC2DED3008B84E8 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = camera.h; sourceTree = "<group>"; };
-		C46B616E0EC2DED3008B84E8 /* char.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = char.h; sourceTree = "<group>"; };
-		C46B616F0EC2DED3008B84E8 /* egoboo_config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_config.h; sourceTree = "<group>"; };
-		C46B61700EC2DED3008B84E8 /* egoboo_math.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_math.h; sourceTree = "<group>"; };
-		C46B61710EC2DED3008B84E8 /* particle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = particle.h; sourceTree = "<group>"; };
-		C46B61720EC2DED3008B84E8 /* script.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = script.h; sourceTree = "<group>"; };
-		C48332880E98625500B78406 /* enet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = enet.h; sourceTree = "<group>"; };
-		C48332890E98625500B78406 /* list.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = list.h; sourceTree = "<group>"; };
-		C483328A0E98625500B78406 /* memory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
-		C483328B0E98625500B78406 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
-		C483328C0E98625500B78406 /* enet_time.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = enet_time.h; sourceTree = "<group>"; };
-		C483328D0E98625500B78406 /* types.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
-		C483328E0E98625500B78406 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = unix.h; sourceTree = "<group>"; };
-		C483328F0E98625500B78406 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
-		C48332900E98625500B78406 /* win32.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = win32.h; sourceTree = "<group>"; };
-		C483329E0E9862F300B78406 /* linux-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "linux-file.c"; sourceTree = "<group>"; };
-		C483329F0E9862F300B78406 /* sys_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sys_linux.c; sourceTree = "<group>"; };
-		C49FFC930E97F96E00E13A99 /* camera.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = camera.c; sourceTree = "<group>"; };
-		C49FFC960E97F96E00E13A99 /* char.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = char.c; sourceTree = "<group>"; };
-		C49FFC990E97F96E00E13A99 /* Client.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Client.c; sourceTree = "<group>"; };
-		C49FFC9A0E97F96E00E13A99 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Client.h; sourceTree = "<group>"; };
-		C49FFC9B0E97F96E00E13A99 /* Clock.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Clock.c; sourceTree = "<group>"; };
-		C49FFC9C0E97F96E00E13A99 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Clock.h; sourceTree = "<group>"; };
-		C49FFC9D0E97F96E00E13A99 /* configfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = configfile.c; sourceTree = "<group>"; };
-		C49FFC9E0E97F96E00E13A99 /* configfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = configfile.h; sourceTree = "<group>"; };
-		C49FFC9F0E97F96E00E13A99 /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo.h; sourceTree = "<group>"; };
-		C49FFCB10E97F96E00E13A99 /* enchant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = enchant.c; sourceTree = "<group>"; };
-		C49FFCB80E97F96E00E13A99 /* Font.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Font.c; sourceTree = "<group>"; };
-		C49FFCB90E97F96E00E13A99 /* Font.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Font.h; sourceTree = "<group>"; };
+		C46B616E0EC2DED3008B84E8 /* char.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = char.h; sourceTree = "<group>"; };
+		C46B616F0EC2DED3008B84E8 /* egoboo_config.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_config.h; sourceTree = "<group>"; };
+		C46B61700EC2DED3008B84E8 /* egoboo_math.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_math.h; sourceTree = "<group>"; };
+		C46B61710EC2DED3008B84E8 /* particle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = particle.h; sourceTree = "<group>"; };
+		C46B61720EC2DED3008B84E8 /* script.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = script.h; sourceTree = "<group>"; };
+		C48332880E98625500B78406 /* enet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = enet.h; sourceTree = "<group>"; };
+		C48332890E98625500B78406 /* list.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = list.h; sourceTree = "<group>"; };
+		C483328A0E98625500B78406 /* memory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = memory.h; sourceTree = "<group>"; };
+		C483328B0E98625500B78406 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = protocol.h; sourceTree = "<group>"; };
+		C483328C0E98625500B78406 /* enet_time.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = enet_time.h; sourceTree = "<group>"; };
+		C483328D0E98625500B78406 /* types.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = types.h; sourceTree = "<group>"; };
+		C483328E0E98625500B78406 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = unix.h; sourceTree = "<group>"; };
+		C483328F0E98625500B78406 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = utility.h; sourceTree = "<group>"; };
+		C48332900E98625500B78406 /* win32.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = win32.h; sourceTree = "<group>"; };
+		C483329E0E9862F300B78406 /* linux-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "linux-file.c"; sourceTree = "<group>"; };
+		C483329F0E9862F300B78406 /* sys_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_linux.c; sourceTree = "<group>"; };
+		C49FFC930E97F96E00E13A99 /* camera.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = camera.c; sourceTree = "<group>"; };
+		C49FFC960E97F96E00E13A99 /* char.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = char.c; sourceTree = "<group>"; };
+		C49FFC990E97F96E00E13A99 /* Client.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Client.c; sourceTree = "<group>"; };
+		C49FFC9A0E97F96E00E13A99 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Client.h; sourceTree = "<group>"; };
+		C49FFC9B0E97F96E00E13A99 /* Clock.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Clock.c; sourceTree = "<group>"; };
+		C49FFC9C0E97F96E00E13A99 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Clock.h; sourceTree = "<group>"; };
+		C49FFC9D0E97F96E00E13A99 /* configfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = configfile.c; sourceTree = "<group>"; };
+		C49FFC9E0E97F96E00E13A99 /* configfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = configfile.h; sourceTree = "<group>"; };
+		C49FFC9F0E97F96E00E13A99 /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo.h; sourceTree = "<group>"; };
+		C49FFCB10E97F96E00E13A99 /* enchant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = enchant.c; sourceTree = "<group>"; };
+		C49FFCB80E97F96E00E13A99 /* Font.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Font.c; sourceTree = "<group>"; };
+		C49FFCB90E97F96E00E13A99 /* Font.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Font.h; sourceTree = "<group>"; };
 		C49FFCBC0E97F96E00E13A99 /* game.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = game.c; sourceTree = "<group>"; };
 		C49FFCC50E97F96E00E13A99 /* graphic.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic.c; sourceTree = "<group>"; };
-		C49FFCCB0E97F96E00E13A99 /* id_md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = id_md2.h; sourceTree = "<group>"; };
-		C49FFCCC0E97F96E00E13A99 /* id_normals.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = id_normals.c; sourceTree = "<group>"; };
-		C49FFCCE0E97F96E00E13A99 /* input.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = input.c; sourceTree = "<group>"; };
-		C49FFCDB0E97F96E00E13A99 /* Log.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Log.c; sourceTree = "<group>"; };
-		C49FFCDC0E97F96E00E13A99 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
-		C49FFCE20E97F96E00E13A99 /* Md2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Md2.c; sourceTree = "<group>"; };
-		C49FFCE30E97F96E00E13A99 /* Md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Md2.h; sourceTree = "<group>"; };
-		C49FFCE60E97F96E00E13A99 /* Menu.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Menu.h; sourceTree = "<group>"; };
-		C49FFCEA0E97F96E00E13A99 /* module.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = module.c; sourceTree = "<group>"; };
-		C49FFD020E97F96E00E13A99 /* particle.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = particle.c; sourceTree = "<group>"; };
-		C49FFD050E97F96E00E13A99 /* passage.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = passage.c; sourceTree = "<group>"; };
-		C49FFD0A0E97F96E00E13A99 /* proto.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = proto.h; sourceTree = "<group>"; };
-		C49FFD0B0E97F96E00E13A99 /* script.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = script.c; sourceTree = "<group>"; };
-		C49FFD160E97F96E00E13A99 /* Server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Server.c; sourceTree = "<group>"; };
-		C49FFD170E97F96E00E13A99 /* Server.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Server.h; sourceTree = "<group>"; };
-		C49FFD180E97F96E00E13A99 /* sound.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sound.c; sourceTree = "<group>"; };
-		C49FFD1A0E97F96E00E13A99 /* System.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = System.h; sourceTree = "<group>"; };
-		C49FFD200E97F96E00E13A99 /* Ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = Ui.c; sourceTree = "<group>"; };
-		C49FFD210E97F96E00E13A99 /* Ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Ui.h; sourceTree = "<group>"; };
-		C4F69EF90E9830BB0086650C /* host.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
-		C4F69F050E9830BB0086650C /* list.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = list.c; sourceTree = "<group>"; };
-		C4F69F080E9830BB0086650C /* memory.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
-		C4F69F0A0E9830BB0086650C /* packet.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
-		C4F69F0B0E9830BB0086650C /* peer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = peer.c; sourceTree = "<group>"; };
-		C4F69F0C0E9830BB0086650C /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = protocol.c; sourceTree = "<group>"; };
-		C4F69F120E9830BB0086650C /* unix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = unix.c; sourceTree = "<group>"; };
-		C4F69F150E9830BB0086650C /* win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = win32.c; sourceTree = "<group>"; };
-		C4F69F3D0E9831820086650C /* common-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "common-file.c"; sourceTree = "<group>"; };
-		C4F69F3E0E9831820086650C /* egoboostrutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboostrutil.c; sourceTree = "<group>"; };
-		C4F69F3F0E9831820086650C /* egoboostrutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboostrutil.h; sourceTree = "<group>"; };
-		C4F69F400E9831820086650C /* egobootypedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egobootypedef.h; sourceTree = "<group>"; };
-		C4F69F410E9831820086650C /* gltexture.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = gltexture.c; sourceTree = "<group>"; };
-		C4F69F420E9831820086650C /* gltexture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = gltexture.h; sourceTree = "<group>"; };
-		C4F69F430E9831820086650C /* graphicfan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = graphicfan.c; sourceTree = "<group>"; };
-		C4F69F440E9831820086650C /* graphicmad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = graphicmad.c; sourceTree = "<group>"; };
-		C4F69F450E9831820086650C /* graphicprt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = graphicprt.c; sourceTree = "<group>"; };
+		C49FFCCB0E97F96E00E13A99 /* id_md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = id_md2.h; sourceTree = "<group>"; };
+		C49FFCCC0E97F96E00E13A99 /* id_normals.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = id_normals.c; sourceTree = "<group>"; };
+		C49FFCCE0E97F96E00E13A99 /* input.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = input.c; sourceTree = "<group>"; };
+		C49FFCDB0E97F96E00E13A99 /* Log.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Log.c; sourceTree = "<group>"; };
+		C49FFCDC0E97F96E00E13A99 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Log.h; sourceTree = "<group>"; };
+		C49FFCE20E97F96E00E13A99 /* Md2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Md2.c; sourceTree = "<group>"; };
+		C49FFCE30E97F96E00E13A99 /* Md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Md2.h; sourceTree = "<group>"; };
+		C49FFCE60E97F96E00E13A99 /* Menu.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Menu.h; sourceTree = "<group>"; };
+		C49FFCEA0E97F96E00E13A99 /* module.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = module.c; sourceTree = "<group>"; };
+		C49FFD020E97F96E00E13A99 /* particle.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = particle.c; sourceTree = "<group>"; };
+		C49FFD050E97F96E00E13A99 /* passage.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = passage.c; sourceTree = "<group>"; };
+		C49FFD0A0E97F96E00E13A99 /* proto.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = proto.h; sourceTree = "<group>"; };
+		C49FFD0B0E97F96E00E13A99 /* script.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = script.c; sourceTree = "<group>"; };
+		C49FFD160E97F96E00E13A99 /* Server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Server.c; sourceTree = "<group>"; };
+		C49FFD170E97F96E00E13A99 /* Server.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Server.h; sourceTree = "<group>"; };
+		C49FFD180E97F96E00E13A99 /* sound.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sound.c; sourceTree = "<group>"; };
+		C49FFD1A0E97F96E00E13A99 /* System.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = System.h; sourceTree = "<group>"; };
+		C49FFD200E97F96E00E13A99 /* Ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Ui.c; sourceTree = "<group>"; };
+		C49FFD210E97F96E00E13A99 /* Ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Ui.h; sourceTree = "<group>"; };
+		C4F69EF90E9830BB0086650C /* host.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = host.c; sourceTree = "<group>"; };
+		C4F69F050E9830BB0086650C /* list.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = list.c; sourceTree = "<group>"; };
+		C4F69F080E9830BB0086650C /* memory.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = memory.c; sourceTree = "<group>"; };
+		C4F69F0A0E9830BB0086650C /* packet.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = packet.c; sourceTree = "<group>"; };
+		C4F69F0B0E9830BB0086650C /* peer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = peer.c; sourceTree = "<group>"; };
+		C4F69F0C0E9830BB0086650C /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = protocol.c; sourceTree = "<group>"; };
+		C4F69F120E9830BB0086650C /* unix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = unix.c; sourceTree = "<group>"; };
+		C4F69F150E9830BB0086650C /* win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = win32.c; sourceTree = "<group>"; };
+		C4F69F3D0E9831820086650C /* common-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "common-file.c"; sourceTree = "<group>"; };
+		C4F69F3E0E9831820086650C /* egoboostrutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboostrutil.c; sourceTree = "<group>"; };
+		C4F69F3F0E9831820086650C /* egoboostrutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboostrutil.h; sourceTree = "<group>"; };
+		C4F69F400E9831820086650C /* egobootypedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egobootypedef.h; sourceTree = "<group>"; };
+		C4F69F410E9831820086650C /* gltexture.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = gltexture.c; sourceTree = "<group>"; };
+		C4F69F420E9831820086650C /* gltexture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = gltexture.h; sourceTree = "<group>"; };
+		C4F69F430E9831820086650C /* graphicfan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicfan.c; sourceTree = "<group>"; };
+		C4F69F440E9831820086650C /* graphicmad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicmad.c; sourceTree = "<group>"; };
+		C4F69F450E9831820086650C /* graphicprt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicprt.c; sourceTree = "<group>"; };
 		C4F69F470E9831820086650C /* mac-file.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "mac-file.m"; sourceTree = "<group>"; };
 		C4F69F4A0E9831820086650C /* Makefile.unix */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.unix; sourceTree = "<group>"; };
-		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboo_math.c; sourceTree = "<group>"; };
-		C4F69F4C0E9831820086650C /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = mathstuff.h; sourceTree = "<group>"; };
-		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = menu.c; sourceTree = "<group>"; };
+		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_math.c; sourceTree = "<group>"; };
+		C4F69F4C0E9831820086650C /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = mathstuff.h; sourceTree = "<group>"; };
+		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = menu.c; sourceTree = "<group>"; };
 		C4F69F4E0E9831820086650C /* network.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = network.c; sourceTree = "<group>"; };
-		C4F69F500E9831820086650C /* sys_win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sys_win32.c; sourceTree = "<group>"; };
-		C4F69F580E9831820086650C /* win-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = "win-file.c"; sourceTree = "<group>"; };
+		C4F69F500E9831820086650C /* sys_win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_win32.c; sourceTree = "<group>"; };
+		C4F69F580E9831820086650C /* win-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "win-file.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -518,10 +518,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/..";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
@@ -560,6 +557,7 @@
 					ppc,
 					i386,
 				);
+				CONFIGURATION_BUILD_DIR = "$(PROJECT_DIR)/..";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
 					/Library/Frameworks,
@@ -599,7 +597,7 @@
 				C01FCF4C08A954540054247B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Egoboo" */ = {
 			isa = XCConfigurationList;
@@ -608,7 +606,7 @@
 				C01FCF5008A954540054247B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
