@@ -431,21 +431,21 @@ EXTERN Uint8				   parseerror  EQ( bfalse );
 
 
 EXTERN bool_t                    fullscreen EQ( bfalse );        // Start in fullscreen?
-EXTERN bool_t                    clearson  EQ( 1 );             // Do we clear every time?
+EXTERN bool_t                    clearson  EQ( btrue );             // Do we clear every time?
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
-EXTERN bool_t                    soundon  EQ( 1 );              // Is the sound alive?
-EXTERN bool_t                    mouseon  EQ( 1 );              // Is the mouse alive?
-EXTERN bool_t                    keyon  EQ( 1 );                // Is the keyboard alive?
+EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
+EXTERN bool_t                    mouseon  EQ( btrue );              // Is the mouse alive?
+EXTERN bool_t                    keyon  EQ( btrue );                // Is the keyboard alive?
 EXTERN bool_t                    joyaon  EQ( 0 );               // Is the holy joystick alive?
 EXTERN bool_t                    joybon  EQ( 0 );               // Is the other joystick alive?
-EXTERN bool_t                    staton  EQ( 1 );               // Draw the status bars?
-EXTERN bool_t                    phongon  EQ( 1 );              // Do phong overlay?
-EXTERN bool_t                    networkon  EQ( 1 );            // Try to connect?
+EXTERN bool_t                    staton  EQ( btrue );               // Draw the status bars?
+EXTERN bool_t                    phongon  EQ( btrue );              // Do phong overlay?
+EXTERN bool_t                    networkon  EQ( btrue );            // Try to connect?
 EXTERN bool_t                    serviceon  EQ( bfalse );        // Do I need to free the interface?
-EXTERN bool_t                    twolayerwateron  EQ( 1 );      // Two layer water?
-EXTERN bool_t                    menuaneeded  EQ( bfalse );       // Give them MENUA?
+EXTERN bool_t                    twolayerwateron  EQ( btrue );      // Two layer water?
 EXTERN bool_t                    menuactive  EQ( bfalse );       // Menu running?
+EXTERN int						 selectedPlayer EQ( 0 );           // Which player is currently selected to play
 EXTERN bool_t                    hostactive  EQ( bfalse );       // Hosting?
 EXTERN bool_t                    readytostart;               // Ready to hit the Start Game button?
 EXTERN bool_t                    waitingforplayers;          // Has everyone talked to the host?

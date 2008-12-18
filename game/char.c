@@ -6817,7 +6817,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
 
   FILE *filewrite;
-  char newloadname[256];
+  STRING newloadname;
 
   // Only add quest IDSZ if it doesnt have it already
   if (check_player_quest(whichplayer, idsz) >= QUESTBEATEN) return bfalse;
@@ -6825,11 +6825,15 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   // Try to open the file in read and append mode
   snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );
   filewrite = fopen( newloadname, "a" );
-  if ( NULL == filewrite )
+  if ( !filewrite )
   {
 	  //Create the file if it does not exist
 	  filewrite = fopen( newloadname, "w" );
-	  if(NULL == filewrite) return bfalse;
+	  if(!filewrite) 
+	  {
+		  log_warning("Cannot write to %s!", newloadname);
+		  return bfalse;
+	  }
 	  fprintf( filewrite, "//This file keeps order of all the quests for the player (%s)\n", whichplayer);
       fprintf( filewrite, "//The number after the IDSZ shows the quest level. -1 means it is completed.");
   }
@@ -6853,7 +6857,7 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
   Sint8 NewQuestLevel = NOQUEST, QuestLevel;
 
   //Now check each expansion until we find correct IDSZ
-  if(check_player_quest(whichplayer, idsz) <= QUESTBEATEN)  return NewQuestLevel;
+  if(check_player_quest(whichplayer, idsz) <= QUESTBEATEN || adjustment == 0)  return NewQuestLevel;
 
   else
   {
@@ -6867,9 +6871,16 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
 
     // open the tmp file for reading and overwrite the original file
     fileread  = fopen( copybuffer, "r" );
-    filewrite = fopen( newloadname, "w" );
+	filewrite = fopen( newloadname, "w" );
 
-    // read the tmp file line-by line
+	//Something went wrong
+	if(!fileread || !filewrite) 
+	{
+		log_warning("Could not modify quest IDSZ (%s).\n", newloadname);
+		return NOQUEST;
+	}
+    
+	// read the tmp file line-by line
     while( !feof(fileread) )
     {
       ctmp = fgetc(fileread);
@@ -6890,28 +6901,20 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
         // modify it
         if ( newidsz == idsz )
         {
-          if(adjustment == 0)
-          {
-            QuestLevel = QUESTBEATEN;
-          }
-          else
-          {
-            QuestLevel += adjustment;
-            if(QuestLevel < 0) QuestLevel = 0;
-          }
+          QuestLevel += adjustment;
+          if(QuestLevel < 0) QuestLevel = 0;    //Don't get negative
           NewQuestLevel = QuestLevel;
         }
 
         fprintf(filewrite, "\n:[%s] %i", undo_idsz(newidsz), QuestLevel);
       }
-    }
-
-    // get rid of the tmp file
-    fclose( filewrite );
-    fs_deleteFile( copybuffer );
+	}
   }
 
+  //clean it up
   fclose( fileread );
+  fclose( filewrite );
+  fs_deleteFile( copybuffer );
 
   return NewQuestLevel;
 }

@@ -11,13 +11,13 @@ NOT USED		: FALSE
 Level rating ( * to  ***** ) 	: *
 
 // Module summary
-:The_capitol_city_of_Bishopia!
-:Go_shopping_in_this_gargantuan
-:city_filled_with_many_shops,_
-:people_and_rare_items!
-:_
-:_
-:_
-:_
+:Bishopia_lies_near_the_Northern
+:centre_of_the_plains_region_and
+:is_the_seat_of_power_for_King
+:Bishop._King_Bishop_is_the
+:latest_ruler_in_a_long_line_of
+:nobles._The_continent_has_been
+:put_in_a_state_of_unrest_with
+:his_abduction_and_the_rising_evil.
 
 // IDZs

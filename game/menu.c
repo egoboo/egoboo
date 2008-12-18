@@ -707,7 +707,7 @@ int doChoosePlayer( float deltaTime )
           if ( ui_doImageButtonWithText( player, &TxIcon[player], loadplayername[player],  x, y, 175, 42 ) )
           {
             selectedPlayer = player;
-          }
+		  }
 
           player++;
           y += 47;

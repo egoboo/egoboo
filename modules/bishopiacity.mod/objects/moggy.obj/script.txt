@@ -17,6 +17,7 @@ IfBumped
   IfTargetIsAPlayer
     IfTargetIsOnSameTeam
       tmpargument = [FORT]
+      tmpdistance = 0          //Reset the quest level first
       IfTargetHasQuest
         DoNothing
       tmpturn = 1

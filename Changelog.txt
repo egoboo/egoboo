@@ -93,7 +93,6 @@ The master TODO list:
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 - The Missile spell (aquired from the Adventurer Starter) isn't homing anymore at all, even if standing right in front of the target.
 
-- Huh... Now the reduced value for less ammo thingie worked - sort of. Most of the normal crossbows found in the palaces will always give me 15 gold, no matter how much ammo is left. The wand of lightning, however, only gave me 7 gold for 1 ammo, as it was supposed to.
 - ...wtf? Moggy refused to follow me even though I hadn't had his module unlocked yet. And when I left Bishopia again (I talked to all module unlock guys), all modules except for Zippy, the Sand and Water Palaces and the Griffin Tower disappeared from my list of available modules! Shocked
 
 Version 2.6.x (??.??.2008)
