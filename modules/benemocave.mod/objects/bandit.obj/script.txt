@@ -73,9 +73,13 @@ IfBumped
     // Jump over barriers, onto mounts
     IfTargetIsAlive
       IfTargetIsAPlatform
-        // Jump over some stuff
-        tmpargument = LATCHJUMP
-        PressLatchButton
+        // Jump over some stuff... but not onto braziers!
+        tmpargument = [BRAZ]
+        IfTargetHasID
+          DoNothing
+        Else
+          tmpargument = LATCHJUMP
+          PressLatchButton
       IfTargetIsAMount
         // Jump onto mounts
         tmpx = targetx
@@ -86,9 +90,13 @@ IfBumped
         tmpargument = 30
         SetTime
     Else
-      // Jump over corpses
-      tmpargument = LATCHJUMP
-      PressLatchButton
+      // Jump over corpses... ...but not onto braziers!
+      tmpargument = [BRAZ]
+      IfTargetHasID
+        DoNothing
+      Else
+        tmpargument = LATCHJUMP
+        PressLatchButton
     SetTargetToOldTarget
 
 
