@@ -51,6 +51,8 @@ IfXIsMoreThanY
 tmpx = selflevel
 tmpy = 8            //need level 10
 IfXIsMoreThanY
+  tmpx = selfx
+  tmpy = selfy
   tmpdistance = 27      //top of head
   tmpargument = 5
   SpawnParticle
