@@ -81,7 +81,6 @@ The master TODO list:
 - Restoration removes good buffs
 - Creates in G'nome starter tend to wander uphill.
 - Exp cheat works waaay to fast.
-- Sudden framerate drops?
 - shield of deflection not working vs. orbstorm and float eye attacks
 - Corpses turn to zombies too slow
 - Game crashes in sand palace. Mimic and tranch room.
@@ -93,7 +92,10 @@ The master TODO list:
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 - The Missile spell (aquired from the Adventurer Starter) isn't homing anymore at all, even if standing right in front of the target.
 
-- ...wtf? Moggy refused to follow me even though I hadn't had his module unlocked yet. And when I left Bishopia again (I talked to all module unlock guys), all modules except for Zippy, the Sand and Water Palaces and the Griffin Tower disappeared from my list of available modules! Shocked
+- defeating sand palace doesnt unlock anything
+- make dead cobol bodies crushable
+- pet trader trades wrong item
+- spell books in bishopia gone
 
 Version 2.6.x (??.??.2008)
 - New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.

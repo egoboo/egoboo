@@ -135,7 +135,7 @@ void remove_enchant( Uint16 enchantindex )
         kill_character( overlay, MAXCHR );
       }
 
-      // Remove see kurse enchant (BAD: no check if it is a natural abillity?)
+      // Remove see kurse enchant
       if ( eveseekurse[enceve[enchantindex]] && !capcanseekurse[chrmodel[character]] )
       {
         chrcanseekurse[character] = bfalse;
@@ -746,13 +746,13 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
 
 
     // Drain stuff
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = (Sint16) fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = (Sint16) fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = fTmp * 256;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
     eveendifcantpay[profile] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  eveendifcantpay[profile] = btrue;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = (Sint16) fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = (Sint16) fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = fTmp * 256;
 
 
     // Specifics

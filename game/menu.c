@@ -1817,7 +1817,7 @@ int doVideoOptions( float deltaTime )
 		maxparticles += 128;
 		if(maxparticles > TOTALMAXPRT || maxparticles < 256) maxparticles = 256;
         sprintf( Cmaxparticles, "%i", maxparticles );    // Convert integer to a char we can use
-        videoOptionsButtons[16] =  Cmaxparticles;
+        videoOptionsButtons[14] =  Cmaxparticles;
       }
 
       // Text messages

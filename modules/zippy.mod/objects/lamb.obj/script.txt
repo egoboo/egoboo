@@ -48,7 +48,11 @@ IfTimeOut
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
-  tmpargument = 0
+  SetTargetToWhoeverAttacked
+  IfTargetIsSelf
+    tmpargument = 1
+  Else
+    tmpargument = 0
   SendMessage
 
   // Make the character body

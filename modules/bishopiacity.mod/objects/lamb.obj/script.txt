@@ -31,8 +31,13 @@ IfBumped
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
+  SetTargetToWhoeverAttacked
+  IfTargetIsSelf
+    tmpargument = 4
+  Else
+    tmpargument = 0
+  
   JoinEvilTeam
-  tmpargument = 0
   SendMessage
   CallForHelp
 

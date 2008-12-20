@@ -915,7 +915,7 @@ EXTERN IDSZ                      localsenseenemiesID;
 //------------------------------------
 // Enchantment variables
 //------------------------------------
-#define MAXENCHANT                      150         // Number of enchantments
+#define MAXENCHANT                      200         // Number of enchantments
 EXTERN Uint16       numfreeenchant;             // For allocating new ones
 EXTERN Uint16       freeenchant[MAXENCHANT];    //
 
