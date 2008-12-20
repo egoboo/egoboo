@@ -246,6 +246,14 @@ IfAttacked
     PlaySound
   SetTargetToOldTarget
 
+//------------------------------------------------------------------------------
+// ZZ> Display mini map location if befriended
+
+IfStateIs3
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = BLUE
+  ShowBlipXY
 
 //------------------------------------------------------------------------------
 End
