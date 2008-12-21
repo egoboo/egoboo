@@ -95,6 +95,7 @@ IfBumped
               IfTargetHasID                   //Get target
                 DoNothing
               Else
+                SetTargetToWhoeverBumped
                 SetTargetToTargetRightHand    //Its in right
             Else
               SetTargetToTargetRightHand

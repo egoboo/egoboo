@@ -94,7 +94,6 @@ The master TODO list:
 
 - defeating sand palace doesnt unlock anything
 - make dead cobol bodies crushable
-- pet trader trades wrong item
 - spell books in bishopia gone
 
 Version 2.6.x (??.??.2008)
@@ -135,6 +134,7 @@ Version 2.6.x (??.??.2008)
 - Update: Random potion skins for unidentified potions was removed.
 - Update: Improved some memory optimization.
 - Update: Each class can now have multiple skill IDSZ using expansions.
+- Bugfix: Fixed the pet trader trading pets for the wrong items.
 - Bugfix: Fixed a bug in the reload timer.
 - Bugfix: Fixed a random item spawning bug in Bishopia city.
 - Bugfix: The Healer is no longer charged when taking holy damage after reaching level 8.
@@ -150,6 +150,7 @@ Version 2.6.x (??.??.2008)
 - Bugfix: The Holy Aura skill doesn't trigger on slain undead now.
 - Bugfix: Fixed bug in the Rogue Starter causing the rogue always to score backstabs.
 - Bugfix: The usual bunch of minor matters.
+- Note: Paladins can joust with lances again.
 
 Version 2.6.8 (23.11.2008)
 - New Feature: Added about 6 new NPC's to spice up both towns. (Some are quest related)

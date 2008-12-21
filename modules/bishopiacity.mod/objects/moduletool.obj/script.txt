@@ -14,14 +14,12 @@
 //Drop items held
 tmpargument = 0
 IfContentIs	
-  DropItems
-
-//DEBUG REMOVE THIS
-  tmpargument = 1
-  tmpdistance = 0
-  PlayMusic
-//DEBUG REVMO THIS
-
+  IfSpawned
+    tmpargument = 80
+    SetTime
+  IfTimeOut
+    DropItems
+    GoPoof
 
 //------------------------------------------------------------------------------------
 //Display the map and play music
@@ -33,6 +31,8 @@ IfContentIs
   tmpdistance = 0
   PlayMusic
 
+  //Do last
+  GoPoof
 
 //------------------------------------------------------------------------------------
 //Create some random magic stuff
@@ -99,6 +99,8 @@ IfContentIs
     
   SpawnExactCharacterXYZ
 
+  //Do last
+  GoPoof
 
 
 //------------------------------------------------------------------------------------
@@ -170,10 +172,8 @@ IfContentIs
 
   SpawnExactCharacterXYZ
 
-
-//------------------------------------------------------------------------------------
-//Do last
-GoPoof
+  //Do last
+  GoPoof
 
 //------------------------------------------------------------------------------------
 End					// All done

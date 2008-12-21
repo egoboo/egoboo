@@ -161,3 +161,6 @@ Jump sound     : -1
 :[SQUA] 1	//Square formed, not round
 :[ICON] 0	//Show icon (If name not known)
 :[PLAT] 1	//Platfrom object
+:[BOOK] 2
+:[VALU] 1
+
