@@ -124,12 +124,11 @@ IfKilled
 
 
   tmpargument = 1
-  tmpdistance = rand & 2047 + 13000
   PlaySound
 
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
 
@@ -142,7 +141,21 @@ IfKilled
   tmpargument = 50
   SetTime
 
-
+  //Make em crushable
+  MakeCrushValid
+  
+//Mooshed in a passage
+IfCrushed
+  tmpargument = 1
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  GoPoof
 
 //------------------------------------------------------------------------------
 IfAttacked

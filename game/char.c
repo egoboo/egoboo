@@ -6831,7 +6831,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
 	  filewrite = fopen( newloadname, "w" );
 	  if(!filewrite) 
 	  {
-		  log_warning("Cannot write to %s!", newloadname);
+		  log_warning("Cannot write to %s!\n", newloadname);
 		  return bfalse;
 	  }
 	  fprintf( filewrite, "//This file keeps order of all the quests for the player (%s)\n", whichplayer);

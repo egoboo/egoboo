@@ -118,7 +118,7 @@ void export_one_character( int character, int owner, int number, bool_t is_local
       if ( letter >= 'A' && letter <= 'Z' )  letter -= 'A' - 'a';
       if ( letter != 0 )
       {
-        if ( letter < 'a' || letter > 'z' )  letter = '_';
+        if ( ( letter < 'a' || letter > 'z' ) && letter != '\'')  letter = '_';
         todirname[tnc] = letter;
         tnc++;
       }

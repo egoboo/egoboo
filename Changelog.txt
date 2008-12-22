@@ -92,8 +92,6 @@ The master TODO list:
 - WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 - The Missile spell (aquired from the Adventurer Starter) isn't homing anymore at all, even if standing right in front of the target.
 
-- defeating sand palace doesnt unlock anything
-- make dead cobol bodies crushable
 - spell books in bishopia gone
 
 Version 2.6.x (??.??.2008)
@@ -104,6 +102,7 @@ Version 2.6.x (??.??.2008)
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
 - New Feature: Some new skills have been added and changed (classes.txt)
+- Update: Cobol bodies are now crushable.
 - Update: Doubled the sustain cost for the Haste spell.
 - Update: Intelligence and wisdom now gives a bonus to xp gained. Every point of INT
   above 10 gives 0,5% bonus and WIS gives 0,25% bonus. Below 10 gives penality instead.

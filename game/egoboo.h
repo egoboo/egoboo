@@ -1726,7 +1726,7 @@ extern Uint32  nexttimestamp;                // Expected timestamp
 
 // Sound using SDL_Mixer
 EXTERN bool_t          mixeron EQ( bfalse );    // Is the SDL_Mixer loaded?
-#define MAXWAVE         20               // Up to 16 waves per model
+#define MAXWAVE         21               // Up to 21 waves per model
 #define VOLUMERATIO     7               // Volume ratio
 EXTERN Mix_Chunk    *capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
 EXTERN Uint16       maxsoundchannel;      // Max number of sounds playing at the same time

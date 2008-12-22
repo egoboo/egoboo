@@ -93,7 +93,7 @@ IfKilled
   PlaySound
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropItems
   DropKeys
@@ -102,6 +102,22 @@ IfKilled
   // Make the character body
   tmpargument = 40
   SetBumpHeight
+  
+  //Make em crushable
+  MakeCrushValid
+  
+//Mooshed in a passage
+IfCrushed
+  tmpargument = 1
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  GoPoof
 
 //------------------------------------------------------------------------------
 IfAttacked
