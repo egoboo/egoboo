@@ -4389,7 +4389,7 @@ int load_one_title_image( int titleimage, char *szLoadName )
   // ZZ> This function loads a title in the specified image slot, forcing it into
   //     system memory.  Returns btrue if it worked
   GLTexture_Load( &TxTitleImage[titleimage], szLoadName );
-  if ( GLTexture_GetTextureID != 0 )
+  if ( GLTexture_GetTextureID( &TxTitleImage[titleimage] ) != 0 )
   {
     return btrue;
   }

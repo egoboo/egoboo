@@ -75,7 +75,7 @@ EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define MAXIMPORT           (36*8)                  // Number of subdirs in IMPORT directory
 
 #define NOSPARKLE           255
-#define ANYTIME             255                     // Code for respawnvalid...
+#define ANYTIME             ((bool_t)0xFF)          // Code for respawnvalid...
 
 #define SIZETIME            50                      // Time it takes to resize a character
 
@@ -336,7 +336,7 @@ EXTERN int rotmeshdown;                                    //
 #define PRTLIGHTSPRITE                  0           // Magic effect particle
 #define PRTSOLIDSPRITE                  1           // Sprite particle
 #define PRTALPHASPRITE                  2           // Smoke particle
-#define MAXPARTICLEIMAGE                255         // Number of particle images ( frames )
+#define MAXPARTICLEIMAGE                256         // Number of particle images ( frames )
 
 
 

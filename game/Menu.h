@@ -25,8 +25,8 @@
 
 void menu_frameStep();
 
-static int selectedModule = 0;
+extern int selectedModule;
 
-static int waitingforinput = -1;
+extern int waitingforinput;
 
 #endif // include guard

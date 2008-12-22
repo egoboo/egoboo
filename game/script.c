@@ -694,7 +694,6 @@ Uint8 run_function( Uint32 value, int character )
   int volume;
   IDSZ test;
   char cTmp[256];
-  STRING text;
 
   // Figure out which function to run
   switch ( valuecode )

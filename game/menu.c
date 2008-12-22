@@ -44,6 +44,9 @@ enum MenuStates
 };
 
 
+int selectedModule = 0;
+
+int waitingforinput = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
 static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.9 \nBETA TEST VERSION";
@@ -895,7 +898,7 @@ int doOptions( float deltaTime )
 int doInputOptions( float deltaTime )
 {
   static int menuState = MM_Begin;
-  static GLTexture background;
+  // static GLTexture background;
   static int menuChoice = 0;
   
   Sint8 result = 0;
@@ -1198,7 +1201,7 @@ int doAudioOptions( float deltaTime )
       if ( ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) == 1 )
       {
 		soundvolume += 5;
-		if(soundvolume > 100 || soundvolume < 0) soundvolume = 0;
+		if(soundvolume > 100) soundvolume = 100;
         sprintf( Csoundvolume, "%i", soundvolume );
         audioOptionsButtons[1] = Csoundvolume;
       }
@@ -1222,7 +1225,7 @@ int doAudioOptions( float deltaTime )
       if ( ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) == 1 )
       {
 		musicvolume += 5;
-		if(musicvolume > 100 || musicvolume < 0) musicvolume = 0;
+		if(musicvolume > 100) musicvolume = 100;
         sprintf( Cmusicvolume, "%i", musicvolume );
         audioOptionsButtons[3] = Cmusicvolume;
       }
