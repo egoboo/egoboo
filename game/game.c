@@ -465,8 +465,14 @@ char* tag_to_string( Uint32 tag, bool_t onlykeys )
     if ( tag == tagvalue[cnt])
     {
       // They match
-	  if(onlykeys) if(tagname[cnt][0] == 'K') return tagname[cnt];
-	  else return tagname[cnt];
+      if(onlykeys)
+      {
+        if(tagname[cnt][0] == 'K') return tagname[cnt];
+      }
+      else
+      {
+        return tagname[cnt];
+      }
     }
     cnt++;
   }
@@ -768,6 +774,41 @@ void get_name( FILE* fileread, char *szName )
   szName[cnt] = 0;
 }
 
+#define GetBoolean(label, var, default) \
+  do \
+  { \
+    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, (label), &lTempBool ) == 0 ) \
+    { \
+      lTempBool = (default); \
+    } \
+    (var) = lTempBool; \
+  } \
+  while (bfalse)
+
+#define GetInt(label, var, default) \
+  do \
+  { \
+    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, (label), &lTempInt ) == 0 ) \
+    { \
+      lTempInt = (default); \
+    } \
+    (var) = lTempInt; \
+  } \
+  while (bfalse)
+
+// Don't make len larger than 64
+#define GetString(label, var, len, default) \
+  do \
+  { \
+    if ( GetConfigValue( lConfigSetup, lCurSectionName, (label), lTempStr, sizeof( lTempStr ) / sizeof( *lTempStr ) ) == 0 ) \
+    { \
+      strncpy( lTempStr, (default), sizeof( lTempStr ) / sizeof( *lTempStr ) ); \
+    } \
+    strncpy( (var), lTempStr, (len) ); \
+    (var)[(len) - 1] = '\0'; \
+  } \
+  while (bfalse)
+
 //--------------------------------------------------------------------------------------------
 void read_setup( char* filename )
 {
@@ -776,8 +817,8 @@ void read_setup( char* filename )
   ConfigFilePtr lConfigSetup;
   char lCurSectionName[64];
   bool_t lTempBool;
-  Sint32 lTmpInt;
-  char lTmpStr[24];
+  Sint32 lTempInt;
+  char lTempStr[64];
 
 
   lConfigSetup = OpenConfigFile( filename );
@@ -799,65 +840,33 @@ void read_setup( char* filename )
     strcpy( lCurSectionName, "GRAPHIC" );
 
     // Draw z reflection?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "Z_REFLECTION", &zreflect ) == 0 )
-    {
-      zreflect = bfalse; // default
-    }
+    GetBoolean( "Z_REFLECTION", zreflect, bfalse );
 
     // Max number of vertrices (Should always be 100!)
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_NUMBER_VERTICES", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 100; // default
-    }
-    maxtotalmeshvertices = lTmpInt * 1024;
+    GetInt( "MAX_NUMBER_VERTICES", maxtotalmeshvertices, 100 );
+    maxtotalmeshvertices *= 1024;
 
     // Do fullscreen?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "FULLSCREEN", &fullscreen ) == 0 )
-    {
-      fullscreen = bfalse; // default
-    }
+    GetBoolean( "FULLSCREEN", fullscreen, bfalse );
 
     // Screen Size
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "SCREENSIZE_X", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 640; // default
-    }
-    scrx = lTmpInt;
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "SCREENSIZE_Y", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 480; // default
-    }
-    scry = lTmpInt;
+    GetInt( "SCREENSIZE_X", scrx, 640 );
+    GetInt( "SCREENSIZE_Y", scry, 480 );
 
     // Color depth
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "COLOR_DEPTH", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 16; // default
-    }
-    scrd = lTmpInt;
+    GetInt( "COLOR_DEPTH", scrd, 16 );
 
     // The z depth
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "Z_DEPTH", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 16; // default
-    }
-    scrz = lTmpInt;
+    GetInt( "Z_DEPTH", scrz, 16 );
 
     // Max number of messages displayed
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_TEXT_MESSAGE", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 1; // default
-    }
+    GetInt( "MAX_TEXT_MESSAGE", maxmessage, 6 );
     messageon = btrue;
-    maxmessage = lTmpInt;
     if ( maxmessage < 1 )  { maxmessage = 1;  messageon = bfalse; }
     if ( maxmessage > MAXMESSAGE )  { maxmessage = MAXMESSAGE; }
 
     // Show status bars? (Life, mana, character icons, etc.)
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "STATUS_BAR", &staton ) == 0 )
-    {
-      staton = btrue; // default
-    }
+    GetBoolean( "STATUS_BAR", staton, btrue );
     wraptolerance = 32;
     if ( staton )
     {
@@ -865,22 +874,13 @@ void read_setup( char* filename )
     }
 
     // Perspective correction
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "PERSPECTIVE_CORRECT", &perspective ) == 0 )
-    {
-      perspective = bfalse; // default
-    }
+    GetBoolean( "PERSPECTIVE_CORRECT", perspective, bfalse );
 
     // Enable dithering? (Reduces quality but increases preformance)
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "DITHERING", &dither ) == 0 )
-    {
-      dither = bfalse; // default
-    }
+    GetBoolean( "DITHERING", dither, bfalse );
 
     // Reflection fadeout
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "FLOOR_REFLECTION_FADEOUT", &lTempBool ) == 0 )
-    {
-      lTempBool = bfalse; // default
-    }
+    GetBoolean( "FLOOR_REFLECTION_FADEOUT", lTempBool, bfalse );
     if ( lTempBool )
     {
       reffadeor = 0;
@@ -891,98 +891,53 @@ void read_setup( char* filename )
     }
 
     // Draw Reflection?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "REFLECTION", &refon ) == 0 )
-    {
-      refon = bfalse; // default
-    }
+    GetBoolean( "REFLECTION", refon, bfalse );
 
     // Draw shadows?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "SHADOWS", &shaon ) == 0 )
-    {
-      shaon = bfalse; // default
-    }
+    GetBoolean( "SHADOWS", shaon, bfalse );
 
     // Draw good shadows (BAD! Not working yet)
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "SHADOW_AS_SPRITE", &shasprite ) == 0 )
-    {
-      shasprite = btrue; // default
-    }
+    GetBoolean( "SHADOW_AS_SPRITE", shasprite, btrue );
 
     // Draw phong mapping?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "PHONG", &phongon ) == 0 )
-    {
-      phongon = btrue; // default
-    }
+    GetBoolean( "PHONG", phongon, btrue );
 
     // Draw water with more layers?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "MULTI_LAYER_WATER", &twolayerwateron ) == 0 )
-    {
-      twolayerwateron = bfalse; // default
-    }
+    GetBoolean( "MULTI_LAYER_WATER", twolayerwateron, bfalse );
 
     // TODO: This is not implemented
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "OVERLAY", &overlayvalid ) == 0 )
-    {
-      overlayvalid = bfalse; // default
-    }
+    GetBoolean( "OVERLAY", overlayvalid, bfalse );
 
     // Allow backgrounds?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "BACKGROUND", &backgroundvalid ) == 0 )
-    {
-      backgroundvalid = bfalse; // default
-    }
+    GetBoolean( "BACKGROUND", backgroundvalid, bfalse );
 
     // Enable fog?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "FOG", &fogallowed ) == 0 )
-    {
-      fogallowed = bfalse; // default
-    }
+    GetBoolean( "FOG", fogallowed, bfalse );
 
     // Do gourad shading?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "GOURAUD_SHADING", &lTempBool ) == 0 )
-    {
-      shading = GL_SMOOTH; // default
-    }
-    else
-    {
-      shading = lTempBool ? GL_SMOOTH : GL_FLAT;
-    }
+    GetBoolean( "GOURAUD_SHADING", lTempBool, btrue );
+    shading = lTempBool ? GL_SMOOTH : GL_FLAT;
 
     // Enable antialiasing?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "ANTIALIASING", &antialiasing ) == 0 )
-    {
-      antialiasing = bfalse; // default
-    }
+    GetBoolean( "ANTIALIASING", antialiasing, bfalse );
 
     // Do we do texture filtering?
-    if ( GetConfigValue( lConfigSetup, lCurSectionName, "TEXTURE_FILTERING", lTmpStr, 24 ) == 0 )
-    {
-      strcpy( lTmpStr, "LINEAR" ); // default
-    }
+    GetString( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
 
-    if ( lTmpStr[0] == 'L' || lTmpStr[0] == 'l' )  texturefilter = 1;
-    if ( lTmpStr[0] == 'B' || lTmpStr[0] == 'b' )  texturefilter = 2;
-    if ( lTmpStr[0] == 'T' || lTmpStr[0] == 't' )  texturefilter = 3;
-    if ( lTmpStr[0] == 'A' || lTmpStr[0] == 'a' )  texturefilter = 4;
+    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = 1;
+    if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = 2;
+    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  texturefilter = 3;
+    if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = 4;
 
     // Max number of lights
-	if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_DYNAMIC_LIGHTS", &maxlights ) == 0 )
-    {
-      maxlights = 8; // default
-    }
+	GetInt( "MAX_DYNAMIC_LIGHTS", maxlights, 8 );
 	if ( maxlights > TOTALMAXDYNA ) maxlights = TOTALMAXDYNA;
 
     // Get the FPS limit
-	if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_FPS_LIMIT", &framelimit ) == 0 )
-    {
-      framelimit = 30; // default
-    }
+	GetInt( "MAX_FPS_LIMIT", framelimit, 30 );
 
     // Get the particle limit
-	if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_PARTICLES", &maxparticles ) == 0 )
-    {
-      maxparticles = 256; // default
-    }
+	GetInt( "MAX_PARTICLES", maxparticles, 256 );
 	if(maxparticles > TOTALMAXPRT) maxparticles = TOTALMAXPRT;
 
     /*********************************************
@@ -994,42 +949,24 @@ void read_setup( char* filename )
     strcpy( lCurSectionName, "SOUND" );
 
     // Enable sound
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "SOUND", &soundvalid ) == 0 )
-    {
-      soundvalid = bfalse; // default
-    }
+    GetBoolean( "SOUND", soundvalid, bfalse );
 
     // Enable music
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "MUSIC", &musicvalid ) == 0 )
-    {
-      musicvalid = bfalse; // default
-    }
+    GetBoolean( "MUSIC", musicvalid, bfalse );
 
     // Music volume
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MUSIC_VOLUME", &musicvolume ) == 0 )
-    {
-      musicvolume = 50; // default
-    }
+    GetInt( "MUSIC_VOLUME", musicvolume, 50 );
 
     // Sound volume
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "SOUND_VOLUME", &soundvolume ) == 0 )
-    {
-      soundvolume = 75; // default
-    }
+    GetInt( "SOUND_VOLUME", soundvolume, 75 );
 
     // Max number of sound channels playing at the same time
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "MAX_SOUND_CHANNEL", &maxsoundchannel ) == 0 )
-    {
-      maxsoundchannel = 16; // default
-    }
+    GetInt( "MAX_SOUND_CHANNEL", maxsoundchannel, 16 );
     if ( maxsoundchannel < 8 ) maxsoundchannel = 8;
     if ( maxsoundchannel > 32 ) maxsoundchannel = 32;
 
     // The output buffer size
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "OUPUT_BUFFER_SIZE", &buffersize ) == 0 )
-    {
-      buffersize = 2048; // default
-    }
+    GetInt( "OUTPUT_BUFFER_SIZE", buffersize, 2048 );
     if ( buffersize < 512 ) buffersize = 512;
     if ( buffersize > 8196 ) buffersize = 8196;
 
@@ -1043,14 +980,11 @@ void read_setup( char* filename )
     strcpy( lCurSectionName, "CONTROL" );
 
     // Camera control mode
-    if ( GetConfigValue( lConfigSetup, lCurSectionName, "AUTOTURN_CAMERA", lTmpStr, 24 ) == 0 )
-    {
-      strcpy( lTmpStr, "GOOD" ); // default
-    }
+    GetString( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
 
-    if ( lTmpStr[0] == 'G' || lTmpStr[0] == 'g' )  autoturncamera = 255;
-    if ( lTmpStr[0] == 'T' || lTmpStr[0] == 't' )  autoturncamera = btrue;
-    if ( lTmpStr[0] == 'F' || lTmpStr[0] == 'f' )  autoturncamera = bfalse;
+    if ( lTempStr[0] == 'G' || lTempStr[0] == 'g' )  autoturncamera = 255;
+    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  autoturncamera = btrue;
+    if ( lTempStr[0] == 'F' || lTempStr[0] == 'f' )  autoturncamera = bfalse;
 
     //[claforte] Force autoturncamera to bfalse, or else it doesn't move right.
     // autoturncamera = bfalse;
@@ -1066,39 +1000,22 @@ void read_setup( char* filename )
     strcpy( lCurSectionName, "NETWORK" );
 
     // Enable networking systems?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "NETWORK_ON", &networkon ) == 0 )
-    {
-      networkon = bfalse; // default
-    }
+    GetBoolean( "NETWORK_ON", networkon, bfalse );
 
     // Max lag
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "LAG_TOLERANCE", &lTmpInt ) == 0 )
-    {
-      lTmpInt = 2; // default
-    }
-    lag = lTmpInt;
+    GetInt( "LAG_TOLERANCE", lag, 2 );
 
     /*
     goto_colon(fileread); fscanf(fileread, "%d", &orderlag);
 
-    if ( GetConfigIntValue( lConfigSetup, lCurSectionName, "RTS_LAG_TOLERANCE", &lTmpInt ) == 0 )
-      {
-      lTmpInt = 25; // default
-      }
-    orderlag = lTmpInt;
+    GetInt( "RTS_LAG_TOLERANCE", orderlag, 25 );
     */
 
     // Name or IP of the host or the target to join
-    if ( GetConfigValue( lConfigSetup, lCurSectionName, "HOST_NAME", nethostname, 64 ) == 0 )
-    {
-      strcpy( nethostname, "no host" ); // default
-    }
+    GetString( "HOST_NAME", nethostname, 64, "no host" );
 
     // Multiplayer name
-    if ( GetConfigValue( lConfigSetup, lCurSectionName, "MULTIPLAYER_NAME", netmessagename, 64 ) == 0 )
-    {
-      strcpy( netmessagename, "little Raoul" ); // default
-    }
+    GetString( "MULTIPLAYER_NAME", netmessagename, 64, "little Raoul" );
 
 
     /*********************************************
@@ -1110,26 +1027,10 @@ void read_setup( char* filename )
     strcpy( lCurSectionName, "DEBUG" );
 
     // Show the FPS counter?
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "DISPLAY_FPS", &lTempBool ) == 0 )
-    {
-      lTempBool = btrue; // default
-    }
-    fpson = lTempBool;
-
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "HIDE_MOUSE", &gHideMouse ) == 0 )
-    {
-      gHideMouse = btrue; // default
-    }
-
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "GRAB_MOUSE", &gGrabMouse ) == 0 )
-    {
-      gGrabMouse = btrue; // default
-    }
-
-    if ( GetConfigBooleanValue( lConfigSetup, lCurSectionName, "DEV_MODE", &gDevMode ) == 0 )
-    {
-      gDevMode = btrue; // default
-    }
+    GetBoolean( "DISPLAY_FPS", fpson, btrue );
+    GetBoolean( "HIDE_MOUSE", gHideMouse, btrue );
+    GetBoolean( "GRAB_MOUSE", gGrabMouse, btrue );
+    GetBoolean( "DEV_MODE", gDevMode, btrue );
 
     CloseConfigFile( lConfigSetup );
 
