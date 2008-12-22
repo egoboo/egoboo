@@ -4571,7 +4571,9 @@ int glinit( int argc, char **argv )
 void sdlinit( int argc, char **argv )
 {
   int     colordepth;
+#ifndef __APPLE__
   SDL_Surface *theSurface;
+#endif
 
   if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
   {
