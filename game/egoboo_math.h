@@ -66,11 +66,13 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #    define POW(A, B) ((float)pow((float)(A), (float)(B)))
 #endif
 
-
 #ifndef ATAN2
 #    define ATAN2(A, B) ((float)atan2((float)(A), (float)(B)))
 #endif
 
+#ifndef CLIP
+#    define CLIP(A,B,C) MAX(MIN(A,B),C)
+#endif
 
 #define _CNV(i,j) .v[4*i+j]
 #define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( glMatrix ) )

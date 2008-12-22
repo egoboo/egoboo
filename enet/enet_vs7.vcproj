@@ -1,148 +1,97 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7,10"
+	Version="7.10"
 	Name="enet"
 	ProjectGUID="{F4A0A221-1948-4A47-846B-8DE949633638}"
-	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
-	>
+	RootNamespace="enet"
+	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
-			Name="Win32"
-		/>
+			Name="Win32"/>
 	</Platforms>
-	<ToolFiles>
-	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(ProjectDir)include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
-				MinimalRebuild="true"
+				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="4"
-			/>
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="4"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/enet.lib"
-			/>
+				OutputFile="$(OutDir)/enet.lib"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
+				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCXDCMakeTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCBscMakeTool"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="4"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			CharacterSet="2"
-			EnableManagedIncrementalBuild="0"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
+			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="$(ProjectDir)include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="3"
-			/>
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="3"/>
 			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="$(OutDir)/enet.lib"
-			/>
+				OutputFile="$(OutDir)/enet.lib"/>
 			<Tool
-				Name="VCALinkTool"
-			/>
+				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCXDCMakeTool"
-			/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
-				Name="VCBscMakeTool"
-			/>
+				Name="VCPreBuildEventTool"/>
 			<Tool
-				Name="VCFxCopTool"
-			/>
+				Name="VCPreLinkEventTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-			/>
+				Name="VCResourceCompilerTool"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -151,81 +100,62 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
-			>
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\host.c"
-				>
+				RelativePath=".\host.c">
 			</File>
 			<File
-				RelativePath=".\list.c"
-				>
+				RelativePath=".\list.c">
 			</File>
 			<File
-				RelativePath=".\memory.c"
-				>
+				RelativePath=".\memory.c">
 			</File>
 			<File
-				RelativePath=".\packet.c"
-				>
+				RelativePath=".\packet.c">
 			</File>
 			<File
-				RelativePath=".\peer.c"
-				>
+				RelativePath=".\peer.c">
 			</File>
 			<File
-				RelativePath=".\protocol.c"
-				>
+				RelativePath=".\protocol.c">
 			</File>
 			<File
-				RelativePath=".\unix.c"
-				>
+				RelativePath=".\unix.c">
 			</File>
 			<File
-				RelativePath=".\win32.c"
-				>
+				RelativePath=".\win32.c">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\include\enet\enet.h"
-				>
+				RelativePath=".\include\enet\enet.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\list.h"
-				>
+				RelativePath=".\include\enet\list.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\memory.h"
-				>
+				RelativePath=".\include\enet\memory.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\protocol.h"
-				>
+				RelativePath=".\include\enet\protocol.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\time.h"
-				>
+				RelativePath=".\include\enet\time.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\types.h"
-				>
+				RelativePath=".\include\enet\types.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\unix.h"
-				>
+				RelativePath=".\include\enet\unix.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\utility.h"
-				>
+				RelativePath=".\include\enet\utility.h">
 			</File>
 			<File
-				RelativePath=".\include\enet\win32.h"
-				>
+				RelativePath=".\include\enet\win32.h">
 			</File>
 		</Filter>
 	</Files>

@@ -4,7 +4,7 @@
 */
 #ifdef WIN32
 
-#include <enet_time.h>
+#include "enet/enet_time.h"
 #define ENET_BUILDING_LIB 1
 #include "enet/enet.h"
 
