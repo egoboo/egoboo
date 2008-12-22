@@ -563,8 +563,8 @@ EXTERN float                   foregroundrepeat  EQ( 1 );     //
 EXTERN float                   backgroundrepeat  EQ( 1 );     //
 
 // Fog stuff
-EXTERN Uint8                   fogallowed  EQ( btrue );        //
-EXTERN Uint8                   fogon  EQ( bfalse );            // Do ground fog?
+EXTERN bool_t                  fogallowed  EQ( btrue );        //
+EXTERN bool_t                  fogon  EQ( bfalse );            // Do ground fog?
 EXTERN float                   fogbottom  EQ( 0.0f );          //
 EXTERN float                   fogtop  EQ( 100 );             //
 EXTERN float                   fogdistance  EQ( 100 );        //
