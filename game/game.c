@@ -774,6 +774,9 @@ void get_name( FILE* fileread, char *szName )
   szName[cnt] = 0;
 }
 
+
+//--------------------------------------------------------------------------------------------
+//Macros for reading values from a file
 #define GetBoolean(label, var, default) \
   do \
   { \
@@ -896,7 +899,7 @@ void read_setup( char* filename )
     // Draw shadows?
     GetBoolean( "SHADOWS", shaon, bfalse );
 
-    // Draw good shadows (BAD! Not working yet)
+    // Draw good shadows?
     GetBoolean( "SHADOW_AS_SPRITE", shasprite, btrue );
 
     // Draw phong mapping?
@@ -963,7 +966,7 @@ void read_setup( char* filename )
     // Max number of sound channels playing at the same time
     GetInt( "MAX_SOUND_CHANNEL", maxsoundchannel, 16 );
     if ( maxsoundchannel < 8 ) maxsoundchannel = 8;
-    if ( maxsoundchannel > 32 ) maxsoundchannel = 32;
+    if ( maxsoundchannel > 128 ) maxsoundchannel = 128;
 
     // The output buffer size
     GetInt( "OUTPUT_BUFFER_SIZE", buffersize, 2048 );
@@ -1252,6 +1255,7 @@ void rip_md2_commands( Uint16 modelindex )
   float fTmpu, fTmpv;
   int iNumVertices;
   int tnc;
+  bool_t command_error = bfalse, entry_error = bfalse;
 
   // char* cpCharPointer = (char*) cLoadBuffer;
   int* ipIntPointer = ( int* ) cLoadBuffer;
@@ -1259,9 +1263,9 @@ void rip_md2_commands( Uint16 modelindex )
 
   // Number of GL commands in the MD2
 #ifdef SDL_LIL_ENDIAN
-  int iNumCommands = ipIntPointer[9];
+  int iCommandWords = ipIntPointer[9];
 #else
-  int iNumCommands = SDL_Swap32( ipIntPointer[9] );
+  int iCommandWords = SDL_Swap32( ipIntPointer[9] );
 #endif
 
   // Offset (in DWORDS) from the start of the file to the gl command list.
@@ -1272,13 +1276,13 @@ void rip_md2_commands( Uint16 modelindex )
 #endif
 
   // Read in each command
-  // iNumCommands isn't the number of commands, rather the number of dwords in
-  // the command list...  Use iCommandCount to figure out how many we use
+  // iCommandWords is the number of dwords in the command list.
+  // iCommandCount is the number of GL commands
   int iCommandCount = 0;
   int entry = 0;
 
   int cnt = 0;
-  while ( cnt < iNumCommands )
+  while ( cnt < iCommandWords )
   {
 #ifdef SDL_LIL_ENDIAN
     iNumVertices = ipIntPointer[iCommandOffset]; iCommandOffset++; cnt++;
@@ -1287,22 +1291,29 @@ void rip_md2_commands( Uint16 modelindex )
 #endif
     if ( iNumVertices != 0 )
     {
+      Uint32 command_type;
       if ( iNumVertices < 0 )
       {
         // Fans start with a negative
         iNumVertices = -iNumVertices;
-        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_FAN;
-        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
+        command_type = GL_TRIANGLE_FAN;
       }
       else
       {
         // Strips start with a positive
-        madcommandtype[modelindex][iCommandCount] = GL_TRIANGLE_STRIP;
-        madcommandsize[modelindex][iCommandCount] = ( Uint8 ) iNumVertices;
+        command_type = GL_TRIANGLE_STRIP;
+      }
+      command_error = (iCommandCount >= MAXCOMMAND);
+
+      if(!command_error)
+      {
+        madcommandtype[modelindex][iCommandCount] = command_type;
+        madcommandsize[modelindex][iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
       }
 
       // Read in vertices for each command
       tnc = 0;
+      entry_error = bfalse;
       while ( tnc < iNumVertices )
       {
 #ifdef SDL_LIL_ENDIAN
@@ -1314,16 +1325,39 @@ void rip_md2_commands( Uint16 modelindex )
         fTmpv = LoadFloatByteswapped( &fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
         iTmp = SDL_Swap32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
 #endif
-        madcommandu[modelindex][entry] = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
-        madcommandv[modelindex][entry] = fTmpv - ( 0.5f / 64 ); // with D3D
-        madcommandvrt[modelindex][entry] = ( Uint16 ) iTmp;
+
+        entry_error = entry >= MAXCOMMANDENTRIES;
+
+        if(iTmp > MAXVERTICES) 
+        {
+          log_warning("rip_md2_commands() - vertex value %d beyond preallocated range %d", iTmp, MAXVERTICES);
+        }
+
+        if(!command_error && !entry_error)
+        {
+          madcommandu[modelindex][entry] = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
+          madcommandv[modelindex][entry] = fTmpv - ( 0.5f / 64 ); // with D3D
+          madcommandvrt[modelindex][entry] = iTmp;
+        }
+
         entry++;
         tnc++;
+      }
+
+      if(entry_error)
+      {
+        log_warning("rip_md2_commands() - Number of OpenGL command %d, entries exceeds preset maximum: %d of %d\n", iCommandCount, iNumVertices, MAXCOMMANDENTRIES );
       }
       iCommandCount++;
     }
   }
-  madcommands[modelindex] = iCommandCount;
+
+  if(entry_error)
+  {
+    log_warning("rip_md2_commands() - Number of OpenGL commands exceeds preset maximum: %d of %d\n", iCommandCount, MAXCOMMAND );
+  }
+
+  madcommands[modelindex] = MIN(MAXCOMMAND, iCommandCount);
 }
 
 //---------------------------------------------------------------------------------------------

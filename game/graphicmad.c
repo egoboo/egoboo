@@ -316,49 +316,39 @@ void render_enviromad( Uint16 character, Uint8 trans )
   mWorld = chrmatrix[character];
   // GS - Begin3DMode ();
 
-
   glLoadMatrixf( mView.v );
   glMultMatrixf( mWorld.v );
 
   // Choose texture and matrix
-  // lpD3DDDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE, txTexture[texture].GetHandle());
-  // lpD3DDDevice->SetTransform(D3DTRANSFORMSTATE_WORLD, &chrmatrix[character]);
   glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
-
 
   // Make new ones so we can index them and not transform 'em each time
   // if(transform_vertices(madtransvertices[model], v, vt))
   // return;
 
-
   // Render each command
   entry = 0;
   for ( cnt = 0; cnt < madcommands[model]; cnt++ )
   {
+    if(cnt > MAXCOMMAND) continue;
+
     glBegin ( madcommandtype[model][cnt] );
 
     for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
     {
       vertex = madcommandvrt[model][entry];
-      glColor4fv( &v[vertex].r );
-      glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
-                     lighttoenviroy[chrvrta[character][vertex]] + voffset );
-      glVertex3fv ( &v[vertex].x );
-      /*
-            vtlist[tnc].dvSX = vt[vertex].dvSX;
-            vtlist[tnc].dvSY = vt[vertex].dvSY;
-            vtlist[tnc].dvSZ = (vt[vertex].dvSZ);
-            vtlist[tnc].dvRHW = vt[vertex].dvRHW;
-            vtlist[tnc].dcColor = vt[vertex].dcColor;
-            vtlist[tnc].dcSpecular = vt[vertex].dcSpecular;
-            vtlist[tnc].dvTU = indextoenvirox[madvrta[framestt][vertex]]+uoffset;
-            vtlist[tnc].dvTV = lighttoenviroy[chrvrta[character][vertex]]+voffset;
-      */
+
+      if( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+      {
+        glColor4fv( &v[vertex].r );
+        glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
+                      lighttoenviroy[chrvrta[character][vertex]] + voffset );
+        glVertex3fv ( &v[vertex].x );
+      }
+
       entry++;
     }
     glEnd ();
-    // lpD3DDDevice->DrawPrimitive((D3DPRIMITIVETYPE) madcommandtype[model][cnt],
-    // D3DVT_TLVERTEX, (LPVOID)vtlist, tnc, NULL);
   }
 
   mWorld = tempWorld;
@@ -366,192 +356,6 @@ void render_enviromad( Uint16 character, Uint8 trans )
   glMultMatrixf( mWorld.v );
   // GS - End3DMode ();
 }
-
-#if 0
-//--------------------------------------------------------------------------------------------
-void render_texmad( Uint16 character, Uint8 trans )
-{
-  Md2Model *model;
-  Uint16 texture;
-  int frame0, frame1;
-  float lerp;
-  glMatrix mTempWorld;
-
-  // Grab some basic information about the model
-  model = md2_models[chrmodel[character]];
-  texture = chrtexture[character];
-  frame0 = chrframe[character];
-  frame1 = chrframe[character];
-  lerp = ( float )chrlip[character] / 256.0f;
-
-  mTempWorld = mWorld;
-  /*
-    // Lighting information
-    Uint8 lightrotation =
-      (chrturnleftright[character]+chrlightturnleftright[character])>>8;
-    Uint8 lightlevel = chrlightlevel[character]>>4;
-    Uint32  alpha = trans<<24;
-      Uint8 spek = chrsheen[character];
-
-      float uoffset = textureoffset[chruoffset[character]>>8];
-    float voffset = textureoffset[chrvoffset[character]>>8];
-      Uint8 rs = chrredshift[character];
-    Uint8 gs = chrgrnshift[character];
-    Uint8 bs = chrblushift[character];
-
-
-      if(phongon && trans == 255)
-          spek = 0;
-  */
-#if 0
-  // Original points with linear interpolation ( lip )
-  switch ( lip )
-  {
-    case 0:  // 25% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
-      {
-        temp = madvrtx[lastframe][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].x = (D3DVALUE) ((madvrtx[frame][cnt] + temp)>>2);
-        v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] + temp ) >> 2 );
-        temp = madvrty[lastframe][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].y = (D3DVALUE) ((madvrty[frame][cnt] + temp)>>2);
-        v[cnt].y = ( float ) ( ( madvrty[frame][cnt] + temp ) >> 2 );
-        temp = madvrtz[lastframe][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].z = (D3DVALUE) ((madvrtz[frame][cnt] + temp)>>2);
-        v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] + temp ) >> 2 );
-
-        ambi = chrvrta[character][cnt];
-        ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-        chrvrta[character][cnt] = ambi;
-        // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-        v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-        v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-        v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-        v[cnt].a = ( float ) alpha / 255.0f;
-
-        // v[cnt].specular = lighttospek[spek][ambi];
-
-        // v[cnt].dwReserved = 0;
-      }
-      break;
-    case 1:  // 50% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
-      {
-        /*
-                    v[cnt].x = (D3DVALUE) (madvrtx[frame][cnt] +
-                                           madvrtx[lastframe][cnt]>>1);
-                    v[cnt].y = (D3DVALUE) (madvrty[frame][cnt] +
-                                           madvrty[lastframe][cnt]>>1);
-                    v[cnt].z = (D3DVALUE) (madvrtz[frame][cnt] +
-                                           madvrtz[lastframe][cnt]>>1);
-        */
-        v[cnt].x = ( float ) ( madvrtx[frame][cnt] +
-                               madvrtx[lastframe][cnt] >> 1 );
-        v[cnt].y = ( float ) ( madvrty[frame][cnt] +
-                               madvrty[lastframe][cnt] >> 1 );
-        v[cnt].z = ( float ) ( madvrtz[frame][cnt] +
-                               madvrtz[lastframe][cnt] >> 1 );
-
-        ambi = chrvrta[character][cnt];
-        ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-        chrvrta[character][cnt] = ambi;
-        // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-        v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-        v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-        v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-        v[cnt].a = ( float ) alpha  / 255.0f;
-
-        // v[cnt].specular = lighttospek[spek][ambi];
-
-        // v[cnt].dwReserved = 0;
-      }
-      break;
-    case 2:  // 75% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
-      {
-        temp = madvrtx[frame][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].x = (D3DVALUE) (madvrtx[lastframe][cnt] + temp>>2);
-        v[cnt].x = ( float ) ( madvrtx[lastframe][cnt] + temp >> 2 );
-        temp = madvrty[frame][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].y = (D3DVALUE) (madvrty[lastframe][cnt] + temp>>2);
-        v[cnt].y = ( float ) ( madvrty[lastframe][cnt] + temp >> 2 );
-        temp = madvrtz[frame][cnt];
-        temp = temp + temp + temp;
-        // v[cnt].z = (D3DVALUE) (madvrtz[lastframe][cnt] + temp>>2);
-        v[cnt].z = ( float ) ( madvrtz[lastframe][cnt] + temp >> 2 );
-
-        ambi = chrvrta[character][cnt];
-        ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-        chrvrta[character][cnt] = ambi;
-        // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-        v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-        v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-        v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-        v[cnt].a = ( float ) alpha / 255.0f;
-
-        // v[cnt].specular = lighttospek[spek][ambi];
-
-        // v[cnt].dwReserved = 0;
-      }
-      break;
-    case 3:  // 100% this frame...  This is the legible one
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
-      {
-
-        v[cnt].x = ( float ) madvrtx[frame][cnt];
-        v[cnt].y = ( float ) madvrty[frame][cnt];
-        v[cnt].z = ( float ) madvrtz[frame][cnt];
-
-        ambi = chrvrta[character][cnt];
-        ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-        chrvrta[character][cnt] = ambi;
-        // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-        v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-        v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-        v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-        v[cnt].a = ( float ) alpha / 255.0f;
-
-        // v[cnt].specular = lighttospek[spek][ambi];
-
-        // v[cnt].dwReserved = 0;
-      }
-      break;
-  }
-#endif
-
-  // Choose texture and matrix
-  if ( KEYDOWN( SDLK_F7 ) )
-  {
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
-  }
-  else
-  {
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
-  }
-
-  mWorld = chrmatrix[character];
-
-  // Begin3DMode();
-  glLoadMatrixf( mView.v );
-  glMultMatrixf( mWorld.v );
-
-  // Make new ones so we can index them and not transform 'em each time
-//  if(transform_vertices(madtransvertices[model], v, vt))
-  //      return;
-
-  draw_textured_md2( model, frame0, frame1, lerp );
-
-
-  mWorld = mTempWorld;
-  glLoadMatrixf( mView.v );
-  glMultMatrixf( mWorld.v );
-}
-#endif
 
 //--------------------------------------------------------------------------------------------
 void render_texmad( Uint16 character, Uint8 trans )
@@ -749,6 +553,7 @@ void render_texmad( Uint16 character, Uint8 trans )
           }
       }
   */
+
   // Choose texture and matrix
   if ( KEYDOWN( SDLK_F7 ) )
   {
@@ -766,7 +571,7 @@ void render_texmad( Uint16 character, Uint8 trans )
   glMultMatrixf( mWorld.v );
 
   // Make new ones so we can index them and not transform 'em each time
-//  if(transform_vertices(madtransvertices[model], v, vt))
+  //  if(transform_vertices(madtransvertices[model], v, vt))
   //      return;
 
   // Render each command
@@ -774,28 +579,22 @@ void render_texmad( Uint16 character, Uint8 trans )
 
   for ( cnt = 0; cnt < madcommands[model]; cnt++ )
   {
+    if(cnt > MAXCOMMAND) continue;
+
     glBegin ( madcommandtype[model][cnt] );
     for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
     {
       vertex = madcommandvrt[model][entry];
-      glColor4fv( &v[vertex].r );
-      glTexCoord2f ( madcommandu[model][entry] + uoffset, madcommandv[model][entry] + voffset );
-      glVertex3fv ( &v[vertex].x );
-      /*
-            vtlist[tnc].dvSX = vt[vertex].dvSX;
-            vtlist[tnc].dvSY = vt[vertex].dvSY;
-            vtlist[tnc].dvSZ = (vt[vertex].dvSZ);
-            vtlist[tnc].dvRHW = vt[vertex].dvRHW;
-            vtlist[tnc].dcColor = vt[vertex].dcColor;
-            vtlist[tnc].dcSpecular = vt[vertex].dcSpecular;
-            vtlist[tnc].dvTU = madcommandu[model][entry]+uoffset;
-            vtlist[tnc].dvTV = madcommandv[model][entry]+voffset;
-      */
+
+      if( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+      {
+        glColor4fv( &v[vertex].r );
+        glTexCoord2f ( madcommandu[model][entry] + uoffset, madcommandv[model][entry] + voffset );
+        glVertex3fv ( &v[vertex].x );
+      }
       entry++;
     }
     glEnd ();
-    // lpD3DDDevice->DrawPrimitive((D3DPRIMITIVETYPE) madcommandtype[model][cnt],
-    //                            D3DVT_TLVERTEX, (LPVOID)vtlist, tnc, NULL);
   }
   // End3DMode ();
 
@@ -803,7 +602,6 @@ void render_texmad( Uint16 character, Uint8 trans )
   glLoadMatrixf( mView.v );
   glMultMatrixf( mWorld.v );
 }
-
 //--------------------------------------------------------------------------------------------
 void render_mad( Uint16 character, Uint8 trans )
 {

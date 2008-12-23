@@ -85,11 +85,12 @@ moduletool.obj:   NONE    99  74.5   98.5   1.0   N    0   0  0   0   0   F   F 
 moduletool.obj:   NONE    99  72.5   96.5   1.0   N    0   0  0   0   0   F   F   N
   firering.obj:   NONE    108  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool.obj:   NONE    99  73.5   95.5   1.0   N    0   0  0   0   0   F   F   N
-  icicles.obj:   NONE    109  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  icicles.obj:   NONE    109  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 moduletool.obj:   NONE    99  73.5   97.5   1.0   N    0   0  0   0   0   F   F   N
   orbstorm.obj:   NONE    110  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 moduletool.obj:   NONE    99  70.5   95.5   1.0   N    0   0  0   0   0   F   F   N
   protect2.obj:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+warhammer.obj:   NONE    95  0.0   0.0   1.0   L    0   0  0   0   0   F   F   N
 
 shopkeep2.obj:   Mylvin    52  50.5   75.5   1.0   N    125   1  7   0   0   F   F   G		//Potion shop
 pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N

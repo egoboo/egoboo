@@ -21,6 +21,12 @@ IfContentIs
     DropItems
     GoPoof
 
+  //DEBUG
+  tmpargument = 1
+  tmpdistance = 0
+  PlayMusic
+  //DEBUG END
+
 //------------------------------------------------------------------------------------
 //Display the map and play music
 tmpargument = 2

@@ -2748,8 +2748,7 @@ void render_bad_shadow( int character )
   GLVERTEX v[4];
   float size, x, y;
   Uint8 ambi;
-  // DWORD light;
-  float level; //, z;
+  float level;
   int height;
   Sint8 hide;
   Uint8 trans;
@@ -2767,10 +2766,9 @@ void render_bad_shadow( int character )
     if ( height < 0 ) height = 0;
     size = chrshadowsize[character] - ( ( height * chrshadowsize[character] ) >> 8 );
     if ( size < 1 ) return;
-    ambi = chrlightlevel[character] >> 4;  // LUL >>3;
+    ambi = chrlightlevel[character] >> 4; 
     trans = ( ( 255 - height ) >> 1 ) + 64;
  
-    // light = (trans<<24) | (ambi<<16) | (ambi<<8) | ambi;
     glColor4f( ambi / 255.0f, ambi / 255.0f, ambi / 255.0f, trans / 255.0f );
 
     x = chrmatrix[character]_CNV( 3, 0 );

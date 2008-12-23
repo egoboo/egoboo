@@ -130,7 +130,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define MAXTOTALMESSAGE     2048                    //
 #define MESSAGESIZE         80                      //
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-#define MESSAGETIME         200                     // Time to keep the message alive
+#define MESSAGETIME         250                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
 
 // Model tags
@@ -274,9 +274,9 @@ EXTERN int rotmeshdown;                                    //
 // spikey mace...
 
 #define MAXTEXTURE                      768         // Max number of textures
-#define MAXVERTICES                     1024        // Max number of points in a model
-#define MAXCOMMAND                      256         // Max number of commands
-#define MAXCOMMANDSIZE                  64          // Max number of points in a command
+#define MAXVERTICES                     2048        // Max number of points in a model
+#define MAXCOMMAND                      512         // Max number of commands
+#define MAXCOMMANDSIZE                  128          // Max number of points in a command
 #define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
 #define MAXMODEL                        256         // Max number of models
 #define MAXEVE                          MAXMODEL    // One enchant type per model
@@ -342,7 +342,7 @@ EXTERN int rotmeshdown;                                    //
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
-EXTERN int framelimit                   EQ(30);
+EXTERN Sint32 framelimit                   EQ(30);
 #define UPDATES_PER_SEC                 50
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
@@ -384,11 +384,11 @@ EXTERN bool_t                   teamhatesteam[MAXTEAM][MAXTEAM];     // Don't da
 EXTERN Uint16                    teammorale[MAXTEAM];                 // Number of characters on team
 EXTERN Uint16                    teamleader[MAXTEAM];                 // The leader of the team
 EXTERN Uint16                    teamsissy[MAXTEAM];                  // Whoever called for help last
-EXTERN Uint16                   damagetileparttype;
+EXTERN Sint16                   damagetileparttype;
 EXTERN short                   damagetilepartand;
 EXTERN short                   damagetilesound;
 EXTERN short                   damagetilesoundtime;
-EXTERN int                     damagetilemindistance;
+EXTERN Uint16                  damagetilemindistance;
 
 #define TILESOUNDTIME 16
 #define TILEREAFFIRMAND  3
@@ -1205,7 +1205,7 @@ EXTERN Uint16           madtransvertices[MAXMODEL];                 // Number to
 EXTERN Uint16           madcommands[MAXMODEL];                      // Number of commands
 EXTERN float                   madscale[MAXMODEL];                         // Multiply by value
 EXTERN GLenum           madcommandtype[MAXMODEL][MAXCOMMAND];       // Fan or strip
-EXTERN Uint8           madcommandsize[MAXMODEL][MAXCOMMAND];       // Entries used by command
+EXTERN Uint16           madcommandsize[MAXMODEL][MAXCOMMAND];       // Entries used by command
 EXTERN Uint16           madcommandvrt[MAXMODEL][MAXCOMMANDENTRIES]; // Which vertex
 EXTERN float                   madcommandu[MAXMODEL][MAXCOMMANDENTRIES];   // Texture position
 EXTERN float                   madcommandv[MAXMODEL][MAXCOMMANDENTRIES];   //

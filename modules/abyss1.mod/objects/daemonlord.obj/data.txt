@@ -66,8 +66,8 @@ Base defense rating of skin ( eg. 2 5 10 17 )		: 100 10 10 10
 SLASH defense shift ( eg. 1 1 1 1 )			:  1  1  1  1
 CRUSH defense shift ( eg. 1 1 1 1 )			:  1  1  1  1
 POKE defense shift ( eg. 1 1 1 1 )			:  1  1  1  1
-HOLY defense shift ( eg. 1 1 1 1 )			:  0  3  3  3
-EVIL defense shift ( eg. 1 1 1 1 )			:  3  3  3  3
+HOLY defense shift ( eg. 1 1 1 1 )			:  1  3  3  3
+EVIL defense shift ( eg. 1 1 1 1 )			:  2  3  3  3
 FIRE defense shift ( eg. 1 1 1 1 )			:  3  3  3  3
 ICE defense shift ( eg. 1 1 1 1 )			:  1  0  0  0
 ZAP defense shift ( eg. 1 1 1 1 )			:  2  2  2  2

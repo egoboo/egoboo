@@ -1310,12 +1310,10 @@ void add_item_to_character_pack( Uint16 item, Uint16 character )
   // ZZ> This function puts one character inside the other's pack
   Uint16 oldfirstitem, newammo, stack;
 
-
   // Make sure everything is hunkydori
   if ( ( !chron[item] ) || ( !chron[character] ) || chrinpack[item] || chrinpack[character] ||
        chrisitem[character] )
     return;
-
 
   stack = stack_in_pack( item, character );
   if ( stack != MAXCHR )
@@ -1372,7 +1370,6 @@ void add_item_to_character_pack( Uint16 item, Uint16 character )
     chrhitready[item] = bfalse;
     chrinpack[item] = btrue;
 
-
     // Insert the item into the pack as the first one
     oldfirstitem = chrnextinpack[character];
     chrnextinpack[character] = item;
@@ -1393,7 +1390,6 @@ Uint16 get_item_from_character_pack( Uint16 character, Uint16 grip, Uint8 ignore
   // ZZ> This function takes the last item in the character's pack and puts
   //     it into the designated hand.  It returns the item number or MAXCHR.
   Uint16 item, nexttolastitem;
-
 
   // Make sure everything is hunkydori
   if ( ( !chron[character] ) || chrinpack[character] || chrisitem[character] || chrnextinpack[character] == MAXCHR )
@@ -1442,6 +1438,7 @@ Uint16 get_item_from_character_pack( Uint16 character, Uint16 grip, Uint8 ignore
     chralert[item] &= ( ~ALERTIFGRABBED );
     chralert[item] |= ( ALERTIFTAKENOUT );
   }
+    
   return item;
 }
 
@@ -3121,8 +3118,8 @@ void set_local_latches( void )
 void make_onwhichfan( void )
 {
   // ZZ> This function figures out which fan characters are on and sets their level
-  Uint16 character;
-  int x, y, ripand, distance;
+  Uint16 character, distance;
+  int x, y, ripand;
   // int volume;
   float level;
 
@@ -4073,7 +4070,7 @@ void give_experience( int character, int amount, Uint8 xptype )
   Uint8 curlevel;
   int number;
   int profile;
-  char text[128];
+  STRING text;
 
   if(amount == 0) return;
 
@@ -4088,7 +4085,8 @@ void give_experience( int character, int amount, Uint8 xptype )
     }
 
     //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-    newamount = (float)newamount*(1+(((chrintelligence[character]-2560)>8)/200)) + (1+(((chrwisdom[character]-2560)>8)/400));
+    newamount = newamount*(1+ ((float)((chrintelligence[character]-2560)>>8) /200)) 
+		      + (1+ ((float)((chrwisdom[character]-2560)>>8) /400));
 
 	newamount += chrexperience[character];
     if ( newamount > MAXXP )  newamount = MAXXP;
@@ -4107,10 +4105,10 @@ void give_experience( int character, int amount, Uint8 xptype )
         // The character is ready to advance...
         if ( chrisplayer[character] )
         {
-          sprintf( text, "%s gained a level!!!", chrname[character] );
+          snprintf( text, sizeof(text), "%s gained a level!!!", chrname[character] );
+          debug_message( text );
           sound = Mix_LoadWAV( "basicdat" SLASH_STR "lvlup.wav" );
           Mix_PlayChannel( -1, sound, 0 );
-          debug_message( text );
         }
         chrexperiencelevel[character]++;
 
@@ -4689,11 +4687,8 @@ int load_one_character_profile( char *szLoadName )
       }
     }
 
-
-
     // Read in the real general data
     goto_colon( fileread );  get_name( fileread, capclassname[object] );
-
 
     // Make sure we don't load over an existing model
     if ( madused[object] )
@@ -5685,7 +5680,6 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
   // Make sure the team is valid
   if ( team > MAXTEAM - 1 )
     team = MAXTEAM - 1;
-
 
   // Get a new character
   cnt = MAXCHR;
