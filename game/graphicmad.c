@@ -180,7 +180,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
   switch ( lip )
   {
     case 0:  // 25% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         temp = madvrtx[lastframe][cnt];
         temp = temp + temp + temp;
@@ -205,7 +205,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
       break;
 
     case 1:  // 50% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] +
                                  madvrtx[lastframe][cnt] ) >> 1 );
@@ -227,7 +227,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
       break;
 
     case 2:  // 75% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         temp = madvrtx[frame][cnt];
         temp = temp + temp + temp;
@@ -252,7 +252,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
       break;
 
     case 3:  // 100% this frame...  This is the legible one
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         v[cnt].x = ( float ) madvrtx[frame][cnt];
         v[cnt].y = ( float ) madvrty[frame][cnt];
@@ -399,7 +399,7 @@ void render_texmad( Uint16 character, Uint8 trans )
   switch ( lip )
   {
     case 0:  // 25% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         temp = madvrtx[lastframe][cnt];
         temp = temp + temp + temp;
@@ -429,7 +429,7 @@ void render_texmad( Uint16 character, Uint8 trans )
       }
       break;
     case 1:  // 50% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         /*
                     v[cnt].x = (D3DVALUE) (madvrtx[frame][cnt] +
@@ -461,7 +461,7 @@ void render_texmad( Uint16 character, Uint8 trans )
       }
       break;
     case 2:  // 75% this frame
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         temp = madvrtx[frame][cnt];
         temp = temp + temp + temp;
@@ -491,7 +491,7 @@ void render_texmad( Uint16 character, Uint8 trans )
       }
       break;
     case 3:  // 100% this frame...  This is the legible one
-      for ( cnt = 0; cnt < madtransvertices[model]; cnt++ )
+      for ( cnt = 0; cnt < madvertices[model]; cnt++ )
       {
         /*
                     v[cnt].x = (D3DVALUE) madvrtx[frame][cnt];

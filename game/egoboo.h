@@ -161,8 +161,6 @@ EXTERN char    cActionName[MAXACTION][2];                  // Two letter name co
 #define GRABSIZE            90.0f                    // Grab tolerance
 #define SEEINVISIBLE        128                     // Cutoff for invisible characters
 
-
-
 #define MAXDAMAGETYPE       8                       // Damage types
 #define DAMAGENULL          255                     //
 #define DAMAGESLASH         0                       //
@@ -1723,16 +1721,26 @@ EXTERN int                     numplayerrespond;                       //
 #define TO_REMOTE_FILESENT  19903                               //
 extern Uint32  nexttimestamp;                // Expected timestamp
 
+typedef enum global_sounds
+{
+  SND_GETCOIN = 0,
+  SND_DEFEND,
+  SND_WEATHER1,
+  SND_WEATHER2,
+  SND_COINFALL,
+  SND_LEVELUP,
+  MAXGLOBALSOUNDS
+} SND_GLOBAL;
+
 
 // Sound using SDL_Mixer
 EXTERN bool_t          mixeron EQ( bfalse );    // Is the SDL_Mixer loaded?
-#define MAXWAVE         21               // Up to 21 waves per model
+#define MAXWAVE         30               // Up to 30 waves per model
 #define VOLUMERATIO     7               // Volume ratio
 EXTERN Mix_Chunk    *capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
 EXTERN Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
 EXTERN Uint16       buffersize;          // Buffer size set in setup.txt
-EXTERN Mix_Chunk    *globalwave[MAXWAVE];      // All sounds loaded into memory
-EXTERN Mix_Chunk    *sound;            // Used for playing one selected sound file
+EXTERN Mix_Chunk    *globalwave[MAXGLOBALSOUNDS];      // All sounds loaded into memory
 EXTERN bool_t      soundvalid;          // Allow playing of sound?
 EXTERN Uint8      soundvolume;        // Volume of sounds played
 EXTERN Sint16      channel;          // Which channel the current sound is using

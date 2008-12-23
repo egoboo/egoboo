@@ -4106,9 +4106,8 @@ void give_experience( int character, int amount, Uint8 xptype )
         if ( chrisplayer[character] )
         {
           snprintf( text, sizeof(text), "%s gained a level!!!", chrname[character] );
-          debug_message( text );
-          sound = Mix_LoadWAV( "basicdat" SLASH_STR "lvlup.wav" );
-          Mix_PlayChannel( -1, sound, 0 );
+          debug_message( text ); 
+          Mix_PlayChannel( -1, globalwave[SND_LEVELUP], 0 );
         }
         chrexperiencelevel[character]++;
 

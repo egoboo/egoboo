@@ -28,27 +28,26 @@ void load_global_waves( char *modname )
   // ZZ> This function loads the global waves
   char tmploadname[256];
   char newloadname[256];
-  char wavename[256];
-  int cnt;
+  STRING wavename;
+  Uint8 cnt = 0;
 
+  if(!soundvalid) return;
 
+  //First load weather sounds
   make_newloadname( modname, ( "gamedat" SLASH_STR ), tmploadname );
-  cnt = 0;
   while ( cnt < MAXWAVE )
   {
-    sprintf( wavename, "sound%d.wav", cnt );
+    snprintf( wavename, sizeof(wavename), "sound%d.wav", cnt );
     make_newloadname( tmploadname, wavename, newloadname );
     globalwave[cnt] = Mix_LoadWAV( newloadname );
     cnt++;
   }
 
   // These sounds are always standard
-  if ( soundvalid )
-  {
-    globalwave[0] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinget.wav" );
-    globalwave[1] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.wav" );
-    globalwave[4] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.wav" );
-  }
+  globalwave[SND_GETCOIN] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinget.wav" );
+  globalwave[SND_DEFEND] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.wav" );
+  globalwave[SND_COINFALL] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.wav" );
+  globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.wav" );
 
 
   /*  The Global Sounds
