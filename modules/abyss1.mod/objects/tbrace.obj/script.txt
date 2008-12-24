@@ -35,6 +35,7 @@ IfCrushed
 
 // Equip the item
 IfPutAway
+  SetTargetToWhoeverIsHolding
   tmpargument = [WRIS]
   IfTargetHasItemIDEquipped
     IfTargetIsAPlayer

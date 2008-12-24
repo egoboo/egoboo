@@ -1826,16 +1826,4 @@ EXTERN SDL_Joystick *sdljoyb EQ( NULL );
 EXTERN Uint8  *sdlkeybuffer;
 #define SDLKEYDOWN(k) sdlkeybuffer[k]
 
-// OPENGL specific declarations
-EXTERN int title_tex[512][512];
-#ifdef DECLARE_GLOBALS
-// GLfloat light_diffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};  /* White diffuse light. */
-// GLfloat light_position[] = {10.0f, 10.0f, 30.0f, 1.0f};  /* nonInfinite light location. */
-#else
-// extern GLfloat light_diffuse[];
-// extern GLfloat light_position[];
-#endif
-EXTERN int win_id;
-EXTERN GLuint texName;
-
 #endif

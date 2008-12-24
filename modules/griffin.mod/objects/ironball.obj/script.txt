@@ -12,8 +12,10 @@ IfCrushed
   GoPoof
   tmpargument = 4
   SendMessageNear
+  
+
 IfTargetIsSelf
-  GetState
+  DoNothing
 Else
   // First figure out where to draw them
 
@@ -146,8 +148,8 @@ Else
 
 
   // Don't allow jumping
-  tmpx = targetz
-  tmpy = selfz + 60
+  tmpx = targetaltitude
+  tmpy = 256
   IfXIsMoreThanY
     StopTargetMovement
 
@@ -236,7 +238,6 @@ IfUsed
   SetReloadTime
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 10000	  //
   PlaySound				  //
 IfNotPutAway				// Say oops
   tmpargument = 5			  //

@@ -10,7 +10,6 @@ IfDropped
   KeepAction
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 511 + 21000
   PlaySound
 IfGrabbed
   SetTargetToWhoeverIsHolding
@@ -36,6 +35,7 @@ IfCrushed
 
 // Equip the item
 IfPutAway
+  SetTargetToWhoeverIsHolding
   tmpargument = [NECK]
   IfTargetHasItemIDEquipped
     IfTargetIsAPlayer
@@ -54,7 +54,7 @@ IfPutAway
       EnchantTarget
       IfTargetIsAPlayer
         IfUsageIsKnown
-          GetState // NOP
+          DoNothing
         Else
           MakeUsageKnown
           tmpargument = 30
