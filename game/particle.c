@@ -190,7 +190,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
   // ZZ> This function spawns a new particle, and returns the number of that particle
   int cnt, velocity;
   float xvel, yvel, zvel, tvel;
-  int offsetfacing, newrand;
+  int offsetfacing = 0, newrand;
 
 
   // Convert from local pip to global pip

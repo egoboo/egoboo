@@ -445,7 +445,7 @@ void render_refprt()
   Uint16 image;
   float size;
   int startalpha;
-  float level;
+  float level = 0.00f;
   int i;
 
   // Calculate the up and right vectors for billboarding.

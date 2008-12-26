@@ -904,8 +904,11 @@ EXTERN bool_t					 chrcanread[MAXCHR];
 
 
 #define INVISIBLE           20                      // The character can't be detected
+
+//AI targeting
 #define NEARBY		3*TILESIZE		//5 tiles
 #define WIDE		8*TILESIZE		//12 tiles
+#define NEAREST		0		        //unlimited range
 #define TILESIZE    128
 
 EXTERN bool_t                    localseeinvisible;

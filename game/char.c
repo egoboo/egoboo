@@ -405,9 +405,9 @@ void attach_particle_to_character( int particle, int character, int grip )
   //     It will kill the particle if the character is no longer around
   Uint16 vertex, model, frame, lastframe;
   Uint8 lip;
-  float pointx;
-  float pointy;
-  float pointz;
+  float pointx = 0;
+  float pointy = 0;
+  float pointz = 0;
   int temp;
 
 
@@ -974,7 +974,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                                   Uint8 doshop )
 {
   // ZZ> This function drops an item
-  Uint16 mount, hand, enchant, cnt, passage, owner;
+  Uint16 mount, hand, enchant, cnt, passage, owner = NOOWNER;
   bool_t inshop;
   int loc;
   float price;
@@ -1557,7 +1557,7 @@ void character_grab_stuff( int chara, int grip, Uint8 people )
   // ZZ> This function makes the character pick up an item if there's one around
   float xa, ya, za, xb, yb, zb, dist;
   int charb, hand;
-  Uint16 vertex, model, frame, owner, passage, cnt;
+  Uint16 vertex, model, frame, passage, cnt, owner = NOOWNER;
   float pointx, pointy, pointz;
   bool_t inshop;
   int loc;
@@ -2627,14 +2627,14 @@ void move_characters( void )
 void setup_characters( char *modname )
 {
   // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
-  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber;
+  int currentcharacter = 0, lastcharacter, passage, content, money, level, skin, cnt, tnc, localnumber = 0;
   bool_t ghost;
   char cTmp;
   Uint8 team, stat;
   char *name;
   char itislocal;
   char myname[256], newloadname[256];
-  Uint16 facing, grip, attach;
+  Uint16 facing, attach, grip = NORTH;
   Uint32 slot;
   float x, y, z;
   FILE *fileread;
@@ -2642,7 +2642,6 @@ void setup_characters( char *modname )
 
   // Turn all characters off
   free_all_characters();
-
 
   // Turn some back on
   make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
@@ -4658,7 +4657,7 @@ int load_one_character_profile( char *szLoadName )
   // the object slot that the profile was stuck into.  It may cause the program
   // to abort if bad things happen.
   FILE* fileread;
-  Sint16 object;
+  Sint16 object = -1;
   int iTmp;
   float fTmp;
   char cTmp;
@@ -6372,7 +6371,7 @@ void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+/*Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
                             char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
                             char excludeid )
 {
@@ -6427,7 +6426,7 @@ Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
     }
   }
   return MAXCHR;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 /*Uint16 get_nearby_target( Uint16 character, char items,
@@ -6481,7 +6480,7 @@ Uint8 cost_mana( Uint16 character, int amount, Uint16 killer )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 find_distant_target( Uint16 character, int maxdistance )
+/*Uint16 find_distant_target( Uint16 character, int maxdistance )
 {
   // ZZ> This function finds a target, or it returns MAXCHR if it can't find one...
   //     maxdistance should be the square of the actual distance you want to use
@@ -6515,7 +6514,7 @@ Uint16 find_distant_target( Uint16 character, int maxdistance )
     cnt++;
   }
   return MAXCHR;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 void switch_team( int character, Uint8 team )
@@ -6542,7 +6541,7 @@ void switch_team( int character, Uint8 team )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_nearest_in_block( int x, int y, Uint16 character, char items,
+/*void get_nearest_in_block( int x, int y, Uint16 character, char items,
                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz )
 {
   // ZZ> This is a good little helper
@@ -6611,10 +6610,10 @@ void get_nearest_in_block( int x, int y, Uint16 character, char items,
     }
   }
   return;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearest_target( Uint16 character, char items,
+/*Uint16 get_nearest_target( Uint16 character, char items,
                            char friends, char enemies, char dead, IDSZ idsz )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
@@ -6642,7 +6641,7 @@ Uint16 get_nearest_target( Uint16 character, char items,
   get_nearest_in_block( x - 1, y - 1, character, items, friends, enemies, dead, seeinvisible, idsz );
   get_nearest_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz );
   return globalnearest;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 /*Uint16 get_wide_target( Uint16 character, char items,
@@ -6789,7 +6788,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   {
 	  if(chron[cnt] && cnt != character && targetdead != chralive[cnt] && targetitems == chrisitem[cnt] && chrattachedto[cnt] == MAXCHR
 		  && (team != ENEMY || chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
-		  && (team == ALL || team != teamhatesteam[chrteam[character]][chrteam[cnt]] && !chrinvictus[cnt]))
+		  && (team == ALL || (team != teamhatesteam[chrteam[character]][chrteam[cnt]] && !chrinvictus[cnt]) ))
 	  {
 		  //Check for IDSZ too
 		  if(idsz == IDSZNONE || excludeidsz != (capidsz[chrmodel[cnt]][IDSZPARENT] == idsz) || excludeidsz != (capidsz[chrmodel[cnt]][IDSZTYPE] == idsz) )

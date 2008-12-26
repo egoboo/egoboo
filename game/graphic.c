@@ -2141,7 +2141,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   {
     goto_colon( fileread );
     fscanf( fileread, "%c%d", &cTmp, &xspacing );
-    if ( asciitofont[cTmp] == 255 ) asciitofont[cTmp] = cnt;
+    if ( asciitofont[cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
     if ( xstt + xspacing + 1 > 255 )
     {
       xstt = 0;

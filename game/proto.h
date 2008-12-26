@@ -411,23 +411,22 @@ int check_skills( Uint16 who, IDSZ whichskill );
 
 //---------------------------------------------------------------------------------------------
 //AI targeting
-Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
-                            char excludeid );
-void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
-Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, IDSZ idsz );
+//Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+//                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
+//                            char excludeid );
+//void get_nearest_in_block( int x, int y, Uint16 character, char items,
+//                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
+//Uint16 get_nearest_target( Uint16 character, char items,
+//                           char friends, char enemies, char dead, IDSZ idsz );
 
 //Uint16 get_wide_target( Uint16 character, char items,
 //                        char friends, char enemies, char dead, IDSZ idsz, char excludeid );
 //Uint16 get_nearby_target( Uint16 character, char items,
 //                          char friends, char enemies, char dead, IDSZ idsz );
 
-Uint16 find_distant_target( Uint16 character, int maxdistance );
+//Uint16 find_distant_target( Uint16 character, int maxdistance );
 
 Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
-//Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems );
 
 //---------------------------------------------------------------------------------------------
 // Quest system

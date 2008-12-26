@@ -24,7 +24,7 @@
 // TrimStr remove all space and tabs in the beginning and at the end of the string
 void TrimStr( char *pStr )
 {
-  Sint32 DebPos, EndPos, CurPos;
+  Sint32 DebPos, CurPos, EndPos = 0;
 
   if ( pStr == NULL )
   {
