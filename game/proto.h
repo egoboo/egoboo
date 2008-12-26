@@ -240,20 +240,8 @@ void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
                        Uint8 leavewhich );
-Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
-                            char excludeid );
-Uint16 get_nearby_target( Uint16 character, char items,
-                          char friends, char enemies, char dead, IDSZ idsz );
 Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
-Uint16 find_distant_target( Uint16 character, int maxdistance );
 void switch_team( int character, Uint8 team );
-void get_nearest_in_block( int x, int y, Uint16 character, char items,
-                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
-Uint16 get_nearest_target( Uint16 character, char items,
-                           char friends, char enemies, char dead, IDSZ idsz );
-Uint16 get_wide_target( Uint16 character, char items,
-                        char friends, char enemies, char dead, IDSZ idsz, char excludeid );
 void issue_clean( Uint16 character );
 int restock_ammo( Uint16 character, IDSZ idsz );
 void issue_order( Uint16 character, Uint32 order );
@@ -420,6 +408,26 @@ void gltitle();
 int DirGetAttrib( char *fromdir );
 
 int check_skills( Uint16 who, IDSZ whichskill );
+
+//---------------------------------------------------------------------------------------------
+//AI targeting
+Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
+                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
+                            char excludeid );
+void get_nearest_in_block( int x, int y, Uint16 character, char items,
+                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
+Uint16 get_nearest_target( Uint16 character, char items,
+                           char friends, char enemies, char dead, IDSZ idsz );
+
+//Uint16 get_wide_target( Uint16 character, char items,
+//                        char friends, char enemies, char dead, IDSZ idsz, char excludeid );
+//Uint16 get_nearby_target( Uint16 character, char items,
+//                          char friends, char enemies, char dead, IDSZ idsz );
+
+Uint16 find_distant_target( Uint16 character, int maxdistance );
+
+Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
+//Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems );
 
 //---------------------------------------------------------------------------------------------
 // Quest system

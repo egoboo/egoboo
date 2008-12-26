@@ -844,13 +844,8 @@ Uint8 run_function( Uint32 value, int character )
       }
     case FSETTARGETTONEARBYENEMY:
       // This function finds a nearby enemy, and proceeds only if there is one
-      sTmp = get_nearby_target( character, bfalse, bfalse, btrue, bfalse, IDSZNONE );
       returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+	  if(get_target( character, NEARBY, ENEMY, bfalse, bfalse, IDSZNONE, bfalse) != MAXCHR) returncode = btrue;
       break;
 
     case FSETTARGETTOTARGETLEFTHAND:
@@ -1632,13 +1627,8 @@ Uint8 run_function( Uint32 value, int character )
 
     case FSETTARGETTOWIDEENEMY:
       // This function finds an enemy, and proceeds only if there is one
-      sTmp = get_wide_target( character, bfalse, bfalse, btrue, bfalse, IDSZNONE, bfalse );
       returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+	  if(get_target( character, WIDE, ENEMY, bfalse, bfalse, IDSZNONE, bfalse) != MAXCHR) returncode = btrue;
       break;
 
     case FIFCHANGED:
@@ -2391,17 +2381,20 @@ Uint8 run_function( Uint32 value, int character )
     case FSETTARGETTOWIDEBLAHID:
       // This function sets the target based on the settings of
       // tmpargument and tmpdistance
-      sTmp = get_wide_target( character, ( ( valuetmpdistance >> 3 ) & 1 ),
-                              ( ( valuetmpdistance >> 2 ) & 1 ),
-                              ( ( valuetmpdistance >> 1 ) & 1 ),
-                              ( ( valuetmpdistance ) & 1 ),
-                              valuetmpargument, ( ( valuetmpdistance >> 4 ) & 1 ) );
-      returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+		{
+		  TARGET_TYPE blahteam = ALL;
+		  if( ( valuetmpdistance >> 1 ) & 1 )  blahteam = FRIEND;
+		  if( (( valuetmpdistance >> 2 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
+		  else if((( valuetmpdistance >> 2 ) & 1)) blahteam = ENEMY;
+		  else returncode = bfalse;
+		  
+		  if(returncode)
+		  {
+			  returncode = bfalse;
+			  if(get_target(character, WIDE, blahteam, ( ( valuetmpdistance >> 3 ) & 1 ), 
+				  ( ( valuetmpdistance ) & 1 ), valuetmpargument, (( valuetmpdistance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+		  }
+	    }
       break;
 
     case FPOOFTARGET:
@@ -3036,37 +3029,22 @@ Uint8 run_function( Uint32 value, int character )
     case FSETTARGETTONEARESTENEMY:
       // This function finds the nearest target that meets the
       // requirements
-      sTmp = get_nearest_target( character, 0, 0, 1, 0, IDSZNONE );
       returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+	  if(get_target(character, 0, ENEMY, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
       break;
 
     case FSETTARGETTONEARESTFRIEND:
       // This function finds the nearest target that meets the
       // requirements
-      sTmp = get_nearest_target( character, 0, 1, 0, 0, IDSZNONE );
       returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+	  if(get_target(character, 0, FRIEND, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
       break;
 
     case FSETTARGETTONEARESTLIFEFORM:
       // This function finds the nearest target that meets the
       // requirements
-      sTmp = get_nearest_target( character, 0, 1, 1, 0, IDSZNONE );
       returncode = bfalse;
-      if ( sTmp != MAXCHR )
-      {
-        chraitarget[character] = sTmp;
-        returncode = btrue;
-      }
+	  if(get_target(character, 0, ALL, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
       break;
 
     case FFLASHPASSAGE:

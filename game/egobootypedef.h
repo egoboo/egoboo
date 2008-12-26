@@ -66,6 +66,13 @@ typedef char STRING[256];
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
 #define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
 
+//AI targeting
+typedef enum target_type
+{
+  ENEMY = 0,
+  FRIEND,
+  ALL
+} TARGET_TYPE;
 
 #endif // include guard
 

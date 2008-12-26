@@ -904,6 +904,9 @@ EXTERN bool_t					 chrcanread[MAXCHR];
 
 
 #define INVISIBLE           20                      // The character can't be detected
+#define NEARBY		3*TILESIZE		//5 tiles
+#define WIDE		8*TILESIZE		//12 tiles
+#define TILESIZE    128
 
 EXTERN bool_t                    localseeinvisible;
 EXTERN bool_t                    localseekurse;
@@ -1753,7 +1756,6 @@ EXTERN Uint8        musicvolume;        // The sound volume of music
 EXTERN bool_t      musicinmemory EQ( bfalse );  // Is the music loaded in memory?
 EXTERN Mix_Music   *musictracksloaded[MAXPLAYLISTLENGHT];  // This is a specific music file loaded into memory
 EXTERN Sint8       songplaying EQ( -1 );      // Current song that is playing
-
 
 
 // Some various other stuff

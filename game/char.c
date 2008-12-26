@@ -6430,7 +6430,7 @@ Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_nearby_target( Uint16 character, char items,
+/*Uint16 get_nearby_target( Uint16 character, char items,
                           char friends, char enemies, char dead, IDSZ idsz )
 {
   // ZZ> This function finds a nearby target, or it returns MAXCHR if it can't find one
@@ -6443,7 +6443,7 @@ Uint16 get_nearby_target( Uint16 character, char items,
   x = ( ( int )chrxpos[character] ) >> 9;
   y = ( ( int )chrypos[character] ) >> 9;
   return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 Uint8 cost_mana( Uint16 character, int amount, Uint16 killer )
@@ -6645,7 +6645,7 @@ Uint16 get_nearest_target( Uint16 character, char items,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 get_wide_target( Uint16 character, char items,
+/*Uint16 get_wide_target( Uint16 character, char items,
                         char friends, char enemies, char dead, IDSZ idsz, char excludeid )
 {
   // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
@@ -6677,7 +6677,7 @@ Uint16 get_wide_target( Uint16 character, char items,
   if ( enemy != MAXCHR )  return enemy;
   enemy = get_target_in_block( x + 1, y + 1, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
   return enemy;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 void issue_clean( Uint16 character )
@@ -6777,6 +6777,47 @@ void issue_special_order( Uint32 order, IDSZ idsz )
     cnt++;
   }
 }
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz )
+{
+  //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
+  //If maxdistance is 0 then it searches without a max limit.
+  Uint16 besttarget = MAXCHR, cnt;
+  Uint32 longdist = pow(2,31);
+  for(cnt = 0; cnt < MAXCHR; cnt++)
+  {
+	  if(chron[cnt] && cnt != character && targetdead != chralive[cnt] && targetitems == chrisitem[cnt] && chrattachedto[cnt] == MAXCHR
+		  && (team != ENEMY || chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
+		  && (team == ALL || team != teamhatesteam[chrteam[character]][chrteam[cnt]] && !chrinvictus[cnt]))
+	  {
+		  //Check for IDSZ too
+		  if(idsz == IDSZNONE || excludeidsz != (capidsz[chrmodel[cnt]][IDSZPARENT] == idsz) || excludeidsz != (capidsz[chrmodel[cnt]][IDSZTYPE] == idsz) )
+		  {
+			Uint32 dist = ( Uint32 ) SQRT(ABS( pow(chrxpos[cnt] - chrxpos[character], 2))
+							+ ABS( pow(chrypos[cnt] - chrypos[character], 2))
+							+ ABS( pow(chrzpos[cnt] - chrzpos[character], 2)) );
+			if(dist < longdist && (maxdistance == 0 || dist < maxdistance) )
+			{
+				besttarget = cnt;
+				longdist = dist;
+			}
+		  }
+	  }
+  }
+  if(besttarget != MAXCHR) 
+  {
+	chraitarget[character] = besttarget;
+  }
+  return besttarget;
+}
+
+/*Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems )
+{
+	get_target(character, maxdistance, team, targetitems, bfalse);
+}*/
+
+
 
 //--------------------------------------------------------------------------------------------
 void set_alerts( int character )
