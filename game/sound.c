@@ -37,18 +37,25 @@ void load_global_waves( char *modname )
   make_newloadname( modname, ( "gamedat" SLASH_STR ), tmploadname );
   while ( cnt < MAXWAVE )
   {
-    snprintf( wavename, sizeof(wavename), "sound%d.wav", cnt );
+    snprintf( wavename, sizeof(wavename), "sound%d.ogg", cnt );
     make_newloadname( tmploadname, wavename, newloadname );
-    globalwave[cnt] = Mix_LoadWAV( newloadname );
+    if((globalwave[cnt] = Mix_LoadWAV( newloadname )) == NULL)
+	{
+		snprintf( wavename, sizeof(wavename), "sound%d.wav", cnt );
+		make_newloadname( tmploadname, wavename, newloadname );
+	}
     cnt++;
   }
 
   // These sounds are always standard
-  globalwave[SND_GETCOIN] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinget.wav" );
-  globalwave[SND_DEFEND] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.wav" );
-  globalwave[SND_COINFALL] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.wav" );
-  globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.wav" );
-
+  if((globalwave[SND_GETCOIN] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinget.ogg" )) == NULL)
+      globalwave[SND_GETCOIN] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinget.wav" );
+  if((globalwave[SND_DEFEND] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.ogg" )) == NULL)
+      globalwave[SND_DEFEND] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.wav" );
+  if((globalwave[SND_COINFALL] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.ogg" )) == NULL)
+      globalwave[SND_COINFALL] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.wav" );
+  if((globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.ogg" )) == NULL)
+      globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.wav" );
 
   /*  The Global Sounds
   *  0  - Pick up coin

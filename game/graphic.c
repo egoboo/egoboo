@@ -1848,9 +1848,14 @@ int load_one_object( int skin, char* tmploadname )
   // Load the waves for this object
   for ( cnt = 0; cnt < MAXWAVE; cnt++ )
   {
-    sprintf( wavename, "sound%d.wav", cnt );
+    sprintf( wavename, "sound%d.ogg", cnt );
     make_newloadname( tmploadname, wavename, newloadname );
-    capwaveindex[object][cnt] = Mix_LoadWAV( newloadname );
+    if((capwaveindex[object][cnt] = Mix_LoadWAV( newloadname )) == NULL)
+	{
+		sprintf( wavename, "sound%d.wav", cnt );
+		make_newloadname( tmploadname, wavename, newloadname );
+		capwaveindex[object][cnt] = Mix_LoadWAV( newloadname );
+	}
   }
 
   // Load the enchantment for this object

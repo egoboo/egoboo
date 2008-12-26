@@ -161,7 +161,7 @@ IfTimeOut
     AddWaypoint
     tmpargument = 10 + rand & 30
     SetTime
-    tmpdistance = 900000
+    tmpdistance = 128*6    
     SetTargetToDistantEnemy
       tmpargument = 1
       SetState				//Combat mode
