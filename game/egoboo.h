@@ -40,7 +40,7 @@
 #include <SDL_opengl.h>
 #include "proto.h"
 
-#include "gltexture.h"  /* OpenGL texture loader */
+#include "GLTexture.h"  /* OpenGL texture loader */
 #include "mathstuff.h"  /* vector and matrix math */
 #include "configfile.h"
 #include "Md2.h"
@@ -608,6 +608,8 @@ EXTERN float                     cornerhighy;                //
 EXTERN int                     fontoffset;                 // Line up fonts from top of screen
 
 /*OpenGL Textures*/
+EXTERN  STRING			TxFormatSupported[50]; // OpenGL icon surfaces
+EXTERN  Uint8		    maxformattypes EQ(0);
 EXTERN  GLTexture       TxIcon[MAXTEXTURE+1];            // OpenGL icon surfaces
 EXTERN  GLTexture       TxTitleImage[MAXMODULE];          // OpenGL title image surfaces
 EXTERN  GLTexture       TxFont;                    // OpenGL font surface
@@ -626,6 +628,18 @@ EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
 EXTERN float maxAnisotropy;                    // Max anisotropic filterings (Between 1.00f and 16.00f)
+
+//Texture filtering
+typedef enum e_tx_filters
+{
+  TX_UNFILTERED,
+  TX_LINEAR,
+  TX_MIPMAP,
+  TX_BILINEAR,
+  TX_TRILINEAR_1,
+  TX_TRILINEAR_2,
+  TX_ANISOTROPIC
+} TX_FILTERS;
 
 EXTERN glMatrix mWorld;                      // World Matrix
 EXTERN glMatrix mView;                      // View Matrix

@@ -20,7 +20,7 @@ CC      := gcc
 OPT     := -Os
 INC     := -I. -I../enet/include -I.. ${SDLCONF_I}
 CFLAGS  := ${OPT} ${INC}
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image
 
 EGO_BIN := egoboo
 

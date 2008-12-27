@@ -94,7 +94,9 @@ The master TODO list:
 
 - Enchants! with equipments
 
-Version 2.6.x (??.??.2008)
+Version 2.7.x (??.??.2008)
+- New Feature: Egoboo now uses SDL_Image which improves the texture loading for Egoboo
+               We now have support for png, jpg, tif, pcx, gif, etc.
 - New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.
 - New Feature: Input controls settings can now be changed in the ingame menu. 
 - New Feature: Added a new NPC to Zippy Town and in Bishopia City.
@@ -102,6 +104,7 @@ Version 2.6.x (??.??.2008)
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
 - New Feature: Some new skills have been added and changed (classes.txt)
+- Update: Egoboo supports .ogg as well as .wav for sound effects now.
 - Update: Cobol bodies are now crushable.
 - Update: Doubled the sustain cost for the Haste spell.
 - Update: Intelligence and wisdom now gives a bonus to xp gained. Every point of INT
@@ -133,6 +136,7 @@ Version 2.6.x (??.??.2008)
 - Update: Random potion skins for unidentified potions was removed.
 - Update: Improved some memory optimization.
 - Update: Each class can now have multiple skill IDSZ using expansions.
+- Bugfix: Optimized and fixed the AI targeting system a LOT.
 - Bugfix: Fixed the pet trader trading pets for the wrong items.
 - Bugfix: Fixed a bug in the reload timer.
 - Bugfix: Fixed a random item spawning bug in Bishopia city.

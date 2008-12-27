@@ -241,8 +241,8 @@ int doMainMenu( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main.bmp" );
-      menuChoice = 0;
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
+	  menuChoice = 0;
       menuState = MM_Entering;
 
       initSlidyButtons( 1.0f, mainMenuButtons );
@@ -252,7 +252,7 @@ int doMainMenu( float deltaTime )
       // do buttons sliding in animation, and background fading in
       // background
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -272,7 +272,7 @@ int doMainMenu( float deltaTime )
       // Do normal run
       // Background
       glColor4f( 1, 1, 1, 1 );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -313,7 +313,7 @@ int doMainMenu( float deltaTime )
       // Do buttons sliding out and background fading
       // Do the same stuff as in MM_Entering, but backwards
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -351,7 +351,7 @@ int doSinglePlayerMenu( float deltaTime )
   {
     case MM_Begin:
       // Load resources for this menu
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
       menuChoice = 0;
 
       menuState = MM_Entering;
@@ -364,7 +364,7 @@ int doSinglePlayerMenu( float deltaTime )
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background image
-      ui_drawImage( 0, &background, displaySurface->w - background.imgWidth, 0, 0, 0 );
+      ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -380,7 +380,7 @@ int doSinglePlayerMenu( float deltaTime )
     case MM_Running:
 
       // Draw the background image
-      ui_drawImage( 0, &background, displaySurface->w - background.imgWidth, 0, 0, 0 );
+      ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -413,7 +413,7 @@ int doSinglePlayerMenu( float deltaTime )
       // Do buttons sliding out and background fading
       // Do the same stuff as in MM_Entering, but backwards
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, displaySurface->w - background.imgWidth, 0, 0, 0 );
+      ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -466,7 +466,7 @@ int doChooseModule( float deltaTime )
       load_all_menu_images();
 
       // Load font & background
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
       startIndex = 0;
       selectedModule = -1;
 
@@ -511,8 +511,8 @@ int doChooseModule( float deltaTime )
     case MM_Running:
       // Draw the background
       glColor4f( 1, 1, 1, 1 );
-      x = ( displaySurface->w / 2 ) - ( background.imgWidth / 2 );
-      y = displaySurface->h - background.imgHeight;
+      x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
+      y = displaySurface->h - background.imgH;
       ui_drawImage( 0, &background, x, y, 0, 0 );
 
       // Fudged offset here.. DAMN!  Doesn't work, as the mouse tracking gets skewed
@@ -679,7 +679,7 @@ int doChoosePlayer( float deltaTime )
     case MM_Begin:
       selectedPlayer = 0;
 
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
       // load information for all the players that could be imported
       check_player_import( "players" );
@@ -719,8 +719,8 @@ int doChoosePlayer( float deltaTime )
       }
 
       // Draw the background
-      x = ( displaySurface->w / 2 ) - ( background.imgWidth / 2 );
-      y = displaySurface->h - background.imgHeight;
+      x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
+      y = displaySurface->h - background.imgH;
       ui_drawImage( 0, &background, x, y, 0, 0 );
 
 
@@ -795,7 +795,7 @@ int doOptions( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
       menuChoice = 0;
       menuState = MM_Entering;
 
@@ -808,7 +808,7 @@ int doOptions( float deltaTime )
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Copyright" text
       fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -828,7 +828,7 @@ int doOptions( float deltaTime )
       // Do normal run
       // Background
       glColor4f( 1, 1, 1, 1 );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Options" text
       fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -869,7 +869,7 @@ int doOptions( float deltaTime )
       // Do buttons sliding out and background fading
       // Do the same stuff as in MM_Entering, but backwards
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Options" text
       fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -1139,7 +1139,7 @@ int doAudioOptions( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
       menuChoice = 0;
       menuState = MM_Entering;
       // let this fall through into MM_Entering
@@ -1150,7 +1150,7 @@ int doAudioOptions( float deltaTime )
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // Load the current settings
       if ( soundvalid ) audioOptionsButtons[0] = "On";
@@ -1179,7 +1179,7 @@ int doAudioOptions( float deltaTime )
       // Do normal run
       // Background
       glColor4f( 1, 1, 1, 1 );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h - 270, 0, 0, 20 );
       // Buttons
@@ -1321,7 +1321,7 @@ int doAudioOptions( float deltaTime )
       // Do buttons sliding out and background fading
       // Do the same stuff as in MM_Entering, but backwards
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // Fall trough
       menuState = MM_Finish;
@@ -1355,7 +1355,7 @@ int doVideoOptions( float deltaTime )
   {
     case MM_Begin:
       // set up menu variables
-      GLTexture_Load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome.bmp" );
+      GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
       menuChoice = 0;
       menuState = MM_Entering;    // let this fall through into MM_Entering
 
@@ -1365,7 +1365,7 @@ int doVideoOptions( float deltaTime )
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
       // Draw the background
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // Load all the current video settings
       if ( antialiasing ) videoOptionsButtons[0] = "On";
@@ -1508,7 +1508,7 @@ int doVideoOptions( float deltaTime )
       // Do normal run
       // Background
       glColor4f( 1, 1, 1, 1 );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // Antialiasing Button
       fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
@@ -1896,7 +1896,7 @@ int doVideoOptions( float deltaTime )
       // Do buttons sliding out and background fading
       // Do the same stuff as in MM_Entering, but backwards
       glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-      ui_drawImage( 0, &background, ( displaySurface->w - background.imgWidth ), 0, 0, 0 );
+      ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
       // "Options" text
       fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );

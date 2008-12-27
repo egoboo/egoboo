@@ -3009,15 +3009,15 @@ Uint8 run_function( Uint32 value, int character )
       // This function finds the nearest target that meets the
       // requirements
 		{
-		  TARGET_TYPE blahteam = ALL;
-		  if( ( valuetmpdistance >> 1 ) & 1 )  blahteam = FRIEND;
-		  if( (( valuetmpdistance >> 2 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
-		  else if((( valuetmpdistance >> 2 ) & 1)) blahteam = ENEMY;
-		  else returncode = bfalse;
+		  STRING text;
+		  TARGET_TYPE blahteam = NONE;
+		  returncode = bfalse;
+		  if( ( valuetmpdistance >> 2 ) & 1 )  blahteam = FRIEND;
+		  if( (( valuetmpdistance >> 1 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
+		  else if((( valuetmpdistance >> 1 ) & 1)) blahteam = ENEMY;
 		  
-		  if(returncode)
+		  if(blahteam != NONE)
 		  {
-			  returncode = bfalse;
 			  if(get_target(character, NEAREST, blahteam, ( ( valuetmpdistance >> 3 ) & 1 ), 
 				  ( ( valuetmpdistance ) & 1 ), valuetmpargument, (( valuetmpdistance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
 		  }

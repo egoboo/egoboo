@@ -18,6 +18,7 @@
 //*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
+#include "SDL_image.h" 
 
 /*Special Textures*/
 typedef enum e_tx_type

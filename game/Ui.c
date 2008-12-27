@@ -236,8 +236,8 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
   {
     if ( width == 0 || height == 0 )
     {
-      w = img->imgWidth;
-      h = img->imgHeight;
+      w = img->imgW;
+      h = img->imgH;
     }
     else
     {
@@ -245,8 +245,8 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
       h = height;
     }
 
-    x1 = ( float )img->imgWidth / img->txDimensions;
-    y1 = ( float )img->imgHeight / img->txDimensions;
+    x1 = ( float ) GLTexture_GetImageWidth( img )  / ( float ) GLTexture_GetTextureWidth( img );
+    y1 = ( float ) GLTexture_GetImageHeight( img ) / ( float ) GLTexture_GetTextureHeight( img );
 
     // Draw the image
     glBindTexture( GL_TEXTURE_2D, img->textureID );
@@ -352,7 +352,7 @@ int ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x,
     // the button
     fnt_getTextSize( font, text, &text_w, &text_h );
 
-    text_x = img->imgWidth + 10 + x;
+    text_x = img->imgW + 10 + x;
     text_y = ( height - text_h ) / 2 + y;
 
     glColor3f( 1, 1, 1 );

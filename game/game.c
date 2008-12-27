@@ -2417,6 +2417,7 @@ int SDL_main( int argc, char **argv )
   sys_initialize();
   clock_init();
   fs_init();
+  GLSetup_SupportedFormats();
 
   read_setup( "setup.txt" );
   read_all_tags( "basicdat" SLASH_STR "scancode.txt" );

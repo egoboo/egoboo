@@ -71,7 +71,8 @@ typedef enum target_type
 {
   ENEMY = 0,
   FRIEND,
-  ALL
+  ALL,
+  NONE
 } TARGET_TYPE;
 
 #endif // include guard

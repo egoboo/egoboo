@@ -6784,6 +6784,8 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   //If maxdistance is 0 then it searches without a max limit.
   Uint16 besttarget = MAXCHR, cnt;
   Uint32 longdist = pow(2,31);
+  if(team == NONE) return MAXCHR;
+  
   for(cnt = 0; cnt < MAXCHR; cnt++)
   {
 	  if(chron[cnt] && cnt != character && targetdead != chralive[cnt] && targetitems == chrisitem[cnt] && chrattachedto[cnt] == MAXCHR
@@ -6804,6 +6806,8 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 		  }
 	  }
   }
+  
+  //Now set the target
   if(besttarget != MAXCHR) 
   {
 	chraitarget[character] = besttarget;

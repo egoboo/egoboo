@@ -3,18 +3,18 @@
 
 // Find guy to protect
 IfSpawned
-  tmpx=0
-  tmpy=1
-  tmpargument=0
+  tmpx = 0
+  tmpy = 1
+  tmpargument = 0
   SetXY
   SetState
 
-tmpargument=0
+tmpargument = 0
 GetXY
 IfXIsLessThanY
   SetTargetToNearestFriend
     SetOwnerToTarget
-    tmpx=2
+    tmpx = 2
     SetXY    
 
 // Get mean if characters wanna be bad
@@ -46,16 +46,17 @@ IfKilled				// This reduces the height of the char
     IfTargetIsSelf			    // No, just a damage tile
       tmpargument = 4			      //
   SendMessage				  //
-  tmpargument = 65535			  // Drop money
+  tmpargument = selfmoney			  // Drop money
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
-IfAttacked				// Attacked
+
+  IfAttacked				// Attacked
   SetTargetToWhoeverAttacked		  //
     IfTargetIsAlive			    //
       tmpargument = 1			        //
       SetState			        //  
-      tmpargument = tmpdistance & 1 + 4	// Ouch!
+      tmpargument = rand & 1 + 4	// Ouch!
       PlaySound			        //
     Else				    //Attacker died already
       SetTargetToOldTarget		      //

@@ -167,7 +167,7 @@ void load_module( char *smallname )
   sprintf( modname, "modules" SLASH_STR "%s" SLASH_STR, smallname );
   make_randie();  // This should work
   reset_teams();      // This should work
-  load_one_icon( "basicdat" SLASH_STR "nullicon.bmp" );  // This works (without transparency)
+  //load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
   if ( soundvalid ) load_global_waves( modname );
   reset_particles( modname );
   read_wawalite( modname );
@@ -198,8 +198,8 @@ void load_module( char *smallname )
   setup_alliances( modname );
 
   // Load fonts and bars after other images, as not to hog videomem
-  load_font( "basicdat" SLASH_STR "font.bmp", "basicdat" SLASH_STR "font.txt", bfalse );
-  load_bars( "basicdat" SLASH_STR "bars.bmp" );
+  load_font( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt", bfalse );
+  load_bars( "basicdat" SLASH_STR "bars" );
   load_map( modname );
 
   log_madused( "slotused.txt" );

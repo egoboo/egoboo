@@ -799,15 +799,15 @@ bool_t load_all_global_icons()
 
   //Now load every icon
   nullicon = globalnumicon;
-  result = load_one_icon( "basicdat" SLASH_STR "nullicon.bmp" );
+  result = load_one_icon( "basicdat" SLASH_STR "nullicon" );
   keybicon = globalnumicon;
-  result = load_one_icon( "basicdat" SLASH_STR "keybicon.bmp" );
+  result = load_one_icon( "basicdat" SLASH_STR "keybicon" );
   mousicon = globalnumicon;
-  result = load_one_icon( "basicdat" SLASH_STR "mousicon.bmp" );
+  result = load_one_icon( "basicdat" SLASH_STR "mousicon" );
   joyaicon = globalnumicon;
-  result = load_one_icon( "basicdat" SLASH_STR "joyaicon.bmp" );
+  result = load_one_icon( "basicdat" SLASH_STR "joyaicon" );
   joybicon = globalnumicon;
-  result = load_one_icon( "basicdat" SLASH_STR "joybicon.bmp" );
+  result = load_one_icon( "basicdat" SLASH_STR "joybicon" );
 
   return result;
 }
@@ -817,7 +817,7 @@ bool_t load_one_icon( char *szLoadName )
 {
   // ZZ> This function is used to load an icon.  Most icons are loaded
   //     without this function though...
-  GLTexture_Load( &TxIcon[globalnumicon], szLoadName );// lpDDSIcon[globalnumicon] = DDLoadBitmap(lpDD, szLoadName, 0, 0, bfalse);
+  GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon],  szLoadName, INVALID_KEY );
   if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) == 0 )// if(lpDDSIcon[globalnumicon]!=NULL)
   {
     return bfalse;
@@ -1384,32 +1384,32 @@ void load_basic_textures( char *modname )
   char newloadname[256];
 
   // Particle sprites
-  GLTexture_LoadA( &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle.bmp", TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
 
   // Module background tiles
-  make_newloadname( modname, "gamedat" SLASH_STR "tile0.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[TX_TILE_0], newloadname, TRANSCOLOR );
+  make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_0], newloadname, TRANSCOLOR );
 
-  make_newloadname( modname, "gamedat" SLASH_STR "tile1.bmp", newloadname );
-  GLTexture_LoadA(  &txTexture[TX_TILE_1], newloadname, TRANSCOLOR );
+  make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D,  &txTexture[TX_TILE_1], newloadname, TRANSCOLOR );
 
-  make_newloadname( modname, "gamedat" SLASH_STR "tile2.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[TX_TILE_2], newloadname, TRANSCOLOR );
+  make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, TRANSCOLOR );
 
-  make_newloadname( modname, "gamedat" SLASH_STR "tile3.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[TX_TILE_3], newloadname, TRANSCOLOR );
+  make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_3], newloadname, TRANSCOLOR );
 
   // Water textures
-  make_newloadname( modname, "gamedat" SLASH_STR "watertop.bmp", newloadname );
-  GLTexture_Load( &txTexture[TX_WATER_TOP], newloadname );
-  make_newloadname( modname, "gamedat" SLASH_STR "waterlow.bmp", newloadname );
-  GLTexture_Load( &txTexture[TX_WATER_LOW], newloadname );// This is also used as far background
-
+  make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR ); 
+  make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR ); 
+  
 
   // Texture 7 is the phong map
   if ( phongon )
   {
-    GLTexture_Load( &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong.bmp" );
+    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", TRANSCOLOR ); 
   }
 
 }
@@ -1868,14 +1868,14 @@ int load_one_object( int skin, char* tmploadname )
   madskinstart[object] = skin;
   numskins = 0;
   numicon = 0;
-  make_newloadname( tmploadname, "tris0.bmp", newloadname );
+  make_newloadname( tmploadname, "tris0", newloadname );
 
-  GLTexture_LoadA( &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     numskins++;
-    make_newloadname( tmploadname, "icon0.bmp", newloadname );
-    GLTexture_Load( &TxIcon[globalnumicon], newloadname );
+    make_newloadname( tmploadname, "icon0", newloadname );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       while ( numicon < numskins )
@@ -1887,14 +1887,14 @@ int load_one_object( int skin, char* tmploadname )
       globalnumicon++;
     }
   }
-  make_newloadname( tmploadname, "tris1.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  make_newloadname( tmploadname, "tris1", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // Port to new alpha code
     numskins++;
-    make_newloadname( tmploadname, "icon1.bmp", newloadname );
-    GLTexture_Load( &TxIcon[globalnumicon], newloadname );
+    make_newloadname( tmploadname, "icon1", newloadname );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // Port to new alpha code
@@ -1906,14 +1906,14 @@ int load_one_object( int skin, char* tmploadname )
       globalnumicon++;
     }
   }
-  make_newloadname( tmploadname, "tris2.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  make_newloadname( tmploadname, "tris2", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // port to new alpha code
     numskins++;
-    make_newloadname( tmploadname, "icon2.bmp", newloadname );
-    GLTexture_Load( &TxIcon[globalnumicon], newloadname );
+    make_newloadname( tmploadname, "icon2", newloadname );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
@@ -1925,14 +1925,14 @@ int load_one_object( int skin, char* tmploadname )
       globalnumicon++;
     }
   }
-  make_newloadname( tmploadname, "tris3.bmp", newloadname );
-  GLTexture_LoadA( &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  make_newloadname( tmploadname, "tris3", newloadname );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // port to new alpha code
     numskins++;
-    make_newloadname( tmploadname, "icon3.bmp", newloadname );
-    GLTexture_Load( &TxIcon[globalnumicon], newloadname );
+    make_newloadname( tmploadname, "icon3", newloadname );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
@@ -2040,7 +2040,7 @@ void load_bars( char* szBitmap )
   // ZZ> This function loads the status bar bitmap
   int cnt;
 
-  GLTexture_LoadA( &TxBars, szBitmap, 0 );
+  GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, 0 );
   if ( &TxBars == NULL )
     log_error( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
 
@@ -2076,7 +2076,7 @@ void load_map( char* szModule )
 
   // Load the images
   sprintf( szMap, "%sgamedat" SLASH_STR "plan.bmp", szModule );
-  GLTexture_Load( &TxMap, szMap );
+  GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &TxMap ) != 0 ) mapvalid = btrue;
 
   // Set up the rectangles
@@ -2099,7 +2099,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   FILE *fileread;
 
 
-  GLTexture_LoadA( &TxFont, szBitmap, 0 );
+  GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &TxFont ) == 0 )
     log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
 
@@ -4391,7 +4391,7 @@ int load_one_title_image( int titleimage, char *szLoadName )
 {
   // ZZ> This function loads a title in the specified image slot, forcing it into
   //     system memory.  Returns btrue if it worked
-  GLTexture_Load( &TxTitleImage[titleimage], szLoadName );
+  GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &TxTitleImage[titleimage] ) != 0 )
   {
     return btrue;
@@ -4431,7 +4431,7 @@ void load_all_menu_images()
     sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
     if ( get_module_data( globalnummodule, loadname ) )
     {
-      sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title.bmp", FileName );
+      sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
       if ( load_one_title_image( globalnummodule, loadname ) )
       {
         fprintf( filesave, "%02d.  %s\n", globalnummodule, modlongname[globalnummodule] );
@@ -4458,7 +4458,7 @@ bool_t load_blip_bitmap()
   // This function loads the blip bitmaps
   Sint8 cnt;
   
-  GLTexture_Load( &TxBlip, "basicdat" SLASH_STR "blip.bmp" );
+  GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", TRANSCOLOR );
 
   // Set up the rectangles
   for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -4478,35 +4478,35 @@ bool_t load_blip_bitmap()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_titleimage( int image, int x, int y )
-{
-  // ZZ> This function draws a title image on the backbuffer
-  GLfloat  txWidth, txHeight;
-
-  if ( GLTexture_GetTextureID( &TxTitleImage[image] ) != 0 )// if(lpDDSTitleImage[image])
-  {
-    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-    Begin2DMode();
-    glNormal3f( 0, 0, 1 );  // glNormal3f( 0, 1, 0 );
-
-    /* Calculate the texture width & height */
-    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
-    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
-
-    /* Bind the texture */
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTitleImage[image] ) );
-
-    /* Draw the quad */
-    glBegin( GL_QUADS );
-    glTexCoord2f( 0, 1 );  glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
-    glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
-    glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y );
-    glTexCoord2f( 0, 1 - txHeight );  glVertex2f( x, scry - y );
-    glEnd();
-
-    End2DMode();
-  }
-}
+//void draw_titleimage( int image, int x, int y )
+//{
+//  // ZZ> This function draws a title image on the backbuffer
+//  GLfloat  txWidth, txHeight;
+//
+//  if ( GLTexture_GetTextureID( &TxTitleImage[image] ) != 0 )// if(lpDDSTitleImage[image])
+//  {
+//    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+//    Begin2DMode();
+//    glNormal3f( 0, 0, 1 );  // glNormal3f( 0, 1, 0 );
+//
+//    /* Calculate the texture width & height */
+//    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
+//    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
+//
+//    /* Bind the texture */
+//    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTitleImage[image] ) );
+//
+//    /* Draw the quad */
+//    glBegin( GL_QUADS );
+//    glTexCoord2f( 0, 1 );  glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
+//    glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
+//    glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y );
+//    glTexCoord2f( 0, 1 - txHeight );  glVertex2f( x, scry - y );
+//    glEnd();
+//
+//    End2DMode();
+//  }
+//}
 
 //--------------------------------------------------------------------------------------------
 void do_cursor()
@@ -4597,7 +4597,7 @@ void sdlinit( int argc, char **argv )
 
 #ifndef __APPLE__
   /* Setup the cute windows manager icon */
-  theSurface = SDL_LoadBMP( "basicdat" SLASH_STR "icon.bmp" );
+  theSurface = IMG_Load( "basicdat" SLASH_STR "icon.bmp" );
   if ( theSurface == NULL )
   {
     log_error( "Unable to load icon (basicdat" SLASH_STR "icon.bmp)\n" );

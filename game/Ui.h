@@ -24,7 +24,7 @@
 #define egoboo_ui_h
 
 #include "Font.h"
-#include "gltexture.h"
+#include "GLTexture.h"
 #include <SDL.h>
 
 typedef Uint32 UI_ID;
