@@ -317,11 +317,11 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
 
   // get rid of any old data
   GLTexture_delete(texture);
-
+  
   // initialize the texture
   if ( NULL == GLTexture_new( texture ) ) return INVALID_TX_ID;
-
   
+  // try all different formats
   while(image == NULL && type < maxformattypes)
   {
 	STRING fullname;
@@ -330,6 +330,7 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
 	type++;
   }
 
+  //We could not load the image
   if ( NULL == image ) return INVALID_TX_ID;
 
   retval = GLTexture_Convert( tx_target, texture, image, key );

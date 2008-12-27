@@ -817,11 +817,7 @@ bool_t load_one_icon( char *szLoadName )
 {
   // ZZ> This function is used to load an icon.  Most icons are loaded
   //     without this function though...
-  GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon],  szLoadName, INVALID_KEY );
-  if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) == 0 )// if(lpDDSIcon[globalnumicon]!=NULL)
-  {
-    return bfalse;
-  }
+  if ( GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon],  szLoadName, INVALID_KEY ) == INVALID_TX_ID ) return bfalse;
   globalnumicon++;
   return btrue;
 }
@@ -2075,8 +2071,8 @@ void load_map( char* szModule )
   numblip = 0;
 
   // Load the images
-  sprintf( szMap, "%sgamedat" SLASH_STR "plan.bmp", szModule );
-  GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, TRANSCOLOR );
+  sprintf( szMap, "%sgamedat" SLASH_STR "plan", szModule );
+  GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY );
   if ( GLTexture_GetTextureID( &TxMap ) != 0 ) mapvalid = btrue;
 
   // Set up the rectangles
@@ -4391,7 +4387,7 @@ int load_one_title_image( int titleimage, char *szLoadName )
 {
   // ZZ> This function loads a title in the specified image slot, forcing it into
   //     system memory.  Returns btrue if it worked
-  GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, INVALID_KEY );
   if ( GLTexture_GetTextureID( &TxTitleImage[titleimage] ) != 0 )
   {
     return btrue;
@@ -4458,7 +4454,7 @@ bool_t load_blip_bitmap()
   // This function loads the blip bitmaps
   Sint8 cnt;
   
-  GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY );
 
   // Set up the rectangles
   for ( cnt = 0; cnt < NUMBAR; cnt++ )

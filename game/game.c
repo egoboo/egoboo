@@ -85,6 +85,7 @@ void make_newloadname( char *modname, char *appendname, char *newloadname )
     tnc++;
     ctmp = appendname[tnc];
   }
+
   newloadname[cnt] = 0;
 }
 

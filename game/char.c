@@ -5174,16 +5174,16 @@ void check_player_import( char *dirname )
       prime_names();
       sprintf( loadplayerdir[numloadplayer], "%s", foundfile );
 
-      sprintf( filename, "%s" SLASH_STR "%s/skin.txt", dirname, foundfile );
+      sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "skin.txt", dirname, foundfile );
       skin = get_skin( filename );
 
-      snprintf( filename, sizeof(filename), "%s" SLASH_STR "%s/tris.md2", dirname, foundfile );
+      snprintf( filename, sizeof(filename), "%s" SLASH_STR "%s" SLASH_STR "tris.md2", dirname, foundfile );
       load_one_md2( filename, numloadplayer );
 
-      sprintf( filename, "%s" SLASH_STR "%s/icon%d.bmp", dirname, foundfile, skin );
+      sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "icon%d", dirname, foundfile, skin );
       load_one_icon( filename );
 	  
-      sprintf( filename, "%s" SLASH_STR "%s/naming.txt", dirname, foundfile );
+      sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "naming.txt", dirname, foundfile );
       read_naming( 0, filename );
       naming_names( 0 );
       sprintf( loadplayername[numloadplayer], "%s", namingnames );
