@@ -82,14 +82,58 @@
 
 /* Begin PBXFileReference section */
 		002F39F909D0881F00EBEB88 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
-		002F3A2B09D0888800EBEB88 /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = SOURCE_ROOT; };
-		002F3A2C09D0888800EBEB88 /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SDLMain.m; sourceTree = SOURCE_ROOT; };
+		002F3A2B09D0888800EBEB88 /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = "<group>"; };
+		002F3A2C09D0888800EBEB88 /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = SDLMain.m; sourceTree = "<group>"; };
 		002F3C0009D093BD00EBEB88 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		002F3C6009D0951E00EBEB88 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = /System/Library/Frameworks/GLUT.framework; sourceTree = "<absolute>"; };
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C4006A6F0F00C640009D62E8 /* api.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = api.txt; sourceTree = "<group>"; };
+		C4006A700F00C640009D62E8 /* design.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = design.txt; sourceTree = "<group>"; };
+		C4006A710F00C640009D62E8 /* enet_vs7.cbp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.cbp; sourceTree = "<group>"; };
+		C4006A720F00C640009D62E8 /* enet_vs7.layout */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.layout; sourceTree = "<group>"; };
+		C4006A730F00C640009D62E8 /* enet_vs7.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.vcproj; sourceTree = "<group>"; };
+		C4006A740F00C640009D62E8 /* enet_vs9.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs9.vcproj; sourceTree = "<group>"; };
+		C4006A750F00C640009D62E8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		C4006A760F00C640009D62E8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		C4006A770F00C640009D62E8 /* README */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		C4006A780F00C640009D62E8 /* tutorial.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = tutorial.txt; sourceTree = "<group>"; };
+		C4006A7D0F00C76B009D62E8 /* hat.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = hat.icns; sourceTree = "<group>"; };
+		C4006A7E0F00C797009D62E8 /* change.log */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = change.log; sourceTree = "<group>"; };
+		C4006A7F0F00C797009D62E8 /* egoboo_endian.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_endian.h; sourceTree = "<group>"; };
+		C4006A800F00C797009D62E8 /* egoboo.sh */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; path = egoboo.sh; sourceTree = "<group>"; };
+		C4006A810F00C797009D62E8 /* Egoboodoc.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboodoc.txt; sourceTree = "<group>"; };
+		C4006A820F00C797009D62E8 /* game_vs7.cbp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.cbp; sourceTree = "<group>"; };
+		C4006A830F00C797009D62E8 /* game_vs7.depend */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = game_vs7.depend; sourceTree = "<group>"; };
+		C4006A840F00C797009D62E8 /* game_vs7.layout */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.layout; sourceTree = "<group>"; };
+		C4006A850F00C797009D62E8 /* game_vs7.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.vcproj; sourceTree = "<group>"; };
+		C4006A860F00C797009D62E8 /* game_vs9.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs9.vcproj; sourceTree = "<group>"; };
+		C4006A870F00C797009D62E8 /* graphic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = graphic.h; sourceTree = "<group>"; };
+		C4006A880F00C797009D62E8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		C4006A890F00C82C009D62E8 /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
+		C4006A8A0F00C82C009D62E8 /* classes.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = classes.txt; sourceTree = "<group>"; };
+		C4006A8B0F00C82C009D62E8 /* controls.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = controls.txt; sourceTree = "<group>"; };
+		C4006A8C0F00C82C009D62E8 /* Egoboo Manual.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Egoboo Manual.pdf"; sourceTree = "<group>"; };
+		C4006A8D0F00C82C009D62E8 /* Egoboo_vs7.sln */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboo_vs7.sln; sourceTree = "<group>"; };
+		C4006A8E0F00C82C009D62E8 /* Egoboo_vs9.sln */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboo_vs9.sln; sourceTree = "<group>"; };
+		C4006A8F0F00C82C009D62E8 /* Egoboo.workspace */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = Egoboo.workspace; sourceTree = "<group>"; };
+		C4006A900F00C82C009D62E8 /* egoboo1.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo1.ico; sourceTree = "<group>"; };
+		C4006A910F00C82C009D62E8 /* egoboo2.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo2.ico; sourceTree = "<group>"; };
+		C4006A920F00C82C009D62E8 /* License.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = License.pdf; sourceTree = "<group>"; };
+		C4006A930F00C82C009D62E8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		C4006A940F00C82C009D62E8 /* README.Linux */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.Linux; sourceTree = "<group>"; };
+		C4006A950F00C82C009D62E8 /* README.Mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.Mac; sourceTree = "<group>"; };
+		C4006A960F00C82C009D62E8 /* Readme.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Readme.txt; sourceTree = "<group>"; };
+		C4006A970F00C82C009D62E8 /* README.Windows */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.Windows; sourceTree = "<group>"; };
+		C4006A980F00C82C009D62E8 /* setup.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = setup.txt; sourceTree = "<group>"; };
+		C4006A990F00C871009D62E8 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
+		C4006AE90F00C89A009D62E8 /* modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = modules; sourceTree = "<group>"; };
+		C400A8610F00C8F6009D62E8 /* egoboo.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo.ico; sourceTree = "<group>"; };
+		C400A8620F00C8F6009D62E8 /* egoboo.rc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = egoboo.rc; sourceTree = "<group>"; };
+		C400A8630F00C8F6009D62E8 /* egoboo3.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo3.ico; sourceTree = "<group>"; };
+		C400A8640F00C8F6009D62E8 /* old-egoboo.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = "old-egoboo.ico"; sourceTree = "<group>"; };
 		C4371B6E0E97F865008919D1 /* Egoboo_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Egoboo_Prefix.pch; sourceTree = "<group>"; };
 		C4371B730E97F897008919D1 /* skull.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = skull.icns; sourceTree = "<group>"; };
 		C44819370E97F50700FF170F /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
@@ -195,15 +239,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		080E96DDFE201D6D7F000001 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				002F3A2B09D0888800EBEB88 /* SDLMain.h */,
-				002F3A2C09D0888800EBEB88 /* SDLMain.m */,
-			);
-			name = Classes;
-			sourceTree = "<group>";
-		};
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -215,23 +250,25 @@
 		29B97314FDCFA39411CA2CEA /* Egoboo */ = {
 			isa = PBXGroup;
 			children = (
-				080E96DDFE201D6D7F000001 /* Classes */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				C400A8670F00CB4B009D62E8 /* Game Data */,
+				29B97315FDCFA39411CA2CEA /* Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
+				C4006A450F00C308009D62E8 /* Other */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
 			);
 			name = Egoboo;
 			sourceTree = "<group>";
 		};
-		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
+		29B97315FDCFA39411CA2CEA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				C4006A790F00C662009D62E8 /* osx */,
 				C4F69EF20E9830BB0086650C /* enet */,
 				C49FFC900E97F96E00E13A99 /* game */,
-				C4371B6E0E97F865008919D1 /* Egoboo_Prefix.pch */,
 			);
-			name = "Other Sources";
+			name = Sources;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
@@ -248,15 +285,138 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
+				002F3C6009D0951E00EBEB88 /* GLUT.framework */,
+				002F3C0009D093BD00EBEB88 /* OpenGL.framework */,
 				002F39F909D0881F00EBEB88 /* SDL.framework */,
 				C44819370E97F50700FF170F /* SDL_image.framework */,
 				C44819380E97F50700FF170F /* SDL_mixer.framework */,
 				C44819390E97F50700FF170F /* SDL_ttf.framework */,
-				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
-				002F3C0009D093BD00EBEB88 /* OpenGL.framework */,
-				002F3C6009D0951E00EBEB88 /* GLUT.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C4006A450F00C308009D62E8 /* Other */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A8D0F00C82C009D62E8 /* Egoboo_vs7.sln */,
+				C4006A8E0F00C82C009D62E8 /* Egoboo_vs9.sln */,
+				C4006A8F0F00C82C009D62E8 /* Egoboo.workspace */,
+				C4006A900F00C82C009D62E8 /* egoboo1.ico */,
+				C4006A910F00C82C009D62E8 /* egoboo2.ico */,
+				C4006A6A0F00C5C8009D62E8 /* enet */,
+				C4006A690F00C43F009D62E8 /* game */,
+				C4006A930F00C82C009D62E8 /* Makefile */,
+				C4006A7C0F00C734009D62E8 /* osx */,
+				C4006A940F00C82C009D62E8 /* README.Linux */,
+				C4006A950F00C82C009D62E8 /* README.Mac */,
+				C4006A970F00C82C009D62E8 /* README.Windows */,
+				C400A8600F00C8F6009D62E8 /* res */,
+			);
+			name = Other;
+			path = ..;
+			sourceTree = "<group>";
+		};
+		C4006A690F00C43F009D62E8 /* game */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A7E0F00C797009D62E8 /* change.log */,
+				C4006A800F00C797009D62E8 /* egoboo.sh */,
+				C4006A810F00C797009D62E8 /* Egoboodoc.txt */,
+				C4006A820F00C797009D62E8 /* game_vs7.cbp */,
+				C4006A830F00C797009D62E8 /* game_vs7.depend */,
+				C4006A840F00C797009D62E8 /* game_vs7.layout */,
+				C4006A850F00C797009D62E8 /* game_vs7.vcproj */,
+				C4006A860F00C797009D62E8 /* game_vs9.vcproj */,
+				C483329E0E9862F300B78406 /* linux-file.c */,
+				C4006A880F00C797009D62E8 /* Makefile */,
+				C4F69F4A0E9831820086650C /* Makefile.unix */,
+				C483329F0E9862F300B78406 /* sys_linux.c */,
+				C4F69F500E9831820086650C /* sys_win32.c */,
+				C4F69F580E9831820086650C /* win-file.c */,
+			);
+			path = game;
+			sourceTree = "<group>";
+		};
+		C4006A6A0F00C5C8009D62E8 /* enet */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A6F0F00C640009D62E8 /* api.txt */,
+				C4006A700F00C640009D62E8 /* design.txt */,
+				C4006A710F00C640009D62E8 /* enet_vs7.cbp */,
+				C4006A720F00C640009D62E8 /* enet_vs7.layout */,
+				C4006A730F00C640009D62E8 /* enet_vs7.vcproj */,
+				C4006A740F00C640009D62E8 /* enet_vs9.vcproj */,
+				C4006A6B0F00C5F2009D62E8 /* include */,
+				C4006A750F00C640009D62E8 /* LICENSE */,
+				C4006A760F00C640009D62E8 /* Makefile */,
+				C4006A770F00C640009D62E8 /* README */,
+				C4006A780F00C640009D62E8 /* tutorial.txt */,
+				C4F69F150E9830BB0086650C /* win32.c */,
+			);
+			path = enet;
+			sourceTree = "<group>";
+		};
+		C4006A6B0F00C5F2009D62E8 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A6E0F00C608009D62E8 /* enet */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		C4006A6E0F00C608009D62E8 /* enet */ = {
+			isa = PBXGroup;
+			children = (
+				C48332900E98625500B78406 /* win32.h */,
+			);
+			path = enet;
+			sourceTree = "<group>";
+		};
+		C4006A790F00C662009D62E8 /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				C4371B6E0E97F865008919D1 /* Egoboo_Prefix.pch */,
+				002F3A2B09D0888800EBEB88 /* SDLMain.h */,
+				002F3A2C09D0888800EBEB88 /* SDLMain.m */,
+			);
+			path = osx;
+			sourceTree = "<group>";
+		};
+		C4006A7C0F00C734009D62E8 /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A7D0F00C76B009D62E8 /* hat.icns */,
+			);
+			path = osx;
+			sourceTree = "<group>";
+		};
+		C400A8600F00C8F6009D62E8 /* res */ = {
+			isa = PBXGroup;
+			children = (
+				C400A8610F00C8F6009D62E8 /* egoboo.ico */,
+				C400A8620F00C8F6009D62E8 /* egoboo.rc */,
+				C400A8630F00C8F6009D62E8 /* egoboo3.ico */,
+				C400A8640F00C8F6009D62E8 /* old-egoboo.ico */,
+			);
+			path = res;
+			sourceTree = "<group>";
+		};
+		C400A8670F00CB4B009D62E8 /* Game Data */ = {
+			isa = PBXGroup;
+			children = (
+				C4006A990F00C871009D62E8 /* basicdat */,
+				C4006A890F00C82C009D62E8 /* Changelog.txt */,
+				C4006A8A0F00C82C009D62E8 /* classes.txt */,
+				C4006A8B0F00C82C009D62E8 /* controls.txt */,
+				C4006A8C0F00C82C009D62E8 /* Egoboo Manual.pdf */,
+				C4006A920F00C82C009D62E8 /* License.pdf */,
+				C4006AE90F00C89A009D62E8 /* modules */,
+				C4006A960F00C82C009D62E8 /* Readme.txt */,
+				C4006A980F00C82C009D62E8 /* setup.txt */,
+			);
+			name = "Game Data";
+			path = ..;
 			sourceTree = "<group>";
 		};
 		C48332860E98625500B78406 /* include */ = {
@@ -278,7 +438,6 @@
 				C483328D0E98625500B78406 /* types.h */,
 				C483328E0E98625500B78406 /* unix.h */,
 				C483328F0E98625500B78406 /* utility.h */,
-				C48332900E98625500B78406 /* win32.h */,
 			);
 			path = enet;
 			sourceTree = "<group>";
@@ -286,71 +445,67 @@
 		C49FFC900E97F96E00E13A99 /* game */ = {
 			isa = PBXGroup;
 			children = (
-				C46B616D0EC2DED3008B84E8 /* camera.h */,
-				C46B616E0EC2DED3008B84E8 /* char.h */,
-				C46B616F0EC2DED3008B84E8 /* egoboo_config.h */,
-				C46B61700EC2DED3008B84E8 /* egoboo_math.h */,
-				C46B61710EC2DED3008B84E8 /* particle.h */,
-				C46B61720EC2DED3008B84E8 /* script.h */,
-				C46398C20EBE6EA8006D617D /* egobooendian.c */,
-				C46398950EBE6530006D617D /* Link.c */,
-				C46398960EBE6530006D617D /* Link.h */,
-				C469AB730EA11626005CDBE7 /* sys_mac.c */,
-				C483329E0E9862F300B78406 /* linux-file.c */,
-				C483329F0E9862F300B78406 /* sys_linux.c */,
-				C4F69F3D0E9831820086650C /* common-file.c */,
-				C4F69F3E0E9831820086650C /* egoboostrutil.c */,
-				C4F69F3F0E9831820086650C /* egoboostrutil.h */,
-				C4F69F400E9831820086650C /* egobootypedef.h */,
-				C4F69F410E9831820086650C /* gltexture.c */,
-				C4F69F420E9831820086650C /* gltexture.h */,
-				C4F69F430E9831820086650C /* graphicfan.c */,
-				C4F69F440E9831820086650C /* graphicmad.c */,
-				C4F69F450E9831820086650C /* graphicprt.c */,
-				C4F69F470E9831820086650C /* mac-file.m */,
-				C4F69F4A0E9831820086650C /* Makefile.unix */,
-				C4F69F4B0E9831820086650C /* egoboo_math.c */,
-				C4F69F4C0E9831820086650C /* mathstuff.h */,
-				C4F69F4D0E9831820086650C /* menu.c */,
-				C4F69F4E0E9831820086650C /* network.c */,
-				C4F69F500E9831820086650C /* sys_win32.c */,
-				C4F69F580E9831820086650C /* win-file.c */,
 				C49FFC930E97F96E00E13A99 /* camera.c */,
+				C46B616D0EC2DED3008B84E8 /* camera.h */,
 				C49FFC960E97F96E00E13A99 /* char.c */,
+				C46B616E0EC2DED3008B84E8 /* char.h */,
 				C49FFC990E97F96E00E13A99 /* Client.c */,
 				C49FFC9A0E97F96E00E13A99 /* Client.h */,
 				C49FFC9B0E97F96E00E13A99 /* Clock.c */,
 				C49FFC9C0E97F96E00E13A99 /* Clock.h */,
+				C4F69F3D0E9831820086650C /* common-file.c */,
 				C49FFC9D0E97F96E00E13A99 /* configfile.c */,
 				C49FFC9E0E97F96E00E13A99 /* configfile.h */,
 				C49FFC9F0E97F96E00E13A99 /* egoboo.h */,
+				C46B616F0EC2DED3008B84E8 /* egoboo_config.h */,
+				C4006A7F0F00C797009D62E8 /* egoboo_endian.h */,
+				C4F69F4B0E9831820086650C /* egoboo_math.c */,
+				C46B61700EC2DED3008B84E8 /* egoboo_math.h */,
+				C46398C20EBE6EA8006D617D /* egobooendian.c */,
+				C4F69F3E0E9831820086650C /* egoboostrutil.c */,
+				C4F69F3F0E9831820086650C /* egoboostrutil.h */,
+				C4F69F400E9831820086650C /* egobootypedef.h */,
 				C49FFCB10E97F96E00E13A99 /* enchant.c */,
 				C49FFCB80E97F96E00E13A99 /* Font.c */,
 				C49FFCB90E97F96E00E13A99 /* Font.h */,
 				C49FFCBC0E97F96E00E13A99 /* game.c */,
+				C4F69F410E9831820086650C /* gltexture.c */,
+				C4F69F420E9831820086650C /* gltexture.h */,
 				C49FFCC50E97F96E00E13A99 /* graphic.c */,
+				C4006A870F00C797009D62E8 /* graphic.h */,
+				C4F69F430E9831820086650C /* graphicfan.c */,
+				C4F69F440E9831820086650C /* graphicmad.c */,
+				C4F69F450E9831820086650C /* graphicprt.c */,
 				C49FFCCB0E97F96E00E13A99 /* id_md2.h */,
 				C49FFCCC0E97F96E00E13A99 /* id_normals.c */,
 				C49FFCCE0E97F96E00E13A99 /* input.c */,
+				C46398950EBE6530006D617D /* Link.c */,
+				C46398960EBE6530006D617D /* Link.h */,
 				C49FFCDB0E97F96E00E13A99 /* Log.c */,
 				C49FFCDC0E97F96E00E13A99 /* Log.h */,
+				C4F69F470E9831820086650C /* mac-file.m */,
+				C4F69F4C0E9831820086650C /* mathstuff.h */,
 				C49FFCE20E97F96E00E13A99 /* Md2.c */,
 				C49FFCE30E97F96E00E13A99 /* Md2.h */,
+				C4F69F4D0E9831820086650C /* menu.c */,
 				C49FFCE60E97F96E00E13A99 /* Menu.h */,
 				C49FFCEA0E97F96E00E13A99 /* module.c */,
+				C4F69F4E0E9831820086650C /* network.c */,
 				C49FFD020E97F96E00E13A99 /* particle.c */,
+				C46B61710EC2DED3008B84E8 /* particle.h */,
 				C49FFD050E97F96E00E13A99 /* passage.c */,
 				C49FFD0A0E97F96E00E13A99 /* proto.h */,
 				C49FFD0B0E97F96E00E13A99 /* script.c */,
+				C46B61720EC2DED3008B84E8 /* script.h */,
 				C49FFD160E97F96E00E13A99 /* Server.c */,
 				C49FFD170E97F96E00E13A99 /* Server.h */,
 				C49FFD180E97F96E00E13A99 /* sound.c */,
+				C469AB730EA11626005CDBE7 /* sys_mac.c */,
 				C49FFD1A0E97F96E00E13A99 /* System.h */,
 				C49FFD200E97F96E00E13A99 /* Ui.c */,
 				C49FFD210E97F96E00E13A99 /* Ui.h */,
 			);
-			name = game;
-			path = ../game;
+			path = game;
 			sourceTree = "<group>";
 		};
 		C4F69EF20E9830BB0086650C /* enet */ = {
@@ -364,11 +519,9 @@
 				C4F69F0B0E9830BB0086650C /* peer.c */,
 				C4F69F0C0E9830BB0086650C /* protocol.c */,
 				C4F69F120E9830BB0086650C /* unix.c */,
-				C4F69F150E9830BB0086650C /* win32.c */,
 			);
-			name = enet;
-			path = ../enet;
-			sourceTree = SOURCE_ROOT;
+			path = enet;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
