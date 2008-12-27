@@ -2094,9 +2094,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   char cTmp;
   FILE *fileread;
 
-
-  GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR );
-  if ( GLTexture_GetTextureID( &TxFont ) == 0 )
+  if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) == INVALID_TX_ID )
     log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
 
 
@@ -3553,18 +3551,21 @@ void draw_one_font( int fonttype, int x, int y )
 {
   // ZZ> This function draws a letter or number
   // GAC> Very nasty version for starters.  Lots of room for improvement.
-  GLfloat dx, dy, fx1, fx2, fy1, fy2;
+  GLfloat dx, dy, fx1, fx2, fy1, fy2, border;
   GLuint x2, y2;
 
   y = fontoffset - y;
   x2 = x + fontrect[fonttype].w;
   y2 = y + fontrect[fonttype].h;
-  dx = 2.0f / 512;
-  dy = 1.0f / 256;
-  fx1 = fontrect[fonttype].x * dx + 0.001f;
-  fx2 = ( fontrect[fonttype].x + fontrect[fonttype].w ) * dx - 0.001f;
-  fy1 = fontrect[fonttype].y * dy + 0.001f;
-  fy2 = ( fontrect[fonttype].y + fontrect[fonttype].h ) * dy;
+
+  dx = 2.0f / 512.0f;
+  dy = 1.0f / 256.0f;
+  border = 1.0f / 512.0f;
+  
+  fx1 = fontrect[fonttype].x * dx + border;
+  fx2 = ( fontrect[fonttype].x + fontrect[fonttype].w ) * dx - border;
+  fy1 = fontrect[fonttype].y * dy + border;
+  fy2 = ( fontrect[fonttype].y + fontrect[fonttype].h ) * dy - border;
 
   glBegin( GL_QUADS );
   glTexCoord2f( fx1, fy2 );   glVertex2i( x, y );
@@ -3729,14 +3730,22 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
 }
 
 //--------------------------------------------------------------------------------------------
-void BeginText( void )
+void BeginText()
 {
   EnableTexturing();    // Enable texture mapping
-  glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxFont ) );
-  glAlphaFunc( GL_GREATER, 0 );
+
+  GLTexture_Bind( &TxFont );
+
   glEnable( GL_ALPHA_TEST );
+  glAlphaFunc( GL_GREATER, 0 );
+
+  glEnable( GL_BLEND );
+  glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
   glDisable( GL_DEPTH_TEST );
   glDisable( GL_CULL_FACE );
+
+  glColor4f( 1, 1, 1, 1 );
 }
 
 //--------------------------------------------------------------------------------------------
