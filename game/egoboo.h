@@ -40,7 +40,7 @@
 #include <SDL_opengl.h>
 #include "proto.h"
 
-#include "GLTexture.h"  /* OpenGL texture loader */
+#include "gltexture.h"  /* OpenGL texture loader */
 #include "mathstuff.h"  /* vector and matrix math */
 #include "configfile.h"
 #include "Md2.h"

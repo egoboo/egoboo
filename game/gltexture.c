@@ -20,7 +20,7 @@
 */
 
 #include "egoboo.h" // GAC - Needed for Win32 stuff
-#include "GLTexture.h"
+#include "gltexture.h"
 #include "graphic.h" 
 #include "log.h" 
 //--------------------------------------------------------------------------------------------
