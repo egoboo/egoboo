@@ -21,7 +21,7 @@
 */
 
 #include "egoboo.h"
-#include "Log.h"
+#include "log.h"
 #include <enet/enet.h>
 #include <stdio.h>
 #include <stdarg.h>

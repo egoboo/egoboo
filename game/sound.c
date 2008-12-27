@@ -20,7 +20,7 @@
 */
 
 #include "egoboo.h"
-#include "Log.h"
+#include "log.h"
 
 //--------------------------------------------------------------------------------------------
 void load_global_waves( char *modname )

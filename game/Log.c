@@ -19,7 +19,7 @@
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
-#include "Log.h"
+#include "log.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

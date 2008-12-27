@@ -20,7 +20,7 @@
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
-#include "Ui.h"
+#include "ui.h"
 #include <string.h>
 #include <SDL_opengl.h>
 

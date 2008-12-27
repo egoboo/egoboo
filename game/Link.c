@@ -1,4 +1,4 @@
-#include "Link.h"
+#include "link.h"
 #include "proto.h"
 #include "egoboo.h"
 

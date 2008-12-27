@@ -22,7 +22,7 @@
 
 #include "egoboo.h"
 #include "graphic.h"
-#include "Log.h"
+#include "log.h"
 
 // Defined in egoboo.h
 SDL_Surface *displaySurface = NULL;

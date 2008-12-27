@@ -20,10 +20,10 @@
 */
 
 #include "egoboo.h"
-#include "Ui.h"
-#include "Menu.h"
+#include "ui.h"
+#include "menu.h"
 #include "graphic.h" 
-#include "Log.h"
+#include "log.h"
 #include "proto.h"
 
 // TEMPORARY!

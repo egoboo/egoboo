@@ -19,7 +19,7 @@
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
-#include "Client.h"
+#include "client.h"
 
 // Global ClientState instance
 ClientState_t ClientState;

@@ -20,8 +20,8 @@
 */
 
 #include "proto.h"
-#include "Log.h"
-#include "System.h"
+#include "log.h"
+#include "system.h"
 #include <windows.h>
 
 double win32_secondsPerTick = 0;

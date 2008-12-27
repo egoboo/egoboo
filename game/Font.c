@@ -20,7 +20,7 @@
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
-#include "Font.h"
+#include "font.h"
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>

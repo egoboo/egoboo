@@ -24,11 +24,11 @@
 #include <time.h>
 
 #include "egoboo.h"
-#include "Clock.h"
-#include "Link.h"
-#include "Ui.h"
-#include "Font.h"
-#include "Log.h"
+#include "clock.h"
+#include "link.h"
+#include "ui.h"
+#include "font.h"
+#include "log.h"
 
 #include "egoboo_endian.h"
 

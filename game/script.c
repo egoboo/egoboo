@@ -21,8 +21,8 @@
 
 #include "egoboo.h"
 #include "script.h"
-#include "Log.h"
-#include "Link.h"
+#include "log.h"
+#include "link.h"
 
 #include <assert.h>
 

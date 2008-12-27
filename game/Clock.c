@@ -22,8 +22,8 @@
 */
 
 #include "proto.h"
-#include "Clock.h"
-#include "Log.h"
+#include "clock.h"
+#include "log.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h> // memcpy & memset

@@ -19,8 +19,8 @@
 */
 
 #include "egoboo.h"
-#include "Log.h"
-#include "Menu.h"
+#include "log.h"
+#include "menu.h"
 
 //--------------------------------------------------------------------------------------------
 void release_module( void )

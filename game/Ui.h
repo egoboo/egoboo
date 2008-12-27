@@ -23,7 +23,7 @@
 #ifndef egoboo_ui_h
 #define egoboo_ui_h
 
-#include "Font.h"
+#include "font.h"
 #include "gltexture.h"
 #include <SDL.h>
 
