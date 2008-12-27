@@ -19,7 +19,7 @@
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
 
-#include "Server.h"
+#include "server.h"
 
 ServerState_t ServerState;
 
