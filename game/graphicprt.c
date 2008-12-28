@@ -77,7 +77,7 @@ void render_antialias_prt()
     GLint depthfunc_save, alphafunc_save, alphablendsrc_save, alphablenddst_save, alphatestref_save  ;
     GLboolean depthmask_save, cullface_save, depthtest_save, alphatest_save, blend_save;
 
-	glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[particletexture] ) );
+	GLTexture_Bind(&txTexture[particletexture]);
 
 	depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
     glDepthMask( GL_FALSE );
@@ -231,7 +231,7 @@ void render_prt()
  // if(antialiasing) render_antialias_prt();
 
   // Choose texture and matrix
-  glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[particletexture] ) );
+  GLTexture_Bind( &txTexture[particletexture] );
   // Make new ones so we can index them and not transform 'em each time
   // transform_vertices(numparticle, v, vt);
 
@@ -482,7 +482,7 @@ void render_refprt()
   }
 
   // Choose texture.
-  glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[particletexture] ) );
+  GLTexture_Bind( &txTexture[particletexture] );
 
   glDisable( GL_CULL_FACE );
   glDisable( GL_DITHER );

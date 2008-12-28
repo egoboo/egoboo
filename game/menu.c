@@ -1390,16 +1390,22 @@ int doVideoOptions( float deltaTime )
 
       switch ( texturefilter )
       {
-        case 1:
+        case TX_UNFILTERED:
+          videoOptionsButtons[5] = "Unfiltered";
+          break;
+        case TX_LINEAR:
           videoOptionsButtons[5] = "Linear";
           break;
-        case 2:
+        case TX_BILINEAR:
           videoOptionsButtons[5] = "Bilinear";
           break;
-        case 3:
-          videoOptionsButtons[5] = "Trilinear";
+        case TX_TRILINEAR_1:
+          videoOptionsButtons[5] = "Trilinear 1";
           break;
-        case 4:
+        case TX_TRILINEAR_2:
+          videoOptionsButtons[5] = "Trilinear 2";
+          break;
+        case TX_ANISOTROPIC:
           videoOptionsButtons[5] = "Ansiotropic";
           break;
         default:                  // Set to defaults
@@ -1631,22 +1637,32 @@ int doVideoOptions( float deltaTime )
       {
         switch ( texturefilter )
         {
-          case 4:
-            texturefilter = 1;
+          case TX_ANISOTROPIC:
+            texturefilter = TX_UNFILTERED;
+            videoOptionsButtons[5] = "Unfiltered";
+            break;
+
+          case TX_UNFILTERED:
+            texturefilter = TX_LINEAR;
             videoOptionsButtons[5] = "Linear";
             break;
 
-          case 1:
-            texturefilter = 2;
+          case TX_LINEAR:
+            texturefilter = TX_BILINEAR;
             videoOptionsButtons[5] = "Bilinear";
             break;
 
-          case 2:
-            texturefilter = 3;
-            videoOptionsButtons[5] = "Trilinear";
+		  case TX_BILINEAR:
+            texturefilter = TX_TRILINEAR_1;
+            videoOptionsButtons[5] = "Trilinear 1";
             break;
 
-          case 3:
+          case TX_TRILINEAR_1:
+            texturefilter = TX_TRILINEAR_2;
+            videoOptionsButtons[5] = "Trilinear 2";
+            break;
+
+          case TX_TRILINEAR_2:
             texturefilter = 4;
             videoOptionsButtons[5] = "Anisotropic";
             break;

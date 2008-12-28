@@ -26,9 +26,6 @@
 void render_fan( Uint32 fan )
 {
   // ZZ> This function draws a mesh fan
-  // D3DLVERTEX v[MAXMESHVERTICES];
-  // D3DTLVERTEX vt[MAXMESHVERTICES];
-  // D3DTLVERTEX vtlist[MAXMESHCOMMANDSIZE];
   GLVERTEX v[MAXMESHVERTICES];
   Uint16 commands;
   Uint16 vertices;
@@ -145,12 +142,6 @@ void render_fan( Uint32 fan )
       v[cnt].r = v[cnt].g = v[cnt].b = ( float )meshvrtl[badvertex] / 255.0f;
       v[cnt].s = meshcommandu[type][badvertex] + offu;
       v[cnt].t = meshcommandv[type][badvertex] + offv;
-      // ambi = (DWORD) meshvrtl[badvertex];
-      // ambi = (ambi<<8)|ambi;
-      // ambi = (ambi<<8)|ambi;
-      // v[cnt].dcColor = ambi;
-      // v[cnt].dcSpecular = 0;  // No fog
-      // v[cnt].dwReserved = 0;
       badvertex++;
     }
   }
@@ -159,10 +150,9 @@ void render_fan( Uint32 fan )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-//            lpD3DDDevice->SetRenderState(D3DRENDERSTATE_TEXTUREHANDLE,
-//                      txTexture[texture].GetHandle());
-    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
-    meshlasttexture = texture;
+    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
+        //GLTexture_Bind(texture);
+	meshlasttexture = texture;
   }
 
   // Make new ones so we can index them and not transform 'em each time
@@ -212,11 +202,8 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   Uint16 texture, frame;
   Uint16 cnt, tnc, entry, vertex;
   Uint32  badvertex;
-//  Uint8 red, grn, blu;
   float offu, offv;
-//  float z;
   Uint32  ambi;
-//  DWORD fogspec;
 
   // vertex is a value from 0-15, for the meshcommandref/u/v variables
   // badvertex is a value that references the actual vertex number
@@ -228,64 +215,13 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   offv = waterlayerv[layer];          //
   frame = waterlayerframe[layer];     // Frame
 
-  texture = layer + 5;                    // Water starts at texture 5
+  texture = layer + TX_WATER_TOP;         // Water starts at texture 5
   vertices = meshcommandnumvertices[type];// Number of vertices
   commands = meshcommands[type];          // Number of commands
 
 
   // Original points
   badvertex = meshvrtstart[fan];          // Get big reference value
-  // Corners
-  /*
-    if(fogon)
-    {
-        // The full fog value
-        fogspec = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
-        for (cnt = 0; cnt < vertices; cnt++)
-        {
-            v[cnt].x = (D3DVALUE) meshvrtx[badvertex];
-            v[cnt].y = (D3DVALUE) meshvrty[badvertex];
-            v[cnt].z = waterlayerzadd[layer][frame][mode][cnt]+waterlayerz[layer];
-            z = v[cnt].z;
-            ambi = (DWORD) meshvrtl[badvertex]>>1;
-            ambi+= waterlayercolor[layer][frame][mode][cnt];
-            ambi = (ambi<<8)|ambi;
-            ambi = (ambi<<8)|ambi;
-            ambi = (waterlayeralpha[layer]<<24)|ambi;
-            v[cnt].dcColor = ambi;
-
-
-            // Figure out the fog coloring
-            if(z < fogtop && fogaffectswater)
-            {
-                if(z < fogbottom)
-                {
-                    v[cnt].dcSpecular = fogspec;  // Full fog
-                }
-                else
-                {
-                    spectokeep = ((z - fogbottom)/fogdistance);  // 0.0f to 1.0f... Amount of old to keep
-                    z = 1.0f - spectokeep;  // 0.0f to 1.0f... Amount of fog to keep
-                    spek = waterspek[ambi&255]&255;
-                    spek = spek * spectokeep;
-                    red = (fogred * z) + spek;
-                    grn = (foggrn * z) + spek;
-                    blu = (fogblu * z) + spek;
-                    ambi = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                    v[cnt].dcSpecular = ambi;
-                }
-            }
-            else
-            {
-                v[cnt].dcSpecular = waterspek[ambi&255];  // Old spec
-            }
-
-            v[cnt].dwReserved = 0;
-            badvertex++;
-        }
-    }
-    else
-    */
   {
     for ( cnt = 0; cnt < vertices; cnt++ )
     {
@@ -293,52 +229,33 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
       v[cnt].y = meshvrty[badvertex];
       v[cnt].z = waterlayerzadd[layer][frame][mode][cnt] + waterlayerz[layer];
 
-      ambi = ( Uint32 ) meshvrtl[badvertex] >> 1;
+	  ambi = ( Uint32 ) meshvrtl[badvertex] >> 1;
       ambi += waterlayercolor[layer][frame][mode][cnt];
-      v[cnt].r = v[cnt].g = v[cnt].b = ( float )ambi / 255.0f;
-      /*
-      ambi = (ambi<<8)|ambi;
-            ambi = (ambi<<8)|ambi;
-            */
-      v[cnt].a = ( float )waterlayeralpha[layer] / 255.0f;
-
-// !!!BAD!!!  Debug code for show what mode means...
-// red = 50;
-// grn = 50;
-// blu = 50;
-// switch(mode)
-//{
-//    case 0:
-//      red = 255;
-//      break;
-//    case 1:
-//      grn = 255;
-//      break;
-//    case 2:
-//      blu = 255;
-//      break;
-//    case 3:
-//      red = 255;
-//      grn = 255;
-//      blu = 255;
-//      break;
-//}
-// ambi = 0xbf000000 | (red<<16) | (grn<<8) | (blu);
-// !!!BAD!!!
-
-      // v[cnt].dcColor = ambi;
-      // v[cnt].dcSpecular = waterspek[ambi&255];
-      // v[cnt].dwReserved = 0;
+      v[cnt].r = FP8_TO_FLOAT( ambi );
+      v[cnt].g = FP8_TO_FLOAT( ambi );
+      v[cnt].b = FP8_TO_FLOAT( ambi );
+      v[cnt].a = FP8_TO_FLOAT( waterlayeralpha[layer] );
+	  
       badvertex++;
     }
   }
+ 
+  v[0].s = 1 + offu;
+  v[0].t = 0 + offv;
+  v[1].s = 1 + offu;
+  v[1].t = 1 + offv;
+  v[2].s = 0 + offu;
+  v[2].t = 1 + offv;
+  v[3].s = 0 + offu;
+  v[3].t = 0 + offv;
 
 
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
-    meshlasttexture = texture;
+    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
+    //GLTexture_Bind(texture);
+	meshlasttexture = texture;
   }
 
 

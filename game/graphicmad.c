@@ -147,17 +147,11 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
 void render_enviromad( Uint16 character, Uint8 trans )
 {
   // ZZ> This function draws an environment mapped model
-  // D3DLVERTEX v[MAXVERTICES];
-  // D3DTLVERTEX vt[MAXVERTICES];
-  // D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
   GLVERTEX v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
   Sint32 temp;
-  // float z;
-  // Uint8 red, grn, blu;
   Uint8 ambi;
-  // DWORD fogspec;
   glMatrix tempWorld = mWorld;
 
   Uint16 model = chrmodel[character];
@@ -320,8 +314,8 @@ void render_enviromad( Uint16 character, Uint8 trans )
   glMultMatrixf( mWorld.v );
 
   // Choose texture and matrix
-  glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture] ) );
-
+    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID (&txTexture[texture]));
+   //GLTexture_Bind( texture );
   // Make new ones so we can index them and not transform 'em each time
   // if(transform_vertices(madtransvertices[model], v, vt))
   // return;
@@ -361,9 +355,6 @@ void render_enviromad( Uint16 character, Uint8 trans )
 void render_texmad( Uint16 character, Uint8 trans )
 {
   // ZZ> This function draws a model
-//    D3DLVERTEX v[MAXVERTICES];
-//    D3DTLVERTEX vt[MAXVERTICES];
-//    D3DTLVERTEX vtlist[MAXCOMMANDSIZE];
   GLVERTEX v[MAXVERTICES];
   Uint16 cnt, tnc, entry;
   Uint16 vertex;
@@ -555,13 +546,14 @@ void render_texmad( Uint16 character, Uint8 trans )
   */
 
   // Choose texture and matrix
-  if ( KEYDOWN( SDLK_F7 ) )
+/*  if ( KEYDOWN( SDLK_F7 ) )
   {
     glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
   }
-  else
+  else*/
   {
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
+  glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
+  //GLTexture_Bind(texture);
   }
 
   mWorld = chrmatrix[character];

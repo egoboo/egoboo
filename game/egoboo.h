@@ -616,12 +616,6 @@ EXTERN  GLTexture       TxFont;                    // OpenGL font surface
 EXTERN  GLTexture       TxBars;                    // OpenGL status bar surface
 EXTERN  GLTexture       TxBlip;                    // OpenGL you are here surface
 EXTERN  GLTexture       TxMap;                    // OpenGL map surface
-EXTERN  GLTexture       TxIcon[MAXTEXTURE+1];              /* icons */
-EXTERN  GLTexture       TxTitleImage[MAXMODULE];            /* title images */
-EXTERN  GLTexture       TxFont;                                         /* font */
-EXTERN  GLTexture       TxBars;                                         /* status bars */
-EXTERN  GLTexture       TxBlip;                                         /* you are here texture */
-EXTERN  GLTexture       TxMap;
 EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
 
 // Anisotropic filtering - yay! :P

@@ -1169,8 +1169,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
     piprotatetoface[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) piprotatetoface[numpip] = btrue;
 
-	log_message("%s target %i, home %i\n", szLoadName, pipnewtargetonspawn[numpip],  piphoming[numpip] );
-    // Clear expansions...
+	// Clear expansions...
     pipzaimspd[numpip] = 0;
     pipsoundfloor[numpip] = -1;
     pipsoundwall[numpip] = -1;

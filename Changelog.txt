@@ -136,6 +136,7 @@ Version 2.7.x (??.??.2008)
 - Update: Random potion skins for unidentified potions was removed.
 - Update: Improved some memory optimization.
 - Update: Each class can now have multiple skill IDSZ using expansions.
+- Bugfix: Particles should now correctly find their target.
 - Bugfix: Optimized and fixed the AI targeting system a LOT.
 - Bugfix: Fixed the pet trader trading pets for the wrong items.
 - Bugfix: Fixed a bug in the reload timer.

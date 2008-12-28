@@ -212,7 +212,7 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * im
 
 void GLTexture_Bind( GLTexture *texture )
 {
-  int    filt_type, anisotropy;
+  int    filt_type;
   GLenum target;
   GLuint id;
 
@@ -225,8 +225,7 @@ void GLTexture_Bind( GLTexture *texture )
   }
 
 
-  filt_type  = texturefilter;
-  anisotropy = maxAnisotropy;
+  filt_type = texturefilter;
 
   if ( !glIsEnabled( target ) )
   {
@@ -242,7 +241,7 @@ void GLTexture_Bind( GLTexture *texture )
     //Anisotropic filtered!
     glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy );
+    glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, maxAnisotropy );
   }
   else
   {

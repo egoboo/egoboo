@@ -249,8 +249,8 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
     y1 = ( float ) GLTexture_GetImageHeight( img ) / ( float ) GLTexture_GetTextureHeight( img );
 
     // Draw the image
-    glBindTexture( GL_TEXTURE_2D, img->textureID );
-    glBegin( GL_TRIANGLE_STRIP );
+    GLTexture_Bind(img);
+	glBegin( GL_TRIANGLE_STRIP );
     glTexCoord2f( 0, 0 );    glVertex2i( x, y );
     glTexCoord2f( x1, 0 );  glVertex2i( x + w, y );
     glTexCoord2f( 0, y1 );  glVertex2i( x, y + h );
