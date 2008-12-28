@@ -24,7 +24,7 @@ IfAttacked
 // Chase good guys
 IfTimeOut
   IfTargetIsSelf
-    tmpdistance = 90000  // Square of range
+    tmpdistance = 128*7  // Square of range
     SetTargetToDistantEnemy
       tmpargument = 1
       SendMessageNear

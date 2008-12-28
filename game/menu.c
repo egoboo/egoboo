@@ -1396,7 +1396,10 @@ int doVideoOptions( float deltaTime )
         case TX_LINEAR:
           videoOptionsButtons[5] = "Linear";
           break;
-        case TX_BILINEAR:
+		case TX_MIPMAP:
+          videoOptionsButtons[5] = "Mipmap";
+		  break;
+		case TX_BILINEAR:
           videoOptionsButtons[5] = "Bilinear";
           break;
         case TX_TRILINEAR_1:
@@ -1574,7 +1577,7 @@ int doVideoOptions( float deltaTime )
         {
           videoOptionsButtons[2] = "Yes";
           dither = btrue;
-          shading = GL_FLAT;
+          shading = GL_SMOOTH;
         }
       }
 
@@ -1647,7 +1650,12 @@ int doVideoOptions( float deltaTime )
             videoOptionsButtons[5] = "Linear";
             break;
 
-          case TX_LINEAR:
+		  case TX_LINEAR:
+            texturefilter = TX_MIPMAP;
+            videoOptionsButtons[5] = "Mipmap";
+            break;
+
+          case TX_MIPMAP:
             texturefilter = TX_BILINEAR;
             videoOptionsButtons[5] = "Bilinear";
             break;
@@ -1736,11 +1744,6 @@ int doVideoOptions( float deltaTime )
         switch ( maxlights )
         {
           case 64:
-            videoOptionsButtons[8] = "8";
-            maxlights = 8;
-            break;
-
-          case 8:
             videoOptionsButtons[8] = "12";
             maxlights = 12;
             break;
@@ -1771,8 +1774,8 @@ int doVideoOptions( float deltaTime )
             break;
 
           default:
-            videoOptionsButtons[8] = "8";
-            maxlights = 16;
+            videoOptionsButtons[8] = "12";
+            maxlights = 12;
             break;
         }
       }
@@ -2303,17 +2306,23 @@ void save_settings()
     fputs( write, setupfile );
     switch ( texturefilter )
     {
-      case 1:  TxtTmp = "LINEAR";
+      case TX_UNFILTERED:  TxtTmp = "UNFILTERED";
         break;
-      case 2: TxtTmp = "BILINEAR";
+      case TX_LINEAR:  TxtTmp = "LINEAR";
         break;
-      case 3: TxtTmp = "TRILINEAR";
+      case TX_MIPMAP:  TxtTmp = "MIPMAP";
         break;
-      case 4: TxtTmp = "ANISOTROPIC";
+	  case TX_BILINEAR: TxtTmp = "BILINEAR";
+        break;
+      case TX_TRILINEAR_1: TxtTmp = "TRILINEAR";
+        break;
+      case TX_TRILINEAR_2: TxtTmp = "2_TRILINEAR";
+        break;
+      case TX_ANISOTROPIC: TxtTmp = "ANISOTROPIC";
         break;
       default:
         TxtTmp = "LINEAR";
-        texturefilter = 1;
+        texturefilter = TX_LINEAR;
         break;
     }
     sprintf( write, "[TEXTURE_FILTERING] : \"%s\"\n", TxtTmp );

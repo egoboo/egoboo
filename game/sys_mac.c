@@ -18,7 +18,7 @@ double sys_getTime()
 {
   struct timeval now;
   gettimeofday( &now, NULL );
-  return now.tv_sec + now.tv_usec / 1000000.0 - startuptime;
+ ((double)now.tv_sec) + now.tv_usec / 1000000.0f - startuptime; 
 }
 
 int sys_frameStep()

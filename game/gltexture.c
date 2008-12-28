@@ -223,8 +223,9 @@ void GLTexture_Bind( GLTexture *texture )
     target = texture->texture_target;
     id     = texture->textureID;
   }
+  else return;
 
-
+  log_message("Value is: %i\n", target);
   filt_type = texturefilter;
 
   if ( !glIsEnabled( target ) )
@@ -235,6 +236,13 @@ void GLTexture_Bind( GLTexture *texture )
   glBindTexture( target, id );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+  //Error check
+  if(target == NULL)
+  {
+    if(gDevMode) log_warning("Trying to filter an invalid texture! Aborted.\n");
+	return;
+  }
 
   if ( filt_type >= TX_ANISOTROPIC )
   {

@@ -33,12 +33,7 @@ void render_fan( Uint32 fan )
   Uint16 texture;
   Uint16 cnt, tnc, entry, vertex;
   Uint32  badvertex;
-//  Uint8 red, grn, blu;
   float offu, offv;
-//  float z;
-  // DWORD ambi;
-//  DWORD fogspec;
-
 
   // vertex is a value from 0-15, for the meshcommandref/u/v variables
   // badvertex is a value that references the actual vertex number
@@ -47,7 +42,7 @@ void render_fan( Uint32 fan )
   Uint8  fx = meshfx[fan];                   // Fx bits
   Uint16 type = meshtype[fan];               // Command type ( index to points in fan )
 
-  if ( tile == FANOFF )
+  if ( tile == FANOFF || tile == INVALID_TILE )
     return;
 
   // Animate the tiles
@@ -71,82 +66,36 @@ void render_fan( Uint32 fan )
   offu = meshtileoffu[tile];          // Texture offsets
   offv = meshtileoffv[tile];          //
 
-  texture = ( tile >> 6 ) + 1;            // 64 tiles in each 256x256 texture
+  texture = ( tile >> 6 ) + TX_TILE_0;    // 64 tiles in each 256x256 texture
   vertices = meshcommandnumvertices[type];// Number of vertices
   commands = meshcommands[type];          // Number of commands
 
   // Original points
   badvertex = meshvrtstart[fan];          // Get big reference value
 
-
   //[claforte] Put this in an initialization function.
   glEnableClientState( GL_VERTEX_ARRAY );
-//  glEnableClientState(GL_COLOR_ARRAY);
-//  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
   glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
   glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
-  // glColorPointer... not needed?
 
-// TODO: Implement OpenGL fog effects
-  /*  if(fogon)
-      {
-          // The full fog value
-          fogspec = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
-          for (cnt = 0; cnt < vertices; cnt++)
-          {
-              v[cnt].x = (float) meshvrtx[badvertex];
-              v[cnt].y = (float) meshvrty[badvertex];
-              v[cnt].z = (float) meshvrtz[badvertex];
-              z = v[cnt].z;
-
-
-              // Figure out the fog coloring
-              if(z < fogtop)
-              {
-                  if(z < fogbottom)
-                  {
-                      v[cnt].dcSpecular = fogspec;  // Full fog
-                  }
-                  else
-                  {
-                      z = 1.0f - ((z - fogbottom)/fogdistance);  // 0.0f to 1.0f... Amount of fog to keep
-                      red = (fogred * z);
-                      grn = (foggrn * z);
-                      blu = (fogblu * z);
-                      ambi = 0xff000000 | (red<<16) | (grn<<8) | (blu);
-                      v[cnt].dcSpecular = ambi;
-                  }
-              }
-              else
-              {
-                  v[cnt].dcSpecular = 0;  // No fog
-              }
-
-              ambi = (DWORD) meshvrtl[badvertex];
-              ambi = (ambi<<8)|ambi;
-              ambi = (ambi<<8)|ambi;
-  //                v[cnt].dcColor = ambi;
-  //                v[cnt].dwReserved = 0;
-              badvertex++;
-          }
-      }
-      else
-  */
   {
     for ( cnt = 0; cnt < vertices; cnt++ )
     {
-      v[cnt].x = ( float ) meshvrtx[badvertex];
-      v[cnt].y = ( float ) meshvrty[badvertex];
-      v[cnt].z = ( float ) meshvrtz[badvertex];
-      v[cnt].r = v[cnt].g = v[cnt].b = ( float )meshvrtl[badvertex] / 255.0f;
+      v[cnt].x = meshvrtx[badvertex];
+      v[cnt].y = meshvrty[badvertex];
+      v[cnt].z = meshvrtz[badvertex];
+
+      v[cnt].r = 
+	  v[cnt].g = 
+	  v[cnt].b = FP8_TO_FLOAT(meshvrtl[badvertex]);
+
       v[cnt].s = meshcommandu[type][badvertex] + offu;
       v[cnt].t = meshcommandv[type][badvertex] + offv;
       badvertex++;
     }
   }
 
-// GS - Begin3DMode ();
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
@@ -170,24 +119,11 @@ void render_fan( Uint32 fan )
       glColor3fv( &v[vertex].r );
       glTexCoord2f ( meshcommandu[type][vertex] + offu, meshcommandv[type][vertex] + offv );
       glVertex3fv ( &v[vertex].x );
-
-//            vtlist[tnc].dvSX = vt[vertex].dvSX;
-//            vtlist[tnc].dvSY = vt[vertex].dvSY;
-//            vtlist[tnc].dvSZ = vt[vertex].dvSZ;
-//            vtlist[tnc].dvRHW = vt[vertex].dvRHW;
-//            vtlist[tnc].dcColor = vt[vertex].dcColor;
-//            vtlist[tnc].dcSpecular = vt[vertex].dcSpecular;
-//            vtlist[tnc].dvTU = meshcommandu[type][vertex]+offu;
-//            vtlist[tnc].dvTV = meshcommandv[type][vertex]+offv;
-
       entry++;
     }
     glEnd();
-//            lpD3DDDevice->DrawPrimitive((D3DPRIMITIVETYPE) D3DPT_TRIANGLEFAN,
-//                                    D3DVT_TLVERTEX, (LPVOID)vtlist, tnc, NULL);
   }
 
-  // GS - End3DMode ();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -252,7 +188,6 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    //glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
     GLTexture_Bind(&txTexture[texture]);
 	meshlasttexture = texture;
   }
@@ -283,20 +218,8 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
       glColor4fv( &v[vertex].r );
       glTexCoord2fv ( &v[vertex].s );
       glVertex3fv ( &v[vertex].x );
-      /*
-                  vtlist[tnc].dvSX = vt[vertex].dvSX;
-                  vtlist[tnc].dvSY = vt[vertex].dvSY;
-                  vtlist[tnc].dvSZ = vt[vertex].dvSZ;
-                  vtlist[tnc].dvRHW = vt[vertex].dvRHW;
-                  vtlist[tnc].dcColor = vt[vertex].dcColor;
-                  vtlist[tnc].dcSpecular = vt[vertex].dcSpecular;
-                  vtlist[tnc].dvTU = meshcommandu[type][vertex]+offu;
-                  vtlist[tnc].dvTV = meshcommandv[type][vertex]+offv;
-      */
       entry++;
     }
     glEnd ();
-//            lpD3DDDevice->DrawPrimitive((D3DPRIMITIVETYPE) D3DPT_TRIANGLEFAN,
-//                                    D3DVT_TLVERTEX, (LPVOID)vtlist, tnc, NULL);
   }
 }

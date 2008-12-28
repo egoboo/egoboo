@@ -309,6 +309,7 @@ EXTERN int rotmeshdown;                                    //
 #define MAXTILETYPE                     256         // Max number of tile images
 #define MAXMESHRENDER                   1024        // Max number of tiles to draw
 #define FANOFF                          0xffff      // Don't draw the fansquare if tile = this
+#define INVALID_TILE                    ((Uint16)(~(Uint16)0))   // Don't draw the fansquare if tile = this
 #define OFFEDGE                         0           // Character not on a fan ( maybe )
 
 #define MESHFXREF                       0           // 0 This tile is drawn 1st
@@ -917,7 +918,7 @@ EXTERN bool_t					 chrcanread[MAXCHR];
 #define NEARBY		3*TILESIZE		//5 tiles
 #define WIDE		8*TILESIZE		//12 tiles
 #define NEAREST		0		        //unlimited range
-#define TILESIZE    128
+#define TILESIZE    128				//Size of one texture tile in egoboo
 
 EXTERN bool_t                    localseeinvisible;
 EXTERN bool_t                    localseekurse;
@@ -1828,10 +1829,6 @@ EXTERN Uint32 controliskey[MAXCONTROL];             // Is it a key?
 //Quest system
 #define QUESTBEATEN         -1   
 #define NOQUEST             -2
-
-// AI Targeting
-EXTERN Uint16  globalnearest;
-EXTERN float globaldistance;
 
 // SDL specific declarations
 EXTERN SDL_Joystick *sdljoya EQ( NULL );

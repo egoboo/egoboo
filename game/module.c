@@ -155,19 +155,17 @@ int find_module( char *smallname )
 void load_module( char *smallname )
 {
   // ZZ> This function loads a module
-  char modname[128];
-
-  // printf("in load_module\n");
+  STRING modname;
 
   // Load all the global icons
   if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
   beatmodule = bfalse;
   timeron = bfalse;
-  sprintf( modname, "modules" SLASH_STR "%s" SLASH_STR, smallname );
-  make_randie();  // This should work
-  reset_teams();      // This should work
-  //load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
+  snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
+  make_randie();
+  reset_teams();
+  load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
   if ( soundvalid ) load_global_waves( modname );
   reset_particles( modname );
   read_wawalite( modname );
@@ -192,7 +190,6 @@ void load_module( char *smallname )
   reset_players();
 
   setup_characters( modname );
-//#endif // SDL_LIL_ENDIAN
 
   reset_end_text();
   setup_alliances( modname );
@@ -268,7 +265,6 @@ int get_module_data( int modnumber, char *szLoadName )
         iTmp++;
       }
       modrank[modnumber][iTmp] = 0;
-
 
 
       // Read the expansions

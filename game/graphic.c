@@ -1380,32 +1380,32 @@ void load_basic_textures( char *modname )
   char newloadname[256];
 
   // Particle sprites
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", INVALID_KEY );
 
   // Module background tiles
   make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_0], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_0], newloadname, INVALID_KEY );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D,  &txTexture[TX_TILE_1], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D,  &txTexture[TX_TILE_1], newloadname, INVALID_KEY );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, INVALID_KEY );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_3], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_3], newloadname, INVALID_KEY );
 
   // Water textures
   make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, INVALID_KEY ); 
   make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, INVALID_KEY ); 
   
 
   // Texture 7 is the phong map
   if ( phongon )
   {
-    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", TRANSCOLOR ); 
+    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", INVALID_KEY ); 
   }
 
 }
@@ -1866,12 +1866,12 @@ int load_one_object( int skin, char* tmploadname )
   numicon = 0;
   make_newloadname( tmploadname, "tris0", newloadname );
 
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     numskins++;
     make_newloadname( tmploadname, "icon0", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       while ( numicon < numskins )
@@ -1884,13 +1884,13 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris1", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // Port to new alpha code
+    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // Port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon1", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // Port to new alpha code
@@ -1903,13 +1903,13 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris2", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // port to new alpha code
+    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon2", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
@@ -1922,13 +1922,13 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris3", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(TRANSCOLOR);  // port to new alpha code
+    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon3", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, TRANSCOLOR );
+    GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
       // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
@@ -2094,7 +2094,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   char cTmp;
   FILE *fileread;
 
-  if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) == INVALID_TX_ID )
+  if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, INVALID_KEY ) == INVALID_TX_ID )
     log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
 
 
@@ -4394,8 +4394,7 @@ int load_one_title_image( int titleimage, char *szLoadName )
 {
   // ZZ> This function loads a title in the specified image slot, forcing it into
   //     system memory.  Returns btrue if it worked
-  GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, INVALID_KEY );
-  if ( GLTexture_GetTextureID( &TxTitleImage[titleimage] ) != 0 )
+  if ( GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, INVALID_KEY ) != INVALID_TX_ID )
   {
     return btrue;
   }

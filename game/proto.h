@@ -384,7 +384,6 @@ int get_module_data( int modnumber, char *szLoadName );
 int get_module_summary( char *szLoadName );
 void load_all_menu_images();
 bool_t load_blip_bitmap();
-//void draw_titleimage( int image, int x, int y );
 void do_cursor();
 void menu_service_select();
 void menu_start_or_join();

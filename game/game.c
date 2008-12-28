@@ -928,7 +928,8 @@ void read_setup( char* filename )
 
     // Do gourad shading?
     GetBoolean( "GOURAUD_SHADING", lTempBool, btrue );
-    shading = lTempBool ? GL_SMOOTH : GL_FLAT;
+    //shading = lTempBool ? GL_SMOOTH : GL_FLAT;
+    shading = GL_SMOOTH;
 
     // Enable antialiasing?
     GetBoolean( "ANTIALIASING", antialiasing, bfalse );
@@ -936,13 +937,16 @@ void read_setup( char* filename )
     // Do we do texture filtering?
     GetString( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
 
-    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = 1;
-    if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = 2;
-    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  texturefilter = 3;
-    if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = 4;
+    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_UNFILTERED;
+    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_LINEAR;
+	if ( lTempStr[0] == 'M' || lTempStr[0] == 'm' )  texturefilter = TX_MIPMAP;
+    if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = TX_BILINEAR;
+    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  texturefilter = TX_TRILINEAR_1;
+    if ( lTempStr[0] == '2'                       )  texturefilter = TX_TRILINEAR_2;
+    if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = TX_ANISOTROPIC;
 
     // Max number of lights
-	GetInt( "MAX_DYNAMIC_LIGHTS", maxlights, 8 );
+	GetInt( "MAX_DYNAMIC_LIGHTS", maxlights, 12 );
 	if ( maxlights > TOTALMAXDYNA ) maxlights = TOTALMAXDYNA;
 
     // Get the FPS limit
