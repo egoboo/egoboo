@@ -178,12 +178,11 @@ void make_one_weapon_matrix( Uint16 cnt );
 void make_character_matrices();
 int get_free_particle( int force );
 int get_free_character();
-Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+
+/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
                             Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-                            Uint16 donttarget, Uint16 oldtarget );
-Uint16 find_target( float chrx, float chry, Uint16 facing,
-                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-                    Uint8 team, Uint16 donttarget, Uint16 oldtarget );
+                            Uint16 donttarget, Uint16 oldtarget );*/
+
 void debug_message( char *text );
 void reset_end_text();
 void append_end_text( int message, Uint16 character );
@@ -411,22 +410,10 @@ int check_skills( Uint16 who, IDSZ whichskill );
 
 //---------------------------------------------------------------------------------------------
 //AI targeting
-//Uint16 get_target_in_block( int x, int y, Uint16 character, char items,
-//                            char friends, char enemies, char dead, char seeinvisible, IDSZ idsz,
-//                            char excludeid );
-//void get_nearest_in_block( int x, int y, Uint16 character, char items,
-//                           char friends, char enemies, char dead, char seeinvisible, IDSZ idsz );
-//Uint16 get_nearest_target( Uint16 character, char items,
-//                           char friends, char enemies, char dead, IDSZ idsz );
-
-//Uint16 get_wide_target( Uint16 character, char items,
-//                        char friends, char enemies, char dead, IDSZ idsz, char excludeid );
-//Uint16 get_nearby_target( Uint16 character, char items,
-//                          char friends, char enemies, char dead, IDSZ idsz );
-
-//Uint16 find_distant_target( Uint16 character, int maxdistance );
-
 Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
+Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
+                    Uint16 particletype, Uint8 team, Uint16 donttarget, 
+					Uint16 oldtarget );
 
 //---------------------------------------------------------------------------------------------
 // Quest system

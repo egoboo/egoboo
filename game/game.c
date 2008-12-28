@@ -223,19 +223,27 @@ void export_one_character( int character, int owner, int number, bool_t is_local
       sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
       sprintf( tofile,   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
       fs_copyFile( fromfile, tofile );
+      sprintf( fromfile, "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
+      sprintf( tofile,   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
+      fs_copyFile( fromfile, tofile );
       tnc++;
     }
 
-    // Copy all of the image files
+    // Copy all of the image files (try to copy all supported formats too)
     tnc = 0;
     while ( tnc < 4 )
     {
-      sprintf( fromfile, "%s" SLASH_STR "tris%d.bmp", fromdir, tnc );
-      sprintf( tofile,   "%s" SLASH_STR "tris%d.bmp", todir,   tnc );
-      fs_copyFile( fromfile, tofile );
-      sprintf( fromfile, "%s" SLASH_STR "icon%d.bmp", fromdir, tnc );
-      sprintf( tofile,   "%s" SLASH_STR "icon%d.bmp", todir,   tnc );
-      fs_copyFile( fromfile, tofile );
+	  Uint8 type = 0;
+	  while(type < maxformattypes)
+	  {
+        sprintf( fromfile, "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
+        sprintf( tofile,   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
+        fs_copyFile( fromfile, tofile );
+        sprintf( fromfile, "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
+        sprintf( tofile,   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
+        fs_copyFile( fromfile, tofile );
+		type++;
+	  }
       tnc++;
     }
   }

@@ -224,6 +224,7 @@ void GLTexture_Bind( GLTexture *texture )
     id     = texture->textureID;
   }
 
+
   filt_type  = texturefilter;
   anisotropy = maxAnisotropy;
 
@@ -314,9 +315,6 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
   Uint32 retval;
   Uint8 type = 0;
   SDL_Surface * image = NULL;
-
-  // get rid of any old data
-  GLTexture_delete(texture);
   
   // initialize the texture
   if ( NULL == GLTexture_new( texture ) ) return INVALID_TX_ID;

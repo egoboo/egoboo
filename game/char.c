@@ -775,7 +775,7 @@ int get_free_character()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
                             Uint8 onlyfriends, Uint8 anyone, Uint8 team,
                             Uint16 donttarget, Uint16 oldtarget )
 {
@@ -834,10 +834,53 @@ Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
     }
   }
   return returncode;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
-Uint16 find_target( float chrx, float chry, Uint16 facing,
+Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
+                    Uint16 particletype, Uint8 team, Uint16 donttarget, 
+					Uint16 oldtarget )
+{
+  //ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+  Uint16 besttarget = MAXCHR, cnt;
+  Uint16 longdist = WIDE;
+  
+  for(cnt = 0; cnt < MAXCHR; cnt++)
+  {
+	  if(chron[cnt] && chralive[cnt] && !chrisitem[cnt] && chrattachedto[cnt] == MAXCHR
+		  && !chrinvictus[cnt])
+	  {
+		  if((piponlydamagefriendly[particletype] && team == chrteam[cnt]) || (!piponlydamagefriendly[particletype] && teamhatesteam[team][chrteam[cnt]]) ) 
+		  {
+	     //Don't retarget someone we already had or not supposed to target
+	     if(cnt != oldtarget && cnt != donttarget)
+		 {
+			Uint16 angle = (ATAN2( chrypos[cnt] - ypos, chrxpos[cnt] - xpos ) * 65535 / ( TWO_PI ))
+                               + BEHIND - facing;
+
+			//Only proceed if we are facing the target
+			if (angle < piptargetangle[particletype] || angle > ( 65535 - piptargetangle[particletype] ) )
+			{
+				Uint32 dist = ( Uint32 ) SQRT(ABS( pow(chrxpos[cnt] - xpos, 2))
+								+ ABS( pow(chrypos[cnt] - ypos, 2))
+								+ ABS( pow(chrzpos[cnt] - zpos, 2)) );
+				if(dist < longdist && dist < WIDE )
+				{
+					besttarget = cnt;
+					longdist = dist;
+				}	
+			}
+		  }
+		  }
+	  }
+
+  }
+  
+  //All done
+  return besttarget;
+}
+//--------------------------------------------------------------------------------------------
+/*Uint16 find_target( float chrx, float chry, Uint16 facing,
                     Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
                     Uint8 team, Uint16 donttarget, Uint16 oldtarget )
 {
@@ -867,7 +910,7 @@ Uint16 find_target( float chrx, float chry, Uint16 facing,
 
 
   return MAXCHR;
-}
+}*/
 
 //--------------------------------------------------------------------------------------------
 void free_all_characters()
@@ -4639,12 +4682,11 @@ void export_one_character_skin( char *szSaveName, Uint16 character )
   // General stuff
   profile = chrmodel[character];
 
-
   // Open the file
   filewrite = fopen( szSaveName, "w" );
   if ( filewrite )
   {
-    fprintf( filewrite, "This file is used only by the import menu\n" );
+    fprintf( filewrite, "//This file is used only by the import menu\n" );
     fprintf( filewrite, ": %d\n", ( chrtexture[character] - madskinstart[profile] )&3 );
     fclose( filewrite );
   }
@@ -6814,11 +6856,6 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   }
   return besttarget;
 }
-
-/*Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems )
-{
-	get_target(character, maxdistance, team, targetitems, bfalse);
-}*/
 
 
 

@@ -383,7 +383,7 @@ IfTimeOut
       SetTime
     Else
       // Go after enemies
-      SetTargetToNearestEnemy
+      SetTargetToWideEnemy
         tmpargument = rand & 7 + 4
         SetTime
         tmpargument = 3

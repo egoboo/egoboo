@@ -192,11 +192,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
   float xvel, yvel, zvel, tvel;
   int offsetfacing = 0, newrand;
 
-
   // Convert from local pip to global pip
   if ( model < MAXMODEL )
     pip = madprtpip[model][pip];
-
 
   cnt = get_free_particle( pipforce[pip] );
   if ( cnt != maxparticles )
@@ -232,11 +230,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
     prtattachedtocharacter[cnt] = characterattach;
     prtgrip[cnt] = grip;
 
-
-
     // Correct facing
     facing += pipfacingbase[pip];
-
 
     // Targeting...
     zvel = 0;
@@ -245,17 +240,20 @@ Uint16 spawn_one_particle( float x, float y, float z,
     newrand = RANDIE;
     velocity = ( pipxyvelbase[pip] + ( newrand & pipxyvelrand[pip] ) );
     prttarget[cnt] = oldtarget;
+	    
+
     if ( pipnewtargetonspawn[pip] )
     {
-      if ( piptargetcaster[pip] )
+	  if ( piptargetcaster[pip] )
       {
         // Set the target to the caster
         prttarget[cnt] = characterorigin;
       }
       else
       {
+		  
         // Find a target
-        prttarget[cnt] = find_target( x, y, facing, piptargetangle[pip], piponlydamagefriendly[pip], bfalse, team, characterorigin, oldtarget );
+        prttarget[cnt] = get_particle_target( x, y, z, facing, pip, team, characterorigin, oldtarget );
         if ( prttarget[cnt] != MAXCHR && !piphoming[pip] )
         {
           facing = facing - glouseangle;
@@ -529,8 +527,7 @@ void move_particles( void )
 
       // Make it sit on the floor...  Shift is there to correct for sprite size
       level = prtlevel[cnt] + ( prtsize[cnt] >> 9 );
-
-
+     
       // Check floor collision and do iterative physics
       if ( ( prtzpos[cnt] < level && prtzvel[cnt] < 0.1f ) || ( prtzpos[cnt] < level - PRTLEVELFIX ) )
       {
@@ -621,7 +618,7 @@ void move_particles( void )
       // Do homing
       if ( piphoming[pip] && prttarget[cnt] != MAXCHR )
       {
-        if ( !chralive[prttarget[cnt]] )
+		if ( !chralive[prttarget[cnt]] )
         {
           prttime[cnt] = 1;
         }
@@ -1023,7 +1020,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
   float fTmp;
   char cTmp;
 
-
+  
   fileread = fopen( szLoadName, "r" );
   if ( fileread != NULL )
   {
@@ -1154,17 +1151,17 @@ int load_one_particle( char *szLoadName, int object, int pip )
     if ( iTmp < -1 ) iTmp = -1;
     if ( iTmp > MAXWAVE - 1 ) iTmp = MAXWAVE - 1;
     pipsoundend[numpip] = iTmp;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+
+	goto_colon( fileread );  cTmp = get_first_letter( fileread );
     pipfriendlyfire[numpip] = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;
-	goto_colon( fileread ); cTmp = get_first_letter( fileread );
-	piphateonly[numpip] = bfalse;							//TODO: BAD not implemented yet
-	if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;
-    pipnewtargetonspawn[numpip] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;   //piphateonly[numpip] = bfalse; TODO: BAD not implemented yet
+    goto_colon( fileread );
+	goto_colon( fileread );  cTmp = get_first_letter( fileread );
+	pipnewtargetonspawn[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) pipnewtargetonspawn[numpip] = btrue;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); piptargetangle[numpip] = iTmp >> 1;
     goto_colon( fileread );  cTmp = get_first_letter( fileread );
-    piphoming[numpip] = bfalse;
+	piphoming[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) piphoming[numpip] = btrue;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); piphomingfriction[numpip] = fTmp;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); piphomingaccel[numpip] = fTmp;
@@ -1172,6 +1169,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
     piprotatetoface[numpip] = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) piprotatetoface[numpip] = btrue;
 
+	log_message("%s target %i, home %i\n", szLoadName, pipnewtargetonspawn[numpip],  piphoming[numpip] );
     // Clear expansions...
     pipzaimspd[numpip] = 0;
     pipsoundfloor[numpip] = -1;

@@ -64,7 +64,7 @@ typedef struct
 #define EQ(x)
 #endif
 
-EXTERN char          VERSION[] EQ( "2.6.9" );  // Version of the game
+EXTERN char          VERSION[] EQ( "2.7.0" );  // Version of the game
 EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
 EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
@@ -1755,7 +1755,7 @@ typedef enum global_sounds
 
 // Sound using SDL_Mixer
 EXTERN bool_t          mixeron EQ( bfalse );    // Is the SDL_Mixer loaded?
-#define MAXWAVE         30               // Up to 30 waves per model
+#define MAXWAVE         30               // Up to 30 wave/ogg per model
 #define VOLUMERATIO     7               // Volume ratio
 EXTERN Mix_Chunk    *capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
 EXTERN Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
