@@ -2479,7 +2479,7 @@ void render_background( Uint16 texture )
     GLint shading_save, depthfunc_save;
     GLboolean depthmask_save, cullface_save;
 
-    GLTexture_Bind(texture);
+    GLTexture_Bind( txTexture[texture] );
 
     glGetIntegerv( GL_SHADE_MODEL, &shading_save );
     glShadeModel( GL_FLAT );  // Flat shade this
@@ -2566,7 +2566,7 @@ void render_foreground_overlay( Uint16 texture )
     glGetIntegerv(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
     glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
 
-    GLTexture_Bind(texture);
+    GLTexture_Bind(&txTexture[texture]);
 
     glGetIntegerv( GL_SHADE_MODEL, &shading_save );
     glShadeModel( GL_FLAT );  // Flat shade this

@@ -150,8 +150,7 @@ void render_fan( Uint32 fan )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    glBindTexture ( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
-        //GLTexture_Bind(texture);
+    GLTexture_Bind( &txTexture[texture] );
 	meshlasttexture = texture;
   }
 
@@ -253,8 +252,8 @@ void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
-    //GLTexture_Bind(texture);
+    //glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ));
+    GLTexture_Bind(txTexture[texture]);
 	meshlasttexture = texture;
   }
 
