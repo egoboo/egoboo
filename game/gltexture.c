@@ -223,9 +223,7 @@ void GLTexture_Bind( GLTexture *texture )
     target = texture->texture_target;
     id     = texture->textureID;
   }
-  else return;
 
-  log_message("Value is: %i\n", target);
   filt_type = texturefilter;
 
   if ( !glIsEnabled( target ) )

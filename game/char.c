@@ -6830,12 +6830,14 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   
   for(cnt = 0; cnt < MAXCHR; cnt++)
   {
-	  if(chron[cnt] && cnt != character && targetdead != chralive[cnt] && targetitems == chrisitem[cnt] && chrattachedto[cnt] == MAXCHR
+	  if(chron[cnt] && cnt != character && (targetdead || chralive[cnt] == btrue) && (targetitems || chrisitem[cnt] == bfalse) && chrattachedto[cnt] == MAXCHR
 		  && (team != ENEMY || chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
-		  && (team == ALL || (team != teamhatesteam[chrteam[character]][chrteam[cnt]] && !chrinvictus[cnt]) ))
+		  && (team == ALL || (team != teamhatesteam[chrteam[character]][chrteam[cnt]]) && (targetitems == chrinvictus[cnt]) ))
 	  {
 		  //Check for IDSZ too
-		  if(idsz == IDSZNONE || excludeidsz != (capidsz[chrmodel[cnt]][IDSZPARENT] == idsz) || excludeidsz != (capidsz[chrmodel[cnt]][IDSZTYPE] == idsz) )
+		  if(idsz == IDSZNONE 
+			  || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZPARENT] == idsz)) 
+			  || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZTYPE]   == idsz)) )
 		  {
 			Uint32 dist = ( Uint32 ) SQRT(ABS( pow(chrxpos[cnt] - chrxpos[character], 2))
 							+ ABS( pow(chrypos[cnt] - chrypos[character], 2))

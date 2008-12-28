@@ -1380,7 +1380,7 @@ void load_basic_textures( char *modname )
   char newloadname[256];
 
   // Particle sprites
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
 
   // Module background tiles
   make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
@@ -1390,16 +1390,16 @@ void load_basic_textures( char *modname )
   GLTexture_Load(GL_TEXTURE_2D,  &txTexture[TX_TILE_1], newloadname, INVALID_KEY );
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, INVALID_KEY);
 
   make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
   GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_3], newloadname, INVALID_KEY );
 
   // Water textures
   make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, INVALID_KEY ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR ); 
   make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, INVALID_KEY ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR ); 
   
 
   // Texture 7 is the phong map
@@ -2036,9 +2036,8 @@ void load_bars( char* szBitmap )
   // ZZ> This function loads the status bar bitmap
   int cnt;
 
-  GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, 0 );
-  if ( &TxBars == NULL )
-    log_error( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
+  GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR );
+  if ( &TxBars == NULL ) log_warning( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
 
 
   // Make the blit rectangles
@@ -2053,9 +2052,6 @@ void load_bars( char* szBitmap )
     barrect[cnt].top = tabrect[cnt].top;
     barrect[cnt].bottom = tabrect[cnt].bottom;
   }
-
-  // Set the transparent color
-  // DDSetColorKey(lpDDSBars, 0); port to new alpha code
 }
 
 //--------------------------------------------------------------------------------------------

@@ -25,7 +25,6 @@ IfKilled
 
   // Make noises
   tmpargument = 1
-  tmpdistance = rand & 1023 + 10500
   PlaySound
 
 
@@ -56,7 +55,7 @@ IfTimeOut
   SetTime
 
 
-  SetTargetToNearestEnemy
+  SetTargetToWideEnemy
     Run
     SetTurnModeToWatchTarget
     IfFacingTarget
@@ -119,7 +118,6 @@ IfTimeOut
 
             // Play a sound
             tmpargument = 2
-            tmpdistance = 22050
             PlaySound
 
             tmpturn = targetturnto

@@ -28,7 +28,6 @@ IfBumped
     IfTargetIsOnHatedTeam
       // Bumping a sleeping Cobol...  How rude!
       tmpargument = 8
-      tmpdistance = rand & 2047 + 13000
       PlaySound
 
 
@@ -161,7 +160,7 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfStateIs8
     // A sleeping Cobol
-    tmpargument = [DISA]
+    tmpargument = [STAB]
     IfTargetHasSkillID
       // This is what Rogues do best...
       tmpargument = 5
@@ -225,11 +224,11 @@ IfAttacked
 IfTimeOut
   // Check if the current target is alive or not
   IfStateIs8
-    GetState // NOP
+    DoNothing
   Else
     IfTargetIsAlive
       IfTargetIsOnHatedTeam
-        GetState // NOP
+        DoNothing
       Else
         // Revert to target acquisition state ( Invisible enemy? Dismount? )
         GetState
@@ -247,7 +246,7 @@ IfTimeOut
     // Riding some type of animal...
     // Acquire a target
     SetTurnModeToVelocity
-    SetTargetToNearestEnemy
+    SetTargetToWideEnemy
       // Charge towards enemy
       tmpx = targetx
       tmpy = targety
@@ -320,7 +319,7 @@ IfTimeOut
         tmpx = targetx
         tmpy = targety
         SetTargetToNearestFriend
-          tmpdistance = 200
+          tmpdistance = 100
           tmpturn = targetdistance
           IfDistanceIsMoreThanTurn
             // The friend is close, so move away
@@ -409,7 +408,7 @@ IfTimeOut
         IfHoldingMeleeWeapon
           // Acquire a target
           SetTurnModeToVelocity
-          tmpdistance = 250000 // Square of distance to check
+          tmpdistance = 128*8 // Square of distance to check
           SetTargetToDistantEnemy
             // Charge towards enemy
             tmpx = targetx
@@ -446,13 +445,12 @@ IfTimeOut
 
         // Snore...
         tmpargument = rand & 3 + 4
-        tmpdistance = rand & 2047 + 15000
         PlaySound
 
 
         tmpargument = ACTIONMK
         DoAction
-        tmpdistance = 160000  // Distance to check
+        tmpdistance = 128*4  // Distance to check
         SetTargetToDistantEnemy
           IfTargetIsSneaking
             tmpargument = 100 // Time
@@ -618,7 +616,7 @@ IfTimeOut
       IfStateIs0
         // Acquire a target
         SetTurnModeToVelocity
-        SetTargetToNearestEnemy
+        SetTargetToWideEnemy
           // Move away from enemy
           tmpx = targetx
           tmpy = targety
@@ -640,7 +638,6 @@ IfTimeOut
           AddWaypoint
           tmpargument = rand & 15 + 30 // Time
 
-
   // tmpargument is set above
   SetTime
 
@@ -658,13 +655,13 @@ IfOrdered
     Else
       // Check distance to enemy
       tmpx = 9999
-      SetTargetToNearestEnemy
+      tmpdistance = 800
+      SetTargetToDistantEnemy
         tmpx = targetdistance
     tmpy = 800
     IfXIsLessThanY
       // Wake up
       tmpargument = 8
-      tmpdistance = rand & 2047 + 13000
       PlaySound
 
 
@@ -687,7 +684,7 @@ IfOrdered
     tmpx = selforder
     tmpy = [WAKE]
     IfXIsEqualToY
-      GetState  // NOP
+      DoNothing
     Else
       // Someone said to attack ( hand to hand )
       IfStateIsOdd

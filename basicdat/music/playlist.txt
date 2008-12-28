@@ -18,3 +18,5 @@ Music 14: victory.ogg
 Music 15: dramaticboss.ogg
 Music 16: bigboss2.ogg
 Music 17: funny.ogg
+Music 18: deepabyss.ogg
+Music 19: credits.ogg
