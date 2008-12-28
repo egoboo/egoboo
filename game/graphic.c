@@ -2479,7 +2479,7 @@ void render_background( Uint16 texture )
     GLint shading_save, depthfunc_save;
     GLboolean depthmask_save, cullface_save;
 
-    GLTexture_Bind( txTexture[texture] );
+    GLTexture_Bind( &txTexture[texture] );
 
     glGetIntegerv( GL_SHADE_MODEL, &shading_save );
     glShadeModel( GL_FLAT );  // Flat shade this
