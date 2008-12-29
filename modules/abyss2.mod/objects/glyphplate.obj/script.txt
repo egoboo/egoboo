@@ -1,0 +1,112 @@
+// This reads an inscription, if the target can read
+IfTimeOut
+
+  // Check the plate passages
+  tmpx = 0 // Can't read message
+  tmpdistance = 0 // Set to 1 if a message is to be displayed
+  tmpturn = 0
+
+  tmpargument = 0
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 3 // Message
+    Else
+      SetTargetToOldTarget
+
+  tmpargument = 6
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 4 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 17
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 5 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 10
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 7 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 16
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 9 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 25
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 8 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 29
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 7 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpargument = 35
+  SetOldTarget
+  SetTargetToWhoeverIsInPassage
+    IfTargetIsAPlayer
+      tmpdistance = 1
+      tmpx = 10 // Message
+    Else
+      SetTargetToOldTarget
+      
+  tmpy = 1
+  IfXIsMoreThanY
+    tmpargument = [READ]
+  IfTargetHasSkillID              //TODO: uncomment with the new skill system
+      SetXY
+      tmpx = targetint
+      tmpy = 4608			//Need 18 int to read
+      IfXIsLessThanY
+        tmpx = 1
+      Else
+        GetXY
+  Else
+    tmpx = 0    //Cannot read... too low int   
+
+  IfTargetIsAPlayer					//Last check that only players read
+    IfDistanceIsMoreThanTurn
+      // Display the message
+      tmpargument = 150
+      SetTime
+
+      tmpy = 1
+      IfXIsMoreThanY
+        tmpargument = 2 // "The inscription reads..."
+        SendMessage
+      tmpargument = tmpx // The message
+      SendMessage
+    Else
+      // No messages
+      tmpargument = 10
+      SetTime
+
+End					// All done

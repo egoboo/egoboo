@@ -1,0 +1,6 @@
+Message 0: Listen_closely_mortal!
+Message 1: Those_who_want_to_enter_the_inner_sanctum
+Message 2: of_the_Dracolich_must_break_the_four_seals_of_fate!
+Message 3: The_four_seals_have_not_been_broken_yet!
+Message 4: The_four_seals_have_been_broken!_You_are_doomed...
+Message 5: One_of_the_four_seals_has_been_unlocked!

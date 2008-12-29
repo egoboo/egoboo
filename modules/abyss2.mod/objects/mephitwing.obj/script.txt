@@ -1,0 +1,16 @@
+//------------------------------------------------------------------------------
+//Stop flapping when killed...
+IfHeld				//There is no holder!
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAlive			//Holder died
+      DoNothing
+    Else
+      tmpargument = ACTIONDA		//No flapping
+      DoActionOverride
+      KeepAction
+Else
+  GoPoof
+
+//------------------------------------------------------------------------------
+End	//And that's all!
+//------------------------------------------------------------------------------

@@ -1,0 +1,29 @@
+This is a very powerful legendary weapon, Myolnr.
+It attacks even faster than a regular war hammer, and also does quite a bit of damage.
+But you have to actually use it. If you go twenty seconds without using it, it KILLS YOU!
+I was thinking this could be hidden somewhere in some... really secret place. Since it's 
+really powerful; it's even better than a magical weapon. Plus, if you let some greedy monster 
+pick it up and then run away from it... >8D
+
+Anyway. The script was done by Zefz, although I've added a few revisions of my own.
+Thor's voice was provided by Chainsaw and edited by Zefz.
+
+Oh, and also, the lightning is set up right now for the default blueish-purplish-grayish
+stuff, but I've provided some new red lightning that would be more fitting. If you have 
+Egoboo 2.7, you can add them at the end of the particle file and change the numbers in the
+particle files accordingly. If you have no idea what I'm talking about, don't worry about it. 
+All it would change is the color of the electric stuff.
+Oh, and apparently phong mapping has been changed in recent versions, so I've also provided 
+an alternate texture. I like the way it's set up now much better, but there's not much I can
+do about that, really. So if you're using a recent version you may want to change it; just 
+rename "tris0" to something else, and rename "tris1" to "tris0."
+
+Enjoy.
+Enjoy dying.
+MWAHAHAHA!
+
+...No, seriously. It's a lot of fun.
+
+
+= The Purple Squerkle =
+       5.27.08
