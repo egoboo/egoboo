@@ -123,7 +123,7 @@ IfKilled
 //------------------------------------------------------------------------------
 //What to do if enemies are defeated
 IfTargetKilled
-  SetTargetToNearestEnemy	//Goto next
+  SetTargetToWideEnemy	//Goto next
     tmpargument = 1
   Else
     tmpargument = 3		//No enemies left
@@ -273,7 +273,8 @@ IfTimeOut
     IfXIsMoreThanY		//Finished casting poison cloud?
       tmpargument = 0
       SetContent		//Reset poison timer
-      SetTargetToNearestEnemy
+      tmpdistance = 128*12
+      SetTargetToDistantEnemy
         Run
         tmpx = targetx
         tmpy = targety
@@ -337,7 +338,12 @@ IfStateIsNot
   IfTargetIsOnHatedTeam
     DoNothing
   Else
-    SetTargetToNearestEnemy
+    tmpdistance = 128*12
+    SetTargetToDistantEnemy
+      DoNothing
+    Else
+      tmpargument = 0     //No enemies left
+      SetState
 
 //------------------------------------------------------------------------------
 End

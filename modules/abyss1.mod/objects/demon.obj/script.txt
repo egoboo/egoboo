@@ -11,26 +11,14 @@ IfOrdered
 IfScoredAHit
   SetTargetToWhoeverWasHit
   tmpx = targetmana
-  tmpy = 200
+  tmpy = 255
   IfXIsMoreThanY
     tmpargument = 6
     PlaySound
     tmpargument = 128*selflevel + 768	//Increases by level = 3 + 1/2 per level
     CostTargetMana
-    tmpargument = 64*selflevel + 384
+    tmpargument = tmpargument > 1  //Heal self half of it
     HealSelf
-
-//-------------------------------------------------------------------------------------
-//Paralysis Power
-IfScoredAHit
-  tmpx = rand & 15
-  tmpy = 6					//30% chance
-  IfXIsLessThanY
-    SetTargetToWhoeverWasHit
-    tmpargument = 10*selflevel + 50		//Duration increases by level
-    SetTargetReloadTime
-    tmpargument = 1
-    SendMessageNear
 
 //-------------------------------------------------------------------------------------
 //Death stuff

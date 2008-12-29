@@ -49,7 +49,7 @@ IfTimeOut
       PlayFullSound
       tmpargument = 50
       SetTime
-    Else			//Circle around
+    Else			//Circle around (guard)
       tmpx = rand & 511 + selfspawnx - 255
       tmpy = rand & 511 + selfspawny - 255
       ClearWaypoints
@@ -63,21 +63,33 @@ IfTimeOut
   IfStateIs1
     SetTurnModeToWatchTarget
     tmpx = targetdistance
-    tmpy = 500
+    tmpy = 128*4
     IfXIsLessThanY
       tmpargument = 2
       SetState		//Melee
     Else				//Charge towards enemy
-      tmpx = targetx
-      tmpy = targety
-      tmpturn = targetturnto
-      tmpdistance = 1500
-      Compass
-      ClearWaypoints
-      AddWaypoint
-      tmpargument = 250
-      SetSpeedPercent
-
+      tmpy = 128*7
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturnto
+        tmpdistance = 1500
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 250
+        SetSpeedPercent
+      Else
+        tmpx = rand & 1023 + targetx - 512    //Tactic approach
+        tmpy = rand & 1023 + targety - 512
+        tmpturn = targetturnto
+        tmpdistance = 600
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        tmpargument = 100
+        SetSpeedPercent
+      
       tmpargument = rand & 31 + 40
       SetTime
 

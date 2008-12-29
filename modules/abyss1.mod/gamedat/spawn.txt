@@ -69,7 +69,7 @@ spear.obj:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 stalker.obj:   NONE    38  17.5   39.5   1.0   N    0   0  0   0   0   F   F   E
 spear.obj:   NONE    53  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-daemonlord.obj:   NONE    47  54.0   45.0   1.0   N    799   0  0   0   0   F   F   E
+daemonlord.obj:   NONE    47  54.0   45.0   1.0   N    799   0  0   0   2   F   F   E
 deamonlordwing.obj:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   S
 bat.obj:   NONE    46  54.0   11.0   1.0   N    0   2  0   0   0   F   F   B
 bat.obj:   NONE    46  52.0   13.0   1.0   N    0   2  0   0   0   F   F   B

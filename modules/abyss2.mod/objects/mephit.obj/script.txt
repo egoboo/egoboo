@@ -56,7 +56,7 @@ IfKilled
     GiveExperienceToTarget
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
@@ -130,21 +130,21 @@ IfTimeOut
   IfStateIs1
     SetTurnModeToVelocity
     tmpx = targetdistance
-    tmpy = 250
+    tmpy = 128*3
     IfXIsLessThanY
       tmpargument = 2
       SetState		//Melee
       tmpargument = 5
       SetTime
     Else				//Move towards enemy in a
-      tmpx = rand & 511 + targetx - 255	//random direction pattern
-      tmpy = rand & 511 + targety - 255
+      tmpx = rand & 1023 + targetx - 511	//random direction pattern
+      tmpy = rand & 1023 + targety - 511
       tmpturn = targetturnto
-      tmpdistance = rand & 1000 - 500
+      tmpdistance = rand % 1000 + 500
       Compass
       ClearWaypoints
       AddWaypoint
-      tmpargument = 35
+      tmpargument = 50
       SetTime
 
     SetTargetToWideEnemy	//Enemy to far away?
@@ -168,7 +168,7 @@ IfTimeOut
 
     //Enemy to far away?
     tmpx = targetdistance
-    tmpy = 250
+    tmpy = 128*3
     IfXIsMoreThanY    
       tmpargument = 1 		//Retry attack position
       SetState    
@@ -186,24 +186,19 @@ IfTimeOut
 
 
   //Dont flock
-  SetTargetToNearbyEnemy
-    DoNothing
-  Else
-    SetOldTarget			//Remember enemy
-    SetTargetToNearestFriend
-      tmpx = targetdistance
-      tmpy = 170
-      IfXIsLessThanY			//Too close to friend?
-        tmpx = rand & 511 + targetx - 256
-        tmpy = rand & 511 + targety - 256
-        tmpdistance = 0 - 350
-        tmpturn = targetturnto
-        Compass
-        ClearWaypoints
-        AddWaypoint
-        tmpargument = 75
-        SetTime
-    SetTargetToOldTarget		//Set target back to enemy
+  SetOldTarget			//Remember enemy
+  SetTargetToNearestFriend
+    tmpx = targetdistance
+    tmpy = 80
+    IfXIsLessThanY			//Too close to friend?
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 300
+      tmpturn = targetturnto + 32768
+      Compass
+      ClearWaypoints
+      AddWaypoint
+  SetTargetToOldTarget		//Set target back to enemy
 
 //------------------------------------------------------------------------------
 //Handle being attacked by countering

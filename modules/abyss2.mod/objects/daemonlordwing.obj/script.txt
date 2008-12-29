@@ -31,20 +31,20 @@ IfOrdered
 
 //Summoning AI
 IfTimeOut			//Every so often
-  tmpargument = 150
+  tmpargument = 250
   SetTime
   IfStateIs1			//Only if leader is in combat
     tmpx = selfmorale
     tmpy = 8
     IfXIsLessThanY		//Max 6 monsters at the time -2 for each of the wings
-      tmpx = rand & 100
+      tmpx = rand % 100
       GetContent		//More monsters reduces chance for summoning even more
       tmpy = 16 - selfmorale *2 //Reduce with 2% for each monster summoned
       IfXIsLessThanY		//14% base chance if no monsters are summoned
         SetTargetToNearestEnemy
         tmpx = rand & 256 + targetx - 128
         tmpy = rand & 256 + targety - 128
-        tmpdistance = rand & 100 + selfz + 25
+        tmpdistance = rand % 100 + selfz + 25
         tmpturn = rand
         tmpargument = rand % 4	//Randomize monster type
         SetState
@@ -59,6 +59,7 @@ IfTimeOut			//Every so often
         SpawnExactCharacterXYZ
           tmpargument = 6	//Spell effect
           SpawnExactParticle
+          SetTargetToWhoeverIsHolding
           tmpargument = 896	//Costs 3.5 mana points
           CostTargetMana
           tmpargument = 1
