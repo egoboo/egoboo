@@ -89,13 +89,41 @@ void make_newloadname( char *modname, char *appendname, char *newloadname )
   newloadname[cnt] = 0;
 }
 
+//--------------------------------------------------------------------------------------------
+char * get_file_path(char *character)
+{
+	//ZF> This turns a character name into a proper filepath for loading and saving files
+	//    also turns all letter to lower case in case of case sensitive OS.
+	Uint8 cnt = 0;
+    char letter;
+	static char pathname[16];
 
-////--------------------------------------------------------------------------------------------
+    letter = character[cnt];
+    while ( cnt < 8 && letter != 0 )
+    {
+      letter = character[cnt];
+      if ( letter >= 'A' && letter <= 'Z' )  letter -= 'A' - 'a';
+      if ( letter != 0 )
+      {
+        if ( ( letter < 'a' || letter > 'z' ))  letter = '_';
+        pathname[cnt] = letter;
+        cnt++;
+      }
+    }
+	pathname[cnt] = '.'; cnt++;
+    pathname[cnt] = 'o'; cnt++;
+    pathname[cnt] = 'b'; cnt++;
+    pathname[cnt] = 'j'; cnt++;
+    pathname[cnt] = 0;
+    return pathname;
+}
+
+
+//--------------------------------------------------------------------------------------------
 void export_one_character( int character, int owner, int number, bool_t is_local )
 {
   // ZZ> This function exports a character
-  int tnc, profile;
-  char letter;
+  int tnc = 0, profile;
   char fromdir[128];
   char todir[128];
   char fromfile[128];
@@ -110,27 +138,9 @@ void export_one_character( int character, int owner, int number, bool_t is_local
   if ( ( capcancarrytonextmodule[profile] || !capisitem[profile] ) && exportvalid )
   {
     // TWINK_BO.OBJ
-    sprintf( todirname, "badname.obj" );
-    tnc = 0;
-    letter = chrname[owner][tnc];
-    while ( tnc < 8 && letter != 0 )
-    {
-      letter = chrname[owner][tnc];
-      if ( letter >= 'A' && letter <= 'Z' )  letter -= 'A' - 'a';
-      if ( letter != 0 )
-      {
-        if ( ( letter < 'a' || letter > 'z' ) && letter != '\'')  letter = '_';
-        todirname[tnc] = letter;
-        tnc++;
-      }
-    }
-    todirname[tnc] = '.'; tnc++;
-    todirname[tnc] = 'o'; tnc++;
-    todirname[tnc] = 'b'; tnc++;
-    todirname[tnc] = 'j'; tnc++;
-    todirname[tnc] = 0;
+	sprintf(todirname, "%s", get_file_path(chrname[owner]) );
 
-    // Is it a character or an item?
+	// Is it a character or an item?
     if ( owner != character )
     {
       // Item is a subdirectory of the owner directory...

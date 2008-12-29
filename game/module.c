@@ -214,7 +214,6 @@ int get_module_data( int modnumber, char *szLoadName )
   // ZZ> This function loads the module data file
   FILE *fileread;
   char reference[128];
-  STRING playername;
   IDSZ idsz;
   Sint16 questlevel;
   char cTmp;
@@ -235,7 +234,8 @@ int get_module_data( int modnumber, char *szLoadName )
 	iTmp = 0;
 	while ( !playerhasquest && iTmp < numloadplayer )
 	{
-		snprintf( playername, sizeof( playername ), "%s.obj", loadplayername[selectedPlayer] );
+		STRING playername;
+		snprintf(playername, sizeof(playername), "%s", loadplayername[selectedPlayer]);
 		if( questlevel <= check_player_quest( playername, idsz )) playerhasquest = btrue;
 		iTmp++;
 	}

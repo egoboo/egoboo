@@ -498,7 +498,7 @@ EXTERN GLuint                  shading  EQ( GL_FLAT );           // Gourad shadi
 EXTERN bool_t                  antialiasing  EQ( bfalse );     // Antialiasing?
 EXTERN bool_t                  refon  EQ( bfalse );            // Reflections?
 EXTERN bool_t                  shaon  EQ( bfalse );            // Shadows?
-EXTERN int                   texturefilter  EQ( 1 );     // Texture filtering?
+EXTERN Uint8                   texturefilter  EQ( 1 );     // Texture filtering?
 EXTERN bool_t                  wateron  EQ( btrue );           // Water overlays?
 EXTERN bool_t                  shasprite  EQ( bfalse );        // Shadow sprites?
 EXTERN bool_t                  zreflect  EQ( bfalse );         // Reflection z buffering?
@@ -915,8 +915,8 @@ EXTERN bool_t					 chrcanread[MAXCHR];
 #define INVISIBLE           20                      // The character can't be detected
 
 //AI targeting
-#define NEARBY		3*TILESIZE		//5 tiles
-#define WIDE		8*TILESIZE		//12 tiles
+#define NEARBY		3*TILESIZE		//3 tiles
+#define WIDE		8*TILESIZE		//8 tiles
 #define NEAREST		0		        //unlimited range
 #define TILESIZE    128				//Size of one texture tile in egoboo
 

@@ -6830,7 +6830,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   
   for(cnt = 0; cnt < MAXCHR; cnt++)
   {
-	  if(chron[cnt] && cnt != character && (targetdead || chralive[cnt] == btrue) && (targetitems || (chrisitem[cnt] == chrinvictus[cnt] == bfalse)) && chrattachedto[cnt] == MAXCHR
+	  if(chron[cnt] && cnt != character && (targetdead || chralive[cnt]) && (targetitems || (!chrisitem[cnt] && !chrinvictus[cnt])) && chrattachedto[cnt] == MAXCHR
 		  && (team != ENEMY || chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
 		  && (team == ALL || team != teamhatesteam[chrteam[character]][chrteam[cnt]]) )
 	  {
@@ -6899,7 +6899,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
   if (check_player_quest(whichplayer, idsz) >= QUESTBEATEN) return bfalse;
 
   // Try to open the file in read and append mode
-  snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );
+  snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", get_file_path(whichplayer) );
   filewrite = fopen( newloadname, "a" );
   if ( !filewrite )
   {
@@ -6941,7 +6941,7 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
     char ctmp;
 
     // create a "tmp_*" copy of the file
-    snprintf( newloadname, sizeof( newloadname ), "players/%s/quest.txt", whichplayer);
+    snprintf( newloadname, sizeof( newloadname ), "players/%s/quest.txt", get_file_path(whichplayer));
     snprintf( copybuffer, sizeof( copybuffer ), "players/%s/tmp_quest.txt", whichplayer);
     fs_copyFile( newloadname, copybuffer );
 
@@ -7007,7 +7007,7 @@ Sint16 check_player_quest( char *whichplayer, IDSZ idsz )
   bool_t foundidsz = bfalse;
   Sint8 result = NOQUEST;
 
-  snprintf( newloadname, sizeof(newloadname), "players/%s/quest.txt", whichplayer );
+  snprintf( newloadname, sizeof(newloadname), "players/%s/quest.txt", get_file_path(whichplayer) );
   fileread = fopen( newloadname, "r" );
   if ( NULL == fileread ) return result;
 

@@ -102,14 +102,20 @@ Uint8 control_mouse_is_pressed( Uint8 control );
 Uint8 control_joya_is_pressed( Uint8 control );
 Uint8 control_joyb_is_pressed( Uint8 control );
 void free_all_enchants();
-char *  undo_idsz( IDSZ idsz );
-IDSZ get_idsz( FILE* fileread );
 void load_one_enchant_type( char* szLoadName, Uint16 profile );
 Uint16 get_free_enchant();
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 int get_free_message( void );
 void display_message( int message, Uint16 character );
+
+
+//IDSZ handling
+char *  undo_idsz( IDSZ idsz );
+IDSZ get_idsz( FILE* fileread );
+
+//String handling
+char * get_file_path(char *character);
 
 //Enchants
 void remove_enchant( Uint16 enchantindex );
@@ -416,9 +422,9 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
 
 //---------------------------------------------------------------------------------------------
 // Quest system
-bool_t add_quest_idsz( char *whichplayer, IDSZ idsz );
-Sint16    modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16    check_player_quest( char *whichplayer, IDSZ idsz );
+bool_t add_quest_idsz( Uint16 whichplayer, IDSZ idsz );
+Sint16    modify_quest_idsz( Uint16 whichplayer, IDSZ idsz, Sint16 adjustment );
+Sint16    check_player_quest( Uint16 whichplayer, IDSZ idsz );
 
 //---------------------------------------------------------------------------------------------
 // Filesystem functions

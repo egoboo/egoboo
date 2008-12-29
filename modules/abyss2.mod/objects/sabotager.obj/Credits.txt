@@ -1,4 +1,0 @@
-Author: Chainsaw
-Date: May 26th 2008
-Notes: An explosive little felow,
-Edited from the Grub bug, Rust eater and the land mine.

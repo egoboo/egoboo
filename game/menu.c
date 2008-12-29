@@ -1413,7 +1413,7 @@ int doVideoOptions( float deltaTime )
           break;
         default:                  // Set to defaults
           videoOptionsButtons[5] = "Linear";
-          texturefilter = 1;
+          texturefilter = TX_LINEAR;
           break;
       }
 
@@ -1671,13 +1671,12 @@ int doVideoOptions( float deltaTime )
             break;
 
           case TX_TRILINEAR_2:
-            texturefilter = 4;
+            texturefilter = TX_ANISOTROPIC;
             videoOptionsButtons[5] = "Anisotropic";
             break;
 
-
           default:
-            texturefilter = 1;
+            texturefilter = TX_LINEAR;
             videoOptionsButtons[5] = "Linear";
             break;
         }

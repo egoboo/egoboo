@@ -1397,15 +1397,15 @@ void load_basic_textures( char *modname )
 
   // Water textures
   make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, INVALID_KEY ); 
   make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, INVALID_KEY ); 
   
 
   // Texture 7 is the phong map
   if ( phongon )
   {
-    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", INVALID_KEY ); 
+    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", TRANSCOLOR ); 
   }
 
 }
