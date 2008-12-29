@@ -234,9 +234,7 @@ int get_module_data( int modnumber, char *szLoadName )
 	iTmp = 0;
 	while ( !playerhasquest && iTmp < numloadplayer )
 	{
-		STRING playername;
-		snprintf(playername, sizeof(playername), "%s", loadplayername[selectedPlayer]);
-		if( questlevel <= check_player_quest( playername, idsz )) playerhasquest = btrue;
+		if( questlevel <= check_player_quest( loadplayername[selectedPlayer], idsz )) playerhasquest = btrue;
 		iTmp++;
 	}
 

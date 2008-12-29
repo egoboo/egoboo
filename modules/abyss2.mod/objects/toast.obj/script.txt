@@ -9,6 +9,8 @@ IfSpawned
   Else
     tmpargument = 2		//Invisible
     ChangeArmor
+    tmpargument = 0
+    SetAlpha
   JoinEvilTeam
 
 IfStateIs0

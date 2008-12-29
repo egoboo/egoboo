@@ -3548,8 +3548,7 @@ Uint8 run_function( Uint32 value, int character )
     //This function adds a quest idsz set in tmpargument into the targets quest.txt
     if ( chrisplayer[chraitarget[character]] )
     {
-      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
-      add_quest_idsz( cTmp, valuetmpargument );
+      add_quest_idsz( chrname[chraitarget[character]], valuetmpargument );
 	  returncode = btrue;
     }
 	else returncode = bfalse;
@@ -3563,8 +3562,7 @@ Uint8 run_function( Uint32 value, int character )
 	{
 		if ( chrisplayer[iTmp] )
 		{
-		  snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[iTmp] );
-		  if(modify_quest_idsz( cTmp, valuetmpargument, 0 ) == QUESTBEATEN) returncode = btrue;
+		  if(modify_quest_idsz( chrname[iTmp], valuetmpargument, 0 ) == QUESTBEATEN) returncode = btrue;
 		}
 		iTmp++;
 	}
@@ -3575,8 +3573,7 @@ Uint8 run_function( Uint32 value, int character )
     //and sets tmpdistance to the Quest Level of the specified quest.
     if ( chrisplayer[chraitarget[character]] )
     {
-      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
-      iTmp = check_player_quest( cTmp, valuetmpargument );
+      iTmp = check_player_quest( chrname[chraitarget[character]], valuetmpargument );
       if ( iTmp > QUESTBEATEN )
       {
         returncode = btrue;
@@ -3592,8 +3589,7 @@ Uint8 run_function( Uint32 value, int character )
     returncode = bfalse;
     if ( chrisplayer[chraitarget[character]] && valuetmpdistance != 0 )
     {
-      snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[chraitarget[character]] );
-      if(modify_quest_idsz( cTmp, valuetmpargument, valuetmpdistance ) > NOQUEST) returncode = btrue;
+      if(modify_quest_idsz( chrname[chraitarget[character]], valuetmpargument, valuetmpdistance ) > NOQUEST) returncode = btrue;
     }
     break;
 
@@ -3607,13 +3603,12 @@ Uint8 run_function( Uint32 value, int character )
 		if ( chrisplayer[plaindex[iTmp]] )
 		{
 		  returncode = btrue;
-          snprintf( cTmp, sizeof( cTmp ), "%s.obj", chrname[plaindex[iTmp]] );
-		  if(!add_quest_idsz( cTmp, valuetmpargument ))				//Try to add it if not already there or beaten
+		  if(!add_quest_idsz(chrname[plaindex[iTmp]] , valuetmpargument ))				//Try to add it if not already there or beaten
 		  {
 			  Sint16 i;
-			  i = check_player_quest( cTmp, valuetmpargument);		//Get the current quest level
+			  i = check_player_quest( chrname[plaindex[iTmp]], valuetmpargument);		//Get the current quest level
 			  if(i < 0 || i >= valuetmpdistance) returncode = bfalse;				//It was already beaten
-			  else modify_quest_idsz( cTmp, valuetmpargument, valuetmpdistance );//Not beaten yet, increase level by 1
+			  else modify_quest_idsz( chrname[plaindex[iTmp]], valuetmpargument, valuetmpdistance );//Not beaten yet, increase level by 1
 		  }
 		}
 		iTmp++;

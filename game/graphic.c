@@ -1866,7 +1866,7 @@ int load_one_object( int skin, char* tmploadname )
   numicon = 0;
   make_newloadname( tmploadname, "tris0", newloadname );
 
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
     numskins++;
@@ -1884,16 +1884,14 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris1", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // Port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon1", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
-      // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // Port to new alpha code
       while ( numicon < numskins )
       {
         madskintoicon[skin+numicon] = globalnumicon;
@@ -1903,10 +1901,9 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris2", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon2", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
@@ -1922,16 +1919,14 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
   make_newloadname( tmploadname, "tris3", newloadname );
-  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, INVALID_KEY );
+  GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
   if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
   {
-    // txTexture[skin+numskins].SetColorKey(INVALID_KEY);  // port to new alpha code
     numskins++;
     make_newloadname( tmploadname, "icon3", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
     if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
     {
-      // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
       while ( numicon < numskins )
       {
         madskintoicon[skin+numicon] = globalnumicon;
@@ -1940,7 +1935,6 @@ int load_one_object( int skin, char* tmploadname )
       globalnumicon++;
     }
   }
-  /* FINISH PORTING */
 
   madskins[object] = numskins;
   if ( numskins == 0 )
