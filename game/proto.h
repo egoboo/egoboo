@@ -422,9 +422,9 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
 
 //---------------------------------------------------------------------------------------------
 // Quest system
-bool_t add_quest_idsz( Uint16 whichplayer, IDSZ idsz );
-Sint16    modify_quest_idsz( Uint16 whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16    check_player_quest( Uint16 whichplayer, IDSZ idsz );
+bool_t add_quest_idsz( char *whichplayer, IDSZ idsz );
+Sint16    modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment );
+Sint16    check_player_quest( char *whichplayer, IDSZ idsz );
 
 //---------------------------------------------------------------------------------------------
 // Filesystem functions
