@@ -1,0 +1,2 @@
+Message 0: The_%c_faded_away!
+

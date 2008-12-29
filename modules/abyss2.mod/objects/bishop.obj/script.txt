@@ -1,0 +1,93 @@
+//Watch the player
+SetTargetToNearestEnemy
+  SetTurnModeToWatchTarget
+
+//This wins the module
+IfStateIs1
+  IfBumped
+    SetTargetToWhoeverBumped
+    tmpargument = 1
+    IfContentIs
+      tmpargument = 3
+      SendMessage
+      tmpargument = 2
+      SetContent
+    Else
+      BeatModule
+      tmpargument = [MAIN]
+      tmpdistance = 8
+      AddQuestAllPlayers
+
+      //Say goodbye
+      tmpargument = 0
+      SendMessage
+      tmpargument = 1
+      SendMessage
+'
+      //Become invincible (just in case)
+      tmpargument = 0
+      ChangeArmor
+
+      tmpargument = 3
+      PlayFullSound
+      
+      tmpargument = 2
+      SetState
+      
+      tmpargument = [BEAT]
+      AddIDSZ
+
+//Free!
+IfOrdered
+  tmpx = selforder
+  tmpy = [FREE]
+  IfXIsEqualToY
+    tmpargument = 1
+    SetState
+    JoinGoodTeam
+
+
+//Move towards player to win
+IfStateIs1
+  IfTimeOut
+    tmpargument = 30
+    SetTime
+    SetTargetToNearestFriend
+    tmpx = targetx
+    tmpy = targety
+    ClearWaypoints
+    AddWaypoint
+
+    //Allow rogues to kill him
+    tmpargument = 0
+    IfContentIs
+      tmpargument = [ROGU]
+      tmpdistance = 15
+      SetTargetToNearestBlahID
+        JoinEvilTeam
+        tmpargument = 1
+        SetContent
+        ChangeArmor		//Allow to die
+
+//Rogue revenged himself
+IfKilled
+  tmpargument = 1000
+  tmpdistance = EXPMURDER
+  GiveExperienceToGoodTeam
+
+  tmpargument = [ROGU]
+  tmpdistance = 15
+  SetTargetToNearestBlahID
+    tmpargument = 2
+  Else
+    tmpargument = 4
+  SendMessage
+  tmpargument = 2
+  PlayFullSound
+  
+  BeatModule
+  tmpargument = [MAIN]
+  tmpdistance = 8
+  AddQuestAllPlayers
+  
+End

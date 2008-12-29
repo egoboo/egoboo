@@ -1,0 +1,6 @@
+Message 0: The_%c_was_slain_by_%t!!!
+Message 1: The_%c_was_enraged!
+Message 2: The_%c_ate_%t!!!
+Message 3: _
+Message 4: _
+Message 5: The_yeti_looks_weaker!

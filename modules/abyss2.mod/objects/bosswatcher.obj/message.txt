@@ -1,0 +1,2 @@
+Message 0: The_%c_croaked.
+Message 1: Sneaky_%t_backstabbed_the_%c!

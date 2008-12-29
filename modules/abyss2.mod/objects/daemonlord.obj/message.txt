@@ -1,0 +1,10 @@
+Message 0: The_mighty_%c_was_slain_by_%t!
+Message 1: The_gruesome_%c_was_betrayed!
+Message 2: %t_was_slaughtered_by_the_gruesome_%c!
+Message 3: %t_engaged_a_fearsome_%c!
+Message 4: A_%c_made_a_fool_of_itself...
+Message 5: Feel_my_wrath!
+Message 6: You_will_never_save_Lord_Bishop!
+Message 7: The_dracolich_will_conquer_all!
+Message 8: Bishopia_will_burn_in_fire!
+Message 9: You_are_doomed...

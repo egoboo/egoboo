@@ -1,0 +1,17 @@
+Message 0: %t_cannot_move_%g_arms!
+Message 1: %t_was_thrown_by_a_unseen_force!
+Message 2: The_%c_turned_invisible!
+Message 3: The_%c_miscast_a_spell!
+Message 4: The_%c_disintegrated_%t!
+Message 5: I_think_I_just_stepped_on_a_grub_bug...
+Message 6: Mmm..._That_felt_good!
+Message 7: There's_nothin_that_makes_my_day_better_than_killing_adventurers...
+Message 8: PWND!
+Message 9: Mohaha!
+Message 10: Mwahaha!
+Message 11: Welcome_to_my_domain_mortals...
+Message 12: Witness_my_vast_arcane_energies_as_I_ascend_into_divinity!
+Message 13: Mwahaha!_It's_just_a_fleshwound...
+Message 14: Fool!_I_am_already_dead,_I_cannot_be_slain...
+Message 15: We_can_keep_doing_this_forever!_You_cannot_KILL_me!
+Message 16: !!THE_DRACOLICH_HAS_BEEN_DEFEATED!!_(KILLING_BLOW_BY_%t)

@@ -1,0 +1,102 @@
+//Display a message
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  
+
+//Tell them what they found!
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  SetTargetToWhoeverIsHolding
+  tmpx = targetmana
+  tmpy = 10
+  IfXIsMoreThanY
+    tmpx = targetmanaflow
+    GetContent
+    tmpy = tmpargument			//Current charge
+    IfXIsMoreThanY
+      tmpx = 5120				//Max charge (20 waves = 40 mana)
+      IfYIsLessThanX
+        tmpargument = 0
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz			//spelly effect
+        SpawnExactParticle
+        tmpargument = 7
+        CostTargetMana
+        GetContent
+        tmpargument = tmpargument + 7		//Cast speed
+        SetContent
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 0
+  IfXIsMoreThanY
+    tmpargument = 150
+    SetReloadTime
+    tmpy = 1524			//Minimum charge
+    IfXIsMoreThanY
+      tmpargument = 1
+      SendMessageNear
+      GetContent
+      tmpargument = tmpargument > 9		//How many waves
+      SetState					//1 for every 2 mana used
+      tmpargument = 10
+      SetTime
+    Else
+      tmpargument = 2
+      SendMessageNear
+  tmpargument = 0
+  SetContent
+
+IfTimeOut
+  SetTargetToWhoeverIsHolding
+  tmpx = selfstate
+  tmpy = 0
+  IfXIsMoreThanY
+  
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+		
+    tmpargument = 4
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    SpawnExactParticle
+    tmpargument = 1
+    PlaySound
+    tmpargument = selfstate-1
+    SetState
+  tmpx = targetint > 8
+  tmpy = 50
+  IfXIsMoreThanY				//Max 1 second bonus speed
+    tmpx = 50
+  tmpargument = 50 - tmpx           //Wave speed
+  SetTime					//1.00 seconds - 0,02 seconds per caster int
+  
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument * 5 + 5000
+  tmpdistance = SPAWNLAST
+  tmpargument = 5
+  SpawnAttachedSizedParticle
+
+
+End					// All done

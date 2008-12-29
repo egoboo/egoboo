@@ -1,0 +1,6 @@
+Message 0: %t_picked_up_a_%c.
+Message 1: The_%c_was_crushed!
+Message 2: %t's_gun_is_reloaded.
+Message 3: %t_has_no_gun_to_reload...
+Message 4: The_%c_exploded!
+Message 5: The_%c_is_all_wet...

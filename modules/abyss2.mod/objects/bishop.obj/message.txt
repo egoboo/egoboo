@@ -1,0 +1,5 @@
+Message 0: %t_saved_%n!
+Message 1: THANK_YOU_FOR_PLAYING_EGOBOO...
+Message 2: %t_got_%g_revenge!
+Message 3: Are_you_sure_you_want_to_let_Bishop_live_and_forfeit_your_revenge?
+Message 4: %t_usurped_%n's_throne!

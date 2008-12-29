@@ -1,0 +1,59 @@
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound
+
+//Display a message
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 3
+      SendMessageNear
+
+//Tell them what they found!
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+  tmpx = targetlife
+  tmpy = 260
+  IfXIsMoreThanY
+  
+    // Make the target shoot
+    SetTargetToWhoeverIsHolding
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+
+    tmpargument = 50
+    SetTime
+    tmpargument = 1
+    PlaySound
+    SendMessageNear
+    SetContent
+    tmpargument = 256
+    DamageTarget
+    tmpargument = 256
+    PumpTarget
+  Else
+    tmpargument = 2
+    SendMessageNear
+
+IfTimeOut
+  tmpargument = 0
+  SetContent
+
+tmpargument = 1
+IfContentIs
+  tmpargument = 0
+  tmpx = targetx
+  tmpy = targety
+  tmpdistance = targetz
+  SpawnExactParticle
+
+End					// All done
