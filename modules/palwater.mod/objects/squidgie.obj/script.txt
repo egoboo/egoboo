@@ -67,7 +67,7 @@ IfTimeOut
   SetState
 
 
-  SetTargetToNearestEnemy
+  SetTargetToWideEnemy
     SetTurnModeToWatchTarget
     tmpx = selfaccel
     tmpy = 1

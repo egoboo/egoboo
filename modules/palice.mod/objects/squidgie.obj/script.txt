@@ -67,7 +67,7 @@ IfTimeOut
   SetState
 
 
-  SetTargetToNearestEnemy
+  SetTargetToWideEnemy
     SetTurnModeToWatchTarget
     tmpx = selfaccel
     tmpy = 1
@@ -80,7 +80,6 @@ IfTimeOut
           // Do a lightning circle
           IfStateIs0
             tmpargument = 2
-            tmpdistance = 11000
             PlaySound
             tmpargument = ACTIONUA
             DoAction
