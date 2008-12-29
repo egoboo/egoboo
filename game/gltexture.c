@@ -236,7 +236,7 @@ void GLTexture_Bind( GLTexture *texture )
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
   //Error check
-  if(target == NULL)
+  if(target == INVALID_TX_ID)
   {
     if(gDevMode) log_warning("Trying to filter an invalid texture! Aborted.\n");
 	return;

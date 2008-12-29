@@ -6830,9 +6830,9 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
   
   for(cnt = 0; cnt < MAXCHR; cnt++)
   {
-	  if(chron[cnt] && cnt != character && (targetdead || chralive[cnt] == btrue) && (targetitems || chrisitem[cnt] == bfalse) && chrattachedto[cnt] == MAXCHR
+	  if(chron[cnt] && cnt != character && (targetdead || chralive[cnt] == btrue) && (targetitems || (chrisitem[cnt] == chrinvictus[cnt] == bfalse)) && chrattachedto[cnt] == MAXCHR
 		  && (team != ENEMY || chrcanseeinvisible[character] || ( chralpha[cnt] > INVISIBLE && chrlight[cnt] > INVISIBLE ) )
-		  && (team == ALL || (team != teamhatesteam[chrteam[character]][chrteam[cnt]]) && (targetitems == chrinvictus[cnt]) ))
+		  && (team == ALL || team != teamhatesteam[chrteam[character]][chrteam[cnt]]) )
 	  {
 		  //Check for IDSZ too
 		  if(idsz == IDSZNONE 
