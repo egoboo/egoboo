@@ -1179,7 +1179,7 @@ EXTERN bool_t                  pipwisdamagebonus[TOTALMAXPRTPIP];               
 //------------------------------------
 // Module variables
 //------------------------------------
-#define RANKSIZE 8
+#define RANKSIZE 12
 #define SUMMARYLINES 8
 #define SUMMARYSIZE  80
 
