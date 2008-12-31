@@ -130,7 +130,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define MAXTOTALMESSAGE     2048                    //
 #define MESSAGESIZE         80                      //
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-#define MESSAGETIME         250                     // Time to keep the message alive
+EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
 
 // Model tags
@@ -494,7 +494,7 @@ EXTERN Uint8                   messageon  EQ( btrue );         // Messages?
 EXTERN bool_t                  overlayon  EQ( bfalse );        // Draw overlay?
 EXTERN bool_t                  perspective  EQ( bfalse );      // Perspective correct textures?
 EXTERN bool_t                  dither  EQ( bfalse );           // Dithering?
-EXTERN GLuint                  shading  EQ( GL_FLAT );           // Gourad shading?
+EXTERN GLuint                  shading  EQ( GL_SMOOTH );           // Gourad shading?
 EXTERN bool_t                  antialiasing  EQ( bfalse );     // Antialiasing?
 EXTERN bool_t                  refon  EQ( bfalse );            // Reflections?
 EXTERN bool_t                  shaon  EQ( bfalse );            // Shadows?

@@ -1343,7 +1343,6 @@ int doVideoOptions( float deltaTime )
 {
   static int menuState = MM_Begin;
   static GLTexture background;
-  // static float lerp;
   static int menuChoice = 0;
   int result = 0;
   static char Cmaxmessage[128];
@@ -1371,23 +1370,27 @@ int doVideoOptions( float deltaTime )
       if ( antialiasing ) videoOptionsButtons[0] = "On";
       else videoOptionsButtons[0] = "Off";
 
-      switch ( scrd )
+	  //Message duration
+      switch ( messagetime )
       {
-        case 16:
-          videoOptionsButtons[1] = "Low";
-          break;
-        case 24:
-          videoOptionsButtons[1] = "Medium";
-          break;
-        case 32:
-          videoOptionsButtons[1] = "High";
-          break;
-        default:                  // Set to defaults
-          videoOptionsButtons[1] = "Low";
-          scrd = 16;
-          break;
-      }
+          case 250:
+            videoOptionsButtons[1] = "Short";
+            break;
 
+          case 150:
+            videoOptionsButtons[1] = "Normal";
+            break;
+
+		  case 200:
+            videoOptionsButtons[1] = "Long";
+            break;
+
+          default:
+            videoOptionsButtons[1] = "Custom";
+            break;
+	  }
+
+	  //Texture filtering
       switch ( texturefilter )
       {
         case TX_UNFILTERED:
@@ -1417,16 +1420,11 @@ int doVideoOptions( float deltaTime )
           break;
       }
 
-      if ( dither && GL_FLAT != shading ) videoOptionsButtons[2] = "Yes";
-      else                    // Set to defaults
-      {
-        videoOptionsButtons[2] = "No";
-        dither = bfalse;
-        shading = GL_SMOOTH;
-      }
+      if ( dither ) videoOptionsButtons[2] = "Yes";
+      else          videoOptionsButtons[2] = "No";
 
       if ( fullscreen ) videoOptionsButtons[3] = "True";
-      else videoOptionsButtons[3] = "False";
+      else              videoOptionsButtons[3] = "False";
 
       if ( refon )
       {
@@ -1535,49 +1533,47 @@ int doVideoOptions( float deltaTime )
         }
       }
 
-      // Color depth
-      fnt_drawTextBox( menuFont, "Texture Quality:", buttonLeft, displaySurface->h - 180, 0, 0, 20 );
+      // Message time
+      fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, displaySurface->h - 180, 0, 0, 20 );
       if ( ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h - 180, 100, 30 ) == 1 )
       {
-        switch ( scrd )
+        switch ( messagetime )
         {
-          case 32:
-            videoOptionsButtons[1] = "Low";
-            scrd = 16;
+          case 250:
+            messagetime = 150;
+            videoOptionsButtons[1] = "Short";
             break;
 
-          case 16:
-            videoOptionsButtons[1] = "Medium";
-            scrd = 24;
+          case 150:
+            messagetime = 200;
+            videoOptionsButtons[1] = "Normal";
             break;
 
-          case 24:
-            videoOptionsButtons[1] = "High";
-            scrd = 32;
+		  case 200:
+            messagetime = 250;
+            videoOptionsButtons[1] = "Long";
             break;
 
           default:
-            videoOptionsButtons[1] = "Low";
-            scrd = 16;
+			messagetime = 200;
+            videoOptionsButtons[1] = "Normal";
             break;
-        }
-      }
+		  }
+	  }
 
       // Dithering and Gourad Shading
-      fnt_drawTextBox( menuFont, "Fast and Ugly:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
+      fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
       if ( ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) == 1 )
       {
-        if ( dither && GL_FLAT == shading )
+        if ( dither  )
         {
           videoOptionsButtons[2] = "No";
           dither = bfalse;
-          shading = GL_SMOOTH;
         }
         else
         {
           videoOptionsButtons[2] = "Yes";
           dither = btrue;
-          shading = GL_SMOOTH;
         }
       }
 
@@ -2297,7 +2293,9 @@ void save_settings()
     fputs( write, setupfile );
     sprintf( write, "[MAX_TEXT_MESSAGE] : \"%i\"\n", maxmessage );
     fputs( write, setupfile );
-    if ( staton ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+    sprintf( write, "[MESSAGE_DURATION] : \"%i\"\n", messagetime );
+    fputs( write, setupfile );
+	if ( staton ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     sprintf( write, "[STATUS_BAR] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
     if ( perspective ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";

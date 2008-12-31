@@ -46,6 +46,7 @@ void    GLSetup_SupportedFormats()
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tif"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tiff"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
+  snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".gif"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pcx"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".ppm"); type++;
@@ -210,9 +211,11 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * im
   return texture->textureID;
 }
 
+
+//--------------------------------------------------------------------------------------------
+static bool_t gfxerror = bfalse;
 void GLTexture_Bind( GLTexture *texture )
 {
-  int    filt_type;
   GLenum target;
   GLuint id;
 
@@ -224,8 +227,6 @@ void GLTexture_Bind( GLTexture *texture )
     id     = texture->textureID;
   }
 
-  filt_type = texturefilter;
-
   if ( !glIsEnabled( target ) )
   {
     glEnable( target );
@@ -236,13 +237,17 @@ void GLTexture_Bind( GLTexture *texture )
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
   //Error check
-  if(target == INVALID_TX_ID)
+  if(target == NULL)
   {
-    if(gDevMode) log_warning("Trying to filter an invalid texture! Aborted.\n");
+    if(gDevMode && !gfxerror) 
+	{
+		gfxerror = btrue;
+		log_warning("Trying to filter an invalid texture! Aborted.\n");
+	}
 	return;
   }
 
-  if ( filt_type >= TX_ANISOTROPIC )
+  if ( texturefilter >= TX_ANISOTROPIC )
   {
     //Anisotropic filtered!
     glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
@@ -251,7 +256,7 @@ void GLTexture_Bind( GLTexture *texture )
   }
   else
   {
-    switch ( filt_type )
+    switch ( texturefilter )
     {
         // Unfiltered
       case TX_UNFILTERED:

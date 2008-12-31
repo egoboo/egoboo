@@ -526,7 +526,7 @@ void display_message( int message, Uint16 character )
   if ( message < msgtotal )
   {
     slot = get_free_message();
-    msgtime[slot] = MESSAGETIME;
+    msgtime[slot] = messagetime;
     // Copy the message
     read = msgindex[message];
     cnt = 0;
@@ -909,7 +909,7 @@ void debug_message( char *text )
   int write = 0;
   int read = 0;
   char cTmp = text[read];  read++;
-  msgtime[slot] = MESSAGETIME;
+  msgtime[slot] = messagetime;
 
   while ( cTmp != 0 )
   {
@@ -1397,9 +1397,9 @@ void load_basic_textures( char *modname )
 
   // Water textures
   make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, INVALID_KEY ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR ); 
   make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, INVALID_KEY ); 
+  GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR); 
   
 
   // Texture 7 is the phong map
@@ -2084,7 +2084,7 @@ void load_font( char* szBitmap, char* szSpacing, int sysmem )
   char cTmp;
   FILE *fileread;
 
-  if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, INVALID_KEY ) == INVALID_TX_ID )
+  if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) == INVALID_TX_ID )
     log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
 
 
@@ -4450,7 +4450,11 @@ bool_t load_blip_bitmap()
   // This function loads the blip bitmaps
   Sint8 cnt;
   
-  GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY );
+  if(GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) == INVALID_TX_ID)
+  {
+      log_warning( "Blip bitmap not loaded. Missing file = \"basicdat/blip.bmp\"\n" );
+	  return bfalse;
+  }
 
   // Set up the rectangles
   for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -4460,11 +4464,6 @@ bool_t load_blip_bitmap()
     bliprect[cnt].top    = 0;
     bliprect[cnt].bottom = BLIPSIZE;
   }
- if ( 0 == GLTexture_GetTextureID( &TxBlip ) )
-  {
-      log_warning( "Blip bitmap not loaded. Missing file = \"basicdat/blip.bmp\"\n" );
-	  return bfalse;
-  };
 
   return btrue;
 }

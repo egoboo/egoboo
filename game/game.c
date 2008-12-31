@@ -876,16 +876,19 @@ void read_setup( char* filename )
     GetInt( "SCREENSIZE_Y", scry, 480 );
 
     // Color depth
-    GetInt( "COLOR_DEPTH", scrd, 16 );
+    GetInt( "COLOR_DEPTH", scrd, 32 );
 
     // The z depth
-    GetInt( "Z_DEPTH", scrz, 16 );
+    GetInt( "Z_DEPTH", scrz, 8 );
 
     // Max number of messages displayed
     GetInt( "MAX_TEXT_MESSAGE", maxmessage, 6 );
     messageon = btrue;
     if ( maxmessage < 1 )  { maxmessage = 1;  messageon = bfalse; }
     if ( maxmessage > MAXMESSAGE )  { maxmessage = MAXMESSAGE; }
+
+    // Max number of messages displayed
+    GetInt( "MESSAGE_DURATION", messagetime, 50 );
 
     // Show status bars? (Life, mana, character icons, etc.)
     GetBoolean( "STATUS_BAR", staton, btrue );
@@ -938,8 +941,7 @@ void read_setup( char* filename )
 
     // Do gourad shading?
     GetBoolean( "GOURAUD_SHADING", lTempBool, btrue );
-    //shading = lTempBool ? GL_SMOOTH : GL_FLAT;
-    shading = GL_SMOOTH;
+    shading = lTempBool ? GL_SMOOTH : GL_FLAT;
 
     // Enable antialiasing?
     GetBoolean( "ANTIALIASING", antialiasing, bfalse );
