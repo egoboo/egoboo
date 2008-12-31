@@ -9,7 +9,7 @@ Message 7: %t_stole_%0!
 Message 8: %t_stole_%1!
 Message 9: %t_stole_%2!
 Message10: %t_stole_%3!
-Message11: This_%c_has_armor_in_it,_but_it's_for_a_Archeologist.
+Message11: This_%c_has_armor_in_it,_but_it's_for_an_Archeologist.
 Message12: This_%c_has_armor_in_it,_but_it's_for_a_G'nome.
 Message13: This_%c_has_armor_in_it,_but_it's_for_a_Soldier.
 Message14: This_%c_has_armor_in_it,_but_it's_for_an_Elf.
