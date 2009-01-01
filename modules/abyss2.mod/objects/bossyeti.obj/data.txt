@@ -64,11 +64,11 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 10000
 // Skin defenses
 Base defense rating of skin ( eg. 2 5 10 17 )	: 60 120 0 0
 SLASH defense shift ( eg. 1 1 1 1 )		:  1  3  1  1
-CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+CRUSH defense shift ( eg. 1 1 1 1 )		:  2  1  1  1
 POKE defense shift ( eg. 1 1 1 1 )		:  1  3  1  1
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 EVIL defense shift ( eg. 1 1 1 1 )		:  1  3  1  1
-FIRE defense shift ( eg. 1 1 1 1 )		:  3  3  1  1
+FIRE defense shift ( eg. 1 1 1 1 )		:  1  3  1  1
 ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ZAP defense shift ( eg. 1 1 1 1 )		:  1  3  1  1
 SLASH inversion ( eg. F F F T )			:  F  F  T  F
@@ -76,7 +76,7 @@ CRUSH inversion ( eg. F F F T )			:  F  F  T  F
 POKE inversion ( eg. F F F T )			:  F  F  T  F
 HOLY inversion ( eg. T T T T )			:  T  T  T  T
 EVIL inversion ( eg. F F F T )			:  F  F  T  F
-FIRE inversion ( eg. F F F T )			:  F  F  T  F
+FIRE inversion ( eg. F F F T )			:  C  F  T  F
 ICE inversion ( eg. F F F T )			:  F  F  T  F
 ZAP inversion ( eg. F F F T )			:  F  F  T  F
 Acceleration rate ( eg. 40 38 30 20 )		: 40  0 0 30
@@ -182,7 +182,7 @@ Strength dampen for weapons ( 0.0 to 1.0 )	: 0.10
 
 // Another memory lapse
 Rider cannot attack ( TRUE or FALSE )		: FALSE
-Can be dazed ( TRUE or FALSE )			: FALSE
+Can be dazed ( TRUE or FALSE )			: TRUE
 Can be grogged ( TRUE or FALSE )		: FALSE
 Permanent life add when used ( -256 to 256 )	: 0
 Permanent mana add when used ( -256 to 256 )	: 0

@@ -117,7 +117,7 @@ Object is stackable ( TRUE or FALSE )		: FALSE
 Object's name is known ( TRUE or FALSE )	: TRUE
 Item of known usage ( TRUE or FALSE )		: FALSE
 Item carries to next module ( TRUE or FALSE )	: TRUE
-Item requires skill ID to use ( TRUE or FALSE )	: FALSE
+Item requires skill ID to use ( TRUE or FALSE )	: TRUE
 Object is a platform ( TRUE or FALSE)		: FALSE
 Object collects money ( TRUE or FALSE )		: FALSE
 Object can open chests/doors ( TRUE or FALSE )	: FALSE

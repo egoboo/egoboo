@@ -143,7 +143,7 @@ IfBumped
           //randomize armor type
           tmpargument = 2
           IfContentIs
-            tmpargument = rand % 11 + 4
+            tmpargument = rand % 12 + 4
             SetContent			
           
           //It's already set
@@ -178,7 +178,7 @@ IfBumped
             tmpargument = [ELFF]
           tmpy = 12
           IfXIsMoreThanY
-            tmpargument = [XXXX]    //Fits all classes (22%)
+            tmpargument = [XXXX]    //Fits all classes (35%)
           
           //Try to give it
           IfTargetHasID

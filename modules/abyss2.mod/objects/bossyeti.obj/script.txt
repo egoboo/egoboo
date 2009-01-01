@@ -24,8 +24,6 @@ IfArmorIs
       UnkeepAction
       tmpargument = 230
       SetLight
-
-      //Close the exit!
       tmpargument = 37
       ClosePassage
 Else
@@ -59,15 +57,13 @@ Else
           
     //Guard mode
     IfStateIs0
-      IfAtLastWaypoint
-        tmpturn = rand	//Randomly...
-        tmpx = selfspawnx
-        tmpy = selfspawny
-        tmpdistance = 500	//up to 200 distance from spawn point
-        Compass
-        ClearWaypoints
-        AddWaypoint
-      SetTargetToNearestEnemy
+      tmpx = rand & 1023 + selfx - 512
+      tmpy = rand & 1023 + selfy - 512
+      ClearWaypoints
+      AddWaypoint
+      
+      //Close the exit!
+      SetTargetToWideEnemy
         tmpargument = 1
         SetState
         tmpargument = 1		//Roar!
@@ -77,7 +73,7 @@ Else
   
     //Combat mode
     IfStateIs1
-      SetTargetToNearestEnemy
+      SetTargetToWideEnemy
         DoNothing
       Else
         tmpargument = 0
@@ -134,26 +130,22 @@ Else
         tmpargument = 0			//Return to guard
         SetState
   
-      //What to do if rock solid
-      IfStateIs2
-        SetTargetToSelf
-        tmpargument = rand & 255 + 128
-        HealTarget		//Remove poison and regenerate extra
-        tmpx = selflife
-        tmpy = 5120
-        IfXIsMoreThanY	//Keep regeneration in rock form
-          tmpargument = 0	//until you gain 20 life again
-          ChangeArmor
-          tmpargument = 0
-          SetState
-          tmpargument = ACTIONMK
-          DoActionOverride
-          KeepAction
-          tmpargument = 230
-          SetLight
-      Else
+    //What to do if rock solid
+    IfStateIs2
+      SetTargetToSelf
+      tmpargument = 50
+      HealTarget		//Remove poison and regenerate extra
+      tmpx = selflife
+      tmpy = 3000
+      IfXIsMoreThanY	//Keep regeneration in rock form
+        tmpargument = 0	//until you gain 20 life again
+        ChangeArmor
+        tmpargument = 0
+        SetState
+        tmpargument = ACTIONMK
         UnkeepAction
-  
+        tmpargument = 230
+        SetLight
   
   //------------------------------------------------------------------------------
   //Handle death by sending a message and other stuff
@@ -211,7 +203,7 @@ Else
     tmpargument = 2
     IfStateIsNot
       tmpx = selflife
-      tmpy = 2560			//10 hp
+      tmpy = 1800
       IfXIsLessThanY
         tmpargument = 2		//Rock form
         SetState
@@ -248,7 +240,7 @@ Else
     Else
       tmpargument = 4
       PlaySound
-  
+
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

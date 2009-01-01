@@ -221,6 +221,7 @@ IfTimeOut
 tmpargument = 38
 SetTargetToWhoeverIsInPassage
   IfTargetCanOpenStuff
+    tmpargument = 37
     OpenPassage
 
 End					// All done

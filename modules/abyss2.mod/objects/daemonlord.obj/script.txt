@@ -126,7 +126,7 @@ IfTargetKilled
   SetTargetToWideEnemy	//Goto next
     tmpargument = 1
   Else
-    tmpargument = 3		//No enemies left
+    tmpargument = 18		//No enemies left
     tmpdistance = 0
     PlayMusic
     tmpargument = 0
