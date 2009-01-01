@@ -44,17 +44,29 @@ IfTimeOut
       IfStateIs1			//Still not broken...
         tmpargument = [KEYL]
         CostTargetItemID
+          tmpargument = 150
+          SetTime
           tmpargument = 5
           SendMessage
           tmpargument = 4
           PlayFullSound
+          
+          //This keeps track of the number of crowns
+          tmpargument = 0
+          GetXY
+          tmpx = tmpx + 1
+          tmpy = 4
+          SetXY
+          IfXIsEqualToY       //all done!
+            tmpargument = 2
+            SetState
         Else
-          tmpargument = 3
+          tmpargument = 3   //Need more seals... blah blah
           SendMessage
           tmpargument = 2
           PlayFullSound
-        tmpargument = 350
-        SetTime
+          tmpargument = 350
+          SetTime
         
       IfStateIs2                        //Broken!
         tmpargument = 4
