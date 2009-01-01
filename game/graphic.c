@@ -1753,13 +1753,11 @@ int load_one_object( int skin, char* tmploadname )
   int cnt;
   char ctmp;
 
-  // printf(" DIAG: entered load_one_object\n");
   // Load the object data file and get the object number
   make_newloadname( tmploadname, "/data.txt", newloadname );
   object = load_one_character_profile( newloadname );
 
 
-  // printf(" DIAG: making up model name\n");
   // Make up a name for the model...  IMPORT\TEMP0000.OBJ
   cnt = 0;
   ctmp = tmploadname[cnt];
@@ -1772,7 +1770,6 @@ int load_one_object( int skin, char* tmploadname )
   madname[object][cnt] = 0;
 
 
-  // printf(" DIAG: appending slash\n");
   // Append a slash to the tmploadname
   sprintf( newloadname, "%s", tmploadname );
   sprintf( tmploadname, "%s" SLASH_STR, newloadname );
@@ -1780,7 +1777,6 @@ int load_one_object( int skin, char* tmploadname )
 
   // Load the AI script for this object
   make_newloadname( tmploadname, "script.txt", newloadname );
-  // printf(" DIAG: load ai script %s\n",newloadname);
   if ( load_ai_script( newloadname ) )
   {
     // Create a reference to the one we just loaded
@@ -1788,7 +1784,6 @@ int load_one_object( int skin, char* tmploadname )
   }
 
 
-  // printf(" DIAG: load object model\n");
   // Load the object model
   make_newloadname( tmploadname, "tris.md2", newloadname );
 
@@ -1817,7 +1812,6 @@ int load_one_object( int skin, char* tmploadname )
 
   // Create the actions table for this object
   get_actions( object );
-
 
   // Copy entire actions to save frame space COPY.TXT
   make_newloadname( tmploadname, "copy.txt", newloadname );
@@ -1859,7 +1853,6 @@ int load_one_object( int skin, char* tmploadname )
   load_one_enchant_type( newloadname, object );
 
 
-  // printf(" DIAG: loading skins and icons (PORTED EXCEPT ALPHA)\n");
   // Load the skins and icons
   madskinstart[object] = skin;
   numskins = 0;
@@ -1867,12 +1860,12 @@ int load_one_object( int skin, char* tmploadname )
   make_newloadname( tmploadname, "tris0", newloadname );
 
   GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
+  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
   {
     numskins++;
     make_newloadname( tmploadname, "icon0", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
+    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
     {
       while ( numicon < numskins )
       {
@@ -1885,12 +1878,12 @@ int load_one_object( int skin, char* tmploadname )
   }
   make_newloadname( tmploadname, "tris1", newloadname );
   GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
+  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
   {
     numskins++;
     make_newloadname( tmploadname, "icon1", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
+    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
     {
       while ( numicon < numskins )
       {
@@ -1902,14 +1895,13 @@ int load_one_object( int skin, char* tmploadname )
   }
   make_newloadname( tmploadname, "tris2", newloadname );
   GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
+  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
   {
     numskins++;
     make_newloadname( tmploadname, "icon2", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
+    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
     {
-      // DDSetColorKey(lpDDSIcon[globalnumicon], 0);  // port to new alpha code
       while ( numicon < numskins )
       {
         madskintoicon[skin+numicon] = globalnumicon;
@@ -1920,12 +1912,12 @@ int load_one_object( int skin, char* tmploadname )
   }
   make_newloadname( tmploadname, "tris3", newloadname );
   GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != 0 )
+  if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
   {
     numskins++;
     make_newloadname( tmploadname, "icon3", newloadname );
     GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != 0 )
+    if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
     {
       while ( numicon < numskins )
       {
@@ -1936,15 +1928,15 @@ int load_one_object( int skin, char* tmploadname )
     }
   }
 
-  madskins[object] = numskins;
   if ( numskins == 0 )
   {
     // If we didn't get a skin, set it to the water texture
-    madskinstart[object] = 5;
-    madskins[object] = 1;
+    madskinstart[object] = TX_WATER_TOP;
+    numskins = 1;
     if(gDevMode) log_message( "NOTE: Object is missing an skin (%s)!\n", tmploadname );
   }
 
+  madskins[object] = numskins;
   return numskins;
 }
 

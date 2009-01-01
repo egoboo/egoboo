@@ -1,10 +1,8 @@
 //Steal mana and convert to life
 IfScoredAHit
   SetTargetToWhoeverWasHit
-  tmpx = targetmana
-  tmpy = 256
-  IfXIsMoreThanY
-    tmpargument = 256
+  tmpargument = 256
+  CostTargetMana
     HealSelf
 
 // ZZ> This function makes the character wanders around its enemy

@@ -19,14 +19,6 @@ IfSpawned
   tmpargument = 0
   SetState
   SetContent
-
-//------------------------------------------------------------------------------
-//Ancient blood skill
-tmpx = selflevel
-tmpy = 5            //Need level 7
-IfXIsMoreThanY
-  tmpargument = 1
-  HealSelf
   
 //-----------------------------------------------------------------------------
 //Listen skill
@@ -45,8 +37,7 @@ IfXIsMoreThanY
       tmpargument = [TECH]
       IfTargetHasSkillID
         SetTargetToWhoeverWasHit
-        tmpargument = selfdex > 2
-        tmpargument = rand & tmpargument + 256    //1 to (dex/4) extra damage
+        tmpargument = 256
         DamageTarget
   
 //-----------------------------------------------------------------------------
@@ -71,8 +62,7 @@ tmpx = selflevel
 tmpy = 9            //At least level 11
 IfXIsMoreThanY
   IfAttacked
-    tmpargument = selflevel > 2
-    tmpargument = tmpargument * 128       //Reduce all damage by 1/2 per 4 levels
+    tmpargument = selflevel * 24       //Reduce all damage by 1/10 per level
     HealSelf
 
 //-----------------------------------------------------------------------------
@@ -84,8 +74,6 @@ IfTooMuchBaggage
   SendMessageNear
   tmpargument = 100
   SetReloadTime
-  
-
 
 //-----------------------------------------------------------------------------
 // ZZ> Gong sound
@@ -103,9 +91,17 @@ IfTimeOut
     IfHoldingItemID
       tmpargument = 256
       HealSelf
-  tmpargument = 200
+  tmpargument = 200     //every 4 seconds
   SetTime
 
+  //Ancient blood skill
+  tmpx = selflevel
+  tmpy = 5            //Need level 7
+  IfXIsMoreThanY
+    tmpargument = 256
+    HealSelf
+  
+  
 //------------------------------------------------------------------------------
 // ZZ> Scream and shout
 IfUsed

@@ -31,12 +31,12 @@ IfOrdered
 
 //Summoning AI
 IfTimeOut			//Every so often
-  tmpargument = 250
+  tmpargument = 400
   SetTime
   IfStateIs1			//Only if leader is in combat
     tmpx = selfmorale
-    tmpy = 8
-    IfXIsLessThanY		//Max 6 monsters at the time -2 for each of the wings
+    tmpy = 7
+    IfXIsLessThanY		//Max 5 monsters at the time -2 for each of the wings
       tmpx = rand % 100
       GetContent		//More monsters reduces chance for summoning even more
       tmpy = 16 - selfmorale *2 //Reduce with 2% for each monster summoned

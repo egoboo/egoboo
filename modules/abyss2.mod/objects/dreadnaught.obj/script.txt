@@ -119,8 +119,6 @@ IfTimeOut
       SetState
       tmpargument = 2
       PlayFullSound
-      tmpargument = 50
-      SetTime
 
     //Move towards target
     tmpargument = 50

@@ -1502,9 +1502,7 @@ int doVideoOptions( float deltaTime )
           break;
 
         default:
-          scrx = 640;
-          scry = 480;
-          videoOptionsButtons[12] = "640X480";
+          videoOptionsButtons[12] = "Custom";
           break;
       }
 
