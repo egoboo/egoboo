@@ -28,9 +28,18 @@
 
 
 // Multi cam
+#define MINZOOM                         800         // Camera distance
+#define MAXZOOM                         700         //
+#define MINZADD                         800         // Camera height
+#define MAXZADD                         2500        //
+#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+#define MAXUPDOWN                       (0.10f*PI)
+
+/* OLD CAMERA
 #define MINZOOM                         500         // Camera distance
 #define MAXZOOM                         600         //
 #define MINZADD                         800         // Camera height
 #define MAXZADD                         1500  //1000        //
 #define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
 #define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
+*/

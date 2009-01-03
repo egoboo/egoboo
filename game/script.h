@@ -387,6 +387,7 @@
 #define FSETQUESTLEVEL						352 //
 #define FADDQUESTALLPLAYERS					353 //
 #define FADDBLIPALLENEMIES					354 //
+#define FPITSFALL                           355 //
 
 
 // OPERATORS

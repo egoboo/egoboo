@@ -33,3 +33,6 @@ typedef enum e_tx_type
   TX_PHONG,
   TX_LAST
 } TX_TYPE;
+
+//Function prototypes
+void draw_blip( float sizeFactor, Uint8 color, int x, int y );

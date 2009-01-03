@@ -423,10 +423,15 @@ EXTERN Uint32                   fpsframe  EQ( 0 );             // The number of 
 EXTERN Uint32                   statclock  EQ( 0 );            // For stat regeneration
 EXTERN Uint32                   pitclock  EQ( 0 );             // For pit kills
 EXTERN Uint32                   outofsync  EQ( 0 );
-
-EXTERN bool_t                  pitskill  EQ( bfalse );          // Do they kill?
 EXTERN Uint8				   parseerror  EQ( bfalse );
 
+
+//Pitty stuff
+EXTERN bool_t                  pitskill  EQ( bfalse );          // Do they kill?
+EXTERN bool_t                  pitsfall  EQ( bfalse );          // Do they teleport?
+EXTERN Uint32				   pitx;
+EXTERN Uint32				   pity;
+EXTERN Uint32				   pitz;
 
 
 EXTERN bool_t                    fullscreen EQ( bfalse );        // Start in fullscreen?
@@ -671,7 +676,7 @@ EXTERN rect_t                    maprect;                    // The map rectangl
 #define SPARKLESIZE 28
 #define SPARKLEADD 2
 #define MAPSIZE 96
-#define BLIPSIZE 2
+#define BLIPSIZE 6
 
 // Lightning effects
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
@@ -1744,6 +1749,7 @@ typedef enum global_sounds
   SND_WEATHER2,
   SND_COINFALL,
   SND_LEVELUP,
+  SND_PITFALL,
   MAXGLOBALSOUNDS
 } SND_GLOBAL;
 

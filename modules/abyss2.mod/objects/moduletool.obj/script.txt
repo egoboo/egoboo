@@ -14,7 +14,10 @@ IfSpawned
   SetTime
   
   //Make pittraps work
-  PitsKill
+  tmpx = 8640
+  tmpy = 13888          //Coordinates on where to drop the player
+  tmpdistance = 1200
+  PitsFall
 
   //Ready the boss music
   tmpargument = 36		//Boss music theme

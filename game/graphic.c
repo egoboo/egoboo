@@ -3446,7 +3446,8 @@ bool_t get_mesh_memory()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_blip( Uint8 color, int x, int y )
+void draw_blip( float sizeFactor, Uint8 color, int x, int y )
+
 {
   float xl, xr, yt, yb;
   int width, height;
@@ -3459,18 +3460,19 @@ void draw_blip( Uint8 color, int x, int y )
     glNormal3f( 0.0f, 0.0f, 1.0f );
 
     GLTexture_Bind(&TxBlip);
-	xl = ( ( float )bliprect[color].left ) / 32;
-    xr = ( ( float )bliprect[color].right ) / 32;
-    yt = ( ( float )bliprect[color].top ) / 4;
-    yb = ( ( float )bliprect[color].bottom ) / 4;
+	xl = ( ( float )bliprect[color].left ) / (float)TxBlip.txW;
+	xr = ( ( float )bliprect[color].right ) / (float)TxBlip.txW;
+	yt = ( ( float )bliprect[color].top ) / (float)TxBlip.txH;
+	yb = ( ( float )bliprect[color].bottom ) / (float)TxBlip.txH; 
     width = bliprect[color].right - bliprect[color].left; 
 	height = bliprect[color].bottom - bliprect[color].top;
 
+	width *= sizeFactor; height *= sizeFactor; 
     glBegin( GL_QUADS );
-    glTexCoord2f( xl, yb );   glVertex2i( x - 1,       scry - y - 1 - height );
-    glTexCoord2f( xr, yb );   glVertex2i( x - 1 + width, scry - y - 1 - height );
-    glTexCoord2f( xr, yt );   glVertex2i( x - 1 + width, scry - y - 1 );
-    glTexCoord2f( xl, yt );   glVertex2i( x - 1,       scry - y - 1 );
+	glTexCoord2f( xl, yb ); glVertex2i( x - 1 - (width/2), scry - y - 1 - (height/2) );
+	glTexCoord2f( xr, yb ); glVertex2i( x - 1 + (width/2), scry - y - 1 - (height/2) );
+	glTexCoord2f( xr, yt ); glVertex2i( x - 1 + (width/2), scry - y - 1 + (height/2) );
+	glTexCoord2f( xl, yt ); glVertex2i( x - 1 - (width/2), scry - y - 1 + (height/2) ); 
     glEnd();
 
   }
@@ -3510,19 +3512,19 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
 
     blipx = x + SPARKLEADD + position;
     blipy = y + SPARKLEADD;
-    draw_blip( sparkle, blipx, blipy );
+    draw_blip(0.5f, sparkle, blipx, blipy );
 
     blipx = x + SPARKLEADD + SPARKLESIZE;
     blipy = y + SPARKLEADD + position;
-    draw_blip( sparkle, blipx, blipy );
+    draw_blip(0.5f, sparkle, blipx, blipy );
 
     blipx = blipx - position;
     blipy = y + SPARKLEADD + SPARKLESIZE;
-    draw_blip( sparkle, blipx, blipy );
+    draw_blip(0.5f, sparkle, blipx, blipy );
 
     blipx = x + SPARKLEADD;
     blipy = blipy - position;
-    draw_blip( sparkle, blipx, blipy );
+    draw_blip(0.5f, sparkle, blipx, blipy );
   }
 }
 
@@ -4039,7 +4041,7 @@ void draw_text()
 	}
 
     for ( cnt = 0; cnt < numblip; cnt++ )
-      draw_blip( blipc[cnt], blipx[cnt], blipy[cnt] + scry - MAPSIZE );
+      draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + scry - MAPSIZE );
 
     if ( youarehereon && ( wldframe&8 ) )
     {
@@ -4049,7 +4051,7 @@ void draw_text()
         {
           tnc = plaindex[cnt];
           if ( chralive[tnc] )
-            draw_blip( 0, chrxpos[tnc]*MAPSIZE / meshedgex, ( chrypos[tnc]*MAPSIZE / meshedgey ) + scry - MAPSIZE );
+            draw_blip( 0.75f, 0, chrxpos[tnc]*MAPSIZE / meshedgex, ( chrypos[tnc]*MAPSIZE / meshedgey ) + scry - MAPSIZE );
         }
       }
     }

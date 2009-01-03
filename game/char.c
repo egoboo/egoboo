@@ -3966,12 +3966,12 @@ void stat_return()
 }
 
 //--------------------------------------------------------------------------------------------
-void pit_kill()
+void update_pits()
 {
   // ZZ> This function kills any character in a deep pit...
   int cnt;
 
-  if ( pitskill )
+  if ( pitskill || pitsfall )
   {
     if ( pitclock > 19 )
     {
@@ -3993,8 +3993,7 @@ void pit_kill()
       }
 
 
-
-      // Kill any characters that fell in a pit...
+      // Kill or teleport any characters that fell in a pit...
       cnt = 0;
       while ( cnt < MAXCHR )
       {
@@ -4002,11 +4001,61 @@ void pit_kill()
         {
           if ( !chrinvictus[cnt] && chrzpos[cnt] < PITDEPTH && chrattachedto[cnt] == MAXCHR )
           {
-            // Got one!
-            kill_character( cnt, MAXCHR );
-            chrxvel[cnt] = 0;
-            chryvel[cnt] = 0;
+	        //Do we kill it?
+			if(pitskill)
+			{
+				// Got one!
+				kill_character( cnt, MAXCHR );
+				chrxvel[cnt] = 0;
+				chryvel[cnt] = 0;
+
+			    //Play sound effect
+		     	play_sound( chrxpos[cnt], chrypos[cnt], globalwave[SND_PITFALL] );
+			}
+
+			//Do we teleport it?
+			if(pitsfall && chrzpos[cnt] < PITDEPTH*8)
+			{
+				// Yeah!  It worked!
+				detach_character_from_mount( cnt, btrue, bfalse );
+				chroldx[cnt] = chrxpos[cnt];
+				chroldy[cnt] = chrypos[cnt];
+				chrxpos[cnt] = pitx;
+				chrypos[cnt] = pity;
+				chrzpos[cnt] = pitz;
+				if ( __chrhitawall( cnt ) )
+				{
+				  // No it didn't...
+				  chrxpos[cnt] = chroldx[cnt];
+				  chrypos[cnt] = chroldy[cnt];
+				  chrzpos[cnt] = chroldz[cnt];
+			      
+				  // Kill it instead
+				  kill_character( cnt, MAXCHR );
+ 				  chrxvel[cnt] = 0;
+				  chryvel[cnt] = 0;
+				}
+				else
+				{
+				  chroldx[cnt] = chrxpos[cnt];
+				  chroldy[cnt] = chrypos[cnt];
+				  chroldz[cnt] = chrzpos[cnt];
+
+				  //Stop movement
+				  chrzvel[cnt] = 0;
+				  chrxvel[cnt] = 0;
+				  chryvel[cnt] = 0;
+			    
+				  //Play sound effect
+		     	  if(chrisplayer[cnt]) play_sound( camtrackx, camtracky, globalwave[SND_PITFALL] );
+				  else play_sound( chrxpos[cnt], chrypos[cnt], globalwave[SND_PITFALL] );
+				
+				  //Do some damage (same as damage tile)
+				  damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chrbumplast[cnt], DAMFXBLOC | DAMFXARMO );
+              } 
+			}
           }
+
         }
         cnt++;
       }

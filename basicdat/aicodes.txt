@@ -374,6 +374,7 @@ The symbol itself follows
 :F 352 SetTargetQuestLevel
 :F 353 AddQuestAllPlayers
 :F 354 AddBlipAllEnemies
+:F 355 PitsFall
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

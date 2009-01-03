@@ -43,6 +43,7 @@ void load_global_waves( char *modname )
 	{
 		snprintf( wavename, sizeof(wavename), "sound%d.wav", cnt );
 		make_newloadname( tmploadname, wavename, newloadname );
+		Mix_LoadWAV( newloadname );
 	}
     cnt++;
   }
@@ -56,14 +57,15 @@ void load_global_waves( char *modname )
       globalwave[SND_COINFALL] = Mix_LoadWAV( "basicdat" SLASH_STR "globalparticles" SLASH_STR "coinfall.wav" );
   if((globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.ogg" )) == NULL)
       globalwave[SND_LEVELUP] = Mix_LoadWAV( "basicdat" SLASH_STR "levelup.wav" );
-
-  /*  The Global Sounds
-  *  0  - Pick up coin
-  *  1  - Defend clank
-  *  2  - Weather Effect
-  *  3  - Hit Water (Splash)
-  *  4  - Coin falls on ground
-
+  
+  make_newloadname( tmploadname, "pitfall.ogg", newloadname );
+  if((globalwave[SND_PITFALL] = Mix_LoadWAV( newloadname )) == NULL)
+  {
+	  make_newloadname( tmploadname, "pitfall.wav", newloadname );
+      globalwave[SND_PITFALL] = Mix_LoadWAV( newloadname );
+  }
+  
+  /*
   // These new values todo should determine sound and particle effects
   Weather Type: DROPS, RAIN, SNOW
   Water Type: LAVA, WATER, DARK

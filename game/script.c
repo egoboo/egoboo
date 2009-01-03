@@ -3621,6 +3621,18 @@ Uint8 run_function( Uint32 value, int character )
       localsenseenemies = chraitarget[character];
 	  localsenseenemiesID = valuetmpargument;
       break;
+    
+	case FPITSFALL:
+      // This function activates pit teleportation...
+      if( valuetmpx > EDGE && valuetmpy > EDGE && valuetmpx < meshedgex - EDGE && valuetmpy < meshedgey - EDGE )
+	  {
+		  pitsfall = btrue;
+	      pitx = valuetmpx;
+		  pity = valuetmpy;
+		  pitz = valuetmpdistance;
+	  }
+	  else pitskill = btrue;
+      break;
 
     case FEND:
       returncode = bfalse;

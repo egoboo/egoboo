@@ -2028,7 +2028,7 @@ void update_game()
     make_onwhichfan();
     bump_characters();
     stat_return();
-    pit_kill();
+    update_pits();
 
     // Generate the new seed
     randsave += *( ( Uint32* ) & kMd2Normals[wldframe&127][0] );
@@ -2408,7 +2408,7 @@ void reset_timers()
   lstclock = 0;
   wldclock = 0;
   statclock = 0;
-  pitclock = 0;  pitskill = bfalse;
+  pitclock = 0;  pitskill = pitsfall = bfalse;
   wldframe = 0;
   allframe = 0;
   fpsframe = 0;
