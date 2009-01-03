@@ -201,6 +201,7 @@ Sound of Jump ( -1 for none )			: -1
 :[SQUA] 1	//Square formed, not round
 :[ICON] 0	//Show icon (If name not known)
 :[PLAT] 1	//Platfrom object
+:[VALU] 1       //Always sold at 100% price
 
 
 //-Notes------------------------------------------------------------------------

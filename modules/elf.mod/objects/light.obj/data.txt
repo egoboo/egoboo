@@ -162,3 +162,4 @@ Jump sound     : -1
 :[STAT] 0
 :[ICON] 0
 :[LEVL] 0
+:[VALU] 1       //Always sold at 100% price

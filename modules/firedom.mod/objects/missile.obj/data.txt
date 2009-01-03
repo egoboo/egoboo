@@ -154,3 +154,4 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[RANG] 1
+:[VALU] 1       //Always sold at 100% price

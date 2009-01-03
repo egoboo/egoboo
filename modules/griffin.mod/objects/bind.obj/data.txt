@@ -157,3 +157,4 @@ Jump sound     : -1
 :[RANG] 1		//Ranged
 :[SQUA] 1		//Square formed
 :[ICON] 0
+:[VALU] 1       //Always sold at 100% price

@@ -138,10 +138,10 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 0
-Skin 1 cost    : 0
-Skin 2 cost    : 0
-Skin 3 cost    : 0
+Skin 0 cost    : 100
+Skin 1 cost    : 100
+Skin 2 cost    : 100
+Skin 3 cost    : 100
 STR dampen     : 0.000
 No rider attak : FALSE
 Can be dazed   : FALSE
@@ -155,3 +155,4 @@ Jump sound     : -1
 
 :[RANG] 1
 :[GOLD] 2
+:[VALU] 1       //Always sold at 100% price
