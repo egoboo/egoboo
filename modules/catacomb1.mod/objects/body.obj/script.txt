@@ -24,7 +24,7 @@ IfTimeOut
   tmpx = tmpargument
   tmpy = 2			//2 is normal body
   IfXIsLessThanY
-    tmpargument = rand & 300 + 350	//Distance to check
+    tmpargument = rand % 300 + 350	//Distance to check
     SetTargetToDistantEnemy
       tmpargument = 0
       IfContentIs

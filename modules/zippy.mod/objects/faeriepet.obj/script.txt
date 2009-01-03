@@ -117,9 +117,7 @@ IfDropped
     UndoEnchant
     tmpargument = 0
     SetContent
-IfHeld
-  DoNothing
-Else
+IfPutAway
   tmpargument = 1
   IfContentIs
     UndoEnchant

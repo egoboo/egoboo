@@ -1,6 +1,6 @@
 // Real general data
 Object slot number ( 0 to 63, don't use twice )	: 80
-Object class name ( use underscore for spaces ) : Warlock
+Object class name ( use underscore for spaces ) : Lich
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
 Starting ammo ( 0 for doesn't matter )		: 0
@@ -10,7 +10,7 @@ Gender ( MALE or FEMALE or OTHER )		: MALE
 // Object stats
 Life point bar color ( 0 to 5, 1 is red )	: 1
 Mana point bar color ( 0 to 5, 5 is purple )	: 5
-Life points ( eg. 3-5 )				: 10-15
+Life points ( eg. 3-5 )				: 20-25
 Life points increase per level ( eg. 1-3 )	: 1-1
 Mana points ( eg. 0-0 )				: 4-8
 Mana points increase per level ( eg. 1-1 )	: 4
@@ -62,20 +62,20 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 10000
 
 
 // Skin defenses
-Base defense rating of skin ( eg. 2 5 10 17 )	:  0  0  0  0
-SLASH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+Base defense rating of skin ( eg. 2 5 10 17 )	:  80  0  0  0
+SLASH defense shift ( eg. 1 1 1 1 )		:  2  1  1  1
 CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-POKE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+POKE defense shift ( eg. 1 1 1 1 )		:  2  1  1  1
 HOLY defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 EVIL defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
 ICE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-ZAP defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+ZAP defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 SLASH inversion ( eg. F F F T )			:  F  F  F  F
 CRUSH inversion ( eg. F F F T )			:  F  F  F  F
 POKE inversion ( eg. F F F T )			:  F  F  F  F
-HOLY inversion ( eg. T T T T )			:  T  T  T  T
-EVIL inversion ( eg. F F F T )			:  F  F  F  F
+HOLY inversion ( eg. T T T T )			:  F  F  F  F
+EVIL inversion ( eg. F F F T )			:  T  F  F  F
 FIRE inversion ( eg. F F F T )			:  F  F  F  F
 ICE inversion ( eg. F F F T )			:  F  F  F  F
 ZAP inversion ( eg. F F F T )			:  F  F  F  F
@@ -102,8 +102,8 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [HUMA]
-Type ID ( eg. [TROG] for Trogs )		: [WARL]
+Parent ID ( eg. [FROG] for Trogs )		: [UNDE]
+Type ID ( eg. [TROG] for Trogs )		: [LICH]
 Skill ID ( eg. [WMAG] for wizard spells )	: [WMAG]
 Special ID ( eg. [SUM0] for animated bones )	: [XENC]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
@@ -167,7 +167,7 @@ Character bounciness ( 0.00 to 0.95 )		: .60
 // More stuff I forgot
 Life healing when used ( 0.0 to 100.0 )		: 0.0
 Mana cost to use ( 0.0 to 100.0 )		: 0.0
-Life return rate, ( 0 to 255 )			: 0
+Life return rate, ( 0 to 255 )			: 64
 Stoppedby mask ( 48 is the only one )		: 48
 Skin Name 0 ( use underscores for spaces )	: BAD
 Skin Name 1 ( use underscores for spaces )	: BAD
