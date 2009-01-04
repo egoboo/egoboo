@@ -20,6 +20,3 @@ Level rating ( * to  ***** ) :*****
 :_
 
 // IDZs
-
-
-:[BEAT]

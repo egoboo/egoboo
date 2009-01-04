@@ -1,3 +1,4 @@
+JoinEvilTeam
 // Check for a kill order
 IfOrdered
   tmpx = selforder
@@ -32,7 +33,6 @@ IfKilled
   SendMessageNear
   SpawnPoof
   tmpargument = 1
-  tmpdistance = 22050
   PlaySound
   tmpargument = [WAKE]
   tmpdistance = [WAKE]
@@ -66,6 +66,9 @@ IfTimeOut
     Else
       tmpx = targetx
       tmpy = targety
+      tmpdistance = 1500
+      tmpturn = targetturnto
+      Compass
   ClearWaypoints
   AddWaypoint
   tmpargument = 20
@@ -96,14 +99,16 @@ IfBumped
         SetState
         tmpargument = 250
         SetTargetReloadTime
-        tmpargument = 40
+        tmpargument = 80
         SetTime
         tmpargument = 2
         PlaySound
+        tmpargument = rand & 255 + 768  //3-4 damage
+        DamageTarget
     tmpturn = targetturnto + 32768
     tmpx = selfx
     tmpy = selfy
-    tmpdistance = 300
+    tmpdistance = 750
     Compass
     ClearWaypoints
     AddWaypoint
