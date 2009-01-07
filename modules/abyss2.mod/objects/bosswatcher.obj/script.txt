@@ -98,7 +98,8 @@ Else
     IfStateIs0
       tmpx = selfspawnx
       tmpy = selfspawny
-      SetTargetToNearestEnemy
+      tmpdistance = 128*10
+      SetTargetToDistantEnemy
         IfFacingTarget
           SetTurnModeToWatchTarget
           tmpargument = 1

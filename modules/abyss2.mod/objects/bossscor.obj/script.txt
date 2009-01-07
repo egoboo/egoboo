@@ -72,8 +72,8 @@ Else
     tmpargument = 20
     SetTime
   
-  
-    SetTargetToNearestEnemy
+    tmpdistance = 128*10
+    SetTargetToDistantEnemy
       Run
       SetTurnModeToWatchTarget
       IfFacingTarget

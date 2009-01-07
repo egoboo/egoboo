@@ -34,7 +34,8 @@ IfArmorIs
 
 Else
   IfTargetKilled
-    SetTargetToNearestEnemy
+    tmpdistance = 128*10
+    SetTargetToDistantEnemy
       tmpargument = 1
       SetState
     Else
@@ -97,7 +98,8 @@ Else
       tmpargument = 20
       SetTime
       SetTargetToSelf
-      SetTargetToNearestEnemy
+      tmpdistance = 128*10
+      SetTargetToDistantEnemy
       IfTargetIsOnHatedTeam
         tmpargument = rand & 15 + 50
         SetTime
@@ -153,7 +155,8 @@ Else
       tmpy = 1400
       IfXIsMoreThanY
         // Find a new enemy
-        SetTargetToNearestEnemy
+        tmpdistance = 128*10
+        SetTargetToDistantEnemy
           tmpargument = 5
         Else
           tmpargument = 0

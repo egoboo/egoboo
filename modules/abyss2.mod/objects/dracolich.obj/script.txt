@@ -54,11 +54,13 @@ IfTargetIsAPlayer
     PlayFullSound
     tmpargument = tmpargument - 10
     SendMessage
-    SetTargetToWideEnemy
-      DoNothing
-    Else
-      tmpargument = 1
-      SetState
+    tmpargument = 0
+    IfStateIsNot
+      SetTargetToWideEnemy
+        DoNothing
+      Else
+        tmpargument = 1
+        SetState
     tmpargument = ACTIONMC
     DoAction			//Laugh
     tmpargument = 50

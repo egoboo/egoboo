@@ -138,7 +138,8 @@ Else
     IfStateIs2
       tmpargument = 30
       SetDamageTime
-      SetTargetToNearestEnemy
+      tmpdistance = 128*10
+      SetTargetToDistantEnemy
         // Ready to appear
         tmpargument = 0
         SetState
@@ -164,7 +165,8 @@ Else
       Else
         SetTargetToOldTarget
         // Look for other enemies
-        SetTargetToNearestEnemy
+        tmpdistance = 128*10
+        SetTargetToDistantEnemy
           // Close enough to attack?
           tmpx = targetdistance
           tmpy = 500
