@@ -10,7 +10,7 @@ unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 Player2:   NONE    9  58.5   74.5   1.0   N    0   0  0   0   0   T   F   G			//Player 2 stuff
 unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
