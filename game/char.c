@@ -3210,7 +3210,7 @@ void make_onwhichfan( void )
               damage_character( character, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chrbumplast[character], DAMFXBLOC | DAMFXARMO );
               chrdamagetime[character] = DAMAGETILETIME;
             }
-            if ( damagetileparttype != 0xFFFF && ( wldframe&damagetilepartand ) == 0 )
+            if ( damagetileparttype != (Sint16)0xFFFF && ( wldframe&damagetilepartand ) == 0 )
             {
               spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character],
                                   0, MAXMODEL, damagetileparttype, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
