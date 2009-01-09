@@ -1751,7 +1751,6 @@ int load_one_object( int skin, char* tmploadname )
   char newloadname[256];
   char wavename[256];
   int cnt;
-  char ctmp;
 
   // Load the object data file and get the object number
   make_newloadname( tmploadname, "/data.txt", newloadname );
@@ -1759,15 +1758,9 @@ int load_one_object( int skin, char* tmploadname )
 
 
   // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-  cnt = 0;
-  ctmp = tmploadname[cnt];
-  while ( ctmp != 0 && cnt < 127 )
-  {
-    madname[object][cnt] = ctmp;
-    cnt++;
-    ctmp = tmploadname[cnt];
-  }
-  madname[object][cnt] = 0;
+  strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
+  // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
+  madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) ] = '\0';
 
 
   // Append a slash to the tmploadname
