@@ -4895,18 +4895,15 @@ int load_one_character_profile( char *szLoadName )
     fscanf( fileread, "%d", &iTmp );  capdefense[object][1] = 255 - iTmp;
     fscanf( fileread, "%d", &iTmp );  capdefense[object][2] = 255 - iTmp;
     fscanf( fileread, "%d", &iTmp );  capdefense[object][3] = 255 - iTmp;
-    damagetype = 0;
-    while ( damagetype < MAXDAMAGETYPE )
+    for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
     {
       goto_colon( fileread );
       fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][0] = iTmp;
       fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][1] = iTmp;
       fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][2] = iTmp;
       fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][3] = iTmp;
-      damagetype++;
     }
-    damagetype = 0;
-    while ( damagetype < MAXDAMAGETYPE )
+    for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
     {
       goto_colon( fileread );
       cTmp = get_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  capdamagemodifier[object][damagetype][0] |= DAMAGEINVERT;
@@ -4917,7 +4914,6 @@ int load_one_character_profile( char *szLoadName )
       if ( cTmp == 'C' || cTmp == 'c' )  capdamagemodifier[object][damagetype][2] |= DAMAGECHARGE;
       cTmp = get_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  capdamagemodifier[object][damagetype][3] |= DAMAGEINVERT;
       if ( cTmp == 'C' || cTmp == 'c' )  capdamagemodifier[object][damagetype][3] |= DAMAGECHARGE;
-      damagetype++;
     }
     goto_colon( fileread );
     fscanf( fileread, "%f", &fTmp );  capmaxaccel[object][0] = fTmp / 80.0f;
@@ -4928,11 +4924,9 @@ int load_one_character_profile( char *szLoadName )
 
     // Experience and level data
     capexperienceforlevel[object][0] = 0;
-    level = 1;
-    while ( level < MAXLEVEL )
+    for ( level = 1; level < MAXLEVEL; level++ )
     {
       goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capexperienceforlevel[object][level] = iTmp;
-      level++;
     }
     goto_colon( fileread );  read_pair( fileread );
     pairbase = pairbase >> 8;
@@ -4942,20 +4936,16 @@ int load_one_character_profile( char *szLoadName )
     capexperiencerand[object] = pairrand;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capexperienceworth[object] = iTmp;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  capexperienceexchange[object] = fTmp;
-    xptype = 0;
-    while ( xptype < MAXEXPERIENCETYPE )
+    for ( xptype = 0; xptype < MAXEXPERIENCETYPE; xptype++ )
     {
       goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  capexperiencerate[object][xptype] = fTmp + 0.001f;
-      xptype++;
     }
 
 
     // IDSZ tags
-    idsz = 0;
-    while ( idsz < MAXIDSZ )
+    for ( idsz = 0; idsz < MAXIDSZ; idsz++ )
     {
       goto_colon( fileread );  iTmp = get_idsz( fileread );  capidsz[object][idsz] = iTmp;
-      idsz++;
     }
 
 
