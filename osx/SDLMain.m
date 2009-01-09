@@ -86,59 +86,24 @@ static NSString *getApplicationName(void)
 /* The main class of the application, the application's delegate */
 @implementation SDLMain
 
-- (IBAction)prefsMenu:(id)sender
+- (IBAction)options:(id)sender
 {
-    printf ("prefs menu\n");
+    printf ("options\n");
 }
 
-- (IBAction)newGame:(id)sender
+- (IBAction)newPlayer:(id)sender
 {
-    printf ("new game\n");
-    
-    /*NSRunAlertPanel (@"Get ready to blow up some... stuff!", 
-					 @"Click OK to begin total carnage. Click Cancel to prevent total carnage.", 	        		@"OK", @"Cancel", nil);*/
+    printf ("new player\n");
 }
 
-- (IBAction)openGame:(id)sender
+- (IBAction)loadPlayer:(id)sender
 {
-    NSString *path = nil;
-    /*NSOpenPanel *openPanel = [ NSOpenPanel openPanel ];
-    
-    if ( [ openPanel runModalForDirectory:nil
-									 file:@"SavedGame" types:nil ] ) {
-		
-        path = [ [ openPanel filenames ] objectAtIndex:0 ];
-    }*/
-    
-    printf ("open game: %s\n", [ path cString ]);
+    printf ("load player\n");
 }
 
-- (IBAction)saveGame:(id)sender
+- (IBAction)multiPlayer:(id)sender
 {
-    NSString *path = nil;
-    /*NSSavePanel *savePanel = [ NSSavePanel savePanel ];
-    
-    if ( [ savePanel runModalForDirectory:nil
-									 file:@"SaveGameFile" ] ) {
-		
-        path = [ savePanel filename ];
-    }*/
-    
-    printf ("save game: %s\n", [ path cString ]);
-}
-
-- (IBAction)saveGameAs:(id)sender
-{
-    NSString *path = nil;
-    /*NSSavePanel *savePanel = [ NSSavePanel savePanel ];
-    
-    if ( [ savePanel runModalForDirectory:nil
-									 file:@"SaveGameFile" ] ) {
-		
-        path = [ savePanel filename ];
-    }*/
-    
-    printf ("save game as: %s\n", [ path cString ]);
+    printf ("multiplayer\n");
 }
 
 - (IBAction)help:(id)sender

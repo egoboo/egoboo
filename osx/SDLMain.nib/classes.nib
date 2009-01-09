@@ -2,14 +2,7 @@
     IBClasses = (
         {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
         {
-            ACTIONS = {
-                help = id; 
-                newGame = id; 
-                openGame = id; 
-                prefsMenu = id; 
-                saveGame = id; 
-                saveGameAs = id; 
-            }; 
+            ACTIONS = {help = id; loadPlayer = id; multiPlayer = id; newPlayer = id; options = id; }; 
             CLASS = SDLMain; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
