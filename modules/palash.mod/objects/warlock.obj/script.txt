@@ -15,7 +15,6 @@
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 2
-  tmpdistance = rand & 1023 + 10000
   PlaySound
 
 
@@ -28,7 +27,7 @@ IfKilled
 
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
 
@@ -48,7 +47,6 @@ IfHealed
 // ZZ> Keep 'em guessin'
 IfAttacked
   tmpargument = rand & 1
-  tmpdistance = rand & 1023 + 10000
   PlaySound
 
 
@@ -59,13 +57,11 @@ IfAttacked
       SetTargetToOldTarget
 
 
-  IfStateIs1
-    GetState
-  Else
-    IfStateIs2
-      GetState
-    Else
-      // Teleport away...
+  // Teleport away...
+  tmpargument = 1
+  IfStateIsNot
+    tmpargument = 2
+    IfStateIsNot
       tmpargument = 1
       SetState
       tmpargument = 20
@@ -75,13 +71,11 @@ IfAttacked
 
 //------------------------------------------------------------------------------
 IfBumped
-  IfStateIs1
-    GetState
-  Else
-    IfStateIs2
-      GetState
-    Else
-      // Teleport away...
+  // Teleport away...
+  tmpargument = 1
+  IfStateIsNot
+    tmpargument = 2
+    IfStateIsNot
       tmpargument = 1
       SetState
       tmpargument = 0
@@ -321,12 +315,6 @@ IfTimeOut
       tmpargument = 5
       SetTime
 
-
-
-
-
-
-
   IfStateIs0
     tmpargument = 20
     SetTime
@@ -339,7 +327,7 @@ IfTimeOut
       SetTime
     Else
       // Go after enemies
-      SetTargetToNearestEnemy
+      SetTargetToWideEnemy
         tmpargument = rand & 7 + 4
         SetTime
         tmpargument = 3
@@ -350,7 +338,7 @@ IfTimeOut
         // Wander around
         tmpargument = rand & 15 + 25
         SetTime
-        tmpx = rand & 511 - 256 + selfspawnx
+        tmpx = rand & 255 - 256 + selfspawnx
         tmpy = rand & 511 - 256 + selfspawny
       ClearWaypoints
       AddWaypoint

@@ -10,6 +10,7 @@ Version 2.7.0 (??.??.2009)
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
 - New Feature: Some new skills have been added and changed (classes.txt)
+- Update: Rust maggots can now eat metal items that are dropped on the floor.
 - Update: Duration for messages can now be adjusted in Video Settings.
 - Update: Major gameplay rebalancing in many aspects of the game.
 - Update: Egoboo supports .ogg as well as .wav for sound effects now.

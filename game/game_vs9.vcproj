@@ -202,11 +202,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Client.c"
+				RelativePath=".\client.c"
 				>
 			</File>
 			<File
-				RelativePath=".\Clock.c"
+				RelativePath=".\clock.c"
 				>
 			</File>
 			<File
@@ -234,7 +234,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Font.c"
+				RelativePath=".\font.c"
 				>
 			</File>
 			<File
@@ -266,7 +266,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Link.c"
+				RelativePath=".\link.c"
 				>
 			</File>
 			<File
@@ -310,7 +310,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Log.c"
+				RelativePath=".\log.c"
 				>
 			</File>
 			<File
@@ -342,7 +342,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Server.c"
+				RelativePath=".\server.c"
 				>
 			</File>
 			<File
@@ -394,7 +394,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Ui.c"
+				RelativePath=".\ui.c"
 				>
 			</File>
 			<File
@@ -416,11 +416,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Client.h"
+				RelativePath=".\client.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Clock.h"
+				RelativePath=".\clock.h"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -466,7 +466,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Font.h"
+				RelativePath=".\font.h"
 				>
 			</File>
 			<File
@@ -482,11 +482,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Link.h"
+				RelativePath=".\link.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Log.h"
+				RelativePath=".\log.h"
 				>
 			</File>
 			<File
@@ -514,11 +514,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Server.h"
+				RelativePath=".\server.h"
 				>
 			</File>
 			<File
-				RelativePath=".\System.h"
+				RelativePath=".\system.h"
 				>
 			</File>
 			<File

@@ -19,9 +19,8 @@ IfKilled				// This reduces the height of the char
   tmpargument = 30			  // Dead height
   SetBumpHeight				  //
   tmpargument = 1			  // Sound
-  tmpdistance = rand & 4095 + 11000	  //
   PlaySound				  //
-  GoPoof
+
 IfAttacked				// Don't take kindly to attackers
   SetTargetToWhoeverAttacked		  //
     tmpargument = 0			    // Sound
@@ -45,8 +44,31 @@ IfTimeOut				// This is done every so often
   Else					  // Wander around home position
     tmpx = rand & 1023 - 512 + selfspawnx   //
     tmpy = rand & 1023 - 512 + selfspawny   //
+    SetTargetToNearestLifeForm
+    tmpargument = [RUST]
+    IfTargetHasVulnerabilityID
+      tmpx = targetx
+      tmpy = targety
   ClearWaypoints			  //
   AddWaypoint				  //
   tmpargument = rand & 63 + 20		  // Wait a while and try again
   SetTime				  //
+
+  //Eat metal stuff
+  tmpargument = [RUST]
+  IfTargetHasVulnerabilityID
+    tmpx = targetdistance
+    tmpy = 75
+    IfXIsLessThanY
+      tmpargument = 2
+      SendMessage
+      PoofTarget
+        tmpx = selfx
+        tmpy = selfy
+        tmpdistance = selfz
+        tmpargument = 5
+        SpawnExactParticle
+        tmpargument = 512
+        HealSelf
+
 End					// Finished with this character

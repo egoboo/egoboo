@@ -31,7 +31,7 @@ IfStateIs8
     tmpargument = 100
     SetTime
 
-    tmpdistance = 640000
+    tmpdistance = 128*7
     SetTargetToDistantEnemy
       IfTargetIsSneaking
         //don't wake up
@@ -55,7 +55,8 @@ IfBumped				// Attack whoever it bumped
   tmpargument = [RUST]
   IfTargetHasID
     tmpargument = 512
-    HealSelf  
+    HealSelf
+
 IfScoredAHit
   SetTargetToWhoeverWasHit
     SetTargetToTargetLeftHand           //Look for Metal to eat

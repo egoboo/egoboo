@@ -1,6 +1,6 @@
 //Slow attack speed
 IfUsed
-  tmpargument = 65
+  tmpargument = 33  //Twice as fast as normal hatchet
   SetReloadTime
 
 
