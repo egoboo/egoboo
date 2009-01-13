@@ -3,7 +3,7 @@ Class name     : Frog
 Uniform light  : FALSE
 Maximum ammo   : 0
 Current ammo   : 0
-Gender         : MALE
+Gender         : RANDOM
 
 Life color     : 1
 Mana color     : 5

@@ -1,6 +1,6 @@
 Message 0: %n_is_no_more!
 Message 1: =%n=
-Message 2: Level_%X_%c
+Message 2: Level_%X_%m%c
 Message 3: %t_released_%n.
 Message 4: _STR:~%X~WIS:~%Y~JOY:~:(
 Message 5: _STR:~%X~WIS:~%Y~JOY:~:[

@@ -6,9 +6,9 @@ Message 4: I'll_name_it_%n.
 Message 5: %t_inspected_%n.
 Message 6: This_is_%t's_%c...
 Message 7: =%n=
-Message 8: _1st_level_%c
-Message 9: _2nd_level_%c
-Message10: _3rd_level_%c
+Message 8: _1st_level_%m%c
+Message 9: _2nd_level_%m%c
+Message10: _3rd_level_%m%c
 Message11: _STR:~%X~WIS:~%Y~JOY:~:(
 Message12: _STR:~%X~WIS:~%Y~JOY:~:[
 Message13: _STR:~%X~WIS:~%Y~JOY:~:]
