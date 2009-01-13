@@ -1,2 +1,2 @@
-:King_Bishop
+:Lord_Bishop
 :STOP 
