@@ -535,7 +535,6 @@ EXTERN Uint8                   msb, jab, jbb;              // Button masks
 
 
 // Weather and water gfx
-EXTERN Uint8                   watershift  EQ( 3 );
 EXTERN int                     weatheroverwater EQ( bfalse );       // Only spawn over water?
 EXTERN int                     weathertimereset EQ( 10 );          // Rate at which weather particles spawn
 EXTERN int                     weathertime EQ( 0 );                // 0 is no weather

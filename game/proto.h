@@ -358,7 +358,7 @@ void render_shadow( int character );
 void render_bad_shadow( int character );
 void render_refprt();
 void render_fan( Uint32 fan );
-void render_water_fan( Uint32 fan, Uint8 layer, Uint8 mode );
+void render_water_fan( Uint32 fan, Uint8 layer );
 void render_enviromad( Uint16 character, Uint8 trans );
 void render_texmad( Uint16 character, Uint8 trans );
 void render_mad( Uint16 character, Uint8 trans );

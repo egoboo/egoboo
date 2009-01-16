@@ -3034,7 +3034,7 @@ void render_water()
       if ( meshfx[meshrenderlist[cnt]]&MESHFXWATER )
       {
         // !!!BAD!!! Water will get screwed up if meshsizex is odd
-        render_water_fan( meshrenderlist[cnt], 1, ( ( meshrenderlist[cnt] >> watershift )&2 ) + ( meshrenderlist[cnt]&1 ) );
+        render_water_fan( meshrenderlist[cnt], 1 );
       }
       cnt++;
     }
@@ -3048,7 +3048,7 @@ void render_water()
       if ( meshfx[meshrenderlist[cnt]]&MESHFXWATER )
       {
         // !!!BAD!!! Water will get screwed up if meshsizex is odd
-        render_water_fan( meshrenderlist[cnt], 0, ( ( meshrenderlist[cnt] >> watershift )&2 ) + ( meshrenderlist[cnt]&1 ) );
+        render_water_fan( meshrenderlist[cnt], 0 );
       }
       cnt++;
     }

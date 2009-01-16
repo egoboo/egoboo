@@ -1820,13 +1820,6 @@ int load_mesh( char *modname )
     meshedgex = meshsizex * 128;
     meshedgey = meshsizey * 128;
     numfanblock = ( ( meshsizex >> 2 ) ) * ( ( meshsizey >> 2 ) );  // MESHSIZEX MUST BE MULTIPLE OF 4
-    watershift = 3;
-    if ( meshsizex > 16 )  watershift++;
-    if ( meshsizex > 32 )  watershift++;
-    if ( meshsizex > 64 )  watershift++;
-    if ( meshsizex > 128 )  watershift++;
-    if ( meshsizex > 256 )  watershift++;
-
 
     // Load fan data
     fan = 0;
