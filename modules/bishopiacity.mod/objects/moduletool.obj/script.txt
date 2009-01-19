@@ -26,6 +26,9 @@ IfContentIs
   tmpdistance = 0
   PlayMusic
   //DEBUG END
+  
+  ShowMap
+  ShowYouAreHere
 
 //------------------------------------------------------------------------------------
 //Display the map and play music
