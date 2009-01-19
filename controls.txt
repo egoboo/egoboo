@@ -18,55 +18,55 @@ F11                   - Take screenshot
 
 Keyboard
 ========
-Jump				: KEY_SPACE
+Jump                : KEY_PAD_0
 Left Hand Use		: KEY_T
 Left Hand Get/Drop	: KEY_G
-Left Hand Inventory: KEY_B
+Left Hand Inventory	: KEY_B
 Right Hand Use		: KEY_Y
-Right Hand Get/Drop: KEY_H
-Right Hand Inventory: KEY_N
-Send Message		: JOY_4
-Camera Rotate Left	: KEY_Q
-Camera Rotate Right: KEY_E
-Camera Zoom In		: KEY_Z
-Camera Zoom Out	: KEY_X
-Up					: KEY_W
-Down				: KEY_S
-Left				: KEY_A
-Right				: KEY_D
+Right Hand Get/Drop	: KEY_H
+Right Hand Inventory	: KEY_N
+Send Message		: KEY_M
+Rotate Camera Left	: KEY_PAD_7
+Rotate Camera Right	: KEY_PAD_9
+Zoom Camera In		: KEY_PAD_PLUS
+Zoom Camera Out		: KEY_PAD_MINUS
+Up			: KEY_PAD_8
+Down			: KEY_PAD_2
+Left			: KEY_PAD_4
+Right			: KEY_PAD_6
 
 
 Mouse
-========
-Jump				: N/A
-Left Hand Use		: N/A
-Left Hand Get/Drop	: N/A
-Left Hand Inventory	: N/A
-Right Hand Use		: N/A
-Right Hand Get/Drop	: N/A
-Right Hand Inventory: N/A
-Camera Control Mode	: N/A
+=====
+Jump			: MOS_MIDDLE
+Left Hand Use		: KEY_A
+Left Hand Get/Drop	: MOS_RIGHT_AND_MIDDLE
+Left Hand Inventory	: KEY_S
+Right Hand Use		: MOS_LEFT
+Right Hand Get/Drop	: MOS_LEFT_AND_RIGHT
+Right Hand Inventory	: MOS_FOURTH
+Camera Control Mode	: MOS_RIGHT
 
 
 Joystick A
-========
-Jump				: N/A
-Left Hand Use		: N/A
-Left Hand Get/Drop	: N/A
-Left Hand Inventory	: N/A
-Right Hand Use		: N/A
-Right Hand Get/Drop	: N/A
-Right Hand Inventory: N/A
-Camera Control Mode	: N/A
+==========
+Jump			: JOY_1
+Left Hand Use		: JOY_4
+Left Hand Get/Drop	: JOY_6
+Left Hand Inventory	: JOY_7
+Right Hand Use		: JOY_0
+Right Hand Get/Drop	: JOY_2
+Right Hand Inventory	: JOY_5
+Camera Control Mode	: JOY_3
 
 
 Joystick B
-========
-Jump				: N/A
-Left Hand Use		: N/A
-Left Hand Get/Drop	: N/A
-Left Hand Inventory	: N/A
-Right Hand Use		: N/A
-Right Hand Get/Drop	: N/A
-Right Hand Inventory: N/A
-Camera Control Mode	: N/A
+==========
+Jump			: JOY_1
+Left Hand Use		: JOY_4
+Left Hand Get/Drop	: JOY_6
+Left Hand Inventory	: JOY_7
+Right Hand Use		: JOY_0
+Right Hand Get/Drop	: JOY_2
+Right Hand Inventory	: JOY_5
+Camera Control Mode	: JOY_3

@@ -1,35 +1,29 @@
 MASTER TODO LIST:
-- All keys and spells should be flagged as :[VALU] 1 (valuable)
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - Wizards cannot use lamps
 - Runes crushed messages are missing
 - Exploding oil when taken out? (lit lamp was held in other hand)
 - Minimize on Linux can cause textures to be buggy.
 - Impassable tile in Zippy? (near healer) (and forgotten fortress?)
-- There are white stools in the Wizard Starter, the skins are still messed up for various thing sometimes. 
 - The ice in the Ice Palace is VERY slippery...
 - Squidgies still messing things up!
 - Crusader shield IfPutAway not working. It also refills mana!
 - Overlay effects do not spawn in pits.
 - Restoration removes good buffs
-- Creates in G'nome starter tend to wander uphill.
+- A bug in the waypoint system, causing such as:
+  Creates in G'nome starter tend to wander uphill.
+  Brom and Mim in the adventurer starter have some strange sudden waypoints.
 - Exp cheat works waaay to fast.
 - shield of deflection not working vs. orbstorm and float eye attacks
-- Game crashes in sand palace. Mimic and tranch room.
+- Game crashes in sand palace. Mimic and tranch room. (Only on specific pc's?) 
 - The Bishopia walls should be flagged as a Wall, not as Impassable.
-- Brom and Mim in the adventurer starter have some strange sudden waypoints.
 - The Lich boss in the Wizard starter causes the game to freeze sometimes after 2 minutes.
 - Becoming the bad guy in Bishopia should still allow you to escape and export somehow.
-- WHen healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
-- The Missile spell (aquired from the Adventurer Starter) isn't homing anymore at all, even if standing right in front of the target.
+- When healers use potion or Regeneration rune, their life change from "mana life" to normal "red life" 
 - Equipped enchants (boots, amulets, etc.) seem to go away if user dies and respawns. 
 
 ABYSS 2
-- Rebalance the Dracolich fight. Blocking!
-- Replace death pits
 - Rustproof weapon for elayne
 - New weapon for darkie boss?
 - Elayne should not like zombor
-- Draconians?
-- Make pits look nice
 - Add another npc? (wizard? rogue - read'n detect?)

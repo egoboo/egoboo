@@ -8,12 +8,17 @@ IfSpawned
   tmpargument = passage
   ClosePassage
   
-
   //Create the anti-teleport blocker
   tmpargument = 0
   IfArmorIs
     tmpargument = passage + 2
     ClosePassage
+    
+  //Setup so that [GOOD] guys can sacrifice their soul to open
+  tmpargument = 0
+  tmpx = 0
+  tmpy = 2
+  SetXY
 
 //Become yellow if attacked by holy!
 IfAttacked
@@ -149,11 +154,38 @@ IfArmorIs
       IfTargetIsAPlayer
         tmpargument = [GOOD]
         IfTargetHasSpecialID          //Paladins and healers break the door
-          tmpargument = 4
+          tmpargument = 0
+          GetXY
+          IfXIsEqualToY
+            tmpargument = targetlevel*targetlevel*50
+            tmpargument = 0 - tmpargument   //Lose xp (higher level = more)
+            tmpdistance = EXPROLEPLAY
+            GiveExperienceToTarget
+            tmpdistance = 0 - tmpargument   //Remember for message later
+            tmpargument = 90*targetlevel   //Take 1 damage per 3 levels
+            DamageTarget
+            tmpargument = 1
+            ChangeArmor
+            tmpargument = 0           //Do not say "yes I am opening" next time
+            SetContent
+            tmpargument = 8       //Target traded it's soul!
+          Else
+            tmpy = 0
+            IfXIsMoreThanY
+              tmpargument = 7     //Offer to trade soul for opening
+            Else
+              tmpargument = 4     //Will not open to the likes of you
+
           SendMessage
           PlayFullSound
           tmpargument = 250
           SetTime
+          
+          tmpargument = 0
+          GetXY
+          tmpx = tmpx+1
+          tmpy = 2
+          SetXY
         Else    
           IfDistanceIsMoreThanTurn      //Proceeds if tmpdisdance is not 0
             tmpargument = 1
@@ -163,32 +195,53 @@ IfArmorIs
             PlayFullSound
             tmpargument = 0           //Do not say "yes I am opening" next time
             SetContent
+            
+            //Award xp for solving puzzle
+            tmpargument = 40
+            tmpdistance = EXPSECRET
+            GiveExperienceToGoodTeam
+            
           Else                    //Stil riddeling...
             GetContent
             SendMessageNear
             PlaySound
             tmpargument = 250
             SetTime
-
-//Open door
+            
+    //Reset the soul leech counter
+    Else
+      tmpargument = 0
+      GetXY
+      IfXIsLessThanY
+        tmpx = 0
+        tmpy = 2
+        SetXY
+      
+//Open the door
 tmpargument = 1
 IfArmorIs
   tmpargument = passage + 1
   SetTargetToWhoeverIsInPassage
     IfTargetCanOpenStuff
-      tmpargument = [GOOD]
-      IfTargetHasSpecialID            //Still refuses to open to really good guys
-        tmpargument = passage
-        ClosePassage
-        IfTimeOut
-          tmpargument = 4
-          SendMessage
-          PlaySound
-          tmpargument = 250
-          SetTime
-      Else
+      tmpargument = 0
+      GetXY
+      IfXIsMoreThanY                  //Open up for soul traders
         tmpargument = passage
         OpenPassage
+      Else
+        tmpargument = [GOOD]
+        IfTargetHasSpecialID            //Still refuses to open to really good guys
+          tmpargument = passage
+          ClosePassage
+          IfTimeOut
+            tmpargument = 4
+            SendMessage
+            PlaySound
+            tmpargument = 250
+            SetTime
+        Else
+          tmpargument = passage
+          OpenPassage
   Else
     tmpargument = passage
     ClosePassage

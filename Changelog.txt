@@ -1,4 +1,5 @@
 Version 2.7.0 (??.??.2009)
+- New Feature: A whole new and dramatic boss music track composed by Edward Blakely!
 - New Feature: The Abyss part 2 is now in the game. The storyline is now complete,
                which means you can actually beat the whole game now!
 - New Feature: Egoboo now uses SDL_Image which improves the texture loading for Egoboo
