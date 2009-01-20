@@ -7,7 +7,7 @@ Minimum players ( 1 to 4 ) 	:1
 Maximum players ( 1 to 4 ) 	:1
 Respawning ( TRUE or FALSE ) 	:TRUE
 NOT USED			:FALSE
-Level rating ( * to  ***** ) 	:***
+Level rating ( * to  ***** ) 	:****
 
 // Module summary
 :Help_your_master_kill_the_elder

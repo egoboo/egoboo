@@ -8,7 +8,7 @@ Minimum number of players ( 1 to 4 )		: 1
 Maximum number of players ( 1 to 4 )		: 1
 Allow respawning ( ANYTIME, TRUE or FALSE )	: TRUE
 NOT USED				: FALSE
-Level rating ( *, **, ***, ****, or ***** )     		: ***
+Level rating ( *, **, ***, ****, or ***** )     		: *****
 
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )

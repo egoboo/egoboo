@@ -8,7 +8,7 @@ Gender         : OTHER
 Life color     : 1
 Mana color     : 5
 Life           : 10-12
-Life up        : 1.50-2.50
+Life up        : 0.9-1.7
 Mana           : 0.00
 Mana up        : 0.00-0.00
 Mana return    : 0
@@ -16,13 +16,13 @@ Mana return up : 0.00-0.0
 Mana flow      : 0
 Mana flow up   : 0.00-0.0
 STR            : 16-19
-STR up         : 1.00-2.00
+STR up         : 0.6-1.6
 WIS            : 4-6
-WIS up         : 0.00-1.00
+WIS up         : 0.0-0.5
 INT            : 4.00
-INT up         : 0.50
+INT up         : 0.0-0.5
 DEX            : 10.00
-DEX up         : 1.00
+DEX up         : 0.4-0.9
 
 Size           : 1.00
 Size up        : 0.00

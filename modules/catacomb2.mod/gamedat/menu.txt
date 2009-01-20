@@ -8,7 +8,7 @@ Minimum players ( 1 to 4 ) 		:1
 Maximum players ( 1 to 4 ) 		:4
 Respawning ( ANYTIME, TRUE or FALSE ) 	:TRUE
 NOT USED		  	:FALSE
-Level rating ( * to  ***** ) 		:*****
+Level rating ( * to  ***** ) 		:******
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
 :You_decend_deeper_into_the_ancient

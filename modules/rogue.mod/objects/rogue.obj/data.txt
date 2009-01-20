@@ -11,7 +11,7 @@ Gender ( MALE or FEMALE or OTHER )		: MALE
 Life point bar color ( 0 to 5, 1 is red )	: 1
 Mana point bar color ( 0 to 5, 5 is purple )	: 5
 Life points ( eg. 3-5 )				: 5-6
-Life points increase per level ( eg. 1-3 )	: 1-2
+Life points increase per level ( eg. 1-3 )	: 0.6-1.2
 Mana points ( eg. 0-0 )				: 0
 Mana points increase per level ( eg. 1-1 )	: 0
 Mana return rate ( eg. 0-1 )			: 0
@@ -19,13 +19,13 @@ Mana return increase per level ( eg. 0-1 )	: 0
 Mana flow rate ( eg. 0-1 )			: 0
 Mana flow increase per level ( eg. 0-1 )	: 0
 Strength ( eg. 3-18 )				: 11-14
-Strength increase per level ( eg. 0-1 )		: 0-1
+Strength increase per level ( eg. 0-1 )		: 0.0-0.7
 Wisdom ( eg. 3-18 )				: 5-7
 Wisdom increase per level ( eg. 0-1 )		: 0
 Intelligence ( eg. 3-18 )			: 6-8
-Intelligence increase per level ( eg. 0-1 )	: 1-2
+Intelligence increase per level ( eg. 0-1 )	: 0.8-1.5
 Dexterity ( eg. 3-18 )				: 18-23
-Dexterity increase per level ( eg. 0-1 )	: 2-3
+Dexterity increase per level ( eg. 0-1 )	: 1.5-2.0
 
 
 // More physical attributes

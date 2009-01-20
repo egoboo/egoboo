@@ -8,21 +8,21 @@ Gender         : MALE
 Life color     : 1
 Mana color     : 5
 Life           : 7-8
-Life up        : 1-2
+Life up        : 0.7-1.3
 Mana           : 0.00
 Mana up        : 0.00-0.00
 Mana return    : 0.00
 Mana return up : 0.00-0.00
 Mana flow      : 0.00
 Mana flow up   : 0.00-0.00
-STR            : 9-12.00
-STR up         : 1-2
+STR            : 9-12
+STR up         : 0.7-1.3
 WIS            : 6-10
-WIS up         : 1.00
+WIS up         : 0.4-0.9
 INT            : 14-16
-INT up         : 1-2
+INT up         : 0.5-1.0
 DEX            : 14-16
-DEX up         : 1-2
+DEX up         : 0.7-1.3
 
 Size           : 1.00
 Size up        : 0.03
