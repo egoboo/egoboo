@@ -3634,6 +3634,11 @@ Uint8 run_function( Uint32 value, int character )
 	  else pitskill = btrue;
       break;
 
+	case FIFTARGETISOWNER:
+      // This function proceeds only if the target is on another team
+      returncode = ( chralive[chraitarget[character]] && chraiowner[character] == chraitarget[character] );
+      break;
+
     case FEND:
       returncode = bfalse;
       break;

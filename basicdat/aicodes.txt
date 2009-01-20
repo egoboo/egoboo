@@ -375,6 +375,7 @@ The symbol itself follows
 :F 353 AddQuestAllPlayers
 :F 354 AddBlipAllEnemies
 :F 355 PitsFall
+:F 356 IfTargetIsOwner
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

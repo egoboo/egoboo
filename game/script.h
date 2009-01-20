@@ -388,6 +388,7 @@
 #define FADDQUESTALLPLAYERS					353 //
 #define FADDBLIPALLENEMIES					354 //
 #define FPITSFALL                           355 //
+#define FIFTARGETISOWNER                    356 //
 
 
 // OPERATORS
