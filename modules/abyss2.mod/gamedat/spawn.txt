@@ -341,8 +341,8 @@ gelfeet.obj:   NONE    93  23.5   75.0   1.0   N    0   0  0   1   0   F   F   E
 
 //Prison cell of the slayer
 devildoor.obj:   NONE    74  16.0   73.0   1.0   W    0   0  30   9   0   F   F   N
-loknar.obj:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Loknar
-  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Loknar
+loknar.obj:   NONE    75  6.5   73.0   1.0   E    32   0  0   0   0   F   F   Hatred
+  MagicCage:   NONE    73  0.0   0.0   0.0   R   0   0  0   1   0   F   F   Hatred
   axe.obj:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   bigshield.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 

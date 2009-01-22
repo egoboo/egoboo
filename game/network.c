@@ -1448,7 +1448,7 @@ void unbuffer_player_latches()
       // Let players respawn
       if ( ( chrlatchbutton[character] & LATCHBUTTONRESPAWN ) && respawnvalid )
       {
-        if ( !chralive[character] )
+        if ( !chralive[character] && revivetimer == 0)
         {
           respawn_character( character );
           teamleader[chrteam[character]] = character;

@@ -16,8 +16,8 @@ Music 12: mystery.ogg
 Music 13: swamp.ogg
 Music 14: victory.ogg
 Music 15: dramaticboss.ogg
-Music 16: bigboss2.ogg
+Music 16: thedracolich.ogg
 Music 17: funny.ogg
-Music 18: thedracolich.ogg
+Music 18: deepabyss.ogg
 Music 19: credits.ogg
 Music 20: bigboss2.ogg

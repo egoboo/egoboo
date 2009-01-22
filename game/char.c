@@ -3963,6 +3963,7 @@ void stat_return()
       cnt++;
     }
   }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5512,19 +5513,14 @@ void damage_character( Uint16 character, Uint16 direction,
               teamleader[chrteam[character]] = NOLEADER;
             }
             detach_character_from_mount( character, btrue, bfalse );
+
+			//Play the death animation
             action += ( rand() & 3 );
             play_action( character, action, bfalse );
-            // Turn off all sounds if it's a player
-            if ( chrisplayer[character] )
-            {
-              tnc = 0;
-              while ( tnc < MAXWAVE )
-              {
-                // stop_sound(capwaveindex[chrmodel[character]][tnc]);
-                // TODO Zefz: Do we need this? This makes all sounds a character makes stop when it dies...
-                tnc++;
-              }
-            }
+
+			//If it's a player, let it die properly before enabling respawn
+			if(chrisplayer[character]) revivetimer = ONESECOND;	//1 second
+
             // Afford it one last thought if it's an AI
             teammorale[chrbaseteam[character]]--;
             chrteam[character] = chrbaseteam[character];

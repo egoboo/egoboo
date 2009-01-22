@@ -1975,7 +1975,7 @@ void update_game()
       if ( !chralive[plaindex[cnt]] )
       {
         numdead++;
-        if ( alllocalpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid )
+        if ( alllocalpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && revivetimer == 0 )
         {
           respawn_character( plaindex[cnt] );
           chrexperience[cnt] *= EXPKEEP;  // Apply xp Penality
@@ -2003,7 +2003,7 @@ void update_game()
   // This is the main game loop
   // [claforte Jan 6th 2001]
   // TODO: Put that back in place once networking is functional.
-  while ( wldclock < allclock && ( numplatimes > 0 || rtscontrol ) )
+  while ( wldclock < allclock && numplatimes > 0 )
   {
     // Important stuff to keep in sync
     srand( randsave );
@@ -2034,6 +2034,12 @@ void update_game()
     // Timers
     wldclock  += UPDATE_SKIP;
     statclock += UPDATE_SKIP;
+
+	//Reset the respawn timer
+    if ( revivetimer > 0 )
+	{
+        revivetimer -= UPDATE_SKIP;
+	}
 
     wldframe++;
   }
@@ -2587,13 +2593,15 @@ int SDL_main( int argc, char **argv )
         moduleactive = btrue;
         randsave = 0;
         srand( 0 );
-        // printf("moduleactive: %d\n", moduleactive);
-        while ( moduleactive )
+        
+		
+		while ( moduleactive )
         {
           // This is the control loop
           read_input();
           // input_net_message();
-
+          
+		  //Check for screenshots
           if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
           if ( SDLKEYDOWN( SDLK_F11 ) && keyon && screenshotkeyready )
           {
@@ -2605,11 +2613,8 @@ int SDL_main( int argc, char **argv )
             screenshotkeyready = bfalse;
           }
 
-
-          if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
-
-          // Todo zefz: where to put this?
           // Check for pause key    // TODO: What to do in network games?
+          if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
           if ( SDLKEYDOWN( SDLK_F8 ) && keyon && pausekeyready )
           {
             pausekeyready = bfalse;

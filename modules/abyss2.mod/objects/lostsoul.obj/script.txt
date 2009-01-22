@@ -98,7 +98,7 @@ IfStateIs0
 //Flock around the player if closer than 10 tiles
 IfStateIs1
   tmpx = rand & 255
-  tmpy = 20
+  tmpy = 12
   IfXIsLessThanY
     SetTargetToNearestLifeform
       IfTargetIsAPlayer
@@ -111,12 +111,12 @@ IfStateIs1
           IssueOrder
           SetOwnerToTarget
           
-        //50% for a random taunt
-        tmpx = rand & 1
-        tmpy = 0
-        IfXIsEqualToY
-          tmpargument = rand % 11
-          PlayFullSound
+          //50% for a random taunt
+          tmpx = rand & 1
+          tmpy = 0
+          IfXIsEqualToY
+            tmpargument = rand % 11
+            PlayFullSound
 
 
 

@@ -86,11 +86,6 @@ Else
     IfStateIs0
       SetTargetToWhoeverBumped
       IfTargetIsOnHatedTeam
-   //     tmpargument = ACTIONMJ
-     //   DoActionOverride
-       //   tmpx = rand & 511 + selfx - 256
-         // tmpy = rand & 511 + selfy - 256
-         // Teleport
         tmpx = targetx
         tmpy = targety
         tmpdistance = 0 - 1000
@@ -117,6 +112,8 @@ Else
   FlashVariableHeight	// Interpolate between
   
   
+  
+  //Main AI loop
   IfTimeOut
   
     // Throw the target
@@ -132,19 +129,6 @@ Else
       tmpargument = rand & 1023 + 1024  // 4-8 damage
       DamageTarget
       SetTurnModeToWatchTarget
-
-  
-    // Hide until an enemy is nearby
-    IfStateIs2
-      tmpargument = 30
-      SetDamageTime
-      tmpdistance = 128*10
-      SetTargetToDistantEnemy
-        // Ready to appear
-        tmpargument = 0
-        SetState
-      tmpargument = 20 // Time
-      SetTime
       
     // Find an enemy
     IfStateIs0

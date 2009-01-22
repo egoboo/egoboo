@@ -167,7 +167,7 @@ Character bounciness ( 0.00 to 0.95 )		: .60
 // More stuff I forgot
 Life healing when used ( 0.0 to 100.0 )		: 0.0
 Mana cost to use ( 0.0 to 100.0 )		: 0.0
-Life return rate, ( 0 to 255 )			: 64
+Life return rate, ( 0 to 255 )			: 10
 Stoppedby mask ( 48 is the only one )		: 48
 Skin Name 0 ( use underscores for spaces )	: BAD
 Skin Name 1 ( use underscores for spaces )	: BAD

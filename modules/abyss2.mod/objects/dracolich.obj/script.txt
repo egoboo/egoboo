@@ -6,7 +6,7 @@
 //Each time it is killed, the player must fight a miniboss before the bigboss fight
 //continues. The boss must be killed 4 times before it is all over.
 //Tactics:
-//3 Right hand item holds spells too: (25% chance to always use on of the * list)
+//3 Right hand item holds spells too: (25% chance to always use one of the * list)
 //  * Lightning bolt
 //  * Deathcloud
 //  * Cone of cold
@@ -72,6 +72,14 @@ IfTargetIsAPlayer
 IfAttacked
   tmpargument = rand % 4 + 11
   PlaySound
+  
+  //Disrupt casting
+  tmpx = selfstate
+  tmpy = 2
+  IfXIsMoreThanY
+    tmpargument = 2
+    SetState
+    SetTurnModeToVelocity
 
 //---------------------------------------------------------------------------
 //Death is usually not permanent for this guy

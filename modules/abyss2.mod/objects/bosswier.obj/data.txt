@@ -71,15 +71,15 @@ EVIL defense shift ( eg. 1 1 1 1 )		:  3  3  3  3
 FIRE defense shift ( eg. 1 1 1 1 )		:  0  3  3  3
 ICE defense shift ( eg. 1 1 1 1 )		:  3  0  0  0
 ZAP defense shift ( eg. 1 1 1 1 )		:  0  0  0  0
-SLASH inversion ( eg. F F F T )			:  F  F  F  F
-CRUSH inversion ( eg. F F F T )			:  F  F  F  F
-POKE inversion ( eg. F F F T )			:  F  F  F  F
+SLASH inversion ( eg. F F F T )			:  F  T  F  F
+CRUSH inversion ( eg. F F F T )			:  F  T  F  F
+POKE inversion ( eg. F F F T )			:  F  T  F  F
 HOLY inversion ( eg. T T T T )			:  T  T  T  T
-EVIL inversion ( eg. F F F T )			:  F  F  F  F
-FIRE inversion ( eg. F F F T )			:  F  F  F  F
-ICE inversion ( eg. F F F T )			:  F  F  F  F
-ZAP inversion ( eg. F F F T )			:  F  F  F  F
-Acceleration rate ( eg. 40 38 30 20 )		: 70 40 40 40
+EVIL inversion ( eg. F F F T )			:  F  T  F  F
+FIRE inversion ( eg. F F F T )			:  F  T  F  F
+ICE inversion ( eg. F F F T )			:  F  T  F  F
+ZAP inversion ( eg. F F F T )			:  F  T  F  F
+Acceleration rate ( eg. 40 38 30 20 )		: 70 0 40 40
 
 
 // Experience and level data

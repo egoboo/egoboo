@@ -453,7 +453,6 @@ EXTERN int						 selectedPlayer EQ( 0 );           // Which player is currently 
 EXTERN bool_t                    hostactive  EQ( bfalse );       // Hosting?
 EXTERN bool_t                    readytostart;               // Ready to hit the Start Game button?
 EXTERN bool_t                    waitingforplayers;          // Has everyone talked to the host?
-EXTERN bool_t                    alllocalpladead;            // Has everyone died?
 EXTERN bool_t                    respawnvalid;               // Can players respawn with Spacebar?
 EXTERN bool_t                    respawnanytime;             // True if it's a small level...
 EXTERN bool_t                    importvalid;                // Can it import?
@@ -478,6 +477,10 @@ EXTERN char                    pickedmodule[64];           // The module load na
 EXTERN int                     pickedindex;                // The module index number
 EXTERN int                     playersready;               // Number of players ready to start
 EXTERN int                     playersloaded;              //
+
+//Respawning
+EXTERN bool_t                    alllocalpladead;            // Has everyone died?
+EXTERN Uint16                   revivetimer EQ(0);
 
 // JF - Added so that the video mode might be determined outside of the graphics code
 extern SDL_Surface *displaySurface;

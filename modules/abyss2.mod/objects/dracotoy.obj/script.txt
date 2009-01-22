@@ -8,7 +8,12 @@ IfDropped
 IfUsed
   SetTargetToNearestEnemy
   IfStateIs0
-    tmpargument = rand % 4 + 1
+    tmpx = rand & 1           //Reduce disenchant by 50%
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = rand % 3 + 1      //Disallow disenchant
+    Else
+      tmpargument = rand % 4 + 1      //Allow disenchant
     SetState
 
   //Death Cloud
