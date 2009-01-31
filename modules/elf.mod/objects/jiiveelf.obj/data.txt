@@ -1,6 +1,6 @@
 // Real general data
 Object slot number ( 0 to 63, don't use twice )	: 33
-Object class name ( use underscore for spaces ) : Jiive_Elf
+Object class name ( use underscore for spaces ) : Jive_Elf
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
 Starting ammo ( 0 for doesn't matter )		: 0
@@ -62,15 +62,15 @@ IFrame Invulnerability angle ( 0 to 32768 )	: 16000
 
 
 // Skin defenses
-Base defense rating of skin ( eg. 2 5 10 17 )	:  30 15 100 80
-SLASH defense shift ( eg. 1 1 1 1 )		:  1  1  2  1
-CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  2  1
-POKE defense shift ( eg. 1 1 1 1 )		:  1  1  2  2
+Base defense rating of skin ( eg. 2 5 10 17 )	:  0 30 80 80
+SLASH defense shift ( eg. 1 1 1 1 )		:  1  2  2  1
+CRUSH defense shift ( eg. 1 1 1 1 )		:  1  1  2  2
+POKE defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
 HOLY defense shift ( eg. 1 1 1 1 )		:  2  2  2  2
-EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
-FIRE defense shift ( eg. 1 1 1 1 )		:  1  2  1  2
-ICE defense shift ( eg. 1 1 1 1 )		  :  1  2  1  1
-ZAP defense shift ( eg. 1 1 1 1 )		  :  1  2  1  2
+EVIL defense shift ( eg. 1 1 1 1 )		:  1  1  1  2
+FIRE defense shift ( eg. 1 1 1 1 )		:  1  1  1  1
+ICE defense shift ( eg. 1 1 1 1 )		:  1  1  2  2
+ZAP defense shift ( eg. 1 1 1 1 )		:  1  2  3  3
 SLASH inversion ( eg. F F F T )			:  F  F  F  F
 CRUSH inversion ( eg. F F F T )			:  F  F  F  F
 POKE inversion ( eg. F F F T )			:  F  F  F  F
@@ -79,7 +79,7 @@ EVIL inversion ( eg. F F F T )			:  F  F  F  F
 FIRE inversion ( eg. F F F T )			:  F  F  F  F
 ICE inversion ( eg. F F F T )			:  F  F  F  F
 ZAP inversion ( eg. F F F T )			:  F  F  F  F
-Acceleration rate ( eg. 40 38 30 20 )		: 70 60 55 80
+Acceleration rate ( eg. 40 38 30 20 )		: 65 80 60 55
 
 
 // Experience and level data
@@ -169,14 +169,14 @@ Life healing when used ( 0.0 to 100.0 )		: 0.0
 Mana cost to use ( 0.0 to 100.0 )		: 0.0
 Life return rate, ( 0 to 255 )			: 0
 Stoppedby mask ( 48 is the only one )		: 48
-Skin Name 0 ( use underscores for spaces )	: a_Hunter's_Outfit
-Skin Name 1 ( use underscores for spaces )	: a_Sorcerer's_Robe
-Skin Name 2 ( use underscores for spaces )	: a_Slayers_Armor
-Skin Name 3 ( use underscores for spaces )	: some_Jamaican_Costume
+Skin Name 0 ( use underscores for spaces )	: some_Trendy_Clothes
+Skin Name 1 ( use underscores for spaces )	: a_Shiny_Outfit
+Skin Name 2 ( use underscores for spaces )	: a_Snazzy_Suit
+Skin Name 3 ( use underscores for spaces )	: some_Fancy_Pants
 Skin Cost 0 ( 0 to 65535 )			: 100
-Skin Cost 1 ( 0 to 65535 )			: 300
-Skin Cost 2 ( 0 to 65535 )			: 500
-Skin Cost 3 ( 0 to 65535 )			: 800
+Skin Cost 1 ( 0 to 65535 )			: 400
+Skin Cost 2 ( 0 to 65535 )			: 700
+Skin Cost 3 ( 0 to 65535 )			: 1000
 Strength dampen for weapons ( 0.0 to 1.0 )	: 0.0
 
 
@@ -194,12 +194,11 @@ Sound of Jump ( -1 for none )			: 1
 
 // Expansions
 :[DRES] 0
+:[DRES] 1
 :[DRES] 2
+:[DRES] 3         //All his clothes are fancy!
 :[READ] 1		//Literate
 :[AWEP] 1		//Can use Advanced Weapons
-
-:[POIS] 1   //Poison use (remove?)
-:[STAB] 1   //Backstab (remove?)
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time
