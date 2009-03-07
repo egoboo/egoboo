@@ -99,7 +99,8 @@ void render_fan( Uint32 fan )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    GLTexture_Bind( &txTexture[texture] );
+	if(SDL_IMAGE) GLTexture_Bind( &txTexture[texture] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture]) );
 	meshlasttexture = texture;
   }
 
@@ -135,7 +136,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
   Uint16 commands;
   Uint16 vertices;
   Uint16 texture, frame;
-  Uint16 cnt, tnc, entry, vertex;
+  Uint16 cnt, tnc, entry;
   Uint32  badvertex;
   float offu, offv;
   Uint32  ambi;
@@ -187,8 +188,9 @@ void render_water_fan( Uint32 fan, Uint8 layer )
   // Change texture if need be
   if ( meshlasttexture != texture )
   {
-    GLTexture_Bind(&txTexture[texture]);
-	  meshlasttexture = texture;
+	if(SDL_IMAGE) GLTexture_Bind( &txTexture[texture] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture]) );
+	meshlasttexture = texture;
   }
 
 

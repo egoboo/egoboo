@@ -4758,7 +4758,6 @@ int load_one_character_profile( char *szLoadName )
 
   // Open the file
   fileread = fopen( szLoadName, "r" );
-  // printf(" DIAG: trying to read %s\n",szLoadName);
   if ( fileread != NULL )
   {
     globalname = szLoadName;	//For debugging goto_colon()
@@ -4777,18 +4776,18 @@ int load_one_character_profile( char *szLoadName )
       }
     }
 
-    // Read in the real general data
-    goto_colon( fileread );  get_name( fileread, capclassname[object] );
-
-    // Make sure we don't load over an existing model
+    // Make sure global objects don't load over existing models
     if ( madused[object] )
     {
       if ( object == SPELLBOOK ) log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
-      else
-        log_error( "Object slot %i used twice (%s)\n", object, szLoadName );
-    }
+      else if (overrideslots)  log_error( "Object slot %i used twice (%s)\n", object, szLoadName );
+	  else return -1;		//Stop, we don't want to override it
+	}
     madused[object] = btrue;
 
+
+    // Read in the real general data
+    goto_colon( fileread );  get_name( fileread, capclassname[object] );
 
     // Light cheat
     goto_colon( fileread );  cTmp = get_first_letter( fileread );

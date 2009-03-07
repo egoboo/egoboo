@@ -64,10 +64,11 @@ typedef struct
 #define EQ(x)
 #endif
 
-EXTERN char          VERSION[] EQ( "2.7.0" );  // Version of the game
+EXTERN char          VERSION[] EQ( "2.7.0b" );  // Version of the game
 EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
-EXTERN int screenshotkeyready EQ( btrue );    // Ready to take screenshot?
+EXTERN bool_t		 overrideslots EQ( bfalse ); //Override existing slots?
+EXTERN bool_t		 screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 
 #define MAXMODULE           100                     // Number of modules
@@ -625,7 +626,7 @@ EXTERN  GLTexture       TxBars;                    // OpenGL status bar surface
 EXTERN  GLTexture       TxBlip;                    // OpenGL you are here surface
 EXTERN  GLTexture       TxMap;                    // OpenGL map surface
 EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
-
+EXTERN  bool_t			SDL_IMAGE EQ(bfalse);	  //Allow advanced SDL_Image functions?
 // Anisotropic filtering - yay! :P
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF

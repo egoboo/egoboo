@@ -1,9 +1,15 @@
-Version 2.7.0 (??.??.2009)
+Version 2.7.0b (xx.03.2009)
+- Update: Implemented the global object system. This could dramatically decrease amount
+  of files and folders Egoboo uses.
+- Bugfix: Fixed incorrect version number.
+- Bugfix: All hidden modules should be locked as it was meant to be.
+
+Version 2.7.0 (05.03.2009)
 - New Feature: A whole new and dramatic boss music track composed by Edward Blakely!
 - New Feature: The Abyss part 2 is now in the game. The storyline is now complete,
-               which means you can actually beat the whole game now!
+  which means you can actually beat the whole game now!
 - New Feature: Egoboo now uses SDL_Image which improves the texture loading for Egoboo
-               We now have support for png, jpg, tif, pcx, gif, etc.
+  We now have support for png, jpg, tif, pcx, gif, etc.
 - New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.
 - New Feature: Input controls settings can now be changed in the ingame menu. 
 - New Feature: Added a new NPC to Zippy Town and in Bishopia City.

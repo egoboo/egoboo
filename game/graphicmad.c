@@ -314,8 +314,11 @@ void render_enviromad( Uint16 character, Uint8 trans )
   glMultMatrixf( mWorld.v );
 
   // Choose texture and matrix
-    GLTexture_Bind( &txTexture[texture] );
-  // Make new ones so we can index them and not transform 'em each time
+  	if(SDL_IMAGE) GLTexture_Bind( &txTexture[texture] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture]) );
+  
+	
+	// Make new ones so we can index them and not transform 'em each time
   // if(transform_vertices(madtransvertices[model], v, vt))
   // return;
 
@@ -545,14 +548,8 @@ void render_texmad( Uint16 character, Uint8 trans )
   */
 
   // Choose texture and matrix
-/*  if ( KEYDOWN( SDLK_F7 ) )
-  {
-    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &txTexture[texture] ) );
-  }
-  else*/
-  {
-    GLTexture_Bind( &txTexture[texture] );
-  }
+  if(SDL_IMAGE) GLTexture_Bind( &txTexture[texture] );
+  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &txTexture[texture]) );
 
   mWorld = chrmatrix[character];
 

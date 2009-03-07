@@ -1756,6 +1756,8 @@ int load_one_object( int skin, char* tmploadname )
   make_newloadname( tmploadname, "/data.txt", newloadname );
   object = load_one_character_profile( newloadname );
 
+  //Don't override it if it's already there
+  if(!overrideslots && object == -1) return NULL;
 
   // Make up a name for the model...  IMPORT\TEMP0000.OBJ
   strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
@@ -1932,83 +1934,6 @@ int load_one_object( int skin, char* tmploadname )
   madskins[object] = numskins;
   return numskins;
 }
-
-//--------------------------------------------------------------------------------------------
-void load_all_objects( char *modname )
-{
-  // ZZ> This function loads a module's objects
-  const char *filehandle;
-  bool_t keeplooking;
-  FILE* fileread;
-  char newloadname[256];
-  char filename[256];
-  int cnt;
-  int skin;
-  int importplayer;
-
-
-  // Log all of the script errors
-  parseerror = bfalse;
-
-  // Clear the import slots...
-  for ( cnt = 0; cnt < MAXMODEL; cnt++ )
-    capimportslot[cnt] = 10000;
-
-  // Load the import directory
-  importplayer = -1;
-  importobject = -100;
-  skin = 8;  // Character skins start at 8...  Trust me
-  if ( importvalid )
-  {
-    for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
-    {
-      sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
-      // Make sure the object exists...
-      sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
-      fileread = fopen( newloadname, "r" );
-      if ( fileread )
-      {
-
-        fclose( fileread );
-        // Load it...
-        if ( ( cnt % 9 ) == 0 )
-        {
-          importplayer++;
-        }
-        importobject = ( ( importplayer ) * 9 ) + ( cnt % 9 );
-        capimportslot[importobject] = cnt;
-        skin += load_one_object( skin, filename );
-      }
-    }
-  }
-
-  // Search for .obj directories and load them
-  importobject = -100;
-  make_newloadname( modname, "objects" SLASH_STR, newloadname );
-  filehandle = fs_findFirstFile( newloadname, "obj" );
-
-  keeplooking = btrue;
-  if ( filehandle != NULL )
-  {
-    while ( keeplooking )
-    {
-      // printf(" DIAG: keeplooking\n");
-      sprintf( filename, "%s%s", newloadname, filehandle );
-      skin += load_one_object( skin, filename );
-
-      filehandle = fs_findNextFile();
-
-      keeplooking = ( filehandle != NULL );
-    }
-  }
-
-  // Last we load the book.obj
-  sprintf( filename, "basicdat" SLASH_STR "book.obj" );
-  skin += load_one_object( skin, filename );
-
-  fs_findClose();
-}
-
 //--------------------------------------------------------------------------------------------
 void load_bars( char* szBitmap )
 {
@@ -2454,8 +2379,6 @@ void render_background( Uint16 texture )
     GLint shading_save, depthfunc_save;
     GLboolean depthmask_save, cullface_save;
 
-    GLTexture_Bind( &txTexture[texture] );
-
     glGetIntegerv( GL_SHADE_MODEL, &shading_save );
     glShadeModel( GL_FLAT );  // Flat shade this
 
@@ -2467,6 +2390,9 @@ void render_background( Uint16 texture )
 
     cullface_save = glIsEnabled( GL_CULL_FACE );
     glDisable( GL_CULL_FACE );
+
+	if(SDL_IMAGE) GLTexture_Bind( &txTexture[texture] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (&txTexture[texture]) );
 
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     glBegin ( GL_TRIANGLE_FAN );
@@ -2541,7 +2467,6 @@ void render_foreground_overlay( Uint16 texture )
     glGetIntegerv(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
     glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
 
-    GLTexture_Bind(&txTexture[texture]);
 
     glGetIntegerv( GL_SHADE_MODEL, &shading_save );
     glShadeModel( GL_FLAT );  // Flat shade this
@@ -2568,6 +2493,9 @@ void render_foreground_overlay( Uint16 texture )
     glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
     glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
+
+	if(SDL_IMAGE) GLTexture_Bind(&txTexture[texture]);
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (&txTexture[texture]) );
 
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     glBegin ( GL_TRIANGLE_FAN );
@@ -2634,7 +2562,8 @@ void render_shadow( int character )
     y = chrmatrix[character]_CNV( 3, 1 );
 
     // Choose texture.
-    GLTexture_Bind(&txTexture[particletexture]);
+	if(SDL_IMAGE) GLTexture_Bind( &txTexture[particletexture] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (&txTexture[particletexture]) );
 
     // GOOD SHADOW
     v[0].s = particleimageu[238][0];
@@ -2763,7 +2692,8 @@ void render_bad_shadow( int character )
     v[3].z = ( float ) level;
 
     // Choose texture and matrix
-    GLTexture_Bind( &txTexture[particletexture] );
+	if(SDL_IMAGE) GLTexture_Bind( &txTexture[particletexture] );
+	else glBindTexture(  GL_TEXTURE_2D, GLTexture_GetTextureID (&txTexture[particletexture]) );
 
     v[0].s = particleimageu[236][0];
     v[0].t = particleimagev[236][0];
@@ -3452,7 +3382,9 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     glNormal3f( 0.0f, 0.0f, 1.0f );
 
-    GLTexture_Bind(&TxBlip);
+	if(SDL_IMAGE) GLTexture_Bind( &TxBlip );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (&TxBlip) );
+
 	xl = ( ( float )bliprect[color].left ) / (float)TxBlip.txW;
 	xr = ( ( float )bliprect[color].right ) / (float)TxBlip.txW;
 	yt = ( ( float )bliprect[color].top ) / (float)TxBlip.txH;
@@ -3484,8 +3416,10 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
     EnableTexturing();    // Enable texture mapping
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
-    GLTexture_Bind(&TxIcon[icontype]);
-	xl = ( ( float )iconrect.left ) / 32;
+	if(SDL_IMAGE) GLTexture_Bind( &TxIcon[icontype] );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxIcon[icontype]) );
+
+    xl = ( ( float )iconrect.left ) / 32;
     xr = ( ( float )iconrect.right ) / 32;
     yt = ( ( float )iconrect.top ) / 32;
     yb = ( ( float )iconrect.bottom ) / 32;
@@ -3558,7 +3492,9 @@ void draw_map( int x, int y )
   glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
   //glNormal3f( 0.0f, 0.0f, 1.0f );
 
-  GLTexture_Bind(&TxMap);
+  if(SDL_IMAGE) GLTexture_Bind( &TxMap );
+  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxMap) );
+
   glBegin( GL_QUADS );
   glTexCoord2f ( 0.0f, 1.0f ); glVertex2i ( x,   scry - y - MAPSIZE );
   glTexCoord2f ( 1.0f, 1.0f ); glVertex2i ( x + MAPSIZE, scry - y - MAPSIZE );
@@ -3581,7 +3517,9 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
   if ( maxticks > 0 && ticks >= 0 )
   {
     // Draw the tab
-    GLTexture_Bind(&TxBars);
+    if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxBars) );
+
 	xl = ( ( float )tabrect[bartype].left ) / 128;
     xr = ( ( float )tabrect[bartype].right ) / 128;
     yt = ( ( float )tabrect[bartype].top ) / 128;
@@ -3603,7 +3541,9 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     while ( ticks >= NUMTICK )
     {
       barrect[bartype].right = BARX;
-      GLTexture_Bind(&TxBars);
+     if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+     else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxBars) );
+
 	  xl = ( ( float )barrect[bartype].left ) / 128;
       xr = ( ( float )barrect[bartype].right ) / 128;
       yt = ( ( float )barrect[bartype].top ) / 128;
@@ -3626,7 +3566,8 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     {
       // Draw the filled ones
       barrect[bartype].right = ( ticks << 3 ) + TABX;
-      GLTexture_Bind(&TxBars);
+      if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+	  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxBars) );
 	  xl = ( ( float )barrect[bartype].left ) / 128;
       xr = ( ( float )barrect[bartype].right ) / 128;
       yt = ( ( float )barrect[bartype].top ) / 128;
@@ -3643,7 +3584,8 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
       noticks = maxticks - ticks;
       if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
       barrect[0].right = ( noticks << 3 ) + TABX;
-      GLTexture_Bind(&TxBars);
+      if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+	  else glBindTexture(GL_TEXTURE_2D, GLTexture_GetTextureID (  &TxBars) );
 	  xl = ( ( float )barrect[0].left ) / 128;
       xr = ( ( float )barrect[0].right ) / 128;
       yt = ( ( float )barrect[0].top ) / 128;
@@ -3664,7 +3606,8 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     while ( maxticks >= NUMTICK )
     {
       barrect[0].right = BARX;
-      GLTexture_Bind(&TxBars);
+      if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+	  else glBindTexture(GL_TEXTURE_2D, GLTexture_GetTextureID (  &TxBars) );
 	  xl = ( ( float )barrect[0].left ) / 128;
       xr = ( ( float )barrect[0].right ) / 128;
       yt = ( ( float )barrect[0].top ) / 128;
@@ -3685,7 +3628,8 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 )
     {
       barrect[0].right = ( maxticks << 3 ) + TABX;
-      GLTexture_Bind(&TxBars);
+      if(SDL_IMAGE) GLTexture_Bind( &TxBars );
+	  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (  &TxBars) );
 	  xl = ( ( float )barrect[0].left ) / 128;
       xr = ( ( float )barrect[0].right ) / 128;
       yt = ( ( float )barrect[0].top ) / 128;
@@ -3709,7 +3653,8 @@ void BeginText()
 {
   EnableTexturing();    // Enable texture mapping
 
-  GLTexture_Bind( &TxFont );
+  if(SDL_IMAGE) GLTexture_Bind( &TxFont );
+  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( &TxFont) );
 
   glEnable( GL_ALPHA_TEST );
   glAlphaFunc( GL_GREATER, 0 );

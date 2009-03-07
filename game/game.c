@@ -1054,11 +1054,12 @@ void read_setup( char* filename )
 
     strcpy( lCurSectionName, "DEBUG" );
 
-    // Show the FPS counter?
+    // Some special debug settings
     GetBoolean( "DISPLAY_FPS", fpson, btrue );
     GetBoolean( "HIDE_MOUSE", gHideMouse, btrue );
     GetBoolean( "GRAB_MOUSE", gGrabMouse, btrue );
     GetBoolean( "DEV_MODE", gDevMode, btrue );
+    GetBoolean( "SDL_IMAGE", gDevMode, btrue );
 
     CloseConfigFile( lConfigSetup );
 

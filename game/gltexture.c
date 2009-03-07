@@ -186,7 +186,8 @@ Uint32 GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * im
   texture->texture_target =  tx_target;
 
   /* Set up some parameters for the format of the OpenGL texture */
-  GLTexture_Bind( texture );
+  if(SDL_IMAGE) GLTexture_Bind( texture );
+  else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID ( texture) );
 
   /* actually create the OpenGL textures */
   if ( image->format->Aloss == 8 && tx_target == GL_TEXTURE_2D )

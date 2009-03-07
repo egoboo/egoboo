@@ -21,6 +21,7 @@
 */
 
 #include "ui.h"
+#include "egoboo.h"
 #include <string.h>
 #include <SDL_opengl.h>
 
@@ -249,7 +250,8 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
     y1 = ( float ) GLTexture_GetImageHeight( img ) / ( float ) GLTexture_GetTextureHeight( img );
 
     // Draw the image
-    GLTexture_Bind(img);
+    if(SDL_IMAGE) GLTexture_Bind( img );
+	else glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID (img) );
 	glBegin( GL_TRIANGLE_STRIP );
     glTexCoord2f( 0, 0 );    glVertex2i( x, y );
     glTexCoord2f( x1, 0 );  glVertex2i( x + w, y );

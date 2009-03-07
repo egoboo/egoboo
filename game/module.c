@@ -178,8 +178,10 @@ void load_module( char *smallname )
   release_all_models();
   free_all_enchants();
 
-  load_all_objects( modname );
-
+  //Load all objects
+  load_all_global_objects(load_all_objects(modname));		//First load global ones from the basicdat folder
+															//Then override any using local objects found in the module folder
+    
   if ( !load_mesh( modname ) )
   {
     log_error( "Uh oh! Problems loading the mesh! (%s)\n", modname );
@@ -207,6 +209,115 @@ void load_module( char *smallname )
       play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
   */
 }
+
+
+//--------------------------------------------------------------------------------------------
+int load_all_objects( char *modname )
+{
+  // ZZ> This function loads a module's local objects and overrides the global ones already loaded
+  const char *filehandle;
+  bool_t keeplooking;
+  char newloadname[256];
+  char filename[256];
+  FILE* fileread;
+  int cnt;
+  int skin;
+  int importplayer;
+
+  // Log all of the script errors
+  parseerror = bfalse;
+
+  //This overwrites existing loaded slots that are loaded globally
+  overrideslots = btrue;
+
+  // Clear the import slots...
+  for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    capimportslot[cnt] = 10000;
+
+  // Load the import directory
+  importplayer = -1;
+  importobject = -100;
+  skin = 8;  // Character skins start at 8...  Trust me
+  if ( importvalid )
+  {
+    for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
+    {
+      sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
+      // Make sure the object exists...
+      sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
+      fileread = fopen( newloadname, "r" );
+      if ( fileread )
+      {
+
+        fclose( fileread );
+        // Load it...
+        if ( ( cnt % 9 ) == 0 )
+        {
+          importplayer++;
+        }
+        importobject = ( ( importplayer ) * 9 ) + ( cnt % 9 );
+        capimportslot[importobject] = cnt;
+        skin += load_one_object( skin, filename );
+      }
+    }
+  }
+
+  // Search for .obj directories and load them
+  importobject = -100;
+  make_newloadname( modname, "objects" SLASH_STR, newloadname );
+  filehandle = fs_findFirstFile( newloadname, "obj" );
+
+  keeplooking = btrue;
+  if ( filehandle != NULL )
+  {
+    while ( keeplooking )
+    {
+      sprintf( filename, "%s%s", newloadname, filehandle );
+      skin += load_one_object( skin, filename );
+
+      filehandle = fs_findNextFile();
+
+      keeplooking = ( filehandle != NULL );
+    }
+  }
+
+  fs_findClose();
+  return skin;
+}
+
+//--------------------------------------------------------------------------------------------
+void load_all_global_objects(int skin)
+{
+  //ZF> This function loads all global objects found in the basicdat folder
+  const char *filehandle;
+  bool_t keeplooking;
+  char newloadname[256];
+  char filename[256];
+
+  //Warn the user for any duplicate slots
+  overrideslots = bfalse;
+
+  // Search for .obj directories and load them
+  sprintf( newloadname, "basicdat" SLASH_STR "globalobjects" SLASH_STR );
+  filehandle = fs_findFirstFile( newloadname, "obj" );
+
+  keeplooking = btrue;
+  if ( filehandle != NULL )
+  {
+    while ( keeplooking )
+    {
+      sprintf( filename, "%s%s", newloadname, filehandle );
+      skin += load_one_object( skin, filename );
+
+      filehandle = fs_findNextFile();
+
+      keeplooking = ( filehandle != NULL );
+    }
+  }
+
+  fs_findClose();
+}
+
 
 //--------------------------------------------------------------------------------------------
 int get_module_data( int modnumber, char *szLoadName )

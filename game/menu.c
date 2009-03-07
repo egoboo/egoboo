@@ -49,7 +49,7 @@ int selectedModule = 0;
 int waitingforinput = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.6.9 \nBETA TEST VERSION";
+static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.7.0b \n";
 static int copyrightLeft = 0;
 static int copyrightTop  = 0;
 
@@ -2427,6 +2427,9 @@ void save_settings()
     fputs( write, setupfile );
     if ( gDevMode ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
     sprintf( write, "[DEV_MODE] : \"%s\"\n", TxtTmp );
+    fputs( write, setupfile );
+    if ( SDL_IMAGE ) TxtTmp = "TRUE"; else TxtTmp = "FALSE";
+    sprintf( write, "[SDL_IMAGE] : \"%s\"\n", TxtTmp );
     fputs( write, setupfile );
 
     // Close it up
