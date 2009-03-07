@@ -41,7 +41,6 @@ void    GLSetup_SupportedFormats()
   //ZF> This need only to be once
   Uint8 type = 0;
   log_info( "Initializing SDL_Image %i.%i.%i... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL );
- 
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".png"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tif"); type++;
   snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tiff"); type++;
@@ -56,7 +55,8 @@ void    GLSetup_SupportedFormats()
 
   //Save the amount of format types we have in store
   maxformattypes = type;
-  log_message( "Success!\n" );
+  if(!SDL_IMAGE) log_message("SDL_IMAGE is disabled in setup.txt!\n");
+  else log_message( "Success!\n" );
 }
 
 //--------------------------------------------------------------------------------------------

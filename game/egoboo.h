@@ -626,7 +626,7 @@ EXTERN  GLTexture       TxBars;                    // OpenGL status bar surface
 EXTERN  GLTexture       TxBlip;                    // OpenGL you are here surface
 EXTERN  GLTexture       TxMap;                    // OpenGL map surface
 EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
-EXTERN  bool_t			SDL_IMAGE EQ(bfalse);	  //Allow advanced SDL_Image functions?
+EXTERN  bool_t			SDL_IMAGE EQ(btrue);	  //Allow advanced SDL_Image functions?
 // Anisotropic filtering - yay! :P
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF

@@ -1059,7 +1059,7 @@ void read_setup( char* filename )
     GetBoolean( "HIDE_MOUSE", gHideMouse, btrue );
     GetBoolean( "GRAB_MOUSE", gGrabMouse, btrue );
     GetBoolean( "DEV_MODE", gDevMode, btrue );
-    GetBoolean( "SDL_IMAGE", gDevMode, btrue );
+    GetBoolean( "SDL_IMAGE", SDL_IMAGE, btrue );
 
     CloseConfigFile( lConfigSetup );
 

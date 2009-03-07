@@ -121,6 +121,11 @@ const char *fs_findNextFile( void )
   return NULL; /* should never happen */
 }
 
+//Open a specific file
+FILE * fs_openFile(const char * path, const char * module, const char * player)
+{
+}
+
 // Close anything left open
 void fs_findClose()
 {
