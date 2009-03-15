@@ -41,7 +41,7 @@
 #include "proto.h"
 
 #include "gltexture.h"  /* OpenGL texture loader */
-#include "mathstuff.h"  /* vector and matrix math */
+#include "egoboo_math.h"  /* vector and matrix math */
 #include "configfile.h"
 #include "Md2.h"
 

@@ -17,8 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 */
-
-//#define MENU_DEMO    // Uncomment this to build just the menu demo
 #define DECLARE_GLOBALS
 
 #include <time.h>
@@ -949,7 +947,7 @@ void read_setup( char* filename )
     // Do we do texture filtering?
     GetString( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
 
-    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_UNFILTERED;
+    if ( lTempStr[0] == 'U' || lTempStr[0] == 'u' )  texturefilter = TX_UNFILTERED;
     if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_LINEAR;
 	if ( lTempStr[0] == 'M' || lTempStr[0] == 'm' )  texturefilter = TX_MIPMAP;
     if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = TX_BILINEAR;
@@ -965,7 +963,7 @@ void read_setup( char* filename )
 	GetInt( "MAX_FPS_LIMIT", framelimit, 30 );
 
     // Get the particle limit
-	GetInt( "MAX_PARTICLES", maxparticles, 256 );
+	GetInt( "MAX_PARTICLES", maxparticles, 512 );
 	if(maxparticles > TOTALMAXPRT) maxparticles = TOTALMAXPRT;
 
     /*********************************************
@@ -1014,10 +1012,6 @@ void read_setup( char* filename )
     if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  autoturncamera = btrue;
     if ( lTempStr[0] == 'F' || lTempStr[0] == 'f' )  autoturncamera = bfalse;
 
-    //[claforte] Force autoturncamera to bfalse, or else it doesn't move right.
-    // autoturncamera = bfalse;
-
-
 
     /*********************************************
 
@@ -1032,12 +1026,6 @@ void read_setup( char* filename )
 
     // Max lag
     GetInt( "LAG_TOLERANCE", lag, 2 );
-
-    /*
-    goto_colon(fileread); fscanf(fileread, "%d", &orderlag);
-
-    GetInt( "RTS_LAG_TOLERANCE", orderlag, 25 );
-    */
 
     // Name or IP of the host or the target to join
     GetString( "HOST_NAME", nethostname, 64, "no host" );

@@ -1,5 +1,9 @@
 #pragma once
 
+/* Egoboo - mathstuff.h
+ * The name's pretty self explanatory, doncha think?
+ */
+
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.

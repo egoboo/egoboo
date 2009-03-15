@@ -1,6 +1,7 @@
-Version 2.7.0b (xx.03.2009)
+Version 2.7.0b (15.03.2009)
 - Update: Implemented the global object system. This could dramatically decrease amount
   of files and folders Egoboo uses.
+- Bugfix: Fixed bug that could cause the game to fail to start.
 - Bugfix: Fixed incorrect version number.
 - Bugfix: All hidden modules should be locked as it was meant to be.
 

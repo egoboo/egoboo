@@ -3931,7 +3931,7 @@ void run_operand( Uint32 value, int character )
         iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
         iTmp += 32768;
         iTmp = iTmp & 65535;
-        iTmp = iTmp + 65535;
+        iTmp += 65535;
         break;
       case VARSELFLEVEL:
         iTmp = chrexperiencelevel[character];

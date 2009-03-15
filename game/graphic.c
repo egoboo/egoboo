@@ -773,7 +773,7 @@ int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
   {
     if ( watersurfacelevel > zdone && ( meshfx[fan]&MESHFXWATER ) && wateriswater )
     {
-      return watersurfacelevel;
+      return (int)watersurfacelevel;
     }
   }
   return zdone;
