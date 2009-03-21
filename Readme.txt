@@ -11,9 +11,9 @@ http://www.foxitsoftware.com/downloads/
 				
 				Zefz
 
-The Official Egoboo Hompage: http://egoboo.sourceforge.net
-Game Forum and Technical Support: http://egoboo.informe.com/forum/
-The EgoWiki: http://egoboo.informe.com/wiki/index.php/Main_Page
+The Official Egoboo Hompage: http://egoboo.sourceforge.net/
+Game Forum and Technical Support: http://egoboo.sourceforge.net/forum/
+The EgoWiki: http://egoboo.wiki.sourceforge.net/
 E-Mail Contact: zefzsoftwares@hotmail.com
 
 
