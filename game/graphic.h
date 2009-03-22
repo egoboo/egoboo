@@ -18,20 +18,20 @@
 //*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
-#include "SDL_image.h" 
+#include "SDL_image.h"
 
 /*Special Textures*/
 typedef enum e_tx_type
 {
-  TX_PARTICLE = 0,
-  TX_TILE_0,
-  TX_TILE_1,
-  TX_TILE_2,
-  TX_TILE_3,
-  TX_WATER_TOP,
-  TX_WATER_LOW,
-  TX_PHONG,
-  TX_LAST
+    TX_PARTICLE = 0,
+    TX_TILE_0,
+    TX_TILE_1,
+    TX_TILE_2,
+    TX_TILE_3,
+    TX_WATER_TOP,
+    TX_WATER_LOW,
+    TX_PHONG,
+    TX_LAST
 } TX_TYPE;
 
 //Function prototypes

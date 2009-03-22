@@ -1,26 +1,27 @@
+#pragma once
+
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 /* Egoboo - egobootypedef.h
  * Defines some basic types that are used throughout the game code.
  */
-
-/*
-    This file is part of Egoboo.
-
-    Egoboo is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Egoboo is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-*/
-
-#ifndef Egoboo_egobootypedef_h
-#define Egoboo_egobootypedef_h
 
 #include "egoboo_config.h"
 
@@ -29,23 +30,23 @@
 //RECTANGLE
 typedef struct s_rect
 {
-  Sint32 left;
-  Sint32 right;
-  Sint32 top;
-  Sint32 bottom;
-}rect_t;
+    Sint32 left;
+    Sint32 right;
+    Sint32 top;
+    Sint32 bottom;
+} rect_t;
 
 //BOOLEAN
 typedef char bool_t;
 enum
 {
-  btrue = ( 1 == 1 ),
-  bfalse = ( !btrue )
+    btrue = ( 1 == 1 ),
+    bfalse = ( !btrue )
 };
 
 //BYTES
-typedef int8_t		sbyte;
-typedef uint8_t		byte;
+typedef int8_t    sbyte;
+typedef uint8_t   byte;
 
 //IDSZ
 typedef Uint32 IDSZ;
@@ -55,7 +56,6 @@ typedef Uint32 IDSZ;
 
 //STRING
 typedef char STRING[256];
-
 
 //FAST CONVERSIONS
 #define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)(1<<8) )
@@ -68,11 +68,10 @@ typedef char STRING[256];
 //AI targeting
 typedef enum target_type
 {
-  ENEMY = 0,
-  FRIEND,
-  ALL,
-  NONE
+    ENEMY = 0,
+    FRIEND,
+    ALL,
+    NONE
 } TARGET_TYPE;
 
-#endif // include guard
-
+#define Egoboo_egobootypedef_h

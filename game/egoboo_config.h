@@ -19,7 +19,14 @@
 //*
 //********************************************************************************************
 
-#ifdef __msvc__
+// MSVC related definitions
+#ifdef _MSC_VER
+
+// snprintf and vsnprintf are not considered native functions in MSVC
+// they are defined with an underscore to indicate this
+#    define snprintf  _snprintf
+#    define vsnprintf _vsnprintf
+
 // Turn off warnings that we don't care about.
 #    pragma warning(disable : 4305) // truncation from 'double' to 'float'
 #    pragma warning(disable : 4244) // conversion from 'double' to 'float'
@@ -32,13 +39,12 @@
 #    include <unistd.h>
 #endif
 
-#ifdef WIN32
 // Speeds up compile times a bit.  We don't need everything in windows.h
+#ifdef WIN32
 #    define WIN32_LEAN_AND_MEAN
-// Windows defines snprintf as _snprintf; that's kind of a pain, so redefine it here
-#    define snprintf _snprintf
 #endif
 
+// Define the filesystem appropriate slash characters
 #ifdef WIN32
 #    define SLASH_STR "\\"
 #    define SLASH_CHR '\\'

@@ -19,18 +19,13 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - Log.h
- * Basic logging functionality.
- */
+#include "egobootypedef.h"
 
-void log_init();
-void log_shutdown( void );
+bool_t setup_read( char* filename );
+bool_t setup_write();
+bool_t setup_quit();
+bool_t setup_download();
+bool_t setup_upload();
 
-void log_setLoggingLevel( int level );
-
-void log_message( const char *format, ... );
-void log_info( const char *format, ... );
-void log_warning( const char *format, ... );
-void log_error( const char *format, ... );
-
-#define egoboo_Log_h
+bool_t input_settings_save(char* whichfile);
+bool_t input_settings_load( char *szFilename );

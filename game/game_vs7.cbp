@@ -293,41 +293,11 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Unit filename="Client.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Client.h" />
-		<Unit filename="Clock.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Clock.h" />
-		<Unit filename="Egoboodoc.txt" />
-		<Unit filename="Font.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Font.h" />
-		<Unit filename="Link.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Link.h" />
-		<Unit filename="Log.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Log.h" />
 		<Unit filename="Md2.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Md2.h" />
-		<Unit filename="Menu.h" />
-		<Unit filename="Server.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Server.h" />
 		<Unit filename="System.h" />
-		<Unit filename="Ui.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Ui.h" />
 		<Unit filename="camera.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -336,14 +306,29 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="char.h" />
-		<Unit filename="common-file.c">
+		<Unit filename="client.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="client.h" />
+		<Unit filename="clock.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="clock.h" />
 		<Unit filename="configfile.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="configfile.h" />
 		<Unit filename="egoboo.h" />
+		<Unit filename="egoboo_config.h" />
+		<Unit filename="egoboo_endian.h" />
+		<Unit filename="egoboo_math.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_math.h" />
+		<Unit filename="egoboo_setup.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_setup.h" />
 		<Unit filename="egobooendian.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -355,6 +340,21 @@
 		<Unit filename="enchant.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="file-common.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="file-linux.c">
+			<Option compilerVar="CC" />
+			<Option target="Debug Blah-nix" />
+			<Option target="Release Blah-nix" />
+		</Unit>
+		<Unit filename="file-win.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="font.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="font.h" />
 		<Unit filename="game.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -365,6 +365,7 @@
 		<Unit filename="graphic.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="graphic.h" />
 		<Unit filename="graphicfan.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -382,22 +383,18 @@
 		<Unit filename="input.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="linux-file.c">
-			<Option compilerVar="CC" />
-			<Option target="Debug Blah-nix" />
-			<Option target="Release Blah-nix" />
-		</Unit>
-		<Unit filename="mac-file.m">
-			<Option target="Debug OsX" />
-			<Option target="Release OsX" />
-		</Unit>
-		<Unit filename="mathstuff.c">
+		<Unit filename="link.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="mathstuff.h" />
+		<Unit filename="link.h" />
+		<Unit filename="log.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="log.h" />
 		<Unit filename="menu.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="menu.h" />
 		<Unit filename="module.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -416,6 +413,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="script.h" />
+		<Unit filename="server.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="server.h" />
 		<Unit filename="sound.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -436,20 +437,10 @@
 			<Option target="Debug Win32 - msvc" />
 			<Option target="Release Win32 - msvc" />
 		</Unit>
-		<Unit filename="win-file.c">
+		<Unit filename="ui.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="..\res\egoboo.ico">
-			<Option target="Debug Win32 - gcc" />
-			<Option target="Release Win32 - gcc" />
-			<Option target="Debug Win32 - msvc" />
-			<Option target="Release Win32 - msvc" />
-		</Unit>
-		<Unit filename="..\res\egoboo.rc">
-			<Option compilerVar="WINDRES" />
-			<Option target="Debug Win32 - msvc" />
-			<Option target="Release Win32 - msvc" />
-		</Unit>
+		<Unit filename="ui.h" />
 		<Extensions>
 			<code_completion />
 			<debugger />

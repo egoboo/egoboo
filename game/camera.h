@@ -26,7 +26,6 @@
 #define EDGETRACK           800                     // Camtrack bounds
 #define TURNTIME 16              // Smooth turn
 
-
 // Multi cam
 #define MINZOOM                         800         // Camera distance
 #define MAXZOOM                         700         //

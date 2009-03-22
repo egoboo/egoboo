@@ -218,6 +218,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_setup.h"
+                        >
+			</File>
+			<File
 				RelativePath=".\egobooendian.c"
 				>
 			</File>
@@ -436,6 +440,10 @@
 			<File
 				RelativePath=".\egoboo_math.h"
 				>
+			</File>
+			<File
+				RelativePath=".\egoboo_setup.h"
+                        >
 			</File>
 			<File
 				RelativePath=".\egoboostrutil.h"

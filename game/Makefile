@@ -1,11 +1,9 @@
 # note if you change the prefix also update egoboo.sh
 EGO_BIN	:= egoboo
-EGO_SRC	:= camera.c char.c Client.c Clock.c common-file.c configfile.c \
-                 egobooendian.c egoboostrutil.c enchant.c Font.c game.c gltexture.c \
-                 graphicfan.c graphicmad.c graphic.c graphicprt.c input.c \
-                 linux-file.c Log.c Link.c egoboo_math.c Md2.c menu.c module.c \
-                 network.c particle.c passage.c script.c Server.c sound.c \
-                 sys_linux.c Ui.c
+EGO_SRC	:= camera.c char.c client.c clock.c configfile.c egobooendian.c egoboostrutil.c \
+                 egoboo_math.c egoboo_setup.c enchant.c file-common.c file-linux.c font.c game.c \
+                 gltexture.c graphic.c graphicfan.c graphicmad.c graphicprt.c input.c link.c log.c \
+                 Md2.c menu.c module.c network.c particle.c passage.c script.c server.c sound.c sys_linux.c ui.c
 EGO_OBJ	:= ${EGO_SRC:.c=.o}
 
 SDL_CONF  := sdl-config

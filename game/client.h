@@ -1,7 +1,4 @@
-/* Egoboo - Client.h
- * Basic skeleton for the client portion of a client-server architecture,
- * this is totally not in use yet.
- */
+#pragma once
 
 //********************************************************************************************
 //*
@@ -22,13 +19,15 @@
 //*
 //********************************************************************************************
 
-#ifndef egoboo_Client_h
-#define egoboo_Client_h
+/* Egoboo - Client.h
+ * Basic skeleton for the client portion of a client-server architecture,
+ * this is totally not in use yet.
+ */
 
 typedef struct ClientState_t
 {
-  int dummy;
-}ClientState_t;
+    int dummy;
+} ClientState_t;
 
 // Globally accesible client state
 extern ClientState_t ClientState;
@@ -41,4 +40,5 @@ void cl_frameStep();
 
 // int  cl_connectToServer(...);
 // int  cl_loadModule(...);
-#endif // include guard
+
+#define egoboo_Client_h

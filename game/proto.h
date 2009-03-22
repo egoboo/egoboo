@@ -1,26 +1,27 @@
+#pragma once
+
+//********************************************************************************************
+//*
+//*    This file is part of Egoboo.
+//*
+//*    Egoboo is free software: you can redistribute it and/or modify it
+//*    under the terms of the GNU General Public License as published by
+//*    the Free Software Foundation, either version 3 of the License, or
+//*    (at your option) any later version.
+//*
+//*    Egoboo is distributed in the hope that it will be useful, but
+//*    WITHOUT ANY WARRANTY; without even the implied warranty of
+//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//*    General Public License for more details.
+//*
+//*    You should have received a copy of the GNU General Public License
+//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*
+//********************************************************************************************
+
 /* Egoboo - proto.h
  * Function prototypes for a huge portion of the game code.
  */
-
-/*
-    This file is part of Egoboo.
-
-    Egoboo is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Egoboo is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-*/
-
-#ifndef _PROTO_H_
-#define _PROTO_H_
 
 #include "egobootypedef.h"
 #include <SDL_mixer.h> // for Mix_* stuff.
@@ -32,8 +33,6 @@ glVector Normalize(glVector vec);
 glVector CrossProduct(glVector A, glVector B);
 float DotProduct(glVector A, glVector B);*/
 void load_graphics();
-void save_settings();
-bool_t save_input_settings(char* whichfile);
 void empty_import_directory( void );
 void insert_space( int position );
 void copy_one_line( int write );
@@ -96,7 +95,6 @@ int read_tag( FILE *fileread );
 void read_all_tags( char *szFilename );
 int tag_value( char *string );
 char* tag_to_string( Uint32 tag, bool_t onlykeys );
-void read_controls( char *szFilename );
 Uint8 control_key_is_pressed( Uint8 control );
 Uint8 control_mouse_is_pressed( Uint8 control );
 Uint8 control_joya_is_pressed( Uint8 control );
@@ -108,7 +106,6 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 int get_free_message( void );
 void display_message( int message, Uint16 character );
-
 
 //IDSZ handling
 char *  undo_idsz( IDSZ idsz );
@@ -129,10 +126,8 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
 Uint16 spawn_enchant( Uint16 owner, Uint16 target,
                       Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
 
-
 void load_action_names( char* loadname );
 void get_name( FILE* fileread, char *szName );
-void read_setup( char* filename );
 void log_madused( char *savename );
 void make_lightdirectionlookup();
 float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
@@ -162,7 +157,6 @@ int close_passage( int passage );
 void clear_passages();
 void add_shop_passage( int owner, int passage );
 void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
-
 
 void flash_character_height( int character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
@@ -300,7 +294,6 @@ void move_camera();
 void make_camera_matrix();
 void camera_look_at( float x, float y );
 
-
 void make_onwhichfan( void );
 void bump_characters( void );
 int prt_is_over_water( int cnt );
@@ -347,7 +340,7 @@ int load_all_objects( char *modname );
 void load_all_global_objects(int skin);
 void load_bars( char* szBitmap );
 void load_map( char* szModule );
-void load_font( char* szBitmap, char* szSpacing, int sysmem );
+void load_font( char* szBitmap, char* szSpacing );
 void make_water();
 void read_wawalite( char *modname );
 void reset_teams();
@@ -417,8 +410,8 @@ int check_skills( Uint16 who, IDSZ whichskill );
 //AI targeting
 Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz);
 Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
-                    Uint16 particletype, Uint8 team, Uint16 donttarget, 
-					Uint16 oldtarget );
+                            Uint16 particletype, Uint8 team, Uint16 donttarget,
+                            Uint16 oldtarget );
 
 //---------------------------------------------------------------------------------------------
 // Quest system
@@ -502,4 +495,4 @@ void sys_shutdown();  // Allow any necessary cleanup for platform specific code
 
 double sys_getTime();  // Return the current time, in seconds
 
-#endif //#ifndef _PROTO_H_
+#define _PROTO_H_

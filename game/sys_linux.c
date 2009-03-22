@@ -22,35 +22,42 @@
 /// @brief System Dependent Functions
 /// @details Unix/GNU/Linux/*nix - specific code
 
-#include <stdio.h> /* for NULL */
-#include <sys/time.h>
 #include "log.h"
 
+#include <stdio.h> /* for NULL */
+#include <sys/time.h>
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static double startuptime;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void sys_initialize()
 {
-  struct timeval now;
-  log_info( "Initializing Linux file system...\n" );
-  gettimeofday( &now, NULL );
-  startuptime = now.tv_sec + now.tv_usec / 1000000.0f;
+    struct timeval now;
+    log_info( "Initializing Linux file system...\n" );
+    gettimeofday( &now, NULL );
+    startuptime = now.tv_sec + now.tv_usec * 1.0e-6;
 }
 
-
+//--------------------------------------------------------------------------------------------
 double sys_getTime()
 {
-  struct timeval now;
-  gettimeofday( &now, NULL );
-  return  ((double)now.tv_sec) + now.tv_usec / 1000000.0f - startuptime; 
+    struct timeval now;
+    gettimeofday( &now, NULL );
+    return  ((double)now.tv_sec) + now.tv_usec * 1.0e-6 - startuptime;
 }
 
+//--------------------------------------------------------------------------------------------
 int sys_frameStep()
 {
-  return 0;
+    return 0;
 }
 
+//--------------------------------------------------------------------------------------------
 //This is where the whole thing actually starts in Linux
 int main( int argc, char* argv[] )
 {
-  return SDL_main( argc, argv );
+    return SDL_main( argc, argv );
 }

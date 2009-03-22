@@ -20,27 +20,34 @@
 #include <stdio.h> /* for NULL */
 #include <sys/time.h>
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 static double startuptime;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void sys_initialize()
 {
-  struct timeval now;
-  gettimeofday( &now, NULL );
-  startuptime = now.tv_sec + now.tv_usec / 1000000.0;
+    struct timeval now;
+    gettimeofday( &now, NULL );
+    startuptime = now.tv_sec + now.tv_usec * 1e-6;
 }
 
+//--------------------------------------------------------------------------------------------
 void sys_shutdown()
 {
 }
 
+//--------------------------------------------------------------------------------------------
 double sys_getTime()
 {
-  struct timeval now;
-  gettimeofday( &now, NULL );
-  return ((double)now.tv_sec) + now.tv_usec / 1000000.0f - startuptime; 
+    struct timeval now;
+    gettimeofday( &now, NULL );
+    return ((double)now.tv_sec) + now.tv_usec * 1e-6 - startuptime;
 }
 
+//--------------------------------------------------------------------------------------------
 int sys_frameStep()
 {
-  return 0;
+    return 0;
 }

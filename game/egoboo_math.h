@@ -1,9 +1,5 @@
 #pragma once
 
-/* Egoboo - mathstuff.h
- * The name's pretty self explanatory, doncha think?
- */
-
 //********************************************************************************************
 //*
 //*    This file is part of Egoboo.
@@ -23,6 +19,9 @@
 //*
 //********************************************************************************************
 
+/* Egoboo - mathstuff.h
+ * The name's pretty self explanatory, doncha think?
+ */
 
 //#include "egoboo.h"
 #include <math.h>
@@ -38,7 +37,6 @@
 
 extern float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to cosine
-
 
 // Just define ABS, MIN, and MAX using macros for the moment. This is likely to be the
 // fastest and most cross-platform solution
@@ -78,9 +76,8 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #    define CLIP(A,B,C) MAX(MIN(A,B),C)
 #endif
 
-#define _CNV(i,j) .v[4*i+j]
+#define CNV(i,j) v[4*i+j]
 #define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( glMatrix ) )
-
 
 typedef struct glmatrix { float v[16]; } glMatrix;
 typedef struct glvector { float x, y, z, w; } glVector;
@@ -106,6 +103,5 @@ glMatrix FourPoints( float orix, float oriy, float oriz, float widx, float widy,
 glMatrix ViewMatrix( const glVector from, const glVector at, const glVector world_up, const float roll );
 glMatrix ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
 void  TransformVertices( glMatrix *pMatrix, glVector *pSourceV, glVector *pDestV, Uint32  pNumVertor );
-
 
 void make_turntosin( void );

@@ -1,1 +1,53 @@
-IDI_ICON1               ICON    DISCARDABLE     "egoboo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "egoboo.ico"
+IDI_ICON2               ICON                    "egoboo3.ico"
+IDI_ICON3               ICON                    "old-egoboo.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,6,0,0
+ PRODUCTVERSION 2,6,0,0
+ FILEFLAGSMASK 0x17L
+#ifdef _DEBUG
+ FILEFLAGS 0x3L
+#else
+ FILEFLAGS 0x2L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "080004b0"
+        BEGIN
+            VALUE "CompanyName", "Egoboo Community"
+            VALUE "FileDescription", "egoboo"
+            VALUE "FileVersion", "2, 6, 0, 0"
+            VALUE "InternalName", "egoboo"
+            VALUE "LegalCopyright", "Copyright (C) 1999"
+            VALUE "OriginalFilename", "egoboo.rc"
+            VALUE "ProductName", " egoboo"
+            VALUE "ProductVersion", "2, 6, 0, 0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x800, 1200
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+
+
