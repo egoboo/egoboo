@@ -47,7 +47,7 @@ enum MenuStates
     MM_Entering,
     MM_Running,
     MM_Leaving,
-    MM_Finish,
+    MM_Finish
 };
 
 int selectedModule = 0;
@@ -2099,7 +2099,7 @@ enum
     NewPlayer,
     LoadPlayer,
     HostGame,
-    JoinGame,
+    JoinGame
 };
 
 int doMenu( float deltaTime )

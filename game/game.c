@@ -41,8 +41,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static ConfigFilePtr_t lConfigSetup = NULL;
-
 float sinlut[MAXLIGHTROTATION];
 float coslut[MAXLIGHTROTATION];
 
@@ -521,7 +519,7 @@ int tag_value( char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-char* tag_to_string( Uint32 tag, bool_t onlykeys )
+char* tag_to_string( Sint32 tag, bool_t onlykeys )
 {
     int cnt;
 
@@ -550,78 +548,84 @@ char* tag_to_string( Uint32 tag, bool_t onlykeys )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_key_is_pressed( Uint8 control )
+bool_t control_key_is_pressed( Uint8 control )
 {
     // ZZ> This function returns btrue if the given control is pressed...
-    if ( netmessagemode )  return bfalse;
 
-    if ( sdlkeybuffer )
-        return ( sdlkeybuffer[controlvalue[control]] != 0 );
-    else
-        return bfalse;
+    bool_t retval = bfalse;
+
+    if ( !netmessagemode && sdlkeybuffer )
+    {
+        retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
+    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_mouse_is_pressed( Uint8 control )
+bool_t control_mouse_is_pressed( Uint8 control )
 {
     // ZZ> This function returns btrue if the given control is pressed...
+
+    bool_t retval = bfalse;
+
     if ( controliskey[control] )
     {
-        if ( netmessagemode )  return bfalse;
-
-        if ( sdlkeybuffer )
-            return ( sdlkeybuffer[controlvalue[control]] != 0 );
-        else
-            return bfalse;
+        if ( !netmessagemode && sdlkeybuffer )
+        {
+            retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
+        }
     }
     else
     {
-        return ( msb == controlvalue[control] );
+        retval = ( msb == controlvalue[control] );
     }
 
-    return bfalse;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_joya_is_pressed( Uint8 control )
+bool_t control_joya_is_pressed( Uint8 control )
 {
     // ZZ> This function returns btrue if the given control is pressed...
+
+    bool_t retval = bfalse;
+
     if ( controliskey[control] )
     {
-        if ( netmessagemode )  return bfalse;
-
-        if ( sdlkeybuffer )
-            return ( sdlkeybuffer[controlvalue[control]] != 0 );
-        else
-            return bfalse;
+        if ( !netmessagemode && sdlkeybuffer )
+        {
+            retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
+        }
     }
     else
     {
-        return ( jab == controlvalue[control] );
+        retval = ( jab == controlvalue[control] );
     }
 
-    return bfalse;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 control_joyb_is_pressed( Uint8 control )
+bool_t control_joyb_is_pressed( Uint8 control )
 {
     // ZZ> This function returns btrue if the given control is pressed...
+
+    bool_t retval = bfalse;
+
     if ( controliskey[control] )
     {
-        if ( netmessagemode )  return bfalse;
-
-        if ( sdlkeybuffer )
-            return ( sdlkeybuffer[controlvalue[control]] != 0 );
-        else
-            return bfalse;
+        if ( !netmessagemode && sdlkeybuffer )
+        {
+            retval = ( 0 != sdlkeybuffer[controlvalue[control]] );
+        }
     }
     else
     {
-        return ( jbb == controlvalue[control] );
+        retval = ( jbb == controlvalue[control] );
     }
 
-    return bfalse;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------

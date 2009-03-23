@@ -51,7 +51,7 @@ void ErrorImage_create(void)
     {
         for (j = 0; j < ErrorImage_width; j++)
         {
-            if ( 0 == (i&0x1) ^ (j&0x1) )
+            if ( 0 == ((i&0x1) ^ (j&0x1)) )
             {
                 ErrorImage[i][j][0] = (GLubyte) 255;
                 ErrorImage[i][j][1] = (GLubyte) 0;

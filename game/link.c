@@ -116,7 +116,7 @@ bool_t link_follow( Link_t list[], int ilink )
     attach_particles();
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t link_build( const char * fname, Link_t list[] )
@@ -140,4 +140,4 @@ bool_t link_build( const char * fname, Link_t list[] )
     }
 
     return i > 0;
-};
+}

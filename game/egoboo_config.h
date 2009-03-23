@@ -31,8 +31,8 @@
 #    pragma warning(disable : 4305) // truncation from 'double' to 'float'
 #    pragma warning(disable : 4244) // conversion from 'double' to 'float'
 #    pragma warning(disable : 4554) // possibly operator precendence error
-//#    pragma warning(disable : 4761)
-//#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
+//*    pragma warning(disable : 4761)
+//*    pragma warning(disable : 4244) // truncation from 'type' to 'type'
 #endif
 
 #ifdef __unix__

@@ -20,7 +20,7 @@
 	<SDL.h>
 	<SDL_endian.h>
 
-1199076516 c:\sdks\sdl\include\sdl.h
+1199080116 c:\sdks\sdl\include\sdl.h
 	"SDL_main.h"
 	"SDL_stdinc.h"
 	"SDL_audio.h"
@@ -39,14 +39,14 @@
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_main.h
+1199080116 c:\sdks\sdl\include\sdl_main.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_stdinc.h
+1199080116 c:\sdks\sdl\include\sdl_stdinc.h
 	"SDL_config.h"
 	<sys/types.h>
 	<stdio.h>
@@ -72,7 +72,7 @@
 	<stdlib.h>
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_config.h
+1199080116 c:\sdks\sdl\include\sdl_config.h
 	"SDL_platform.h"
 	"SDL_config_dreamcast.h"
 	"SDL_config_macos.h"
@@ -82,39 +82,39 @@
 	"SDL_config_os2.h"
 	"SDL_config_minimal.h"
 
-1199076516 c:\sdks\sdl\include\sdl_platform.h
+1199080116 c:\sdks\sdl\include\sdl_platform.h
 
-1199076516 c:\sdks\sdl\include\sdl_config_dreamcast.h
+1199080116 c:\sdks\sdl\include\sdl_config_dreamcast.h
 	"SDL_platform.h"
 
-1199076516 c:\sdks\sdl\include\sdl_config_macos.h
+1199080116 c:\sdks\sdl\include\sdl_config_macos.h
 	"SDL_platform.h"
 	<MacTypes.h>
 
-1199076516 c:\sdks\sdl\include\sdl_config_macosx.h
+1199080116 c:\sdks\sdl\include\sdl_config_macosx.h
 	"SDL_platform.h"
 	<AvailabilityMacros.h>
 
-1199076516 c:\sdks\sdl\include\sdl_config_symbian.h
+1199080116 c:\sdks\sdl\include\sdl_config_symbian.h
 	"SDL_platform.h"
 	<stdarg.h>
 	<stddef.h>
 
-1199076516 c:\sdks\sdl\include\sdl_config_win32.h
+1199080116 c:\sdks\sdl\include\sdl_config_win32.h
 	"SDL_platform.h"
 
-1199076516 c:\sdks\sdl\include\sdl_config_os2.h
+1199080116 c:\sdks\sdl\include\sdl_config_os2.h
 	"SDL_platform.h"
 
-1217689829 c:\sdks\sdl\include\sdl_config_minimal.h
+1217693429 c:\sdks\sdl\include\sdl_config_minimal.h
 	"SDL_platform.h"
 	<stdarg.h>
 
-1199076516 c:\sdks\sdl\include\begin_code.h
+1199080116 c:\sdks\sdl\include\begin_code.h
 
-1199076516 c:\sdks\sdl\include\close_code.h
+1199080116 c:\sdks\sdl\include\close_code.h
 
-1199076516 c:\sdks\sdl\include\sdl_audio.h
+1199080116 c:\sdks\sdl\include\sdl_audio.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_endian.h"
@@ -124,23 +124,23 @@
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_error.h
+1199080116 c:\sdks\sdl\include\sdl_error.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_endian.h
+1199080116 c:\sdks\sdl\include\sdl_endian.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_mutex.h
+1199080116 c:\sdks\sdl\include\sdl_mutex.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_thread.h
+1199080116 c:\sdks\sdl\include\sdl_thread.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_mutex.h"
@@ -148,24 +148,24 @@
 	<process.h>
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_rwops.h
+1199080116 c:\sdks\sdl\include\sdl_rwops.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_cdrom.h
+1199080116 c:\sdks\sdl\include\sdl_cdrom.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_cpuinfo.h
+1199080116 c:\sdks\sdl\include\sdl_cpuinfo.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_events.h
+1199080116 c:\sdks\sdl\include\sdl_events.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_active.h"
@@ -176,63 +176,63 @@
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_active.h
+1199080116 c:\sdks\sdl\include\sdl_active.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_keyboard.h
+1199080116 c:\sdks\sdl\include\sdl_keyboard.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keysym.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_keysym.h
+1199080116 c:\sdks\sdl\include\sdl_keysym.h
 
-1199076516 c:\sdks\sdl\include\sdl_mouse.h
+1199080116 c:\sdks\sdl\include\sdl_mouse.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_video.h
+1199080116 c:\sdks\sdl\include\sdl_video.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_joystick.h
+1199080116 c:\sdks\sdl\include\sdl_joystick.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_quit.h
+1199080116 c:\sdks\sdl\include\sdl_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 
-1199076516 c:\sdks\sdl\include\sdl_loadso.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1199076516 c:\sdks\sdl\include\sdl_timer.h
+1199080116 c:\sdks\sdl\include\sdl_loadso.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_version.h
+1199080116 c:\sdks\sdl\include\sdl_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1199080116 c:\sdks\sdl\include\sdl_version.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1184474021 c:\sdks\sdl_mixer\sdl_mixer.h
+1184477621 c:\sdks\sdl_mixer\sdl_mixer.h
 	"SDL_types.h"
 	"SDL_rwops.h"
 	"SDL_audio.h"
@@ -241,7 +241,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1199076516 c:\sdks\sdl\include\sdl_types.h
+1199080116 c:\sdks\sdl\include\sdl_types.h
 	"SDL_stdinc.h"
 
 1225657487 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\clock.h
@@ -259,7 +259,7 @@
 
 1210014004 d:\program files\egoboo development team\egoboo-2.6.7_beta\source\game\font.h
 
-1199076516 c:\sdks\sdl\include\sdl_opengl.h
+1199080116 c:\sdks\sdl\include\sdl_opengl.h
 	"SDL_config.h"
 	<windows.h>
 	<OpenGL/gl.h>
@@ -271,7 +271,7 @@
 	<windows.h>
 	<stddef.h>
 
-1184475768 c:\sdks\sdl_ttf\sdl_ttf.h
+1184479368 c:\sdks\sdl_ttf\sdl_ttf.h
 	"SDL.h"
 	"begin_code.h"
 	"close_code.h"
@@ -743,4 +743,312 @@
 	<windows.h>
 	<shlobj.h>
 	<shlwapi.h>
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.c
+	"Md2.h"
+	"egoboo.h"
+	"id_normals.c"
+
+1237775872 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.h
+
+1237776209 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo.h
+	"egobootypedef.h"
+	<stdlib.h>
+	<stdarg.h>
+	<stdio.h>
+	<string.h>
+	<fcntl.h>
+	<ctype.h>
+	<time.h>
+	<math.h>
+	<SDL_opengl.h>
+	"proto.h"
+	"gltexture.h"
+	"egoboo_math.h"
+	"configfile.h"
+	"Md2.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egobootypedef.h
+	"egoboo_config.h"
+	<SDL_stdinc.h>
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_config.h
+	<unistd.h>
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\proto.h
+	"egobootypedef.h"
+	<SDL_mixer.h>
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\gltexture.h
+	<SDL.h>
+	<SDL_opengl.h>
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_math.h
+	<math.h>
+	"egobootypedef.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.h
+	"egobootypedef.h"
+	<stdio.h>
+	<stdlib.h>
+	"egoboostrutil.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboostrutil.h
+	"egobootypedef.h"
+	<string.h>
+	<ctype.h>
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_normals.c
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.c
+	"egoboo.h"
+	"camera.h"
+
+1237775872 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\camera.h
+
+1237769343 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.c
+	"char.h"
+	"egoboo.h"
+	"log.h"
+	<assert.h>
+
+1237775872 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.h
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\log.h
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.c
+	"client.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.h
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.c
+	"proto.h"
+	"clock.h"
+	"log.h"
+	<stddef.h>
+	<stdlib.h>
+	<string.h>
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\clock.h
+
+1237774792 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\configfile.c
+	"configfile.h"
+	"proto.h"
+	"egoboostrutil.h"
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_math.c
+	"egoboo_math.h"
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.c
+	"egoboo_setup.h"
+	"log.h"
+	"configfile.h"
+	"egoboo.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.h
+	"egobootypedef.h"
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egobooendian.c
+	"egoboo_endian.h"
+
+1237775873 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_endian.h
+	"egobootypedef.h"
+	<SDL_endian.h>
+	<Endian.h>
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file-common.c
+	"egoboo.h"
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file-win.c
+	"egoboo.h"
+	"log.h"
+	<windows.h>
+	<shlobj.h>
+	<shlwapi.h>
+
+1237775873 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\font.c
+	"font.h"
+	<stdlib.h>
+	<stddef.h>
+	<string.h>
+	<SDL.h>
+	<SDL_opengl.h>
+	<SDL_ttf.h>
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\font.h
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphicfan.c
+	"egoboo.h"
+	"graphic.h"
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.h
+	"SDL_image.h"
+
+1184299608 c:\sdks\sdl_image\sdl_image.h
+	"SDL.h"
+	"SDL_version.h"
+	"begin_code.h"
+	"close_code.h"
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphicmad.c
+	"egoboo.h"
+	"Md2.h"
+	"id_md2.h"
+	"graphic.h"
+	<SDL_opengl.h>
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\id_md2.h
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphicprt.c
+	"egoboo.h"
+	"particle.h"
+	"graphic.h"
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.h
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\input.c
+	"egoboo.h"
+	"ui.h"
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ui.h
+	"font.h"
+	"gltexture.h"
+	<SDL.h>
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\link.c
+	"link.h"
+	"proto.h"
+	"egoboo.h"
+
+1237775874 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\link.h
+	"egobootypedef.h"
+
+1237775874 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\log.c
+	"log.h"
+	"egoboo_config.h"
+	<stdlib.h>
+	<stdio.h>
+	<stdarg.h>
+
+1237707554 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.c
+	"egoboo.h"
+	"ui.h"
+	"menu.h"
+	"graphic.h"
+	"log.h"
+	"proto.h"
+	"egoboo_setup.h"
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.h
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\module.c
+	"egoboo.h"
+	"log.h"
+	"menu.h"
+
+1237709751 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\network.c
+	"egoboo.h"
+	"log.h"
+	<enet/enet.h>
+	<stdio.h>
+	<stdarg.h>
+	<assert.h>
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\enet.h
+	<stdlib.h>
+	"enet/types.h"
+	"enet/protocol.h"
+	"enet/list.h"
+	"enet/win32.h"
+	"enet/unix.h"
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\types.h
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\protocol.h
+	"enet/types.h"
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\list.h
+	<stdlib.h>
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\win32.h
+	<stdlib.h>
+	<winsock2.h>
+
+1228961198 c:\projects\ego\zefz-sourceforge\branches\2.6.x\enet\include\enet\unix.h
+	<stdlib.h>
+	<sys/types.h>
+	<netinet/in.h>
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.c
+	"egoboo.h"
+	"log.h"
+	"particle.h"
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.c
+	"egoboo.h"
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.c
+	"egoboo.h"
+	"script.h"
+	"log.h"
+	"link.h"
+	<assert.h>
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.h
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\server.c
+	"server.h"
+
+1237775875 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\server.h
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sys_win32.c
+	"proto.h"
+	"log.h"
+	"system.h"
+	<windows.h>
+
+1237775872 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\system.h
+
+1237775875 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ui.c
+	"ui.h"
+	"egoboo.h"
+	<string.h>
+	<SDL_opengl.h>
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboostrutil.c
+	"egoboostrutil.h"
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\game.c
+	"egoboo.h"
+	"clock.h"
+	"link.h"
+	"ui.h"
+	"font.h"
+	"log.h"
+	"egoboo_endian.h"
+	"egoboo_setup.h"
+	"char.h"
+	"camera.h"
+	"id_md2.h"
+	<time.h>
+	<assert.h>
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\gltexture.c
+	"egoboo.h"
+	"gltexture.h"
+	"graphic.h"
+	"log.h"
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.c
+	"egoboo.h"
+	"char.h"
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.c
+	"egoboo.h"
+	"graphic.h"
+	"log.h"
+
+1237775872 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sound.c
+	"egoboo.h"
+	"log.h"
 

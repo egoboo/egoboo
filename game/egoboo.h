@@ -1768,7 +1768,7 @@ EXTERN Uint8 changed;
 #define TAGSIZE             32                      // Size of each tag
 EXTERN int numscantag;
 EXTERN char tagname[MAXTAG][TAGSIZE];                      // Scancode names
-EXTERN Uint32 tagvalue[MAXTAG];                     // Scancode values
+EXTERN Sint32 tagvalue[MAXTAG];                     // Scancode values
 #define MAXCONTROL          64
 EXTERN Uint32 controlvalue[MAXCONTROL];             // The scancode or mask
 EXTERN Uint32 controliskey[MAXCONTROL];             // Is it a key?

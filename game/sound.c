@@ -64,7 +64,7 @@ bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static const char * wavenames[MAXGLOBALSOUNDS] = 
+static const char * wavenames[MAXGLOBALSOUNDS] =
 {
     "coinget",
     "defend",
@@ -78,8 +78,7 @@ static const char * wavenames[MAXGLOBALSOUNDS] =
 void load_global_waves( char * modname )
 {
     // ZZ> This function loads the global waves
-    char tmploadname[256];
-    char newloadname[256];
+    STRING tmploadname;
     STRING wavename;
     Uint8 cnt = 0;
 
@@ -107,18 +106,18 @@ void load_global_waves( char * modname )
     Water Type: LAVA, WATER, DARK
     */
 
-    // try to grab these same sounds from the gamedat dir. This lets the local sounds override the 
+    // try to grab these same sounds from the gamedat dir. This lets the local sounds override the
     // global sounds.
     make_newloadname( modname, "gamedat", tmploadname );
 
-    for( cnt = 0; cnt<MAXGLOBALSOUNDS; cnt++)
+    for ( cnt = 0; cnt < MAXGLOBALSOUNDS; cnt++)
     {
         mix_ptr_t tmp_ptr;
 
         snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "%s", tmploadname, wavenames[cnt] );
 
         // only overwrite with a valid sound file
-        if( load_sound( &tmp_ptr, wavename ) )
+        if ( load_sound( &tmp_ptr, wavename ) )
         {
             memcpy( globalwave + cnt, &tmp_ptr, sizeof(mix_ptr_t) );
         }
@@ -154,12 +153,12 @@ int play_sound( float xpos, float ypos, mix_ptr_t * pptr )
 {
     int distance, volume, pan;
 
-    if( !soundvalid ) 
+    if ( !soundvalid )
     {
         return -1;
     }
 
-    if( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk ) 
+    if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
         log_warning( "Sound file not correctly loaded (Not found?).\n" );
         return -1;
@@ -179,7 +178,7 @@ int play_sound( float xpos, float ypos, mix_ptr_t * pptr )
 
     if ( volume < 255 )
     {
-        if( MIX_MUS == pptr->type )
+        if ( MIX_MUS == pptr->type )
         {
             channel = -1;
             channel = Mix_PlayMusic( pptr->ptr.mus, 1 );
@@ -204,7 +203,7 @@ int play_sound( float xpos, float ypos, mix_ptr_t * pptr )
                 else Mix_SetPanning( channel, 255, 255 - ( ( 360 - pan ) * 2.83f ) );
             }
         }
-        else 
+        else
         {
             log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
         }
@@ -244,7 +243,7 @@ void load_all_music_sounds()
     // Load the music data into memory
     if ( musicvalid && !musicinmemory )
     {
-        
+
 
         for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
         {
@@ -258,7 +257,7 @@ void load_all_music_sounds()
             musictracksloaded[cnt].type    = MIX_UNKNOWN;
 
             tmp_music = Mix_LoadMUS( loadpath );
-            if(NULL != tmp_music)
+            if (NULL != tmp_music)
             {
                 musictracksloaded[cnt].ptr.mus = tmp_music;
                 musictracksloaded[cnt].type    = MIX_MUS;
@@ -279,7 +278,7 @@ void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
     {
         // Mix_FadeOutMusic(fadetime);      // Stops the game too
 
-        if( MIX_MUS == musictracksloaded[songnumber].type )
+        if ( MIX_MUS == musictracksloaded[songnumber].type )
         {
             Mix_PlayMusic( musictracksloaded[songnumber].ptr.mus, loops );
         }

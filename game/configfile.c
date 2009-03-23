@@ -116,7 +116,7 @@ ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection, lDoomedSection;
 
-    if (NULL == ppConfigFile || NULL == *ppConfigFile) return bfalse;
+    if (NULL == ppConfigFile || NULL == *ppConfigFile) return ConfigFile_fail;
 
     ConfigFile_close( *ppConfigFile );
     (*ppConfigFile)->filename[0] = '\0';
@@ -134,7 +134,7 @@ ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
     // free the data
     CONFIG_DELETE( *ppConfigFile );
 
-    return btrue;
+    return ConfigFile_succeed;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -207,11 +207,11 @@ char * ConfigFileString_create(size_t len)
 //--------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileString_destroy(char ** ptmp )
 {
-    if (NULL == ptmp || NULL == *ptmp) return bfalse;
+    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
 
     CONFIG_DELETE( *ptmp );
 
-    return btrue;
+    return ConfigFile_succeed;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ char * ConfigFileString_resize(char * str, size_t new_len )
     memset( str, 0, new_len );
 
     return str;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -250,14 +250,14 @@ ConfigFileValuePtr_t ConfigFileValue_create()
 //--------------------------------------------------------------------------------------------
 ConfigFile_retval ConfigFileValue_destroy(ConfigFileValuePtr_t * ptmp)
 {
-    if (NULL == ptmp || NULL == *ptmp) return bfalse;
+    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
 
     ConfigFileString_destroy( &(*ptmp)->Commentary );
     ConfigFileString_destroy( &(*ptmp)->Value      );
 
     CONFIG_DELETE( *ptmp );
 
-    return btrue;
+    return ConfigFile_succeed;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -276,7 +276,7 @@ ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
 {
     ConfigFileValuePtr_t lTempValue, lDoomedValue;
 
-    if (NULL == ptmp || NULL == *ptmp) return bfalse;
+    if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
 
     // delete all values from the current section
     lTempValue = (*ptmp)->FirstValue;
@@ -290,7 +290,7 @@ ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
 
     CONFIG_DELETE( *ptmp );
 
-    return btrue;
+    return ConfigFile_succeed;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1025,11 +1025,11 @@ ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const 
 }
 
 //--------------------------------------------------------------------------------------------
-// ConfigFile_close close the ConfigFile_t. Do not deallocate its memory.
+// ConfigFile_close close the ConfigFile_t. Does not deallocate its memory.
 //
 ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 {
-    if ( NULL == pConfigFile ) return bfalse;
+    if ( NULL == pConfigFile ) return ConfigFile_fail;
 
     if ( NULL != pConfigFile->f )
     {

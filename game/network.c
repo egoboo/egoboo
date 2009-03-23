@@ -41,7 +41,7 @@ enum NetworkConstant
     NET_EGOBOO_NUM_CHANNELS,
     NET_EGOBOO_PORT        = 34626,
     NET_MAX_FILE_NAME      = 128,
-    NET_MAX_FILE_TRANSFERS    = 1024,  // Maximum files queued up at once
+    NET_MAX_FILE_TRANSFERS    = 1024  // Maximum files queued up at once
 };
 
 // Network messages
@@ -51,7 +51,7 @@ enum NetworkMessage
     NET_TRANSFER_OK        = 10002,  // Acknowledgement packet for a file send
     NET_CREATE_DIRECTORY    = 10003,  // Tell the peer to create the named directory
     NET_DONE_SENDING_FILES    = 10009,  // Sent when there are no more files to send.
-    NET_NUM_FILES_TO_SEND    = 10010,  // Let the other person know how many files you're sending
+    NET_NUM_FILES_TO_SEND    = 10010  // Let the other person know how many files you're sending
 };
 
 // Network players information

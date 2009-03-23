@@ -1607,7 +1607,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function plays a sound
             if ( chroldz[character] > PITNOSOUND )
             {
-                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
                     play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
@@ -2702,7 +2702,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 volume = valuetmpdistance;
                 iTmp = -1;
-                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
                     iTmp = play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
@@ -3175,7 +3175,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function plays a sound loud for everyone...  Victory music
             if ( moduleactive )
             {
-                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
                     play_sound( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
@@ -4126,7 +4126,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTOX:
-                if(chraigoto[character] == chraigotoadd[character])
+                if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = chrxpos[character];
                 }
@@ -4137,7 +4137,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTOY:
-                if(chraigoto[character] == chraigotoadd[character])
+                if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = chrypos[character];
                 }
@@ -4148,7 +4148,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTODISTANCE:
-                if(chraigoto[character] == chraigotoadd[character])
+                if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = 0;
                 }
@@ -4524,7 +4524,7 @@ void let_character_think( int character )
             chrlatchx[character] = chrlatchx[chrholdingwhich[character][0]];
             chrlatchy[character] = chrlatchy[chrholdingwhich[character][0]];
         }
-        else if( chraigoto[character] != chraigotoadd[character] )
+        else if ( chraigoto[character] != chraigotoadd[character] )
         {
             // Normal AI
             chrlatchx[character] = ( chraigotox[character][chraigoto[character]] - chrxpos[character] ) / (128 << 2);

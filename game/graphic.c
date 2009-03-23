@@ -923,7 +923,7 @@ void prime_icons()
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
-        TxIcon[cnt].textureID = ~0;
+        TxIcon[cnt].textureID = INVALID_TX_ID;
         madskintoicon[cnt] = 0;
     }
 
@@ -2007,7 +2007,7 @@ int load_one_object( int skin, char* tmploadname )
     {
         sprintf( wavename, "sound%d", cnt );
         make_newloadname( tmploadname, wavename, newloadname );
-		load_sound( capwaveindex[object] + cnt, newloadname );
+        load_sound( capwaveindex[object] + cnt, newloadname );
     }
 
     // Load the enchantment for this object
@@ -2224,7 +2224,7 @@ void load_font( char* szBitmap, char* szSpacing )
         goto_colon( fileread );
         fscanf( fileread, "%c%d", &cTmp, &xspacing );
 
-        if ( asciitofont[cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
+        if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
 
         if ( xstt + xspacing + 1 > 255 )
         {
@@ -4973,16 +4973,16 @@ void check_stats()
     static int stat_check_delay = 0;
     int ticks;
 
-    if( netmessagemode ) return;
+    if ( netmessagemode ) return;
 
     ticks = SDL_GetTicks();
-    if( ticks > stat_check_timer + 20 )
+    if ( ticks > stat_check_timer + 20 )
     {
         stat_check_timer = ticks;
     }
 
     stat_check_delay -= 20;
-    if( stat_check_delay > 0 ) 
+    if ( stat_check_delay > 0 )
         return;
 
     // !!!BAD!!!  XP CHEAT
@@ -5065,7 +5065,7 @@ void check_stats()
     {
         mapon = mapvalid;
         youarehereon = btrue;
-        stat_check_delay = 1000; 
+        stat_check_delay = 1000;
     }
 }
 

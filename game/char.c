@@ -2113,7 +2113,7 @@ void move_characters( void )
                                 chrjumpnumber[cnt]--;
 
                             // Play the jump sound
-                            if( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
+                            if ( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
                             {
                                 play_sound( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
                             }
@@ -2150,7 +2150,7 @@ void move_characters( void )
 
                                 if ( volume > VOLMIN )
                                 {
-                                    if( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
+                                    if ( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
                                     {
                                         play_sound( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
                                     }
@@ -2810,7 +2810,7 @@ void setup_characters( char *modname )
     char itislocal;
     char myname[256], newloadname[256];
     Uint16 facing, attach, grip = NORTH;
-    Uint32 slot;
+    Sint32 slot;
     float x, y, z;
     FILE *fileread;
 
@@ -2830,7 +2830,7 @@ void setup_characters( char *modname )
             name = myname;
 
             if ( myname[0] == 'N' && myname[1] == 'O' && myname[2] == 'N' &&
-                 myname[3] == 'E' && myname[4] == 0 )
+                    myname[3] == 'E' && myname[4] == 0 )
             {
                 // Random name
                 name = NULL;
@@ -3529,7 +3529,7 @@ void bump_characters( void )
     Uint16 facing;
 
     // Clear the lists
-    
+
 
     for ( fanblock = 0; fanblock < numfanblock; fanblock++ )
     {
@@ -3548,7 +3548,7 @@ void bump_characters( void )
                 chrholdingweight[character] = 0;
 
                 if (chrxpos[character] > 0 && chrxpos[character] < meshedgex &&
-                    chrypos[character] > 0 && chrypos[character] < meshedgey)
+                        chrypos[character] > 0 && chrypos[character] < meshedgey)
                 {
                     fanblock = ( ( ( int )chrxpos[character] ) >> 9 ) + meshblockstart[( ( int )chrypos[character] ) >> 9];
 
@@ -3562,7 +3562,7 @@ void bump_characters( void )
         }
     }
 
-    
+
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
@@ -3585,7 +3585,7 @@ void bump_characters( void )
     // Check collisions with other characters and bump particles
     // Only check each pair once
 
-    for(chara=0; chara < MAXCHR; chara++)
+    for (chara = 0; chara < MAXCHR; chara++)
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -3594,10 +3594,10 @@ void bump_characters( void )
         int iy_block, iymax_block, iymin_block;
 
         // make sure that it is on
-        if( !chron[chara] ) continue;
+        if ( !chron[chara] ) continue;
 
         // Don't bump held objects
-        if( MAXCHR != chrattachedto[chara] ) continue;
+        if ( MAXCHR != chrattachedto[chara] ) continue;
 
         // Don't bump items
         if ( 0 == chrbumpheight[chara] /* || chrisitem[chara] */ ) continue;
@@ -3620,23 +3620,23 @@ void bump_characters( void )
         iymax_block = iymax >> 9;
         iymin_block = iymin >> 9;
 
-        for(ix_block = ixmin_block; ix_block <= ixmax_block; ix_block++)
+        for (ix_block = ixmin_block; ix_block <= ixmax_block; ix_block++)
         {
-            for(iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
+            for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
             {
                 fanblock = ix_block + meshblockstart[iy_block];
 
                 chrinblock = meshbumplistchrnum[fanblock];
                 prtinblock = meshbumplistprtnum[fanblock];
-                
-                for ( tnc = 0, charb = meshbumplistchr[fanblock]; 
-                      tnc < chrinblock && charb != MAXCHR;
-                      tnc++, charb = chrbumpnext[charb])
+
+                for ( tnc = 0, charb = meshbumplistchr[fanblock];
+                        tnc < chrinblock && charb != MAXCHR;
+                        tnc++, charb = chrbumpnext[charb])
                 {
                     float dx, dy;
 
                     // Don't collide with self
-                    if(charb == chara) continue;
+                    if (charb == chara) continue;
 
                     // don't bump items
                     if ( 0 == chrbumpheight[charb] /* || chrisitem[charb] */ ) continue;
@@ -3654,7 +3654,7 @@ void bump_characters( void )
                     {
                         // Then check bounding box square...  Square+Diamond=Octagon
                         if ( ( dx < chrbumpsize[chara] || dx < chrbumpsize[charb] ) &&
-                             ( dy < chrbumpsize[chara] || dy < chrbumpsize[charb] ) )
+                                ( dy < chrbumpsize[chara] || dy < chrbumpsize[charb] ) )
                         {
                             // Pretend that they collided
                             chrbumplast[chara] = charb;
@@ -3772,7 +3772,7 @@ void bump_characters( void )
                     {
                         // Then check bounding box square...  Square+Diamond=Octagon
                         if ( ( dx < chrbumpsize[chara] || dx < chrbumpsize[charb] ) &&
-                            ( dy < chrbumpsize[chara] || dy < chrbumpsize[charb] ) )
+                                ( dy < chrbumpsize[chara] || dy < chrbumpsize[charb] ) )
                         {
                             // Now see if either is on top the other like a platform
                             if ( za > zb + chrbumpheight[charb] - PLATTOLERANCE + chrzvel[chara] - chrzvel[charb] && ( capcanuseplatforms[chrmodel[chara]] || za > zb + chrbumpheight[charb] ) )
@@ -3884,10 +3884,10 @@ void bump_characters( void )
 
                 // Now check collisions with every bump particle in same area
                 if ( chralive[chara] )
-                {                       
-                    for ( tnc = 0, particle = meshbumplistprt[fanblock]; 
-                          tnc < prtinblock; 
-                          tnc++, particle = prtbumpnext[particle] )
+                {
+                    for ( tnc = 0, particle = meshbumplistprt[fanblock];
+                            tnc < prtinblock;
+                            tnc++, particle = prtbumpnext[particle] )
                     {
                         float dx, dy;
 
@@ -3904,8 +3904,8 @@ void bump_characters( void )
                         {
                             // Then check bounding box square...  Square+Diamond=Octagon
                             if ( ( dx < chrbumpsize[chara]  || dx < prtbumpsize[particle] ) &&
-                                ( dy < chrbumpsize[chara]  || dy < prtbumpsize[particle] ) &&
-                                ( zb > za - prtbumpheight[particle] && zb < za + chrbumpheight[chara] + prtbumpheight[particle] ) )
+                                    ( dy < chrbumpsize[chara]  || dy < prtbumpsize[particle] ) &&
+                                    ( zb > za - prtbumpheight[particle] && zb < za + chrbumpheight[chara] + prtbumpheight[particle] ) )
                             {
                                 pip = prtpip[particle];
 
@@ -3932,10 +3932,10 @@ void bump_characters( void )
 
                                 // Check for missile treatment
                                 if ( ( chrdamagemodifier[chara][prtdamagetype[particle]]&3 ) < 2 ||
-                                    chrmissiletreatment[chara] == MISNORMAL ||
-                                    prtattachedtocharacter[particle] != MAXCHR ||
-                                    ( prtchr[particle] == chara && !pipfriendlyfire[pip] ) ||
-                                    ( chrmana[chrmissilehandler[chara]] < ( chrmissilecost[chara] << 4 ) && !chrcanchannel[chrmissilehandler[chara]] ) )
+                                        chrmissiletreatment[chara] == MISNORMAL ||
+                                        prtattachedtocharacter[particle] != MAXCHR ||
+                                        ( prtchr[particle] == chara && !pipfriendlyfire[pip] ) ||
+                                        ( chrmana[chrmissilehandler[chara]] < ( chrmissilecost[chara] << 4 ) && !chrcanchannel[chrmissilehandler[chara]] ) )
                                 {
                                     if ( ( teamhatesteam[prtteam[particle]][chrteam[chara]] || ( pipfriendlyfire[pip] && ( ( chara != prtchr[particle] && chara != chrattachedto[prtchr[particle]] ) || piponlydamagefriendly[pip] ) ) ) && !chrinvictus[chara] )
                                     {
@@ -4185,7 +4185,7 @@ void stat_return()
         // Do all the characters
         for ( cnt = 0; cnt < MAXCHR; cnt++ )
         {
-            if( !chron[cnt] ) continue;
+            if ( !chron[cnt] ) continue;
 
             // check for a level up
             do_level_up( cnt );
@@ -4502,16 +4502,16 @@ Uint32 xp_for_next_level(Uint16 character)
     Uint32 curlevel;
     Uint16 profile;
     Uint32 xpneeded = (Uint32)(~0);
-        
-    if( !chron[character] ) return xpneeded;
+
+    if ( !chron[character] ) return xpneeded;
 
     profile  = chrmodel[character];
-    if(profile == MAXMODEL) return xpneeded;
+    if (profile == MAXMODEL) return xpneeded;
 
     // Do level ups and stat changes
     curlevel = chrexperiencelevel[character];
 
-    if ( curlevel + 1 < MAXLEVEL ) 
+    if ( curlevel + 1 < MAXLEVEL )
     {
         xpneeded = capexperienceforlevel[profile][curlevel+1];
     }
@@ -4535,10 +4535,10 @@ void do_level_up( Uint16 character )
     Uint16 profile;
     STRING text;
 
-    if(character >= MAXCHR || !chron[character]) return;
+    if (character >= MAXCHR || !chron[character]) return;
 
     profile = chrmodel[character];
-    if( profile >= MAXMODEL ) return;
+    if ( profile >= MAXMODEL ) return;
 
     // Do level ups and stat changes
     curlevel = chrexperiencelevel[character];
@@ -4550,7 +4550,7 @@ void do_level_up( Uint16 character )
         xpcurrent = chrexperience[character];
         xpneeded  = xp_for_next_level(character);
 
-        if( xpcurrent >= xpneeded )
+        if ( xpcurrent >= xpneeded )
         {
             // do the level up
             chrexperiencelevel[character]++;
@@ -4562,7 +4562,7 @@ void do_level_up( Uint16 character )
                 snprintf( text, sizeof(text), "%s gained a level!!!", chrname[character] );
                 debug_message( text );
                 play_sound( camtrackx, camtracky, globalwave + SND_LEVELUP );
-            }              
+            }
 
             // Size
             chrsizegoto[character] += capsizeperlevel[profile] * 0.5f;  // Limit this?
@@ -4644,7 +4644,7 @@ void give_experience( int character, int amount, Uint8 xptype )
 
         //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
         newamount = newamount * (1 + ((float)((chrintelligence[character] - 2560) >> 8) / 200))
-                              + (1 + ((float)((chrwisdom[character] - 2560) >> 8) / 400));
+                    + (1 + ((float)((chrwisdom[character] - 2560) >> 8) / 400));
 
         chrexperience[character] += newamount;
     }
@@ -7556,17 +7556,17 @@ void set_alerts( int character )
         chraitime[character]--;
     }
 
-    if( chraigoto[character] != chraigotoadd[character] )
+    if ( chraigoto[character] != chraigotoadd[character] )
     {
         if ( chrxpos[character] < chraigotox[character][chraigoto[character]] + WAYTHRESH &&
-             chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
-             chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
-             chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
+                chrxpos[character] > chraigotox[character][chraigoto[character]] - WAYTHRESH &&
+                chrypos[character] < chraigotoy[character][chraigoto[character]] + WAYTHRESH &&
+                chrypos[character] > chraigotoy[character][chraigoto[character]] - WAYTHRESH )
         {
             chralert[character] = chralert[character] | ALERTIFATWAYPOINT;
             chraigoto[character]++;
 
-            if( chraigoto[character] > MAXWAY-1 ) chraigoto[character] = MAXWAY-1;
+            if ( chraigoto[character] > MAXWAY - 1 ) chraigoto[character] = MAXWAY - 1;
         }
 
         if ( chraigoto[character] == chraigotoadd[character] )
