@@ -123,10 +123,10 @@ void free_one_particle_no_sound( int particle )
 void play_particle_sound( int particle, Sint8 sound )
 {
     // This function plays a sound effect for a particle
-    if ( sound != -1 )
+    if ( sound >= 0 && sound < MAXWAVE )
     {
-        if ( prtmodel[particle] != MAXMODEL ) play_sound( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]][sound] );
-        else  play_sound( prtxpos[particle], prtypos[particle], globalwave[sound] );
+        if ( prtmodel[particle] != MAXMODEL ) play_sound( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]] + sound );
+        else  play_sound( prtxpos[particle], prtypos[particle], globalwave + sound );
     }
 }
 

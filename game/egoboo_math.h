@@ -73,7 +73,7 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #endif
 
 #ifndef CLIP
-#    define CLIP(A,B,C) MAX(MIN(A,B),C)
+#    define CLIP(VAL,VMIN,VMAX) MIN(MAX(VAL,VMIN),VMAX)
 #endif
 
 #define CNV(i,j) v[4*i+j]

@@ -813,23 +813,19 @@ Uint8 run_function( Uint32 value, int character )
         case FCLEARWAYPOINTS:
             // Clear out all waypoints
             chraigoto[character] = 0;
-            chraigotoadd[character] = 1;
-            chraigotox[character][chraigoto[character]] = chrxpos[character];
-            chraigotoy[character][chraigoto[character]] = chrypos[character];
+            chraigotoadd[character] = 0;
             break;
 
         case FADDWAYPOINT:
             // Add a waypoint to the waypoint list
             chraigotox[character][chraigotoadd[character]] = valuetmpx;
             chraigotoy[character][chraigotoadd[character]] = valuetmpy;
+
             chraigotoadd[character]++;
-
-            if ( chraigotoadd[character] > MAXWAY )  chraigotoadd[character] = MAXWAY - 1;
-
+            if ( chraigotoadd[character] > MAXWAY - 1 )  chraigotoadd[character] = MAXWAY - 1;
             break;
 
         case FFINDPATH:
-
             // Yep this is it
             if ( chrmodel[chraitarget[character]] != character )
             {
@@ -853,7 +849,6 @@ Uint8 run_function( Uint32 value, int character )
                 {
                     valuetmpturn += 32768;
                 }
-                valuetmpturn = valuetmpturn & 65535;
 
                 if ( valuetmpdistance == MOVE_CHARGE || valuetmpdistance == MOVE_RETREAT )
                 {
@@ -873,10 +868,8 @@ Uint8 run_function( Uint32 value, int character )
                 chraigotoy[character][chraigotoadd[character]] = valuetmpy;
 
                 chraigotoadd[character]++;
-                if ( chraigotoadd[character] > MAXWAY - 1 )
-                {
-                    chraigotoadd[character] = MAXWAY - 1;
-                }
+                if ( chraigotoadd[character] > MAXWAY - 1 ) chraigotoadd[character] = MAXWAY - 1;
+
             }
             break;
 
@@ -1614,7 +1607,10 @@ Uint8 run_function( Uint32 value, int character )
             // This function plays a sound
             if ( chroldz[character] > PITNOSOUND )
             {
-                play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]][valuetmpargument] );
+                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                {
+                    play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                }
             }
             break;
 
@@ -2705,7 +2701,11 @@ Uint8 run_function( Uint32 value, int character )
             if ( moduleactive && valuetmpdistance >= 0 )
             {
                 volume = valuetmpdistance;
-                iTmp = play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]][valuetmpargument] );
+                iTmp = -1;
+                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                {
+                    iTmp = play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                }
 
                 if ( iTmp != -1 ) Mix_Volume( iTmp, valuetmpdistance );
             }
@@ -3175,7 +3175,10 @@ Uint8 run_function( Uint32 value, int character )
             // This function plays a sound loud for everyone...  Victory music
             if ( moduleactive )
             {
-                play_sound( camtrackx, camtracky, capwaveindex[chrmodel[character]][valuetmpargument] );
+                if( valuetmpargument >=0 && valuetmpargument < MAXWAVE )
+                {
+                    play_sound( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
+                }
             }
             break;
 
@@ -3812,6 +3815,7 @@ Uint8 run_function( Uint32 value, int character )
                 {
                     returncode = btrue;
                     break;
+
                 }
 
                 iTmp++;
@@ -3960,6 +3964,7 @@ Uint8 run_function( Uint32 value, int character )
             log_warning("run_function() - ai script %d - unhandled script function %d\n", chraitype[character], valuecode );
             returncode = bfalse;
             break;
+
     }
 
     return returncode;
@@ -3974,18 +3979,23 @@ void set_operand( Uint8 variable )
         case VARTMPX:
             valuetmpx = valueoperationsum;
             break;
+
         case VARTMPY:
             valuetmpy = valueoperationsum;
             break;
+
         case VARTMPDISTANCE:
             valuetmpdistance = valueoperationsum;
             break;
+
         case VARTMPTURN:
             valuetmpturn = valueoperationsum;
             break;
+
         case VARTMPARGUMENT:
             valuetmpargument = valueoperationsum;
             break;
+
     }
 }
 
@@ -4016,55 +4026,72 @@ void run_operand( Uint32 value, int character )
             case VARTMPX:
                 iTmp = valuetmpx;
                 break;
+
             case VARTMPY:
                 iTmp = valuetmpy;
                 break;
+
             case VARTMPDISTANCE:
                 iTmp = valuetmpdistance;
                 break;
+
             case VARTMPTURN:
                 iTmp = valuetmpturn;
                 break;
+
             case VARTMPARGUMENT:
                 iTmp = valuetmpargument;
                 break;
+
             case VARRAND:
                 iTmp = RANDIE;
                 break;
+
             case VARSELFX:
                 iTmp = chrxpos[character];
                 break;
+
             case VARSELFY:
                 iTmp = chrypos[character];
                 break;
+
             case VARSELFTURN:
                 iTmp = chrturnleftright[character];
                 break;
+
             case VARSELFCOUNTER:
                 iTmp = chrcounter[character];
                 break;
+
             case VARSELFORDER:
                 iTmp = chrorder[character];
                 break;
+
             case VARSELFMORALE:
                 iTmp = teammorale[chrbaseteam[character]];
                 break;
+
             case VARSELFLIFE:
                 iTmp = chrlife[character];
                 break;
+
             case VARTARGETX:
                 iTmp = chrxpos[chraitarget[character]];
                 break;
+
             case VARTARGETY:
                 iTmp = chrypos[chraitarget[character]];
                 break;
+
             case VARTARGETDISTANCE:
                 iTmp = ABS( ( int )( chrxpos[chraitarget[character]] - chrxpos[character] ) ) +
                        ABS( ( int )( chrypos[chraitarget[character]] - chrypos[character] ) );
                 break;
+
             case VARTARGETTURN:
                 iTmp = chrturnleftright[chraitarget[character]];
                 break;
+
             case VARLEADERX:
                 iTmp = chrxpos[character];
 
@@ -4072,6 +4099,7 @@ void run_operand( Uint32 value, int character )
                     iTmp = chrxpos[teamleader[chrteam[character]]];
 
                 break;
+
             case VARLEADERY:
                 iTmp = chrypos[character];
 
@@ -4079,6 +4107,7 @@ void run_operand( Uint32 value, int character )
                     iTmp = chrypos[teamleader[chrteam[character]]];
 
                 break;
+
             case VARLEADERDISTANCE:
                 iTmp = 10000;
 
@@ -4087,6 +4116,7 @@ void run_operand( Uint32 value, int character )
                            ABS( ( int )( chrypos[teamleader[chrteam[character]]] - chrypos[character] ) );
 
                 break;
+
             case VARLEADERTURN:
                 iTmp = chrturnleftright[character];
 
@@ -4094,178 +4124,252 @@ void run_operand( Uint32 value, int character )
                     iTmp = chrturnleftright[teamleader[chrteam[character]]];
 
                 break;
+
             case VARGOTOX:
-                iTmp = chraigotox[character][chraigoto[character]];
+                if(chraigoto[character] == chraigotoadd[character])
+                {
+                    iTmp = chrxpos[character];
+                }
+                else
+                {
+                    iTmp = chraigotox[character][chraigoto[character]];
+                }
                 break;
+
             case VARGOTOY:
-                iTmp = chraigotoy[character][chraigoto[character]];
+                if(chraigoto[character] == chraigotoadd[character])
+                {
+                    iTmp = chrypos[character];
+                }
+                else
+                {
+                    iTmp = chraigotoy[character][chraigoto[character]];
+                }
                 break;
+
             case VARGOTODISTANCE:
-                iTmp = ABS( ( int )( chraigotox[character][chraigoto[character]] - chrxpos[character] ) ) +
-                       ABS( ( int )( chraigotoy[character][chraigoto[character]] - chrypos[character] ) );
+                if(chraigoto[character] == chraigotoadd[character])
+                {
+                    iTmp = 0;
+                }
+                else
+                {
+                    iTmp = ABS( ( int )( chraigotox[character][chraigoto[character]] - chrxpos[character] ) ) +
+                           ABS( ( int )( chraigotoy[character][chraigoto[character]] - chrypos[character] ) );
+                }
                 break;
+
             case VARTARGETTURNTO:
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp = iTmp & 65535;
                 break;
+
             case VARPASSAGE:
                 iTmp = chrpassage[character];
                 break;
+
             case VARWEIGHT:
                 iTmp = chrholdingweight[character];
                 break;
+
             case VARSELFALTITUDE:
                 iTmp = chrzpos[character] - chrlevel[character];
                 break;
+
             case VARSELFID:
                 iTmp = capidsz[chrmodel[character]][IDSZTYPE];
                 break;
+
             case VARSELFHATEID:
                 iTmp = capidsz[chrmodel[character]][IDSZHATE];
                 break;
+
             case VARSELFMANA:
                 iTmp = chrmana[character];
 
                 if ( chrcanchannel[character] )  iTmp += chrlife[character];
 
                 break;
+
             case VARTARGETSTR:
                 iTmp = chrstrength[chraitarget[character]];
                 break;
+
             case VARTARGETWIS:
                 iTmp = chrwisdom[chraitarget[character]];
                 break;
+
             case VARTARGETINT:
                 iTmp = chrintelligence[chraitarget[character]];
                 break;
+
             case VARTARGETDEX:
                 iTmp = chrdexterity[chraitarget[character]];
                 break;
+
             case VARTARGETLIFE:
                 iTmp = chrlife[chraitarget[character]];
                 break;
+
             case VARTARGETMANA:
                 iTmp = chrmana[chraitarget[character]];
 
                 if ( chrcanchannel[chraitarget[character]] )  iTmp += chrlife[chraitarget[character]];
 
                 break;
+
             case VARTARGETLEVEL:
                 iTmp = chrexperiencelevel[chraitarget[character]];
                 break;
+
             case VARTARGETSPEEDX:
                 iTmp = chrxvel[chraitarget[character]];
                 break;
+
             case VARTARGETSPEEDY:
                 iTmp = chryvel[chraitarget[character]];
                 break;
+
             case VARTARGETSPEEDZ:
                 iTmp = chrzvel[chraitarget[character]];
                 break;
+
             case VARSELFSPAWNX:
                 iTmp = chrxstt[character];
                 break;
+
             case VARSELFSPAWNY:
                 iTmp = chrystt[character];
                 break;
+
             case VARSELFSTATE:
                 iTmp = chraistate[character];
                 break;
+
             case VARSELFSTR:
                 iTmp = chrstrength[character];
                 break;
+
             case VARSELFWIS:
                 iTmp = chrwisdom[character];
                 break;
+
             case VARSELFINT:
                 iTmp = chrintelligence[character];
                 break;
+
             case VARSELFDEX:
                 iTmp = chrdexterity[character];
                 break;
+
             case VARSELFMANAFLOW:
                 iTmp = chrmanaflow[character];
                 break;
+
             case VARTARGETMANAFLOW:
                 iTmp = chrmanaflow[chraitarget[character]];
                 break;
+
             case VARSELFATTACHED:
                 iTmp = number_of_attached_particles( character );
                 break;
+
             case VARSWINGTURN:
                 iTmp = camswing << 2;
                 break;
+
             case VARXYDISTANCE:
                 iTmp = SQRT( valuetmpx * valuetmpx + valuetmpy * valuetmpy );
                 break;
+
             case VARSELFZ:
                 iTmp = chrzpos[character];
                 break;
+
             case VARTARGETALTITUDE:
                 iTmp = chrzpos[chraitarget[character]] - chrlevel[chraitarget[character]];
                 break;
+
             case VARTARGETZ:
                 iTmp = chrzpos[chraitarget[character]];
                 break;
+
             case VARSELFINDEX:
                 iTmp = character;
                 break;
+
             case VAROWNERX:
                 iTmp = chrxpos[chraiowner[character]];
                 break;
+
             case VAROWNERY:
                 iTmp = chrypos[chraiowner[character]];
                 break;
+
             case VAROWNERTURN:
                 iTmp = chrturnleftright[chraiowner[character]];
                 break;
+
             case VAROWNERDISTANCE:
                 iTmp = ABS( ( int )( chrxpos[chraiowner[character]] - chrxpos[character] ) ) +
                        ABS( ( int )( chrypos[chraiowner[character]] - chrypos[character] ) );
                 break;
+
             case VAROWNERTURNTO:
                 iTmp = ATAN2( chrypos[chraiowner[character]] - chrypos[character], chrxpos[chraiowner[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp = iTmp & 65535;
                 break;
+
             case VARXYTURNTO:
                 iTmp = ATAN2( valuetmpy - chrypos[character], valuetmpx - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp = iTmp & 65535;
                 break;
+
             case VARSELFMONEY:
                 iTmp = chrmoney[character];
                 break;
+
             case VARSELFACCEL:
                 iTmp = ( chrmaxaccel[character] * 100.0f );
                 break;
+
             case VARTARGETEXP:
                 iTmp = chrexperience[chraitarget[character]];
                 break;
+
             case VARSELFAMMO:
                 iTmp = chrammo[character];
                 break;
+
             case VARTARGETAMMO:
                 iTmp = chrammo[chraitarget[character]];
                 break;
+
             case VARTARGETMONEY:
                 iTmp = chrmoney[chraitarget[character]];
                 break;
+
             case VARTARGETTURNAWAY:
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp = iTmp & 65535;
                 iTmp += 65535;
                 break;
+
             case VARSELFLEVEL:
                 iTmp = chrexperiencelevel[character];
                 break;
+
             case VARTARGETRELOADTIME:
                 iTmp = chrreloadtime[chraitarget[character]];
                 break;
+
             default: log_message( "SCRIPT ERROR: Unknown variable found!\n" );
                 break;
+
         }
     }
 
@@ -4275,21 +4379,27 @@ void run_operand( Uint32 value, int character )
         case OPADD:
             valueoperationsum += iTmp;
             break;
+
         case OPSUB:
             valueoperationsum -= iTmp;
             break;
+
         case OPAND:
             valueoperationsum = valueoperationsum & iTmp;
             break;
+
         case OPSHR:
             valueoperationsum = valueoperationsum >> iTmp;
             break;
+
         case OPSHL:
             valueoperationsum = valueoperationsum << iTmp;
             break;
+
         case OPMUL:
             valueoperationsum = valueoperationsum * iTmp;
             break;
+
         case OPDIV:
 
             if ( iTmp != 0 )
@@ -4299,6 +4409,7 @@ void run_operand( Uint32 value, int character )
             else log_message( "SCRIPT ERROR: Cannot divide by zero!\n" );
 
             break;
+
         case OPMOD:
 
             if ( iTmp != 0 )
@@ -4306,7 +4417,9 @@ void run_operand( Uint32 value, int character )
                 valueoperationsum = valueoperationsum % iTmp;
             }
             break;
+
         default: log_message( "SCRIPT ERROR: Unknown operation!\n" ); break;
+
     }
 }
 
@@ -4401,20 +4514,27 @@ void let_character_think( int character )
     }
 
     // Set latches
-    if ( !chrisplayer[character] && aicode != 0 )
+    if ( !chrisplayer[character] )
     {
         float latch2;
-        if ( chrismount[character] && chrholdingwhich[character][0] != MAXCHR )
+
+        if ( chrismount[character] && MAXCHR != chrholdingwhich[character][0] && chron[chrholdingwhich[character][0]] )
         {
             // Mount
             chrlatchx[character] = chrlatchx[chrholdingwhich[character][0]];
             chrlatchy[character] = chrlatchy[chrholdingwhich[character][0]];
         }
-        else
+        else if( chraigoto[character] != chraigotoadd[character] )
         {
             // Normal AI
             chrlatchx[character] = ( chraigotox[character][chraigoto[character]] - chrxpos[character] ) / (128 << 2);
             chrlatchy[character] = ( chraigotoy[character][chraigoto[character]] - chrypos[character] ) / (128 << 2);
+        }
+        else
+        {
+            // AI, but no valid waypoints
+            chrlatchx[character] = 0;
+            chrlatchy[character] = 0;
         }
 
         latch2 = chrlatchx[character] * chrlatchx[character] + chrlatchy[character] * chrlatchy[character];

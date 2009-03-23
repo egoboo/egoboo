@@ -26,6 +26,8 @@
 #include "egobootypedef.h"
 #include <SDL_mixer.h> // for Mix_* stuff.
 
+struct s_mix_ptr;
+
 // typedef struct glmatrix { float v[16]; } glMatrix;  // was v[4][4], changed for OGL compatibility
 // typedef struct glvector { float x,y,z; } glVector;
 /*glVector vsub(glVector A, glVector B);
@@ -70,11 +72,11 @@ void release_map();
 void release_module();
 void close_session();
 void release_all_textures();
-void memory_cleanUp();
 
 //Sound
 bool_t sdlmixer_initialize();
-int play_sound( float xpos, float ypos, Mix_Chunk *loadedwave );
+bool_t load_sound( struct s_mix_ptr * pptr, const char * szFileName );
+int play_sound( float xpos, float ypos, struct s_mix_ptr * pptr );
 void stop_sound( int whichchannel );
 void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 void make_newloadname( char *modname, char *appendname, char *newloadname );

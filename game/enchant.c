@@ -56,9 +56,9 @@ void remove_enchant( Uint16 enchantindex )
             {
                 Uint16 iwave    = evewaveindex[enchantindex];
                 Uint16 ispawner = encspawner[enchantindex];
-                if ( MAXCHR != ispawner )
+                if ( MAXCHR != ispawner && iwave >=0 && iwave < MAXWAVE )
                 {
-                    play_sound(chroldx[character], chroldy[character], capwaveindex[chrmodel[ispawner]][iwave]);
+                    play_sound(chroldx[character], chroldy[character], capwaveindex[chrmodel[ispawner]] + iwave);
                 }
             }
 

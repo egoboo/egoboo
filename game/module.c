@@ -176,7 +176,7 @@ void load_module( char *smallname )
     reset_teams();
     load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
 
-    if ( soundvalid ) load_global_waves( modname );
+    load_global_waves( modname );
 
     reset_particles( modname );
     read_wawalite( modname );

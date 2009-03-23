@@ -337,7 +337,7 @@ EXTERN int rotmeshdown;                                    //
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
-EXTERN Sint32 framelimit                   EQ(30);
+EXTERN Sint32 framelimit                EQ(30);
 #define UPDATES_PER_SEC                 50
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
@@ -350,7 +350,7 @@ EXTERN bool_t gHideMouse EQ( bfalse );
 EXTERN bool_t gDevMode EQ( bfalse );
 // Debug option
 
-EXTERN int animtileupdateand  EQ( 7 );                        // New tile every 7 frames
+EXTERN int     animtileupdateand  EQ( 7 );                        // New tile every 7 frames
 EXTERN Uint16  animtileframeand  EQ( 3 );              // Only 4 frames
 EXTERN Uint16  animtilebaseand  EQ( 0xfffc );          //
 EXTERN Uint16  biganimtileframeand  EQ( 7 );           // For big tiles
@@ -703,9 +703,9 @@ EXTERN Uint8 flattwist[256];             //
 
 // Values for manipulating AI
 #define MAXWAY              8                       // Waypoints
-#define WAYTHRESH           128                     // Threshold for reaching waypoint
-#define MAXSTOR             16                       // Storage data (Used in SetXY)
-#define STORAND             15                       //
+#define WAYTHRESH           64                      // Threshold for reaching waypoint
+#define MAXSTOR             16                      // Storage data (Used in SetXY)
+#define STORAND             15                      //
 
 // Character stuff
 EXTERN int                     numfreechr EQ( 0 );             // For allocation
@@ -948,9 +948,9 @@ EXTERN Uint16           evecontspawntime[MAXEVE];               // Spawn timer
 EXTERN Uint8           evecontspawnamount[MAXEVE];             // Spawn amount
 EXTERN Uint16           evecontspawnfacingadd[MAXEVE];          // Spawn in circle
 EXTERN Uint16           evecontspawnpip[MAXEVE];                // Spawn type ( local )
-EXTERN Uint16           evewaveindex[MAXEVE];                   // Sound on end (-1 for none)
+EXTERN Sint16           evewaveindex[MAXEVE];                   // Sound on end (-1 for none)
 EXTERN Uint16           evefrequency[MAXEVE];                   // Sound frequency
-EXTERN Uint8           eveoverlay[MAXEVE];                     // Spawn an overlay?
+EXTERN Uint8            eveoverlay[MAXEVE];                     // Spawn an overlay?
 EXTERN Uint16           eveseekurse[MAXEVE];                     // Spawn an overlay?
 
 EXTERN bool_t           encon[MAXENCHANT];                      // Enchantment on
@@ -1435,7 +1435,7 @@ EXTERN Uint16          meshlasttexture;                                    // La
 EXTERN Uint8           meshtype[MAXMESHFAN];                               // Command type
 EXTERN Uint8           meshfx[MAXMESHFAN];                                 // Special effects flags
 EXTERN Uint8           meshtwist[MAXMESHFAN];                              //
-EXTERN Uint8           meshinrenderlist[MAXMESHFAN];                       //
+EXTERN bool_t          meshinrenderlist[MAXMESHFAN];                       //
 EXTERN Uint16          meshtile[MAXMESHFAN];                               // Get texture from this
 EXTERN Uint32          meshvrtstart[MAXMESHFAN];                           // Which vertex to start at
 EXTERN Uint32          meshblockstart[( MAXMESHSIZEY/4 )+1];
@@ -1548,6 +1548,22 @@ EXTERN Uint32  valuelastindent EQ( 0 );
 EXTERN Uint16  valueoldtarget EQ( 0 );
 EXTERN int     valueoperationsum EQ( 0 );
 EXTERN bool_t  valuegopoof EQ( bfalse );
+
+enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
+typedef enum e_mix_type mix_type_t;
+
+struct s_mix_ptr
+{
+    mix_type_t type;
+
+    union
+    {
+        void      * unk;
+        Mix_Music * mus;
+        Mix_Chunk * snd;
+    } ptr;
+};
+typedef struct s_mix_ptr mix_ptr_t;
 
 // This stuff is for actions
 #define ACTIONDA            0
@@ -1725,21 +1741,21 @@ typedef enum global_sounds
 EXTERN bool_t          mixeron EQ( bfalse );    // Is the SDL_Mixer loaded?
 #define MAXWAVE         30               // Up to 30 wave/ogg per model
 #define VOLUMERATIO     7               // Volume ratio
-EXTERN Mix_Chunk    *capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
+EXTERN mix_ptr_t    capwaveindex[MAXMODEL][MAXWAVE];    // sounds in a object
 EXTERN Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
 EXTERN Uint16       buffersize;          // Buffer size set in setup.txt
-EXTERN Mix_Chunk    *globalwave[MAXGLOBALSOUNDS];      // All sounds loaded into memory
-EXTERN bool_t      soundvalid;          // Allow playing of sound?
-EXTERN Uint8      soundvolume;        // Volume of sounds played
+EXTERN mix_ptr_t    globalwave[MAXGLOBALSOUNDS];      // All sounds loaded into memory
+EXTERN bool_t       soundvalid;          // Allow playing of sound?
+EXTERN Uint8        soundvolume;        // Volume of sounds played
 EXTERN Sint16      channel;          // Which channel the current sound is using
 EXTERN bool_t      listening EQ( bfalse );  // Playrers with listen skill?
 
 // Music using SDL_Mixer
 #define MAXPLAYLISTLENGTH 25            // Max number of different tracks loaded into memory
 EXTERN bool_t      musicvalid;          // Allow music and loops?
-EXTERN Uint8        musicvolume;        // The sound volume of music
+EXTERN Uint8       musicvolume;        // The sound volume of music
 EXTERN bool_t      musicinmemory EQ( bfalse );  // Is the music loaded in memory?
-EXTERN Mix_Music   *musictracksloaded[MAXPLAYLISTLENGTH];  // This is a specific music file loaded into memory
+EXTERN mix_ptr_t   musictracksloaded[MAXPLAYLISTLENGTH];  // This is a specific music file loaded into memory
 EXTERN Sint8       songplaying EQ( -1 );      // Current song that is playing
 
 // Some various other stuff

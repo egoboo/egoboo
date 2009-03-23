@@ -46,6 +46,8 @@ static ConfigFilePtr_t lConfigSetup = NULL;
 float sinlut[MAXLIGHTROTATION];
 float coslut[MAXLIGHTROTATION];
 
+void memory_cleanUp(void);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 int what_action( char cTmp )
@@ -2491,7 +2493,7 @@ int SDL_main( int argc, char **argv )
 }
 
 //--------------------------------------------------------------------------------------------
-void memory_cleanUp()
+void memory_cleanUp(void)
 {
     //ZF> This function releases all loaded things in memory and cleans up everything properly
 

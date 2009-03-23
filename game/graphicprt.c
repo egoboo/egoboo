@@ -332,7 +332,7 @@ void render_prt()
             else
                 alpha_component = particletrans / 255.0f;
 
-            glColor4f( color_component, color_component, color_component, 0.5f );//[claforte] should use alpha_component instead of 0.5f?
+            glColor4f( color_component, color_component, color_component, alpha_component ); //[claforte] should use alpha_component instead of 0.5f?
 
             // [claforte] Fudge the value.
             size = ( float )prtsize[prt] * 0.00092;

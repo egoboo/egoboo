@@ -923,7 +923,7 @@ void prime_icons()
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
-        TxIcon[cnt].textureID = -1;
+        TxIcon[cnt].textureID = ~0;
         madskintoicon[cnt] = 0;
     }
 
@@ -1265,7 +1265,9 @@ void make_textureoffset( void )
     int cnt;
 
     for ( cnt = 0; cnt < 256; cnt++ )
-        textureoffset[cnt] = cnt * 1.0f / 256;
+    {
+        textureoffset[cnt] = cnt / 256.0f;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1292,13 +1294,10 @@ void make_renderlist()
     int from, to;
 
     // Clear old render lists
-    cnt = 0;
-
-    while ( cnt < nummeshrenderlist )
+    for ( cnt = 0; cnt < nummeshrenderlist; cnt++ )
     {
         fan = meshrenderlist[cnt];
-        meshinrenderlist[fan] = bfalse;
-        cnt++;
+        meshinrenderlist[fan] = btrue;
     }
 
     nummeshrenderlist = 0;
@@ -2006,15 +2005,9 @@ int load_one_object( int skin, char* tmploadname )
     // Load the waves for this object
     for ( cnt = 0; cnt < MAXWAVE; cnt++ )
     {
-        sprintf( wavename, "sound%d.ogg", cnt );
+        sprintf( wavename, "sound%d", cnt );
         make_newloadname( tmploadname, wavename, newloadname );
-
-        if ((capwaveindex[object][cnt] = Mix_LoadMUS( newloadname )) == NULL)
-        {
-            sprintf( wavename, "sound%d.wav", cnt );
-            make_newloadname( tmploadname, wavename, newloadname );
-            capwaveindex[object][cnt] = Mix_LoadWAV( newloadname );
-        }
+		load_sound( capwaveindex[object] + cnt, newloadname );
     }
 
     // Load the enchantment for this object
@@ -4975,108 +4968,104 @@ bool_t dump_screenshot()
 void check_stats()
 {
     // ZZ> This function lets the players check character stats
-    if ( !netmessagemode )
+
+    static int stat_check_timer = 0;
+    static int stat_check_delay = 0;
+    int ticks;
+
+    if( netmessagemode ) return;
+
+    ticks = SDL_GetTicks();
+    if( ticks > stat_check_timer + 20 )
     {
-        // Display armor stats?
-        if ( SDLKEYDOWN( SDLK_LSHIFT ) )
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) )  show_armor( 0 );
+        stat_check_timer = ticks;
+    }
 
-            if ( SDLKEYDOWN( SDLK_2 ) )  show_armor( 1 );
+    stat_check_delay -= 20;
+    if( stat_check_delay > 0 ) 
+        return;
 
-            if ( SDLKEYDOWN( SDLK_3 ) )  show_armor( 2 );
+    // !!!BAD!!!  XP CHEAT
+    if ( SDLKEYDOWN( SDLK_x ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { give_experience( plaindex[0], 25, XPDIRECT ); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { give_experience( plaindex[1], 25, XPDIRECT ); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { give_experience( plaindex[2], 25, XPDIRECT ); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { give_experience( plaindex[3], 25, XPDIRECT ); stat_check_delay = 500; }
 
-            if ( SDLKEYDOWN( SDLK_4 ) )  show_armor( 3 );
+        statdelay = 0;
+    }
 
-            if ( SDLKEYDOWN( SDLK_5 ) )  show_armor( 4 );
+    // !!!BAD!!!  LIFE CHEAT
+    if ( SDLKEYDOWN( SDLK_z ) && SDLKEYDOWN( SDLK_1 ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chrlife[plaindex[0]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[0]], PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chrlife[plaindex[1]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[1]], PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chrlife[plaindex[2]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[2]], PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chrlife[plaindex[3]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[3]], PERFECTBIG); stat_check_delay = 500; }
+    }
 
-            if ( SDLKEYDOWN( SDLK_6 ) )  show_armor( 5 );
+    // Display armor stats?
+    if ( SDLKEYDOWN( SDLK_LSHIFT ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 8 ); stat_check_delay = 1000; }
+    }
 
-            if ( SDLKEYDOWN( SDLK_7 ) )  show_armor( 6 );
+    // Display enchantment stats?
+    else if (  SDLKEYDOWN( SDLK_LCTRL ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+    }
 
-            if ( SDLKEYDOWN( SDLK_8 ) )  show_armor( 7 );
-        }
+    // Display character stats?
+    else if ( SDLKEYDOWN( SDLK_LALT ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+    }
 
-        // Display enchantment stats?
-        else if ( SDLKEYDOWN( SDLK_LCTRL ) )
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) )  show_full_status( 0 );
+    // Display character stats?
+    else
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
+    }
 
-            if ( SDLKEYDOWN( SDLK_2 ) )  show_full_status( 1 );
 
-            if ( SDLKEYDOWN( SDLK_3 ) )  show_full_status( 2 );
 
-            if ( SDLKEYDOWN( SDLK_4 ) )  show_full_status( 3 );
 
-            if ( SDLKEYDOWN( SDLK_5 ) )  show_full_status( 4 );
-
-            if ( SDLKEYDOWN( SDLK_6 ) )  show_full_status( 5 );
-
-            if ( SDLKEYDOWN( SDLK_7 ) )  show_full_status( 6 );
-
-            if ( SDLKEYDOWN( SDLK_8 ) )  show_full_status( 7 );
-        }
-
-        // Display character stats?
-        else if ( SDLKEYDOWN( SDLK_LALT ) )
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) )  show_magic_status( 0 );
-
-            if ( SDLKEYDOWN( SDLK_2 ) )  show_magic_status( 1 );
-
-            if ( SDLKEYDOWN( SDLK_3 ) )  show_magic_status( 2 );
-
-            if ( SDLKEYDOWN( SDLK_4 ) )  show_magic_status( 3 );
-
-            if ( SDLKEYDOWN( SDLK_5 ) )  show_magic_status( 4 );
-
-            if ( SDLKEYDOWN( SDLK_6 ) )  show_magic_status( 5 );
-
-            if ( SDLKEYDOWN( SDLK_7 ) )  show_magic_status( 6 );
-
-            if ( SDLKEYDOWN( SDLK_8 ) )  show_magic_status( 7 );
-        }
-
-        // Display character stats?
-        else
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) )  show_stat( 0 );
-
-            if ( SDLKEYDOWN( SDLK_2 ) )  show_stat( 1 );
-
-            if ( SDLKEYDOWN( SDLK_3 ) )  show_stat( 2 );
-
-            if ( SDLKEYDOWN( SDLK_4 ) )  show_stat( 3 );
-
-            if ( SDLKEYDOWN( SDLK_5 ) )  show_stat( 4 );
-
-            if ( SDLKEYDOWN( SDLK_6 ) )  show_stat( 5 );
-
-            if ( SDLKEYDOWN( SDLK_7 ) )  show_stat( 6 );
-
-            if ( SDLKEYDOWN( SDLK_8 ) )  show_stat( 7 );
-        }
-
-        // !!!BAD!!!  CHEAT
-        if ( SDLKEYDOWN( SDLK_x ) )
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  give_experience( plaindex[0], 25, XPDIRECT );
-
-            if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  give_experience( plaindex[1], 25, XPDIRECT );
-
-            statdelay = 0;
-        }
-
-        if ( SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
-        {
-            mapon = mapvalid;
-            youarehereon = btrue;
-        }
-
-        if ( SDLKEYDOWN( SDLK_z ) )
-        {
-            if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  chrlife[plaindex[0]] += 128;
-        }
+    // handle the map
+    if ( SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
+    {
+        mapon = mapvalid;
+        youarehereon = btrue;
+        stat_check_delay = 1000; 
     }
 }
 
