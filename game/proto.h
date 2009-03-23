@@ -497,4 +497,9 @@ void sys_shutdown();  // Allow any necessary cleanup for platform specific code
 
 double sys_getTime();  // Return the current time, in seconds
 
+
+//---------------------------------------------------------------------------------------------
+// Linux hook into the main function
+int SDL_main( int argc, char **argv );
+
 #define _PROTO_H_

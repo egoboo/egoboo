@@ -1877,7 +1877,7 @@ void ftruthf( FILE* filewrite, char* text, Uint8 truth )
     // ZZ> This function kinda mimics fprintf for the output of
     //     btrue bfalse statements
 
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
 
     if ( truth )
     {
@@ -1894,7 +1894,7 @@ void fdamagf( FILE* filewrite, char* text, Uint8 damagetype )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
 
     if ( damagetype == DAMAGESLASH )
         fprintf( filewrite, "SLASH\n" );
@@ -1929,7 +1929,7 @@ void factiof( FILE* filewrite, char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
 
     if ( action == ACTIONDA )
         fprintf( filewrite, "WALK\n" );
@@ -1971,7 +1971,7 @@ void fgendef( FILE* filewrite, char* text, Uint8 gender )
     // ZZ> This function kinda mimics fprintf for the output of
     //     MALE FEMALE OTHER statements
 
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
 
     if ( gender == GENMALE )
         fprintf( filewrite, "MALE\n" );
@@ -1989,7 +1989,7 @@ void fpairof( FILE* filewrite, char* text, int base, int rand )
     // ZZ> This function mimics fprintf in spitting out
     //     damage/stat pairs
     undo_pair( base, rand );
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
     fprintf( filewrite, "%4.2f-%4.2f\n", pairfrom, pairto );
 }
 
@@ -2001,7 +2001,7 @@ void funderf( FILE* filewrite, char* text, char* usename )
     char cTmp;
     int cnt;
 
-    fprintf( filewrite, text );
+    fprintf( filewrite, "%s", text );
     cnt = 0;
     cTmp = usename[0];
     cnt++;

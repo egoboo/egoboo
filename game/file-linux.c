@@ -20,9 +20,12 @@
 // lin-file.c
 
 #include "egoboo.h"
+#include "log.h"
 
 #include <stdio.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 #include <glob.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -30,6 +33,13 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// Paths that the game will deal with
+static char linux_tempPath[PATH_MAX] = {0};
+static char linux_importPath[PATH_MAX] = {0};
+static char linux_savePath[PATH_MAX] = {0};
+static char linux_gamePath[PATH_MAX] = {0};
+
+
 static glob_t last_find_glob;
 static size_t glob_find_index;
 
@@ -38,6 +48,20 @@ static size_t glob_find_index;
 // File Routines
 void fs_init()
 {
+    char * username;
+
+    username = getenv( "USER" );
+
+    // this is just a skeleton. the USER needs to be replaced by an environment variable
+    snprintf( linux_tempPath,   sizeof(linux_tempPath),   "/home/%s/.egoboo/temp/",    username );
+    snprintf( linux_importPath, sizeof(linux_importPath), "/home/%s/.egoboo/import/",  username );
+    snprintf( linux_savePath,   sizeof(linux_savePath),   "/home/%s/.egoboo/players/", username );
+
+    // this is a read-only directory
+    strncpy( linux_gamePath,  "/usr/share/games/egoboo/", sizeof(linux_gamePath) );
+
+    log_info( "Game directories are:\n\tGame: %s\n\tTemp: %s\n\tSave: %s\n\tImport: %s\n",
+              linux_gamePath, linux_tempPath, linux_savePath, linux_importPath );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -155,14 +179,32 @@ const char *fs_findNextFile( void )
 }
 
 //--------------------------------------------------------------------------------------------
-//Open a specific file
-FILE * fs_openFile(const char * path, const char * module, const char * player)
-{
-}
-
-//--------------------------------------------------------------------------------------------
 // Close anything left open
 void fs_findClose()
 {
     globfree( &last_find_glob );
+}
+
+//--------------------------------------------------------------------------------------------
+const char *fs_getTempDirectory()
+{
+    return linux_tempPath;
+}
+
+//--------------------------------------------------------------------------------------------
+const char *fs_getImportDirectory()
+{
+    return linux_importPath;
+}
+
+//--------------------------------------------------------------------------------------------
+const char *fs_getGameDirectory()
+{
+    return linux_gamePath;
+}
+
+//--------------------------------------------------------------------------------------------
+const char *fs_getSaveDirectory()
+{
+    return linux_savePath;
 }

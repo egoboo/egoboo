@@ -29,6 +29,13 @@
 /* Typedefs for various platforms */
 #include "egobootypedef.h"
 
+#include "proto.h"
+
+#include "gltexture.h"  /* OpenGL texture loader */
+#include "egoboo_math.h"  /* vector and matrix math */
+#include "configfile.h"
+#include "Md2.h"
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -39,12 +46,6 @@
 #include <math.h>
 
 #include <SDL_opengl.h>
-#include "proto.h"
-
-#include "gltexture.h"  /* OpenGL texture loader */
-#include "egoboo_math.h"  /* vector and matrix math */
-#include "configfile.h"
-#include "Md2.h"
 
 //OPENGL VERTEX
 typedef struct

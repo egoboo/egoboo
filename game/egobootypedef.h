@@ -25,7 +25,7 @@
 
 #include "egoboo_config.h"
 
-#include <SDL_stdinc.h>
+#include <SDL_types.h>
 
 //RECTANGLE
 typedef struct s_rect
