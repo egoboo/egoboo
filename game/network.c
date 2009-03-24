@@ -1573,13 +1573,13 @@ void net_initialize()
 
         if ( enet_initialize() != 0 )
         {
-            log_info( "Failed!\n" );
+            log_info( "Failure!\n" );
             networkon = bfalse;
             serviceon = 0;
         }
         else
         {
-            log_info( "Done\n" );
+            log_info( "Success!\n" );
             serviceon = btrue;
             numservice = 1;
         }
@@ -1686,11 +1686,13 @@ int cl_joinGame( const char* hostname )
         if ( net_myHost == NULL )
         {
             // can't create a network connection at all
-            log_info( "Failed!\n" );
+            log_info( "Failure!\n" );
             return bfalse;
         }
-
-        log_info( "Succeeded\n" );
+        else
+        {
+            log_info( "Success!\n" );
+        };
 
         // Now connect to the remote host
         log_info( "cl_joinGame: Attempting to connect to %s:%d\n", hostname, NET_EGOBOO_PORT );

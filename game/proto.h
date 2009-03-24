@@ -76,11 +76,12 @@ void release_all_textures();
 //Sound
 bool_t sdlmixer_initialize();
 bool_t load_sound( struct s_mix_ptr * pptr, const char * szFileName );
-int play_sound( float xpos, float ypos, struct s_mix_ptr * pptr );
-void stop_sound( int whichchannel );
-void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
-void make_newloadname( char *modname, char *appendname, char *newloadname );
-void load_global_waves( char *modname );
+int    play_mix( float xpos, float ypos, struct s_mix_ptr * pptr );
+int    play_sound( float xpos, float ypos, Mix_Chunk * pchunk );
+void   stop_sound( int whichchannel );
+void   play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
+void   make_newloadname( char *modname, char *appendname, char *newloadname );
+void   load_global_waves( char *modname );
 
 // Exporting stuff
 void export_one_character( int character, int owner, int number, bool_t is_local );

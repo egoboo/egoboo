@@ -4814,24 +4814,17 @@ void sdlinit( int argc, char **argv )
 {
     int     colordepth;
 
+    log_info ( "Initializing SDL services version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
     if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
     {
+        log_message( "Failure!\n" );
         log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
     }
-
-    atexit( SDL_Quit );
-
-#ifdef __unix__
-
-    // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
-    // will cause SDL_SetVideoMode to fail with:
-    // Unable to set video mode: Couldn't find matching GLX visual
-
-    if ( scrd == 32 ) scrd = 24;
-
-#endif
-
-    colordepth = scrd / 3;
+    else
+    {
+        log_message( "Success!\n" );
+        atexit( SDL_Quit );
+    }
 
 #ifndef __APPLE__
     {
@@ -4849,20 +4842,62 @@ void sdlinit( int argc, char **argv )
     }
 #endif
 
-    displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );
-    if ( displaySurface == NULL )
-    {
-        log_error( "Unable to set video mode: %s\n", SDL_GetError() );
-    }
+#ifdef __unix__
+
+    // GLX doesn't differentiate between 24 and 32 bpp, asking for 32 bpp
+    // will cause SDL_SetVideoMode to fail with:
+    // Unable to set video mode: Couldn't find matching GLX visual
+
+    if ( scrd == 32 ) scrd = 24;
+
+#endif
+
+    colordepth = scrd / 3;
 
     /* Set the OpenGL Attributes */
 #ifndef __unix__
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE,   colordepth );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, colordepth  );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,  colordepth );
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrd );
+    if(scrd > colordepth * 3)
+    {
+        SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, scrd - colordepth * 3 );
+    }
 #endif
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
+
+    log_info("Opening SDL Video Mode...");
+    displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );
+    if ( displaySurface == NULL )
+    {
+        log_message( "Failure!\n" );
+        log_error( "Unable to set video mode: %s\n", SDL_GetError() );
+    }
+    else
+    {
+        int i;
+
+        log_message( "Success!\n" );
+
+        SDL_GL_GetAttribute( SDL_GL_DOUBLEBUFFER, &i );
+        log_message("\tSDL_GL_DOUBLEBUFFER == %d\n", i);
+
+        SDL_GL_GetAttribute( SDL_GL_RED_SIZE, &i );
+        log_message("\tSDL_GL_RED_SIZE     == %d\n", i);
+
+        SDL_GL_GetAttribute( SDL_GL_GREEN_SIZE, &i );
+        log_message("\tSDL_GL_GREEN_SIZE   == %d\n", i);
+
+        SDL_GL_GetAttribute( SDL_GL_BLUE_SIZE, &i );
+        log_message("\tSDL_GL_BLUE_SIZE    == %d\n", i);
+
+        SDL_GL_GetAttribute( SDL_GL_ALPHA_SIZE, &i );
+        log_message("\tSDL_GL_ALPHA_SIZE   == %d\n", i);
+
+        SDL_GL_GetAttribute( SDL_GL_DEPTH_SIZE, &i );
+        log_message("\tSDL_GL_DEPTH_SIZE   == %d  (z-buffer depth)\n", i);
+    }
 
     // Set the window name
     SDL_WM_SetCaption( "Egoboo", "Egoboo" );
@@ -4881,6 +4916,12 @@ void sdlinit( int argc, char **argv )
     {
         sdljoya = SDL_JoystickOpen( 0 );
         joyaon = btrue;
+    }
+
+    if ( SDL_NumJoysticks() > 1 )
+    {
+        sdljoyb = SDL_JoystickOpen( 1 );
+        joybon = btrue;
     }
 }
 

@@ -1609,7 +1609,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
-                    play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                    play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
             }
             break;
@@ -2704,10 +2704,20 @@ Uint8 run_function( Uint32 value, int character )
                 iTmp = -1;
                 if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
-                    iTmp = play_sound( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                    iTmp = play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
 
-                if ( iTmp != -1 ) Mix_Volume( iTmp, valuetmpdistance );
+                if ( -1 != iTmp )
+                {
+                    if ( MIX_SND == capwaveindex[chrmodel[character]][valuetmpargument].type )
+                    {
+                        Mix_Volume( iTmp, valuetmpdistance );
+                    }
+                    else if ( MIX_MUS == capwaveindex[chrmodel[character]][valuetmpargument].type )
+                    {
+                        Mix_VolumeMusic( valuetmpdistance );
+                    }
+                }
             }
             break;
 
@@ -3177,7 +3187,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
-                    play_sound( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
+                    play_mix( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
                 }
             }
             break;

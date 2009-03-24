@@ -26,12 +26,143 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// text filenames for the global sounds
+static const char * wavenames[MAXGLOBALSOUNDS] =
+{
+    "coinget",
+    "defend",
+    "weather1",
+    "weather2",
+    "coinfall",
+    "lvlup",
+    "pitfall"
+};
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// define a little stack for interrupting music sounds with other music
+
+#define MUSIC_STACK_COUNT 20
+static int         music_stack_depth = 0;
+struct s_music_stack_element
+{
+    Mix_Music * mus;
+    int         number;
+};
+
+typedef struct s_music_stack_element music_stack_element_t;
+
+static music_stack_element_t music_stack[MUSIC_STACK_COUNT];
+
+static bool_t music_stack_pop(Mix_Music ** mus, int * song);
+
+//--------------------------------------------------------------------------------------------
+static void music_stack_finished_callback(void)
+{
+    // this function is only called when a music function is finished playing
+    // pop the saved music off the stack
+
+    // unfortunately, it seems that SDL_mixer does not support saving the position of
+    // the music stream, so the music track will restart from the beginning
+
+    Mix_Music * mus;
+    int         song;
+
+    // grab the next song
+    if( music_stack_pop(&mus, &song) )
+    {
+        // play the music
+        Mix_PlayMusic( mus, 0 );
+
+        songplaying = song;
+
+        // set the volume
+        Mix_VolumeMusic( musicvolume );
+    }
+};
+
+//--------------------------------------------------------------------------------------------
+static bool_t music_stack_push(Mix_Music * mus, int song)
+{
+    if( music_stack_depth >= MUSIC_STACK_COUNT - 1 )
+    {
+        music_stack_depth = MUSIC_STACK_COUNT - 1;
+        return bfalse;
+    }
+
+    music_stack[music_stack_depth].mus    = mus;
+    music_stack[music_stack_depth].number = song;
+
+    music_stack_depth++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static bool_t music_stack_pop(Mix_Music ** mus, int * song)
+{
+    if(NULL == mus || NULL == song) return bfalse;
+
+    if(music_stack_depth > 0)
+    {
+        music_stack_depth--;
+    }
+
+    *mus  = music_stack[music_stack_depth].mus;
+    *song = music_stack[music_stack_depth].number;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+static void music_stack_init()
+{
+    // push on the default music value
+    music_stack_push( musictracksloaded[0].ptr.mus, 0 );
+
+    // register the callback
+    Mix_HookMusicFinished( music_stack_finished_callback );
+};
+
+//--------------------------------------------------------------------------------------------
+// This function enables the use of SDL_Mixer functions, returns btrue if success
+bool_t sdlmixer_initialize()
+{
+    if ( ( musicvalid || soundvalid ) && !mixeron )
+    {
+        log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
+
+        if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) < 0 )
+        {
+            mixeron = bfalse;
+            log_message( "Failure!\n" );
+            log_warning( "Unable to initialize audio: %s\n", Mix_GetError() );
+        }
+        else 
+        {
+            Mix_VolumeMusic( musicvolume );
+            Mix_AllocateChannels( maxsoundchannel );
+
+            // initialize the music stack
+            music_stack_init();
+
+            mixeron = btrue;
+
+            log_message("Success!\n");
+        }
+    }
+
+    return mixeron;
+}
+
+//--------------------------------------------------------------------------------------------
 bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
 {
     STRING      full_file_name;
     Mix_Chunk * tmp_chunk;
     Mix_Music * tmp_music;
 
+    if ( !mixeron ) return bfalse;
     if ( NULL == pptr ) return bfalse;
     if ( NULL == szFileName || '\0' == szFileName[0] ) return bfalse;
 
@@ -62,27 +193,16 @@ bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
     return NULL != pptr->ptr.unk;
 }
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static const char * wavenames[MAXGLOBALSOUNDS] =
-{
-    "coinget",
-    "defend",
-    "weather1",
-    "weather2",
-    "coinfall",
-    "lvlup",
-    "pitfall"
-};
 
+
+
+//--------------------------------------------------------------------------------------------
 void load_global_waves( char * modname )
 {
     // ZZ> This function loads the global waves
     STRING tmploadname;
     STRING wavename;
-    Uint8 cnt = 0;
-
-    if (!soundvalid) return;
+    int cnt;
 
     // Grab these sounds from the basicdat dir
     snprintf( wavename, sizeof(wavename), "basicdat" SLASH_STR "globalparticles" SLASH_STR "%s", wavenames[SND_GETCOIN] );
@@ -110,7 +230,7 @@ void load_global_waves( char * modname )
     // global sounds.
     make_newloadname( modname, "gamedat", tmploadname );
 
-    for ( cnt = 0; cnt < MAXGLOBALSOUNDS; cnt++)
+    for ( cnt = 0; cnt < MAXGLOBALSOUNDS; cnt++ )
     {
         mix_ptr_t tmp_ptr;
 
@@ -126,89 +246,90 @@ void load_global_waves( char * modname )
 }
 
 //--------------------------------------------------------------------------------------------
-// This function enables the use of SDL_Mixer functions, returns btrue if success
-bool_t sdlmixer_initialize()
+int play_mix( float xpos, float ypos, mix_ptr_t * pptr )
 {
-    if ( ( musicvalid || soundvalid ) && !mixeron )
-    {
-        log_info( "Initializing SDL_mixer audio services... " );
-        Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize );
-        Mix_VolumeMusic( musicvolume );
-        Mix_AllocateChannels( maxsoundchannel );
+    int retval = -1;
 
-        if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) != 0 )
-        {
-            log_error( "Unable to initialize audio: %s\n", Mix_GetError() );
-        }
-        else log_message("Success!\n");
-    }
-
-    return mixeron;
-}
-
-//------------------------------------
-// SOUND-------------------------------
-//------------------------------------
-int play_sound( float xpos, float ypos, mix_ptr_t * pptr )
-{
-    int distance, volume, pan;
-
-    if ( !soundvalid )
+    if ( !soundvalid || !mixeron )
     {
         return -1;
     }
 
     if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
-        log_warning( "Sound file not correctly loaded (Not found?).\n" );
+        if( gDevMode )
+        {
+            log_warning( "Sound file not correctly loaded (Not found?).\n" );
+        }
         return -1;
     }
 
-    // This function plays a specified sound
-    distance = SQRT( POW( ABS( camtrackx - xpos ), 2 ) + POW( ABS( camtracky - ypos ), 2 ) ); // Ugly, but just the distance formula
-
-    if ( listening ) distance *= 0.66f;
-
-    volume = ( ( distance / VOLUMERATIO ) * ( 1 + ( soundvolume / 100 ) ) ); // adjust volume with ratio and sound volume
-    pan = 57.3f * ( ( 1.5f * PI ) - ATAN2( camy - ypos, camx - xpos ) - camturnleftright ); // Convert the camera angle to the nearest integer degree
-
-    if ( pan < 0 ) pan += 360;
-
-    if ( pan > 360 ) pan -= 360;
-
-    if ( volume < 255 )
+    retval = -1;
+    if ( MIX_SND == pptr->type )
     {
-        if ( MIX_MUS == pptr->type )
-        {
-            channel = -1;
-            channel = Mix_PlayMusic( pptr->ptr.mus, 1 );
-        }
-        else if ( MIX_SND == pptr->type )
-        {
-            channel = Mix_PlayChannel( -1, pptr->ptr.snd, 0 );
-        }
+        retval = play_sound( xpos, ypos, pptr->ptr.snd );
+    }
+    else if ( MIX_MUS == pptr->type )
+    {
+        // !!!!this will override the music!!!!
 
-        if ( channel != -1 && MIX_SND == pptr->type )
-        {
-            Mix_SetDistance( channel, volume );
+        // add the old stream to the stack
+        music_stack_push( musictracksloaded[songplaying].ptr.mus, songplaying );
 
-            if ( pan < 180 )
-            {
-                if ( pan < 90 ) Mix_SetPanning( channel, 255 - ( pan * 2.83f ), 255 );
-                else Mix_SetPanning( channel, 255 - ( ( 180 - pan ) * 2.83f ), 255 );
-            }
-            else
-            {
-                if ( pan < 270 ) Mix_SetPanning( channel, 255, 255 - ( ( pan - 180 ) * 2.83f ) );
-                else Mix_SetPanning( channel, 255, 255 - ( ( 360 - pan ) * 2.83f ) );
-            }
-        }
-        else
+        // push on a new stream, play only once
+        retval = Mix_PlayMusic( pptr->ptr.mus, 1 );
+
+        // invalidate the song
+        songplaying = -1;
+
+        // since music_stack_finished_callback() is registered using Mix_HookMusicFinished(),
+        // it will resume when pptr->ptr.mus is finished playing
+    }
+
+    return retval;
+
+}
+
+//------------------------------------
+// SOUND-------------------------------
+//------------------------------------
+int play_sound( float xpos, float ypos, Mix_Chunk * pchunk )
+{
+    // This function plays a specified sound
+
+    int dist, volume, pan;
+
+    if( !mixeron || NULL == pchunk ) return -1;
+
+    // measure the distance in tiles
+    dist = SQRT( POW( ABS( camtrackx - xpos ), 2 ) + POW( ABS( camtracky - ypos ), 2 ) ); // Ugly, but just the dist formula
+    dist >>= 7; 
+
+    // adjust for the listening skill
+    if ( listening ) dist *= 0.66f;
+
+    // adjust for the soundvolume
+    dist *= VOLUMERATIO * 2;
+    volume = 255 - dist;
+    dist   = 255 - ( volume * soundvolume ) / 100;
+
+    // determine the angle
+    pan    = 57.3f * ( ( 1.5f * PI ) - ATAN2( camy - ypos, camx - xpos ) - camturnleftright ); // Convert the camera angle to the nearest integer degree
+
+    // play the sound
+    if ( dist <= 255 )
+    {
+        channel = Mix_PlayChannel( -1, pchunk, 0 );
+
+        if ( channel == -1 )
         {
             log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
         }
+        else
+        {
+            Mix_SetPosition( channel, pan, dist );
+        }
     }
-
 
     return channel;
 }
@@ -217,7 +338,10 @@ int play_sound( float xpos, float ypos, mix_ptr_t * pptr )
 // TODO:
 void stop_sound( int whichchannel )
 {
-    if ( soundvalid ) Mix_HaltChannel( whichchannel );
+    if ( mixeron && soundvalid ) 
+    {
+        Mix_HaltChannel( whichchannel );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -243,8 +367,6 @@ void load_all_music_sounds()
     // Load the music data into memory
     if ( musicvalid && !musicinmemory )
     {
-
-
         for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
         {
             Mix_Music * tmp_music;
@@ -273,6 +395,8 @@ void load_all_music_sounds()
 //--------------------------------------------------------------------------------------------
 void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
+    if( !mixeron ) return;
+
     // This functions plays a specified track loaded into memory
     if ( songplaying != songnumber && musicvalid )
     {
@@ -280,10 +404,18 @@ void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 
         if ( MIX_MUS == musictracksloaded[songnumber].type )
         {
-            Mix_PlayMusic( musictracksloaded[songnumber].ptr.mus, loops );
-        }
+            if( loops != 0 )
+            {
+                if( -1 != songplaying )
+                {
+                    music_stack_push( musictracksloaded[songplaying].ptr.mus, songplaying );
+                }                
+            }
 
-        songplaying = songnumber;
+            Mix_FadeInMusic( musictracksloaded[songnumber].ptr.mus, loops, fadetime );
+
+            songplaying = songnumber;
+        }
     }
 }
 
@@ -291,7 +423,7 @@ void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 void stop_music()
 {
     // This function sets music track to pause
-    if ( musicvalid )
+    if ( mixeron && musicvalid )
     {
         Mix_HaltMusic();
     }

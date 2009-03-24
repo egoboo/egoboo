@@ -55,9 +55,9 @@ int selectedModule = 0;
 int waitingforinput = -1;
 
 /* Copyright text variables.  Change these to change how the copyright text appears */
-static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion 2.7.0b \n";
-static int copyrightLeft = 0;
-static int copyrightTop  = 0;
+static char copyrightText[] = "Welcome to Egoboo!\nhttp:// egoboo.sourceforge.net\nVersion " VERSION "\n";
+static int  copyrightLeft = 0;
+static int  copyrightTop  = 0;
 
 /* Options info text variables.  Change these to change how the options text appears */
 const char optionsText[] = "Change your audio, input and video\nsettings here.";

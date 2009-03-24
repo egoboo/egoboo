@@ -125,8 +125,14 @@ void play_particle_sound( int particle, Sint8 sound )
     // This function plays a sound effect for a particle
     if ( sound >= 0 && sound < MAXWAVE )
     {
-        if ( prtmodel[particle] != MAXMODEL ) play_sound( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]] + sound );
-        else  play_sound( prtxpos[particle], prtypos[particle], globalwave + sound );
+        if ( prtmodel[particle] != MAXMODEL ) 
+        {
+            play_mix( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]] + sound );
+        }
+        else  
+        {
+            play_mix( prtxpos[particle], prtypos[particle], globalwave + sound );
+        }
     }
 }
 
@@ -1388,28 +1394,24 @@ void reset_particles( char* modname )
     // BAD! This should only be needed once at the start of the game
     numpip = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
-
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
-
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
-
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
-
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", loadpath );
@@ -1417,21 +1419,18 @@ void reset_particles( char* modname )
 
     // Load module specific information
     make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
-
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
-
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
-
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
@@ -1445,7 +1444,6 @@ void reset_particles( char* modname )
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
-
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
@@ -1460,7 +1458,6 @@ void reset_particles( char* modname )
 
     // This is also global...
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
-
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
         log_error( "Data file was not found! (%s)", loadpath );
@@ -1468,7 +1465,6 @@ void reset_particles( char* modname )
 
     // Now clear out the local pips
     object = 0;
-
     while ( object < MAXMODEL )
     {
         cnt = 0;

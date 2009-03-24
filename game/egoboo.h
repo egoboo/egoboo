@@ -65,10 +65,11 @@ typedef struct
 #define EQ(x)
 #endif
 
-EXTERN char          VERSION[] EQ( "2.7.0b" );  // Version of the game
-EXTERN bool_t        gamepaused EQ( bfalse );  // Is the game paused?
+#define VERSION "2.7.0b"                         // Version of the game
+
+EXTERN bool_t        gamepaused EQ( bfalse );    // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
-EXTERN bool_t    overrideslots EQ( bfalse ); //Override existing slots?
+EXTERN bool_t    overrideslots EQ( bfalse );     //Override existing slots?
 EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 

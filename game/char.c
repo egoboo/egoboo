@@ -2115,7 +2115,7 @@ void move_characters( void )
                             // Play the jump sound
                             if ( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
                             {
-                                play_sound( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
+                                play_mix( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
                             }
 
                         }
@@ -2152,7 +2152,7 @@ void move_characters( void )
                                 {
                                     if ( capwavejump[chrmodel[cnt]] >= 0 && capwavejump[chrmodel[cnt]] < MAXWAVE )
                                     {
-                                        play_sound( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
+                                        play_mix( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavejump[chrmodel[cnt]] );
                                     }
                                 }
 
@@ -2656,7 +2656,7 @@ void move_characters( void )
                 {
                     if ( capwavefootfall[chrmodel[cnt]] >= 0 && capwavefootfall[chrmodel[cnt]] < MAXWAVE )
                     {
-                        play_sound( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavefootfall[chrmodel[cnt]] );
+                        play_mix( chrxpos[cnt], chrypos[cnt], capwaveindex[chrmodel[cnt]] + capwavefootfall[chrmodel[cnt]] );
                     }
                 }
             }
@@ -4348,7 +4348,7 @@ void update_pits()
                             chryvel[cnt] = 0;
 
                             //Play sound effect
-                            play_sound( chrxpos[cnt], chrypos[cnt], globalwave + SND_PITFALL );
+                            play_mix( chrxpos[cnt], chrypos[cnt], globalwave + SND_PITFALL );
                         }
 
                         //Do we teleport it?
@@ -4386,8 +4386,14 @@ void update_pits()
                                 chryvel[cnt] = 0;
 
                                 //Play sound effect
-                                if (chrisplayer[cnt]) play_sound( camtrackx, camtracky, globalwave + SND_PITFALL );
-                                else play_sound( chrxpos[cnt], chrypos[cnt], globalwave + SND_PITFALL );
+                                if (chrisplayer[cnt]) 
+                                {
+                                    play_mix( camtrackx, camtracky, globalwave + SND_PITFALL );
+                                }
+                                else 
+                                {
+                                    play_mix( chrxpos[cnt], chrypos[cnt], globalwave + SND_PITFALL );
+                                }
 
                                 //Do some damage (same as damage tile)
                                 damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chrbumplast[cnt], DAMFXBLOC | DAMFXARMO );
@@ -4561,7 +4567,7 @@ void do_level_up( Uint16 character )
             {
                 snprintf( text, sizeof(text), "%s gained a level!!!", chrname[character] );
                 debug_message( text );
-                play_sound( camtrackx, camtracky, globalwave + SND_LEVELUP );
+                play_mix( camtrackx, camtracky, globalwave + SND_LEVELUP );
             }
 
             // Size

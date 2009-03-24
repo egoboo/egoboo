@@ -2225,7 +2225,7 @@ int SDL_main( int argc, char **argv )
     log_setLoggingLevel( 2 );
 
     // start initializing the various subsystems
-    log_message( "Starting Egoboo %s...\n", VERSION );
+    log_message( "Starting Egoboo " VERSION " ...\n" );
 
     sys_initialize();
     clk_init();
@@ -2262,7 +2262,7 @@ int SDL_main( int argc, char **argv )
     empty_import_directory();
 
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
-    else log_message( "Failed!\n" );
+    else log_message( "Failure!\n" );
 
     if ( !get_mesh_memory() )
     {
@@ -2525,7 +2525,7 @@ void memory_cleanUp(void)
 
     clk_shutdown();
 
-    log_message("Succeeded!\n");
-    log_info( "Exiting Egoboo %s the good way...\n", VERSION );
+    log_message("Success!\n");
+    log_info( "Exiting Egoboo " VERSION " the good way...\n" );
     log_shutdown();
 }

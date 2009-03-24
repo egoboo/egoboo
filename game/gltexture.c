@@ -117,7 +117,7 @@ void GLSetup_SupportedFormats()
 {
     //ZF> This need only to be once
     Uint8 type = 0;
-    log_info( "Initializing SDL_Image %i.%i.%i... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
+    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
 
     // define extra supported file types with SDL_image
     // these should probably be ordered so that the types that
@@ -144,8 +144,15 @@ void GLSetup_SupportedFormats()
     //Save the amount of format types we have in store
     maxformattypes = type;
 
-    if (!use_sdl_image) log_message("[SDL_IMAGE] is disabled in setup.txt!\n");
-    else log_message( "Success!\n" );
+    if (!use_sdl_image) 
+    {
+        log_message( "Failed!\n" );
+        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n");
+    }
+    else 
+    {
+        log_message( "Success!\n" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
