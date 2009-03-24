@@ -28,6 +28,7 @@
 #include "ui.h"
 #include "font.h"
 #include "log.h"
+#include "System.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
@@ -2227,7 +2228,7 @@ int SDL_main( int argc, char **argv )
     log_message( "Starting Egoboo %s...\n", VERSION );
 
     sys_initialize();
-    clock_init();
+    clk_init();
     fs_init();
     GLSetup_SupportedFormats();
 
@@ -2301,15 +2302,15 @@ int SDL_main( int argc, char **argv )
     SDL_ShowCursor( btrue );
 
     // Network's temporarily disabled
-    clock_frameStep();
-    frameDuration = clock_getFrameDuration();
+    clk_frameStep();
+    frameDuration = clk_getFrameDuration();
     gameactive = btrue;
 
     while ( gameactive || menuActive )
     {
         // Clock updates each frame
-        clock_frameStep();
-        frameDuration = clock_getFrameDuration();
+        clk_frameStep();
+        frameDuration = clk_getFrameDuration();
 
         // Either run through the menus, or jump into the game
         if ( menuActive )
@@ -2522,7 +2523,7 @@ void memory_cleanUp(void)
 
     if (networkon) net_shutDown();
 
-    clock_shutdown();
+    clk_shutdown();
 
     log_message("Succeeded!\n");
     log_info( "Exiting Egoboo %s the good way...\n", VERSION );

@@ -22,9 +22,8 @@
 /// @brief System Dependent Functions
 /// @details Win32 - specific code
 
-#include "proto.h"
+#include "System.h"
 #include "log.h"
-#include "system.h"
 
 #include <windows.h>
 

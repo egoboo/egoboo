@@ -26,6 +26,7 @@
 #include "proto.h"
 #include "clock.h"
 #include "log.h"
+#include "System.h"
 
 #include <stddef.h>
 #include <stdlib.h>
@@ -51,18 +52,18 @@ static int clk_frameHistoryHead;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void clock_init()
+void clk_init()
 {
     log_info( "Initializing clock services...\n" );
 
-    clock_shutdown();  // Use this to set everything to 0
+    clk_shutdown();  // Use this to set everything to 0
 
-    clock_setTimeSource( sys_getTime );
-    clock_setFrameHistoryWindow( 1 );
+    clk_setTimeSource( sys_getTime );
+    clk_setFrameHistoryWindow( 1 );
 }
 
 //--------------------------------------------------------------------------------------------
-void clock_shutdown()
+void clk_shutdown()
 {
     if ( clk_frameHistory != NULL )
     {
@@ -83,7 +84,7 @@ void clock_shutdown()
 }
 
 //--------------------------------------------------------------------------------------------
-void clock_setTimeSource( double ( *timeSource )() )
+void clk_setTimeSource( clk_timeSourcePtr_t timeSource )
 {
     clk_timeSource = timeSource;
 
@@ -95,7 +96,7 @@ void clock_setTimeSource( double ( *timeSource )() )
 }
 
 //--------------------------------------------------------------------------------------------
-void clock_setFrameHistoryWindow( int size )
+void clk_setFrameHistoryWindow( int size )
 {
     double *history;
     int oldSize = clk_frameHistoryWindow;
@@ -123,7 +124,7 @@ void clock_setFrameHistoryWindow( int size )
 }
 
 //--------------------------------------------------------------------------------------------
-double clock_guessFrameDuration()
+double clk_guessFrameDuration()
 {
     int c;
     double totalTime = 0;
@@ -137,7 +138,7 @@ double clock_guessFrameDuration()
 }
 
 //--------------------------------------------------------------------------------------------
-void clock_addToFrameHistory( double frame )
+void clk_addToFrameHistory( double frame )
 {
     clk_frameHistory[clk_frameHistoryHead] = frame;
 
@@ -157,7 +158,7 @@ void clock_addToFrameHistory( double frame )
 }
 
 //--------------------------------------------------------------------------------------------
-double clock_getExactLastFrameDuration()
+double clk_getExactLastFrameDuration()
 {
     double sourceTime;
     double timeElapsed;
@@ -184,40 +185,40 @@ double clock_getExactLastFrameDuration()
 }
 
 //--------------------------------------------------------------------------------------------
-void clock_frameStep()
+void clk_frameStep()
 {
-    double lastFrame = clock_getExactLastFrameDuration();
-    clock_addToFrameHistory( lastFrame );
+    double lastFrame = clk_getExactLastFrameDuration();
+    clk_addToFrameHistory( lastFrame );
 
     // This feels wrong to me; we're guessing at how long this
     // frame is going to be and accepting that as our time value.
     // I'll trust Mr. Lopis for now, but it may change.
-    clk_frameTime = clock_guessFrameDuration();
+    clk_frameTime = clk_guessFrameDuration();
     clk_currentTime += clk_frameTime;
 
     clk_frameNumber++;
 }
 
 //--------------------------------------------------------------------------------------------
-double clock_getTime()
+double clk_getTime()
 {
     return clk_currentTime;
 }
 
 //--------------------------------------------------------------------------------------------
-double clock_getFrameDuration()
+double clk_getFrameDuration()
 {
     return clk_frameTime;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 clock_getFrameNumber()
+Uint32 clk_getFrameNumber()
 {
     return clk_frameNumber;
 }
 
 //--------------------------------------------------------------------------------------------
-float clock_getFrameRate()
+float clk_getFrameRate()
 {
     return ( float )( 1.0f / clk_frameTime );
 }

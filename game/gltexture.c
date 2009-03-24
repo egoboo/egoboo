@@ -119,11 +119,9 @@ void GLSetup_SupportedFormats()
     Uint8 type = 0;
     log_info( "Initializing SDL_Image %i.%i.%i... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
 
-    // these typed are natively supported with SDL
-    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
-    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
-
     // define extra supported file types with SDL_image
+    // these should probably be ordered so that the types that
+    // support transparency are first
     if (use_sdl_image)
     {
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".png"); type++;
@@ -136,6 +134,12 @@ void GLSetup_SupportedFormats()
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpeg"); type++;
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".xpm"); type++;
     }
+
+    // These typed are natively supported with SDL
+    // Place them *after* the SDL_image types, so that if both are present, 
+    // the other types will be preferred over bmp
+    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
+    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
 
     //Save the amount of format types we have in store
     maxformattypes = type;

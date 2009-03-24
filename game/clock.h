@@ -25,20 +25,21 @@
  * Game Programming Gems 4.
  */
 
-void clock_init();            // Init the clock module
-void clock_shutdown();          // Turn off the clock module
+typedef double( *clk_timeSourcePtr_t )(void);
 
-void clock_setTimeSource( double( *timeSource )() );  // Specify where the clock gets its time values from
-// Defaults to sys_getTime()
-void clock_setFrameHistoryWindow( int size );    // Set how many frames to keep a length history of
-// Defaults to 1
+void   clk_init();               // Init the clock module
+void   clk_shutdown();           // Turn off the clock module
 
-void clock_frameStep();          // Update the clock.
-double clock_getTime();          // Returns the current time.  The clock's time only
-// changes when frameStep is called
+void   clk_setTimeSource( clk_timeSourcePtr_t timeSource );  // Specify where the clock gets its time values from
+                                                               // Defaults to sys_getTime()
+void   clk_setFrameHistoryWindow( int size );                 // Set how many frames to keep a length history of
+                                                              // Defaults to 1
+void   clk_frameStep();           // Update the clock.
+double clk_getTime();             // Returns the current time.  The clock's time only
+                                  // changes when frameStep is called
 
-double clock_getFrameDuration();    // Return the length of the current frame. (Sort of.)
-Uint32 clock_getFrameNumber();  // Return which frame we're on
-float clock_getFrameRate();        // Return the current instantaneous FPS
+double clk_getFrameDuration();    // Return the length of the current frame. (Sort of.)
+Uint32 clk_getFrameNumber();      // Return which frame we're on
+float  clk_getFrameRate();        // Return the current instantaneous FPS
 
 #define Egoboo_Clock_h

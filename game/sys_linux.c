@@ -23,16 +23,15 @@
 /// @details Unix/GNU/Linux/*nix - specific code
 
 #include "log.h"
+#include "System.h"
 
 #include <stdio.h> /* for NULL */
 #include <sys/time.h>
-#include "proto.h"
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static double startuptime;
+static double _sys_startuptime;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -42,7 +41,7 @@ void sys_initialize()
     struct timeval now;
     log_info( "Initializing Linux file system...\n" );
     gettimeofday( &now, NULL );
-    startuptime = now.tv_sec + now.tv_usec * 1.0e-6;
+    _sys_startuptime = now.tv_sec + now.tv_usec * 1.0e-6;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ double sys_getTime()
 {
     struct timeval now;
     gettimeofday( &now, NULL );
-    return  ((double)now.tv_sec) + now.tv_usec * 1.0e-6 - startuptime;
+    return  ((double)now.tv_sec) + now.tv_usec * 1.0e-6 - _sys_startuptime;
 }
 
 //--------------------------------------------------------------------------------------------

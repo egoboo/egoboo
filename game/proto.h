@@ -487,18 +487,6 @@ void stop_players_from_joining();
 // void turn_on_service(int service);
 
 //---------------------------------------------------------------------------------------------
-// Platform specific functions
-
-// Functions in this section are implemented separately on each platform. (Filesystem stuff
-// could go here as well.)
-
-void sys_initialize();  // Allow any setup necessary for platform specific code
-void sys_shutdown();  // Allow any necessary cleanup for platform specific code
-
-double sys_getTime();  // Return the current time, in seconds
-
-
-//---------------------------------------------------------------------------------------------
 // Linux hook into the main function
 int SDL_main( int argc, char **argv );
 
