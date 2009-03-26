@@ -49,7 +49,7 @@ Uint32 get_high_bits();
 int tell_code( int read );
 void add_code( Uint32 highbits );
 void parse_line_by_line();
-Uint32 jump_goto( int index );
+Uint32 jump_goto( int index, int index_end );
 void parse_jumps( int ainumber );
 void log_code( int ainumber, char* savename );
 int ai_goto_colon( int read );

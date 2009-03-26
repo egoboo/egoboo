@@ -41,8 +41,15 @@ Uint16  valueoldtarget    =  0;
 int     valueoperationsum =  0;
 bool_t  valuegopoof       =  bfalse;
 bool_t  valuechanged      =  bfalse;
+bool_t  valueterminate    =  bfalse;
 
-#define END_VALUE (0x80000000 | FEND)
+#define FUNCTION_BIT 0x80000000
+#define DATA_BITS    0x78000000
+#define VALUE_BITS   0x07FFFFFF
+#define END_VALUE    (FUNCTION_BIT | FEND)
+
+static char * script_error_classname = NULL;
+static Uint16 script_error_model     = (Uint16)(~0);
 
 Uint8  cLineBuffer[MAXLINESIZE];
 int    iLoadSize;
@@ -55,7 +62,8 @@ int    iCodeIndex;
 int    iCodeValueTmp;
 int    iNumCode;
 Uint32 iCompiledAis[AISMAXCOMPILESIZE];
-int    iAisStartPosition[MAXAI];
+Uint32 iAisStartPosition[MAXAI];
+Uint32 iAisEndPosition[MAXAI];
 int    iNumAis;
 int    iAisIndex;
 
@@ -270,7 +278,7 @@ int get_indentation()
 
     if ( cnt > 15 )
     {
-        log_warning( "%s - %d levels of indentation\n", globalparsename, cnt + 1 );
+        log_message( "SCRIPT ERROR: %s - %d levels of indentation\n", globalparsename, cnt + 1 );
         parseerror = btrue;
         cnt = 15;
     }
@@ -397,10 +405,12 @@ int tell_code( int read )
     // Check for IDSZ constant
     if ( cWordBuffer[0] == '[' )
     {
-        cTmp = cWordBuffer[1] - 'A';  idsz = idsz | ( cTmp << 15 );
-        cTmp = cWordBuffer[2] - 'A';  idsz = idsz | ( cTmp << 10 );
-        cTmp = cWordBuffer[3] - 'A';  idsz = idsz | ( cTmp << 5 );
-        cTmp = cWordBuffer[4] - 'A';  idsz = idsz | ( cTmp );
+        idsz = 0;
+
+        cTmp = (cWordBuffer[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
+        cTmp = (cWordBuffer[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
+        cTmp = (cWordBuffer[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
+        cTmp = (cWordBuffer[4] - 'A') & 0x1F;  idsz |= cTmp;
 
         iCodeValueTmp = idsz;
         iCodeIndex = -1;
@@ -456,7 +466,7 @@ int tell_code( int read )
         // Throw out an error code if we're loggin' 'em
         if ( cWordBuffer[0] != '=' || cWordBuffer[1] != 0 )
         {
-            log_message( "SCRIPT ERROR: %s - %s undefined\n", globalparsename, cWordBuffer );
+            log_message( "SCRIPT ERROR: model == %d, class name == \"%s\" - %s - %s undefined\n", script_error_model, script_error_classname, globalparsename, cWordBuffer );
             parseerror = btrue;
         }
     }
@@ -469,13 +479,20 @@ void add_code( Uint32 highbits )
 {
     Uint32 value;
 
-    if ( iCodeIndex == -1 )  highbits = highbits | 0x80000000;
-
-    if ( iCodeIndex != MAXCODE )
+    // detect a constant value
+    if ( iCodeIndex == -1 )
     {
-        value = highbits | iCodeValueTmp;
-        iCompiledAis[iAisIndex] = value;
+        highbits |= FUNCTION_BIT;
+    }
+
+    if ( iAisIndex < AISMAXCOMPILESIZE )
+    {
+        iCompiledAis[iAisIndex] = highbits | iCodeValueTmp;
         iAisIndex++;
+    }
+    else
+    {
+        log_warning( "Script index larger than array\n" );
     }
 }
 
@@ -488,22 +505,31 @@ void parse_line_by_line()
     Uint32 highbits;
     int parseposition;
     int operands;
+    bool_t has_end;
 
-    line = 0;
-    read = 0;
-
+    has_end = bfalse;
+    line    = 0;
+    read    = 0;
     while ( line < iNumLine )
     {
+        parseposition = 0;
+
         read = load_parsed_line( read );
         fix_operators();
+
         highbits = get_high_bits();
-        parseposition = 0;
         parseposition = tell_code( parseposition );  // VALUE
         add_code( highbits );
+
+        if( END_VALUE == (highbits | iCodeValueTmp) )
+        {
+            has_end = btrue;
+        }
+
         iCodeValueTmp = 0;  // SKIP FOR CONTROL CODES
         add_code( 0 );
 
-        if ( ( highbits&0x80000000 ) == 0 )
+        if ( 0 == ( highbits & FUNCTION_BIT ) )
         {
             parseposition = tell_code( parseposition );  // EQUALS
             parseposition = tell_code( parseposition );  // VALUE
@@ -530,10 +556,18 @@ void parse_line_by_line()
 
         line++;
     }
+
+    if( !has_end )
+    {
+        iCodeValueTmp = FEND;
+        add_code( FUNCTION_BIT );
+        iCodeValueTmp = iAisIndex + 1;
+        add_code( 0 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 jump_goto( int index )
+Uint32 jump_goto( int index, int index_end )
 {
     // ZZ> This function figures out where to jump to on a fail based on the
     //     starting location and the following code.  The starting location
@@ -545,7 +579,7 @@ Uint32 jump_goto( int index )
     targetindent = ( value >> 27 ) & 15;
     indent = 100;
 
-    while ( indent > targetindent )
+    while ( indent > targetindent && index < index_end )
     {
         value = iCompiledAis[index];
         indent = ( value >> 27 ) & 15;
@@ -553,7 +587,7 @@ Uint32 jump_goto( int index )
         if ( indent > targetindent )
         {
             // Was it a function
-            if ( ( value&0x80000000 ) != 0 )
+            if ( ( value & FUNCTION_BIT ) != 0 )
             {
                 // Each function needs a jump
                 index++;
@@ -570,28 +604,29 @@ Uint32 jump_goto( int index )
         }
     }
 
-    return index;
+    return MIN ( index, index_end );
 }
 
 //--------------------------------------------------------------------------------------------
 void parse_jumps( int ainumber )
 {
     // ZZ> This function sets up the fail jumps for the down and dirty code
-    int index;
+    int index, index_end;
     Uint32 value, iTmp;
 
-    index = iAisStartPosition[ainumber];
-    value = iCompiledAis[index];
+    index     = iAisStartPosition[ainumber];
+    index_end = iAisEndPosition[ainumber];
 
-    while ( value != 0x80000035 )  // End Function
+    value = iCompiledAis[index];
+    while ( index < index_end )
     {
         value = iCompiledAis[index];
 
         // Was it a function
-        if ( ( value&0x80000000 ) != 0 )
+        if ( 0 != ( value & FUNCTION_BIT ) )
         {
             // Each function needs a jump
-            iTmp = jump_goto( index );
+            iTmp = jump_goto( index, index_end );
             index++;
             iCompiledAis[index] = iTmp;
             index++;
@@ -602,7 +637,7 @@ void parse_jumps( int ainumber )
             index++;
             iTmp = iCompiledAis[index];
             index++;
-            index += ( iTmp & 255 );
+            index += ( iTmp & 0xFF );
         }
     }
 }
@@ -700,28 +735,45 @@ int load_ai_script( char *loadname )
     fileread = fopen( loadname, "rb" );
 
     // No such file
-    if ( fileread == NULL && gDevMode )
+    if ( NULL == fileread )
     {
-        log_message( "DEBUG: I am missing a AI script (%s)\n", loadname );
-        log_message( "Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
+        if( gDevMode )
+        {
+            log_message( "DEBUG: I am missing a AI script (%s)\n", loadname );
+            log_message( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
+        }
+
+        return bfalse;
     }
 
-    if ( fileread && iNumAis < MAXAI )
+    if ( iNumAis >= MAXAI )
     {
-        // Make room for the code
-        iAisStartPosition[iNumAis] = iAisIndex;
-
-        // Load into md2 load buffer
-        iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
-        fclose( fileread );
-        parse_null_terminate_comments();
-        parse_line_by_line();
-        parse_jumps( iNumAis );
-        iNumAis++;
-        return btrue;
+        log_warning( "Too many script files. Cannot load file \"%s\"\n", loadname );
+        return bfalse;
     }
 
-    return bfalse;
+    // load the file
+    iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
+    fclose( fileread );
+
+    // initialize the start and end position
+    iAisStartPosition[iNumAis] = iAisIndex;
+    iAisEndPosition[iNumAis]   = iAisIndex;
+
+    // parse/compile the scripts
+    parse_null_terminate_comments();
+    parse_line_by_line();
+
+    // set the end position of the script
+    iAisEndPosition[iNumAis] = iAisIndex;
+
+    // determine the correct jumps
+    parse_jumps( iNumAis );
+
+    // increase the ai script index
+    iNumAis++;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -747,7 +799,7 @@ Uint8 run_function( Uint32 value, int character )
     //     indented code that follows
 
     // Mask out the indentation
-    Uint32 valuecode = value & 0x7ffffff;
+    Uint32 valuecode = value & VALUE_BITS;
 
     // Assume that the function will pass, as most do
     Uint8 returncode = btrue;
@@ -758,6 +810,29 @@ Uint8 run_function( Uint32 value, int character )
     int volume;
     IDSZ test;
     char cTmp[256];
+    int i;
+    Uint32 indent;
+
+    if ( MAXCODE == valuecode )
+    {
+        log_message( "SCRIPT ERROR: run_function() - model == %d, class name == \"%s\" - Unknown opcode found!\n", script_error_model, script_error_classname );
+        return bfalse;
+    }
+
+    // debug stuff
+    //{
+    //    indent = ( value & DATA_BITS ) >> 27;
+    //    for(i=0; i<indent; i++) { printf( "  " ); }
+
+    //    for(i=0; i<MAXCODE; i++)
+    //    {
+    //        if( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
+    //        {
+    //            printf( "%s\n", cCodeName[i] );
+    //            break;
+    //        };
+    //    }
+    //}
 
     // Figure out which function to run
     switch ( valuecode )
@@ -1094,7 +1169,7 @@ Uint8 run_function( Uint32 value, int character )
         case FELSE:
 
             // This function fails if the last one was more indented
-            if ( ( valuelastindent&0x78000000 ) > ( value&0x78000000 ) )
+            if ( valuelastindent > ( value & DATA_BITS ) )
                 returncode = bfalse;
 
             break;
@@ -3765,10 +3840,10 @@ Uint8 run_function( Uint32 value, int character )
             }
             break;
 
-            //case FGETSKILLLEVEL:
-            //        // This function sets tmpargument to the shield profiency level of the target
-            //        valuetmpargument = capshieldprofiency[chrattachedto[character]];
-            //    break;
+        //case FGETSKILLLEVEL:
+        //        // This function sets tmpargument to the shield profiency level of the target
+        //        valuetmpargument = capshieldprofiency[chrattachedto[character]];
+        //    break;
 
         case FIFTARGETHASNOTFULLMANA:
 
@@ -3968,15 +4043,15 @@ Uint8 run_function( Uint32 value, int character )
             break;
 
         case FEND:
-            returncode = bfalse;
+            valueterminate = btrue;
+            returncode     = bfalse;
             break;
 
             // If none of the above, skip the line and log an error
         default:
-            log_warning("run_function() - ai script %d - unhandled script function %d\n", chraitype[character], valuecode );
+            log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", chraitype[character], valuecode );
             returncode = bfalse;
             break;
-
     }
 
     return returncode;
@@ -4022,10 +4097,10 @@ void run_operand( Uint32 value, int character )
     // Get the operation code
     opcode = ( value >> 27 );
 
-    if ( opcode&16 )
+    if ( opcode & 16 )
     {
         // Get the working value from a constant, constants are all but high 5 bits
-        iTmp = value & 0x07ffffff;
+        iTmp = value & VALUE_BITS;
     }
     else
     {
@@ -4378,14 +4453,15 @@ void run_operand( Uint32 value, int character )
                 iTmp = chrreloadtime[chraitarget[character]];
                 break;
 
-            default: log_message( "SCRIPT ERROR: Unknown variable found!\n" );
+            default: 
+                log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
                 break;
 
         }
     }
 
     // Now do the math
-    switch ( opcode&15 )
+    switch ( opcode & 15 )
     {
         case OPADD:
             valueoperationsum += iTmp;
@@ -4416,8 +4492,10 @@ void run_operand( Uint32 value, int character )
             {
                 valueoperationsum = valueoperationsum / iTmp;
             }
-            else log_message( "SCRIPT ERROR: Cannot divide by zero!\n" );
-
+            else 
+            {
+                log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Cannot divide by zero!\n", script_error_model, script_error_classname );
+            }
             break;
 
         case OPMOD:
@@ -4425,10 +4503,14 @@ void run_operand( Uint32 value, int character )
             {
                 valueoperationsum = valueoperationsum % iTmp;
             }
+            else 
+            {
+                log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Cannot modulo by zero!\n", script_error_model, script_error_classname );
+            }
             break;
 
         default:
-            log_message( "SCRIPT ERROR: Unknown operation!\n" );
+            log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - unknown operation\n", script_error_model, script_error_classname );
             break;
     }
 }
@@ -4438,11 +4520,13 @@ void let_character_think( int character )
 {
     // ZZ> This function lets one character do AI stuff
     Uint16 aicode;
-    Uint32 index;
+    Uint32 index, index_end;
     Uint32 value;
     Uint32 iTmp;
     Uint8 functionreturn;
     int operands;
+
+    if( character >= MAXCHR || !chron[character] )  return;
 
     // Make life easier
     valueoldtarget = chraitarget[character];
@@ -4450,7 +4534,15 @@ void let_character_think( int character )
 
     // Figure out alerts that weren't already set
     set_alerts( character );
-    valuechanged = bfalse;
+
+    script_error_classname = "UNKNOWN";
+    script_error_model     = chrmodel[character];
+    if( script_error_model < MAXMODEL )
+    {
+        script_error_classname = capclassname[ script_error_model ];
+    }
+
+    //printf( "\n\n--------\n%d - %s\n", script_error_model, script_error_classname );
 
     // Clear the button latches
     if ( !chrisplayer[character] )
@@ -4468,18 +4560,22 @@ void let_character_think( int character )
     }
 
     // Run the AI Script
-    index = iAisStartPosition[aicode];
-    valuegopoof = bfalse;
+    valuegopoof    = bfalse;
+    valuechanged   = bfalse;
+    valueterminate = bfalse;
 
-    value = iCompiledAis[index];
-
-    while ( END_VALUE != ( value&0x87ffffff )  ) // End Function
+    index     = iAisStartPosition[aicode];
+    index_end = iAisEndPosition[aicode];
+    value     = iCompiledAis[index];
+    while ( !valueterminate && index < index_end ) // End Function
     {
         value = iCompiledAis[index];
 
         // Was it a function
-        if ( ( value&0x80000000 ) != 0 )
+        if ( 0 != ( value & FUNCTION_BIT ) )
         {
+            int new_index;
+
             // Run the function
             functionreturn = run_function( value, character );
 
@@ -4490,13 +4586,17 @@ void let_character_think( int character )
             if ( functionreturn )
             {
                 // Proceed to the next function
-                index++;
+                new_index = index + 1;
             }
             else
             {
                 // Jump to where the jump code says to go
-                index = iTmp;
+                new_index = iTmp;
             }
+
+            assert( new_index > index && new_index >= iAisStartPosition[aicode] );
+
+            index = new_index;
         }
         else
         {
@@ -4520,7 +4620,7 @@ void let_character_think( int character )
         }
 
         // This is used by the Else function
-        valuelastindent = value;
+        valuelastindent = value & DATA_BITS;
     }
 
     // Set latches
@@ -4588,20 +4688,18 @@ void let_ai_think()
     int character;
 
     numblip = 0;
-    character = 0;
 
-    while ( character < MAXCHR )
+    for ( character = 0; character < MAXCHR; character++ )
     {
         if ( chron[character] && ( !chrinpack[character] || capisequipment[chrmodel[character]] ) && ( chralive[character] || ( chralert[character]&ALERTIFCLEANEDUP ) || ( chralert[character]&ALERTIFCRUSHED ) ) )
         {
-            // Cleaned up characters shouldn't be alert to anything else
-            if ( chralert[character]&ALERTIFCRUSHED )  chralert[character] = ALERTIFCRUSHED;
+            // Crushed characters shouldn't be alert to anything else
+            if ( chralert[character] & ALERTIFCRUSHED )  chralert[character] = ALERTIFCRUSHED;
 
-            if ( chralert[character]&ALERTIFCLEANEDUP )  chralert[character] = ALERTIFCLEANEDUP;
+            // Cleaned up characters shouldn't be alert to anything else
+            if ( chralert[character] & ALERTIFCLEANEDUP )  chralert[character] = ALERTIFCLEANEDUP;
 
             let_character_think( character );
         }
-
-        character++;
     }
 }

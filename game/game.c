@@ -643,14 +643,12 @@ IDSZ get_idsz( FILE* fileread )
 
     if ( cTmp == '[' )
     {
-        fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 15 );
-        fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 10 );
-        fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp << 5 );
-        fscanf( fileread, "%c", &cTmp );  cTmp = cTmp - 'A';  idsz = idsz | ( cTmp );
+        idsz = 0;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp;
     }
-
-    if ( idsz == IDSZ_NONE )
-        idsz = IDSZ_NONE;
 
     return idsz;
 }
@@ -2352,146 +2350,141 @@ int SDL_main( int argc, char **argv )
 
             SDL_GL_SwapBuffers();
         }
-        else
+        else if ( gameactive )
         {
-            // Do the game
-            // Did we get through all the menus?
-            if ( gameactive )
+            // Start a new module
+            seed = time( NULL );
+            srand( seed );
+
+            load_module( pickedmodule );  // :TODO: Seems to be the next part to fix
+
+            pressed = bfalse;
+            make_onwhichfan();
+            reset_camera();
+            reset_timers();
+            figure_out_what_to_draw();
+            make_character_matrices();
+            attach_particles();
+
+            if ( networkon )
             {
-                // Start a new module
-                seed = time( NULL );
-                srand( seed );
+                log_info( "SDL_main: Loading module %s...\n", pickedmodule );
+                net_sayHello();
+            }
 
-                load_module( pickedmodule );  // :TODO: Seems to be the next part to fix
+            // Let the game go
+            moduleactive = btrue;
+            randsave = 0;
+            srand( 0 );
 
-                pressed = bfalse;
-                make_onwhichfan();
-                reset_camera();
-                reset_timers();
-                figure_out_what_to_draw();
-                make_character_matrices();
-                attach_particles();
+            while ( moduleactive )
+            {
+                // This is the control loop
+                input_read();
 
-                if ( networkon )
+                if ( networkon && console_done )
                 {
-                    log_info( "SDL_main: Loading module %s...\n", pickedmodule );
-                    net_sayHello();
+                    net_send_message();
                 }
 
-                // Let the game go
-                moduleactive = btrue;
-                randsave = 0;
-                srand( 0 );
+                //Check for screenshots
+                if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
 
-                while ( moduleactive )
+                if ( SDLKEYDOWN( SDLK_F11 ) && keyb.on && screenshotkeyready )
                 {
-                    // This is the control loop
-                    input_read();
-
-                    if ( networkon && console_done )
+                    if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
                     {
-                        net_send_message();
+                        debug_message( "Error writing screenshot!" );
+                        log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
                     }
 
-                    //Check for screenshots
-                    if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
+                    screenshotkeyready = bfalse;
+                }
 
-                    if ( SDLKEYDOWN( SDLK_F11 ) && keyb.on && screenshotkeyready )
+                // Check for pause key    // TODO: What to do in network games?
+                if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
+
+                if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on && pausekeyready )
+                {
+                    pausekeyready = bfalse;
+
+                    if ( gamepaused ) gamepaused = bfalse;
+                    else gamepaused = btrue;
+                }
+
+                // Do important things
+                if ( !gamepaused || networkon )
+                {
+                    // start the console mode?
+                    if ( control_is_pressed( INPUT_KEYBOARD, CONTROL_MESSAGE ) )
                     {
-                        if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
-                        {
-                            debug_message( "Error writing screenshot!" );
-                            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
-                        }
-
-                        screenshotkeyready = bfalse;
+                        // reset the keyboard buffer
+                        SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
+                        console_mode = btrue;
+                        console_done = bfalse;
+                        keyb.buffer_count = 0;
+                        keyb.buffer[0] = '\0';
                     }
 
-                    // Check for pause key    // TODO: What to do in network games?
-                    if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
+                    check_stats();
+                    set_local_latches();
+                    update_timers();
+                    check_passage_music();
 
-                    if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on && pausekeyready )
+                    // NETWORK PORT
+                    listen_for_packets();
+
+                    if ( !waitingforplayers )
                     {
-                        pausekeyready = bfalse;
-
-                        if ( gamepaused ) gamepaused = bfalse;
-                        else gamepaused = btrue;
-                    }
-
-                    // Do important things
-                    if ( !gamepaused || networkon )
-                    {
-                        // start the console mode?
-                        if ( control_is_pressed( INPUT_KEYBOARD, CONTROL_MESSAGE ) )
-                        {
-                            // reset the keyboard buffer
-                            SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
-                            console_mode = btrue;
-                            console_done = bfalse;
-                            keyb.buffer_count = 0;
-                            keyb.buffer[0] = '\0';
-                        }
-
-                        check_stats();
-                        set_local_latches();
-                        update_timers();
-                        check_passage_music();
-
-                        // NETWORK PORT
-                        listen_for_packets();
-
-                        if ( !waitingforplayers )
-                        {
-                            cl_talkToHost();
-                            update_game();
-                        }
-                        else
-                        {
-
-                            wldclock = allclock;
-                        }
+                        cl_talkToHost();
+                        update_game();
                     }
                     else
                     {
-                        update_timers();
+
                         wldclock = allclock;
                     }
-
-                    // Do the display stuff
-                    frame_now = SDL_GetTicks();
-
-                    if (frame_now > frame_next)
-                    {
-                        float  frameskip = (float)TICKS_PER_SEC / (float)framelimit;
-                        frame_next = frame_now + frameskip; //FPS limit
-
-                        move_camera();
-                        figure_out_what_to_draw();
-
-                        draw_main();
-
-                        msgtimechange++;
-
-                        if ( statdelay > 0 )  statdelay--;
-                    }
-
-                    // Check for quitters
-                    // :TODO: nolocalplayers is not set correctly
-                    if ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| nolocalplayers*/ )
-                    {
-                        quit_module();
-                        gameactive = bfalse;
-                        menuActive = 1;
-
-                        // Let the normal OS mouse cursor work
-                        SDL_WM_GrabInput( SDL_GRAB_OFF );
-                        SDL_ShowCursor( 1 );
-                    }
+                }
+                else
+                {
+                    update_timers();
+                    wldclock = allclock;
                 }
 
-                release_module();
-                close_session();
+                // Do the display stuff
+                frame_now = SDL_GetTicks();
+
+                if (frame_now > frame_next)
+                {
+                    float  frameskip = (float)TICKS_PER_SEC / (float)framelimit;
+                    frame_next = frame_now + frameskip; //FPS limit
+
+                    move_camera();
+                    figure_out_what_to_draw();
+
+                    draw_main();
+
+                    msgtimechange++;
+
+                    if ( statdelay > 0 )  statdelay--;
+                }
+
+                // Check for quitters
+                // :TODO: nolocalplayers is not set correctly
+                if ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| nolocalplayers*/ )
+                {
+                    quit_module();
+                    gameactive = bfalse;
+                    menuActive = 1;
+
+                    // Let the normal OS mouse cursor work
+                    SDL_WM_GrabInput( SDL_GRAB_OFF );
+                    SDL_ShowCursor( 1 );
+                }
             }
+
+            release_module();
+            close_session();
         }
     }
 
