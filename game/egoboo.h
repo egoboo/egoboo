@@ -125,7 +125,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define MAXSTAT             16                      // Maximum status displays
 #define MAXLOCO             3                       // Maximum number of local players
 
-#define JOYBUTTON           8                       // Maximum number of joystick buttons
+#define JOYBUTTON           32                      // Maximum number of joystick buttons
 
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
@@ -162,16 +162,21 @@ EXTERN char    cActionName[MAXACTION][2];                  // Two letter name co
 #define GRABSIZE            90.0f                    // Grab tolerance
 #define SEEINVISIBLE        128                     // Cutoff for invisible characters
 
-#define MAXDAMAGETYPE       8                       // Damage types
 #define DAMAGENULL          255                     //
-#define DAMAGESLASH         0                       //
-#define DAMAGECRUSH         1                       //
-#define DAMAGEPOKE          2                       //
-#define DAMAGEHOLY          3                       // (Most invert Holy damage )
-#define DAMAGEEVIL          4                       //
-#define DAMAGEFIRE          5                       //
-#define DAMAGEICE           6                       //
-#define DAMAGEZAP           7                       //
+
+enum e_damage_type
+{
+    DAMAGE_SLASH = 0,                        //
+    DAMAGE_CRUSH,                            //
+    DAMAGE_POKE,                             //
+    DAMAGE_HOLY,                             // (Most invert Holy damage )
+    DAMAGE_EVIL,                             //
+    DAMAGE_FIRE,                             //
+    DAMAGE_ICE,                              //
+    DAMAGE_ZAP,                              //
+    DAMAGE_COUNT                             // Damage types
+};
+
 #define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
 #define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
 #define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )
@@ -190,25 +195,32 @@ EXTERN char    cActionName[MAXACTION][2];                  // Two letter name co
 
 #define MAXCAPNAMESIZE      32                      // Character class names
 #define MAXLEVEL            6                       // Basic Levels 0-5
-#define MAXEXPERIENCETYPE   8                       // Number of ways to get experience
-#define MAXIDSZ             6                       // ID strings per character
-#define IDSZNONE            0                       // [NONE]
-#define IDSZPARENT          0                       // Parent index
-#define IDSZTYPE            1                       // Self index
-#define IDSZSKILL           2                       // Skill index
-#define IDSZSPECIAL         3                       // Special index
-#define IDSZHATE            4                       // Hate index
-#define IDSZVULNERABILITY   5                       // Vulnerability index
+
+enum e_idsz_type
+{
+    IDSZ_PARENT = 0,                             // Parent index
+    IDSZ_TYPE,                                   // Self index
+    IDSZ_SKILL,                                  // Skill index
+    IDSZ_SPECIAL,                                // Special index
+    IDSZ_HATE,                                   // Hate index
+    IDSZ_VULNERABILITY,                          // Vulnerability index
+    IDSZ_COUNT                                   // ID strings per character
+};
 
 // XP stuff
-#define XPFINDSECRET        0                       // Finding a secret
-#define XPWINQUEST          1                       // Beating a module or a subquest
-#define XPUSEDUNKOWN        2                       // Used an unknown item
-#define XPKILLENEMY         3                       // Killed an enemy
-#define XPKILLSLEEPY        4                       // Killed a sleeping enemy
-#define XPKILLHATED         5                       // Killed a hated enemy
-#define XPTEAMKILL          6                       // Team has killed an enemy
-#define XPTALKGOOD          7                       // Talk good, er...  I mean well
+enum e_xp_type
+{
+    XP_FINDSECRET = 0,                          // Finding a secret
+    XP_WINQUEST,                                // Beating a module or a subquest
+    XP_USEDUNKOWN,                              // Used an unknown item
+    XP_KILLENEMY,                               // Killed an enemy
+    XP_KILLSLEEPY,                              // Killed a sleeping enemy
+    XP_KILLHATED,                               // Killed a hated enemy
+    XP_TEAMKILL,                                // Team has killed an enemy
+    XP_TALKGOOD,                                // Talk good, er...  I mean well
+    XP_COUNT                                    // Number of ways to get experience
+};
+
 #define XPDIRECT            255                     // No modification
 
 // Teams
@@ -430,10 +442,6 @@ EXTERN bool_t                    clearson  EQ( btrue );             // Do we cle
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
 EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
-EXTERN bool_t                    mouseon  EQ( btrue );              // Is the mouse alive?
-EXTERN bool_t                    keyon  EQ( btrue );                // Is the keyboard alive?
-EXTERN bool_t                    joyaon  EQ( 0 );               // Is the holy joystick alive?
-EXTERN bool_t                    joybon  EQ( 0 );               // Is the other joystick alive?
 EXTERN bool_t                    staton  EQ( btrue );               // Draw the status bars?
 EXTERN bool_t                    phongon  EQ( btrue );              // Do phong overlay?
 EXTERN bool_t                    networkon  EQ( btrue );            // Try to connect?
@@ -449,7 +457,6 @@ EXTERN bool_t                    respawnanytime;             // True if it's a s
 EXTERN bool_t                    importvalid;                // Can it import?
 EXTERN bool_t                    exportvalid;                // Can it export?
 EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
-EXTERN bool_t                    netmessagemode;             // Input text from keyboard?
 EXTERN bool_t                    backgroundvalid;            // Allow large background?
 EXTERN bool_t                    overlayvalid;               // Allow large overlay?
 EXTERN bool_t                    nolocalplayers;             // Are there any local players?
@@ -457,10 +464,6 @@ EXTERN bool_t                    usefaredge;                 // Far edge maps? (
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
 EXTERN Uint8                   autoturncamera;             // Type of camera control...
 EXTERN Uint8                   doturntime;                 // Time for smooth turn
-EXTERN Uint8                   netmessagedelay;            // For slowing down input
-EXTERN int                     netmessagewrite;            // The cursor position
-EXTERN int                     netmessagewritemin;         // The starting cursor position
-EXTERN char                    netmessage[MESSAGESIZE];    // The input message
 EXTERN Uint8                     importamount;               // Number of imports for this module
 EXTERN Uint8                     playeramount;               //
 EXTERN Uint32                   seed  EQ( 0 );                 // The module seed
@@ -501,31 +504,73 @@ EXTERN Uint8                   texturefilter  EQ( 1 );     // Texture filtering?
 EXTERN bool_t                  wateron  EQ( btrue );           // Water overlays?
 EXTERN bool_t                  shasprite  EQ( bfalse );        // Shadow sprites?
 EXTERN bool_t                  zreflect  EQ( bfalse );         // Reflection z buffering?
-EXTERN float                   mousesense  EQ( 6 );           // Sensitivity threshold
-EXTERN float                   mousesustain EQ( 0.50f );         // Falloff rate for old movement
-EXTERN float                   mousecover EQ( 0.50f );           // For falloff
-EXTERN Sint32                    mousex  EQ( 0 );               // Mouse X movement counter
-EXTERN Sint32                    mousey  EQ( 0 );               // Mouse Y movement counter
-EXTERN Sint32                    mousez  EQ( 0 );               // Mouse wheel movement counter
-EXTERN int                     cursorx  EQ( 0 );              // Cursor position
-EXTERN int                     cursory  EQ( 0 );              //
-EXTERN float                   mouselatcholdx  EQ( 0 );       // For sustain
-EXTERN float                   mouselatcholdy  EQ( 0 );       //
-EXTERN Uint8                   mousebutton[4];             // Mouse button states
-EXTERN bool_t                    pressed EQ( 0 );                //
-EXTERN bool_t                    clicked EQ( 0 );                //
-EXTERN bool_t           pending_click EQ( 0 );
+
+
+EXTERN int              cursorx  EQ( 0 );              // Cursor position
+EXTERN int              cursory  EQ( 0 );              //
+EXTERN bool_t           pressed EQ( bfalse );                //
+EXTERN bool_t           clicked EQ( bfalse );                //
+EXTERN bool_t           pending_click EQ( bfalse );
+EXTERN bool_t           mouse_wheel_event EQ( bfalse );
 // EWWWW. GLOBALS ARE EVIL.
 
 // Input Control
-EXTERN int                     joyax  EQ( 0 );                // Joystick A
-EXTERN int                     joyay  EQ( 0 );                //
-EXTERN Uint8                   joyabutton[JOYBUTTON];      //
-EXTERN int                     joybx  EQ( 0 );                // Joystick B
-EXTERN int                     joyby  EQ( 0 );                //
-EXTERN Uint8                   joybbutton[JOYBUTTON];      //
-EXTERN Uint8                   msb, jab, jbb;              // Button masks
-#define  KEYDOWN(k) (sdlkeybuffer[k])            // Helper for gettin' em
+// MOUSE
+struct s_mouse
+{
+    bool_t                  on;              // Is the mouse alive?
+    float                   sense;           // Sensitivity threshold
+    float                   sustain;         // Falloff rate for old movement
+    float                   cover;           // For falloff
+    Sint32                  x;               // Mouse X movement counter
+    Sint32                  y;               // Mouse Y movement counter
+    Sint32                  z;               // Mouse wheel movement counter
+    float                   latcholdx;       // For sustain
+    float                   latcholdy;       //
+    Uint8                   button[4];       // Mouse button states
+    Uint32                  b;               // Button masks
+};
+typedef struct s_mouse mouse_t;
+
+EXTERN mouse_t mous;
+
+// KEYBOARD
+EXTERN Uint8  scancode_to_ascii[SDLK_LAST];
+EXTERN Uint8  scancode_to_ascii_shift[SDLK_LAST];
+EXTERN bool_t console_mode EQ( bfalse );                   // Input text from keyboard?
+EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
+
+#define KEYB_BUFFER_SIZE 2048
+
+struct s_keyboard
+{
+    bool_t  on;                // Is the keyboard alive?
+    int     count;
+    Uint8  *state_ptr;
+
+    int     buffer_count;
+    char    buffer[KEYB_BUFFER_SIZE];
+};
+typedef struct s_keyboard keyboard_t;
+
+EXTERN keyboard_t keyb;
+
+#define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
+
+// JOYSTICK
+#define MAXJOYSTICK 2
+struct s_device_joystick
+{
+    bool_t  on;                // Is the holy joystick alive?
+    float   x;                 //
+    float   y;                 //
+    Uint8   button[JOYBUTTON]; //
+    Uint32  b;                 // Button masks
+    SDL_Joystick * sdl_ptr;
+};
+typedef struct s_device_joystick device_joystick_t;
+
+EXTERN device_joystick_t joy[MAXJOYSTICK];
 
 // Weather and water gfx
 EXTERN int                     weatheroverwater EQ( bfalse );       // Only spawn over water?
@@ -608,14 +653,16 @@ EXTERN int                     fontoffset;                 // Line up fonts from
 /*OpenGL Textures*/
 EXTERN  STRING      TxFormatSupported[50]; // OpenGL icon surfaces
 EXTERN  Uint8       maxformattypes EQ(0);
-EXTERN  GLTexture       TxIcon[MAXTEXTURE+1];            // OpenGL icon surfaces
-EXTERN  GLTexture       TxTitleImage[MAXMODULE];          // OpenGL title image surfaces
-EXTERN  GLTexture       TxFont;                    // OpenGL font surface
-EXTERN  GLTexture       TxBars;                    // OpenGL status bar surface
-EXTERN  GLTexture       TxBlip;                    // OpenGL you are here surface
-EXTERN  GLTexture       TxMap;                    // OpenGL map surface
-EXTERN  GLTexture       txTexture[MAXTEXTURE];               /* All textures */
+
+EXTERN  GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+EXTERN  GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+EXTERN  GLTexture       TxFont;                     // OpenGL font surface
+EXTERN  GLTexture       TxBars;                     // OpenGL status bar surface
+EXTERN  GLTexture       TxBlip;                     // OpenGL you are here surface
+EXTERN  GLTexture       TxMap;                      // OpenGL map surface
+EXTERN  GLTexture       txTexture[MAXTEXTURE];      // All textures
 EXTERN  bool_t          use_sdl_image EQ(btrue);    //Allow advanced SDL_Image functions?
+
 // Anisotropic filtering - yay! :P
 #define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
 #define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
@@ -857,7 +904,7 @@ EXTERN Uint8          chrwalkspd[MAXCHR];         // Walking if above this speed
 EXTERN Uint8          chrrunspd[MAXCHR];          // Running if above this speed
 EXTERN Uint8          chrdamagetargettype[MAXCHR];// Type of damage for AI DamageTarget
 EXTERN Uint8          chrreaffirmdamagetype[MAXCHR]; // For relighting torches
-EXTERN Uint8          chrdamagemodifier[MAXCHR][MAXDAMAGETYPE];  // Resistances and inversion
+EXTERN Uint8          chrdamagemodifier[MAXCHR][DAMAGE_COUNT];  // Resistances and inversion
 EXTERN Uint8          chrdamagetime[MAXCHR];      // Invincibility timer
 EXTERN Uint8          chrdefense[MAXCHR];         // Base defense rating
 EXTERN Uint16           chrweight[MAXCHR];          // Weight ( for pressure plates )
@@ -914,10 +961,11 @@ EXTERN bool_t          chrcanread[MAXCHR];
 #define NEAREST   0           //unlimited range
 #define TILESIZE    128       //Size of one texture tile in egoboo
 
-EXTERN bool_t                    localseeinvisible;
-EXTERN bool_t                    localseekurse;
-EXTERN Uint16                    localsenseenemies;
-EXTERN IDSZ                      localsenseenemiesID;
+EXTERN bool_t                    local_seeinvisible   EQ( bfalse );
+EXTERN bool_t                    local_seekurse       EQ( bfalse );
+EXTERN Uint16                    local_senseenemies   EQ( MAXCHR );
+EXTERN IDSZ                      local_senseenemiesID;
+EXTERN bool_t                    local_listening      EQ( bfalse );  // Playrers with listen skill?
 
 //------------------------------------
 // Enchantment variables
@@ -945,7 +993,7 @@ EXTERN Sint16            evetargetmana[MAXEVE];                  //
 EXTERN Sint16            evetargetlife[MAXEVE];                  //
 EXTERN Uint8           evedontdamagetype[MAXEVE];              // Don't work if ...
 EXTERN Uint8           eveonlydamagetype[MAXEVE];              // Only work if ...
-EXTERN Uint32           everemovedbyidsz[MAXEVE];               // By particle or [NONE]
+EXTERN IDSZ           everemovedbyidsz[MAXEVE];               // By particle or [NONE]
 EXTERN Uint16           evecontspawntime[MAXEVE];               // Spawn timer
 EXTERN Uint8           evecontspawnamount[MAXEVE];             // Spawn amount
 EXTERN Uint16           evecontspawnfacingadd[MAXEVE];          // Spawn in circle
@@ -1312,15 +1360,15 @@ EXTERN Uint16         capnframefacing[MAXMODEL];                  // Normal fram
 EXTERN Uint16         capnframeangle[MAXMODEL];                   //
 EXTERN Uint8           capresistbumpspawn[MAXMODEL];               // Don't catch fire
 EXTERN Uint8           capdefense[MAXMODEL][4];                    // Defense for each skin
-EXTERN Uint8           capdamagemodifier[MAXMODEL][MAXDAMAGETYPE][4];
+EXTERN Uint8           capdamagemodifier[MAXMODEL][DAMAGE_COUNT][4];
 EXTERN float                 capmaxaccel[MAXMODEL][4];                   // Acceleration for each skin
 EXTERN Uint32           capexperienceforlevel[MAXMODEL][MAXLEVEL];  // Experience needed for next level
 EXTERN Uint32           capexperiencebase[MAXMODEL];                // Starting experience
 EXTERN Uint16         capexperiencerand[MAXMODEL];                //
 EXTERN Uint16         capexperienceworth[MAXMODEL];               // Amount given to killer/user
 EXTERN float                 capexperienceexchange[MAXMODEL];            // Adds to worth
-EXTERN float                 capexperiencerate[MAXMODEL][MAXEXPERIENCETYPE];
-EXTERN IDSZ           capidsz[MAXMODEL][MAXIDSZ];                 // ID strings
+EXTERN float                 capexperiencerate[MAXMODEL][XP_COUNT];
+EXTERN IDSZ           capidsz[MAXMODEL][IDSZ_COUNT];                 // ID strings
 EXTERN bool_t                capisitem[MAXMODEL];                        // Is it an item?
 EXTERN bool_t                capinvictus[MAXMODEL];                      // Is it invincible?
 EXTERN bool_t                capismount[MAXMODEL];                       // Can you ride it?
@@ -1413,7 +1461,7 @@ EXTERN float           noslipfriction  EQ( 0.95f );                            /
 EXTERN float           platstick  EQ( 0.040f );                                 //
 EXTERN float           gravity  EQ( ( float ) - 1.0f );                        // Gravitational accel
 EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
-EXTERN Uint8           damagetiletype  EQ( DAMAGEFIRE );                      // Type of damage
+EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      // Type of damage
 
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 
@@ -1540,16 +1588,6 @@ extern int                     iNumAis;
 #define ALERTIFCRUSHED                      1 << 29   // 29
 #define ALERTIFNOTPUTAWAY                   1 << 30  // 30
 #define ALERTIFTAKENOUT                     1 << 31 // 31
-
-EXTERN int     valuetmpx EQ( 0 );
-EXTERN int     valuetmpy EQ( 0 );
-EXTERN Uint16  valuetmpturn EQ( 0 );
-EXTERN int     valuetmpdistance EQ( 0 );
-EXTERN int     valuetmpargument EQ( 0 );
-EXTERN Uint32  valuelastindent EQ( 0 );
-EXTERN Uint16  valueoldtarget EQ( 0 );
-EXTERN int     valueoperationsum EQ( 0 );
-EXTERN bool_t  valuegopoof EQ( bfalse );
 
 enum e_mix_type { MIX_UNKNOWN = 0, MIX_MUS, MIX_SND };
 typedef enum e_mix_type mix_type_t;
@@ -1684,11 +1722,6 @@ EXTERN int statdelay  EQ( 25 );
 #define COPYSIZE    4096
 #define TOTALSIZE   2097152
 #define MAXPLAYER   8                               // 2 to a power...  2^3
-#define INPUTNONE   0                               //
-#define INPUTMOUSE  1                               // Input devices
-#define INPUTKEY    2                               //
-#define INPUTJOYA   4                               //
-#define INPUTJOYB   8                               //
 #define MAXLAG      64                              //
 #define LAGAND      63                              //
 #define STARTTALK   10                              //
@@ -1750,7 +1783,6 @@ EXTERN mix_ptr_t    globalwave[MAXGLOBALSOUNDS];      // All sounds loaded into 
 EXTERN bool_t       soundvalid;          // Allow playing of sound?
 EXTERN Uint8        soundvolume;        // Volume of sounds played
 EXTERN Sint16      channel;          // Which channel the current sound is using
-EXTERN bool_t      listening EQ( bfalse );  // Playrers with listen skill?
 
 // Music using SDL_Mixer
 #define MAXPLAYLISTLENGTH 25            // Max number of different tracks loaded into memory
@@ -1760,70 +1792,138 @@ EXTERN bool_t      musicinmemory EQ( bfalse );  // Is the music loaded in memory
 EXTERN mix_ptr_t   musictracksloaded[MAXPLAYLISTLENGTH];  // This is a specific music file loaded into memory
 EXTERN Sint8       songplaying EQ( -1 );      // Current song that is playing
 
-// Some various other stuff
-EXTERN char valueidsz[5];
-EXTERN Uint8 changed;
-#define IDSZ_NONE            Make_IDSZ("NONE")       // [NONE]
 
 // Key/Control input defenitions
 #define MAXTAG              128                     // Number of tags in scancode.txt
 #define TAGSIZE             32                      // Size of each tag
-EXTERN int numscantag;
-EXTERN char tagname[MAXTAG][TAGSIZE];                      // Scancode names
+EXTERN int    numscantag;
+EXTERN char   tagname[MAXTAG][TAGSIZE];                      // Scancode names
 EXTERN Sint32 tagvalue[MAXTAG];                     // Scancode values
-#define MAXCONTROL          64
-EXTERN Uint32 controlvalue[MAXCONTROL];             // The scancode or mask
-EXTERN Uint32 controliskey[MAXCONTROL];             // Is it a key?
+
+enum e_input_device
+{
+    INPUT_KEYBOARD = 0,
+    INPUT_MOUSE,
+    INPUT_JOY,
+    INPUT_COUNT
+};
+typedef enum  e_input_device input_device_t;
+
+enum e_input_bits
+{
+    INPUT_BITS_NONE      = 0,                               //
+    INPUT_BITS_MOUSE     = ( 1 << INPUT_MOUSE     ),        // Input devices
+    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_MOUSE     ),        //
+    INPUT_BITS_JOYA      = ( 1 << (INPUT_JOY + 0) ),        //
+    INPUT_BITS_JOYB      = ( 1 << (INPUT_JOY + 1) )         //
+};
+
+EXTERN Uint32 input_device_count EQ(0);
+
+enum e_input_controls
+{
+    CONTROL_JUMP = 0,
+    CONTROL_LEFT_USE,
+    CONTROL_LEFT_GET,
+    CONTROL_LEFT_PACK,
+    CONTROL_RIGHT_USE,
+    CONTROL_RIGHT_GET,
+    CONTROL_RIGHT_PACK,
+    CONTROL_MESSAGE,
+    CONTROL_CAMERA_LEFT,
+    CONTROL_CAMERA_RIGHT,
+    CONTROL_CAMERA_IN,
+    CONTROL_CAMERA_OUT,
+    CONTROL_UP,
+    CONTROL_DOWN,
+    CONTROL_LEFT,
+    CONTROL_RIGHT,
+    CONTROL_COMMAND_COUNT,
+
+    // Aliases
+    CONTROL_CAMERA = CONTROL_MESSAGE,
+    CONTROL_BEGIN  = CONTROL_JUMP,
+    CONTROL_END    = CONTROL_RIGHT
+};
+
+enum e_keyboard_controls
+{
+    KEY_JUMP = 0,
+    KEY_LEFT_USE,
+    KEY_LEFT_GET,
+    KEY_LEFT_PACK,
+    KEY_RIGHT_USE,
+    KEY_RIGHT_GET,
+    KEY_RIGHT_PACK,
+    KEY_MESSAGE,
+    KEY_CAMERA_LEFT,
+    KEY_CAMERA_RIGHT,
+    KEY_CAMERA_IN,
+    KEY_CAMERA_OUT,
+    KEY_UP,
+    KEY_DOWN,
+    KEY_LEFT,
+    KEY_RIGHT,
+
+    // Aliases
+    KEY_CONTROL_BEGIN = KEY_JUMP,
+    KEY_CONTROL_END   = KEY_RIGHT
+};
+
+enum e_mouse_controls
+{
+    MOS_JUMP = 0,
+    MOS_LEFT_USE,
+    MOS_LEFT_GET,
+    MOS_LEFT_PACK,
+    MOS_RIGHT_USE,
+    MOS_RIGHT_GET,
+    MOS_RIGHT_PACK,
+    MOS_CAMERA,
+
+    // Aliases
+    MOS_CONTROL_BEGIN = MOS_JUMP,
+    MOS_CONTROL_END   = MOS_CAMERA
+};
+
+enum e_joystick_controls
+{
+    JOY_JUMP = 0,
+    JOY_LEFT_USE,
+    JOY_LEFT_GET,
+    JOY_LEFT_PACK,
+    JOY_RIGHT_USE,
+    JOY_RIGHT_GET,
+    JOY_RIGHT_PACK,
+    JOY_CAMERA,
+
+    // Aliases
+    JOY_CONTROL_BEGIN = JOY_JUMP,
+    JOY_CONTROL_END   = JOY_CAMERA
+};
+
+
+struct s_control
+{
+    Uint32 tag;
+    bool_t is_key;
+};
+typedef struct s_control control_t;
+
+struct s_device_controls
+{
+    size_t    count;
+    Uint32    device;
+    control_t control[CONTROL_COMMAND_COUNT];
+};
+typedef struct s_device_controls device_controls_t;
+
+EXTERN device_controls_t controls[INPUT_COUNT + MAXJOYSTICK];
+
 #define KEY_INVALID     255
-#define KEY_JUMP            0
-#define KEY_LEFT_USE        1
-#define KEY_LEFT_GET        2
-#define KEY_LEFT_PACK       3
-#define KEY_RIGHT_USE       4
-#define KEY_RIGHT_GET       5
-#define KEY_RIGHT_PACK      6
-#define KEY_MESSAGE         7
-#define KEY_CAMERA_LEFT     8
-#define KEY_CAMERA_RIGHT    9
-#define KEY_CAMERA_IN       10
-#define KEY_CAMERA_OUT      11
-#define KEY_UP              12
-#define KEY_DOWN            13
-#define KEY_LEFT            14
-#define KEY_RIGHT           15
-#define MOS_JUMP            16
-#define MOS_LEFT_USE        17
-#define MOS_LEFT_GET        18
-#define MOS_LEFT_PACK       19
-#define MOS_RIGHT_USE       20
-#define MOS_RIGHT_GET       21
-#define MOS_RIGHT_PACK      22
-#define MOS_CAMERA          23
-#define JOA_JUMP            24
-#define JOA_LEFT_USE        25
-#define JOA_LEFT_GET        26
-#define JOA_LEFT_PACK       27
-#define JOA_RIGHT_USE       28
-#define JOA_RIGHT_GET       29
-#define JOA_RIGHT_PACK      30
-#define JOA_CAMERA          31
-#define JOB_JUMP            32
-#define JOB_LEFT_USE        33
-#define JOB_LEFT_GET        34
-#define JOB_LEFT_PACK       35
-#define JOB_RIGHT_USE       36
-#define JOB_RIGHT_GET       37
-#define JOB_RIGHT_PACK      38
-#define JOB_CAMERA          39
 
 //Quest system
-#define QUESTBEATEN         -1
-#define NOQUEST             -2
-
-// SDL specific declarations
-EXTERN SDL_Joystick *sdljoya EQ( NULL );
-EXTERN SDL_Joystick *sdljoyb EQ( NULL );
-EXTERN Uint8  *sdlkeybuffer;
-#define SDLKEYDOWN(k) sdlkeybuffer[k]
+#define QUEST_BEATEN         -1
+#define QUEST_NONE             -2
 
 #define  _EGOBOO_H_

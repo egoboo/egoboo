@@ -58,7 +58,7 @@ void remove_enchant( Uint16 enchantindex )
                 Uint16 ispawner = encspawner[enchantindex];
                 if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
                 {
-                    play_sound(chroldx[character], chroldy[character], capwaveindex[chrmodel[ispawner]] + iwave);
+                    play_mix(chroldx[character], chroldy[character], capwaveindex[chrmodel[ispawner]] + iwave);
                 }
             }
 
@@ -245,36 +245,36 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     chrmanacolor[character] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETSLASHMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGESLASH];
-                    chrdamagemodifier[character][DAMAGESLASH] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_SLASH];
+                    chrdamagemodifier[character][DAMAGE_SLASH] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETCRUSHMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGECRUSH];
-                    chrdamagemodifier[character][DAMAGECRUSH] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_CRUSH];
+                    chrdamagemodifier[character][DAMAGE_CRUSH] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETPOKEMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEPOKE];
-                    chrdamagemodifier[character][DAMAGEPOKE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_POKE];
+                    chrdamagemodifier[character][DAMAGE_POKE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETHOLYMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEHOLY];
-                    chrdamagemodifier[character][DAMAGEHOLY] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_HOLY];
+                    chrdamagemodifier[character][DAMAGE_HOLY] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETEVILMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEEVIL];
-                    chrdamagemodifier[character][DAMAGEEVIL] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_EVIL];
+                    chrdamagemodifier[character][DAMAGE_EVIL] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETFIREMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEFIRE];
-                    chrdamagemodifier[character][DAMAGEFIRE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_FIRE];
+                    chrdamagemodifier[character][DAMAGE_FIRE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETICEMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEICE];
-                    chrdamagemodifier[character][DAMAGEICE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_ICE];
+                    chrdamagemodifier[character][DAMAGE_ICE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETZAPMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGEZAP];
-                    chrdamagemodifier[character][DAMAGEZAP] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_ZAP];
+                    chrdamagemodifier[character][DAMAGE_ZAP] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETFLASHINGAND:
                     encsetsave[enchantindex][valueindex] = chrflashand[character];
@@ -791,40 +791,40 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evedontdamagetype[profile] = DAMAGENULL;
 
-        if ( cTmp == 'S' || cTmp == 's' )  evedontdamagetype[profile] = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' )  evedontdamagetype[profile] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  evedontdamagetype[profile] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  evedontdamagetype[profile] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  evedontdamagetype[profile] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  evedontdamagetype[profile] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  evedontdamagetype[profile] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  evedontdamagetype[profile] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  evedontdamagetype[profile] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  evedontdamagetype[profile] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  evedontdamagetype[profile] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  evedontdamagetype[profile] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  evedontdamagetype[profile] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  evedontdamagetype[profile] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  evedontdamagetype[profile] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  evedontdamagetype[profile] = DAMAGE_ZAP;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         eveonlydamagetype[profile] = DAMAGENULL;
 
-        if ( cTmp == 'S' || cTmp == 's' )  eveonlydamagetype[profile] = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' )  eveonlydamagetype[profile] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  eveonlydamagetype[profile] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  eveonlydamagetype[profile] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  eveonlydamagetype[profile] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  eveonlydamagetype[profile] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  eveonlydamagetype[profile] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  eveonlydamagetype[profile] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  eveonlydamagetype[profile] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  eveonlydamagetype[profile] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  eveonlydamagetype[profile] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  eveonlydamagetype[profile] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  eveonlydamagetype[profile] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  eveonlydamagetype[profile] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  eveonlydamagetype[profile] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  eveonlydamagetype[profile] = DAMAGE_ZAP;
 
         goto_colon( fileread );  everemovedbyidsz[profile] = get_idsz( fileread );
 
@@ -833,21 +833,21 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );
-        evesetvalue[profile][num] = DAMAGESLASH;
+        evesetvalue[profile][num] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  evesetvalue[profile][num] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  evesetvalue[profile][num] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  evesetvalue[profile][num] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  evesetvalue[profile][num] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  evesetvalue[profile][num] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  evesetvalue[profile][num] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  evesetvalue[profile][num] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  evesetvalue[profile][num] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  evesetvalue[profile][num] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  evesetvalue[profile][num] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  evesetvalue[profile][num] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  evesetvalue[profile][num] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  evesetvalue[profile][num] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  evesetvalue[profile][num] = DAMAGE_ZAP;
 
         num++;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
@@ -1082,9 +1082,8 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
 
             if ( idsz == test )
             {
-                // TODO
                 // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
-                if ( iTmp >= 0 && iTmp < MAXWAVE ) evewaveindex[profile] = iTmp;
+                evewaveindex[profile] = CLIP(iTmp, -1, MAXWAVE);
             }
 
             test = Make_IDSZ( "SFQR" );  // [SFRQ]
@@ -1147,28 +1146,28 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
                 chrmanacolor[character] = encsetsave[enchantindex][valueindex];
                 break;
             case SETSLASHMODIFIER:
-                chrdamagemodifier[character][DAMAGESLASH] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_SLASH] = encsetsave[enchantindex][valueindex];
                 break;
             case SETCRUSHMODIFIER:
-                chrdamagemodifier[character][DAMAGECRUSH] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_CRUSH] = encsetsave[enchantindex][valueindex];
                 break;
             case SETPOKEMODIFIER:
-                chrdamagemodifier[character][DAMAGEPOKE] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_POKE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETHOLYMODIFIER:
-                chrdamagemodifier[character][DAMAGEHOLY] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_HOLY] = encsetsave[enchantindex][valueindex];
                 break;
             case SETEVILMODIFIER:
-                chrdamagemodifier[character][DAMAGEEVIL] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_EVIL] = encsetsave[enchantindex][valueindex];
                 break;
             case SETFIREMODIFIER:
-                chrdamagemodifier[character][DAMAGEFIRE] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_FIRE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETICEMODIFIER:
-                chrdamagemodifier[character][DAMAGEICE] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_ICE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETZAPMODIFIER:
-                chrdamagemodifier[character][DAMAGEZAP] = encsetsave[enchantindex][valueindex];
+                chrdamagemodifier[character][DAMAGE_ZAP] = encsetsave[enchantindex][valueindex];
                 break;
             case SETFLASHINGAND:
                 chrflashand[character] = encsetsave[enchantindex][valueindex];

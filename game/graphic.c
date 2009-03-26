@@ -25,6 +25,7 @@
 #include "egoboo.h"
 #include "graphic.h"
 #include "log.h"
+#include "script.h"
 
 // Defined in egoboo.h
 SDL_Surface *displaySurface = NULL;
@@ -861,15 +862,7 @@ int get_level( Uint8 x, Uint8 y, Uint32 fan, Uint8 waterwalk )
     return zdone;
 }
 
-//---------------------------------------------------------------------------------------------
-void release_all_textures()
-{
-    // ZZ> This function clears out all of the textures
-    Uint16 cnt;
 
-    for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
-        GLTexture_Release( &txTexture[cnt] );
-}
 
 //--------------------------------------------------------------------------------------------
 // ZF> Load all the global icons used in all modules
@@ -899,39 +892,129 @@ bool_t load_one_icon( char *szLoadName )
 {
     // ZZ> This function is used to load an icon.  Most icons are loaded
     //     without this function though...
-    if ( GLTexture_Load( GL_TEXTURE_2D,  &TxIcon[globalnumicon],  szLoadName, INVALID_KEY ) == INVALID_TX_ID ) return bfalse;
+
+    if ( INVALID_TX_ID == GLTexture_Load( GL_TEXTURE_2D,  TxIcon + globalnumicon,  szLoadName, INVALID_KEY ) )
+    {
+        return bfalse;
+    }
 
     globalnumicon++;
     return btrue;
 }
 
 //---------------------------------------------------------------------------------------------
-void prime_titleimage()
-{
-    // ZZ> This function sets the title image pointers to NULL
-    int cnt;
-
-    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-        TxTitleImage[cnt].textureID = 0;
-}
-
-//---------------------------------------------------------------------------------------------
-void prime_icons()
+void init_all_icons()
 {
     // ZZ> This function sets the icon pointers to NULL
     int cnt;
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
-        TxIcon[cnt].textureID = INVALID_TX_ID;
-        madskintoicon[cnt] = 0;
+        GLTexture_new( TxIcon + cnt );
     }
 
     iconrect.left = 0;
     iconrect.right = 32;
     iconrect.top = 0;
     iconrect.bottom = 32;
-    globalnumicon = 0;
+
+    release_all_icons();
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_titleimages()
+{
+    // ZZ> This function clears out all of the title images
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
+    {
+        GLTexture_new( TxTitleImage + cnt );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void init_bars()
+{
+    int cnt;
+
+    GLTexture_new( &TxBars );
+
+    // Make the blit rectangles
+    for ( cnt = 0; cnt < NUMBAR; cnt++ )
+    {
+        tabrect[cnt].left = 0;
+        tabrect[cnt].right = TABX;
+        tabrect[cnt].top = cnt * BARY;
+        tabrect[cnt].bottom = ( cnt + 1 ) * BARY;
+
+        barrect[cnt].left = TABX;
+        barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
+        barrect[cnt].top = tabrect[cnt].top;
+        barrect[cnt].bottom = tabrect[cnt].bottom;
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void init_blip()
+{
+    int cnt;
+
+    GLTexture_new( &TxBlip );
+
+    // Set up the rectangles
+    for ( cnt = 0; cnt < NUMBAR; cnt++ )
+    {
+        bliprect[cnt].left   = cnt * BLIPSIZE;
+        bliprect[cnt].right  = ( cnt * BLIPSIZE ) + BLIPSIZE;
+        bliprect[cnt].top    = 0;
+        bliprect[cnt].bottom = BLIPSIZE;
+    }
+
+}
+
+//---------------------------------------------------------------------------------------------
+void init_map()
+{
+    // ZZ> This function releases all the map images
+    GLTexture_new( &TxMap );
+
+    // Set up the rectangles
+    maprect.left   = 0;
+    maprect.right  = MAPSIZE;
+    maprect.top    = 0;
+    maprect.bottom = MAPSIZE;
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_textures()
+{
+    // ZZ> This function clears out all of the textures
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
+    {
+        GLTexture_new( txTexture + cnt );
+    }
+}
+
+
+//---------------------------------------------------------------------------------------------
+void init_all_models()
+{
+    // ZZ> This function initializes all of the models
+
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
+        capclassname[cnt][0] = 0;
+
+        madused[cnt] = bfalse;
+        strncpy( madname[cnt], "*NONE*", sizeof(madname[cnt]) );
+    }
+
+    madloadframe = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -941,9 +1024,12 @@ void release_all_icons()
     int cnt;
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
-        GLTexture_Release( &TxIcon[cnt] );
+    {
+        GLTexture_Release( TxIcon + cnt );
+        madskintoicon[cnt] = 0;
+    }
 
-    prime_icons();  /* Do we need this? */
+    globalnumicon = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -953,8 +1039,47 @@ void release_all_titleimages()
     int cnt;
 
     for ( cnt = 0; cnt < MAXMODULE; cnt++ )
-        GLTexture_Release( &TxTitleImage[cnt] );
+    {
+        GLTexture_Release( TxTitleImage + cnt );
+    }
 }
+
+//---------------------------------------------------------------------------------------------
+void release_bars()
+{
+    GLTexture_Release( &TxBars );
+}
+
+//---------------------------------------------------------------------------------------------
+void release_blip()
+{
+    GLTexture_Release( &TxBlip );
+
+    youarehereon = bfalse;
+    numblip      = 0;
+}
+
+//---------------------------------------------------------------------------------------------
+void release_map()
+{
+    GLTexture_Release( &TxMap );
+
+    mapvalid = bfalse;
+    mapon    = bfalse;
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_textures()
+{
+    // ZZ> This function releases all of the textures
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
+    {
+        GLTexture_Release( txTexture + cnt );
+    }
+}
+
 
 //---------------------------------------------------------------------------------------------
 void release_all_models()
@@ -965,25 +1090,14 @@ void release_all_models()
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
         capclassname[cnt][0] = 0;
+
         madused[cnt] = bfalse;
-        madname[cnt][0] = '*';
-        madname[cnt][1] = 'N';
-        madname[cnt][2] = 'O';
-        madname[cnt][3] = 'N';
-        madname[cnt][4] = 'E';
-        madname[cnt][5] = '*';
-        madname[cnt][6] = 0;
+        strncpy( madname[cnt], "*NONE*", sizeof(madname[cnt]) );
     }
 
     madloadframe = 0;
 }
 
-//--------------------------------------------------------------------------------------------
-void release_map()
-{
-    // ZZ> This function releases all the map images
-    GLTexture_Release( &TxMap );
-}
 
 //--------------------------------------------------------------------------------------------
 void debug_message( char *text )
@@ -1525,32 +1639,29 @@ void load_basic_textures( char *modname )
     char newloadname[256];
 
     // Particle sprites
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_PARTICLE], "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_0], newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, INVALID_KEY );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D,  &txTexture[TX_TILE_1], newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, INVALID_KEY );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_2], newloadname, INVALID_KEY);
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, INVALID_KEY);
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[TX_TILE_3], newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, INVALID_KEY );
 
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_TOP], newloadname, TRANSCOLOR );
+    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
     make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-    GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_WATER_LOW], newloadname, TRANSCOLOR);
+    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
 
     // Texture 7 is the phong map
-    if ( phongon )
-    {
-        GLTexture_Load( GL_TEXTURE_2D,  &txTexture[TX_PHONG], "basicdat" SLASH_STR "phong", TRANSCOLOR );
-    }
+    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
 
 }
 
@@ -1568,7 +1679,9 @@ Uint16 action_number()
     for ( cnt = 0; cnt < MAXACTION; cnt++ )
     {
         if ( first == cActionName[cnt][0] && second == cActionName[cnt][1] )
+        {
             return cnt;
+        }
     }
 
     return NOACTION;
@@ -1751,9 +1864,7 @@ void get_actions( int object )
     madactionend[object][ACTIONDA] = madframestart[object] + 1;
 
     // Now go huntin' to see what each frame is, look for runs of same action
-    // printf("DIAG: ripping md2\n");
     rip_md2_frame_name( 0 );
-    // printf("DIAG: done ripping md2\n");
     lastaction = action_number();  framesinaction = 0;
     frame = 0;
 
@@ -2020,15 +2131,11 @@ int load_one_object( int skin, char* tmploadname )
     numicon = 0;
     make_newloadname( tmploadname, "tris0", newloadname );
 
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-
-    if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
     {
         numskins++;
         make_newloadname( tmploadname, "icon0", newloadname );
-        GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-
-        if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
+        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalnumicon, newloadname, INVALID_KEY ) )
         {
             while ( numicon < numskins )
             {
@@ -2044,15 +2151,11 @@ int load_one_object( int skin, char* tmploadname )
     }
 
     make_newloadname( tmploadname, "tris1", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-
-    if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
     {
         numskins++;
         make_newloadname( tmploadname, "icon1", newloadname );
-        GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-
-        if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
+        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalnumicon, newloadname, INVALID_KEY ) )
         {
             while ( numicon < numskins )
             {
@@ -2065,15 +2168,11 @@ int load_one_object( int skin, char* tmploadname )
     }
 
     make_newloadname( tmploadname, "tris2", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-
-    if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
     {
         numskins++;
         make_newloadname( tmploadname, "icon2", newloadname );
-        GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-
-        if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
+        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalnumicon, newloadname, INVALID_KEY ) )
         {
             while ( numicon < numskins )
             {
@@ -2086,15 +2185,11 @@ int load_one_object( int skin, char* tmploadname )
     }
 
     make_newloadname( tmploadname, "tris3", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, &txTexture[skin+numskins], newloadname, TRANSCOLOR );
-
-    if ( GLTexture_GetTextureID( &txTexture[skin+numskins] ) != INVALID_TX_ID )
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
     {
         numskins++;
         make_newloadname( tmploadname, "icon3", newloadname );
-        GLTexture_Load(GL_TEXTURE_2D, &TxIcon[globalnumicon], newloadname, INVALID_KEY );
-
-        if ( GLTexture_GetTextureID( &TxIcon[globalnumicon] ) != INVALID_TX_ID )
+        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalnumicon, newloadname, INVALID_KEY ) )
         {
             while ( numicon < numskins )
             {
@@ -2122,23 +2217,10 @@ int load_one_object( int skin, char* tmploadname )
 void load_bars( char* szBitmap )
 {
     // ZZ> This function loads the status bar bitmap
-    int cnt;
 
-    GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR );
-
-    if ( &TxBars == NULL ) log_warning( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
-
-    // Make the blit rectangles
-    for ( cnt = 0; cnt < NUMBAR; cnt++ )
+    if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR ) )
     {
-        tabrect[cnt].left = 0;
-        tabrect[cnt].right = TABX;
-        tabrect[cnt].top = cnt * BARY;
-        tabrect[cnt].bottom = ( cnt + 1 ) * BARY;
-        barrect[cnt].left = TABX;
-        barrect[cnt].right = BARX;  // This is reset whenever a bar is drawn
-        barrect[cnt].top = tabrect[cnt].top;
-        barrect[cnt].bottom = tabrect[cnt].bottom;
+        log_warning( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
     }
 }
 
@@ -2156,42 +2238,86 @@ void load_map( char* szModule )
 
     // Load the images
     sprintf( szMap, "%sgamedat" SLASH_STR "plan", szModule );
-    GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY );
 
-    if ( GLTexture_GetTextureID( &TxMap ) != 0 ) mapvalid = btrue;
-
-    // Set up the rectangles
-    maprect.left   = 0;
-    maprect.right  = MAPSIZE;
-    maprect.top    = 0;
-    maprect.bottom = MAPSIZE;
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY ) )
+    {
+        log_warning( "Cannot load file! (basicdat" SLASH_STR "plan.bmp)\n" );
+    }
+    else
+    {
+        mapvalid = btrue;
+    }
 
 }
 
 //--------------------------------------------------------------------------------------------
-void load_font( char* szBitmap, char* szSpacing )
+void font_init()
+{
+    GLTexture_new( &TxFont );
+
+    font_release();
+}
+
+//--------------------------------------------------------------------------------------------
+void font_release()
+{
+    // BB > fill in default values
+
+    int i, ix, iy, cnt;
+    float dx, dy;
+
+    GLTexture_Release( &TxFont );
+
+    // Mark all as unused
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        asciitofont[cnt] = 255;
+    }
+
+    dx = 256 / NUMFONTX;
+    dy = 256 / NUMFONTY;
+    for ( i = 0; i < NUMFONT; i++ )
+    {
+        ix = i % NUMFONTX;
+        iy = i / NUMFONTX;
+
+        fontrect[cnt].x = ix * dx;
+        fontrect[cnt].w = dx;
+        fontrect[cnt].y = iy * dy;
+        fontrect[cnt].h = dy;
+        fontxspacing[cnt] = 0;
+    }
+    fontyspacing = dy;
+
+};
+
+
+//--------------------------------------------------------------------------------------------
+void font_load( char* szBitmap, char* szSpacing )
 {
     // ZZ> This function loads the font bitmap and sets up the coordinates
     //     of each font on that bitmap...  Bitmap must have 16x6 fonts
-    int cnt, i, y, xsize, ysize, xdiv, ydiv;
+    int cnt, y, xsize, ysize, xdiv, ydiv;
     int xstt, ystt;
     int xspacing, yspacing;
     char cTmp;
     FILE *fileread;
 
-    if ( GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) == INVALID_TX_ID )
-        log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
+    font_release();
 
-    // Clear out the conversion table
-    for ( cnt = 0; cnt < 256; cnt++ )
-        asciitofont[cnt] = 0;
+    if ( INVALID_TX_ID == GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) )
+    {
+        log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
+    }
 
     // Get the size of the bitmap
     xsize = GLTexture_GetImageWidth( &TxFont );
     ysize = GLTexture_GetImageHeight( &TxFont );
 
     if ( xsize == 0 || ysize == 0 )
+    {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
+    }
 
     // Figure out the general size of each font
     ydiv = ysize / NUMFONTY;
@@ -2199,14 +2325,13 @@ void load_font( char* szBitmap, char* szSpacing )
 
     // Figure out where each font is and its spacing
     fileread = fopen( szSpacing, "r" );
-
     if ( fileread == NULL )
+    {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
+    }
 
     parse_filename = szSpacing;
-    cnt = 0;
     y = 0;
-
     xstt = 0;
     ystt = 0;
 
@@ -2215,13 +2340,8 @@ void load_font( char* szBitmap, char* szSpacing )
     fscanf( fileread, "%d", &yspacing );
     fontoffset = scry - yspacing;
 
-    // Mark all as unused
-    for ( i = 0; i < 255; i++ )
-        asciitofont[i] = 255;
-
-    for ( i = 0; i < 96; i++ )
+    for ( cnt = 0; cnt < NUMFONT && goto_colon_yesno( fileread ); cnt++ )
     {
-        goto_colon( fileread );
         fscanf( fileread, "%c%d", &cTmp, &xspacing );
 
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
@@ -2237,10 +2357,9 @@ void load_font( char* szBitmap, char* szSpacing )
         fontrect[cnt].y = ystt;
         fontrect[cnt].h = yspacing - 2;
         fontxspacing[cnt] = xspacing + 1;
-        xstt += xspacing + 1;
-        cnt++;
-    }
 
+        xstt += xspacing + 1;
+    }
     fclose( fileread );
 
     // Space between lines
@@ -2438,21 +2557,21 @@ void read_wawalite( char *modname )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
 
-        if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  damagetiletype = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  damagetiletype = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  damagetiletype = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  damagetiletype = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  damagetiletype = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  damagetiletype = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  damagetiletype = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  damagetiletype = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGE_ZAP;
 
         // Read weather data fourth
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
@@ -2516,7 +2635,7 @@ void read_wawalite( char *modname )
                 goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
                 damagetilepartand = iTmp;
                 goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-                damagetilesound = iTmp;
+                damagetilesound = CLIP(iTmp, -1, MAXWAVE);
             }
         }
 
@@ -2534,7 +2653,6 @@ void read_wawalite( char *modname )
 
         fclose( fileread );
         // Do it
-        // printf("entering light stuff\n");
         make_lighttable( lx, ly, lz, la );
         make_lighttospek();
         make_water();
@@ -2607,7 +2725,7 @@ void render_background( Uint16 texture )
         cullface_save = glIsEnabled( GL_CULL_FACE );
         glDisable( GL_CULL_FACE );
 
-        GLTexture_Bind( &txTexture[texture] );
+        GLTexture_Bind( txTexture + texture );
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glBegin ( GL_TRIANGLE_FAN );
@@ -2710,7 +2828,7 @@ void render_foreground_overlay( Uint16 texture )
         glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
 
-        GLTexture_Bind(&txTexture[texture]);
+        GLTexture_Bind(txTexture + texture);
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glBegin ( GL_TRIANGLE_FAN );
@@ -2784,7 +2902,7 @@ void render_shadow( int character )
         y = chrmatrix[character].CNV( 3, 1 );
 
         // Choose texture.
-        GLTexture_Bind( &txTexture[particletexture] );
+        GLTexture_Bind( txTexture + particletexture );
 
         // GOOD SHADOW
         v[0].s = particleimageu[238][0];
@@ -2929,7 +3047,7 @@ void render_bad_shadow( int character )
         v[3].z = ( float ) level;
 
         // Choose texture and matrix
-        GLTexture_Bind( &txTexture[particletexture] );
+        GLTexture_Bind( txTexture + particletexture );
 
         v[0].s = particleimageu[236][0];
         v[0].t = particleimagev[236][0];
@@ -3268,7 +3386,9 @@ void draw_scene_sadreflection()
     meshlasttexture = 0;
 
     for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
+    {
         render_fan( meshrenderlistref[cnt] );
+    }
 
     if ( refon )
     {
@@ -3289,7 +3409,7 @@ void draw_scene_sadreflection()
 
             if ( ( meshfx[chronwhichfan[tnc]]&MESHFXDRAWREF ) )
             {
-                render_refmad( tnc, chralpha[tnc]&chrlight[tnc] );
+                render_refmad( tnc, (chralpha[tnc] * chrlight[tnc]) >> 8 );
             }
         }
 
@@ -3306,7 +3426,9 @@ void draw_scene_sadreflection()
     meshlasttexture = 0;
 
     for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    {
         render_fan( meshrenderlistsha[cnt] );
+    }
 
     // Render the shadows
     if ( shaon )
@@ -3387,7 +3509,7 @@ void draw_scene_sadreflection()
         {
             trans = chralpha[tnc];
 
-            if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3407,7 +3529,7 @@ void draw_scene_sadreflection()
         {
             trans = chrlight[tnc];
 
-            if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3457,13 +3579,16 @@ void draw_scene_zreflection()
     glDepthMask( GL_FALSE );
 
     meshlasttexture = 0;
-
     for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
+    {
         render_fan( meshrenderlistref[cnt] );
+    }
 
     // BAD: DRAW SHADOW STUFF TOO
     for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    {
         render_fan( meshrenderlistsha[cnt] );
+    }
 
     glEnable( GL_DEPTH_TEST );
     glDepthMask( GL_TRUE );
@@ -3481,7 +3606,7 @@ void draw_scene_zreflection()
             tnc = dolist[cnt];
 
             if ( ( meshfx[chronwhichfan[tnc]]&MESHFXDRAWREF ) )
-                render_refmad( tnc, chralpha[tnc]&chrlight[tnc] );
+                render_refmad( tnc, (chralpha[tnc] * chrlight[tnc]) >> 8 );
         }
 
         // [claforte] I think this is wrong... I think we should choose some other depth func.
@@ -3508,7 +3633,9 @@ void draw_scene_zreflection()
     meshlasttexture = 0;
 
     for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    {
         render_fan( meshrenderlistsha[cnt] );
+    }
 
     // Render the shadows
     if ( shaon )
@@ -3584,7 +3711,7 @@ void draw_scene_zreflection()
         {
             trans = chralpha[tnc];
 
-            if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3605,7 +3732,7 @@ void draw_scene_zreflection()
         {
             trans = chrlight[tnc];
 
-            if ( trans < SEEINVISIBLE && ( localseeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3647,14 +3774,14 @@ bool_t get_mesh_memory()
     // ZZ> This function gets a load of memory for the terrain mesh
     floatmemory = ( float * ) malloc( maxtotalmeshvertices * BYTESFOREACHVERTEX );
 
-    if ( floatmemory == NULL )
-        return bfalse;
+    if ( floatmemory == NULL ) return bfalse;
 
-    meshvrtx = &floatmemory[0];
-    meshvrty = &floatmemory[1*maxtotalmeshvertices];
-    meshvrtz = &floatmemory[2*maxtotalmeshvertices];
-    meshvrta = ( Uint8 * ) & floatmemory[3*maxtotalmeshvertices];
-    meshvrtl = &meshvrta[maxtotalmeshvertices];
+    meshvrtx = floatmemory;
+    meshvrty = meshvrtx + maxtotalmeshvertices;
+    meshvrtz = meshvrty + maxtotalmeshvertices;
+    meshvrta = ( Uint8 * ) (meshvrtz + maxtotalmeshvertices);
+    meshvrtl = meshvrta + maxtotalmeshvertices;
+
     return btrue;
 }
 
@@ -3705,7 +3832,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
         EnableTexturing();    // Enable texture mapping
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
-        GLTexture_Bind( &TxIcon[icontype] );
+        GLTexture_Bind( TxIcon + icontype );
 
         xl = ( ( float )iconrect.left ) / 32;
         xr = ( ( float )iconrect.right ) / 32;
@@ -3966,21 +4093,25 @@ void draw_string( char *szText, int x, int y )
     // ZZ> This function spits a line of null terminated text onto the backbuffer
     Uint8 cTmp = szText[0];
     int cnt = 1;
+    int x_stt;
 
     BeginText();
 
-    while ( cTmp != 0 )
+    x_stt = x;
+    cnt = 0;
+    cTmp = szText[cnt];
+    while ( '\0' != cTmp )
     {
         // Convert ASCII to our own little font
         if ( cTmp == '~' )
         {
             // Use squiggle for tab
-            x = x & ( ~TABAND );
-            x += TABAND + 1;
+            x = (x + TABAND) & ( ~TABAND );
         }
         else if ( cTmp == '\n' )
         {
-            break;
+            x  = x_stt;
+            y += fontyspacing;
         }
         else
         {
@@ -3990,8 +4121,8 @@ void draw_string( char *szText, int x, int y )
             x += fontxspacing[cTmp];
         }
 
-        cTmp = szText[cnt];
         cnt++;
+        cTmp = szText[cnt];
     }
 
     EndText();
@@ -4236,7 +4367,9 @@ void draw_text()
     if ( staton )
     {
         for ( cnt = 0; cnt < numstat && y < scry; cnt++ )
+        {
             y = draw_status( statlist[cnt], scrx - BARX, y );
+        }
     }
 
     // Map display
@@ -4245,19 +4378,19 @@ void draw_text()
         draw_map( 0, scry - MAPSIZE );
 
         //If one of the players can sense enemies via EMP, draw them as blips on the map
-        if ( localsenseenemies != MAXCHR )
+        if ( local_senseenemies != MAXCHR )
         {
             Uint16 iTmp = 0;
 
             while ( numblip < MAXBLIP && iTmp < MAXCHR)
             {
                 //Show only hated team
-                if (chron[iTmp] && teamhatesteam[chrteam[localsenseenemies]][chrteam[iTmp]])
+                if (chron[iTmp] && teamhatesteam[chrteam[local_senseenemies]][chrteam[iTmp]])
                 {
                     //Only if they match the required IDSZ ([NONE] always works)
-                    if ( localsenseenemiesID == Make_IDSZ("NONE")
-                            || capidsz[iTmp][IDSZPARENT] == localsenseenemiesID
-                            || capidsz[iTmp][IDSZTYPE] == localsenseenemiesID)
+                    if ( local_senseenemiesID == Make_IDSZ("NONE")
+                            || capidsz[iTmp][IDSZ_PARENT] == local_senseenemiesID
+                            || capidsz[iTmp][IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
                         if ( chrxpos[iTmp] < meshedgex && chrypos[iTmp] < meshedgey )
@@ -4279,13 +4412,15 @@ void draw_text()
         }
 
         for ( cnt = 0; cnt < numblip; cnt++ )
+        {
             draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + scry - MAPSIZE );
+        }
 
         if ( youarehereon && ( wldframe&8 ) )
         {
             for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
-                if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
+                if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
                 {
                     tnc = plaindex[cnt];
 
@@ -4301,7 +4436,7 @@ void draw_text()
 
     if ( outofsync )
     {
-        sprintf( text, "OUT OF SYNC..." );
+        sprintf( text, "OUT OF SYNC" );
         draw_string( text, 0, y );  y += fontyspacing;
     }
 
@@ -4452,13 +4587,13 @@ void draw_text()
         // White debug mode
         sprintf( text, "!!!DEBUG MODE-7!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", ( mView ).CNV( 0, 0 ), ( mView ).CNV( 1, 0 ), ( mView ).CNV( 2, 0 ), ( mView ).CNV( 3, 0 ) );
+        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 0 ), mView.CNV( 1, 0 ), mView.CNV( 2, 0 ), mView.CNV( 3, 0 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", ( mView ).CNV( 0, 1 ), ( mView ).CNV( 1, 1 ), ( mView ).CNV( 2, 1 ), ( mView ).CNV( 3, 1 ) );
+        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 1 ), mView.CNV( 1, 1 ), mView.CNV( 2, 1 ), mView.CNV( 3, 1 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", ( mView ).CNV( 0, 2 ), ( mView ).CNV( 1, 2 ), ( mView ).CNV( 2, 2 ), ( mView ).CNV( 3, 2 ) );
+        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 2 ), mView.CNV( 1, 2 ), mView.CNV( 2, 2 ), mView.CNV( 3, 2 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", ( mView ).CNV( 0, 3 ), ( mView ).CNV( 1, 3 ), ( mView ).CNV( 2, 3 ), ( mView ).CNV( 3, 3 ) );
+        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 3 ), mView.CNV( 1, 3 ), mView.CNV( 2, 3 ), mView.CNV( 3, 3 ) );
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "x %f", camcenterx );
         draw_string( text, 0, y );  y += fontyspacing;
@@ -4494,7 +4629,7 @@ void draw_text()
 
     if ( waitingforplayers )
     {
-        sprintf( text, "Waiting for players..." );
+        sprintf( text, "Waiting for players... " );
         draw_string( text, 0, y );
         y += fontyspacing;
     }
@@ -4503,30 +4638,30 @@ void draw_text()
     {
         if ( respawnvalid )
         {
-            sprintf( text, "PRESS SPACE TO RESPAWN" );
+            draw_string( "PRESS SPACE TO RESPAWN", 0, y );
+            y += fontyspacing;
         }
         else
         {
-            sprintf( text, "PRESS ESCAPE TO QUIT" );
-        }
-
-        draw_string( text, 0, y );
-        y += fontyspacing;
-    }
-    else
-    {
-        if ( beatmodule )
-        {
-            sprintf( text, "VICTORY!  PRESS ESCAPE" );
-            draw_string( text, 0, y );
+            draw_string( "PRESS ESCAPE TO QUIT", 0, y );
             y += fontyspacing;
         }
     }
+    else if ( beatmodule )
+    {
+        sprintf( text, "VICTORY!  PRESS ESCAPE" );
+        draw_string( text, 0, y );
+        y += fontyspacing;
+    }
 
     // Network message input
-    if ( netmessagemode )
+    if ( console_mode )
     {
-        y = draw_wrap_string( netmessage, 0, y, scrx - wraptolerance );
+        char buffer[KEYB_BUFFER_SIZE + 128];
+
+        snprintf( buffer, sizeof(buffer), "%s > %s%s", netmessagename, keyb.buffer, (0 == (wldframe & 8)) ? "x" : "+" );
+
+        y = draw_wrap_string( buffer, 0, y, scrx - wraptolerance );
     }
 
     // Messages
@@ -4626,12 +4761,12 @@ int load_one_title_image( int titleimage, char *szLoadName )
 {
     // ZZ> This function loads a title in the specified image slot, forcing it into
     //     system memory.  Returns btrue if it worked
-    if ( GLTexture_Load(GL_TEXTURE_2D, &TxTitleImage[titleimage], szLoadName, INVALID_KEY ) != INVALID_TX_ID )
-    {
-        return btrue;
-    }
 
-    return bfalse;
+    Uint32 tx_id;
+
+    tx_id = GLTexture_Load(GL_TEXTURE_2D, TxTitleImage + titleimage, szLoadName, INVALID_KEY );
+
+    return INVALID_TX_ID != tx_id;
 
 }
 
@@ -4659,27 +4794,22 @@ void load_all_menu_images()
     }
 
     // Search for .mod directories
-    FileName = fs_findFirstFile( "modules", "mod" );
     globalnummodule = 0;
-
-    while ( FileName && globalnummodule < MAXMODULE )
+    FileName = fs_findFirstFile( "modules", "mod" );
+    while ( NULL != FileName && globalnummodule < MAXMODULE )
     {
         sprintf( modloadname[globalnummodule], "%s", FileName );
-        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
 
+        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
         if ( get_module_data( globalnummodule, loadname ) )
         {
+            // NOTE: just because we can't load the ttle image DOES NOT mean that we ignore the module
             sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
+            load_one_title_image( globalnummodule, loadname );
 
-            if ( load_one_title_image( globalnummodule, loadname ) )
-            {
-                fprintf( filesave, "%02d.  %s\n", globalnummodule, modlongname[globalnummodule] );
-                globalnummodule++;
-            }
-            else
-            {
-                fprintf( filesave, "**.  %s\n", FileName );
-            }
+            fprintf( filesave, "%02d.  %s\n", globalnummodule, modlongname[globalnummodule] );
+
+            globalnummodule++;
         }
         else
         {
@@ -4691,6 +4821,8 @@ void load_all_menu_images()
 
     fs_findClose();
 
+    modlongname[globalnummodule][0] = '\0';
+
     if ( filesave != NULL ) fclose( filesave );
 }
 
@@ -4698,21 +4830,11 @@ void load_all_menu_images()
 bool_t load_blip_bitmap()
 {
     // This function loads the blip bitmaps
-    Sint8 cnt;
 
-    if (GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) == INVALID_TX_ID)
+    if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) )
     {
-        log_warning( "Blip bitmap not loaded. Missing file = \"basicdat/blip.bmp\"\n" );
+        log_warning( "Blip bitmap not loaded. Missing file = \"basicdat" SLASH_STR "blip.bmp\"\n" );
         return bfalse;
-    }
-
-    // Set up the rectangles
-    for ( cnt = 0; cnt < NUMBAR; cnt++ )
-    {
-        bliprect[cnt].left   = cnt * BLIPSIZE;
-        bliprect[cnt].right  = ( cnt * BLIPSIZE ) + BLIPSIZE;
-        bliprect[cnt].top    = 0;
-        bliprect[cnt].bottom = BLIPSIZE;
     }
 
     return btrue;
@@ -4724,24 +4846,24 @@ bool_t load_blip_bitmap()
 //  // ZZ> This function draws a title image on the backbuffer
 //  GLfloat  txWidth, txHeight;
 //
-//  if ( GLTexture_GetTextureID( &TxTitleImage[image] ) != 0 )// if(lpDDSTitleImage[image])
+//  if ( INVALID_TX_ID != GLTexture_GetTextureID( TxTitleImage + image ) )
 //  {
 //    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 //    Begin2DMode();
 //    glNormal3f( 0, 0, 1 );  // glNormal3f( 0, 1, 0 );
 //
 //    /* Calculate the texture width & height */
-//    txWidth = ( GLfloat )( GLTexture_GetImageWidth( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
-//    txHeight = ( GLfloat )( GLTexture_GetImageHeight( &TxTitleImage[image] ) / GLTexture_GetDimensions( &TxTitleImage[image] ) );
+//    txWidth = ( GLfloat )( GLTexture_GetImageWidth( TxTitleImage + image ) / GLTexture_GetDimensions( TxTitleImage + image ) );
+//    txHeight = ( GLfloat )( GLTexture_GetImageHeight( TxTitleImage + image ) / GLTexture_GetDimensions( TxTitleImage + image ) );
 //
 //    /* Bind the texture */
-//    glBindTexture( GL_TEXTURE_2D, GLTexture_GetTextureID( &TxTitleImage[image] ) );
+//    GLTexture_Bind( TxTitleImage + image );
 //
 //    /* Draw the quad */
 //    glBegin( GL_QUADS );
-//    glTexCoord2f( 0, 1 );  glVertex2f( x, scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
-//    glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y - GLTexture_GetImageHeight( &TxTitleImage[image] ) );
-//    glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( &TxTitleImage[image] ), scry - y );
+//    glTexCoord2f( 0, 1 );  glVertex2f( x, scry - y - GLTexture_GetImageHeight( TxTitleImage + image ) );
+//    glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( TxTitleImage + image ), scry - y - GLTexture_GetImageHeight( TxTitleImage + image ) );
+//    glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( TxTitleImage + image ), scry - y );
 //    glTexCoord2f( 0, 1 - txHeight );  glVertex2f( x, scry - y );
 //    glEnd();
 //
@@ -4753,20 +4875,20 @@ bool_t load_blip_bitmap()
 void do_cursor()
 {
     // This function implements a mouse cursor
-    read_input();
+    input_read();
 
-    cursorx = mousex;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx - 16 )  cursorx = scrx - 16;
+    cursorx = mous.x;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > scrx - 16 )  cursorx = scrx - 16;
 
-    cursory = mousey;  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry - 24 )  cursory = scry - 24;
+    cursory = mous.y;  if ( cursory < 8 )  cursory = 8;  if ( cursory > scry - 24 )  cursory = scry - 24;
 
     clicked = bfalse;
 
-    if ( mousebutton[0] && !pressed )
+    if ( mous.button[0] && !pressed )
     {
         clicked = btrue;
     }
 
-    pressed = mousebutton[0];
+    pressed = mous.button[0];
     BeginText();  // Needed to setup text mode
     // draw_one_font(11, cursorx-5, cursory-7);
     draw_one_font( 95, cursorx - 5, cursory - 7 );
@@ -4814,8 +4936,8 @@ void sdlinit( int argc, char **argv )
 {
     int     colordepth;
 
-    log_info ( "Initializing SDL services version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
-    if ( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK ) < 0 )
+    log_info ( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
+    if ( SDL_Init(0) < 0 )
     {
         log_message( "Failure!\n" );
         log_error( "Unable to initialize SDL: %s\n", SDL_GetError() );
@@ -4824,6 +4946,39 @@ void sdlinit( int argc, char **argv )
     {
         log_message( "Success!\n" );
         atexit( SDL_Quit );
+    }
+
+    log_info( "Intializing SDL Video... " );
+    if ( SDL_InitSubSystem( SDL_INIT_VIDEO ) < 0 )
+    {
+        log_message( "Failed!\n" );
+        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+    }
+    else
+    {
+        log_message( "Succeess!\n" );
+    }
+
+    log_info( "Intializing SDL Timing Services... " );
+    if ( SDL_InitSubSystem( SDL_INIT_TIMER ) < 0 )
+    {
+        log_message( "Failed!\n" );
+        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+    }
+    else
+    {
+        log_message( "Succeess!\n" );
+    }
+
+    log_info( "Intializing SDL Event Threading... " );
+    if ( SDL_InitSubSystem( SDL_INIT_EVENTTHREAD ) < 0 )
+    {
+        log_message( "Failed!\n" );
+        log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+    }
+    else
+    {
+        log_message( "Succeess!\n" );
     }
 
 #ifndef __APPLE__
@@ -4859,7 +5014,7 @@ void sdlinit( int argc, char **argv )
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE,   colordepth );
     SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, colordepth  );
     SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,  colordepth );
-    if(scrd > colordepth * 3)
+    if (scrd > colordepth * 3)
     {
         SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, scrd - colordepth * 3 );
     }
@@ -4867,7 +5022,7 @@ void sdlinit( int argc, char **argv )
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
 
-    log_info("Opening SDL Video Mode...");
+    log_info("Opening SDL Video Mode... ");
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );
     if ( displaySurface == NULL )
     {
@@ -4912,18 +5067,19 @@ void sdlinit( int argc, char **argv )
         SDL_ShowCursor( 0 );  // Hide the mouse cursor
     }
 
-    if ( SDL_NumJoysticks() > 0 )
-    {
-        sdljoya = SDL_JoystickOpen( 0 );
-        joyaon = btrue;
-    }
-
-    if ( SDL_NumJoysticks() > 1 )
-    {
-        sdljoyb = SDL_JoystickOpen( 1 );
-        joybon = btrue;
-    }
+    input_init();
 }
+
+struct s_packing_test
+{
+    Uint8 val1;
+    Uint8 val2;
+
+    Uint8 ary1[3];
+    Uint8 ary2[3];
+};
+
+static struct s_packing_test packing_test;
 
 //---------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
@@ -4933,76 +5089,99 @@ bool_t dump_screenshot()
 
     // returns btrue if successful, bfalse otherwise
 
-    SDL_Surface *screen, *temp;
-    Uint8 *pixels;
-    char buff[100], buff2[100];
     int i;
-    bool_t savefound;
     FILE *test;
+    SDL_Surface *screen;
+    bool_t savefound = bfalse;
+    char szFilename[100];
 
-    screen = SDL_GetVideoSurface();
-
-    temp = SDL_CreateRGBSurface( SDL_SWSURFACE, screen->w, screen->h, 24,
-#if SDL_BYTEORDER == SDL_LIL_ENDIAN
-                                 0x000000FF, 0x0000FF00, 0x00FF0000, 0
-#else
-                                 0x00FF0000, 0x0000FF00, 0x000000FF, 0
-#endif
-                               );
-
-    if ( temp == NULL )
-        return bfalse;
-
-    pixels = malloc( 3 * screen->w * screen->h );
-
-    if ( pixels == NULL )
-    {
-        SDL_FreeSurface( temp );
-        return bfalse;
-    }
-
-    glReadPixels( 0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels );
-
-    for ( i = 0; i < screen->h; i++ )
-    {
-        memcpy( ( ( char * ) temp->pixels ) + temp->pitch * i, pixels + 3 * screen->w * ( screen->h - i - 1 ), screen->w * 3 );
-    }
-
-    free( pixels );
-
-    // find the next EGO??.BMP file for writing
-    i = 0;
-    test = NULL;
+    // find a valid file name
     savefound = bfalse;
-
+    i = 0;
     while ( !savefound && ( i < 100 ) )
     {
-        sprintf( buff, "ego%02d.bmp", i );
+        sprintf( szFilename, "ego%02d.bmp", i );
 
         // lame way of checking if the file already exists...
-        test = fopen( buff, "rb" );
+        test = fopen( szFilename, "rb" );
 
         if ( test != NULL )
         {
             fclose( test );
             i++;
         }
-        else savefound = btrue;
+        else
+        {
+            savefound = btrue;
+        }
     }
 
-    if ( !savefound )
+    if ( !savefound ) return bfalse;
+
+    // grab the current screen
+    screen = SDL_GetVideoSurface();
+
+    // if we are not using OpenGl, jsut dump the screen
+    if ( 0 == (screen->flags & SDL_OPENGL) )
     {
-        SDL_FreeSurface( temp );
+        SDL_SaveBMP(screen, szFilename);
         return bfalse;
     }
 
-    SDL_SaveBMP( temp, buff );
-    SDL_FreeSurface( temp );
+    // we ARE using OpenGL
+    glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT ) ;
+    {
+        SDL_Surface *temp;
+        Uint8 *pixels;
+        char buff2[100];
 
-    sprintf( buff2, "Saved to %s", buff );
-    debug_message( buff2 );
+        // tell OpenGL about our prefered packing
+        glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
-    return btrue;
+        // create a SDL surface
+        temp = SDL_CreateRGBSurface( SDL_SWSURFACE, screen->w, screen->h, 24,
+#if SDL_BYTEORDER == SDL_LIL_ENDIAN
+                                     0x000000FF, 0x0000FF00, 0x00FF0000, 0
+#else
+                                     0x00FF0000, 0x0000FF00, 0x000000FF, 0
+#endif
+                                   );
+
+        if ( temp == NULL ) return bfalse;
+
+        // allocate the pixel store to receive the data from OpenGL
+        pixels = malloc( 3 * screen->w * screen->h );
+        if ( pixels == NULL )
+        {
+            SDL_FreeSurface( temp );
+            return bfalse;
+        }
+
+        // actually grab the OpenGL buffer
+        glReadPixels( 0, 0, screen->w, screen->h, GL_RGB, GL_UNSIGNED_BYTE, pixels );
+
+        // copy it into the SDL screen
+        for ( i = 0; i < screen->h; i++ )
+        {
+            memcpy( ( ( char * ) temp->pixels ) + temp->pitch * i, pixels + 3 * screen->w * ( screen->h - i - 1 ), screen->w * 3 );
+        }
+
+        // free the pixel data
+        free( pixels );
+
+        // Save the file as a .bmp
+        SDL_SaveBMP( temp, szFilename );
+
+        // free the SDL surface
+        SDL_FreeSurface( temp );
+
+        // tell the user what we did
+        sprintf( buff2, "Saved to %s", szFilename );
+        debug_message( buff2 );
+    }
+    glPopClientAttrib();
+
+    return savefound;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5014,7 +5193,7 @@ void check_stats()
     static int stat_check_delay = 0;
     int ticks;
 
-    if ( netmessagemode ) return;
+    if ( console_mode ) return;
 
     ticks = SDL_GetTicks();
     if ( ticks > stat_check_timer + 20 )

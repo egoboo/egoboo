@@ -326,7 +326,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
     glMultMatrixf( mWorld.v );
 
     // Choose texture and matrix
-    GLTexture_Bind( &txTexture[texture] );
+    GLTexture_Bind( txTexture + texture );
 
     // Render each command
     entry = 0;
@@ -560,7 +560,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     */
 
     // Choose texture and matrix
-    GLTexture_Bind( &txTexture[texture] );
+    GLTexture_Bind( txTexture + texture );
 
     mWorld = chrmatrix[character];
 

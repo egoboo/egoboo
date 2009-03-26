@@ -471,3 +471,15 @@
 #define VARTARGETTURNAWAY   69
 #define VARSELFLEVEL      70
 #define VARTARGETRELOADTIME  71
+
+extern int     valuetmpx;
+extern int     valuetmpy;
+extern Uint16  valuetmpturn;
+extern int     valuetmpdistance;
+extern int     valuetmpargument;
+extern Uint32  valuelastindent;
+extern Uint16  valueoldtarget;
+extern int     valueoperationsum;
+extern bool_t  valuegopoof;
+extern bool_t  valuechanged;
+

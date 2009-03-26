@@ -25,7 +25,5 @@
  */
 
 void menu_frameStep();
-extern int selectedModule;
-extern int waitingforinput;
 
 #define egoboo_Menu_h

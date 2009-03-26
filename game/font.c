@@ -23,6 +23,7 @@
  */
 
 #include "font.h"
+#include "egobootypedef.h"
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -41,6 +42,36 @@ struct Font
     GLfloat texCoords[4];
 };
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static int fnt_atexit_registered = 0;
+
+int fnt_init()
+{
+    // BB> Make sure the TTF library was initialized
+
+    int initialized;
+
+    initialized = TTF_WasInit();
+
+    if ( !initialized )
+    {
+        if ( TTF_Init() >= 0 )
+        {
+            if ( !fnt_atexit_registered )
+            {
+                fnt_atexit_registered  = 1;
+                atexit( TTF_Quit );
+            }
+
+            initialized = 1;
+        }
+    }
+
+    return initialized;
+};
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // The next two functions are borrowed from the gl_font.c test program from SDL_ttf
 static int powerOfTwo( int input )
@@ -123,24 +154,15 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     Font *newFont;
     TTF_Font *ttfFont;
 
-    // Make sure the TTF library was initialized
-    if ( !TTF_WasInit() )
+    if ( !fnt_init() )
     {
-        if ( TTF_Init() != -1 )
-        {
-            atexit( TTF_Quit );
-        }
-        else
-        {
-            printf( "fnt_loadFont: Could not initialize SDL_TTF!\n" );
-            return NULL;
-        }
+        printf( "fnt_loadFont: Could not initialize SDL_TTF!\n" );
+        return NULL;
     }
 
     // Try and open the font
     ttfFont = TTF_OpenFont( fileName, pointSize );
-
-    if ( !ttfFont )
+    if ( NULL == ttfFont )
     {
         // couldn't open it, for one reason or another
         return NULL;
@@ -149,7 +171,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     // Everything looks good
     newFont = ( Font* )malloc( sizeof( Font ) );
     newFont->ttfFont = ttfFont;
-    newFont->texture = 0;
+    newFont->texture = (GLuint)(~0);
 
     return newFont;
 }
@@ -171,22 +193,24 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
     SDL_Surface *textSurf;
     SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
 
-    if ( font )
+    if ( NULL == font ) return;
+
+    // Let TTF render the text
+    textSurf = TTF_RenderText_Blended( font->ttfFont, text, color );
+    if (NULL == textSurf) return;
+
+    // Does this font already have a texture?  If not, allocate it here
+    if ( (GLuint)(~0) == font->texture )
     {
-        // Let TTF render the text
-        textSurf = TTF_RenderText_Blended( font->ttfFont, text, color );
+        glGenTextures( 1, &font->texture );
+    }
 
-        // Does this font already have a texture?  If not, allocate it here
-        if ( font->texture == 0 )
+    // Copy the surface to the texture
+    if ( copySurfaceToTexture( textSurf, font->texture, font->texCoords ) )
+    {
+        // And draw the darn thing
+        glBegin( GL_TRIANGLE_STRIP );
         {
-            glGenTextures( 1, &font->texture );
-        }
-
-        // Copy the surface to the texture
-        if ( copySurfaceToTexture( textSurf, font->texture, font->texCoords ) )
-        {
-            // And draw the darn thing
-            glBegin( GL_TRIANGLE_STRIP );
             glTexCoord2f( font->texCoords[0], font->texCoords[1] );
             glVertex2i( x, y );
             glTexCoord2f( font->texCoords[2], font->texCoords[1] );
@@ -195,12 +219,12 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
             glVertex2i( x, y + textSurf->h );
             glTexCoord2f( font->texCoords[2], font->texCoords[3] );
             glVertex2i( x + textSurf->w, y + textSurf->h );
-            glEnd();
         }
-
-        // Done with the surface
-        SDL_FreeSurface( textSurf );
+        glEnd();
     }
+
+    // Done with the surface
+    SDL_FreeSurface( textSurf );
 }
 
 //--------------------------------------------------------------------------------------------

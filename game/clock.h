@@ -31,12 +31,12 @@ void   clk_init();               // Init the clock module
 void   clk_shutdown();           // Turn off the clock module
 
 void   clk_setTimeSource( clk_timeSourcePtr_t timeSource );  // Specify where the clock gets its time values from
-                                                               // Defaults to sys_getTime()
+// Defaults to sys_getTime()
 void   clk_setFrameHistoryWindow( int size );                 // Set how many frames to keep a length history of
-                                                              // Defaults to 1
+// Defaults to 1
 void   clk_frameStep();           // Update the clock.
 double clk_getTime();             // Returns the current time.  The clock's time only
-                                  // changes when frameStep is called
+// changes when frameStep is called
 
 double clk_getFrameDuration();    // Return the length of the current frame. (Sort of.)
 Uint32 clk_getFrameNumber();      // Return which frame we're on

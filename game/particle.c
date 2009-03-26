@@ -125,11 +125,11 @@ void play_particle_sound( int particle, Sint8 sound )
     // This function plays a sound effect for a particle
     if ( sound >= 0 && sound < MAXWAVE )
     {
-        if ( prtmodel[particle] != MAXMODEL ) 
+        if ( prtmodel[particle] != MAXMODEL )
         {
             play_mix( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]] + sound );
         }
-        else  
+        else
         {
             play_mix( prtxpos[particle], prtypos[particle], globalwave + sound );
         }
@@ -1169,21 +1169,21 @@ int load_one_particle( char *szLoadName, int object, int pip )
         pipdamagerand[numpip] = pairrand;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
 
-        if ( cTmp == 'S' || cTmp == 's' ) pipdamagetype[numpip] = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' ) pipdamagetype[numpip] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' ) pipdamagetype[numpip] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' ) pipdamagetype[numpip] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' ) pipdamagetype[numpip] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' ) pipdamagetype[numpip] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' ) pipdamagetype[numpip] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' ) pipdamagetype[numpip] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' ) pipdamagetype[numpip] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' ) pipdamagetype[numpip] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' ) pipdamagetype[numpip] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' ) pipdamagetype[numpip] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' ) pipdamagetype[numpip] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' ) pipdamagetype[numpip] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' ) pipdamagetype[numpip] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' ) pipdamagetype[numpip] = DAMAGE_ZAP;
 
         // Lighting data
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
@@ -1256,19 +1256,10 @@ int load_one_particle( char *szLoadName, int object, int pip )
         if ( cTmp == 'T' || cTmp == 't' ) piponlydamagefriendly[numpip] = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+        pipsoundspawn[numpip] = CLIP(iTmp, -1, MAXWAVE);
 
-        if ( iTmp < -1 ) iTmp = -1;
-
-        if ( iTmp > MAXWAVE - 1 ) iTmp = MAXWAVE - 1;
-
-        pipsoundspawn[numpip] = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-
-        if ( iTmp < -1 ) iTmp = -1;
-
-        if ( iTmp > MAXWAVE - 1 ) iTmp = MAXWAVE - 1;
-
-        pipsoundend[numpip] = iTmp;
+        pipsoundend[numpip] = CLIP(iTmp, -1, MAXWAVE);
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipfriendlyfire[numpip] = bfalse;

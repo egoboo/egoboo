@@ -22,6 +22,7 @@
  */
 
 #include "egoboo.h"
+#include "script.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -376,7 +377,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 
                             while ( sTmp != MAXCHR )
                             {
-                                if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == idsz || capidsz[chrmodel[sTmp]][IDSZTYPE] == idsz )
+                                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == idsz || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
                                     return character;
@@ -392,7 +393,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
                             {
                                 sTmp = chrmodel[sTmp];
 
-                                if ( capidsz[sTmp][IDSZPARENT] == idsz || capidsz[sTmp][IDSZTYPE] == idsz )
+                                if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
                                     return character;
@@ -406,7 +407,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
                             {
                                 sTmp = chrmodel[sTmp];
 
-                                if ( capidsz[sTmp][IDSZPARENT] == idsz || capidsz[sTmp][IDSZTYPE] == idsz )
+                                if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
                                     return character;

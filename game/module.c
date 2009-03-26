@@ -53,7 +53,7 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
     int foundidsz;
     int cnt;
 
-    if ( idsz == IDSZNONE )
+    if ( idsz == IDSZ_NONE )
         return btrue;
 
     if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
@@ -208,7 +208,7 @@ void load_module( char *smallname )
     setup_alliances( modname );
 
     // Load fonts and bars after other images, as not to hog videomem
-    load_font( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
     load_bars( "basicdat" SLASH_STR "bars" );
     load_map( modname );
 
@@ -241,7 +241,9 @@ int load_all_objects( char *modname )
 
     // Clear the import slots...
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
         capimportslot[cnt] = 10000;
+    }
 
     // Load the import directory
     importplayer = -1;
@@ -343,67 +345,64 @@ int get_module_data( int modnumber, char *szLoadName )
     Sint16 questlevel;
     char cTmp;
     int iTmp;
-    bool_t playerhasquest = bfalse;
+    bool_t playerhasquest, loaded;
 
     fileread = fopen( szLoadName, "r" );
+    if ( NULL == fileread ) return bfalse;
 
-    if ( fileread )
+    // Read basic data
+    parse_filename = szLoadName;
+    goto_colon( fileread );  get_name( fileread, modlongname[modnumber] );
+    goto_colon( fileread );  fscanf( fileread, "%s", reference );
+    goto_colon( fileread );  idsz = get_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
+
+    //Check all selected players directories !!TODO!!
+    playerhasquest = bfalse;
+    for ( iTmp = 0; iTmp < numloadplayer; iTmp++ )
     {
-        // Read basic data
-        parse_filename = szLoadName;
-        goto_colon( fileread );  get_name( fileread, modlongname[modnumber] );
-        goto_colon( fileread );  fscanf( fileread, "%s", reference );
-        goto_colon( fileread );  idsz = get_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
-
-        //Check all selected players directories !!TODO!!
-        playerhasquest = bfalse;
-        iTmp = 0;
-
-        while ( !playerhasquest && iTmp < numloadplayer )
+        if ( questlevel <= check_player_quest( loadplayername[selectedPlayer], idsz ))
         {
-            if ( questlevel <= check_player_quest( loadplayername[selectedPlayer], idsz )) playerhasquest = btrue;
-
-            iTmp++;
-        }
-
-        //So, do we load the module or not?
-        if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
-        {
-            parse_filename = szLoadName;
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-            modimportamount[modnumber] = iTmp;
-            goto_colon( fileread );  cTmp = get_first_letter( fileread );
-            modallowexport[modnumber] = bfalse;
-
-            if ( cTmp == 'T' || cTmp == 't' )  modallowexport[modnumber] = btrue;
-
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modminplayers[modnumber] = iTmp;
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modmaxplayers[modnumber] = iTmp;
-            goto_colon( fileread );  cTmp = get_first_letter( fileread );
-            modrespawnvalid[modnumber] = bfalse;
-
-            if ( cTmp == 'T' || cTmp == 't' )  modrespawnvalid[modnumber] = btrue;
-            if ( cTmp == 'A' || cTmp == 'a' )  modrespawnvalid[modnumber] = ANYTIME;
-
-            goto_colon( fileread );   //BAD: Skip line
-            modrtscontrol[modnumber] = bfalse;
-            goto_colon( fileread );  fscanf( fileread, "%s", generictext );
-            iTmp = 0;
-
-            while ( iTmp < RANKSIZE - 1 )
-            {
-                modrank[modnumber][iTmp] = generictext[iTmp];
-                iTmp++;
-            }
-
-            modrank[modnumber][iTmp] = 0;
-
-            // Read the expansions
-            return btrue;
+            playerhasquest = btrue;
+            break;
         }
     }
 
-    return bfalse;
+    //So, do we load the module or not?
+    loaded = bfalse;
+    if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
+    {
+        parse_filename = szLoadName;
+
+        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+        modimportamount[modnumber] = iTmp;
+
+        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        modallowexport[modnumber] = bfalse;
+        if ( cTmp == 'T' || cTmp == 't' )  modallowexport[modnumber] = btrue;
+
+        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modminplayers[modnumber] = iTmp;
+
+        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modmaxplayers[modnumber] = iTmp;
+
+        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        modrespawnvalid[modnumber] = bfalse;
+        if ( cTmp == 'T' || cTmp == 't' )  modrespawnvalid[modnumber] = btrue;
+        if ( cTmp == 'A' || cTmp == 'a' )  modrespawnvalid[modnumber] = ANYTIME;
+
+        goto_colon( fileread );   //BAD: Skip line
+        modrtscontrol[modnumber] = bfalse;
+
+        goto_colon( fileread );  fscanf( fileread, "%s", generictext );
+        for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
+        {
+            modrank[modnumber][iTmp] = generictext[iTmp];
+        }
+        modrank[modnumber][iTmp] = '\0';
+
+        loaded = btrue;
+    }
+
+    return loaded;
 }
 
 //--------------------------------------------------------------------------------------------

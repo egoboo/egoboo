@@ -27,6 +27,7 @@
 
 #include <SDL_types.h>
 
+
 //RECTANGLE
 typedef struct s_rect
 {
@@ -50,9 +51,14 @@ typedef uint8_t   byte;
 
 //IDSZ
 typedef Uint32 IDSZ;
+
+extern char idsz_string[5];
+
 #ifndef Make_IDSZ
 #define Make_IDSZ(string) ((IDSZ)((((string)[0]-'A') << 15) | (((string)[1]-'A') << 10) | (((string)[2]-'A') << 5) | (((string)[3]-'A') << 0)))
 #endif
+
+#define IDSZ_NONE            Make_IDSZ("NONE")       // [NONE]
 
 //STRING
 typedef char STRING[256];

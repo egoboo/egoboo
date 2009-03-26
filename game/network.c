@@ -173,7 +173,7 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
         plavalid[player] = btrue;
         pladevice[player] = device;
 
-        if ( device != INPUTNONE )  nolocalplayers = bfalse;
+        if ( device != INPUT_BITS_NONE )  nolocalplayers = bfalse;
 
         plalatchx[player] = 0;
         plalatchy[player] = 0;
@@ -188,7 +188,7 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
             cnt++;
         }
 
-        if ( device != INPUTNONE )
+        if ( device != INPUT_BITS_NONE )
         {
             chrislocalplayer[character] = btrue;
             numlocalpla++;
@@ -888,17 +888,17 @@ void cl_talkToHost()
     Uint16 player;
 
     // Let the players respawn
-    if ( sdlkeybuffer[SDLK_SPACE]
+    if ( SDLKEYDOWN( SDLK_SPACE )
             && ( alllocalpladead || respawnanytime )
             && respawnvalid
             && !rtscontrol
-            && !netmessagemode )
+            && !console_mode )
     {
         player = 0;
 
         while ( player < MAXPLAYER )
         {
-            if ( plavalid[player] && pladevice[player] != INPUTNONE )
+            if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
             {
                 plalatchbutton[player] |= LATCHBUTTONRESPAWN;  // Press the respawn button...
             }
@@ -917,7 +917,7 @@ void cl_talkToHost()
         while ( player < MAXPLAYER )
         {
             // Find the local players
-            if ( plavalid[player] && pladevice[player] != INPUTNONE )
+            if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
             {
                 packet_addUnsignedByte( player );                        // The player index
                 packet_addUnsignedByte( plalatchbutton[player] );        // Player button states
@@ -1569,7 +1569,7 @@ void net_initialize()
     if ( networkon )
     {
         // initialize enet
-        log_info( "net_initialize: Initializing enet..." );
+        log_info( "net_initialize: Initializing enet... " );
 
         if ( enet_initialize() != 0 )
         {
@@ -1678,7 +1678,7 @@ int cl_joinGame( const char* hostname )
 
     if ( networkon )
     {
-        log_info( "cl_joinGame: Creating client network connection..." );
+        log_info( "cl_joinGame: Creating client network connection... " );
         // Create my host thingamabober
         // TODO: Should I limit client bandwidth here?
         net_myHost = enet_host_create( NULL, 1, 0, 0 );
@@ -1869,4 +1869,23 @@ void net_updateFileTransfers()
 
     // Let the recieve loop run at least once
     listen_for_packets();
+}
+
+//--------------------------------------------------------------------------------------------
+void net_send_message()
+{
+    // ZZ> sends the message in the keyboard buffer to all other players
+
+    int cnt;
+    char cTmp;
+
+    if ( console_mode || !console_done ) return;
+
+    //if(networkon)
+    //{
+    //    start_building_packet();
+    //    add_packet_us(TO_ANY_TEXT);
+    //    add_packet_sz(keyb.buffer);
+    //    send_packet_to_all_players();
+    //}
 }

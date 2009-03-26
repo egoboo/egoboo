@@ -493,29 +493,70 @@ bool_t setup_upload()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void export_control( FILE * filewrite, const char * text, Sint32 device, control_t * pcontrol )
+{
+    STRING write;
+
+    snprintf( write, sizeof(write), "%s : %s\n", text, tag_to_string(device, pcontrol->tag, pcontrol->is_key) );
+    fputs( write, filewrite );
+};
+
+//--------------------------------------------------------------------------------------------
 bool_t input_settings_load( char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
     FILE* fileread;
     char currenttag[TAGSIZE];
-    int cnt;
+    int i, cnt;
 
     parse_filename = "";
 
     fileread = fopen( szFilename, "r" );
-
-    if (NULL == fileread) return bfalse;
+    if (NULL == fileread)
+    {
+        log_warning("Could not load input settings (%s)!\n", szFilename);
+        return bfalse;
+    }
 
     parse_filename = szFilename;
 
-    cnt = 0;
+    // set the number of valid controls to be 0
+    input_device_count = 0;
 
-    while ( goto_colon_yesno( fileread ) && cnt < MAXCONTROL )
+    // read the keyboard controls
+    for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
     {
-        fscanf( fileread, "%s", currenttag );
-        controlvalue[cnt] = tag_value( currenttag );
-        controliskey[cnt] = ( currenttag[0] == 'K' );
-        cnt++;
+        goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+        controls[INPUT_KEYBOARD].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
+    };
+    controls[INPUT_KEYBOARD].device = INPUT_KEYBOARD;
+    controls[INPUT_KEYBOARD].count = i;
+    input_device_count++;
+
+    // read the mouse controls
+    for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
+    {
+        goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+        controls[INPUT_MOUSE].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
+    };
+    controls[INPUT_MOUSE].device = INPUT_MOUSE;
+    controls[INPUT_MOUSE].count = i;
+    input_device_count++;
+
+    // read in however many joysticks there are...
+    for ( cnt = 0; !feof(fileread) && cnt < MAXJOYSTICK; cnt++ )
+    {
+        for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
+        {
+            goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+            controls[INPUT_JOY + cnt].control[i].tag    = tag_value( currenttag );
+            controls[INPUT_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
+        };
+        controls[INPUT_JOY + cnt].device = INPUT_JOY + cnt;
+        controls[INPUT_JOY + cnt].count = i;
+        input_device_count++;
     }
 
     fclose( fileread );
@@ -524,137 +565,94 @@ bool_t input_settings_load( char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save(char* whichfile)
+bool_t input_settings_save(char* szFilename)
 {
     // This function saves all current game settings to "controls.txt"
+    device_controls_t * pdevice;
     FILE* filewrite;
     STRING write;
+    int i;
 
-    filewrite = fopen( whichfile, "w" );
-
-    if ( filewrite )
+    filewrite = fopen( szFilename, "w" );
+    if ( NULL == filewrite )
     {
-        //Just some information
-        fputs( "Controls\n", filewrite );
-        fputs( "========\n", filewrite );
-        fputs( "This file lets users modify the handling of input devices.\n", filewrite );
-        fputs( "See the game manual for a list of settings and more info.\n", filewrite );
-        fputs( "Note that you can mix KEY_ type settings with other \n", filewrite );
-        fputs( "devices... Write the input after the colons!\n\n", filewrite );
-
-        fputs( "General Controls\n", filewrite );
-        fputs( "========\n", filewrite );
-        fputs( "These are general controls and cannot be changed\n", filewrite );
-        fputs( "ESC                   - End module\n", filewrite );
-        fputs( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
-        fputs( "1 to 7                - Show character detailed stats\n", filewrite );
-        fputs( "LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
-        fputs( "LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
-        fputs( "LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
-        fputs( "F11                   - Take screenshot\n", filewrite );
-        fputs( "\n", filewrite );
-
-        //The actual settings
-        fputs( "Keyboard\n", filewrite );
-        fputs( "========\n", filewrite );
-        snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[KEY_JUMP], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[KEY_LEFT_USE], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[KEY_LEFT_GET], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Inventory: %s\n", tag_to_string(controlvalue[KEY_LEFT_PACK], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[KEY_RIGHT_USE], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Get/Drop: %s\n", tag_to_string(controlvalue[KEY_RIGHT_GET], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[KEY_RIGHT_PACK], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Send Message		: %s\n", tag_to_string(controlvalue[KEY_MESSAGE], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Rotate Left	: %s\n", tag_to_string(controlvalue[KEY_CAMERA_LEFT], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Rotate Right: %s\n", tag_to_string(controlvalue[KEY_CAMERA_RIGHT], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Zoom In		: %s\n", tag_to_string(controlvalue[KEY_CAMERA_IN], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Zoom Out	: %s\n", tag_to_string(controlvalue[KEY_CAMERA_OUT], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Up					: %s\n", tag_to_string(controlvalue[KEY_UP], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Down				: %s\n", tag_to_string(controlvalue[KEY_DOWN], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left				: %s\n", tag_to_string(controlvalue[KEY_LEFT], btrue) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right				: %s\n", tag_to_string(controlvalue[KEY_RIGHT], btrue) );
-        fputs( write, filewrite );
-
-        fputs( "\n\nMouse\n", filewrite );
-        fputs( "========\n", filewrite );
-        snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[MOS_JUMP], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[MOS_LEFT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[MOS_LEFT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[MOS_LEFT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[MOS_RIGHT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[MOS_RIGHT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[MOS_RIGHT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[MOS_CAMERA], bfalse) );
-        fputs( write, filewrite );
-
-        fputs( "\n\nJoystick A\n", filewrite );
-        fputs( "========\n", filewrite );
-        snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[JOA_JUMP], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[JOA_LEFT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOA_LEFT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[JOA_LEFT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[JOA_RIGHT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOA_RIGHT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[JOA_RIGHT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[JOA_CAMERA], bfalse) );
-        fputs( write, filewrite );
-
-        fputs( "\n\nJoystick B\n", filewrite );
-        fputs( "========\n", filewrite );
-        snprintf( write, sizeof(write), "Jump				: %s\n", tag_to_string(controlvalue[JOB_JUMP], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Use		: %s\n", tag_to_string(controlvalue[JOB_LEFT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOB_LEFT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Left Hand Inventory	: %s\n", tag_to_string(controlvalue[JOB_LEFT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Use		: %s\n", tag_to_string(controlvalue[JOB_RIGHT_USE], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Get/Drop	: %s\n", tag_to_string(controlvalue[JOB_RIGHT_GET], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Right Hand Inventory: %s\n", tag_to_string(controlvalue[JOB_RIGHT_PACK], bfalse) );
-        fputs( write, filewrite );
-        snprintf( write, sizeof(write), "Camera Control Mode	: %s\n", tag_to_string(controlvalue[JOB_CAMERA], bfalse) );
-        fputs( write, filewrite );
-
-        //All done
-        fclose(filewrite);
-    }
-    else
-    {
-        log_warning("Could not save input settings (%s)!\n", whichfile);
+        log_warning("Could not save input settings (%s)!\n", szFilename);
         return bfalse;
     }
+
+    //Just some information
+    fputs( "Controls\n", filewrite );
+    fputs( "========\n", filewrite );
+    fputs( "This file lets users modify the handling of input devices.\n", filewrite );
+    fputs( "See the game manual for a list of settings and more info.\n", filewrite );
+    fputs( "Note that you can mix KEY_ type settings with other \n", filewrite );
+    fputs( "devices... Write the input after the colons!\n\n", filewrite );
+
+    fputs( "General Controls\n", filewrite );
+    fputs( "========\n", filewrite );
+    fputs( "These are general controls and cannot be changed\n", filewrite );
+    fputs( "ESC                   - End module\n", filewrite );
+    fputs( "SPACE                 - Respawn character (if dead and possible)\n", filewrite );
+    fputs( "1 to 7                - Show character detailed stats\n", filewrite );
+    fputs( "LEFT SHIFT   + 1 to 7 - Show selected character armor without magic enchants\n", filewrite );
+    fputs( "LEFT CONTROL + 1 to 7 - Show armor stats with magic enchants included\n", filewrite );
+    fputs( "LEFT ALT     + 1 to 7 - Show character magic enchants\n", filewrite );
+    fputs( "F11                   - Take screenshot\n", filewrite );
+    fputs( "\n", filewrite );
+
+    //The actual settings
+    pdevice = controls + INPUT_KEYBOARD;
+    fputs( "Keyboard\n", filewrite );
+    fputs( "========\n", filewrite );
+    export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
+    export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+    export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+    export_control( filewrite, "Left Hand Inventory ", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
+    export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+    export_control( filewrite, "Right Hand Get/Drop ", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
+    export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
+    export_control( filewrite, "Send Message\t\t", pdevice->device, pdevice->control + CONTROL_MESSAGE );
+    export_control( filewrite, "Camera Rotate Left\t", pdevice->device, pdevice->control + CONTROL_CAMERA_LEFT );
+    export_control( filewrite, "Camera Rotate Right ", pdevice->device, pdevice->control + CONTROL_CAMERA_RIGHT );
+    export_control( filewrite, "Camera Zoom In\t\t", pdevice->device, pdevice->control + CONTROL_CAMERA_IN );
+    export_control( filewrite, "Camera Zoom Out\t", pdevice->device, pdevice->control + CONTROL_CAMERA_OUT );
+    export_control( filewrite, "Up\t\t\t\t\t", pdevice->device, pdevice->control + CONTROL_UP );
+    export_control( filewrite, "Down\t\t\t\t", pdevice->device, pdevice->control + CONTROL_DOWN );
+    export_control( filewrite, "Left\t\t\t\t", pdevice->device, pdevice->control + CONTROL_LEFT );
+    export_control( filewrite, "Right\t\t\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT );
+
+    pdevice = controls + INPUT_MOUSE;
+    fputs( "\n\nMouse\n", filewrite );
+    fputs( "========\n", filewrite );
+    export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
+    export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+    export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+    export_control( filewrite, "Left Hand Inventory\t", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
+    export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+    export_control( filewrite, "Right Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
+    export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
+    export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
+
+    // export all known joysticks
+    for ( i = INPUT_JOY; i < input_device_count; i++)
+    {
+        pdevice = controls + i;
+
+        snprintf( write, sizeof(write), "\n\nJoystick %d\n", i - INPUT_JOY );
+        fputs( write, filewrite );
+        fputs( "========\n", filewrite );
+        export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
+        export_control( filewrite, "Left Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_LEFT_USE );
+        export_control( filewrite, "Left Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_LEFT_GET );
+        export_control( filewrite, "Left Hand Inventory\t", pdevice->device, pdevice->control + CONTROL_LEFT_PACK );
+        export_control( filewrite, "Right Hand Use\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT_USE );
+        export_control( filewrite, "Right Hand Get/Drop\t", pdevice->device, pdevice->control + CONTROL_RIGHT_GET );
+        export_control( filewrite, "Right Hand Inventory", pdevice->device, pdevice->control + CONTROL_RIGHT_PACK );
+        export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
+    }
+
+    //All done
+    fclose(filewrite);
 
     return btrue;
 }

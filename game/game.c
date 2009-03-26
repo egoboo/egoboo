@@ -45,6 +45,8 @@
 float sinlut[MAXLIGHTROTATION];
 float coslut[MAXLIGHTROTATION];
 
+char  idsz_string[5] = { '\0' };
+
 void memory_cleanUp(void);
 
 //--------------------------------------------------------------------------------------------
@@ -262,9 +264,11 @@ void export_one_character( int character, int owner, int number, bool_t is_local
             sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
             fs_copyFile( fromfile, tofile );
+
             sprintf( fromfile, "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
             fs_copyFile( fromfile, tofile );
+
             tnc++;
         }
 
@@ -369,6 +373,14 @@ void quit_module( void )
     export_all_local_players();
     empty_import_directory();  // Free up that disk space...
 
+    release_all_icons();
+    release_all_titleimages();
+    release_bars();
+    release_blip();
+    release_map();
+    release_all_textures();
+    release_all_models();
+
     gamepaused = bfalse;
 
     if ( soundvalid ) Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
@@ -462,20 +474,21 @@ void reset_tags()
 }
 
 //--------------------------------------------------------------------------------------------
-int read_tag( FILE *fileread )
+bool_t read_tag( FILE *fileread )
 {
     // ZZ> This function finds the next tag, returning btrue if it found one
-    if ( goto_colon_yesno( fileread ) )
+
+    bool_t retval;
+
+    retval = goto_colon_yesno( fileread ) && (numscantag < MAXTAG);
+
+    if ( retval )
     {
-        if ( numscantag < MAXTAG )
-        {
-            fscanf( fileread, "%s%d", tagname[numscantag], &tagvalue[numscantag] );
-            numscantag++;
-            return btrue;
-        }
+        fscanf( fileread, "%s%d", tagname[numscantag], &tagvalue[numscantag] );
+        numscantag++;
     }
 
-    return bfalse;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -520,28 +533,38 @@ int tag_value( char *string )
 }
 
 //--------------------------------------------------------------------------------------------
-char* tag_to_string( Sint32 tag, bool_t onlykeys )
+char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
     int cnt;
 
-    cnt = 0;
+    if ( device >= INPUT_JOY ) device = INPUT_JOY;
+    if ( device == INPUT_KEYBOARD ) is_key = btrue;
 
-    while ( cnt < MAXTAG )
+    for ( cnt = 0; cnt < numscantag; cnt++ )
     {
+        // do not search invlid keys
+        if ( is_key )
+        {
+            if ( 'K' != tagname[cnt][0] ) continue;
+        }
+        else
+        {
+            switch ( device )
+            {
+                case INPUT_MOUSE:
+                    if ( 'M' != tagname[cnt][0] ) continue;
+                    break;
+
+                case INPUT_JOY:
+                    if ( 'J' != tagname[cnt][0] ) continue;
+                    break;
+            }
+        };
+
         if ( tag == tagvalue[cnt])
         {
-            // They match
-            if (onlykeys)
-            {
-                if (tagname[cnt][0] == 'K') return tagname[cnt];
-            }
-            else
-            {
-                return tagname[cnt];
-            }
+            return tagname[cnt];
         }
-
-        cnt++;
     }
 
     // No matches
@@ -549,105 +572,55 @@ char* tag_to_string( Sint32 tag, bool_t onlykeys )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t control_key_is_pressed( Uint8 control )
+bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 {
-    // ZZ> This function returns btrue if the given control is pressed...
+    // ZZ> This function returns btrue if the given icontrol is pressed...
 
     bool_t retval = bfalse;
 
-    if ( !netmessagemode && sdlkeybuffer )
+    device_controls_t * pdevice;
+    control_t         * pcontrol;
+
+    // make sure the idevice is valid
+    if ( idevice > input_device_count || idevice > INPUT_COUNT + MAXJOYSTICK ) return bfalse;
+    pdevice = controls + idevice;
+
+    // make sure the icontrol is within range
+    if ( pdevice->count < icontrol ) return retval;
+    pcontrol = pdevice->control + icontrol;
+
+    if ( INPUT_KEYBOARD == idevice || pcontrol->is_key )
     {
-        retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t control_mouse_is_pressed( Uint8 control )
-{
-    // ZZ> This function returns btrue if the given control is pressed...
-
-    bool_t retval = bfalse;
-
-    if ( controliskey[control] )
-    {
-        if ( !netmessagemode && sdlkeybuffer )
-        {
-            retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
-        }
+        retval = SDLKEYDOWN( pcontrol->tag );
     }
     else
     {
-        retval = ( msb == controlvalue[control] );
+        retval = ( input_get_buttonmask( idevice ) == pcontrol->tag );
     }
 
     return retval;
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t control_joya_is_pressed( Uint8 control )
-{
-    // ZZ> This function returns btrue if the given control is pressed...
-
-    bool_t retval = bfalse;
-
-    if ( controliskey[control] )
-    {
-        if ( !netmessagemode && sdlkeybuffer )
-        {
-            retval = ( sdlkeybuffer[controlvalue[control]] != 0 );
-        }
-    }
-    else
-    {
-        retval = ( jab == controlvalue[control] );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t control_joyb_is_pressed( Uint8 control )
-{
-    // ZZ> This function returns btrue if the given control is pressed...
-
-    bool_t retval = bfalse;
-
-    if ( controliskey[control] )
-    {
-        if ( !netmessagemode && sdlkeybuffer )
-        {
-            retval = ( 0 != sdlkeybuffer[controlvalue[control]] );
-        }
-    }
-    else
-    {
-        retval = ( jbb == controlvalue[control] );
-    }
-
-    return retval;
-}
 
 //--------------------------------------------------------------------------------------------
 char * undo_idsz( IDSZ idsz )
 {
     // ZZ> This function takes an integer and makes an text IDSZ out of it.
-    //     It will set valueidsz to "NONE" if the idsz is 0
+
     static char value_string[5] = {"NONE"};
 
-    if ( idsz == IDSZNONE )
+    if ( idsz == IDSZ_NONE )
     {
-        sprintf( valueidsz, "NONE" );
+        sprintf( idsz_string, "NONE" );
         snprintf( value_string, sizeof( value_string ), "NONE" );
     }
     else
     {
-        valueidsz[0] = ( ( idsz >> 15 ) & 31 ) + 'A';
-        valueidsz[1] = ( ( idsz >> 10 ) & 31 ) + 'A';
-        valueidsz[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
-        valueidsz[3] = ( ( idsz ) & 31 ) + 'A';
-        valueidsz[4] = 0;
+        idsz_string[0] = ( ( idsz >> 15 ) & 31 ) + 'A';
+        idsz_string[1] = ( ( idsz >> 10 ) & 31 ) + 'A';
+        idsz_string[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
+        idsz_string[3] = ( ( idsz ) & 31 ) + 'A';
+        idsz_string[4] = 0;
 
         //Bad! both function return and return to global function!
         value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
@@ -663,9 +636,9 @@ char * undo_idsz( IDSZ idsz )
 //--------------------------------------------------------------------------------------------
 IDSZ get_idsz( FILE* fileread )
 {
-    // ZZ> This function reads and returns an IDSZ tag, or IDSZNONE if there wasn't one
+    // ZZ> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
-    IDSZ idsz = IDSZNONE;
+    IDSZ idsz = IDSZ_NONE;
     char cTmp = get_first_letter( fileread );
 
     if ( cTmp == '[' )
@@ -677,7 +650,7 @@ IDSZ get_idsz( FILE* fileread )
     }
 
     if ( idsz == IDSZ_NONE )
-        idsz = IDSZNONE;
+        idsz = IDSZ_NONE;
 
     return idsz;
 }
@@ -1392,11 +1365,13 @@ void move_to_top( Uint16 character )
     oldloc = numstat;
 
     for ( cnt = 0; cnt < numstat; cnt++ )
+    {
         if ( statlist[cnt] == character )
         {
             oldloc = cnt;
             cnt = numstat;
         }
+    }
 
     // Change position
     if ( oldloc < numstat )
@@ -1420,10 +1395,12 @@ void sort_stat()
     int cnt;
 
     for ( cnt = 0; cnt < numpla; cnt++ )
-        if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
+    {
+        if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
         {
             move_to_top( plaindex[cnt] );
         }
+    }
 }
 //--------------------------------------------------------------------------------------------
 void play_action( Uint16 character, Uint16 action, Uint8 actionready )
@@ -1702,15 +1679,15 @@ void update_game()
 
     // Check for all local players being dead
     alllocalpladead = bfalse;
-    localseeinvisible = bfalse;
-    localseekurse = bfalse;
+    local_seeinvisible = bfalse;
+    local_seekurse = bfalse;
 
     cnt = 0;
     numdead = 0;
 
     while ( cnt < MAXPLAYER )
     {
-        if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
+        if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
         {
             if ( !chralive[plaindex[cnt]] )
             {
@@ -1726,12 +1703,12 @@ void update_game()
             {
                 if ( chrcanseeinvisible[plaindex[cnt]] )
                 {
-                    localseeinvisible = btrue;
+                    local_seeinvisible = btrue;
                 }
 
                 if ( chrcanseekurse[plaindex[cnt]] )
                 {
-                    localseekurse = btrue;
+                    local_seekurse = btrue;
                 }
             }
         }
@@ -1897,28 +1874,28 @@ void fdamagf( FILE* filewrite, char* text, Uint8 damagetype )
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     fprintf( filewrite, "%s", text );
 
-    if ( damagetype == DAMAGESLASH )
+    if ( damagetype == DAMAGE_SLASH )
         fprintf( filewrite, "SLASH\n" );
 
-    if ( damagetype == DAMAGECRUSH )
+    if ( damagetype == DAMAGE_CRUSH )
         fprintf( filewrite, "CRUSH\n" );
 
-    if ( damagetype == DAMAGEPOKE )
+    if ( damagetype == DAMAGE_POKE )
         fprintf( filewrite, "POKE\n" );
 
-    if ( damagetype == DAMAGEHOLY )
+    if ( damagetype == DAMAGE_HOLY )
         fprintf( filewrite, "HOLY\n" );
 
-    if ( damagetype == DAMAGEEVIL )
+    if ( damagetype == DAMAGE_EVIL )
         fprintf( filewrite, "EVIL\n" );
 
-    if ( damagetype == DAMAGEFIRE )
+    if ( damagetype == DAMAGE_FIRE )
         fprintf( filewrite, "FIRE\n" );
 
-    if ( damagetype == DAMAGEICE )
+    if ( damagetype == DAMAGE_ICE )
         fprintf( filewrite, "ICE\n" );
 
-    if ( damagetype == DAMAGEZAP )
+    if ( damagetype == DAMAGE_ZAP )
         fprintf( filewrite, "ZAP\n" );
 
     if ( damagetype == DAMAGENULL )
@@ -2243,6 +2220,7 @@ int SDL_main( int argc, char **argv )
 
     read_all_tags( "basicdat" SLASH_STR "scancode.txt" );
     input_settings_load( "controls.txt" );
+
     reset_ai_script();
     load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
     load_action_names( "basicdat" SLASH_STR "actions.txt" );
@@ -2285,9 +2263,16 @@ int SDL_main( int argc, char **argv )
     mProjection.v[10] /= 2.0f;
     mProjection.v[11] /= 2.0f;
 
+    // initialize all these structures
+    init_all_icons();
+    init_all_titleimages();
+    init_bars();
+    init_blip();
+    init_map();
+    init_all_textures();
+    init_all_models();
+
     // Load stuff into memory
-    prime_icons();
-    prime_titleimage();
     make_textureoffset();  // THIS SHOULD WORK
     make_lightdirectionlookup(); // THIS SHOULD WORK
     make_turntosin();  // THIS SHOULD WORK
@@ -2300,6 +2285,9 @@ int SDL_main( int argc, char **argv )
     // Let the normal OS mouse cursor work
     SDL_WM_GrabInput( SDL_GRAB_OFF );
     SDL_ShowCursor( btrue );
+
+    // can't be done globally :(
+    local_senseenemiesID = IDSZ_NONE;
 
     // Network's temporarily disabled
     clk_frameStep();
@@ -2320,7 +2308,7 @@ int SDL_main( int argc, char **argv )
 
             // do menus
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-            read_input();
+            input_read();
 
             // Pressed panic button
             if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
@@ -2387,8 +2375,6 @@ int SDL_main( int argc, char **argv )
                 if ( networkon )
                 {
                     log_info( "SDL_main: Loading module %s...\n", pickedmodule );
-                    netmessagemode = bfalse;
-                    netmessagedelay = 20;
                     net_sayHello();
                 }
 
@@ -2400,13 +2386,17 @@ int SDL_main( int argc, char **argv )
                 while ( moduleactive )
                 {
                     // This is the control loop
-                    read_input();
-                    // input_net_message();
+                    input_read();
+
+                    if ( networkon && console_done )
+                    {
+                        net_send_message();
+                    }
 
                     //Check for screenshots
                     if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
 
-                    if ( SDLKEYDOWN( SDLK_F11 ) && keyon && screenshotkeyready )
+                    if ( SDLKEYDOWN( SDLK_F11 ) && keyb.on && screenshotkeyready )
                     {
                         if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
                         {
@@ -2420,7 +2410,7 @@ int SDL_main( int argc, char **argv )
                     // Check for pause key    // TODO: What to do in network games?
                     if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
 
-                    if ( SDLKEYDOWN( SDLK_F8 ) && keyon && pausekeyready )
+                    if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on && pausekeyready )
                     {
                         pausekeyready = bfalse;
 
@@ -2431,6 +2421,17 @@ int SDL_main( int argc, char **argv )
                     // Do important things
                     if ( !gamepaused || networkon )
                     {
+                        // start the console mode?
+                        if ( control_is_pressed( INPUT_KEYBOARD, CONTROL_MESSAGE ) )
+                        {
+                            // reset the keyboard buffer
+                            SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
+                            console_mode = btrue;
+                            console_done = bfalse;
+                            keyb.buffer_count = 0;
+                            keyb.buffer[0] = '\0';
+                        }
+
                         check_stats();
                         set_local_latches();
                         update_timers();
@@ -2466,7 +2467,7 @@ int SDL_main( int argc, char **argv )
 
                         move_camera();
                         figure_out_what_to_draw();
-                        // printf("DIAG: doing draw_main\n");
+
                         draw_main();
 
                         msgtimechange++;

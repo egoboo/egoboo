@@ -55,7 +55,7 @@ bool_t link_export_all()
         // copy the values to the import values
         strcpy( loadplayerdir[tnc], chrname[character] );
 
-        localcontrol[tnc] = INPUTKEY | INPUTMOUSE | INPUTJOYA;
+        localcontrol[tnc] = INPUT_BITS_KEYBOARD | INPUT_BITS_MOUSE | INPUT_BITS_JOYA;
         localslot[tnc]    = tnc * 9;
 
         // Copy the character to the import directory

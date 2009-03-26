@@ -32,6 +32,8 @@
 
 typedef struct Font Font;
 
+extern int fnt_init();
+
 extern Font    *fnt_loadFont( const char *fileName, int pointSize );
 extern void    fnt_freeFont( Font *font );
 

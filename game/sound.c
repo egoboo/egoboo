@@ -69,7 +69,7 @@ static void music_stack_finished_callback(void)
     int         song;
 
     // grab the next song
-    if( music_stack_pop(&mus, &song) )
+    if ( music_stack_pop(&mus, &song) )
     {
         // play the music
         Mix_PlayMusic( mus, 0 );
@@ -84,7 +84,7 @@ static void music_stack_finished_callback(void)
 //--------------------------------------------------------------------------------------------
 static bool_t music_stack_push(Mix_Music * mus, int song)
 {
-    if( music_stack_depth >= MUSIC_STACK_COUNT - 1 )
+    if ( music_stack_depth >= MUSIC_STACK_COUNT - 1 )
     {
         music_stack_depth = MUSIC_STACK_COUNT - 1;
         return bfalse;
@@ -101,9 +101,9 @@ static bool_t music_stack_push(Mix_Music * mus, int song)
 //--------------------------------------------------------------------------------------------
 static bool_t music_stack_pop(Mix_Music ** mus, int * song)
 {
-    if(NULL == mus || NULL == song) return bfalse;
+    if (NULL == mus || NULL == song) return bfalse;
 
-    if(music_stack_depth > 0)
+    if (music_stack_depth > 0)
     {
         music_stack_depth--;
     }
@@ -128,6 +128,25 @@ static void music_stack_init()
 // This function enables the use of SDL_Mixer functions, returns btrue if success
 bool_t sdlmixer_initialize()
 {
+    // make sure that SDL audio is turned on
+    if ( 0 == SDL_WasInit(SDL_INIT_AUDIO) )
+    {
+        log_info( "Intializing SDL Audio... " );
+        if ( SDL_InitSubSystem( SDL_INIT_AUDIO ) < 0 )
+        {
+            log_message( "Failed!\n" );
+            log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
+
+            musicvalid = bfalse;
+            soundvalid = bfalse;
+            return bfalse;
+        }
+        else
+        {
+            log_message( "Succeess!\n" );
+        }
+    }
+
     if ( ( musicvalid || soundvalid ) && !mixeron )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
@@ -138,7 +157,7 @@ bool_t sdlmixer_initialize()
             log_message( "Failure!\n" );
             log_warning( "Unable to initialize audio: %s\n", Mix_GetError() );
         }
-        else 
+        else
         {
             Mix_VolumeMusic( musicvolume );
             Mix_AllocateChannels( maxsoundchannel );
@@ -257,7 +276,7 @@ int play_mix( float xpos, float ypos, mix_ptr_t * pptr )
 
     if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
-        if( gDevMode )
+        if ( gDevMode )
         {
             log_warning( "Sound file not correctly loaded (Not found?).\n" );
         }
@@ -299,14 +318,14 @@ int play_sound( float xpos, float ypos, Mix_Chunk * pchunk )
 
     int dist, volume, pan;
 
-    if( !mixeron || NULL == pchunk ) return -1;
+    if ( !mixeron || NULL == pchunk ) return -1;
 
     // measure the distance in tiles
     dist = SQRT( POW( ABS( camtrackx - xpos ), 2 ) + POW( ABS( camtracky - ypos ), 2 ) ); // Ugly, but just the dist formula
-    dist >>= 7; 
+    dist >>= 7;
 
-    // adjust for the listening skill
-    if ( listening ) dist *= 0.66f;
+    // adjust for the local_listening skill
+    if ( local_listening ) dist *= 0.66f;
 
     // adjust for the soundvolume
     dist *= VOLUMERATIO * 2;
@@ -338,7 +357,7 @@ int play_sound( float xpos, float ypos, Mix_Chunk * pchunk )
 // TODO:
 void stop_sound( int whichchannel )
 {
-    if ( mixeron && soundvalid ) 
+    if ( mixeron && soundvalid )
     {
         Mix_HaltChannel( whichchannel );
     }
@@ -395,7 +414,7 @@ void load_all_music_sounds()
 //--------------------------------------------------------------------------------------------
 void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
-    if( !mixeron ) return;
+    if ( !mixeron ) return;
 
     // This functions plays a specified track loaded into memory
     if ( songplaying != songnumber && musicvalid )
@@ -404,12 +423,12 @@ void play_music( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 
         if ( MIX_MUS == musictracksloaded[songnumber].type )
         {
-            if( loops != 0 )
+            if ( loops != 0 )
             {
-                if( -1 != songplaying )
+                if ( -1 != songplaying )
                 {
                     music_stack_push( musictracksloaded[songplaying].ptr.mus, songplaying );
-                }                
+                }
             }
 
             Mix_FadeInMusic( musictracksloaded[songnumber].ptr.mus, loops, fadetime );

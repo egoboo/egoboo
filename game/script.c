@@ -30,6 +30,18 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+int     valuetmpx         =  0;
+int     valuetmpy         =  0;
+Uint16  valuetmpturn      =  0;
+int     valuetmpdistance  =  0;
+int     valuetmpargument  =  0;
+Uint32  valuelastindent   =  0;
+Uint16  valueoldtarget    =  0;
+int     valueoperationsum =  0;
+bool_t  valuegopoof       =  bfalse;
+bool_t  valuechanged      =  bfalse;
+
 #define END_VALUE (0x80000000 | FEND)
 
 Uint8  cLineBuffer[MAXLINESIZE];
@@ -377,7 +389,7 @@ int tell_code( int read )
     // Check for numeric constant
     if ( cWordBuffer[0] >= '0' && cWordBuffer[0] <= '9' )
     {
-        sscanf( &cWordBuffer[0], "%d", &iCodeValueTmp );
+        sscanf( cWordBuffer, "%d", &iCodeValueTmp );
         iCodeIndex = -1;
         return read;
     }
@@ -385,16 +397,10 @@ int tell_code( int read )
     // Check for IDSZ constant
     if ( cWordBuffer[0] == '[' )
     {
-        idsz = IDSZNONE;
         cTmp = cWordBuffer[1] - 'A';  idsz = idsz | ( cTmp << 15 );
         cTmp = cWordBuffer[2] - 'A';  idsz = idsz | ( cTmp << 10 );
         cTmp = cWordBuffer[3] - 'A';  idsz = idsz | ( cTmp << 5 );
         cTmp = cWordBuffer[4] - 'A';  idsz = idsz | ( cTmp );
-
-        if ( idsz == IDSZ_NONE )
-        {
-            idsz = IDSZNONE;
-        }
 
         iCodeValueTmp = idsz;
         iCodeIndex = -1;
@@ -667,7 +673,7 @@ void load_ai_codes( char* loadname )
 
     if ( fileread )
     {
-        iLoadSize = ( int )fread( &cLoadBuffer[0], 1, MD2MAXLOADSIZE, fileread );
+        iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
         read = 0;
         read = ai_goto_colon( read );
 
@@ -706,7 +712,7 @@ int load_ai_script( char *loadname )
         iAisStartPosition[iNumAis] = iAisIndex;
 
         // Load into md2 load buffer
-        iLoadSize = ( int )fread( &cLoadBuffer[0], 1, MD2MAXLOADSIZE, fileread );
+        iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
         fclose( fileread );
         parse_null_terminate_comments();
         parse_line_by_line();
@@ -724,11 +730,12 @@ void reset_ai_script()
     // ZZ> This function starts ai loading in the right spot
     int cnt;
 
-    iAisIndex = 0;
-
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
         madai[cnt] = 0;
+    }
 
+    iAisIndex = 0;
     iNumAis = 0;
 }
 
@@ -909,12 +916,13 @@ Uint8 run_function( Uint32 value, int character )
                 switch_team( character, chrteam[chraitarget[character]] );
                 returncode = btrue;
             }
+            break;
 
         case FSETTARGETTONEARBYENEMY:
             // This function finds a nearby enemy, and proceeds only if there is one
             returncode = bfalse;
 
-            if (get_target( character, NEARBY, ENEMY, bfalse, bfalse, IDSZNONE, bfalse) != MAXCHR) returncode = btrue;
+            if (get_target( character, NEARBY, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -996,8 +1004,8 @@ Uint8 run_function( Uint32 value, int character )
         case FIFTARGETHASID:
             // This function proceeds if ID matches tmpargument
             sTmp = chrmodel[chraitarget[character]];
-            returncode = capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument;
-            returncode = returncode | ( capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument );
+            returncode = capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument;
+            returncode = returncode | ( capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument );
             break;
 
         case FIFTARGETHASITEMID:
@@ -1008,7 +1016,7 @@ Uint8 run_function( Uint32 value, int character )
 
             while ( sTmp != MAXCHR )
             {
-                if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
                     returncode = btrue;
                     sTmp = MAXCHR;
@@ -1026,7 +1034,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                     returncode = btrue;
             }
 
@@ -1037,7 +1045,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                     returncode = btrue;
             }
             break;
@@ -1053,7 +1061,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     valuetmpargument = LATCHBUTTONLEFT;
                     returncode = btrue;
@@ -1067,7 +1075,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     valuetmpargument = LATCHBUTTONRIGHT;
                     returncode = btrue;
@@ -1079,7 +1087,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if ID matches tmpargument
             returncode = bfalse;
 
-            if (check_skills( chraitarget[character], ( IDSZ )valuetmpargument ) != 0) returncode = btrue;
+            returncode = (0 != check_skills( chraitarget[character], ( IDSZ )valuetmpargument ));
 
             break;
 
@@ -1233,7 +1241,7 @@ Uint8 run_function( Uint32 value, int character )
 
             while ( sTmp != MAXCHR )
             {
-                if ( capidsz[chrmodel[sTmp]][IDSZPARENT] == ( IDSZ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZTYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( IDSZ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
                     iTmp = sTmp;
@@ -1253,7 +1261,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
                     iTmp = chrholdingwhich[chraitarget[character]][0];
@@ -1267,7 +1275,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
                     iTmp = chrholdingwhich[chraitarget[character]][1];
@@ -1489,7 +1497,7 @@ Uint8 run_function( Uint32 value, int character )
             break;
 
         case FIFTARGETISOLDTARGET:
-            // This function returns bfalse if the target has changed
+            // This function returns bfalse if the target has valuechanged
             returncode = ( chraitarget[character] == valueoldtarget );
             break;
 
@@ -1571,7 +1579,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETHASVULNERABILITYID:
             // This function proceeds if ID matches tmpargument
-            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZVULNERABILITY] == ( IDSZ ) valuetmpargument );
+            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZ_VULNERABILITY] == ( IDSZ ) valuetmpargument );
             break;
 
         case FCLEANUP:
@@ -1605,12 +1613,9 @@ Uint8 run_function( Uint32 value, int character )
         case FPLAYSOUND:
 
             // This function plays a sound
-            if ( chroldz[character] > PITNOSOUND )
+            if ( chroldz[character] > PITNOSOUND && valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
             {
-                if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
-                {
-                    play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
-                }
+                play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
             }
             break;
 
@@ -1713,7 +1718,7 @@ Uint8 run_function( Uint32 value, int character )
             change_character( character, chraicontent[character], 0, LEAVENONE );
             chraicontent[character] = 0;  // Reset so it doesn't mess up
             chraistate[character] = 0;  // Reset so it doesn't mess up
-            changed = btrue;
+            valuechanged = btrue;
             break;
 
         case FBECOMESPELLBOOK:
@@ -1722,7 +1727,7 @@ Uint8 run_function( Uint32 value, int character )
             chraicontent[character] = chrmodel[character];
             change_character( character, SPELLBOOK, chrmoney[character]&3, LEAVENONE );
             chraistate[character] = 0;  // Reset so it doesn't burn up
-            changed = btrue;
+            valuechanged = btrue;
             break;
 
         case FIFSCOREDAHIT:
@@ -1759,7 +1764,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function finds an enemy, and proceeds only if there is one
             returncode = bfalse;
 
-            if (get_target( character, WIDE, ENEMY, bfalse, bfalse, IDSZNONE, bfalse) != MAXCHR) returncode = btrue;
+            if (get_target( character, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -1795,7 +1800,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETHASSPECIALID:
             // This function proceeds if ID matches tmpargument
-            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZSPECIAL] == ( IDSZ ) valuetmpargument );
+            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZ_SPECIAL] == ( IDSZ ) valuetmpargument );
             break;
 
         case FPRESSTARGETLATCHBUTTON:
@@ -1828,7 +1833,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETDAMAGETYPE:
             // This function sets the bump damage type
-            chrdamagetargettype[character] = valuetmpargument & ( MAXDAMAGETYPE - 1 );
+            chrdamagetargettype[character] = valuetmpargument & ( DAMAGE_COUNT - 1 );
             break;
 
         case FSETWATERLEVEL:
@@ -1838,8 +1843,9 @@ Uint8 run_function( Uint32 value, int character )
             waterdouselevel += fTmp;
 
             for ( iTmp = 0; iTmp < MAXWATERLAYER; iTmp++ )
+            {
                 waterlayerz[iTmp] += fTmp;
-
+            }
             break;
 
         case FENCHANTTARGET:
@@ -2071,7 +2077,7 @@ Uint8 run_function( Uint32 value, int character )
             returncode = 0;
             tTmp = 0;
 
-            while ( tTmp < MAXIDSZ )
+            while ( tTmp < IDSZ_COUNT )
             {
                 returncode |= ( capidsz[chrmodel[chraitarget[character]]][tTmp] == ( IDSZ ) valuetmpargument );
                 tTmp++;
@@ -2217,7 +2223,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
                     valuetmpargument = LATCHBUTTONLEFT;
                     returncode = btrue;
@@ -2231,7 +2237,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 sTmp = chrmodel[sTmp];
 
-                if ( capidsz[sTmp][IDSZPARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZTYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
                     valuetmpargument = LATCHBUTTONRIGHT;
 
@@ -2486,7 +2492,6 @@ Uint8 run_function( Uint32 value, int character )
             break;
 
         case FPLAYSOUNDLOOPED:
-
             // This function plays a looped sound
             if ( moduleactive )
             {
@@ -2529,7 +2534,7 @@ Uint8 run_function( Uint32 value, int character )
 
             while ( sTmp != MAXCHR )
             {
-                if ( sTmp != character && chrisequipped[sTmp] && ( capidsz[chrmodel[sTmp]][IDSZPARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZTYPE] == ( Uint32 ) valuetmpargument ) )
+                if ( sTmp != character && chrisequipped[sTmp] && ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( Uint32 ) valuetmpargument ) )
                 {
                     returncode = btrue;
                     sTmp = MAXCHR;
@@ -2739,7 +2744,7 @@ Uint8 run_function( Uint32 value, int character )
             // proceeds only if there is one
             returncode = bfalse;
 
-            if (get_target(character, valuetmpdistance, ENEMY, bfalse, bfalse, IDSZNONE, bfalse) != MAXCHR) returncode = btrue;
+            if (get_target(character, valuetmpdistance, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -2939,7 +2944,7 @@ Uint8 run_function( Uint32 value, int character )
                 sTmp = btrue;
                 tTmp = 0;
 
-                while ( tTmp < MAXIDSZ )
+                while ( tTmp < IDSZ_COUNT )
                 {
                     if ( capidsz[chrmodel[character]][tTmp] != capidsz[chrmodel[iTmp]][tTmp] )
                     {
@@ -3183,12 +3188,9 @@ Uint8 run_function( Uint32 value, int character )
         case FPLAYFULLSOUND:
 
             // This function plays a sound loud for everyone...  Victory music
-            if ( moduleactive )
+            if ( moduleactive && valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
             {
-                if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
-                {
-                    play_mix( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
-                }
+                play_mix( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
             }
             break;
 
@@ -3307,7 +3309,7 @@ Uint8 run_function( Uint32 value, int character )
             // requirements
             returncode = bfalse;
 
-            if (get_target(character, 0, ENEMY, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
+            if (get_target(character, 0, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -3316,7 +3318,7 @@ Uint8 run_function( Uint32 value, int character )
             // requirements
             returncode = bfalse;
 
-            if (get_target(character, 0, FRIEND, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
+            if (get_target(character, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -3325,7 +3327,7 @@ Uint8 run_function( Uint32 value, int character )
             // requirements
             returncode = bfalse;
 
-            if (get_target(character, 0, ALL, bfalse, bfalse, IDSZNONE, bfalse ) != MAXCHR) returncode = btrue;
+            if (get_target(character, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) != MAXCHR) returncode = btrue;
 
             break;
 
@@ -3401,7 +3403,10 @@ Uint8 run_function( Uint32 value, int character )
 
         case FENDMODULE:
             // This function presses the Escape key
-            sdlkeybuffer[SDLK_ESCAPE] = 1;
+            if ( NULL != keyb.state_ptr )
+            {
+                keyb.state_ptr[SDLK_ESCAPE] = 1;
+            }
             break;
 
         case FDISABLEEXPORT:
@@ -3760,12 +3765,10 @@ Uint8 run_function( Uint32 value, int character )
             }
             break;
 
-            /*case FGETSKILLLEVEL:
-                    // This function sets tmpargument to the shield profiency level of the target
-                    valuetmpargument = capshieldprofiency[chrattachedto[character]];
-              break;
-
-            */
+            //case FGETSKILLLEVEL:
+            //        // This function sets tmpargument to the shield profiency level of the target
+            //        valuetmpargument = capshieldprofiency[chrattachedto[character]];
+            //    break;
 
         case FIFTARGETHASNOTFULLMANA:
 
@@ -3777,7 +3780,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FENABLELISTENSKILL:
             // This function increases sound play range by 25%
-            listening = btrue;
+            local_listening = btrue;
             break;
 
         case FSETTARGETTOLASTITEMUSED:
@@ -3825,7 +3828,6 @@ Uint8 run_function( Uint32 value, int character )
                 {
                     returncode = btrue;
                     break;
-
                 }
 
                 iTmp++;
@@ -3842,11 +3844,11 @@ Uint8 run_function( Uint32 value, int character )
 
                 if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
                 {
-                    if ( capidsz[sTmp][IDSZSKILL] == Make_IDSZ( "STAB" ) )
+                    if ( capidsz[sTmp][IDSZ_SKILL] == Make_IDSZ( "STAB" ) )
                     {
                         iTmp = chrdamagetypelast[character];
 
-                        if ( iTmp == DAMAGECRUSH || iTmp == DAMAGEPOKE || iTmp == DAMAGESLASH ) returncode = btrue;
+                        if ( iTmp == DAMAGE_CRUSH || iTmp == DAMAGE_POKE || iTmp == DAMAGE_SLASH ) returncode = btrue;
                     }
                 }
             }
@@ -3878,7 +3880,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 if ( chrisplayer[iTmp] )
                 {
-                    if (modify_quest_idsz( chrname[iTmp], valuetmpargument, 0 ) == QUESTBEATEN) returncode = btrue;
+                    if (modify_quest_idsz( chrname[iTmp], (IDSZ)valuetmpargument, 0 ) == QUEST_BEATEN) returncode = btrue;
                 }
 
                 iTmp++;
@@ -3893,7 +3895,7 @@ Uint8 run_function( Uint32 value, int character )
             {
                 iTmp = check_player_quest( chrname[chraitarget[character]], valuetmpargument );
 
-                if ( iTmp > QUESTBEATEN )
+                if ( iTmp > QUEST_BEATEN )
                 {
                     returncode = btrue;
                     valuetmpdistance = iTmp;
@@ -3909,13 +3911,13 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( chrisplayer[chraitarget[character]] && valuetmpdistance != 0 )
             {
-                if (modify_quest_idsz( chrname[chraitarget[character]], valuetmpargument, valuetmpdistance ) > NOQUEST) returncode = btrue;
+                if (modify_quest_idsz( chrname[chraitarget[character]], valuetmpargument, valuetmpdistance ) > QUEST_NONE) returncode = btrue;
             }
             break;
 
         case FADDQUESTALLPLAYERS:
             //This function adds a quest idsz set in tmpargument into all local player's quest logs
-            //The quest level is set to tmpdistance if the level is not already higher or QUESTBEATEN
+            //The quest level is set to tmpdistance if the level is not already higher or QUEST_BEATEN
             iTmp = 0;
             returncode = bfalse;
 
@@ -3942,8 +3944,8 @@ Uint8 run_function( Uint32 value, int character )
         case FADDBLIPALLENEMIES:
             // show all enemies on the minimap who match the IDSZ given in tmpargument
             // it show only the enemies of the AI target
-            localsenseenemies = chraitarget[character];
-            localsenseenemiesID = valuetmpargument;
+            local_senseenemies = chraitarget[character];
+            local_senseenemiesID = valuetmpargument;
             break;
 
         case FPITSFALL:
@@ -4172,7 +4174,7 @@ void run_operand( Uint32 value, int character )
             case VARTARGETTURNTO:
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
-                iTmp = iTmp & 65535;
+                iTmp &= 65535;
                 break;
 
             case VARPASSAGE:
@@ -4188,11 +4190,11 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARSELFID:
-                iTmp = capidsz[chrmodel[character]][IDSZTYPE];
+                iTmp = capidsz[chrmodel[character]][IDSZ_TYPE];
                 break;
 
             case VARSELFHATEID:
-                iTmp = capidsz[chrmodel[character]][IDSZHATE];
+                iTmp = capidsz[chrmodel[character]][IDSZ_HATE];
                 break;
 
             case VARSELFMANA:
@@ -4329,13 +4331,13 @@ void run_operand( Uint32 value, int character )
             case VAROWNERTURNTO:
                 iTmp = ATAN2( chrypos[chraiowner[character]] - chrypos[character], chrxpos[chraiowner[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
-                iTmp = iTmp & 65535;
+                iTmp &= 65535;
                 break;
 
             case VARXYTURNTO:
                 iTmp = ATAN2( valuetmpy - chrypos[character], valuetmpx - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
-                iTmp = iTmp & 65535;
+                iTmp &= 65535;
                 break;
 
             case VARSELFMONEY:
@@ -4365,8 +4367,7 @@ void run_operand( Uint32 value, int character )
             case VARTARGETTURNAWAY:
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
-                iTmp = iTmp & 65535;
-                iTmp += 65535;
+                iTmp &= 65535;
                 break;
 
             case VARSELFLEVEL:
@@ -4411,7 +4412,6 @@ void run_operand( Uint32 value, int character )
             break;
 
         case OPDIV:
-
             if ( iTmp != 0 )
             {
                 valueoperationsum = valueoperationsum / iTmp;
@@ -4421,15 +4421,15 @@ void run_operand( Uint32 value, int character )
             break;
 
         case OPMOD:
-
             if ( iTmp != 0 )
             {
                 valueoperationsum = valueoperationsum % iTmp;
             }
             break;
 
-        default: log_message( "SCRIPT ERROR: Unknown operation!\n" ); break;
-
+        default:
+            log_message( "SCRIPT ERROR: Unknown operation!\n" );
+            break;
     }
 }
 
@@ -4450,7 +4450,7 @@ void let_character_think( int character )
 
     // Figure out alerts that weren't already set
     set_alerts( character );
-    changed = bfalse;
+    valuechanged = bfalse;
 
     // Clear the button latches
     if ( !chrisplayer[character] )
@@ -4559,7 +4559,7 @@ void let_character_think( int character )
     // Clear alerts for next time around
     chralert[character] = 0;
 
-    if ( changed )  chralert[character] = ALERTIFCHANGED;
+    if ( valuechanged )  chralert[character] = ALERTIFCHANGED;
 
     // Do poofing
     if ( valuegopoof )

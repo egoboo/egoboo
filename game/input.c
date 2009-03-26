@@ -23,10 +23,103 @@
 
 #include "egoboo.h"
 #include "ui.h"
+#include "log.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void read_mouse()
+void init_scancodes()
+{
+    // BB > initialize the scancode translation
+
+    int i;
+
+    // do the basic translation
+    for ( i = 0; i < SDLK_LAST; i++ )
+    {
+        // SDL uses ascii values for it's virtual scancodes
+        scancode_to_ascii[i] = i;
+
+        if ( i < 255 )
+        {
+            scancode_to_ascii_shift[i] = toupper(i);
+        }
+        else
+        {
+            scancode_to_ascii_shift[i] = scancode_to_ascii[i];
+        }
+    }
+
+    // fix the keymap
+    scancode_to_ascii_shift[SDLK_1]  = '!';
+    scancode_to_ascii_shift[SDLK_2]  = '@';
+    scancode_to_ascii_shift[SDLK_3]  = '#';
+    scancode_to_ascii_shift[SDLK_4]  = '$';
+    scancode_to_ascii_shift[SDLK_5]  = '%';
+    scancode_to_ascii_shift[SDLK_6]  = '^';
+    scancode_to_ascii_shift[SDLK_7]  = '&';
+    scancode_to_ascii_shift[SDLK_8]  = '*';
+    scancode_to_ascii_shift[SDLK_9]  = '(';
+    scancode_to_ascii_shift[SDLK_0]  = ')';
+
+    scancode_to_ascii_shift[SDLK_QUOTE]        = '\"';
+    scancode_to_ascii_shift[SDLK_SEMICOLON]    = ':';
+    scancode_to_ascii_shift[SDLK_PERIOD]       = '>';
+    scancode_to_ascii_shift[SDLK_COMMA]        = '<';
+    scancode_to_ascii_shift[SDLK_BACKQUOTE]    = '~';
+    scancode_to_ascii_shift[SDLK_MINUS]        = '_';
+    scancode_to_ascii_shift[SDLK_EQUALS]       = '+';
+    scancode_to_ascii_shift[SDLK_LEFTBRACKET]  = '{';
+    scancode_to_ascii_shift[SDLK_RIGHTBRACKET] = '}';
+    scancode_to_ascii_shift[SDLK_BACKSLASH]    = '|';
+    scancode_to_ascii_shift[SDLK_SLASH]        = '?';
+}
+
+
+//--------------------------------------------------------------------------------------------
+void input_init()
+{
+    // BB > initialize the inputs
+
+    int i;
+
+    log_info( "Intializing SDL Joystick... " );
+    if ( SDL_InitSubSystem( SDL_INIT_JOYSTICK ) < 0 )
+    {
+        log_message( "Failed!\n" );
+    }
+    else
+    {
+        log_message( "Succeess!\n" );
+    }
+
+    // init the keyboard info
+    init_scancodes();
+    keyb.on        = btrue;
+    keyb.count     = 0;
+    keyb.state_ptr = NULL;
+
+    // init the mouse info
+    memset( &mous, 0, sizeof(mouse_t) );
+    mous.on      = btrue;
+    mous.sense   = 6;
+    mous.sustain = 0.50f;
+    mous.cover   = 0.50f;
+
+    // init the joystick info
+    for (i = 0; i < MAXJOYSTICK; i++)
+    {
+        memset( joy + i, 0, sizeof(device_joystick_t) );
+
+        if (i < SDL_NumJoysticks() )
+        {
+            joy[i].sdl_ptr = SDL_JoystickOpen( i );
+            joy[i].on      = (NULL != joy[i].sdl_ptr);
+        }
+    }
+};
+
+//--------------------------------------------------------------------------------------------
+void input_read_mouse()
 {
     int x, y, b;
 
@@ -35,75 +128,72 @@ void read_mouse()
     else
         b = SDL_GetRelativeMouseState( &x, &y );
 
-    mousex = x; // mousex and mousey are the wrong type to use in above call
-    mousey = y;
-    mousebutton[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
-    mousebutton[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
-    mousebutton[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0; // Middle is 2 on SDL
-    mousebutton[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
+    mous.x = x; // mous.x and mous.y are the wrong type to use in above call
+    mous.y = y;
+    mous.button[0] = ( b & SDL_BUTTON( 1 ) ) ? 1 : 0;
+    mous.button[1] = ( b & SDL_BUTTON( 3 ) ) ? 1 : 0;
+    mous.button[2] = ( b & SDL_BUTTON( 2 ) ) ? 1 : 0; // Middle is 2 on SDL
+    mous.button[3] = ( b & SDL_BUTTON( 4 ) ) ? 1 : 0;
+
+    // Mouse mask
+    mous.b = ( mous.button[3] << 3 ) | ( mous.button[2] << 2 ) | ( mous.button[1] << 1 ) | ( mous.button[0] << 0 );
 }
 
 //--------------------------------------------------------------------------------------------
-void read_key()
+void input_read_keyboard()
 {
-    sdlkeybuffer = SDL_GetKeyState( NULL );
+    keyb.state_ptr = SDL_GetKeyState( &keyb.count );
 }
 
 //--------------------------------------------------------------------------------------------
-void read_joystick()
+void input_read_joystick(int which)
 {
-    int button;
+    int dead_zone = 0x8000 / 10;
+    int i, button_count, x, y;
+    device_joystick_t * pjoy;
 
-    if ( joyaon || joybon )
+    if ( which + INPUT_JOY > input_device_count ) return;
+    if ( !joy[which].on ) return;
+
+    pjoy = joy + which;
+
+    // get the raw values
+    x = SDL_JoystickGetAxis( pjoy->sdl_ptr, 0 );
+    y = SDL_JoystickGetAxis( pjoy->sdl_ptr, 1 );
+
+    // make a dead zone
+    if ( x > dead_zone ) x -= dead_zone;
+    else if ( x < -dead_zone ) x += dead_zone;
+    else x = 0;
+
+    if ( y > dead_zone ) y -= dead_zone;
+    else if ( y < -dead_zone ) y += dead_zone;
+    else y = 0;
+
+    // store the values
+    pjoy->x = x / (float)(0x8000 - dead_zone);
+    pjoy->y = y / (float)(0x8000 - dead_zone);
+
+    // get buttons
+    button_count = SDL_JoystickNumButtons( pjoy->sdl_ptr );
+    button_count = MIN(JOYBUTTON, button_count);
+    for ( i = 0; i < button_count; i++ )
     {
-        SDL_JoystickUpdate();
+        pjoy->button[i] = SDL_JoystickGetButton( pjoy->sdl_ptr, i );
     }
 
-    if ( joyaon )
+    // buttonmask mask
+    pjoy->b = 0;
+    for ( i = 0; i < button_count; i++ )
     {
-        joyax = SDL_JoystickGetAxis( sdljoya, 0 ) / 32;
-        if ( joyax > 100 ) joyax -= 100;
-        else if ( joyax < -100 ) joyax += 100;
-        else joyax = 0;
-
-        joyay = SDL_JoystickGetAxis( sdljoya, 1 ) / 32;
-        if ( joyay > 100 ) joyay -= 100;
-        else if ( joyay < -100 ) joyay += 100;
-        else joyay = 0;
-
-        button = SDL_JoystickNumButtons( sdljoya );
-
-        while ( button >= 0 )
-        {
-            joyabutton[button] = SDL_JoystickGetButton( sdljoya, button );
-            button--;
-        }
+        pjoy->b |= ( pjoy->button[i] << i );
     }
 
-    if ( joybon )
-    {
-        joybx = SDL_JoystickGetAxis( sdljoyb, 0 ) / 32;
-        if ( joybx > 100 ) joybx -= 100;
-        else if ( joybx < -100 ) joybx += 100;
-        else joybx = 0;
-
-        joyby = SDL_JoystickGetAxis( sdljoyb, 1 ) / 32;
-        if ( joyby > 100 ) joyby -= 100;
-        else if ( joyby < -100 ) joyby += 100;
-        else joyby = 0;
-
-        button = SDL_JoystickNumButtons( sdljoyb );
-
-        while ( button >= 0 )
-        {
-            joybbutton[button] = SDL_JoystickGetButton( sdljoyb, button );
-            button--;
-        }
-    }
+    return;
 }
 
 //--------------------------------------------------------------------------------------------
-void read_input()
+void input_read()
 {
     // ZZ> This function gets all the current player input states
     int cnt;
@@ -118,35 +208,116 @@ void read_input()
         switch ( evt.type )
         {
             case SDL_MOUSEBUTTONDOWN:
-                pending_click = btrue;
+                if (evt.button.button == SDL_BUTTON_WHEELUP)
+                {
+                    mous.z++;
+                    mouse_wheel_event = btrue;
+                }
+                else if (evt.button.button == SDL_BUTTON_WHEELDOWN)
+                {
+                    mous.z--;
+                    mouse_wheel_event = btrue;
+                }
+                else
+                {
+                    pending_click = btrue;
+                }
                 break;
 
             case SDL_MOUSEBUTTONUP:
                 pending_click = bfalse;
                 break;
+
+                // use this loop to grab any console-mode entry from the keyboard
+            case SDL_KEYDOWN:
+                {
+                    Uint32 kmod;
+                    bool_t is_alt, is_shift;
+
+                    kmod = SDL_GetModState();
+
+                    is_alt   = ( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
+                    is_shift = ( 0 != (kmod & KMOD_SHIFT) );
+
+                    if ( console_mode && !is_alt )
+                    {
+                        if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
+                        {
+                            keyb.buffer[keyb.buffer_count] = '\0';
+                            console_mode = bfalse;
+                            console_done = btrue;
+                            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+                        }
+                        else if ( SDLK_ESCAPE == evt.key.keysym.sym )
+                        {
+                            // reset the keyboard buffer
+                            console_mode = bfalse;
+                            console_done = bfalse;
+                            keyb.buffer_count = 0;
+                            keyb.buffer[0] = '\0';
+                            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+                        }
+                        else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
+                        {
+                            if (keyb.buffer_count > 0)
+                            {
+                                keyb.buffer_count--;
+                            }
+                            keyb.buffer[keyb.buffer_count] = '\0';
+                        }
+                        else if ( keyb.buffer_count < KEYB_BUFFER_SIZE )
+                        {
+                            if ( is_shift )
+                            {
+                                keyb.buffer[keyb.buffer_count++] = scancode_to_ascii_shift[evt.key.keysym.sym];
+                            }
+                            else
+                            {
+                                keyb.buffer[keyb.buffer_count++] = scancode_to_ascii[evt.key.keysym.sym];
+                            }
+                            keyb.buffer[keyb.buffer_count] = '\0';
+                        }
+                    }
+                }
+                break;
         }
     }
 
     // Get immediate mode state for the rest of the game
-    read_key();
-    read_mouse();
-    read_joystick();
+    input_read_keyboard();
+    input_read_mouse();
 
-    // Set up for button masks
-    jab = 0;
-    jbb = 0;
-    msb = 0;
-
-    // Joystick mask
-    cnt = 0;
-
-    while ( cnt < JOYBUTTON )
+    SDL_JoystickUpdate();
+    for ( cnt = 0; cnt < MAXJOYSTICK; cnt++ )
     {
-        jab |= ( joyabutton[cnt] << cnt );
-        jbb |= ( joybbutton[cnt] << cnt );
-        cnt++;
+        input_read_joystick(cnt);
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint32 input_get_buttonmask( Uint32 idevice )
+{
+    Uint32 buttonmask = 0;
+    Uint32 which_device;
+
+    // make sure the idevice is valid
+    if ( idevice > input_device_count || idevice > INPUT_COUNT + MAXJOYSTICK ) return 0;
+    which_device = controls[idevice].device;
+
+    if ( which_device >= INPUT_JOY )
+    {
+        // joysticks
+        buttonmask = joy[which_device - INPUT_JOY].b;
+    }
+    else
+    {
+        switch ( controls[idevice].device )
+        {
+            case INPUT_KEYBOARD: buttonmask = 0; break;
+            case INPUT_MOUSE:    buttonmask = mous.b; break;
+        }
     }
 
-    // Mouse mask
-    msb = ( mousebutton[3] << 3 ) | ( mousebutton[2] << 2 ) | ( mousebutton[1] << 1 ) | ( mousebutton[0] << 0 );
-}
+    return buttonmask;
+};

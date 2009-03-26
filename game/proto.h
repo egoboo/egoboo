@@ -64,14 +64,29 @@ bool_t load_all_global_icons();
 
 //Free memory functions
 void prime_titleimage();
-void prime_icons();
+
+void init_all_icons();
+void init_all_titleimages();
+void init_bars();
+void init_blip();
+void init_map();
+void init_all_textures();
+void init_all_models();
+
 void release_all_icons();
 void release_all_titleimages();
-void release_all_models();
+void release_bars();
+void release_blip();
 void release_map();
+void release_all_textures();
+void release_all_models();
+
+bool_t load_blip_bitmap();
+void   load_bars( char* szBitmap );
+void   load_map( char* szModule );
+
 void release_module();
 void close_session();
-void release_all_textures();
 
 //Sound
 bool_t sdlmixer_initialize();
@@ -94,14 +109,11 @@ void goto_colon( FILE* fileread );
 Uint8 goto_colon_yesno( FILE* fileread );
 char get_first_letter( FILE* fileread );
 void reset_tags();
-int read_tag( FILE *fileread );
+bool_t read_tag( FILE *fileread );
 void read_all_tags( char *szFilename );
 int tag_value( char *string );
-char* tag_to_string( Sint32 tag, bool_t onlykeys );
-bool_t control_key_is_pressed( Uint8 control );
-bool_t control_mouse_is_pressed( Uint8 control );
-bool_t control_joya_is_pressed( Uint8 control );
-bool_t control_joyb_is_pressed( Uint8 control );
+char* tag_to_string( Sint32 device, Sint32 tag, bool_t onlykeys );
+bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 void free_all_enchants();
 void load_one_enchant_type( char* szLoadName, Uint16 profile );
 Uint16 get_free_enchant();
@@ -276,12 +288,15 @@ void load_mesh_fans();
 void make_fanstart();
 void make_twist();
 int load_mesh( char *modname );
-void read_mouse();
-void read_key();
-void read_joystick();
-void read_input();
-void check_add( Uint8 key, char bigletter, char littleletter );
-void create_szfpstext( int frames );
+
+void   input_init();
+void   input_read_mouse();
+void   input_read_keyboard();
+void   input_read_joystick(int which);
+void   input_read();
+Uint32 input_get_buttonmask( Uint32 idevice );
+
+void   create_szfpstext( int frames );
 
 void project_view();
 void make_renderlist();
@@ -341,9 +356,11 @@ void check_copy( char* loadname, int object );
 int load_one_object( int skin, char* tmploadname );
 int load_all_objects( char *modname );
 void load_all_global_objects(int skin);
-void load_bars( char* szBitmap );
-void load_map( char* szModule );
-void load_font( char* szBitmap, char* szSpacing );
+
+void font_init();
+void font_release();
+void font_load( char* szBitmap, char* szSpacing );
+
 void make_water();
 void read_wawalite( char *modname );
 void reset_teams();
@@ -465,7 +482,7 @@ void net_sendPacketToAllPlayers();
 void net_sendPacketToHostGuaranteed();
 void net_sendPacketToAllPlayersGuaranteed();
 void net_sendPacketToOnePlayerGuaranteed( int player );
-void input_net_message();
+void net_send_message();
 
 void net_updateFileTransfers();
 int  net_pendingFileTransfers();

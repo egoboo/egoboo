@@ -136,7 +136,7 @@ void GLSetup_SupportedFormats()
     }
 
     // These typed are natively supported with SDL
-    // Place them *after* the SDL_image types, so that if both are present, 
+    // Place them *after* the SDL_image types, so that if both are present,
     // the other types will be preferred over bmp
     snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
     snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
@@ -144,12 +144,12 @@ void GLSetup_SupportedFormats()
     //Save the amount of format types we have in store
     maxformattypes = type;
 
-    if (!use_sdl_image) 
+    if (!use_sdl_image)
     {
         log_message( "Failed!\n" );
         log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n");
     }
-    else 
+    else
     {
         log_message( "Success!\n" );
     }
@@ -167,7 +167,11 @@ GLTexture * GLTexture_new( GLTexture * ptx )
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
-    glGenTextures( 1, &ptx->textureID );
+    glGenTextures( 1, &(ptx->textureID) );
+
+    // set the image to be clamped in s and t
+    ptx->wrap_s = GL_CLAMP;
+    ptx->wrap_t = GL_CLAMP;
 
     return ptx;
 }
@@ -178,6 +182,10 @@ void    GLTexture_delete( GLTexture * ptx )
     // actually delete the OpenGL texture data
     glDeleteTextures( 1, &ptx->textureID );
     ptx->textureID = INVALID_TX_ID;
+
+    // set the image to be clamped in s and t
+    ptx->wrap_s = GL_CLAMP;
+    ptx->wrap_t = GL_CLAMP;
 
     // Reset the other data
     ptx->imgH = ptx->imgW = ptx->txW = ptx->txH  = 0;
@@ -230,7 +238,7 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
         // create the mask
         // this will work if both endian systems think they have "RGBA" graphics
         // if you need a different pixel format (ARGB or BGRA or whatever) this section
-        // will have to be changed to reflect that
+        // will have to be valuechanged to reflect that
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         tmpformat.Amask = ( Uint32 )( 0xFF << 24 );
         tmpformat.Bmask = ( Uint32 )( 0xFF << 16 );
@@ -306,7 +314,10 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
     };
 
     /* Generate an OpenGL texture ID */
-    glGenTextures( 1, &texture->textureID );
+    if ( 0 == texture->textureID || INVALID_TX_ID == texture->textureID )
+    {
+        glGenTextures( 1, &texture->textureID );
+    }
 
     texture->texture_target = tx_target;
 
@@ -344,8 +355,7 @@ void    GLTexture_Bind( GLTexture *texture )
 
     target = GL_TEXTURE_2D;
     id     = INVALID_TX_ID;
-
-    if ( NULL != texture )
+    if ( NULL != texture && 0 != texture->texture_target )
     {
         target = texture->texture_target;
         id     = texture->textureID;
@@ -358,20 +368,15 @@ void    GLTexture_Bind( GLTexture *texture )
 
     glBindTexture( target, id );
 
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-    //Error check
-    if ( NULL != texture && id == INVALID_TX_ID )
+    if ( NULL == texture )
     {
-        if (gDevMode && !gfxerror)
-        {
-            gfxerror = btrue;
-            log_warning("Trying to filter an invalid texture! Aborted.\n");
-        }
-
-        return;
+        glTexParameteri( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
+        glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    }
+    else
+    {
+        glTexParameteri( target, GL_TEXTURE_WRAP_S, texture->wrap_s );
+        glTexParameteri( target, GL_TEXTURE_WRAP_T, texture->wrap_t );
     }
 
     if ( texturefilter >= TX_ANISOTROPIC )
@@ -437,11 +442,8 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
     // get rid of any old data
     GLTexture_Release( texture );
 
-    // initialize the texture
-    if ( NULL == GLTexture_new( texture ) ) return INVALID_TX_ID;
-
+    // load the image
     image = NULL;
-
     if (use_sdl_image)
     {
         // try all different formats
@@ -470,6 +472,9 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
 
     retval = GLTexture_Convert( tx_target, texture, image, key );
     strncpy(texture->name, fullname, sizeof(texture->name));
+
+    texture->wrap_s = GL_REPEAT;
+    texture->wrap_t = GL_REPEAT;
 
     return retval;
 }
@@ -520,7 +525,11 @@ void    GLTexture_Release( GLTexture *texture )
     // Reset the other data
     texture->imgW = texture->txW = ErrorImage_width;
     texture->imgH = texture->txH = ErrorImage_height;
-    texture->name[0] = '\0';
+    strncpy( texture->name, "ErrorImage", sizeof(texture->name) );
+
+    // set the image to be repeat in s and t
+    texture->wrap_s = GL_REPEAT;
+    texture->wrap_t = GL_REPEAT;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -103,7 +103,7 @@ void render_fan( Uint32 fan )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLTexture_Bind( &txTexture[texture] );
+        GLTexture_Bind( txTexture + texture );
         meshlasttexture = texture;
     }
 
@@ -192,7 +192,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLTexture_Bind( &txTexture[texture] );
+        GLTexture_Bind( txTexture + texture );
         meshlasttexture = texture;
     }
 

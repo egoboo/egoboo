@@ -23,9 +23,9 @@
 #include "char.h"
 #include "egoboo.h"
 #include "log.h"
+#include "script.h"
 
 #include <assert.h>
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -97,13 +97,13 @@ void add_to_dolist( int cnt )
             numdolist++;
 
             // Do flashing
-            if ( ( allframe&chrflashand[cnt] ) == 0 && chrflashand[cnt] != DONTFLASH )
+            if ( 0 == ( allframe & chrflashand[cnt] ) && chrflashand[cnt] != DONTFLASH )
             {
                 flash_character( cnt, 255 );
             }
 
             // Do blacking
-            if ( ( allframe&SEEKURSEAND ) == 0 && localseekurse && chriskursed[cnt] )
+            if ( ( allframe&SEEKURSEAND ) == 0 && local_seekurse && chriskursed[cnt] )
             {
                 flash_character( cnt, 0 );
             }
@@ -1348,7 +1348,7 @@ Uint16 stack_in_pack( Uint16 item, Uint16 character )
 
                 id = 0;
 
-                while ( id < MAXIDSZ && allok )
+                while ( id < IDSZ_COUNT && allok )
                 {
                     if ( capidsz[chrmodel[inpack]][id] != capidsz[chrmodel[item]][id] )
                     {
@@ -1546,10 +1546,10 @@ void drop_keys( Uint16 character )
 
                     if ( item != character )  // Should never happen...
                     {
-                        if ( ( capidsz[chrmodel[item]][IDSZPARENT] >= testa &&
-                                capidsz[chrmodel[item]][IDSZPARENT] <= testz ) ||
-                                ( capidsz[chrmodel[item]][IDSZTYPE] >= testa &&
-                                  capidsz[chrmodel[item]][IDSZTYPE] <= testz ) )
+                        if ( ( capidsz[chrmodel[item]][IDSZ_PARENT] >= testa &&
+                                capidsz[chrmodel[item]][IDSZ_PARENT] <= testz ) ||
+                                ( capidsz[chrmodel[item]][IDSZ_TYPE] >= testa &&
+                                  capidsz[chrmodel[item]][IDSZ_TYPE] <= testz ) )
                         {
                             // We found a key...
                             chrinpack[item] = bfalse;
@@ -2271,7 +2271,7 @@ void move_characters( void )
                             // Then check if a skill is needed
                             if ( capneedskillidtouse[chrmodel[weapon]] )
                             {
-                                if (check_skills( cnt, capidsz[chrmodel[weapon]][IDSZSKILL]) == bfalse )
+                                if (check_skills( cnt, capidsz[chrmodel[weapon]][IDSZ_SKILL]) == bfalse )
                                     allowedtoattack = bfalse;
                             }
                         }
@@ -2390,7 +2390,7 @@ void move_characters( void )
                             // Then check if a skill is needed
                             if ( capneedskillidtouse[chrmodel[weapon]] )
                             {
-                                if ( check_skills( cnt, capidsz[chrmodel[weapon]][IDSZSKILL]) == bfalse   )
+                                if ( check_skills( cnt, capidsz[chrmodel[weapon]][IDSZ_SKILL]) == bfalse   )
                                     allowedtoattack = bfalse;
                             }
                         }
@@ -2928,7 +2928,7 @@ void setup_characters( char *modname )
                                 if ( numstat == 0 )
                                 {
                                     // Single player module
-                                    add_player( lastcharacter, numstat, INPUTMOUSE | INPUTKEY | INPUTJOYA | INPUTJOYB );
+                                    add_player( lastcharacter, numstat, INPUT_BITS_MOUSE | INPUT_BITS_KEYBOARD | INPUT_BITS_JOYA | INPUT_BITS_JOYB );
                                 }
                             }
                             else
@@ -2941,13 +2941,13 @@ void setup_characters( char *modname )
                                         if ( numstat == 0 )
                                         {
                                             // First player
-                                            add_player( lastcharacter, numstat, INPUTMOUSE | INPUTKEY | INPUTJOYB );
+                                            add_player( lastcharacter, numstat, INPUT_BITS_MOUSE | INPUT_BITS_KEYBOARD | INPUT_BITS_JOYB );
                                         }
 
                                         if ( numstat == 1 )
                                         {
                                             // Second player
-                                            add_player( lastcharacter, numstat, INPUTJOYA );
+                                            add_player( lastcharacter, numstat, INPUT_BITS_JOYA );
                                         }
                                     }
                                     else
@@ -2956,19 +2956,19 @@ void setup_characters( char *modname )
                                         if ( numstat == 0 )
                                         {
                                             // First player
-                                            add_player( lastcharacter, numstat, INPUTKEY );
+                                            add_player( lastcharacter, numstat, INPUT_BITS_KEYBOARD );
                                         }
 
                                         if ( numstat == 1 )
                                         {
                                             // Second player
-                                            add_player( lastcharacter, numstat, INPUTJOYA );
+                                            add_player( lastcharacter, numstat, INPUT_BITS_JOYA );
                                         }
 
                                         if ( numstat == 2 )
                                         {
                                             // Third player
-                                            add_player( lastcharacter, numstat, INPUTJOYB | INPUTMOUSE );
+                                            add_player( lastcharacter, numstat, INPUT_BITS_JOYB | INPUT_BITS_MOUSE );
                                         }
                                     }
                                 }
@@ -2977,7 +2977,7 @@ void setup_characters( char *modname )
                                     // One player per machine hack
                                     if ( localmachine == numstat )
                                     {
-                                        add_player( lastcharacter, numstat, INPUTMOUSE | INPUTKEY | INPUTJOYA | INPUTJOYB );
+                                        add_player( lastcharacter, numstat, INPUT_BITS_MOUSE | INPUT_BITS_KEYBOARD | INPUT_BITS_JOYA | INPUT_BITS_JOYB );
                                     }
                                 }
                             }
@@ -3009,7 +3009,7 @@ void setup_characters( char *modname )
                             else
                             {
                                 // It's a remote player
-                                add_player( lastcharacter, numstat, INPUTNONE );
+                                add_player( lastcharacter, numstat, INPUT_BITS_NONE );
                             }
                         }
 
@@ -3067,7 +3067,7 @@ void set_one_player_latch( Uint16 player )
     float inputx, inputy;
 
     // Check to see if we need to bother
-    if ( plavalid[player] && pladevice[player] != INPUTNONE )
+    if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
     {
         // Make life easier
         character = plaindex[player];
@@ -3079,39 +3079,39 @@ void set_one_player_latch( Uint16 player )
         plalatchy[player] = 0;
 
         // Mouse routines
-        if ( ( device & INPUTMOUSE ) && mouseon )
+        if ( ( device & INPUT_BITS_MOUSE ) && mous.on )
         {
             // Movement
             newx = 0;
             newy = 0;
 
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_mouse_is_pressed( MOS_CAMERA ) )  // Don't allow movement in camera control mode
+                    !control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
-                dist = SQRT( mousex * mousex + mousey * mousey );
+                dist = SQRT( mous.x * mous.x + mous.y * mous.y );
 
                 if ( dist > 0 )
                 {
-                    scale = mousesense / dist;
+                    scale = mous.sense / dist;
 
-                    if ( dist < mousesense )
+                    if ( dist < mous.sense )
                     {
-                        scale = dist / mousesense;
+                        scale = dist / mous.sense;
                     }
 
-                    scale = scale / mousesense;
+                    scale = scale / mous.sense;
 
                     if ( chrattachedto[character] != MAXCHR )
                     {
                         // Mounted
-                        inputx = mousex * chrmaxaccel[chrattachedto[character]] * scale;
-                        inputy = mousey * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputx = mous.x * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputy = mous.y * chrmaxaccel[chrattachedto[character]] * scale;
                     }
                     else
                     {
                         // Unmounted
-                        inputx = mousex * chrmaxaccel[character] * scale;
-                        inputy = mousey * chrmaxaccel[character] * scale;
+                        inputx = mous.x * chrmaxaccel[character] * scale;
+                        inputy = mous.y * chrmaxaccel[character] * scale;
                     }
 
                     turnsin = ( camturnleftrightone * 16383 );
@@ -3120,7 +3120,7 @@ void set_one_player_latch( Uint16 player )
 
                     if ( autoturncamera == 255 &&
                             numlocalpla == 1 &&
-                            control_mouse_is_pressed( MOS_CAMERA ) == 0 )  inputx = 0;
+                            control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
 
                     newx = ( inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                     newy = (-inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3129,51 +3129,51 @@ void set_one_player_latch( Uint16 player )
                 }
             }
 
-            plalatchx[player] += newx * mousecover + mouselatcholdx * mousesustain;
-            plalatchy[player] += newy * mousecover + mouselatcholdy * mousesustain;
-            mouselatcholdx = plalatchx[player];
-            mouselatcholdy = plalatchy[player];
+            plalatchx[player] += newx * mous.cover + mous.latcholdx * mous.sustain;
+            plalatchy[player] += newy * mous.cover + mous.latcholdy * mous.sustain;
+            mous.latcholdx = plalatchx[player];
+            mous.latcholdy = plalatchy[player];
 
             // Sustain old movements to ease mouse play
-//            plalatchx[player]+=mouselatcholdx*mousesustain;
-//            plalatchy[player]+=mouselatcholdy*mousesustain;
-//            mouselatcholdx = plalatchx[player];
-//            mouselatcholdy = plalatchy[player];
+//            plalatchx[player]+=mous.latcholdx*mous.sustain;
+//            plalatchy[player]+=mous.latcholdy*mous.sustain;
+//            mous.latcholdx = plalatchx[player];
+//            mous.latcholdy = plalatchy[player];
             // Read buttons
-            if ( control_mouse_is_pressed( MOS_JUMP ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_mouse_is_pressed( MOS_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_mouse_is_pressed( MOS_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_mouse_is_pressed( MOS_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_mouse_is_pressed( MOS_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_mouse_is_pressed( MOS_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_mouse_is_pressed( MOS_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
         // Joystick A routines
-        if ( ( device & INPUTJOYA ) && joyaon )
+        if ( ( device & INPUT_BITS_JOYA ) && joy[0].on )
         {
             // Movement
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_joya_is_pressed( JOA_CAMERA ) )
+                    !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
             {
                 newx = 0;
                 newy = 0;
                 inputx = 0;
                 inputy = 0;
-                dist = SQRT( joyax * joyax + joyay * joyay );
+                dist = SQRT( joy[0].x * joy[0].x + joy[0].y * joy[0].y );
 
                 if ( dist > 0 )
                 {
@@ -3182,14 +3182,14 @@ void set_one_player_latch( Uint16 player )
                     if ( chrattachedto[character] != MAXCHR )
                     {
                         // Mounted
-                        inputx = joyax * chrmaxaccel[chrattachedto[character]] * scale;
-                        inputy = joyay * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputx = joy[0].x * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputy = joy[0].y * chrmaxaccel[chrattachedto[character]] * scale;
                     }
                     else
                     {
                         // Unmounted
-                        inputx = joyax * chrmaxaccel[character] * scale;
-                        inputy = joyay * chrmaxaccel[character] * scale;
+                        inputx = joy[0].x * chrmaxaccel[character] * scale;
+                        inputy = joy[0].y * chrmaxaccel[character] * scale;
                     }
                 }
 
@@ -3199,7 +3199,7 @@ void set_one_player_latch( Uint16 player )
 
                 if ( autoturncamera == 255 &&
                         numlocalpla == 1 &&
-                        !control_joya_is_pressed( JOA_CAMERA ) )  inputx = 0;
+                        !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
 
                 newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                 newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3208,40 +3208,40 @@ void set_one_player_latch( Uint16 player )
             }
 
             // Read buttons
-            if ( control_joya_is_pressed( JOA_JUMP ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_joya_is_pressed( JOA_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_joya_is_pressed( JOA_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_joya_is_pressed( JOA_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_joya_is_pressed( JOA_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_joya_is_pressed( JOA_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_joya_is_pressed( JOA_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
         // Joystick B routines
-        if ( ( device & INPUTJOYB ) && joybon )
+        if ( ( device & INPUT_BITS_JOYB ) && joy[1].on )
         {
             // Movement
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_joyb_is_pressed( JOB_CAMERA ) )
+                    !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
             {
                 newx = 0;
                 newy = 0;
                 inputx = 0;
                 inputy = 0;
-                dist = SQRT( joybx * joybx + joyby * joyby );
+                dist = SQRT( joy[1].x * joy[1].x + joy[1].y * joy[1].y );
 
                 if ( dist > 0 )
                 {
@@ -3250,14 +3250,14 @@ void set_one_player_latch( Uint16 player )
                     if ( chrattachedto[character] != MAXCHR )
                     {
                         // Mounted
-                        inputx = joybx * chrmaxaccel[chrattachedto[character]] * scale;
-                        inputy = joyby * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputx = joy[1].x * chrmaxaccel[chrattachedto[character]] * scale;
+                        inputy = joy[1].y * chrmaxaccel[chrattachedto[character]] * scale;
                     }
                     else
                     {
                         // Unmounted
-                        inputx = joybx * chrmaxaccel[character] * scale;
-                        inputy = joyby * chrmaxaccel[character] * scale;
+                        inputx = joy[1].x * chrmaxaccel[character] * scale;
+                        inputy = joy[1].y * chrmaxaccel[character] * scale;
                     }
                 }
 
@@ -3267,7 +3267,7 @@ void set_one_player_latch( Uint16 player )
 
                 if ( autoturncamera == 255 &&
                         numlocalpla == 1 &&
-                        !control_joyb_is_pressed( JOB_CAMERA ) )  inputx = 0;
+                        !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
 
                 newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                 newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3276,43 +3276,43 @@ void set_one_player_latch( Uint16 player )
             }
 
             // Read buttons
-            if ( control_joyb_is_pressed( JOB_JUMP ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_joyb_is_pressed( JOB_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_joyb_is_pressed( JOB_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_joyb_is_pressed( JOB_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_joyb_is_pressed( JOB_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_joyb_is_pressed( JOB_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_joyb_is_pressed( JOB_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
         // Keyboard routines
-        if ( ( device & INPUTKEY ) && keyon )
+        if ( ( device & INPUT_BITS_KEYBOARD ) && keyb.on )
         {
             // Movement
             if ( chrattachedto[character] != MAXCHR )
             {
                 // Mounted
-                inputx = ( control_key_is_pressed( KEY_RIGHT ) - control_key_is_pressed( KEY_LEFT ) ) * chrmaxaccel[chrattachedto[character]];
-                inputy = ( control_key_is_pressed( KEY_DOWN ) - control_key_is_pressed( KEY_UP ) ) * chrmaxaccel[chrattachedto[character]];
+                inputx = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[chrattachedto[character]];
+                inputy = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[chrattachedto[character]];
             }
             else
             {
                 // Unmounted
-                inputx = ( control_key_is_pressed( KEY_RIGHT ) - control_key_is_pressed( KEY_LEFT ) ) * chrmaxaccel[character];
-                inputy = ( control_key_is_pressed( KEY_DOWN ) - control_key_is_pressed( KEY_UP ) ) * chrmaxaccel[character];
+                inputx = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[character];
+                inputy = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[character];
             }
 
             turnsin = ( camturnleftrightone * 16383 );
@@ -3327,25 +3327,25 @@ void set_one_player_latch( Uint16 player )
             plalatchy[player] += newy;
 
             // Read buttons
-            if ( control_key_is_pressed( KEY_JUMP ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_key_is_pressed( KEY_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_key_is_pressed( KEY_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_key_is_pressed( KEY_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_key_is_pressed( KEY_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_key_is_pressed( KEY_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_key_is_pressed( KEY_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
     }
@@ -3605,7 +3605,7 @@ void bump_characters( void )
         xa = chrxpos[chara];
         ya = chrypos[chara];
         za = chrzpos[chara];
-        chridvulnerability = capidsz[chrmodel[chara]][IDSZVULNERABILITY];
+        chridvulnerability = capidsz[chrmodel[chara]][IDSZ_VULNERABILITY];
 
         // determine the size of this object in blocks
         ixmin = chrxpos[chara] - chrbumpsize[chara]; ixmin = CLIP(ixmin, 0, meshedgex);
@@ -3943,8 +3943,8 @@ void bump_characters( void )
 
                                         if ( ( prtdamagebase[particle] | prtdamagerand[particle] ) > 1 )
                                         {
-                                            prtidparent = capidsz[prtmodel[particle]][IDSZPARENT];
-                                            prtidtype = capidsz[prtmodel[particle]][IDSZTYPE];
+                                            prtidparent = capidsz[prtmodel[particle]][IDSZ_PARENT];
+                                            prtidtype = capidsz[prtmodel[particle]][IDSZ_TYPE];
 
                                             if ( chrdamagetime[chara] == 0 && prtattachedtocharacter[particle] != chara && ( pipdamfx[pip]&DAMFXARRO ) == 0 )
                                             {
@@ -3966,7 +3966,7 @@ void bump_characters( void )
                                                     eveidremove = everemovedbyidsz[enceve[enchant]];
                                                     temp = encnextenchant[enchant];
 
-                                                    if ( eveidremove != IDSZNONE && ( eveidremove == prtidtype || eveidremove == prtidparent ) )
+                                                    if ( eveidremove != IDSZ_NONE && ( eveidremove == prtidtype || eveidremove == prtidparent ) )
                                                     {
                                                         remove_enchant( enchant );
                                                     }
@@ -3993,7 +3993,7 @@ void bump_characters( void )
                                                 }
 
                                                 // Damage the character
-                                                if ( chridvulnerability != IDSZNONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
+                                                if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
                                                 {
                                                     damage_character( chara, direction, prtdamagebase[particle] << 1, prtdamagerand[particle] << 1, prtdamagetype[particle], prtteam[particle], prtchr[particle], pipdamfx[pip] );
                                                     chralert[chara] |= ALERTIFHITVULNERABLE;
@@ -4386,11 +4386,11 @@ void update_pits()
                                 chryvel[cnt] = 0;
 
                                 //Play sound effect
-                                if (chrisplayer[cnt]) 
+                                if (chrisplayer[cnt])
                                 {
                                     play_mix( camtrackx, camtracky, globalwave + SND_PITFALL );
                                 }
-                                else 
+                                else
                                 {
                                     play_mix( chrxpos[cnt], chrypos[cnt], globalwave + SND_PITFALL );
                                 }
@@ -4420,9 +4420,9 @@ void reset_players()
     int cnt, tnc;
 
     // Reset the local data stuff
-    localseekurse = bfalse;
-    localsenseenemies = MAXCHR;
-    localseeinvisible = bfalse;
+    local_seekurse = bfalse;
+    local_senseenemies = MAXCHR;
+    local_seeinvisible = bfalse;
     alllocalpladead = bfalse;
 
     // Reset the initial player data and latches
@@ -4445,7 +4445,7 @@ void reset_players()
             tnc++;
         }
 
-        pladevice[cnt] = INPUTNONE;
+        pladevice[cnt] = INPUT_BITS_NONE;
         cnt++;
     }
 
@@ -4472,16 +4472,24 @@ void drop_money( Uint16 character, Uint16 money )
         ones = money;
 
         for ( cnt = 0; cnt < ones; cnt++ )
+        {
             spawn_one_particle( chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN1, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR );
+        }
 
         for ( cnt = 0; cnt < fives; cnt++ )
+        {
             spawn_one_particle( chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN5, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR );
+        }
 
         for ( cnt = 0; cnt < tfives; cnt++ )
+        {
             spawn_one_particle( chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN25, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR );
+        }
 
         for ( cnt = 0; cnt < huns; cnt++ )
+        {
             spawn_one_particle( chrxpos[character], chrypos[character],  chrzpos[character], 0, MAXMODEL, COIN100, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, cnt, MAXCHR );
+        }
 
         chrdamagetime[character] = DAMAGETIME;  // So it doesn't grab it again
     }
@@ -4498,8 +4506,12 @@ void call_for_help( Uint16 character )
     teamsissy[team] = character;
 
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    {
         if ( chron[cnt] && cnt != character && !teamhatesteam[chrteam[cnt]][team] )
+        {
             chralert[cnt] = chralert[cnt] | ALERTIFCALLEDFORHELP;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4643,7 +4655,7 @@ void give_experience( int character, int amount, Uint8 xptype )
         profile = chrmodel[character];
         newamount = amount;
 
-        if ( xptype < MAXEXPERIENCETYPE )
+        if ( xptype < XP_COUNT )
         {
             newamount = amount * capexperiencerate[profile][xptype];
         }
@@ -4664,8 +4676,12 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype )
     int cnt;
 
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    {
         if ( chrteam[cnt] == team && chron[cnt] )
+        {
             give_experience( cnt, amount, xptype );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4885,7 +4901,7 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
                  255 - capdefense[profile][2], 255 - capdefense[profile][3] );
         damagetype = 0;
 
-        while ( damagetype < MAXDAMAGETYPE )
+        while ( damagetype < DAMAGE_COUNT )
         {
             fprintf( filewrite, "%c damage shift : %3d %3d %3d %3d\n", types[damagetype],
                      capdamagemodifier[profile][damagetype][0]&DAMAGESHIFT,
@@ -4897,7 +4913,7 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
 
         damagetype = 0;
 
-        while ( damagetype < MAXDAMAGETYPE )
+        while ( damagetype < DAMAGE_COUNT )
         {
             skin = 0;
 
@@ -4944,18 +4960,18 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
         fprintf( filewrite, "\n" );
 
         // IDSZ identification tags
-        undo_idsz( capidsz[profile][0] );
-        fprintf( filewrite, "IDSZ Parent    : [%s]\n", valueidsz );
-        undo_idsz( capidsz[profile][1] );
-        fprintf( filewrite, "IDSZ Type      : [%s]\n", valueidsz );
-        undo_idsz( capidsz[profile][2] );
-        fprintf( filewrite, "IDSZ Skill     : [%s]\n", valueidsz );
-        undo_idsz( capidsz[profile][3] );
-        fprintf( filewrite, "IDSZ Special   : [%s]\n", valueidsz );
-        undo_idsz( capidsz[profile][4] );
-        fprintf( filewrite, "IDSZ Hate      : [%s]\n", valueidsz );
-        undo_idsz( capidsz[profile][5] );
-        fprintf( filewrite, "IDSZ Vulnie    : [%s]\n", valueidsz );
+        undo_idsz( capidsz[profile][IDSZ_PARENT] );
+        fprintf( filewrite, "IDSZ Parent    : [%s]\n", idsz_string );
+        undo_idsz( capidsz[profile][IDSZ_TYPE] );
+        fprintf( filewrite, "IDSZ Type      : [%s]\n", idsz_string );
+        undo_idsz( capidsz[profile][IDSZ_SKILL] );
+        fprintf( filewrite, "IDSZ Skill     : [%s]\n", idsz_string );
+        undo_idsz( capidsz[profile][IDSZ_SPECIAL] );
+        fprintf( filewrite, "IDSZ Special   : [%s]\n", idsz_string );
+        undo_idsz( capidsz[profile][IDSZ_HATE] );
+        fprintf( filewrite, "IDSZ Hate      : [%s]\n", idsz_string );
+        undo_idsz( capidsz[profile][IDSZ_VULNERABILITY] );
+        fprintf( filewrite, "IDSZ Vulnie    : [%s]\n", idsz_string );
         fprintf( filewrite, "\n" );
 
         // Item and damage flags
@@ -5164,6 +5180,7 @@ int load_one_character_profile( char *szLoadName )
     float fTmp;
     char cTmp;
     Uint8 damagetype, level, xptype;
+    int idsz_cnt;
     IDSZ idsz, test;
 
     // Open the file
@@ -5318,7 +5335,7 @@ int load_one_character_profile( char *szLoadName )
         fscanf( fileread, "%d", &iTmp );  capdefense[object][2] = 255 - iTmp;
         fscanf( fileread, "%d", &iTmp );  capdefense[object][3] = 255 - iTmp;
 
-        for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
+        for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
         {
             goto_colon( fileread );
             fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][0] = iTmp;
@@ -5327,7 +5344,7 @@ int load_one_character_profile( char *szLoadName )
             fscanf( fileread, "%d", &iTmp );  capdamagemodifier[object][damagetype][3] = iTmp;
         }
 
-        for ( damagetype = 0; damagetype < MAXDAMAGETYPE; damagetype++ )
+        for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
         {
             goto_colon( fileread );
 
@@ -5373,15 +5390,15 @@ int load_one_character_profile( char *szLoadName )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capexperienceworth[object] = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  capexperienceexchange[object] = fTmp;
 
-        for ( xptype = 0; xptype < MAXEXPERIENCETYPE; xptype++ )
+        for ( xptype = 0; xptype < XP_COUNT; xptype++ )
         {
             goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  capexperiencerate[object][xptype] = fTmp + 0.001f;
         }
 
         // IDSZ tags
-        for ( idsz = 0; idsz < MAXIDSZ; idsz++ )
+        for ( idsz_cnt = 0; idsz_cnt < IDSZ_COUNT; idsz_cnt++ )
         {
-            goto_colon( fileread );  iTmp = get_idsz( fileread );  capidsz[object][idsz] = iTmp;
+            goto_colon( fileread );  iTmp = get_idsz( fileread );  capidsz[object][idsz_cnt] = iTmp;
         }
 
         // Item and damage flags
@@ -5438,21 +5455,21 @@ int load_one_character_profile( char *szLoadName )
         // More item and damage stuff
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
 
-        if ( cTmp == 'S' || cTmp == 's' )  capdamagetargettype[object] = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' )  capdamagetargettype[object] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  capdamagetargettype[object] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  capdamagetargettype[object] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  capdamagetargettype[object] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  capdamagetargettype[object] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  capdamagetargettype[object] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  capdamagetargettype[object] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  capdamagetargettype[object] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  capdamagetargettype[object] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  capdamagetargettype[object] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  capdamagetargettype[object] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  capdamagetargettype[object] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  capdamagetargettype[object] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  capdamagetargettype[object] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  capdamagetargettype[object] = DAMAGE_ZAP;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         capweaponaction[object] = what_action( cTmp );
@@ -5463,21 +5480,21 @@ int load_one_character_profile( char *szLoadName )
 
         if ( cTmp == 'N' || cTmp == 'n' )  capattachedprtreaffirmdamagetype[object] = DAMAGENULL;
 
-        if ( cTmp == 'S' || cTmp == 's' )  capattachedprtreaffirmdamagetype[object] = DAMAGESLASH;
+        if ( cTmp == 'S' || cTmp == 's' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_SLASH;
 
-        if ( cTmp == 'C' || cTmp == 'c' )  capattachedprtreaffirmdamagetype[object] = DAMAGECRUSH;
+        if ( cTmp == 'C' || cTmp == 'c' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_CRUSH;
 
-        if ( cTmp == 'P' || cTmp == 'p' )  capattachedprtreaffirmdamagetype[object] = DAMAGEPOKE;
+        if ( cTmp == 'P' || cTmp == 'p' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_POKE;
 
-        if ( cTmp == 'H' || cTmp == 'h' )  capattachedprtreaffirmdamagetype[object] = DAMAGEHOLY;
+        if ( cTmp == 'H' || cTmp == 'h' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_HOLY;
 
-        if ( cTmp == 'E' || cTmp == 'e' )  capattachedprtreaffirmdamagetype[object] = DAMAGEEVIL;
+        if ( cTmp == 'E' || cTmp == 'e' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_EVIL;
 
-        if ( cTmp == 'F' || cTmp == 'f' )  capattachedprtreaffirmdamagetype[object] = DAMAGEFIRE;
+        if ( cTmp == 'F' || cTmp == 'f' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_FIRE;
 
-        if ( cTmp == 'I' || cTmp == 'i' )  capattachedprtreaffirmdamagetype[object] = DAMAGEICE;
+        if ( cTmp == 'I' || cTmp == 'i' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_ICE;
 
-        if ( cTmp == 'Z' || cTmp == 'z' )  capattachedprtreaffirmdamagetype[object] = DAMAGEZAP;
+        if ( cTmp == 'Z' || cTmp == 'z' )  capattachedprtreaffirmdamagetype[object] = DAMAGE_ZAP;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capattachedprttype[object] = iTmp;
 
@@ -5564,19 +5581,9 @@ int load_one_character_profile( char *szLoadName )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Chance of kursed
         capkursechance[object] = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Footfall sound
-
-        if ( iTmp < -1 ) iTmp = -1;
-
-        if ( iTmp > MAXWAVE - 1 ) iTmp = MAXWAVE - 1;
-
-        capwavefootfall[object] = iTmp;
+        capwavefootfall[object] = CLIP(iTmp, -1, MAXWAVE);
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Jump sound
-
-        if ( iTmp < -1 ) iTmp = -1;
-
-        if ( iTmp > MAXWAVE - 1 ) iTmp = MAXWAVE - 1;
-
-        capwavejump[object] = iTmp;
+        capwavejump[object] = CLIP(iTmp, -1, MAXWAVE);
 
         // Clear expansions...
         capskindressy[object] = bfalse;
@@ -5946,7 +5953,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             call_for_help(character);*/
 
                         // Spawn blood particles
-                        if ( capbloodvalid[model] && ( damagetype < DAMAGEHOLY || capbloodvalid[model] == ULTRABLOODY ) )
+                        if ( capbloodvalid[model] && ( damagetype < DAMAGE_HOLY || capbloodvalid[model] == ULTRABLOODY ) )
                         {
                             spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character],
                                                 chrturnleftright[character] + direction, chrmodel[character], capbloodprttype[model],
@@ -6003,14 +6010,14 @@ void damage_character( Uint16 character, Uint16 direction,
                             // Award direct kill experience
                             if ( teamhatesteam[chrteam[attacker]][chrteam[character]] )
                             {
-                                give_experience( attacker, experience, XPKILLENEMY );
+                                give_experience( attacker, experience, XP_KILLENEMY );
                             }
 
                             // Check for hated
-                            if ( capidsz[chrmodel[attacker]][IDSZHATE] == capidsz[model][IDSZPARENT] ||
-                                    capidsz[chrmodel[attacker]][IDSZHATE] == capidsz[model][IDSZTYPE] )
+                            if ( capidsz[chrmodel[attacker]][IDSZ_HATE] == capidsz[model][IDSZ_PARENT] ||
+                                    capidsz[chrmodel[attacker]][IDSZ_HATE] == capidsz[model][IDSZ_TYPE] )
                             {
-                                give_experience( attacker, experience, XPKILLHATED );
+                                give_experience( attacker, experience, XP_KILLHATED );
                             }
                         }
 
@@ -6042,7 +6049,7 @@ void damage_character( Uint16 character, Uint16 direction,
                                 if ( !teamhatesteam[chrteam[tnc]][team] && ( teamhatesteam[chrteam[tnc]][chrteam[character]] ) )
                                 {
                                     // All allies get team experience, but only if they also hate the dead guy's team
-                                    give_experience( tnc, experience, XPTEAMKILL );
+                                    give_experience( tnc, experience, XP_TEAMKILL );
                                 }
                             }
 
@@ -6138,19 +6145,19 @@ void kill_character( Uint16 character, Uint16 killer )
     {
         chrdamagetime[character] = 0;
         chrlife[character] = 1;
-        modifier = chrdamagemodifier[character][DAMAGECRUSH];
-        chrdamagemodifier[character][DAMAGECRUSH] = 1;
+        modifier = chrdamagemodifier[character][DAMAGE_CRUSH];
+        chrdamagemodifier[character][DAMAGE_CRUSH] = 1;
 
         if ( killer != MAXCHR )
         {
-            damage_character( character, 0, 512, 1, DAMAGECRUSH, chrteam[killer], killer, DAMFXARMO | DAMFXBLOC );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, chrteam[killer], killer, DAMFXARMO | DAMFXBLOC );
         }
         else
         {
-            damage_character( character, 0, 512, 1, DAMAGECRUSH, DAMAGETEAM, chrbumplast[character], DAMFXARMO | DAMFXBLOC );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, chrbumplast[character], DAMFXARMO | DAMFXBLOC );
         }
 
-        chrdamagemodifier[character][DAMAGECRUSH] = modifier;
+        chrdamagemodifier[character][DAMAGE_CRUSH] = modifier;
     }
 }
 
@@ -6500,7 +6507,7 @@ int spawn_one_character( float x, float y, float z, int profile, Uint8 team,
             chrdamagetargettype[cnt] = capdamagetargettype[profile];
             tnc = 0;
 
-            while ( tnc < MAXDAMAGETYPE )
+            while ( tnc < DAMAGE_COUNT )
             {
                 chrdamagemodifier[cnt][tnc] = capdamagemodifier[profile][tnc][skin];
                 tnc++;
@@ -6836,7 +6843,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     chrdefense[character] = capdefense[sTmp][skin];
     iTmp = 0;
 
-    while ( iTmp < MAXDAMAGETYPE )
+    while ( iTmp < DAMAGE_COUNT )
     {
         chrdamagemodifier[character][iTmp] = capdamagemodifier[sTmp][iTmp][skin];
         iTmp++;
@@ -7120,10 +7127,10 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
           {
             if ( !chrisitem[charb] || items )
             {
-              if ( idsz != IDSZNONE )
+              if ( idsz != IDSZ_NONE )
               {
-                if ( capidsz[chrmodel[charb]][IDSZPARENT] == idsz ||
-                     capidsz[chrmodel[charb]][IDSZTYPE] == idsz )
+                if ( capidsz[chrmodel[charb]][IDSZ_PARENT] == idsz ||
+                     capidsz[chrmodel[charb]][IDSZ_TYPE] == idsz )
                 {
                   if ( !excludeid ) return charb;
                 }
@@ -7297,10 +7304,10 @@ void switch_team( int character, Uint8 team )
           {
             if ( !chrinvictus[charb] || items )
             {
-              if ( idsz != IDSZNONE )
+              if ( idsz != IDSZ_NONE )
               {
-                if ( capidsz[chrmodel[charb]][IDSZPARENT] == idsz ||
-                     capidsz[chrmodel[charb]][IDSZTYPE] == idsz )
+                if ( capidsz[chrmodel[charb]][IDSZ_PARENT] == idsz ||
+                     capidsz[chrmodel[charb]][IDSZ_TYPE] == idsz )
                 {
                   xdis = chrxpos[character] - chrxpos[charb];
                   ydis = chrypos[character] - chrypos[charb];
@@ -7440,7 +7447,7 @@ int restock_ammo( Uint16 character, IDSZ idsz )
         {
             model = chrmodel[character];
 
-            if ( capidsz[model][IDSZPARENT] == idsz || capidsz[model][IDSZTYPE] == idsz )
+            if ( capidsz[model][IDSZ_PARENT] == idsz || capidsz[model][IDSZ_TYPE] == idsz )
             {
                 if ( chrammo[character] < chrammomax[character] )
                 {
@@ -7494,7 +7501,7 @@ void issue_special_order( Uint32 order, IDSZ idsz )
     {
         if ( chron[cnt] )
         {
-            if ( capidsz[chrmodel[cnt]][IDSZSPECIAL] == idsz )
+            if ( capidsz[chrmodel[cnt]][IDSZ_SPECIAL] == idsz )
             {
                 chrorder[cnt] = order;
                 chrcounter[cnt] = counter;
@@ -7524,9 +7531,9 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
                 && (team == ALL || team != teamhatesteam[chrteam[character]][chrteam[cnt]]) )
         {
             //Check for IDSZ too
-            if (idsz == IDSZNONE
-                    || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZPARENT] == idsz))
-                    || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZTYPE]   == idsz)) )
+            if (idsz == IDSZ_NONE
+                    || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZ_PARENT] == idsz))
+                    || (excludeidsz != (capidsz[chrmodel[cnt]][IDSZ_TYPE]   == idsz)) )
             {
                 Uint32 dist = ( Uint32 ) SQRT(ABS( pow(chrxpos[cnt] - chrxpos[character], 2))
                                               + ABS( pow(chrypos[cnt] - chrypos[character], 2))
@@ -7598,7 +7605,7 @@ bool_t add_quest_idsz( char *whichplayer, IDSZ idsz )
     STRING newloadname;
 
     // Only add quest IDSZ if it doesnt have it already
-    if (check_player_quest(whichplayer, idsz) >= QUESTBEATEN) return bfalse;
+    if (check_player_quest(whichplayer, idsz) >= QUEST_BEATEN) return bfalse;
 
     // Try to open the file in read and append mode
     snprintf(newloadname, sizeof(newloadname), "players/%s/quest.txt", get_file_path(whichplayer) );
@@ -7630,15 +7637,15 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
 {
     /// @details ZF@> This function increases or decreases a Quest IDSZ quest level by the amount determined in
     ///     adjustment. It then returns the current quest level it now has.
-    ///     It returns NOQUEST if failed and if the adjustment is 0, the quest is marked as beaten...
+    ///     It returns QUEST_NONE if failed and if the adjustment is 0, the quest is marked as beaten...
 
     FILE *filewrite, *fileread;
     STRING newloadname, copybuffer;
     IDSZ newidsz;
-    Sint8 NewQuestLevel = NOQUEST, QuestLevel;
+    Sint8 NewQuestLevel = QUEST_NONE, QuestLevel;
 
     //Now check each expansion until we find correct IDSZ
-    if (check_player_quest(whichplayer, idsz) <= QUESTBEATEN || adjustment == 0)  return NewQuestLevel;
+    if (check_player_quest(whichplayer, idsz) <= QUEST_BEATEN || adjustment == 0)  return NewQuestLevel;
     else
     {
         // modify the CData.quest_file
@@ -7657,7 +7664,7 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
         if (!fileread || !filewrite)
         {
             log_warning("Could not modify quest IDSZ (%s).\n", newloadname);
-            return NOQUEST;
+            return QUEST_NONE;
         }
 
         // read the tmp file line-by line
@@ -7705,13 +7712,13 @@ Sint16 modify_quest_idsz( char *whichplayer, IDSZ idsz, Sint16 adjustment )
 Sint16 check_player_quest( char *whichplayer, IDSZ idsz )
 {
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
-    /// and returns the quest level of that specific quest (Or NOQUEST if it is not found, QUESTBEATEN if it is finished)
+    /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)
 
     FILE *fileread;
     STRING newloadname;
     IDSZ newidsz;
     bool_t foundidsz = bfalse;
-    Sint8 result = NOQUEST;
+    Sint8 result = QUEST_NONE;
 
     snprintf( newloadname, sizeof(newloadname), "players/%s/quest.txt", get_file_path(whichplayer) );
     fileread = fopen( newloadname, "r" );
@@ -7719,7 +7726,7 @@ Sint16 check_player_quest( char *whichplayer, IDSZ idsz )
     if ( NULL == fileread ) return result;
 
     //Always return "true" for [NONE] IDSZ checks
-    if (idsz == IDSZ_NONE) result = QUESTBEATEN;
+    if (idsz == IDSZ_NONE) result = QUEST_BEATEN;
 
     // Check each expansion
     while ( !foundidsz && goto_colon_yesno( fileread ) )
@@ -7749,7 +7756,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
 
     // First check the character Skill ID matches
     // Then check for expansion skills too.
-    if ( capidsz[chrmodel[who]][IDSZSKILL]  == whichskill ) result = btrue;
+    if ( capidsz[chrmodel[who]][IDSZ_SKILL]  == whichskill ) result = btrue;
     else if ( Make_IDSZ( "AWEP" ) == whichskill ) result = chrcanuseadvancedweapons[who];
     else if ( Make_IDSZ( "CKUR" ) == whichskill ) result = chrcanseekurse[who];
     else if ( Make_IDSZ( "JOUS" ) == whichskill ) result = chrcanjoust[who];

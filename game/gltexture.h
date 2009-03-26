@@ -38,7 +38,9 @@ struct ogl_texture_t
     GLsizei imgH, imgW;      /* the height & width of the original image */
     GLsizei txH,  txW;       /* the height/width of the the OpenGL texture (must be a power of two) */
     GLfloat alpha;           /* the alpha for the texture */
+
     GLenum  texture_target;
+    GLint   wrap_s, wrap_t;
 };
 typedef struct ogl_texture_t GLTexture;
 

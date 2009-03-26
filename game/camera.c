@@ -46,7 +46,7 @@ void dump_matrix( glMatrix a )
         printf( "  " );
 
         for ( i = 0; i < 4; i++ )
-            printf( "%f ", ( a ).CNV( i, j ) );
+            printf( "%f ", a.CNV( i, j ) );
 
         printf( "\n" );
     }
@@ -70,75 +70,63 @@ void project_view()
     ztemp = ( camz );
 
     // Topleft
-    // printf("DIAG: In project_view\n");
-    // printf("DIAG: dumping mView\n"); dump_matrix(mView);
-    // printf("cam xyz,zoom = %f %f %f %f\n",camx,camy,camz,camzoom);
-
     mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
-    zproject = ( mTemp ).CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = camx + ( numstep * ( mTemp ).CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = camy + ( numstep * ( mTemp ).CNV( 1, 2 ) );    //1,2
+        xfin = camx + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = camy + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
         zfin = 0;
         cornerx[0] = xfin;
         cornery[0] = yfin;
-        // printf("Camera TL: %f %f\n",xfin,yfin);
-        // dump_matrix(mTemp);
     }
 
     // Topright
     mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
-    zproject = ( mTemp ).CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = camx + ( numstep * ( mTemp ).CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = camy + ( numstep * ( mTemp ).CNV( 1, 2 ) );    //1,2
+        xfin = camx + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = camy + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
         zfin = 0;
         cornerx[1] = xfin;
         cornery[1] = yfin;
-        // printf("Camera TR: %f %f\n",xfin,yfin);
-        // dump_matrix(mTemp);
     }
 
     // Bottomright
     mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
-    zproject = ( mTemp ).CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = camx + ( numstep * ( mTemp ).CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = camy + ( numstep * ( mTemp ).CNV( 1, 2 ) );    //1,2
+        xfin = camx + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = camy + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
         zfin = 0;
         cornerx[2] = xfin;
         cornery[2] = yfin;
-        // printf("Camera BR: %f %f\n",xfin,yfin);
-        // dump_matrix(mTemp);
     }
 
     // Bottomleft
     mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
-    zproject = ( mTemp ).CNV( 2, 2 );             //2,2
+    zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
     if ( zproject < 0 )
     {
         numstep = -ztemp / zproject;
-        xfin = camx + ( numstep * ( mTemp ).CNV( 0, 2 ) );  // xgg      //0,2
-        yfin = camy + ( numstep * ( mTemp ).CNV( 1, 2 ) );    //1,2
+        xfin = camx + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = camy + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
         zfin = 0;
         cornerx[3] = xfin;
         cornery[3] = yfin;
-        // printf("Camera BL: %f %f\n",xfin,yfin);
-        // dump_matrix(mTemp);
     }
 
     // Get the extreme values
@@ -236,9 +224,6 @@ void move_camera()
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 character, turnsin, turncos;
 
-    // printf("DIAG: In move_camera\n");
-    // dump_matrix(mView);
-
     if ( autoturncamera )
         doturntime = 255;
     else if ( doturntime != 0 )
@@ -252,7 +237,7 @@ void move_camera()
 
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        if ( plavalid[cnt] && pladevice[cnt] != INPUTNONE )
+        if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
         {
             character = plaindex[cnt];
 
@@ -309,29 +294,29 @@ void move_camera()
     // Camera controls
     if ( autoturncamera == 255 && numlocalpla == 1 )
     {
-        if ( mouseon )
-            if ( !control_mouse_is_pressed( MOS_CAMERA ) )
-                camturnadd -= ( mousex * 0.5f );
+        if ( mous.on )
+            if ( !control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )
+                camturnadd -= ( mous.x * 0.5f );
 
-        if ( keyon )
-            camturnadd += ( control_key_is_pressed( KEY_LEFT ) - control_key_is_pressed( KEY_RIGHT ) ) * ( CAMKEYTURN );
+        if ( keyb.on )
+            camturnadd += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
 
-        if ( joyaon )
-            if ( !control_joya_is_pressed( JOA_CAMERA ) )
-                camturnadd -= joyax * CAMJOYTURN;
+        if ( joy[0].on )
+            if ( !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
+                camturnadd -= joy[0].x * CAMJOYTURN;
 
-        if ( joybon )
-            if ( !control_joyb_is_pressed( JOB_CAMERA ) )
-                camturnadd -= joybx * CAMJOYTURN;
+        if ( joy[1].on )
+            if ( !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
+                camturnadd -= joy[1].x * CAMJOYTURN;
     }
     else
     {
-        if ( mouseon )
+        if ( mous.on )
         {
-            if ( control_mouse_is_pressed( MOS_CAMERA ) )
+            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )
             {
-                camturnadd += ( mousex / 3.0f );
-                camzaddgoto += ( float ) mousey / 3.0f;
+                camturnadd += ( mous.x / 3.0f );
+                camzaddgoto += ( float ) mous.y / 3.0f;
 
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
 
@@ -342,12 +327,12 @@ void move_camera()
         }
 
         // JoyA camera controls
-        if ( joyaon )
+        if ( joy[0].on )
         {
-            if ( control_joya_is_pressed( JOA_CAMERA ) )
+            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
             {
-                camturnadd += joyax * CAMJOYTURN;
-                camzaddgoto += joyay * CAMJOYTURN;
+                camturnadd += joy[0].x * CAMJOYTURN;
+                camzaddgoto += joy[0].y * CAMJOYTURN;
 
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
 
@@ -358,12 +343,12 @@ void move_camera()
         }
 
         // JoyB camera controls
-        if ( joybon )
+        if ( joy[1].on )
         {
-            if ( control_joyb_is_pressed( JOB_CAMERA ) )
+            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
             {
-                camturnadd += joybx * CAMJOYTURN;
-                camzaddgoto += joyby * CAMJOYTURN;
+                camturnadd += joy[1].x * CAMJOYTURN;
+                camzaddgoto += joy[1].y * CAMJOYTURN;
 
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
 
@@ -375,17 +360,17 @@ void move_camera()
     }
 
     // Keyboard camera controls
-    if ( keyon )
+    if ( keyb.on )
     {
-        if ( control_key_is_pressed( KEY_CAMERA_LEFT ) || control_key_is_pressed( KEY_CAMERA_RIGHT ) )
+        if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
         {
-            camturnadd += ( control_key_is_pressed( KEY_CAMERA_LEFT ) - control_key_is_pressed( KEY_CAMERA_RIGHT ) ) * CAMKEYTURN;
+            camturnadd += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
             doturntime = TURNTIME;  // Sticky turn...
         }
 
-        if ( control_key_is_pressed( KEY_CAMERA_IN ) || control_key_is_pressed( KEY_CAMERA_OUT ) )
+        if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_OUT ) )
         {
-            camzaddgoto += ( control_key_is_pressed( KEY_CAMERA_OUT ) - control_key_is_pressed( KEY_CAMERA_IN ) ) * CAMKEYTURN;
+            camzaddgoto += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
 
             if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
 
@@ -393,8 +378,8 @@ void move_camera()
         }
     }
 
-    camx -= ( float ) ( ( mView ).CNV( 0, 0 ) ) * camturnadd;  // xgg
-    camy += ( float ) ( ( mView ).CNV( 1, 0 ) ) * -camturnadd;
+    camx -= ( float ) ( mView.CNV( 0, 0 ) ) * camturnadd;  // xgg
+    camy += ( float ) ( mView.CNV( 1, 0 ) ) * -camturnadd;
 
     // Do distance effects for overlay and background
     camtrackxvel += camtrackx;
@@ -425,8 +410,8 @@ void move_camera()
     // Create a tolerance area for walking without camera movement
     x = camtrackx - camx;
     y = camtracky - camy;
-    newx = -( ( mView ).CNV( 0, 0 ) * x + ( mView ).CNV( 1, 0 ) * y ); // newx = -(mView(0,0) * x + mView(1,0) * y);
-    newy = -( ( mView ).CNV( 0, 1 ) * x + ( mView ).CNV( 1, 1 ) * y ); // newy = -(mView(0,1) * x + mView(1,1) * y);
+    newx = -( mView.CNV( 0, 0 ) * x + mView.CNV( 1, 0 ) * y ); // newx = -(mView(0,0) * x + mView(1,0) * y);
+    newy = -( mView.CNV( 0, 1 ) * x + mView.CNV( 1, 1 ) * y ); // newy = -(mView(0,1) * x + mView(1,1) * y);
 
     // Get ready to scroll...
     movex = 0;

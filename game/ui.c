@@ -51,10 +51,14 @@ static struct UiContext ui_context;
 // Core functions
 int ui_initialize( const char *default_font, int default_font_size )
 {
-    memset( &ui_context, 0, sizeof( ui_context ) );
-    ui_context.active = ui_context.hot = UI_Nothing;
+    // initialize the font handler
+    fnt_init();
 
+    memset( &ui_context, 0, sizeof( ui_context ) );
+
+    ui_context.active = ui_context.hot = UI_Nothing;
     ui_context.defaultFont = fnt_loadFont( default_font, default_font_size );
+
     return 1;
 }
 
