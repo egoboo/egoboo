@@ -23,4 +23,3 @@ Level rating ( *, **, ***, ****, or ***** )     		: ***
 
 
 // Module expansion IDSZs ( with a colon in front )
-:[BEAT]

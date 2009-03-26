@@ -20,4 +20,5 @@ Level rating ( * to  ***** ) 	: -
 :put_in_a_state_of_unrest_with
 :his_abduction_and_the_rising_evil.
 
-// IDZs
+
+// Module expansion IDSZs ( with a colon in front )

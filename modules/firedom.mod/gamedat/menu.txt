@@ -19,5 +19,6 @@ Level rating ( * to  ***** ) 			: -
 :very_acrobatic_Firehoppers...
 :_
 
-// IDZs
+
+// Module expansion IDSZs ( with a colon in front )
 

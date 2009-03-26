@@ -22,8 +22,4 @@ Level rating ( *, **, ***, ****, or ***** )  		: ***
 :Keldorn_and_rescue_the_Lord!
 
 
-
 // Module expansion IDSZs ( with a colon in front )
-:[BEAT]
-
-:[LORD]

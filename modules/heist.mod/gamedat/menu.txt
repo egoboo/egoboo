@@ -19,4 +19,5 @@ Level rating ( * to  ***** ) 		:*****
 :Note:_Rouges_Only!
 :_
 
-// IDZs
+
+// Module expansion IDSZs ( with a colon in front )
