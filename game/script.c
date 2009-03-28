@@ -43,29 +43,43 @@ bool_t  valuegopoof       =  bfalse;
 bool_t  valuechanged      =  bfalse;
 bool_t  valueterminate    =  bfalse;
 
+static bool_t debug_scripts = bfalse;
+
 #define FUNCTION_BIT 0x80000000
 #define DATA_BITS    0x78000000
 #define VALUE_BITS   0x07FFFFFF
 #define END_VALUE    (FUNCTION_BIT | FEND)
 
+#define GET_DATA_BITS(X) ( ( (X) >>   27 ) &  0x0F )
+#define SET_DATA_BITS(X) ( ( (X) &  0x0F ) <<   27 )
+
 static char * script_error_classname = NULL;
 static Uint16 script_error_model     = (Uint16)(~0);
 
-Uint8  cLineBuffer[MAXLINESIZE];
 int    iLoadSize;
-int    iLineSize;
 int    iNumLine;
-Uint8  cCodeType[MAXCODE];
-Uint32 iCodeValue[MAXCODE];
-Uint8  cCodeName[MAXCODE][MAXCODENAMESIZE];
-int    iCodeIndex;
-int    iCodeValueTmp;
-int    iNumCode;
+char * szScriptName;
+
+int    iLineSize;
+char   cLineBuffer[MAXLINESIZE];
+
 Uint32 iCompiledAis[AISMAXCOMPILESIZE];
-Uint32 iAisStartPosition[MAXAI];
-Uint32 iAisEndPosition[MAXAI];
+
 int    iNumAis;
 int    iAisIndex;
+Uint32 iAisStartPosition[MAXAI];
+Uint32 iAisEndPosition[MAXAI];
+
+int    iNumCode;
+Uint8  cCodeType[MAXCODE];
+Uint32 iCodeValue[MAXCODE];
+char   cCodeName[MAXCODE][MAXCODENAMESIZE];
+
+int    Token_iLine;
+int    Token_iIndex;
+int    Token_iValue;
+char   Token_cType;
+char   Token_cWord[MAXCODENAMESIZE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -267,18 +281,23 @@ int get_indentation()
 
     cnt = 0;
     cTmp = cLineBuffer[cnt];
-
     while ( cTmp == ' ' )
     {
         cnt++;
         cTmp = cLineBuffer[cnt];
     }
 
-    cnt = cnt >> 1;
+    if ( 0 != (cnt & 1) )
+    {
+        log_warning( "Invalid indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
+        parseerror = btrue;
+    }
+
+    cnt >>= 1;
 
     if ( cnt > 15 )
     {
-        log_message( "SCRIPT ERROR: %s - %d levels of indentation\n", globalparsename, cnt + 1 );
+        log_warning( "Too many levels of indentation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
         parseerror = btrue;
         cnt = 15;
     }
@@ -313,67 +332,22 @@ void fix_operators()
 }
 
 //--------------------------------------------------------------------------------------------
-int starts_with_capital_letter()
-{
-    // ZZ> This function returns btrue if the line starts with a capital
-    int cnt;
-    char cTmp;
-
-    cnt = 0;
-    cTmp = cLineBuffer[cnt];
-
-    while ( cTmp == ' ' )
-    {
-        cnt++;
-        cTmp = cLineBuffer[cnt];
-    }
-
-    if ( cTmp >= 'A' && cTmp <= 'Z' )
-        return btrue;
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 get_high_bits()
-{
-    // ZZ> This function looks at the first word and generates the high
-    //     bit codes for it
-    Uint32 highbits;
-
-    highbits = get_indentation();
-
-    if ( starts_with_capital_letter() )
-    {
-        highbits = highbits | 16;
-    }
-    else
-    {
-    }
-
-    highbits = highbits << 27;
-    return highbits;
-}
-
-//--------------------------------------------------------------------------------------------
-int tell_code( int read )
+int parse_token( int read )
 {
     // ZZ> This function tells what code is being indexed by read, it
     //     will return the next spot to read from and stick the code number
-    //     in iCodeIndex
+    //     in Token_iIndex
     int cnt, wordsize, codecorrect;
     char cTmp;
     IDSZ idsz;
-    char cWordBuffer[MAXCODENAMESIZE];
 
     // Check bounds
-    iCodeIndex = MAXCODE;
+    Token_iIndex = MAXCODE;
 
     if ( read >= iLineSize )  return read;
 
     // Skip spaces
     cTmp = cLineBuffer[read];
-
     while ( cTmp == ' ' )
     {
         read++;
@@ -384,110 +358,110 @@ int tell_code( int read )
 
     // Load the word into the other buffer
     wordsize = 0;
-
-    while ( cTmp != ' ' && cTmp != 0 )
+    while ( cTmp != ' ' && cTmp != '\0' )
     {
-        cWordBuffer[wordsize] = cTmp;  wordsize++;
+        Token_cWord[wordsize] = cTmp;  wordsize++;
         read++;
         cTmp = cLineBuffer[read];
     }
-
-    cWordBuffer[wordsize] = 0;
+    Token_cWord[wordsize] = '\0';
 
     // Check for numeric constant
-    if ( cWordBuffer[0] >= '0' && cWordBuffer[0] <= '9' )
+    if ( Token_cWord[0] >= '0' && Token_cWord[0] <= '9' )
     {
-        sscanf( cWordBuffer, "%d", &iCodeValueTmp );
-        iCodeIndex = -1;
+        sscanf( Token_cWord, "%d", &Token_iValue );
+        Token_cType  = 'C';
+        Token_iIndex = MAXCODE;
         return read;
     }
 
     // Check for IDSZ constant
-    if ( cWordBuffer[0] == '[' )
+    if ( Token_cWord[0] == '[' )
     {
         idsz = 0;
 
-        cTmp = (cWordBuffer[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
-        cTmp = (cWordBuffer[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
-        cTmp = (cWordBuffer[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
-        cTmp = (cWordBuffer[4] - 'A') & 0x1F;  idsz |= cTmp;
+        cTmp = (Token_cWord[1] - 'A') & 0x1F;  idsz |= cTmp << 15;
+        cTmp = (Token_cWord[2] - 'A') & 0x1F;  idsz |= cTmp << 10;
+        cTmp = (Token_cWord[3] - 'A') & 0x1F;  idsz |= cTmp << 5;
+        cTmp = (Token_cWord[4] - 'A') & 0x1F;  idsz |= cTmp;
 
-        iCodeValueTmp = idsz;
-        iCodeIndex = -1;
+        Token_iValue = idsz;
+        Token_cType  = 'C';
+        Token_iIndex = MAXCODE;
+
         return read;
     }
 
     // Compare the word to all the codes
     codecorrect = bfalse;
-    iCodeIndex = 0;
-
-    while ( iCodeIndex < iNumCode && !codecorrect )
+    
+    // compare in a case-insensitive manner. there is a unix-based function that does this,
+    // but it is not sommon enough on non-linux compilers to be cross platform compatible
+    for ( cnt = 0; cnt < iNumCode; cnt++ )
     {
-        codecorrect = bfalse;
+        int i, maxlen;
+        char * ptok, *pcode;
+        bool_t found;
 
-        if ( cWordBuffer[0] == cCodeName[iCodeIndex][0] && !codecorrect )
+        ptok   = Token_cWord;
+        pcode  = cCodeName[cnt];
+        maxlen = MAXCODENAMESIZE;
+
+        found = btrue;
+        for( i = 0; i < maxlen && '\0' != *ptok && '\0' != pcode; i++ )
         {
-            codecorrect = btrue;
-            cnt = 1;
-
-            while ( cnt < wordsize )
+            if( toupper( *ptok ) != toupper( *pcode ) )
             {
-                if ( cWordBuffer[cnt] != cCodeName[iCodeIndex][cnt] )
-                {
-                    codecorrect = bfalse;
-                    cnt = wordsize;
-                }
-
-                cnt++;
+                found = bfalse;
+                break;
             }
 
-            if ( cnt < MAXCODENAMESIZE )
-            {
-                if ( cCodeName[iCodeIndex][cnt] != 0 )  codecorrect = bfalse;
-            }
+            ptok++;
+            pcode++;
         }
 
-        iCodeIndex++;
+        if ( found ) break;
     }
 
-    if ( codecorrect )
+    if ( cnt < iNumCode )
     {
-        iCodeIndex--;
-        iCodeValueTmp = iCodeValue[iCodeIndex];
-
-        if ( cCodeType[iCodeIndex] == 'C' )
-        {
-            // Check for constants
-            iCodeIndex = -1;
-        }
+        Token_iValue = iCodeValue[cnt];
+        Token_cType  = cCodeType[cnt];
+        Token_iIndex = cnt;
+    }
+    else if ( 0 == strcmp( Token_cWord, "=" ) )
+    {
+        Token_iValue = -1;
+        Token_cType  = 'O';
+        Token_iIndex = MAXCODE;
     }
     else
     {
         // Throw out an error code if we're loggin' 'em
-        if ( cWordBuffer[0] != '=' || cWordBuffer[1] != 0 )
-        {
-            log_message( "SCRIPT ERROR: model == %d, class name == \"%s\" - %s - %s undefined\n", script_error_model, script_error_classname, globalparsename, cWordBuffer );
-            parseerror = btrue;
-        }
+        log_message( "SCRIPT ERROR: \"%s\"(%d) - unknown opcode \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+
+        Token_iValue = -1;
+        Token_cType  = '?';
+        Token_iIndex = MAXCODE;
+
+        parseerror = btrue;
     }
 
     return read;
 }
 
 //--------------------------------------------------------------------------------------------
-void add_code( Uint32 highbits )
+void emit_opcode( Uint32 highbits )
 {
-    Uint32 value;
-
     // detect a constant value
-    if ( iCodeIndex == -1 )
+    if ( 'C' == Token_cType || 'F' == Token_cType )
     {
         highbits |= FUNCTION_BIT;
     }
 
     if ( iAisIndex < AISMAXCOMPILESIZE )
     {
-        iCompiledAis[iAisIndex] = highbits | iCodeValueTmp;
+        iCompiledAis[iAisIndex] = highbits | Token_iValue;
         iAisIndex++;
     }
     else
@@ -501,69 +475,147 @@ void parse_line_by_line()
 {
     // ZZ> This function removes comments and endline codes, replacing
     //     them with a 0
-    int read, line;
+    int read;
     Uint32 highbits;
     int parseposition;
-    int operands;
-    bool_t has_end;
 
-    has_end = bfalse;
-    line    = 0;
-    read    = 0;
-    while ( line < iNumLine )
+    read = 0;
+    for ( Token_iLine = 0; Token_iLine < iNumLine; Token_iLine++ )
     {
         parseposition = 0;
 
         read = load_parsed_line( read );
         fix_operators();
 
-        highbits = get_high_bits();
-        parseposition = tell_code( parseposition );  // VALUE
-        add_code( highbits );
+        //------------------------------
+        // grab the first opcode
 
-        if( END_VALUE == (highbits | iCodeValueTmp) )
+        highbits = SET_DATA_BITS( get_indentation() );
+        parseposition = parse_token( parseposition ); 
+
+        if ( 'F' == Token_cType )
         {
-            has_end = btrue;
-        }
-
-        iCodeValueTmp = 0;  // SKIP FOR CONTROL CODES
-        add_code( 0 );
-
-        if ( 0 == ( highbits & FUNCTION_BIT ) )
-        {
-            parseposition = tell_code( parseposition );  // EQUALS
-            parseposition = tell_code( parseposition );  // VALUE
-            add_code( 0 );
-            operands = 1;
-
-            while ( parseposition < iLineSize )
+            if( FEND == Token_iValue && 0 == highbits )
             {
-                parseposition = tell_code( parseposition );  // OPERATOR
-
-                if ( iCodeIndex == -1 ) iCodeIndex = 1;
-                else iCodeIndex = 0;
-
-                highbits = ( ( iCodeValueTmp & 15 ) << 27 ) | ( iCodeIndex << 31 );
-                parseposition = tell_code( parseposition );  // VALUE
-                add_code( highbits );
-
-                if ( iCodeIndex != MAXCODE )
-                    operands++;
+                // stop processing the lines, since we're finished
+                break;
             }
 
-            iCompiledAis[iAisIndex-operands-1] = operands;  // Number of operands
+            //------------------------------
+            // the code type is a function
+
+            // save the opcode
+            emit_opcode( highbits );
+
+            // leave a space for the control code
+            Token_iValue = 0;
+            emit_opcode( 0 );
+
         }
+        else if ( 'V' == Token_cType )
+        {
+            //------------------------------
+            // the code type is a math operation
 
-        line++;
+            int operand_index;
+            int operands = 0;
+            Uint32 initial_index = iAisIndex;
+
+            // save in the value's opcode
+            emit_opcode( highbits );
+
+            // save a position for the operand count 
+            Token_iValue = 0;
+            operand_index = iAisIndex;
+            emit_opcode( 0 );
+
+            // handle the "="
+            highbits = 0;
+            parseposition = parse_token( parseposition );  // EQUALS
+            if( 'O' != Token_cType || 0 != strcmp(Token_cWord, "=") )
+            {
+                log_warning( "Invalid equation \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+            }
+
+            //------------------------------
+            // grab the next opcode
+
+            parseposition = parse_token( parseposition );
+
+            if ( 'V' == Token_cType || 'C' == Token_cType )
+            {
+                // this is a value or a constant
+                emit_opcode( 0 );
+                operands++;
+
+                parseposition = parse_token( parseposition );
+            }
+            else if ( 'O' != Token_cType ) 
+            {
+                // this is a function or an unknown value. do not break the script.
+                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+
+                emit_opcode( 0 );
+                operands++;
+
+                parseposition = parse_token( parseposition );
+            }
+
+            // expects a OPERATOR VALUE OPERATOR VALUE OPERATOR VALUE pattern
+            while ( parseposition < iLineSize )
+            {
+                // the current token should be an operator
+
+                if( 'O' != Token_cType )
+                {
+                    // problem with the loop
+                    log_warning( "Expected an operator \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+                    break;
+                }
+
+                // the highbits are the operator's value
+                highbits = SET_DATA_BITS( Token_iValue );
+
+                // VALUE
+                parseposition = parse_token( parseposition );
+               
+                if( 'C' != Token_cType && 'V' != Token_cType )
+                {
+                    // not having a constant or a value here breaks the function. stop processing
+                    log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord);
+                    break;
+                }
+
+                emit_opcode( highbits );
+                operands++;
+
+                // OPERATOR
+                parseposition = parse_token( parseposition );
+            }
+
+            iCompiledAis[operand_index] = operands;  // Number of operands
+        }
+        else if ( 'C' == Token_cType )
+        {
+            log_warning( "Invalid constant \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+        }
+        else if ( '?' == Token_cType )
+        {
+            // unknown opcode, do not process this line 
+            log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+        }
+        else
+        {
+            log_warning( "Compiler is broken \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord );
+            break;
+        }
     }
 
-    if( !has_end )
-    {
-        iCodeValueTmp = FEND;
-        add_code( FUNCTION_BIT );
-        iCodeValueTmp = iAisIndex + 1;
-        add_code( 0 );
-    }
+    Token_iValue = FEND;
+    Token_cType  = 'F';
+    emit_opcode( 0 );
+    Token_iValue = iAisIndex + 1;
+    emit_opcode( 0 );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -576,13 +628,13 @@ Uint32 jump_goto( int index, int index_end )
     int targetindent, indent;
 
     value = iCompiledAis[index];  index += 2;
-    targetindent = ( value >> 27 ) & 15;
+    targetindent = GET_DATA_BITS( value );
     indent = 100;
 
     while ( indent > targetindent && index < index_end )
     {
         value = iCompiledAis[index];
-        indent = ( value >> 27 ) & 15;
+        indent = GET_DATA_BITS( value );
 
         if ( indent > targetindent )
         {
@@ -692,7 +744,7 @@ void get_code( int read )
     int iTmp;
 
     sscanf( ( char* ) &cLoadBuffer[read], "%c%d%s", &cTmp, &iTmp, &cCodeName[iNumCode][0] );
-    cCodeType[iNumCode] = cTmp;
+    cCodeType[iNumCode] = toupper(cTmp);
     iCodeValue[iNumCode] = iTmp;
 }
 
@@ -731,7 +783,6 @@ int load_ai_script( char *loadname )
     FILE* fileread;
 
     iNumLine = 0;
-    globalparsename = loadname;  // For error logging in ParseErr.TXT
     fileread = fopen( loadname, "rb" );
 
     // No such file
@@ -743,18 +794,28 @@ int load_ai_script( char *loadname )
             log_message( "       Using the default AI script instead (basicdat" SLASH_STR "script.txt)\n" );
         }
 
-        return bfalse;
+        return 0;
     }
 
     if ( iNumAis >= MAXAI )
     {
         log_warning( "Too many script files. Cannot load file \"%s\"\n", loadname );
-        return bfalse;
+        return 0;
     }
 
     // load the file
     iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
     fclose( fileread );
+
+    // if the file is empty, use the default script
+    if(0 == iLoadSize) 
+    {
+        log_warning( "Script file is empty. \"%s\"\n", loadname );
+        return 0;
+    }
+
+    // save the filename for error logging
+    globalparsename = loadname;
 
     // initialize the start and end position
     iAisStartPosition[iNumAis] = iAisIndex;
@@ -792,6 +853,54 @@ void reset_ai_script()
 }
 
 //--------------------------------------------------------------------------------------------
+Uint32 run_operation( Uint32 opcode, Uint32 index, Uint32 index_end, int character )
+{
+    char * variable;
+    int i, operand_count;
+
+    index++;
+
+    // debug stuff
+    variable = "UNKNOWN";
+    if ( debug_scripts )
+    {
+        Uint32 indent, valuecode;
+
+        indent = GET_DATA_BITS( opcode );
+        for(i=0; i<indent; i++) { printf( "  " ); }
+
+        valuecode = opcode & VALUE_BITS; 
+        for(i=0; i<MAXCODE; i++)
+        {
+            if( 'V' == cCodeType[i] && valuecode == iCodeValue[i] )
+            {
+                variable = cCodeName[i];
+                break;
+            };
+        }
+
+        printf( "%s = ", variable );
+    }
+
+    // Get the number of operands
+    operand_count = iCompiledAis[index];
+    index++;
+
+    // Now run the operation
+    valueoperationsum = 0;
+    for ( i=0; i < operand_count && index < index_end; i++, index++ )
+    {
+        run_operand( iCompiledAis[index], character ); // This sets valueoperationsum
+    }
+    if ( debug_scripts ) printf( "\n" );
+
+    // Save the results in the register that called the arithmetic
+    set_operand( opcode & VALUE_BITS );
+
+    return index;
+}
+
+//--------------------------------------------------------------------------------------------
 Uint8 run_function( Uint32 value, int character )
 {
     // ZZ> This function runs a script function for the AI.
@@ -810,8 +919,7 @@ Uint8 run_function( Uint32 value, int character )
     int volume;
     IDSZ test;
     char cTmp[256];
-    int i;
-    Uint32 indent;
+
 
     if ( MAXCODE == valuecode )
     {
@@ -820,19 +928,22 @@ Uint8 run_function( Uint32 value, int character )
     }
 
     // debug stuff
-    //{
-    //    indent = ( value & DATA_BITS ) >> 27;
-    //    for(i=0; i<indent; i++) { printf( "  " ); }
+    if ( debug_scripts )
+    {
+        int i;
+        Uint32 indent;
+        indent = GET_DATA_BITS( value );
+        for(i=0; i<indent; i++) { printf( "  " ); }
 
-    //    for(i=0; i<MAXCODE; i++)
-    //    {
-    //        if( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
-    //        {
-    //            printf( "%s\n", cCodeName[i] );
-    //            break;
-    //        };
-    //    }
-    //}
+        for(i=0; i<MAXCODE; i++)
+        {
+            if( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
+            {
+                printf( "%s\n", cCodeName[i] );
+                break;
+            };
+        }
+    }
 
     // Figure out which function to run
     switch ( valuecode )
@@ -3533,7 +3644,7 @@ Uint8 run_function( Uint32 value, int character )
             break;
 
         case FCLEARMUSICPASSAGE:
-            // This clears the music for an specified passage
+            // This clears the music for a specified passage
             passagemusic[valuetmpargument] = -1;
             break;
 
@@ -4087,99 +4198,125 @@ void set_operand( Uint8 variable )
 }
 
 //--------------------------------------------------------------------------------------------
-void run_operand( Uint32 value, int character )
+void run_operand( Uint32 opcode, int character )
 {
-    // ZZ> This function does the scripted arithmetic in operator,operand pairs
-    Uint8 opcode;
-    Uint8 variable;
-    int iTmp;
+    // ZZ> This function does the scripted arithmetic in OPERATOR, OPERAND pairs
 
-    // Get the operation code
-    opcode = ( value >> 27 );
+    char * varname, * op;
 
-    if ( opcode & 16 )
+    STRING buffer;
+    Uint8  variable;
+    Uint8  operation;
+
+    Uint32 iTmp;
+
+    // get the operator
+    iTmp      = 0;
+    varname   = buffer;
+    operation = GET_DATA_BITS( opcode );
+
+    if ( 0 != (opcode & FUNCTION_BIT) )
     {
-        // Get the working value from a constant, constants are all but high 5 bits
-        iTmp = value & VALUE_BITS;
+        // Get the working opcode from a constant, constants are all but high 5 bits
+        iTmp = opcode & VALUE_BITS;
+
+        snprintf( buffer, sizeof(STRING), "%d", iTmp );
     }
     else
     {
-        // Get the working value from a register
-        variable = value;
-        iTmp = 1;
+        // Get the variable opcode from a register
+        variable = opcode & 0x07FFFFFF;
 
         switch ( variable )
         {
             case VARTMPX:
+                varname = "TMPX";
                 iTmp = valuetmpx;
                 break;
 
             case VARTMPY:
+                varname = "TMPY";
                 iTmp = valuetmpy;
                 break;
 
             case VARTMPDISTANCE:
+                varname = "TMPDISTANCE";
                 iTmp = valuetmpdistance;
                 break;
 
             case VARTMPTURN:
+                varname = "TMPTURN";
                 iTmp = valuetmpturn;
                 break;
 
             case VARTMPARGUMENT:
+                varname = "TMPARGUMENT";
                 iTmp = valuetmpargument;
                 break;
 
             case VARRAND:
+                varname = "RAND";
                 iTmp = RANDIE;
                 break;
 
             case VARSELFX:
+                varname = "SELFX";
                 iTmp = chrxpos[character];
                 break;
 
             case VARSELFY:
+                varname = "SELFY";
                 iTmp = chrypos[character];
                 break;
 
             case VARSELFTURN:
+                varname = "SELFTURN";
                 iTmp = chrturnleftright[character];
                 break;
 
             case VARSELFCOUNTER:
+                varname = "SELFCOUNTER";
                 iTmp = chrcounter[character];
                 break;
 
             case VARSELFORDER:
+                varname = "SELFORDER";
                 iTmp = chrorder[character];
                 break;
 
             case VARSELFMORALE:
+                varname = "SELFMORALE";
                 iTmp = teammorale[chrbaseteam[character]];
                 break;
 
             case VARSELFLIFE:
+                varname = "SELFLIFE";
                 iTmp = chrlife[character];
                 break;
 
             case VARTARGETX:
+                varname = "TARGETX";
                 iTmp = chrxpos[chraitarget[character]];
                 break;
 
             case VARTARGETY:
+                varname = "TARGETY";
                 iTmp = chrypos[chraitarget[character]];
                 break;
 
             case VARTARGETDISTANCE:
+                varname = "TARGETDISTANCE";
                 iTmp = ABS( ( int )( chrxpos[chraitarget[character]] - chrxpos[character] ) ) +
                        ABS( ( int )( chrypos[chraitarget[character]] - chrypos[character] ) );
                 break;
 
             case VARTARGETTURN:
+                varname = "TARGETTURN";
                 iTmp = chrturnleftright[chraitarget[character]];
                 break;
 
             case VARLEADERX:
+                varname = "LEADERX";
                 iTmp = chrxpos[character];
 
                 if ( teamleader[chrteam[character]] != NOLEADER )
@@ -4188,6 +4325,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARLEADERY:
+                varname = "LEADERY";
                 iTmp = chrypos[character];
 
                 if ( teamleader[chrteam[character]] != NOLEADER )
@@ -4196,6 +4334,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARLEADERDISTANCE:
+                varname = "LEADERDISTANCE";
                 iTmp = 10000;
 
                 if ( teamleader[chrteam[character]] != NOLEADER )
@@ -4205,6 +4344,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARLEADERTURN:
+                varname = "LEADERTURN";
                 iTmp = chrturnleftright[character];
 
                 if ( teamleader[chrteam[character]] != NOLEADER )
@@ -4213,6 +4353,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTOX:
+                varname = "GOTOX";
                 if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = chrxpos[character];
@@ -4224,6 +4365,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTOY:
+                varname = "GOTOY";
                 if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = chrypos[character];
@@ -4235,6 +4377,7 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARGOTODISTANCE:
+                varname = "GOTODISTANCE";
                 if (chraigoto[character] == chraigotoadd[character])
                 {
                     iTmp = 0;
@@ -4247,32 +4390,39 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARTARGETTURNTO:
+                varname = "TARGETTURNTO";
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARPASSAGE:
+                varname = "PASSAGE";
                 iTmp = chrpassage[character];
                 break;
 
             case VARWEIGHT:
+                varname = "WEIGHT";
                 iTmp = chrholdingweight[character];
                 break;
 
             case VARSELFALTITUDE:
+                varname = "SELFALTITUDE";
                 iTmp = chrzpos[character] - chrlevel[character];
                 break;
 
             case VARSELFID:
+                varname = "SELFID";
                 iTmp = capidsz[chrmodel[character]][IDSZ_TYPE];
                 break;
 
             case VARSELFHATEID:
+                varname = "SELFHATEID";
                 iTmp = capidsz[chrmodel[character]][IDSZ_HATE];
                 break;
 
             case VARSELFMANA:
+                varname = "SELFMANA";
                 iTmp = chrmana[character];
 
                 if ( chrcanchannel[character] )  iTmp += chrlife[character];
@@ -4280,26 +4430,32 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARTARGETSTR:
+                varname = "TARGETSTR";
                 iTmp = chrstrength[chraitarget[character]];
                 break;
 
             case VARTARGETWIS:
+                varname = "TARGETWIS";
                 iTmp = chrwisdom[chraitarget[character]];
                 break;
 
             case VARTARGETINT:
+                varname = "TARGETINT";
                 iTmp = chrintelligence[chraitarget[character]];
                 break;
 
             case VARTARGETDEX:
+                varname = "TARGETDEX";
                 iTmp = chrdexterity[chraitarget[character]];
                 break;
 
             case VARTARGETLIFE:
+                varname = "TARGETLIFE";
                 iTmp = chrlife[chraitarget[character]];
                 break;
 
             case VARTARGETMANA:
+                varname = "TARGETMANA";
                 iTmp = chrmana[chraitarget[character]];
 
                 if ( chrcanchannel[chraitarget[character]] )  iTmp += chrlife[chraitarget[character]];
@@ -4307,190 +4463,232 @@ void run_operand( Uint32 value, int character )
                 break;
 
             case VARTARGETLEVEL:
+                varname = "TARGETLEVEL";
                 iTmp = chrexperiencelevel[chraitarget[character]];
                 break;
 
             case VARTARGETSPEEDX:
+                varname = "TARGETSPEEDX";
                 iTmp = chrxvel[chraitarget[character]];
                 break;
 
             case VARTARGETSPEEDY:
+                varname = "TARGETSPEEDY";
                 iTmp = chryvel[chraitarget[character]];
                 break;
 
             case VARTARGETSPEEDZ:
+                varname = "TARGETSPEEDZ";
                 iTmp = chrzvel[chraitarget[character]];
                 break;
 
             case VARSELFSPAWNX:
+                varname = "SELFSPAWNX";
                 iTmp = chrxstt[character];
                 break;
 
             case VARSELFSPAWNY:
+                varname = "SELFSPAWNY";
                 iTmp = chrystt[character];
                 break;
 
             case VARSELFSTATE:
+                varname = "SELFSTATE";
                 iTmp = chraistate[character];
                 break;
 
             case VARSELFSTR:
+                varname = "SELFSTR";
                 iTmp = chrstrength[character];
                 break;
 
             case VARSELFWIS:
+                varname = "SELFWIS";
                 iTmp = chrwisdom[character];
                 break;
 
             case VARSELFINT:
+                varname = "SELFINT";
                 iTmp = chrintelligence[character];
                 break;
 
             case VARSELFDEX:
+                varname = "SELFDEX";
                 iTmp = chrdexterity[character];
                 break;
 
             case VARSELFMANAFLOW:
+                varname = "SELFMANAFLOW";
                 iTmp = chrmanaflow[character];
                 break;
 
             case VARTARGETMANAFLOW:
+                varname = "TARGETMANAFLOW";
                 iTmp = chrmanaflow[chraitarget[character]];
                 break;
 
             case VARSELFATTACHED:
+                varname = "SELFATTACHED";
                 iTmp = number_of_attached_particles( character );
                 break;
 
             case VARSWINGTURN:
+                varname = "SWINGTURN";
                 iTmp = camswing << 2;
                 break;
 
             case VARXYDISTANCE:
+                varname = "XYDISTANCE";
                 iTmp = SQRT( valuetmpx * valuetmpx + valuetmpy * valuetmpy );
                 break;
 
             case VARSELFZ:
+                varname = "SELFZ";
                 iTmp = chrzpos[character];
                 break;
 
             case VARTARGETALTITUDE:
+                varname = "TARGETALTITUDE";
                 iTmp = chrzpos[chraitarget[character]] - chrlevel[chraitarget[character]];
                 break;
 
             case VARTARGETZ:
+                varname = "TARGETZ";
                 iTmp = chrzpos[chraitarget[character]];
                 break;
 
             case VARSELFINDEX:
+                varname = "SELFINDEX";
                 iTmp = character;
                 break;
 
             case VAROWNERX:
+                varname = "OWNERX";
                 iTmp = chrxpos[chraiowner[character]];
                 break;
 
             case VAROWNERY:
+                varname = "OWNERY";
                 iTmp = chrypos[chraiowner[character]];
                 break;
 
             case VAROWNERTURN:
+                varname = "OWNERTURN";
                 iTmp = chrturnleftright[chraiowner[character]];
                 break;
 
             case VAROWNERDISTANCE:
+                varname = "OWNERDISTANCE";
                 iTmp = ABS( ( int )( chrxpos[chraiowner[character]] - chrxpos[character] ) ) +
                        ABS( ( int )( chrypos[chraiowner[character]] - chrypos[character] ) );
                 break;
 
             case VAROWNERTURNTO:
+                varname = "OWNERTURNTO";
                 iTmp = ATAN2( chrypos[chraiowner[character]] - chrypos[character], chrxpos[chraiowner[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARXYTURNTO:
+                varname = "XYTURNTO";
                 iTmp = ATAN2( valuetmpy - chrypos[character], valuetmpx - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARSELFMONEY:
+                varname = "SELFMONEY";
                 iTmp = chrmoney[character];
                 break;
 
             case VARSELFACCEL:
+                varname = "SELFACCEL";
                 iTmp = ( chrmaxaccel[character] * 100.0f );
                 break;
 
             case VARTARGETEXP:
+                varname = "TARGETEXP";
                 iTmp = chrexperience[chraitarget[character]];
                 break;
 
             case VARSELFAMMO:
+                varname = "SELFAMMO";
                 iTmp = chrammo[character];
                 break;
 
             case VARTARGETAMMO:
+                varname = "TARGETAMMO";
                 iTmp = chrammo[chraitarget[character]];
                 break;
 
             case VARTARGETMONEY:
+                varname = "TARGETMONEY";
                 iTmp = chrmoney[chraitarget[character]];
                 break;
 
             case VARTARGETTURNAWAY:
+                varname = "TARGETTURNAWAY";
                 iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARSELFLEVEL:
+                varname = "SELFLEVEL";
                 iTmp = chrexperiencelevel[character];
                 break;
 
             case VARTARGETRELOADTIME:
+                varname = "TARGETRELOADTIME";
                 iTmp = chrreloadtime[chraitarget[character]];
                 break;
 
             default: 
                 log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
                 break;
-
         }
     }
 
     // Now do the math
-    switch ( opcode & 15 )
+    op = "UNKNOWN";
+    switch ( operation )
     {
-        case OPADD:
+        case OPADD: 
+            op = "ADD";
             valueoperationsum += iTmp;
             break;
 
-        case OPSUB:
+        case OPSUB: 
+            op = "SUB";
             valueoperationsum -= iTmp;
             break;
 
-        case OPAND:
-            valueoperationsum = valueoperationsum & iTmp;
+        case OPAND: 
+            op = "AND";
+            valueoperationsum &= iTmp;
             break;
 
-        case OPSHR:
-            valueoperationsum = valueoperationsum >> iTmp;
+        case OPSHR: 
+            op = "SHR";
+            valueoperationsum >>= iTmp;
             break;
 
-        case OPSHL:
-            valueoperationsum = valueoperationsum << iTmp;
+        case OPSHL: 
+            op = "SHL";
+            valueoperationsum <<= iTmp;
             break;
 
-        case OPMUL:
-            valueoperationsum = valueoperationsum * iTmp;
+        case OPMUL: 
+            op = "MUL";
+            valueoperationsum *= iTmp;
             break;
 
-        case OPDIV:
+        case OPDIV: 
+            op = "DIV";
             if ( iTmp != 0 )
             {
-                valueoperationsum = valueoperationsum / iTmp;
+                valueoperationsum /= iTmp;
             }
             else 
             {
@@ -4498,10 +4696,11 @@ void run_operand( Uint32 value, int character )
             }
             break;
 
-        case OPMOD:
+        case OPMOD: 
+            op = "MOD";
             if ( iTmp != 0 )
             {
-                valueoperationsum = valueoperationsum % iTmp;
+                valueoperationsum %= iTmp;
             }
             else 
             {
@@ -4510,9 +4709,11 @@ void run_operand( Uint32 value, int character )
             break;
 
         default:
-            log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - unknown operation\n", script_error_model, script_error_classname );
+            log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - unknown op\n", script_error_model, script_error_classname );
             break;
     }
+
+    if ( debug_scripts ) printf( "%s %s(%d) ", op, varname, iTmp );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4521,10 +4722,9 @@ void let_character_think( int character )
     // ZZ> This function lets one character do AI stuff
     Uint16 aicode;
     Uint32 index, index_end;
-    Uint32 value;
+    Uint32 opcode;
     Uint32 iTmp;
     Uint8 functionreturn;
-    int operands;
 
     if( character >= MAXCHR || !chron[character] )  return;
 
@@ -4542,7 +4742,10 @@ void let_character_think( int character )
         script_error_classname = capclassname[ script_error_model ];
     }
 
-    //printf( "\n\n--------\n%d - %s\n", script_error_model, script_error_classname );
+    if ( debug_scripts )
+    {
+        printf( "\n\n--------\n%d - %s\n", script_error_model, script_error_classname );
+    }
 
     // Clear the button latches
     if ( !chrisplayer[character] )
@@ -4566,18 +4769,17 @@ void let_character_think( int character )
 
     index     = iAisStartPosition[aicode];
     index_end = iAisEndPosition[aicode];
-    value     = iCompiledAis[index];
     while ( !valueterminate && index < index_end ) // End Function
     {
-        value = iCompiledAis[index];
+        opcode = iCompiledAis[index];
 
         // Was it a function
-        if ( 0 != ( value & FUNCTION_BIT ) )
+        if ( 0 != ( opcode & FUNCTION_BIT ) )
         {
             int new_index;
 
             // Run the function
-            functionreturn = run_function( value, character );
+            functionreturn = run_function( opcode, character );
 
             // Get the jump code
             index++;
@@ -4600,27 +4802,11 @@ void let_character_think( int character )
         }
         else
         {
-            // Get the number of operands
-            index++;
-            operands = iCompiledAis[index];
-            // Now run the operation
-            valueoperationsum = 0;
-            index++;
-
-            while ( operands > 0 )
-            {
-                iTmp = iCompiledAis[index];
-                run_operand( iTmp, character ); // This sets valueoperationsum
-                operands--;
-                index++;
-            }
-
-            // Save the results in the register that called the arithmetic
-            set_operand( value );
+            index = run_operation( opcode, index, index_end, character );
         }
 
         // This is used by the Else function
-        valuelastindent = value & DATA_BITS;
+        valuelastindent = opcode & DATA_BITS;
     }
 
     // Set latches

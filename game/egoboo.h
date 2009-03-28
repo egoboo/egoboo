@@ -111,7 +111,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
-#define ULTRABLOODY         2                       // This makes any damage draw blood
+#define ULTRABLUDY         2                       // This makes any damage draw blud
 
 #define SPELLBOOK           127                     // The spellbook model
 
@@ -1396,8 +1396,8 @@ EXTERN Uint16           capattachedprttype[MAXMODEL];               //
 EXTERN Uint8           capgopoofprtamount[MAXMODEL];               // Poof effect
 EXTERN Sint16          capgopoofprtfacingadd[MAXMODEL];            //
 EXTERN Uint16           capgopoofprttype[MAXMODEL];                 //
-EXTERN bool_t           capbloodvalid[MAXMODEL];                    // Blood ( yuck )
-EXTERN Uint8           capbloodprttype[MAXMODEL];                  //
+EXTERN bool_t           capbludvalid[MAXMODEL];                    // Blud ( yuck )
+EXTERN Uint8           capbludprttype[MAXMODEL];                  //
 EXTERN Sint8           capwavefootfall[MAXMODEL];                  // Footfall sound, -1
 EXTERN Sint8           capwavejump[MAXMODEL];                      // Jump sound, -1
 EXTERN bool_t           capridercanattack[MAXMODEL];                // Rider attack?

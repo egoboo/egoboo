@@ -166,8 +166,13 @@ void load_module( char *smallname )
     // ZZ> This function loads a module
     STRING modname;
 
+    log_info( "Loading module \"%s\"\n", smallname );
+
     // Load all the global icons
-    if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
+    if ( !load_all_global_icons() ) 
+    {
+        log_warning( "Could not load all global icons!\n" );
+    }
 
     beatmodule = bfalse;
     timeron = bfalse;

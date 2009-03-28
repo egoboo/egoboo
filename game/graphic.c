@@ -2207,7 +2207,7 @@ int load_one_object( int skin, char* tmploadname )
         madskinstart[object] = TX_WATER_TOP;
         numskins = 1;
 
-        if (gDevMode) log_message( "NOTE: Object is missing an skin (%s)!\n", tmploadname );
+        if (gDevMode) log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
     }
 
     madskins[object] = numskins;
@@ -2220,7 +2220,7 @@ void load_bars( char* szBitmap )
 
     if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR ) )
     {
-        log_warning( "Cannot load file! (basicdat" SLASH_STR "bars.bmp)\n" );
+        log_warning( "Cannot load file! (\"%s\")\n", szBitmap );
     }
 }
 
@@ -2241,7 +2241,7 @@ void load_map( char* szModule )
 
     if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY ) )
     {
-        log_warning( "Cannot load file! (basicdat" SLASH_STR "plan.bmp)\n" );
+        log_warning( "Cannot load file! (\"%s\")\n", szMap );
     }
     else
     {
@@ -2307,7 +2307,7 @@ void font_load( char* szBitmap, char* szSpacing )
 
     if ( INVALID_TX_ID == GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) )
     {
-        log_error( "Cannot load file! (basicdat" SLASH_STR "fonts.bmp)\n" );
+        log_error( "Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
@@ -4833,7 +4833,7 @@ bool_t load_blip_bitmap()
 
     if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) )
     {
-        log_warning( "Blip bitmap not loaded. Missing file = \"basicdat" SLASH_STR "blip.bmp\"\n" );
+        log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
     }
 

@@ -463,7 +463,7 @@ int doChooseModule( float deltaTime )
             numValidModules = 0;
             for ( i = 0; i < globalnummodule; i++ )
             {
-                if ( !startNewPlayer )
+                if ( !startNewPlayer && 0 != modimportamount[i] )
                 {
                     validModules[numValidModules] = i;
                     numValidModules++;
@@ -993,7 +993,7 @@ int doInputOptions( float deltaTime )
                             {
                                 for ( tag = 0; tag < numscantag; tag++ )
                                 {
-                                    if ( 0 != tagvalue[tag] && tagvalue[tag] == joy[ijoy].b )
+                                    if ( 0 != tagvalue[tag] && (Uint32)tagvalue[tag] == joy[ijoy].b )
                                     {
                                         pcontrol->tag    = tagvalue[tag];
                                         pcontrol->is_key = bfalse;
@@ -1034,7 +1034,7 @@ int doInputOptions( float deltaTime )
                                     {
                                         for ( tag = 0; tag < numscantag; tag++ )
                                         {
-                                            if ( 0 != tagvalue[tag] && tagvalue[tag] == mous.b )
+                                            if ( 0 != tagvalue[tag] && (Uint32)tagvalue[tag] == mous.b )
                                             {
                                                 pcontrol->tag    = tagvalue[tag];
                                                 pcontrol->is_key = bfalse;

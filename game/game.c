@@ -605,7 +605,7 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 //--------------------------------------------------------------------------------------------
 char * undo_idsz( IDSZ idsz )
 {
-    // ZZ> This function takes an integer and makes an text IDSZ out of it.
+    // ZZ> This function takes an integer and makes a text IDSZ out of it.
 
     static char value_string[5] = {"NONE"};
 
@@ -1054,6 +1054,7 @@ void rip_md2_commands( Uint16 modelindex )
     int iNumVertices;
     int tnc;
     bool_t command_error = bfalse, entry_error = bfalse;
+    int    vertex_max = 0;
 
     // char* cpCharPointer = (char*) cLoadBuffer;
     int* ipIntPointer = ( int* ) cLoadBuffer;
@@ -1068,79 +1069,88 @@ void rip_md2_commands( Uint16 modelindex )
     // Read in each command
     // iCommandWords is the number of dwords in the command list.
     // iCommandCount is the number of GL commands
-    int iCommandCount = 0;
-    int entry = 0;
+    int iCommandCount;
+    int entry;
+    int cnt;
 
-    int cnt = 0;
-
+    iCommandCount = 0;
+    entry = 0;
+    cnt = 0;
     while ( cnt < iCommandWords )
     {
+        Uint32 command_type;
+
         iNumVertices = ENDIAN_INT32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
+        if ( 0 == iNumVertices ) break;
 
-        if ( iNumVertices != 0 )
+        if ( iNumVertices < 0 )
         {
-            Uint32 command_type;
+            // Fans start with a negative
+            iNumVertices = -iNumVertices;
+            command_type = GL_TRIANGLE_FAN;
+        }
+        else
+        {
+            // Strips start with a positive
+            command_type = GL_TRIANGLE_STRIP;
+        }
 
-            if ( iNumVertices < 0 )
+        command_error = (iCommandCount >= MAXCOMMAND);
+
+        if (!command_error)
+        {
+            madcommandtype[modelindex][iCommandCount] = command_type;
+            madcommandsize[modelindex][iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
+        }
+
+        // Read in vertices for each command
+        entry_error = bfalse;
+        for ( tnc = 0; tnc < iNumVertices; tnc++ )
+        {
+            fTmpu = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
+            fTmpv = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
+            iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset]   );  iCommandOffset++;  cnt++;
+
+            entry_error = entry >= MAXCOMMANDENTRIES;
+
+            if ( iTmp > vertex_max )
             {
-                // Fans start with a negative
-                iNumVertices = -iNumVertices;
-                command_type = GL_TRIANGLE_FAN;
-            }
-            else
-            {
-                // Strips start with a positive
-                command_type = GL_TRIANGLE_STRIP;
-            }
-
-            command_error = (iCommandCount >= MAXCOMMAND);
-
-            if (!command_error)
-            {
-                madcommandtype[modelindex][iCommandCount] = command_type;
-                madcommandsize[modelindex][iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
-            }
-
-            // Read in vertices for each command
-            tnc = 0;
-            entry_error = bfalse;
-
-            while ( tnc < iNumVertices )
-            {
-                fTmpu = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-                fTmpv = ENDIAN_FLOAT( fpFloatPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
-                iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset]   );  iCommandOffset++;  cnt++;
-
-                entry_error = entry >= MAXCOMMANDENTRIES;
-
-                if (iTmp > MAXVERTICES)
-                {
-                    log_warning("rip_md2_commands() - vertex value %d beyond preallocated range %d", iTmp, MAXVERTICES);
-                }
-
-                if (!command_error && !entry_error)
-                {
-                    madcommandu[modelindex][entry] = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
-                    madcommandv[modelindex][entry] = fTmpv - ( 0.5f / 64 ); // with D3D
-                    madcommandvrt[modelindex][entry] = iTmp;
-                }
-
-                entry++;
-                tnc++;
+                vertex_max = iTmp;
             }
 
-            if (entry_error)
+            if( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
+
+            if ( !command_error && !entry_error )
             {
-                log_warning("rip_md2_commands() - Number of OpenGL command %d, entries exceeds preset maximum: %d of %d\n", iCommandCount, iNumVertices, MAXCOMMANDENTRIES );
+                madcommandu[modelindex][entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
+                madcommandv[modelindex][entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
+                madcommandvrt[modelindex][entry] = iTmp;
             }
 
+            entry++;
+        }
+
+        // count only fully valid commands
+        if ( !entry_error )
+        {
             iCommandCount++;
         }
     }
 
-    if (entry_error)
+    
+    if ( vertex_max >= MAXVERTICES )
     {
-        log_warning("rip_md2_commands() - Number of OpenGL commands exceeds preset maximum: %d of %d\n", iCommandCount, MAXCOMMAND );
+        log_warning("rip_md2_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
+    }
+
+    if ( command_error )
+    {
+        log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
+    }
+
+    if ( entry_error )
+    {
+        log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
     madcommands[modelindex] = MIN(MAXCOMMAND, iCommandCount);
@@ -1281,15 +1291,17 @@ int load_one_md2( char* szLoadname, Uint16 modelindex )
 
     if ( !file )
     {
-        log_warning( "Cannot load file! (%s)\n", szLoadname );
+        log_warning( "Cannot load file! (\"%s\")\n", szLoadname );
         return bfalse;
     }
 
     // Read up to MD2MAXLOADSIZE bytes from the file into the cLoadBuffer array.
     iBytesRead = fread( cLoadBuffer, 1, MD2MAXLOADSIZE, file );
-
     if ( iBytesRead == 0 )
         return bfalse;
+
+    // save the filename for debugging
+    globalparsename = szLoadname;
 
     // Check the header
     // TODO: Verify that the header's filesize correspond to iBytesRead.

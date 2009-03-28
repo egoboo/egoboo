@@ -180,6 +180,7 @@ bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
     STRING      full_file_name;
     Mix_Chunk * tmp_chunk;
     Mix_Music * tmp_music;
+    bool_t      file_exists = bfalse;
 
     if ( !mixeron ) return bfalse;
     if ( NULL == pptr ) return bfalse;
@@ -190,8 +191,14 @@ bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
     pptr->type    = MIX_UNKNOWN;
 
     // try a wav file
+    tmp_chunk = NULL;
     snprintf( full_file_name, sizeof(full_file_name), "%s.%s", szFileName, "wav" );
-    tmp_chunk = Mix_LoadWAV( full_file_name );
+    if( fs_fileExists(full_file_name) )
+    {
+        file_exists = btrue;
+        tmp_chunk = Mix_LoadWAV( full_file_name );
+    }
+
     if (NULL != tmp_chunk)
     {
         pptr->ptr.snd = tmp_chunk;
@@ -200,13 +207,24 @@ bool_t load_sound( mix_ptr_t * pptr, const char * szFileName )
     else
     {
         // try an ogg file
+        tmp_music = NULL;
         snprintf( full_file_name, sizeof(full_file_name), "%s.%s", szFileName, "ogg" );
-        tmp_music = Mix_LoadMUS(full_file_name);
+        if( fs_fileExists(full_file_name) )
+        {
+            file_exists = btrue;
+            tmp_music = Mix_LoadMUS(full_file_name);
+        }
         if (NULL != tmp_music)
         {
             pptr->ptr.mus = tmp_music;
             pptr->type    = MIX_MUS;
         }
+    }
+
+    if ( gDevMode && file_exists && NULL == pptr->ptr.unk ) 
+    {
+        // there is an error only if the file exists and can't be loaded
+        log_warning( "Sound file not found/loaded %s.\n", szFileName );
     }
 
     return NULL != pptr->ptr.unk;
@@ -278,7 +296,7 @@ int play_mix( float xpos, float ypos, mix_ptr_t * pptr )
     {
         if ( gDevMode )
         {
-            log_warning( "Sound file not correctly loaded (Not found?).\n" );
+            //log_warning( "Sound file not correctly loaded (Not found?).\n" );
         }
         return -1;
     }
@@ -340,9 +358,9 @@ int play_sound( float xpos, float ypos, Mix_Chunk * pchunk )
     {
         channel = Mix_PlayChannel( -1, pchunk, 0 );
 
-        if ( channel == -1 )
+        if ( -1 == channel )
         {
-            log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
+            // log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
         }
         else
         {

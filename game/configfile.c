@@ -322,7 +322,7 @@ ConfigFile_retval ConfigFile_PassOverCommentary( ConfigFilePtr_t pConfigFile )
 
 //--------------------------------------------------------------------------------------------
 // ConfigFile_ReadSectionName reads characters from the config file until it encounters
-// an _dtor of section name "}". The resulting string is copied in pSection->SectionName.
+// a _dtor of section name "}". The resulting string is copied in pSection->SectionName.
 // The length of the name is returned, or 0 if there is an error.
 //
 // if the string is longer than MAX_CONFIG_SECTION_LENGTH, the string is truncated
@@ -356,7 +356,7 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
 
 //--------------------------------------------------------------------------------------------
 // ReadKeyName reads characters from the config file until it encounters
-// an _dtor of key name "]". The resulting string is copied in pValue->KeyName.
+// a _dtor of key name "]". The resulting string is copied in pValue->KeyName.
 // The length of the name is returned, or 0 if there is an error.
 //
 // if the string is longuer than MAX_CONFIG_KEY_LENGTH, the string is truncated
@@ -390,7 +390,7 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
 
 //--------------------------------------------------------------------------------------------
 // ConfigFile_ReadValue reads characters from the config file until it encounters
-// an _dtor of value '"'. The resulting string is copied in pValue->Value.
+// a _dtor of value '"'. The resulting string is copied in pValue->Value.
 // The length of the value is returned, or -1 if there is an error.
 //
 // The memory for pValue->Value is allocated here.

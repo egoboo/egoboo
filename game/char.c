@@ -5014,9 +5014,9 @@ void export_one_character_profile( char *szSaveName, Uint16 character )
         fprintf( filewrite, "Part type      : %d\n", capgopoofprttype[profile] );
         fprintf( filewrite, "\n" );
 
-        // Particle spawning for blood
-        ftruthf( filewrite, "Blood valid    : ", capbloodvalid[profile] );
-        fprintf( filewrite, "Part type      : %d\n", capbloodprttype[profile] );
+        // Particle spawning for blud
+        ftruthf( filewrite, "Blud valid    : ", capbludvalid[profile] );
+        fprintf( filewrite, "Part type      : %d\n", capbludprttype[profile] );
         fprintf( filewrite, "\n" );
 
         // Extra stuff
@@ -5522,15 +5522,15 @@ int load_one_character_profile( char *szLoadName )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capgopoofprtfacingadd[object] = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capgopoofprttype[object] = iTmp;
 
-        // Blood
+        // Blud
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        capbloodvalid[object] = bfalse;
+        capbludvalid[object] = bfalse;
 
-        if ( cTmp == 'T' || cTmp == 't' )  capbloodvalid[object] = btrue;
+        if ( cTmp == 'T' || cTmp == 't' )  capbludvalid[object] = btrue;
 
-        if ( cTmp == 'U' || cTmp == 'u' )  capbloodvalid[object] = ULTRABLOODY;
+        if ( cTmp == 'U' || cTmp == 'u' )  capbludvalid[object] = ULTRABLUDY;
 
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capbloodprttype[object] = iTmp;
+        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  capbludprttype[object] = iTmp;
 
         // Stuff I forgot
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
@@ -5952,11 +5952,11 @@ void damage_character( Uint16 character, Uint16 direction,
                         /*if(chrlife[character] < (chrlifemax[character]>>1))
                             call_for_help(character);*/
 
-                        // Spawn blood particles
-                        if ( capbloodvalid[model] && ( damagetype < DAMAGE_HOLY || capbloodvalid[model] == ULTRABLOODY ) )
+                        // Spawn blud particles
+                        if ( capbludvalid[model] && ( damagetype < DAMAGE_HOLY || capbludvalid[model] == ULTRABLUDY ) )
                         {
                             spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character],
-                                                chrturnleftright[character] + direction, chrmodel[character], capbloodprttype[model],
+                                                chrturnleftright[character] + direction, chrmodel[character], capbludprttype[model],
                                                 MAXCHR, SPAWNLAST, chrteam[character], character, 0, MAXCHR );
                         }
 
@@ -6113,7 +6113,7 @@ void damage_character( Uint16 character, Uint16 direction,
                     spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], chrturnleftright[character], MAXMODEL, DEFEND, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
                     chrdamagetime[character] = DEFENDTIME;
                     chralert[character] = chralert[character] | ALERTIFBLOCKED;
-                    chrattacklast[character] = attacker;     // For the ones attacking an shield
+                    chrattacklast[character] = attacker;     // For the ones attacking a shield
                 }
             }
         }
@@ -7349,7 +7349,7 @@ void switch_team( int character, Uint8 team )
 /*Uint16 get_nearest_target( Uint16 character, char items,
                            char friends, char enemies, char dead, IDSZ idsz )
 {
-  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
+  // ZZ> This function finds a target, or it returns MAXCHR if it can't find one
   int x, y;
   char seeinvisible;
   seeinvisible = chrcanseeinvisible[character];
@@ -7378,7 +7378,7 @@ void switch_team( int character, Uint8 team )
 /*Uint16 get_wide_target( Uint16 character, char items,
                         char friends, char enemies, char dead, IDSZ idsz, char excludeid )
 {
-  // ZZ> This function finds an target, or it returns MAXCHR if it can't find one
+  // ZZ> This function finds a target, or it returns MAXCHR if it can't find one
   int x, y;
   Uint16 enemy;
   char seeinvisible;
