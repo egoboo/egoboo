@@ -3,8 +3,8 @@ IfTimeOut
   IfStateIs0
     tmpargument = 0
     IfArmorIs
-      tmpx = rand & 53 + selfx - 26
-      tmpy = rand & 53 + selfy - 26
+      tmpx = rand % 53 + selfx - 26
+      tmpy = rand % 53 + selfy - 26
       tmpdistance = rand & 30 + 15
       SpawnExactParticle
       tmpargument = 7
@@ -45,7 +45,6 @@ IfBumped
 
       //Unlooted Open Chest
       IfStateIs1
-
 
         tmpargument = 0              //Treasure Chest
         IfContentIs

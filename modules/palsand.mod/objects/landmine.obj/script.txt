@@ -9,13 +9,11 @@ IfSpawned
   tmpargument = tmpturn
   SetTileXY
 
-
 // This explodes if it's touched ( may be disarmed )
 tmpx = weight
 tmpy = 20
 IfXIsMoreThanY
   SetTargetToWhoeverBumped
-
 
   // Can they disarm the trap?
   tmpx = 0
@@ -24,12 +22,10 @@ IfXIsMoreThanY
   IfTargetHasSkillID
     tmpx = rand & 8191 + targetdex
 
-
   IfXIsLessThanY
     // The trap has exploded
     tmpargument = 0
     SendMessageNear
-
 
     // Spawn the explosion
     tmpx = selfx
@@ -38,12 +34,10 @@ IfXIsMoreThanY
     tmpargument = 0
     SpawnExactParticle
 
-
     // Give experience
     tmpargument = 5
     tmpdistance = EXPDARE
     GiveExperienceToTarget
-
 
     // Increment the tile
     tmpx = selfx
@@ -56,24 +50,20 @@ IfXIsMoreThanY
     tmpargument = 1
     SendMessageNear
 
-
     // Make target crouch
     tmpargument = ACTIONMG
     TargetDoAction
-
 
     // Give experience
     tmpargument = 25
     tmpdistance = EXPROLEPLAY
     GiveExperienceToTarget
 
-
     // Replace the original tile
     GetContent
     tmpx = selfx
     tmpy = selfy
     SetTileXY
-
 
   GoPoof
 End					// All done

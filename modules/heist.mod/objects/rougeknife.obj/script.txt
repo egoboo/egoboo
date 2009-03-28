@@ -15,7 +15,6 @@ IfBumped
     PressLatchButton
   SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 //Wait for a rouge to bump
 IfStateIs0
@@ -49,7 +48,6 @@ IfStateIs3
       SetState
       tmpargument = 50
       SetTime
-
 
 //------------------------------------------------------------------------------
 //Update check
@@ -165,7 +163,6 @@ IfTimeOut
         tmpargument = LATCHJUMP
         PressLatchButton
 
-
       //K'nife is in the assigned passage
       tmpargument = passage
       tmpdistance = [THIE]
@@ -185,7 +182,6 @@ IfTimeOut
           PlaySound
           tmpargument = 100
           SetTime
-
 
   //Stand on button state
   IfStateIs3
@@ -232,7 +228,6 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away

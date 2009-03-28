@@ -3,7 +3,6 @@ IfSpawned
   tmpargument = rand % 4
   ChangeArmor
 
-
   //Moving guard 1
   tmpargument = 1
   IfContentIs
@@ -17,7 +16,6 @@ IfSpawned
     tmpx = 5245
     tmpy = 4801
     AddWaypoint
-
 
   //Moving guard 2
   tmpargument = 2
@@ -109,7 +107,6 @@ IfBumped
   Else
     SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 //Use shield
 IfTargetIsAttacking
@@ -117,7 +114,7 @@ IfTargetIsAttacking
     IfFacingTarget
       IfHoldingShield
         tmpx = selfdex
-        tmpy = rand & targetdex*2
+        tmpy = rand % targetdex * 2
         IfXIsMoreThanY			//Check dexterity skill to block
           tmpargument = LATCHLEFT
           PressLatchButton
@@ -132,13 +129,11 @@ IfTargetKilled
     tmpargument = 0
     SetState
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 5
   PlaySound
-
 
   // Drop goodies
   tmpargument = 65535
@@ -156,12 +151,12 @@ IfTimeOut
   //Standing Guard
   IfStateIs0
     SetTurnModeToVelocity
-    tmpargument = rand & 25 + 20
+    tmpargument = rand % 25 + 20
     SetTime
     SetTargetToWideEnemy
       IfFacingTarget
         tmpx = targetdistance
-        tmpy = rand & 250 + 650
+        tmpy = rand % 250 + 650
         IfXIsLessThanY			//Close enough to see?
           tmpargument = 1
           SetState
@@ -177,7 +172,6 @@ IfTimeOut
       ClearWaypoints			    
       AddWaypoint				 
 
-
   //Combat mode
   IfStateIs1
     tmpdistance = 128000
@@ -187,7 +181,7 @@ IfTimeOut
     Else
       SetTargetToNearestEnemy
     Run
-    tmpargument = rand & 21 + 15
+    tmpargument = rand % 21 + 15
     SetTime
 
     //Draw weapons if unarmed
@@ -309,8 +303,8 @@ IfTimeOut
           tmpx = targetdistance
           tmpy = 300
           IfXIsLessThanY
-            tmpx = rand & 512 + selfx - 256
-            tmpy = rand & 512 + selfy - 256
+            tmpx = rand & 511 + selfx - 256
+            tmpy = rand & 511 + selfy - 256
             ClearWaypoints
             AddWaypoint
         SetTargetToOldTarget
@@ -331,7 +325,6 @@ IfTimeOut
         RestockTargetAmmoIDAll 
       SetTargetToOldTarget
 
-
   //Moving Guard
   IfStateIs2
     Sneak
@@ -343,7 +336,7 @@ IfTimeOut
     SetTargetToWideEnemy
       IfFacingTarget
         tmpx = targetdistance
-        tmpy = rand & 250 + 470
+        tmpy = rand % 250 + 470
         IfXIsLessThanY			//Close enough to see?
           tmpargument = 1
           SetState
@@ -366,7 +359,6 @@ IfTimeOut
     SpawnExactParticle
     tmpargument = 8
     PlaySound
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
@@ -419,7 +411,4 @@ IfAtLastWaypoint
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------
-
-
-
 

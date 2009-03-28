@@ -4,7 +4,6 @@ IfStateIs0
     tmpargument = 50
     SetTime
 
-
     IfTargetIsSelf
       // First find the nearest chest
       tmpargument = [LOCK]
@@ -37,7 +36,6 @@ IfStateIs0
         Else
           GoPoof  // Out of children...
 
-
 // Find an enemy state
 IfStateIs1
   IfSpawned
@@ -59,8 +57,6 @@ IfStateIs1
       SetState
       tmpargument = 20
       SetTime
-
-
 
 // Chase an enemy state
 IfStateIs2
@@ -125,7 +121,6 @@ IfStateIs2
     // Message...  Argument set earlier
     SendMessageNear
 
-
     // Experience as a consolation prize
     tmpargument = 5
     tmpdistance = EXPSECRET
@@ -152,7 +147,6 @@ IfStateIs2
     tmpargument = 0
     SetXY
 
-
 // Dissolve state
 IfStateIs3
   tmpargument = 0
@@ -173,6 +167,5 @@ IfStateIs3
       ChangeArmor
       tmpargument = 8
       SetTime
-
 
 End					// Finished with this character

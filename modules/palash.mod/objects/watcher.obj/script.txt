@@ -49,7 +49,6 @@ IfKilled
   tmpargument = selfmoney
   DropMoney
 
-
 //Ouch
 IfAttacked				// Counter attack
   SetTargetToWhoeverAttacked		  //
@@ -62,7 +61,6 @@ IfAttacked				// Counter attack
       SetTargetToOldTarget		      //
   tmpargument = rand & 1 + 1		  //
   PlaySound
-
 
 //----------------------------------------------------------------------
 // Return to watch mode

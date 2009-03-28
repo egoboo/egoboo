@@ -39,7 +39,6 @@ IfTimeOut
           tmpargument = 2
           SendMessageNear
 
-
 // Handle the animation and sound
 tmpargument = passage	// Is the passage clear?
 IfPassageOpen			// 

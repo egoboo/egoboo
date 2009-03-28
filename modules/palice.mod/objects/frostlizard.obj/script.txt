@@ -139,7 +139,6 @@ IfStateIs2
       ClearWaypoints			  
       AddWaypoint
 
-
       IfFacingTarget
         GetContent
         tmpx = tmpargument
@@ -180,8 +179,6 @@ IfStateIs2
     SetState				//Enemy too far away to breathe at
 Else
   SetTurnModeToVelocity
-
-
 
 //Recharge breath attack
 tmpx = rand & 3

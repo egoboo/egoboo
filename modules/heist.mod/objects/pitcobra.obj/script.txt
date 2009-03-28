@@ -12,12 +12,10 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
 IfDropped
   // Popped out of a chest
   tmpargument = 3
   PlaySound
-
 
 IfKilled
   IfTargetIsSelf
@@ -29,7 +27,6 @@ IfKilled
   SetBumpHeight
   tmpargument = 1
   PlaySound
-
 
 IfAttacked
   SetTargetToWhoeverAttacked
@@ -49,8 +46,6 @@ IfBumped
     AddWaypoint
     SetTargetToOldTarget
 
-
-
 // Look for enemies
 IfTimeOut
   SetTargetToNearestEnemy
@@ -60,7 +55,7 @@ IfTimeOut
       IfXIsLessThanY
 
         //Growl
-        tmpx = rand & 2048
+        tmpx = rand & 2047
         tmpy = 0
         IfXIsEqualToY
           tmpargument = 3
@@ -112,7 +107,6 @@ IfTimeOut
     AddWaypoint
   tmpargument = rand & 31 + 25
   SetTime
-
 
 // All done
 End

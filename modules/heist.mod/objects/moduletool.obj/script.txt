@@ -9,7 +9,6 @@ IfSpawned
   tmpdistance = 0		//Fadein time
   PlayMusic	
 
-
 //Check passage for falling monsters
 IfTimeOut
   tmpargument = 25
@@ -22,19 +21,19 @@ IfTimeOut
         tmpargument = 52
         tmpx = selfx + 75
         tmpy = selfy - 75
-        tmpdistance = rand & 225 + 800
+        tmpdistance = rand & 255 + 800
         SpawnExactCharacterXYZ
 
         tmpargument = 52
         tmpx = selfx - 75
         tmpy = selfy + 75
-        tmpdistance = rand & 225 + 800
+        tmpdistance = rand & 255 + 800
         SpawnExactCharacterXYZ
 
         tmpargument = 52
         tmpx = selfx + 75
         tmpy = selfy + 75
-        tmpdistance = rand & 225 + 800
+        tmpdistance = rand & 255 + 800
         SpawnExactCharacterXYZ		//Tranch
 
         tmpargument = 0

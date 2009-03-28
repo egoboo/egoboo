@@ -14,7 +14,7 @@ IfXIsMoreThanY
     SpawnParticle
     tmpargument = 3
     SpawnParticle
-    tmpdistance = 256 - selfmana << 1
+    tmpdistance = 256 - selfmana < 1
     tmpargument = 2
     //PlaySoundVolume
   Else
@@ -41,8 +41,6 @@ Else
       //PlaySoundVolume
       Sneak
 
-
-
 //------------------------------------------------------------------------------
 IfTimeOut
   tmpx = selfx
@@ -51,8 +49,6 @@ IfTimeOut
   AddWaypoint
   tmpargument = 50
   SetTime
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Bite characters that it bumps
@@ -65,7 +61,6 @@ IfBumped
   Else
     SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfSpawned
@@ -76,7 +71,6 @@ IfKilled
   // Stop fire
   tmpargument = 2
   //StopSound
-
 
   tmpargument = 5
   tmpdistance = rand & 2047 + 10000
@@ -94,7 +88,6 @@ IfKilled
   tmpargument = 43
   SetBumpSize
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -107,8 +100,6 @@ IfAttacked
   tmpargument = rand & 1 + 3
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

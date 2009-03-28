@@ -119,7 +119,6 @@ IfChanged
   SetState
   KeepAction
 
-
 //Bridge segment event handling
 IfStateIs0
   GetState //nop
@@ -282,7 +281,6 @@ Else
     tmpargument = 1 - targetspeedz
     tmpargument = tmpargument < 1 + tmpargument < 3 + tmpargument < 2 //long-way multiply by 100
     AccelerateUp
-
 
 // Spell AI
 IfStateIs0

@@ -24,33 +24,27 @@ IfOrdered
         tmpargument = 5
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
 
-
         // Give some experience
         tmpargument = 5
         tmpdistance = EXPDARE
         GiveExperienceToTarget
-
 
         // Open it up
         tmpargument = ACTIONMG
@@ -76,11 +70,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Can the target use this armor
         tmpargument = [HEAL]
@@ -95,8 +87,6 @@ IfBumped
           // Say it's for someone else
           tmpargument = 4
           SendMessageNear
-
-
 
 // All done
 End

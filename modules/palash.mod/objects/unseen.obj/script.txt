@@ -50,7 +50,6 @@ IfUsed
       tmpargument = 0
       SpawnExactParticle
 
-
 // Let it be cast
 Else
   GetContent
@@ -64,14 +63,12 @@ Else
       SetTargetToWhoeverIsHolding
       SetOwnerToTarget
 
-
       // Find the target
       SetTargetToNearestFriend
       tmpx = targetdistance
       tmpy = 250
       IfXIsMoreThanY
         SetTargetToWhoeverIsHolding
-
 
       // Do the spell
       EnchantTarget
@@ -85,13 +82,11 @@ Else
         tmpargument = 1
         SendMessageNear
 
-
       // Do flashy things
       tmpargument = 0
       PlaySound
       tmpargument = 60
       SetReloadTime
-
 
     // Nothing happens...
     Else
@@ -100,11 +95,9 @@ Else
       tmpargument = 1
       PlaySound
 
-
     // Reset the charge counter
     tmpargument = 0
     SetContent
-
 
 // Return to spellbook, Do last!
 IfDropped

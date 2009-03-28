@@ -19,15 +19,11 @@ IfSpawned
     tmpargument = 18
     SetTime
 
-
-
     // Spawn some shrapnel
     tmpx = 30                      // Speed
     tmpy = 0                       // Spacing
     tmpargument = 1024             // Damage...  0-5
     SpawnPoofSpeedSpacingDamage
-
-
 
 // Trap AI...
 IfStateIs0

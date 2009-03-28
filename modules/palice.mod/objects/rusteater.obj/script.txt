@@ -44,7 +44,6 @@ IfStateIs8
         tmpargument = 50
         SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Attack enemy
 IfBumped				// Attack whoever it bumped
@@ -100,7 +99,7 @@ IfScoredAHit
 
 IfAttacked
   SetTargetToNearbyEnemy
-    tmpargument = rand & 5
+    tmpargument = rand % 5
     tmpx = tmpargument
     tmpy = 2
     IfXIsLessThanY
@@ -159,7 +158,6 @@ IfKilled
     tmpargument = 0
     SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle wandering around
 IfStateIs1
@@ -169,16 +167,14 @@ IfStateIs1
     SetTargetToDistantEnemy
       tmpx = rand & 511 - 256 + targetx	    //
       tmpy = rand & 511 - 256 + targety	    //
-      tmpargument = rand & 64 + 50		  // Wait a while and try again
+      tmpargument = rand & 63 + 50		  // Wait a while and try again
     Else					  // Wander around home position
       tmpx = rand & 1023 - 512 + selfspawnx   //
       tmpy = rand & 1023 - 512 + selfspawny   //
-      tmpargument = rand & 20 + 10		  // Wait a while and try again
+      tmpargument = rand % 20 + 10		  // Wait a while and try again
     ClearWaypoints			  //
     AddWaypoint				  //
     SetTime				  //
-
-
 
 //------------------------------------------------------------------------------
 End

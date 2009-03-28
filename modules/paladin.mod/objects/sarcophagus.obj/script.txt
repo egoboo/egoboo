@@ -34,12 +34,11 @@ IfTimeOut
   tmpargument = 500
   SetTime
 
-
 IfKilled
   GoPoof
   tmpargument = 0
-  tmpx = selfx + rand & 40
-  tmpy = selfy + rand & 40
+  tmpx = rand % 40 + selfx
+  tmpy = rand % 40 + selfy
   SpawnParticle  
   tmpargument = 0
   PlaySound
@@ -68,6 +67,5 @@ IfKilled
   DropItems
   DropKeys
   DropMoney
-
 
 End

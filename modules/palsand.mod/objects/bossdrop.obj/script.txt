@@ -3,10 +3,8 @@ IfTimeOut
   tmpargument = 20
   SetTime
 
-
   tmpargument = 1 // Check the Troll passage
   IfPassageOpen
-
 
     tmpargument = passage
     SetTargetToWhoeverIsInPassage
@@ -15,10 +13,8 @@ IfTimeOut
       tmpdistance = 11025
       PlaySound
 
-
       // Spawn the character
       GetContent                 // The specific model slot
-
 
       // Character 1
       tmpx = selfx
@@ -53,9 +49,7 @@ IfTimeOut
       tmpturn = rand
       SpawnExactCharacterXYZ
 
-
       // Don't hang around
       GoPoof
-
 
 End					// All done

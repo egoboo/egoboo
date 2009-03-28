@@ -27,16 +27,12 @@ IfAttacked
     tmpargument = 20
     SetTime
 
-
-
 IfTimeOut
   // Ready the pings
   tmpargument = 0
   SetState
   tmpargument = 500
   SetTime
-
-
 
 IfKilled
   // Smash open
@@ -48,7 +44,6 @@ IfKilled
     tmpturn = 0
   Else
     tmpturn = 1
-
 
   // Check for passages to open
   tmpx = passage
@@ -73,13 +68,10 @@ IfKilled
   tmpargument = tmpturn
   SendMessageNear
 
-
-
   // Drop goodies
   DropItems
   tmpargument = 65535
   DropMoney
-
 
   // Replace self with an imposter...
   tmpargument = 54

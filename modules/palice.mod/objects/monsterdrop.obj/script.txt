@@ -24,7 +24,7 @@ IfTimeOut
          
         //Play a falling sound
         tmpargument = 0
-        tmpdistance = rand & 2000 + 10000
+        tmpdistance = rand % 2000 + 10000
         PlaySound
            
         GetContent  //Type of monster (Object slot)
@@ -32,21 +32,21 @@ IfTimeOut
         //Number 1
         tmpx = selfx
         tmpy = selfy + 100
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
             
         //Number 2
         tmpx = selfx + 50
         tmpy = selfy
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
                
         //Number 3
         tmpx = selfx - 50
         tmpy = selfy - 50
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
 
@@ -56,7 +56,7 @@ IfTimeOut
          
         //Play a falling sound
         tmpargument = 0
-        tmpdistance = rand & 2000 + 10000
+        tmpdistance = rand % 2000 + 10000
         PlaySound
            
         GetContent  //Type of monster (Object slot)
@@ -64,28 +64,28 @@ IfTimeOut
         //Number 1
         tmpx = selfx
         tmpy = selfy + 100
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
             
         //Number 2
         tmpx = selfx + 50
         tmpy = selfy
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
                
         //Number 3
         tmpx = selfx + 50
         tmpy = selfy - 50
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
 
         //Number 4
         tmpx = selfx - 50
         tmpy = selfy + 50
-        tmpdistance = rand & 200 + 1200 
+        tmpdistance = rand % 200 + 1200 
         tmpturn = rand
         SpawnExactCharacterXYZ
 

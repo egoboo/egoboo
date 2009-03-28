@@ -35,10 +35,10 @@ IfTimeOut
   IfXIsLessThanY
     tmpargument = 71
     tmpdistance = 450
-    tmpx = rand & 256 + targetx - 256
-    tmpx = rand & 256 + tmpx		//lessen the randomness
-    tmpy = rand & 256 + targety - 256
-    tmpy = rand & 256 + targety	//lessen the randomness
+    tmpx = rand & 255 + targetx - 256
+    tmpx = rand & 240 + tmpx	- 120	// lessen the randomness
+    tmpy = rand & 255 + targety - 256
+    tmpy = rand & 240 + tmpy	- 120   // lessen the randomness
     tmpturn = rand & 65535
     SpawnExactCharacterXYZ
     GetContent
@@ -91,7 +91,7 @@ IfTimeOut
 
         //Jump bash them
         Else
-          tmpx = rand & 55
+          tmpx = rand % 55
           tmpy = 8
           IfXIsLessThanY              //Chance
             tmpargument = ACTIONJA
@@ -142,7 +142,6 @@ IfTimeOut
       tmpargument = 255
       SetLight
       UnkeepAction
-
 
 //------------------------------------------------------------------------------
 //Handle death by sending a message and other stuff

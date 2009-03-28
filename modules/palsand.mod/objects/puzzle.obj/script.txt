@@ -8,7 +8,6 @@ IfTimeOut
     tmpargument = 1
     SetContent
 
-
     // Reset the board...
     tmpx = 21 < 7
     tmpy = 35 < 7
@@ -21,6 +20,16 @@ IfTimeOut
     tmpx = tmpx + 128
     SetTileXY
 
+    tmpx = 21 < 7
+    tmpy = tmpy + 128
+    tmpargument = 187
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
 
     tmpx = 21 < 7
     tmpy = tmpy + 128
@@ -33,7 +42,6 @@ IfTimeOut
     tmpx = tmpx + 128
     SetTileXY
 
-
     tmpx = 21 < 7
     tmpy = tmpy + 128
     tmpargument = 187
@@ -44,26 +52,11 @@ IfTimeOut
     SetTileXY
     tmpx = tmpx + 128
     SetTileXY
-
-
-    tmpx = 21 < 7
-    tmpy = tmpy + 128
-    tmpargument = 187
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-
 
   tmpargument = 3
   SetTime
 
-
   SetTargetToNearestEnemy
-
 
   IfTargetIsAPlayer
     // See if the target is on the ground
@@ -100,7 +93,6 @@ IfTimeOut
                     tmpy = targety
                     SetTileXY
 
-
                     // Remember which ones have are Red
                     tmpx = tmpargument & 1
                     tmpy = 0
@@ -113,8 +105,6 @@ IfTimeOut
                       GetXY
                       tmpx = tmpx + tmpturn
                       SetXY
-
-
 
                     // Increase the count
                     GetContent
@@ -146,12 +136,10 @@ IfTimeOut
                         tmpargument = rand & 3 + 1
                         SendMessageNear
 
-
                         // Play the buzzer sound
                         tmpargument = 1
                         tmpdistance = 10000
                         PlaySound
-
 
                         // Start it over in a second
                         tmpargument = 0
@@ -165,6 +153,5 @@ IfTimeOut
                       tmpargument = 0
                       tmpdistance = 11025
                       PlaySound
-
 
 End					// Finished with this character

@@ -51,7 +51,6 @@ IfStateIs1
     tmpdistance = SPAWNLAST
     SpawnParticle
 
-
     // Check for content==3
     GetContent
     tmpx = tmpargument

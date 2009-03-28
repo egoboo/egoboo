@@ -76,7 +76,6 @@ IfNotPutAway
   tmpargument = 3
   SendMessageNear
 
-
 //Tell the players what they got
 IfTakenOut
   SetTargetToWhoeverIsHolding

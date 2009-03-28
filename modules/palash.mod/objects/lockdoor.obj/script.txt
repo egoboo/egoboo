@@ -12,7 +12,6 @@ IfOrdered
       tmpargument = 2
       SendMessageNear
 
-
 // See if there is a character in the detect passage
 IfTimeOut
   tmpargument = 10
@@ -40,7 +39,6 @@ IfTimeOut
         // Open it up
         tmpargument = passage + 1
         OpenPassage
-
 
 // Handle the animation and sound
 tmpargument = passage + 1	// Is the passage clear?

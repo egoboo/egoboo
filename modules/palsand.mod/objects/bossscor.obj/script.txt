@@ -12,7 +12,6 @@ IfScoredAHit
   tmpargument = 20
   SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
@@ -22,11 +21,9 @@ IfKilled
     tmpargument = 1
   SendMessage
 
-
   // Make noises
   tmpargument = 1
   PlaySound
-
 
   // Make the character body
   tmpargument = 45
@@ -34,11 +31,9 @@ IfKilled
   tmpargument = 30
   SetBumpSize
 
-
   // Open the boss passage
   tmpargument = passage
   OpenPassage
-
 
   // Set the "forgot something" ending
   ClearEndMessage
@@ -47,13 +42,11 @@ IfKilled
   tmpargument = 3
   AddEndMessage
 
-
 //------------------------------------------------------------------------------
 // ZZ> Let the character walk around
 IfTimeOut
   tmpargument = 20
   SetTime
-
 
   SetTargetToWideEnemy
     Run
@@ -73,7 +66,6 @@ IfTimeOut
             SpawnAttachedParticle
             tmpargument = 20
             SetReloadTime
-
 
           // Back up
           tmpx = selfx
@@ -154,14 +146,12 @@ IfTimeOut
   ClearWaypoints
   AddWaypoint
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by making a sound...  Drop claws...
 IfAttacked
   tmpargument = 0
   tmpdistance = rand & 1023 + 10500
   PlaySound
-
 
   GetDamageType
   tmpx = tmpargument
@@ -173,7 +163,6 @@ IfAttacked
       // Drop a claw
       tmpargument = tmpx > 2 & 1 + ACTIONMA
       DoActionOverride
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -206,7 +195,6 @@ IfBumped
     AddWaypoint
     tmpargument = 10
     SetTime
-
 
 //------------------------------------------------------------------------------
 End

@@ -33,14 +33,10 @@ IfAttacked
     tmpargument = 2
     SendMessageNear
 
-
-
 //Reset message and ping timer
 IfTimeOut
   tmpargument = 0
   SetState
-
-
 
 IfKilled
   tmpargument = 18
@@ -68,7 +64,6 @@ IfKilled
   DropItems
   tmpargument = 65535
   DropMoney
-
 
   // Replace self with an imposter...
   tmpargument = 54

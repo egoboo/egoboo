@@ -47,7 +47,6 @@ IfUsed
     tmpargument = 7
     SendMessageNear
 
-
     // Level
     tmpx = targetlevel
     tmpy = 2
@@ -55,7 +54,6 @@ IfUsed
       tmpx = 2
     tmpargument = 8 + tmpx
     SendMessageNear
-
 
     // Stats
     tmpx = targetlife > 9
@@ -66,7 +64,6 @@ IfUsed
     tmpx = selfstr > 8
     tmpy = selfwis > 8
     SendMessageNear
-
 
     // Stats
     tmpx = selfint > 8
@@ -137,8 +134,6 @@ IfTimeOut				// This is done every so often
       SetContent
     tmpargument = rand & 15 + 30
   SetTime
-
-
 
   IfHeld
     // Don't bother moving around if held

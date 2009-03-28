@@ -154,8 +154,8 @@ Facing add for each one ( 0 to 65535 )		: 8192
 Particle type ( 0 to 3 )			: 7
 
 
-// Particle spawning for Blood ( If you want it, you put it in... )
-Blood valid ( TRUE or FALSE )			: FALSE
+// Particle spawning for Blud ( If you want it, you put it in... )
+Blud valid ( TRUE or FALSE )			: FALSE
 Particle type ( 0 to 3 )			: 0
 
 

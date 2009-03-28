@@ -4,7 +4,6 @@ IfTimeOut
   SetTime
   KeepAction
 
-
   // Check if the master passage is open...
   GetContent
   IfPassageOpen
@@ -37,7 +36,6 @@ IfTimeOut
         IfArmorIs
           tmpargument = 0
           ChangeArmor
-
 
 // Handle the animation and sound
 tmpargument = passage + 1	// Is the passage clear?

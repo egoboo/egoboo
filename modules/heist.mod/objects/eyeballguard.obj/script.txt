@@ -56,7 +56,7 @@ IfTimeOut
       CallForHelp
       //SHOOT EYE RAY
       IfFacingTarget
-        tmpargument = rand & 25 + 25	//Time between shots
+        tmpargument = rand % 25 + 25	//Time between shots
         SetTime
         tmpargument = rand % 3 + 1	//Randomize ray
         tmpx = selfx
@@ -103,7 +103,6 @@ IfStateIs1				//Only if already in combat
     Else
       tmpargument = 0			//Watch mode
       SetState				 
-
 
 //---------------------------------------------------------------------------------
 //How to react if bumped
@@ -164,7 +163,6 @@ IfAttacked
   tmpdistance = rand & 4095 + 8000	  
   PlaySound
 
-
 //---------------------------------------------------------------------------------
 //What to do if killed
 IfKilled	
@@ -202,7 +200,6 @@ IfKilled
   tmpargument = 10
   SetShadowSize
   KeepAction
-
 
 //---------------------------------------------------------------------------------
 End					// Finished with this character

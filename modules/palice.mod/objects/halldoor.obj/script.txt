@@ -13,7 +13,6 @@ Else
   tmpargument = 0
   ChangeArmor
 
-
 //Open door and close it
 IfTimeOut
   KeepAction

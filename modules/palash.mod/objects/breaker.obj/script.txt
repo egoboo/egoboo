@@ -3,7 +3,6 @@ IfTimeOut
   tmpargument = 2
   SetTime
 
-
   // Decrement the break sound counter
   GetContent
   tmpx = tmpargument
@@ -13,7 +12,6 @@ IfTimeOut
   Else
     tmpargument = tmpx - 1
     SetContent
-
 
   tmpturn = 200                          // The starting tile
   tmpdistance = 7                        // Number of frames

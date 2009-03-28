@@ -95,13 +95,11 @@ IfHitGround
   tmpargument = 0
   PlaySound
 
-
 //-----------------------------------------------------------------------------
 // ZZ> Gong sound
 IfCleanedUp
   tmpargument = 2
   PlayFullSound
-
 
 //------------------------------------------------------------------------------
 // ZZ> Healing sound
@@ -110,7 +108,6 @@ IfUsed
   PlaySound
   tmpargument = 25
   SetReloadTime
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being bored by cheering or sneezing
@@ -121,7 +118,6 @@ IfBored
   PlaySound
   tmpargument = ACTIONMC
   DoAction
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -154,7 +150,6 @@ IfKilled
 IfLeaderKilled
   BecomeLeader
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -169,8 +164,6 @@ IfAttacked
     tmpargument = rand & 1 + 5
     PlaySound
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle having too much in inventory
 IfTooMuchBaggage
@@ -180,7 +173,6 @@ IfTooMuchBaggage
   PlaySound
   tmpargument = 50
   SetReloadTime
-
 
 //------------------------------------------------------------------------------
 End
