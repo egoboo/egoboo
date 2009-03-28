@@ -7,16 +7,15 @@
 //State 5: Looking for trouble
 //State 6: In combat
 
-
 //------------------------------------------------------
 //Handle behaviour
 IfSpawned
-  tmpargument = 0	 
+  tmpargument = 0
   IfContentIs
     tmpargument = 2	//Character is walking around
     SetState
 
-  tmpargument = 2	 
+  tmpargument = 2
   IfContentIs
     tmpargument = 4	//Character is sleeping
     SetState
@@ -34,7 +33,7 @@ IfBumped
       SetTime
 
     IfStateIs2
-      tmpargument = rand % 4
+      tmpargument = rand & 3
       SendMessageNear	//Say something random
       PlaySound
       tmpargument = 3
@@ -50,17 +49,16 @@ IfBumped
       tmpargument = 40
       SetTime
 
-
 IfTimeOut		//Actions when timeout
 			      // Change to combat mode
 
   //PIRATE CAN TALK AGAIN
   IfStateIs1
-    tmpargument = 0	
+    tmpargument = 0
     SetState
 
   //WANDER AROUND
-  IfStateIs2			
+  IfStateIs2
     tmpx = rand&511+selfx-256
     tmpy = rand&511+selfy-256
     ClearWaypoints
@@ -106,17 +104,16 @@ IfTimeOut		//Actions when timeout
         tmpargument = LATCHPACKRIGHT	//Nop, draw weapon
         PressLatchButton
     Else
-      tmpx = rand & 511 + selfx - 256	//No enemies, wander around    
+      tmpx = rand & 511 + selfx - 256	//No enemies, wander around
       tmpy = rand & 511 + selfy - 256
       Compass
       ClearWaypoints
       AddWaypoint
-      tmpargument = 20 + rand & 60
+      tmpargument = rand % 60 + 20
       SetTime
       IfHoldingMeleeWeapon
         tmpargument = LATCHPACKRIGHT	//Seathe weapon
         PressLatchButton
-
 
     //IN COMBAT
   IfStateIs6
@@ -157,18 +154,18 @@ IfBumped
         tmpargument = LATCHRIGHT
         PressLatchButton
   Else					//Dont flock
-    tmpx = rand & 511 + targetx - 256	    
+    tmpx = rand & 511 + targetx - 256
     tmpy = rand & 511 + targety - 256
     tmpturn = selfturn
-    tmpdistance = rand & 250
-    Compass		    
-    ClearWaypoints			    
+    tmpdistance = rand % 250
+    Compass
+    ClearWaypoints
     AddWaypoint
-    tmpargument = rand & 40 + 20			     
+    tmpargument = rand % 40 + 20
     SetTime
 
 //What to do if killed
-IfKilled	
+IfKilled
   CallForHelp			//Warn friends
   tmpargument = 6
   PlaySound			//Play a sound when killed
@@ -176,8 +173,8 @@ IfKilled
   DropMoney			//Drop loot
   DropKeys
   DropItems
-  tmpargument = 45			  
-  SetBumpHeight				  
+  tmpargument = 45
+  SetBumpHeight
 
 // Get mean if characters wanna be bad
 IfAttacked

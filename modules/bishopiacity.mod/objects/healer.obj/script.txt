@@ -31,7 +31,7 @@ IfKilled				// This reduces the height of the char
   SetBumpHeight				  //
 
 IfTimeOut				// This is done every so often
-  
+
   //Manage talking about restoration
   tmpargument = 1
   IfContentIs
@@ -47,7 +47,7 @@ IfTimeOut				// This is done every so often
     IfTargetIsHurt
       tmpargument = 2
       SetState
-  
+
   IfStateIs2				  // State 2 ( Helper )
     IfTargetIsHurt			    // Heal wounded
       tmpx = targetx
@@ -165,7 +165,7 @@ IfBumped				// Bumped
             DisenchantTarget
             tmpargument = 0 - 10
             GiveMoneyToTarget
-          
+
           //Not enough money!
           Else
             tmpargument = 3
@@ -188,7 +188,6 @@ IfBumped				// Bumped
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //
-
 
 // Heal sound and effect
 IfUsed

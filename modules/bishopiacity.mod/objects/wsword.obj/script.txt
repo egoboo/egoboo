@@ -1,10 +1,9 @@
 //This manages attack speed (Adjusted by strenght and\or dexterity)
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = targetdex > 8		//Every point of dex increases speed by 1	
+  tmpargument = targetdex > 8		//Every point of dex increases speed by 1
   tmpargument = 55 - tmpargument
   SetReloadTime
-
 
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
@@ -28,11 +27,11 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfTakenOut				// Make a sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //

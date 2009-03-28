@@ -17,21 +17,21 @@ IfKilled
   CallForHelp			//Warn friends
 
 IfSpawned
-  tmpargument = rand % 4	//Randomize skin
+  tmpargument = rand & 3	//Randomize skin
   ChangeArmor
   Sneak				//Dont run around
 
 //------------------------------------------------------------------------------
 // ZZ> Handle normal state
 IfTimeOut
-  tmpargument = 80 + rand & 200
+  tmpargument = rand % 200 + 80 
   SetTime
 
 //WANDER AROUND
   IfStateIs0
-    tmpx = rand & 2024 - 1012 + selfx
-    tmpy = rand & 2024 - 1012 + selfy
-    tmpturn = rand & 512 - 256 + selfturn
+    tmpx = rand % 2024 - 1012 + selfx
+    tmpy = rand % 2024 - 1012 + selfy
+    tmpturn = rand & 511 - 256 + selfturn
     Compass
     ClearWaypoints
     AddWaypoint

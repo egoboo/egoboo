@@ -12,7 +12,7 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 2047 + 8000
+  tmpdistance = rand % 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction
@@ -70,7 +70,7 @@ Else
       tmpargument = 4
       SendMessageNear
       tmpargument = 2
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
       FlashTarget
     Else			//The target is a dead creature
@@ -78,12 +78,12 @@ Else
       tmpargument = 3
       SendMessageNear		//Tell what happened
       tmpargument = 1
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
     tmpargument = 200		//Set cooldown time
     SetReloadTime
 
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0
@@ -91,7 +91,7 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter

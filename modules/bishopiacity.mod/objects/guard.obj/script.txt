@@ -68,15 +68,15 @@ IfTimeOut
 
   //Reset speech counter
   tmpargument = 0
-  SetContent			
+  SetContent
 
   //MOVE AROUND - GUARD
   IfStateIs0
     Sneak			//Move at 33% speed
-    tmpargument = rand & 60 + 60
+    tmpargument = rand % 60 + 60
     SetTime
     SetTargetToNearestEnemy
-      tmpargument = rand & 20 + 20
+      tmpargument = rand % 20 + 20
       IfHoldingRangedWeapon	//Engage ranged attack code
         tmpargument = 1
         SetState
@@ -87,7 +87,7 @@ IfTimeOut
       SetTurnModeToVelocity
       tmpx = rand & 1024 - 512 + selfx
       tmpy = rand & 1024 - 512 + selfy
-      tmpturn = rand & 512 - 256 + selfturn
+      tmpturn = rand & 511 - 256 + selfturn
       Compass
       ClearWaypoints
       AddWaypoint
@@ -155,7 +155,7 @@ IfTimeOut
         SetTime
 
   // RANGED COMBAT - SHOOT
-  IfStateIs3 
+  IfStateIs3
     Run
     tmpargument = rand & 7 + 10
     SetTime
@@ -192,13 +192,13 @@ IfTimeOut
             SetTurnModeToWatchTarget
             IfFacingTarget
               tmpargument = LATCHRIGHT
-              PressLatchButton   
+              PressLatchButton
 
     // Safe to fire
     IfFacingTarget
       IfTargetIsOnHatedTeam
         tmpargument = LATCHRIGHT
-        PressLatchButton   
+        PressLatchButton
       Else
         SetTargetToNearestEnemy
 
@@ -218,7 +218,7 @@ IfTimeOut
       tmpargument = 9
       PlaySound
       SetTargetToOldTarget
-    
+
 
   //MELEE COMBAT - CHARGE AND FIGHT
   IfStateIs4
@@ -295,7 +295,7 @@ IfTargetIsAttacking		//Must be attacking
         IfXIsLessThanY              //Close enough?
           tmpargument = LATCHLEFT
           PressLatchButton	//Yep, defend!
-      
+
 //-----------------------------------------------------------------------------------------
 //How to react if bumped
 IfBumped				// Bumped
@@ -312,7 +312,7 @@ IfBumped				// Bumped
       //If its a player, find out what to say
       IfStateIs0					//Not in combat
         IfTargetIsAPlayer				//Only talk to players
-          tmpargument = 0				
+          tmpargument = 0
           IfContentIs					//Check speak counter
             tmpargument = 1
             SetContent					//Set to no more talking
@@ -345,7 +345,7 @@ IfBumped				// Bumped
                   tmpargument = 6
                   SendMessageNear
                   PlaySound
-  
+
             //Stay out of trouble!
             tmpy = 2
             IfXIsEqualToY
@@ -371,14 +371,14 @@ IfBumped				// Bumped
               PlaySound
 
           //Try to move out of the way of friendlies
-          tmpx = rand & 511 + targetx - 256	    
+          tmpx = rand & 511 + targetx - 256
           tmpy = rand & 511 + targety - 256
           tmpturn = selfturn
-          tmpdistance = rand & 250
-          Compass		    
-          ClearWaypoints			    
+          tmpdistance = rand % 250
+          Compass
+          ClearWaypoints
           AddWaypoint
-          tmpargument = 40			     
+          tmpargument = 40
           SetTime
 
       SetTargetToOldTarget

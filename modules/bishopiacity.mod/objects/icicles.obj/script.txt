@@ -37,14 +37,11 @@ IfSpawned
     SetFlyHeight
     MakeCrushValid
 
-
 IfChanged
   // It's a spell in hand
   tmpargument = 0
   SetState
   KeepAction
-
-
 
 // Icicle event handling
 IfStateIs4				// 4. Pinned somebody and waiting
@@ -194,7 +191,6 @@ IfStateIs1				// 1. Being summoned
       SetTargetToSelf
       AccelerateTarget
 
-
 // Spell AI
 IfStateIs0
   // Remove the charge
@@ -242,7 +238,7 @@ IfStateIs0
               tmpdistance = selfz + 30
               tmpargument = 3
               SpawnExactParticle		// Make a little smoke puffie
-              tmpturn = rand & 65535
+              tmpturn = rand % 65535
               SpawnCharacterXYZ
                 GetState
                 tmpargument = 1

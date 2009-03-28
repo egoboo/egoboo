@@ -14,7 +14,7 @@ IfTimeOut
       tmpargument = [ROGU]	//Rouge
 
   IfTargetHasID 		//Open the gate
-    tmpargument = passage 
+    tmpargument = passage
     OpenPassage
   Else
     tmpx = tmpargument		//Is it the Paladin gate?
@@ -22,17 +22,15 @@ IfTimeOut
     IfXIsEqualToY
       tmpargument = [HEAL]	//Then Healers can also enter paladin order
       IfTargetHasID
-        tmpargument = passage 
+        tmpargument = passage
         OpenPassage
   tmpargument = passage 	//Close it if noone is inside passage
   ClosePassage
 
-
-
 //This function makes the door open if its passage is open
 KeepAction			//
 tmpargument = passage		// Is the passage clear?
-IfPassageOpen			// 
+IfPassageOpen			//
   tmpargument = 0		  //
   IfStateIs			  // State 0 ( Closed )
     tmpargument = ACTIONMG	    //

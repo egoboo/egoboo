@@ -141,7 +141,7 @@ Else					// AI for the blast of wind
   IfTimeOut
     tmpx = selfspawnx
     tmpy = selfspawny
-    tmpturn = rand & 65535
+    tmpturn = rand % 65535
     tmpdistance = 200			// Do not stray more than 200 units from home
     Compass
     ClearWaypoints

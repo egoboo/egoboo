@@ -6,7 +6,7 @@ IfAttacked
     CallForHelp
 IfCalledForHelp
   JoinEvilTeam
-  
+
 //Talk
 IfBumped
   SetTargetToWhoeverBumped
@@ -49,7 +49,7 @@ IfBumped
         SendMessageNear
         tmpargument = 5
         PlaySound
-        
+
       //Do not repeat
       IfStateIsOdd
         IfStateIs0
@@ -91,8 +91,6 @@ IfTimeOut
       IfXIsLessThanY
         tmpargument = LATCHRIGHT
         PressLatchButton
-
-
 
 //------------------------------------------------------------------------------
 End

@@ -12,7 +12,7 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 2047 + 8000
+  tmpdistance = rand % 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction
@@ -48,8 +48,8 @@ IfUsed
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
       IfYIsMoreThanX
-        tmpy = rand & 400 + targetwis			//Enough wisdom? Need about 22
-        tmpx = rand & 4700 + tmpargument
+        tmpy = rand % 400 + targetwis			//Enough wisdom? Need about 22
+        tmpx = rand % 4700 + tmpargument
         IfYIsMoreThanX
           tmpargument = 6				//Mana cost
           CostTargetMana
@@ -83,9 +83,9 @@ Else
     tmpargument = 3
     SendMessageNear		//Tell what happened
     tmpargument = 1
-    tmpdistance = rand & 6000 + 11000
+    tmpdistance = rand % 6000 + 11000
     PlaySound
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0
@@ -93,7 +93,7 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter

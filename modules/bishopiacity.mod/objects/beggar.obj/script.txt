@@ -37,7 +37,7 @@ IfBumped
             SetState
             tmpargument = 75               //Wait before talking
             SetTime
-            
+
             //Get nicer clothes!
             tmpx = selfmoney
             tmpy = 6
@@ -57,7 +57,7 @@ IfBumped
           Else
             tmpargument = 0
             SetState
-  
+
         //begging
         IfStateIs0                    //Ready to accept money!
           tmpargument = 4
@@ -68,7 +68,7 @@ IfBumped
           SetState
           tmpargument = 75               //Wait before talking
           SetTime
-        
+
 //become bad
 IfCalledForHelp
   JoinEvilTeam
@@ -80,16 +80,16 @@ IfAttacked
   SetTargetToWhoeverAttacked
   tmpargument = 4
   PlaySound
-    
+
 //Death stuff
 IfKilled
   tmpargument = selfmoney
   DropMoney
-  
+
   //Sound
   tmpargument = 1
   PlaySound
-  
+
   //Message
   IfTargetIsSelf
     tmpargument = 0
@@ -105,23 +105,23 @@ IfTargetIsOnHatedTeam
     IfXIsLessThanY
       tmpargument = rand & 1
       PressLatchButton          //Left or right
-  
-          
+
+
 //Main AI loop
 IfTimeOut
   tmpargument = rand & 31 + 15
   SetTime
-  
+
   //Standing at spawn
   IfStateIs0
-   SetTargetToNearbyEnemy
+    SetTargetToNearbyEnemy
       tmpargument = 1
       SetState
     tmpx = selfspawnx
-    tmpy = selfspawny    
+    tmpy = selfspawny
     ClearWaypoints
     AddWaypoint
-      
+
   //Combat
   IfStateIs1
     SetTargetToNearbyEnemy
@@ -133,8 +133,8 @@ IfTimeOut
       AddWaypoint
     Else
       tmpargument = 0
-      SetState                  //No enemies around anymore    
-  
+      SetState                  //No enemies around anymore
+
   //Resume talking
   IfStateIs2
     tmpargument = 3

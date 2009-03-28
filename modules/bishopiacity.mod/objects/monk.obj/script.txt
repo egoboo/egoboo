@@ -3,13 +3,13 @@ IfSpawned
   AddShopPassage
 
 IfTimeOut
-  tmpx = rand & 225 + selfspawnx
-  tmpy = rand & 225 + selfspawny
+  tmpx = rand & 255 + selfspawnx - 128
+  tmpy = rand & 255 + selfspawny - 128
   ClearWaypoints
   AddWaypoint
   tmpargument = rand & 15 + 30
   SetTime
-  
+
 
 //------------------------------------------------------------------------------
 //Handle orders ( purchases )
@@ -36,7 +36,6 @@ IfOrdered
         tmpx = selforder
         SendMessageNear
 
-
 //-----------------------------------------------------------------------------
 IfHitGround
   tmpargument = 0
@@ -45,11 +44,10 @@ IfHitGround
 //------------------------------------------------------------------------------
 // ZZ> Scream and shout
 IfUsed
-  tmpargument = rand % 2 + 8
+  tmpargument = rand & 1 + 8
   PlaySound
   tmpargument = ACTIONKA
   DoAction
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -73,14 +71,12 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by screaming
 IfAttacked
   SetTargetToWhoeverAttacked
     tmpargument = rand & 1 + 5
     PlaySound
-
 
 //------------------------------------------------------------------------------
 End

@@ -22,7 +22,7 @@ IfCalledForHelp			//Somebody else is under attack
   JoinEvilTeam
   tmpargument = 1		//Enter combat
   SetState
-  
+
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
   JoinEvilTeam
@@ -33,7 +33,7 @@ IfSomeoneIsStealing     //Someone is stealing from our shop! ><
 //COMBAT AI
 
 IfTimeOut
-  tmpargument = rand & 21 + 80
+  tmpargument = rand % 21 + 80
   SetTime
 
 //Drink mana potion?
@@ -45,13 +45,13 @@ IfTimeOut
     tmpy = 90		//10% chance each round
     IfXIsMoreThanY
       tmpargument = 8
-      tmpdistance = rand & 9000 + 3000
+      tmpdistance = rand % 9000 + 3000
       PlaySound		//Make potion sound
-      tmpargument = 14	
+      tmpargument = 14
       SendMessageNear		//Tell the players what happened
-      tmpargument = 3000 + rand & 2000	//A lot of mana
+      tmpargument = rand % 2000	+ 3000 //A lot of mana
       PumpTarget
-    
+
   IfStateIs0			//State 0, Shopkeeper
     tmpx = rand & 255 - 128 + selfspawnx
     tmpy = rand & 255 - 128 + selfspawny
@@ -88,13 +88,13 @@ IfTimeOut
 
 //Cast lightning bolt? (Part of SPELL CASTING AI)
     SetTargetToNearbyEnemy
-      tmpx = rand & 1000		
+      tmpx = rand & 1000
       tmpy = 70			//30% chance
       IfXIsMoreThanY
         SetOldTarget
         SetTargetToSelf
         tmpx = targetmana
-        tmpy = 738			//3 points of mana	
+        tmpy = 738			//3 points of mana
         IfXIsMoreThanY		//Enough mana to cast spell?
           tmpargument = 738
           CostTargetMana
@@ -131,7 +131,6 @@ IfBumped
       tmpargument = LATCHRIGHT
       PressLatchButton
 
-
 //------------------------------------------------------------------------------
 //SPELL CASTING AI
 
@@ -153,7 +152,7 @@ IfAttacked			//Unleash when attacked
     tmpy = 300
     IfXIsLessThanY
       tmpx = rand & 100		//20% chance to do it
-      tmpy = 80 
+      tmpy = 80
       IfXIsMoreThanY
         SetTargetToSelf
         tmpx = targetmana
@@ -202,11 +201,9 @@ IfSpawned
   tmpargument = passage
   AddShopPassage
 
-
   // Make the border
   tmpargument = 2
   tmpdistance = 0
-
 
   // Top
   tmpx = selfx - 192
@@ -219,7 +216,6 @@ IfSpawned
   tmpx = tmpx + 128
   SpawnExactParticle
 
-
   // Bottom
   tmpy = selfy + 384
   SpawnExactParticle
@@ -229,7 +225,6 @@ IfSpawned
   SpawnExactParticle
   tmpx = tmpx - 128
   SpawnExactParticle
-
 
   // Left
   tmpx = selfx - 384
@@ -242,7 +237,6 @@ IfSpawned
   tmpy = tmpy + 128
   SpawnExactParticle
 
-
   // Right
   tmpx = selfx + 384
   SpawnExactParticle
@@ -252,7 +246,6 @@ IfSpawned
   SpawnExactParticle
   tmpy = tmpy - 128
   SpawnExactParticle
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle orders ( purchases )
@@ -296,7 +289,6 @@ IfBumped
           tmpargument = 1		//Prevent looping
           SetContent
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
@@ -324,7 +316,6 @@ IfKilled
   tmpargument = 983  // The unique code for a looted shop
   OrderSpecialID
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -338,8 +329,6 @@ IfAttacked
   Else
     tmpargument = rand & 1 + 4
     PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

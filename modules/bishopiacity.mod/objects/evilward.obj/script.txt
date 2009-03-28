@@ -13,7 +13,7 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 2047 + 8000
+  tmpdistance = rand % 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction
@@ -40,7 +40,7 @@ IfUsed
           GetContent				//Increase the charge
           tmpargument = tmpargument + 8		//Casting Time
           SetContent
-        
+
     // Spawn particles around target
     SetTargetToNearestFriend
     tmpx = targetdistance
@@ -75,9 +75,9 @@ Else
     tmpargument = 3
     SendMessageNear		//Tell what happened
     tmpargument = 1
-    tmpdistance = rand & 6000 + 11000
+    tmpdistance = rand % 6000 + 11000
     PlaySound
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0
@@ -85,7 +85,7 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter

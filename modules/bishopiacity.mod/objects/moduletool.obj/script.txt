@@ -13,7 +13,7 @@
 //------------------------------------------------------------------------------------
 //Drop items held
 tmpargument = 0
-IfContentIs	
+IfContentIs
   IfSpawned
     tmpargument = 80
     SetTime
@@ -26,14 +26,14 @@ IfContentIs
   tmpdistance = 0
   PlayMusic
   //DEBUG END
-  
+
   ShowMap
   ShowYouAreHere
 
 //------------------------------------------------------------------------------------
 //Display the map and play music
 tmpargument = 2
-IfContentIs	
+IfContentIs
   ShowMap
   ShowYouAreHere
   tmpargument = 1
@@ -101,16 +101,15 @@ IfContentIs
  //Levitation Shoes
   IfStateIs11
     tmpargument = 147
-    
+
   //Truesight Scroll
   IfStateIs12
     tmpargument = 140
-    
+
   SpawnExactCharacterXYZ
 
   //Do last
   GoPoof
-
 
 //------------------------------------------------------------------------------------
 //Create some random divine shop stuff
@@ -170,11 +169,11 @@ IfContentIs
   //Shield of the Crusader
   IfStateIs11
     tmpargument = 134
-    
+
   //Truesight scroll
   IfStateIs12
     tmpargument = 140
-    
+
   //Moonbeam
   IfStateIs13
     tmpargument = 155

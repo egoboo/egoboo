@@ -21,7 +21,7 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfInWater
   IfHeld
@@ -52,7 +52,6 @@ IfUsed
     tmpargument = 1
     SetState
 
-
     // Make sparklies around caster
     SetTargetToWhoeverIsHolding
       tmpx = targetx
@@ -60,7 +59,6 @@ IfUsed
       tmpdistance = targetz
       tmpargument = 0
       SpawnExactParticle
-
 
     // Make sparklies around target
     tmpargument = [NONE]
@@ -86,24 +84,20 @@ Else
     tmpargument = 0
     SetState
 
-
     // Respawn the target
     tmpargument = [NONE]
     tmpdistance = 5  // Dead friends
     SetTargetToNearestBlahID
       RespawnTarget
 
-
       // Play the gong sound
       tmpargument = 1
       tmpdistance = 8000
       PlayFullSound
 
-
       // Let all the players know
       tmpargument = 2
       SendMessage
-
 
       // Give experience to caster
       IfNameIsKnown
@@ -119,13 +113,10 @@ Else
       tmpargument = 3
       SendMessageNear
 
-
-
     // Don't use a second one right away
     SetTargetToWhoeverIsHolding
     tmpargument = 20
     SetTargetReloadTime
-
 
     // Get rid of a scroll
     CostAmmo

@@ -98,7 +98,7 @@ IfTimeOut
     Else				//No enemies in sight
       tmpargument = 0			//begin guarding again
       SetState
-    
+
     tmpx = targetdistance
     tmpy = 200			//Can we attack?
     IfXIsLessThanY
@@ -116,7 +116,7 @@ IfTargetIsAttacking		//Must be attacking
     IfHoldingItemID
       IfFacingTarget
         tmpx = targetdistance
-        tmpy = 300 + rand & 500
+        tmpy = rand % 500 + 300 
         IfXIsLessThanY
           tmpargument = LATCHLEFT
           PressLatchButton	//Yep, defend!
@@ -128,7 +128,7 @@ IfTargetIsAttacking		//Must be attacking
         Compass
         ClearWaypoints
         AddWaypoint
-      
+
 
 //-----------------------------------------------------------------------------------------
 //How to react if bumped
@@ -138,9 +138,9 @@ IfBumped				// Bumped
   //If its a player, find out what to say
   IfStateIs0					//Not in combat
     IfTargetIsAPlayer				//Only talk to players
-      tmpargument = 120			     
+      tmpargument = 120
       SetTime
-      
+
       //Bringing in the required quest item?
       tmpargument = [DIAR]
       CostTargetItemID
@@ -164,7 +164,7 @@ IfBumped				// Bumped
         tmpx = targetlevel
         tmpy = 3                  //Need to be level 5
         IfXIsMoreThanY			//Tell them about the need
-        
+
           tmpargument = [GRIF]
           IfTargetHasQuest
             tmpx = tmpdistance
@@ -182,11 +182,11 @@ IfBumped				// Bumped
               tmpargument = 7
               SendMessage
               tmpargument = 8
-              PlayFullSound			
-          Else              
+              PlayFullSound
+          Else
 
             //CONTENT 2 - Give quest
-            tmpargument = 2				
+            tmpargument = 2
             IfContentIs
               tmpargument = 1
               SendMessage
@@ -195,12 +195,12 @@ IfBumped				// Bumped
               tmpargument = [GRIF]
               tmpdistance = 0
               AddQuestAllPlayers
-                
+
             //CONTENT 1 - Present quest
             tmpargument = 1
             IfContentIs
               tmpargument = 2        	//Not quest engaged yet
-              SetContent	
+              SetContent
               tmpargument = 5
               SendMessage
               tmpargument = 6
@@ -209,7 +209,7 @@ IfBumped				// Bumped
               SendMessage
               tmpargument = 8
               PlayFullSound			//The long quest speech
-    
+
             //CONTENT 0 - Introdouce
             tmpargument = 0
             IfContentIs
@@ -224,12 +224,12 @@ IfBumped				// Bumped
           SendMessage
           tmpargument = 6
           PlayFullSound			//"Don't need low levels..."
-    
+
         tmpargument = 2		//Don't loop
         SetState
-  
+
     SetTargetToOldTarget
-  
+
 //  -----------------------------------------------------------------------------------------
 End					// All done
 //-----------------------------------------------------------------------------------------

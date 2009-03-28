@@ -55,8 +55,8 @@ IfTimeOut
         ClearWaypoints
         AddWaypoint
     Else
-      tmpx = rand & 2023 + selfx - 1000			//Run!
-      tmpy = rand & 2023 + selfy - 1000	
+      tmpx = rand % 2047 + selfx - 1000			//Run!
+      tmpy = rand % 2047 + selfy - 1000
       ClearWaypoints
       AddWaypoint
     tmpargument = 60
@@ -87,8 +87,6 @@ IfStateIs0
           GetContent
           tmpargument = tmpargument + 1
           SetContent
-
-
 
 //------------------------------------------------------------------------------
 End

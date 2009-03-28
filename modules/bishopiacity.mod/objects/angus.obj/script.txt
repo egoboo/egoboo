@@ -57,7 +57,7 @@ IfTimeOut
               PlaySound
               tmpargument = 7
               SendMessageNear
-              
+
               //Look at him
               SetTurnModeToWatchTarget
   IfStateIs1
@@ -83,8 +83,8 @@ IfTimeOut
         ClearWaypoints
         AddWaypoint
     Else
-      tmpx = rand & 2023 + selfx - 1000			//Run!
-      tmpy = rand & 2023 + selfy - 1000	
+      tmpx = rand % 2047 + selfx - 1000			//Run!
+      tmpy = rand % 2047 + selfy - 1000
       ClearWaypoints
       AddWaypoint
     tmpargument = 60
@@ -115,13 +115,13 @@ IfStateIs0
               tmpargument = 7               //Give them the reward
               PlayFullSound
               tmpargument = tmpargument - 3
-              SendMessageNear  
+              SendMessageNear
               tmpargument = [BENE]          //Dont repeat this
               tmpdistance = 1
               AddQuestAllPlayers
               tmpargument = 6
               SetContent                //Skip all the quest introductions
-            
+
               //Give the reward
               tmpargument = 100
               tmpdistance = EXPQUEST
@@ -151,14 +151,14 @@ IfStateIs0
               tmpargument = 20
               tmpdistance = EXPQUEST
               GiveExperienceToGoodTeam      //uh oh.. all the guards in bishopia gain too
-            
+
           //The normal talking progression
           Else
             GetContent
             PlayFullSound
             tmpargument = tmpargument - 3
             SendMessageNear
-    
+
             //Prepeare the next thing to say
             GetContent
             tmpargument = tmpargument + 1

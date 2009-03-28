@@ -9,7 +9,6 @@ IfSpawned
   tmpargument = 100
   SetTime
 
-
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -23,7 +22,6 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
 IfDropped
   // Unhidden, used state
   tmpargument = 2
@@ -33,7 +31,6 @@ IfDropped
   KeepAction
   SetTargetToSelf
   StopTargetMovement
-
 
 // Lay a trap
 IfUsed
@@ -64,7 +61,6 @@ IfUsed
       tmpargument = 1
       SetChildAmmo
 
-
       // Down the ammo
       CostAmmo
       IfAmmoOut
@@ -80,7 +76,6 @@ IfUsed
   Else
     tmpargument = 6
     SendMessageNear
-
 
 // Tell them what they've won...
 IfGrabbed
@@ -130,17 +125,14 @@ IfGrabbed
     tmpargument = 1
     SetState
 
-
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
-
 
 IfNotDropped
   tmpargument = 2
   SendMessageNear
-
 
 IfTakenOut
   SetTargetToWhoeverIsHolding
@@ -148,11 +140,9 @@ IfTakenOut
     tmpargument = 4
     SendMessageNear
 
-
 IfNotPutAway
   tmpargument = 3
   SendMessageNear
-
 
 // See if the trap is sprung
 IfTimeOut
@@ -190,7 +180,6 @@ IfTimeOut
               tmpargument = 0
               tmpdistance = 22050
               PlaySound
-
 
 // All Done
 End

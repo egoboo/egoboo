@@ -52,7 +52,7 @@ IfUsed
               tmpargument = 33
           Else
             tmpargument = 50
-          CostTargetMana   
+          CostTargetMana
           GetContent
           tmpargument = tmpargument + 50
           SetContent
@@ -77,7 +77,7 @@ Else			//Player released the charge
       tmpy = 3
       IfXIsMoreThanY
         tmpdistance = 1
-    
+
     //If tmpdistance = 1 then it's at least a level 5 wizard
     tmpturn = 0
     IfDistanceIsMoreThanTurn

@@ -55,7 +55,7 @@ IfStateIs1
     tmpargument = ACTIONDA         //Return to normal held position
     DoActionOverride
     KeepAction
-  
+
   IfTargetIsMounted
     // Can the holder joust?
     tmpargument = [JOUS]
@@ -76,23 +76,19 @@ IfStateIs1
       tmpargument = 4
       SendMessageNear
 
-
-
-
 // Item is held by a cavalier
 IfStateIs2
   IfTargetIsMounted
     //Make no attack possible
     tmpargument = 10
     SetReloadTime
-    
+
     // Do a particle spawn based on speed
     SetOldTarget
     SetTargetToLowestTarget
     tmpx = targetspeedx
     tmpy = targetspeedy
     tmpx = xydistance > 2
-
 
     // Make sure mount is moving fast enough
     tmpy = 0
@@ -101,7 +97,6 @@ IfStateIs2
       tmpy = 4
       IfXIsMoreThanY
         tmpx = tmpy
-
 
       // Now spawn it
       tmpargument = 1 + tmpx
@@ -115,7 +110,6 @@ IfStateIs2
     tmpargument = 1
     SetState
 
-
 // Item is held by a cavalier that has no clue
 IfStateIs2
   IfTargetIsMounted
@@ -123,7 +117,5 @@ IfStateIs2
   Else
     tmpargument = 1
     SetState
-
-
 
 End

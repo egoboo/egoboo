@@ -8,14 +8,14 @@ IfHeld
 IfUsed
   SetTargetToWhoeverIsHolding
   SetOwnerToTarget
-  
+
   IfStateIs0
     EnchantTarget		//Give defence bonus
     tmpargument = 1
     SetState
-    
+
   //Sparklies
-  tmpargument = 1		
+  tmpargument = 1
   tmpx = targetx
   tmpy = targety
   tmpdistance = targetz
@@ -57,6 +57,6 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 8000	  //
+  tmpdistance = rand % 2047 + 8000	  //
   PlaySound				  //
 End					// All done

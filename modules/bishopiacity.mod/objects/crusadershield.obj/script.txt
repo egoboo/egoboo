@@ -12,7 +12,7 @@ IfHeld
       tmpx = targetstr > 6
       SetTargetToWhoeverIsHolding
       tmpy = targetstr > 7
-      tmpx = rand % 100 + tmpx 
+      tmpx = rand % 100 + tmpx
       tmpy = 80 + tmpy            //80% block rate
       IfXIsMoreThanY
         tmpargument = 40    //0.80 seconds
@@ -28,7 +28,7 @@ IfHeld
 IfDropped
   tmpargument = 0
   SetState
-IfPutAway 
+IfPutAway
   tmpargument = 0
   SetState
   UndoEnchant
@@ -44,7 +44,7 @@ IfStateIs0                  //state 0 is not held
 //Held, see if we need to enchant
 IfStateIs1
   tmpargument = 2
-  SetState    
+  SetState
   IfNameIsKnown
     SetTargetToWhoeverIsHolding
     tmpargument = [PALA]
@@ -52,8 +52,8 @@ IfStateIs1
       SetOwnerToTarget
       EnchantTarget
       tmpargument = 3
-      SendMessageNear          
-      SetState    
+      SendMessageNear
+      SetState
     Else
       tmpargument = 2
       SendMessageNear
@@ -98,26 +98,26 @@ IfGrabbed				// Tell them what they've won...
   SendMessageNear
   IfNameIsKnown
     DoNothing
-  Else  
+  Else
     //Identify with high wisdom
     tmpx = rand & 31
     tmpy = rand & 31 + targetwis > 8
-    IfXIsLessThanY				  
+    IfXIsLessThanY
       tmpargument = 25
       tmpdistance = EXPSECRET
       GiveExperienceToTarget
       MakeNameKnown
-      
+
 IfTakenOut
   IfNameIsKnown
     DoNothing
-  Else    
+  Else
     SetTargetToWhoeverIsHolding
-    
+
     //Identify with high wisdom
     tmpx = rand & 31
     tmpy = rand & 31 + targetwis > 8
-    IfXIsLessThanY				  
+    IfXIsLessThanY
       tmpargument = 25
       tmpdistance = EXPSECRET
       GiveExperienceToTarget

@@ -1,5 +1,3 @@
-IfCalledForHelp
-  JoinEvilTeam
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut
@@ -20,7 +18,7 @@ IfTimeOut
 IfBumped
   SetTargetToWhoeverBumped
   IfStateIs0
-    tmpargument = 1 + rand 3
+    tmpargument = rand & 3 + 1
     SendMessageNear
     tmpargument = 1
     SetState
@@ -36,7 +34,7 @@ IfKilled
     tmpargument = 4
   Else
     tmpargument = 0
-  
+
   JoinEvilTeam
   SendMessage
   CallForHelp
@@ -45,10 +43,12 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
+IfCalledForHelp
+  JoinEvilTeam
+
 IfAttacked
   JoinEvilTeam
   CallForHelp
-
 
 //------------------------------------------------------------------------------
 End

@@ -21,9 +21,9 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 0
-  PlaySound	
+  PlaySound
 
-//Go blank  
+//Go blank
 IfInWater
   IfHeld
     DoNothing
@@ -36,14 +36,14 @@ IfInWater
       tmpargument = 5
       SendMessageNear
       MakeNameKnown      // To keep messages okay
-      
+
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
   SetOwnerToTarget
   IfTargetIsAPlayer			  //
     GetContent
     SendMessageNear			  //
-    
+
 //Scroll effects
 IfUsed
   tmpargument = 0
@@ -59,7 +59,6 @@ IfUsed
     tmpargument = 1
     SpawnExactParticle
 
-
     SetTargetToWhoeverIsHolding
     tmpargument = 50
     SetTargetReloadTime
@@ -71,12 +70,11 @@ IfUsed
       GiveExperienceToTarget
     MakeSimilarNamesKnown
 
-
     //Enchant the target
     SetOwnerToTarget
     EnchantTarget
 
-    
+
     CostAmmo
     IfAmmoOut
       GoPoof
@@ -88,7 +86,7 @@ IfUsed
     SendMessageNear
     tmpargument = 50
     SetReloadTime
-    
+
 //On fire!
 IfReaffirmed
   IfHeld

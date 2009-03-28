@@ -24,15 +24,15 @@ IfGrabbed				// Tell them what they've won...
     tmpargument = 0			  //
     SendMessageNear			  //
 IfTakenOut				// Do the unsheathe sound
-  tmpargument = 11			  
-  PlaySound				  
-  SetTargetToWhoeverIsHolding		  
-  IfTargetIsAPlayer			  
-    tmpargument = 2			  
-    SendMessageNear			  
+  tmpargument = 11
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
 IfHitGround				// Make a sound
-  tmpargument = 10			  
-  PlaySound				  
+  tmpargument = 10
+  PlaySound
 
 // Whisper when held
 IfHeld
@@ -43,7 +43,7 @@ IfHeld
     SetTime
 
 // White embers and smoke
-tmpx = rand % 4
+tmpx = rand & 3
 tmpy = 0
 IfXIsEqualToY
   tmpargument = 4
@@ -66,7 +66,7 @@ IfHolderScoredAHit		//Sets target to holder last hit
     IfTargetHasID
       tmpargument = 0 - 1325		//5 true damage
       GiveLifeToTarget
-    tmpx = rand % 4
+    tmpx = rand & 3
     tmpy = 0
     IfXIsEqualToY
       tmpargument = 3
@@ -81,7 +81,7 @@ IfHolderScoredAHit		//Sets target to holder last hit
       tmpargument = 6
     SendMessageNear
 
-    tmpx = rand % 2
+    tmpx = rand & 1
     tmpy = 1
     IfXIsEqualToY
       tmpargument = 13

@@ -15,7 +15,7 @@ IfBumped
 
       //Royal crypt
       tmpy = 0
-      IfXIsEqualToY 
+      IfXIsEqualToY
         tmpargument = 0
         SendMessageNear
 

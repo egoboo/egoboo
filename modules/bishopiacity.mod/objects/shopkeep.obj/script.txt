@@ -37,7 +37,7 @@ IfSpawned
   //SETUP DUNLAR BLACKSMITH SHOP
   tmpx = passage
   tmpy = 1
-  IfXIsEqualToY			
+  IfXIsEqualToY
     tmpdistance = 0
     tmpx = selfx - 128
     tmpy = selfy - 128
@@ -241,7 +241,7 @@ IfSpawned
 
 //ITEM 7
     tmpx = selfx
-    tmpturn = rand   
+    tmpturn = rand
     tmpargument = rand % 13
     SetState
     IfStateIs0			//Spear
@@ -329,7 +329,7 @@ IfSpawned
 
   //SETUP SECRET SHOPPE
   tmpargument = 1
-  IfArmorIs		
+  IfArmorIs
 
 //ITEM 1
     tmpx = selfx
@@ -425,7 +425,7 @@ IfSpawned
 
   //SETUP SHADY ROUGE GOODS
   tmpargument = 2
-  IfArmorIs		
+  IfArmorIs
 //ITEM 0
     tmpturn = rand
     tmpdistance = 0
@@ -494,7 +494,7 @@ IfSpawned
 IfSpawned
   tmpargument = 1
   IfArmorIs			//Mark secret shop as a shop... eh
-    tmpargument = passage	
+    tmpargument = passage
     AddShopPassage
   IfContentIs
     tmpargument = passage	//Yep, lets setup shop..
@@ -503,7 +503,6 @@ IfSpawned
     // Make the border
     tmpargument = 2
     tmpdistance = 0
-
 
     // Top
     tmpx = selfx - 122
@@ -516,7 +515,6 @@ IfSpawned
     tmpx = tmpx + 88
     SpawnExactParticle
 
-
     // Bottom
     tmpy = selfy + 324
     SpawnExactParticle
@@ -526,7 +524,6 @@ IfSpawned
     SpawnExactParticle
     tmpx = tmpx - 88
     SpawnExactParticle
-
 
     // Left
     tmpx = selfx - 304
@@ -539,7 +536,6 @@ IfSpawned
     tmpy = tmpy + 88
     SpawnExactParticle
 
-
     // Right
     tmpx = selfx + 304
     SpawnExactParticle
@@ -549,7 +545,6 @@ IfSpawned
     SpawnExactParticle
     tmpy = tmpy - 88
     SpawnExactParticle
-
 
 //------------------------------------------------------------------------------
 //Handle orders ( purchases )
@@ -584,7 +579,7 @@ IfTimeOut
   IfStateIs0				//Wander around
     IfHoldingMeleeWeapon
       tmpargument = LATCHPACKRIGHT	//Unequip weapon
-      PressLatchButton 
+      PressLatchButton
     tmpx = rand & 255 - 128 + selfspawnx
     tmpy = rand & 255 - 128 + selfspawny
     ClearWaypoints
@@ -613,14 +608,13 @@ IfTimeOut
               PressLatchButton
       Else
         tmpargument = LATCHPACKRIGHT	//No weapon equipped!
-        PressLatchButton 
+        PressLatchButton
     Else				//No enemies around
       tmpargument = 0
-      SetState  
-        
+      SetState
+
   tmpargument = rand & 31 + 15
   SetTime
-
 
 //------------------------------------------------------------------------------
 //Handle death by sending a message and other stuff
@@ -648,7 +642,6 @@ IfKilled
   tmpdistance = [SHOP]
   tmpargument = 983  // The unique code for a looted shop
   OrderSpecialID
-
 
 //------------------------------------------------------------------------------
 // Handle being attacked by blocking or countering or running away

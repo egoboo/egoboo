@@ -202,7 +202,6 @@ IfBumped
           tmpargument = 44
           SendMessageNear
 
-
         tmpy = 31
         IfXIsEqualToY
           tmpargument = 45
@@ -244,6 +243,5 @@ IfBumped
           SendMessageNear
           tmpargument = 51
           SendMessageNear
-
 
 End

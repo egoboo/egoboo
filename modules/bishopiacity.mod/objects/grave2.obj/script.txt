@@ -204,7 +204,6 @@ IfXIsMoreThanY
           tmpargument = 44
           SendMessageNear
 
-
         tmpy = 31
         IfXIsEqualToY
           tmpargument = 45

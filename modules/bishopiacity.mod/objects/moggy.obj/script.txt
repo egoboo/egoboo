@@ -2,7 +2,7 @@
 IfSpawned
   tmpargument = 6
   SetContent
-  
+
 //Found the sister?
 IfOrdered
   tmpx = selforder
@@ -34,7 +34,7 @@ IfBumped
           SendMessage
           tmpargument = 2
           SetState                    //Wait before talking
-          
+
       Else
         IfStateIs0                    //Standing at spawn point
           GetContent
@@ -47,7 +47,7 @@ IfBumped
           GetContent
           tmpargument = tmpargument + 1
           SetContent
-        
+
           //All done talking! Follow player
           tmpx = 11
           tmpy = tmpargument
@@ -60,7 +60,7 @@ IfBumped
             tmpargument = [FORT]        //Add the quest to the log
             tmpdistance = 0
             AddQuestAllPlayers
-        
+
 //become bad
 IfCalledForHelp
   JoinEvilTeam
@@ -75,21 +75,21 @@ IfAttacked
   Else
     tmpargument = 4
   PlaySound
-  
+
 //Yah!
 IfUsed
   tmpargument = 5
   PlaySound
-  
+
 //Death stuff
 IfKilled
   tmpargument = selfmoney
   DropMoney
-  
+
   //Sound
   tmpargument = 1
   PlaySound
-  
+
   //Message
   IfTargetIsSelf
     tmpargument = 0
@@ -109,17 +109,17 @@ IfTargetIsOnHatedTeam
         tmpargument = [SHIE]
         IfHoldingItemID
           PressLatchButton
- 
-          
+
+
 //Main AI loop
 IfTimeOut
   tmpargument = rand & 31 + 15
   SetTime
-  
+
   tmpx = selflife
   tmpy = 1500           //Less than 6 hp
   IfXIsLessThanY
-    tmpargument = 1 
+    tmpargument = 1
   Else
     tmpargument = 0
   ChangeArmor
@@ -131,10 +131,10 @@ IfTimeOut
       tmpargument = 1
       SetState
     tmpx = selfspawnx
-    tmpy = selfspawny    
+    tmpy = selfspawny
     ClearWaypoints
     AddWaypoint
-      
+
   //Combat
   IfStateIs1
     SetTargetToWideEnemy
@@ -146,13 +146,13 @@ IfTimeOut
       AddWaypoint
     Else
       tmpargument = 0
-      SetState                  //No enemies around anymore    
-  
+      SetState                  //No enemies around anymore
+
   //Resume talking
   IfStateIs2
     tmpargument = 0
     SetState
-    
+
   //Follow player
   IfStateIs3
     SetTargetToOwner

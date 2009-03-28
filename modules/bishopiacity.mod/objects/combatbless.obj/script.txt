@@ -58,7 +58,7 @@ Else
     SendMessageNear		//Tell what happened
     tmpargument = 1
     PlaySound
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0

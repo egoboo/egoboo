@@ -1,7 +1,7 @@
 //This manages attack speed (Adjusted by strenght and\or dexterity)
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = targetdex > 8		//Every point of dex increases speed by 1	
+  tmpargument = targetdex > 8		//Every point of dex increases speed by 1
   tmpargument = 55 - tmpargument
   SetReloadTime
 

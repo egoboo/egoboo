@@ -28,7 +28,7 @@ IfSpawned
       Compass
       SetTargetToSelf
       AccelerateTarget
-      tmpargument = rand & 512 + 1200
+      tmpargument = rand & 511 + 1200
       AccelerateUp
       tmpargument = 1
       PlaySound
@@ -193,7 +193,7 @@ Else
       tmpturn = rand
       SpawnCharacterXYZ
         tmpargument = 1			// Make the new one have 1 ammo
-        SetChildAmmo 
+        SetChildAmmo
         CostAmmo			// Down the ammo
         IfAmmoOut			// If I'm out of ammo, I shouldn't have a bomb in my hand
           GoPoof

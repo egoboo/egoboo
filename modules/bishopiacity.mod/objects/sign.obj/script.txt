@@ -1,6 +1,5 @@
 // ZZ> This function makes an item fall to the floor when spawned
 
-
 IfBumped				//Display a message (Based on content number)
   SetTargetToWhoeverBumped
   IfTargetIsAPlayer

@@ -117,7 +117,6 @@ IfSpawned
       tmpargument = 152
     SpawnExactCharacterXYZ
 
-
 //ITEM 4
     tmpy = selfy
     tmpturn = rand
@@ -421,17 +420,14 @@ IfSpawned
     tmpargument = 118		//Bomb
     SpawnExactCharacterXYZ
 
-
 //Setup the shop
 IfSpawned
   tmpargument = passage
   AddShopPassage
 
-
   // Make the border
   tmpargument = 2
   tmpdistance = 0
-
 
   // Top
   tmpx = selfx - 192
@@ -444,7 +440,6 @@ IfSpawned
   tmpx = tmpx + 128
   SpawnExactParticle
 
-
   // Bottom
   tmpy = selfy + 384
   SpawnExactParticle
@@ -454,7 +449,6 @@ IfSpawned
   SpawnExactParticle
   tmpx = tmpx - 128
   SpawnExactParticle
-
 
   // Left
   tmpx = selfx - 384
@@ -467,7 +461,6 @@ IfSpawned
   tmpy = tmpy + 128
   SpawnExactParticle
 
-
   // Right
   tmpx = selfx + 384
   SpawnExactParticle
@@ -477,7 +470,6 @@ IfSpawned
   SpawnExactParticle
   tmpy = tmpy - 128
   SpawnExactParticle
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle orders ( purchases )
@@ -554,7 +546,7 @@ IfTimeOut
         IfHoldingRangedWeapon
           tmpargument = LATCHRIGHT
           PressLatchButton
-        Else		
+        Else
           tmpargument = LATCHPACKRIGHT	//Draw pistol
           PressLatchButton
   tmpargument = rand & 31 + 15
@@ -570,11 +562,11 @@ IfKilled
   //Find out who died
   tmpargument = 0		//Olaf died
   IfArmorIs
-    tmpargument = 0	
-  Else	
+    tmpargument = 0
+  Else
     tmpargument = 1		//Mylvin died
     IfArmorIs
-      tmpargument = 9		
+      tmpargument = 9
     Else
       tmpargument = 11		//Alkor died
 
@@ -592,8 +584,6 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-
-
 
 //------------------------------------------------------------------------------
 //Handle being attacked and backstabbed
@@ -621,9 +611,6 @@ IfAttacked
   Else
     tmpargument = rand & 1 + 4
     PlaySound
-
-
-
 
 //------------------------------------------------------------------------------
 End

@@ -54,7 +54,7 @@ Else
     SetReloadTime
     tmpargument = 3
     SendMessageNear		//Tell what happened
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0

@@ -12,9 +12,9 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 0
-  PlaySound	
+  PlaySound
 
-//Go blank  
+//Go blank
 IfInWater
   IfHeld
     DoNothing
@@ -27,13 +27,13 @@ IfInWater
       tmpargument = 5
       SendMessageNear
       MakeNameKnown      // To keep messages okay
-      
+
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
     GetContent
     SendMessageNear			  //
-    
+
 //Scroll effects
 IfUsed
   tmpargument = 0
@@ -41,7 +41,7 @@ IfUsed
     SetTargetToWhoeverIsHolding
     tmpargument = 50
     SetTargetReloadTime
-    
+
     tmpargument = 2
     SendMessage
 
@@ -53,7 +53,7 @@ IfUsed
     SendMessageNear
     tmpargument = 50
     SetReloadTime
-    
+
 //On fire!
 IfReaffirmed
   IfHeld

@@ -5,34 +5,34 @@
 //3 - Waiting for brother
 //4 - Return to waiting for brother
 
-//Randomize starting position  
+//Randomize starting position
 IfSpawned
   tmpargument = rand % 5
   SetState
   IfStateIs0            //?
     tmpx = 102 < 7
-    tmpy = 80 < 7 
+    tmpy = 80 < 7
   IfStateIs1            //On house "roof"
     tmpx = 52 < 7
-    tmpy = 53 < 7 
+    tmpy = 53 < 7
   IfStateIs2            //?
     tmpx = 25 < 7
-    tmpy = 66 < 7 
+    tmpy = 66 < 7
   IfStateIs3            //Backyard
     tmpx = 7 < 7
-    tmpy = 48 < 7 
+    tmpy = 48 < 7
   IfStateIs4            //?
     tmpx = 110 < 7
-    tmpy = 58 < 7 
+    tmpy = 58 < 7
   Teleport
     DoNothing
-    
+
   //This is bad! The coordinate above did not work!
   Else
     tmpx = 88 < 7
     tmpy = 13 < 7
     Teleport            //Use this one instead
-    
+
   tmpargument = 0
   SetXY
   SetState
@@ -80,7 +80,7 @@ IfBumped
           tmpargument = 8
         tmpy = 2
         IfXIsEqualToY
-        
+
           //Add quest to the log and unlock the next module
           tmpargument = [FORT]
           tmpdistance = 2           //The quest level
@@ -92,7 +92,7 @@ IfBumped
           tmpargument = 10
         SendMessage
         PlayFullSound
-        
+
         tmpargument = 4
         SetState                    //Wait before talking
         tmpargument = 150
@@ -100,7 +100,7 @@ IfBumped
         GetContent
         tmpargument = tmpargument + 1
         SetContent
-        
+
 //become bad
 IfCalledForHelp
   JoinEvilTeam
@@ -115,21 +115,21 @@ IfAttacked
   Else
     tmpargument = 4
   PlaySound
-  
+
 //Yah!
 IfUsed
   tmpargument = 5
   PlaySound
-  
+
 //Death stuff
 IfKilled
   tmpargument = selfmoney
   DropMoney
-  
+
   //Sound
   tmpargument = 1
   PlaySound
-  
+
   //Message
   IfTargetIsSelf
     tmpargument = 0
@@ -149,17 +149,17 @@ IfTargetIsOnHatedTeam
         tmpargument = [SHIE]
         IfHoldingItemID
           PressLatchButton
- 
-          
+
+
 //Main AI loop
 IfTimeOut
   tmpargument = rand & 31 + 15
   SetTime
-  
+
   tmpx = selflife
   tmpy = 1500           //Less than 6 hp
   IfXIsLessThanY
-    tmpargument = 1 
+    tmpargument = 1
   Else
     tmpargument = 0
   ChangeArmor
@@ -171,10 +171,10 @@ IfTimeOut
       tmpargument = 1
       SetState
     tmpargument = 0
-    GetXY    
+    GetXY
     ClearWaypoints
     AddWaypoint
-      
+
   //Combat
   IfStateIs1
     SetTargetToWideEnemy
@@ -186,8 +186,8 @@ IfTimeOut
       AddWaypoint
     Else
       tmpargument = 0
-      SetState                  //No enemies around anymore    
-  
+      SetState                  //No enemies around anymore
+
   //Resume talking
   IfStateIs2
     tmpargument = 0

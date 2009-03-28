@@ -23,7 +23,7 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 2			  //
-  PlaySound	
+  PlaySound
   //
 IfUsed
   IfNameIsKnown		// Found out what it was
@@ -34,7 +34,7 @@ IfUsed
     tmpargument = 10
     tmpdistance = EXPDARE
     GiveExperienceToTarget
-    
+
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //

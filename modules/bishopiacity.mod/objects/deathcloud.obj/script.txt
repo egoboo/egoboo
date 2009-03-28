@@ -7,7 +7,6 @@ IfTakenOut
       tmpargument = 5
       SendMessageNear
 
-
 // Tell them what they've won...
 IfGrabbed
   SetTargetToWhoeverIsHolding
@@ -45,7 +44,7 @@ IfUsed
         tmpx = targetmana
         IfXIsMoreThanY
           tmpargument = 9
-          CostTargetMana   
+          CostTargetMana
           GetContent
           tmpargument = tmpargument + 7
           SetContent
@@ -87,20 +86,20 @@ Else			//Player released the charge
       tmpdistance = targetz
       tmpargument = 0
       SpawnExactParticle
-  
+
 
       //Play the spell effect sound
       tmpargument = 1
       tmpdistance = rand & 3000 + 8000
-      PlaySound	
-	
+      PlaySound
+
     Else	//Not high enough level
       tmpargument = 4
       SendMessageNear
 
     //Cannot be used again for a while
     tmpargument = 150
-    SetReloadTime	
+    SetReloadTime
 
   Else			//Not enough charged
     tmpy = 0

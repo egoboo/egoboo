@@ -6,7 +6,7 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 2
       SendMessageNear
-      
+
 //Crushed in passages
 IfSpawned
   MakeCrushValid
@@ -14,7 +14,6 @@ IfCrushed
   GoPoof
   tmpargument = 1
   SendMessageNear
-
 
 // Spell AI
 IfUsed
@@ -195,7 +194,6 @@ Else
   tmpargument = 0
   SetContent
 
-
 // Put the little mana ball on the
 // character's hand
 GetContent
@@ -206,7 +204,6 @@ IfXIsMoreThanY
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle
-
 
 // Return to spellbook, Do last!
 IfDropped
