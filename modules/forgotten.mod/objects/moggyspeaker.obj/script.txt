@@ -6,5 +6,4 @@ SetTargetToPassageID
     PlayFullSound
     GoPoof 
 
-
 End

@@ -20,7 +20,6 @@ IfSpawned
     tmpargument = 100
     SetTime
 
-
 //------------------------------------------------------------------------------
 IfBumped
   SetTargetToWhoeverBumped
@@ -29,7 +28,6 @@ IfBumped
       // Bumping a sleeping Cobol...  How rude!
       tmpargument = 8
       PlaySound
-
 
       tmpargument = 4
       SendMessageNear
@@ -67,7 +65,6 @@ IfBumped
       PressLatchButton
     SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 IfStateIs7
   // Blocking...  Need to keep that button pressed
@@ -85,7 +82,6 @@ IfStateIs7
   Else
     IfHoldingShield
       PressLatchButton
-
 
 //------------------------------------------------------------------------------
 IfKilled
@@ -112,28 +108,21 @@ IfKilled
       tmpdistance = EXPROLEPLAY
       GiveExperienceToTarget
 
-
-
-
   // Just to be sure
   tmpargument = ACTIONKA
   DoActionOverride
   KeepAction
 
-
   tmpargument = 1
   PlaySound
-
 
   // Drop goodies
   tmpargument = selfmoney
   DropMoney
 
-
   // Make the character body
   tmpargument = 40
   SetBumpHeight
-
 
   // Make the next part not happen...
   tmpargument = 50
@@ -169,12 +158,10 @@ IfAttacked
       tmpargument = 6
     SendMessageNear
 
-
     // Give experience
     tmpargument = 30
     tmpdistance = EXPMURDER
     GiveExperienceToTarget
-
 
     // Do it
     SetTargetToSelf
@@ -209,16 +196,12 @@ IfAttacked
       AddWaypoint
       SetTargetToOldTarget
 
-
     // Tell everyone to charge
     tmpargument = 5
     IssueOrder
 
-
     tmpargument = rand & 1 + 2
     PlaySound
-
-
 
 //------------------------------------------------------------------------------
 IfTimeOut
@@ -240,7 +223,6 @@ IfTimeOut
       tmpargument = tmpargument & 1  // Retain even/odd
       SetState
 
-
   tmpargument = 100 // Default time...  Shouldn't be needed
   IfSitting
     // Riding some type of animal...
@@ -255,8 +237,6 @@ IfTimeOut
       Compass
       ClearWaypoints
       AddWaypoint
-
-
 
       // Check for special mount attacks
       tmpx = targetdistance
@@ -277,7 +257,6 @@ IfTimeOut
           IfXIsLessThanY
             IfHoldingMeleeWeapon
               PressLatchButton
-
 
       tmpargument = rand & 15 + 15 // TIme
     Else
@@ -314,8 +293,6 @@ IfTimeOut
         // Circle around the enemy
         SetTurnModeToWatchTarget
 
-
-
         tmpx = targetx
         tmpy = targety
         SetTargetToNearestFriend
@@ -336,7 +313,6 @@ IfTimeOut
         ClearWaypoints
         AddWaypoint
 
-
         // Randomly issue the battle cry
         tmpx = rand & 1023
         tmpy = 5
@@ -346,7 +322,6 @@ IfTimeOut
           tmpargument = 5
           IssueOrder
 
-
         // Issue the battle cry if there's a threat
         tmpx = targetdistance
         tmpy = 250
@@ -355,7 +330,6 @@ IfTimeOut
           IssueOrder
           IfHoldingMeleeWeapon
             PressLatchButton
-
 
         tmpargument = rand & 15 + 10 // Time
       IfStateIs5
@@ -367,8 +341,6 @@ IfTimeOut
           PlaySound
           tmpargument = 3
           IssueOrder
-
-
 
         // Charge and attack the enemy
         GetContent  // Desired range
@@ -442,11 +414,9 @@ IfTimeOut
         tmpargument = 6
         SpawnExactParticle
 
-
         // Snore...
         tmpargument = rand & 3 + 4
         PlaySound
-
 
         tmpargument = ACTIONMK
         DoAction
@@ -459,7 +429,6 @@ IfTimeOut
             // Too close...  Wake up
             tmpargument = 8
             PlaySound
-
 
             tmpargument = 4
             SendMessageNear
@@ -505,7 +474,6 @@ IfTimeOut
         tmpargument = 6
         SetState
 
-
         // Don't shoot if friends are too close
         SetTargetToNearestFriend
           tmpx = targetdistance
@@ -534,7 +502,6 @@ IfTimeOut
 //              RestockTargetAmmoIDAll
 //              SetTargetToOldTarget
 
-
               // Draw a new weapon
               DropWeapons
               // Go to close range mode
@@ -556,7 +523,6 @@ IfTimeOut
 //            RestockTargetAmmoIDAll
 //            SetTargetToOldTarget
 
-
             // Draw a new weapon
             DropWeapons
             // Go to close range mode
@@ -566,15 +532,12 @@ IfTimeOut
             tmpargument = 1
             SetState
 
-
-
         tmpargument = rand & 7 + 10 // Time before next check
       IfStateIs2
         // Get into firing position
         SetTurnModeToVelocity
         tmpx = targetx
         tmpy = targety
-
 
         SetTargetToNearestFriend
           tmpx = targetdistance
@@ -595,8 +558,6 @@ IfTimeOut
         Compass
         ClearWaypoints
         AddWaypoint
-
-
 
         // Check distance to target
         tmpx = targetx - selfx
@@ -641,8 +602,6 @@ IfTimeOut
   // tmpargument is set above
   SetTime
 
-
-
 //------------------------------------------------------------------------------
 IfOrdered
   // Someone said to wake up
@@ -663,7 +622,6 @@ IfOrdered
       // Wake up
       tmpargument = 8
       PlaySound
-
 
       tmpargument = 4
       SendMessageNear
@@ -697,13 +655,10 @@ IfOrdered
           tmpargument = rand & 7
           SetTime
 
-
 //------------------------------------------------------------------------------
 IfHealed
   tmpargument = 7
   SendMessageNear
-
-
 
 //------------------------------------------------------------------------------
 End

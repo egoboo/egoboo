@@ -35,7 +35,6 @@ IfHitGround
   tmpargument = 1			  
   PlaySound				  
 
-
 //Tell them it is kursed
 IfNotDropped
   tmpargument = 2
@@ -43,6 +42,5 @@ IfNotDropped
 IfNotPutAway
   tmpargument = 3
   SendMessageNear
-
 
 End					// All done

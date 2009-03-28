@@ -7,7 +7,6 @@ IfTakenOut
       tmpargument = 0
       SendMessageNear
 
-
 // Spell AI
 IfUsed
   GetContent
@@ -61,12 +60,11 @@ Else
       SpawnExactParticle
       SpawnExactParticle
     tmpargument = 0
-    tmpdistance = rand & 2047 + 10000
+    tmpdistance = rand % 2047 + 10000
     PlaySound
   // Reset the charge counter
   tmpargument = 0
   SetContent
-
 
 // Put the little mana ball on the
 // character's hand
@@ -78,7 +76,6 @@ IfXIsMoreThanY
   tmpdistance = SPAWNORIGIN
   tmpargument = 0
   SpawnAttachedSizedParticle
-
 
 // Return to spellbook, Do last!
 IfDropped

@@ -4,7 +4,6 @@ IfSpawned
   tmpdistance = 0
   PlayMusic
 
-
 //Control lava level
 GetWaterLevel
 tmpy = tmpargument + 51440

@@ -79,7 +79,6 @@ IfKilled
   tmpargument = 1
   ChangeArmor
 
-
   tmpargument = 1
   tmpdistance = 11025
   PlaySound
@@ -89,7 +88,6 @@ IfKilled
     IfTargetIsSelf
       tmpargument = MESSAGEACCIDENT
   SendMessageNear
-
 
   // Drop goodies
   tmpargument = 65535
@@ -103,7 +101,6 @@ IfKilled
 // ZZ> For helper AIs
 IfLeaderKilled
   BecomeLeader
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
@@ -130,7 +127,7 @@ IfAttacked
       tmpargument = 5
       tmpdistance = 11025
       PlaySound
-    // Make blood
+    // Make blud
     Else
       // Fire Bonus damage
       GetDamageType
@@ -145,8 +142,6 @@ IfAttacked
         SetTargetToOldTarget
         tmpargument = 5
         SendMessageNear
-
-
 
       tmpargument = 2
       tmpdistance = rand & 2047 + 6000
@@ -176,7 +171,6 @@ IfAttacked
       tmpargument = 2
       SpawnExactParticle
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle stone state
 IfStateIs1
@@ -190,7 +184,6 @@ IfStateIs1
     tmpargument = ACTIONMJ
     DoActionOverride
     UnkeepAction
-
 
 //------------------------------------------------------------------------------
 End

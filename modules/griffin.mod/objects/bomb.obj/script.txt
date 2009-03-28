@@ -28,7 +28,7 @@ IfSpawned
       Compass
       SetTargetToSelf
       AccelerateTarget
-      tmpargument = rand & 512 + 1200
+      tmpargument = rand & 511 + 1200
       AccelerateUp
       tmpargument = 1
       PlaySound

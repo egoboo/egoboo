@@ -23,9 +23,8 @@ IfSpawned
   tmpargument = 0
   SetXY  // Remember who gets it
   SetState
-  tmpargument = 1 + rand & 2	//Randomize armor level
+  tmpargument = rand & 2 + 1	//Randomize armor level
   SetContent
-
 
 // Someone cast an unlock spell
 IfOrdered
@@ -52,33 +51,27 @@ IfOrdered
         tmpargument = 4
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
 
-
         // Give some experience
         tmpargument = 5
         tmpdistance = EXPDARE
         GiveExperienceToTarget
-
 
         // Open it up
         tmpargument = ACTIONMG
@@ -103,11 +96,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Can the target use this armor
         tmpargument = 0
@@ -123,8 +114,6 @@ IfBumped
           // Say it's for someone else
           tmpargument = 6 + tmpy  // tmpy is message offset...
           SendMessageNear
-
-
 
 // All done
 End

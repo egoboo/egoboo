@@ -5,7 +5,6 @@ IfUsed
   tmpargument = 45 - tmpargument
   SetReloadTime
 
-
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //

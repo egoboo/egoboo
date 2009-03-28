@@ -19,7 +19,6 @@ tmpy = selfy
 tmpargument = RED
 ShowBlipXY
 
-
 //-------------------------------------------------------------------------------------------
 //Die and all that dramatic stuff
 IfKilled
@@ -51,8 +50,6 @@ IfKilled
   tmpargument = [BEAT]
   AddIDSZ
   EnableExport
-
-
 
 //-------------------------------------------------------------------------------------------
 //Ouch and teleport away
@@ -92,8 +89,6 @@ IfAttacked
     AddWaypoint
   Else
     SetTargetToNearestEnemy
-
-
 
 //-------------------------------------------------------------------------------------------
 //Main AI loop
@@ -183,8 +178,6 @@ IfTimeOut
       tmpargument = tmpx - 2
       SetContent
 
-
-
   //Drink mana potion when needed
   tmpx = selfmana
   tmpy = 256
@@ -204,6 +197,5 @@ IfTimeOut
     tmpdistance = SPAWNORIGIN		//sparkle
     tmpargument = 1
     SpawnAttachedHolderParticle
-
 
 End

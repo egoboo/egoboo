@@ -9,7 +9,6 @@ IfSpawned
   tmpdistance = 0
   PlayMusic
 
-
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut
@@ -25,7 +24,6 @@ IfTimeOut
       tmpargument = 6
       SendMessageNear
     SetTargetToOldTarget
-
 
   SetTurnModeToVelocity
   IfStateIs6
@@ -311,7 +309,6 @@ IfTimeOut
       tmpargument = 200
   SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
@@ -332,7 +329,6 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -345,8 +341,6 @@ IfAttacked
   Else
     tmpargument = rand & 1 + 4
     PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

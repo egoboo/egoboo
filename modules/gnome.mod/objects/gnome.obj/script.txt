@@ -7,7 +7,7 @@
 //4			n/a
 //5			Crackshot
 //6			n/a
-//7			Ancient Blood
+//7			Ancient Blud
 //8			n/a
 //9			Sharpshooter
 //10		n/a
@@ -81,7 +81,6 @@ IfCleanedUp
   tmpargument = 11
   PlayFullSound
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle healing factor
 IfTimeOut
@@ -94,7 +93,7 @@ IfTimeOut
   tmpargument = 200     //every 4 seconds
   SetTime
 
-  //Ancient blood skill
+  //Ancient blud skill
   tmpx = selflevel
   tmpy = 5            //Need level 7
   IfXIsMoreThanY
@@ -107,7 +106,6 @@ IfTimeOut
 IfUsed
   tmpargument = tmpdistance & 1 + 9
   PlaySound
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being bored by cheering or sneezing
@@ -126,7 +124,6 @@ IfBored
     PlaySound
     tmpargument = ACTIONDB
     DoAction
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -158,7 +155,6 @@ IfKilled
 IfLeaderKilled
   BecomeLeader
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -173,8 +169,6 @@ IfAttacked
     tmpargument = rand & 1 + 5
     PlaySound
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being healed by spitting out a message and stopping retreat
 IfHealed
@@ -182,8 +176,6 @@ IfHealed
   SendMessageNear
   tmpargument = 7
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

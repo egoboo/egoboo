@@ -3,7 +3,6 @@ IfTimeOut
   tmpargument = 20
   SetTime
 
-
   tmpargument = passage
   SetTargetToWhoeverIsInPassage
     // The drop sound
@@ -11,10 +10,8 @@ IfTimeOut
     tmpdistance = 11025
     PlaySound
 
-
     // Spawn the characters
     GetContent                 // The specific model slot
-
 
     // Character 1
     tmpx = rand & 511 - 256 + selfx
@@ -156,9 +153,7 @@ IfTimeOut
     tmpturn = rand
     SpawnExactCharacterXYZ
 
-
     // Don't hang around
     GoPoof
-
 
 End					// All done

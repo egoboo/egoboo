@@ -57,12 +57,12 @@ IfStateIs1
   tmpargument = 0
   IfContentIs
     tmpargument = 39 //spawn meteor.obj
-    tmpx = rand & 256 + selfx - 256
-    tmpx = rand & 256 + tmpx	//lessen the randomness
-    tmpy = rand & 256 + selfy - 256
-    tmpy = rand & 256 + tmpy	//lessen the randomness
+    tmpx = rand & 255 + selfx - 256
+    tmpx = rand & 240 + tmpx  - 120	//lessen the randomness
+    tmpy = rand & 255 + selfy - 256
+    tmpy = rand & 240 + tmpy  - 120	//lessen the randomness
     tmpdistance = selfz + 600
-    tmpturn = rand & 65535
+    tmpturn = rand % 65535
     SpawnExactCharacterXYZ
     tmpargument = rand & 127 + 192
     SetContent

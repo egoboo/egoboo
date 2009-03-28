@@ -10,13 +10,11 @@
 // Bit 1 -  Range
 // Bit 0 - /
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 2
   PlaySound
-
 
   // Send messages
   IfTargetIsOnHatedTeam
@@ -25,11 +23,9 @@ IfKilled
     tmpargument = 1
   SendMessageNear
 
-
   // Drop goodies
   tmpargument = 65535
   DropMoney
-
 
   // Make the character body
   tmpargument = 45
@@ -56,18 +52,14 @@ IfKilled
   tmpargument = [UNDO]
   OrderSpecialID
 
-
   // Put out the eyes
   DisaffirmCharacter
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Oops
 IfHealed
   tmpargument = 2
   SendMessageNear
-
 
 //------------------------------------------------------------------------------
 // ZZ> Keep 'em guessin'
@@ -76,13 +68,11 @@ IfAttacked
   tmpdistance = rand & 1023 + 10000
   PlaySound
 
-
   SetTargetToWhoeverAttacked
     IfTargetIsOnHatedTeam
       GetState
     Else
       SetTargetToOldTarget
-
 
   IfStateIs1
     GetState
@@ -95,8 +85,6 @@ IfAttacked
       SetState
       tmpargument = 20
       SetTime
-
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -111,8 +99,6 @@ IfBumped
       SetState
       tmpargument = 0
       SetTime
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> For charging a spell...
@@ -201,20 +187,15 @@ IfStateIs11
     ClearWaypoints
     AddWaypoint
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Find something to do...
 IfTimeOut
   CleanUp
 
-
   IfStateIs15
     // Fall through to normal state
     tmpargument = 0
     SetState
-
-
 
   IfStateIs13
     // Un-charged spell in right hand...
@@ -235,8 +216,6 @@ IfTimeOut
       tmpargument = 0
       SetState
 
-
-
   IfStateIs12
     IfTargetIsOnHatedTeam
       // Un-charged spell in left hand...
@@ -255,8 +234,6 @@ IfTimeOut
     Else
       tmpargument = 0
       SetState
-
-
 
   IfStateIs3
     // Pick a spell to use on the enemy...  Left or right
@@ -309,11 +286,6 @@ IfTimeOut
           tmpargument = tmpturn
           SetState
 
-
-
-
-
-
   IfStateIs2
     // Halfway through a teleport
     tmpargument = rand & 15 + 35
@@ -332,8 +304,6 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
 
-
-
   IfStateIs1
     // Want to start a teleport
     tmpargument = ACTIONMJ
@@ -348,12 +318,6 @@ IfTimeOut
       // Try again in a bit...
       tmpargument = 5
       SetTime
-
-
-
-
-
-
 
   IfStateIs0
     tmpargument = 20
@@ -383,7 +347,6 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
 
-
 //------------------------------------------------------------------------------
 // ZZ> Put on some eyes
 IfSpawned
@@ -392,8 +355,6 @@ IfSpawned
   SpawnAttachedParticle
   tmpdistance = 10
   SpawnAttachedParticle
-
-
 
 //------------------------------------------------------------------------------
 End

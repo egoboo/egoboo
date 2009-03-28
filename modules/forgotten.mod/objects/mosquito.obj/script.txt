@@ -1,12 +1,12 @@
 //------------------------------------------------------------------------------
 // ZZ> Animate the character
 IfStateIs2
-  // Full of blood
+  // Full of blud
   GetContent
   tmpargument = tmpargument + 2 & 15 + 40
   SetContent
 IfStateIs1
-  // Filling up with blood
+  // Filling up with blud
   IfTimeOut
     tmpargument = 2
     SetState
@@ -26,8 +26,6 @@ IfStateIs0
   SetContent
 SetFrame
 
-
-
 //------------------------------------------------------------------------------
 // Adjust the buzzing volume
 SetTargetToLeader
@@ -36,14 +34,11 @@ IfTargetIsSelf
   tmpdistance = 0
   SetVolumeNearestTeammate
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Do movement AI
 IfTimeOut
   tmpargument = 32
   SetTime
-
 
   // Find someone to poke
   SetTargetToWideEnemy
@@ -64,7 +59,6 @@ IfTimeOut
   ClearWaypoints
   AddWaypoint
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle doors crushing
 IfCrushed
@@ -72,7 +66,6 @@ IfCrushed
   tmpargument = 0
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
 
   // Die or Pop?
   IfStateIs2
@@ -86,12 +79,10 @@ IfCrushed
     tmpargument = 0
     SpawnExactParticle
 
-
   // Message
   tmpargument = 2
   SendMessageNear
   GoPoof
-
 
   // Check sound
   tmpx = selfmorale
@@ -100,7 +91,6 @@ IfCrushed
     tmpargument = 1
     StopSound
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff...
 IfKilled
@@ -108,7 +98,6 @@ IfKilled
   tmpargument = 0
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
 
   // Die or Pop?
   IfStateIs2
@@ -129,10 +118,8 @@ IfKilled
     DoActionOverride
     tmpargument = 0
 
-
   // Message
   SendMessageNear
-
 
   // Check sound
   tmpx = selfmorale
@@ -141,14 +128,12 @@ IfKilled
     tmpargument = 1
     StopSound
 
-
   // Don't move
   SetTargetToSelf
   StopTargetMovement
 
-
 //------------------------------------------------------------------------------
-// ZZ> Handle blood sucking
+// ZZ> Handle blud sucking
 IfBumped
   IfStateIs0
     SetTargetToWhoeverBumped
@@ -163,7 +148,6 @@ IfBumped
           tmpx = 0 // Miss
       Else
         tmpx = 1 // Hit        
-
 
       tmpy = 1
       IfXIsEqualToY
@@ -195,12 +179,10 @@ IfBumped
         tmpargument = 16
         SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> For swarm AI
 IfLeaderKilled
   BecomeLeader
-
 
 //------------------------------------------------------------------------------
 End

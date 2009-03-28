@@ -120,7 +120,6 @@ IfBumped
     //SetTargetToOldTarget
   SetTargetToOldTarget
 
-
 // Attack or no?
 IfTimeOut
   SetTargetToNearestEnemy
@@ -135,7 +134,7 @@ IfTimeOut
   IfStateIs0
     tmpx = selfspawnx
     tmpy = selfspawny
-    tmpturn = rand & 65535
+    tmpturn = rand % 65535
     tmpdistance = rand & 511
     Compass
   Else
@@ -203,7 +202,7 @@ IfTimeOut
         IfXIsMoreThanY				// Is enemy high enough to be hit?
           tmpy = selfz + 40
           IfXIsLessThanY				// Is it low enough to be hit?
-            tmpx = rand & 65535
+            tmpx = rand % 65535
             tmpy = 8192
             IfXIsLessThanY				// Charge sparingly; the tranch is hard enough to beat.
               tmpargument = ACTIONBC
@@ -233,7 +232,7 @@ IfTimeOut
 
 //React to attacking target... or just randomly jump to show off
 tmpargument = 0
-tmpx = rand & 65535
+tmpx = rand % 65535
 tmpy = 1024
 IfXIsLessThanY
   tmpargument = 1

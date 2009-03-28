@@ -5,12 +5,10 @@
 //3 - attack ranged combat
 //4 - retreat
 
-
 IfSpawned
   //Engage sleeping mode
   GetContent
   SetState
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -57,7 +55,6 @@ IfBumped
       PressLatchButton
     SetTargetToOldTarget
 
-
 //Use shield
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
@@ -73,7 +70,6 @@ IfTargetIsAttacking
             tmpy = rand & 7120
             IfXIsMoreThanY
               PressLatchButton
-
 
 //------------------------------------------------------------------------------
 IfKilled
@@ -97,7 +93,6 @@ IfKilled
   DropMoney
   DropItems
   DropKeys
-
 
   // Make the character body
   tmpargument = 40
@@ -218,7 +213,6 @@ IfTimeOut
     // Foot soldier...
     // Behave according to state
 
-
     //STATE 0 - WANDER
     IfStateIs0
       tmpargument = rand & 15 + 45
@@ -236,7 +230,6 @@ IfTimeOut
         ClearWaypoints			  
         AddWaypoint
    
-
 
     //STATE 1 - MELEE
     IfStateIs1
@@ -288,7 +281,6 @@ IfTimeOut
         tmpargument = LATCHPACKRIGHT
         PressLatchButton
  
-
 
     //STATE 2 - RANGED POSITION
     IfStateIs2
@@ -372,7 +364,6 @@ IfTimeOut
       Else
         tmpargument = 2
         SetState	
-
 
     //STATE 4 - RETREAT
     IfStateIs4

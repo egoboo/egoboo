@@ -118,7 +118,6 @@ IfCleanedUp
   tmpargument = 1
   PlayFullSound
 
-
 // Talk to player
 IfBored
   tmpx = rand & 1
@@ -135,15 +134,12 @@ IfTooMuchBaggage
   tmpargument = 9
   PlaySound
 
-
 // Heal sound
 IfUsed
   tmpargument = 0
   PlayFullSound
   tmpargument = 25
   SetReloadTime
-
-
 
 // Handle death
 IfKilled
@@ -163,7 +159,6 @@ IfKilled
       tmpargument = MESSAGEACCIDENT
   SendMessage
 
-
   // Misc.
   tmpargument = 1+selflevel*selflevel*100		//The money loss formula
   DropMoney
@@ -182,7 +177,6 @@ IfKilled
 IfLeaderKilled
   BecomeLeader
 
-
 // Yell at friends
 IfAttacked
   SetTargetToWhoeverAttacked
@@ -194,7 +188,6 @@ IfAttacked
   Else
     tmpargument = rand & 1 + 2
     PlaySound
-
 
 // All done
 End

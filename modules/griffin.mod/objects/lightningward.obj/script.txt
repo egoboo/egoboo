@@ -74,7 +74,7 @@ Else
     tmpargument = 3
     SendMessageNear		//Tell what happened
     tmpargument = 1
-    tmpdistance = rand & 6000 + 11000
+    tmpdistance = rand % 6000 + 11000
     PlaySound
   Else				
     GetContent
@@ -84,7 +84,7 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      tmpdistance = rand & 6000 + 11000
+      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter

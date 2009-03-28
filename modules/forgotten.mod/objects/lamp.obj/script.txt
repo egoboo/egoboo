@@ -56,7 +56,6 @@ IfGrabbed				// Tell them what they've won...
     tmpargument = 0			  //
     SendMessageNear			  //
 
-
 IfUsed
   IfStateIs0
     IfAmmoOut
@@ -90,7 +89,6 @@ IfTimeOut
       SendMessageNear			  //
     tmpargument = 250
     SetTime
-
 
 End					// All done
 

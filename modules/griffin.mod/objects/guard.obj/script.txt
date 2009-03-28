@@ -6,7 +6,6 @@
 //4 - retreat
 //5 - give away map
 
-
 IfSpawned
   //Engage sleeping mode
   tmpargument = 5
@@ -89,7 +88,6 @@ IfBumped
       PressLatchButton
     SetTargetToOldTarget
 
-
 //Use shield
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
@@ -135,7 +133,6 @@ IfKilled
   DropItems
   DropKeys
 
-
   // Make the character body
   tmpargument = 40
   SetBumpHeight
@@ -165,14 +162,12 @@ IfAttacked
       AddWaypoint
       SetTargetToOldTarget
 
-
 //Don't hack dead bodies
 IfTargetIsAlive
   DoNothing
 Else
   tmpargument = 0
   SetState
-
 
 //------------------------------------------------------------------------------
 IfTimeOut
@@ -233,7 +228,6 @@ IfTimeOut
   Else
     // Foot soldier...
     // Behave according to state
-
 
     //STATE 0 - WANDER
     IfStateIs0
@@ -304,7 +298,6 @@ IfTimeOut
         PressLatchButton
  
 
-
     //STATE 2 - RANGED POSITION
     IfStateIs2
       tmpargument = rand & 15 + 30 // Time
@@ -348,11 +341,11 @@ IfTimeOut
               AddWaypoint
               tmpargument = 2	
               SetState			//not safe to shoot
-           SetTargetToOldTarget
-           tmpy = targetdistance
-           IfXIsMoreThanY
-             tmpargument = 3
-             SetState			//Enemy is closer than friend, shoot afterall
+          SetTargetToOldTarget
+          tmpy = targetdistance
+          IfXIsMoreThanY
+            tmpargument = 3
+            SetState			//Enemy is closer than friend, shoot afterall
         SetTargetToOldTarget
 
       Else
@@ -387,7 +380,6 @@ IfTimeOut
       Else
         tmpargument = 2
         SetState	
-
 
     //STATE 4 - RETREAT
     IfStateIs4
@@ -451,7 +443,6 @@ IfTimeOut
             ClearWaypoints
             AddWaypoint
 
-
 IfStateIs5
   IfTimeOut
     tmpargument = 125
@@ -462,12 +453,10 @@ IfStateIs5
     tmpargument = ACTIONMC
     DoAction
 
-
 //------------------------------------------------------------------------------
 IfHealed
   tmpargument = 7
   SendMessageNear
-
 
 //------------------------------------------------------------------------------
 //Help those asking for it

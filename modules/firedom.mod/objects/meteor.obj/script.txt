@@ -61,7 +61,6 @@ IfStateIs0
         tmpy = selfy
         SetTileXY
 
-
 tmpx = targetspeedz
 tmpy = 0 - 10
 IfStateIs1
@@ -69,6 +68,5 @@ IfStateIs1
 IfXIsLessThanY
   tmpargument = 100
   AccelerateUp
-
 
 End

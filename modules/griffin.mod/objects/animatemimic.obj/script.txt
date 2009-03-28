@@ -41,7 +41,6 @@ IfOrdered
     tmpargument = 3
     SendMessageNear
 
-
 // Monster AI
 IfStateIs0
   DoNothing
@@ -50,7 +49,6 @@ Else
   IfAttacked
     tmpargument = 0
     PlaySound
-
 
   // Character death
   IfKilled
@@ -63,7 +61,6 @@ Else
       IfTargetIsSelf
         tmpargument = 2
     SendMessageNear
-
 
   // Do different AI's
   IfStateIs1
@@ -167,7 +164,6 @@ Else
       tmpargument = 50
       SetTime
 
-
 // Spell AI
 IfStateIs0
   // Remove the charge
@@ -245,7 +241,6 @@ IfStateIs0
             tmpx = 0
             tmpy = 0
             SetEnchantBoostValues
-
 
             // Set the AI type
             GetContent

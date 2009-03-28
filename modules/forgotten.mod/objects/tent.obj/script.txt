@@ -27,7 +27,6 @@ IfKilled
   tmpargument = 65535
   DropMoney
 
-
   tmpargument = ACTIONKA
   DoAction
 

@@ -12,7 +12,7 @@ IfHeld
       tmpx = targetstr > 6
       SetTargetToWhoeverIsHolding
       tmpy = targetstr > 7
-      tmpx = rand % 100 + tmpx 
+      tmpx = rand % 100 + tmpx
       tmpy = 70 + tmpy            //70% block rate
       IfXIsMoreThanY
         tmpargument = 40    //0.80 seconds
@@ -51,6 +51,6 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 8000	  //
+  tmpdistance = rand % 2047 + 8000	  //
   PlaySound				  //
 End					// All done

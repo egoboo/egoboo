@@ -8,7 +8,6 @@ IfSpawned
     tmpargument = 40
     SetBumpHeight
 
-
 //Make troll destroy it
 IfBumped
   SetTargetToWhoeverBumped

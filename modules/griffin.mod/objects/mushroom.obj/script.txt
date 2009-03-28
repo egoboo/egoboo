@@ -6,8 +6,6 @@ IfSpawned
   MakeCrushValid
   MakeAmmoKnown
 
-
-
 // Make it poof
 IfCrushed
   tmpx = selfx
@@ -22,19 +20,14 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
-
 // Make it lie on the floor
 IfDropped
   KeepAction
-
-
 
 // Play a clink or clang
 IfHitGround
   tmpargument = 0
   PlaySound
-
 
 // Alert others to draw
 IfTakenOut
@@ -43,16 +36,12 @@ IfTakenOut
     tmpargument = 2
     SendMessageNear
 
-
-
 // Tell them what they've won...
 IfGrabbed
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
     tmpargument = 0
     SendMessageNear
-
-
 
 // Give the user a bonus
 IfUsed
@@ -102,8 +91,6 @@ IfUsed
     tmpargument = 1
     SpawnAttachedHolderParticle
     GoPoof
-
-
 
 // Finish up
 End

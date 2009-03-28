@@ -51,13 +51,11 @@ IfUsed
     tmpargument = 1
     PlaySound
 
-
     tmpx = selfx
     tmpy = selfy
     tmpdistance = selfz
     tmpargument = 0
     SpawnExactParticle
-
 
     SetTargetToWhoeverIsHolding
     tmpargument = 20
@@ -69,7 +67,6 @@ IfUsed
       tmpdistance = EXPSECRET
       GiveExperienceToTarget
     MakeSimilarNamesKnown
-
 
     // ID the opposite hand's item
     IfHeldInLeftHand

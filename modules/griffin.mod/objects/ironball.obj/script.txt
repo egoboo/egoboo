@@ -47,7 +47,6 @@ Else
   tmpy = tmpy * tmpdistance > 8
   AddXY
 
-
   // Next one
   tmpargument = 3
   GetXY
@@ -80,7 +79,6 @@ Else
   tmpy = tmpy * tmpdistance > 8
   AddXY
 
-
   // Next one
   tmpargument = 2
   GetXY
@@ -112,7 +110,6 @@ Else
   tmpx = tmpx * tmpdistance > 8
   tmpy = tmpy * tmpdistance > 8
   AddXY
-
 
   // Link nearest to ball
   tmpargument = 1
@@ -146,13 +143,11 @@ Else
   tmpy = tmpy * tmpdistance > 8
   AddXY
 
-
   // Don't allow jumping
   tmpx = targetaltitude
   tmpy = 256
   IfXIsMoreThanY
     StopTargetMovement
-
 
   // Now check for pulled chain
   tmpx = targetx - selfx
@@ -184,12 +179,10 @@ Else
       AccelerateTarget
       SetTargetToOldTarget
 
-
   // Check for a crushed ball
   tmpturn = 0
   IfCrushed
     tmpturn = 1
-
 
   // Now draw them all
   tmpargument = 3
@@ -198,7 +191,6 @@ Else
   tmpdistance = targetaltitude > 1
   tmpdistance = targetz - tmpdistance
   SpawnExactParticle
-
 
   tmpdistance = 0
   tmpargument = 2
@@ -217,7 +209,6 @@ Else
   tmpdistance = selfaltitude > 1
   tmpdistance = selfz - tmpdistance
   SpawnExactParticle
-
 
 //------------------------------------------------------------------------------
 // ZZ> This function...  Does stuff

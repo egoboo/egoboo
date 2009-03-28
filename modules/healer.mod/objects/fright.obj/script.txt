@@ -5,12 +5,10 @@ IfOrdered
   IfXIsEqualToY
     UndoEnchant
 
-
 // Undead are sustained by magic
 IfSpawned
   MakeCrushValid
   EnchantTarget // target is self...
-
 
 // Make ping as if it were invincible
 IfHealed
@@ -25,7 +23,6 @@ IfHealed
     tmpargument = 20
     SetTime
 
-
 // Die and poof
 IfKilled
   tmpargument = MESSAGEDEATH
@@ -36,7 +33,6 @@ IfKilled
   tmpargument = [WAKE]
   tmpdistance = [WAKE]
   OrderSpecialID
-
 
 //What to do if mooshed in a passage
 IfCrushed
@@ -49,7 +45,6 @@ IfCrushed
   tmpdistance = [WAKE]
   OrderSpecialID
   GoPoof
-
 
 // Chase good guys
 IfTimeOut
@@ -75,15 +70,11 @@ IfTimeOut
   tmpargument = 0
   SetState
 
-
-
 // Find a new target
 IfTargetKilled
   SetTargetToSelf
   tmpargument = 0
   SetTime
-
-
 
 // Make good guys unable to attack
 IfBumped
@@ -110,7 +101,6 @@ IfBumped
     ClearWaypoints
     AddWaypoint
     SetTargetToSelf
-
 
 // All Done
 End

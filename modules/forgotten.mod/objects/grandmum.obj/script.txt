@@ -45,7 +45,7 @@ IfKilled				// This reduces the height of the char
   AddQuestAllPlayers
   EnableExport
   
-  //Bloody death!
+  //Bludy death!
   tmpx = selfx
   tmpy = selfy
   tmpdistance = selfz
@@ -69,8 +69,8 @@ IfBumped				// Attack whoever it bumped
     
 IfTimeOut				// This is done every so often
   SetTargetToWideEnemy		  // Look for enemies
-    tmpx = rand & 211 - 128 + targetx	    //
-    tmpy = rand & 211 - 128 + targety	    //
+    tmpx = rand & 255 - 128 + targetx	    //
+    tmpy = rand & 255 - 128 + targety	    //
   Else					  // Wander around home position
     tmpx = rand & 1023 - 512 + selfspawnx   //
     tmpy = rand & 1023 - 512 + selfspawny   //

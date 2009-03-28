@@ -7,7 +7,6 @@
 //5 - sleeping		(special)
 //6 - charge guards	(special)
 
-
 IfSpawned
   //Engage sleeping mode
   GetContent
@@ -32,7 +31,6 @@ IfSpawned
   tmpargument = rand % 4
   ChangeArmor
 
-
 //Dont replay the "warriors attack" sound
 IfStateIs6
   IfOrdered
@@ -44,7 +42,6 @@ IfStateIs6
       Else
         tmpargument = 2
       SetState
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -91,7 +88,6 @@ IfBumped
       PressLatchButton
     SetTargetToOldTarget
 
-
 //Use shield
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
@@ -104,10 +100,9 @@ IfTargetIsAttacking
           tmpy = 40768
           IfXIsLessThanY
             tmpx = selfdex			//Check dexterity to block, 10 is average
-            tmpy = rand & 5120
+            tmpy = rand & 511 * 10
             IfXIsMoreThanY
               PressLatchButton
-
 
 //------------------------------------------------------------------------------
 IfKilled
@@ -132,7 +127,6 @@ IfKilled
   DropItems
   DropKeys
 
-
   // Make the character body
   tmpargument = 40
   SetBumpHeight
@@ -153,12 +147,10 @@ IfAttacked
       tmpargument = 6
     SendMessageNear
 
-
     // Give experience
     tmpargument = 30
     tmpdistance = EXPMURDER
     GiveExperienceToTarget
-
 
     // Do it
     SetTargetToSelf
@@ -258,7 +250,6 @@ IfTimeOut
     // Foot soldier...
     // Behave according to state
 
-
     //STATE 0 - WANDER
     IfStateIs0
       tmpargument = rand & 15 + 45
@@ -276,7 +267,6 @@ IfTimeOut
         ClearWaypoints			  
         AddWaypoint
    
-
 
     //STATE 1 - MELEE
     IfStateIs1
@@ -328,7 +318,6 @@ IfTimeOut
         tmpargument = LATCHPACKRIGHT
         PressLatchButton
  
-
 
     //STATE 2 - RANGED POSITION
     IfStateIs2
@@ -412,7 +401,6 @@ IfTimeOut
       Else
         tmpargument = 2
         SetState	
-
 
     //STATE 4 - RETREAT
     IfStateIs4
