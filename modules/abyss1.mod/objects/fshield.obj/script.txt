@@ -12,7 +12,7 @@ IfHeld
       tmpx = targetstr > 6
       SetTargetToWhoeverIsHolding
       tmpy = targetstr > 7
-      tmpx = rand % 100 + tmpx 
+      tmpx = rand % 100 + tmpx
       tmpy = 70 + tmpy            //70% block rate
       IfXIsMoreThanY
         tmpargument = 40    //0.80 seconds
@@ -23,7 +23,7 @@ IfHeld
         IfHolderBlocked      //So that the target becomes the attacker again
           tmpargument = targetreloadtime + 40
           SetTargetReloadTime
-          
+
 //Magical effect
 IfUsed
   tmpargument = 1	//RED
@@ -80,12 +80,12 @@ IfCrushed
 
 //--------------------------------------------------------------------------
 // Make it lie on floor
-IfDropped				
-  KeepAction				  
+IfDropped
+  KeepAction
 
 //--------------------------------------------------------------------------
 // Tell them what they've won...
-IfGrabbed				
+IfGrabbed
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
     tmpargument = 0			  //
@@ -93,9 +93,9 @@ IfGrabbed
 
 //--------------------------------------------------------------------------
 // Make a sound
-IfHitGround				
-  tmpargument = 0			    
-  PlaySound				  
+IfHitGround
+  tmpargument = 0
+  PlaySound
 
 //--------------------------------------------------------------------------
 End					// All done

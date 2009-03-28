@@ -25,22 +25,22 @@ IfScoredAHit
 IfKilled
 
   //Messaging
-  tmpargument = 0			    
-  SendMessageNear			    		
+  tmpargument = 0
+  SendMessageNear
 
   //Make the body
-  tmpargument = 40			  
-  SetBumpSize				  
-  tmpargument = 45			  
+  tmpargument = 40
+  SetBumpSize
+  tmpargument = 45
   SetBumpHeight
-			
-  // Drop money	  		
-  tmpargument = selfmoney			  	
-  DropMoney				  
+
+  // Drop money
+  tmpargument = selfmoney
+  DropMoney
 
   //Death sound
-  tmpargument = 2			  			  
-  PlaySound				  
+  tmpargument = 2
+  PlaySound
 
   //Death effect
   GoPoof
@@ -56,9 +56,9 @@ IfKilled
 
 //-------------------------------------------------------------------------------------
 //Ouch and panic
-IfAttacked				
+IfAttacked
   SetTargetToWhoeverAttacked
-    IfTargetIsOnHatedTeam    	      
+    IfTargetIsOnHatedTeam
       tmpargument = 1			      // Enter combat mode
       SetState
     Else
@@ -80,19 +80,19 @@ IfAttacked
 //Target eliminated
 IfTargetKilled				// Return to follow mode
   tmpargument = 0			  //
-  SetState		    
+  SetState
 
 //-------------------------------------------------------------------------------------
 // This is done every so often
-IfTimeOut		
+IfTimeOut
   SetTargetToWideEnemy		  // Look for enemies
     tmpargument = 1			  // Enter combat mode
-    SetState				    
+    SetState
 
   // Play a random grunt?
   tmpx = rand & 255
   tmpy = 15
-  IfXIsLessThanY			  
+  IfXIsLessThanY
     tmpargument = rand & 1 + 3
     PlaySound
 
@@ -100,11 +100,11 @@ IfTimeOut
   IfStateIs0
     tmpx = rand & 1023 - 512 + selfspawnx
     tmpy = rand & 1023 - 512 + selfspawny
-    ClearWaypoints			  
+    ClearWaypoints
     AddWaypoint
 
   //COMBAT
-  IfStateIs1  
+  IfStateIs1
     tmpx = targetdistance
     tmpy = 150
     IfXIsLessThanY			//Close enough to attack?
@@ -118,31 +118,31 @@ IfTimeOut
       tmpturn = targetturnto
       tmpdistance = 650
       Compass
-      ClearWaypoints			  
+      ClearWaypoints
       AddWaypoint
 
     //Enemy too far away?
     tmpx = targetdistance
-    tmpy = 2000				    
-    IfXIsMoreThanY			    
+    tmpy = 2000
+    IfXIsMoreThanY
       tmpargument = 0			    //Yes, return to follow leader mode
-      SetState				     
+      SetState
       tmpx = leaderx
       tmpy = leadery
-      ClearWaypoints			  
+      ClearWaypoints
       AddWaypoint
   tmpargument = rand & 15 + 30		  //Set timer
-  SetTime				  
-				  
+  SetTime
+
 //-------------------------------------------------------------------------------------
 //Move out of friendlies and target enemy bumpers
-IfBumped				
-  SetTargetToWhoeverBumped		  
+IfBumped
+  SetTargetToWhoeverBumped
   IfTargetIsOnSameTeam
-    tmpx = rand & 511 + targetx - 256	    
-    tmpy = rand & 511 + targety - 256	    
-    ClearWaypoints			    
-    AddWaypoint				    
+    tmpx = rand & 511 + targetx - 256
+    tmpy = rand & 511 + targety - 256
+    ClearWaypoints
+    AddWaypoint
     SetTargetToOldTarget
   Else
     tmpargument = 1

@@ -8,7 +8,6 @@ IfSpawned
   tmpargument = passage
   ClosePassage
 
-
 //------------------------------------------------------------------
 // Someone cast an unlock spell
 IfOrdered
@@ -38,31 +37,30 @@ IfOrdered
       tmpargument = 1
       SendMessageNear
 
-
 //------------------------------------------------------------------
 // Handle the animation and sound
 tmpargument = passage	// Is the passage clear?
-IfPassageOpen			// 
+IfPassageOpen			//
   IfStateIs0			  // State 0 ( Closed )
     tmpargument = ACTIONMG	    //
     DoAction			    //
       tmpargument = 1		      // Open it
       SetState			      //
       tmpargument = 1		      //Spooky sounds
-      PlayFullSound			      
-      tmpargument = 0		      
+      PlayFullSound
+      tmpargument = 0
       PlayFullSound
       KeepAction
       tmpargument = 15		//Boss music theme
       tmpdistance = 0
-      PlayMusic		      
-Else		  
+      PlayMusic
+Else
   IfStateIs1			  // State 1 ( Open )
-    tmpargument = ACTIONMJ	    
-    DoAction			    
+    tmpargument = ACTIONMJ
+    DoAction
       tmpargument = 0		      // Close it
       SetState
-      KeepAction			      
+      KeepAction
 
 //------------------------------------------------------------------
 End				// Finished with this character

@@ -29,7 +29,7 @@ IfCalledForHelp
 IfTimeOut
   tmpargument = rand & 15 + 30
   SetTime
-			 
+
   //WATCH MODE
   IfStateIs0
     Sneak
@@ -53,7 +53,7 @@ IfTimeOut
       CallForHelp
       //SHOOT EYE RAY
       IfFacingTarget
-        tmpargument = rand & 25 + 25	//Time between shots
+        tmpargument = rand % 25 + 25	//Time between shots
         SetTime
         tmpargument = rand % 3 + 1	//Randomize ray
         tmpx = selfx
@@ -70,7 +70,7 @@ IfTimeOut
       tmpargument = 0
       SetState
   ClearWaypoints			  //
-  AddWaypoint				  //	
+  AddWaypoint				  //
 
 //---------------------------------------------------------------------------------
 //Change skin
@@ -85,7 +85,7 @@ IfStateIs1		//Or in combat
 SetTargetToSelf
 IfTargetIsAlive		//and when killed
   GetState		//DoNothing
-Else		
+Else
   tmpargument = 2
 SetTargetToOldTarget
 ChangeArmor		//Do it
@@ -93,19 +93,18 @@ ChangeArmor		//Do it
 //---------------------------------------------------------------------------------
 //Return to watch mode
 IfStateIs1				//Only if already in combat
-  IfTargetKilled				
+  IfTargetKilled
     SetTargetToNearestEnemy
       tmpargument = 1
       SetState			//Combat
     Else
       tmpargument = 0			//Watch mode
-      SetState				 
-
+      SetState
 
 //---------------------------------------------------------------------------------
 //How to react if bumped
 IfBumped				// Attack whoever it bumped
-  SetTargetToWhoeverBumped		  
+  SetTargetToWhoeverBumped
   IfTargetIsOnHatedTeam			  // Make sure it's an enemy
     tmpargument = 3
     IfStateIsNot			  //Dont if backstabbed
@@ -120,11 +119,11 @@ IfBumped				// Attack whoever it bumped
       ClearWaypoints
       AddWaypoint
   Else					    //Move out of the way of friendlies
-    tmpx = rand & 255 + targetx - 128	    
-    tmpy = rand & 255 + targety - 128	    
-    ClearWaypoints			    
-    AddWaypoint				    
-    SetTargetToOldTarget		    
+    tmpx = rand & 255 + targetx - 128
+    tmpy = rand & 255 + targety - 128
+    ClearWaypoints
+    AddWaypoint
+    SetTargetToOldTarget
 
 //---------------------------------------------------------------------------------
 //How to react if attacked
@@ -135,7 +134,7 @@ IfAttacked
   IfStateIs0				//Hasn't seen a enemy yet
     IfHitFromBehind
       tmpargument = [DISA]		//Is it a rouge?
-      IfTargetHasSkillID		
+      IfTargetHasSkillID
         SetTargetToSelf
         KillTarget			//Yep, instant kill
         SetTargetToWhoeverAttacked
@@ -146,51 +145,50 @@ IfAttacked
         SetState			//Backstabs are undetected
         SetContent			//For death message
         tmpargument = 1
-        SendMessageNear		      
+        SendMessageNear
 
   IfTargetIsOnHatedTeam
     tmpargument = 3			//Backstabbed?
-    IfStateIsNot		    
+    IfStateIsNot
       tmpargument = 1			//Nope, enter combat mode
-      SetState		
-      CallForHelp		//Warn others (Only if not backstabbed)		      
-  Else				    
+      SetState
+      CallForHelp		//Warn others (Only if not backstabbed)
+  Else
     SetTargetToOldTarget
 
   tmpargument = rand % 3		  //Play damaged sound
-  tmpdistance = rand & 4095 + 8000	  
+  tmpdistance = rand & 4095 + 8000
   PlaySound
-
 
 //---------------------------------------------------------------------------------
 //What to do if killed
-IfKilled	
-  //Messaging	
+IfKilled
+  //Messaging
   tmpargument = 3	//Backstabbed?
   IfContentIs
     tmpargument = 1
   Else
     tmpargument = 0	//Normal death
 
-  SendMessageNear			    
+  SendMessageNear
 
   //Make the body
-  tmpargument = 33			  
-  SetBumpSize	  		  
-  tmpargument = 50  
-  SetBumpHeight				  			  
+  tmpargument = 33
+  SetBumpSize
+  tmpargument = 50
+  SetBumpHeight
 
   tmpargument = 7
   SetShadowSize
 
   //Drop stash
-  tmpargument = 65535			  
-  DropMoney	
+  tmpargument = 65535
+  DropMoney
   DropKeys
 
   //Death sound
-  tmpargument = 1			  
-  tmpdistance = rand & 2047 + 10000	  
+  tmpargument = 1
+  tmpdistance = rand % 2047 + 10000
   PlaySound
 
   //Death stuff
@@ -199,7 +197,6 @@ IfKilled
   tmpargument = 10
   SetShadowSize
   KeepAction
-
 
 //---------------------------------------------------------------------------------
 End					// Finished with this character

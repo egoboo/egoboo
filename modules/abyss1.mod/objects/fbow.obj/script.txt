@@ -6,7 +6,6 @@ IfUsed
     tmpargument = 3
     PlaySound
 
-
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   MakeAmmoKnown				  //
@@ -30,7 +29,7 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Play the drop sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 7000	  //
+  tmpdistance = rand % 2047 + 7000	  //
   PlaySound				  //
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //

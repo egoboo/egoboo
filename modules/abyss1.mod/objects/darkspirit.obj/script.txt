@@ -13,7 +13,7 @@ IfSpawned
   tmpargument = 150
   SetTime                       //Give some time to get on the mount
   tmpargument = 1
-  SetState  
+  SetState
 
 //------------------------------------------------------------------------------
 // Jump over barriers, onto mounts
@@ -55,12 +55,12 @@ IfKilled
   // Make the character body
   tmpargument = 40
   SetBumpHeight
-  
+
   GoPoof
   SpawnPoof
-  
+
 //If someone blocks, there is a chance we get thrown of the mount
-IfTargetIsDefending  
+IfTargetIsDefending
   IfScoredAHit
     SetTargetToNearbyEnemy
     tmpx = targetstr > 8
@@ -102,7 +102,7 @@ IfTimeOut
     SetTargetToNearbyEnemy
       SetTurnModeToWatchTarget
     Else
-      SetTurnModeToVelocity  
+      SetTurnModeToVelocity
     SetTargetToWideEnemy
       tmpx = targetdistance
       tmpy = 250
@@ -123,7 +123,7 @@ IfTimeOut
       Compass
       ClearWaypoints
       AddWaypoint
-      
+
       // Check for special mount attacks
       tmpx = targetdistance
       tmpy = 200
@@ -141,7 +141,7 @@ IfTimeOut
       tmpy = rand & 511 - 256 + selfspawny
       ClearWaypoints
       AddWaypoint
-  
+
   //Unmounted!
   IfStateIs1
     tmpargument = rand & 15 + 15 // Time

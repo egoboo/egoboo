@@ -1,6 +1,6 @@
 //Magical effects
 IfTimeOut
-  tmpargument = 5 + rand & 10
+  tmpargument = rand % 10 + 5
   SetTime
 
   //Lightning along the blade
@@ -21,7 +21,7 @@ IfTimeOut
     SetContent
   Else
     GetContent
-    tmpargument = rand & 4 + tmpargument
+    tmpargument = rand & 3 + tmpargument
     SetContent
 
 //Lightning sound

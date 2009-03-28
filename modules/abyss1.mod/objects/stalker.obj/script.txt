@@ -6,7 +6,6 @@
 IfSpawned
   EnchantTarget  // Target is self...
 
-
 //------------------------------------------------------------------------------
 //Death effects
 IfKilled				// This reduces the height of the char
@@ -16,7 +15,7 @@ IfKilled				// This reduces the height of the char
   DropMoney				  //
   tmpargument = 2			  //
   PlaySound				  //
-  
+
 //------------------------------------------------------------------------------
 //This makes stalkers blink into visibility when attacked
 IfAttacked
@@ -45,7 +44,7 @@ IfBumped
 
 //------------------------------------------------------------------------------
 //Counter attack
-IfAttacked				
+IfAttacked
   SetTargetToWhoeverAttacked		  //
     IfTargetIsOnHatedTeam		    //
       tmpargument = 1			      // Enter combat mode
@@ -55,13 +54,11 @@ IfAttacked
   tmpargument = rand & 1		  //
   PlaySound				  //
 
-
 //------------------------------------------------------------------------------
 //Enemy is dead
 IfTargetKilled				// Return to follow mode
   tmpargument = 0			  //
   SetState				  //
-
 
 //------------------------------------------------------------------------------
 //Somebody bumped
@@ -79,7 +76,7 @@ IfBumped				// Attack whoever it bumped
 
 //------------------------------------------------------------------------------
 IfTimeOut				// This is done every so often
-  
+
   IfStateIs0				  // State 0 ( Wander )
     SetTargetToWideEnemy			  // Look for enemies
       tmpargument = 1			    // Enter combat mode
@@ -110,7 +107,7 @@ IfTimeOut				// This is done every so often
         tmpy = targety
         tmpturn = targetturnto + 32768
         tmpdistance = 800
-        Compass         
+        Compass
       Else
         tmpy = 0  // Unarmed...
         IfHoldingMeleeWeapon		      // Got Weapon?
@@ -145,7 +142,7 @@ IfTimeOut				// This is done every so often
   AddWaypoint				  //
   tmpargument = rand & 15 + 10		  // Wait a while and try again
   SetTime
-  
+
   IfStateIs2
     tmpargument = 0
     SetLight

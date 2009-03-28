@@ -39,7 +39,7 @@ IfUsed
           GetContent				//Increase the charge
           tmpargument = tmpargument + 8		//Casting Time
           SetContent
-        
+
     // Spawn particles around target
     SetTargetToNearestFriend
     tmpx = targetdistance
@@ -76,7 +76,7 @@ Else
     SendMessageNear		//Tell what happened
     tmpargument = 1
     PlaySound
-  Else				
+  Else
     GetContent
     tmpx = tmpargument
     tmpy = 0

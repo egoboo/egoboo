@@ -9,7 +9,6 @@ IfTimeOut
       tmpdistance = 11025
       PlayFullSound
 
-
       // Pop the baddies
       tmpargument = passage + 1	// The passage to spawn
       tmpdistance = 244		// The tile to find
@@ -29,6 +28,22 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
+      // Pop another
+      tmpargument = passage + 1
+      tmpdistance = 244
+      FindTileInPassage
+        // Replace the tile
+        tmpargument = 246
+        SetTileXY
+        // Spawn a ghoul
+        tmpargument = 98
+        tmpdistance = 0
+        tmpturn = rand
+        SpawnExactCharacterXYZ
+          tmpargument = 0
+          SpawnExactParticle
+          tmpargument = ACTIONJB
+          ChildDoActionOverride
 
       // Pop another
       tmpargument = passage + 1
@@ -47,7 +62,6 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
-
       // Pop another
       tmpargument = passage + 1
       tmpdistance = 244
@@ -65,7 +79,6 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
-
       // Pop another
       tmpargument = passage + 1
       tmpdistance = 244
@@ -82,25 +95,6 @@ IfTimeOut
           SpawnExactParticle
           tmpargument = ACTIONJB
           ChildDoActionOverride
-
-
-      // Pop another
-      tmpargument = passage + 1
-      tmpdistance = 244
-      FindTileInPassage
-        // Replace the tile
-        tmpargument = 246
-        SetTileXY
-        // Spawn a ghoul
-        tmpargument = 98
-        tmpdistance = 0
-        tmpturn = rand
-        SpawnExactCharacterXYZ
-          tmpargument = 0
-          SpawnExactParticle
-          tmpargument = ACTIONJB
-          ChildDoActionOverride
-
 
       // Pop another
       tmpargument = passage + 1
@@ -121,7 +115,6 @@ IfTimeOut
 
       // Popper is no longer needed...
       GoPoof
-
 
   // Wait a bit before checking again
   tmpargument = 10

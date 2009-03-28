@@ -42,8 +42,8 @@ IfTimeOut			//Every so often
       tmpy = 16 - selfmorale *2 //Reduce with 2% for each monster summoned
       IfXIsLessThanY		//14% base chance if no monsters are summoned
         SetTargetToNearestEnemy
-        tmpx = rand & 256 + targetx - 128
-        tmpy = rand & 256 + targety - 128
+        tmpx = rand & 255 + targetx - 128
+        tmpy = rand & 255 + targety - 128
         tmpdistance = rand & 100 + selfz + 25
         tmpturn = rand
         tmpargument = rand % 3	//Randomize monster type

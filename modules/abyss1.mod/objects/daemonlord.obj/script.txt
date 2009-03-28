@@ -32,7 +32,7 @@ IfUsed
 IfBackstabbed
   GetDamageType
   tmpdistance = tmpargument
-  tmpargument = targetdex > 2  		//+1 extra damage for every 4 dex 
+  tmpargument = targetdex > 2  		//+1 extra damage for every 4 dex
   SetTargetToSelf
   DamageTarget
   SetTargetToWhoeverAttacked
@@ -61,7 +61,6 @@ IfBored
   tmpargument = 9
   PlaySound
 
-
 //------------------------------------------------------------------------------
 //Handle death by sending a message and other stuff
 IfKilled
@@ -72,7 +71,7 @@ IfKilled
   tmpargument = 400
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
-  
+
    // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]
   tmpdistance = 7           //The quest level
@@ -110,7 +109,7 @@ IfKilled
   SetTargetToOldTarget
 
   //Drop random magic loot (Note: Cant be burnable)
-  tmpx = rand & 4
+  tmpx = rand % 4
   tmpy = 0
   IfXIsEqualToY
     tmpargument = 65	//Rune of Restoration
@@ -159,9 +158,9 @@ IfTimeOut
     tmpy = selfspawny
     ClearWaypoints
     AddWaypoint
-    tmpargument = 10 + rand & 30
+    tmpargument = rand % 30 + 10
     SetTime
-    tmpdistance = 128*6    
+    tmpdistance = 128*6
     SetTargetToDistantEnemy
       tmpargument = 1
       SetState				//Combat mode
@@ -177,14 +176,14 @@ IfTimeOut
     tmpx = rand & 255
     tmpy = 250
     IfXIsMoreThanY
-      tmpargument = rand % 8 + 9
+      tmpargument = rand & 7 + 9
       PlayFullSound
 
   //Move towards enemy
   IfStateIs1
     Run
-    tmpargument = 20 + rand & 15
-    SetTime 
+    tmpargument = rand & 15 + 20
+    SetTime
     tmpx = targetdistance
     tmpy = 290
     IfXIsMoreThanY		//Move closer?
@@ -244,7 +243,7 @@ IfTimeOut
           SpawnAttachedParticle
 
           //Costs 3 points of mana
-          SetTargetToSelf		
+          SetTargetToSelf
           tmpargument = 800
           CostTargetMana
           SetTargetToOldTarget
@@ -274,7 +273,7 @@ IfTimeOut
     tmpturn = targetturnto
     Compass
     ClearWaypoints
-    AddWaypoint			
+    AddWaypoint
 
     GetContent
     tmpargument = tmpargument +1	//Another round has passed
@@ -297,8 +296,7 @@ IfTimeOut
         SetState
       Else
         tmpargument = 0		//He died, lets wait again
-        SetState	
-
+        SetState
 
 //------------------------------------------------------------------------------
 //Spawn fire around daemon (Fiery shield)
@@ -332,14 +330,12 @@ IfAttacked
     Run
     tmpargument = 1		//Move toward enemy
     SetState
-    tmpargument = rand % 4 + 2
+    tmpargument = rand & 3 + 2
     PlaySound
   Else
     tmpargument = 3		//Friendly fire
-    PlaySound   
+    PlaySound
     SetTargetToOldTarget
-
-
 
 //------------------------------------------------------------------------------
 //Last, check if our target is really a enemy (Just in case)

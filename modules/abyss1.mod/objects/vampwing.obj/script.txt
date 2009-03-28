@@ -2,7 +2,6 @@ IfSpawned
   tmpargument = 45
   SetTime
 
-
 IfOrdered
   tmpx = selforder
   tmpy = [DEAD]
@@ -31,7 +30,6 @@ IfArmorIs
       PlaySound
       tmpargument = 45
       SetTime
-
 
 //------------------------------------------------------------------------------
 End

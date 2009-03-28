@@ -6,7 +6,6 @@ IfOrdered
       tmpargument = 2		//Tell them its warded
       SendMessageNear
 
-
 // This function makes the button open the passage
 tmpx = 20				// Threshold weight
 tmpy = weight				// Weight of characters on top
@@ -26,7 +25,7 @@ IfXIsLessThanY				// Open it
         tmpargument = 10
         tmpdistance = EXPSECRET
         GiveExperienceToTarget
-       
+
         //Animations and stuff
         tmpargument = ACTIONMG		    //
         DoAction				    //

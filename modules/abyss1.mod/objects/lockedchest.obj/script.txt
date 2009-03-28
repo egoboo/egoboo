@@ -6,7 +6,6 @@
 //Content 3: Totally empty
 //Content 4: Only drop money (with secret bottom)
 
-
 // Someone cast an unlock spell
 IfOrdered
   tmpx = selforder
@@ -33,27 +32,22 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Can they pick the lock?
         tmpargument = [DISA]
         IfTargetHasSkillID
-
 
           // Make target crouch
           tmpargument = ACTIONMG
@@ -61,12 +55,10 @@ IfBumped
           tmpargument = 1
           PlaySound
 
-
           // Give some experience
           tmpargument = 25
           tmpdistance = EXPROLEPLAY
           GiveExperienceToTarget
-
 
           // Open it up
           tmpargument = ACTIONMG
@@ -91,19 +83,16 @@ IfBumped
           tmpargument = [KEYC]
           CostTargetItemID
 
-
             // Make target crouch
             tmpargument = ACTIONMG
             TargetDoAction
             tmpargument = 1
             PlaySound
 
-
             // Give some experience
             tmpargument = 5
             tmpdistance = EXPDARE
             GiveExperienceToTarget
-
 
             // Open it up
             tmpargument = ACTIONMG
@@ -166,7 +155,7 @@ IfBumped
 
         tmpargument = 2		//Content 2: Secret bottom
         IfContentIs
-          tmpx = rand & 4352 + targetwis
+          tmpx = rand % 4352 + targetwis
           tmpargument = [DISA]
           IfTargetHasSkillID		//Rouges always make it
             tmpx = 9000
@@ -198,7 +187,6 @@ IfBumped
           SetContent
           tmpargument = 0
           SendMessageNear
-
 
 // All done
 End
