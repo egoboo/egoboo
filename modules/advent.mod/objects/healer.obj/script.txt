@@ -4,8 +4,6 @@ tmpy = selfy
 tmpargument = YELLOW
 ShowBlipXY
 
-
-
 IfKilled				// This reduces the height of the char
   tmpargument = 1
   PlaySound
@@ -21,7 +19,7 @@ IfKilled				// This reduces the height of the char
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
-  
+
 IfCalledForHelp				// Help others
   SetTargetToWhoeverCalledForHelp	  //
     IfTargetIsAlive			    // Go heal 'em
@@ -54,7 +52,7 @@ IfTimeOut				// This is done every so often
     SetTargetToNearbyEnemy		    //
       tmpargument = 1			      //
       SetState				      //
-      
+
   IfStateIs0				  // State 0 ( Follow )
     tmpargument = 100
     SetSpeedPercent
@@ -67,7 +65,7 @@ IfTimeOut				// This is done every so often
     tmpx = leaderx			    //
     tmpy = leadery			    //
     tmpturn = 49152 + leaderturn	    // Stand to side
-    Compass		
+    Compass
 
   tmpargument = 1			  //
   IfStateIs				  // State 1 ( Combat )
@@ -136,7 +134,6 @@ IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //
 
-
 // Heal sound and effect
 IfUsed
   tmpargument = 0
@@ -153,6 +150,5 @@ IfUsed
 
     tmpargument = rand & 511 + 512
     HealTarget
-
 
 End					// Finished with this character

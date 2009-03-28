@@ -9,7 +9,6 @@ IfOrdered
       tmpargument = 1
       SendMessageNear
 
-
 // ZZ> This function makes the button open the passage
 tmpx = 20				// Threshold weight
 tmpy = weight				// Weight of characters on top

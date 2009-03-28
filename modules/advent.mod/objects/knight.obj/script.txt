@@ -4,7 +4,6 @@ tmpy = selfy
 tmpargument = BLUE
 ShowBlipXY
 
-
 IfKilled				// This reduces the height of the char
   tmpargument = 6
   PlaySound
@@ -70,7 +69,7 @@ IfTimeOut				// This is done every so often
         SendMessageNear			          //
         tmpargument = 3			          //
         PlaySound			          //
-  
+
   IfStateIs0				  // State 0 ( Follow )
     tmpargument = 100
     SetSpeedPercent
@@ -84,7 +83,7 @@ IfTimeOut				// This is done every so often
     tmpy = leadery			    //
     tmpturn = 16384 + leaderturn	    // Stand to side
     Compass				    //
-  
+
   IfStateIs1					  // State 1 ( Combat )
     tmpx = targetdistance		    // Close enough to attack?
     tmpy = 200				    //
@@ -120,7 +119,6 @@ IfTargetIsAttacking
       tmpargument = LATCHLEFT
       PressLatchButton
 
-
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
   IfTargetIsOnHatedTeam			  // Try to counter
@@ -139,7 +137,6 @@ IfBumped				// Bumped
     AddWaypoint				    //
     tmpargument = 40			    // Try again soon
     SetTime				    //
-
 
 // Ya!  Unarmed attack sound
 IfUsed

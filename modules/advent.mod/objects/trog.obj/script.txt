@@ -1,6 +1,6 @@
 // ZZ> This function makes the character wanders around its enemy
 IfCleanedUp				// Respawn
-  RespawnCharacter			  // 
+  RespawnCharacter			  //
 IfKilled				// This reduces the height of the char
   tmpargument = 0			    //
   SendMessageNear			    //
@@ -67,7 +67,7 @@ IfTimeOut				// This is done every so often
         tmpy = targety
         tmpturn = targetturnto + 32768
         tmpdistance = 800
-        Compass         
+        Compass
       Else
         tmpy = 0  // Unarmed...
         IfHoldingMeleeWeapon		      // Got Weapon?

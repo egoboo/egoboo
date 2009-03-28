@@ -2,7 +2,7 @@
 tmpargument = 1				// Drain the water
 IfStateIs				//
   IfTimeOut				  //
-    tmpargument = 2			    // Drain complete 
+    tmpargument = 2			    // Drain complete
     SetState				    //
     tmpargument = 1			    //
     SendMessageNear			    //

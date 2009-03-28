@@ -7,7 +7,6 @@ IfKilled
     tmpargument = 0
     SendMessageNear
 
-
   // Award quest experience
   tmpargument = 100
   tmpdistance = EXPQUEST
@@ -24,7 +23,7 @@ IfKilled
   SetTargetToWideBlahID
     tmpargument = 50
     GiveExperienceToTargetTeam
-    
+
 
   // Finish it up
   BeatModule
@@ -45,13 +44,10 @@ IfKilled
   tmpargument = 5
   AddEndMessage
 
-
   //Victory tune
   tmpargument = 11		//Music track
   tmpdistance = 0		//Fade in time
   PlayMusic
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Make the GrubMum do the decoy dance at the beginning of the module.
@@ -73,7 +69,7 @@ IfSpawned
   AddWaypoint
 
 CleanUp
-    
+
 //------------------------------------------------------------------------------
 // ZZ> Handle wandering around
 IfStateIs1
@@ -84,7 +80,7 @@ IfStateIs1
     tmpy = rand % 1594 + 462
     ClearWaypoints
     AddWaypoint
-  
+
    //Play dramatic boss music
   SetTargetToWideEnemy
     tmpargument = 6		//Music track
@@ -111,7 +107,6 @@ Else
 
         ShowMap
         ShowYouAreHere
-
 
 //------------------------------------------------------------------------------
 // Damage anyone that touches the Mum
@@ -141,7 +136,6 @@ tmpx = selfx
 tmpy = selfy
 tmpargument = GREEN
 ShowBlipXY
-
 
 //------------------------------------------------------------------------------
 End

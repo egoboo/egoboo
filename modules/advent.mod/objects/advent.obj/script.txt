@@ -5,7 +5,7 @@
 //2			n/a
 //3			n/a
 //4			Alchemy
-//5			n/a			
+//5			n/a
 //6			n/a
 //7         Speed
 //8			n/a
@@ -23,7 +23,7 @@ IfSpawned
   tmpargument = 0
   SetState
   SetContent
-  
+
 //-----------------------------------------------------------------------------
 // Alchemy skill
 tmpx = selflevel
@@ -57,7 +57,7 @@ tmpy = 6           //Need to be level 8 at least
 IfXIsMoreThanY
   //If tmpdistance > 0 then reset cloak timer
   tmpdistance = 0
-  
+
   //Stuff that makes us visible
   SetTargetToSelf
   IfBumped
@@ -68,7 +68,7 @@ IfXIsMoreThanY
     tmpdistance = 150     //3 seconds
   IfTargetIsDefending
     tmpdistance = 100     //2 seconds
-    
+
   //Is the player standing still?
   SetTargetToSelf
   tmpx = targetspeedx + targetspeedy + targetspeedz
@@ -90,7 +90,7 @@ IfXIsMoreThanY
           SetTime
   Else                    //Character is moving, reset timer
     tmpdistance = 75     //1,5 seconds
-    
+
   //Handle and reset cooldown counter for stealth
   IfTimeOut
     IfStateIs1
@@ -103,7 +103,7 @@ IfXIsMoreThanY
       PlaySound
       tmpargument = 3
       SetState
-      
+
     //Check sneak abillity to see if we are detected
     IfStateIs3
       tmpargument = 75            //Check every 1,5 seconds
@@ -121,7 +121,7 @@ IfXIsMoreThanY
           tmpy = rand % 40 + tmpy
           IfXIsMoreThanY                        //We were detected!
             tmpdistance = 300               //6 seconds
-          
+
   //Disable stealth and reset timer if tmpdistance is bigger than 0
   tmpturn = 0
   IfDistanceIsMoreThanTurn
@@ -133,7 +133,7 @@ IfXIsMoreThanY
       tmpargument = 11
       PlaySound
     tmpargument = 1
-    SetState    
+    SetState
 
 //-----------------------------------------------------------------------------
 //Listen skill
@@ -141,7 +141,7 @@ tmpx = selflevel
 tmpy = 11            //At least level 13
 IfXIsMoreThanY
   EnableListenSkill
-  
+
 //-----------------------------------------------------------------------------
 //Speed abillity
 tmpx = selflevel
@@ -163,13 +163,12 @@ IfContentIs
     EnchantTarget 	//Give the special bonus
     tmpargument = 1
     SetContent      //Dont repeat
-      
+
 //-----------------------------------------------------------------------------
 // ZZ> Gong sound
 IfCleanedUp
   tmpargument = 6
   PlayFullSound
-
 
 IfTooMuchBaggage
   tmpargument = 8
@@ -185,7 +184,7 @@ IfUsed
 IfKilled				// This reduces the height of the char
   tmpargument = 2			  // Death sound
   PlaySound				  //
-  
+
   //Message
   tmpargument = 3
   IfArmorIs
@@ -197,12 +196,12 @@ IfKilled				// This reduces the height of the char
     IfTargetIsSelf			    // No, just a damage tile
       tmpargument = MESSAGEACCIDENT           //
   SendMessage				  //
-  
+
   //Drop goods
   tmpargument = 1+selflevel*selflevel*100		//The money loss formula
   DropMoney				  //
   DropKeys
-  
+
   //Body
   tmpargument = 45			  //
   SetBumpHeight				  //

@@ -3,7 +3,6 @@
 IfSpawned
   EnchantTarget  // Enchant self...
 
-
 //------------------------------------------------------------------------------
 // ZZ> Someone cast an unlock spell
 IfOrdered
@@ -16,13 +15,11 @@ IfOrdered
     tmpargument = 3
     SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> This function makes the character wait for the enemy to open it
 IfKilled				// This reduces the height of the char
   tmpargument = 0
   PlaySound
-
 
   tmpargument = 0			    //
   SendMessageNear			    // Kill message

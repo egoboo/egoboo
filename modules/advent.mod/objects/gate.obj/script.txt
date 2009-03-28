@@ -1,7 +1,7 @@
 // ZZ> This function makes the door open if its passage is open
 KeepAction			//
 tmpargument = passage		// Is the passage clear?
-IfPassageOpen			// 
+IfPassageOpen			//
   tmpargument = 0		  //
   IfStateIs			  // State 0 ( Closed )
     tmpargument = ACTIONMG	    //
