@@ -7,7 +7,6 @@
 //5 - sleeping		(special)
 //6 - charge guards	(special)
 
-
 IfSpawned
   //Engage sleeping mode
   GetContent
@@ -24,9 +23,8 @@ IfSpawned
     KeepAction
 
   //Randomize skin
-  tmpargument = rand % 4
+  tmpargument = rand & 3
   ChangeArmor
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -35,7 +33,7 @@ IfBumped
   //Bumping a sleeping man...  How rude!
   IfStateIs4
     IfTargetIsOnHatedTeam
-      
+
       tmpargument = 1
       PlaySound
       tmpargument = 4
@@ -81,7 +79,6 @@ IfBumped
         PressLatchButton
     SetTargetToOldTarget
 
-
 //Use shield
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
@@ -94,7 +91,6 @@ IfTargetIsAttacking
           tmpy = 40768
           IfXIsLessThanY
             PressLatchButton
-
 
 //------------------------------------------------------------------------------
 IfKilled
@@ -119,7 +115,6 @@ IfKilled
   DropItems
   DropKeys
 
-
   // Make the character body
   tmpargument = 40
   SetBumpHeight
@@ -140,12 +135,10 @@ IfAttacked
       tmpargument = 6
     SendMessageNear
 
-
     // Give experience
     tmpargument = 30
     tmpdistance = EXPMURDER
     GiveExperienceToTarget
-
 
     // Do it
     SetTargetToSelf
@@ -244,12 +237,11 @@ IfTimeOut
     // Foot soldier...
     // Behave according to state
 
-
     //STATE 0 - WANDER
     IfStateIs0
       tmpargument = rand & 15 + 45
       SetTime
-      SetTurnModeToVelocity 
+      SetTurnModeToVelocity
       SetTargetToWideEnemy
         IfHoldingRangedWeapon
           tmpargument = 2
@@ -259,16 +251,15 @@ IfTimeOut
       Else
         tmpx = rand & 1023 - 512 + selfspawnx
         tmpy = rand & 1023 - 512 + selfspawny
-        ClearWaypoints			  
+        ClearWaypoints
         AddWaypoint
-   
 
 
     //STATE 1 - MELEE
     IfStateIs1
       tmpargument = rand & 5 + 10 // Time
       SetTime
-        
+
       // Charge and attack the enemy
       SetTargetToNearestEnemy
       tmpx = targetdistance
@@ -313,13 +304,12 @@ IfTimeOut
         // Draw a new weapon
         tmpargument = LATCHPACKRIGHT
         PressLatchButton
- 
 
 
     //STATE 2 - RANGED POSITION
     IfStateIs2
       tmpargument = rand & 15 + 30 // Time
-      SetTime 
+      SetTime
 
       SetTargetToNearestEnemy
       SetTurnModeToWatchTarget
@@ -357,7 +347,7 @@ IfTimeOut
               Compass
               ClearWaypoints
               AddWaypoint
-              tmpargument = 2	
+              tmpargument = 2
               SetState			//not safe to shoot
             SetTargetToOldTarget
             tmpy = targetdistance
@@ -369,7 +359,7 @@ IfTimeOut
       Else
         tmpargument = 0			//target ran away
         SetState
-        
+
 
     //STATE 3 - RANGED COMBAT
     IfStateIs3
@@ -394,11 +384,10 @@ IfTimeOut
         tmpy = 200
         IfXIsLessThanY
           tmpargument = 4
-          SetState	
+          SetState
       Else
         tmpargument = 2
-        SetState	
-
+        SetState
 
     //STATE 4 - RETREAT
     IfStateIs4

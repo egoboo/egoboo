@@ -16,7 +16,7 @@ IfBumped
           tmpargument = 1  //Unlocked
           SetContent
           PlaySound
-        
+
 
 // Someone cast an unlock spell
 IfOrdered
@@ -46,7 +46,6 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
@@ -63,29 +62,27 @@ IfBumped
           IfTimeOut
             // Make target crouch and tell the players...
             tmpargument = ACTIONMG
-            TargetDoAction  
+            TargetDoAction
             tmpargument = 1
-            SendMessageNear 
+            SendMessageNear
             tmpargument = 40
             SetTime
-
 
       Else //UNLOCKED
         // Are they in front?
         IfFacingTarget
 
-            
+
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
-
 
           // Give some experience
           tmpargument = 5
           tmpdistance = EXPDARE
           GiveExperienceToTarget
 
-            
+
           // Open it up
           tmpargument = ACTIONMG
           DoAction
@@ -102,15 +99,15 @@ IfBumped
             // Tell the players...
             tmpargument = 4
             SendMessageNear
-                    
-        
+
+
       // Wait before allowing
       IfTimeOut
         IfFacingTarget
           // Reset the timer
           tmpargument = 40
           SetTime
-            
+
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
@@ -119,7 +116,6 @@ IfBumped
           IfStateIs2
             tmpargument = 0
             SendMessageNear
-
 
     // Drop the contents
     IfStateIs1
@@ -130,7 +126,6 @@ IfBumped
       SendMessageNear
       tmpargument = 2 //Empty now...
       SetState
-
 
 // All done
 End

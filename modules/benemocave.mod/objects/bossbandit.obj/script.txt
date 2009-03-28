@@ -1,4 +1,4 @@
-//Bloody Hawk, the Assassin wanted. He's basically just
+//Bludy Hawk, the Assassin wanted. He's basically just
 //a strong bandit with a different look that causes the
 //module to be beaten if you defeat him.
 
@@ -49,7 +49,7 @@ IfTargetIsAttacking
       tmpdistance = 2000
       Compass
       ClearWaypoints
-      AddWaypoint      
+      AddWaypoint
 
 //------------------------------------------------------------------------------
 //Deadly stuff
@@ -74,7 +74,6 @@ IfKilled
   DropMoney
   DropItems
   DropKeys
-
 
   // Make the character body
   tmpargument = 40
@@ -123,18 +122,18 @@ IfTimeOut
   IfStateIs0
     tmpargument = rand & 15 + 15
     SetTime
-    SetTurnModeToVelocity 
+    SetTurnModeToVelocity
     SetTargetToWideEnemy
       tmpargument = 6		//Boss music!
       tmpdistance = 0		//Fade in time
       PlayMusic
-      
+
       //Warriors, attack!
       tmpargument = 1
       PlaySound
       tmpargument = 3
       SendMessageNear
-     
+
       //Find out which weapon to use
       IfHoldingRangedWeapon
         tmpx = targetdistance
@@ -149,14 +148,14 @@ IfTimeOut
     Else
       tmpx = rand & 1023 - 512 + selfspawnx
       tmpy = rand & 1023 - 512 + selfspawny
-      ClearWaypoints			  
+      ClearWaypoints
       AddWaypoint
-   
+
   //STATE 1 - MELEE
   IfStateIs1
-    tmpargument = rand & 5 + 10 // Time
+    tmpargument = rand % 5 + 10 // Time
     SetTime
-        
+
     // Charge and attack the enemy
     SetTargetToNearestEnemy
     tmpx = targetdistance
@@ -206,11 +205,11 @@ IfTimeOut
       // Draw a new weapon
       tmpargument = LATCHPACKRIGHT
       PressLatchButton
- 
+
   //STATE 2 - RANGED POSITION
   IfStateIs2
     tmpargument = rand & 15 + 30 // Time
-    SetTime 
+    SetTime
 
     SetTargetToNearestEnemy
     SetTurnModeToWatchTarget
@@ -248,7 +247,7 @@ IfTimeOut
             Compass
             ClearWaypoints
             AddWaypoint
-            tmpargument = 2	
+            tmpargument = 2
             SetState			//not safe to shoot
           SetTargetToOldTarget
           tmpy = targetdistance
@@ -260,7 +259,7 @@ IfTimeOut
     Else
       tmpargument = 0			//target ran away
       SetState
-        
+
   //STATE 3 - RANGED COMBAT
   IfStateIs3
     tmpargument = rand & 15 + 20
@@ -274,7 +273,7 @@ IfTimeOut
       // Now using melee weapons
       tmpargument = 1
       SetState
-      
+
     SetTargetToNearestEnemy
       IfFacingTarget
         tmpx = targetdistance
@@ -285,11 +284,10 @@ IfTimeOut
         tmpy = 300
         IfXIsLessThanY
           tmpargument = 1
-          SetState	
+          SetState
       Else
         tmpargument = 2
-        SetState	
-
+        SetState
 
   //STATE 4 - RETREAT
   IfStateIs4

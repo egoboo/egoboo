@@ -12,7 +12,6 @@ IfOrdered
       tmpargument = 2
       SendMessageNear
 
-
 // See if there is a character in the detect passage
 IfTimeOut
   tmpargument = 10
@@ -34,7 +33,6 @@ IfTimeOut
         tmpdistance = EXPSECRET
         GiveExperienceToTarget
 
-
         // Display text
         tmpargument = 0
         SendMessageNear
@@ -43,10 +41,9 @@ IfTimeOut
         tmpargument = passage + 1
         OpenPassage
 
-
 // Handle the animation and sound
 tmpargument = passage + 1	// Is the passage clear?
-IfPassageOpen			// 
+IfPassageOpen			//
   tmpargument = 0		  //
   IfStateIs			  // State 0 ( Closed )
     tmpargument = ACTIONMG	    //

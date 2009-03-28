@@ -17,7 +17,7 @@ Level rating ( * to  ***** ) :******
 :sorts_in_there..._You_are_to_find
 :the_stolen_heirloom_and_possibly
 :kill_the_infamous_assasin
-:Bloodhawk_while_doing_so...
+:Bludhawk_while_doing_so...
 
 
 // Module expansion IDSZs ( with a colon in front )

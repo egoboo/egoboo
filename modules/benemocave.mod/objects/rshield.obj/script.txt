@@ -13,7 +13,6 @@ IfHeld
       tmpargument = 1
       PlaySound           //Play clong
 
-
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //
@@ -36,7 +35,6 @@ IfCrushed
 IfDropped				// Make it lie on floor
   KeepAction				  //
 
-
 //Handle kursed shield stuff
 IfNotDropped
   tmpargument = 2
@@ -55,7 +53,7 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 8000	  //
+  tmpdistance = rand % 2047 + 8000	  //
   PlaySound				  //
 
 //A small chance the player will lose the shield (Its rusty)

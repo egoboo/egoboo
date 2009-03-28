@@ -14,7 +14,7 @@ Else
 //Say nasty stuff
 IfTimeOut
   tmpargument = 150
-  SetTime 
+  SetTime
   IfHeld
     tmpx = rand & 100
     tmpy = 20
@@ -66,14 +66,14 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfNotDropped
   tmpargument = 2
   SendMessageNear
 IfTakenOut
   tmpargument = 2
-  tmpdistance = rand & 2047 + 10000
+  tmpdistance = rand % 2047 + 10000
   PlaySound
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
