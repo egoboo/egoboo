@@ -11,14 +11,14 @@
 //  * Deathcloud
 //  * Cone of cold
 //  * Disenchant enemies
-//5  Charge and claw! (50% permanent life drain and 50% touch of death?) 
+//5  Charge and claw! (50% permanent life drain and 50% touch of death?)
 //4  Teleport behind enemy when he is defending/not moving
 //6  Life Drain
 //7  Telekinesis (push target away, throw, minor damage)
 //8  Paralysis spell
 //9  Cast armageddon spell (360 degrees fireballs)
 //10 Become invisible
-//11 Summon attacking blades (telekinesis?) 
+//11 Summon attacking blades (telekinesis?)
 //12 Mana Drain
 //13 Disintergrate enemy items
 
@@ -66,13 +66,12 @@ IfTargetIsAPlayer
     tmpargument = 50
     SetTime
 
-
 //---------------------------------------------------------------------------
 //Say ouch
 IfAttacked
-  tmpargument = rand % 4 + 11
+  tmpargument = rand & 3 + 11
   PlaySound
-  
+
   //Disrupt casting
   tmpx = selfstate
   tmpy = 2
@@ -86,7 +85,7 @@ IfAttacked
 IfKilled
   tmpargument = 50
   SetTime
-  
+
   //Return to life! mohaha
   tmpargument = 3
   IfArmorIs
@@ -107,7 +106,7 @@ IfKilled
 
     tmpargument = 30
     SetBumpHeight
-    
+
     //This makes lord bishop saveable
     tmpargument = [VICT]
     tmpdistance = [VICT]
@@ -123,12 +122,12 @@ IfKilled
     SpawnPoof
     tmpargument = 0
     PlayFullSound
-    
+
     //Reduce max life
     SetTargetToSelf
     tmpargument = 0 - 256*10    //lose 10 life points
     GiveLifeToTarget
-    
+
     //Reset some values
     tmpargument = 0
     SetState
@@ -139,7 +138,7 @@ IfKilled
     AddWaypoint
     SetTurnModeToVelocity
     UnkeepAction
-    
+
     //Change to the next state of death
     tmpargument = 0
     IfArmorIs
@@ -184,15 +183,15 @@ IfTimeOut
       tmpy = 0
       IfXIsMoreThanY
         tmpy = 2
-        IfXIsEqualToY	
+        IfXIsEqualToY
           tmpargument = 0
           PlayFullSound
-          tmpx = rand % 4 + 80 - 2 < 7
-          tmpy = rand % 4 + 50 - 2 < 7
+          tmpx = rand & 3 + 80 - 2 < 7
+          tmpy = rand & 3 + 50 - 2 < 7
           tmpturn = targetturn
           tmpdistance = 800             //Teleport em in the middle of the boss room
           TeleportTarget
-      
+
           tmpargument = 3
           GetXY
           tmpy = 0
@@ -200,7 +199,7 @@ IfTimeOut
             tmpargument = [SCOR]      //Bring alive the mana scoprion!
           tmpy = 1
           IfXIsEqualToY
-            tmpargument = [WIER]      //Throw the bloodwierd at them...
+            tmpargument = [WIER]      //Throw the bludwierd at them...
           tmpy = 2
           IfXIsEqualToY
             tmpargument = [WATC]      //Now the giga watcher
@@ -217,7 +216,7 @@ IfTimeOut
           SendMessage
           tmpargument = 350
           SetDamageTime
-          SetTime 
+          SetTime
       Else
         tmpx = 1
         SetXY
@@ -231,7 +230,7 @@ IfTimeOut
   Else
     tmpargument = 0
     SetFlyHeight
-      
+
   //Wait for enemy
   IfStateIs1
     SetTurnModeToVelocity
@@ -286,14 +285,14 @@ IfTimeOut
       GetXY
     ClearWaypoints
     AddWaypoint
-    
+
     tmpargument = 1
     SetXY
-    
+
     //Do a random attack
     IfTargetIsOnHatedTeam
       IfFacingTarget
-        tmpx = rand % 4
+        tmpx = rand & 3
         tmpy = 0
         IfXIsEqualToY			//Always 25% to use dracotoy
           tmpargument = 3
@@ -305,7 +304,7 @@ IfTimeOut
             tmpargument = 1
             IfArmorIs
               tmpargument = rand % 7 + 3	//66% of the spells
-            Else 
+            Else
               tmpargument = 2
               IfArmorIs
                 tmpargument = rand % 9 + 3	//88% of the spells
@@ -314,21 +313,20 @@ IfTimeOut
         SetState
 
 
-          
           //Long timeout
           tmpargument = 75
           SetTime
-          
+
           //This enables spellcasting
           tmpargument = 1
           SetContent
-          
+
           //If already invisible, dont cast invisibillity
           IfInvisible
             IfStateIs10
               tmpargument = 4     //Do sneaky teleport instead
               SetState
-      
+
           //Charge and claw!
           IfStateIs5
             tmpx = targetx
@@ -338,10 +336,10 @@ IfTimeOut
             Compass
             ClearWaypoints
             AddWaypoint
-            
+
             tmpargument = 1
             SetState
-            
+
           //Sneaky teleport
           IfStateIs4
             tmpx = targetx
@@ -356,10 +354,10 @@ IfTimeOut
             SpawnPoof
             tmpargument = 0
             PlaySound
-            
+
             tmpargument = 1
             SetState
-            
+
           //Mana Drain (do before life drain)
           IfStateIs12
             tmpx = targetmana
@@ -381,19 +379,19 @@ IfTimeOut
               SpawnExactParticle
               tmpargument = 6
               PlaySound
-            
+
               //Now steal some mana
               tmpargument = 1536        //Drain 6 mana
               CostTargetMana
               tmpargument = 512         //Gain 2 life
               HealSelf
-            
+
               tmpargument = 2
               SetState
             Else
               tmpargument = 6         //Target doesnt have mana
               SetState                //Do life drain instead
-          
+
           //Life Drain
           IfStateIs6
             tmpargument = 9
@@ -412,7 +410,7 @@ IfTimeOut
             SpawnExactParticle
             tmpargument = 5
             PlaySound
-            
+
             //Now steal some life
             tmpargument = DAMAGEEVIL
             SetDamageType
@@ -420,10 +418,10 @@ IfTimeOut
             DamageTarget
             tmpargument = 512         //Gain 2 life
             HealSelf
-            
+
             tmpargument = 2
             SetState
-              
+
 //---------------------------------------------------------------------------
 //Join the battle when one of the sub-bosses die
 IfOrdered
@@ -444,14 +442,14 @@ IfOrdered
 IfStateIs0
   tmpargument = 50      //1 second
   SetDamageTime
-  
+
 //---------------------------------------------------------------------------
 //Charging a spell?
 GetContent
 tmpx = tmpargument
 tmpy = 0
 IfXIsMoreThanY          //Yes, something is charging
-      
+
   //Casting armageddon
   IfStateIs9
     SetTurnModeToSpin
@@ -459,28 +457,28 @@ IfXIsMoreThanY          //Yes, something is charging
     IfXIsMoreThanY
       tmpargument = 2           //Done charging!
       SetState
-        
+
       //Spawn the fireballs
       tmpargument = 6
       tmpx = selfx
       tmpy = selfy
       tmpdistance = selfz + 75
       SpawnExactParticle
-        
+
       tmpargument = 0
       SetContent
       SetTurnModeToVelocity
     Else
       tmpargument = tmpargument + 1 //Keep charging
       SetContent
-      
+
       //Spawn particles around the caster
       tmpx = selfx
       tmpy = selfy
       tmpdistance = selfz
       tmpargument = 5
       SpawnExactParticle
-        
+
       //Spawn charge particle
       GetContent
       tmpturn = tmpargument < 6 + 10000
@@ -489,7 +487,7 @@ IfXIsMoreThanY          //Yes, something is charging
       SpawnAttachedSizedParticle
       tmpdistance = GRIPRIGHT
       SpawnAttachedSizedParticle
-        
+
   //Casting telekinesis
   IfStateIs7
     IfTargetIsOnHatedTeam
@@ -498,7 +496,7 @@ IfXIsMoreThanY          //Yes, something is charging
       IfXIsMoreThanY
         tmpargument = 2           //Done charging!
         SetState
-        
+
         //Throw the target at a speed of 75
         tmpx = 0
         tmpy = 0
@@ -506,7 +504,7 @@ IfXIsMoreThanY          //Yes, something is charging
         tmpdistance = 75        //Speed
         Compass
         AccelerateTarget
-        
+
         //Also deal 3-7 damage
         tmpargument = DAMAGECRUSH
         SetDamageType
@@ -516,7 +514,7 @@ IfXIsMoreThanY          //Yes, something is charging
         //Animation
         tmpargument = ACTIONTA
         DoAction
-        
+
         tmpargument = 2
         PlayFullSound
         tmpargument = 1
@@ -532,14 +530,14 @@ IfXIsMoreThanY          //Yes, something is charging
         tmpdistance = targetz
         tmpargument = 4
         SpawnExactParticle
-        
+
         //Spawn charge particle
         GetContent
         tmpturn = tmpargument < 6 + 10000
         tmpargument = 3
         tmpdistance = GRIPLEFT
         SpawnAttachedSizedParticle
-        
+
   //Casting Paralysis
   IfStateIs8
     IfTargetIsOnHatedTeam
@@ -573,14 +571,14 @@ IfXIsMoreThanY          //Yes, something is charging
         tmpdistance = targetz
         tmpargument = 2
         SpawnExactParticle
-        
+
         //Spawn charge particle
         GetContent
         tmpturn = tmpargument < 6 + 10000
         tmpargument = 1
         tmpdistance = GRIPLEFT
         SpawnAttachedSizedParticle
-        
+
   //Casting invisibillity
   IfStateIs10
     tmpy = 50*4                 //Charge 4 full seconds
@@ -610,57 +608,57 @@ IfXIsMoreThanY          //Yes, something is charging
       tmpy = selfy
       tmpdistance = selfz
       tmpargument = 4
-      SpawnExactParticle   
-        
+      SpawnExactParticle
+
       //Spawn charge particle
       GetContent
       tmpturn = tmpargument < 6 + 10000
       tmpargument = 11
       tmpdistance = GRIPLEFT
       SpawnAttachedSizedParticle
-      
+
   //Summoning live weaponry
   IfStateIs11
     tmpy = 50*4                 //Charge 4 full seconds
     IfXIsMoreThanY
       tmpargument = 2           //Done charging!
       SetState
-      
+
       tmpx = selfx
       tmpy = selfy
       tmpdistance = 120     //Distance between the swords
-      tmpturn = rand        
+      tmpturn = rand
 
       Compass
       tmpargument = rand % 3 + 109  //Sword, xbow or mace
       SpawnExactCharacterXYZ
       tmpargument = 0
       SpawnExactParticle
-      
+
       Compass
       tmpargument = rand % 3 + 109  //Sword, xbow or mace
       SpawnExactCharacterXYZ
       tmpargument = 0
       SpawnExactParticle
-      
+
       Compass
       tmpargument = rand % 3 + 109  //Sword, xbow or mace
       SpawnExactCharacterXYZ
       tmpargument = 0
       SpawnExactParticle
-      
+
       Compass
       tmpargument = rand % 3 + 109  //Sword, xbow or mace
       SpawnExactCharacterXYZ
       tmpargument = 0
       SpawnExactParticle
-      
+
       Compass
       tmpargument = rand % 3 + 109  //Sword, xbow or mace
       SpawnExactCharacterXYZ
       tmpargument = 0
       SpawnExactParticle
-      
+
       //And some spelly effects
       tmpargument = 0
       SpawnExactParticle
@@ -671,7 +669,7 @@ IfXIsMoreThanY          //Yes, something is charging
     Else
       tmpargument = tmpargument + 1 //Keep charging
       SetContent
-      
+
       //Spawn charge particle
       GetContent
       tmpturn = tmpargument < 6 + 10000
@@ -684,14 +682,14 @@ IfXIsMoreThanY          //Yes, something is charging
       //Animation
       tmpargument = ACTIONMD
       DoAction
-      
+
   //Disintergrate item
   IfStateIs13
     tmpy = 50*5                 //Charge 5 full seconds
     IfXIsMoreThanY
       tmpargument = 2           //Done charging!
       SetState
-      
+
       //Find something to destroy
       tmpdistance = 0
       SetTargetToTargetLeftHand
@@ -699,7 +697,7 @@ IfXIsMoreThanY          //Yes, something is charging
       Else
         SetTargetToTargetRightHand
           tmpdistance = 1
-          
+
       tmpturn = 0
       IfDistanceIsMoreThanTurn
         tmpargument = 9
@@ -712,7 +710,7 @@ IfXIsMoreThanY          //Yes, something is charging
         SendMessage
         PoofTarget              //Destroy the item!
           DoNothing
-          
+
         //Somehow it failed!
         Else
           tmpargument = 3
@@ -735,7 +733,7 @@ IfXIsMoreThanY          //Yes, something is charging
     Else
       tmpargument = tmpargument + 1 //Keep charging
       SetContent
-      
+
       //Sparklies around target item
       SetOldTarget
       SetTargetToTargetLeftHand
@@ -748,14 +746,14 @@ IfXIsMoreThanY          //Yes, something is charging
       tmpargument = 8
       SpawnExactParticle
       SetTargetToOldTarget
-      
+
       //Spawn charge particle
       GetContent
       tmpturn = tmpargument < 6 + 10000
       tmpargument = 5
       tmpdistance = GRIPLEFT
       SpawnAttachedSizedParticle
-      
+
       //Handle movement
       SetTurnModeToWatchTarget
       tmpx = targetx
@@ -772,8 +770,8 @@ IfXIsMoreThanY          //Yes, something is charging
     IfXIsMoreThanY
       SetTurnModeToVelocity
       tmpargument = 2           //Done charging!
-      SetState     
-        
+      SetState
+
       tmpargument = 0
       SetContent
     Else
@@ -784,7 +782,7 @@ IfXIsMoreThanY          //Yes, something is charging
       //Keep charging it
       tmpargument = LATCHLEFT
       PressLatchButton
-      
+
 //End invisibillity
 IfInvisible
   tmpargument = 1
@@ -823,15 +821,15 @@ IfStateIsNot
     Else
       tmpx = tmpx - 1
       SetXY
-  
-//Set cooldown for parry  
+
+//Set cooldown for parry
 IfBlocked
   tmpargument = 4
   tmpx = 75         //1,5 second cooldown
   tmpy = 0
   SetXY
   UnkeepAction
-  
+
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 // ZZ> Act as a normal weapon...
 IfDropped
   KeepAction
-    
+
 //------------------------------------------------------------------------------
 //This makes the claw become normal when in statue mode
 IfSpawned

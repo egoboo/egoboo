@@ -71,24 +71,24 @@ IfKilled
   tmpargument = 1
   PlaySound
 
-  //Spawn different types of blood
+  //Spawn different types of blud
   tmpargument = 1
-  tmpdistance = rand & 50 + selfz
+  tmpdistance = rand % 50 + selfz
   tmpx = selfx
   tmpy = selfy
   tmpargument = 0		//Fire mephit
   IfArmorIs
-    tmpargument = 1		//Red blood
+    tmpargument = 1		//Red blud
   Else
     tmpargument = 1		//Ice mephit
     IfArmorIs
-      tmpargument = 3		//Blue blood
+      tmpargument = 3		//Blue blud
     Else
       tmpargument = 2		//Moss mephit
       IfArmorIs
-        tmpargument = 5		//Green blood
+        tmpargument = 5		//Green blud
       Else
-        tmpargument = 3		//death mephit also has Blue blood
+        tmpargument = 3		//death mephit also has Blue blud
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle
@@ -111,9 +111,9 @@ IfTimeOut
   //Guard in a circle
   IfStateIs0
     tmpargument = 20
-    SetTime    
+    SetTime
     SetTargetToWideEnemy	//Enemy found, target him
-      tmpargument = 1 
+      tmpargument = 1
       SetState 		//and charge
     Else			//Circle around
       Run
@@ -124,7 +124,7 @@ IfTimeOut
       tmpdistance = 200
       Compass
       ClearWaypoints
-      AddWaypoint		       
+      AddWaypoint
 
   //Move towards enemy
   IfStateIs1
@@ -151,7 +151,7 @@ IfTimeOut
       DoNothing		//Nope
     Else
       tmpargument = 0 		//Yep return to guarding
-      SetState    
+      SetState
       tmpargument = 20
       SetTime
 
@@ -169,9 +169,9 @@ IfTimeOut
     //Enemy to far away?
     tmpx = targetdistance
     tmpy = 128*3
-    IfXIsMoreThanY    
+    IfXIsMoreThanY
       tmpargument = 1 		//Retry attack position
-      SetState    
+      SetState
       tmpargument = 0
       SetTime
 
@@ -183,7 +183,6 @@ IfTimeOut
     Compass
     ClearWaypoints
     AddWaypoint
-
 
   //Dont flock
   SetOldTarget			//Remember enemy
@@ -213,25 +212,25 @@ IfAttacked
     PlaySound		//Ouch sound
   Else
     SetTargetToOldTarget
-  
-  //Spawn different types of blood
+
+  //Spawn different types of blud
   tmpargument = 1
-  tmpdistance = rand & 50 + selfz
+  tmpdistance = rand % 50 + selfz
   tmpx = selfx
   tmpy = selfy
   tmpargument = 0		//Fire mephit
   IfArmorIs
-    tmpargument = 1		//Red blood
+    tmpargument = 1		//Red blud
   Else
     tmpargument = 1		//Ice mephit
     IfArmorIs
-      tmpargument = 3		//Blue blood
+      tmpargument = 3		//Blue blud
     Else
       tmpargument = 2		//Moss mephit
       IfArmorIs
-        tmpargument = 5		//Green blood
+        tmpargument = 5		//Green blud
       Else
-        tmpargument = 3		//death mephit also has Blue blood
+        tmpargument = 3		//death mephit also has Blue blud
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle

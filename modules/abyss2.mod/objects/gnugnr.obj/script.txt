@@ -3,7 +3,7 @@ IfUsed
   GetContent
   tmpargument = tmpargument +1
   SetContent
-  
+
   //Tell its ready to be thrown
   tmpx = tmpargument
   tmpy = 60             //50 is 1 second
@@ -51,13 +51,13 @@ Else
   UnsparkleIcon
 
 IfHitGround				  // Make a sound
-  tmpargument = 1			  
-  PlaySound		
+  tmpargument = 1
+  PlaySound
   DisaffirmCharacter			  // Stop thrown attack
-  
+
 //This function makes an item fall to the floor when spawned
 IfSpawned
-  tmpargument = ACTIONJB		  
+  tmpargument = ACTIONJB
   DoAction
   KeepAction
   MakeCrushValid
@@ -77,26 +77,26 @@ IfCrushed
   SendMessageNear
 
 IfDropped				  // Make it lie on floor
-  KeepAction				  		  
+  KeepAction
   tmpx = selfx
   tmpy = selfy
   ClearWaypoints
   AddWaypoint
 
 IfTakenOut				  // Make a sound
-  tmpargument = 2			  
-  PlaySound				  
-  SetTargetToWhoeverIsHolding		  
-  IfTargetIsAPlayer			  
-    tmpargument = 2			  
-    SendMessageNear			  
+  tmpargument = 2
+  PlaySound
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 2
+    SendMessageNear
 
 IfGrabbed				  // Tell them what they've won...
-  SetTargetToWhoeverIsHolding		  
-  IfTargetIsAPlayer			  
-    tmpargument = 0			  
-    SendMessageNear		  
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
   tmpargument = 0
   SetFlyHeight
-  SetSpeedPercent	  
+  SetSpeedPercent
 End					  // All done

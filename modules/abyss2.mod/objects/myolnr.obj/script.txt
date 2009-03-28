@@ -25,7 +25,7 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 6000	  //
+  tmpdistance = rand % 2047 + 6000	  //
   PlaySound				  //
 IfNotDropped
   tmpargument = 2
@@ -94,10 +94,9 @@ IfHeld
             tmpargument = 1
             SetRedShift
 
-
 //Reset counter
 IfUsed
   tmpargument = 0
-  SetContent 
+  SetContent
 
 End					// All done

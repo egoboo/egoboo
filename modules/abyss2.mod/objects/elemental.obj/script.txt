@@ -9,17 +9,16 @@ IfUsed
   tmpargument = 50 - tmpargument
   SetReloadTime
 
-
 //Spawn elemental effects along the blade
 tmpargument = selfstate + 2
-tmpx = 0 
+tmpx = 0
 tmpy = 0
 tmpdistance = rand % 70 // Pick a vertex along the blade ( look at model )
 SpawnParticle
 
 //Change element when used
 IfUsed
-  tmpargument = rand % 4
+  tmpargument = rand & 3
   SetState
   IfStateIs0
     tmpargument = DAMAGEFIRE

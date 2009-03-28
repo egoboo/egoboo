@@ -12,7 +12,7 @@ IfHeld
       tmpx = targetstr > 6
       SetTargetToWhoeverIsHolding
       tmpy = targetstr > 7
-      tmpx = rand % 100 + tmpx 
+      tmpx = rand % 100 + tmpx
       tmpy = 90 + tmpy            //90% block rate
       IfXIsMoreThanY
         tmpargument = 55    //1.10 seconds

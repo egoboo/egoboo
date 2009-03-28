@@ -29,11 +29,11 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfTakenOut				// Make a sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
@@ -53,5 +53,4 @@ tmpdistance = rand % 9 // Pick a vertex along the blade ( look at model )
 SpawnParticle
 
 
- 
 End					// All done

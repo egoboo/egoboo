@@ -13,7 +13,7 @@ IfSpawned
   tmpy = selfspawny
   ClearWaypoints
   AddWaypoint
-  
+
 //------------------------------------------------------------------------------
 //BOSS BATTLE AI
 tmpargument = 1
@@ -36,11 +36,11 @@ Else
     Compass
     ClearWaypoints
     AddWaypoint
-  
+
     tmpargument = 20
     SetTime
-  
-  
+
+
   //------------------------------------------------------------------------------
   // ZZ> Handle death by sending a message and other stuff
   IfKilled
@@ -49,29 +49,29 @@ Else
     IfTargetIsOnHatedTeam
       tmpargument = 1
     SendMessage
-  
-  
+
+
     // Make noises
     tmpargument = 1
     PlaySound
-  
-  
+
+
     // Make the character body
     tmpargument = 45
     SetBumpHeight
     tmpargument = 30
     SetBumpSize
-    
+
     //Tell the dracolich we are dead
     tmpargument = [BDIE]
     IssueOrder
-  
+
   //------------------------------------------------------------------------------
   // ZZ> Let the character walk around
   IfTimeOut
     tmpargument = 20
     SetTime
-  
+
     tmpdistance = 128*10
     SetTargetToDistantEnemy
       Run
@@ -91,8 +91,8 @@ Else
               SpawnAttachedParticle
               tmpargument = 20
               SetReloadTime
-  
-  
+
+
             // Back up
             tmpx = selfx
             tmpy = selfy
@@ -133,12 +133,12 @@ Else
               // Rush attack
               tmpargument = rand & 1 + 1
               PressLatchButton
-  
+
               // Play a sound
               tmpargument = 2
               tmpdistance = 22050
               PlaySound
-  
+
               tmpturn = targetturnto
               tmpdistance = 1600
               tmpx = selfx
@@ -172,15 +172,15 @@ Else
       SetTime
     ClearWaypoints
     AddWaypoint
-  
-  
+
+
   //------------------------------------------------------------------------------
   // ZZ> Handle being attacked by making a sound...  Drop claws...
   IfAttacked
     tmpargument = 0
     PlaySound
-  
-  
+
+
     GetDamageType
     tmpx = tmpargument
     tmpy = DAMAGESLASH
@@ -191,8 +191,8 @@ Else
         // Drop a claw
         tmpargument = tmpx > 2 & 1 + ACTIONMA
         DoActionOverride
-  
-  
+
+
   //------------------------------------------------------------------------------
   IfBumped
     SetTargetToWhoeverBumped
@@ -224,8 +224,8 @@ Else
       AddWaypoint
       tmpargument = 10
       SetTime
-  
-  
+
+
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

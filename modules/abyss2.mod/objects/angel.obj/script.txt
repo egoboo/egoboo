@@ -1,6 +1,6 @@
 //------------------------------------------------------------------------------
 //Angelic aura
-tmpargument = 5	
+tmpargument = 5
 tmpx = selfx
 tmpy = selfy
 tmpdistance = selfz
@@ -100,7 +100,7 @@ IfTimeOut
         //PlaySound
         //SendMessage
     SetTurnModeToWatchTarget
-  
+
   //When not imprisoned, draw our gear
   Else
     IfHoldingMeleeWeapon
@@ -108,8 +108,8 @@ IfTimeOut
     Else
       tmpargument = LATCHPACKRIGHT		//weapon
       PressLatchButton
-   
-      
+
+
   //Follow
   IfStateIs3
     tmpargument = rand & 15 + 35
@@ -124,7 +124,7 @@ IfTimeOut
           SetTargetToOwner
         Else
           tmpargument = 4
-          SetState      
+          SetState
 
     tmpx = rand & 255 + ownerx - 128
     tmpy = rand & 255 + ownery - 128
@@ -133,7 +133,7 @@ IfTimeOut
     Compass
     ClearWaypoints
     AddWaypoint
-      
+
   //Combat Mode
   IfStateIs4
     tmpargument = rand & 15 + 15
@@ -147,7 +147,7 @@ IfTimeOut
       IfXIsMoreThanY            //See if we need to go after the player
         tmpargument = 3
         SetState
-        
+
     //We are still in combat! Do the usual combat stuff
     IfStateIs4
       SetTargetToWideEnemy
@@ -178,7 +178,7 @@ IfTimeOut
           Compass
           ClearWaypoints
           AddWaypoint
-          
+
       //No more enemies around
       Else
         tmpargument = 3
@@ -270,7 +270,7 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-  
+
   //Make no body! (for ressurections)
   GoPoof
 

@@ -26,7 +26,7 @@ IfArmorIs
       SetFlyHeight
       SetTargetToSelf
       EnchantTarget  // Enchant self...
-  
+
       // Darkknight has a dyna light particle
       tmpargument = 2
       tmpdistance = SPAWNORIGIN
@@ -41,38 +41,38 @@ Else
     Else
       tmpargument = 0
       SetState
-  
-  
+
+
   //------------------------------------------------------------------------------
   // ZZ> Handle death by sending a message and other stuff
   IfKilled
     tmpargument = 2
     PlaySound
-  
+
     //Get rid of the darkness
     DisaffirmCharacter
-    
+
     // Drop goodies
     tmpargument = selfmoney
     DropMoney
     DropKeys
-  
-  
+
+
     tmpargument = 0
     SendMessageNear
-  
-  
+
+
     // Make the character body
     tmpargument = 0
     SetBumpHeight
     tmpargument = 0
     SetFlyHeight
-    
+
     //Tell the dracolich we are dead
     tmpargument = [BDIE]
     IssueOrder
-  
-  
+
+
   //------------------------------------------------------------------------------
   IfBumped
     SetTargetToWhoeverBumped
@@ -85,8 +85,8 @@ Else
       ClearWaypoints
       AddWaypoint
       SetTargetToOldTarget
-  
-  
+
+
   //------------------------------------------------------------------------------
   IfTimeOut
     // Return to normal
@@ -116,7 +116,7 @@ Else
         tmpy = selfy + 200
         ClearWaypoints
         AddWaypoint
-        
+
     // Follow through
     IfStateIs3
       tmpargument = rand & 31 + 90
@@ -130,7 +130,7 @@ Else
       Compass
       ClearWaypoints
       AddWaypoint
-      
+
     // Chop the enemy
     IfStateIs2
       tmpargument = rand & 31 + 30
@@ -147,7 +147,7 @@ Else
         // Fall through to next...
         tmpargument = 1
         SetState
-        
+
     // Rush the enemy
     IfStateIs1
       SetTurnModeToVelocity
@@ -182,9 +182,9 @@ Else
         SetState
         tmpargument = rand & 3 + 6
         SetTime
-  
-  
-  
+
+
+
   //------------------------------------------------------------------------------
   // ZZ> Handle being attacked by blocking or countering or running away
   IfAttacked
@@ -195,9 +195,9 @@ Else
     SetTargetToWhoeverAttacked
     tmpargument = rand & 1
     PlaySound
-  
-  
-  
+
+
+
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

@@ -43,7 +43,7 @@ IfTimeOut
   IfStateIs0
     SetTurnModeToVelocity
     SetTargetToWideEnemy	//Enemy found, target him
-      tmpargument = 1 
+      tmpargument = 1
       SetState 		//and charge
       tmpargument = 2
       PlayFullSound
@@ -57,7 +57,7 @@ IfTimeOut
       tmpargument = 50
       SetSpeedPercent
       tmpargument = 20
-      SetTime    	       
+      SetTime
 
   //Charge
   IfStateIs1
@@ -89,7 +89,7 @@ IfTimeOut
         AddWaypoint
         tmpargument = 100
         SetSpeedPercent
-      
+
       tmpargument = rand & 31 + 40
       SetTime
 
@@ -97,7 +97,7 @@ IfTimeOut
       DoNothing		//Nope
     Else
       tmpargument = 0 		//Yep return to guarding
-      SetState    
+      SetState
       tmpargument = 20
       SetTime
 
@@ -114,7 +114,7 @@ IfTimeOut
     //Enemy to far away?
     tmpx = targetdistance
     tmpy = 800
-    IfXIsMoreThanY    
+    IfXIsMoreThanY
       tmpargument = 1 		//Charge him!
       SetState
       tmpargument = 2
@@ -150,7 +150,7 @@ IfAttacked
   IfBackstabbed
     GetDamageType
     SetDamageType
-    tmpdistance = tmpargument 
+    tmpdistance = tmpargument
     tmpargument = targetdex > 10 //+1 damage for every 4 points of dex
     SetTargetToSelf
     DamageTarget
@@ -166,7 +166,6 @@ IfTargetKilled
   Else
     tmpargument = 0
   SetState
-
 
 //------------------------------------------------------------------------------
 //Scuttle away or become angry

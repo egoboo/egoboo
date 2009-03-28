@@ -11,9 +11,9 @@ IfStateIs0
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle
- 
+
 IfTimeOut
-  
+
   tmpargument = 0
   SetState		//Reset
 

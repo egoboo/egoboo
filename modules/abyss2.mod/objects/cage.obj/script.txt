@@ -2,23 +2,22 @@
 //a new second cage and goes poof. If content = 0 the seal orb spawns
 //in the X direction (otherwise Y)
 
-
 IfSpawned
   IfHeld
 
-    //Imprison the holder                            
+    //Imprison the holder
     SetTargetToWhoeverIsHolding
     EnchantTarget
 
     //Spawn a key orb
-    tmpargument = 0                  
+    tmpargument = 0
     IfContentIs
       tmpx = targetx - 150
       tmpy = targety
     Else
       tmpx = targetx
       tmpy = targety - 150
-      
+
     tmpargument = 2           //special king bishop orb
     IfContentIs
       tmpargument = 115
@@ -32,7 +31,6 @@ IfSpawned
 
     //Go away
     GoPoof
-
 
 //Spelly effects
 tmpargument = 1

@@ -9,7 +9,7 @@ IfSpawned
 IfTimeOut
   tmpargument = rand & 15 + 20
   SetTime
-  
+
   //This sets the duration before it dissapears
   GetContent
   tmpargument = tmpargument + 1
@@ -19,7 +19,7 @@ IfTimeOut
   IfXIsLessThanY
     SetTargetToSelf
     KillTarget
-    
+
   //Attack AI
   SetTargetToOwner
   tmpx = targetdistance
@@ -40,7 +40,7 @@ IfTimeOut
     Compass
   ClearWaypoints
   AddWaypoint
-  
+
   //Attack!
   SetTargetToOwner
   IfTargetIsOnHatedTeam
@@ -52,20 +52,20 @@ IfTimeOut
         DoAction
   Else
     SetTargetToNearestEnemy
-    
+
 //Someone attacked it
 IfHealed
   SetTargetToWhoeverHealed
   IfTargetIsOnHatedTeam
     SetOwnerToTarget        //Become it's new target
-    
+
   //Spawn defense ping
   tmpargument = 1
   tmpdistance = SPAWNORIGIN
   tmpy = 0
   tmpx = 0
   SpawnParticle
-  
+
 //Fade away sound
 IfKilled
   tmpargument = 2

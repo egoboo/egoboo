@@ -186,7 +186,7 @@ invisiblechest.obj:   NONE    48  25.5   83.0   1.0   W    0   0  0   1   0   F 
   rgpotion.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   clencher.obj:   NONE    72  0.0   0.0   0.0   I    0   0  0   0   0   F   F   E
 normalchest.obj:   NONE    46  23.5   99.5   1.0   S    0   0  0   1   0   F   F   N
-  bloodmace.obj:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  bludmace.obj:   NONE    70  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Area between hell room and amazing maze
 pchest.obj:   NONE    63  36.0   93.0   1.0   S    59   0  0   2   0   F   F   N

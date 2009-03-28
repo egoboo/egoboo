@@ -23,7 +23,7 @@ IfTimeOut
       tmpx = 4 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 17
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -32,7 +32,7 @@ IfTimeOut
       tmpx = 5 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 10
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -41,7 +41,7 @@ IfTimeOut
       tmpx = 7 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 16
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -50,7 +50,7 @@ IfTimeOut
       tmpx = 9 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 25
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -59,7 +59,7 @@ IfTimeOut
       tmpx = 8 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 29
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -68,7 +68,7 @@ IfTimeOut
       tmpx = 7 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpargument = 35
   SetOldTarget
   SetTargetToWhoeverIsInPassage
@@ -77,7 +77,7 @@ IfTimeOut
       tmpx = 10 // Message
     Else
       SetTargetToOldTarget
-      
+
   tmpy = 1
   IfXIsMoreThanY
     tmpargument = [READ]
@@ -90,7 +90,7 @@ IfTimeOut
       Else
         GetXY
   Else
-    tmpx = 0    //Cannot read... too low int   
+    tmpx = 0    //Cannot read... too low int
 
   IfTargetIsAPlayer					//Last check that only players read
     IfDistanceIsMoreThanTurn

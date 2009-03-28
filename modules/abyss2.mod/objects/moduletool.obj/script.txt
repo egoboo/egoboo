@@ -12,7 +12,7 @@ IfSpawned
 
   tmpargument = 100
   SetTime
-  
+
   //Make pittraps work
   tmpx = 8640
   tmpy = 13888          //Coordinates on where to drop the player
@@ -23,13 +23,12 @@ IfSpawned
   tmpargument = 36		//Boss music theme
   tmpdistance = 16
   SetMusicPassage
-  
+
   //This keeps track of the number of seals left
   tmpargument = 0
   tmpx = 0          //Number destroyed
   tmpy = 4          //Total number of seals in map
   SetXY
-
 
 //This happens when a deamon lord dies
 IfOrdered
@@ -53,7 +52,7 @@ IfTimeOut
           SendMessage
           tmpargument = 4
           PlayFullSound
-          
+
           //This keeps track of the number of crowns
           tmpargument = 0
           GetXY
@@ -70,13 +69,13 @@ IfTimeOut
           PlayFullSound
           tmpargument = 350
           SetTime
-        
+
       IfStateIs2                        //Broken!
         tmpargument = 4
         SendMessage
         tmpargument = 3
         PlayFullSound
-        
+
         //Row 1
         tmpx = 6650
         tmpy = 6560
@@ -99,7 +98,6 @@ IfTimeOut
         tmpargument = tmpargument + 4
         SetTileXY
 
-
         //Row 2
         tmpx = 6650
         tmpy = 6460
@@ -111,12 +109,12 @@ IfTimeOut
         GetTileXY
         tmpargument = tmpargument + 4
         SetTileXY
-  
+
         tmpx = tmpx + 125
         GetTileXY
         tmpargument = tmpargument + 4
         SetTileXY
-  
+
         tmpx = tmpx + 125
         GetTileXY
         tmpargument = tmpargument + 4
@@ -165,7 +163,7 @@ IfTimeOut
         GetTileXY
         tmpargument = tmpargument + 4
         SetTileXY
-        
+
         //Dont forget to actually open the boss door =)
         tmpargument = 34
         OpenPassage

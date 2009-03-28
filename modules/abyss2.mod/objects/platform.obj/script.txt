@@ -116,7 +116,6 @@ IfSpawned
     SetRedShift
     SetBlueShift
 
-
   //Chest reward secret (NORMAL)
   tmpargument = 6
   IfContentIs
@@ -157,13 +156,12 @@ IfSpawned
     SetRedShift
     SetGreenShift
 
-
 //Completely random platform AI
 tmpargument = 0
 IfContentIs
   IfTimeOut
-    tmpx = rand & 2047 + selfspawnx - 1023 
-    tmpy = rand & 2047 + selfspawny - 1023 
+    tmpx = rand % 2047 + selfspawnx - 1023
+    tmpy = rand % 2047 + selfspawny - 1023
     ClearWaypoints
     AddWaypoint
     tmpargument = rand % 200
@@ -187,7 +185,7 @@ Else
         SpawnPoof
         tmpargument = 0
         PlaySound
-      tmpargument = 0 
+      tmpargument = 0
     Else
       tmpargument = selfstate + 1
     SetState
@@ -200,6 +198,6 @@ IfBumped
     tmpargument = rand & 63 + targetz - 32	//Fudge until success!
     SetFlyHeight
 
-    
+
 // All Done
 End

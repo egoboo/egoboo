@@ -12,7 +12,7 @@ IfHeld
     DetachFromHolder
     tmpargument = 5
     SendMessageNear
-    
+
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //
@@ -40,7 +40,7 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfNotDropped
   tmpargument = 2

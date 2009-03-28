@@ -1,7 +1,6 @@
 IfSpawned
   MakeCrushValid
 
-
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -13,13 +12,11 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
 IfDropped
   // Popped out of a chest
   tmpargument = 3
   tmpdistance = 22050
   PlaySound
-
 
 IfKilled
   tmpargument = 0
@@ -30,13 +27,11 @@ IfKilled
   tmpdistance = rand & 4095 + 11000
   PlaySound
 
-
 IfAttacked
   SetTargetToWhoeverAttacked
     tmpargument = 0
     tmpdistance = rand & 4095 + 11000
     PlaySound
-
 
 IfBumped
   SetTargetToWhoeverBumped
@@ -50,8 +45,6 @@ IfBumped
     ClearWaypoints
     AddWaypoint
     SetTargetToOldTarget
-
-
 
 // Look for enemies
 IfTimeOut
@@ -102,7 +95,6 @@ IfTimeOut
     AddWaypoint
   tmpargument = rand & 31 + 25
   SetTime
-
 
 // All done
 End

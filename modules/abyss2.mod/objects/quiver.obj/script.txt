@@ -32,7 +32,7 @@ IfDropped				// Make it lie on floor
 //----------------------------------------------------------------------------------
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 
 //----------------------------------------------------------------------------------

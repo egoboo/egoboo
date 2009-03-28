@@ -30,10 +30,10 @@ IfStateIs1
 
       tmpargument = 3
       PlayFullSound
-      
+
       tmpargument = 2
       SetState
-      
+
       tmpargument = [BEAT]
       AddIDSZ
 
@@ -45,7 +45,6 @@ IfOrdered
     tmpargument = 1
     SetState
     JoinGoodTeam
-
 
 //Move towards player to win
 IfStateIs1
@@ -84,10 +83,10 @@ IfKilled
   SendMessage
   tmpargument = 2
   PlayFullSound
-  
+
   BeatModule
   tmpargument = [MAIN]
   tmpdistance = 8
   AddQuestAllPlayers
-  
+
 End

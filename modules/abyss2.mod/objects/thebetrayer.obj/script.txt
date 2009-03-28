@@ -20,7 +20,7 @@ IfOrdered
 IfTimeOut
   //This makes the betrayer teleport behind enemy defences
   IfTargetIsDefending
-    IfStateIs3   
+    IfStateIs3
       //Do we have enough mana?
       tmpx = selfmana
       tmpy = 700
@@ -44,8 +44,6 @@ IfTimeOut
           SetTargetToSelf
           CostTargetMana
           SetTargetToOldTarget
-
-
 
       // Are the character and enemy facing opposite directions?
       tmpturn = targetturn - selfturn
@@ -83,7 +81,7 @@ IfTimeOut
                 CostTargetMana
                 SetTargetToOldTarget
 
-  
+
 
   //Lure the player into releasing him
   tmpargument = 3
@@ -113,8 +111,8 @@ IfTimeOut
         SendMessage
         tmpargument = 0
         SetState
-        
-    SetTurnModeToWatchTarget 
+
+    SetTurnModeToWatchTarget
 
   //Betrayal mode
   Else
@@ -149,7 +147,6 @@ IfTimeOut
       SpawnParticle
       tmpargument = 10		//Spelly effects
       PlaySound
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -187,20 +184,16 @@ IfKilled
       tmpargument = 0
   SetChildState
 
-
   // Make the character body
   tmpargument = 45
   SetBumpHeight
 
-
 //Spawn some fancy sparklies
-tmpargument = 2	
+tmpargument = 2
 tmpx = selfx
 tmpy = selfy
 tmpdistance = selfz
 SpawnExactParticle
-
-
 
 //------------------------------------------------------------------------------
 //Say ouch
@@ -216,7 +209,7 @@ IfStateIsNot
   IfBumped
     tmpargument = [FREE]
     OrderTarget
-    
+
   IfAttacked
     SetTargetToSelf
     tmpargument = [FREE]

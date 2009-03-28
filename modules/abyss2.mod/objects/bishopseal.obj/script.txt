@@ -15,7 +15,6 @@ IfOrdered
     tmpargument = 116
     ChangeTargetClass
 
-
 //---------------------------------------------------------------------------
 //Don't let em come too close
 IfStateIs0
@@ -28,15 +27,15 @@ IfStateIs0
     tmpdistance = 75        //Speed
     Compass
     AccelerateTarget
-      
+
     //Also deal 3-7 damage
     tmpargument = DAMAGECRUSH
     SetDamageType
     tmpargument = rand & 1023 + 768
     DamageTarget
-      
+
     tmpargument = 0
     PlayFullSound
     SendMessage
-      
+
 End

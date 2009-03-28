@@ -13,7 +13,7 @@ IfUsed
     IfXIsEqualToY
       tmpargument = rand % 3 + 1      //Disallow disenchant
     Else
-      tmpargument = rand % 4 + 1      //Allow disenchant
+      tmpargument = rand & 3 + 1      //Allow disenchant
     SetState
 
   //Death Cloud
@@ -42,12 +42,12 @@ IfUsed
       //Sound effect
       tmpargument = 0
       PlaySound
- 
+
       //Animation
       tmpargument = ACTIONMD  // Must be an A...  ZA, BA, CA, DA, etc...
       SetTargetToWhoeverIsHolding
       TargetDoAction
- 
+
       //Now reset
       tmpargument = 0
       SetState
@@ -93,7 +93,6 @@ IfUsed
       tmpy = selfy
       tmpdistance = selfz - 128
       SpawnExactParticle
-
 
       //Animation
       tmpargument = ACTIONTA  // Must be an A...  ZA, BA, CA, DA, etc...
@@ -146,19 +145,19 @@ IfUsed
     tmpy = 150			//3 seconds
     IfXIsMoreThanY
       DisenchantTarget
-      
+
       //Sound effect
       tmpargument = 3
       PlaySound
 
       tmpargument = 0
       SendMessage
- 
+
       //Animation
       tmpargument = ACTIONMD  // Must be an A...  ZA, BA, CA, DA, etc...
       SetTargetToWhoeverIsHolding
       TargetDoAction
- 
+
       //Now reset
       tmpargument = 0
       SetState
@@ -179,7 +178,7 @@ IfUsed
       tmpargument = 10
       tmpdistance = targetz
       SpawnExactParticle
-    
+
 
 //Holder aborted casting
 Else

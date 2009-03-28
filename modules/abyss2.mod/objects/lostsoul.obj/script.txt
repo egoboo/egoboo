@@ -23,25 +23,25 @@ IfOrdered
     tmpargument = 101
     SetTargetToSelf
     ChangeTargetClass      //Change to the blue soul
-    
+
 //Setup character
 IfSpawned
   tmpargument = 1
   SetState
   ReaffirmCharacter
-  
+
   //Bad! I'm to lazy to do this in spawn.txt
   JoinGoodTeam
-  
+
 IfTimeOut
 
   //Wander mode
   IfStateIs1
-    tmpx = rand & 2023 + selfx - 1024
-    tmpy = rand & 2023 + selfy - 1024
+    tmpx = rand % 2047 + selfx - 1024
+    tmpy = rand % 2047 + selfy - 1024
     ClearWaypoints
     AddWaypoint
-    tmpargument = rand & 65 + 50
+    tmpargument = rand % 65 + 50
     SetTime
 
   //Flock player mode
@@ -61,7 +61,6 @@ IfTimeOut
     tmpargument = targetaltitude
     SetFlyHeight
 
-
   //Panic mode?
   tmpx = selfstate
   tmpy = 1
@@ -69,8 +68,8 @@ IfTimeOut
     tmpargument = selfstate - 1
     SetState
 
-    tmpx = rand & 2023 + selfspawnx - 1024
-    tmpy = rand & 2023 + selfspawny - 1024
+    tmpx = rand % 2047 + selfspawnx - 1024
+    tmpy = rand % 2047 + selfspawny - 1024
     ClearWaypoints
     AddWaypoint
 
@@ -94,7 +93,7 @@ IfStateIs0
     IssueOrder
     tmpargument = 0
     SetContent
-   
+
 //Flock around the player if closer than 10 tiles
 IfStateIs1
   tmpx = rand & 255
@@ -104,21 +103,19 @@ IfStateIs1
       IfTargetIsAPlayer
         tmpx = targetdistance
         tmpy = 128*10
-        IfXIsLessThanY			
+        IfXIsLessThanY
           tmpargument = 0
           SetState
           tmpargument = [JOIN]
           IssueOrder
           SetOwnerToTarget
-          
+
           //50% for a random taunt
           tmpx = rand & 1
           tmpy = 0
           IfXIsEqualToY
             tmpargument = rand % 11
             PlayFullSound
-
-
 
 // All done
 End

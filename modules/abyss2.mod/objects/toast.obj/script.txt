@@ -30,7 +30,7 @@ IfStateIs0
         tmpy = rand & 511 + selfy - 256
         tmpy = rand & 1023 + tmpy	//lessen the randomness
       tmpdistance = selfz + 600
-      tmpturn = rand & 65535
+      tmpturn = rand % 65535
       SpawnCharacterXYZ
       tmpargument = 1
       SetChildState
@@ -62,6 +62,5 @@ Else
     SetLight
     tmpargument = ACTIONKA
     DoActionOverride
-
 
 End

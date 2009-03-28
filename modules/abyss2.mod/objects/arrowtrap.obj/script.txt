@@ -26,11 +26,11 @@ IfTimeOut
             tmpx = rand & 255
             tmpy = 25			//How often to check
             IfXIsLessThanY
-              tmpx = rand & 2560 + targetint	//0-10 + the characters intelligence
+              tmpx = rand & 255 * 10 + targetint	//0-10 + the characters intelligence
               tmpy = 5888				//need to be more than 23 points added together
               IfXIsMoreThanY
                 tmpargument = 1
-                SendMessageNear		
+                SendMessageNear
                 tmpargument = 15
                 tmpdistance = EXPDARE
                 GiveExperienceToTarget		//Award some xp
@@ -46,7 +46,6 @@ IfTimeOut
     // Go away
     tmpargument = 0
     SetContent
-
 
     // Wait a while (reset)
     tmpargument = 70
@@ -76,7 +75,6 @@ IfTimeOut
       tmpargument = tmpx - 1
       SetContent
 
-
       //Shoot an arrow
       tmpargument = 0
       tmpdistance = 600
@@ -87,10 +85,6 @@ IfTimeOut
       // Wait a while
       tmpargument = 15
       SetTime
-
-
-
-
 
 // All done
 End

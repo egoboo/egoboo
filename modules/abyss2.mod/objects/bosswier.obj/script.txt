@@ -37,11 +37,11 @@ Else
     IfTargetIsOnHatedTeam
       tmpargument = 0
     SendMessage
-  
+
     // Make a noise
     tmpargument = 2
     PlaySound
-  
+
     // Do splash...
     tmpargument = 1
     tmpdistance = 8
@@ -68,20 +68,20 @@ Else
     SpawnAttachedParticle
     tmpdistance = 72
     SpawnAttachedParticle
-    
+
     //Tell the dracolich we are dead
     tmpargument = [BDIE]
     IssueOrder
-  
+
   IfAttacked
     // Just in case it was in the middle of a throw
     SetTurnModeToWatchTarget
-  
+
     // Make a noise
     tmpargument = 3
     PlaySound
-  
-  
+
+
   IfBumped
     IfStateIs0
       SetTargetToWhoeverBumped
@@ -101,21 +101,21 @@ Else
         ClearWaypoints
         AddWaypoint
         SetTargetToOldTarget
-  
-  
-  
+
+
+
   // Make the bottom fade out
   tmpturn = 0		// Use this intensity
   tmpx = 1200		// Below this height,
   tmpdistance = 255	// Use this intensity
   tmpy = 5000		// Above this height,
   FlashVariableHeight	// Interpolate between
-  
-  
-  
+
+
+
   //Main AI loop
   IfTimeOut
-  
+
     // Throw the target
     IfStateIs3
       tmpx = 0
@@ -129,7 +129,7 @@ Else
       tmpargument = rand & 1023 + 1024  // 4-8 damage
       DamageTarget
       SetTurnModeToWatchTarget
-      
+
     // Find an enemy
     IfStateIs0
       SetOldTarget
@@ -142,7 +142,7 @@ Else
           tmpargument = 3
           SetState
           SetTurnModeToSpin
-  
+
           // Make a noise
           tmpargument = 1
           PlaySound
@@ -175,14 +175,14 @@ Else
                     // Make a noise
                     tmpargument = 1
                     PlaySound
-                    
+
                     // Do damage
                     tmpargument = 0
                     tmpdistance = GRIPLEFT
                     SpawnAttachedParticle
         tmpargument = rand & 15 + 10  // Time
         SetTime
-      
+
       // Follow the enemy
       IfTargetIsOnHatedTeam
         tmpx = targetdistance
@@ -204,19 +204,19 @@ Else
         tmpx = selfspawnx
         tmpy = selfspawny
         SetTurnModeToVelocity
-        
+
       //Throwing something overrides the above
       IfStateIs3
         tmpx = selfx
         tmpy = selfy
         tmpargument = 23 // Time before accel
         SetTime
-        
+
       ClearWaypoints
       AddWaypoint
 
-    
+
 // All done
 End
-  
+
   

@@ -44,7 +44,6 @@ IfTimeOut
     tmpargument = tmpx - 1
     SetContent
 
-
     // Drop a boulder
     tmpargument = 0
     tmpdistance = 600
@@ -54,11 +53,9 @@ IfTimeOut
     SpawnExactParticle
     SpawnExactParticle
 
-
   // Wait a while
   tmpargument = 3
   SetTime
-
 
 // All done
 End

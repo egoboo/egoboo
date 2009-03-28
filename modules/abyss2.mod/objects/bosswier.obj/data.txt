@@ -1,6 +1,6 @@
 // Real general data
 Object slot number ( 0 to 63, don't use twice )	: 106
-Object class name ( use underscore for spaces ) : Blood_Wierd
+Object class name ( use underscore for spaces ) : Blud_Wierd
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
 Starting ammo ( 0 for doesn't matter )		: 0
@@ -154,8 +154,8 @@ Facing add for each one ( 0 to 65535 )		: 8192
 Particle type ( 0 to 3 )			: 4
 
 
-// Particle spawning for Blood ( If you want it, you put it in... )
-Blood valid ( TRUE or FALSE )			: ULTRA
+// Particle spawning for Blud ( If you want it, you put it in... )
+Blud valid ( TRUE or FALSE )			: ULTRA
 Particle type ( 0 to 3 )			: 1
 
 

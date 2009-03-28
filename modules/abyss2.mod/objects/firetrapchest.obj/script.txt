@@ -28,28 +28,22 @@ IfOrdered
         tmpdistance = [WAKE]
         OrderSpecialID
 
-
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Check for disarm skill
         tmpx = 0
@@ -60,17 +54,13 @@ IfBumped
           tmpargument = tmpargument + targetlevel*4 //+4% chance of success per level
           tmpx = rand % 100 + targetdex
 
-
-
         // Check if it was disarmed
         IfXIsMoreThanY
-
 
           // Give some experience
           tmpargument = 45
           tmpdistance = EXPROLEPLAY
           GiveExperienceToTarget
-
 
           // Open it up
           tmpargument = ACTIONMG
@@ -95,7 +85,6 @@ IfBumped
           tmpargument = 5
           tmpdistance = EXPDARE
           GiveExperienceToTarget
-
 
           // Play the trap action
           tmpargument = ACTIONKD
@@ -126,13 +115,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
-
-
 
         // Say it's empty...  Or check for false bottom
         IfStateIs2
@@ -151,7 +136,6 @@ IfBumped
               tmpargument = 1
               SendMessageNear
 
-
               // Figure out what to drop...  Opposite of first drop
               GetContent
               tmpargument = tmpargument & 1
@@ -161,8 +145,6 @@ IfBumped
               Else
                 tmpargument = selfmoney
                 DropMoney
-
-
 
               // No more false bottom
               tmpargument = 0
@@ -178,7 +160,6 @@ IfBumped
                 tmpargument = 1
                 SendMessageNear
 
-
                 // Figure out what to drop...  Opposite of first drop
                 GetContent
                 tmpargument = tmpargument & 1
@@ -189,8 +170,6 @@ IfBumped
                   tmpargument = selfmoney
                   DropMoney
 
-
-
                 // No more false bottom
                 tmpargument = 0
                 SetContent
@@ -200,9 +179,6 @@ IfBumped
             // No false bottom
             tmpargument = 2
             SetState
-
-
-
 
         // Drop the contents
         IfStateIs1
@@ -230,9 +206,6 @@ IfBumped
             SendMessageNear
           tmpargument = 2
           SetState
-
-
-
 
 // All done
 End

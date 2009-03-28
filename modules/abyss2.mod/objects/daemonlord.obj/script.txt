@@ -33,7 +33,7 @@ IfBackstabbed
   SetTargetToWhoeverAttacked
   GetDamageType
   tmpdistance = tmpargument
-  tmpargument = targetdex > 2  		//+1 extra damage for every 4 dex 
+  tmpargument = targetdex > 2  		//+1 extra damage for every 4 dex
   SetTargetToSelf
   DamageTarget
   SetTargetToWhoeverAttacked
@@ -61,7 +61,6 @@ Else
 IfBored
   tmpargument = 9
   PlaySound
-
 
 //------------------------------------------------------------------------------
 //Handle death by sending a message and other stuff
@@ -143,7 +142,7 @@ IfTimeOut
     tmpy = selfspawny
     ClearWaypoints
     AddWaypoint
-    tmpargument = 10 + rand % 30
+    tmpargument = rand % 30 + 10
     SetTime
     tmpdistance = 128*8
     SetTargetToDistantEnemy
@@ -161,7 +160,7 @@ IfTimeOut
     tmpx = rand & 255
     tmpy = 250
     IfXIsMoreThanY
-      tmpargument = rand % 8 + 9
+      tmpargument = rand & 7 + 9
       PlayFullSound
       tmpx = tmpargument
       tmpy = 11			//Figure out if to play message
@@ -172,8 +171,8 @@ IfTimeOut
   //Move towards enemy
   IfStateIs1
     Run
-    tmpargument = 20 + rand & 15
-    SetTime 
+    tmpargument = rand & 15 + 20
+    SetTime
     tmpx = targetdistance
     tmpy = 290
     IfXIsMoreThanY		//Move closer?
@@ -233,7 +232,7 @@ IfTimeOut
           SpawnAttachedParticle
 
           //Costs 3 points of mana
-          SetTargetToSelf		
+          SetTargetToSelf
           tmpargument = 800
           CostTargetMana
           SetTargetToOldTarget
@@ -263,7 +262,7 @@ IfTimeOut
     tmpturn = targetturnto
     Compass
     ClearWaypoints
-    AddWaypoint			
+    AddWaypoint
 
     GetContent
     tmpargument = tmpargument +1	//Another round has passed
@@ -287,8 +286,7 @@ IfTimeOut
         SetState
       Else
         tmpargument = 0		//He died, lets wait again
-        SetState	
-
+        SetState
 
 //------------------------------------------------------------------------------
 //Spawn fire around daemon (Fiery shield)
@@ -322,14 +320,12 @@ IfAttacked
     Run
     tmpargument = 1		//Move toward enemy
     SetState
-    tmpargument = rand % 4 + 2
+    tmpargument = rand & 3 + 2
     PlaySound
   Else
     tmpargument = 3		//Friendly fire
-    PlaySound   
+    PlaySound
     SetTargetToOldTarget
-
-
 
 //------------------------------------------------------------------------------
 //Last, check if our target is really a enemy (Just in case)

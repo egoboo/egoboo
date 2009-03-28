@@ -42,7 +42,7 @@ SetTargetToNearestEnemy
         tmpy = targetdistance
         IfXIsMoreThanY
           tmpargument = 0
-          SetTime	
+          SetTime
 
     Else
       IfFacingTarget
@@ -107,7 +107,7 @@ IfTimeOut
   IfStateIs0
     tmpx = 9025
     tmpy = 12795
-    
+
   IfStateIs1
     tmpx = 9298
     tmpy = 11589
@@ -140,8 +140,6 @@ IfTimeOut
   tmpargument = 4
   PlaySound
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Put on some eyes
 IfSpawned
@@ -151,7 +149,6 @@ IfSpawned
   tmpdistance = 10
   SpawnAttachedParticle
   DisableExport
-
 
 //------------------------------------------------------------------------------
 End

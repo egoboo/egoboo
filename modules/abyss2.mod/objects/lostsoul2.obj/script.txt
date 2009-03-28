@@ -35,16 +35,16 @@ IfSpawned
   tmpargument = 0
   SetState
   ReaffirmCharacter
-  
+
   //Attack counter
   tmpargument = 0
   tmpx = 0
   tmpy = 14
   SetXY
-  
+
 IfTimeOut
   tmpargument = rand & 15 + 10
-  SetTime  
+  SetTime
 
   //Attack mode
   IfStateIs1
@@ -57,11 +57,11 @@ IfTimeOut
         Compass
         ClearWaypoints
         AddWaypoint
-    
+
         //Fly up and down towards the target
         tmpargument = targetaltitude
         SetFlyHeight
-        
+
         tmpargument = 0
         GetXY
         IfXIsEqualToY           //All souls attacking?
@@ -100,7 +100,7 @@ IfTimeOut
         tmpturn = targetturnto
         tmpdistance = 1500
         Compass
-        
+
         //Close enough to "attack"?
         tmpx = targetdistance
         tmpy = 150
@@ -111,11 +111,10 @@ IfTimeOut
           SetState
     ClearWaypoints
     AddWaypoint
-     
+
     //Fly up and down towards the playah
     tmpargument = targetaltitude
     SetFlyHeight
-
 
 //Go panic!
 SetTargetToOwner
@@ -124,13 +123,13 @@ IfTargetIsAttacking
   SetState
   tmpargument = [RUNN]
   IssueOrder
-    
+
   tmpargument = 100
   SetTargetToSelf
   ChangeTargetClass      //Change back to the red soul
   tmpargument = 0
   SetContent
-  
+
   //Reset attack counter too
   tmpargument = 0
   tmpx = 0
@@ -141,13 +140,13 @@ IfTargetKilled
   SetState
   tmpargument = [RUNN]
   IssueOrder
-    
+
   tmpargument = 100
   SetTargetToSelf
   ChangeTargetClass      //Change back to the red soul
   tmpargument = 0
   SetContent
-  
+
   //Reset attack counter too
   tmpargument = 0
   tmpx = 0

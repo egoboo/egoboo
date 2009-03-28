@@ -4,7 +4,7 @@ IfKilled
   SendMessageNear
   GoPoof
   SpawnPoof
-  
+
 //Catch on fire
 IfAttacked
   GetDamageType
@@ -23,25 +23,25 @@ IfAttacked
     tmpdistance = rand % 50
     SpawnAttachedParticle
 
-  
+
 //Flying Mode
 SetTargetToRider
   tmpargument = ACTIONWA		  //
   DoAction				  //
 
-  //Set fly height. 
+  //Set fly height.
   //50 + 10% per rider intelligence
   tmpargument = targetint > 8
   tmpargument = tmpargument*5
   tmpargument = tmpargument + 50
   SetFlyHeight
-  
+
   //Set Speed
   //20% + 2% per rider intelligence
   tmpargument = targetint > 7
   tmpargument = tmpargument + 20
   SetSpeedPercent
-  
+
   tmpargument = 0
   tmpx = selfx
   tmpy = selfy
@@ -68,7 +68,7 @@ IfAttacked
   KeepAction				  //
 
 // Make it lie on floor
-IfDropped				
+IfDropped
   KeepAction				  //
   tmpargument = 50
   SetTime
@@ -83,10 +83,10 @@ IfTimeOut
   IfStateIs1
     tmpargument = 10
     SetBumpHeight
-  Else    
+  Else
     tmpargument = 0
     SetBumpHeight
-  
+
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned				//
   tmpargument = ACTIONJB		  //
@@ -95,7 +95,7 @@ IfSpawned				//
   IfHeld
     SetTargetToWhoeverIsHolding
     SetOwnerToTarget
- 
+
 IfHitGround				// Make a sound
   tmpargument = 0		  //
   PlaySound				  //

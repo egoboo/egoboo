@@ -39,7 +39,7 @@ IfOrdered
     tmpdistance = EXPDARE
     GiveExperienceToGoodTeam
     SetOwnerToTarget            //Make the nearest saviour the new boss
-  
+
 //------------------------------------------------------------------------------
 //Jump over bodies and obstacles
 IfBumped
@@ -51,7 +51,7 @@ IfBumped
     Else
       tmpargument = LATCHJUMP
       PressLatchButton
-    
+
 //------------------------------------------------------------------------------
 //Move out of lava (BAD: doesnt work!)
 IfOverWater
@@ -104,20 +104,20 @@ IfTimeOut
         PlaySound
         SendMessage
     SetTurnModeToWatchTarget
-  
+
   //When not imprisoned, draw our gear
   Else
     IfHoldingMeleeWeapon
       IfHoldingShield
         DoNothing
-      Else  
+      Else
         tmpargument = LATCHPACKLEFT		//shield
-        PressLatchButton          
+        PressLatchButton
     Else
       tmpargument = LATCHPACKRIGHT		//weapon
       PressLatchButton
-      
-      
+
+
   //Follow
   IfStateIs3
     tmpargument = rand & 15 + 35
@@ -132,7 +132,7 @@ IfTimeOut
           SetTargetToOwner
         Else
           tmpargument = 4
-          SetState      
+          SetState
 
     tmpx = rand & 255 + ownerx - 128
     tmpy = rand & 255 + ownery - 128
@@ -141,7 +141,7 @@ IfTimeOut
     Compass
     ClearWaypoints
     AddWaypoint
-      
+
   //Combat Mode
   IfStateIs4
     tmpargument = rand & 15 + 15
@@ -155,7 +155,7 @@ IfTimeOut
       IfXIsMoreThanY            //See if we need to go after the player
         tmpargument = 3
         SetState
-        
+
     //We are still in combat! Do the usual combat stuff
     IfStateIs4
       SetTargetToWideEnemy
@@ -184,23 +184,23 @@ IfTimeOut
             tmpy = 200
             IfXIsLessThanY
               PressLatchButton
-              
-                
+
+
         //Randomly growl combat stuff (this guy has anger issues!)
         tmpx = rand & 255
         tmpy = 15
         IfXIsLessThanY
-          tmpargument = rand % 4 + 11
+          tmpargument = rand & 3 + 11
           PlaySound
           SendMessageNear
-          
+
       //No more enemies around
       Else
         tmpargument = 3
         SetState
-        
+
         //End of combat cheer! (33% chance)
-        tmpx = rand & 2
+        tmpx = rand % 3
         tmpy = 0
         IfXIsEqualToY
           tmpargument = rand & 2 + 15
@@ -229,7 +229,7 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-  
+
   //Make no body! (for ressurections)
   GoPoof
 
@@ -245,8 +245,6 @@ IfAttacked
   tmpy = 1024
   IfXIsLessThanY
   //  JoinEvilTeam
-
-
 
 //------------------------------------------------------------------------------
 End

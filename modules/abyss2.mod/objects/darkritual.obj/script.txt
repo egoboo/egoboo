@@ -23,7 +23,7 @@ IfUsed
   tmpx = targetlife
   tmpy = 260
   IfXIsMoreThanY
-  
+
     // Make the target shoot
     SetTargetToWhoeverIsHolding
       tmpargument = ACTIONZA

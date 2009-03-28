@@ -4,7 +4,7 @@ IfSpawned
   IfContentIs
     SetTargetToSelf
     EnchantTarget
-  
+
 //Remove self if ordered to do so
 IfOrdered
   tmpx = selforder
@@ -45,7 +45,6 @@ IfHealed
     tmpargument = 20
     SetTime
 
-
 IfAttacked
   // Must die in 1 hit to disallow punching it open
   tmpargument = 512
@@ -62,16 +61,12 @@ IfAttacked
     tmpargument = 20
     SetTime
 
-
-
 IfTimeOut
   // Ready the pings
   tmpargument = 0
   SetState
   tmpargument = 500
   SetTime
-
-
 
 IfKilled
   // Smash open

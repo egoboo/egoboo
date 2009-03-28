@@ -10,7 +10,7 @@ IfSpawned
   AddWaypoint
   tmpargument = 0
   SetFlyHeight
-  
+
 //------------------------------------------------------------------------------
 //BOSS AI
 tmpargument = 1
@@ -34,37 +34,37 @@ Else
         tmpargument = 50
         tmpdistance = EXPMURDER
         GiveExperienceToTarget
-        
+
         //+ 1/2 damage per stabber level
-        tmpargument = targetlevel*128      
+        tmpargument = targetlevel*128
         SetTargetToSelf
         DamageTarget
-        
+
         tmpargument = 1
         SendMessageNear
-    
+
   // ZZ> Death and let the player team win
   IfKilled
     tmpargument = 0
     SendMessageNear
     PlaySound
     SpawnPoof
-  
+
     //Reduce size
-    tmpargument = 40			  
-    SetBumpSize				  
-    tmpargument = 35			  
-    SetBumpHeight				  			  
-  
+    tmpargument = 40
+    SetBumpSize
+    tmpargument = 35
+    SetBumpHeight
+
     // Drop money
     tmpargument = selfmoney
     DropMoney
-    
+
     //Tell the dracolich we are dead
     tmpargument = [BDIE]
     IssueOrder
-  
-  
+
+
   //Ouch
   IfAttacked				// Counter attack
     SetTargetToWhoeverAttacked		  //
@@ -77,12 +77,12 @@ Else
         SetTargetToOldTarget		      //
     tmpargument = rand & 1 + 1		  //
     PlaySound
-  
-  
+
+
   IfTargetKilled				// Return to watch mode
     tmpargument = 0			  //
     SetState				  //
-  
+
   IfBumped				// Attack whoever it bumped
     SetTargetToWhoeverBumped		  //
     IfTargetIsOnHatedTeam			  // Make sure it's an enemy
@@ -93,7 +93,7 @@ Else
       ClearWaypoints			    //
       AddWaypoint				    //
       SetTargetToOldTarget		    //
-  
+
   IfTimeOut				// This is done every so often
     IfStateIs0
       tmpx = selfspawnx
@@ -107,10 +107,10 @@ Else
         Else
           SetTurnModeToSpin
     IfStateIs1
-    
+
       //Shoot
       IfFacingTarget
-  
+
         tmpx = selfx
         tmpy = selfy
         tmpdistance = 128
@@ -126,7 +126,7 @@ Else
         tmpargument = 6           //Burn
         SpawnExactParticle
         tmpargument = rand % 3 + 1	//Randomize ray
-        
+
       tmpx = targetdistance
       tmpy = 128*30
       IfXIsLessThanY
@@ -146,6 +146,6 @@ Else
     AddWaypoint				  //
     tmpargument = rand & 15 + 50		  // Wait a while and try again
     SetTime				  //
-  
+
 End					// Finished with this character
   

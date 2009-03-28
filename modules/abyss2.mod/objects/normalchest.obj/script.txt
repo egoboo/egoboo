@@ -18,13 +18,11 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
-
 
     // Is it closed?
     tmpargument = 0
@@ -86,7 +84,6 @@ IfBumped
               tmpargument = 1
               SendMessageNear
 
-
               // Figure out what to drop...  Opposite of first drop
               GetContent
               tmpargument = tmpargument & 1
@@ -96,8 +93,6 @@ IfBumped
               Else
                 tmpargument = selfmoney
                 DropMoney
-
-
 
               // No more false bottom
               tmpargument = 0
@@ -113,7 +108,6 @@ IfBumped
                 tmpargument = 1
                 SendMessageNear
 
-
                 // Figure out what to drop...  Opposite of first drop
                 GetContent
                 tmpargument = tmpargument & 1
@@ -123,8 +117,6 @@ IfBumped
                 Else
                   tmpargument = selfmoney
                   DropMoney
-
-
 
                 // No more false bottom
                 tmpargument = 0
@@ -136,7 +128,6 @@ IfBumped
             // No false bottom
             tmpargument = 2
             SetState
-
 
         // Drop the contents
         IfStateIs1
@@ -164,9 +155,6 @@ IfBumped
             SendMessageNear
           tmpargument = 2
           SetState
-
-
-
 
 // All done
 End

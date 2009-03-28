@@ -12,8 +12,8 @@ IfTimeOut
   IfStateIs0
     tmpargument = 0
     IfArmorIs
-      tmpx = rand & 53 + selfx - 26
-      tmpy = rand & 53 + selfy - 26
+      tmpx = rand % 53 + selfx - 26
+      tmpy = rand % 53 + selfy - 26
       tmpdistance = rand & 30 + 15
       SpawnExactParticle
       tmpargument = 7
@@ -79,9 +79,8 @@ IfBumped
           tmpargument = 2
           SetState
 
-
 	      //Random artifact chest
-        tmpargument = 1              	
+        tmpargument = 1
         IfContentIs
           tmpx = rand % 11
           tmpy = 0
@@ -133,19 +132,18 @@ IfBumped
           tmpargument = 50
           SetTime
 
-
 	      //Armor chest (level 4)
         GetContent
         tmpx = tmpargument
         tmpy = 1
         IfXIsMoreThanY
-        
+
           //randomize armor type
           tmpargument = 2
           IfContentIs
             tmpargument = rand % 12 + 4
-            SetContent			
-          
+            SetContent
+
           //It's already set
           GetContent
           tmpx = tmpargument
@@ -179,7 +177,7 @@ IfBumped
           tmpy = 12
           IfXIsMoreThanY
             tmpargument = [XXXX]    //Fits all classes (35%)
-          
+
           //Try to give it
           IfTargetHasID
             tmpargument = 3
@@ -208,7 +206,6 @@ IfBumped
               SendMessageNear
               tmpargument = 80
               SetTime
-
 
       //Empty chest
       IfTimeOut

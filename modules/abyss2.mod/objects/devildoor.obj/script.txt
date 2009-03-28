@@ -3,17 +3,17 @@ IfSpawned
   SetTargetToSelf
   SetOwnerToTarget
   EnchantTarget
-  
+
   //It doesnt open when dead
   tmpargument = passage
   ClosePassage
-  
+
   //Create the anti-teleport blocker
   tmpargument = 0
   IfArmorIs
     tmpargument = passage + 2
     ClosePassage
-    
+
   //Setup so that [GOOD] guys can sacrifice their soul to open
   tmpargument = 0
   tmpx = 0
@@ -36,7 +36,7 @@ IfAttacked
       tmpargument = 30
       tmpdistance = EXPREVENGE
       GiveExperienceToTarget
-  
+
     //Someone is trying to kill the door
     tmpargument = 0
     IfArmorIs
@@ -48,7 +48,7 @@ IfAttacked
       PlaySound
       tmpargument = 300
       SetTime
-  
+
     //Someone killing an open door?
     tmpargument = 1
     IfArmorIs
@@ -61,9 +61,9 @@ IfArmorIs
   IfTimeOut
     tmpargument = 0
     ChangeArmor        //Back in buisness!
-      
+
 //Someone disenchanted us! How rude! (or used holy magic)
-IfKilled  
+IfKilled
   tmpargument = 30
   tmpdistance = EXPKILL
   GiveExperienceToGoodTeam
@@ -74,7 +74,6 @@ IfKilled
   tmpargument = 0
   PlaySound
   SendMessageNear
-
 
 //It's still a riddeling locked door
 tmpargument = 0
@@ -88,7 +87,7 @@ IfArmorIs
       tmpdistance = 0       //0 = Riddle not solved    1 = Riddle solved
       GetContent
       tmpx = tmpargument    //Content
-          
+
       //Riddle of the dead (opens up to dead stuff only)
       tmpy = 7
       IfXIsEqualToY
@@ -125,13 +124,13 @@ IfArmorIs
           tmpy = 249
           IfXIsMoreThanY
             tmpargument = 0	      //Spawn a spell effect
-            tmpx = targetx		
+            tmpx = targetx
             tmpy = targety
             tmpdistance = targetz
             SpawnExactParticle
             SpawnExactParticle
             SpawnExactParticle
-            
+
             PoofTarget
               tmpargument = 1
               ChangeArmor
@@ -140,16 +139,16 @@ IfArmorIs
               PlayFullSound
               tmpargument = 0           //Do not say "yes I am opening" next time
               SetContent
-          Else          
+          Else
             tmpargument = 1	      //Spawn a spell effect
-            tmpx = targetx		
+            tmpx = targetx
             tmpy = targety
             tmpdistance = targetz
             SpawnExactParticle
             SpawnExactParticle
             SpawnExactParticle
           tmpdistance = 0
-            
+
       //Tell the riddle to non special IDSZ [GOOD] players
       IfTargetIsAPlayer
         tmpargument = [GOOD]
@@ -180,13 +179,13 @@ IfArmorIs
           PlayFullSound
           tmpargument = 250
           SetTime
-          
+
           tmpargument = 0
           GetXY
           tmpx = tmpx+1
           tmpy = 2
           SetXY
-        Else    
+        Else
           IfDistanceIsMoreThanTurn      //Proceeds if tmpdisdance is not 0
             tmpargument = 1
             ChangeArmor
@@ -195,19 +194,19 @@ IfArmorIs
             PlayFullSound
             tmpargument = 0           //Do not say "yes I am opening" next time
             SetContent
-            
+
             //Award xp for solving puzzle
             tmpargument = 40
             tmpdistance = EXPSECRET
             GiveExperienceToGoodTeam
-            
+
           Else                    //Stil riddeling...
             GetContent
             SendMessageNear
             PlaySound
             tmpargument = 250
             SetTime
-            
+
     //Reset the soul leech counter
     Else
       tmpargument = 0
@@ -216,7 +215,7 @@ IfArmorIs
         tmpx = 0
         tmpy = 2
         SetXY
-      
+
 //Open the door
 tmpargument = 1
 IfArmorIs
@@ -246,7 +245,7 @@ IfArmorIs
     tmpargument = passage
     ClosePassage
 
-        
+
 // Someone cast an unlock spell
 IfOrdered
   tmpx = selforder
@@ -266,12 +265,12 @@ IfOrdered
       tmpargument = 5
       PlaySound
       SendMessageNear
-    
+
 
 // Handle the animation and sound
 KeepAction
 tmpargument = passage	// Is the passage clear?
-IfPassageOpen			// 
+IfPassageOpen			//
   tmpargument = 0		  //
   IfStateIs			  // State 0 ( Closed )
     tmpargument = ACTIONMG	    //
@@ -284,7 +283,7 @@ IfPassageOpen			//
       //Open up the anti-teleport blocker
       tmpargument = passage + 2
       OpenPassage
-  
+
       //Randomly say "I am opening..."
       tmpargument = 0
       IfContentIs
@@ -307,6 +306,6 @@ Else
       tmpargument = 0		      // Close it
       SetState			      //
       tmpargument = 3		      //
-      PlaySound	
-      
+      PlaySound
+
 End				// Finished with this character
