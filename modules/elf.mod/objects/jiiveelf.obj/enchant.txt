@@ -27,7 +27,7 @@ Removed by ... ( [NONE] or an IDSZ )		: [NONE]
 // because that would be bad.  Preceed each value with a T
 // if the value is to be set, F otherwise
 Damage type ( CRUSH, POKE, SLASH, etc. )	: F CRUSH
-Number of jumps ( 0 to 2 )			: F 2
+Number of jumps ( 0 to 2 )			: T 2
 Life bar color ( 0 to 5, 1 is red )		: F 4
 Mana bar color ( 0 to 5, 5 is purple )		: F 4
 SLASH damage modifier ( InversionTFC, Shift )	: F F 2
@@ -44,7 +44,7 @@ Alpha blending ( 255 is normal )		: F 128
 Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: F 0
 Fly to height ( 0 to 255, Won't affect innate )	: F 40
 Walk on water ( TRUE or FALSE, Not on innate )	: F TRUE
-Can see invisible ( TRUE or FALSE )		: T TRUE
+Can see invisible ( TRUE or FALSE )		: F TRUE
 Missile treatment ( NORMAL, DEFLECT, REFLECT )	: F DEFLECT
 Cost for each missile treated ( 0.0 to 1.0 )	: F 3.0
 Morph target ( TRUE )				: F TRUE

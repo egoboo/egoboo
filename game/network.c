@@ -1876,9 +1876,6 @@ void net_send_message()
 {
     // ZZ> sends the message in the keyboard buffer to all other players
 
-    int cnt;
-    char cTmp;
-
     if ( console_mode || !console_done ) return;
 
     //if(networkon)

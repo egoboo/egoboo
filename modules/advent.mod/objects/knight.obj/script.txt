@@ -19,6 +19,7 @@ IfKilled				// This reduces the height of the char
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
+
 IfAttacked				// Attacked
   SetTargetToWhoeverAttacked		  //
     IfTargetIsAlive			    //
@@ -35,9 +36,11 @@ IfAttacked				// Attacked
         SetTargetToOldTarget		        //
     Else				    //Attacker died already
       SetTargetToOldTarget		      //
+
 IfTargetKilled				// Return to follow mode
   tmpargument = 0			  // State 0 ( Follow )
   SetState				  //
+
 IfTimeOut				// This is done every so often
   GetContent
   tmpx = tmpargument
@@ -76,7 +79,7 @@ IfTimeOut				// This is done every so often
     tmpx = leaderdistance
     tmpy = 700
     IfXIsMoreThanY
-      tmpdistance = 133        //Catch up fast!
+      tmpdistance = 133        //Catch up fast! 33% bonus speed
       SetSpeedPercent
     tmpdistance = 100         //Walk normal
     tmpx = leaderx			    //
@@ -103,7 +106,11 @@ IfTimeOut				// This is done every so often
     tmpturn = targetturnto		    //
     tmpargument = [CUBE]
     IfTargetHasID
-      tmpdistance = 0 - 250     //Keep away from the gelfeet
+      tmpargument = [HUMA]
+      IfTargetHoldingItemID
+        tmpdistance = 200         //Go save the humanoid who is trapped inside!
+      Else
+        tmpdistance = 0 - 250     //Keep away from the gelfeet
     Else
       tmpdistance = 200			//Else move in to attack
     Compass				    //

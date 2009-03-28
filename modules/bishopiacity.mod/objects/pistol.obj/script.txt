@@ -22,7 +22,6 @@ IfDropped				// Make it lie on floor
 IfUsed					// Drop shells or make a click sound
   IfAmmoOut
     tmpargument = 1
-    tmpdistance = rand % 2047 + 11000
     PlaySound
   Else
     tmpx = selfammo & 1
@@ -37,12 +36,10 @@ IfUsed					// Drop shells or make a click sound
     SpawnExactParticle
     IfStateIs0
       tmpargument = 3
-      tmpdistance = rand % 2047 + 10000
       PlaySound
       tmpargument = 1
     Else
       tmpargument = 4
-      tmpdistance = rand % 2047 + 10000
       PlaySound
       tmpargument = 0
     SetState
@@ -52,7 +49,6 @@ IfUsed					// Drop shells or make a click sound
 
 IfHitGround				// Play the drop sound
   tmpargument = 0			  //
-  tmpdistance = rand % 2047 + 8000	  //
   PlaySound				  //
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //

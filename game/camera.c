@@ -295,25 +295,25 @@ void move_camera()
     if ( autoturncamera == 255 && numlocalpla == 1 )
     {
         if ( mous.on )
-            if ( !control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )
+            if ( !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )
                 camturnadd -= ( mous.x * 0.5f );
 
         if ( keyb.on )
-            camturnadd += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
+            camturnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
 
         if ( joy[0].on )
-            if ( !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
+            if ( !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
                 camturnadd -= joy[0].x * CAMJOYTURN;
 
         if ( joy[1].on )
-            if ( !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
+            if ( !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
                 camturnadd -= joy[1].x * CAMJOYTURN;
     }
     else
     {
         if ( mous.on )
         {
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )
             {
                 camturnadd += ( mous.x / 3.0f );
                 camzaddgoto += ( float ) mous.y / 3.0f;
@@ -329,7 +329,7 @@ void move_camera()
         // JoyA camera controls
         if ( joy[0].on )
         {
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
             {
                 camturnadd += joy[0].x * CAMJOYTURN;
                 camzaddgoto += joy[0].y * CAMJOYTURN;
@@ -345,7 +345,7 @@ void move_camera()
         // JoyB camera controls
         if ( joy[1].on )
         {
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
             {
                 camturnadd += joy[1].x * CAMJOYTURN;
                 camzaddgoto += joy[1].y * CAMJOYTURN;
@@ -362,15 +362,15 @@ void move_camera()
     // Keyboard camera controls
     if ( keyb.on )
     {
-        if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
         {
-            camturnadd += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
+            camturnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
             doturntime = TURNTIME;  // Sticky turn...
         }
 
-        if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_OUT ) )
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) )
         {
-            camzaddgoto += ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
+            camzaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
 
             if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
 

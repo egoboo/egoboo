@@ -1,7 +1,7 @@
 //Elf special abillties:
 //LEVEL   ABILLITY
 //1     - Weapon Profiency, Arcane Magic
-//2     - Listen
+//2     - n/a
 //3     - n/a
 //4     - n/a
 //5     - Stealth (While standing still)
@@ -10,7 +10,7 @@
 //8     - Bow Mastery
 //9     - n/a
 //10    - n/a
-//11    - Elven Senses
+//11    - Acrobatic (double jump)
 //12    - n/a
 //13    - n/a
 //14    - Danger Sense
@@ -119,13 +119,6 @@ IfXIsMoreThanY
       PlaySound
     tmpargument = 1
     SetState
-
-//-----------------------------------------------------------------------------
-//Listen skill
-tmpx = selflevel
-tmpy = 0            //At least level 2
-IfXIsMoreThanY
-  EnableListenSkill
 
 //-----------------------------------------------------------------------------
 //Bow Mastery skill

@@ -3086,7 +3086,7 @@ void set_one_player_latch( Uint16 player )
             newy = 0;
 
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+                    !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
                 dist = SQRT( mous.x * mous.x + mous.y * mous.y );
 
@@ -3120,7 +3120,7 @@ void set_one_player_latch( Uint16 player )
 
                     if ( autoturncamera == 255 &&
                             numlocalpla == 1 &&
-                            control_is_pressed( INPUT_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
+                            control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
 
                     newx = ( inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                     newy = (-inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3140,25 +3140,25 @@ void set_one_player_latch( Uint16 player )
 //            mous.latcholdx = plalatchx[player];
 //            mous.latcholdy = plalatchy[player];
             // Read buttons
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_JUMP ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_is_pressed( INPUT_MOUSE,  CONTROL_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
@@ -3167,7 +3167,7 @@ void set_one_player_latch( Uint16 player )
         {
             // Movement
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )
+                    !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
             {
                 newx = 0;
                 newy = 0;
@@ -3199,7 +3199,7 @@ void set_one_player_latch( Uint16 player )
 
                 if ( autoturncamera == 255 &&
                         numlocalpla == 1 &&
-                        !control_is_pressed( INPUT_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
+                        !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
 
                 newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                 newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3208,25 +3208,25 @@ void set_one_player_latch( Uint16 player )
             }
 
             // Read buttons
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_JUMP ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_is_pressed( INPUT_JOY + 0, CONTROL_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
@@ -3235,7 +3235,7 @@ void set_one_player_latch( Uint16 player )
         {
             // Movement
             if ( ( autoturncamera == 255 && numlocalpla == 1 ) ||
-                    !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )
+                    !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
             {
                 newx = 0;
                 newy = 0;
@@ -3267,7 +3267,7 @@ void set_one_player_latch( Uint16 player )
 
                 if ( autoturncamera == 255 &&
                         numlocalpla == 1 &&
-                        !control_is_pressed( INPUT_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
+                        !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
 
                 newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                 newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
@@ -3276,25 +3276,25 @@ void set_one_player_latch( Uint16 player )
             }
 
             // Read buttons
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_JUMP ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_is_pressed( INPUT_JOY + 1, CONTROL_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
 
@@ -3305,14 +3305,14 @@ void set_one_player_latch( Uint16 player )
             if ( chrattachedto[character] != MAXCHR )
             {
                 // Mounted
-                inputx = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[chrattachedto[character]];
-                inputy = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[chrattachedto[character]];
+                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[chrattachedto[character]];
+                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[chrattachedto[character]];
             }
             else
             {
                 // Unmounted
-                inputx = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[character];
-                inputy = ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[character];
+                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) ) * chrmaxaccel[character];
+                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) ) * chrmaxaccel[character];
             }
 
             turnsin = ( camturnleftrightone * 16383 );
@@ -3327,25 +3327,25 @@ void set_one_player_latch( Uint16 player )
             plalatchy[player] += newy;
 
             // Read buttons
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_JUMP ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
                 plalatchbutton[player] |= LATCHBUTTONJUMP;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONLEFT;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTLEFT;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_LEFT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKLEFT;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_USE ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_USE ) )
                 plalatchbutton[player] |= LATCHBUTTONRIGHT;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_GET ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_GET ) )
                 plalatchbutton[player] |= LATCHBUTTONALTRIGHT;
 
-            if ( control_is_pressed( INPUT_KEYBOARD,  CONTROL_RIGHT_PACK ) )
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_PACK ) )
                 plalatchbutton[player] |= LATCHBUTTONPACKRIGHT;
         }
     }

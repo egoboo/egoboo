@@ -172,7 +172,7 @@ Stoppedby mask ( 48 is the only one )		: 48
 Skin Name 0 ( use underscores for spaces )	: some_Trendy_Clothes
 Skin Name 1 ( use underscores for spaces )	: a_Shiny_Outfit
 Skin Name 2 ( use underscores for spaces )	: a_Snazzy_Suit
-Skin Name 3 ( use underscores for spaces )	: some_Fancy_Pants
+Skin Name 3 ( use underscores for spaces )	: some_Jamaican_Clothes
 Skin Cost 0 ( 0 to 65535 )			: 100
 Skin Cost 1 ( 0 to 65535 )			: 400
 Skin Cost 2 ( 0 to 65535 )			: 700
@@ -199,6 +199,7 @@ Sound of Jump ( -1 for none )			: 1
 :[DRES] 3         //All his clothes are fancy!
 :[READ] 1		//Literate
 :[AWEP] 1		//Can use Advanced Weapons
+:[READ] 1		//Jiive special only: Backstab
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

@@ -65,7 +65,7 @@ typedef struct
 #define EQ(x)
 #endif
 
-#define VERSION "2.7.0b"                         // Version of the game
+#define VERSION "2.7.0c"						 // Version of the game
 
 EXTERN bool_t        gamepaused EQ( bfalse );    // Is the game paused?
 EXTERN bool_t        pausekeyready EQ( btrue );  // Is the game paused?
@@ -96,9 +96,9 @@ EXTERN Uint16    endtextindex[8];
 // Stats
 #define MANARETURNSHIFT     22                       //
 #define LOWSTAT             256                     // Worst...
-#define PERFECTSTAT         (75*256)                // Perfect...
+#define PERFECTSTAT         (70*256)                // Maximum stat without magic effects
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
-#define HIGHSTAT            (100*256)                // Absolute max strength...
+#define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
 
 EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
@@ -1518,6 +1518,7 @@ EXTERN Uint16          msgtimechange EQ( 0 );                                  /
 EXTERN Uint16          msgstart EQ( 0 );                                       // The message queue
 EXTERN Sint16          msgtime[MAXMESSAGE];                                //
 EXTERN char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];            // The displayed text
+
 // Message files
 EXTERN Uint16          msgtotal EQ( 0 );                                       // The number of messages
 EXTERN Uint32          msgtotalindex EQ( 0 );                                  // Where to put letter
@@ -1530,8 +1531,8 @@ EXTERN Uint16  randie[MAXRAND];
 EXTERN Uint16  randindex;
 #define RANDIE randie[randindex];  randindex=(randindex+1)&(MAXRAND-1)
 
+//End text
 #define MAXENDTEXT 1024
-EXTERN char generictext[80];         // Use for whatever purpose
 EXTERN char endtext[MAXENDTEXT];     // The end-module text
 EXTERN int  endtextwrite;
 
@@ -1802,20 +1803,20 @@ EXTERN Sint32 tagvalue[MAXTAG];                     // Scancode values
 
 enum e_input_device
 {
-    INPUT_KEYBOARD = 0,
-    INPUT_MOUSE,
-    INPUT_JOY,
-    INPUT_COUNT
+    INPUT_DEVICE_KEYBOARD = 0,
+    INPUT_DEVICE_MOUSE,
+    INPUT_DEVICE_JOY,
+    INPUT_DEVICE_COUNT
 };
 typedef enum  e_input_device input_device_t;
 
 enum e_input_bits
 {
     INPUT_BITS_NONE      = 0,                               //
-    INPUT_BITS_MOUSE     = ( 1 << INPUT_MOUSE     ),        // Input devices
-    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_MOUSE     ),        //
-    INPUT_BITS_JOYA      = ( 1 << (INPUT_JOY + 0) ),        //
-    INPUT_BITS_JOYB      = ( 1 << (INPUT_JOY + 1) )         //
+    INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_MOUSE     ),        // Input devices
+    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_MOUSE     ),        //
+    INPUT_BITS_JOYA      = ( 1 << (INPUT_DEVICE_JOY + 0) ),        //
+    INPUT_BITS_JOYB      = ( 1 << (INPUT_DEVICE_JOY + 1) )         //
 };
 
 EXTERN Uint32 input_device_count EQ(0);
@@ -1918,7 +1919,7 @@ struct s_device_controls
 };
 typedef struct s_device_controls device_controls_t;
 
-EXTERN device_controls_t controls[INPUT_COUNT + MAXJOYSTICK];
+EXTERN device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
 #define KEY_INVALID     255
 

@@ -152,7 +152,7 @@ void input_read_joystick(int which)
     int i, button_count, x, y;
     device_joystick_t * pjoy;
 
-    if ( which + INPUT_JOY > input_device_count ) return;
+    if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
     if ( !joy[which].on ) return;
 
     pjoy = joy + which;
@@ -302,20 +302,20 @@ Uint32 input_get_buttonmask( Uint32 idevice )
     Uint32 which_device;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_COUNT + MAXJOYSTICK ) return 0;
+    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return 0;
     which_device = controls[idevice].device;
 
-    if ( which_device >= INPUT_JOY )
+    if ( which_device >= INPUT_DEVICE_JOY )
     {
         // joysticks
-        buttonmask = joy[which_device - INPUT_JOY].b;
+        buttonmask = joy[which_device - INPUT_DEVICE_JOY].b;
     }
     else
     {
         switch ( controls[idevice].device )
         {
-            case INPUT_KEYBOARD: buttonmask = 0; break;
-            case INPUT_MOUSE:    buttonmask = mous.b; break;
+            case INPUT_DEVICE_KEYBOARD: buttonmask = 0; break;
+            case INPUT_DEVICE_MOUSE:    buttonmask = mous.b; break;
         }
     }
 

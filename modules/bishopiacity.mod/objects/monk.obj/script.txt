@@ -63,7 +63,7 @@ IfKilled
   SendMessage
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
 

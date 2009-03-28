@@ -527,22 +527,22 @@ bool_t input_settings_load( char *szFilename )
     for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
     {
         goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-        controls[INPUT_KEYBOARD].control[i].tag    = tag_value( currenttag );
-        controls[INPUT_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
+        controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
     };
-    controls[INPUT_KEYBOARD].device = INPUT_KEYBOARD;
-    controls[INPUT_KEYBOARD].count = i;
+    controls[INPUT_DEVICE_KEYBOARD].device = INPUT_DEVICE_KEYBOARD;
+    controls[INPUT_DEVICE_KEYBOARD].count = i;
     input_device_count++;
 
     // read the mouse controls
     for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
     {
         goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-        controls[INPUT_MOUSE].control[i].tag    = tag_value( currenttag );
-        controls[INPUT_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
+        controls[INPUT_DEVICE_MOUSE].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
     };
-    controls[INPUT_MOUSE].device = INPUT_MOUSE;
-    controls[INPUT_MOUSE].count = i;
+    controls[INPUT_DEVICE_MOUSE].device = INPUT_DEVICE_MOUSE;
+    controls[INPUT_DEVICE_MOUSE].count = i;
     input_device_count++;
 
     // read in however many joysticks there are...
@@ -551,11 +551,11 @@ bool_t input_settings_load( char *szFilename )
         for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
         {
             goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-            controls[INPUT_JOY + cnt].control[i].tag    = tag_value( currenttag );
-            controls[INPUT_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
+            controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = tag_value( currenttag );
+            controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
         };
-        controls[INPUT_JOY + cnt].device = INPUT_JOY + cnt;
-        controls[INPUT_JOY + cnt].count = i;
+        controls[INPUT_DEVICE_JOY + cnt].device = INPUT_DEVICE_JOY + cnt;
+        controls[INPUT_DEVICE_JOY + cnt].count = i;
         input_device_count++;
     }
 
@@ -571,7 +571,7 @@ bool_t input_settings_save(char* szFilename)
     device_controls_t * pdevice;
     FILE* filewrite;
     STRING write;
-    int i;
+	Uint32 i;
 
     filewrite = fopen( szFilename, "w" );
     if ( NULL == filewrite )
@@ -601,7 +601,7 @@ bool_t input_settings_save(char* szFilename)
     fputs( "\n", filewrite );
 
     //The actual settings
-    pdevice = controls + INPUT_KEYBOARD;
+    pdevice = controls + INPUT_DEVICE_KEYBOARD;
     fputs( "Keyboard\n", filewrite );
     fputs( "========\n", filewrite );
     export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
@@ -621,7 +621,7 @@ bool_t input_settings_save(char* szFilename)
     export_control( filewrite, "Left\t\t\t\t", pdevice->device, pdevice->control + CONTROL_LEFT );
     export_control( filewrite, "Right\t\t\t\t", pdevice->device, pdevice->control + CONTROL_RIGHT );
 
-    pdevice = controls + INPUT_MOUSE;
+    pdevice = controls + INPUT_DEVICE_MOUSE;
     fputs( "\n\nMouse\n", filewrite );
     fputs( "========\n", filewrite );
     export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );
@@ -634,11 +634,11 @@ bool_t input_settings_save(char* szFilename)
     export_control( filewrite, "Camera Control Mode\t", pdevice->device, pdevice->control + CONTROL_CAMERA );
 
     // export all known joysticks
-    for ( i = INPUT_JOY; i < input_device_count; i++)
+    for ( i = INPUT_DEVICE_JOY; i < input_device_count; i++)
     {
         pdevice = controls + i;
 
-        snprintf( write, sizeof(write), "\n\nJoystick %d\n", i - INPUT_JOY );
+        snprintf( write, sizeof(write), "\n\nJoystick %d\n", i - INPUT_DEVICE_JOY );
         fputs( write, filewrite );
         fputs( "========\n", filewrite );
         export_control( filewrite, "Jump\t\t\t\t", pdevice->device, pdevice->control + CONTROL_JUMP );

@@ -153,7 +153,7 @@ IfTimeOut
     SetTime
 
     //Scan for enemies
-    tmpdistance = 140000
+    tmpdistance = 128*5
     SetTargetToDistantEnemy
       tmpargument = 1
       SetState
@@ -258,7 +258,7 @@ IfTimeOut
       SetTime
 
     //Cast lightning bolt
-    SetTargetToNearestEnemy
+    SetTargetToWideEnemy
       tmpx = rand & 31		
       tmpy = 2			//6% chance
       IfXIsLessThanY

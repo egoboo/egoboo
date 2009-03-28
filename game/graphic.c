@@ -2042,8 +2042,8 @@ int load_one_object( int skin, char* tmploadname )
     make_newloadname( tmploadname, "/data.txt", newloadname );
     object = load_one_character_profile( newloadname );
 
-    //Don't override it if it's already there
-    if (!overrideslots && object == -1) return 0;
+  //Don't override it if it's already there
+  if(!overrideslots && object == -1) return 0;		//return NULL
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
@@ -3774,7 +3774,10 @@ bool_t get_mesh_memory()
     // ZZ> This function gets a load of memory for the terrain mesh
     floatmemory = ( float * ) malloc( maxtotalmeshvertices * BYTESFOREACHVERTEX );
 
-    if ( floatmemory == NULL ) return bfalse;
+    if ( floatmemory == NULL )
+	{
+		log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+	}
 
     meshvrtx = floatmemory;
     meshvrty = meshvrtx + maxtotalmeshvertices;
@@ -4247,23 +4250,13 @@ int draw_status( Uint16 character, int x, int y )
     Uint16 item;
     char cTmp;
     char *readtext;
+	STRING generictext;
 
     int life = chrlife[character] >> 8;
     int lifemax = chrlifemax[character] >> 8;
     int mana = chrmana[character] >> 8;
     int manamax = chrmanamax[character] >> 8;
     int cnt = lifemax;
-
-    /* [claforte] This can be removed
-      Note: This implies that the status line assumes that the max life and mana
-          representable is 50.
-
-    if(cnt > 50) cnt = 50;
-      if(cnt == 0) cnt = -9;
-      cnt = manamax;
-      if(cnt > 50) cnt = 50;
-      if(cnt == 0) cnt = -9;
-    */
 
     // Write the character's first name
     if ( chrnameknown[character] )

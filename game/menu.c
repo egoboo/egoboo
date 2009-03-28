@@ -901,7 +901,7 @@ int doInputOptions( float deltaTime )
 
     static char Ctext[128];
 
-    int                 i;
+    Uint32              i;
     int                 idevice, iicon;
     device_controls_t * pdevice;
 
@@ -985,9 +985,9 @@ int doInputOptions( float deltaTime )
 
                         pcontrol = pdevice->control + waitingforinput;
 
-                        if ( idevice >= INPUT_JOY )
+                        if ( idevice >= INPUT_DEVICE_JOY )
                         {
-                            int ijoy = idevice - INPUT_JOY;
+                            int ijoy = idevice - INPUT_DEVICE_JOY;
 
                             if (ijoy < MAXJOYSTICK)
                             {
@@ -1016,7 +1016,7 @@ int doInputOptions( float deltaTime )
                         {
                             switch ( idevice )
                             {
-                                case INPUT_KEYBOARD:
+                                case INPUT_DEVICE_KEYBOARD:
                                     {
                                         for ( tag = 0; tag < numscantag; tag++ )
                                         {
@@ -1030,7 +1030,7 @@ int doInputOptions( float deltaTime )
                                     }
                                     break;
 
-                                case INPUT_MOUSE:
+                                case INPUT_DEVICE_MOUSE:
                                     {
                                         for ( tag = 0; tag < numscantag; tag++ )
                                         {

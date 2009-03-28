@@ -312,8 +312,8 @@ void load_all_global_objects(int skin)
     //ZF> This function loads all global objects found in the basicdat folder
     const char *filehandle;
     bool_t keeplooking;
-    char newloadname[256];
-    char filename[256];
+    STRING newloadname;
+    STRING filename;
 
     //Warn the user for any duplicate slots
     overrideslots = bfalse;
@@ -376,6 +376,7 @@ int get_module_data( int modnumber, char *szLoadName )
     loaded = bfalse;
     if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
+		STRING readtext;
         parse_filename = szLoadName;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
@@ -397,10 +398,10 @@ int get_module_data( int modnumber, char *szLoadName )
         goto_colon( fileread );   //BAD: Skip line
         modrtscontrol[modnumber] = bfalse;
 
-        goto_colon( fileread );  fscanf( fileread, "%s", generictext );
+        goto_colon( fileread );  fscanf( fileread, "%s", readtext );
         for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
         {
-            modrank[modnumber][iTmp] = generictext[iTmp];
+            modrank[modnumber][iTmp] = readtext[iTmp];
         }
         modrank[modnumber][iTmp] = '\0';
 

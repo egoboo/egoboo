@@ -364,15 +364,13 @@ void export_all_local_players( void )
 }
 
 //---------------------------------------------------------------------------------------------
-void quit_module( void )
+void quit_module()
 {
     // ZZ> This function forces a return to the menu
     moduleactive = bfalse;
     hostactive = bfalse;
 
     export_all_local_players();
-    empty_import_directory();  // Free up that disk space...
-
     release_all_icons();
     release_all_titleimages();
     release_bars();
@@ -387,7 +385,7 @@ void quit_module( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void quit_game( void )
+void quit_game()
 {
     // ZZ> This function exits the game entirely
 
@@ -537,8 +535,8 @@ char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
     int cnt;
 
-    if ( device >= INPUT_JOY ) device = INPUT_JOY;
-    if ( device == INPUT_KEYBOARD ) is_key = btrue;
+    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
+    if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
 
     for ( cnt = 0; cnt < numscantag; cnt++ )
     {
@@ -551,11 +549,11 @@ char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
         {
             switch ( device )
             {
-                case INPUT_MOUSE:
+                case INPUT_DEVICE_MOUSE:
                     if ( 'M' != tagname[cnt][0] ) continue;
                     break;
 
-                case INPUT_JOY:
+                case INPUT_DEVICE_JOY:
                     if ( 'J' != tagname[cnt][0] ) continue;
                     break;
             }
@@ -582,14 +580,14 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
     control_t         * pcontrol;
 
     // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_COUNT + MAXJOYSTICK ) return bfalse;
+    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return bfalse;
     pdevice = controls + idevice;
 
     // make sure the icontrol is within range
     if ( pdevice->count < icontrol ) return retval;
     pcontrol = pdevice->control + icontrol;
 
-    if ( INPUT_KEYBOARD == idevice || pcontrol->is_key )
+    if ( INPUT_DEVICE_KEYBOARD == idevice || pcontrol->is_key )
     {
         retval = SDLKEYDOWN( pcontrol->tag );
     }
@@ -948,7 +946,7 @@ void get_madtransvertices( int modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
     //     That means every one except the grip ( unconnected ) vertices
-    int cnt, trans = 0;
+    int trans = 0;
 
     //if (modelindex == 0)
     //{
@@ -2248,15 +2246,11 @@ int SDL_main( int argc, char **argv )
     // Linking system
     log_info( "Initializing module linking... " );
     empty_import_directory();
-
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
-    if ( !get_mesh_memory() )
-    {
-        log_error( "Reduce the maximum number of vertices!!!  See SETUP.TXT\n" );
-        return bfalse;
-    }
+	//Prepeare the memory to load the mesh file
+    get_mesh_memory();
 
     // Matrix init stuff (from remove.c)
     rotmeshtopside = ( ( float )scrx / scry ) * ROTMESHTOPSIDE / ( 1.33333f );
@@ -2428,7 +2422,7 @@ int SDL_main( int argc, char **argv )
                 if ( !gamepaused || networkon )
                 {
                     // start the console mode?
-                    if ( control_is_pressed( INPUT_KEYBOARD, CONTROL_MESSAGE ) )
+                    if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
                     {
                         // reset the keyboard buffer
                         SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);

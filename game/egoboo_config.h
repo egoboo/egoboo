@@ -25,7 +25,7 @@
 // snprintf and vsnprintf are not considered native functions in MSVC
 // they are defined with an underscore to indicate this
 #    define snprintf  _snprintf
-#    define vsnprintf _vsnprintf
+//#    define vsnprintf _vsnprintf
 
 // Turn off warnings that we don't care about.
 #    pragma warning(disable : 4305) // truncation from 'double' to 'float'
