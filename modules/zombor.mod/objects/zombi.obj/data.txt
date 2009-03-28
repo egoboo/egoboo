@@ -125,7 +125,7 @@ Poof amount    : 8
 Facing add     : 8192
 Part type      : 1
 
-Blood valid    : FALSE
+Blud valid    : FALSE
 Part type      : 0
 
 Waterwalking   : FALSE

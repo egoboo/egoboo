@@ -124,14 +124,11 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
   tmpargument = rand & 1 + 3
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

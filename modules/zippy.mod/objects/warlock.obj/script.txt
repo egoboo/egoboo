@@ -18,11 +18,9 @@ IfSpawned
   tmpargument = passage
   AddShopPassage
 
-
   // Make the border
   tmpargument = 2
   tmpdistance = 0
-
 
   // Top
   tmpx = selfx - 192
@@ -35,7 +33,6 @@ IfSpawned
   tmpx = tmpx + 128
   SpawnExactParticle
 
-
   // Bottom
   tmpy = selfy + 384
   SpawnExactParticle
@@ -45,7 +42,6 @@ IfSpawned
   SpawnExactParticle
   tmpx = tmpx - 128
   SpawnExactParticle
-
 
   // Left
   tmpx = selfx - 384
@@ -58,7 +54,6 @@ IfSpawned
   tmpy = tmpy + 128
   SpawnExactParticle
 
-
   // Right
   tmpx = selfx + 384
   SpawnExactParticle
@@ -68,7 +63,6 @@ IfSpawned
   SpawnExactParticle
   tmpy = tmpy - 128
   SpawnExactParticle
-
 
   // Show the area
   //tmpdistance = 255
@@ -99,7 +93,6 @@ IfOrdered
         tmpx = selforder
         SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut
@@ -110,7 +103,6 @@ IfTimeOut
     AddWaypoint
   tmpargument = rand & 31 + 15
   SetTime
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff

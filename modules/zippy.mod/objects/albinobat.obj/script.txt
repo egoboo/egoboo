@@ -58,7 +58,6 @@ IfUsed
     tmpx = targetlevel              //To display levels above 3 properly
     SendMessageNear
 
-
     // Stats
     tmpx = targetlife > 9
     tmpy = 2
@@ -68,7 +67,6 @@ IfUsed
     tmpx = selfstr > 8
     tmpy = selfwis > 8
     SendMessageNear
-
 
     // Stats
     tmpx = selfint > 8
@@ -163,7 +161,7 @@ IfBumped
     ClearWaypoints
     AddWaypoint
     SetTargetToOldTarget
-    tmpargument = rand & 20 + 20
+    tmpargument = rand % 20 + 20
     SetTime
 
 //------------------------------------------------------------------------------

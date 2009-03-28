@@ -2,8 +2,6 @@
 IfSpawned
   KeepAction
 
-
-
 // Remove the charge
 IfTakenOut
   tmpargument = 0
@@ -52,7 +50,6 @@ IfUsed
       tmpargument = 2
       SpawnExactParticle
 
-
 // Let it be cast
 Else
   GetContent
@@ -66,14 +63,12 @@ Else
       SetTargetToWhoeverIsHolding
       SetOwnerToTarget
 
-
       // Find the target
       SetTargetToNearestFriend
       tmpx = targetdistance
       tmpy = 250
       IfXIsMoreThanY
         SetTargetToWhoeverIsHolding
-
 
       // Do the spell
       EnchantTarget
@@ -87,7 +82,6 @@ Else
         tmpargument = 1
         SendMessageNear
 
-
       // Do flashy things
       tmpargument = 0
       tmpdistance = 11025
@@ -95,17 +89,14 @@ Else
       tmpargument = 60
       SetReloadTime
 
-
     // Nothing happens...
     Else
       tmpargument = 0
       SendMessageNear
 
-
     // Reset the charge counter
     tmpargument = 0
     SetContent
-
 
 // Return to spellbook, Do last!
 IfDropped

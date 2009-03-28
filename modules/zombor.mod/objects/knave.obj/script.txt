@@ -57,7 +57,7 @@ IfTimeOut				// This is done every so often
     tmpy = rand & 511 + selfspawny - 256 
     ClearWaypoints
     AddWaypoint
-    tmpargument = rand & 20 + 50
+    tmpargument = rand % 20 + 50
     SetTime
     SetTurnModeToVelocity
 
@@ -65,10 +65,9 @@ IfTimeOut				// This is done every so often
       tmpargument = 1			      //
       SetState				      // Change to combat mode
 
-
   //Combat
   IfStateIs1
-    tmpargument = rand & 20
+    tmpargument = rand % 20
     SetTime
     IfHoldingRangedWeapon
       tmpx = targetdistance		    // Ranged attack?
@@ -105,8 +104,6 @@ IfTimeOut				// This is done every so often
       tmpargument = 0
       SetState
 
-
-
 // Use shield?
 IfTargetIsAttacking
   IfTargetIsOnHatedTeam
@@ -115,7 +112,6 @@ IfTargetIsAttacking
       IfHoldingItemID
         tmpargument = LATCHLEFT
         PressLatchButton
-
 
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
@@ -135,7 +131,6 @@ IfBumped				// Bumped
     AddWaypoint				    //
     tmpargument = 40			    // Try again soon
     SetTime				    //
-
 
 // Ya!  Unarmed attack sound
 IfUsed

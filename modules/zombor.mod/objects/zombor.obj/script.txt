@@ -50,7 +50,6 @@ IfXIsMoreThanY					//Gain abillity at 5th level
   SetTargetToSelf
   UnkurseTargetInventory
 
-
 //------------------------------------------------------------------------------
 //Yell at player
 IfTooMuchBaggage
@@ -60,7 +59,6 @@ IfTooMuchBaggage
   PlaySound
   tmpargument = 50
   SetReloadTime
-
 
 //------------------------------------------------------------------------------
 // ZZ> Scream and shout
@@ -82,7 +80,6 @@ IfBored
   tmpargument = rand & 1 + 9
   PlaySound
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
@@ -92,8 +89,8 @@ IfKilled
   tmpy = 11
   IfXIsMoreThanY			//Only gain abillity at 13th level
     tmpargument = 3
-    tmpx = rand & 50 + selfx - 25
-    tmpy = rand & 50 + selfy - 25
+    tmpx = rand % 50 + selfx - 25
+    tmpy = rand % 50 + selfy - 25
     tmpdistance = selfz
     SpawnExactParticle
     SpawnExactParticle
@@ -182,7 +179,6 @@ IfSpawned
   PlayFullSound
   tmpargument = 8
   SendMessage
-
 
 //------------------------------------------------------------------------------
 End

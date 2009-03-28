@@ -131,7 +131,6 @@ IfStateIs4
         tmpargument = 1
         SetContent 
 
-
 IfTimeOut
 
   //STATE 4 - GO TO BOSS ROOM       (set before STATE 0 because of timeout)
@@ -276,7 +275,6 @@ IfTimeOut
           CostTargetMana
           SetTargetToNearestEnemy
 
-
   //STATE 2 - CASTING ANIMATE SPELL
   IfStateIs2
 
@@ -359,7 +357,6 @@ IfTimeOut
       tmpx = 0
       SetXY
 
-
   //STATE 3 - RETREAT
   IfStateIs3
     tmpx = targetx
@@ -372,7 +369,6 @@ IfTimeOut
     SetTime
     tmpargument = 1
     SetState
-
 
   //STATE 5 - BOSS BATTLE! (OR VS. THE PLAYER)
   IfStateIs5

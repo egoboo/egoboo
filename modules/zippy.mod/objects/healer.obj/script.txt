@@ -189,7 +189,6 @@ IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //
 
-
 // Heal sound and effect
 IfUsed
   tmpargument = 0

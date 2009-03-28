@@ -1,13 +1,13 @@
 :Dracula
 :Vladimir
-:Bloodsuk
+:Bludsuk
 :Bitey
 :Latcher
 :Dracky
 :Count
 :Vampy
 :Stinger
-:Blood
+:Blud
 :Crave
 :Hunter
 :Whitey

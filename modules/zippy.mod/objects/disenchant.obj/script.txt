@@ -2,7 +2,6 @@
 IfSpawned
   KeepAction
 
-
 // Remove the charge
 IfTakenOut
   tmpargument = 0
@@ -11,7 +10,6 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 3
       SendMessageNear
-
 
 // Allow it to be used
 IfUsed
@@ -51,7 +49,6 @@ IfUsed
         tmpdistance = targetz
         tmpargument = 0
         SpawnExactParticle
-
 
 // Allow it to be cast or fizzle
 Else
@@ -107,7 +104,6 @@ Else
   // Reset the charge counter
   tmpargument = 0
   SetContent
-
 
 // Return to spellbook, Do last!
 IfDropped

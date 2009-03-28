@@ -18,7 +18,6 @@ IfChanged
   SetState
   KeepAction
 
-
 // Monster AI
 IfStateIs0
   GetState // NOP
@@ -47,8 +46,6 @@ Else
     AddWaypoint
     tmpargument = rand&7 + 5
     SetTime
-
-
 
 // Spell AI
 IfStateIs0
@@ -97,7 +94,6 @@ IfStateIs0
               SparkleIcon
             tmpargument = 0
             PlaySound
-
 
   // Return to spellbook, Do last!
   IfDropped

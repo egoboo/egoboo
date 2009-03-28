@@ -29,7 +29,6 @@ IfChanged
   SetState
   KeepAction
 
-
 // Monster AI
 tmpargument = 0
 IfStateIsNot
@@ -37,7 +36,6 @@ IfStateIsNot
   IfAttacked
     tmpargument = 3
     PlaySound
-
 
   // Character death
   IfKilled
@@ -53,7 +51,6 @@ IfStateIsNot
       IfTargetIsSelf
         tmpargument = 2
     SendMessageNear
-
 
   // Do different Zombi AI's
   IfStateIs1
@@ -234,7 +231,6 @@ IfStateIsNot
       tmpargument = 10
       SetTime
 
-
 // Spell AI
 IfStateIs0
   // Remove the charge
@@ -305,7 +301,6 @@ IfStateIs0
           SpawnCharacterXYZ
             EnchantChild
 
-
             // Set the drain
             GetContent
             tmpargument = 0 - tmpargument > 3
@@ -313,7 +308,6 @@ IfStateIs0
             tmpx = 0
             tmpy = 0
             SetEnchantBoostValues
-
 
             // Set the Zombi type
             GetContent

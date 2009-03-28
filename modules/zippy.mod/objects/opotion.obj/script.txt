@@ -58,13 +58,10 @@ IfCrushed
 IfDropped
   KeepAction
 
-
-
 // Play a clink or clang
 IfHitGround
   tmpargument = 0
   PlaySound
-
 
 // Alert others to draw
 IfTakenOut
@@ -73,15 +70,12 @@ IfTakenOut
     tmpargument = 2
     SendMessageNear
 
-
-
 // Tell them what they've won...
 IfGrabbed
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
     tmpargument = 0
     SendMessageNear
-
 
 // Finish up
 End

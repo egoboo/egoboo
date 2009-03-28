@@ -8,7 +8,6 @@ IfKilled				// This reduces the height of the char
   tmpargument = 45			  //
   SetBumpHeight				  //
 
-
 IfTimeOut				// This is done every so often
   tmpargument = rand & 15 + 15		  // Try again later
   SetTime				  //
@@ -77,7 +76,6 @@ IfTimeOut				// This is done every so often
   ClearWaypoints			  //
   AddWaypoint				  //
 
-
 IfAttacked				// Counter attack if not healing
   IfStateIs0				  //
     SetTargetToWhoeverAttacked		    //
@@ -95,7 +93,6 @@ IfAttacked				// Counter attack if not healing
           PlaySound
       Else				      // Attacker dead already
         SetTargetToOldTarget		        //
-
 
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
@@ -117,7 +114,6 @@ IfBumped				// Bumped
 IfTargetKilled				// Mode switch
   tmpargument = 0			  // Return to follow mode
   SetState				  //
-
 
 // Heal effect
 IfUsed

@@ -29,7 +29,6 @@ IfSpawned
   tmpargument = 50
   SetTime
 
-
 //--------------------------------------------------------------------------------------------
 //This makes zombi mount mountable creatures
 IfBumped
@@ -68,7 +67,6 @@ IfKilled
   SendMessageNear
   DropMoney		//Drop the loot
 
-
 //--------------------------------------------------------------------------------------------
 // Do the Zombi AI
 //--------------------------------------------------------------------------------------------
@@ -79,14 +77,13 @@ IfTimeOut
     SetTargetToLeader
 
     Run
-    tmpx = rand & 2046 + targetx - 1024
-    tmpy = rand & 2046 + targety - 1024
+    tmpx = rand & 2047 + targetx - 1024
+    tmpy = rand & 2047 + targety - 1024
     tmpdistance = 1200
     tmpturn = targetturnto //rand & 31000 + targetturnto - 16000
     Compass
     ClearWaypoints
     AddWaypoint
-
 
     //Watch out for enemies
     SetTargetToWideEnemy

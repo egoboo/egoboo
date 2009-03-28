@@ -2,16 +2,12 @@
 IfSpawned
   KeepAction
 
-
-
 // Draw message
 IfTakenOut
   SetTargetToWhoeverIsHolding
     IfTargetIsAPlayer
       tmpargument = 0
       SendMessageNear
-
-
 
 // Allow it to be cast
 IfStateIs0
@@ -35,7 +31,6 @@ IfStateIs0
     tmpargument = 2
     SpawnExactParticle
 
-
 // Shoot for a while
 IfStateIs1
   GetContent
@@ -53,8 +48,6 @@ IfStateIs1
   Else
     tmpargument = 0
     SetState
-
-
 
 // Return to spellbook, Do last!
 IfDropped

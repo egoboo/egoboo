@@ -11,7 +11,6 @@ IfTakenOut
       tmpargument = 3
       SendMessageNear
 
-
 // Allow it to be used
 IfUsed
   UndoEnchant
@@ -45,7 +44,6 @@ IfUsed
         tmpdistance = targetz
         tmpargument = 0
         SpawnExactParticle
-
 
 // Allow it to be cast or fizzle
 Else
@@ -109,7 +107,6 @@ Else
   // Reset the charge counter
   tmpargument = 0
   SetContent
-
 
 // Return to spellbook, Do last!
 IfDropped

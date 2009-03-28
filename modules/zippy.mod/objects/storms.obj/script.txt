@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = 0
   SetContent
 
-
 // Say they pour over a book...
 IfTakenOut
   tmpargument = 0
@@ -13,7 +12,6 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 0
       SendMessageNear
-
 
 // Play the rain sound...
 IfTimeOut
@@ -27,7 +25,6 @@ IfTimeOut
     PlaySound
   tmpargument = 0
   SetContent
-
 
 // Allow it to be used
 IfUsed
@@ -86,7 +83,6 @@ IfUsed
         tmpargument = 0
         SpawnExactParticle
 
-
         // Skybolts are loud, so wake up sleepers...
         tmpargument = [WAKE]
         tmpdistance = [WAKE]
@@ -136,8 +132,6 @@ IfUsed
       Else
         tmpargument = 3
         SendMessageNear
-
-
 
 // Return to spellbook, Do last!
 IfDropped

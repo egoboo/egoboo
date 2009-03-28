@@ -57,7 +57,6 @@ IfTimeOut				// This is done every so often
     SetState				      // Change to combat mode
  
 
-
   //Wander
   IfStateIs0
     tmpx = rand & 511 + selfspawnx - 256
@@ -96,7 +95,6 @@ IfTargetIsAttacking
     IfFacingTarget
       IfHoldingShield
         PressLatchButton
-
 
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
