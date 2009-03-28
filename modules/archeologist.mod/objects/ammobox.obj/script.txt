@@ -27,7 +27,6 @@ IfInWater
   tmpargument = 1
   SetState
 
-
 //----------------------------------------------------------------------------------
 IfDropped				// Make it lie on floor
   KeepAction				  //
@@ -57,9 +56,9 @@ IfUsed
       SetTargetToWhoeverIsHolding
       tmpargument = [SHOT]
       RestockTargetAmmoIDFirst
-      tmpargument = 0			  
-      PlaySound				  
-      PlaySound				  
+      tmpargument = 0
+      PlaySound
+      PlaySound
       PlaySound
       tmpargument = 2
       SendMessageNear
@@ -72,7 +71,6 @@ IfUsed
   Else
     tmpargument = 3
     SendMessageNear			//Nothing to reload
-
 
 //----------------------------------------------------------------------------------
 // Need to be damaged by fire and explode!!

@@ -23,7 +23,7 @@ IfContentIs
       tmpx = selfx + 400
       tmpy = selfy - 625
       tmpdistance = rand & 255
-      SpawnExactCharacterXYZ      
+      SpawnExactCharacterXYZ
       tmpargument = 200
       SetTime
       tmpargument = 2
@@ -31,7 +31,6 @@ IfContentIs
   Else
     IfTimeOut
       DisaffirmCharacter
-
 
 //Handle going on and off
 IfReaffirmed

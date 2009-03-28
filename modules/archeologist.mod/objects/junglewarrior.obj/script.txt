@@ -1,4 +1,4 @@
-/------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 //NOTES
 //Armor 2 is a shaman with special abillities
 //Armor 1 is captain/elite soldier
@@ -83,7 +83,7 @@ IfKilled
   tmpargument = 0
   IfArmorIs			//Normal dude
     IfTargetIsOnOtherTeam
-      tmpargument = 0		//Enemy killed	
+      tmpargument = 0		//Enemy killed
     Else
       tmpargument = 1
     SendMessageNear		//Friendly fire
@@ -97,7 +97,6 @@ IfKilled
     Else
       tmpargument = 3		//Shaman
     SendMessageNear
- 
 
 
   //Death sound
@@ -183,12 +182,12 @@ IfArmorIs
 //------------------------------------------------------------------------------
 //New round
 IfTimeOut
-  tmpargument = rand & 20 + 15
+  tmpargument = rand % 20 + 15
   SetTime
 
   //Growl
-  tmpx = rand & 255			  
-  tmpy = 25				  
+  tmpx = rand & 255
+  tmpy = 25
   IfXIsLessThanY			  // Play a random grunt?
     tmpargument = rand & 1 + 2
     PlaySound
@@ -198,8 +197,8 @@ IfTimeOut
     tmpargument = 50
     SetTime
     SetTurnModeToVelocity
-    tmpx = rand & 2047 + selfspawnx - 1024
-    tmpy = rand & 2047 + selfspawny - 1024
+    tmpx = rand % 2047 + selfspawnx - 1024
+    tmpy = rand % 2047 + selfspawny - 1024
     ClearWaypoints
     AddWaypoint					//Wander around and guarding
     SetTargetToWideEnemy
@@ -219,10 +218,10 @@ IfTimeOut
     tmpx = targetdistance
     tmpy = 400
     IfXIsMoreThanY		//Move towards the enemy
-      tmpx = rand & 512 + targetx -255
-      tmpy = rand & 512 + targety -255
+      tmpx = rand & 511 + targetx - 255
+      tmpy = rand & 511 + targety - 255
       tmpturn = targetturnto
-      tmpdistance = 1500  
+      tmpdistance = 1500
       Compass
       ClearWaypoints
       AddWaypoint
@@ -252,14 +251,14 @@ IfTimeOut
 
     //Enemy ran away?
     tmpx = targetdistance
-    tmpy = 500 
-    IfXIsMoreThanY		
+    tmpy = 500
+    IfXIsMoreThanY
       tmpargument = 1
       SetState			//Charge
 
   //COMBAT - THROW SPEAR
   IfStateIs3
-    
+
     //Are we in wrong mode?
     GetContent
     tmpx = tmpargument
@@ -279,7 +278,6 @@ IfTimeOut
       Compass
       ClearWaypoints
       AddWaypoint				//Aim attack
-
 
       //Shoot when target is closer
       IfFacingTarget				//Looking at enemy?
@@ -322,8 +320,6 @@ IfAttacked
   tmpargument = rand & 2 + 5
   PlaySound
 
-
-
 //------------------------------------------------------------------------------
 //Dodge bullets?
 IfTargetIsAttacking
@@ -356,7 +352,6 @@ IfTargetIsAttacking
         tmpargument = LATCHJUMP
         PressLatchButton
 
-
 //------------------------------------------------------------------------------
 //We dont like water =(
 tmpargument = 0
@@ -388,7 +383,6 @@ IfStateIsNot
     ClearWaypoints
     AddWaypoint
 
-
 //------------------------------------------------------------------------------
 //Claw attacks for last resort
 tmpargument = 0
@@ -418,7 +412,6 @@ IfDazed
   SetTurnModeToVelocity
 IfGrogged
   SetTurnModeToVelocity
-
 
 //------------------------------------------------------------------------------
 End

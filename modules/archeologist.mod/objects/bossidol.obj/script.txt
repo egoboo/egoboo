@@ -4,7 +4,6 @@ IfSpawned
   PlayMusic
   PitsKill
 
-
 IfGrabbed
   SetTargetToWhoeverIsHolding
   tmpargument = 0

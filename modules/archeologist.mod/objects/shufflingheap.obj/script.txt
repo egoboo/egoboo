@@ -20,7 +20,7 @@ IfTimeOut
       tmpy = selfspawny
       ClearWaypoints
       AddWaypoint
-   
+
   //Following enemy
   IfStateIs1
     IfTargetIsOnHatedTeam		//Attack?

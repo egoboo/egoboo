@@ -38,7 +38,6 @@ IfXIsLessThanY
   tmpargument = 1
   SetState
 
-
 //------------------------------------------------------------------------------
 //Crush folks
 IfStateIs0

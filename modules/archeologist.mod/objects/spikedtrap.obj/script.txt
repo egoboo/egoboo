@@ -1,10 +1,9 @@
 //-----------------------------------------------------------------------------------------------
 //Reset trap at start
 IfSpawned
-  tmpargument = ACTIONMG	
+  tmpargument = ACTIONMG
   DoAction
   tmpx = 500		//Dont activate at start
-
 
 //-----------------------------------------------------------------------------------------------
 //Trap effects
@@ -34,19 +33,18 @@ SetTargetToNearestLifeform
               tmpargument = 1
               PlaySound				//Play sound effect
 
-
 //Special occasions the trap is not to activate
 tmpx = targetdistance
 IfTargetIsSelf
   tmpx = 500			//Don't activate
 
-tmpy = rand & 65 + 55			//Trigger range
+tmpy = rand % 65 + 55			//Trigger range
 IfXIsLessThanY
   IfStateIs0
     tmpx = targetz
     tmpy = selfz + 100
     IfXIsLessThanY		//This enables targets to fly or jump over the trap
-      tmpargument = ACTIONMG	
+      tmpargument = ACTIONMG
       DoAction
       tmpargument = 0
       tmpdistance = rand & 3600 + 10000
@@ -59,7 +57,6 @@ IfXIsLessThanY
       tmpdistance = DAMAGEPOKE
       DamageTarget
 
-
 //-----------------------------------------------------------------------------------------------
 //Reset trap
 IfTimeOut
@@ -67,7 +64,6 @@ IfTimeOut
   SetTime
   tmpargument = 0
   SetState			//Ready trap state
-
 
 //-----------------------------------------------------------------------------------------------
 //Detected trap particles

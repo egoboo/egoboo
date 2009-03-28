@@ -12,7 +12,7 @@ IfSpawned				//
   Else
     tmpargument = 1  			// On
     SetState
-    tmpargument = 0			    
+    tmpargument = 0
     tmpdistance = SPAWNLAST		  // Model vertex to attach to
     SpawnAttachedParticle			  //
   tmpargument = 250
@@ -33,7 +33,7 @@ IfCrushed
 
 IfDisaffirmed
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
   tmpargument = 0  			// Off
   SetState
@@ -47,7 +47,7 @@ IfDropped				// Make it lie on floor
 
 IfHitGround				// Make a sound
   tmpargument = 0			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 
 IfGrabbed				// Tell them what they've won...
@@ -55,7 +55,6 @@ IfGrabbed				// Tell them what they've won...
   IfTargetIsAPlayer
     tmpargument = 0			  //
     SendMessageNear			  //
-
 
 IfUsed
   IfStateIs0
@@ -90,7 +89,6 @@ IfTimeOut
       SendMessageNear			  //
     tmpargument = 250
     SetTime
-
 
 End					// All done
 

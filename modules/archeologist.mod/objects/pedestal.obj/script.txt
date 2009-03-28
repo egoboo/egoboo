@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = 50
   SetTime
 
-
 IfTimeOut
   IfStateIs2
     tmpargument = 0
