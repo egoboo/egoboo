@@ -21,7 +21,7 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Play the drop sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 7000	  //
+  tmpdistance = rand % 2047 + 7000	  //
   PlaySound				  //
 IfGrabbed				// Tell them what they've won...
   SetTargetToWhoeverIsHolding		  //

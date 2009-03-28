@@ -31,8 +31,6 @@ IfOrdered
         tmpargument = STATERETREAT
         SetState
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and telling allies to run away
 IfKilled
@@ -51,8 +49,6 @@ IfKilled
   tmpargument = tmpx < 8 + tmpy
   IssueOrder
 
-
-
   // Send the message
   IfTargetIsOnOtherTeam
     tmpargument = MESSAGEDEATH
@@ -60,14 +56,10 @@ IfKilled
     tmpargument = 1
   SendMessageNear
 
-
-
   // Scream
-  tmpdistance = rand & 2047 + 11000
+  tmpdistance = rand % 2047 + 11000
   tmpargument = 3
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being bumped by countering or wandering
@@ -85,8 +77,6 @@ IfBumped
         SetState
     Else
       SetTargetToOldTarget
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
@@ -115,8 +105,6 @@ IfAttacked
         tmpargument = STATERETREAT
       SetState
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being healed by spitting out a message and stopping retreat
 IfHealed
@@ -128,8 +116,6 @@ IfHealed
     tmpargument = 4
   SendMessageNear
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle blocking an attack by countering
 IfBlocked
@@ -138,7 +124,6 @@ IfBlocked
   Else
     tmpargument = STATECOMBAT
     SetState
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle an aggressive enemy by checking dexterity to block
@@ -153,7 +138,7 @@ IfTargetIsAttacking
       tmpargument = STATECOMBAT
       tmpx = targetdistance
       tmpy = 600
-      IfXIsLessThanY    
+      IfXIsLessThanY
         // Are the character and enemy facing opposite directions?
         tmpturn = targetturn - selfturn
         tmpx = tmpturn
@@ -179,15 +164,12 @@ IfTargetIsAttacking
                 tmpargument = STATEPARRY
       SetState
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> This is the state chooser and interpreter
 IfTimeOut
   // Choose a new state, by setting tmpargument
   // Look for enemies
   SetTurnModeToVelocity
-
 
   // Find an enemy
   tmpx = 0
@@ -210,9 +192,6 @@ IfTimeOut
     tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
     SetTargetToWideBlahID
       tmpx = 1
-
-
-
 
   tmpy = 0
   IfXIsMoreThanY
@@ -245,7 +224,6 @@ IfTimeOut
     IfStateIsParry
       tmpargument = STATECOMBAT
 
-
   // No enemy in general area, so return to the guard post
   Else
     IfStateIsRetreat
@@ -253,11 +231,8 @@ IfTimeOut
     Else
       tmpargument = STATEGUARD
 
-
-
   // Now set the state to whatever tmpargument is
   SetState
-
 
   // Interpret the states and set the latches
   // Defend
@@ -348,7 +323,7 @@ IfTimeOut
                 // Nope, so cheer...
                 tmpargument = ACTIONMC
                 DoAction
-                tmpdistance = rand & 2047 + 11000
+                tmpdistance = rand % 2047 + 11000
                 tmpargument = tmpdistance & 1
                 PlaySound
         tmpx = targetx
@@ -374,7 +349,6 @@ Else
     Else
       tmpargument = 0
       SetTime
-
 
 //------------------------------------------------------------------------------
 End

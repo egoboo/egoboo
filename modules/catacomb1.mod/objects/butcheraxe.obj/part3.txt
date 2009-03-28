@@ -1,4 +1,4 @@
-// Blood drip
+// Blud drip
 Force spawn ( TRUE or FALSE )				: FALSE
 Image type ( SOLID, LIGHT, or TRANS )			: SOLID
 Starting frame ( 0 to 255 )				: 10

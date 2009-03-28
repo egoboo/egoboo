@@ -28,8 +28,6 @@ IfContentIs
     SendMessage
 
 
-  
-
 
 IfHealed
   // Spawn a defense ping
@@ -43,8 +41,6 @@ IfHealed
     SetState
     tmpargument = 20
     SetTime
-
-
 
 IfAttacked
   // Must die in 1 hit to disallow punching it open
@@ -62,16 +58,12 @@ IfAttacked
     tmpargument = 20
     SetTime
 
-
-
 IfTimeOut
   // Ready the pings
   tmpargument = 0
   SetState
   tmpargument = 500
   SetTime
-
-
 
 IfKilled
   // Smash open
@@ -108,13 +100,10 @@ IfKilled
     tmpargument = tmpturn
     SendMessageNear
 
-
-
   // Drop goodies
   DropItems
   tmpargument = 65535
   DropMoney
-
 
   // Replace self with an imposter...
   tmpargument = 48

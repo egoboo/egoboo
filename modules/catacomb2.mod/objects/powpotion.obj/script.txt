@@ -50,7 +50,7 @@ IfUsed
   PlaySound
   tmpargument = 12000
   SetReloadTime
-  
+
   IfNameIsKnown
     tmpargument = 3
     SendMessageNear

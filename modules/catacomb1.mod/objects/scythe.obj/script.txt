@@ -1,7 +1,7 @@
 //This manages attack speed (Adjusted by strenght and dexterity)
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = targetdex > 9		//Every 2 points of dex increases speed by 1	
+  tmpargument = targetdex > 9		//Every 2 points of dex increases speed by 1
   tmpargument = 60 - tmpargument
   SetReloadTime
 
@@ -27,11 +27,11 @@ IfDropped				// Make it lie on floor
   KeepAction				  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 IfTakenOut				// Make a sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //

@@ -17,7 +17,7 @@ IfBumped
         SetState
         GetContent
         tmpargument = tmpargument + 1
-        IssueOrder  
+        IssueOrder
         tmpargument = ACTIONMJ	    //Turn back
         DoAction
       Else		//Unactivated

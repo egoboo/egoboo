@@ -7,12 +7,12 @@ IfStateIs0
       IfTargetCanOpenStuff
         EnableExport
         BeatModule
-        
+
         // Mark this module as beaten, hidden modules may open up
         tmpargument = [MAIN]
         tmpdistance = 5           //The quest level
         AddQuestAllPlayers        //Add it
-  
+
         tmpargument = ACTIONMJ	      //Open Trap Door
         DoAction
         KeepAction

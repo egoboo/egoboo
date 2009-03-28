@@ -1,14 +1,14 @@
 //Bodies are dead (Duh)
 IfSpawned
-  tmpargument = rand % 4
+  tmpargument = rand & 3
   ChangeArmor			//Randomize skin
   tmpargument = ACTIONKA	//Killed
   DoActionOverride
   KeepAction
   JoinEvilTeam
- 
+
 //Check if to rise undead and rise ghouls
-IfTimeOut		
+IfTimeOut
   GetContent
   tmpx = tmpargument
   tmpy = 2			//2 is normal body

@@ -124,7 +124,7 @@ Poof amount    : 0
 Facing add     : 0
 Part type      : 0
 
-Blood valid    : TRUE
+Blud valid    : TRUE
 Part type      : 1
 
 Waterwalking   : FALSE

@@ -25,7 +25,7 @@ IfTimeOut
       tmpargument = tmpargument -1
       SetContent
       tmpargument = 1
-      PlaySound	
+      PlaySound
 
   //STAGE 3 - Final Stage
   IfStateIs14
@@ -54,7 +54,7 @@ IfTimeOut
     tmpargument = selfstate + 1
     SetState
     tmpargument = 0
-    tmpx = rand & 600
+    tmpx = rand % 600
     tmpx = selfx - tmpx - 250
     tmpy = rand & 511 + selfy - 256
     tmpdistance = rand & 128 + 50
@@ -73,7 +73,7 @@ IfTimeOut
     SetState
     tmpargument = 1
     PlaySound
-	
+
 
 //Just to make sure
 IfSpawned

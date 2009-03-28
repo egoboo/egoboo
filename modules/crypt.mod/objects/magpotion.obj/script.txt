@@ -6,7 +6,6 @@ IfSpawned
   MakeCrushValid
   MakeAmmoKnown
 
-
 // Make it poof
 IfCrushed
   tmpx = selfx
@@ -21,19 +20,14 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
-
 // Make it lie on the floor
 IfDropped
   KeepAction
-
-
 
 // Play a clink or clang
 IfHitGround
   tmpargument = 0
   PlaySound
-
 
 // Alert others to draw
 IfTakenOut
@@ -42,8 +36,6 @@ IfTakenOut
     tmpargument = 2
     SendMessageNear
 
-
-
 // Tell them what they've won...
 IfGrabbed
   SetTargetToWhoeverIsHolding
@@ -51,13 +43,10 @@ IfGrabbed
     tmpargument = 0
     SendMessageNear
 
-
-
 // Give the user a bonus, but it's addictive...
 IfUsed
   tmpargument = 1
   PlaySound
-
 
   tmpargument = 40
   SetReloadTime
@@ -85,7 +74,6 @@ IfUsed
     tmpargument = 8000    //Drain away the mana
     CostTargetMana
 
-
     tmpargument = ACTIONMC
     TargetDoAction
     tmpdistance = SPAWNORIGIN
@@ -94,8 +82,6 @@ IfUsed
   CostAmmo
   IfAmmoOut
     GoPoof
-
-
 
 // Finish up
 End

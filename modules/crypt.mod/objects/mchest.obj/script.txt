@@ -24,33 +24,27 @@ IfOrdered
         tmpargument = 1
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetIsAPlayer
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
 
-
         // Give some experience
         tmpargument = 5
         tmpdistance = EXPDARE
         GiveExperienceToTarget
-
 
         // Open it up
         tmpargument = ACTIONMG
@@ -75,13 +69,11 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Is there a map left?
         IfStateIs1
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
-
 
           // Show the map
           ShowYouAreHere
@@ -90,7 +82,6 @@ IfBumped
             tmpargument = 20
             tmpdistance = EXPSECRET
             GiveExperienceToTarget
-
 
             // Tell everyone
             tmpargument = 0
@@ -103,7 +94,6 @@ IfBumped
             tmpargument = 4
             SendMessageNear
 
-
           // Empty the chest
           tmpargument = 2
           SetState
@@ -111,7 +101,6 @@ IfBumped
           // The chest is empty
           tmpargument = 3
           SendMessageNear
-
 
 // All done
 End

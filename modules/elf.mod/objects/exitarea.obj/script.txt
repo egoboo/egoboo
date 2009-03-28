@@ -1,13 +1,13 @@
 IfSpawned
   DisableExport
-  
+
 IfOrdered
   tmpx = selforder
   tmpy = [FAER]
   IfXIsEqualToY
     tmpargument = 1
     SetContent
-    
+
 IfTimeOut
   SetTargetToNearestLifeform
   tmpx = targetdistance
@@ -36,7 +36,7 @@ IfTimeOut
           SendMessageNear
           tmpargument = 1
           SendMessageNear
-        
+
   tmpargument = 75
   SetTime
   // Here we go

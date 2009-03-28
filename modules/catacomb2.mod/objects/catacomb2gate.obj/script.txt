@@ -18,7 +18,7 @@ IfOrdered
 
     IfStateIs3				//All 3 switches done...
       tmpargument = 1
-      tmpdistance = rand & 8500 + 11000
+      tmpdistance = rand % 8500 + 11000
       PlaySound
       tmpargument = 0
       SendMessageNear			//Tell congrats and play sound
@@ -32,10 +32,10 @@ IfOrdered
   //Handle opening of individual gates
 KeepAction
 tmpargument = passage
-IfPassageOpen		
+IfPassageOpen
   tmpargument = 3
   IfContentIs
-    tmpargument = ACTIONMG	
+    tmpargument = ACTIONMG
     DoAction			//Open last gate too
     tmpargument = 4
     SetContent			//Dont repeat
@@ -45,7 +45,7 @@ Else				//Only do as long as the passage is closed
   GetState
   tmpy = tmpargument		//If the state of the character is the same as the content
   IfXIsEqualToY			//which means switch 1 opens gate 1, etc.
-    tmpargument = ACTIONMG	
+    tmpargument = ACTIONMG
     DoAction			//Open gate
     tmpargument = 0
     tmpdistance = rand & 3600 + 10000

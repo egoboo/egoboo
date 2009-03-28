@@ -25,7 +25,7 @@ IfGrabbed				// Tell them what they've won...
     SendMessageNear			  //
 IfTakenOut				// Do the unsheathe sound
   tmpargument = 2			  //
-  tmpdistance = rand & 2047 + 10000	  //
+  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
   SetTargetToWhoeverIsHolding		  //
   IfTargetIsAPlayer			  //
@@ -33,6 +33,6 @@ IfTakenOut				// Do the unsheathe sound
     SendMessageNear			  //
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand & 2047 + 8000	  //
+  tmpdistance = rand % 2047 + 8000	  //
   PlaySound				  //
 End					// All done

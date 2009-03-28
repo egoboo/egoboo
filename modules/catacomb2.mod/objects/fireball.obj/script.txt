@@ -6,7 +6,6 @@ IfSpawned
   Else
     // It's an explosion ring
 
-
     // Set the size of the explosion...
     GetState
     tmpargument = tmpargument + ACTIONKA - 1  // KA, KB, or KC based on size
@@ -24,8 +23,6 @@ IfSpawned
     tmpargument = 18
     SetTime
 
-
-
     // Spawn some shrapnel
     GetState
     tmpx = tmpargument * 20 + 10   // Speed
@@ -33,15 +30,11 @@ IfSpawned
     tmpargument = tmpargument < 10 + 1024 // Damage...  5-10, 9-14, or 13-18
     SpawnPoofSpeedSpacingDamage
 
-
 IfChanged
   // It's a spell in hand
   tmpargument = 0
   SetState
   KeepAction
-
-
-
 
 // Spell AI...
 IfStateIs0
@@ -98,7 +91,7 @@ IfStateIs0
     IfXIsMoreThanY
       tmpx = tmpx - 512
       IfXIsMoreThanY
-      
+
         // Figure out the charge state, and spawn accordingly
         tmpturn = tmpx > 9 + 1		// State 1, 2, or 3 for child
         tmpargument = tmpturn + 1	// Particle 2, 3, or 4 for fireball
@@ -107,12 +100,12 @@ IfStateIs0
         tmpy = selfy
         tmpdistance = selfz
         SpawnExactParticleEndSpawn
-        
+
         //Make it cast
         tmpargument = ACTIONZA
         CorrectActionForHand
         TargetDoAction
-        
+
         //Learn what it was
         IfUsageIsKnown
           DoNothing

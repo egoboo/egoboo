@@ -9,16 +9,16 @@ IfSpawned
 KeepAction
 tmpargument = passage
 IfPassageOpen
-  IfStateIs0	
-    tmpargument = ACTIONMG	
+  IfStateIs0
+    tmpargument = ACTIONMG
     DoAction			//Dont repeat
-    tmpargument = 0		
+    tmpargument = 0
     PlaySound			//Play clinking
     tmpargument = 1
     SetState			//Dont repeat
 Else
   IfStateIs1
-    tmpargument = ACTIONMJ	
+    tmpargument = ACTIONMJ
     DoAction			//Close gate
     tmpargument = 0
     PlaySound			//Play clinking

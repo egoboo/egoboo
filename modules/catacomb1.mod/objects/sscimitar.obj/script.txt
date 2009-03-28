@@ -1,7 +1,7 @@
 //This manages attack speed (Adjusted by strenght and\or dexterity)
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = targetdex > 8		//Every point of dex increases speed by 1	
+  tmpargument = targetdex > 8		//Every point of dex increases speed by 1
   tmpargument = 50 - tmpargument
   SetReloadTime
 
@@ -25,7 +25,7 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-IfDropped	
+IfDropped
   KeepAction
 
 IfHitGround
@@ -41,7 +41,7 @@ IfTakenOut
     SendMessageNear
 
 // Tell them what they've won, Johnny!
-IfGrabbed	
+IfGrabbed
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
     tmpargument = 0

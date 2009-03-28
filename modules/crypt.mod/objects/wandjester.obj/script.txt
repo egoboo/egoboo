@@ -11,7 +11,6 @@
 //9: User gain dex
 //10: ALL (Chaotic!)
 
-
 //-----------------------------------------------------------------------------
 //Tell the players what they found
 IfGrabbed
@@ -37,15 +36,15 @@ IfSpawned
 
   //Randomize next spell
   tmpargument = rand % 11
-  SetState 	
-	
+  SetState
+
 //-----------------------------------------------------------------------------
 //Effects of the wand
 IfUsed
 
   //Randomize next spell
   tmpargument = rand % 11
-  SetState 		
+  SetState
 
   SetTargetToWhoeverIsHolding
 
@@ -70,8 +69,8 @@ IfUsed
     tmpargument = rand & 1023 + 1024	//4-8
     HealTarget				//Heal 'em!
 
-  //Heal Mana   
-  IfStateIs2 
+  //Heal Mana
+  IfStateIs2
     tmpargument = 2
     SendMessageNear	//Display a message
     PlaySound		//Play a sound
@@ -89,9 +88,9 @@ IfUsed
     SendMessageNear	//Display a message
     PlaySound		//Play a sound
     EnchantTarget                 //Increase the target's speed
-         
+
   //Tomatoes!!
-  IfStateIs4		
+  IfStateIs4
     tmpargument = 3
     SendMessageNear	//Display a message
     tmpargument = 3	//Spawn some particles
@@ -113,9 +112,9 @@ IfUsed
     SpawnExactParticle
 
   //Red Missle
-  IfStateIs5		
+  IfStateIs5
     tmpargument = 4	//Spawn some particles
-    tmpdistance = SPAWNLAST 
+    tmpdistance = SPAWNLAST
     SpawnParticle
     SpawnParticle
     SpawnParticle
@@ -245,10 +244,9 @@ IfUsed
     GiveExperienceToTarget
 
   //Cost one charge
-  IfAmmoOut                      
+  IfAmmoOut
     GoPoof
     tmpargument = 11
     SendMessageNear
-
 
 End

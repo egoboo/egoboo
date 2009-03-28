@@ -3,18 +3,17 @@
 //1: Send a message that it is not drinkable
 //2: Dont send a message or drink (Delay or else it will loop)
 
-
 //Drink and heal the bumping character
-IfBumped			
-  SetTargetToWhoeverBumped	 
-  IfTargetIsAPlayer	
-    IfStateIs0   
-      tmpargument = 0		  
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    IfStateIs0
+      tmpargument = 0
       SendMessageNear
       tmpargument = 1
       SetState				 //Send message its empty now
-      tmpdistance = rand & 2047 + 21000
-      PlaySound	
+      tmpdistance = rand % 2047 + 21000
+      PlaySound
       tmpargument = 0
       tmpdistance = SPAWNORIGIN
       SpawnParticle
@@ -23,17 +22,15 @@ IfBumped
       tmpargument = 0	       //Empty of water
       SetContent
 
-
 //Is it empty? if so send a message
 IfBumped
-  IfTargetIsAPlayer  		
+  IfTargetIsAPlayer
     IfStateIs1
       IfTimeOut
         tmpargument = 1
         SendMessageNear
         tmpargument = 2  //Delay sending message
         SetState
-
 
 IfTimeOut
   tmpargument = 100
@@ -47,7 +44,7 @@ IfTimeOut
     SetState
   Else
     GetContent				//Else start refilling water
-    tmpargument = tmpargument + 1	
+    tmpargument = tmpargument + 1
     SetContent
     tmpargument = 1      //Spit out message its empty
     SetState

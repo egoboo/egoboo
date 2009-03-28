@@ -10,10 +10,10 @@ IfKilled
   // Make the character body
   tmpargument = 50
   SetBumpHeight
-    
+
   //Death sound
   tmpargument = 4
-  PlaySound			
+  PlaySound
 
   // Tell everyone it died
   tmpargument = 0
@@ -27,7 +27,6 @@ IfKilled
   DropMoney
   DropKeys
   DropItems
-
 
 //--------------------------------------------------------------------------------
 //Combat AI
@@ -45,7 +44,7 @@ IfTimeOut
     PlaySound
 
   //Target enemy
-  SetTargetToWideEnemy	
+  SetTargetToWideEnemy
     SetTurnModeToWatchTarget
 
     //Chase enemy
@@ -58,8 +57,8 @@ IfTimeOut
   //No enemies found - wander
   Else
     SetTurnModeToVelocity
-    tmpx = rand & 512 + selfx - 256
-    tmpy = rand & 512 + selfy - 256
+    tmpx = rand & 511 + selfx - 256
+    tmpy = rand & 511 + selfy - 256
     tmpargument = 60
     SetTime
 
@@ -69,24 +68,24 @@ IfTimeOut
   // Attack the enemy?
   tmpx = targetdistance
   tmpy = 250
-  IfXIsLessThanY		          
+  IfXIsLessThanY
     IfFacingTarget
       IfTargetIsOnHatedTeam
         tmpx = rand & 1280 + selfdex
         tmpy = 2560		//50% chance at 5 dexterity
         IfXIsMoreThanY			//Attack rating based on DEX
           tmpargument = ACTIONBC		//Attack
-          DoAction 
+          DoAction
 
 //--------------------------------------------------------------------------------
 //Dont flock
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsOnSameTeam
-    tmpx = rand & 500 + targetx - 250
-    tmpy = rand & 500 + targety - 250
+    tmpx = rand % 500 + targetx - 250
+    tmpy = rand % 500 + targety - 250
     tmpturn = targetturnto + 32768		//TargetTurnAway
-    tmpdistance = rand & 400 + 500
+    tmpdistance = rand % 400 + 500
     Compass
     ClearWaypoints
     AddWaypoint

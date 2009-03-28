@@ -6,8 +6,8 @@
 //------------------------------------------------------------------------------
 //Squeak if damaged
 IfAttacked
-  tmpargument = rand % 2 + 2		//Random ouch sound (sound 2 or 3)
-  tmpdistance = rand & 3400 + 9000
+  tmpargument = rand & 1 + 2		//Random ouch sound (sound 2 or 3)
+  tmpdistance = rand % 3400 + 9000
   PlaySound
   GetDamageType
   tmpx = tmpargument
@@ -20,7 +20,7 @@ IfAttacked
     tmpdistance = EXPREVENGE
     GiveExperienceToTarget
     tmpargument = 1		//Banishment sound
-    tmpdistance = rand & 4600 + 11000
+    tmpdistance = rand % 4600 + 11000
     PlaySound
 
 //------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ IfKilled
 
   //Death sound
   tmpargument = 0
-  tmpdistance = rand & 3800 + 11000
+  tmpdistance = rand % 3800 + 11000
   PlaySound
 
 //------------------------------------------------------------------------------
@@ -73,21 +73,21 @@ IfKilled
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsOnHatedTeam
-    tmpargument = rand & 75 + 74
+    tmpargument = rand % 75 + 74
     SetTime
-    tmpx = rand & 1500 + targetx - 750
-    tmpy = rand & 1500 + targety - 750
+    tmpx = rand % 1500 + targetx - 750
+    tmpy = rand % 1500 + targety - 750
     ClearWaypoints
     AddWaypoint
 
     //Bite the enemy				//Must look at him
     IfTargetIsAlive				//Cant attack dead ones
-      tmpargument = rand & 256 + 348		//1.50-2.50 damage
+      tmpargument = rand & 255 + 348		//1.50-2.50 damage
       tmpdistance = DAMAGEPOKE
       DamageTarget
       tmpargument = 1
       IfArmorIs
-        tmpargument = rand & 128 + 64		//Heal 0.25 - 0.60 life
+        tmpargument = rand & 127 + 64		//Heal 0.25 - 0.60 life
         SetTargetToSelf
         HealTarget
         SetTargetToOldTarget
@@ -95,11 +95,11 @@ IfBumped
   //Move out of way of friends
   IfTargetIsOnSameTeam
     tmpx = rand & 511 - 256 + targetx
-    tmpy = rand & 511 - 256 + targety 
+    tmpy = rand & 511 - 256 + targety
     ClearWaypoints
     AddWaypoint
     SetTargetToOldTarget
-    tmpargument = rand & 20 + 20
+    tmpargument = rand % 20 + 20
     SetTime
 
 //------------------------------------------------------------------------------
@@ -108,7 +108,6 @@ IfLeaderKilled
   BecomeLeader
 IfSpawned
   BecomeLeader		//Always have at least 1 leader
-
 
 //------------------------------------------------------------------------------
 //What to do each round
@@ -122,22 +121,19 @@ IfTimeOut
     tmpdistance = 700
     Compass
   Else						//No enemies, flock around leader
-    tmpx = rand & 1500 + selfspawnx - 750
-    tmpy = rand & 1500 + selfspawny - 750
-
-//    tmpx = rand & 1500 + leaderx - 750
-//    tmpy = rand & 1500 + leadery - 750
+    tmpx = rand % 1500 + selfspawnx - 750
+    tmpy = rand % 1500 + selfspawny - 750
   tmpargument = 100				//Bats are fast
   SetSpeedPercent
   ClearWaypoints
   AddWaypoint
 
   //Random growl sound
-  tmpx = rand & 900
+  tmpx = rand % 900
   tmpy = 3
   IfXIsLessThanY
     tmpargument = 4
-    tmpdistance = rand & 3000 + 14000
+    tmpdistance = rand % 3000 + 14000
     PlaySound
 
 //------------------------------------------------------------------------------

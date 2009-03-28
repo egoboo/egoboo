@@ -14,7 +14,7 @@ IfHeld
   IfHolderBlocked
     tmpargument = targetreloadtime + 40
     SetTargetReloadTime
-  
+
 //Magical effect
 IfHeld
   UndoEnchant

@@ -14,7 +14,7 @@ IfBumped
       OrderSpecialID
       tmpargument = 1		//Don't do again
       SetState
-      tmpdistance = rand & 2670 + 10000
+      tmpdistance = rand % 2670 + 10000
       tmpargument = 0
       PlaySound
       SendMessageNear

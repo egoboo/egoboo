@@ -3,7 +3,7 @@
 
 //Randomize ghost skin
 IfSpawned
-  tmpargument = rand % 4
+  tmpargument = rand & 3
   ChangeArmor
 
 //This makes ghosts fly up and down
@@ -20,7 +20,7 @@ Else
 //------------------------------------------------------------------------------
 //New round
 IfTimeOut
-  tmpargument = rand & 20 +  32
+  tmpargument = rand % 20 +  32
   SetTime				//Redo timer
 
   tmpx = rand & 100			//Moaning sound?
@@ -29,19 +29,18 @@ IfTimeOut
     tmpargument = 3
     IfContentIs			//Dont if timer is short becuase
       tmpargument = rand % 5 + 3		//of attacking
-      tmpdistance = rand & 4000 + 6000
+      tmpdistance = rand % 4000 + 6000
       PlaySound
     Else
-      GetContent			
+      GetContent
       tmpx = tmpargument
       tmpy = 3
       IfXIsLessThanY
         tmpargument = 3
         SetContent
 
-
   //Dorment
-  IfStateIs0			
+  IfStateIs0
     SetTargetToWideEnemy
       tmpx = targetx
       tmpy = targety
@@ -80,8 +79,8 @@ IfTimeOut
     tmpx = targetdistance
     tmpy = 90
     IfXIsLessThanY			//To close to friend?
-      tmpx = rand & 500 + targetx - 250
-      tmpy = rand & 500 + targety - 250
+      tmpx = rand % 500 + targetx - 250
+      tmpy = rand % 500 + targety - 250
       SetTargetToOldTarget		//Enemy
       tmpturn = targetturnto
       tmpdistance = rand & 1000
@@ -99,7 +98,7 @@ IfStateIs1
     tmpx = targetdistance		//Close enough?
     tmpy = 150
     IfXIsLessThanY
-      tmpargument = rand % 2		//Randomize attack left or right hand
+      tmpargument = rand & 1		//Randomize attack left or right hand
       SetContent
       tmpargument = 1
       IfContentIs			//Attack right
@@ -111,7 +110,6 @@ IfStateIs1
       tmpargument = 0
       SetTime
 
-
 //------------------------------------------------------------------------------
 //Hit by silver
 IfHitVulnerable
@@ -120,7 +118,7 @@ IfHitVulnerable
   SetTargetToSelf
   DamageTarget
   tmpargument = 9
-  tmpdistance = rand & 8000 + 11000
+  tmpdistance = rand % 8000 + 11000
   PlaySound			//Special feared sound
   tmpargument = 3
   SendMessageNear
@@ -147,23 +145,23 @@ IfAttacked
     Compass
     ClearWaypoints
     AddWaypoint
-    tmpargument = rand & 80 + 50
+    tmpargument = rand % 80 + 50
     SetTime
     tmpargument = 9
-    tmpdistance = rand & 8000 + 11000
+    tmpdistance = rand % 8000 + 11000
     PlaySound			//Special feared sound
     tmpargument = 3
     SendMessageNear
   Else						//Normal ouch
     tmpargument = rand & 1
-    tmpdistance = rand & 8000 + 11000
+    tmpdistance = rand % 8000 + 11000
     PlaySound			//Ouch sound
 
 //------------------------------------------------------------------------------
 //Death stuff
 IfKilled
   tmpargument = 2
-  tmpdistance = rand & 8000 + 11000
+  tmpdistance = rand % 8000 + 11000
   PlaySound			//death sound
   tmpargument = 0
   IfTargetIsOnSameTeam

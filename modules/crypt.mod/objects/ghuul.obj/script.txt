@@ -20,13 +20,11 @@ IfScoredAHit
     tmpargument = 1
     SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 1
   ChangeArmor
-
 
   IfTargetIsOnSameTeam
     tmpargument = MESSAGEFRAG
@@ -50,22 +48,17 @@ IfKilled
       tmpargument = MESSAGEDEATH
   SendMessageNear
 
-
   // Drop goodies
   tmpargument = 65535
   DropMoney
-
 
   // Play the sound
   tmpargument = 1
   PlaySound
 
-
   // Make the character body
   tmpargument = 25
   SetBumpHeight
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Let the character walk around
@@ -100,8 +93,8 @@ IfTimeOut
     Else					//Attack
       tmpargument = 10
       SetTime
-      tmpx = rand & 512 - 256 + targetx
-      tmpy = rand & 512 - 256 + targety
+      tmpx = rand & 511 - 256 + targetx
+      tmpy = rand & 511 - 256 + targety
       tmpdistance = 200
       tmpturn = rand & 31000 + targetturnto - 15000
       Compass
@@ -139,8 +132,6 @@ IfAttacked
         tmpargument = rand & 31 + 60
         SetTime
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -151,12 +142,9 @@ IfAttacked
     tmpargument = 1
     ChangeArmor
 
-
   // Scream
   tmpargument = 0
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -179,7 +167,6 @@ IfBumped
     tmpargument = 0
     SetTime
     SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 End

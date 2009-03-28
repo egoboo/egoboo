@@ -7,7 +7,7 @@
 //------------------------------------------------------------------------------
 //How fast can he attack?
 IfUsed
-  tmpargument = rand & 50 + 25
+  tmpargument = rand % 50 + 25
   SetReloadTime
 
 //------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ IfTimeOut
   IfStateIs0
     Walk
     SetTargetToWideEnemy		//Found a enemy, enter combat mode
-      tmpargument = rand & 20 + 10
+      tmpargument = rand % 20 + 10
       SetTime
       tmpargument = 1
       SetState
@@ -75,7 +75,7 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
     Else  				//No enemies, wander around
-      tmpargument = rand & 65 + 60
+      tmpargument = rand % 65 + 60
       SetTime
       tmpx = rand & 1023 + selfspawnx - 511
       tmpy = rand & 1023 + selfspawny - 511
@@ -100,14 +100,14 @@ IfTimeOut
     tmpturn = targetturnto
     Compass
     ClearWaypoints
-    AddWaypoint    
+    AddWaypoint
     tmpx = targetdistance
     tmpy = 110
     IfXIsLessThanY			//Close enough?
       IfFacingTarget			//Are we looking at the enemy?
-	
+
     	//If the target defends, either wait or find new target
-        IfTargetIsDefending		
+        IfTargetIsDefending
           SetTargetToNearestEnemy
           IfAttacked
             SetTargetToWhoeverAttacked
@@ -120,7 +120,7 @@ IfTimeOut
           AddWaypoint
           tmpargument = 5
           SetTime                   //Readied attack time
-   
+
         Else				//Attack the enemy
           IfTargetIsOnHatedTeam		//Only if he is a enemy
             tmpargument = LATCHRIGHT
@@ -129,26 +129,26 @@ IfTimeOut
   //Feared
   IfStateIs2
     Run
-    tmpx = rand & 2023 - 1000 + targetx
-    tmpy = rand & 2023 - 1000 + targety
+    tmpx = rand % 2047 - 1023 + targetx
+    tmpy = rand % 2047 - 1023 + targety
     tmpdistance = 600
     tmpturn = rand
     Compass
     ClearWaypoints
-    AddWaypoint   
+    AddWaypoint
     tmpargument = 450
     SetTime
     tmpargument = 0
     SetState
 
   //Gass cloud
-  IfStateIs3     
+  IfStateIs3
     tmpargument = 450
     SetTime
     tmpx = selflife
     tmpy = 3000				//About 12 life should be enough
     IfXIsMoreThanY			//Do we have enough life to return to combat?
-      tmpargument = 0			//If so, become normal again  
+      tmpargument = 0			//If so, become normal again
       ChangeArmor			//Become visible
       SetState  			//Return to leader or wandering mode
       SetTime
@@ -160,14 +160,14 @@ IfTimeOut
     Else				//Nope, still too hurt, hide and heal
       Run
       SetTargetToNearestEnemy
-      tmpx = rand & 2023 - 1000 + targetx
-      tmpy = rand & 2023 - 1000 + targety
+      tmpx = rand % 2047 - 1023 + targetx
+      tmpy = rand % 2047 - 1023 + targety
       tmpdistance = 600
       tmpturn = rand		//Run away
       Compass
       ClearWaypoints
-      AddWaypoint  
-      tmpargument = 356 + rand & 456	//Regenerate extra while in gass form
+      AddWaypoint
+      tmpargument = rand % 456 + 356	//Regenerate extra while in gass form
       HealSelf
 
 //------------------------------------------------------------------------------
@@ -180,7 +180,6 @@ IfTargetKilled
     Else
       tmpargument = 0		//Return to leader
     SetState
-
 
 //------------------------------------------------------------------------------
 //Handle being attacked by blocking or countering or running away
@@ -204,7 +203,7 @@ IfAttacked
       SetTime
   Else				//Whoops, friendly fire
     SetTargetToNearestEnemy
-  
+
   //Cover in fear if damaged by holy
   GetDamageType
   tmpx = tmpargument
@@ -223,7 +222,7 @@ IfAttacked
   //Silver weapons are super effective
   IfHitVulnerable
     SetTargetToSelf
-    tmpargument = rand & 1500 + 1000
+    tmpargument = rand % 1500 + 1000
     tmpdistance = DAMAGEFIRE
     DamageTarget
     SetTargetToOldTarget
@@ -236,7 +235,7 @@ IfAttacked
     tmpy = DAMAGEFIRE
     IfXIsEqualToY
       SetTargetToSelf
-      tmpargument = rand & 1500 + 2000
+      tmpargument = rand % 1500 + 2000
       tmpdistance = DAMAGEFIRE
       DamageTarget
       SetTargetToOldTarget
@@ -256,7 +255,6 @@ IfAttacked
       SendMessageNear
 
   PlaySound
- 
 
 
 //------------------------------------------------------------------------------
@@ -289,7 +287,7 @@ IfKilled
     SetTargetToRider
     tmpargument = [HIDE]	//Show the wings
     OrderTarget
-    
+
 
   // Drop goodies
   tmpargument = 65535
@@ -308,7 +306,6 @@ IfKilled
   SetTargetToRider // The wings are on gripleft, so this works
   tmpargument = [DEAD]
   OrderTarget
-
 
 //------------------------------------------------------------------------------
 End

@@ -3,7 +3,7 @@
 
 //Randomize ghost skin
 IfSpawned
-  tmpargument = rand % 4
+  tmpargument = rand & 3
   ChangeArmor
 
 //This makes ghosts fly up and down
@@ -20,7 +20,7 @@ Else
 //------------------------------------------------------------------------------
 //New round
 IfTimeOut
-  tmpargument = rand & 20 +  32
+  tmpargument = rand % 20 +  32
   SetTime				//Redo timer
 
   tmpx = rand & 100			//Moaning sound?
@@ -31,16 +31,15 @@ IfTimeOut
       tmpargument = rand % 5 + 3		//of attacking
       PlaySound
     Else
-      GetContent			
+      GetContent
       tmpx = tmpargument
       tmpy = 3
       IfXIsLessThanY
         tmpargument = 3
         SetContent
 
-
   //Dorment
-  IfStateIs0			
+  IfStateIs0
     SetTargetToWideEnemy
       tmpx = targetx
       tmpy = targety
@@ -79,8 +78,8 @@ IfTimeOut
     tmpx = targetdistance
     tmpy = 90
     IfXIsLessThanY			//To close to friend?
-      tmpx = rand & 500 + targetx - 250
-      tmpy = rand & 500 + targety - 250
+      tmpx = rand % 500 + targetx - 250
+      tmpy = rand % 500 + targety - 250
       SetTargetToOldTarget		//Enemy
       tmpturn = targetturnto
       tmpdistance = rand & 1000
@@ -98,7 +97,7 @@ IfStateIs1
     tmpx = targetdistance		//Close enough?
     tmpy = 150
     IfXIsLessThanY
-      tmpargument = rand % 2		//Randomize attack left or right hand
+      tmpargument = rand & 1		//Randomize attack left or right hand
       SetContent
       tmpargument = 1
       IfContentIs			//Attack right
@@ -109,7 +108,6 @@ IfStateIs1
         PressLatchButton
       tmpargument = 0
       SetTime
-
 
 //------------------------------------------------------------------------------
 //Hit by silver
@@ -130,7 +128,7 @@ IfHitVulnerable
   Compass
   ClearWaypoints
   AddWaypoint
-  tmpargument = rand & 80 + 70
+  tmpargument = rand % 80 + 70
   SetTime
 
 //------------------------------------------------------------------------------
@@ -155,7 +153,7 @@ IfAttacked
     Compass
     ClearWaypoints
     AddWaypoint
-    tmpargument = rand & 80 + 70
+    tmpargument = rand % 80 + 70
     SetTime
     tmpargument = 9
     PlaySound			//Special feared sound

@@ -21,7 +21,7 @@ IfTargetIsAPlayer
     SetTargetToSelf
     tmpargument = 0
     SetState
-    
+
 //------------------------------------------------------------------------------
 // ZZ> Put on some eyes
 IfSpawned
@@ -57,11 +57,11 @@ IfKilled
   // Finish it up
   BeatModule
   EnableExport
-  
+
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [BEAT]
   AddIDSZ
-  
+
   // Fix the end text
   ClearEndMessage
   tmpargument = 3
@@ -82,7 +82,6 @@ IfKilled
   // Make the character body
   tmpargument = 45
   SetBumpHeight
-
 
 //------------------------------------------------------------------------------
 // ZZ> Keep 'em guessin'
@@ -149,13 +148,11 @@ IfStateIs10
     ClearWaypoints
     AddWaypoint
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Find something to do...
 IfTimeOut
   CleanUp     //Make ghouls ressurect
-  
+
   IfStateIs15
     // Fall through to normal state
     tmpargument = 0
@@ -179,8 +176,6 @@ IfTimeOut
     Else
       tmpargument = 0
       SetState
-
-
 
   IfStateIs3
     // Pick a spell to use on the enemy...  Left or right
@@ -215,14 +210,12 @@ IfTimeOut
     SpawnExactParticle
     tmpargument = 15
     SetState
-    
+
     // Face the target
     tmpx = targetx
     tmpy = targety
     ClearWaypoints
     AddWaypoint
-
-
 
   IfStateIs1
     // Want to start a teleport
@@ -266,7 +259,6 @@ IfTimeOut
         tmpy = rand & 511 - 256 + selfspawny
       ClearWaypoints
       AddWaypoint
-
 
 //------------------------------------------------------------------------------
 End

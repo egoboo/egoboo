@@ -5,7 +5,7 @@ IfTimeOut
   tmpargument = [FAER]
   tmpdistance = [WARN]
   OrderSpecialID
-  
+
   // It needs a small amount of time to relit itself
   ReaffirmCharacter
 

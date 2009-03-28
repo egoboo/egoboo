@@ -34,8 +34,6 @@ IfGrabbed				// Tell them what they've won...
   SetState
   SetOwnerToTarget
 
-
-
 //Do the enchantment bonus
 IfHeld
   SetTargetToWhoeverIsHolding

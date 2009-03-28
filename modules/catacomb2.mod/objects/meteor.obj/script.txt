@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = 0
   SetContent
 
-
 // Say they pour over a book...
 IfTakenOut
   tmpargument = 0
@@ -19,7 +18,6 @@ IfTimeOut
   SetTime
   tmpargument = 0
   SetContent
-
 
 // Allow it to be used
 IfUsed
@@ -38,7 +36,7 @@ IfUsed
         tmpargument = 30
         tmpdistance = EXPSECRET
         GiveExperienceToTarget
-      
+
       // Do the effect
       tmpargument = tmpx + 65
       CostTargetMana
@@ -69,14 +67,13 @@ IfUsed
           tmpargument = 2		 //Not enough int, drop around the caster...
           SendMessageNear
           tmpturn = rand
-          tmpdistance = rand & 455
+          tmpdistance = rand % 455
           tmpx = targetx
           tmpy = targety
           Compass
         tmpdistance = 0
         tmpargument = 0
         SpawnExactParticle
-
 
         //Explosions are loud, so wake up sleepers...
         tmpargument = [WAKE]
@@ -122,8 +119,6 @@ IfUsed
         IfTargetIsAPlayer
           tmpargument = 3
           SendMessageNear
-
-
 
 // Return to spellbook, Do last!
 IfDropped

@@ -10,7 +10,6 @@ IfSpawned
   SetTargetToSelf
   EnchantTarget
 
-
 //------------------------------------------------------------------------------
 //New round
 IfTimeOut
@@ -22,15 +21,15 @@ IfTimeOut
     Else
       tmpargument = 2
     SetState
-  tmpargument = rand & 25 + 20
+  tmpargument = rand % 25 + 20
   SetTime
 
 //Charge
   IfStateIs1
     Run							//Random approach
-    tmpx = rand & 500 + targetx - 250
-    tmpy = rand & 500 + targety - 250
-    tmpdistance = rand & 550 - 100
+    tmpx = rand % 500 + targetx - 250
+    tmpy = rand % 500 + targety - 250
+    tmpdistance = rand % 550 - 100
     tmpturn = rand & 10000 + targetturnto - 5000
     Compass
     ClearWaypoints
@@ -59,7 +58,6 @@ IfTimeOut
           tmpargument = LATCHRIGHT
           PressLatchButton
 
-
 //Return to spawn when enemy is killed
   IfStateIs3
     SetTargetToNearbyEnemy
@@ -73,13 +71,12 @@ IfTimeOut
       tmpargument = 250
       SetTime
 
-
 //Run away if hit enemy and then prepare to reapproach
 IfScoredAHit
   Run
   tmpx = targetx
   tmpy = targety
-  tmpdistance = rand & 2400 - 1200
+  tmpdistance = rand % 2400 - 1200
   tmpturn = rand
   Compass
   ClearWaypoints
@@ -124,24 +121,23 @@ IfKilled
   SendMessageNear
   BeatModule			//finish it up
   EnableExport
-  
+
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]
   tmpdistance = 6           //The quest level
   AddQuestAllPlayers        //Add it
-  
+
   tmpargument = 50		//award some quest xp
   tmpdistance = EXPQUEST
   GiveExperienceToGoodTeam
 
   //Death cry
   tmpargument = 4
-  PlaySound			
+  PlaySound
 
   //Make the body
   tmpargument = 15
   SetBumpHeight
-
 
 //------------------------------------------------------------------------------
 End

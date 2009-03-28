@@ -1,7 +1,7 @@
 //Start the music
 IfSpawned
   tmpargument = 10
-  tmpdistance = 0 
+  tmpdistance = 0
   PlayMusic
 
 // Setup the gate frames ( tile animation )
@@ -48,7 +48,7 @@ IfTimeOut
     tmpargument = [HUMA]
     tmpdistance = 14  // Items, Friends, Enemies
     SetTargetToNearestBlahID
-      tmpx = targetx - 4608 
+      tmpx = targetx - 4608
       tmpy = targety - 7104
       tmpx = xydistance
       tmpy = 80

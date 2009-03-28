@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = 0
   SetContent
 
-
 // Say they pour over a book...
 IfTakenOut
   tmpargument = 0
@@ -28,7 +27,7 @@ IfUsed
     tmpx = targetmana
     tmpy = 255
     IfXIsMoreThanY                  //Need 1 mana to cast
-    
+
       // Give experience...
       IfTargetIsAPlayer
         IfNameIsKnown
@@ -39,7 +38,7 @@ IfUsed
           tmpargument = 30
           tmpdistance = EXPSECRET
           GiveExperienceToTarget
-      
+
       // Do the effect
       tmpargument = 256
       CostTargetMana
@@ -59,9 +58,9 @@ IfUsed
                 tmpdistance = 0
           Else
             tmpdistance = 0
-                
+
         tmpturn = 0
-        IfDistanceIsMoreThanTurn       //If proceeds then found a target 
+        IfDistanceIsMoreThanTurn       //If proceeds then found a target
           tmpx = targetx
           tmpy = targety
           tmpdistance = targetz
@@ -95,5 +94,5 @@ IfDropped
   tmpargument = ACTIONJB
   DoAction
   KeepAction
-  
+
 End

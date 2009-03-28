@@ -7,12 +7,10 @@ IfOrdered
     tmpargument = 0 - 500
     SetContent // Won't come back...
 
-
 //------------------------------------------------------------------------------
 // ZZ> Most undead have an enchantment sustaining them
 IfSpawned
   EnchantTarget  // Enchant self...
-
 
 //------------------------------------------------------------------------------
 // ZZ> Rise from the dead...  Takes several times to wake...
@@ -48,14 +46,11 @@ IfCleanedUp
         tmpargument = tmpy
         SetContent
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 1
   ChangeArmor
-
 
   IfTargetIsOnSameTeam
     tmpargument = MESSAGEFRAG
@@ -79,22 +74,17 @@ IfKilled
       tmpargument = MESSAGEDEATH
   SendMessageNear
 
-
   // Drop goodies
   tmpargument = 65535
   DropMoney
-
 
   // Play the sound
   tmpargument = 1
   PlaySound
 
-
   // Make the character body
   tmpargument = 25
   SetBumpHeight
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Let the character walk around
@@ -132,7 +122,6 @@ IfAtLastWaypoint
   tmpargument = 0
   SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -142,7 +131,6 @@ IfAttacked
   IfXIsLessThanY
     tmpargument = 1
     ChangeArmor
-
 
   // Scream
   tmpargument = 0
@@ -160,7 +148,6 @@ IfAttacked
     AddWaypoint
     tmpargument = 30
     SetTime
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -183,7 +170,6 @@ IfBumped
     tmpargument = 0
     SetTime
     SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 End

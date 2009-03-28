@@ -49,13 +49,12 @@ IfStateIsNot		//State 0 is spellbook
     tmpargument = 0
     PlaySound
 
-
   // Character death
   IfKilled
     tmpargument = 30
     SetBumpHeight		// Make the character body
     tmpargument = 1
-    tmpdistance = rand & 2047 + 10000
+    tmpdistance = rand % 2047 + 10000
     PlaySound		// Tell everyone it died
     tmpargument = 0
     IfTargetIsOnSameTeam
@@ -67,7 +66,7 @@ IfStateIsNot		//State 0 is spellbook
 
   //How to react if bumped
   IfBumped				// Attack whoever it bumped
-    SetTargetToWhoeverBumped		  
+    SetTargetToWhoeverBumped
     IfTargetIsOnHatedTeam			  // Make sure it's an enemy
       tmpargument = 0
       tmpx = targetx
@@ -78,11 +77,11 @@ IfStateIsNot		//State 0 is spellbook
           tmpargument = 2			//Need time to recharge
           SetState
     Else					  //Try to move out of way
-      tmpx = rand & 1023 + targetx - 512      
-      tmpy = rand & 1023 + targety - 512      
-      ClearWaypoints			    
-      AddWaypoint				    
-      SetTargetToOldTarget		    
+      tmpx = rand & 1023 + targetx - 512
+      tmpy = rand & 1023 + targety - 512
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
 
   //New round
   IfTimeOut				// This is done every so often
@@ -104,16 +103,15 @@ IfStateIsNot		//State 0 is spellbook
     Else					  // Follow master
       tmpx = rand & 1023 - 512 + ownerx
       tmpy = rand & 1023 - 512 + ownery
-    ClearWaypoints  
-    AddWaypoint	  
+    ClearWaypoints
+    AddWaypoint
     tmpargument = rand & 63 + 20		  // Wait a while and try again
     SetTime
     IfInWater			//Water damages creature
       tmpargument = 256
       tmpdistance = DAMAGEZAP
       SetTargetToSelf
-      DamageTarget		  
-  
+      DamageTarget
 
 
 //--------------------------------------------------------------------------------------------
@@ -168,8 +166,8 @@ IfStateIs0
       SetTargetToSelf		//Identify as spellbook
         MakeNameKnown
         MakeUsageKnown
-        tmpx = rand & 256 + targetx - 128	//Where to summon it
-        tmpy = rand & 256 + targety - 128
+        tmpx = rand & 255 + targetx - 128	//Where to summon it
+        tmpy = rand & 255 + targety - 128
         tmpturn = rand
         tmpdistance = targetz
         SetTargetToWhoeverIsHolding
@@ -189,8 +187,8 @@ IfStateIs0
           tmpx = tmpargument
           tmpy = 511			//Spell power is 2
           IfXIsMoreThanY		//Summon a extra monster
-            tmpx = rand & 256 + targetx - 128	//Where to summon it
-            tmpy = rand & 256 + targety - 128
+            tmpx = rand & 255 + targetx - 128	//Where to summon it
+            tmpy = rand & 255 + targety - 128
             tmpturn = rand
             tmpdistance = targetz
             SetTargetToWhoeverIsHolding
@@ -203,8 +201,8 @@ IfStateIs0
             tmpx = tmpargument
             tmpy = 767			//Spell power is 3
             IfXIsMoreThanY		//Summon another extra
-              tmpx = rand & 256 + targetx - 128	//Where to summon it
-              tmpy = rand & 256 + targety - 128
+              tmpx = rand & 255 + targetx - 128	//Where to summon it
+              tmpy = rand & 255 + targety - 128
               tmpturn = rand
               tmpdistance = targetz
               SetTargetToWhoeverIsHolding

@@ -34,7 +34,6 @@ IfSpawned
       tmpargument = 3
       SetState		//Become badass zombi (15% chance)
 
-
   //Speed and HP is also determined by zombi type
   tmpx = selfstate
   IfStateIs1
@@ -58,14 +57,13 @@ IfSpawned
   tmpargument = 50
   SetTime
 
-
 // Monster AI
 tmpargument = 0
 IfStateIsNot			//If not acting as a dead body
   // Character screams
   IfAttacked
     tmpargument = 3
-    tmpdistance = rand & 2047 + 10000
+    tmpdistance = rand % 2047 + 10000
     PlaySound
 
   // Character death
@@ -75,7 +73,7 @@ IfStateIsNot			//If not acting as a dead body
     SetBumpHeight
     // Tell everyone it died
     tmpargument = 4
-    tmpdistance = rand & 2047 + 10000
+    tmpdistance = rand % 2047 + 10000
     PlaySound
     tmpargument = 0
     IfTargetIsOnSameTeam
@@ -104,7 +102,7 @@ IfStateIsNot			//If not acting as a dead body
       tmpargument = 200
       SetTime
       tmpargument = rand & 1 + 1
-      tmpdistance = rand & 2047 + 10000
+      tmpdistance = rand % 2047 + 10000
       PlaySound
     IfBumped
       // Attack anyone
@@ -127,7 +125,7 @@ IfStateIsNot			//If not acting as a dead body
             tmpargument = rand & 2 + ACTIONBA
             DoAction  // Couldn't use latches...
             tmpargument = rand & 1 + 1
-            tmpdistance = rand & 2047 + 10000
+            tmpdistance = rand % 2047 + 10000
             PlaySound
           // Chase the enemy
           tmpx = targetx
@@ -219,7 +217,7 @@ IfStateIsNot			//If not acting as a dead body
                 tmpargument = rand & 2 + ACTIONBB
               DoAction  // Couldn't use latches...
               tmpargument = rand & 1 + 1
-              tmpdistance = rand & 2047 + 10000
+              tmpdistance = rand % 2047 + 10000
               PlaySound
           // Chase the enemy
           tmpargument = 0
@@ -308,7 +306,7 @@ IfStateIs4
     tmpy = 20
     IfXIsLessThanY		//Revert to normal combat form
       tmpargument = 3
-      SetState			
+      SetState
       tmpargument = 0
       SetContent		//reset charge
   Else
@@ -360,7 +358,7 @@ IfStateIs3
     SpawnExactParticle
     GoPoof
 
-//Use gas explosion for death while charging 
+//Use gas explosion for death while charging
 IfStateIs4
   tmpx = selflife
   tmpy = 270

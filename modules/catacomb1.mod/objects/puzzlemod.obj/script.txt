@@ -44,7 +44,7 @@ IfSpawned
 GetContent
 tmpx = tmpargument
 tmpy = selfstate			//This is the puzzle answer
-IfXIsEqualToY 
+IfXIsEqualToY
   tmpargument = 0
   SendMessage
   PlayFullSound			//Play jingle

@@ -17,7 +17,6 @@ IfGrabbed
     tmpargument = 0
     SendMessageNear
 
-
 // Make it poof
 IfCrushed
   tmpx = selfx
@@ -31,7 +30,6 @@ IfCrushed
   GoPoof
   tmpargument = 7
   SendMessageNear
-
 
 // Equip the item
 IfPutAway
@@ -69,7 +67,6 @@ IfPutAway
           tmpargument = 4
           SendMessageNear
 
-
 // Take away any bonus for wearing
 IfTakenOut
   UndoEnchant
@@ -81,12 +78,10 @@ IfTakenOut
   tmpargument = 0
   SetState
 
-
-// Say it's kursed  
+// Say it's kursed
 IfNotTakenOut
   IfTargetIsAPlayer
     tmpargument = 6
     SendMessageNear
-
 
 End

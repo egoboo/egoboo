@@ -24,27 +24,22 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Can they pick the lock?
         tmpargument = [DISA]
         IfTargetHasSkillID
-
 
           // Make target crouch
           tmpargument = ACTIONMG
@@ -52,12 +47,10 @@ IfBumped
           tmpargument = 1
           PlaySound
 
-
           // Give some experience
           tmpargument = 25
           tmpdistance = EXPROLEPLAY
           GiveExperienceToTarget
-
 
           // Open it up
           tmpargument = ACTIONMG
@@ -77,7 +70,6 @@ IfBumped
             tmpargument = 4
             SendMessageNear
         Else
-
 
           // Do they have a chest key?
           tmpargument = [KEYC]
@@ -122,11 +114,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Can the target use this armor
         tmpargument = 0
@@ -140,7 +130,7 @@ IfBumped
           tmpargument = 5
           IfContentIs
             DropMoney
-            tmpx = rand & 4352 + targetwis
+            tmpx = rand % 4352 + targetwis
             tmpargument = [DISA]
             IfTargetHasSkillID		//Rouges always make it
               tmpx = 9000
@@ -175,8 +165,6 @@ IfBumped
             // Say it's empty
             tmpargument = 1
             SendMessageNear
-
-
 
 // All done
 End

@@ -36,14 +36,13 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
-     
-    
+
+
     // Is it closed?
     tmpargument = 0
     IfStateIs
@@ -53,27 +52,27 @@ IfBumped
         IfFacingTarget
           // Make target crouch and tell the players...
           tmpargument = ACTIONMG
-          TargetDoAction  
+          TargetDoAction
           tmpargument = 1
-          SendMessageNear 
-       
-       
+          SendMessageNear
+
+
       Else //UNLOCKED
         // Are they in front?
         IfFacingTarget
-                     
-            
+
+
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
-               
-               
+
+
           // Give some experience
           tmpargument = 5
           tmpdistance = EXPDARE
           GiveExperienceToTarget
-           
-            
+
+
           // Open it up
           tmpargument = ACTIONMG
           DoAction
@@ -91,14 +90,13 @@ IfBumped
             // Tell the players...
             tmpargument = 4
             SendMessageNear
-                    
-        
+
+
     // Wait before allowing loot
     IfTimeOut
       // Reset the timer
       tmpargument = 40
       SetTime
-
 
       // Make target crouch
       tmpargument = ACTIONMG
@@ -109,7 +107,7 @@ IfBumped
         tmpargument = 0
         SendMessageNear
 
-         
+
     // Drop the contents
     IfStateIs1
       DropItems
@@ -119,7 +117,6 @@ IfBumped
       SendMessageNear
       tmpargument = 2 //It's empty now...
       SetState
-
 
 // All done
 End

@@ -10,6 +10,16 @@ SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
 
+tmpx = selfx
+tmpy = selfy
+tmpturn = tmpturn + 7282
+tmpdistance = 110
+Compass
+tmpdistance = 0
+tmpargument = 0
+SpawnExactParticle
+tmpargument = 1
+SpawnExactParticle
 
 tmpx = selfx
 tmpy = selfy
@@ -22,6 +32,16 @@ SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
 
+tmpx = selfx
+tmpy = selfy
+tmpturn = tmpturn + 7282
+tmpdistance = 110
+Compass
+tmpdistance = 0
+tmpargument = 0
+SpawnExactParticle
+tmpargument = 1
+SpawnExactParticle
 
 tmpx = selfx
 tmpy = selfy
@@ -34,6 +54,16 @@ SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
 
+tmpx = selfx
+tmpy = selfy
+tmpturn = tmpturn + 7282
+tmpdistance = 110
+Compass
+tmpdistance = 0
+tmpargument = 0
+SpawnExactParticle
+tmpargument = 1
+SpawnExactParticle
 
 tmpx = selfx
 tmpy = selfy
@@ -46,7 +76,6 @@ SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
 
-
 tmpx = selfx
 tmpy = selfy
 tmpturn = tmpturn + 7282
@@ -58,7 +87,6 @@ SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
 
-
 tmpx = selfx
 tmpy = selfy
 tmpturn = tmpturn + 7282
@@ -69,47 +97,7 @@ tmpargument = 0
 SpawnExactParticle
 tmpargument = 1
 SpawnExactParticle
-
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 7282
-tmpdistance = 110
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 7282
-tmpdistance = 110
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-
-tmpx = selfx
-tmpy = selfy
-tmpturn = tmpturn + 7282
-tmpdistance = 110
-Compass
-tmpdistance = 0
-tmpargument = 0
-SpawnExactParticle
-tmpargument = 1
-SpawnExactParticle
-
-
-
 
 GoPoof
-
 
 End					// All done

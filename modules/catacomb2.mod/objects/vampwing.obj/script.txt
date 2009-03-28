@@ -23,11 +23,10 @@ IfArmorIs
   IfTimeOut
     IfStateIs0		//Alive?
       tmpargument = 0
-      tmpdistance = 8000 + rand & 4000
+      tmpdistance = rand % 4000 + 8000
       PlaySound
       tmpargument = 45
       SetTime
-
 
 //------------------------------------------------------------------------------
 End

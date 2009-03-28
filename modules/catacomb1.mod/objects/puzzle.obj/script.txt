@@ -8,7 +8,6 @@ IfTimeOut
     tmpargument = 1
     SetContent
 
-
     // Reset the board...
     tmpx = 60 < 7
     tmpy = 9 < 7
@@ -21,6 +20,16 @@ IfTimeOut
     tmpx = tmpx + 128
     SetTileXY
 
+    tmpx = 60 < 7
+    tmpy = tmpy + 128
+    tmpargument = 187
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
+    tmpx = tmpx + 128
+    SetTileXY
 
     tmpx = 60 < 7
     tmpy = tmpy + 128
@@ -33,7 +42,6 @@ IfTimeOut
     tmpx = tmpx + 128
     SetTileXY
 
-
     tmpx = 60 < 7
     tmpy = tmpy + 128
     tmpargument = 187
@@ -44,26 +52,11 @@ IfTimeOut
     SetTileXY
     tmpx = tmpx + 128
     SetTileXY
-
-
-    tmpx = 60 < 7
-    tmpy = tmpy + 128
-    tmpargument = 187
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-    tmpx = tmpx + 128
-    SetTileXY
-
 
   tmpargument = 3
   SetTime
 
-
   SetTargetToNearestFriend
-
 
   IfTargetIsAPlayer
     // See if the target is on the ground
@@ -100,7 +93,6 @@ IfTimeOut
                     tmpy = targety
                     SetTileXY
 
-
                     // Remember which ones have are Red
                     tmpx = tmpargument & 1
                     tmpy = 0
@@ -115,7 +107,7 @@ IfTimeOut
                       SetXY
                       tmpargument = tmpx
                       SetState
-                      
+
 
                     // Increase the count
                     GetContent
@@ -164,7 +156,7 @@ IfTimeOut
                           tmpargument = 77	//Rune of Combat bless
                         IfStateIs5
                           tmpargument = 78	//Rune of Holy Bolt
-                         
+
                         tmpx = 61 < 7			//X
                         tmpy = 10 < 7			//Y
                         tmpdistance = 700		//Z
@@ -230,7 +222,6 @@ IfTimeOut
                         tmpy = 12 < 7			//Y
                         SpawnExactCharacterXYZ
 
-
                         // Open a master passage
                         tmpargument = passage
                         OpenPassage
@@ -240,11 +231,9 @@ IfTimeOut
                         tmpargument = rand & 3 + 1
                         SendMessageNear
 
-
                         // Play the failed sound
                         tmpargument = 1
                         PlayFullSound
-
 
                         // Start it over in a second
                         tmpargument = 0
@@ -257,6 +246,5 @@ IfTimeOut
                       // Play the button press sound
                       tmpargument = 0
                       PlaySound
-
 
 End					// Finished with this character

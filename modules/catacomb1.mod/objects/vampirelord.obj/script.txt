@@ -6,7 +6,7 @@
 //------------------------------------------------------------------------------
 //How fast can he attack?
 IfUsed
-  tmpargument = rand & 50 + 50
+  tmpargument = rand % 50 + 50
   SetReloadTime
 
 //------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ IfTimeOut
   IfStateIs0
     Walk
     SetTargetToWideEnemy		//Found a enemy, enter combat mode
-      tmpargument = rand & 20 + 10
+      tmpargument = rand % 20 + 10
       SetTime
       tmpargument = 1
       SetState
@@ -91,7 +91,7 @@ IfTimeOut
       tmpargument = 7
       SendMessageNear
     Else  				//No enemies, wander around
-      tmpargument = rand & 61 + 30
+      tmpargument = rand % 60 + 30
       SetTime
       tmpx = selfspawnx
       tmpy = selfspawny
@@ -111,7 +111,7 @@ IfTimeOut
     tmpturn = targetturnto
     Compass
     ClearWaypoints
-    AddWaypoint    
+    AddWaypoint
     tmpx = targetdistance
     tmpy = 160
     IfXIsLessThanY			//Close enough?
@@ -131,11 +131,11 @@ IfTimeOut
             tmpturn = targetturnto
             Compass
             ClearWaypoints
-            AddWaypoint   
+            AddWaypoint
           Else				//Attack the enemy
             IfTargetIsOnHatedTeam	//Only if he is a enemy
               tmpargument = LATCHRIGHT
-              PressLatchButton    
+              PressLatchButton
         Else				//Attack the enemy
           IfTargetIsOnHatedTeam		//Only if he is a enemy
             tmpargument = LATCHRIGHT
@@ -164,7 +164,7 @@ IfTimeOut
             SetTargetToSelf
             CostTargetMana		//Pay 2 mana
             SetTargetToOldTarget
-            tmpargument = rand & 4 + 3		//Cooldown time
+            tmpargument = rand % 4 + 3		//Cooldown time
             SetContent
     Else
       GetContent
@@ -176,7 +176,6 @@ IfTimeOut
     tmpargument = 16
     PlayMusic
 
-
   //Feared
   IfStateIs2
     Run
@@ -186,20 +185,20 @@ IfTimeOut
     Compass
     tmpturn = targetturnfrom	//Run away
     ClearWaypoints
-    AddWaypoint   
+    AddWaypoint
     tmpargument = 450
     SetTime
     tmpargument = 0
     SetState
 
   //Gass cloud
-  IfStateIs3     
+  IfStateIs3
     tmpargument = 125
     SetTime
     tmpx = selflife
     tmpy = 256*25				//About 25 life should be enough
     IfXIsMoreThanY			//Do we have enough life to return to combat?
-      tmpargument = 0			//If so, become normal again  
+      tmpargument = 0			//If so, become normal again
       ChangeArmor			//Become visible
       SetState  			//Return to leader waiting mode
       SetTime
@@ -214,7 +213,7 @@ IfTimeOut
       tmpx = selfspawnx
       tmpy = selfspawny
       ClearWaypoints
-      AddWaypoint  
+      AddWaypoint
 
     SetTargetToNearestEnemy		//Laugh and taunt
       tmpx = targetdistance
@@ -241,7 +240,6 @@ IfTargetKilled
       tmpargument = 0		//Return to leader
     SetState
 
-
 //------------------------------------------------------------------------------
 //Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -264,7 +262,7 @@ IfAttacked
       SetTime
   Else				//Whoops, friendly fire
     SetTargetToNearestEnemy
-  
+
   //Cover in fear if damaged by holy
   GetDamageType
   tmpx = tmpargument
@@ -283,7 +281,7 @@ IfAttacked
   //Silver weapons are super effective
   IfHitVulnerable
     SetTargetToSelf
-    tmpargument = rand & 1500 + 1000
+    tmpargument = rand % 1500 + 1000
     tmpdistance = DAMAGEFIRE
     DamageTarget
     SetTargetToOldTarget
@@ -296,7 +294,7 @@ IfAttacked
     tmpy = DAMAGEFIRE
     IfXIsEqualToY
       SetTargetToSelf
-      tmpargument = rand & 1500 + 2000
+      tmpargument = rand % 1500 + 2000
       tmpdistance = DAMAGEFIRE
       DamageTarget
       SetTargetToOldTarget
@@ -316,7 +314,6 @@ IfAttacked
       SendMessageNear
 
   PlaySound
- 
 
 
 //------------------------------------------------------------------------------
@@ -349,7 +346,7 @@ IfKilled
     SetTargetToRider
     tmpargument = [HIDE]	//Show the wings
     OrderTarget
-    
+
 
   // Drop goodies
   tmpargument = selfmoney
@@ -368,7 +365,6 @@ IfKilled
   SetTargetToRider // The wings are on gripleft, so this works
   tmpargument = [DEAD]
   OrderTarget
-
 
   //Award xp and open final door. Play victory tune.
   tmpargument = passage

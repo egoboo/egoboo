@@ -6,9 +6,8 @@
 IfSpawned
   tmpargument = passage
   ClosePassage
-  tmpargument = ACTIONMJ	    
+  tmpargument = ACTIONMJ
   DoAction			//Closed animation
-
 
 //------------------------------------------------------------------
 // Someone cast an unlock spell
@@ -36,21 +35,20 @@ IfTimeOut
       tmpargument = 0
       SendMessageNear
 
-
 //------------------------------------------------------------------
 // Handle the animation and sound
 KeepAction
 tmpargument = passage	// Is the passage clear?
-IfPassageOpen			
-  tmpargument = 0		  
-  IfStateIs				//Don't loop	  
-    tmpargument = ACTIONMG	    
-    DoAction			    
-      SetState			      
+IfPassageOpen
+  tmpargument = 0
+  IfStateIs				//Don't loop
+    tmpargument = ACTIONMG
+    DoAction
+      SetState
       tmpargument = 1		      //Spooky sounds
-      PlayFullSound			      
-      tmpargument = 0		      
-      PlayFullSound			      		      
+      PlayFullSound
+      tmpargument = 0
+      PlayFullSound
 
 //------------------------------------------------------------------
 End				// Finished with this character

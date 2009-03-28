@@ -27,14 +27,13 @@ IfKilled
   tmpargument = 65535
   DropMoney
 
-
   tmpargument = ACTIONKA
   DoAction
 
   tmpargument = 45
   SetBumpHeight
   SetBumpSize
-  
+
   DisaffirmCharacter
 
 End

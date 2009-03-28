@@ -11,8 +11,8 @@ IfSpawned
   IfStateIs3
     tmpargument = 0 -1
     SetRedShift
-    SetGreenShift 
-    SetBlueShift 
+    SetGreenShift
+    SetBlueShift
   IfStateIs4
     tmpargument = 3
     ChangeArmor

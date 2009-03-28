@@ -28,7 +28,7 @@ IfChanged
   tmpargument = 0
   SetState
   KeepAction
-  
+
 //------------------------------------------------------------------------------
 // ZZ> Someone cast an unlock spell
 IfOrdered
@@ -41,7 +41,6 @@ IfOrdered
     tmpargument = 3
     SendMessageNear
 
-
 // Monster AI
 IfStateIs0
   DoNothing
@@ -50,7 +49,6 @@ Else
   IfAttacked
     tmpargument = 0
     PlaySound
-
 
   // Character death
   IfKilled
@@ -63,7 +61,6 @@ Else
       IfTargetIsSelf
         tmpargument = 2
     SendMessageNear
-
 
   // Do different AI's
   IfStateIs1
@@ -146,7 +143,7 @@ Else
               DoAction  // Couldn't use latches...
               tmpargument = rand & 1 + 1
               PlaySound
-          
+
           // Chase the enemy
           tmpargument = 0
           GetXY  // Restore the saved values...
@@ -156,17 +153,16 @@ Else
         Else
           SetTurnModeToVelocity
           tmpargument = 0
-          GetXY    
+          GetXY
       Else
         SetTurnModeToVelocity
         tmpargument = 0
-        GetXY    
+        GetXY
       ClearWaypoints
       AddWaypoint
       // Reset the timer
       tmpargument = 50
       SetTime
-
 
 // Spell AI
 IfStateIs0
@@ -245,7 +241,6 @@ IfStateIs0
             tmpx = 0
             tmpy = 0
             SetEnchantBoostValues
-
 
             // Set the AI type
             GetContent
