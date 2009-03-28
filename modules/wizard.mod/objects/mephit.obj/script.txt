@@ -71,24 +71,24 @@ IfKilled
   tmpargument = 1
   PlaySound
 
-  //Spawn different types of blood
+  //Spawn different types of blud
   tmpargument = 1
-  tmpdistance = rand & 50 + selfz
+  tmpdistance = rand % 50 + selfz
   tmpx = selfx
   tmpy = selfy
   tmpargument = 0		//Fire mephit
   IfArmorIs
-    tmpargument = 1		//Red blood
+    tmpargument = 1		//Red blud
   Else
     tmpargument = 1		//Ice mephit
     IfArmorIs
-      tmpargument = 3		//Blue blood
+      tmpargument = 3		//Blue blud
     Else
       tmpargument = 2		//Moss mephit
       IfArmorIs
-        tmpargument = 5		//Green blood
+        tmpargument = 5		//Green blud
       Else
-        tmpargument = 3		//death mephit also has Blue blood
+        tmpargument = 3		//death mephit also has Blue blud
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle
@@ -184,7 +184,6 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
 
-
   //Dont flock
   SetOldTarget			//Remember enemy
   SetTargetToNearestFriend
@@ -214,24 +213,24 @@ IfAttacked
   Else
     SetTargetToOldTarget
   
-  //Spawn different types of blood
+  //Spawn different types of blud
   tmpargument = 1
-  tmpdistance = rand & 50 + selfz
+  tmpdistance = rand % 50 + selfz
   tmpx = selfx
   tmpy = selfy
   tmpargument = 0		//Fire mephit
   IfArmorIs
-    tmpargument = 1		//Red blood
+    tmpargument = 1		//Red blud
   Else
     tmpargument = 1		//Ice mephit
     IfArmorIs
-      tmpargument = 3		//Blue blood
+      tmpargument = 3		//Blue blud
     Else
       tmpargument = 2		//Moss mephit
       IfArmorIs
-        tmpargument = 5		//Green blood
+        tmpargument = 5		//Green blud
       Else
-        tmpargument = 3		//death mephit also has Blue blood
+        tmpargument = 3		//death mephit also has Blue blud
   SpawnExactParticle
   SpawnExactParticle
   SpawnExactParticle

@@ -2,7 +2,6 @@
 IfSpawned
   KeepAction
 
-
 // Remove the charge
 IfTakenOut
   tmpargument = 0
@@ -11,7 +10,6 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 2
       SendMessageNear
-
 
 // Allow it to be used
 IfUsed
@@ -51,7 +49,6 @@ IfUsed
         tmpdistance = targetz
         tmpargument = 0
         SpawnExactParticle
-
 
 // Allow it to be cast or fizzle
 Else
@@ -95,7 +92,6 @@ Else
   tmpargument = 0
   SetContent
 
-
 // Return to spellbook, Do last!
 IfDropped
   tmpargument = 0
@@ -105,6 +101,5 @@ IfDropped
   tmpargument = ACTIONJB
   DoAction
   KeepAction
-
 
 End

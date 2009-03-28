@@ -26,28 +26,22 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
-
 
         // Open it up
         tmpargument = ACTIONMG
@@ -94,13 +88,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
-
-
 
         // Say it's empty...  Or check for false bottom
         IfStateIs2
@@ -119,12 +109,10 @@ IfBumped
               tmpargument = 1
               SendMessageNear
 
-
               // Give some experience
               tmpargument = 15
               tmpdistance = EXPROLEPLAY
               GiveExperienceToTarget
-
 
               // Figure out what to drop...  Opposite of first drop
               GetContent
@@ -135,8 +123,6 @@ IfBumped
               Else
                 tmpargument = selfmoney
                 DropMoney
-
-
 
               // No more false bottom
               tmpargument = 0
@@ -153,12 +139,10 @@ IfBumped
                 tmpargument = 1
                 SendMessageNear
 
-
                 // Give some experience
                 tmpargument = 15
                 tmpdistance = EXPSECRET
                 GiveExperienceToTarget
-
 
                 // Figure out what to drop...  Opposite of first drop
                 GetContent
@@ -170,8 +154,6 @@ IfBumped
                   tmpargument = selfmoney
                   DropMoney
 
-
-
                 // No more false bottom
                 tmpargument = 0
                 SetContent
@@ -181,9 +163,6 @@ IfBumped
             // No false bottom
             tmpargument = 2
             SetState
-
-
-
 
         // Drop the contents
         IfStateIs1
@@ -211,9 +190,6 @@ IfBumped
             SendMessageNear
           tmpargument = 2
           SetState
-
-
-
 
 // All done
 End

@@ -5,7 +5,6 @@ IfSpawned
   tmpargument = 1
   SetState
 
-
 IfKilled
   // Handle death
   IfTargetIsSelf
@@ -24,15 +23,11 @@ IfKilled
   tmpargument = 1
   PlaySound
 
-
-
 IfAttacked
   // Make noise
   SetTargetToWhoeverAttacked
   tmpargument = 0
   PlaySound
-
-
 
 IfBumped
   SetTargetToWhoeverBumped
@@ -57,15 +52,12 @@ IfBumped
   AddWaypoint
   SetTargetToOldTarget
 
-
-
 // Find enemies
 IfTimeOut
   tmpargument = rand & 15 + 10
   SetTime
   tmpargument = 0
   SetState
-
 
   SetTargetToWideEnemy
     SetTurnModeToWatchTarget
@@ -148,8 +140,6 @@ IfTimeOut
     tmpy = rand & 511 - 256 + selfspawny
   ClearWaypoints
   AddWaypoint
-
-
 
 // All done
 End

@@ -112,7 +112,6 @@ IfCleanedUp
   tmpargument = 2
   PlayFullSound
 
-
 //------------------------------------------------------------------------------
 // ZZ> Scream and shout
 IfUsed
@@ -128,7 +127,6 @@ IfBored
   PlaySound
   tmpargument = ACTIONMC
   DoAction
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -160,7 +158,6 @@ IfKilled
 IfLeaderKilled
   BecomeLeader
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -175,8 +172,6 @@ IfAttacked
     tmpargument = rand & 1 + 5
     PlaySound
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle having too much in inventory
 IfTooMuchBaggage
@@ -186,7 +181,6 @@ IfTooMuchBaggage
   PlaySound
   tmpargument = 50
   SetReloadTime
-
 
 //------------------------------------------------------------------------------
 End

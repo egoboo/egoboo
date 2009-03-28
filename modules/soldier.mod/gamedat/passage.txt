@@ -1,5 +1,5 @@
 // This file contains passage rectangles, which are areas that behave like
-// an invisible wall when closed or an floor when open.  Passages are used
+// an invisible wall when closed or a floor when open.  Passages are used
 // primarily in doors, but could have other uses.
 //             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
 0 FirstIronDoor:  18  39     19  40         F       F             F

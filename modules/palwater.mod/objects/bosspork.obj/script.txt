@@ -38,7 +38,6 @@ IfGrabbed
   tmpargument = 4
   AddEndMessage
 
-
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [MAIN]
   tmpdistance = 1           //The quest level

@@ -9,7 +9,6 @@ IfHealed
   tmpargument = ACTIONHA
   DoAction
 
-
 IfTimeOut
   tmpargument = 100
   SetTime
@@ -18,7 +17,6 @@ IfTimeOut
       // Hurt the character
       tmpargument = 512
       DamageTarget
-
 
       // Corrode items
       tmpx = rand & 1
@@ -44,7 +42,6 @@ IfTimeOut
         tmpargument = 0
         SendMessageNear
         PoofTarget
-
 
 IfBumped				// Eat the enemy
   SetTargetToWhoeverBumped

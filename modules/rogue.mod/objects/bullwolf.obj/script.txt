@@ -7,7 +7,6 @@ IfTimeOut
   tmpargument = 50
   SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Bite characters that it bumps
 IfBumped
@@ -18,8 +17,6 @@ IfBumped
       PressLatchButton
   Else
     SetTargetToOldTarget
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
@@ -33,7 +30,6 @@ IfKilled
   tmpargument = 0
   SendMessageNear
 
-
   // Drop goodies
   tmpargument = 65535
   DropMoney
@@ -44,7 +40,6 @@ IfKilled
   tmpargument = 43
   SetBumpSize
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -54,11 +49,9 @@ IfAttacked
   IfXIsMoreThanY
     DropWeapons
 
-
   tmpargument = rand & 1 + 2
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
 
 //------------------------------------------------------------------------------
 End

@@ -97,7 +97,7 @@ burning.obj:   NONE    69  53.0   38.0   1.0   N    0   0  0   0   0   F   F   N
 
 //Treasure chest in alchemy room
 wchest.obj:   NONE    70  52.5   43.5   1.0   N    0   0  0   0   0   F   F   N
-dragonblood.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+dragonblud.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mpotion.obj:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 spear.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

@@ -3,7 +3,6 @@
 // State 1 is draining
 // State 2 is pressed button
 
-
 GetWaterLevel
 tmpx = tmpargument
 tmpy = 850
@@ -30,7 +29,6 @@ Else
       tmpargument = 60
       SetBumpHeight
 
-
 // Drain the water
 IfStateIs1
   IfTimeOut
@@ -50,8 +48,6 @@ IfStateIs1
     tmpargument = tmpdistance > 1
     SetFogTAD
 
-
-
 // Detect button press
 tmpx = weight
 tmpy = 20
@@ -67,7 +63,6 @@ IfXIsMoreThanY
       SendMessageNear
       tmpdistance = 11025
       PlaySound
-
 
       // Begin...
       tmpargument = 1

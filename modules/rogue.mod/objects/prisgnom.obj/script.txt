@@ -12,7 +12,6 @@ IfBumped
     PressLatchButton
   SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 tmpargument = 0
 IfStateIsNot
@@ -23,7 +22,6 @@ IfStateIsNot
   IfXIsMoreThanY
     tmpargument = tmpx - 1
     SetContent
-
 
   // Check messages
   IfBumped
@@ -53,7 +51,6 @@ IfStateIsNot
         tmpargument = 4
         SendMessageNear
 
-
 //------------------------------------------------------------------------------
 // ZZ> Move around...
 IfTimeOut
@@ -74,7 +71,6 @@ IfTimeOut
       tmpargument = 100		//Delay
       SetContent
 
-
     // Get in a fight
     tmpdistance = 250000
     SetTargetToDistantEnemy
@@ -88,7 +84,6 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
 
-
       // Take a stab?
       tmpx = targetdistance
       tmpy = 120
@@ -96,7 +91,6 @@ IfTimeOut
         IfFacingTarget
           tmpargument = rand & 1 + 1
           PressLatchButton
-
 
       tmpargument = 10
       SetTime
@@ -212,7 +206,6 @@ IfTimeOut
       AddWaypoint
       tmpargument = 20
       SetTime
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff

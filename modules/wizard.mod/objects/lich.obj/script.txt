@@ -108,13 +108,11 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-
 //------------------------------------------------------------------------------
 // ZZ> Keep 'em guessin'
 IfAttacked
   tmpargument = rand & 2
   PlaySound
-
 
   SetTargetToWhoeverAttacked
   tmpargument = [BRAZ]
@@ -129,7 +127,6 @@ IfAttacked
       DoNothing
     Else
       SetTargetToOldTarget
-
 
   tmpargument = 1
   IfStateIsNot
@@ -216,8 +213,6 @@ IfStateIs11
     ClearWaypoints
     AddWaypoint
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Find something to do...
 IfTimeOut
@@ -227,8 +222,6 @@ IfTimeOut
     // Fall through to normal state
     tmpargument = 0
     SetState
-
-
 
   IfStateIs13
     // Un-charged spell in right hand...
@@ -249,8 +242,6 @@ IfTimeOut
       tmpargument = 0
       SetState
 
-
-
   IfStateIs12
     IfTargetIsOnHatedTeam
       // Un-charged spell in left hand...
@@ -269,8 +260,6 @@ IfTimeOut
     Else
       tmpargument = 0
       SetState
-
-
 
   IfStateIs3
     // Pick a spell to use on the enemy...  Left or right
@@ -323,7 +312,6 @@ IfTimeOut
           tmpargument = tmpturn
           SetState
 
-
   IfStateIs2
     // Halfway through a teleport
     tmpargument = rand & 15 + 35
@@ -348,8 +336,6 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
 
-
-
   IfStateIs1
     // Want to start a teleport
     tmpargument = ACTIONMJ
@@ -364,12 +350,6 @@ IfTimeOut
       // Try again in a bit...
       tmpargument = 5
       SetTime
-
-
-
-
-
-
 
   IfStateIs0
     tmpargument = 20
@@ -398,7 +378,6 @@ IfTimeOut
         tmpy = rand & 511 - 256 + selfspawny
       ClearWaypoints
       AddWaypoint
-
 
 //------------------------------------------------------------------------------
 End

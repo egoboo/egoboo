@@ -30,14 +30,11 @@ IfSpawned
         tmpargument = tmpargument - 1	// Child will spawn more swords
         SetChildState
 
-
 IfChanged
   // It's a spell in hand
   tmpargument = 0
   SetState
   KeepAction
-
-
 
 // Sword AI
 IfStateIs0
@@ -51,8 +48,6 @@ Else
   IfHitGround
     tmpargument = 1
     PlaySound
-
-
 
 // Spell AI
 IfStateIs0
@@ -98,8 +93,6 @@ IfStateIs0
         tmpargument = ACTIONZA
         CorrectActionForHand
         TargetDoAction
-
-
 
         // Start dropping swords
         tmpx = targetx

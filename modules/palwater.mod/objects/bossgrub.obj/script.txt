@@ -22,7 +22,6 @@ IfKilled				// This reduces the height of the char
   tmpargument = 1			  // Sound
   PlaySound				  //
 
-
   // Do the boss stuff...
   tmpx = selfmorale
   tmpy = 0

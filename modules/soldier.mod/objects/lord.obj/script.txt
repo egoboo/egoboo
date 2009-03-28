@@ -12,7 +12,6 @@ IfBumped
     PressLatchButton
   SetTargetToOldTarget
 
-
 //------------------------------------------------------------------------------
 tmpargument = 0
 IfStateIsNot
@@ -58,7 +57,6 @@ IfTargetIsAttacking
         tmpargument = LATCHLEFT
         PressLatchButton
 
-
 //------------------------------------------------------------------------------
 //Moving around...
 IfTimeOut
@@ -79,7 +77,6 @@ IfTimeOut
       tmpargument = 100
       SetContent
 
-
 //Get in a fight!
     tmpdistance = 250000
     SetTargetToDistantEnemy
@@ -92,7 +89,6 @@ IfTimeOut
       ClearWaypoints
       AddWaypoint
 
-
       // Take a stab?
       tmpx = targetdistance
       tmpy = 120
@@ -100,7 +96,6 @@ IfTimeOut
         IfFacingTarget
           tmpargument = rand & 1 + 1
           PressLatchButton
-
 
       tmpargument = 10
       SetTime
@@ -212,8 +207,6 @@ IfTimeOut
       tmpargument = 20
       SetTime
 
-
-
 //------------------------------------------------------------------------------
 //If the lord is killed
 IfKilled
@@ -234,7 +227,6 @@ IfKilled
   tmpargument = 45
   SetBumpHeight
 
-
 //------------------------------------------------------------------------------
 //What happens if the Lord is attacked?
 IfAttacked
@@ -248,7 +240,6 @@ IfAttacked
     tmpargument = rand & 3 + 4
     PlaySound
   SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 End

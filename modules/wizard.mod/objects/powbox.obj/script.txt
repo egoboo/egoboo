@@ -67,7 +67,6 @@ IfReaffirmed				// If touched by fire...
           tmpargument = 7
           SendMessageNear
 
-
 // Don't attack explosives... it's not safe
 tmpx = selflife
 tmpy = 25500

@@ -57,8 +57,8 @@ IfUsed
   IfTargetHasSkillID		//Does it have poison use skill?
     DoNothing		//then nothing happens
   Else
-    tmpx = rand & 2816 + 1024 	//Wisdom determines the chance, 15 is never and 4 is almost always
-    tmpy = rand & 500 + targetwis	//Randomness to decrease chance
+    tmpx = rand % 2816 + 1024 	//Wisdom determines the chance, 15 is never and 4 is almost always
+    tmpy = rand % 500 + targetwis	//Randomness to decrease chance
     IfXIsMoreThanY
       SetOwnerToTarget
       EnchantTarget		//Give the character some poison damage

@@ -1,6 +1,5 @@
 // This pops some ghouls in a given area, if the detection area is blocked
 
-
 //!!!BAD!!!
 //IfSpawned
 //  tmpargument = passage
@@ -11,7 +10,6 @@
 //  FlashPassage
 //!!!BAD!!!
 
-
 IfTimeOut
   // Check the detection passage...
   tmpargument = passage
@@ -21,7 +19,6 @@ IfTimeOut
       tmpargument = 0
       tmpdistance = 11025
       PlayFullSound
-
 
       // Pop the baddies
       tmpargument = passage + 1	// The passage to spawn
@@ -42,6 +39,22 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
+      // Pop another
+      tmpargument = passage + 1
+      tmpdistance = 60
+      FindTileInPassage
+        // Replace the tile
+        tmpargument = 61
+        SetTileXY
+        // Spawn a ghoul
+        tmpargument = 98
+        tmpdistance = 0
+        tmpturn = rand
+        SpawnExactCharacterXYZ
+          tmpargument = 0
+          SpawnExactParticle
+          tmpargument = ACTIONJB
+          ChildDoActionOverride
 
       // Pop another
       tmpargument = passage + 1
@@ -60,7 +73,6 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
-
       // Pop another
       tmpargument = passage + 1
       tmpdistance = 60
@@ -78,7 +90,6 @@ IfTimeOut
           tmpargument = ACTIONJB
           ChildDoActionOverride
 
-
       // Pop another
       tmpargument = passage + 1
       tmpdistance = 60
@@ -95,25 +106,6 @@ IfTimeOut
           SpawnExactParticle
           tmpargument = ACTIONJB
           ChildDoActionOverride
-
-
-      // Pop another
-      tmpargument = passage + 1
-      tmpdistance = 60
-      FindTileInPassage
-        // Replace the tile
-        tmpargument = 61
-        SetTileXY
-        // Spawn a ghoul
-        tmpargument = 98
-        tmpdistance = 0
-        tmpturn = rand
-        SpawnExactCharacterXYZ
-          tmpargument = 0
-          SpawnExactParticle
-          tmpargument = ACTIONJB
-          ChildDoActionOverride
-
 
       // Pop another
       tmpargument = passage + 1
@@ -134,7 +126,6 @@ IfTimeOut
 
       // Popper is no longer needed...
       GoPoof
-
 
   // Wait a bit before checking again
   tmpargument = 10

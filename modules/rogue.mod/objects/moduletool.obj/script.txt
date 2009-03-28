@@ -11,7 +11,6 @@ tmpargument = 4
 tmpdistance = 0
 PlayMusic
 
-
 //------------------------------------------------------------------------------------
 // Plop down some skulls
 tmpargument = 0
@@ -31,7 +30,6 @@ SpawnExactParticle
 tmpx =  7 < 7 + 64
 tmpy = 50 < 7
 SpawnExactParticle
-
 
 //------------------------------------------------------------------------------------
 // Plop down some mushrooms

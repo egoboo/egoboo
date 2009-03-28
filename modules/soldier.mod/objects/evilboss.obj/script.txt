@@ -26,7 +26,6 @@ IfTargetKilled
     SetState
     SetContent		//Reset battlecry (Enemies are defeated or fled)
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
@@ -75,8 +74,6 @@ IfKilled
     tmpdistance = EXPQUEST
     GiveExperienceToGoodTeam
 
-
-
 //------------------------------------------------------------------------------
 //Always target bumpers
 IfBumped
@@ -88,7 +85,6 @@ IfBumped
       SetState
   Else
     SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 //0 Wait for good guys
@@ -128,7 +124,7 @@ IfTimeOut
         PlaySound
       tmpargument = 1			//Charge target
       SetState
-      tmpargument = rand & 20
+      tmpargument = rand % 20
       SetTime
     Else
       Sneak				//33% speed
@@ -138,7 +134,6 @@ IfTimeOut
       AddWaypoint			//Return to start
       tmpargument = rand & 15 + 50
       SetTime
-
 
   // Rush the enemy
   IfStateIs1

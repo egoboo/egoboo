@@ -12,15 +12,11 @@ IfSpawned
   tmpdistance = 16
   SetMusicPassage
 
-
-
 IfScoredAHit
   // Make a small splash
   tmpargument = 6
   tmpdistance = GRIPLEFT
   SpawnAttachedParticle
-
-
 
 IfKilled
   // Tell the players
@@ -28,7 +24,6 @@ IfKilled
   IfTargetIsOnHatedTeam
     tmpargument = 0
   SendMessage
-
 
   // Handle boss stuff
   tmpargument = passage
@@ -38,7 +33,6 @@ IfKilled
   AddEndMessage
   tmpargument = 3
   AddEndMessage
-
 
   // Make a noise
   tmpargument = 2
@@ -76,12 +70,9 @@ IfKilled
   tmpdistance = 72
   SpawnAttachedParticle
 
-
-
 IfAttacked
   // Just in case it was in the middle of a throw
   SetTurnModeToWatchTarget
-
 
   // Do splash
   tmpargument = 1
@@ -110,7 +101,6 @@ IfAttacked
   tmpdistance = 72
   SpawnAttachedParticle
 
-
   // Teleport away...  State 1 is waiting to teleport
   tmpargument = 1
   SetState
@@ -118,16 +108,13 @@ IfAttacked
   SetTime
   KeepAction
 
-
   // Give it limited invincibility
   tmpargument = 35
   SetDamageTime
 
-
   // Make a noise
   tmpargument = 0
   PlaySound
-
 
 IfBumped
   IfStateIs0
@@ -145,17 +132,12 @@ IfBumped
       AddWaypoint
       SetTargetToOldTarget
 
-
-
 // Make the bottom fade out
 tmpturn = 0		// Use this intensity
 tmpx = 1200		// Below this height,
 tmpdistance = 255	// Use this intensity
 tmpy = 5000		// Above this height,
 FlashVariableHeight	// Interpolate between
-
-
-
 
 IfTimeOut
 
@@ -173,8 +155,6 @@ IfTimeOut
     DamageTarget
     SetTurnModeToWatchTarget
 
-
-
   // Hide until an enemy is nearby and the door is open
   IfStateIs2
     tmpargument = 30
@@ -189,7 +169,6 @@ IfTimeOut
           tmpargument = 1
           SetState
     tmpargument = 20 // Time
-
 
   // Teleport...
   IfStateIs1
@@ -208,7 +187,6 @@ IfTimeOut
       tmpargument = 1
       tmpdistance = rand & 2047 + 10000
 //      PlaySound
-
 
   // Find an enemy
   IfStateIs0
@@ -277,12 +255,8 @@ IfTimeOut
     ClearWaypoints
     AddWaypoint
 
-
-
   // Wait a while, tmpargument should be set
   SetTime
-
-
 
   // Water wierd heals itself if water is high...
   GetWaterLevel
@@ -292,8 +266,6 @@ IfTimeOut
     SetTargetToSelf
     tmpargument = 64
     HealTarget
-
-
 
 // All done
 End

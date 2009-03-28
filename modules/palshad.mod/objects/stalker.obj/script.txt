@@ -6,7 +6,6 @@
 IfSpawned
   EnchantTarget  // Target is self...
 
-
 //------------------------------------------------------------------------------
 //Death effects
 IfKilled				// This reduces the height of the char
@@ -55,13 +54,11 @@ IfAttacked
   tmpargument = rand & 1		  //
   PlaySound				  //
 
-
 //------------------------------------------------------------------------------
 //Enemy is dead
 IfTargetKilled				// Return to follow mode
   tmpargument = 0			  //
   SetState				  //
-
 
 //------------------------------------------------------------------------------
 //Somebody bumped

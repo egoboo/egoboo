@@ -44,7 +44,6 @@ IfGrabbed				// Tell them what they've won...
     tmpargument = 0			  //
     SendMessageNear			  //
 
-
 IfTimeOut
   // Heh, heh, heh...
   SetTargetToWhoeverIsHolding
@@ -63,7 +62,6 @@ IfTimeOut
     Else
       tmpargument = tmpargument - 1
       SetContent
-
 
     tmpx = targetlife
     tmpy = 1024

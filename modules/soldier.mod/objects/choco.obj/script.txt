@@ -5,7 +5,6 @@ IfHitGround
   tmpdistance = 17000
   PlaySound
 
-
 //----------------------------------------------------------------------------
 // Undead are sustained by magic
 IfSpawned
@@ -31,8 +30,6 @@ IfSpawned
 IfKilled
   JoinGoodTeam  // For rebirth...
 
-
-
   tmpargument = 5
   tmpdistance = rand & 2047 + 10000
   PlaySound
@@ -53,14 +50,11 @@ IfKilled
   tmpargument = 43
   SetBumpSize
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
   tmpargument = 0
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

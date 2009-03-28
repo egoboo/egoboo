@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = passage
   ClosePassage
 
-
 //Open door and close it
 IfTimeOut
   KeepAction
@@ -52,8 +51,6 @@ IfOrdered
   IfXIsEqualToY
     tmpargument = 3
     SendMessageNear
-
-
 
 // Handle the animation and sound
 tmpargument = passage 	// Is the passage clear?

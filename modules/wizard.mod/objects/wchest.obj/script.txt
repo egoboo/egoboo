@@ -42,7 +42,6 @@ IfOrdered
         tmpargument = 3
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
@@ -63,7 +62,6 @@ IfBumped
           tmpargument = 1
           SendMessageNear 
 
-
       Else //UNLOCKED
         // Are they in front?
         IfFacingTarget
@@ -72,7 +70,6 @@ IfBumped
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
-
 
           // Give some experience
           tmpargument = 5
@@ -110,13 +107,11 @@ IfBumped
       tmpargument = ACTIONMG
       TargetDoAction
 
-
       // Say it's empty...
     IfStateIs2
       // Say the chest is empty...
       tmpargument = 0
       SendMessageNear
-
 
     // Drop the contents
     IfStateIs1
@@ -127,9 +122,6 @@ IfBumped
       SendMessageNear
       tmpargument = 2 //Empty now...
       SetState
-
-
-
 
 // All done
 End

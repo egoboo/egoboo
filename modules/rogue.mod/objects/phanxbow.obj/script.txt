@@ -42,8 +42,8 @@ IfUsed
   IfTargetHasSkillID		//Poison skill?
     MakeNameKnown
   Else
-    tmpx = rand & 2816 + 1536 	//Wisdom determines the chance, 17 is never and 6 is almost always
-    tmpy = rand & 1000 + targetwis	//Randomness to decrease chance
+    tmpx = rand % 2816 + 1536 	//Wisdom determines the chance, 17 is never and 6 is almost always
+    tmpy = rand % 1000 + targetwis	//Randomness to decrease chance
     IfXIsMoreThanY
       SetOwnerToTarget
       EnchantTarget

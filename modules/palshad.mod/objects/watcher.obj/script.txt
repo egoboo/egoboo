@@ -17,7 +17,6 @@ IfKilled
 
 			  
 
-
 JoinEvilTeam
 
 //Ouch
@@ -32,7 +31,6 @@ IfAttacked				// Counter attack
       SetTargetToOldTarget		      //
   tmpargument = rand & 1 + 1		  //
   PlaySound
-
 
 IfTargetKilled				// Return to watch mode
   tmpargument = 0			  //

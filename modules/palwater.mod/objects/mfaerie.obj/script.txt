@@ -41,6 +41,5 @@ IfTimeOut
       tmpargument = rand & 31 + 20
       SetTime
 
-
 // All done
 End

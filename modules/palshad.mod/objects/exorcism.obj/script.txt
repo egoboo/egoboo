@@ -22,7 +22,6 @@ Else
   tmpargument = 0
   SetState
 
-
 // Remove the charge
 IfTakenOut
   tmpargument = 0
@@ -31,7 +30,6 @@ IfTakenOut
     IfTargetIsAPlayer
       tmpargument = 3
       SendMessageNear
-
 
 // Allow it to be used
 IfUsed
@@ -59,7 +57,6 @@ IfUsed
         tmpargument = 0
         SpawnExactParticle
 
-
 // Allow it to be cast or fizzle
 Else
   GetContent
@@ -83,8 +80,8 @@ Else
         SetTargetToWhoeverIsHolding
         tmpargument = 4
         SendMessageNear
-        tmpargument = targetwis/2
-        tmpargument = rand & tmpargument + 512       //2 + 0-1 damage per 2 points of wisdom
+        tmpargument = targetwis / 2
+        tmpargument = rand % tmpargument + 512       // 2 + 0-1 damage per 2 points of wisdom
         tmpdistance = DAMAGEHOLY
         SetTargetToOldTarget
         DamageTarget

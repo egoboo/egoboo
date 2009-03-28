@@ -3,7 +3,6 @@
 IfSpawned
   EnchantTarget  // Enchant self...
 
-
 //------------------------------------------------------------------------------
 IfTargetKilled
   SetTargetToNearestEnemy
@@ -13,19 +12,16 @@ IfTargetKilled
     tmpargument = 0
     SetState
 
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 2
   PlaySound
 
-
   // Drop goodies
   tmpargument = selfmoney
   DropMoney
   DropKeys
-
 
   // Boss stuff...
   tmpx = selfmorale
@@ -43,13 +39,11 @@ IfKilled
     tmpargument = 0
   SendMessageNear
 
-
   // Make the character body
   tmpargument = 0
   SetBumpHeight
   tmpargument = 0
   SetFlyHeight
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -63,7 +57,6 @@ IfBumped
     ClearWaypoints
     AddWaypoint
     SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 IfTimeOut
@@ -160,8 +153,6 @@ IfTimeOut
       tmpargument = rand & 3 + 6
       SetTime
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
@@ -173,8 +164,6 @@ IfAttacked
   tmpargument = rand & 1
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End

@@ -7,19 +7,16 @@ IfSpawned
   tmpdistance = SPAWNLAST
   SpawnAttachedParticle
 
-
 // Go away for good
 IfKilled
   tmpargument = MESSAGEDEATH
   SendMessageNear
   GoPoof
 
-
 // Let the players know that there's something there...
 IfAttacked
   tmpargument = 0
   PlaySound
-
 
 // Chase good guys
 IfTimeOut
@@ -49,14 +46,11 @@ IfTimeOut
   tmpargument = 0
   SetState
 
-
-
 // Find a new target
 IfTargetKilled
   SetTargetToSelf
   tmpargument = 0
   SetTime
-
 
 // All Done
 End

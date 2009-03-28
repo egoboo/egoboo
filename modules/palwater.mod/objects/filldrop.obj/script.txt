@@ -4,7 +4,6 @@ IfTimeOut
   tmpargument = 20
   SetTime
 
-
   IfStateIs0
     // Check if the water has been filled
     GetWaterLevel
@@ -25,10 +24,8 @@ IfTimeOut
         tmpargument = 0
         PlaySound
 
-
         // Spawn the characters
         GetContent                 // The specific model slot
-
 
         // Character 1
         tmpx = selfx
@@ -51,6 +48,5 @@ IfTimeOut
 
         // Don't hang around
         GoPoof
-
 
 End					// All done

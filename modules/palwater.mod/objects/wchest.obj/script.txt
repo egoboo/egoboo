@@ -24,39 +24,31 @@ IfOrdered
         tmpargument = 6
         SendMessageNear
 
-
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
 
-
     // Is it closed?
     tmpargument = 0
     IfStateIs
 
-
       // Are they in front?
       IfFacingTarget
-
 
         // Can they pick the lock?
         tmpargument = [DISA]
         IfTargetHasSkillID
 
-
           // Make target crouch
           tmpargument = ACTIONMG
           TargetDoAction
-
-
 
           // Give some experience
           tmpargument = 15
           tmpdistance = EXPROLEPLAY
           GiveExperienceToTarget
-
 
           // Open it up
           tmpargument = ACTIONMG
@@ -77,22 +69,18 @@ IfBumped
             SendMessageNear
         Else
 
-
           // Do they have a chest key?
           tmpargument = [KEYC]
           CostTargetItemID
-
 
             // Make target crouch
             tmpargument = ACTIONMG
             TargetDoAction
 
-
             // Give some experience
             tmpargument = 5
             tmpdistance = EXPDARE
             GiveExperienceToTarget
-
 
             // Open it up
             tmpargument = ACTIONMG
@@ -125,11 +113,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Can the target use this armor
         tmpargument = [WIZA]
@@ -144,8 +130,6 @@ IfBumped
           // Say it's for someone else
           tmpargument = 4
           SendMessageNear
-
-
 
 // All done
 End

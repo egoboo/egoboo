@@ -4,7 +4,6 @@ IfSpawned
   tmpargument = passage
   ClosePassage
 
-
 //Open door and close it
 IfTimeOut
   KeepAction

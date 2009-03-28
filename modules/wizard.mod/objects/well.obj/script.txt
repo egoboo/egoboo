@@ -3,7 +3,6 @@
 //1: Send a message that it is not drinkable
 //2: Dont send a message or drink (Delay or else it will loop)
 
-
 //Drink and heal the bumping character
 IfBumped			
   SetTargetToWhoeverBumped	 
@@ -25,7 +24,6 @@ IfBumped
       tmpargument = 0	       //Empty of water
       SetContent
 
-
 //Is it empty? if so send a message
 IfBumped
   IfTargetIsAPlayer  		
@@ -35,7 +33,6 @@ IfBumped
         SendMessageNear
         tmpargument = 2  //Delay sending message
         SetState
-
 
 IfTimeOut
   tmpargument = 100

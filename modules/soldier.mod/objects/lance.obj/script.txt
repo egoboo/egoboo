@@ -74,9 +74,6 @@ IfStateIs1
       tmpargument = 4
       SendMessageNear
 
-
-
-
 // Item is held by a cavalier
 IfStateIs2
   IfTargetIsMounted
@@ -91,7 +88,6 @@ IfStateIs2
     tmpy = targetspeedy
     tmpx = xydistance > 2
 
-
     // Make sure mount is moving fast enough
     tmpy = 0
     IfXIsMoreThanY
@@ -99,7 +95,6 @@ IfStateIs2
       tmpy = 4
       IfXIsMoreThanY
         tmpx = tmpy
-
 
       // Now spawn it
       tmpargument = 1 + tmpx
@@ -113,7 +108,6 @@ IfStateIs2
     tmpargument = 1
     SetState
 
-
 // Item is held by a cavalier that has no clue
 IfStateIs2
   IfTargetIsMounted
@@ -121,7 +115,5 @@ IfStateIs2
   Else
     tmpargument = 1
     SetState
-
-
 
 End

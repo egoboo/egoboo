@@ -9,7 +9,7 @@ IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsAPlayer
  
-   // Is it closed?
+    // Is it closed?
     tmpargument = 0   //Closed...
     IfStateIs
 
@@ -20,12 +20,10 @@ IfBumped
         tmpargument = ACTIONMG
         TargetDoAction
 
-
         // Give some experience
         tmpargument = 5
         tmpdistance = EXPDARE
         GiveExperienceToTarget
-
 
         // Open it up
         tmpargument = ACTIONMG
@@ -52,11 +50,9 @@ IfBumped
         tmpargument = 40
         SetTime
 
-
         // Make target crouch
         tmpargument = ACTIONMG
         TargetDoAction
-
 
         // Can the target use this armor
         tmpargument = [SOLD]

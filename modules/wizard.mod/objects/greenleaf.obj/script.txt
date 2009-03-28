@@ -32,7 +32,7 @@ IfUsed
       IfStateIs0
         //Intelligence checks show if others find it out
         tmpx = targetint
-        tmpy = rand & 2500 + 2850
+        tmpy = rand & 255 * 10 + 2850
         IfXIsMoreThanY
           // Character identifies the gem
           tmpargument = 2
@@ -75,8 +75,6 @@ IfTimeOut
     tmpargument = 0
     SetState
 
-
-
 // Alert others to draw
 IfTakenOut
   SetTargetToWhoeverIsHolding
@@ -84,14 +82,12 @@ IfTakenOut
     tmpargument = 3
     SendMessageNear
 
-
 // Tell them what they've won...
 IfGrabbed
   SetTargetToWhoeverIsHolding
   IfTargetIsAPlayer
     tmpargument = 0
     SendMessageNear
-
 
 // Finish up
 End
