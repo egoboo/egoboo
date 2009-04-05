@@ -6,6 +6,21 @@
 	objectVersion = 42;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		C48C064D0F32D9B5006984C2 /* Distribution */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = C48C06500F32D9DC006984C2 /* Build configuration list for PBXAggregateTarget "Distribution" */;
+			buildPhases = (
+				C48C064C0F32D9B5006984C2 /* ShellScript */,
+			);
+			dependencies = (
+				C48C064F0F32D9BE006984C2 /* PBXTargetDependency */,
+			);
+			name = Distribution;
+			productName = Distribution;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		002F39FA09D0881F00EBEB88 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 002F39F909D0881F00EBEB88 /* SDL.framework */; };
 		002F3A0009D0884600EBEB88 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 002F39F909D0881F00EBEB88 /* SDL.framework */; };
@@ -18,7 +33,7 @@
 		C448193A0E97F50700FF170F /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819370E97F50700FF170F /* SDL_image.framework */; };
 		C448193B0E97F50700FF170F /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819380E97F50700FF170F /* SDL_mixer.framework */; };
 		C448193C0E97F50700FF170F /* SDL_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819390E97F50700FF170F /* SDL_ttf.framework */; };
-		C46398970EBE6530006D617D /* Link.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398950EBE6530006D617D /* Link.c */; };
+		C46398970EBE6530006D617D /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398950EBE6530006D617D /* link.c */; };
 		C46398C30EBE6EA8006D617D /* egobooendian.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398C20EBE6EA8006D617D /* egobooendian.c */; };
 		C469AB120EA1075B005CDBE7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = C469AB110EA1075B005CDBE7 /* SDLMain.nib */; };
 		C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */ = {isa = PBXBuildFile; fileRef = C469AB730EA11626005CDBE7 /* sys_mac.c */; };
@@ -26,25 +41,27 @@
 		C46DAF0F0E9D34B900084BE5 /* SDL_mixer.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819380E97F50700FF170F /* SDL_mixer.framework */; };
 		C46DAF100E9D34B900084BE5 /* SDL_ttf.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819390E97F50700FF170F /* SDL_ttf.framework */; };
 		C48332A20E98632D00B78406 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4D0E9831820086650C /* menu.c */; };
+		C48B377E0F890E8A00563245 /* egoboo_setup.c in Sources */ = {isa = PBXBuildFile; fileRef = C48B376D0F890E8800563245 /* egoboo_setup.c */; };
+		C48B377F0F890E8A00563245 /* egoboo_setup.h in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C48B376E0F890E8800563245 /* egoboo_setup.h */; };
 		C49FFD240E97F96E00E13A99 /* camera.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC930E97F96E00E13A99 /* camera.c */; };
 		C49FFD270E97F96E00E13A99 /* char.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC960E97F96E00E13A99 /* char.c */; };
-		C49FFD2A0E97F96E00E13A99 /* Client.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC990E97F96E00E13A99 /* Client.c */; };
-		C49FFD2C0E97F96E00E13A99 /* Clock.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC9B0E97F96E00E13A99 /* Clock.c */; };
+		C49FFD2A0E97F96E00E13A99 /* client.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC990E97F96E00E13A99 /* client.c */; };
+		C49FFD2C0E97F96E00E13A99 /* clock.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC9B0E97F96E00E13A99 /* clock.c */; };
 		C49FFD2E0E97F96E00E13A99 /* configfile.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFC9D0E97F96E00E13A99 /* configfile.c */; };
 		C49FFD420E97F96E00E13A99 /* enchant.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCB10E97F96E00E13A99 /* enchant.c */; };
-		C49FFD490E97F96E00E13A99 /* Font.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCB80E97F96E00E13A99 /* Font.c */; };
+		C49FFD490E97F96E00E13A99 /* font.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCB80E97F96E00E13A99 /* font.c */; };
 		C49FFD4D0E97F96E00E13A99 /* game.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCBC0E97F96E00E13A99 /* game.c */; };
 		C49FFD560E97F96E00E13A99 /* graphic.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCC50E97F96E00E13A99 /* graphic.c */; };
 		C49FFD5F0E97F96E00E13A99 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCCE0E97F96E00E13A99 /* input.c */; };
-		C49FFD6B0E97F96E00E13A99 /* Log.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCDB0E97F96E00E13A99 /* Log.c */; };
+		C49FFD6B0E97F96E00E13A99 /* log.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCDB0E97F96E00E13A99 /* log.c */; };
 		C49FFD720E97F96E00E13A99 /* Md2.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCE20E97F96E00E13A99 /* Md2.c */; };
 		C49FFD7A0E97F96E00E13A99 /* module.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFCEA0E97F96E00E13A99 /* module.c */; };
 		C49FFD910E97F96E00E13A99 /* particle.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD020E97F96E00E13A99 /* particle.c */; };
 		C49FFD940E97F96E00E13A99 /* passage.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD050E97F96E00E13A99 /* passage.c */; };
 		C49FFD9A0E97F96E00E13A99 /* script.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD0B0E97F96E00E13A99 /* script.c */; };
-		C49FFDA50E97F96E00E13A99 /* Server.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD160E97F96E00E13A99 /* Server.c */; };
+		C49FFDA50E97F96E00E13A99 /* server.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD160E97F96E00E13A99 /* server.c */; };
 		C49FFDA70E97F96E00E13A99 /* sound.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD180E97F96E00E13A99 /* sound.c */; };
-		C49FFDAE0E97F96E00E13A99 /* Ui.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD200E97F96E00E13A99 /* Ui.c */; };
+		C49FFDAE0E97F96E00E13A99 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD200E97F96E00E13A99 /* ui.c */; };
 		C4F69F1D0E9830BB0086650C /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69EF90E9830BB0086650C /* host.c */; };
 		C4F69F280E9830BB0086650C /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F050E9830BB0086650C /* list.c */; };
 		C4F69F2B0E9830BB0086650C /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F080E9830BB0086650C /* memory.c */; };
@@ -52,7 +69,7 @@
 		C4F69F2E0E9830BB0086650C /* peer.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F0B0E9830BB0086650C /* peer.c */; };
 		C4F69F2F0E9830BB0086650C /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F0C0E9830BB0086650C /* protocol.c */; };
 		C4F69F350E9830BB0086650C /* unix.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F120E9830BB0086650C /* unix.c */; };
-		C4F69F590E9832A00086650C /* common-file.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3D0E9831820086650C /* common-file.c */; };
+		C4F69F590E9832A00086650C /* file-common.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3D0E9831820086650C /* file-common.c */; };
 		C4F69F5A0E9832A20086650C /* egoboostrutil.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3E0E9831820086650C /* egoboostrutil.c */; };
 		C4F69F5D0E9832A70086650C /* gltexture.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F410E9831820086650C /* gltexture.c */; };
 		C4F69F5F0E9832AA0086650C /* graphicfan.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F430E9831820086650C /* graphicfan.c */; };
@@ -62,6 +79,16 @@
 		C4F69F650E9832B80086650C /* egoboo_math.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4B0E9831820086650C /* egoboo_math.c */; };
 		C4F69F670E9832BC0086650C /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4E0E9831820086650C /* network.c */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C48C064E0F32D9BE006984C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8D1107260486CEB800E47090;
+			remoteInfo = Egoboo;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */ = {
@@ -74,6 +101,7 @@
 				C46DAF0E0E9D34B900084BE5 /* SDL_image.framework in Copy Frameworks into .app bundle */,
 				C46DAF0F0E9D34B900084BE5 /* SDL_mixer.framework in Copy Frameworks into .app bundle */,
 				C46DAF100E9D34B900084BE5 /* SDL_ttf.framework in Copy Frameworks into .app bundle */,
+				C48B377F0F890E8A00563245 /* egoboo_setup.h in Copy Frameworks into .app bundle */,
 			);
 			name = "Copy Frameworks into .app bundle";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -127,7 +155,7 @@
 		C4006A950F00C82C009D62E8 /* README.Mac */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.Mac; sourceTree = "<group>"; };
 		C4006A960F00C82C009D62E8 /* Readme.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Readme.txt; sourceTree = "<group>"; };
 		C4006A970F00C82C009D62E8 /* README.Windows */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = README.Windows; sourceTree = "<group>"; };
-		C4006A980F00C82C009D62E8 /* setup.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = setup.txt; sourceTree = "<group>"; };
+		C4006A980F00C82C009D62E8 /* setup.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; lineEnding = 2; path = setup.txt; sourceTree = "<group>"; };
 		C4006A990F00C871009D62E8 /* basicdat */ = {isa = PBXFileReference; lastKnownFileType = folder; path = basicdat; sourceTree = "<group>"; };
 		C4006AE90F00C89A009D62E8 /* modules */ = {isa = PBXFileReference; lastKnownFileType = folder; path = modules; sourceTree = "<group>"; };
 		C400A8610F00C8F6009D62E8 /* egoboo.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = egoboo.ico; sourceTree = "<group>"; };
@@ -139,8 +167,8 @@
 		C44819370E97F50700FF170F /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = /Library/Frameworks/SDL_image.framework; sourceTree = "<absolute>"; };
 		C44819380E97F50700FF170F /* SDL_mixer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_mixer.framework; path = /Library/Frameworks/SDL_mixer.framework; sourceTree = "<absolute>"; };
 		C44819390E97F50700FF170F /* SDL_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_ttf.framework; path = /Library/Frameworks/SDL_ttf.framework; sourceTree = "<absolute>"; };
-		C46398950EBE6530006D617D /* Link.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Link.c; sourceTree = "<group>"; };
-		C46398960EBE6530006D617D /* Link.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Link.h; sourceTree = "<group>"; };
+		C46398950EBE6530006D617D /* link.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = link.c; sourceTree = "<group>"; };
+		C46398960EBE6530006D617D /* link.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = link.h; sourceTree = "<group>"; };
 		C46398C20EBE6EA8006D617D /* egobooendian.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egobooendian.c; sourceTree = "<group>"; };
 		C469AB110EA1075B005CDBE7 /* SDLMain.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SDLMain.nib; sourceTree = "<group>"; };
 		C469AB730EA11626005CDBE7 /* sys_mac.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sys_mac.c; sourceTree = "<group>"; };
@@ -159,41 +187,45 @@
 		C483328E0E98625500B78406 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = unix.h; sourceTree = "<group>"; };
 		C483328F0E98625500B78406 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = utility.h; sourceTree = "<group>"; };
 		C48332900E98625500B78406 /* win32.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = win32.h; sourceTree = "<group>"; };
-		C483329E0E9862F300B78406 /* linux-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "linux-file.c"; sourceTree = "<group>"; };
+		C483329E0E9862F300B78406 /* file-linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-linux.c"; sourceTree = "<group>"; };
 		C483329F0E9862F300B78406 /* sys_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_linux.c; sourceTree = "<group>"; };
+		C48B376D0F890E8800563245 /* egoboo_setup.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboo_setup.c; sourceTree = "<group>"; };
+		C48B376E0F890E8800563245 /* egoboo_setup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_setup.h; sourceTree = "<group>"; };
+		C48C06700F32EB63006984C2 /* Egoboo.dmg */ = {isa = PBXFileReference; lastKnownFileType = file; name = Egoboo.dmg; path = ../../Egoboo.dmg; sourceTree = BUILT_PRODUCTS_DIR; };
+		C48C06810F32F583006984C2 /* players */ = {isa = PBXFileReference; lastKnownFileType = folder; path = players; sourceTree = "<group>"; };
 		C49FFC930E97F96E00E13A99 /* camera.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = camera.c; sourceTree = "<group>"; };
 		C49FFC960E97F96E00E13A99 /* char.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = char.c; sourceTree = "<group>"; };
-		C49FFC990E97F96E00E13A99 /* Client.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Client.c; sourceTree = "<group>"; };
-		C49FFC9A0E97F96E00E13A99 /* Client.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Client.h; sourceTree = "<group>"; };
-		C49FFC9B0E97F96E00E13A99 /* Clock.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Clock.c; sourceTree = "<group>"; };
-		C49FFC9C0E97F96E00E13A99 /* Clock.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Clock.h; sourceTree = "<group>"; };
+		C49FFC990E97F96E00E13A99 /* client.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = client.c; sourceTree = "<group>"; };
+		C49FFC9A0E97F96E00E13A99 /* client.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = client.h; sourceTree = "<group>"; };
+		C49FFC9B0E97F96E00E13A99 /* clock.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = clock.c; sourceTree = "<group>"; };
+		C49FFC9C0E97F96E00E13A99 /* clock.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = clock.h; sourceTree = "<group>"; };
 		C49FFC9D0E97F96E00E13A99 /* configfile.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = configfile.c; sourceTree = "<group>"; };
 		C49FFC9E0E97F96E00E13A99 /* configfile.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = configfile.h; sourceTree = "<group>"; };
 		C49FFC9F0E97F96E00E13A99 /* egoboo.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo.h; sourceTree = "<group>"; };
 		C49FFCB10E97F96E00E13A99 /* enchant.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = enchant.c; sourceTree = "<group>"; };
-		C49FFCB80E97F96E00E13A99 /* Font.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Font.c; sourceTree = "<group>"; };
-		C49FFCB90E97F96E00E13A99 /* Font.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Font.h; sourceTree = "<group>"; };
+		C49FFCB80E97F96E00E13A99 /* font.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = font.c; sourceTree = "<group>"; };
+		C49FFCB90E97F96E00E13A99 /* font.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = font.h; sourceTree = "<group>"; };
 		C49FFCBC0E97F96E00E13A99 /* game.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = game.c; sourceTree = "<group>"; };
 		C49FFCC50E97F96E00E13A99 /* graphic.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic.c; sourceTree = "<group>"; };
 		C49FFCCB0E97F96E00E13A99 /* id_md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = id_md2.h; sourceTree = "<group>"; };
 		C49FFCCC0E97F96E00E13A99 /* id_normals.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = id_normals.c; sourceTree = "<group>"; };
 		C49FFCCE0E97F96E00E13A99 /* input.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = input.c; sourceTree = "<group>"; };
-		C49FFCDB0E97F96E00E13A99 /* Log.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Log.c; sourceTree = "<group>"; };
-		C49FFCDC0E97F96E00E13A99 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Log.h; sourceTree = "<group>"; };
+		C49FFCDB0E97F96E00E13A99 /* log.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = log.c; sourceTree = "<group>"; };
+		C49FFCDC0E97F96E00E13A99 /* log.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = log.h; sourceTree = "<group>"; };
 		C49FFCE20E97F96E00E13A99 /* Md2.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Md2.c; sourceTree = "<group>"; };
 		C49FFCE30E97F96E00E13A99 /* Md2.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Md2.h; sourceTree = "<group>"; };
-		C49FFCE60E97F96E00E13A99 /* Menu.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Menu.h; sourceTree = "<group>"; };
+		C49FFCE60E97F96E00E13A99 /* menu.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = menu.h; sourceTree = "<group>"; };
 		C49FFCEA0E97F96E00E13A99 /* module.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = module.c; sourceTree = "<group>"; };
 		C49FFD020E97F96E00E13A99 /* particle.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = particle.c; sourceTree = "<group>"; };
 		C49FFD050E97F96E00E13A99 /* passage.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = passage.c; sourceTree = "<group>"; };
 		C49FFD0A0E97F96E00E13A99 /* proto.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = proto.h; sourceTree = "<group>"; };
 		C49FFD0B0E97F96E00E13A99 /* script.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = script.c; sourceTree = "<group>"; };
-		C49FFD160E97F96E00E13A99 /* Server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Server.c; sourceTree = "<group>"; };
-		C49FFD170E97F96E00E13A99 /* Server.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Server.h; sourceTree = "<group>"; };
+		C49FFD160E97F96E00E13A99 /* server.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = server.c; sourceTree = "<group>"; };
+		C49FFD170E97F96E00E13A99 /* server.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = server.h; sourceTree = "<group>"; };
 		C49FFD180E97F96E00E13A99 /* sound.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sound.c; sourceTree = "<group>"; };
 		C49FFD1A0E97F96E00E13A99 /* System.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = System.h; sourceTree = "<group>"; };
-		C49FFD200E97F96E00E13A99 /* Ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = Ui.c; sourceTree = "<group>"; };
-		C49FFD210E97F96E00E13A99 /* Ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = Ui.h; sourceTree = "<group>"; };
+		C49FFD200E97F96E00E13A99 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = ui.c; sourceTree = "<group>"; };
+		C49FFD210E97F96E00E13A99 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = ui.h; sourceTree = "<group>"; };
 		C4F69EF90E9830BB0086650C /* host.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = host.c; sourceTree = "<group>"; };
 		C4F69F050E9830BB0086650C /* list.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = list.c; sourceTree = "<group>"; };
 		C4F69F080E9830BB0086650C /* memory.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = memory.c; sourceTree = "<group>"; };
@@ -202,7 +234,7 @@
 		C4F69F0C0E9830BB0086650C /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = protocol.c; sourceTree = "<group>"; };
 		C4F69F120E9830BB0086650C /* unix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = unix.c; sourceTree = "<group>"; };
 		C4F69F150E9830BB0086650C /* win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = win32.c; sourceTree = "<group>"; };
-		C4F69F3D0E9831820086650C /* common-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "common-file.c"; sourceTree = "<group>"; };
+		C4F69F3D0E9831820086650C /* file-common.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-common.c"; sourceTree = "<group>"; };
 		C4F69F3E0E9831820086650C /* egoboostrutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboostrutil.c; sourceTree = "<group>"; };
 		C4F69F3F0E9831820086650C /* egoboostrutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboostrutil.h; sourceTree = "<group>"; };
 		C4F69F400E9831820086650C /* egobootypedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egobootypedef.h; sourceTree = "<group>"; };
@@ -213,12 +245,11 @@
 		C4F69F450E9831820086650C /* graphicprt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicprt.c; sourceTree = "<group>"; };
 		C4F69F470E9831820086650C /* mac-file.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "mac-file.m"; sourceTree = "<group>"; };
 		C4F69F4A0E9831820086650C /* Makefile.unix */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.unix; sourceTree = "<group>"; };
-		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_math.c; sourceTree = "<group>"; };
-		C4F69F4C0E9831820086650C /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = mathstuff.h; sourceTree = "<group>"; };
+		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_math.c; sourceTree = "<group>"; };
 		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = menu.c; sourceTree = "<group>"; };
 		C4F69F4E0E9831820086650C /* network.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = network.c; sourceTree = "<group>"; };
 		C4F69F500E9831820086650C /* sys_win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_win32.c; sourceTree = "<group>"; };
-		C4F69F580E9831820086650C /* win-file.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "win-file.c"; sourceTree = "<group>"; };
+		C4F69F580E9831820086650C /* file-win.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-win.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -243,6 +274,7 @@
 			isa = PBXGroup;
 			children = (
 				8D1107320486CEB800E47090 /* Egoboo.app */,
+				C48C06700F32EB63006984C2 /* Egoboo.dmg */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -328,12 +360,12 @@
 				C4006A840F00C797009D62E8 /* game_vs7.layout */,
 				C4006A850F00C797009D62E8 /* game_vs7.vcproj */,
 				C4006A860F00C797009D62E8 /* game_vs9.vcproj */,
-				C483329E0E9862F300B78406 /* linux-file.c */,
+				C483329E0E9862F300B78406 /* file-linux.c */,
 				C4006A880F00C797009D62E8 /* Makefile */,
 				C4F69F4A0E9831820086650C /* Makefile.unix */,
 				C483329F0E9862F300B78406 /* sys_linux.c */,
 				C4F69F500E9831820086650C /* sys_win32.c */,
-				C4F69F580E9831820086650C /* win-file.c */,
+				C4F69F580E9831820086650C /* file-win.c */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -412,6 +444,7 @@
 				C4006A8C0F00C82C009D62E8 /* Egoboo Manual.pdf */,
 				C4006A920F00C82C009D62E8 /* License.pdf */,
 				C4006AE90F00C89A009D62E8 /* modules */,
+				C48C06810F32F583006984C2 /* players */,
 				C4006A960F00C82C009D62E8 /* Readme.txt */,
 				C4006A980F00C82C009D62E8 /* setup.txt */,
 			);
@@ -449,11 +482,10 @@
 				C46B616D0EC2DED3008B84E8 /* camera.h */,
 				C49FFC960E97F96E00E13A99 /* char.c */,
 				C46B616E0EC2DED3008B84E8 /* char.h */,
-				C49FFC990E97F96E00E13A99 /* Client.c */,
-				C49FFC9A0E97F96E00E13A99 /* Client.h */,
-				C49FFC9B0E97F96E00E13A99 /* Clock.c */,
-				C49FFC9C0E97F96E00E13A99 /* Clock.h */,
-				C4F69F3D0E9831820086650C /* common-file.c */,
+				C49FFC990E97F96E00E13A99 /* client.c */,
+				C49FFC9A0E97F96E00E13A99 /* client.h */,
+				C49FFC9B0E97F96E00E13A99 /* clock.c */,
+				C49FFC9C0E97F96E00E13A99 /* clock.h */,
 				C49FFC9D0E97F96E00E13A99 /* configfile.c */,
 				C49FFC9E0E97F96E00E13A99 /* configfile.h */,
 				C49FFC9F0E97F96E00E13A99 /* egoboo.h */,
@@ -461,13 +493,16 @@
 				C4006A7F0F00C797009D62E8 /* egoboo_endian.h */,
 				C4F69F4B0E9831820086650C /* egoboo_math.c */,
 				C46B61700EC2DED3008B84E8 /* egoboo_math.h */,
+				C48B376D0F890E8800563245 /* egoboo_setup.c */,
+				C48B376E0F890E8800563245 /* egoboo_setup.h */,
 				C46398C20EBE6EA8006D617D /* egobooendian.c */,
 				C4F69F3E0E9831820086650C /* egoboostrutil.c */,
 				C4F69F3F0E9831820086650C /* egoboostrutil.h */,
 				C4F69F400E9831820086650C /* egobootypedef.h */,
 				C49FFCB10E97F96E00E13A99 /* enchant.c */,
-				C49FFCB80E97F96E00E13A99 /* Font.c */,
-				C49FFCB90E97F96E00E13A99 /* Font.h */,
+				C4F69F3D0E9831820086650C /* file-common.c */,
+				C49FFCB80E97F96E00E13A99 /* font.c */,
+				C49FFCB90E97F96E00E13A99 /* font.h */,
 				C49FFCBC0E97F96E00E13A99 /* game.c */,
 				C4F69F410E9831820086650C /* gltexture.c */,
 				C4F69F420E9831820086650C /* gltexture.h */,
@@ -479,16 +514,15 @@
 				C49FFCCB0E97F96E00E13A99 /* id_md2.h */,
 				C49FFCCC0E97F96E00E13A99 /* id_normals.c */,
 				C49FFCCE0E97F96E00E13A99 /* input.c */,
-				C46398950EBE6530006D617D /* Link.c */,
-				C46398960EBE6530006D617D /* Link.h */,
-				C49FFCDB0E97F96E00E13A99 /* Log.c */,
-				C49FFCDC0E97F96E00E13A99 /* Log.h */,
+				C46398950EBE6530006D617D /* link.c */,
+				C46398960EBE6530006D617D /* link.h */,
+				C49FFCDB0E97F96E00E13A99 /* log.c */,
+				C49FFCDC0E97F96E00E13A99 /* log.h */,
 				C4F69F470E9831820086650C /* mac-file.m */,
-				C4F69F4C0E9831820086650C /* mathstuff.h */,
 				C49FFCE20E97F96E00E13A99 /* Md2.c */,
 				C49FFCE30E97F96E00E13A99 /* Md2.h */,
 				C4F69F4D0E9831820086650C /* menu.c */,
-				C49FFCE60E97F96E00E13A99 /* Menu.h */,
+				C49FFCE60E97F96E00E13A99 /* menu.h */,
 				C49FFCEA0E97F96E00E13A99 /* module.c */,
 				C4F69F4E0E9831820086650C /* network.c */,
 				C49FFD020E97F96E00E13A99 /* particle.c */,
@@ -497,13 +531,13 @@
 				C49FFD0A0E97F96E00E13A99 /* proto.h */,
 				C49FFD0B0E97F96E00E13A99 /* script.c */,
 				C46B61720EC2DED3008B84E8 /* script.h */,
-				C49FFD160E97F96E00E13A99 /* Server.c */,
-				C49FFD170E97F96E00E13A99 /* Server.h */,
+				C49FFD160E97F96E00E13A99 /* server.c */,
+				C49FFD170E97F96E00E13A99 /* server.h */,
 				C49FFD180E97F96E00E13A99 /* sound.c */,
 				C469AB730EA11626005CDBE7 /* sys_mac.c */,
 				C49FFD1A0E97F96E00E13A99 /* System.h */,
-				C49FFD200E97F96E00E13A99 /* Ui.c */,
-				C49FFD210E97F96E00E13A99 /* Ui.h */,
+				C49FFD200E97F96E00E13A99 /* ui.c */,
+				C49FFD210E97F96E00E13A99 /* ui.h */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -556,6 +590,7 @@
 			projectDirPath = "";
 			targets = (
 				8D1107260486CEB800E47090 /* Egoboo */,
+				C48C064D0F32D9B5006984C2 /* Distribution */,
 			);
 		};
 /* End PBXProject section */
@@ -573,6 +608,34 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		C48C064C0F32D9B5006984C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../basicdat",
+				"$(SRCROOT)/../Changelog.txt",
+				"$(SRCROOT)/../classes.txt",
+				"$(SRCROOT)/../controls.txt",
+				"$(BUILT_PRODUCTS_DIR)/Egoboo.app",
+				"$(SRCROOT)/../Egoboo Manual.pdf",
+				"$(SRCROOT)/../License.pdf",
+				"$(SRCROOT)/../modules",
+				"$(SRCROOT)/../players",
+				"$(SRCROOT)/../Readme.txt",
+				"$(SRCROOT)/../setup.txt",
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/Egoboo.dmg",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "die() { exit 1; }\ncd \"${BUILD_ROOT}\" || die\n[ -e Egoboo ] && rm -rf Egoboo\necho \"Creating ${BUILD_ROOT}/Egoboo\"\nmkdir -p Egoboo/Egoboo || die\necho \"Copying distribution files into ${BUILD_ROOT}/Egoboo\"\nfor (( i=0 ; i < SCRIPT_INPUT_FILE_COUNT ; i++ ))\ndo\n\tf=SCRIPT_INPUT_FILE_${i}\n\tcp -pR \"${!f}\" Egoboo/Egoboo/ || die\n\tfind Egoboo -name .svn -prune -exec rm -rf '{}' ';'\n\tfind Egoboo -name .DS_Store -delete\ndone\necho \"Creating disk image\"\nhdiutil create -srcfolder Egoboo \"${SCRIPT_OUTPUT_FILE_0}\" -volname Egoboo -ov -format UDBZ || die\n# -format UDBZ only works with 10.4 and later; use UDZO for 10.3\necho \"Removing ${BUILDROOT}/Egoboo\"\nrm -rf Egoboo";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		8D11072C0486CEB800E47090 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -581,23 +644,23 @@
 				002F3A2E09D0888800EBEB88 /* SDLMain.m in Sources */,
 				C49FFD240E97F96E00E13A99 /* camera.c in Sources */,
 				C49FFD270E97F96E00E13A99 /* char.c in Sources */,
-				C49FFD2A0E97F96E00E13A99 /* Client.c in Sources */,
-				C49FFD2C0E97F96E00E13A99 /* Clock.c in Sources */,
+				C49FFD2A0E97F96E00E13A99 /* client.c in Sources */,
+				C49FFD2C0E97F96E00E13A99 /* clock.c in Sources */,
 				C49FFD2E0E97F96E00E13A99 /* configfile.c in Sources */,
 				C49FFD420E97F96E00E13A99 /* enchant.c in Sources */,
-				C49FFD490E97F96E00E13A99 /* Font.c in Sources */,
+				C49FFD490E97F96E00E13A99 /* font.c in Sources */,
 				C49FFD4D0E97F96E00E13A99 /* game.c in Sources */,
 				C49FFD560E97F96E00E13A99 /* graphic.c in Sources */,
 				C49FFD5F0E97F96E00E13A99 /* input.c in Sources */,
-				C49FFD6B0E97F96E00E13A99 /* Log.c in Sources */,
+				C49FFD6B0E97F96E00E13A99 /* log.c in Sources */,
 				C49FFD720E97F96E00E13A99 /* Md2.c in Sources */,
 				C49FFD7A0E97F96E00E13A99 /* module.c in Sources */,
 				C49FFD910E97F96E00E13A99 /* particle.c in Sources */,
 				C49FFD940E97F96E00E13A99 /* passage.c in Sources */,
 				C49FFD9A0E97F96E00E13A99 /* script.c in Sources */,
-				C49FFDA50E97F96E00E13A99 /* Server.c in Sources */,
+				C49FFDA50E97F96E00E13A99 /* server.c in Sources */,
 				C49FFDA70E97F96E00E13A99 /* sound.c in Sources */,
-				C49FFDAE0E97F96E00E13A99 /* Ui.c in Sources */,
+				C49FFDAE0E97F96E00E13A99 /* ui.c in Sources */,
 				C4F69F1D0E9830BB0086650C /* host.c in Sources */,
 				C4F69F280E9830BB0086650C /* list.c in Sources */,
 				C4F69F2B0E9830BB0086650C /* memory.c in Sources */,
@@ -605,7 +668,7 @@
 				C4F69F2E0E9830BB0086650C /* peer.c in Sources */,
 				C4F69F2F0E9830BB0086650C /* protocol.c in Sources */,
 				C4F69F350E9830BB0086650C /* unix.c in Sources */,
-				C4F69F590E9832A00086650C /* common-file.c in Sources */,
+				C4F69F590E9832A00086650C /* file-common.c in Sources */,
 				C4F69F5A0E9832A20086650C /* egoboostrutil.c in Sources */,
 				C4F69F5D0E9832A70086650C /* gltexture.c in Sources */,
 				C4F69F5F0E9832AA0086650C /* graphicfan.c in Sources */,
@@ -616,12 +679,21 @@
 				C4F69F670E9832BC0086650C /* network.c in Sources */,
 				C48332A20E98632D00B78406 /* menu.c in Sources */,
 				C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */,
-				C46398970EBE6530006D617D /* Link.c in Sources */,
+				C46398970EBE6530006D617D /* link.c in Sources */,
 				C46398C30EBE6EA8006D617D /* egobooendian.c in Sources */,
+				C48B377E0F890E8A00563245 /* egoboo_setup.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C48C064F0F32D9BE006984C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8D1107260486CEB800E47090 /* Egoboo */;
+			targetProxy = C48C064E0F32D9BE006984C2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		089C165CFE840E0CC02AAC07 /* InfoPlist.strings */ = {
@@ -740,6 +812,28 @@
 			};
 			name = Release;
 		};
+		C48C06510F32D9DC006984C2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = Distribution;
+			};
+			name = Debug;
+		};
+		C48C06520F32D9DC006984C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				PRODUCT_NAME = Distribution;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -757,6 +851,15 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C48C06500F32D9DC006984C2 /* Build configuration list for PBXAggregateTarget "Distribution" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C48C06510F32D9DC006984C2 /* Debug */,
+				C48C06520F32D9DC006984C2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
