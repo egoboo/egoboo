@@ -89,7 +89,7 @@ EXPREVENGE     : 1.25
 EXPTEAMWORK    : 0.10
 EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [HUMA]
+IDSZ Parent    : [UNDE]
 IDSZ Type      : [ZOMB]
 IDSZ Skill     : [NONE]
 IDSZ Special   : [EVIL]

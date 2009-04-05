@@ -129,7 +129,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
-#define MAXTOTALMESSAGE     2048                    //
+#define MAXTOTALMESSAGE     3048                    //
 #define MESSAGESIZE         80                      //
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
 EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the message alive
@@ -760,6 +760,7 @@ EXTERN Uint8 flattwist[256];             //
 EXTERN int                     numfreechr EQ( 0 );             // For allocation
 EXTERN Uint16           freechrlist[MAXCHR];        //
 
+//This is the big character structure
 EXTERN struct
 {
     glMatrix                matrix;      // Character's matrix

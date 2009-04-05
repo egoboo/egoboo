@@ -8,6 +8,8 @@ IfTimeOut
       tmpargument = [HUMA]
       IfTargetHasID
         PoofTarget
+          tmpargument = 0
+          PlaySound
           GetContent
           tmpargument = tmpargument + 1
           SetContent
@@ -22,9 +24,6 @@ IfTimeOut
             tmpy = selfy
             SpawnExactCharacterXYZ
             SpawnPoof
-            tmpargument = 0
-            tmpdistance = 11025
-            PlaySound
             GoPoof
             tmpargument = 2
           Else
@@ -35,15 +34,32 @@ IfTimeOut
           SendMessageNear
           GoPoof
       Else
-        PoofTarget
-          tmpargument = 1
-          SendMessageNear
+        tmpargument = [FRTN]    //Fortune cookie!
+        IfTargetHasID  
+          PoofTarget
           tmpargument = 0
-          SetContent
-        Else
-          tmpargument = 3
+          PlaySound            
+          tmpargument = selfstate + 1
+          SetState
+          IfStateIs5          //sacrificed 5 cookies
+            DropItems     //cant spawn spellbooks
+            SpawnPoof
+            GoPoof
+            tmpargument = 2
+          Else
+            tmpargument = 4       //keep on feedin!
           SendMessageNear
-          GoPoof
+        Else
+          PoofTarget
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 0     //reset the sacrifical counter
+            SetContent
+            SetState
+          Else
+            tmpargument = 3
+            SendMessageNear       //A player was sacrificed!
+            GoPoof
 
   tmpargument = 50
   SetTime

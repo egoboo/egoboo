@@ -102,8 +102,8 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [PLUN]
-Type ID ( eg. [TROG] for Trogs )		: [BLUN]
+Parent ID ( eg. [FROG] for Trogs )		: [MACE]
+Type ID ( eg. [TROG] for Trogs )		: [PLUN]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [NONE]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]

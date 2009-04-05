@@ -4153,6 +4153,11 @@ Uint8 run_function( Uint32 value, int character )
             returncode = ( chr[chr[character].aitarget].alive && chr[character].aiowner == chr[character].aitarget );
             break;
 
+        case FTAKEPICTURE:
+            // This function proceeds only if the target is on another team
+            returncode = dump_screenshot();
+            break;
+
         case FEND:
             valueterminate = btrue;
             returncode     = bfalse;

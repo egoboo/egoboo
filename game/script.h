@@ -29,16 +29,20 @@
 #define MSGDISTANCE         2000                    // Range for SendMessageNear
 #define PITNOSOUND          -256                    // Stop sound at bottom of pits...
 
-// SCRIPT FUNCTIONS
-#define FIFSPAWNED                          0   // Scripted AI functions (v0.10)
-#define FIFTIMEOUT                          1   //
-#define FIFATWAYPOINT                       2   //
-#define FIFATLASTWAYPOINT                   3   //
-#define FIFATTACKED                         4   //
-#define FIFBUMPED                           5   //
-#define FIFORDERED                          6   //
-#define FIFCALLEDFORHELP                    7   //
-#define FSETCONTENT                         8   //
+// SCRIPT FUNCTIONS (TODO: put all #define in enum listing)
+typedef enum script_function
+{
+	FIFSPAWNED = 0,			//Scripted AI functions (v0.10)
+	FIFTIMEOUT,
+	FIFATWAYPOINT,
+	FIFATLASTWAYPOINT,                   
+	FIFATTACKED,                         
+	FIFBUMPED,                           
+	FIFORDERED,                          
+	FIFCALLEDFORHELP,                    
+	FSETCONTENT,                         
+} SCRIPT_FUNCTION_ENUM;
+
 #define FIFKILLED                           9   //
 #define FIFTARGETKILLED                     10  //
 #define FCLEARWAYPOINTS                     11  //
@@ -387,16 +391,21 @@
 #define FADDBLIPALLENEMIES          354 //
 #define FPITSFALL                           355 //
 #define FIFTARGETISOWNER                    356 //
+#define FTAKEPICTURE                    357 //
 
 // OPERATORS
-#define OPADD 0                // +
-#define OPSUB 1                // -
-#define OPAND 2                // &
-#define OPSHR 3                // >
-#define OPSHL 4                // <
-#define OPMUL 5                // *
-#define OPDIV 6                // /
-#define OPMOD 7                // %
+typedef enum script_operator
+{
+	OPADD = 0,
+	OPSUB,
+	OPAND,
+	OPSHR,
+	OPSHL,
+	OPMUL,
+	OPDIV,
+	OPMOD,
+
+}OPERATOR_TYPES;
 
 // VARIABLES
 #define VARTMPX             0

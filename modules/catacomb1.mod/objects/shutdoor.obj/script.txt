@@ -39,7 +39,6 @@ IfPassageOpen			//
       tmpargument = 1		      // Open it
       SetState			      //
       tmpargument = 0		      //
-      tmpdistance = 11025	      //
       PlaySound			      //
 Else
   tmpargument = 1		  //
@@ -49,6 +48,5 @@ Else
       tmpargument = 0		      // Close it
       SetState			      //
       tmpargument = 1		      //
-      tmpdistance = 11025	      //
       PlaySound			      //
 End				// Finished with this character

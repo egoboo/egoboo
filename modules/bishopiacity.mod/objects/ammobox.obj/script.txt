@@ -34,7 +34,6 @@ IfDropped				// Make it lie on floor
 //----------------------------------------------------------------------------------
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 
 //----------------------------------------------------------------------------------
@@ -58,11 +57,8 @@ IfUsed
       tmpargument = [SHOT]
       RestockTargetAmmoIDFirst
       tmpargument = 0			  //
-      tmpdistance = rand % 2047 + 5000	  //
       PlaySound				  //
-      tmpdistance = rand % 2047 + 5000	  //
       PlaySound				  //
-      tmpdistance = rand % 2047 + 5000	  //
       PlaySound				  //
       tmpargument = 2
       SendMessageNear

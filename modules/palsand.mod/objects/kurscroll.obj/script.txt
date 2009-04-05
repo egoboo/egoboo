@@ -5,6 +5,11 @@ IfSpawned				//
   KeepAction				  //
   MakeCrushValid
   MakeAmmoKnown
+  
+  IfNameIsKnown
+    tmpargument = 1
+    ChangeArmor
+
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -63,6 +68,8 @@ IfUsed
     IfNameIsKnown
       DoNothing
     Else
+      tmpargument = 1
+      ChangeArmor
       tmpargument = 5
       tmpdistance = EXPDARE
       GiveExperienceToTarget

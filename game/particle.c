@@ -665,11 +665,13 @@ void move_particles( void )
 
                             prtfacing[cnt] = facing;
                         }
+						
                     }
 
                     prtzpos[cnt] += prtzvel[cnt];
                     prtzvel[cnt] += gravity;
                 }
+				
             }
 
             // Do homing

@@ -26,6 +26,12 @@ IfArmorIs
       PlaySound
       tmpargument = 45
       SetTime
+      
+//No wings without a holder!
+IfHeld
+  DoNothing
+Else
+  GoPoof
 
 //------------------------------------------------------------------------------
 End

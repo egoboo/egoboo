@@ -48,6 +48,7 @@ IfCrushed
   tmpargument = 50		//A nifty bonus xp for this solution
   tmpdistance = EXPSECRET
   GiveExperienceToGoodTeam
+  GoPoof
 
 //------------------------------------------------------------------------------
 // Let the character walk around

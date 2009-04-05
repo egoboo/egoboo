@@ -23,6 +23,7 @@ Alchemy: Automatically identify all potions and flasks.
 Ancient Blood: Slowly regenerate life naturally.
 Arcane Magic: Can use arcane spellbooks.
 Backstab: Deal extra damage when attacking sleeping creatures or enemies from behind.
+Backpacker: Character doesn't lose his/her money and keys when dying.
 Bow Mastery: +2 damage with all longbows.
 Butcher Form - Zombi becomes Butcher. Extra life, damage and size but somewhat reduced speed.
 Cartography: The character always has the minimap of the current dungeon/area.
@@ -43,12 +44,15 @@ Halo: The Paladin becomes a beacon of all that is good and pure.
 Hardy: Reduces all damage taken by 1/2 life point per 4 character levels.
 Holy Aura: Deals holy damage to all undead who bump the character. Damage increases with level.
 Holy Smite: Deals extra damage against [EVIL] creatures. Damage increases with level.
+Improvised Weapons: +.0.25 bonus damage per level to improvised weapons (shovel, toilet plunger. etc)
 Jousting: Can use the lance weapon in combat.
 Last Boon: Using her last breath, the Healer heals all her remaining allies in a burst of holy light.
 Listen: Increases listen range by 33% (Works through walls and doors)
+Literate: Character can read scrolls, bookstands, libraries, scripts, etc.
 Lore Mastery: Automatically identify everything.
 Lucky: Gives a small bonus to everything.
 Magical Ampitude: Automatically identify all magic scrolls and wands.
+Mobility: Character automatically jumps over corpses.
 Mystic Intellect: Gain a vast 10 bonus to intelligence.
 Poison Use: Can use poison without err.
 Sense Undead: All enemy undead shows up on the minimap (if the map has been found).
@@ -70,7 +74,7 @@ Wizard's Missile: Shoots rapidly red homing missiles when doing unarmed attacks 
 G'NOME
 -------------------------------------------
 Level       Abillity
-1			Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance
+1			Use Technological Items, Read G'nomish, Immune vs. Grog, Poison Resistance, Literate
 2			n/a
 3			Listen
 4			n/a
@@ -79,16 +83,16 @@ Level       Abillity
 7			Ancient Blood
 8			n/a
 9			Sharpshooter
-10			n/a
-11			Hardy
-12			n/a
+10		n/a
+11		Hardy
+12		n/a
 -------------------------------------------
 
 
 ARCHEOLOGIST
 -------------------------------------------
 Level       Abillity
-1			Acrobacy, Disarm Trap, Use Technological Items
+1			Acrobacy, Disarm Trap, Use Technological Items, Mobility, Literate
 2			n/a
 3			Whip Mastery
 4			n/a
@@ -97,12 +101,12 @@ Level       Abillity
 7			n/a
 8			n/a
 9			Lucky
-10			n/a	
-11			n/a
-12			Cartography
-13          n/a
-14          n/a
-15          Danger Sense
+10	  n/a	
+11		n/a
+12		Cartography
+13    n/a
+14    n/a
+15    Danger Sense
 -------------------------------------------
 
 
@@ -110,29 +114,29 @@ Level       Abillity
 ADVENTURER
 -------------------------------------------
 Level       Abillity
-1			Weapon Profiency, Arcane Magic
+1			Weapon Profiency, Arcane Magic, Literate
 2			n/a
 3			n/a
 4			Alchemy
 5			n/a			
 6			n/a
-7           Speed
-8	        n/a
-9           n/a
-10	        Stealth
-11	        n/a
-12	        n/a
-13	        Listen
-14	        n/a
-15	        n/a
-16          Class Mastery
+7     Speed
+8	    n/a
+9     n/a
+10	  Stealth
+11	  n/a
+12	  n/a
+13	  Listen
+14	  n/a
+15	  n/a
+16    Class Mastery
 -------------------------------------------
 
 
 HEALER
 -------------------------------------------
 Level       Abillity
-1			Divine Magic, See Kurses
+1			Divine Magic, See Kurses, Literate
 2			n/a
 3			n/a
 4			Holy Aura
@@ -141,20 +145,20 @@ Level       Abillity
 7			Divine Power
 8			n/a
 9			n/a
-10			Guardian Angel
-11			n/a
-12			n/a
-13			Immune vs. Kurses
-14			n/a
-15			n/a
-16			Last Boon
+10		Guardian Angel
+11		n/a
+12		n/a
+13		Immune vs. Kurses
+14		n/a
+15		n/a
+16		Last Boon
 -------------------------------------------
 
 
 PALADIN
 -------------------------------------------
 Level       Abillity
-1			Weapon Profiency, Jousting
+1			Weapon Profiency, Jousting, Literate
 2			Divine Magic
 3			n/a
 4			Holy Smite
@@ -163,20 +167,20 @@ Level       Abillity
 7			Crusader
 8			n/a
 9			n/a
-10			Halo
-11			n/a
-12			n/a
-13			Sense Undead
-14			n/a
-15			n/a
-16			Ultimate Sacrifice
+10		Halo
+11		n/a
+12		n/a
+13		Sense Undead
+14		n/a
+15		n/a
+16		Ultimate Sacrifice
 -------------------------------------------
 
 
 WIZARD
 -------------------------------------------
 Level   Abillity
-1     - Alchemy, Arcane Magic
+1     - Alchemy, Arcane Magic, Literate
 2     - n/a
 3     - Magical Ampitude
 4     - n/a
@@ -196,7 +200,7 @@ Level   Abillity
 WOOD ELF
 -------------------------------------------
 Level   Abillity
-1     - Weapon Profiency, Arcane Magic
+1     - Weapon Profiency, Arcane Magic, Literate
 2     - Listen
 3     - n/a
 4     - n/a
@@ -292,7 +296,7 @@ Level	Ability
 VAMPYRE (Under Development)
 -------------------------------------------
 Level	Ability
-1     - n/a
+1     - Literate
 2     - n/a
 3     - n/a
 4     - n/a
@@ -324,4 +328,23 @@ Level	Ability
 11    - Sneak (Can move 1 step at the time while stealthing)
 12    - n/a
 13    - Cripple (Hit with bow/xbow/Ballsita has a chance of slowing the enemy.)
+-------------------------------------------
+
+TOURIST (Under Development)
+-------------------------------------------
+Level	Ability
+1     - Use Technological Items, Use Poison, Backstab, Literate
+2     - Mobility
+3     - n/a
+4     - n/a
+5     - Improvised Weapons
+6     - n/a
+7     - n/a
+8     - Cartography
+9     - n/a
+10    - n/a
+11    - Lucky
+12    - n/a
+13    - n/a
+14    - Backpacker
 -------------------------------------------

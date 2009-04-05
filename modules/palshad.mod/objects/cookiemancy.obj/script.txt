@@ -1,0 +1,508 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else			//Setup cookie!
+    MakeNameUnknown
+    tmpargument = 3		//Summon sound
+    PlaySound
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+    MakeCrushValid
+    MakeAmmoKnown
+    IncreaseAmmo
+    
+    //Spell effects
+    tmpargument = 5
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+
+// It's a spell in hand
+IfChanged
+  tmpargument = 0
+  SetState
+  KeepAction
+
+//--------------------------------------------------------------------------------------------
+//SPELL AI
+IfStateIs0
+
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 225
+        IfNameIsKnown
+          tmpargument = 226
+        SendMessageNear
+
+  // Allow it to be used
+  IfUsed
+    SetTargetToWhoeverIsHolding
+    tmpargument = [READ]
+    IfTargetHasSkillID
+      GetContent
+      tmpx = tmpargument			//Current spellpower
+      tmpy = 512				//2 spellpower is max
+      IfXIsLessThanY				//Not already max power?
+        tmpargument = 50				//Casting cost
+        DamageTarget
+          GetContent
+          tmpargument = tmpargument + 50		//Casting speed
+          SetContent
+
+      //Spell effect around caster
+      SetTargetToWhoeverIsHolding
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 3
+        SpawnExactParticle
+    Else
+      tmpargument = 228
+      SendMessageNear
+      tmpargument = 50
+      SetReloadTime
+  Else				//Spell released
+    GetContent
+    tmpx = tmpargument
+    tmpy = 255			//Needed casting
+    IfXIsMoreThanY
+      // Make the holder cast it
+      SetTargetToWhoeverIsHolding
+        tmpargument = ACTIONMC // MC because ZA/ZC spawns an attack... ZA03AL
+        TargetDoAction
+      SetTargetToSelf		//Identify as spellbook
+        MakeNameKnown
+        MakeUsageKnown
+        tmpx = rand & 255 + targetx - 128	//Where to summon it
+        tmpy = rand & 255 + targety - 128
+        tmpturn = rand
+        tmpdistance = targetz
+        SetTargetToWhoeverIsHolding
+        SpawnCharacterXYZ		//Summon!
+          tmpargument = 1	//Cookie mode
+          SetChildState
+          tmpargument = 0 - 54    //Costs life points!
+          GiveLifeToTarget
+          tmpargument = 224
+          SendMessageNear
+        tmpargument = 20
+        SetReloadTime		//Delay before next use
+    Else
+      tmpy = 0
+      IfXIsMoreThanY
+        // Didn't pump it enough
+        tmpargument = 223
+        SendMessageNear
+    // Reset the charge counter
+    tmpargument = 0
+    SetContent
+
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+    
+  //Messages for grabbing it
+  IfGrabbed
+    IfNameIsKnown
+      tmpargument = 222
+    Else
+      tmpargument = 227
+    SendMessageNear
+
+//--------------------------------------------------------------------------------------------
+// COOKIE AI
+tmpargument = 0
+IfStateIsNot		//State 0 is spellbook
+
+  // Make it poof
+  IfCrushed
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 0
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    GoPoof
+    tmpargument = 1
+    SendMessageNear
+
+  //Wet cookie!
+  IfInWater
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 1
+      SetContent
+      tmpargument = 7
+      SendMessageNear
+      
+  //burned cookie!
+  IfReaffirmed
+    tmpargument = 0
+    IfContentIs
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = 2
+      SetContent
+      tmpargument = 11
+      SendMessageNear
+      SpawnPoof
+    
+  // Make it lie on the floor
+  IfDropped
+    KeepAction
+
+  // Play sound
+  IfHitGround
+    tmpargument = 0
+    PlaySound
+
+
+  // Alert others to draw
+  IfTakenOut
+    SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 2
+      SendMessageNear
+
+
+
+  // Tell them what they've won...
+  IfGrabbed
+    SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+  // Give the bonus
+  IfUsed
+    SetTargetToWhoeverIsHolding
+    
+    //Cooldown
+    tmpargument = 40
+    SetReloadTime
+    
+    
+    IfUsageIsKnown
+      IfTargetIsHurt
+        tmpargument = 1		//Make them eat it
+        SetState
+        tmpargument = 3   //eat it
+      Else
+        tmpargument = 6   //Drop it
+      SendMessageNear
+    Else			//They don't know what it was
+      MakeUsageKnown
+      tmpargument = 4
+      IfTargetIsAPlayer
+        tmpargument = 5
+      SendMessageNear
+      tmpargument = 40
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      tmpargument = 1		//Make them eat it
+      SetState
+
+    //This runs if the player ate the cookie
+    IfStateIs1
+    
+      //Munchies
+      tmpargument = 1
+      PlaySound
+      
+      //Increase max life a little
+      tmpargument = 32
+      GiveLifeToTarget
+      
+      // Increase current life
+      tmpargument = rand & 255 + 256	//1-2 hp
+      HealTarget
+      
+      //Eating a cookie always provides some wisdom
+      tmpargument = 16
+      GiveWisdomToTarget
+      tmpargument = 5
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+      
+      //Animation and effects
+      tmpargument = ACTIONMC
+      TargetDoAction
+      tmpdistance = SPAWNORIGIN
+      tmpargument = 1
+      SpawnAttachedHolderParticle
+   
+      //HANDLE FORTUNE MESSAGE    
+      //Normal cookie
+      tmpargument = 0
+      IfContentIs    
+        IfTargetIsAPlayer
+          tmpargument = [READ]
+          IfTargetHasSkillID
+            tmpargument = 3
+            SetState        //The cookie reads...
+          Else
+            tmpargument = 10        //Can't read!
+            SendMessageNear
+            
+      //Wet cookie
+      tmpargument = 1
+      IfContentIs
+        tmpargument = 8
+        SendMessageNear
+
+      //Burned cookie
+      tmpargument = 2
+      IfContentIs
+        tmpargument = 9
+        SendMessageNear
+        
+    Else				//This makes them drop it if not set to use
+      tmpx = selfx	//Where to spawn the object
+      tmpy = selfy
+      tmpturn = selfturn
+      tmpdistance = 0	//Velocity speed of the spawned object
+      SpawnCharacter	//Spawn a copy
+        tmpargument = 1
+        SetChildAmmo
+        
+    //We are supposed to show a message
+    IfStateIs3
+      tmpx = rand % 32       //Randomize
+      tmpy = 0
+      IfXIsEqualToY
+        tmpargument = 12      //The dev team has thought of everything
+        SendMessageNear
+        tmpargument = 13      //but a stupid idea is still stupid
+        SendMessageNear
+        
+      tmpy = 1
+      IfXIsEqualToY
+        tmpargument = 14      //The oracle is a myth
+        SendMessageNear
+
+      tmpy = 2
+      IfXIsEqualToY
+        tmpargument = 15      //"Never_take_advice_from_fortune_cookies."
+        SendMessageNear
+        tmpargument = 16      //thats paradoxical
+        SendMessageNear
+        
+      tmpy = 3
+      IfXIsEqualToY
+        tmpargument = 17      //You are doomed!
+        SendMessageNear
+        
+      tmpy = 4
+      IfXIsEqualToY
+        tmpargument = 18      //"Your_lucky_numbers_are_0,_13,_and_(3127411/11)3471-1."
+        SendMessageNear
+
+      tmpy = 5
+      IfXIsEqualToY
+        tmpargument = 19      //"Pay_no_attention_to_the_man_behind_that_curtain!"
+        SendMessageNear
+
+      tmpy = 6
+      IfXIsEqualToY
+        tmpargument = 20      //"Manufactured_by_cookiemancy."
+        SendMessageNear
+
+      tmpy = 7
+      IfXIsEqualToY
+        tmpargument = 21      //"Made_in_Taiwan."
+        SendMessageNear
+        
+      tmpy = 8
+      IfXIsEqualToY
+        tmpargument = 22      //"Less_than_20_mg_of_trans_fat!"
+        SendMessageNear
+        
+      tmpy = 9
+      IfXIsEqualToY
+        tmpargument = 23      //"New_look,_same_great_taste!"
+        SendMessageNear
+        
+      tmpy = 10
+      IfXIsEqualToY
+        tmpargument = 24      //"May contain peanuts"
+        SendMessageNear
+
+      tmpy = 11
+      IfXIsEqualToY
+        tmpargument = 25      //"Inside_this_cookie_is..._Another_cookie!"
+        SendMessageNear
+        IncreaseAmmo          //Special Effect: another cookie!
+         
+      tmpy = 12
+      IfXIsEqualToY
+        tmpargument = 26      //"What,_did_you_expect_a_baseball_card?
+        SendMessageNear
+        tmpargument = 27      //Maybe_a_cool_toy,_or_some_corny_jokes?
+        SendMessageNear
+        tmpargument = 28      //Go_buy_yourself_some_Cracker_Jacks,_kid!"
+        SendMessageNear
+        
+      tmpy = 13
+      IfXIsEqualToY
+        tmpargument = 29      //"Well,_I_can't_really_give_you_any_advice_other_than:
+        SendMessageNear
+        tmpargument = 30      //Eat_more_cookies!"___Hey,_that's_good_advice!
+        SendMessageNear
+        
+      tmpy = 14
+      IfXIsEqualToY
+        tmpargument = 31      //"For_any_remedy_there_is_a_misery."
+        SendMessageNear
+        
+      tmpy = 15
+      IfXIsEqualToY
+        tmpargument = 32      //"All_your_soul_are_belong_to_Aaron."
+        SendMessageNear
+        
+      tmpy = 16
+      IfXIsEqualToY
+        tmpargument = 33      //"The_pen_is_mightier_than_the_sword...IF_it_is_sharpened,
+        SendMessageNear
+        tmpargument = 34      //poisoned,_and_thrown_really_hard_at_the_target._But
+        SendMessageNear
+        tmpargument = 35      //really,_you're_better_off_with_the_sword."
+        SendMessageNear
+        
+      tmpy = 17
+      IfXIsEqualToY
+        tmpargument = 36      //He_who_write_silly_proverbs_with_on_purpose_bad
+        SendMessageNear
+        tmpargument = 37      //grammar_have_way_too_much_time_on_his_hand."
+        SendMessageNear
+        
+      tmpy = 18
+      IfXIsEqualToY
+        tmpargument = 38      //"The_sheep_in_Zippy_Village_are_secretly_plotting_to
+        SendMessageNear
+        tmpargument = 39      //take_over_the_world._I_thought_you_might_want_to_know."
+        SendMessageNear
+        
+      tmpy = 19
+      IfXIsEqualToY
+        tmpargument = 40      //"The_sheep_in_Zippy_Village_are_secretly_plotting_to
+        SendMessageNear
+        tmpargument = 41      //take_over_the_world._I_thought_you_might_want_to_know."
+        SendMessageNear
+        
+      tmpy = 20
+      IfXIsEqualToY
+        tmpargument = 41    //"there is a map inside!"
+        SendMessageNear
+        ShowMap              //Special effect: Display map!
+          ShowYouAreHere
+          tmpargument = 2
+          PlaySound
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+        Else
+          tmpargument = 41   //Abort, couldn't show map
+          SendMessageNear
+          
+      tmpy = 21
+      IfXIsEqualToY
+        tmpargument = 42   //"Haha._The_guy_over_there_got_a_better_fortune_than_you."
+        SendMessageNear
+        
+      tmpy = 22
+      IfXIsEqualToY
+        tmpargument = 43   //"Umm..._Spend_more_money.
+        SendMessageNear
+        tmpargument = 44   //...Well,_sorry,_that's_all_I've_got!_Get_over_it."
+        SendMessageNear
+        
+      tmpy = 23
+      IfXIsEqualToY
+        tmpargument = 45   //"Were_you_expecting_some_profound_and/or_cryptic
+        SendMessageNear
+        tmpargument = 46   //message?_Well,_too_bad!_I_have_better_things_to_do_with
+        SendMessageNear
+        tmpargument = 47   //my_time!"
+        SendMessageNear
+        
+      tmpy = 24
+      IfXIsEqualToY
+        tmpargument = 48   //"You_shouldn't_just_eat_things_that_are_sitting_around_on
+        SendMessageNear
+        tmpargument = 49   //the_floor._Seriously,_that_cookie_could_have_been_POISONED!
+        SendMessageNear
+        tmpargument = 50   //Then_what_,huh?_THEN_WHAT?!"
+        SendMessageNear
+        
+      tmpy = 25
+      IfXIsEqualToY
+        tmpargument = 51   //"You_lost_the_Game."
+        SendMessageNear
+        
+      tmpy = 26
+      IfXIsEqualToY
+        tmpargument = 52   //"You_should_stop_looking_for_the_meaning_of_life_in_your
+        SendMessageNear
+        tmpargument = 53   //dessert._It's_a_cookie._Now_eat_it."
+        SendMessageNear
+        
+      tmpy = 27
+      IfXIsEqualToY
+        tmpargument = 54   //"Have_you_been_spending_the_last_week_trying_to_find_one
+        SendMessageNear
+        tmpargument = 55   //of_these_that_actually_makes_sense?_If_so,_I_suggest_you
+        SendMessageNear
+        tmpargument = 56   //find_something_more_productive_to_do."
+        SendMessageNear
+        
+      tmpy = 28
+      IfXIsEqualToY
+        tmpargument = 57   //"Bake_ME_some_cookies_for_a_change,_why_don't_you?"
+        SendMessageNear
+        
+      tmpy = 29
+      IfXIsEqualToY
+        tmpargument = 58   //"Blah,_blah,_blah,_blah..._It_is_your_DESTINY."
+        SendMessageNear
+        
+      tmpy = 30
+      IfXIsEqualToY
+        tmpargument = 59   //"You_will_die.__..But_don't_worry_too_much.
+        SendMessageNear
+        tmpargument = 60   //Everyone_does_eventually,_after_all."
+        SendMessageNear
+        
+      tmpy = 31
+      IfXIsEqualToY
+        tmpargument = 61   //The fortune is blank!
+        SendMessageNear
+        
+    //Use one "charge"
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+
+    tmpargument = 0
+    SetState				//Reset for next use
+
+// Finish up
+End

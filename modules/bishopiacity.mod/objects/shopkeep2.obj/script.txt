@@ -27,7 +27,7 @@ IfSpawned
     tmpturn = rand
 
 //ITEM 1
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -53,12 +53,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 2
     tmpx = selfx
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -84,12 +86,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 3
     tmpx = selfx + 178
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -115,12 +119,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 4
     tmpy = selfy
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -146,12 +152,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 5
     tmpx = selfx - 178
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -177,12 +185,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 6
     tmpy = selfy + 178
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -208,12 +218,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 7
     tmpx = selfx
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -239,12 +251,14 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
 
 //ITEM 8
     tmpx = selfx + 178
     tmpturn = rand
-    tmpargument = rand % 12
+    tmpargument = rand % 13
     SetState
     IfStateIs0			 //Rusty Sword
       tmpargument = 44
@@ -270,6 +284,8 @@ IfSpawned
       tmpargument = 149
     IfStateIs11		         //Mushroom
       tmpargument = 152
+    IfStateIs12		         //Crowbar
+      tmpargument = 157
     SpawnExactCharacterXYZ
   tmpargument = 0
   SetState

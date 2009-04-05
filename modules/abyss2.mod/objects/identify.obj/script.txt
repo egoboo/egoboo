@@ -5,6 +5,9 @@ IfSpawned				//
   KeepAction				  //
   MakeCrushValid
   MakeAmmoKnown
+  IfNameIsKnown
+    tmpargument = 1
+    ChangeArmor
 IfCrushed
   tmpx = selfx
   tmpy = selfy
@@ -61,11 +64,13 @@ IfUsed
     tmpargument = 20
     SetTargetReloadTime
     IfNameIsKnown
-      GetState
+      DoNothing
     Else
       tmpargument = 5
       tmpdistance = EXPSECRET
       GiveExperienceToTarget
+      tmpargument = 1
+      ChangeArmor
     MakeSimilarNamesKnown
 
     // ID the opposite hand's item

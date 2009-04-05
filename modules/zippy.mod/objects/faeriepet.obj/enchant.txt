@@ -10,7 +10,7 @@ End message ( -1 for none )			: 15
 
 // Enchantment draining/sustaining
 Owner's mana boost each second ( -1.0 to 1.0 )	: 0.0
-Target's mana boost each second ( -1.0 to 1.0 ) : 0.3
+Target's mana boost each second ( -1.0 to 1.0 ) : 0.0
 End if mana can't be payed ( TRUE or FALSE )	: FALSE
 Owner's life boost each second ( -1.0 to 1.0 )	: 0.0
 Target's life boost each second ( -1.0 to 1.0 )	: 0.0
@@ -43,7 +43,7 @@ Light blending ( 255 is normal )		: F 1
 Alpha blending ( 255 is normal )		: F 128
 Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: F 0
 Fly to height ( 0 to 255, Won't affect innate )	: T 25
-Walk on water ( TRUE or FALSE, Not on innate )	: F TRUE
+Walk on water ( TRUE or FALSE, Not on innate )	: T TRUE
 Can see invisible ( TRUE or FALSE )		: F TRUE
 Missile treatment ( NORMAL, DEFLECT, REFLECT )	: F DEFLECT
 Cost for each missile treated ( 0.0 to 1.0 )	: F 3.0

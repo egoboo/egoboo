@@ -5199,7 +5199,7 @@ void check_stats()
         return;
 
     // !!!BAD!!!  XP CHEAT
-    if ( SDLKEYDOWN( SDLK_x ) )
+    if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
         if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { give_experience( plaindex[0], 25, XPDIRECT ); stat_check_delay = 500; }
         if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { give_experience( plaindex[1], 25, XPDIRECT ); stat_check_delay = 500; }
@@ -5210,7 +5210,7 @@ void check_stats()
     }
 
     // !!!BAD!!!  LIFE CHEAT
-    if ( SDLKEYDOWN( SDLK_z ) && SDLKEYDOWN( SDLK_1 ) )
+    if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
     {
         if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chr[plaindex[0]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[0]].life, PERFECTBIG); stat_check_delay = 500; }
         if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chr[plaindex[1]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[1]].life, PERFECTBIG); stat_check_delay = 500; }
@@ -5270,11 +5270,8 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
 
-
-
-
-    // handle the map
-    if ( SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
+    // Show map cheat
+    if ( gDevMode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
     {
         mapon = mapvalid;
         youarehereon = btrue;

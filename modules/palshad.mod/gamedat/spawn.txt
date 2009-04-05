@@ -154,6 +154,7 @@ Stalker:   NONE     90    52.5 46.5 0.0  N   0   0   0   1   0   F   F   Evil
 
 
 SacriPit:  NONE     95    12.5 46.5 0.0  N   0   0   18  0   0   F   F   Null
+  Cookiemancy:  NONE   64   0.0 0.0 0.0  I   0   0   0  0   0   F   F   Null
 
 Moduletool:NONE     126   19   55   0    S   0   0   0   0   0   F   F   Evil
 BossPlat:  NONE     121   19   55   0    S   0   0   0   0   0   F   F   Null
