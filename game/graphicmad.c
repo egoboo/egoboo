@@ -163,20 +163,20 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint8 ambi;
     glMatrix tempWorld = mWorld;
 
-    Uint16 model = chrmodel[character];
-    Uint16 texture = chrtexture[character];
-    Uint16 frame = chrframe[character];
-    Uint16 lastframe = chrlastframe[character];
-    Uint16 framestt = madframestart[chrmodel[character]];
-    Uint8 lip = chrlip[character] >> 6;
-    Uint8 lightrotation = ( chrturnleftright[character] + chrlightturnleftright[character] ) >> 8;
+    Uint16 model = chr[character].model;
+    Uint16 texture = chr[character].texture;
+    Uint16 frame = chr[character].frame;
+    Uint16 lastframe = chr[character].lastframe;
+    Uint16 framestt = madframestart[chr[character].model];
+    Uint8 lip = chr[character].lip >> 6;
+    Uint8 lightrotation = ( chr[character].turnleftright + chr[character].lightturnleftright ) >> 8;
     Uint32  alpha = trans;
-    Uint8 lightlevel = chrlightlevel[character] >> 4;
-    float uoffset = textureoffset[chruoffset[character] >> 8] - camturnleftrightone;
-    float voffset = textureoffset[chrvoffset[character] >> 8];
-    Uint8 rs = chrredshift[character];
-    Uint8 gs = chrgrnshift[character];
-    Uint8 bs = chrblushift[character];
+    Uint8 lightlevel = chr[character].lightlevel >> 4;
+    float uoffset = textureoffset[chr[character].uoffset >> 8] - camturnleftrightone;
+    float voffset = textureoffset[chr[character].voffset >> 8];
+    Uint8 rs = chr[character].redshift;
+    Uint8 gs = chr[character].grnshift;
+    Uint8 bs = chr[character].blushift;
 
     // Original points with linear interpolation ( lip )
     switch ( lip )
@@ -195,9 +195,9 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 temp = temp + temp + temp;
                 v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] + temp ) >> 2 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].a = ( float )alpha / 255.0f;
                 v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
@@ -218,9 +218,9 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] +
                                          madvrtz[lastframe][cnt] ) >> 1 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].a = ( float )alpha / 255.0f;
                 v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
@@ -244,9 +244,9 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 temp = temp + temp + temp;
                 v[cnt].z = ( float ) ( ( madvrtz[lastframe][cnt] + temp ) >> 2 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].a = ( float )alpha / 255.0f;
                 v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
@@ -264,9 +264,9 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 v[cnt].y = ( float ) madvrty[frame][cnt];
                 v[cnt].z = ( float ) madvrtz[frame][cnt];
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].a = ( float )alpha / 255.0f;
                 v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
@@ -279,7 +279,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
 
     // Do fog...
     /*
-    if(fogon && chrlight[character]==255)
+    if(fogon && chr[character].light==255)
     {
         // The full fog value
         alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
@@ -287,7 +287,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
         for (cnt = 0; cnt < madtransvertices[model]; cnt++)
         {
             // Figure out the z position of the vertex...  Not totally accurate
-            z = (v[cnt].z * chrscale[character]) + chrmatrix[character](3,2);
+            z = (v[cnt].z * chr[character].scale) + chr[character].matrix(3,2);
 
             // Figure out the fog coloring
             if(z < fogtop)
@@ -319,7 +319,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
     }
     */
 
-    mWorld = chrmatrix[character];
+    mWorld = chr[character].matrix;
     // GS - Begin3DMode ();
 
     glLoadMatrixf( mView.v );
@@ -345,7 +345,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
             {
                 glColor4fv( &v[vertex].r );
                 glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
-                               lighttoenviroy[chrvrta[character][vertex]] + voffset );
+                               lighttoenviroy[chr[character].vrta[vertex]] + voffset );
                 glVertex3fv ( &v[vertex].x );
             }
 
@@ -375,22 +375,22 @@ void render_texmad( Uint16 character, Uint8 trans )
 //  DWORD fogspec;
 
     // To make life easier
-    Uint16 model = chrmodel[character];
-    Uint16 texture = chrtexture[character];
-    Uint16 frame = chrframe[character];
-    Uint16 lastframe = chrlastframe[character];
-    Uint8 lip = chrlip[character] >> 6;
+    Uint16 model = chr[character].model;
+    Uint16 texture = chr[character].texture;
+    Uint16 frame = chr[character].frame;
+    Uint16 lastframe = chr[character].lastframe;
+    Uint8 lip = chr[character].lip >> 6;
     Uint8 lightrotation =
-        ( chrturnleftright[character] + chrlightturnleftright[character] ) >> 8;
-    Uint8 lightlevel = chrlightlevel[character] >> 4;
+        ( chr[character].turnleftright + chr[character].lightturnleftright ) >> 8;
+    Uint8 lightlevel = chr[character].lightlevel >> 4;
     Uint32  alpha = trans;
-    Uint8 spek = chrsheen[character];
+    Uint8 spek = chr[character].sheen;
 
-    float uoffset = textureoffset[chruoffset[character] >> 8];
-    float voffset = textureoffset[chrvoffset[character] >> 8];
-    Uint8 rs = chrredshift[character];
-    Uint8 gs = chrgrnshift[character];
-    Uint8 bs = chrblushift[character];
+    float uoffset = textureoffset[chr[character].uoffset >> 8];
+    float voffset = textureoffset[chr[character].voffset >> 8];
+    Uint8 rs = chr[character].redshift;
+    Uint8 gs = chr[character].grnshift;
+    Uint8 bs = chr[character].blushift;
     glMatrix mTempWorld = mWorld;
 
     if ( phongon && trans == 255 )
@@ -416,9 +416,9 @@ void render_texmad( Uint16 character, Uint8 trans )
                 // v[cnt].z = (D3DVALUE) ((madvrtz[frame][cnt] + temp)>>2);
                 v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] + temp ) >> 2 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
                 v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
@@ -449,9 +449,9 @@ void render_texmad( Uint16 character, Uint8 trans )
                 v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] +
                                          madvrtz[lastframe][cnt] ) >> 1 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
                 v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
@@ -480,9 +480,9 @@ void render_texmad( Uint16 character, Uint8 trans )
                 // v[cnt].z = (D3DVALUE) (madvrtz[lastframe][cnt] + temp>>2);
                 v[cnt].z = ( float ) ( ( madvrtz[lastframe][cnt] + temp ) >> 2 );
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
                 v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
@@ -507,9 +507,9 @@ void render_texmad( Uint16 character, Uint8 trans )
                 v[cnt].y = ( float ) madvrty[frame][cnt];
                 v[cnt].z = ( float ) madvrtz[frame][cnt];
 
-                ambi = chrvrta[character][cnt];
+                ambi = chr[character].vrta[cnt];
                 ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chrvrta[character][cnt] = ambi;
+                chr[character].vrta[cnt] = ambi;
                 // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
                 v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
                 v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
@@ -525,7 +525,7 @@ void render_texmad( Uint16 character, Uint8 trans )
 
     /*
         // Do fog...
-        if(fogon && chrlight[character]==255)
+        if(fogon && chr[character].light==255)
         {
             // The full fog value
             alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
@@ -533,7 +533,7 @@ void render_texmad( Uint16 character, Uint8 trans )
             for (cnt = 0; cnt < madtransvertices[model]; cnt++)
             {
                 // Figure out the z position of the vertex...  Not totally accurate
-                z = (v[cnt].z * chrscale[character]) + chrmatrix[character](3,2);
+                z = (v[cnt].z * chr[character].scale) + chr[character].matrix(3,2);
 
                 // Figure out the fog coloring
                 if(z < fogtop)
@@ -562,7 +562,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     // Choose texture and matrix
     GLTexture_Bind( txTexture + texture );
 
-    mWorld = chrmatrix[character];
+    mWorld = chr[character].matrix;
 
     // Begin3DMode();
     glLoadMatrixf( mView.v );
@@ -605,11 +605,11 @@ void render_texmad( Uint16 character, Uint8 trans )
 void render_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
-    Sint8 hide = caphidestate[chrmodel[character]];
+    Sint8 hide = caphidestate[chr[character].model];
 
-    if ( hide == NOHIDE || hide != chraistate[character] )
+    if ( hide == NOHIDE || hide != chr[character].aistate )
     {
-        if ( chrenviro[character] )
+        if ( chr[character].enviro )
             render_enviromad( character, trans );
         else
             render_texmad( character, trans );
@@ -628,12 +628,12 @@ void render_refmad( int tnc, Uint8 trans )
     Uint8 fog_save;
     glVector pos_save;
 
-    if ( !capreflect[chrmodel[tnc]] ) return;
+    if ( !capreflect[chr[tnc].model] ) return;
 
-    level = chrlevel[tnc];
+    level = chr[tnc].level;
     trans_temp = trans;
 
-    zpos = ( chrmatrix[tnc] ).CNV( 3, 2 ) - level;
+    zpos = ( chr[tnc].matrix ).CNV( 3, 2 ) - level;
 
     if (zpos < 0) zpos = 0;
 
@@ -647,22 +647,22 @@ void render_refmad( int tnc, Uint8 trans )
 
     if ( trans_temp <= 0 ) return;
 
-    chrredshift[tnc] += 1;
-    chrgrnshift[tnc] += 1;
-    chrblushift[tnc] += 1;
+    chr[tnc].redshift += 1;
+    chr[tnc].grnshift += 1;
+    chr[tnc].blushift += 1;
 
-    sheen_save = chrsheen[tnc];
-    chrsheen[tnc] >>= 1;
+    sheen_save = chr[tnc].sheen;
+    chr[tnc].sheen >>= 1;
 
-    pos_save.x = ( chrmatrix[tnc] ).CNV( 0, 2 );
-    pos_save.y = ( chrmatrix[tnc] ).CNV( 1, 2 );
-    pos_save.z = ( chrmatrix[tnc] ).CNV( 2, 2 );
-    pos_save.w = ( chrmatrix[tnc] ).CNV( 3, 2 );
+    pos_save.x = ( chr[tnc].matrix ).CNV( 0, 2 );
+    pos_save.y = ( chr[tnc].matrix ).CNV( 1, 2 );
+    pos_save.z = ( chr[tnc].matrix ).CNV( 2, 2 );
+    pos_save.w = ( chr[tnc].matrix ).CNV( 3, 2 );
 
-    ( chrmatrix[tnc] ).CNV( 0, 2 ) = -( chrmatrix[tnc] ).CNV( 0, 2 );
-    ( chrmatrix[tnc] ).CNV( 1, 2 ) = -( chrmatrix[tnc] ).CNV( 1, 2 );
-    ( chrmatrix[tnc] ).CNV( 2, 2 ) = -( chrmatrix[tnc] ).CNV( 2, 2 );
-    ( chrmatrix[tnc] ).CNV( 3, 2 ) = -( chrmatrix[tnc] ).CNV( 3, 2 ) + level + level;
+    ( chr[tnc].matrix ).CNV( 0, 2 ) = -( chr[tnc].matrix ).CNV( 0, 2 );
+    ( chr[tnc].matrix ).CNV( 1, 2 ) = -( chr[tnc].matrix ).CNV( 1, 2 );
+    ( chr[tnc].matrix ).CNV( 2, 2 ) = -( chr[tnc].matrix ).CNV( 2, 2 );
+    ( chr[tnc].matrix ).CNV( 3, 2 ) = -( chr[tnc].matrix ).CNV( 3, 2 ) + level + level;
 
     fog_save = fogon;
     fogon    = bfalse;
@@ -671,15 +671,15 @@ void render_refmad( int tnc, Uint8 trans )
 
     fogon = fog_save;
 
-    ( chrmatrix[tnc] ).CNV( 0, 2 ) = pos_save.x;
-    ( chrmatrix[tnc] ).CNV( 1, 2 ) = pos_save.y;
-    ( chrmatrix[tnc] ).CNV( 2, 2 ) = pos_save.z;
-    ( chrmatrix[tnc] ).CNV( 3, 2 ) = pos_save.w;
+    ( chr[tnc].matrix ).CNV( 0, 2 ) = pos_save.x;
+    ( chr[tnc].matrix ).CNV( 1, 2 ) = pos_save.y;
+    ( chr[tnc].matrix ).CNV( 2, 2 ) = pos_save.z;
+    ( chr[tnc].matrix ).CNV( 3, 2 ) = pos_save.w;
 
-    chrsheen[tnc] = sheen_save;
+    chr[tnc].sheen = sheen_save;
 
-    chrredshift[tnc] -= 1;
-    chrgrnshift[tnc] -= 1;
-    chrblushift[tnc] -= 1;
+    chr[tnc].redshift -= 1;
+    chr[tnc].grnshift -= 1;
+    chr[tnc].blushift -= 1;
 
 }

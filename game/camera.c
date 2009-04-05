@@ -241,23 +241,23 @@ void move_camera()
         {
             character = plaindex[cnt];
 
-            if ( chralive[character] )
+            if ( chr[character].alive )
             {
-                if ( chrattachedto[character] == MAXCHR )
+                if ( chr[character].attachedto == MAXCHR )
                 {
                     // The character is on foot
-                    x += chrxpos[character];
-                    y += chrypos[character];
-                    z += chrzpos[character];
-                    level += chrlevel[character];
+                    x += chr[character].xpos;
+                    y += chr[character].ypos;
+                    z += chr[character].zpos;
+                    level += chr[character].level;
                 }
                 else
                 {
                     // The character is mounted
-                    x += chrxpos[chrattachedto[character]];
-                    y += chrypos[chrattachedto[character]];
-                    z += chrzpos[chrattachedto[character]];
-                    level += chrlevel[chrattachedto[character]];
+                    x += chr[chr[character].attachedto].xpos;
+                    y += chr[chr[character].attachedto].ypos;
+                    z += chr[chr[character].attachedto].zpos;
+                    level += chr[chr[character].attachedto].level;
                 }
 
                 locoalive++;

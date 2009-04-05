@@ -57,12 +57,12 @@ void reset_character_alpha( Uint16 character )
 
     if ( character != MAXCHR )
     {
-        mount = chrattachedto[character];
+        mount = chr[character].attachedto;
 
-        if ( chron[character] && mount != MAXCHR && chrisitem[character] && chrtransferblend[mount] )
+        if ( chr[character].on && mount != MAXCHR && chr[character].isitem && chr[mount].transferblend )
         {
             // Okay, reset transparency
-            enchant = chrfirstenchant[character];
+            enchant = chr[character].firstenchant;
 
             while ( enchant < MAXENCHANT )
             {
@@ -71,9 +71,9 @@ void reset_character_alpha( Uint16 character )
                 enchant = encnextenchant[enchant];
             }
 
-            chralpha[character] = chrbasealpha[character];
-            chrlight[character] = caplight[chrmodel[character]];
-            enchant = chrfirstenchant[character];
+            chr[character].alpha = chr[character].basealpha;
+            chr[character].light = caplight[chr[character].model];
+            enchant = chr[character].firstenchant;
 
             while ( enchant < MAXENCHANT )
             {
@@ -314,48 +314,48 @@ void show_stat( Uint16 statindex )
             character = statlist[statindex];
 
             // Name
-            sprintf( text, "=%s=", chrname[character] );
+            sprintf( text, "=%s=", chr[character].name );
             debug_message( text );
 
             // Level and gender and class
             gender[0] = 0;
 
-            if ( chralive[character] )
+            if ( chr[character].alive )
             {
-                if ( chrgender[character] == GENMALE )
+                if ( chr[character].gender == GENMALE )
                 {
                     sprintf( gender, "male " );
                 }
 
-                if ( chrgender[character] == GENFEMALE )
+                if ( chr[character].gender == GENFEMALE )
                 {
                     sprintf( gender, "female " );
                 }
 
-                level = chrexperiencelevel[character];
+                level = chr[character].experiencelevel;
 
                 if ( level == 0 )
-                    sprintf( text, " 1st level %s%s", gender, capclassname[chrmodel[character]] );
+                    sprintf( text, " 1st level %s%s", gender, capclassname[chr[character].model] );
 
                 if ( level == 1 )
-                    sprintf( text, " 2nd level %s%s", gender, capclassname[chrmodel[character]] );
+                    sprintf( text, " 2nd level %s%s", gender, capclassname[chr[character].model] );
 
                 if ( level == 2 )
-                    sprintf( text, " 3rd level %s%s", gender, capclassname[chrmodel[character]] );
+                    sprintf( text, " 3rd level %s%s", gender, capclassname[chr[character].model] );
 
                 if ( level >  2 )
-                    sprintf( text, " %dth level %s%s", level + 1, gender, capclassname[chrmodel[character]] );
+                    sprintf( text, " %dth level %s%s", level + 1, gender, capclassname[chr[character].model] );
             }
             else
             {
-                sprintf( text, " Dead %s", capclassname[chrmodel[character]] );
+                sprintf( text, " Dead %s", capclassname[chr[character].model] );
             }
 
             // Stats
             debug_message( text );
-            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", chrstrength[character] >> 8, chrwisdom[character] >> 8, 255 - chrdefense[character] );
+            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", chr[character].strength >> 8, chr[character].wisdom >> 8, 255 - chr[character].defense );
             debug_message( text );
-            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", chrintelligence[character] >> 8, chrdexterity[character] >> 8, chrexperience[character] );
+            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", chr[character].intelligence >> 8, chr[character].dexterity >> 8, chr[character].experience );
             debug_message( text );
             statdelay = 10;
         }
@@ -374,45 +374,45 @@ void show_armor( Uint16 statindex )
         if ( statindex < numstat )
         {
             character = statlist[statindex];
-            skinlevel = chrtexture[character] - madskinstart[chrmodel[character]];
+            skinlevel = chr[character].texture - madskinstart[chr[character].model];
 
             // Armor Name
-            sprintf( text, "=%s=", capskinname[chrmodel[character]][skinlevel] );
+            sprintf( text, "=%s=", capskinname[chr[character].model][skinlevel] );
             debug_message( text );
 
             // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - capdefense[chrmodel[character]][skinlevel],
-                     capdamagemodifier[chrmodel[character]][0][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][1][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][2][skinlevel]&DAMAGESHIFT );
+            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - capdefense[chr[character].model][skinlevel],
+                     capdamagemodifier[chr[character].model][0][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][1][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][2][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
             sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     capdamagemodifier[chrmodel[character]][3][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][4][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][5][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][6][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chrmodel[character]][7][skinlevel]&DAMAGESHIFT );
+                     capdamagemodifier[chr[character].model][3][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][4][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][5][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][6][skinlevel]&DAMAGESHIFT,
+                     capdamagemodifier[chr[character].model][7][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
-            if ( capskindressy[chrmodel[character]] ) sprintf( tmps, "Light Armor" );
+            if ( capskindressy[chr[character].model] ) sprintf( tmps, "Light Armor" );
             else                   sprintf( tmps, "Heavy Armor" );
 
             sprintf( text, " Type: %s", tmps );
 
             // Speed and jumps
-            if ( chrjumpnumberreset[character] == 0 )  sprintf( text, "None (0)" );
+            if ( chr[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
 
-            if ( chrjumpnumberreset[character] == 1 )  sprintf( text, "Novice (1)" );
+            if ( chr[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
 
-            if ( chrjumpnumberreset[character] == 2 )  sprintf( text, "Skilled (2)" );
+            if ( chr[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
 
-            if ( chrjumpnumberreset[character] == 3 )  sprintf( text, "Master (3)" );
+            if ( chr[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
 
-            if ( chrjumpnumberreset[character] > 3 )   sprintf( text, "Inhuman (%i)", chrjumpnumberreset[character] );
+            if ( chr[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", chr[character].jumpnumberreset );
 
             sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", capmaxaccel[chrmodel[character]][skinlevel]*80, tmps );
+            sprintf( text, " Speed:~%3.0f~~%s", capmaxaccel[chr[character].model][skinlevel]*80, tmps );
             debug_message( text );
 
             statdelay = 10;
@@ -443,39 +443,39 @@ void show_full_status( Uint16 statindex )
                 i++;
             }
 
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chrname[character] );
-            else sprintf( text, "=%s is unenchanted=", chrname[character] );
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chr[character].name );
+            else sprintf( text, "=%s is unenchanted=", chr[character].name );
 
             debug_message( text );
 
             // Armor Stats
             sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                     255 - chrdefense[character],
-                     chrdamagemodifier[character][0]&DAMAGESHIFT,
-                     chrdamagemodifier[character][1]&DAMAGESHIFT,
-                     chrdamagemodifier[character][2]&DAMAGESHIFT );
+                     255 - chr[character].defense,
+                     chr[character].damagemodifier[0]&DAMAGESHIFT,
+                     chr[character].damagemodifier[1]&DAMAGESHIFT,
+                     chr[character].damagemodifier[2]&DAMAGESHIFT );
             debug_message( text );
             sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     chrdamagemodifier[character][3]&DAMAGESHIFT,
-                     chrdamagemodifier[character][4]&DAMAGESHIFT,
-                     chrdamagemodifier[character][5]&DAMAGESHIFT,
-                     chrdamagemodifier[character][6]&DAMAGESHIFT,
-                     chrdamagemodifier[character][7]&DAMAGESHIFT );
+                     chr[character].damagemodifier[3]&DAMAGESHIFT,
+                     chr[character].damagemodifier[4]&DAMAGESHIFT,
+                     chr[character].damagemodifier[5]&DAMAGESHIFT,
+                     chr[character].damagemodifier[6]&DAMAGESHIFT,
+                     chr[character].damagemodifier[7]&DAMAGESHIFT );
             debug_message( text );
 
             // Speed and jumps
-            if ( chrjumpnumberreset[character] == 0 )  sprintf( text, "None (0)" );
+            if ( chr[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
 
-            if ( chrjumpnumberreset[character] == 1 )  sprintf( text, "Novice (1)" );
+            if ( chr[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
 
-            if ( chrjumpnumberreset[character] == 2 )  sprintf( text, "Skilled (2)" );
+            if ( chr[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
 
-            if ( chrjumpnumberreset[character] == 3 )  sprintf( text, "Master (3)" );
+            if ( chr[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
 
-            if ( chrjumpnumberreset[character] > 3 )   sprintf( text, "Inhuman (4+)" );
+            if ( chr[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
 
             sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", chrmaxaccel[character]*80, tmps );
+            sprintf( text, " Speed:~%3.0f~~%s", chr[character].maxaccel*80, tmps );
             debug_message( text );
             statdelay = 10;
         }
@@ -505,35 +505,35 @@ void show_magic_status( Uint16 statindex )
                 i++;
             }
 
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chrname[character] );
-            else sprintf( text, "=%s is unenchanted=", chrname[character] );
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chr[character].name );
+            else sprintf( text, "=%s is unenchanted=", chr[character].name );
 
             debug_message( text );
 
             // Enchantment status
-            if ( chrcanseeinvisible[character] )  sprintf( tmpa, "Yes" );
+            if ( chr[character].canseeinvisible )  sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
 
-            if ( chrcanseekurse[character] )      sprintf( tmpb, "Yes" );
+            if ( chr[character].canseekurse )      sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
 
             sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
             debug_message( text );
 
-            if ( chrcanchannel[character] )     sprintf( tmpa, "Yes" );
+            if ( chr[character].canchannel )     sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
 
-            if ( chrwaterwalk[character] )        sprintf( tmpb, "Yes" );
+            if ( chr[character].waterwalk )        sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
 
             sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
             debug_message( text );
 
-            if ( chrflyheight[character] > 0 )    sprintf( tmpa, "Yes" );
+            if ( chr[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
 
-            if ( chrmissiletreatment[character] == MISREFLECT )       sprintf( tmpb, "Reflect" );
-            else if ( chrmissiletreatment[character] == MISREFLECT )  sprintf( tmpb, "Deflect" );
+            if ( chr[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+            else if ( chr[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
             else                           sprintf( tmpb, "None" );
 
             sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
@@ -575,8 +575,8 @@ void display_message( int message, Uint16 character )
     char szTmp[256];
     char cTmp, lTmp;
 
-    Uint16 target = chraitarget[character];
-    Uint16 owner = chraiowner[character];
+    Uint16 target = chr[character].aitarget;
+    Uint16 owner = chr[character].aiowner;
 
     if ( message < msgtotal )
     {
@@ -599,16 +599,16 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'n' )  // Name
                 {
-                    if ( chrnameknown[character] )
-                        sprintf( szTmp, "%s", chrname[character] );
+                    if ( chr[character].nameknown )
+                        sprintf( szTmp, "%s", chr[character].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[character]][0];
+                        lTmp = capclassname[chr[character].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[character]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[character].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[character]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[character].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -616,21 +616,21 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'c' )  // Class name
                 {
-                    eread = capclassname[chrmodel[character]];
+                    eread = capclassname[chr[character].model];
                 }
 
                 if ( cTmp == 't' )  // Target name
                 {
-                    if ( chrnameknown[target] )
-                        sprintf( szTmp, "%s", chrname[target] );
+                    if ( chr[target].nameknown )
+                        sprintf( szTmp, "%s", chr[target].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[target]][0];
+                        lTmp = capclassname[chr[target].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[target]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[target].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[target]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[target].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -638,16 +638,16 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'o' )  // Owner name
                 {
-                    if ( chrnameknown[owner] )
-                        sprintf( szTmp, "%s", chrname[owner] );
+                    if ( chr[owner].nameknown )
+                        sprintf( szTmp, "%s", chr[owner].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[owner]][0];
+                        lTmp = capclassname[chr[owner].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[owner]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[owner].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[owner]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[owner].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -655,12 +655,12 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 's' )  // Target class name
                 {
-                    eread = capclassname[chrmodel[target]];
+                    eread = capclassname[chr[target].model];
                 }
 
                 if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
                 {
-                    eread = capskinname[chrmodel[target]][cTmp-'0'];
+                    eread = capskinname[chr[target].model][cTmp-'0'];
                 }
 
                 if ( cTmp == 'd' )  // tmpdistance value
@@ -695,15 +695,15 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'a' )  // Character's ammo
                 {
-                    if ( chrammoknown[character] )
-                        sprintf( szTmp, "%d", chrammo[character] );
+                    if ( chr[character].ammoknown )
+                        sprintf( szTmp, "%d", chr[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
 
                 if ( cTmp == 'k' )  // Kurse state
                 {
-                    if ( chriskursed[character] )
+                    if ( chr[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
@@ -711,13 +711,13 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'p' )  // Character's possessive
                 {
-                    if ( chrgender[character] == GENFEMALE )
+                    if ( chr[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chrgender[character] == GENMALE )
+                        if ( chr[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -730,13 +730,13 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'm' )  // Character's gender
                 {
-                    if ( chrgender[character] == GENFEMALE )
+                    if ( chr[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( chrgender[character] == GENMALE )
+                        if ( chr[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -749,13 +749,13 @@ void display_message( int message, Uint16 character )
 
                 if ( cTmp == 'g' )  // Target's possessive
                 {
-                    if ( chrgender[target] == GENFEMALE )
+                    if ( chr[target].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chrgender[target] == GENMALE )
+                        if ( chr[target].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -1156,8 +1156,8 @@ void append_end_text( int message, Uint16 character )
     char cTmp, lTmp;
     Uint16 target, owner;
 
-    target = chraitarget[character];
-    owner = chraiowner[character];
+    target = chr[character].aitarget;
+    owner = chr[character].aiowner;
 
     if ( message < msgtotal )
     {
@@ -1177,16 +1177,16 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'n' )  // Name
                 {
-                    if ( chrnameknown[character] )
-                        sprintf( szTmp, "%s", chrname[character] );
+                    if ( chr[character].nameknown )
+                        sprintf( szTmp, "%s", chr[character].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[character]][0];
+                        lTmp = capclassname[chr[character].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[character]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[character].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[character]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[character].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -1194,21 +1194,21 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'c' )  // Class name
                 {
-                    eread = capclassname[chrmodel[character]];
+                    eread = capclassname[chr[character].model];
                 }
 
                 if ( cTmp == 't' )  // Target name
                 {
-                    if ( chrnameknown[target] )
-                        sprintf( szTmp, "%s", chrname[target] );
+                    if ( chr[target].nameknown )
+                        sprintf( szTmp, "%s", chr[target].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[target]][0];
+                        lTmp = capclassname[chr[target].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[target]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[target].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[target]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[target].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -1216,16 +1216,16 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'o' )  // Owner name
                 {
-                    if ( chrnameknown[owner] )
-                        sprintf( szTmp, "%s", chrname[owner] );
+                    if ( chr[owner].nameknown )
+                        sprintf( szTmp, "%s", chr[owner].name );
                     else
                     {
-                        lTmp = capclassname[chrmodel[owner]][0];
+                        lTmp = capclassname[chr[owner].model][0];
 
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chrmodel[owner]] );
+                            sprintf( szTmp, "an %s", capclassname[chr[owner].model] );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chrmodel[owner]] );
+                            sprintf( szTmp, "a %s", capclassname[chr[owner].model] );
                     }
 
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
@@ -1233,12 +1233,12 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 's' )  // Target class name
                 {
-                    eread = capclassname[chrmodel[target]];
+                    eread = capclassname[chr[target].model];
                 }
 
                 if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
                 {
-                    eread = capskinname[chrmodel[target]][cTmp-'0'];
+                    eread = capskinname[chr[target].model][cTmp-'0'];
                 }
 
                 if ( cTmp == 'd' )  // tmpdistance value
@@ -1273,15 +1273,15 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'a' )  // Character's ammo
                 {
-                    if ( chrammoknown[character] )
-                        sprintf( szTmp, "%d", chrammo[character] );
+                    if ( chr[character].ammoknown )
+                        sprintf( szTmp, "%d", chr[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
 
                 if ( cTmp == 'k' )  // Kurse state
                 {
-                    if ( chriskursed[character] )
+                    if ( chr[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
@@ -1289,13 +1289,13 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'p' )  // Character's possessive
                 {
-                    if ( chrgender[character] == GENFEMALE )
+                    if ( chr[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chrgender[character] == GENMALE )
+                        if ( chr[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -1308,13 +1308,13 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'm' )  // Character's gender
                 {
-                    if ( chrgender[character] == GENFEMALE )
+                    if ( chr[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( chrgender[character] == GENMALE )
+                        if ( chr[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -1327,13 +1327,13 @@ void append_end_text( int message, Uint16 character )
 
                 if ( cTmp == 'g' )  // Target's possessive
                 {
-                    if ( chrgender[target] == GENFEMALE )
+                    if ( chr[target].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chrgender[target] == GENMALE )
+                        if ( chr[target].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -2048,7 +2048,7 @@ int load_one_object( int skin, char* tmploadname )
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
     // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
-    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) ] = '\0';
+    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) - 1] = '\0';
 
     // Append a slash to the tmploadname
     sprintf( newloadname, "%s", tmploadname );
@@ -2281,11 +2281,11 @@ void font_release()
         ix = i % NUMFONTX;
         iy = i / NUMFONTX;
 
-        fontrect[cnt].x = ix * dx;
-        fontrect[cnt].w = dx;
-        fontrect[cnt].y = iy * dy;
-        fontrect[cnt].h = dy;
-        fontxspacing[cnt] = 0;
+        fontrect[i].x = ix * dx;
+        fontrect[i].w = dx;
+        fontrect[i].y = iy * dy;
+        fontrect[i].h = dy;
+        fontxspacing[i] = 0;
     }
     fontyspacing = dy;
 
@@ -2870,24 +2870,24 @@ void render_shadow( int character )
     Sint8 hide;
     int i;
 
-    hide = caphidestate[chrmodel[character]];
+    hide = caphidestate[chr[character].model];
 
-    if ( hide == NOHIDE || hide != chraistate[character] )
+    if ( hide == NOHIDE || hide != chr[character].aistate )
     {
         // Original points
-        level = chrlevel[character];
+        level = chr[character].level;
         level += SHADOWRAISE;
-        height = chrmatrix[character].CNV( 3, 2 ) - level;
+        height = chr[character].matrix.CNV( 3, 2 ) - level;
 
         if ( height < 0 ) height = 0;
 
-        size_umbra    = 1.5f * ( chrbumpsize[character] - height / 30.0f );
-        size_penumbra = 1.5f * ( chrbumpsize[character] + height / 30.0f );
+        size_umbra    = 1.5f * ( chr[character].bumpsize - height / 30.0f );
+        size_penumbra = 1.5f * ( chr[character].bumpsize + height / 30.0f );
 
         if ( height > 0 )
         {
-            float factor_penumbra = ( 1.5f ) * ( ( chrbumpsize[character] ) / size_penumbra );
-            float factor_umbra = ( 1.5f ) * ( ( chrbumpsize[character] ) / size_umbra );
+            float factor_penumbra = ( 1.5f ) * ( ( chr[character].bumpsize ) / size_penumbra );
+            float factor_umbra = ( 1.5f ) * ( ( chr[character].bumpsize ) / size_umbra );
             alpha_umbra = 0.3f / factor_umbra / factor_umbra / 1.5f;
             alpha_penumbra = 0.3f / factor_penumbra / factor_penumbra / 1.5f;
         }
@@ -2897,9 +2897,9 @@ void render_shadow( int character )
             alpha_penumbra = 0.3f;
         };
 
-        x = chrmatrix[character].CNV( 3, 0 );
+        x = chr[character].matrix.CNV( 3, 0 );
 
-        y = chrmatrix[character].CNV( 3, 1 );
+        y = chr[character].matrix.CNV( 3, 1 );
 
         // Choose texture.
         GLTexture_Bind( txTexture + particletexture );
@@ -3006,30 +3006,30 @@ void render_bad_shadow( int character )
     Uint8 trans;
     int i;
 
-    hide = caphidestate[chrmodel[character]];
+    hide = caphidestate[chr[character].model];
 
-    if ( hide == NOHIDE || hide != chraistate[character] )
+    if ( hide == NOHIDE || hide != chr[character].aistate )
     {
         // Original points
-        level = chrlevel[character];
+        level = chr[character].level;
         level += SHADOWRAISE;
-        height = chrmatrix[character].CNV( 3, 2 ) - level;
+        height = chr[character].matrix.CNV( 3, 2 ) - level;
 
         if ( height > 255 )  return;
 
         if ( height < 0 ) height = 0;
 
-        size = chrshadowsize[character] - ( ( height * chrshadowsize[character] ) >> 8 );
+        size = chr[character].shadowsize - ( ( height * chr[character].shadowsize ) >> 8 );
 
         if ( size < 1 ) return;
 
-        ambi = chrlightlevel[character] >> 4;
+        ambi = chr[character].lightlevel >> 4;
         trans = ( ( 255 - height ) >> 1 ) + 64;
 
         glColor4f( ambi / 255.0f, ambi / 255.0f, ambi / 255.0f, trans / 255.0f );
 
-        x = chrmatrix[character].CNV( 3, 0 );
-        y = chrmatrix[character].CNV( 3, 1 );
+        x = chr[character].matrix.CNV( 3, 0 );
+        y = chr[character].matrix.CNV( 3, 1 );
         v[0].x = ( float ) x + size;
         v[0].y = ( float ) y - size;
         v[0].z = ( float ) level;
@@ -3086,15 +3086,15 @@ void light_characters()
     while ( cnt < numdolist )
     {
         tnc = dolist[cnt];
-        x = chrxpos[tnc];
-        y = chrypos[tnc];
+        x = chr[tnc].xpos;
+        y = chr[tnc].ypos;
         x = ( x & 127 ) >> 5;  // From 0 to 3
         y = ( y & 127 ) >> 5;  // From 0 to 3
         light = 0;
-        tl = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 0];
-        tr = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 1];
-        br = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 2];
-        bl = meshvrtl[meshvrtstart[chronwhichfan[tnc]] + 3];
+        tl = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 0];
+        tr = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 1];
+        br = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 2];
+        bl = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 3];
 
         // Interpolate lighting level using tile corners
         switch ( x )
@@ -3136,7 +3136,7 @@ void light_characters()
         }
 
         light = light >> 3;
-        chrlightlevel[tnc] = light;
+        chr[tnc].lightlevel = light;
 
         if ( !meshexploremode )
         {
@@ -3146,11 +3146,11 @@ void light_characters()
             br = ( br ) & 0x00f0;
             bl = bl >> 4;
             tl = tl | tr | br | bl;
-            chrlightturnleftright[tnc] = ( lightdirectionlookup[tl] << 8 );
+            chr[tnc].lightturnleftright = ( lightdirectionlookup[tl] << 8 );
         }
         else
         {
-            chrlightturnleftright[tnc] = 0;
+            chr[tnc].lightturnleftright = 0;
         }
 
         cnt++;
@@ -3174,7 +3174,7 @@ void light_particles()
 
             if ( character != MAXCHR )
             {
-                prtlight[cnt] = chrlightlevel[character];
+                prtlight[cnt] = chr[character].lightlevel;
             }
             else
             {
@@ -3407,9 +3407,9 @@ void draw_scene_sadreflection()
         {
             tnc = dolist[cnt];
 
-            if ( ( meshfx[chronwhichfan[tnc]]&MESHFXDRAWREF ) )
+            if ( ( meshfx[chr[tnc].onwhichfan]&MESHFXDRAWREF ) )
             {
-                render_refmad( tnc, (chralpha[tnc] * chrlight[tnc]) >> 8 );
+                render_refmad( tnc, (chr[tnc].alpha * chr[tnc].light) >> 8 );
             }
         }
 
@@ -3444,9 +3444,9 @@ void draw_scene_sadreflection()
             {
                 tnc = dolist[cnt];
 
-                if ( chrattachedto[tnc] == MAXCHR )
+                if ( chr[tnc].attachedto == MAXCHR )
                 {
-                    if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
+                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
                     {
                         render_bad_shadow( tnc );
                     }
@@ -3467,9 +3467,9 @@ void draw_scene_sadreflection()
             {
                 tnc = dolist[cnt];
 
-                if ( chrattachedto[tnc] == MAXCHR )
+                if ( chr[tnc].attachedto == MAXCHR )
                 {
-                    if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
+                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
                     {
                         render_shadow( tnc );
                     }
@@ -3490,7 +3490,7 @@ void draw_scene_sadreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chralpha[tnc] == 255 && chrlight[tnc] == 255 )
+        if ( chr[tnc].alpha == 255 && chr[tnc].light == 255 )
             render_mad( tnc, 255 );
     }
 
@@ -3505,11 +3505,11 @@ void draw_scene_sadreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chralpha[tnc] != 255 && chrlight[tnc] == 255 )
+        if ( chr[tnc].alpha != 255 && chr[tnc].light == 255 )
         {
-            trans = chralpha[tnc];
+            trans = chr[tnc].alpha;
 
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3525,25 +3525,25 @@ void draw_scene_sadreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chrlight[tnc] != 255 )
+        if ( chr[tnc].light != 255 )
         {
-            trans = chrlight[tnc];
+            trans = chr[tnc].light;
 
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
 
         // Do phong highlights
-        if ( phongon && chralpha[tnc] == 255 && chrlight[tnc] == 255 && !chrenviro[tnc] && chrsheen[tnc] > 0 )
+        if ( phongon && chr[tnc].alpha == 255 && chr[tnc].light == 255 && !chr[tnc].enviro && chr[tnc].sheen > 0 )
         {
             Uint16 texturesave;
-            chrenviro[tnc] = btrue;
-            texturesave = chrtexture[tnc];
-            chrtexture[tnc] = 7;  // The phong map texture...
-            render_mad( tnc, chrsheen[tnc] << 4 );
-            chrtexture[tnc] = texturesave;
-            chrenviro[tnc] = bfalse;
+            chr[tnc].enviro = btrue;
+            texturesave = chr[tnc].texture;
+            chr[tnc].texture = 7;  // The phong map texture...
+            render_mad( tnc, chr[tnc].sheen << 4 );
+            chr[tnc].texture = texturesave;
+            chr[tnc].enviro = bfalse;
         }
     }
 
@@ -3605,8 +3605,8 @@ void draw_scene_zreflection()
         {
             tnc = dolist[cnt];
 
-            if ( ( meshfx[chronwhichfan[tnc]]&MESHFXDRAWREF ) )
-                render_refmad( tnc, (chralpha[tnc] * chrlight[tnc]) >> 8 );
+            if ( ( meshfx[chr[tnc].onwhichfan]&MESHFXDRAWREF ) )
+                render_refmad( tnc, (chr[tnc].alpha * chr[tnc].light) >> 8 );
         }
 
         // [claforte] I think this is wrong... I think we should choose some other depth func.
@@ -3651,9 +3651,9 @@ void draw_scene_zreflection()
             {
                 tnc = dolist[cnt];
 
-                if ( chrattachedto[tnc] == MAXCHR )
+                if ( chr[tnc].attachedto == MAXCHR )
                 {
-                    if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
+                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
                         render_bad_shadow( tnc );
                 }
             }
@@ -3672,9 +3672,9 @@ void draw_scene_zreflection()
             {
                 tnc = dolist[cnt];
 
-                if ( chrattachedto[tnc] == MAXCHR )
+                if ( chr[tnc].attachedto == MAXCHR )
                 {
-                    if ( ( ( chrlight[tnc] == 255 && chralpha[tnc] == 255 ) || capforceshadow[chrmodel[tnc]] ) && chrshadowsize[tnc] != 0 )
+                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
                         render_shadow( tnc );
                 }
             }
@@ -3692,7 +3692,7 @@ void draw_scene_zreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chralpha[tnc] == 255 && chrlight[tnc] == 255 )
+        if ( chr[tnc].alpha == 255 && chr[tnc].light == 255 )
             render_mad( tnc, 255 );
     }
 
@@ -3707,11 +3707,11 @@ void draw_scene_zreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chralpha[tnc] != 255 && chrlight[tnc] == 255 )
+        if ( chr[tnc].alpha != 255 && chr[tnc].light == 255 )
         {
-            trans = chralpha[tnc];
+            trans = chr[tnc].alpha;
 
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3728,25 +3728,25 @@ void draw_scene_zreflection()
     {
         tnc = dolist[cnt];
 
-        if ( chrlight[tnc] != 255 )
+        if ( chr[tnc].light != 255 )
         {
-            trans = chrlight[tnc];
+            trans = chr[tnc].light;
 
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chrislocalplayer[tnc] ) )  trans = SEEINVISIBLE;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
 
         // Do phong highlights
-        if ( phongon && chralpha[tnc] == 255 && chrlight[tnc] == 255 && !chrenviro[tnc] && chrsheen[tnc] > 0 )
+        if ( phongon && chr[tnc].alpha == 255 && chr[tnc].light == 255 && !chr[tnc].enviro && chr[tnc].sheen > 0 )
         {
             Uint16 texturesave;
-            chrenviro[tnc] = btrue;
-            texturesave = chrtexture[tnc];
-            chrtexture[tnc] = 7;  // The phong map texture...
-            render_mad( tnc, chrsheen[tnc] << 4 );
-            chrtexture[tnc] = texturesave;
-            chrenviro[tnc] = bfalse;
+            chr[tnc].enviro = btrue;
+            texturesave = chr[tnc].texture;
+            chr[tnc].texture = 7;  // The phong map texture...
+            render_mad( tnc, chr[tnc].sheen << 4 );
+            chr[tnc].texture = texturesave;
+            chr[tnc].enviro = bfalse;
         }
     }
 
@@ -4252,17 +4252,17 @@ int draw_status( Uint16 character, int x, int y )
     char *readtext;
 	STRING generictext;
 
-    int life = chrlife[character] >> 8;
-    int lifemax = chrlifemax[character] >> 8;
-    int mana = chrmana[character] >> 8;
-    int manamax = chrmanamax[character] >> 8;
+    int life = chr[character].life >> 8;
+    int lifemax = chr[character].lifemax >> 8;
+    int mana = chr[character].mana >> 8;
+    int manamax = chr[character].manamax >> 8;
     int cnt = lifemax;
 
     // Write the character's first name
-    if ( chrnameknown[character] )
-        readtext = chrname[character];
+    if ( chr[character].nameknown )
+        readtext = chr[character].name;
     else
-        readtext = capclassname[chrmodel[character]];
+        readtext = capclassname[chr[character].model];
 
     for ( cnt = 0; cnt < 6; cnt++ )
     {
@@ -4281,55 +4281,55 @@ int draw_status( Uint16 character, int x, int y )
     draw_string( generictext, x + 8, y ); y += fontyspacing;
 
     // Write the character's money
-    sprintf( generictext, "$%4d", chrmoney[character] );
+    sprintf( generictext, "$%4d", chr[character].money );
     draw_string( generictext, x + 8, y ); y += fontyspacing + 8;
 
     // Draw the icons
-    draw_one_icon( madskintoicon[chrtexture[character]], x + 40, y, chrsparkle[character] );
-    item = chrholdingwhich[character][0];
+    draw_one_icon( madskintoicon[chr[character].texture], x + 40, y, chr[character].sparkle );
+    item = chr[character].holdingwhich[0];
 
     if ( item != MAXCHR )
     {
-        if ( chricon[item] )
+        if ( chr[item].icon )
         {
-            draw_one_icon( madskintoicon[chrtexture[item]], x + 8, y, chrsparkle[item] );
+            draw_one_icon( madskintoicon[chr[item].texture], x + 8, y, chr[item].sparkle );
 
-            if ( chrammomax[item] != 0 && chrammoknown[item] )
+            if ( chr[item].ammomax != 0 && chr[item].ammoknown )
             {
-                if ( !capisstackable[chrmodel[item]] || chrammo[item] > 1 )
+                if ( !capisstackable[chr[item].model] || chr[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", chrammo[item] );
+                    sprintf( generictext, "%2d", chr[item].ammo );
                     draw_string( generictext, x + 8, y - 8 );
                 }
             }
         }
         else
-            draw_one_icon( bookicon + ( chrmoney[item]&3 ), x + 8, y, chrsparkle[item] );
+            draw_one_icon( bookicon + ( chr[item].money&3 ), x + 8, y, chr[item].sparkle );
     }
     else
         draw_one_icon( nullicon, x + 8, y, NOSPARKLE );
 
-    item = chrholdingwhich[character][1];
+    item = chr[character].holdingwhich[1];
 
     if ( item != MAXCHR )
     {
-        if ( chricon[item] )
+        if ( chr[item].icon )
         {
-            draw_one_icon( madskintoicon[chrtexture[item]], x + 72, y, chrsparkle[item] );
+            draw_one_icon( madskintoicon[chr[item].texture], x + 72, y, chr[item].sparkle );
 
-            if ( chrammomax[item] != 0 && chrammoknown[item] )
+            if ( chr[item].ammomax != 0 && chr[item].ammoknown )
             {
-                if ( !capisstackable[chrmodel[item]] || chrammo[item] > 1 )
+                if ( !capisstackable[chr[item].model] || chr[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", chrammo[item] );
+                    sprintf( generictext, "%2d", chr[item].ammo );
                     draw_string( generictext, x + 72, y - 8 );
                 }
             }
         }
         else
-            draw_one_icon( bookicon + ( chrmoney[item]&3 ), x + 72, y, chrsparkle[item] );
+            draw_one_icon( bookicon + ( chr[item].money&3 ), x + 72, y, chr[item].sparkle );
     }
     else
         draw_one_icon( nullicon, x + 72, y, NOSPARKLE );
@@ -4337,12 +4337,12 @@ int draw_status( Uint16 character, int x, int y )
     y += 32;
 
     // Draw the bars
-    if ( chralive[character] )
-        y = draw_one_bar( chrlifecolor[character], x, y, life, lifemax );
+    if ( chr[character].alive )
+        y = draw_one_bar( chr[character].lifecolor, x, y, life, lifemax );
     else
         y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
 
-    y = draw_one_bar( chrmanacolor[character], x, y, mana, manamax );
+    y = draw_one_bar( chr[character].manacolor, x, y, mana, manamax );
     return y;
 }
 
@@ -4378,7 +4378,7 @@ void draw_text()
             while ( numblip < MAXBLIP && iTmp < MAXCHR)
             {
                 //Show only hated team
-                if (chron[iTmp] && teamhatesteam[chrteam[local_senseenemies]][chrteam[iTmp]])
+                if (chr[iTmp].on && teamhatesteam[chr[local_senseenemies].team][chr[iTmp].team])
                 {
                     //Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == Make_IDSZ("NONE")
@@ -4386,13 +4386,13 @@ void draw_text()
                             || capidsz[iTmp][IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
-                        if ( chrxpos[iTmp] < meshedgex && chrypos[iTmp] < meshedgey )
+                        if ( chr[iTmp].xpos < meshedgex && chr[iTmp].ypos < meshedgey )
                         {
                             //Valid colors only
                             if ( valuetmpargument < NUMBLIP )
                             {
-                                blipx[numblip] = chrxpos[iTmp] * MAPSIZE / meshedgex;
-                                blipy[numblip] = chrypos[iTmp] * MAPSIZE / meshedgey;
+                                blipx[numblip] = chr[iTmp].xpos * MAPSIZE / meshedgex;
+                                blipy[numblip] = chr[iTmp].ypos * MAPSIZE / meshedgey;
                                 blipc[numblip] = 0; //Red blips
                                 numblip++;
                             }
@@ -4417,8 +4417,8 @@ void draw_text()
                 {
                     tnc = plaindex[cnt];
 
-                    if ( chralive[tnc] )
-                        draw_blip( 0.75f, 0, chrxpos[tnc]*MAPSIZE / meshedgex, ( chrypos[tnc]*MAPSIZE / meshedgey ) + scry - MAPSIZE );
+                    if ( chr[tnc].alive )
+                        draw_blip( 0.75f, 0, chr[tnc].xpos*MAPSIZE / meshedgex, ( chr[tnc].ypos*MAPSIZE / meshedgey ) + scry - MAPSIZE );
                 }
             }
         }
@@ -4535,20 +4535,20 @@ void draw_text()
         draw_string( text, 0, y );  y += fontyspacing;
         tnc = plaindex[0];
         sprintf( text, "  PLA0DEF %d %d %d %d %d %d %d %d",
-                 chrdamagemodifier[tnc][0]&3,
-                 chrdamagemodifier[tnc][1]&3,
-                 chrdamagemodifier[tnc][2]&3,
-                 chrdamagemodifier[tnc][3]&3,
-                 chrdamagemodifier[tnc][4]&3,
-                 chrdamagemodifier[tnc][5]&3,
-                 chrdamagemodifier[tnc][6]&3,
-                 chrdamagemodifier[tnc][7]&3 );
+                 chr[tnc].damagemodifier[0]&3,
+                 chr[tnc].damagemodifier[1]&3,
+                 chr[tnc].damagemodifier[2]&3,
+                 chr[tnc].damagemodifier[3]&3,
+                 chr[tnc].damagemodifier[4]&3,
+                 chr[tnc].damagemodifier[5]&3,
+                 chr[tnc].damagemodifier[6]&3,
+                 chr[tnc].damagemodifier[7]&3 );
         draw_string( text, 0, y );  y += fontyspacing;
         tnc = plaindex[0];
-        sprintf( text, "  PLA0 %5.1f %5.1f", chrxpos[tnc] / 128.0f, chrypos[tnc] / 128.0f );
+        sprintf( text, "  PLA0 %5.1f %5.1f", chr[tnc].xpos / 128.0f, chr[tnc].ypos / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
         tnc = plaindex[1];
-        sprintf( text, "  PLA1 %5.1f %5.1f", chrxpos[tnc] / 128.0f, chrypos[tnc] / 128.0f );
+        sprintf( text, "  PLA1 %5.1f %5.1f", chr[tnc].xpos / 128.0f, chr[tnc].ypos / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
     }
 
@@ -5212,10 +5212,10 @@ void check_stats()
     // !!!BAD!!!  LIFE CHEAT
     if ( SDLKEYDOWN( SDLK_z ) && SDLKEYDOWN( SDLK_1 ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chrlife[plaindex[0]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[0]], PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chrlife[plaindex[1]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[1]], PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chrlife[plaindex[2]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[2]], PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chrlife[plaindex[3]] += 128; chrlife[plaindex[0]] = MIN(chrlife[plaindex[3]], PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chr[plaindex[0]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[0]].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chr[plaindex[1]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[1]].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chr[plaindex[2]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[2]].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chr[plaindex[3]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[3]].life, PERFECTBIG); stat_check_delay = 500; }
     }
 
     // Display armor stats?

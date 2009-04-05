@@ -48,12 +48,12 @@ bool_t link_export_all()
         // Is it alive?
         character = plaindex[cnt];
 
-        if ( !chron[character] || !chralive[character] ) continue;
+        if ( !chr[character].on || !chr[character].alive ) continue;
 
         is_local = ( 0 != pladevice[cnt] );
 
         // copy the values to the import values
-        strcpy( loadplayerdir[tnc], chrname[character] );
+        strcpy( loadplayerdir[tnc], chr[character].name );
 
         localcontrol[tnc] = INPUT_BITS_KEYBOARD | INPUT_BITS_MOUSE | INPUT_BITS_JOYA;
         localslot[tnc]    = tnc * 9;
@@ -61,11 +61,11 @@ bool_t link_export_all()
         // Copy the character to the import directory
         if ( is_local )
         {
-            sprintf( loadplayerdir[tnc], "players" SLASH_STR "%s", chrname[character] );
+            sprintf( loadplayerdir[tnc], "players" SLASH_STR "%s", chr[character].name );
         }
         else
         {
-            sprintf( loadplayerdir[tnc], "remote" SLASH_STR "%s", chrname[character] );
+            sprintf( loadplayerdir[tnc], "remote" SLASH_STR "%s", chr[character].name );
         }
 
         sprintf( destDir, "import" SLASH_STR "temp%04d.obj", localslot[tnc] );

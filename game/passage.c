@@ -79,15 +79,15 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
 
         while ( character < MAXCHR )
         {
-            if ( chron[character] && !chrinpack[character] )
+            if ( chr[character].on && !chr[character].inpack )
             {
-                if ( chrweight[character] > 20 && chrflyheight[character] == 0 && chrzpos[character] < ( chrlevel[character] + 20 ) && chrattachedto[character] == MAXCHR )
+                if ( chr[character].weight > 20 && chr[character].flyheight == 0 && chr[character].zpos < ( chr[character].level + 20 ) && chr[character].attachedto == MAXCHR )
                 {
-                    x = chrxpos[character];  x = x >> 7;
+                    x = chr[character].xpos;  x = x >> 7;
 
                     if ( x >= passtlx[passage] && x <= passbrx[passage] )
                     {
-                        y = chrypos[character];  y = y >> 7;
+                        y = chr[character].ypos;  y = y >> 7;
 
                         if ( y >= passtly[passage] && y <= passbry[passage] )
                         {
@@ -98,8 +98,8 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
                             if ( tile >= starttile && tile < endtile )
                             {
                                 // Remember where the hit occured...
-                                valuetmpx = chrxpos[character];
-                                valuetmpy = chrypos[character];
+                                valuetmpx = chr[character].xpos;
+                                valuetmpy = chr[character].ypos;
                                 useful = btrue;
                                 // Change the tile
                                 tile++;
@@ -251,17 +251,17 @@ Uint16 who_is_blocking_passage( int passage )
 
     while ( character < MAXCHR )
     {
-        if ( chron[character] )
+        if ( chr[character].on )
         {
-            bumpsize = chrbumpsize[character];
+            bumpsize = chr[character].bumpsize;
 
-            if ( ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && bumpsize != 0 )
+            if ( ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && bumpsize != 0 )
             {
-                if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
+                if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
                 {
-                    if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
+                    if ( chr[character].ypos > tly - bumpsize && chr[character].ypos < bry + bumpsize )
                     {
-                        if ( chralive[character] && !chrisitem[character] )
+                        if ( chr[character].alive && !chr[character].isitem )
                         {
                             // Found a live one
                             return character;
@@ -309,17 +309,17 @@ void check_passage_music()
 
             while ( character < MAXCHR )
             {
-                if ( chron[character] )
+                if ( chr[character].on )
                 {
-                    bumpsize = chrbumpsize[character];
+                    bumpsize = chr[character].bumpsize;
 
-                    if ( ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && bumpsize != 0 )
+                    if ( ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && bumpsize != 0 )
                     {
-                        if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
+                        if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
                         {
-                            if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
+                            if ( chr[character].ypos > tly - bumpsize && chr[character].ypos < bry + bumpsize )
                             {
-                                if ( chralive[character] && !chrisitem[character] && chrisplayer[character] )
+                                if ( chr[character].alive && !chr[character].isitem && chr[character].isplayer )
                                 {
                                     // Found a player, start music track
                                     play_music( passagemusic[passage], 0, -1 );
@@ -358,40 +358,40 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 
     while ( character < MAXCHR )
     {
-        if ( chron[character] )
+        if ( chr[character].on )
         {
-            bumpsize = chrbumpsize[character];
+            bumpsize = chr[character].bumpsize;
 
-            if ( ( !chrisitem[character] ) && bumpsize != 0 && chrinpack[character] == 0 )
+            if ( ( !chr[character].isitem ) && bumpsize != 0 && chr[character].inpack == 0 )
             {
-                if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
+                if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
                 {
-                    if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
+                    if ( chr[character].ypos > tly - bumpsize && chr[character].ypos < bry + bumpsize )
                     {
-                        if ( chralive[character] )
+                        if ( chr[character].alive )
                         {
                             // Found a live one...  Does it have a matching item?
 
                             // Check the pack
-                            sTmp = chrnextinpack[character];
+                            sTmp = chr[character].nextinpack;
 
                             while ( sTmp != MAXCHR )
                             {
-                                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == idsz || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == idsz )
+                                if ( capidsz[chr[sTmp].model][IDSZ_PARENT] == idsz || capidsz[chr[sTmp].model][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
                                     return character;
                                 }
 
-                                sTmp = chrnextinpack[sTmp];
+                                sTmp = chr[sTmp].nextinpack;
                             }
 
                             // Check left hand
-                            sTmp = chrholdingwhich[character][0];
+                            sTmp = chr[character].holdingwhich[0];
 
                             if ( sTmp != MAXCHR )
                             {
-                                sTmp = chrmodel[sTmp];
+                                sTmp = chr[sTmp].model;
 
                                 if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
@@ -401,11 +401,11 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
                             }
 
                             // Check right hand
-                            sTmp = chrholdingwhich[character][1];
+                            sTmp = chr[character].holdingwhich[1];
 
                             if ( sTmp != MAXCHR )
                             {
-                                sTmp = chrmodel[sTmp];
+                                sTmp = chr[sTmp].model;
 
                                 if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
@@ -450,15 +450,15 @@ int close_passage( int passage )
 
         while ( character < MAXCHR )
         {
-            bumpsize = chrbumpsize[character];
+            bumpsize = chr[character].bumpsize;
 
-            if ( chron[character] && ( !chrinpack[character] ) && chrattachedto[character] == MAXCHR && chrbumpsize[character] != 0 )
+            if ( chr[character].on && ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && chr[character].bumpsize != 0 )
             {
-                if ( chrxpos[character] > tlx - bumpsize && chrxpos[character] < brx + bumpsize )
+                if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
                 {
-                    if ( chrypos[character] > tly - bumpsize && chrypos[character] < bry + bumpsize )
+                    if ( chr[character].ypos > tly - bumpsize && chr[character].ypos < bry + bumpsize )
                     {
-                        if ( !chrcanbecrushed[character] )
+                        if ( !chr[character].canbecrushed )
                         {
                             return bfalse;
                         }
@@ -480,7 +480,7 @@ int close_passage( int passage )
         while ( cnt < numcrushed )
         {
             character = crushedcharacters[cnt];
-            chralert[character] |= ALERTIFCRUSHED;
+            chr[character].alert |= ALERTIFCRUSHED;
             cnt++;
         }
     }

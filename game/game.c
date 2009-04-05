@@ -162,12 +162,12 @@ void export_one_character( int character, int owner, int number, bool_t is_local
     // Don't export enchants
     disenchant_character( character );
 
-    profile = chrmodel[character];
+    profile = chr[character].model;
 
     if ( ( capcancarrytonextmodule[profile] || !capisitem[profile] ) && exportvalid )
     {
         // TWINK_BO.OBJ
-        sprintf(todirname, "%s", get_file_path(chrname[owner]) );
+        sprintf(todirname, "%s", get_file_path(chr[owner].name) );
 
         // Is it a character or an item?
         if ( owner != character )
@@ -315,7 +315,7 @@ void export_all_players( bool_t require_local )
         // Is it alive?
         character = plaindex[cnt];
 
-        if ( !chron[character] || !chralive[character] ) continue;
+        if ( !chr[character].on || !chr[character].alive ) continue;
 
         // Export the character
         number = 0;
@@ -323,28 +323,28 @@ void export_all_players( bool_t require_local )
 
         // Export the left hand item
         number = 0;
-        item = chrholdingwhich[character][number];
+        item = chr[character].holdingwhich[number];
 
-        if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number, is_local );
+        if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the right hand item
         number = 1;
-        item = chrholdingwhich[character][number];
+        item = chr[character].holdingwhich[number];
 
-        if ( item != MAXCHR && chrisitem[item] )  export_one_character( item, character, number, is_local );
+        if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
         number = 2;
-        item = chrnextinpack[character];
+        item = chr[character].nextinpack;
 
         while ( item != MAXCHR )
         {
-            if ( chrisitem[item] )
+            if ( chr[item].isitem )
             {
                 export_one_character( item, character, number++, is_local );
             }
 
-            item = chrnextinpack[item];
+            item = chr[item].nextinpack;
         }
     }
 
@@ -1358,7 +1358,7 @@ void add_stat( Uint16 character )
     if ( numstat < MAXSTAT )
     {
         statlist[numstat] = character;
-        chrstaton[character] = btrue;
+        chr[character].staton = btrue;
         numstat++;
     }
 }
@@ -1414,14 +1414,14 @@ void sort_stat()
 void play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
-    if ( madactionvalid[chrmodel[character]][action] )
+    if ( madactionvalid[chr[character].model][action] )
     {
-        chrnextaction[character] = ACTIONDA;
-        chraction[character] = action;
-        chrlip[character] = 0;
-        chrlastframe[character] = chrframe[character];
-        chrframe[character] = madactionstart[chrmodel[character]][chraction[character]];
-        chractionready[character] = actionready;
+        chr[character].nextaction = ACTIONDA;
+        chr[character].action = action;
+        chr[character].lip = 0;
+        chr[character].lastframe = chr[character].frame;
+        chr[character].frame = madactionstart[chr[character].model][chr[character].action];
+        chr[character].actionready = actionready;
     }
 }
 
@@ -1430,12 +1430,12 @@ void set_frame( int character, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
     //     rotate Tank turrets
-    chrnextaction[character] = ACTIONDA;
-    chraction[character] = ACTIONDA;
-    chrlip[character] = ( lip << 6 );
-    chrlastframe[character] = madactionstart[chrmodel[character]][ACTIONDA] + frame;
-    chrframe[character] = madactionstart[chrmodel[character]][ACTIONDA] + frame + 1;
-    chractionready[character] = btrue;
+    chr[character].nextaction = ACTIONDA;
+    chr[character].action = ACTIONDA;
+    chr[character].lip = ( lip << 6 );
+    chr[character].lastframe = madactionstart[chr[character].model][ACTIONDA] + frame;
+    chr[character].frame = madactionstart[chr[character].model][ACTIONDA] + frame + 1;
+    chr[character].actionready = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1697,24 +1697,24 @@ void update_game()
     {
         if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
         {
-            if ( !chralive[plaindex[cnt]] )
+            if ( !chr[plaindex[cnt]].alive )
             {
                 numdead++;
 
                 if ( alllocalpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && revivetimer == 0 )
                 {
                     respawn_character( plaindex[cnt] );
-                    chrexperience[cnt] *= EXPKEEP;  // Apply xp Penality
+                    chr[cnt].experience *= EXPKEEP;  // Apply xp Penality
                 }
             }
             else
             {
-                if ( chrcanseeinvisible[plaindex[cnt]] )
+                if ( chr[plaindex[cnt]].canseeinvisible )
                 {
                     local_seeinvisible = btrue;
                 }
 
-                if ( chrcanseekurse[plaindex[cnt]] )
+                if ( chr[plaindex[cnt]].canseekurse )
                 {
                     local_seekurse = btrue;
                 }

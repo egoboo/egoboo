@@ -151,8 +151,8 @@ void free_one_particle( int particle )
 
         if ( child != MAXCHR )
         {
-            chraistate[child] = prtspawncharacterstate[particle];
-            chraiowner[child] = prtchr[particle];
+            chr[child].aistate = prtspawncharacterstate[particle];
+            chr[child].aiowner = prtchr[particle];
         }
     }
 
@@ -287,13 +287,13 @@ Uint16 spawn_one_particle( float x, float y, float z,
                 // Correct facing for dexterity...
                 offsetfacing = 0;
 
-                if ( chrdexterity[characterorigin] < PERFECTSTAT )
+                if ( chr[characterorigin].dexterity < PERFECTSTAT )
                 {
                     // Correct facing for randomness
                     offsetfacing = RANDIE;
                     offsetfacing = offsetfacing & pipfacingrand[pip];
                     offsetfacing -= ( pipfacingrand[pip] >> 1 );
-                    offsetfacing = ( offsetfacing * ( PERFECTSTAT - chrdexterity[characterorigin] ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
+                    offsetfacing = ( offsetfacing * ( PERFECTSTAT - chr[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
                 }
 
                 if ( prttarget[cnt] != MAXCHR && pipzaimspd[pip] != 0 )
@@ -301,13 +301,13 @@ Uint16 spawn_one_particle( float x, float y, float z,
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
                     {
-                        xvel = chrxpos[prttarget[cnt]] - x;
-                        yvel = chrypos[prttarget[cnt]] - y;
+                        xvel = chr[prttarget[cnt]].xpos - x;
+                        yvel = chr[prttarget[cnt]].ypos - y;
                         tvel = SQRT( xvel * xvel + yvel * yvel ) / velocity;  // This is the number of steps...
 
                         if ( tvel > 0 )
                         {
-                            zvel = ( chrzpos[prttarget[cnt]] + ( chrbumpsize[prttarget[cnt]] >> 1 ) - z ) / tvel;  // This is the zvel alteration
+                            zvel = ( chr[prttarget[cnt]].zpos + ( chr[prttarget[cnt]].bumpsize >> 1 ) - z ) / tvel;  // This is the zvel alteration
 
                             if ( zvel < -( pipzaimspd[pip] >> 1 ) ) zvel = -( pipzaimspd[pip] >> 1 );
 
@@ -327,8 +327,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
             // Start on top of target
             if ( prttarget[cnt] != MAXCHR && pipstartontarget[pip] )
             {
-                x = chrxpos[prttarget[cnt]];
-                y = chrypos[prttarget[cnt]];
+                x = chr[prttarget[cnt]].xpos;
+                y = chr[prttarget[cnt]].ypos;
             }
         }
         else
@@ -472,7 +472,7 @@ void disaffirm_attached_particles( Uint16 character )
     }
 
     // Set the alert for disaffirmation ( wet torch )
-    chralert[character] |= ALERTIFDISAFFIRMED;
+    chr[character].alert |= ALERTIFDISAFFIRMED;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -506,9 +506,9 @@ void reaffirm_attached_particles( Uint16 character )
 
     numberattached = number_of_attached_particles( character );
 
-    while ( numberattached < capattachedprtamount[chrmodel[character]] )
+    while ( numberattached < capattachedprtamount[chr[character].model] )
     {
-        particle = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], 0, chrmodel[character], capattachedprttype[chrmodel[character]], character, SPAWNLAST + numberattached, chrteam[character], character, numberattached, MAXCHR );
+        particle = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, 0, chr[character].model, capattachedprttype[chr[character].model], character, SPAWNLAST + numberattached, chr[character].team, character, numberattached, MAXCHR );
 
         if ( particle != maxparticles )
         {
@@ -519,7 +519,7 @@ void reaffirm_attached_particles( Uint16 character )
     }
 
     // Set the alert for reaffirmation ( for exploding barrels with fire )
-    chralert[character] = chralert[character] | ALERTIFREAFFIRMED;
+    chr[character].alert = chr[character].alert | ALERTIFREAFFIRMED;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -675,7 +675,7 @@ void move_particles( void )
             // Do homing
             if ( piphoming[pip] && prttarget[cnt] != MAXCHR )
             {
-                if ( !chralive[prttarget[cnt]] )
+                if ( !chr[prttarget[cnt]].alive )
                 {
                     prttime[cnt] = 1;
                 }
@@ -683,16 +683,16 @@ void move_particles( void )
                 {
                     if ( prtattachedtocharacter[cnt] == MAXCHR )
                     {
-                        prtxvel[cnt] = ( prtxvel[cnt] + ( ( chrxpos[prttarget[cnt]] - prtxpos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
-                        prtyvel[cnt] = ( prtyvel[cnt] + ( ( chrypos[prttarget[cnt]] - prtypos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
-                        prtzvel[cnt] = ( prtzvel[cnt] + ( ( chrzpos[prttarget[cnt]] + ( chrbumpheight[prttarget[cnt]] >> 1 ) - prtzpos[cnt] ) * piphomingaccel[pip] ) );
+                        prtxvel[cnt] = ( prtxvel[cnt] + ( ( chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
+                        prtyvel[cnt] = ( prtyvel[cnt] + ( ( chr[prttarget[cnt]].ypos - prtypos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
+                        prtzvel[cnt] = ( prtzvel[cnt] + ( ( chr[prttarget[cnt]].zpos + ( chr[prttarget[cnt]].bumpheight >> 1 ) - prtzpos[cnt] ) * piphomingaccel[pip] ) );
 
                     }
 
                     if ( piprotatetoface[pip] )
                     {
                         // Turn to face target
-                        facing = ATAN2( chrypos[prttarget[cnt]] - prtypos[cnt], chrxpos[prttarget[cnt]] - prtxpos[cnt] ) * 65535 / ( TWO_PI );
+                        facing = ATAN2( chr[prttarget[cnt]].ypos - prtypos[cnt], chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * 65535 / ( TWO_PI );
                         facing += 32768;
                         prtfacing[cnt] = facing;
                     }
@@ -803,7 +803,7 @@ void attach_particles()
 
             // Correct facing so swords knock characters in the right direction...
             if ( pipdamfx[prtpip[cnt]]&DAMFXTURN )
-                prtfacing[cnt] = chrturnleftright[prtattachedtocharacter[cnt]];
+                prtfacing[cnt] = chr[prtattachedtocharacter[cnt]].turnleftright;
         }
 
         cnt++;
@@ -917,12 +917,12 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     if ( amount != 0 || pipspawnenchant[pip] )
     {
         // Only damage if hitting from proper direction
-        model = chrmodel[character];
+        model = chr[character].model;
         vertices = madvertices[model];
         direction = ( ATAN2( prtyvel[particle], prtxvel[particle] ) + PI ) * 65535 / ( TWO_PI );
-        direction = chrturnleftright[character] - direction + 32768;
+        direction = chr[character].turnleftright - direction + 32768;
 
-        if ( madframefx[chrframe[character]]&MADFXINVICTUS )
+        if ( madframefx[chr[character].frame]&MADFXINVICTUS )
         {
             // I Frame
             if ( pipdamfx[pip]&DAMFXBLOC )
@@ -955,7 +955,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
             }
 
             // Spawn particles
-            if ( amount != 0 && !capresistbumpspawn[chrmodel[character]] && !chrinvictus[character] && vertices != 0 && ( chrdamagemodifier[character][prtdamagetype[particle]]&DAMAGESHIFT ) < 3 )
+            if ( amount != 0 && !capresistbumpspawn[chr[character].model] && !chr[character].invictus && vertices != 0 && ( chr[character].damagemodifier[prtdamagetype[particle]]&DAMAGESHIFT ) < 3 )
             {
                 if ( amount == 1 )
                 {
@@ -963,16 +963,16 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     // Find best vertex to attach to
                     bestvertex = 0;
                     bestdistance = 9999999;
-                    z = -chrzpos[character] + prtzpos[particle] + RAISE;
-                    facing = prtfacing[particle] - chrturnleftright[character] - 16384;
+                    z = -chr[character].zpos + prtzpos[particle] + RAISE;
+                    facing = prtfacing[particle] - chr[character].turnleftright - 16384;
                     facing = facing >> 2;
                     fsin = turntosin[facing];
                     fcos = turntocos[facing];
                     y = 8192;
                     x = -y * fsin;
                     y = y * fcos;
-                    z = z << 10;/// chrscale[character];
-                    frame = madframestart[chrmodel[character]];
+                    z = z << 10;/// chr[character].scale;
+                    frame = madframestart[chr[character].model];
                     cnt = 0;
 
                     while ( cnt < vertices )
@@ -988,7 +988,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                         cnt++;
                     }
 
-                    spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], 0, prtmodel[particle], pipbumpspawnpip[pip],
+                    spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, 0, prtmodel[particle], pipbumpspawnpip[pip],
                                         character, bestvertex + 1, prtteam[particle], prtchr[particle], cnt, character );
                 }
                 else
@@ -998,7 +998,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
                     while ( cnt < amount )
                     {
-                        spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], 0, prtmodel[particle], pipbumpspawnpip[pip],
+                        spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, 0, prtmodel[particle], pipbumpspawnpip[pip],
                                             character, rand() % vertices, prtteam[particle], prtchr[particle], cnt, character );
                         cnt++;
                     }
@@ -1070,12 +1070,12 @@ void do_weather_spawn()
                 // Yes, but is the character valid?
                 cnt = plaindex[weatherplayer];
 
-                if ( chron[cnt] && !chrinpack[cnt] )
+                if ( chr[cnt].on && !chr[cnt].inpack )
                 {
                     // Yes, so spawn over that character
-                    x = chrxpos[cnt];
-                    y = chrypos[cnt];
-                    z = chrzpos[cnt];
+                    x = chr[cnt].xpos;
+                    y = chr[cnt].ypos;
+                    z = chr[cnt].zpos;
                     particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
 
                     if ( weatheroverwater && particle != maxparticles )

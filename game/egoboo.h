@@ -759,199 +759,203 @@ EXTERN Uint8 flattwist[256];             //
 // Character stuff
 EXTERN int                     numfreechr EQ( 0 );             // For allocation
 EXTERN Uint16           freechrlist[MAXCHR];        //
-EXTERN glMatrix                chrmatrix[MAXCHR];      // Character's matrix
-EXTERN char                    chrmatrixvalid[MAXCHR];     // Did we make one yet?
-EXTERN char                    chrname[MAXCHR][MAXCAPNAMESIZE];  // Character name
-EXTERN bool_t          chron[MAXCHR];              // Does it exist?
-EXTERN Uint8          chronold[MAXCHR];           // Network fix
-EXTERN Uint8          chralive[MAXCHR];           // Is it alive?
-EXTERN Uint8          chrwaskilled[MAXCHR];       // Fix for network
-EXTERN Uint8          chrinpack[MAXCHR];          // Is it in the inventory?
-EXTERN Uint8          chrwasinpack[MAXCHR];       // Temporary thing...
-EXTERN Uint16           chrnextinpack[MAXCHR];      // Link to the next item
-EXTERN Uint8          chrnuminpack[MAXCHR];       // How many
-EXTERN Uint8          chropenstuff[MAXCHR];       // Can it open chests/doors?
-EXTERN Uint8          chrlifecolor[MAXCHR];       // Bar color
-EXTERN Uint8          chrsparkle[MAXCHR];         // Sparkle color or 0 for off
-EXTERN Sint16            chrlife[MAXCHR];            // Basic character stats
-EXTERN Sint16            chrlifemax[MAXCHR];         //   All 8.8 fixed point
-EXTERN Uint16           chrlifeheal[MAXCHR];        //
-EXTERN Uint8          chrmanacolor[MAXCHR];       // Bar color
-EXTERN Uint8          chrammomax[MAXCHR];         // Ammo stuff
-EXTERN Uint16          chrammo[MAXCHR];            //
-EXTERN Uint8          chrgender[MAXCHR];          // Gender
-EXTERN Sint16            chrmana[MAXCHR];            // Mana stuff
-EXTERN Sint16            chrmanamax[MAXCHR];         //
-EXTERN Sint16            chrmanaflow[MAXCHR];        //
-EXTERN Sint16            chrmanareturn[MAXCHR];      //
-EXTERN Sint16            chrstrength[MAXCHR];        // Strength
-EXTERN Sint16            chrwisdom[MAXCHR];          // Wisdom
-EXTERN Sint16            chrintelligence[MAXCHR];    // Intelligence
-EXTERN Sint16            chrdexterity[MAXCHR];       // Dexterity
-EXTERN Uint8             chraitype[MAXCHR];          // The AI script to run
-EXTERN bool_t                    chricon[MAXCHR];            // Show the icon?
-EXTERN bool_t                    chrcangrabmoney[MAXCHR];    // Picks up coins?
-EXTERN bool_t                    chrisplayer[MAXCHR];        // btrue = player
-EXTERN bool_t                    chrislocalplayer[MAXCHR];   // btrue = local player
-EXTERN Uint16           chrlastitemused[MAXCHR];        // The last item the character used
-EXTERN Uint16           chraitarget[MAXCHR];        // Who the AI is after
-EXTERN Uint16           chraiowner[MAXCHR];         // The character's owner
-EXTERN Uint16           chraichild[MAXCHR];         // The character's child
-EXTERN int                     chraistate[MAXCHR];         // Short term memory for AI
-EXTERN int                     chraicontent[MAXCHR];       // More short term memory
-EXTERN Uint16           chraitime[MAXCHR];          // AI Timer
-EXTERN Uint8          chraigoto[MAXCHR];          // Which waypoint
-EXTERN Uint8          chraigotoadd[MAXCHR];       // Where to stick next
-EXTERN float                   chraigotox[MAXCHR][MAXWAY]; // Waypoint
-EXTERN float                   chraigotoy[MAXCHR][MAXWAY]; // Waypoint
-EXTERN int                     chraix[MAXCHR][MAXSTOR];    // Temporary values...  SetXY
-EXTERN int                     chraiy[MAXCHR][MAXSTOR];    //
-EXTERN Uint8          chrstickybutt[MAXCHR];      // Rests on floor
-EXTERN Uint8          chrenviro[MAXCHR];          // Environment map?
-EXTERN float                   chroldx[MAXCHR];            // Character's last position
-EXTERN float                   chroldy[MAXCHR];            //
-EXTERN float                   chroldz[MAXCHR];            //
-EXTERN Uint8          chrinwater[MAXCHR];         //
-EXTERN Uint16           chroldturn[MAXCHR];         //
-EXTERN Uint32         chralert[MAXCHR];           // Alerts for AI script
-EXTERN Uint8          chrflyheight[MAXCHR];       // Height to stabilize at
-EXTERN Uint8          chrteam[MAXCHR];            // Character's team
-EXTERN Uint8          chrbaseteam[MAXCHR];        // Character's starting team
-EXTERN Uint8          chrstaton[MAXCHR];          // Display stats?
-EXTERN float                   chrxstt[MAXCHR];            // Starting position
-EXTERN float                   chrystt[MAXCHR];            //
-EXTERN float                   chrzstt[MAXCHR];            //
-EXTERN float                   chrxpos[MAXCHR];            // Character's position
-EXTERN float                   chrypos[MAXCHR];            //
-EXTERN float                   chrzpos[MAXCHR];            //
-EXTERN float                   chrxvel[MAXCHR];            // Character's velocity
-EXTERN float                   chryvel[MAXCHR];            //
-EXTERN float                   chrzvel[MAXCHR];            //
-EXTERN float                   chrlatchx[MAXCHR];          // Character latches
-EXTERN float                   chrlatchy[MAXCHR];          //
-EXTERN Uint8          chrlatchbutton[MAXCHR];     // Button latches
-EXTERN Uint16          chrreloadtime[MAXCHR];      // Time before another shot
-EXTERN float                   chrmaxaccel[MAXCHR];        // Maximum acceleration
-EXTERN float                   chrscale[MAXCHR];           // Character's size (useful)
-EXTERN float                   chrfat[MAXCHR];             // Character's size (legible)
-EXTERN float                   chrsizegoto[MAXCHR];        // Character's size goto ( legible )
-EXTERN Uint8          chrsizegototime[MAXCHR];    // Time left in siez change
-EXTERN float                   chrdampen[MAXCHR];          // Bounciness
-EXTERN float                   chrlevel[MAXCHR];           // Height of tile
-EXTERN float                   chrjump[MAXCHR];            // Jump power
-EXTERN Uint8          chrjumptime[MAXCHR];        // Delay until next jump
-EXTERN Uint8          chrjumpnumber[MAXCHR];      // Number of jumps remaining
-EXTERN Uint8          chrjumpnumberreset[MAXCHR]; // Number of jumps total, 255=Flying
-EXTERN Uint8          chrjumpready[MAXCHR];       // For standing on a platform character
-EXTERN Uint32         chronwhichfan[MAXCHR];      // Where the char is
-EXTERN Uint8          chrindolist[MAXCHR];        // Has it been added yet?
-EXTERN Uint16           chruoffset[MAXCHR];         // For moving textures
-EXTERN Uint16           chrvoffset[MAXCHR];         //
-EXTERN Uint16           chruoffvel[MAXCHR];         // Moving texture speed
-EXTERN Uint16           chrvoffvel[MAXCHR];         //
-EXTERN Uint16           chrturnleftright[MAXCHR];   // Character's rotation 0 to 65535
-EXTERN Uint16           chrlightturnleftright[MAXCHR];// Character's light rotation 0 to 65535
-EXTERN Uint16           chrturnmaplr[MAXCHR];       //
-EXTERN Uint16           chrturnmapud[MAXCHR];       //
-EXTERN Uint16           chrtexture[MAXCHR];         // Character's skin
-EXTERN Uint8          chrmodel[MAXCHR];           // Character's model
-EXTERN Uint8          chrbasemodel[MAXCHR];       // The true form
-EXTERN Uint8          chractionready[MAXCHR];     // Ready to play a new one
-EXTERN Uint8          chraction[MAXCHR];          // Character's action
-EXTERN bool_t          chrkeepaction[MAXCHR];      // Keep the action playing
-EXTERN bool_t          chrloopaction[MAXCHR];      // Loop it too
-EXTERN Uint8          chrnextaction[MAXCHR];      // Character's action to play next
-EXTERN Uint16           chrframe[MAXCHR];           // Character's frame
-EXTERN Uint16           chrlastframe[MAXCHR];       // Character's last frame
-EXTERN Uint8          chrlip[MAXCHR];             // Character's frame in betweening
-EXTERN Uint8          chrvrta[MAXCHR][MAXVERTICES];// Lighting hack ( Ooze )
-EXTERN Uint16           chrholdingwhich[MAXCHR][2]; // !=MAXCHR if character is holding something
-EXTERN Uint16           chrattachedto[MAXCHR];      // !=MAXCHR if character is a held weapon
-EXTERN Uint16           chrweapongrip[MAXCHR][4];   // Vertices which describe the weapon grip
-EXTERN Uint8          chralpha[MAXCHR];           // 255 = Solid, 0 = Invisible
-EXTERN Uint8          chrbasealpha[MAXCHR];
-EXTERN Uint8          chrlight[MAXCHR];           // 1 = Light, 0 = Normal
-EXTERN Uint8          chrflashand[MAXCHR];        // 1,3,7,15,31 = Flash, 255 = Don't
-EXTERN Uint8          chrlightlevel[MAXCHR];      // 0-255, terrain light
-EXTERN Uint8          chrsheen[MAXCHR];           // 0-15, how shiny it is
-EXTERN Uint8          chrtransferblend[MAXCHR];   // Give transparency to weapons?
-EXTERN Uint8          chrisitem[MAXCHR];          // Is it grabbable?
-EXTERN Uint8          chrinvictus[MAXCHR];        // Totally invincible?
-EXTERN Uint8          chrismount[MAXCHR];         // Can you ride it?
-EXTERN Uint8          chrredshift[MAXCHR];        // Color channel shifting
-EXTERN Uint8          chrgrnshift[MAXCHR];        //
-EXTERN Uint8          chrblushift[MAXCHR];        //
-EXTERN Uint8          chrshadowsize[MAXCHR];      // Size of shadow
-EXTERN Uint8          chrbumpsize[MAXCHR];        // Size of bumpers
-EXTERN Uint8          chrbumpsizebig[MAXCHR];     // For octagonal bumpers
-EXTERN Uint8          chrbumpheight[MAXCHR];      // Distance from head to toe
-EXTERN Uint8          chrshadowsizesave[MAXCHR];  // Without size modifiers
-EXTERN Uint8          chrbumpsizesave[MAXCHR];    //
-EXTERN Uint8          chrbumpsizebigsave[MAXCHR]; //
-EXTERN Uint8          chrbumpheightsave[MAXCHR];  //
-EXTERN Uint16           chrbumpnext[MAXCHR];        // Next character on fanblock
-EXTERN Uint16           chrbumplast[MAXCHR];        // Last character it was bumped by
-EXTERN float                   chrbumpdampen[MAXCHR];      // Character bump mass
-EXTERN Uint16           chrattacklast[MAXCHR];      // Last character it was attacked by
-EXTERN Uint16           chrhitlast[MAXCHR];         // Last character it hit
-EXTERN Uint16           chrdirectionlast[MAXCHR];   // Direction of last attack/healing
-EXTERN Uint8          chrdamagetypelast[MAXCHR];  // Last damage type
-EXTERN Uint8          chrplatform[MAXCHR];        // Can it be stood on
-EXTERN Uint8          chrwaterwalk[MAXCHR];       // Always above watersurfacelevel?
-EXTERN Uint8          chrturnmode[MAXCHR];        // Turning mode
-EXTERN Uint8          chrsneakspd[MAXCHR];        // Sneaking if above this speed
-EXTERN Uint8          chrwalkspd[MAXCHR];         // Walking if above this speed
-EXTERN Uint8          chrrunspd[MAXCHR];          // Running if above this speed
-EXTERN Uint8          chrdamagetargettype[MAXCHR];// Type of damage for AI DamageTarget
-EXTERN Uint8          chrreaffirmdamagetype[MAXCHR]; // For relighting torches
-EXTERN Uint8          chrdamagemodifier[MAXCHR][DAMAGE_COUNT];  // Resistances and inversion
-EXTERN Uint8          chrdamagetime[MAXCHR];      // Invincibility timer
-EXTERN Uint8          chrdefense[MAXCHR];         // Base defense rating
-EXTERN Uint16           chrweight[MAXCHR];          // Weight ( for pressure plates )
-EXTERN Uint8          chrpassage[MAXCHR];         // The passage associated with this character
-EXTERN Uint32         chrorder[MAXCHR];           // The last order given the character
-EXTERN Uint16          chrcounter[MAXCHR];         // The rank of the character on the order chain
-EXTERN Uint16           chrholdingweight[MAXCHR];   // For weighted buttons
-EXTERN Sint16            chrmoney[MAXCHR];           // Money
-EXTERN Sint16            chrlifereturn[MAXCHR];      // Regeneration/poison
-EXTERN Sint16            chrmanacost[MAXCHR];        // Mana cost to use
-EXTERN Uint8          chrstoppedby[MAXCHR];       // Collision mask
-EXTERN Uint32         chrexperience[MAXCHR];      // Experience
-EXTERN Uint8          chrexperiencelevel[MAXCHR]; // Experience Level
-EXTERN Sint16            chrgrogtime[MAXCHR];        // Grog timer
-EXTERN Sint16            chrdazetime[MAXCHR];        // Daze timer
-EXTERN Uint8          chriskursed[MAXCHR];        // Can't be dropped?
-EXTERN Uint8          chrnameknown[MAXCHR];       // Is the name known?
-EXTERN Uint8          chrammoknown[MAXCHR];       // Is the ammo known?
-EXTERN Uint8          chrhitready[MAXCHR];        // Was it just dropped?
-EXTERN Sint16            chrboretime[MAXCHR];        // Boredom timer
-EXTERN Uint8          chrcarefultime[MAXCHR];     // "You hurt me!" timer
-EXTERN bool_t          chrcanbecrushed[MAXCHR];    // Crush in a door?
-EXTERN Uint8          chrinwhichhand[MAXCHR];     // GRIPLEFT or GRIPRIGHT
-EXTERN Uint8           chrisequipped[MAXCHR];      // For boots and rings and stuff
-EXTERN Uint16           chrfirstenchant[MAXCHR];    // Linked list for enchants
-EXTERN Uint16           chrundoenchant[MAXCHR];     // Last enchantment spawned
-EXTERN bool_t                    chrcanchannel[MAXCHR];      //
-EXTERN bool_t                    chroverlay[MAXCHR];         // Is this an overlay?  Track aitarget...
-EXTERN Uint8           chrmissiletreatment[MAXCHR];// For deflection, etc.
-EXTERN Uint8           chrmissilecost[MAXCHR];     // Mana cost for each one
-EXTERN Uint16           chrmissilehandler[MAXCHR];  // Who pays the bill for each one...
-EXTERN Uint16           chrdamageboost[MAXCHR];     // Add to swipe damage
-EXTERN bool_t           chrisshopitem[MAXCHR];     // Spawned in a shop?
 
-//Skills
-EXTERN Sint8                     chrshieldproficiency[MAXCHR];  // Can it use shields?
-EXTERN bool_t                    chrcanjoust[MAXCHR]; //
-EXTERN bool_t                    chrcanuseadvancedweapons[MAXCHR]; //
-EXTERN bool_t                    chrcanseeinvisible[MAXCHR]; //
-EXTERN bool_t                    chrcanseekurse[MAXCHR];     //
-EXTERN bool_t          chrcanusedivine[MAXCHR];
-EXTERN bool_t          chrcanusearcane[MAXCHR];
-EXTERN bool_t          chrcanusetech[MAXCHR];
-EXTERN bool_t          chrcandisarm[MAXCHR];
-EXTERN bool_t          chrcanbackstab[MAXCHR];
-EXTERN bool_t          chrcanusepoison[MAXCHR];
-EXTERN bool_t          chrcanread[MAXCHR];
+EXTERN struct
+{
+    glMatrix                matrix;      // Character's matrix
+    char                    matrixvalid;     // Did we make one yet?
+    char                    name[MAXCAPNAMESIZE];  // Character name
+    bool_t          on;              // Does it exist?
+    Uint8          onold;           // Network fix
+    Uint8          alive;           // Is it alive?
+    Uint8          waskilled;       // Fix for network
+    Uint8          inpack;          // Is it in the inventory?
+    Uint8          wasinpack;       // Temporary thing...
+    Uint16           nextinpack;      // Link to the next item
+    Uint8          numinpack;       // How many
+    Uint8          openstuff;       // Can it open chests/doors?
+    Uint8          lifecolor;       // Bar color
+    Uint8          sparkle;         // Sparkle color or 0 for off
+    Sint16            life;            // Basic character stats
+    Sint16            lifemax;         //   All 8.8 fixed point
+    Uint16           lifeheal;        //
+    Uint8          manacolor;       // Bar color
+    Uint8          ammomax;         // Ammo stuff
+    Uint16          ammo;            //
+    Uint8          gender;          // Gender
+    Sint16            mana;            // Mana stuff
+    Sint16            manamax;         //
+    Sint16            manaflow;        //
+    Sint16            manareturn;      //
+    Sint16            strength;        // Strength
+    Sint16            wisdom;          // Wisdom
+    Sint16            intelligence;    // Intelligence
+    Sint16            dexterity;       // Dexterity
+    Uint8             aitype;          // The AI script to run
+    bool_t                    icon;            // Show the icon?
+    bool_t                    cangrabmoney;    // Picks up coins?
+    bool_t                    isplayer;        // btrue = player
+    bool_t                    islocalplayer;   // btrue = local player
+    Uint16           lastitemused;        // The last item the character used
+    Uint16           aitarget;        // Who the AI is after
+    Uint16           aiowner;         // The character's owner
+    Uint16           aichild;         // The character's child
+    int                     aistate;         // Short term memory for AI
+    int                     aicontent;       // More short term memory
+    Uint16           aitime;          // AI Timer
+    Uint8          aigoto;          // Which waypoint
+    Uint8          aigotoadd;       // Where to stick next
+    float                   aigotox[MAXWAY]; // Waypoint
+    float                   aigotoy[MAXWAY]; // Waypoint
+    int                     aix[MAXSTOR];    // Temporary values...  SetXY
+    int                     aiy[MAXSTOR];    //
+    Uint8          stickybutt;      // Rests on floor
+    Uint8          enviro;          // Environment map?
+    float                   oldx;            // Character's last position
+    float                   oldy;            //
+    float                   oldz;            //
+    Uint8          inwater;         //
+    Uint16           oldturn;         //
+    Uint32         alert;           // Alerts for AI script
+    Uint8          flyheight;       // Height to stabilize at
+    Uint8          team;            // Character's team
+    Uint8          baseteam;        // Character's starting team
+    Uint8          staton;          // Display stats?
+    float                   xstt;            // Starting position
+    float                   ystt;            //
+    float                   zstt;            //
+    float                   xpos;            // Character's position
+    float                   ypos;            //
+    float                   zpos;            //
+    float                   xvel;            // Character's velocity
+    float                   yvel;            //
+    float                   zvel;            //
+    float                   latchx;          // Character latches
+    float                   latchy;          //
+    Uint8          latchbutton;     // Button latches
+    Uint16          reloadtime;      // Time before another shot
+    float                   maxaccel;        // Maximum acceleration
+    float                   scale;           // Character's size (useful)
+    float                   fat;             // Character's size (legible)
+    float                   sizegoto;        // Character's size goto ( legible )
+    Uint8          sizegototime;    // Time left in siez change
+    float                   dampen;          // Bounciness
+    float                   level;           // Height of tile
+    float                   jump;            // Jump power
+    Uint8          jumptime;        // Delay until next jump
+    Uint8          jumpnumber;      // Number of jumps remaining
+    Uint8          jumpnumberreset; // Number of jumps total, 255=Flying
+    Uint8          jumpready;       // For standing on a platform character
+    Uint32         onwhichfan;      // Where the char is
+    Uint8          indolist;        // Has it been added yet?
+    Uint16           uoffset;         // For moving textures
+    Uint16           voffset;         //
+    Uint16           uoffvel;         // Moving texture speed
+    Uint16           voffvel;         //
+    Uint16           turnleftright;   // Character's rotation 0 to 65535
+    Uint16           lightturnleftright;// Character's light rotation 0 to 65535
+    Uint16           turnmaplr;       //
+    Uint16           turnmapud;       //
+    Uint16           texture;         // Character's skin
+    Uint8          model;           // Character's model
+    Uint8          basemodel;       // The true form
+    Uint8          actionready;     // Ready to play a new one
+    Uint8          action;          // Character's action
+    bool_t          keepaction;      // Keep the action playing
+    bool_t          loopaction;      // Loop it too
+    Uint8          nextaction;      // Character's action to play next
+    Uint16           frame;           // Character's frame
+    Uint16           lastframe;       // Character's last frame
+    Uint8          lip;             // Character's frame in betweening
+    Uint8          vrta[MAXVERTICES];// Lighting hack ( Ooze )
+    Uint16           holdingwhich[2]; // !=MAXCHR if character is holding something
+    Uint16           attachedto;      // !=MAXCHR if character is a held weapon
+    Uint16           weapongrip[4];   // Vertices which describe the weapon grip
+    Uint8          alpha;           // 255 = Solid, 0 = Invisible
+    Uint8          basealpha;
+    Uint8          light;           // 1 = Light, 0 = Normal
+    Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
+    Uint8          lightlevel;      // 0-255, terrain light
+    Uint8          sheen;           // 0-15, how shiny it is
+    Uint8          transferblend;   // Give transparency to weapons?
+    Uint8          isitem;          // Is it grabbable?
+    Uint8          invictus;        // Totally invincible?
+    Uint8          ismount;         // Can you ride it?
+    Uint8          redshift;        // Color channel shifting
+    Uint8          grnshift;        //
+    Uint8          blushift;        //
+    Uint8          shadowsize;      // Size of shadow
+    Uint8          bumpsize;        // Size of bumpers
+    Uint8          bumpsizebig;     // For octagonal bumpers
+    Uint8          bumpheight;      // Distance from head to toe
+    Uint8          shadowsizesave;  // Without size modifiers
+    Uint8          bumpsizesave;    //
+    Uint8          bumpsizebigsave; //
+    Uint8          bumpheightsave;  //
+    Uint16           bumpnext;        // Next character on fanblock
+    Uint16           bumplast;        // Last character it was bumped by
+    float                   bumpdampen;      // Character bump mass
+    Uint16           attacklast;      // Last character it was attacked by
+    Uint16           hitlast;         // Last character it hit
+    Uint16           directionlast;   // Direction of last attack/healing
+    Uint8          damagetypelast;  // Last damage type
+    Uint8          platform;        // Can it be stood on
+    Uint8          waterwalk;       // Always above watersurfacelevel?
+    Uint8          turnmode;        // Turning mode
+    Uint8          sneakspd;        // Sneaking if above this speed
+    Uint8          walkspd;         // Walking if above this speed
+    Uint8          runspd;          // Running if above this speed
+    Uint8          damagetargettype;// Type of damage for AI DamageTarget
+    Uint8          reaffirmdamagetype; // For relighting torches
+    Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
+    Uint8          damagetime;      // Invincibility timer
+    Uint8          defense;         // Base defense rating
+    Uint16           weight;          // Weight ( for pressure plates )
+    Uint8          passage;         // The passage associated with this character
+    Uint32         order;           // The last order given the character
+    Uint16          counter;         // The rank of the character on the order chain
+    Uint16           holdingweight;   // For weighted buttons
+    Sint16            money;           // Money
+    Sint16            lifereturn;      // Regeneration/poison
+    Sint16            manacost;        // Mana cost to use
+    Uint8          stoppedby;       // Collision mask
+    Uint32         experience;      // Experience
+    Uint8          experiencelevel; // Experience Level
+    Sint16            grogtime;        // Grog timer
+    Sint16            dazetime;        // Daze timer
+    Uint8          iskursed;        // Can't be dropped?
+    Uint8          nameknown;       // Is the name known?
+    Uint8          ammoknown;       // Is the ammo known?
+    Uint8          hitready;        // Was it just dropped?
+    Sint16            boretime;        // Boredom timer
+    Uint8          carefultime;     // "You hurt me!" timer
+    bool_t          canbecrushed;    // Crush in a door?
+    Uint8          inwhichhand;     // GRIPLEFT or GRIPRIGHT
+    Uint8           isequipped;      // For boots and rings and stuff
+    Uint16           firstenchant;    // Linked list for enchants
+    Uint16           undoenchant;     // Last enchantment spawned
+    bool_t                    canchannel;      //
+    bool_t                    overlay;         // Is this an overlay?  Track aitarget...
+    Uint8           missiletreatment;// For deflection, etc.
+    Uint8           missilecost;     // Mana cost for each one
+    Uint16           missilehandler;  // Who pays the bill for each one...
+    Uint16           damageboost;     // Add to swipe damage
+    bool_t           isshopitem;     // Spawned in a shop?
+    
+    // Skills
+    Sint8                     shieldproficiency;  // Can it use shields?
+    bool_t                    canjoust; //
+    bool_t                    canuseadvancedweapons; //
+    bool_t                    canseeinvisible; //
+    bool_t                    canseekurse;     //
+    bool_t          canusedivine;
+    bool_t          canusearcane;
+    bool_t          canusetech;
+    bool_t          candisarm;
+    bool_t          canbackstab;
+    bool_t          canusepoison;
+    bool_t          canread;
+} chr[MAXCHR];
 
 #define INVISIBLE           20                      // The character can't be detected
 

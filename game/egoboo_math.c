@@ -51,7 +51,10 @@ void make_turntosin( void )
 glVector vsub( glVector A, glVector B )
 {
     glVector tmp;
-    tmp.x = A.x - B.x; tmp.y = A.y - B.y; tmp.z = A.z - B.z;
+    tmp.x = A.x / A.w - B.x / B.w;
+    tmp.y = A.y / A.w - B.y / B.w;
+    tmp.z = A.z / A.w - B.z / B.w;
+    tmp.w = 1.0;
     return( tmp );
 }
 
@@ -60,23 +63,25 @@ glVector Normalize( glVector vec )
     glVector tmp = vec;
     float len;
     len = SQRT( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
-    tmp.x /= len;
-    tmp.y /= len;
-    tmp.z /= len;
+    tmp.x /= len * tmp.w;
+    tmp.y /= len * tmp.w;
+    tmp.z /= len * tmp.w;
+	tmp.w /= tmp.w;
     return( tmp );
 }
 
 glVector CrossProduct( glVector A, glVector B )
 {
     glVector tmp;
-    tmp.x = A.y * B.z - A.z * B.y;
-    tmp.y = A.z * B.x - A.x * B.z;
-    tmp.z = A.x * B.y - A.y * B.x;
+    tmp.x = A.y / A.w * B.z / B.w - A.z / A.w * B.y / B.w;
+    tmp.y = A.z / A.w * B.x / B.w - A.x / A.w * B.z / B.w;
+    tmp.z = A.x / A.w * B.y / B.w - A.y / A.w * B.x / B.w;
+	tmp.w = 1.0;
     return( tmp );
 }
 
 float DotProduct( glVector A, glVector B )
-{ return( A.x*B.x + A.y*B.y + A.z*B.z ); }
+{ return( A.x / A.w * B.x / B.w + A.y / A.w * B.y / B.w + A.z / A.w * B.z / B.w ); }
 
 //---------------------------------------------------------------------------------------------
 // Math Stuff-----------------------------------------------------------------------------------
@@ -259,7 +264,7 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
     vFor.y = fory - oriy;
     vFor.z = forz - oriz;
 
-    // assume that the length of the grip edges if 16
+    // assume that the length of the grip edges is 16
     scale *= 16.0f;
     vWid = Normalize(vWid);
     vUp  = Normalize(vUp );
@@ -294,7 +299,7 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
 // inline D3DMATRIX ViewMatrix(const D3DVECTOR from,      // camera location
 glMatrix ViewMatrix( const glVector from,     // camera location
                      const glVector at,        // camera look-at target
-                     const glVector world_up,  // worldís up, usually 0, 0, 1
+                     const glVector world_up,  // world√≠s up, usually 0, 0, 1
                      const float roll )         // clockwise roll around
 //    viewing direction,
 //    in radians
@@ -350,7 +355,7 @@ glMatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 }
 
 //----------------------------------------------------
-// GS - Normally we souldn't this function but I found it in the rendering of the particules.
+// GS - Normally we souldn't need this function but I found it in the rendering of the particles.
 //
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.

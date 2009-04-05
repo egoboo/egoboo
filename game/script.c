@@ -950,90 +950,90 @@ Uint8 run_function( Uint32 value, int character )
     {
         case FIFSPAWNED:
             // Proceed only if it's a new character
-            returncode = ( ( chralert[character] & ALERTIFSPAWNED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFSPAWNED ) != 0 );
             break;
 
         case FIFTIMEOUT:
             // Proceed only if time alert is set
-            returncode = ( chraitime[character] == 0 );
+            returncode = ( chr[character].aitime == 0 );
             break;
 
         case FIFATWAYPOINT:
             // Proceed only if the character reached a waypoint
-            returncode = ( ( chralert[character] & ALERTIFATWAYPOINT ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFATWAYPOINT ) != 0 );
             break;
 
         case FIFATLASTWAYPOINT:
             // Proceed only if the character reached its last waypoint
-            returncode = ( ( chralert[character] & ALERTIFATLASTWAYPOINT ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFATLASTWAYPOINT ) != 0 );
             break;
 
         case FIFATTACKED:
             // Proceed only if the character was damaged
-            returncode = ( ( chralert[character] & ALERTIFATTACKED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFATTACKED ) != 0 );
             break;
 
         case FIFBUMPED:
             // Proceed only if the character was bumped
-            returncode = ( ( chralert[character] & ALERTIFBUMPED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFBUMPED ) != 0 );
             break;
 
         case FIFORDERED:
             // Proceed only if the character was ordered
-            returncode = ( ( chralert[character] & ALERTIFORDERED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFORDERED ) != 0 );
             break;
 
         case FIFCALLEDFORHELP:
             // Proceed only if the character was called for help
-            returncode = ( ( chralert[character] & ALERTIFCALLEDFORHELP ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFCALLEDFORHELP ) != 0 );
             break;
 
         case FSETCONTENT:
             // Set the content
-            chraicontent[character] = valuetmpargument;
+            chr[character].aicontent = valuetmpargument;
             break;
 
         case FIFKILLED:
             // Proceed only if the character's been killed
-            returncode = ( ( chralert[character] & ALERTIFKILLED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFKILLED ) != 0 );
             break;
 
         case FIFTARGETKILLED:
             // Proceed only if the character's target has just died
-            returncode = ( ( chralert[character] & ALERTIFTARGETKILLED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFTARGETKILLED ) != 0 );
             break;
 
         case FCLEARWAYPOINTS:
             // Clear out all waypoints
-            chraigoto[character] = 0;
-            chraigotoadd[character] = 0;
+            chr[character].aigoto = 0;
+            chr[character].aigotoadd = 0;
             break;
 
         case FADDWAYPOINT:
             // Add a waypoint to the waypoint list
-            chraigotox[character][chraigotoadd[character]] = valuetmpx;
-            chraigotoy[character][chraigotoadd[character]] = valuetmpy;
+            chr[character].aigotox[chr[character].aigotoadd] = valuetmpx;
+            chr[character].aigotoy[chr[character].aigotoadd] = valuetmpy;
 
-            chraigotoadd[character]++;
-            if ( chraigotoadd[character] > MAXWAY - 1 )  chraigotoadd[character] = MAXWAY - 1;
+            chr[character].aigotoadd++;
+            if ( chr[character].aigotoadd > MAXWAY - 1 )  chr[character].aigotoadd = MAXWAY - 1;
             break;
 
         case FFINDPATH:
             // Yep this is it
-            if ( chrmodel[chraitarget[character]] != character )
+            if ( chr[chr[character].aitarget].model != character )
             {
                 if ( valuetmpdistance != MOVE_FOLLOW )
                 {
-                    valuetmpx = chrxpos[chraitarget[ chrmodel[chraitarget[character]] ]];
-                    valuetmpy = chrypos[chraitarget[ chrmodel[chraitarget[character]] ]];
+                    valuetmpx = chr[chr[ chr[chr[character].aitarget].model ].aitarget].xpos;
+                    valuetmpy = chr[chr[ chr[chr[character].aitarget].model ].aitarget].ypos;
                 }
                 else
                 {
-                    valuetmpx = ( rand() & 1023 ) - 512 + chrxpos[chraitarget[ chrmodel[chraitarget[character]] ]];
-                    valuetmpy = ( rand() & 1023 ) - 512 + chrypos[chraitarget[ chrmodel[chraitarget[character]] ]];
+                    valuetmpx = ( rand() & 1023 ) - 512 + chr[chr[ chr[chr[character].aitarget].model ].aitarget].xpos;
+                    valuetmpy = ( rand() & 1023 ) - 512 + chr[chr[ chr[chr[character].aitarget].model ].aitarget].ypos;
                 }
 
-                valuetmpturn = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
+                valuetmpturn = ATAN2( chr[chr[character].aitarget].ypos - chr[character].ypos, chr[chr[character].aitarget].xpos - chr[character].xpos ) * 65535 / ( TWO_PI );
                 if ( valuetmpdistance == MOVE_RETREAT )
                 {
                     valuetmpturn += ( rand() & 16383 ) - 8192;
@@ -1057,11 +1057,11 @@ Uint8 run_function( Uint32 value, int character )
                 }
 
                 // Then we add the waypoint(s), without clearing existing ones...
-                chraigotox[character][chraigotoadd[character]] = valuetmpx;
-                chraigotoy[character][chraigotoadd[character]] = valuetmpy;
+                chr[character].aigotox[chr[character].aigotoadd] = valuetmpx;
+                chr[character].aigotoy[chr[character].aigotoadd] = valuetmpy;
 
-                chraigotoadd[character]++;
-                if ( chraigotoadd[character] > MAXWAY - 1 ) chraigotoadd[character] = MAXWAY - 1;
+                chr[character].aigotoadd++;
+                if ( chr[character].aigotoadd > MAXWAY - 1 ) chr[character].aigotoadd = MAXWAY - 1;
 
             }
             break;
@@ -1077,29 +1077,29 @@ Uint8 run_function( Uint32 value, int character )
         case FGETTARGETARMORPRICE:
             // This function gets the armor cost for the given skin
             sTmp = valuetmpargument & 3;
-            valuetmpx = capskincost[chrmodel[chraitarget[character]]][sTmp];
+            valuetmpx = capskincost[chr[chr[character].aitarget].model][sTmp];
             break;
 
         case FSETTIME:
 
             // This function resets the time
             if ( valuetmpargument > -1 )
-                chraitime[character] = valuetmpargument;
+                chr[character].aitime = valuetmpargument;
 
             break;
 
         case FGETCONTENT:
             // Get the content
-            valuetmpargument = chraicontent[character];
+            valuetmpargument = chr[character].aicontent;
             break;
 
         case FJOINTARGETTEAM:
             // This function allows the character to leave its own team and join another
             returncode = bfalse;
 
-            if ( chron[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].on )
             {
-                switch_team( character, chrteam[chraitarget[character]] );
+                switch_team( character, chr[chr[character].aitarget].team );
                 returncode = btrue;
             }
             break;
@@ -1114,24 +1114,24 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETTARGETTOTARGETLEFTHAND:
             // This function sets the target to the target's left item
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
             returncode = bfalse;
 
             if ( sTmp != MAXCHR )
             {
-                chraitarget[character] = sTmp;
+                chr[character].aitarget = sTmp;
                 returncode = btrue;
             }
             break;
 
         case FSETTARGETTOTARGETRIGHTHAND:
             // This function sets the target to the target's right item
-            sTmp = chrholdingwhich[chraitarget[character]][1];
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
             returncode = bfalse;
 
             if ( sTmp != MAXCHR )
             {
-                chraitarget[character] = sTmp;
+                chr[character].aitarget = sTmp;
                 returncode = btrue;
             }
             break;
@@ -1140,9 +1140,9 @@ Uint8 run_function( Uint32 value, int character )
 
             // This function sets the target to whoever attacked the character last,
             // failing for damage tiles
-            if ( chrattacklast[character] != MAXCHR )
+            if ( chr[character].attacklast != MAXCHR )
             {
-                chraitarget[character] = chrattacklast[character];
+                chr[character].aitarget = chr[character].attacklast;
             }
             else
             {
@@ -1153,43 +1153,43 @@ Uint8 run_function( Uint32 value, int character )
         case FSETTARGETTOWHOEVERBUMPED:
             // This function sets the target to whoever bumped into the
             // character last.  It never fails
-            chraitarget[character] = chrbumplast[character];
+            chr[character].aitarget = chr[character].bumplast;
             break;
 
         case FSETTARGETTOWHOEVERCALLEDFORHELP:
             // This function sets the target to whoever needs help
-            chraitarget[character] = teamsissy[chrteam[character]];
+            chr[character].aitarget = teamsissy[chr[character].team];
             break;
 
         case FSETTARGETTOOLDTARGET:
             // This function reverts to the target with whom the script started
-            chraitarget[character] = valueoldtarget;
+            chr[character].aitarget = valueoldtarget;
             break;
 
         case FSETTURNMODETOVELOCITY:
             // This function sets the turn mode
-            chrturnmode[character] = TURNMODEVELOCITY;
+            chr[character].turnmode = TURNMODEVELOCITY;
             break;
 
         case FSETTURNMODETOWATCH:
             // This function sets the turn mode
-            chrturnmode[character] = TURNMODEWATCH;
+            chr[character].turnmode = TURNMODEWATCH;
             break;
 
         case FSETTURNMODETOSPIN:
             // This function sets the turn mode
-            chrturnmode[character] = TURNMODESPIN;
+            chr[character].turnmode = TURNMODESPIN;
             break;
 
         case FSETBUMPHEIGHT:
             // This function changes a character's bump height
-            chrbumpheight[character] = valuetmpargument * chrfat[character];
-            chrbumpheightsave[character] = valuetmpargument;
+            chr[character].bumpheight = valuetmpargument * chr[character].fat;
+            chr[character].bumpheightsave = valuetmpargument;
             break;
 
         case FIFTARGETHASID:
             // This function proceeds if ID matches tmpargument
-            sTmp = chrmodel[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].model;
             returncode = capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument;
             returncode = returncode | ( capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument );
             break;
@@ -1198,38 +1198,38 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the target has a matching item in his/her pack
             returncode = bfalse;
             // Check the pack
-            sTmp = chrnextinpack[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].nextinpack;
 
             while ( sTmp != MAXCHR )
             {
-                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
+                if ( capidsz[chr[sTmp].model][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chr[sTmp].model][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
                     returncode = btrue;
                     sTmp = MAXCHR;
                 }
                 else
                 {
-                    sTmp = chrnextinpack[sTmp];
+                    sTmp = chr[sTmp].nextinpack;
                 }
             }
 
             // Check left hand
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                     returncode = btrue;
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[chraitarget[character]][1];
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                     returncode = btrue;
@@ -1241,11 +1241,11 @@ Uint8 run_function( Uint32 value, int character )
             // hand in tmpargument
             returncode = bfalse;
             // Check left hand
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
@@ -1255,11 +1255,11 @@ Uint8 run_function( Uint32 value, int character )
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[chraitarget[character]][1];
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
 
             if ( sTmp != MAXCHR && !returncode )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
@@ -1273,7 +1273,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if ID matches tmpargument
             returncode = bfalse;
 
-            returncode = (0 != check_skills( chraitarget[character], ( IDSZ )valuetmpargument ));
+            returncode = (0 != check_skills( chr[character].aitarget, ( IDSZ )valuetmpargument ));
 
             break;
 
@@ -1291,12 +1291,12 @@ Uint8 run_function( Uint32 value, int character )
 
         case FWALK:
             reset_character_accel( character );
-            chrmaxaccel[character] *= 0.66f;
+            chr[character].maxaccel *= 0.66f;
             break;
 
         case FSNEAK:
             reset_character_accel( character );
-            chrmaxaccel[character] *= 0.33f;
+            chr[character].maxaccel *= 0.33f;
             break;
 
         case FDOACTION:
@@ -1305,15 +1305,15 @@ Uint8 run_function( Uint32 value, int character )
             // something else already
             returncode = bfalse;
 
-            if ( valuetmpargument < MAXACTION && chractionready[character] )
+            if ( valuetmpargument < MAXACTION && chr[character].actionready )
             {
-                if ( madactionvalid[chrmodel[character]][valuetmpargument] )
+                if ( madactionvalid[chr[character].model][valuetmpargument] )
                 {
-                    chraction[character] = valuetmpargument;
-                    chrlip[character] = 0;
-                    chrlastframe[character] = chrframe[character];
-                    chrframe[character] = madactionstart[chrmodel[character]][valuetmpargument];
-                    chractionready[character] = bfalse;
+                    chr[character].action = valuetmpargument;
+                    chr[character].lip = 0;
+                    chr[character].lastframe = chr[character].frame;
+                    chr[character].frame = madactionstart[chr[character].model][valuetmpargument];
+                    chr[character].actionready = bfalse;
                     returncode = btrue;
                 }
             }
@@ -1321,7 +1321,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FKEEPACTION:
             // This function makes the current animation halt on the last frame
-            chrkeepaction[character] = btrue;
+            chr[character].keepaction = btrue;
             break;
 
         case FISSUEORDER:
@@ -1331,31 +1331,31 @@ Uint8 run_function( Uint32 value, int character )
 
         case FDROPWEAPONS:
             // This funtion drops the character's in hand items/riders
-            sTmp = chrholdingwhich[character][0];
+            sTmp = chr[character].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
                 detach_character_from_mount( sTmp, btrue, btrue );
 
-                if ( chrismount[character] )
+                if ( chr[character].ismount )
                 {
-                    chrzvel[sTmp] = DISMOUNTZVEL;
-                    chrzpos[sTmp] += DISMOUNTZVEL;
-                    chrjumptime[sTmp] = JUMPDELAY;
+                    chr[sTmp].zvel = DISMOUNTZVEL;
+                    chr[sTmp].zpos += DISMOUNTZVEL;
+                    chr[sTmp].jumptime = JUMPDELAY;
                 }
             }
 
-            sTmp = chrholdingwhich[character][1];
+            sTmp = chr[character].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
                 detach_character_from_mount( sTmp, btrue, btrue );
 
-                if ( chrismount[character] )
+                if ( chr[character].ismount )
                 {
-                    chrzvel[sTmp] = DISMOUNTZVEL;
-                    chrzpos[sTmp] += DISMOUNTZVEL;
-                    chrjumptime[sTmp] = JUMPDELAY;
+                    chr[sTmp].zvel = DISMOUNTZVEL;
+                    chr[sTmp].zpos += DISMOUNTZVEL;
+                    chr[sTmp].jumptime = JUMPDELAY;
                 }
             }
             break;
@@ -1366,17 +1366,17 @@ Uint8 run_function( Uint32 value, int character )
             // something else already
             returncode = bfalse;
 
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
-                if ( valuetmpargument < MAXACTION && chractionready[chraitarget[character]] )
+                if ( valuetmpargument < MAXACTION && chr[chr[character].aitarget].actionready )
                 {
-                    if ( madactionvalid[chrmodel[chraitarget[character]]][valuetmpargument] )
+                    if ( madactionvalid[chr[chr[character].aitarget].model][valuetmpargument] )
                     {
-                        chraction[chraitarget[character]] = valuetmpargument;
-                        chrlip[chraitarget[character]] = 0;
-                        chrlastframe[chraitarget[character]] = chrframe[chraitarget[character]];
-                        chrframe[chraitarget[character]] = madactionstart[chrmodel[chraitarget[character]]][valuetmpargument];
-                        chractionready[chraitarget[character]] = bfalse;
+                        chr[chr[character].aitarget].action = valuetmpargument;
+                        chr[chr[character].aitarget].lip = 0;
+                        chr[chr[character].aitarget].lastframe = chr[chr[character].aitarget].frame;
+                        chr[chr[character].aitarget].frame = madactionstart[chr[chr[character].aitarget].model][valuetmpargument];
+                        chr[chr[character].aitarget].actionready = bfalse;
                         returncode = btrue;
                     }
                 }
@@ -1410,7 +1410,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function flags the character to be removed from the game
             returncode = bfalse;
 
-            if ( !chrisplayer[character] )
+            if ( !chr[character].isplayer )
             {
                 returncode = btrue;
                 valuegopoof = btrue;
@@ -1422,12 +1422,12 @@ Uint8 run_function( Uint32 value, int character )
             returncode = bfalse;
             // Check the pack
             iTmp = MAXCHR;
-            tTmp = chraitarget[character];
-            sTmp = chrnextinpack[tTmp];
+            tTmp = chr[character].aitarget;
+            sTmp = chr[tTmp].nextinpack;
 
             while ( sTmp != MAXCHR )
             {
-                if ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( IDSZ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
+                if ( capidsz[chr[sTmp].model][IDSZ_PARENT] == ( IDSZ) valuetmpargument || capidsz[chr[sTmp].model][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
                     iTmp = sTmp;
@@ -1436,48 +1436,48 @@ Uint8 run_function( Uint32 value, int character )
                 else
                 {
                     tTmp = sTmp;
-                    sTmp = chrnextinpack[sTmp];
+                    sTmp = chr[sTmp].nextinpack;
                 }
             }
 
             // Check left hand
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
-                    iTmp = chrholdingwhich[chraitarget[character]][0];
+                    iTmp = chr[chr[character].aitarget].holdingwhich[0];
                 }
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[chraitarget[character]][1];
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( IDSZ ) valuetmpargument )
                 {
                     returncode = btrue;
-                    iTmp = chrholdingwhich[chraitarget[character]][1];
+                    iTmp = chr[chr[character].aitarget].holdingwhich[1];
                 }
             }
 
             if ( returncode )
             {
-                if ( chrammo[iTmp] <= 1 )
+                if ( chr[iTmp].ammo <= 1 )
                 {
                     // Poof the item
-                    if ( chrinpack[iTmp] )
+                    if ( chr[iTmp].inpack )
                     {
                         // Remove from the pack
-                        chrnextinpack[tTmp] = chrnextinpack[iTmp];
-                        chrnuminpack[chraitarget[character]]--;
+                        chr[tTmp].nextinpack = chr[iTmp].nextinpack;
+                        chr[chr[character].aitarget].numinpack--;
                         free_one_character( iTmp );
                     }
                     else
@@ -1490,7 +1490,7 @@ Uint8 run_function( Uint32 value, int character )
                 else
                 {
                     // Cost one ammo
-                    chrammo[iTmp]--;
+                    chr[iTmp].ammo--;
                 }
             }
             break;
@@ -1502,13 +1502,13 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( valuetmpargument < MAXACTION )
             {
-                if ( madactionvalid[chrmodel[character]][valuetmpargument] )
+                if ( madactionvalid[chr[character].model][valuetmpargument] )
                 {
-                    chraction[character] = valuetmpargument;
-                    chrlip[character] = 0;
-                    chrlastframe[character] = chrframe[character];
-                    chrframe[character] = madactionstart[chrmodel[character]][valuetmpargument];
-                    chractionready[character] = bfalse;
+                    chr[character].action = valuetmpargument;
+                    chr[character].lip = 0;
+                    chr[character].lastframe = chr[character].frame;
+                    chr[character].frame = madactionstart[chr[character].model][valuetmpargument];
+                    chr[character].actionready = bfalse;
                     returncode = btrue;
                 }
             }
@@ -1516,12 +1516,12 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFHEALED:
             // Proceed only if the character was healed
-            returncode = ( ( chralert[character] & ALERTIFHEALED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFHEALED ) != 0 );
             break;
 
         case FSENDMESSAGE:
             // This function sends a message to the players
-            display_message( madmsgstart[chrmodel[character]] + valuetmpargument, character );
+            display_message( madmsgstart[chr[character].model] + valuetmpargument, character );
             break;
 
         case FCALLFORHELP:
@@ -1536,32 +1536,32 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETSTATE:
             // This function sets the character's state variable
-            chraistate[character] = valuetmpargument;
+            chr[character].aistate = valuetmpargument;
             break;
 
         case FGETSTATE:
             // This function reads the character's state variable
-            valuetmpargument = chraistate[character];
+            valuetmpargument = chr[character].aistate;
             break;
 
         case FIFSTATEIS:
             // This function fails if the character's state is inequal to tmpargument
-            returncode = ( valuetmpargument == chraistate[character] );
+            returncode = ( valuetmpargument == chr[character].aistate );
             break;
 
         case FIFTARGETCANOPENSTUFF:
             // This function fails if the target can't open stuff
-            returncode = chropenstuff[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].openstuff;
             break;
 
         case FIFGRABBED:
             // Proceed only if the character was picked up
-            returncode = ( ( chralert[character] & ALERTIFGRABBED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFGRABBED ) != 0 );
             break;
 
         case FIFDROPPED:
             // Proceed only if the character was dropped
-            returncode = ( ( chralert[character] & ALERTIFDROPPED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFDROPPED ) != 0 );
             break;
 
         case FSETTARGETTOWHOEVERISHOLDING:
@@ -1569,9 +1569,9 @@ Uint8 run_function( Uint32 value, int character )
             // failing if the character has no mount or holder
             returncode = bfalse;
 
-            if ( chrattachedto[character] < MAXCHR )
+            if ( chr[character].attachedto < MAXCHR )
             {
-                chraitarget[character] = chrattachedto[character];
+                chr[character].aitarget = chr[character].attachedto;
                 returncode = btrue;
             }
             break;
@@ -1579,7 +1579,7 @@ Uint8 run_function( Uint32 value, int character )
         case FDAMAGETARGET:
             // This function applies little bit of love to the character's target.
             // The amount is set in tmpargument
-            damage_character( chraitarget[character], 0, valuetmpargument, 1, chrdamagetargettype[character], chrteam[character], character, DAMFXBLOC );
+            damage_character( chr[character].aitarget, 0, valuetmpargument, 1, chr[character].damagetargettype, chr[character].team, character, DAMFXBLOC );
             break;
 
         case FIFXISLESSTHANY:
@@ -1595,32 +1595,32 @@ Uint8 run_function( Uint32 value, int character )
 
         case FGETBUMPHEIGHT:
             // Get the characters bump height
-            valuetmpargument = chrbumpheight[character];
+            valuetmpargument = chr[character].bumpheight;
             break;
 
         case FIFREAFFIRMED:
             // Proceed only if the character was reaffirmed
-            returncode = ( ( chralert[character] & ALERTIFREAFFIRMED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFREAFFIRMED ) != 0 );
             break;
 
         case FUNKEEPACTION:
             // This function makes the current animation start again
-            chrkeepaction[character] = bfalse;
+            chr[character].keepaction = bfalse;
             break;
 
         case FIFTARGETISONOTHERTEAM:
             // This function proceeds only if the target is on another team
-            returncode = ( chralive[chraitarget[character]] && chrteam[chraitarget[character]] != chrteam[character] );
+            returncode = ( chr[chr[character].aitarget].alive && chr[chr[character].aitarget].team != chr[character].team );
             break;
 
         case FIFTARGETISONHATEDTEAM:
             // This function proceeds only if the target is on an enemy team
-            returncode = ( chralive[chraitarget[character]] && teamhatesteam[chrteam[character]][chrteam[chraitarget[character]]] && !chrinvictus[chraitarget[character]] );
+            returncode = ( chr[chr[character].aitarget].alive && teamhatesteam[chr[character].team][chr[chr[character].aitarget].team] && !chr[chr[character].aitarget].invictus );
             break;
 
         case FPRESSLATCHBUTTON:
             // This function sets the latch buttons
-            chrlatchbutton[character] = chrlatchbutton[character] | valuetmpargument;
+            chr[character].latchbutton = chr[character].latchbutton | valuetmpargument;
             break;
 
         case FSETTARGETTOTARGETOFLEADER:
@@ -1628,36 +1628,36 @@ Uint8 run_function( Uint32 value, int character )
             // or it fails with no change if the leader is dead
             returncode = bfalse;
 
-            if ( teamleader[chrteam[character]] != NOLEADER )
+            if ( teamleader[chr[character].team] != NOLEADER )
             {
-                chraitarget[character] = chraitarget[teamleader[chrteam[character]]];
+                chr[character].aitarget = chr[teamleader[chr[character].team]].aitarget;
                 returncode = btrue;
             }
             break;
 
         case FIFLEADERKILLED:
             // This function proceeds only if the character's leader has just died
-            returncode = ( ( chralert[character] & ALERTIFLEADERKILLED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFLEADERKILLED ) != 0 );
             break;
 
         case FBECOMELEADER:
             // This function makes the character the team leader
-            teamleader[chrteam[character]] = character;
+            teamleader[chr[character].team] = character;
             break;
 
         case FCHANGETARGETARMOR:
             // This function sets the target's armor type and returns the old type
             // as tmpargument and the new type as tmpx
-            iTmp = chrtexture[chraitarget[character]] - madskinstart[chrmodel[chraitarget[character]]];
-            valuetmpx = change_armor( chraitarget[character], valuetmpargument );
+            iTmp = chr[chr[character].aitarget].texture - madskinstart[chr[chr[character].aitarget].model];
+            valuetmpx = change_armor( chr[character].aitarget, valuetmpargument );
             valuetmpargument = iTmp;  // The character's old armor
             break;
 
         case FGIVEMONEYTOTARGET:
             // This function transfers money from the character to the target, and sets
             // tmpargument to the amount transferred
-            iTmp = chrmoney[character];
-            tTmp = chrmoney[chraitarget[character]];
+            iTmp = chr[character].money;
+            tTmp = chr[chr[character].aitarget].money;
             iTmp -= valuetmpargument;
             tTmp += valuetmpargument;
 
@@ -1669,8 +1669,8 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( tTmp > MAXMONEY ) { tTmp = MAXMONEY; }
 
-            chrmoney[character] = iTmp;
-            chrmoney[chraitarget[character]] = tTmp;
+            chr[character].money = iTmp;
+            chr[chr[character].aitarget].money = tTmp;
             break;
 
         case FDROPKEYS:
@@ -1679,30 +1679,30 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFLEADERISALIVE:
             // This function fails if there is no team leader
-            returncode = ( teamleader[chrteam[character]] != NOLEADER );
+            returncode = ( teamleader[chr[character].team] != NOLEADER );
             break;
 
         case FIFTARGETISOLDTARGET:
             // This function returns bfalse if the target has valuechanged
-            returncode = ( chraitarget[character] == valueoldtarget );
+            returncode = ( chr[character].aitarget == valueoldtarget );
             break;
 
         case FSETTARGETTOLEADER:
 
             // This function fails if there is no team leader
-            if ( teamleader[chrteam[character]] == NOLEADER )
+            if ( teamleader[chr[character].team] == NOLEADER )
             {
                 returncode = bfalse;
             }
             else
             {
-                chraitarget[character] = teamleader[chrteam[character]];
+                chr[character].aitarget = teamleader[chr[character].team];
             }
             break;
 
         case FSPAWNCHARACTER:
             // This function spawns a character, failing if x,y is invalid
-            sTmp = spawn_one_character( valuetmpx, valuetmpy, 0, chrmodel[character], chrteam[character], 0, valuetmpturn, NULL, MAXCHR );
+            sTmp = spawn_one_character( valuetmpx, valuetmpy, 0, chr[character].model, chr[character].team, 0, valuetmpturn, NULL, MAXCHR );
             returncode = bfalse;
 
             if ( sTmp < MAXCHR )
@@ -1713,13 +1713,13 @@ Uint8 run_function( Uint32 value, int character )
                 }
                 else
                 {
-                    tTmp = chrturnleftright[character] >> 2;
-                    chrxvel[sTmp] += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
-                    chryvel[sTmp] += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
-                    chrpassage[sTmp] = chrpassage[character];
-                    chriskursed[sTmp] = bfalse;
-                    chraichild[character] = sTmp;
-                    chraiowner[sTmp] = chraiowner[character];
+                    tTmp = chr[character].turnleftright >> 2;
+                    chr[sTmp].xvel += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
+                    chr[sTmp].yvel += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * valuetmpdistance;
+                    chr[sTmp].passage = chr[character].passage;
+                    chr[sTmp].iskursed = bfalse;
+                    chr[character].aichild = sTmp;
+                    chr[sTmp].aiowner = chr[character].aiowner;
                     returncode = btrue;
                 }
             }
@@ -1732,12 +1732,12 @@ Uint8 run_function( Uint32 value, int character )
 
         case FCHANGETILE:
             // This function changes the floor image under the character
-            meshtile[chronwhichfan[character]] = valuetmpargument & ( 255 );
+            meshtile[chr[character].onwhichfan] = valuetmpargument & ( 255 );
             break;
 
         case FIFUSED:
             // This function proceeds only if the character has been used
-            returncode = ( ( chralert[character] & ALERTIFUSED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFUSED ) != 0 );
             break;
 
         case FDROPMONEY:
@@ -1747,13 +1747,13 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETOLDTARGET:
             // This function sets the old target to the current target
-            valueoldtarget = chraitarget[character];
+            valueoldtarget = chr[character].aitarget;
             break;
 
         case FDETACHFROMHOLDER:
 
             // This function drops the character, failing only if it was not held
-            if ( chrattachedto[character] != MAXCHR )
+            if ( chr[character].attachedto != MAXCHR )
             {
                 detach_character_from_mount( character, btrue, btrue );
             }
@@ -1765,7 +1765,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETHASVULNERABILITYID:
             // This function proceeds if ID matches tmpargument
-            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZ_VULNERABILITY] == ( IDSZ ) valuetmpargument );
+            returncode = ( capidsz[chr[chr[character].aitarget].model][IDSZ_VULNERABILITY] == ( IDSZ ) valuetmpargument );
             break;
 
         case FCLEANUP:
@@ -1775,33 +1775,33 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFCLEANEDUP:
             // This function proceeds only if the character was told to clean up
-            returncode = ( ( chralert[character] & ALERTIFCLEANEDUP ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFCLEANEDUP ) != 0 );
             break;
 
         case FIFSITTING:
             // This function proceeds if the character is riding another
-            returncode = ( chrattachedto[character] != MAXCHR );
+            returncode = ( chr[character].attachedto != MAXCHR );
             break;
 
         case FIFTARGETISHURT:
 
             // This function passes only if the target is hurt and alive
-            if ( !chralive[chraitarget[character]] || chrlife[chraitarget[character]] > chrlifemax[chraitarget[character]] - HURTDAMAGE )
+            if ( !chr[chr[character].aitarget].alive || chr[chr[character].aitarget].life > chr[chr[character].aitarget].lifemax - HURTDAMAGE )
                 returncode = bfalse;
 
             break;
 
         case FIFTARGETISAPLAYER:
             // This function proceeds only if the target is a player ( may not be local )
-            returncode = chrisplayer[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].isplayer;
             break;
 
         case FPLAYSOUND:
 
             // This function plays a sound
-            if ( chroldz[character] > PITNOSOUND && valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
+            if ( chr[character].oldz > PITNOSOUND && valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
             {
-                play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                play_mix( chr[character].oldx, chr[character].oldy, capwaveindex[chr[character].model] + valuetmpargument );
             }
             break;
 
@@ -1809,9 +1809,9 @@ Uint8 run_function( Uint32 value, int character )
             // This function spawns a particle
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], chrturnleftright[character], chrmodel[character], valuetmpargument, character, valuetmpdistance, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, chr[character].turnleftright, chr[character].model, valuetmpargument, character, valuetmpdistance, chr[character].team, tTmp, 0, MAXCHR );
 
             if ( tTmp != maxparticles )
             {
@@ -1826,11 +1826,11 @@ Uint8 run_function( Uint32 value, int character )
                 // Don't spawn in walls
                 if ( __prthitawall( tTmp ) )
                 {
-                    prtxpos[tTmp] = chrxpos[character];
+                    prtxpos[tTmp] = chr[character].xpos;
 
                     if ( __prthitawall( tTmp ) )
                     {
-                        prtypos[tTmp] = chrypos[character];
+                        prtypos[tTmp] = chr[character].ypos;
                     }
                 }
             }
@@ -1838,11 +1838,11 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETISALIVE:
             // This function proceeds only if the target is alive
-            returncode = chralive[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].alive;
             break;
 
         case FSTOP:
-            chrmaxaccel[character] = 0;
+            chr[character].maxaccel = 0;
             break;
 
         case FDISAFFIRMCHARACTER:
@@ -1855,95 +1855,95 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETISSELF:
             // This function proceeds only if the target is the character too
-            returncode = ( chraitarget[character] == character );
+            returncode = ( chr[character].aitarget == character );
             break;
 
         case FIFTARGETISMALE:
             // This function proceeds only if the target is male
-            returncode = ( chrgender[chraitarget[character]] == GENMALE );
+            returncode = ( chr[chr[character].aitarget].gender == GENMALE );
             break;
 
         case FIFTARGETISFEMALE:
             // This function proceeds only if the target is female
-            returncode = ( chrgender[chraitarget[character]] == GENFEMALE );
+            returncode = ( chr[chr[character].aitarget].gender == GENFEMALE );
             break;
 
         case FSETTARGETTOSELF:
             // This function sets the target to the character
-            chraitarget[character] = character;
+            chr[character].aitarget = character;
             break;
 
         case FSETTARGETTORIDER:
 
             // This function sets the target to the character's left/only grip weapon,
             // failing if there is none
-            if ( chrholdingwhich[character][0] == MAXCHR )
+            if ( chr[character].holdingwhich[0] == MAXCHR )
             {
                 returncode = bfalse;
             }
             else
             {
-                chraitarget[character] = chrholdingwhich[character][0];
+                chr[character].aitarget = chr[character].holdingwhich[0];
             }
             break;
 
         case FGETATTACKTURN:
             // This function sets tmpturn to the direction of the last attack
-            valuetmpturn = chrdirectionlast[character];
+            valuetmpturn = chr[character].directionlast;
             break;
 
         case FGETDAMAGETYPE:
             // This function gets the last type of damage
-            valuetmpargument = chrdamagetypelast[character];
+            valuetmpargument = chr[character].damagetypelast;
             break;
 
         case FBECOMESPELL:
             // This function turns the spellbook character into a spell based on its
             // content
-            chrmoney[character] = ( chrtexture[character] - madskinstart[chrmodel[character]] ) & 3;
-            change_character( character, chraicontent[character], 0, LEAVENONE );
-            chraicontent[character] = 0;  // Reset so it doesn't mess up
-            chraistate[character] = 0;  // Reset so it doesn't mess up
+            chr[character].money = ( chr[character].texture - madskinstart[chr[character].model] ) & 3;
+            change_character( character, chr[character].aicontent, 0, LEAVENONE );
+            chr[character].aicontent = 0;  // Reset so it doesn't mess up
+            chr[character].aistate = 0;  // Reset so it doesn't mess up
             valuechanged = btrue;
             break;
 
         case FBECOMESPELLBOOK:
             // This function turns the spell into a spellbook, and sets the content
             // accordingly
-            chraicontent[character] = chrmodel[character];
-            change_character( character, SPELLBOOK, chrmoney[character]&3, LEAVENONE );
-            chraistate[character] = 0;  // Reset so it doesn't burn up
+            chr[character].aicontent = chr[character].model;
+            change_character( character, SPELLBOOK, chr[character].money&3, LEAVENONE );
+            chr[character].aistate = 0;  // Reset so it doesn't burn up
             valuechanged = btrue;
             break;
 
         case FIFSCOREDAHIT:
             // Proceed only if the character scored a hit
-            returncode = ( ( chralert[character] & ALERTIFSCOREDAHIT ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFSCOREDAHIT ) != 0 );
             break;
 
         case FIFDISAFFIRMED:
             // Proceed only if the character was disaffirmed
-            returncode = ( ( chralert[character] & ALERTIFDISAFFIRMED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFDISAFFIRMED ) != 0 );
             break;
 
         case FTRANSLATEORDER:
             // This function gets the order and sets tmpx, tmpy, tmpargument and the
             // target ( if valid )
-            sTmp = chrorder[character] >> 24;
+            sTmp = chr[character].order >> 24;
 
             if ( sTmp < MAXCHR )
             {
-                chraitarget[character] = sTmp;
+                chr[character].aitarget = sTmp;
             }
 
-            valuetmpx = ( ( chrorder[character] >> 14 ) & 1023 ) << 6;
-            valuetmpy = ( ( chrorder[character] >> 4 ) & 1023 ) << 6;
-            valuetmpargument = chrorder[character] & 15;
+            valuetmpx = ( ( chr[character].order >> 14 ) & 1023 ) << 6;
+            valuetmpy = ( ( chr[character].order >> 4 ) & 1023 ) << 6;
+            valuetmpargument = chr[character].order & 15;
             break;
 
         case FSETTARGETTOWHOEVERWASHIT:
             // This function sets the target to whoever the character hit last,
-            chraitarget[character] = chrhitlast[character];
+            chr[character].aitarget = chr[character].hitlast;
             break;
 
         case FSETTARGETTOWIDEENEMY:
@@ -1956,70 +1956,70 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFCHANGED:
             // Proceed only if the character was polymorphed
-            returncode = ( ( chralert[character] & ALERTIFCHANGED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFCHANGED ) != 0 );
             break;
 
         case FIFINWATER:
             // Proceed only if the character got wet
-            returncode = ( ( chralert[character] & ALERTIFINWATER ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFINWATER ) != 0 );
             break;
 
         case FIFBORED:
             // Proceed only if the character is bored
-            returncode = ( ( chralert[character] & ALERTIFBORED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFBORED ) != 0 );
             break;
 
         case FIFTOOMUCHBAGGAGE:
             // Proceed only if the character tried to grab too much
-            returncode = ( ( chralert[character] & ALERTIFTOOMUCHBAGGAGE ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFTOOMUCHBAGGAGE ) != 0 );
             break;
 
         case FIFGROGGED:
             // Proceed only if the character was grogged
-            returncode = ( ( chralert[character] & ALERTIFGROGGED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFGROGGED ) != 0 );
             break;
 
         case FIFDAZED:
             // Proceed only if the character was dazed
-            returncode = ( ( chralert[character] & ALERTIFDAZED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFDAZED ) != 0 );
             break;
 
         case FIFTARGETHASSPECIALID:
             // This function proceeds if ID matches tmpargument
-            returncode = ( capidsz[chrmodel[chraitarget[character]]][IDSZ_SPECIAL] == ( IDSZ ) valuetmpargument );
+            returncode = ( capidsz[chr[chr[character].aitarget].model][IDSZ_SPECIAL] == ( IDSZ ) valuetmpargument );
             break;
 
         case FPRESSTARGETLATCHBUTTON:
             // This function sets the target's latch buttons
-            chrlatchbutton[chraitarget[character]] = chrlatchbutton[chraitarget[character]] | valuetmpargument;
+            chr[chr[character].aitarget].latchbutton = chr[chr[character].aitarget].latchbutton | valuetmpargument;
             break;
 
         case FIFINVISIBLE:
             // This function passes if the character is invisible
-            returncode = ( chralpha[character] <= INVISIBLE ) || ( chrlight[character] <= INVISIBLE );
+            returncode = ( chr[character].alpha <= INVISIBLE ) || ( chr[character].light <= INVISIBLE );
             break;
 
         case FIFARMORIS:
             // This function passes if the character's skin is tmpargument
-            tTmp = chrtexture[character] - madskinstart[chrmodel[character]];
+            tTmp = chr[character].texture - madskinstart[chr[character].model];
             returncode = ( tTmp == valuetmpargument );
             break;
 
         case FGETTARGETGROGTIME:
             // This function returns tmpargument as the grog time, and passes if it is not 0
-            valuetmpargument = chrgrogtime[character];
+            valuetmpargument = chr[character].grogtime;
             returncode = ( valuetmpargument != 0 );
             break;
 
         case FGETTARGETDAZETIME:
             // This function returns tmpargument as the daze time, and passes if it is not 0
-            valuetmpargument = chrdazetime[character];
+            valuetmpargument = chr[character].dazetime;
             returncode = ( valuetmpargument != 0 );
             break;
 
         case FSETDAMAGETYPE:
             // This function sets the bump damage type
-            chrdamagetargettype[character] = valuetmpargument & ( DAMAGE_COUNT - 1 );
+            chr[character].damagetargettype = valuetmpargument & ( DAMAGE_COUNT - 1 );
             break;
 
         case FSETWATERLEVEL:
@@ -2036,14 +2036,14 @@ Uint8 run_function( Uint32 value, int character )
 
         case FENCHANTTARGET:
             // This function enchants the target
-            sTmp = spawn_enchant( chraiowner[character], chraitarget[character], character, MAXENCHANT, MAXMODEL );
+            sTmp = spawn_enchant( chr[character].aiowner, chr[character].aitarget, character, MAXENCHANT, MAXMODEL );
             returncode = ( sTmp != MAXENCHANT );
             break;
 
         case FENCHANTCHILD:
             // This function can be used with SpawnCharacter to enchant the
             // newly spawned character
-            sTmp = spawn_enchant( chraiowner[character], chraichild[character], character, MAXENCHANT, MAXMODEL );
+            sTmp = spawn_enchant( chr[character].aiowner, chr[character].aichild, character, MAXENCHANT, MAXMODEL );
             returncode = ( sTmp != MAXENCHANT );
             break;
 
@@ -2055,30 +2055,30 @@ Uint8 run_function( Uint32 value, int character )
             if ( valuetmpx > EDGE && valuetmpy > EDGE && valuetmpx < meshedgex - EDGE && valuetmpy < meshedgey - EDGE )
             {
                 // Yeah!  It worked!
-                sTmp = chraitarget[character];
+                sTmp = chr[character].aitarget;
                 detach_character_from_mount( sTmp, btrue, bfalse );
-                chroldx[sTmp] = chrxpos[sTmp];
-                chroldy[sTmp] = chrypos[sTmp];
-                chrxpos[sTmp] = valuetmpx;
-                chrypos[sTmp] = valuetmpy;
-                chrzpos[sTmp] = valuetmpdistance;
-                chrturnleftright[sTmp] = valuetmpturn;
+                chr[sTmp].oldx = chr[sTmp].xpos;
+                chr[sTmp].oldy = chr[sTmp].ypos;
+                chr[sTmp].xpos = valuetmpx;
+                chr[sTmp].ypos = valuetmpy;
+                chr[sTmp].zpos = valuetmpdistance;
+                chr[sTmp].turnleftright = valuetmpturn;
 
                 if ( __chrhitawall( sTmp ) )
                 {
                     // No it didn't...
-                    chrxpos[sTmp] = chroldx[sTmp];
-                    chrypos[sTmp] = chroldy[sTmp];
-                    chrzpos[sTmp] = chroldz[sTmp];
-                    chrturnleftright[sTmp] = chroldturn[sTmp];
+                    chr[sTmp].xpos = chr[sTmp].oldx;
+                    chr[sTmp].ypos = chr[sTmp].oldy;
+                    chr[sTmp].zpos = chr[sTmp].oldz;
+                    chr[sTmp].turnleftright = chr[sTmp].oldturn;
                     returncode = bfalse;
                 }
                 else
                 {
-                    chroldx[sTmp] = chrxpos[sTmp];
-                    chroldy[sTmp] = chrypos[sTmp];
-                    chroldz[sTmp] = chrzpos[sTmp];
-                    chroldturn[sTmp] = chrturnleftright[sTmp];
+                    chr[sTmp].oldx = chr[sTmp].xpos;
+                    chr[sTmp].oldy = chr[sTmp].ypos;
+                    chr[sTmp].oldz = chr[sTmp].zpos;
+                    chr[sTmp].oldturn = chr[sTmp].turnleftright;
                     returncode = btrue;
                 }
             }
@@ -2087,47 +2087,47 @@ Uint8 run_function( Uint32 value, int character )
         case FGIVEEXPERIENCETOTARGET:
             // This function gives the target some experience, xptype from distance,
             // amount from argument...
-            give_experience( chraitarget[character], valuetmpargument, valuetmpdistance );
+            give_experience( chr[character].aitarget, valuetmpargument, valuetmpdistance );
             break;
 
         case FINCREASEAMMO:
 
             // This function increases the ammo by one
-            if ( chrammo[character] < chrammomax[character] )
+            if ( chr[character].ammo < chr[character].ammomax )
             {
-                chrammo[character]++;
+                chr[character].ammo++;
             }
             break;
 
         case FUNKURSETARGET:
             // This function unkurses the target
-            chriskursed[chraitarget[character]] = bfalse;
+            chr[chr[character].aitarget].iskursed = bfalse;
             break;
 
         case FGIVEEXPERIENCETOTARGETTEAM:
             // This function gives experience to everyone on the target's team
-            give_team_experience( chrteam[chraitarget[character]], valuetmpargument, valuetmpdistance );
+            give_team_experience( chr[chr[character].aitarget].team, valuetmpargument, valuetmpdistance );
             break;
 
         case FIFUNARMED:
             // This function proceeds if the character has no item in hand
-            returncode = ( chrholdingwhich[character][0] == MAXCHR && chrholdingwhich[character][1] == MAXCHR );
+            returncode = ( chr[character].holdingwhich[0] == MAXCHR && chr[character].holdingwhich[1] == MAXCHR );
             break;
 
         case FRESTOCKTARGETAMMOIDALL:
             // This function restocks the ammo of every item the character is holding,
             // if the item matches the ID given ( parent or child type )
             iTmp = 0;  // Amount of ammo given
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
             iTmp += restock_ammo( sTmp, valuetmpargument );
-            sTmp = chrholdingwhich[chraitarget[character]][1];
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
             iTmp += restock_ammo( sTmp, valuetmpargument );
-            sTmp = chrnextinpack[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].nextinpack;
 
             while ( sTmp != MAXCHR )
             {
                 iTmp += restock_ammo( sTmp, valuetmpargument );
-                sTmp = chrnextinpack[sTmp];
+                sTmp = chr[sTmp].nextinpack;
             }
 
             valuetmpargument = iTmp;
@@ -2138,22 +2138,22 @@ Uint8 run_function( Uint32 value, int character )
             // This function restocks the ammo of the first item the character is holding,
             // if the item matches the ID given ( parent or child type )
             iTmp = 0;  // Amount of ammo given
-            sTmp = chrholdingwhich[chraitarget[character]][0];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
             iTmp += restock_ammo( sTmp, valuetmpargument );
 
             if ( iTmp == 0 )
             {
-                sTmp = chrholdingwhich[chraitarget[character]][1];
+                sTmp = chr[chr[character].aitarget].holdingwhich[1];
                 iTmp += restock_ammo( sTmp, valuetmpargument );
 
                 if ( iTmp == 0 )
                 {
-                    sTmp = chrnextinpack[chraitarget[character]];
+                    sTmp = chr[chr[character].aitarget].nextinpack;
 
                     while ( sTmp != MAXCHR && iTmp == 0 )
                     {
                         iTmp += restock_ammo( sTmp, valuetmpargument );
-                        sTmp = chrnextinpack[sTmp];
+                        sTmp = chr[sTmp].nextinpack;
                     }
                 }
             }
@@ -2164,39 +2164,39 @@ Uint8 run_function( Uint32 value, int character )
 
         case FFLASHTARGET:
             // This function flashes the character
-            flash_character( chraitarget[character], 255 );
+            flash_character( chr[character].aitarget, 255 );
             break;
 
         case FSETREDSHIFT:
             // This function alters a character's coloration
-            chrredshift[character] = valuetmpargument;
+            chr[character].redshift = valuetmpargument;
             break;
 
         case FSETGREENSHIFT:
             // This function alters a character's coloration
-            chrgrnshift[character] = valuetmpargument;
+            chr[character].grnshift = valuetmpargument;
             break;
 
         case FSETBLUESHIFT:
             // This function alters a character's coloration
-            chrblushift[character] = valuetmpargument;
+            chr[character].blushift = valuetmpargument;
             break;
 
         case FSETLIGHT:
             // This function alters a character's transparency
-            chrlight[character] = valuetmpargument;
+            chr[character].light = valuetmpargument;
             break;
 
         case FSETALPHA:
             // This function alters a character's transparency
-            chralpha[character] = valuetmpargument;
+            chr[character].alpha = valuetmpargument;
             break;
 
         case FIFHITFROMBEHIND:
             // This function proceeds if the character was attacked from behind
             returncode = bfalse;
 
-            if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
+            if ( chr[character].directionlast >= BEHIND - 8192 && chr[character].directionlast < BEHIND + 8192 )
                 returncode = btrue;
 
             break;
@@ -2205,7 +2205,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the character was attacked from the front
             returncode = bfalse;
 
-            if ( chrdirectionlast[character] >= 49152 + 8192 || chrdirectionlast[character] < FRONT + 8192 )
+            if ( chr[character].directionlast >= 49152 + 8192 || chr[character].directionlast < FRONT + 8192 )
                 returncode = btrue;
 
             break;
@@ -2214,7 +2214,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the character was attacked from the left
             returncode = bfalse;
 
-            if ( chrdirectionlast[character] >= LEFT - 8192 && chrdirectionlast[character] < LEFT + 8192 )
+            if ( chr[character].directionlast >= LEFT - 8192 && chr[character].directionlast < LEFT + 8192 )
                 returncode = btrue;
 
             break;
@@ -2223,7 +2223,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the character was attacked from the right
             returncode = bfalse;
 
-            if ( chrdirectionlast[character] >= RIGHT - 8192 && chrdirectionlast[character] < RIGHT + 8192 )
+            if ( chr[character].directionlast >= RIGHT - 8192 && chr[character].directionlast < RIGHT + 8192 )
                 returncode = btrue;
 
             break;
@@ -2232,20 +2232,20 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds only if the target is on another team
             returncode = bfalse;
 
-            if ( chrteam[chraitarget[character]] == chrteam[character] )
+            if ( chr[chr[character].aitarget].team == chr[character].team )
                 returncode = btrue;
 
             break;
 
         case FKILLTARGET:
             // This function kills the target
-            kill_character( chraitarget[character], character );
+            kill_character( chr[character].aitarget, character );
             break;
 
         case FUNDOENCHANT:
             // This function undoes the last enchant
-            returncode = ( chrundoenchant[character] != MAXENCHANT );
-            remove_enchant( chrundoenchant[character] );
+            returncode = ( chr[character].undoenchant != MAXENCHANT );
+            remove_enchant( chr[character].undoenchant );
             break;
 
         case FGETWATERLEVEL:
@@ -2255,7 +2255,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FCOSTTARGETMANA:
             // This function costs the target some mana
-            returncode = cost_mana( chraitarget[character], valuetmpargument, character );
+            returncode = cost_mana( chr[character].aitarget, valuetmpargument, character );
             break;
 
         case FIFTARGETHASANYID:
@@ -2265,24 +2265,24 @@ Uint8 run_function( Uint32 value, int character )
 
             while ( tTmp < IDSZ_COUNT )
             {
-                returncode |= ( capidsz[chrmodel[chraitarget[character]]][tTmp] == ( IDSZ ) valuetmpargument );
+                returncode |= ( capidsz[chr[chr[character].aitarget].model][tTmp] == ( IDSZ ) valuetmpargument );
                 tTmp++;
             }
             break;
 
         case FSETBUMPSIZE:
             // This function sets the character's bump size
-            fTmp = chrbumpsizebig[character];
-            fTmp = fTmp / chrbumpsize[character];  // 1.5f or 2.0f
-            chrbumpsize[character] = valuetmpargument * chrfat[character];
-            chrbumpsizebig[character] = fTmp * chrbumpsize[character];
-            chrbumpsizesave[character] = valuetmpargument;
-            chrbumpsizebigsave[character] = fTmp * chrbumpsizesave[character];
+            fTmp = chr[character].bumpsizebig;
+            fTmp = fTmp / chr[character].bumpsize;  // 1.5f or 2.0f
+            chr[character].bumpsize = valuetmpargument * chr[character].fat;
+            chr[character].bumpsizebig = fTmp * chr[character].bumpsize;
+            chr[character].bumpsizesave = valuetmpargument;
+            chr[character].bumpsizebigsave = fTmp * chr[character].bumpsizesave;
             break;
 
         case FIFNOTDROPPED:
             // This function passes if a kursed item could not be dropped
-            returncode = ( ( chralert[character] & ALERTIFNOTDROPPED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFNOTDROPPED ) != 0 );
             break;
 
         case FIFYISLESSTHANX:
@@ -2292,65 +2292,65 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETFLYHEIGHT:
             // This function sets a character's fly height
-            chrflyheight[character] = valuetmpargument;
+            chr[character].flyheight = valuetmpargument;
             break;
 
         case FIFBLOCKED:
             // This function passes if the character blocked an attack
-            returncode = ( ( chralert[character] & ALERTIFBLOCKED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFBLOCKED ) != 0 );
             break;
 
         case FIFTARGETISDEFENDING:
-            returncode = ( chraction[chraitarget[character]] >= ACTIONPA && chraction[chraitarget[character]] <= ACTIONPD );
+            returncode = ( chr[chr[character].aitarget].action >= ACTIONPA && chr[chr[character].aitarget].action <= ACTIONPD );
             break;
 
         case FIFTARGETISATTACKING:
-            returncode = ( chraction[chraitarget[character]] >= ACTIONUA && chraction[chraitarget[character]] <= ACTIONFD );
+            returncode = ( chr[chr[character].aitarget].action >= ACTIONUA && chr[chr[character].aitarget].action <= ACTIONFD );
             break;
 
         case FIFSTATEIS0:
-            returncode = ( 0 == chraistate[character] );
+            returncode = ( 0 == chr[character].aistate );
             break;
 
         case FIFSTATEIS1:
-            returncode = ( 1 == chraistate[character] );
+            returncode = ( 1 == chr[character].aistate );
             break;
 
         case FIFSTATEIS2:
-            returncode = ( 2 == chraistate[character] );
+            returncode = ( 2 == chr[character].aistate );
             break;
 
         case FIFSTATEIS3:
-            returncode = ( 3 == chraistate[character] );
+            returncode = ( 3 == chr[character].aistate );
             break;
 
         case FIFSTATEIS4:
-            returncode = ( 4 == chraistate[character] );
+            returncode = ( 4 == chr[character].aistate );
             break;
 
         case FIFSTATEIS5:
-            returncode = ( 5 == chraistate[character] );
+            returncode = ( 5 == chr[character].aistate );
             break;
 
         case FIFSTATEIS6:
-            returncode = ( 6 == chraistate[character] );
+            returncode = ( 6 == chr[character].aistate );
             break;
 
         case FIFSTATEIS7:
-            returncode = ( 7 == chraistate[character] );
+            returncode = ( 7 == chr[character].aistate );
             break;
 
         case FIFCONTENTIS:
-            returncode = ( valuetmpargument == chraicontent[character] );
+            returncode = ( valuetmpargument == chr[character].aicontent );
             break;
 
         case FSETTURNMODETOWATCHTARGET:
             // This function sets the turn mode
-            chrturnmode[character] = TURNMODEWATCHTARGET;
+            chr[character].turnmode = TURNMODEWATCHTARGET;
             break;
 
         case FIFSTATEISNOT:
-            returncode = ( valuetmpargument != chraistate[character] );
+            returncode = ( valuetmpargument != chr[character].aistate );
             break;
 
         case FIFXISEQUALTOY:
@@ -2359,43 +2359,43 @@ Uint8 run_function( Uint32 value, int character )
 
         case FDEBUGMESSAGE:
             // This function spits out a debug message
-            sprintf( cTmp, "aistate %d, aicontent %d, target %d", chraistate[character], chraicontent[character], chraitarget[character] );
+            sprintf( cTmp, "aistate %d, aicontent %d, target %d", chr[character].aistate, chr[character].aicontent, chr[character].aitarget );
             debug_message( cTmp );
             sprintf( cTmp, "tmpx %d, tmpy %d", valuetmpx, valuetmpy );
             debug_message( cTmp );
             sprintf( cTmp, "tmpdistance %d, tmpturn %d", valuetmpdistance, valuetmpturn );
             debug_message( cTmp );
-            sprintf( cTmp, "tmpargument %d, selfturn %d", valuetmpargument, chrturnleftright[character] );
+            sprintf( cTmp, "tmpargument %d, selfturn %d", valuetmpargument, chr[character].turnleftright );
             debug_message( cTmp );
             break;
 
         case FBLACKTARGET:
             // This function makes the target flash black
-            flash_character( chraitarget[character], 0 );
+            flash_character( chr[character].aitarget, 0 );
             break;
 
         case FSENDMESSAGENEAR:
             // This function sends a message if the camera is in the nearby area.
-            iTmp = ABS( chroldx[character] - camtrackx ) + ABS( chroldy[character] - camtracky );
+            iTmp = ABS( chr[character].oldx - camtrackx ) + ABS( chr[character].oldy - camtracky );
 
             if ( iTmp < MSGDISTANCE )
-                display_message( madmsgstart[chrmodel[character]] + valuetmpargument, character );
+                display_message( madmsgstart[chr[character].model] + valuetmpargument, character );
 
             break;
 
         case FIFHITGROUND:
             // This function passes if the character just hit the ground
-            returncode = ( ( chralert[character] & ALERTIFHITGROUND ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFHITGROUND ) != 0 );
             break;
 
         case FIFNAMEISKNOWN:
             // This function passes if the character's name is known
-            returncode = chrnameknown[character];
+            returncode = chr[character].nameknown;
             break;
 
         case FIFUSAGEISKNOWN:
             // This function passes if the character's usage is known
-            returncode = capusageknown[chrmodel[character]];
+            returncode = capusageknown[chr[character].model];
             break;
 
         case FIFHOLDINGITEMID:
@@ -2403,11 +2403,11 @@ Uint8 run_function( Uint32 value, int character )
             // in tmpargument, returning the latch to press to use it
             returncode = bfalse;
             // Check left hand
-            sTmp = chrholdingwhich[character][0];
+            sTmp = chr[character].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
@@ -2417,11 +2417,11 @@ Uint8 run_function( Uint32 value, int character )
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[character][1];
+            sTmp = chr[character].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capidsz[sTmp][IDSZ_PARENT] == ( IDSZ ) valuetmpargument || capidsz[sTmp][IDSZ_TYPE] == ( Uint32 ) valuetmpargument )
                 {
@@ -2440,13 +2440,13 @@ Uint8 run_function( Uint32 value, int character )
             returncode = bfalse;
             valuetmpargument = 0;
             // Check left hand
-            tTmp = chrholdingwhich[character][0];
+            tTmp = chr[character].holdingwhich[0];
 
             if ( tTmp != MAXCHR )
             {
-                sTmp = chrmodel[tTmp];
+                sTmp = chr[tTmp].model;
 
-                if ( capisranged[sTmp] && ( chrammomax[tTmp] == 0 || ( chrammo[tTmp] != 0 && chrammoknown[tTmp] ) ) )
+                if ( capisranged[sTmp] && ( chr[tTmp].ammomax == 0 || ( chr[tTmp].ammo != 0 && chr[tTmp].ammoknown ) ) )
                 {
                     valuetmpargument = LATCHBUTTONLEFT;
                     returncode = btrue;
@@ -2454,13 +2454,13 @@ Uint8 run_function( Uint32 value, int character )
             }
 
             // Check right hand
-            tTmp = chrholdingwhich[character][1];
+            tTmp = chr[character].holdingwhich[1];
 
             if ( tTmp != MAXCHR )
             {
-                sTmp = chrmodel[tTmp];
+                sTmp = chr[tTmp].model;
 
-                if ( capisranged[sTmp] && ( chrammomax[tTmp] == 0 || ( chrammo[tTmp] != 0 && chrammoknown[tTmp] ) ) )
+                if ( capisranged[sTmp] && ( chr[tTmp].ammomax == 0 || ( chr[tTmp].ammo != 0 && chr[tTmp].ammoknown ) ) )
                 {
                     if ( valuetmpargument == 0 || ( allframe&1 ) )
                     {
@@ -2477,11 +2477,11 @@ Uint8 run_function( Uint32 value, int character )
             returncode = bfalse;
             valuetmpargument = 0;
             // Check left hand
-            sTmp = chrholdingwhich[character][0];
+            sTmp = chr[character].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( !capisranged[sTmp] && capweaponaction[sTmp] != ACTIONPA )
                 {
@@ -2491,11 +2491,11 @@ Uint8 run_function( Uint32 value, int character )
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[character][1];
+            sTmp = chr[character].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( !capisranged[sTmp] && capweaponaction[sTmp] != ACTIONPA )
                 {
@@ -2514,11 +2514,11 @@ Uint8 run_function( Uint32 value, int character )
             returncode = bfalse;
             valuetmpargument = 0;
             // Check left hand
-            sTmp = chrholdingwhich[character][0];
+            sTmp = chr[character].holdingwhich[0];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capweaponaction[sTmp] == ACTIONPA )
                 {
@@ -2528,11 +2528,11 @@ Uint8 run_function( Uint32 value, int character )
             }
 
             // Check right hand
-            sTmp = chrholdingwhich[character][1];
+            sTmp = chr[character].holdingwhich[1];
 
             if ( sTmp != MAXCHR )
             {
-                sTmp = chrmodel[sTmp];
+                sTmp = chr[sTmp].model;
 
                 if ( capweaponaction[sTmp] == ACTIONPA )
                 {
@@ -2544,97 +2544,97 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFKURSED:
             // This function passes if the character is kursed
-            returncode = chriskursed[character];
+            returncode = chr[character].iskursed;
             break;
 
         case FIFTARGETISKURSED:
             // This function passes if the target is kursed
-            returncode = chriskursed[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].iskursed;
             break;
 
         case FIFTARGETISDRESSEDUP:
             // This function passes if the character's skin is dressy
-            iTmp = chrtexture[character] - madskinstart[chrmodel[character]];
+            iTmp = chr[character].texture - madskinstart[chr[character].model];
             iTmp = 1 << iTmp;
-            returncode = ( ( capskindressy[chrmodel[character]] & iTmp ) != 0 );
+            returncode = ( ( capskindressy[chr[character].model] & iTmp ) != 0 );
             break;
 
         case FIFOVERWATER:
             // This function passes if the character is on a water tile
-            returncode = ( ( meshfx[chronwhichfan[character]] & MESHFXWATER ) != 0 && wateriswater );
+            returncode = ( ( meshfx[chr[character].onwhichfan] & MESHFXWATER ) != 0 && wateriswater );
             break;
 
         case FIFTHROWN:
             // This function passes if the character was thrown
-            returncode = ( ( chralert[character] & ALERTIFTHROWN ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFTHROWN ) != 0 );
             break;
 
         case FMAKENAMEKNOWN:
             // This function makes the name of an item/character known.
-            chrnameknown[character] = btrue;
-//            chricon[character] = btrue;
+            chr[character].nameknown = btrue;
+//            chr[character].icon = btrue;
             break;
 
         case FMAKEUSAGEKNOWN:
             // This function makes the usage of an item known...  For XP gains from
             // using an unknown potion or such
-            capusageknown[chrmodel[character]] = btrue;
+            capusageknown[chr[character].model] = btrue;
             break;
 
         case FSTOPTARGETMOVEMENT:
             // This function makes the target stop moving temporarily
-            chrxvel[chraitarget[character]] = 0;
-            chryvel[chraitarget[character]] = 0;
+            chr[chr[character].aitarget].xvel = 0;
+            chr[chr[character].aitarget].yvel = 0;
 
-            if ( chrzvel[chraitarget[character]] > 0 ) chrzvel[chraitarget[character]] = gravity;
+            if ( chr[chr[character].aitarget].zvel > 0 ) chr[chr[character].aitarget].zvel = gravity;
 
             break;
 
         case FSETXY:
             // This function stores tmpx and tmpy in the storage array
-            chraix[character][valuetmpargument&STORAND] = valuetmpx;
-            chraiy[character][valuetmpargument&STORAND] = valuetmpy;
+            chr[character].aix[valuetmpargument&STORAND] = valuetmpx;
+            chr[character].aiy[valuetmpargument&STORAND] = valuetmpy;
             break;
 
         case FGETXY:
             // This function gets previously stored data, setting tmpx and tmpy
-            valuetmpx = chraix[character][valuetmpargument&STORAND];
-            valuetmpy = chraiy[character][valuetmpargument&STORAND];
+            valuetmpx = chr[character].aix[valuetmpargument&STORAND];
+            valuetmpy = chr[character].aiy[valuetmpargument&STORAND];
             break;
 
         case FADDXY:
             // This function adds tmpx and tmpy to the storage array
-            chraix[character][valuetmpargument&STORAND] += valuetmpx;
-            chraiy[character][valuetmpargument&STORAND] += valuetmpy;
+            chr[character].aix[valuetmpargument&STORAND] += valuetmpx;
+            chr[character].aiy[valuetmpargument&STORAND] += valuetmpy;
             break;
 
         case FMAKEAMMOKNOWN:
             // This function makes the ammo of an item/character known.
-            chrammoknown[character] = btrue;
+            chr[character].ammoknown = btrue;
             break;
 
         case FSPAWNATTACHEDPARTICLE:
             // This function spawns an attached particle
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], chrturnleftright[character], chrmodel[character], valuetmpargument, character, valuetmpdistance, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, chr[character].turnleftright, chr[character].model, valuetmpargument, character, valuetmpdistance, chr[character].team, tTmp, 0, MAXCHR );
             break;
 
         case FSPAWNEXACTPARTICLE:
             // This function spawns an exactly placed particle
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chrturnleftright[character], chrmodel[character], valuetmpargument, MAXCHR, 0, chrteam[character], tTmp, 0, MAXCHR );
+            spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chr[character].turnleftright, chr[character].model, valuetmpargument, MAXCHR, 0, chr[character].team, tTmp, 0, MAXCHR );
             break;
 
         case FACCELERATETARGET:
             // This function changes the target's speeds
-            chrxvel[chraitarget[character]] += valuetmpx;
-            chryvel[chraitarget[character]] += valuetmpy;
+            chr[chr[character].aitarget].xvel += valuetmpx;
+            chr[chr[character].aitarget].yvel += valuetmpy;
             break;
 
         case FIFDISTANCEISMORETHANTURN:
@@ -2644,37 +2644,37 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFCRUSHED:
             // This function proceeds only if the character was crushed
-            returncode = ( ( chralert[character] & ALERTIFCRUSHED ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFCRUSHED ) != 0 );
             break;
 
         case FMAKECRUSHVALID:
             // This function makes doors able to close on this object
-            chrcanbecrushed[character] = btrue;
+            chr[character].canbecrushed = btrue;
             break;
 
         case FSETTARGETTOLOWESTTARGET:
 
             // This sets the target to whatever the target is being held by,
             // The lowest in the set.  This function never fails
-            while ( chrattachedto[chraitarget[character]] != MAXCHR )
+            while ( chr[chr[character].aitarget].attachedto != MAXCHR )
             {
-                chraitarget[character] = chrattachedto[chraitarget[character]];
+                chr[character].aitarget = chr[chr[character].aitarget].attachedto;
             }
             break;
 
         case FIFNOTPUTAWAY:
             // This function proceeds only if the character couln't be put in the pack
-            returncode = ( ( chralert[character] & ALERTIFNOTPUTAWAY ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFNOTPUTAWAY ) != 0 );
             break;
 
         case FIFTAKENOUT:
             // This function proceeds only if the character was taken out of the pack
-            returncode = ( ( chralert[character] & ALERTIFTAKENOUT ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFTAKENOUT ) != 0 );
             break;
 
         case FIFAMMOOUT:
             // This function proceeds only if the character has no ammo
-            returncode = ( chrammo[character] == 0 );
+            returncode = ( chr[character].ammo == 0 );
             break;
 
         case FPLAYSOUNDLOOPED:
@@ -2682,7 +2682,7 @@ Uint8 run_function( Uint32 value, int character )
             if ( moduleactive )
             {
                 // You could use this, but right now there's no way to stop the sound later, so it's better not to start it
-                // play_sound_pvf_looped(capwaveindex[chrmodel[character]][valuetmpargument], PANMID, volume, valuetmpdistance);
+                // play_sound_pvf_looped(capwaveindex[chr[character].model][valuetmpargument], PANMID, volume, valuetmpdistance);
             }
             break;
 
@@ -2696,50 +2696,50 @@ Uint8 run_function( Uint32 value, int character )
 
             // This function heals the character, without setting the alert or modifying
             // the amount
-            if ( chralive[character] )
+            if ( chr[character].alive )
             {
-                iTmp = chrlife[character] + valuetmpargument;
+                iTmp = chr[character].life + valuetmpargument;
 
-                if ( iTmp > chrlifemax[character] ) iTmp = chrlifemax[character];
+                if ( iTmp > chr[character].lifemax ) iTmp = chr[character].lifemax;
 
                 if ( iTmp < 1 ) iTmp = 1;
 
-                chrlife[character] = iTmp;
+                chr[character].life = iTmp;
             }
             break;
 
         case FEQUIP:
             // This function flags the character as being equipped
-            chrisequipped[character] = btrue;
+            chr[character].isequipped = btrue;
             break;
 
         case FIFTARGETHASITEMIDEQUIPPED:
             // This function proceeds if the target has a matching item equipped
             returncode = bfalse;
-            sTmp = chrnextinpack[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].nextinpack;
 
             while ( sTmp != MAXCHR )
             {
-                if ( sTmp != character && chrisequipped[sTmp] && ( capidsz[chrmodel[sTmp]][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chrmodel[sTmp]][IDSZ_TYPE] == ( Uint32 ) valuetmpargument ) )
+                if ( sTmp != character && chr[sTmp].isequipped && ( capidsz[chr[sTmp].model][IDSZ_PARENT] == ( Uint32 ) valuetmpargument || capidsz[chr[sTmp].model][IDSZ_TYPE] == ( Uint32 ) valuetmpargument ) )
                 {
                     returncode = btrue;
                     sTmp = MAXCHR;
                 }
                 else
                 {
-                    sTmp = chrnextinpack[sTmp];
+                    sTmp = chr[sTmp].nextinpack;
                 }
             }
             break;
 
         case FSETOWNERTOTARGET:
             // This function sets the owner
-            chraiowner[character] = chraitarget[character];
+            chr[character].aiowner = chr[character].aitarget;
             break;
 
         case FSETTARGETTOOWNER:
             // This function sets the target to the owner
-            chraitarget[character] = chraiowner[character];
+            chr[character].aitarget = chr[character].aiowner;
             break;
 
         case FSETFRAME:
@@ -2757,8 +2757,8 @@ Uint8 run_function( Uint32 value, int character )
         case FSETRELOADTIME:
 
             // This function makes weapons fire slower
-            if ( valuetmpargument > 0 ) chrreloadtime[character] = valuetmpargument;
-            else chrreloadtime[character] = 0;
+            if ( valuetmpargument > 0 ) chr[character].reloadtime = valuetmpargument;
+            else chr[character].reloadtime = 0;
 
             break;
 
@@ -2788,11 +2788,11 @@ Uint8 run_function( Uint32 value, int character )
             // This function makes the target go away
             returncode = bfalse;
 
-            if ( !chrisplayer[chraitarget[character]] )
+            if ( !chr[chr[character].aitarget].isplayer )
             {
                 returncode = btrue;
 
-                if ( chraitarget[character] == character )
+                if ( chr[character].aitarget == character )
                 {
                     // Poof self later
                     valuegopoof = btrue;
@@ -2800,18 +2800,18 @@ Uint8 run_function( Uint32 value, int character )
                 else
                 {
                     // Poof others now
-                    if ( chrattachedto[chraitarget[character]] != MAXCHR )
-                        detach_character_from_mount( chraitarget[character], btrue, bfalse );
+                    if ( chr[chr[character].aitarget].attachedto != MAXCHR )
+                        detach_character_from_mount( chr[character].aitarget, btrue, bfalse );
 
-                    if ( chrholdingwhich[chraitarget[character]][0] != MAXCHR )
-                        detach_character_from_mount( chrholdingwhich[chraitarget[character]][0], btrue, bfalse );
+                    if ( chr[chr[character].aitarget].holdingwhich[0] != MAXCHR )
+                        detach_character_from_mount( chr[chr[character].aitarget].holdingwhich[0], btrue, bfalse );
 
-                    if ( chrholdingwhich[chraitarget[character]][1] != MAXCHR )
-                        detach_character_from_mount( chrholdingwhich[chraitarget[character]][1], btrue, bfalse );
+                    if ( chr[chr[character].aitarget].holdingwhich[1] != MAXCHR )
+                        detach_character_from_mount( chr[chr[character].aitarget].holdingwhich[1], btrue, bfalse );
 
-                    free_inventory( chraitarget[character] );
-                    free_one_character( chraitarget[character] );
-                    chraitarget[character] = character;
+                    free_inventory( chr[character].aitarget );
+                    free_one_character( chr[character].aitarget );
+                    chr[character].aitarget = character;
                 }
             }
             break;
@@ -2823,13 +2823,13 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( valuetmpargument < MAXACTION )
             {
-                if ( madactionvalid[chrmodel[chraichild[character]]][valuetmpargument] )
+                if ( madactionvalid[chr[chr[character].aichild].model][valuetmpargument] )
                 {
-                    chraction[chraichild[character]] = valuetmpargument;
-                    chrlip[chraichild[character]] = 0;
-                    chrframe[chraichild[character]] = madactionstart[chrmodel[chraichild[character]]][valuetmpargument];
-                    chrlastframe[chraichild[character]] = chrframe[chraichild[character]];
-                    chractionready[chraichild[character]] = bfalse;
+                    chr[chr[character].aichild].action = valuetmpargument;
+                    chr[chr[character].aichild].lip = 0;
+                    chr[chr[character].aichild].frame = madactionstart[chr[chr[character].aichild].model][valuetmpargument];
+                    chr[chr[character].aichild].lastframe = chr[chr[character].aichild].frame;
+                    chr[chr[character].aichild].actionready = bfalse;
                     returncode = btrue;
                 }
             }
@@ -2837,26 +2837,26 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSPAWNPOOF:
             // This function makes a lovely little poof at the character's location
-            spawn_poof( character, chrmodel[character] );
+            spawn_poof( character, chr[character].model );
             break;
 
         case FSETSPEEDPERCENT:
             reset_character_accel( character );
-            chrmaxaccel[character] = chrmaxaccel[character] * valuetmpargument / 100.0f;
+            chr[character].maxaccel = chr[character].maxaccel * valuetmpargument / 100.0f;
             break;
 
         case FSETCHILDSTATE:
             // This function sets the child's state
-            chraistate[chraichild[character]] = valuetmpargument;
+            chr[chr[character].aichild].aistate = valuetmpargument;
             break;
 
         case FSPAWNATTACHEDSIZEDPARTICLE:
             // This function spawns an attached particle, then sets its size
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], chrturnleftright[character], chrmodel[character], valuetmpargument, character, valuetmpdistance, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, chr[character].turnleftright, chr[character].model, valuetmpargument, character, valuetmpdistance, chr[character].team, tTmp, 0, MAXCHR );
 
             if ( tTmp < maxparticles )
             {
@@ -2868,7 +2868,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function sets the character's armor type and returns the old type
             // as tmpargument and the new type as tmpx
             valuetmpx = valuetmpargument;
-            iTmp = chrtexture[character] - madskinstart[chrmodel[character]];
+            iTmp = chr[character].texture - madskinstart[chr[character].model];
             valuetmpx = change_armor( character, valuetmpargument );
             valuetmpargument = iTmp;  // The character's old armor
             break;
@@ -2881,8 +2881,8 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFFACINGTARGET:
             // This function proceeds only if the character is facing the target
-            sTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
-            sTmp += 32768 - chrturnleftright[character];
+            sTmp = ATAN2( chr[chr[character].aitarget].ypos - chr[character].ypos, chr[chr[character].aitarget].xpos - chr[character].xpos ) * 65535 / ( TWO_PI );
+            sTmp += 32768 - chr[character].turnleftright;
             returncode = ( sTmp > 55535 || sTmp < 10000 );
             break;
 
@@ -2895,16 +2895,16 @@ Uint8 run_function( Uint32 value, int character )
                 iTmp = -1;
                 if ( valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
                 {
-                    iTmp = play_mix( chroldx[character], chroldy[character], capwaveindex[chrmodel[character]] + valuetmpargument );
+                    iTmp = play_mix( chr[character].oldx, chr[character].oldy, capwaveindex[chr[character].model] + valuetmpargument );
                 }
 
                 if ( -1 != iTmp )
                 {
-                    if ( MIX_SND == capwaveindex[chrmodel[character]][valuetmpargument].type )
+                    if ( MIX_SND == capwaveindex[chr[character].model][valuetmpargument].type )
                     {
                         Mix_Volume( iTmp, valuetmpdistance );
                     }
-                    else if ( MIX_MUS == capwaveindex[chrmodel[character]][valuetmpargument].type )
+                    else if ( MIX_MUS == capwaveindex[chr[character].model][valuetmpargument].type )
                     {
                         Mix_VolumeMusic( valuetmpdistance );
                     }
@@ -2916,13 +2916,13 @@ Uint8 run_function( Uint32 value, int character )
             // This function spawns an attached particle with facing
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], valuetmpturn, chrmodel[character], valuetmpargument, character, valuetmpdistance, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, valuetmpturn, chr[character].model, valuetmpargument, character, valuetmpdistance, chr[character].team, tTmp, 0, MAXCHR );
             break;
 
         case FIFSTATEISODD:
-            returncode = ( chraistate[character] & 1 );
+            returncode = ( chr[character].aistate & 1 );
             break;
 
         case FSETTARGETTODISTANTENEMY:
@@ -2943,22 +2943,22 @@ Uint8 run_function( Uint32 value, int character )
             {
                 // Yeah!  It worked!
                 detach_character_from_mount( character, btrue, bfalse );
-                chroldx[character] = chrxpos[character];
-                chroldy[character] = chrypos[character];
-                chrxpos[character] = valuetmpx;
-                chrypos[character] = valuetmpy;
+                chr[character].oldx = chr[character].xpos;
+                chr[character].oldy = chr[character].ypos;
+                chr[character].xpos = valuetmpx;
+                chr[character].ypos = valuetmpy;
 
                 if ( __chrhitawall( character ) )
                 {
                     // No it didn't...
-                    chrxpos[character] = chroldx[character];
-                    chrypos[character] = chroldy[character];
+                    chr[character].xpos = chr[character].oldx;
+                    chr[character].ypos = chr[character].oldy;
                     returncode = bfalse;
                 }
                 else
                 {
-                    chroldx[character] = chrxpos[character];
-                    chroldy[character] = chrypos[character];
+                    chr[character].oldx = chr[character].xpos;
+                    chr[character].oldy = chr[character].ypos;
                     returncode = btrue;
                 }
             }
@@ -2967,80 +2967,80 @@ Uint8 run_function( Uint32 value, int character )
         case FGIVESTRENGTHTOTARGET:
 
             // Permanently boost the target's strength
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrstrength[chraitarget[character]], PERFECTSTAT, &iTmp );
-                chrstrength[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].strength, PERFECTSTAT, &iTmp );
+                chr[chr[character].aitarget].strength += iTmp;
             }
             break;
 
         case FGIVEWISDOMTOTARGET:
 
             // Permanently boost the target's wisdom
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrwisdom[chraitarget[character]], PERFECTSTAT, &iTmp );
-                chrwisdom[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].wisdom, PERFECTSTAT, &iTmp );
+                chr[chr[character].aitarget].wisdom += iTmp;
             }
             break;
 
         case FGIVEINTELLIGENCETOTARGET:
 
             // Permanently boost the target's intelligence
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrintelligence[chraitarget[character]], PERFECTSTAT, &iTmp );
-                chrintelligence[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].intelligence, PERFECTSTAT, &iTmp );
+                chr[chr[character].aitarget].intelligence += iTmp;
             }
             break;
 
         case FGIVEDEXTERITYTOTARGET:
 
             // Permanently boost the target's dexterity
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrdexterity[chraitarget[character]], PERFECTSTAT, &iTmp );
-                chrdexterity[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].dexterity, PERFECTSTAT, &iTmp );
+                chr[chr[character].aitarget].dexterity += iTmp;
             }
             break;
 
         case FGIVELIFETOTARGET:
 
             // Permanently boost the target's life
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( LOWSTAT, chrlifemax[chraitarget[character]], PERFECTBIG, &iTmp );
-                chrlifemax[chraitarget[character]] += iTmp;
+                getadd( LOWSTAT, chr[chr[character].aitarget].lifemax, PERFECTBIG, &iTmp );
+                chr[chr[character].aitarget].lifemax += iTmp;
 
                 if ( iTmp < 0 )
                 {
-                    getadd( 1, chrlife[chraitarget[character]], PERFECTBIG, &iTmp );
+                    getadd( 1, chr[chr[character].aitarget].life, PERFECTBIG, &iTmp );
                 }
 
-                chrlife[chraitarget[character]] += iTmp;
+                chr[chr[character].aitarget].life += iTmp;
             }
             break;
 
         case FGIVEMANATOTARGET:
 
             // Permanently boost the target's mana
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrmanamax[chraitarget[character]], PERFECTBIG, &iTmp );
-                chrmanamax[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].manamax, PERFECTBIG, &iTmp );
+                chr[chr[character].aitarget].manamax += iTmp;
 
                 if ( iTmp < 0 )
                 {
-                    getadd( 0, chrmana[chraitarget[character]], PERFECTBIG, &iTmp );
+                    getadd( 0, chr[chr[character].aitarget].mana, PERFECTBIG, &iTmp );
                 }
 
-                chrmana[chraitarget[character]] += iTmp;
+                chr[chr[character].aitarget].mana += iTmp;
             }
             break;
 
@@ -3078,13 +3078,13 @@ Uint8 run_function( Uint32 value, int character )
         case FHEALTARGET:
 
             // Give some life to the target
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 1, chrlife[chraitarget[character]], chrlifemax[chraitarget[character]], &iTmp );
-                chrlife[chraitarget[character]] += iTmp;
+                getadd( 1, chr[chr[character].aitarget].life, chr[chr[character].aitarget].lifemax, &iTmp );
+                chr[chr[character].aitarget].life += iTmp;
                 // Check all enchants to see if they are removed
-                iTmp = chrfirstenchant[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].firstenchant;
 
                 while ( iTmp != MAXENCHANT )
                 {
@@ -3104,20 +3104,20 @@ Uint8 run_function( Uint32 value, int character )
         case FPUMPTARGET:
 
             // Give some mana to the target
-            if ( chralive[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].alive )
             {
                 iTmp = valuetmpargument;
-                getadd( 0, chrmana[chraitarget[character]], chrmanamax[chraitarget[character]], &iTmp );
-                chrmana[chraitarget[character]] += iTmp;
+                getadd( 0, chr[chr[character].aitarget].mana, chr[chr[character].aitarget].manamax, &iTmp );
+                chr[chr[character].aitarget].mana += iTmp;
             }
             break;
 
         case FCOSTAMMO:
 
             // Take away one ammo
-            if ( chrammo[character] > 0 )
+            if ( chr[character].ammo > 0 )
             {
-                chrammo[character]--;
+                chr[character].ammo--;
             }
             break;
 
@@ -3132,7 +3132,7 @@ Uint8 run_function( Uint32 value, int character )
 
                 while ( tTmp < IDSZ_COUNT )
                 {
-                    if ( capidsz[chrmodel[character]][tTmp] != capidsz[chrmodel[iTmp]][tTmp] )
+                    if ( capidsz[chr[character].model][tTmp] != capidsz[chr[iTmp].model][tTmp] )
                     {
                         sTmp = bfalse;
                     }
@@ -3142,7 +3142,7 @@ Uint8 run_function( Uint32 value, int character )
 
                 if ( sTmp )
                 {
-                    chrnameknown[iTmp] = btrue;
+                    chr[iTmp].nameknown = btrue;
                 }
 
                 iTmp++;
@@ -3153,17 +3153,17 @@ Uint8 run_function( Uint32 value, int character )
             // This function spawns an attached particle, attached to the holder
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character], chrturnleftright[character], chrmodel[character], valuetmpargument, tTmp, valuetmpdistance, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, chr[character].turnleftright, chr[character].model, valuetmpargument, tTmp, valuetmpdistance, chr[character].team, tTmp, 0, MAXCHR );
             break;
 
         case FSETTARGETRELOADTIME:
 
             // This function sets the target's reload time
             if ( valuetmpargument > 0 )
-                chrreloadtime[chraitarget[character]] = valuetmpargument;
-            else chrreloadtime[chraitarget[character]] = 0;
+                chr[chr[character].aitarget].reloadtime = valuetmpargument;
+            else chr[chr[character].aitarget].reloadtime = 0;
 
             break;
 
@@ -3210,9 +3210,9 @@ Uint8 run_function( Uint32 value, int character )
 
             // This function turns ZA into ZA, ZB, ZC, or ZD...
             // tmpargument must be set to one of the A actions beforehand...
-            if ( chrattachedto[character] != MAXCHR )
+            if ( chr[character].attachedto != MAXCHR )
             {
-                if ( chrinwhichhand[character] == GRIPLEFT )
+                if ( chr[character].inwhichhand == GRIPLEFT )
                 {
                     // A or B
                     valuetmpargument = valuetmpargument + ( rand() & 1 );
@@ -3229,9 +3229,9 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the target is riding a mount
             returncode = bfalse;
 
-            if ( chrattachedto[chraitarget[character]] != MAXCHR )
+            if ( chr[chr[character].aitarget].attachedto != MAXCHR )
             {
-                returncode = chrismount[chrattachedto[chraitarget[character]]];
+                returncode = chr[chr[chr[character].aitarget].attachedto].ismount;
             }
             break;
 
@@ -3240,13 +3240,13 @@ Uint8 run_function( Uint32 value, int character )
             // This function makes a blippie thing go around the icon
             if ( valuetmpargument < NUMBAR && valuetmpargument > -1 )
             {
-                chrsparkle[character] = valuetmpargument;
+                chr[character].sparkle = valuetmpargument;
             }
             break;
 
         case FUNSPARKLEICON:
             // This function stops the blippie thing
-            chrsparkle[character] = NOSPARKLE;
+            chr[character].sparkle = NOSPARKLE;
             break;
 
         case FGETTILEXY:
@@ -3277,16 +3277,16 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETSHADOWSIZE:
             // This function changes a character's shadow size
-            chrshadowsize[character] = valuetmpargument * chrfat[character];
-            chrshadowsizesave[character] = valuetmpargument;
+            chr[character].shadowsize = valuetmpargument * chr[character].fat;
+            chr[character].shadowsizesave = valuetmpargument;
             break;
 
         case FORDERTARGET:
             // This function orders one specific character...  The target
             // Be careful in using this, always checking IDSZ first
-            chrorder[chraitarget[character]] = valuetmpargument;
-            chrcounter[chraitarget[character]] = 0;
-            chralert[chraitarget[character]] |= ALERTIFORDERED;
+            chr[chr[character].aitarget].order = valuetmpargument;
+            chr[chr[character].aitarget].counter = 0;
+            chr[chr[character].aitarget].alert |= ALERTIFORDERED;
             break;
 
         case FSETTARGETTOWHOEVERISINPASSAGE:
@@ -3296,7 +3296,7 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( sTmp != MAXCHR )
             {
-                chraitarget[character] = sTmp;
+                chr[character].aitarget = sTmp;
                 returncode = btrue;
             }
             break;
@@ -3304,13 +3304,13 @@ Uint8 run_function( Uint32 value, int character )
         case FIFCHARACTERWASABOOK:
             // This function proceeds if the base model is the same as the current
             // model or if the base model is SPELLBOOK
-            returncode = ( chrbasemodel[character] == SPELLBOOK ||
-                           chrbasemodel[character] == chrmodel[character] );
+            returncode = ( chr[character].basemodel == SPELLBOOK ||
+                           chr[character].basemodel == chr[character].model );
             break;
 
         case FSETENCHANTBOOSTVALUES:
             // This function sets the boost values for the last enchantment
-            iTmp = chrundoenchant[character];
+            iTmp = chr[character].undoenchant;
 
             if ( iTmp != MAXENCHANT )
             {
@@ -3323,7 +3323,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSPAWNCHARACTERXYZ:
             // This function spawns a character, failing if x,y,z is invalid
-            sTmp = spawn_one_character( valuetmpx, valuetmpy, valuetmpdistance, chrmodel[character], chrteam[character], 0, valuetmpturn, NULL, MAXCHR );
+            sTmp = spawn_one_character( valuetmpx, valuetmpy, valuetmpdistance, chr[character].model, chr[character].team, 0, valuetmpturn, NULL, MAXCHR );
             returncode = bfalse;
 
             if ( sTmp < MAXCHR )
@@ -3334,10 +3334,10 @@ Uint8 run_function( Uint32 value, int character )
                 }
                 else
                 {
-                    chriskursed[sTmp] = bfalse;
-                    chraichild[character] = sTmp;
-                    chrpassage[sTmp] = chrpassage[character];
-                    chraiowner[sTmp] = chraiowner[character];
+                    chr[sTmp].iskursed = bfalse;
+                    chr[character].aichild = sTmp;
+                    chr[sTmp].passage = chr[character].passage;
+                    chr[sTmp].aiowner = chr[character].aiowner;
                     returncode = btrue;
                 }
             }
@@ -3346,7 +3346,7 @@ Uint8 run_function( Uint32 value, int character )
         case FSPAWNEXACTCHARACTERXYZ:
             // This function spawns a character ( specific model slot ),
             // failing if x,y,z is invalid
-            sTmp = spawn_one_character( valuetmpx, valuetmpy, valuetmpdistance, valuetmpargument, chrteam[character], 0, valuetmpturn, NULL, MAXCHR );
+            sTmp = spawn_one_character( valuetmpx, valuetmpy, valuetmpdistance, valuetmpargument, chr[character].team, 0, valuetmpturn, NULL, MAXCHR );
             returncode = bfalse;
 
             if ( sTmp < MAXCHR )
@@ -3357,10 +3357,10 @@ Uint8 run_function( Uint32 value, int character )
                 }
                 else
                 {
-                    chriskursed[sTmp] = bfalse;
-                    chraichild[character] = sTmp;
-                    chrpassage[sTmp] = chrpassage[character];
-                    chraiowner[sTmp] = chraiowner[character];
+                    chr[sTmp].iskursed = bfalse;
+                    chr[character].aichild = sTmp;
+                    chr[sTmp].passage = chr[character].passage;
+                    chr[sTmp].aiowner = chr[character].aiowner;
                     returncode = btrue;
                 }
             }
@@ -3368,7 +3368,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FCHANGETARGETCLASS:
             // This function changes a character's model ( specific model slot )
-            change_character( chraitarget[character], valuetmpargument, 0, LEAVEALL );
+            change_character( chr[character].aitarget, valuetmpargument, 0, LEAVEALL );
             break;
 
         case FPLAYFULLSOUND:
@@ -3376,7 +3376,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function plays a sound loud for everyone...  Victory music
             if ( moduleactive && valuetmpargument >= 0 && valuetmpargument < MAXWAVE )
             {
-                play_mix( camtrackx, camtracky, capwaveindex[chrmodel[character]] + valuetmpargument );
+                play_mix( camtrackx, camtracky, capwaveindex[chr[character].model] + valuetmpargument );
             }
             break;
 
@@ -3384,20 +3384,20 @@ Uint8 run_function( Uint32 value, int character )
             // This function spawns an exactly placed particle that chases the target
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chrturnleftright[character], chrmodel[character], valuetmpargument, MAXCHR, 0, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chr[character].turnleftright, chr[character].model, valuetmpargument, MAXCHR, 0, chr[character].team, tTmp, 0, MAXCHR );
 
             if ( tTmp < maxparticles )
             {
-                prttarget[tTmp] = chraitarget[character];
+                prttarget[tTmp] = chr[character].aitarget;
             }
             break;
 
         case FCREATEORDER:
             // This function packs up an order, using tmpx, tmpy, tmpargument and the
             // target ( if valid ) to create a new tmpargument
-            sTmp = chraitarget[character] << 24;
+            sTmp = chr[character].aitarget << 24;
             sTmp |= ( ( valuetmpx >> 6 ) & 1023 ) << 14;
             sTmp |= ( ( valuetmpy >> 6 ) & 1023 ) << 4;
             sTmp |= ( valuetmpargument & 15 );
@@ -3411,22 +3411,22 @@ Uint8 run_function( Uint32 value, int character )
 
         case FUNKURSETARGETINVENTORY:
             // This function unkurses every item a character is holding
-            sTmp = chrholdingwhich[chraitarget[character]][0];
-            chriskursed[sTmp] = bfalse;
-            sTmp = chrholdingwhich[chraitarget[character]][1];
-            chriskursed[sTmp] = bfalse;
-            sTmp = chrnextinpack[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].holdingwhich[0];
+            chr[sTmp].iskursed = bfalse;
+            sTmp = chr[chr[character].aitarget].holdingwhich[1];
+            chr[sTmp].iskursed = bfalse;
+            sTmp = chr[chr[character].aitarget].nextinpack;
 
             while ( sTmp != MAXCHR )
             {
-                chriskursed[sTmp] = bfalse;
-                sTmp = chrnextinpack[sTmp];
+                chr[sTmp].iskursed = bfalse;
+                sTmp = chr[sTmp].nextinpack;
             }
             break;
 
         case FIFTARGETISSNEAKING:
             // This function proceeds if the target is doing ACTIONDA or ACTIONWA
-            returncode = ( chraction[chraitarget[character]] == ACTIONDA || chraction[chraitarget[character]] == ACTIONWA );
+            returncode = ( chr[chr[character].aitarget].action == ACTIONDA || chr[chr[character].aitarget].action == ACTIONWA );
             break;
 
         case FDROPITEMS:
@@ -3436,14 +3436,14 @@ Uint8 run_function( Uint32 value, int character )
 
         case FRESPAWNTARGET:
             // This function respawns the target at its current location
-            sTmp = chraitarget[character];
-            chroldx[sTmp] = chrxpos[sTmp];
-            chroldy[sTmp] = chrypos[sTmp];
-            chroldz[sTmp] = chrzpos[sTmp];
+            sTmp = chr[character].aitarget;
+            chr[sTmp].oldx = chr[sTmp].xpos;
+            chr[sTmp].oldy = chr[sTmp].ypos;
+            chr[sTmp].oldz = chr[sTmp].zpos;
             respawn_character( sTmp );
-            chrxpos[sTmp] = chroldx[sTmp];
-            chrypos[sTmp] = chroldy[sTmp];
-            chrzpos[sTmp] = chroldz[sTmp];
+            chr[sTmp].xpos = chr[sTmp].oldx;
+            chr[sTmp].ypos = chr[sTmp].oldy;
+            chr[sTmp].zpos = chr[sTmp].oldz;
             break;
 
         case FTARGETDOACTIONSETFRAME:
@@ -3453,13 +3453,13 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( valuetmpargument < MAXACTION )
             {
-                if ( madactionvalid[chrmodel[chraitarget[character]]][valuetmpargument] )
+                if ( madactionvalid[chr[chr[character].aitarget].model][valuetmpargument] )
                 {
-                    chraction[chraitarget[character]] = valuetmpargument;
-                    chrlip[chraitarget[character]] = 0;
-                    chrframe[chraitarget[character]] = madactionstart[chrmodel[chraitarget[character]]][valuetmpargument];
-                    chrlastframe[chraitarget[character]] = chrframe[chraitarget[character]];
-                    chractionready[chraitarget[character]] = bfalse;
+                    chr[chr[character].aitarget].action = valuetmpargument;
+                    chr[chr[character].aitarget].lip = 0;
+                    chr[chr[character].aitarget].frame = madactionstart[chr[chr[character].aitarget].model][valuetmpargument];
+                    chr[chr[character].aitarget].lastframe = chr[chr[character].aitarget].frame;
+                    chr[chr[character].aitarget].actionready = bfalse;
                     returncode = btrue;
                 }
             }
@@ -3467,7 +3467,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETCANSEEINVISIBLE:
             // This function proceeds if the target can see invisible
-            returncode = chrcanseeinvisible[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].canseeinvisible;
             break;
 
         case FSETTARGETTONEARESTBLAHID:
@@ -3532,54 +3532,54 @@ Uint8 run_function( Uint32 value, int character )
             // This function proceeds if the character is in the left hand of another
             // character
             returncode = bfalse;
-            sTmp = chrattachedto[character];
+            sTmp = chr[character].attachedto;
 
             if ( sTmp != MAXCHR )
             {
-                returncode = ( chrholdingwhich[sTmp][0] == character );
+                returncode = ( chr[sTmp].holdingwhich[0] == character );
             }
             break;
 
         case FNOTANITEM:
             // This function makes the character a non-item character
-            chrisitem[character] = bfalse;
+            chr[character].isitem = bfalse;
             break;
 
         case FSETCHILDAMMO:
             // This function sets the child's ammo
-            chrammo[chraichild[character]] = valuetmpargument;
+            chr[chr[character].aichild].ammo = valuetmpargument;
             break;
 
         case FIFHITVULNERABLE:
             // This function proceeds if the character was hit by a weapon with the
             // correct vulnerability IDSZ...  [SILV] for Werewolves...
-            returncode = ( ( chralert[character] & ALERTIFHITVULNERABLE ) != 0 );
+            returncode = ( ( chr[character].alert & ALERTIFHITVULNERABLE ) != 0 );
             break;
 
         case FIFTARGETISFLYING:
             // This function proceeds if the character target is flying
-            returncode = ( chrflyheight[chraitarget[character]] > 0 );
+            returncode = ( chr[chr[character].aitarget].flyheight > 0 );
             break;
 
         case FIDENTIFYTARGET:
             // This function reveals the target's name, ammo, and usage
             // Proceeds if the target was unknown
             returncode = bfalse;
-            sTmp = chraitarget[character];
+            sTmp = chr[character].aitarget;
 
-            if ( chrammomax[sTmp] != 0 )  chrammoknown[sTmp] = btrue;
+            if ( chr[sTmp].ammomax != 0 )  chr[sTmp].ammoknown = btrue;
 
-            if ( chrname[sTmp][0] != 'B' ||
-                    chrname[sTmp][1] != 'l' ||
-                    chrname[sTmp][2] != 'a' ||
-                    chrname[sTmp][3] != 'h' ||
-                    chrname[sTmp][4] != 0 )
+            if ( chr[sTmp].name[0] != 'B' ||
+                    chr[sTmp].name[1] != 'l' ||
+                    chr[sTmp].name[2] != 'a' ||
+                    chr[sTmp].name[3] != 'h' ||
+                    chr[sTmp].name[4] != 0 )
             {
-                returncode = !chrnameknown[sTmp];
-                chrnameknown[sTmp] = btrue;
+                returncode = !chr[sTmp].nameknown;
+                chr[sTmp].nameknown = btrue;
             }
 
-            capusageknown[chrmodel[sTmp]] = btrue;
+            capusageknown[chr[sTmp].model] = btrue;
             break;
 
         case FBEATMODULE:
@@ -3607,30 +3607,30 @@ Uint8 run_function( Uint32 value, int character )
 
         case FGETTARGETSTATE:
             // This function sets tmpargument to the state of the target
-            valuetmpargument = chraistate[chraitarget[character]];
+            valuetmpargument = chr[chr[character].aitarget].aistate;
             break;
 
         case FIFEQUIPPED:
             // This proceeds if the character is equipped
             returncode = bfalse;
 
-            if ( chrisequipped[character] ) returncode = btrue;
+            if ( chr[character].isequipped ) returncode = btrue;
 
             break;
 
         case FDROPTARGETMONEY:
             // This function drops some of the target's money
-            drop_money( chraitarget[character], valuetmpargument );
+            drop_money( chr[character].aitarget, valuetmpargument );
             break;
 
         case FGETTARGETCONTENT:
             // This sets tmpargument to the current target's content value
-            valuetmpargument = chraicontent[chraitarget[character]];
+            valuetmpargument = chr[chr[character].aitarget].aicontent;
             break;
 
         case FDROPTARGETKEYS:
             // This function makes the target drops keys in inventory (Not inhand)
-            drop_keys( chraitarget[character] );
+            drop_keys( chr[character].aitarget );
             break;
 
         case FJOINTEAM:
@@ -3640,7 +3640,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FTARGETJOINTEAM:
             // This makes the target join a team specified in tmpargument (A = 0, 23 = Z, etc.)
-            switch_team( chraitarget[character], valuetmpargument );
+            switch_team( chr[character].aitarget, valuetmpargument );
             break;
 
         case FCLEARMUSICPASSAGE:
@@ -3656,7 +3656,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FADDENDMESSAGE:
             // This function appends a message to the end-module text buffer
-            append_end_text( madmsgstart[chrmodel[character]] + valuetmpargument, character );
+            append_end_text( madmsgstart[chr[character].model] + valuetmpargument, character );
             break;
 
         case FPLAYMUSIC:
@@ -3676,7 +3676,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FMAKECRUSHINVALID:
             // This function makes doors unable to close on this object
-            chrcanbecrushed[character] = bfalse;
+            chr[character].canbecrushed = bfalse;
             break;
 
         case FSTOPMUSIC:
@@ -3691,7 +3691,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FACCELERATEUP:
             // This function changes the character's up down velocity
-            chrzvel[character] += valuetmpargument / 100.0f;
+            chr[character].zvel += valuetmpargument / 100.0f;
             break;
 
         case FFLASHVARIABLEHEIGHT:
@@ -3702,58 +3702,58 @@ Uint8 run_function( Uint32 value, int character )
 
         case FSETDAMAGETIME:
             // This function makes the character invincible for a little while
-            chrdamagetime[character] = valuetmpargument;
+            chr[character].damagetime = valuetmpargument;
             break;
 
         case FIFSTATEIS8:
-            returncode = ( 8 == chraistate[character] );
+            returncode = ( 8 == chr[character].aistate );
             break;
 
         case FIFSTATEIS9:
-            returncode = ( 9 == chraistate[character] );
+            returncode = ( 9 == chr[character].aistate );
             break;
 
         case FIFSTATEIS10:
-            returncode = ( 10 == chraistate[character] );
+            returncode = ( 10 == chr[character].aistate );
             break;
 
         case FIFSTATEIS11:
-            returncode = ( 11 == chraistate[character] );
+            returncode = ( 11 == chr[character].aistate );
             break;
 
         case FIFSTATEIS12:
-            returncode = ( 12 == chraistate[character] );
+            returncode = ( 12 == chr[character].aistate );
             break;
 
         case FIFSTATEIS13:
-            returncode = ( 13 == chraistate[character] );
+            returncode = ( 13 == chr[character].aistate );
             break;
 
         case FIFSTATEIS14:
-            returncode = ( 14 == chraistate[character] );
+            returncode = ( 14 == chr[character].aistate );
             break;
 
         case FIFSTATEIS15:
-            returncode = ( 15 == chraistate[character] );
+            returncode = ( 15 == chr[character].aistate );
             break;
 
         case FIFTARGETISAMOUNT:
-            returncode = chrismount[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].ismount;
             break;
 
         case FIFTARGETISAPLATFORM:
-            returncode = chrplatform[chraitarget[character]];
+            returncode = chr[chr[character].aitarget].platform;
             break;
 
         case FADDSTAT:
 
-            if ( !chrstaton[character] ) add_stat( character );
+            if ( !chr[character].staton ) add_stat( character );
 
             break;
 
         case FDISENCHANTTARGET:
-            returncode = ( chrfirstenchant[chraitarget[character]] != MAXENCHANT );
-            disenchant_character( chraitarget[character] );
+            returncode = ( chr[chr[character].aitarget].firstenchant != MAXENCHANT );
+            disenchant_character( chr[character].aitarget );
             break;
 
         case FDISENCHANTALL:
@@ -3775,9 +3775,9 @@ Uint8 run_function( Uint32 value, int character )
                             sTmp = 0;
                             while(sTmp < MAXCHR)
                             {
-                                if(chron[sTmp] && chralive[sTmp] && chrteam[sTmp] == chrteam[character])
+                                if(chr[sTmp].on && chr[sTmp].alive && chr[sTmp].team == chr[character].team)
                                 {
-                                    distance = ABS(camtrackx-chroldx[sTmp])+ABS(camtracky-chroldy[sTmp]);
+                                    distance = ABS(camtrackx-chr[sTmp].oldx)+ABS(camtracky-chr[sTmp].oldy);
                                     if(distance < iTmp)  iTmp = distance;
                                 }
                                 sTmp++;
@@ -3786,7 +3786,7 @@ Uint8 run_function( Uint32 value, int character )
                             volume = -distance;
                             volume = volume<<VOLSHIFT;
                             if(volume < VOLMIN) volume = VOLMIN;
-                            iTmp = capwaveindex[chrmodel[character]][valuetmpargument];
+                            iTmp = capwaveindex[chr[character].model][valuetmpargument];
                             if(iTmp < numsound && iTmp >= 0 && soundon)
                             {
                                 lpDSBuffer[iTmp]->SetVolume(volume);
@@ -3805,24 +3805,24 @@ Uint8 run_function( Uint32 value, int character )
             // enough...
             // tmpx is amount needed
             // tmpy is cost of new skin
-            sTmp = chraitarget[character];   // The target
-            tTmp = chrmodel[sTmp];           // The target's model
+            sTmp = chr[character].aitarget;   // The target
+            tTmp = chr[sTmp].model;           // The target's model
             iTmp =  capskincost[tTmp][valuetmpargument&3];
             valuetmpy = iTmp;                // Cost of new skin
-            iTmp -= capskincost[tTmp][( chrtexture[sTmp] - madskinstart[tTmp] ) & 3];  // Refund
+            iTmp -= capskincost[tTmp][( chr[sTmp].texture - madskinstart[tTmp] ) & 3];  // Refund
 
-            if ( iTmp > chrmoney[sTmp] )
+            if ( iTmp > chr[sTmp].money )
             {
                 // Not enough...
-                valuetmpx = iTmp - chrmoney[sTmp];  // Amount needed
+                valuetmpx = iTmp - chr[sTmp].money;  // Amount needed
                 returncode = bfalse;
             }
             else
             {
                 // Pay for it...  Cost may be negative after refund...
-                chrmoney[sTmp] -= iTmp;
+                chr[sTmp].money -= iTmp;
 
-                if ( chrmoney[sTmp] > MAXMONEY )  chrmoney[sTmp] = MAXMONEY;
+                if ( chr[sTmp].money > MAXMONEY )  chr[sTmp].money = MAXMONEY;
 
                 valuetmpx = 0;
                 returncode = btrue;
@@ -3857,23 +3857,23 @@ Uint8 run_function( Uint32 value, int character )
 
             if ( sTmp != MAXCHR )
             {
-                chraitarget[character] = sTmp;
+                chr[character].aitarget = sTmp;
                 returncode = btrue;
             }
             break;
 
         case FMAKENAMEUNKNOWN:
             // This function makes the name of an item/character unknown.
-            chrnameknown[character] = bfalse;
+            chr[character].nameknown = bfalse;
             break;
 
         case FSPAWNEXACTPARTICLEENDSPAWN:
             // This function spawns a particle that spawns a character...
             tTmp = character;
 
-            if ( chrattachedto[character] != MAXCHR )  tTmp = chrattachedto[character];
+            if ( chr[character].attachedto != MAXCHR )  tTmp = chr[character].attachedto;
 
-            tTmp = spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chrturnleftright[character], chrmodel[character], valuetmpargument, MAXCHR, 0, chrteam[character], tTmp, 0, MAXCHR );
+            tTmp = spawn_one_particle( valuetmpx, valuetmpy, valuetmpdistance, chr[character].turnleftright, chr[character].model, valuetmpargument, MAXCHR, 0, chr[character].team, tTmp, 0, MAXCHR );
 
             if ( tTmp != maxparticles )
             {
@@ -3885,7 +3885,7 @@ Uint8 run_function( Uint32 value, int character )
             // This function makes a lovely little poof at the character's location,
             // adjusting the xy speed and spacing and the base damage first
             // Temporarily adjust the values for the particle type
-            sTmp = chrmodel[character];
+            sTmp = chr[character].model;
             sTmp = madprtpip[sTmp][capgopoofprttype[sTmp]];
             iTmp = pipxyvelbase[sTmp];
             tTmp = pipxyspacingbase[sTmp];
@@ -3893,7 +3893,7 @@ Uint8 run_function( Uint32 value, int character )
             pipxyvelbase[sTmp] = valuetmpx;
             pipxyspacingbase[sTmp] = valuetmpy;
             pipdamagebase[sTmp] = valuetmpargument;
-            spawn_poof( character, chrmodel[character] );
+            spawn_poof( character, chr[character].model );
             // Restore the saved values
             pipxyvelbase[sTmp] = iTmp;
             pipxyspacingbase[sTmp] = tTmp;
@@ -3911,12 +3911,12 @@ Uint8 run_function( Uint32 value, int character )
 
         case FGROGTARGET:
             // This function grogs the target for a duration equal to tmpargument
-            chrgrogtime[chraitarget[character]] += valuetmpargument;
+            chr[chr[character].aitarget].grogtime += valuetmpargument;
             break;
 
         case FDAZETARGET:
             // This function dazes the target for a duration equal to tmpargument
-            chrdazetime[chraitarget[character]] += valuetmpargument;
+            chr[chr[character].aitarget].dazetime += valuetmpargument;
             break;
 
         case FENABLERESPAWN:
@@ -3933,10 +3933,10 @@ Uint8 run_function( Uint32 value, int character )
             // Proceed only if the character's holder scored a hit
             returncode = bfalse;
 
-            if ( ( chralert[chrattachedto[character]]&ALERTIFSCOREDAHIT ) != 0 )
+            if ( ( chr[chr[character].attachedto].alert&ALERTIFSCOREDAHIT ) != 0 )
             {
                 returncode = btrue;
-                chraitarget[character] = chrhitlast[chrattachedto[character]];
+                chr[character].aitarget = chr[chr[character].attachedto].hitlast;
             }
             break;
 
@@ -3944,22 +3944,22 @@ Uint8 run_function( Uint32 value, int character )
             // This function passes if the holder blocked an attack
             returncode = bfalse;
 
-            if ( ( chralert[chrattachedto[character]]&ALERTIFBLOCKED ) != 0 )
+            if ( ( chr[chr[character].attachedto].alert&ALERTIFBLOCKED ) != 0 )
             {
                 returncode = btrue;
-                chraitarget[character] = chrattacklast[chrattachedto[character]];
+                chr[character].aitarget = chr[chr[character].attachedto].attacklast;
             }
             break;
 
         //case FGETSKILLLEVEL:
         //        // This function sets tmpargument to the shield profiency level of the target
-        //        valuetmpargument = capshieldprofiency[chrattachedto[character]];
+        //        valuetmpargument = capshieldprofiency[chr[character].attachedto];
         //    break;
 
         case FIFTARGETHASNOTFULLMANA:
 
             // This function passes only if the target is not at max mana and alive
-            if ( !chralive[chraitarget[character]] || chrmana[chraitarget[character]] > chrmanamax[chraitarget[character]] - HURTDAMAGE )
+            if ( !chr[chr[character].aitarget].alive || chr[chr[character].aitarget].mana > chr[chr[character].aitarget].manamax - HURTDAMAGE )
                 returncode = bfalse;
 
             break;
@@ -3972,8 +3972,8 @@ Uint8 run_function( Uint32 value, int character )
         case FSETTARGETTOLASTITEMUSED:
 
             // This sets the target to the last item the character used
-            if ( chrlastitemused[character] == character ) returncode = bfalse;
-            else chraitarget[character] = chrlastitemused[character];
+            if ( chr[character].lastitemused == character ) returncode = bfalse;
+            else chr[character].aitarget = chr[character].lastitemused;
 
             break;
 
@@ -3993,13 +3993,13 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETISAWEAPON:
             // Proceeds if the AI target is a melee or ranged weapon
-            sTmp = chrmodel[chraitarget[character]];
+            sTmp = chr[chr[character].aitarget].model;
             returncode = capisranged[sTmp] || (capweaponaction[sTmp] != ACTIONPA);
             break;
 
         case FIFSOMEONEISSTEALING:
             // This function passes if someone stealed from it's shop
-            returncode = ( chrorder[character] == STOLEN && chrcounter[character] == 3 );
+            returncode = ( chr[character].order == STOLEN && chr[character].counter == 3 );
             break;
 
         case FIFTARGETISASPELL:
@@ -4010,7 +4010,7 @@ Uint8 run_function( Uint32 value, int character )
             while (iTmp < MAXPRTPIPPEROBJECT)
             {
 
-                if (pipintdamagebonus[madprtpip[chraitarget[character]][iTmp]] || pipwisdamagebonus[madprtpip[chraitarget[character]][iTmp]])
+                if (pipintdamagebonus[madprtpip[chr[character].aitarget][iTmp]] || pipwisdamagebonus[madprtpip[chr[character].aitarget][iTmp]])
                 {
                     returncode = btrue;
                     break;
@@ -4024,15 +4024,15 @@ Uint8 run_function( Uint32 value, int character )
             // Proceeds if HitFromBehind, target has [DISA] skill and damage is physical
             returncode = bfalse;
 
-            if ( ( chralert[character] & ALERTIFATTACKED ) != 0 )
+            if ( ( chr[character].alert & ALERTIFATTACKED ) != 0 )
             {
-                sTmp = chrmodel[chrattacklast[character]];
+                sTmp = chr[chr[character].attacklast].model;
 
-                if ( chrdirectionlast[character] >= BEHIND - 8192 && chrdirectionlast[character] < BEHIND + 8192 )
+                if ( chr[character].directionlast >= BEHIND - 8192 && chr[character].directionlast < BEHIND + 8192 )
                 {
                     if ( capidsz[sTmp][IDSZ_SKILL] == Make_IDSZ( "STAB" ) )
                     {
-                        iTmp = chrdamagetypelast[character];
+                        iTmp = chr[character].damagetypelast;
 
                         if ( iTmp == DAMAGE_CRUSH || iTmp == DAMAGE_POKE || iTmp == DAMAGE_SLASH ) returncode = btrue;
                     }
@@ -4042,15 +4042,15 @@ Uint8 run_function( Uint32 value, int character )
 
         case FGETTARGETDAMAGETYPE:
             // This function gets the last type of damage for the target
-            valuetmpargument = chrdamagetypelast[chraitarget[character]];
+            valuetmpargument = chr[chr[character].aitarget].damagetypelast;
             break;
 
         case FADDQUEST:
 
             //This function adds a quest idsz set in tmpargument into the targets quest.txt
-            if ( chrisplayer[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].isplayer )
             {
-                add_quest_idsz( chrname[chraitarget[character]], valuetmpargument );
+                add_quest_idsz( chr[chr[character].aitarget].name, valuetmpargument );
                 returncode = btrue;
             }
             else returncode = bfalse;
@@ -4064,9 +4064,9 @@ Uint8 run_function( Uint32 value, int character )
 
             while (iTmp < MAXCHR)
             {
-                if ( chrisplayer[iTmp] )
+                if ( chr[iTmp].isplayer )
                 {
-                    if (modify_quest_idsz( chrname[iTmp], (IDSZ)valuetmpargument, 0 ) == QUEST_BEATEN) returncode = btrue;
+                    if (modify_quest_idsz( chr[iTmp].name, (IDSZ)valuetmpargument, 0 ) == QUEST_BEATEN) returncode = btrue;
                 }
 
                 iTmp++;
@@ -4077,9 +4077,9 @@ Uint8 run_function( Uint32 value, int character )
 
             //This function proceeds if the target has the unfinished quest specified in tmpargument
             //and sets tmpdistance to the Quest Level of the specified quest.
-            if ( chrisplayer[chraitarget[character]] )
+            if ( chr[chr[character].aitarget].isplayer )
             {
-                iTmp = check_player_quest( chrname[chraitarget[character]], valuetmpargument );
+                iTmp = check_player_quest( chr[chr[character].aitarget].name, valuetmpargument );
 
                 if ( iTmp > QUEST_BEATEN )
                 {
@@ -4095,9 +4095,9 @@ Uint8 run_function( Uint32 value, int character )
             //tmpargument specifies quest idsz and tmpdistance the adjustment (which may be negative)
             returncode = bfalse;
 
-            if ( chrisplayer[chraitarget[character]] && valuetmpdistance != 0 )
+            if ( chr[chr[character].aitarget].isplayer && valuetmpdistance != 0 )
             {
-                if (modify_quest_idsz( chrname[chraitarget[character]], valuetmpargument, valuetmpdistance ) > QUEST_NONE) returncode = btrue;
+                if (modify_quest_idsz( chr[chr[character].aitarget].name, valuetmpargument, valuetmpdistance ) > QUEST_NONE) returncode = btrue;
             }
             break;
 
@@ -4109,17 +4109,17 @@ Uint8 run_function( Uint32 value, int character )
 
             while (iTmp < MAXPLAYER)
             {
-                if ( chrisplayer[plaindex[iTmp]] )
+                if ( chr[plaindex[iTmp]].isplayer )
                 {
                     returncode = btrue;
 
-                    if (!add_quest_idsz(chrname[plaindex[iTmp]] , valuetmpargument ))       //Try to add it if not already there or beaten
+                    if (!add_quest_idsz(chr[plaindex[iTmp]].name , valuetmpargument ))       //Try to add it if not already there or beaten
                     {
                         Sint16 i;
-                        i = check_player_quest( chrname[plaindex[iTmp]], valuetmpargument);   //Get the current quest level
+                        i = check_player_quest( chr[plaindex[iTmp]].name, valuetmpargument);   //Get the current quest level
 
                         if (i < 0 || i >= valuetmpdistance) returncode = bfalse;      //It was already beaten
-                        else modify_quest_idsz( chrname[plaindex[iTmp]], valuetmpargument, valuetmpdistance );//Not beaten yet, increase level by 1
+                        else modify_quest_idsz( chr[plaindex[iTmp]].name, valuetmpargument, valuetmpdistance );//Not beaten yet, increase level by 1
                     }
                 }
 
@@ -4130,7 +4130,7 @@ Uint8 run_function( Uint32 value, int character )
         case FADDBLIPALLENEMIES:
             // show all enemies on the minimap who match the IDSZ given in tmpargument
             // it show only the enemies of the AI target
-            local_senseenemies = chraitarget[character];
+            local_senseenemies = chr[character].aitarget;
             local_senseenemiesID = valuetmpargument;
             break;
 
@@ -4150,7 +4150,7 @@ Uint8 run_function( Uint32 value, int character )
 
         case FIFTARGETISOWNER:
             // This function proceeds only if the target is on another team
-            returncode = ( chralive[chraitarget[character]] && chraiowner[character] == chraitarget[character] );
+            returncode = ( chr[chr[character].aitarget].alive && chr[character].aiowner == chr[character].aitarget );
             break;
 
         case FEND:
@@ -4160,7 +4160,7 @@ Uint8 run_function( Uint32 value, int character )
 
             // If none of the above, skip the line and log an error
         default:
-            log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", chraitype[character], valuecode );
+            log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", chr[character].aitype, valuecode );
             returncode = bfalse;
             break;
     }
@@ -4261,75 +4261,75 @@ void run_operand( Uint32 opcode, int character )
 
             case VARSELFX:
                 varname = "SELFX";
-                iTmp = chrxpos[character];
+                iTmp = chr[character].xpos;
                 break;
 
             case VARSELFY:
                 varname = "SELFY";
-                iTmp = chrypos[character];
+                iTmp = chr[character].ypos;
                 break;
 
             case VARSELFTURN:
                 varname = "SELFTURN";
-                iTmp = chrturnleftright[character];
+                iTmp = chr[character].turnleftright;
                 break;
 
             case VARSELFCOUNTER:
                 varname = "SELFCOUNTER";
-                iTmp = chrcounter[character];
+                iTmp = chr[character].counter;
                 break;
 
             case VARSELFORDER:
                 varname = "SELFORDER";
-                iTmp = chrorder[character];
+                iTmp = chr[character].order;
                 break;
 
             case VARSELFMORALE:
                 varname = "SELFMORALE";
-                iTmp = teammorale[chrbaseteam[character]];
+                iTmp = teammorale[chr[character].baseteam];
                 break;
 
             case VARSELFLIFE:
                 varname = "SELFLIFE";
-                iTmp = chrlife[character];
+                iTmp = chr[character].life;
                 break;
 
             case VARTARGETX:
                 varname = "TARGETX";
-                iTmp = chrxpos[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].xpos;
                 break;
 
             case VARTARGETY:
                 varname = "TARGETY";
-                iTmp = chrypos[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].ypos;
                 break;
 
             case VARTARGETDISTANCE:
                 varname = "TARGETDISTANCE";
-                iTmp = ABS( ( int )( chrxpos[chraitarget[character]] - chrxpos[character] ) ) +
-                       ABS( ( int )( chrypos[chraitarget[character]] - chrypos[character] ) );
+                iTmp = ABS( ( int )( chr[chr[character].aitarget].xpos - chr[character].xpos ) ) +
+                       ABS( ( int )( chr[chr[character].aitarget].ypos - chr[character].ypos ) );
                 break;
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = chrturnleftright[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].turnleftright;
                 break;
 
             case VARLEADERX:
                 varname = "LEADERX";
-                iTmp = chrxpos[character];
+                iTmp = chr[character].xpos;
 
-                if ( teamleader[chrteam[character]] != NOLEADER )
-                    iTmp = chrxpos[teamleader[chrteam[character]]];
+                if ( teamleader[chr[character].team] != NOLEADER )
+                    iTmp = chr[teamleader[chr[character].team]].xpos;
 
                 break;
 
             case VARLEADERY:
                 varname = "LEADERY";
-                iTmp = chrypos[character];
+                iTmp = chr[character].ypos;
 
-                if ( teamleader[chrteam[character]] != NOLEADER )
-                    iTmp = chrypos[teamleader[chrteam[character]]];
+                if ( teamleader[chr[character].team] != NOLEADER )
+                    iTmp = chr[teamleader[chr[character].team]].ypos;
 
                 break;
 
@@ -4337,194 +4337,194 @@ void run_operand( Uint32 opcode, int character )
                 varname = "LEADERDISTANCE";
                 iTmp = 10000;
 
-                if ( teamleader[chrteam[character]] != NOLEADER )
-                    iTmp = ABS( ( int )( chrxpos[teamleader[chrteam[character]]] - chrxpos[character] ) ) +
-                           ABS( ( int )( chrypos[teamleader[chrteam[character]]] - chrypos[character] ) );
+                if ( teamleader[chr[character].team] != NOLEADER )
+                    iTmp = ABS( ( int )( chr[teamleader[chr[character].team]].xpos - chr[character].xpos ) ) +
+                           ABS( ( int )( chr[teamleader[chr[character].team]].ypos - chr[character].ypos ) );
 
                 break;
 
             case VARLEADERTURN:
                 varname = "LEADERTURN";
-                iTmp = chrturnleftright[character];
+                iTmp = chr[character].turnleftright;
 
-                if ( teamleader[chrteam[character]] != NOLEADER )
-                    iTmp = chrturnleftright[teamleader[chrteam[character]]];
+                if ( teamleader[chr[character].team] != NOLEADER )
+                    iTmp = chr[teamleader[chr[character].team]].turnleftright;
 
                 break;
 
             case VARGOTOX:
                 varname = "GOTOX";
-                if (chraigoto[character] == chraigotoadd[character])
+                if (chr[character].aigoto == chr[character].aigotoadd)
                 {
-                    iTmp = chrxpos[character];
+                    iTmp = chr[character].xpos;
                 }
                 else
                 {
-                    iTmp = chraigotox[character][chraigoto[character]];
+                    iTmp = chr[character].aigotox[chr[character].aigoto];
                 }
                 break;
 
             case VARGOTOY:
                 varname = "GOTOY";
-                if (chraigoto[character] == chraigotoadd[character])
+                if (chr[character].aigoto == chr[character].aigotoadd)
                 {
-                    iTmp = chrypos[character];
+                    iTmp = chr[character].ypos;
                 }
                 else
                 {
-                    iTmp = chraigotoy[character][chraigoto[character]];
+                    iTmp = chr[character].aigotoy[chr[character].aigoto];
                 }
                 break;
 
             case VARGOTODISTANCE:
                 varname = "GOTODISTANCE";
-                if (chraigoto[character] == chraigotoadd[character])
+                if (chr[character].aigoto == chr[character].aigotoadd)
                 {
                     iTmp = 0;
                 }
                 else
                 {
-                    iTmp = ABS( ( int )( chraigotox[character][chraigoto[character]] - chrxpos[character] ) ) +
-                           ABS( ( int )( chraigotoy[character][chraigoto[character]] - chrypos[character] ) );
+                    iTmp = ABS( ( int )( chr[character].aigotox[chr[character].aigoto] - chr[character].xpos ) ) +
+                           ABS( ( int )( chr[character].aigotoy[chr[character].aigoto] - chr[character].ypos ) );
                 }
                 break;
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-                iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
+                iTmp = ATAN2( chr[chr[character].aitarget].ypos - chr[character].ypos, chr[chr[character].aitarget].xpos - chr[character].xpos ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARPASSAGE:
                 varname = "PASSAGE";
-                iTmp = chrpassage[character];
+                iTmp = chr[character].passage;
                 break;
 
             case VARWEIGHT:
                 varname = "WEIGHT";
-                iTmp = chrholdingweight[character];
+                iTmp = chr[character].holdingweight;
                 break;
 
             case VARSELFALTITUDE:
                 varname = "SELFALTITUDE";
-                iTmp = chrzpos[character] - chrlevel[character];
+                iTmp = chr[character].zpos - chr[character].level;
                 break;
 
             case VARSELFID:
                 varname = "SELFID";
-                iTmp = capidsz[chrmodel[character]][IDSZ_TYPE];
+                iTmp = capidsz[chr[character].model][IDSZ_TYPE];
                 break;
 
             case VARSELFHATEID:
                 varname = "SELFHATEID";
-                iTmp = capidsz[chrmodel[character]][IDSZ_HATE];
+                iTmp = capidsz[chr[character].model][IDSZ_HATE];
                 break;
 
             case VARSELFMANA:
                 varname = "SELFMANA";
-                iTmp = chrmana[character];
+                iTmp = chr[character].mana;
 
-                if ( chrcanchannel[character] )  iTmp += chrlife[character];
+                if ( chr[character].canchannel )  iTmp += chr[character].life;
 
                 break;
 
             case VARTARGETSTR:
                 varname = "TARGETSTR";
-                iTmp = chrstrength[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].strength;
                 break;
 
             case VARTARGETWIS:
                 varname = "TARGETWIS";
-                iTmp = chrwisdom[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].wisdom;
                 break;
 
             case VARTARGETINT:
                 varname = "TARGETINT";
-                iTmp = chrintelligence[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].intelligence;
                 break;
 
             case VARTARGETDEX:
                 varname = "TARGETDEX";
-                iTmp = chrdexterity[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].dexterity;
                 break;
 
             case VARTARGETLIFE:
                 varname = "TARGETLIFE";
-                iTmp = chrlife[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].life;
                 break;
 
             case VARTARGETMANA:
                 varname = "TARGETMANA";
-                iTmp = chrmana[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].mana;
 
-                if ( chrcanchannel[chraitarget[character]] )  iTmp += chrlife[chraitarget[character]];
+                if ( chr[chr[character].aitarget].canchannel )  iTmp += chr[chr[character].aitarget].life;
 
                 break;
 
             case VARTARGETLEVEL:
                 varname = "TARGETLEVEL";
-                iTmp = chrexperiencelevel[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].experiencelevel;
                 break;
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = chrxvel[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].xvel;
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = chryvel[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].yvel;
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = chrzvel[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].zvel;
                 break;
 
             case VARSELFSPAWNX:
                 varname = "SELFSPAWNX";
-                iTmp = chrxstt[character];
+                iTmp = chr[character].xstt;
                 break;
 
             case VARSELFSPAWNY:
                 varname = "SELFSPAWNY";
-                iTmp = chrystt[character];
+                iTmp = chr[character].ystt;
                 break;
 
             case VARSELFSTATE:
                 varname = "SELFSTATE";
-                iTmp = chraistate[character];
+                iTmp = chr[character].aistate;
                 break;
 
             case VARSELFSTR:
                 varname = "SELFSTR";
-                iTmp = chrstrength[character];
+                iTmp = chr[character].strength;
                 break;
 
             case VARSELFWIS:
                 varname = "SELFWIS";
-                iTmp = chrwisdom[character];
+                iTmp = chr[character].wisdom;
                 break;
 
             case VARSELFINT:
                 varname = "SELFINT";
-                iTmp = chrintelligence[character];
+                iTmp = chr[character].intelligence;
                 break;
 
             case VARSELFDEX:
                 varname = "SELFDEX";
-                iTmp = chrdexterity[character];
+                iTmp = chr[character].dexterity;
                 break;
 
             case VARSELFMANAFLOW:
                 varname = "SELFMANAFLOW";
-                iTmp = chrmanaflow[character];
+                iTmp = chr[character].manaflow;
                 break;
 
             case VARTARGETMANAFLOW:
                 varname = "TARGETMANAFLOW";
-                iTmp = chrmanaflow[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].manaflow;
                 break;
 
             case VARSELFATTACHED:
@@ -4544,17 +4544,17 @@ void run_operand( Uint32 opcode, int character )
 
             case VARSELFZ:
                 varname = "SELFZ";
-                iTmp = chrzpos[character];
+                iTmp = chr[character].zpos;
                 break;
 
             case VARTARGETALTITUDE:
                 varname = "TARGETALTITUDE";
-                iTmp = chrzpos[chraitarget[character]] - chrlevel[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].zpos - chr[chr[character].aitarget].level;
                 break;
 
             case VARTARGETZ:
                 varname = "TARGETZ";
-                iTmp = chrzpos[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].zpos;
                 break;
 
             case VARSELFINDEX:
@@ -4564,84 +4564,84 @@ void run_operand( Uint32 opcode, int character )
 
             case VAROWNERX:
                 varname = "OWNERX";
-                iTmp = chrxpos[chraiowner[character]];
+                iTmp = chr[chr[character].aiowner].xpos;
                 break;
 
             case VAROWNERY:
                 varname = "OWNERY";
-                iTmp = chrypos[chraiowner[character]];
+                iTmp = chr[chr[character].aiowner].ypos;
                 break;
 
             case VAROWNERTURN:
                 varname = "OWNERTURN";
-                iTmp = chrturnleftright[chraiowner[character]];
+                iTmp = chr[chr[character].aiowner].turnleftright;
                 break;
 
             case VAROWNERDISTANCE:
                 varname = "OWNERDISTANCE";
-                iTmp = ABS( ( int )( chrxpos[chraiowner[character]] - chrxpos[character] ) ) +
-                       ABS( ( int )( chrypos[chraiowner[character]] - chrypos[character] ) );
+                iTmp = ABS( ( int )( chr[chr[character].aiowner].xpos - chr[character].xpos ) ) +
+                       ABS( ( int )( chr[chr[character].aiowner].ypos - chr[character].ypos ) );
                 break;
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-                iTmp = ATAN2( chrypos[chraiowner[character]] - chrypos[character], chrxpos[chraiowner[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
+                iTmp = ATAN2( chr[chr[character].aiowner].ypos - chr[character].ypos, chr[chr[character].aiowner].xpos - chr[character].xpos ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
-                iTmp = ATAN2( valuetmpy - chrypos[character], valuetmpx - chrxpos[character] ) * 65535 / ( TWO_PI );
+                iTmp = ATAN2( valuetmpy - chr[character].ypos, valuetmpx - chr[character].xpos ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARSELFMONEY:
                 varname = "SELFMONEY";
-                iTmp = chrmoney[character];
+                iTmp = chr[character].money;
                 break;
 
             case VARSELFACCEL:
                 varname = "SELFACCEL";
-                iTmp = ( chrmaxaccel[character] * 100.0f );
+                iTmp = ( chr[character].maxaccel * 100.0f );
                 break;
 
             case VARTARGETEXP:
                 varname = "TARGETEXP";
-                iTmp = chrexperience[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].experience;
                 break;
 
             case VARSELFAMMO:
                 varname = "SELFAMMO";
-                iTmp = chrammo[character];
+                iTmp = chr[character].ammo;
                 break;
 
             case VARTARGETAMMO:
                 varname = "TARGETAMMO";
-                iTmp = chrammo[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].ammo;
                 break;
 
             case VARTARGETMONEY:
                 varname = "TARGETMONEY";
-                iTmp = chrmoney[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].money;
                 break;
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-                iTmp = ATAN2( chrypos[chraitarget[character]] - chrypos[character], chrxpos[chraitarget[character]] - chrxpos[character] ) * 65535 / ( TWO_PI );
+                iTmp = ATAN2( chr[chr[character].aitarget].ypos - chr[character].ypos, chr[chr[character].aitarget].xpos - chr[character].xpos ) * 65535 / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 65535;
                 break;
 
             case VARSELFLEVEL:
                 varname = "SELFLEVEL";
-                iTmp = chrexperiencelevel[character];
+                iTmp = chr[character].experiencelevel;
                 break;
 
             case VARTARGETRELOADTIME:
                 varname = "TARGETRELOADTIME";
-                iTmp = chrreloadtime[chraitarget[character]];
+                iTmp = chr[chr[character].aitarget].reloadtime;
                 break;
 
             default: 
@@ -4726,17 +4726,17 @@ void let_character_think( int character )
     Uint32 iTmp;
     Uint8 functionreturn;
 
-    if( character >= MAXCHR || !chron[character] )  return;
+    if( character >= MAXCHR || !chr[character].on )  return;
 
     // Make life easier
-    valueoldtarget = chraitarget[character];
-    aicode = chraitype[character];
+    valueoldtarget = chr[character].aitarget;
+    aicode = chr[character].aitype;
 
     // Figure out alerts that weren't already set
     set_alerts( character );
 
     script_error_classname = "UNKNOWN";
-    script_error_model     = chrmodel[character];
+    script_error_model     = chr[character].model;
     if( script_error_model < MAXMODEL )
     {
         script_error_classname = capclassname[ script_error_model ];
@@ -4748,17 +4748,17 @@ void let_character_think( int character )
     }
 
     // Clear the button latches
-    if ( !chrisplayer[character] )
+    if ( !chr[character].isplayer )
     {
-        chrlatchbutton[character] = 0;
+        chr[character].latchbutton = 0;
     }
 
     // Reset the target if it can't be seen
-    if ( !chrcanseeinvisible[character] && chralive[character] )
+    if ( !chr[character].canseeinvisible && chr[character].alive )
     {
-        if ( chralpha[chraitarget[character]] <= INVISIBLE || chrlight[chraitarget[character]] <= INVISIBLE )
+        if ( chr[chr[character].aitarget].alpha <= INVISIBLE || chr[chr[character].aitarget].light <= INVISIBLE )
         {
-            chraitarget[character] = character;
+            chr[character].aitarget = character;
         }
     }
 
@@ -4810,54 +4810,54 @@ void let_character_think( int character )
     }
 
     // Set latches
-    if ( !chrisplayer[character] )
+    if ( !chr[character].isplayer )
     {
         float latch2;
 
-        if ( chrismount[character] && MAXCHR != chrholdingwhich[character][0] && chron[chrholdingwhich[character][0]] )
+        if ( chr[character].ismount && MAXCHR != chr[character].holdingwhich[0] && chr[chr[character].holdingwhich[0]].on )
         {
             // Mount
-            chrlatchx[character] = chrlatchx[chrholdingwhich[character][0]];
-            chrlatchy[character] = chrlatchy[chrholdingwhich[character][0]];
+            chr[character].latchx = chr[chr[character].holdingwhich[0]].latchx;
+            chr[character].latchy = chr[chr[character].holdingwhich[0]].latchy;
         }
-        else if ( chraigoto[character] != chraigotoadd[character] )
+        else if ( chr[character].aigoto != chr[character].aigotoadd )
         {
             // Normal AI
-            chrlatchx[character] = ( chraigotox[character][chraigoto[character]] - chrxpos[character] ) / (128 << 2);
-            chrlatchy[character] = ( chraigotoy[character][chraigoto[character]] - chrypos[character] ) / (128 << 2);
+            chr[character].latchx = ( chr[character].aigotox[chr[character].aigoto] - chr[character].xpos ) / (128 << 2);
+            chr[character].latchy = ( chr[character].aigotoy[chr[character].aigoto] - chr[character].ypos ) / (128 << 2);
         }
         else
         {
             // AI, but no valid waypoints
-            chrlatchx[character] = 0;
-            chrlatchy[character] = 0;
+            chr[character].latchx = 0;
+            chr[character].latchy = 0;
         }
 
-        latch2 = chrlatchx[character] * chrlatchx[character] + chrlatchy[character] * chrlatchy[character];
+        latch2 = chr[character].latchx * chr[character].latchx + chr[character].latchy * chr[character].latchy;
         if (latch2 > 1.0f)
         {
             latch2 = 1.0f / sqrt(latch2);
-            chrlatchx[character] *= latch2;
-            chrlatchy[character] *= latch2;
+            chr[character].latchx *= latch2;
+            chr[character].latchy *= latch2;
         }
     }
 
     // Clear alerts for next time around
-    chralert[character] = 0;
+    chr[character].alert = 0;
 
-    if ( valuechanged )  chralert[character] = ALERTIFCHANGED;
+    if ( valuechanged )  chr[character].alert = ALERTIFCHANGED;
 
     // Do poofing
     if ( valuegopoof )
     {
-        if ( chrattachedto[character] != MAXCHR )
+        if ( chr[character].attachedto != MAXCHR )
             detach_character_from_mount( character, btrue, bfalse );
 
-        if ( chrholdingwhich[character][0] != MAXCHR )
-            detach_character_from_mount( chrholdingwhich[character][0], btrue, bfalse );
+        if ( chr[character].holdingwhich[0] != MAXCHR )
+            detach_character_from_mount( chr[character].holdingwhich[0], btrue, bfalse );
 
-        if ( chrholdingwhich[character][1] != MAXCHR )
-            detach_character_from_mount( chrholdingwhich[character][1], btrue, bfalse );
+        if ( chr[character].holdingwhich[1] != MAXCHR )
+            detach_character_from_mount( chr[character].holdingwhich[1], btrue, bfalse );
 
         free_inventory( character );
         free_one_character( character );
@@ -4877,13 +4877,13 @@ void let_ai_think()
 
     for ( character = 0; character < MAXCHR; character++ )
     {
-        if ( chron[character] && ( !chrinpack[character] || capisequipment[chrmodel[character]] ) && ( chralive[character] || ( chralert[character]&ALERTIFCLEANEDUP ) || ( chralert[character]&ALERTIFCRUSHED ) ) )
+        if ( chr[character].on && ( !chr[character].inpack || capisequipment[chr[character].model] ) && ( chr[character].alive || ( chr[character].alert&ALERTIFCLEANEDUP ) || ( chr[character].alert&ALERTIFCRUSHED ) ) )
         {
             // Crushed characters shouldn't be alert to anything else
-            if ( chralert[character] & ALERTIFCRUSHED )  chralert[character] = ALERTIFCRUSHED;
+            if ( chr[character].alert & ALERTIFCRUSHED )  chr[character].alert = ALERTIFCRUSHED;
 
             // Cleaned up characters shouldn't be alert to anything else
-            if ( chralert[character] & ALERTIFCLEANEDUP )  chralert[character] = ALERTIFCLEANEDUP;
+            if ( chr[character].alert & ALERTIFCLEANEDUP )  chr[character].alert = ALERTIFCLEANEDUP;
 
             let_character_think( character );
         }

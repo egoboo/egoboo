@@ -168,7 +168,7 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
 
     if ( !plavalid[player] )
     {
-        chrisplayer[character] = btrue;
+        chr[character].isplayer = btrue;
         plaindex[player] = character;
         plavalid[player] = btrue;
         pladevice[player] = device;
@@ -190,7 +190,7 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
 
         if ( device != INPUT_BITS_NONE )
         {
-            chrislocalplayer[character] = btrue;
+            chr[character].islocalplayer = btrue;
             numlocalpla++;
         }
 
@@ -1524,24 +1524,24 @@ void unbuffer_player_latches()
         {
             character = plaindex[cnt];
 
-            chrlatchx[character] = platimelatchx[cnt][time];
-            chrlatchy[character] = platimelatchy[cnt][time];
-            chrlatchbutton[character] = platimelatchbutton[cnt][time];
+            chr[character].latchx = platimelatchx[cnt][time];
+            chr[character].latchy = platimelatchy[cnt][time];
+            chr[character].latchbutton = platimelatchbutton[cnt][time];
 
             // Let players respawn
-            if ( ( chrlatchbutton[character] & LATCHBUTTONRESPAWN ) && respawnvalid )
+            if ( ( chr[character].latchbutton & LATCHBUTTONRESPAWN ) && respawnvalid )
             {
-                if ( !chralive[character] && revivetimer == 0)
+                if ( !chr[character].alive && revivetimer == 0)
                 {
                     respawn_character( character );
-                    teamleader[chrteam[character]] = character;
-                    chralert[character] |= ALERTIFCLEANEDUP;
+                    teamleader[chr[character].team] = character;
+                    chr[character].alert |= ALERTIFCLEANEDUP;
 
                     // Cost some experience for doing this...  Never lose a level
-                    chrexperience[character] *= EXPKEEP;
+                    chr[character].experience *= EXPKEEP;
                 }
 
-                chrlatchbutton[character] &= 127;
+                chr[character].latchbutton &= 127;
             }
         }
 

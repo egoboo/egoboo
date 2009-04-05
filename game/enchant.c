@@ -41,12 +41,12 @@ void remove_enchant( Uint16 enchantindex )
 
             if ( character < MAXCHR )
             {
-                chrsparkle[character] = NOSPARKLE;
+                chr[character].sparkle = NOSPARKLE;
 
                 // Make the spawner unable to undo the enchantment
-                if ( chrundoenchant[character] == enchantindex )
+                if ( chr[character].undoenchant == enchantindex )
                 {
-                    chrundoenchant[character] = MAXENCHANT;
+                    chr[character].undoenchant = MAXENCHANT;
                 }
             }
 
@@ -58,7 +58,7 @@ void remove_enchant( Uint16 enchantindex )
                 Uint16 ispawner = encspawner[enchantindex];
                 if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
                 {
-                    play_mix(chroldx[character], chroldy[character], capwaveindex[chrmodel[ispawner]] + iwave);
+                    play_mix(chr[character].oldx, chr[character].oldy, capwaveindex[chr[ispawner].model] + iwave);
                 }
             }
 
@@ -97,15 +97,15 @@ void remove_enchant( Uint16 enchantindex )
             }
 
             // Unlink it
-            if ( chrfirstenchant[character] == enchantindex )
+            if ( chr[character].firstenchant == enchantindex )
             {
                 // It was the first in the list
-                chrfirstenchant[character] = encnextenchant[enchantindex];
+                chr[character].firstenchant = encnextenchant[enchantindex];
             }
             else
             {
                 // Search until we find it
-                lastenchant = currentenchant = chrfirstenchant[character];
+                lastenchant = currentenchant = chr[character].firstenchant;
 
                 while ( currentenchant != enchantindex )
                 {
@@ -132,9 +132,9 @@ void remove_enchant( Uint16 enchantindex )
             // Check to see if the character dies
             if ( evekillonend[enceve[enchantindex]] )
             {
-                if ( chrinvictus[character] )  teammorale[chrbaseteam[character]]++;
+                if ( chr[character].invictus )  teammorale[chr[character].baseteam]++;
 
-                chrinvictus[character] = bfalse;
+                chr[character].invictus = bfalse;
                 kill_character( character, MAXCHR );
             }
 
@@ -143,16 +143,16 @@ void remove_enchant( Uint16 enchantindex )
 
             if ( overlay < MAXCHR )
             {
-                if ( chrinvictus[overlay] )  teammorale[chrbaseteam[overlay]]++;
+                if ( chr[overlay].invictus )  teammorale[chr[overlay].baseteam]++;
 
-                chrinvictus[overlay] = bfalse;
+                chr[overlay].invictus = bfalse;
                 kill_character( overlay, MAXCHR );
             }
 
             // Remove see kurse enchant
-            if ( eveseekurse[enceve[enchantindex]] && !capcanseekurse[chrmodel[character]] )
+            if ( eveseekurse[enceve[enchantindex]] && !capcanseekurse[chr[character].model] )
             {
-                chrcanseekurse[character] = bfalse;
+                chr[character].canseekurse = bfalse;
             }
 
             // Now get rid of it
@@ -161,8 +161,8 @@ void remove_enchant( Uint16 enchantindex )
             numfreeenchant++;
 
             // Now fix dem weapons
-            reset_character_alpha( chrholdingwhich[character][0] );
-            reset_character_alpha( chrholdingwhich[character][1] );
+            reset_character_alpha( chr[character].holdingwhich[0] );
+            reset_character_alpha( chr[character].holdingwhich[1] );
         }
     }
 }
@@ -176,7 +176,7 @@ Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex )
     Uint16 character, currenchant;
 
     character = enctarget[enchantindex];
-    currenchant = chrfirstenchant[character];
+    currenchant = chr[character].firstenchant;
 
     while ( currenchant != MAXENCHANT )
     {
@@ -229,107 +229,107 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
             switch ( valueindex )
             {
                 case SETDAMAGETYPE:
-                    encsetsave[enchantindex][valueindex] = chrdamagetargettype[character];
-                    chrdamagetargettype[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagetargettype;
+                    chr[character].damagetargettype = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETNUMBEROFJUMPS:
-                    encsetsave[enchantindex][valueindex] = chrjumpnumberreset[character];
-                    chrjumpnumberreset[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].jumpnumberreset;
+                    chr[character].jumpnumberreset = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETLIFEBARCOLOR:
-                    encsetsave[enchantindex][valueindex] = chrlifecolor[character];
-                    chrlifecolor[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].lifecolor;
+                    chr[character].lifecolor = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETMANABARCOLOR:
-                    encsetsave[enchantindex][valueindex] = chrmanacolor[character];
-                    chrmanacolor[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].manacolor;
+                    chr[character].manacolor = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETSLASHMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_SLASH];
-                    chrdamagemodifier[character][DAMAGE_SLASH] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_SLASH];
+                    chr[character].damagemodifier[DAMAGE_SLASH] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETCRUSHMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_CRUSH];
-                    chrdamagemodifier[character][DAMAGE_CRUSH] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_CRUSH];
+                    chr[character].damagemodifier[DAMAGE_CRUSH] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETPOKEMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_POKE];
-                    chrdamagemodifier[character][DAMAGE_POKE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_POKE];
+                    chr[character].damagemodifier[DAMAGE_POKE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETHOLYMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_HOLY];
-                    chrdamagemodifier[character][DAMAGE_HOLY] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_HOLY];
+                    chr[character].damagemodifier[DAMAGE_HOLY] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETEVILMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_EVIL];
-                    chrdamagemodifier[character][DAMAGE_EVIL] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_EVIL];
+                    chr[character].damagemodifier[DAMAGE_EVIL] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETFIREMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_FIRE];
-                    chrdamagemodifier[character][DAMAGE_FIRE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_FIRE];
+                    chr[character].damagemodifier[DAMAGE_FIRE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETICEMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_ICE];
-                    chrdamagemodifier[character][DAMAGE_ICE] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_ICE];
+                    chr[character].damagemodifier[DAMAGE_ICE] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETZAPMODIFIER:
-                    encsetsave[enchantindex][valueindex] = chrdamagemodifier[character][DAMAGE_ZAP];
-                    chrdamagemodifier[character][DAMAGE_ZAP] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].damagemodifier[DAMAGE_ZAP];
+                    chr[character].damagemodifier[DAMAGE_ZAP] = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETFLASHINGAND:
-                    encsetsave[enchantindex][valueindex] = chrflashand[character];
-                    chrflashand[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].flashand;
+                    chr[character].flashand = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETLIGHTBLEND:
-                    encsetsave[enchantindex][valueindex] = chrlight[character];
-                    chrlight[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].light;
+                    chr[character].light = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETALPHABLEND:
-                    encsetsave[enchantindex][valueindex] = chralpha[character];
-                    chralpha[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].alpha;
+                    chr[character].alpha = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETSHEEN:
-                    encsetsave[enchantindex][valueindex] = chrsheen[character];
-                    chrsheen[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].sheen;
+                    chr[character].sheen = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETFLYTOHEIGHT:
-                    encsetsave[enchantindex][valueindex] = chrflyheight[character];
+                    encsetsave[enchantindex][valueindex] = chr[character].flyheight;
 
-                    if ( chrflyheight[character] == 0 && chrzpos[character] > -2 )
+                    if ( chr[character].flyheight == 0 && chr[character].zpos > -2 )
                     {
-                        chrflyheight[character] = evesetvalue[enchanttype][valueindex];
+                        chr[character].flyheight = evesetvalue[enchanttype][valueindex];
                     }
                     break;
                 case SETWALKONWATER:
-                    encsetsave[enchantindex][valueindex] = chrwaterwalk[character];
+                    encsetsave[enchantindex][valueindex] = chr[character].waterwalk;
 
-                    if ( !chrwaterwalk[character] )
+                    if ( !chr[character].waterwalk )
                     {
-                        chrwaterwalk[character] = evesetvalue[enchanttype][valueindex];
+                        chr[character].waterwalk = evesetvalue[enchanttype][valueindex];
                     }
                     break;
                 case SETCANSEEINVISIBLE:
-                    encsetsave[enchantindex][valueindex] = chrcanseeinvisible[character];
-                    chrcanseeinvisible[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].canseeinvisible;
+                    chr[character].canseeinvisible = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETMISSILETREATMENT:
-                    encsetsave[enchantindex][valueindex] = chrmissiletreatment[character];
-                    chrmissiletreatment[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].missiletreatment;
+                    chr[character].missiletreatment = evesetvalue[enchanttype][valueindex];
                     break;
                 case SETCOSTFOREACHMISSILE:
-                    encsetsave[enchantindex][valueindex] = chrmissilecost[character];
-                    chrmissilecost[character] = evesetvalue[enchanttype][valueindex];
-                    chrmissilehandler[character] = encowner[enchantindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].missilecost;
+                    chr[character].missilecost = evesetvalue[enchanttype][valueindex];
+                    chr[character].missilehandler = encowner[enchantindex];
                     break;
                 case SETMORPH:
-                    encsetsave[enchantindex][valueindex] = chrtexture[character] - madskinstart[chrmodel[character]];
+                    encsetsave[enchantindex][valueindex] = chr[character].texture - madskinstart[chr[character].model];
                     // Special handler for morph
                     change_character( character, enchanttype, 0, LEAVEALL ); // LEAVEFIRST);
-                    chralert[character] |= ALERTIFCHANGED;
+                    chr[character].alert |= ALERTIFCHANGED;
                     break;
                 case SETCHANNEL:
-                    encsetsave[enchantindex][valueindex] = chrcanchannel[character];
-                    chrcanchannel[character] = evesetvalue[enchanttype][valueindex];
+                    encsetsave[enchantindex][valueindex] = chr[character].canchannel;
+                    chr[character].canchannel = evesetvalue[enchanttype][valueindex];
                     break;
             }
         }
@@ -352,119 +352,119 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
     switch ( valueindex )
     {
         case ADDJUMPPOWER:
-            fnewvalue = chrjump[character];
+            fnewvalue = chr[character].jump;
             fvaluetoadd = eveaddvalue[enchanttype][valueindex] / 16.0f;
             fgetadd( 0, fnewvalue, 30.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 16.0f; // Get save value
             fvaluetoadd = valuetoadd / 16.0f;
-            chrjump[character] += fvaluetoadd;
+            chr[character].jump += fvaluetoadd;
             break;
         case ADDBUMPDAMPEN:
-            fnewvalue = chrbumpdampen[character];
+            fnewvalue = chr[character].bumpdampen;
             fvaluetoadd = eveaddvalue[enchanttype][valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 1.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            chrbumpdampen[character] += fvaluetoadd;
+            chr[character].bumpdampen += fvaluetoadd;
             break;
         case ADDBOUNCINESS:
-            fnewvalue = chrdampen[character];
+            fnewvalue = chr[character].dampen;
             fvaluetoadd = eveaddvalue[enchanttype][valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 0.95f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            chrdampen[character] += fvaluetoadd;
+            chr[character].dampen += fvaluetoadd;
             break;
         case ADDDAMAGE:
-            newvalue = chrdamageboost[character];
+            newvalue = chr[character].damageboost;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, 4096, &valuetoadd );
-            chrdamageboost[character] += valuetoadd;
+            chr[character].damageboost += valuetoadd;
             break;
         case ADDSIZE:
-            fnewvalue = chrsizegoto[character];
+            fnewvalue = chr[character].sizegoto;
             fvaluetoadd = eveaddvalue[enchanttype][valueindex] / 128.0f;
             fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            chrsizegoto[character] += fvaluetoadd;
-            chrsizegototime[character] = SIZETIME;
+            chr[character].sizegoto += fvaluetoadd;
+            chr[character].sizegototime = SIZETIME;
             break;
         case ADDACCEL:
-            fnewvalue = chrmaxaccel[character];
+            fnewvalue = chr[character].maxaccel;
             fvaluetoadd = eveaddvalue[enchanttype][valueindex] / 80.0f;
             fgetadd( 0, fnewvalue, 1.5f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 1000.0f; // Get save value
             fvaluetoadd = valuetoadd / 1000.0f;
-            chrmaxaccel[character] += fvaluetoadd;
+            chr[character].maxaccel += fvaluetoadd;
             break;
         case ADDRED:
-            newvalue = chrredshift[character];
+            newvalue = chr[character].redshift;
             valuetoadd = eveaddvalue[enchanttype][valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            chrredshift[character] += valuetoadd;
+            chr[character].redshift += valuetoadd;
             break;
         case ADDGRN:
-            newvalue = chrgrnshift[character];
+            newvalue = chr[character].grnshift;
             valuetoadd = eveaddvalue[enchanttype][valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            chrgrnshift[character] += valuetoadd;
+            chr[character].grnshift += valuetoadd;
             break;
         case ADDBLU:
-            newvalue = chrblushift[character];
+            newvalue = chr[character].blushift;
             valuetoadd = eveaddvalue[enchanttype][valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            chrblushift[character] += valuetoadd;
+            chr[character].blushift += valuetoadd;
             break;
         case ADDDEFENSE:
-            newvalue = chrdefense[character];
+            newvalue = chr[character].defense;
             valuetoadd = eveaddvalue[enchanttype][valueindex];
             getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!
-            chrdefense[character] += valuetoadd;
+            chr[character].defense += valuetoadd;
             break;
         case ADDMANA:
-            newvalue = chrmanamax[character];
+            newvalue = chr[character].manamax;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
-            chrmanamax[character] += valuetoadd;
-            chrmana[character] += valuetoadd;
+            chr[character].manamax += valuetoadd;
+            chr[character].mana += valuetoadd;
 
-            if ( chrmana[character] < 0 )  chrmana[character] = 0;
+            if ( chr[character].mana < 0 )  chr[character].mana = 0;
 
             break;
         case ADDLIFE:
-            newvalue = chrlifemax[character];
+            newvalue = chr[character].lifemax;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
-            chrlifemax[character] += valuetoadd;
-            chrlife[character] += valuetoadd;
+            chr[character].lifemax += valuetoadd;
+            chr[character].life += valuetoadd;
 
-            if ( chrlife[character] < 1 )  chrlife[character] = 1;
+            if ( chr[character].life < 1 )  chr[character].life = 1;
 
             break;
         case ADDSTRENGTH:
-            newvalue = chrstrength[character];
+            newvalue = chr[character].strength;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            chrstrength[character] += valuetoadd;
+            chr[character].strength += valuetoadd;
             break;
         case ADDWISDOM:
-            newvalue = chrwisdom[character];
+            newvalue = chr[character].wisdom;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            chrwisdom[character] += valuetoadd;
+            chr[character].wisdom += valuetoadd;
             break;
         case ADDINTELLIGENCE:
-            newvalue = chrintelligence[character];
+            newvalue = chr[character].intelligence;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            chrintelligence[character] += valuetoadd;
+            chr[character].intelligence += valuetoadd;
             break;
         case ADDDEXTERITY:
-            newvalue = chrdexterity[character];
+            newvalue = chr[character].dexterity;
             valuetoadd = eveaddvalue[enchanttype][valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            chrdexterity[character] += valuetoadd;
+            chr[character].dexterity += valuetoadd;
             break;
     }
 
@@ -488,13 +488,13 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
     else
     {
         // The enchantment type is given by the spawner
-        enchanttype = chrmodel[spawner];
+        enchanttype = chr[spawner].model;
     }
 
     // Target and owner must both be alive and on and valid
     if ( target < MAXCHR )
     {
-        if ( !chron[target] || !chralive[target] )
+        if ( !chr[target].on || !chr[target].alive )
             return MAXENCHANT;
     }
     else
@@ -505,7 +505,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 
     if ( owner < MAXCHR )
     {
-        if ( !chron[owner] || !chralive[owner] )
+        if ( !chr[owner].on || !chr[owner].alive )
             return MAXENCHANT;
     }
     else
@@ -522,29 +522,29 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
             if ( everetarget[enchanttype] )
             {
                 // Is at least one valid?
-                if ( chrholdingwhich[target][0] == MAXCHR && chrholdingwhich[target][1] == MAXCHR )
+                if ( chr[target].holdingwhich[0] == MAXCHR && chr[target].holdingwhich[1] == MAXCHR )
                 {
                     // No weapons to pick
                     return MAXENCHANT;
                 }
 
                 // Left, right, or both are valid
-                if ( chrholdingwhich[target][0] == MAXCHR )
+                if ( chr[target].holdingwhich[0] == MAXCHR )
                 {
                     // Only right hand is valid
-                    target = chrholdingwhich[target][1];
+                    target = chr[target].holdingwhich[1];
                 }
                 else
                 {
                     // Pick left hand
-                    target = chrholdingwhich[target][0];
+                    target = chr[target].holdingwhich[0];
                 }
             }
 
             // Make sure it's valid
             if ( evedontdamagetype[enchanttype] != DAMAGENULL )
             {
-                if ( ( chrdamagemodifier[target][evedontdamagetype[enchanttype]]&7 ) >= 3 )  // Invert | Shift = 7
+                if ( ( chr[target].damagemodifier[evedontdamagetype[enchanttype]]&7 ) >= 3 )  // Invert | Shift = 7
                 {
                     return MAXENCHANT;
                 }
@@ -552,7 +552,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 
             if ( eveonlydamagetype[enchanttype] != DAMAGENULL )
             {
-                if ( chrdamagetargettype[target] != eveonlydamagetype[enchanttype] )
+                if ( chr[target].damagetargettype != eveonlydamagetype[enchanttype] )
                 {
                     return MAXENCHANT;
                 }
@@ -576,7 +576,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 
             if ( spawner < MAXCHR )
             {
-                chrundoenchant[spawner] = enchantindex;
+                chr[spawner].undoenchant = enchantindex;
             }
 
             enceve[enchantindex] = enchanttype;
@@ -588,8 +588,8 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
             enctargetlife[enchantindex] = evetargetlife[enchanttype];
 
             // Add it as first in the list
-            encnextenchant[enchantindex] = chrfirstenchant[target];
-            chrfirstenchant[target] = enchantindex;
+            encnextenchant[enchantindex] = chr[target].firstenchant;
+            chr[target].firstenchant = enchantindex;
 
             // Now set all of the specific values, morph first
             set_enchant_value( enchantindex, SETMORPH, enchanttype );
@@ -630,28 +630,28 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 
             if ( eveoverlay[enchanttype] )
             {
-                overlay = spawn_one_character( chrxpos[target], chrypos[target], chrzpos[target],
-                                               enchanttype, chrteam[target], 0, chrturnleftright[target],
+                overlay = spawn_one_character( chr[target].xpos, chr[target].ypos, chr[target].zpos,
+                                               enchanttype, chr[target].team, 0, chr[target].turnleftright,
                                                NULL, MAXCHR );
 
                 if ( overlay < MAXCHR )
                 {
                     encoverlay[enchantindex] = overlay;  // Kill this character on end...
-                    chraitarget[overlay] = target;
-                    chraistate[overlay] = eveoverlay[enchanttype];
-                    chroverlay[overlay] = btrue;
+                    chr[overlay].aitarget = target;
+                    chr[overlay].aistate = eveoverlay[enchanttype];
+                    chr[overlay].overlay = btrue;
 
                     // Start out with ActionMJ...  Object activated
-                    if ( madactionvalid[chrmodel[overlay]][ACTIONMJ] )
+                    if ( madactionvalid[chr[overlay].model][ACTIONMJ] )
                     {
-                        chraction[overlay] = ACTIONMJ;
-                        chrlip[overlay] = 0;
-                        chrframe[overlay] = madactionstart[chrmodel[overlay]][ACTIONMJ];
-                        chrlastframe[overlay] = chrframe[overlay];
-                        chractionready[overlay] = bfalse;
+                        chr[overlay].action = ACTIONMJ;
+                        chr[overlay].lip = 0;
+                        chr[overlay].frame = madactionstart[chr[overlay].model][ACTIONMJ];
+                        chr[overlay].lastframe = chr[overlay].frame;
+                        chr[overlay].actionready = bfalse;
                     }
 
-                    chrlight[overlay] = 254;  // Assume it's transparent...
+                    chr[overlay].light = 254;  // Assume it's transparent...
                 }
             }
         }
@@ -685,14 +685,14 @@ void do_enchant_spawn()
                 {
                     character = enctarget[cnt];
                     encspawntime[cnt] = evecontspawntime[eve];
-                    facing = chrturnleftright[character];
+                    facing = chr[character].turnleftright;
                     tnc = 0;
 
                     while ( tnc < evecontspawnamount[eve] )
                     {
-                        particle = spawn_one_particle( chrxpos[character], chrypos[character], chrzpos[character],
+                        particle = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos,
                                                        facing, eve, evecontspawnpip[eve],
-                                                       MAXCHR, SPAWNLAST, chrteam[encowner[cnt]], encowner[cnt], tnc, MAXCHR );
+                                                       MAXCHR, SPAWNLAST, chr[encowner[cnt]].team, encowner[cnt], tnc, MAXCHR );
                         facing += evecontspawnfacingadd[eve];
                         tnc++;
                     }
@@ -708,9 +708,9 @@ void do_enchant_spawn()
 void disenchant_character( Uint16 cnt )
 {
     // ZZ> This function removes all enchantments from a character
-    while ( chrfirstenchant[cnt] != MAXENCHANT )
+    while ( chr[cnt].firstenchant != MAXENCHANT )
     {
-        remove_enchant( chrfirstenchant[cnt] );
+        remove_enchant( chr[cnt].firstenchant );
     }
 }
 
@@ -1134,75 +1134,75 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
         switch ( valueindex )
         {
             case SETDAMAGETYPE:
-                chrdamagetargettype[character] = encsetsave[enchantindex][valueindex];
+                chr[character].damagetargettype = encsetsave[enchantindex][valueindex];
                 break;
             case SETNUMBEROFJUMPS:
-                chrjumpnumberreset[character] = encsetsave[enchantindex][valueindex];
+                chr[character].jumpnumberreset = encsetsave[enchantindex][valueindex];
                 break;
             case SETLIFEBARCOLOR:
-                chrlifecolor[character] = encsetsave[enchantindex][valueindex];
+                chr[character].lifecolor = encsetsave[enchantindex][valueindex];
                 break;
             case SETMANABARCOLOR:
-                chrmanacolor[character] = encsetsave[enchantindex][valueindex];
+                chr[character].manacolor = encsetsave[enchantindex][valueindex];
                 break;
             case SETSLASHMODIFIER:
-                chrdamagemodifier[character][DAMAGE_SLASH] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_SLASH] = encsetsave[enchantindex][valueindex];
                 break;
             case SETCRUSHMODIFIER:
-                chrdamagemodifier[character][DAMAGE_CRUSH] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_CRUSH] = encsetsave[enchantindex][valueindex];
                 break;
             case SETPOKEMODIFIER:
-                chrdamagemodifier[character][DAMAGE_POKE] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_POKE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETHOLYMODIFIER:
-                chrdamagemodifier[character][DAMAGE_HOLY] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_HOLY] = encsetsave[enchantindex][valueindex];
                 break;
             case SETEVILMODIFIER:
-                chrdamagemodifier[character][DAMAGE_EVIL] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_EVIL] = encsetsave[enchantindex][valueindex];
                 break;
             case SETFIREMODIFIER:
-                chrdamagemodifier[character][DAMAGE_FIRE] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_FIRE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETICEMODIFIER:
-                chrdamagemodifier[character][DAMAGE_ICE] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_ICE] = encsetsave[enchantindex][valueindex];
                 break;
             case SETZAPMODIFIER:
-                chrdamagemodifier[character][DAMAGE_ZAP] = encsetsave[enchantindex][valueindex];
+                chr[character].damagemodifier[DAMAGE_ZAP] = encsetsave[enchantindex][valueindex];
                 break;
             case SETFLASHINGAND:
-                chrflashand[character] = encsetsave[enchantindex][valueindex];
+                chr[character].flashand = encsetsave[enchantindex][valueindex];
                 break;
             case SETLIGHTBLEND:
-                chrlight[character] = encsetsave[enchantindex][valueindex];
+                chr[character].light = encsetsave[enchantindex][valueindex];
                 break;
             case SETALPHABLEND:
-                chralpha[character] = encsetsave[enchantindex][valueindex];
+                chr[character].alpha = encsetsave[enchantindex][valueindex];
                 break;
             case SETSHEEN:
-                chrsheen[character] = encsetsave[enchantindex][valueindex];
+                chr[character].sheen = encsetsave[enchantindex][valueindex];
                 break;
             case SETFLYTOHEIGHT:
-                chrflyheight[character] = encsetsave[enchantindex][valueindex];
+                chr[character].flyheight = encsetsave[enchantindex][valueindex];
                 break;
             case SETWALKONWATER:
-                chrwaterwalk[character] = encsetsave[enchantindex][valueindex];
+                chr[character].waterwalk = encsetsave[enchantindex][valueindex];
                 break;
             case SETCANSEEINVISIBLE:
-                chrcanseeinvisible[character] = encsetsave[enchantindex][valueindex];
+                chr[character].canseeinvisible = encsetsave[enchantindex][valueindex];
                 break;
             case SETMISSILETREATMENT:
-                chrmissiletreatment[character] = encsetsave[enchantindex][valueindex];
+                chr[character].missiletreatment = encsetsave[enchantindex][valueindex];
                 break;
             case SETCOSTFOREACHMISSILE:
-                chrmissilecost[character] = encsetsave[enchantindex][valueindex];
-                chrmissilehandler[character] = character;
+                chr[character].missilecost = encsetsave[enchantindex][valueindex];
+                chr[character].missilehandler = character;
                 break;
             case SETMORPH:
                 // Need special handler for when this is removed
-                change_character( character, chrbasemodel[character], encsetsave[enchantindex][valueindex], LEAVEALL );
+                change_character( character, chr[character].basemodel, encsetsave[enchantindex][valueindex], LEAVEALL );
                 break;
             case SETCHANNEL:
-                chrcanchannel[character] = encsetsave[enchantindex][valueindex];
+                chr[character].canchannel = encsetsave[enchantindex][valueindex];
                 break;
         }
 
@@ -1223,76 +1223,76 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
     {
         case ADDJUMPPOWER:
             fvaluetoadd = encaddsave[enchantindex][valueindex] / 16.0f;
-            chrjump[character] -= fvaluetoadd;
+            chr[character].jump -= fvaluetoadd;
             break;
         case ADDBUMPDAMPEN:
             fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0f;
-            chrbumpdampen[character] -= fvaluetoadd;
+            chr[character].bumpdampen -= fvaluetoadd;
             break;
         case ADDBOUNCINESS:
             fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0f;
-            chrdampen[character] -= fvaluetoadd;
+            chr[character].dampen -= fvaluetoadd;
             break;
         case ADDDAMAGE:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrdamageboost[character] -= valuetoadd;
+            chr[character].damageboost -= valuetoadd;
             break;
         case ADDSIZE:
             fvaluetoadd = encaddsave[enchantindex][valueindex] / 128.0f;
-            chrsizegoto[character] -= fvaluetoadd;
-            chrsizegototime[character] = SIZETIME;
+            chr[character].sizegoto -= fvaluetoadd;
+            chr[character].sizegototime = SIZETIME;
             break;
         case ADDACCEL:
             fvaluetoadd = encaddsave[enchantindex][valueindex] / 1000.0f;
-            chrmaxaccel[character] -= fvaluetoadd;
+            chr[character].maxaccel -= fvaluetoadd;
             break;
         case ADDRED:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrredshift[character] -= valuetoadd;
+            chr[character].redshift -= valuetoadd;
             break;
         case ADDGRN:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrgrnshift[character] -= valuetoadd;
+            chr[character].grnshift -= valuetoadd;
             break;
         case ADDBLU:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrblushift[character] -= valuetoadd;
+            chr[character].blushift -= valuetoadd;
             break;
         case ADDDEFENSE:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrdefense[character] -= valuetoadd;
+            chr[character].defense -= valuetoadd;
             break;
         case ADDMANA:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrmanamax[character] -= valuetoadd;
-            chrmana[character] -= valuetoadd;
+            chr[character].manamax -= valuetoadd;
+            chr[character].mana -= valuetoadd;
 
-            if ( chrmana[character] < 0 ) chrmana[character] = 0;
+            if ( chr[character].mana < 0 ) chr[character].mana = 0;
 
             break;
         case ADDLIFE:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrlifemax[character] -= valuetoadd;
-            chrlife[character] -= valuetoadd;
+            chr[character].lifemax -= valuetoadd;
+            chr[character].life -= valuetoadd;
 
-            if ( chrlife[character] < 1 ) chrlife[character] = 1;
+            if ( chr[character].life < 1 ) chr[character].life = 1;
 
             break;
         case ADDSTRENGTH:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrstrength[character] -= valuetoadd;
+            chr[character].strength -= valuetoadd;
             break;
         case ADDWISDOM:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrwisdom[character] -= valuetoadd;
+            chr[character].wisdom -= valuetoadd;
             break;
         case ADDINTELLIGENCE:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrintelligence[character] -= valuetoadd;
+            chr[character].intelligence -= valuetoadd;
             break;
         case ADDDEXTERITY:
             valuetoadd = encaddsave[enchantindex][valueindex];
-            chrdexterity[character] -= valuetoadd;
+            chr[character].dexterity -= valuetoadd;
             break;
     }
 }
