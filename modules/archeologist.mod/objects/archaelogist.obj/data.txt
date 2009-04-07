@@ -53,9 +53,9 @@ NonI angle     : 0
 I facing       : 0
 I angle        : 16000
 
-Base defense   :   15  50  80 50 
-S damage shift :   1   1   1   1 
-C damage shift :   1   2   2   1 
+Base defense   :   15  50  80 60 
+S damage shift :   1   1   2   1 
+C damage shift :   1   2   1   2 
 P damage shift :   1   1   2   1 
 H damage shift :   1   1   1   1 
 E damage shift :   1   1   1   2 
@@ -136,11 +136,11 @@ Stopped by     : 48
 Skin 0 name    : an_Explorer_Outfit
 Skin 1 name    : some_Spelunking_Gear
 Skin 2 name    : a_Gunfighter's_Getup
-Skin 3 name    : a_Smuggler's_Costume
+Skin 3 name    : a_Gangster's_Suit
 Skin 0 cost    : 50
 Skin 1 cost    : 200
-Skin 2 cost    : 450
-Skin 3 cost    : 800
+Skin 2 cost    : 510
+Skin 3 cost    : 980
 STR dampen     : 0.100
 
 No rider attak : FALSE
@@ -155,8 +155,6 @@ Jump sound     : 1
 
 //Expansions
 :[DRES] 0	//Armor is dressy
-:[DRES] 1	//Armor is dressy
-:[DRES] 2	//Armor is dressy
 :[DRES] 3	//Armor is dressy
 :[DISA] 1	//Find and disarm traps
 :[READ] 1	//Character is literate
