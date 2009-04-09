@@ -1,0 +1,56 @@
+//Check if the attacker batters away your shield
+//TYPE: TOWER SHIELD
+//Base chance +2% per holder strength -4% per attacker
+IfHeld
+  SetTargetToWhoeverIsHolding       //Folks with the shield profiency have always 100%
+  tmpargument = [SOLD]
+  IfTargetHasID
+    IfHolderBlocked
+      tmpargument = targetreloadtime + 40
+      SetTargetReloadTime
+  Else
+    IfHolderBlocked
+      tmpx = targetstr > 6
+      SetTargetToWhoeverIsHolding
+      tmpy = targetstr > 7
+      tmpx = rand % 100 + tmpx
+      tmpy = 80 + tmpy            //80% block rate 
+      IfXIsMoreThanY
+        tmpargument = 60    //1.20 seconds
+        SetReloadTime       //is how long it takes to raise shield again
+        tmpargument = 1
+        PlaySound           //Play clong
+      Else
+        IfHolderBlocked      //So that the target becomes the attacker again
+          tmpargument = targetreloadtime + 60   //Stun time: 1.2 seconds
+          SetTargetReloadTime
+
+// ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  MakeCrushValid
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 1
+  SendMessageNear
+IfDropped				// Make it lie on floor
+  KeepAction				  //
+IfGrabbed				// Tell them what they've won...
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  //
+End					// All done

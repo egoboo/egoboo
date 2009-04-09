@@ -9,4 +9,6 @@ SLOT  OBJECT
 47    Torch
 50    Sword
 51    Spear
+61    Longbow
+63    Tower Shield
 73    Missile
