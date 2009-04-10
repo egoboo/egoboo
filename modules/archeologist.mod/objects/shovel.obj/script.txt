@@ -39,7 +39,7 @@ IfTakenOut
     tmpargument = 4
     SendMessageNear
 
-//Tell it's cursed
+//Tell it's kursed
 IfNotPutAway
   tmpargument = 3
   SendMessageNear

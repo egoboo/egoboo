@@ -1,0 +1,65 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or an floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 TileDetect:  10  50     13  57         T       T             F
+1 TileSpawn:   10  58     13  61         T       T             F
+
+2 TicTacToe:   72  106    74  108        T       T             F
+
+3 ShutDetect:  22  11     22  12         T       T             F
+4 Shut:        23  11     24  12         F       F             F
+
+5 ShutDetect:  25  19     25  20         T       T             F
+6 Shut:        23  19     24  20         F       F             F
+
+7 ShutDetect:  19  25     20  25         T       T             F
+8 Shut:        19  23     20  24         F       F             F
+
+9 ShutDetect:  11  22     12  22         T       T             F
+10Shut:        11  23     12  24         F       F             F
+
+11ShutDetect:  39  53     40  53         T       T             F
+12Shut:        39  51     40  52         F       F             F
+
+13ShutDetect:  53  39     53  40         T       T             F
+14Shut:        51  39     52  40         F       F             F
+
+15ShutDetect:  89  59     89  60         T       T             F
+16Shut:        87  59     88  60         F       F             F
+
+17ShutDetect:  107 66     108 66         T       T             F
+18Shut:        107 67     108 68         F       F             F
+
+19ShutDetect:  107 94     108 94         T       T             F
+20Shut:        107 95     108 96         F       F             F
+
+21ShutDetect:  93  107    93  108        T       T             F
+22Shut:        91  107    92  108        F       F             F
+
+23ShutDetect:  97  83     97  84         T       T             F
+24Shut:        95  83     96  84         F       F             F
+
+25ShutDetect:  47  113    48  113        T       T             F
+26Shut:        47  111    48  112        F       F             F
+
+27ShutDetect:  47  85     48  85         T       T             F
+28Shut:        47  83     48  84         F       F             F
+
+29ShutDetect:  54  11     54  12         T       T             F
+30Shut:        55  11     56  12         F       F             F
+
+31ShutDetect:  74  19     74  20         T       T             F
+32Shut:        75  19     76  20         F       F             F
+
+33ShutDetect:  94  19     94  20         T       T             F
+34Shut:        95  19     96  20         F       F             F
+
+35ShutDetect:  30  115    30  116        T       T             F
+36Shut:        31  115    32  116        F       F             F
+
+37TileDetect:  58  10     61  13         T       T             F
+38TileSpawn:   60  12     71  23         T       T             F
+
+39GhoulDetect: 38  10     40  13         T       T             F
+40GhoulSpawn:  37  10     41  13         T       T             F

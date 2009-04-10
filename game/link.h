@@ -36,4 +36,5 @@ extern Link_t LinkList[LINK_COUNT];
 
 bool_t link_export_all();
 bool_t link_follow( Link_t list[], int ilink );
+bool_t link_follow_modname( const char * modname );
 bool_t link_build( const char * fname, Link_t list[] );

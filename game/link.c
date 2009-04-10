@@ -20,6 +20,8 @@
 #include "link.h"
 #include "proto.h"
 #include "egoboo.h"
+#include "menu.h"
+#include "log.h"
 
 Link_t LinkList[LINK_COUNT];
 
@@ -31,56 +33,134 @@ bool_t link_export_all()
     //     and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
-    int cnt, tnc, i, character;
-    char srcDir[64], destDir[64];
+    int cnt, tnc, i, j, character, player;
+    STRING srcPlayer, srcDir, destDir;
 
     // do the normal export to save all the player settings
     export_all_players( btrue );
+
+    // reload all of the available players
+    check_player_import( "players", btrue  );
+    check_player_import( "remote",  bfalse );
 
     // build the import directory using the player info
     empty_import_directory();
     fs_createDirectory( "import" );
 
-    for ( tnc = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
+    // export all of the players directly from memory straight to the "import" dir
+    for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
         if ( !plavalid[cnt] ) continue;
 
         // Is it alive?
         character = plaindex[cnt];
-
         if ( !chr[character].on || !chr[character].alive ) continue;
 
         is_local = ( 0 != pladevice[cnt] );
 
-        // copy the values to the import values
-        strcpy( loadplayerdir[tnc], chr[character].name );
+        // find the saved copy of the players that are in memory right now
+        for ( tnc = 0; tnc < loadplayer_count; tnc++ )
+        {
+            if ( 0 == strcmp( loadplayer[tnc].dir, get_file_path(chr[character].name) ) )
+            {
+                break;
+            }
+        }
 
-        localcontrol[tnc] = INPUT_BITS_KEYBOARD | INPUT_BITS_MOUSE | INPUT_BITS_JOYA;
-        localslot[tnc]    = tnc * 9;
+        if ( tnc == loadplayer_count )
+        {
+            log_warning( "link_export_all() - cannot find exported file for \"%s\" (\"%s\") \n", chr[character].name, get_file_path(chr[character].name) ) ;
+            continue;
+        }
+
+        // grab the controls from the currently loaded players
+        // calculate the slot from the current player count
+        local_control[player] = pladevice[cnt];
+        local_slot[player]    = player * MAXIMPORTPERPLAYER;
+        player++;
 
         // Copy the character to the import directory
         if ( is_local )
         {
-            sprintf( loadplayerdir[tnc], "players" SLASH_STR "%s", chr[character].name );
+            sprintf( srcPlayer, "players" SLASH_STR "%s", loadplayer[tnc].dir );
         }
         else
         {
-            sprintf( loadplayerdir[tnc], "remote" SLASH_STR "%s", chr[character].name );
+            sprintf( srcPlayer, "remote" SLASH_STR "%s", loadplayer[tnc].dir );
         }
 
-        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", localslot[tnc] );
-        fs_copyDirectory( loadplayerdir[tnc], destDir );
+        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] );
+        fs_copyDirectory( srcPlayer, destDir );
 
         // Copy all of the character's items to the import directory
-        for ( i = 0; i < 8; i++ )
+        for ( j = 0; j < 8; j++ )
         {
-            sprintf( srcDir, "%s" SLASH_STR "%d.obj", loadplayerdir[tnc], i );
-            sprintf( destDir, "import" SLASH_STR "temp%04d.obj", localslot[tnc] + i + 1 );
+            sprintf( srcDir, "%s" SLASH_STR "%d.obj", srcPlayer, j );
+            sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] + j + 1 );
 
             fs_copyDirectory( srcDir, destDir );
         }
+    }
 
-        tnc++;
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t link_follow_modname( const char * modname )
+{
+    // BB> This causes the game to follow a link, given the module name
+
+    if ( NULL == modname || '\0' == modname[0] ) return bfalse;
+
+    //-----------------------------------------------------------------
+    // export all the local and remote characters
+    {
+        link_export_all();
+    }
+
+    //-----------------------------------------------------------------
+    // all of the de-initialization code after the module actually ends
+    {
+        release_module();
+        close_session();
+    }
+
+    // reset the "ui" mouse state
+    pressed           = bfalse;
+    clicked           = bfalse;
+    pending_click     = bfalse;
+    mouse_wheel_event = bfalse;
+
+    // reset some of the module state variables
+    beatmodule  = bfalse;
+    exportvalid = bfalse;
+
+    //-----------------------------------------------------------------
+    // all of the initialization code before the module actually starts
+    {
+        //seed = time( NULL );
+        srand( seed );
+
+        // start the new module
+        load_module( modname );
+
+        make_onwhichfan();
+        reset_camera();
+        reset_timers();
+        figure_out_what_to_draw();
+        make_character_matrices();
+        attach_particles();
+
+        if ( networkon )
+        {
+            log_info( "SDL_main: Loading module %s...\n", pickedmodule );
+            net_sayHello();
+        }
+
+        // Let the game go
+        moduleactive = btrue;
+        randsave = 0;
+        srand( randsave );
     }
 
     return btrue;
@@ -93,11 +173,9 @@ bool_t link_follow( Link_t list[], int ilink )
 
     bool_t retval = bfalse;
     Link_t * plink;
-
     if ( ilink < 0 || ilink >= LINK_COUNT ) return bfalse;
 
     plink = list + ilink;
-
     if ( !plink->valid ) return bfalse;
 
     // finish with the old module
@@ -115,7 +193,7 @@ bool_t link_follow( Link_t list[], int ilink )
     make_character_matrices();
     attach_particles();
 
-    return retval;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -123,11 +201,9 @@ bool_t link_build( const char * fname, Link_t list[] )
 {
     FILE * pfile;
     int i;
-
     if ( NULL == fname || '\0' == fname ) return bfalse;
 
     pfile = fopen( fname, "r" );
-
     if ( NULL == pfile ) return bfalse;
 
     i = 0;

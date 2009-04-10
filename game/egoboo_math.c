@@ -51,37 +51,47 @@ void make_turntosin( void )
 glVector vsub( glVector A, glVector B )
 {
     glVector tmp;
-    tmp.x = A.x / A.w - B.x / B.w;
-    tmp.y = A.y / A.w - B.y / B.w;
-    tmp.z = A.z / A.w - B.z / B.w;
-    tmp.w = 1.0;
+
+    if (A.w == 0.0f) A.w = 1.0f;
+    if (B.w == 0.0f) B.w = 1.0f;
+
+    tmp.x = A.x - B.x;
+    tmp.y = A.y - B.y;
+    tmp.z = A.z - B.z;
+    tmp.w = A.w - B.w;
+
     return( tmp );
 }
 
 glVector Normalize( glVector vec )
 {
     glVector tmp = vec;
-    float len;
-    len = SQRT( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
-    tmp.x /= len * tmp.w;
-    tmp.y /= len * tmp.w;
-    tmp.z /= len * tmp.w;
-	tmp.w /= tmp.w;
-    return( tmp );
+
+    if ( ABS(vec.x) + ABS(vec.y) + ABS(vec.z) > 0 )
+    {
+        float len = SQRT( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
+
+        tmp.x /= len;
+        tmp.y /= len;
+        tmp.z /= len;
+
+        tmp.w = vec.w;
+    }
+
+    return tmp ;
 }
 
 glVector CrossProduct( glVector A, glVector B )
 {
     glVector tmp;
-    tmp.x = A.y / A.w * B.z / B.w - A.z / A.w * B.y / B.w;
-    tmp.y = A.z / A.w * B.x / B.w - A.x / A.w * B.z / B.w;
-    tmp.z = A.x / A.w * B.y / B.w - A.y / A.w * B.x / B.w;
-	tmp.w = 1.0;
+    tmp.x = A.y * B.z - A.z * B.y;
+    tmp.y = A.z * B.x - A.x * B.z;
+    tmp.z = A.x * B.y - A.y * B.x;
     return( tmp );
 }
 
 float DotProduct( glVector A, glVector B )
-{ return( A.x / A.w * B.x / B.w + A.y / A.w * B.y / B.w + A.z / A.w * B.z / B.w ); }
+{ return( A.x*B.x + A.y*B.y + A.z*B.z ); }
 
 //---------------------------------------------------------------------------------------------
 // Math Stuff-----------------------------------------------------------------------------------
@@ -142,9 +152,11 @@ glMatrix MatrixMult( const glMatrix a, const glMatrix b )
 glMatrix Translate( const float dx, const float dy, const float dz )
 {
     glMatrix ret = IdentityMatrix();
+
     ret.CNV( 3, 0 ) = dx;
     ret.CNV( 3, 1 ) = dy;
     ret.CNV( 3, 2 ) = dz;
+
     return ret;
 }
 
@@ -154,11 +166,14 @@ glMatrix RotateX( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
+
     glMatrix ret = IdentityMatrix();
+
     ret.CNV( 1, 1 ) = cosine;
     ret.CNV( 2, 2 ) = cosine;
     ret.CNV( 1, 2 ) = -sine;
     ret.CNV( 2, 1 ) = sine;
+
     return ret;
 }
 
@@ -168,11 +183,14 @@ glMatrix RotateY( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
+
     glMatrix ret = IdentityMatrix();
+
     ret.CNV( 0, 0 ) = cosine; //0,0
     ret.CNV( 2, 2 ) = cosine; //2,2
     ret.CNV( 0, 2 ) = sine; //0,2
     ret.CNV( 2, 0 ) = -sine; //2,0
+
     return ret;
 }
 
@@ -182,11 +200,14 @@ glMatrix RotateZ( const float rads )
 {
     float cosine = COS( rads );
     float sine = SIN( rads );
+
     glMatrix ret = IdentityMatrix();
+
     ret.CNV( 0, 0 ) = cosine; //0,0
     ret.CNV( 1, 1 ) = cosine; //1,1
     ret.CNV( 0, 1 ) = -sine; //0,1
     ret.CNV( 1, 0 ) = sine; //1,0
+
     return ret;
 }
 
@@ -195,9 +216,11 @@ glMatrix RotateZ( const float rads )
 glMatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 {
     glMatrix ret = IdentityMatrix();
+
     ret.CNV( 0, 0 ) = sizex; //0,0
     ret.CNV( 1, 1 ) = sizey; //1,1
     ret.CNV( 2, 2 ) = sizez; //2,2
+
     return ret;
 }
 
@@ -213,11 +236,14 @@ glMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
     float sy = turntosin[turny];
     float cz = turntocos[turnz];
     float sz = turntosin[turnz];
+
     float sxsy = sx * sy;
     float cxsy = cx * sy;
     float sxcy = sx * cy;
     float cxcy = cx * cy;
+
     glMatrix ret;
+
     ret.CNV( 0, 0 ) = sizex * ( cy * cz ); //0,0
     ret.CNV( 0, 1 ) = sizex * ( sxsy * cz + cx * sz );  //0,1
     ret.CNV( 0, 2 ) = sizex * ( -cxsy * cz + sx * sz );  //0,2
@@ -237,6 +263,7 @@ glMatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const
     ret.CNV( 3, 1 ) = ty;       //3,1
     ret.CNV( 3, 2 ) = tz;       //3,2
     ret.CNV( 3, 3 ) = 1;       //3,3
+
     return ret;
 }
 
@@ -264,7 +291,7 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
     vFor.y = fory - oriy;
     vFor.z = forz - oriz;
 
-    // assume that the length of the grip edges is 16
+    // assume that the length of the grip edges if 16
     scale *= 16.0f;
     vWid = Normalize(vWid);
     vUp  = Normalize(vUp );
@@ -299,7 +326,7 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
 // inline D3DMATRIX ViewMatrix(const D3DVECTOR from,      // camera location
 glMatrix ViewMatrix( const glVector from,     // camera location
                      const glVector at,        // camera look-at target
-                     const glVector world_up,  // world√≠s up, usually 0, 0, 1
+                     const glVector world_up,  // worldís up, usually 0, 0, 1
                      const float roll )         // clockwise roll around
 //    viewing direction,
 //    in radians
@@ -312,6 +339,7 @@ glMatrix ViewMatrix( const glVector from,     // camera location
     up = CrossProduct( view_dir, right );
     right = Normalize( right );
     up = Normalize( up );
+
     view.CNV( 0, 0 ) = right.x;       //0,0
     view.CNV( 1, 0 ) = right.y;       //1,0
     view.CNV( 2, 0 ) = right.z;       //2,0
@@ -345,17 +373,20 @@ glMatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
     float c = COS( fov * 0.5f );
     float s = SIN( fov * 0.5f );
     float Q = s / ( 1.0f - near_plane / far_plane );
+
     glMatrix ret = ZeroMatrix();
+
     ret.CNV( 0, 0 ) = c;         //0,0
     ret.CNV( 1, 1 ) = c;         //1,1
     ret.CNV( 2, 2 ) = Q;         //2,2
     ret.CNV( 3, 2 ) = -Q * near_plane; //3,2
     ret.CNV( 2, 3 ) = s;         //2,3
+
     return ret;
 }
 
 //----------------------------------------------------
-// GS - Normally we souldn't need this function but I found it in the rendering of the particles.
+// GS - Normally we souldn't this function but I found it in the rendering of the particules.
 //
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.

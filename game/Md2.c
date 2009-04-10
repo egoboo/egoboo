@@ -40,11 +40,8 @@ void md2_freeModel( Md2Model *model )
     if ( model != NULL )
     {
         if ( model->texCoords != NULL ) free( model->texCoords );
-
         if ( model->triangles != NULL ) free( model->triangles );
-
         if ( model->skins != NULL ) free( model->skins );
-
         if ( model->frames != NULL )
         {
             int i;

@@ -45,7 +45,6 @@ void fs_removeDirectoryAndContents( const char *dirname )
         if ( fileName[0] != '.' )
         {
             snprintf( filePath, MAX_PATH, "%s" SLASH_STR "%s", dirname, fileName );
-
             if ( fs_fileIsDirectory( filePath ) )
             {
                 // fs_removeDirectoryAndContents(filePath);
@@ -71,7 +70,6 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
 
     // List all the files in the directory
     fileName = fs_findFirstFile( sourceDir, NULL );
-
     if ( fileName != NULL )
     {
         // Make sure the destination directory exists

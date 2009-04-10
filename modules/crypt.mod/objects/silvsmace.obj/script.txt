@@ -33,7 +33,7 @@ IfHitGround				// Make a sound
   tmpargument = 1			  //
   PlaySound				  //
 
-//Tell its cursed
+//Tell its kursed
 IfNotDropped
   tmpargument = 2
   SendMessageNear

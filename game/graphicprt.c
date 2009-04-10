@@ -143,7 +143,7 @@ void render_antialias_prt()
                 vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
                 // Fill in the rest of the data
-                image = FP8_TO_FLOAT( prtimage[prt] + prtimagestt[prt] );
+                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] );
 
                 vtlist[0].s = particleimageu[image][0];
                 vtlist[0].t = particleimagev[image][0];
@@ -159,13 +159,13 @@ void render_antialias_prt()
 
                 // Go on and draw it
                 glBegin( GL_TRIANGLE_FAN );
-
-                for ( i = 0; i < 4; i++ )
                 {
-                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    }
                 }
-
                 glEnd();
 
             }
@@ -279,7 +279,7 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
 
             vtlist[0].s = particleimageu[image][0];
             vtlist[0].t = particleimagev[image][0];
@@ -294,13 +294,13 @@ void render_prt()
             vtlist[3].t = particleimagev[image][1];
 
             glBegin( GL_TRIANGLE_FAN );
-
-            for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                for ( i = 0; i < 4; i++ )
+                {
+                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                }
             }
-
             glEnd();
         }
 
@@ -336,7 +336,6 @@ void render_prt()
 
             // [claforte] Fudge the value.
             size = ( float )prtsize[prt] * 0.00092;
-
             if ( prttype[prt] == PRTSOLIDSPRITE )
                 size += 2.0f; // for antialiasing.
 
@@ -356,7 +355,7 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
             light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
 
             vtlist[0].s = particleimageu[image][0];
@@ -373,13 +372,13 @@ void render_prt()
 
             // Go on and draw it
             glBegin( GL_TRIANGLE_FAN );
-
-            for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                for ( i = 0; i < 4; i++ )
+                {
+                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                }
             }
-
             glEnd();
         }
 
@@ -420,7 +419,7 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
 
             vtlist[0].s = particleimageu[image][0];
             vtlist[0].t = particleimagev[image][0];
@@ -436,13 +435,13 @@ void render_prt()
 
             // Go on and draw it
             glBegin( GL_TRIANGLE_FAN );
-
-            for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                for ( i = 0; i < 4; i++ )
+                {
+                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                }
             }
-
             glEnd();
         }
 
@@ -478,15 +477,14 @@ void render_refprt()
 
     while ( cnt < maxparticles )
     {
-        if ( prtinview[cnt] && prtsize[cnt] != 0 )
+        if ( prtinview[cnt] && 0 != prtsize[cnt] && INVALID_TILE != prtonwhichfan[cnt] )
         {
-            if ( meshfx[prtonwhichfan[cnt]] & MESHFXDRAWREF )
+            if ( meshfx[prtonwhichfan[cnt]] & MESHFX_DRAWREF )
             {
                 level = prtlevel[cnt];
                 v[numparticle].x = ( float ) prtxpos[cnt];
                 v[numparticle].y = ( float ) prtypos[cnt];
                 v[numparticle].z = ( float ) - prtzpos[cnt] + level + level;
-
                 if ( prtattachedtocharacter[cnt] != MAXCHR )
                 {
                     v[numparticle].z += RAISE + RAISE;
@@ -536,16 +534,13 @@ void render_refprt()
 
             // Fill in the rest of the data
             startalpha = ( int )( 255 + v[cnt].z - level );
-
             if ( startalpha < 0 ) startalpha = 0;
 
             startalpha = ( startalpha | reffadeor ) >> 1;  // Fix for Riva owners
-
             if ( startalpha > 255 ) startalpha = 255;
-
             if ( startalpha > 0 )
             {
-                image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
                 // light = (startalpha<<24)|usealpha;
                 glColor4f( 1.0f, 1.0f, 1.0f, startalpha / 255.0f );
 
@@ -562,13 +557,13 @@ void render_refprt()
                 vtlist[3].t = particleimagev[image][0];
 
                 glBegin( GL_TRIANGLE_FAN );
-
-                for ( i = 0; i < 4; i++ )
                 {
-                    glTexCoord2fv ( &vtlist[i].s );
-                    glVertex3fv ( &vtlist[i].x );
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        glTexCoord2fv ( &vtlist[i].s );
+                        glVertex3fv ( &vtlist[i].x );
+                    }
                 }
-
                 glEnd();
 
             }
@@ -610,17 +605,14 @@ void render_refprt()
 
             // Fill in the rest of the data
             startalpha = ( int )( 255 + v[cnt].z - level );
-
             if ( startalpha < 0 ) startalpha = 0;
 
             startalpha = ( startalpha | reffadeor ) >> ( 1 + prttype[prt] );  // Fix for Riva owners
-
             if ( startalpha > 255 ) startalpha = 255;
-
             if ( startalpha > 0 )
             {
                 float color_component = prtlight[prt] / 16.0f;
-                image = ( ( Uint16 )( prtimage[prt] + prtimagestt[prt] ) ) >> 8;
+                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
                 glColor4f( color_component, color_component, color_component, startalpha / 255.0f );
 
                 vtlist[0].s = particleimageu[image][1];
@@ -637,13 +629,13 @@ void render_refprt()
 
                 // Go on and draw it
                 glBegin( GL_TRIANGLE_FAN );
-
-                for ( i = 0; i < 4; i++ )
                 {
-                    glTexCoord2fv ( &vtlist[i].s );
-                    glVertex3fv ( &vtlist[i].x );
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        glTexCoord2fv ( &vtlist[i].s );
+                        glVertex3fv ( &vtlist[i].x );
+                    }
                 }
-
                 glEnd();
             }
         }

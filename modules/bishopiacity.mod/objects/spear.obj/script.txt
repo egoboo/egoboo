@@ -28,11 +28,11 @@ IfThrown				// Make it attack
   tmpargument = 2
   tmpdistance = 1
   SpawnAttachedParticle
-IfNotDropped				// Say oops, that's cursed
+IfNotDropped				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 1			  //
   SendMessageNear			  //
-IfNotPutAway				// Say oops, that's cursed
+IfNotPutAway				// Say oops, that's kursed
   SetTargetToWhoeverIsHolding		  //
   tmpargument = 3			  //
   SendMessageNear			  //

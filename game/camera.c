@@ -26,11 +26,48 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// Camera control stuff
+int                     camswing     =  0;
+int                     camswingrate =  0;
+float                   camswingamp  =  0;
+float                   camx         =  0;
+float                   camy         =  1500;
+float                   camz         =  1500;
+float                   camzoom      =  1000;
+float                   camtrackxvel;
+float                   camtrackyvel;
+float                   camtrackzvel;
+float                   camcenterx;
+float                   camcentery;
+float                   camtrackx;
+float                   camtracky;
+float                   camtrackz;
+float                   camtracklevel;
+float                   camzadd     =  800;
+float                   camzaddgoto =  800;
+float                   camzgoto    =  800;
+float                   camturnleftright      =  ( float )( -PI / 4 );
+float                   camturnleftrightone   =  ( float )( -PI / 4 ) / ( TWO_PI );
+Uint16                  camturnleftrightshort =  0;
+float                   camturnadd            =  0;
+float                   camsustain            =  0.60f;
+float                   camturnupdown         =  ( float )( PI / 4 );
+float                   camroll               =  0;
+
+float                   cornerx[4];
+float                   cornery[4];
+int                     cornerlistlowtohighy[4];
+float                   cornerlowx;
+float                   cornerhighx;
+float                   cornerlowy;
+float                   cornerhighy;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void camera_look_at( float x, float y )
 {
     // ZZ> This function makes the camera turn to face the character
     camzgoto = camzadd;
-
     if ( doturntime != 0 )
     {
         camturnleftright = ( 1.5f * PI ) - ATAN2( y - camy, x - camx );  // xgg
@@ -141,16 +178,13 @@ void project_view()
     {
         if ( cornerx[cnt] < cornerlowx )
             cornerlowx = cornerx[cnt];
-
         if ( cornery[cnt] < cornerlowy )
         {
             cornerlowy = cornery[cnt];
             cornerlistlowtohighy[0] = cnt;
         }
-
         if ( cornerx[cnt] > cornerhighx )
             cornerhighx = cornerx[cnt];
-
         if ( cornery[cnt] > cornerhighy )
         {
             cornerhighy = cornery[cnt];
@@ -172,7 +206,6 @@ void project_view()
 
     cornerlistlowtohighy[1] = extra[1];
     cornerlistlowtohighy[2] = extra[0];
-
     if ( cornery[extra[0]] < cornery[extra[1]] )
     {
         cornerlistlowtohighy[1] = extra[0];
@@ -186,7 +219,6 @@ void make_camera_matrix()
     // ZZ> This function sets mView to the camera's location and rotation
     mView = mViewSave;
     mView = MatrixMult( Translate( camx, -camy, camz ), mView );  // xgg
-
     if ( camswingamp > 0.001f )
     {
         camroll = turntosin[camswing] * camswingamp;
@@ -205,7 +237,6 @@ void adjust_camera_angle( float height )
 {
     // ZZ> This function makes the camera look downwards as it is raised up
     float percentmin, percentmax;
-
     if ( height < MINZADD )  height = MINZADD;
 
     percentmax = ( height - MINZADD ) / ( float )( MAXZADD - MINZADD );
@@ -223,7 +254,6 @@ void move_camera()
     Sint16 locoalive;
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 character, turnsin, turncos;
-
     if ( autoturncamera )
         doturntime = 255;
     else if ( doturntime != 0 )
@@ -240,7 +270,6 @@ void move_camera()
         if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
         {
             character = plaindex[cnt];
-
             if ( chr[character].alive )
             {
                 if ( chr[character].attachedto == MAXCHR )
@@ -264,7 +293,6 @@ void move_camera()
             }
         }
     }
-
     if ( locoalive > 0 )
     {
         x = x / locoalive;
@@ -292,19 +320,16 @@ void move_camera()
     camz = ( camz * 3.0f + camzgoto ) / 4.0f;
 
     // Camera controls
-    if ( autoturncamera == 255 && numlocalpla == 1 )
+    if ( autoturncamera == 255 && local_numlpla == 1 )
     {
         if ( mous.on )
             if ( !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )
                 camturnadd -= ( mous.x * 0.5f );
-
         if ( keyb.on )
             camturnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
-
         if ( joy[0].on )
             if ( !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
                 camturnadd -= joy[0].x * CAMJOYTURN;
-
         if ( joy[1].on )
             if ( !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
                 camturnadd -= joy[1].x * CAMJOYTURN;
@@ -317,9 +342,7 @@ void move_camera()
             {
                 camturnadd += ( mous.x / 3.0f );
                 camzaddgoto += ( float ) mous.y / 3.0f;
-
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
-
                 if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
 
                 doturntime = TURNTIME;  // Sticky turn...
@@ -333,9 +356,7 @@ void move_camera()
             {
                 camturnadd += joy[0].x * CAMJOYTURN;
                 camzaddgoto += joy[0].y * CAMJOYTURN;
-
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
-
                 if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
 
                 doturntime = TURNTIME;  // Sticky turn...
@@ -349,9 +370,7 @@ void move_camera()
             {
                 camturnadd += joy[1].x * CAMJOYTURN;
                 camzaddgoto += joy[1].y * CAMJOYTURN;
-
                 if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
-
                 if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
 
                 doturntime = TURNTIME;  // Sticky turn...
@@ -367,13 +386,10 @@ void move_camera()
             camturnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
             doturntime = TURNTIME;  // Sticky turn...
         }
-
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) )
         {
             camzaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
-
             if ( camzaddgoto < MINZADD )  camzaddgoto = MINZADD;
-
             if ( camzaddgoto > MAXZADD )  camzaddgoto = MAXZADD;
         }
     }
@@ -385,14 +401,12 @@ void move_camera()
     camtrackxvel += camtrackx;
     camtrackyvel += camtracky;
     camtrackzvel += camtrackz;
-
     if ( overlayon )
     {
         // Do fg distance effect
         waterlayeru[0] += camtrackxvel * waterlayerdistx[0];
         waterlayerv[0] += camtrackyvel * waterlayerdisty[0];
     }
-
     if ( !clearson )
     {
         // Do bg distance effect
@@ -421,13 +435,11 @@ void move_camera()
     z = ( TRACKXAREALOW  * ( MAXZADD - camzadd ) ) +
         ( TRACKXAREAHIGH * ( camzadd - MINZADD ) );
     z = z / ( MAXZADD - MINZADD );
-
     if ( newx < -z )
     {
         // Scroll left
         movex += ( newx + z );
     }
-
     if ( newx > z )
     {
         // Scroll right
@@ -438,7 +450,6 @@ void move_camera()
     z = ( TRACKYAREAMINLOW  * ( MAXZADD - camzadd ) ) +
         ( TRACKYAREAMINHIGH * ( camzadd - MINZADD ) );
     z = z / ( MAXZADD - MINZADD );
-
     if ( newy < z )
     {
         // Scroll down
@@ -450,7 +461,6 @@ void move_camera()
         z = ( TRACKYAREAMAXLOW  * ( MAXZADD - camzadd ) ) +
             ( TRACKYAREAMAXHIGH * ( camzadd - MINZADD ) );
         z = z / ( MAXZADD - MINZADD );
-
         if ( newy > z )
         {
             // Scroll up

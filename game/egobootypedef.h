@@ -27,7 +27,6 @@
 
 #include <SDL_types.h>
 
-
 //RECTANGLE
 typedef struct s_rect
 {
@@ -64,8 +63,8 @@ extern char idsz_string[5];
 typedef char STRING[256];
 
 //FAST CONVERSIONS
-#define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)(1<<8) )
-#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX)*(float)(1<<8)) )
+#define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)0xFF )
+#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX)*(float)0xFF) )
 #define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
 #define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )

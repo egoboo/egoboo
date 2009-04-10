@@ -21,11 +21,11 @@
 
 #include "egobootypedef.h"
 
-bool_t setup_read( char* filename );
+bool_t setup_read(  const char* filename );
 bool_t setup_write();
 bool_t setup_quit();
 bool_t setup_download();
 bool_t setup_upload();
 
-bool_t input_settings_save(char* whichfile);
-bool_t input_settings_load( char *szFilename );
+bool_t input_settings_save( const char* whichfile);
+bool_t input_settings_load(  const char *szFilename );

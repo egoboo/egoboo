@@ -68,14 +68,13 @@ IfSpawned
   tmpy = 5668
   AddWaypoint
 
-CleanUp
+  CleanUp
 
 //------------------------------------------------------------------------------
 // ZZ> Handle wandering around
 IfStateIs1
   // Wander around the boss room
   IfAtWaypoint
-    CleanUp
     tmpx = rand % 1332 + 508
     tmpy = rand % 1594 + 462
     ClearWaypoints
@@ -122,13 +121,14 @@ IfBumped
       DamageTarget
       tmpargument = 1
       SetContent
-      tmpargument = 50        //Attack cooldown timer
-      SetTime
 
 //Ready next attack again
 IfTimeOut
+  CleanUp
   tmpargument = 0
   SetContent
+  tmpargument = 50
+  SetTime
 
 //------------------------------------------------------------------------------
 //Let the characters know where she is...

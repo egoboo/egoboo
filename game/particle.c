@@ -24,6 +24,8 @@
 #include "egoboo.h"
 #include "log.h"
 #include "particle.h"
+#include "sound.h"
+#include "camera.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -41,8 +43,7 @@ void make_prtlist( void )
     while ( cnt < maxparticles )
     {
         prtinview[cnt] = bfalse;
-
-        if ( prton[cnt] )
+        if ( prton[cnt] && INVALID_TILE != prtonwhichfan[cnt] )
         {
             prtinview[cnt] = meshinrenderlist[prtonwhichfan[cnt]];
 
@@ -54,7 +55,6 @@ void make_prtlist( void )
                 disy = prtypos[cnt] - camtracky;
                 disy = ABS( disy );
                 distance = disx + disy;
-
                 if ( distance < dynadistancetobeat )
                 {
                     if ( numdynalight < maxlights )
@@ -111,7 +111,7 @@ void make_prtlist( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle_no_sound( int particle )
+void free_one_particle_no_sound( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack
     freeprtlist[numfreeprt] = particle;
@@ -120,39 +120,37 @@ void free_one_particle_no_sound( int particle )
 }
 
 //--------------------------------------------------------------------------------------------
-void play_particle_sound( int particle, Sint8 sound )
+void play_particle_sound( Uint16 particle, Sint8 sound )
 {
     // This function plays a sound effect for a particle
     if ( sound >= 0 && sound < MAXWAVE )
     {
         if ( prtmodel[particle] != MAXMODEL )
         {
-            play_mix( prtxpos[particle], prtypos[particle], capwaveindex[prtmodel[particle]] + sound );
+            sound_play_chunk( prtxpos[particle], prtypos[particle], capwavelist[prtmodel[particle]][sound] );
         }
         else
         {
-            play_mix( prtxpos[particle], prtypos[particle], globalwave + sound );
+            sound_play_chunk( prtxpos[particle], prtypos[particle], g_wavelist[sound] );
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle( int particle )
+void free_one_particle( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack and
     //     plays the sound associated with the particle
     int child;
-
     if ( prtspawncharacterstate[particle] != SPAWNNOCHARACTER )
     {
         child = spawn_one_character( prtxpos[particle], prtypos[particle], prtzpos[particle],
                                      prtmodel[particle], prtteam[particle], 0, prtfacing[particle],
                                      NULL, MAXCHR );
-
         if ( child != MAXCHR )
         {
-            chr[child].aistate = prtspawncharacterstate[particle];
-            chr[child].aiowner = prtchr[particle];
+            chr[child].ai.state = prtspawncharacterstate[particle];
+            chr[child].ai.owner = prtchr[particle];
         }
     }
 
@@ -171,8 +169,7 @@ int get_free_particle( int force )
     int particle;
 
     // Return maxparticles if we can't find one
-    particle = maxparticles;
-
+    particle = TOTALMAXPRT;
     if ( numfreeprt == 0 )
     {
         if ( force )
@@ -202,7 +199,7 @@ int get_free_particle( int force )
         }
     }
 
-    return particle;
+    return (particle >= maxparticles) ? TOTALMAXPRT : particle;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -212,48 +209,47 @@ Uint16 spawn_one_particle( float x, float y, float z,
                            Uint16 characterorigin, Uint16 multispawn, Uint16 oldtarget )
 {
     // ZZ> This function spawns a new particle, and returns the number of that particle
-    int cnt, velocity;
+    int iprt, velocity;
     float xvel, yvel, zvel, tvel;
     int offsetfacing = 0, newrand;
 
     // Convert from local pip to global pip
-    if ( model < MAXMODEL )
+    if ( model < MAXMODEL && pip < MAXPRTPIPPEROBJECT )
+    {
         pip = madprtpip[model][pip];
+    }
 
-    cnt = get_free_particle( pipforce[pip] );
-
-    if ( cnt != maxparticles )
+    iprt = get_free_particle( pipforce[pip] );
+    if ( iprt != TOTALMAXPRT )
     {
         // Necessary data for any part
-        prton[cnt] = btrue;
-        prtpip[cnt] = pip;
-        prtmodel[cnt] = model;
-        prtinview[cnt] = bfalse;
-        prtlevel[cnt] = 0;
-        prtteam[cnt] = team;
-        prtchr[cnt] = characterorigin;
-        prtdamagetype[cnt] = pipdamagetype[pip];
-        prtspawncharacterstate[cnt] = SPAWNNOCHARACTER;
+        prton[iprt] = btrue;
+        prtpip[iprt] = pip;
+        prtmodel[iprt] = model;
+        prtinview[iprt] = bfalse;
+        prtlevel[iprt] = 0;
+        prtteam[iprt] = team;
+        prtchr[iprt] = characterorigin;
+        prtdamagetype[iprt] = pipdamagetype[pip];
+        prtspawncharacterstate[iprt] = SPAWNNOCHARACTER;
 
         // Lighting and sound
-        prtdynalighton[cnt] = bfalse;
-
+        prtdynalighton[iprt] = bfalse;
         if ( multispawn == 0 )
         {
-            prtdynalighton[cnt] = pipdynalightmode[pip];
-
+            prtdynalighton[iprt] = pipdynalightmode[pip];
             if ( pipdynalightmode[pip] == DYNALOCAL )
             {
-                prtdynalighton[cnt] = bfalse;
+                prtdynalighton[iprt] = bfalse;
             }
         }
 
-        prtdynalightlevel[cnt] = pipdynalevel[pip];
-        prtdynalightfalloff[cnt] = pipdynafalloff[pip];
+        prtdynalightlevel[iprt] = pipdynalevel[pip];
+        prtdynalightfalloff[iprt] = pipdynafalloff[pip];
 
         // Set character attachments ( characterattach==MAXCHR means none )
-        prtattachedtocharacter[cnt] = characterattach;
-        prtgrip[cnt] = grip;
+        prtattachedtocharacter[iprt] = characterattach;
+        prtgrip[iprt] = grip;
 
         // Correct facing
         facing += pipfacingbase[pip];
@@ -264,29 +260,26 @@ Uint16 spawn_one_particle( float x, float y, float z,
         z = z + pipzspacingbase[pip] + ( newrand & pipzspacingrand[pip] ) - ( pipzspacingrand[pip] >> 1 );
         newrand = RANDIE;
         velocity = ( pipxyvelbase[pip] + ( newrand & pipxyvelrand[pip] ) );
-        prttarget[cnt] = oldtarget;
-
+        prttarget[iprt] = oldtarget;
         if ( pipnewtargetonspawn[pip] )
         {
             if ( piptargetcaster[pip] )
             {
                 // Set the target to the caster
-                prttarget[cnt] = characterorigin;
+                prttarget[iprt] = characterorigin;
             }
             else
             {
 
                 // Find a target
-                prttarget[cnt] = get_particle_target( x, y, z, facing, pip, team, characterorigin, oldtarget );
-
-                if ( prttarget[cnt] != MAXCHR && !piphoming[pip] )
+                prttarget[iprt] = get_particle_target( x, y, z, facing, pip, team, characterorigin, oldtarget );
+                if ( prttarget[iprt] != MAXCHR && !piphoming[pip] )
                 {
                     facing = facing - glouseangle;
                 }
 
                 // Correct facing for dexterity...
                 offsetfacing = 0;
-
                 if ( chr[characterorigin].dexterity < PERFECTSTAT )
                 {
                     // Correct facing for randomness
@@ -295,22 +288,18 @@ Uint16 spawn_one_particle( float x, float y, float z,
                     offsetfacing -= ( pipfacingrand[pip] >> 1 );
                     offsetfacing = ( offsetfacing * ( PERFECTSTAT - chr[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
                 }
-
-                if ( prttarget[cnt] != MAXCHR && pipzaimspd[pip] != 0 )
+                if ( prttarget[iprt] != MAXCHR && pipzaimspd[pip] != 0 )
                 {
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
                     {
-                        xvel = chr[prttarget[cnt]].xpos - x;
-                        yvel = chr[prttarget[cnt]].ypos - y;
+                        xvel = chr[prttarget[iprt]].xpos - x;
+                        yvel = chr[prttarget[iprt]].ypos - y;
                         tvel = SQRT( xvel * xvel + yvel * yvel ) / velocity;  // This is the number of steps...
-
                         if ( tvel > 0 )
                         {
-                            zvel = ( chr[prttarget[cnt]].zpos + ( chr[prttarget[cnt]].bumpsize >> 1 ) - z ) / tvel;  // This is the zvel alteration
-
+                            zvel = ( chr[prttarget[iprt]].zpos + ( chr[prttarget[iprt]].bumpsize >> 1 ) - z ) / tvel;  // This is the zvel alteration
                             if ( zvel < -( pipzaimspd[pip] >> 1 ) ) zvel = -( pipzaimspd[pip] >> 1 );
-
                             if ( zvel > pipzaimspd[pip] ) zvel = pipzaimspd[pip];
                         }
                     }
@@ -318,17 +307,17 @@ Uint16 spawn_one_particle( float x, float y, float z,
             }
 
             // Does it go away?
-            if ( prttarget[cnt] == MAXCHR && pipneedtarget[pip] )
+            if ( prttarget[iprt] == MAXCHR && pipneedtarget[pip] )
             {
-                free_one_particle( cnt );
+                free_one_particle( iprt );
                 return maxparticles;
             }
 
             // Start on top of target
-            if ( prttarget[cnt] != MAXCHR && pipstartontarget[pip] )
+            if ( prttarget[iprt] != MAXCHR && pipstartontarget[pip] )
             {
-                x = chr[prttarget[cnt]].xpos;
-                y = chr[prttarget[cnt]].ypos;
+                x = chr[prttarget[iprt]].xpos;
+                y = chr[prttarget[iprt]].ypos;
             }
         }
         else
@@ -340,117 +329,111 @@ Uint16 spawn_one_particle( float x, float y, float z,
         }
 
         facing += offsetfacing;
-        prtfacing[cnt] = facing;
+        prtfacing[iprt] = facing;
         facing = facing >> 2;
 
         // Location data from arguments
         newrand = RANDIE;
         x = x + turntocos[( facing+8192 )&TRIG_TABLE_MASK] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
         y = y + turntosin[( facing+8192 )&TRIG_TABLE_MASK] * ( pipxyspacingbase[pip] + ( newrand & pipxyspacingrand[pip] ) );
-
         if ( x < 0 )  x = 0;
-
         if ( x > meshedgex - 2 )  x = meshedgex - 2;
-
         if ( y < 0 )  y = 0;
-
         if ( y > meshedgey - 2 )  y = meshedgey - 2;
 
-        prtxpos[cnt] = x;
-        prtypos[cnt] = y;
-        prtzpos[cnt] = z;
+        prtxpos[iprt] = x;
+        prtypos[iprt] = y;
+        prtzpos[iprt] = z;
 
         // Velocity data
         xvel = turntocos[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
         yvel = turntosin[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
         newrand = RANDIE;
         zvel += pipzvelbase[pip] + ( newrand & pipzvelrand[pip] ) - ( pipzvelrand[pip] >> 1 );
-        prtxvel[cnt] = xvel;
-        prtyvel[cnt] = yvel;
-        prtzvel[cnt] = zvel;
+        prtxvel[iprt] = xvel;
+        prtyvel[iprt] = yvel;
+        prtzvel[iprt] = zvel;
 
         // Template values
-        prtbumpsize[cnt] = pipbumpsize[pip];
-        prtbumpsizebig[cnt] = prtbumpsize[cnt] + ( prtbumpsize[cnt] >> 1 );
-        prtbumpheight[cnt] = pipbumpheight[pip];
-        prttype[cnt] = piptype[pip];
+        prtbumpsize[iprt] = pipbumpsize[pip];
+        prtbumpsizebig[iprt] = prtbumpsize[iprt] + ( prtbumpsize[iprt] >> 1 );
+        prtbumpheight[iprt] = pipbumpheight[pip];
+        prttype[iprt] = piptype[pip];
 
         // Image data
         newrand = RANDIE;
-        prtrotate[cnt] = ( newrand & piprotaterand[pip] ) + piprotatebase[pip];
-        prtrotateadd[cnt] = piprotateadd[pip];
-        prtsize[cnt] = pipsizebase[pip];
-        prtsizeadd[cnt] = pipsizeadd[pip];
-        prtimage[cnt] = 0;
+        prtrotate[iprt] = ( newrand & piprotaterand[pip] ) + piprotatebase[pip];
+        prtrotateadd[iprt] = piprotateadd[pip];
+        prtsize[iprt] = pipsizebase[pip];
+        prtsizeadd[iprt] = pipsizeadd[pip];
+        prtimage[iprt] = 0;
         newrand = RANDIE;
-        prtimageadd[cnt] = pipimageadd[pip] + ( newrand & pipimageaddrand[pip] );
-        prtimagestt[cnt] = pipimagebase[pip] << 8;
-        prtimagemax[cnt] = pipnumframes[pip] << 8;
-        prttime[cnt] = piptime[pip];
-
-        if ( pipendlastframe[pip] && prtimageadd[cnt] != 0 )
+        prtimageadd[iprt] = pipimageadd[pip] + ( newrand & pipimageaddrand[pip] );
+        prtimagestt[iprt] = INT_TO_FP8( pipimagebase[pip] );
+        prtimagemax[iprt] = INT_TO_FP8( pipnumframes[pip] );
+        prttime[iprt] = piptime[pip];
+        if ( pipendlastframe[pip] && prtimageadd[iprt] != 0 )
         {
-            if ( prttime[cnt] == 0 )
+            if ( prttime[iprt] == 0 )
             {
                 // Part time is set to 1 cycle
-                prttime[cnt] = ( prtimagemax[cnt] / prtimageadd[cnt] ) - 1;
+                prttime[iprt] = ( prtimagemax[iprt] / prtimageadd[iprt] ) - 1;
             }
             else
             {
                 // Part time is used to give number of cycles
-                prttime[cnt] = prttime[cnt] * ( ( prtimagemax[cnt] / prtimageadd[cnt] ) - 1 );
+                prttime[iprt] = prttime[iprt] * ( ( prtimagemax[iprt] / prtimageadd[iprt] ) - 1 );
             }
         }
 
         // Set onwhichfan...
-        prtonwhichfan[cnt] = OFFEDGE;
-
-        if ( prtxpos[cnt] > 0 && prtxpos[cnt] < meshedgex && prtypos[cnt] > 0 && prtypos[cnt] < meshedgey )
-        {
-            prtonwhichfan[cnt] = meshfanstart[( ( int )prtypos[cnt] ) >> 7] + ( ( ( int )prtxpos[cnt] ) >> 7 );
-        }
+        prtonwhichfan[iprt]   = mesh_get_tile( prtxpos[iprt], prtypos[iprt] );
+        prtonwhichblock[iprt] = mesh_get_block( prtxpos[iprt], prtypos[iprt] );
 
         // Damage stuff
-        prtdamagebase[cnt] = pipdamagebase[pip];
-        prtdamagerand[cnt] = pipdamagerand[pip];
+        prtdamagebase[iprt] = pipdamagebase[pip];
+        prtdamagerand[iprt] = pipdamagerand[pip];
 
         // Spawning data
-        prtspawntime[cnt] = pipcontspawntime[pip];
-
-        if ( prtspawntime[cnt] != 0 )
+        prtspawntime[iprt] = pipcontspawntime[pip];
+        if ( prtspawntime[iprt] != 0 )
         {
-            prtspawntime[cnt] = 1;
-
-            if ( prtattachedtocharacter[cnt] != MAXCHR )
+            prtspawntime[iprt] = 1;
+            if ( prtattachedtocharacter[iprt] != MAXCHR )
             {
-                prtspawntime[cnt]++; // Because attachment takes an update before it happens
+                prtspawntime[iprt]++; // Because attachment takes an update before it happens
             }
         }
 
         // Sound effect
-        play_particle_sound( cnt, pipsoundspawn[pip] );
+        play_particle_sound( iprt, pipsoundspawn[pip] );
     }
 
-    return cnt;
+    return iprt;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 __prthitawall( int particle )
+Uint8 __prthitawall( Uint16 particle )
 {
     // ZZ> This function returns nonzero if the particle hit a wall
-    int x, y;
 
-    y = prtypos[particle];  x = prtxpos[particle];
+    Uint32 fan;
+    Uint8  retval = MESHFX_IMPASS | MESHFX_WALL;
 
-    // !!!BAD!!! Should really do bound checking...
-    if ( pipbumpmoney[prtpip[particle]] )
+    fan = mesh_get_tile( prtxpos[particle], prtypos[particle] );
+    if ( INVALID_TILE != fan )
     {
-        return ( ( meshfx[meshfanstart[y>>7] + ( x >> 7 )] )&( MESHFXIMPASS | MESHFXWALL ) );
+        if ( pipbumpmoney[prtpip[particle]] )
+        {
+            retval = meshfx[fan] & ( MESHFX_IMPASS | MESHFX_WALL );
+        }
+        else
+        {
+            retval = meshfx[fan] & MESHFX_IMPASS;
+        }
     }
-    else
-    {
-        return ( ( meshfx[meshfanstart[y>>7] + ( x >> 7 )] )&( MESHFXIMPASS ) );
-    }
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -459,20 +442,16 @@ void disaffirm_attached_particles( Uint16 character )
     // ZZ> This function makes sure a character has no attached particles
     Uint16 particle;
 
-    particle = 0;
-
-    while ( particle < maxparticles )
+    for ( particle = 0; particle < maxparticles; particle++ )
     {
         if ( prton[particle] && prtattachedtocharacter[particle] == character )
         {
             free_one_particle( particle );
         }
-
-        particle++;
     }
 
     // Set the alert for disaffirmation ( wet torch )
-    chr[character].alert |= ALERTIFDISAFFIRMED;
+    chr[character].ai.alert |= ALERTIF_DISAFFIRMED;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -508,9 +487,8 @@ void reaffirm_attached_particles( Uint16 character )
 
     while ( numberattached < capattachedprtamount[chr[character].model] )
     {
-        particle = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, 0, chr[character].model, capattachedprttype[chr[character].model], character, SPAWNLAST + numberattached, chr[character].team, character, numberattached, MAXCHR );
-
-        if ( particle != maxparticles )
+        particle = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos, 0, chr[character].model, capattachedprttype[chr[character].model], character, GRIP_LAST + numberattached, chr[character].team, character, numberattached, MAXCHR );
+        if ( particle != TOTALMAXPRT )
         {
             attach_particle_to_character( particle, character, prtgrip[particle] );
         }
@@ -519,272 +497,241 @@ void reaffirm_attached_particles( Uint16 character )
     }
 
     // Set the alert for reaffirmation ( for exploding barrels with fire )
-    chr[character].alert = chr[character].alert | ALERTIFREAFFIRMED;
+    chr[character].ai.alert |= ALERTIF_REAFFIRMED;
 }
 
 //--------------------------------------------------------------------------------------------
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
-    int cnt, tnc, x, y, fan;
+    int cnt, tnc;
     Uint16 facing, pip, particle;
     float level;
 
-    cnt = 0;
-
-    while ( cnt < maxparticles )
+    for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        if ( prton[cnt] )
+        if ( !prton[cnt] ) continue;
+
+        prtonwhichfan[cnt]   = mesh_get_tile ( prtxpos[cnt], prtypos[cnt] );
+        prtonwhichblock[cnt] = mesh_get_block( prtxpos[cnt], prtypos[cnt] );
+        prtlevel[cnt]      = get_level( prtxpos[cnt], prtypos[cnt], bfalse );
+
+        // To make it easier
+        pip = prtpip[cnt];
+
+        // Animate particle
+        prtimage[cnt] = ( prtimage[cnt] + prtimageadd[cnt] );
+        if ( prtimage[cnt] >= prtimagemax[cnt] )
+            prtimage[cnt] = 0;
+
+        prtrotate[cnt] += prtrotateadd[cnt];
+        if ( ( (int)prtsize[cnt] + (int)prtsizeadd[cnt] ) > (int)0x0000FFFF ) prtsize[cnt] = 0xFFFF;
+        else if ( ( prtsize[cnt] + prtsizeadd[cnt] ) < 0 ) prtsize[cnt] = 0;
+        else prtsize[cnt] += prtsizeadd[cnt];
+
+        // Change dyna light values
+        prtdynalightlevel[cnt] += pipdynalightleveladd[pip];
+        prtdynalightfalloff[cnt] += pipdynalightfalloffadd[pip];
+
+        // Make it sit on the floor...  Shift is there to correct for sprite size
+        level = prtlevel[cnt] + ( prtsize[cnt] >> 9 );
+
+        // Check floor collision and do iterative physics
+        if ( ( prtzpos[cnt] < level && prtzvel[cnt] < 0.1f ) || ( prtzpos[cnt] < level - PRTLEVELFIX ) )
         {
-            prtonwhichfan[cnt] = OFFEDGE;
-            prtlevel[cnt] = 0;
-
-            if ( prtxpos[cnt] > 0 && prtxpos[cnt] < meshedgex && prtypos[cnt] > 0 && prtypos[cnt] < meshedgey )
+            prtzpos[cnt] = level;
+            prtxvel[cnt] = prtxvel[cnt] * noslipfriction;
+            prtyvel[cnt] = prtyvel[cnt] * noslipfriction;
+            if ( pipendground[pip] )  prttime[cnt] = 1;
+            if ( prtzvel[cnt] < 0 )
             {
-                x = prtxpos[cnt];
-                y = prtypos[cnt];
-                x = x >> 7;
-                y = y >> 7;
-                fan = meshfanstart[y] + x;
-                prtonwhichfan[cnt] = fan;
-                prtlevel[cnt] = get_level( prtxpos[cnt], prtypos[cnt], fan, bfalse );
-            }
-
-            // To make it easier
-            pip = prtpip[cnt];
-
-            // Animate particle
-            prtimage[cnt] = ( prtimage[cnt] + prtimageadd[cnt] );
-
-            if ( prtimage[cnt] >= prtimagemax[cnt] )
-                prtimage[cnt] = 0;
-
-            prtrotate[cnt] += prtrotateadd[cnt];
-
-            if ( ( prtsize[cnt] + prtsizeadd[cnt] ) > 65535 ) prtsize[cnt] = 65535;
-            else if ( ( prtsize[cnt] + prtsizeadd[cnt] ) < 0 ) prtsize[cnt] = 0;
-            else prtsize[cnt] += prtsizeadd[cnt];
-
-            // Change dyna light values
-            prtdynalightlevel[cnt] += pipdynalightleveladd[pip];
-            prtdynalightfalloff[cnt] += pipdynalightfalloffadd[pip];
-
-            // Make it sit on the floor...  Shift is there to correct for sprite size
-            level = prtlevel[cnt] + ( prtsize[cnt] >> 9 );
-
-            // Check floor collision and do iterative physics
-            if ( ( prtzpos[cnt] < level && prtzvel[cnt] < 0.1f ) || ( prtzpos[cnt] < level - PRTLEVELFIX ) )
-            {
-                prtzpos[cnt] = level;
-                prtxvel[cnt] = prtxvel[cnt] * noslipfriction;
-                prtyvel[cnt] = prtyvel[cnt] * noslipfriction;
-
-                if ( pipendground[pip] )  prttime[cnt] = 1;
-
-                if ( prtzvel[cnt] < 0 )
+                if ( prtzvel[cnt] > -STOPBOUNCINGPART )
                 {
-                    if ( prtzvel[cnt] > -STOPBOUNCINGPART )
+                    // Make it not bounce
+                    prtzpos[cnt] -= 0.0001f;
+                }
+                else
+                {
+                    // Make it bounce
+                    prtzvel[cnt] = -prtzvel[cnt] * pipdampen[pip];
+                    // Play the sound for hitting the floor [FSND]
+                    play_particle_sound( cnt, pipsoundfloor[pip] );
+                }
+            }
+        }
+        else
+        {
+            if ( prtattachedtocharacter[cnt] == MAXCHR )
+            {
+                prtxpos[cnt] += prtxvel[cnt];
+                if ( __prthitawall( cnt ) )
+                {
+                    // Play the sound for hitting a wall [WSND]
+                    play_particle_sound( cnt, pipsoundwall[pip] );
+                    prtxpos[cnt] -= prtxvel[cnt];
+                    prtxvel[cnt] = ( -prtxvel[cnt] * pipdampen[pip] );
+                    if ( pipendwall[pip] )
                     {
-                        // Make it not bounce
-                        prtzpos[cnt] -= 0.0001f;
+                        prttime[cnt] = 1;
                     }
                     else
                     {
-                        // Make it bounce
-                        prtzvel[cnt] = -prtzvel[cnt] * pipdampen[pip];
-                        // Play the sound for hitting the floor [FSND]
-                        play_particle_sound( cnt, pipsoundfloor[pip] );
+                        // Change facing
+                        facing = prtfacing[cnt];
+                        if ( facing < 32768 )
+                        {
+                            facing -= NORTH;
+                            facing = ~facing;
+                            facing += NORTH;
+                        }
+                        else
+                        {
+                            facing -= SOUTH;
+                            facing = ~facing;
+                            facing += SOUTH;
+                        }
+
+                        prtfacing[cnt] = facing;
                     }
                 }
+
+                prtypos[cnt] += prtyvel[cnt];
+                if ( __prthitawall( cnt ) )
+                {
+                    prtypos[cnt] -= prtyvel[cnt];
+                    prtyvel[cnt] = ( -prtyvel[cnt] * pipdampen[pip] );
+                    if ( pipendwall[pip] )
+                    {
+                        prttime[cnt] = 1;
+                    }
+                    else
+                    {
+                        // Change facing
+                        facing = prtfacing[cnt];
+                        if ( facing < 16384 || facing > 49152 )
+                        {
+                            facing = ~facing;
+                        }
+                        else
+                        {
+                            facing -= EAST;
+                            facing = ~facing;
+                            facing += EAST;
+                        }
+
+                        prtfacing[cnt] = facing;
+                    }
+                }
+
+                prtzpos[cnt] += prtzvel[cnt];
+                prtzvel[cnt] += gravity;
+            }
+        }
+
+        // Do homing
+        if ( piphoming[pip] && prttarget[cnt] != MAXCHR )
+        {
+            if ( !chr[prttarget[cnt]].alive )
+            {
+                prttime[cnt] = 1;
             }
             else
             {
                 if ( prtattachedtocharacter[cnt] == MAXCHR )
                 {
-                    prtxpos[cnt] += prtxvel[cnt];
+                    prtxvel[cnt] = ( prtxvel[cnt] + ( ( chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
+                    prtyvel[cnt] = ( prtyvel[cnt] + ( ( chr[prttarget[cnt]].ypos - prtypos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
+                    prtzvel[cnt] = ( prtzvel[cnt] + ( ( chr[prttarget[cnt]].zpos + ( chr[prttarget[cnt]].bumpheight >> 1 ) - prtzpos[cnt] ) * piphomingaccel[pip] ) );
 
-                    if ( __prthitawall( cnt ) )
-                    {
-                        // Play the sound for hitting a wall [WSND]
-                        play_particle_sound( cnt, pipsoundwall[pip] );
-                        prtxpos[cnt] -= prtxvel[cnt];
-                        prtxvel[cnt] = ( -prtxvel[cnt] * pipdampen[pip] );
-
-                        if ( pipendwall[pip] )
-                        {
-                            prttime[cnt] = 1;
-                        }
-                        else
-                        {
-                            // Change facing
-                            facing = prtfacing[cnt];
-
-                            if ( facing < 32768 )
-                            {
-                                facing -= NORTH;
-                                facing = ~facing;
-                                facing += NORTH;
-                            }
-                            else
-                            {
-                                facing -= SOUTH;
-                                facing = ~facing;
-                                facing += SOUTH;
-                            }
-
-                            prtfacing[cnt] = facing;
-                        }
-                    }
-
-                    prtypos[cnt] += prtyvel[cnt];
-
-                    if ( __prthitawall( cnt ) )
-                    {
-                        prtypos[cnt] -= prtyvel[cnt];
-                        prtyvel[cnt] = ( -prtyvel[cnt] * pipdampen[pip] );
-
-                        if ( pipendwall[pip] )
-                        {
-                            prttime[cnt] = 1;
-                        }
-                        else
-                        {
-                            // Change facing
-                            facing = prtfacing[cnt];
-
-                            if ( facing < 16384 || facing > 49152 )
-                            {
-                                facing = ~facing;
-                            }
-                            else
-                            {
-                                facing -= EAST;
-                                facing = ~facing;
-                                facing += EAST;
-                            }
-
-                            prtfacing[cnt] = facing;
-                        }
-						
-                    }
-
-                    prtzpos[cnt] += prtzvel[cnt];
-                    prtzvel[cnt] += gravity;
                 }
-				
-            }
-
-            // Do homing
-            if ( piphoming[pip] && prttarget[cnt] != MAXCHR )
-            {
-                if ( !chr[prttarget[cnt]].alive )
+                if ( piprotatetoface[pip] )
                 {
-                    prttime[cnt] = 1;
-                }
-                else
-                {
-                    if ( prtattachedtocharacter[cnt] == MAXCHR )
-                    {
-                        prtxvel[cnt] = ( prtxvel[cnt] + ( ( chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
-                        prtyvel[cnt] = ( prtyvel[cnt] + ( ( chr[prttarget[cnt]].ypos - prtypos[cnt] ) * piphomingaccel[pip] ) ) * piphomingfriction[pip];
-                        prtzvel[cnt] = ( prtzvel[cnt] + ( ( chr[prttarget[cnt]].zpos + ( chr[prttarget[cnt]].bumpheight >> 1 ) - prtzpos[cnt] ) * piphomingaccel[pip] ) );
-
-                    }
-
-                    if ( piprotatetoface[pip] )
-                    {
-                        // Turn to face target
-                        facing = ATAN2( chr[prttarget[cnt]].ypos - prtypos[cnt], chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * 65535 / ( TWO_PI );
-                        facing += 32768;
-                        prtfacing[cnt] = facing;
-                    }
+                    // Turn to face target
+                    facing = ATAN2( chr[prttarget[cnt]].ypos - prtypos[cnt], chr[prttarget[cnt]].xpos - prtxpos[cnt] ) * 0xFFFF / ( TWO_PI );
+                    facing += 32768;
+                    prtfacing[cnt] = facing;
                 }
             }
-
-            // Do speed limit on Z
-            if ( prtzvel[cnt] < -pipspdlimit[pip] )  prtzvel[cnt] = -pipspdlimit[pip];
-
-            // Spawn new particles if continually spawning
-            if ( pipcontspawnamount[pip] > 0 )
-            {
-                prtspawntime[cnt]--;
-
-                if ( prtspawntime[cnt] == 0 )
-                {
-                    prtspawntime[cnt] = pipcontspawntime[pip];
-                    facing = prtfacing[cnt];
-                    tnc = 0;
-
-                    while ( tnc < pipcontspawnamount[pip] )
-                    {
-                        particle = spawn_one_particle( prtxpos[cnt], prtypos[cnt], prtzpos[cnt],
-                                                       facing, prtmodel[cnt], pipcontspawnpip[pip],
-                                                       MAXCHR, SPAWNLAST, prtteam[cnt], prtchr[cnt], tnc, prttarget[cnt] );
-
-                        if ( pipfacingadd[prtpip[cnt]] != 0 && particle < maxparticles )
-                        {
-                            // Hack to fix velocity
-                            prtxvel[particle] += prtxvel[cnt];
-                            prtyvel[particle] += prtyvel[cnt];
-                        }
-
-                        facing += pipcontspawnfacingadd[pip];
-                        tnc++;
-                    }
-                }
-            }
-
-            // Check underwater
-            if ( prtzpos[cnt] < waterdouselevel && ( meshfx[prtonwhichfan[cnt]]&MESHFXWATER ) && pipendwater[pip] )
-            {
-                // Splash for particles is just a ripple
-                spawn_one_particle( prtxpos[cnt], prtypos[cnt], watersurfacelevel,
-                                    0, MAXMODEL, RIPPLE, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
-
-                // Check for disaffirming character
-                if ( prtattachedtocharacter[cnt] != MAXCHR && prtchr[cnt] == prtattachedtocharacter[cnt] )
-                {
-                    // Disaffirm the whole character
-                    disaffirm_attached_particles( prtattachedtocharacter[cnt] );
-                }
-                else
-                {
-                    // Just destroy the particle
-                    //                    free_one_particle(cnt);
-                    prttime[cnt] = 1;
-                }
-            }
-
-            //            else
-            //            {
-            // Spawn new particles if time for old one is up
-            if ( prttime[cnt] != 0 )
-            {
-                prttime[cnt]--;
-
-                if ( prttime[cnt] == 0 )
-                {
-                    facing = prtfacing[cnt];
-                    tnc = 0;
-
-                    while ( tnc < pipendspawnamount[pip] )
-                    {
-                        spawn_one_particle( prtxpos[cnt] - prtxvel[cnt], prtypos[cnt] - prtyvel[cnt], prtzpos[cnt],
-                                            facing, prtmodel[cnt], pipendspawnpip[pip],
-                                            MAXCHR, SPAWNLAST, prtteam[cnt], prtchr[cnt], tnc, prttarget[cnt] );
-                        facing += pipendspawnfacingadd[pip];
-                        tnc++;
-                    }
-
-                    free_one_particle( cnt );
-                }
-            }
-
-            //            }
-            prtfacing[cnt] += pipfacingadd[pip];
         }
 
-        cnt++;
+        // Do speed limit on Z
+        if ( prtzvel[cnt] < -pipspdlimit[pip] )  prtzvel[cnt] = -pipspdlimit[pip];
+
+        // Spawn new particles if continually spawning
+        if ( pipcontspawnamount[pip] > 0 )
+        {
+            prtspawntime[cnt]--;
+            if ( prtspawntime[cnt] == 0 )
+            {
+                prtspawntime[cnt] = pipcontspawntime[pip];
+                facing = prtfacing[cnt];
+                tnc = 0;
+
+                while ( tnc < pipcontspawnamount[pip] )
+                {
+                    particle = spawn_one_particle( prtxpos[cnt], prtypos[cnt], prtzpos[cnt],
+                                                   facing, prtmodel[cnt], pipcontspawnpip[pip],
+                                                   MAXCHR, GRIP_LAST, prtteam[cnt], prtchr[cnt], tnc, prttarget[cnt] );
+                    if ( pipfacingadd[prtpip[cnt]] != 0 && particle != TOTALMAXPRT )
+                    {
+                        // Hack to fix velocity
+                        prtxvel[particle] += prtxvel[cnt];
+                        prtyvel[particle] += prtyvel[cnt];
+                    }
+
+                    facing += pipcontspawnfacingadd[pip];
+                    tnc++;
+                }
+            }
+        }
+
+        // Check underwater
+        if ( prtzpos[cnt] < waterdouselevel && pipendwater[pip] && INVALID_TILE != prtonwhichfan[cnt] && 0 != ( meshfx[prtonwhichfan[cnt]] & MESHFX_WATER ) )
+        {
+            // Splash for particles is just a ripple
+            spawn_one_particle( prtxpos[cnt], prtypos[cnt], watersurfacelevel,
+                                0, MAXMODEL, RIPPLE, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+
+            // Check for disaffirming character
+            if ( prtattachedtocharacter[cnt] != MAXCHR && prtchr[cnt] == prtattachedtocharacter[cnt] )
+            {
+                // Disaffirm the whole character
+                disaffirm_attached_particles( prtattachedtocharacter[cnt] );
+            }
+            else
+            {
+                // Just destroy the particle
+                //                    free_one_particle(cnt);
+                prttime[cnt] = 1;
+            }
+        }
+
+        //            else
+        //            {
+        // Spawn new particles if time for old one is up
+        if ( prttime[cnt] != 0 )
+        {
+            prttime[cnt]--;
+            if ( prttime[cnt] == 0 )
+            {
+                facing = prtfacing[cnt];
+                tnc = 0;
+
+                while ( tnc < pipendspawnamount[pip] )
+                {
+                    spawn_one_particle( prtxpos[cnt] - prtxvel[cnt], prtypos[cnt] - prtyvel[cnt], prtzpos[cnt],
+                                        facing, prtmodel[cnt], pipendspawnpip[pip],
+                                        MAXCHR, GRIP_LAST, prtteam[cnt], prtchr[cnt], tnc, prttarget[cnt] );
+                    facing += pipendspawnfacingadd[pip];
+                    tnc++;
+                }
+
+                free_one_particle( cnt );
+            }
+        }
+
+        //            }
+        prtfacing[cnt] += pipfacingadd[pip];
     }
 }
 
@@ -859,10 +806,9 @@ Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
 
     // Align major direction with 0
     minordir -= majordir;
-
     if ( minordir > 32768 )
     {
-        temp = 65535;
+        temp = 0xFFFF;
         minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
         minordir += majordir;
         return minordir;
@@ -883,10 +829,9 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
 
     // Align major direction with 0
     minordir -= majordir;
-
     if ( minordir > 32768 )
     {
-        temp = 65535;
+        temp = 0xFFFF;
         minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
         minordir += majordir;
         return minordir;
@@ -915,21 +860,19 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
     pip = prtpip[particle];
     amount = pipbumpspawnamount[pip];
-
     if ( amount != 0 || pipspawnenchant[pip] )
     {
         // Only damage if hitting from proper direction
         model = chr[character].model;
         vertices = madvertices[model];
-        direction = ( ATAN2( prtyvel[particle], prtxvel[particle] ) + PI ) * 65535 / ( TWO_PI );
+        direction = ( ATAN2( prtyvel[particle], prtxvel[particle] ) + PI ) * 0xFFFF / ( TWO_PI );
         direction = chr[character].turnleftright - direction + 32768;
-
         if ( madframefx[chr[character].frame]&MADFXINVICTUS )
         {
             // I Frame
             if ( pipdamfx[pip]&DAMFXBLOC )
             {
-                left = 65535;
+                left = 0xFFFF;
                 right = 0;
             }
             else
@@ -980,7 +923,6 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     while ( cnt < vertices )
                     {
                         distance = ABS( x - madvrtx[frame][vertices-cnt-1] ) + ABS( y - madvrty[frame][vertices-cnt-1] ) + ( ABS( z - madvrtz[frame][vertices-cnt-1] ) );
-
                         if ( distance < bestdistance )
                         {
                             bestdistance = distance;
@@ -1011,22 +953,17 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 }
 
 //--------------------------------------------------------------------------------------------
-int prt_is_over_water( int cnt )
+int prt_is_over_water( Uint16 cnt )
 {
     // This function returns btrue if the particle is over a water tile
-    int x, y, fan;
+    int fan;
 
     if ( cnt < maxparticles )
     {
-        if ( prtxpos[cnt] > 0 && prtxpos[cnt] < meshedgex && prtypos[cnt] > 0 && prtypos[cnt] < meshedgey )
+        fan = mesh_get_tile( prtxpos[cnt], prtypos[cnt] );
+        if ( INVALID_TILE != fan )
         {
-            x = prtxpos[cnt];
-            y = prtypos[cnt];
-            x = x >> 7;
-            y = y >> 7;
-            fan = meshfanstart[y] + x;
-
-            if ( meshfx[fan]&MESHFXWATER )  return btrue;
+            if ( 0 != ( meshfx[fan] & MESHFX_WATER ) )  return btrue;
         }
     }
 
@@ -1040,11 +977,9 @@ void do_weather_spawn()
     int particle, cnt;
     float x, y, z;
     bool_t foundone;
-
     if ( weathertime > 0 )
     {
         weathertime--;
-
         if ( weathertime == 0 )
         {
             weathertime = weathertimereset;
@@ -1056,7 +991,6 @@ void do_weather_spawn()
             while ( cnt < MAXPLAYER )
             {
                 weatherplayer = ( weatherplayer + 1 ) & ( MAXPLAYER - 1 );
-
                 if ( plavalid[weatherplayer] )
                 {
                     foundone = btrue;
@@ -1071,16 +1005,14 @@ void do_weather_spawn()
             {
                 // Yes, but is the character valid?
                 cnt = plaindex[weatherplayer];
-
                 if ( chr[cnt].on && !chr[cnt].inpack )
                 {
                     // Yes, so spawn over that character
                     x = chr[cnt].xpos;
                     y = chr[cnt].ypos;
                     z = chr[cnt].zpos;
-                    particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, SPAWNLAST, NULLTEAM, MAXCHR, 0, MAXCHR );
-
-                    if ( weatheroverwater && particle != maxparticles )
+                    particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                    if ( weatheroverwater && particle != TOTALMAXPRT )
                     {
                         if ( !prt_is_over_water( particle ) )
                         {
@@ -1097,7 +1029,7 @@ void do_weather_spawn()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_particle( char *szLoadName, int object, int pip )
+int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
     //     found
@@ -1108,22 +1040,17 @@ int load_one_particle( char *szLoadName, int object, int pip )
     char cTmp;
 
     fileread = fopen( szLoadName, "r" );
-
     if ( fileread != NULL )
     {
         // General data
         parse_filename = szLoadName;    //For debugging missing colons
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipforce[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  pipforce[numpip] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
-
         if ( cTmp == 'L' || cTmp == 'l' )  piptype[numpip] = PRTLIGHTSPRITE;
-
         if ( cTmp == 'S' || cTmp == 's' )  piptype[numpip] = PRTSOLIDSPRITE;
-
         if ( cTmp == 'T' || cTmp == 't' )  piptype[numpip] = PRTALPHASPRITE;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); pipimagebase[numpip] = iTmp;
@@ -1141,22 +1068,18 @@ int load_one_particle( char *szLoadName, int object, int pip )
         // Ending conditions
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipendwater[numpip] = btrue;
-
         if ( cTmp == 'F' || cTmp == 'f' )  pipendwater[numpip] = bfalse;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipendbump[numpip] = btrue;
-
         if ( cTmp == 'F' || cTmp == 'f' )  pipendbump[numpip] = bfalse;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipendground[numpip] = btrue;
-
         if ( cTmp == 'F' || cTmp == 'f' )  pipendground[numpip] = bfalse;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipendlastframe[numpip] = btrue;
-
         if ( cTmp == 'F' || cTmp == 'f' )  pipendlastframe[numpip] = bfalse;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); piptime[numpip] = iTmp;
@@ -1170,34 +1093,23 @@ int load_one_particle( char *szLoadName, int object, int pip )
         pipdamagebase[numpip] = pairbase;
         pipdamagerand[numpip] = pairrand;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
-
         if ( cTmp == 'S' || cTmp == 's' ) pipdamagetype[numpip] = DAMAGE_SLASH;
-
         if ( cTmp == 'C' || cTmp == 'c' ) pipdamagetype[numpip] = DAMAGE_CRUSH;
-
         if ( cTmp == 'P' || cTmp == 'p' ) pipdamagetype[numpip] = DAMAGE_POKE;
-
         if ( cTmp == 'H' || cTmp == 'h' ) pipdamagetype[numpip] = DAMAGE_HOLY;
-
         if ( cTmp == 'E' || cTmp == 'e' ) pipdamagetype[numpip] = DAMAGE_EVIL;
-
         if ( cTmp == 'F' || cTmp == 'f' ) pipdamagetype[numpip] = DAMAGE_FIRE;
-
         if ( cTmp == 'I' || cTmp == 'i' ) pipdamagetype[numpip] = DAMAGE_ICE;
-
         if ( cTmp == 'Z' || cTmp == 'z' ) pipdamagetype[numpip] = DAMAGE_ZAP;
 
         // Lighting data
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipdynalightmode[numpip] = DYNAOFF;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipdynalightmode[numpip] = DYNAON;
-
         if ( cTmp == 'L' || cTmp == 'l' ) pipdynalightmode[numpip] = DYNALOCAL;
 
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); pipdynalevel[numpip] = fTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); pipdynafalloff[numpip] = iTmp;
-
         if ( pipdynafalloff[numpip] > MAXFALLOFF && rtscontrol )  pipdynafalloff[numpip] = MAXFALLOFF;
 
         // Initial spawning of this particle
@@ -1232,29 +1144,24 @@ int load_one_particle( char *szLoadName, int object, int pip )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); pipgrogtime[numpip] = iTmp;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipspawnenchant[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipspawnenchant[numpip] = btrue;
 
         goto_colon( fileread );  // !!Cause roll
         goto_colon( fileread );  // !!Cause pancake
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipneedtarget[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipneedtarget[numpip] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         piptargetcaster[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) piptargetcaster[numpip] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipstartontarget[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipstartontarget[numpip] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         piponlydamagefriendly[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) piponlydamagefriendly[numpip] = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
@@ -1265,26 +1172,22 @@ int load_one_particle( char *szLoadName, int object, int pip )
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipfriendlyfire[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipfriendlyfire[numpip] = btrue;   //piphateonly[numpip] = bfalse; TODO: BAD not implemented yet
 
         goto_colon( fileread );
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         pipnewtargetonspawn[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) pipnewtargetonspawn[numpip] = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); piptargetangle[numpip] = iTmp >> 1;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         piphoming[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) piphoming[numpip] = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); piphomingfriction[numpip] = fTmp;
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); piphomingaccel[numpip] = fTmp;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         piprotatetoface[numpip] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' ) piprotatetoface[numpip] = btrue;
 
         // Clear expansions...
@@ -1293,7 +1196,6 @@ int load_one_particle( char *szLoadName, int object, int pip )
         pipsoundwall[numpip] = -1;
         pipendwall[numpip] = pipendground[numpip];
         pipdamfx[numpip] = DAMFXTURN;
-
         if ( piphoming[numpip] )  pipdamfx[numpip] = DAMFXNONE;
 
         pipallowpush[numpip] = btrue;
@@ -1308,59 +1210,45 @@ int load_one_particle( char *szLoadName, int object, int pip )
             idsz = get_idsz( fileread );
             fscanf( fileread, "%c%d", &cTmp, &iTmp );
             test = Make_IDSZ( "TURN" );  // [TURN]
-
             if ( idsz == test )  pipdamfx[numpip] = DAMFXNONE;
 
             test = Make_IDSZ( "ZSPD" );  // [ZSPD]
-
             if ( idsz == test )  pipzaimspd[numpip] = iTmp;
 
             test = Make_IDSZ( "FSND" );  // [FSND]
-
             if ( idsz == test )  pipsoundfloor[numpip] = iTmp;
 
             test = Make_IDSZ( "WSND" );  // [WSND]
-
             if ( idsz == test )  pipsoundwall[numpip] = iTmp;
 
             test = Make_IDSZ( "WEND" );  // [WEND]
-
             if ( idsz == test )  pipendwall[numpip] = iTmp;
 
             test = Make_IDSZ( "ARMO");  // [ARMO]
-
             if ( idsz == test )  pipdamfx[numpip] |= DAMFXARMO;
 
             test = Make_IDSZ( "BLOC" );  // [BLOC]
-
             if ( idsz == test )  pipdamfx[numpip] |= DAMFXBLOC;
 
             test = Make_IDSZ( "ARRO" );  // [ARRO]
-
             if ( idsz == test )  pipdamfx[numpip] |= DAMFXARRO;
 
             test = Make_IDSZ( "TIME" );  // [TIME]
-
             if ( idsz == test )  pipdamfx[numpip] |= DAMFXTIME;
 
             test = Make_IDSZ( "PUSH" );  // [PUSH]
-
             if ( idsz == test )  pipallowpush[numpip] = iTmp;
 
             test = Make_IDSZ( "DLEV" );  // [DLEV]
-
             if ( idsz == test )  pipdynalightleveladd[numpip] = iTmp / 1000.0f;
 
             test = Make_IDSZ( "DRAD" );  // [DRAD]
-
             if ( idsz == test )  pipdynalightfalloffadd[numpip] = iTmp / 1000.0f;
 
             test = Make_IDSZ( "IDAM");  // [IDAM]
-
             if ( idsz == test )  pipintdamagebonus[numpip] = iTmp;
 
             test = Make_IDSZ( "WDAM" );  // [WDAM]
-
             if ( idsz == test )  pipwisdamagebonus[numpip] = iTmp;
         }
 
@@ -1376,7 +1264,7 @@ int load_one_particle( char *szLoadName, int object, int pip )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_particles( char* modname )
+void reset_particles(  const char* modname )
 {
     // ZZ> This resets all particle data and reads in the coin and water particles
     int cnt, object;
@@ -1429,7 +1317,6 @@ void reset_particles( char* modname )
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
-
         if ( !load_one_particle( loadpath, 0, 0 ) )
         {
             log_error( "Data file was not found! (%s)", loadpath );
@@ -1442,7 +1329,6 @@ void reset_particles( char* modname )
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
-
         if ( !load_one_particle( loadpath, 0, 0 ) )
         {
             log_error( "Data file was not found! (%s)", loadpath );

@@ -1,0 +1,174 @@
+// ZZ> This function spawns enemies when near a hero
+
+IfTimeOut				// This is done every so often
+  SetTargetToNearbyEnemy		  // Look for enemies
+    IfTargetIsOnHatedTeam
+      tmpx = selfx
+      tmpy = selfy
+      GetTileXY
+      tmpx = tmpargument
+      tmpargument = 50  //mosquito is default
+      tmpy = 0        //Water
+      IfXIsEqualToY
+        tmpargument = 37           //Squidgie
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy              //where to spawn y
+        SpawnExactCharacterXYZ
+      tmpy = 8        //beach
+      IfXIsEqualToY
+        tmpargument = 79           //crab
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+      tmpy = 16       //doom wastes
+      IfXIsEqualToY
+        tmpargument = 122           //ulna works okay
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpargument = 65
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy              //where to spawn y
+        SpawnExactCharacterXYZ
+      tmpy = 24       //gnome land
+      IfXIsEqualToY
+        tmpargument = 72           //tranch
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy              //where to spawn y
+        SpawnExactCharacterXYZ
+      tmpy = 32       //ice
+      IfXIsEqualToY
+        tmpargument = 98           //ghoul - no good - replace
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy               //where to spawn y
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        SpawnExactCharacterXYZ
+      tmpy = 40       //trees
+      IfXIsEqualToY
+        tmpargument = 72           //tranch
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy               //where to spawn y
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        SpawnExactCharacterXYZ
+      tmpy = 48       //grass
+      IfXIsEqualToY
+        tmpargument = 38           //grub bug
+        tmpdistance = selfz  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx              //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx              //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+      tmpy = 56      //mountains
+      IfXIsEqualToY
+        tmpargument = 65           //fright - no good - replace
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy               //where to spawn y
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        SpawnExactCharacterXYZ
+      tmpy = 72      //desert
+      IfXIsEqualToY
+        tmpargument = 72           //tranch
+        tmpdistance = selfz + 200  //how high?
+        tmpturn = selfturn         //what direction should it face?
+        tmpx = selfx               //where to spawn x
+        tmpy = selfy              //where to spawn y
+        SpawnExactCharacterXYZ
+
+      tmpx = tmpargument
+      tmpy = 50
+      IfXIsEqualToY
+        tmpx = selfx + 150
+        tmpy = selfy + 150
+        tmpdistance = selfz + 200
+        tmpturn = selfturn
+        SpawnExactCharacterXYZ
+        tmpx = selfx - 150
+        SpawnExactCharacterXYZ
+        tmpy = selfy - 150
+        SpawnExactCharacterXYZ
+        tmpx = selfx + 150
+        SpawnExactCharacterXYZ
+
+      tmpx = rand & 2550 - 1280 + selfx
+      tmpy = rand & 2550 - 1280 + selfy
+      Teleport
+      tmpargument = 0
+      SendMessage
+      CleanUp
+  Else					  // Wander around home position
+    tmpx = rand & 5000 - 2500 + selfspawnx
+    tmpy = rand & 5000 - 2500 + selfspawny
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 63 + 20		  // Wait a while and try again
+  SetTime
+
+End					// Finished with this character

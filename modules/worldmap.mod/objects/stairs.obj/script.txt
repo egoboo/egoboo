@@ -1,0 +1,23 @@
+
+IfTimeOut
+  IfBumped
+    SetTargetToWhoeverBumped
+      IfTargetCanOpenStuff
+        tmpargument = rand & 3
+        SendMessage
+        tmpargument = 180
+        SetTime
+
+IfAttacked
+  GetContent
+  tmpargument = 0
+  //GetState
+  BeatModule
+  EnableExport
+  // Fix the end text
+  ClearEndMessage
+  GetContent
+  AddEndMessage
+  EndModule
+
+End				// Finished with this character

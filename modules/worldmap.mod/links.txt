@@ -1,0 +1,34 @@
+// This file contains exit IDs and positions.
+// Each exit has a module, and specifies positions in that new module.
+// Exits specify there ID by specifying setting tmparg before
+// calling beat module.
+Exit 0: palash.mod
+  hero0: 5.5  55.5 0.0
+  hero9: 5.5  58.5 0.0 
+  hero18:  8.5  55.5 0.0 
+  hero27: 8.5  58.5 0.0
+Exit 1: palsand.mod
+  hero0: 8.5  8.5  0.0
+  hero9: 8.5  9.5  0.0
+  hero18: 9.5  8.5  0.0
+  hero27: 9.5  9.5  0.0
+Exit 2: palshad.mod
+  hero0: 18.5 55.5 0.0
+  hero9: 18.5 54.5 0.0
+  hero18: 19.5 54.5 0.0
+  hero27: 19.5 55.5 0.0
+Exit 3: palwater.mod
+  hero0: 11.5 7.5  5.0
+  hero9: 11.5 10.5  6.0
+  hero18: 14.5 7.5  6.5
+  hero27: 14.5 10.5  7.0
+Exit 4: town.mod
+  hero0: 31.5 31.5 0.0
+  hero9: 31.5 32.5 0.0
+  hero18: 32.5 31.5 0.0
+  hero27: 32.5 32.5 0.0
+Exit 5: randmap.mod
+  hero0: 0.0 0.0 0.0
+  hero9: 0.0 0.0 0.0
+  hero18: 0.0 0.0 0.0
+  hero27: 0.0 0.0 0.0

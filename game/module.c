@@ -23,28 +23,29 @@
 #include "egoboo.h"
 #include "log.h"
 #include "menu.h"
+#include "sound.h"
+#include "graphic.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void release_module( void )
 {
     // ZZ> This function frees up memory used by the module
-    release_all_textures();
+
     release_all_icons();
+    release_all_titleimages();
+    release_bars();
+    release_blip();
     release_map();
+    release_all_textures();
+    release_all_models();
 
     // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
-    if ( musicvalid || soundvalid )
-    {
-        Mix_CloseAudio();
-        songplaying = -1;
-        Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize );
-        Mix_AllocateChannels( maxsoundchannel );
-    }
+    sound_restart();
 }
 
 //--------------------------------------------------------------------------------------------
-int module_reference_matches( char *szLoadName, Uint32 idsz )
+int module_reference_matches(  const char *szLoadName, Uint32 idsz )
 {
     // ZZ> This function returns btrue if the named module has the required IDSZ
     FILE *fileread;
@@ -52,17 +53,14 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
     Uint32 newidsz;
     int foundidsz;
     int cnt;
-
     if ( idsz == IDSZ_NONE )
         return btrue;
-
     if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
         return bfalse;
 
     foundidsz = bfalse;
     sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
     fileread = fopen( newloadname, "r" );
-
     if ( NULL == fileread )
     {
         log_warning("Cannot open file! (%s)\n", newloadname);
@@ -96,7 +94,6 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
         while ( goto_colon_yesno( fileread ) && !foundidsz )
         {
             newidsz = get_idsz( fileread );
-
             if ( newidsz == idsz )
             {
                 foundidsz = btrue;
@@ -110,7 +107,7 @@ int module_reference_matches( char *szLoadName, Uint32 idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-void add_module_idsz( char *szLoadName, Uint32 idsz )
+void add_module_idsz(  const char *szLoadName, Uint32 idsz )
 {
     // ZZ> This function appends an IDSZ to the module's menu.txt file
     FILE *filewrite;
@@ -123,7 +120,6 @@ void add_module_idsz( char *szLoadName, Uint32 idsz )
         // Try to open the file in append mode
         sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
         filewrite = fopen( newloadname, "a" );
-
         if ( filewrite )
         {
             chara = ( ( idsz >> 15 ) & 31 ) + 'A';
@@ -137,7 +133,7 @@ void add_module_idsz( char *szLoadName, Uint32 idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int find_module( char *smallname )
+int find_module(  const char *smallname )
 {
     // ZZ> This function returns -1 if the module does not exist locally, the module
     //     index otherwise
@@ -161,7 +157,7 @@ int find_module( char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_module( char *smallname )
+void load_module(  const char *smallname )
 {
     // ZZ> This function loads a module
     STRING modname;
@@ -169,7 +165,7 @@ void load_module( char *smallname )
     log_info( "Loading module \"%s\"\n", smallname );
 
     // Load all the global icons
-    if ( !load_all_global_icons() ) 
+    if ( !load_all_global_icons() )
     {
         log_warning( "Could not load all global icons!\n" );
     }
@@ -189,15 +185,17 @@ void load_module( char *smallname )
     reset_messages();
     prime_names();
     load_basic_textures( modname );  // This should work (without colorkey stuff)
-    reset_ai_script();
+    release_all_ai_scripts();
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
     release_all_models();
     free_all_enchants();
 
     //Load all objects
-    load_all_global_objects(load_all_objects(modname));   //First load global ones from the basicdat folder
-    //Then override any using local objects found in the module folder
-
+    {
+        int skin;
+        skin = load_all_objects(modname);
+        load_all_global_objects(skin);
+    }
     if ( !load_mesh( modname ) )
     {
         log_error( "Uh oh! Problems loading the mesh! (%s)\n", modname );
@@ -226,14 +224,13 @@ void load_module( char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_all_objects( char *modname )
+int load_all_objects(  const char *modname )
 {
     // ZZ> This function loads a module's local objects and overrides the global ones already loaded
     const char *filehandle;
     bool_t keeplooking;
     char newloadname[256];
     char filename[256];
-    FILE* fileread;
     int cnt;
     int skin;
     int importplayer;
@@ -253,30 +250,24 @@ int load_all_objects( char *modname )
     // Load the import directory
     importplayer = -1;
     importobject = -100;
-    skin = 8;  // Character skins start at 8...  Trust me
-
+    skin = TX_LAST;  // Character skins start after the last special texture
     if ( importvalid )
     {
         for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
         {
-            sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
             // Make sure the object exists...
+            sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
             sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
-            fileread = fopen( newloadname, "r" );
-
-            if ( fileread )
+            if ( fs_fileExists(newloadname) )
             {
+                // new player found
+                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) importplayer++;
 
-                fclose( fileread );
-
-                // Load it...
-                if ( ( cnt % 9 ) == 0 )
-                {
-                    importplayer++;
-                }
-
-                importobject = ( ( importplayer ) * 9 ) + ( cnt % 9 );
+                // store the slot info
+                importobject = ( importplayer * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
                 capimportslot[importobject] = cnt;
+
+                // load it
                 skin += load_one_object( skin, filename );
             }
         }
@@ -288,7 +279,6 @@ int load_all_objects( char *modname )
     filehandle = fs_findFirstFile( newloadname, "obj" );
 
     keeplooking = btrue;
-
     if ( filehandle != NULL )
     {
         while ( keeplooking )
@@ -323,7 +313,6 @@ void load_all_global_objects(int skin)
     filehandle = fs_findFirstFile( newloadname, "obj" );
 
     keeplooking = btrue;
-
     if ( filehandle != NULL )
     {
         while ( keeplooking )
@@ -341,7 +330,7 @@ void load_all_global_objects(int skin)
 }
 
 //--------------------------------------------------------------------------------------------
-int get_module_data( int modnumber, char *szLoadName )
+int get_module_data( int modnumber,  const char *szLoadName )
 {
     // ZZ> This function loads the module data file
     FILE *fileread;
@@ -363,9 +352,9 @@ int get_module_data( int modnumber, char *szLoadName )
 
     //Check all selected players directories !!TODO!!
     playerhasquest = bfalse;
-    for ( iTmp = 0; iTmp < numloadplayer; iTmp++ )
+    for ( iTmp = 0; iTmp < mnu_selectedPlayerCount; iTmp++ )
     {
-        if ( questlevel <= check_player_quest( loadplayername[selectedPlayer], idsz ))
+        if ( questlevel <= check_player_quest( loadplayer[mnu_selectedPlayer[iTmp]].name, idsz ))
         {
             playerhasquest = btrue;
             break;
@@ -376,7 +365,7 @@ int get_module_data( int modnumber, char *szLoadName )
     loaded = bfalse;
     if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
-		STRING readtext;
+        STRING readtext;
         parse_filename = szLoadName;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
@@ -412,7 +401,7 @@ int get_module_data( int modnumber, char *szLoadName )
 }
 
 //--------------------------------------------------------------------------------------------
-int get_module_summary( char *szLoadName )
+int get_module_summary(  const char *szLoadName )
 {
     // ZZ> This function gets the quest description out of the module's menu file
     FILE *fileread;
@@ -423,7 +412,6 @@ int get_module_summary( char *szLoadName )
     bool_t result = bfalse;
 
     fileread = fopen( szLoadName, "r" );
-
     if ( fileread )
     {
         // Skip over basic data

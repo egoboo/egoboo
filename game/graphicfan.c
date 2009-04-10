@@ -35,21 +35,23 @@ void render_fan( Uint32 fan )
     Uint16 basetile;
     Uint16 texture;
     Uint16 cnt, tnc, entry, vertex;
-    Uint32  badvertex;
-    float offu, offv;
+    Uint32 badvertex;
+    float  offu, offv;
+    Uint16 tile;
+    Uint8  fx;
+    Uint16 type;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    Uint16 tile = meshtile[fan];               // Tile
-    Uint8  fx = meshfx[fan];                   // Fx bits
-    Uint16 type = meshtype[fan];               // Command type ( index to points in fan )
-
-    if ( tile == FANOFF || tile == INVALID_TILE )
+    tile = meshtile[fan];               // Tile
+    fx   = meshfx[fan];                   // Fx bits
+    type = meshtype[fan];               // Command type ( index to points in fan )
+    if ( 0 != ( 0xFF00 & tile ) )
         return;
 
     // Animate the tiles
-    if ( fx & MESHFXANIM )
+    if ( fx & MESHFX_ANIM )
     {
         if ( type >= ( MAXMESHTYPE >> 1 ) )
         {
@@ -117,16 +119,17 @@ void render_fan( Uint32 fan )
     for ( cnt = 0; cnt < commands; cnt++ )
     {
         glBegin ( GL_TRIANGLE_FAN );
-
-        for ( tnc = 0; tnc < meshcommandsize[type][cnt]; tnc++ )
         {
-            vertex = meshcommandvrt[type][entry];
-            glColor3fv( &v[vertex].r );
-            glTexCoord2f ( meshcommandu[type][vertex] + offu, meshcommandv[type][vertex] + offv );
-            glVertex3fv ( &v[vertex].x );
-            entry++;
-        }
+            for ( tnc = 0; tnc < meshcommandsize[type][cnt]; tnc++ )
+            {
+                vertex = meshcommandvrt[type][entry];
+                glColor3fv( &v[vertex].r );
+                glTexCoord2f ( meshcommandu[type][vertex] + offu, meshcommandv[type][vertex] + offv );
+                glVertex3fv ( &v[vertex].x );
+                entry++;
+            }
 
+        }
         glEnd();
     }
 
@@ -148,11 +151,13 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     Uint8 mode;
     int ix, iy, ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
 
+    if ( INVALID_TILE == fan ) return;
+
     // BB > the water info is for TILES, not fot vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
 
-    ix = fan % meshsizex;
-    iy = fan / meshsizex;
+    ix = fan % meshtilesx;
+    iy = fan / meshtilesx;
 
     // just do the mode this way instead of requiring all meshes to be multiples of 4
     mode = (iy & 1) | ((ix & 1) << 1);
@@ -206,15 +211,15 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     for ( cnt = 0; cnt < commands; cnt++ )
     {
         glBegin ( GL_TRIANGLE_FAN );
-
-        for ( tnc = 0; tnc < 4; tnc++ )
         {
-            glColor4fv( &v[tnc].r );
-            glTexCoord2fv ( &v[tnc].s );
-            glVertex3fv ( &v[tnc].x );
-            entry++;
+            for ( tnc = 0; tnc < 4; tnc++ )
+            {
+                glColor4fv( &v[tnc].r );
+                glTexCoord2fv ( &v[tnc].s );
+                glVertex3fv ( &v[tnc].x );
+                entry++;
+            }
         }
-
         glEnd ();
     }
 }

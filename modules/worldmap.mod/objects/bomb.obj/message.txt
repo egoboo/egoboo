@@ -1,0 +1,9 @@
+Message 0: %t_grabbed_a_%c.
+Message 1: %t_defused_a_%c...
+Message 2: The_%c_was_smashed!
+Message 3: %t_took_out_a_%c.
+Message 4: %t_doesn't_know_how_to_work_this...
+Message 5: Oww!_What_in_the_blazes?
+Message 6: %t_can't_put_it_down_here...
+Message 7: %t_used_a_bear_trap_to_make_a_mine!
+Message 8: %t_stepped_on_a_mine!

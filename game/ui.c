@@ -33,8 +33,8 @@
 struct UiContext
 {
     // Tracking control focus stuff
-    UI_ID active;
-    UI_ID hot;
+    ui_id_t active;
+    ui_id_t hot;
 
     // Basic mouse state
     int mouseX, mouseY;
@@ -47,6 +47,17 @@ struct UiContext
 
 static struct UiContext ui_context;
 
+GLfloat ui_white_color[]  = {1.00f, 1.00f, 1.00f, 1.00f};
+
+GLfloat ui_active_color[]  = {0.00f, 0.00f, 0.90f, 0.60f};
+GLfloat ui_hot_color[]     = {0.54f, 0.00f, 0.00f, 1.00f};
+GLfloat ui_normal_color[]  = {0.66f, 0.00f, 0.00f, 0.60f};
+
+GLfloat ui_active_color2[] = {0.00f, 0.45f, 0.45f, 0.60f};
+GLfloat ui_hot_color2[]    = {0.00f, 0.28f, 0.28f, 1.00f};
+GLfloat ui_normal_color2[] = {0.33f, 0.00f, 0.33f, 0.60f};
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Core functions
 int ui_initialize( const char *default_font, int default_font_size )
@@ -72,6 +83,12 @@ void ui_shutdown()
 
     memset( &ui_context, 0, sizeof( ui_context ) );
 }
+
+//--------------------------------------------------------------------------------------------
+void ui_Reset()
+{
+    ui_context.active = ui_context.hot = UI_Nothing;
+};
 
 //--------------------------------------------------------------------------------------------
 void ui_handleSDLEvent( SDL_Event *evt )
@@ -104,9 +121,7 @@ void ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    SDL_Surface *screen;
-
-    screen = SDL_GetVideoSurface();
+    displaySurface = SDL_GetVideoSurface();
 
     glPushAttrib( GL_ENABLE_BIT );
     glDisable( GL_DEPTH_TEST );
@@ -116,7 +131,7 @@ void ui_beginFrame( float deltaTime )
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glViewport( 0, 0, screen->w, screen->h );
+    glViewport( 0, 0, displaySurface->w, displaySurface->h );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -124,7 +139,7 @@ void ui_beginFrame( float deltaTime )
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glOrtho( 0, screen->w, screen->h, 0, -1, 1 );
+    glOrtho( 0, displaySurface->w, displaySurface->h, 0, -1, 1 );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
@@ -157,7 +172,6 @@ int ui_mouseInside( int x, int y, int width, int height )
     int right, bottom;
     right = x + width;
     bottom = y + height;
-
     if ( x <= ui_context.mouseX && y <= ui_context.mouseY && ui_context.mouseX <= right && ui_context.mouseY <= bottom )
     {
         return 1;
@@ -167,18 +181,59 @@ int ui_mouseInside( int x, int y, int width, int height )
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_setactive( UI_ID id )
+void ui_setactive( ui_id_t id )
 {
     ui_context.active = id;
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_sethot( UI_ID id )
+void ui_sethot( ui_id_t id )
 {
-    // Only allow hotness to be set if this control, or no control is active
-    if ( ui_context.active == id || ui_context.active == UI_Nothing )
+    ui_context.hot = id;
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_setWidgetactive( ui_Widget_t * pw )
+{
+    if ( NULL == pw )
     {
-        ui_context.hot = id;
+        ui_context.active = UI_Nothing;
+    }
+    else
+    {
+        ui_context.active = pw->id;
+
+        pw->timeout = SDL_GetTicks() + 100;
+        if ( 0 != ( pw->mask & UI_BITS_CLICKED ) )
+        {
+            // use exclusive or to flip the bit
+            pw->state ^= UI_BITS_CLICKED;
+        };
+    };
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_setWidgethot( ui_Widget_t * pw )
+{
+    if ( NULL == pw )
+    {
+        ui_context.hot = UI_Nothing;
+    }
+    else if (( ui_context.active == pw->id || ui_context.active == UI_Nothing ) )
+    {
+        if ( pw->timeout < SDL_GetTicks() )
+        {
+            pw->timeout = SDL_GetTicks() + 100;
+
+            if ( 0 != ( pw->mask & UI_BITS_MOUSEOVER ) && ui_context.hot != pw->id )
+            {
+                // use exclusive or to flip the bit
+                pw->state ^= UI_BITS_MOUSEOVER;
+            };
+        };
+
+        // Only allow hotness to be set if this control, or no control is active
+        ui_context.hot = pw->id;
     }
 }
 
@@ -190,9 +245,9 @@ Font* ui_getFont()
 
 //--------------------------------------------------------------------------------------------
 // Behaviors
-int ui_buttonBehavior( UI_ID id, int x, int y, int width, int height )
+ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int height )
 {
-    int result = 0;
+    ui_buttonValues result = BUTTON_NOCHANGE;
 
     // If the mouse is over the button, try and set hotness so that it can be clicked
     if ( ui_mouseInside( x, y, width, height ) )
@@ -205,7 +260,7 @@ int ui_buttonBehavior( UI_ID id, int x, int y, int width, int height )
     {
         if ( ui_context.mouseReleased == 1 )
         {
-            if ( ui_context.hot == id ) result = 1;
+            if ( ui_context.hot == id ) result = BUTTON_UP;
 
             ui_setactive( UI_Nothing );
         }
@@ -214,6 +269,8 @@ int ui_buttonBehavior( UI_ID id, int x, int y, int width, int height )
     {
         if ( ui_context.mousePressed == 1 )
         {
+            if ( ui_context.hot == id ) result = BUTTON_UP;
+
             ui_setactive( id );
         }
     }
@@ -222,35 +279,87 @@ int ui_buttonBehavior( UI_ID id, int x, int y, int width, int height )
 }
 
 //--------------------------------------------------------------------------------------------
-// Drawing
-void ui_drawButton( UI_ID id, int x, int y, int width, int height )
+ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 {
+    ui_buttonValues result = BUTTON_NOCHANGE;
+
+    // If the mouse is over the button, try and set hotness so that it can be clicked
+    if ( ui_mouseInside( pWidget->x, pWidget->y, pWidget->width, pWidget->height ) )
+    {
+        ui_setWidgethot( pWidget );
+    }
+
+    // Check to see if the button gets clicked on
+    if ( ui_context.active == pWidget->id )
+    {
+        if ( ui_context.mouseReleased == 1 )
+        {
+            // mouse button up
+            if ( ui_context.active == pWidget->id ) result = BUTTON_UP;
+
+            ui_setWidgetactive( NULL );
+        }
+    }
+    else if ( ui_context.hot == pWidget->id )
+    {
+        if ( ui_context.mousePressed == 1 )
+        {
+            // mouse button down
+            if ( ui_context.hot == pWidget->id ) result = BUTTON_DOWN;
+
+            ui_setWidgetactive( pWidget );
+        }
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+// Drawing
+void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * pcolor )
+{
+    GLfloat color_1[4] = { 0.0f, 0.0f, 0.9f, 0.6f };
+    GLfloat color_2[4] = { 0.54f, 0.0f, 0.0f, 1.0f };
+    GLfloat color_3[4] = { 0.66f, 0.0f, 0.0f, 0.6f };
+
     // Draw the button
     glDisable( GL_TEXTURE_2D );
+
     glBegin( GL_QUADS );
+    {
+        if ( NULL == pcolor )
+        {
+            if ( ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id )
+            {
+                pcolor = color_1;
+            }
+            else if ( ui_context.hot != UI_Nothing && ui_context.hot == id )
+            {
+                pcolor = color_2;
+            }
+            else
+            {
+                pcolor = color_3;
+            }
+        }
 
-    if ( ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id )
-        glColor4f( 0, 0, 0.9f, 0.6f );
-    else if ( ui_context.hot != UI_Nothing && ui_context.hot == id )
-        glColor4f( 0.9f, 0, 0, 0.6f );
-    else
-        // glColor4f(0.6f, 0, 0, 0.6f);
-        glColor4f( 0.4f, 0, 0, 1.0f );
+        glColor4fv( pcolor );
 
-    glVertex2i( x, y );
-    glVertex2i( x, y + height );
-    glVertex2i( x + width, y + height );
-    glVertex2i( x + width, y );
+        glVertex2i( x, y );
+        glVertex2i( x, y + height );
+        glVertex2i( x + width, y + height );
+        glVertex2i( x + width, y );
+    }
     glEnd();
+
     glEnable( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height )
+void ui_drawImage( ui_id_t id, GLTexture *img, int x, int y, int width, int height )
 {
     int w, h;
     float x1, y1;
-
     if ( img )
     {
         if ( width == 0 || height == 0 )
@@ -271,11 +380,68 @@ void ui_drawImage( UI_ID id, GLTexture *img, int x, int y, int width, int height
         GLTexture_Bind( img );
 
         glBegin( GL_TRIANGLE_STRIP );
-        glTexCoord2f( 0, 0 );    glVertex2i( x, y );
-        glTexCoord2f( x1, 0 );  glVertex2i( x + w, y );
-        glTexCoord2f( 0, y1 );  glVertex2i( x, y + h );
-        glTexCoord2f( x1, y1 );  glVertex2i( x + w, y + h );
+        {
+            glTexCoord2f(  0,  0 );  glVertex2i( x,     y );
+            glTexCoord2f( x1,  0 );  glVertex2i( x + w, y );
+            glTexCoord2f(  0, y1 );  glVertex2i( x,     y + h );
+            glTexCoord2f( x1, y1 );  glVertex2i( x + w, y + h );
+        }
         glEnd();
+
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_drawWidgetButton( ui_Widget_t * pw )
+{
+    GLfloat * pcolor = NULL;
+    bool_t bactive, bhot;
+
+    bactive = ui_context.active == pw->id && ui_context.hot == pw->id;
+    bactive = bactive || 0 != ( pw->mask & pw->state & UI_BITS_CLICKED );
+    bhot    = ui_context.hot == pw->id;
+    bhot    = bhot || 0 != ( pw->mask & pw->state & UI_BITS_MOUSEOVER );
+
+    if ( 0 != pw->mask )
+    {
+        if ( bactive )
+        {
+            pcolor = ui_normal_color2;
+        }
+        else if ( bhot )
+        {
+            pcolor = ui_hot_color;
+        }
+        else
+        {
+            pcolor = ui_normal_color;
+        }
+    }
+    else
+    {
+        if ( bactive )
+        {
+            pcolor = ui_active_color;
+        }
+        else if ( bhot )
+        {
+            pcolor = ui_hot_color;
+        }
+        else
+        {
+            pcolor = ui_normal_color;
+        }
+    }
+
+    ui_drawButton( pw->id, pw->x, pw->y, pw->width, pw->height, pcolor );
+}
+
+//--------------------------------------------------------------------------------------------
+void ui_drawWidgetImage( ui_Widget_t * pw )
+{
+    if ( NULL != pw && NULL != pw->img )
+    {
+        ui_drawImage( pw->id, pw->img, pw->x, pw->y, pw->width, pw->height );
     }
 }
 
@@ -299,9 +465,9 @@ void ui_drawTextBox( const char *text, int x, int y, int width, int height, int 
 
 //--------------------------------------------------------------------------------------------
 // Controls
-int ui_doButton( UI_ID id, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int width, int height )
 {
-    int result;
+    ui_buttonValues result;
     int text_w, text_h;
     int text_x, text_y;
     Font *font;
@@ -310,11 +476,10 @@ int ui_doButton( UI_ID id, const char *text, int x, int y, int width, int height
     result = ui_buttonBehavior( id, x, y, width, height );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height );
+    ui_drawButton( id, x, y, width, height, NULL );
 
     // And then draw the text that goes on top of the button
     font = ui_getFont();
-
     if ( font )
     {
         // find the width & height of the text to be drawn, so that it can be centered inside
@@ -332,15 +497,15 @@ int ui_doButton( UI_ID id, const char *text, int x, int y, int width, int height
 }
 
 //--------------------------------------------------------------------------------------------
-int ui_doImageButton( UI_ID id, GLTexture *img, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButton( ui_id_t id, GLTexture *img, int x, int y, int width, int height )
 {
-    int result;
+    ui_buttonValues result;
 
     // Do all the logic type work for the button
     result = ui_buttonBehavior( id, x, y, width, height );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height );
+    ui_drawButton( id, x, y, width, height, NULL );
 
     // And then draw the image on top of it
     glColor3f( 1, 1, 1 );
@@ -350,9 +515,10 @@ int ui_doImageButton( UI_ID id, GLTexture *img, int x, int y, int width, int hei
 }
 
 //--------------------------------------------------------------------------------------------
-int ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLTexture *img, const char *text, int x, int y, int width, int height )
 {
-    int result;
+    ui_buttonValues result;
+
     Font *font;
     int text_x, text_y;
     int text_w, text_h;
@@ -361,7 +527,7 @@ int ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x,
     result = ui_buttonBehavior( id, x, y, width, height );
 
     // Draw the button part of the button
-    ui_drawButton( id, x, y, width, height );
+    ui_drawButton( id, x, y, width, height, NULL );
 
     // Draw the image part
     glColor3f( 1, 1, 1 );
@@ -370,7 +536,6 @@ int ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x,
     // And draw the text next to the image
     // And then draw the text that goes on top of the button
     font = ui_getFont();
-
     if ( font )
     {
         // find the width & height of the text to be drawn, so that it can be centered inside
@@ -385,4 +550,140 @@ int ui_doImageButtonWithText( UI_ID id, GLTexture *img, const char *text, int x,
     }
 
     return result;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+ui_buttonValues ui_doWidget( ui_Widget_t * pw )
+{
+    ui_buttonValues result;
+
+    int text_x, text_y;
+    int text_w, text_h;
+    int img_w;
+
+    // Do all the logic type work for the button
+    result = ui_WidgetBehavior( pw );
+
+    // Draw the button part of the button
+    ui_drawWidgetButton( pw );
+
+    // draw any image on the left hand side of the button
+    img_w = 0;
+    if ( NULL != pw->img )
+    {
+        ui_Widget_t wtmp;
+
+        // Draw the image part
+        glColor3f( 1, 1, 1 );
+
+        ui_shrinkWidget( &wtmp, pw, 5 );
+        wtmp.width = wtmp.height;
+
+        ui_drawWidgetImage( &wtmp );
+
+        img_w = pw->img->imgW;
+    }
+
+    // And draw the text on the right hand side of any image
+    if ( NULL != pw->pfont && NULL != pw->text && '\0' != pw->text[0] )
+    {
+        glColor3f( 1, 1, 1 );
+
+        // find the pw->width & pw->height of the pw->text to be drawn, so that it can be centered inside
+        // the button
+        fnt_getTextSize( pw->pfont, pw->text, &text_w, &text_h );
+
+        text_w = MIN(text_w, pw->width );
+        text_h = MIN(text_h, pw->height);
+
+        text_x = ( pw->width  - text_w ) / 2 + pw->x;
+        text_y = ( pw->height - text_h ) / 2 + pw->y;
+
+        text_x = img_w + ( pw->width - img_w - text_w ) / 2 + pw->x;
+        text_y = ( pw->height - text_h ) / 2 + pw->y;
+
+        glColor3f( 1, 1, 1 );
+        fnt_drawText( pw->pfont, text_x, text_y, pw->text );
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
+{
+    if ( NULL == pw2 || NULL == pw1 ) return bfalse;
+    return NULL != memcpy( pw2, pw1, sizeof( ui_Widget_t ) );
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
+{
+    if ( NULL == pw2 || NULL == pw1 ) return bfalse;
+
+    if ( !ui_copyWidget( pw2, pw1 ) ) return bfalse;
+
+    pw2->x += pixels;
+    pw2->y += pixels;
+    pw2->width  -= 2 * pixels;
+    pw2->height -= 2 * pixels;
+
+    if ( pw2->width < 0 )  pw2->width   = 0;
+    if ( pw2->height < 0 ) pw2->height = 0;
+
+    return pw2->width > 0 && pw2->height > 0;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLTexture *img, int x, int y, int width, int height )
+{
+    if ( NULL == pw ) return bfalse;
+
+    pw->id      = id;
+    pw->pfont   = pfont;
+    pw->text    = text;
+    pw->img     = img;
+    pw->x       = x;
+    pw->y       = y;
+    pw->width   = width;
+    pw->height  = height;
+    pw->state   = 0;
+    pw->mask    = 0;
+    pw->timeout = 0;
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )
+{
+    if ( NULL == pw ) return bfalse;
+
+    pw->mask  |= mbits;
+    pw->state &= ~mbits;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits )
+{
+    if ( NULL == pw ) return bfalse;
+
+    pw->mask  &= ~mbits;
+    pw->state &= ~mbits;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits )
+{
+    if ( NULL == pw ) return bfalse;
+
+    pw->mask   = mbits;
+    pw->state &= ~mbits;
+
+    return btrue;
 }

@@ -101,7 +101,6 @@ ConfigFilePtr_t ConfigFile_create()
 
     // allocate the data
     ptmp = CONFIG_NEW( ConfigFile_t );
-
     if (NULL == ptmp) return ptmp;
 
     // set the file
@@ -115,7 +114,6 @@ ConfigFilePtr_t ConfigFile_create()
 ConfigFile_retval ConfigFile_destroy(ConfigFilePtr_t * ppConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection, lDoomedSection;
-
     if (NULL == ppConfigFile || NULL == *ppConfigFile) return ConfigFile_fail;
 
     ConfigFile_close( *ppConfigFile );
@@ -225,10 +223,9 @@ char * ConfigFileString_resize(char * str, size_t new_len )
     {
         new_len = MAX_CONFIG_VALUE_LENGTH - 1;
     }
-
     if ( new_len >= old_len )
     {
-        str = realloc(str, new_len);
+        str = (char *)realloc(str, new_len);
     }
 
     memset( str, 0, new_len );
@@ -275,7 +272,6 @@ ConfigFileSectionPtr_t ConfigFileSection_create()
 ConfigFile_retval ConfigFileSection_destroy(ConfigFileSectionPtr_t * ptmp)
 {
     ConfigFileValuePtr_t lTempValue, lDoomedValue;
-
     if (NULL == ptmp || NULL == *ptmp) return ConfigFile_fail;
 
     // delete all values from the current section
@@ -345,7 +341,6 @@ size_t ConfigFile_ReadSectionName( ConfigFilePtr_t pConfigFile, ConfigFileSectio
         lLengthName++;
         lc = fgetc( pConfigFile->f );
     }
-
     if ( feof( pConfigFile->f ) )
     {
         return 0;
@@ -379,7 +374,6 @@ size_t ConfigFile_ReadKeyName( ConfigFilePtr_t pConfigFile, ConfigFileValuePtr_t
         lLengthName++;
         lc = fgetc( pConfigFile->f );
     }
-
     if ( feof( pConfigFile->f ) )
     {
         return ConfigFile_fail;
@@ -489,7 +483,6 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
     Sint32  lEndScan = 0;
     Sint32  lState = 0;
     Sint32 lLengthName = 0;
-
     if (NULL == pValue) return ConfigFile_PassOverCommentary( pConfigFile );
 
     memset( lTempStr, 0, MAX_CONFIG_COMMENTARY_LENGTH );
@@ -570,9 +563,7 @@ ConfigFile_retval ConfigFile_ReadCommentary( ConfigFilePtr_t pConfigFile, Config
 ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFileName, const char * szAttribute )
 {
     FILE   *lTempFile;
-
     if (NULL == szFileName || '\0' == szFileName[0]) return pConfigFile;
-
     if (NULL == szAttribute) szAttribute = "rt+";
 
     // make sure that we have a valid, closed ConfigFile
@@ -587,7 +578,6 @@ ConfigFilePtr_t ConfigFile_open( ConfigFilePtr_t pConfigFile, const char *szFile
 
     // open a file stream for access using the szAttribute attribute
     lTempFile = fopen( szFileName, szAttribute );
-
     if ( NULL == lTempFile  ) return pConfigFile;
 
     // assign the file info
@@ -609,9 +599,7 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
     Sint32  lError = 0;
     Sint32  lState = 0;
     char    lc;
-
     if ( NULL == pConfigFile ) return ConfigFile_fail;
-
     if ( NULL == pConfigFile->f || feof(pConfigFile->f) ) return ConfigFile_fail;
 
     // load all values in memory
@@ -717,12 +705,10 @@ ConfigFile_retval ConfigFile_read( ConfigFilePtr_t pConfigFile )
 long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSection )
 {
     long lFound = 0;
-
     if ( NULL == pConfigFile  || NULL == pSection  )
     {
         return ConfigFile_fail;
     }
-
     if ( NULL == pConfigFile->CurrentSection )
     {
         pConfigFile->CurrentSection = pConfigFile->ConfigSectionList;
@@ -776,7 +762,6 @@ long ConfigFile_SetCurrentSection( ConfigFilePtr_t pConfigFile, const char *pSec
 ConfigFile_retval SetConfigCurrentValueFromCurrentSection( ConfigFilePtr_t pConfigFile, const char *pKey )
 {
     Sint32 lFound = 0;
-
     if ( NULL == pKey || NULL == pConfigFile  || NULL == pConfigFile->CurrentSection )
     {
         return ConfigFile_fail;
@@ -811,7 +796,6 @@ ConfigFile_retval ConfigFile_FindKey( ConfigFilePtr_t pConfigFile, const char *p
 
     // search for section
     lFound = ConfigFile_SetCurrentSection( pConfigFile, pSection );
-
     if ( 1 == lFound )
     {
         // search for key in current section
@@ -835,12 +819,10 @@ ConfigFile_retval ConfigFile_GetValue_String( ConfigFilePtr_t pConfigFile, const
     {
         return ConfigFile_fail;
     }
-
     if ( 0 == ConfigFile_FindKey( pConfigFile, pSection, pKey ) )
     {
         return ConfigFile_fail;
     }
-
     if ( strlen( pConfigFile->CurrentValue->Value ) >= ( size_t ) pValueBufferLength )
     {
         strncpy( pValue, pConfigFile->CurrentValue->Value, pValueBufferLength - 1 );
@@ -866,7 +848,6 @@ ConfigFile_retval ConfigFile_GetValue_Boolean( ConfigFilePtr_t pConfigFile, cons
     memset( lBoolStr, 0, 16 );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lBoolStr, 16 );
-
     if ( lRet != 0 )
     {
         // check for btrue
@@ -895,7 +876,6 @@ ConfigFile_retval ConfigFile_GetValue_Int( ConfigFilePtr_t pConfigFile, const ch
     memset( lIntStr, 0, 16 );
 
     lRet = ConfigFile_GetValue_String( pConfigFile, pSection, pKey, lIntStr, 24 );
-
     if ( lRet != 0 )
     {
         // convert value
@@ -917,12 +897,10 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     size_t lLengthNewValue;
     char   lNewSectionName[MAX_CONFIG_SECTION_LENGTH];
     char   lNewKeyName[MAX_CONFIG_KEY_LENGTH];
-
     if ( NULL == pConfigFile  )
     {
         return ConfigFile_fail;
     }
-
     if ( NULL == pValue  || NULL == pSection  || NULL == pKey  )
     {
         return ConfigFile_fail;
@@ -971,7 +949,6 @@ ConfigFile_retval ConfigFile_SetValue_String( ConfigFilePtr_t pConfigFile, const
     }
 
     lLengthNewValue = ( Sint32 ) strlen( pValue );
-
     if ( NULL == pConfigFile->CurrentValue->Value )
     {
         // if the stirng value doesn't exist than allocate memory for it
@@ -1030,7 +1007,6 @@ ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const 
 ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 {
     if ( NULL == pConfigFile ) return ConfigFile_fail;
-
     if ( NULL != pConfigFile->f )
     {
         fclose( pConfigFile->f );
@@ -1046,9 +1022,7 @@ ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
 {
     Sint32 lPos = 0;
-
     if ( NULL == pFile )  return ConfigFile_fail;
-
     if ( NULL == pValue || NULL == pValue->Value || '\0' == pValue->Value[0] ) return ConfigFile_fail;
 
     fputc( '"', pFile );
@@ -1056,7 +1030,6 @@ ConfigFile_retval ConfigValue_write( FILE *pFile, ConfigFileValuePtr_t pValue )
     while ( pValue->Value[lPos] != 0 )
     {
         fputc( pValue->Value[lPos], pFile );
-
         if ( pValue->Value[lPos] == '"' )
         {
             // double the '"'
@@ -1078,7 +1051,6 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
 {
     ConfigFileSectionPtr_t lTempSection;
     ConfigFileValuePtr_t   lTempValue;
-
     if ( NULL == pConfigFile || NULL == pConfigFile->f  )
     {
         return ConfigFile_fail;
@@ -1098,12 +1070,10 @@ ConfigFile_retval ConfigFile_write( ConfigFilePtr_t pConfigFile )
         while ( NULL != lTempValue  )
         {
             fprintf( pConfigFile->f, "[%s] : ", lTempValue->KeyName );
-
             if ( NULL != lTempValue->Value )
             {
                 ConfigValue_write( pConfigFile->f, lTempValue );
             }
-
             if ( NULL != lTempValue->Commentary )
             {
                 fprintf( pConfigFile->f, " // %s", lTempValue->Commentary );
@@ -1129,7 +1099,6 @@ ConfigFilePtr_t LoadConfigFile( const char *szFileName )
 
     // try to open a file
     lConfigFile = ConfigFile_open( NULL, szFileName, "rt+" );
-
     if (NULL == lConfigFile) return NULL;
 
     // try to read the data
@@ -1147,7 +1116,6 @@ ConfigFilePtr_t LoadConfigFile( const char *szFileName )
 ConfigFile_retval SaveConfigFile( ConfigFilePtr_t pConfigFile )
 {
     ConfigFile_retval retval;
-
     if ( !ConfigFile_open( pConfigFile, pConfigFile->filename, "wt" ) )
     {
         return ConfigFile_fail;
@@ -1168,9 +1136,7 @@ ConfigFile_retval SaveConfigFileAs( ConfigFilePtr_t pConfigFile, const char *szF
 {
     ConfigFile_retval retval;
     char old_filename[256];
-
     if (NULL == pConfigFile) return ConfigFile_fail;
-
     if (NULL == szFileName || '\0' == szFileName) return ConfigFile_fail;
 
     // save the original filename

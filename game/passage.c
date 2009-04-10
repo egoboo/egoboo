@@ -23,10 +23,11 @@
 
 #include "egoboo.h"
 #include "script.h"
+#include "sound.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int open_passage( int passage )
+int open_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage passable
     int x, y;
@@ -34,7 +35,6 @@ int open_passage( int passage )
     int useful;
 
     useful = bfalse;
-
     if ( passage < numpassage )
     {
         useful = ( !passopen[passage] );
@@ -47,8 +47,10 @@ int open_passage( int passage )
 
             while ( x <= passbrx[passage] )
             {
+                // allow raw access because we have no choice
                 fan = meshfanstart[y] + x;
-                meshfx[fan] = meshfx[fan] & ( 255 - MESHFXWALL - MESHFXIMPASS - MESHFXSLIPPY );
+
+                meshfx[fan] &= ~( MESHFX_WALL | MESHFX_IMPASS );
                 x++;
             }
 
@@ -60,7 +62,7 @@ int open_passage( int passage )
 }
 
 //--------------------------------------------------------------------------------------------
-int break_passage( int passage, Uint16 starttile, Uint16 frames,
+int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
                    Uint16 become, Uint8 meshfxor )
 {
     // ZZ> This function breaks the tiles of a passage if there is a character standing
@@ -70,58 +72,52 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
     Uint32 fan;
     int useful, character;
 
+    if ( passage > numpassage ) return bfalse;
+
     endtile = starttile + frames - 1;
     useful = bfalse;
-
-    if ( passage < numpassage )
+    for ( character = 0; character < MAXCHR; character++ )
     {
-        character = 0;
+        if ( !chr[character].on || chr[character].inpack ) continue;
 
-        while ( character < MAXCHR )
+        if ( chr[character].weight > 20 && (0 == chr[character].flyheight) && ( chr[character].zpos < chr[character].level + 20 ) && (MAXCHR == chr[character].attachedto) )
         {
-            if ( chr[character].on && !chr[character].inpack )
+            fan = mesh_get_tile( chr[character].xpos, chr[character].ypos );
+            if ( INVALID_TILE != fan )
             {
-                if ( chr[character].weight > 20 && chr[character].flyheight == 0 && chr[character].zpos < ( chr[character].level + 20 ) && chr[character].attachedto == MAXCHR )
+                tile = meshtile[fan];
+                if ( tile >= starttile && tile < endtile )
                 {
-                    x = chr[character].xpos;  x = x >> 7;
-
+                    x = chr[character].xpos;
+                    x >>= 7;
                     if ( x >= passtlx[passage] && x <= passbrx[passage] )
                     {
-                        y = chr[character].ypos;  y = y >> 7;
-
+                        y = chr[character].ypos;
+                        y >>= 7;
                         if ( y >= passtly[passage] && y <= passbry[passage] )
                         {
-                            // The character is in the passage, so might need to break...
-                            fan = meshfanstart[y] + x;
-                            tile = meshtile[fan];
+                            // Remember where the hit occured...
+                            pstate->x = chr[character].xpos;
+                            pstate->y = chr[character].ypos;
 
-                            if ( tile >= starttile && tile < endtile )
+                            useful = btrue;
+
+                            // Change the tile
+                            tile++;
+                            if ( tile == endtile )
                             {
-                                // Remember where the hit occured...
-                                valuetmpx = chr[character].xpos;
-                                valuetmpy = chr[character].ypos;
-                                useful = btrue;
-                                // Change the tile
-                                tile++;
-
-                                if ( tile == endtile )
+                                meshfx[fan] |= meshfxor;
+                                if ( become != 0 )
                                 {
-                                    meshfx[fan] |= meshfxor;
-
-                                    if ( become != 0 )
-                                    {
-                                        tile = become;
-                                    }
+                                    tile = become;
                                 }
-
-                                meshtile[fan] = tile;
                             }
+
+                            meshtile[fan] = tile;
                         }
                     }
                 }
             }
-
-            character++;
         }
     }
 
@@ -129,108 +125,101 @@ int break_passage( int passage, Uint16 starttile, Uint16 frames,
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_passage( int passage, Uint8 color )
+void flash_passage( Uint16 passage, Uint8 color )
 {
     // ZZ> This function makes a passage flash white
     int x, y, cnt, numvert;
     Uint32 fan, vert;
 
-    if ( passage < numpassage )
+    if ( passage >= numpassage ) return;
+
+    for ( y = passtly[passage]; y <= passbry[passage]; y++ )
     {
-        y = passtly[passage];
-
-        while ( y <= passbry[passage] )
+        for ( x = passtlx[passage]; x <= passbrx[passage]; x++ )
         {
-            x = passtlx[passage];
+            // allow raw access because we have no choice
+            fan = meshfanstart[y] + x;
 
-            while ( x <= passbrx[passage] )
+            vert = meshvrtstart[fan];
+
+            numvert = meshcommandnumvertices[meshtype[fan]];
+
+            for ( cnt = 0; cnt < numvert; cnt++ )
             {
-                fan = meshfanstart[y] + x;
-                vert = meshvrtstart[fan];
-                cnt = 0;
-                numvert = meshcommandnumvertices[meshtype[fan]];
-
-                while ( cnt < numvert )
-                {
-                    meshvrta[vert] = color;
-                    vert++;
-                    cnt++;
-                }
-
-                x++;
+                meshvrta[vert] = color;
+                vert++;
             }
-
-            y++;
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 find_tile_in_passage( int passage, int tiletype )
+Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletype )
 {
-    // ZZ> This function finds the next tile in the passage, valuetmpx and valuetmpy
+    // ZZ> This function finds the next tile in the passage, pstate->x and pstate->y
     //     must be set first, and are set on a find...  Returns btrue or bfalse
     //     depending on if it finds one or not
     int x, y;
     Uint32 fan;
 
-    if ( passage < numpassage )
+    if ( passage >= numpassage ) return bfalse;
+
+    // Do the first row
+    x = pstate->x >> 7;
+    y = pstate->y >> 7;
+
+    if ( x < passtlx[passage] )  x = passtlx[passage];
+    if ( y < passtly[passage] )  y = passtly[passage];
+
+    if ( y < passbry[passage] )
     {
-        // Do the first row
-        x = valuetmpx >> 7;
-        y = valuetmpy >> 7;
-
-        if ( x < passtlx[passage] )  x = passtlx[passage];
-
-        if ( y < passtly[passage] )  y = passtly[passage];
-
-        if ( y < passbry[passage] )
+        while ( x <= passbrx[passage] )
         {
-            while ( x <= passbrx[passage] )
+            // allow raw access because we have no choice
+            fan = meshfanstart[y] + x;
+
+            if ( meshtile[fan] == tiletype )
             {
-                fan = meshfanstart[y] + x;
-
-                if ( meshtile[fan] == tiletype )
-                {
-                    valuetmpx = ( x << 7 ) + 64;
-                    valuetmpy = ( y << 7 ) + 64;
-                    return btrue;
-                }
-
-                x++;
+                pstate->x = ( x << 7 ) + 64;
+                pstate->y = ( y << 7 ) + 64;
+                return btrue;
             }
 
-            y++;
+            x++;
         }
 
-        // Do all remaining rows
-        while ( y <= passbry[passage] )
+        y++;
+    }
+
+    // Do all remaining rows
+    while ( y <= passbry[passage] )
+    {
+        x = passtlx[passage];
+
+        while ( x <= passbrx[passage] )
         {
-            x = passtlx[passage];
+            // allow raw access because we have no choice
+            fan = meshfanstart[y] + x;
 
-            while ( x <= passbrx[passage] )
+            if ( meshtile[fan] == tiletype )
             {
-                fan = meshfanstart[y] + x;
-
-                if ( meshtile[fan] == tiletype )
-                {
-                    valuetmpx = ( x << 7 ) + 64;
-                    valuetmpy = ( y << 7 ) + 64;
-                    return btrue;
-                }
-
-                x++;
+                pstate->x = ( x << 7 ) + 64;
+                pstate->y = ( y << 7 ) + 64;
+                return btrue;
             }
 
-            y++;
+            x++;
         }
+
+        y++;
     }
 
     return bfalse;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 who_is_blocking_passage( int passage )
+Uint16 who_is_blocking_passage( Uint16 passage )
 {
     // ZZ> This function returns MAXCHR if there is no character in the passage,
     //     otherwise the index of the first character found is returned...
@@ -254,7 +243,6 @@ Uint16 who_is_blocking_passage( int passage )
         if ( chr[character].on )
         {
             bumpsize = chr[character].bumpsize;
-
             if ( ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && bumpsize != 0 )
             {
                 if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
@@ -312,7 +300,6 @@ void check_passage_music()
                 if ( chr[character].on )
                 {
                     bumpsize = chr[character].bumpsize;
-
                     if ( ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && bumpsize != 0 )
                     {
                         if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
@@ -322,7 +309,7 @@ void check_passage_music()
                                 if ( chr[character].alive && !chr[character].isitem && chr[character].isplayer )
                                 {
                                     // Found a player, start music track
-                                    play_music( passagemusic[passage], 0, -1 );
+                                    sound_play_song( passagemusic[passage], 0, -1 );
                                 }
                             }
                         }
@@ -338,7 +325,7 @@ void check_passage_music()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
+Uint16 who_is_blocking_passage_ID( Uint16 passage, Uint32 idsz )
 {
     // ZZ> This function returns MAXCHR if there is no character in the passage who
     //     have an item with the given ID.  Otherwise, the index of the first character
@@ -361,7 +348,6 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
         if ( chr[character].on )
         {
             bumpsize = chr[character].bumpsize;
-
             if ( ( !chr[character].isitem ) && bumpsize != 0 && chr[character].inpack == 0 )
             {
                 if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
@@ -388,11 +374,9 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 
                             // Check left hand
                             sTmp = chr[character].holdingwhich[0];
-
                             if ( sTmp != MAXCHR )
                             {
                                 sTmp = chr[sTmp].model;
-
                                 if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
@@ -402,11 +386,9 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 
                             // Check right hand
                             sTmp = chr[character].holdingwhich[1];
-
                             if ( sTmp != MAXCHR )
                             {
                                 sTmp = chr[sTmp].model;
-
                                 if ( capidsz[sTmp][IDSZ_PARENT] == idsz || capidsz[sTmp][IDSZ_TYPE] == idsz )
                                 {
                                     // It has the item...
@@ -427,7 +409,7 @@ Uint16 who_is_blocking_passage_ID( int passage, Uint32 idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int close_passage( int passage )
+int close_passage( Uint16 passage )
 {
     // ZZ> This function makes a passage impassable, and returns btrue if it isn't blocked
     int x, y, cnt;
@@ -437,8 +419,7 @@ int close_passage( int passage )
     float bumpsize;
     Uint16 numcrushed;
     Uint16 crushedcharacters[MAXCHR];
-
-    if ( ( passmask[passage]&( MESHFXIMPASS | MESHFXWALL ) ) )
+    if ( ( passmask[passage]&( MESHFX_IMPASS | MESHFX_WALL ) ) )
     {
         // Make sure it isn't blocked
         tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
@@ -451,7 +432,6 @@ int close_passage( int passage )
         while ( character < MAXCHR )
         {
             bumpsize = chr[character].bumpsize;
-
             if ( chr[character].on && ( !chr[character].inpack ) && chr[character].attachedto == MAXCHR && chr[character].bumpsize != 0 )
             {
                 if ( chr[character].xpos > tlx - bumpsize && chr[character].xpos < brx + bumpsize )
@@ -480,7 +460,7 @@ int close_passage( int passage )
         while ( cnt < numcrushed )
         {
             character = crushedcharacters[cnt];
-            chr[character].alert |= ALERTIFCRUSHED;
+            chr[character].ai.alert |= ALERTIF_CRUSHED;
             cnt++;
         }
     }
@@ -497,7 +477,9 @@ int close_passage( int passage )
 
             while ( x <= passbrx[passage] )
             {
+                // allow raw access because we have no choice
                 fan = meshfanstart[y] + x;
+
                 meshfx[fan] = meshfx[fan] | passmask[passage];
                 x++;
             }
@@ -527,7 +509,7 @@ void clear_passages()
 }
 
 //--------------------------------------------------------------------------------------------
-void add_shop_passage( int owner, int passage )
+void add_shop_passage( Uint16 owner, Uint16 passage )
 {
     // ZZ> This function creates a shop passage
     if ( passage < numpassage && numshoppassage < MAXPASS )
@@ -543,41 +525,29 @@ void add_shop_passage( int owner, int passage )
 void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
-    if ( tlx < 0 )  tlx = 0;
-
-    if ( tlx > meshsizex - 1 )  tlx = meshsizex - 1;
-
-    if ( tly < 0 )  tly = 0;
-
-    if ( tly > meshsizey - 1 )  tly = meshsizey - 1;
-
-    if ( brx < 0 )  brx = 0;
-
-    if ( brx > meshsizex - 1 )  brx = meshsizex - 1;
-
-    if ( bry < 0 )  bry = 0;
-
-    if ( bry > meshsizey - 1 )  bry = meshsizey - 1;
 
     if ( numpassage < MAXPASS )
     {
-        passtlx[numpassage] = tlx;
-        passtly[numpassage] = tly;
-        passbrx[numpassage] = brx;
-        passbry[numpassage] = bry;
-        passmask[numpassage] = mask;
-        passagemusic[numpassage] = -1;          // Set no song as default
-        numpassage++;
+        tlx = CLIP(tlx, 0, meshtilesx - 1);
+        tly = CLIP(tly, 0, meshtilesy - 1);
 
-        if ( open )
-            passopen[numpassage-1] = btrue;
-        else
-            passopen[numpassage-1] = bfalse;
+        brx = CLIP(brx, 0, meshtilesx - 1);
+        bry = CLIP(bry, 0, meshtilesy - 1);
+
+        passtlx[numpassage]      = tlx;
+        passtly[numpassage]      = tly;
+        passbrx[numpassage]      = brx;
+        passbry[numpassage]      = bry;
+        passmask[numpassage]     = mask;
+        passagemusic[numpassage] = -1;          // Set no song as default
+        passopen[numpassage]     = (open == btrue);
+
+        numpassage++;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_passage( char *modname )
+void setup_passage(  const char *modname )
 {
     // ZZ> This function reads the passage file
     char newloadname[256];
@@ -593,7 +563,6 @@ void setup_passage( char *modname )
     // Load the file
     make_newloadname( modname, "/gamedat/passage.txt", newloadname );
     fileread = fopen( newloadname, "r" );
-
     if ( fileread )
     {
         while ( goto_colon_yesno( fileread ) )
@@ -601,17 +570,14 @@ void setup_passage( char *modname )
             fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
             cTmp = get_first_letter( fileread );
             open = bfalse;
-
             if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
 
             cTmp = get_first_letter( fileread );
-            mask = MESHFXIMPASS | MESHFXWALL;
-
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFXIMPASS;
+            mask = MESHFX_IMPASS | MESHFX_WALL;
+            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_IMPASS;
 
             cTmp = get_first_letter( fileread );
-
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFXSLIPPY;
+            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_SLIPPY;
 
             add_passage( tlx, tly, brx, bry, open, mask );
         }

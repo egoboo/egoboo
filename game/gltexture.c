@@ -37,9 +37,9 @@ static bool_t gfxerror = bfalse;
 
 static GLboolean ErrorImage_defined = GL_FALSE;
 
-#pragma pack(push,1)
-static GLubyte   ErrorImage[ErrorImage_height][ErrorImage_width][4];
-#pragma pack(pop)
+typedef GLubyte SET_PACKING( image_row_t[ErrorImage_width][4], 1 );
+
+static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
 void ErrorImage_create(void)
 {
@@ -83,7 +83,6 @@ void ErrorImage_bind(GLenum target, GLuint id)
         glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
         if (target == GL_TEXTURE_1D)
         {
             glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
@@ -143,7 +142,6 @@ void GLSetup_SupportedFormats()
 
     //Save the amount of format types we have in store
     maxformattypes = type;
-
     if (!use_sdl_image)
     {
         log_message( "Failed!\n" );
@@ -160,7 +158,6 @@ void GLSetup_SupportedFormats()
 GLTexture * GLTexture_new( GLTexture * ptx )
 {
     GLTexture_delete( ptx );
-
     if (!ErrorImage_defined) ErrorImage_create();
 
     memset(ptx, 0, sizeof(GLTexture));
@@ -195,15 +192,12 @@ void    GLTexture_delete( GLTexture * ptx )
 //--------------------------------------------------------------------------------------------
 Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * image, Uint32 key )
 {
-    SDL_Surface     * screen;
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
-
     if ( NULL == texture || NULL == image) return INVALID_TX_ID;
 
     // make sure the old texture has been freed
     GLTexture_Release( texture );
-
     if ( NULL == image ) return INVALID_TX_ID;
 
     /* set the color key, if valid */
@@ -223,10 +217,9 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
     texture->txH = powerOfTwo( image->h );
     texture->txW = powerOfTwo( image->w );
 
-    screen  = SDL_GetVideoSurface();
-    pformat = screen->format;
-    memcpy( &tmpformat, screen->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
-
+    displaySurface  = SDL_GetVideoSurface();
+    pformat = displaySurface->format;
+    memcpy( &tmpformat, displaySurface->format, sizeof( SDL_PixelFormat ) );   // make a copy of the format
     if ( 0 != ( image->flags & ( SDL_SRCALPHA | SDL_SRCCOLORKEY ) ) )
     {
         // the source image has an alpha channel
@@ -238,7 +231,7 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
         // create the mask
         // this will work if both endian systems think they have "RGBA" graphics
         // if you need a different pixel format (ARGB or BGRA or whatever) this section
-        // will have to be valuechanged to reflect that
+        // will have to be changed to reflect that
 #if (SDL_BYTEORDER == SDL_LIL_ENDIAN)
         tmpformat.Amask = ( Uint32 )( 0xFF << 24 );
         tmpformat.Bmask = ( Uint32 )( 0xFF << 16 );
@@ -251,11 +244,10 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
         tmpformat.Rmask = ( Uint32 )( 0xFF << 24 );
 #endif
 
-        tmpformat.BitsPerPixel  = screen->format->BitsPerPixel;
-        tmpformat.BytesPerPixel = screen->format->BytesPerPixel;
+        tmpformat.BitsPerPixel  = displaySurface->format->BitsPerPixel;
+        tmpformat.BytesPerPixel = displaySurface->format->BytesPerPixel;
 
         for ( i = 0; i < scrz && ( tmpformat.Amask & ( 1 << i ) ) == 0; i++ );
-
         if ( 0 == (tmpformat.Amask & ( 1 << i )) )
         {
             // no alpha bits available
@@ -367,7 +359,6 @@ void    GLTexture_Bind( GLTexture *texture )
     };
 
     glBindTexture( target, id );
-
     if ( NULL == texture )
     {
         glTexParameteri( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
@@ -451,7 +442,6 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
         {
             snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
             image = IMG_Load( fullname );
-
             if (NULL != image) break;
         }
     }
@@ -462,7 +452,6 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
         {
             snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
             image = SDL_LoadBMP(fullname);
-
             if (NULL != image) break;
         }
     }

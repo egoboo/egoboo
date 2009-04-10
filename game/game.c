@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /* Egoboo - game.c
- */
+*/
 
 #define DECLARE_GLOBALS
 
@@ -29,6 +29,9 @@
 #include "font.h"
 #include "log.h"
 #include "System.h"
+#include "script.h"
+#include "sound.h"
+#include "graphic.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
@@ -56,25 +59,15 @@ int what_action( char cTmp )
     // ZZ> This function changes a letter into an action code
     int action;
     action = ACTIONDA;
-
     if ( cTmp == 'U' || cTmp == 'u' )  action = ACTIONUA;
-
     if ( cTmp == 'T' || cTmp == 't' )  action = ACTIONTA;
-
     if ( cTmp == 'S' || cTmp == 's' )  action = ACTIONSA;
-
     if ( cTmp == 'C' || cTmp == 'c' )  action = ACTIONCA;
-
     if ( cTmp == 'B' || cTmp == 'b' )  action = ACTIONBA;
-
     if ( cTmp == 'L' || cTmp == 'l' )  action = ACTIONLA;
-
     if ( cTmp == 'X' || cTmp == 'x' )  action = ACTIONXA;
-
     if ( cTmp == 'F' || cTmp == 'f' )  action = ACTIONFA;
-
     if ( cTmp == 'P' || cTmp == 'p' )  action = ACTIONPA;
-
     if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTIONZA;
 
     return action;
@@ -83,72 +76,39 @@ int what_action( char cTmp )
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void make_newloadname( char *modname, char *appendname, char *newloadname )
-{
-    // ZZ> This function takes some names and puts 'em together
-    int cnt, tnc;
-    char ctmp;
-
-    cnt = 0;
-    ctmp = modname[cnt];
-
-    while ( ctmp != 0 )
-    {
-        newloadname[cnt] = ctmp;
-        cnt++;
-        ctmp = modname[cnt];
-    }
-
-    tnc = 0;
-    ctmp = appendname[tnc];
-
-    while ( ctmp != 0 )
-    {
-        newloadname[cnt] = ctmp;
-        cnt++;
-        tnc++;
-        ctmp = appendname[tnc];
-    }
-
-    newloadname[cnt] = 0;
-}
-
 //--------------------------------------------------------------------------------------------
-char * get_file_path(char *character)
+char * get_file_path( const char *character)
 {
     //ZF> This turns a character name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
+
     Uint8 cnt = 0;
     char letter;
     static char pathname[16];
 
     letter = character[cnt];
 
-    while ( cnt < 8 && letter != 0 )
+    while ( cnt < 8 && letter != '\0' )
     {
-        letter = character[cnt];
+        letter = tolower( character[cnt] );
 
-        if ( letter >= 'A' && letter <= 'Z' )  letter -= 'A' - 'a';
+        if ( ( letter < 'a' || letter > 'z' ) )  letter = '_';
 
-        if ( letter != 0 )
-        {
-            if ( ( letter < 'a' || letter > 'z' ))  letter = '_';
-
-            pathname[cnt] = letter;
-            cnt++;
-        }
+        pathname[cnt] = letter;
+        cnt++;
     }
 
     pathname[cnt] = '.'; cnt++;
     pathname[cnt] = 'o'; cnt++;
     pathname[cnt] = 'b'; cnt++;
     pathname[cnt] = 'j'; cnt++;
-    pathname[cnt] = 0;
+    pathname[cnt] = '\0';
+
     return pathname;
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character( int character, int owner, int number, bool_t is_local )
+void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
 {
     // ZZ> This function exports a character
     int tnc = 0, profile;
@@ -163,7 +123,6 @@ void export_one_character( int character, int owner, int number, bool_t is_local
     disenchant_character( character );
 
     profile = chr[character].model;
-
     if ( ( capcancarrytonextmodule[profile] || !capisitem[profile] ) && exportvalid )
     {
         // TWINK_BO.OBJ
@@ -307,14 +266,11 @@ void export_all_players( bool_t require_local )
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
         is_local = ( 0 != pladevice[cnt] );
-
         if ( require_local && !is_local ) continue;
-
         if ( !plavalid[cnt] ) continue;
 
         // Is it alive?
         character = plaindex[cnt];
-
         if ( !chr[character].on || !chr[character].alive ) continue;
 
         // Export the character
@@ -324,19 +280,16 @@ void export_all_players( bool_t require_local )
         // Export the left hand item
         number = 0;
         item = chr[character].holdingwhich[number];
-
         if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the right hand item
         number = 1;
         item = chr[character].holdingwhich[number];
-
         if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
         number = 2;
         item = chr[character].nextinpack;
-
         while ( item != MAXCHR )
         {
             if ( chr[item].isitem )
@@ -371,6 +324,7 @@ void quit_module()
     hostactive = bfalse;
 
     export_all_local_players();
+
     release_all_icons();
     release_all_titleimages();
     release_bars();
@@ -378,31 +332,29 @@ void quit_module()
     release_map();
     release_all_textures();
     release_all_models();
+    release_all_ai_scripts();
 
     gamepaused = bfalse;
 
-    if ( soundvalid ) Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
+    mesh_free_memory();
+
+    if ( mixeron  )
+    {
+        Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void quit_game()
 {
     // ZZ> This function exits the game entirely
-
     if ( gameactive )
     {
         gameactive = bfalse;
     }
-
     if ( moduleactive )
     {
         quit_module();
-    }
-
-    if ( floatmemory != NULL )
-    {
-        free( floatmemory );
-        floatmemory = NULL;
     }
 
     empty_import_directory();
@@ -412,10 +364,10 @@ void quit_game()
 void goto_colon( FILE* fileread )
 {
     // ZZ> This function moves a file read pointer to the next colon
-//    char cTmp;
+    //    char cTmp;
     Uint32 ch = fgetc( fileread );
 
-//    fscanf(fileread, "%c", &cTmp);
+    //    fscanf(fileread, "%c", &cTmp);
     while ( ch != ':' )
     {
         if ( ch == EOF )
@@ -479,7 +431,6 @@ bool_t read_tag( FILE *fileread )
     bool_t retval;
 
     retval = goto_colon_yesno( fileread ) && (numscantag < MAXTAG);
-
     if ( retval )
     {
         fscanf( fileread, "%s%d", tagname[numscantag], &tagvalue[numscantag] );
@@ -490,14 +441,13 @@ bool_t read_tag( FILE *fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void read_all_tags( char *szFilename )
+void read_all_tags(  const char *szFilename )
 {
     // ZZ> This function reads the scancode.txt file
     FILE* fileread;
 
     reset_tags();
     fileread = fopen( szFilename, "r" );
-
     if ( fileread )
     {
         while ( read_tag( fileread ) );
@@ -507,7 +457,7 @@ void read_all_tags( char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-int tag_value( char *string )
+int tag_value(  const char *string )
 {
     // ZZ> This function matches the string with its tag, and returns the value...
     //     It will return 255 if there are no matches.
@@ -534,7 +484,6 @@ int tag_value( char *string )
 char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
     int cnt;
-
     if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
 
@@ -558,7 +507,6 @@ char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
                     break;
             }
         };
-
         if ( tag == tagvalue[cnt])
         {
             return tagname[cnt];
@@ -586,7 +534,6 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
     // make sure the icontrol is within range
     if ( pdevice->count < icontrol ) return retval;
     pcontrol = pdevice->control + icontrol;
-
     if ( INPUT_DEVICE_KEYBOARD == idevice || pcontrol->is_key )
     {
         retval = SDLKEYDOWN( pcontrol->tag );
@@ -599,14 +546,12 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
     return retval;
 }
 
-
 //--------------------------------------------------------------------------------------------
 char * undo_idsz( IDSZ idsz )
 {
     // ZZ> This function takes an integer and makes a text IDSZ out of it.
 
     static char value_string[5] = {"NONE"};
-
     if ( idsz == IDSZ_NONE )
     {
         sprintf( idsz_string, "NONE" );
@@ -638,7 +583,6 @@ IDSZ get_idsz( FILE* fileread )
 
     IDSZ idsz = IDSZ_NONE;
     char cTmp = get_first_letter( fileread );
-
     if ( cTmp == '[' )
     {
         idsz = 0;
@@ -654,7 +598,6 @@ IDSZ get_idsz( FILE* fileread )
 int fget_int( FILE* fileread )
 {
     int iTmp = 0;
-
     if ( feof( fileread ) ) return iTmp;
 
     fscanf( fileread, "%d", &iTmp );
@@ -670,9 +613,7 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
     /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
-
     if (NULL == fileread || NULL == filewrite) return bfalse;
-
     if ( feof(fileread) || feof(filewrite) ) return bfalse;
 
     fgets(linebuffer, sizeof(linebuffer), fileread);
@@ -706,22 +647,18 @@ void getadd( int min, int value, int max, int* valuetoadd )
     int newvalue;
 
     newvalue = value + ( *valuetoadd );
-
     if ( newvalue < min )
     {
         // Increase valuetoadd to fit
         *valuetoadd = min - value;
-
         if ( *valuetoadd > 0 )  *valuetoadd = 0;
 
         return;
     }
-
     if ( newvalue > max )
     {
         // Decrease valuetoadd to fit
         *valuetoadd = max - value;
-
         if ( *valuetoadd < 0 )  *valuetoadd = 0;
     }
 }
@@ -734,22 +671,18 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
     float newvalue;
 
     newvalue = value + ( *valuetoadd );
-
     if ( newvalue < min )
     {
         // Increase valuetoadd to fit
         *valuetoadd = min - value;
-
         if ( *valuetoadd > 0 )  *valuetoadd = 0;
 
         return;
     }
-
     if ( newvalue > max )
     {
         // Decrease valuetoadd to fit
         *valuetoadd = max - value;
-
         if ( *valuetoadd < 0 )  *valuetoadd = 0;
     }
 }
@@ -757,7 +690,7 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_action_names( char* loadname )
+void load_action_names(  const char* loadname )
 {
     // ZZ> This function loads all of the 2 letter action names
     FILE* fileread;
@@ -765,7 +698,6 @@ void load_action_names( char* loadname )
     char first, second;
 
     fileread = fopen( loadname, "r" );
-
     if ( fileread )
     {
         cnt = 0;
@@ -784,7 +716,7 @@ void load_action_names( char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_name( FILE* fileread, char *szName )
+void get_name( FILE* fileread,  char *szName )
 {
     // ZZ> This function loads a string of up to MAXCAPNAMESIZE characters, parsing
     //     it for underscores.  The szName argument is rewritten with the null terminated
@@ -799,7 +731,6 @@ void get_name( FILE* fileread, char *szName )
     while ( cnt < MAXCAPNAMESIZE - 1 )
     {
         cTmp = szTmp[cnt];
-
         if ( cTmp == '_' )  cTmp = ' ';
 
         szName[cnt] = cTmp;
@@ -810,14 +741,13 @@ void get_name( FILE* fileread, char *szName )
 }
 
 //--------------------------------------------------------------------------------------------
-void log_madused( char *savename )
+void log_madused(  const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
     FILE* hFileWrite;
     int cnt;
 
     hFileWrite = fopen( savename, "w" );
-
     if ( hFileWrite )
     {
         fprintf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
@@ -851,7 +781,6 @@ float light_for_normal( int rotation, int normal, float lx, float ly, float lz, 
     ny = cosrot * ny - sinrot * nx;
     nx = fTmp;
     fTmp = nx * lx + ny * ly + nz * lz + ambi;
-
     if ( fTmp < ambi ) fTmp = ambi;
 
     return fTmp;
@@ -887,7 +816,6 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
             while ( lev >= 0 )
             {
                 itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-
                 if ( itmptwo > 255 )  itmptwo = 255;
 
                 lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
@@ -906,7 +834,6 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
         while ( lev >= 0 )
         {
             itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-
             if ( itmptwo > 255 )  itmptwo = 255;
 
             lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
@@ -916,7 +843,7 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
 }
 
 //---------------------------------------------------------------------------------------------
-int vertexconnected( int modelindex, int vertex )
+int vertexconnected( Uint16 modelindex, int vertex )
 {
     // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
     int cnt, tnc, entry;
@@ -942,7 +869,7 @@ int vertexconnected( int modelindex, int vertex )
 }
 
 //---------------------------------------------------------------------------------------------
-void get_madtransvertices( int modelindex )
+void get_madtransvertices( Uint16 modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
     //     That means every one except the grip ( unconnected ) vertices
@@ -970,7 +897,6 @@ int rip_md2_header( void )
     ipIntPointer = ( int* ) cLoadBuffer;
 
     iTmp = ENDIAN_INT32( ipIntPointer[0] );
-
     if ( iTmp != MD2START ) return bfalse;
 
     return btrue;
@@ -999,37 +925,31 @@ void fix_md2_normals( Uint16 modelindex )
             indexofnextnext = madvrta[frame+2][cnt];
             indexofnextnextnext = madvrta[frame+3][cnt];
             indexofnextnextnextnext = madvrta[frame+4][cnt];
-
             if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
             {
                 madvrta[frame+1][cnt] = indexofcurrent;
             }
-
             if ( indexofcurrent == indexofnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
                     madvrta[frame+1][cnt] = indexofcurrent;
                 }
-
                 if ( indexofnextnext != indexofcurrent )
                 {
                     madvrta[frame+2][cnt] = indexofcurrent;
                 }
             }
-
             if ( indexofcurrent == indexofnextnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
                     madvrta[frame+1][cnt] = indexofcurrent;
                 }
-
                 if ( indexofnextnext != indexofcurrent )
                 {
                     madvrta[frame+2][cnt] = indexofcurrent;
                 }
-
                 if ( indexofnextnextnext != indexofcurrent )
                 {
                     madvrta[frame+3][cnt] = indexofcurrent;
@@ -1080,7 +1000,6 @@ void rip_md2_commands( Uint16 modelindex )
 
         iNumVertices = ENDIAN_INT32( ipIntPointer[iCommandOffset] );  iCommandOffset++;  cnt++;
         if ( 0 == iNumVertices ) break;
-
         if ( iNumVertices < 0 )
         {
             // Fans start with a negative
@@ -1094,7 +1013,6 @@ void rip_md2_commands( Uint16 modelindex )
         }
 
         command_error = (iCommandCount >= MAXCOMMAND);
-
         if (!command_error)
         {
             madcommandtype[modelindex][iCommandCount] = command_type;
@@ -1110,14 +1028,11 @@ void rip_md2_commands( Uint16 modelindex )
             iTmp  = ENDIAN_INT32( ipIntPointer[iCommandOffset]   );  iCommandOffset++;  cnt++;
 
             entry_error = entry >= MAXCOMMANDENTRIES;
-
             if ( iTmp > vertex_max )
             {
                 vertex_max = iTmp;
             }
-
-            if( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
-
+            if ( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
             if ( !command_error && !entry_error )
             {
                 madcommandu[modelindex][entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
@@ -1135,17 +1050,14 @@ void rip_md2_commands( Uint16 modelindex )
         }
     }
 
-    
     if ( vertex_max >= MAXVERTICES )
     {
         log_warning("rip_md2_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
     }
-
     if ( command_error )
     {
         log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
     }
-
     if ( entry_error )
     {
         log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
@@ -1182,7 +1094,6 @@ int rip_md2_frame_name( int frame )
     while ( cnt < iNumFrames && !foundname )
     {
         iFrameOffset += 6;
-
         if ( cnt == frame )
         {
             ipNamePointer[0] = ipIntPointer[iFrameOffset]; iFrameOffset++;
@@ -1277,16 +1188,15 @@ void rip_md2_frames( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-int load_one_md2( char* szLoadname, Uint16 modelindex )
+int load_one_md2(  const char* szLoadname, Uint16 modelindex )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
-//    int iFileHandleRead;
+    //    int iFileHandleRead;
     size_t iBytesRead = 0;
     int iReturnValue;
 
     // Read the input file
     FILE *file = fopen( szLoadname, "rb" );
-
     if ( !file )
     {
         log_warning( "Cannot load file! (\"%s\")\n", szLoadname );
@@ -1304,7 +1214,6 @@ int load_one_md2( char* szLoadname, Uint16 modelindex )
     // Check the header
     // TODO: Verify that the header's filesize correspond to iBytesRead.
     iReturnValue = rip_md2_header();
-
     if ( !iReturnValue )
         return bfalse;
 
@@ -1337,7 +1246,6 @@ void make_enviro( void )
         y = kMd2Normals[cnt][1];
         x = ( ATAN2( y, x ) + PI ) / ( PI );
         x--;
-
         if ( x < 0 )
             x--;
 
@@ -1426,7 +1334,7 @@ void play_action( Uint16 character, Uint16 action, Uint8 actionready )
 }
 
 //--------------------------------------------------------------------------------------------
-void set_frame( int character, int frame, Uint16 lip )
+void set_frame( Uint16 character, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
     //     rotate Tank turrets
@@ -1445,7 +1353,6 @@ int generate_number( int numbase, int numrand )
     int tmp = 0;
 
     tmp = numbase;
-
     if ( numrand > 0 )
     {
         tmp += ( rand() % numrand );
@@ -1460,7 +1367,7 @@ int generate_number( int numbase, int numrand )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_alliances( char *modname )
+void setup_alliances(  const char *modname )
 {
     // ZZ> This function reads the alliance file
     char newloadname[256];
@@ -1471,7 +1378,6 @@ void setup_alliances( char *modname )
     // Load the file
     make_newloadname( modname, "gamedat" SLASH_STR "alliance.txt", newloadname );
     fileread = fopen( newloadname, "r" );
-
     if ( fileread )
     {
         while ( goto_colon_yesno( fileread ) )
@@ -1500,54 +1406,47 @@ void make_twist()
 
     while ( cnt < 256 )
     {
-        y = cnt >> 4;
-        x = cnt & 15;
-        y = y - 7;  // -7 to 8
-        x = x - 7;  // -7 to 8
+        y = (cnt >> 4) & 0x0F;
+        x = (cnt >> 0) & 0x0F;
+        y -= 7;  // -7 to 8
+        x -= 7;  // -7 to 8
+
         mapudtwist[cnt] = 32768 + y * SLOPE;
         maplrtwist[cnt] = 32768 + x * SLOPE;
 
         if ( ABS( y ) >= 7 ) y = y << 1;
-
         if ( ABS( x ) >= 7 ) x = x << 1;
 
         xslide = x * SLIDE;
         yslide = y * SLIDE;
-
         if ( xslide < 0 )
         {
             xslide += SLIDEFIX;
-
             if ( xslide > 0 )
                 xslide = 0;
         }
         else
         {
             xslide -= SLIDEFIX;
-
             if ( xslide < 0 )
                 xslide = 0;
         }
-
         if ( yslide < 0 )
         {
             yslide += SLIDEFIX;
-
             if ( yslide > 0 )
                 yslide = 0;
         }
         else
         {
             yslide -= SLIDEFIX;
-
             if ( yslide < 0 )
                 yslide = 0;
         }
 
         veludtwist[cnt] = -yslide * hillslide;
-        vellrtwist[cnt] = xslide * hillslide;
+        vellrtwist[cnt] =  xslide * hillslide;
         flattwist[cnt] = bfalse;
-
         if ( ABS( veludtwist[cnt] ) + ABS( vellrtwist[cnt] ) < SLIDEFIX*4 )
         {
             flattwist[cnt] = btrue;
@@ -1558,7 +1457,7 @@ void make_twist()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_mesh( char *modname )
+int load_mesh(  const char *modname )
 {
     // ZZ> This function loads the level.mpd file
     FILE* fileread;
@@ -1567,115 +1466,108 @@ int load_mesh( char *modname )
     float ftmp;
     int fan;
     int numvert, numfan;
-    int x, y, vert;
+
+    // free any memory that has been allocated
+    mesh_free_memory();
 
     make_newloadname( modname, "gamedat" SLASH_STR "level.mpd", newloadname );
     fileread = fopen( newloadname, "rb" );
-
-    if ( fileread )
+    if ( NULL == fileread )
     {
-
-        fread( &itmp, 4, 1, fileread );  if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) ) return bfalse;
-
-        fread( &itmp, 4, 1, fileread );  numvert   = ( int )ENDIAN_INT32( itmp );
-        fread( &itmp, 4, 1, fileread );  meshsizex = ( int )ENDIAN_INT32( itmp );
-        fread( &itmp, 4, 1, fileread );  meshsizey = ( int )ENDIAN_INT32( itmp );
-
-        numfan    = meshsizex * meshsizey;
-        meshedgex = meshsizex * 128;
-        meshedgey = meshsizey * 128;
-        numfanblock = ( ( meshsizex >> 2 ) ) * ( ( meshsizey >> 2 ) );  // MESHSIZEX MUST BE MULTIPLE OF 4
-
-        // Load fan data
-        fan = 0;
-
-        while ( fan < numfan )
-        {
-            fread( &itmp, 4, 1, fileread );
-            meshtype[fan] = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
-            meshfx[fan]   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
-            meshtile[fan] = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
-            fan++;
-        }
-
-        // Load fan data
-        fan = 0;
-
-        while ( fan < numfan )
-        {
-            fread( &itmp, 1, 1, fileread );
-            meshtwist[fan] = ENDIAN_INT32( itmp );
-            fan++;
-        }
-
-        // Load vertex x data
-        cnt = 0;
-
-        while ( cnt < numvert )
-        {
-            fread( &ftmp, 4, 1, fileread );
-            meshvrtx[cnt] = ENDIAN_FLOAT( ftmp );
-            cnt++;
-        }
-
-        // Load vertex y data
-        cnt = 0;
-
-        while ( cnt < numvert )
-        {
-            fread( &ftmp, 4, 1, fileread );
-            meshvrty[cnt] = ENDIAN_FLOAT( ftmp );
-            cnt++;
-        }
-
-        // Load vertex z data
-        cnt = 0;
-
-        while ( cnt < numvert )
-        {
-            fread( &ftmp, 4, 1, fileread );
-            meshvrtz[cnt] = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
-            cnt++;
-        }
-
-        // Load vertex a data
-        cnt = 0;
-
-        while ( cnt < numvert )
-        {
-            fread( &itmp, 1, 1, fileread );
-            meshvrta[cnt] = ENDIAN_INT32( itmp );
-            meshvrtl[cnt] = 0;
-            cnt++;
-        }
-
-        fclose( fileread );
-
-        make_fanstart();
-
-        vert = 0;
-        y = 0;
-
-        while ( y < meshsizey )
-        {
-            x = 0;
-
-            while ( x < meshsizex )
-            {
-                fan = meshfanstart[y] + x;
-                meshvrtstart[fan] = vert;
-                vert += meshcommandnumvertices[meshtype[fan]];
-                x++;
-            }
-
-            y++;
-        }
-
-        return btrue;
+        log_warning( "Cannot find level.mpd!!\n" );
+        return bfalse;
     }
-    else log_warning( "Cannot find level.mpd!!\n" );
 
-    return bfalse;
+    fread( &itmp, 4, 1, fileread );
+    if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
+    {
+        fclose( fileread );
+        return bfalse;
+    }
+
+    // allocate the memory
+    fread( &itmp, 4, 1, fileread );  numvert   = ( int )ENDIAN_INT32( itmp );
+    if ( !mesh_allocate_memory( numvert ) )
+    {
+        fclose( fileread );
+        log_warning( "Cannot load level.mpd!!\n" );
+        return bfalse;
+    }
+
+    // grab the tiles in x and y
+    fread( &itmp, 4, 1, fileread );  meshtilesx = ( int )ENDIAN_INT32( itmp );
+    if ( meshtilesx >= MAXMESHTILEY )
+    {
+        mesh_free_memory();
+        log_warning( "Invalid mesh size. Mesh too large in x direction.\n" );
+        fclose( fileread );
+        return bfalse;
+    }
+
+    fread( &itmp, 4, 1, fileread );  meshtilesy = ( int )ENDIAN_INT32( itmp );
+    if ( meshtilesy >= MAXMESHTILEY )
+    {
+        mesh_free_memory();
+        log_warning( "Invalid mesh size. Mesh too large in y direction.\n" );
+        fclose( fileread );
+        return bfalse;
+    }
+
+    numfan    = meshtilesx * meshtilesy;
+    meshedgex = meshtilesx << 7;
+    meshedgey = meshtilesy << 7;
+
+    // Load fan data
+    for ( fan = 0; fan < numfan; fan++ )
+    {
+        fread( &itmp, 4, 1, fileread );
+        meshtype[fan] = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
+        meshfx[fan]   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
+        meshtile[fan] = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
+    }
+
+    // Load twist data
+    for ( fan = 0; fan < numfan; fan++ )
+    {
+        fread( &itmp, 1, 1, fileread );
+        meshtwist[fan] = ENDIAN_INT32( itmp );
+    }
+
+    // Load vertex x data
+    for ( cnt = 0; cnt < numvert; cnt++ )
+    {
+        fread( &ftmp, 4, 1, fileread );
+        meshvrtx[cnt] = ENDIAN_FLOAT( ftmp );
+    }
+
+    // Load vertex y data
+    for ( cnt = 0; cnt < numvert; cnt++ )
+    {
+        fread( &ftmp, 4, 1, fileread );
+        meshvrty[cnt] = ENDIAN_FLOAT( ftmp );
+    }
+
+    // Load vertex z data
+    for ( cnt = 0; cnt < numvert; cnt++ )
+    {
+        fread( &ftmp, 4, 1, fileread );
+        meshvrtz[cnt] = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
+    }
+
+    // Load vertex a data
+    for ( cnt = 0; cnt < numvert; cnt++ )
+    {
+        fread( &itmp, 1, 1, fileread );
+        meshvrta[cnt] = ENDIAN_INT32( itmp );
+        meshvrtl[cnt] = 0;
+    }
+
+    fclose( fileread );
+
+    make_fanstart();
+    make_vrtstart();
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1683,10 +1575,11 @@ void update_game()
 {
     // ZZ> This function does several iterations of character movements and such
     //     to keep the game in sync.
+    //     This is the main game loop
     int cnt, numdead;
 
     // Check for all local players being dead
-    alllocalpladead = bfalse;
+    local_allpladead = bfalse;
     local_seeinvisible = bfalse;
     local_seekurse = bfalse;
 
@@ -1700,8 +1593,7 @@ void update_game()
             if ( !chr[plaindex[cnt]].alive )
             {
                 numdead++;
-
-                if ( alllocalpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && revivetimer == 0 )
+                if ( local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && 0 == revivetimer )
                 {
                     respawn_character( plaindex[cnt] );
                     chr[cnt].experience *= EXPKEEP;  // Apply xp Penality
@@ -1713,7 +1605,6 @@ void update_game()
                 {
                     local_seeinvisible = btrue;
                 }
-
                 if ( chr[plaindex[cnt]].canseekurse )
                 {
                     local_seekurse = btrue;
@@ -1723,23 +1614,24 @@ void update_game()
 
         cnt++;
     }
-
-    if ( numdead >= numlocalpla )
+    if ( numdead >= local_numlpla )
     {
-        alllocalpladead = btrue;
+        local_allpladead = btrue;
     }
 
-    // This is the main game loop
+    sv_talkToRemotes();
+
     // [claforte Jan 6th 2001]
     // TODO: Put that back in place once networking is functional.
-    while ( wldclock < allclock && numplatimes > 0 )
+    while ( clock_wld < clock_all && numplatimes > 0 )
     {
         // Important stuff to keep in sync
         srand( randsave );
-        sv_talkToRemotes();
+        randsave = rand();
+
         resize_characters();
         keep_weapons_with_holders();
-        let_ai_think();
+        let_all_characters_think();
         do_weather_spawn();
         do_enchant_spawn();
         unbuffer_player_latches();
@@ -1752,17 +1644,13 @@ void update_game()
         stat_return();
         update_pits();
 
-        // Generate the new seed
-        randsave += *( ( Uint32* ) & kMd2Normals[wldframe&127][0] );
-        randsave += *( ( Uint32* ) & kMd2Normals[randsave&127][1] );
-
         // Stuff for which sync doesn't matter
         animate_tiles();
         move_water();
 
         // Timers
-        wldclock  += UPDATE_SKIP;
-        statclock += UPDATE_SKIP;
+        clock_wld  += UPDATE_SKIP;
+        clock_stat += UPDATE_SKIP;
 
         //Reset the respawn timer
         if ( revivetimer > 0 )
@@ -1770,23 +1658,21 @@ void update_game()
             revivetimer -= UPDATE_SKIP;
         }
 
-        wldframe++;
+        frame_wld++;
     }
-
-    if ( !rtscontrol )
+    if ( networkon && !rtscontrol )
     {
         if ( numplatimes == 0 )
         {
             // The remote ran out of messages, and is now twiddling its thumbs...
             // Make it go slower so it doesn't happen again
-            wldclock += 25;
+            clock_wld += 25;
         }
-
         if ( numplatimes > 3 && !hostactive )
         {
             // The host has too many messages, and is probably experiencing control
             // lag...  Speed it up so it gets closer to sync
-            wldclock -= 5;
+            clock_wld -= 5;
         }
     }
 }
@@ -1795,15 +1681,14 @@ void update_game()
 void update_timers()
 {
     // ZZ> This function updates the game timers
-    lstclock = allclock;
-    allclock = SDL_GetTicks() - sttclock;
-    fpsclock += allclock - lstclock;
-
-    if ( fpsclock >= TICKS_PER_SEC )
+    clock_lst = clock_all;
+    clock_all = SDL_GetTicks() - clock_stt;
+    clock_fps += clock_all - clock_lst;
+    if ( clock_fps >= TICKS_PER_SEC )
     {
-        create_szfpstext( fpsframe );
-        fpsclock = 0;
-        fpsframe = 0;
+        create_szfpstext( frame_fps );
+        clock_fps = 0;
+        frame_fps = 0;
     }
 }
 
@@ -1817,7 +1702,6 @@ void read_pair( FILE* fileread )
     fscanf( fileread, "%f", &fBase );  // The first number
     pairbase = fBase * 256;
     cTmp = get_first_letter( fileread );  // The hyphen
-
     if ( cTmp != '-' )
     {
         // Not in correct format, so fail
@@ -1828,7 +1712,6 @@ void read_pair( FILE* fileread )
     fscanf( fileread, "%f", &fRand );  // The second number
     pairrand = fRand * 256;
     pairrand = pairrand - pairbase;
-
     if ( pairrand < 1 )
         pairrand = 1;
 }
@@ -1841,13 +1724,11 @@ void undo_pair( int base, int rand )
     //     pairto
     pairfrom = base / 256.0f;
     pairto = rand / 256.0f;
-
     if ( pairfrom < 0.0f )
     {
         pairfrom = 0.0f;
         log_warning( "We got a randomization error again! (Base is less than 0)\n" );
     }
-
     if ( pairto < 0.0f )
     {
         pairto = 0.0f;
@@ -1858,13 +1739,12 @@ void undo_pair( int base, int rand )
 }
 
 //--------------------------------------------------------------------------------------------
-void ftruthf( FILE* filewrite, char* text, Uint8 truth )
+void ftruthf( FILE* filewrite,  const char* text, Uint8 truth )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     btrue bfalse statements
 
     fprintf( filewrite, "%s", text );
-
     if ( truth )
     {
         fprintf( filewrite, "TRUE\n" );
@@ -1876,101 +1756,78 @@ void ftruthf( FILE* filewrite, char* text, Uint8 truth )
 }
 
 //--------------------------------------------------------------------------------------------
-void fdamagf( FILE* filewrite, char* text, Uint8 damagetype )
+void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     fprintf( filewrite, "%s", text );
-
     if ( damagetype == DAMAGE_SLASH )
         fprintf( filewrite, "SLASH\n" );
-
     if ( damagetype == DAMAGE_CRUSH )
         fprintf( filewrite, "CRUSH\n" );
-
     if ( damagetype == DAMAGE_POKE )
         fprintf( filewrite, "POKE\n" );
-
     if ( damagetype == DAMAGE_HOLY )
         fprintf( filewrite, "HOLY\n" );
-
     if ( damagetype == DAMAGE_EVIL )
         fprintf( filewrite, "EVIL\n" );
-
     if ( damagetype == DAMAGE_FIRE )
         fprintf( filewrite, "FIRE\n" );
-
     if ( damagetype == DAMAGE_ICE )
         fprintf( filewrite, "ICE\n" );
-
     if ( damagetype == DAMAGE_ZAP )
         fprintf( filewrite, "ZAP\n" );
-
     if ( damagetype == DAMAGENULL )
         fprintf( filewrite, "NONE\n" );
 }
 
 //--------------------------------------------------------------------------------------------
-void factiof( FILE* filewrite, char* text, Uint8 action )
+void factiof( FILE* filewrite,  const char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     fprintf( filewrite, "%s", text );
-
     if ( action == ACTIONDA )
         fprintf( filewrite, "WALK\n" );
-
     if ( action == ACTIONUA )
         fprintf( filewrite, "UNARMED\n" );
-
     if ( action == ACTIONTA )
         fprintf( filewrite, "THRUST\n" );
-
     if ( action == ACTIONSA )
         fprintf( filewrite, "SLASH\n" );
-
     if ( action == ACTIONCA )
         fprintf( filewrite, "CHOP\n" );
-
     if ( action == ACTIONBA )
         fprintf( filewrite, "BASH\n" );
-
     if ( action == ACTIONLA )
         fprintf( filewrite, "LONGBOW\n" );
-
     if ( action == ACTIONXA )
         fprintf( filewrite, "XBOW\n" );
-
     if ( action == ACTIONFA )
         fprintf( filewrite, "FLING\n" );
-
     if ( action == ACTIONPA )
         fprintf( filewrite, "PARRY\n" );
-
     if ( action == ACTIONZA )
         fprintf( filewrite, "ZAP\n" );
 }
 
 //--------------------------------------------------------------------------------------------
-void fgendef( FILE* filewrite, char* text, Uint8 gender )
+void fgendef( FILE* filewrite,  const char* text, Uint8 gender )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     MALE FEMALE OTHER statements
 
     fprintf( filewrite, "%s", text );
-
     if ( gender == GENMALE )
         fprintf( filewrite, "MALE\n" );
-
     if ( gender == GENFEMALE )
         fprintf( filewrite, "FEMALE\n" );
-
     if ( gender == GENOTHER )
         fprintf( filewrite, "OTHER\n" );
 }
 
 //--------------------------------------------------------------------------------------------
-void fpairof( FILE* filewrite, char* text, int base, int rand )
+void fpairof( FILE* filewrite,  const char* text, int base, int rand )
 {
     // ZZ> This function mimics fprintf in spitting out
     //     damage/stat pairs
@@ -1980,7 +1837,7 @@ void fpairof( FILE* filewrite, char* text, int base, int rand )
 }
 
 //--------------------------------------------------------------------------------------------
-void funderf( FILE* filewrite, char* text, char* usename )
+void funderf( FILE* filewrite,  const char* text,  const char* usename )
 {
     // ZZ> This function mimics fprintf in spitting out
     //     a name with underscore spaces
@@ -2018,7 +1875,6 @@ void get_message( FILE* fileread )
     int cnt;
     char cTmp;
     char szTmp[256];
-
     if ( msgtotal < MAXTOTALMESSAGE )
     {
         if ( msgtotalindex >= MESSAGEBUFFERSIZE )
@@ -2048,14 +1904,13 @@ void get_message( FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages( char *loadname, int object )
+void load_all_messages(  const char *loadname, Uint16 object )
 {
     // ZZ> This function loads all of an objects messages
     FILE *fileread;
 
     madmsgstart[object] = 0;
     fileread = fopen( loadname, "r" );
-
     if ( fileread )
     {
         madmsgstart[object] = msgtotal;
@@ -2176,15 +2031,16 @@ void make_randie()
 void reset_timers()
 {
     // ZZ> This function resets the timers...
-    sttclock = SDL_GetTicks();
-    allclock = 0;
-    lstclock = 0;
-    wldclock = 0;
-    statclock = 0;
+    clock_stt = SDL_GetTicks();
+    clock_all = 0;
+    clock_lst = 0;
+    clock_wld = 0;
+    clock_stat = 0;
     pitclock = 0;  pitskill = pitsfall = bfalse;
-    wldframe = 0;
-    allframe = 0;
-    fpsframe = 0;
+
+    frame_wld = 0;
+    frame_all = 0;
+    frame_fps = 0;
     outofsync = bfalse;
 }
 
@@ -2229,7 +2085,7 @@ int SDL_main( int argc, char **argv )
     read_all_tags( "basicdat" SLASH_STR "scancode.txt" );
     input_settings_load( "controls.txt" );
 
-    reset_ai_script();
+    release_all_ai_scripts();
     load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
     load_action_names( "basicdat" SLASH_STR "actions.txt" );
 
@@ -2238,7 +2094,7 @@ int SDL_main( int argc, char **argv )
     net_initialize();
 
     ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
-    sdlmixer_initialize();
+    sound_initialize();
 
     // register the memory_cleanUp function to automatically run whenever the program exits
     atexit( memory_cleanUp );
@@ -2249,14 +2105,11 @@ int SDL_main( int argc, char **argv )
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
-	//Prepeare the memory to load the mesh file
-    get_mesh_memory();
-
     // Matrix init stuff (from remove.c)
-    rotmeshtopside = ( ( float )scrx / scry ) * ROTMESHTOPSIDE / ( 1.33333f );
-    rotmeshbottomside = ( ( float )scrx / scry ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup = ( ( float )scrx / scry ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown = ( ( float )scrx / scry ) * ROTMESHDOWN / ( 1.33333f );
+    rotmeshtopside = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHTOPSIDE / ( 1.33333f );
+    rotmeshbottomside = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
+    rotmeshup = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHUP / ( 1.33333f );
+    rotmeshdown = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHDOWN / ( 1.33333f );
     mWorld = IdentityMatrix();
     mViewSave = ViewMatrix( t1, t2, t3, 0 );
     mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
@@ -2308,7 +2161,7 @@ int SDL_main( int argc, char **argv )
         if ( menuActive )
         {
             // Play the menu music
-            play_music( 0, 0, -1 );
+            sound_play_song( 0, 0, -1 );
 
             // do menus
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -2333,12 +2186,10 @@ int SDL_main( int argc, char **argv )
                     gameactive = btrue;
                     networkon = bfalse;
                     hostactive = btrue;
-
                     if ( gGrabMouse )
                     {
                         SDL_WM_GrabInput ( SDL_GRAB_ON );
                     }
-
                     if ( gHideMouse )
                     {
                         SDL_ShowCursor( 0 );  // Hide the mouse cursor
@@ -2371,7 +2222,6 @@ int SDL_main( int argc, char **argv )
             figure_out_what_to_draw();
             make_character_matrices();
             attach_particles();
-
             if ( networkon )
             {
                 log_info( "SDL_main: Loading module %s...\n", pickedmodule );
@@ -2381,13 +2231,12 @@ int SDL_main( int argc, char **argv )
             // Let the game go
             moduleactive = btrue;
             randsave = 0;
-            srand( 0 );
+            srand( randsave );
 
             while ( moduleactive )
             {
                 // This is the control loop
                 input_read();
-
                 if ( networkon && console_done )
                 {
                     net_send_message();
@@ -2395,7 +2244,6 @@ int SDL_main( int argc, char **argv )
 
                 //Check for screenshots
                 if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
-
                 if ( SDLKEYDOWN( SDLK_F11 ) && keyb.on && screenshotkeyready )
                 {
                     if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
@@ -2409,11 +2257,9 @@ int SDL_main( int argc, char **argv )
 
                 // Check for pause key    // TODO: What to do in network games?
                 if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
-
                 if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on && pausekeyready )
                 {
                     pausekeyready = bfalse;
-
                     if ( gamepaused ) gamepaused = bfalse;
                     else gamepaused = btrue;
                 }
@@ -2439,7 +2285,6 @@ int SDL_main( int argc, char **argv )
 
                     // NETWORK PORT
                     listen_for_packets();
-
                     if ( !waitingforplayers )
                     {
                         cl_talkToHost();
@@ -2447,19 +2292,17 @@ int SDL_main( int argc, char **argv )
                     }
                     else
                     {
-
-                        wldclock = allclock;
+                        clock_wld = clock_all;
                     }
                 }
                 else
                 {
                     update_timers();
-                    wldclock = allclock;
+                    clock_wld = clock_all;
                 }
 
                 // Do the display stuff
                 frame_now = SDL_GetTicks();
-
                 if (frame_now > frame_next)
                 {
                     float  frameskip = (float)TICKS_PER_SEC / (float)framelimit;
@@ -2471,13 +2314,12 @@ int SDL_main( int argc, char **argv )
                     draw_main();
 
                     msgtimechange++;
-
                     if ( statdelay > 0 )  statdelay--;
                 }
 
                 // Check for quitters
-                // :TODO: nolocalplayers is not set correctly
-                if ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| nolocalplayers*/ )
+                // :TODO: local_noplayers is not set correctly
+                if ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| local_noplayers*/ )
                 {
                     quit_module();
                     gameactive = bfalse;
@@ -2507,7 +2349,7 @@ void memory_cleanUp(void)
     // quit any existing game
     quit_game();
 
-    // make sure that the setup file is written
+    // quit the setup system, making sure that the setup file is written
     setup_upload();
     setup_write();
     setup_quit();
@@ -2518,14 +2360,159 @@ void memory_cleanUp(void)
     // shut down the ui
     ui_shutdown();
 
-    // shut down all game systems
-    if (mixeron) Mix_CloseAudio();
+    // shut down the network
+    if (networkon)
+    {
+        net_shutDown();
+    }
 
-    if (networkon) net_shutDown();
-
+    // shut down the clock services
     clk_shutdown();
 
     log_message("Success!\n");
     log_info( "Exiting Egoboo " VERSION " the good way...\n" );
+
+    // shut down the log services
     log_shutdown();
+}
+
+//--------------------------------------------------------------------------------------------
+int load_one_object( int skin,  const char* tmploadname )
+{
+    // ZZ> This function loads one object and returns the number of skins
+    int object;
+    int numskins, numicon;
+    char newloadname[256];
+    char wavename[256];
+    int cnt;
+
+    // Load the object data file and get the object number
+    make_newloadname( tmploadname, "/data.txt", newloadname );
+    object = load_one_character_profile( newloadname );
+
+    //Don't override it if it's already there
+    if (!overrideslots && object == -1) return 0; // no skins for an invalid object
+
+    // Make up a name for the model...  IMPORT\TEMP0000.OBJ
+    strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
+    // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
+    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) ] = '\0';
+
+    // Append a slash to the tmploadname
+    sprintf( newloadname, "%s", tmploadname );
+    sprintf( tmploadname, "%s" SLASH_STR, newloadname );
+
+    // Load the AI script for this object
+    make_newloadname( tmploadname, "script.txt", newloadname );
+
+    // Create a reference to the one we just loaded
+    madai[object] = load_ai_script( newloadname );
+
+    // Load the object model
+    make_newloadname( tmploadname, "tris.md2", newloadname );
+
+#ifdef __unix__
+
+    // unix is case sensitive, but sometimes this file is called tris.MD2
+    if ( access( newloadname, R_OK ) )
+    {
+        make_newloadname( tmploadname, "tris.MD2", newloadname );
+
+        // still no luck !
+        if ( access( newloadname, R_OK ) )
+        {
+            log_warning( "Cannot open: %s\n", newloadname );
+        }
+    }
+
+#endif
+
+    load_one_md2( newloadname, object );
+    md2_models[object] = md2_loadFromFile( newloadname );
+
+    // Fix lighting if need be
+    if ( capuniformlit[object] )
+    {
+        make_mad_equally_lit( object );
+    }
+
+    // Create the actions table for this object
+    get_actions( object );
+
+    // Copy entire actions to save frame space COPY.TXT
+    make_newloadname( tmploadname, "copy.txt", newloadname );
+    check_copy( newloadname, object );
+
+    // Load the messages for this object
+    make_newloadname( tmploadname, "message.txt", newloadname );
+    load_all_messages( newloadname, object );
+
+    // Load the random naming table for this object
+    make_newloadname( tmploadname, "naming.txt", newloadname );
+    read_naming( object, newloadname );
+
+    // Load the particles for this object
+    for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
+    {
+        sprintf( newloadname, "%spart%d.txt", tmploadname, cnt );
+        load_one_particle( newloadname, object, cnt );
+    }
+
+    // Load the waves for this object
+    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
+    {
+        sprintf( wavename, "sound%d", cnt );
+        make_newloadname( tmploadname, wavename, newloadname );
+        capwavelist[object][cnt] = sound_load_chunk( newloadname );
+    }
+
+    // Load the enchantment for this object
+    make_newloadname( tmploadname, "enchant.txt", newloadname );
+    load_one_enchant_type( newloadname, object );
+
+    // Load the skins and icons
+    madskinstart[object] = skin;
+    numskins = 0;
+    numicon = 0;
+    for ( cnt = 0; cnt < 4; cnt++)
+    {
+        snprintf( newloadname, sizeof(newloadname), "%stris%d", tmploadname, cnt );
+        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
+        {
+            numskins++;
+
+            snprintf( newloadname, sizeof(newloadname), "%sicon%d", tmploadname, cnt );
+            if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
+            {
+                for ( /* nothing */ ; numicon < numskins; numicon++ )
+                {
+                    madskintoicon[skin + numicon] = globalicon_count;
+                    if ( SPELLBOOK == object )
+                    {
+                        if ( bookicon_count < MAXSKIN )
+                        {
+                            bookicon[bookicon_count] = globalicon_count;
+                            bookicon_count++;
+                        }
+                    }
+                }
+
+                globalicon_count++;
+            }
+        }
+    }
+
+    if ( 0 == numskins )
+    {
+        // If we didn't get a skin, set it to the water texture
+        madskinstart[object] = TX_WATER_TOP;
+        numskins = 1;
+        if (gDevMode)
+        {
+            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
+        }
+    }
+
+    madskins[object] = numskins;
+    return numskins;
 }

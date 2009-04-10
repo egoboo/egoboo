@@ -22,6 +22,7 @@
 
 #include "egoboo.h"
 #include "char.h"
+#include "sound.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -31,14 +32,12 @@ void remove_enchant( Uint16 enchantindex )
     Uint16 character, overlay;
     Uint16 lastenchant, currentenchant;
     int add;
-
     if ( enchantindex < MAXENCHANT )
     {
         if ( encon[enchantindex] )
         {
             // Unsparkle the spellbook
             character = encspawner[enchantindex];
-
             if ( character < MAXCHR )
             {
                 chr[character].sparkle = NOSPARKLE;
@@ -58,7 +57,7 @@ void remove_enchant( Uint16 enchantindex )
                 Uint16 ispawner = encspawner[enchantindex];
                 if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
                 {
-                    play_mix(chr[character].oldx, chr[character].oldy, capwaveindex[chr[ispawner].model] + iwave);
+                    sound_play_chunk(chr[character].oldx, chr[character].oldy, capwavelist[chr[ispawner].model][iwave]);
                 }
             }
 
@@ -120,7 +119,7 @@ void remove_enchant( Uint16 enchantindex )
             // See if we spit out an end message
             if ( eveendmessage[enceve[enchantindex]] >= 0 )
             {
-                display_message( madmsgstart[enceve[enchantindex]] + eveendmessage[enceve[enchantindex]], enctarget[enchantindex] );
+                display_message( NULL, madmsgstart[enceve[enchantindex]] + eveendmessage[enceve[enchantindex]], enctarget[enchantindex] );
             }
 
             // Check to see if we spawn a poof
@@ -140,7 +139,6 @@ void remove_enchant( Uint16 enchantindex )
 
             // Kill overlay too...
             overlay = encoverlay[enchantindex];
-
             if ( overlay < MAXCHR )
             {
                 if ( chr[overlay].invictus )  teammorale[chr[overlay].baseteam]++;
@@ -199,11 +197,9 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
     Uint16 conflict, character;
 
     encsetyesno[enchantindex][valueindex] = bfalse;
-
     if ( evesetyesno[enchanttype][valueindex] )
     {
         conflict = enchant_value_filled( enchantindex, valueindex );
-
         if ( conflict == MAXENCHANT || eveoverride[enchanttype] )
         {
             // Check for multiple enchantments
@@ -294,7 +290,6 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     break;
                 case SETFLYTOHEIGHT:
                     encsetsave[enchantindex][valueindex] = chr[character].flyheight;
-
                     if ( chr[character].flyheight == 0 && chr[character].zpos > -2 )
                     {
                         chr[character].flyheight = evesetvalue[enchanttype][valueindex];
@@ -302,7 +297,6 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     break;
                 case SETWALKONWATER:
                     encsetsave[enchantindex][valueindex] = chr[character].waterwalk;
-
                     if ( !chr[character].waterwalk )
                     {
                         chr[character].waterwalk = evesetvalue[enchanttype][valueindex];
@@ -322,10 +316,10 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     chr[character].missilehandler = encowner[enchantindex];
                     break;
                 case SETMORPH:
-                    encsetsave[enchantindex][valueindex] = chr[character].texture - madskinstart[chr[character].model];
+                    encsetsave[enchantindex][valueindex] = chr[character].skin;
                     // Special handler for morph
                     change_character( character, enchanttype, 0, LEAVEALL ); // LEAVEFIRST);
-                    chr[character].alert |= ALERTIFCHANGED;
+                    chr[character].ai.alert |= ALERTIF_CHANGED;
                     break;
                 case SETCHANNEL:
                     encsetsave[enchantindex][valueindex] = chr[character].canchannel;
@@ -428,7 +422,6 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
             chr[character].manamax += valuetoadd;
             chr[character].mana += valuetoadd;
-
             if ( chr[character].mana < 0 )  chr[character].mana = 0;
 
             break;
@@ -438,7 +431,6 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
             chr[character].lifemax += valuetoadd;
             chr[character].life += valuetoadd;
-
             if ( chr[character].life < 1 )  chr[character].life = 1;
 
             break;
@@ -479,7 +471,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
     //     if failed
     Uint16 enchanttype, overlay;
     int add;
-
     if ( modeloptional < MAXMODEL )
     {
         // The enchantment type is given explicitly
@@ -502,7 +493,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
         // Invalid target
         return MAXENCHANT;
     }
-
     if ( owner < MAXCHR )
     {
         if ( !chr[owner].on || !chr[owner].alive )
@@ -513,7 +503,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
         // Invalid target
         return MAXENCHANT;
     }
-
     if ( evevalid[enchanttype] )
     {
         if ( enchantindex == MAXENCHANT )
@@ -549,7 +538,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
                     return MAXENCHANT;
                 }
             }
-
             if ( eveonlydamagetype[enchanttype] != DAMAGENULL )
             {
                 if ( chr[target].damagetargettype != eveonlydamagetype[enchanttype] )
@@ -565,7 +553,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
         {
             numfreeenchant--;  // To keep it in order
         }
-
         if ( enchantindex < MAXENCHANT )
         {
             // Make a new one
@@ -573,7 +560,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
             enctarget[enchantindex]  = target;
             encowner[enchantindex]   = owner;
             encspawner[enchantindex] = spawner;
-
             if ( spawner < MAXCHR )
             {
                 chr[spawner].undoenchant = enchantindex;
@@ -627,18 +613,16 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 
             // Create an overlay character?
             encoverlay[enchantindex] = MAXCHR;
-
             if ( eveoverlay[enchanttype] )
             {
                 overlay = spawn_one_character( chr[target].xpos, chr[target].ypos, chr[target].zpos,
                                                enchanttype, chr[target].team, 0, chr[target].turnleftright,
                                                NULL, MAXCHR );
-
                 if ( overlay < MAXCHR )
                 {
                     encoverlay[enchantindex] = overlay;  // Kill this character on end...
-                    chr[overlay].aitarget = target;
-                    chr[overlay].aistate = eveoverlay[enchanttype];
+                    chr[overlay].ai.target = target;
+                    chr[overlay].ai.state = eveoverlay[enchanttype];
                     chr[overlay].overlay = btrue;
 
                     // Start out with ActionMJ...  Object activated
@@ -676,25 +660,20 @@ void do_enchant_spawn()
         if ( encon[cnt] )
         {
             eve = enceve[cnt];
-
             if ( evecontspawnamount[eve] > 0 )
             {
                 encspawntime[cnt]--;
-
                 if ( encspawntime[cnt] == 0 )
                 {
                     character = enctarget[cnt];
                     encspawntime[cnt] = evecontspawntime[eve];
                     facing = chr[character].turnleftright;
-                    tnc = 0;
-
-                    while ( tnc < evecontspawnamount[eve] )
+                    for ( tnc = 0; tnc < evecontspawnamount[eve]; tnc++ )
                     {
-                        particle = spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos,
-                                                       facing, eve, evecontspawnpip[eve],
-                                                       MAXCHR, SPAWNLAST, chr[encowner[cnt]].team, encowner[cnt], tnc, MAXCHR );
+                        spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos,
+                                            facing, eve, evecontspawnpip[eve],
+                                            MAXCHR, GRIP_LAST, chr[encowner[cnt]].team, encowner[cnt], tnc, MAXCHR );
                         facing += evecontspawnfacingadd[eve];
-                        tnc++;
                     }
                 }
             }
@@ -729,7 +708,7 @@ void free_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_one_enchant_type( char* szLoadName, Uint16 profile )
+void load_one_enchant_type(  const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
     FILE* fileread;
@@ -741,7 +720,6 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
     parse_filename = szLoadName;
     evevalid[profile] = bfalse;
     fileread = fopen( szLoadName, "r" );
-
     if ( fileread )
     {
         evevalid[profile] = btrue;
@@ -749,27 +727,22 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         // btrue/bfalse values
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         everetarget[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  everetarget[profile] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         eveoverride[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  eveoverride[profile] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         everemoveoverridden[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  everemoveoverridden[profile] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evekillonend[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  evekillonend[profile] = btrue;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evepoofonend[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  evepoofonend[profile] = btrue;
 
         // More stuff
@@ -781,7 +754,6 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = fTmp * 256;
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         eveendifcantpay[profile] = bfalse;
-
         if ( cTmp == 'T' || cTmp == 't' )  eveendifcantpay[profile] = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = fTmp * 256;
@@ -790,40 +762,24 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         // Specifics
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evedontdamagetype[profile] = DAMAGENULL;
-
         if ( cTmp == 'S' || cTmp == 's' )  evedontdamagetype[profile] = DAMAGE_SLASH;
-
         if ( cTmp == 'C' || cTmp == 'c' )  evedontdamagetype[profile] = DAMAGE_CRUSH;
-
         if ( cTmp == 'P' || cTmp == 'p' )  evedontdamagetype[profile] = DAMAGE_POKE;
-
         if ( cTmp == 'H' || cTmp == 'h' )  evedontdamagetype[profile] = DAMAGE_HOLY;
-
         if ( cTmp == 'E' || cTmp == 'e' )  evedontdamagetype[profile] = DAMAGE_EVIL;
-
         if ( cTmp == 'F' || cTmp == 'f' )  evedontdamagetype[profile] = DAMAGE_FIRE;
-
         if ( cTmp == 'I' || cTmp == 'i' )  evedontdamagetype[profile] = DAMAGE_ICE;
-
         if ( cTmp == 'Z' || cTmp == 'z' )  evedontdamagetype[profile] = DAMAGE_ZAP;
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         eveonlydamagetype[profile] = DAMAGENULL;
-
         if ( cTmp == 'S' || cTmp == 's' )  eveonlydamagetype[profile] = DAMAGE_SLASH;
-
         if ( cTmp == 'C' || cTmp == 'c' )  eveonlydamagetype[profile] = DAMAGE_CRUSH;
-
         if ( cTmp == 'P' || cTmp == 'p' )  eveonlydamagetype[profile] = DAMAGE_POKE;
-
         if ( cTmp == 'H' || cTmp == 'h' )  eveonlydamagetype[profile] = DAMAGE_HOLY;
-
         if ( cTmp == 'E' || cTmp == 'e' )  eveonlydamagetype[profile] = DAMAGE_EVIL;
-
         if ( cTmp == 'F' || cTmp == 'f' )  eveonlydamagetype[profile] = DAMAGE_FIRE;
-
         if ( cTmp == 'I' || cTmp == 'i' )  eveonlydamagetype[profile] = DAMAGE_ICE;
-
         if ( cTmp == 'Z' || cTmp == 'z' )  eveonlydamagetype[profile] = DAMAGE_ZAP;
 
         goto_colon( fileread );  everemovedbyidsz[profile] = get_idsz( fileread );
@@ -834,19 +790,12 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );
         evesetvalue[profile][num] = DAMAGE_SLASH;
-
         if ( cTmp == 'C' || cTmp == 'c' )  evesetvalue[profile][num] = DAMAGE_CRUSH;
-
         if ( cTmp == 'P' || cTmp == 'p' )  evesetvalue[profile][num] = DAMAGE_POKE;
-
         if ( cTmp == 'H' || cTmp == 'h' )  evesetvalue[profile][num] = DAMAGE_HOLY;
-
         if ( cTmp == 'E' || cTmp == 'e' )  evesetvalue[profile][num] = DAMAGE_EVIL;
-
         if ( cTmp == 'F' || cTmp == 'f' )  evesetvalue[profile][num] = DAMAGE_FIRE;
-
         if ( cTmp == 'I' || cTmp == 'i' )  evesetvalue[profile][num] = DAMAGE_ICE;
-
         if ( cTmp == 'Z' || cTmp == 'z' )  evesetvalue[profile][num] = DAMAGE_ZAP;
 
         num++;
@@ -865,9 +814,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -875,9 +822,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -885,9 +830,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -895,9 +838,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -905,9 +846,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -915,9 +854,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -925,9 +862,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -935,9 +870,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );  iTmp = 0;
-
         if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-
         if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
         fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
@@ -976,9 +909,7 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
         evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
         cTmp = get_first_letter( fileread );
         evesetvalue[profile][num] = MISNORMAL;
-
         if ( cTmp == 'R' || cTmp == 'r' )  evesetvalue[profile][num] = MISREFLECT;
-
         if ( cTmp == 'D' || cTmp == 'd' )  evesetvalue[profile][num] = MISDEFLECT;
 
         num++;
@@ -1063,23 +994,18 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
             idsz = get_idsz( fileread );
             fscanf( fileread, "%c%d", &cTmp, &iTmp );
             test = Make_IDSZ( "AMOU" );  // [AMOU]
-
             if ( idsz == test )  evecontspawnamount[profile] = iTmp;
 
             test = Make_IDSZ( "TYPE" );  // [TYPE]
-
             if ( idsz == test )  evecontspawnpip[profile] = iTmp;
 
             test = Make_IDSZ( "TIME" );  // [TIME]
-
             if ( idsz == test )  evecontspawntime[profile] = iTmp;
 
             test = Make_IDSZ( "FACE" );  // [FACE]
-
             if ( idsz == test )  evecontspawnfacingadd[profile] = iTmp;
 
             test = Make_IDSZ( "SEND" );  // [SEND]
-
             if ( idsz == test )
             {
                 // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
@@ -1087,19 +1013,15 @@ void load_one_enchant_type( char* szLoadName, Uint16 profile )
             }
 
             test = Make_IDSZ( "SFQR" );  // [SFRQ]
-
             if ( idsz == test )  evefrequency[profile] = iTmp;  // OUTDATED??
 
             test = Make_IDSZ( "STAY" );  // [STAY]
-
             if ( idsz == test )  evestayifnoowner[profile] = iTmp;
 
             test = Make_IDSZ( "OVER" );  // [OVER]
-
             if ( idsz == test )  eveoverlay[profile] = iTmp;
 
             test = Make_IDSZ( "CKUR" );  // [CKUR]
-
             if ( idsz == test )  eveseekurse[profile] = iTmp;
         }
 
@@ -1126,7 +1048,6 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
 {
     // ZZ> This function unsets a set value
     Uint16 character;
-
     if ( encsetyesno[enchantindex][valueindex] )
     {
         character = enctarget[enchantindex];
@@ -1266,7 +1187,6 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
             valuetoadd = encaddsave[enchantindex][valueindex];
             chr[character].manamax -= valuetoadd;
             chr[character].mana -= valuetoadd;
-
             if ( chr[character].mana < 0 ) chr[character].mana = 0;
 
             break;
@@ -1274,7 +1194,6 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
             valuetoadd = encaddsave[enchantindex][valueindex];
             chr[character].lifemax -= valuetoadd;
             chr[character].life -= valuetoadd;
-
             if ( chr[character].life < 1 ) chr[character].life = 1;
 
             break;

@@ -1,0 +1,29 @@
+// ZZ> This function anounces your location
+//  Once module linking is finished, add script to enter module.
+
+IfTimeOut
+  IfBumped
+    SetTargetToWhoeverBumped
+      IfTargetCanOpenStuff
+        tmpargument = rand & 3
+        SendMessage
+        tmpargument = 180
+        SetTime
+
+IfAttacked
+
+  // Fix the module exporting
+  BeatModule
+  EnableExport
+
+  // Fix the end text
+  ClearEndMessage
+  tmpargument = 4
+  AddEndMessage
+
+  // this code uses message 4 in message.txt as the name of the module
+  // to load. In this case message 4 would be palshad.mod
+  tmpargument = 4
+  FollowLink
+
+End				// Finished with this character

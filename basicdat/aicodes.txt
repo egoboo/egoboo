@@ -376,7 +376,8 @@ The symbol itself follows
 :F 354 AddBlipAllEnemies
 :F 355 PitsFall
 :F 356 IfTargetIsOwner
-:F 357 TakePicture
+:F 357 SetSpeech
+:F 364 TakePicture
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

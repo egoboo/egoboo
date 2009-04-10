@@ -39,7 +39,6 @@ static char linux_importPath[PATH_MAX] = {0};
 static char linux_savePath[PATH_MAX] = {0};
 static char linux_gamePath[PATH_MAX] = {0};
 
-
 static glob_t last_find_glob;
 static size_t glob_find_index;
 
@@ -68,7 +67,6 @@ void fs_init()
 int fs_fileIsDirectory( const char *filename )
 {
     struct stat stats;
-
     if ( !stat( filename, &stats ) )
         return S_ISDIR( stats.st_mode );
 
@@ -106,12 +104,10 @@ void fs_copyFile( const char *source, const char *dest )
     int bytes_read;
 
     sourcef = fopen( source, "r" );
-
     if ( !sourcef )
         return;
 
     destf = fopen( dest, "w" );
-
     if ( !destf )
     {
         fclose( sourcef );
@@ -138,7 +134,6 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 {
     char pattern[PATH_MAX];
     char *last_slash;
-
     if ( searchExtension )
         snprintf( pattern, PATH_MAX, "%s" SLASH_STR "*.%s", searchDir, searchExtension );
     else
@@ -146,13 +141,11 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
 
     last_find_glob.gl_offs = 0;
     glob( pattern, GLOB_NOSORT, NULL, &last_find_glob );
-
     if ( !last_find_glob.gl_pathc )
         return NULL;
 
     glob_find_index = 0;
     last_slash = strrchr( last_find_glob.gl_pathv[glob_find_index], '/' );
-
     if ( last_slash )
         return last_slash + 1;
 
@@ -166,12 +159,10 @@ const char *fs_findNextFile( void )
     char *last_slash;
 
     ++glob_find_index;
-
     if ( glob_find_index >= last_find_glob.gl_pathc )
         return NULL;
 
     last_slash = strrchr( last_find_glob.gl_pathv[glob_find_index], '/' );
-
     if ( last_slash )
         return last_slash + 1;
 

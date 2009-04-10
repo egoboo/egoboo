@@ -63,7 +63,6 @@ typedef struct NetPlayerInfo
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-
 // ENet host & client identifiers
 ENetHost* net_myHost = NULL;
 ENetPeer* net_gameHost = NULL;
@@ -161,7 +160,7 @@ void close_session()
 }
 
 //--------------------------------------------------------------------------------------------
-int add_player( Uint16 character, Uint16 player, Uint8 device )
+int add_player( Uint16 character, Uint16 player, Uint32 device )
 {
     // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
     int cnt;
@@ -173,25 +172,22 @@ int add_player( Uint16 character, Uint16 player, Uint8 device )
         plavalid[player] = btrue;
         pladevice[player] = device;
 
-        if ( device != INPUT_BITS_NONE )  nolocalplayers = bfalse;
-
         plalatchx[player] = 0;
         plalatchy[player] = 0;
         plalatchbutton[player] = 0;
-        cnt = 0;
 
-        while ( cnt < MAXLAG )
+        for ( cnt = 0; cnt < MAXLAG; cnt++ )
         {
             platimelatchx[player][cnt] = 0;
             platimelatchy[player][cnt] = 0;
             platimelatchbutton[player][cnt] = 0;
-            cnt++;
         }
 
         if ( device != INPUT_BITS_NONE )
         {
+            local_noplayers = bfalse;
             chr[character].islocalplayer = btrue;
-            numlocalpla++;
+            local_numlpla++;
         }
 
         numpla++;
@@ -298,7 +294,7 @@ void packet_addSignedInt( Sint32 si )
 }
 
 //--------------------------------------------------------------------------------------------
-void packet_addString( char *string )
+void packet_addString(  const char *string )
 {
     // ZZ> This function appends a null terminated string to the packet
     char* cp;
@@ -476,7 +472,6 @@ void net_sendPacketToOnePlayerGuaranteed( int player )
 {
     // ZZ> This function sends a packet to one of the players
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
-
     if ( player < numplayer )
     {
         enet_peer_send( &net_myHost->peers[player], NET_GUARANTEED_CHANNEL, packet );
@@ -500,12 +495,11 @@ void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToAllPlayers( char *source, char *dest )
+void net_copyFileToAllPlayers(  const char *source,  const char *dest )
 {
     // JF> This function queues up files to send to all the hosts.
     //     TODO: Deal with having to send to up to MAXPLAYER players...
     NetFileTransfer *state;
-
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
     {
         // net_fileTransferTail should already be pointed at an open
@@ -521,12 +515,10 @@ void net_copyFileToAllPlayers( char *source, char *dest )
         // advance the tail index
         net_numFileTransfers++;
         net_fileTransferTail++;
-
         if ( net_fileTransferTail >= NET_MAX_FILE_TRANSFERS )
         {
             net_fileTransferTail = 0;
         }
-
         if ( net_fileTransferTail == net_fileTransferHead )
         {
             log_warning( "net_copyFileToAllPlayers: Warning!  Queue tail caught up with the head!\n" );
@@ -535,7 +527,7 @@ void net_copyFileToAllPlayers( char *source, char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToAllPlayersOld( char *source, char *dest )
+void net_copyFileToAllPlayersOld(  const char *source,  const char *dest )
 {
     // ZZ> This function copies a file on the host to every remote computer.
     //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -547,11 +539,9 @@ void net_copyFileToAllPlayersOld( char *source, char *dest )
     char cTmp;
 
     log_info( "net_copyFileToAllPlayers: %s, %s\n", source, dest );
-
     if ( networkon && hostactive )
     {
         fileisdir = fs_fileIsDirectory( source );
-
         if ( fileisdir )
         {
             net_startNewPacket();
@@ -562,13 +552,11 @@ void net_copyFileToAllPlayersOld( char *source, char *dest )
         else
         {
             fileread = fopen( source, "rb" );
-
             if ( fileread )
             {
                 fseek( fileread, 0, SEEK_END );
                 filesize = ftell( fileread );
                 fseek( fileread, 0, SEEK_SET );
-
                 if ( filesize > 0 && filesize < TOTALSIZE )
                 {
                     packetsize = 0;
@@ -592,7 +580,6 @@ void net_copyFileToAllPlayersOld( char *source, char *dest )
                         packet_addUnsignedByte( cTmp );
                         packetsize++;
                         packetstart++;
-
                         if ( packetsize >= COPYSIZE )
                         {
                             // Send off the packet
@@ -620,7 +607,7 @@ void net_copyFileToAllPlayersOld( char *source, char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToHost( char *source, char *dest )
+void net_copyFileToHost(  const char *source,  const char *dest )
 {
     NetFileTransfer *state;
 
@@ -641,7 +628,6 @@ void net_copyFileToHost( char *source, char *dest )
 
         return;
     }
-
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
     {
         // net_fileTransferTail should already be pointed at an open
@@ -656,12 +642,10 @@ void net_copyFileToHost( char *source, char *dest )
         // advance the tail index
         net_numFileTransfers++;
         net_fileTransferTail++;
-
         if ( net_fileTransferTail >= NET_MAX_FILE_TRANSFERS )
         {
             net_fileTransferTail = 0;
         }
-
         if ( net_fileTransferTail == net_fileTransferHead )
         {
             log_warning( "net_copyFileToHost: Warning!  Queue tail caught up with the head!\n" );
@@ -670,7 +654,7 @@ void net_copyFileToHost( char *source, char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToHostOld( char *source, char *dest )
+void net_copyFileToHostOld(  const char *source,  const char *dest )
 {
     // ZZ> This function copies a file on the remote to the host computer.
     //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -683,7 +667,6 @@ void net_copyFileToHostOld( char *source, char *dest )
 
     log_info( "net_copyFileToHost: " );
     fileisdir = fs_fileIsDirectory( source );
-
     if ( hostactive )
     {
         // Simulate a network transfer
@@ -713,13 +696,11 @@ void net_copyFileToHostOld( char *source, char *dest )
         {
             log_info( "Copying local file to host file: %s --> %s\n", source, dest );
             fileread = fopen( source, "rb" );
-
             if ( fileread )
             {
                 fseek( fileread, 0, SEEK_END );
                 filesize = ftell( fileread );
                 fseek( fileread, 0, SEEK_SET );
-
                 if ( filesize > 0 && filesize < TOTALSIZE )
                 {
                     numfilesent++;
@@ -737,7 +718,6 @@ void net_copyFileToHostOld( char *source, char *dest )
                         packet_addUnsignedByte( cTmp );
                         packetsize++;
                         packetstart++;
-
                         if ( packetsize >= COPYSIZE )
                         {
                             // Send off the packet
@@ -765,7 +745,7 @@ void net_copyFileToHostOld( char *source, char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyDirectoryToHost( char *dirname, char *todirname )
+void net_copyDirectoryToHost(  const char *dirname,  const char *todirname )
 {
     // ZZ> This function copies all files in a directory
     char searchname[128];
@@ -777,7 +757,6 @@ void net_copyDirectoryToHost( char *dirname, char *todirname )
     // Search for all files
     sprintf( searchname, "%s" SLASH_STR "*", dirname );
     searchResult = fs_findFirstFile( dirname, NULL );
-
     if ( searchResult != NULL )
     {
         // Make the new directory
@@ -791,7 +770,6 @@ void net_copyDirectoryToHost( char *dirname, char *todirname )
             // directories, /., and /.. from being copied
             // Also avoid copying directories in general.
             sprintf( fromname, "%s" SLASH_STR "%s", dirname, searchResult );
-
             if ( searchResult[0] == '.' || fs_fileIsDirectory( fromname ) )
             {
                 searchResult = fs_findNextFile();
@@ -810,7 +788,7 @@ void net_copyDirectoryToHost( char *dirname, char *todirname )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyDirectoryToAllPlayers( char *dirname, char *todirname )
+void net_copyDirectoryToAllPlayers(  const char *dirname,  const char *todirname )
 {
     // ZZ> This function copies all files in a directory
     char searchname[128];
@@ -822,7 +800,6 @@ void net_copyDirectoryToAllPlayers( char *dirname, char *todirname )
     // Search for all files
     sprintf( searchname, "%s" SLASH_STR "*.*", dirname );
     searchResult = fs_findFirstFile( dirname, NULL );
-
     if ( searchResult != NULL )
     {
         // Make the new directory
@@ -861,7 +838,6 @@ void net_sayHello()
         {
             log_info( "net_sayHello: Server saying hello.\n" );
             playersloaded++;
-
             if ( playersloaded >= numplayer )
             {
                 waitingforplayers = bfalse;
@@ -889,7 +865,7 @@ void cl_talkToHost()
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
-            && ( alllocalpladead || respawnanytime )
+            && ( local_allpladead || respawnanytime )
             && respawnvalid
             && !rtscontrol
             && !console_mode )
@@ -900,7 +876,7 @@ void cl_talkToHost()
         {
             if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
             {
-                plalatchbutton[player] |= LATCHBUTTONRESPAWN;  // Press the respawn button...
+                plalatchbutton[player] |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
             }
 
             player++;
@@ -912,20 +888,17 @@ void cl_talkToHost()
     {
         net_startNewPacket();
         packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
-        player = 0;
 
-        while ( player < MAXPLAYER )
+        for ( player = 0; player < MAXPLAYER; player++ )
         {
             // Find the local players
             if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
             {
                 packet_addUnsignedByte( player );                        // The player index
-                packet_addUnsignedByte( plalatchbutton[player] );        // Player button states
+                packet_addUnsignedInt( plalatchbutton[player] );        // Player button states
                 packet_addSignedShort( plalatchx[player]*SHORTLATCH );  // Player motion
                 packet_addSignedShort( plalatchy[player]*SHORTLATCH );  // Player motion
             }
-
-            player++;
         }
 
         // Send it to the host
@@ -939,63 +912,68 @@ void sv_talkToRemotes()
     // ZZ> This function sends the character data to all the remote machines
     int player, time;
     Sint16 sTmp;
+    static Uint32 last_frame = ~0;
 
-    if ( wldframe > STARTTALK )
+    // make sure there is only one update per frame;
+    if ( frame_wld == last_frame ) return;
+    last_frame = frame_wld;
+    if ( rtscontrol ) return;
+    if ( hostactive )
     {
-        if ( hostactive && !rtscontrol )
+        if ( networkon )
         {
-            time = wldframe + lag;
+            time = frame_wld + lag;
 
-            if ( networkon )
+            // Send a message to all players
+            net_startNewPacket();
+            packet_addUnsignedShort( TO_REMOTE_LATCH );                       // The message header
+            packet_addUnsignedInt( time );                                  // The stamp
+
+            // Send all player latches...
+            for ( player = 0; player < MAXPLAYER; player++ )
             {
-                // Send a message to all players
-                net_startNewPacket();
-                packet_addUnsignedShort( TO_REMOTE_LATCH );                       // The message header
-                packet_addUnsignedInt( time );                                  // The stamp
+                if ( !plavalid[player] ) continue;
 
-                // Send all player latches...
-                player = 0;
-
-                while ( player < MAXPLAYER )
-                {
-                    if ( plavalid[player] )
-                    {
-                        packet_addUnsignedByte( player );                        // The player index
-                        packet_addUnsignedByte( plalatchbutton[player] );        // Player button states
-                        packet_addSignedShort( plalatchx[player]*SHORTLATCH );  // Player motion
-                        packet_addSignedShort( plalatchy[player]*SHORTLATCH );  // Player motion
-                    }
-
-                    player++;
-                }
-
-                // Send the packet
-                net_sendPacketToAllPlayers();
-            }
-            else
-            {
-                time = wldframe + 1;
-            }
-
-            // Now pretend the host got the packet...
-            time = time & LAGAND;
-            player = 0;
-
-            while ( player < MAXPLAYER )
-            {
-                if ( plavalid[player] )
-                {
-                    platimelatchbutton[player][time] = plalatchbutton[player];
-                    sTmp = plalatchx[player] * SHORTLATCH;
-                    platimelatchx[player][time] = sTmp / SHORTLATCH;
-                    sTmp = plalatchy[player] * SHORTLATCH;
-                    platimelatchy[player][time] = sTmp / SHORTLATCH;
-                }
+                packet_addUnsignedByte( player );                        // The player index
+                packet_addUnsignedInt( plalatchbutton[player] );        // Player button states
+                packet_addSignedShort( plalatchx[player]*SHORTLATCH );  // Player motion
+                packet_addSignedShort( plalatchy[player]*SHORTLATCH );  // Player motion
 
                 player++;
             }
 
-            numplatimes++;
+            // Send the packet
+            net_sendPacketToAllPlayers();
+        }
+        else
+        {
+            time = frame_wld + 1;
+        }
+
+        // update the local timed latches with the same info
+        numplatimes = 0;
+        for ( player = 0; player < MAXPLAYER; player++ )
+        {
+            int index;
+            if ( !plavalid[player] ) continue;
+
+            index = platimetimes[player];
+            if (index < MAXLAG)
+            {
+                platimelatchbutton[player][index] = plalatchbutton[player];
+
+                sTmp = plalatchx[player] * SHORTLATCH;
+                platimelatchx[player][index] = sTmp / SHORTLATCH;
+
+                sTmp = plalatchy[player] * SHORTLATCH;
+                platimelatchy[player][index] = sTmp / SHORTLATCH;
+
+                platimetime[player][index] = frame_wld;
+
+                platimetimes[player]++;
+            }
+
+            numplatimes = MAX(numplatimes, platimetimes[player]);
         }
     }
 }
@@ -1028,11 +1006,9 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_MODULEOK:
             log_info( "TO_HOSTMODULEOK\n" );
-
             if ( hostactive )
             {
                 playersready++;
-
                 if ( playersready >= numplayer )
                 {
                     readytostart = btrue;
@@ -1042,13 +1018,12 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_LATCH:
             log_info( "TO_HOST_LATCH\n" );
-
             if ( hostactive )
             {
                 while ( packet_remainingSize() > 0 )
                 {
                     player = packet_readUnsignedByte();
-                    plalatchbutton[player] = packet_readUnsignedByte();
+                    plalatchbutton[player] = packet_readUnsignedInt();
                     plalatchx[player] = packet_readSignedShort() / SHORTLATCH;
                     plalatchy[player] = packet_readSignedShort() / SHORTLATCH;
                 }
@@ -1058,11 +1033,9 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_IM_LOADED:
             log_info( "TO_HOST_IMLOADED\n" );
-
             if ( hostactive )
             {
                 playersloaded++;
-
                 if ( playersloaded == numplayer )
                 {
                     // Let the games begin...
@@ -1076,7 +1049,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_RTS:
             log_info( "TO_HOST_RTS\n" );
-
             if ( hostactive )
             {
                 /*whichorder = get_empty_order();
@@ -1091,7 +1063,7 @@ void net_handlePacket( ENetEvent *event )
                     cnt++;
                   }
                   what = packet_readUnsignedInt();
-                  when = wldframe + orderlag;
+                  when = frame_wld + orderlag;
                   orderwhat[whichorder] = what;
                   orderwhen[whichorder] = when;
 
@@ -1119,7 +1091,6 @@ void net_handlePacket( ENetEvent *event )
 
             // Try and save the file
             file = fopen( filename, "wb" );
-
             if ( file != NULL )
             {
                 fwrite( net_readPacket->data + net_readLocation, 1, fileSize, file );
@@ -1178,13 +1149,11 @@ void net_handlePacket( ENetEvent *event )
             // Change the size of the file if need be
             newfile = 0;
             file = fopen( filename, "rb" );
-
             if ( file )
             {
                 fseek( file, 0, SEEK_END );
                 filesize = ftell( file );
                 fclose( file );
-
                 if ( filesize != newfilesize )
                 {
                     // Destroy the old file
@@ -1195,13 +1164,11 @@ void net_handlePacket( ENetEvent *event )
             {
                 newfile = 1;
             }
-
             if ( newfile )
             {
                 // file must be created.  Write zeroes to the file to do it
                 numfile++;
                 file = fopen( filename, "wb" );
-
                 if ( file )
                 {
                     filesize = 0;
@@ -1219,7 +1186,6 @@ void net_handlePacket( ENetEvent *event )
             // Go to the position in the file and copy data
             fileposition = packet_readUnsignedInt();
             file = fopen( filename, "r+b" );
-
             if ( file )
             {
                 if ( fseek( file, fileposition, SEEK_SET ) == 0 )
@@ -1236,7 +1202,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_DIR:
             log_info( "TO_HOST_DIR\n" );
-
             if ( hostactive )
             {
                 packet_readString( filename, 255 );
@@ -1246,7 +1211,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_FILESENT:
             log_info( "TO_HOST_FILESENT\n" );
-
             if ( hostactive )
             {
                 numfileexpected += packet_readUnsignedInt();
@@ -1256,7 +1220,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_FILESENT:
             log_info( "TO_REMOTE_FILESENT\n" );
-
             if ( !hostactive )
             {
                 numfileexpected += packet_readUnsignedInt();
@@ -1266,7 +1229,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_MODULE:
             log_info( "TO_REMOTE_MODULE\n" );
-
             if ( !hostactive && !readytostart )
             {
                 seed = packet_readUnsignedInt();
@@ -1275,7 +1237,6 @@ void net_handlePacket( ENetEvent *event )
 
                 // Check to see if the module exists
                 pickedindex = find_module( pickedmodule );
-
                 if ( pickedindex == -1 )
                 {
                     // The module doesn't exist locally
@@ -1295,7 +1256,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_START:
             log_info( "TO_REMOTE_START\n" );
-
             if ( !hostactive )
             {
                 waitingforplayers = bfalse;
@@ -1304,7 +1264,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_RTS:
             log_info( "TO_REMOTE_RTS\n" );
-
             if ( !hostactive )
             {
                 /*    whichorder = get_empty_order();
@@ -1328,7 +1287,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_FILE:
             log_info( "TO_REMOTE_FILE\n" );
-
             if ( !hostactive )
             {
                 packet_readString( filename, 255 );
@@ -1337,13 +1295,11 @@ void net_handlePacket( ENetEvent *event )
                 // Change the size of the file if need be
                 newfile = 0;
                 file = fopen( filename, "rb" );
-
                 if ( file )
                 {
                     fseek( file, 0, SEEK_END );
                     filesize = ftell( file );
                     fclose( file );
-
                     if ( filesize != newfilesize )
                     {
                         // Destroy the old file
@@ -1354,13 +1310,11 @@ void net_handlePacket( ENetEvent *event )
                 {
                     newfile = 1;
                 }
-
                 if ( newfile )
                 {
                     // file must be created.  Write zeroes to the file to do it
                     numfile++;
                     file = fopen( filename, "wb" );
-
                     if ( file )
                     {
                         filesize = 0;
@@ -1378,7 +1332,6 @@ void net_handlePacket( ENetEvent *event )
                 // Go to the position in the file and copy data
                 fileposition = packet_readUnsignedInt();
                 file = fopen( filename, "r+b" );
-
                 if ( file )
                 {
                     if ( fseek( file, fileposition, SEEK_SET ) == 0 )
@@ -1396,7 +1349,6 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_DIR:
             log_info( "TO_REMOTE_DIR\n" );
-
             if ( !hostactive )
             {
                 packet_readString( filename, 255 );
@@ -1406,36 +1358,30 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_LATCH:
             log_info( "TO_REMOTE_LATCH\n" );
-
             if ( !hostactive )
             {
                 stamp = packet_readUnsignedInt();
                 time = stamp & LAGAND;
-
                 if ( nexttimestamp == -1 )
                 {
                     nexttimestamp = stamp;
                 }
-
                 if ( stamp < nexttimestamp )
                 {
                     log_warning( "net_handlePacket: OUT OF ORDER PACKET\n" );
                     outofsync = btrue;
                 }
-
-                if ( stamp <= wldframe )
+                if ( stamp <= frame_wld )
                 {
                     log_warning( "net_handlePacket: LATE PACKET\n" );
                     outofsync = btrue;
                 }
-
                 if ( stamp > nexttimestamp )
                 {
                     log_warning( "net_handlePacket: MISSED PACKET\n" );
                     nexttimestamp = stamp;  // Still use it
                     outofsync = btrue;
                 }
-
                 if ( stamp == nexttimestamp )
                 {
                     // Remember that we got it
@@ -1445,7 +1391,7 @@ void net_handlePacket( ENetEvent *event )
                     while ( packet_remainingSize() > 0 )
                     {
                         player = packet_readUnsignedByte();
-                        platimelatchbutton[player][time] = packet_readUnsignedByte();
+                        platimelatchbutton[player][time] = packet_readUnsignedInt();
                         platimelatchx[player][time] = packet_readSignedShort() / SHORTLATCH;
                         platimelatchy[player][time] = packet_readSignedShort() / SHORTLATCH;
                     }
@@ -1463,7 +1409,6 @@ void listen_for_packets()
     // ZZ> This function reads any new messages and sets the player latch and matrix needed
     //     lists...
     ENetEvent event;
-
     if ( networkon )
     {
         // Listen for new messages
@@ -1493,7 +1438,7 @@ void listen_for_packets()
                     // from above?
                     if ( event.peer->data != 0 )
                     {
-                        NetPlayerInfo *info = event.peer->data;
+                        NetPlayerInfo *info = (NetPlayerInfo *)event.peer->data;
 
                         // uh oh, how do we handle losing a player?
                         log_warning( "listen_for_packets: Player %d disconnected!\n",
@@ -1513,42 +1458,71 @@ void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
     int cnt, time, character;
+    if ( rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
-    time = wldframe & LAGAND;
-    cnt = 0;
 
-    while ( cnt < MAXPLAYER )
+    numplatimes = 0;
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        if ( plavalid[cnt] && !rtscontrol )
+        int weight, tnc, index;
+        if ( !plavalid[cnt] ) continue;
+
+        character = plaindex[cnt];
+
+        // grab all valid playtimes
+        weight = 0;
+        chr[character].latchx      = 0;
+        chr[character].latchy      = 0;
+        chr[character].latchbutton = 0;
+        for ( tnc = 0; tnc < platimetimes[cnt]; tnc++ )
         {
-            character = plaindex[cnt];
+            int dt;
 
-            chr[character].latchx = platimelatchx[cnt][time];
-            chr[character].latchy = platimelatchy[cnt][time];
-            chr[character].latchbutton = platimelatchbutton[cnt][time];
+            dt = (platimetime[cnt][tnc] - frame_wld) - 1;
+            if ( dt > 0 ) break;
 
-            // Let players respawn
-            if ( ( chr[character].latchbutton & LATCHBUTTONRESPAWN ) && respawnvalid )
-            {
-                if ( !chr[character].alive && revivetimer == 0)
-                {
-                    respawn_character( character );
-                    teamleader[chr[character].team] = character;
-                    chr[character].alert |= ALERTIFCLEANEDUP;
+            weight += dt * dt;
 
-                    // Cost some experience for doing this...  Never lose a level
-                    chr[character].experience *= EXPKEEP;
-                }
-
-                chr[character].latchbutton &= 127;
-            }
+            chr[character].latchx      += platimelatchx[cnt][tnc] * dt * dt;
+            chr[character].latchy      += platimelatchy[cnt][tnc] * dt * dt;
+            chr[character].latchbutton |= platimelatchbutton[cnt][tnc];
         }
 
-        cnt++;
-    }
+        // compact the remaining values
+        for ( index = 0; tnc < platimetimes[cnt]; tnc++, index++ )
+        {
+            platimelatchx[cnt][index]      = platimelatchx[cnt][tnc];
+            platimelatchy[cnt][index]      = platimelatchy[cnt][tnc];
+            platimelatchbutton[cnt][index] = platimelatchbutton[cnt][tnc];
+            platimetime[cnt][index]        = platimetime[cnt][tnc];
+        }
+        platimetimes[cnt] = index;
 
-    numplatimes--;
+        numplatimes = MAX( numplatimes, platimetimes[cnt] );
+        if ( weight > 0.0f )
+        {
+            chr[character].latchx /= (float)weight;
+            chr[character].latchy /= (float)weight;
+        }
+
+        // Let players respawn
+        if ( ( chr[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
+        {
+            if ( !chr[character].alive && 0 == revivetimer )
+            {
+                respawn_character( character );
+                teamleader[chr[character].team] = character;
+                chr[character].ai.alert |= ALERTIF_CLEANEDUP;
+
+                // Cost some experience for doing this...  Never lose a level
+                chr[character].experience *= EXPKEEP;
+            }
+
+            // remove all latches other than LATCHBUTTON_RESPAWN
+            chr[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1565,12 +1539,10 @@ void net_initialize()
     memset( packetbuffer, 0, MAXSENDSIZE );
     memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
     memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
-
     if ( networkon )
     {
         // initialize enet
         log_info( "net_initialize: Initializing enet... " );
-
         if ( enet_initialize() != 0 )
         {
             log_info( "Failure!\n" );
@@ -1605,7 +1577,6 @@ void find_open_sessions()
     // ZZ> This function finds some open games to join
     DPSESSIONDESC2      sessionDesc;
     HRESULT             hr;
-
     if(networkon)
       {
     numsession = 0;
@@ -1675,14 +1646,12 @@ int cl_joinGame( const char* hostname )
     // ZZ> This function tries to join one of the sessions we found
     ENetAddress address;
     ENetEvent event;
-
     if ( networkon )
     {
         log_info( "cl_joinGame: Creating client network connection... " );
         // Create my host thingamabober
         // TODO: Should I limit client bandwidth here?
         net_myHost = enet_host_create( NULL, 1, 0, 0 );
-
         if ( net_myHost == NULL )
         {
             // can't create a network connection at all
@@ -1699,7 +1668,6 @@ int cl_joinGame( const char* hostname )
         enet_address_set_host( &address, hostname );
         address.port = NET_EGOBOO_PORT;
         net_gameHost = enet_host_connect( net_myHost, &address, NET_EGOBOO_NUM_CHANNELS );
-
         if ( net_gameHost == NULL )
         {
             log_info( "cl_joinGame: No available peers to create a connection!\n" );
@@ -1734,7 +1702,6 @@ int sv_hostGame()
 {
     // ZZ> This function tries to host a new session
     ENetAddress address;
-
     if ( networkon )
     {
         // Try to create a new session
@@ -1743,7 +1710,6 @@ int sv_hostGame()
 
         log_info( "sv_hostGame: Creating game on port %d\n", NET_EGOBOO_PORT );
         net_myHost = enet_host_create( &address, MAXPLAYER, 0, 0 );
-
         if ( net_myHost == NULL )
         {
             log_info( "sv_hostGame: Could not create network connection!\n" );
@@ -1774,7 +1740,6 @@ int  net_pendingFileTransfers()
 {
     return net_numFileTransfers;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void net_updateFileTransfers()
@@ -1808,7 +1773,6 @@ void net_updateFileTransfers()
             else
             {
                 file = fopen( state->sourceName, "rb" );
-
                 if ( file )
                 {
                     log_info( "net_updateFileTransfers: Attempting to send %s to %s\n", state->sourceName, state->destName );
@@ -1825,15 +1789,15 @@ void net_updateFileTransfers()
                     transferSize += 6;  // Uint32 size, and Uint16 message type
                     transferSize += fileSize;
 
-                    transferBuffer = malloc( transferSize );
+                    transferBuffer = (Uint8 *)malloc( transferSize );
                     *( Uint16* )transferBuffer = ENET_HOST_TO_NET_16( NET_TRANSFER_FILE );
 
                     // Add the string and file length to the buffer
-                    p = transferBuffer + 2;
+                    p = (char *)(transferBuffer + 2);
                     strcpy( p, state->destName );
                     p += nameLen;
 
-                    networkSize = ENET_HOST_TO_NET_32( ( unsigned long )fileSize );
+                    networkSize = ENET_HOST_TO_NET_32( ( Uint32 )fileSize );
                     *( size_t* )p = networkSize;
                     p += 4;
 
@@ -1858,7 +1822,6 @@ void net_updateFileTransfers()
             // update transfer queue state
             memset( state, 0, sizeof( NetFileTransfer ) );
             net_fileTransferHead++;
-
             if ( net_fileTransferHead >= NET_MAX_FILE_TRANSFERS )
             {
                 net_fileTransferHead = 0;
@@ -1875,7 +1838,6 @@ void net_updateFileTransfers()
 void net_send_message()
 {
     // ZZ> sends the message in the keyboard buffer to all other players
-
     if ( console_mode || !console_done ) return;
 
     //if(networkon)

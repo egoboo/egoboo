@@ -19,20 +19,32 @@
 //*
 //********************************************************************************************
 
-// MSVC related definitions
-#ifdef _MSC_VER
+#if defined(_MSC_VER)
+// Microsoft Visual C compiler
 
 // snprintf and vsnprintf are not considered native functions in MSVC
 // they are defined with an underscore to indicate this
 #    define snprintf  _snprintf
-//#    define vsnprintf _vsnprintf
+#    define vsnprintf _vsnprintf
+
+// sets the packing of a data structure at declaration
+//#    define SET_PACKING(NAME,PACKING) __declspec( align( PACKING ) ) NAME
 
 // Turn off warnings that we don't care about.
 #    pragma warning(disable : 4305) // truncation from 'double' to 'float'
 #    pragma warning(disable : 4244) // conversion from 'double' to 'float'
-#    pragma warning(disable : 4554) // possibly operator precendence error
-//*    pragma warning(disable : 4761)
-//*    pragma warning(disable : 4244) // truncation from 'type' to 'type'
+#    pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
+//#    pragma warning(disable : 4554) // possibly operator precendence error
+//#    pragma warning(disable : 4761)
+//#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
+#endif
+
+#if defined(__GNUC__)
+// the gcc C compiler
+
+// sets the packing of a data structure at declaration
+//#    define SET_PACKING(NAME,PACKING) NAME __attribute__ ((aligned (PACKING)))
+
 #endif
 
 #ifdef __unix__
@@ -51,4 +63,8 @@
 #else
 #    define SLASH_STR "/"
 #    define SLASH_CHR '/'
+#endif
+
+#if !defined(SET_PACKING)
+#define SET_PACKING(NAME,PACKING) NAME
 #endif

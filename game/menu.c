@@ -18,8 +18,8 @@
 //********************************************************************************************
 
 /* Egoboo - menu.c
- * Implements the main menu tree, using the code in Ui.*
- */
+* Implements the main menu tree, using the code in Ui.*
+*/
 
 #include "egoboo.h"
 #include "ui.h"
@@ -27,6 +27,7 @@
 #include "graphic.h"
 #include "log.h"
 #include "proto.h"
+#include "sound.h"
 
 #include "egoboo_setup.h"
 
@@ -36,10 +37,7 @@
 #define NET_DONE_SENDING_FILES 10009
 #define NET_NUM_FILES_TO_SEND  10010
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// New menu code
-//--------------------------------------------------------------------------------------------
+#define INVALID_PLA MAXPLAYER
 
 enum MenuStates
 {
@@ -49,6 +47,27 @@ enum MenuStates
     MM_Leaving,
     MM_Finish
 };
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define MAXWIDGET 100
+static int         mnu_widgetCount;
+static ui_Widget_t mnu_widgetList[MAXWIDGET];
+
+int              loadplayer_count = 0;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+
+int    mnu_selectedPlayerCount = 0;
+int    mnu_selectedInput[MAXPLAYER] = {0};
+Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
+
+static bool_t mnu_checkSelectedPlayer      ( Uint16 player );
+static Uint16 mnu_getSelectedPlayer        ( Uint16 player );
+static bool_t mnu_addSelectedPlayer        ( Uint16 player );
+static bool_t mnu_removeSelectedPlayer     ( Uint16 player );
+static bool_t mnu_addSelectedPlayerInput   ( Uint16 player, Uint32 input );
+static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
 
 static int selectedModule = -1;
 
@@ -65,8 +84,8 @@ static int optionsTextTop  = 0;
 /* Button labels.  Defined here for consistency's sake, rather than leaving them as constants */
 const char *mainMenuButtons[] =
 {
-    "Single Player",
-    "Multi-player",
+    "New Game",
+    "Load Game",
     "Options",
     "Quit",
     ""
@@ -100,7 +119,6 @@ const char *audioOptionsButtons[] =
     "Save Settings",
     ""
 };
-
 
 const char *videoOptionsButtons[] =
 {
@@ -165,17 +183,16 @@ static void drawSlidyButtons()
 }
 
 /** initMenus
- * Loads resources for the menus, and figures out where things should
- * be positioned.  If we ever allow changing resolution on the fly, this
- * function will have to be updated/called more than once.
- */
+* Loads resources for the menus, and figures out where things should
+* be positioned.  If we ever allow changing resolution on the fly, this
+* function will have to be updated/called more than once.
+*/
 
 int initMenus()
 {
     int i;
 
     menuFont = fnt_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
-
     if ( !menuFont )
     {
         log_error( "Could not load the menu font!\n" );
@@ -216,19 +233,49 @@ int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
     static GLTexture background;
+    static GLTexture logo;
+
     // static float lerp;
     static int menuChoice = 0;
+    float fminw = 1, fminh = 1, fmin = 1;
+    static SDL_Rect bg_rect, logo_rect;
 
     int result = 0;
 
     switch ( menuState )
     {
         case MM_Begin:
+
+            menuChoice = 0;
+            menuState = MM_Entering;
+
             // set up menu variables
             GLTexture_new( &background );
             GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
-            menuChoice = 0;
-            menuState = MM_Entering;
+
+            // load the menu image
+            GLTexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
+
+            // load the logo image
+            GLTexture_Load( GL_TEXTURE_2D, &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
+
+            // calculate the centered position of the background
+            fminw = (float) MIN(displaySurface->w, background.imgW) / (float) background.imgW;
+            fminh = (float) MIN(displaySurface->h, background.imgH) / (float) background.imgW;
+            fmin  = MIN(fminw, fminh);
+
+            bg_rect.w = background.imgW * fmin;
+            bg_rect.h = background.imgH * fmin;
+            bg_rect.x = (displaySurface->w - bg_rect.w) * 0.5f;
+            bg_rect.y = (displaySurface->h - bg_rect.h) * 0.5f;
+
+            // calculate the position of the logo
+            fmin  = MIN(bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH);
+
+            logo_rect.x = bg_rect.x;
+            logo_rect.y = bg_rect.y;
+            logo_rect.w = logo.imgW * fmin;
+            logo_rect.h = logo.imgH * fmin;
 
             initSlidyButtons( 1.0f, mainMenuButtons );
             // let this fall through into MM_Entering
@@ -237,7 +284,9 @@ int doMainMenu( float deltaTime )
             // do buttons sliding in animation, and background fading in
             // background
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -255,37 +304,36 @@ int doMainMenu( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
+
             glColor4f( 1, 1, 1, 1 );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
             // Buttons
-            if ( ui_doButton( 1, mainMenuButtons[0], buttonLeft, buttonTop, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 1, mainMenuButtons[0], buttonLeft, buttonTop, 200, 30 ) )
             {
                 // begin single player stuff
                 menuChoice = 1;
             }
-
-            if ( ui_doButton( 2, mainMenuButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 2, mainMenuButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 // begin multi player stuff
                 menuChoice = 2;
             }
-
-            if ( ui_doButton( 3, mainMenuButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 3, mainMenuButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
                 // go to options menu
                 menuChoice = 3;
             }
-
-            if ( ui_doButton( 4, mainMenuButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 4, mainMenuButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
             {
                 // quit game
                 menuChoice = 4;
             }
-
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
@@ -297,7 +345,9 @@ int doMainMenu( float deltaTime )
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -305,7 +355,6 @@ int doMainMenu( float deltaTime )
             // Buttons
             drawSlidyButtons();
             updateSlidyButtons( deltaTime );
-
             if ( SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
@@ -316,6 +365,9 @@ int doMainMenu( float deltaTime )
             // Free the background texture; don't need to hold onto it
             GLTexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
 
             // Set the next menu to load
             result = menuChoice;
@@ -357,7 +409,6 @@ int doSinglePlayerMenu( float deltaTime )
 
             drawSlidyButtons();
             updateSlidyButtons( -deltaTime );
-
             if ( SlidyButtonState.lerp <= 0.0f )
                 menuState = MM_Running;
 
@@ -372,21 +423,18 @@ int doSinglePlayerMenu( float deltaTime )
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
 
             // Buttons
-            if ( ui_doButton( 1, singlePlayerButtons[0], buttonLeft, buttonTop, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 1, singlePlayerButtons[0], buttonLeft, buttonTop, 200, 30 ) )
             {
                 menuChoice = 1;
             }
-
-            if ( ui_doButton( 2, singlePlayerButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 2, singlePlayerButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 menuChoice = 2;
             }
-
-            if ( ui_doButton( 3, singlePlayerButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 3, singlePlayerButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
                 menuChoice = 3;
             }
-
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
@@ -405,7 +453,6 @@ int doSinglePlayerMenu( float deltaTime )
 
             drawSlidyButtons();
             updateSlidyButtons( deltaTime );
-
             if ( SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
@@ -415,6 +462,9 @@ int doSinglePlayerMenu( float deltaTime )
         case MM_Finish:
             // Release the background texture
             GLTexture_Release( &background );
+
+            // reset the ui
+            ui_Reset();
 
             // Set the next menu to load
             result = menuChoice;
@@ -463,13 +513,19 @@ int doChooseModule( float deltaTime )
             numValidModules = 0;
             for ( i = 0; i < globalnummodule; i++ )
             {
-                if ( !startNewPlayer && 0 != modimportamount[i] )
+                if ( startNewPlayer && 0 == modimportamount[i] )
                 {
+                    // starter module
                     validModules[numValidModules] = i;
                     numValidModules++;
                 }
-                else if ( 0 == modimportamount[i] )
+                else
                 {
+                    if ( mnu_selectedPlayerCount > modimportamount[i] ) continue;
+                    if ( mnu_selectedPlayerCount < modminplayers[i]   ) continue;
+                    if ( mnu_selectedPlayerCount > modmaxplayers[i]   ) continue;
+
+                    // regular module
                     validModules[numValidModules] = i;
                     numValidModules++;
                 }
@@ -512,12 +568,11 @@ int doChooseModule( float deltaTime )
             }
 
             // Draw the arrows to pick modules
-            if ( ui_doButton( 1051, "<-", moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 1051, "<-", moduleMenuOffsetX + 20, moduleMenuOffsetY + 74, 30, 30 ) )
             {
                 startIndex--;
             }
-
-            if ( ui_doButton( 1052, "->", moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 1052, "->", moduleMenuOffsetX + 590, moduleMenuOffsetY + 74, 30, 30 ) )
             {
                 startIndex++;
             }
@@ -541,18 +596,17 @@ int doChooseModule( float deltaTime )
             }
 
             // Draw an unused button as the backdrop for the text for now
-            ui_drawButton( 0xFFFFFFFF, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230 );
+            ui_drawButton( 0xFFFFFFFF, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, NULL );
 
             // And draw the next & back buttons
-            if ( ui_doButton( 53, "Select Module",
-                              moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 53, "Select Module",
+                                           moduleMenuOffsetX + 327, moduleMenuOffsetY + 173, 200, 30 ) )
             {
                 // go to the next menu with this module selected
                 selectedModule = validModules[selectedModule];
                 menuState = MM_Leaving;
             }
-
-            if ( ui_doButton( 54, "Back", moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 54, "Back", moduleMenuOffsetX + 327, moduleMenuOffsetY + 208, 200, 30 ) )
             {
                 // Signal doMenu to go back to the previous menu
                 selectedModule = -1;
@@ -572,7 +626,6 @@ int doChooseModule( float deltaTime )
                 snprintf( txtBuffer, 128, "Difficulty: %s", modrank[validModules[selectedModule]] );
                 fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, txtBuffer );
                 y += 20;
-
                 if ( modmaxplayers[validModules[selectedModule]] > 1 )
                 {
                     if ( modminplayers[validModules[selectedModule]] == modmaxplayers[validModules[selectedModule]] )
@@ -613,7 +666,6 @@ int doChooseModule( float deltaTime )
             GLTexture_Release( &background );
 
             menuState = MM_Begin;
-
             if ( selectedModule == -1 )
             {
                 result = -1;
@@ -636,18 +688,20 @@ int doChooseModule( float deltaTime )
                 }
 
                 importamount = modimportamount[selectedModule];
-                exportvalid = modallowexport[selectedModule];
+                exportvalid  = modallowexport[selectedModule];
                 playeramount = modmaxplayers[selectedModule];
 
                 respawnvalid = bfalse;
                 respawnanytime = bfalse;
-
                 if ( modrespawnvalid[selectedModule] ) respawnvalid = btrue;
-
                 if ( modrespawnvalid[selectedModule] == ANYTIME ) respawnanytime = btrue;
 
                 rtscontrol = bfalse;
             }
+
+            // reset the ui
+            ui_Reset();
+
             break;
     }
 
@@ -659,21 +713,68 @@ int doChoosePlayer( float deltaTime )
     static int menuState = MM_Begin;
     static GLTexture background;
     int result = 0;
-    int numVertical, numHorizontal;
     int i, j, x, y;
-    int player;
     char srcDir[64], destDir[64];
+    static int startIndex = 0;
+
+    static int numVertical, numHorizontal;
+    static GLTexture TxInput[4];
+    static Uint32 BitsInput[4];
 
     switch ( menuState )
     {
         case MM_Begin:
-            selectedPlayer = 0;
+            mnu_selectedPlayerCount = 0;
 
             GLTexture_new( &background );
+
+            for (i = 0; i < 4; i++)
+            {
+                GLTexture_new(TxInput + i);
+            };
+
+            mnu_selectedPlayerCount = 0;
+            mnu_selectedPlayer[0] = 0;
+
+            GLTexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", INVALID_KEY );
+
+            GLTexture_Load( GL_TEXTURE_2D, TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
+            BitsInput[0] = INPUT_BITS_KEYBOARD;
+
+            GLTexture_Load( GL_TEXTURE_2D, TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
+            BitsInput[1] = INPUT_BITS_MOUSE;
+
+            GLTexture_Load( GL_TEXTURE_2D, TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
+            BitsInput[2] = INPUT_BITS_JOYA;
+
+            GLTexture_Load( GL_TEXTURE_2D, TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
+            BitsInput[3] = INPUT_BITS_JOYB;
+
             GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
             // load information for all the players that could be imported
-            check_player_import( "players" );
+            check_player_import( "players", btrue );
+
+            numVertical   = (displaySurface->h - 47) / 47;
+            numHorizontal = 1;
+
+            x = 20;
+            y = 20;
+            for ( i = 0; i < numVertical; i++ )
+            {
+                int m = i * 5;
+
+                ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, NULL, x, y, 175, 42 );
+                ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
+
+                for ( j = 0, m++; j < 4; j++, m++ )
+                {
+                    ui_initWidget( mnu_widgetList + m, m, menuFont, NULL, TxInput + j, x + 175 + j*42, y, 42, 42 );
+                    ui_widgetAddMask( mnu_widgetList + m, UI_BITS_CLICKED );
+                };
+
+                y += 47;
+            };
 
             menuState = MM_Entering;
             // fall through
@@ -684,48 +785,110 @@ int doChoosePlayer( float deltaTime )
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
-            numVertical = 6;
-            numHorizontal = 2;
-
-            // Draw the player selection buttons
-            // I'm being tricky, and drawing two buttons right next to each other
-            // for each player: one with the icon, and another with the name.  I'm
-            // given those buttons the same ID, so they'll act like the same button.
-            player = 0;
-            x = 20;
-
-            for ( j = 0; j < numHorizontal && player < numloadplayer; j++ )
-            {
-                y = 20;
-
-                for ( i = 0; i < numVertical && player < numloadplayer; i++ )
-                {
-                    if ( ui_doImageButtonWithText( player, TxIcon + player, loadplayername[player],  x, y, 175, 42 ) )
-                    {
-                        selectedPlayer = player;
-                    }
-
-                    player++;
-                    y += 47;
-                }
-
-                x += 180;
-            }
 
             // Draw the background
             x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
             y = displaySurface->h - background.imgH;
             ui_drawImage( 0, &background, x, y, 0, 0 );
 
+            // use the mouse wheel to scan the characters
+            if ( mouse_wheel_event )
+            {
+                if (mous.z > 0)
+                {
+                    startIndex++;
+                }
+                else if (mous.z < 0)
+                {
+                    startIndex--;
+                }
+
+                mouse_wheel_event = bfalse;
+                mous.z = 0;
+            }
+
+            // Draw the player selection buttons
+            x = 20;
+            y = 20;
+            for ( i = 0; i < numVertical; i++ )
+            {
+                Uint16 player;
+                Uint16 splayer;
+                int m = i * 5;
+
+                player = i + startIndex;
+                if ( player >= loadplayer_count ) continue;
+
+                splayer = mnu_getSelectedPlayer( player );
+
+                // do the character button
+                mnu_widgetList[m].img  = TxIcon + player;
+                mnu_widgetList[m].text = loadplayer[player].name;
+                if ( INVALID_PLA != splayer )
+                {
+                    mnu_widgetList[m].state |= UI_BITS_CLICKED;
+                }
+                else
+                {
+                    mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
+                }
+
+                if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
+                {
+                    if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && !mnu_checkSelectedPlayer( player ) )
+                    {
+                        // button has become clicked
+                        //mnu_addSelectedPlayer(player);
+                    }
+                    else if ( 0 == ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
+                    {
+                        // button has become unclicked
+                        mnu_removeSelectedPlayer( player );
+                    };
+                };
+
+                // do each of the input buttons
+                for ( j = 0, m++; j < 4; j++, m++ )
+                {
+                    // make the button states reflect the chosen input devices
+                    if ( INVALID_PLA == splayer || 0 == ( mnu_selectedInput[ splayer ] & BitsInput[j] ) )
+                    {
+                        mnu_widgetList[m].state &= ~UI_BITS_CLICKED;
+                    }
+                    else if ( 0 != ( mnu_selectedInput[splayer] & BitsInput[j] ) )
+                    {
+                        mnu_widgetList[m].state |= UI_BITS_CLICKED;
+                    }
+
+                    if ( BUTTON_DOWN == ui_doWidget( mnu_widgetList + m ) )
+                    {
+                        if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) )
+                        {
+                            // button has become clicked
+                            if ( INVALID_PLA == splayer )
+                            {
+                                mnu_addSelectedPlayer( player );
+                            }
+                            mnu_addSelectedPlayerInput( player, BitsInput[j] );
+                        }
+                        else if ( INVALID_PLA != splayer && 0 == ( mnu_widgetList[m].state & UI_BITS_CLICKED ) )
+                        {
+                            // button has become unclicked
+                            mnu_removeSelectedPlayerInput( player, BitsInput[j] );
+                        };
+                    };
+                }
+            }
+
             // Buttons for going ahead
-            if ( ui_doButton( 100, "Select Player", 40, 350, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 100, "Select Player", 40, 350, 200, 30 ) )
             {
                 menuState = MM_Leaving;
             }
 
-            if ( ui_doButton( 101, "Back", 40, 385, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 101, "Back", 40, 385, 200, 30 ) )
             {
-                selectedPlayer = -1;
+                mnu_selectedPlayerCount = 0;
                 menuState = MM_Leaving;
             }
             break;
@@ -735,37 +898,56 @@ int doChoosePlayer( float deltaTime )
             // fall through
 
         case MM_Finish:
-            GLTexture_Release( &background );
-            menuState = MM_Begin;
 
-            if ( selectedPlayer == -1 ) result = -1;
+            for (i = 0; i < 4; i++)
+            {
+                GLTexture_delete(TxInput + i);
+            };
+
+            GLTexture_delete( &background );
+
+            menuState = MM_Begin;
+            if ( 0 == mnu_selectedPlayerCount )
+            {
+                result = -1;
+            }
             else
             {
                 // Build the import directory
-                // I'm just allowing 1 player for now...
                 empty_import_directory();
                 fs_createDirectory( "import" );
 
-                localcontrol[0] = INPUT_BITS_KEYBOARD | INPUT_BITS_MOUSE | INPUT_BITS_JOYA;
-                localslot[0] = localmachine * 9;
-
-                // Copy the character to the import directory
-                sprintf( srcDir, "players" SLASH_STR "%s", loadplayerdir[selectedPlayer] );
-                sprintf( destDir, "import" SLASH_STR "temp%04d.obj", localslot[0] );
-                fs_copyDirectory( srcDir, destDir );
-
-                // Copy all of the character's items to the import directory
-                for ( i = 0; i < 8; i++ )
+                // set up the slots and the import stuff for the selected players
+                numimport = mnu_selectedPlayerCount;
+                for ( i = 0; i < numimport; i++ )
                 {
-                    sprintf( srcDir, "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayerdir[selectedPlayer], i );
-                    sprintf( destDir, "import" SLASH_STR "temp%04d.obj", localslot[0] + i + 1 );
+                    selectedPlayer = mnu_selectedPlayer[i];
 
+                    local_control[i] = mnu_selectedInput[i];
+                    local_slot[i]    = i * MAXIMPORTPERPLAYER;
+
+                    // Copy the character to the import directory
+                    sprintf( srcDir, "players" SLASH_STR "%s", loadplayer[selectedPlayer].dir );
+                    sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[i] );
                     fs_copyDirectory( srcDir, destDir );
+
+                    // Copy all of the character's items to the import directory
+                    for ( j = 0; j < 8; j++ )
+                    {
+                        sprintf( srcDir, "players" SLASH_STR "%s" SLASH_STR "%d.obj", loadplayer[selectedPlayer].dir, j );
+                        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[i] + j + 1 );
+
+                        fs_copyDirectory( srcDir, destDir );
+                    }
+
                 }
 
-                numimport = 1;
                 result = 1;
             }
+
+            // reset the ui
+            ui_Reset();
+
             break;
     }
 
@@ -825,30 +1007,26 @@ int doOptions( float deltaTime )
             fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
 
             // Buttons
-            if ( ui_doButton( 1, optionsButtons[0], buttonLeft, buttonTop, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 1, optionsButtons[0], buttonLeft, buttonTop, 200, 30 ) )
             {
                 // audio options
                 menuChoice = 1;
             }
-
-            if ( ui_doButton( 2, optionsButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 2, optionsButtons[1], buttonLeft, buttonTop + 35, 200, 30 ) )
             {
                 // input options
                 menuChoice = 2;
             }
-
-            if ( ui_doButton( 3, optionsButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 3, optionsButtons[2], buttonLeft, buttonTop + 35 * 2, 200, 30 ) )
             {
                 // video options
                 menuChoice = 3;
             }
-
-            if ( ui_doButton( 4, optionsButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 4, optionsButtons[3], buttonLeft, buttonTop + 35 * 3, 200, 30 ) )
             {
                 // back to main menu
                 menuChoice = 4;
             }
-
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
@@ -868,7 +1046,6 @@ int doOptions( float deltaTime )
             // Buttons
             drawSlidyButtons();
             updateSlidyButtons( deltaTime );
-
             if ( SlidyButtonState.lerp >= 1.0f )
             {
                 menuState = MM_Finish;
@@ -879,6 +1056,9 @@ int doOptions( float deltaTime )
             // Free the background texture; don't need to hold onto it
             GLTexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
 
             // Set the next menu to load
             result = menuChoice;
@@ -984,11 +1164,9 @@ int doInputOptions( float deltaTime )
                         input_read();
 
                         pcontrol = pdevice->control + waitingforinput;
-
                         if ( idevice >= INPUT_DEVICE_JOY )
                         {
                             int ijoy = idevice - INPUT_DEVICE_JOY;
-
                             if (ijoy < MAXJOYSTICK)
                             {
                                 for ( tag = 0; tag < numscantag; tag++ )
@@ -1059,7 +1237,6 @@ int doInputOptions( float deltaTime )
                     }
                 }
             }
-
             if (NULL != pdevice && waitingforinput == -1)
             {
                 // update the control names
@@ -1079,30 +1256,25 @@ int doInputOptions( float deltaTime )
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_USE][0] )
             {
                 fnt_drawTextBox( menuFont, "Use:", buttonLeft, displaySurface->h - 440, 0, 0, 20 );
-
-                if ( ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], buttonLeft + 100, displaySurface->h - 440, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], buttonLeft + 100, displaySurface->h - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_USE;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_GET][0] )
             {
                 fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft, displaySurface->h - 410, 0, 0, 20 );
-
-                if ( ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], buttonLeft + 100, displaySurface->h - 410, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], buttonLeft + 100, displaySurface->h - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_GET;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
             {
                 fnt_drawTextBox( menuFont, "Inventory:", buttonLeft, displaySurface->h - 380, 0, 0, 20 );
-
-                if ( ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], buttonLeft + 100, displaySurface->h - 380, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], buttonLeft + 100, displaySurface->h - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_PACK;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_PACK], "...", sizeof(STRING) );
@@ -1111,34 +1283,28 @@ int doInputOptions( float deltaTime )
 
             //Right hand
             fnt_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, displaySurface->h - 470, 0, 0, 20 );
-
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
                 fnt_drawTextBox( menuFont, "Use:", buttonLeft + 300, displaySurface->h - 440, 0, 0, 20 );
-
-                if ( ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], buttonLeft + 400, displaySurface->h - 440, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], buttonLeft + 400, displaySurface->h - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_USE;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
             {
                 fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, displaySurface->h - 410, 0, 0, 20 );
-
-                if ( ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], buttonLeft + 400, displaySurface->h - 410, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], buttonLeft + 400, displaySurface->h - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_GET;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
             {
                 fnt_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, displaySurface->h - 380, 0, 0, 20 );
-
-                if ( ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], buttonLeft + 400, displaySurface->h - 380, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], buttonLeft + 400, displaySurface->h - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_PACK;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_PACK], "...", sizeof(STRING) );
@@ -1147,56 +1313,46 @@ int doInputOptions( float deltaTime )
 
             //Controls
             fnt_drawTextBox( menuFont, "CONTROLS", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
-
             if ( '\0' != inputOptionsButtons[CONTROL_JUMP][0] )
             {
                 fnt_drawTextBox( menuFont, "Jump:", buttonLeft, displaySurface->h - 290, 0, 0, 20 );
-
-                if ( ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], buttonLeft + 100, displaySurface->h - 290, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], buttonLeft + 100, displaySurface->h - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_JUMP;
                     strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_UP][0] )
             {
                 fnt_drawTextBox( menuFont, "Up:", buttonLeft, displaySurface->h - 260, 0, 0, 20 );
-
-                if ( ui_doButton( 8, inputOptionsButtons[CONTROL_UP], buttonLeft + 100, displaySurface->h - 260, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], buttonLeft + 100, displaySurface->h - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_UP;
                     strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_DOWN][0] )
             {
                 fnt_drawTextBox( menuFont, "Down:", buttonLeft, displaySurface->h - 230, 0, 0, 20 );
-
-                if ( ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], buttonLeft + 100, displaySurface->h - 230, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], buttonLeft + 100, displaySurface->h - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_DOWN;
                     strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT][0] )
             {
                 fnt_drawTextBox( menuFont, "Left:", buttonLeft, displaySurface->h - 200, 0, 0, 20 );
-
-                if ( ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], buttonLeft + 100, displaySurface->h - 200, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], buttonLeft + 100, displaySurface->h - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT][0] )
             {
                 fnt_drawTextBox( menuFont, "Right:", buttonLeft, displaySurface->h - 170, 0, 0, 20 );
-
-                if ( ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], buttonLeft + 100, displaySurface->h - 170, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], buttonLeft + 100, displaySurface->h - 170, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof(STRING) );
@@ -1205,12 +1361,10 @@ int doInputOptions( float deltaTime )
 
             //Controls
             fnt_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
-
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
             {
                 fnt_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, displaySurface->h - 290, 0, 0, 20 );
-
-                if ( ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_IN;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof(STRING) );
@@ -1220,41 +1374,34 @@ int doInputOptions( float deltaTime )
             {
                 // single button camera control
                 fnt_drawTextBox( menuFont, "Camera:", buttonLeft + 300, displaySurface->h - 290, 0, 0, 20 );
-
-                if ( ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
             {
                 fnt_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, displaySurface->h - 260, 0, 0, 20 );
-
-                if ( ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], buttonLeft + 450, displaySurface->h - 260, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], buttonLeft + 450, displaySurface->h - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
             {
                 fnt_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, displaySurface->h - 230, 0, 0, 20 );
-
-                if ( ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], buttonLeft + 450, displaySurface->h - 230, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], buttonLeft + 450, displaySurface->h - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof(STRING) );
                 }
             }
-
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
             {
                 fnt_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
-
-                if ( ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], buttonLeft + 450, displaySurface->h - 200, 140, 30 ) == 1 )
+                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], buttonLeft + 450, displaySurface->h - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof(STRING) );
@@ -1264,7 +1411,7 @@ int doInputOptions( float deltaTime )
             //The select player button
             if ( iicon < 0 )
             {
-                if ( ui_doButton( 16, "Select Player...", buttonLeft + 300, displaySurface->h - 90, 140, 50 ) )
+                if ( BUTTON_UP == ui_doButton( 16, "Select Player...", buttonLeft + 300, displaySurface->h - 90, 140, 50 ) )
                 {
                     player = 0;
                 }
@@ -1281,7 +1428,7 @@ int doInputOptions( float deltaTime )
             }
 
             //Save settings button
-            if ( ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], buttonLeft, displaySurface->h - 60, 200, 30 ) )
             {
                 // save settings and go back
                 player = 0;
@@ -1301,6 +1448,9 @@ int doInputOptions( float deltaTime )
 
         case MM_Finish:
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
 
             // Set the next menu to load
             result = 1;
@@ -1348,7 +1498,6 @@ int doAudioOptions( float deltaTime )
 
             sprintf( Csoundvolume, "%i", soundvolume );
             audioOptionsButtons[1] = Csoundvolume;
-
             if ( musicvalid ) audioOptionsButtons[2] = "On";
             else audioOptionsButtons[2] = "Off";
 
@@ -1374,7 +1523,7 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h - 270, 0, 0, 20 );
 
             // Buttons
-            if ( ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, displaySurface->h - 270, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, displaySurface->h - 270, 100, 30 ) )
             {
                 if ( soundvalid )
                 {
@@ -1389,11 +1538,9 @@ int doAudioOptions( float deltaTime )
             }
 
             fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, displaySurface->h - 235, 0, 0, 20 );
-
-            if ( ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) )
             {
                 soundvolume += 5;
-
                 if (soundvolume > 100) soundvolume = 100;
 
                 sprintf( Csoundvolume, "%i", soundvolume );
@@ -1401,8 +1548,7 @@ int doAudioOptions( float deltaTime )
             }
 
             fnt_drawTextBox( menuFont, "Music:", buttonLeft, displaySurface->h - 165, 0, 0, 20 );
-
-            if ( ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, displaySurface->h - 165, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, displaySurface->h - 165, 100, 30 ) )
             {
                 if ( musicvalid )
                 {
@@ -1417,11 +1563,9 @@ int doAudioOptions( float deltaTime )
             }
 
             fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, displaySurface->h - 130, 0, 0, 20 );
-
-            if ( ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) )
             {
                 musicvolume += 5;
-
                 if (musicvolume > 100) musicvolume = 100;
 
                 sprintf( Cmusicvolume, "%i", musicvolume );
@@ -1429,8 +1573,7 @@ int doAudioOptions( float deltaTime )
             }
 
             fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
-
-            if ( ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, displaySurface->h - 200, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, displaySurface->h - 200, 100, 30 ) )
             {
                 switch ( maxsoundchannel )
                 {
@@ -1468,8 +1611,7 @@ int doAudioOptions( float deltaTime )
             }
 
             fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, displaySurface->h - 165, 0, 0, 20 );
-
-            if ( ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, displaySurface->h - 165, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, displaySurface->h - 165, 100, 30 ) )
             {
                 switch ( buffersize )
                 {
@@ -1501,27 +1643,26 @@ int doAudioOptions( float deltaTime )
                 sprintf( Cbuffersize, "%i", buffersize );
                 audioOptionsButtons[5] = Cbuffersize;
             }
-
-            if ( ui_doButton( 7, audioOptionsButtons[6], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], buttonLeft, displaySurface->h - 60, 200, 30 ) )
             {
                 // save the setup file
                 setup_upload();
                 setup_write();
-
-                // fix the sound system
-                if ( musicvalid )
-                {
-                    play_music( 0, 0, -1 );
-                }
-                else if ( mixeron )
-                {
-                    Mix_PauseMusic();
-                }
-
                 if ( !musicvalid && !soundvalid )
                 {
-                    Mix_CloseAudio();
-                    mixeron = bfalse;
+                    sound_halt();
+                }
+                if ( mixeron )
+                {
+                    // fix the sound system
+                    if ( musicvalid )
+                    {
+                        sound_play_song( 0, 0, -1 );
+                    }
+                    else
+                    {
+                        Mix_PauseMusic();
+                    }
                 }
 
                 menuState = MM_Leaving;
@@ -1542,6 +1683,9 @@ int doAudioOptions( float deltaTime )
             // Free the background texture; don't need to hold onto it
             GLTexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
 
             // Set the next menu to load
             result = 1;
@@ -1632,42 +1776,32 @@ int doVideoOptions( float deltaTime )
                     texturefilter = TX_LINEAR;
                     break;
             }
-
             if ( dither ) videoOptionsButtons[2] = "Yes";
             else          videoOptionsButtons[2] = "No";
-
             if ( fullscreen ) videoOptionsButtons[3] = "True";
             else              videoOptionsButtons[3] = "False";
-
             if ( refon )
             {
                 videoOptionsButtons[4] = "Low";
-
                 if ( reffadeor == 0 )
                 {
                     videoOptionsButtons[4] = "Medium";
-
                     if ( zreflect ) videoOptionsButtons[4] = "High";
                 }
             }
             else videoOptionsButtons[4] = "Off";
 
             sprintf( Cmaxmessage, "%i", maxmessage );
-
             if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
-
             if ( maxmessage == 0 ) sprintf( Cmaxmessage, "None" );           // Set to default
 
             videoOptionsButtons[11] = Cmaxmessage;
-
             if ( shaon )
             {
                 videoOptionsButtons[6] = "Normal";
-
                 if ( !shasprite ) videoOptionsButtons[6] = "Best";
             }
             else videoOptionsButtons[6] = "Off";
-
             if ( scrz != 32 && scrz != 16 && scrz != 24 )
             {
                 scrz = 16;              // Set to default
@@ -1678,15 +1812,12 @@ int doVideoOptions( float deltaTime )
 
             sprintf( Cmaxlights, "%i", maxlights );
             videoOptionsButtons[8] = Cmaxlights;
-
             if ( phongon )
             {
                 videoOptionsButtons[9] = "Okay";
-
                 if ( overlayvalid && backgroundvalid )
                 {
                     videoOptionsButtons[9] = "Good";
-
                     if ( perspective ) videoOptionsButtons[9] = "Superb";
                 }
                 else                            // Set to defaults
@@ -1703,7 +1834,6 @@ int doVideoOptions( float deltaTime )
                 overlayvalid = bfalse;
                 videoOptionsButtons[9] = "Off";
             }
-
             if ( twolayerwateron ) videoOptionsButtons[10] = "On";
             else videoOptionsButtons[10] = "Off";
 
@@ -1737,8 +1867,7 @@ int doVideoOptions( float deltaTime )
 
             // Antialiasing Button
             fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
-
-            if ( ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h - 215, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h - 215, 100, 30 ) )
             {
                 if ( antialiasing )
                 {
@@ -1754,8 +1883,7 @@ int doVideoOptions( float deltaTime )
 
             // Message time
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, displaySurface->h - 180, 0, 0, 20 );
-
-            if ( ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h - 180, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h - 180, 100, 30 ) )
             {
                 switch ( messagetime )
                 {
@@ -1783,8 +1911,7 @@ int doVideoOptions( float deltaTime )
 
             // Dithering and Gourad Shading
             fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
-
-            if ( ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) )
             {
                 if ( dither  )
                 {
@@ -1800,8 +1927,7 @@ int doVideoOptions( float deltaTime )
 
             // Fullscreen
             fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, displaySurface->h - 110, 0, 0, 20 );
-
-            if ( ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, displaySurface->h - 110, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, displaySurface->h - 110, 100, 30 ) )
             {
                 if ( fullscreen )
                 {
@@ -1817,8 +1943,7 @@ int doVideoOptions( float deltaTime )
 
             // Reflection
             fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, displaySurface->h - 250, 0, 0, 20 );
-
-            if ( ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h - 250, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h - 250, 100, 30 ) )
             {
                 if ( refon && reffadeor == 0 && zreflect )
                 {
@@ -1855,8 +1980,7 @@ int doVideoOptions( float deltaTime )
 
             // Texture Filtering
             fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, displaySurface->h - 285, 0, 0, 20 );
-
-            if ( ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, displaySurface->h - 285, 130, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, displaySurface->h - 285, 130, 30 ) )
             {
                 switch ( texturefilter )
                 {
@@ -1904,8 +2028,7 @@ int doVideoOptions( float deltaTime )
 
             // Shadows
             fnt_drawTextBox( menuFont, "Shadows:", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
-
-            if ( ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, displaySurface->h - 320, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, displaySurface->h - 320, 100, 30 ) )
             {
                 if ( shaon && !shasprite )
                 {
@@ -1931,8 +2054,7 @@ int doVideoOptions( float deltaTime )
 
             // Z bit
             fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
-
-            if ( ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, displaySurface->h - 320, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, displaySurface->h - 320, 100, 30 ) )
             {
                 switch ( scrz )
                 {
@@ -1960,8 +2082,7 @@ int doVideoOptions( float deltaTime )
 
             // Max dynamic lights
             fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
-
-            if ( ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) )
             {
                 switch ( maxlights )
                 {
@@ -2004,8 +2125,7 @@ int doVideoOptions( float deltaTime )
 
             // Perspective correction and phong mapping
             fnt_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, displaySurface->h - 250, 0, 0, 20 );
-
-            if ( ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, displaySurface->h - 250, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, displaySurface->h - 250, 100, 30 ) )
             {
                 if ( phongon && perspective && overlayvalid && backgroundvalid )
                 {
@@ -2041,8 +2161,7 @@ int doVideoOptions( float deltaTime )
 
             // Water Quality
             fnt_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, displaySurface->h - 215, 0, 0, 20 );
-
-            if ( ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, displaySurface->h - 215, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, displaySurface->h - 215, 100, 30 ) )
             {
                 if ( twolayerwateron )
                 {
@@ -2058,11 +2177,9 @@ int doVideoOptions( float deltaTime )
 
             // Max particles
             fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, displaySurface->h - 180, 0, 0, 20 );
-
-            if ( ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) )
             {
                 maxparticles += 128;
-
                 if (maxparticles > TOTALMAXPRT || maxparticles < 256) maxparticles = 256;
 
                 sprintf( Cmaxparticles, "%i", maxparticles );    // Convert integer to a char we can use
@@ -2071,8 +2188,7 @@ int doVideoOptions( float deltaTime )
 
             // Text messages
             fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, displaySurface->h - 145, 0, 0, 20 );
-
-            if ( ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, displaySurface->h - 145, 75, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, displaySurface->h - 145, 75, 30 ) )
             {
                 if ( maxmessage != MAXMESSAGE )
                 {
@@ -2092,8 +2208,7 @@ int doVideoOptions( float deltaTime )
 
             // Screen Resolution
             fnt_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, displaySurface->h - 110, 0, 0, 20 );
-
-            if ( ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, displaySurface->h - 110, 125, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, displaySurface->h - 110, 125, 30 ) )
             {
                 // TODO: add widescreen support
                 switch ( scrx )
@@ -2125,7 +2240,7 @@ int doVideoOptions( float deltaTime )
             }
 
             // Save settings button
-            if ( ui_doButton( 14, videoOptionsButtons[13], buttonLeft, displaySurface->h - 60, 200, 30 ) == 1 )
+            if ( BUTTON_UP == ui_doButton( 14, videoOptionsButtons[13], buttonLeft, displaySurface->h - 60, 200, 30 ) )
             {
                 menuChoice = 1;
 
@@ -2136,7 +2251,6 @@ int doVideoOptions( float deltaTime )
                 // Reload some of the graphics
                 load_graphics();
             }
-
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;
@@ -2162,6 +2276,9 @@ int doVideoOptions( float deltaTime )
             GLTexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
+            // reset the ui
+            ui_Reset();
+
             // Set the next menu to load
             result = menuChoice;
             break;
@@ -2177,10 +2294,10 @@ int doShowMenuResults( float deltaTime )
     Font *font;
     Uint8 i;
 
-    SDL_Surface *screen = SDL_GetVideoSurface();
+    displaySurface = SDL_GetVideoSurface();
     font = ui_getFont();
 
-    ui_drawButton( 0xFFFFFFFF, 30, 30, screen->w - 60, screen->h - 65 );
+    ui_drawButton( 0xFFFFFFFF, 30, 30, displaySurface->w - 60, displaySurface->h - 65, NULL );
 
     x = 35;
     y = 35;
@@ -2188,10 +2305,9 @@ int doShowMenuResults( float deltaTime )
     snprintf( text, sizeof(text), "Module selected: %s", modloadname[selectedModule] );
     fnt_drawText( font, x, y, text );
     y += 35;
-
     if ( importvalid )
     {
-        snprintf( text, sizeof(text), "Player selected: %s", loadplayername[selectedPlayer] );
+        snprintf( text, sizeof(text), "Player selected: %s", loadplayer[selectedPlayer].name );
     }
     else
     {
@@ -2228,8 +2344,7 @@ int doNotImplemented( float deltaTime )
 
     x = displaySurface->w / 2 - w / 2;
     y = displaySurface->h / 2 - 17;
-
-    if ( ui_doButton( 1, notImplementedMessage, x, y, w, 30 ) == 1 )
+    if ( BUTTON_UP == ui_doButton( 1, notImplementedMessage, x, y, w, 30 ) )
     {
         return 1;
     }
@@ -2266,25 +2381,23 @@ int doMenu( float deltaTime )
     {
         case MainMenu:
             result = doMainMenu( deltaTime );
-
             if ( result != 0 )
             {
                 lastMenu = MainMenu;
 
-                if ( result == 1 ) whichMenu = SinglePlayer;
-                else if ( result == 2 ) whichMenu = MultiPlayer;
+                if ( result == 1 ) { whichMenu = ChooseModule; startNewPlayer = btrue; }
+                else if ( result == 2 ) { whichMenu = ChoosePlayer; startNewPlayer = bfalse; }
                 else if ( result == 3 ) whichMenu = Options;
                 else if ( result == 4 ) return -1;  // need to request a quit somehow
+
             }
             break;
 
         case SinglePlayer:
             result = doSinglePlayerMenu( deltaTime );
-
             if ( result != 0 )
             {
                 lastMenu = SinglePlayer;
-
                 if ( result == 1 )
                 {
                     whichMenu = ChooseModule;
@@ -2295,23 +2408,27 @@ int doMenu( float deltaTime )
                     whichMenu = ChoosePlayer;
                     startNewPlayer = bfalse;
                 }
-                else if ( result == 3 ) whichMenu = MainMenu;
-                else whichMenu = NewPlayer;
+                else if ( result == 3 )
+                {
+                    whichMenu = MainMenu;
+                }
+                else
+                {
+                    whichMenu = NewPlayer;
+                }
             }
             break;
 
         case ChooseModule:
             result = doChooseModule( deltaTime );
-
             if ( result == -1 ) whichMenu = lastMenu;
-            else if ( result == 1 ) whichMenu = TestResults;
-            else if ( result == 2 ) whichMenu = TestResults;
+            else if ( result == 1 ) whichMenu = TestResults;  // imports are not valid (starter module)
+            else if ( result == 2 ) whichMenu = TestResults;  // imports are valid
 
             break;
 
         case ChoosePlayer:
             result = doChoosePlayer( deltaTime );
-
             if ( result == -1 )    whichMenu = lastMenu;
             else if ( result == 1 )  whichMenu = ChooseModule;
 
@@ -2319,7 +2436,6 @@ int doMenu( float deltaTime )
 
         case Options:
             result = doOptions( deltaTime );
-
             if ( result != 0 )
             {
                 if ( result == 1 ) whichMenu = AudioOptions;
@@ -2331,7 +2447,6 @@ int doMenu( float deltaTime )
 
         case AudioOptions:
             result = doAudioOptions( deltaTime );
-
             if ( result != 0 )
             {
                 whichMenu = Options;
@@ -2340,7 +2455,6 @@ int doMenu( float deltaTime )
 
         case VideoOptions:
             result = doVideoOptions( deltaTime );
-
             if ( result != 0 )
             {
                 whichMenu = Options;
@@ -2349,7 +2463,6 @@ int doMenu( float deltaTime )
 
         case InputOptions:
             result = doInputOptions( deltaTime );
-
             if ( result != 0 )
             {
                 whichMenu = Options;
@@ -2358,7 +2471,6 @@ int doMenu( float deltaTime )
 
         case TestResults:
             result = doShowMenuResults( deltaTime );
-
             if ( result != 0 )
             {
                 whichMenu = MainMenu;
@@ -2368,7 +2480,6 @@ int doMenu( float deltaTime )
 
         default:
             result = doNotImplemented( deltaTime );
-
             if ( result != 0 )
             {
                 whichMenu = lastMenu;
@@ -2383,3 +2494,179 @@ void menu_frameStep()
 
 }
 
+//--------------------------------------------------------------------------------------------
+static bool_t mnu_checkSelectedPlayer( Uint16 player )
+{
+    int i;
+    if ( player > loadplayer_count ) return bfalse;
+
+    for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == player ) return btrue;
+    }
+
+    return bfalse;
+};
+
+//--------------------------------------------------------------------------------------------
+static Uint16 mnu_getSelectedPlayer( Uint16 player )
+{
+    Uint16 ipla;
+    if ( player > loadplayer_count ) return INVALID_PLA;
+
+    for ( ipla = 0; ipla < MAXPLAYER && ipla < mnu_selectedPlayerCount; ipla++ )
+    {
+        if ( mnu_selectedPlayer[ ipla ] == player ) return ipla;
+    }
+
+    return INVALID_PLA;
+};
+
+//--------------------------------------------------------------------------------------------
+static bool_t mnu_addSelectedPlayer( Uint16 player )
+{
+    if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
+    if ( mnu_checkSelectedPlayer( player ) ) return bfalse;
+
+    mnu_selectedPlayer[mnu_selectedPlayerCount] = player;
+    mnu_selectedInput[mnu_selectedPlayerCount]  = INPUT_BITS_NONE;
+    mnu_selectedPlayerCount++;
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+static bool_t mnu_removeSelectedPlayer( Uint16 player )
+{
+    int i;
+    bool_t found = bfalse;
+
+    if ( player > loadplayer_count || mnu_selectedPlayerCount <= 0 ) return bfalse;
+
+    if ( mnu_selectedPlayerCount == 1 )
+    {
+        if ( mnu_selectedPlayer[0] == player )
+        {
+            mnu_selectedPlayerCount = 0;
+        };
+    }
+    else
+    {
+        for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( mnu_selectedPlayer[i] == player )
+            {
+                found = btrue;
+                break;
+            }
+        }
+
+        if ( found )
+        {
+            i++;
+            for ( /* nothing */; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+            {
+                mnu_selectedPlayer[i-1] = mnu_selectedPlayer[i];
+                mnu_selectedInput[i-1]  = mnu_selectedInput[i];
+            }
+
+            mnu_selectedPlayerCount--;
+        }
+    };
+
+    return found;
+};
+
+//--------------------------------------------------------------------------------------------
+static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
+{
+    int i;
+    bool_t done, retval = bfalse;
+
+    int selected_index = -1;
+
+    for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == player )
+        {
+            selected_index = i;
+            break;
+        }
+    }
+
+    if ( -1 == selected_index )
+    {
+        mnu_addSelectedPlayer( player );
+    }
+
+    if ( selected_index >= 0 && selected_index < mnu_selectedPlayerCount )
+    {
+        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( i == selected_index  )
+            {
+                // add in the selected bits for the selected player
+                mnu_selectedInput[i] |= input;
+                retval = btrue;
+            }
+            else
+            {
+                // remove the selectd bits from all other players
+                mnu_selectedInput[i] &= ~input;
+            }
+        }
+    }
+
+    // Do the tricky part of removing all players with invalid inputs from the list
+    // It is tricky because removing a player changes the value of the loop control
+    // value mnu_selectedPlayerCount within the loop.
+    done = bfalse;
+    while ( !done )
+    {
+        // assume the best
+        done = btrue;
+
+        for ( i = 0; i < mnu_selectedPlayerCount; i++ )
+        {
+            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            {
+                // we found one
+                done = bfalse;
+                mnu_removeSelectedPlayer( mnu_selectedPlayer[i] );
+            }
+        }
+    }
+
+    return retval;
+};
+
+//--------------------------------------------------------------------------------------------
+static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
+{
+    int i;
+    bool_t retval = bfalse;
+
+    for ( i = 0; i < MAXPLAYER && i < mnu_selectedPlayerCount; i++ )
+    {
+        if ( mnu_selectedPlayer[i] == player )
+        {
+            mnu_selectedInput[i] &= ~input;
+
+            // This part is not so tricky as in mnu_addSelectedPlayerInput.
+            // Even though we are modding the loop control variable, it is never
+            // tested in the loop because we are using the break command to
+            // break out of the loop immediately
+
+            if ( INPUT_BITS_NONE == mnu_selectedInput[i] )
+            {
+                mnu_removeSelectedPlayer( player );
+            }
+
+            retval = btrue;
+
+            break;
+        }
+    }
+
+    return retval;
+};

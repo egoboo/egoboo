@@ -1,0 +1,25 @@
+// This file contains info for the module's menu description
+Name ( with underscores for spaces )		: World_Map
+Reference module ( Directory name or NONE )     : NONE
+Required reference IDSZ ( or [NONE] )           : [NONE]
+Number of imports ( 0 to 4 )                    : 4
+Allow exporting of characters ( TRUE or FALSE ) : TRUE
+Minimum number of players ( 1 to 4 )		: 1
+Maximum number of players ( 1 to 4 )		: 4
+Allow respawning ( TRUE or FALSE )		: TRUE
+RTS control ( TRUE or FALSE or ALL )		: FALSE
+Level rating ( *, **, ***, ****, or ***** )     : *
+
+
+// Module summary ( Must be 8 lines...  Each line mush have at least an _ )
+:World_Map
+:Explore_Bishopia
+:_
+:Wander_around_Bishopia
+:looking_for_adventure
+:_
+:_
+:Map_is_a_work_in_progress
+
+
+// Module expansion IDSZs ( with a colon in front )

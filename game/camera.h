@@ -42,3 +42,39 @@
 #define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
 #define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
 */
+
+// Camera control stuff
+extern int                     camswing;                   // Camera swingin'
+extern int                     camswingrate;               //
+extern float                   camswingamp;                //
+extern float                   camx;                       // Camera position
+extern float                   camy;                       //
+extern float                   camz;                       // 500-1000
+extern float                   camzoom;                    // Distance from the trackee
+extern float                   camtrackxvel;               // Change in trackee position
+extern float                   camtrackyvel;               //
+extern float                   camtrackzvel;               //
+extern float                   camcenterx;                 // Move character to side before tracking
+extern float                   camcentery;                 //
+extern float                   camtrackx;                  // Trackee position
+extern float                   camtracky;                  //
+extern float                   camtrackz;                  //
+extern float                   camtracklevel;              //
+extern float                   camzadd;                    // Camera height above terrain
+extern float                   camzaddgoto;                // Desired z position
+extern float                   camzgoto;                   //
+extern float                   camturnleftright;           // Camera rotations
+extern float                   camturnleftrightone;
+extern Uint16                  camturnleftrightshort;
+extern float                   camturnadd;                 // Turning rate
+extern float                   camsustain;                 // Turning rate falloff
+extern float                   camturnupdown;
+extern float                   camroll;                    //
+
+extern float                   cornerx[4];                 // Render area corners
+extern float                   cornery[4];                 //
+extern int                     cornerlistlowtohighy[4];    // Ordered list
+extern float                   cornerlowx;                 // Render area extremes
+extern float                   cornerhighx;                //
+extern float                   cornerlowy;                 //
+extern float                   cornerhighy;                //

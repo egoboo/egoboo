@@ -87,7 +87,6 @@ void clk_shutdown()
 void clk_setTimeSource( clk_timeSourcePtr_t timeSource )
 {
     clk_timeSource = timeSource;
-
     if ( clk_timeSource )
     {
         clk_sourceStartTime = clk_timeSource();
@@ -105,7 +104,6 @@ void clk_setFrameHistoryWindow( int size )
     // The frame history has to be at least 1
     clk_frameHistoryWindow = ( size > 1 ) ? size : 1;
     history = ( double* )malloc( sizeof( double ) * clk_frameHistoryWindow );
-
     if ( clk_frameHistory != NULL )
     {
         // Copy over the older history.  Make sure that only the size of the
@@ -143,14 +141,12 @@ void clk_addToFrameHistory( double frame )
     clk_frameHistory[clk_frameHistoryHead] = frame;
 
     clk_frameHistoryHead++;
-
     if ( clk_frameHistoryHead >= clk_frameHistoryWindow )
     {
         clk_frameHistoryHead = 0;
     }
 
     clk_frameHistorySize++;
-
     if ( clk_frameHistorySize > clk_frameHistoryWindow )
     {
         clk_frameHistorySize = clk_frameHistoryWindow;
@@ -162,7 +158,6 @@ double clk_getExactLastFrameDuration()
 {
     double sourceTime;
     double timeElapsed;
-
     if ( clk_timeSource )
     {
         sourceTime = clk_timeSource();

@@ -25,6 +25,7 @@
 #include "Md2.h"
 #include "id_md2.h"
 #include "graphic.h"
+#include "camera.h"
 
 #include <SDL_opengl.h>
 
@@ -50,7 +51,6 @@ static void blend_md2_vertices( const Md2Model *model, int from_, int to_, float
     from = &model->frames[from_];
     to = &model->frames[to_];
     numVertices = model->numVertices;
-
     if ( lerp <= 0 )
     {
         // copy the vertices in frame 'from' over
@@ -111,11 +111,8 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
     const struct Md2TexCoord *tc;
     const struct Md2Triangle *triangles;
     const struct Md2Triangle *tri;
-
     if ( model == NULL ) return;
-
     if ( from_ < 0 || from_ >= model->numFrames ) return;
-
     if ( to_ < 0 || to_ >= model->numFrames ) return;
 
     blend_md2_vertices( model, from_, to_, lerp );
@@ -169,11 +166,11 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint16 lastframe = chr[character].lastframe;
     Uint16 framestt = madframestart[chr[character].model];
     Uint8 lip = chr[character].lip >> 6;
-    Uint8 lightrotation = ( chr[character].turnleftright + chr[character].lightturnleftright ) >> 8;
+    Uint8 lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
     Uint32  alpha = trans;
     Uint8 lightlevel = chr[character].lightlevel >> 4;
-    float uoffset = textureoffset[chr[character].uoffset >> 8] - camturnleftrightone;
-    float voffset = textureoffset[chr[character].voffset >> 8];
+    float uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ] - camturnleftrightone;
+    float voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
     Uint8 rs = chr[character].redshift;
     Uint8 gs = chr[character].grnshift;
     Uint8 bs = chr[character].blushift;
@@ -336,22 +333,21 @@ void render_enviromad( Uint16 character, Uint8 trans )
         if (cnt > MAXCOMMAND) continue;
 
         glBegin ( madcommandtype[model][cnt] );
-
-        for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
         {
-            vertex = madcommandvrt[model][entry];
-
-            if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+            for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
             {
-                glColor4fv( &v[vertex].r );
-                glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
-                               lighttoenviroy[chr[character].vrta[vertex]] + voffset );
-                glVertex3fv ( &v[vertex].x );
+                vertex = madcommandvrt[model][entry];
+                if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+                {
+                    glColor4fv( &v[vertex].r );
+                    glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
+                                   lighttoenviroy[chr[character].vrta[vertex]] + voffset );
+                    glVertex3fv ( &v[vertex].x );
+                }
+
+                entry++;
             }
-
-            entry++;
         }
-
         glEnd ();
     }
 
@@ -380,19 +376,17 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint16 frame = chr[character].frame;
     Uint16 lastframe = chr[character].lastframe;
     Uint8 lip = chr[character].lip >> 6;
-    Uint8 lightrotation =
-        ( chr[character].turnleftright + chr[character].lightturnleftright ) >> 8;
+    Uint8 lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
     Uint8 lightlevel = chr[character].lightlevel >> 4;
     Uint32  alpha = trans;
     Uint8 spek = chr[character].sheen;
 
-    float uoffset = textureoffset[chr[character].uoffset >> 8];
-    float voffset = textureoffset[chr[character].voffset >> 8];
+    float uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ];
+    float voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
     Uint8 rs = chr[character].redshift;
     Uint8 gs = chr[character].grnshift;
     Uint8 bs = chr[character].blushift;
     glMatrix mTempWorld = mWorld;
-
     if ( phongon && trans == 255 )
         spek = 0;
 
@@ -576,21 +570,20 @@ void render_texmad( Uint16 character, Uint8 trans )
         if (cnt > MAXCOMMAND) continue;
 
         glBegin ( madcommandtype[model][cnt] );
-
-        for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
         {
-            vertex = madcommandvrt[model][entry];
-
-            if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+            for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
             {
-                glColor4fv( &v[vertex].r );
-                glTexCoord2f ( madcommandu[model][entry] + uoffset, madcommandv[model][entry] + voffset );
-                glVertex3fv ( &v[vertex].x );
+                vertex = madcommandvrt[model][entry];
+                if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+                {
+                    glColor4fv( &v[vertex].r );
+                    glTexCoord2f ( madcommandu[model][entry] + uoffset, madcommandv[model][entry] + voffset );
+                    glVertex3fv ( &v[vertex].x );
+                }
+
+                entry++;
             }
-
-            entry++;
         }
-
         glEnd ();
     }
 
@@ -606,8 +599,7 @@ void render_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
     Sint8 hide = caphidestate[chr[character].model];
-
-    if ( hide == NOHIDE || hide != chr[character].aistate )
+    if ( hide == NOHIDE || hide != chr[character].ai.state )
     {
         if ( chr[character].enviro )
             render_enviromad( character, trans );
@@ -627,24 +619,19 @@ void render_refmad( int tnc, Uint8 trans )
     Uint8 sheen_save;
     Uint8 fog_save;
     glVector pos_save;
-
     if ( !capreflect[chr[tnc].model] ) return;
 
     level = chr[tnc].level;
     trans_temp = trans;
 
     zpos = ( chr[tnc].matrix ).CNV( 3, 2 ) - level;
-
     if (zpos < 0) zpos = 0;
 
     trans_temp -= zpos >> 1;
-
     if ( trans_temp < 0 ) trans_temp = 0;
 
     trans_temp |= reffadeor;  // Fix for Riva owners
-
     if ( trans_temp > 255 ) trans_temp = 255;
-
     if ( trans_temp <= 0 ) return;
 
     chr[tnc].redshift += 1;

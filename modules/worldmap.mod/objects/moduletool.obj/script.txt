@@ -1,0 +1,9 @@
+// This initializes music and goes away
+
+//Play the default module music track
+tmpargument = 22
+tmpdistance = 0
+PlayMusic
+
+GoPoof
+End					// All done

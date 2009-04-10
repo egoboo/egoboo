@@ -76,7 +76,7 @@ bool_t setup_quit()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read( char* filename )
+bool_t setup_read(  const char* filename )
 {
     // BB> read the setup file
 
@@ -103,7 +103,6 @@ bool_t setup_download()
     bool_t lTempBool;
     Sint32 lTempInt;
     char   lTempStr[256];
-
     if (NULL == lConfigSetup) return bfalse;
 
     // *********************************************
@@ -135,9 +134,7 @@ bool_t setup_download()
     // Max number of messages displayed
     GetKey_int( "MAX_TEXT_MESSAGE", maxmessage, 6 );
     messageon = btrue;
-
     if ( maxmessage < 1 )  { maxmessage = 1;  messageon = bfalse; }
-
     if ( maxmessage > MAXMESSAGE )  { maxmessage = MAXMESSAGE; }
 
     // Max number of messages displayed
@@ -146,7 +143,6 @@ bool_t setup_download()
     // Show status bars? (Life, mana, character icons, etc.)
     GetKey_bool( "STATUS_BAR", staton, btrue );
     wraptolerance = 32;
-
     if ( staton )
     {
         wraptolerance = 90;
@@ -160,7 +156,6 @@ bool_t setup_download()
 
     // Reflection fadeout
     GetKey_bool( "FLOOR_REFLECTION_FADEOUT", lTempBool, bfalse );
-
     if ( lTempBool )
     {
         reffadeor = 0;
@@ -203,24 +198,16 @@ bool_t setup_download()
 
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
-
     if ( lTempStr[0] == 'U' || lTempStr[0] == 'u' )  texturefilter = TX_UNFILTERED;
-
     if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_LINEAR;
-
     if ( lTempStr[0] == 'M' || lTempStr[0] == 'm' )  texturefilter = TX_MIPMAP;
-
     if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = TX_BILINEAR;
-
     if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  texturefilter = TX_TRILINEAR_1;
-
     if ( lTempStr[0] == '2'                       )  texturefilter = TX_TRILINEAR_2;
-
     if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = TX_ANISOTROPIC;
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", maxlights, 12 );
-
     if ( maxlights > TOTALMAXDYNA ) maxlights = TOTALMAXDYNA;
 
     // Get the FPS limit
@@ -228,7 +215,6 @@ bool_t setup_download()
 
     // Get the particle limit
     GetKey_int( "MAX_PARTICLES", maxparticles, 512 );
-
     if (maxparticles > TOTALMAXPRT) maxparticles = TOTALMAXPRT;
 
     // *********************************************
@@ -251,16 +237,12 @@ bool_t setup_download()
 
     // Max number of sound channels playing at the same time
     GetKey_int( "MAX_SOUND_CHANNEL", maxsoundchannel, 16 );
-
     if ( maxsoundchannel < 8 ) maxsoundchannel = 8;
-
     if ( maxsoundchannel > 128 ) maxsoundchannel = 128;
 
     // The output buffer size
     GetKey_int( "OUTPUT_BUFFER_SIZE", buffersize, 2048 );
-
     if ( buffersize < 512 ) buffersize = 512;
-
     if ( buffersize > 8196 ) buffersize = 8196;
 
     // *********************************************
@@ -271,11 +253,8 @@ bool_t setup_download()
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
-
     if ( lTempStr[0] == 'G' || lTempStr[0] == 'g' )  autoturncamera = 255;
-
     if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  autoturncamera = btrue;
-
     if ( lTempStr[0] == 'F' || lTempStr[0] == 'f' )  autoturncamera = bfalse;
 
     // *********************************************
@@ -318,7 +297,6 @@ bool_t setup_upload()
     // BB > upload game variables into the ConfigFile_t keys
 
     char  *lCurSectionName;
-
     if (NULL == lConfigSetup) return bfalse;
 
     // *********************************************
@@ -502,7 +480,7 @@ static void export_control( FILE * filewrite, const char * text, Sint32 device, 
 };
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_load( char *szFilename )
+bool_t input_settings_load(  const char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
     FILE* fileread;
@@ -565,13 +543,13 @@ bool_t input_settings_load( char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_save(char* szFilename)
+bool_t input_settings_save( const char* szFilename)
 {
     // This function saves all current game settings to "controls.txt"
     device_controls_t * pdevice;
     FILE* filewrite;
     STRING write;
-	Uint32 i;
+    Uint32 i;
 
     filewrite = fopen( szFilename, "w" );
     if ( NULL == filewrite )

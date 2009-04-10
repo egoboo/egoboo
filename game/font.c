@@ -53,7 +53,6 @@ int fnt_init()
     int initialized;
 
     initialized = TTF_WasInit();
-
     if ( !initialized )
     {
         if ( TTF_Init() >= 0 )
@@ -108,7 +107,6 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
 #else
     image = SDL_CreateRGBSurface( SDL_SWSURFACE, w, h, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff );
 #endif
-
     if ( image == NULL )
     {
         return 0;
@@ -117,7 +115,6 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     // Save the alpha blending attributes
     saved_flags = surface->flags & ( SDL_SRCALPHA | SDL_RLEACCELOK );
     saved_alpha = surface->format->alpha;
-
     if ( ( saved_flags & SDL_SRCALPHA ) == SDL_SRCALPHA )
     {
         SDL_SetAlpha( surface, 0, 0 );
@@ -153,7 +150,6 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
 {
     Font *newFont;
     TTF_Font *ttfFont;
-
     if ( !fnt_init() )
     {
         printf( "fnt_loadFont: Could not initialize SDL_TTF!\n" );
@@ -192,7 +188,6 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
 {
     SDL_Surface *textSurf;
     SDL_Color color = { 0xFF, 0xFF, 0xFF, 0 };
-
     if ( NULL == font ) return;
 
     // Let TTF render the text
@@ -253,7 +248,6 @@ void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int
 {
     int len;
     char *buffer, *line;
-
     if ( !font ) return;
 
     // If text is empty, there's nothing to draw
@@ -261,7 +255,7 @@ void fnt_drawTextBox( Font *font, const char *text, int x, int y, int width, int
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = calloc( 1, len + 1 );
+    buffer = (char *)calloc( 1, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );
@@ -282,14 +276,12 @@ void fnt_getTextBoxSize( Font *font, const char *text, int spacing, int *width, 
     char *buffer, *line;
     int len;
     int tmp_w, tmp_h;
-
     if ( !font ) return;
-
     if ( !text || !text[0] ) return;
 
     // Split the passed in text into separate lines
     len = strlen( text );
-    buffer = calloc( 1, len + 1 );
+    buffer = (char *)calloc( 1, len + 1 );
     strncpy( buffer, text, len );
 
     line = strtok( buffer, "\n" );

@@ -73,7 +73,6 @@ void fs_init()
     strncpy( basicdatPath, "basicdat", MAX_PATH );
     hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                         OPEN_EXISTING, 0, NULL );
-
     if ( hFile == NULL )
     {
         // didn't find the basicdat directory, give the executable's directory
@@ -86,7 +85,6 @@ void fs_init()
         strncpy( basicdatPath, "basicdat", MAX_PATH );
         hFile = CreateFile( basicdatPath, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                             OPEN_EXISTING, 0, NULL );
-
         if ( hFile == NULL )
         {
             // fatal error here, we can't find the game data.
@@ -168,7 +166,6 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     size_t len;
 
     len = strlen( searchDir ) + 1;
-
     if ( searchDir[len] != '/' || searchDir[len] != '\\' )
     {
         _snprintf( searchSpec, MAX_PATH, "%s" SLASH_STR, searchDir );
@@ -177,7 +174,6 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     {
         strncpy( searchSpec, searchDir, MAX_PATH );
     }
-
     if ( searchExtension != NULL )
     {
         _snprintf( searchSpec, MAX_PATH, "%s*.%s", searchSpec, searchExtension );
@@ -188,7 +184,6 @@ const char *fs_findFirstFile( const char *searchDir, const char *searchExtension
     }
 
     win32_hFind = FindFirstFile( searchSpec, &win32_wfdData );
-
     if ( win32_hFind == INVALID_HANDLE_VALUE )
     {
         return NULL;
@@ -205,7 +200,6 @@ const char *fs_findNextFile( void )
     {
         return NULL;
     }
-
     if ( !FindNextFile( win32_hFind, &win32_wfdData ) )
     {
         return NULL;
@@ -222,7 +216,7 @@ void fs_findClose()
     win32_hFind = NULL;
 }
 
-int DirGetAttrib( char *fromdir )
+int DirGetAttrib(  const char *fromdir )
 {
     return( GetFileAttributes( fromdir ) );
 }
@@ -249,13 +243,11 @@ void empty_import_directory( void )
         if ( fileName[0] != '.' )
         {
             _snprintf( filePath, MAX_PATH, "import" SLASH_STR "%s", fileName );
-
             if ( fs_fileIsDirectory( filePath ) )
             {
                 fs_removeDirectoryAndContents( filePath );
             }
         }
-
         if ( !FindNextFile( hFind, &wfdData ) ) break;
     }
 

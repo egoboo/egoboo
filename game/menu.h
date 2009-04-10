@@ -24,6 +24,22 @@
  * just go in proto.h.
  */
 
+//Input player control
+#define MAXLOADPLAYER     100
+struct s_load_player_info
+{
+    STRING name;
+    STRING dir;
+};
+typedef struct s_load_player_info LOAD_PLAYER_INFO;
+
+int              loadplayer_count;
+LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+
+extern int    mnu_selectedPlayerCount;
+extern int    mnu_selectedInput[MAXPLAYER];
+extern Uint16 mnu_selectedPlayer[MAXPLAYER];
+
 void menu_frameStep();
 
 #define egoboo_Menu_h

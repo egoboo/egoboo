@@ -92,7 +92,6 @@ void log_message( const char *format, ... )
 void log_info( const char *format, ... )
 {
     va_list args;
-
     if ( logLevel >= 2 )
     {
         va_start( args, format );
@@ -105,7 +104,6 @@ void log_info( const char *format, ... )
 void log_warning( const char *format, ... )
 {
     va_list args;
-
     if ( logLevel >= 1 )
     {
         va_start( args, format );

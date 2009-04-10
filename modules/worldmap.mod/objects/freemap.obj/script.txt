@@ -1,0 +1,11 @@
+
+IfSpawned
+  EnableExport
+  ShowMap
+  ShowYouAreHere
+  SetTargetToNearestLifeform
+  SetOwnerToTarget
+  EnchantTarget
+  GoPoof
+
+End					// All done

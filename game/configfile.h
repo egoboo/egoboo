@@ -23,7 +23,6 @@
  * Configuration file loading code.
  */
 
-
 #include "egobootypedef.h"
 
 #include <stdio.h>

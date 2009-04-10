@@ -29,7 +29,6 @@
 void TrimStr( char *pStr )
 {
     Sint32 DebPos, CurPos, EndPos = 0;
-
     if ( pStr == NULL )
     {
         return;
@@ -55,7 +54,6 @@ void TrimStr( char *pStr )
 
         CurPos++;
     }
-
     if ( DebPos != 0 )
     {
         // shift string left
@@ -72,37 +70,35 @@ void TrimStr( char *pStr )
     }
 }
 
-char * str_decode( char *strout, size_t insize, char * strin )
+//--------------------------------------------------------------------------------------------
+char * str_decode( char *strout, size_t insize,  const char * strin )
 {
     /// @details BB> str_decode converts a string from "storage mode" to an actual string
 
     char *pin = strin, *pout = strout, *plast = pout + insize;
-
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
 
     while ( pout < plast && '\0' != *pin )
     {
         *pout = *pin;
-
         if      ( '_' == *pout ) *pout = ' ';
         else if ( '~' == *pout ) *pout = '\t';
 
         pout++;
         pin++;
     };
-
     if ( pout < plast ) *pout = '\0';
 
     return strout;
 }
 
-char * str_encode( char *strout, size_t insize, char * strin )
+//--------------------------------------------------------------------------------------------
+char * str_encode( char *strout, size_t insize,  const char * strin )
 {
     /// @details BB> str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
     char *pin = strin, *pout = strout, *plast = pout + insize;
-
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
 
     while ( pout < plast && '\0' != *pin )
@@ -142,8 +138,39 @@ char * str_encode( char *strout, size_t insize, char * strin )
             pin++;
         }
     };
-
     if ( pout < plast ) *pout = '\0';
 
     return strout;
 }
+
+//--------------------------------------------------------------------------------------------
+void make_newloadname(  const char *modname,  const char *appendname,  char *newloadname )
+{
+    // ZZ> This function takes some names and puts 'em together
+    int cnt, tnc;
+    char ctmp;
+
+    cnt = 0;
+    ctmp = modname[cnt];
+
+    while ( ctmp != 0 )
+    {
+        newloadname[cnt] = ctmp;
+        cnt++;
+        ctmp = modname[cnt];
+    }
+
+    tnc = 0;
+    ctmp = appendname[tnc];
+
+    while ( ctmp != 0 )
+    {
+        newloadname[cnt] = ctmp;
+        cnt++;
+        tnc++;
+        ctmp = appendname[tnc];
+    }
+
+    newloadname[cnt] = 0;
+}
+

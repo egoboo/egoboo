@@ -44,7 +44,6 @@ struct ogl_texture_t
 };
 typedef struct ogl_texture_t GLTexture;
 
-
 GLTexture * GLTexture_new( GLTexture * ptx );
 void        GLTexture_delete( GLTexture * ptx );
 

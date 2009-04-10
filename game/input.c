@@ -38,7 +38,6 @@ void init_scancodes()
     {
         // SDL uses ascii values for it's virtual scancodes
         scancode_to_ascii[i] = i;
-
         if ( i < 255 )
         {
             scancode_to_ascii_shift[i] = toupper(i);
@@ -74,7 +73,6 @@ void init_scancodes()
     scancode_to_ascii_shift[SDLK_SLASH]        = '?';
 }
 
-
 //--------------------------------------------------------------------------------------------
 void input_init()
 {
@@ -109,7 +107,6 @@ void input_init()
     for (i = 0; i < MAXJOYSTICK; i++)
     {
         memset( joy + i, 0, sizeof(device_joystick_t) );
-
         if (i < SDL_NumJoysticks() )
         {
             joy[i].sdl_ptr = SDL_JoystickOpen( i );
@@ -122,7 +119,6 @@ void input_init()
 void input_read_mouse()
 {
     int x, y, b;
-
     if ( menuactive )
         b = SDL_GetMouseState( &x, &y );
     else
@@ -151,7 +147,6 @@ void input_read_joystick(int which)
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;
     device_joystick_t * pjoy;
-
     if ( which + INPUT_DEVICE_JOY > input_device_count ) return;
     if ( !joy[which].on ) return;
 
@@ -165,7 +160,6 @@ void input_read_joystick(int which)
     if ( x > dead_zone ) x -= dead_zone;
     else if ( x < -dead_zone ) x += dead_zone;
     else x = 0;
-
     if ( y > dead_zone ) y -= dead_zone;
     else if ( y < -dead_zone ) y += dead_zone;
     else y = 0;
@@ -238,7 +232,6 @@ void input_read()
 
                     is_alt   = ( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
                     is_shift = ( 0 != (kmod & KMOD_SHIFT) );
-
                     if ( console_mode && !is_alt )
                     {
                         if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
@@ -294,7 +287,6 @@ void input_read()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 Uint32 input_get_buttonmask( Uint32 idevice )
 {
@@ -304,7 +296,6 @@ Uint32 input_get_buttonmask( Uint32 idevice )
     // make sure the idevice is valid
     if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return 0;
     which_device = controls[idevice].device;
-
     if ( which_device >= INPUT_DEVICE_JOY )
     {
         // joysticks
