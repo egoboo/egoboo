@@ -32,6 +32,7 @@
 #include "script.h"
 #include "sound.h"
 #include "graphic.h"
+#include "passage.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"

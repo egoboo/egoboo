@@ -25,7 +25,11 @@
 // snprintf and vsnprintf are not considered native functions in MSVC
 // they are defined with an underscore to indicate this
 #    define snprintf  _snprintf
-#    define vsnprintf _vsnprintf
+
+//This isn't needed in MSVC 2008 and causes errors
+#if _MSC_VER < 1500 
+#	 define vsnprintf _vsnprintf             
+#endif
 
 // sets the packing of a data structure at declaration
 //#    define SET_PACKING(NAME,PACKING) __declspec( align( PACKING ) ) NAME

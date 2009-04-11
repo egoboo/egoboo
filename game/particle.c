@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "sound.h"
 #include "camera.h"
+#include "enchant.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1050,8 +1051,8 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
 
         goto_colon( fileread );  cTmp = get_first_letter( fileread );
         if ( cTmp == 'L' || cTmp == 'l' )  piptype[numpip] = PRTLIGHTSPRITE;
-        if ( cTmp == 'S' || cTmp == 's' )  piptype[numpip] = PRTSOLIDSPRITE;
-        if ( cTmp == 'T' || cTmp == 't' )  piptype[numpip] = PRTALPHASPRITE;
+        else if ( cTmp == 'S' || cTmp == 's' )  piptype[numpip] = PRTSOLIDSPRITE;
+        else if ( cTmp == 'T' || cTmp == 't' )  piptype[numpip] = PRTALPHASPRITE;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); pipimagebase[numpip] = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); pipnumframes[numpip] = iTmp;

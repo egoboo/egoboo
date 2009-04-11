@@ -36,3 +36,25 @@ typedef enum e_tx_type
 
 //Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
+void load_graphics();
+bool_t load_all_global_icons();
+
+void init_all_icons();
+void init_all_titleimages();
+void init_bars();
+void init_blip();
+void init_map();
+void init_all_textures();
+void init_all_models();
+
+void release_all_icons();
+void release_all_titleimages();
+void release_bars();
+void release_blip();
+void release_map();
+void release_all_textures();
+void release_all_models();
+
+bool_t load_blip_bitmap();
+void   load_bars(  const char* szBitmap );
+void   load_map(  const char* szModule );

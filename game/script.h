@@ -489,7 +489,8 @@ enum e_script_variables
     VARTARGETMONEY,      // == 68
     VARTARGETTURNAWAY,   // == 69
     VARSELFLEVEL,        // == 70
-    VARTARGETRELOADTIME  // == 71
+    VARTARGETRELOADTIME, // == 71
+    VARSELFCONTENT       // == 72
 };
 
 struct s_script_state
@@ -503,6 +504,8 @@ struct s_script_state
 };
 typedef struct s_script_state script_state_t;
 
+
+//Prototypes
 void  let_character_think( Uint16 character );
 void  let_all_characters_think();
 
@@ -525,3 +528,4 @@ void log_code( int ainumber,  const char* savename );
 int ai_goto_colon( int read );
 void get_code( int read );
 
+void load_ai_codes(  const char* loadname );

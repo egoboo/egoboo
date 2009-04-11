@@ -454,6 +454,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\enchant.h"
+				>
+			</File>
+			<File
 				RelativePath=".\font.h"
 				>
 			</File>
@@ -487,6 +491,10 @@
 			</File>
 			<File
 				RelativePath=".\particle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\passage.h"
 				>
 			</File>
 			<File

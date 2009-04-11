@@ -27,64 +27,41 @@
 
 struct s_script_state;
 
-void load_graphics();
-void empty_import_directory( void );
+void empty_import_directory();
 
-void load_ai_codes(  const char* loadname );
 int load_ai_script(  const char *loadname );
+
 void release_all_ai_scripts();
 int what_action( char cTmp );
 float get_level( float x, float y, bool_t waterwalk );
 bool_t load_one_icon(  const char *szLoadName );
-bool_t load_all_global_icons();
 
-//Free memory functions
-void prime_titleimage();
-
-void init_all_icons();
-void init_all_titleimages();
-void init_bars();
-void init_blip();
-void init_map();
-void init_all_textures();
-void init_all_models();
-
-void release_all_icons();
-void release_all_titleimages();
-void release_bars();
-void release_blip();
-void release_map();
-void release_all_textures();
-void release_all_models();
-
-bool_t load_blip_bitmap();
-void   load_bars(  const char* szBitmap );
-void   load_map(  const char* szModule );
-
-void release_module();
-void close_session();
 
 // Exporting stuff
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local );
 void export_all_local_players( void );
 void export_all_players( bool_t require_local );
 
+//Quitting stuff
 void quit_module( void );
 void quit_game( void );
+void release_module();
+void close_session();
+
+//Read values from files
 void goto_colon( FILE* fileread );
 Uint8 goto_colon_yesno( FILE* fileread );
 char get_first_letter( FILE* fileread );
-void reset_tags();
 bool_t read_tag( FILE *fileread );
+
+//Getting input control
+void reset_tags();
 void read_all_tags(  const char *szFilename );
 int tag_value(  const char *string );
 char* tag_to_string( Sint32 device, Sint32 tag, bool_t onlykeys );
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
-void free_all_enchants();
-bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile );
-Uint16 get_free_enchant();
-void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
-void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
+
+//Messages
 int get_free_message( void );
 void display_message( struct s_script_state * pstate, int message, Uint16 character );
 
@@ -96,14 +73,6 @@ IDSZ get_idsz( FILE* fileread );
 char * get_file_path( const char *character);
 
 //Enchants
-bool_t remove_enchant( Uint16 enchantindex );
-Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
-void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
-                        Uint16 enchanttype );
-void getadd( int min, int value, int max, int* valuetoadd );
-void fgetadd( float min, float value, float max, float* valuetoadd );
-void add_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 enchanttype );
-Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
 
 void load_action_names(  const char* loadname );
 void get_name( FILE* fileread,  char *szName );
@@ -121,19 +90,6 @@ int rip_md2_frame_name( int frame );
 void rip_md2_frames( Uint16 modelindex );
 int load_one_md2(  const char* szLoadname, Uint16 modelindex );
 
-//Passages
-int open_passage( Uint16 passage );
-void check_passage_music();
-int break_passage( struct s_script_state * pstate, Uint16 passage, Uint16 starttile, Uint16 frames,
-                   Uint16 become, Uint8 meshfxor );
-void flash_passage( Uint16 passage, Uint8 color );
-Uint8 find_tile_in_passage( struct s_script_state * pstate, Uint16 passage, int tiletype );
-Uint16 who_is_blocking_passage( Uint16 passage );
-Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
-int close_passage( Uint16 passage );
-void clear_passages();
-void add_shop_passage( Uint16 owner, Uint16 passage );
-void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
 
 void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
@@ -187,7 +143,7 @@ void setup_particles();
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 Uint8 __chrhitawall( Uint16 character );
-void move_water( void );
+void move_water();
 void play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void set_frame( Uint16 character, int frame, Uint16 lip );
 void reset_character_alpha( Uint16 character );
@@ -203,7 +159,7 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype );
 void disenchant_character( Uint16 cnt );
 void damage_character( Uint16 character, Uint16 direction,
                        int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
-                       Uint16 attacker, Uint16 effects );
+                       Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
 void kill_character( Uint16 character, Uint16 killer );
 void spawn_poof( Uint16 character, Uint16 profile );
 void naming_names( Uint16 profile );
@@ -234,8 +190,8 @@ void drop_keys( Uint16 character );
 void drop_all_items( Uint16 character );
 void character_grab_stuff( Uint16 chara, int grip, Uint8 people );
 void character_swipe( Uint16 cnt, Uint8 slot );
-void move_characters( void );
-void make_textureoffset( void );
+void move_characters();
+void make_textureoffset();
 int add_player( Uint16 character, Uint16 player, Uint32 device );
 void clear_messages();
 void setup_characters(  const char *modname );

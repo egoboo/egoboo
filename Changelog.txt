@@ -1,6 +1,11 @@
-- BUG: Teleport!
+- Reorganized some prototypes
+- Properly structured some constants into enum
+- Added a new script variable
+- Fixed a bug with damage_character()
 
-Version 2.7.0c (??.??.2009)
+Version 2.7.x (??.??.2009)
+- New Feature: Now you can play up to four players on the same computer at the same time
+  in hotseat mode!
 - Update: Added a new easter egg!
 - Update: Olaf's Junkshop now also sells crowbars.
 - Update: Scrolls now show different icons when identified.
@@ -9,6 +14,7 @@ Version 2.7.0c (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debbuging output Egoboo gives.
+- Bugfix: Various forms of bonus damage should now properly work.
 - Bugfix: Fixed an exploit with the Catacombs 1 boss.
 - Bugfix: Zombor can now solve the riddle of the dead.
 - Bugfix: Fixed some bugs with the module unlock system.

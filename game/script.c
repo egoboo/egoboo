@@ -26,6 +26,8 @@
 #include "log.h"
 #include "link.h"
 #include "camera.h"
+#include "passage.h"
+#include "enchant.h"
 
 #include <assert.h>
 
@@ -986,7 +988,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
     // debug stuff
     if ( debug_scripts )
     {
-        int i;
+        Uint32 i;
 
         for (i = 0; i < pself->indent; i++) { printf( "  " ); }
 
@@ -1604,7 +1606,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FDAMAGETARGET:
             // This function applies little bit of love to the character's target.
             // The amount is set in tmpargument
-            damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC );
+            damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
             break;
 
         case FIFXISLESSTHANY:
@@ -4447,6 +4449,11 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 iTmp = pself->state;
                 break;
 
+            case VARSELFCONTENT:
+                varname = "SELFCONTENT";
+				iTmp = pself->content;
+                break;
+
             case VARSELFSTR:
                 varname = "SELFSTR";
                 iTmp = chr[pself->index].strength;
@@ -6190,7 +6197,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     // This function applies little bit of love to the character's target.
     // The amount is set in tmpargument
-    damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC );
+    damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -11432,7 +11439,7 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
     // debug stuff
     if ( debug_scripts )
     {
-        int i;
+        Uint32 i;
 
         for (i = 0; i < pself->indent; i++) { printf( "  " ); }
 

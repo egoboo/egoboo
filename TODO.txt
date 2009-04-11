@@ -1,4 +1,5 @@
 MASTER TODO LIST:
+- BUG: Teleport script function is messed. Doesn't teleport character but ai target instead.
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - Wizards cannot use lamps
 - Runes crushed messages are missing
@@ -8,10 +9,6 @@ MASTER TODO LIST:
 - Crusader shield IfPutAway not working. It also refills mana!
 - Overlay effects do not spawn in pits.
 - Restoration removes good buffs
-- A bug in the waypoint system, causing such as:
-  Creates in G'nome starter tend to wander uphill.
-  Brom and Mim in the adventurer starter have some strange sudden waypoints.
-- Exp cheat works waaay to fast.
 - shield of deflection not working vs. orbstorm and float eye attacks
 - Game crashes in sand palace. Mimic and tranch room. (Only on specific pc's?) 
 - The Bishopia walls should be flagged as a Wall, not as Impassable.

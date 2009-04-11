@@ -21,6 +21,7 @@
  */
 
 #include "char.h"
+#include "enchant.h"
 #include "egoboo.h"
 #include "log.h"
 #include "script.h"
@@ -1092,6 +1093,39 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     // Set twist
     chr[character].turnmaplr = 32768;
     chr[character].turnmapud = 32768;
+}
+//--------------------------------------------------------------------------------------------
+void reset_character_alpha( Uint16 character )
+{
+    // ZZ> This function fixes an item's transparency
+    Uint16 enchant, mount;
+    if ( character != MAXCHR )
+    {
+        mount = chr[character].attachedto;
+        if ( chr[character].on && mount != MAXCHR && chr[character].isitem && chr[mount].transferblend )
+        {
+            // Okay, reset transparency
+            enchant = chr[character].firstenchant;
+
+            while ( enchant < MAXENCHANT )
+            {
+                unset_enchant_value( enchant, SETALPHABLEND );
+                unset_enchant_value( enchant, SETLIGHTBLEND );
+                enchant = encnextenchant[enchant];
+            }
+
+            chr[character].alpha = chr[character].basealpha;
+            chr[character].light = caplight[chr[character].model];
+            enchant = chr[character].firstenchant;
+
+            while ( enchant < MAXENCHANT )
+            {
+                set_enchant_value( enchant, SETALPHABLEND, enceve[enchant] );
+                set_enchant_value( enchant, SETLIGHTBLEND, enceve[enchant] );
+                enchant = encnextenchant[enchant];
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3131,7 +3165,7 @@ void make_onwhichfan( void )
                     }
                     if ( chr[character].damagetime == 0 )
                     {
-                        damage_character( character, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chr[character].ai.bumplast, DAMFXBLOC | DAMFXARMO );
+                        damage_character( character, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chr[character].ai.bumplast, DAMFXBLOC | DAMFXARMO, bfalse );
                         chr[character].damagetime = DAMAGETILETIME;
                     }
                     if ( (damagetileparttype != ((Sint16)~0)) && ( frame_wld&damagetilepartand ) == 0 )
@@ -3823,12 +3857,12 @@ void bump_characters( void )
                                                 // Damage the character
                                                 if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
                                                 {
-                                                    damage_character( chara, direction, prtdamagebase[partb] << 1, prtdamagerand[partb] << 1, prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip] );
+                                                    damage_character( chara, direction, prtdamagebase[partb] << 1, prtdamagerand[partb] << 1, prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip], bfalse );
                                                     chr[chara].ai.alert |= ALERTIF_HITVULNERABLE;
                                                 }
                                                 else
                                                 {
-                                                    damage_character( chara, direction, prtdamagebase[partb], prtdamagerand[partb], prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip] );
+                                                    damage_character( chara, direction, prtdamagebase[partb], prtdamagerand[partb], prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip], bfalse );
                                                 }
 
                                                 // Do confuse effects
@@ -3867,7 +3901,7 @@ void bump_characters( void )
                                                     chr[chara].phys_vel_y += -chr[chara].yvel;
                                                 }
 
-                                                damage_character( chara, 32768, prtdamagebase[partb], prtdamagerand[partb], prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip] );
+                                                damage_character( chara, 32768, prtdamagebase[partb], prtdamagerand[partb], prtdamagetype[partb], prtteam[partb], prtchr[partb], pipdamfx[pip], bfalse );
                                             }
                                         }
                                         if ( pipendbump[pip] )
@@ -4232,7 +4266,7 @@ void update_pits()
                                 }
 
                                 //Do some damage (same as damage tile)
-                                damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chr[cnt].ai.bumplast, DAMFXBLOC | DAMFXARMO );
+                                damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, chr[cnt].ai.bumplast, DAMFXBLOC | DAMFXARMO, btrue );
                             }
                         }
                     }
@@ -5529,7 +5563,7 @@ void check_player_import(  const char *dirname, bool_t initialize )
 //--------------------------------------------------------------------------------------------
 void damage_character( Uint16 character, Uint16 direction,
                        int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
-                       Uint16 attacker, Uint16 effects )
+                       Uint16 attacker, Uint16 effects, bool_t ignoreinvincible )
 {
     // ZZ> This function calculates and applies damage to a character.  It also
     //     sets alerts and begins actions.  Blocking and frame invincibility
@@ -5828,11 +5862,11 @@ void kill_character( Uint16 character, Uint16 killer )
         chr[character].damagemodifier[DAMAGE_CRUSH] = 1;
         if ( killer != MAXCHR )
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, chr[killer].team, killer, DAMFXARMO | DAMFXBLOC );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, chr[killer].team, killer, DAMFXARMO | DAMFXBLOC, btrue );
         }
         else
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, chr[character].ai.bumplast, DAMFXARMO | DAMFXBLOC );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, chr[character].ai.bumplast, DAMFXARMO | DAMFXBLOC, btrue );
         }
 
         chr[character].damagemodifier[DAMAGE_CRUSH] = modifier;

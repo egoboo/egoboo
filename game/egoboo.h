@@ -358,6 +358,7 @@ EXTERN int rotmeshdown;                                    //
 #define PRTSOLIDSPRITE                  1           // Sprite particle
 #define PRTALPHASPRITE                  2           // Smoke particle
 #define MAXPARTICLEIMAGE                256         // Number of particle images ( frames )
+#define DYNAFANS  12
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
@@ -1037,6 +1038,7 @@ EXTERN Sint16           encaddsave[MAXENCHANT][MAXEVEADDVALUE]; // The value to 
 EXTERN Sint16           enctime[MAXENCHANT];                    // Time before end
 EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before spawn
 
+//missile treatments
 #define MISNORMAL               0                  // Treat missiles normally
 #define MISDEFLECT              1                  // Deflect incoming missiles
 #define MISREFLECT              2                  // Reflect them back!
@@ -1045,48 +1047,7 @@ EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before s
 #define LEAVEFIRST              1
 #define LEAVENONE               2
 
-#define SETDAMAGETYPE           0
-#define SETNUMBEROFJUMPS        1
-#define SETLIFEBARCOLOR         2
-#define SETMANABARCOLOR         3
-#define SETSLASHMODIFIER        4      // Damage modifiers
-#define SETCRUSHMODIFIER        5
-#define SETPOKEMODIFIER         6
-#define SETHOLYMODIFIER         7
-#define SETEVILMODIFIER         8
-#define SETFIREMODIFIER         9
-#define SETICEMODIFIER          10
-#define SETZAPMODIFIER          11
-#define SETFLASHINGAND          12
-#define SETLIGHTBLEND           13
-#define SETALPHABLEND           14
-#define SETSHEEN                15      // Shinyness
-#define SETFLYTOHEIGHT          16
-#define SETWALKONWATER          17
-#define SETCANSEEINVISIBLE      18
-#define SETMISSILETREATMENT     19
-#define SETCOSTFOREACHMISSILE   20
-#define SETMORPH                21      // Morph character?
-#define SETCHANNEL              22      // Can channel life as mana?
-
-#define ADDJUMPPOWER            0
-#define ADDBUMPDAMPEN           1
-#define ADDBOUNCINESS           2
-#define ADDDAMAGE               3
-#define ADDSIZE                 4
-#define ADDACCEL                5
-#define ADDRED                  6      // Red shift
-#define ADDGRN                  7      // Green shift
-#define ADDBLU                  8      // Blue shift
-#define ADDDEFENSE              9      // Defence adjustments
-#define ADDMANA                 10
-#define ADDLIFE                 11
-#define ADDSTRENGTH             12
-#define ADDWISDOM               13
-#define ADDINTELLIGENCE         14
-#define ADDDEXTERITY            15
-
-EXTERN float                   textureoffset[256];         // For moving textures
+EXTERN float            textureoffset[256];         // For moving textures
 EXTERN Uint16           dolist[MAXCHR];             // List of which characters to draw
 EXTERN Uint16           numdolist;                  // How many in the list
 
@@ -1295,11 +1256,10 @@ EXTERN Uint16          madactionstart[MAXMODEL][MAXACTION];        // First fram
 EXTERN Uint16          madactionend[MAXMODEL][MAXACTION];          // One past last frame
 EXTERN Uint16          madprtpip[MAXMODEL][MAXPRTPIPPEROBJECT];    // Local particles
 
-// Character profiles
-
 EXTERN Uint16  bookicon_count    EQ(0);
 EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 
+// Character profiles
 EXTERN int             importobject;
 EXTERN short           capimportslot[MAXMODEL];
 EXTERN char            capclassname[MAXMODEL][MAXCAPNAMESIZE];     // Class name
@@ -1728,9 +1688,6 @@ EXTERN Uint16  shopowner[MAXPASS];    // Who gets the gold?
 EXTERN int numstat  EQ( 0 );
 EXTERN Uint16  statlist[MAXSTAT];
 EXTERN int statdelay  EQ( 25 );
-
-// Particle
-#define DYNAFANS  12
 
 // Network Stuff
 #define SHORTLATCH 1024.0f

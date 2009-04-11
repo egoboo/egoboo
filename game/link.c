@@ -33,7 +33,7 @@ bool_t link_export_all()
     //     and also copies them into the imports dir to prepare for the next module
 
     bool_t is_local;
-    int cnt, tnc, i, j, character, player;
+    int cnt, tnc, j, character, player;
     STRING srcPlayer, srcDir, destDir;
 
     // do the normal export to save all the player settings

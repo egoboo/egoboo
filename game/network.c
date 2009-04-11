@@ -1457,7 +1457,7 @@ void listen_for_packets()
 void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
-    int cnt, time, character;
+    int cnt, character;
     if ( rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
@@ -1465,7 +1465,8 @@ void unbuffer_player_latches()
     numplatimes = 0;
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        int weight, tnc, index;
+        int weight;
+		Uint32 index, tnc;
         if ( !plavalid[cnt] ) continue;
 
         character = plaindex[cnt];

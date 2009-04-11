@@ -602,6 +602,7 @@ The symbol itself follows
 :V 069 targetturnfrom
 :V 070 selflevel
 :V 071 targetreloadtime
+:V 072 selfcontent
 :O 000 +
 :O 001 -
 :O 002 &

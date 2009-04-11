@@ -53,40 +53,6 @@ void DisableTexturing()
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_character_alpha( Uint16 character )
-{
-    // ZZ> This function fixes an item's transparency
-    Uint16 enchant, mount;
-    if ( character != MAXCHR )
-    {
-        mount = chr[character].attachedto;
-        if ( chr[character].on && mount != MAXCHR && chr[character].isitem && chr[mount].transferblend )
-        {
-            // Okay, reset transparency
-            enchant = chr[character].firstenchant;
-
-            while ( enchant < MAXENCHANT )
-            {
-                unset_enchant_value( enchant, SETALPHABLEND );
-                unset_enchant_value( enchant, SETLIGHTBLEND );
-                enchant = encnextenchant[enchant];
-            }
-
-            chr[character].alpha = chr[character].basealpha;
-            chr[character].light = caplight[chr[character].model];
-            enchant = chr[character].firstenchant;
-
-            while ( enchant < MAXENCHANT )
-            {
-                set_enchant_value( enchant, SETALPHABLEND, enceve[enchant] );
-                set_enchant_value( enchant, SETLIGHTBLEND, enceve[enchant] );
-                enchant = encnextenchant[enchant];
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void move_water( void )
 {
     // ZZ> This function animates the water overlays
@@ -1353,7 +1319,7 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void make_textureoffset( void )
+void make_textureoffset()
 {
     // ZZ> This function sets up for moving textures
     int cnt;
