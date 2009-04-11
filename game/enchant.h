@@ -81,13 +81,13 @@ void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
 Uint16 get_free_enchant();
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
-void remove_enchant( Uint16 enchantindex );
+bool_t remove_enchant( Uint16 enchantindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_enchant( Uint16 owner, Uint16 target,
                       Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
-void load_one_enchant_type( const char* szLoadName, Uint16 profile );
+bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
