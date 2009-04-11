@@ -428,7 +428,6 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
     float pointx = 0;
     float pointy = 0;
     float pointz = 0;
-    int temp;
 
     // Check validity of attachment
     if ( !chr[character].on || chr[character].inpack )
@@ -496,7 +495,7 @@ void make_one_weapon_matrix( Uint16 iweap )
     float  ichr_flip;
     float  pointx[GRIP_VERTS], pointy[GRIP_VERTS], pointz[GRIP_VERTS];
     float  nupointx[GRIP_VERTS], nupointy[GRIP_VERTS], nupointz[GRIP_VERTS];
-    int    temp, iweappoints;
+    int    iweappoints;
 
     // make sure that we are attached to a valid character
     ichr = chr[iweap].attachedto;
@@ -2586,8 +2585,6 @@ void move_characters( void )
     // Do poofing
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        Uint16 child;
-
         if ( !chr[cnt].on || !chr[cnt].ai.gopoof ) continue;
 
         if ( chr[cnt].attachedto != MAXCHR )
@@ -3511,7 +3508,8 @@ void bump_characters( void )
                         float depth_x, depth_y, depth_xy, depth_yx, depth_z;
                         glVector nrm;
 
-                        nrm.x = nrm.y = nrm.z = 0.0f;
+						nrm.x = nrm.y = nrm.z = 0.0f;
+						nrm.w = 1.0f;
 
                         depth_x  = MIN(xa + chr[chara].bumpsize, xb + chr[charb].bumpsize) - MAX(xa - chr[chara].bumpsize, xb - chr[charb].bumpsize);
                         if ( depth_x < 0.0f )
@@ -4544,11 +4542,9 @@ void resize_characters()
 {
     // ZZ> This function makes the characters get bigger or smaller, depending
     //     on their sizegoto and sizegototime
-    int cnt, item, mount;
+    int cnt = 0;
     bool_t willgetcaught;
     float newsize;
-
-    cnt = 0;
 
     while ( cnt < MAXCHR )
     {

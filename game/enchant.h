@@ -52,7 +52,7 @@ typedef enum enchant_set
     SETMORPH,					// Morph character?
     SETCHANNEL,					// Can channel life as mana?
 	MAX_ENCHANT_SET,
-};
+} enum_enchant_set;
 
 typedef enum enchant_add
 {
@@ -72,7 +72,7 @@ typedef enum enchant_add
 	ADDWISDOM,               
 	ADDINTELLIGENCE,         
 	ADDDEXTERITY,
-};
+}enum_enchant_add;
 
 
 //Prototypes

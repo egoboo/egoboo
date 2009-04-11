@@ -51,7 +51,6 @@ static Uint16 script_error_index     = (Uint16)(~0);
 
 static int    iLoadSize;
 static int    iNumLine;
-static char * szScriptName;
 
 static int    iLineSize;
 static char   cLineBuffer[MAXLINESIZE];
@@ -75,7 +74,7 @@ static int    Token_iValue;
 static char   Token_cType;
 static char   Token_cWord[MAXCODENAMESIZE];
 
-static Uint8 run_function( script_state_t * pstate, ai_state_t * pself );
+//static Uint8 run_function( script_state_t * pstate, ai_state_t * pself );
 static Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself );
 static void  set_operand( script_state_t * pstate, Uint8 variable );
 static void  run_operand( script_state_t * pstate, ai_state_t * pself );
@@ -4877,6 +4876,7 @@ void let_all_characters_think()
 
 // turn off this annoying warning
 #pragma warning(disable : 4189) // local variable is initialized but not referenced
+#pragma unused sTmp;			//This prevents warnings when this variable is unused
 
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \
@@ -4884,7 +4884,7 @@ void let_all_characters_think()
     Uint8 returncode = 1; \
     if( NULL == pstate || NULL == pself || pself->index >= MAXCHR || !chr[pself->index].on ) return 0;\
     pchr = chr + pself->index;
-
+    
 #define SCRIPT_FUNCTION_END() \
     return returncode;
 

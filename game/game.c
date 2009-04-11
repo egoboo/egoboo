@@ -33,6 +33,7 @@
 #include "sound.h"
 #include "graphic.h"
 #include "passage.h"
+#include "enchant.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
@@ -83,7 +84,6 @@ char * get_file_path( const char *szName)
     //ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
-    Uint8 cnt = 0;
     char * pname, * pname_end;
     char * ppath, * ppath_end;
     char letter;
@@ -880,7 +880,6 @@ void get_madtransvertices( Uint16 modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
     //     That means every one except the grip ( unconnected ) vertices
-    int trans = 0;
 
     //if (modelindex == 0)
     //{
@@ -1404,7 +1403,7 @@ void make_twist()
 {
     // ZZ> This function precomputes surface normals and steep hill acceleration for
     //     the mesh
-    int cnt;
+    Uint16 cnt;
     int x, y;
     float xslide, yslide;
 
@@ -2066,8 +2065,6 @@ int SDL_main( int argc, char **argv )
     int menuActive = 1;
     int menuResult;
     int frame_next = 0, frame_now = 0;
-
-    IDSZ temp = Make_IDSZ( "FREE" );
 
     // Initialize logging first, so that we can use it everywhere.
     log_init();

@@ -171,7 +171,6 @@ bool_t link_follow( Link_t list[], int ilink )
 {
     // BB> This causes the game to follow a link
 
-    bool_t retval = bfalse;
     Link_t * plink;
     if ( ilink < 0 || ilink >= LINK_COUNT ) return bfalse;
 

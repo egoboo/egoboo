@@ -1,8 +1,3 @@
-- Reorganized some prototypes
-- Properly structured some constants into enum
-- Added a new script variable
-- Fixed a bug with damage_character()
-
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!

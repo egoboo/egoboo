@@ -156,8 +156,6 @@ void render_enviromad( Uint16 character, Uint8 trans )
     GLVERTEX v[MAXVERTICES];
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
-    Sint32 temp;
-    Uint8 ambi;
     glMatrix tempWorld = mWorld;
 
     Uint16 model = chr[character].model;
@@ -288,11 +286,6 @@ void render_texmad( Uint16 character, Uint8 trans )
     GLVERTEX v[MAXVERTICES];
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
-    Sint32 temp;
-//  float z, fogtokeep;
-//  Uint8 red, grn, blu;
-    Uint8 ambi;
-//  DWORD fogspec;
 
     // To make life easier
     Uint16 model = chr[character].model;

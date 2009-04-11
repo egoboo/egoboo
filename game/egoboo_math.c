@@ -87,6 +87,7 @@ glVector CrossProduct( glVector A, glVector B )
     tmp.x = A.y * B.z - A.z * B.y;
     tmp.y = A.z * B.x - A.x * B.z;
     tmp.z = A.x * B.y - A.y * B.x;
+	tmp.w = 1.0f;
     return( tmp );
 }
 

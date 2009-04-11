@@ -1979,6 +1979,7 @@ void load_map(  const char* szModule )
 //--------------------------------------------------------------------------------------------
 void font_init()
 {
+	//Intitializes the font, ready to use
     GLTexture_new( &TxFont );
 
     font_release();
@@ -1989,7 +1990,7 @@ void font_release()
 {
     // BB > fill in default values
 
-    int i, ix, iy, cnt;
+    Uint16 i, ix, iy, cnt;
     float dx, dy;
 
     GLTexture_Release( &TxFont );
@@ -2007,11 +2008,11 @@ void font_release()
         ix = i % NUMFONTX;
         iy = i / NUMFONTX;
 
-        fontrect[cnt].x = ix * dx;
-        fontrect[cnt].w = dx;
-        fontrect[cnt].y = iy * dy;
-        fontrect[cnt].h = dy;
-        fontxspacing[cnt] = 0;
+        fontrect[i].x = ix * dx;
+        fontrect[i].w = dx;
+        fontrect[i].y = iy * dy;
+        fontrect[i].h = dy;
+        fontxspacing[i] = 0;
     }
     fontyspacing = dy;
 

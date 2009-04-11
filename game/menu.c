@@ -52,7 +52,7 @@ enum MenuStates
 //--------------------------------------------------------------------------------------------
 
 #define MAXWIDGET 100
-static int         mnu_widgetCount;
+//static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
 int              loadplayer_count = 0;
@@ -1078,8 +1078,6 @@ int doInputOptions( float deltaTime )
 
     Sint8 result = 0;
     static int player = 0;
-
-    static char Ctext[128];
 
     Uint32              i;
     int                 idevice, iicon;
