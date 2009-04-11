@@ -324,7 +324,7 @@ void make_one_character_matrix( Uint16 cnt )
     }
     else
     {
-        chr[cnt].matrix = ScaleXYZRotateXYZTranslate( chr[cnt].scale, chr[cnt].scale, chr[cnt].scale,
+        chr[cnt].matrix = ScaleXYZRotateXYZTranslate( chr[cnt].fat, chr[cnt].fat, chr[cnt].fat,
                           chr[cnt].turnleftright >> 2,
                           ( ( Uint16 ) ( chr[cnt].turnmapud + 32768 ) ) >> 2,
                           ( ( Uint16 ) ( chr[cnt].turnmaplr + 32768 ) ) >> 2,
@@ -423,6 +423,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
     //     It will kill the particle if the character is no longer around
     Uint16 vertex, model, frame, lastframe;
     Uint8 lip;
+    float flip;
     float pointx = 0;
     float pointy = 0;
     float pointz = 0;
@@ -443,6 +444,8 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         frame = chr[character].frame;
         lastframe = chr[character].lastframe;
         lip = chr[character].lip >> 6;
+        flip = lip / 4.0f;
+
         if ( grip == GRIP_ORIGIN )
         {
             prtxpos[particle] = chr[character].matrix.CNV( 3, 0 );
@@ -454,41 +457,9 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         vertex = madvertices[model] - grip;
 
         // Calculate grip point locations with linear interpolation and other silly things
-        switch ( lip )
-        {
-            case 0:  // 25% this frame
-                temp = madvrtx[lastframe][vertex];
-                temp = ( temp + temp + temp + madvrtx[frame][vertex] ) >> 2;
-                pointx = temp;/// chr[cnt].scale;
-                temp = madvrty[lastframe][vertex];
-                temp = ( temp + temp + temp + madvrty[frame][vertex] ) >> 2;
-                pointy = temp;/// chr[cnt].scale;
-                temp = madvrtz[lastframe][vertex];
-                temp = ( temp + temp + temp + madvrtz[frame][vertex] ) >> 2;
-                pointz = temp;/// chr[cnt].scale;
-                break;
-            case 1:  // 50% this frame
-                pointx = ( ( madvrtx[frame][vertex] + madvrtx[lastframe][vertex] ) >> 1 );/// chr[cnt].scale;
-                pointy = ( ( madvrty[frame][vertex] + madvrty[lastframe][vertex] ) >> 1 );/// chr[cnt].scale;
-                pointz = ( ( madvrtz[frame][vertex] + madvrtz[lastframe][vertex] ) >> 1 );/// chr[cnt].scale;
-                break;
-            case 2:  // 75% this frame
-                temp = madvrtx[frame][vertex];
-                temp = ( temp + temp + temp + madvrtx[lastframe][vertex] ) >> 2;
-                pointx = temp;/// chr[cnt].scale;
-                temp = madvrty[frame][vertex];
-                temp = ( temp + temp + temp + madvrty[lastframe][vertex] ) >> 2;
-                pointy = temp;/// chr[cnt].scale;
-                temp = madvrtz[frame][vertex];
-                temp = ( temp + temp + temp + madvrtz[lastframe][vertex] ) >> 2;
-                pointz = temp;/// chr[cnt].scale;
-                break;
-            case 3:  // 100% this frame...  This is the legible one
-                pointx = madvrtx[frame][vertex];/// chr[cnt].scale;
-                pointy = madvrty[frame][vertex];/// chr[cnt].scale;
-                pointz = madvrtz[frame][vertex];/// chr[cnt].scale;
-                break;
-        }
+        pointx = madvrtx[lastframe][vertex] + (madvrtx[frame][vertex] - madvrtx[lastframe][vertex]) * flip;
+        pointy = madvrty[lastframe][vertex] + (madvrty[frame][vertex] - madvrty[lastframe][vertex]) * flip;
+        pointz = madvrtz[lastframe][vertex] + (madvrtz[frame][vertex] - madvrtz[lastframe][vertex]) * flip;
 
         // Do the transform
         prtxpos[particle] = ( pointx * chr[character].matrix.CNV( 0, 0 ) +
@@ -500,6 +471,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         prtzpos[particle] = ( pointx * chr[character].matrix.CNV( 0, 2 ) +
                               pointy * chr[character].matrix.CNV( 1, 2 ) +
                               pointz * chr[character].matrix.CNV( 2, 2 ) );
+
         prtxpos[particle] += chr[character].matrix.CNV( 3, 0 );
         prtypos[particle] += chr[character].matrix.CNV( 3, 1 );
         prtzpos[particle] += chr[character].matrix.CNV( 3, 2 );
@@ -520,6 +492,7 @@ void make_one_weapon_matrix( Uint16 iweap )
     int    cnt, tnc, vertex;
     Uint16 ichr, ichr_model, ichr_frame, ichr_lastframe;
     Uint8  ichr_lip;
+    float  ichr_flip;
     float  pointx[GRIP_VERTS], pointy[GRIP_VERTS], pointz[GRIP_VERTS];
     float  nupointx[GRIP_VERTS], nupointy[GRIP_VERTS], nupointz[GRIP_VERTS];
     int    temp, iweappoints;
@@ -536,9 +509,9 @@ void make_one_weapon_matrix( Uint16 iweap )
     ichr_frame = chr[ichr].frame;
     ichr_lastframe = chr[ichr].lastframe;
     ichr_lip = chr[ichr].lip >> 6;
+    ichr_flip = ichr_lip / 4.0f;
 
     iweappoints = 0;
-
     for (cnt = 0; cnt < GRIP_VERTS; cnt++)
     {
         if (0xFFFF != chr[iweap].weapongrip[cnt])
@@ -557,77 +530,19 @@ void make_one_weapon_matrix( Uint16 iweap )
     else
     {
         // Calculate grip point locations with linear interpolation and other silly things
-        switch ( ichr_lip )
+        for (cnt = 0; cnt < GRIP_VERTS; cnt++ )
         {
-            case 0:  // 25% this ichr_frame
+            vertex = chr[iweap].weapongrip[cnt];
+            if (0xFFFF == vertex) continue;
 
-                for (cnt = 0; cnt < GRIP_VERTS; cnt++ )
-                {
-                    vertex = chr[iweap].weapongrip[cnt];
-                    if (0xFFFF == vertex) continue;
-
-                    temp = madvrtx[ichr_lastframe][vertex];
-                    temp = ( temp + temp + temp + madvrtx[ichr_frame][vertex] ) >> 2;
-                    pointx[cnt] = temp;
-                    temp = madvrty[ichr_lastframe][vertex];
-                    temp = ( temp + temp + temp + madvrty[ichr_frame][vertex] ) >> 2;
-                    pointy[cnt] = temp;
-                    temp = madvrtz[ichr_lastframe][vertex];
-                    temp = ( temp + temp + temp + madvrtz[ichr_frame][vertex] ) >> 2;
-                    pointz[cnt] = temp;
-                }
-                break;
-
-            case 1:  // 50% this ichr_frame
-
-                for (cnt = 0; cnt < GRIP_VERTS; cnt++ )
-                {
-                    vertex = chr[iweap].weapongrip[cnt];
-                    if (0xFFFF == vertex) continue;
-
-                    pointx[cnt] = ( ( madvrtx[ichr_frame][vertex] + madvrtx[ichr_lastframe][vertex] ) >> 1 );
-                    pointy[cnt] = ( ( madvrty[ichr_frame][vertex] + madvrty[ichr_lastframe][vertex] ) >> 1 );
-                    pointz[cnt] = ( ( madvrtz[ichr_frame][vertex] + madvrtz[ichr_lastframe][vertex] ) >> 1 );
-                }
-                break;
-
-            case 2:  // 75% this ichr_frame
-
-                for (cnt = 0; cnt < GRIP_VERTS; cnt++ )
-                {
-                    vertex = chr[iweap].weapongrip[cnt];
-                    if (0xFFFF == vertex) continue;
-
-                    temp = madvrtx[ichr_frame][vertex];
-                    temp = ( temp + temp + temp + madvrtx[ichr_lastframe][vertex] ) >> 2;
-                    pointx[cnt] = temp;
-                    temp = madvrty[ichr_frame][vertex];
-                    temp = ( temp + temp + temp + madvrty[ichr_lastframe][vertex] ) >> 2;
-                    pointy[cnt] = temp;
-                    temp = madvrtz[ichr_frame][vertex];
-                    temp = ( temp + temp + temp + madvrtz[ichr_lastframe][vertex] ) >> 2;
-                    pointz[cnt] = temp;
-                }
-                break;
-
-            case 3:  // 100% this ichr_frame...  This is the legible one
-
-                for (cnt = 0; cnt < GRIP_VERTS; cnt++ )
-                {
-                    vertex = chr[iweap].weapongrip[cnt];
-                    if (0xFFFF == vertex) continue;
-
-                    pointx[cnt] = madvrtx[ichr_frame][vertex];
-                    pointy[cnt] = madvrty[ichr_frame][vertex];
-                    pointz[cnt] = madvrtz[ichr_frame][vertex];
-                }
-                break;
+            // Calculate grip point locations with linear interpolation and other silly things
+            pointx[cnt] = madvrtx[ichr_lastframe][vertex] + (madvrtx[ichr_frame][vertex] - madvrtx[ichr_lastframe][vertex]) * ichr_flip;
+            pointy[cnt] = madvrty[ichr_lastframe][vertex] + (madvrty[ichr_frame][vertex] - madvrty[ichr_lastframe][vertex]) * ichr_flip;
+            pointz[cnt] = madvrtz[ichr_lastframe][vertex] + (madvrtz[ichr_frame][vertex] - madvrtz[ichr_lastframe][vertex]) * ichr_flip;
         }
     }
 
-    tnc = 0;
-
-    while ( tnc < iweappoints )
+    for ( tnc = 0; tnc < iweappoints; tnc++ )
     {
         // Do the transform
         nupointx[tnc] = ( pointx[tnc] * chr[ichr].matrix.CNV( 0, 0 ) +
@@ -643,13 +558,12 @@ void make_one_weapon_matrix( Uint16 iweap )
         nupointx[tnc] += chr[ichr].matrix.CNV( 3, 0 );
         nupointy[tnc] += chr[ichr].matrix.CNV( 3, 1 );
         nupointz[tnc] += chr[ichr].matrix.CNV( 3, 2 );
-
-        tnc++;
     }
+
     if (1 == iweappoints)
     {
         // attach to single point
-        chr[iweap].matrix = ScaleXYZRotateXYZTranslate(chr[iweap].scale, chr[iweap].scale, chr[iweap].scale,
+        chr[iweap].matrix = ScaleXYZRotateXYZTranslate(chr[iweap].fat, chr[iweap].fat, chr[iweap].fat,
                             chr[iweap].turnleftright >> 2,
                             ( ( Uint16 ) ( chr[iweap].turnmapud + 32768 ) ) >> 2,
                             ( ( Uint16 ) ( chr[iweap].turnmaplr + 32768 ) ) >> 2,
@@ -665,7 +579,7 @@ void make_one_weapon_matrix( Uint16 iweap )
                                         nupointx[1], nupointy[1], nupointz[1],
                                         nupointx[2], nupointy[2], nupointz[2],
                                         nupointx[3], nupointy[3], nupointz[3],
-                                        chr[iweap].scale );
+                                        chr[iweap].fat );
         chr[iweap].matrixvalid = btrue;
     }
 }
@@ -1031,8 +945,6 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     if ( chr[mount].holdingwhich[1] == character )
         chr[mount].holdingwhich[1] = MAXCHR;
 
-    chr[character].scale = chr[character].fat * madscale[chr[character].model] * 4;
-
     // Run the falling animation...
     play_action( character, ACTIONJB + hand, bfalse );
 
@@ -1233,7 +1145,6 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     chr[character].ypos = chr[character].matrix.CNV( 3, 1 );
     chr[character].zpos = chr[character].matrix.CNV( 3, 2 );
 
-    chr[character].scale = chr[character].fat / ( chr[mount].fat * 1280 );
     chr[character].inwater = bfalse;
     chr[character].jumptime = JUMPDELAY * 4;
 
@@ -2641,15 +2552,20 @@ void move_characters( void )
     // Do poofing
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
+        Uint16 child;
+
         if ( !chr[cnt].on || !chr[cnt].ai.gopoof ) continue;
+
         if ( chr[cnt].attachedto != MAXCHR )
         {
             detach_character_from_mount( cnt, btrue, bfalse );
         }
+
         if ( chr[cnt].holdingwhich[0] != MAXCHR )
         {
             detach_character_from_mount( chr[cnt].holdingwhich[0], btrue, bfalse );
         }
+
         if ( chr[cnt].holdingwhich[1] != MAXCHR )
         {
             detach_character_from_mount( chr[cnt].holdingwhich[1], btrue, bfalse );
@@ -2657,9 +2573,6 @@ void move_characters( void )
 
         free_inventory( cnt );
         free_one_character( cnt );
-
-        // we don't want the poof to carry over...
-        chr[cnt].ai.gopoof = bfalse;
     }
 }
 
@@ -4149,86 +4062,79 @@ void stat_return()
         }
 
         // Run through all the enchants as well
-        cnt = 0;
-
-        while ( cnt < MAXENCHANT )
+        for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
         {
-            if ( encon[cnt] )
+            if ( !encon[cnt] ) continue;
+
+            if ( enctime[cnt] != 0 )
             {
-                if ( enctime[cnt] != 0 )
+                if ( enctime[cnt] > 0 )
                 {
-                    if ( enctime[cnt] > 0 )
+                    enctime[cnt]--;
+                }
+
+                owner = encowner[cnt];
+                target = enctarget[cnt];
+                eve = enceve[cnt];
+
+                // Do drains
+                if ( chr[owner].alive )
+                {
+                    // Change life
+                    chr[owner].life += encownerlife[cnt];
+                    if ( chr[owner].life < 1 )
                     {
-                        enctime[cnt]--;
+                        chr[owner].life = 1;
+                        kill_character( owner, target );
+                    }
+                    if ( chr[owner].life > chr[owner].lifemax )
+                    {
+                        chr[owner].life = chr[owner].lifemax;
                     }
 
-                    owner = encowner[cnt];
-                    target = enctarget[cnt];
-                    eve = enceve[cnt];
+                    // Change mana
+                    if ( !cost_mana( owner, -encownermana[cnt], target ) && eveendifcantpay[eve] )
+                    {
+                        remove_enchant( cnt );
+                    }
+                }
+                else if ( !evestayifnoowner[eve] )
+                {
+                    remove_enchant( cnt );
+                }
 
-                    // Do drains
-                    if ( chr[owner].alive )
+                if ( encon[cnt] )
+                {
+                    if ( chr[target].alive )
                     {
                         // Change life
-                        chr[owner].life += encownerlife[cnt];
-                        if ( chr[owner].life < 1 )
+                        chr[target].life += enctargetlife[cnt];
+                        if ( chr[target].life < 1 )
                         {
-                            chr[owner].life = 1;
-                            kill_character( owner, target );
+                            chr[target].life = 1;
+                            kill_character( target, owner );
                         }
-                        if ( chr[owner].life > chr[owner].lifemax )
+                        if ( chr[target].life > chr[target].lifemax )
                         {
-                            chr[owner].life = chr[owner].lifemax;
+                            chr[target].life = chr[target].lifemax;
                         }
 
                         // Change mana
-                        if ( !cost_mana( owner, -encownermana[cnt], target ) && eveendifcantpay[eve] )
+                        if ( !cost_mana( target, -enctargetmana[cnt], owner ) && eveendifcantpay[eve] )
                         {
                             remove_enchant( cnt );
                         }
                     }
                     else
                     {
-                        if ( !evestayifnoowner[eve] )
-                        {
-                            remove_enchant( cnt );
-                        }
+                        remove_enchant( cnt );
                     }
-                    if ( encon[cnt] )
-                    {
-                        if ( chr[target].alive )
-                        {
-                            // Change life
-                            chr[target].life += enctargetlife[cnt];
-                            if ( chr[target].life < 1 )
-                            {
-                                chr[target].life = 1;
-                                kill_character( target, owner );
-                            }
-                            if ( chr[target].life > chr[target].lifemax )
-                            {
-                                chr[target].life = chr[target].lifemax;
-                            }
-
-                            // Change mana
-                            if ( !cost_mana( target, -enctargetmana[cnt], owner ) && eveendifcantpay[eve] )
-                            {
-                                remove_enchant( cnt );
-                            }
-                        }
-                        else
-                        {
-                            remove_enchant( cnt );
-                        }
-                    }
-                }
-                else
-                {
-                    remove_enchant( cnt );
                 }
             }
-
-            cnt++;
+            else
+            {
+                remove_enchant( cnt );
+            }
         }
     }
 
@@ -4501,8 +4407,8 @@ void do_level_up( Uint16 character )
             }
 
             // Size
-            chr[character].sizegoto += capsizeperlevel[profile] * 0.5f;  // Limit this?
-            chr[character].sizegototime = SIZETIME;
+            chr[character].sizegoto += capsizeperlevel[profile] * 5.0f;  // Limit this?
+            chr[character].sizegototime += SIZETIME;
 
             // Strength
             number = generate_number( capstrengthperlevelbase[profile], capstrengthperlevelrand[profile] );
@@ -4612,19 +4518,24 @@ void resize_characters()
 
     while ( cnt < MAXCHR )
     {
-        if ( chr[cnt].on && chr[cnt].sizegototime )
+        if ( chr[cnt].on && chr[cnt].sizegototime && chr[cnt].sizegoto != chr[cnt].fat )
         {
+            int bump_increase;
+
+            bump_increase = ( chr[cnt].sizegoto - chr[cnt].fat ) * 0.10f * chr[cnt].bumpsize;
+
             // Make sure it won't get caught in a wall
             willgetcaught = bfalse;
             if ( chr[cnt].sizegoto > chr[cnt].fat )
             {
-                chr[cnt].bumpsize += 10;
+                chr[cnt].bumpsize += bump_increase;
+
                 if ( __chrhitawall( cnt ) )
                 {
                     willgetcaught = btrue;
                 }
 
-                chr[cnt].bumpsize -= 10;
+                chr[cnt].bumpsize -= bump_increase;
             }
 
             // If it is getting caught, simply halt growth until later
@@ -4632,41 +4543,29 @@ void resize_characters()
             {
                 // Figure out how big it is
                 chr[cnt].sizegototime--;
+
                 newsize = chr[cnt].sizegoto;
-                if ( chr[cnt].sizegototime != 0 )
+                if ( chr[cnt].sizegototime > 0 )
                 {
                     newsize = ( chr[cnt].fat * 0.90f ) + ( newsize * 0.10f );
                 }
 
                 // Make it that big...
-                chr[cnt].fat = newsize;
+                chr[cnt].fat   = newsize;
                 chr[cnt].shadowsize = chr[cnt].shadowsizesave * newsize;
                 chr[cnt].bumpsize = chr[cnt].bumpsizesave * newsize;
                 chr[cnt].bumpsizebig = chr[cnt].bumpsizebigsave * newsize;
                 chr[cnt].bumpheight = chr[cnt].bumpheightsave * newsize;
-                chr[cnt].weight = capweight[chr[cnt].model] * newsize;
-                if ( capweight[chr[cnt].model] == 255 ) chr[cnt].weight = 0xFFFF;
 
-                // Now come up with the magic number
-                mount = chr[cnt].attachedto;
-                if ( mount == MAXCHR )
+                if ( capweight[chr[cnt].model] == 0xFF )
                 {
-                    chr[cnt].scale = newsize * madscale[chr[cnt].model] * 4;
+                    chr[cnt].weight = 0xFFFF;
                 }
                 else
                 {
-                    chr[cnt].scale = newsize / ( chr[mount].fat * 1280 );
+                    int itmp = capweight[chr[cnt].model] * chr[cnt].fat * chr[cnt].fat * chr[cnt].fat;
+                    chr[cnt].weight = MIN( itmp, 0xFFFE );
                 }
-
-                // Make in hand items stay the same size...
-                newsize = newsize * 1280;
-                item = chr[cnt].holdingwhich[0];
-                if ( item != MAXCHR )
-                    chr[item].scale = chr[item].fat / newsize;
-
-                item = chr[cnt].holdingwhich[1];
-                if ( item != MAXCHR )
-                    chr[item].scale = chr[item].fat / newsize;
             }
         }
 
@@ -5872,7 +5771,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         // Afford it one last thought if it's an AI
                         teammorale[chr[character].baseteam]--;
                         chr[character].team = chr[character].baseteam;
-                        chr[character].ai.alert = ALERTIF_KILLED;
+                        chr[character].ai.alert |= ALERTIF_KILLED;
                         chr[character].sparkle = NOSPARKLE;
                         chr[character].ai.timer = frame_wld + 1;  // No timeout...
                         let_character_think( character );
@@ -6400,8 +6299,15 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     chr[ichr].bumpheightsave = capbumpheight[profile];
 
     chr[ichr].bumpdampen = capbumpdampen[profile];
-    chr[ichr].weight = capweight[profile] * chr[ichr].fat;
-    if ( capweight[profile] == 255 ) chr[ichr].weight = 0xFFFF;
+    if ( capweight[profile] == 0xFF )
+    {
+        chr[ichr].weight = 0xFFFF;
+    }
+    else
+    {
+        int itmp = capweight[profile] * chr[ichr].fat * chr[ichr].fat * chr[ichr].fat;
+        chr[ichr].weight = MIN( itmp, 0xFFFE );
+    }
 
     // Grip info
     chr[ichr].attachedto = MAXCHR;
@@ -6444,7 +6350,6 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     chr[ichr].zvel = 0;
     chr[ichr].turnmaplr = 32768;  // These two mean on level surface
     chr[ichr].turnmapud = 32768;
-    chr[ichr].scale = chr[ichr].fat * madscale[chr[ichr].model] * 4;
 
     // action stuff
     chr[ichr].actionready = btrue;
@@ -6801,19 +6706,22 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         chr[ichr].bumpheightsave = capbumpheight[profile];
 
         chr[ichr].bumpdampen = capbumpdampen[profile];
-        chr[ichr].weight = capweight[profile] * chr[ichr].fat;
-        if ( capweight[profile] == 255 ) chr[ichr].weight = 0xFFFF;
 
-        // Character scales...  Magic numbers
-        if ( chr[ichr].attachedto == MAXCHR )
+        if ( capweight[profile] == 0xFF )
         {
-            chr[ichr].scale = chr[ichr].fat * madscale[profile] * 4;
+            chr[ichr].weight = 0xFFFF;
         }
         else
         {
+            int itmp = capweight[profile] * chr[ichr].fat * chr[ichr].fat * chr[ichr].fat;
+            chr[ichr].weight = MIN( itmp, 0xFFFE );
+        }
+
+        // Character scales...  Magic numbers
+        if ( chr[ichr].attachedto != MAXCHR )
+        {
             int i;
             Uint16 iholder = chr[ichr].attachedto;
-            chr[ichr].scale = chr[ichr].fat / ( chr[iholder].fat * 1280 );
             tnc = madvertices[chr[iholder].model] - chr[ichr].inwhichhand;
 
             for (i = 0; i < GRIP_VERTS; i++)
@@ -6834,7 +6742,6 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         {
             int i;
 
-            chr[item].scale = chr[item].fat / ( chr[ichr].fat * 1280 );
             tnc = madvertices[chr[ichr].model] - GRIP_LEFT;
 
             for (i = 0; i < GRIP_VERTS; i++)
@@ -6855,7 +6762,6 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         {
             int i;
 
-            chr[item].scale = chr[item].fat / ( chr[ichr].fat * 1280 );
             tnc = madvertices[chr[ichr].model] - GRIP_RIGHT;
 
             for (i = 0; i < GRIP_VERTS; i++)
@@ -6901,7 +6807,6 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         reaffirm_attached_particles( ichr );
 
         // Set up initial fade in lighting
-
         for ( tnc = 0; tnc < madtransvertices[chr[ichr].model]; tnc++ )
         {
             chr[ichr].vrta[tnc] = 0;

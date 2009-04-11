@@ -3293,10 +3293,6 @@ void draw_scene_zreflection()
     Uint16 cnt, tnc;
     Uint8 trans;
 
-    // Clear the image if need be
-    // PORT: I don't think this is needed if(clearson) { clear_surface(lpDDSBack); }
-    // Zbuffer is cleared later
-
     // Render the reflective floors
     glDisable( GL_DEPTH_TEST );
     glDepthMask( GL_FALSE );

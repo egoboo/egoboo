@@ -81,7 +81,7 @@ int tag_value(  const char *string );
 char* tag_to_string( Sint32 device, Sint32 tag, bool_t onlykeys );
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 void free_all_enchants();
-void load_one_enchant_type(  const char* szLoadName, Uint16 profile );
+bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile );
 Uint16 get_free_enchant();
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
@@ -96,16 +96,14 @@ IDSZ get_idsz( FILE* fileread );
 char * get_file_path( const char *character);
 
 //Enchants
-void remove_enchant( Uint16 enchantindex );
+bool_t remove_enchant( Uint16 enchantindex );
 Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex );
 void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 void getadd( int min, int value, int max, int* valuetoadd );
 void fgetadd( float min, float value, float max, float* valuetoadd );
-void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
-                        Uint16 enchanttype );
-Uint16 spawn_enchant( Uint16 owner, Uint16 target,
-                      Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
+void add_enchant_value( Uint16 enchantindex, Uint8 valueindex, Uint16 enchanttype );
+Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
 
 void load_action_names(  const char* loadname );
 void get_name( FILE* fileread,  char *szName );

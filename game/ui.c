@@ -269,7 +269,7 @@ ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int heig
     {
         if ( ui_context.mousePressed == 1 )
         {
-            if ( ui_context.hot == id ) result = BUTTON_UP;
+            if ( ui_context.hot == id ) result = BUTTON_DOWN;
 
             ui_setactive( id );
         }

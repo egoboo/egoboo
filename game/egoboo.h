@@ -842,10 +842,9 @@ struct s_chr
     Uint32         latchbutton;     // Button latches
     Uint16         reloadtime;      // Time before another shot
     float          maxaccel;        // Maximum acceleration
-    float          scale;           // Character's size (useful)
-    float          fat;             // Character's size (legible)
-    float          sizegoto;        // Character's size goto ( legible )
-    Uint8          sizegototime;    // Time left in siez change
+    float          fat;             // Character's size
+    float          sizegoto;        // Character's size goto
+    Uint8          sizegototime;    // Time left in size change
     float          dampen;          // Bounciness
     float          level;           // Height of tile
     float          jump;            // Jump power
@@ -1122,7 +1121,7 @@ EXTERN Uint8            prtspawncharacterstate[TOTALMAXPRT];             //
 EXTERN Uint16           prtrotate[TOTALMAXPRT];                          // Rotation direction
 EXTERN Sint16           prtrotateadd[TOTALMAXPRT];                       // Rotation rate
 EXTERN Uint32           prtonwhichfan[TOTALMAXPRT];                      // Where the part is
-EXTERN Uint32           prtonwhichblock[MAXCHR];                         // The particle's collision block
+EXTERN Uint32           prtonwhichblock[TOTALMAXPRT];                         // The particle's collision block
 EXTERN Uint16           prtsize[TOTALMAXPRT];                            // Size of particle>>8
 EXTERN Sint16           prtsizeadd[TOTALMAXPRT];                         // Change in size
 EXTERN bool_t           prtinview[TOTALMAXPRT];                          // Render this one?
@@ -1278,15 +1277,14 @@ EXTERN Uint16          madmsgstart[MAXMODEL];                      // The first 
 EXTERN Uint16          madvertices[MAXMODEL];                      // Number of vertices
 EXTERN Uint16          madtransvertices[MAXMODEL];                 // Number to transform
 EXTERN Uint16          madcommands[MAXMODEL];                      // Number of commands
-EXTERN float           madscale[MAXMODEL];                         // Multiply by value
 EXTERN GLenum          madcommandtype[MAXMODEL][MAXCOMMAND];       // Fan or strip
 EXTERN Uint16          madcommandsize[MAXMODEL][MAXCOMMAND];       // Entries used by command
 EXTERN Uint16          madcommandvrt[MAXMODEL][MAXCOMMANDENTRIES]; // Which vertex
 EXTERN float           madcommandu[MAXMODEL][MAXCOMMANDENTRIES];   // Texture position
 EXTERN float           madcommandv[MAXMODEL][MAXCOMMANDENTRIES];   //
-EXTERN Sint16          madvrtx[MAXFRAME][MAXVERTICES];             // Vertex position
-EXTERN Sint16          madvrty[MAXFRAME][MAXVERTICES];             //
-EXTERN Sint16          madvrtz[MAXFRAME][MAXVERTICES];             //
+EXTERN float           madvrtx[MAXFRAME][MAXVERTICES];             // Vertex position
+EXTERN float           madvrty[MAXFRAME][MAXVERTICES];             //
+EXTERN float           madvrtz[MAXFRAME][MAXVERTICES];             //
 EXTERN Uint8           madvrta[MAXFRAME][MAXVERTICES];             // Light index of vertex
 EXTERN Uint8           madframelip[MAXFRAME];                      // 0-15, How far into action is each frame
 EXTERN Uint16          madframefx[MAXFRAME];                       // Invincibility, Spawning

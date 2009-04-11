@@ -77,34 +77,40 @@ int what_action( char cTmp )
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-char * get_file_path( const char *character)
+char * get_file_path( const char *szName)
 {
-    //ZF> This turns a character name into a proper filepath for loading and saving files
+    //ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
     Uint8 cnt = 0;
+    char * pname, * pname_end;
+    char * ppath, * ppath_end;
     char letter;
-    static char pathname[16];
 
-    letter = character[cnt];
+    static char szPathname[16];
 
-    while ( cnt < 8 && letter != '\0' )
+    pname = szName;
+    pname_end = pname + 255;
+
+    ppath = szPathname;
+    ppath_end = ppath + 11;
+
+    while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
     {
-        letter = tolower( character[cnt] );
+        letter = tolower( *pname );
 
         if ( ( letter < 'a' || letter > 'z' ) )  letter = '_';
 
-        pathname[cnt] = letter;
-        cnt++;
+        *ppath = letter;
+
+        pname++;
+        ppath++;
     }
+    *ppath = '\0';
 
-    pathname[cnt] = '.'; cnt++;
-    pathname[cnt] = 'o'; cnt++;
-    pathname[cnt] = 'b'; cnt++;
-    pathname[cnt] = 'j'; cnt++;
-    pathname[cnt] = '\0';
+    strncat(szPathname, ".obj", sizeof(szPathname) - strlen(szPathname) );
 
-    return pathname;
+    return szPathname;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1146,7 +1152,6 @@ void rip_md2_frames( Uint16 modelindex )
     madframestart[modelindex] = madloadframe;
     madframes[modelindex] = iNumFrames;
     madvertices[modelindex] = iNumVertices;
-    madscale[modelindex] = ( float ) ( 1.0f / 320.0f );  // Scale each vertex float to fit it in a short
     cnt = 0;
 
     while ( cnt < iNumFrames && madloadframe < MAXFRAME )
@@ -1173,10 +1178,10 @@ void rip_md2_frames( Uint16 modelindex )
             fRealy = ( cTmpy * fScaley ) + fTranslatey;
             fRealz = ( cTmpz * fScalez ) + fTranslatez;
 
-            madvrtx[madloadframe][tnc] = ( Sint16 ) (-fRealx * 256.0f );
-            madvrty[madloadframe][tnc] = ( Sint16 ) ( fRealy * 256.0f );
-            madvrtz[madloadframe][tnc] = ( Sint16 ) ( fRealz * 256.0f );
-            madvrta[madloadframe][tnc] = cTmpa;
+            madvrtx[madloadframe][tnc] = -fRealx * 4;
+            madvrty[madloadframe][tnc] =  fRealy * 4;
+            madvrtz[madloadframe][tnc] =  fRealz * 4;
+            madvrta[madloadframe][tnc] =  cTmpa;
 
             iFrameOffset++;
             tnc++;
@@ -2060,6 +2065,8 @@ int SDL_main( int argc, char **argv )
     int menuActive = 1;
     int menuResult;
     int frame_next = 0, frame_now = 0;
+
+    IDSZ temp = Make_IDSZ( "FREE" );
 
     // Initialize logging first, so that we can use it everywhere.
     log_init();

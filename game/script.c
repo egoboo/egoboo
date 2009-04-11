@@ -4820,7 +4820,7 @@ void let_character_think( Uint16 character )
     pself->alert = 0;
     if ( pself->changed )
     {
-        pself->alert   = ALERTIF_CHANGED;
+        pself->alert  |= ALERTIF_CHANGED;
         pself->changed = bfalse;
     }
 }
@@ -5887,6 +5887,7 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function flags the character to be removed from the game
+
     returncode = bfalse;
     if ( !pchr->isplayer )
     {
@@ -10582,7 +10583,11 @@ Uint8 scr_AddStat( script_state_t * pstate, ai_state_t * pself )
     // This function turns on an NPC's status display
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( !pchr->staton ) add_stat( pself->index );
+
+    if ( !pchr->staton )
+    {
+        add_stat( pself->index );
+    }
 
     SCRIPT_FUNCTION_END();
 }

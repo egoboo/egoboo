@@ -174,104 +174,28 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint8 rs = chr[character].redshift;
     Uint8 gs = chr[character].grnshift;
     Uint8 bs = chr[character].blushift;
+    float flip = lip / 4.0f;
 
     // Original points with linear interpolation ( lip )
-    switch ( lip )
+
+    for ( cnt = 0; cnt < madvertices[model]; cnt++ )
     {
-        case 0:  // 25% this frame
+        Uint8 lite_last, lite_next, lite;
 
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                temp = madvrtx[lastframe][cnt];
-                temp = temp + temp + temp;
-                v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] + temp ) >> 2 );
-                temp = madvrty[lastframe][cnt];
-                temp = temp + temp + temp;
-                v[cnt].y = ( float ) ( ( madvrty[frame][cnt] + temp ) >> 2 );
-                temp = madvrtz[lastframe][cnt];
-                temp = temp + temp + temp;
-                v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] + temp ) >> 2 );
+        v[cnt].x = madvrtx[lastframe][cnt] + (madvrtx[frame][cnt] - madvrtx[lastframe][cnt]) * flip;
+        v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
+        v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
 
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].a = ( float )alpha / 255.0f;
-                v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float )( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float )( ambi >> bs ) / 255.0f;
-                // v[cnt].dwReserved = 0;
-            }
-            break;
+        lite_last = lighttable[lightlevel][lightrotation][madvrta[lastframe][cnt]];
+        lite_next = lighttable[lightlevel][lightrotation][madvrta[frame][cnt]];
+        lite = lite_last + (lite_next - lite_last) * flip;
 
-        case 1:  // 50% this frame
+        chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
 
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] +
-                                         madvrtx[lastframe][cnt] ) >> 1 );
-                v[cnt].y = ( float ) ( ( madvrty[frame][cnt] +
-                                         madvrty[lastframe][cnt] ) >> 1 );
-                v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] +
-                                         madvrtz[lastframe][cnt] ) >> 1 );
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].a = ( float )alpha / 255.0f;
-                v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float )( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float )( ambi >> bs ) / 255.0f;
-                // v[cnt].dwReserved = 0;
-            }
-            break;
-
-        case 2:  // 75% this frame
-
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                temp = madvrtx[frame][cnt];
-                temp = temp + temp + temp;
-                v[cnt].x = ( float ) ( ( madvrtx[lastframe][cnt] + temp ) >> 2 );
-                temp = madvrty[frame][cnt];
-                temp = temp + temp + temp;
-                v[cnt].y = ( float ) ( ( madvrty[lastframe][cnt] + temp ) >> 2 );
-                temp = madvrtz[frame][cnt];
-                temp = temp + temp + temp;
-                v[cnt].z = ( float ) ( ( madvrtz[lastframe][cnt] + temp ) >> 2 );
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].a = ( float )alpha / 255.0f;
-                v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float )( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float )( ambi >> bs ) / 255.0f;
-                // v[cnt].dwReserved = 0;
-            }
-            break;
-
-        case 3:  // 100% this frame...  This is the legible one
-
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                v[cnt].x = ( float ) madvrtx[frame][cnt];
-                v[cnt].y = ( float ) madvrty[frame][cnt];
-                v[cnt].z = ( float ) madvrtz[frame][cnt];
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].a = ( float )alpha / 255.0f;
-                v[cnt].r = ( float )( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float )( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float )( ambi >> bs ) / 255.0f;
-                // v[cnt].dwReserved = 0;
-            }
-            break;
+        v[cnt].a = ( float ) alpha / 255.0f;
+        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) / 255.0f;
+        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) / 255.0f;
+        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) / 255.0f;
     }
 
     // Do fog...
@@ -386,135 +310,30 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint8 rs = chr[character].redshift;
     Uint8 gs = chr[character].grnshift;
     Uint8 bs = chr[character].blushift;
+    float flip = lip / 4.0f;
+
     glMatrix mTempWorld = mWorld;
     if ( phongon && trans == 255 )
         spek = 0;
 
-    // Original points with linear interpolation ( lip )
-    switch ( lip )
+    for ( cnt = 0; cnt < madvertices[model]; cnt++ )
     {
-        case 0:  // 25% this frame
+        Uint8 lite_last, lite_next, lite;
 
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                temp = madvrtx[lastframe][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].x = (D3DVALUE) ((madvrtx[frame][cnt] + temp)>>2);
-                v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] + temp ) >> 2 );
-                temp = madvrty[lastframe][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].y = (D3DVALUE) ((madvrty[frame][cnt] + temp)>>2);
-                v[cnt].y = ( float ) ( ( madvrty[frame][cnt] + temp ) >> 2 );
-                temp = madvrtz[lastframe][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].z = (D3DVALUE) ((madvrtz[frame][cnt] + temp)>>2);
-                v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] + temp ) >> 2 );
+        v[cnt].x = madvrtx[lastframe][cnt] + (madvrtx[frame][cnt] - madvrtx[lastframe][cnt]) * flip;
+        v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
+        v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
 
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-                v[cnt].a = ( float ) alpha / 255.0f;
+        lite_last = lighttable[lightlevel][lightrotation][madvrta[lastframe][cnt]];
+        lite_next = lighttable[lightlevel][lightrotation][madvrta[frame][cnt]];
+        lite = lite_last + (lite_next - lite_last) * flip;
 
-                // v[cnt].specular = lighttospek[spek][ambi];
+        chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
 
-                // v[cnt].dwReserved = 0;
-            }
-            break;
-        case 1:  // 50% this frame
-
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                /*
-                            v[cnt].x = (D3DVALUE) (madvrtx[frame][cnt] +
-                                                   madvrtx[lastframe][cnt]>>1);
-                            v[cnt].y = (D3DVALUE) (madvrty[frame][cnt] +
-                                                   madvrty[lastframe][cnt]>>1);
-                            v[cnt].z = (D3DVALUE) (madvrtz[frame][cnt] +
-                                                   madvrtz[lastframe][cnt]>>1);
-                */
-                v[cnt].x = ( float ) ( ( madvrtx[frame][cnt] +
-                                         madvrtx[lastframe][cnt] ) >> 1 );
-                v[cnt].y = ( float ) ( ( madvrty[frame][cnt] +
-                                         madvrty[lastframe][cnt] ) >> 1 );
-                v[cnt].z = ( float ) ( ( madvrtz[frame][cnt] +
-                                         madvrtz[lastframe][cnt] ) >> 1 );
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-                v[cnt].a = ( float ) alpha  / 255.0f;
-
-                // v[cnt].specular = lighttospek[spek][ambi];
-
-                // v[cnt].dwReserved = 0;
-            }
-            break;
-        case 2:  // 75% this frame
-
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                temp = madvrtx[frame][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].x = (D3DVALUE) (madvrtx[lastframe][cnt] + temp>>2);
-                v[cnt].x = ( float ) ( ( madvrtx[lastframe][cnt] + temp ) >> 2 );
-                temp = madvrty[frame][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].y = (D3DVALUE) (madvrty[lastframe][cnt] + temp>>2);
-                v[cnt].y = ( float ) ( ( madvrty[lastframe][cnt] + temp ) >> 2 );
-                temp = madvrtz[frame][cnt];
-                temp = temp + temp + temp;
-                // v[cnt].z = (D3DVALUE) (madvrtz[lastframe][cnt] + temp>>2);
-                v[cnt].z = ( float ) ( ( madvrtz[lastframe][cnt] + temp ) >> 2 );
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-                v[cnt].a = ( float ) alpha / 255.0f;
-
-                // v[cnt].specular = lighttospek[spek][ambi];
-
-                // v[cnt].dwReserved = 0;
-            }
-            break;
-        case 3:  // 100% this frame...  This is the legible one
-
-            for ( cnt = 0; cnt < madvertices[model]; cnt++ )
-            {
-                /*
-                            v[cnt].x = (D3DVALUE) madvrtx[frame][cnt];
-                            v[cnt].y = (D3DVALUE) madvrty[frame][cnt];
-                            v[cnt].z = (D3DVALUE) madvrtz[frame][cnt];
-                */
-                v[cnt].x = ( float ) madvrtx[frame][cnt];
-                v[cnt].y = ( float ) madvrty[frame][cnt];
-                v[cnt].z = ( float ) madvrtz[frame][cnt];
-
-                ambi = chr[character].vrta[cnt];
-                ambi = ( ( ( ambi + ambi + ambi ) << 1 ) + ambi + lighttable[lightlevel][lightrotation][madvrta[frame][cnt]] ) >> 3;
-                chr[character].vrta[cnt] = ambi;
-                // v[cnt].color = alpha | ((ambi>>rs)<<16) | ((ambi>>gs)<<8) | ((ambi>>bs));
-                v[cnt].r = ( float ) ( ambi >> rs ) / 255.0f;
-                v[cnt].g = ( float ) ( ambi >> gs ) / 255.0f;
-                v[cnt].b = ( float ) ( ambi >> bs ) / 255.0f;
-                v[cnt].a = ( float ) alpha / 255.0f;
-
-                // v[cnt].specular = lighttospek[spek][ambi];
-
-                // v[cnt].dwReserved = 0;
-            }
-            break;
+        v[cnt].a = ( float ) alpha / 255.0f;
+        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) / 255.0f;
+        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) / 255.0f;
+        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) / 255.0f;
     }
 
     /*

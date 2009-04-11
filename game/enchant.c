@@ -26,143 +26,143 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void remove_enchant( Uint16 enchantindex )
+bool_t remove_enchant( Uint16 enchantindex )
 {
     // ZZ> This function removes a specific enchantment and adds it to the unused list
     Uint16 character, overlay;
     Uint16 lastenchant, currentenchant;
     int add;
-    if ( enchantindex < MAXENCHANT )
+
+    if ( enchantindex >= MAXENCHANT ) return bfalse;
+    if ( !encon[enchantindex] ) return bfalse;
+
+    // Unsparkle the spellbook
+    character = encspawner[enchantindex];
+    if ( character < MAXCHR )
     {
-        if ( encon[enchantindex] )
+        chr[character].sparkle = NOSPARKLE;
+
+        // Make the spawner unable to undo the enchantment
+        if ( chr[character].undoenchant == enchantindex )
         {
-            // Unsparkle the spellbook
-            character = encspawner[enchantindex];
-            if ( character < MAXCHR )
-            {
-                chr[character].sparkle = NOSPARKLE;
-
-                // Make the spawner unable to undo the enchantment
-                if ( chr[character].undoenchant == enchantindex )
-                {
-                    chr[character].undoenchant = MAXENCHANT;
-                }
-            }
-
-            // Play the end sound
-            character = enctarget[enchantindex];
-            if ( evewaveindex[enchantindex] >= 0 && evewaveindex[enchantindex] < MAXWAVE )
-            {
-                Sint16 iwave    = evewaveindex[enchantindex];
-                Uint16 ispawner = encspawner[enchantindex];
-                if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
-                {
-                    sound_play_chunk(chr[character].oldx, chr[character].oldy, capwavelist[chr[ispawner].model][iwave]);
-                }
-            }
-
-            // Unset enchant values, doing morph last
-            unset_enchant_value( enchantindex, SETDAMAGETYPE );
-            unset_enchant_value( enchantindex, SETNUMBEROFJUMPS );
-            unset_enchant_value( enchantindex, SETLIFEBARCOLOR );
-            unset_enchant_value( enchantindex, SETMANABARCOLOR );
-            unset_enchant_value( enchantindex, SETSLASHMODIFIER );
-            unset_enchant_value( enchantindex, SETCRUSHMODIFIER );
-            unset_enchant_value( enchantindex, SETPOKEMODIFIER );
-            unset_enchant_value( enchantindex, SETHOLYMODIFIER );
-            unset_enchant_value( enchantindex, SETEVILMODIFIER );
-            unset_enchant_value( enchantindex, SETFIREMODIFIER );
-            unset_enchant_value( enchantindex, SETICEMODIFIER );
-            unset_enchant_value( enchantindex, SETZAPMODIFIER );
-            unset_enchant_value( enchantindex, SETFLASHINGAND );
-            unset_enchant_value( enchantindex, SETLIGHTBLEND );
-            unset_enchant_value( enchantindex, SETALPHABLEND );
-            unset_enchant_value( enchantindex, SETSHEEN );
-            unset_enchant_value( enchantindex, SETFLYTOHEIGHT );
-            unset_enchant_value( enchantindex, SETWALKONWATER );
-            unset_enchant_value( enchantindex, SETCANSEEINVISIBLE );
-            unset_enchant_value( enchantindex, SETMISSILETREATMENT );
-            unset_enchant_value( enchantindex, SETCOSTFOREACHMISSILE );
-            unset_enchant_value( enchantindex, SETCHANNEL );
-            unset_enchant_value( enchantindex, SETMORPH );
-
-            // Remove all of the cumulative values
-            add = 0;
-
-            while ( add < MAXEVEADDVALUE )
-            {
-                remove_enchant_value( enchantindex, add );
-                add++;
-            }
-
-            // Unlink it
-            if ( chr[character].firstenchant == enchantindex )
-            {
-                // It was the first in the list
-                chr[character].firstenchant = encnextenchant[enchantindex];
-            }
-            else
-            {
-                // Search until we find it
-                lastenchant = currentenchant = chr[character].firstenchant;
-
-                while ( currentenchant != enchantindex )
-                {
-                    lastenchant = currentenchant;
-                    currentenchant = encnextenchant[currentenchant];
-                }
-
-                // Relink the last enchantment
-                encnextenchant[lastenchant] = encnextenchant[enchantindex];
-            }
-
-            // See if we spit out an end message
-            if ( eveendmessage[enceve[enchantindex]] >= 0 )
-            {
-                display_message( NULL, madmsgstart[enceve[enchantindex]] + eveendmessage[enceve[enchantindex]], enctarget[enchantindex] );
-            }
-
-            // Check to see if we spawn a poof
-            if ( evepoofonend[enceve[enchantindex]] )
-            {
-                spawn_poof( enctarget[enchantindex], enceve[enchantindex] );
-            }
-
-            // Check to see if the character dies
-            if ( evekillonend[enceve[enchantindex]] )
-            {
-                if ( chr[character].invictus )  teammorale[chr[character].baseteam]++;
-
-                chr[character].invictus = bfalse;
-                kill_character( character, MAXCHR );
-            }
-
-            // Kill overlay too...
-            overlay = encoverlay[enchantindex];
-            if ( overlay < MAXCHR )
-            {
-                if ( chr[overlay].invictus )  teammorale[chr[overlay].baseteam]++;
-
-                chr[overlay].invictus = bfalse;
-                kill_character( overlay, MAXCHR );
-            }
-
-            // Remove see kurse enchant
-            if ( eveseekurse[enceve[enchantindex]] && !capcanseekurse[chr[character].model] )
-            {
-                chr[character].canseekurse = bfalse;
-            }
-
-            // Now get rid of it
-            encon[enchantindex] = bfalse;
-            freeenchant[numfreeenchant] = enchantindex;
-            numfreeenchant++;
-
-            // Now fix dem weapons
-            reset_character_alpha( chr[character].holdingwhich[0] );
-            reset_character_alpha( chr[character].holdingwhich[1] );
+            chr[character].undoenchant = MAXENCHANT;
         }
     }
+
+    // Play the end sound
+    character = enctarget[enchantindex];
+    if ( evewaveindex[enchantindex] >= 0 && evewaveindex[enchantindex] < MAXWAVE )
+    {
+        Sint16 iwave    = evewaveindex[enchantindex];
+        Uint16 ispawner = encspawner[enchantindex];
+        if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
+        {
+            sound_play_chunk(chr[character].oldx, chr[character].oldy, capwavelist[chr[ispawner].model][iwave]);
+        }
+    }
+
+    // Unset enchant values, doing morph last
+    unset_enchant_value( enchantindex, SETDAMAGETYPE );
+    unset_enchant_value( enchantindex, SETNUMBEROFJUMPS );
+    unset_enchant_value( enchantindex, SETLIFEBARCOLOR );
+    unset_enchant_value( enchantindex, SETMANABARCOLOR );
+    unset_enchant_value( enchantindex, SETSLASHMODIFIER );
+    unset_enchant_value( enchantindex, SETCRUSHMODIFIER );
+    unset_enchant_value( enchantindex, SETPOKEMODIFIER );
+    unset_enchant_value( enchantindex, SETHOLYMODIFIER );
+    unset_enchant_value( enchantindex, SETEVILMODIFIER );
+    unset_enchant_value( enchantindex, SETFIREMODIFIER );
+    unset_enchant_value( enchantindex, SETICEMODIFIER );
+    unset_enchant_value( enchantindex, SETZAPMODIFIER );
+    unset_enchant_value( enchantindex, SETFLASHINGAND );
+    unset_enchant_value( enchantindex, SETLIGHTBLEND );
+    unset_enchant_value( enchantindex, SETALPHABLEND );
+    unset_enchant_value( enchantindex, SETSHEEN );
+    unset_enchant_value( enchantindex, SETFLYTOHEIGHT );
+    unset_enchant_value( enchantindex, SETWALKONWATER );
+    unset_enchant_value( enchantindex, SETCANSEEINVISIBLE );
+    unset_enchant_value( enchantindex, SETMISSILETREATMENT );
+    unset_enchant_value( enchantindex, SETCOSTFOREACHMISSILE );
+    unset_enchant_value( enchantindex, SETCHANNEL );
+    unset_enchant_value( enchantindex, SETMORPH );
+
+    // Remove all of the cumulative values
+    add = 0;
+
+    while ( add < MAXEVEADDVALUE )
+    {
+        remove_enchant_value( enchantindex, add );
+        add++;
+    }
+
+    // Unlink it
+    if ( chr[character].firstenchant == enchantindex )
+    {
+        // It was the first in the list
+        chr[character].firstenchant = encnextenchant[enchantindex];
+    }
+    else
+    {
+        // Search until we find it
+        lastenchant = currentenchant = chr[character].firstenchant;
+
+        while ( currentenchant != enchantindex )
+        {
+            lastenchant = currentenchant;
+            currentenchant = encnextenchant[currentenchant];
+        }
+
+        // Relink the last enchantment
+        encnextenchant[lastenchant] = encnextenchant[enchantindex];
+    }
+
+    // See if we spit out an end message
+    if ( eveendmessage[enceve[enchantindex]] >= 0 )
+    {
+        display_message( NULL, madmsgstart[enceve[enchantindex]] + eveendmessage[enceve[enchantindex]], enctarget[enchantindex] );
+    }
+
+    // Check to see if we spawn a poof
+    if ( evepoofonend[enceve[enchantindex]] )
+    {
+        spawn_poof( enctarget[enchantindex], enceve[enchantindex] );
+    }
+
+    // Check to see if the character dies
+    if ( evekillonend[enceve[enchantindex]] )
+    {
+        if ( chr[character].invictus )  teammorale[chr[character].baseteam]++;
+
+        chr[character].invictus = bfalse;
+        kill_character( character, MAXCHR );
+    }
+
+    // Kill overlay too...
+    overlay = encoverlay[enchantindex];
+    if ( overlay < MAXCHR )
+    {
+        if ( chr[overlay].invictus )  teammorale[chr[overlay].baseteam]++;
+
+        chr[overlay].invictus = bfalse;
+        kill_character( overlay, MAXCHR );
+    }
+
+    // Remove see kurse enchant
+    if ( eveseekurse[enceve[enchantindex]] && !capcanseekurse[chr[character].model] )
+    {
+        chr[character].canseekurse = bfalse;
+    }
+
+    // Now get rid of it
+    encon[enchantindex] = bfalse;
+    freeenchant[numfreeenchant] = enchantindex;
+    numfreeenchant++;
+
+    // Now fix dem weapons
+    reset_character_alpha( chr[character].holdingwhich[0] );
+    reset_character_alpha( chr[character].holdingwhich[1] );
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -464,8 +464,7 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_enchant( Uint16 owner, Uint16 target,
-                      Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional )
+Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAXENCHANT
     //     if failed
@@ -650,36 +649,32 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 void do_enchant_spawn()
 {
     // ZZ> This function lets enchantments spawn particles
+
     int cnt, tnc;
-    Uint16 facing, particle, eve, character;
+    Uint16 facing, eve, character;
 
-    cnt = 0;
-
-    while ( cnt < MAXENCHANT )
+    for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
     {
-        if ( encon[cnt] )
+        if ( !encon[cnt] ) continue;
+
+        eve = enceve[cnt];
+        if ( evecontspawnamount[eve] > 0 )
         {
-            eve = enceve[cnt];
-            if ( evecontspawnamount[eve] > 0 )
+            encspawntime[cnt]--;
+            if ( encspawntime[cnt] == 0 )
             {
-                encspawntime[cnt]--;
-                if ( encspawntime[cnt] == 0 )
+                character = enctarget[cnt];
+                encspawntime[cnt] = evecontspawntime[eve];
+                facing = chr[character].turnleftright;
+                for ( tnc = 0; tnc < evecontspawnamount[eve]; tnc++ )
                 {
-                    character = enctarget[cnt];
-                    encspawntime[cnt] = evecontspawntime[eve];
-                    facing = chr[character].turnleftright;
-                    for ( tnc = 0; tnc < evecontspawnamount[eve]; tnc++ )
-                    {
-                        spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos,
-                                            facing, eve, evecontspawnpip[eve],
-                                            MAXCHR, GRIP_LAST, chr[encowner[cnt]].team, encowner[cnt], tnc, MAXCHR );
-                        facing += evecontspawnfacingadd[eve];
-                    }
+                    spawn_one_particle( chr[character].xpos, chr[character].ypos, chr[character].zpos,
+                                        facing, eve, evecontspawnpip[eve],
+                                        MAXCHR, GRIP_LAST, chr[encowner[cnt]].team, encowner[cnt], tnc, MAXCHR );
+                    facing += evecontspawnfacingadd[eve];
                 }
             }
         }
-
-        cnt++;
     }
 }
 
@@ -708,7 +703,7 @@ void free_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_one_enchant_type(  const char* szLoadName, Uint16 profile )
+bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
     FILE* fileread;
@@ -720,314 +715,319 @@ void load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     parse_filename = szLoadName;
     evevalid[profile] = bfalse;
     fileread = fopen( szLoadName, "r" );
-    if ( fileread )
+    if ( NULL == fileread )
     {
-        evevalid[profile] = btrue;
+        return bfalse;
+    }
 
-        // btrue/bfalse values
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        everetarget[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  everetarget[profile] = btrue;
+    // btrue/bfalse values
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    everetarget[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  everetarget[profile] = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        eveoverride[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  eveoverride[profile] = btrue;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    eveoverride[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  eveoverride[profile] = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        everemoveoverridden[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  everemoveoverridden[profile] = btrue;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    everemoveoverridden[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  everemoveoverridden[profile] = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evekillonend[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  evekillonend[profile] = btrue;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evekillonend[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  evekillonend[profile] = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evepoofonend[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  evepoofonend[profile] = btrue;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evepoofonend[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  evepoofonend[profile] = btrue;
 
-        // More stuff
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  evetime[profile] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  eveendmessage[profile] = iTmp;
+    // More stuff
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  evetime[profile] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  eveendmessage[profile] = iTmp;
 
-        // Drain stuff
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = fTmp * 256;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = fTmp * 256;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        eveendifcantpay[profile] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  eveendifcantpay[profile] = btrue;
+    // Drain stuff
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownermana[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetmana[profile] = fTmp * 256;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    eveendifcantpay[profile] = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  eveendifcantpay[profile] = btrue;
 
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = fTmp * 256;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  eveownerlife[profile] = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  evetargetlife[profile] = fTmp * 256;
 
-        // Specifics
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evedontdamagetype[profile] = DAMAGENULL;
-        if ( cTmp == 'S' || cTmp == 's' )  evedontdamagetype[profile] = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  evedontdamagetype[profile] = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  evedontdamagetype[profile] = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  evedontdamagetype[profile] = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  evedontdamagetype[profile] = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  evedontdamagetype[profile] = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  evedontdamagetype[profile] = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  evedontdamagetype[profile] = DAMAGE_ZAP;
+    // Specifics
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evedontdamagetype[profile] = DAMAGENULL;
+    if ( cTmp == 'S' || cTmp == 's' )  evedontdamagetype[profile] = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  evedontdamagetype[profile] = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  evedontdamagetype[profile] = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  evedontdamagetype[profile] = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  evedontdamagetype[profile] = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  evedontdamagetype[profile] = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  evedontdamagetype[profile] = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  evedontdamagetype[profile] = DAMAGE_ZAP;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        eveonlydamagetype[profile] = DAMAGENULL;
-        if ( cTmp == 'S' || cTmp == 's' )  eveonlydamagetype[profile] = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  eveonlydamagetype[profile] = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  eveonlydamagetype[profile] = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  eveonlydamagetype[profile] = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  eveonlydamagetype[profile] = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  eveonlydamagetype[profile] = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  eveonlydamagetype[profile] = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  eveonlydamagetype[profile] = DAMAGE_ZAP;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    eveonlydamagetype[profile] = DAMAGENULL;
+    if ( cTmp == 'S' || cTmp == 's' )  eveonlydamagetype[profile] = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  eveonlydamagetype[profile] = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  eveonlydamagetype[profile] = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  eveonlydamagetype[profile] = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  eveonlydamagetype[profile] = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  eveonlydamagetype[profile] = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  eveonlydamagetype[profile] = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  eveonlydamagetype[profile] = DAMAGE_ZAP;
 
-        goto_colon( fileread );  everemovedbyidsz[profile] = get_idsz( fileread );
+    goto_colon( fileread );  everemovedbyidsz[profile] = get_idsz( fileread );
 
-        // Now the set values
-        num = 0;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );
-        evesetvalue[profile][num] = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  evesetvalue[profile][num] = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  evesetvalue[profile][num] = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  evesetvalue[profile][num] = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  evesetvalue[profile][num] = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  evesetvalue[profile][num] = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  evesetvalue[profile][num] = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  evesetvalue[profile][num] = DAMAGE_ZAP;
+    // Now the set values
+    num = 0;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );
+    evesetvalue[profile][num] = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  evesetvalue[profile][num] = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  evesetvalue[profile][num] = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  evesetvalue[profile][num] = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  evesetvalue[profile][num] = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  evesetvalue[profile][num] = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  evesetvalue[profile][num] = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  evesetvalue[profile][num] = DAMAGE_ZAP;
 
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );  iTmp = 0;
-        if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-        if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );  iTmp = 0;
+    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
+    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
-        fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );
-        evesetvalue[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );
-        evesetvalue[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        cTmp = get_first_letter( fileread );
-        evesetvalue[profile][num] = MISNORMAL;
-        if ( cTmp == 'R' || cTmp == 'r' )  evesetvalue[profile][num] = MISREFLECT;
-        if ( cTmp == 'D' || cTmp == 'd' )  evesetvalue[profile][num] = MISDEFLECT;
+    fscanf( fileread, "%d", &tTmp );  evesetvalue[profile][num] = iTmp | tTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  evesetvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );
+    evesetvalue[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );
+    evesetvalue[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    cTmp = get_first_letter( fileread );
+    evesetvalue[profile][num] = MISNORMAL;
+    if ( cTmp == 'R' || cTmp == 'r' )  evesetvalue[profile][num] = MISREFLECT;
+    if ( cTmp == 'D' || cTmp == 'd' )  evesetvalue[profile][num] = MISDEFLECT;
 
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
-        evesetvalue[profile][num] = (Uint8) fTmp;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        evesetvalue[profile][num] = btrue;
-        num++;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
-        evesetvalue[profile][num] = btrue;
-        num++;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
+    evesetvalue[profile][num] = (Uint8) fTmp;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    evesetvalue[profile][num] = btrue;
+    num++;
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    evesetyesno[profile][num] = ( cTmp == 'T' || cTmp == 't' );
+    evesetvalue[profile][num] = btrue;
+    num++;
 
-        // Now read in the add values
-        num = 0;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 16;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 127;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 127;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 127;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        eveaddvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        eveaddvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        eveaddvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        eveaddvalue[profile][num] = iTmp;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Defense is backwards
-        eveaddvalue[profile][num] = -iTmp;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-        eveaddvalue[profile][num] = (Sint32) fTmp * 4;
-        num++;
+    // Now read in the add values
+    num = 0;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 16;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 127;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    eveaddvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    eveaddvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    eveaddvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    eveaddvalue[profile][num] = iTmp;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Defense is backwards
+    eveaddvalue[profile][num] = -iTmp;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    eveaddvalue[profile][num] = (Sint32) fTmp * 4;
+    num++;
 
-        // Clear expansions...
-        evecontspawntime[profile] = 0;
-        evecontspawnamount[profile] = 0;
-        evecontspawnfacingadd[profile] = 0;
-        evecontspawnpip[profile] = 0;
-        evewaveindex[profile] = -1;
-        evefrequency[profile] = 11025;
-        evestayifnoowner[profile] = 0;
-        eveoverlay[profile] = 0;
+    // Clear expansions...
+    evecontspawntime[profile] = 0;
+    evecontspawnamount[profile] = 0;
+    evecontspawnfacingadd[profile] = 0;
+    evecontspawnpip[profile] = 0;
+    evewaveindex[profile] = -1;
+    evefrequency[profile] = 11025;
+    evestayifnoowner[profile] = 0;
+    eveoverlay[profile] = 0;
 
-        // Read expansions
-        while ( goto_colon_yesno( fileread ) )
+    // Read expansions
+    while ( goto_colon_yesno( fileread ) )
+    {
+        idsz = get_idsz( fileread );
+        fscanf( fileread, "%c%d", &cTmp, &iTmp );
+        test = Make_IDSZ( "AMOU" );  // [AMOU]
+        if ( idsz == test )  evecontspawnamount[profile] = iTmp;
+
+        test = Make_IDSZ( "TYPE" );  // [TYPE]
+        if ( idsz == test )  evecontspawnpip[profile] = iTmp;
+
+        test = Make_IDSZ( "TIME" );  // [TIME]
+        if ( idsz == test )  evecontspawntime[profile] = iTmp;
+
+        test = Make_IDSZ( "FACE" );  // [FACE]
+        if ( idsz == test )  evecontspawnfacingadd[profile] = iTmp;
+
+        test = Make_IDSZ( "SEND" );  // [SEND]
+        if ( idsz == test )
         {
-            idsz = get_idsz( fileread );
-            fscanf( fileread, "%c%d", &cTmp, &iTmp );
-            test = Make_IDSZ( "AMOU" );  // [AMOU]
-            if ( idsz == test )  evecontspawnamount[profile] = iTmp;
-
-            test = Make_IDSZ( "TYPE" );  // [TYPE]
-            if ( idsz == test )  evecontspawnpip[profile] = iTmp;
-
-            test = Make_IDSZ( "TIME" );  // [TIME]
-            if ( idsz == test )  evecontspawntime[profile] = iTmp;
-
-            test = Make_IDSZ( "FACE" );  // [FACE]
-            if ( idsz == test )  evecontspawnfacingadd[profile] = iTmp;
-
-            test = Make_IDSZ( "SEND" );  // [SEND]
-            if ( idsz == test )
-            {
-                // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
-                evewaveindex[profile] = CLIP(iTmp, -1, MAXWAVE);
-            }
-
-            test = Make_IDSZ( "SFQR" );  // [SFRQ]
-            if ( idsz == test )  evefrequency[profile] = iTmp;  // OUTDATED??
-
-            test = Make_IDSZ( "STAY" );  // [STAY]
-            if ( idsz == test )  evestayifnoowner[profile] = iTmp;
-
-            test = Make_IDSZ( "OVER" );  // [OVER]
-            if ( idsz == test )  eveoverlay[profile] = iTmp;
-
-            test = Make_IDSZ( "CKUR" );  // [CKUR]
-            if ( idsz == test )  eveseekurse[profile] = iTmp;
+            // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
+            evewaveindex[profile] = CLIP(iTmp, -1, MAXWAVE);
         }
 
-        // All done ( finally )
-        fclose( fileread );
+        test = Make_IDSZ( "SFQR" );  // [SFRQ]
+        if ( idsz == test )  evefrequency[profile] = iTmp;  // OUTDATED??
+
+        test = Make_IDSZ( "STAY" );  // [STAY]
+        if ( idsz == test )
+            evestayifnoowner[profile] = iTmp;
+
+        test = Make_IDSZ( "OVER" );  // [OVER]
+        if ( idsz == test )  eveoverlay[profile] = iTmp;
+
+        test = Make_IDSZ( "CKUR" );  // [CKUR]
+        if ( idsz == test )  eveseekurse[profile] = iTmp;
     }
+
+    // All done ( finally )
+    fclose( fileread );
+
+    evevalid[profile] = btrue;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -292,7 +292,7 @@ glMatrix FourPoints( float orix, float oriy, float oriz,
     vFor.z = forz - oriz;
 
     // assume that the length of the grip edges if 16
-    scale *= 16.0f;
+    //scale *= 0.0f;
     vWid = Normalize(vWid);
     vUp  = Normalize(vUp );
     vFor = Normalize(vFor);
