@@ -26,6 +26,8 @@
 #include "graphic.h"
 #include "log.h"
 
+#include <SDL_image.h>
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define ErrorImage_width 2
@@ -112,7 +114,6 @@ void GLSetup_SupportedFormats()
 {
     //ZF> This need only to be once
     Uint8 type = 0;
-    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
 
     // define extra supported file types with SDL_image
     // these should probably be ordered so that the types that

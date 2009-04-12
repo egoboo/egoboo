@@ -23,6 +23,7 @@
 #include "menu.h"
 #include "log.h"
 #include "graphic.h"
+#include "camera.h"
 
 Link_t LinkList[LINK_COUNT];
 

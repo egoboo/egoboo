@@ -28,19 +28,19 @@
 
 // Multi cam (uses macro to switch between old and new camera
 #ifndef OLD_CAMERA_MODE
-	#define MINZOOM                         800         // Camera distance
-	#define MAXZOOM                         700         //
-	#define MINZADD                         800         // Camera height
-	#define MAXZADD                         2500        //
-	#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-	#define MAXUPDOWN                       (0.10f*PI)
+#define MINZOOM                         800         // Camera distance
+#define MAXZOOM                         700         //
+#define MINZADD                         800         // Camera height
+#define MAXZADD                         2500        //
+#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+#define MAXUPDOWN                       (0.10f*PI)
 #else
-	#define MINZOOM                         500         // Camera distance
-	#define MAXZOOM                         600         //
-	#define MINZADD                         800         // Camera height
-	#define MAXZADD                         1500  //1000        //
-	#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-	#define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
+#define MINZOOM                         500         // Camera distance
+#define MAXZOOM                         600         //
+#define MINZADD                         800         // Camera height
+#define MAXZADD                         1500  //1000        //
+#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+#define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
 #endif
 // Camera control stuff
 extern int                     camswing;                   // Camera swingin'
@@ -80,3 +80,9 @@ extern float                   cornerhighy;                //
 
 //Function prototypes
 void project_view();
+
+void reset_camera();
+void adjust_camera_angle( float height );
+void move_camera();
+void make_camera_matrix();
+void camera_look_at( float x, float y );

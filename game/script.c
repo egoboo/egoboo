@@ -29,6 +29,7 @@
 #include "passage.h"
 #include "enchant.h"
 #include "char.h"
+#include "graphic.h"
 
 #include <assert.h>
 
@@ -3927,11 +3928,24 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             break;
 
         case FFOLLOWLINK:
-            // Skips to the next module!
+            {
+                // Skips to the next module!
+                Uint16 model;
+                int message_number, message_index;
+                char * ptext;
 
-            // !!!use the message text to control the links!!!!
-            returncode = link_follow_modname( madmsgstart[pchr->model] + pstate->argument );
-            //returncode = link_follow( LinkList, pstate->argument );
+                model = pchr->model;
+
+                message_number = madmsgstart[model] + pstate->argument;
+
+                message_index = msgindex[message_number];
+
+                ptext = msgtext + message_index;
+
+                // !!!use the message text to control the links!!!!
+                returncode = link_follow_modname( ptext );
+                //returncode = link_follow( LinkList, pstate->argument );
+            }
             break;
 
         case FIFOPERATORISLINUX:
@@ -4443,7 +4457,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFCONTENT:
                 varname = "SELFCONTENT";
-				iTmp = pself->content;
+                iTmp = pself->content;
                 break;
 
             case VARSELFSTR:
@@ -4678,11 +4692,11 @@ void let_character_think( Uint16 character )
     pself = &(pchr->ai);
 
     // has the time for this character to die come and gone?
-    if( pself->poof_time >= 0 && pself->poof_time <= frame_wld ) return;
+    if ( pself->poof_time >= 0 && pself->poof_time <= frame_wld ) return;
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
-    if( !pchr->alive ) return;
+    if ( !pchr->alive ) return;
 
     // debug a certain script
     //debug_scripts = ( chr[pself->index].model == 63 );
@@ -4887,7 +4901,7 @@ void let_all_characters_think()
     Uint8 returncode = 1; \
     if( NULL == pstate || NULL == pself || pself->index >= MAXCHR || !chr[pself->index].on ) return 0;\
     pchr = chr + pself->index;
-    
+
 #define SCRIPT_FUNCTION_END() \
     return returncode;
 

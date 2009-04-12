@@ -77,12 +77,9 @@ char * get_file_path( const char *character);
 
 void load_action_names(  const char* loadname );
 void log_madused(  const char *savename );
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
 
 //This one is unused
 int vertexconnected( Uint16 modelindex, int vertex );
-
-void make_enviro();
 
 void keep_weapons_with_holders();
 void make_one_character_matrix( Uint16 cnt );
@@ -121,9 +118,6 @@ void free_all_particles();
 void free_all_characters();
 void show_stat( Uint16 statindex );
 void check_stats();
-
-void check_screenshot();
-bool_t dump_screenshot();
 
 void add_stat( Uint16 character );
 void move_to_top( Uint16 character );
@@ -186,12 +180,10 @@ int add_player( Uint16 character, Uint16 player, Uint32 device );
 void clear_messages();
 void setup_characters(  const char *modname );
 
-void setup_passage(  const char *modname );
-
 void setup_alliances(  const char *modname );
 void load_mesh_fans();
 void make_twist();
-int load_mesh(  const char *modname );
+int  load_mesh(  const char *modname );
 
 void   input_init();
 void   input_read_mouse();
@@ -203,21 +195,15 @@ Uint32 input_get_buttonmask( Uint32 idevice );
 void set_one_player_latch( Uint16 player );
 void set_local_latches( void );
 
-//Camera stuff
-void adjust_camera_angle( float height );
-void move_camera();
-void make_camera_matrix();
-void camera_look_at( float x, float y );
-
 void make_onwhichfan( void );
 void bump_characters( void );
-int prt_is_over_water( Uint16 cnt );
+int  prt_is_over_water( Uint16 cnt );
 void do_weather_spawn();
 void animate_tiles();
 void stat_return();
 void update_pits();
 void reset_players();
-int find_module(  const char *smallname );
+int  find_module(  const char *smallname );
 void listen_for_packets();
 void unbuffer_player_latches();
 void resize_characters();
@@ -244,8 +230,8 @@ void make_mad_equally_lit( int model );
 void get_message( FILE* fileread );
 void load_all_messages(  const char *loadname, Uint16 object );
 void check_copy(  const char* loadname, Uint16 object );
-int load_one_object( int skin,  const char* tmploadname );
-int load_all_objects(  const char *modname );
+int  load_one_object( int skin,  const char* tmploadname );
+int  load_all_objects(  const char *modname );
 void load_all_global_objects(int skin);
 
 void font_init();
@@ -258,60 +244,20 @@ void reset_teams();
 void reset_messages();
 void make_randie();
 void load_module(  const char *smallname );
-void render_prt();
-void render_shadow( Uint16 character );
-void render_bad_shadow( Uint16 character );
-void render_refprt();
-void render_fan( Uint32 fan );
-void render_water_fan( Uint32 fan, Uint8 layer );
-void render_enviromad( Uint16 character, Uint8 trans );
-void render_texmad( Uint16 character, Uint8 trans );
-void render_mad( Uint16 character, Uint8 trans );
-void render_refmad( int tnc, Uint8 trans );
-void light_characters();
-void light_particles();
-void set_fan_light( int fanx, int fany, Uint16 particle );
-void do_dynalight();
-void render_water();
-void draw_scene_sadreflection();
-void draw_scene_zreflection();
 
-void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
-void draw_one_font( int fonttype, int x, int y );
-void draw_map( int x, int y );
-int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks );
-void draw_string(  const char *szText, int x, int y );
-int length_of_word(  const char *szText );
-int draw_wrap_string(  const char *szText, int x, int y, int maxx );
-int draw_status( Uint16 character, int x, int y );
-void draw_text();
-void flip_pages();
-void draw_scene();
-void draw_main();
-
-int load_one_title_image( int titleimage,  const char *szLoadName );
-int get_module_data( int modnumber,  const char *szLoadName );
-int get_module_summary(  const char *szLoadName );
-void load_all_menu_images();
+int    load_one_title_image( int titleimage,  const char *szLoadName );
+int    get_module_data( int modnumber,  const char *szLoadName );
+int    get_module_summary(  const char *szLoadName );
+void   load_all_menu_images();
 bool_t load_blip_bitmap();
-void do_cursor();
-void menu_service_select();
-void menu_start_or_join();
-void draw_module_tag( int module, int y );
-int get_skin(  const char *filename );
-void check_player_import(  const char *dirname, bool_t initialize );
-void menu_pick_player( int module );
-void menu_module_loading( int module );
-void menu_choose_host();
-void menu_choose_module();
-void menu_boot_players();
-void menu_end_text();
-void menu_initial_text();
-void fiddle_with_menu();
+
+int   get_skin(  const char *filename );
+void  check_player_import(  const char *dirname, bool_t initialize );
+
+
 void reset_timers();
-void reset_camera();
-void sdlinit( int argc, char **argv );
-int glinit( int argc, char **argv );
+
+
 void gltitle();
 int DirGetAttrib(  const char *fromdir );
 

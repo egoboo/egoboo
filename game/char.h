@@ -25,7 +25,7 @@
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f                     //
 #define PITDEPTH            -30                     // Depth to kill character
-#define VOLMIN				-4000            // Minumum Volume level
+#define VOLMIN              -4000            // Minumum Volume level
 
 #define BORETIME            (rand()&255)+120
 #define CAREFULTIME         50

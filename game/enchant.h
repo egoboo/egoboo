@@ -28,11 +28,11 @@
 //Different set values for enchants
 typedef enum enchant_set
 {
-	SETDAMAGETYPE = 0,		//Type of damage dealt
-    SETNUMBEROFJUMPS,		//Max number of jumps
-	SETLIFEBARCOLOR,		//Color of life bar
-	SETMANABARCOLOR,		//Color of mana bar
-	SETSLASHMODIFIER,      // Damage modifiers
+    SETDAMAGETYPE = 0,      //Type of damage dealt
+    SETNUMBEROFJUMPS,       //Max number of jumps
+    SETLIFEBARCOLOR,        //Color of life bar
+    SETMANABARCOLOR,        //Color of mana bar
+    SETSLASHMODIFIER,      // Damage modifiers
     SETCRUSHMODIFIER,
     SETPOKEMODIFIER,
     SETHOLYMODIFIER,
@@ -40,39 +40,39 @@ typedef enum enchant_set
     SETFIREMODIFIER,
     SETICEMODIFIER,
     SETZAPMODIFIER,
-    SETFLASHINGAND,				//Flash rate
-    SETLIGHTBLEND,				//Transparency
-    SETALPHABLEND,				//Alpha
-    SETSHEEN,				    // Shinyness
-    SETFLYTOHEIGHT,				//Fly to this height
-    SETWALKONWATER,				//Walk on water?
-    SETCANSEEINVISIBLE,			//Can it see invisible?
-    SETMISSILETREATMENT,		//How to treat missiles
-    SETCOSTFOREACHMISSILE,		//Cost for each missile treat
-    SETMORPH,					// Morph character?
-    SETCHANNEL,					// Can channel life as mana?
-	MAX_ENCHANT_SET,
+    SETFLASHINGAND,             //Flash rate
+    SETLIGHTBLEND,              //Transparency
+    SETALPHABLEND,              //Alpha
+    SETSHEEN,                   // Shinyness
+    SETFLYTOHEIGHT,             //Fly to this height
+    SETWALKONWATER,             //Walk on water?
+    SETCANSEEINVISIBLE,         //Can it see invisible?
+    SETMISSILETREATMENT,        //How to treat missiles
+    SETCOSTFOREACHMISSILE,      //Cost for each missile treat
+    SETMORPH,                   // Morph character?
+    SETCHANNEL,                 // Can channel life as mana?
+    MAX_ENCHANT_SET,
 } enum_enchant_set;
 
 typedef enum enchant_add
 {
-	ADDJUMPPOWER = 0,
-	ADDBUMPDAMPEN,
-	ADDBOUNCINESS,
-	ADDDAMAGE,           
-	ADDSIZE,                 
-	ADDACCEL,                
-	ADDRED,                        // Red shift
-	ADDGRN,                        // Green shift
-	ADDBLU,                        // Blue shift
-	ADDDEFENSE,                    // Defence adjustments
-	ADDMANA,                 
-	ADDLIFE,                 
-	ADDSTRENGTH,             
-	ADDWISDOM,               
-	ADDINTELLIGENCE,         
-	ADDDEXTERITY,
-}enum_enchant_add;
+    ADDJUMPPOWER = 0,
+    ADDBUMPDAMPEN,
+    ADDBOUNCINESS,
+    ADDDAMAGE,
+    ADDSIZE,
+    ADDACCEL,
+    ADDRED,                        // Red shift
+    ADDGRN,                        // Green shift
+    ADDBLU,                        // Blue shift
+    ADDDEFENSE,                    // Defence adjustments
+    ADDMANA,
+    ADDLIFE,
+    ADDSTRENGTH,
+    ADDWISDOM,
+    ADDINTELLIGENCE,
+    ADDDEXTERITY,
+} enum_enchant_add;
 
 
 //Prototypes

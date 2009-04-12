@@ -27,28 +27,55 @@
 #include "log.h"
 #include "script.h"
 #include "camera.h"
+#include "id_md2.h"
+
+#include <SDL_image.h>
 
 #include <assert.h>
 
-// Defined in egoboo.h
-SDL_Surface *displaySurface = NULL;
-bool_t  gTextureOn = bfalse;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
+SDL_Surface *    displaySurface = NULL;
+
+Uint16           numdolist = 0;
+Uint16           dolist[MAXCHR];
+
+Uint16           meshlasttexture = 0;
+
+int              numrenderlistall = 0;
+int              numrenderlistref = 0;
+int              numrenderlistsha = 0;
+Uint32           renderlistall[MAXMESHRENDER];
+Uint32           renderlistref[MAXMESHRENDER];
+Uint32           renderlistsha[MAXMESHRENDER];
+
+
+Uint8            lightdirectionlookup[65536];
+Uint8            lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
+float            indextoenvirox[MD2LIGHTINDICES];
+float            lighttoenviroy[256];
+Uint32           lighttospek[MAXSPEKLEVEL][256];
+
+static float sinlut[MAXLIGHTROTATION];
+static float coslut[MAXLIGHTROTATION];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void EnableTexturing()
 {
-    if ( !gTextureOn )
+    if ( !glIsEnabled( GL_TEXTURE_2D ) )
     {
         glEnable( GL_TEXTURE_2D );
-        gTextureOn = btrue;
     }
 }
 
+//--------------------------------------------------------------------------------------------
 void DisableTexturing()
 {
-    if ( gTextureOn )
+    if ( glIsEnabled( GL_TEXTURE_2D ) )
     {
         glDisable( GL_TEXTURE_2D );
-        gTextureOn = bfalse;
     }
 }
 
@@ -1365,15 +1392,15 @@ void make_renderlist()
     int from, to;
 
     // Clear old render lists
-    for ( cnt = 0; cnt < nummeshrenderlist; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistall; cnt++ )
     {
-        fan = meshrenderlist[cnt];
+        fan = renderlistall[cnt];
         meshinrenderlist[fan] = btrue;
     }
 
-    nummeshrenderlist = 0;
-    nummeshrenderlistref = 0;
-    nummeshrenderlistsha = 0;
+    numrenderlistall = 0;
+    numrenderlistref = 0;
+    numrenderlistsha = 0;
 
     // Make sure it doesn't die ugly !!!BAD!!!
 
@@ -1522,23 +1549,23 @@ void make_renderlist()
 
         while ( fanx < run )
         {
-            if ( nummeshrenderlist < MAXMESHRENDER )
+            if ( numrenderlistall < MAXMESHRENDER )
             {
                 // Put each tile in basic list
                 meshinrenderlist[cnt] = btrue;
-                meshrenderlist[nummeshrenderlist] = cnt;
-                nummeshrenderlist++;
+                renderlistall[numrenderlistall] = cnt;
+                numrenderlistall++;
 
                 // Put each tile in one other list, for shadows and relections
                 if ( 0 != ( meshfx[cnt] & MESHFX_SHA ) )
                 {
-                    meshrenderlistsha[nummeshrenderlistsha] = cnt;
-                    nummeshrenderlistsha++;
+                    renderlistsha[numrenderlistsha] = cnt;
+                    numrenderlistsha++;
                 }
                 else
                 {
-                    meshrenderlistref[nummeshrenderlistref] = cnt;
-                    nummeshrenderlistref++;
+                    renderlistref[numrenderlistref] = cnt;
+                    numrenderlistref++;
                 }
             }
 
@@ -2128,7 +2155,7 @@ void load_map(  const char* szModule )
 //--------------------------------------------------------------------------------------------
 void font_init()
 {
-	//Intitializes the font, ready to use
+    //Intitializes the font, ready to use
     GLTexture_new( &TxFont );
 
     font_release();
@@ -3127,9 +3154,9 @@ void do_dynalight()
     else if ( shading != GL_FLAT )
     {
         // Add to base light level in normal mode
-        for ( entry = 0; entry < nummeshrenderlist; entry++ )
+        for ( entry = 0; entry < numrenderlistall; entry++ )
         {
-            fan = meshrenderlist[entry];
+            fan = renderlistall[entry];
             if ( INVALID_TILE == fan ) continue;
 
             vertex = meshvrtstart[fan];
@@ -3181,12 +3208,12 @@ void render_water()
     {
         cnt = 0;
 
-        while ( cnt < nummeshrenderlist )
+        while ( cnt < numrenderlistall )
         {
-            if ( 0 != ( meshfx[meshrenderlist[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
             {
                 // !!!BAD!!! Water will get screwed up if meshtilesx is odd
-                render_water_fan( meshrenderlist[cnt], 1 );
+                render_water_fan( renderlistall[cnt], 1 );
             }
 
             cnt++;
@@ -3198,12 +3225,12 @@ void render_water()
     {
         cnt = 0;
 
-        while ( cnt < nummeshrenderlist )
+        while ( cnt < numrenderlistall )
         {
-            if ( 0 != ( meshfx[meshrenderlist[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
             {
                 // !!!BAD!!! Water will get screwed up if meshtilesx is odd
-                render_water_fan( meshrenderlist[cnt], 0 );
+                render_water_fan( renderlistall[cnt], 0 );
             }
 
             cnt++;
@@ -3232,9 +3259,9 @@ void draw_scene_sadreflection()
     glFrontFace( GL_CW );
     meshlasttexture = 0;
 
-    for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistref; cnt++ )
     {
-        render_fan( meshrenderlistref[cnt] );
+        render_fan( renderlistref[cnt] );
     }
 
     if ( refon )
@@ -3271,9 +3298,9 @@ void draw_scene_sadreflection()
     // Render the shadow floors
     meshlasttexture = 0;
 
-    for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
     {
-        render_fan( meshrenderlistsha[cnt] );
+        render_fan( renderlistsha[cnt] );
     }
 
     // Render the shadows
@@ -3414,15 +3441,15 @@ void draw_scene_zreflection()
     glDepthMask( GL_FALSE );
 
     meshlasttexture = 0;
-    for ( cnt = 0; cnt < nummeshrenderlistref; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistref; cnt++ )
     {
-        render_fan( meshrenderlistref[cnt] );
+        render_fan( renderlistref[cnt] );
     }
 
     // BAD: DRAW SHADOW STUFF TOO
-    for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
     {
-        render_fan( meshrenderlistsha[cnt] );
+        render_fan( renderlistsha[cnt] );
     }
 
     glEnable( GL_DEPTH_TEST );
@@ -3467,9 +3494,9 @@ void draw_scene_zreflection()
     // Render the shadow floors
     meshlasttexture = 0;
 
-    for ( cnt = 0; cnt < nummeshrenderlistsha; cnt++ )
+    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
     {
-        render_fan( meshrenderlistsha[cnt] );
+        render_fan( renderlistsha[cnt] );
     }
 
     // Render the shadows
@@ -5315,3 +5342,112 @@ void load_graphics()
     }
 
 }
+
+//---------------------------------------------------------------------------------------------
+float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi )
+{
+    // ZZ> This function helps make_lighttable
+    float fTmp;
+    float nx, ny, nz;
+    float sinrot, cosrot;
+
+    nx = kMd2Normals[normal][0];
+    ny = kMd2Normals[normal][1];
+    nz = kMd2Normals[normal][2];
+    sinrot = sinlut[rotation];
+    cosrot = coslut[rotation];
+    fTmp = cosrot * nx + sinrot * ny;
+    ny = cosrot * ny - sinrot * nx;
+    nx = fTmp;
+    fTmp = nx * lx + ny * ly + nz * lz + ambi;
+    if ( fTmp < ambi ) fTmp = ambi;
+
+    return fTmp;
+}
+
+
+//---------------------------------------------------------------------------------------------
+void make_lighttable( float lx, float ly, float lz, float ambi )
+{
+    // ZZ> This function makes a light table to fake directional lighting
+    int lev, cnt, tnc;
+    int itmp, itmptwo;
+
+    // Build a lookup table for sin/cos
+    for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
+    {
+        sinlut[cnt] = SIN( TWO_PI * cnt / MAXLIGHTROTATION );
+        coslut[cnt] = COS( TWO_PI * cnt / MAXLIGHTROTATION );
+    }
+
+    for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
+    {
+        for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
+        {
+            lev = MAXLIGHTLEVEL - 1;
+            itmp = ( 255 * light_for_normal( tnc,
+                                             cnt,
+                                             lx * lev / MAXLIGHTLEVEL,
+                                             ly * lev / MAXLIGHTLEVEL,
+                                             lz * lev / MAXLIGHTLEVEL,
+                                             ambi ) );
+
+            // This creates the light value for each level entry
+            while ( lev >= 0 )
+            {
+                itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
+                if ( itmptwo > 255 )  itmptwo = 255;
+
+                lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
+                lev--;
+            }
+        }
+    }
+
+    // Fill in index number 162 for the spike mace
+    for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
+    {
+        lev = MAXLIGHTLEVEL - 1;
+        itmp = 255;
+
+        // This creates the light value for each level entry
+        while ( lev >= 0 )
+        {
+            itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
+            if ( itmptwo > 255 )  itmptwo = 255;
+
+            lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
+            lev--;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void make_enviro( void )
+{
+    // ZZ> This function sets up the environment mapping table
+    int cnt;
+    float z;
+    float x, y;
+
+    // Find the environment map positions
+    for ( cnt = 0; cnt < MD2LIGHTINDICES; cnt++ )
+    {
+        x = kMd2Normals[cnt][0];
+        y = kMd2Normals[cnt][1];
+        x = ( ATAN2( y, x ) + PI ) / ( PI );
+        x--;
+        if ( x < 0 )
+            x--;
+
+        indextoenvirox[cnt] = x;
+    }
+
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        z = cnt / 256.0f;  // Z is between 0 and 1
+        lighttoenviroy[cnt] = z;
+    }
+}
+

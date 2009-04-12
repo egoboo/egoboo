@@ -1466,7 +1466,7 @@ void unbuffer_player_latches()
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
         int weight;
-		Uint32 index, tnc;
+        Uint32 index, tnc;
         if ( !plavalid[cnt] ) continue;
 
         character = plaindex[cnt];

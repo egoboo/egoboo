@@ -329,6 +329,9 @@
 				RelativePath=".\egobootypedef.h">
 			</File>
 			<File
+				RelativePath=".\enchant.h">
+			</File>
+			<File
 				RelativePath=".\font.h">
 			</File>
 			<File
@@ -356,6 +359,9 @@
 				RelativePath=".\particle.h">
 			</File>
 			<File
+				RelativePath=".\passage.h">
+			</File>
+			<File
 				RelativePath=".\proto.h">
 			</File>
 			<File
@@ -363,6 +369,9 @@
 			</File>
 			<File
 				RelativePath=".\server.h">
+			</File>
+			<File
+				RelativePath=".\sound.h">
 			</File>
 			<File
 				RelativePath=".\System.h">

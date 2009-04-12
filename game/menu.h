@@ -42,4 +42,15 @@ extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 void menu_frameStep();
 
+void menu_pick_player( int module );
+void menu_module_loading( int module );
+void menu_choose_host();
+void menu_choose_module();
+void menu_boot_players();
+void menu_end_text();
+void menu_initial_text();
+void fiddle_with_menu();
+void menu_service_select();
+void menu_start_or_join();
+
 #define egoboo_Menu_h

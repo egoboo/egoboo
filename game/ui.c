@@ -23,6 +23,7 @@
  */
 
 #include "ui.h"
+#include "graphic.h"
 #include "egoboo.h"
 
 #include <string.h>

@@ -42,17 +42,17 @@
 #include "camera.h"
 #include "id_md2.h"
 
+#include <SDL_image.h>
+
 #include <time.h>
 #include <assert.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-float sinlut[MAXLIGHTROTATION];
-float coslut[MAXLIGHTROTATION];
 
 char  idsz_string[5] = { '\0' };
 
-void memory_cleanUp(void);
+static void memory_cleanUp(void);
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -490,7 +490,7 @@ int tag_value(  const char *string )
 //--------------------------------------------------------------------------------------------
 char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
 {
-	//ZF> This translates a input tag value to a string
+    //ZF> This translates a input tag value to a string
     int cnt;
     if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
     if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
@@ -732,84 +732,6 @@ void log_madused(  const char *savename )
 }
 
 //---------------------------------------------------------------------------------------------
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi )
-{
-    // ZZ> This function helps make_lighttable
-    float fTmp;
-    float nx, ny, nz;
-    float sinrot, cosrot;
-
-    nx = kMd2Normals[normal][0];
-    ny = kMd2Normals[normal][1];
-    nz = kMd2Normals[normal][2];
-    sinrot = sinlut[rotation];
-    cosrot = coslut[rotation];
-    fTmp = cosrot * nx + sinrot * ny;
-    ny = cosrot * ny - sinrot * nx;
-    nx = fTmp;
-    fTmp = nx * lx + ny * ly + nz * lz + ambi;
-    if ( fTmp < ambi ) fTmp = ambi;
-
-    return fTmp;
-}
-
-//---------------------------------------------------------------------------------------------
-void make_lighttable( float lx, float ly, float lz, float ambi )
-{
-    // ZZ> This function makes a light table to fake directional lighting
-    int lev, cnt, tnc;
-    int itmp, itmptwo;
-
-    // Build a lookup table for sin/cos
-    for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
-    {
-        sinlut[cnt] = SIN( TWO_PI * cnt / MAXLIGHTROTATION );
-        coslut[cnt] = COS( TWO_PI * cnt / MAXLIGHTROTATION );
-    }
-
-    for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
-    {
-        for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
-        {
-            lev = MAXLIGHTLEVEL - 1;
-            itmp = ( 255 * light_for_normal( tnc,
-                                             cnt,
-                                             lx * lev / MAXLIGHTLEVEL,
-                                             ly * lev / MAXLIGHTLEVEL,
-                                             lz * lev / MAXLIGHTLEVEL,
-                                             ambi ) );
-
-            // This creates the light value for each level entry
-            while ( lev >= 0 )
-            {
-                itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-                if ( itmptwo > 255 )  itmptwo = 255;
-
-                lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
-                lev--;
-            }
-        }
-    }
-
-    // Fill in index number 162 for the spike mace
-    for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
-    {
-        lev = MAXLIGHTLEVEL - 1;
-        itmp = 255;
-
-        // This creates the light value for each level entry
-        while ( lev >= 0 )
-        {
-            itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-            if ( itmptwo > 255 )  itmptwo = 255;
-
-            lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
-            lev--;
-        }
-    }
-}
-
-//---------------------------------------------------------------------------------------------
 int vertexconnected( Uint16 modelindex, int vertex )
 {
     // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
@@ -833,34 +755,6 @@ int vertexconnected( Uint16 modelindex, int vertex )
 
     // The vertex is not used
     return 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void make_enviro( void )
-{
-    // ZZ> This function sets up the environment mapping table
-    int cnt;
-    float z;
-    float x, y;
-
-    // Find the environment map positions
-    for ( cnt = 0; cnt < MD2LIGHTINDICES; cnt++ )
-    {
-        x = kMd2Normals[cnt][0];
-        y = kMd2Normals[cnt][1];
-        x = ( ATAN2( y, x ) + PI ) / ( PI );
-        x--;
-        if ( x < 0 )
-            x--;
-
-        indextoenvirox[cnt] = x;
-    }
-
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        z = cnt / 256.0f;  // Z is between 0 and 1
-        lighttoenviroy[cnt] = z;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1675,6 +1569,8 @@ int SDL_main( int argc, char **argv )
     sys_initialize();
     clk_init();
     fs_init();
+
+    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
     GLSetup_SupportedFormats();
 
     // read the "setup.txt" file
@@ -1991,7 +1887,7 @@ int load_one_object( int skin,  const char* tmploadname )
     int cnt;
 
     // Load the object data file and get the object number
-    make_newloadname( tmploadname, "/data.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "data.txt", newloadname );
     object = load_one_character_profile( newloadname );
 
     //Don't override it if it's already there
@@ -2000,27 +1896,23 @@ int load_one_object( int skin,  const char* tmploadname )
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
     // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
-    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) ] = '\0';
-
-    // Append a slash to the tmploadname
-    sprintf( newloadname, "%s", tmploadname );
-    sprintf( tmploadname, "%s" SLASH_STR, newloadname );
+    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) - 1 ] = '\0';
 
     // Load the AI script for this object
-    make_newloadname( tmploadname, "script.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
 
     // Create a reference to the one we just loaded
     madai[object] = load_ai_script( newloadname );
 
     // Load the object model
-    make_newloadname( tmploadname, "tris.md2", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
 
 #ifdef __unix__
 
     // unix is case sensitive, but sometimes this file is called tris.MD2
     if ( access( newloadname, R_OK ) )
     {
-        make_newloadname( tmploadname, "tris.MD2", newloadname );
+        make_newloadname( tmploadname, SLASH_STR "tris.MD2", newloadname );
 
         // still no luck !
         if ( access( newloadname, R_OK ) )
@@ -2044,34 +1936,34 @@ int load_one_object( int skin,  const char* tmploadname )
     get_actions( object );
 
     // Copy entire actions to save frame space COPY.TXT
-    make_newloadname( tmploadname, "copy.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
     check_copy( newloadname, object );
 
     // Load the messages for this object
-    make_newloadname( tmploadname, "message.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
     load_all_messages( newloadname, object );
 
     // Load the random naming table for this object
-    make_newloadname( tmploadname, "naming.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "naming.txt", newloadname );
     read_naming( object, newloadname );
 
     // Load the particles for this object
     for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
     {
-        sprintf( newloadname, "%spart%d.txt", tmploadname, cnt );
+        sprintf( newloadname, "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
         load_one_particle( newloadname, object, cnt );
     }
 
     // Load the waves for this object
     for ( cnt = 0; cnt < MAXWAVE; cnt++ )
     {
-        sprintf( wavename, "sound%d", cnt );
+        sprintf( wavename, SLASH_STR "sound%d", cnt );
         make_newloadname( tmploadname, wavename, newloadname );
         capwavelist[object][cnt] = sound_load_chunk( newloadname );
     }
 
     // Load the enchantment for this object
-    make_newloadname( tmploadname, "enchant.txt", newloadname );
+    make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
     load_one_enchant_type( newloadname, object );
 
     // Load the skins and icons
@@ -2080,12 +1972,12 @@ int load_one_object( int skin,  const char* tmploadname )
     numicon = 0;
     for ( cnt = 0; cnt < 4; cnt++)
     {
-        snprintf( newloadname, sizeof(newloadname), "%stris%d", tmploadname, cnt );
+        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
         if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
         {
             numskins++;
 
-            snprintf( newloadname, sizeof(newloadname), "%sicon%d", tmploadname, cnt );
+            snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
             if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
             {
                 for ( /* nothing */ ; numicon < numskins; numicon++ )

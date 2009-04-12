@@ -27,8 +27,8 @@
 #    define snprintf  _snprintf
 
 //This isn't needed in MSVC 2008 and causes errors
-#if _MSC_VER < 1500 
-#	 define vsnprintf _vsnprintf             
+#if _MSC_VER < 1500
+#    define vsnprintf _vsnprintf
 #endif
 
 // sets the packing of a data structure at declaration
@@ -75,4 +75,4 @@
 
 
 //Some macro switches
-//#define OLD_CAMERA_MODE		//Use the old camera style
+//#define OLD_CAMERA_MODE       //Use the old camera style

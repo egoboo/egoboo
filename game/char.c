@@ -3371,8 +3371,8 @@ void bump_characters( void )
                         float depth_x, depth_y, depth_xy, depth_yx, depth_z;
                         glVector nrm;
 
-						nrm.x = nrm.y = nrm.z = 0.0f;
-						nrm.w = 1.0f;
+                        nrm.x = nrm.y = nrm.z = 0.0f;
+                        nrm.w = 1.0f;
 
                         depth_x  = MIN(xa + chr[chara].bumpsize, xb + chr[charb].bumpsize) - MAX(xa - chr[chara].bumpsize, xb - chr[charb].bumpsize);
                         if ( depth_x < 0.0f )

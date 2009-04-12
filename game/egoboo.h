@@ -485,9 +485,6 @@ EXTERN int                     playersloaded;              //
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
 EXTERN Uint16                   revivetimer EQ(0);
 
-// JF - Added so that the video mode might be determined outside of the graphics code
-extern SDL_Surface *displaySurface;
-
 // Networking
 EXTERN int                     local_machine  EQ( 0 );        // 0 is host, 1 is 1st remote, 2 is 2nd...
 EXTERN int                     numimport;                     // Number of imports from this machine
@@ -682,9 +679,7 @@ EXTERN rect_t                    maprect;                    // The map rectangl
 #define BLIPSIZE 6
 
 // Lightning effects
-#define MAXLIGHTLEVEL                   16          // Number of premade light intensities
-#define MAXSPEKLEVEL                    16          // Number of premade specularities
-#define MAXLIGHTROTATION                256         // Number of premade light maps
+
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
 #define TOTALMAXDYNA                    64          // Absolute max number of dynamic lights
 EXTERN int                     maxlights EQ( 8 ); // Max number of lights to draw
@@ -695,8 +690,7 @@ EXTERN float                   dynalightlistx[TOTALMAXDYNA];    // Light positio
 EXTERN float                   dynalightlisty[TOTALMAXDYNA];    //
 EXTERN float                   dynalightlevel[TOTALMAXDYNA];    // Light level
 EXTERN float                   dynalightfalloff[TOTALMAXDYNA];  // Light falloff
-EXTERN Uint8                   lightdirectionlookup[65536];// For lighting characters
-EXTERN Uint8                   lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
+
 EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
 //Mesh
@@ -1048,8 +1042,6 @@ EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before s
 #define LEAVENONE               2
 
 EXTERN float            textureoffset[256];         // For moving textures
-EXTERN Uint16           dolist[MAXCHR];             // List of which characters to draw
-EXTERN Uint16           numdolist;                  // How many in the list
 
 //------------------------------------
 // Particle variables
@@ -1433,9 +1425,6 @@ EXTERN const char *parse_filename  EQ( NULL );  // For debuggin' goto_colon
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 EXTERN FILE *globalnetworkerr  EQ( NULL ); // For debuggin' network
 
-EXTERN float           indextoenvirox[MD2LIGHTINDICES];                    // Environment map
-EXTERN float           lighttoenviroy[256];                                // Environment map
-EXTERN Uint32           lighttospek[MAXSPEKLEVEL][256];                     //
 
 EXTERN float           hillslide  EQ( 1.00f );                                 //
 EXTERN float           slippyfriction  EQ( 1.00f );  //1.05f for Chevron          // Friction
@@ -1468,7 +1457,6 @@ EXTERN int             meshblocksy EQ(0);                                  //
 EXTERN Uint32          meshblocks  EQ(0);                                  // Number of blocks (collision areas)
 EXTERN float           meshedgex;                                          // Limits
 EXTERN float           meshedgey;                                          //
-EXTERN Uint16          meshlasttexture;                                    // Last texture used
 EXTERN Uint8           meshtype[MAXMESHFAN];                               // Command type
 EXTERN Uint8           meshfx[MAXMESHFAN];                                 // Special effects flags
 EXTERN Uint8           meshtwist[MAXMESHFAN];                              //
@@ -1491,12 +1479,7 @@ EXTERN float           meshcommandu[MAXMESHTYPE][MAXMESHVERTICES];         // Ve
 EXTERN float           meshcommandv[MAXMESHTYPE][MAXMESHVERTICES];         //
 EXTERN float           meshtileoffu[MAXTILETYPE];                          // Tile texture offset
 EXTERN float           meshtileoffv[MAXTILETYPE];                          //
-EXTERN int             nummeshrenderlist;                                  // Number to render, total
-EXTERN int             nummeshrenderlistref;                               // ..., reflective
-EXTERN int             nummeshrenderlistsha;                               // ..., shadow
-EXTERN Uint32          meshrenderlist[MAXMESHRENDER];                      // List of which to render, total
-EXTERN Uint32          meshrenderlistref[MAXMESHRENDER];                   // ..., reflective
-EXTERN Uint32          meshrenderlistsha[MAXMESHRENDER];                   // ..., shadow
+
 
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
