@@ -1446,7 +1446,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             if ( !pchr->isplayer )
             {
                 returncode = btrue;
-                pself->gopoof = btrue;
+                pself->poof_time = frame_wld;
             }
             break;
 
@@ -2787,20 +2787,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
                 if ( pself->target == pself->index )
                 {
                     // Poof self later
-                    pself->gopoof = btrue;
+                    pself->poof_time = frame_wld + 1;
                 }
                 else
                 {
                     // Poof others now
-                    if ( chr[pself->target].attachedto != MAXCHR )
-                        detach_character_from_mount( pself->target, btrue, bfalse );
-                    if ( chr[pself->target].holdingwhich[0] != MAXCHR )
-                        detach_character_from_mount( chr[pself->target].holdingwhich[0], btrue, bfalse );
-                    if ( chr[pself->target].holdingwhich[1] != MAXCHR )
-                        detach_character_from_mount( chr[pself->target].holdingwhich[1], btrue, bfalse );
-
-                    free_inventory( pself->target );
-                    free_one_character( pself->target );
+                    chr[pself->target].ai.poof_time = frame_wld;
                     pself->target = pself->index;
                 }
             }
@@ -4684,7 +4676,12 @@ void let_character_think( Uint16 character )
     pchr  = chr + character;
     pself = &(pchr->ai);
 
-    if ( pchr->ai.gopoof ) return;
+    // has the time for this character to die come and gone?
+    if( pself->poof_time >= 0 && pself->poof_time <= frame_wld ) return;
+
+    // characters that are not "alive" should have greatly limited access to scripting...
+    // in the past it was completely turned off
+    if( !pchr->alive ) return;
 
     // debug a certain script
     //debug_scripts = ( chr[pself->index].model == 63 );
@@ -4845,22 +4842,28 @@ void let_all_characters_think()
     numblip = 0;
     for ( character = 0; character < MAXCHR; character++ )
     {
+        bool_t is_crushed, is_cleanedup, can_think;
+
         if ( !chr[character].on ) continue;
 
-        // allow chracters to think even if they are packed if they are equipment
-        if ( chr[character].inpack && !capisequipment[chr[character].model] ) continue;
+        // check for actions that must always be handled
+        is_cleanedup = ( 0 != ( chr[character].ai.alert & ALERTIF_CLEANEDUP ) );
+        is_crushed   = ( 0 != ( chr[character].ai.alert & ALERTIF_CRUSHED   ) );
+
+        // let the script run sometimes even if the item is in your backpack
+        can_think = !chr[character].inpack || capisequipment[chr[character].model];
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
-        if ( chr[character].alive || ( 0 != ( chr[character].ai.alert & ALERTIF_CLEANEDUP ) ) || ( 0 != ( chr[character].ai.alert & ALERTIF_CRUSHED ) ) )
+        if ( ( chr[character].alive && can_think ) || is_crushed || is_cleanedup )
         {
             // Figure out alerts that weren't already set
             set_alerts( character );
 
             // Crushed characters shouldn't be alert to anything else
-            if ( chr[character].ai.alert & ALERTIF_CRUSHED )  chr[character].ai.alert = ALERTIF_CRUSHED;
+            if ( is_crushed )  { chr[character].ai.alert = ALERTIF_CRUSHED; chr[character].ai.timer = frame_wld + 1; }
 
             // Cleaned up characters shouldn't be alert to anything else
-            if ( chr[character].ai.alert & ALERTIF_CLEANEDUP )  chr[character].ai.alert = ALERTIF_CLEANEDUP;
+            if ( is_cleanedup )  { chr[character].ai.alert = ALERTIF_CLEANEDUP; chr[character].ai.timer = frame_wld + 1; }
 
             let_character_think( character );
         }
@@ -5899,7 +5902,7 @@ Uint8 scr_GoPoof( script_state_t * pstate, ai_state_t * pself )
     if ( !pchr->isplayer )
     {
         returncode = btrue;
-        pself->gopoof = btrue;
+        pself->poof_time = frame_wld;
     }
 
     SCRIPT_FUNCTION_END();
@@ -8787,20 +8790,12 @@ Uint8 scr_PoofTarget( script_state_t * pstate, ai_state_t * pself )
         if ( pself->target == pself->index )
         {
             // Poof self later
-            pself->gopoof = btrue;
+            pself->poof_time = frame_wld + 1;
         }
         else
         {
             // Poof others now
-            if ( chr[pself->target].attachedto != MAXCHR )
-                detach_character_from_mount( pself->target, btrue, bfalse );
-            if ( chr[pself->target].holdingwhich[0] != MAXCHR )
-                detach_character_from_mount( chr[pself->target].holdingwhich[0], btrue, bfalse );
-            if ( chr[pself->target].holdingwhich[1] != MAXCHR )
-                detach_character_from_mount( chr[pself->target].holdingwhich[1], btrue, bfalse );
-
-            free_inventory( pself->target );
-            free_one_character( pself->target );
+            chr[pself->target].ai.poof_time = frame_wld;
             pself->target = pself->index;
         }
     }

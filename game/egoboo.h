@@ -733,7 +733,7 @@ struct s_ai_state
     Uint32         opcode;
 
     // some script states
-    bool_t         gopoof;
+    Sint32         poof_time;
     bool_t         changed;
     bool_t         terminate;
     Uint32         indent;

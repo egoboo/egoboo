@@ -2463,7 +2463,7 @@ void move_characters( void )
             if ( madframefx[chr[cnt].frame]&MADFXDROPRIGHT )
                 detach_character_from_mount( chr[cnt].holdingwhich[1], bfalse, btrue );
             if ( madframefx[chr[cnt].frame]&MADFXPOOF && !chr[cnt].isplayer )
-                chr[cnt].ai.gopoof = btrue;
+                chr[cnt].ai.poof_time = frame_wld;
             if ( madframefx[chr[cnt].frame]&MADFXFOOTFALL )
             {
                 int ifoot = capsoundindex[chr[cnt].model][SOUND_FOOTFALL];
@@ -2585,7 +2585,7 @@ void move_characters( void )
     // Do poofing
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        if ( !chr[cnt].on || !chr[cnt].ai.gopoof ) continue;
+        if ( !chr[cnt].on || !(chr[cnt].ai.poof_time >= 0 && chr[cnt].ai.poof_time <= frame_wld)  ) continue;
 
         if ( chr[cnt].attachedto != MAXCHR )
         {
@@ -4439,7 +4439,7 @@ void do_level_up( Uint16 character )
             }
 
             // Size
-            chr[character].sizegoto += capsizeperlevel[profile] * 5.0f;  // Limit this?
+            chr[character].sizegoto += capsizeperlevel[profile] * 0.5f;  // Limit this?
             chr[character].sizegototime += SIZETIME;
 
             // Strength
@@ -5566,6 +5566,7 @@ void damage_character( Uint16 character, Uint16 direction,
     //     are done here too.  Direction is 0 if the attack is coming head on,
     //     16384 if from the right, 32768 if from the back, 49152 if from the
     //     left.
+
     int tnc;
     Uint16 action;
     int damage, basedamage;
@@ -5602,9 +5603,10 @@ void damage_character( Uint16 character, Uint16 direction,
         if ( damage > 0 )
         {
             // Only damage if not invincible
-            if ( chr[character].damagetime == 0 && !chr[character].invictus )
+            if ( 0 == chr[character].damagetime && ( !chr[character].invictus || ignoreinvincible ) )
             {
                 model = chr[character].model;
+
                 if ( 0 == ( effects&DAMFXBLOC ) )
                 {
                     // Only damage if hitting from proper direction
@@ -5653,6 +5655,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         damage = 0;
                     }
                 }
+
                 if ( damage != 0 )
                 {
                     if ( effects&DAMFXARMO )
@@ -5804,6 +5807,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         chr[character].ai.alert |= ALERTIF_KILLED;
                         chr[character].sparkle = NOSPARKLE;
                         chr[character].ai.timer = frame_wld + 1;  // No timeout...
+
                         let_character_think( character );
                     }
                     else
@@ -6058,6 +6062,7 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
     pself->owner      = index;
     pself->child      = index;
     pself->target_old = pself->target;
+    pself->poof_time  = -1;
 
     pself->timer      = 0;
 

@@ -1178,9 +1178,9 @@ void rip_md2_frames( Uint16 modelindex )
             fRealy = ( cTmpy * fScaley ) + fTranslatey;
             fRealz = ( cTmpz * fScalez ) + fTranslatez;
 
-            madvrtx[madloadframe][tnc] = -fRealx * 4;
-            madvrty[madloadframe][tnc] =  fRealy * 4;
-            madvrtz[madloadframe][tnc] =  fRealz * 4;
+            madvrtx[madloadframe][tnc] = -fRealx * 3.5f;
+            madvrty[madloadframe][tnc] =  fRealy * 3.5f;
+            madvrtz[madloadframe][tnc] =  fRealz * 3.5f;
             madvrta[madloadframe][tnc] =  cTmpa;
 
             iFrameOffset++;
