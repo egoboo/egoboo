@@ -28,6 +28,7 @@
 #include "camera.h"
 #include "passage.h"
 #include "enchant.h"
+#include "char.h"
 
 #include <assert.h>
 
@@ -4879,7 +4880,6 @@ void let_all_characters_think()
 
 // turn off this annoying warning
 #pragma warning(disable : 4189) // local variable is initialized but not referenced
-#pragma unused sTmp;			//This prevents warnings when this variable is unused
 
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \

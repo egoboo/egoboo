@@ -20,7 +20,7 @@
 //********************************************************************************************
 
 /* Egoboo - id_md2.h
- * Md2 model file loading structures & constants.  This is not currently in use.
+ * Md2 model file loading structures & constants.
  */
 
 struct md2_header
@@ -88,4 +88,4 @@ enum Md2Constant
 
 extern float kMd2Normals[][3];
 
-#define Egoboo_id_md2_h
+#define EGOBOO_ID_MD2_H

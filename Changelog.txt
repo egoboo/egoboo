@@ -9,6 +9,7 @@ Version 2.7.x (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debbuging output Egoboo gives.
+- Bugfix: Fixed potentional crash bug.
 - Bugfix: Various forms of bonus damage should now properly work.
 - Bugfix: Fixed an exploit with the Catacombs 1 boss.
 - Bugfix: Zombor can now solve the riddle of the dead.

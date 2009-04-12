@@ -72,143 +72,6 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
 }
 
 //--------------------------------------------------------------------------------------------
-void flash_character( Uint16 character, Uint8 value )
-{
-    // ZZ> This function sets a character's lighting
-    int cnt;
-
-    for ( cnt = 0; cnt < madtransvertices[chr[character].model]; cnt++  )
-    {
-        chr[character].vrta[cnt] = value;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void add_to_dolist( Uint16 ichr )
-{
-    // This function puts a character in the list
-    int itile;
-
-    if ( ichr >= MAXCHR || chr[ichr].indolist ) return;
-
-    itile = chr[ichr].onwhichfan;
-    if ( INVALID_TILE == itile ) return;
-
-    if ( meshinrenderlist[itile] )
-    {
-        if ( 0 == ( 0xFF00 & meshtile[itile] ) )
-        {
-            int itmp = 0;
-            itmp += meshvrtl[meshvrtstart[itile] + 0];
-            itmp += meshvrtl[meshvrtstart[itile] + 1];
-            itmp += meshvrtl[meshvrtstart[itile] + 2];
-            itmp += meshvrtl[meshvrtstart[itile] + 3];
-            chr[ichr].lightlevel = itmp / 4;
-        }
-
-        dolist[numdolist] = ichr;
-        chr[ichr].indolist = btrue;
-        numdolist++;
-    }
-    else if ( capalwaysdraw[chr[ichr].model] )
-    {
-        // Double check for large/special objects
-        dolist[numdolist] = ichr;
-        chr[ichr].indolist = btrue;
-        numdolist++;
-    }
-
-    if ( chr[ichr].indolist )
-    {
-        // Do flashing
-        if ( 0 == ( frame_all & chr[ichr].flashand ) && chr[ichr].flashand != DONTFLASH )
-        {
-            flash_character( ichr, 255 );
-        }
-
-        // Do blacking
-        if ( 0 == ( frame_all & SEEKURSEAND ) && local_seekurse && chr[ichr].iskursed )
-        {
-            flash_character( ichr, 0 );
-        }
-
-        // Add its weapons too
-        add_to_dolist( chr[ichr].holdingwhich[0] );
-        add_to_dolist( chr[ichr].holdingwhich[1] );
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------
-void order_dolist( void )
-{
-    // ZZ> This function orders the dolist based on distance from camera,
-    //     which is needed for reflections to properly clip themselves.
-    //     Order from closest to farthest
-    int tnc, cnt, character, order;
-    int dist[MAXCHR];
-    Uint16 olddolist[MAXCHR];
-
-    // Figure the distance of each
-    for ( cnt = 0; cnt < numdolist; cnt++ )
-    {
-        character = dolist[cnt];  olddolist[cnt] = character;
-        if ( chr[character].light != 255 || chr[character].alpha != 255 )
-        {
-            // This makes stuff inside an invisible character visible...
-            // A key inside a Jellcube, for example
-            dist[cnt] = 0x7fffffff;
-        }
-        else
-        {
-            dist[cnt] = (int) (ABS( chr[character].xpos - camx ) + ABS( chr[character].ypos - camy ));
-        }
-    }
-
-    // Put em in the right order
-    for ( cnt = 0; cnt < numdolist; cnt++  )
-    {
-        character = olddolist[cnt];
-        order = 0;  // Assume this character is closest
-
-        for ( tnc = 0; tnc < numdolist; tnc++ )
-        {
-            // For each one closer, increment the order
-            order += ( dist[cnt] > dist[tnc] );
-            order += ( dist[cnt] == dist[tnc] ) && ( cnt < tnc );
-        }
-
-        dolist[order] = character;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void make_dolist( void )
-{
-    // ZZ> This function finds the characters that need to be drawn and puts them in the list
-
-    int cnt, character;
-
-    // Remove everyone from the dolist
-    for ( cnt = 0; cnt < numdolist; cnt++ )
-    {
-        character = dolist[cnt];
-        chr[character].indolist = bfalse;
-    }
-    numdolist = 0;
-
-    // Now fill it up again
-    for ( cnt = 0; cnt < MAXCHR; cnt++ )
-    {
-        if ( chr[cnt].on && !chr[cnt].inpack )
-        {
-            // Add the character
-            add_to_dolist( cnt );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void keep_weapons_with_holders()
 {
     // ZZ> This function keeps weapons near their holders
@@ -5993,7 +5856,7 @@ void read_naming( Uint16 profile,  const char *szLoadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void prime_names( void )
+void prime_names()
 {
     // ZZ> This function prepares the name chopper for use
     int cnt, tnc;
@@ -7433,6 +7296,36 @@ Sint16 modify_quest_idsz(  const char *whichplayer, IDSZ idsz, Sint16 adjustment
     fs_deleteFile( copybuffer );
 
     return NewQuestLevel;
+}
+
+//--------------------------------------------------------------------------------------------
+char * undo_idsz( IDSZ idsz )
+{
+    // ZZ> This function takes an integer and makes a text IDSZ out of it.
+
+    static char value_string[5] = {"NONE"};
+    if ( idsz == IDSZ_NONE )
+    {
+        sprintf( idsz_string, "NONE" );
+        snprintf( value_string, sizeof( value_string ), "NONE" );
+    }
+    else
+    {
+        idsz_string[0] = ( ( idsz >> 15 ) & 31 ) + 'A';
+        idsz_string[1] = ( ( idsz >> 10 ) & 31 ) + 'A';
+        idsz_string[2] = ( ( idsz >> 5 ) & 31 ) + 'A';
+        idsz_string[3] = ( ( idsz ) & 31 ) + 'A';
+        idsz_string[4] = 0;
+
+        //Bad! both function return and return to global variable!
+        value_string[0] = (( idsz >> 15 ) & 31 ) + 'A';
+        value_string[1] = (( idsz >> 10 ) & 31 ) + 'A';
+        value_string[2] = (( idsz >> 5 ) & 31 ) + 'A';
+        value_string[3] = (( idsz ) & 31 ) + 'A';
+        value_string[4] = 0;
+    }
+
+    return value_string;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -142,7 +142,7 @@ void input_read_keyboard()
 }
 
 //--------------------------------------------------------------------------------------------
-void input_read_joystick(int which)
+void input_read_joystick(Uint16 which)
 {
     int dead_zone = 0x8000 / 10;
     int i, button_count, x, y;

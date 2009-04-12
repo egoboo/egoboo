@@ -20,6 +20,9 @@
 //********************************************************************************************
 #include "SDL_image.h"
 
+#define DONTFLASH 255                               //
+#define SEEKURSEAND         31                      // Blacking flash
+
 /*Special Textures*/
 typedef enum e_tx_type
 {
@@ -36,8 +39,19 @@ typedef enum e_tx_type
 
 //Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
-void load_graphics();
-bool_t load_all_global_icons();
+int get_free_message();
+void create_szfpstext( int frames );
+void figure_out_what_to_draw();
+void order_dolist();
+void add_to_dolist( Uint16 cnt );
+
+void make_lighttospek();
+void make_lighttable( float lx, float ly, float lz, float ambi );
+void make_lightdirectionlookup();
+void make_renderlist();
+void make_dolist();
+void make_vrtstart();
+void make_fanstart();
 
 void init_all_icons();
 void init_all_titleimages();
@@ -55,6 +69,8 @@ void release_map();
 void release_all_textures();
 void release_all_models();
 
+void   load_graphics();
 bool_t load_blip_bitmap();
 void   load_bars(  const char* szBitmap );
 void   load_map(  const char* szModule );
+bool_t load_all_global_icons();

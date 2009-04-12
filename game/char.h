@@ -19,19 +19,20 @@
 //*
 //********************************************************************************************
 
+#include "egobootypedef.h"
+
+
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f                     //
 #define PITDEPTH            -30                     // Depth to kill character
-#define VOLMIN          -4000            // Minumum Volume level
+#define VOLMIN				-4000            // Minumum Volume level
 
-#define BORETIME                        (rand()&255)+120
-#define CAREFULTIME                     50
+#define BORETIME            (rand()&255)+120
+#define CAREFULTIME         50
 
-#define REEL                            7600.0f      // Dampen for melee knock back
-#define REELBASE                        0.35f         //
+#define REEL                7600.0f      // Dampen for melee knock back
+#define REELBASE            0.35f         //
 
-#define DONTFLASH 255                               //
-#define SEEKURSEAND         31                      // Blacking flash
 #define RIPPLEAND           15                      // How often ripples spawn
 
 #define RIPPLETOLERANCE     60                      // For deep water
@@ -51,7 +52,14 @@
 #define FLYDAMPEN           0.001f                    // Levelling rate for flyers
 #define JUMPINFINITE        255                     // Flying character
 #define SLIDETOLERANCE      10                      // Stick to ground better
-#define PLATTOLERANCE       50 //5 //10             // Platform tolerance...
+#define PLATTOLERANCE       50                     // Platform tolerance...
 #define PLATADD             -10                     // Height add...
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
+
+//Function prototypes
+char *  undo_idsz( IDSZ idsz );
+
+void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
+                             Uint8 valuehigh, Sint16 high );
+void flash_character( Uint16 character, Uint8 value );

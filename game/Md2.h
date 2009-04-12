@@ -20,8 +20,11 @@
 //********************************************************************************************
 
 /* Egoboo - Md2.h
- * This code is not currently in use.
+ * 
  */
+
+/* Typedefs for various platforms */
+#include "egobootypedef.h"
 
 typedef struct Md2Vertex
 {
@@ -66,7 +69,18 @@ typedef struct Md2Model
     Md2Frame    *frames;
 } Md2Model;
 
+//Function prototypes
+int rip_md2_header();
+void fix_md2_normals( Uint16 modelindex );
+void rip_md2_commands( Uint16 modelindex );
+int rip_md2_frame_name( int frame );
+void rip_md2_frames( Uint16 modelindex );
+int load_one_md2(  const char* szLoadname, Uint16 modelindex );
+void get_madtransvertices( Uint16 modelindex );
+
 extern Md2Model *md2_loadFromFile( const char *fileName );
 extern void      md2_freeModel( Md2Model *model );
 
-#define egoboo_Md2_h
+
+
+#define EGOBOO_MD2_H

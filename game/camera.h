@@ -26,23 +26,22 @@
 #define EDGETRACK           800                     // Camtrack bounds
 #define TURNTIME 16              // Smooth turn
 
-// Multi cam
-#define MINZOOM                         800         // Camera distance
-#define MAXZOOM                         700         //
-#define MINZADD                         800         // Camera height
-#define MAXZADD                         2500        //
-#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-#define MAXUPDOWN                       (0.10f*PI)
-
-/* OLD CAMERA
-#define MINZOOM                         500         // Camera distance
-#define MAXZOOM                         600         //
-#define MINZADD                         800         // Camera height
-#define MAXZADD                         1500  //1000        //
-#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
-#define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
-*/
-
+// Multi cam (uses macro to switch between old and new camera
+#ifndef OLD_CAMERA_MODE
+	#define MINZOOM                         800         // Camera distance
+	#define MAXZOOM                         700         //
+	#define MINZADD                         800         // Camera height
+	#define MAXZADD                         2500        //
+	#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+	#define MAXUPDOWN                       (0.10f*PI)
+#else
+	#define MINZOOM                         500         // Camera distance
+	#define MAXZOOM                         600         //
+	#define MINZADD                         800         // Camera height
+	#define MAXZADD                         1500  //1000        //
+	#define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
+	#define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
+#endif
 // Camera control stuff
 extern int                     camswing;                   // Camera swingin'
 extern int                     camswingrate;               //
@@ -78,3 +77,6 @@ extern float                   cornerlowx;                 // Render area extrem
 extern float                   cornerhighx;                //
 extern float                   cornerlowy;                 //
 extern float                   cornerhighy;                //
+
+//Function prototypes
+void project_view();

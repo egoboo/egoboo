@@ -34,6 +34,7 @@ typedef struct sLink Link_t;
 
 extern Link_t LinkList[LINK_COUNT];
 
+//Function prototypes
 bool_t link_export_all();
 bool_t link_follow( Link_t list[], int ilink );
 bool_t link_follow_modname( const char * modname );

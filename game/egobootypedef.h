@@ -24,7 +24,6 @@
  */
 
 #include "egoboo_config.h"
-
 #include <SDL_types.h>
 
 //RECTANGLE

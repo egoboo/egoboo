@@ -48,11 +48,19 @@ void quit_game( void );
 void release_module();
 void close_session();
 
-//Read values from files
+//Read/write values from/to files
+IDSZ get_idsz( FILE* fileread );
 void goto_colon( FILE* fileread );
 Uint8 goto_colon_yesno( FILE* fileread );
 char get_first_letter( FILE* fileread );
 bool_t read_tag( FILE *fileread );
+void get_name( FILE* fileread,  char *szName );
+void ftruthf( FILE* filewrite,  const char* text, Uint8 truth );
+void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype );
+void factiof( FILE* filewrite,  const char* text, Uint8 action );
+void fgendef( FILE* filewrite,  const char* text, Uint8 gender );
+void fpairof( FILE* filewrite,  const char* text, int base, int rand );
+void funderf( FILE* filewrite,  const char* text,  const char* usename );
 
 //Getting input control
 void reset_tags();
@@ -62,63 +70,39 @@ char* tag_to_string( Sint32 device, Sint32 tag, bool_t onlykeys );
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 
 //Messages
-int get_free_message( void );
 void display_message( struct s_script_state * pstate, int message, Uint16 character );
-
-//IDSZ handling
-char *  undo_idsz( IDSZ idsz );
-IDSZ get_idsz( FILE* fileread );
 
 //String handling
 char * get_file_path( const char *character);
 
-//Enchants
-
 void load_action_names(  const char* loadname );
-void get_name( FILE* fileread,  char *szName );
 void log_madused(  const char *savename );
-void make_lightdirectionlookup();
 float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
-void make_lighttable( float lx, float ly, float lz, float ambi );
-void make_lighttospek( void );
+
+//This one is unused
 int vertexconnected( Uint16 modelindex, int vertex );
-void get_madtransvertices( Uint16 modelindex );
-int rip_md2_header( void );
-void fix_md2_normals( Uint16 modelindex );
-void rip_md2_commands( Uint16 modelindex );
-int rip_md2_frame_name( int frame );
-void rip_md2_frames( Uint16 modelindex );
-int load_one_md2(  const char* szLoadname, Uint16 modelindex );
 
+void make_enviro();
 
-void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
-                             Uint8 valuehigh, Sint16 high );
-void flash_character( Uint16 character, Uint8 value );
-void add_to_dolist( Uint16 cnt );
-void order_dolist( void );
-void make_dolist( void );
 void keep_weapons_with_holders();
-void make_enviro( void );
-void make_prtlist( void );
 void make_one_character_matrix( Uint16 cnt );
-void free_one_particle_no_sound( Uint16 particle );
-void play_particle_sound( Uint16 particle, Sint8 sound );
-void free_one_particle( Uint16 particle );
 void free_one_character( Uint16 character );
 void free_inventory( Uint16 character );
 void attach_particle_to_character( Uint16 particle, Uint16 character, int grip );
 void make_one_weapon_matrix( Uint16 cnt );
 void make_character_matrices();
-int get_free_particle( int force );
 int get_free_character();
-
-/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-                            Uint16 donttarget, Uint16 oldtarget );*/
 
 void debug_message(  const char *text );
 void reset_end_text();
 void append_end_text( struct s_script_state * pstate, int message, Uint16 character );
+
+//Particles
+void make_prtlist( void );
+void free_one_particle_no_sound( Uint16 particle );
+void play_particle_sound( Uint16 particle, Sint8 sound );
+void free_one_particle( Uint16 particle );
+int get_free_particle( int force );
 Uint16 spawn_one_particle( float x, float y, float z,
                            Uint16 facing, Uint16 model, Uint16 pip,
                            Uint16 characterattach, Uint16 grip, Uint8 team,
@@ -127,19 +111,24 @@ Uint8 __prthitawall( Uint16 particle );
 void disaffirm_attached_particles( Uint16 character );
 Uint16 number_of_attached_particles( Uint16 character );
 void reaffirm_attached_particles( Uint16 character );
-void do_enchant_spawn();
+void setup_particles();
+void spawn_bump_particles( Uint16 character, Uint16 particle );
 void move_particles( void );
+
+void do_enchant_spawn();
 void attach_particles();
 void free_all_particles();
 void free_all_characters();
 void show_stat( Uint16 statindex );
 void check_stats();
+
 void check_screenshot();
 bool_t dump_screenshot();
+
 void add_stat( Uint16 character );
 void move_to_top( Uint16 character );
 void sort_stat();
-void setup_particles();
+
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 Uint8 __chrhitawall( Uint16 character );
@@ -150,7 +139,6 @@ void reset_character_alpha( Uint16 character );
 void reset_character_accel( Uint16 character );
 void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
                                   Uint8 doshop );
-void spawn_bump_particles( Uint16 character, Uint16 particle );
 int generate_number( int numbase, int numrand );
 void drop_money( Uint16 character, Uint16 money );
 void call_for_help( Uint16 character );
@@ -179,8 +167,6 @@ int restock_ammo( Uint16 character, IDSZ idsz );
 void issue_order( Uint16 character, Uint32 order );
 void issue_special_order( Uint32 order, IDSZ idsz );
 void set_alerts( Uint16 character );
-int module_reference_matches(  const char *szLoadName, IDSZ idsz );
-void add_module_idsz(  const char *szLoadName, IDSZ idsz );
 void attach_character_to_mount( Uint16 character, Uint16 mount,
                                 Uint16 grip );
 Uint16 stack_in_pack( Uint16 item, Uint16 character );
@@ -191,31 +177,28 @@ void drop_all_items( Uint16 character );
 void character_grab_stuff( Uint16 chara, int grip, Uint8 people );
 void character_swipe( Uint16 cnt, Uint8 slot );
 void move_characters();
+
+int module_reference_matches(  const char *szLoadName, IDSZ idsz );
+void add_module_idsz(  const char *szLoadName, IDSZ idsz );
+
 void make_textureoffset();
 int add_player( Uint16 character, Uint16 player, Uint32 device );
 void clear_messages();
 void setup_characters(  const char *modname );
+
 void setup_passage(  const char *modname );
+
 void setup_alliances(  const char *modname );
 void load_mesh_fans();
-void make_fanstart();
-void make_vrtstart();
 void make_twist();
 int load_mesh(  const char *modname );
 
 void   input_init();
 void   input_read_mouse();
 void   input_read_keyboard();
-void   input_read_joystick(int which);
+void   input_read_joystick(Uint16 which);
 void   input_read();
 Uint32 input_get_buttonmask( Uint32 idevice );
-
-void   create_szfpstext( int frames );
-
-void project_view();
-void make_renderlist();
-
-void figure_out_what_to_draw();
 
 void set_one_player_latch( Uint16 player );
 void set_local_latches( void );
@@ -251,12 +234,6 @@ void make_framelip( Uint16 object, int action );
 void get_actions( Uint16 object );
 void read_pair( FILE* fileread );
 void undo_pair( int base, int rand );
-void ftruthf( FILE* filewrite,  const char* text, Uint8 truth );
-void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype );
-void factiof( FILE* filewrite,  const char* text, Uint8 action );
-void fgendef( FILE* filewrite,  const char* text, Uint8 gender );
-void fpairof( FILE* filewrite,  const char* text, int base, int rand );
-void funderf( FILE* filewrite,  const char* text,  const char* usename );
 void export_one_character_name(  const char *szSaveName, Uint16 character );
 void export_one_character_profile(  const char *szSaveName, Uint16 character );
 void export_one_character_skin(  const char *szSaveName, Uint16 character );

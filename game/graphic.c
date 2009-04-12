@@ -535,6 +535,17 @@ void make_lightdirectionlookup()
 }
 
 //--------------------------------------------------------------------------------------------
+int get_free_message()
+{
+    // This function finds the best message to use
+    // Pick the first one
+    int tnc = msgstart;
+    msgstart++;
+    msgstart = msgstart % maxmessage;
+    return tnc;
+}
+
+//--------------------------------------------------------------------------------------------
 void display_message( script_state_t * pstate, int message, Uint16 character )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
@@ -1547,6 +1558,7 @@ void figure_out_what_to_draw()
 
     // Find the render area corners
     project_view();
+
     // Make the render list for the mesh
     make_renderlist();
 
@@ -1556,6 +1568,143 @@ void figure_out_what_to_draw()
     // Request matrices needed for local machine
     make_dolist();
     order_dolist();
+}
+
+//--------------------------------------------------------------------------------------------
+void order_dolist( void )
+{
+    // ZZ> This function orders the dolist based on distance from camera,
+    //     which is needed for reflections to properly clip themselves.
+    //     Order from closest to farthest
+    int tnc, cnt, character, order;
+    int dist[MAXCHR];
+    Uint16 olddolist[MAXCHR];
+
+    // Figure the distance of each
+    for ( cnt = 0; cnt < numdolist; cnt++ )
+    {
+        character = dolist[cnt];  olddolist[cnt] = character;
+        if ( chr[character].light != 255 || chr[character].alpha != 255 )
+        {
+            // This makes stuff inside an invisible character visible...
+            // A key inside a Jellcube, for example
+            dist[cnt] = 0x7fffffff;
+        }
+        else
+        {
+            dist[cnt] = (int) (ABS( chr[character].xpos - camx ) + ABS( chr[character].ypos - camy ));
+        }
+    }
+
+    // Put em in the right order
+    for ( cnt = 0; cnt < numdolist; cnt++  )
+    {
+        character = olddolist[cnt];
+        order = 0;  // Assume this character is closest
+
+        for ( tnc = 0; tnc < numdolist; tnc++ )
+        {
+            // For each one closer, increment the order
+            order += ( dist[cnt] > dist[tnc] );
+            order += ( dist[cnt] == dist[tnc] ) && ( cnt < tnc );
+        }
+
+        dolist[order] = character;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void flash_character( Uint16 character, Uint8 value )
+{
+    // ZZ> This function sets a character's lighting
+    int cnt;
+
+    for ( cnt = 0; cnt < madtransvertices[chr[character].model]; cnt++  )
+    {
+        chr[character].vrta[cnt] = value;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void add_to_dolist( Uint16 ichr )
+{
+    // This function puts a character in the list
+    int itile;
+
+    if ( ichr >= MAXCHR || chr[ichr].indolist ) return;
+
+    itile = chr[ichr].onwhichfan;
+    if ( INVALID_TILE == itile ) return;
+
+    if ( meshinrenderlist[itile] )
+    {
+        if ( 0 == ( 0xFF00 & meshtile[itile] ) )
+        {
+            int itmp = 0;
+            itmp += meshvrtl[meshvrtstart[itile] + 0];
+            itmp += meshvrtl[meshvrtstart[itile] + 1];
+            itmp += meshvrtl[meshvrtstart[itile] + 2];
+            itmp += meshvrtl[meshvrtstart[itile] + 3];
+            chr[ichr].lightlevel = itmp / 4;
+        }
+
+        dolist[numdolist] = ichr;
+        chr[ichr].indolist = btrue;
+        numdolist++;
+    }
+    else if ( capalwaysdraw[chr[ichr].model] )
+    {
+        // Double check for large/special objects
+        dolist[numdolist] = ichr;
+        chr[ichr].indolist = btrue;
+        numdolist++;
+    }
+
+    if ( chr[ichr].indolist )
+    {
+        // Do flashing
+        if ( 0 == ( frame_all & chr[ichr].flashand ) && chr[ichr].flashand != DONTFLASH )
+        {
+            flash_character( ichr, 255 );
+        }
+
+        // Do blacking
+        if ( 0 == ( frame_all & SEEKURSEAND ) && local_seekurse && chr[ichr].iskursed )
+        {
+            flash_character( ichr, 0 );
+        }
+
+        // Add its weapons too
+        add_to_dolist( chr[ichr].holdingwhich[0] );
+        add_to_dolist( chr[ichr].holdingwhich[1] );
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+void make_dolist()
+{
+    // ZZ> This function finds the characters that need to be drawn and puts them in the list
+
+    int cnt, character;
+
+    // Remove everyone from the dolist
+    for ( cnt = 0; cnt < numdolist; cnt++ )
+    {
+        character = dolist[cnt];
+        chr[character].indolist = bfalse;
+    }
+    numdolist = 0;
+
+    // Now fill it up again
+    for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    {
+        if ( chr[cnt].on && !chr[cnt].inpack )
+        {
+            // Add the character
+            add_to_dolist( cnt );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4872,7 +5021,7 @@ void sdlinit( int argc, char **argv )
     input_init();
 }
 
-struct s_packing_test
+/*struct s_packing_test
 {
     Uint8 val1;
     Uint8 val2;
@@ -4881,7 +5030,7 @@ struct s_packing_test
     Uint8 ary2[3];
 };
 
-static struct s_packing_test packing_test;
+static struct s_packing_test packing_test;*/
 
 //---------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
