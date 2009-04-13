@@ -1,0 +1,133 @@
+// Create the character
+IfSpawned
+  IfStateIs0
+    // It's an imported spell in hand
+    KeepAction
+  Else
+    // It's a circle of light
+    JoinNullTeam
+    MakeNameUnknown
+    NotAnItem
+IfChanged
+  // It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+IfStateIs0
+  // Remove the charge
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 3
+        SendMessageNear
+  // Allow it to be charged up
+  IfUsed
+    // Does it have one going?
+    UndoEnchant
+      tmpargument = 60
+      SetReloadTime
+    // Nope, so charge
+    Else
+      SetTargetToWhoeverIsHolding
+      tmpargument = [WMAG]
+      IfTargetHasSkillID
+        GetContent
+        tmpx = tmpargument
+        tmpy = 512
+        IfXIsLessThanY
+          tmpy = targetmanaflow
+          IfXIsLessThanY
+            tmpx = 4
+            tmpargument = tmpx
+            CostTargetMana
+              GetContent
+              tmpargument = tmpargument + 4
+              SetContent
+              tmpx = targetx
+              tmpy = targety
+              tmpdistance = targetz
+              tmpargument = 0
+              SpawnExactParticle
+              SpawnExactParticle
+        // Spawn particles around target
+        SetTargetToNearestFriend
+        tmpx = targetdistance
+        tmpy = 250
+        IfXIsMoreThanY
+          SetTargetToWhoeverIsHolding
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        tmpargument = 0
+        SpawnExactParticle
+        SpawnExactParticle
+
+  // Let it be cast
+  Else
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpy = 511
+      IfXIsMoreThanY
+        // Cast the spell...
+        UndoEnchant  // There can be only one
+        SetTargetToWhoeverIsHolding
+        SetOwnerToTarget
+
+        // Find the target
+        SetTargetToNearestFriend
+        tmpx = targetdistance
+        tmpy = 250
+        IfXIsMoreThanY
+          SetTargetToWhoeverIsHolding
+
+        // Do the spell
+        EnchantTarget
+          MakeUsageKnown
+          MakeNameKnown
+          tmpargument = BLUE
+          SparkleIcon
+          tmpargument = 2
+          SendMessageNear
+        Else
+          tmpargument = 1
+          SendMessageNear
+
+        // Do flashy things
+        tmpargument = 0
+        tmpdistance = 11025
+        PlaySound
+        tmpargument = 60
+        SetReloadTime
+
+      // Nothing happens...
+      Else
+        tmpargument = 0
+        SendMessageNear
+
+      // Reset the charge counter
+      tmpargument = 0
+      SetContent
+
+  // Return to spellbook, Do last!
+  IfDropped
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoAction
+    KeepAction
+Else
+  // Flash it...
+  IfTimeOut
+    tmpargument = 255
+    FlashVariable
+    tmpargument = 15
+    SetTime
+
+End

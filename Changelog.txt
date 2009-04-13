@@ -1,6 +1,8 @@
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
+- Update: Expanded the Global Object Repository a lot.
+- Update: It is now harder to use poisoned weapons without the poison use skill.
 - Update: Added a new easter egg!
 - Update: Olaf's Junkshop now also sells crowbars.
 - Update: Scrolls now show different icons when identified.

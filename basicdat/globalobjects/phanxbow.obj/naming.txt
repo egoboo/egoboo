@@ -1,0 +1,5 @@
+:a_Poisoned_Hand_
+:STOP
+
+:Crossbow
+:STOP

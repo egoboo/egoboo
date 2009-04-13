@@ -56,12 +56,12 @@ IfNotPutAway
 //Check if user poisoned himself
 IfUsed
   SetTargetToWhoeverIsHolding
-  tmpargument = [DISA]
+  tmpargument = [POIS]
   IfTargetHasSkillID		//Does it have poison use skill?
-      MakeNameKnown		//Tell the players its poisoned
+    MakeNameKnown		//Tell the players its poisoned
   Else
-    tmpx = rand % 2816 + 1024 	//Wisdom determines the chance, 15 is never and 4 is almost always
-    tmpy = rand % 500 + targetwis	//Randomness to decrease chance
+    tmpx = rand % 3584 + 1280 	//Wisdom determines the chance, 19 is never and 5 is almost always
+    tmpy = rand % 512 + targetwis	//Randomness to decrease chance
     IfXIsMoreThanY
       SetOwnerToTarget
       EnchantTarget		//Give the character some poison damage

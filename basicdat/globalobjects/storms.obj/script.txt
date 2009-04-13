@@ -1,0 +1,149 @@
+// Create the character
+IfSpawned
+  KeepAction
+  tmpargument = 0
+  SetContent
+
+// Say they pour over a book...
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 0
+      SendMessageNear
+
+// Play the rain sound...
+IfTimeOut
+  tmpargument = 500
+  SetTime
+  tmpargument = 1
+  IfContentIs
+    PlaySound
+  tmpargument = 0
+  SetContent
+
+// Allow it to be used
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+    tmpx = 512
+    tmpy = targetmanaflow
+    IfXIsLessThanY
+      // Give experience...
+      IfUsageIsKnown
+        DoNothing
+      Else
+        MakeUsageKnown
+        MakeNameKnown
+        tmpargument = 30
+        tmpdistance = EXPSECRET
+        GiveExperienceToTarget
+      // Do the effect
+      tmpargument = tmpx
+      CostTargetMana
+        tmpx = rand & 2047 + targetint
+        tmpy = 5120     // 20 int is perfect, 12 is near impossible
+        IfXIsMoreThanY
+          tmpargument = 1
+          SendMessageNear
+          // Drop on an enemy
+          SetTargetToNearestEnemy
+            tmpx = targetdistance
+            tmpy = 600
+            IfXIsLessThanY
+              tmpx = targetx
+              tmpy = targety
+            Else
+              tmpx = targetx
+              tmpy = targety
+              tmpturn = rand
+              tmpdistance = 256
+              Compass
+          Else
+            tmpx = targetx
+            tmpy = targety
+            tmpturn = rand
+            tmpdistance = 256
+            Compass
+        Else
+          // Drop around the caster...
+          tmpargument = 2
+          SendMessageNear
+          tmpturn = rand
+          tmpdistance = rand & 255
+          tmpx = targetx
+          tmpy = targety
+          Compass
+        tmpdistance = 0
+        tmpargument = 0
+        SpawnExactParticle
+
+        // Skybolts are loud, so wake up sleepers...
+        tmpargument = [WAKE]
+        tmpdistance = [WAKE]
+        OrderSpecialID
+      Else
+        // Not enough mana to cast...  Make a storm
+        tmpargument = 1
+        SendMessageNear
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 0
+        tmpargument = 3
+        SpawnExactParticle
+        tmpargument = 255
+        SetReloadTime
+        tmpargument = 1
+        SetContent
+        tmpargument = 50
+        SetTime
+    Else
+      // Not enough flow to cast...
+      tmpargument = 256
+      CostTargetMana
+        // Make a storm
+        tmpargument = 1
+        SendMessageNear
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = 0
+        tmpargument = 3
+        SpawnExactParticle
+        tmpargument = 255
+        SetReloadTime
+        tmpargument = 1
+        SetContent
+        tmpargument = 50
+        SetTime
+        // Give experience...
+        IfUsageIsKnown
+          GetState // NOP
+        Else
+          MakeUsageKnown
+          MakeNameKnown
+          tmpargument = 30
+          tmpdistance = EXPSECRET
+          GiveExperienceToTarget
+      Else
+        tmpargument = 3
+        SendMessageNear
+
+// Return to spellbook, Do last!
+IfDropped
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1
+  IfXIsEqualToY
+    tmpdistance = 11025
+    PlaySound
+  tmpargument = 0
+  SetContent
+  BecomeSpellbook
+  DisaffirmCharacter
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+
+End
