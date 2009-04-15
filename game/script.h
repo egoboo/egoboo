@@ -399,7 +399,9 @@ enum e_script_functions
     FSETTERRAINSPEECH,           // == 362
     FSETSELECTSPEECH,            // == 363
 
-    FTAKEPICTURE                 // == 364 //
+	//Scripted AI functions (v1.10)
+    FTAKEPICTURE                 // == 364
+    FIFOPERATORISMACINTOSH       // == 365
 };
 
 // OPERATORS

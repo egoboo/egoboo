@@ -4133,6 +4133,15 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = dump_screenshot();
             break;
 
+        case FIFOPERATORISMAC:
+            // Proceeds if running on linux
+#ifdef __APPLE__
+            returncode = btrue;
+#else
+            returncode = bfalse;
+#endif
+            break;
+
             // If none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
@@ -11451,6 +11460,20 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_END();
 }
+//--------------------------------------------------------------------------------------------
+Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
+{
+    SCRIPT_FUNCTION_BEGIN();
+
+    // Proceeds if the current running OS is mac
+#ifdef __APPLE__
+    returncode = btrue;
+#else
+    returncode = bfalse;
+#endif
+
+    SCRIPT_FUNCTION_END();
+}
 
 //--------------------------------------------------------------------------------------------
 Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
@@ -11854,8 +11877,10 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
         case FSETASSISTSPEECH:     returncode = scr_set_AssistSpeech( pstate, pself );     break;
         case FSETTERRAINSPEECH:    returncode = scr_set_TerrainSpeech( pstate, pself );    break;
         case FSETSELECTSPEECH:     returncode = scr_set_SelectSpeech( pstate, pself );     break;
-        case FTAKEPICTURE:         returncode = scr_TakePicture( pstate, pself );          break;
-
+        
+		case FTAKEPICTURE:         returncode = scr_TakePicture( pstate, pself );          break;
+		case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
+        
             // if none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );

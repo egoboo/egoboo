@@ -378,6 +378,7 @@ The symbol itself follows
 :F 356 IfTargetIsOwner
 :F 357 SetSpeech
 :F 364 TakePicture
+:F 365 IfOperatorIsMacintosh
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

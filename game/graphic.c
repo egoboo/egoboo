@@ -4912,7 +4912,7 @@ int glinit( int argc, char **argv )
     glEnable( GL_COLOR_MATERIAL );  // Need this for color + lighting
     EnableTexturing();    // Enable texture mapping
 
-    return 1;
+    return btrue;
 }
 
 void sdlinit( int argc, char **argv )

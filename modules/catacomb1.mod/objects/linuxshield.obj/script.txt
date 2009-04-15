@@ -5,27 +5,32 @@ IfGrabbed
     IfOperatorIsLinux
       tmpargument = 0
     Else
-      tmpargument = 1
-      DetachFromHolder
+      IfOperatorIsMacintosh
+        tmpargument = 3
+      Else
+        tmpargument = 1
+        DetachFromHolder
     SendMessageNear
 
 //This shield has always 100% block rate!
 IfHeld
-  IfHolderBlocked
-    tmpargument = targetreloadtime + 40
-    SetTargetReloadTime
+  IfOperatorIsLinux
+    IfHolderBlocked
+      tmpargument = targetreloadtime + 40
+      SetTargetReloadTime
 
 //Magical effect
 IfHeld
-  UndoEnchant
-  SetTargetToWhoeverIsHolding
-  SetOwnerToTarget
-  EnchantTarget
-  tmpargument = 1
-  tmpx = selfx
-  tmpy = selfy
-  tmpdistance = selfz
-  SpawnExactParticle
+  IfOperatorIsLinux
+    UndoEnchant
+    SetTargetToWhoeverIsHolding
+    SetOwnerToTarget
+    EnchantTarget
+    tmpargument = 1
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    SpawnExactParticle
 Else
   UndoEnchant
 
