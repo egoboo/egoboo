@@ -150,6 +150,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     Uint32  ambi;
     Uint8 mode;
     int ix, iy, ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
+    float x1, y1, fx_off[4], fy_off[4];
 
     if ( INVALID_TILE == fan ) return;
 
@@ -172,6 +173,21 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     vertices = meshcommandnumvertices[type];// Number of vertices
     commands = meshcommands[type];          // Number of commands
 
+    x1 = ( float ) GLTexture_GetTextureWidth( txTexture + texture ) / ( float ) GLTexture_GetImageWidth( txTexture + texture );
+    y1 = ( float ) GLTexture_GetTextureHeight( txTexture + texture ) / ( float ) GLTexture_GetImageHeight( txTexture + texture );
+
+    fx_off[0] = x1;
+    fy_off[0] = 0;
+
+    fx_off[1] = x1;
+    fy_off[1] = y1;
+
+    fx_off[2] = 0;
+    fy_off[2] = y1;
+
+    fx_off[3] = 0;
+    fy_off[3] = 0;
+
     // Original points
     badvertex = meshvrtstart[fan];          // Get big reference value
     {
@@ -179,8 +195,8 @@ void render_water_fan( Uint32 fan, Uint8 layer )
         {
             v[cnt].x = (ix + ix_off[cnt]) * 128;
             v[cnt].y = (iy + iy_off[cnt]) * 128;
-            v[cnt].s = ix_off[cnt] + offu;
-            v[cnt].t = iy_off[cnt] + offv;
+            v[cnt].s = fx_off[cnt] + offu;
+            v[cnt].t = fy_off[cnt] + offv;
             v[cnt].z = waterlayerzadd[layer][frame][mode][cnt] + waterlayerz[layer];
 
             ambi = ( Uint32 ) meshvrtl[badvertex] >> 1;
@@ -201,13 +217,8 @@ void render_water_fan( Uint32 fan, Uint8 layer )
         meshlasttexture = texture;
     }
 
-    // Make new ones so we can index them and not transform 'em each time
-    // if(transform_vertices(vertices, v, vt))
-    //    return;
-
     // Render each command
     entry = 0;
-
     for ( cnt = 0; cnt < commands; cnt++ )
     {
         glBegin ( GL_TRIANGLE_FAN );

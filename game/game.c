@@ -91,7 +91,7 @@ char * get_file_path( const char *szName)
 
     static char szPathname[16];
 
-	strcpy(pname, szName);
+    strcpy(pname, szName);
     pname = szName;
     pname_end = pname + 255;
 

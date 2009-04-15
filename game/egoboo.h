@@ -920,9 +920,9 @@ EXTERN chr_t chr[MAXCHR];
 #define INVISIBLE           20                      // The character can't be detected
 
 //AI targeting
-#define NEARBY		3*TILESIZE    //3 tiles
-#define WIDE		6*TILESIZE    //8 tiles
-#define NEAREST		0           //unlimited range
+#define NEARBY      3*TILESIZE    //3 tiles
+#define WIDE        6*TILESIZE    //8 tiles
+#define NEAREST     0           //unlimited range
 #define TILESIZE    128       //Size of one texture tile in egoboo
 
 EXTERN bool_t                    local_seeinvisible   EQ( bfalse );

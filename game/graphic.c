@@ -1770,6 +1770,7 @@ void load_basic_textures(  const char *modname )
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
     GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
+
     make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
     GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
 
@@ -3213,7 +3214,6 @@ void render_water()
         {
             if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
             {
-                // !!!BAD!!! Water will get screwed up if meshtilesx is odd
                 render_water_fan( renderlistall[cnt], 1 );
             }
 
@@ -3230,7 +3230,6 @@ void render_water()
         {
             if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
             {
-                // !!!BAD!!! Water will get screwed up if meshtilesx is odd
                 render_water_fan( renderlistall[cnt], 0 );
             }
 
@@ -5002,13 +5001,13 @@ void sdlinit( int argc, char **argv )
 #endif
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
-	
-	//Check if antialiasing is enabled
-	if(antialiasing != bfalse)
-	{
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
-	}
+
+    //Check if antialiasing is enabled
+    if (antialiasing != bfalse)
+    {
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
+    }
 
     log_info("Opening SDL Video Mode... ");
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );

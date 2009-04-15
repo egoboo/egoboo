@@ -174,7 +174,7 @@ int load_one_line( int read )
             return read + 1;
         }
 
-        if( '\t' == cTmp )
+        if ( '\t' == cTmp )
         {
             log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine );
             cTmp = ' ';
@@ -209,7 +209,7 @@ int load_one_line( int read )
 
         read++;
 
-        if( iscntrl(cTmp) )
+        if ( iscntrl(cTmp) )
         {
             cTmp = ' ';
         }
@@ -396,7 +396,7 @@ int parse_token( int read )
     Token_cWord[0] = '\0';
 
     // Check bounds
-    if ( read >= iLineSize )  
+    if ( read >= iLineSize )
         return iLineSize;
 
     // Skip spaces
@@ -4762,7 +4762,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             break;
     }
 
-    if ( debug_scripts ) 
+    if ( debug_scripts )
     {
         FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
         fprintf( scr_file, "%s %s(%d) ", op, varname, iTmp );
@@ -11942,10 +11942,10 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
         case FSETASSISTSPEECH:     returncode = scr_set_AssistSpeech( pstate, pself );     break;
         case FSETTERRAINSPEECH:    returncode = scr_set_TerrainSpeech( pstate, pself );    break;
         case FSETSELECTSPEECH:     returncode = scr_set_SelectSpeech( pstate, pself );     break;
-        
-		case FTAKEPICTURE:         returncode = scr_TakePicture( pstate, pself );          break;
-		case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
-        
+
+        case FTAKEPICTURE:         returncode = scr_TakePicture( pstate, pself );          break;
+        case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
+
             // if none of the above, skip the line and log an error
         default:
             log_message( "SCRIPT ERROR: run_function() - ai script %d - unhandled script function %d\n", pself->type, valuecode );
