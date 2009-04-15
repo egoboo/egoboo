@@ -91,3 +91,4 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target,
 bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
+void disenchant_character( Uint16 cnt );

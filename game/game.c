@@ -34,6 +34,7 @@
 #include "graphic.h"
 #include "passage.h"
 #include "enchant.h"
+#include "input.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
@@ -84,12 +85,13 @@ char * get_file_path( const char *szName)
     //ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
-    char * pname, * pname_end;
+    char * pname = '\0', * pname_end;
     char * ppath, * ppath_end;
     char letter;
 
     static char szPathname[16];
 
+	strcpy(pname, szName);
     pname = szName;
     pname_end = pname + 255;
 

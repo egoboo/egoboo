@@ -30,6 +30,7 @@
 #include "enchant.h"
 #include "char.h"
 #include "graphic.h"
+#include "input.h"
 
 #include <assert.h>
 

@@ -75,8 +75,9 @@ char * str_decode( char *strout, size_t insize,  const char * strin )
 {
     /// @details BB> str_decode converts a string from "storage mode" to an actual string
 
-    char *pin = strin, *pout = strout, *plast = pout + insize;
+    char *pin = '\0', *pout = strout, *plast = pout + insize;
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
+	strcpy(pin, strin);
 
     while ( pout < plast && '\0' != *pin )
     {
@@ -98,8 +99,9 @@ char * str_encode( char *strout, size_t insize,  const char * strin )
     /// @details BB> str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
-    char *pin = strin, *pout = strout, *plast = pout + insize;
+	char *pin = '\0', *pout = strout, *plast = pout + insize;
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
+	strcpy(pin, strin);
 
     while ( pout < plast && '\0' != *pin )
     {

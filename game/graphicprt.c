@@ -236,7 +236,7 @@ void render_prt()
     }
 
     //Draw antialiased sprites first
-// if(antialiasing) render_antialias_prt();
+// if(antialiasing != bfalse) render_antialias_prt();
 
     // Choose texture and matrix
     GLTexture_Bind( txTexture + particletexture );

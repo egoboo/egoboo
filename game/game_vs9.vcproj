@@ -475,6 +475,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\input.h"
+				>
+			</File>
+			<File
 				RelativePath=".\link.h"
 				>
 			</File>

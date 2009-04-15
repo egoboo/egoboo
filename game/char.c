@@ -29,6 +29,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "egoboo_math.h"
+#include "input.h"
 
 #include <assert.h>
 

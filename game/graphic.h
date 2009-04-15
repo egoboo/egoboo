@@ -116,6 +116,8 @@ void  make_lighttable( float lx, float ly, float lz, float ambi );
 void render_water();
 void draw_scene_sadreflection();
 void draw_scene_zreflection();
+void animate_tiles();
+void move_water();
 
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );

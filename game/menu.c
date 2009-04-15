@@ -28,6 +28,7 @@
 #include "log.h"
 #include "proto.h"
 #include "sound.h"
+#include "input.h"
 
 #include "egoboo_setup.h"
 
@@ -1699,6 +1700,7 @@ int doVideoOptions( float deltaTime )
     static GLTexture background;
     static int menuChoice = 0;
     int result = 0;
+	static STRING Cantialiasing;
     static char Cmaxmessage[128];
     static char Cmaxlights[128];
     static char Cscrz[128];
@@ -1722,8 +1724,9 @@ int doVideoOptions( float deltaTime )
             ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
 
             // Load all the current video settings
-            if ( antialiasing ) videoOptionsButtons[0] = "On";
-            else videoOptionsButtons[0] = "Off";
+			if(antialiasing == bfalse) strcpy(Cantialiasing , "Off");
+			else snprintf(Cantialiasing, sizeof(antialiasing), "X%i", antialiasing);
+			videoOptionsButtons[0] = Cantialiasing;
 
             //Message duration
             switch ( messagetime )
@@ -1867,16 +1870,46 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h - 215, 100, 30 ) )
             {
-                if ( antialiasing )
-                {
-                    videoOptionsButtons[0] = "Off";
-                    antialiasing = bfalse;
-                }
-                else
-                {
-                    videoOptionsButtons[0] = "On";
-                    antialiasing = btrue;
-                }
+                switch(antialiasing)
+				{
+					case 0: 
+						{
+							antialiasing = 2;
+							videoOptionsButtons[0] = "X2"; 
+							break;
+						}
+					case 2: 
+						{
+							antialiasing = 4;
+							videoOptionsButtons[0] = "X4"; 
+							break;
+						}
+					case 4: 
+						{
+							antialiasing = 8;
+							videoOptionsButtons[0] = "X8"; 
+							break;
+						}
+					case 8: 
+						{
+							antialiasing = 16;
+							videoOptionsButtons[0] = "X16"; 
+							break;
+						}
+					case 16: 
+						{
+							antialiasing = bfalse;
+							videoOptionsButtons[0] = "Off"; 
+							break;
+						}
+					default: 
+						{
+							antialiasing = bfalse;
+							videoOptionsButtons[0] = "Off";
+							log_warning("Tried to load a invalid antialiasing format from setup.txt\n");
+							break;
+						}
+				}				
             }
 
             // Message time

@@ -22,6 +22,7 @@
 #include "log.h"
 #include "configfile.h"
 #include "egoboo.h"
+#include "input.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -194,7 +195,7 @@ bool_t setup_download()
     shading = lTempBool ? GL_SMOOTH : GL_FLAT;
 
     // Enable antialiasing?
-    GetKey_bool( "ANTIALIASING", antialiasing, bfalse );
+    GetKey_int( "ANTIALIASING", antialiasing, bfalse );
 
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
@@ -370,7 +371,7 @@ bool_t setup_upload()
     SetKey_bool( "GOURAUD_SHADING", shading == GL_SMOOTH );
 
     // Enable antialiasing?
-    SetKey_bool( "ANTIALIASING", antialiasing );
+    SetKey_int( "ANTIALIASING", antialiasing );
 
     // Do we do texture filtering?
     switch (texturefilter)
@@ -545,7 +546,7 @@ bool_t input_settings_load(  const char *szFilename )
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_save( const char* szFilename)
 {
-    // This function saves all current game settings to "controls.txt"
+    //ZF> This function saves all current game settings to "controls.txt"
     device_controls_t * pdevice;
     FILE* filewrite;
     STRING write;

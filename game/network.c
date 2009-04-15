@@ -24,6 +24,7 @@
 
 #include "egoboo.h"
 #include "log.h"
+#include "input.h"
 
 #include <enet/enet.h>
 #include <stdio.h>

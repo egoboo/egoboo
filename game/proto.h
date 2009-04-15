@@ -126,24 +126,11 @@ void sort_stat();
 Uint16 terp_dir( Uint16 majordir, Uint16 minordir );
 Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir );
 Uint8 __chrhitawall( Uint16 character );
-void move_water();
 void play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void set_frame( Uint16 character, int frame, Uint16 lip );
-void reset_character_alpha( Uint16 character );
-void reset_character_accel( Uint16 character );
-void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
-                                  Uint8 doshop );
+
 int generate_number( int numbase, int numrand );
-void drop_money( Uint16 character, Uint16 money );
-void call_for_help( Uint16 character );
-void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t override_invictus );
-void give_team_experience( Uint8 team, int amount, Uint8 xptype );
-void disenchant_character( Uint16 cnt );
-void damage_character( Uint16 character, Uint16 direction,
-                       int damagebase, int damagerand, Uint8 damagetype, Uint8 team,
-                       Uint16 attacker, Uint16 effects, bool_t ignoreinvincible );
-void kill_character( Uint16 character, Uint16 killer );
-void spawn_poof( Uint16 character, Uint16 profile );
+
 void naming_names( Uint16 profile );
 void read_naming( Uint16 profile,  const char *szLoadname );
 void prime_names( void );
@@ -185,13 +172,6 @@ void load_mesh_fans();
 void make_twist();
 int  load_mesh(  const char *modname );
 
-void   input_init();
-void   input_read_mouse();
-void   input_read_keyboard();
-void   input_read_joystick(Uint16 which);
-void   input_read();
-Uint32 input_get_buttonmask( Uint32 idevice );
-
 void set_one_player_latch( Uint16 player );
 void set_local_latches( void );
 
@@ -199,7 +179,6 @@ void make_onwhichfan( void );
 void bump_characters( void );
 int  prt_is_over_water( Uint16 cnt );
 void do_weather_spawn();
-void animate_tiles();
 void stat_return();
 void update_pits();
 void reset_players();

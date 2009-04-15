@@ -28,6 +28,7 @@
 #include "script.h"
 #include "camera.h"
 #include "id_md2.h"
+#include "input.h"
 
 #include <SDL_image.h>
 
@@ -5001,6 +5002,13 @@ void sdlinit( int argc, char **argv )
 #endif
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
+	
+	//Check if antialiasing is enabled
+	if(antialiasing != bfalse)
+	{
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
+	}
 
     log_info("Opening SDL Video Mode... ");
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );
@@ -5203,10 +5211,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { give_experience( plaindex[0], 25, XPDIRECT, btrue ); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { give_experience( plaindex[1], 25, XPDIRECT, btrue ); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { give_experience( plaindex[2], 25, XPDIRECT, btrue ); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { give_experience( plaindex[3], 25, XPDIRECT, btrue ); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chr[plaindex[0]].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chr[plaindex[1]].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chr[plaindex[2]].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chr[plaindex[3]].experience += 25; stat_check_delay = 500; }
 
         statdelay = 0;
     }
@@ -5312,7 +5320,7 @@ void load_graphics()
     glShadeModel( shading );
 
     // Enable antialiasing?
-    if ( antialiasing )
+    if ( antialiasing != bfalse )
     {
         glEnable(GL_MULTISAMPLE_ARB);
 
