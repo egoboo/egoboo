@@ -796,11 +796,7 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     }
 
     // Figure out which hand it's in
-    hand = 0;
-    if ( chr[character].inwhichhand == GRIP_RIGHT )
-    {
-        hand = 1;
-    }
+    hand = chr[character].inwhichhand;
 
     // Rip 'em apart
     chr[character].attachedto = MAXCHR;
@@ -1017,7 +1013,7 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
         return;
 
     // Put 'em together
-    chr[character].inwhichhand    = grip;
+    chr[character].inwhichhand    = slot;
     chr[character].attachedto     = mount;
     chr[mount].holdingwhich[slot] = character;
 
@@ -6032,7 +6028,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
     // Set up model stuff
     chr[ichr].reloadtime = 0;
-    chr[ichr].inwhichhand = GRIP_LEFT;
+    chr[ichr].inwhichhand = SLOT_LEFT;
     chr[ichr].waskilled = bfalse;
     chr[ichr].inpack = bfalse;
     chr[ichr].nextinpack = MAXCHR;
@@ -6621,7 +6617,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         {
             int i;
             Uint16 iholder = chr[ichr].attachedto;
-            tnc = madvertices[chr[iholder].model] - chr[ichr].inwhichhand;
+            tnc = madvertices[chr[iholder].model] - (chr[ichr].inwhichhand + 1) * GRIP_VERTS;
 
             for (i = 0; i < GRIP_VERTS; i++)
             {

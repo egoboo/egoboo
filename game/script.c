@@ -38,6 +38,7 @@
 //--------------------------------------------------------------------------------------------
 
 static bool_t debug_scripts = bfalse;
+static FILE * debug_script_file = NULL;
 
 #define FUNCTION_BIT 0x80000000
 #define DATA_BITS    0x78000000
@@ -783,6 +784,8 @@ void load_ai_codes(  const char* loadname )
 
         fclose( fileread );
     }
+
+    debug_script_file = fopen( "script_debug.txt", "w" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -921,7 +924,9 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
     variable = "UNKNOWN";
     if ( debug_scripts )
     {
-        for (i = 0; i < pself->indent; i++) { printf( "  " ); }
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+
+        for (i = 0; i < pself->indent; i++) { fprintf( scr_file, "  " ); }
 
         for (i = 0; i < MAXCODE; i++)
         {
@@ -932,7 +937,7 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
             };
         }
 
-        printf( "%s = ", variable );
+        fprintf( scr_file, "%s = ", variable );
     }
 
     // Get the number of operands
@@ -946,7 +951,11 @@ bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
         script_increment_exe( pself );
         run_operand( pstate, pself );
     }
-    if ( debug_scripts ) printf( " == %d \n", pstate->operationsum );
+    if ( debug_scripts )
+    {
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        fprintf( scr_file, " == %d \n", pstate->operationsum );
+    }
 
     // Save the results in the register that called the arithmetic
     set_operand( pstate, var_value );
@@ -992,13 +1001,15 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
     {
         Uint32 i;
 
-        for (i = 0; i < pself->indent; i++) { printf( "  " ); }
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+
+        for (i = 0; i < pself->indent; i++) { fprintf( scr_file, "  " ); }
 
         for (i = 0; i < MAXCODE; i++)
         {
             if ( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
             {
-                printf( "%s\n", cCodeName[i] );
+                fprintf( scr_file, "%s\n", cCodeName[i] );
                 break;
             };
         }
@@ -3181,7 +3192,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // tmpargument must be set to one of the A actions beforehand...
             if ( pchr->attachedto != MAXCHR )
             {
-                if ( pchr->inwhichhand == GRIP_LEFT )
+                if ( pchr->inwhichhand == SLOT_LEFT )
                 {
                     // A or B
                     pstate->argument = pstate->argument + ( rand() & 1 );
@@ -4676,7 +4687,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
             log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - unknown op\n", script_error_model, script_error_classname );
             break;
     }
-    if ( debug_scripts ) printf( "%s %s(%d) ", op, varname, iTmp );
+
+    if ( debug_scripts ) 
+    {
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+        fprintf( scr_file, "%s %s(%d) ", op, varname, iTmp );
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4700,7 +4716,10 @@ void let_character_think( Uint16 character )
     if ( !pchr->alive ) return;
 
     // debug a certain script
-    //debug_scripts = ( chr[pself->index].model == 63 );
+    //debug_scripts = ( pself->index == 385 && chr[pself->index].model == 76 );
+
+    // target_old is set to the target every time the script is run
+    pself->target_old = pself->target;
 
     // Make life easier
     script_error_classname = "UNKNOWN";
@@ -4719,37 +4738,40 @@ void let_character_think( Uint16 character )
     }
     if ( debug_scripts )
     {
-        printf( "\n\n--------\n%d - %s\n", script_error_index, script_error_name );
-        printf( "%d - %s\n", script_error_model, script_error_classname );
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
+
+        fprintf( scr_file,  "\n\n--------\n%d - %s\n", script_error_index, script_error_name );
+        fprintf( scr_file,  "%d - %s\n", script_error_model, script_error_classname );
 
         // who are we related to?
-        printf( "\tindex  == %d\n", pself->index );
-        printf( "\ttarget == %d\n", pself->target );
-        printf( "\towner  == %d\n", pself->owner );
-        printf( "\tchild  == %d\n", pself->child );
+        fprintf( scr_file,  "\tindex  == %d\n", pself->index );
+        fprintf( scr_file,  "\ttarget == %d\n", pself->target );
+        fprintf( scr_file,  "\towner  == %d\n", pself->owner );
+        fprintf( scr_file,  "\tchild  == %d\n", pself->child );
 
         // some local storage
-        printf( "\talert   == %x\n", pself->alert );
-        printf( "\tstate   == %d\n", pself->state );
-        printf( "\tcontent == %d\n", pself->content );
-        printf( "\ttimer   == %d\n", pself->timer );
+        fprintf( scr_file,  "\talert     == %x\n", pself->alert   );
+        fprintf( scr_file,  "\tstate     == %d\n", pself->state   );
+        fprintf( scr_file,  "\tcontent   == %d\n", pself->content );
+        fprintf( scr_file,  "\ttimer     == %d\n", pself->timer   );
+        fprintf( scr_file,  "\tframe_wld == %d\n", frame_wld      );
 
         // ai memory from the last event
-        printf( "\tbumplast       == %d\n", pself->bumplast );
-        printf( "\tattacklast     == %d\n", pself->attacklast );
-        printf( "\thitlast        == %d\n", pself->hitlast );
-        printf( "\tdirectionlast  == %d\n", pself->directionlast );
-        printf( "\tdamagetypelast == %d\n", pself->damagetypelast );
-        printf( "\tlastitemused   == %d\n", pself->lastitemused );
-        printf( "\ttarget_old     == %d\n", pself->target_old );
+        fprintf( scr_file,  "\tbumplast       == %d\n", pself->bumplast );
+        fprintf( scr_file,  "\tattacklast     == %d\n", pself->attacklast );
+        fprintf( scr_file,  "\thitlast        == %d\n", pself->hitlast );
+        fprintf( scr_file,  "\tdirectionlast  == %d\n", pself->directionlast );
+        fprintf( scr_file,  "\tdamagetypelast == %d\n", pself->damagetypelast );
+        fprintf( scr_file,  "\tlastitemused   == %d\n", pself->lastitemused );
+        fprintf( scr_file,  "\ttarget_old     == %d\n", pself->target_old );
 
         // message handling
-        printf( "\torder == %d\n", pself->order );
-        printf( "\tcounter == %d\n", pself->rank );
+        fprintf( scr_file,  "\torder == %d\n", pself->order );
+        fprintf( scr_file,  "\tcounter == %d\n", pself->rank );
 
         // waypoints
-        printf( "\twp_tail == %d\n", pself->wp_tail );
-        printf( "\twp_head == %d\n\n", pself->wp_head );
+        fprintf( scr_file,  "\twp_tail == %d\n", pself->wp_tail );
+        fprintf( scr_file,  "\twp_head == %d\n\n", pself->wp_head );
     }
 
     // Clear the button latches
@@ -8523,7 +8545,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     // This sets the target to whatever the target is being held by,
     // The lowest in the set.  This function never fails
-    while ( chr[pself->target].attachedto != MAXCHR )
+    while ( pself->target != MAXCHR && chr[pself->target].attachedto != MAXCHR )
     {
         pself->target = chr[pself->target].attachedto;
     }
@@ -9522,7 +9544,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     if ( pchr->attachedto != MAXCHR )
     {
-        if ( pchr->inwhichhand == GRIP_LEFT )
+        if ( pchr->inwhichhand == SLOT_LEFT )
         {
             // A or B
             pstate->argument = pstate->argument + ( rand() & 1 );
@@ -11450,14 +11472,15 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
     if ( debug_scripts )
     {
         Uint32 i;
+        FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
 
-        for (i = 0; i < pself->indent; i++) { printf( "  " ); }
+        for (i = 0; i < pself->indent; i++) { fprintf( scr_file,  "  " ); }
 
         for (i = 0; i < MAXCODE; i++)
         {
             if ( 'F' == cCodeType[i] && valuecode == iCodeValue[i] )
             {
-                printf( "%s\n", cCodeName[i] );
+                fprintf( scr_file,  "%s\n", cCodeName[i] );
                 break;
             };
         }

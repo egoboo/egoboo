@@ -21,14 +21,15 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
-				MinimalRebuild="FALSE"
+				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="FALSE"
-				DebugInformationFormat="3"
+				DebugInformationFormat="4"
 				CompileAs="1"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
@@ -36,7 +37,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL_d.lib SDLmain_d.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf_d.lib SDL_mixer_d.lib SDL_image_d.lib"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
-				LinkIncremental="1"
+				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/game.pdb"

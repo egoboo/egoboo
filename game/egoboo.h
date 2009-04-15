@@ -878,7 +878,7 @@ struct s_chr
     Sint16         boretime;        // Boredom timer
     Uint8          carefultime;     // "You hurt me!" timer
     bool_t         canbecrushed;    // Crush in a door?
-    Uint8          inwhichhand;     // GRIP_LEFT or GRIP_RIGHT
+    Uint8          inwhichhand;     // SLOT_LEFT or SLOT_RIGHT
     Uint8          isequipped;      // For boots and rings and stuff
     Uint16         firstenchant;    // Linked list for enchants
     Uint16         undoenchant;     // Last enchantment spawned
