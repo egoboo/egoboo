@@ -62,6 +62,7 @@ typedef struct s_keyboard keyboard_t;
 
 EXTERN keyboard_t keyb;
 
+#define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
 
 //--------------------------------------------------------------------------------------------
 // JOYSTICK
@@ -200,14 +201,12 @@ typedef struct s_device_controls device_controls_t;
 
 EXTERN device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
-#define KEY_INVALID     255
-
-
 //--------------------------------------------------------------------------------------------
 //Function prototypes
+
+void init_scancodes();
+
 void   input_init();
-void   input_read_mouse();
-void   input_read_keyboard();
-void   input_read_joystick(Uint16 which);
 void   input_read();
+
 Uint32 input_get_buttonmask( Uint32 idevice );

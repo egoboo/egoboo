@@ -345,6 +345,9 @@
 				RelativePath=".\id_md2.h">
 			</File>
 			<File
+				RelativePath=".\input.h">
+			</File>
+			<File
 				RelativePath=".\link.h">
 			</File>
 			<File
@@ -504,6 +507,9 @@
 				</FileConfiguration>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\modules\rogue.mod\objects\dirtcobol.obj\script.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

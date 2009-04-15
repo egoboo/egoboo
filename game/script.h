@@ -400,7 +400,7 @@ enum e_script_functions
     FSETSELECTSPEECH,            // == 363
 
 	//Scripted AI functions (v1.10)
-    FTAKEPICTURE                 // == 364
+    FTAKEPICTURE,                // == 364
     FIFOPERATORISMACINTOSH       // == 365
 };
 

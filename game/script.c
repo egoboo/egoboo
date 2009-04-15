@@ -144,6 +144,7 @@ int load_one_line( int read )
     char cTmp;
 
     // Parse to start to maintain indentation
+    cLineBuffer[0] = '\0';
     iLineSize = 0;
     stillgoing = btrue;
 
@@ -151,24 +152,41 @@ int load_one_line( int read )
     while ( read < iLoadSize )
     {
         cTmp = cLoadBuffer[read];
-        if ( cTmp == 0x0a && cLoadBuffer[read] == 0x0d )
+
+        if ( cTmp == 0x0a && cLoadBuffer[read+1] == 0x0d )
         {
+            iLineSize = 0;
+            cLineBuffer[0] = '\0';
             return read + 2;
         }
-        if ( cTmp == 0x0d && cLoadBuffer[read] == 0x0a )
+
+        if ( cTmp == 0x0d && cLoadBuffer[read+1] == 0x0a )
         {
+            iLineSize = 0;
+            cLineBuffer[0] = '\0';
             return read + 2;
-        };
+        }
+
         if ( cTmp == 0x0a || cTmp == 0x0d )
         {
+            iLineSize = 0;
+            cLineBuffer[0] = '\0';
             return read + 1;
         }
+
+        if( '\t' == cTmp )
+        {
+            log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine );
+            cTmp = ' ';
+        }
+
         if ( !isspace(cTmp) )
         {
             break;
         }
 
         cLineBuffer[iLineSize] = ' ';
+        cLineBuffer[iLineSize+1] = '\0';
 
         read++;
         iLineSize++;
@@ -183,19 +201,27 @@ int load_one_line( int read )
         {
             break;
         }
+
         if ( cTmp == '/' && cLoadBuffer[read] == '/' )
         {
             break;
         }
 
         read++;
+
+        if( iscntrl(cTmp) )
+        {
+            cTmp = ' ';
+        }
+
         if ( !isspace(cTmp) )
         {
             foundtext = btrue;
-        }
 
-        cLineBuffer[iLineSize] = cTmp;
-        if ( !isspace(cTmp) ) iLineSize++;
+            cLineBuffer[iLineSize]   = cTmp;
+            cLineBuffer[iLineSize+1] = '\0';
+            iLineSize++;
+        }
     }
     if ( !foundtext )
     {
@@ -344,6 +370,16 @@ void fix_operators()
 }
 
 //--------------------------------------------------------------------------------------------
+//void print_token()
+//{
+//    printf("------------\n", globalparsename, Token_iLine);
+//    printf("\tToken_iIndex == %d\n", Token_iIndex);
+//    printf("\tToken_iValue == %d\n", Token_iValue);
+//    printf("\tToken_cType  == \'%c\'\n", Token_cType);
+//    printf("\tToken_cWord  == \"%s\"\n", Token_cWord);
+//};
+
+//--------------------------------------------------------------------------------------------
 int parse_token( int read )
 {
     // ZZ> This function tells what code is being indexed by read, it
@@ -360,7 +396,8 @@ int parse_token( int read )
     Token_cWord[0] = '\0';
 
     // Check bounds
-    if ( read >= iLineSize )  return read;
+    if ( read >= iLineSize )  
+        return iLineSize;
 
     // Skip spaces
     cTmp = cLineBuffer[read];
@@ -369,7 +406,7 @@ int parse_token( int read )
         read++;
         cTmp = cLineBuffer[read];
     }
-    if ( read >= iLineSize )  return read;
+    if ( read >= iLineSize )  { /* print_token(); */ return read; }
 
     // Load the word into the other buffer
     wordsize = 0;
@@ -387,7 +424,7 @@ int parse_token( int read )
         sscanf( Token_cWord, "%d", &Token_iValue );
         Token_cType  = 'C';
         Token_iIndex = MAXCODE;
-        return read;
+        { /* print_token(); */  return read; }
     }
 
     // Check for IDSZ constant
@@ -404,7 +441,7 @@ int parse_token( int read )
         Token_cType  = 'C';
         Token_iIndex = MAXCODE;
 
-        return read;
+        { /* print_token(); */  return read; }
     }
 
     // compare in a case-insensitive manner. there is a unix-based function that does this,
@@ -466,7 +503,7 @@ int parse_token( int read )
         parseerror = btrue;
     }
 
-    return read;
+    { /* print_token(); */  return read; }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -489,6 +526,32 @@ void emit_opcode( Uint32 highbits )
 }
 
 //--------------------------------------------------------------------------------------------
+//void print_line()
+//{
+//    int i;
+//    char cTmp;
+//
+//    printf("\n===========\n\tfile == \"%s\"\n\tline == %d\n", globalparsename, Token_iLine);
+//
+//    printf( "\tline == \"" );
+//
+//    for(i=0; i<iLineSize; i++)
+//    {
+//        cTmp = cLineBuffer[i];
+//        if( isprint(cTmp) )
+//        {
+//            printf( "%c", cTmp );
+//        }
+//        else
+//        {
+//            printf( "\\%03d", cTmp );
+//        }
+//    };
+//
+//    printf( "\", length == %d\n", iLineSize);
+//};
+
+//--------------------------------------------------------------------------------------------
 void parse_line_by_line()
 {
     // ZZ> This function removes comments and endline codes, replacing
@@ -502,6 +565,8 @@ void parse_line_by_line()
     {
         read = load_one_line( read );
         if ( 0 == iLineSize ) continue;
+
+        //print_line();
 
         fix_operators();
         parseposition = 0;
@@ -569,7 +634,7 @@ void parse_line_by_line()
             else if ( 'O' != Token_cType )
             {
                 // this is a function or an unknown value. do not break the script.
-                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, cLineBuffer);
+                log_warning( "Invalid operand \"%s\"(%d) - \"%s\"\n", globalparsename, Token_iLine, Token_cWord);
 
                 emit_opcode( 0 );
                 operands++;
@@ -4133,8 +4198,8 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = dump_screenshot();
             break;
 
-        case FIFOPERATORISMAC:
-            // Proceeds if running on linux
+        case FIFOPERATORISMACINTOSH:
+            // Proceeds if running on mac
 #ifdef __APPLE__
             returncode = btrue;
 #else

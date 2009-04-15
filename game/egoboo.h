@@ -527,7 +527,6 @@ EXTERN bool_t console_mode EQ( bfalse );                   // Input text from ke
 EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
 
 
-#define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
 
 
 // Weather and water gfx
