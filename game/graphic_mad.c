@@ -163,16 +163,18 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint16 frame = chr[character].frame;
     Uint16 lastframe = chr[character].lastframe;
     Uint16 framestt = madframestart[chr[character].model];
-    Uint8 lip = chr[character].lip >> 6;
-    Uint8 lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
-    Uint32  alpha = trans;
-    Uint8 lightlevel = chr[character].lightlevel >> 4;
-    float uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ] - camturnleftrightone;
-    float voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
-    Uint8 rs = chr[character].redshift;
-    Uint8 gs = chr[character].grnshift;
-    Uint8 bs = chr[character].blushift;
-    float flip = lip / 4.0f;
+    Uint8  lip = chr[character].lip >> 6;
+    Uint8  lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
+    Uint32 alpha = trans;
+    Uint8  lightlevel_dir = chr[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_amb = chr[character].lightlevel_amb;
+    float  uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ] - camturnleftrightone;
+    float  voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
+    Uint8  rs = chr[character].redshift;
+    Uint8  gs = chr[character].grnshift;
+    Uint8  bs = chr[character].blushift;
+    float  flip = lip / 4.0f;
+    Uint8  light = ( 255 == chr[character].light ) ? 0 : ( (chr[character].light + 1) * (chr[character].alpha + 1) ) >> 8;
 
     // Original points with linear interpolation ( lip )
 
@@ -184,16 +186,16 @@ void render_enviromad( Uint16 character, Uint8 trans )
         v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
         v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
 
-        lite_last = lighttable[lightlevel][lightrotation][madvrta[lastframe][cnt]];
-        lite_next = lighttable[lightlevel][lightrotation][madvrta[frame][cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[lastframe][cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[frame][cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
         chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
 
-        v[cnt].a = ( float ) alpha / 255.0f;
-        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) / 255.0f;
-        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) / 255.0f;
-        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) / 255.0f;
+        v[cnt].a = ( float ) alpha * INV_FF;
+        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) * INV_FF;
     }
 
     // Do fog...
@@ -292,11 +294,12 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint16 texture = chr[character].texture;
     Uint16 frame = chr[character].frame;
     Uint16 lastframe = chr[character].lastframe;
-    Uint8 lip = chr[character].lip >> 6;
-    Uint8 lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
-    Uint8 lightlevel = chr[character].lightlevel >> 4;
-    Uint32  alpha = trans;
-    Uint8 spek = chr[character].sheen;
+    Uint8  lip = chr[character].lip >> 6;
+    Uint8  lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
+    Uint8  lightlevel_dir = chr[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_amb = chr[character].lightlevel_amb;
+    Uint32 alpha = trans;
+    Uint8  spek = chr[character].sheen;
 
     float uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ];
     float voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
@@ -304,6 +307,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint8 gs = chr[character].grnshift;
     Uint8 bs = chr[character].blushift;
     float flip = lip / 4.0f;
+    Uint8  light = ( 255 == chr[character].light ) ? 0 : ( (chr[character].light + 1) * (chr[character].alpha + 1) ) >> 8;
 
     glMatrix mTempWorld = mWorld;
     if ( phongon && trans == 255 )
@@ -317,16 +321,16 @@ void render_texmad( Uint16 character, Uint8 trans )
         v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
         v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
 
-        lite_last = lighttable[lightlevel][lightrotation][madvrta[lastframe][cnt]];
-        lite_next = lighttable[lightlevel][lightrotation][madvrta[frame][cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[lastframe][cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[frame][cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
         chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
 
-        v[cnt].a = ( float ) alpha / 255.0f;
-        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) / 255.0f;
-        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) / 255.0f;
-        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) / 255.0f;
+        v[cnt].a = ( float ) alpha * INV_FF;
+        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) * INV_FF;
     }
 
     /*

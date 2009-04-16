@@ -120,7 +120,7 @@ void render_antialias_prt()
             if ( prttype[prt] != PRTSOLIDSPRITE  ) continue;
 
             {
-                float color_component = prtlight[prt] / 255.0f;
+                float color_component = prtlight[prt] * INV_FF;
                 light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
                 glColor4f( color_component, color_component, color_component, 1.0f );
 
@@ -256,7 +256,7 @@ void render_prt()
         // Draw sprites this round
         if ( prttype[prt] == PRTSOLIDSPRITE )
         {
-            float color_component = prtlight[prt] / 255.0f;
+            float color_component = prtlight[prt] * INV_FF;
             light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
             glColor4f( color_component, color_component, color_component, 1.0f );
 
@@ -323,14 +323,14 @@ void render_prt()
         // Draw transparent sprites this round
         if ( prttype[prt] != PRTLIGHTSPRITE )  // Render solid ones twice...  For Antialias
         {
-            float color_component = prtlight[prt] / 255.0f;
+            float color_component = prtlight[prt] * INV_FF;
             float alpha_component;
 
             // Figure out the sprite's size based on distance
             if ( prttype[prt] == PRTSOLIDSPRITE )
-                alpha_component = antialiastrans / 255.0f;
+                alpha_component = antialiastrans * INV_FF;
             else
-                alpha_component = particletrans / 255.0f;
+                alpha_component = particletrans * INV_FF;
 
             glColor4f( color_component, color_component, color_component, alpha_component ); //[claforte] should use alpha_component instead of 0.5f?
 
@@ -542,7 +542,7 @@ void render_refprt()
             {
                 image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
                 // light = (startalpha<<24)|usealpha;
-                glColor4f( 1.0f, 1.0f, 1.0f, startalpha / 255.0f );
+                glColor4f( 1.0f, 1.0f, 1.0f, startalpha * INV_FF );
 
                 vtlist[0].s = particleimageu[image][1];
                 vtlist[0].t = particleimagev[image][1];
@@ -613,7 +613,7 @@ void render_refprt()
             {
                 float color_component = prtlight[prt] / 16.0f;
                 image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
-                glColor4f( color_component, color_component, color_component, startalpha / 255.0f );
+                glColor4f( color_component, color_component, color_component, startalpha * INV_FF );
 
                 vtlist[0].s = particleimageu[image][1];
                 vtlist[0].t = particleimagev[image][1];

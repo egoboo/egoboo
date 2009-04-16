@@ -80,18 +80,17 @@ int what_action( char cTmp )
 // Random Things-----------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-char * get_file_path( const char *szName)
+char * get_file_path( const char *szName )
 {
     //ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
-    char * pname = '\0', * pname_end;
+    static char szPathname[16];
+
+    char * pname, * pname_end;
     char * ppath, * ppath_end;
     char letter;
 
-    static char szPathname[16];
-
-    strcpy(pname, szName);
     pname = szName;
     pname_end = pname + 255;
 
@@ -1704,10 +1703,9 @@ int SDL_main( int argc, char **argv )
                     gameactive = bfalse;
                     break;
             }
-
             ui_endFrame();
 
-            SDL_GL_SwapBuffers();
+            flip_pages();
         }
         else if ( gameactive )
         {

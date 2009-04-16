@@ -35,7 +35,7 @@ Shadow size ( eg. 30, 0 is none )		: 45
 Bump size ( eg. 30 )				: 65
 Bump height ( eg. 70 )				: 120
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.00
-Weight ( 0 to 255 )				: 255
+Weight ( 0 to 255 )				: 254
 Jump power ( eg. 14.0 )				: 0.0
 Number of jumps ( eg. 1 )			: 0
 Sneak speed ( 1 to 20, 1 is good )		: 1

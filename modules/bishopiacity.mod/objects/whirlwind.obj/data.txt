@@ -30,7 +30,7 @@ Shadow size    : 0
 Bump size      : 1
 Bump height    : 1
 Bump dampen    : 0
-Weight         : 0
+Weight         : 1
 Jump power     : 0.00
 Jump number    : 0
 Sneak speed    : 3

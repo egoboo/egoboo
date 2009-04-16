@@ -42,15 +42,10 @@ SDL_Surface *    displaySurface = NULL;
 Uint16           numdolist = 0;
 Uint16           dolist[MAXCHR];
 
-Uint16           meshlasttexture = 0;
+bool_t           meshnotexture = bfalse;
+Uint16           meshlasttexture = ~0;
 
-int              numrenderlistall = 0;
-int              numrenderlistref = 0;
-int              numrenderlistsha = 0;
-Uint32           renderlistall[MAXMESHRENDER];
-Uint32           renderlistref[MAXMESHRENDER];
-Uint32           renderlistsha[MAXMESHRENDER];
-
+renderlist_t     renderlist = {0,0,0,0,0};
 
 Uint8            lightdirectionlookup[65536];
 Uint8            lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -1393,15 +1388,17 @@ void make_renderlist()
     int from, to;
 
     // Clear old render lists
-    for ( cnt = 0; cnt < numrenderlistall; cnt++ )
+    for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
     {
-        fan = renderlistall[cnt];
+        fan = renderlist.all[cnt];
         meshinrenderlist[fan] = btrue;
     }
 
-    numrenderlistall = 0;
-    numrenderlistref = 0;
-    numrenderlistsha = 0;
+    renderlist.all_count = 0;
+    renderlist.ref_count = 0;
+    renderlist.sha_count = 0;
+    renderlist.drf_count = 0;
+    renderlist.ndr_count = 0;
 
     // Make sure it doesn't die ugly !!!BAD!!!
 
@@ -1550,23 +1547,34 @@ void make_renderlist()
 
         while ( fanx < run )
         {
-            if ( numrenderlistall < MAXMESHRENDER )
+            if ( renderlist.all_count < MAXMESHRENDER )
             {
                 // Put each tile in basic list
                 meshinrenderlist[cnt] = btrue;
-                renderlistall[numrenderlistall] = cnt;
-                numrenderlistall++;
+                renderlist.all[renderlist.all_count] = cnt;
+                renderlist.all_count++;
 
                 // Put each tile in one other list, for shadows and relections
                 if ( 0 != ( meshfx[cnt] & MESHFX_SHA ) )
                 {
-                    renderlistsha[numrenderlistsha] = cnt;
-                    numrenderlistsha++;
+                    renderlist.sha[renderlist.sha_count] = cnt;
+                    renderlist.sha_count++;
                 }
                 else
                 {
-                    renderlistref[numrenderlistref] = cnt;
-                    numrenderlistref++;
+                    renderlist.ref[renderlist.ref_count] = cnt;
+                    renderlist.ref_count++;
+                }
+
+                if( 0 != ( meshfx[cnt] & MESHFX_DRAWREF ) )
+                {
+                    renderlist.drf[renderlist.drf_count] = cnt;
+                    renderlist.drf_count++;
+                }
+                else
+                {
+                    renderlist.ndr[renderlist.ndr_count] = cnt;
+                    renderlist.ndr_count++;
                 }
             }
 
@@ -1668,12 +1676,26 @@ void add_to_dolist( Uint16 ichr )
     {
         if ( 0 == ( 0xFF00 & meshtile[itile] ) )
         {
-            int itmp = 0;
-            itmp += meshvrtl[meshvrtstart[itile] + 0];
-            itmp += meshvrtl[meshvrtstart[itile] + 1];
-            itmp += meshvrtl[meshvrtstart[itile] + 2];
-            itmp += meshvrtl[meshvrtstart[itile] + 3];
-            chr[ichr].lightlevel = itmp / 4;
+            int itmp, imin, isum;
+
+            itmp = meshvrtl[meshvrtstart[itile] + 0];
+            imin = itmp;
+            isum = itmp;
+
+            itmp = meshvrtl[meshvrtstart[itile] + 1];
+            imin  = MIN(imin, itmp);
+            isum += itmp;
+
+            itmp = meshvrtl[meshvrtstart[itile] + 2];
+            imin  = MIN(imin, itmp);
+            isum += itmp;
+
+            itmp = meshvrtl[meshvrtstart[itile] + 3];
+            imin  = MIN(imin, itmp);
+            isum += itmp;
+
+            chr[ichr].lightlevel_amb = imin;
+            chr[ichr].lightlevel_dir = (isum - 4*imin) / 4;
         }
 
         dolist[numdolist] = ichr;
@@ -1756,16 +1778,16 @@ void load_basic_textures(  const char *modname )
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, INVALID_KEY);
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, TRANSCOLOR);
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, INVALID_KEY );
+    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, TRANSCOLOR );
 
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
@@ -2734,6 +2756,27 @@ void render_foreground_overlay( Uint16 texture )
 }
 
 //--------------------------------------------------------------------------------------------
+void render_shadow_sprite( float intensity, GLVERTEX v[] )
+{
+    int i;
+
+    if( intensity*255.0f < 1.0f ) return;
+
+    glColor4f( intensity, intensity, intensity, 1.0f );
+
+    glBegin( GL_TRIANGLE_FAN );
+    {
+        for ( i = 0; i < 4; i++ )
+        {
+            glTexCoord2fv ( &v[i].s );
+            glVertex3fv ( &v[i].x );
+        }
+    }
+    glEnd();
+}
+
+
+//--------------------------------------------------------------------------------------------
 void render_shadow( Uint16 character )
 {
     // ZZ> This function draws a NIFTY shadow
@@ -2742,127 +2785,119 @@ void render_shadow( Uint16 character )
     float x, y;
     float level;
     float height, size_umbra, size_penumbra;
-    float alpha_umbra, alpha_penumbra;
+    float alpha, alpha_umbra, alpha_penumbra;
     Sint8 hide;
     int i;
+    chr_t * pchr;
 
-    hide = caphidestate[chr[character].model];
-    if ( hide == NOHIDE || hide != chr[character].ai.state )
+    if( character >= MAXCHR || !chr[character].on || chr[character].inpack ) return;
+    pchr = chr + character;
+
+    // if the character is hidden, not drawn at all, so no shadow
+    hide = caphidestate[pchr->model];
+    if ( hide != NOHIDE && hide == pchr->ai.state ) return;
+
+    // no shadow if off the mesh
+    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtype[pchr->onwhichfan] ) return;
+
+    // no shadow if completely transparent
+    alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
+    if( alpha * 255 < 1.0f ) return;
+
+    // much resuced shadow if on a reflective tile
+    if( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
     {
-        // Original points
-        level = chr[character].level;
-        level += SHADOWRAISE;
-        height = chr[character].matrix.CNV( 3, 2 ) - level;
-        if ( height < 0 ) height = 0;
+        alpha *= 0.1f;
+    }
+    if( alpha * 255 < 1.0f ) return;
 
-        size_umbra    = 1.5f * ( chr[character].bumpsize - height / 30.0f );
-        size_penumbra = 1.5f * ( chr[character].bumpsize + height / 30.0f );
-        if ( height > 0 )
-        {
-            float factor_penumbra = ( 1.5f ) * ( ( chr[character].bumpsize ) / size_penumbra );
-            float factor_umbra = ( 1.5f ) * ( ( chr[character].bumpsize ) / size_umbra );
-            alpha_umbra = 0.3f / factor_umbra / factor_umbra / 1.5f;
-            alpha_penumbra = 0.3f / factor_penumbra / factor_penumbra / 1.5f;
-        }
-        else
-        {
-            alpha_umbra    = 0.3f;
-            alpha_penumbra = 0.3f;
-        };
+    // Original points
+    level = pchr->level;
+    level += SHADOWRAISE;
+    height = pchr->matrix.CNV( 3, 2 ) - level;
+    if ( height < 0 ) height = 0;
 
-        x = chr[character].matrix.CNV( 3, 0 );
+    size_umbra    = 1.5f * ( pchr->bumpsize - height / 30.0f );
+    size_penumbra = 1.5f * ( pchr->bumpsize + height / 30.0f );
 
-        y = chr[character].matrix.CNV( 3, 1 );
+    alpha *= 0.3f;
+    alpha_umbra = alpha_penumbra = alpha;
+    if ( height > 0 )
+    {
+        float factor_penumbra = ( 1.5f ) * ( ( pchr->bumpsize ) / size_penumbra );
+        float factor_umbra    = ( 1.5f ) * ( ( pchr->bumpsize ) / size_umbra );
 
-        // Choose texture.
-        GLTexture_Bind( txTexture + particletexture );
+        factor_umbra    = MAX(1.0f, factor_umbra);
+        factor_penumbra = MAX(1.0f, factor_penumbra);
 
-        // GOOD SHADOW
-        v[0].s = particleimageu[238][0];
+        alpha_umbra    *= 1.0f / factor_umbra / factor_umbra / 1.5f;
+        alpha_penumbra *= 1.0f / factor_penumbra / factor_penumbra / 1.5f;
 
-        v[0].t = particleimagev[238][0];
+        alpha_umbra    = CLIP(alpha_umbra,    0.0f, 1.0f);
+        alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
+    }
 
-        v[1].s = particleimageu[255][1];
+    x = pchr->matrix.CNV( 3, 0 );
+    y = pchr->matrix.CNV( 3, 1 );
 
-        v[1].t = particleimagev[238][0];
+    // Choose texture.
+    GLTexture_Bind( txTexture + particletexture );
 
-        v[2].s = particleimageu[255][1];
+    // GOOD SHADOW
+    v[0].s = particleimageu[238][0];
+    v[0].t = particleimagev[238][0];
 
-        v[2].t = particleimagev[255][1];
+    v[1].s = particleimageu[255][1];
+    v[1].t = particleimagev[238][0];
 
-        v[3].s = particleimageu[238][0];
+    v[2].s = particleimageu[255][1];
+    v[2].t = particleimagev[255][1];
 
-        v[3].t = particleimagev[255][1];
+    v[3].s = particleimageu[238][0];
+    v[3].t = particleimagev[255][1];
 
-        glEnable( GL_BLEND );
+    if ( size_penumbra > 0 )
+    {
+        v[0].x = x + size_penumbra;
+        v[0].y = y - size_penumbra;
+        v[0].z = level;
 
-        glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+        v[1].x = x + size_penumbra;
+        v[1].y = y + size_penumbra;
+        v[1].z = level;
 
-        glDepthMask( GL_FALSE );
-        if ( size_penumbra > 0 )
-        {
-            v[0].x = x + size_penumbra;
-            v[0].y = y - size_penumbra;
-            v[0].z = level;
+        v[2].x = x - size_penumbra;
+        v[2].y = y + size_penumbra;
+        v[2].z = level;
 
-            v[1].x = x + size_penumbra;
-            v[1].y = y + size_penumbra;
-            v[1].z = level;
+        v[3].x = x - size_penumbra;
+        v[3].y = y - size_penumbra;
+        v[3].z = level;
 
-            v[2].x = x - size_penumbra;
-            v[2].y = y + size_penumbra;
-            v[2].z = level;
-
-            v[3].x = x - size_penumbra;
-            v[3].y = y - size_penumbra;
-            v[3].z = level;
-
-            glBegin( GL_TRIANGLE_FAN );
-            {
-                glColor4f( alpha_penumbra, alpha_penumbra, alpha_penumbra, 1.0f );
-
-                for ( i = 0; i < 4; i++ )
-                {
-                    glTexCoord2f ( v[i].s, v[i].t );
-                    glVertex3f ( v[i].x, v[i].y, v[i].z );
-                }
-            }
-            glEnd();
-        };
-        if ( size_umbra > 0 )
-        {
-            v[0].x = x + size_umbra;
-            v[0].y = y - size_umbra;
-            v[0].z = level + 0.1f;
-
-            v[1].x = x + size_umbra;
-            v[1].y = y + size_umbra;
-            v[1].z = level + 0.1f;
-
-            v[2].x = x - size_umbra;
-            v[2].y = y + size_umbra;
-            v[2].z = level + 0.1f;
-
-            v[3].x = x - size_umbra;
-            v[3].y = y - size_umbra;
-            v[3].z = level + 0.1f;
-
-            glBegin( GL_TRIANGLE_FAN );
-            glColor4f( alpha_umbra, alpha_umbra, alpha_umbra, 1.0f );
-
-            for ( i = 0; i < 4; i++ )
-            {
-                glTexCoord2f ( v[i].s, v[i].t );
-                glVertex3f ( v[i].x, v[i].y, v[i].z );
-            }
-
-            glEnd();
-        };
-
-        glDisable( GL_BLEND );
-
-        glDepthMask( GL_TRUE );
+        render_shadow_sprite(alpha_penumbra, v );
     };
+
+    if ( size_umbra > 0 )
+    {
+        v[0].x = x + size_umbra;
+        v[0].y = y - size_umbra;
+        v[0].z = level + 0.1f;
+
+        v[1].x = x + size_umbra;
+        v[1].y = y + size_umbra;
+        v[1].z = level + 0.1f;
+
+        v[2].x = x - size_umbra;
+        v[2].y = y + size_umbra;
+        v[2].z = level + 0.1f;
+
+        v[3].x = x - size_umbra;
+        v[3].y = y - size_umbra;
+        v[3].z = level + 0.1f;
+
+        render_shadow_sprite(alpha_umbra, v );
+    };
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2872,151 +2907,134 @@ void render_bad_shadow( Uint16 character )
     GLVERTEX v[4];
     float size, x, y;
     Uint8 ambi;
-    float level;
-    int height;
+    float level, height, height_factor, alpha;
     Sint8 hide;
-    Uint8 trans;
+    int trans;
     int i;
+    chr_t * pchr;
 
-    hide = caphidestate[chr[character].model];
-    if ( hide == NOHIDE || hide != chr[character].ai.state )
+    if( character >= MAXCHR || !chr[character].on || chr[character].inpack ) return;
+    pchr = chr + character;
+
+    // if the character is hidden, not drawn at all, so no shadow
+    hide = caphidestate[pchr->model];
+    if ( hide != NOHIDE && hide == pchr->ai.state ) return;
+
+    // no shadow if off the mesh
+    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtype[pchr->onwhichfan] ) return;
+
+    // no shadow if completely transparent or completely glowing
+    alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
+    if( alpha < INV_FF ) return;
+
+    // much reduced shadow if on a reflective tile
+    if( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
     {
-        // Original points
-        level = chr[character].level;
-        level += SHADOWRAISE;
-        height = chr[character].matrix.CNV( 3, 2 ) - level;
-        if ( height > 255 )  return;
-        if ( height < 0 ) height = 0;
-
-        size = chr[character].shadowsize - FP8_MUL( height, chr[character].shadowsize );
-        if ( size < 1 ) return;
-
-        ambi = chr[character].lightlevel >> 4;
-        trans = ( ( 255 - height ) >> 1 ) + 64;
-
-        glColor4f( ambi / 255.0f, ambi / 255.0f, ambi / 255.0f, trans / 255.0f );
-
-        x = chr[character].matrix.CNV( 3, 0 );
-        y = chr[character].matrix.CNV( 3, 1 );
-        v[0].x = ( float ) x + size;
-        v[0].y = ( float ) y - size;
-        v[0].z = ( float ) level;
-
-        v[1].x = ( float ) x + size;
-        v[1].y = ( float ) y + size;
-        v[1].z = ( float ) level;
-
-        v[2].x = ( float ) x - size;
-        v[2].y = ( float ) y + size;
-        v[2].z = ( float ) level;
-
-        v[3].x = ( float ) x - size;
-        v[3].y = ( float ) y - size;
-        v[3].z = ( float ) level;
-
-        // Choose texture and matrix
-        GLTexture_Bind( txTexture + particletexture );
-
-        v[0].s = particleimageu[236][0];
-        v[0].t = particleimagev[236][0];
-
-        v[1].s = particleimageu[253][1];
-        v[1].t = particleimagev[236][0];
-
-        v[2].s = particleimageu[253][1];
-        v[2].t = particleimagev[253][1];
-
-        v[3].s = particleimageu[236][0];
-        v[3].t = particleimagev[253][1];
-
-        glBegin( GL_TRIANGLE_FAN );
-        {
-            for ( i = 0; i < 4; i++ )
-            {
-                glTexCoord2f ( v[i].s, v[i].t );
-                glVertex3f ( v[i].x, v[i].y, v[i].z );
-            }
-        }
-        glEnd();
+        alpha *= 0.1f;
     }
+    if( alpha < INV_FF ) return;
+
+    // Original points
+    level = pchr->level;
+    level += SHADOWRAISE;
+    height = pchr->matrix.CNV( 3, 2 ) - level;
+    height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f ); 
+    if( height_factor <= 0.0f ) return;
+
+    // how much transparency from height
+    alpha *= height_factor*0.5f + 0.25f;
+    if( alpha < INV_FF ) return;
+
+    x = pchr->matrix.CNV( 3, 0 );
+    y = pchr->matrix.CNV( 3, 1 );
+
+    size = pchr->shadowsize * height_factor;
+
+    v[0].x = ( float ) x + size;
+    v[0].y = ( float ) y - size;
+    v[0].z = ( float ) level;
+
+    v[1].x = ( float ) x + size;
+    v[1].y = ( float ) y + size;
+    v[1].z = ( float ) level;
+
+    v[2].x = ( float ) x - size;
+    v[2].y = ( float ) y + size;
+    v[2].z = ( float ) level;
+
+    v[3].x = ( float ) x - size;
+    v[3].y = ( float ) y - size;
+    v[3].z = ( float ) level;
+
+    // Choose texture and matrix
+    GLTexture_Bind( txTexture + particletexture );
+
+    v[0].s = particleimageu[236][0];
+    v[0].t = particleimagev[236][0];
+
+    v[1].s = particleimageu[253][1];
+    v[1].t = particleimagev[236][0];
+
+    v[2].s = particleimageu[253][1];
+    v[2].t = particleimagev[253][1];
+
+    v[3].s = particleimageu[236][0];
+    v[3].t = particleimagev[253][1];
+
+    render_shadow_sprite(trans * INV_FF, v );
 }
 
 //--------------------------------------------------------------------------------------------
 void light_characters()
 {
     // ZZ> This function figures out character lighting
-    int cnt, tnc, x, y;
-    Uint16 tl, tr, bl, br;
-    Uint16 light;
+    int cnt, tnc, ix, iy, light_min, light_max;
+    Uint16 tl, tr, bl, br, itop, ibot;
+    Uint32 light;
 
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
 
-        x = chr[tnc].xpos;
-        y = chr[tnc].ypos;
-        x = ( x & 127 ) >> 5;  // From 0 to 3
-        y = ( y & 127 ) >> 5;  // From 0 to 3
-
-        light = 0;
-
         if ( INVALID_TILE == chr[tnc].onwhichfan )
         {
-            tl = 0;
-            tr = 0;
-            br = 0;
-            bl = 0;
+            chr[tnc].lightturnleftright = 0;
+            chr[tnc].lightlevel_amb = 0;
+            chr[tnc].lightlevel_dir = 0;
+            continue;
         }
-        else
+
+        // grab the corner intensities
+        tl = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 0 ];
+        tr = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 1 ];
+        br = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 2 ];
+        bl = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 3 ];
+
+        // determine the amount of directionality
+        light_min = MIN(MIN(tl,tr),MIN(bl,br));
+        light_max = MAX(MAX(tl,tr),MAX(bl,br));
+
+        if(light_max == 0 && light_min == 0 )
         {
-            tl = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 0];
-            tr = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 1];
-            br = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 2];
-            bl = meshvrtl[meshvrtstart[chr[tnc].onwhichfan] + 3];
+            chr[tnc].lightturnleftright = 0;
+            chr[tnc].lightlevel_amb = 0;
+            chr[tnc].lightlevel_dir = 0;
+            continue;
         }
 
         // Interpolate lighting level using tile corners
-        switch ( x )
-        {
-            case 0:
-                light += tl << 1;
-                light += bl << 1;
-                break;
-            case 1:
-            case 2:
-                light += tl;
-                light += tr;
-                light += bl;
-                light += br;
-                break;
-            case 3:
-                light += tr << 1;
-                light += br << 1;
-                break;
-        }
+        ix = ((int)chr[tnc].xpos) & 127;
+        iy = ((int)chr[tnc].ypos) & 127;
 
-        switch ( y )
-        {
-            case 0:
-                light += tl << 1;
-                light += tr << 1;
-                break;
-            case 1:
-            case 2:
-                light += tl;
-                light += tr;
-                light += bl;
-                light += br;
-                break;
-            case 3:
-                light += bl << 1;
-                light += br << 1;
-                break;
-        }
+        itop = tl * (128-ix) + tr * ix;
+        ibot = bl * (128-ix) + br * ix;
+        light = (128-iy) * itop + iy * ibot;
+        light >>= 14;
 
-        light = light >> 3;
-        chr[tnc].lightlevel = light;
-        if ( !meshexploremode )
+        chr[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
+        chr[tnc].lightlevel_amb = light - chr[tnc].lightlevel_dir;
+
+        if ( !meshexploremode && chr[tnc].lightlevel_dir > 0 )
         {
             // Look up light direction using corners again
             tl = ( tl << 8 ) & 0xf000;
@@ -3047,7 +3065,7 @@ void light_particles()
         character = prtattachedtocharacter[iprt];
         if ( MAXCHR != character )
         {
-            prtlight[iprt] = chr[character].lightlevel;
+            prtlight[iprt] = chr[character].lightlevel_amb;
         }
         else if ( INVALID_TILE == prtonwhichfan[iprt] )
         {
@@ -3156,9 +3174,9 @@ void do_dynalight()
     else if ( shading != GL_FLAT )
     {
         // Add to base light level in normal mode
-        for ( entry = 0; entry < numrenderlistall; entry++ )
+        for ( entry = 0; entry < renderlist.all_count; entry++ )
         {
-            fan = renderlistall[entry];
+            fan = renderlist.all[entry];
             if ( INVALID_TILE == fan ) continue;
 
             vertex = meshvrtstart[fan];
@@ -3206,15 +3224,15 @@ void render_water()
     glMultMatrixf( mWorld.v );
 
     // Bottom layer first
-    if ( numwaterlayer > 1 && waterlayerz[1] > -waterlayeramp[1] )
+    if ( clearson && numwaterlayer > 1 && waterlayerz[1] > -waterlayeramp[1] )
     {
         cnt = 0;
 
-        while ( cnt < numrenderlistall )
+        while ( cnt < renderlist.all_count )
         {
-            if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( meshfx[renderlist.all[cnt]] & MESHFX_WATER ) )
             {
-                render_water_fan( renderlistall[cnt], 1 );
+                render_water_fan( renderlist.all[cnt], 1 );
             }
 
             cnt++;
@@ -3222,211 +3240,20 @@ void render_water()
     }
 
     // Top layer second
-    if ( numwaterlayer > 0 && waterlayerz[0] > -waterlayeramp[0] )
+    if ( !overlayon && numwaterlayer > 0 && waterlayerz[0] > -waterlayeramp[0] )
     {
         cnt = 0;
 
-        while ( cnt < numrenderlistall )
+        while ( cnt < renderlist.all_count )
         {
-            if ( 0 != ( meshfx[renderlistall[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( meshfx[renderlist.all[cnt]] & MESHFX_WATER ) )
             {
-                render_water_fan( renderlistall[cnt], 0 );
+                render_water_fan( renderlist.all[cnt], 0 );
             }
 
             cnt++;
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------
-void draw_scene_sadreflection()
-{
-    // ZZ> This function draws 3D objects
-    Uint16 cnt, tnc;
-    Uint8 trans;
-    rect_t rect;// = {0, 0, displaySurface->w, displaySurface->h};  // Don't know why this isn't working on the Mac, it should
-
-    rect.left = 0;
-    rect.right = 0;
-    rect.top = displaySurface->w;
-    rect.bottom = displaySurface->h;
-
-    // ZB> Clear the z-buffer
-    glClear( GL_DEPTH_BUFFER_BIT );
-
-    // Render the reflective floors
-    glEnable( GL_CULL_FACE );
-    glFrontFace( GL_CW );
-    meshlasttexture = 0;
-
-    for ( cnt = 0; cnt < numrenderlistref; cnt++ )
-    {
-        render_fan( renderlistref[cnt] );
-    }
-
-    if ( refon )
-    {
-        // Render reflections of characters
-
-        glEnable( GL_CULL_FACE );
-        glFrontFace( GL_CCW );
-
-        glDisable( GL_DEPTH_TEST );
-        glDepthMask( GL_FALSE );
-
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE );
-
-        for ( cnt = 0; cnt < numdolist; cnt++ )
-        {
-            tnc = dolist[cnt];
-            if ( INVALID_TILE != chr[tnc].onwhichfan && 0 != ( meshfx[chr[tnc].onwhichfan] & MESHFX_DRAWREF ) )
-            {
-                render_refmad( tnc, FP8_MUL( chr[tnc].alpha, chr[tnc].light ) );
-            }
-        }
-
-        // Render the reflected sprites
-        glFrontFace( GL_CW );
-        render_refprt();
-
-        glDisable( GL_BLEND );
-        glEnable( GL_DEPTH_TEST );
-        glDepthMask( GL_TRUE );
-    }
-
-    // Render the shadow floors
-    meshlasttexture = 0;
-
-    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
-    {
-        render_fan( renderlistsha[cnt] );
-    }
-
-    // Render the shadows
-    if ( shaon )
-    {
-        if ( shasprite )
-        {
-            // Bad shadows
-            glDepthMask( GL_FALSE );
-            glEnable( GL_BLEND );
-            glBlendFunc ( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-            for ( cnt = 0; cnt < numdolist; cnt++ )
-            {
-                tnc = dolist[cnt];
-                if ( chr[tnc].attachedto == MAXCHR )
-                {
-                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
-                    {
-                        render_bad_shadow( tnc );
-                    }
-                }
-            }
-
-            glDisable( GL_BLEND );
-            glDepthMask( GL_TRUE );
-        }
-        else
-        {
-            // Good shadows for me
-            glDepthMask( GL_FALSE );
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_COLOR, GL_ZERO );
-
-            for ( cnt = 0; cnt < numdolist; cnt++ )
-            {
-                tnc = dolist[cnt];
-                if ( chr[tnc].attachedto == MAXCHR )
-                {
-                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
-                    {
-                        render_shadow( tnc );
-                    }
-                }
-            }
-
-            glDisable( GL_BLEND );
-            glDepthMask( GL_TRUE );
-        }
-    }
-
-    glAlphaFunc( GL_GREATER, 0 );
-    glEnable( GL_ALPHA_TEST );
-    glDisable( GL_CULL_FACE );
-
-    // Render the normal characters
-    for ( cnt = 0; cnt < numdolist; cnt++ )
-    {
-        tnc = dolist[cnt];
-        if ( chr[tnc].alpha == 255 && chr[tnc].light == 255 )
-            render_mad( tnc, 255 );
-    }
-
-    // Render the sprites
-    glDepthMask( GL_FALSE );
-    glEnable( GL_BLEND );
-
-    // Now render the transparent characters
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-    for ( cnt = 0; cnt < numdolist; cnt++ )
-    {
-        tnc = dolist[cnt];
-        if ( chr[tnc].alpha != 255 && chr[tnc].light == 255 )
-        {
-            trans = chr[tnc].alpha;
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
-
-            render_mad( tnc, trans );
-        }
-    }
-
-    // Alpha water
-    if ( !waterlight )  render_water();
-
-    // Then do the light characters
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE );
-
-    for ( cnt = 0; cnt < numdolist; cnt++ )
-    {
-        tnc = dolist[cnt];
-        if ( chr[tnc].light != 255 )
-        {
-            trans = chr[tnc].light;
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
-
-            render_mad( tnc, trans );
-        }
-
-        // Do phong highlights
-        if ( phongon && chr[tnc].alpha == 255 && chr[tnc].light == 255 && !chr[tnc].enviro && chr[tnc].sheen > 0 )
-        {
-            Uint16 texturesave;
-            chr[tnc].enviro = btrue;
-            texturesave = chr[tnc].texture;
-            chr[tnc].texture = TX_PHONG;  // The phong map texture...
-            render_mad( tnc, chr[tnc].sheen << 4 );
-            chr[tnc].texture = texturesave;
-            chr[tnc].enviro = bfalse;
-        }
-    }
-
-    // Light water
-    if ( waterlight )  render_water();
-
-    // Turn Z buffer back on, alphablend off
-    glDepthMask( GL_TRUE );
-    glDisable( GL_BLEND );
-    glEnable( GL_ALPHA_TEST );
-    render_prt();
-    glDisable( GL_ALPHA_TEST );
-
-    glDepthMask( GL_TRUE );
-    glDisable( GL_BLEND );
-
-    // Done rendering
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3436,27 +3263,41 @@ void draw_scene_zreflection()
     Uint16 cnt, tnc;
     Uint8 trans;
 
-    // Render the reflective floors
-    glDisable( GL_DEPTH_TEST );
-    glDepthMask( GL_FALSE );
-
-    meshlasttexture = 0;
-    for ( cnt = 0; cnt < numrenderlistref; cnt++ )
-    {
-        render_fan( renderlistref[cnt] );
-    }
-
-    // BAD: DRAW SHADOW STUFF TOO
-    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
-    {
-        render_fan( renderlistsha[cnt] );
-    }
+    // draw all tiles that do not reflect characters
+    glDisable( GL_BLEND );             // no transparency
+    glDisable( GL_CULL_FACE );
 
     glEnable( GL_DEPTH_TEST );
     glDepthMask( GL_TRUE );
+
+    glEnable( GL_ALPHA_TEST );         // use alpha test to allow the thatched roof tiles to look like thatch
+    glAlphaFunc( GL_GREATER, 0 );
+
+    meshlasttexture = ~0;
+    for ( cnt = 0; cnt < renderlist.ndr_count; cnt++ )
+    {
+        render_fan( renderlist.ndr[cnt] );
+    }
+
     if ( refon )
     {
+        // draw the reflective tiles, but turn off the depth buffer
+        // this blanks out any background that might've been drawn
+
+        glEnable( GL_DEPTH_TEST );
+        glDepthMask( GL_FALSE );
+
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+        meshlasttexture = ~0;
+        for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
+        {
+            render_fan( renderlist.drf[cnt] );
+        }
+
         // Render reflections of characters
+        glEnable( GL_CULL_FACE );
         glFrontFace( GL_CCW );
         glEnable( GL_BLEND );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE );
@@ -3465,89 +3306,94 @@ void draw_scene_zreflection()
         for ( cnt = 0; cnt < numdolist; cnt++ )
         {
             tnc = dolist[cnt];
-            if ( INVALID_TILE != chr[tnc].onwhichfan && 0 != ( meshfx[chr[tnc].onwhichfan]&MESHFX_DRAWREF ) )
+            if ( INVALID_TILE != chr[tnc].onwhichfan && (0 != ( meshfx[chr[tnc].onwhichfan]&MESHFX_DRAWREF )) )
             {
                 render_refmad( tnc, FP8_MUL( chr[tnc].alpha, chr[tnc].light ) );
             }
         }
 
-        // [claforte] I think this is wrong... I think we should choose some other depth func.
-        glDepthFunc( GL_ALWAYS );
-
         // Render the reflected sprites
+        glDisable( GL_CULL_FACE );
         glDisable( GL_DEPTH_TEST );
         glDepthMask( GL_FALSE );
         glFrontFace( GL_CW );
         render_refprt();
+
+        // Render the shadow floors ( let everything show through )
+        // turn on the depth mask, so that no objects under the floor will show through
+        // this assumes that the floor is not partially transparent...
+        glDepthMask( GL_TRUE );
+
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE );
+
+        glDisable( GL_CULL_FACE );
+
+        glEnable( GL_DEPTH_TEST );
+        glDepthMask( GL_TRUE );
+
+        meshlasttexture = ~0;
+        for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
+        {
+            render_fan( renderlist.drf[cnt] );
+        }
 
         glDisable( GL_BLEND );
         glDepthFunc( GL_LEQUAL );
         glEnable( GL_DEPTH_TEST );
         glDepthMask( GL_TRUE );
     }
-
-    // Clear the Zbuffer at a bad time...  But hey, reflections work with Voodoo
-    // lpD3DVViewport->Clear(1, &rect, D3DCLEAR_ZBUFFER);
-    // Not sure if this is cool or not - DDOI
-    // glClear ( GL_DEPTH_BUFFER_BIT );
-
-    // Render the shadow floors
-    meshlasttexture = 0;
-
-    for ( cnt = 0; cnt < numrenderlistsha; cnt++ )
+    else
     {
-        render_fan( renderlistsha[cnt] );
+        // Render the shadow floors as normal solid floors
+        meshlasttexture = ~0;
+        for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
+        {
+            render_fan( renderlist.drf[cnt] );
+        }
     }
 
     // Render the shadows
     if ( shaon )
     {
+        glDepthMask( GL_FALSE );
+        glEnable( GL_DEPTH_TEST );
+
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_ZERO, GL_ONE_MINUS_SRC_COLOR );
+
         if ( shasprite )
         {
             // Bad shadows
-            glDepthMask( GL_FALSE );
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
             for ( cnt = 0; cnt < numdolist; cnt++ )
             {
                 tnc = dolist[cnt];
-                if ( chr[tnc].attachedto == MAXCHR )
-                {
-                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
-                        render_bad_shadow( tnc );
-                }
-            }
+                if ( 0 == chr[tnc].shadowsize ) continue;
 
-            glDisable( GL_BLEND );
-            glDepthMask( GL_TRUE );
+                render_bad_shadow( tnc );
+            }
         }
         else
         {
             // Good shadows for me
-            glDepthMask( GL_FALSE );
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_COLOR, GL_ZERO );
-
             for ( cnt = 0; cnt < numdolist; cnt++ )
             {
                 tnc = dolist[cnt];
-                if ( chr[tnc].attachedto == MAXCHR )
-                {
-                    if ( ( ( chr[tnc].light == 255 && chr[tnc].alpha == 255 ) || capforceshadow[chr[tnc].model] ) && chr[tnc].shadowsize != 0 )
-                        render_shadow( tnc );
-                }
-            }
+                if ( 0 == chr[tnc].shadowsize ) continue;
 
-            glDisable( GL_BLEND );
-            glDepthMask ( GL_TRUE );
+                render_shadow( tnc );
+            }
         }
     }
 
-    glAlphaFunc( GL_GREATER, 0 );
-    glEnable( GL_ALPHA_TEST );
-
     // Render the normal characters
+    glDepthMask( GL_TRUE );
+    glEnable( GL_DEPTH_TEST );
+    glDepthFunc( GL_LEQUAL );
+
+    glDisable( GL_BLEND );
+    glEnable( GL_ALPHA_TEST );
+    glAlphaFunc( GL_GREATER, 0 );
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
@@ -3555,13 +3401,16 @@ void draw_scene_zreflection()
             render_mad( tnc, 255 );
     }
 
-    // Render the sprites
-    glDepthMask ( GL_FALSE );
-    glEnable( GL_BLEND );
-
     // Now render the transparent characters
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    glDepthMask( GL_FALSE );
+    glEnable( GL_DEPTH_TEST );
+    glDepthFunc( GL_LEQUAL );
 
+    glEnable( GL_CULL_FACE );
+    glFrontFace( GL_CW );
+
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
@@ -3576,11 +3425,12 @@ void draw_scene_zreflection()
 
     // And alpha water floors
     if ( !waterlight )
+    {
         render_water();
+    }
 
     // Then do the light characters
     glBlendFunc( GL_SRC_ALPHA, GL_ONE );
-
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
@@ -3607,17 +3457,19 @@ void draw_scene_zreflection()
 
     // Do light water
     if ( waterlight )
+    {
         render_water();
+    }
 
     // Turn Z buffer back on, alphablend off
-    glDepthMask( GL_TRUE );
+    glDepthMask( GL_FALSE );
     glDisable( GL_BLEND );
     glEnable( GL_ALPHA_TEST );
+    glAlphaFunc( GL_GREATER, 0 );
     render_prt();
     glDisable( GL_ALPHA_TEST );
 
     glDepthMask( GL_TRUE );
-
     glDisable( GL_BLEND );
 
     // Done rendering
@@ -4708,12 +4560,18 @@ void draw_scene()
     else
     {
         // Render the background
-        render_background( TX_WATER_LOW );  // 6 is the texture for waterlow.bmp
+        render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
     }
-    if ( zreflect ) // DO REFLECTIONS
+
+    // no need to have a completely different function just to torn the reflections off and on
+    {
+        bool_t refon_save = refon;
+        refon = refon && zreflect;
+
         draw_scene_zreflection();
-    else
-        draw_scene_sadreflection();
+
+        refon = refon_save;
+    }
 
     // clear the depth buffer
     glClear( GL_DEPTH_BUFFER_BIT );
@@ -4721,7 +4579,7 @@ void draw_scene()
     // Foreground overlay
     if ( overlayon )
     {
-        render_foreground_overlay( TX_WATER_TOP );  // Texture 5 is watertop.bmp
+        render_foreground_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
     }
 
     End3DMode();

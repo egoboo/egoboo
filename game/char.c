@@ -1433,139 +1433,139 @@ void character_grab_stuff( Uint16 chara, int grip, Uint8 people )
     }
 
     // Go through all characters to find the best match
-    charb = 0;
-
-    while ( charb < MAXCHR )
+    for ( charb = 0; charb < MAXCHR; charb++ )
     {
-        if ( chr[charb].on && ( !chr[charb].inpack ) && chr[charb].weight < chr[chara].weight && chr[charb].alive && chr[charb].attachedto == MAXCHR && ( ( !people && chr[charb].isitem ) || ( people && !chr[charb].isitem ) ) )
+        if( !chr[charb].on ) continue;
+
+        if( chr[charb].inpack ) continue;               // pickpocket not allowed yet
+        if( MAXCHR != chr[charb].attachedto) continue;  // disarm not allowed yet
+
+        if( chr[charb].weight > chr[chara].weight + chr[chara].strength ) continue; // reasonable carrying capacity
+
+        // people == btrue allows you to pick up living non-items
+        // people == false allows you to pick up living (functioning) items
+        if( chr[charb].alive && (people == chr[charb].isitem) ) continue;
+
+        // do not pick up your mount
+        if ( chr[charb].holdingwhich[0] == chara || chr[charb].holdingwhich[1] == chara ) continue;
+
+        xb = chr[charb].xpos;
+        yb = chr[charb].ypos;
+        zb = chr[charb].zpos;
+
+        // First check absolute value diamond
+        xb = ABS( xa - xb );
+        yb = ABS( ya - yb );
+        zb = ABS( za - zb );
+        dist = xb + yb;
+
+        if ( dist < GRABSIZE && zb < GRABSIZE )
         {
-            xb = chr[charb].xpos;
-            yb = chr[charb].ypos;
-            zb = chr[charb].zpos;
-            // First check absolute value diamond
-            xb = ABS( xa - xb );
-            yb = ABS( ya - yb );
-            zb = ABS( za - zb );
-            dist = xb + yb;
-            if ( dist < GRABSIZE && zb < GRABSIZE )
+            // Check for shop
+            inshop = bfalse;
+            if ( chr[charb].isitem && numshoppassage > 0 )
             {
-                // Don't grab your mount
-                if ( chr[charb].holdingwhich[0] != chara && chr[charb].holdingwhich[1] != chara )
+                for ( cnt = 0; cnt < numshoppassage; cnt++ )
                 {
-                    // Check for shop
-                    inshop = bfalse;
-                    if ( chr[charb].isitem && numshoppassage != 0 )
+                    passage = shoppassage[cnt];
+
+                    loc = chr[charb].xpos;
+                    loc = loc >> 7;
+                    if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
                     {
-                        cnt = 0;
-
-                        while ( cnt < numshoppassage )
+                        loc = chr[charb].ypos;
+                        loc = loc >> 7;
+                        if ( loc >= passtly[passage] && loc <= passbry[passage] )
                         {
-                            passage = shoppassage[cnt];
-                            loc = chr[charb].xpos;
-                            loc = loc >> 7;
-                            if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
-                            {
-                                loc = chr[charb].ypos;
-                                loc = loc >> 7;
-                                if ( loc >= passtly[passage] && loc <= passbry[passage] )
-                                {
-                                    inshop = btrue;
-                                    owner = shopowner[cnt];
-                                    cnt = numshoppassage;  // Finish loop
-                                    if ( owner == NOOWNER )
-                                    {
-                                        // The owner has died!!!
-                                        inshop = bfalse;
-                                    }
-                                }
-                            }
-
-                            cnt++;
-                        }
-                        if ( inshop )
-                        {
-                            // Pay the shop owner, or don't allow grab...
-                            if ( chr[chara].isitem || ( chr[chara].alpha < INVISIBLE) )
-                            {
-                                // Pets can try to steal in addition to invisible characters
-                                STRING text;
-                                inshop = bfalse;
-                                snprintf( text, sizeof(text), "%s stole something! (%s)", chr[chara].name, capclassname[chr[charb].model] );
-                                debug_message( text );
-
-                                // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
-                                if (chr[owner].canseeinvisible || generate_number( 1, 100 ) - ( chr[chara].dexterity >> 7 ) + ( chr[owner].wisdom >> 7 ) > 50 )
-                                {
-                                    snprintf( text, sizeof(text), "%s was detected!!", chr[chara].name );
-                                    debug_message( text );
-                                    chr[owner].ai.alert |= ALERTIF_ORDERED;
-                                    chr[owner].ai.order = STOLEN;
-                                    chr[owner].ai.rank  = 3;
-                                }
-                            }
-                            else
-                            {
-                                chr[owner].ai.alert |= ALERTIF_ORDERED;
-                                price = (float) capskincost[chr[charb].model][0];
-                                if ( capisstackable[chr[charb].model] )
-                                {
-                                    price = price * chr[charb].ammo;
-                                }
-
-                                // Reduce value depending on charges left
-                                else if (capisranged[chr[charb].model] && chr[charb].ammo < chr[charb].ammomax)
-                                {
-                                    if (chr[charb].ammo == 0) price /= 2;
-                                    else price -= ((chr[charb].ammomax - chr[charb].ammo) * ((float)(price / chr[charb].ammomax))) / 2;
-                                }
-
-                                //Items spawned in shops are more valuable
-                                if (!chr[charb].isshopitem) price *= 0.5;
-
-                                chr[owner].ai.order = (Uint32) price;  // Tell owner how much...
-                                if ( chr[chara].money >= price )
-                                {
-                                    // Okay to buy
-                                    chr[owner].ai.rank = SELL;  // 1 for selling an item
-                                    chr[chara].money  -= (Sint16) price;  // Skin 0 cost is price
-                                    chr[owner].money  += (Sint16) price;
-                                    if ( chr[owner].money > MAXMONEY )  chr[owner].money = MAXMONEY;
-
-                                    inshop = bfalse;
-                                }
-                                else
-                                {
-                                    // Don't allow purchase
-                                    chr[owner].ai.rank = 2;  // 2 for "you can't afford that"
-                                    inshop = btrue;
-                                }
-                            }
+                            // if there is NOOWNER, someone has been murdered!
+                            owner = shopowner[cnt];
+                            inshop = (owner != NOOWNER);
+                            break;
                         }
                     }
-                    if ( !inshop )
+                }
+
+                if ( inshop )
+                {
+                    // Pay the shop owner, or don't allow grab...
+                    if ( chr[chara].isitem || ( chr[chara].alpha < INVISIBLE) )
                     {
-                        // Stick 'em together and quit
-                        attach_character_to_mount( charb, chara, grip );
-                        charb = MAXCHR;
-                        if ( people )
+                        // Pets can try to steal in addition to invisible characters
+                        STRING text;
+                        inshop = bfalse;
+                        snprintf( text, sizeof(text), "%s stole something! (%s)", chr[chara].name, capclassname[chr[charb].model] );
+                        debug_message( text );
+
+                        // Check if it was detected. 50% chance +2% per pet DEX and -2% per shopkeeper wisdom
+                        if (chr[owner].canseeinvisible || generate_number( 1, 100 ) - ( chr[chara].dexterity >> 7 ) + ( chr[owner].wisdom >> 7 ) > 50 )
                         {
-                            // Do a slam animation...  ( Be sure to drop!!! )
-                            play_action( chara, ACTIONMC + slot, bfalse );
+                            snprintf( text, sizeof(text), "%s was detected!!", chr[chara].name );
+                            debug_message( text );
+                            chr[owner].ai.alert |= ALERTIF_ORDERED;
+                            chr[owner].ai.order = STOLEN;
+                            chr[owner].ai.rank  = 3;
                         }
                     }
                     else
                     {
-                        // Lift the item a little and quit...
-                        chr[charb].zvel = DROPZVEL;
-                        chr[charb].hitready = btrue;
-                        chr[charb].ai.alert |= ALERTIF_DROPPED;
-                        charb = MAXCHR;
+                        chr[owner].ai.alert |= ALERTIF_ORDERED;
+                        price = (float) capskincost[chr[charb].model][0];
+                        if ( capisstackable[chr[charb].model] )
+                        {
+                            price = price * chr[charb].ammo;
+                        }
+
+                        // Reduce value depending on charges left
+                        else if (capisranged[chr[charb].model] && chr[charb].ammo < chr[charb].ammomax)
+                        {
+                            if (chr[charb].ammo == 0) price /= 2;
+                            else price -= ((chr[charb].ammomax - chr[charb].ammo) * ((float)(price / chr[charb].ammomax))) / 2;
+                        }
+
+                        //Items spawned in shops are more valuable
+                        if (!chr[charb].isshopitem) price *= 0.5;
+
+                        chr[owner].ai.order = (Uint32) price;  // Tell owner how much...
+                        if ( chr[chara].money >= price )
+                        {
+                            // Okay to buy
+                            chr[owner].ai.rank = SELL;  // 1 for selling an item
+                            chr[chara].money  -= (Sint16) price;  // Skin 0 cost is price
+                            chr[owner].money  += (Sint16) price;
+                            if ( chr[owner].money > MAXMONEY )  chr[owner].money = MAXMONEY;
+
+                            inshop = bfalse;
+                        }
+                        else
+                        {
+                            // Don't allow purchase
+                            chr[owner].ai.rank = 2;  // 2 for "you can't afford that"
+                            inshop = btrue;
+                        }
                     }
                 }
             }
-        }
 
-        charb++;
+            if ( !inshop )
+            {
+                // Stick 'em together and quit
+                attach_character_to_mount( charb, chara, grip );
+                charb = MAXCHR;
+                if ( people )
+                {
+                    // Do a slam animation...  ( Be sure to drop!!! )
+                    play_action( chara, ACTIONMC + slot, bfalse );
+                }
+            }
+            else
+            {
+                // Lift the item a little and quit...
+                chr[charb].zvel = DROPZVEL;
+                chr[charb].hitready = btrue;
+                chr[charb].ai.alert |= ALERTIF_DROPPED;
+                charb = MAXCHR;
+            }
+        }
     }
 }
 

@@ -105,8 +105,16 @@ void render_fan( Uint32 fan )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLTexture_Bind( txTexture + texture );
-        meshlasttexture = texture;
+        if( meshnotexture )
+        {
+            GLTexture_Bind( NULL );
+            meshlasttexture = ~0;
+        }
+        else
+        {
+            GLTexture_Bind( txTexture + texture );
+            meshlasttexture = texture;
+        }
     }
 
     // Make new ones so we can index them and not transform 'em each time

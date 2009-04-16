@@ -830,7 +830,8 @@ struct s_chr
     Uint8          basealpha;
     Uint8          light;           // 1 = Light, 0 = Normal
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
-    Uint8          lightlevel;      // 0-255, terrain light
+    Uint8          lightlevel_amb;  // 0-255, terrain light
+    Uint8          lightlevel_dir;  // 0-255, terrain light
     Uint8          sheen;           // 0-15, how shiny it is
     Uint8          transferblend;   // Give transparency to weapons?
     Uint8          isitem;          // Is it grabbable?

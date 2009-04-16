@@ -54,14 +54,30 @@ extern Uint16           numdolist;                  // How many in the list
 // JF - Added so that the video mode might be determined outside of the graphics code
 extern SDL_Surface    *displaySurface;
 
+extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
-extern int             numrenderlistall;                               // Number to render, total
-extern int             numrenderlistref;                               // ..., reflective
-extern int             numrenderlistsha;                               // ..., shadow
-extern Uint32          renderlistall[MAXMESHRENDER];                   // List of which to render, total
-extern Uint32          renderlistref[MAXMESHRENDER];                   // ..., reflective
-extern Uint32          renderlistsha[MAXMESHRENDER];                   // ..., shadow
+struct s_renderlist
+{
+    int     all_count;                               // Number to render, total
+    int     ref_count;                               // ..., is reflected in the floor
+    int     sha_count;                               // ..., is not reflected in the floor
+    int     drf_count;                               // ..., draws character reflections
+    int     ndr_count;                               // ..., draws no character reflections
+
+    Uint32  all[MAXMESHRENDER];                      // List of which to render, total
+
+    Uint32  ref[MAXMESHRENDER];                      // ..., is reflected in the floor
+    Uint32  sha[MAXMESHRENDER];                      // ..., is not reflected in the floor
+
+    Uint32  drf[MAXMESHRENDER];                      // ..., draws character reflections
+    Uint32  ndr[MAXMESHRENDER];                      // ..., draws no character reflections
+
+};
+typedef struct s_renderlist renderlist_t;
+
+extern renderlist_t renderlist;
+
 
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
 extern Uint8           lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -73,7 +89,7 @@ extern Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
 //--------------------------------------------------------------------------------------------
 // Function prototypes
 void draw_blip( float sizeFactor, Uint8 color, int x, int y );
-int get_free_message();
+int  get_free_message();
 void create_szfpstext( int frames );
 void figure_out_what_to_draw();
 void order_dolist();
