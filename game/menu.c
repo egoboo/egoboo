@@ -652,7 +652,7 @@ int doChooseModule( float deltaTime )
 
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
-                    fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, ModList[i].summary );
+                    fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, ModList[validModules[selectedModule]].summary[i] );
                     y += 20;
                 }
             }
@@ -2355,7 +2355,7 @@ int doShowMenuResults( float deltaTime )
 
     for ( i = 0; i < SUMMARYLINES; i++ )
     {
-        fnt_drawText( menuFont, x, y, ModList[i].summary );
+        fnt_drawText( menuFont, x, y, ModList[selectedModule].summary[i] );
         y += 20;
     }
 
