@@ -336,24 +336,24 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_setup.h" />
-		<Unit filename="egobooendian.c">
+		<Unit filename="egoboo_endian.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="egoboostrutil.c">
+		<Unit filename="egoboo_strutil.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="egoboostrutil.h" />
-		<Unit filename="egobootypedef.h" />
+		<Unit filename="egoboo_strutil.h" />
+		<Unit filename="egoboo_typedef.h" />
 		<Unit filename="enchant.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file-common.c">
+		<Unit filename="file_common.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file-linux.c">
+		<Unit filename="file_linux.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="file-win.c">
+		<Unit filename="file_win.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Win32 - gcc" />
 			<Option target="Release Win32 - gcc" />
@@ -375,13 +375,13 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="graphic.h" />
-		<Unit filename="graphicfan.c">
+		<Unit filename="graphic_fan.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphicmad.c">
+		<Unit filename="graphic_mad.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="graphicprt.c">
+		<Unit filename="graphic_prt.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="id_md2.h" />

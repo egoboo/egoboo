@@ -23,7 +23,7 @@
  */
 
 #include "font.h"
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #include <stdlib.h>
 #include <stddef.h>

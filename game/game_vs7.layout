@@ -10,13 +10,13 @@
 	<File name="egoboo.h" open="1" top="0" tabpos="3">
 		<Cursor position="71790" topLine="1126" />
 	</File>
-	<File name="egobootypedef.h" open="1" top="0" tabpos="1">
+	<File name="egoboo_typedef.h" open="1" top="0" tabpos="1">
 		<Cursor position="1090" topLine="10" />
 	</File>
-	<File name="file-linux.c" open="1" top="1" tabpos="4">
+	<File name="file_linux.c" open="1" top="1" tabpos="4">
 		<Cursor position="1589" topLine="155" />
 	</File>
-	<File name="file-win.c" open="1" top="0" tabpos="8">
+	<File name="file_win.c" open="1" top="0" tabpos="8">
 		<Cursor position="4091" topLine="124" />
 	</File>
 	<File name="game.c" open="1" top="0" tabpos="5">

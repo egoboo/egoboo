@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 bool_t setup_read(  const char* filename );
 bool_t setup_write();

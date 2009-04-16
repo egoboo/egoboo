@@ -19,11 +19,11 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - egoboostrutil.h
+/* Egoboo - egoboo_strutil.h
  * String manipulation functions.  Not currently in use.
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 #include <string.h>
 #include <ctype.h>
 

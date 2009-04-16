@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - egobootypedef.h
+/* Egoboo - egoboo_typedef.h
  * Defines some basic types that are used throughout the game code.
  */
 

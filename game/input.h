@@ -23,7 +23,7 @@
  * Keyboard, mouse, and joystick handling code.
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
 // MOUSE

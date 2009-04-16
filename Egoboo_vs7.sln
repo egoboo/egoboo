@@ -1,11 +1,11 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game", "game\game_vs7.vcproj", "{E9988340-E474-4C0A-8496-EFF3296DE056}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F4A0A221-1948-4A47-846B-8DE949633638} = {F4A0A221-1948-4A47-846B-8DE949633638}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "enet", "enet\enet_vs7.vcproj", "{F4A0A221-1948-4A47-846B-8DE949633638}"
+	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Global
@@ -14,14 +14,14 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.ActiveCfg = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.Build.0 = Debug|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.ActiveCfg = Release|Win32
-		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.Build.0 = Release|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Debug.ActiveCfg = Debug|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Debug.Build.0 = Debug|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release.ActiveCfg = Release|Win32
 		{E9988340-E474-4C0A-8496-EFF3296DE056}.Release.Build.0 = Release|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.ActiveCfg = Debug|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Debug.Build.0 = Debug|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.ActiveCfg = Release|Win32
+		{F4A0A221-1948-4A47-846B-8DE949633638}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

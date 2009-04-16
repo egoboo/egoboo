@@ -24,7 +24,7 @@
  */
 
 /* Typedefs for various platforms */
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 typedef struct Md2Vertex
 {

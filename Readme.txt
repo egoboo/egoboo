@@ -1,8 +1,8 @@
 GENERAL INFORMATION
 -------------------
 Please read the updated game manual (It's
-located in main egoboo folder as a .PDF 
-document). For those who dont know it, PDF
+located in egoboo/doc as a .PDF document). 
+For those who dont know it, PDF
 documents are opened by any PDF Reader
 which can be downloaded for free from: 
 http://www.foxitsoftware.com/downloads/

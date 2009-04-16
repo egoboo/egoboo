@@ -25,7 +25,7 @@
 
 //*include "egoboo.h"
 #include <math.h>
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #define PI                  3.1415926535897932384626433832795f
 #define TWO_PI              6.283185307179586476925286766559f

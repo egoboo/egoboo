@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 #include <SDL_endian.h>
 
 #if defined(_APPLE_)

@@ -34,7 +34,7 @@
 		C448193B0E97F50700FF170F /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819380E97F50700FF170F /* SDL_mixer.framework */; };
 		C448193C0E97F50700FF170F /* SDL_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819390E97F50700FF170F /* SDL_ttf.framework */; };
 		C46398970EBE6530006D617D /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398950EBE6530006D617D /* link.c */; };
-		C46398C30EBE6EA8006D617D /* egobooendian.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398C20EBE6EA8006D617D /* egobooendian.c */; };
+		C46398C30EBE6EA8006D617D /* egoboo_endian.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398C20EBE6EA8006D617D /* egobo_oendian.c */; };
 		C469AB120EA1075B005CDBE7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = C469AB110EA1075B005CDBE7 /* SDLMain.nib */; };
 		C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */ = {isa = PBXBuildFile; fileRef = C469AB730EA11626005CDBE7 /* sys_mac.c */; };
 		C46DAF0E0E9D34B900084BE5 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819370E97F50700FF170F /* SDL_image.framework */; };
@@ -69,13 +69,13 @@
 		C4F69F2E0E9830BB0086650C /* peer.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F0B0E9830BB0086650C /* peer.c */; };
 		C4F69F2F0E9830BB0086650C /* protocol.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F0C0E9830BB0086650C /* protocol.c */; };
 		C4F69F350E9830BB0086650C /* unix.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F120E9830BB0086650C /* unix.c */; };
-		C4F69F590E9832A00086650C /* file-common.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3D0E9831820086650C /* file-common.c */; };
-		C4F69F5A0E9832A20086650C /* egoboostrutil.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3E0E9831820086650C /* egoboostrutil.c */; };
+		C4F69F590E9832A00086650C /* file_common.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3D0E9831820086650C /* file_common.c */; };
+		C4F69F5A0E9832A20086650C /* egoboo_strutil.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F3E0E9831820086650C /* egoboo_strutil.c */; };
 		C4F69F5D0E9832A70086650C /* gltexture.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F410E9831820086650C /* gltexture.c */; };
-		C4F69F5F0E9832AA0086650C /* graphicfan.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F430E9831820086650C /* graphicfan.c */; };
-		C4F69F600E9832AB0086650C /* graphicmad.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F440E9831820086650C /* graphicmad.c */; };
-		C4F69F610E9832AD0086650C /* graphicprt.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F450E9831820086650C /* graphicprt.c */; };
-		C4F69F630E9832B20086650C /* mac-file.m in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F470E9831820086650C /* mac-file.m */; };
+		C4F69F5F0E9832AA0086650C /* graphic_fan.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F430E9831820086650C /* graphic_fan.c */; };
+		C4F69F600E9832AB0086650C /* graphic_mad.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F440E9831820086650C /* graphic_mad.c */; };
+		C4F69F610E9832AD0086650C /* graphic_prt.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F450E9831820086650C /* graphic_prt.c */; };
+		C4F69F630E9832B20086650C /* file_mac.m in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F470E9831820086650C /* file_mac.m */; };
 		C4F69F650E9832B80086650C /* egoboo_math.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4B0E9831820086650C /* egoboo_math.c */; };
 		C4F69F670E9832BC0086650C /* network.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4E0E9831820086650C /* network.c */; };
 /* End PBXBuildFile section */
@@ -169,7 +169,7 @@
 		C44819390E97F50700FF170F /* SDL_ttf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_ttf.framework; path = /Library/Frameworks/SDL_ttf.framework; sourceTree = "<absolute>"; };
 		C46398950EBE6530006D617D /* link.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = link.c; sourceTree = "<group>"; };
 		C46398960EBE6530006D617D /* link.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = link.h; sourceTree = "<group>"; };
-		C46398C20EBE6EA8006D617D /* egobooendian.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egobooendian.c; sourceTree = "<group>"; };
+		C46398C20EBE6EA8006D617D /* egoboo_endian.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_endian.c; sourceTree = "<group>"; };
 		C469AB110EA1075B005CDBE7 /* SDLMain.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = SDLMain.nib; sourceTree = "<group>"; };
 		C469AB730EA11626005CDBE7 /* sys_mac.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = sys_mac.c; sourceTree = "<group>"; };
 		C46B616D0EC2DED3008B84E8 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = camera.h; sourceTree = "<group>"; };
@@ -187,7 +187,7 @@
 		C483328E0E98625500B78406 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = unix.h; sourceTree = "<group>"; };
 		C483328F0E98625500B78406 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = utility.h; sourceTree = "<group>"; };
 		C48332900E98625500B78406 /* win32.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = win32.h; sourceTree = "<group>"; };
-		C483329E0E9862F300B78406 /* file-linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-linux.c"; sourceTree = "<group>"; };
+		C483329E0E9862F300B78406 /* file_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_linux.c"; sourceTree = "<group>"; };
 		C483329F0E9862F300B78406 /* sys_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_linux.c; sourceTree = "<group>"; };
 		C48B376D0F890E8800563245 /* egoboo_setup.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboo_setup.c; sourceTree = "<group>"; };
 		C48B376E0F890E8800563245 /* egoboo_setup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_setup.h; sourceTree = "<group>"; };
@@ -234,22 +234,22 @@
 		C4F69F0C0E9830BB0086650C /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = protocol.c; sourceTree = "<group>"; };
 		C4F69F120E9830BB0086650C /* unix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = unix.c; sourceTree = "<group>"; };
 		C4F69F150E9830BB0086650C /* win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = win32.c; sourceTree = "<group>"; };
-		C4F69F3D0E9831820086650C /* file-common.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-common.c"; sourceTree = "<group>"; };
-		C4F69F3E0E9831820086650C /* egoboostrutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboostrutil.c; sourceTree = "<group>"; };
-		C4F69F3F0E9831820086650C /* egoboostrutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboostrutil.h; sourceTree = "<group>"; };
-		C4F69F400E9831820086650C /* egobootypedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egobootypedef.h; sourceTree = "<group>"; };
+		C4F69F3D0E9831820086650C /* file_common.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_common.c"; sourceTree = "<group>"; };
+		C4F69F3E0E9831820086650C /* egoboo_strutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_strutil.c; sourceTree = "<group>"; };
+		C4F69F3F0E9831820086650C /* egoboo_strutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_strutil.h; sourceTree = "<group>"; };
+		C4F69F400E9831820086650C /* egoboo_typedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_typedef.h; sourceTree = "<group>"; };
 		C4F69F410E9831820086650C /* gltexture.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = gltexture.c; sourceTree = "<group>"; };
 		C4F69F420E9831820086650C /* gltexture.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = gltexture.h; sourceTree = "<group>"; };
-		C4F69F430E9831820086650C /* graphicfan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicfan.c; sourceTree = "<group>"; };
-		C4F69F440E9831820086650C /* graphicmad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicmad.c; sourceTree = "<group>"; };
-		C4F69F450E9831820086650C /* graphicprt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphicprt.c; sourceTree = "<group>"; };
-		C4F69F470E9831820086650C /* mac-file.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "mac-file.m"; sourceTree = "<group>"; };
+		C4F69F430E9831820086650C /* graphic_fan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_fan.c; sourceTree = "<group>"; };
+		C4F69F440E9831820086650C /* graphic_mad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_mad.c; sourceTree = "<group>"; };
+		C4F69F450E9831820086650C /* graphic_prt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_prt.c; sourceTree = "<group>"; };
+		C4F69F470E9831820086650C /* file_mac.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "file_mac.m"; sourceTree = "<group>"; };
 		C4F69F4A0E9831820086650C /* Makefile.unix */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.unix; sourceTree = "<group>"; };
 		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_math.c; sourceTree = "<group>"; };
 		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = menu.c; sourceTree = "<group>"; };
 		C4F69F4E0E9831820086650C /* network.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = network.c; sourceTree = "<group>"; };
 		C4F69F500E9831820086650C /* sys_win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_win32.c; sourceTree = "<group>"; };
-		C4F69F580E9831820086650C /* file-win.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file-win.c"; sourceTree = "<group>"; };
+		C4F69F580E9831820086650C /* file_win.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_win.c"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -360,12 +360,12 @@
 				C4006A840F00C797009D62E8 /* game_vs7.layout */,
 				C4006A850F00C797009D62E8 /* game_vs7.vcproj */,
 				C4006A860F00C797009D62E8 /* game_vs9.vcproj */,
-				C483329E0E9862F300B78406 /* file-linux.c */,
+				C483329E0E9862F300B78406 /* file_linux.c */,
 				C4006A880F00C797009D62E8 /* Makefile */,
 				C4F69F4A0E9831820086650C /* Makefile.unix */,
 				C483329F0E9862F300B78406 /* sys_linux.c */,
 				C4F69F500E9831820086650C /* sys_win32.c */,
-				C4F69F580E9831820086650C /* file-win.c */,
+				C4F69F580E9831820086650C /* file_win.c */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -495,12 +495,12 @@
 				C46B61700EC2DED3008B84E8 /* egoboo_math.h */,
 				C48B376D0F890E8800563245 /* egoboo_setup.c */,
 				C48B376E0F890E8800563245 /* egoboo_setup.h */,
-				C46398C20EBE6EA8006D617D /* egobooendian.c */,
-				C4F69F3E0E9831820086650C /* egoboostrutil.c */,
-				C4F69F3F0E9831820086650C /* egoboostrutil.h */,
-				C4F69F400E9831820086650C /* egobootypedef.h */,
+				C46398C20EBE6EA8006D617D /* egoboo_endian.c */,
+				C4F69F3E0E9831820086650C /* egoboo_strutil.c */,
+				C4F69F3F0E9831820086650C /* egoboo_strutil.h */,
+				C4F69F400E9831820086650C /* egoboo_typedef.h */,
 				C49FFCB10E97F96E00E13A99 /* enchant.c */,
-				C4F69F3D0E9831820086650C /* file-common.c */,
+				C4F69F3D0E9831820086650C /* file_common.c */,
 				C49FFCB80E97F96E00E13A99 /* font.c */,
 				C49FFCB90E97F96E00E13A99 /* font.h */,
 				C49FFCBC0E97F96E00E13A99 /* game.c */,
@@ -508,9 +508,9 @@
 				C4F69F420E9831820086650C /* gltexture.h */,
 				C49FFCC50E97F96E00E13A99 /* graphic.c */,
 				C4006A870F00C797009D62E8 /* graphic.h */,
-				C4F69F430E9831820086650C /* graphicfan.c */,
-				C4F69F440E9831820086650C /* graphicmad.c */,
-				C4F69F450E9831820086650C /* graphicprt.c */,
+				C4F69F430E9831820086650C /* graphic_fan.c */,
+				C4F69F440E9831820086650C /* graphic_mad.c */,
+				C4F69F450E9831820086650C /* graphic_prt.c */,
 				C49FFCCB0E97F96E00E13A99 /* id_md2.h */,
 				C49FFCCC0E97F96E00E13A99 /* id_normals.c */,
 				C49FFCCE0E97F96E00E13A99 /* input.c */,
@@ -518,7 +518,7 @@
 				C46398960EBE6530006D617D /* link.h */,
 				C49FFCDB0E97F96E00E13A99 /* log.c */,
 				C49FFCDC0E97F96E00E13A99 /* log.h */,
-				C4F69F470E9831820086650C /* mac-file.m */,
+				C4F69F470E9831820086650C /* file_mac.m */,
 				C49FFCE20E97F96E00E13A99 /* Md2.c */,
 				C49FFCE30E97F96E00E13A99 /* Md2.h */,
 				C4F69F4D0E9831820086650C /* menu.c */,
@@ -668,19 +668,19 @@
 				C4F69F2E0E9830BB0086650C /* peer.c in Sources */,
 				C4F69F2F0E9830BB0086650C /* protocol.c in Sources */,
 				C4F69F350E9830BB0086650C /* unix.c in Sources */,
-				C4F69F590E9832A00086650C /* file-common.c in Sources */,
-				C4F69F5A0E9832A20086650C /* egoboostrutil.c in Sources */,
+				C4F69F590E9832A00086650C /* file_common.c in Sources */,
+				C4F69F5A0E9832A20086650C /* egoboo_strutil.c in Sources */,
 				C4F69F5D0E9832A70086650C /* gltexture.c in Sources */,
-				C4F69F5F0E9832AA0086650C /* graphicfan.c in Sources */,
-				C4F69F600E9832AB0086650C /* graphicmad.c in Sources */,
-				C4F69F610E9832AD0086650C /* graphicprt.c in Sources */,
-				C4F69F630E9832B20086650C /* mac-file.m in Sources */,
+				C4F69F5F0E9832AA0086650C /* graphic_fan.c in Sources */,
+				C4F69F600E9832AB0086650C /* graphic_mad.c in Sources */,
+				C4F69F610E9832AD0086650C /* graphic_prt.c in Sources */,
+				C4F69F630E9832B20086650C /* file_mac.m in Sources */,
 				C4F69F650E9832B80086650C /* egoboo_math.c in Sources */,
 				C4F69F670E9832BC0086650C /* network.c in Sources */,
 				C48332A20E98632D00B78406 /* menu.c in Sources */,
 				C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */,
 				C46398970EBE6530006D617D /* link.c in Sources */,
-				C46398C30EBE6EA8006D617D /* egobooendian.c in Sources */,
+				C46398C30EBE6EA8006D617D /* egoboo_endian.c in Sources */,
 				C48B377E0F890E8A00563245 /* egoboo_setup.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

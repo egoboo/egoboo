@@ -27,7 +27,7 @@
  */
 
 /* Typedefs for various platforms */
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #include "proto.h"
 #include "sound.h"

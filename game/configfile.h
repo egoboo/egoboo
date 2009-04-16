@@ -23,12 +23,12 @@
  * Configuration file loading code.
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "egoboostrutil.h"
+#include "egoboo_strutil.h"
 
 typedef int ConfigFile_retval;
 #define ConfigFile_succeed  1

@@ -23,7 +23,7 @@
  * Decleares some stuff used for handling enchants
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 //Different set values for enchants
 typedef enum enchant_set

@@ -23,7 +23,7 @@
  * Sound handling using SDL_mixer
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #include <SDL_mixer.h>
 

@@ -26,7 +26,7 @@
 
 #include "font.h"
 #include "gltexture.h"
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #include <SDL.h>
 

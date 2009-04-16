@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphicprc.c
+/* Egoboo - graphic_prt.c
  * Particle system drawing and management code.
  */
 

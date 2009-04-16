@@ -23,7 +23,7 @@
  * Function prototypes for a huge portion of the game code.
  */
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 struct s_script_state;
 

@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-#include "egobootypedef.h"
+#include "egoboo_typedef.h"
 
 #define LINK_COUNT 16
 

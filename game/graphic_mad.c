@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - graphicmad.c
+/* Egoboo - graphic_mad.c
  * Character model drawing code.
  */
 
