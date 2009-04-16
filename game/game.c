@@ -130,11 +130,11 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     // Don't export enchants
     disenchant_character( character );
 
-    profile = chr[character].model;
-    if ( ( capcancarrytonextmodule[profile] || !capisitem[profile] ) && exportvalid )
+    profile = ChrList[character].model;
+    if ( ( CapList[profile].cancarrytonextmodule || !CapList[profile].isitem ) && exportvalid )
     {
         // TWINK_BO.OBJ
-        sprintf(todirname, "%s", get_file_path(chr[owner].name) );
+        sprintf(todirname, "%s", get_file_path(ChrList[owner].name) );
 
         // Is it a character or an item?
         if ( owner != character )
@@ -159,7 +159,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         }
 
         // modules/advent.mod/objects/advent.obj
-        sprintf( fromdir, "%s", madname[profile] );
+        sprintf( fromdir, "%s", MadList[profile].name );
 
         // Delete all the old items
         if ( owner == character )
@@ -273,13 +273,13 @@ void export_all_players( bool_t require_local )
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        is_local = ( 0 != pladevice[cnt] );
+        is_local = ( 0 != PlaList[cnt].device );
         if ( require_local && !is_local ) continue;
-        if ( !plavalid[cnt] ) continue;
+        if ( !PlaList[cnt].valid ) continue;
 
         // Is it alive?
-        character = plaindex[cnt];
-        if ( !chr[character].on || !chr[character].alive ) continue;
+        character = PlaList[cnt].index;
+        if ( !ChrList[character].on || !ChrList[character].alive ) continue;
 
         // Export the character
         number = 0;
@@ -287,25 +287,25 @@ void export_all_players( bool_t require_local )
 
         // Export the left hand item
         number = 0;
-        item = chr[character].holdingwhich[number];
-        if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
+        item = ChrList[character].holdingwhich[number];
+        if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the right hand item
         number = 1;
-        item = chr[character].holdingwhich[number];
-        if ( item != MAXCHR && chr[item].isitem )  export_one_character( item, character, number, is_local );
+        item = ChrList[character].holdingwhich[number];
+        if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
         number = 2;
-        item = chr[character].nextinpack;
+        item = ChrList[character].nextinpack;
         while ( item != MAXCHR )
         {
-            if ( chr[item].isitem )
+            if ( ChrList[item].isitem )
             {
                 export_one_character( item, character, number++, is_local );
             }
 
-            item = chr[item].nextinpack;
+            item = ChrList[item].nextinpack;
         }
     }
 
@@ -724,7 +724,7 @@ void log_madused(  const char *savename )
 
         while ( cnt < MAXMODEL )
         {
-            fprintf( hFileWrite, "%3d %32s %s\n", cnt, capclassname[cnt], madname[cnt] );
+            fprintf( hFileWrite, "%3d %32s %s\n", cnt, CapList[cnt].classname, MadList[cnt].name );
             cnt++;
         }
 
@@ -740,11 +740,11 @@ int vertexconnected( Uint16 modelindex, int vertex )
 
     entry = 0;
 
-    for ( cnt = 0; cnt < madcommands[modelindex]; cnt++ )
+    for ( cnt = 0; cnt < MadList[modelindex].commands; cnt++ )
     {
-        for ( tnc = 0; tnc < madcommandsize[modelindex][cnt]; tnc++ )
+        for ( tnc = 0; tnc < MadList[modelindex].commandsize[cnt]; tnc++ )
         {
-            if ( madcommandvrt[modelindex][entry] == vertex )
+            if ( MadList[modelindex].commandvrt[entry] == vertex )
             {
                 // The vertex is used
                 return 1;
@@ -765,7 +765,7 @@ void add_stat( Uint16 character )
     if ( numstat < MAXSTAT )
     {
         statlist[numstat] = character;
-        chr[character].staton = btrue;
+        ChrList[character].staton = btrue;
         numstat++;
     }
 }
@@ -811,9 +811,9 @@ void sort_stat()
 
     for ( cnt = 0; cnt < numpla; cnt++ )
     {
-        if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
+        if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
         {
-            move_to_top( plaindex[cnt] );
+            move_to_top( PlaList[cnt].index );
         }
     }
 }
@@ -821,14 +821,14 @@ void sort_stat()
 void play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
-    if ( madactionvalid[chr[character].model][action] )
+    if ( MadList[ChrList[character].model].actionvalid[action] )
     {
-        chr[character].nextaction = ACTIONDA;
-        chr[character].action = action;
-        chr[character].lip = 0;
-        chr[character].lastframe = chr[character].frame;
-        chr[character].frame = madactionstart[chr[character].model][chr[character].action];
-        chr[character].actionready = actionready;
+        ChrList[character].nextaction = ACTIONDA;
+        ChrList[character].action = action;
+        ChrList[character].lip = 0;
+        ChrList[character].lastframe = ChrList[character].frame;
+        ChrList[character].frame = MadList[ChrList[character].model].actionstart[ChrList[character].action];
+        ChrList[character].actionready = actionready;
     }
 }
 
@@ -837,12 +837,12 @@ void set_frame( Uint16 character, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
     //     rotate Tank turrets
-    chr[character].nextaction = ACTIONDA;
-    chr[character].action = ACTIONDA;
-    chr[character].lip = ( lip << 6 );
-    chr[character].lastframe = madactionstart[chr[character].model][ACTIONDA] + frame;
-    chr[character].frame = madactionstart[chr[character].model][ACTIONDA] + frame + 1;
-    chr[character].actionready = btrue;
+    ChrList[character].nextaction = ACTIONDA;
+    ChrList[character].action = ACTIONDA;
+    ChrList[character].lip = ( lip << 6 );
+    ChrList[character].lastframe = MadList[ChrList[character].model].actionstart[ACTIONDA] + frame;
+    ChrList[character].frame = MadList[ChrList[character].model].actionstart[ACTIONDA] + frame + 1;
+    ChrList[character].actionready = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -885,7 +885,7 @@ void setup_alliances(  const char *modname )
             teama = ( szTemp[0] - 'A' ) % MAXTEAM;
             fscanf( fileread, "%s", szTemp );
             teamb = ( szTemp[0] - 'A' ) % MAXTEAM;
-            teamhatesteam[teama][teamb] = bfalse;
+            TeamList[teama].hatesteam[teamb] = bfalse;
         }
 
         fclose( fileread );
@@ -1087,24 +1087,24 @@ void update_game()
 
     while ( cnt < MAXPLAYER )
     {
-        if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
+        if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
         {
-            if ( !chr[plaindex[cnt]].alive )
+            if ( !ChrList[PlaList[cnt].index].alive )
             {
                 numdead++;
                 if ( local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && 0 == revivetimer )
                 {
-                    respawn_character( plaindex[cnt] );
-                    chr[cnt].experience *= EXPKEEP;  // Apply xp Penality
+                    respawn_character( PlaList[cnt].index );
+                    ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
                 }
             }
             else
             {
-                if ( chr[plaindex[cnt]].canseeinvisible )
+                if ( ChrList[PlaList[cnt].index].canseeinvisible )
                 {
                     local_seeinvisible = btrue;
                 }
-                if ( chr[plaindex[cnt]].canseekurse )
+                if ( ChrList[PlaList[cnt].index].canseekurse )
                 {
                     local_seekurse = btrue;
                 }
@@ -1408,11 +1408,11 @@ void load_all_messages(  const char *loadname, Uint16 object )
     // ZZ> This function loads all of an objects messages
     FILE *fileread;
 
-    madmsgstart[object] = 0;
+    MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
     {
-        madmsgstart[object] = msgtotal;
+        MadList[object].msgstart = msgtotal;
 
         while ( goto_colon_yesno( fileread ) )
         {
@@ -1438,16 +1438,16 @@ void reset_teams()
 
         while ( teamb < MAXTEAM )
         {
-            teamhatesteam[teama][teamb] = btrue;
+            TeamList[teama].hatesteam[teamb] = btrue;
             teamb++;
         }
 
         // Make the team like itself
-        teamhatesteam[teama][teama] = bfalse;
+        TeamList[teama].hatesteam[teama] = bfalse;
         // Set defaults
-        teamleader[teama] = NOLEADER;
-        teamsissy[teama] = 0;
-        teammorale[teama] = 0;
+        TeamList[teama].leader = NOLEADER;
+        TeamList[teama].sissy = 0;
+        TeamList[teama].morale = 0;
         teama++;
     }
 
@@ -1456,8 +1456,8 @@ void reset_teams()
 
     while ( teama < MAXTEAM )
     {
-        teamhatesteam[teama][NULLTEAM] = bfalse;
-        teamhatesteam[NULLTEAM][teama] = bfalse;
+        TeamList[teama].hatesteam[NULLTEAM] = bfalse;
+        TeamList[NULLTEAM].hatesteam[teama] = bfalse;
         teama++;
     }
 }
@@ -1555,6 +1555,7 @@ int SDL_main( int argc, char **argv )
     glVector t1 = {0, 0, 0};
     glVector t2 = {0, 0, -1};
     glVector t3 = {0, 1, 0};
+
     double frameDuration;
     int menuActive = 1;
     int menuResult;
@@ -1607,12 +1608,13 @@ int SDL_main( int argc, char **argv )
     else log_message( "Failure!\n" );
 
     // Matrix init stuff (from remove.c)
-    rotmeshtopside = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHTOPSIDE / ( 1.33333f );
+    rotmeshtopside    = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHTOPSIDE / ( 1.33333f );
     rotmeshbottomside = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHDOWN / ( 1.33333f );
-    mWorld = IdentityMatrix();
-    mViewSave = ViewMatrix( t1, t2, t3, 0 );
+    rotmeshup         = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHUP / ( 1.33333f );
+    rotmeshdown       = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHDOWN / ( 1.33333f );
+
+    mWorld      = IdentityMatrix();
+    mView       = mViewSave = ViewMatrix( t1, t2, t3, 0 );
     mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
     mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), mProjection ); // Fix Z value...
     mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), mProjection );  // HUK // ...'cause it needs it
@@ -1620,6 +1622,8 @@ int SDL_main( int argc, char **argv )
     //[claforte] Fudge the values.
     mProjection.v[10] /= 2.0f;
     mProjection.v[11] /= 2.0f;
+
+    camera_new( &gCamera );
 
     // initialize all these structures
     init_all_icons();
@@ -1717,7 +1721,7 @@ int SDL_main( int argc, char **argv )
 
             pressed = bfalse;
             make_onwhichfan();
-            reset_camera();
+            reset_camera(&gCamera);
             reset_timers();
             figure_out_what_to_draw();
             make_character_matrices();
@@ -1808,7 +1812,7 @@ int SDL_main( int argc, char **argv )
                     float  frameskip = (float)TICKS_PER_SEC / (float)framelimit;
                     frame_next = frame_now + frameskip; //FPS limit
 
-                    move_camera();
+                    move_camera(&gCamera);
                     figure_out_what_to_draw();
 
                     draw_main();
@@ -1894,15 +1898,15 @@ int load_one_object( int skin,  const char* tmploadname )
     if (!overrideslots && object == -1) return 0; // no skins for an invalid object
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-    strncpy( madname[object], tmploadname, sizeof(madname[object]) / sizeof(*madname[object]) );
+    strncpy( MadList[object].name, tmploadname, sizeof(MadList[object].name) / sizeof(*MadList[object].name) );
     // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
-    madname[object][ sizeof(madname[object]) / sizeof(*madname[object]) - 1 ] = '\0';
+    MadList[object].name[ sizeof(MadList[object].name) / sizeof(*MadList[object].name) - 1 ] = '\0';
 
     // Load the AI script for this object
     make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
 
     // Create a reference to the one we just loaded
-    madai[object] = load_ai_script( newloadname );
+    MadList[object].ai = load_ai_script( newloadname );
 
     // Load the object model
     make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
@@ -1927,7 +1931,7 @@ int load_one_object( int skin,  const char* tmploadname )
     md2_models[object] = md2_loadFromFile( newloadname );
 
     // Fix lighting if need be
-    if ( capuniformlit[object] )
+    if ( CapList[object].uniformlit )
     {
         make_mad_equally_lit( object );
     }
@@ -1959,7 +1963,7 @@ int load_one_object( int skin,  const char* tmploadname )
     {
         sprintf( wavename, SLASH_STR "sound%d", cnt );
         make_newloadname( tmploadname, wavename, newloadname );
-        capwavelist[object][cnt] = sound_load_chunk( newloadname );
+        CapList[object].wavelist[cnt] = sound_load_chunk( newloadname );
     }
 
     // Load the enchantment for this object
@@ -1967,7 +1971,7 @@ int load_one_object( int skin,  const char* tmploadname )
     load_one_enchant_type( newloadname, object );
 
     // Load the skins and icons
-    madskinstart[object] = skin;
+    MadList[object].skinstart = skin;
     numskins = 0;
     numicon = 0;
     for ( cnt = 0; cnt < 4; cnt++)
@@ -1982,7 +1986,7 @@ int load_one_object( int skin,  const char* tmploadname )
             {
                 for ( /* nothing */ ; numicon < numskins; numicon++ )
                 {
-                    madskintoicon[skin + numicon] = globalicon_count;
+                    skintoicon[skin + numicon] = globalicon_count;
                     if ( SPELLBOOK == object )
                     {
                         if ( bookicon_count < MAXSKIN )
@@ -2001,7 +2005,7 @@ int load_one_object( int skin,  const char* tmploadname )
     if ( 0 == numskins )
     {
         // If we didn't get a skin, set it to the water texture
-        madskinstart[object] = TX_WATER_TOP;
+        MadList[object].skinstart = TX_WATER_TOP;
         numskins = 1;
         if (gDevMode)
         {
@@ -2009,6 +2013,6 @@ int load_one_object( int skin,  const char* tmploadname )
         }
     }
 
-    madskins[object] = numskins;
+    MadList[object].skins = numskins;
     return numskins;
 }

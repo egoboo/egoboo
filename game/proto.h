@@ -225,7 +225,7 @@ void make_randie();
 void load_module(  const char *smallname );
 
 int    load_one_title_image( int titleimage,  const char *szLoadName );
-int    get_module_data( int modnumber,  const char *szLoadName );
+bool_t load_valid_module( int modnumber,  const char *szLoadName );
 int    get_module_summary(  const char *szLoadName );
 void   load_all_menu_images();
 bool_t load_blip_bitmap();

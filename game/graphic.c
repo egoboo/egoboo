@@ -56,6 +56,25 @@ Uint32           lighttospek[MAXSPEKLEVEL][256];
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
 
+// Camera optimization stuff
+static float                   cornerx[4];
+static float                   cornery[4];
+static int                     cornerlistlowtohighy[4];
+static float                   cornerlowx;
+static float                   cornerhighx;
+static float                   cornerlowy;
+static float                   cornerhighy;
+
+int rotmeshtopside;
+int rotmeshbottomside;
+int rotmeshup;
+int rotmeshdown;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void project_view(camera_t * pcam);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void EnableTexturing()
@@ -330,42 +349,42 @@ void show_stat( Uint16 statindex )
             character = statlist[statindex];
 
             // Name
-            sprintf( text, "=%s=", chr[character].name );
+            sprintf( text, "=%s=", ChrList[character].name );
             debug_message( text );
 
             // Level and gender and class
             gender[0] = 0;
-            if ( chr[character].alive )
+            if ( ChrList[character].alive )
             {
-                if ( chr[character].gender == GENMALE )
+                if ( ChrList[character].gender == GENMALE )
                 {
                     sprintf( gender, "male " );
                 }
-                if ( chr[character].gender == GENFEMALE )
+                if ( ChrList[character].gender == GENFEMALE )
                 {
                     sprintf( gender, "female " );
                 }
 
-                level = chr[character].experiencelevel;
+                level = ChrList[character].experiencelevel;
                 if ( level == 0 )
-                    sprintf( text, " 1st level %s%s", gender, capclassname[chr[character].model] );
+                    sprintf( text, " 1st level %s%s", gender, CapList[ChrList[character].model].classname );
                 if ( level == 1 )
-                    sprintf( text, " 2nd level %s%s", gender, capclassname[chr[character].model] );
+                    sprintf( text, " 2nd level %s%s", gender, CapList[ChrList[character].model].classname );
                 if ( level == 2 )
-                    sprintf( text, " 3rd level %s%s", gender, capclassname[chr[character].model] );
+                    sprintf( text, " 3rd level %s%s", gender, CapList[ChrList[character].model].classname );
                 if ( level >  2 )
-                    sprintf( text, " %dth level %s%s", level + 1, gender, capclassname[chr[character].model] );
+                    sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList[character].model].classname );
             }
             else
             {
-                sprintf( text, " Dead %s", capclassname[chr[character].model] );
+                sprintf( text, " Dead %s", CapList[ChrList[character].model].classname );
             }
 
             // Stats
             debug_message( text );
-            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( chr[character].strength ), FP8_TO_INT( chr[character].wisdom ), 255 - chr[character].defense );
+            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
             debug_message( text );
-            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( chr[character].intelligence ), FP8_TO_INT( chr[character].dexterity ), chr[character].experience );
+            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
             debug_message( text );
             statdelay = 10;
         }
@@ -383,40 +402,40 @@ void show_armor( Uint16 statindex )
         if ( statindex < numstat )
         {
             character = statlist[statindex];
-            skinlevel = chr[character].skin;
+            skinlevel = ChrList[character].skin;
 
             // Armor Name
-            sprintf( text, "=%s=", capskinname[chr[character].model][skinlevel] );
+            sprintf( text, "=%s=", CapList[ChrList[character].model].skinname[skinlevel] );
             debug_message( text );
 
             // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - capdefense[chr[character].model][skinlevel],
-                     capdamagemodifier[chr[character].model][0][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][1][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][2][skinlevel]&DAMAGESHIFT );
+            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[ChrList[character].model].defense[skinlevel],
+                     CapList[ChrList[character].model].damagemodifier[0][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[1][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[2][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
             sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     capdamagemodifier[chr[character].model][3][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][4][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][5][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][6][skinlevel]&DAMAGESHIFT,
-                     capdamagemodifier[chr[character].model][7][skinlevel]&DAMAGESHIFT );
+                     CapList[ChrList[character].model].damagemodifier[3][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[4][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[5][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[6][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[7][skinlevel]&DAMAGESHIFT );
             debug_message( text );
-            if ( capskindressy[chr[character].model] ) sprintf( tmps, "Light Armor" );
+            if ( CapList[ChrList[character].model].skindressy ) sprintf( tmps, "Light Armor" );
             else                   sprintf( tmps, "Heavy Armor" );
 
             sprintf( text, " Type: %s", tmps );
 
             // Speed and jumps
-            if ( chr[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( chr[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( chr[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( chr[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( chr[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", chr[character].jumpnumberreset );
+            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
+            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
+            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
+            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
+            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", ChrList[character].jumpnumberreset );
 
             sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", capmaxaccel[chr[character].model][skinlevel]*80, tmps );
+            sprintf( text, " Speed:~%3.0f~~%s", CapList[ChrList[character].model].maxaccel[skinlevel]*80, tmps );
             debug_message( text );
 
             statdelay = 10;
@@ -441,39 +460,39 @@ void show_full_status( Uint16 statindex )
             while ( i != MAXENCHANT )
             {
                 // Found a active enchantment that is not a skill of the character
-                if ( encon[i] && encspawner[i] != character && enctarget[i] == character ) break;
+                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
                 i++;
             }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chr[character].name );
-            else sprintf( text, "=%s is unenchanted=", chr[character].name );
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
 
             debug_message( text );
 
             // Armor Stats
             sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                     255 - chr[character].defense,
-                     chr[character].damagemodifier[0]&DAMAGESHIFT,
-                     chr[character].damagemodifier[1]&DAMAGESHIFT,
-                     chr[character].damagemodifier[2]&DAMAGESHIFT );
+                     255 - ChrList[character].defense,
+                     ChrList[character].damagemodifier[0]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[1]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[2]&DAMAGESHIFT );
             debug_message( text );
             sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     chr[character].damagemodifier[3]&DAMAGESHIFT,
-                     chr[character].damagemodifier[4]&DAMAGESHIFT,
-                     chr[character].damagemodifier[5]&DAMAGESHIFT,
-                     chr[character].damagemodifier[6]&DAMAGESHIFT,
-                     chr[character].damagemodifier[7]&DAMAGESHIFT );
+                     ChrList[character].damagemodifier[3]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[4]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[5]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[6]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[7]&DAMAGESHIFT );
             debug_message( text );
 
             // Speed and jumps
-            if ( chr[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( chr[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( chr[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( chr[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( chr[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
+            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
+            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
+            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
+            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
+            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
 
             sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", chr[character].maxaccel*80, tmps );
+            sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
             debug_message( text );
             statdelay = 10;
         }
@@ -497,34 +516,34 @@ void show_magic_status( Uint16 statindex )
             while ( i != MAXENCHANT )
             {
                 // Found a active enchantment that is not a skill of the character
-                if ( encon[i] && encspawner[i] != character && enctarget[i] == character ) break;
+                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
                 i++;
             }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", chr[character].name );
-            else sprintf( text, "=%s is unenchanted=", chr[character].name );
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
 
             debug_message( text );
 
             // Enchantment status
-            if ( chr[character].canseeinvisible )  sprintf( tmpa, "Yes" );
+            if ( ChrList[character].canseeinvisible )  sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
-            if ( chr[character].canseekurse )      sprintf( tmpb, "Yes" );
+            if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
 
             sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
             debug_message( text );
-            if ( chr[character].canchannel )     sprintf( tmpa, "Yes" );
+            if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
-            if ( chr[character].waterwalk )        sprintf( tmpb, "Yes" );
+            if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
 
             sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
             debug_message( text );
-            if ( chr[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
+            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
-            if ( chr[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
-            else if ( chr[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
+            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+            else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
             else                           sprintf( tmpb, "None" );
 
             sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
@@ -577,8 +596,8 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
     char szTmp[256];
     char cTmp, lTmp;
 
-    Uint16 target = chr[character].ai.target;
-    Uint16 owner  = chr[character].ai.owner;
+    Uint16 target = ChrList[character].ai.target;
+    Uint16 owner  = ChrList[character].ai.owner;
     if ( message < msgtotal )
     {
         slot = get_free_message();
@@ -599,57 +618,57 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 cTmp = msgtext[read];  read++;
                 if ( cTmp == 'n' )  // Name
                 {
-                    if ( chr[character].nameknown )
-                        sprintf( szTmp, "%s", chr[character].name );
+                    if ( ChrList[character].nameknown )
+                        sprintf( szTmp, "%s", ChrList[character].name );
                     else
                     {
-                        lTmp = capclassname[chr[character].model][0];
+                        lTmp = CapList[ChrList[character].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[character].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[character].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'c' )  // Class name
                 {
-                    eread = capclassname[chr[character].model];
+                    eread = CapList[ChrList[character].model].classname;
                 }
                 if ( cTmp == 't' )  // Target name
                 {
-                    if ( chr[target].nameknown )
-                        sprintf( szTmp, "%s", chr[target].name );
+                    if ( ChrList[target].nameknown )
+                        sprintf( szTmp, "%s", ChrList[target].name );
                     else
                     {
-                        lTmp = capclassname[chr[target].model][0];
+                        lTmp = CapList[ChrList[target].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[target].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[target].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'o' )  // Owner name
                 {
-                    if ( chr[owner].nameknown )
-                        sprintf( szTmp, "%s", chr[owner].name );
+                    if ( ChrList[owner].nameknown )
+                        sprintf( szTmp, "%s", ChrList[owner].name );
                     else
                     {
-                        lTmp = capclassname[chr[owner].model][0];
+                        lTmp = CapList[ChrList[owner].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[owner].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[owner].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 's' )  // Target class name
                 {
-                    eread = capclassname[chr[target].model];
+                    eread = CapList[ChrList[target].model].classname;
                 }
                 if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
                 {
-                    eread = capskinname[chr[target].model][cTmp-'0'];
+                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
                 }
                 if ( NULL == pstate )
                 {
@@ -684,27 +703,27 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'a' )  // Character's ammo
                 {
-                    if ( chr[character].ammoknown )
-                        sprintf( szTmp, "%d", chr[character].ammo );
+                    if ( ChrList[character].ammoknown )
+                        sprintf( szTmp, "%d", ChrList[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
                 if ( cTmp == 'k' )  // Kurse state
                 {
-                    if ( chr[character].iskursed )
+                    if ( ChrList[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
                 }
                 if ( cTmp == 'p' )  // Character's possessive
                 {
-                    if ( chr[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chr[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -716,13 +735,13 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'm' )  // Character's gender
                 {
-                    if ( chr[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( chr[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -734,13 +753,13 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'g' )  // Target's possessive
                 {
-                    if ( chr[target].gender == GENFEMALE )
+                    if ( ChrList[target].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chr[target].gender == GENMALE )
+                        if ( ChrList[target].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -1000,10 +1019,10 @@ void init_all_models()
 
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
-        capclassname[cnt][0] = 0;
+        CapList[cnt].classname[0] = 0;
 
-        madused[cnt] = bfalse;
-        strncpy( madname[cnt], "*NONE*", sizeof(madname[cnt]) );
+        MadList[cnt].used = bfalse;
+        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
     madloadframe = 0;
@@ -1018,7 +1037,7 @@ void release_all_icons()
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
         GLTexture_Release( TxIcon + cnt );
-        madskintoicon[cnt] = 0;
+        skintoicon[cnt] = 0;
     }
 
     bookicon_count = 0;
@@ -1086,10 +1105,10 @@ void release_all_models()
 
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
-        capclassname[cnt][0] = 0;
+        CapList[cnt].classname[0] = 0;
 
-        madused[cnt] = bfalse;
-        strncpy( madname[cnt], "*NONE*", sizeof(madname[cnt]) );
+        MadList[cnt].used = bfalse;
+        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
     madloadframe = 0;
@@ -1152,8 +1171,8 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
     char cTmp, lTmp;
     Uint16 target, owner;
 
-    target = chr[character].ai.target;
-    owner = chr[character].ai.owner;
+    target = ChrList[character].ai.target;
+    owner = ChrList[character].ai.owner;
     if ( message < msgtotal )
     {
         // Copy the message
@@ -1171,57 +1190,57 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 cTmp = msgtext[read];  read++;
                 if ( cTmp == 'n' )  // Name
                 {
-                    if ( chr[character].nameknown )
-                        sprintf( szTmp, "%s", chr[character].name );
+                    if ( ChrList[character].nameknown )
+                        sprintf( szTmp, "%s", ChrList[character].name );
                     else
                     {
-                        lTmp = capclassname[chr[character].model][0];
+                        lTmp = CapList[ChrList[character].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[character].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[character].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'c' )  // Class name
                 {
-                    eread = capclassname[chr[character].model];
+                    eread = CapList[ChrList[character].model].classname;
                 }
                 if ( cTmp == 't' )  // Target name
                 {
-                    if ( chr[target].nameknown )
-                        sprintf( szTmp, "%s", chr[target].name );
+                    if ( ChrList[target].nameknown )
+                        sprintf( szTmp, "%s", ChrList[target].name );
                     else
                     {
-                        lTmp = capclassname[chr[target].model][0];
+                        lTmp = CapList[ChrList[target].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[target].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[target].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 'o' )  // Owner name
                 {
-                    if ( chr[owner].nameknown )
-                        sprintf( szTmp, "%s", chr[owner].name );
+                    if ( ChrList[owner].nameknown )
+                        sprintf( szTmp, "%s", ChrList[owner].name );
                     else
                     {
-                        lTmp = capclassname[chr[owner].model][0];
+                        lTmp = CapList[ChrList[owner].model].classname[0];
                         if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", capclassname[chr[owner].model] );
+                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
                         else
-                            sprintf( szTmp, "a %s", capclassname[chr[owner].model] );
+                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
                     }
                     if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
                 }
                 if ( cTmp == 's' )  // Target class name
                 {
-                    eread = capclassname[chr[target].model];
+                    eread = CapList[ChrList[target].model].classname;
                 }
                 if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
                 {
-                    eread = capskinname[chr[target].model][cTmp-'0'];
+                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
                 }
                 if ( NULL == pstate )
                 {
@@ -1257,27 +1276,27 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'a' )  // Character's ammo
                 {
-                    if ( chr[character].ammoknown )
-                        sprintf( szTmp, "%d", chr[character].ammo );
+                    if ( ChrList[character].ammoknown )
+                        sprintf( szTmp, "%d", ChrList[character].ammo );
                     else
                         sprintf( szTmp, "?" );
                 }
                 if ( cTmp == 'k' )  // Kurse state
                 {
-                    if ( chr[character].iskursed )
+                    if ( ChrList[character].iskursed )
                         sprintf( szTmp, "kursed" );
                     else
                         sprintf( szTmp, "unkursed" );
                 }
                 if ( cTmp == 'p' )  // Character's possessive
                 {
-                    if ( chr[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chr[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -1289,13 +1308,13 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'm' )  // Character's gender
                 {
-                    if ( chr[character].gender == GENFEMALE )
+                    if ( ChrList[character].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "female " );
                     }
                     else
                     {
-                        if ( chr[character].gender == GENMALE )
+                        if ( ChrList[character].gender == GENMALE )
                         {
                             sprintf( szTmp, "male " );
                         }
@@ -1307,13 +1326,13 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                 }
                 if ( cTmp == 'g' )  // Target's possessive
                 {
-                    if ( chr[target].gender == GENFEMALE )
+                    if ( ChrList[target].gender == GENFEMALE )
                     {
                         sprintf( szTmp, "her" );
                     }
                     else
                     {
-                        if ( chr[target].gender == GENMALE )
+                        if ( ChrList[target].gender == GENMALE )
                         {
                             sprintf( szTmp, "his" );
                         }
@@ -1593,13 +1612,13 @@ void figure_out_what_to_draw()
     // ZZ> This function determines the things that need to be drawn
 
     // Find the render area corners
-    project_view();
+    project_view(&gCamera);
 
     // Make the render list for the mesh
     make_renderlist();
 
-    camturnleftrightone = ( camturnleftright ) / ( TWO_PI );
-    camturnleftrightshort = camturnleftrightone * 65536;
+    gCamera.turnleftrightone = ( gCamera.turnleftright ) / ( TWO_PI );
+    gCamera.turnleftrightshort = gCamera.turnleftrightone * 65536;
 
     // Request matrices needed for local machine
     make_dolist();
@@ -1620,7 +1639,7 @@ void order_dolist( void )
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         character = dolist[cnt];  olddolist[cnt] = character;
-        if ( chr[character].light != 255 || chr[character].alpha != 255 )
+        if ( ChrList[character].light != 255 || ChrList[character].alpha != 255 )
         {
             // This makes stuff inside an invisible character visible...
             // A key inside a Jellcube, for example
@@ -1628,7 +1647,7 @@ void order_dolist( void )
         }
         else
         {
-            dist[cnt] = (int) (ABS( chr[character].xpos - camx ) + ABS( chr[character].ypos - camy ));
+            dist[cnt] = (int) (ABS( ChrList[character].xpos - gCamera.x ) + ABS( ChrList[character].ypos - gCamera.y ));
         }
     }
 
@@ -1655,9 +1674,9 @@ void flash_character( Uint16 character, Uint8 value )
     // ZZ> This function sets a character's lighting
     int cnt;
 
-    for ( cnt = 0; cnt < madtransvertices[chr[character].model]; cnt++  )
+    for ( cnt = 0; cnt < MadList[ChrList[character].model].transvertices; cnt++  )
     {
-        chr[character].vrta[cnt] = value;
+        ChrList[character].vrta[cnt] = value;
     }
 }
 
@@ -1667,9 +1686,9 @@ void add_to_dolist( Uint16 ichr )
     // This function puts a character in the list
     int itile;
 
-    if ( ichr >= MAXCHR || chr[ichr].indolist ) return;
+    if ( ichr >= MAXCHR || ChrList[ichr].indolist ) return;
 
-    itile = chr[ichr].onwhichfan;
+    itile = ChrList[ichr].onwhichfan;
     if ( INVALID_TILE == itile ) return;
 
     if ( meshinrenderlist[itile] )
@@ -1694,39 +1713,39 @@ void add_to_dolist( Uint16 ichr )
             imin  = MIN(imin, itmp);
             isum += itmp;
 
-            chr[ichr].lightlevel_amb = imin;
-            chr[ichr].lightlevel_dir = (isum - 4*imin) / 4;
+            ChrList[ichr].lightlevel_amb = imin;
+            ChrList[ichr].lightlevel_dir = (isum - 4*imin) / 4;
         }
 
         dolist[numdolist] = ichr;
-        chr[ichr].indolist = btrue;
+        ChrList[ichr].indolist = btrue;
         numdolist++;
     }
-    else if ( capalwaysdraw[chr[ichr].model] )
+    else if ( CapList[ChrList[ichr].model].alwaysdraw )
     {
         // Double check for large/special objects
         dolist[numdolist] = ichr;
-        chr[ichr].indolist = btrue;
+        ChrList[ichr].indolist = btrue;
         numdolist++;
     }
 
-    if ( chr[ichr].indolist )
+    if ( ChrList[ichr].indolist )
     {
         // Do flashing
-        if ( 0 == ( frame_all & chr[ichr].flashand ) && chr[ichr].flashand != DONTFLASH )
+        if ( 0 == ( frame_all & ChrList[ichr].flashand ) && ChrList[ichr].flashand != DONTFLASH )
         {
             flash_character( ichr, 255 );
         }
 
         // Do blacking
-        if ( 0 == ( frame_all & SEEKURSEAND ) && local_seekurse && chr[ichr].iskursed )
+        if ( 0 == ( frame_all & SEEKURSEAND ) && local_seekurse && ChrList[ichr].iskursed )
         {
             flash_character( ichr, 0 );
         }
 
         // Add its weapons too
-        add_to_dolist( chr[ichr].holdingwhich[0] );
-        add_to_dolist( chr[ichr].holdingwhich[1] );
+        add_to_dolist( ChrList[ichr].holdingwhich[0] );
+        add_to_dolist( ChrList[ichr].holdingwhich[1] );
     }
 
 }
@@ -1742,14 +1761,14 @@ void make_dolist()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         character = dolist[cnt];
-        chr[character].indolist = bfalse;
+        ChrList[character].indolist = bfalse;
     }
     numdolist = 0;
 
     // Now fill it up again
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        if ( chr[cnt].on && !chr[cnt].inpack )
+        if ( ChrList[cnt].on && !ChrList[cnt].inpack )
         {
             // Add the character
             add_to_dolist( cnt );
@@ -1854,26 +1873,26 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 {
     // ZZ> This function makes sure both actions are valid if either of them
     //     are valid.  It will copy start and ends to mirror the valid action.
-    if ( madactionvalid[object][actiona] == madactionvalid[object][actionb] )
+    if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
         // They are either both valid or both invalid, in either case we can't help
     }
     else
     {
         // Fix the invalid one
-        if ( !madactionvalid[object][actiona] )
+        if ( !MadList[object].actionvalid[actiona] )
         {
             // Fix actiona
-            madactionvalid[object][actiona] = btrue;
-            madactionstart[object][actiona] = madactionstart[object][actionb];
-            madactionend[object][actiona] = madactionend[object][actionb];
+            MadList[object].actionvalid[actiona] = btrue;
+            MadList[object].actionstart[actiona] = MadList[object].actionstart[actionb];
+            MadList[object].actionend[actiona] = MadList[object].actionend[actionb];
         }
         else
         {
             // Fix actionb
-            madactionvalid[object][actionb] = btrue;
-            madactionstart[object][actionb] = madactionstart[object][actiona];
-            madactionend[object][actionb] = madactionend[object][actiona];
+            MadList[object].actionvalid[actionb] = btrue;
+            MadList[object].actionstart[actionb] = MadList[object].actionstart[actiona];
+            MadList[object].actionend[actionb] = MadList[object].actionend[actiona];
         }
     }
 }
@@ -1883,7 +1902,7 @@ void get_walk_frame( Uint16 object, int lip, int action )
 {
     // ZZ> This helps make walking look right
     int frame = 0;
-    int framesinaction = madactionend[object][action] - madactionstart[object][action];
+    int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
 
     while ( frame < 16 )
     {
@@ -1893,7 +1912,7 @@ void get_walk_frame( Uint16 object, int lip, int action )
             framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
         }
 
-        madframeliptowalkframe[object][lip][frame] = madactionstart[object][action] + framealong;
+        MadList[object].frameliptowalkframe[lip][frame] = MadList[object].actionstart[action] + framealong;
         frame++;
     }
 }
@@ -1935,7 +1954,7 @@ void get_framefx( int frame )
     if ( test_frame_name( 'P' ) )
         fx = fx | MADFXPOOF;
 
-    madframefx[frame] = fx;
+    MadFrameList[frame].framefx = fx;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1943,15 +1962,15 @@ void make_framelip( Uint16 object, int action )
 {
     // ZZ> This helps make walking look right
     int frame, framesinaction;
-    if ( madactionvalid[object][action] )
+    if ( MadList[object].actionvalid[action] )
     {
-        framesinaction = madactionend[object][action] - madactionstart[object][action];
-        frame = madactionstart[object][action];
+        framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
+        frame = MadList[object].actionstart[action];
 
-        while ( frame < madactionend[object][action] )
+        while ( frame < MadList[object].actionend[action] )
         {
-            madframelip[frame] = ( frame - madactionstart[object][action] ) * 15 / framesinaction;
-            madframelip[frame] = ( madframelip[frame] ) & 15;
+            MadFrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
+            MadFrameList[frame].framelip = ( MadFrameList[frame].framelip ) & 15;
             frame++;
         }
     }
@@ -1970,21 +1989,21 @@ void get_actions( Uint16 object )
 
     while ( action < MAXACTION )
     {
-        madactionvalid[object][action] = bfalse;
+        MadList[object].actionvalid[action] = bfalse;
         action++;
     }
 
     // Set the primary dance action to be the first frame, just as a default
-    madactionvalid[object][ACTIONDA] = btrue;
-    madactionstart[object][ACTIONDA] = madframestart[object];
-    madactionend[object][ACTIONDA] = madframestart[object] + 1;
+    MadList[object].actionvalid[ACTIONDA] = btrue;
+    MadList[object].actionstart[ACTIONDA] = MadList[object].framestart;
+    MadList[object].actionend[ACTIONDA] = MadList[object].framestart + 1;
 
     // Now go huntin' to see what each frame is, look for runs of same action
     rip_md2_frame_name( 0 );
     lastaction = action_number();  framesinaction = 0;
     frame = 0;
 
-    while ( frame < madframes[object] )
+    while ( frame < MadList[object].frames )
     {
         rip_md2_frame_name( frame );
         action = action_number();
@@ -1997,25 +2016,25 @@ void get_actions( Uint16 object )
             // Write the old action
             if ( lastaction < MAXACTION )
             {
-                madactionvalid[object][lastaction] = btrue;
-                madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
-                madactionend[object][lastaction] = madframestart[object] + frame;
+                MadList[object].actionvalid[lastaction] = btrue;
+                MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
+                MadList[object].actionend[lastaction] = MadList[object].framestart + frame;
             }
 
             framesinaction = 1;
             lastaction = action;
         }
 
-        get_framefx( madframestart[object] + frame );
+        get_framefx( MadList[object].framestart + frame );
         frame++;
     }
 
     // Write the old action
     if ( lastaction < MAXACTION )
     {
-        madactionvalid[object][lastaction] = btrue;
-        madactionstart[object][lastaction] = madframestart[object] + frame - framesinaction;
-        madactionend[object][lastaction]   = madframestart[object] + frame;
+        MadList[object].actionvalid[lastaction] = btrue;
+        MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
+        MadList[object].actionend[lastaction]   = MadList[object].framestart + frame;
     }
 
     // Make sure actions are made valid if a similar one exists
@@ -2073,9 +2092,9 @@ void get_actions( Uint16 object )
 
     // Create table for doing transition from one type of walk to another...
     // Clear 'em all to start
-    for ( frame = 0; frame < madframes[object]; frame++ )
+    for ( frame = 0; frame < MadList[object].frames; frame++ )
     {
-        madframelip[frame+madframestart[object]] = 0;
+        MadFrameList[frame+MadList[object].framestart].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -2095,17 +2114,17 @@ void make_mad_equally_lit( int model )
 {
     // ZZ> This function makes ultra low poly models look better
     int frame, cnt, vert;
-    if ( madused[model] )
+    if ( MadList[model].used )
     {
-        frame = madframestart[model];
+        frame = MadList[model].framestart;
 
-        for ( cnt = 0; cnt < madframes[model]; cnt++ )
+        for ( cnt = 0; cnt < MadList[model].frames; cnt++ )
         {
             vert = 0;
 
             while ( vert < MAXVERTICES )
             {
-                madvrta[frame][vert] = EQUALLIGHTINDEX;
+                MadFrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
                 vert++;
             }
 
@@ -2122,7 +2141,7 @@ void check_copy(  const char* loadname, Uint16 object )
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
-    madmsgstart[object] = 0;
+    MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
     {
@@ -2497,9 +2516,9 @@ void read_wawalite(  const char *modname )
         usefaredge = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
 
-        camswing = 0;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  camswingrate = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  camswingamp = fTmp;
+        gCamera.swing = 0;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingrate = fTmp;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingamp = fTmp;
 
         // Read unnecessary data...  Only read if it exists...
         fogon = bfalse;
@@ -2790,11 +2809,11 @@ void render_shadow( Uint16 character )
     int i;
     chr_t * pchr;
 
-    if( character >= MAXCHR || !chr[character].on || chr[character].inpack ) return;
-    pchr = chr + character;
+    if( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    hide = caphidestate[pchr->model];
+    hide = CapList[pchr->model].hidestate;
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
@@ -2913,11 +2932,11 @@ void render_bad_shadow( Uint16 character )
     int i;
     chr_t * pchr;
 
-    if( character >= MAXCHR || !chr[character].on || chr[character].inpack ) return;
-    pchr = chr + character;
+    if( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    hide = caphidestate[pchr->model];
+    hide = CapList[pchr->model].hidestate;
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
@@ -2996,19 +3015,19 @@ void light_characters()
     {
         tnc = dolist[cnt];
 
-        if ( INVALID_TILE == chr[tnc].onwhichfan )
+        if ( INVALID_TILE == ChrList[tnc].onwhichfan )
         {
-            chr[tnc].lightturnleftright = 0;
-            chr[tnc].lightlevel_amb = 0;
-            chr[tnc].lightlevel_dir = 0;
+            ChrList[tnc].lightturnleftright = 0;
+            ChrList[tnc].lightlevel_amb = 0;
+            ChrList[tnc].lightlevel_dir = 0;
             continue;
         }
 
         // grab the corner intensities
-        tl = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 0 ];
-        tr = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 1 ];
-        br = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 2 ];
-        bl = meshvrtl[ meshvrtstart[chr[tnc].onwhichfan] + 3 ];
+        tl = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 0 ];
+        tr = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 1 ];
+        br = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 2 ];
+        bl = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 3 ];
 
         // determine the amount of directionality
         light_min = MIN(MIN(tl,tr),MIN(bl,br));
@@ -3016,25 +3035,25 @@ void light_characters()
 
         if(light_max == 0 && light_min == 0 )
         {
-            chr[tnc].lightturnleftright = 0;
-            chr[tnc].lightlevel_amb = 0;
-            chr[tnc].lightlevel_dir = 0;
+            ChrList[tnc].lightturnleftright = 0;
+            ChrList[tnc].lightlevel_amb = 0;
+            ChrList[tnc].lightlevel_dir = 0;
             continue;
         }
 
         // Interpolate lighting level using tile corners
-        ix = ((int)chr[tnc].xpos) & 127;
-        iy = ((int)chr[tnc].ypos) & 127;
+        ix = ((int)ChrList[tnc].xpos) & 127;
+        iy = ((int)ChrList[tnc].ypos) & 127;
 
         itop = tl * (128-ix) + tr * ix;
         ibot = bl * (128-ix) + br * ix;
         light = (128-iy) * itop + iy * ibot;
         light >>= 14;
 
-        chr[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
-        chr[tnc].lightlevel_amb = light - chr[tnc].lightlevel_dir;
+        ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
+        ChrList[tnc].lightlevel_amb = light - ChrList[tnc].lightlevel_dir;
 
-        if ( !meshexploremode && chr[tnc].lightlevel_dir > 0 )
+        if ( !meshexploremode && ChrList[tnc].lightlevel_dir > 0 )
         {
             // Look up light direction using corners again
             tl = ( tl << 8 ) & 0xf000;
@@ -3042,11 +3061,11 @@ void light_characters()
             br = ( br ) & 0x00f0;
             bl = bl >> 4;
             tl = tl | tr | br | bl;
-            chr[tnc].lightturnleftright = ( lightdirectionlookup[tl] << 8 );
+            ChrList[tnc].lightturnleftright = ( lightdirectionlookup[tl] << 8 );
         }
         else
         {
-            chr[tnc].lightturnleftright = 0;
+            ChrList[tnc].lightturnleftright = 0;
         }
     }
 }
@@ -3060,28 +3079,28 @@ void light_particles()
 
     for ( iprt = 0; iprt < maxparticles; iprt++ )
     {
-        if ( !prton[iprt] ) continue;
+        if ( !PrtList[iprt].on ) continue;
 
-        character = prtattachedtocharacter[iprt];
+        character = PrtList[iprt].attachedtocharacter;
         if ( MAXCHR != character )
         {
-            prtlight[iprt] = chr[character].lightlevel_amb;
+            PrtList[iprt].light = ChrList[character].lightlevel_amb;
         }
-        else if ( INVALID_TILE == prtonwhichfan[iprt] )
+        else if ( INVALID_TILE == PrtList[iprt].onwhichfan )
         {
-            prtlight[iprt] = 0;
+            PrtList[iprt].light = 0;
         }
         else
         {
             int itmp = 0;
-            Uint32 itile = prtonwhichfan[iprt];
+            Uint32 itile = PrtList[iprt].onwhichfan;
 
             itmp += meshvrtl[meshvrtstart[itile] + 0];
             itmp += meshvrtl[meshvrtstart[itile] + 1];
             itmp += meshvrtl[meshvrtstart[itile] + 2];
             itmp += meshvrtl[meshvrtstart[itile] + 3];
 
-            prtlight[iprt] = itmp / 4;
+            PrtList[iprt].light = itmp / 4;
         }
     }
 }
@@ -3107,11 +3126,11 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
         while ( vertex < lastvertex )
         {
             light = meshvrta[vertex];
-            x = prtxpos[particle] - meshvrtx[vertex];
-            y = prtypos[particle] - meshvrty[vertex];
-            level = ( x * x + y * y ) / prtdynalightfalloff[particle];
+            x = PrtList[particle].xpos - meshvrtx[vertex];
+            y = PrtList[particle].ypos - meshvrty[vertex];
+            level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
             level = 255 - level;
-            level = level * prtdynalightlevel[particle];
+            level = level * PrtList[particle].dynalightlevel;
             if ( level > light )
             {
                 if ( level > 255 ) level = 255;
@@ -3145,10 +3164,10 @@ void do_dynalight()
 
             while ( cnt < maxparticles )
             {
-                if ( prton[cnt] && prtdynalighton[cnt] )
+                if ( PrtList[cnt].on && PrtList[cnt].dynalighton )
                 {
-                    fanx = prtxpos[cnt];
-                    fany = prtypos[cnt];
+                    fanx = PrtList[cnt].xpos;
+                    fany = PrtList[cnt].ypos;
                     fanx = fanx >> 7;
                     fany = fany >> 7;
                     addy = -DYNAFANS;
@@ -3306,9 +3325,9 @@ void draw_scene_zreflection()
         for ( cnt = 0; cnt < numdolist; cnt++ )
         {
             tnc = dolist[cnt];
-            if ( INVALID_TILE != chr[tnc].onwhichfan && (0 != ( meshfx[chr[tnc].onwhichfan]&MESHFX_DRAWREF )) )
+            if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( meshfx[ChrList[tnc].onwhichfan]&MESHFX_DRAWREF )) )
             {
-                render_refmad( tnc, FP8_MUL( chr[tnc].alpha, chr[tnc].light ) );
+                render_refmad( tnc, FP8_MUL( ChrList[tnc].alpha, ChrList[tnc].light ) );
             }
         }
 
@@ -3368,7 +3387,7 @@ void draw_scene_zreflection()
             for ( cnt = 0; cnt < numdolist; cnt++ )
             {
                 tnc = dolist[cnt];
-                if ( 0 == chr[tnc].shadowsize ) continue;
+                if ( 0 == ChrList[tnc].shadowsize ) continue;
 
                 render_bad_shadow( tnc );
             }
@@ -3379,7 +3398,7 @@ void draw_scene_zreflection()
             for ( cnt = 0; cnt < numdolist; cnt++ )
             {
                 tnc = dolist[cnt];
-                if ( 0 == chr[tnc].shadowsize ) continue;
+                if ( 0 == ChrList[tnc].shadowsize ) continue;
 
                 render_shadow( tnc );
             }
@@ -3397,7 +3416,7 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( chr[tnc].alpha == 255 && chr[tnc].light == 255 )
+        if ( ChrList[tnc].alpha == 255 && ChrList[tnc].light == 255 )
             render_mad( tnc, 255 );
     }
 
@@ -3414,10 +3433,10 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( chr[tnc].alpha != 255 && chr[tnc].light == 255 )
+        if ( ChrList[tnc].alpha != 255 && ChrList[tnc].light == 255 )
         {
-            trans = chr[tnc].alpha;
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
+            trans = ChrList[tnc].alpha;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || ChrList[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
@@ -3434,24 +3453,24 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( chr[tnc].light != 255 )
+        if ( ChrList[tnc].light != 255 )
         {
-            trans = chr[tnc].light;
-            if ( trans < SEEINVISIBLE && ( local_seeinvisible || chr[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
+            trans = ChrList[tnc].light;
+            if ( trans < SEEINVISIBLE && ( local_seeinvisible || ChrList[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
 
         // Do phong highlights
-        if ( phongon && chr[tnc].alpha == 255 && chr[tnc].light == 255 && !chr[tnc].enviro && chr[tnc].sheen > 0 )
+        if ( phongon && ChrList[tnc].alpha == 255 && ChrList[tnc].light == 255 && !ChrList[tnc].enviro && ChrList[tnc].sheen > 0 )
         {
             Uint16 texturesave;
-            chr[tnc].enviro = btrue;
-            texturesave = chr[tnc].texture;
-            chr[tnc].texture = TX_PHONG;  // The phong map texture...
-            render_mad( tnc, chr[tnc].sheen << 4 );
-            chr[tnc].texture = texturesave;
-            chr[tnc].enviro = bfalse;
+            ChrList[tnc].enviro = btrue;
+            texturesave = ChrList[tnc].texture;
+            ChrList[tnc].texture = TX_PHONG;  // The phong map texture...
+            render_mad( tnc, ChrList[tnc].sheen << 4 );
+            ChrList[tnc].texture = texturesave;
+            ChrList[tnc].enviro = bfalse;
         }
     }
 
@@ -4100,17 +4119,17 @@ int draw_status( Uint16 character, int x, int y )
     char *readtext;
     STRING generictext;
 
-    int life     = FP8_TO_INT( chr[character].life    );
-    int lifemax  = FP8_TO_INT( chr[character].lifemax );
-    int mana     = FP8_TO_INT( chr[character].mana    );
-    int manamax  = FP8_TO_INT( chr[character].manamax );
+    int life     = FP8_TO_INT( ChrList[character].life    );
+    int lifemax  = FP8_TO_INT( ChrList[character].lifemax );
+    int mana     = FP8_TO_INT( ChrList[character].mana    );
+    int manamax  = FP8_TO_INT( ChrList[character].manamax );
     int cnt = lifemax;
 
     // Write the character's first name
-    if ( chr[character].nameknown )
-        readtext = chr[character].name;
+    if ( ChrList[character].nameknown )
+        readtext = ChrList[character].name;
     else
-        readtext = capclassname[chr[character].model];
+        readtext = CapList[ChrList[character].model].classname;
 
     for ( cnt = 0; cnt < 6; cnt++ )
     {
@@ -4128,35 +4147,35 @@ int draw_status( Uint16 character, int x, int y )
     draw_string( generictext, x + 8, y ); y += fontyspacing;
 
     // Write the character's money
-    sprintf( generictext, "$%4d", chr[character].money );
+    sprintf( generictext, "$%4d", ChrList[character].money );
     draw_string( generictext, x + 8, y ); y += fontyspacing + 8;
 
     // Draw the icons
-    draw_one_icon( madskintoicon[chr[character].texture], x + 40, y, chr[character].sparkle );
+    draw_one_icon( skintoicon[ChrList[character].texture], x + 40, y, ChrList[character].sparkle );
 
-    item = chr[character].holdingwhich[0];
+    item = ChrList[character].holdingwhich[0];
     if ( item != MAXCHR )
     {
-        if ( chr[item].icon )
+        if ( ChrList[item].icon )
         {
-            draw_one_icon( madskintoicon[chr[item].texture], x + 8, y, chr[item].sparkle );
-            if ( chr[item].ammomax != 0 && chr[item].ammoknown )
+            draw_one_icon( skintoicon[ChrList[item].texture], x + 8, y, ChrList[item].sparkle );
+            if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
-                if ( !capisstackable[chr[item].model] || chr[item].ammo > 1 )
+                if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", chr[item].ammo );
+                    sprintf( generictext, "%2d", ChrList[item].ammo );
                     draw_string( generictext, x + 8, y - 8 );
                 }
             }
         }
         else if ( bookicon_count > 0 )
         {
-            draw_one_icon( bookicon[ chr[item].money % bookicon_count ], x + 8, y, chr[item].sparkle );
+            draw_one_icon( bookicon[ ChrList[item].money % bookicon_count ], x + 8, y, ChrList[item].sparkle );
         }
         else
         {
-            draw_one_icon( nullicon, x + 8, y, chr[item].sparkle );
+            draw_one_icon( nullicon, x + 8, y, ChrList[item].sparkle );
         }
     }
     else
@@ -4164,29 +4183,29 @@ int draw_status( Uint16 character, int x, int y )
         draw_one_icon( nullicon, x + 8, y, NOSPARKLE );
     }
 
-    item = chr[character].holdingwhich[1];
+    item = ChrList[character].holdingwhich[1];
     if ( item != MAXCHR )
     {
-        if ( chr[item].icon )
+        if ( ChrList[item].icon )
         {
-            draw_one_icon( madskintoicon[chr[item].texture], x + 72, y, chr[item].sparkle );
-            if ( chr[item].ammomax != 0 && chr[item].ammoknown )
+            draw_one_icon( skintoicon[ChrList[item].texture], x + 72, y, ChrList[item].sparkle );
+            if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
-                if ( !capisstackable[chr[item].model] || chr[item].ammo > 1 )
+                if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", chr[item].ammo );
+                    sprintf( generictext, "%2d", ChrList[item].ammo );
                     draw_string( generictext, x + 72, y - 8 );
                 }
             }
         }
         else if ( bookicon_count > 0 )
         {
-            draw_one_icon( bookicon[ chr[item].money % bookicon_count ], x + 72, y, chr[item].sparkle );
+            draw_one_icon( bookicon[ ChrList[item].money % bookicon_count ], x + 72, y, ChrList[item].sparkle );
         }
         else
         {
-            draw_one_icon( nullicon, x + 72, y, chr[item].sparkle );
+            draw_one_icon( nullicon, x + 72, y, ChrList[item].sparkle );
         }
     }
     else
@@ -4197,12 +4216,12 @@ int draw_status( Uint16 character, int x, int y )
     y += 32;
 
     // Draw the bars
-    if ( chr[character].alive )
-        y = draw_one_bar( chr[character].lifecolor, x, y, life, lifemax );
+    if ( ChrList[character].alive )
+        y = draw_one_bar( ChrList[character].lifecolor, x, y, life, lifemax );
     else
         y = draw_one_bar( 0, x, y, 0, lifemax );  // Draw a black bar
 
-    y = draw_one_bar( chr[character].manacolor, x, y, mana, manamax );
+    y = draw_one_bar( ChrList[character].manacolor, x, y, mana, manamax );
     return y;
 }
 
@@ -4237,21 +4256,21 @@ void draw_text()
             while ( numblip < MAXBLIP && iTmp < MAXCHR )
             {
                 //Show only hated team
-                if (chr[iTmp].on && teamhatesteam[chr[local_senseenemies].team][chr[iTmp].team])
+                if (ChrList[iTmp].on && TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team])
                 {
                     //Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == Make_IDSZ("NONE")
-                            || capidsz[iTmp][IDSZ_PARENT] == local_senseenemiesID
-                            || capidsz[iTmp][IDSZ_TYPE] == local_senseenemiesID)
+                            || CapList[iTmp].idsz[IDSZ_PARENT] == local_senseenemiesID
+                            || CapList[iTmp].idsz[IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
-                        if ( chr[iTmp].xpos < meshedgex && chr[iTmp].ypos < meshedgey )
+                        if ( ChrList[iTmp].xpos < meshedgex && ChrList[iTmp].ypos < meshedgey )
                         {
                             //Valid colors only
                             if ( numblip < NUMBLIP )
                             {
-                                blipx[numblip] = chr[iTmp].xpos * MAPSIZE / meshedgex;
-                                blipy[numblip] = chr[iTmp].ypos * MAPSIZE / meshedgey;
+                                blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / meshedgex;
+                                blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / meshedgey;
                                 blipc[numblip] = 0; //Red blips
                                 numblip++;
                             }
@@ -4272,12 +4291,12 @@ void draw_text()
         {
             for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
-                if ( plavalid[cnt] && pladevice[cnt] != INPUT_BITS_NONE )
+                if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
                 {
-                    tnc = plaindex[cnt];
-                    if ( chr[tnc].alive )
+                    tnc = PlaList[cnt].index;
+                    if ( ChrList[tnc].alive )
                     {
-                        draw_blip( 0.75f, 0, chr[tnc].xpos*MAPSIZE / meshedgex, ( chr[tnc].ypos*MAPSIZE / meshedgey ) + displaySurface->h - MAPSIZE );
+                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / meshedgex, ( ChrList[tnc].ypos*MAPSIZE / meshedgey ) + displaySurface->h - MAPSIZE );
                     }
                 }
             }
@@ -4381,24 +4400,24 @@ void draw_text()
         // Debug information
         sprintf( text, "!!!DEBUG MODE-5!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  CAM %f %f", camx, camy );
+        sprintf( text, "  CAM %f %f", gCamera.x, gCamera.y );
         draw_string( text, 0, y );  y += fontyspacing;
-        tnc = plaindex[0];
+        tnc = PlaList[0].index;
         sprintf( text, "  PLA0DEF %d %d %d %d %d %d %d %d",
-                 chr[tnc].damagemodifier[0]&3,
-                 chr[tnc].damagemodifier[1]&3,
-                 chr[tnc].damagemodifier[2]&3,
-                 chr[tnc].damagemodifier[3]&3,
-                 chr[tnc].damagemodifier[4]&3,
-                 chr[tnc].damagemodifier[5]&3,
-                 chr[tnc].damagemodifier[6]&3,
-                 chr[tnc].damagemodifier[7]&3 );
+                 ChrList[tnc].damagemodifier[0]&3,
+                 ChrList[tnc].damagemodifier[1]&3,
+                 ChrList[tnc].damagemodifier[2]&3,
+                 ChrList[tnc].damagemodifier[3]&3,
+                 ChrList[tnc].damagemodifier[4]&3,
+                 ChrList[tnc].damagemodifier[5]&3,
+                 ChrList[tnc].damagemodifier[6]&3,
+                 ChrList[tnc].damagemodifier[7]&3 );
         draw_string( text, 0, y );  y += fontyspacing;
-        tnc = plaindex[0];
-        sprintf( text, "  PLA0 %5.1f %5.1f", chr[tnc].xpos / 128.0f, chr[tnc].ypos / 128.0f );
+        tnc = PlaList[0].index;
+        sprintf( text, "  PLA0 %5.1f %5.1f", ChrList[tnc].xpos / 128.0f, ChrList[tnc].ypos / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
-        tnc = plaindex[1];
-        sprintf( text, "  PLA1 %5.1f %5.1f", chr[tnc].xpos / 128.0f, chr[tnc].ypos / 128.0f );
+        tnc = PlaList[1].index;
+        sprintf( text, "  PLA1 %5.1f %5.1f", ChrList[tnc].xpos / 128.0f, ChrList[tnc].ypos / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
     }
     if ( gDevMode &&  SDLKEYDOWN( SDLK_F6 ) )
@@ -4436,9 +4455,9 @@ void draw_text()
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 3 ), mView.CNV( 1, 3 ), mView.CNV( 2, 3 ), mView.CNV( 3, 3 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "x %f", camcenterx );
+        sprintf( text, "x %f", gCamera.centerx );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "y %f", camcentery );
+        sprintf( text, "y %f", gCamera.centery );
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "turn %d %d", autoturncamera, doturntime );
         draw_string( text, 0, y );  y += fontyspacing;
@@ -4635,22 +4654,22 @@ void load_all_menu_images()
     }
 
     // Search for .mod directories
-    globalnummodule = 0;
+    ModList_count = 0;
     FileName = fs_findFirstFile( "modules", "mod" );
-    while ( NULL != FileName && globalnummodule < MAXMODULE )
+    while ( NULL != FileName && ModList_count < MAXMODULE )
     {
-        sprintf( modloadname[globalnummodule], "%s", FileName );
+        sprintf( ModList[ModList_count].loadname, "%s", FileName );
 
         sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
-        if ( get_module_data( globalnummodule, loadname ) )
+        if ( load_valid_module( ModList_count, loadname ) )
         {
             // NOTE: just because we can't load the ttle image DOES NOT mean that we ignore the module
             sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
-            load_one_title_image( globalnummodule, loadname );
+            load_one_title_image( ModList_count, loadname );
 
-            fprintf( filesave, "%02d.  %s\n", globalnummodule, modlongname[globalnummodule] );
+            fprintf( filesave, "%02d.  %s\n", ModList_count, ModList[ModList_count].longname );
 
-            globalnummodule++;
+            ModList_count++;
         }
         else
         {
@@ -4662,7 +4681,7 @@ void load_all_menu_images()
 
     fs_findClose();
 
-    modlongname[globalnummodule][0] = '\0';
+    ModList[ModList_count].longname[0] = '\0';
     if ( filesave != NULL ) fclose( filesave );
 }
 
@@ -5068,10 +5087,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chr[plaindex[0]].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chr[plaindex[1]].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chr[plaindex[2]].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chr[plaindex[3]].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 500; }
 
         statdelay = 0;
     }
@@ -5079,10 +5098,10 @@ void check_stats()
     // !!!BAD!!!  LIFE CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && plaindex[0] < MAXCHR )  { chr[plaindex[0]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[0]].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && plaindex[1] < MAXCHR )  { chr[plaindex[1]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[1]].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && plaindex[2] < MAXCHR )  { chr[plaindex[2]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[2]].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && plaindex[3] < MAXCHR )  { chr[plaindex[3]].life += 128; chr[plaindex[0]].life = MIN(chr[plaindex[3]].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
     }
 
     // Display armor stats?
@@ -5313,6 +5332,135 @@ void make_enviro( void )
     {
         z = cnt / 256.0f;  // Z is between 0 and 1
         lighttoenviroy[cnt] = z;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void project_view( camera_t * pcam )
+{
+    // ZZ> This function figures out where the corners of the view area
+    //     go when projected onto the plane of the mesh.  Used later for
+    //     determining which mesh fans need to be rendered
+
+    int cnt, tnc, extra[2];
+    float ztemp;
+    float numstep;
+    float zproject;
+    float xfin, yfin, zfin;
+    glMatrix mTemp;
+
+    // make this camera's matricies the global matrices
+    CopyMatrix( &mWorld,      &pcam->mWorld);                       // World Matrix
+    CopyMatrix( &mView,       &pcam->mView);                         // View Matrix
+    CopyMatrix( &mProjection, &pcam->mProjection);             // Projection Matrix
+
+    // Range
+    ztemp = ( pcam->z );
+
+    // Topleft
+    mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+    zproject = mTemp.CNV( 2, 2 );             //2,2
+    // Camera must look down
+    if ( zproject < 0 )
+    {
+        numstep = -ztemp / zproject;
+        xfin = pcam->x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = pcam->y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        zfin = 0;
+        cornerx[0] = xfin;
+        cornery[0] = yfin;
+    }
+
+    // Topright
+    mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
+    zproject = mTemp.CNV( 2, 2 );             //2,2
+    // Camera must look down
+    if ( zproject < 0 )
+    {
+        numstep = -ztemp / zproject;
+        xfin = pcam->x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = pcam->y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        zfin = 0;
+        cornerx[1] = xfin;
+        cornery[1] = yfin;
+    }
+
+    // Bottomright
+    mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+    zproject = mTemp.CNV( 2, 2 );             //2,2
+    // Camera must look down
+    if ( zproject < 0 )
+    {
+        numstep = -ztemp / zproject;
+        xfin = pcam->x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = pcam->y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        zfin = 0;
+        cornerx[2] = xfin;
+        cornery[2] = yfin;
+    }
+
+    // Bottomleft
+    mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
+    zproject = mTemp.CNV( 2, 2 );             //2,2
+    // Camera must look down
+    if ( zproject < 0 )
+    {
+        numstep = -ztemp / zproject;
+        xfin = pcam->x + ( numstep * mTemp.CNV( 0, 2 ) );  // xgg      //0,2
+        yfin = pcam->y + ( numstep * mTemp.CNV( 1, 2 ) );    //1,2
+        zfin = 0;
+        cornerx[3] = xfin;
+        cornery[3] = yfin;
+    }
+
+    // Get the extreme values
+    cornerlowx = cornerx[0];
+    cornerlowy = cornery[0];
+    cornerhighx = cornerx[0];
+    cornerhighy = cornery[0];
+    cornerlistlowtohighy[0] = 0;
+    cornerlistlowtohighy[3] = 0;
+
+    for ( cnt = 0; cnt < 4; cnt++ )
+    {
+        if ( cornerx[cnt] < cornerlowx )
+            cornerlowx = cornerx[cnt];
+        if ( cornery[cnt] < cornerlowy )
+        {
+            cornerlowy = cornery[cnt];
+            cornerlistlowtohighy[0] = cnt;
+        }
+        if ( cornerx[cnt] > cornerhighx )
+            cornerhighx = cornerx[cnt];
+        if ( cornery[cnt] > cornerhighy )
+        {
+            cornerhighy = cornery[cnt];
+            cornerlistlowtohighy[3] = cnt;
+        }
+    }
+
+    // Figure out the order of points
+    tnc = 0;
+
+    for ( cnt = 0; cnt < 4; cnt++ )
+    {
+        if ( cnt != cornerlistlowtohighy[0] && cnt != cornerlistlowtohighy[3] )
+        {
+            extra[tnc] = cnt;
+            tnc++;
+        }
+    }
+
+    cornerlistlowtohighy[1] = extra[1];
+    cornerlistlowtohighy[2] = extra[0];
+    if ( cornery[extra[0]] < cornery[extra[1]] )
+    {
+        cornerlistlowtohighy[1] = extra[0];
+        cornerlistlowtohighy[2] = extra[1];
     }
 }
 

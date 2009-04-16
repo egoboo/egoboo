@@ -30,6 +30,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static bool_t load_module_info( FILE * fileread, mod_t * pmod );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void release_module()
 {
     // ZZ> This function frees up memory used by the module
@@ -144,12 +148,12 @@ int find_module(  const char *smallname )
     cnt = 0;
     index = -1;
 
-    while ( cnt < globalnummodule )
+    while ( cnt < ModList_count )
     {
-        if ( strcmp( smallname, modloadname[cnt] ) == 0 )
+        if ( strcmp( smallname, ModList[cnt].loadname ) == 0 )
         {
             index = cnt;
-            cnt = globalnummodule;
+            cnt = ModList_count;
         }
 
         cnt++;
@@ -246,7 +250,7 @@ int load_all_objects(  const char *modname )
     // Clear the import slots...
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
-        capimportslot[cnt] = 10000;
+        CapList[cnt].importslot = 10000;
     }
 
     // Load the import directory
@@ -267,7 +271,7 @@ int load_all_objects(  const char *modname )
 
                 // store the slot info
                 importobject = ( importplayer * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
-                capimportslot[importobject] = cnt;
+                CapList[importobject].importslot = cnt;
 
                 // load it
                 skin += load_one_object( skin, filename );
@@ -332,23 +336,28 @@ void load_all_global_objects(int skin)
 }
 
 //--------------------------------------------------------------------------------------------
-int get_module_data( int modnumber,  const char *szLoadName )
+bool_t load_valid_module( int modnumber,  const char *szLoadName )
 {
     // ZZ> This function loads the module data file
-    FILE *fileread;
-    char reference[128];
-    IDSZ idsz;
+    FILE  *fileread;
+    STRING reference;
+    IDSZ   idsz;
+    int    iTmp;
+
+    bool_t playerhasquest;
     Sint16 questlevel;
-    char cTmp;
-    int iTmp;
-    bool_t playerhasquest, loaded;
+
+    mod_t * pmod;
+
+    if( modnumber >= MAXMODULE ) return bfalse;
+    pmod = ModList + modnumber;
 
     fileread = fopen( szLoadName, "r" );
     if ( NULL == fileread ) return bfalse;
+    parse_filename = szLoadName;
 
     // Read basic data
-    parse_filename = szLoadName;
-    goto_colon( fileread );  get_name( fileread, modlongname[modnumber] );
+    goto_colon( fileread );  get_name( fileread, pmod->longname );
     goto_colon( fileread );  fscanf( fileread, "%s", reference );
     goto_colon( fileread );  idsz = get_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
 
@@ -364,96 +373,75 @@ int get_module_data( int modnumber,  const char *szLoadName )
     }
 
     //So, do we load the module or not?
-    loaded = bfalse;
+    pmod->loaded = bfalse;
     if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
     {
-        STRING readtext;
         parse_filename = szLoadName;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        modimportamount[modnumber] = iTmp;
-
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        modallowexport[modnumber] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  modallowexport[modnumber] = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modminplayers[modnumber] = iTmp;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  modmaxplayers[modnumber] = iTmp;
-
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
-        modrespawnvalid[modnumber] = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  modrespawnvalid[modnumber] = btrue;
-        if ( cTmp == 'A' || cTmp == 'a' )  modrespawnvalid[modnumber] = ANYTIME;
-
-        goto_colon( fileread );   //BAD: Skip line
-        modrtscontrol[modnumber] = bfalse;
-
-        goto_colon( fileread );  fscanf( fileread, "%s", readtext );
-        for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
-        {
-            modrank[modnumber][iTmp] = readtext[iTmp];
-        }
-        modrank[modnumber][iTmp] = '\0';
-
-        loaded = btrue;
+        load_module_info( fileread, pmod );
     }
 
-    return loaded;
+    return pmod->loaded;
 }
 
 //--------------------------------------------------------------------------------------------
-int get_module_summary(  const char *szLoadName )
+bool_t load_module_info( FILE * fileread, mod_t * pmod )
 {
-    // ZZ> This function gets the quest description out of the module's menu file
-    FILE *fileread;
+    // BB > this function actually reads in the module data
+
+    STRING readtext, szLine;
+    int cnt, tnc, iTmp;
     char cTmp;
-    char szLine[160];
-    int cnt;
-    int tnc;
-    bool_t result = bfalse;
 
-    fileread = fopen( szLoadName, "r" );
-    if ( fileread )
+    if( NULL == fileread || NULL == pmod ) return bfalse;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    pmod->importamount = iTmp;
+
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    pmod->allowexport = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pmod->allowexport = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pmod->minplayers = iTmp;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pmod->maxplayers = iTmp;
+
+    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    pmod->respawnvalid = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pmod->respawnvalid = btrue;
+    if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
+
+    goto_colon( fileread );   //BAD: Skip line
+    pmod->rtscontrol = bfalse;
+
+    goto_colon( fileread );  fscanf( fileread, "%s", readtext );
+    for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
     {
-        // Skip over basic data
-        parse_filename = szLoadName;
-        goto_colon( fileread );  // Name...
-        goto_colon( fileread );  // Reference...
-        goto_colon( fileread );  // IDSZ...
-        goto_colon( fileread );  // Import...
-        goto_colon( fileread );  // Export...
-        goto_colon( fileread );  // Min players...
-        goto_colon( fileread );  // Max players...
-        goto_colon( fileread );  // Respawn...
-        goto_colon( fileread );  // BAD! NOT USED
-        goto_colon( fileread );  // Rank...
+        pmod->rank[iTmp] = readtext[iTmp];
+    }
+    pmod->rank[iTmp] = '\0';
 
-        // Read the summary
-        cnt = 0;
+    // Read the summary
+    cnt = 0;
+    while ( cnt < SUMMARYLINES )
+    {
+        goto_colon( fileread );  fscanf( fileread, "%s", szLine );
+        tnc = 0;
 
-        while ( cnt < SUMMARYLINES )
+        cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
+
+        while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
         {
-            goto_colon( fileread );  fscanf( fileread, "%s", szLine );
-            tnc = 0;
+            pmod->summary[cnt][tnc] = cTmp;
+            tnc++;
 
             cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
-
-            while ( tnc < SUMMARYSIZE - 1 && cTmp != 0 )
-            {
-                modsummary[cnt][tnc] = cTmp;
-                tnc++;
-
-                cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
-            }
-
-            modsummary[cnt][tnc] = 0;
-            cnt++;
         }
 
-        result = btrue;
+        pmod->summary[cnt][tnc] = '\0';
+        cnt++;
     }
 
-    fclose( fileread );
-    return result;
-}
+    pmod->loaded = btrue;
+
+    return pmod->loaded;
+};

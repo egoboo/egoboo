@@ -78,7 +78,7 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #endif
 
 #define CNV(i,j) v[4*i+j]
-#define CopyMatrix( pMatrixSource, pMatrixDest ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( glMatrix ) )
+#define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( glMatrix ) )
 
 typedef struct glmatrix { float v[16]; } glMatrix;
 typedef struct glvector { float x, y, z, w; } glVector;

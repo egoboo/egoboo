@@ -92,48 +92,48 @@ void fix_md2_normals( Uint16 modelindex )
     Uint16 indexofnextnextnextnext;
     Uint32 frame;
 
-    frame = madframestart[modelindex];
+    frame = MadList[modelindex].framestart;
     cnt = 0;
 
-    while ( cnt < madvertices[modelindex] )
+    while ( cnt < MadList[modelindex].vertices )
     {
         tnc = 0;
 
-        while ( tnc < madframes[modelindex] )
+        while ( tnc < MadList[modelindex].frames )
         {
-            indexofcurrent = madvrta[frame][cnt];
-            indexofnext = madvrta[frame+1][cnt];
-            indexofnextnext = madvrta[frame+2][cnt];
-            indexofnextnextnext = madvrta[frame+3][cnt];
-            indexofnextnextnextnext = madvrta[frame+4][cnt];
+            indexofcurrent = MadFrameList[frame].vrta[cnt];
+            indexofnext = MadFrameList[frame+1].vrta[cnt];
+            indexofnextnext = MadFrameList[frame+2].vrta[cnt];
+            indexofnextnextnext = MadFrameList[frame+3].vrta[cnt];
+            indexofnextnextnextnext = MadFrameList[frame+4].vrta[cnt];
             if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
             {
-                madvrta[frame+1][cnt] = indexofcurrent;
+                MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
             }
             if ( indexofcurrent == indexofnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
-                    madvrta[frame+1][cnt] = indexofcurrent;
+                    MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnext != indexofcurrent )
                 {
-                    madvrta[frame+2][cnt] = indexofcurrent;
+                    MadFrameList[frame+2].vrta[cnt] = indexofcurrent;
                 }
             }
             if ( indexofcurrent == indexofnextnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
-                    madvrta[frame+1][cnt] = indexofcurrent;
+                    MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnext != indexofcurrent )
                 {
-                    madvrta[frame+2][cnt] = indexofcurrent;
+                    MadFrameList[frame+2].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnextnext != indexofcurrent )
                 {
-                    madvrta[frame+3][cnt] = indexofcurrent;
+                    MadFrameList[frame+3].vrta[cnt] = indexofcurrent;
                 }
             }
 
@@ -196,8 +196,8 @@ void rip_md2_commands( Uint16 modelindex )
         command_error = (iCommandCount >= MAXCOMMAND);
         if (!command_error)
         {
-            madcommandtype[modelindex][iCommandCount] = command_type;
-            madcommandsize[modelindex][iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
+            MadList[modelindex].commandtype[iCommandCount] = command_type;
+            MadList[modelindex].commandsize[iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
         }
 
         // Read in vertices for each command
@@ -216,9 +216,9 @@ void rip_md2_commands( Uint16 modelindex )
             if ( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
             if ( !command_error && !entry_error )
             {
-                madcommandu[modelindex][entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
-                madcommandv[modelindex][entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
-                madcommandvrt[modelindex][entry] = iTmp;
+                MadList[modelindex].commandu[entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
+                MadList[modelindex].commandv[entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
+                MadList[modelindex].commandvrt[entry] = iTmp;
             }
 
             entry++;
@@ -244,7 +244,7 @@ void rip_md2_commands( Uint16 modelindex )
         log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
-    madcommands[modelindex] = MIN(MAXCOMMAND, iCommandCount);
+    MadList[modelindex].commands = MIN(MAXCOMMAND, iCommandCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -324,9 +324,9 @@ void rip_md2_frames( Uint16 modelindex )
     iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
 
     // Read in each frame
-    madframestart[modelindex] = madloadframe;
-    madframes[modelindex] = iNumFrames;
-    madvertices[modelindex] = iNumVertices;
+    MadList[modelindex].framestart = madloadframe;
+    MadList[modelindex].frames = iNumFrames;
+    MadList[modelindex].vertices = iNumVertices;
     cnt = 0;
 
     while ( cnt < iNumFrames && madloadframe < MAXFRAME )
@@ -353,10 +353,10 @@ void rip_md2_frames( Uint16 modelindex )
             fRealy = ( cTmpy * fScaley ) + fTranslatey;
             fRealz = ( cTmpz * fScalez ) + fTranslatez;
 
-            madvrtx[madloadframe][tnc] = -fRealx * 3.5f;
-            madvrty[madloadframe][tnc] =  fRealy * 3.5f;
-            madvrtz[madloadframe][tnc] =  fRealz * 3.5f;
-            madvrta[madloadframe][tnc] =  cTmpa;
+            MadFrameList[madloadframe].vrtx[tnc] = -fRealx * 3.5f;
+            MadFrameList[madloadframe].vrty[tnc] =  fRealy * 3.5f;
+            MadFrameList[madloadframe].vrtz[tnc] =  fRealz * 3.5f;
+            MadFrameList[madloadframe].vrta[tnc] =  cTmpa;
 
             iFrameOffset++;
             tnc++;
@@ -419,11 +419,11 @@ void get_madtransvertices( Uint16 modelindex )
 
     //if (modelindex == 0)
     //{
-    //    for ( cnt = 0; cnt < madvertices[modelindex]; cnt++ )
+    //    for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
     //    {
     //        printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
     //    }
     //}
 
-    madtransvertices[modelindex] = madvertices[modelindex];
+    MadList[modelindex].transvertices = MadList[modelindex].vertices;
 }

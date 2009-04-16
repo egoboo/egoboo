@@ -462,7 +462,7 @@ int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
     if ( !mixeron || NULL == pchunk ) return -1;
 
     // measure the distance in tiles
-    dist = SQRT( POW( ABS( camtrackx - xpos ), 2 ) + POW( ABS( camtracky - ypos ), 2 ) ); // Ugly, but just the dist formula
+    dist = SQRT( POW( ABS( gCamera.trackx - xpos ), 2 ) + POW( ABS( gCamera.tracky - ypos ), 2 ) ); // Ugly, but just the dist formula
     dist >>= 7;
 
     // adjust for the local_listening skill
@@ -474,7 +474,7 @@ int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
     dist   = 255 - ( volume * soundvolume ) / 100;
 
     // determine the angle in radians
-    pan    = ( ( 1.5f * PI ) - ATAN2( camy - ypos, camx - xpos ) - camturnleftright ); // Convert the camera angle to the nearest integer degree
+    pan    = ( ( 1.5f * PI ) - ATAN2( gCamera.y - ypos, gCamera.x - xpos ) - gCamera.turnleftright ); // Convert the camera angle to the nearest integer degree
 
     // play the sound
     channel = -1;

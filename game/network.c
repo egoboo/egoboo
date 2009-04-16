@@ -166,28 +166,29 @@ int add_player( Uint16 character, Uint16 player, Uint32 device )
     // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
     int cnt;
 
-    if ( !plavalid[player] )
+    if ( !PlaList[player].valid )
     {
-        chr[character].isplayer = btrue;
-        plaindex[player] = character;
-        plavalid[player] = btrue;
-        pladevice[player] = device;
+        ChrList[character].isplayer = btrue;
+        PlaList[player].index = character;
+        PlaList[player].valid = btrue;
+        PlaList[player].device = device;
 
-        plalatchx[player] = 0;
-        plalatchy[player] = 0;
-        plalatchbutton[player] = 0;
+        PlaList[player].latchx = 0;
+        PlaList[player].latchy = 0;
+        PlaList[player].latchbutton = 0;
 
         for ( cnt = 0; cnt < MAXLAG; cnt++ )
         {
-            platimelatchx[player][cnt] = 0;
-            platimelatchy[player][cnt] = 0;
-            platimelatchbutton[player][cnt] = 0;
+            PlaList[player].tlatch[cnt].x      = 0;
+            PlaList[player].tlatch[cnt].y      = 0;
+            PlaList[player].tlatch[cnt].button = 0;
+            PlaList[player].tlatch[cnt].time   = ~0;
         }
 
         if ( device != INPUT_BITS_NONE )
         {
             local_noplayers = bfalse;
-            chr[character].islocalplayer = btrue;
+            ChrList[character].islocalplayer = btrue;
             local_numlpla++;
         }
 
@@ -875,9 +876,9 @@ void cl_talkToHost()
 
         while ( player < MAXPLAYER )
         {
-            if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
+            if ( PlaList[player].valid && PlaList[player].device != INPUT_BITS_NONE )
             {
-                plalatchbutton[player] |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
+                PlaList[player].latchbutton |= LATCHBUTTON_RESPAWN;  // Press the respawn button...
             }
 
             player++;
@@ -893,12 +894,12 @@ void cl_talkToHost()
         for ( player = 0; player < MAXPLAYER; player++ )
         {
             // Find the local players
-            if ( plavalid[player] && pladevice[player] != INPUT_BITS_NONE )
+            if ( PlaList[player].valid && PlaList[player].device != INPUT_BITS_NONE )
             {
                 packet_addUnsignedByte( player );                        // The player index
-                packet_addUnsignedInt( plalatchbutton[player] );        // Player button states
-                packet_addSignedShort( plalatchx[player]*SHORTLATCH );  // Player motion
-                packet_addSignedShort( plalatchy[player]*SHORTLATCH );  // Player motion
+                packet_addUnsignedInt( PlaList[player].latchbutton );        // Player button states
+                packet_addSignedShort( PlaList[player].latchx*SHORTLATCH );  // Player motion
+                packet_addSignedShort( PlaList[player].latchy*SHORTLATCH );  // Player motion
             }
         }
 
@@ -933,12 +934,12 @@ void sv_talkToRemotes()
             // Send all player latches...
             for ( player = 0; player < MAXPLAYER; player++ )
             {
-                if ( !plavalid[player] ) continue;
+                if ( !PlaList[player].valid ) continue;
 
                 packet_addUnsignedByte( player );                        // The player index
-                packet_addUnsignedInt( plalatchbutton[player] );        // Player button states
-                packet_addSignedShort( plalatchx[player]*SHORTLATCH );  // Player motion
-                packet_addSignedShort( plalatchy[player]*SHORTLATCH );  // Player motion
+                packet_addUnsignedInt( PlaList[player].latchbutton );        // Player button states
+                packet_addSignedShort( PlaList[player].latchx*SHORTLATCH );  // Player motion
+                packet_addSignedShort( PlaList[player].latchy*SHORTLATCH );  // Player motion
 
                 player++;
             }
@@ -956,25 +957,25 @@ void sv_talkToRemotes()
         for ( player = 0; player < MAXPLAYER; player++ )
         {
             int index;
-            if ( !plavalid[player] ) continue;
+            if ( !PlaList[player].valid ) continue;
 
-            index = platimetimes[player];
+            index = PlaList[player].tlatch_count;
             if (index < MAXLAG)
             {
-                platimelatchbutton[player][index] = plalatchbutton[player];
+                PlaList[player].tlatch[index].button = PlaList[player].latchbutton;
 
-                sTmp = plalatchx[player] * SHORTLATCH;
-                platimelatchx[player][index] = sTmp / SHORTLATCH;
+                sTmp = PlaList[player].latchx * SHORTLATCH;
+                PlaList[player].tlatch[index].x = sTmp / SHORTLATCH;
 
-                sTmp = plalatchy[player] * SHORTLATCH;
-                platimelatchy[player][index] = sTmp / SHORTLATCH;
+                sTmp = PlaList[player].latchy * SHORTLATCH;
+                PlaList[player].tlatch[index].y = sTmp / SHORTLATCH;
 
-                platimetime[player][index] = frame_wld;
+                PlaList[player].tlatch[index].time = frame_wld;
 
-                platimetimes[player]++;
+                PlaList[player].tlatch_count++;
             }
 
-            numplatimes = MAX(numplatimes, platimetimes[player]);
+            numplatimes = MAX(numplatimes, PlaList[player].tlatch_count);
         }
     }
 }
@@ -1024,9 +1025,9 @@ void net_handlePacket( ENetEvent *event )
                 while ( packet_remainingSize() > 0 )
                 {
                     player = packet_readUnsignedByte();
-                    plalatchbutton[player] = packet_readUnsignedInt();
-                    plalatchx[player] = packet_readSignedShort() / SHORTLATCH;
-                    plalatchy[player] = packet_readSignedShort() / SHORTLATCH;
+                    PlaList[player].latchbutton = packet_readUnsignedInt();
+                    PlaList[player].latchx = packet_readSignedShort() / SHORTLATCH;
+                    PlaList[player].latchy = packet_readSignedShort() / SHORTLATCH;
                 }
 
             }
@@ -1392,9 +1393,9 @@ void net_handlePacket( ENetEvent *event )
                     while ( packet_remainingSize() > 0 )
                     {
                         player = packet_readUnsignedByte();
-                        platimelatchbutton[player][time] = packet_readUnsignedInt();
-                        platimelatchx[player][time] = packet_readSignedShort() / SHORTLATCH;
-                        platimelatchy[player][time] = packet_readSignedShort() / SHORTLATCH;
+                        PlaList[player].tlatch[time].button = packet_readUnsignedInt();
+                        PlaList[player].tlatch[time].x      = packet_readSignedShort() / SHORTLATCH;
+                        PlaList[player].tlatch[time].y      = packet_readSignedShort() / SHORTLATCH;
                     }
 
                     nexttimestamp = stamp + 1;
@@ -1468,61 +1469,61 @@ void unbuffer_player_latches()
     {
         int weight;
         Uint32 index, tnc;
-        if ( !plavalid[cnt] ) continue;
+        if ( !PlaList[cnt].valid ) continue;
 
-        character = plaindex[cnt];
+        character = PlaList[cnt].index;
 
         // grab all valid playtimes
         weight = 0;
-        chr[character].latchx      = 0;
-        chr[character].latchy      = 0;
-        chr[character].latchbutton = 0;
-        for ( tnc = 0; tnc < platimetimes[cnt]; tnc++ )
+        ChrList[character].latchx      = 0;
+        ChrList[character].latchy      = 0;
+        ChrList[character].latchbutton = 0;
+        for ( tnc = 0; tnc < PlaList[cnt].tlatch_count; tnc++ )
         {
             int dt;
 
-            dt = (platimetime[cnt][tnc] - frame_wld) - 1;
+            dt = (PlaList[cnt].tlatch[tnc].time - frame_wld) - 1;
             if ( dt > 0 ) break;
 
             weight += dt * dt;
 
-            chr[character].latchx      += platimelatchx[cnt][tnc] * dt * dt;
-            chr[character].latchy      += platimelatchy[cnt][tnc] * dt * dt;
-            chr[character].latchbutton |= platimelatchbutton[cnt][tnc];
+            ChrList[character].latchx      += PlaList[cnt].tlatch[tnc].x * dt * dt;
+            ChrList[character].latchy      += PlaList[cnt].tlatch[tnc].y * dt * dt;
+            ChrList[character].latchbutton |= PlaList[cnt].tlatch[tnc].button;
         }
 
         // compact the remaining values
-        for ( index = 0; tnc < platimetimes[cnt]; tnc++, index++ )
+        for ( index = 0; tnc < PlaList[cnt].tlatch_count; tnc++, index++ )
         {
-            platimelatchx[cnt][index]      = platimelatchx[cnt][tnc];
-            platimelatchy[cnt][index]      = platimelatchy[cnt][tnc];
-            platimelatchbutton[cnt][index] = platimelatchbutton[cnt][tnc];
-            platimetime[cnt][index]        = platimetime[cnt][tnc];
+            PlaList[cnt].tlatch[index].x      = PlaList[cnt].tlatch[tnc].x;
+            PlaList[cnt].tlatch[index].y      = PlaList[cnt].tlatch[tnc].y;
+            PlaList[cnt].tlatch[index].button = PlaList[cnt].tlatch[tnc].button;
+            PlaList[cnt].tlatch[index].time   = PlaList[cnt].tlatch[tnc].time;
         }
-        platimetimes[cnt] = index;
+        PlaList[cnt].tlatch_count = index;
 
-        numplatimes = MAX( numplatimes, platimetimes[cnt] );
+        numplatimes = MAX( numplatimes, PlaList[cnt].tlatch_count );
         if ( weight > 0.0f )
         {
-            chr[character].latchx /= (float)weight;
-            chr[character].latchy /= (float)weight;
+            ChrList[character].latchx /= (float)weight;
+            ChrList[character].latchy /= (float)weight;
         }
 
         // Let players respawn
-        if ( ( chr[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
+        if ( ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
         {
-            if ( !chr[character].alive && 0 == revivetimer )
+            if ( !ChrList[character].alive && 0 == revivetimer )
             {
                 respawn_character( character );
-                teamleader[chr[character].team] = character;
-                chr[character].ai.alert |= ALERTIF_CLEANEDUP;
+                TeamList[ChrList[character].team].leader = character;
+                ChrList[character].ai.alert |= ALERTIF_CLEANEDUP;
 
                 // Cost some experience for doing this...  Never lose a level
-                chr[character].experience *= EXPKEEP;
+                ChrList[character].experience *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN
-            chr[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
+            ChrList[character].latchbutton &= ~LATCHBUTTON_RESPAWN;
         }
     }
 }
@@ -1622,7 +1623,7 @@ void sv_letPlayersJoin()
 
             case ENET_EVENT_TYPE_RECEIVE:
                 log_info( "sv_letPlayersJoin: Recieved a packet when we weren't expecting it...\n" );
-                log_info( "\tIt came from %x:%u\n", event.peer->address.host, event.peer->address.port );
+                log_info( "\tIt gCamera.e from %x:%u\n", event.peer->address.host, event.peer->address.port );
 
                 // clean up the packet
                 enet_packet_destroy( event.packet );

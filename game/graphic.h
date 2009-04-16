@@ -78,12 +78,23 @@ typedef struct s_renderlist renderlist_t;
 
 extern renderlist_t renderlist;
 
-
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
 extern Uint8           lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
 extern float           indextoenvirox[MD2LIGHTINDICES];                    // Environment map
 extern float           lighttoenviroy[256];                                // Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
+
+// camera optimization
+
+#define ROTMESHTOPSIDE                  55          // For figuring out what to draw
+#define ROTMESHBOTTOMSIDE               65          //
+#define ROTMESHUP                       40 //35          //
+#define ROTMESHDOWN                     60          //
+
+extern int rotmeshtopside;                                 // The ones that get used
+extern int rotmeshbottomside;                              //
+extern int rotmeshup;                                      //
+extern int rotmeshdown;                                    //
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

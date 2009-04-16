@@ -158,57 +158,57 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint16 vertex;
     glMatrix tempWorld = mWorld;
 
-    Uint16 model = chr[character].model;
-    Uint16 texture = chr[character].texture;
-    Uint16 frame = chr[character].frame;
-    Uint16 lastframe = chr[character].lastframe;
-    Uint16 framestt = madframestart[chr[character].model];
-    Uint8  lip = chr[character].lip >> 6;
-    Uint8  lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
+    Uint16 model = ChrList[character].model;
+    Uint16 texture = ChrList[character].texture;
+    Uint16 frame = ChrList[character].frame;
+    Uint16 lastframe = ChrList[character].lastframe;
+    Uint16 framestt = MadList[ChrList[character].model].framestart;
+    Uint8  lip = ChrList[character].lip >> 6;
+    Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
     Uint32 alpha = trans;
-    Uint8  lightlevel_dir = chr[character].lightlevel_dir >> 4;
-    Uint8  lightlevel_amb = chr[character].lightlevel_amb;
-    float  uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ] - camturnleftrightone;
-    float  voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
-    Uint8  rs = chr[character].redshift;
-    Uint8  gs = chr[character].grnshift;
-    Uint8  bs = chr[character].blushift;
+    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
+    float  uoffset = textureoffset[ FP8_TO_INT( ChrList[character].uoffset ) ] - gCamera.turnleftrightone;
+    float  voffset = textureoffset[ FP8_TO_INT( ChrList[character].voffset ) ];
+    Uint8  rs = ChrList[character].redshift;
+    Uint8  gs = ChrList[character].grnshift;
+    Uint8  bs = ChrList[character].blushift;
     float  flip = lip / 4.0f;
-    Uint8  light = ( 255 == chr[character].light ) ? 0 : ( (chr[character].light + 1) * (chr[character].alpha + 1) ) >> 8;
+    Uint8  light = ( 255 == ChrList[character].light ) ? 0 : ( (ChrList[character].light + 1) * (ChrList[character].alpha + 1) ) >> 8;
 
     // Original points with linear interpolation ( lip )
 
-    for ( cnt = 0; cnt < madvertices[model]; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].vertices; cnt++ )
     {
         Uint8 lite_last, lite_next, lite;
 
-        v[cnt].x = madvrtx[lastframe][cnt] + (madvrtx[frame][cnt] - madvrtx[lastframe][cnt]) * flip;
-        v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
-        v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
+        v[cnt].x = MadFrameList[lastframe].vrtx[cnt] + (MadFrameList[frame].vrtx[cnt] - MadFrameList[lastframe].vrtx[cnt]) * flip;
+        v[cnt].y = MadFrameList[lastframe].vrty[cnt] + (MadFrameList[frame].vrty[cnt] - MadFrameList[lastframe].vrty[cnt]) * flip;
+        v[cnt].z = MadFrameList[lastframe].vrtz[cnt] + (MadFrameList[frame].vrtz[cnt] - MadFrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[lastframe][cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[frame][cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[lastframe].vrta[cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
-        chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
+        ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
 
         v[cnt].a = ( float ) alpha * INV_FF;
-        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) * INV_FF;
-        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) * INV_FF;
-        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) * INV_FF;
+        v[cnt].r = ( float )( ChrList[character].vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( ChrList[character].vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( ChrList[character].vrta[cnt] >> bs ) * INV_FF;
     }
 
     // Do fog...
     /*
-    if(fogon && chr[character].light==255)
+    if(fogon && ChrList[character].light==255)
     {
         // The full fog value
         alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
 
-        for (cnt = 0; cnt < madtransvertices[model]; cnt++)
+        for (cnt = 0; cnt < MadList[model].transvertices; cnt++)
         {
             // Figure out the z position of the vertex...  Not totally accurate
-            z = (v[cnt].z * chr[character].scale) + chr[character].matrix(3,2);
+            z = (v[cnt].z * ChrList[character].scale) + ChrList[character].matrix(3,2);
 
             // Figure out the fog coloring
             if(z < fogtop)
@@ -235,12 +235,12 @@ void render_enviromad( Uint16 character, Uint8 trans )
     }
     else
     {
-        for (cnt = 0; cnt < madtransvertices[model]; cnt++)
+        for (cnt = 0; cnt < MadList[model].transvertices; cnt++)
             v[cnt].specular = 0;
     }
     */
 
-    mWorld = chr[character].matrix;
+    mWorld = ChrList[character].matrix;
     // GS - Begin3DMode ();
 
     glLoadMatrixf( mView.v );
@@ -252,20 +252,20 @@ void render_enviromad( Uint16 character, Uint8 trans )
     // Render each command
     entry = 0;
 
-    for ( cnt = 0; cnt < madcommands[model]; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].commands; cnt++ )
     {
         if (cnt > MAXCOMMAND) continue;
 
-        glBegin ( madcommandtype[model][cnt] );
+        glBegin ( MadList[model].commandtype[cnt] );
         {
-            for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
+            for ( tnc = 0; tnc < MadList[model].commandsize[cnt]; tnc++ )
             {
-                vertex = madcommandvrt[model][entry];
-                if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+                vertex = MadList[model].commandvrt[entry];
+                if ( vertex < MadList[model].vertices && entry < MAXCOMMANDENTRIES )
                 {
                     glColor4fv( &v[vertex].r );
-                    glTexCoord2f ( indextoenvirox[madvrta[framestt][vertex]] + uoffset,
-                                   lighttoenviroy[chr[character].vrta[vertex]] + voffset );
+                    glTexCoord2f ( indextoenvirox[MadFrameList[framestt].vrta[vertex]] + uoffset,
+                                   lighttoenviroy[ChrList[character].vrta[vertex]] + voffset );
                     glVertex3fv ( &v[vertex].x );
                 }
 
@@ -290,60 +290,60 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint16 vertex;
 
     // To make life easier
-    Uint16 model = chr[character].model;
-    Uint16 texture = chr[character].texture;
-    Uint16 frame = chr[character].frame;
-    Uint16 lastframe = chr[character].lastframe;
-    Uint8  lip = chr[character].lip >> 6;
-    Uint8  lightrotation = FP8_TO_INT( chr[character].turnleftright + chr[character].lightturnleftright );
-    Uint8  lightlevel_dir = chr[character].lightlevel_dir >> 4;
-    Uint8  lightlevel_amb = chr[character].lightlevel_amb;
+    Uint16 model = ChrList[character].model;
+    Uint16 texture = ChrList[character].texture;
+    Uint16 frame = ChrList[character].frame;
+    Uint16 lastframe = ChrList[character].lastframe;
+    Uint8  lip = ChrList[character].lip >> 6;
+    Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
+    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
     Uint32 alpha = trans;
-    Uint8  spek = chr[character].sheen;
+    Uint8  spek = ChrList[character].sheen;
 
-    float uoffset = textureoffset[ FP8_TO_INT( chr[character].uoffset ) ];
-    float voffset = textureoffset[ FP8_TO_INT( chr[character].voffset ) ];
-    Uint8 rs = chr[character].redshift;
-    Uint8 gs = chr[character].grnshift;
-    Uint8 bs = chr[character].blushift;
+    float uoffset = textureoffset[ FP8_TO_INT( ChrList[character].uoffset ) ];
+    float voffset = textureoffset[ FP8_TO_INT( ChrList[character].voffset ) ];
+    Uint8 rs = ChrList[character].redshift;
+    Uint8 gs = ChrList[character].grnshift;
+    Uint8 bs = ChrList[character].blushift;
     float flip = lip / 4.0f;
-    Uint8  light = ( 255 == chr[character].light ) ? 0 : ( (chr[character].light + 1) * (chr[character].alpha + 1) ) >> 8;
+    Uint8  light = ( 255 == ChrList[character].light ) ? 0 : ( (ChrList[character].light + 1) * (ChrList[character].alpha + 1) ) >> 8;
 
     glMatrix mTempWorld = mWorld;
     if ( phongon && trans == 255 )
         spek = 0;
 
-    for ( cnt = 0; cnt < madvertices[model]; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].vertices; cnt++ )
     {
         Uint8 lite_last, lite_next, lite;
 
-        v[cnt].x = madvrtx[lastframe][cnt] + (madvrtx[frame][cnt] - madvrtx[lastframe][cnt]) * flip;
-        v[cnt].y = madvrty[lastframe][cnt] + (madvrty[frame][cnt] - madvrty[lastframe][cnt]) * flip;
-        v[cnt].z = madvrtz[lastframe][cnt] + (madvrtz[frame][cnt] - madvrtz[lastframe][cnt]) * flip;
+        v[cnt].x = MadFrameList[lastframe].vrtx[cnt] + (MadFrameList[frame].vrtx[cnt] - MadFrameList[lastframe].vrtx[cnt]) * flip;
+        v[cnt].y = MadFrameList[lastframe].vrty[cnt] + (MadFrameList[frame].vrty[cnt] - MadFrameList[lastframe].vrty[cnt]) * flip;
+        v[cnt].z = MadFrameList[lastframe].vrtz[cnt] + (MadFrameList[frame].vrtz[cnt] - MadFrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[lastframe][cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][madvrta[frame][cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[lastframe].vrta[cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
-        chr[character].vrta[cnt] = 0.9f * chr[character].vrta[cnt] + 0.1f * lite;
+        ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
 
         v[cnt].a = ( float ) alpha * INV_FF;
-        v[cnt].r = ( float )( chr[character].vrta[cnt] >> rs ) * INV_FF;
-        v[cnt].g = ( float )( chr[character].vrta[cnt] >> gs ) * INV_FF;
-        v[cnt].b = ( float )( chr[character].vrta[cnt] >> bs ) * INV_FF;
+        v[cnt].r = ( float )( ChrList[character].vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( ChrList[character].vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( ChrList[character].vrta[cnt] >> bs ) * INV_FF;
     }
 
     /*
         // Do fog...
-        if(fogon && chr[character].light==255)
+        if(fogon && ChrList[character].light==255)
         {
             // The full fog value
             alpha = 0xff000000 | (fogred<<16) | (foggrn<<8) | (fogblu);
 
-            for (cnt = 0; cnt < madtransvertices[model]; cnt++)
+            for (cnt = 0; cnt < MadList[model].transvertices; cnt++)
             {
                 // Figure out the z position of the vertex...  Not totally accurate
-                z = (v[cnt].z * chr[character].scale) + chr[character].matrix(3,2);
+                z = (v[cnt].z * ChrList[character].scale) + ChrList[character].matrix(3,2);
 
                 // Figure out the fog coloring
                 if(z < fogtop)
@@ -372,7 +372,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     // Choose texture and matrix
     GLTexture_Bind( txTexture + texture );
 
-    mWorld = chr[character].matrix;
+    mWorld = ChrList[character].matrix;
 
     // Begin3DMode();
     glLoadMatrixf( mView.v );
@@ -381,19 +381,19 @@ void render_texmad( Uint16 character, Uint8 trans )
     // Render each command
     entry = 0;
 
-    for ( cnt = 0; cnt < madcommands[model]; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].commands; cnt++ )
     {
         if (cnt > MAXCOMMAND) continue;
 
-        glBegin ( madcommandtype[model][cnt] );
+        glBegin ( MadList[model].commandtype[cnt] );
         {
-            for ( tnc = 0; tnc < madcommandsize[model][cnt]; tnc++ )
+            for ( tnc = 0; tnc < MadList[model].commandsize[cnt]; tnc++ )
             {
-                vertex = madcommandvrt[model][entry];
-                if ( vertex < madvertices[model] && entry < MAXCOMMANDENTRIES )
+                vertex = MadList[model].commandvrt[entry];
+                if ( vertex < MadList[model].vertices && entry < MAXCOMMANDENTRIES )
                 {
                     glColor4fv( &v[vertex].r );
-                    glTexCoord2f ( madcommandu[model][entry] + uoffset, madcommandv[model][entry] + voffset );
+                    glTexCoord2f ( MadList[model].commandu[entry] + uoffset, MadList[model].commandv[entry] + voffset );
                     glVertex3fv ( &v[vertex].x );
                 }
 
@@ -414,10 +414,10 @@ void render_texmad( Uint16 character, Uint8 trans )
 void render_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
-    Sint8 hide = caphidestate[chr[character].model];
-    if ( hide == NOHIDE || hide != chr[character].ai.state )
+    Sint8 hide = CapList[ChrList[character].model].hidestate;
+    if ( hide == NOHIDE || hide != ChrList[character].ai.state )
     {
-        if ( chr[character].enviro )
+        if ( ChrList[character].enviro )
             render_enviromad( character, trans );
         else
             render_texmad( character, trans );
@@ -435,12 +435,12 @@ void render_refmad( int tnc, Uint8 trans )
     Uint8 sheen_save;
     Uint8 fog_save;
     glVector pos_save;
-    if ( !capreflect[chr[tnc].model] ) return;
+    if ( !CapList[ChrList[tnc].model].reflect ) return;
 
-    level = chr[tnc].level;
+    level = ChrList[tnc].level;
     trans_temp = trans;
 
-    zpos = ( chr[tnc].matrix ).CNV( 3, 2 ) - level;
+    zpos = ( ChrList[tnc].matrix ).CNV( 3, 2 ) - level;
     if (zpos < 0) zpos = 0;
 
     trans_temp -= zpos >> 1;
@@ -450,22 +450,22 @@ void render_refmad( int tnc, Uint8 trans )
     if ( trans_temp > 255 ) trans_temp = 255;
     if ( trans_temp <= 0 ) return;
 
-    chr[tnc].redshift += 1;
-    chr[tnc].grnshift += 1;
-    chr[tnc].blushift += 1;
+    ChrList[tnc].redshift += 1;
+    ChrList[tnc].grnshift += 1;
+    ChrList[tnc].blushift += 1;
 
-    sheen_save = chr[tnc].sheen;
-    chr[tnc].sheen >>= 1;
+    sheen_save = ChrList[tnc].sheen;
+    ChrList[tnc].sheen >>= 1;
 
-    pos_save.x = ( chr[tnc].matrix ).CNV( 0, 2 );
-    pos_save.y = ( chr[tnc].matrix ).CNV( 1, 2 );
-    pos_save.z = ( chr[tnc].matrix ).CNV( 2, 2 );
-    pos_save.w = ( chr[tnc].matrix ).CNV( 3, 2 );
+    pos_save.x = ( ChrList[tnc].matrix ).CNV( 0, 2 );
+    pos_save.y = ( ChrList[tnc].matrix ).CNV( 1, 2 );
+    pos_save.z = ( ChrList[tnc].matrix ).CNV( 2, 2 );
+    pos_save.w = ( ChrList[tnc].matrix ).CNV( 3, 2 );
 
-    ( chr[tnc].matrix ).CNV( 0, 2 ) = -( chr[tnc].matrix ).CNV( 0, 2 );
-    ( chr[tnc].matrix ).CNV( 1, 2 ) = -( chr[tnc].matrix ).CNV( 1, 2 );
-    ( chr[tnc].matrix ).CNV( 2, 2 ) = -( chr[tnc].matrix ).CNV( 2, 2 );
-    ( chr[tnc].matrix ).CNV( 3, 2 ) = -( chr[tnc].matrix ).CNV( 3, 2 ) + level + level;
+    ( ChrList[tnc].matrix ).CNV( 0, 2 ) = -( ChrList[tnc].matrix ).CNV( 0, 2 );
+    ( ChrList[tnc].matrix ).CNV( 1, 2 ) = -( ChrList[tnc].matrix ).CNV( 1, 2 );
+    ( ChrList[tnc].matrix ).CNV( 2, 2 ) = -( ChrList[tnc].matrix ).CNV( 2, 2 );
+    ( ChrList[tnc].matrix ).CNV( 3, 2 ) = -( ChrList[tnc].matrix ).CNV( 3, 2 ) + level + level;
 
     fog_save = fogon;
     fogon    = bfalse;
@@ -474,15 +474,15 @@ void render_refmad( int tnc, Uint8 trans )
 
     fogon = fog_save;
 
-    ( chr[tnc].matrix ).CNV( 0, 2 ) = pos_save.x;
-    ( chr[tnc].matrix ).CNV( 1, 2 ) = pos_save.y;
-    ( chr[tnc].matrix ).CNV( 2, 2 ) = pos_save.z;
-    ( chr[tnc].matrix ).CNV( 3, 2 ) = pos_save.w;
+    ( ChrList[tnc].matrix ).CNV( 0, 2 ) = pos_save.x;
+    ( ChrList[tnc].matrix ).CNV( 1, 2 ) = pos_save.y;
+    ( ChrList[tnc].matrix ).CNV( 2, 2 ) = pos_save.z;
+    ( ChrList[tnc].matrix ).CNV( 3, 2 ) = pos_save.w;
 
-    chr[tnc].sheen = sheen_save;
+    ChrList[tnc].sheen = sheen_save;
 
-    chr[tnc].redshift -= 1;
-    chr[tnc].grnshift -= 1;
-    chr[tnc].blushift -= 1;
+    ChrList[tnc].redshift -= 1;
+    ChrList[tnc].grnshift -= 1;
+    ChrList[tnc].blushift -= 1;
 
 }

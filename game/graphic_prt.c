@@ -62,11 +62,11 @@ void render_antialias_prt()
     {
         while ( cnt < maxparticles )
         {
-            if ( prtinview[cnt] && prtsize[cnt] != 0 )
+            if ( PrtList[cnt].inview && PrtList[cnt].size != 0 )
             {
-                v[numparticle].x = ( float ) prtxpos[cnt];
-                v[numparticle].y = ( float ) prtypos[cnt];
-                v[numparticle].z = ( float ) prtzpos[cnt];
+                v[numparticle].x = ( float ) PrtList[cnt].xpos;
+                v[numparticle].y = ( float ) PrtList[cnt].ypos;
+                v[numparticle].z = ( float ) PrtList[cnt].zpos;
 
                 // [claforte] Aaron did a horrible hack here. Fix that ASAP.
                 v[numparticle].color = cnt;  // Store an index in the color slot...
@@ -114,18 +114,18 @@ void render_antialias_prt()
         {
             // Get the index from the color slot
             prt = ( Uint16 ) vtlist[cnt].color;
-            pip = prtpip[prt];
+            pip = PrtList[prt].pip;
 
             // Render solid ones twice...  For Antialias
-            if ( prttype[prt] != PRTSOLIDSPRITE  ) continue;
+            if ( PrtList[prt].type != PRTSOLIDSPRITE  ) continue;
 
             {
-                float color_component = prtlight[prt] * INV_FF;
-                light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
+                float color_component = PrtList[prt].light * INV_FF;
+                light = ( 0xff000000 ) | ( PrtList[prt].light << 16 ) | ( PrtList[prt].light << 8 ) | ( PrtList[prt].light );
                 glColor4f( color_component, color_component, color_component, 1.0f );
 
                 // Figure out the sprite's size based on distance
-                size = FP8_TO_FLOAT( prtsize[prt] ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
+                size = FP8_TO_FLOAT( PrtList[prt].size ) * 0.25f * 1.1f;  // [claforte] Fudge the value.
 
                 // Calculate the position of the four corners of the billboard
                 // used to display the particle.
@@ -143,7 +143,7 @@ void render_antialias_prt()
                 vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
                 // Fill in the rest of the data
-                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] );
+                image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt );
 
                 vtlist[0].s = particleimageu[image][0];
                 vtlist[0].t = particleimagev[image][0];
@@ -220,11 +220,11 @@ void render_prt()
     {
         while ( cnt < maxparticles )
         {
-            if ( prtinview[cnt] && prtsize[cnt] != 0 )
+            if ( PrtList[cnt].inview && PrtList[cnt].size != 0 )
             {
-                v[numparticle].x = ( float ) prtxpos[cnt];
-                v[numparticle].y = ( float ) prtypos[cnt];
-                v[numparticle].z = ( float ) prtzpos[cnt];
+                v[numparticle].x = ( float ) PrtList[cnt].xpos;
+                v[numparticle].y = ( float ) PrtList[cnt].ypos;
+                v[numparticle].z = ( float ) PrtList[cnt].zpos;
 
                 // [claforte] Aaron did a horrible hack here. Fix that ASAP.
                 v[numparticle].color = cnt;  // Store an index in the color slot...
@@ -254,14 +254,14 @@ void render_prt()
         prt = ( Uint16 ) v[cnt].color;
 
         // Draw sprites this round
-        if ( prttype[prt] == PRTSOLIDSPRITE )
+        if ( PrtList[prt].type == PRTSOLIDSPRITE )
         {
-            float color_component = prtlight[prt] * INV_FF;
-            light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
+            float color_component = PrtList[prt].light * INV_FF;
+            light = ( 0xff000000 ) | ( PrtList[prt].light << 16 ) | ( PrtList[prt].light << 8 ) | ( PrtList[prt].light );
             glColor4f( color_component, color_component, color_component, 1.0f );
 
             // [claforte] Fudge the value.
-            size = ( float )( prtsize[prt] ) * 0.00092f;
+            size = ( float )( PrtList[prt].size ) * 0.00092f;
 
             // Calculate the position of the four corners of the billboard
             // used to display the particle.
@@ -279,7 +279,7 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
+            image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt ) ;
 
             vtlist[0].s = particleimageu[image][0];
             vtlist[0].t = particleimagev[image][0];
@@ -321,13 +321,13 @@ void render_prt()
         prt = ( Uint16 ) v[cnt].color;
 
         // Draw transparent sprites this round
-        if ( prttype[prt] != PRTLIGHTSPRITE )  // Render solid ones twice...  For Antialias
+        if ( PrtList[prt].type != PRTLIGHTSPRITE )  // Render solid ones twice...  For Antialias
         {
-            float color_component = prtlight[prt] * INV_FF;
+            float color_component = PrtList[prt].light * INV_FF;
             float alpha_component;
 
             // Figure out the sprite's size based on distance
-            if ( prttype[prt] == PRTSOLIDSPRITE )
+            if ( PrtList[prt].type == PRTSOLIDSPRITE )
                 alpha_component = antialiastrans * INV_FF;
             else
                 alpha_component = particletrans * INV_FF;
@@ -335,8 +335,8 @@ void render_prt()
             glColor4f( color_component, color_component, color_component, alpha_component ); //[claforte] should use alpha_component instead of 0.5f?
 
             // [claforte] Fudge the value.
-            size = ( float )prtsize[prt] * 0.00092;
-            if ( prttype[prt] == PRTSOLIDSPRITE )
+            size = ( float )PrtList[prt].size * 0.00092;
+            if ( PrtList[prt].type == PRTSOLIDSPRITE )
                 size += 2.0f; // for antialiasing.
 
             // Calculate the position of the four corners of the billboard
@@ -355,8 +355,8 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
-            light = ( 0xff000000 ) | ( prtlight[prt] << 16 ) | ( prtlight[prt] << 8 ) | ( prtlight[prt] );
+            image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt ) ;
+            light = ( 0xff000000 ) | ( PrtList[prt].light << 16 ) | ( PrtList[prt].light << 8 ) | ( PrtList[prt].light );
 
             vtlist[0].s = particleimageu[image][0];
             vtlist[0].t = particleimagev[image][0];
@@ -398,10 +398,10 @@ void render_prt()
         prt = ( Uint16 ) v[cnt].color;
 
         // Draw lights this round
-        if ( prttype[prt] == PRTLIGHTSPRITE )
+        if ( PrtList[prt].type == PRTLIGHTSPRITE )
         {
             // [claforte] Fudge the value.
-            size = ( float )prtsize[prt] * 0.00156f;
+            size = ( float )PrtList[prt].size * 0.00156f;
 
             // Calculate the position of the four corners of the billboard
             // used to display the particle.
@@ -419,7 +419,7 @@ void render_prt()
             vtlist[3].z = v[cnt].z + ( ( -vector_right.z + vector_up.z ) * size );
 
             // Fill in the rest of the data
-            image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
+            image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt ) ;
 
             vtlist[0].s = particleimageu[image][0];
             vtlist[0].t = particleimagev[image][0];
@@ -477,15 +477,15 @@ void render_refprt()
 
     while ( cnt < maxparticles )
     {
-        if ( prtinview[cnt] && 0 != prtsize[cnt] && INVALID_TILE != prtonwhichfan[cnt] )
+        if ( PrtList[cnt].inview && 0 != PrtList[cnt].size && INVALID_TILE != PrtList[cnt].onwhichfan )
         {
-            if ( meshfx[prtonwhichfan[cnt]] & MESHFX_DRAWREF )
+            if ( meshfx[PrtList[cnt].onwhichfan] & MESHFX_DRAWREF )
             {
-                level = prtlevel[cnt];
-                v[numparticle].x = ( float ) prtxpos[cnt];
-                v[numparticle].y = ( float ) prtypos[cnt];
-                v[numparticle].z = ( float ) - prtzpos[cnt] + level + level;
-                if ( prtattachedtocharacter[cnt] != MAXCHR )
+                level = PrtList[cnt].level;
+                v[numparticle].x = ( float ) PrtList[cnt].xpos;
+                v[numparticle].y = ( float ) PrtList[cnt].ypos;
+                v[numparticle].z = ( float ) - PrtList[cnt].zpos + level + level;
+                if ( PrtList[cnt].attachedtocharacter != MAXCHR )
                 {
                     v[numparticle].z += RAISE + RAISE;
                 }
@@ -513,9 +513,9 @@ void render_refprt()
         prt = ( Uint16 ) v[cnt].color;
 
         // Draw lights this round
-        if ( prttype[prt] == PRTLIGHTSPRITE )
+        if ( PrtList[prt].type == PRTLIGHTSPRITE )
         {
-            size = ( float )( prtsize[prt] ) * 0.00156f;
+            size = ( float )( PrtList[prt].size ) * 0.00156f;
 
             // Calculate the position of the four corners of the billboard
             // used to display the particle.
@@ -540,7 +540,7 @@ void render_refprt()
             if ( startalpha > 255 ) startalpha = 255;
             if ( startalpha > 0 )
             {
-                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
+                image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt ) ;
                 // light = (startalpha<<24)|usealpha;
                 glColor4f( 1.0f, 1.0f, 1.0f, startalpha * INV_FF );
 
@@ -583,10 +583,10 @@ void render_refprt()
         prt = ( Uint16 ) v[cnt].color;
 
         // Draw solid and transparent sprites this round
-        if ( prttype[prt] != PRTLIGHTSPRITE )
+        if ( PrtList[prt].type != PRTLIGHTSPRITE )
         {
             // Figure out the sprite's size based on distance
-            size = ( float )( prtsize[prt] ) * 0.00092f;
+            size = ( float )( PrtList[prt].size ) * 0.00092f;
 
             // Calculate the position of the four corners of the billboard
             // used to display the particle.
@@ -607,12 +607,12 @@ void render_refprt()
             startalpha = ( int )( 255 + v[cnt].z - level );
             if ( startalpha < 0 ) startalpha = 0;
 
-            startalpha = ( startalpha | reffadeor ) >> ( 1 + prttype[prt] );  // Fix for Riva owners
+            startalpha = ( startalpha | reffadeor ) >> ( 1 + PrtList[prt].type );  // Fix for Riva owners
             if ( startalpha > 255 ) startalpha = 255;
             if ( startalpha > 0 )
             {
-                float color_component = prtlight[prt] / 16.0f;
-                image = FP8_TO_INT( prtimage[prt] + prtimagestt[prt] ) ;
+                float color_component = PrtList[prt].light / 16.0f;
+                image = FP8_TO_INT( PrtList[prt].image + PrtList[prt].imagestt ) ;
                 glColor4f( color_component, color_component, color_component, startalpha * INV_FF );
 
                 vtlist[0].s = particleimageu[image][1];

@@ -225,13 +225,6 @@ enum e_xp_type
 
 #define XPDIRECT            255                     // No modification
 
-// Teams
-#define MAXTEAM             27                      // Teams A-Z, +1 more for damage tiles
-#define DAMAGETEAM          26                      // For damage tiles
-#define EVILTEAM            4                       // E
-#define GOODTEAM            6                       // G
-#define NULLTEAM            13                      // N
-
 #define LATCHBUTTON_LEFT      ( 1 << 0 )                      // Character button presses
 #define LATCHBUTTON_RIGHT     ( 1 << 1 )                      //
 #define LATCHBUTTON_JUMP      ( 1 << 2 )                      //
@@ -256,14 +249,6 @@ enum e_xp_type
 #define WATERPOINTS 4                               // Points in a water fan
 #define WATERMODE 4                                 // Ummm...  For making it work, yeah...
 
-#define ROTMESHTOPSIDE                  55          // For figuring out what to draw
-#define ROTMESHBOTTOMSIDE               65          //
-#define ROTMESHUP                       40 //35          //
-#define ROTMESHDOWN                     60          //
-EXTERN int rotmeshtopside;                                 // The ones that get used
-EXTERN int rotmeshbottomside;                              //
-EXTERN int rotmeshup;                                      //
-EXTERN int rotmeshdown;                                    //
 
 #define NUMFONTX                        16          // Number of fonts in the bitmap
 #define NUMFONTY                        6           //
@@ -292,7 +277,6 @@ EXTERN int rotmeshdown;                                    //
 #define MAXCOMMANDSIZE                  128          // Max number of points in a command
 #define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
 #define MAXMODEL                        256         // Max number of models
-#define MAXEVE                          MAXMODEL    // One enchant type per model
 #define MAXEVESETVALUE                  24          // Number of sets
 #define MAXEVEADDVALUE                  16          // Number of adds
 #define MAXFRAME                        (128*32)    // Max number of frames in all models
@@ -395,11 +379,29 @@ EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 #define MAXMONEY 9999                               // Maximum money
 #define NOLEADER 0xFFFF                              // If the team has no leader...
 
-EXTERN bool_t                   teamhatesteam[MAXTEAM][MAXTEAM];     // Don't damage allies...
-EXTERN Uint16                    teammorale[MAXTEAM];                 // Number of characters on team
-EXTERN Uint16                    teamleader[MAXTEAM];                 // The leader of the team
-EXTERN Uint16                    teamsissy[MAXTEAM];                  // Whoever called for help last
-EXTERN Sint16                   damagetileparttype;
+//------------------------------------
+// Team variables
+//------------------------------------
+
+#define MAXTEAM             27                      // Teams A-Z, +1 more for damage tiles
+#define DAMAGETEAM          26                      // For damage tiles
+#define EVILTEAM            4                       // E
+#define GOODTEAM            6                       // G
+#define NULLTEAM            13                      // N
+
+struct s_team
+{
+    bool_t  hatesteam[MAXTEAM];     // Don't damage allies...
+    Uint16  morale;                 // Number of characters on team
+    Uint16  leader;                 // The leader of the team
+    Uint16  sissy;                  // Whoever called for help last
+};
+typedef struct s_team team_t;
+
+EXTERN team_t TeamList[MAXTEAM];
+
+
+EXTERN Sint16                  damagetileparttype;
 EXTERN short                   damagetilepartand;
 EXTERN short                   damagetilesound;
 EXTERN short                   damagetilesoundtime;
@@ -603,8 +605,8 @@ typedef enum e_tx_filters
     TX_ANISOTROPIC
 } TX_FILTERS;
 
-EXTERN glMatrix mWorld;                      // World Matrix
-EXTERN glMatrix mView;                      // View Matrix
+EXTERN glMatrix mWorld;                       // World Matrix
+EXTERN glMatrix mView;                        // View Matrix
 EXTERN glMatrix mViewSave;                    // View Matrix initial state
 EXTERN glMatrix mProjection;                  // Projection Matrix
 
@@ -660,13 +662,14 @@ EXTERN Uint8 flattwist[256];             //
 #define TRACKYAREAMINHIGH 460
 #define TRACKYAREAMAXHIGH 600
 
-// Values for manipulating AI
+//------------------------------------
+// AI variables
+//------------------------------------
 #define MAXWAY              8                       // Waypoints
 #define WAYTHRESH           64                      // Threshold for reaching waypoint
 #define MAXSTOR             16                      // Storage data (Used in SetXY)
 #define STORAND             15                      //
 
-// AI stuff
 struct s_ai_state
 {
     // which script to run
@@ -721,13 +724,203 @@ struct s_ai_state
 };
 typedef struct s_ai_state ai_state_t;
 
-// Character stuff
+//------------------------------------
+// Character template
+//------------------------------------
 #define MAXSKIN   4
 
-EXTERN int            numfreechr EQ( 0 );             // For allocation
-EXTERN Uint16         freechrlist[MAXCHR];        //
+struct s_cap
+{
+    short        importslot;
 
-//This is the character definition
+    // naming
+    char         classname[MAXCAPNAMESIZE];     // Class name
+    Uint16       chop_sectionsize[MAXSECTION];   // Number of choices, 0
+    Uint16       chop_sectionstart[MAXSECTION];  //
+
+    // skins
+    char         skinname[MAXSKIN][MAXCAPNAMESIZE];   // Skin name
+    Uint16       skincost[MAXSKIN];                   // Store prices
+    float        maxaccel[MAXSKIN];                   // Acceleration for each skin
+    Uint8        skindressy;                         // Dressy
+
+    // overrides
+    Sint8        skinoverride;                  // -1 or 0-3.. For import
+    Uint8        leveloverride;                 // 0 for normal
+    int          stateoverride;                 // 0 for normal
+    int          contentoverride;               // 0 for normal
+
+    IDSZ         idsz[IDSZ_COUNT];                 // ID strings
+
+    float        strengthdampen;                // Strength damage factor
+    Uint8        stoppedby;                     // Collision Mask
+
+    // inventory
+    Uint8        ammomax;                       // Ammo stuff
+    Uint8        ammo;                          //
+    Sint16       money;                         // Money
+
+    // characer stats
+    Uint8        gender;                        // Gender
+    Uint16       lifebase;                      // Life
+    Uint16       liferand;                      //
+    Uint16       lifeperlevelbase;              //
+    Uint16       lifeperlevelrand;              //
+    Sint16       lifereturn;                    //
+    Uint16       lifeheal;                      //
+    Uint16       manabase;                      // Mana
+    Uint16       manarand;                      //
+    Sint16       manacost;                      //
+    Uint16       manaperlevelbase;              //
+    Uint16       manaperlevelrand;              //
+    Uint16       manareturnbase;                //
+    Uint16       manareturnrand;                //
+    Uint16       manareturnperlevelbase;        //
+    Uint16       manareturnperlevelrand;        //
+    Uint16       manaflowbase;                  //
+    Uint16       manaflowrand;                  //
+    Uint16       manaflowperlevelbase;          //
+    Uint16       manaflowperlevelrand;          //
+    Uint16       strengthbase;                  // Strength
+    Uint16       strengthrand;                  //
+    Uint16       strengthperlevelbase;          //
+    Uint16       strengthperlevelrand;          //
+    Uint16       wisdombase;                    // Wisdom
+    Uint16       wisdomrand;                    //
+    Uint16       wisdomperlevelbase;            //
+    Uint16       wisdomperlevelrand;            //
+    Uint16       intelligencebase;              // Intlligence
+    Uint16       intelligencerand;              //
+    Uint16       intelligenceperlevelbase;      //
+    Uint16       intelligenceperlevelrand;      //
+    Uint16       dexteritybase;                 // Dexterity
+    Uint16       dexterityrand;                 //
+    Uint16       dexterityperlevelbase;         //
+    Uint16       dexterityperlevelrand;         //
+
+    // physics
+    Uint8        weight;                        // Weight
+    float        dampen;                        // Bounciness
+    float        bumpdampen;                    // Mass
+
+    float        size;                          // Scale of model
+    float        sizeperlevel;                  // Scale increases
+    Uint8        shadowsize;                    // Shadow size
+    Uint8        bumpsize;                      // Bounding octagon
+    Uint8        bumpsizebig;                   // For octagonal bumpers
+    Uint8        bumpheight;                    //
+
+    // movement
+    float        jump;                          // Jump power
+    Uint8        jumpnumber;                    // Number of jumps ( Ninja )
+    Uint8        sneakspd;                      // Sneak threshold
+    Uint8        walkspd;                       // Walk threshold
+    Uint8        runspd;                        // Run threshold
+    Uint8        flyheight;                     // Fly height
+
+    // graphics
+    Uint8        flashand;                      // Flashing rate
+    Uint8        alpha;                         // Transparency
+    Uint8        light;                         // Light blending
+    bool_t       transferblend;                 // Transfer blending to rider/weapons
+    bool_t       sheen;                         // How shiny it is ( 0-15 )
+    bool_t       enviro;                        // Phong map this baby?
+    Uint16       uoffvel;                       // Texture movement rates
+    Uint16       voffvel;                       //
+    bool_t       uniformlit;                    // Bad lighting?
+    Uint8        lifecolor;                     // Bar colors
+    Uint8        manacolor;                     //
+
+    // random stuff
+    bool_t       stickybutt;                    // Stick to the ground?
+
+    Uint16       iframefacing;                  // Invincibility frame
+    Uint16       iframeangle;                   //
+    Uint16       nframefacing;                  // Normal frame
+    Uint16       nframeangle;                   //
+
+    // defense
+    Uint8        resistbumpspawn;               // Don't catch fire
+    Uint8        defense[MAXSKIN];                    // Defense for each skin
+    Uint8        damagemodifier[DAMAGE_COUNT][MAXSKIN];
+
+    // xp
+    Uint32       experienceforlevel[MAXLEVEL];  // Experience needed for next level
+    Uint32       experiencebase;                // Starting experience
+    Uint16       experiencerand;                //
+    Uint16       experienceworth;               // Amount given to killer/user
+    float        experienceexchange;            // Adds to worth
+    float        experiencerate[XP_COUNT];
+
+    // sound
+    Sint8        soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
+    Mix_Chunk *  wavelist[MAXWAVE];             // sounds in a object
+
+    // flags
+    bool_t       isitem;                        // Is it an item?
+    bool_t       invictus;                      // Is it invincible?
+    bool_t       ismount;                       // Can you ride it?
+    bool_t       isstackable;                   // Is it arrowlike?
+    bool_t       nameknown;                     // Is the class name known?
+    bool_t       usageknown;                    // Is its usage known
+    bool_t       cancarrytonextmodule;          // Take it with you?
+    bool_t       needskillidtouse;              // Check IDSZ first?
+    bool_t       waterwalk;                     // Walk on water?
+    bool_t       platform;                      // Can be stood on?
+    bool_t       canuseplatforms;               // Can use platforms?
+    bool_t       cangrabmoney;                  // Collect money?
+    bool_t       canopenstuff;                  // Open chests/doors?
+    bool_t       icon;                          // Draw icon
+    bool_t       forceshadow;                   // Draw a shadow?
+    bool_t       ripple;                        // Spawn ripples?
+    Uint8        damagetargettype;              // For AI DamageTarget
+    Uint8        weaponaction;                  // Animation needed to swing
+    bool_t       gripvalid[MAXSLOT];            // Left/Right hands valid
+    Uint8        attackattached;                //
+    Sint8        attackprttype;                 //
+    Uint8        attachedprtamount;             // Sticky particles
+    Uint8        attachedprtreaffirmdamagetype; // Relight that torch...
+    Uint16       attachedprttype;               //
+    Uint8        gopoofprtamount;               // Poof effect
+    Sint16       gopoofprtfacingadd;            //
+    Uint16       gopoofprttype;                 //
+    bool_t       bludvalid;                    // Blud ( yuck )
+    Uint8        bludprttype;                  //
+    bool_t       ridercanattack;                // Rider attack?
+    bool_t       canbedazed;                    // Can it be dazed?
+    bool_t       canbegrogged;                  // Can it be grogged?
+    Uint8        kursechance;                   // Chance of being kursed
+    bool_t       istoobig;                      // Can't be put in pack
+    bool_t       reflect;                       // Draw the reflection
+    bool_t       alwaysdraw;                    // Always render
+    bool_t       isranged;                      // Flag for ranged weapon
+    Sint8        hidestate;                       // Don't draw when...
+    bool_t       isequipment;                     // Behave in silly ways
+    Sint8        isvaluable;                      // Force to be valuable
+
+    //skill system
+    Sint8        shieldproficiency;               // Can it use shields?
+    bool_t       canjoust;                        // Can it use advanced weapons?
+    bool_t       canuseadvancedweapons;           // Can it use advanced weapons?
+    bool_t       canseeinvisible;                 // Can it see invisible?
+    bool_t       canseekurse;                     // Can it see kurses?
+    bool_t       canusedivine;
+    bool_t       canusearcane;
+    bool_t       canusetech;
+    bool_t       candisarm;
+    bool_t       canbackstab;
+    bool_t       canusepoison;
+    bool_t       canread;
+};
+
+typedef struct s_cap cap_t;
+
+EXTERN int   importobject;
+EXTERN cap_t CapList[MAXMODEL];
+
+//------------------------------------
+// Character variables
+//------------------------------------
 struct s_chr
 {
     glMatrix       matrix;          // Character's matrix
@@ -916,7 +1109,10 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
-EXTERN chr_t chr[MAXCHR];
+EXTERN int            numfreechr EQ( 0 );             // For allocation
+EXTERN Uint16         freechrlist[MAXCHR];        //
+
+EXTERN chr_t ChrList[MAXCHR];
 
 #define INVISIBLE           20                      // The character can't be detected
 
@@ -933,57 +1129,78 @@ EXTERN IDSZ                      local_senseenemiesID;
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
 
 //------------------------------------
+// Enchantment template
+//------------------------------------
+#define MAXEVE                          MAXMODEL    // One enchant type per model
+
+struct s_eve
+{
+    bool_t  valid;                       // Enchant.txt loaded?
+    bool_t  override;                    // Override other enchants?
+    bool_t  removeoverridden;            // Remove other enchants?
+    bool_t  setyesno[MAXEVESETVALUE];    // Set this value?
+    Uint8   setvalue[MAXEVESETVALUE];    // Value to use
+    Sint32  addvalue[MAXEVEADDVALUE];    // The values to add
+    bool_t  retarget;                    // Pick a weapon?
+    bool_t  killonend;                   // Kill the target on end?
+    bool_t  poofonend;                   // Spawn a poof on end?
+    bool_t  endifcantpay;                // End on out of mana
+    bool_t  stayifnoowner;               // Stay if owner has died?
+    Sint16  time;                        // Time in seconds
+    Sint32  endmessage;                  // Message for end -1 for none
+    Sint16  ownermana;                   // Boost values
+    Sint16  ownerlife;                   //
+    Sint16  targetmana;                  //
+    Sint16  targetlife;                  //
+    Uint8   dontdamagetype;              // Don't work if ...
+    Uint8   onlydamagetype;              // Only work if ...
+    IDSZ    removedbyidsz;               // By particle or [NONE]
+    Uint16  contspawntime;               // Spawn timer
+    Uint8   contspawnamount;             // Spawn amount
+    Uint16  contspawnfacingadd;          // Spawn in circle
+    Uint16  contspawnpip;                // Spawn type ( local )
+    Sint16  waveindex;                   // Sound on end (-1 for none)
+    Uint16  frequency;                   // Sound frequency
+    Uint8   overlay;                     // Spawn an overlay?
+    Uint16  seekurse;                     // Spawn an overlay?
+};
+typedef struct s_eve eve_t;
+
+EXTERN eve_t EveList[MAXEVE];
+
+//------------------------------------
 // Enchantment variables
 //------------------------------------
 #define MAXENCHANT                      200         // Number of enchantments
 EXTERN Uint16       numfreeenchant;             // For allocating new ones
 EXTERN Uint16       freeenchant[MAXENCHANT];    //
 
-EXTERN bool_t           evevalid[MAXEVE];                       // Enchant.txt loaded?
-EXTERN bool_t           eveoverride[MAXEVE];                    // Override other enchants?
-EXTERN bool_t           everemoveoverridden[MAXEVE];            // Remove other enchants?
-EXTERN bool_t           evesetyesno[MAXEVE][MAXEVESETVALUE];    // Set this value?
-EXTERN Uint8            evesetvalue[MAXEVE][MAXEVESETVALUE];    // Value to use
-EXTERN Sint32           eveaddvalue[MAXEVE][MAXEVEADDVALUE];    // The values to add
-EXTERN bool_t           everetarget[MAXEVE];                    // Pick a weapon?
-EXTERN bool_t           evekillonend[MAXEVE];                   // Kill the target on end?
-EXTERN bool_t           evepoofonend[MAXEVE];                   // Spawn a poof on end?
-EXTERN bool_t           eveendifcantpay[MAXEVE];                // End on out of mana
-EXTERN bool_t           evestayifnoowner[MAXEVE];               // Stay if owner has died?
-EXTERN Sint16           evetime[MAXEVE];                        // Time in seconds
-EXTERN Sint32           eveendmessage[MAXEVE];                  // Message for end -1 for none
-EXTERN Sint16           eveownermana[MAXEVE];                   // Boost values
-EXTERN Sint16           eveownerlife[MAXEVE];                   //
-EXTERN Sint16           evetargetmana[MAXEVE];                  //
-EXTERN Sint16           evetargetlife[MAXEVE];                  //
-EXTERN Uint8            evedontdamagetype[MAXEVE];              // Don't work if ...
-EXTERN Uint8            eveonlydamagetype[MAXEVE];              // Only work if ...
-EXTERN IDSZ             everemovedbyidsz[MAXEVE];               // By particle or [NONE]
-EXTERN Uint16           evecontspawntime[MAXEVE];               // Spawn timer
-EXTERN Uint8            evecontspawnamount[MAXEVE];             // Spawn amount
-EXTERN Uint16           evecontspawnfacingadd[MAXEVE];          // Spawn in circle
-EXTERN Uint16           evecontspawnpip[MAXEVE];                // Spawn type ( local )
-EXTERN Sint16           evewaveindex[MAXEVE];                   // Sound on end (-1 for none)
-EXTERN Uint16           evefrequency[MAXEVE];                   // Sound frequency
-EXTERN Uint8            eveoverlay[MAXEVE];                     // Spawn an overlay?
-EXTERN Uint16           eveseekurse[MAXEVE];                     // Spawn an overlay?
+struct s_enc
+{
+    bool_t  on;                      // Enchantment on
+    Sint16  time;                    // Time before end
+    Uint16  spawntime;               // Time before spawn
 
-EXTERN bool_t           encon[MAXENCHANT];                      // Enchantment on
-EXTERN Uint16           enceve[MAXENCHANT];                     // The type
-EXTERN Uint16           enctarget[MAXENCHANT];                  // Who it enchants
-EXTERN Uint16           encnextenchant[MAXENCHANT];             // Next in the list
-EXTERN Uint16           encowner[MAXENCHANT];                   // Who cast the enchant
-EXTERN Uint16           encspawner[MAXENCHANT];                 // The spellbook character
-EXTERN Uint16           encoverlay[MAXENCHANT];                 // The overlay character
-EXTERN Sint16           encownermana[MAXENCHANT];               // Boost values
-EXTERN Sint16           encownerlife[MAXENCHANT];               //
-EXTERN Sint16           enctargetmana[MAXENCHANT];              //
-EXTERN Sint16           enctargetlife[MAXENCHANT];              //
-EXTERN bool_t           encsetyesno[MAXENCHANT][MAXEVESETVALUE];// Was it set?
-EXTERN bool_t           encsetsave[MAXENCHANT][MAXEVESETVALUE]; // The value to restore
-EXTERN Sint16           encaddsave[MAXENCHANT][MAXEVEADDVALUE]; // The value to take away
-EXTERN Sint16           enctime[MAXENCHANT];                    // Time before end
-EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before spawn
+    Uint16  eve;                     // The type
+
+    Uint16  target;                  // Who it enchants
+    Uint16  owner;                   // Who cast the enchant
+    Uint16  spawner;                 // The spellbook character
+    Uint16  overlay;                 // The overlay character
+    Sint16  ownermana;               // Boost values
+    Sint16  ownerlife;               //
+    Sint16  targetmana;              //
+    Sint16  targetlife;              //
+
+    Uint16  nextenchant;             // Next in the list
+
+    bool_t  setyesno[MAXEVESETVALUE];// Was it set?
+    bool_t  setsave[MAXEVESETVALUE]; // The value to restore
+    Sint16  addsave[MAXEVEADDVALUE]; // The value to take away
+};
+typedef struct s_enc enc_t;
+
+EXTERN enc_t EncList[MAXENCHANT];
 
 //missile treatments
 #define MISNORMAL               0                  // Treat missiles normally
@@ -997,140 +1214,161 @@ EXTERN Uint16           encspawntime[MAXENCHANT];               // Time before s
 EXTERN float            textureoffset[256];         // For moving textures
 
 //------------------------------------
+// Particle template
+//------------------------------------
+#define TOTALMAXPRTPIP         1024                                      // Particle templates
+
+struct s_pip
+{
+    bool_t  force;                        // Force spawn?
+
+    Uint8   type;                         // Transparency mode
+    Uint8   numframes;                    // Number of frames
+    Uint8   imagebase;                    // Starting image
+    Uint16  imageadd;                     // Frame rate
+    Uint16  imageaddrand;                 // Frame rate randomness
+    Uint16  time;                         // Time until end
+    Uint16  rotatebase;                   // Rotation
+    Uint16  rotaterand;                   // Rotation
+    Sint16  rotateadd;                    // Rotation rate
+    Uint16  sizebase;                     // Size
+    Sint16  sizeadd;                      // Size rate
+    float   spdlimit;                     // Speed limit
+    float   dampen;                       // Bounciness
+    Sint8   bumpmoney;                    // Value of particle
+    Uint8   bumpsize;                     // Bounding box size
+    Uint8   bumpheight;                   // Bounding box height
+    bool_t  endwater;                     // End if underwater
+    bool_t  endbump;                      // End if bumped
+    bool_t  endground;                    // End if on ground
+    bool_t  endwall;                      // End if hit a wall
+    bool_t  endlastframe;                 // End on last frame
+    Uint16  damagebase;                   // Damage
+    Uint16  damagerand;                   // Damage
+    Uint8   damagetype;                   // Damage type
+    Sint16  facingbase;                   // Facing
+    Uint16  facingadd;                    // Facing
+    Uint16  facingrand;                   // Facing
+    Sint16  xyspacingbase;                // Spacing
+    Uint16  xyspacingrand;                // Spacing
+    Sint16  zspacingbase;                 // Altitude
+    Uint16  zspacingrand;                 // Altitude
+    Sint8   xyvelbase;                    // Shot velocity
+    Uint8   xyvelrand;                    // Shot velocity
+    Sint8   zvelbase;                     // Up velocity
+    Uint8   zvelrand;                     // Up velocity
+    Uint16  contspawntime;                // Spawn timer
+    Uint8   contspawnamount;              // Spawn amount
+    Uint16  contspawnfacingadd;           // Spawn in circle
+    Uint16  contspawnpip;                 // Spawn type ( local )
+    Uint8   endspawnamount;               // Spawn amount
+    Uint16  endspawnfacingadd;            // Spawn in circle
+    Uint8   endspawnpip;                  // Spawn type ( local )
+    Uint8   bumpspawnamount;              // Spawn amount
+    Uint8   bumpspawnpip;                 // Spawn type ( global )
+    Uint8   dynalightmode;                // Dynamic light on?
+    float   dynalevel;                    // Intensity
+    Uint16  dynafalloff;                  // Falloff
+    Uint16  dazetime;                     // Daze
+    Uint16  grogtime;                     // Drunkeness
+    Sint8   soundspawn;                   // Beginning sound
+    Sint8   soundend;                     // Ending sound
+    Sint8   soundfloor;                   // Floor sound
+    Sint8   soundwall;                    // Ricochet sound
+    bool_t  friendlyfire;                 // Friendly fire
+    bool_t  hateonly;                     //Only hit hategroup
+    bool_t  rotatetoface;                 // Arrows/Missiles
+    bool_t  newtargetonspawn;             // Get new target?
+    bool_t  homing;                       // Homing?
+    Uint16  targetangle;                  // To find target
+    float   homingaccel;                  // Acceleration rate
+    float   homingfriction;               // Deceleration rate
+    float   dynalightleveladd;            // Dyna light changes
+    float   dynalightfalloffadd;          //
+    bool_t  targetcaster;                 // Target caster?
+    bool_t  spawnenchant;                 // Spawn enchant?
+    bool_t  needtarget;                   // Need a target?
+    bool_t  onlydamagefriendly;           // Only friends?
+    bool_t  startontarget;                // Start on target?
+    int     zaimspd;                      // [ZSPD] For Z aiming
+    Uint16  damfx;                        // Damage effects
+    bool_t  allowpush;                    // Allow particle to push characters around
+    bool_t  intdamagebonus;               // Add intelligence as damage bonus
+    bool_t  wisdamagebonus;               // Add wisdom as damage bonus
+};
+
+typedef struct s_pip pip_t;
+
+EXTERN int   numpip  EQ( 0 );
+EXTERN pip_t PipList[TOTALMAXPRTPIP];
+
+
+//------------------------------------
 // Particle variables
 //------------------------------------
 #define SPAWNNOCHARACTER        255                                      // For particles that spawn characters...
 #define TOTALMAXPRT            2048                                      // True max number of particles
-#define TOTALMAXPRTPIP         1024                                      // Particle templates
 #define MAXPRTPIPPEROBJECT       13                                      // Max part*.txt per object
+
+struct s_prt
+{
+    Uint8   on;                              // Does it exist?
+
+    // profiles
+    Uint16  pip;                             // The part template
+    Uint16  model;                           // Pip spawn model
+
+    Uint16  attachedtocharacter;             // For torch flame
+    Uint16  grip;                            // The vertex it's on
+    Uint8   type;                            // Transparency mode, 0-2
+    Uint16  facing;                          // Direction of the part
+    Uint8   team;                            // Team
+    float   xpos;                            // Position
+    float   ypos;                            //
+    float   zpos;                            //
+    float   xvel;                            // Velocity
+    float   yvel;                            //
+    float   zvel;                            //
+    float   level;                           // Height of tile
+    Uint8   spawncharacterstate;             //
+    Uint16  rotate;                          // Rotation direction
+    Sint16  rotateadd;                       // Rotation rate
+    Uint32  onwhichfan;                      // Where the part is
+    Uint32  onwhichblock;                         // The particle's collision block
+    Uint16  size;                            // Size of particle>>8
+    Sint16  sizeadd;                         // Change in size
+    bool_t  inview;                          // Render this one?
+    Uint16  image;                           // Which image ( >> 8 )
+    Uint16  imageadd;                        // Animation rate
+    Uint16  imagemax;                        // End of image loop
+    Uint16  imagestt;                        // Start of image loop
+    Uint8   light;                           // Light level
+    Uint16  time;                            // Duration of particle
+    Uint16  spawntime;                       // Time until spawn
+    Uint8   bumpsize;                        // Size of bumpers
+    Uint8   bumpsizebig;                     //
+    Uint8   bumpheight;                      // Bounding box height
+    Uint16  bumpnext;                        // Next particle on fanblock
+    Uint16  damagebase;                      // For strength
+    Uint16  damagerand;                      // For fixes...
+    Uint8   damagetype;                      // Damage type
+    Uint16  chr;                             // The character that is attacking
+    float   dynalightfalloff;                // Dyna light...
+    float   dynalightlevel;                  //
+    bool_t  dynalighton;                     // Dynamic light?
+    Uint16  target;                          // Who it's chasing
+};
+typedef struct s_prt prt_t;
+
+EXTERN Uint16           particletexture;                            // All in one bitmap
+EXTERN float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
+EXTERN float            particleimagev[MAXPARTICLEIMAGE][2];        //
 
 EXTERN Uint16           maxparticles EQ(512);                            // max number of particles
 EXTERN int              numfreeprt   EQ( 0 );                            // For allocation
 EXTERN Uint16           freeprtlist[TOTALMAXPRT];                        //
 
-EXTERN Uint8            prton[TOTALMAXPRT];                              // Does it exist?
-EXTERN Uint16           prtpip[TOTALMAXPRT];                             // The part template
-EXTERN Uint16           prtmodel[TOTALMAXPRT];                           // Pip spawn model
-EXTERN Uint16           prtattachedtocharacter[TOTALMAXPRT];             // For torch flame
-EXTERN Uint16           prtgrip[TOTALMAXPRT];                            // The vertex it's on
-EXTERN Uint8            prttype[TOTALMAXPRT];                            // Transparency mode, 0-2
-EXTERN Uint16           prtfacing[TOTALMAXPRT];                          // Direction of the part
-EXTERN Uint8            prtteam[TOTALMAXPRT];                            // Team
-EXTERN float            prtxpos[TOTALMAXPRT];                            // Position
-EXTERN float            prtypos[TOTALMAXPRT];                            //
-EXTERN float            prtzpos[TOTALMAXPRT];                            //
-EXTERN float            prtxvel[TOTALMAXPRT];                            // Velocity
-EXTERN float            prtyvel[TOTALMAXPRT];                            //
-EXTERN float            prtzvel[TOTALMAXPRT];                            //
-EXTERN float            prtlevel[TOTALMAXPRT];                           // Height of tile
-EXTERN Uint8            prtspawncharacterstate[TOTALMAXPRT];             //
-EXTERN Uint16           prtrotate[TOTALMAXPRT];                          // Rotation direction
-EXTERN Sint16           prtrotateadd[TOTALMAXPRT];                       // Rotation rate
-EXTERN Uint32           prtonwhichfan[TOTALMAXPRT];                      // Where the part is
-EXTERN Uint32           prtonwhichblock[TOTALMAXPRT];                         // The particle's collision block
-EXTERN Uint16           prtsize[TOTALMAXPRT];                            // Size of particle>>8
-EXTERN Sint16           prtsizeadd[TOTALMAXPRT];                         // Change in size
-EXTERN bool_t           prtinview[TOTALMAXPRT];                          // Render this one?
-EXTERN Uint16           prtimage[TOTALMAXPRT];                           // Which image ( >> 8 )
-EXTERN Uint16           prtimageadd[TOTALMAXPRT];                        // Animation rate
-EXTERN Uint16           prtimagemax[TOTALMAXPRT];                        // End of image loop
-EXTERN Uint16           prtimagestt[TOTALMAXPRT];                        // Start of image loop
-EXTERN Uint8            prtlight[TOTALMAXPRT];                           // Light level
-EXTERN Uint16           prttime[TOTALMAXPRT];                            // Duration of particle
-EXTERN Uint16           prtspawntime[TOTALMAXPRT];                       // Time until spawn
-EXTERN Uint8            prtbumpsize[TOTALMAXPRT];                        // Size of bumpers
-EXTERN Uint8            prtbumpsizebig[TOTALMAXPRT];                     //
-EXTERN Uint8            prtbumpheight[TOTALMAXPRT];                      // Bounding box height
-EXTERN Uint16           prtbumpnext[TOTALMAXPRT];                        // Next particle on fanblock
-EXTERN Uint16           prtdamagebase[TOTALMAXPRT];                      // For strength
-EXTERN Uint16           prtdamagerand[TOTALMAXPRT];                      // For fixes...
-EXTERN Uint8            prtdamagetype[TOTALMAXPRT];                      // Damage type
-EXTERN Uint16           prtchr[TOTALMAXPRT];                             // The character that is attacking
-EXTERN float            prtdynalightfalloff[TOTALMAXPRT];                // Dyna light...
-EXTERN float            prtdynalightlevel[TOTALMAXPRT];                  //
-EXTERN float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
-EXTERN float            particleimagev[MAXPARTICLEIMAGE][2];        //
-EXTERN Uint16           particletexture;                            // All in one bitmap
-EXTERN bool_t           prtdynalighton[TOTALMAXPRT];                     // Dynamic light?
-EXTERN Uint16           prttarget[TOTALMAXPRT];                          // Who it's chasing
-
-//particle templates
-EXTERN int                     numpip  EQ( 0 );
-EXTERN bool_t                  pipforce[TOTALMAXPRTPIP];                        // Force spawn?
-
-EXTERN Uint8                   piptype[TOTALMAXPRTPIP];                         // Transparency mode
-EXTERN Uint8                   pipnumframes[TOTALMAXPRTPIP];                    // Number of frames
-EXTERN Uint8                   pipimagebase[TOTALMAXPRTPIP];                    // Starting image
-EXTERN Uint16                  pipimageadd[TOTALMAXPRTPIP];                     // Frame rate
-EXTERN Uint16                  pipimageaddrand[TOTALMAXPRTPIP];                 // Frame rate randomness
-EXTERN Uint16                  piptime[TOTALMAXPRTPIP];                         // Time until end
-EXTERN Uint16                  piprotatebase[TOTALMAXPRTPIP];                   // Rotation
-EXTERN Uint16                  piprotaterand[TOTALMAXPRTPIP];                   // Rotation
-EXTERN Sint16                  piprotateadd[TOTALMAXPRTPIP];                    // Rotation rate
-EXTERN Uint16                  pipsizebase[TOTALMAXPRTPIP];                     // Size
-EXTERN Sint16                  pipsizeadd[TOTALMAXPRTPIP];                      // Size rate
-EXTERN float                   pipspdlimit[TOTALMAXPRTPIP];                     // Speed limit
-EXTERN float                   pipdampen[TOTALMAXPRTPIP];                       // Bounciness
-EXTERN Sint8                   pipbumpmoney[TOTALMAXPRTPIP];                    // Value of particle
-EXTERN Uint8                   pipbumpsize[TOTALMAXPRTPIP];                     // Bounding box size
-EXTERN Uint8                   pipbumpheight[TOTALMAXPRTPIP];                   // Bounding box height
-EXTERN bool_t                  pipendwater[TOTALMAXPRTPIP];                     // End if underwater
-EXTERN bool_t                  pipendbump[TOTALMAXPRTPIP];                      // End if bumped
-EXTERN bool_t                  pipendground[TOTALMAXPRTPIP];                    // End if on ground
-EXTERN bool_t                  pipendwall[TOTALMAXPRTPIP];                      // End if hit a wall
-EXTERN bool_t                  pipendlastframe[TOTALMAXPRTPIP];                 // End on last frame
-EXTERN Uint16                  pipdamagebase[TOTALMAXPRTPIP];                   // Damage
-EXTERN Uint16                  pipdamagerand[TOTALMAXPRTPIP];                   // Damage
-EXTERN Uint8                   pipdamagetype[TOTALMAXPRTPIP];                   // Damage type
-EXTERN Sint16                  pipfacingbase[TOTALMAXPRTPIP];                   // Facing
-EXTERN Uint16                  pipfacingadd[TOTALMAXPRTPIP];                    // Facing
-EXTERN Uint16                  pipfacingrand[TOTALMAXPRTPIP];                   // Facing
-EXTERN Sint16                  pipxyspacingbase[TOTALMAXPRTPIP];                // Spacing
-EXTERN Uint16                  pipxyspacingrand[TOTALMAXPRTPIP];                // Spacing
-EXTERN Sint16                  pipzspacingbase[TOTALMAXPRTPIP];                 // Altitude
-EXTERN Uint16                  pipzspacingrand[TOTALMAXPRTPIP];                 // Altitude
-EXTERN Sint8                   pipxyvelbase[TOTALMAXPRTPIP];                    // Shot velocity
-EXTERN Uint8                   pipxyvelrand[TOTALMAXPRTPIP];                    // Shot velocity
-EXTERN Sint8                   pipzvelbase[TOTALMAXPRTPIP];                     // Up velocity
-EXTERN Uint8                   pipzvelrand[TOTALMAXPRTPIP];                     // Up velocity
-EXTERN Uint16                  pipcontspawntime[TOTALMAXPRTPIP];                // Spawn timer
-EXTERN Uint8                   pipcontspawnamount[TOTALMAXPRTPIP];              // Spawn amount
-EXTERN Uint16                  pipcontspawnfacingadd[TOTALMAXPRTPIP];           // Spawn in circle
-EXTERN Uint16                  pipcontspawnpip[TOTALMAXPRTPIP];                 // Spawn type ( local )
-EXTERN Uint8                   pipendspawnamount[TOTALMAXPRTPIP];               // Spawn amount
-EXTERN Uint16                  pipendspawnfacingadd[TOTALMAXPRTPIP];            // Spawn in circle
-EXTERN Uint8                   pipendspawnpip[TOTALMAXPRTPIP];                  // Spawn type ( local )
-EXTERN Uint8                   pipbumpspawnamount[TOTALMAXPRTPIP];              // Spawn amount
-EXTERN Uint8                   pipbumpspawnpip[TOTALMAXPRTPIP];                 // Spawn type ( global )
-EXTERN Uint8                   pipdynalightmode[TOTALMAXPRTPIP];                // Dynamic light on?
-EXTERN float                   pipdynalevel[TOTALMAXPRTPIP];                    // Intensity
-EXTERN Uint16                  pipdynafalloff[TOTALMAXPRTPIP];                  // Falloff
-EXTERN Uint16                  pipdazetime[TOTALMAXPRTPIP];                     // Daze
-EXTERN Uint16                  pipgrogtime[TOTALMAXPRTPIP];                     // Drunkeness
-EXTERN Sint8                   pipsoundspawn[TOTALMAXPRTPIP];                   // Beginning sound
-EXTERN Sint8                   pipsoundend[TOTALMAXPRTPIP];                     // Ending sound
-EXTERN Sint8                   pipsoundfloor[TOTALMAXPRTPIP];                   // Floor sound
-EXTERN Sint8                   pipsoundwall[TOTALMAXPRTPIP];                    // Ricochet sound
-EXTERN bool_t                  pipfriendlyfire[TOTALMAXPRTPIP];                 // Friendly fire
-EXTERN bool_t                  piphateonly[TOTALMAXPRTPIP];                     //Only hit hategroup
-EXTERN bool_t                  piprotatetoface[TOTALMAXPRTPIP];                 // Arrows/Missiles
-EXTERN bool_t                  pipnewtargetonspawn[TOTALMAXPRTPIP];             // Get new target?
-EXTERN bool_t                  piphoming[TOTALMAXPRTPIP];                       // Homing?
-EXTERN Uint16                  piptargetangle[TOTALMAXPRTPIP];                  // To find target
-EXTERN float                   piphomingaccel[TOTALMAXPRTPIP];                  // Acceleration rate
-EXTERN float                   piphomingfriction[TOTALMAXPRTPIP];               // Deceleration rate
-EXTERN float                   pipdynalightleveladd[TOTALMAXPRTPIP];            // Dyna light changes
-EXTERN float                   pipdynalightfalloffadd[TOTALMAXPRTPIP];          //
-EXTERN bool_t                  piptargetcaster[TOTALMAXPRTPIP];                 // Target caster?
-EXTERN bool_t                  pipspawnenchant[TOTALMAXPRTPIP];                 // Spawn enchant?
-EXTERN bool_t                  pipneedtarget[TOTALMAXPRTPIP];                   // Need a target?
-EXTERN bool_t                  piponlydamagefriendly[TOTALMAXPRTPIP];           // Only friends?
-EXTERN bool_t                  pipstartontarget[TOTALMAXPRTPIP];                // Start on target?
-EXTERN int                     pipzaimspd[TOTALMAXPRTPIP];                      // [ZSPD] For Z aiming
-EXTERN Uint16                  pipdamfx[TOTALMAXPRTPIP];                        // Damage effects
-EXTERN bool_t                  pipallowpush[TOTALMAXPRTPIP];                    // Allow particle to push characters around
-EXTERN bool_t                  pipintdamagebonus[TOTALMAXPRTPIP];               // Add intelligence as damage bonus
-EXTERN bool_t                  pipwisdamagebonus[TOTALMAXPRTPIP];               // Add wisdom as damage bonus
+EXTERN prt_t            PrtList[TOTALMAXPRT];
 
 #define COIN1               0                       // Coins are the first particles loaded
 #define COIN5               1                       //
@@ -1149,19 +1387,29 @@ EXTERN bool_t                  pipwisdamagebonus[TOTALMAXPRTPIP];               
 #define SUMMARYLINES 8
 #define SUMMARYSIZE  80
 
-EXTERN int                     globalnummodule;                            // Number of modules
-EXTERN char                    modrank[MAXMODULE][RANKSIZE];               // Number of stars
-EXTERN char                    modlongname[MAXMODULE][MAXCAPNAMESIZE];     // Module names
-EXTERN char                    modloadname[MAXMODULE][MAXCAPNAMESIZE];     // Module load names
-EXTERN Uint8                   modimportamount[MAXMODULE];                 // # of import characters
-EXTERN Uint8                   modallowexport[MAXMODULE];                  // Export characters?
-EXTERN Uint8                   modminplayers[MAXMODULE];                   // Number of players
-EXTERN Uint8                   modmaxplayers[MAXMODULE];                   //
-EXTERN bool_t                  modmonstersonly[MAXMODULE];                 // Only allow monsters
-EXTERN bool_t                  modrtscontrol[MAXMODULE];                   // Real Time Stragedy?
-EXTERN Uint8                   modrespawnvalid[MAXMODULE];                 // Allow respawn
-EXTERN int                     numlines;                                   // Lines in summary
-EXTERN char                    modsummary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
+struct s_mod
+{
+    bool_t  loaded;
+
+    char    rank[RANKSIZE];               // Number of stars
+    char    longname[MAXCAPNAMESIZE];     // Module names
+    char    loadname[MAXCAPNAMESIZE];     // Module load names
+    Uint8   importamount;                 // # of import characters
+    Uint8   allowexport;                  // Export characters?
+    Uint8   minplayers;                   // Number of players
+    Uint8   maxplayers;                   //
+    bool_t  monstersonly;                 // Only allow monsters
+    bool_t  rtscontrol;                   // Real Time Stragedy?
+    Uint8   respawnvalid;                 // Allow respawn
+    int     numlines;                                   // Lines in summary
+    char    summary[SUMMARYLINES][SUMMARYSIZE];      // Quest description
+};
+typedef struct s_mod mod_t;
+
+EXTERN int   ModList_count;                            // Number of modules
+EXTERN mod_t ModList[MAXMODULE];
+
+
 
 //------------------------------------
 // Model stuff
@@ -1172,188 +1420,62 @@ extern struct Md2Model *md2_models[MAXMODEL];                 // Md2 models
 EXTERN int             globalicon_count;                              // Number of icons
 EXTERN Uint16          madloadframe;                               // Where to load next
 
-EXTERN bool_t          madused[MAXMODEL];                          // Model slot
-EXTERN char            madname[MAXMODEL][128];                     // Model name
-EXTERN Uint16          madskintoicon[MAXTEXTURE];                  // Skin to icon
-EXTERN Uint16          madskins[MAXMODEL];                         // Number of skins
-EXTERN Uint16          madskinstart[MAXMODEL];                     // Starting skin of model
-EXTERN Uint16          madframes[MAXMODEL];                        // Number of frames
-EXTERN Uint16          madframestart[MAXMODEL];                    // Starting frame of model
-EXTERN Uint16          madmsgstart[MAXMODEL];                      // The first message
-EXTERN Uint16          madvertices[MAXMODEL];                      // Number of vertices
-EXTERN Uint16          madtransvertices[MAXMODEL];                 // Number to transform
-EXTERN Uint16          madcommands[MAXMODEL];                      // Number of commands
-EXTERN GLenum          madcommandtype[MAXMODEL][MAXCOMMAND];       // Fan or strip
-EXTERN Uint16          madcommandsize[MAXMODEL][MAXCOMMAND];       // Entries used by command
-EXTERN Uint16          madcommandvrt[MAXMODEL][MAXCOMMANDENTRIES]; // Which vertex
-EXTERN float           madcommandu[MAXMODEL][MAXCOMMANDENTRIES];   // Texture position
-EXTERN float           madcommandv[MAXMODEL][MAXCOMMANDENTRIES];   //
-EXTERN float           madvrtx[MAXFRAME][MAXVERTICES];             // Vertex position
-EXTERN float           madvrty[MAXFRAME][MAXVERTICES];             //
-EXTERN float           madvrtz[MAXFRAME][MAXVERTICES];             //
-EXTERN Uint8           madvrta[MAXFRAME][MAXVERTICES];             // Light index of vertex
-EXTERN Uint8           madframelip[MAXFRAME];                      // 0-15, How far into action is each frame
-EXTERN Uint16          madframefx[MAXFRAME];                       // Invincibility, Spawning
-EXTERN Uint16          madframeliptowalkframe[MAXMODEL][4][16];    // For walk animations
-EXTERN Uint16          madai[MAXMODEL];                            // AI for each model
-EXTERN Uint8           madactionvalid[MAXMODEL][MAXACTION];        // bfalse if not valid
-EXTERN Uint16          madactionstart[MAXMODEL][MAXACTION];        // First frame of anim
-EXTERN Uint16          madactionend[MAXMODEL][MAXACTION];          // One past last frame
-EXTERN Uint16          madprtpip[MAXMODEL][MAXPRTPIPPEROBJECT];    // Local particles
+struct s_mad_frame
+{
+    Uint8   framelip;                      // 0-15, How far into action is each frame
+    Uint16  framefx;                       // Invincibility, Spawning
+
+    float   vrtx[MAXVERTICES];             // Vertex position
+    float   vrty[MAXVERTICES];             //
+    float   vrtz[MAXVERTICES];             //
+    Uint8   vrta[MAXVERTICES];             // Light index of vertex
+};
+typedef struct s_mad_frame mad_frame_t;
+
+mad_frame_t MadFrameList[MAXFRAME];
+
+struct s_mad
+{
+    bool_t  used;                          // Model slot
+    STRING  name;                          // Model name
+
+    // templates
+    Uint16  ai;                            // AI for each model
+    Uint16  prtpip[MAXPRTPIPPEROBJECT];    // Local particles
+
+    Uint16  skins;                         // Number of skins
+    Uint16  skinstart;                     // Starting skin of model
+
+    Uint16  frames;                        // Number of frames
+    Uint16  framestart;                    // Starting frame of model
+
+    Uint16  msgstart;                      // The first message
+
+    Uint16  vertices;                      // Number of vertices
+    Uint16  transvertices;                 // Number to transform
+
+    Uint16  commands;                      // Number of commands
+    GLenum  commandtype[MAXCOMMAND];       // Fan or strip
+    Uint16  commandsize[MAXCOMMAND];       // Entries used by command
+    Uint16  commandvrt[MAXCOMMANDENTRIES]; // Which vertex
+    float   commandu[MAXCOMMANDENTRIES];   // Texture position
+    float   commandv[MAXCOMMANDENTRIES];   //
+
+    Uint16  frameliptowalkframe[4][16];    // For walk animations
+
+    Uint8   actionvalid[MAXACTION];        // bfalse if not valid
+    Uint16  actionstart[MAXACTION];        // First frame of anim
+    Uint16  actionend[MAXACTION];          // One past last frame
+};
+typedef struct s_mad mad_t;
+
+EXTERN mad_t   MadList[MAXMODEL];
+EXTERN Uint16  skintoicon[MAXTEXTURE];                  // Skin to icon
 
 EXTERN Uint16  bookicon_count    EQ(0);
 EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 
-// Character profiles
-EXTERN int             importobject;
-EXTERN short           capimportslot[MAXMODEL];
-EXTERN char            capclassname[MAXMODEL][MAXCAPNAMESIZE];     // Class name
-EXTERN char            capskinname[MAXMODEL][MAXSKIN][MAXCAPNAMESIZE];   // Skin name
-EXTERN Sint8           capskinoverride[MAXMODEL];                  // -1 or 0-3.. For import
-EXTERN Uint8           capleveloverride[MAXMODEL];                 // 0 for normal
-EXTERN int             capstateoverride[MAXMODEL];                 // 0 for normal
-EXTERN int             capcontentoverride[MAXMODEL];               // 0 for normal
-EXTERN Uint16          capskincost[MAXMODEL][MAXSKIN];                   // Store prices
-EXTERN Uint8           capskindressy[MAXMODEL];                    // Dressy
-EXTERN float           capstrengthdampen[MAXMODEL];                // Strength damage factor
-EXTERN Uint8           capstoppedby[MAXMODEL];                     // Collision Mask
-EXTERN bool_t          capuniformlit[MAXMODEL];                    // Bad lighting?
-EXTERN Uint8           caplifecolor[MAXMODEL];                     // Bar colors
-EXTERN Uint8           capmanacolor[MAXMODEL];                     //
-EXTERN Uint8           capammomax[MAXMODEL];                       // Ammo stuff
-EXTERN Uint8           capammo[MAXMODEL];                          //
-EXTERN Uint8           capgender[MAXMODEL];                        // Gender
-EXTERN Uint16          caplifebase[MAXMODEL];                      // Life
-EXTERN Uint16          capliferand[MAXMODEL];                      //
-EXTERN Uint16          caplifeperlevelbase[MAXMODEL];              //
-EXTERN Uint16          caplifeperlevelrand[MAXMODEL];              //
-EXTERN Sint16          caplifereturn[MAXMODEL];                    //
-EXTERN Sint16          capmoney[MAXMODEL];                         // Money
-EXTERN Uint16          caplifeheal[MAXMODEL];                      //
-EXTERN Uint16          capmanabase[MAXMODEL];                      // Mana
-EXTERN Uint16          capmanarand[MAXMODEL];                      //
-EXTERN Sint16          capmanacost[MAXMODEL];                      //
-EXTERN Uint16          capmanaperlevelbase[MAXMODEL];              //
-EXTERN Uint16          capmanaperlevelrand[MAXMODEL];              //
-EXTERN Uint16          capmanareturnbase[MAXMODEL];                //
-EXTERN Uint16          capmanareturnrand[MAXMODEL];                //
-EXTERN Uint16          capmanareturnperlevelbase[MAXMODEL];        //
-EXTERN Uint16          capmanareturnperlevelrand[MAXMODEL];        //
-EXTERN Uint16          capmanaflowbase[MAXMODEL];                  //
-EXTERN Uint16          capmanaflowrand[MAXMODEL];                  //
-EXTERN Uint16          capmanaflowperlevelbase[MAXMODEL];          //
-EXTERN Uint16          capmanaflowperlevelrand[MAXMODEL];          //
-EXTERN Uint16          capstrengthbase[MAXMODEL];                  // Strength
-EXTERN Uint16          capstrengthrand[MAXMODEL];                  //
-EXTERN Uint16          capstrengthperlevelbase[MAXMODEL];          //
-EXTERN Uint16          capstrengthperlevelrand[MAXMODEL];          //
-EXTERN Uint16          capwisdombase[MAXMODEL];                    // Wisdom
-EXTERN Uint16          capwisdomrand[MAXMODEL];                    //
-EXTERN Uint16          capwisdomperlevelbase[MAXMODEL];            //
-EXTERN Uint16          capwisdomperlevelrand[MAXMODEL];            //
-EXTERN Uint16          capintelligencebase[MAXMODEL];              // Intlligence
-EXTERN Uint16          capintelligencerand[MAXMODEL];              //
-EXTERN Uint16          capintelligenceperlevelbase[MAXMODEL];      //
-EXTERN Uint16          capintelligenceperlevelrand[MAXMODEL];      //
-EXTERN Uint16          capdexteritybase[MAXMODEL];                 // Dexterity
-EXTERN Uint16          capdexterityrand[MAXMODEL];                 //
-EXTERN Uint16          capdexterityperlevelbase[MAXMODEL];         //
-EXTERN Uint16          capdexterityperlevelrand[MAXMODEL];         //
-EXTERN float           capsize[MAXMODEL];                          // Scale of model
-EXTERN float           capsizeperlevel[MAXMODEL];                  // Scale increases
-EXTERN float           capdampen[MAXMODEL];                        // Bounciness
-EXTERN Uint8           capshadowsize[MAXMODEL];                    // Shadow size
-EXTERN Uint8           capbumpsize[MAXMODEL];                      // Bounding octagon
-EXTERN Uint8           capbumpsizebig[MAXMODEL];                   // For octagonal bumpers
-EXTERN Uint8           capbumpheight[MAXMODEL];                    //
-EXTERN float           capbumpdampen[MAXMODEL];                    // Mass
-EXTERN Uint8           capweight[MAXMODEL];                        // Weight
-EXTERN float           capjump[MAXMODEL];                          // Jump power
-EXTERN Uint8           capjumpnumber[MAXMODEL];                    // Number of jumps ( Ninja )
-EXTERN Uint8           capsneakspd[MAXMODEL];                      // Sneak threshold
-EXTERN Uint8           capwalkspd[MAXMODEL];                       // Walk threshold
-EXTERN Uint8           caprunspd[MAXMODEL];                        // Run threshold
-EXTERN Uint8           capflyheight[MAXMODEL];                     // Fly height
-EXTERN Uint8           capflashand[MAXMODEL];                      // Flashing rate
-EXTERN Uint8           capalpha[MAXMODEL];                         // Transparency
-EXTERN Uint8           caplight[MAXMODEL];                         // Light blending
-EXTERN bool_t          captransferblend[MAXMODEL];                 // Transfer blending to rider/weapons
-EXTERN bool_t          capsheen[MAXMODEL];                         // How shiny it is ( 0-15 )
-EXTERN bool_t          capenviro[MAXMODEL];                        // Phong map this baby?
-EXTERN Uint16          capuoffvel[MAXMODEL];                       // Texture movement rates
-EXTERN Uint16          capvoffvel[MAXMODEL];                       //
-EXTERN bool_t          capstickybutt[MAXMODEL];                    // Stick to the ground?
-EXTERN Uint16          capiframefacing[MAXMODEL];                  // Invincibility frame
-EXTERN Uint16          capiframeangle[MAXMODEL];                   //
-EXTERN Uint16          capnframefacing[MAXMODEL];                  // Normal frame
-EXTERN Uint16          capnframeangle[MAXMODEL];                   //
-EXTERN Uint8           capresistbumpspawn[MAXMODEL];               // Don't catch fire
-EXTERN Uint8           capdefense[MAXMODEL][MAXSKIN];                    // Defense for each skin
-EXTERN Uint8           capdamagemodifier[MAXMODEL][DAMAGE_COUNT][MAXSKIN];
-EXTERN float           capmaxaccel[MAXMODEL][MAXSKIN];                   // Acceleration for each skin
-EXTERN Uint32          capexperienceforlevel[MAXMODEL][MAXLEVEL];  // Experience needed for next level
-EXTERN Uint32          capexperiencebase[MAXMODEL];                // Starting experience
-EXTERN Uint16          capexperiencerand[MAXMODEL];                //
-EXTERN Uint16          capexperienceworth[MAXMODEL];               // Amount given to killer/user
-EXTERN float           capexperienceexchange[MAXMODEL];            // Adds to worth
-EXTERN float           capexperiencerate[MAXMODEL][XP_COUNT];
-EXTERN IDSZ            capidsz[MAXMODEL][IDSZ_COUNT];                 // ID strings
-EXTERN bool_t          capisitem[MAXMODEL];                        // Is it an item?
-EXTERN bool_t          capinvictus[MAXMODEL];                      // Is it invincible?
-EXTERN bool_t          capismount[MAXMODEL];                       // Can you ride it?
-EXTERN bool_t          capisstackable[MAXMODEL];                   // Is it arrowlike?
-EXTERN bool_t          capnameknown[MAXMODEL];                     // Is the class name known?
-EXTERN bool_t          capusageknown[MAXMODEL];                    // Is its usage known
-EXTERN bool_t          capcancarrytonextmodule[MAXMODEL];          // Take it with you?
-EXTERN bool_t          capneedskillidtouse[MAXMODEL];              // Check IDSZ first?
-EXTERN bool_t          capwaterwalk[MAXMODEL];                     // Walk on water?
-EXTERN bool_t          capplatform[MAXMODEL];                      // Can be stood on?
-EXTERN bool_t          capcanuseplatforms[MAXMODEL];               // Can use platforms?
-EXTERN bool_t          capcangrabmoney[MAXMODEL];                  // Collect money?
-EXTERN bool_t          capcanopenstuff[MAXMODEL];                  // Open chests/doors?
-EXTERN bool_t          capicon[MAXMODEL];                          // Draw icon
-EXTERN bool_t          capforceshadow[MAXMODEL];                   // Draw a shadow?
-EXTERN bool_t          capripple[MAXMODEL];                        // Spawn ripples?
-EXTERN Uint8           capdamagetargettype[MAXMODEL];              // For AI DamageTarget
-EXTERN Uint8           capweaponaction[MAXMODEL];                  // Animation needed to swing
-EXTERN bool_t          capgripvalid[MAXMODEL][MAXSLOT];            // Left/Right hands valid
-EXTERN Uint8           capattackattached[MAXMODEL];                //
-EXTERN Sint8           capattackprttype[MAXMODEL];                 //
-EXTERN Uint8           capattachedprtamount[MAXMODEL];             // Sticky particles
-EXTERN Uint8           capattachedprtreaffirmdamagetype[MAXMODEL]; // Relight that torch...
-EXTERN Uint16          capattachedprttype[MAXMODEL];               //
-EXTERN Uint8           capgopoofprtamount[MAXMODEL];               // Poof effect
-EXTERN Sint16          capgopoofprtfacingadd[MAXMODEL];            //
-EXTERN Uint16          capgopoofprttype[MAXMODEL];                 //
-EXTERN bool_t          capbludvalid[MAXMODEL];                    // Blud ( yuck )
-EXTERN Uint8           capbludprttype[MAXMODEL];                  //
-EXTERN bool_t          capridercanattack[MAXMODEL];                // Rider attack?
-EXTERN bool_t          capcanbedazed[MAXMODEL];                    // Can it be dazed?
-EXTERN bool_t          capcanbegrogged[MAXMODEL];                  // Can it be grogged?
-EXTERN Uint8           capkursechance[MAXMODEL];                   // Chance of being kursed
-EXTERN bool_t          capistoobig[MAXMODEL];                      // Can't be put in pack
-EXTERN bool_t          capreflect[MAXMODEL];                       // Draw the reflection
-EXTERN bool_t          capalwaysdraw[MAXMODEL];                    // Always render
-EXTERN bool_t          capisranged[MAXMODEL];                      // Flag for ranged weapon
-EXTERN Sint8           caphidestate[MAXMODEL];                       // Don't draw when...
-EXTERN bool_t          capisequipment[MAXMODEL];                     // Behave in silly ways
-EXTERN Sint8           capisvaluable[MAXMODEL];                      // Force to be valuable
-EXTERN Sint8           capsoundindex[MAXMODEL][SOUND_COUNT];       // a map for soundX.wav to sound types
-EXTERN Mix_Chunk *     capwavelist[MAXMODEL][MAXWAVE];             // sounds in a object
 
-//skill system
-EXTERN Sint8         capshieldproficiency[MAXMODEL];               // Can it use shields?
-EXTERN bool_t        capcanjoust[MAXMODEL];                        // Can it use advanced weapons?
-EXTERN bool_t        capcanuseadvancedweapons[MAXMODEL];           // Can it use advanced weapons?
-EXTERN bool_t        capcanseeinvisible[MAXMODEL];                 // Can it see invisible?
-EXTERN bool_t        capcanseekurse[MAXMODEL];                     // Can it see kurses?
-EXTERN bool_t        capcanusedivine[MAXMODEL];
-EXTERN bool_t        capcanusearcane[MAXMODEL];
-EXTERN bool_t        capcanusetech[MAXMODEL];
-EXTERN bool_t        capcandisarm[MAXMODEL];
-EXTERN bool_t        capcanbackstab[MAXMODEL];
-EXTERN bool_t        capcanusepoison[MAXMODEL];
-EXTERN bool_t        capcanread[MAXMODEL];
 
 // Network stuff
 #define NETREFRESH          1000                    // Every second
@@ -1472,8 +1594,6 @@ EXTERN Uint16           numchop  EQ( 0 );              // The number of name par
 EXTERN Uint32           chopwrite  EQ( 0 );            // The data pointer
 EXTERN char             chopdata[CHOPDATACHUNK];    // The name parts
 EXTERN Uint16           chopstart[MAXCHOP];         // The first character of each part
-EXTERN Uint16           capsectionsize[MAXMODEL][MAXSECTION];   // Number of choices, 0
-EXTERN Uint16           capsectionstart[MAXMODEL][MAXSECTION];  //
 EXTERN char             namingnames[MAXCAPNAMESIZE];// The name returned by the function
 
 // These are for FindPath function only
@@ -1635,23 +1755,41 @@ EXTERN int statdelay  EQ( 25 );
 #define MAXLAG      64                              //
 #define LAGAND      63                              //
 #define STARTTALK   10                              //
-EXTERN bool_t                  plavalid[MAXPLAYER];                    // Player used?
-EXTERN Uint16                  plaindex[MAXPLAYER];                    // Which character?
-EXTERN float                   plalatchx[MAXPLAYER];                   // Local latches
-EXTERN float                   plalatchy[MAXPLAYER];                   //
-EXTERN Uint32                   plalatchbutton[MAXPLAYER];              //
 
+struct s_time_latch
+{
+    float   x; 
+    float   y;
+    Uint32  button;
+    Uint32  time;
+};
+typedef struct s_time_latch time_latch_t;
+
+struct s_player
+{
+    bool_t                  valid;                    // Player used?
+    Uint16                  index;                    // Which character?
+    Uint8                   device;                   // Input device
+
+    // Local latch
+    float                   latchx;                   
+    float                   latchy;
+    Uint32                  latchbutton;
+
+    // Timed latches
+    Uint32                  tlatch_count;         
+    time_latch_t            tlatch[MAXLAG];
+};
+
+typedef struct s_player player_t;
+
+EXTERN int                     lag  EQ( 3 );                             // Lag tolerance
 EXTERN Uint32                  numplatimes EQ( 0 );
-EXTERN float                   platimelatchx[MAXPLAYER][MAXLAG];       // Timed latches
-EXTERN float                   platimelatchy[MAXPLAYER][MAXLAG];       //
-EXTERN Uint32                   platimelatchbutton[MAXPLAYER][MAXLAG];  //
-EXTERN Uint32                  platimetimes[MAXPLAYER];         // Timed latches
-EXTERN Uint32                  platimetime[MAXPLAYER][MAXLAG];         // Timed latches
 
-EXTERN Uint8                   pladevice[MAXPLAYER];                   // Input device
-EXTERN int                     numpla;                                 // Number of players
+EXTERN int                     numpla;                                   // Number of players
 EXTERN int                     local_numlpla;                            //
-EXTERN int                     lag  EQ( 3 );                              // Lag tolerance
+EXTERN player_t                PlaList[MAXPLAYER];
+
 EXTERN int                     numfile;                                // For network copy
 EXTERN int                     numfilesent;                            // For network copy
 EXTERN int                     numfileexpected;                        // For network copy

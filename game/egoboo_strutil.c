@@ -153,7 +153,6 @@ void make_newloadname(  const char *modname,  const char *appendname,  char *new
 
     cnt = 0;
     ctmp = modname[cnt];
-
     while ( ctmp != 0 )
     {
         newloadname[cnt] = ctmp;

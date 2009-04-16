@@ -512,9 +512,9 @@ int doChooseModule( float deltaTime )
             // Otherwise, we want modules that allow imports
             memset( validModules, 0, sizeof( int ) * MAXMODULE );
             numValidModules = 0;
-            for ( i = 0; i < globalnummodule; i++ )
+            for ( i = 0; i < ModList_count; i++ )
             {
-                if ( startNewPlayer && 0 == modimportamount[i] )
+                if ( startNewPlayer && 0 == ModList[i].importamount )
                 {
                     // starter module
                     validModules[numValidModules] = i;
@@ -522,9 +522,9 @@ int doChooseModule( float deltaTime )
                 }
                 else
                 {
-                    if ( mnu_selectedPlayerCount > modimportamount[i] ) continue;
-                    if ( mnu_selectedPlayerCount < modminplayers[i]   ) continue;
-                    if ( mnu_selectedPlayerCount > modmaxplayers[i]   ) continue;
+                    if ( mnu_selectedPlayerCount > ModList[i].importamount ) continue;
+                    if ( mnu_selectedPlayerCount < ModList[i].minplayers   ) continue;
+                    if ( mnu_selectedPlayerCount > ModList[i].maxplayers   ) continue;
 
                     // regular module
                     validModules[numValidModules] = i;
@@ -621,26 +621,26 @@ int doChooseModule( float deltaTime )
                 x = 21 + 5;
                 glColor4f( 1, 1, 1, 1 );
                 fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y,
-                              modlongname[validModules[selectedModule]] );
+                              ModList[validModules[selectedModule]].longname );
                 y += 20;
 
-                snprintf( txtBuffer, 128, "Difficulty: %s", modrank[validModules[selectedModule]] );
+                snprintf( txtBuffer, 128, "Difficulty: %s", ModList[validModules[selectedModule]].rank );
                 fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, txtBuffer );
                 y += 20;
-                if ( modmaxplayers[validModules[selectedModule]] > 1 )
+                if ( ModList[validModules[selectedModule]].maxplayers > 1 )
                 {
-                    if ( modminplayers[validModules[selectedModule]] == modmaxplayers[validModules[selectedModule]] )
+                    if ( ModList[validModules[selectedModule]].minplayers == ModList[validModules[selectedModule]].maxplayers )
                     {
-                        snprintf( txtBuffer, 128, "%d Players", modminplayers[validModules[selectedModule]] );
+                        snprintf( txtBuffer, 128, "%d Players", ModList[validModules[selectedModule]].minplayers );
                     }
                     else
                     {
-                        snprintf( txtBuffer, 128, "%d - %d Players", modminplayers[validModules[selectedModule]], modmaxplayers[validModules[selectedModule]] );
+                        snprintf( txtBuffer, 128, "%d - %d Players", ModList[validModules[selectedModule]].minplayers, ModList[validModules[selectedModule]].maxplayers );
                     }
                 }
                 else
                 {
-                    if ( modimportamount[validModules[selectedModule]] != 0 ) snprintf( txtBuffer, 128, "Single Player" );
+                    if ( ModList[validModules[selectedModule]].importamount != 0 ) snprintf( txtBuffer, 128, "Single Player" );
                     else snprintf( txtBuffer, 128, "Starter Module" );
                 }
 
@@ -648,12 +648,11 @@ int doChooseModule( float deltaTime )
                 y += 20;
 
                 // And finally, the summary
-                snprintf( txtBuffer, 128, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modloadname[validModules[selectedModule]] );
-                get_module_summary( txtBuffer );
+                snprintf( txtBuffer, 128, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[validModules[selectedModule]].loadname );
 
                 for ( i = 0; i < SUMMARYLINES; i++ )
                 {
-                    fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, modsummary[i] );
+                    fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y, ModList[i].summary );
                     y += 20;
                 }
             }
@@ -674,10 +673,10 @@ int doChooseModule( float deltaTime )
             else
             {
                 // Save the name of the module that we've picked
-                strncpy( pickedmodule, modloadname[selectedModule], 64 );
+                strncpy( pickedmodule, ModList[selectedModule].loadname, 64 );
 
                 // If the module allows imports, return 1.  Else, return 2
-                if ( modimportamount[selectedModule] > 0 )
+                if ( ModList[selectedModule].importamount > 0 )
                 {
                     importvalid = btrue;
                     result = 1;
@@ -688,14 +687,14 @@ int doChooseModule( float deltaTime )
                     result = 2;
                 }
 
-                importamount = modimportamount[selectedModule];
-                exportvalid  = modallowexport[selectedModule];
-                playeramount = modmaxplayers[selectedModule];
+                importamount = ModList[selectedModule].importamount;
+                exportvalid  = ModList[selectedModule].allowexport;
+                playeramount = ModList[selectedModule].maxplayers;
 
                 respawnvalid = bfalse;
                 respawnanytime = bfalse;
-                if ( modrespawnvalid[selectedModule] ) respawnvalid = btrue;
-                if ( modrespawnvalid[selectedModule] == ANYTIME ) respawnanytime = btrue;
+                if ( ModList[selectedModule].respawnvalid ) respawnvalid = btrue;
+                if ( ModList[selectedModule].respawnvalid == ANYTIME ) respawnanytime = btrue;
 
                 rtscontrol = bfalse;
             }
@@ -2333,7 +2332,7 @@ int doShowMenuResults( float deltaTime )
     x = 35;
     y = 35;
     glColor4f( 1, 1, 1, 1 );
-    snprintf( text, sizeof(text), "Module selected: %s", modloadname[selectedModule] );
+    snprintf( text, sizeof(text), "Module selected: %s", ModList[selectedModule].loadname );
     fnt_drawText( font, x, y, text );
     y += 35;
     if ( importvalid )
@@ -2349,15 +2348,14 @@ int doShowMenuResults( float deltaTime )
 
     // And finally, the summary
     y += 60;
-    snprintf( text, sizeof(text), "%s", modlongname[selectedModule] );
+    snprintf( text, sizeof(text), "%s", ModList[selectedModule].longname );
     fnt_drawText( font, x, y, text );
     y += 30;
-    snprintf( text, sizeof(text), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", modloadname[selectedModule] );
-    get_module_summary( text );
+    snprintf( text, sizeof(text), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[selectedModule].loadname );
 
     for ( i = 0; i < SUMMARYLINES; i++ )
     {
-        fnt_drawText( menuFont, x, y, modsummary[i] );
+        fnt_drawText( menuFont, x, y, ModList[i].summary );
         y += 20;
     }
 

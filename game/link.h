@@ -26,7 +26,7 @@
 struct sLink
 {
     bool_t  valid;
-    char    modname[256];
+    STRING  modname;
     Uint16  passage;
 };
 

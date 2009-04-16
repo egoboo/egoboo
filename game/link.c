@@ -52,18 +52,18 @@ bool_t link_export_all()
     // export all of the players directly from memory straight to the "import" dir
     for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        if ( !plavalid[cnt] ) continue;
+        if ( !PlaList[cnt].valid ) continue;
 
         // Is it alive?
-        character = plaindex[cnt];
-        if ( !chr[character].on || !chr[character].alive ) continue;
+        character = PlaList[cnt].index;
+        if ( !ChrList[character].on || !ChrList[character].alive ) continue;
 
-        is_local = ( 0 != pladevice[cnt] );
+        is_local = ( 0 != PlaList[cnt].device );
 
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
         {
-            if ( 0 == strcmp( loadplayer[tnc].dir, get_file_path(chr[character].name) ) )
+            if ( 0 == strcmp( loadplayer[tnc].dir, get_file_path(ChrList[character].name) ) )
             {
                 break;
             }
@@ -71,13 +71,13 @@ bool_t link_export_all()
 
         if ( tnc == loadplayer_count )
         {
-            log_warning( "link_export_all() - cannot find exported file for \"%s\" (\"%s\") \n", chr[character].name, get_file_path(chr[character].name) ) ;
+            log_warning( "link_export_all() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, get_file_path(ChrList[character].name) ) ;
             continue;
         }
 
         // grab the controls from the currently loaded players
         // calculate the slot from the current player count
-        local_control[player] = pladevice[cnt];
+        local_control[player] = PlaList[cnt].device;
         local_slot[player]    = player * MAXIMPORTPERPLAYER;
         player++;
 
@@ -147,7 +147,7 @@ bool_t link_follow_modname( const char * modname )
         load_module( modname );
 
         make_onwhichfan();
-        reset_camera();
+        reset_camera(&gCamera);
         reset_timers();
         figure_out_what_to_draw();
         make_character_matrices();
@@ -188,7 +188,7 @@ bool_t link_follow( Link_t list[], int ilink )
 
     pressed = bfalse;
     make_onwhichfan();
-    reset_camera();
+    reset_camera(&gCamera);
     reset_timers();
     figure_out_what_to_draw();
     make_character_matrices();
