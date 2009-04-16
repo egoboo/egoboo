@@ -444,4 +444,4 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
     pmod->loaded = btrue;
 
     return pmod->loaded;
-};
+}

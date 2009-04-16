@@ -50,15 +50,6 @@ camera_t * camera_new( camera_t * pcam )
     pcam->y         =  1500;
     pcam->z         =  1500;
     pcam->zoom      =  1000;
-    pcam->trackxvel;
-    pcam->trackyvel;
-    pcam->trackzvel;
-    pcam->centerx;
-    pcam->centery;
-    pcam->trackx;
-    pcam->tracky;
-    pcam->trackz;
-    pcam->tracklevel;
     pcam->zadd     =  800;
     pcam->zaddgoto =  800;
     pcam->zgoto    =  800;
@@ -71,7 +62,7 @@ camera_t * camera_new( camera_t * pcam )
     pcam->roll               =  0;
 
     return pcam;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

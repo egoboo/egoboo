@@ -100,7 +100,7 @@ enum e_input_bits
     INPUT_BITS_JOYB      = ( 1 << (INPUT_DEVICE_JOY + 1) )         //
 };
 
-EXTERN Uint32 input_device_count EQ(0);
+extern Uint32 input_device_count;
 
 enum e_input_controls
 {

@@ -111,7 +111,7 @@ static void music_stack_finished_callback(void)
         // set the volume
         Mix_VolumeMusic( musicvolume );
     }
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static bool_t music_stack_push(Mix_Music * mus, int song)
@@ -153,7 +153,7 @@ static void music_stack_init()
 
     // register the callback
     Mix_HookMusicFinished( music_stack_finished_callback );
-};
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void sdl_mixer_quit(void)
         Mix_CloseAudio();
         mixeron = bfalse;
     }
-};
+}
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

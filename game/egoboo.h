@@ -59,11 +59,11 @@ typedef struct
 
 // The following magic allows this include to work in multiple files
 #ifdef DECLARE_GLOBALS
-#define EXTERN
-#define EQ(x) =x;
+#    define EXTERN
+#    define EQ(x) = x;
 #else
-#define EXTERN extern
-#define EQ(x)
+#    define EXTERN extern
+#    define EQ(x)
 #endif
 
 #define VERSION "2.7.0c"                         // Version of the game
@@ -1758,7 +1758,7 @@ EXTERN int statdelay  EQ( 25 );
 
 struct s_time_latch
 {
-    float   x; 
+    float   x;
     float   y;
     Uint32  button;
     Uint32  time;
@@ -1772,12 +1772,12 @@ struct s_player
     Uint8                   device;                   // Input device
 
     // Local latch
-    float                   latchx;                   
+    float                   latchx;
     float                   latchy;
     Uint32                  latchbutton;
 
     // Timed latches
-    Uint32                  tlatch_count;         
+    Uint32                  tlatch_count;
     time_latch_t            tlatch[MAXLAG];
 };
 

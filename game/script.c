@@ -4990,7 +4990,9 @@ void let_all_characters_think()
 // will be wrapped for use by some scripting system using SWIG or some equivalent
 
 // turn off this annoying warning
-#pragma warning(disable : 4189) // local variable is initialized but not referenced
+#if defined _MSC_VER
+#    pragma warning(disable : 4189) // local variable is initialized but not referenced
+#endif
 
 #define SCRIPT_FUNCTION_BEGIN() \
     chr_t * pchr; \

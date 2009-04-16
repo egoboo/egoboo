@@ -5952,7 +5952,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     Uint16 ichr;
     int tnc;
 
-    if ( profile < 0 || profile > MAXMODEL )
+    if ( profile >= MAXMODEL )
     {
         return MAXCHR;
     }

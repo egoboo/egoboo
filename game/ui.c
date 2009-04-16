@@ -89,7 +89,7 @@ void ui_shutdown()
 void ui_Reset()
 {
     ui_context.active = ui_context.hot = UI_Nothing;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void ui_handleSDLEvent( SDL_Event *evt )
@@ -616,7 +616,7 @@ bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 )
 {
     if ( NULL == pw2 || NULL == pw1 ) return bfalse;
     return NULL != memcpy( pw2, pw1, sizeof( ui_Widget_t ) );
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
@@ -634,7 +634,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
     if ( pw2->height < 0 ) pw2->height = 0;
 
     return pw2->width > 0 && pw2->height > 0;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLTexture *img, int x, int y, int width, int height )
@@ -654,7 +654,7 @@ bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *te
     pw->timeout = 0;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits )

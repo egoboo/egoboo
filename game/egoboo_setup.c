@@ -478,7 +478,7 @@ static void export_control( FILE * filewrite, const char * text, Sint32 device, 
 
     snprintf( write, sizeof(write), "%s : %s\n", text, tag_to_string(device, pcontrol->tag, pcontrol->is_key) );
     fputs( write, filewrite );
-};
+}
 
 //--------------------------------------------------------------------------------------------
 bool_t input_settings_load(  const char *szFilename )

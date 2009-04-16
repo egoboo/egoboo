@@ -48,7 +48,7 @@ enum e_ui_button_bits
 {
     UI_BITS_NONE      = 0,
     UI_BITS_MOUSEOVER = 1 << 0,
-    UI_BITS_CLICKED   = 1 << 1,
+    UI_BITS_CLICKED   = 1 << 1
 };
 
 struct s_ui_Widget

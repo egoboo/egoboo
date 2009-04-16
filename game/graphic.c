@@ -2234,8 +2234,7 @@ void font_release()
         fontxspacing[i] = 0;
     }
     fontyspacing = dy;
-
-};
+}
 
 //--------------------------------------------------------------------------------------------
 void font_load(  const char* szBitmap,  const char* szSpacing )
@@ -2817,7 +2816,7 @@ void render_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtype[pchr->onwhichfan] ) return;
+    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
@@ -2940,7 +2939,7 @@ void render_bad_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtype[pchr->onwhichfan] ) return;
+    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
@@ -2957,7 +2956,7 @@ void render_bad_shadow( Uint16 character )
     level = pchr->level;
     level += SHADOWRAISE;
     height = pchr->matrix.CNV( 3, 2 ) - level;
-    height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f ); 
+    height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f );
     if( height_factor <= 0.0f ) return;
 
     // how much transparency from height

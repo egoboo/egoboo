@@ -597,7 +597,7 @@ int doChooseModule( float deltaTime )
             }
 
             // Draw an unused button as the backdrop for the text for now
-            ui_drawButton( 0xFFFFFFFF, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, NULL );
+            ui_drawButton( UI_Nothing, moduleMenuOffsetX + 21, moduleMenuOffsetY + 173, 291, 230, NULL );
 
             // And draw the next & back buttons
             if ( BUTTON_UP == ui_doButton( 53, "Select Module",
@@ -2327,7 +2327,7 @@ int doShowMenuResults( float deltaTime )
     displaySurface = SDL_GetVideoSurface();
     font = ui_getFont();
 
-    ui_drawButton( 0xFFFFFFFF, 30, 30, displaySurface->w - 60, displaySurface->h - 65, NULL );
+    ui_drawButton( UI_Nothing, 30, 30, displaySurface->w - 60, displaySurface->h - 65, NULL );
 
     x = 35;
     y = 35;
@@ -2535,7 +2535,7 @@ static bool_t mnu_checkSelectedPlayer( Uint16 player )
     }
 
     return bfalse;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static Uint16 mnu_getSelectedPlayer( Uint16 player )
@@ -2549,7 +2549,7 @@ static Uint16 mnu_getSelectedPlayer( Uint16 player )
     }
 
     return INVALID_PLA;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_addSelectedPlayer( Uint16 player )
@@ -2562,7 +2562,7 @@ static bool_t mnu_addSelectedPlayer( Uint16 player )
     mnu_selectedPlayerCount++;
 
     return btrue;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_removeSelectedPlayer( Uint16 player )
@@ -2604,7 +2604,7 @@ static bool_t mnu_removeSelectedPlayer( Uint16 player )
     };
 
     return found;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
@@ -2667,7 +2667,7 @@ static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
     }
 
     return retval;
-};
+}
 
 //--------------------------------------------------------------------------------------------
 static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
@@ -2698,4 +2698,4 @@ static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
     }
 
     return retval;
-};
+}
