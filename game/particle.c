@@ -21,94 +21,28 @@
 * Manages particle systems.
 */
 
-#include "egoboo.h"
-#include "log.h"
 #include "particle.h"
+
+#include "log.h"
 #include "sound.h"
 #include "camera.h"
 #include "enchant.h"
+#include "char.h"
+
+#include "egoboo.h"
+#include "egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void make_prtlist( void )
+static int              numfreeprt = 0;                            // For allocation
+static Uint16           freeprtlist[TOTALMAXPRT];                        //
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int prt_count_free()
 {
-    // ZZ> This function figures out which particles are visible, and it sets up dynamic
-    //     lighting
-    int cnt, tnc, disx, disy, distance, slot;
-
-    // Don't really make a list, just set to visible or not
-    numdynalight = 0;
-    dynadistancetobeat = MAXDYNADIST;
-    cnt = 0;
-
-    while ( cnt < maxparticles )
-    {
-        PrtList[cnt].inview = bfalse;
-        if ( PrtList[cnt].on && INVALID_TILE != PrtList[cnt].onwhichfan )
-        {
-            PrtList[cnt].inview = meshinrenderlist[PrtList[cnt].onwhichfan];
-
-            // Set up the lights we need
-            if ( PrtList[cnt].dynalighton )
-            {
-                disx = PrtList[cnt].xpos - gCamera.trackx;
-                disx = ABS( disx );
-                disy = PrtList[cnt].ypos - gCamera.tracky;
-                disy = ABS( disy );
-                distance = disx + disy;
-                if ( distance < dynadistancetobeat )
-                {
-                    if ( numdynalight < maxlights )
-                    {
-                        // Just add the light
-                        slot = numdynalight;
-                        dynadistance[slot] = distance;
-                        numdynalight++;
-                    }
-                    else
-                    {
-                        // Overwrite the worst one
-                        slot = 0;
-                        tnc = 1;
-                        dynadistancetobeat = dynadistance[0];
-
-                        while ( tnc < maxlights )
-                        {
-                            if ( dynadistance[tnc] > dynadistancetobeat )
-                            {
-                                slot = tnc;
-                            }
-
-                            tnc++;
-                        }
-
-                        dynadistance[slot] = distance;
-
-                        // Find the new distance to beat
-                        tnc = 1;
-                        dynadistancetobeat = dynadistance[0];
-
-                        while ( tnc < maxlights )
-                        {
-                            if ( dynadistance[tnc] > dynadistancetobeat )
-                            {
-                                dynadistancetobeat = dynadistance[tnc];
-                            }
-
-                            tnc++;
-                        }
-                    }
-
-                    dynalightlistx[slot] = PrtList[cnt].xpos;
-                    dynalightlisty[slot] = PrtList[cnt].ypos;
-                    dynalightlevel[slot] = PrtList[cnt].dynalightlevel;
-                    dynalightfalloff[slot] = PrtList[cnt].dynalightfalloff;
-                }
-            }
-        }
-
-        cnt++;
-    }
+    return numfreeprt;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -438,70 +372,6 @@ Uint8 __prthitawall( Uint16 particle )
 }
 
 //--------------------------------------------------------------------------------------------
-void disaffirm_attached_particles( Uint16 character )
-{
-    // ZZ> This function makes sure a character has no attached particles
-    Uint16 particle;
-
-    for ( particle = 0; particle < maxparticles; particle++ )
-    {
-        if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
-        {
-            free_one_particle( particle );
-        }
-    }
-
-    // Set the alert for disaffirmation ( wet torch )
-    ChrList[character].ai.alert |= ALERTIF_DISAFFIRMED;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 number_of_attached_particles( Uint16 character )
-{
-    // ZZ> This function returns the number of particles attached to the given character
-    Uint16 cnt, particle;
-
-    cnt = 0;
-    particle = 0;
-
-    while ( particle < maxparticles )
-    {
-        if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
-        {
-            cnt++;
-        }
-
-        particle++;
-    }
-
-    return cnt;
-}
-
-//--------------------------------------------------------------------------------------------
-void reaffirm_attached_particles( Uint16 character )
-{
-    // ZZ> This function makes sure a character has all of it's particles
-    Uint16 numberattached;
-    Uint16 particle;
-
-    numberattached = number_of_attached_particles( character );
-
-    while ( numberattached < CapList[ChrList[character].model].attachedprtamount )
-    {
-        particle = spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, ChrList[character].model, CapList[ChrList[character].model].attachedprttype, character, GRIP_LAST + numberattached, ChrList[character].team, character, numberattached, MAXCHR );
-        if ( particle != TOTALMAXPRT )
-        {
-            attach_particle_to_character( particle, character, PrtList[particle].grip );
-        }
-
-        numberattached++;
-    }
-
-    // Set the alert for reaffirmation ( for exploding barrels with fire )
-    ChrList[character].ai.alert |= ALERTIF_REAFFIRMED;
-}
-
-//--------------------------------------------------------------------------------------------
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
@@ -737,30 +607,6 @@ void move_particles( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void attach_particles()
-{
-    // ZZ> This function attaches particles to their characters so everything gets
-    //     drawn right
-    int cnt;
-
-    cnt = 0;
-
-    while ( cnt < maxparticles )
-    {
-        if ( PrtList[cnt].on && PrtList[cnt].attachedtocharacter != MAXCHR )
-        {
-            attach_particle_to_character( cnt, PrtList[cnt].attachedtocharacter, PrtList[cnt].grip );
-
-            // Correct facing so swords knock characters in the right direction...
-            if ( PipList[PrtList[cnt].pip].damfx&DAMFXTURN )
-                PrtList[cnt].facing = ChrList[PrtList[cnt].attachedtocharacter].turnleftright;
-        }
-
-        cnt++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void free_all_particles()
 {
     // ZZ> This function resets the particle allocation lists
@@ -796,52 +642,6 @@ void setup_particles()
 
     // Reset the allocation table
     free_all_particles();
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
-{
-    // ZZ> This function returns a direction between the major and minor ones, closer
-    //     to the major.
-    Uint16 temp;
-
-    // Align major direction with 0
-    minordir -= majordir;
-    if ( minordir > 32768 )
-    {
-        temp = 0xFFFF;
-        minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
-        minordir += majordir;
-        return minordir;
-    }
-
-    temp = 0;
-    minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
-    minordir += majordir;
-    return minordir;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
-{
-    // ZZ> This function returns a direction between the major and minor ones, closer
-    //     to the major, but not by much.  Makes turning faster.
-    Uint16 temp;
-
-    // Align major direction with 0
-    minordir -= majordir;
-    if ( minordir > 32768 )
-    {
-        temp = 0xFFFF;
-        minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
-        minordir += majordir;
-        return minordir;
-    }
-
-    temp = 0;
-    minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
-    minordir += majordir;
-    return minordir;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -972,64 +772,6 @@ int prt_is_over_water( Uint16 cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-void do_weather_spawn()
-{
-    // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
-    int particle, cnt;
-    float x, y, z;
-    bool_t foundone;
-    if ( weathertime > 0 )
-    {
-        weathertime--;
-        if ( weathertime == 0 )
-        {
-            weathertime = weathertimereset;
-
-            // Find a valid player
-            foundone = bfalse;
-            cnt = 0;
-
-            while ( cnt < MAXPLAYER )
-            {
-                weatherplayer = ( weatherplayer + 1 ) & ( MAXPLAYER - 1 );
-                if ( PlaList[weatherplayer].valid )
-                {
-                    foundone = btrue;
-                    cnt = MAXPLAYER;
-                }
-
-                cnt++;
-            }
-
-            // Did we find one?
-            if ( foundone )
-            {
-                // Yes, but is the character valid?
-                cnt = PlaList[weatherplayer].index;
-                if ( ChrList[cnt].on && !ChrList[cnt].inpack )
-                {
-                    // Yes, so spawn over that character
-                    x = ChrList[cnt].xpos;
-                    y = ChrList[cnt].ypos;
-                    z = ChrList[cnt].zpos;
-                    particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
-                    if ( weatheroverwater && particle != TOTALMAXPRT )
-                    {
-                        if ( !prt_is_over_water( particle ) )
-                        {
-                            free_one_particle_no_sound( particle );
-                        }
-                    }
-
-                }
-            }
-        }
-    }
-
-    gCamera.swing = ( gCamera.swing + gCamera.swingrate ) & 16383;
-}
-
-//--------------------------------------------------------------------------------------------
 int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
@@ -1045,11 +787,11 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
     {
         // General data
         parse_filename = szLoadName;    //For debugging missing colons
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].force = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  PipList[numpip].force = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( cTmp == 'L' || cTmp == 'l' )  PipList[numpip].type = PRTLIGHTSPRITE;
         else if ( cTmp == 'S' || cTmp == 's' )  PipList[numpip].type = PRTSOLIDSPRITE;
         else if ( cTmp == 'T' || cTmp == 't' )  PipList[numpip].type = PRTALPHASPRITE;
@@ -1067,19 +809,19 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].facingadd = iTmp;
 
         // Ending conditions
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].endwater = btrue;
         if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endwater = bfalse;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].endbump = btrue;
         if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endbump = bfalse;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].endground = btrue;
         if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endground = bfalse;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].endlastframe = btrue;
         if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endlastframe = bfalse;
 
@@ -1093,7 +835,7 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         goto_colon( fileread );  read_pair( fileread );
         PipList[numpip].damagebase = pairbase;
         PipList[numpip].damagerand = pairrand;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( cTmp == 'S' || cTmp == 's' ) PipList[numpip].damagetype = DAMAGE_SLASH;
         if ( cTmp == 'C' || cTmp == 'c' ) PipList[numpip].damagetype = DAMAGE_CRUSH;
         if ( cTmp == 'P' || cTmp == 'p' ) PipList[numpip].damagetype = DAMAGE_POKE;
@@ -1104,7 +846,7 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         if ( cTmp == 'Z' || cTmp == 'z' ) PipList[numpip].damagetype = DAMAGE_ZAP;
 
         // Lighting data
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].dynalightmode = DYNAOFF;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].dynalightmode = DYNAON;
         if ( cTmp == 'L' || cTmp == 'l' ) PipList[numpip].dynalightmode = DYNALOCAL;
@@ -1143,25 +885,25 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         // Random stuff  !!!BAD!!! Not complete
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].dazetime = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].grogtime = iTmp;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].spawnenchant = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].spawnenchant = btrue;
 
         goto_colon( fileread );  // !!Cause roll
         goto_colon( fileread );  // !!Cause pancake
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].needtarget = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].needtarget = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].targetcaster = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].targetcaster = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].startontarget = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].startontarget = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].onlydamagefriendly = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].onlydamagefriendly = btrue;
 
@@ -1171,23 +913,23 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
         PipList[numpip].soundend = CLIP(iTmp, -1, MAXWAVE);
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].friendlyfire = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;   //PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
 
         goto_colon( fileread );
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].newtargetonspawn = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].newtargetonspawn = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].targetangle = iTmp >> 1;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].homing = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].homing = btrue;
 
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].homingfriction = fTmp;
         goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].homingaccel = fTmp;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].rotatetoface = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].rotatetoface = btrue;
 
@@ -1208,7 +950,7 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
         // Read expansions
         while ( goto_colon_yesno( fileread ) )
         {
-            idsz = get_idsz( fileread );
+            idsz = fget_idsz( fileread );
             fscanf( fileread, "%c%d", &cTmp, &iTmp );
             test = Make_IDSZ( "TURN" );  // [TURN]
             if ( idsz == test )  PipList[numpip].damfx = DAMFXNONE;
@@ -1278,38 +1020,38 @@ void reset_particles(  const char* modname )
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", loadpath );
+        log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", loadpath );
+        log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", loadpath );
+        log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", loadpath );
+        log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Load module specific information
     make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", newloadname );
+        log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
     if ( !load_one_particle( newloadname, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", newloadname );
+        log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
@@ -1320,7 +1062,7 @@ void reset_particles(  const char* modname )
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
         if ( !load_one_particle( loadpath, 0, 0 ) )
         {
-            log_error( "Data file was not found! (%s)", loadpath );
+            log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
@@ -1332,7 +1074,7 @@ void reset_particles(  const char* modname )
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
         if ( !load_one_particle( loadpath, 0, 0 ) )
         {
-            log_error( "Data file was not found! (%s)", loadpath );
+            log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
@@ -1340,7 +1082,7 @@ void reset_particles(  const char* modname )
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )
     {
-        log_error( "Data file was not found! (%s)", loadpath );
+        log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Now clear out the local pips

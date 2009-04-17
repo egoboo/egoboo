@@ -105,7 +105,7 @@ void render_fan( Uint32 fan )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        if( meshnotexture )
+        if ( meshnotexture )
         {
             GLTexture_Bind( NULL );
             meshlasttexture = ~0;

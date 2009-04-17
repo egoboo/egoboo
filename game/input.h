@@ -25,6 +25,23 @@
 
 #include "egoboo_typedef.h"
 
+#include <SDL.h>
+
+//--------------------------------------------------------------------------------------------
+// Key/Control input defenitions
+#define MAXTAG              128                     // Number of tags in scancode.txt
+#define TAGSIZE             32                      // Size of each tag
+
+struct s_scantag
+{
+    char   name[TAGSIZE];                      // Scancode names
+    Sint32 value;                     // Scancode values
+};
+typedef struct s_scantag scantag_t;
+
+extern int       scantag_count;
+extern scantag_t scantag[MAXTAG];
+
 //--------------------------------------------------------------------------------------------
 // MOUSE
 struct s_mouse
@@ -43,7 +60,7 @@ struct s_mouse
 };
 typedef struct s_mouse mouse_t;
 
-EXTERN mouse_t mous;
+extern mouse_t mous;
 
 
 //--------------------------------------------------------------------------------------------
@@ -60,13 +77,15 @@ struct s_keyboard
 };
 typedef struct s_keyboard keyboard_t;
 
-EXTERN keyboard_t keyb;
+extern keyboard_t keyb;
 
 #define SDLKEYDOWN(k) ( !console_mode &&  (NULL != keyb.state_ptr) &&  ((k) < keyb.count) && ( 0 != keyb.state_ptr[k] ) )
 
 //--------------------------------------------------------------------------------------------
 // JOYSTICK
-#define MAXJOYSTICK 2
+#define MAXJOYSTICK          2
+#define JOYBUTTON           32                      // Maximum number of joystick buttons
+
 struct s_device_joystick
 {
     bool_t  on;                // Is the holy joystick alive?
@@ -78,7 +97,7 @@ struct s_device_joystick
 };
 typedef struct s_device_joystick device_joystick_t;
 
-EXTERN device_joystick_t joy[MAXJOYSTICK];
+extern device_joystick_t joy[MAXJOYSTICK];
 
 
 //--------------------------------------------------------------------------------------------
@@ -199,7 +218,7 @@ struct s_device_controls
 };
 typedef struct s_device_controls device_controls_t;
 
-EXTERN device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
+extern device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
 //--------------------------------------------------------------------------------------------
 //Function prototypes
@@ -210,3 +229,13 @@ void   input_init();
 void   input_read();
 
 Uint32 input_get_buttonmask( Uint32 idevice );
+
+
+void   scantag_read_all(  const char *szFilename );
+int    scantag_get_value(  const char *string );
+char*  scantag_get_string( Sint32 device, Sint32 tag, bool_t onlykeys );
+
+
+bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
+
+void reset_players();

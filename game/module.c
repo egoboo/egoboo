@@ -20,36 +20,25 @@
 /* Egoboo - module.c
  */
 
-#include "egoboo.h"
 #include "log.h"
 #include "menu.h"
 #include "sound.h"
 #include "graphic.h"
+#include "char.h"
 #include "enchant.h"
 #include "passage.h"
+#include "input.h"
+
+#include "egoboo_fileutil.h"
+#include "egoboo.h"
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static bool_t load_module_info( FILE * fileread, mod_t * pmod );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void release_module()
-{
-    // ZZ> This function frees up memory used by the module
-
-    release_all_icons();
-    release_all_titleimages();
-    release_bars();
-    release_blip();
-    release_map();
-    release_all_textures();
-    release_all_models();
-
-    // Close and then reopen SDL_mixer; it's easier than manually unloading each sound
-    sound_restart();
-}
-
 //--------------------------------------------------------------------------------------------
 int module_reference_matches(  const char *szLoadName, Uint32 idsz )
 {
@@ -99,7 +88,7 @@ int module_reference_matches(  const char *szLoadName, Uint32 idsz )
         // Now check expansions
         while ( goto_colon_yesno( fileread ) && !foundidsz )
         {
-            newidsz = get_idsz( fileread );
+            newidsz = fget_idsz( fileread );
             if ( newidsz == idsz )
             {
                 foundidsz = btrue;
@@ -163,184 +152,10 @@ int find_module(  const char *smallname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_module(  const char *smallname )
-{
-    // ZZ> This function loads a module
-    STRING modname;
-
-    log_info( "Loading module \"%s\"\n", smallname );
-
-    // Load all the global icons
-    if ( !load_all_global_icons() )
-    {
-        log_warning( "Could not load all global icons!\n" );
-    }
-
-    beatmodule = bfalse;
-    timeron = bfalse;
-    snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
-    make_randie();
-    reset_teams();
-    load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
-
-    load_global_waves( modname );
-
-    reset_particles( modname );
-    read_wawalite( modname );
-    make_twist();
-    reset_messages();
-    prime_names();
-    load_basic_textures( modname );  // This should work (without colorkey stuff)
-    release_all_ai_scripts();
-    load_ai_script( "basicdat" SLASH_STR "script.txt" );
-    release_all_models();
-    free_all_enchants();
-
-    //Load all objects
-    {
-        int skin;
-        skin = load_all_objects(modname);
-        load_all_global_objects(skin);
-    }
-    if ( !load_mesh( modname ) )
-    {
-        log_error( "Uh oh! Problems loading the mesh! (%s)\n", modname );
-    }
-
-    setup_particles();
-    setup_passage( modname );
-    reset_players();
-
-    setup_characters( modname );
-
-    reset_end_text();
-    setup_alliances( modname );
-
-    // Load fonts and bars after other images, as not to hog videomem
-    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
-    load_bars( "basicdat" SLASH_STR "bars" );
-    load_map( modname );
-
-    log_madused( "slotused.txt" );
-
-    // Start playing the damage tile sound silently...
-    /*PORT
-        play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
-    */
-}
-
-//--------------------------------------------------------------------------------------------
-int load_all_objects(  const char *modname )
-{
-    // ZZ> This function loads a module's local objects and overrides the global ones already loaded
-    const char *filehandle;
-    bool_t keeplooking;
-    char newloadname[256];
-    char filename[256];
-    int cnt;
-    int skin;
-    int importplayer;
-
-    // Log all of the script errors
-    parseerror = bfalse;
-
-    //This overwrites existing loaded slots that are loaded globally
-    overrideslots = btrue;
-
-    // Clear the import slots...
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
-    {
-        CapList[cnt].importslot = 10000;
-    }
-
-    // Load the import directory
-    importplayer = -1;
-    importobject = -100;
-    skin = TX_LAST;  // Character skins start after the last special texture
-    if ( importvalid )
-    {
-        for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
-        {
-            // Make sure the object exists...
-            sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
-            sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
-            if ( fs_fileExists(newloadname) )
-            {
-                // new player found
-                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) importplayer++;
-
-                // store the slot info
-                importobject = ( importplayer * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
-                CapList[importobject].importslot = cnt;
-
-                // load it
-                skin += load_one_object( skin, filename );
-            }
-        }
-    }
-
-    // Search for .obj directories and load them
-    importobject = -100;
-    make_newloadname( modname, "objects" SLASH_STR, newloadname );
-    filehandle = fs_findFirstFile( newloadname, "obj" );
-
-    keeplooking = btrue;
-    if ( filehandle != NULL )
-    {
-        while ( keeplooking )
-        {
-            sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( skin, filename );
-
-            filehandle = fs_findNextFile();
-
-            keeplooking = ( filehandle != NULL );
-        }
-    }
-
-    fs_findClose();
-    return skin;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_global_objects(int skin)
-{
-    //ZF> This function loads all global objects found in the basicdat folder
-    const char *filehandle;
-    bool_t keeplooking;
-    STRING newloadname;
-    STRING filename;
-
-    //Warn the user for any duplicate slots
-    overrideslots = bfalse;
-
-    // Search for .obj directories and load them
-    sprintf( newloadname, "basicdat" SLASH_STR "globalobjects" SLASH_STR );
-    filehandle = fs_findFirstFile( newloadname, "obj" );
-
-    keeplooking = btrue;
-    if ( filehandle != NULL )
-    {
-        while ( keeplooking )
-        {
-            sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( skin, filename );
-
-            filehandle = fs_findNextFile();
-
-            keeplooking = ( filehandle != NULL );
-        }
-    }
-
-    fs_findClose();
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t load_valid_module( int modnumber,  const char *szLoadName )
 {
     // ZZ> This function loads the module data file
     FILE  *fileread;
-    STRING reference;
     IDSZ   idsz;
     int    iTmp;
 
@@ -349,7 +164,7 @@ bool_t load_valid_module( int modnumber,  const char *szLoadName )
 
     mod_t * pmod;
 
-    if( modnumber >= MAXMODULE ) return bfalse;
+    if ( modnumber >= MAXMODULE ) return bfalse;
     pmod = ModList + modnumber;
 
     fileread = fopen( szLoadName, "r" );
@@ -357,9 +172,9 @@ bool_t load_valid_module( int modnumber,  const char *szLoadName )
     parse_filename = szLoadName;
 
     // Read basic data
-    goto_colon( fileread );  get_name( fileread, pmod->longname );
-    goto_colon( fileread );  fscanf( fileread, "%s", reference );
-    goto_colon( fileread );  idsz = get_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
+    goto_colon( fileread );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
+    goto_colon( fileread );  fscanf( fileread, "%s", pmod->reference );
+    goto_colon( fileread );  idsz = fget_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
 
     //Check all selected players directories !!TODO!!
     playerhasquest = bfalse;
@@ -374,7 +189,7 @@ bool_t load_valid_module( int modnumber,  const char *szLoadName )
 
     //So, do we load the module or not?
     pmod->loaded = bfalse;
-    if ( gDevMode || playerhasquest || module_reference_matches( reference, idsz ) )
+    if ( gDevMode || playerhasquest || module_reference_matches( pmod->reference, idsz ) )
     {
         parse_filename = szLoadName;
         load_module_info( fileread, pmod );
@@ -392,12 +207,12 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
     int cnt, tnc, iTmp;
     char cTmp;
 
-    if( NULL == fileread || NULL == pmod ) return bfalse;
+    if ( NULL == fileread || NULL == pmod ) return bfalse;
 
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
     pmod->importamount = iTmp;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     pmod->allowexport = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  pmod->allowexport = btrue;
 
@@ -405,7 +220,7 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
 
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pmod->maxplayers = iTmp;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     pmod->respawnvalid = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  pmod->respawnvalid = btrue;
     if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
@@ -424,7 +239,7 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
     cnt = 0;
     while ( cnt < SUMMARYLINES )
     {
-        goto_colon( fileread );  fscanf( fileread, "%s", szLine );
+        goto_colon( fileread );  fscanf( fileread, "%255s", szLine );
         tnc = 0;
 
         cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';
@@ -445,3 +260,4 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
 
     return pmod->loaded;
 }
+

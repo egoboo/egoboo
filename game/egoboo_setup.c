@@ -21,8 +21,11 @@
 
 #include "log.h"
 #include "configfile.h"
-#include "egoboo.h"
+#include "graphic.h"
 #include "input.h"
+
+#include "egoboo.h"
+#include "egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -208,8 +211,8 @@ bool_t setup_download()
     if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = TX_ANISOTROPIC;
 
     // Max number of lights
-    GetKey_int( "MAX_DYNAMIC_LIGHTS", maxlights, 12 );
-    if ( maxlights > TOTALMAXDYNA ) maxlights = TOTALMAXDYNA;
+    GetKey_int( "MAX_DYNAMIC_LIGHTS", dyna_list_max, 12 );
+    if ( dyna_list_max > TOTALMAXDYNA ) dyna_list_max = TOTALMAXDYNA;
 
     // Get the FPS limit
     GetKey_int( "MAX_FPS_LIMIT", framelimit, 30 );
@@ -388,7 +391,7 @@ bool_t setup_upload()
     }
 
     // Max number of lights
-    SetKey_int( "MAX_DYNAMIC_LIGHTS", maxlights );
+    SetKey_int( "MAX_DYNAMIC_LIGHTS", dyna_list_max );
 
     // Get the FPS limit
     SetKey_int( "MAX_FPS_LIMIT", framelimit );
@@ -476,7 +479,7 @@ static void export_control( FILE * filewrite, const char * text, Sint32 device, 
 {
     STRING write;
 
-    snprintf( write, sizeof(write), "%s : %s\n", text, tag_to_string(device, pcontrol->tag, pcontrol->is_key) );
+    snprintf( write, sizeof(write), "%s : %s\n", text, scantag_get_string(device, pcontrol->tag, pcontrol->is_key) );
     fputs( write, filewrite );
 }
 
@@ -506,7 +509,7 @@ bool_t input_settings_load(  const char *szFilename )
     for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
     {
         goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-        controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
     };
     controls[INPUT_DEVICE_KEYBOARD].device = INPUT_DEVICE_KEYBOARD;
@@ -517,7 +520,7 @@ bool_t input_settings_load(  const char *szFilename )
     for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
     {
         goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-        controls[INPUT_DEVICE_MOUSE].control[i].tag    = tag_value( currenttag );
+        controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
     };
     controls[INPUT_DEVICE_MOUSE].device = INPUT_DEVICE_MOUSE;
@@ -530,7 +533,7 @@ bool_t input_settings_load(  const char *szFilename )
         for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
         {
             goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
-            controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = tag_value( currenttag );
+            controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
             controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
         };
         controls[INPUT_DEVICE_JOY + cnt].device = INPUT_DEVICE_JOY + cnt;
@@ -635,3 +638,4 @@ bool_t input_settings_save( const char* szFilename)
 
     return btrue;
 }
+

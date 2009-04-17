@@ -24,6 +24,8 @@
  * just go in proto.h.
  */
 
+#include "egoboo.h"
+
 //Input player control
 #define MAXLOADPLAYER     100
 struct s_load_player_info
@@ -42,15 +44,9 @@ extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 void menu_frameStep();
 
-void menu_pick_player( int module );
-void menu_module_loading( int module );
-void menu_choose_host();
-void menu_choose_module();
-void menu_boot_players();
-void menu_end_text();
-void menu_initial_text();
-void fiddle_with_menu();
-void menu_service_select();
-void menu_start_or_join();
+void  check_player_import(  const char *dirname, bool_t initialize );
+
+int doMenu( float deltaTime );
+int initMenus();
 
 #define egoboo_Menu_h

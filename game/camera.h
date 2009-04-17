@@ -19,6 +19,9 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_typedef.h"
+#include "egoboo_math.h"
+
 #define FOV                             60           // Field of view
 #define CAMJOYTURN                      (0.01f*3)    // Joystick camera rotation
 #define CAMKEYTURN                      (10*3)       // Keyboard camera rotation

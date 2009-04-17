@@ -21,8 +21,10 @@
  * Windows specific filesystem functions.
  */
 
-#include "egoboo.h"
+#include "file_common.h"
 #include "log.h"
+
+#include "egoboo.h"
 
 #include <windows.h>
 #include <shlobj.h>

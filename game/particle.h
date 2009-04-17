@@ -19,6 +19,10 @@
 //*
 //********************************************************************************************
 
+#include "egoboo_typedef.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define PRTLEVELFIX         20                      // Fix for shooting over cliffs
 
 // Particle template
@@ -26,3 +30,32 @@
 #define DYNAON    1
 #define DYNALOCAL 2
 #define MAXFALLOFF 1400
+
+
+//--------------------------------------------------------------------------------------------
+// function prototypes
+
+void free_one_particle_no_sound( Uint16 particle );
+void free_one_particle( Uint16 particle );
+
+
+void move_particles( void );
+void free_all_particles();
+
+void setup_particles();
+
+void play_particle_sound( Uint16 particle, Sint8 sound );
+int get_free_particle( int force );
+Uint16 spawn_one_particle( float x, float y, float z,
+                           Uint16 facing, Uint16 model, Uint16 pip,
+                           Uint16 characterattach, Uint16 grip, Uint8 team,
+                           Uint16 characterorigin, Uint16 multispawn, Uint16 oldtarget );
+
+int prt_count_free();
+
+int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip );
+void reset_particles(  const char* modname );
+
+Uint8 __prthitawall( Uint16 particle );
+
+int    prt_is_over_water( Uint16 cnt );

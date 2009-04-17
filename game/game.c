@@ -23,6 +23,7 @@
 #define DECLARE_GLOBALS
 
 #include "egoboo.h"
+
 #include "clock.h"
 #include "link.h"
 #include "ui.h"
@@ -35,13 +36,21 @@
 #include "passage.h"
 #include "enchant.h"
 #include "input.h"
+#include "menu.h"
+#include "file_common.h"
+#include "network.h"
+
+#include "char.h"
+#include "particle.h"
+#include "camera.h"
+#include "id_md2.h"
+
+#include "script_compile.h"
+#include "script.h"
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
-
-#include "char.h"
-#include "camera.h"
-#include "id_md2.h"
+#include "egoboo_fileutil.h"
 
 #include <SDL_image.h>
 
@@ -51,70 +60,94 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+struct s_chr_setup_info
+{
+    STRING spawn_name;
+    char   *pname;
+    Sint32 slot;
+    float  x, y, z;
+    int    passage, content, money, level, skin;
+    bool_t ghost;
+    bool_t stat;
+    Uint8  team;
+    Uint16 facing;
+    Uint16 attach;
+    Uint16 parent;
+};
+typedef struct s_chr_setup_info chr_setup_info_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// game initialization / deinitialization - not accessible by scripts
+static void make_randie();
+static void reset_teams();
+static void reset_messages();
+static void reset_timers();
+static void quit_game( void );
+
+// looping - stuff called every loop - not accessible by scripts
+static void do_enchant_spawn();
+static void attach_particles();
+static void check_stats();
+static void tilt_characters_to_terrain();
+static void bump_characters( void );
+static void do_weather_spawn();
+static void stat_return();
+static void update_pits();
+static void update_game();
+static void update_timers();
+static void make_onwhichfan( void );
+static void set_local_latches( void );
+static void make_onwhichfan( void );
+static void let_all_characters_think();
+
+// module initialization / deinitialization - not accessible by scripts
+static bool_t load_module(  const char *smallname );
+static void   quit_module( void );
+static void   release_module();
+
+static void   setup_characters(  const char *modname );
+static void   setup_alliances(  const char *modname );
+static void   load_all_messages(  const char *loadname, Uint16 object );
+static int    load_one_object( int skin,  const char* tmploadname );
+static int    load_all_objects(  const char *modname );
+static void   load_all_global_objects(int skin);
+
+static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
+static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
+static void setup_characters( const char *modname );
+
+// mesh initialization - not accessible by scripts
+static void make_twist();
+
+// Model stuff
+static Uint16 test_frame_name( char letter );
+
+static Uint16 action_number();
+static Uint16 action_frame();
+static void   action_check_copy(  const char* loadname, Uint16 object );
+static void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
+
+static void   mad_get_framefx( int frame );
+static void   mad_get_walk_frame( Uint16 object, int lip, int action );
+static void   mad_make_equally_lit( int model );
+static void   mad_make_framelip( Uint16 object, int action );
+static void   mad_rip_actions( Uint16 object );
+
+static void load_action_names(  const char* loadname );
+static void log_madused(  const char *savename );
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
 char  idsz_string[5] = { '\0' };
 
 static void memory_cleanUp(void);
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-int what_action( char cTmp )
-{
-    // ZZ> This function changes a letter into an action code
-    int action;
-    action = ACTIONDA;
-    if ( cTmp == 'U' || cTmp == 'u' )  action = ACTIONUA;
-    if ( cTmp == 'T' || cTmp == 't' )  action = ACTIONTA;
-    if ( cTmp == 'S' || cTmp == 's' )  action = ACTIONSA;
-    if ( cTmp == 'C' || cTmp == 'c' )  action = ACTIONCA;
-    if ( cTmp == 'B' || cTmp == 'b' )  action = ACTIONBA;
-    if ( cTmp == 'L' || cTmp == 'l' )  action = ACTIONLA;
-    if ( cTmp == 'X' || cTmp == 'x' )  action = ACTIONXA;
-    if ( cTmp == 'F' || cTmp == 'f' )  action = ACTIONFA;
-    if ( cTmp == 'P' || cTmp == 'p' )  action = ACTIONPA;
-    if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTIONZA;
-
-    return action;
-}
-
-//--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-char * get_file_path( const char *szName )
-{
-    //ZF> This turns a szName name into a proper filepath for loading and saving files
-    //    also turns all letter to lower case in case of case sensitive OS.
-
-    static char szPathname[16];
-
-    char * pname, * pname_end;
-    char * ppath, * ppath_end;
-    char letter;
-
-    pname = szName;
-    pname_end = pname + 255;
-
-    ppath = szPathname;
-    ppath_end = ppath + 11;
-
-    while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
-    {
-        letter = tolower( *pname );
-
-        if ( ( letter < 'a' || letter > 'z' ) )  letter = '_';
-
-        *ppath = letter;
-
-        pname++;
-        ppath++;
-    }
-    *ppath = '\0';
-
-    strncat(szPathname, ".obj", sizeof(szPathname) - strlen(szPathname) );
-
-    return szPathname;
-}
-
 //--------------------------------------------------------------------------------------------
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local )
 {
@@ -369,245 +402,6 @@ void quit_game()
 }
 
 //--------------------------------------------------------------------------------------------
-void goto_colon( FILE* fileread )
-{
-    // ZZ> This function moves a file read pointer to the next colon
-    //    char cTmp;
-    Uint32 ch = fgetc( fileread );
-
-    //    fscanf(fileread, "%c", &cTmp);
-    while ( ch != ':' )
-    {
-        if ( ch == EOF )
-        {
-            // not enough colons in file!
-            log_error( "There are not enough colons in file! (%s)\n", parse_filename );
-        }
-
-        ch = fgetc( fileread );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-Uint8 goto_colon_yesno( FILE* fileread )
-{
-    // ZZ> This function moves a file read pointer to the next colon, or it returns
-    //     bfalse if there are no more
-    char cTmp;
-
-    do
-    {
-        if ( fscanf( fileread, "%c", &cTmp ) == EOF )
-        {
-            return bfalse;
-        }
-    }
-    while ( cTmp != ':' );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-char get_first_letter( FILE* fileread )
-{
-    // ZZ> This function returns the next non-whitespace character
-    char cTmp;
-    fscanf( fileread, "%c", &cTmp );
-
-    while ( isspace( cTmp ) )
-    {
-        fscanf( fileread, "%c", &cTmp );
-    }
-
-    return cTmp;
-}
-
-//--------------------------------------------------------------------------------------------
-// Tag Reading---------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void reset_tags()
-{
-    // ZZ> This function resets the tags
-    numscantag = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t read_tag( FILE *fileread )
-{
-    // ZZ> This function finds the next tag, returning btrue if it found one
-
-    bool_t retval;
-
-    retval = goto_colon_yesno( fileread ) && (numscantag < MAXTAG);
-    if ( retval )
-    {
-        fscanf( fileread, "%s%d", tagname[numscantag], &tagvalue[numscantag] );
-        numscantag++;
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-void read_all_tags(  const char *szFilename )
-{
-    // ZZ> This function reads the scancode.txt file
-    FILE* fileread;
-
-    reset_tags();
-    fileread = fopen( szFilename, "r" );
-    if ( fileread )
-    {
-        while ( read_tag( fileread ) );
-
-        fclose( fileread );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int tag_value(  const char *string )
-{
-    // ZZ> This function matches the string with its tag, and returns the value...
-    //     It will return 255 if there are no matches.
-    int cnt;
-
-    cnt = 0;
-
-    while ( cnt < numscantag )
-    {
-        if ( strcmp( string, tagname[cnt] ) == 0 )
-        {
-            // They match
-            return tagvalue[cnt];
-        }
-
-        cnt++;
-    }
-
-    // No matches
-    return 255;
-}
-
-//--------------------------------------------------------------------------------------------
-char* tag_to_string( Sint32 device, Sint32 tag, bool_t is_key )
-{
-    //ZF> This translates a input tag value to a string
-    int cnt;
-    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
-    if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
-
-    for ( cnt = 0; cnt < numscantag; cnt++ )
-    {
-        // do not search invalid keys
-        if ( is_key )
-        {
-            if ( 'K' != tagname[cnt][0] ) continue;
-        }
-        else
-        {
-            switch ( device )
-            {
-                case INPUT_DEVICE_MOUSE:
-                    if ( 'M' != tagname[cnt][0] ) continue;
-                    break;
-
-                case INPUT_DEVICE_JOY:
-                    if ( 'J' != tagname[cnt][0] ) continue;
-                    break;
-            }
-        };
-        if ( tag == tagvalue[cnt])
-        {
-            return tagname[cnt];
-        }
-    }
-
-    // No matches
-    return "N/A";
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
-{
-    // ZZ> This function returns btrue if the given icontrol is pressed...
-
-    bool_t retval = bfalse;
-
-    device_controls_t * pdevice;
-    control_t         * pcontrol;
-
-    // make sure the idevice is valid
-    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return bfalse;
-    pdevice = controls + idevice;
-
-    // make sure the icontrol is within range
-    if ( pdevice->count < icontrol ) return retval;
-    pcontrol = pdevice->control + icontrol;
-    if ( INPUT_DEVICE_KEYBOARD == idevice || pcontrol->is_key )
-    {
-        retval = SDLKEYDOWN( pcontrol->tag );
-    }
-    else
-    {
-        retval = ( input_get_buttonmask( idevice ) == pcontrol->tag );
-    }
-
-    return retval;
-}
-
-//--------------------------------------------------------------------------------------------
-IDSZ get_idsz( FILE* fileread )
-{
-    // ZZ> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
-
-    IDSZ idsz = IDSZ_NONE;
-    char cTmp = get_first_letter( fileread );
-    if ( cTmp == '[' )
-    {
-        idsz = 0;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp;
-    }
-
-    return idsz;
-}
-//--------------------------------------------------------------------------------------------
-int fget_int( FILE* fileread )
-{
-    int iTmp = 0;
-    if ( feof( fileread ) ) return iTmp;
-
-    fscanf( fileread, "%d", &iTmp );
-    return iTmp;
-}
-
-//--------------------------------------------------------------------------------------------
-
-bool_t fcopy_line(FILE * fileread, FILE * filewrite)
-{
-    /// @details BB@> copy a line of arbitrary length, in chunks of length
-    ///      sizeof(linebuffer)
-    /// @todo This should be moved to file_common.c
-
-    char linebuffer[64];
-    if (NULL == fileread || NULL == filewrite) return bfalse;
-    if ( feof(fileread) || feof(filewrite) ) return bfalse;
-
-    fgets(linebuffer, sizeof(linebuffer), fileread);
-    fputs(linebuffer, filewrite);
-
-    while ( strlen(linebuffer) == sizeof(linebuffer) )
-    {
-        fgets(linebuffer, sizeof(linebuffer), fileread);
-        fputs(linebuffer, filewrite);
-    }
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
 void getadd( int min, int value, int max, int* valuetoadd )
 {
     // ZZ> This function figures out what value to add should be in order
@@ -684,31 +478,6 @@ void load_action_names(  const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void get_name( FILE* fileread,  char *szName )
-{
-    // ZZ> This function loads a string of up to MAXCAPNAMESIZE characters, parsing
-    //     it for underscores.  The szName argument is rewritten with the null terminated
-    //     string
-    int cnt;
-    char cTmp;
-    char szTmp[256];
-
-    fscanf( fileread, "%s", szTmp );
-    cnt = 0;
-
-    while ( cnt < MAXCAPNAMESIZE - 1 )
-    {
-        cTmp = szTmp[cnt];
-        if ( cTmp == '_' )  cTmp = ' ';
-
-        szName[cnt] = cTmp;
-        cnt++;
-    }
-
-    szName[cnt] = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 void log_madused(  const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
@@ -732,34 +501,8 @@ void log_madused(  const char *savename )
     }
 }
 
-//---------------------------------------------------------------------------------------------
-int vertexconnected( Uint16 modelindex, int vertex )
-{
-    // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
-    int cnt, tnc, entry;
-
-    entry = 0;
-
-    for ( cnt = 0; cnt < MadList[modelindex].commands; cnt++ )
-    {
-        for ( tnc = 0; tnc < MadList[modelindex].commandsize[cnt]; tnc++ )
-        {
-            if ( MadList[modelindex].commandvrt[entry] == vertex )
-            {
-                // The vertex is used
-                return 1;
-            }
-
-            entry++;
-        }
-    }
-
-    // The vertex is not used
-    return 0;
-}
-
 //--------------------------------------------------------------------------------------------
-void add_stat( Uint16 character )
+void statlist_add( Uint16 character )
 {
     // ZZ> This function adds a status display to the do list
     if ( numstat < MAXSTAT )
@@ -771,7 +514,7 @@ void add_stat( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_to_top( Uint16 character )
+void statlist_move_to_top( Uint16 character )
 {
     // ZZ> This function puts the character on top of the statlist
     int cnt, oldloc;
@@ -804,7 +547,7 @@ void move_to_top( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void sort_stat()
+void statlist_sort()
 {
     // ZZ> This function puts all of the local players on top of the statlist
     int cnt;
@@ -813,12 +556,12 @@ void sort_stat()
     {
         if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
         {
-            move_to_top( PlaList[cnt].index );
+            statlist_move_to_top( PlaList[cnt].index );
         }
     }
 }
 //--------------------------------------------------------------------------------------------
-void play_action( Uint16 character, Uint16 action, Uint8 actionready )
+void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
     if ( MadList[ChrList[character].model].actionvalid[action] )
@@ -833,7 +576,7 @@ void play_action( Uint16 character, Uint16 action, Uint8 actionready )
 }
 
 //--------------------------------------------------------------------------------------------
-void set_frame( Uint16 character, int frame, Uint16 lip )
+void chr_set_frame( Uint16 character, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
     //     rotate Tank turrets
@@ -1192,182 +935,7 @@ void update_timers()
 }
 
 //--------------------------------------------------------------------------------------------
-void read_pair( FILE* fileread )
-{
-    // ZZ> This function reads a damage/stat pair ( eg. 5-9 )
-    char cTmp;
-    float  fBase, fRand;
-
-    fscanf( fileread, "%f", &fBase );  // The first number
-    pairbase = fBase * 256;
-    cTmp = get_first_letter( fileread );  // The hyphen
-    if ( cTmp != '-' )
-    {
-        // Not in correct format, so fail
-        pairrand = 1;
-        return;
-    }
-
-    fscanf( fileread, "%f", &fRand );  // The second number
-    pairrand = fRand * 256;
-    pairrand = pairrand - pairbase;
-    if ( pairrand < 1 )
-        pairrand = 1;
-}
-
-//--------------------------------------------------------------------------------------------
-void undo_pair( int base, int rand )
-{
-    // ZZ> This function generates a damage/stat pair ( eg. 3-6.5f )
-    //     from the base and random values.  It set pairfrom and
-    //     pairto
-    pairfrom = base / 256.0f;
-    pairto = rand / 256.0f;
-    if ( pairfrom < 0.0f )
-    {
-        pairfrom = 0.0f;
-        log_warning( "We got a randomization error again! (Base is less than 0)\n" );
-    }
-    if ( pairto < 0.0f )
-    {
-        pairto = 0.0f;
-        log_warning( "We got a randomization error again! (Max is less than 0)\n" );
-    }
-
-    pairto += pairfrom;
-}
-
-//--------------------------------------------------------------------------------------------
-void ftruthf( FILE* filewrite,  const char* text, Uint8 truth )
-{
-    // ZZ> This function kinda mimics fprintf for the output of
-    //     btrue bfalse statements
-
-    fprintf( filewrite, "%s", text );
-    if ( truth )
-    {
-        fprintf( filewrite, "TRUE\n" );
-    }
-    else
-    {
-        fprintf( filewrite, "FALSE\n" );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype )
-{
-    // ZZ> This function kinda mimics fprintf for the output of
-    //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
-    fprintf( filewrite, "%s", text );
-    if ( damagetype == DAMAGE_SLASH )
-        fprintf( filewrite, "SLASH\n" );
-    if ( damagetype == DAMAGE_CRUSH )
-        fprintf( filewrite, "CRUSH\n" );
-    if ( damagetype == DAMAGE_POKE )
-        fprintf( filewrite, "POKE\n" );
-    if ( damagetype == DAMAGE_HOLY )
-        fprintf( filewrite, "HOLY\n" );
-    if ( damagetype == DAMAGE_EVIL )
-        fprintf( filewrite, "EVIL\n" );
-    if ( damagetype == DAMAGE_FIRE )
-        fprintf( filewrite, "FIRE\n" );
-    if ( damagetype == DAMAGE_ICE )
-        fprintf( filewrite, "ICE\n" );
-    if ( damagetype == DAMAGE_ZAP )
-        fprintf( filewrite, "ZAP\n" );
-    if ( damagetype == DAMAGENULL )
-        fprintf( filewrite, "NONE\n" );
-}
-
-//--------------------------------------------------------------------------------------------
-void factiof( FILE* filewrite,  const char* text, Uint8 action )
-{
-    // ZZ> This function kinda mimics fprintf for the output of
-    //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
-    fprintf( filewrite, "%s", text );
-    if ( action == ACTIONDA )
-        fprintf( filewrite, "WALK\n" );
-    if ( action == ACTIONUA )
-        fprintf( filewrite, "UNARMED\n" );
-    if ( action == ACTIONTA )
-        fprintf( filewrite, "THRUST\n" );
-    if ( action == ACTIONSA )
-        fprintf( filewrite, "SLASH\n" );
-    if ( action == ACTIONCA )
-        fprintf( filewrite, "CHOP\n" );
-    if ( action == ACTIONBA )
-        fprintf( filewrite, "BASH\n" );
-    if ( action == ACTIONLA )
-        fprintf( filewrite, "LONGBOW\n" );
-    if ( action == ACTIONXA )
-        fprintf( filewrite, "XBOW\n" );
-    if ( action == ACTIONFA )
-        fprintf( filewrite, "FLING\n" );
-    if ( action == ACTIONPA )
-        fprintf( filewrite, "PARRY\n" );
-    if ( action == ACTIONZA )
-        fprintf( filewrite, "ZAP\n" );
-}
-
-//--------------------------------------------------------------------------------------------
-void fgendef( FILE* filewrite,  const char* text, Uint8 gender )
-{
-    // ZZ> This function kinda mimics fprintf for the output of
-    //     MALE FEMALE OTHER statements
-
-    fprintf( filewrite, "%s", text );
-    if ( gender == GENMALE )
-        fprintf( filewrite, "MALE\n" );
-    if ( gender == GENFEMALE )
-        fprintf( filewrite, "FEMALE\n" );
-    if ( gender == GENOTHER )
-        fprintf( filewrite, "OTHER\n" );
-}
-
-//--------------------------------------------------------------------------------------------
-void fpairof( FILE* filewrite,  const char* text, int base, int rand )
-{
-    // ZZ> This function mimics fprintf in spitting out
-    //     damage/stat pairs
-    undo_pair( base, rand );
-    fprintf( filewrite, "%s", text );
-    fprintf( filewrite, "%4.2f-%4.2f\n", pairfrom, pairto );
-}
-
-//--------------------------------------------------------------------------------------------
-void funderf( FILE* filewrite,  const char* text,  const char* usename )
-{
-    // ZZ> This function mimics fprintf in spitting out
-    //     a name with underscore spaces
-    char cTmp;
-    int cnt;
-
-    fprintf( filewrite, "%s", text );
-    cnt = 0;
-    cTmp = usename[0];
-    cnt++;
-
-    while ( cTmp != 0 )
-    {
-        if ( cTmp == ' ' )
-        {
-            fprintf( filewrite, "_" );
-        }
-        else
-        {
-            fprintf( filewrite, "%c", cTmp );
-        }
-
-        cTmp = usename[cnt];
-        cnt++;
-    }
-
-    fprintf( filewrite, "\n" );
-}
-
-//--------------------------------------------------------------------------------------------
-void get_message( FILE* fileread )
+static void get_message( FILE* fileread )
 {
     // ZZ> This function loads a string into the message buffer, making sure it
     //     is null terminated.
@@ -1543,11 +1111,6 @@ void reset_timers()
     outofsync = bfalse;
 }
 
-void menu_loadInitialMenu();
-
-extern int doMenu( float deltaTime );
-extern int initMenus();
-
 //--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
@@ -1584,7 +1147,7 @@ int SDL_main( int argc, char **argv )
     // download the "setup.txt" values into game variables
     setup_download();
 
-    read_all_tags( "basicdat" SLASH_STR "scancode.txt" );
+    scantag_read_all( "basicdat" SLASH_STR "scancode.txt" );
     input_settings_load( "controls.txt" );
 
     release_all_ai_scripts();
@@ -1715,27 +1278,8 @@ int SDL_main( int argc, char **argv )
         {
             // Start a new module
             seed = time( NULL );
-            srand( seed );
 
-            load_module( pickedmodule );  // :TODO: Seems to be the next part to fix
-
-            pressed = bfalse;
-            make_onwhichfan();
-            reset_camera(&gCamera);
-            reset_timers();
-            figure_out_what_to_draw();
-            make_character_matrices();
-            attach_particles();
-            if ( networkon )
-            {
-                log_info( "SDL_main: Loading module %s...\n", pickedmodule );
-                net_sayHello();
-            }
-
-            // Let the game go
-            moduleactive = btrue;
-            randsave = 0;
-            srand( randsave );
+            moduleactive = game_init_module( pickedmodule, seed );
 
             while ( moduleactive )
             {
@@ -1835,8 +1379,7 @@ int SDL_main( int argc, char **argv )
                 }
             }
 
-            release_module();
-            close_session();
+            game_quit_module();
         }
     }
 
@@ -1927,21 +1470,21 @@ int load_one_object( int skin,  const char* tmploadname )
 
 #endif
 
-    load_one_md2( newloadname, object );
+    md2_load_one( newloadname, object );
     md2_models[object] = md2_loadFromFile( newloadname );
 
     // Fix lighting if need be
     if ( CapList[object].uniformlit )
     {
-        make_mad_equally_lit( object );
+        mad_make_equally_lit( object );
     }
 
     // Create the actions table for this object
-    get_actions( object );
+    mad_rip_actions( object );
 
     // Copy entire actions to save frame space COPY.TXT
     make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
-    check_copy( newloadname, object );
+    action_check_copy( newloadname, object );
 
     // Load the messages for this object
     make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
@@ -1949,7 +1492,7 @@ int load_one_object( int skin,  const char* tmploadname )
 
     // Load the random naming table for this object
     make_newloadname( tmploadname, SLASH_STR "naming.txt", newloadname );
-    read_naming( object, newloadname );
+    chop_load( object, newloadname );
 
     // Load the particles for this object
     for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
@@ -2015,4 +1558,3222 @@ int load_one_object( int skin,  const char* tmploadname )
 
     MadList[object].skins = numskins;
     return numskins;
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_rip_actions( Uint16 object )
+{
+    // ZZ> This function creates the frame lists for each action based on the
+    //     name of each md2 frame in the model
+
+    int frame, framesinaction;
+    int action, lastaction;
+
+    // Clear out all actions and reset to invalid
+    action = 0;
+
+    while ( action < MAXACTION )
+    {
+        MadList[object].actionvalid[action] = bfalse;
+        action++;
+    }
+
+    // Set the primary dance action to be the first frame, just as a default
+    MadList[object].actionvalid[ACTIONDA] = btrue;
+    MadList[object].actionstart[ACTIONDA] = MadList[object].framestart;
+    MadList[object].actionend[ACTIONDA] = MadList[object].framestart + 1;
+
+    // Now go huntin' to see what each frame is, look for runs of same action
+    md2_rip_frame_name( 0 );
+    lastaction = action_number();  framesinaction = 0;
+    frame = 0;
+
+    while ( frame < MadList[object].frames )
+    {
+        md2_rip_frame_name( frame );
+        action = action_number();
+        if ( lastaction == action )
+        {
+            framesinaction++;
+        }
+        else
+        {
+            // Write the old action
+            if ( lastaction < MAXACTION )
+            {
+                MadList[object].actionvalid[lastaction] = btrue;
+                MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
+                MadList[object].actionend[lastaction] = MadList[object].framestart + frame;
+            }
+
+            framesinaction = 1;
+            lastaction = action;
+        }
+
+        mad_get_framefx( MadList[object].framestart + frame );
+        frame++;
+    }
+
+    // Write the old action
+    if ( lastaction < MAXACTION )
+    {
+        MadList[object].actionvalid[lastaction] = btrue;
+        MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
+        MadList[object].actionend[lastaction]   = MadList[object].framestart + frame;
+    }
+
+    // Make sure actions are made valid if a similar one exists
+    action_copy_correct( object, ACTIONDA, ACTIONDB );  // All dances should be safe
+    action_copy_correct( object, ACTIONDB, ACTIONDC );
+    action_copy_correct( object, ACTIONDC, ACTIONDD );
+    action_copy_correct( object, ACTIONDB, ACTIONDC );
+    action_copy_correct( object, ACTIONDA, ACTIONDB );
+    action_copy_correct( object, ACTIONUA, ACTIONUB );
+    action_copy_correct( object, ACTIONUB, ACTIONUC );
+    action_copy_correct( object, ACTIONUC, ACTIONUD );
+    action_copy_correct( object, ACTIONTA, ACTIONTB );
+    action_copy_correct( object, ACTIONTC, ACTIONTD );
+    action_copy_correct( object, ACTIONCA, ACTIONCB );
+    action_copy_correct( object, ACTIONCC, ACTIONCD );
+    action_copy_correct( object, ACTIONSA, ACTIONSB );
+    action_copy_correct( object, ACTIONSC, ACTIONSD );
+    action_copy_correct( object, ACTIONBA, ACTIONBB );
+    action_copy_correct( object, ACTIONBC, ACTIONBD );
+    action_copy_correct( object, ACTIONLA, ACTIONLB );
+    action_copy_correct( object, ACTIONLC, ACTIONLD );
+    action_copy_correct( object, ACTIONXA, ACTIONXB );
+    action_copy_correct( object, ACTIONXC, ACTIONXD );
+    action_copy_correct( object, ACTIONFA, ACTIONFB );
+    action_copy_correct( object, ACTIONFC, ACTIONFD );
+    action_copy_correct( object, ACTIONPA, ACTIONPB );
+    action_copy_correct( object, ACTIONPC, ACTIONPD );
+    action_copy_correct( object, ACTIONZA, ACTIONZB );
+    action_copy_correct( object, ACTIONZC, ACTIONZD );
+    action_copy_correct( object, ACTIONWA, ACTIONWB );
+    action_copy_correct( object, ACTIONWB, ACTIONWC );
+    action_copy_correct( object, ACTIONWC, ACTIONWD );
+    action_copy_correct( object, ACTIONDA, ACTIONWD );  // All walks should be safe
+    action_copy_correct( object, ACTIONWC, ACTIONWD );
+    action_copy_correct( object, ACTIONWB, ACTIONWC );
+    action_copy_correct( object, ACTIONWA, ACTIONWB );
+    action_copy_correct( object, ACTIONJA, ACTIONJB );
+    action_copy_correct( object, ACTIONJB, ACTIONJC );
+    action_copy_correct( object, ACTIONDA, ACTIONJC );  // All jumps should be safe
+    action_copy_correct( object, ACTIONJB, ACTIONJC );
+    action_copy_correct( object, ACTIONJA, ACTIONJB );
+    action_copy_correct( object, ACTIONHA, ACTIONHB );
+    action_copy_correct( object, ACTIONHB, ACTIONHC );
+    action_copy_correct( object, ACTIONHC, ACTIONHD );
+    action_copy_correct( object, ACTIONHB, ACTIONHC );
+    action_copy_correct( object, ACTIONHA, ACTIONHB );
+    action_copy_correct( object, ACTIONKA, ACTIONKB );
+    action_copy_correct( object, ACTIONKB, ACTIONKC );
+    action_copy_correct( object, ACTIONKC, ACTIONKD );
+    action_copy_correct( object, ACTIONKB, ACTIONKC );
+    action_copy_correct( object, ACTIONKA, ACTIONKB );
+    action_copy_correct( object, ACTIONMH, ACTIONMI );
+    action_copy_correct( object, ACTIONDA, ACTIONMM );
+    action_copy_correct( object, ACTIONMM, ACTIONMN );
+
+    // Create table for doing transition from one type of walk to another...
+    // Clear 'em all to start
+    for ( frame = 0; frame < MadList[object].frames; frame++ )
+    {
+        MadFrameList[frame+MadList[object].framestart].framelip = 0;
+    }
+
+    // Need to figure out how far into action each frame is
+    mad_make_framelip( object, ACTIONWA );
+    mad_make_framelip( object, ACTIONWB );
+    mad_make_framelip( object, ACTIONWC );
+
+    // Now do the same, in reverse, for walking animations
+    mad_get_walk_frame( object, LIPDA, ACTIONDA );
+    mad_get_walk_frame( object, LIPWA, ACTIONWA );
+    mad_get_walk_frame( object, LIPWB, ACTIONWB );
+    mad_get_walk_frame( object, LIPWC, ACTIONWC );
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
+                            Uint16 donttarget, Uint16 oldtarget )
+{
+  // ZZ> This function helps find a target, returning btrue if it found a decent target
+  int cnt;
+  Uint16 angle;
+  Uint16 charb;
+  Uint8 enemies, returncode;
+  Uint32 fanblock;
+  int distance;
+
+  returncode = bfalse;
+
+  // Current fanblock
+  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+  {
+    fanblock = x + meshblockstart[y];
+
+    enemies = bfalse;
+    if ( !onlyfriends ) enemies = btrue;
+
+    charb = meshbumplistchr[fanblock];
+    cnt = 0;
+    while ( cnt < meshbumplistchrnum[fanblock] )
+    {
+      if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
+      {
+        if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
+        {
+          distance = ABS( ChrList[charb].xpos - chrx ) + ABS( ChrList[charb].ypos - chry );
+          if ( distance < globestdistance )
+          {
+            angle = ( ATAN2( ChrList[charb].ypos - chry, ChrList[charb].xpos - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
+            angle = facing - angle;
+            if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
+            {
+              returncode = btrue;
+              globesttarget = charb;
+              globestdistance = distance;
+              glouseangle = angle;
+              if ( angle  > 32767 )
+                globestangle = -angle;
+              else
+                globestangle = angle;
+            }
+          }
+        }
+      }
+      charb = ChrList[charb].bumpnext;
+      cnt++;
+    }
+  }
+  return returncode;
+}*/
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
+                            Uint16 particletype, Uint8 team, Uint16 donttarget,
+                            Uint16 oldtarget )
+{
+    //ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
+    Uint16 besttarget = MAXCHR, cnt;
+    Uint16 longdist = WIDE;
+
+    for (cnt = 0; cnt < MAXCHR; cnt++)
+    {
+        if (ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].isitem && ChrList[cnt].attachedto == MAXCHR
+                && !ChrList[cnt].invictus)
+        {
+            if ((PipList[particletype].onlydamagefriendly && team == ChrList[cnt].team) || (!PipList[particletype].onlydamagefriendly && TeamList[team].hatesteam[ChrList[cnt].team]) )
+            {
+                //Don't retarget someone we already had or not supposed to target
+                if (cnt != oldtarget && cnt != donttarget)
+                {
+                    Uint16 angle = (ATAN2( ChrList[cnt].ypos - ypos, ChrList[cnt].xpos - xpos ) * 0xFFFF / ( TWO_PI ))
+                                   + BEHIND - facing;
+
+                    //Only proceed if we are facing the target
+                    if (angle < PipList[particletype].targetangle || angle > ( 0xFFFF - PipList[particletype].targetangle ) )
+                    {
+                        Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - xpos, 2))
+                                                      + ABS( pow(ChrList[cnt].ypos - ypos, 2))
+                                                      + ABS( pow(ChrList[cnt].zpos - zpos, 2)) );
+                        if (dist < longdist && dist < WIDE )
+                        {
+                            besttarget = cnt;
+                            longdist = dist;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+    //All done
+    return besttarget;
+}
+//--------------------------------------------------------------------------------------------
+/*Uint16 find_target( float chrx, float chry, Uint16 facing,
+                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+                    Uint8 team, Uint16 donttarget, Uint16 oldtarget )
+{
+  // This function finds the best target for the given parameters
+  Uint8 done;
+  int x, y;
+
+  x = chrx;
+  y = chry;
+  x = x >> 9;
+  y = y >> 9;
+  globestdistance = 9999;
+  globestangle = targetangle;
+  done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  if ( done ) return globesttarget;
+
+  done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+  if ( done ) return globesttarget;
+
+  return MAXCHR;
+}*/
+
+//--------------------------------------------------------------------------------------------
+Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz )
+{
+    //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
+    //If maxdistance is 0 then it searches without a max limit.
+    Uint16 besttarget = MAXCHR, cnt;
+    Uint32 longdist = pow(2, 31);
+    if (team == NONE) return MAXCHR;
+
+    for (cnt = 0; cnt < MAXCHR; cnt++)
+    {
+        if (ChrList[cnt].on && cnt != character && (targetdead || ChrList[cnt].alive) && (targetitems || (!ChrList[cnt].isitem && !ChrList[cnt].invictus)) && ChrList[cnt].attachedto == MAXCHR
+                && (team != ENEMY || ChrList[character].canseeinvisible || ( ChrList[cnt].alpha > INVISIBLE && ChrList[cnt].light > INVISIBLE ) )
+                && (team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team]) )
+        {
+            //Check for IDSZ too
+            if (idsz == IDSZ_NONE
+                    || (excludeidsz != (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz))
+                    || (excludeidsz != (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE]   == idsz)) )
+            {
+                Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - ChrList[character].xpos, 2))
+                                              + ABS( pow(ChrList[cnt].ypos - ChrList[character].ypos, 2))
+                                              + ABS( pow(ChrList[cnt].zpos - ChrList[character].zpos, 2)) );
+                if (dist < longdist && (maxdistance == 0 || dist < maxdistance) )
+                {
+                    besttarget = cnt;
+                    longdist = dist;
+                }
+            }
+        }
+    }
+
+    //Now set the target
+    if (besttarget != MAXCHR)
+    {
+        ChrList[character].ai.target = besttarget;
+    }
+
+    return besttarget;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 action_number()
+{
+    // ZZ> This function returns the number of the action in cFrameName, or
+    //     it returns NOACTION if it could not find a match
+    int cnt;
+    char first, second;
+
+    first = cFrameName[0];
+    second = cFrameName[1];
+
+    for ( cnt = 0; cnt < MAXACTION; cnt++ )
+    {
+        if ( first == cActionName[cnt][0] && second == cActionName[cnt][1] )
+        {
+            return cnt;
+        }
+    }
+
+    return NOACTION;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 action_frame()
+{
+    // ZZ> This function returns the frame number in the third and fourth characters
+    //     of cFrameName
+    int number;
+    sscanf( &cFrameName[2], "%d", &number );
+    return number;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 test_frame_name( char letter )
+{
+    // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
+    //     of the frame name matches the input argument
+    if ( cFrameName[4] == letter ) return btrue;
+    if ( cFrameName[4] == 0 ) return bfalse;
+    if ( cFrameName[5] == letter ) return btrue;
+    if ( cFrameName[5] == 0 ) return bfalse;
+    if ( cFrameName[6] == letter ) return btrue;
+    if ( cFrameName[6] == 0 ) return bfalse;
+    if ( cFrameName[7] == letter ) return btrue;
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
+{
+    // ZZ> This function makes sure both actions are valid if either of them
+    //     are valid.  It will copy start and ends to mirror the valid action.
+    if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
+    {
+        // They are either both valid or both invalid, in either case we can't help
+    }
+    else
+    {
+        // Fix the invalid one
+        if ( !MadList[object].actionvalid[actiona] )
+        {
+            // Fix actiona
+            MadList[object].actionvalid[actiona] = btrue;
+            MadList[object].actionstart[actiona] = MadList[object].actionstart[actionb];
+            MadList[object].actionend[actiona] = MadList[object].actionend[actionb];
+        }
+        else
+        {
+            // Fix actionb
+            MadList[object].actionvalid[actionb] = btrue;
+            MadList[object].actionstart[actionb] = MadList[object].actionstart[actiona];
+            MadList[object].actionend[actionb] = MadList[object].actionend[actiona];
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_get_walk_frame( Uint16 object, int lip, int action )
+{
+    // ZZ> This helps make walking look right
+    int frame = 0;
+    int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
+
+    while ( frame < 16 )
+    {
+        int framealong = 0;
+        if ( framesinaction > 0 )
+        {
+            framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
+        }
+
+        MadList[object].frameliptowalkframe[lip][frame] = MadList[object].actionstart[action] + framealong;
+        frame++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_get_framefx( int frame )
+{
+    // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
+    //     Drop timings
+    Uint16 fx = 0;
+    if ( test_frame_name( 'I' ) )
+        fx = fx | MADFXINVICTUS;
+    if ( test_frame_name( 'L' ) )
+    {
+        if ( test_frame_name( 'A' ) )
+            fx = fx | MADFXACTLEFT;
+        if ( test_frame_name( 'G' ) )
+            fx = fx | MADFXGRABLEFT;
+        if ( test_frame_name( 'D' ) )
+            fx = fx | MADFXDROPLEFT;
+        if ( test_frame_name( 'C' ) )
+            fx = fx | MADFXCHARLEFT;
+    }
+    if ( test_frame_name( 'R' ) )
+    {
+        if ( test_frame_name( 'A' ) )
+            fx = fx | MADFXACTRIGHT;
+        if ( test_frame_name( 'G' ) )
+            fx = fx | MADFXGRABRIGHT;
+        if ( test_frame_name( 'D' ) )
+            fx = fx | MADFXDROPRIGHT;
+        if ( test_frame_name( 'C' ) )
+            fx = fx | MADFXCHARRIGHT;
+    }
+    if ( test_frame_name( 'S' ) )
+        fx = fx | MADFXSTOP;
+    if ( test_frame_name( 'F' ) )
+        fx = fx | MADFXFOOTFALL;
+    if ( test_frame_name( 'P' ) )
+        fx = fx | MADFXPOOF;
+
+    MadFrameList[frame].framefx = fx;
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_make_framelip( Uint16 object, int action )
+{
+    // ZZ> This helps make walking look right
+    int frame, framesinaction;
+    if ( MadList[object].actionvalid[action] )
+    {
+        framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
+        frame = MadList[object].actionstart[action];
+
+        while ( frame < MadList[object].actionend[action] )
+        {
+            MadFrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
+            MadFrameList[frame].framelip = ( MadFrameList[frame].framelip ) & 15;
+            frame++;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void mad_make_equally_lit( int model )
+{
+    // ZZ> This function makes ultra low poly models look better
+    int frame, cnt, vert;
+    if ( MadList[model].used )
+    {
+        frame = MadList[model].framestart;
+
+        for ( cnt = 0; cnt < MadList[model].frames; cnt++ )
+        {
+            vert = 0;
+
+            while ( vert < MAXVERTICES )
+            {
+                MadFrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
+                vert++;
+            }
+
+            frame++;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void action_check_copy(  const char* loadname, Uint16 object )
+{
+    // ZZ> This function copies a model's actions
+    FILE *fileread;
+    int actiona, actionb;
+    char szOne[16], szTwo[16];
+
+    MadList[object].msgstart = 0;
+    fileread = fopen( loadname, "r" );
+    if ( fileread )
+    {
+        while ( goto_colon_yesno( fileread ) )
+        {
+            fscanf( fileread, "%s%s", szOne, szTwo );
+            actiona = action_which( szOne[0] );
+            actionb = action_which( szTwo[0] );
+            action_copy_correct( object, actiona, actionb );
+            action_copy_correct( object, actiona + 1, actionb + 1 );
+            action_copy_correct( object, actiona + 2, actionb + 2 );
+            action_copy_correct( object, actiona + 3, actionb + 3 );
+        }
+
+        fclose( fileread );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int action_which( char cTmp )
+{
+    // ZZ> This function changes a letter into an action code
+    int action;
+    action = ACTIONDA;
+    if ( cTmp == 'U' || cTmp == 'u' )  action = ACTIONUA;
+    if ( cTmp == 'T' || cTmp == 't' )  action = ACTIONTA;
+    if ( cTmp == 'S' || cTmp == 's' )  action = ACTIONSA;
+    if ( cTmp == 'C' || cTmp == 'c' )  action = ACTIONCA;
+    if ( cTmp == 'B' || cTmp == 'b' )  action = ACTIONBA;
+    if ( cTmp == 'L' || cTmp == 'l' )  action = ACTIONLA;
+    if ( cTmp == 'X' || cTmp == 'x' )  action = ACTIONXA;
+    if ( cTmp == 'F' || cTmp == 'f' )  action = ACTIONFA;
+    if ( cTmp == 'P' || cTmp == 'p' )  action = ACTIONPA;
+    if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTIONZA;
+
+    return action;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void make_onwhichfan( void )
+{
+    // ZZ> This function figures out which fan characters are on and sets their level
+    Uint16 character, distance;
+    int ripand;
+    // int volume;
+    float level;
+
+    // First figure out which fan each character is in
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        if ( !ChrList[character].on ) continue;
+
+        ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
+        ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
+    }
+
+    // Get levels every update
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        if ( !ChrList[character].on || ChrList[character].inpack ) continue;
+
+        level = get_level( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk ) + RAISE;
+        if ( ChrList[character].alive )
+        {
+            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( meshfx[ChrList[character].onwhichfan] & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
+            {
+                if ( ( ChrList[character].damagemodifier[damagetiletype]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
+                {
+                    distance = ABS( gCamera.trackx - ChrList[character].xpos ) + ABS( gCamera.tracky - ChrList[character].ypos );
+                    if ( distance < damagetilemindistance )
+                    {
+                        damagetilemindistance = distance;
+                    }
+                    if ( distance < damagetilemindistance + 256 )
+                    {
+                        damagetilesoundtime = 0;
+                    }
+                    if ( ChrList[character].damagetime == 0 )
+                    {
+                        damage_character( character, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFXBLOC | DAMFXARMO, bfalse );
+                        ChrList[character].damagetime = DAMAGETILETIME;
+                    }
+                    if ( (damagetileparttype != ((Sint16)~0)) && ( frame_wld&damagetilepartand ) == 0 )
+                    {
+                        spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
+                                            0, MAXMODEL, damagetileparttype, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                    }
+                }
+                if ( ChrList[character].reaffirmdamagetype == damagetiletype )
+                {
+                    if ( ( frame_wld&TILEREAFFIRMAND ) == 0 )
+                        reaffirm_attached_particles( character );
+                }
+            }
+        }
+
+        if ( ChrList[character].zpos < watersurfacelevel && INVALID_TILE != ChrList[character].onwhichfan && 0 != ( meshfx[ChrList[character].onwhichfan] & MESHFX_WATER ) )
+        {
+            if ( !ChrList[character].inwater )
+            {
+                // Splash
+                if ( ChrList[character].attachedto == MAXCHR )
+                {
+                    spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, watersurfacelevel + RAISE,
+                                        0, MAXMODEL, SPLASH, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                }
+
+                ChrList[character].inwater = btrue;
+                if ( wateriswater )
+                {
+                    ChrList[character].ai.alert |= ALERTIF_INWATER;
+                }
+            }
+            else
+            {
+                if ( ChrList[character].zpos > watersurfacelevel - RIPPLETOLERANCE && CapList[ChrList[character].model].ripple )
+                {
+                    // Ripples
+                    ripand = ( ( int )ChrList[character].xvel != 0 ) | ( ( int )ChrList[character].yvel != 0 );
+                    ripand = RIPPLEAND >> ripand;
+                    if ( ( frame_wld&ripand ) == 0 && ChrList[character].zpos < watersurfacelevel && ChrList[character].alive )
+                    {
+                        spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, watersurfacelevel,
+                                            0, MAXMODEL, RIPPLE, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                    }
+                }
+                if ( wateriswater && ( frame_wld&7 ) == 0 )
+                {
+                    ChrList[character].jumpready = btrue;
+                    ChrList[character].jumpnumber = 1; // ChrList[character].jumpnumberreset;
+                }
+            }
+
+            ChrList[character].xvel = ChrList[character].xvel * waterfriction;
+            ChrList[character].yvel = ChrList[character].yvel * waterfriction;
+            ChrList[character].zvel = ChrList[character].zvel * waterfriction;
+        }
+        else
+        {
+            ChrList[character].inwater = bfalse;
+        }
+
+        ChrList[character].level = level;
+    }
+
+    // Play the damage tile sound
+    if ( damagetilesound >= 0 )
+    {
+        if ( ( frame_wld & 3 ) == 0 )
+        {
+            // Change the volume...
+            /*PORT
+                        volume = -(damagetilemindistance + (damagetilesoundtime<<8));
+                        volume = volume<<VOLSHIFT;
+                        if(volume > VOLMIN)
+                        {
+                            lpDSBuffer[damagetilesound]->SetVolume(volume);
+                        }
+                        if(damagetilesoundtime < TILESOUNDTIME)  damagetilesoundtime++;
+                        else damagetilemindistance = 9999;
+            */
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 terp_dir( Uint16 majordir, Uint16 minordir )
+{
+    // ZZ> This function returns a direction between the major and minor ones, closer
+    //     to the major.
+    Uint16 temp;
+
+    // Align major direction with 0
+    minordir -= majordir;
+    if ( minordir > 32768 )
+    {
+        temp = 0xFFFF;
+        minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
+        minordir += majordir;
+        return minordir;
+    }
+
+    temp = 0;
+    minordir = ( minordir + ( temp << 3 ) - temp ) >> 3;
+    minordir += majordir;
+    return minordir;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
+{
+    // ZZ> This function returns a direction between the major and minor ones, closer
+    //     to the major, but not by much.  Makes turning faster.
+    Uint16 temp;
+
+    // Align major direction with 0
+    minordir -= majordir;
+    if ( minordir > 32768 )
+    {
+        temp = 0xFFFF;
+        minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
+        minordir += majordir;
+        return minordir;
+    }
+
+    temp = 0;
+    minordir = ( minordir + ( temp << 1 ) - temp ) >> 1;
+    minordir += majordir;
+    return minordir;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void do_enchant_spawn()
+{
+    // ZZ> This function lets enchantments spawn particles
+
+    int cnt, tnc;
+    Uint16 facing, eve, character;
+
+    for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
+    {
+        if ( !EncList[cnt].on ) continue;
+
+        eve = EncList[cnt].eve;
+        if ( EveList[eve].contspawnamount > 0 )
+        {
+            EncList[cnt].spawntime--;
+            if ( EncList[cnt].spawntime == 0 )
+            {
+                character = EncList[cnt].target;
+                EncList[cnt].spawntime = EveList[eve].contspawntime;
+                facing = ChrList[character].turnleftright;
+                for ( tnc = 0; tnc < EveList[eve].contspawnamount; tnc++ )
+                {
+                    spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
+                                        facing, eve, EveList[eve].contspawnpip,
+                                        MAXCHR, GRIP_LAST, ChrList[EncList[cnt].owner].team, EncList[cnt].owner, tnc, MAXCHR );
+                    facing += EveList[eve].contspawnfacingadd;
+                }
+            }
+        }
+    }
+}
+//--------------------------------------------------------------------------------------------
+void update_pits()
+{
+    // ZZ> This function kills any character in a deep pit...
+    int cnt;
+    if ( pitskill || pitsfall )
+    {
+        if ( pitclock > 19 )
+        {
+            pitclock = 0;
+
+            // Kill any particles that fell in a pit, if they die in water...
+            cnt = 0;
+
+            while ( cnt < maxparticles )
+            {
+                if ( PrtList[cnt].on )
+                {
+                    if ( PrtList[cnt].zpos < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
+                    {
+                        PrtList[cnt].time = 1;
+                    }
+                }
+
+                cnt++;
+            }
+
+            // Kill or teleport any characters that fell in a pit...
+            cnt = 0;
+
+            while ( cnt < MAXCHR )
+            {
+                if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].inpack )
+                {
+                    if ( !ChrList[cnt].invictus && ChrList[cnt].zpos < PITDEPTH && ChrList[cnt].attachedto == MAXCHR )
+                    {
+                        //Do we kill it?
+                        if (pitskill)
+                        {
+                            // Got one!
+                            kill_character( cnt, MAXCHR );
+                            ChrList[cnt].xvel = 0;
+                            ChrList[cnt].yvel = 0;
+
+                            //Play sound effect
+                            sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, g_wavelist[GSND_PITFALL] );
+                        }
+
+                        //Do we teleport it?
+                        if (pitsfall && ChrList[cnt].zpos < PITDEPTH*8)
+                        {
+                            // Yeah!  It worked!
+                            detach_character_from_mount( cnt, btrue, bfalse );
+                            ChrList[cnt].oldx = ChrList[cnt].xpos;
+                            ChrList[cnt].oldy = ChrList[cnt].ypos;
+                            ChrList[cnt].xpos = pitx;
+                            ChrList[cnt].ypos = pity;
+                            ChrList[cnt].zpos = pitz;
+                            if ( __chrhitawall( cnt ) )
+                            {
+                                // No it didn't...
+                                ChrList[cnt].xpos = ChrList[cnt].oldx;
+                                ChrList[cnt].ypos = ChrList[cnt].oldy;
+                                ChrList[cnt].zpos = ChrList[cnt].oldz;
+
+                                // Kill it instead
+                                kill_character( cnt, MAXCHR );
+                                ChrList[cnt].xvel = 0;
+                                ChrList[cnt].yvel = 0;
+                            }
+                            else
+                            {
+                                ChrList[cnt].oldx = ChrList[cnt].xpos;
+                                ChrList[cnt].oldy = ChrList[cnt].ypos;
+                                ChrList[cnt].oldz = ChrList[cnt].zpos;
+
+                                //Stop movement
+                                ChrList[cnt].zvel = 0;
+                                ChrList[cnt].xvel = 0;
+                                ChrList[cnt].yvel = 0;
+
+                                //Play sound effect
+                                if (ChrList[cnt].isplayer)
+                                {
+                                    sound_play_chunk( gCamera.trackx, gCamera.tracky, g_wavelist[GSND_PITFALL] );
+                                }
+                                else
+                                {
+                                    sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, g_wavelist[GSND_PITFALL] );
+                                }
+
+                                //Do some damage (same as damage tile)
+                                damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFXBLOC | DAMFXARMO, btrue );
+                            }
+                        }
+                    }
+
+                }
+
+                cnt++;
+            }
+        }
+        else
+        {
+            pitclock++;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void do_weather_spawn()
+{
+    // ZZ> This function drops snowflakes or rain or whatever, also swings the camera
+    int particle, cnt;
+    float x, y, z;
+    bool_t foundone;
+    if ( weathertime > 0 )
+    {
+        weathertime--;
+        if ( weathertime == 0 )
+        {
+            weathertime = weathertimereset;
+
+            // Find a valid player
+            foundone = bfalse;
+            cnt = 0;
+
+            while ( cnt < MAXPLAYER )
+            {
+                weatherplayer = ( weatherplayer + 1 ) & ( MAXPLAYER - 1 );
+                if ( PlaList[weatherplayer].valid )
+                {
+                    foundone = btrue;
+                    cnt = MAXPLAYER;
+                }
+
+                cnt++;
+            }
+
+            // Did we find one?
+            if ( foundone )
+            {
+                // Yes, but is the character valid?
+                cnt = PlaList[weatherplayer].index;
+                if ( ChrList[cnt].on && !ChrList[cnt].inpack )
+                {
+                    // Yes, so spawn over that character
+                    x = ChrList[cnt].xpos;
+                    y = ChrList[cnt].ypos;
+                    z = ChrList[cnt].zpos;
+                    particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                    if ( weatheroverwater && particle != TOTALMAXPRT )
+                    {
+                        if ( !prt_is_over_water( particle ) )
+                        {
+                            free_one_particle_no_sound( particle );
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    gCamera.swing = ( gCamera.swing + gCamera.swingrate ) & 16383;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void set_one_player_latch( Uint16 player )
+{
+    // ZZ> This function converts input readings to latch settings, so players can
+    //     move around
+    float newx, newy;
+    Uint16 turnsin, turncos, character;
+    Uint8 device;
+    float dist, scale;
+    float inputx, inputy;
+
+    // Check to see if we need to bother
+    if ( PlaList[player].valid && PlaList[player].device != INPUT_BITS_NONE )
+    {
+        // Make life easier
+        character = PlaList[player].index;
+        device = PlaList[player].device;
+
+        // Clear the player's latch buffers
+        PlaList[player].latchbutton = 0;
+        PlaList[player].latchx = 0;
+        PlaList[player].latchy = 0;
+
+        // Mouse routines
+        if ( ( device & INPUT_BITS_MOUSE ) && mous.on )
+        {
+            // Movement
+            newx = 0;
+            newy = 0;
+            if ( ( autoturncamera == 255 && local_numlpla == 1 ) ||
+                    !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
+            {
+                dist = SQRT( mous.x * mous.x + mous.y * mous.y );
+                if ( dist > 0 )
+                {
+                    scale = mous.sense / dist;
+                    if ( dist < mous.sense )
+                    {
+                        scale = dist / mous.sense;
+                    }
+
+                    scale = scale / mous.sense;
+                    if ( ChrList[character].attachedto != MAXCHR )
+                    {
+                        // Mounted
+                        inputx = mous.x * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                        inputy = mous.y * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                    }
+                    else
+                    {
+                        // Unmounted
+                        inputx = mous.x * ChrList[character].maxaccel * scale;
+                        inputy = mous.y * ChrList[character].maxaccel * scale;
+                    }
+
+                    turnsin = ( gCamera.turnleftrightone * 16383 );
+                    turnsin = turnsin & 16383;
+                    turncos = ( turnsin + 4096 ) & 16383;
+                    if ( autoturncamera == 255 &&
+                            local_numlpla == 1 &&
+                            control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
+
+                    newx = ( inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+                    newy = (-inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
+//                    PlaList[player].latchx+=newx;
+//                    PlaList[player].latchy+=newy;
+                }
+            }
+
+            PlaList[player].latchx += newx * mous.cover + mous.latcholdx * mous.sustain;
+            PlaList[player].latchy += newy * mous.cover + mous.latcholdy * mous.sustain;
+            mous.latcholdx = PlaList[player].latchx;
+            mous.latcholdy = PlaList[player].latchy;
+
+            // Sustain old movements to ease mouse play
+//            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
+//            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
+//            mous.latcholdx = PlaList[player].latchx;
+//            mous.latcholdy = PlaList[player].latchy;
+            // Read buttons
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_LEFT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_RIGHT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
+        }
+
+        // Joystick A routines
+        if ( ( device & INPUT_BITS_JOYA ) && joy[0].on )
+        {
+            // Movement
+            if ( ( autoturncamera == 255 && local_numlpla == 1 ) ||
+                    !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
+            {
+                newx = 0;
+                newy = 0;
+                inputx = 0;
+                inputy = 0;
+                dist = SQRT( joy[0].x * joy[0].x + joy[0].y * joy[0].y );
+                if ( dist > 0 )
+                {
+                    scale = 1.0f / dist;
+                    if ( ChrList[character].attachedto != MAXCHR )
+                    {
+                        // Mounted
+                        inputx = joy[0].x * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                        inputy = joy[0].y * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                    }
+                    else
+                    {
+                        // Unmounted
+                        inputx = joy[0].x * ChrList[character].maxaccel * scale;
+                        inputy = joy[0].y * ChrList[character].maxaccel * scale;
+                    }
+                }
+
+                turnsin = ( gCamera.turnleftrightone * 16383 );
+                turnsin = turnsin & 16383;
+                turncos = ( turnsin + 4096 ) & 16383;
+                if ( autoturncamera == 255 &&
+                        local_numlpla == 1 &&
+                        !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
+
+                newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+                newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
+                PlaList[player].latchx += newx;
+                PlaList[player].latchy += newy;
+            }
+
+            // Read buttons
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_JUMP ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_LEFT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_RIGHT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
+        }
+
+        // Joystick B routines
+        if ( ( device & INPUT_BITS_JOYB ) && joy[1].on )
+        {
+            // Movement
+            if ( ( autoturncamera == 255 && local_numlpla == 1 ) ||
+                    !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+            {
+                newx = 0;
+                newy = 0;
+                inputx = 0;
+                inputy = 0;
+                dist = SQRT( joy[1].x * joy[1].x + joy[1].y * joy[1].y );
+                if ( dist > 0 )
+                {
+                    scale = 1.0f / dist;
+                    if ( ChrList[character].attachedto != MAXCHR )
+                    {
+                        // Mounted
+                        inputx = joy[1].x * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                        inputy = joy[1].y * ChrList[ChrList[character].attachedto].maxaccel * scale;
+                    }
+                    else
+                    {
+                        // Unmounted
+                        inputx = joy[1].x * ChrList[character].maxaccel * scale;
+                        inputy = joy[1].y * ChrList[character].maxaccel * scale;
+                    }
+                }
+
+                turnsin = ( gCamera.turnleftrightone * 16383 );
+                turnsin = turnsin & 16383;
+                turncos = ( turnsin + 4096 ) & 16383;
+                if ( autoturncamera == 255 &&
+                        local_numlpla == 1 &&
+                        !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
+
+                newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+                newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
+                PlaList[player].latchx += newx;
+                PlaList[player].latchy += newy;
+            }
+
+            // Read buttons
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_JUMP ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_LEFT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_RIGHT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
+        }
+
+        // Keyboard routines
+        if ( ( device & INPUT_BITS_KEYBOARD ) && keyb.on )
+        {
+            // Movement
+            if ( ChrList[character].attachedto != MAXCHR )
+            {
+                // Mounted
+                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) ) * ChrList[ChrList[character].attachedto].maxaccel;
+                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) ) * ChrList[ChrList[character].attachedto].maxaccel;
+            }
+            else
+            {
+                // Unmounted
+                inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) ) * ChrList[character].maxaccel;
+                inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) ) * ChrList[character].maxaccel;
+            }
+
+            turnsin = ( gCamera.turnleftrightone * 16383 );
+            turnsin = turnsin & 16383;
+            turncos = ( turnsin + 4096 ) & 16383;
+            if ( autoturncamera == 255 && local_numlpla == 1 )  inputx = 0;
+
+            newx = (  inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
+            newy = ( -inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
+            PlaList[player].latchx += newx;
+            PlaList[player].latchy += newy;
+
+            // Read buttons
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_JUMP ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_LEFT;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKLEFT;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_USE ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_RIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_GET ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_ALTRIGHT;
+            if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT_PACK ) )
+                PlaList[player].latchbutton |= LATCHBUTTON_PACKRIGHT;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void set_local_latches( void )
+{
+    // ZZ> This function emulates AI thinkin' by setting latches from input devices
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        set_one_player_latch( cnt );
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void prime_names()
+{
+    // ZZ> This function prepares the name chopper for use
+    int cnt, tnc;
+
+    chop.count = 0;
+    chop.carat = 0;
+    cnt = 0;
+
+    while ( cnt < MAXMODEL )
+    {
+        tnc = 0;
+
+        while ( tnc < MAXSECTION )
+        {
+            CapList[cnt].chop_sectionstart[tnc] = MAXCHOP;
+            CapList[cnt].chop_sectionsize[tnc] = 0;
+            tnc++;
+        }
+
+        cnt++;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void check_stats()
+{
+    // ZZ> This function lets the players check character stats
+
+    static int stat_check_timer = 0;
+    static int stat_check_delay = 0;
+
+    int ticks;
+    if ( console_mode ) return;
+
+    ticks = SDL_GetTicks();
+    if ( ticks > stat_check_timer + 20 )
+    {
+        stat_check_timer = ticks;
+    }
+
+    stat_check_delay -= 20;
+    if ( stat_check_delay > 0 )
+        return;
+
+    // !!!BAD!!!  XP CHEAT
+    if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 500; }
+
+        statdelay = 0;
+    }
+
+    // !!!BAD!!!  LIFE CHEAT
+    if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
+    }
+
+    // Display armor stats?
+    if ( SDLKEYDOWN( SDLK_LSHIFT ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 8 ); stat_check_delay = 1000; }
+    }
+
+    // Display enchantment stats?
+    else if (  SDLKEYDOWN( SDLK_LCTRL ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
+    }
+
+    // Display character stats?
+    else if ( SDLKEYDOWN( SDLK_LALT ) )
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
+    }
+
+    // Display character stats?
+    else
+    {
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
+    }
+
+    // Show map cheat
+    if ( gDevMode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
+    {
+        mapon = mapvalid;
+        youarehereon = btrue;
+        stat_check_delay = 1000;
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void show_stat( Uint16 statindex )
+{
+    // ZZ> This function shows the more specific stats for a character
+    int character, level;
+    char text[64];
+    char gender[8];
+    if ( statdelay == 0 )
+    {
+        if ( statindex < numstat )
+        {
+            character = statlist[statindex];
+
+            // Name
+            sprintf( text, "=%s=", ChrList[character].name );
+            debug_message( text );
+
+            // Level and gender and class
+            gender[0] = 0;
+            if ( ChrList[character].alive )
+            {
+                if ( ChrList[character].gender == GENMALE )
+                {
+                    sprintf( gender, "male " );
+                }
+                if ( ChrList[character].gender == GENFEMALE )
+                {
+                    sprintf( gender, "female " );
+                }
+
+                level = ChrList[character].experiencelevel;
+                if ( level == 0 )
+                    sprintf( text, " 1st level %s%s", gender, CapList[ChrList[character].model].classname );
+                if ( level == 1 )
+                    sprintf( text, " 2nd level %s%s", gender, CapList[ChrList[character].model].classname );
+                if ( level == 2 )
+                    sprintf( text, " 3rd level %s%s", gender, CapList[ChrList[character].model].classname );
+                if ( level >  2 )
+                    sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList[character].model].classname );
+            }
+            else
+            {
+                sprintf( text, " Dead %s", CapList[ChrList[character].model].classname );
+            }
+
+            // Stats
+            debug_message( text );
+            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
+            debug_message( text );
+            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
+            debug_message( text );
+            statdelay = 10;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void show_armor( Uint16 statindex )
+{
+    // ZF> This function shows detailed armor information for the character
+    char text[64], tmps[64];
+    short character, skinlevel;
+    if ( statdelay == 0 )
+    {
+        if ( statindex < numstat )
+        {
+            character = statlist[statindex];
+            skinlevel = ChrList[character].skin;
+
+            // Armor Name
+            sprintf( text, "=%s=", CapList[ChrList[character].model].skinname[skinlevel] );
+            debug_message( text );
+
+            // Armor Stats
+            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[ChrList[character].model].defense[skinlevel],
+                     CapList[ChrList[character].model].damagemodifier[0][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[1][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[2][skinlevel]&DAMAGESHIFT );
+            debug_message( text );
+
+            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+                     CapList[ChrList[character].model].damagemodifier[3][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[4][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[5][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[6][skinlevel]&DAMAGESHIFT,
+                     CapList[ChrList[character].model].damagemodifier[7][skinlevel]&DAMAGESHIFT );
+            debug_message( text );
+            if ( CapList[ChrList[character].model].skindressy ) sprintf( tmps, "Light Armor" );
+            else                   sprintf( tmps, "Heavy Armor" );
+
+            sprintf( text, " Type: %s", tmps );
+
+            // Speed and jumps
+            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
+            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
+            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
+            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
+            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", ChrList[character].jumpnumberreset );
+
+            sprintf( tmps, "Jump Skill: %s", text );
+            sprintf( text, " Speed:~%3.0f~~%s", CapList[ChrList[character].model].maxaccel[skinlevel]*80, tmps );
+            debug_message( text );
+
+            statdelay = 10;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void show_full_status( Uint16 statindex )
+{
+    // ZF> This function shows detailed armor information for the character including magic
+    char text[64], tmps[64];
+    short character;
+    int i = 0;
+    if ( statdelay == 0 )
+    {
+        if ( statindex < numstat )
+        {
+            character = statlist[statindex];
+
+            // Enchanted?
+            while ( i != MAXENCHANT )
+            {
+                // Found a active enchantment that is not a skill of the character
+                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
+
+                i++;
+            }
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
+
+            debug_message( text );
+
+            // Armor Stats
+            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
+                     255 - ChrList[character].defense,
+                     ChrList[character].damagemodifier[0]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[1]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[2]&DAMAGESHIFT );
+            debug_message( text );
+            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
+                     ChrList[character].damagemodifier[3]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[4]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[5]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[6]&DAMAGESHIFT,
+                     ChrList[character].damagemodifier[7]&DAMAGESHIFT );
+            debug_message( text );
+
+            // Speed and jumps
+            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
+            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
+            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
+            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
+            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
+
+            sprintf( tmps, "Jump Skill: %s", text );
+            sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
+            debug_message( text );
+            statdelay = 10;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void show_magic_status( Uint16 statindex )
+{
+    // ZF> Displays special enchantment effects for the character
+    char text[64], tmpa[64], tmpb[64];
+    short character;
+    int i = 0;
+    if ( statdelay == 0 )
+    {
+        if ( statindex < numstat )
+        {
+            character = statlist[statindex];
+
+            // Enchanted?
+            while ( i != MAXENCHANT )
+            {
+                // Found a active enchantment that is not a skill of the character
+                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
+
+                i++;
+            }
+            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
+
+            debug_message( text );
+
+            // Enchantment status
+            if ( ChrList[character].canseeinvisible )  sprintf( tmpa, "Yes" );
+            else                 sprintf( tmpa, "No" );
+            if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
+            else                 sprintf( tmpb, "No" );
+
+            sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
+            debug_message( text );
+            if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
+            else                 sprintf( tmpa, "No" );
+            if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
+            else                 sprintf( tmpb, "No" );
+
+            sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
+            debug_message( text );
+            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
+            else                 sprintf( tmpa, "No" );
+            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+            else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
+            else                           sprintf( tmpb, "None" );
+
+            sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
+            debug_message( text );
+
+            statdelay = 10;
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void bump_characters( void )
+{
+    // ZZ> This function sets handles characters hitting other characters or particles
+    Uint16 character, particle, chara, charb, partb;
+    Uint16 pip, direction;
+    Uint32 fanblock, prtidparent, prtidtype, eveidremove;
+    IDSZ   chridvulnerability;
+    Sint8 hide;
+    int tnc, dist, chrinblock, prtinblock, enchant, temp;
+    float xa, ya, za, xb, yb, zb;
+    float ax, ay, nx, ny, scale;  // For deflection
+    Uint16 facing;
+
+    // Clear the lists
+    for ( fanblock = 0; fanblock < meshblocks; fanblock++ )
+    {
+        meshbumplistchr[fanblock]    = MAXCHR;
+        meshbumplistchrnum[fanblock] = 0;
+
+        meshbumplistprt[fanblock]    = TOTALMAXPRT;
+        meshbumplistprtnum[fanblock] = 0;
+    }
+
+    // Fill 'em back up
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        if ( !ChrList[character].on ) continue;
+
+        // reset the holding weight each update
+        ChrList[character].holdingweight = 0;
+
+        // reset the fan and block position
+        ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
+        ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
+
+        // reject characters that are in packs, or are marked as non-colliding
+        if ( ChrList[character].inpack || 0 == ChrList[character].bumpheight ) continue;
+
+        // reject characters that are hidden
+        hide = CapList[ ChrList[character].model ].hidestate;
+        if ( hide != NOHIDE && hide == ChrList[character].ai.state ) continue;
+
+        if ( INVALID_BLOCK != ChrList[character].onwhichblock )
+        {
+            // Insert before any other characters on the block
+            ChrList[character].bumpnext = meshbumplistchr[ChrList[character].onwhichblock];
+            meshbumplistchr[ChrList[character].onwhichblock] = character;
+            meshbumplistchrnum[ChrList[character].onwhichblock]++;
+        }
+    }
+
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        // reject invalid particles
+        if ( !PrtList[particle].on ) continue;
+
+        // reset the fan and block position
+        PrtList[particle].onwhichfan   = mesh_get_tile ( PrtList[particle].xpos, PrtList[particle].ypos );
+        PrtList[particle].onwhichblock = mesh_get_block( PrtList[particle].xpos, PrtList[particle].ypos );
+
+        if ( INVALID_BLOCK != PrtList[particle].onwhichblock )
+        {
+            // Insert before any other particles on the block
+            PrtList[particle].bumpnext = meshbumplistprt[PrtList[particle].onwhichblock];
+            meshbumplistprt[PrtList[particle].onwhichblock] = particle;
+            meshbumplistprtnum[PrtList[particle].onwhichblock]++;
+        }
+    }
+
+    // blank the accumulators
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        ChrList[character].phys_pos_x = 0.0f;
+        ChrList[character].phys_pos_y = 0.0f;
+        ChrList[character].phys_pos_z = 0.0f;
+        ChrList[character].phys_vel_x = 0.0f;
+        ChrList[character].phys_vel_y = 0.0f;
+        ChrList[character].phys_vel_z = 0.0f;
+    }
+
+    // Check collisions with other characters and bump particles
+    // Only check each pair once
+    for ( chara = 0; chara < MAXCHR; chara++ )
+    {
+        int ixmax, ixmin;
+        int iymax, iymin;
+
+        int ix_block, ixmax_block, ixmin_block;
+        int iy_block, iymax_block, iymin_block;
+
+        // make sure that it is on
+        if ( !ChrList[chara].on ) continue;
+
+        // Don't bump held objects
+        if ( MAXCHR != ChrList[chara].attachedto ) continue;
+
+        // Don't bump items
+        if ( 0 == ChrList[chara].bumpheight /* || ChrList[chara].isitem */ ) continue;
+
+        xa = ChrList[chara].xpos;
+        ya = ChrList[chara].ypos;
+        za = ChrList[chara].zpos;
+        chridvulnerability = CapList[ChrList[chara].model].idsz[IDSZ_VULNERABILITY];
+
+        // determine the size of this object in blocks
+        ixmin = ChrList[chara].xpos - ChrList[chara].bumpsize; ixmin = CLIP(ixmin, 0, meshedgex);
+        ixmax = ChrList[chara].xpos + ChrList[chara].bumpsize; ixmax = CLIP(ixmax, 0, meshedgex);
+
+        iymin = ChrList[chara].ypos - ChrList[chara].bumpsize; iymin = CLIP(iymin, 0, meshedgey);
+        iymax = ChrList[chara].ypos + ChrList[chara].bumpsize; iymax = CLIP(iymax, 0, meshedgey);
+
+        ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
+        ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
+
+        iymax_block = iymax >> 9; iymax_block = CLIP( iymax_block, 0, MAXMESHBLOCKY );
+        iymin_block = iymin >> 9; iymin_block = CLIP( iymin_block, 0, MAXMESHBLOCKY );
+
+        for (ix_block = ixmin_block; ix_block <= ixmax_block; ix_block++)
+        {
+            for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
+            {
+                // Allow raw access here because we were careful :)
+                fanblock = ix_block + meshblockstart[iy_block];
+
+                chrinblock = meshbumplistchrnum[fanblock];
+                prtinblock = meshbumplistprtnum[fanblock];
+
+                for ( tnc = 0, charb = meshbumplistchr[fanblock];
+                        tnc < chrinblock && charb != MAXCHR;
+                        tnc++, charb = ChrList[charb].bumpnext)
+                {
+                    float dx, dy;
+
+                    bool_t collide_x = bfalse;
+                    bool_t collide_y  = bfalse;
+                    bool_t collide_xy = bfalse;
+                    bool_t collide_z  = bfalse;
+                    bool_t collide_platform_a = bfalse;
+                    bool_t collide_platform_b = bfalse;
+                    bool_t collision = bfalse;
+
+                    // Don't collide with self, and only do each collision pair once
+                    if ( charb <= chara ) continue;
+
+                    // don't interact with your mount, or your held items
+                    if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
+
+                    xb = ChrList[charb].xpos;
+                    yb = ChrList[charb].ypos;
+                    zb = ChrList[charb].zpos;
+
+                    dx = ABS( xa - xb );
+                    dy = ABS( ya - yb );
+                    dist = dx + dy;
+
+                    //------------------
+                    // do platforms
+
+                    // check the absolute value diamond
+                    if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
+                    {
+                        collide_xy = btrue;
+                    }
+
+                    // check bounding box x
+                    if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) )
+                    {
+                        collide_x = btrue;
+                    }
+
+                    // check bounding box y
+                    if ( ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                    {
+                        collide_y = btrue;
+                    }
+
+                    collide_platform_a = ( za > (zb + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( za < (zb + ChrList[charb].bumpheight) );
+                    collide_platform_b = ( zb > (za + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( zb < (za + ChrList[chara].bumpheight) );
+
+                    // do platforms
+                    if ( collide_x && collide_y && collide_xy && ( collide_platform_a || collide_platform_b ) )
+                    {
+                        bool_t was_collide_platform_a = bfalse;
+                        bool_t was_collide_platform_b = bfalse;
+
+                        was_collide_platform_a = ( ChrList[chara].oldz > (ChrList[charb].oldz + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( ChrList[chara].oldz < (ChrList[charb].oldz + ChrList[charb].bumpheight) );
+                        was_collide_platform_b = ( ChrList[charb].oldz > (ChrList[chara].oldz + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( ChrList[charb].oldz < (ChrList[chara].oldz + ChrList[chara].bumpheight) );
+
+                        // Is A falling on B?
+                        if ( !collision && collide_platform_a )
+                        {
+                            if ( CapList[ChrList[chara].model].canuseplatforms && ChrList[charb].platform )//&&ChrList[chara].flyheight==0)
+                            {
+                                // make the character float up to the level of the platform
+                                if ( was_collide_platform_a )
+                                {
+                                    ChrList[chara].phys_pos_z += -ChrList[chara].zpos + ( ChrList[chara].zpos ) * PLATKEEP + ( ChrList[charb].zpos + ChrList[charb].bumpheight + PLATADD ) * PLATASCEND;
+                                    if ( ChrList[chara].zvel < ChrList[charb].zvel ) ChrList[chara].phys_vel_z += -ChrList[chara].zvel + ChrList[charb].zvel;
+                                }
+
+                                ChrList[chara].phys_vel_x += ( ChrList[charb].xvel ) * platstick;
+                                ChrList[chara].phys_vel_y += ( ChrList[charb].yvel ) * platstick;
+                                ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick;
+
+                                ChrList[chara].jumpready = btrue;
+                                ChrList[chara].jumpnumber = ChrList[chara].jumpnumberreset;
+                                ChrList[charb].holdingweight = ChrList[chara].weight;
+
+                                ChrList[chara].ai.bumplast = charb;
+                                ChrList[charb].ai.bumplast = chara;
+
+                                collision = btrue;
+                            }
+                        }
+
+                        // Is B falling on A?
+                        if ( !collision && collide_platform_b )
+                        {
+                            if ( CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform )//&&ChrList[charb].flyheight==0)
+                            {
+                                // make the character float up to the level of the platform
+                                if ( was_collide_platform_b )
+                                {
+                                    ChrList[charb].phys_pos_z  += -ChrList[charb].zpos + ( ChrList[charb].zpos ) * PLATKEEP + ( ChrList[chara].zpos + ChrList[chara].bumpheight + PLATADD ) * PLATASCEND;
+                                    if ( ChrList[charb].zvel < ChrList[chara].zvel ) ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + ChrList[chara].zvel;
+                                }
+
+                                ChrList[charb].phys_vel_x += ( ChrList[chara].xvel ) * platstick;
+                                ChrList[charb].phys_vel_y += ( ChrList[chara].yvel ) * platstick;
+                                ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick;
+
+                                ChrList[charb].jumpready = btrue;
+                                ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
+                                ChrList[chara].holdingweight = ChrList[charb].weight;
+
+                                ChrList[chara].ai.bumplast = charb;
+                                ChrList[charb].ai.bumplast = chara;
+
+                                collision = btrue;
+                            }
+                        }
+
+                    }
+
+                    //------------------
+                    // do characters
+
+                    collide_xy = ( dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
+                    collide_x  = ( dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                    collide_y  = ( dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                    collide_z  = ( MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX(za, zb) > 0 );
+
+                    if ( !collision && collide_z && collide_x && collide_y && collide_xy )
+                    {
+                        float vdot;
+
+                        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
+                        glVector nrm;
+
+                        nrm.x = nrm.y = nrm.z = 0.0f;
+                        nrm.w = 1.0f;
+
+                        depth_x  = MIN(xa + ChrList[chara].bumpsize, xb + ChrList[charb].bumpsize) - MAX(xa - ChrList[chara].bumpsize, xb - ChrList[charb].bumpsize);
+                        if ( depth_x < 0.0f )
+                        {
+                            depth_x = 0.0f;
+                        }
+                        else
+                        {
+                            nrm.x += 1 / depth_x;
+                        }
+
+                        depth_y  = MIN(ya + ChrList[chara].bumpsize, yb + ChrList[charb].bumpsize) - MAX(ya - ChrList[chara].bumpsize, yb - ChrList[charb].bumpsize);
+                        if ( depth_y < 0.0f )
+                        {
+                            depth_y = 0.0f;
+                        }
+                        else
+                        {
+                            nrm.y += 1 / depth_y;
+                        }
+
+                        depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsize, xb + yb - ChrList[charb].bumpsizebig);
+                        if ( depth_xy < 0.0f )
+                        {
+                            depth_xy = 0.0f;
+                        }
+                        else
+                        {
+                            nrm.x += 1 / depth_xy;
+                            nrm.y += 1 / depth_xy;
+                        }
+
+                        depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsize, -xb + yb - ChrList[charb].bumpsizebig);
+                        if ( depth_yx < 0.0f )
+                        {
+                            depth_yx = 0.0f;
+                        }
+                        else
+                        {
+                            nrm.x -= 1 / depth_yx;
+                            nrm.y += 1 / depth_yx;
+                        }
+
+                        depth_z  = MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX( za, zb );
+                        if ( depth_z < 0.0f )
+                        {
+                            depth_z = 0.0f;
+                        }
+                        else
+                        {
+                            nrm.z += 1 / depth_z;
+                        }
+
+                        if ( xa < xb ) nrm.x *= -1;
+                        if ( ya < yb ) nrm.y *= -1;
+                        if ( za < zb ) nrm.z *= -1;
+
+                        vdot = (ChrList[chara].xvel - ChrList[charb].xvel) * nrm.x +
+                               (ChrList[chara].yvel - ChrList[charb].yvel) * nrm.y +
+                               (ChrList[chara].zvel - ChrList[charb].zvel) * nrm.z;
+
+                        if ( vdot < 0.0f && ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+                        {
+                            float was_dx, was_dy, was_dist;
+
+                            bool_t was_collide_x = bfalse;
+                            bool_t was_collide_y  = bfalse;
+                            bool_t was_collide_xy = bfalse;
+                            bool_t was_collide_z  = bfalse;
+
+                            nrm = Normalize( nrm );
+
+                            was_dx = ABS( (xa - ChrList[chara].xvel) - (xb - ChrList[charb].xvel) );
+                            was_dy = ABS( (ya - ChrList[chara].yvel) - (yb - ChrList[charb].yvel) );
+                            was_dist = dx + dy;
+
+                            was_collide_xy = ( was_dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
+                            was_collide_x  = ( was_dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                            was_collide_y  = ( was_dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                            was_collide_z = ( MIN(ChrList[chara].oldz + ChrList[chara].bumpheight, ChrList[charb].oldz + ChrList[charb].bumpheight) > MAX(ChrList[chara].oldz, ChrList[charb].oldz) );
+
+                            if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
+                            {
+                                // an acrual collision
+                                float vdot;
+                                glVector vcom;
+
+                                vcom.x = ChrList[chara].xvel * ChrList[chara].weight + ChrList[charb].xvel * ChrList[charb].weight;
+                                vcom.y = ChrList[chara].yvel * ChrList[chara].weight + ChrList[charb].yvel * ChrList[charb].weight;
+                                vcom.z = ChrList[chara].zvel * ChrList[chara].weight + ChrList[charb].zvel * ChrList[charb].weight;
+
+                                if ( ChrList[chara].weight + ChrList[charb].weight > 0 )
+                                {
+                                    vcom.x /= ChrList[chara].weight + ChrList[charb].weight;
+                                    vcom.y /= ChrList[chara].weight + ChrList[charb].weight;
+                                    vcom.z /= ChrList[chara].weight + ChrList[charb].weight;
+                                }
+
+                                // do the bounce
+                                if ( ChrList[chara].weight != 0xFFFF )
+                                {
+                                    vdot = ( ChrList[chara].xvel - vcom.x ) * nrm.x + ( ChrList[chara].yvel - vcom.y ) * nrm.y + ( ChrList[chara].zvel - vcom.z ) * nrm.z;
+
+                                    ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ChrList[chara].bumpdampen;
+                                    ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ChrList[chara].bumpdampen;
+                                    ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ChrList[chara].bumpdampen;
+                                }
+
+                                if ( ChrList[charb].weight != 0xFFFF )
+                                {
+                                    vdot = ( ChrList[charb].xvel - vcom.x ) * nrm.x + ( ChrList[charb].yvel - vcom.y ) * nrm.y + ( ChrList[charb].zvel - vcom.z ) * nrm.z;
+
+                                    ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ChrList[charb].bumpdampen;
+                                    ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ChrList[charb].bumpdampen;
+                                    ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ChrList[charb].bumpdampen;
+                                }
+
+                                collision = btrue;
+                            }
+                            else
+                            {
+                                float tmin;
+
+                                tmin = 1e6;
+                                if ( nrm.x != 0 )
+                                {
+                                    tmin = MIN(tmin, depth_x / ABS(nrm.x) );
+                                }
+                                if ( nrm.y != 0 )
+                                {
+                                    tmin = MIN(tmin, depth_y / ABS(nrm.y) );
+                                }
+                                if ( nrm.z != 0 )
+                                {
+                                    tmin = MIN(tmin, depth_z / ABS(nrm.z) );
+                                }
+
+                                if ( nrm.x + nrm.y != 0 )
+                                {
+                                    tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
+                                }
+
+                                if ( -nrm.x + nrm.y != 0 )
+                                {
+                                    tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
+                                }
+
+                                if ( tmin < 1e6 )
+                                {
+                                    if ( ChrList[chara].weight != 0xFFFF )
+                                    {
+                                        ChrList[chara].phys_pos_x += tmin * nrm.x * 0.125f;
+                                        ChrList[chara].phys_pos_y += tmin * nrm.y * 0.125f;
+                                        ChrList[chara].phys_pos_z += tmin * nrm.z * 0.125f;
+                                    }
+
+                                    if ( ChrList[charb].weight != 0xFFFF )
+                                    {
+                                        ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.125f;
+                                        ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.125f;
+                                        ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.125f;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ( collision )
+                        {
+                            ChrList[chara].ai.bumplast = charb;
+                            ChrList[charb].ai.bumplast = chara;
+
+                            ChrList[chara].ai.alert |= ALERTIF_BUMPED;
+                            ChrList[charb].ai.alert |= ALERTIF_BUMPED;
+                        }
+                    }
+                }
+
+                // do mounting
+                charb = ChrList[chara].ai.bumplast;
+                if ( charb != chara && ChrList[charb].on && !ChrList[charb].inpack && ChrList[charb].attachedto == MAXCHR && 0 != ChrList[chara].bumpheight && 0 != ChrList[charb].bumpheight )
+                {
+                    float dx, dy;
+
+                    xb = ChrList[charb].xpos;
+                    yb = ChrList[charb].ypos;
+                    zb = ChrList[charb].zpos;
+
+                    // First check absolute value diamond
+                    dx = ABS( xa - xb );
+                    dy = ABS( ya - yb );
+                    dist = dx + dy;
+                    if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
+                    {
+                        // Then check bounding box square...  Square+Diamond=Octagon
+                        if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
+                                ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                        {
+                            // Now see if either is on top the other like a platform
+                            if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
+                            {
+                                // Is A falling on B?
+                                if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
+                                {
+                                    if ( MadList[ChrList[chara].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
+                                    {
+                                        attach_character_to_mount( chara, charb, GRIP_ONLY );
+                                        ChrList[chara].ai.bumplast = chara;
+                                        ChrList[charb].ai.bumplast = charb;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if ( zb > za + ChrList[chara].bumpheight - PLATTOLERANCE + ChrList[charb].zvel - ChrList[chara].zvel && ( CapList[ChrList[charb].model].canuseplatforms || zb > za + ChrList[chara].bumpheight ) )
+                                {
+                                    // Is B falling on A?
+                                    if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
+                                    {
+                                        if ( MadList[ChrList[charb].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
+                                        {
+                                            attach_character_to_mount( charb, chara, GRIP_ONLY );
+
+                                            ChrList[chara].ai.bumplast = chara;
+                                            ChrList[charb].ai.bumplast = charb;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Now check collisions with every bump particle in same area
+                if ( ChrList[chara].alive )
+                {
+                    for ( tnc = 0, partb = meshbumplistprt[fanblock];
+                            tnc < prtinblock;
+                            tnc++, partb = PrtList[partb].bumpnext )
+                    {
+                        float dx, dy;
+
+                        // do not collide with the thing that you're attached to
+                        if ( chara == PrtList[partb].attachedtocharacter ) continue;
+
+                        // if there's no friendly fire, particles issued by chara can't hit it
+                        if ( !PipList[PrtList[partb].pip].friendlyfire && chara == PrtList[partb].chr ) continue;
+
+                        xb = PrtList[partb].xpos;
+                        yb = PrtList[partb].ypos;
+                        zb = PrtList[partb].zpos;
+
+                        // First check absolute value diamond
+                        dx = ABS( xa - xb );
+                        dy = ABS( ya - yb );
+                        dist = dx + dy;
+                        if ( dist < ChrList[chara].bumpsizebig || dist < PrtList[partb].bumpsizebig )
+                        {
+                            // Then check bounding box square...  Square+Diamond=Octagon
+                            if ( ( dx < ChrList[chara].bumpsize  || dx < PrtList[partb].bumpsize ) &&
+                                    ( dy < ChrList[chara].bumpsize  || dy < PrtList[partb].bumpsize ) &&
+                                    ( zb > za - PrtList[partb].bumpheight && zb < za + ChrList[chara].bumpheight + PrtList[partb].bumpheight ) )
+                            {
+                                pip = PrtList[partb].pip;
+                                if ( zb > za + ChrList[chara].bumpheight + PrtList[partb].zvel && PrtList[partb].zvel < 0 && ChrList[chara].platform && PrtList[partb].attachedtocharacter == MAXCHR )
+                                {
+                                    // Particle is falling on A
+                                    PrtList[partb].zpos = za + ChrList[chara].bumpheight;
+                                    PrtList[partb].zvel = -PrtList[partb].zvel * PipList[pip].dampen;
+                                    PrtList[partb].xvel += ( ChrList[chara].xvel ) * platstick;
+                                    PrtList[partb].yvel += ( ChrList[chara].yvel ) * platstick;
+                                }
+
+                                // Check reaffirmation of particles
+                                if ( PrtList[partb].attachedtocharacter != chara )
+                                {
+                                    if ( ChrList[chara].reloadtime == 0 )
+                                    {
+                                        if ( ChrList[chara].reaffirmdamagetype == PrtList[partb].damagetype && ChrList[chara].damagetime == 0 )
+                                        {
+                                            reaffirm_attached_particles( chara );
+                                        }
+                                    }
+                                }
+
+                                // Check for missile treatment
+                                if ( ( ChrList[chara].damagemodifier[PrtList[partb].damagetype]&3 ) < 2 ||
+                                        ChrList[chara].missiletreatment == MISNORMAL ||
+                                        PrtList[partb].attachedtocharacter != MAXCHR ||
+                                        ( PrtList[partb].chr == chara && !PipList[pip].friendlyfire ) ||
+                                        ( ChrList[ChrList[chara].missilehandler].mana < ( ChrList[chara].missilecost << 4 ) && !ChrList[ChrList[chara].missilehandler].canchannel ) )
+                                {
+                                    if ( ( TeamList[PrtList[partb].team].hatesteam[ChrList[chara].team] || ( PipList[pip].friendlyfire && ( ( chara != PrtList[partb].chr && chara != ChrList[PrtList[partb].chr].attachedto ) || PipList[pip].onlydamagefriendly ) ) ) && !ChrList[chara].invictus )
+                                    {
+                                        spawn_bump_particles( chara, partb ); // Catch on fire
+                                        if ( ( PrtList[partb].damagebase | PrtList[partb].damagerand ) > 1 )
+                                        {
+                                            prtidparent = CapList[PrtList[partb].model].idsz[IDSZ_PARENT];
+                                            prtidtype = CapList[PrtList[partb].model].idsz[IDSZ_TYPE];
+                                            if ( ChrList[chara].damagetime == 0 && PrtList[partb].attachedtocharacter != chara && ( PipList[pip].damfx&DAMFXARRO ) == 0 )
+                                            {
+                                                // Normal partb damage
+                                                if ( PipList[pip].allowpush )
+                                                {
+                                                    ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + PrtList[partb].xvel * ChrList[chara].bumpdampen;
+                                                    ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + PrtList[partb].yvel * ChrList[chara].bumpdampen;
+                                                    ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + PrtList[partb].zvel * ChrList[chara].bumpdampen;
+                                                }
+
+                                                direction = ( ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
+                                                direction = ChrList[chara].turnleftright - direction + 32768;
+                                                // Check all enchants to see if they are removed
+                                                enchant = ChrList[chara].firstenchant;
+
+                                                while ( enchant != MAXENCHANT )
+                                                {
+                                                    eveidremove = EveList[EncList[enchant].eve].removedbyidsz;
+                                                    temp = EncList[enchant].nextenchant;
+                                                    if ( eveidremove != IDSZ_NONE && ( eveidremove == prtidtype || eveidremove == prtidparent ) )
+                                                    {
+                                                        remove_enchant( enchant );
+                                                    }
+
+                                                    enchant = temp;
+                                                }
+
+                                                // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                                                //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                                                if ( PipList[pip].intdamagebonus )
+                                                {
+                                                    int percent;
+                                                    percent = ( ChrList[PrtList[partb].chr].intelligence - 3584 ) >> 7;
+                                                    percent /= 100;
+                                                    PrtList[partb].damagebase *= 1 + percent;
+                                                }
+                                                if ( PipList[pip].wisdamagebonus )
+                                                {
+                                                    int percent;
+                                                    percent = ( ChrList[PrtList[partb].chr].wisdom - 3584 ) >> 7;
+                                                    percent /= 100;
+                                                    PrtList[partb].damagebase *= 1 + percent;
+                                                }
+
+                                                // Damage the character
+                                                if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
+                                                {
+                                                    damage_character( chara, direction, PrtList[partb].damagebase << 1, PrtList[partb].damagerand << 1, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                    ChrList[chara].ai.alert |= ALERTIF_HITVULNERABLE;
+                                                }
+                                                else
+                                                {
+                                                    damage_character( chara, direction, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                }
+
+                                                // Do confuse effects
+                                                if ( 0 == ( MadFrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
+                                                {
+                                                    if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
+                                                    {
+                                                        ChrList[chara].grogtime += PipList[pip].grogtime;
+                                                        if ( ChrList[chara].grogtime < 0 )  ChrList[chara].grogtime = 32767;
+
+                                                        ChrList[chara].ai.alert |= ALERTIF_GROGGED;
+                                                    }
+                                                    if ( PipList[pip].dazetime != 0 && CapList[ChrList[chara].model].canbedazed )
+                                                    {
+                                                        ChrList[chara].dazetime += PipList[pip].dazetime;
+                                                        if ( ChrList[chara].dazetime < 0 )  ChrList[chara].dazetime = 32767;
+
+                                                        ChrList[chara].ai.alert |= ALERTIF_DAZED;
+                                                    }
+                                                }
+
+                                                // Notify the attacker of a scored hit
+                                                if ( PrtList[partb].chr != MAXCHR )
+                                                {
+                                                    ChrList[PrtList[partb].chr].ai.alert |= ALERTIF_SCOREDAHIT;
+                                                    ChrList[PrtList[partb].chr].ai.hitlast = chara;
+                                                }
+                                            }
+                                            if ( ( frame_wld&31 ) == 0 && PrtList[partb].attachedtocharacter == chara )
+                                            {
+                                                // Attached partb damage ( Burning )
+                                                if ( PipList[pip].xyvelbase == 0 )
+                                                {
+                                                    // Make character limp
+                                                    ChrList[chara].phys_vel_x += -ChrList[chara].xvel;
+                                                    ChrList[chara].phys_vel_y += -ChrList[chara].yvel;
+                                                }
+
+                                                damage_character( chara, 32768, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                            }
+                                        }
+                                        if ( PipList[pip].endbump )
+                                        {
+                                            if ( PipList[pip].bumpmoney )
+                                            {
+                                                if ( ChrList[chara].cangrabmoney && ChrList[chara].alive && ChrList[chara].damagetime == 0 && ChrList[chara].money != MAXMONEY )
+                                                {
+                                                    if ( ChrList[chara].ismount )
+                                                    {
+                                                        // Let mounts collect money for their riders
+                                                        if ( ChrList[chara].holdingwhich[0] != MAXCHR )
+                                                        {
+                                                            ChrList[ChrList[chara].holdingwhich[0]].money += PipList[pip].bumpmoney;
+                                                            if ( ChrList[ChrList[chara].holdingwhich[0]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[0]].money = MAXMONEY;
+                                                            if ( ChrList[ChrList[chara].holdingwhich[0]].money < 0 ) ChrList[ChrList[chara].holdingwhich[0]].money = 0;
+
+                                                            PrtList[partb].time = 1;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        // Normal money collection
+                                                        ChrList[chara].money += PipList[pip].bumpmoney;
+                                                        if ( ChrList[chara].money > MAXMONEY ) ChrList[chara].money = MAXMONEY;
+                                                        if ( ChrList[chara].money < 0 ) ChrList[chara].money = 0;
+
+                                                        PrtList[partb].time = 1;
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                PrtList[partb].time = 1;
+                                                // Only hit one character, not several
+                                                PrtList[partb].damagebase = 0;
+                                                PrtList[partb].damagerand = 1;
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ( PrtList[partb].chr != chara )
+                                    {
+                                        cost_mana( ChrList[chara].missilehandler, ( ChrList[chara].missilecost << 4 ), PrtList[partb].chr );
+
+                                        // Treat the missile
+                                        if ( ChrList[chara].missiletreatment == MISDEFLECT )
+                                        {
+                                            // Use old position to find normal
+                                            ax = PrtList[partb].xpos - PrtList[partb].xvel;
+                                            ay = PrtList[partb].ypos - PrtList[partb].yvel;
+                                            ax = ChrList[chara].xpos - ax;
+                                            ay = ChrList[chara].ypos - ay;
+                                            // Find size of normal
+                                            scale = ax * ax + ay * ay;
+                                            if ( scale > 0 )
+                                            {
+                                                // Make the normal a unit normal
+                                                scale = SQRT( scale );
+                                                nx = ax / scale;
+                                                ny = ay / scale;
+                                                // Deflect the incoming ray off the normal
+                                                scale = ( PrtList[partb].xvel * nx + PrtList[partb].yvel * ny ) * 2;
+                                                ax = scale * nx;
+                                                ay = scale * ny;
+                                                PrtList[partb].xvel = PrtList[partb].xvel - ax;
+                                                PrtList[partb].yvel = PrtList[partb].yvel - ay;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Reflect it back in the direction it gCamera.e
+                                            PrtList[partb].xvel = -PrtList[partb].xvel;
+                                            PrtList[partb].yvel = -PrtList[partb].yvel;
+                                        }
+
+                                        // Change the owner of the missile
+                                        if ( !PipList[pip].homing )
+                                        {
+                                            PrtList[partb].team = ChrList[chara].team;
+                                            PrtList[partb].chr = chara;
+                                        }
+
+                                        // Change the direction of the partb
+                                        if ( PipList[pip].rotatetoface )
+                                        {
+                                            // Turn to face new direction
+                                            facing = ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) * 0xFFFF / ( TWO_PI );
+                                            facing += 32768;
+                                            PrtList[partb].facing = facing;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // accumulate the accumulators
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        float tmpx, tmpy, tmpz;
+
+        // do the "integration" of the accumulated accelerations
+        ChrList[character].xvel += ChrList[character].phys_vel_x;
+        ChrList[character].yvel += ChrList[character].phys_vel_y;
+        ChrList[character].zvel += ChrList[character].phys_vel_z;
+
+        // do the "integration" on the position
+        tmpx = ChrList[character].xpos;
+        ChrList[character].xpos += ChrList[character].phys_pos_x;
+        if ( __chrhitawall(character) )
+        {
+            // restore the old values
+            ChrList[character].xpos = tmpx;
+        }
+
+        tmpy = ChrList[character].ypos;
+        ChrList[character].ypos += ChrList[character].phys_pos_y;
+        if ( __chrhitawall(character) )
+        {
+            // restore the old values
+            ChrList[character].ypos = tmpy;
+        }
+
+        tmpz = ChrList[character].zpos;
+        ChrList[character].zpos += ChrList[character].phys_pos_z;
+        if ( ChrList[character].zpos < ChrList[character].level )
+        {
+            // restore the old values
+            ChrList[character].zpos = tmpz;
+        }
+
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void stat_return()
+{
+    // ZZ> This function brings mana and life back
+    int cnt, owner, target, eve;
+
+    // Do reload time
+    cnt = 0;
+
+    while ( cnt < MAXCHR )
+    {
+        if ( ChrList[cnt].reloadtime > 0 )
+        {
+            ChrList[cnt].reloadtime--;
+        }
+
+        cnt++;
+    }
+
+    // Do stats
+    if ( clock_stat >= ONESECOND )
+    {
+        // Reset the clock
+        clock_stat -= ONESECOND;
+
+        // Do all the characters
+        for ( cnt = 0; cnt < MAXCHR; cnt++ )
+        {
+            if ( !ChrList[cnt].on ) continue;
+
+            // check for a level up
+            do_level_up( cnt );
+
+            // do the mana and life regen for "living" characters
+            if ( ChrList[cnt].alive )
+            {
+                ChrList[cnt].mana += ( ChrList[cnt].manareturn / MANARETURNSHIFT );
+                ChrList[cnt].mana = MAX(0, MIN(ChrList[cnt].mana, ChrList[cnt].manamax));
+
+                ChrList[cnt].life += ChrList[cnt].lifereturn;
+                ChrList[cnt].life = MAX(1, MIN(ChrList[cnt].life, ChrList[cnt].life));
+            }
+            if ( ChrList[cnt].grogtime > 0 )
+            {
+                ChrList[cnt].grogtime--;
+            }
+            if ( ChrList[cnt].dazetime > 0 )
+            {
+                ChrList[cnt].dazetime--;
+            }
+        }
+
+        // Run through all the enchants as well
+        for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
+        {
+            if ( !EncList[cnt].on ) continue;
+
+            if ( EncList[cnt].time != 0 )
+            {
+                if ( EncList[cnt].time > 0 )
+                {
+                    EncList[cnt].time--;
+                }
+
+                owner = EncList[cnt].owner;
+                target = EncList[cnt].target;
+                eve = EncList[cnt].eve;
+
+                // Do drains
+                if ( ChrList[owner].alive )
+                {
+                    // Change life
+                    ChrList[owner].life += EncList[cnt].ownerlife;
+                    if ( ChrList[owner].life < 1 )
+                    {
+                        ChrList[owner].life = 1;
+                        kill_character( owner, target );
+                    }
+                    if ( ChrList[owner].life > ChrList[owner].lifemax )
+                    {
+                        ChrList[owner].life = ChrList[owner].lifemax;
+                    }
+
+                    // Change mana
+                    if ( !cost_mana( owner, -EncList[cnt].ownermana, target ) && EveList[eve].endifcantpay )
+                    {
+                        remove_enchant( cnt );
+                    }
+                }
+                else if ( !EveList[eve].stayifnoowner )
+                {
+                    remove_enchant( cnt );
+                }
+
+                if ( EncList[cnt].on )
+                {
+                    if ( ChrList[target].alive )
+                    {
+                        // Change life
+                        ChrList[target].life += EncList[cnt].targetlife;
+                        if ( ChrList[target].life < 1 )
+                        {
+                            ChrList[target].life = 1;
+                            kill_character( target, owner );
+                        }
+                        if ( ChrList[target].life > ChrList[target].lifemax )
+                        {
+                            ChrList[target].life = ChrList[target].lifemax;
+                        }
+
+                        // Change mana
+                        if ( !cost_mana( target, -EncList[cnt].targetmana, owner ) && EveList[eve].endifcantpay )
+                        {
+                            remove_enchant( cnt );
+                        }
+                    }
+                    else
+                    {
+                        remove_enchant( cnt );
+                    }
+                }
+            }
+            else
+            {
+                remove_enchant( cnt );
+            }
+        }
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+void tilt_characters_to_terrain()
+{
+    // ZZ> This function sets all of the character's starting tilt values
+    int cnt;
+    Uint8 twist;
+
+    for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    {
+        if ( !ChrList[cnt].on ) continue;
+
+        if ( ChrList[cnt].stickybutt && INVALID_TILE != ChrList[cnt].onwhichfan )
+        {
+            twist = meshtwist[ChrList[cnt].onwhichfan];
+            ChrList[cnt].turnmaplr = maplrtwist[twist];
+            ChrList[cnt].turnmapud = mapudtwist[twist];
+        }
+        else
+        {
+            ChrList[cnt].turnmaplr = 32768;
+            ChrList[cnt].turnmapud = 32768;
+        }
+    }
+
+}
+
+
+//--------------------------------------------------------------------------------------------
+int load_all_objects(  const char *modname )
+{
+    // ZZ> This function loads a module's local objects and overrides the global ones already loaded
+    const char *filehandle;
+    bool_t keeplooking;
+    char newloadname[256];
+    char filename[256];
+    int cnt;
+    int skin;
+    int importplayer;
+
+    // Log all of the script errors
+    parseerror = bfalse;
+
+    //This overwrites existing loaded slots that are loaded globally
+    overrideslots = btrue;
+
+    // Clear the import slots...
+    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
+        CapList[cnt].importslot = 10000;
+    }
+
+    // Load the import directory
+    importplayer = -1;
+    importobject = -100;
+    skin = TX_LAST;  // Character skins start after the last special texture
+    if ( importvalid )
+    {
+        for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
+        {
+            // Make sure the object exists...
+            sprintf( filename, "import" SLASH_STR "temp%04d.obj", cnt );
+            sprintf( newloadname, "%s" SLASH_STR "data.txt", filename );
+            if ( fs_fileExists(newloadname) )
+            {
+                // new player found
+                if ( 0 == ( cnt % MAXIMPORTPERPLAYER ) ) importplayer++;
+
+                // store the slot info
+                importobject = ( importplayer * MAXIMPORTPERPLAYER ) + ( cnt % MAXIMPORTPERPLAYER );
+                CapList[importobject].importslot = cnt;
+
+                // load it
+                skin += load_one_object( skin, filename );
+            }
+        }
+    }
+
+    // Search for .obj directories and load them
+    importobject = -100;
+    make_newloadname( modname, "objects" SLASH_STR, newloadname );
+    filehandle = fs_findFirstFile( newloadname, "obj" );
+
+    keeplooking = btrue;
+    if ( filehandle != NULL )
+    {
+        while ( keeplooking )
+        {
+            sprintf( filename, "%s%s", newloadname, filehandle );
+            skin += load_one_object( skin, filename );
+
+            filehandle = fs_findNextFile();
+
+            keeplooking = ( filehandle != NULL );
+        }
+    }
+
+    fs_findClose();
+    return skin;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
+{
+    int cnt;
+    char cTmp;
+
+    // trap bad pointers
+    if ( NULL == fileread || NULL == pinfo ) return bfalse;
+
+    // check for another entry
+    if ( !goto_colon_yesno( fileread ) ) return bfalse;
+
+    fscanf( fileread, "%s", pinfo->spawn_name );
+    for ( cnt = 0; cnt < sizeof(pinfo->spawn_name); cnt++ )
+    {
+        if ( pinfo->spawn_name[cnt] == '_' )  pinfo->spawn_name[cnt] = ' ';
+    }
+
+    pinfo->pname = pinfo->spawn_name;
+    if ( 0 == strcmp( pinfo->spawn_name, "NONE") )
+    {
+        // Random pinfo->pname
+        pinfo->pname = NULL;
+    }
+
+    fscanf( fileread, "%d", &pinfo->slot );
+
+    fscanf( fileread, "%f%f%f", &pinfo->x, &pinfo->y, &pinfo->z );
+    pinfo->x *= 128;  pinfo->y *= 128;  pinfo->z *= 128;
+
+    pinfo->facing = NORTH;
+    pinfo->attach = ATTACH_NONE;
+    cTmp = fget_first_letter( fileread );
+    if ( 'S' == toupper(cTmp) )  pinfo->facing = SOUTH;
+    if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
+    if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
+    if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
+    if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
+    if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
+
+    fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
+    cTmp = fget_first_letter( fileread );
+    pinfo->stat = ( 'T' == toupper(cTmp) );
+
+    cTmp = fget_first_letter( fileread );
+    pinfo->ghost = ( 'T' == toupper(cTmp) );
+
+    cTmp = fget_first_letter( fileread );
+    pinfo->team = ( cTmp - 'A' ) % MAXTEAM;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
+{
+    // trap bad pointers
+    if ( NULL == pinfo ) return bfalse;
+
+    if ( ichr >= MAXCHR || !ChrList[ichr].on ) return bfalse;
+
+    ChrList[ichr].money += pinfo->money;
+    if ( ChrList[ichr].money > MAXMONEY )  ChrList[ichr].money = MAXMONEY;
+    if ( ChrList[ichr].money < 0 )  ChrList[ichr].money = 0;
+
+    ChrList[ichr].ai.content = pinfo->content;
+    ChrList[ichr].ai.passage = pinfo->passage;
+
+    if ( pinfo->attach == ATTACH_INVENTORY )
+    {
+        // Inventory character
+        pack_add_item( ichr, pinfo->parent );
+
+        ChrList[ichr].ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
+        ChrList[ichr].attachedto = pinfo->parent;  // Make grab work
+        let_character_think( ichr );  // Empty the grabbed messages
+
+        ChrList[ichr].attachedto = MAXCHR;  // Fix grab
+    }
+    else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
+    {
+        // Wielded character
+        Uint16 grip = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
+        attach_character_to_mount( ichr, pinfo->parent, grip );
+
+        // Handle the "grabbed" messages
+        let_character_think( ichr );
+    }
+
+    // Set the starting pinfo->level
+    if ( pinfo->level > 0 )
+    {
+        while ( ChrList[ichr].experiencelevel < pinfo->level && ChrList[ichr].experience < MAXXP )
+        {
+            give_experience( ichr, 25, XPDIRECT, btrue );
+            do_level_up( ichr );
+        }
+    }
+
+    if ( pinfo->ghost )
+    {
+        // Make the character a pinfo->ghost !!!BAD!!!  Can do with enchants
+        ChrList[ichr].alpha = 128;
+        ChrList[ichr].light = 255;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void setup_characters( const char *modname )
+{
+    // ZZ> This function sets up character data, loaded from "SPAWN.TXT"
+    int new_object, tnc, local_index = 0;
+    STRING newloadname;
+    FILE *fileread;
+
+    chr_setup_info_t info;
+
+    // Turn all characters off
+    free_all_characters();
+
+    // Turn some back on
+    make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
+    fileread = fopen( newloadname, "r" );
+
+    numpla = 0;
+    info.parent = MAXCHR;
+    if ( NULL == fileread )
+    {
+        log_error( "Cannot read file: %s", newloadname );
+    }
+    else
+    {
+        info.parent = 0;
+
+        while ( chr_setup_read( fileread, &info ) )
+        {
+            // Spawn the character
+            if ( info.team < numplayer || !rtscontrol || info.team >= MAXPLAYER )
+            {
+                new_object = spawn_one_character( info.x, info.y, info.z, info.slot, info.team, info.skin, info.facing, info.pname, MAXCHR );
+
+                if ( MAXCHR != new_object )
+                {
+                    // determine the attachment
+                    if ( info.attach == ATTACH_NONE )
+                    {
+                        // Free character
+                        info.parent = new_object;
+                        make_one_character_matrix( new_object );
+                    }
+
+                    chr_setup_apply( new_object, &info );
+
+                    // Turn on numpla input devices
+                    if ( info.stat )
+                    {
+
+                        if ( 0 == importamount && numpla < playeramount )
+                        {
+                            if ( 0 == local_numlpla )
+                            {
+                                // the first player gets everything
+                                add_player( new_object, numpla, (Uint32)(~0) );
+                            }
+                            else
+                            {
+                                int i;
+                                Uint32 bits;
+
+                                // each new player steals an input device from the 1st player
+                                bits = 1 << local_numlpla;
+                                for ( i = 0; i < MAXPLAYER; i++ )
+                                {
+                                    PlaList[i].device &= ~bits;
+                                }
+
+                                add_player( new_object, numpla, bits );
+                            }
+
+                        }
+                        else if ( numpla < numimport && numpla < importamount && numpla < playeramount )
+                        {
+                            // Multiplayer import module
+                            local_index = -1;
+                            for ( tnc = 0; tnc < numimport; tnc++ )
+                            {
+                                if ( CapList[ChrList[new_object].model].importslot == local_slot[tnc] )
+                                {
+                                    local_index = tnc;
+                                    break;
+                                }
+                            }
+
+                            if ( -1 != local_index )
+                            {
+                                // It's a local numpla
+                                add_player( new_object, numpla, local_control[local_index] );
+                            }
+                            else
+                            {
+                                // It's a remote numpla
+                                add_player( new_object, numpla, INPUT_BITS_NONE );
+                            }
+                        }
+
+                        // Turn on the stat display
+                        statlist_add( new_object );
+                    }
+                }
+            }
+        }
+
+        fclose( fileread );
+    }
+
+    clear_messages();
+
+    // Make sure local players are displayed first
+    statlist_sort();
+
+    // Fix tilting trees problem
+    tilt_characters_to_terrain();
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+void load_all_global_objects(int skin)
+{
+    //ZF> This function loads all global objects found in the basicdat folder
+    const char *filehandle;
+    bool_t keeplooking;
+    STRING newloadname;
+    STRING filename;
+
+    //Warn the user for any duplicate slots
+    overrideslots = bfalse;
+
+    // Search for .obj directories and load them
+    sprintf( newloadname, "basicdat" SLASH_STR "globalobjects" SLASH_STR );
+    filehandle = fs_findFirstFile( newloadname, "obj" );
+
+    keeplooking = btrue;
+    if ( filehandle != NULL )
+    {
+        while ( keeplooking )
+        {
+            sprintf( filename, "%s%s", newloadname, filehandle );
+            skin += load_one_object( skin, filename );
+
+            filehandle = fs_findNextFile();
+
+            keeplooking = ( filehandle != NULL );
+        }
+    }
+
+    fs_findClose();
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t load_module( const char *smallname )
+{
+    // ZZ> This function loads a module
+    STRING modname;
+
+    log_info( "Loading module \"%s\"\n", smallname );
+
+    // Load all the global icons
+    if ( !load_all_global_icons() )
+    {
+        log_warning( "Could not load all global icons!\n" );
+    }
+
+    beatmodule = bfalse;
+    timeron = bfalse;
+
+    snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
+    make_randie();
+    reset_teams();
+    load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
+
+    load_global_waves( modname );
+
+    reset_particles( modname );
+    read_wawalite( modname );
+    make_twist();
+    reset_messages();
+    prime_names();
+    load_basic_textures( modname );
+    release_all_ai_scripts();
+    load_ai_script( "basicdat" SLASH_STR "script.txt" );
+    release_all_models();
+    free_all_enchants();
+
+    //Load all objects
+    {
+        int skin;
+        skin = load_all_objects(modname);
+        load_all_global_objects(skin);
+    }
+
+    if ( !load_mesh( modname ) )
+    {
+        // do not cause the program to fail, in case we are using a script function to load a module
+        // just return a failure value and log a warning message for debugging purposes
+        log_warning( "Uh oh! Problems loading the mesh! (%s)\n", modname );
+        return bfalse;
+    }
+
+    setup_particles();
+    setup_passage( modname );
+    reset_players();
+
+    setup_characters( modname );
+
+    reset_end_text();
+    setup_alliances( modname );
+
+    // Load fonts and bars after other images, as not to hog videomem
+    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
+    load_bars( "basicdat" SLASH_STR "bars" );
+    load_map( modname );
+
+    log_madused( "slotused.txt" );
+
+    // Start playing the damage tile sound silently...
+    /*PORT
+        play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
+    */
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void disaffirm_attached_particles( Uint16 character )
+{
+    // ZZ> This function makes sure a character has no attached particles
+    Uint16 particle;
+
+    for ( particle = 0; particle < maxparticles; particle++ )
+    {
+        if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
+        {
+            free_one_particle( particle );
+        }
+    }
+
+    // Set the alert for disaffirmation ( wet torch )
+    ChrList[character].ai.alert |= ALERTIF_DISAFFIRMED;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint16 number_of_attached_particles( Uint16 character )
+{
+    // ZZ> This function returns the number of particles attached to the given character
+    Uint16 cnt, particle;
+
+    cnt = 0;
+    particle = 0;
+
+    while ( particle < maxparticles )
+    {
+        if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
+        {
+            cnt++;
+        }
+
+        particle++;
+    }
+
+    return cnt;
+}
+
+//--------------------------------------------------------------------------------------------
+void reaffirm_attached_particles( Uint16 character )
+{
+    // ZZ> This function makes sure a character has all of it's particles
+    Uint16 numberattached;
+    Uint16 particle;
+
+    numberattached = number_of_attached_particles( character );
+
+    while ( numberattached < CapList[ChrList[character].model].attachedprtamount )
+    {
+        particle = spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, ChrList[character].model, CapList[ChrList[character].model].attachedprttype, character, GRIP_LAST + numberattached, ChrList[character].team, character, numberattached, MAXCHR );
+        if ( particle != TOTALMAXPRT )
+        {
+            attach_particle_to_character( particle, character, PrtList[particle].grip );
+        }
+
+        numberattached++;
+    }
+
+    // Set the alert for reaffirmation ( for exploding barrels with fire )
+    ChrList[character].ai.alert |= ALERTIF_REAFFIRMED;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+void game_quit_module()
+{
+    // BB > all of the de-initialization code after the module actually ends
+
+    release_module();
+    close_session();
+
+    // reset the "ui" mouse state
+    pressed           = bfalse;
+    clicked           = bfalse;
+    pending_click     = bfalse;
+    mouse_wheel_event = bfalse;
+
+    // reset some of the module state variables
+    beatmodule  = bfalse;
+    exportvalid = bfalse;
+}
+
+//-----------------------------------------------------------------
+bool_t game_init_module( const char * modname, Uint32 seed )
+{
+    // BB> all of the initialization code before the module actually starts
+
+    srand( seed );
+
+    // start the new module
+    if ( !load_module( modname ) )
+    {
+        moduleactive = bfalse;
+        gameactive   = bfalse;
+        return bfalse;
+    };
+
+    pressed = bfalse;
+
+    make_onwhichfan();
+    reset_camera(&gCamera);
+    reset_timers();
+    figure_out_what_to_draw();
+    make_character_matrices();
+    attach_particles();
+
+    if ( networkon )
+    {
+        net_sayHello();
+    }
+
+    // Let the game go
+    moduleactive = btrue;
+    randsave = 0;
+    srand( randsave );
+
+    return moduleactive;
+}
+
+//-----------------------------------------------------------------
+bool_t game_update_imports()
+{
+    // BB> This function saves all the players to the players dir
+    //     and also copies them into the imports dir to prepare for the next module
+
+    bool_t is_local;
+    int cnt, tnc, j, character, player;
+    STRING srcPlayer, srcDir, destDir;
+
+    // do the normal export to save all the player settings
+    export_all_players( btrue );
+
+    // reload all of the available players
+    check_player_import( "players", btrue  );
+    check_player_import( "remote",  bfalse );
+
+    // build the import directory using the player info
+    empty_import_directory();
+    fs_createDirectory( "import" );
+
+    // export all of the players directly from memory straight to the "import" dir
+    for ( player = 0, cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        if ( !PlaList[cnt].valid ) continue;
+
+        // Is it alive?
+        character = PlaList[cnt].index;
+        if ( !ChrList[character].on ) continue;
+
+        is_local = ( 0 != PlaList[cnt].device );
+
+        // find the saved copy of the players that are in memory right now
+        for ( tnc = 0; tnc < loadplayer_count; tnc++ )
+        {
+            if ( 0 == strcmp( loadplayer[tnc].dir, get_file_path(ChrList[character].name) ) )
+            {
+                break;
+            }
+        }
+
+        if ( tnc == loadplayer_count )
+        {
+            log_warning( "link_export_all() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, get_file_path(ChrList[character].name) ) ;
+            continue;
+        }
+
+        // grab the controls from the currently loaded players
+        // calculate the slot from the current player count
+        local_control[player] = PlaList[cnt].device;
+        local_slot[player]    = player * MAXIMPORTPERPLAYER;
+        player++;
+
+        // Copy the character to the import directory
+        if ( is_local )
+        {
+            sprintf( srcPlayer, "players" SLASH_STR "%s", loadplayer[tnc].dir );
+        }
+        else
+        {
+            sprintf( srcPlayer, "remote" SLASH_STR "%s", loadplayer[tnc].dir );
+        }
+
+        sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] );
+        fs_copyDirectory( srcPlayer, destDir );
+
+        // Copy all of the character's items to the import directory
+        for ( j = 0; j < 8; j++ )
+        {
+            sprintf( srcDir, "%s" SLASH_STR "%d.obj", srcPlayer, j );
+            sprintf( destDir, "import" SLASH_STR "temp%04d.obj", local_slot[tnc] + j + 1 );
+
+            fs_copyDirectory( srcDir, destDir );
+        }
+    }
+
+    return btrue;
+}
+
+void release_module()
+{
+    // ZZ> This function frees up memory used by the module
+
+    release_all_icons();
+    release_all_titleimages();
+    release_bars();
+    release_blip();
+    release_map();
+    release_all_textures();
+    release_all_models();
+
+    // Close and then reopen SDL_mixer. it's easier than manually unloading each sound ;)
+    sound_restart();
+}
+
+//--------------------------------------------------------------------------------------------
+void attach_particles()
+{
+    // ZZ> This function attaches particles to their characters so everything gets
+    //     drawn right
+    int cnt;
+
+    cnt = 0;
+
+    while ( cnt < maxparticles )
+    {
+        if ( PrtList[cnt].on && PrtList[cnt].attachedtocharacter != MAXCHR )
+        {
+            attach_particle_to_character( cnt, PrtList[cnt].attachedtocharacter, PrtList[cnt].grip );
+
+            // Correct facing so swords knock characters in the right direction...
+            if ( PipList[PrtList[cnt].pip].damfx&DAMFXTURN )
+            {
+                PrtList[cnt].facing = ChrList[PrtList[cnt].attachedtocharacter].turnleftright;
+            }
+        }
+
+        cnt++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int add_player( Uint16 character, Uint16 player, Uint32 device )
+{
+    // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
+    int cnt;
+
+    if ( !PlaList[player].valid )
+    {
+        ChrList[character].isplayer = btrue;
+        PlaList[player].index = character;
+        PlaList[player].valid = btrue;
+        PlaList[player].device = device;
+
+        PlaList[player].latchx = 0;
+        PlaList[player].latchy = 0;
+        PlaList[player].latchbutton = 0;
+
+        for ( cnt = 0; cnt < MAXLAG; cnt++ )
+        {
+            PlaList[player].tlatch[cnt].x      = 0;
+            PlaList[player].tlatch[cnt].y      = 0;
+            PlaList[player].tlatch[cnt].button = 0;
+            PlaList[player].tlatch[cnt].time   = ~0;
+        }
+
+        if ( device != INPUT_BITS_NONE )
+        {
+            local_noplayers = bfalse;
+            ChrList[character].islocalplayer = btrue;
+            local_numlpla++;
+        }
+
+        numpla++;
+        return btrue;
+    }
+
+    return bfalse;
+}
+
+//--------------------------------------------------------------------------------------------
+void let_all_characters_think()
+{
+    // ZZ> This function lets every computer controlled character do AI stuff
+    int character;
+    static Uint32 last_frame = (Uint32)(~0);
+
+    // make sure there is only one update per frame;
+    if ( frame_wld == last_frame ) return;
+    last_frame = frame_wld;
+
+    numblip = 0;
+    for ( character = 0; character < MAXCHR; character++ )
+    {
+        bool_t is_crushed, is_cleanedup, can_think;
+
+        if ( !ChrList[character].on ) continue;
+
+        // check for actions that must always be handled
+        is_cleanedup = ( 0 != ( ChrList[character].ai.alert & ALERTIF_CLEANEDUP ) );
+        is_crushed   = ( 0 != ( ChrList[character].ai.alert & ALERTIF_CRUSHED   ) );
+
+        // let the script run sometimes even if the item is in your backpack
+        can_think = !ChrList[character].inpack || CapList[ChrList[character].model].isequipment;
+
+        // only let dead/destroyed things think if they have beem crushed/cleanedup
+        if ( ( ChrList[character].alive && can_think ) || is_crushed || is_cleanedup )
+        {
+            // Figure out alerts that weren't already set
+            set_alerts( character );
+
+            // Crushed characters shouldn't be alert to anything else
+            if ( is_crushed )  { ChrList[character].ai.alert = ALERTIF_CRUSHED; ChrList[character].ai.timer = frame_wld + 1; }
+
+            // Cleaned up characters shouldn't be alert to anything else
+            if ( is_cleanedup )  { ChrList[character].ai.alert = ALERTIF_CLEANEDUP; ChrList[character].ai.timer = frame_wld + 1; }
+
+            let_character_think( character );
+        }
+    }
 }

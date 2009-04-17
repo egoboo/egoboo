@@ -21,15 +21,26 @@
  * Keyboard, mouse, and joystick handling code.
  */
 
-#include "egoboo.h"
-#include "ui.h"
-#include "log.h"
 #include "input.h"
 
+#include "ui.h"
+#include "log.h"
+
+#include "egoboo_fileutil.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint32 input_device_count = 0;
+
+int       scantag_count = 0;
+scantag_t scantag[MAXTAG];
+
+mouse_t          mous;
+keyboard_t        keyb;
+device_joystick_t joy[MAXJOYSTICK];
+
+device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -38,7 +49,8 @@ static void input_read_mouse();
 static void input_read_keyboard();
 static void input_read_joystick(Uint16 which);
 
-
+static void   scantag_reset();
+static bool_t scantag_read_one( FILE *fileread );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -326,4 +338,176 @@ Uint32 input_get_buttonmask( Uint32 idevice )
     }
 
     return buttonmask;
+}
+
+//--------------------------------------------------------------------------------------------
+// Tag Reading---------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void scantag_reset()
+{
+    // ZZ> This function resets the tags
+    scantag_count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t scantag_read_one( FILE *fileread )
+{
+    // ZZ> This function finds the next tag, returning btrue if it found one
+
+    bool_t retval;
+
+    retval = goto_colon_yesno( fileread ) && (scantag_count < MAXTAG);
+    if ( retval )
+    {
+        fscanf( fileread, "%s%d", scantag[scantag_count].name, &scantag[scantag_count].value );
+        scantag_count++;
+    }
+
+    return retval;
+}
+
+//--------------------------------------------------------------------------------------------
+void scantag_read_all(  const char *szFilename )
+{
+    // ZZ> This function reads the scancode.txt file
+    FILE* fileread;
+
+    scantag_reset();
+    fileread = fopen( szFilename, "r" );
+    if ( fileread )
+    {
+        while ( scantag_read_one( fileread ) );
+
+        fclose( fileread );
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+int scantag_get_value(  const char *string )
+{
+    // ZZ> This function matches the string with its tag, and returns the value...
+    //     It will return 255 if there are no matches.
+    int cnt;
+
+    cnt = 0;
+
+    while ( cnt < scantag_count )
+    {
+        if ( 0 == strcmp( string, scantag[cnt].name ) )
+        {
+            // They match
+            return scantag[cnt].value;
+        }
+
+        cnt++;
+    }
+
+    // No matches
+    return 255;
+}
+
+//--------------------------------------------------------------------------------------------
+char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
+{
+    //ZF> This translates a input tag value to a string
+    int cnt;
+    if ( device >= INPUT_DEVICE_JOY ) device = INPUT_DEVICE_JOY;
+    if ( device == INPUT_DEVICE_KEYBOARD ) is_key = btrue;
+
+    for ( cnt = 0; cnt < scantag_count; cnt++ )
+    {
+        // do not search invalid keys
+        if ( is_key )
+        {
+            if ( 'K' != scantag[cnt].name[0] ) continue;
+        }
+        else
+        {
+            switch ( device )
+            {
+                case INPUT_DEVICE_MOUSE:
+                    if ( 'M' != scantag[cnt].name[0] ) continue;
+                    break;
+
+                case INPUT_DEVICE_JOY:
+                    if ( 'J' != scantag[cnt].name[0] ) continue;
+                    break;
+            }
+        };
+        if ( tag == scantag[cnt].value)
+        {
+            return scantag[cnt].name;
+        }
+    }
+
+    // No matches
+    return "N/A";
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
+{
+    // ZZ> This function returns btrue if the given icontrol is pressed...
+
+    bool_t retval = bfalse;
+
+    device_controls_t * pdevice;
+    control_t         * pcontrol;
+
+    // make sure the idevice is valid
+    if ( idevice > input_device_count || idevice > INPUT_DEVICE_COUNT + MAXJOYSTICK ) return bfalse;
+    pdevice = controls + idevice;
+
+    // make sure the icontrol is within range
+    if ( pdevice->count < icontrol ) return retval;
+    pcontrol = pdevice->control + icontrol;
+    if ( INPUT_DEVICE_KEYBOARD == idevice || pcontrol->is_key )
+    {
+        retval = SDLKEYDOWN( pcontrol->tag );
+    }
+    else
+    {
+        retval = ( input_get_buttonmask( idevice ) == pcontrol->tag );
+    }
+
+    return retval;
+}
+
+
+//--------------------------------------------------------------------------------------------
+void reset_players()
+{
+    // ZZ> This function clears the player list data
+    int cnt, tnc;
+
+    // Reset the local data stuff
+    local_seekurse     = bfalse;
+    local_senseenemies = MAXCHR;
+    local_seeinvisible = bfalse;
+    local_allpladead    = bfalse;
+
+    // Reset the initial player data and latches
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        PlaList[cnt].valid = bfalse;
+        PlaList[cnt].index = 0;
+        PlaList[cnt].latchx = 0;
+        PlaList[cnt].latchy = 0;
+        PlaList[cnt].latchbutton = 0;
+
+        PlaList[cnt].tlatch_count = 0;
+        for ( tnc = 0; tnc < MAXLAG; tnc++ )
+        {
+            PlaList[cnt].tlatch[tnc].x      = 0;
+            PlaList[cnt].tlatch[tnc].y      = 0;
+            PlaList[cnt].tlatch[tnc].button = 0;
+            PlaList[cnt].tlatch[tnc].time   = 0;
+        }
+
+        PlaList[cnt].device = INPUT_BITS_NONE;
+    }
+
+    numpla = 0;
+    nexttimestamp = ((Uint32)~0);
+    numplatimes   = 0;
 }

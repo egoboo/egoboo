@@ -22,9 +22,14 @@
  * really work at the moment.
  */
 
-#include "egoboo.h"
+#include "network.h"
+
+#include "file_common.h"
 #include "log.h"
 #include "input.h"
+#include "char.h"
+
+#include "egoboo.h"
 
 #include <enet/enet.h>
 #include <stdio.h>
@@ -157,60 +162,6 @@ void close_session()
         enet_host_destroy( net_myHost );
         net_myHost = NULL;
         net_gameHost = NULL;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int add_player( Uint16 character, Uint16 player, Uint32 device )
-{
-    // ZZ> This function adds a player, returning bfalse if it fails, btrue otherwise
-    int cnt;
-
-    if ( !PlaList[player].valid )
-    {
-        ChrList[character].isplayer = btrue;
-        PlaList[player].index = character;
-        PlaList[player].valid = btrue;
-        PlaList[player].device = device;
-
-        PlaList[player].latchx = 0;
-        PlaList[player].latchy = 0;
-        PlaList[player].latchbutton = 0;
-
-        for ( cnt = 0; cnt < MAXLAG; cnt++ )
-        {
-            PlaList[player].tlatch[cnt].x      = 0;
-            PlaList[player].tlatch[cnt].y      = 0;
-            PlaList[player].tlatch[cnt].button = 0;
-            PlaList[player].tlatch[cnt].time   = ~0;
-        }
-
-        if ( device != INPUT_BITS_NONE )
-        {
-            local_noplayers = bfalse;
-            ChrList[character].islocalplayer = btrue;
-            local_numlpla++;
-        }
-
-        numpla++;
-        return btrue;
-    }
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-void clear_messages()
-{
-    // ZZ> This function empties the message buffer
-    int cnt;
-
-    cnt = 0;
-
-    while ( cnt < MAXMESSAGE )
-    {
-        msgtime[cnt] = 0;
-        cnt++;
     }
 }
 

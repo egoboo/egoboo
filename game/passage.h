@@ -23,6 +23,14 @@
  * Passages and doors and whatnot.  Things that impede your progress!
  */
 
+#include "egoboo_typedef.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+struct s_script_state;
+
+//--------------------------------------------------------------------------------------------
 //Passage prototypes
 int open_passage( Uint16 passage );
 void check_passage_music();

@@ -21,10 +21,13 @@
  * Passages and doors and whatnot.  Things that impede your progress!
  */
 
-#include "egoboo.h"
+#include "passage.h"
+
 #include "script.h"
 #include "sound.h"
-#include "passage.h"
+
+#include "egoboo_fileutil.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -569,15 +572,15 @@ void setup_passage(  const char *modname )
         while ( goto_colon_yesno( fileread ) )
         {
             fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
-            cTmp = get_first_letter( fileread );
+            cTmp = fget_first_letter( fileread );
             open = bfalse;
             if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
 
-            cTmp = get_first_letter( fileread );
+            cTmp = fget_first_letter( fileread );
             mask = MESHFX_IMPASS | MESHFX_WALL;
             if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_IMPASS;
 
-            cTmp = get_first_letter( fileread );
+            cTmp = fget_first_letter( fileread );
             if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_SLIPPY;
 
             add_passage( tlx, tly, brx, bry, open, mask );

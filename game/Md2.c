@@ -25,6 +25,16 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+static int  md2_rip_header();
+static void md2_fix_normals( Uint16 modelindex );
+static void md2_rip_commands( Uint16 modelindex );
+static void md2_get_transvertices( Uint16 modelindex );
+
+static int vertexconnected( Uint16 modelindex, int vertex );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 float kMd2Normals[][3] =
 {
 #include "id_normals.c"
@@ -68,7 +78,7 @@ Md2Model* md2_loadFromFile( const char *filename )
 }
 
 //---------------------------------------------------------------------------------------------
-int rip_md2_header()
+int md2_rip_header()
 {
     // ZZ> This function makes sure an md2 is really an md2
     int iTmp;
@@ -84,7 +94,7 @@ int rip_md2_header()
 }
 
 //---------------------------------------------------------------------------------------------
-void fix_md2_normals( Uint16 modelindex )
+void md2_fix_normals( Uint16 modelindex )
 {
     // ZZ> This function helps light not flicker so much
     int cnt, tnc;
@@ -145,7 +155,7 @@ void fix_md2_normals( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-void rip_md2_commands( Uint16 modelindex )
+void md2_rip_commands( Uint16 modelindex )
 {
     // ZZ> This function converts an md2's GL commands into our little command list thing
     int iTmp;
@@ -233,22 +243,22 @@ void rip_md2_commands( Uint16 modelindex )
 
     if ( vertex_max >= MAXVERTICES )
     {
-        log_warning("rip_md2_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
+        log_warning("md2_rip_commands(\"%s\") - \n\tOpenGL command references vertices above preset maximum: %d of %d\n", globalparsename, vertex_max, MAXVERTICES );
     }
     if ( command_error )
     {
-        log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
+        log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL commands exceeds preset maximum: %d of %d\n", globalparsename, iCommandCount, MAXCOMMAND );
     }
     if ( entry_error )
     {
-        log_warning("rip_md2_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
+        log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
     MadList[modelindex].commands = MIN(MAXCOMMAND, iCommandCount);
 }
 
 //---------------------------------------------------------------------------------------------
-int rip_md2_frame_name( int frame )
+int md2_rip_frame_name( int frame )
 {
     // ZZ> This function gets frame names from the load buffer, it returns
     //     btrue if the name in cFrameName[] is valid
@@ -297,7 +307,7 @@ int rip_md2_frame_name( int frame )
 }
 
 //---------------------------------------------------------------------------------------------
-void rip_md2_frames( Uint16 modelindex )
+void md2_rip_frames( Uint16 modelindex )
 {
     // ZZ> This function gets frames from the load buffer and adds them to
     //     the indexed model
@@ -368,7 +378,7 @@ void rip_md2_frames( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-int load_one_md2(  const char* szLoadname, Uint16 modelindex )
+int md2_load_one(  const char* szLoadname, Uint16 modelindex )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
     //    int iFileHandleRead;
@@ -393,18 +403,18 @@ int load_one_md2(  const char* szLoadname, Uint16 modelindex )
 
     // Check the header
     // TODO: Verify that the header's filesize correspond to iBytesRead.
-    iReturnValue = rip_md2_header();
+    iReturnValue = md2_rip_header();
     if ( !iReturnValue )
         return bfalse;
 
     // Get the frame vertices
-    rip_md2_frames( modelindex );
+    md2_rip_frames( modelindex );
     // Get the commands
-    rip_md2_commands( modelindex );
+    md2_rip_commands( modelindex );
     // Fix them normals
-    fix_md2_normals( modelindex );
+    md2_fix_normals( modelindex );
     // Figure out how many vertices to transform
-    get_madtransvertices( modelindex );
+    md2_get_transvertices( modelindex );
 
     fclose( file );
 
@@ -412,7 +422,7 @@ int load_one_md2(  const char* szLoadname, Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-void get_madtransvertices( Uint16 modelindex )
+void md2_get_transvertices( Uint16 modelindex )
 {
     // ZZ> This function gets the number of vertices to transform for a model...
     //     That means every one except the grip ( unconnected ) vertices
@@ -427,3 +437,30 @@ void get_madtransvertices( Uint16 modelindex )
 
     MadList[modelindex].transvertices = MadList[modelindex].vertices;
 }
+
+//---------------------------------------------------------------------------------------------
+int vertexconnected( Uint16 modelindex, int vertex )
+{
+    // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
+    int cnt, tnc, entry;
+
+    entry = 0;
+
+    for ( cnt = 0; cnt < MadList[modelindex].commands; cnt++ )
+    {
+        for ( tnc = 0; tnc < MadList[modelindex].commandsize[cnt]; tnc++ )
+        {
+            if ( MadList[modelindex].commandvrt[entry] == vertex )
+            {
+                // The vertex is used
+                return 1;
+            }
+
+            entry++;
+        }
+    }
+
+    // The vertex is not used
+    return 0;
+}
+

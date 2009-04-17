@@ -19,11 +19,18 @@
 
 /* Egoboo - enchant.c
  */
+#include "enchant.h"
 
-#include "egoboo.h"
 #include "char.h"
 #include "sound.h"
-#include "enchant.h"
+
+#include "egoboo.h"
+#include "egoboo_fileutil.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static Uint16       numfreeenchant = 0;         // For allocating new ones
+static Uint16       freeenchant[MAXENCHANT];    //
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -647,39 +654,6 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchan
 }
 
 //--------------------------------------------------------------------------------------------
-void do_enchant_spawn()
-{
-    // ZZ> This function lets enchantments spawn particles
-
-    int cnt, tnc;
-    Uint16 facing, eve, character;
-
-    for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
-    {
-        if ( !EncList[cnt].on ) continue;
-
-        eve = EncList[cnt].eve;
-        if ( EveList[eve].contspawnamount > 0 )
-        {
-            EncList[cnt].spawntime--;
-            if ( EncList[cnt].spawntime == 0 )
-            {
-                character = EncList[cnt].target;
-                EncList[cnt].spawntime = EveList[eve].contspawntime;
-                facing = ChrList[character].turnleftright;
-                for ( tnc = 0; tnc < EveList[eve].contspawnamount; tnc++ )
-                {
-                    spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
-                                        facing, eve, EveList[eve].contspawnpip,
-                                        MAXCHR, GRIP_LAST, ChrList[EncList[cnt].owner].team, EncList[cnt].owner, tnc, MAXCHR );
-                    facing += EveList[eve].contspawnfacingadd;
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void disenchant_character( Uint16 cnt )
 {
     // ZZ> This function removes all enchantments from a character
@@ -722,23 +696,23 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     }
 
     // btrue/bfalse values
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].retarget = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].retarget = btrue;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].override = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].override = btrue;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].removeoverridden = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].removeoverridden = btrue;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].killonend = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].killonend = btrue;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].poofonend = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].poofonend = btrue;
 
@@ -749,7 +723,7 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     // Drain stuff
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].ownermana = fTmp * 256;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].targetmana = fTmp * 256;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].endifcantpay = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].endifcantpay = btrue;
 
@@ -757,7 +731,7 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].targetlife = fTmp * 256;
 
     // Specifics
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].dontdamagetype = DAMAGENULL;
     if ( cTmp == 'S' || cTmp == 's' )  EveList[profile].dontdamagetype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].dontdamagetype = DAMAGE_CRUSH;
@@ -768,7 +742,7 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     if ( cTmp == 'I' || cTmp == 'i' )  EveList[profile].dontdamagetype = DAMAGE_ICE;
     if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].dontdamagetype = DAMAGE_ZAP;
 
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].onlydamagetype = DAMAGENULL;
     if ( cTmp == 'S' || cTmp == 's' )  EveList[profile].onlydamagetype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].onlydamagetype = DAMAGE_CRUSH;
@@ -779,13 +753,13 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     if ( cTmp == 'I' || cTmp == 'i' )  EveList[profile].onlydamagetype = DAMAGE_ICE;
     if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].onlydamagetype = DAMAGE_ZAP;
 
-    goto_colon( fileread );  EveList[profile].removedbyidsz = get_idsz( fileread );
+    goto_colon( fileread );  EveList[profile].removedbyidsz = fget_idsz( fileread );
 
     // Now the set values
     num = 0;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );
+    cTmp = fget_first_letter( fileread );
     EveList[profile].setvalue[num] = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].setvalue[num] = DAMAGE_CRUSH;
     if ( cTmp == 'P' || cTmp == 'p' )  EveList[profile].setvalue[num] = DAMAGE_POKE;
@@ -796,130 +770,130 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].setvalue[num] = DAMAGE_ZAP;
 
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );  iTmp = 0;
+    cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
     if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );
+    cTmp = fget_first_letter( fileread );
     EveList[profile].setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );
+    cTmp = fget_first_letter( fileread );
     EveList[profile].setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    cTmp = get_first_letter( fileread );
+    cTmp = fget_first_letter( fileread );
     EveList[profile].setvalue[num] = MISNORMAL;
     if ( cTmp == 'R' || cTmp == 'r' )  EveList[profile].setvalue[num] = MISREFLECT;
     if ( cTmp == 'D' || cTmp == 'd' )  EveList[profile].setvalue[num] = MISDEFLECT;
 
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
     EveList[profile].setvalue[num] = (Uint8) fTmp;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     EveList[profile].setvalue[num] = btrue;
     num++;
-    goto_colon( fileread );  cTmp = get_first_letter( fileread );
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     EveList[profile].setvalue[num] = btrue;
     num++;
@@ -988,7 +962,7 @@ bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
     // Read expansions
     while ( goto_colon_yesno( fileread ) )
     {
-        idsz = get_idsz( fileread );
+        idsz = fget_idsz( fileread );
         fscanf( fileread, "%c%d", &cTmp, &iTmp );
         test = Make_IDSZ( "AMOU" );  // [AMOU]
         if ( idsz == test )  EveList[profile].contspawnamount = iTmp;

@@ -96,6 +96,28 @@ extern int rotmeshbottomside;                              //
 extern int rotmeshup;                                      //
 extern int rotmeshdown;                                    //
 
+// Lightning effects
+
+#define MAXDYNADIST                     2700        // Leeway for offscreen lights
+#define TOTALMAXDYNA                    64          // Absolute max number of dynamic lights
+
+struct s_dynalight
+{
+    int   distance;      // The distances
+    float x;             // Light position
+    float y;             //
+    float level;         // Light intensity
+    float falloff;       // Light radius
+};
+
+typedef struct s_dynalight dynalight_t;
+
+
+extern int         dyna_distancetobeat;           // The number to beat
+extern int         dyna_list_max;                 // Max number of lights to draw
+extern int         dyna_list_count;               // Number of dynamic lights
+extern dynalight_t dyna_list[TOTALMAXDYNA];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // Function prototypes
@@ -185,3 +207,19 @@ bool_t dump_screenshot();
 
 void make_enviro();
 float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
+
+bool_t load_one_icon(  const char *szLoadName );
+
+void make_textureoffset();
+void load_mesh_fans();
+
+void load_basic_textures(  const char *modname );
+
+void clear_messages();
+
+void font_load(  const char* szBitmap,  const char* szSpacing );
+
+void make_water();
+void read_wawalite(  const char *modname );
+
+int    load_one_title_image( int titleimage,  const char *szLoadName );

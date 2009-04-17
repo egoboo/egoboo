@@ -36,6 +36,7 @@
 #include "egoboo_math.h"  /* vector and matrix math */
 #include "configfile.h"
 #include "Md2.h"
+#include "script.h"
 
 #include <stdlib.h>
 #include <stdarg.h>
@@ -127,7 +128,6 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define MAXPASS             256                     // Maximum number of passages ( mul 32 )
 #define MAXSTAT             16                      // Maximum status displays
 
-#define JOYBUTTON           32                      // Maximum number of joystick buttons
 
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
@@ -302,9 +302,6 @@ enum e_xp_type
 
 #define CHOPPERMODEL                    32          //
 #define MAXSECTION                      4           // T-wi-n-k...  Most of 4 sections
-#define MAXCHOP                         (MAXMODEL*CHOPPERMODEL)
-#define CHOPSIZE                        8
-#define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
 
 #define MAXMESHFAN                      (512*512)   // Terrain mesh size
 #define MAXMESHTILEY                    1024        // Max tiles in y direction
@@ -632,18 +629,6 @@ EXTERN rect_t                    maprect;                    // The map rectangl
 #define MAPSIZE 96
 #define BLIPSIZE 6
 
-// Lightning effects
-
-#define MAXDYNADIST                     2700        // Leeway for offscreen lights
-#define TOTALMAXDYNA                    64          // Absolute max number of dynamic lights
-EXTERN int                     maxlights EQ( 8 ); // Max number of lights to draw
-EXTERN int                     numdynalight;               // Number of dynamic lights
-EXTERN int                     dynadistancetobeat;         // The number to beat
-EXTERN int                     dynadistance[TOTALMAXDYNA];      // The distances
-EXTERN float                   dynalightlistx[TOTALMAXDYNA];    // Light position
-EXTERN float                   dynalightlisty[TOTALMAXDYNA];    //
-EXTERN float                   dynalightlevel[TOTALMAXDYNA];    // Light level
-EXTERN float                   dynalightfalloff[TOTALMAXDYNA];  // Light falloff
 
 EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
@@ -661,68 +646,6 @@ EXTERN Uint8 flattwist[256];             //
 #define TRACKYAREAMAXLOW  460
 #define TRACKYAREAMINHIGH 460
 #define TRACKYAREAMAXHIGH 600
-
-//------------------------------------
-// AI variables
-//------------------------------------
-#define MAXWAY              8                       // Waypoints
-#define WAYTHRESH           64                      // Threshold for reaching waypoint
-#define MAXSTOR             16                      // Storage data (Used in SetXY)
-#define STORAND             15                      //
-
-struct s_ai_state
-{
-    // which script to run
-    Uint16         type;
-
-    // the execution pointer(s)
-    size_t         exe_stt;
-    size_t         exe_end;
-    size_t         exe_pos;
-    Uint32         opcode;
-
-    // some script states
-    Sint32         poof_time;
-    bool_t         changed;
-    bool_t         terminate;
-    Uint32         indent;
-    Uint32         indent_last;
-
-    // who are we related to?
-    Uint16         index;         // what is the index value of this character
-    Uint16         target;        // Who the AI is after
-    Uint16         owner;         // The character's owner
-    Uint16         child;         // The character's child
-
-    // some local storage
-    Uint32         alert;         // Alerts for AI script
-    int            state;         // Short term memory for AI
-    int            content;       // More short term memory
-    int            passage;       // The passage associated with this character
-    int            timer;         // AI Timer
-    int            x[MAXSTOR];    // Temporary values...  SetXY
-    int            y[MAXSTOR];    //
-
-    // ai memory from the last event
-    Uint16         bumplast;        // Last character it was bumped by
-    Uint16         attacklast;      // Last character it was attacked by
-    Uint16         hitlast;         // Last character it hit
-    Uint16         directionlast;   // Direction of last attack/healing
-    Uint16         damagetypelast;  // Last damage type
-    Uint16         lastitemused;    // The last item the character used
-    Uint16         target_old;
-
-    // message handling
-    Uint32         order;           // The last order given the character
-    Uint16         rank;           // The rank of the character on the order chain
-
-    // waypoints
-    Uint8          wp_tail;          // Which waypoint
-    Uint8          wp_head;          // Where to stick next
-    float          wp_pos_x[MAXWAY]; // Waypoint
-    float          wp_pos_y[MAXWAY]; // Waypoint
-};
-typedef struct s_ai_state ai_state_t;
 
 //------------------------------------
 // Character template
@@ -1109,9 +1032,6 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
-EXTERN int            numfreechr EQ( 0 );             // For allocation
-EXTERN Uint16         freechrlist[MAXCHR];        //
-
 EXTERN chr_t ChrList[MAXCHR];
 
 #define INVISIBLE           20                      // The character can't be detected
@@ -1172,8 +1092,6 @@ EXTERN eve_t EveList[MAXEVE];
 // Enchantment variables
 //------------------------------------
 #define MAXENCHANT                      200         // Number of enchantments
-EXTERN Uint16       numfreeenchant;             // For allocating new ones
-EXTERN Uint16       freeenchant[MAXENCHANT];    //
 
 struct s_enc
 {
@@ -1365,8 +1283,6 @@ EXTERN float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture c
 EXTERN float            particleimagev[MAXPARTICLEIMAGE][2];        //
 
 EXTERN Uint16           maxparticles EQ(512);                            // max number of particles
-EXTERN int              numfreeprt   EQ( 0 );                            // For allocation
-EXTERN Uint16           freeprtlist[TOTALMAXPRT];                        //
 
 EXTERN prt_t            PrtList[TOTALMAXPRT];
 
@@ -1394,6 +1310,7 @@ struct s_mod
     char    rank[RANKSIZE];               // Number of stars
     char    longname[MAXCAPNAMESIZE];     // Module names
     char    loadname[MAXCAPNAMESIZE];     // Module load names
+    STRING  reference;                    // the module reference string
     Uint8   importamount;                 // # of import characters
     Uint8   allowexport;                  // Export characters?
     Uint8   minplayers;                   // Number of players
@@ -1496,9 +1413,8 @@ EXTERN char                    netsessionname[MAXSESSION][NETNAMESIZE];    // Na
 EXTERN int                     numplayer  EQ( 0 );                            // How many we found
 EXTERN char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   // Names of machines
 
-EXTERN const char *parse_filename  EQ( NULL );  // For debuggin' goto_colon
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
-EXTERN FILE *globalnetworkerr  EQ( NULL ); // For debuggin' network
+EXTERN FILE       *globalnetworkerr  EQ( NULL ); // For debuggin' network
 
 
 EXTERN float           hillslide  EQ( 1.00f );                                 //
@@ -1588,13 +1504,6 @@ EXTERN Uint16  randindex;
 #define MAXENDTEXT 1024
 EXTERN char endtext[MAXENDTEXT];     // The end-module text
 EXTERN int  endtextwrite;
-
-// This is for random naming
-EXTERN Uint16           numchop  EQ( 0 );              // The number of name parts
-EXTERN Uint32           chopwrite  EQ( 0 );            // The data pointer
-EXTERN char             chopdata[CHOPDATACHUNK];    // The name parts
-EXTERN Uint16           chopstart[MAXCHOP];         // The first character of each part
-EXTERN char             namingnames[MAXCAPNAMESIZE];// The name returned by the function
 
 // These are for FindPath function only
 #define   MOVE_MELEE  300
@@ -1716,10 +1625,6 @@ EXTERN char             namingnames[MAXCAPNAMESIZE];// The name returned by the 
 #define ACTIONMM            74
 #define ACTIONMN            75
 
-// For damage/stat pair reads/writes
-EXTERN int pairbase, pairrand;
-EXTERN float pairfrom, pairto;
-
 // Passages
 EXTERN int numpassage;              // Number of passages in the module
 EXTERN int passtlx[MAXPASS];          // Passage positions
@@ -1741,9 +1646,9 @@ EXTERN Uint16  shopowner[MAXPASS];    // Who gets the gold?
 #define SELL 1
 
 // Status displays
-EXTERN int numstat  EQ( 0 );
-EXTERN Uint16  statlist[MAXSTAT];
-EXTERN int statdelay  EQ( 25 );
+EXTERN int    numstat  EQ( 0 );
+EXTERN Uint16 statlist[MAXSTAT];
+EXTERN int    statdelay  EQ( 25 );
 
 // Network Stuff
 #define SHORTLATCH 1024.0f
@@ -1812,13 +1717,6 @@ EXTERN int                     numplayerrespond;                       //
 #define TO_REMOTE_FILESENT  19903                               //
 extern Uint32  nexttimestamp;                // Expected timestamp
 
-// Key/Control input defenitions
-#define MAXTAG              128                     // Number of tags in scancode.txt
-#define TAGSIZE             32                      // Size of each tag
-EXTERN int    numscantag;
-EXTERN char   tagname[MAXTAG][TAGSIZE];                      // Scancode names
-EXTERN Sint32 tagvalue[MAXTAG];                     // Scancode values
-
 enum e_order
 {
     ORDER_NONE  = 0,
@@ -1827,7 +1725,6 @@ enum e_order
     ORDER_STAND,
     ORDER_TERRAIN,
     ORDER_COUNT
-
 };
 
 //Quest system

@@ -21,16 +21,20 @@
 * Implements the main menu tree, using the code in Ui.*
 */
 
-#include "egoboo.h"
-#include "ui.h"
 #include "menu.h"
+
+#include "ui.h"
 #include "graphic.h"
 #include "log.h"
 #include "proto.h"
 #include "sound.h"
 #include "input.h"
+#include "char.h"
+#include "file_common.h"
 
+#include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -150,6 +154,13 @@ static bool_t startNewPlayer = bfalse;
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static int  get_skin( const char *filename );
+static void load_all_menu_images();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 // "Slidy" buttons used in some of the menus.  They're shiny.
 struct
 {
@@ -1167,21 +1178,21 @@ int doInputOptions( float deltaTime )
                             int ijoy = idevice - INPUT_DEVICE_JOY;
                             if (ijoy < MAXJOYSTICK)
                             {
-                                for ( tag = 0; tag < numscantag; tag++ )
+                                for ( tag = 0; tag < scantag_count; tag++ )
                                 {
-                                    if ( 0 != tagvalue[tag] && (Uint32)tagvalue[tag] == joy[ijoy].b )
+                                    if ( 0 != scantag[tag].value && (Uint32)scantag[tag].value == joy[ijoy].b )
                                     {
-                                        pcontrol->tag    = tagvalue[tag];
+                                        pcontrol->tag    = scantag[tag].value;
                                         pcontrol->is_key = bfalse;
                                         waitingforinput = -1;
                                     }
                                 }
 
-                                for ( tag = 0; tag < numscantag; tag++ )
+                                for ( tag = 0; tag < scantag_count; tag++ )
                                 {
-                                    if ( tagvalue[tag] < SDLK_NUMLOCK && SDLKEYDOWN( tagvalue[tag] ) )
+                                    if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                     {
-                                        pcontrol->tag    = tagvalue[tag];
+                                        pcontrol->tag    = scantag[tag].value;
                                         pcontrol->is_key = btrue;
                                         waitingforinput = -1;
                                     }
@@ -1194,11 +1205,11 @@ int doInputOptions( float deltaTime )
                             {
                                 case INPUT_DEVICE_KEYBOARD:
                                     {
-                                        for ( tag = 0; tag < numscantag; tag++ )
+                                        for ( tag = 0; tag < scantag_count; tag++ )
                                         {
-                                            if ( tagvalue[tag] < SDLK_NUMLOCK && SDLKEYDOWN( tagvalue[tag] ) )
+                                            if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                             {
-                                                pcontrol->tag    = tagvalue[tag];
+                                                pcontrol->tag    = scantag[tag].value;
                                                 pcontrol->is_key = btrue;
                                                 waitingforinput = -1;
                                             }
@@ -1208,21 +1219,21 @@ int doInputOptions( float deltaTime )
 
                                 case INPUT_DEVICE_MOUSE:
                                     {
-                                        for ( tag = 0; tag < numscantag; tag++ )
+                                        for ( tag = 0; tag < scantag_count; tag++ )
                                         {
-                                            if ( 0 != tagvalue[tag] && (Uint32)tagvalue[tag] == mous.b )
+                                            if ( 0 != scantag[tag].value && (Uint32)scantag[tag].value == mous.b )
                                             {
-                                                pcontrol->tag    = tagvalue[tag];
+                                                pcontrol->tag    = scantag[tag].value;
                                                 pcontrol->is_key = bfalse;
                                                 waitingforinput = -1;
                                             }
                                         }
 
-                                        for ( tag = 0; tag < numscantag; tag++ )
+                                        for ( tag = 0; tag < scantag_count; tag++ )
                                         {
-                                            if ( tagvalue[tag] < SDLK_NUMLOCK && SDLKEYDOWN( tagvalue[tag] ) )
+                                            if ( scantag[tag].value < SDLK_NUMLOCK && SDLKEYDOWN( scantag[tag].value ) )
                                             {
-                                                pcontrol->tag    = tagvalue[tag];
+                                                pcontrol->tag    = scantag[tag].value;
                                                 pcontrol->is_key = btrue;
                                                 waitingforinput = -1;
                                             }
@@ -1240,7 +1251,7 @@ int doInputOptions( float deltaTime )
                 // update the control names
                 for ( i = CONTROL_BEGIN; i <= CONTROL_END && i < pdevice->count; i++)
                 {
-                    char * tag = tag_to_string(pdevice->device, pdevice->control[i].tag, pdevice->control[i].is_key);
+                    char * tag = scantag_get_string(pdevice->device, pdevice->control[i].tag, pdevice->control[i].is_key);
 
                     strncpy( inputOptionsButtons[i], tag, sizeof(STRING) );
                 }
@@ -1810,7 +1821,7 @@ int doVideoOptions( float deltaTime )
             sprintf( Cscrz, "%i", scrz );      // Convert the integer to a char we can use
             videoOptionsButtons[7] = Cscrz;
 
-            sprintf( Cmaxlights, "%i", maxlights );
+            sprintf( Cmaxlights, "%i", dyna_list_max );
             videoOptionsButtons[8] = Cmaxlights;
             if ( phongon )
             {
@@ -2114,41 +2125,41 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) )
             {
-                switch ( maxlights )
+                switch ( dyna_list_max )
                 {
                     case 64:
                         videoOptionsButtons[8] = "12";
-                        maxlights = 12;
+                        dyna_list_max = 12;
                         break;
 
                     case 12:
                         videoOptionsButtons[8] = "16";
-                        maxlights = 16;
+                        dyna_list_max = 16;
                         break;
 
                     case 16:
                         videoOptionsButtons[8] = "24";
-                        maxlights = 24;
+                        dyna_list_max = 24;
                         break;
 
                     case 24:
                         videoOptionsButtons[8] = "32";
-                        maxlights = 32;
+                        dyna_list_max = 32;
                         break;
 
                     case 32:
                         videoOptionsButtons[8] = "48";
-                        maxlights = 48;
+                        dyna_list_max = 48;
                         break;
 
                     case 48:
                         videoOptionsButtons[8] = "64";
-                        maxlights = 64;
+                        dyna_list_max = 64;
                         break;
 
                     default:
                         videoOptionsButtons[8] = "12";
-                        maxlights = 12;
+                        dyna_list_max = 12;
                         break;
                 }
             }
@@ -2699,3 +2710,132 @@ static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
 
     return retval;
 }
+
+//--------------------------------------------------------------------------------------------
+void check_player_import( const char *dirname, bool_t initialize )
+{
+    // ZZ> This function figures out which players may be imported, and loads basic
+    //     data for each
+
+    char searchname[128];
+    STRING filename;
+    int skin;
+    const char *foundfile;
+
+    if ( initialize )
+    {
+        // restart from nothing
+        loadplayer_count = 0;
+        globalicon_count = 0;
+    };
+
+    // Search for all objects
+    sprintf( searchname, "%s" SLASH_STR "*.obj", dirname );
+    foundfile = fs_findFirstFile( dirname, "obj" );
+
+    while ( NULL != foundfile && loadplayer_count < MAXLOADPLAYER )
+    {
+        prime_names();
+        sprintf( loadplayer[loadplayer_count].dir, "%s", foundfile );
+
+        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "skin.txt", dirname, foundfile );
+        skin = get_skin( filename );
+
+        snprintf( filename, sizeof(filename), "%s" SLASH_STR "%s" SLASH_STR "tris.md2", dirname, foundfile );
+        md2_load_one( filename, loadplayer_count );
+
+        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "icon%d", dirname, foundfile, skin );
+        load_one_icon( filename );
+
+        sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "naming.txt", dirname, foundfile );
+        chop_load( 0, filename );
+
+        sprintf( loadplayer[loadplayer_count].name, "%s", chop_create( 0 ) );
+
+        loadplayer_count++;
+
+        foundfile = fs_findNextFile();
+    }
+
+    fs_findClose();
+}
+
+
+//--------------------------------------------------------------------------------------------
+int get_skin(  const char *filename )
+{
+    // ZZ> This function reads the skin.txt file...
+    FILE*   fileread;
+    int skin;
+
+    skin = 0;
+    fileread = fopen( filename, "r" );
+    if ( fileread )
+    {
+        goto_colon_yesno( fileread );
+        fscanf( fileread, "%d", &skin );
+        skin %= MAXSKIN;
+        fclose( fileread );
+    }
+
+    return skin;
+}
+
+//--------------------------------------------------------------------------------------------
+void load_all_menu_images()
+{
+    // ZZ> This function loads the title image for each module.  Modules without a
+    //     title are marked as invalid
+
+    char searchname[15];
+    char loadname[256];
+    const char *FileName;
+    FILE* filesave;
+
+    // Convert searchname
+    strcpy( searchname, "modules" SLASH_STR "*.mod" );
+
+    // Log a directory list
+    filesave = fopen( "modules.txt", "w" );
+    if ( filesave != NULL )
+    {
+        fprintf( filesave, "This file logs all of the modules found\n" );
+        fprintf( filesave, "** Denotes an invalid module (Or unlockable)\n\n" );
+    }
+
+    // Search for .mod directories
+    ModList_count = 0;
+    FileName = fs_findFirstFile( "modules", "mod" );
+    while ( NULL != FileName && ModList_count < MAXMODULE )
+    {
+        // clear out all old module data
+        memset( ModList + ModList_count, 0, sizeof(mod_t) );
+
+        // save the filename
+        strncpy( ModList[ModList_count].loadname, FileName, MAXCAPNAMESIZE );
+
+        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
+        if ( load_valid_module( ModList_count, loadname ) )
+        {
+            // NOTE: just because we can't load the ttle image DOES NOT mean that we ignore the module
+            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
+            load_one_title_image( ModList_count, loadname );
+
+            fprintf( filesave, "%02d.  %s\n", ModList_count, ModList[ModList_count].longname );
+
+            ModList_count++;
+        }
+        else
+        {
+            fprintf( filesave, "**.  %s\n", FileName );
+        }
+
+        FileName = fs_findNextFile();
+    }
+
+    fs_findClose();
+
+    ModList[ModList_count].longname[0] = '\0';
+    if ( filesave != NULL ) fclose( filesave );
+}
+

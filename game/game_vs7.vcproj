@@ -148,6 +148,9 @@
 				RelativePath=".\egoboo_endian.c">
 			</File>
 			<File
+				RelativePath=".\egoboo_fileutil.c">
+			</File>
+			<File
 				RelativePath=".\egoboo_math.c">
 			</File>
 			<File
@@ -247,6 +250,9 @@
 				RelativePath=".\script.c">
 			</File>
 			<File
+				RelativePath=".\script_compile.c">
+			</File>
+			<File
 				RelativePath=".\server.c">
 			</File>
 			<File
@@ -318,6 +324,9 @@
 				RelativePath=".\egoboo_endian.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_fileutil.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
@@ -331,6 +340,9 @@
 			</File>
 			<File
 				RelativePath=".\enchant.h">
+			</File>
+			<File
+				RelativePath=".\file_common.h">
 			</File>
 			<File
 				RelativePath=".\font.h">
@@ -360,6 +372,9 @@
 				RelativePath=".\menu.h">
 			</File>
 			<File
+				RelativePath=".\network.h">
+			</File>
+			<File
 				RelativePath=".\particle.h">
 			</File>
 			<File
@@ -370,6 +385,9 @@
 			</File>
 			<File
 				RelativePath=".\script.h">
+			</File>
+			<File
+				RelativePath=".\script_compile.h">
 			</File>
 			<File
 				RelativePath=".\server.h">

@@ -174,3 +174,39 @@ void make_newloadname(  const char *modname,  const char *appendname,  char *new
     newloadname[cnt] = 0;
 }
 
+//--------------------------------------------------------------------------------------------
+char * get_file_path( const char *szName )
+{
+    //ZF> This turns a szName name into a proper filepath for loading and saving files
+    //    also turns all letter to lower case in case of case sensitive OS.
+
+    static char szPathname[16];
+
+    char * pname, * pname_end;
+    char * ppath, * ppath_end;
+    char letter;
+
+    pname = szName;
+    pname_end = pname + 255;
+
+    ppath = szPathname;
+    ppath_end = ppath + 11;
+
+    while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
+    {
+        letter = tolower( *pname );
+
+        if ( ( letter < 'a' || letter > 'z' ) )  letter = '_';
+
+        *ppath = letter;
+
+        pname++;
+        ppath++;
+    }
+    *ppath = '\0';
+
+    strncat(szPathname, ".obj", sizeof(szPathname) - strlen(szPathname) );
+
+    return szPathname;
+}
+

@@ -19,8 +19,10 @@
 
 // lin-file.c
 
-#include "egoboo.h"
+#include "file_common.h"
 #include "log.h"
+
+#include "egoboo.h"
 
 #include <stdio.h>
 #include <unistd.h>

@@ -34,4 +34,6 @@ void   make_newloadname(  const char *modname,  const char *appendname, char *ne
 char * str_decode( char *strout, size_t insize,  const char * strin );
 char * str_encode( char *strout, size_t insize,  const char * strin );
 
+char * get_file_path( const char *character);
+
 #define _EGOBOOSTRUTIL_H_

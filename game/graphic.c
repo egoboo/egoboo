@@ -22,17 +22,29 @@
  * (such as data loading) that really should not be in here.
  */
 
-#include "egoboo.h"
+
 #include "graphic.h"
+
 #include "log.h"
 #include "script.h"
 #include "camera.h"
 #include "id_md2.h"
 #include "input.h"
+#include "char.h"
+#include "particle.h"
+#include "file_common.h"
+
+#include "egoboo.h"
+#include "egoboo_fileutil.h"
 
 #include <SDL_image.h>
 
 #include <assert.h>
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static void font_init();
+static void font_release();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -45,7 +57,7 @@ Uint16           dolist[MAXCHR];
 bool_t           meshnotexture = bfalse;
 Uint16           meshlasttexture = ~0;
 
-renderlist_t     renderlist = {0,0,0,0,0};
+renderlist_t     renderlist = {0, 0, 0, 0, 0};
 
 Uint8            lightdirectionlookup[65536];
 Uint8            lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -70,10 +82,17 @@ int rotmeshbottomside;
 int rotmeshup;
 int rotmeshdown;
 
+
+int         dyna_distancetobeat;           // The number to beat
+int         dyna_list_max   = 8;           // Max number of lights to draw
+int         dyna_list_count = 0;           // Number of dynamic lights
+dynalight_t dyna_list[TOTALMAXDYNA];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 static void project_view(camera_t * pcam);
+static void make_prtlist( void );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -331,225 +350,6 @@ void make_lighttospek( void )
             spek = fTmp;
             spek = spek >> 1;
             lighttospek[cnt][tnc] = ( 0xff000000 ) | ( spek << 16 ) | ( spek << 8 ) | ( spek );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void show_stat( Uint16 statindex )
-{
-    // ZZ> This function shows the more specific stats for a character
-    int character, level;
-    char text[64];
-    char gender[8];
-    if ( statdelay == 0 )
-    {
-        if ( statindex < numstat )
-        {
-            character = statlist[statindex];
-
-            // Name
-            sprintf( text, "=%s=", ChrList[character].name );
-            debug_message( text );
-
-            // Level and gender and class
-            gender[0] = 0;
-            if ( ChrList[character].alive )
-            {
-                if ( ChrList[character].gender == GENMALE )
-                {
-                    sprintf( gender, "male " );
-                }
-                if ( ChrList[character].gender == GENFEMALE )
-                {
-                    sprintf( gender, "female " );
-                }
-
-                level = ChrList[character].experiencelevel;
-                if ( level == 0 )
-                    sprintf( text, " 1st level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level == 1 )
-                    sprintf( text, " 2nd level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level == 2 )
-                    sprintf( text, " 3rd level %s%s", gender, CapList[ChrList[character].model].classname );
-                if ( level >  2 )
-                    sprintf( text, " %dth level %s%s", level + 1, gender, CapList[ChrList[character].model].classname );
-            }
-            else
-            {
-                sprintf( text, " Dead %s", CapList[ChrList[character].model].classname );
-            }
-
-            // Stats
-            debug_message( text );
-            sprintf( text, " STR:~%2d~WIS:~%2d~DEF:~%d", FP8_TO_INT( ChrList[character].strength ), FP8_TO_INT( ChrList[character].wisdom ), 255 - ChrList[character].defense );
-            debug_message( text );
-            sprintf( text, " INT:~%2d~DEX:~%2d~EXP:~%d", FP8_TO_INT( ChrList[character].intelligence ), FP8_TO_INT( ChrList[character].dexterity ), ChrList[character].experience );
-            debug_message( text );
-            statdelay = 10;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void show_armor( Uint16 statindex )
-{
-    // ZF> This function shows detailed armor information for the character
-    char text[64], tmps[64];
-    short character, skinlevel;
-    if ( statdelay == 0 )
-    {
-        if ( statindex < numstat )
-        {
-            character = statlist[statindex];
-            skinlevel = ChrList[character].skin;
-
-            // Armor Name
-            sprintf( text, "=%s=", CapList[ChrList[character].model].skinname[skinlevel] );
-            debug_message( text );
-
-            // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[ChrList[character].model].defense[skinlevel],
-                     CapList[ChrList[character].model].damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[2][skinlevel]&DAMAGESHIFT );
-            debug_message( text );
-
-            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     CapList[ChrList[character].model].damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[7][skinlevel]&DAMAGESHIFT );
-            debug_message( text );
-            if ( CapList[ChrList[character].model].skindressy ) sprintf( tmps, "Light Armor" );
-            else                   sprintf( tmps, "Heavy Armor" );
-
-            sprintf( text, " Type: %s", tmps );
-
-            // Speed and jumps
-            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", ChrList[character].jumpnumberreset );
-
-            sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", CapList[ChrList[character].model].maxaccel[skinlevel]*80, tmps );
-            debug_message( text );
-
-            statdelay = 10;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void show_full_status( Uint16 statindex )
-{
-    // ZF> This function shows detailed armor information for the character including magic
-    char text[64], tmps[64];
-    short character;
-    int i = 0;
-    if ( statdelay == 0 )
-    {
-        if ( statindex < numstat )
-        {
-            character = statlist[statindex];
-
-            // Enchanted?
-            while ( i != MAXENCHANT )
-            {
-                // Found a active enchantment that is not a skill of the character
-                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-                i++;
-            }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
-            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
-
-            debug_message( text );
-
-            // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d",
-                     255 - ChrList[character].defense,
-                     ChrList[character].damagemodifier[0]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[1]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[2]&DAMAGESHIFT );
-            debug_message( text );
-            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     ChrList[character].damagemodifier[3]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[4]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[5]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[6]&DAMAGESHIFT,
-                     ChrList[character].damagemodifier[7]&DAMAGESHIFT );
-            debug_message( text );
-
-            // Speed and jumps
-            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
-
-            sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
-            debug_message( text );
-            statdelay = 10;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void show_magic_status( Uint16 statindex )
-{
-    // ZF> Displays special enchantment effects for the character
-    char text[64], tmpa[64], tmpb[64];
-    short character;
-    int i = 0;
-    if ( statdelay == 0 )
-    {
-        if ( statindex < numstat )
-        {
-            character = statlist[statindex];
-
-            // Enchanted?
-            while ( i != MAXENCHANT )
-            {
-                // Found a active enchantment that is not a skill of the character
-                if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
-
-                i++;
-            }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
-            else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
-
-            debug_message( text );
-
-            // Enchantment status
-            if ( ChrList[character].canseeinvisible )  sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
-            else                 sprintf( tmpb, "No" );
-
-            sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
-            debug_message( text );
-            if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
-            else                 sprintf( tmpb, "No" );
-
-            sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
-            debug_message( text );
-            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
-            else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
-            else                           sprintf( tmpb, "None" );
-
-            sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
-            debug_message( text );
-
-            statdelay = 10;
         }
     }
 }
@@ -1585,7 +1385,7 @@ void make_renderlist()
                     renderlist.ref_count++;
                 }
 
-                if( 0 != ( meshfx[cnt] & MESHFX_DRAWREF ) )
+                if ( 0 != ( meshfx[cnt] & MESHFX_DRAWREF ) )
                 {
                     renderlist.drf[renderlist.drf_count] = cnt;
                     renderlist.drf_count++;
@@ -1714,7 +1514,7 @@ void add_to_dolist( Uint16 ichr )
             isum += itmp;
 
             ChrList[ichr].lightlevel_amb = imin;
-            ChrList[ichr].lightlevel_dir = (isum - 4*imin) / 4;
+            ChrList[ichr].lightlevel_dir = (isum - 4 * imin) / 4;
         }
 
         dolist[numdolist] = ichr;
@@ -1818,346 +1618,6 @@ void load_basic_textures(  const char *modname )
     // Texture 7 is the phong map
     GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
 
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 action_number()
-{
-    // ZZ> This function returns the number of the action in cFrameName, or
-    //     it returns NOACTION if it could not find a match
-    int cnt;
-    char first, second;
-
-    first = cFrameName[0];
-    second = cFrameName[1];
-
-    for ( cnt = 0; cnt < MAXACTION; cnt++ )
-    {
-        if ( first == cActionName[cnt][0] && second == cActionName[cnt][1] )
-        {
-            return cnt;
-        }
-    }
-
-    return NOACTION;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 action_frame()
-{
-    // ZZ> This function returns the frame number in the third and fourth characters
-    //     of cFrameName
-    int number;
-    sscanf( &cFrameName[2], "%d", &number );
-    return number;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 test_frame_name( char letter )
-{
-    // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
-    //     of the frame name matches the input argument
-    if ( cFrameName[4] == letter ) return btrue;
-    if ( cFrameName[4] == 0 ) return bfalse;
-    if ( cFrameName[5] == letter ) return btrue;
-    if ( cFrameName[5] == 0 ) return bfalse;
-    if ( cFrameName[6] == letter ) return btrue;
-    if ( cFrameName[6] == 0 ) return bfalse;
-    if ( cFrameName[7] == letter ) return btrue;
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
-{
-    // ZZ> This function makes sure both actions are valid if either of them
-    //     are valid.  It will copy start and ends to mirror the valid action.
-    if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
-    {
-        // They are either both valid or both invalid, in either case we can't help
-    }
-    else
-    {
-        // Fix the invalid one
-        if ( !MadList[object].actionvalid[actiona] )
-        {
-            // Fix actiona
-            MadList[object].actionvalid[actiona] = btrue;
-            MadList[object].actionstart[actiona] = MadList[object].actionstart[actionb];
-            MadList[object].actionend[actiona] = MadList[object].actionend[actionb];
-        }
-        else
-        {
-            // Fix actionb
-            MadList[object].actionvalid[actionb] = btrue;
-            MadList[object].actionstart[actionb] = MadList[object].actionstart[actiona];
-            MadList[object].actionend[actionb] = MadList[object].actionend[actiona];
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void get_walk_frame( Uint16 object, int lip, int action )
-{
-    // ZZ> This helps make walking look right
-    int frame = 0;
-    int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
-
-    while ( frame < 16 )
-    {
-        int framealong = 0;
-        if ( framesinaction > 0 )
-        {
-            framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
-        }
-
-        MadList[object].frameliptowalkframe[lip][frame] = MadList[object].actionstart[action] + framealong;
-        frame++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void get_framefx( int frame )
-{
-    // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
-    //     Drop timings
-    Uint16 fx = 0;
-    if ( test_frame_name( 'I' ) )
-        fx = fx | MADFXINVICTUS;
-    if ( test_frame_name( 'L' ) )
-    {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFXACTLEFT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFXGRABLEFT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFXDROPLEFT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFXCHARLEFT;
-    }
-    if ( test_frame_name( 'R' ) )
-    {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFXACTRIGHT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFXGRABRIGHT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFXDROPRIGHT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFXCHARRIGHT;
-    }
-    if ( test_frame_name( 'S' ) )
-        fx = fx | MADFXSTOP;
-    if ( test_frame_name( 'F' ) )
-        fx = fx | MADFXFOOTFALL;
-    if ( test_frame_name( 'P' ) )
-        fx = fx | MADFXPOOF;
-
-    MadFrameList[frame].framefx = fx;
-}
-
-//--------------------------------------------------------------------------------------------
-void make_framelip( Uint16 object, int action )
-{
-    // ZZ> This helps make walking look right
-    int frame, framesinaction;
-    if ( MadList[object].actionvalid[action] )
-    {
-        framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
-        frame = MadList[object].actionstart[action];
-
-        while ( frame < MadList[object].actionend[action] )
-        {
-            MadFrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
-            MadFrameList[frame].framelip = ( MadFrameList[frame].framelip ) & 15;
-            frame++;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void get_actions( Uint16 object )
-{
-    // ZZ> This function creates the frame lists for each action based on the
-    //     name of each md2 frame in the model
-    int frame, framesinaction;
-    int action, lastaction;
-
-    // Clear out all actions and reset to invalid
-    action = 0;
-
-    while ( action < MAXACTION )
-    {
-        MadList[object].actionvalid[action] = bfalse;
-        action++;
-    }
-
-    // Set the primary dance action to be the first frame, just as a default
-    MadList[object].actionvalid[ACTIONDA] = btrue;
-    MadList[object].actionstart[ACTIONDA] = MadList[object].framestart;
-    MadList[object].actionend[ACTIONDA] = MadList[object].framestart + 1;
-
-    // Now go huntin' to see what each frame is, look for runs of same action
-    rip_md2_frame_name( 0 );
-    lastaction = action_number();  framesinaction = 0;
-    frame = 0;
-
-    while ( frame < MadList[object].frames )
-    {
-        rip_md2_frame_name( frame );
-        action = action_number();
-        if ( lastaction == action )
-        {
-            framesinaction++;
-        }
-        else
-        {
-            // Write the old action
-            if ( lastaction < MAXACTION )
-            {
-                MadList[object].actionvalid[lastaction] = btrue;
-                MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
-                MadList[object].actionend[lastaction] = MadList[object].framestart + frame;
-            }
-
-            framesinaction = 1;
-            lastaction = action;
-        }
-
-        get_framefx( MadList[object].framestart + frame );
-        frame++;
-    }
-
-    // Write the old action
-    if ( lastaction < MAXACTION )
-    {
-        MadList[object].actionvalid[lastaction] = btrue;
-        MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
-        MadList[object].actionend[lastaction]   = MadList[object].framestart + frame;
-    }
-
-    // Make sure actions are made valid if a similar one exists
-    action_copy_correct( object, ACTIONDA, ACTIONDB );  // All dances should be safe
-    action_copy_correct( object, ACTIONDB, ACTIONDC );
-    action_copy_correct( object, ACTIONDC, ACTIONDD );
-    action_copy_correct( object, ACTIONDB, ACTIONDC );
-    action_copy_correct( object, ACTIONDA, ACTIONDB );
-    action_copy_correct( object, ACTIONUA, ACTIONUB );
-    action_copy_correct( object, ACTIONUB, ACTIONUC );
-    action_copy_correct( object, ACTIONUC, ACTIONUD );
-    action_copy_correct( object, ACTIONTA, ACTIONTB );
-    action_copy_correct( object, ACTIONTC, ACTIONTD );
-    action_copy_correct( object, ACTIONCA, ACTIONCB );
-    action_copy_correct( object, ACTIONCC, ACTIONCD );
-    action_copy_correct( object, ACTIONSA, ACTIONSB );
-    action_copy_correct( object, ACTIONSC, ACTIONSD );
-    action_copy_correct( object, ACTIONBA, ACTIONBB );
-    action_copy_correct( object, ACTIONBC, ACTIONBD );
-    action_copy_correct( object, ACTIONLA, ACTIONLB );
-    action_copy_correct( object, ACTIONLC, ACTIONLD );
-    action_copy_correct( object, ACTIONXA, ACTIONXB );
-    action_copy_correct( object, ACTIONXC, ACTIONXD );
-    action_copy_correct( object, ACTIONFA, ACTIONFB );
-    action_copy_correct( object, ACTIONFC, ACTIONFD );
-    action_copy_correct( object, ACTIONPA, ACTIONPB );
-    action_copy_correct( object, ACTIONPC, ACTIONPD );
-    action_copy_correct( object, ACTIONZA, ACTIONZB );
-    action_copy_correct( object, ACTIONZC, ACTIONZD );
-    action_copy_correct( object, ACTIONWA, ACTIONWB );
-    action_copy_correct( object, ACTIONWB, ACTIONWC );
-    action_copy_correct( object, ACTIONWC, ACTIONWD );
-    action_copy_correct( object, ACTIONDA, ACTIONWD );  // All walks should be safe
-    action_copy_correct( object, ACTIONWC, ACTIONWD );
-    action_copy_correct( object, ACTIONWB, ACTIONWC );
-    action_copy_correct( object, ACTIONWA, ACTIONWB );
-    action_copy_correct( object, ACTIONJA, ACTIONJB );
-    action_copy_correct( object, ACTIONJB, ACTIONJC );
-    action_copy_correct( object, ACTIONDA, ACTIONJC );  // All jumps should be safe
-    action_copy_correct( object, ACTIONJB, ACTIONJC );
-    action_copy_correct( object, ACTIONJA, ACTIONJB );
-    action_copy_correct( object, ACTIONHA, ACTIONHB );
-    action_copy_correct( object, ACTIONHB, ACTIONHC );
-    action_copy_correct( object, ACTIONHC, ACTIONHD );
-    action_copy_correct( object, ACTIONHB, ACTIONHC );
-    action_copy_correct( object, ACTIONHA, ACTIONHB );
-    action_copy_correct( object, ACTIONKA, ACTIONKB );
-    action_copy_correct( object, ACTIONKB, ACTIONKC );
-    action_copy_correct( object, ACTIONKC, ACTIONKD );
-    action_copy_correct( object, ACTIONKB, ACTIONKC );
-    action_copy_correct( object, ACTIONKA, ACTIONKB );
-    action_copy_correct( object, ACTIONMH, ACTIONMI );
-    action_copy_correct( object, ACTIONDA, ACTIONMM );
-    action_copy_correct( object, ACTIONMM, ACTIONMN );
-
-    // Create table for doing transition from one type of walk to another...
-    // Clear 'em all to start
-    for ( frame = 0; frame < MadList[object].frames; frame++ )
-    {
-        MadFrameList[frame+MadList[object].framestart].framelip = 0;
-    }
-
-    // Need to figure out how far into action each frame is
-    make_framelip( object, ACTIONWA );
-    make_framelip( object, ACTIONWB );
-    make_framelip( object, ACTIONWC );
-
-    // Now do the same, in reverse, for walking animations
-    get_walk_frame( object, LIPDA, ACTIONDA );
-    get_walk_frame( object, LIPWA, ACTIONWA );
-    get_walk_frame( object, LIPWB, ACTIONWB );
-    get_walk_frame( object, LIPWC, ACTIONWC );
-}
-
-//--------------------------------------------------------------------------------------------
-void make_mad_equally_lit( int model )
-{
-    // ZZ> This function makes ultra low poly models look better
-    int frame, cnt, vert;
-    if ( MadList[model].used )
-    {
-        frame = MadList[model].framestart;
-
-        for ( cnt = 0; cnt < MadList[model].frames; cnt++ )
-        {
-            vert = 0;
-
-            while ( vert < MAXVERTICES )
-            {
-                MadFrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
-                vert++;
-            }
-
-            frame++;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void check_copy(  const char* loadname, Uint16 object )
-{
-    // ZZ> This function copies a model's actions
-    FILE *fileread;
-    int actiona, actionb;
-    char szOne[16], szTwo[16];
-
-    MadList[object].msgstart = 0;
-    fileread = fopen( loadname, "r" );
-    if ( fileread )
-    {
-        while ( goto_colon_yesno( fileread ) )
-        {
-            fscanf( fileread, "%s%s", szOne, szTwo );
-            actiona = what_action( szOne[0] );
-            actionb = what_action( szTwo[0] );
-            action_copy_correct( object, actiona, actionb );
-            action_copy_correct( object, actiona + 1, actionb + 1 );
-            action_copy_correct( object, actiona + 2, actionb + 2 );
-            action_copy_correct( object, actiona + 3, actionb + 3 );
-        }
-
-        fclose( fileread );
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2425,19 +1885,19 @@ void read_wawalite(  const char *modname )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspeklevel = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( cTmp == 'T' || cTmp == 't' )  waterlight = btrue;
         else waterlight = bfalse;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         wateriswater = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  wateriswater = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( ( cTmp == 'T' || cTmp == 't' ) && overlayvalid )  overlayon = btrue;
         else overlayon = bfalse;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( ( cTmp == 'T' || cTmp == 't' ) && backgroundvalid )  clearson = bfalse;
         else clearson = btrue;
 
@@ -2488,7 +1948,7 @@ void read_wawalite(  const char *modname )
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
         biganimtileframeand = ( iTmp << 1 ) + 1;
         goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGE_SLASH;
         if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGE_CRUSH;
         if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGE_POKE;
@@ -2499,7 +1959,7 @@ void read_wawalite(  const char *modname )
         if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGE_ZAP;
 
         // Read weather data fourth
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         weatheroverwater = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  weatheroverwater = btrue;
 
@@ -2507,11 +1967,11 @@ void read_wawalite(  const char *modname )
         weathertime = weathertimereset;
         weatherplayer = 0;
         // Read extra data
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         meshexploremode = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  meshexploremode = btrue;
 
-        goto_colon( fileread );  cTmp = get_first_letter( fileread );
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         usefaredge = bfalse;
         if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
 
@@ -2541,7 +2001,7 @@ void read_wawalite(  const char *modname )
             goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
             goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
             goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
-            goto_colon( fileread );  cTmp = get_first_letter( fileread );
+            goto_colon( fileread );  cTmp = fget_first_letter( fileread );
             if ( cTmp == 'F' || cTmp == 'f' )  fogaffectswater = bfalse;
 
             fogdistance = ( fogtop - fogbottom );
@@ -2778,7 +2238,7 @@ void render_shadow_sprite( float intensity, GLVERTEX v[] )
 {
     int i;
 
-    if( intensity*255.0f < 1.0f ) return;
+    if ( intensity*255.0f < 1.0f ) return;
 
     glColor4f( intensity, intensity, intensity, 1.0f );
 
@@ -2808,7 +2268,7 @@ void render_shadow( Uint16 character )
     int i;
     chr_t * pchr;
 
-    if( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2816,18 +2276,18 @@ void render_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
-    if( alpha * 255 < 1.0f ) return;
+    if ( alpha * 255 < 1.0f ) return;
 
     // much resuced shadow if on a reflective tile
-    if( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
+    if ( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
-    if( alpha * 255 < 1.0f ) return;
+    if ( alpha * 255 < 1.0f ) return;
 
     // Original points
     level = pchr->level;
@@ -2931,7 +2391,7 @@ void render_bad_shadow( Uint16 character )
     int i;
     chr_t * pchr;
 
-    if( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
@@ -2939,29 +2399,29 @@ void render_bad_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
-    if( alpha < INV_FF ) return;
+    if ( alpha < INV_FF ) return;
 
     // much reduced shadow if on a reflective tile
-    if( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
+    if ( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
-    if( alpha < INV_FF ) return;
+    if ( alpha < INV_FF ) return;
 
     // Original points
     level = pchr->level;
     level += SHADOWRAISE;
     height = pchr->matrix.CNV( 3, 2 ) - level;
     height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f );
-    if( height_factor <= 0.0f ) return;
+    if ( height_factor <= 0.0f ) return;
 
     // how much transparency from height
-    alpha *= height_factor*0.5f + 0.25f;
-    if( alpha < INV_FF ) return;
+    alpha *= height_factor * 0.5f + 0.25f;
+    if ( alpha < INV_FF ) return;
 
     x = pchr->matrix.CNV( 3, 0 );
     y = pchr->matrix.CNV( 3, 1 );
@@ -3029,10 +2489,10 @@ void light_characters()
         bl = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 3 ];
 
         // determine the amount of directionality
-        light_min = MIN(MIN(tl,tr),MIN(bl,br));
-        light_max = MAX(MAX(tl,tr),MAX(bl,br));
+        light_min = MIN(MIN(tl, tr), MIN(bl, br));
+        light_max = MAX(MAX(tl, tr), MAX(bl, br));
 
-        if(light_max == 0 && light_min == 0 )
+        if (light_max == 0 && light_min == 0 )
         {
             ChrList[tnc].lightturnleftright = 0;
             ChrList[tnc].lightlevel_amb = 0;
@@ -3044,9 +2504,9 @@ void light_characters()
         ix = ((int)ChrList[tnc].xpos) & 127;
         iy = ((int)ChrList[tnc].ypos) & 127;
 
-        itop = tl * (128-ix) + tr * ix;
-        ibot = bl * (128-ix) + br * ix;
-        light = (128-iy) * itop + iy * ibot;
+        itop = tl * (128 - ix) + tr * ix;
+        ibot = bl * (128 - ix) + br * ix;
+        light = (128 - iy) * itop + iy * ibot;
         light >>= 14;
 
         ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
@@ -3205,15 +2665,15 @@ void do_dynalight()
                 light = meshvrta[vertex];
                 cnt = 0;
 
-                while ( cnt < numdynalight )
+                while ( cnt < dyna_list_count )
                 {
-                    x = dynalightlistx[cnt] - meshvrtx[vertex];
-                    y = dynalightlisty[cnt] - meshvrty[vertex];
-                    level = ( x * x + y * y ) / dynalightfalloff[cnt];
+                    x = dyna_list[cnt].x - meshvrtx[vertex];
+                    y = dyna_list[cnt].y - meshvrty[vertex];
+                    level = ( x * x + y * y ) / dyna_list[cnt].falloff;
                     level = 255 - level;
                     if ( level > 0 )
                     {
-                        light += level * dynalightlevel[cnt];
+                        light += level * dyna_list[cnt].level;
                     }
 
                     cnt++;
@@ -4424,9 +3884,9 @@ void draw_text()
         // More debug information
         sprintf( text, "!!!DEBUG MODE-6!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  FREEPRT %d", numfreeprt );
+        sprintf( text, "  FREEPRT %d", prt_count_free() );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  FREECHR %d",  numfreechr );
+        sprintf( text, "  FREECHR %d", chr_count_free() );
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "  MACHINE %d", local_machine );
         draw_string( text, 0, y );  y += fontyspacing;
@@ -4628,60 +4088,6 @@ int load_one_title_image( int titleimage,  const char *szLoadName )
 
     return INVALID_TX_ID != tx_id;
 
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_menu_images()
-{
-    // ZZ> This function loads the title image for each module.  Modules without a
-    //     title are marked as invalid
-
-    char searchname[15];
-    char loadname[256];
-    const char *FileName;
-    FILE* filesave;
-
-    // Convert searchname
-    strcpy( searchname, "modules" SLASH_STR "*.mod" );
-
-    // Log a directory list
-    filesave = fopen( "modules.txt", "w" );
-    if ( filesave != NULL )
-    {
-        fprintf( filesave, "This file logs all of the modules found\n" );
-        fprintf( filesave, "** Denotes an invalid module (Or unlockable)\n\n" );
-    }
-
-    // Search for .mod directories
-    ModList_count = 0;
-    FileName = fs_findFirstFile( "modules", "mod" );
-    while ( NULL != FileName && ModList_count < MAXMODULE )
-    {
-        sprintf( ModList[ModList_count].loadname, "%s", FileName );
-
-        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
-        if ( load_valid_module( ModList_count, loadname ) )
-        {
-            // NOTE: just because we can't load the ttle image DOES NOT mean that we ignore the module
-            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
-            load_one_title_image( ModList_count, loadname );
-
-            fprintf( filesave, "%02d.  %s\n", ModList_count, ModList[ModList_count].longname );
-
-            ModList_count++;
-        }
-        else
-        {
-            fprintf( filesave, "**.  %s\n", FileName );
-        }
-
-        FileName = fs_findNextFile();
-    }
-
-    fs_findClose();
-
-    ModList[ModList_count].longname[0] = '\0';
-    if ( filesave != NULL ) fclose( filesave );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5063,107 +4469,6 @@ bool_t dump_screenshot()
     return savefound;
 }
 
-//--------------------------------------------------------------------------------------------
-void check_stats()
-{
-    // ZZ> This function lets the players check character stats
-
-    static int stat_check_timer = 0;
-    static int stat_check_delay = 0;
-    int ticks;
-    if ( console_mode ) return;
-
-    ticks = SDL_GetTicks();
-    if ( ticks > stat_check_timer + 20 )
-    {
-        stat_check_timer = ticks;
-    }
-
-    stat_check_delay -= 20;
-    if ( stat_check_delay > 0 )
-        return;
-
-    // !!!BAD!!!  XP CHEAT
-    if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 500; }
-
-        statdelay = 0;
-    }
-
-    // !!!BAD!!!  LIFE CHEAT
-    if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
-    }
-
-    // Display armor stats?
-    if ( SDLKEYDOWN( SDLK_LSHIFT ) )
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 8 ); stat_check_delay = 1000; }
-    }
-
-    // Display enchantment stats?
-    else if (  SDLKEYDOWN( SDLK_LCTRL ) )
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_full_status( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_full_status( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_full_status( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_full_status( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_full_status( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_full_status( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_full_status( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
-    }
-
-    // Display character stats?
-    else if ( SDLKEYDOWN( SDLK_LALT ) )
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_magic_status( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_magic_status( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_magic_status( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_magic_status( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_magic_status( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_magic_status( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_magic_status( 7 ); stat_check_delay = 1000; }
-    }
-
-    // Display character stats?
-    else
-    {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_stat( 0 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_stat( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_stat( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_stat( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_stat( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_stat( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_stat( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
-    }
-
-    // Show map cheat
-    if ( gDevMode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
-    {
-        mapon = mapvalid;
-        youarehereon = btrue;
-        stat_check_delay = 1000;
-    }
-}
-
 //---------------------------------------------------------------------------------------------------
 void load_graphics()
 {
@@ -5460,6 +4765,104 @@ void project_view( camera_t * pcam )
     {
         cornerlistlowtohighy[1] = extra[0];
         cornerlistlowtohighy[2] = extra[1];
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void clear_messages()
+{
+    // ZZ> This function empties the message buffer
+    int cnt;
+
+    cnt = 0;
+
+    while ( cnt < MAXMESSAGE )
+    {
+        msgtime[cnt] = 0;
+        cnt++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void make_prtlist( void )
+{
+    // ZZ> This function figures out which particles are visible, and it sets up dynamic
+    //     lighting
+    int cnt, tnc, disx, disy, distance, slot;
+
+    // Don't really make a list, just set to visible or not
+    dyna_list_count = 0;
+    dyna_distancetobeat = MAXDYNADIST;
+    cnt = 0;
+
+    while ( cnt < maxparticles )
+    {
+        PrtList[cnt].inview = bfalse;
+        if ( PrtList[cnt].on && INVALID_TILE != PrtList[cnt].onwhichfan )
+        {
+            PrtList[cnt].inview = meshinrenderlist[PrtList[cnt].onwhichfan];
+
+            // Set up the lights we need
+            if ( PrtList[cnt].dynalighton )
+            {
+                disx = PrtList[cnt].xpos - gCamera.trackx;
+                disx = ABS( disx );
+                disy = PrtList[cnt].ypos - gCamera.tracky;
+                disy = ABS( disy );
+                distance = disx + disy;
+                if ( distance < dyna_distancetobeat )
+                {
+                    if ( dyna_list_count < dyna_list_max )
+                    {
+                        // Just add the light
+                        slot = dyna_list_count;
+                        dyna_list[slot].distance = distance;
+                        dyna_list_count++;
+                    }
+                    else
+                    {
+                        // Overwrite the worst one
+                        slot = 0;
+                        tnc = 1;
+                        dyna_distancetobeat = dyna_list[0].distance;
+
+                        while ( tnc < dyna_list_max )
+                        {
+                            if ( dyna_list[tnc].distance > dyna_distancetobeat )
+                            {
+                                slot = tnc;
+                            }
+
+                            tnc++;
+                        }
+
+                        dyna_list[slot].distance = distance;
+
+                        // Find the new distance to beat
+                        tnc = 1;
+                        dyna_distancetobeat = dyna_list[0].distance;
+
+                        while ( tnc < dyna_list_max )
+                        {
+                            if ( dyna_list[tnc].distance > dyna_distancetobeat )
+                            {
+                                dyna_distancetobeat = dyna_list[tnc].distance;
+                            }
+
+                            tnc++;
+                        }
+                    }
+
+                    dyna_list[slot].x = PrtList[cnt].xpos;
+                    dyna_list[slot].y = PrtList[cnt].ypos;
+                    dyna_list[slot].level = PrtList[cnt].dynalightlevel;
+                    dyna_list[slot].falloff = PrtList[cnt].dynalightfalloff;
+                }
+            }
+        }
+
+        cnt++;
     }
 }
 

@@ -22,7 +22,11 @@
  * OS-specific code goes in *-file.c (such as win-file.c)
  */
 
-#include "egoboo.h"
+#include "file_common.h"
+
+#include "egoboo_config.h"
+
+#include <stdio.h>
 
 #ifndef MAX_PATH
 #define MAX_PATH 260  // Same value that Windows uses...
