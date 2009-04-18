@@ -2,9 +2,9 @@
 PREFIX	:= ${HOME}/.local
 EGO_SRC  := camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
 	egoboo_fileutil.c egoboo_math.c egoboo_setup.c egoboo_strutil.c \
-	enchant.c file_common.c file_linux.c font.c \
+	ego_wrap.c enchant.c file_common.c file_linux.c font.c \
 	game.c gltexture.c graphic.c graphic_fan.c graphic_mad.c graphic_prt.c \
-	input.c link.c log.c Md2.c menu.c module.c network.c particle.c \
+	input.c link.c log.c lua_console.c Md2.c menu.c module.c network.c particle.c \
 	passage.c script.c script_compile.c server.c sound.c sys_linux.c ui.c
 
 EGO_OBJ  := ${EGO_SRC:.c=.o}
@@ -19,11 +19,11 @@ SDLCONF_L := $(shell ${SDL_CONF} --libs)
 
 CC      := gcc
 OPT     := -Os -Wall
-INC     := -I. -I../enet/include -I.. ${SDLCONF_I}
-CFLAGS  := ${OPT} ${INC}
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image
+INC     := -I. -I../enet/include -I/usr/include/lua5.1 ${SDLCONF_I}
+CFLAGS  := ${OPT} ${INC} -DUSE_LUA_CONSOLE
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lSDL_console -llua5.1
 
-EGO_BIN := egoboo
+EGO_BIN := egoboo_lua
 
 all: ${EGO_BIN}
    
