@@ -35,7 +35,6 @@
 #include "file_common.h"
 #include "network.h"
 #include "passage.h"
-#include "lua_console.h"
 
 #include "egoboo.h"
 #include "egoboo_strutil.h"
@@ -121,8 +120,6 @@ static rect_t             tabrect[NUMBAR];            // The tab rectangles
 static rect_t             barrect[NUMBAR];            // The bar rectangles
 static rect_t             bliprect[NUMBAR];           // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
-
-static lua_console_t * our_lua_console = NULL;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -107,6 +107,21 @@ void Command_Handler( ConsoleInformation *console, char* command )
 
     if (NULL == pcon) return;
 
+    if( 0 == strcmp(command, "bye") )
+    {
+        CON_Hide( console );
+    }
+
+    if( 0 == strcmp(command, "exit") )
+    {
+        CON_Hide( console );
+    }
+
+    if( 0 == strcmp(command, "quit") )
+    {
+        CON_Hide( console );
+    }
+
     // copy the command string into the buffer
     strncpy( pcon->buffer, command, sizeof(pcon->buffer) - 2 );
     pcon->buffer[sizeof(pcon->buffer)-1] = '\0';
@@ -147,10 +162,6 @@ lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
     /* STEP 2: Attach the Command handling function to the consoles. Remark that every
        console can have its own command handler */
     CON_SetExecuteFunction( pcon->c, Command_Handler );
-
-    // turn to console on
-    CON_Show( pcon->c );
-    CON_Topmost( pcon->c );
 
     // connect to Lua
     pcon->L = lua_newthread( global_L );  /* create state */
@@ -255,3 +266,22 @@ SDL_bool lua_console_draw( lua_console_t * pcon )
     return SDL_TRUE;
 }
 
+//--------------------------------------------------------------------------------------------
+void lua_console_show( lua_console_t * pcon )
+{
+    if( NULL != pcon )
+    {
+        CON_Show( pcon->c );
+        CON_Topmost( pcon->c );
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+void lua_console_hide( lua_console_t * pcon )
+{
+    if( NULL != pcon )
+    {
+        CON_Hide( pcon->c );
+    }
+}

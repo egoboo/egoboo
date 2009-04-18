@@ -234,6 +234,7 @@ void input_read()
     // it for the Gui code
     while ( SDL_PollEvent( &evt ) )
     {
+        // do some things to handle the console
         if ( NULL == CON_Events(&evt) ) continue;
 
         ui_handleSDLEvent( &evt );
@@ -271,43 +272,56 @@ void input_read()
 
                     is_alt   = ( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
                     is_shift = ( 0 != (kmod & KMOD_SHIFT) );
-                    if ( console_mode && !is_alt )
+                    if ( console_mode )
                     {
-                        if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
+                        if ( !is_alt )
                         {
-                            keyb.buffer[keyb.buffer_count] = '\0';
-                            console_mode = bfalse;
-                            console_done = btrue;
-                            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
-                        }
-                        else if ( SDLK_ESCAPE == evt.key.keysym.sym )
-                        {
-                            // reset the keyboard buffer
-                            console_mode = bfalse;
-                            console_done = bfalse;
-                            keyb.buffer_count = 0;
-                            keyb.buffer[0] = '\0';
-                            SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
-                        }
-                        else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
-                        {
-                            if (keyb.buffer_count > 0)
+                            if ( SDLK_RETURN == evt.key.keysym.sym || SDLK_KP_ENTER == evt.key.keysym.sym )
                             {
-                                keyb.buffer_count--;
+                                keyb.buffer[keyb.buffer_count] = '\0';
+                                console_mode = bfalse;
+                                console_done = btrue;
+                                SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
                             }
-                            keyb.buffer[keyb.buffer_count] = '\0';
+                            else if ( SDLK_ESCAPE == evt.key.keysym.sym )
+                            {
+                                // reset the keyboard buffer
+                                console_mode = bfalse;
+                                console_done = bfalse;
+                                keyb.buffer_count = 0;
+                                keyb.buffer[0] = '\0';
+                                SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_DELAY);
+                            }
+                            else if ( SDLK_BACKSPACE == evt.key.keysym.sym )
+                            {
+                                if (keyb.buffer_count > 0)
+                                {
+                                    keyb.buffer_count--;
+                                }
+                                keyb.buffer[keyb.buffer_count] = '\0';
+                            }
+                            else if ( keyb.buffer_count < KEYB_BUFFER_SIZE )
+                            {
+                                if ( is_shift )
+                                {
+                                    keyb.buffer[keyb.buffer_count++] = scancode_to_ascii_shift[evt.key.keysym.sym];
+                                }
+                                else
+                                {
+                                    keyb.buffer[keyb.buffer_count++] = scancode_to_ascii[evt.key.keysym.sym];
+                                }
+                                keyb.buffer[keyb.buffer_count] = '\0';
+                            }
                         }
-                        else if ( keyb.buffer_count < KEYB_BUFFER_SIZE )
+                    }
+                    else
+                    {
+                        if( !is_alt )
                         {
-                            if ( is_shift )
+                            if ( SDLK_BACKQUOTE == evt.key.keysym.sym )
                             {
-                                keyb.buffer[keyb.buffer_count++] = scancode_to_ascii_shift[evt.key.keysym.sym];
+                                lua_console_show( our_lua_console );
                             }
-                            else
-                            {
-                                keyb.buffer[keyb.buffer_count++] = scancode_to_ascii[evt.key.keysym.sym];
-                            }
-                            keyb.buffer[keyb.buffer_count] = '\0';
                         }
                     }
                 }

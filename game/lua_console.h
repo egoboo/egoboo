@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <SDL.h>
@@ -12,3 +11,6 @@ SDL_bool        lua_console_delete( lua_console_t * pcon );
 
 SDL_bool lua_console_run( lua_console_t * pcon );
 SDL_bool lua_console_draw( lua_console_t * pcon );
+
+void lua_console_show( lua_console_t * pcon );
+void lua_console_hide( lua_console_t * pcon );

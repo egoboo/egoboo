@@ -26,6 +26,7 @@
 #include "log.h"
 #include "file_common.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
