@@ -295,22 +295,26 @@ void lua_console_hide( lua_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 SDL_Event * lua_console_handle_events( lua_console_t * pcon, SDL_Event * pevt )
 {
+    SDL_Event * retval = pevt;
+
     if( NULL == pcon || NULL == pevt ) return pevt;
+
+    // let the console handle the event. It should trap all special keystrokes like "return" and such
+    retval = CON_Events(pevt);
 
     // the default SDL_console lets most keypresses fall through
     // this is disruptive to teh game, so we need to intercept them ;)
-    if( CON_isVisible( pcon->c ) )
+    if( NULL != retval && CON_isVisible( pcon->c ) )
     {
         if( SDL_KEYDOWN == pevt->type || SDL_KEYUP == pevt->type )
         {
             if( isprint( pevt->key.keysym.sym ) )
             {
                 // the keycode is grabbed by the console
-                return NULL;
+                retval = NULL;
             }
         }
     }
 
-
-    return CON_Events(pevt);
+    return retval;
 }
