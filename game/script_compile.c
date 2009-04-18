@@ -36,21 +36,21 @@ FILE * debug_script_file = NULL;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static void   insert_space( int position );
-static void   copy_one_line( int write );
+//static void   copy_one_line( int write );
 static int    load_one_line( int read );
 static int    load_parsed_line( int read );
 static void   surround_space( int position );
-static void   parse_null_terminate_comments();
+//static void   parse_null_terminate_comments();
 static int    get_indentation();
 static void   fix_operators();
-static int    starts_with_capital_letter();
-static Uint32 get_high_bits();
+//static int    starts_with_capital_letter();
+//static Uint32 get_high_bits();
 static int    parse_token( int read );
 static void   emit_opcode( Uint32 highbits );
 static void   parse_line_by_line();
 static Uint32 jump_goto( int index, int index_end );
 static void   parse_jumps( int ainumber );
-static void   log_code( int ainumber,  const char* savename );
+//static void   log_code( int ainumber,  const char* savename );
 static int    ai_goto_colon( int read );
 static void   get_code( int read );
 

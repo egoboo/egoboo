@@ -399,7 +399,6 @@ EXTERN bool_t                    local_noplayers;             // Are there any l
 EXTERN bool_t                    usefaredge;                 // Far edge maps? (Outdoor)
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
 EXTERN Uint8                     autoturncamera;             // Type of camera control...
-EXTERN Uint8                     doturntime;                 // Time for smooth turn
 EXTERN Uint8                     importamount;               // Number of imports for this module
 EXTERN Uint8                     playeramount;               //
 EXTERN Uint32                    seed  EQ( 0 );              // The module seed

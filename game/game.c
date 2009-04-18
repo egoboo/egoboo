@@ -1367,7 +1367,7 @@ int SDL_main( int argc, char **argv )
                     float  frameskip = (float)TICKS_PER_SEC / (float)framelimit;
                     frame_next = frame_now + frameskip; //FPS limit
 
-                    move_camera(&gCamera);
+                    camera_move(&gCamera);
                     figure_out_what_to_draw();
 
                     draw_main();
@@ -4568,7 +4568,7 @@ bool_t game_init_module( const char * modname, Uint32 seed )
     pressed = bfalse;
 
     make_onwhichfan();
-    reset_camera(&gCamera);
+    camera_reset(&gCamera);
     reset_timers();
     figure_out_what_to_draw();
     make_character_matrices();

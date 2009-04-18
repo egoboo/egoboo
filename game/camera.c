@@ -48,6 +48,9 @@ camera_t * camera_new( camera_t * pcam )
     CopyMatrix( &pcam->mView,       &mView);                         // View Matrix
     CopyMatrix( &pcam->mProjection, &mProjection);             // Projection Matrix
 
+    pcam->move_mode = CAM_PLAYER;
+    pcam->turn_mode = autoturncamera;
+
     pcam->swing     =  0;
     pcam->swingrate =  0;
     pcam->swingamp  =  0;
@@ -92,14 +95,14 @@ void camera_look_at( camera_t * pcam, float x, float y )
 {
     // ZZ> This function makes the camera turn to face the character
     pcam->zgoto = pcam->zadd;
-    if ( doturntime != 0 )
+    if ( pcam->turn_time != 0 )
     {
         pcam->turnleftright = ( 1.5f * PI ) - ATAN2( y - pcam->y, x - pcam->x );  // xgg
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void make_camera_matrix( camera_t * pcam )
+void camera_make_matrix( camera_t * pcam )
 {
     // ZZ> This function sets pcam->mView to the camera's location and rotation
 
@@ -120,7 +123,7 @@ void make_camera_matrix( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void adjust_camera_angle( camera_t * pcam, float height )
+void camera_adjust_angle( camera_t * pcam, float height )
 {
     // ZZ> This function makes the camera look downwards as it is raised up
     float percentmin, percentmax;
@@ -134,64 +137,118 @@ void adjust_camera_angle( camera_t * pcam, float height )
 }
 
 //--------------------------------------------------------------------------------------------
-void move_camera( camera_t * pcam )
+void camera_move( camera_t * pcam )
 {
     // ZZ> This function moves the camera
     Uint16 cnt;
     Sint16 locoalive;
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 character, turnsin, turncos;
-    if ( autoturncamera )
-        doturntime = 255;
-    else if ( doturntime != 0 )
-        doturntime--;
 
-    x = 0;
-    y = 0;
-    z = 0;
-    level = 0;
-    locoalive = 0;
 
-    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    if ( pcam->turn_mode )
+        pcam->turn_time = 255;
+    else if ( pcam->turn_time != 0 )
+        pcam->turn_time--; 
+
+    if( CAM_FREE == pcam->move_mode )
     {
-        if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+        // the keypad controls the camera
+        if( SDLKEYDOWN( SDLK_KP8 ) )
         {
-            character = PlaList[cnt].index;
-            if ( ChrList[character].alive )
-            {
-                if ( ChrList[character].attachedto == MAXCHR )
-                {
-                    // The character is on foot
-                    x += ChrList[character].xpos;
-                    y += ChrList[character].ypos;
-                    z += ChrList[character].zpos;
-                    level += ChrList[character].level;
-                }
-                else
-                {
-                    // The character is mounted
-                    x += ChrList[ChrList[character].attachedto].xpos;
-                    y += ChrList[ChrList[character].attachedto].ypos;
-                    z += ChrList[ChrList[character].attachedto].zpos;
-                    level += ChrList[ChrList[character].attachedto].level;
-                }
+            pcam->trackx -= pcam->mView.CNV( 0, 1 ) * 50;
+            pcam->tracky -= pcam->mView.CNV( 1, 1 ) * 50;
+        }
 
-                locoalive++;
+        if( SDLKEYDOWN( SDLK_KP2 ) )
+        {
+            pcam->trackx += pcam->mView.CNV( 0, 1 ) * 50;
+            pcam->tracky += pcam->mView.CNV( 1, 1 ) * 50;
+        }
+
+        if( SDLKEYDOWN( SDLK_KP4 ) )
+        {
+            pcam->trackx += pcam->mView.CNV( 0, 0 ) * 50;
+            pcam->tracky += pcam->mView.CNV( 1, 0 ) * 50;
+        }
+
+        if( SDLKEYDOWN( SDLK_KP6 ) )
+        {
+            pcam->trackx -= pcam->mView.CNV( 0, 0 ) * 10;
+            pcam->tracky -= pcam->mView.CNV( 1, 0 ) * 10;
+        }
+
+        if( SDLKEYDOWN( SDLK_KP7 ) )
+        {
+            pcam->turnadd += CAMKEYTURN;
+        }
+
+        if( SDLKEYDOWN( SDLK_KP9 ) )
+        {
+            pcam->turnadd -= CAMKEYTURN;
+        }
+
+        pcam->trackz = 128 + get_level( pcam->trackx, pcam->tracky, bfalse );
+    }
+
+
+
+    if( CAM_PLAYER == pcam->move_mode )
+    {
+        x = 0;
+        y = 0;
+        z = 0;
+        level = 0;
+        locoalive = 0;
+        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        {
+            if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+            {
+                character = PlaList[cnt].index;
+                if ( ChrList[character].alive )
+                {
+                    if ( ChrList[character].attachedto == MAXCHR )
+                    {
+                        // The character is on foot
+                        x += ChrList[character].xpos;
+                        y += ChrList[character].ypos;
+                        z += ChrList[character].zpos;
+                        level += ChrList[character].level;
+                    }
+                    else
+                    {
+                        // The character is mounted
+                        x += ChrList[ChrList[character].attachedto].xpos;
+                        y += ChrList[ChrList[character].attachedto].ypos;
+                        z += ChrList[ChrList[character].attachedto].zpos;
+                        level += ChrList[ChrList[character].attachedto].level;
+                    }
+
+                    locoalive++;
+                }
             }
         }
-    }
-    if ( locoalive > 0 )
-    {
-        x = x / locoalive;
-        y = y / locoalive;
-        z = z / locoalive;
-        level = level / locoalive;
+        if ( locoalive > 0 )
+        {
+            x = x / locoalive;
+            y = y / locoalive;
+            z = z / locoalive;
+            level = level / locoalive;
+        }
+        else
+        {
+            x = pcam->trackx;
+            y = pcam->tracky;
+            z = pcam->trackz;
+        }
     }
     else
     {
         x = pcam->trackx;
         y = pcam->tracky;
         z = pcam->trackz;
+
+        level = 128 + get_level(x,y,bfalse);
     }
 
     pcam->trackxvel = -pcam->trackx;
@@ -207,19 +264,36 @@ void move_camera( camera_t * pcam )
     pcam->z = ( pcam->z * 3.0f + pcam->zgoto ) / 4.0f;
 
     // Camera controls
-    if ( autoturncamera == 255 && local_numlpla == 1 )
+    if ( pcam->turn_mode == 255 && local_numlpla == 1 )
     {
         if ( mous.on )
+        {
             if ( !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )
+            {
                 pcam->turnadd -= ( mous.x * 0.5f );
+            }
+        }
+
         if ( keyb.on )
+        {
             pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) ) * ( CAMKEYTURN );
+        }
+
         if ( joy[0].on )
+        {
             if ( !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
+            {
                 pcam->turnadd -= joy[0].x * CAMJOYTURN;
+            }
+        }
+
         if ( joy[1].on )
+        {
             if ( !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
+            {
                 pcam->turnadd -= joy[1].x * CAMJOYTURN;
+            }
+        }
     }
     else
     {
@@ -232,7 +306,7 @@ void move_camera( camera_t * pcam )
                 if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
                 if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
 
-                doturntime = TURNTIME;  // Sticky turn...
+                pcam->turn_time = TURNTIME;  // Sticky turn...
             }
         }
 
@@ -246,7 +320,7 @@ void move_camera( camera_t * pcam )
                 if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
                 if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
 
-                doturntime = TURNTIME;  // Sticky turn...
+                pcam->turn_time = TURNTIME;  // Sticky turn...
             }
         }
 
@@ -260,10 +334,11 @@ void move_camera( camera_t * pcam )
                 if ( pcam->zaddgoto < MINZADD )  pcam->zaddgoto = MINZADD;
                 if ( pcam->zaddgoto > MAXZADD )  pcam->zaddgoto = MAXZADD;
 
-                doturntime = TURNTIME;  // Sticky turn...
+                pcam->turn_time = TURNTIME;  // Sticky turn...
             }
         }
     }
+
 
     // Keyboard camera controls
     if ( keyb.on )
@@ -271,8 +346,9 @@ void move_camera( camera_t * pcam )
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) )
         {
             pcam->turnadd += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_LEFT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_RIGHT ) ) * CAMKEYTURN;
-            doturntime = TURNTIME;  // Sticky turn...
+            pcam->turn_time = TURNTIME;  // Sticky turn...
         }
+
         if ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) || control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) )
         {
             pcam->zaddgoto += ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_OUT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_CAMERA_IN ) ) * CAMKEYTURN;
@@ -302,7 +378,7 @@ void move_camera( camera_t * pcam )
     }
 
     // Center on target for doing rotation...
-    if ( doturntime != 0 )
+    if ( pcam->turn_time != 0 )
     {
         pcam->centerx = pcam->centerx * 0.9f + pcam->trackx * 0.1f;
         pcam->centery = pcam->centery * 0.9f + pcam->tracky * 0.1f;
@@ -365,16 +441,16 @@ void move_camera( camera_t * pcam )
     pcam->x = ( float ) pcam->centerx + ( pcam->zoom * SIN( pcam->turnleftright ) );
     pcam->y = ( float ) pcam->centery + ( pcam->zoom * COS( pcam->turnleftright ) );
 
-    adjust_camera_angle( pcam, pcam->z );
+    camera_adjust_angle( pcam, pcam->z );
 
-    make_camera_matrix( pcam );
+    camera_make_matrix( pcam );
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_camera( camera_t * pcam )
+void camera_reset( camera_t * pcam )
 {
     // ZZ> This function makes sure the camera starts in a suitable position
-    int cnt, save;
+    int cnt;
 
     pcam->swing = 0;
     pcam->x = meshedgex / 2;
@@ -401,19 +477,27 @@ void reset_camera( camera_t * pcam )
     pcam->roll = 0;
 
     // Now move the camera towards the players
-    pcam->mView = ZeroMatrix();
-
-    save = autoturncamera;
-    autoturncamera = btrue;
-
-    for ( cnt = 0; cnt < 32; cnt++ )
     {
-        move_camera( pcam );
-        pcam->centerx = pcam->trackx;
-        pcam->centery = pcam->tracky;
+        Uint8 move_mode_save = pcam->move_mode;
+        Uint8 turn_mode_save = pcam->turn_mode;
+
+        pcam->mView = IdentityMatrix();
+
+        pcam->turn_mode = 1;
+        pcam->move_mode = CAM_PLAYER;
+
+        for ( cnt = 0; cnt < 32; cnt++ )
+        {
+            camera_move( pcam );
+            pcam->centerx = pcam->trackx;
+            pcam->centery = pcam->tracky;
+        }
+
+        pcam->move_mode = move_mode_save;
+        pcam->turn_mode = turn_mode_save;
+        pcam->turn_time = 0;
     }
 
-    autoturncamera = save;
-    doturntime = 0;
+   
 }
 

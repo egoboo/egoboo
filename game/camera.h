@@ -25,6 +25,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+enum e_camera_mode
+{
+    CAM_PLAYER = 0,
+    CAM_FREE
+};
+
 #define TRACKXAREALOW     100
 #define TRACKXAREAHIGH    180
 #define TRACKYAREAMINLOW  320
@@ -61,10 +67,13 @@
 
 struct s_camera
 {
-    glMatrix mWorld;                       // World Matrix
-    glMatrix mView;                        // View Matrix
-    glMatrix mViewSave;                    // View Matrix initial state
-    glMatrix mProjection;                  // Projection Matrix
+    glMatrix mWorld;                // World Matrix
+    glMatrix mView;                 // View Matrix
+    glMatrix mProjection;           // Projection Matrix
+
+    Uint8  move_mode;               // what is the camera mode
+    Uint8  turn_mode;               // what is the camera mode
+    Uint8  turn_time;               // time for the smooth turn
 
     int    swing;                   // Camera swingin'
     int    swingrate;               //
@@ -101,8 +110,8 @@ extern camera_t gCamera;
 //Function prototypes
 camera_t * camera_new( camera_t * pcam );
 
-void reset_camera( camera_t * pcam );
-void adjust_camera_angle( camera_t * pcam, float height );
-void move_camera( camera_t * pcam );
-void make_camera_matrix( camera_t * pcam );
+void camera_reset( camera_t * pcam );
+void camera_adjust_angle( camera_t * pcam, float height );
+void camera_move( camera_t * pcam );
+void camera_make_matrix( camera_t * pcam );
 void camera_look_at( camera_t * pcam, float x, float y );

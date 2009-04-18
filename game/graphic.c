@@ -3841,7 +3841,7 @@ void draw_text()
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "y %f", gCamera.centery );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "turn %d %d", autoturncamera, doturntime );
+        sprintf( text, "turn %d %d", gCamera.turn_mode, gCamera.turn_time );
         draw_string( text, 0, y );  y += fontyspacing;
     }
 

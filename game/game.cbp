@@ -30,6 +30,8 @@
 					<Add directory="C:\SDKs\SDL_mixer" />
 					<Add directory="C:\SDKs\SDL_ttf" />
 					<Add directory="..\game" />
+					<Add directory="C:\SDKs\lua-5.1.2\include" />
+					<Add directory="C:\SDKs\SDL_console-2.1\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -49,6 +51,8 @@
 					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
 					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
 					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+					<Add directory="C:\SDKs\lua-5.1.2\lib\static" />
+					<Add directory="C:\SDKs\SDL_console-2.1\bin" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 - gcc">

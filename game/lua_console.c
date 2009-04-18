@@ -27,7 +27,6 @@ struct s_lua_console
     size_t len;
     char   buffer[1024];
 };
-//typedef struct s_lua_console lua_console_t;
 
 static lua_console_t a_console;
 
