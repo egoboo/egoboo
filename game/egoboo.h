@@ -774,8 +774,10 @@ enum e_order
 #define QUEST_BEATEN         -1
 #define QUEST_NONE             -2
 
-// The Lua Console
-#include "lua_console.h"
-EXTERN lua_console_t * our_lua_console EQ(NULL);
+#if defined(USE_LUA_CONSOLE)
+    // The Lua Console
+#   include "lua_console.h"
+    EXTERN lua_console_t * our_lua_console EQ(NULL);
+#endif
 
 #define  _EGOBOO_H_

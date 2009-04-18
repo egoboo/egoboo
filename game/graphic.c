@@ -3939,7 +3939,9 @@ void flip_pages()
 {
     glFlush();
 
+#if defined(USE_LUA_CONSOLE)
     lua_console_draw( our_lua_console );
+#endif
 
     SDL_GL_SwapBuffers();
 }
@@ -4269,10 +4271,13 @@ void sdlinit( int argc, char **argv )
 
     input_init();
 
+#if defined(USE_LUA_CONSOLE)
     {
         SDL_Rect blah = {0, 0, scrx, scry / 4};
         our_lua_console = lua_console_new(NULL, blah);
     };
+#endif
+
 }
 
 /*struct s_packing_test

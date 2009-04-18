@@ -77,7 +77,7 @@
 				FavorSizeOrSpeed="0"
 				WholeProgramOptimization="FALSE"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_LUA_CONSOLE"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="FALSE"
@@ -536,9 +536,19 @@
 			</File>
 			<File
 				RelativePath=".\ego_wrap.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\lua_console.h">

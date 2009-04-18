@@ -271,6 +271,9 @@ void lua_console_show( lua_console_t * pcon )
 {
     if( NULL != pcon )
     {
+        // we only have one console, so keyrepeat is enabled globally
+        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
         CON_Show( pcon->c );
         CON_Topmost( pcon->c );
     }
@@ -282,6 +285,32 @@ void lua_console_hide( lua_console_t * pcon )
 {
     if( NULL != pcon )
     {
+        // we only have one console, so keyrepeat is disabled globally
+        SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+
         CON_Hide( pcon->c );
     }
+}
+
+//--------------------------------------------------------------------------------------------
+SDL_Event * lua_console_handle_events( lua_console_t * pcon, SDL_Event * pevt )
+{
+    if( NULL == pcon || NULL == pevt ) return pevt;
+
+    // the default SDL_console lets most keypresses fall through
+    // this is disruptive to teh game, so we need to intercept them ;)
+    if( CON_isVisible( pcon->c ) )
+    {
+        if( SDL_KEYDOWN == pevt->type || SDL_KEYUP == pevt->type )
+        {
+            if( isprint( pevt->key.keysym.sym ) )
+            {
+                // the keycode is grabbed by the console
+                return NULL;
+            }
+        }
+    }
+
+
+    return CON_Events(pevt);
 }

@@ -234,8 +234,10 @@ void input_read()
     // it for the Gui code
     while ( SDL_PollEvent( &evt ) )
     {
-        // do some things to handle the console
-        if ( NULL == CON_Events(&evt) ) continue;
+
+#if defined(USE_LUA_CONSOLE)
+        if ( NULL == lua_console_handle_events(our_lua_console, &evt) ) continue;
+#endif
 
         ui_handleSDLEvent( &evt );
 
@@ -314,7 +316,9 @@ void input_read()
                             }
                         }
                     }
-                    else
+
+#if defined(USE_LUA_CONSOLE)
+                    else if ( gDevMode )
                     {
                         if( !is_alt )
                         {
@@ -324,6 +328,8 @@ void input_read()
                             }
                         }
                     }
+#endif
+
                 }
                 break;
         }
