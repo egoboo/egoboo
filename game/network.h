@@ -3,6 +3,93 @@
 #include "egoboo_typedef.h"
 
 //---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+// Network stuff
+
+#define NETREFRESH          1000                    // Every second
+#define NONETWORK           numservice              //
+#define MAXSERVICE          16
+#define NETNAMESIZE         16
+#define MAXSESSION          16
+#define MAXNETPLAYER         8
+
+#define TO_ANY_TEXT         25935                               // Message headers
+#define TO_HOST_MODULEOK    14951                               //
+#define TO_HOST_LATCH       33911                               //
+#define TO_HOST_RTS         30376                               //
+#define TO_HOST_IM_LOADED   40192                               //
+#define TO_HOST_FILE        20482                               //
+#define TO_HOST_DIR         49230                               //
+#define TO_HOST_FILESENT    13131                               //
+#define TO_REMOTE_MODULE    56025                               //
+#define TO_REMOTE_LATCH     12715                               //
+#define TO_REMOTE_FILE      62198                               //
+#define TO_REMOTE_DIR       11034                               //
+#define TO_REMOTE_RTS        5143                               //
+#define TO_REMOTE_START     51390                               //
+#define TO_REMOTE_FILESENT  19903                               //
+
+#define SHORTLATCH 1024.0f
+#define CHARVEL 5.0f
+#define MAXSENDSIZE 8192
+#define COPYSIZE    4096
+#define TOTALSIZE   2097152
+#define MAXPLAYER   8                               // 2 to a power...  2^3
+#define MAXLAG      64                              //
+#define LAGAND      63                              //
+#define STARTTALK   10                              //
+
+extern Uint32                  nexttimestamp;                // Expected timestamp
+extern FILE                   *globalnetworkerr;             // For debuggin' network
+
+extern Uint32                  randsave;                  // Used in network timer
+extern int                     networkservice;
+extern char                    nethostname[64];                            // Name for hosting session
+extern char                    netmessagename[64];                         // Name for messages
+extern int                     numservice;                                 // How many we found
+extern char                    netservicename[MAXSERVICE][NETNAMESIZE];    // Names of services
+extern int                     numsession;                                 // How many we found
+extern char                    netsessionname[MAXSESSION][NETNAMESIZE];    // Names of sessions
+extern int                     numplayer;                                  // How many we found
+extern char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   // Names of machines
+
+extern int                     local_machine;        // 0 is host, 1 is 1st remote, 2 is 2nd...
+
+struct s_time_latch
+{
+    float   x;
+    float   y;
+    Uint32  button;
+    Uint32  time;
+};
+typedef struct s_time_latch time_latch_t;
+
+struct s_player
+{
+    bool_t                  valid;                    // Player used?
+    Uint16                  index;                    // Which character?
+    Uint8                   device;                   // Input device
+
+    // Local latch
+    float                   latchx;
+    float                   latchy;
+    Uint32                  latchbutton;
+
+    // Timed latches
+    Uint32                  tlatch_count;
+    time_latch_t            tlatch[MAXLAG];
+};
+
+typedef struct s_player player_t;
+
+extern int                     lag;                             // Lag tolerance
+extern Uint32                  numplatimes;
+
+extern int                     numpla;                                   // Number of players
+extern int                     local_numlpla;                            //
+extern player_t                PlaList[MAXPLAYER];
+
+//---------------------------------------------------------------------------------------------
 // Networking functions
 
 void listen_for_packets();

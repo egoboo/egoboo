@@ -23,6 +23,9 @@
 #include "configfile.h"
 #include "graphic.h"
 #include "input.h"
+#include "particle.h"
+#include "sound.h"
+#include "network.h"
 
 #include "egoboo.h"
 #include "egoboo_fileutil.h"

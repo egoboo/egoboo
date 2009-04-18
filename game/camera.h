@@ -22,6 +22,16 @@
 #include "egoboo_typedef.h"
 #include "egoboo_math.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define TRACKXAREALOW     100
+#define TRACKXAREAHIGH    180
+#define TRACKYAREAMINLOW  320
+#define TRACKYAREAMAXLOW  460
+#define TRACKYAREAMINHIGH 460
+#define TRACKYAREAMAXHIGH 600
+
 #define FOV                             60           // Field of view
 #define CAMJOYTURN                      (0.01f*3)    // Joystick camera rotation
 #define CAMKEYTURN                      (10*3)       // Keyboard camera rotation
@@ -45,6 +55,9 @@
 #    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
 #    define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
 #endif
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 
 struct s_camera
 {

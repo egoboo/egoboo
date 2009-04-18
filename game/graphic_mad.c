@@ -21,16 +21,21 @@
  * Character model drawing code.
  */
 
-#include "egoboo.h"
+#include "graphic.h"
+
 #include "Md2.h"
 #include "id_md2.h"
-#include "graphic.h"
 #include "camera.h"
+#include "char.h"
+
+#include "egoboo.h"
 
 #include <SDL_opengl.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+static float textureoffset[256];         // For moving textures
 
 /* Storage for blended vertices */
 static GLfloat md2_blendedVertices[MD2_MAX_VERTICES][3];
@@ -182,12 +187,12 @@ void render_enviromad( Uint16 character, Uint8 trans )
     {
         Uint8 lite_last, lite_next, lite;
 
-        v[cnt].x = MadFrameList[lastframe].vrtx[cnt] + (MadFrameList[frame].vrtx[cnt] - MadFrameList[lastframe].vrtx[cnt]) * flip;
-        v[cnt].y = MadFrameList[lastframe].vrty[cnt] + (MadFrameList[frame].vrty[cnt] - MadFrameList[lastframe].vrty[cnt]) * flip;
-        v[cnt].z = MadFrameList[lastframe].vrtz[cnt] + (MadFrameList[frame].vrtz[cnt] - MadFrameList[lastframe].vrtz[cnt]) * flip;
+        v[cnt].x = Md2FrameList[lastframe].vrtx[cnt] + (Md2FrameList[frame].vrtx[cnt] - Md2FrameList[lastframe].vrtx[cnt]) * flip;
+        v[cnt].y = Md2FrameList[lastframe].vrty[cnt] + (Md2FrameList[frame].vrty[cnt] - Md2FrameList[lastframe].vrty[cnt]) * flip;
+        v[cnt].z = Md2FrameList[lastframe].vrtz[cnt] + (Md2FrameList[frame].vrtz[cnt] - Md2FrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[lastframe].vrta[cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[frame].vrta[cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[lastframe].vrta[cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
         ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
@@ -264,7 +269,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 if ( vertex < MadList[model].vertices && entry < MAXCOMMANDENTRIES )
                 {
                     glColor4fv( &v[vertex].r );
-                    glTexCoord2f ( indextoenvirox[MadFrameList[framestt].vrta[vertex]] + uoffset,
+                    glTexCoord2f ( indextoenvirox[Md2FrameList[framestt].vrta[vertex]] + uoffset,
                                    lighttoenviroy[ChrList[character].vrta[vertex]] + voffset );
                     glVertex3fv ( &v[vertex].x );
                 }
@@ -317,12 +322,12 @@ void render_texmad( Uint16 character, Uint8 trans )
     {
         Uint8 lite_last, lite_next, lite;
 
-        v[cnt].x = MadFrameList[lastframe].vrtx[cnt] + (MadFrameList[frame].vrtx[cnt] - MadFrameList[lastframe].vrtx[cnt]) * flip;
-        v[cnt].y = MadFrameList[lastframe].vrty[cnt] + (MadFrameList[frame].vrty[cnt] - MadFrameList[lastframe].vrty[cnt]) * flip;
-        v[cnt].z = MadFrameList[lastframe].vrtz[cnt] + (MadFrameList[frame].vrtz[cnt] - MadFrameList[lastframe].vrtz[cnt]) * flip;
+        v[cnt].x = Md2FrameList[lastframe].vrtx[cnt] + (Md2FrameList[frame].vrtx[cnt] - Md2FrameList[lastframe].vrtx[cnt]) * flip;
+        v[cnt].y = Md2FrameList[lastframe].vrty[cnt] + (Md2FrameList[frame].vrty[cnt] - Md2FrameList[lastframe].vrty[cnt]) * flip;
+        v[cnt].z = Md2FrameList[lastframe].vrtz[cnt] + (Md2FrameList[frame].vrtz[cnt] - Md2FrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[lastframe].vrta[cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][MadFrameList[frame].vrta[cnt]];
+        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[lastframe].vrta[cnt]];
+        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
         ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
@@ -485,4 +490,16 @@ void render_refmad( int tnc, Uint8 trans )
     ChrList[tnc].grnshift -= 1;
     ChrList[tnc].blushift -= 1;
 
+}
+
+//--------------------------------------------------------------------------------------------
+void make_textureoffset()
+{
+    // ZZ> This function sets up for moving textures
+    int cnt;
+
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        textureoffset[cnt] = cnt / 256.0f;
+    }
 }

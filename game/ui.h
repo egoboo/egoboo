@@ -93,8 +93,8 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLTexture *img, const char
 
 // Utility functions
 int  ui_mouseInside( int x, int y, int width, int height );
-void ui_setActive( ui_id_t id );
-void ui_setHot( ui_id_t id );
+//void ui_setActive( ui_id_t id );
+//void ui_setHot( ui_id_t id );
 Font* ui_getFont();
 
 /*****************************************************************************/

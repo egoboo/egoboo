@@ -30,13 +30,20 @@
 #include "input.h"
 #include "particle.h"
 #include "file_common.h"
+#include "Md2.h"
+#include "passage.h"
 
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 #include "egoboo_math.h"
 #include "egoboo.h"
 
 #include <assert.h>
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define BUY  0
+#define SELL 1
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -44,6 +51,13 @@ chop_data_t chop = {0, 0};
 
 static int            numfreechr = 0;             // For allocation
 static Uint16         freechrlist[MAXCHR];        //
+
+team_t TeamList[MAXTEAM];
+
+int   importobject;
+cap_t CapList[MAXMODEL];
+
+chr_t ChrList[MAXCHR];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -66,7 +80,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
 
     for ( cnt = 0; cnt < MadList[ChrList[character].model].transvertices; cnt++  )
     {
-        z = MadFrameList[frame].vrtz[cnt];
+        z = Md2FrameList[frame].vrtz[cnt];
         if ( z < low )
         {
             ChrList[character].vrta[cnt] = valuelow;
@@ -335,9 +349,9 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         vertex = MadList[model].vertices - grip;
 
         // Calculate grip point locations with linear interpolation and other silly things
-        pointx = MadFrameList[lastframe].vrtx[vertex] + (MadFrameList[frame].vrtx[vertex] - MadFrameList[lastframe].vrtx[vertex]) * flip;
-        pointy = MadFrameList[lastframe].vrty[vertex] + (MadFrameList[frame].vrty[vertex] - MadFrameList[lastframe].vrty[vertex]) * flip;
-        pointz = MadFrameList[lastframe].vrtz[vertex] + (MadFrameList[frame].vrtz[vertex] - MadFrameList[lastframe].vrtz[vertex]) * flip;
+        pointx = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
+        pointy = Md2FrameList[lastframe].vrty[vertex] + (Md2FrameList[frame].vrty[vertex] - Md2FrameList[lastframe].vrty[vertex]) * flip;
+        pointz = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
 
         // Do the transform
         PrtList[particle].xpos = ( pointx * ChrList[character].matrix.CNV( 0, 0 ) +
@@ -414,9 +428,9 @@ void make_one_weapon_matrix( Uint16 iweap )
             if (0xFFFF == vertex) continue;
 
             // Calculate grip point locations with linear interpolation and other silly things
-            pointx[cnt] = MadFrameList[ichr_lastframe].vrtx[vertex] + (MadFrameList[ichr_frame].vrtx[vertex] - MadFrameList[ichr_lastframe].vrtx[vertex]) * ichr_flip;
-            pointy[cnt] = MadFrameList[ichr_lastframe].vrty[vertex] + (MadFrameList[ichr_frame].vrty[vertex] - MadFrameList[ichr_lastframe].vrty[vertex]) * ichr_flip;
-            pointz[cnt] = MadFrameList[ichr_lastframe].vrtz[vertex] + (MadFrameList[ichr_frame].vrtz[vertex] - MadFrameList[ichr_lastframe].vrtz[vertex]) * ichr_flip;
+            pointx[cnt] = Md2FrameList[ichr_lastframe].vrtx[vertex] + (Md2FrameList[ichr_frame].vrtx[vertex] - Md2FrameList[ichr_lastframe].vrtx[vertex]) * ichr_flip;
+            pointy[cnt] = Md2FrameList[ichr_lastframe].vrty[vertex] + (Md2FrameList[ichr_frame].vrty[vertex] - Md2FrameList[ichr_lastframe].vrty[vertex]) * ichr_flip;
+            pointz[cnt] = Md2FrameList[ichr_lastframe].vrtz[vertex] + (Md2FrameList[ichr_frame].vrtz[vertex] - Md2FrameList[ichr_lastframe].vrtz[vertex]) * ichr_flip;
         }
     }
 
@@ -1304,9 +1318,9 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         vertex = MadList[model].vertices - grip;
 
         // Calculate grip point locations
-        pointx = MadFrameList[frame].vrtx[vertex];/// ChrList[cnt].scale;
-        pointy = MadFrameList[frame].vrty[vertex];/// ChrList[cnt].scale;
-        pointz = MadFrameList[frame].vrtz[vertex];/// ChrList[cnt].scale;
+        pointx = Md2FrameList[frame].vrtx[vertex];/// ChrList[cnt].scale;
+        pointy = Md2FrameList[frame].vrty[vertex];/// ChrList[cnt].scale;
+        pointz = Md2FrameList[frame].vrtz[vertex];/// ChrList[cnt].scale;
 
         // Do the transform
         xa = ( pointx * ChrList[chara].matrix.CNV( 0, 0 ) +
@@ -2814,7 +2828,7 @@ void damage_character( Uint16 character, Uint16 direction,
                 if ( 0 == ( effects&DAMFXBLOC ) )
                 {
                     // Only damage if hitting from proper direction
-                    if ( MadFrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
+                    if ( Md2FrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
                     {
                         // I Frame...
                         direction -= CapList[model].iframefacing;
@@ -4578,7 +4592,7 @@ void move_characters( void )
                     if ( cnt != ChrList[cnt].ai.target )
                         ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( ChrList[ChrList[cnt].ai.target].ypos - ChrList[cnt].ypos, ChrList[ChrList[cnt].ai.target].xpos - ChrList[cnt].xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
                 }
-                if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXSTOP )
+                if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXSTOP )
                 {
                     dvx = 0;
                     dvy = 0;
@@ -5113,25 +5127,25 @@ void move_characters( void )
         if ( ChrList[cnt].lip == 192 )
         {
             // Check frame effects
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXACTLEFT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXACTLEFT )
                 character_swipe( cnt, 0 );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXACTRIGHT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXACTRIGHT )
                 character_swipe( cnt, 1 );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXGRABLEFT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXGRABLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, bfalse );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXGRABRIGHT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXGRABRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, bfalse );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXCHARLEFT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXCHARLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, btrue );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXCHARRIGHT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXCHARRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, btrue );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXDROPLEFT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXDROPLEFT )
                 detach_character_from_mount( ChrList[cnt].holdingwhich[0], bfalse, btrue );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXDROPRIGHT )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXDROPRIGHT )
                 detach_character_from_mount( ChrList[cnt].holdingwhich[1], bfalse, btrue );
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
                 ChrList[cnt].ai.poof_time = frame_wld;
-            if ( MadFrameList[ChrList[cnt].frame].framefx&MADFXFOOTFALL )
+            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXFOOTFALL )
             {
                 int ifoot = CapList[ChrList[cnt].model].soundindex[SOUND_FOOTFALL];
                 if ( ifoot >= 0 && ifoot < MAXWAVE )
@@ -5186,7 +5200,7 @@ void move_characters( void )
         // Get running, walking, sneaking, or dancing, from speed
         if ( !( ChrList[cnt].keepaction || ChrList[cnt].loopaction ) )
         {
-            framelip = MadFrameList[ChrList[cnt].frame].framelip;  // 0 - 15...  Way through animation
+            framelip = Md2FrameList[ChrList[cnt].frame].framelip;  // 0 - 15...  Way through animation
             if ( ChrList[cnt].actionready && ChrList[cnt].lip == 0 && grounded && ChrList[cnt].flyheight == 0 && ( framelip&7 ) < 2 )
             {
                 // Do the motion stuff

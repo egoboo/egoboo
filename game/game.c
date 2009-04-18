@@ -50,12 +50,21 @@
 
 #include "egoboo_endian.h"
 #include "egoboo_setup.h"
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 
 #include <SDL_image.h>
 
 #include <time.h>
 #include <assert.h>
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+#define ATTACH_NONE                      0
+#define ATTACH_INVENTORY                 1
+#define ATTACH_LEFT                      2
+#define ATTACH_RIGHT                     3
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -119,7 +128,9 @@ static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
 static void setup_characters( const char *modname );
 
 // mesh initialization - not accessible by scripts
-static void make_twist();
+static void   make_twist();
+static bool_t mesh_allocate_memory( int meshvertices );
+static void   mesh_free_memory();
 
 // Model stuff
 static Uint16 test_frame_name( char letter );
@@ -488,7 +499,7 @@ void log_madused(  const char *savename )
     if ( hFileWrite )
     {
         fprintf( hFileWrite, "Slot usage for objects in last module loaded...\n" );
-        fprintf( hFileWrite, "%d of %d frames used...\n", madloadframe, MAXFRAME );
+        fprintf( hFileWrite, "%d of %d frames used...\n", md2_loadframe, MAXFRAME );
         cnt = 0;
 
         while ( cnt < MAXMODEL )
@@ -1679,7 +1690,7 @@ void mad_rip_actions( Uint16 object )
     // Clear 'em all to start
     for ( frame = 0; frame < MadList[object].frames; frame++ )
     {
-        MadFrameList[frame+MadList[object].framestart].framelip = 0;
+        Md2FrameList[frame+MadList[object].framestart].framelip = 0;
     }
 
     // Need to figure out how far into action each frame is
@@ -2002,7 +2013,7 @@ void mad_get_framefx( int frame )
     if ( test_frame_name( 'P' ) )
         fx = fx | MADFXPOOF;
 
-    MadFrameList[frame].framefx = fx;
+    Md2FrameList[frame].framefx = fx;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2017,8 +2028,8 @@ void mad_make_framelip( Uint16 object, int action )
 
         while ( frame < MadList[object].actionend[action] )
         {
-            MadFrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
-            MadFrameList[frame].framelip = ( MadFrameList[frame].framelip ) & 15;
+            Md2FrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
+            Md2FrameList[frame].framelip = ( Md2FrameList[frame].framelip ) & 15;
             frame++;
         }
     }
@@ -2039,7 +2050,7 @@ void mad_make_equally_lit( int model )
 
             while ( vert < MAXVERTICES )
             {
-                MadFrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
+                Md2FrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
                 vert++;
             }
 
@@ -3709,7 +3720,7 @@ void bump_characters( void )
                                                 }
 
                                                 // Do confuse effects
-                                                if ( 0 == ( MadFrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
+                                                if ( 0 == ( Md2FrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
                                                 {
                                                     if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
                                                     {
@@ -4619,7 +4630,7 @@ bool_t game_update_imports()
 
         if ( tnc == loadplayer_count )
         {
-            log_warning( "link_export_all() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, get_file_path(ChrList[character].name) ) ;
+            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, get_file_path(ChrList[character].name) ) ;
             continue;
         }
 
@@ -4777,3 +4788,103 @@ void let_all_characters_think()
         }
     }
 }
+//--------------------------------------------------------------------------------------------
+bool_t mesh_allocate_memory( int meshvertices )
+{
+    // ZZ> This function gets a load of memory for the terrain mesh
+
+    if ( meshvertices > maxtotalmeshvertices )
+    {
+        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", meshvertices, maxtotalmeshvertices );
+        return bfalse;
+    }
+
+    // free any memory already allocated
+    mesh_free_memory();
+
+    // allocate new memory
+    meshvrtx = ( float * ) malloc( meshvertices * sizeof(float) );
+    if ( meshvrtx == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+    }
+
+    meshvrty = ( float * ) malloc( meshvertices * sizeof(float) );
+    if ( meshvrty == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+    }
+
+    meshvrtz = ( float * ) malloc( meshvertices * sizeof(float) );
+    if ( meshvrtz == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+    }
+
+    meshvrta = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
+    if ( meshvrta == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+    }
+
+    meshvrtl = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
+    if ( meshvrtl == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+    }
+
+    meshvertcount = meshvertices;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void mesh_free_memory()
+{
+
+    // free the memory
+    if ( meshvrtx != NULL )
+    {
+        free( meshvrtx );
+        meshvrtx = NULL;
+    }
+
+    if ( meshvrty != NULL )
+    {
+        free( meshvrty );
+        meshvrty = NULL;
+    }
+
+    if ( meshvrtz != NULL )
+    {
+        free( meshvrtz );
+        meshvrtz = NULL;
+    }
+
+    if ( meshvrta != NULL )
+    {
+        free( meshvrta );
+        meshvrta = NULL;
+    }
+
+    if ( meshvrtl != NULL )
+    {
+        free( meshvrtl );
+        meshvrtl = NULL;
+    }
+
+    // reset some values to safe values
+    meshvertcount = 0;
+
+    meshblocksx = 0;
+    meshblocksy = 0;
+    meshblocks  = 0;
+
+    meshtilesx = 0;
+    meshtilesy = 0;
+    meshtiles  = 0;
+
+    meshedgex = 0;
+    meshedgey = 0;
+}
+

@@ -24,6 +24,54 @@
 #define MSGDISTANCE         2000                    // Range for SendMessageNear
 #define PITNOSOUND          -256                    // Stop sound at bottom of pits...
 
+// These are for FindPath function only
+#define   MOVE_MELEE  300
+#define   MOVE_RANGED  600
+#define   MOVE_DISTANCE 175
+#define   MOVE_RETREAT  900
+#define   MOVE_CHARGE  111
+#define   MOVE_FOLLOW  0
+
+//AI targeting
+#define NEARBY      3*TILESIZE    //3 tiles
+#define WIDE        6*TILESIZE    //8 tiles
+#define NEAREST     0           //unlimited range
+#define TILESIZE    128       //Size of one texture tile in egoboo
+
+// Character AI alerts
+#define ALERTIF_SPAWNED                      ( 1 <<  0 )
+#define ALERTIF_HITVULNERABLE                ( 1 <<  1 )
+#define ALERTIF_ATWAYPOINT                   ( 1 <<  2 )
+#define ALERTIF_ATLASTWAYPOINT               ( 1 <<  3 )
+#define ALERTIF_ATTACKED                     ( 1 <<  4 )
+#define ALERTIF_BUMPED                       ( 1 <<  5 )
+#define ALERTIF_ORDERED                      ( 1 <<  6 )
+#define ALERTIF_CALLEDFORHELP                ( 1 <<  7 )
+#define ALERTIF_KILLED                       ( 1 <<  8 )
+#define ALERTIF_TARGETKILLED                 ( 1 <<  9 )
+#define ALERTIF_DROPPED                      ( 1 << 10 )
+#define ALERTIF_GRABBED                      ( 1 << 11 )
+#define ALERTIF_REAFFIRMED                   ( 1 << 12 )
+#define ALERTIF_LEADERKILLED                 ( 1 << 13 )
+#define ALERTIF_USED                         ( 1 << 14 )
+#define ALERTIF_CLEANEDUP                    ( 1 << 15 )
+#define ALERTIF_SCOREDAHIT                   ( 1 << 16 )
+#define ALERTIF_HEALED                       ( 1 << 17 )
+#define ALERTIF_DISAFFIRMED                  ( 1 << 18 )
+#define ALERTIF_CHANGED                      ( 1 << 19 )
+#define ALERTIF_INWATER                      ( 1 << 20 )
+#define ALERTIF_BORED                        ( 1 << 21 )
+#define ALERTIF_TOOMUCHBAGGAGE               ( 1 << 22 )
+#define ALERTIF_GROGGED                      ( 1 << 23 )
+#define ALERTIF_DAZED                        ( 1 << 24 )
+#define ALERTIF_HITGROUND                    ( 1 << 25 )
+#define ALERTIF_NOTDROPPED                   ( 1 << 26 )
+#define ALERTIF_BLOCKED                      ( 1 << 27 )
+#define ALERTIF_THROWN                       ( 1 << 28 )
+#define ALERTIF_CRUSHED                      ( 1 << 29 )
+#define ALERTIF_NOTPUTAWAY                   ( 1 << 30 )
+#define ALERTIF_TAKENOUT                     ( 1 << 31 )
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // AI variables

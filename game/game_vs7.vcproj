@@ -35,7 +35,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL_d.lib SDLmain_d.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf_d.lib SDL_mixer_d.lib SDL_image_d.lib"
+				AdditionalDependencies="shlwapi.lib SHFolder.lib Shell32.lib SDL_d.lib SDLmain_d.lib opengl32.lib glu32.lib ws2_32.lib SDL_ttf_d.lib SDL_mixer_d.lib SDL_image_d.lib lua5.1_d.lib SDL_console_d.lib"
 				OutputFile="$(OutDir)/Egoboo2x.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -372,6 +372,9 @@
 				RelativePath=".\menu.h">
 			</File>
 			<File
+				RelativePath=".\module.h">
+			</File>
+			<File
 				RelativePath=".\network.h">
 			</File>
 			<File
@@ -523,6 +526,22 @@
 					<Tool
 						Name="VCCustomBuildTool"/>
 				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="lua_interface"
+			Filter="">
+			<File
+				RelativePath=".\ego.i">
+			</File>
+			<File
+				RelativePath=".\ego_wrap.c">
+			</File>
+			<File
+				RelativePath=".\lua_console.c">
+			</File>
+			<File
+				RelativePath=".\lua_console.h">
 			</File>
 		</Filter>
 	</Files>

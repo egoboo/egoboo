@@ -33,6 +33,9 @@ static void md2_get_transvertices( Uint16 modelindex );
 
 static int vertexconnected( Uint16 modelindex, int vertex );
 
+Uint16      md2_loadframe = 0;
+md2_frame_t Md2FrameList[MAXFRAME];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[][3] =
@@ -111,39 +114,39 @@ void md2_fix_normals( Uint16 modelindex )
 
         while ( tnc < MadList[modelindex].frames )
         {
-            indexofcurrent = MadFrameList[frame].vrta[cnt];
-            indexofnext = MadFrameList[frame+1].vrta[cnt];
-            indexofnextnext = MadFrameList[frame+2].vrta[cnt];
-            indexofnextnextnext = MadFrameList[frame+3].vrta[cnt];
-            indexofnextnextnextnext = MadFrameList[frame+4].vrta[cnt];
+            indexofcurrent = Md2FrameList[frame].vrta[cnt];
+            indexofnext = Md2FrameList[frame+1].vrta[cnt];
+            indexofnextnext = Md2FrameList[frame+2].vrta[cnt];
+            indexofnextnextnext = Md2FrameList[frame+3].vrta[cnt];
+            indexofnextnextnextnext = Md2FrameList[frame+4].vrta[cnt];
             if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
             {
-                MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
+                Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
             }
             if ( indexofcurrent == indexofnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
-                    MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
+                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnext != indexofcurrent )
                 {
-                    MadFrameList[frame+2].vrta[cnt] = indexofcurrent;
+                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
                 }
             }
             if ( indexofcurrent == indexofnextnextnextnext )
             {
                 if ( indexofnext != indexofcurrent )
                 {
-                    MadFrameList[frame+1].vrta[cnt] = indexofcurrent;
+                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnext != indexofcurrent )
                 {
-                    MadFrameList[frame+2].vrta[cnt] = indexofcurrent;
+                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
                 }
                 if ( indexofnextnextnext != indexofcurrent )
                 {
-                    MadFrameList[frame+3].vrta[cnt] = indexofcurrent;
+                    Md2FrameList[frame+3].vrta[cnt] = indexofcurrent;
                 }
             }
 
@@ -334,12 +337,12 @@ void md2_rip_frames( Uint16 modelindex )
     iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
 
     // Read in each frame
-    MadList[modelindex].framestart = madloadframe;
+    MadList[modelindex].framestart = md2_loadframe;
     MadList[modelindex].frames = iNumFrames;
     MadList[modelindex].vertices = iNumVertices;
     cnt = 0;
 
-    while ( cnt < iNumFrames && madloadframe < MAXFRAME )
+    while ( cnt < iNumFrames && md2_loadframe < MAXFRAME )
     {
         fScalex     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
         fScaley     = ENDIAN_FLOAT( fpFloatPointer[iFrameOffset] ); iFrameOffset++;
@@ -363,16 +366,16 @@ void md2_rip_frames( Uint16 modelindex )
             fRealy = ( cTmpy * fScaley ) + fTranslatey;
             fRealz = ( cTmpz * fScalez ) + fTranslatez;
 
-            MadFrameList[madloadframe].vrtx[tnc] = -fRealx * 3.5f;
-            MadFrameList[madloadframe].vrty[tnc] =  fRealy * 3.5f;
-            MadFrameList[madloadframe].vrtz[tnc] =  fRealz * 3.5f;
-            MadFrameList[madloadframe].vrta[tnc] =  cTmpa;
+            Md2FrameList[md2_loadframe].vrtx[tnc] = -fRealx * 3.5f;
+            Md2FrameList[md2_loadframe].vrty[tnc] =  fRealy * 3.5f;
+            Md2FrameList[md2_loadframe].vrtz[tnc] =  fRealz * 3.5f;
+            Md2FrameList[md2_loadframe].vrta[tnc] =  cTmpa;
 
             iFrameOffset++;
             tnc++;
         }
 
-        madloadframe++;
+        md2_loadframe++;
         cnt++;
     }
 }

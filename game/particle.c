@@ -31,12 +31,22 @@
 
 #include "egoboo.h"
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int              numfreeprt = 0;                            // For allocation
-static Uint16           freeprtlist[TOTALMAXPRT];                        //
+static int       numfreeprt = 0;                            // For allocation
+static Uint16    freeprtlist[TOTALMAXPRT];                        //
 
+int              numpip   = 0;
+pip_t            PipList[TOTALMAXPRTPIP];
+
+Uint16           particletexture = 0;                        // All in one bitmap
+float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
+float            particleimagev[MAXPARTICLEIMAGE][2];        //
+
+Uint16           maxparticles = 512;                            // max number of particles
+prt_t            PrtList[TOTALMAXPRT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -668,7 +678,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         vertices = MadList[model].vertices;
         direction = ( ATAN2( PrtList[particle].yvel, PrtList[particle].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
         direction = ChrList[character].turnleftright - direction + 32768;
-        if ( MadFrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
+        if ( Md2FrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
         {
             // I Frame
             if ( PipList[pip].damfx&DAMFXBLOC )
@@ -723,7 +733,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
                     while ( cnt < vertices )
                     {
-                        distance = ABS( x - MadFrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - MadFrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - MadFrameList[frame].vrtz[vertices-cnt-1] ) );
+                        distance = ABS( x - Md2FrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - Md2FrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - Md2FrameList[frame].vrtz[vertices-cnt-1] ) );
                         if ( distance < bestdistance )
                         {
                             bestdistance = distance;

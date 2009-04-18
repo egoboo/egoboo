@@ -21,9 +21,14 @@
  * Various functions related to how the game camera works.
  */
 
-#include "egoboo.h"
 #include "camera.h"
+
 #include "input.h"
+#include "char.h"
+#include "graphic.h"
+#include "network.h"
+
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -32,6 +32,9 @@
 static Uint16       numfreeenchant = 0;         // For allocating new ones
 static Uint16       freeenchant[MAXENCHANT];    //
 
+eve_t EveList[MAXEVE];
+enc_t EncList[MAXENCHANT];
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t remove_enchant( Uint16 enchantindex )

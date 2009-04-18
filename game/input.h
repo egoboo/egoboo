@@ -27,6 +27,18 @@
 
 #include <SDL.h>
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// old user interface variables
+
+extern int              cursorx;              // Cursor position
+extern int              cursory;
+extern bool_t           pressed;
+extern bool_t           clicked;
+extern bool_t           pending_click;
+extern bool_t           mouse_wheel_event;
+
 //--------------------------------------------------------------------------------------------
 // Key/Control input defenitions
 #define MAXTAG              128                     // Number of tags in scancode.txt

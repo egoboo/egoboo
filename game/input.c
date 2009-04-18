@@ -25,9 +25,12 @@
 
 #include "ui.h"
 #include "log.h"
+#include "network.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
+
+#include <SDL_console.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -41,6 +44,13 @@ keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
 
 device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
+
+int              cursorx = 0;
+int              cursory = 0;
+bool_t           pressed = bfalse;
+bool_t           clicked = bfalse;
+bool_t           pending_click = bfalse;
+bool_t           mouse_wheel_event = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -224,6 +234,8 @@ void input_read()
     // it for the Gui code
     while ( SDL_PollEvent( &evt ) )
     {
+        if ( NULL == CON_Events(&evt) ) continue;
+
         ui_handleSDLEvent( &evt );
 
         switch ( evt.type )

@@ -326,12 +326,20 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="configfile.h" />
+		<Unit filename="ego.i" />
+		<Unit filename="ego_wrap.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="egoboo.h" />
 		<Unit filename="egoboo_config.h" />
 		<Unit filename="egoboo_endian.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="egoboo_endian.h" />
+		<Unit filename="egoboo_fileutil.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_fileutil.h" />
 		<Unit filename="egoboo_math.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -352,10 +360,15 @@
 		<Unit filename="file_common.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="file_common.h" />
 		<Unit filename="file_linux.c">
 			<Option compilerVar="CC" />
 			<Option target="Debug Blah-nix" />
 			<Option target="Release Blah-nix" />
+		</Unit>
+		<Unit filename="file_mac.m">
+			<Option target="Debug OsX" />
+			<Option target="Release OsX" />
 		</Unit>
 		<Unit filename="file_win.c">
 			<Option compilerVar="CC" />
@@ -406,6 +419,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="log.h" />
+		<Unit filename="lua_console.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lua_console.h" />
 		<Unit filename="menu.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -413,9 +430,11 @@
 		<Unit filename="module.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="module.h" />
 		<Unit filename="network.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="network.h" />
 		<Unit filename="particle.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -429,6 +448,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="script.h" />
+		<Unit filename="script_compile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="script_compile.h" />
 		<Unit filename="server.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -23,8 +23,14 @@
  *
  */
 
-/* Typedefs for various platforms */
 #include "egoboo_typedef.h"
+#include "egoboo.h"
+
+#define MAXVERTICES                     2048        // Max number of points in a model
+#define MAXFRAME                        (128*32)    // Max number of frames in all models
+
+// TEMPORARY: Needs to be moved out of egoboo.h eventually
+extern struct Md2Model *md2_models[MAXMODEL];                 // Md2 models
 
 typedef struct Md2Vertex
 {
@@ -68,6 +74,22 @@ typedef struct Md2Model
     Md2Triangle *triangles;
     Md2Frame    *frames;
 } Md2Model;
+
+struct s_md2_frame
+{
+    Uint8   framelip;                      // 0-15, How far into action is each frame
+    Uint16  framefx;                       // Invincibility, Spawning
+
+    float   vrtx[MAXVERTICES];             // Vertex position
+    float   vrty[MAXVERTICES];             //
+    float   vrtz[MAXVERTICES];             //
+    Uint8   vrta[MAXVERTICES];             // Light index of vertex
+};
+typedef struct s_md2_frame md2_frame_t;
+
+extern md2_frame_t Md2FrameList[MAXFRAME];
+
+extern Uint16 md2_loadframe;                               // Where to load next
 
 //Function prototypes
 int  md2_rip_frame_name( int frame );

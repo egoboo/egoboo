@@ -96,6 +96,9 @@ void chr_set_frame( Uint16 character, int frame, Uint16 lip );
 
 // Mesh
 float get_level( float x, float y, bool_t waterwalk );
+Uint32 mesh_get_block( float pos_x, float pos_y );
+Uint32 mesh_get_tile ( float pos_x, float pos_y );
+
 
 // Player
 void set_one_player_latch( Uint16 player );

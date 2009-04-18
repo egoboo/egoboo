@@ -20,9 +20,26 @@
 //********************************************************************************************
 
 #include "egoboo.h"
+#include "gltexture.h"
+#include "module.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+#define MAPSIZE 96
+
+#define TABX                            32//16      // Size of little name tag on the bar
+#define BARX                            112//216         // Size of bar
+#define BARY                            16//8           //
+#define NUMTICK                         10//50          // Number of ticks per row
+#define TICKX                           8//4           // X size of each tick
+#define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
+
+#define NUMFONTX                        16          // Number of fonts in the bitmap
+#define NUMFONTY                        6           //
+#define NUMFONT                         (NUMFONTX*NUMFONTY)
+#define FONTADD                         4           // Gap between letters
+#define NUMBAR                          6           // Number of status bars
+
 
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
@@ -51,12 +68,53 @@ typedef enum e_tx_type
 extern Uint16           dolist[MAXCHR];             // List of which characters to draw
 extern Uint16           numdolist;                  // How many in the list
 
+extern glMatrix mWorld;                       // World Matrix
+extern glMatrix mView;                        // View Matrix
+extern glMatrix mViewSave;                    // View Matrix initial state
+extern glMatrix mProjection;                  // Projection Matrix
+
+/*OpenGL Textures*/
+extern  STRING          TxFormatSupported[50]; // OpenGL icon surfaces
+extern  Uint8           maxformattypes;
+
+extern  GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+extern  GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+extern  GLTexture       TxFont;                     // OpenGL font surface
+extern  GLTexture       TxBars;                     // OpenGL status bar surface
+extern  GLTexture       TxBlip;                     // OpenGL you are here surface
+extern  GLTexture       TxMap;                      // OpenGL map surface
+extern  GLTexture       txTexture[MAXTEXTURE];      // All textures
+
+// Minimap stuff
+#define MAXBLIP 128
+#define NUMBLIP 6             //Blip textures
+EXTERN Uint16                  numblip  EQ( 0 );
+EXTERN Uint16                  blipx[MAXBLIP];
+EXTERN Uint16                  blipy[MAXBLIP];
+EXTERN Uint8                   blipc[MAXBLIP];
+EXTERN Uint8                   mapon  EQ( bfalse );
+EXTERN Uint8                   mapvalid  EQ( bfalse );
+EXTERN Uint8                   youarehereon  EQ( bfalse );
+
 // JF - Added so that the video mode might be determined outside of the graphics code
 extern SDL_Surface    *displaySurface;
 
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//OPENGL VERTEX
+typedef struct
+{
+    GLfloat x, y, z, w;
+    GLfloat r, g, b, a;
+    Uint32   color; // should replace r,g,b,a and be called by glColor4ubv
+    GLfloat s, t; // u and v in D3D I guess
+} GLVERTEX;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_renderlist
 {
     int     all_count;                               // Number to render, total
@@ -163,7 +221,6 @@ void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 
 void render_water();
-void draw_scene_sadreflection();
 void draw_scene_zreflection();
 void animate_tiles();
 void move_water();
@@ -202,7 +259,6 @@ void do_cursor();
 void sdlinit( int argc, char **argv );
 int glinit( int argc, char **argv );
 
-void   check_screenshot();
 bool_t dump_screenshot();
 
 void make_enviro();

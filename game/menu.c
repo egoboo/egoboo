@@ -31,6 +31,7 @@
 #include "input.h"
 #include "char.h"
 #include "file_common.h"
+#include "particle.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
@@ -153,6 +154,8 @@ static bool_t startNewPlayer = bfalse;
 
 /* The font used for drawing text.  It's smaller than the button font */
 Font *menuFont = NULL;
+
+static int selectedPlayer = 0;           // Which player is currently selected to play
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

@@ -33,8 +33,12 @@
 #include "char.h"
 #include "particle.h"
 #include "file_common.h"
+#include "network.h"
+#include "passage.h"
+#include "lua_console.h"
 
 #include "egoboo.h"
+#include "egoboo_strutil.h"
 #include "egoboo_fileutil.h"
 
 #include <SDL_image.h>
@@ -43,11 +47,24 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void font_init();
-static void font_release();
+
+#define SPARKLESIZE 28
+#define SPARKLEADD 2
+#define BLIPSIZE 6
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+Uint8           maxformattypes = 0;
+STRING          TxFormatSupported[50]; // OpenGL icon surfaces
+
+GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+GLTexture       TxFont;                     // OpenGL font surface
+GLTexture       TxBars;                     // OpenGL status bar surface
+GLTexture       TxBlip;                     // OpenGL you are here surface
+GLTexture       TxMap;                      // OpenGL map surface
+GLTexture       txTexture[MAXTEXTURE];      // All textures
 
 SDL_Surface *    displaySurface = NULL;
 
@@ -82,14 +99,35 @@ int rotmeshbottomside;
 int rotmeshup;
 int rotmeshdown;
 
+glMatrix mWorld;                       // World Matrix
+glMatrix mView;                        // View Matrix
+glMatrix mViewSave;                    // View Matrix initial state
+glMatrix mProjection;                  // Projection Matrix
 
 int         dyna_distancetobeat;           // The number to beat
 int         dyna_list_max   = 8;           // Max number of lights to draw
 int         dyna_list_count = 0;           // Number of dynamic lights
 dynalight_t dyna_list[TOTALMAXDYNA];
 
+// Interface stuff
+static rect_t             iconrect;                   // The 32x32 icon rectangle
+
+static int                fontoffset;                 // Line up fonts from top of screen
+
+static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
+static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
+static Uint8              fontyspacing;               //
+static rect_t             tabrect[NUMBAR];            // The tab rectangles
+static rect_t             barrect[NUMBAR];            // The bar rectangles
+static rect_t             bliprect[NUMBAR];           // The blip rectangles
+static rect_t             maprect;                    // The map rectangle
+
+static lua_console_t * our_lua_console = NULL;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void font_init();
+static void font_release();
 
 static void project_view(camera_t * pcam);
 static void make_prtlist( void );
@@ -825,7 +863,7 @@ void init_all_models()
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
-    madloadframe = 0;
+    md2_loadframe = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -911,7 +949,7 @@ void release_all_models()
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
-    madloadframe = 0;
+    md2_loadframe = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1169,18 +1207,6 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
     }
 
     endtext[endtextwrite] = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void make_textureoffset()
-{
-    // ZZ> This function sets up for moving textures
-    int cnt;
-
-    for ( cnt = 0; cnt < 256; cnt++ )
-    {
-        textureoffset[cnt] = cnt / 256.0f;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2954,106 +2980,6 @@ void draw_scene_zreflection()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t mesh_allocate_memory( int meshvertices )
-{
-    // ZZ> This function gets a load of memory for the terrain mesh
-
-    if ( meshvertices > maxtotalmeshvertices )
-    {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", meshvertices, maxtotalmeshvertices );
-        return bfalse;
-    }
-
-    // free any memory already allocated
-    mesh_free_memory();
-
-    // allocate new memory
-    meshvrtx = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrtx == NULL )
-    {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
-    }
-
-    meshvrty = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrty == NULL )
-    {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
-    }
-
-    meshvrtz = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrtz == NULL )
-    {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
-    }
-
-    meshvrta = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
-    if ( meshvrta == NULL )
-    {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
-    }
-
-    meshvrtl = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
-    if ( meshvrtl == NULL )
-    {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
-    }
-
-    meshvertcount = meshvertices;
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-void mesh_free_memory()
-{
-
-    // free the memory
-    if ( meshvrtx != NULL )
-    {
-        free( meshvrtx );
-        meshvrtx = NULL;
-    }
-
-    if ( meshvrty != NULL )
-    {
-        free( meshvrty );
-        meshvrty = NULL;
-    }
-
-    if ( meshvrtz != NULL )
-    {
-        free( meshvrtz );
-        meshvrtz = NULL;
-    }
-
-    if ( meshvrta != NULL )
-    {
-        free( meshvrta );
-        meshvrta = NULL;
-    }
-
-    if ( meshvrtl != NULL )
-    {
-        free( meshvrtl );
-        meshvrtl = NULL;
-    }
-
-    // reset some values to safe values
-    meshvertcount = 0;
-
-    meshblocksx = 0;
-    meshblocksy = 0;
-    meshblocks  = 0;
-
-    meshtilesx = 0;
-    meshtilesy = 0;
-    meshtiles  = 0;
-
-    meshedgex = 0;
-    meshedgey = 0;
-}
-
-//--------------------------------------------------------------------------------------------
 Uint32 mesh_get_block( float pos_x, float pos_y )
 {
     Uint32 block = INVALID_BLOCK;
@@ -4014,6 +3940,10 @@ void draw_text()
 //--------------------------------------------------------------------------------------------
 void flip_pages()
 {
+    glFlush();
+
+    lua_console_draw( our_lua_console );
+
     SDL_GL_SwapBuffers();
 }
 
@@ -4198,6 +4128,7 @@ int glinit( int argc, char **argv )
 
 void sdlinit( int argc, char **argv )
 {
+    Uint32  vflags = 0;
     int     colordepth;
 
     log_info ( "Initializing SDL version %d.%d.%d... ", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_PATCHLEVEL );
@@ -4292,7 +4223,12 @@ void sdlinit( int argc, char **argv )
     }
 
     log_info("Opening SDL Video Mode... ");
-    displaySurface = SDL_SetVideoMode( scrx, scry, scrd, SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL | ( fullscreen ? SDL_FULLSCREEN : 0 ) );
+
+    vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags
+    vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
+    vflags |= ( fullscreen ? SDL_FULLSCREEN : 0 );
+
+    displaySurface = SDL_SetVideoMode( scrx, scry, scrd, vflags );
     if ( displaySurface == NULL )
     {
         log_message( "Failure!\n" );
@@ -4335,6 +4271,11 @@ void sdlinit( int argc, char **argv )
     }
 
     input_init();
+
+    {
+        SDL_Rect blah = {0, 0, scrx, scry / 4};
+        our_lua_console = lua_console_new(NULL, blah);
+    };
 }
 
 /*struct s_packing_test

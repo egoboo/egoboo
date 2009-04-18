@@ -25,6 +25,7 @@
  */
 
 #include "egoboo.h"
+#include "network.h"
 
 //Input player control
 #define MAXLOADPLAYER     100

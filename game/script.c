@@ -34,6 +34,7 @@
 #include "input.h"
 #include "char.h"
 #include "particle.h"
+#include "network.h"
 
 #include "egoboo.h"
 

@@ -23,11 +23,32 @@
 
 #include "passage.h"
 
+#include "char.h"
 #include "script.h"
 #include "sound.h"
 
 #include "egoboo_fileutil.h"
+#include "egoboo_strutil.h"
+
 #include "egoboo.h"
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+// Passages
+int   numpassage = 0;              // Number of passages in the module
+int   passtlx[MAXPASS];          // Passage positions
+int   passtly[MAXPASS];
+int   passbrx[MAXPASS];
+int   passbry[MAXPASS];
+int   passagemusic[MAXPASS];        // Music track appointed to the specific passage
+Uint8 passmask[MAXPASS];
+Uint8 passopen[MAXPASS];      // Is the passage open?
+
+// For shops
+int     numshoppassage = 0;
+Uint16  shoppassage[MAXPASS];  // The passage number
+Uint16  shopowner[MAXPASS];    // Who gets the gold?
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
