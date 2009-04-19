@@ -603,50 +603,107 @@ EXTERN Uint16          glouseangle;                                        //
 EXTERN int             globestdistance;
 
 
-//Mesh
+// Bump List
+struct s_bumplist
+{
+    Uint16  chr;                     // For character collisions
+    Uint16  chrnum;                  // Number on the block
+    Uint16  prt;                     // For particle collisions
+    Uint16  prtnum;                  // Number on the block
+};
+typedef struct s_bumplist bumplist_t;
 
+EXTERN bumplist_t bumplist[MAXMESHFAN/16];
+
+//Mesh
 EXTERN Uint32 maplrtwist[256];            // For surface normal of mesh
 EXTERN Uint32 mapudtwist[256];            //
 EXTERN float  vellrtwist[256];            // For sliding down steep hills
 EXTERN float  veludtwist[256];            //
 EXTERN Uint8  flattwist[256];             //
 
-EXTERN Uint16          meshbumplistchr[MAXMESHFAN/16];                     // For character collisions
-EXTERN Uint16          meshbumplistchrnum[MAXMESHFAN/16];                  // Number on the block
-EXTERN Uint16          meshbumplistprt[MAXMESHFAN/16];                     // For particle collisions
-EXTERN Uint16          meshbumplistprtnum[MAXMESHFAN/16];                  // Number on the block
-EXTERN Uint8           meshexploremode  EQ( bfalse );                      // Explore mode?
-EXTERN int             maxtotalmeshvertices  EQ( 256*256*6 );              // of vertices
-EXTERN int             meshtilesx  EQ(0);                                  // Size in tiles
-EXTERN int             meshtilesy  EQ(0);                                  //
-EXTERN Uint32          meshtiles   EQ(0);                                  // Number of tiles
-EXTERN int             meshblocksx EQ(0);                                  // Size in blocks
-EXTERN int             meshblocksy EQ(0);                                  //
-EXTERN Uint32          meshblocks  EQ(0);                                  // Number of blocks (collision areas)
-EXTERN float           meshedgex;                                          // Limits
-EXTERN float           meshedgey;                                          //
-EXTERN Uint8           meshtype[MAXMESHFAN];                               // Command type
-EXTERN Uint8           meshfx[MAXMESHFAN];                                 // Special effects flags
-EXTERN Uint8           meshtwist[MAXMESHFAN];                              //
-EXTERN bool_t          meshinrenderlist[MAXMESHFAN];                       //
-EXTERN Uint16          meshtile[MAXMESHFAN];                               // Get texture from this
-EXTERN Uint32          meshvrtstart[MAXMESHFAN];                           // Which vertex to start at
-EXTERN Uint32          meshblockstart[MAXMESHBLOCKY];
-EXTERN Uint32          meshfanstart[MAXMESHTILEY];                         // Which fan to start a row with
-EXTERN size_t          meshvertcount EQ(0);                                                 // For malloc
-EXTERN float*          meshvrtx EQ(NULL);                                           // Vertex position
-EXTERN float*          meshvrty EQ(NULL);                                           //
-EXTERN float*          meshvrtz EQ(NULL);                                           // Vertex elevation
-EXTERN Uint8*          meshvrta EQ(NULL);                                           // Vertex base light
-EXTERN Uint8*          meshvrtl EQ(NULL);                                           // Vertex light
-EXTERN Uint8           meshcommands[MAXMESHTYPE];                          // Number of commands
-EXTERN Uint8           meshcommandsize[MAXMESHTYPE][MAXMESHCOMMAND];       // Entries in each command
-EXTERN Uint16          meshcommandvrt[MAXMESHTYPE][MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
-EXTERN Uint8           meshcommandnumvertices[MAXMESHTYPE];                // Number of vertices
-EXTERN float           meshcommandu[MAXMESHTYPE][MAXMESHVERTICES];         // Vertex texture posi
-EXTERN float           meshcommandv[MAXMESHTYPE][MAXMESHVERTICES];         //
-EXTERN float           meshtileoffu[MAXTILETYPE];                          // Tile texture offset
-EXTERN float           meshtileoffv[MAXTILETYPE];                          //
+EXTERN int mesh_maxtotalvertices EQ(256*256*6);                 // of vertices
+
+struct s_mesh_info
+{
+    Uint8           exploremode;                      // Explore mode?
+
+    size_t          vertcount;                         // For malloc
+
+    int             tiles_x;                          // Size in tiles
+    int             tiles_y;                          //
+    Uint32          tiles_count;                      // Number of tiles
+
+    int             blocks_x;                         // Size in blocks
+    int             blocks_y;                         //
+    Uint32          blocks_count;                     // Number of blocks (collision areas)
+
+    float           edge_x;                           // Limits
+    float           edge_y;                           //
+};
+typedef struct s_mesh_info mesh_info_t;
+
+struct s_tile_info
+{
+    Uint8   type;                              // Tile type
+    Uint16  img;                               // Get texture from this
+    Uint8   fx;                                 // Special effects flags
+    Uint8   twist;                              //
+    Uint32  vrtstart;                           // Which vertex to start at
+
+    bool_t  inrenderlist;
+};
+typedef struct s_tile_info tile_info_t;
+
+struct s_mesh_mem
+{
+    size_t          vertcount;                                      // For malloc
+
+    tile_info_t *   tile_list;                               // Command type
+
+    Uint32*         blockstart;
+    Uint32*         tilestart;                         // Which fan to start a row with
+
+    float*          vrt_x;                                 // Vertex position
+    float*          vrt_y;                                 //
+    float*          vrt_z;                                 // Vertex elevation
+    Uint8*          vrt_a;                                 // Vertex base light
+    Uint8*          vrt_l;                                 // Vertex light
+};
+
+typedef struct s_mesh_mem mesh_mem_t;
+
+struct s_mesh
+{
+    mesh_info_t info;
+    mesh_mem_t  mem;
+
+    float       tileoff_u[MAXTILETYPE];                          // Tile texture offset
+    float       tileoff_v[MAXTILETYPE];                          //
+};
+typedef struct s_mesh mesh_t;
+
+EXTERN mesh_t mesh;
+
+mesh_t * mesh_new( mesh_t * pmesh );
+mesh_t * mesh_renew( mesh_t * pmesh );
+mesh_t * mesh_delete( mesh_t * pmesh );
+mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y );
+
+struct s_tile_definition
+{
+    Uint8           numvertices;                // Number of vertices
+    float           u[MAXMESHVERTICES];         // Vertex texture posi
+    float           v[MAXMESHVERTICES];         //
+
+    Uint8           command_count;                        // Number of commands
+    Uint8           command_entries[MAXMESHCOMMAND];      // Entries in each command
+    Uint16          command_verts[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
+};
+
+typedef struct s_tile_definition tile_definition_t;
+
+tile_definition_t tile_dict[MAXMESHTYPE];
 
 
 #define INVALID_BLOCK ((Uint32)(~0))
@@ -774,9 +831,9 @@ enum e_order
 #define QUEST_NONE             -2
 
 #if defined(USE_LUA_CONSOLE)
-    // The Lua Console
+// The Lua Console
 #   include "lua_console.h"
-    EXTERN lua_console_t * our_lua_console EQ(NULL);
+EXTERN lua_console_t * our_lua_console EQ(NULL);
 #endif
 
 #define  _EGOBOO_H_

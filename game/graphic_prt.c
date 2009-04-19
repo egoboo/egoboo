@@ -479,7 +479,7 @@ void render_refprt()
     {
         if ( PrtList[cnt].inview && 0 != PrtList[cnt].size && INVALID_TILE != PrtList[cnt].onwhichfan )
         {
-            if ( meshfx[PrtList[cnt].onwhichfan] & MESHFX_DRAWREF )
+            if ( mesh.mem.tile_list[PrtList[cnt].onwhichfan].fx & MESHFX_DRAWREF )
             {
                 level = PrtList[cnt].level;
                 v[numparticle].x = ( float ) PrtList[cnt].xpos;

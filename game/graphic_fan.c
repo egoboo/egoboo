@@ -39,16 +39,24 @@ void render_fan( Uint32 fan )
     float  offu, offv;
     Uint16 tile;
     Uint8  fx;
-    Uint16 type;
+    Uint8 type;
+
+    mesh_mem_t  * pmem;
+    tile_info_t * ptile;
+
+    pmem  = &(mesh.mem);
+
+    if( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
+    ptile = pmem->tile_list + fan;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
     // badvertex is a value that references the actual vertex number
 
-    tile = meshtile[fan];               // Tile
-    fx   = meshfx[fan];                   // Fx bits
-    type = meshtype[fan];               // Command type ( index to points in fan )
-    if ( 0 != ( 0xFF00 & tile ) )
-        return;
+    tile = ptile->img;               // Tile
+    fx   = ptile->fx;                 // Fx bits
+    type = ptile->type;               // Command type ( index to points in fan )
+    if ( FANOFF == tile ) return;
+    type &= 0x3F;
 
     // Animate the tiles
     if ( fx & MESHFX_ANIM )
@@ -69,15 +77,15 @@ void render_fan( Uint32 fan )
         }
     }
 
-    offu = meshtileoffu[tile];          // Texture offsets
-    offv = meshtileoffv[tile];          //
+    offu = mesh.tileoff_u[tile & 0xFF];          // Texture offsets
+    offv = mesh.tileoff_v[tile & 0xFF];          //
 
-    texture = ( tile >> 6 ) + TX_TILE_0;    // 64 tiles in each 256x256 texture
-    vertices = meshcommandnumvertices[type];// Number of vertices
-    commands = meshcommands[type];          // Number of commands
+    texture = ( tile >> 6 ) + TX_TILE_0;       // 64 tiles in each 256x256 texture
+    vertices = tile_dict[type].numvertices;    // Number of vertices
+    commands = tile_dict[type].command_count;  // Number of commands
 
     // Original points
-    badvertex = meshvrtstart[fan];          // Get big reference value
+    badvertex = ptile->vrtstart;          // Get big reference value
 
     //[claforte] Put this in an initialization function.
     glEnableClientState( GL_VERTEX_ARRAY );
@@ -88,16 +96,16 @@ void render_fan( Uint32 fan )
     {
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
-            v[cnt].x = meshvrtx[badvertex];
-            v[cnt].y = meshvrty[badvertex];
-            v[cnt].z = meshvrtz[badvertex];
+            v[cnt].x = pmem->vrt_x[badvertex];
+            v[cnt].y = pmem->vrt_y[badvertex];
+            v[cnt].z = pmem->vrt_z[badvertex];
 
             v[cnt].r =
                 v[cnt].g =
-                    v[cnt].b = FP8_TO_FLOAT(meshvrtl[badvertex]);
+                    v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
 
-            v[cnt].s = meshcommandu[type][badvertex] + offu;
-            v[cnt].t = meshcommandv[type][badvertex] + offv;
+            v[cnt].s = tile_dict[type].u[badvertex] + offu;
+            v[cnt].t = tile_dict[type].v[badvertex] + offv;
             badvertex++;
         }
     }
@@ -128,11 +136,11 @@ void render_fan( Uint32 fan )
     {
         glBegin ( GL_TRIANGLE_FAN );
         {
-            for ( tnc = 0; tnc < meshcommandsize[type][cnt]; tnc++ )
+            for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++ )
             {
-                vertex = meshcommandvrt[type][entry];
+                vertex = tile_dict[type].command_verts[entry];
                 glColor3fv( &v[vertex].r );
-                glTexCoord2f ( meshcommandu[type][vertex] + offu, meshcommandv[type][vertex] + offv );
+                glTexCoord2f ( tile_dict[type].u[vertex] + offu, tile_dict[type].v[vertex] + offv );
                 glVertex3fv ( &v[vertex].x );
                 entry++;
             }
@@ -160,13 +168,13 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     int ix, iy, ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
     float x1, y1, fx_off[4], fy_off[4];
 
-    if ( INVALID_TILE == fan ) return;
+    if ( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
 
     // BB > the water info is for TILES, not fot vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
 
-    ix = fan % meshtilesx;
-    iy = fan / meshtilesx;
+    ix = fan % mesh.info.tiles_x;
+    iy = fan / mesh.info.tiles_x;
 
     // just do the mode this way instead of requiring all meshes to be multiples of 4
     mode = (iy & 1) | ((ix & 1) << 1);
@@ -178,8 +186,8 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     frame = waterlayerframe[layer];     // Frame
 
     texture = layer + TX_WATER_TOP;         // Water starts at texture 5
-    vertices = meshcommandnumvertices[type];// Number of vertices
-    commands = meshcommands[type];          // Number of commands
+    vertices = tile_dict[type].numvertices;// Number of vertices
+    commands = tile_dict[type].command_count;          // Number of commands
 
     x1 = ( float ) GLTexture_GetTextureWidth( txTexture + texture ) / ( float ) GLTexture_GetImageWidth( txTexture + texture );
     y1 = ( float ) GLTexture_GetTextureHeight( txTexture + texture ) / ( float ) GLTexture_GetImageHeight( txTexture + texture );
@@ -197,7 +205,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     fy_off[3] = 0;
 
     // Original points
-    badvertex = meshvrtstart[fan];          // Get big reference value
+    badvertex = mesh.mem.tile_list[fan].vrtstart;          // Get big reference value
     {
         for ( cnt = 0; cnt < 4; cnt++ )
         {
@@ -207,7 +215,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
             v[cnt].t = fy_off[cnt] + offv;
             v[cnt].z = waterlayerzadd[layer][frame][mode][cnt] + waterlayerz[layer];
 
-            ambi = ( Uint32 ) meshvrtl[badvertex] >> 1;
+            ambi = ( Uint32 ) mesh.mem.vrt_l[badvertex] >> 1;
             ambi += waterlayercolor[layer][frame][mode][cnt];
             v[cnt].r = FP8_TO_FLOAT( ambi );
             v[cnt].g = FP8_TO_FLOAT( ambi );

@@ -12,9 +12,6 @@
 #include "egoboo_math.h"
 #include "link.h"
 
-#include "font.h"
-#include "ui.h"
-
 #include "char.h"
 
 #include "particle.h"
@@ -31,8 +28,19 @@
 
 #include "graphic.h"
 #include "gltexture.h"
+
+#include "camera.h"
 %}
 
+// A stupid hack because SDL can't deal with including 
+// the SDL_stdinc.h to get the system dependent types!
+#define Uint8  unsigned char
+#define Uint16 unsigned short
+#define Uint32 unsigned int
+
+#define Sint8  signed char
+#define Sint16 signed short
+#define Sint32 signed int
 
 %include "egoboo_typedef.h"
 %include "egoboo.h"
@@ -40,9 +48,6 @@
 %include "script.h"
 %include "proto.h"
 %include "link.h"
-
-%include "font.h"
-%include "ui.h"
 
 %include "char.h"
 
@@ -58,3 +63,5 @@
 
 %include "graphic.h"
 %include "gltexture.h"
+
+%include "camera.h"

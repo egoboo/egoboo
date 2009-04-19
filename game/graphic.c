@@ -123,7 +123,6 @@ static rect_t             maprect;                    // The map rectangle
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void font_init();
 static void font_release();
 
 static void project_view(camera_t * pcam);
@@ -168,7 +167,7 @@ void move_water( void )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_mesh_fans()
+void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 {
     // ZZ> This function loads fan types for the terrain
     int cnt, entry;
@@ -177,189 +176,100 @@ void load_mesh_fans()
     int itmp;
     float ftmp;
     FILE* fileread;
-    float offx, offy;
+
+    if ( NULL == dict || dict_size < 2 ) return;
 
     // Initialize all mesh types to 0
-    entry = 0;
-
-    while ( entry < MAXMESHTYPE )
+    for ( entry = 0; entry < dict_size; entry++ )
     {
-        meshcommandnumvertices[entry] = 0;
-        meshcommands[entry] = 0;
-        entry++;
+        dict[entry].numvertices = 0;
+        dict[entry].command_count = 0;
     }
 
     // Open the file and go to it
     fileread = fopen( "basicdat" SLASH_STR "fans.txt", "r" );
-    if ( fileread )
+    if ( NULL == fileread )
     {
-        goto_colon( fileread );
-        fscanf( fileread, "%d", &numfantype );
-        fantype = 0;
-        bigfantype = MAXMESHTYPE / 2; // Duplicate for 64x64 tiles
+        log_error( "Cannot load the tile definitions \"basicdat" SLASH_STR "fans.txt\" \n" );
+        return;
+    }
 
-        while ( fantype < numfantype )
+    goto_colon( fileread );
+    fscanf( fileread, "%d", &numfantype );
+
+    for ( fantype = 0; fantype < numfantype; fantype++ )
+    {
+        bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
+
+        goto_colon( fileread );
+        fscanf( fileread, "%d", &vertices );
+        dict[fantype].numvertices = vertices;
+        dict[bigfantype].numvertices = vertices;  // Dupe
+
+
+        for ( cnt = 0; cnt < vertices; cnt++ )
         {
             goto_colon( fileread );
-            fscanf( fileread, "%d", &vertices );
-            meshcommandnumvertices[fantype] = vertices;
-            meshcommandnumvertices[bigfantype] = vertices;  // Dupe
-            cnt = 0;
+            fscanf( fileread, "%d", &itmp );
 
-            while ( cnt < vertices )
+            goto_colon( fileread );
+            fscanf( fileread, "%f", &ftmp );
+            dict[fantype].u[cnt] = ftmp;
+            dict[bigfantype].u[cnt] = ftmp;  // Dupe
+
+            goto_colon( fileread );
+            fscanf( fileread, "%f", &ftmp );
+            dict[fantype].v[cnt] = ftmp;
+            dict[bigfantype].v[cnt] = ftmp;  // Dupe
+        }
+
+        goto_colon( fileread );
+        fscanf( fileread, "%d", &numcommand );
+        dict[fantype].command_count = numcommand;
+        dict[bigfantype].command_count = numcommand;  // Dupe
+
+        for ( entry = 0, command = 0; command < numcommand; command++ )
+        {
+            goto_colon( fileread );
+            fscanf( fileread, "%d", &commandsize );
+            dict[fantype].command_entries[command] = commandsize;
+            dict[bigfantype].command_entries[command] = commandsize;  // Dupe
+
+            for ( cnt = 0; cnt < commandsize; cnt++ )
             {
                 goto_colon( fileread );
                 fscanf( fileread, "%d", &itmp );
-                goto_colon( fileread );
-                fscanf( fileread, "%f", &ftmp );
-                meshcommandu[fantype][cnt] = ftmp;
-                meshcommandu[bigfantype][cnt] = ftmp;  // Dupe
-                goto_colon( fileread );
-                fscanf( fileread, "%f", &ftmp );
-                meshcommandv[fantype][cnt] = ftmp;
-                meshcommandv[bigfantype][cnt] = ftmp;  // Dupe
-                cnt++;
+                dict[fantype].command_verts[entry] = itmp;
+                dict[bigfantype].command_verts[entry] = itmp;  // Dupe
+
+                entry++;
             }
-
-            goto_colon( fileread );
-            fscanf( fileread, "%d", &numcommand );
-            meshcommands[fantype] = numcommand;
-            meshcommands[bigfantype] = numcommand;  // Dupe
-            entry = 0;
-            command = 0;
-
-            while ( command < numcommand )
-            {
-                goto_colon( fileread );
-                fscanf( fileread, "%d", &commandsize );
-                meshcommandsize[fantype][command] = commandsize;
-                meshcommandsize[bigfantype][command] = commandsize;  // Dupe
-                cnt = 0;
-
-                while ( cnt < commandsize )
-                {
-                    goto_colon( fileread );
-                    fscanf( fileread, "%d", &itmp );
-                    meshcommandvrt[fantype][entry] = itmp;
-                    meshcommandvrt[bigfantype][entry] = itmp;  // Dupe
-                    entry++;
-                    cnt++;
-                }
-
-                command++;
-            }
-
-            fantype++;
-            bigfantype++;  // Dupe
         }
-
-        fclose( fileread );
     }
 
+    fclose( fileread );
+
+
     // Correct all of them silly texture positions for seamless tiling
-    entry = 0;
-
-    while ( entry < MAXMESHTYPE / 2 )
+    for ( entry = 0; entry < dict_size / 2; entry++ )
     {
-        cnt = 0;
-
-        while ( cnt < meshcommandnumvertices[entry] )
+        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
         {
-//            meshcommandu[entry][cnt] = ((0.5f/32)+(meshcommandu[entry][cnt]*31/32))/8;
-//            meshcommandv[entry][cnt] = ((0.5f/32)+(meshcommandv[entry][cnt]*31/32))/8;
-            meshcommandu[entry][cnt] = ( ( 0.6f / 32 ) + ( meshcommandu[entry][cnt] * 30.8f / 32 ) ) / 8;
-            meshcommandv[entry][cnt] = ( ( 0.6f / 32 ) + ( meshcommandv[entry][cnt] * 30.8f / 32 ) ) / 8;
-            cnt++;
+            dict[entry].u[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].u[cnt] * 30.8f / 32 ) ) / 8;
+            dict[entry].v[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].v[cnt] * 30.8f / 32 ) ) / 8;
         }
-
-        entry++;
     }
 
     // Do for big tiles too
-    while ( entry < MAXMESHTYPE )
+    for ( /* nothing */; entry < dict_size; entry++ )
     {
-        cnt = 0;
-
-        while ( cnt < meshcommandnumvertices[entry] )
+        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
         {
-//            meshcommandu[entry][cnt] = ((0.5f/64)+(meshcommandu[entry][cnt]*63/64))/4;
-//            meshcommandv[entry][cnt] = ((0.5f/64)+(meshcommandv[entry][cnt]*63/64))/4;
-            meshcommandu[entry][cnt] = ( ( 0.6f / 64 ) + ( meshcommandu[entry][cnt] * 62.8f / 64 ) ) / 4;
-            meshcommandv[entry][cnt] = ( ( 0.6f / 64 ) + ( meshcommandv[entry][cnt] * 62.8f / 64 ) ) / 4;
-            cnt++;
-        }
-
-        entry++;
-    }
-
-    // Make tile texture offsets
-    entry = 0;
-
-    while ( entry < MAXTILETYPE )
-    {
-        offx = ( entry & 7 ) / 8.0f;
-        offy = ( entry >> 3 ) / 8.0f;
-        meshtileoffu[entry] = offx;
-        meshtileoffv[entry] = offy;
-        entry++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void make_fanstart()
-{
-    // ZZ> This function builds a look up table to ease calculating the
-    //     fan number given an x,y pair
-    int cnt;
-
-    // do the fanstart
-    for ( cnt = 0; cnt < meshtilesy; cnt++ )
-    {
-        meshfanstart[cnt] = meshtilesx * cnt;
-    }
-
-    // calculate some of the block info
-    meshblocksx = (meshtilesx >> 2);
-    if ( 0 != (meshtilesx & 0x03) ) meshblocksx++;
-    if ( meshblocksx >= MAXMESHBLOCKY )
-    {
-        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", meshblocksx, MAXMESHBLOCKY );
-    }
-
-    meshblocksy = (meshtilesy >> 2);
-    if ( 0 != (meshtilesy & 0x03) ) meshblocksy++;
-    if ( meshblocksy >= MAXMESHBLOCKY )
-    {
-        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", meshblocksy, MAXMESHBLOCKY );
-    }
-
-    meshblocks = meshblocksx * meshblocksy;
-
-    // do the blockstart
-    for ( cnt = 0; cnt < meshblocksy; cnt++ )
-    {
-        meshblockstart[cnt] = meshblocksx * cnt;
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------
-void make_vrtstart()
-{
-    int x, y, vert;
-    Uint32 fan;
-
-    vert = 0;
-    for ( y = 0; y < meshtilesy; y++ )
-    {
-        for ( x = 0; x < meshtilesx; x++ )
-        {
-            // allow raw access because we are careful
-            fan = meshfanstart[y] + x;
-            meshvrtstart[fan] = vert;
-            vert += meshcommandnumvertices[meshtype[fan]];
+            dict[entry].u[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].u[cnt] * 62.8f / 64 ) ) / 4;
+            dict[entry].v[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
         }
     }
+
 }
 
 //---------------------------------------------------------------------------------------------
@@ -692,10 +602,10 @@ float get_level( float x, float y, bool_t waterwalk )
     ix &= 127;
     iy &= 127;
 
-    z0 = meshvrtz[ meshvrtstart[tile] + 0 ];
-    z1 = meshvrtz[ meshvrtstart[tile] + 1 ];
-    z2 = meshvrtz[ meshvrtstart[tile] + 2 ];
-    z3 = meshvrtz[ meshvrtstart[tile] + 3 ];
+    z0 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 0 ];
+    z1 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 1 ];
+    z2 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 2 ];
+    z3 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 3 ];
 
     zleft = ( z0 * ( 128 - iy ) + z3 * iy ) / (float)(1 << 7);
     zright = ( z1 * ( 128 - iy ) + z2 * iy ) / (float)(1 << 7);
@@ -703,7 +613,7 @@ float get_level( float x, float y, bool_t waterwalk )
 
     if ( waterwalk )
     {
-        if ( watersurfacelevel > zdone && 0 != ( meshfx[tile] & MESHFX_WATER ) && wateriswater )
+        if ( watersurfacelevel > zdone && 0 != ( mesh.mem.tile_list[tile].fx & MESHFX_WATER ) && wateriswater )
         {
             return watersurfacelevel;
         }
@@ -1229,11 +1139,13 @@ void make_renderlist()
     int x, stepx, divx, basex;
     int from, to;
 
+    tile_info_t * tlist = mesh.mem.tile_list;
+
     // Clear old render lists
     for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
     {
         fan = renderlist.all[cnt];
-        meshinrenderlist[fan] = btrue;
+        tlist[fan].inrenderlist = bfalse;
     }
 
     renderlist.all_count = 0;
@@ -1241,6 +1153,7 @@ void make_renderlist()
     renderlist.sha_count = 0;
     renderlist.drf_count = 0;
     renderlist.ndr_count = 0;
+
 
     // Make sure it doesn't die ugly !!!BAD!!!
 
@@ -1260,7 +1173,6 @@ void make_renderlist()
     // Find the center line
 
     divx = ylist[3] - ylist[0]; if ( divx < 1 ) return;
-
     stepx = xlist[3] - xlist[0];
     basex = xlist[0];
 
@@ -1295,7 +1207,6 @@ void make_renderlist()
     fany = ylist[0] >> 7;
     row = 0;
     cnt = 1;
-
     while ( cnt < leftnum )
     {
         from = leftlist[cnt-1];  to = leftlist[cnt];
@@ -1312,11 +1223,11 @@ void make_renderlist()
 
         while ( fany < run )
         {
-            if ( fany >= 0 && fany < meshtilesy )
+            if ( fany >= 0 && fany < mesh.info.tiles_y )
             {
                 fanx = x >> 7;
                 if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= meshtilesx )  fanx = meshtilesx - 1;
+                if ( fanx >= mesh.info.tiles_x )  fanx = mesh.info.tiles_x - 1;
 
                 fanrowstart[row] = fanx;
                 row++;
@@ -1328,14 +1239,12 @@ void make_renderlist()
 
         cnt++;
     }
-
     numrow = row;
 
     // Make the right edge ( rowrun )
     fany = ylist[0] >> 7;
     row = 0;
     cnt = 1;
-
     while ( cnt < rightnum )
     {
         from = rightlist[cnt-1];  to = rightlist[cnt];
@@ -1352,11 +1261,11 @@ void make_renderlist()
 
         while ( fany < run )
         {
-            if ( fany >= 0 && fany < meshtilesy )
+            if ( fany >= 0 && fany < mesh.info.tiles_y )
             {
                 fanx = x >> 7;
                 if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= meshtilesx - 1 )  fanx = meshtilesx - 1;//-2
+                if ( fanx >= mesh.info.tiles_x - 1 )  fanx = mesh.info.tiles_x - 1;//-2
 
                 fanrowrun[row] = ABS( fanx - fanrowstart[row] ) + 1;
                 row++;
@@ -1368,6 +1277,7 @@ void make_renderlist()
 
         cnt++;
     }
+
     if ( numrow != row )
     {
         log_error( "ROW error (%i, %i)\n", numrow, row );
@@ -1376,56 +1286,44 @@ void make_renderlist()
     // Fill 'em up again
     fany = ylist[0] >> 7;
     if ( fany < 0 ) fany = 0;
-    if ( fany >= meshtilesy ) fany = meshtilesy - 1;
+    if ( fany >= mesh.info.tiles_y ) fany = mesh.info.tiles_y - 1;
 
-    row = 0;
-    while ( row < numrow )
+    for ( row = 0; row < numrow; row++, fany++ )
     {
-        // allow raw access because we have no choice
-        cnt = meshfanstart[fany] + fanrowstart[row];
+        cnt = mesh.mem.tilestart[fany] + fanrowstart[row];
 
         run = fanrowrun[row];
-        fanx = 0;
-
-        while ( fanx < run )
+        for ( fanx = 0; fanx < run && renderlist.all_count < MAXMESHRENDER; fanx++, cnt++ )
         {
-            if ( renderlist.all_count < MAXMESHRENDER )
+            // Put each tile in basic list
+            tlist[cnt].inrenderlist = btrue;
+
+            renderlist.all[renderlist.all_count] = cnt;
+            renderlist.all_count++;
+
+            // Put each tile in one other list, for shadows and relections
+            if ( 0 != ( tlist[cnt].fx & MESHFX_SHA ) )
             {
-                // Put each tile in basic list
-                meshinrenderlist[cnt] = btrue;
-                renderlist.all[renderlist.all_count] = cnt;
-                renderlist.all_count++;
-
-                // Put each tile in one other list, for shadows and relections
-                if ( 0 != ( meshfx[cnt] & MESHFX_SHA ) )
-                {
-                    renderlist.sha[renderlist.sha_count] = cnt;
-                    renderlist.sha_count++;
-                }
-                else
-                {
-                    renderlist.ref[renderlist.ref_count] = cnt;
-                    renderlist.ref_count++;
-                }
-
-                if ( 0 != ( meshfx[cnt] & MESHFX_DRAWREF ) )
-                {
-                    renderlist.drf[renderlist.drf_count] = cnt;
-                    renderlist.drf_count++;
-                }
-                else
-                {
-                    renderlist.ndr[renderlist.ndr_count] = cnt;
-                    renderlist.ndr_count++;
-                }
+                renderlist.sha[renderlist.sha_count] = cnt;
+                renderlist.sha_count++;
+            }
+            else
+            {
+                renderlist.ref[renderlist.ref_count] = cnt;
+                renderlist.ref_count++;
             }
 
-            cnt++;
-            fanx++;
+            if ( 0 != ( tlist[cnt].fx & MESHFX_DRAWREF ) )
+            {
+                renderlist.drf[renderlist.drf_count] = cnt;
+                renderlist.drf_count++;
+            }
+            else
+            {
+                renderlist.ndr[renderlist.ndr_count] = cnt;
+                renderlist.ndr_count++;
+            }
         }
-
-        row++;
-        fany++;
     }
 }
 
@@ -1514,25 +1412,25 @@ void add_to_dolist( Uint16 ichr )
     itile = ChrList[ichr].onwhichfan;
     if ( INVALID_TILE == itile ) return;
 
-    if ( meshinrenderlist[itile] )
+    if ( mesh.mem.tile_list[itile].inrenderlist )
     {
-        if ( 0 == ( 0xFF00 & meshtile[itile] ) )
+        if ( 0 == ( 0xFF00 & mesh.mem.tile_list[itile].img ) )
         {
             int itmp, imin, isum;
 
-            itmp = meshvrtl[meshvrtstart[itile] + 0];
+            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 0];
             imin = itmp;
             isum = itmp;
 
-            itmp = meshvrtl[meshvrtstart[itile] + 1];
+            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 1];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
-            itmp = meshvrtl[meshvrtstart[itile] + 2];
+            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 2];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
-            itmp = meshvrtl[meshvrtstart[itile] + 3];
+            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 3];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
@@ -1614,6 +1512,7 @@ void load_basic_textures(  const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
     char newloadname[256];
+    int entry;
 
     // Particle sprites
     GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
@@ -1991,8 +1890,8 @@ void read_wawalite(  const char *modname )
         weatherplayer = 0;
         // Read extra data
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        meshexploremode = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  meshexploremode = btrue;
+        mesh.info.exploremode = bfalse;
+        if ( cTmp == 'T' || cTmp == 't' )  mesh.info.exploremode = btrue;
 
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         usefaredge = bfalse;
@@ -2299,14 +2198,14 @@ void render_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
     if ( alpha * 255 < 1.0f ) return;
 
     // much resuced shadow if on a reflective tile
-    if ( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
+    if ( 0 != (mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
@@ -2422,14 +2321,14 @@ void render_bad_shadow( Uint16 character )
     if ( hide != NOHIDE && hide == pchr->ai.state ) return;
 
     // no shadow if off the mesh
-    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == meshtile[pchr->onwhichfan] ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
     if ( alpha < INV_FF ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != (meshfx[pchr->onwhichfan] & MESHFX_DRAWREF) )
+    if ( 0 != (mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
@@ -2506,10 +2405,10 @@ void light_characters()
         }
 
         // grab the corner intensities
-        tl = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 0 ];
-        tr = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 1 ];
-        br = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 2 ];
-        bl = meshvrtl[ meshvrtstart[ChrList[tnc].onwhichfan] + 3 ];
+        tl = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 0 ];
+        tr = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 1 ];
+        br = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 2 ];
+        bl = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 3 ];
 
         // determine the amount of directionality
         light_min = MIN(MIN(tl, tr), MIN(bl, br));
@@ -2535,7 +2434,7 @@ void light_characters()
         ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
         ChrList[tnc].lightlevel_amb = light - ChrList[tnc].lightlevel_dir;
 
-        if ( !meshexploremode && ChrList[tnc].lightlevel_dir > 0 )
+        if ( !mesh.info.exploremode && ChrList[tnc].lightlevel_dir > 0 )
         {
             // Look up light direction using corners again
             tl = ( tl << 8 ) & 0xf000;
@@ -2577,10 +2476,10 @@ void light_particles()
             int itmp = 0;
             Uint32 itile = PrtList[iprt].onwhichfan;
 
-            itmp += meshvrtl[meshvrtstart[itile] + 0];
-            itmp += meshvrtl[meshvrtstart[itile] + 1];
-            itmp += meshvrtl[meshvrtstart[itile] + 2];
-            itmp += meshvrtl[meshvrtstart[itile] + 3];
+            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 0];
+            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 1];
+            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 2];
+            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 3];
 
             PrtList[iprt].light = itmp / 4;
         }
@@ -2597,31 +2496,41 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
     float level;
     float light;
 
-    if ( fanx >= 0 && fanx < meshtilesx && fany >= 0 && fany < meshtilesy )
+    if ( fanx >= 0 && fanx < mesh.info.tiles_x && fany >= 0 && fany < mesh.info.tiles_y )
     {
         // allow raw access because we were careful
-        fan = fanx + meshfanstart[fany];
+        fan = mesh_get_tile_int( &mesh, fanx, fany );
 
-        vertex = meshvrtstart[fan];
-        lastvertex = vertex + meshcommandnumvertices[meshtype[fan]];
-
-        while ( vertex < lastvertex )
+        if ( INVALID_TILE != fan )
         {
-            light = meshvrta[vertex];
-            x = PrtList[particle].xpos - meshvrtx[vertex];
-            y = PrtList[particle].ypos - meshvrty[vertex];
-            level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
-            level = 255 - level;
-            level = level * PrtList[particle].dynalightlevel;
-            if ( level > light )
+            Uint8 ttype = mesh.mem.tile_list[fan].type;
+
+            if( FANOFF != ttype && ttype < MAXMESHTYPE )
             {
-                if ( level > 255 ) level = 255;
+                ttype &= 0x3F;
 
-                meshvrtl[vertex] = level;
-                meshvrta[vertex] = level;
+                vertex = mesh.mem.tile_list[fan].vrtstart;
+                lastvertex = vertex + tile_dict[ttype].numvertices;
+
+                while ( vertex < lastvertex )
+                {
+                    light = mesh.mem.vrt_a[vertex];
+                    x = PrtList[particle].xpos - mesh.mem.vrt_x[vertex];
+                    y = PrtList[particle].ypos - mesh.mem.vrt_y[vertex];
+                    level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
+                    level = 255 - level;
+                    level = level * PrtList[particle].dynalightlevel;
+                    if ( level > light )
+                    {
+                        if ( level > 255 ) level = 255;
+
+                        mesh.mem.vrt_l[vertex] = level;
+                        mesh.mem.vrt_a[vertex] = level;
+                    }
+
+                    vertex++;
+                }
             }
-
-            vertex++;
         }
     }
 }
@@ -2637,7 +2546,7 @@ void do_dynalight()
     float light;
 
     // Do each floor tile
-    if ( meshexploremode )
+    if ( mesh.info.exploremode )
     {
         // Set base light level in explore mode...  Don't need to do every frame
         if ( ( frame_all & 7 ) == 0 )
@@ -2677,21 +2586,35 @@ void do_dynalight()
         // Add to base light level in normal mode
         for ( entry = 0; entry < renderlist.all_count; entry++ )
         {
+            Uint8 ttype;
+
             fan = renderlist.all[entry];
             if ( INVALID_TILE == fan ) continue;
 
-            vertex = meshvrtstart[fan];
-            lastvertex = vertex + meshcommandnumvertices[meshtype[fan]];
+            ttype = mesh.mem.tile_list[fan].type;
+
+            vertex = mesh.mem.tile_list[fan].vrtstart;
+
+            if( ttype > MAXMESHTYPE )
+            {
+                lastvertex = vertex + 4;
+            }
+            else
+            {
+                ttype &= 0x3F;
+                lastvertex = vertex + tile_dict[ttype].numvertices;
+            }
+
             while ( vertex < lastvertex )
             {
                 // Do light particles
-                light = meshvrta[vertex];
+                light = mesh.mem.vrt_a[vertex];
                 cnt = 0;
 
                 while ( cnt < dyna_list_count )
                 {
-                    x = dyna_list[cnt].x - meshvrtx[vertex];
-                    y = dyna_list[cnt].y - meshvrty[vertex];
+                    x = dyna_list[cnt].x - mesh.mem.vrt_x[vertex];
+                    y = dyna_list[cnt].y - mesh.mem.vrt_y[vertex];
                     level = ( x * x + y * y ) / dyna_list[cnt].falloff;
                     level = 255 - level;
                     if ( level > 0 )
@@ -2704,7 +2627,7 @@ void do_dynalight()
                 if ( light > 255 ) light = 255;
                 if ( light < 0 ) light = 0;
 
-                meshvrtl[vertex] = light;
+                mesh.mem.vrt_l[vertex] = light;
                 vertex++;
             }
 
@@ -2731,7 +2654,7 @@ void render_water()
 
         while ( cnt < renderlist.all_count )
         {
-            if ( 0 != ( meshfx[renderlist.all[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 1 );
             }
@@ -2747,7 +2670,7 @@ void render_water()
 
         while ( cnt < renderlist.all_count )
         {
-            if ( 0 != ( meshfx[renderlist.all[cnt]] & MESHFX_WATER ) )
+            if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 0 );
             }
@@ -2807,7 +2730,7 @@ void draw_scene_zreflection()
         for ( cnt = 0; cnt < numdolist; cnt++ )
         {
             tnc = dolist[cnt];
-            if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( meshfx[ChrList[tnc].onwhichfan]&MESHFX_DRAWREF )) )
+            if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( mesh.mem.tile_list[ChrList[tnc].onwhichfan].fx&MESHFX_DRAWREF )) )
             {
                 render_refmad( tnc, FP8_MUL( ChrList[tnc].alpha, ChrList[tnc].light ) );
             }
@@ -2981,7 +2904,7 @@ Uint32 mesh_get_block( float pos_x, float pos_y )
 {
     Uint32 block = INVALID_BLOCK;
 
-    if ( pos_x >= 0.0f && pos_x < meshedgex && pos_y >= 0.0f && pos_y < meshedgey )
+    if ( pos_x >= 0.0f && pos_x < mesh.info.edge_x && pos_y >= 0.0f && pos_y < mesh.info.edge_y )
     {
         int ix, iy;
 
@@ -2991,10 +2914,7 @@ Uint32 mesh_get_block( float pos_x, float pos_y )
         ix >>= 9;
         iy >>= 9;
 
-        if ( iy < MAXMESHBLOCKY )
-        {
-            block = ix + meshblockstart[ iy ];
-        }
+        block = mesh_get_block_int(&mesh, ix, iy);
     }
 
     return block;
@@ -3005,7 +2925,7 @@ Uint32 mesh_get_tile( float pos_x, float pos_y )
 {
     Uint32 tile = INVALID_TILE;
 
-    if ( pos_x >= 0.0f && pos_x < meshedgex && pos_y >= 0.0f && pos_y < meshedgey )
+    if ( pos_x >= 0.0f && pos_x < mesh.info.edge_x && pos_y >= 0.0f && pos_y < mesh.info.edge_y )
     {
         int ix, iy;
 
@@ -3015,10 +2935,7 @@ Uint32 mesh_get_tile( float pos_x, float pos_y )
         ix >>= 7;
         iy >>= 7;
 
-        if ( iy < MAXMESHTILEY )
-        {
-            tile = ix + meshfanstart[ iy ];
-        }
+        tile = mesh_get_tile_int( &mesh, ix, iy );
     }
 
     return tile;
@@ -3646,13 +3563,13 @@ void draw_text()
                             || CapList[iTmp].idsz[IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
-                        if ( ChrList[iTmp].xpos < meshedgex && ChrList[iTmp].ypos < meshedgey )
+                        if ( ChrList[iTmp].xpos < mesh.info.edge_x && ChrList[iTmp].ypos < mesh.info.edge_y )
                         {
                             //Valid colors only
                             if ( numblip < NUMBLIP )
                             {
-                                blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / meshedgex;
-                                blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / meshedgey;
+                                blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / mesh.info.edge_x;
+                                blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / mesh.info.edge_y;
                                 blipc[numblip] = 0; //Red blips
                                 numblip++;
                             }
@@ -3678,7 +3595,7 @@ void draw_text()
                     tnc = PlaList[cnt].index;
                     if ( ChrList[tnc].alive )
                     {
-                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / meshedgex, ( ChrList[tnc].ypos*MAPSIZE / meshedgey ) + displaySurface->h - MAPSIZE );
+                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / mesh.info.edge_x, ( ChrList[tnc].ypos*MAPSIZE / mesh.info.edge_y ) + displaySurface->h - MAPSIZE );
                     }
                 }
             }
@@ -4744,7 +4661,7 @@ void make_prtlist( void )
         PrtList[cnt].inview = bfalse;
         if ( PrtList[cnt].on && INVALID_TILE != PrtList[cnt].onwhichfan )
         {
-            PrtList[cnt].inview = meshinrenderlist[PrtList[cnt].onwhichfan];
+            PrtList[cnt].inview = mesh.mem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
 
             // Set up the lights we need
             if ( PrtList[cnt].dynalighton )

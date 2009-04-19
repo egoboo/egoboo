@@ -77,6 +77,10 @@ extern float turntocos[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to 
 #    define CLIP(VAL,VMIN,VMAX) MIN(MAX(VAL,VMIN),VMAX)
 #endif
 
+#ifndef SWAP
+#    define SWAP(TYPE, A, B) { TYPE temp; temp = A; A = B; B = temp; }
+#endif
+
 #define CNV(i,j) v[4*i+j]
 #define CopyMatrix( pMatrixDest, pMatrixSource ) memcpy( (pMatrixDest), (pMatrixSource), sizeof( glMatrix ) )
 

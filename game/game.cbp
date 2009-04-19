@@ -425,6 +425,7 @@
 		<Unit filename="log.h" />
 		<Unit filename="lua_console.c">
 			<Option compilerVar="CC" />
+			<Option compile="0" />
 		</Unit>
 		<Unit filename="lua_console.h" />
 		<Unit filename="menu.c">

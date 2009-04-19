@@ -329,7 +329,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
     }
 
     // Do we have a matrix???
-    if ( ChrList[character].matrixvalid )// meshinrenderlist[ChrList[character].onwhichfan])
+    if ( ChrList[character].matrixvalid )// mesh.mem.inrenderlist[ChrList[character].onwhichfan])
     {
         // Transform the weapon grip from model to world space
         model = ChrList[character].model;
@@ -600,7 +600,7 @@ Uint8 __chrhitawall( Uint16 character )
     itile  = mesh_get_tile( fx, fy );
     if ( INVALID_TILE != itile )
     {
-        passtl = meshfx[itile];
+        passtl = mesh.mem.tile_list[itile].fx;
     }
 
     fx = x + bs; fy = y - bs;
@@ -608,7 +608,7 @@ Uint8 __chrhitawall( Uint16 character )
     itile  = mesh_get_tile( fx, fy );
     if ( INVALID_TILE != itile )
     {
-        passtr = meshfx[itile];
+        passtr = mesh.mem.tile_list[itile].fx;
     }
 
     fx = x - bs; fy = y + bs;
@@ -616,7 +616,7 @@ Uint8 __chrhitawall( Uint16 character )
     itile  = mesh_get_tile( fx, fy );
     if ( INVALID_TILE != itile )
     {
-        passbl = meshfx[itile];
+        passbl = mesh.mem.tile_list[itile].fx;
     }
 
     fx = x + bs; fy = y + bs;
@@ -624,7 +624,7 @@ Uint8 __chrhitawall( Uint16 character )
     itile  = mesh_get_tile( fx, fy );
     if ( INVALID_TILE != itile )
     {
-        passbr = meshfx[itile];
+        passbr = mesh.mem.tile_list[itile].fx;
     }
 
     return ( passtl | passtr | passbr | passbl ) & ChrList[character].stoppedby;
@@ -1311,7 +1311,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         return bfalse;
 
     // Do we have a matrix???
-    if ( ChrList[chara].matrixvalid )// meshinrenderlist[ChrList[chara].onwhichfan])
+    if ( ChrList[chara].matrixvalid )// mesh.mem.inrenderlist[ChrList[chara].onwhichfan])
     {
         // Transform the weapon grip from model to world space
         frame = ChrList[chara].frame;
@@ -3975,10 +3975,10 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
   if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
   {
     team = ChrList[character].team;
-    fanblock = x + meshblockstart[y];
-    charb = meshbumplistchr[fanblock];
+    fanblock = mesh_get_block_int(&mesh, x,y);
+    charb = bumplist[fanblock].chr;
     cnt = 0;
-    while ( cnt < meshbumplistchrnum[fanblock] )
+    while ( cnt < bumplist[fanblock].chrnum )
     {
       if ( dead != ChrList[charb].alive && ( seeinvisible || ( ChrList[charb].alpha > INVISIBLE && ChrList[charb].light > INVISIBLE ) ) )
       {
@@ -4144,10 +4144,10 @@ void switch_team( Uint16 character, Uint8 team )
   if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
   {
     team = ChrList[character].team;
-    fanblock = x + meshblockstart[y];
-    charb = meshbumplistchr[fanblock];
+    fanblock = mesh_get_block_int(&mesh, x,y);
+    charb = bumplist[fanblock].chr;
     cnt = 0;
-    while ( cnt < meshbumplistchrnum[fanblock] )
+    while ( cnt < bumplist[fanblock].chrnum )
     {
       if ( dead != ChrList[charb].alive && ( seeinvisible || ( ChrList[charb].alpha > INVISIBLE && ChrList[charb].light > INVISIBLE ) ) )
       {
@@ -5034,11 +5034,11 @@ void move_characters( void )
                 {
                     Uint32 itile = ChrList[cnt].onwhichfan;
 
-                    twist = meshtwist[itile];
+                    twist = mesh.mem.tile_list[itile].twist;
 
-                    if ( 0 != ( meshfx[itile] & MESHFX_SLIPPY ) )
+                    if ( 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_SLIPPY ) )
                     {
-                        if ( wateriswater && 0 != ( meshfx[itile] & MESHFX_WATER ) && ChrList[cnt].level < watersurfacelevel + RAISE + 1 )
+                        if ( wateriswater && 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_WATER ) && ChrList[cnt].level < watersurfacelevel + RAISE + 1 )
                         {
                             // It says it's slippy, but the water is covering it...
                             // Treat exactly as normal

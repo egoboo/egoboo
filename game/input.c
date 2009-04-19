@@ -30,8 +30,6 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-#include <SDL_console.h>
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint32 input_device_count = 0;
@@ -320,7 +318,7 @@ void input_read()
 #if defined(USE_LUA_CONSOLE)
                     else if ( gDevMode )
                     {
-                        if( !is_alt )
+                        if ( !is_alt )
                         {
                             if ( SDLK_BACKQUOTE == evt.key.keysym.sym )
                             {

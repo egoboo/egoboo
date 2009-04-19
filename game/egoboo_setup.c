@@ -122,8 +122,8 @@ bool_t setup_download()
     GetKey_bool( "Z_REFLECTION", zreflect, bfalse );
 
     // Max number of vertrices (Should always be 100!)
-    GetKey_int( "MAX_NUMBER_VERTICES", maxtotalmeshvertices, 100 );
-    maxtotalmeshvertices *= 1024;
+    GetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices, 100 );
+    mesh_maxtotalvertices *= 1024;
 
     // Do fullscreen?
     GetKey_bool( "FULLSCREEN", fullscreen, bfalse );
@@ -316,7 +316,7 @@ bool_t setup_upload()
     SetKey_bool( "Z_REFLECTION", zreflect );
 
     // Max number of vertrices (Should always be 100!)
-    SetKey_int( "MAX_NUMBER_VERTICES", maxtotalmeshvertices / 1024 );
+    SetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices / 1024 );
 
     // Do fullscreen?
     SetKey_bool( "FULLSCREEN", fullscreen );

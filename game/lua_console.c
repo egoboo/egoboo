@@ -106,17 +106,17 @@ void Command_Handler( ConsoleInformation *console, char* command )
 
     if (NULL == pcon) return;
 
-    if( 0 == strcmp(command, "bye") )
+    if ( 0 == strcmp(command, "bye") )
     {
         CON_Hide( console );
     }
 
-    if( 0 == strcmp(command, "exit") )
+    if ( 0 == strcmp(command, "exit") )
     {
         CON_Hide( console );
     }
 
-    if( 0 == strcmp(command, "quit") )
+    if ( 0 == strcmp(command, "quit") )
     {
         CON_Hide( console );
     }
@@ -268,7 +268,7 @@ SDL_bool lua_console_draw( lua_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 void lua_console_show( lua_console_t * pcon )
 {
-    if( NULL != pcon )
+    if ( NULL != pcon )
     {
         // we only have one console, so keyrepeat is enabled globally
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -282,7 +282,7 @@ void lua_console_show( lua_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 void lua_console_hide( lua_console_t * pcon )
 {
-    if( NULL != pcon )
+    if ( NULL != pcon )
     {
         // we only have one console, so keyrepeat is disabled globally
         SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -296,18 +296,18 @@ SDL_Event * lua_console_handle_events( lua_console_t * pcon, SDL_Event * pevt )
 {
     SDL_Event * retval = pevt;
 
-    if( NULL == pcon || NULL == pevt ) return pevt;
+    if ( NULL == pcon || NULL == pevt ) return pevt;
 
     // let the console handle the event. It should trap all special keystrokes like "return" and such
     retval = CON_Events(pevt);
 
     // the default SDL_console lets most keypresses fall through
     // this is disruptive to teh game, so we need to intercept them ;)
-    if( NULL != retval && CON_isVisible( pcon->c ) )
+    if ( NULL != retval && CON_isVisible( pcon->c ) )
     {
-        if( SDL_KEYDOWN == pevt->type || SDL_KEYUP == pevt->type )
+        if ( SDL_KEYDOWN == pevt->type || SDL_KEYUP == pevt->type )
         {
-            if( isprint( pevt->key.keysym.sym ) )
+            if ( pevt->key.keysym.sym < 255 && isprint( pevt->key.keysym.sym ) )
             {
                 // the keycode is grabbed by the console
                 retval = NULL;

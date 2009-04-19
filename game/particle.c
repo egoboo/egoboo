@@ -282,9 +282,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
         x = x + turntocos[( facing+8192 )&TRIG_TABLE_MASK] * ( PipList[pip].xyspacingbase + ( newrand & PipList[pip].xyspacingrand ) );
         y = y + turntosin[( facing+8192 )&TRIG_TABLE_MASK] * ( PipList[pip].xyspacingbase + ( newrand & PipList[pip].xyspacingrand ) );
         if ( x < 0 )  x = 0;
-        if ( x > meshedgex - 2 )  x = meshedgex - 2;
+        if ( x > mesh.info.edge_x - 2 )  x = mesh.info.edge_x - 2;
         if ( y < 0 )  y = 0;
-        if ( y > meshedgey - 2 )  y = meshedgey - 2;
+        if ( y > mesh.info.edge_y - 2 )  y = mesh.info.edge_y - 2;
 
         PrtList[iprt].xpos = x;
         PrtList[iprt].ypos = y;
@@ -370,11 +370,11 @@ Uint8 __prthitawall( Uint16 particle )
     {
         if ( PipList[PrtList[particle].pip].bumpmoney )
         {
-            retval = meshfx[fan] & ( MESHFX_IMPASS | MESHFX_WALL );
+            retval = mesh.mem.tile_list[fan].fx & ( MESHFX_IMPASS | MESHFX_WALL );
         }
         else
         {
-            retval = meshfx[fan] & MESHFX_IMPASS;
+            retval = mesh.mem.tile_list[fan].fx & MESHFX_IMPASS;
         }
     }
 
@@ -567,7 +567,7 @@ void move_particles( void )
         }
 
         // Check underwater
-        if ( PrtList[cnt].zpos < waterdouselevel && PipList[pip].endwater && INVALID_TILE != PrtList[cnt].onwhichfan && 0 != ( meshfx[PrtList[cnt].onwhichfan] & MESHFX_WATER ) )
+        if ( PrtList[cnt].zpos < waterdouselevel && PipList[pip].endwater && INVALID_TILE != PrtList[cnt].onwhichfan && 0 != ( mesh.mem.tile_list[PrtList[cnt].onwhichfan].fx & MESHFX_WATER ) )
         {
             // Splash for particles is just a ripple
             spawn_one_particle( PrtList[cnt].xpos, PrtList[cnt].ypos, watersurfacelevel,
@@ -774,7 +774,7 @@ int prt_is_over_water( Uint16 cnt )
         fan = mesh_get_tile( PrtList[cnt].xpos, PrtList[cnt].ypos );
         if ( INVALID_TILE != fan )
         {
-            if ( 0 != ( meshfx[fan] & MESHFX_WATER ) )  return btrue;
+            if ( 0 != ( mesh.mem.tile_list[fan].fx & MESHFX_WATER ) )  return btrue;
         }
     }
 

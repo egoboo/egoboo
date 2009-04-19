@@ -1666,7 +1666,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             if ( INVALID_TILE != pchr->onwhichfan )
             {
                 returncode = btrue;
-                meshtile[pchr->onwhichfan] = pstate->argument & 0xFF;
+                mesh.mem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
             }
             break;
 
@@ -1981,7 +1981,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // This function teleports the target to the X, Y location, failing if the
             // location is off the map or blocked
             returncode = bfalse;
-            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
             {
                 // Yeah!  It worked!
                 sTmp = pself->target;
@@ -2468,7 +2468,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( INVALID_TILE != pchr->onwhichfan )
             {
-                returncode = ( ( meshfx[pchr->onwhichfan] & MESHFX_WATER ) != 0 && wateriswater );
+                returncode = ( ( mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) != 0 && wateriswater );
             }
             break;
 
@@ -2816,7 +2816,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // This function teleports the character to the X, Y location, failing if the
             // location is off the map or blocked
             returncode = bfalse;
-            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
             {
                 float x_old, y_old;
 
@@ -2938,12 +2938,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // Add a blip
             if ( numblip < MAXBLIP )
             {
-                if ( pstate->x > 0 && pstate->x < meshedgex && pstate->y > 0 && pstate->y < meshedgey )
+                if ( pstate->x > 0 && pstate->x < mesh.info.edge_x && pstate->y > 0 && pstate->y < mesh.info.edge_y )
                 {
                     if ( pstate->argument < NUMBAR && pstate->argument >= 0 )
                     {
-                        blipx[numblip] = pstate->x * MAPSIZE / meshedgex;
-                        blipy[numblip] = pstate->y * MAPSIZE / meshedgey;
+                        blipx[numblip] = pstate->x * MAPSIZE / mesh.info.edge_x;
+                        blipy[numblip] = pstate->y * MAPSIZE / mesh.info.edge_y;
                         blipc[numblip] = pstate->argument;
                         numblip++;
                     }
@@ -3128,7 +3128,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             if ( iTmp != INVALID_TILE )
             {
                 returncode = btrue;
-                pstate->argument = meshtile[iTmp] & 0xFF;
+                pstate->argument = mesh.mem.tile_list[iTmp].img & 0xFF;
             }
             break;
 
@@ -3140,7 +3140,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             if ( iTmp != INVALID_TILE )
             {
                 returncode = btrue;
-                meshtile[iTmp] = ( pstate->argument & 0xFF );
+                mesh.mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
             }
 
             break;
@@ -3999,7 +3999,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FPITSFALL:
 
             // This function activates pit teleportation...
-            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+            if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
             {
                 pitsfall = btrue;
                 pitx = pstate->x;
@@ -6279,7 +6279,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
     if ( INVALID_TILE != pchr->onwhichfan )
     {
         returncode = btrue;
-        meshtile[pchr->onwhichfan] = pstate->argument & 0xFF;
+        mesh.mem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -7041,7 +7041,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
     {
         // Yeah!  It worked!
         sTmp = pself->target;
@@ -8006,7 +8006,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( INVALID_TILE != pchr->onwhichfan )
     {
-        returncode = ( ( 0 != ( meshfx[pchr->onwhichfan] & MESHFX_WATER ) ) && wateriswater );
+        returncode = ( ( 0 != ( mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) ) && wateriswater );
     }
 
     SCRIPT_FUNCTION_END();
@@ -8778,7 +8778,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
     // This function teleports the character to the X, Y location, failing if the
     // location is off the map or blocked
     returncode = bfalse;
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
     {
         float x_old, y_old;
 
@@ -8973,12 +8973,12 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // Add a blip
     if ( numblip < MAXBLIP )
     {
-        if ( pstate->x > 0 && pstate->x < meshedgex && pstate->y > 0 && pstate->y < meshedgey )
+        if ( pstate->x > 0 && pstate->x < mesh.info.edge_x && pstate->y > 0 && pstate->y < mesh.info.edge_y )
         {
             if ( pstate->argument < NUMBAR && pstate->argument >= 0 )
             {
-                blipx[numblip] = pstate->x * MAPSIZE / meshedgex;
-                blipy[numblip] = pstate->y * MAPSIZE / meshedgey;
+                blipx[numblip] = pstate->x * MAPSIZE / mesh.info.edge_x;
+                blipy[numblip] = pstate->y * MAPSIZE / mesh.info.edge_y;
                 blipc[numblip] = pstate->argument;
                 numblip++;
             }
@@ -9312,7 +9312,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( iTmp != INVALID_TILE )
     {
         returncode = btrue;
-        pstate->argument = meshtile[iTmp] & 0xFF;
+        pstate->argument = mesh.mem.tile_list[iTmp].img & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -9333,7 +9333,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( iTmp != INVALID_TILE )
     {
         returncode = btrue;
-        meshtile[iTmp] = ( pstate->argument & 0xFF );
+        mesh.mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
     }
 
     SCRIPT_FUNCTION_END();
@@ -10999,7 +10999,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // ThIs function activates pit teleportation...
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < meshedgex - EDGE && pstate->y < meshedgey - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
     {
         pitsfall = btrue;
         pitx = pstate->x;

@@ -149,41 +149,41 @@ void camera_move( camera_t * pcam )
     if ( pcam->turn_mode )
         pcam->turn_time = 255;
     else if ( pcam->turn_time != 0 )
-        pcam->turn_time--; 
+        pcam->turn_time--;
 
-    if( CAM_FREE == pcam->move_mode )
+    if ( CAM_FREE == pcam->move_mode )
     {
         // the keypad controls the camera
-        if( SDLKEYDOWN( SDLK_KP8 ) )
+        if ( SDLKEYDOWN( SDLK_KP8 ) )
         {
             pcam->trackx -= pcam->mView.CNV( 0, 1 ) * 50;
             pcam->tracky -= pcam->mView.CNV( 1, 1 ) * 50;
         }
 
-        if( SDLKEYDOWN( SDLK_KP2 ) )
+        if ( SDLKEYDOWN( SDLK_KP2 ) )
         {
             pcam->trackx += pcam->mView.CNV( 0, 1 ) * 50;
             pcam->tracky += pcam->mView.CNV( 1, 1 ) * 50;
         }
 
-        if( SDLKEYDOWN( SDLK_KP4 ) )
+        if ( SDLKEYDOWN( SDLK_KP4 ) )
         {
             pcam->trackx += pcam->mView.CNV( 0, 0 ) * 50;
             pcam->tracky += pcam->mView.CNV( 1, 0 ) * 50;
         }
 
-        if( SDLKEYDOWN( SDLK_KP6 ) )
+        if ( SDLKEYDOWN( SDLK_KP6 ) )
         {
             pcam->trackx -= pcam->mView.CNV( 0, 0 ) * 10;
             pcam->tracky -= pcam->mView.CNV( 1, 0 ) * 10;
         }
 
-        if( SDLKEYDOWN( SDLK_KP7 ) )
+        if ( SDLKEYDOWN( SDLK_KP7 ) )
         {
             pcam->turnadd += CAMKEYTURN;
         }
 
-        if( SDLKEYDOWN( SDLK_KP9 ) )
+        if ( SDLKEYDOWN( SDLK_KP9 ) )
         {
             pcam->turnadd -= CAMKEYTURN;
         }
@@ -193,7 +193,7 @@ void camera_move( camera_t * pcam )
 
 
 
-    if( CAM_PLAYER == pcam->move_mode )
+    if ( CAM_PLAYER == pcam->move_mode )
     {
         x = 0;
         y = 0;
@@ -248,7 +248,7 @@ void camera_move( camera_t * pcam )
         y = pcam->tracky;
         z = pcam->trackz;
 
-        level = 128 + get_level(x,y,bfalse);
+        level = 128 + get_level(x, y, bfalse);
     }
 
     pcam->trackxvel = -pcam->trackx;
@@ -453,8 +453,8 @@ void camera_reset( camera_t * pcam )
     int cnt;
 
     pcam->swing = 0;
-    pcam->x = meshedgex / 2;
-    pcam->y = meshedgey / 2;
+    pcam->x = mesh.info.edge_x / 2;
+    pcam->y = mesh.info.edge_y / 2;
     pcam->z = 1500;
     pcam->zoom = 1000;
     pcam->trackxvel = 0;
@@ -498,6 +498,6 @@ void camera_reset( camera_t * pcam )
         pcam->turn_time = 0;
     }
 
-   
+
 }
 

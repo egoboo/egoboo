@@ -72,10 +72,12 @@ int open_passage( Uint16 passage )
 
             while ( x <= passbrx[passage] )
             {
-                // allow raw access because we have no choice
-                fan = meshfanstart[y] + x;
+                fan = mesh_get_tile_int( &mesh, x, y );
 
-                meshfx[fan] &= ~( MESHFX_WALL | MESHFX_IMPASS );
+                if ( INVALID_TILE != fan )
+                {
+                    mesh.mem.tile_list[fan].fx &= ~( MESHFX_WALL | MESHFX_IMPASS );
+                }
                 x++;
             }
 
@@ -110,7 +112,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
             fan = mesh_get_tile( ChrList[character].xpos, ChrList[character].ypos );
             if ( INVALID_TILE != fan )
             {
-                tile = meshtile[fan];
+                tile = mesh.mem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
                     x = ChrList[character].xpos;
@@ -131,14 +133,14 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
                             tile++;
                             if ( tile == endtile )
                             {
-                                meshfx[fan] |= meshfxor;
+                                mesh.mem.tile_list[fan].fx |= meshfxor;
                                 if ( become != 0 )
                                 {
                                     tile = become;
                                 }
                             }
 
-                            meshtile[fan] = tile;
+                            mesh.mem.tile_list[fan].img = tile;
                         }
                     }
                 }
@@ -162,17 +164,21 @@ void flash_passage( Uint16 passage, Uint8 color )
     {
         for ( x = passtlx[passage]; x <= passbrx[passage]; x++ )
         {
-            // allow raw access because we have no choice
-            fan = meshfanstart[y] + x;
+            fan = mesh_get_tile_int( &mesh, x, y );
 
-            vert = meshvrtstart[fan];
-
-            numvert = meshcommandnumvertices[meshtype[fan]];
-
-            for ( cnt = 0; cnt < numvert; cnt++ )
+            if ( INVALID_TILE != fan )
             {
-                meshvrta[vert] = color;
-                vert++;
+                Uint16 ttype = mesh.mem.tile_list[fan].type;
+
+                ttype &= 0x3F;
+
+                numvert = tile_dict[ttype].numvertices;
+                vert    = mesh.mem.tile_list[fan].vrtstart;
+                for ( cnt = 0; cnt < numvert; cnt++ )
+                {
+                    mesh.mem.vrt_a[vert] = color;
+                    vert++;
+                }
             }
         }
     }
@@ -201,16 +207,18 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     {
         while ( x <= passbrx[passage] )
         {
-            // allow raw access because we have no choice
-            fan = meshfanstart[y] + x;
+            fan = mesh_get_tile_int( &mesh, x, y );
 
-            if ( meshtile[fan] == tiletype )
+            if ( INVALID_TILE != fan )
             {
-                pstate->x = ( x << 7 ) + 64;
-                pstate->y = ( y << 7 ) + 64;
-                return btrue;
-            }
+                if ( (mesh.mem.tile_list[fan].img & 0xFF) == tiletype )
+                {
+                    pstate->x = ( x << 7 ) + 64;
+                    pstate->y = ( y << 7 ) + 64;
+                    return btrue;
+                }
 
+            }
             x++;
         }
 
@@ -224,14 +232,17 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 
         while ( x <= passbrx[passage] )
         {
-            // allow raw access because we have no choice
-            fan = meshfanstart[y] + x;
+            fan = mesh_get_tile_int( &mesh, x, y );
 
-            if ( meshtile[fan] == tiletype )
+            if ( INVALID_TILE != fan )
             {
-                pstate->x = ( x << 7 ) + 64;
-                pstate->y = ( y << 7 ) + 64;
-                return btrue;
+
+                if ( (mesh.mem.tile_list[fan].img & 0xFF) == tiletype )
+                {
+                    pstate->x = ( x << 7 ) + 64;
+                    pstate->y = ( y << 7 ) + 64;
+                    return btrue;
+                }
             }
 
             x++;
@@ -502,10 +513,12 @@ int close_passage( Uint16 passage )
 
             while ( x <= passbrx[passage] )
             {
-                // allow raw access because we have no choice
-                fan = meshfanstart[y] + x;
+                fan = mesh_get_tile_int( &mesh, x, y );
 
-                meshfx[fan] = meshfx[fan] | passmask[passage];
+                if ( INVALID_TILE != fan )
+                {
+                    mesh.mem.tile_list[fan].fx = mesh.mem.tile_list[fan].fx | passmask[passage];
+                }
                 x++;
             }
 
@@ -553,11 +566,11 @@ void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
 
     if ( numpassage < MAXPASS )
     {
-        tlx = CLIP(tlx, 0, meshtilesx - 1);
-        tly = CLIP(tly, 0, meshtilesy - 1);
+        tlx = CLIP(tlx, 0, mesh.info.tiles_x - 1);
+        tly = CLIP(tly, 0, mesh.info.tiles_y - 1);
 
-        brx = CLIP(brx, 0, meshtilesx - 1);
-        bry = CLIP(bry, 0, meshtilesy - 1);
+        brx = CLIP(brx, 0, mesh.info.tiles_x - 1);
+        bry = CLIP(bry, 0, mesh.info.tiles_y - 1);
 
         passtlx[numpassage]      = tlx;
         passtly[numpassage]      = tly;

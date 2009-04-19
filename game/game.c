@@ -129,8 +129,17 @@ static void setup_characters( const char *modname );
 
 // mesh initialization - not accessible by scripts
 static void   make_twist();
-static bool_t mesh_allocate_memory( int meshvertices );
-static void   mesh_free_memory();
+static void   mesh_make_vrtstart( mesh_t * pmesh );
+static void   mesh_make_fanstart( mesh_t * pmesh );
+
+static mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem );
+static mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem );
+static bool_t       mesh_mem_free( mesh_mem_t * pmem );
+static bool_t       mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo );
+
+static mesh_info_t * mesh_info_new( mesh_info_t * pinfo );
+static mesh_info_t * mesh_info_delete( mesh_info_t * pinfo );
+static void          mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  );
 
 // Model stuff
 static Uint16 test_frame_name( char letter );
@@ -388,7 +397,7 @@ void quit_module()
 
     gamepaused = bfalse;
 
-    mesh_free_memory();
+    mesh_delete( &mesh );
 
     if ( mixeron  )
     {
@@ -710,117 +719,194 @@ void make_twist()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_mesh(  const char *modname )
+mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y )
+{
+    if (NULL == pmesh)
+    {
+        pmesh = calloc(1, sizeof(mesh_t));
+        pmesh = mesh_new(pmesh);
+    }
+
+    if (NULL != pmesh)
+    {
+        // intitalize the mesh info using the max number of vertices for each tile
+        mesh_info_init( &(pmesh->info), -1, tiles_x, tiles_y );
+
+        // allocate the mesh memory
+        mesh_mem_allocate( &(pmesh->mem), &(pmesh->info) );
+
+        return pmesh;
+    };
+
+    return pmesh;
+}
+
+//--------------------------------------------------------------------------------------------
+void mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  )
+{
+    // set the desired number of tiles
+    pinfo->tiles_x = tiles_x;
+    pinfo->tiles_y = tiles_y;
+    pinfo->tiles_count = pinfo->tiles_x * pinfo->tiles_y;
+
+    // set the desired number of fertices
+    if ( numvert < 0 )
+    {
+        numvert = MAXMESHVERTICES * pinfo->tiles_count;
+    };
+    pinfo->vertcount = numvert;
+
+    // set the desired blocknumber of blocks
+    pinfo->blocks_x = (pinfo->tiles_x >> 2);
+    if ( 0 != (pinfo->tiles_x & 0x03) ) pinfo->blocks_x++;
+
+    pinfo->blocks_y = (pinfo->tiles_y >> 2);
+    if ( 0 != (pinfo->tiles_y & 0x03) ) pinfo->blocks_y++;
+
+    pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
+
+    // set the mesh edge info
+    pinfo->edge_x = pinfo->tiles_x << 7;
+    pinfo->edge_y = pinfo->tiles_y << 7;
+};
+
+//--------------------------------------------------------------------------------------------
+mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 {
     // ZZ> This function loads the level.mpd file
     FILE* fileread;
     char newloadname[256];
-    int itmp, cnt;
+    int itmp, cnt, tiles_x, tiles_y;
     float ftmp;
     int fan;
-    int numvert, numfan;
+    int numvert;
+    Uint8 btemp;
+
+    mesh_info_t * pinfo;
+    mesh_mem_t  * pmem;
+
+    if (NULL == pmesh) 
+    { 
+        pmesh = calloc(1, sizeof(mesh_t)); 
+        pmesh = mesh_new(pmesh); 
+    }
+    if (NULL == pmesh) return pmesh;
+
+    pinfo = &(pmesh->info);
+    pmem  = &(pmesh->mem);
 
     // free any memory that has been allocated
-    mesh_free_memory();
+    mesh_renew(pmesh);
 
     make_newloadname( modname, "gamedat" SLASH_STR "level.mpd", newloadname );
     fileread = fopen( newloadname, "rb" );
     if ( NULL == fileread )
     {
         log_warning( "Cannot find level.mpd!!\n" );
-        return bfalse;
+        return NULL;
     }
 
     fread( &itmp, 4, 1, fileread );
     if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
     {
+        log_warning( "This is not a valid level.mpd!!\n" );
         fclose( fileread );
-        return bfalse;
+        return NULL;
     }
 
-    // allocate the memory
+    // Read the number of vertices
     fread( &itmp, 4, 1, fileread );  numvert   = ( int )ENDIAN_INT32( itmp );
-    if ( !mesh_allocate_memory( numvert ) )
-    {
-        fclose( fileread );
-        log_warning( "Cannot load level.mpd!!\n" );
-        return bfalse;
-    }
 
     // grab the tiles in x and y
-    fread( &itmp, 4, 1, fileread );  meshtilesx = ( int )ENDIAN_INT32( itmp );
-    if ( meshtilesx >= MAXMESHTILEY )
+    fread( &itmp, 4, 1, fileread );  tiles_x = ( int )ENDIAN_INT32( itmp );
+    if ( pinfo->tiles_x >= MAXMESHTILEY )
     {
-        mesh_free_memory();
+        mesh_delete( pmesh );
         log_warning( "Invalid mesh size. Mesh too large in x direction.\n" );
         fclose( fileread );
-        return bfalse;
+        return NULL;
     }
 
-    fread( &itmp, 4, 1, fileread );  meshtilesy = ( int )ENDIAN_INT32( itmp );
-    if ( meshtilesy >= MAXMESHTILEY )
+    fread( &itmp, 4, 1, fileread );  tiles_y = ( int )ENDIAN_INT32( itmp );
+    if ( pinfo->tiles_y >= MAXMESHTILEY )
     {
-        mesh_free_memory();
+        mesh_delete( pmesh );
         log_warning( "Invalid mesh size. Mesh too large in y direction.\n" );
         fclose( fileread );
-        return bfalse;
+        return NULL;
     }
 
-    numfan    = meshtilesx * meshtilesy;
-    meshedgex = meshtilesx << 7;
-    meshedgey = meshtilesy << 7;
+    // intitalize the mesh info
+    mesh_info_init( pinfo, numvert, tiles_x, tiles_y );
+
+    // allocate the mesh memory
+    if ( !mesh_mem_allocate( pmem, pinfo ) )
+    {
+        mesh_delete( pmesh );
+        fclose( fileread );
+        log_warning( "Could not allocate memory for the mesh!!\n" );
+        return NULL;
+    }
 
     // Load fan data
-    for ( fan = 0; fan < numfan; fan++ )
+    for ( fan = 0; fan < pinfo->tiles_count; fan++ )
     {
         fread( &itmp, 4, 1, fileread );
-        meshtype[fan] = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
-        meshfx[fan]   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
-        meshtile[fan] = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
+        pmem->tile_list[fan].type = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
+        pmem->tile_list[fan].fx   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
+        pmem->tile_list[fan].img  = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
     }
 
     // Load twist data
-    for ( fan = 0; fan < numfan; fan++ )
+    for ( fan = 0; fan < pinfo->tiles_count; fan++ )
     {
         fread( &itmp, 1, 1, fileread );
-        meshtwist[fan] = ENDIAN_INT32( itmp );
+        pmem->tile_list[fan].twist = ENDIAN_INT32( itmp );
     }
 
     // Load vertex x data
-    for ( cnt = 0; cnt < numvert; cnt++ )
+    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
         fread( &ftmp, 4, 1, fileread );
-        meshvrtx[cnt] = ENDIAN_FLOAT( ftmp );
+        pmem->vrt_x[cnt] = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex y data
-    for ( cnt = 0; cnt < numvert; cnt++ )
+    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
         fread( &ftmp, 4, 1, fileread );
-        meshvrty[cnt] = ENDIAN_FLOAT( ftmp );
+        pmem->vrt_y[cnt] = ENDIAN_FLOAT( ftmp );
     }
 
     // Load vertex z data
-    for ( cnt = 0; cnt < numvert; cnt++ )
+    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
         fread( &ftmp, 4, 1, fileread );
-        meshvrtz[cnt] = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
+        pmem->vrt_z[cnt] = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
     }
 
     // Load vertex a data
-    for ( cnt = 0; cnt < numvert; cnt++ )
+    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
-        fread( &itmp, 1, 1, fileread );
-        meshvrta[cnt] = ENDIAN_INT32( itmp );
-        meshvrtl[cnt] = 0;
+        fread( &btemp, 1, 1, fileread );
+        pmem->vrt_a[cnt] = btemp; //ENDIAN_INT32( itmp );
+        pmem->vrt_l[cnt] = 0;
     }
 
     fclose( fileread );
 
-    make_fanstart();
-    make_vrtstart();
+    mesh_make_fanstart( pmesh );
+    mesh_make_vrtstart( pmesh );
 
-    return btrue;
+
+    // Fix the tile offsets for the mesh textures
+    for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
+    {
+        pmesh->tileoff_u[cnt] = ( cnt & 7 ) / 8.0f;
+        pmesh->tileoff_v[cnt] = ( cnt >> 3 ) / 8.0f;
+    }
+
+    return pmesh;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1207,13 +1293,15 @@ int SDL_main( int argc, char **argv )
     init_map();
     init_all_textures();
     init_all_models();
+    font_init();
+    mesh_new( &mesh );
 
     // Load stuff into memory
-    make_textureoffset();  // THIS SHOULD WORK
-    make_lightdirectionlookup(); // THIS SHOULD WORK
-    make_turntosin();  // THIS SHOULD WORK
-    make_enviro(); // THIS SHOULD WORK
-    load_mesh_fans(); // THIS SHOULD WORK
+    make_textureoffset();
+    make_lightdirectionlookup();
+    make_turntosin();
+    make_enviro();
+    tile_dictionary_load( tile_dict, MAXMESHTYPE );
     load_blip_bitmap();
     load_all_music_sounds();
     initMenus();        // Start the game menu
@@ -1709,59 +1797,59 @@ void mad_rip_actions( Uint16 object )
 
 //--------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-                            Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-                            Uint16 donttarget, Uint16 oldtarget )
+Uint8 onlyfriends, Uint8 anyone, Uint8 team,
+Uint16 donttarget, Uint16 oldtarget )
 {
-  // ZZ> This function helps find a target, returning btrue if it found a decent target
-  int cnt;
-  Uint16 angle;
-  Uint16 charb;
-  Uint8 enemies, returncode;
-  Uint32 fanblock;
-  int distance;
+// ZZ> This function helps find a target, returning btrue if it found a decent target
+int cnt;
+Uint16 angle;
+Uint16 charb;
+Uint8 enemies, returncode;
+Uint32 fanblock;
+int distance;
 
-  returncode = bfalse;
+returncode = bfalse;
 
-  // Current fanblock
-  if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-  {
-    fanblock = x + meshblockstart[y];
+// Current fanblock
+if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+{
+fanblock = mesh_get_block_int(&mesh, x,y);
 
-    enemies = bfalse;
-    if ( !onlyfriends ) enemies = btrue;
+enemies = bfalse;
+if ( !onlyfriends ) enemies = btrue;
 
-    charb = meshbumplistchr[fanblock];
-    cnt = 0;
-    while ( cnt < meshbumplistchrnum[fanblock] )
-    {
-      if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
-      {
-        if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
-        {
-          distance = ABS( ChrList[charb].xpos - chrx ) + ABS( ChrList[charb].ypos - chry );
-          if ( distance < globestdistance )
-          {
-            angle = ( ATAN2( ChrList[charb].ypos - chry, ChrList[charb].xpos - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
-            angle = facing - angle;
-            if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
-            {
-              returncode = btrue;
-              globesttarget = charb;
-              globestdistance = distance;
-              glouseangle = angle;
-              if ( angle  > 32767 )
-                globestangle = -angle;
-              else
-                globestangle = angle;
-            }
-          }
-        }
-      }
-      charb = ChrList[charb].bumpnext;
-      cnt++;
-    }
-  }
-  return returncode;
+charb = bumplist[fanblock].chr;
+cnt = 0;
+while ( cnt < bumplist[fanblock].chrnum )
+{
+if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
+{
+if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
+{
+distance = ABS( ChrList[charb].xpos - chrx ) + ABS( ChrList[charb].ypos - chry );
+if ( distance < globestdistance )
+{
+angle = ( ATAN2( ChrList[charb].ypos - chry, ChrList[charb].xpos - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
+angle = facing - angle;
+if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
+{
+returncode = btrue;
+globesttarget = charb;
+globestdistance = distance;
+glouseangle = angle;
+if ( angle  > 32767 )
+globestangle = -angle;
+else
+globestangle = angle;
+}
+}
+}
+}
+charb = ChrList[charb].bumpnext;
+cnt++;
+}
+}
+return returncode;
 }*/
 
 //--------------------------------------------------------------------------------------------
@@ -1809,33 +1897,33 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
 }
 //--------------------------------------------------------------------------------------------
 /*Uint16 find_target( float chrx, float chry, Uint16 facing,
-                    Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-                    Uint8 team, Uint16 donttarget, Uint16 oldtarget )
+Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+Uint8 team, Uint16 donttarget, Uint16 oldtarget )
 {
-  // This function finds the best target for the given parameters
-  Uint8 done;
-  int x, y;
+// This function finds the best target for the given parameters
+Uint8 done;
+int x, y;
 
-  x = chrx;
-  y = chry;
-  x = x >> 9;
-  y = y >> 9;
-  globestdistance = 9999;
-  globestangle = targetangle;
-  done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  if ( done ) return globesttarget;
+x = chrx;
+y = chry;
+x = x >> 9;
+y = y >> 9;
+globestdistance = 9999;
+globestangle = targetangle;
+done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
 
-  done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-  if ( done ) return globesttarget;
+done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
 
-  return MAXCHR;
+return MAXCHR;
 }*/
 
 //--------------------------------------------------------------------------------------------
@@ -2133,7 +2221,7 @@ void make_onwhichfan( void )
         level = get_level( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk ) + RAISE;
         if ( ChrList[character].alive )
         {
-            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( meshfx[ChrList[character].onwhichfan] & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
+            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
             {
                 if ( ( ChrList[character].damagemodifier[damagetiletype]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
                 {
@@ -2165,7 +2253,7 @@ void make_onwhichfan( void )
             }
         }
 
-        if ( ChrList[character].zpos < watersurfacelevel && INVALID_TILE != ChrList[character].onwhichfan && 0 != ( meshfx[ChrList[character].onwhichfan] & MESHFX_WATER ) )
+        if ( ChrList[character].zpos < watersurfacelevel && INVALID_TILE != ChrList[character].onwhichfan && 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_WATER ) )
         {
             if ( !ChrList[character].inwater )
             {
@@ -2221,14 +2309,14 @@ void make_onwhichfan( void )
         {
             // Change the volume...
             /*PORT
-                        volume = -(damagetilemindistance + (damagetilesoundtime<<8));
-                        volume = volume<<VOLSHIFT;
-                        if(volume > VOLMIN)
-                        {
-                            lpDSBuffer[damagetilesound]->SetVolume(volume);
-                        }
-                        if(damagetilesoundtime < TILESOUNDTIME)  damagetilesoundtime++;
-                        else damagetilemindistance = 9999;
+            volume = -(damagetilemindistance + (damagetilesoundtime<<8));
+            volume = volume<<VOLSHIFT;
+            if(volume > VOLMIN)
+            {
+            lpDSBuffer[damagetilesound]->SetVolume(volume);
+            }
+            if(damagetilesoundtime < TILESOUNDTIME)  damagetilesoundtime++;
+            else damagetilemindistance = 9999;
             */
         }
     }
@@ -2546,8 +2634,8 @@ void set_one_player_latch( Uint16 player )
 
                     newx = ( inputx * turntocos[turnsin] + inputy * turntosin[turnsin] );
                     newy = (-inputx * turntosin[turnsin] + inputy * turntocos[turnsin] );
-//                    PlaList[player].latchx+=newx;
-//                    PlaList[player].latchy+=newy;
+                    //                    PlaList[player].latchx+=newx;
+                    //                    PlaList[player].latchy+=newy;
                 }
             }
 
@@ -2557,10 +2645,10 @@ void set_one_player_latch( Uint16 player )
             mous.latcholdy = PlaList[player].latchy;
 
             // Sustain old movements to ease mouse play
-//            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
-//            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
-//            mous.latcholdx = PlaList[player].latchx;
-//            mous.latcholdy = PlaList[player].latchy;
+            //            PlaList[player].latchx+=mous.latcholdx*mous.sustain;
+            //            PlaList[player].latchy+=mous.latcholdy*mous.sustain;
+            //            mous.latcholdx = PlaList[player].latchx;
+            //            mous.latcholdy = PlaList[player].latchy;
             // Read buttons
             if ( control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_JUMP ) )
                 PlaList[player].latchbutton |= LATCHBUTTON_JUMP;
@@ -3119,13 +3207,13 @@ void bump_characters( void )
     Uint16 facing;
 
     // Clear the lists
-    for ( fanblock = 0; fanblock < meshblocks; fanblock++ )
+    for ( fanblock = 0; fanblock < mesh.info.blocks_count; fanblock++ )
     {
-        meshbumplistchr[fanblock]    = MAXCHR;
-        meshbumplistchrnum[fanblock] = 0;
+        bumplist[fanblock].chr    = MAXCHR;
+        bumplist[fanblock].chrnum = 0;
 
-        meshbumplistprt[fanblock]    = TOTALMAXPRT;
-        meshbumplistprtnum[fanblock] = 0;
+        bumplist[fanblock].prt    = TOTALMAXPRT;
+        bumplist[fanblock].prtnum = 0;
     }
 
     // Fill 'em back up
@@ -3150,9 +3238,9 @@ void bump_characters( void )
         if ( INVALID_BLOCK != ChrList[character].onwhichblock )
         {
             // Insert before any other characters on the block
-            ChrList[character].bumpnext = meshbumplistchr[ChrList[character].onwhichblock];
-            meshbumplistchr[ChrList[character].onwhichblock] = character;
-            meshbumplistchrnum[ChrList[character].onwhichblock]++;
+            ChrList[character].bumpnext = bumplist[ChrList[character].onwhichblock].chr;
+            bumplist[ChrList[character].onwhichblock].chr = character;
+            bumplist[ChrList[character].onwhichblock].chrnum++;
         }
     }
 
@@ -3168,9 +3256,9 @@ void bump_characters( void )
         if ( INVALID_BLOCK != PrtList[particle].onwhichblock )
         {
             // Insert before any other particles on the block
-            PrtList[particle].bumpnext = meshbumplistprt[PrtList[particle].onwhichblock];
-            meshbumplistprt[PrtList[particle].onwhichblock] = particle;
-            meshbumplistprtnum[PrtList[particle].onwhichblock]++;
+            PrtList[particle].bumpnext = bumplist[PrtList[particle].onwhichblock].prt;
+            bumplist[PrtList[particle].onwhichblock].prt = particle;
+            bumplist[PrtList[particle].onwhichblock].prtnum++;
         }
     }
 
@@ -3210,11 +3298,11 @@ void bump_characters( void )
         chridvulnerability = CapList[ChrList[chara].model].idsz[IDSZ_VULNERABILITY];
 
         // determine the size of this object in blocks
-        ixmin = ChrList[chara].xpos - ChrList[chara].bumpsize; ixmin = CLIP(ixmin, 0, meshedgex);
-        ixmax = ChrList[chara].xpos + ChrList[chara].bumpsize; ixmax = CLIP(ixmax, 0, meshedgex);
+        ixmin = ChrList[chara].xpos - ChrList[chara].bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
+        ixmax = ChrList[chara].xpos + ChrList[chara].bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
 
-        iymin = ChrList[chara].ypos - ChrList[chara].bumpsize; iymin = CLIP(iymin, 0, meshedgey);
-        iymax = ChrList[chara].ypos + ChrList[chara].bumpsize; iymax = CLIP(iymax, 0, meshedgey);
+        iymin = ChrList[chara].ypos - ChrList[chara].bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
+        iymax = ChrList[chara].ypos + ChrList[chara].bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -3227,627 +3315,629 @@ void bump_characters( void )
             for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
             {
                 // Allow raw access here because we were careful :)
-                fanblock = ix_block + meshblockstart[iy_block];
-
-                chrinblock = meshbumplistchrnum[fanblock];
-                prtinblock = meshbumplistprtnum[fanblock];
-
-                for ( tnc = 0, charb = meshbumplistchr[fanblock];
-                        tnc < chrinblock && charb != MAXCHR;
-                        tnc++, charb = ChrList[charb].bumpnext)
+                fanblock = mesh_get_block_int(&mesh, ix_block, iy_block);
+                if ( INVALID_BLOCK != fanblock )
                 {
-                    float dx, dy;
+                    chrinblock = bumplist[fanblock].chrnum;
+                    prtinblock = bumplist[fanblock].prtnum;
 
-                    bool_t collide_x = bfalse;
-                    bool_t collide_y  = bfalse;
-                    bool_t collide_xy = bfalse;
-                    bool_t collide_z  = bfalse;
-                    bool_t collide_platform_a = bfalse;
-                    bool_t collide_platform_b = bfalse;
-                    bool_t collision = bfalse;
-
-                    // Don't collide with self, and only do each collision pair once
-                    if ( charb <= chara ) continue;
-
-                    // don't interact with your mount, or your held items
-                    if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
-
-                    xb = ChrList[charb].xpos;
-                    yb = ChrList[charb].ypos;
-                    zb = ChrList[charb].zpos;
-
-                    dx = ABS( xa - xb );
-                    dy = ABS( ya - yb );
-                    dist = dx + dy;
-
-                    //------------------
-                    // do platforms
-
-                    // check the absolute value diamond
-                    if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
+                    for ( tnc = 0, charb = bumplist[fanblock].chr;
+                            tnc < chrinblock && charb != MAXCHR;
+                            tnc++, charb = ChrList[charb].bumpnext)
                     {
-                        collide_xy = btrue;
-                    }
+                        float dx, dy;
 
-                    // check bounding box x
-                    if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) )
-                    {
-                        collide_x = btrue;
-                    }
+                        bool_t collide_x = bfalse;
+                        bool_t collide_y  = bfalse;
+                        bool_t collide_xy = bfalse;
+                        bool_t collide_z  = bfalse;
+                        bool_t collide_platform_a = bfalse;
+                        bool_t collide_platform_b = bfalse;
+                        bool_t collision = bfalse;
 
-                    // check bounding box y
-                    if ( ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
-                    {
-                        collide_y = btrue;
-                    }
+                        // Don't collide with self, and only do each collision pair once
+                        if ( charb <= chara ) continue;
 
-                    collide_platform_a = ( za > (zb + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( za < (zb + ChrList[charb].bumpheight) );
-                    collide_platform_b = ( zb > (za + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( zb < (za + ChrList[chara].bumpheight) );
+                        // don't interact with your mount, or your held items
+                        if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
 
-                    // do platforms
-                    if ( collide_x && collide_y && collide_xy && ( collide_platform_a || collide_platform_b ) )
-                    {
-                        bool_t was_collide_platform_a = bfalse;
-                        bool_t was_collide_platform_b = bfalse;
+                        xb = ChrList[charb].xpos;
+                        yb = ChrList[charb].ypos;
+                        zb = ChrList[charb].zpos;
 
-                        was_collide_platform_a = ( ChrList[chara].oldz > (ChrList[charb].oldz + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( ChrList[chara].oldz < (ChrList[charb].oldz + ChrList[charb].bumpheight) );
-                        was_collide_platform_b = ( ChrList[charb].oldz > (ChrList[chara].oldz + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( ChrList[charb].oldz < (ChrList[chara].oldz + ChrList[chara].bumpheight) );
+                        dx = ABS( xa - xb );
+                        dy = ABS( ya - yb );
+                        dist = dx + dy;
 
-                        // Is A falling on B?
-                        if ( !collision && collide_platform_a )
+                        //------------------
+                        // do platforms
+
+                        // check the absolute value diamond
+                        if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
                         {
-                            if ( CapList[ChrList[chara].model].canuseplatforms && ChrList[charb].platform )//&&ChrList[chara].flyheight==0)
+                            collide_xy = btrue;
+                        }
+
+                        // check bounding box x
+                        if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) )
+                        {
+                            collide_x = btrue;
+                        }
+
+                        // check bounding box y
+                        if ( ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                        {
+                            collide_y = btrue;
+                        }
+
+                        collide_platform_a = ( za > (zb + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( za < (zb + ChrList[charb].bumpheight) );
+                        collide_platform_b = ( zb > (za + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( zb < (za + ChrList[chara].bumpheight) );
+
+                        // do platforms
+                        if ( collide_x && collide_y && collide_xy && ( collide_platform_a || collide_platform_b ) )
+                        {
+                            bool_t was_collide_platform_a = bfalse;
+                            bool_t was_collide_platform_b = bfalse;
+
+                            was_collide_platform_a = ( ChrList[chara].oldz > (ChrList[charb].oldz + ChrList[charb].bumpheight - PLATTOLERANCE) ) && ( ChrList[chara].oldz < (ChrList[charb].oldz + ChrList[charb].bumpheight) );
+                            was_collide_platform_b = ( ChrList[charb].oldz > (ChrList[chara].oldz + ChrList[chara].bumpheight - PLATTOLERANCE) ) && ( ChrList[charb].oldz < (ChrList[chara].oldz + ChrList[chara].bumpheight) );
+
+                            // Is A falling on B?
+                            if ( !collision && collide_platform_a )
                             {
-                                // make the character float up to the level of the platform
-                                if ( was_collide_platform_a )
+                                if ( CapList[ChrList[chara].model].canuseplatforms && ChrList[charb].platform )//&&ChrList[chara].flyheight==0)
                                 {
-                                    ChrList[chara].phys_pos_z += -ChrList[chara].zpos + ( ChrList[chara].zpos ) * PLATKEEP + ( ChrList[charb].zpos + ChrList[charb].bumpheight + PLATADD ) * PLATASCEND;
-                                    if ( ChrList[chara].zvel < ChrList[charb].zvel ) ChrList[chara].phys_vel_z += -ChrList[chara].zvel + ChrList[charb].zvel;
+                                    // make the character float up to the level of the platform
+                                    if ( was_collide_platform_a )
+                                    {
+                                        ChrList[chara].phys_pos_z += -ChrList[chara].zpos + ( ChrList[chara].zpos ) * PLATKEEP + ( ChrList[charb].zpos + ChrList[charb].bumpheight + PLATADD ) * PLATASCEND;
+                                        if ( ChrList[chara].zvel < ChrList[charb].zvel ) ChrList[chara].phys_vel_z += -ChrList[chara].zvel + ChrList[charb].zvel;
+                                    }
+
+                                    ChrList[chara].phys_vel_x += ( ChrList[charb].xvel ) * platstick;
+                                    ChrList[chara].phys_vel_y += ( ChrList[charb].yvel ) * platstick;
+                                    ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick;
+
+                                    ChrList[chara].jumpready = btrue;
+                                    ChrList[chara].jumpnumber = ChrList[chara].jumpnumberreset;
+                                    ChrList[charb].holdingweight = ChrList[chara].weight;
+
+                                    ChrList[chara].ai.bumplast = charb;
+                                    ChrList[charb].ai.bumplast = chara;
+
+                                    collision = btrue;
                                 }
-
-                                ChrList[chara].phys_vel_x += ( ChrList[charb].xvel ) * platstick;
-                                ChrList[chara].phys_vel_y += ( ChrList[charb].yvel ) * platstick;
-                                ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick;
-
-                                ChrList[chara].jumpready = btrue;
-                                ChrList[chara].jumpnumber = ChrList[chara].jumpnumberreset;
-                                ChrList[charb].holdingweight = ChrList[chara].weight;
-
-                                ChrList[chara].ai.bumplast = charb;
-                                ChrList[charb].ai.bumplast = chara;
-
-                                collision = btrue;
                             }
-                        }
 
-                        // Is B falling on A?
-                        if ( !collision && collide_platform_b )
-                        {
-                            if ( CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform )//&&ChrList[charb].flyheight==0)
+                            // Is B falling on A?
+                            if ( !collision && collide_platform_b )
                             {
-                                // make the character float up to the level of the platform
-                                if ( was_collide_platform_b )
+                                if ( CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform )//&&ChrList[charb].flyheight==0)
                                 {
-                                    ChrList[charb].phys_pos_z  += -ChrList[charb].zpos + ( ChrList[charb].zpos ) * PLATKEEP + ( ChrList[chara].zpos + ChrList[chara].bumpheight + PLATADD ) * PLATASCEND;
-                                    if ( ChrList[charb].zvel < ChrList[chara].zvel ) ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + ChrList[chara].zvel;
+                                    // make the character float up to the level of the platform
+                                    if ( was_collide_platform_b )
+                                    {
+                                        ChrList[charb].phys_pos_z  += -ChrList[charb].zpos + ( ChrList[charb].zpos ) * PLATKEEP + ( ChrList[chara].zpos + ChrList[chara].bumpheight + PLATADD ) * PLATASCEND;
+                                        if ( ChrList[charb].zvel < ChrList[chara].zvel ) ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + ChrList[chara].zvel;
+                                    }
+
+                                    ChrList[charb].phys_vel_x += ( ChrList[chara].xvel ) * platstick;
+                                    ChrList[charb].phys_vel_y += ( ChrList[chara].yvel ) * platstick;
+                                    ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick;
+
+                                    ChrList[charb].jumpready = btrue;
+                                    ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
+                                    ChrList[chara].holdingweight = ChrList[charb].weight;
+
+                                    ChrList[chara].ai.bumplast = charb;
+                                    ChrList[charb].ai.bumplast = chara;
+
+                                    collision = btrue;
                                 }
-
-                                ChrList[charb].phys_vel_x += ( ChrList[chara].xvel ) * platstick;
-                                ChrList[charb].phys_vel_y += ( ChrList[chara].yvel ) * platstick;
-                                ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick;
-
-                                ChrList[charb].jumpready = btrue;
-                                ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
-                                ChrList[chara].holdingweight = ChrList[charb].weight;
-
-                                ChrList[chara].ai.bumplast = charb;
-                                ChrList[charb].ai.bumplast = chara;
-
-                                collision = btrue;
                             }
+
                         }
 
-                    }
+                        //------------------
+                        // do characters
 
-                    //------------------
-                    // do characters
+                        collide_xy = ( dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
+                        collide_x  = ( dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                        collide_y  = ( dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                        collide_z  = ( MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX(za, zb) > 0 );
 
-                    collide_xy = ( dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
-                    collide_x  = ( dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
-                    collide_y  = ( dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
-                    collide_z  = ( MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX(za, zb) > 0 );
-
-                    if ( !collision && collide_z && collide_x && collide_y && collide_xy )
-                    {
-                        float vdot;
-
-                        float depth_x, depth_y, depth_xy, depth_yx, depth_z;
-                        glVector nrm;
-
-                        nrm.x = nrm.y = nrm.z = 0.0f;
-                        nrm.w = 1.0f;
-
-                        depth_x  = MIN(xa + ChrList[chara].bumpsize, xb + ChrList[charb].bumpsize) - MAX(xa - ChrList[chara].bumpsize, xb - ChrList[charb].bumpsize);
-                        if ( depth_x < 0.0f )
+                        if ( !collision && collide_z && collide_x && collide_y && collide_xy )
                         {
-                            depth_x = 0.0f;
-                        }
-                        else
-                        {
-                            nrm.x += 1 / depth_x;
-                        }
+                            float vdot;
 
-                        depth_y  = MIN(ya + ChrList[chara].bumpsize, yb + ChrList[charb].bumpsize) - MAX(ya - ChrList[chara].bumpsize, yb - ChrList[charb].bumpsize);
-                        if ( depth_y < 0.0f )
-                        {
-                            depth_y = 0.0f;
-                        }
-                        else
-                        {
-                            nrm.y += 1 / depth_y;
-                        }
+                            float depth_x, depth_y, depth_xy, depth_yx, depth_z;
+                            glVector nrm;
 
-                        depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsize, xb + yb - ChrList[charb].bumpsizebig);
-                        if ( depth_xy < 0.0f )
-                        {
-                            depth_xy = 0.0f;
-                        }
-                        else
-                        {
-                            nrm.x += 1 / depth_xy;
-                            nrm.y += 1 / depth_xy;
-                        }
+                            nrm.x = nrm.y = nrm.z = 0.0f;
+                            nrm.w = 1.0f;
 
-                        depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsize, -xb + yb - ChrList[charb].bumpsizebig);
-                        if ( depth_yx < 0.0f )
-                        {
-                            depth_yx = 0.0f;
-                        }
-                        else
-                        {
-                            nrm.x -= 1 / depth_yx;
-                            nrm.y += 1 / depth_yx;
-                        }
-
-                        depth_z  = MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX( za, zb );
-                        if ( depth_z < 0.0f )
-                        {
-                            depth_z = 0.0f;
-                        }
-                        else
-                        {
-                            nrm.z += 1 / depth_z;
-                        }
-
-                        if ( xa < xb ) nrm.x *= -1;
-                        if ( ya < yb ) nrm.y *= -1;
-                        if ( za < zb ) nrm.z *= -1;
-
-                        vdot = (ChrList[chara].xvel - ChrList[charb].xvel) * nrm.x +
-                               (ChrList[chara].yvel - ChrList[charb].yvel) * nrm.y +
-                               (ChrList[chara].zvel - ChrList[charb].zvel) * nrm.z;
-
-                        if ( vdot < 0.0f && ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
-                        {
-                            float was_dx, was_dy, was_dist;
-
-                            bool_t was_collide_x = bfalse;
-                            bool_t was_collide_y  = bfalse;
-                            bool_t was_collide_xy = bfalse;
-                            bool_t was_collide_z  = bfalse;
-
-                            nrm = Normalize( nrm );
-
-                            was_dx = ABS( (xa - ChrList[chara].xvel) - (xb - ChrList[charb].xvel) );
-                            was_dy = ABS( (ya - ChrList[chara].yvel) - (yb - ChrList[charb].yvel) );
-                            was_dist = dx + dy;
-
-                            was_collide_xy = ( was_dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
-                            was_collide_x  = ( was_dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
-                            was_collide_y  = ( was_dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
-                            was_collide_z = ( MIN(ChrList[chara].oldz + ChrList[chara].bumpheight, ChrList[charb].oldz + ChrList[charb].bumpheight) > MAX(ChrList[chara].oldz, ChrList[charb].oldz) );
-
-                            if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
+                            depth_x  = MIN(xa + ChrList[chara].bumpsize, xb + ChrList[charb].bumpsize) - MAX(xa - ChrList[chara].bumpsize, xb - ChrList[charb].bumpsize);
+                            if ( depth_x < 0.0f )
                             {
-                                // an acrual collision
-                                float vdot;
-                                glVector vcom;
-
-                                vcom.x = ChrList[chara].xvel * ChrList[chara].weight + ChrList[charb].xvel * ChrList[charb].weight;
-                                vcom.y = ChrList[chara].yvel * ChrList[chara].weight + ChrList[charb].yvel * ChrList[charb].weight;
-                                vcom.z = ChrList[chara].zvel * ChrList[chara].weight + ChrList[charb].zvel * ChrList[charb].weight;
-
-                                if ( ChrList[chara].weight + ChrList[charb].weight > 0 )
-                                {
-                                    vcom.x /= ChrList[chara].weight + ChrList[charb].weight;
-                                    vcom.y /= ChrList[chara].weight + ChrList[charb].weight;
-                                    vcom.z /= ChrList[chara].weight + ChrList[charb].weight;
-                                }
-
-                                // do the bounce
-                                if ( ChrList[chara].weight != 0xFFFF )
-                                {
-                                    vdot = ( ChrList[chara].xvel - vcom.x ) * nrm.x + ( ChrList[chara].yvel - vcom.y ) * nrm.y + ( ChrList[chara].zvel - vcom.z ) * nrm.z;
-
-                                    ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ChrList[chara].bumpdampen;
-                                    ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ChrList[chara].bumpdampen;
-                                    ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ChrList[chara].bumpdampen;
-                                }
-
-                                if ( ChrList[charb].weight != 0xFFFF )
-                                {
-                                    vdot = ( ChrList[charb].xvel - vcom.x ) * nrm.x + ( ChrList[charb].yvel - vcom.y ) * nrm.y + ( ChrList[charb].zvel - vcom.z ) * nrm.z;
-
-                                    ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ChrList[charb].bumpdampen;
-                                    ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ChrList[charb].bumpdampen;
-                                    ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ChrList[charb].bumpdampen;
-                                }
-
-                                collision = btrue;
+                                depth_x = 0.0f;
                             }
                             else
                             {
-                                float tmin;
+                                nrm.x += 1 / depth_x;
+                            }
 
-                                tmin = 1e6;
-                                if ( nrm.x != 0 )
-                                {
-                                    tmin = MIN(tmin, depth_x / ABS(nrm.x) );
-                                }
-                                if ( nrm.y != 0 )
-                                {
-                                    tmin = MIN(tmin, depth_y / ABS(nrm.y) );
-                                }
-                                if ( nrm.z != 0 )
-                                {
-                                    tmin = MIN(tmin, depth_z / ABS(nrm.z) );
-                                }
+                            depth_y  = MIN(ya + ChrList[chara].bumpsize, yb + ChrList[charb].bumpsize) - MAX(ya - ChrList[chara].bumpsize, yb - ChrList[charb].bumpsize);
+                            if ( depth_y < 0.0f )
+                            {
+                                depth_y = 0.0f;
+                            }
+                            else
+                            {
+                                nrm.y += 1 / depth_y;
+                            }
 
-                                if ( nrm.x + nrm.y != 0 )
-                                {
-                                    tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
-                                }
+                            depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsize, xb + yb - ChrList[charb].bumpsizebig);
+                            if ( depth_xy < 0.0f )
+                            {
+                                depth_xy = 0.0f;
+                            }
+                            else
+                            {
+                                nrm.x += 1 / depth_xy;
+                                nrm.y += 1 / depth_xy;
+                            }
 
-                                if ( -nrm.x + nrm.y != 0 )
-                                {
-                                    tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
-                                }
+                            depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsize, -xb + yb - ChrList[charb].bumpsizebig);
+                            if ( depth_yx < 0.0f )
+                            {
+                                depth_yx = 0.0f;
+                            }
+                            else
+                            {
+                                nrm.x -= 1 / depth_yx;
+                                nrm.y += 1 / depth_yx;
+                            }
 
-                                if ( tmin < 1e6 )
+                            depth_z  = MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX( za, zb );
+                            if ( depth_z < 0.0f )
+                            {
+                                depth_z = 0.0f;
+                            }
+                            else
+                            {
+                                nrm.z += 1 / depth_z;
+                            }
+
+                            if ( xa < xb ) nrm.x *= -1;
+                            if ( ya < yb ) nrm.y *= -1;
+                            if ( za < zb ) nrm.z *= -1;
+
+                            vdot = (ChrList[chara].xvel - ChrList[charb].xvel) * nrm.x +
+                                   (ChrList[chara].yvel - ChrList[charb].yvel) * nrm.y +
+                                   (ChrList[chara].zvel - ChrList[charb].zvel) * nrm.z;
+
+                            if ( vdot < 0.0f && ABS(nrm.x) + ABS(nrm.y) + ABS(nrm.z) > 0.0f )
+                            {
+                                float was_dx, was_dy, was_dist;
+
+                                bool_t was_collide_x = bfalse;
+                                bool_t was_collide_y  = bfalse;
+                                bool_t was_collide_xy = bfalse;
+                                bool_t was_collide_z  = bfalse;
+
+                                nrm = Normalize( nrm );
+
+                                was_dx = ABS( (xa - ChrList[chara].xvel) - (xb - ChrList[charb].xvel) );
+                                was_dy = ABS( (ya - ChrList[chara].yvel) - (yb - ChrList[charb].yvel) );
+                                was_dist = dx + dy;
+
+                                was_collide_xy = ( was_dist < ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig );
+                                was_collide_x  = ( was_dx   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                                was_collide_y  = ( was_dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
+                                was_collide_z = ( MIN(ChrList[chara].oldz + ChrList[chara].bumpheight, ChrList[charb].oldz + ChrList[charb].bumpheight) > MAX(ChrList[chara].oldz, ChrList[charb].oldz) );
+
+                                if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
                                 {
+                                    // an acrual collision
+                                    float vdot;
+                                    glVector vcom;
+
+                                    vcom.x = ChrList[chara].xvel * ChrList[chara].weight + ChrList[charb].xvel * ChrList[charb].weight;
+                                    vcom.y = ChrList[chara].yvel * ChrList[chara].weight + ChrList[charb].yvel * ChrList[charb].weight;
+                                    vcom.z = ChrList[chara].zvel * ChrList[chara].weight + ChrList[charb].zvel * ChrList[charb].weight;
+
+                                    if ( ChrList[chara].weight + ChrList[charb].weight > 0 )
+                                    {
+                                        vcom.x /= ChrList[chara].weight + ChrList[charb].weight;
+                                        vcom.y /= ChrList[chara].weight + ChrList[charb].weight;
+                                        vcom.z /= ChrList[chara].weight + ChrList[charb].weight;
+                                    }
+
+                                    // do the bounce
                                     if ( ChrList[chara].weight != 0xFFFF )
                                     {
-                                        ChrList[chara].phys_pos_x += tmin * nrm.x * 0.125f;
-                                        ChrList[chara].phys_pos_y += tmin * nrm.y * 0.125f;
-                                        ChrList[chara].phys_pos_z += tmin * nrm.z * 0.125f;
+                                        vdot = ( ChrList[chara].xvel - vcom.x ) * nrm.x + ( ChrList[chara].yvel - vcom.y ) * nrm.y + ( ChrList[chara].zvel - vcom.z ) * nrm.z;
+
+                                        ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ChrList[chara].bumpdampen;
+                                        ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ChrList[chara].bumpdampen;
+                                        ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ChrList[chara].bumpdampen;
                                     }
 
                                     if ( ChrList[charb].weight != 0xFFFF )
                                     {
-                                        ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.125f;
-                                        ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.125f;
-                                        ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.125f;
+                                        vdot = ( ChrList[charb].xvel - vcom.x ) * nrm.x + ( ChrList[charb].yvel - vcom.y ) * nrm.y + ( ChrList[charb].zvel - vcom.z ) * nrm.z;
+
+                                        ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ChrList[charb].bumpdampen;
+                                        ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ChrList[charb].bumpdampen;
+                                        ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ChrList[charb].bumpdampen;
                                     }
+
+                                    collision = btrue;
                                 }
-                            }
-                        }
-
-                        if ( collision )
-                        {
-                            ChrList[chara].ai.bumplast = charb;
-                            ChrList[charb].ai.bumplast = chara;
-
-                            ChrList[chara].ai.alert |= ALERTIF_BUMPED;
-                            ChrList[charb].ai.alert |= ALERTIF_BUMPED;
-                        }
-                    }
-                }
-
-                // do mounting
-                charb = ChrList[chara].ai.bumplast;
-                if ( charb != chara && ChrList[charb].on && !ChrList[charb].inpack && ChrList[charb].attachedto == MAXCHR && 0 != ChrList[chara].bumpheight && 0 != ChrList[charb].bumpheight )
-                {
-                    float dx, dy;
-
-                    xb = ChrList[charb].xpos;
-                    yb = ChrList[charb].ypos;
-                    zb = ChrList[charb].zpos;
-
-                    // First check absolute value diamond
-                    dx = ABS( xa - xb );
-                    dy = ABS( ya - yb );
-                    dist = dx + dy;
-                    if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
-                    {
-                        // Then check bounding box square...  Square+Diamond=Octagon
-                        if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
-                                ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
-                        {
-                            // Now see if either is on top the other like a platform
-                            if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
-                            {
-                                // Is A falling on B?
-                                if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
+                                else
                                 {
-                                    if ( MadList[ChrList[chara].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
+                                    float tmin;
+
+                                    tmin = 1e6;
+                                    if ( nrm.x != 0 )
                                     {
-                                        attach_character_to_mount( chara, charb, GRIP_ONLY );
-                                        ChrList[chara].ai.bumplast = chara;
-                                        ChrList[charb].ai.bumplast = charb;
+                                        tmin = MIN(tmin, depth_x / ABS(nrm.x) );
                                     }
-                                }
-                            }
-                            else
-                            {
-                                if ( zb > za + ChrList[chara].bumpheight - PLATTOLERANCE + ChrList[charb].zvel - ChrList[chara].zvel && ( CapList[ChrList[charb].model].canuseplatforms || zb > za + ChrList[chara].bumpheight ) )
-                                {
-                                    // Is B falling on A?
-                                    if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
+                                    if ( nrm.y != 0 )
                                     {
-                                        if ( MadList[ChrList[charb].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
+                                        tmin = MIN(tmin, depth_y / ABS(nrm.y) );
+                                    }
+                                    if ( nrm.z != 0 )
+                                    {
+                                        tmin = MIN(tmin, depth_z / ABS(nrm.z) );
+                                    }
+
+                                    if ( nrm.x + nrm.y != 0 )
+                                    {
+                                        tmin = MIN(tmin, depth_xy / ABS(nrm.x + nrm.y) );
+                                    }
+
+                                    if ( -nrm.x + nrm.y != 0 )
+                                    {
+                                        tmin = MIN(tmin, depth_yx / ABS(-nrm.x + nrm.y) );
+                                    }
+
+                                    if ( tmin < 1e6 )
+                                    {
+                                        if ( ChrList[chara].weight != 0xFFFF )
                                         {
-                                            attach_character_to_mount( charb, chara, GRIP_ONLY );
+                                            ChrList[chara].phys_pos_x += tmin * nrm.x * 0.125f;
+                                            ChrList[chara].phys_pos_y += tmin * nrm.y * 0.125f;
+                                            ChrList[chara].phys_pos_z += tmin * nrm.z * 0.125f;
+                                        }
 
-                                            ChrList[chara].ai.bumplast = chara;
-                                            ChrList[charb].ai.bumplast = charb;
+                                        if ( ChrList[charb].weight != 0xFFFF )
+                                        {
+                                            ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.125f;
+                                            ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.125f;
+                                            ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.125f;
                                         }
                                     }
                                 }
                             }
+
+                            if ( collision )
+                            {
+                                ChrList[chara].ai.bumplast = charb;
+                                ChrList[charb].ai.bumplast = chara;
+
+                                ChrList[chara].ai.alert |= ALERTIF_BUMPED;
+                                ChrList[charb].ai.alert |= ALERTIF_BUMPED;
+                            }
                         }
                     }
-                }
 
-                // Now check collisions with every bump particle in same area
-                if ( ChrList[chara].alive )
-                {
-                    for ( tnc = 0, partb = meshbumplistprt[fanblock];
-                            tnc < prtinblock;
-                            tnc++, partb = PrtList[partb].bumpnext )
+                    // do mounting
+                    charb = ChrList[chara].ai.bumplast;
+                    if ( charb != chara && ChrList[charb].on && !ChrList[charb].inpack && ChrList[charb].attachedto == MAXCHR && 0 != ChrList[chara].bumpheight && 0 != ChrList[charb].bumpheight )
                     {
                         float dx, dy;
 
-                        // do not collide with the thing that you're attached to
-                        if ( chara == PrtList[partb].attachedtocharacter ) continue;
-
-                        // if there's no friendly fire, particles issued by chara can't hit it
-                        if ( !PipList[PrtList[partb].pip].friendlyfire && chara == PrtList[partb].chr ) continue;
-
-                        xb = PrtList[partb].xpos;
-                        yb = PrtList[partb].ypos;
-                        zb = PrtList[partb].zpos;
+                        xb = ChrList[charb].xpos;
+                        yb = ChrList[charb].ypos;
+                        zb = ChrList[charb].zpos;
 
                         // First check absolute value diamond
                         dx = ABS( xa - xb );
                         dy = ABS( ya - yb );
                         dist = dx + dy;
-                        if ( dist < ChrList[chara].bumpsizebig || dist < PrtList[partb].bumpsizebig )
+                        if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
                         {
                             // Then check bounding box square...  Square+Diamond=Octagon
-                            if ( ( dx < ChrList[chara].bumpsize  || dx < PrtList[partb].bumpsize ) &&
-                                    ( dy < ChrList[chara].bumpsize  || dy < PrtList[partb].bumpsize ) &&
-                                    ( zb > za - PrtList[partb].bumpheight && zb < za + ChrList[chara].bumpheight + PrtList[partb].bumpheight ) )
+                            if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
+                                    ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
                             {
-                                pip = PrtList[partb].pip;
-                                if ( zb > za + ChrList[chara].bumpheight + PrtList[partb].zvel && PrtList[partb].zvel < 0 && ChrList[chara].platform && PrtList[partb].attachedtocharacter == MAXCHR )
+                                // Now see if either is on top the other like a platform
+                                if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
                                 {
-                                    // Particle is falling on A
-                                    PrtList[partb].zpos = za + ChrList[chara].bumpheight;
-                                    PrtList[partb].zvel = -PrtList[partb].zvel * PipList[pip].dampen;
-                                    PrtList[partb].xvel += ( ChrList[chara].xvel ) * platstick;
-                                    PrtList[partb].yvel += ( ChrList[chara].yvel ) * platstick;
-                                }
-
-                                // Check reaffirmation of particles
-                                if ( PrtList[partb].attachedtocharacter != chara )
-                                {
-                                    if ( ChrList[chara].reloadtime == 0 )
+                                    // Is A falling on B?
+                                    if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
                                     {
-                                        if ( ChrList[chara].reaffirmdamagetype == PrtList[partb].damagetype && ChrList[chara].damagetime == 0 )
+                                        if ( MadList[ChrList[chara].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
                                         {
-                                            reaffirm_attached_particles( chara );
-                                        }
-                                    }
-                                }
-
-                                // Check for missile treatment
-                                if ( ( ChrList[chara].damagemodifier[PrtList[partb].damagetype]&3 ) < 2 ||
-                                        ChrList[chara].missiletreatment == MISNORMAL ||
-                                        PrtList[partb].attachedtocharacter != MAXCHR ||
-                                        ( PrtList[partb].chr == chara && !PipList[pip].friendlyfire ) ||
-                                        ( ChrList[ChrList[chara].missilehandler].mana < ( ChrList[chara].missilecost << 4 ) && !ChrList[ChrList[chara].missilehandler].canchannel ) )
-                                {
-                                    if ( ( TeamList[PrtList[partb].team].hatesteam[ChrList[chara].team] || ( PipList[pip].friendlyfire && ( ( chara != PrtList[partb].chr && chara != ChrList[PrtList[partb].chr].attachedto ) || PipList[pip].onlydamagefriendly ) ) ) && !ChrList[chara].invictus )
-                                    {
-                                        spawn_bump_particles( chara, partb ); // Catch on fire
-                                        if ( ( PrtList[partb].damagebase | PrtList[partb].damagerand ) > 1 )
-                                        {
-                                            prtidparent = CapList[PrtList[partb].model].idsz[IDSZ_PARENT];
-                                            prtidtype = CapList[PrtList[partb].model].idsz[IDSZ_TYPE];
-                                            if ( ChrList[chara].damagetime == 0 && PrtList[partb].attachedtocharacter != chara && ( PipList[pip].damfx&DAMFXARRO ) == 0 )
-                                            {
-                                                // Normal partb damage
-                                                if ( PipList[pip].allowpush )
-                                                {
-                                                    ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + PrtList[partb].xvel * ChrList[chara].bumpdampen;
-                                                    ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + PrtList[partb].yvel * ChrList[chara].bumpdampen;
-                                                    ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + PrtList[partb].zvel * ChrList[chara].bumpdampen;
-                                                }
-
-                                                direction = ( ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
-                                                direction = ChrList[chara].turnleftright - direction + 32768;
-                                                // Check all enchants to see if they are removed
-                                                enchant = ChrList[chara].firstenchant;
-
-                                                while ( enchant != MAXENCHANT )
-                                                {
-                                                    eveidremove = EveList[EncList[enchant].eve].removedbyidsz;
-                                                    temp = EncList[enchant].nextenchant;
-                                                    if ( eveidremove != IDSZ_NONE && ( eveidremove == prtidtype || eveidremove == prtidparent ) )
-                                                    {
-                                                        remove_enchant( enchant );
-                                                    }
-
-                                                    enchant = temp;
-                                                }
-
-                                                // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
-                                                //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                                                if ( PipList[pip].intdamagebonus )
-                                                {
-                                                    int percent;
-                                                    percent = ( ChrList[PrtList[partb].chr].intelligence - 3584 ) >> 7;
-                                                    percent /= 100;
-                                                    PrtList[partb].damagebase *= 1 + percent;
-                                                }
-                                                if ( PipList[pip].wisdamagebonus )
-                                                {
-                                                    int percent;
-                                                    percent = ( ChrList[PrtList[partb].chr].wisdom - 3584 ) >> 7;
-                                                    percent /= 100;
-                                                    PrtList[partb].damagebase *= 1 + percent;
-                                                }
-
-                                                // Damage the character
-                                                if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
-                                                {
-                                                    damage_character( chara, direction, PrtList[partb].damagebase << 1, PrtList[partb].damagerand << 1, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
-                                                    ChrList[chara].ai.alert |= ALERTIF_HITVULNERABLE;
-                                                }
-                                                else
-                                                {
-                                                    damage_character( chara, direction, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
-                                                }
-
-                                                // Do confuse effects
-                                                if ( 0 == ( Md2FrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
-                                                {
-                                                    if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
-                                                    {
-                                                        ChrList[chara].grogtime += PipList[pip].grogtime;
-                                                        if ( ChrList[chara].grogtime < 0 )  ChrList[chara].grogtime = 32767;
-
-                                                        ChrList[chara].ai.alert |= ALERTIF_GROGGED;
-                                                    }
-                                                    if ( PipList[pip].dazetime != 0 && CapList[ChrList[chara].model].canbedazed )
-                                                    {
-                                                        ChrList[chara].dazetime += PipList[pip].dazetime;
-                                                        if ( ChrList[chara].dazetime < 0 )  ChrList[chara].dazetime = 32767;
-
-                                                        ChrList[chara].ai.alert |= ALERTIF_DAZED;
-                                                    }
-                                                }
-
-                                                // Notify the attacker of a scored hit
-                                                if ( PrtList[partb].chr != MAXCHR )
-                                                {
-                                                    ChrList[PrtList[partb].chr].ai.alert |= ALERTIF_SCOREDAHIT;
-                                                    ChrList[PrtList[partb].chr].ai.hitlast = chara;
-                                                }
-                                            }
-                                            if ( ( frame_wld&31 ) == 0 && PrtList[partb].attachedtocharacter == chara )
-                                            {
-                                                // Attached partb damage ( Burning )
-                                                if ( PipList[pip].xyvelbase == 0 )
-                                                {
-                                                    // Make character limp
-                                                    ChrList[chara].phys_vel_x += -ChrList[chara].xvel;
-                                                    ChrList[chara].phys_vel_y += -ChrList[chara].yvel;
-                                                }
-
-                                                damage_character( chara, 32768, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
-                                            }
-                                        }
-                                        if ( PipList[pip].endbump )
-                                        {
-                                            if ( PipList[pip].bumpmoney )
-                                            {
-                                                if ( ChrList[chara].cangrabmoney && ChrList[chara].alive && ChrList[chara].damagetime == 0 && ChrList[chara].money != MAXMONEY )
-                                                {
-                                                    if ( ChrList[chara].ismount )
-                                                    {
-                                                        // Let mounts collect money for their riders
-                                                        if ( ChrList[chara].holdingwhich[0] != MAXCHR )
-                                                        {
-                                                            ChrList[ChrList[chara].holdingwhich[0]].money += PipList[pip].bumpmoney;
-                                                            if ( ChrList[ChrList[chara].holdingwhich[0]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[0]].money = MAXMONEY;
-                                                            if ( ChrList[ChrList[chara].holdingwhich[0]].money < 0 ) ChrList[ChrList[chara].holdingwhich[0]].money = 0;
-
-                                                            PrtList[partb].time = 1;
-                                                        }
-                                                    }
-                                                    else
-                                                    {
-                                                        // Normal money collection
-                                                        ChrList[chara].money += PipList[pip].bumpmoney;
-                                                        if ( ChrList[chara].money > MAXMONEY ) ChrList[chara].money = MAXMONEY;
-                                                        if ( ChrList[chara].money < 0 ) ChrList[chara].money = 0;
-
-                                                        PrtList[partb].time = 1;
-                                                    }
-                                                }
-                                            }
-                                            else
-                                            {
-                                                PrtList[partb].time = 1;
-                                                // Only hit one character, not several
-                                                PrtList[partb].damagebase = 0;
-                                                PrtList[partb].damagerand = 1;
-                                            }
+                                            attach_character_to_mount( chara, charb, GRIP_ONLY );
+                                            ChrList[chara].ai.bumplast = chara;
+                                            ChrList[charb].ai.bumplast = charb;
                                         }
                                     }
                                 }
                                 else
                                 {
-                                    if ( PrtList[partb].chr != chara )
+                                    if ( zb > za + ChrList[chara].bumpheight - PLATTOLERANCE + ChrList[charb].zvel - ChrList[chara].zvel && ( CapList[ChrList[charb].model].canuseplatforms || zb > za + ChrList[chara].bumpheight ) )
                                     {
-                                        cost_mana( ChrList[chara].missilehandler, ( ChrList[chara].missilecost << 4 ), PrtList[partb].chr );
-
-                                        // Treat the missile
-                                        if ( ChrList[chara].missiletreatment == MISDEFLECT )
+                                        // Is B falling on A?
+                                        if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
                                         {
-                                            // Use old position to find normal
-                                            ax = PrtList[partb].xpos - PrtList[partb].xvel;
-                                            ay = PrtList[partb].ypos - PrtList[partb].yvel;
-                                            ax = ChrList[chara].xpos - ax;
-                                            ay = ChrList[chara].ypos - ay;
-                                            // Find size of normal
-                                            scale = ax * ax + ay * ay;
-                                            if ( scale > 0 )
+                                            if ( MadList[ChrList[charb].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
                                             {
-                                                // Make the normal a unit normal
-                                                scale = SQRT( scale );
-                                                nx = ax / scale;
-                                                ny = ay / scale;
-                                                // Deflect the incoming ray off the normal
-                                                scale = ( PrtList[partb].xvel * nx + PrtList[partb].yvel * ny ) * 2;
-                                                ax = scale * nx;
-                                                ay = scale * ny;
-                                                PrtList[partb].xvel = PrtList[partb].xvel - ax;
-                                                PrtList[partb].yvel = PrtList[partb].yvel - ay;
+                                                attach_character_to_mount( charb, chara, GRIP_ONLY );
+
+                                                ChrList[chara].ai.bumplast = chara;
+                                                ChrList[charb].ai.bumplast = charb;
                                             }
                                         }
-                                        else
-                                        {
-                                            // Reflect it back in the direction it gCamera.e
-                                            PrtList[partb].xvel = -PrtList[partb].xvel;
-                                            PrtList[partb].yvel = -PrtList[partb].yvel;
-                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-                                        // Change the owner of the missile
-                                        if ( !PipList[pip].homing )
-                                        {
-                                            PrtList[partb].team = ChrList[chara].team;
-                                            PrtList[partb].chr = chara;
-                                        }
+                    // Now check collisions with every bump particle in same area
+                    if ( ChrList[chara].alive )
+                    {
+                        for ( tnc = 0, partb = bumplist[fanblock].prt;
+                                tnc < prtinblock;
+                                tnc++, partb = PrtList[partb].bumpnext )
+                        {
+                            float dx, dy;
 
-                                        // Change the direction of the partb
-                                        if ( PipList[pip].rotatetoface )
+                            // do not collide with the thing that you're attached to
+                            if ( chara == PrtList[partb].attachedtocharacter ) continue;
+
+                            // if there's no friendly fire, particles issued by chara can't hit it
+                            if ( !PipList[PrtList[partb].pip].friendlyfire && chara == PrtList[partb].chr ) continue;
+
+                            xb = PrtList[partb].xpos;
+                            yb = PrtList[partb].ypos;
+                            zb = PrtList[partb].zpos;
+
+                            // First check absolute value diamond
+                            dx = ABS( xa - xb );
+                            dy = ABS( ya - yb );
+                            dist = dx + dy;
+                            if ( dist < ChrList[chara].bumpsizebig || dist < PrtList[partb].bumpsizebig )
+                            {
+                                // Then check bounding box square...  Square+Diamond=Octagon
+                                if ( ( dx < ChrList[chara].bumpsize  || dx < PrtList[partb].bumpsize ) &&
+                                        ( dy < ChrList[chara].bumpsize  || dy < PrtList[partb].bumpsize ) &&
+                                        ( zb > za - PrtList[partb].bumpheight && zb < za + ChrList[chara].bumpheight + PrtList[partb].bumpheight ) )
+                                {
+                                    pip = PrtList[partb].pip;
+                                    if ( zb > za + ChrList[chara].bumpheight + PrtList[partb].zvel && PrtList[partb].zvel < 0 && ChrList[chara].platform && PrtList[partb].attachedtocharacter == MAXCHR )
+                                    {
+                                        // Particle is falling on A
+                                        PrtList[partb].zpos = za + ChrList[chara].bumpheight;
+                                        PrtList[partb].zvel = -PrtList[partb].zvel * PipList[pip].dampen;
+                                        PrtList[partb].xvel += ( ChrList[chara].xvel ) * platstick;
+                                        PrtList[partb].yvel += ( ChrList[chara].yvel ) * platstick;
+                                    }
+
+                                    // Check reaffirmation of particles
+                                    if ( PrtList[partb].attachedtocharacter != chara )
+                                    {
+                                        if ( ChrList[chara].reloadtime == 0 )
                                         {
-                                            // Turn to face new direction
-                                            facing = ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) * 0xFFFF / ( TWO_PI );
-                                            facing += 32768;
-                                            PrtList[partb].facing = facing;
+                                            if ( ChrList[chara].reaffirmdamagetype == PrtList[partb].damagetype && ChrList[chara].damagetime == 0 )
+                                            {
+                                                reaffirm_attached_particles( chara );
+                                            }
+                                        }
+                                    }
+
+                                    // Check for missile treatment
+                                    if ( ( ChrList[chara].damagemodifier[PrtList[partb].damagetype]&3 ) < 2 ||
+                                            ChrList[chara].missiletreatment == MISNORMAL ||
+                                            PrtList[partb].attachedtocharacter != MAXCHR ||
+                                            ( PrtList[partb].chr == chara && !PipList[pip].friendlyfire ) ||
+                                            ( ChrList[ChrList[chara].missilehandler].mana < ( ChrList[chara].missilecost << 4 ) && !ChrList[ChrList[chara].missilehandler].canchannel ) )
+                                    {
+                                        if ( ( TeamList[PrtList[partb].team].hatesteam[ChrList[chara].team] || ( PipList[pip].friendlyfire && ( ( chara != PrtList[partb].chr && chara != ChrList[PrtList[partb].chr].attachedto ) || PipList[pip].onlydamagefriendly ) ) ) && !ChrList[chara].invictus )
+                                        {
+                                            spawn_bump_particles( chara, partb ); // Catch on fire
+                                            if ( ( PrtList[partb].damagebase | PrtList[partb].damagerand ) > 1 )
+                                            {
+                                                prtidparent = CapList[PrtList[partb].model].idsz[IDSZ_PARENT];
+                                                prtidtype = CapList[PrtList[partb].model].idsz[IDSZ_TYPE];
+                                                if ( ChrList[chara].damagetime == 0 && PrtList[partb].attachedtocharacter != chara && ( PipList[pip].damfx&DAMFXARRO ) == 0 )
+                                                {
+                                                    // Normal partb damage
+                                                    if ( PipList[pip].allowpush )
+                                                    {
+                                                        ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + PrtList[partb].xvel * ChrList[chara].bumpdampen;
+                                                        ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + PrtList[partb].yvel * ChrList[chara].bumpdampen;
+                                                        ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + PrtList[partb].zvel * ChrList[chara].bumpdampen;
+                                                    }
+
+                                                    direction = ( ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
+                                                    direction = ChrList[chara].turnleftright - direction + 32768;
+                                                    // Check all enchants to see if they are removed
+                                                    enchant = ChrList[chara].firstenchant;
+
+                                                    while ( enchant != MAXENCHANT )
+                                                    {
+                                                        eveidremove = EveList[EncList[enchant].eve].removedbyidsz;
+                                                        temp = EncList[enchant].nextenchant;
+                                                        if ( eveidremove != IDSZ_NONE && ( eveidremove == prtidtype || eveidremove == prtidparent ) )
+                                                        {
+                                                            remove_enchant( enchant );
+                                                        }
+
+                                                        enchant = temp;
+                                                    }
+
+                                                    // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
+                                                    //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
+                                                    if ( PipList[pip].intdamagebonus )
+                                                    {
+                                                        int percent;
+                                                        percent = ( ChrList[PrtList[partb].chr].intelligence - 3584 ) >> 7;
+                                                        percent /= 100;
+                                                        PrtList[partb].damagebase *= 1 + percent;
+                                                    }
+                                                    if ( PipList[pip].wisdamagebonus )
+                                                    {
+                                                        int percent;
+                                                        percent = ( ChrList[PrtList[partb].chr].wisdom - 3584 ) >> 7;
+                                                        percent /= 100;
+                                                        PrtList[partb].damagebase *= 1 + percent;
+                                                    }
+
+                                                    // Damage the character
+                                                    if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
+                                                    {
+                                                        damage_character( chara, direction, PrtList[partb].damagebase << 1, PrtList[partb].damagerand << 1, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                        ChrList[chara].ai.alert |= ALERTIF_HITVULNERABLE;
+                                                    }
+                                                    else
+                                                    {
+                                                        damage_character( chara, direction, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                    }
+
+                                                    // Do confuse effects
+                                                    if ( 0 == ( Md2FrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
+                                                    {
+                                                        if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
+                                                        {
+                                                            ChrList[chara].grogtime += PipList[pip].grogtime;
+                                                            if ( ChrList[chara].grogtime < 0 )  ChrList[chara].grogtime = 32767;
+
+                                                            ChrList[chara].ai.alert |= ALERTIF_GROGGED;
+                                                        }
+                                                        if ( PipList[pip].dazetime != 0 && CapList[ChrList[chara].model].canbedazed )
+                                                        {
+                                                            ChrList[chara].dazetime += PipList[pip].dazetime;
+                                                            if ( ChrList[chara].dazetime < 0 )  ChrList[chara].dazetime = 32767;
+
+                                                            ChrList[chara].ai.alert |= ALERTIF_DAZED;
+                                                        }
+                                                    }
+
+                                                    // Notify the attacker of a scored hit
+                                                    if ( PrtList[partb].chr != MAXCHR )
+                                                    {
+                                                        ChrList[PrtList[partb].chr].ai.alert |= ALERTIF_SCOREDAHIT;
+                                                        ChrList[PrtList[partb].chr].ai.hitlast = chara;
+                                                    }
+                                                }
+                                                if ( ( frame_wld&31 ) == 0 && PrtList[partb].attachedtocharacter == chara )
+                                                {
+                                                    // Attached partb damage ( Burning )
+                                                    if ( PipList[pip].xyvelbase == 0 )
+                                                    {
+                                                        // Make character limp
+                                                        ChrList[chara].phys_vel_x += -ChrList[chara].xvel;
+                                                        ChrList[chara].phys_vel_y += -ChrList[chara].yvel;
+                                                    }
+
+                                                    damage_character( chara, 32768, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                }
+                                            }
+                                            if ( PipList[pip].endbump )
+                                            {
+                                                if ( PipList[pip].bumpmoney )
+                                                {
+                                                    if ( ChrList[chara].cangrabmoney && ChrList[chara].alive && ChrList[chara].damagetime == 0 && ChrList[chara].money != MAXMONEY )
+                                                    {
+                                                        if ( ChrList[chara].ismount )
+                                                        {
+                                                            // Let mounts collect money for their riders
+                                                            if ( ChrList[chara].holdingwhich[0] != MAXCHR )
+                                                            {
+                                                                ChrList[ChrList[chara].holdingwhich[0]].money += PipList[pip].bumpmoney;
+                                                                if ( ChrList[ChrList[chara].holdingwhich[0]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[0]].money = MAXMONEY;
+                                                                if ( ChrList[ChrList[chara].holdingwhich[0]].money < 0 ) ChrList[ChrList[chara].holdingwhich[0]].money = 0;
+
+                                                                PrtList[partb].time = 1;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // Normal money collection
+                                                            ChrList[chara].money += PipList[pip].bumpmoney;
+                                                            if ( ChrList[chara].money > MAXMONEY ) ChrList[chara].money = MAXMONEY;
+                                                            if ( ChrList[chara].money < 0 ) ChrList[chara].money = 0;
+
+                                                            PrtList[partb].time = 1;
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    PrtList[partb].time = 1;
+                                                    // Only hit one character, not several
+                                                    PrtList[partb].damagebase = 0;
+                                                    PrtList[partb].damagerand = 1;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if ( PrtList[partb].chr != chara )
+                                        {
+                                            cost_mana( ChrList[chara].missilehandler, ( ChrList[chara].missilecost << 4 ), PrtList[partb].chr );
+
+                                            // Treat the missile
+                                            if ( ChrList[chara].missiletreatment == MISDEFLECT )
+                                            {
+                                                // Use old position to find normal
+                                                ax = PrtList[partb].xpos - PrtList[partb].xvel;
+                                                ay = PrtList[partb].ypos - PrtList[partb].yvel;
+                                                ax = ChrList[chara].xpos - ax;
+                                                ay = ChrList[chara].ypos - ay;
+                                                // Find size of normal
+                                                scale = ax * ax + ay * ay;
+                                                if ( scale > 0 )
+                                                {
+                                                    // Make the normal a unit normal
+                                                    scale = SQRT( scale );
+                                                    nx = ax / scale;
+                                                    ny = ay / scale;
+                                                    // Deflect the incoming ray off the normal
+                                                    scale = ( PrtList[partb].xvel * nx + PrtList[partb].yvel * ny ) * 2;
+                                                    ax = scale * nx;
+                                                    ay = scale * ny;
+                                                    PrtList[partb].xvel = PrtList[partb].xvel - ax;
+                                                    PrtList[partb].yvel = PrtList[partb].yvel - ay;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // Reflect it back in the direction it gCamera.e
+                                                PrtList[partb].xvel = -PrtList[partb].xvel;
+                                                PrtList[partb].yvel = -PrtList[partb].yvel;
+                                            }
+
+                                            // Change the owner of the missile
+                                            if ( !PipList[pip].homing )
+                                            {
+                                                PrtList[partb].team = ChrList[chara].team;
+                                                PrtList[partb].chr = chara;
+                                            }
+
+                                            // Change the direction of the partb
+                                            if ( PipList[pip].rotatetoface )
+                                            {
+                                                // Turn to face new direction
+                                                facing = ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) * 0xFFFF / ( TWO_PI );
+                                                facing += 32768;
+                                                PrtList[partb].facing = facing;
+                                            }
                                         }
                                     }
                                 }
@@ -4042,7 +4132,7 @@ void tilt_characters_to_terrain()
 
         if ( ChrList[cnt].stickybutt && INVALID_TILE != ChrList[cnt].onwhichfan )
         {
-            twist = meshtwist[ChrList[cnt].onwhichfan];
+            twist = mesh.mem.tile_list[ChrList[cnt].onwhichfan].twist;
             ChrList[cnt].turnmaplr = maplrtwist[twist];
             ChrList[cnt].turnmapud = mapudtwist[twist];
         }
@@ -4433,7 +4523,7 @@ bool_t load_module( const char *smallname )
         load_all_global_objects(skin);
     }
 
-    if ( !load_mesh( modname ) )
+    if ( NULL == mesh_load( modname, &mesh ) )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
@@ -4459,7 +4549,7 @@ bool_t load_module( const char *smallname )
 
     // Start playing the damage tile sound silently...
     /*PORT
-        play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
+    play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
     */
 
     return btrue;
@@ -4788,103 +4878,414 @@ void let_all_characters_think()
         }
     }
 }
-//--------------------------------------------------------------------------------------------
-bool_t mesh_allocate_memory( int meshvertices )
-{
-    // ZZ> This function gets a load of memory for the terrain mesh
 
-    if ( meshvertices > maxtotalmeshvertices )
+//--------------------------------------------------------------------------------------------
+bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
+{
+    bool_t retval = bfalse;
+
+    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
+
+    // free any memory already allocated
+    if ( !mesh_mem_free(pmem) ) return bfalse;
+
+    if ( pinfo->vertcount > mesh_maxtotalvertices )
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", meshvertices, maxtotalmeshvertices );
+        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, mesh_maxtotalvertices );
         return bfalse;
     }
 
-    // free any memory already allocated
-    mesh_free_memory();
-
     // allocate new memory
-    meshvrtx = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrtx == NULL )
+    pmem->vrt_x = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
+    if ( pmem->vrt_x == NULL )
     {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
     }
 
-    meshvrty = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrty == NULL )
+    pmem->vrt_y = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
+    if ( pmem->vrt_y == NULL )
     {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
     }
 
-    meshvrtz = ( float * ) malloc( meshvertices * sizeof(float) );
-    if ( meshvrtz == NULL )
+    pmem->vrt_z = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
+    if ( pmem->vrt_z == NULL )
     {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
     }
 
-    meshvrta = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
-    if ( meshvrta == NULL )
+    pmem->vrt_a = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
+    if ( pmem->vrt_a == NULL )
     {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
     }
 
-    meshvrtl = ( Uint8 * ) malloc( meshvertices * sizeof(Uint8) );
-    if ( meshvrtl == NULL )
+    pmem->vrt_l = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
+    if ( pmem->vrt_l == NULL )
     {
-        log_error( "Reduce the maximum number of vertices! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
     }
 
-    meshvertcount = meshvertices;
+    // set the vertex count
+    pmem->vertcount = pinfo->vertcount;
+
+    pmem->tile_list  = (tile_info_t *) calloc( pinfo->tiles_count, sizeof(tile_info_t) );
+
+    pmem->blockstart = (Uint32*) calloc( pinfo->blocks_y, sizeof(Uint32) );
+    pmem->tilestart  = (Uint32*) calloc( pinfo->tiles_y, sizeof(Uint32) );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void mesh_free_memory()
+bool_t mesh_mem_free( mesh_mem_t * pmem )
 {
+    if ( NULL == pmem ) return bfalse;
 
     // free the memory
-    if ( meshvrtx != NULL )
+    if ( pmem->vrt_x != NULL )
     {
-        free( meshvrtx );
-        meshvrtx = NULL;
+        free( pmem->vrt_x );
+        pmem->vrt_x = NULL;
     }
 
-    if ( meshvrty != NULL )
+    if ( pmem->vrt_y != NULL )
     {
-        free( meshvrty );
-        meshvrty = NULL;
+        free( pmem->vrt_y );
+        pmem->vrt_y = NULL;
     }
 
-    if ( meshvrtz != NULL )
+    if ( pmem->vrt_z != NULL )
     {
-        free( meshvrtz );
-        meshvrtz = NULL;
+        free( pmem->vrt_z );
+        pmem->vrt_z = NULL;
     }
 
-    if ( meshvrta != NULL )
+    if ( pmem->vrt_a != NULL )
     {
-        free( meshvrta );
-        meshvrta = NULL;
+        free( pmem->vrt_a );
+        pmem->vrt_a = NULL;
     }
 
-    if ( meshvrtl != NULL )
+    if ( pmem->vrt_l != NULL )
     {
-        free( meshvrtl );
-        meshvrtl = NULL;
+        free( pmem->vrt_l );
+        pmem->vrt_l = NULL;
+    }
+
+    if( NULL != pmem->tile_list )
+    {
+        free(pmem->tile_list);
+        pmem->tile_list = NULL;
+    }
+
+    if( NULL != pmem->blockstart )
+    {
+        free(pmem->blockstart);
+        pmem->blockstart = NULL;
+    }
+
+    if( NULL != pmem->tilestart )
+    {
+        free(pmem->tilestart);
+        pmem->tilestart = NULL;
     }
 
     // reset some values to safe values
-    meshvertcount = 0;
+    pmem->vertcount = 0;
 
-    meshblocksx = 0;
-    meshblocksy = 0;
-    meshblocks  = 0;
-
-    meshtilesx = 0;
-    meshtilesy = 0;
-    meshtiles  = 0;
-
-    meshedgex = 0;
-    meshedgey = 0;
+    return btrue;
 }
 
+//struct s_line_of_sight_info
+//{
+//    float x0, y0;
+//    float x1, y1;
+//    Uint32 stopped_by;
+//
+//    Uint16 collide_chr;
+//    Uint32 collide_fx;
+//    int    collide_x;
+//    int    collide_y;
+//};
+//
+//typedef struct s_line_of_sight_info line_of_sight_info_t;
+//
+//bool_t do_line_of_sight( line_of_sight_info_t * plos )
+//{
+//    int Dx, Dy;
+//
+//    int xstep, ystep;
+//    int TwoDy, TwoDyTwoDx, E;
+//    int y;
+//    int xDraw, yDraw;
+//
+//    int steep;
+//
+//    if(NULL == plos) return bfalse;
+//
+//    int steep = (ABS(Dy) >= ABS(Dx));
+//
+//    int Dx = plos->x1 - plos->x0;
+//    int Dy = plos->y1 - plos->y0;
+//
+//    if (steep)
+//    {
+//        SWAP(int, plos->x0, plos->y0);
+//        SWAP(int, plos->x1, plos->y1);
+//
+//        // recompute Dx, Dy after swap
+//        Dx = plos->x1 - plos->x0;
+//        Dy = plos->y1 - plos->y0;
+//    }
+//
+//    xstep = 1;
+//    if (Dx < 0)
+//    {
+//        xstep = -1;
+//        Dx = -Dx;
+//    }
+//
+//    ystep = 1;
+//    if (Dy < 0)
+//    {
+//        ystep = -1;
+//        Dy = -Dy;
+//    }
+//
+//    TwoDy = 2*Dy;
+//    TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
+//    E = TwoDy - Dx; //2*Dy - Dx
+//    y = plos->y0;
+//    block_last = INVALID_BLOCK;
+//    for (int x = plos->x0; x != plos->x1; x += xstep)
+//    {
+//        int fan;
+//
+//        if (steep)
+//        {
+//            xDraw = y;
+//            yDraw = x;
+//        }
+//        else
+//        {
+//            xDraw = x;
+//            yDraw = y;
+//        }
+//
+//        // plot
+//        fan = meshgetfan(xDraw, yDraw);
+//        if( INVALID_FAN != fan && fan != last_fan )
+//        {
+//            // collide the ray with the mesh
+//
+//            if( 0!= (mesh.mem.tile_list[fan].fx & plos->stopped_by) )
+//            {
+//                plos->collide_x  = xDraw;
+//                plos->collide_y  = yDraw;
+//                plos->collide_fx = mesh.mem.tile_list[fan].fx & plos->stopped_by;
+//
+//                return btrue;
+//            }
+//
+//            last_fan = fan;
+//        }
+//
+//        block = meshgetblock(xDraw, yDraw);
+//        if( INVALID_BLOCK != block && block != block_last )
+//        {
+//            // collide the ray with all items/characters in this block
+//
+//        };
+//
+//        // next
+//        if (E > 0)
+//        {
+//            E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
+//            y = y + ystep;
+//        } else
+//        {
+//            E += TwoDy; //E += 2*Dy;
+//        }
+//    }
+//}
+
+
+mesh_info_t * mesh_info_new( mesh_info_t * pinfo )
+{
+    if (NULL == pinfo) return pinfo;
+
+    memset( pinfo, 0, sizeof(mesh_info_t) );
+
+    return pinfo;
+}
+
+mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
+{
+    if (NULL == pmem) return pmem;
+
+    memset( pmem, 0, sizeof(mesh_mem_t) );
+
+    return pmem;
+}
+
+//--------------------------------------------------------------------------------------------
+void mesh_make_fanstart( mesh_t * pmesh )
+{
+    // ZZ> This function builds a look up table to ease calculating the
+    //     fan number given an x,y pair
+    int cnt;
+
+    mesh_info_t * pinfo;
+    mesh_mem_t  * pmem;
+
+    if (NULL == pmesh) return;
+
+    pinfo = &(pmesh->info);
+    pmem  = &(pmesh->mem);
+
+    // do the tilestart
+    for ( cnt = 0; cnt < pinfo->tiles_y; cnt++ )
+    {
+        pmem->tilestart[cnt] = pinfo->tiles_x * cnt;
+    }
+
+    // calculate some of the block info
+    if ( pinfo->blocks_x >= MAXMESHBLOCKY )
+    {
+        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pinfo->blocks_x, MAXMESHBLOCKY );
+    }
+
+    if ( pinfo->blocks_y >= MAXMESHBLOCKY )
+    {
+        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pinfo->blocks_y, MAXMESHBLOCKY );
+    }
+
+    // do the blockstart
+    for ( cnt = 0; cnt < pinfo->blocks_y; cnt++ )
+    {
+        pmem->blockstart[cnt] = pinfo->blocks_x * cnt;
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+void mesh_make_vrtstart( mesh_t * pmesh )
+{
+    int x, y, vert;
+    Uint32 fan;
+
+    mesh_info_t * pinfo;
+    mesh_mem_t  * pmem;
+
+    if (NULL == pmesh) return;
+
+    pinfo = &(pmesh->info);
+    pmem  = &(pmesh->mem);
+
+    vert = 0;
+    for ( y = 0; y < pinfo->tiles_y; y++ )
+    {
+        for ( x = 0; x < pinfo->tiles_x; x++ )
+        {
+            // allow raw access because we are careful
+            fan = mesh_get_tile_int( &mesh, x, y );
+            if ( INVALID_TILE != fan )
+            {
+                Uint8 ttype = pmem->tile_list[fan].type;
+
+                pmem->tile_list[fan].vrtstart = vert;
+
+                if( ttype > MAXMESHTYPE )
+                {    
+                    vert += 4;
+                }
+                else
+                {
+                    // throw away any remaining upper bits
+                    ttype &= 0x3F;
+                    vert += tile_dict[ttype].numvertices;
+                }
+            }
+        }
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+mesh_t * mesh_new( mesh_t * pmesh )
+{
+    if ( NULL != pmesh )
+    {
+        memset( pmesh, 0, sizeof(mesh_t) );
+
+        mesh_mem_new( &(pmesh->mem) );
+        mesh_info_new( &(pmesh->info) );
+    }
+
+    return pmesh;
+}
+
+//--------------------------------------------------------------------------------------------
+mesh_t * mesh_delete( mesh_t * pmesh )
+{
+    if ( NULL != pmesh )
+    {
+        mesh_mem_delete( &(pmesh->mem) );
+        mesh_info_delete( &(pmesh->info)  );
+    }
+
+    return pmesh;
+}
+
+//--------------------------------------------------------------------------------------------
+mesh_t * mesh_renew( mesh_t * pmesh )
+{
+    pmesh = mesh_delete( pmesh );
+
+    return mesh_new( pmesh );
+}
+
+//--------------------------------------------------------------------------------------------
+mesh_info_t * mesh_info_delete( mesh_info_t * pinfo )
+{
+    if ( NULL != pinfo )
+    {
+        memset( pinfo, 0, sizeof(mesh_info_t) );
+    }
+
+    return pinfo;
+}
+
+//--------------------------------------------------------------------------------------------
+mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
+{
+    if ( NULL != pmem )
+    {
+        mesh_mem_free( pmem );
+    }
+
+    return pmem;
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 mesh_get_block_int( mesh_t * pmesh, int block_x, int block_y )
+{
+    if ( NULL == pmesh ) return INVALID_BLOCK;
+
+    if ( block_x < 0 || block_x >= pmesh->info.blocks_x )  return INVALID_BLOCK;
+    if ( block_y < 0 || block_y >= pmesh->info.blocks_y )  return INVALID_BLOCK;
+
+    return block_x + pmesh->mem.blockstart[block_y];
+}
+
+//--------------------------------------------------------------------------------------------
+Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y )
+{
+    if ( NULL == pmesh ) return INVALID_TILE;
+
+    if ( tile_x < 0 || tile_x >= pmesh->info.tiles_x )  return INVALID_TILE;
+    if ( tile_y < 0 || tile_y >= pmesh->info.tiles_y )  return INVALID_TILE;
+
+    return tile_x + pmesh->mem.tilestart[tile_y];
+}

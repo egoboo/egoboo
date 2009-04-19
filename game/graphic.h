@@ -191,8 +191,6 @@ void make_lighttable( float lx, float ly, float lz, float ambi );
 void make_lightdirectionlookup();
 void make_renderlist();
 void make_dolist();
-void make_vrtstart();
-void make_fanstart();
 
 void init_all_icons();
 void init_all_titleimages();
@@ -267,7 +265,7 @@ float light_for_normal( int rotation, int normal, float lx, float ly, float lz, 
 bool_t load_one_icon(  const char *szLoadName );
 
 void make_textureoffset();
-void load_mesh_fans();
+void tile_dictionary_load();
 
 void load_basic_textures(  const char *modname );
 
@@ -278,4 +276,6 @@ void font_load(  const char* szBitmap,  const char* szSpacing );
 void make_water();
 void read_wawalite(  const char *modname );
 
-int    load_one_title_image( int titleimage,  const char *szLoadName );
+int  load_one_title_image( int titleimage,  const char *szLoadName );
+
+void font_init();
