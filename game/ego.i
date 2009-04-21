@@ -32,7 +32,7 @@
 #include "camera.h"
 %}
 
-// A stupid hack because SDL can't deal with including 
+// A stupid hack because SWIG can't deal with including 
 // the SDL_stdinc.h to get the system dependent types!
 #define Uint8  unsigned char
 #define Uint16 unsigned short

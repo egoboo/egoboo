@@ -23,9 +23,9 @@
 
 #include "sound.h"
 #include "script.h"
+#include "Md2.h"
 
 #include "egoboo.h"
-#include "Md2.h"
 
 
 #define SPINRATE            200                     // How fast spinners spin

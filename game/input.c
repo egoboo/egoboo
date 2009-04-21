@@ -23,12 +23,19 @@
 
 #include "input.h"
 
+#if defined(USE_LUA_CONSOLE)
+#    include "lua_console.h"
+#else
+#    include "egoboo_console.h"
+#endif
+
 #include "ui.h"
 #include "log.h"
 #include "network.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -61,53 +68,6 @@ static void   scantag_reset();
 static bool_t scantag_read_one( FILE *fileread );
 
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void init_scancodes()
-{
-    // BB > initialize the scancode translation
-
-    int i;
-
-    // do the basic translation
-    for ( i = 0; i < SDLK_LAST; i++ )
-    {
-        // SDL uses ascii values for it's virtual scancodes
-        scancode_to_ascii[i] = i;
-        if ( i < 255 )
-        {
-            scancode_to_ascii_shift[i] = toupper(i);
-        }
-        else
-        {
-            scancode_to_ascii_shift[i] = scancode_to_ascii[i];
-        }
-    }
-
-    // fix the keymap
-    scancode_to_ascii_shift[SDLK_1]  = '!';
-    scancode_to_ascii_shift[SDLK_2]  = '@';
-    scancode_to_ascii_shift[SDLK_3]  = '#';
-    scancode_to_ascii_shift[SDLK_4]  = '$';
-    scancode_to_ascii_shift[SDLK_5]  = '%';
-    scancode_to_ascii_shift[SDLK_6]  = '^';
-    scancode_to_ascii_shift[SDLK_7]  = '&';
-    scancode_to_ascii_shift[SDLK_8]  = '*';
-    scancode_to_ascii_shift[SDLK_9]  = '(';
-    scancode_to_ascii_shift[SDLK_0]  = ')';
-
-    scancode_to_ascii_shift[SDLK_QUOTE]        = '\"';
-    scancode_to_ascii_shift[SDLK_SEMICOLON]    = ':';
-    scancode_to_ascii_shift[SDLK_PERIOD]       = '>';
-    scancode_to_ascii_shift[SDLK_COMMA]        = '<';
-    scancode_to_ascii_shift[SDLK_BACKQUOTE]    = '~';
-    scancode_to_ascii_shift[SDLK_MINUS]        = '_';
-    scancode_to_ascii_shift[SDLK_EQUALS]       = '+';
-    scancode_to_ascii_shift[SDLK_LEFTBRACKET]  = '{';
-    scancode_to_ascii_shift[SDLK_RIGHTBRACKET] = '}';
-    scancode_to_ascii_shift[SDLK_BACKSLASH]    = '|';
-    scancode_to_ascii_shift[SDLK_SLASH]        = '?';
-}
-
 //--------------------------------------------------------------------------------------------
 void input_init()
 {
@@ -233,9 +193,13 @@ void input_read()
     while ( SDL_PollEvent( &evt ) )
     {
 
-#if defined(USE_LUA_CONSOLE)
-        if ( NULL == lua_console_handle_events(our_lua_console, &evt) ) continue;
-#endif
+        if ( gDevMode )
+        {
+            if ( NULL == egoboo_console_handle_events( &evt ) )
+            {
+                continue;
+            }
+        }
 
         ui_handleSDLEvent( &evt );
 
@@ -314,20 +278,6 @@ void input_read()
                             }
                         }
                     }
-
-#if defined(USE_LUA_CONSOLE)
-                    else if ( gDevMode )
-                    {
-                        if ( !is_alt )
-                        {
-                            if ( SDLK_BACKQUOTE == evt.key.keysym.sym )
-                            {
-                                lua_console_show( our_lua_console );
-                            }
-                        }
-                    }
-#endif
-
                 }
                 break;
         }

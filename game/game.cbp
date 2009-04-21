@@ -336,6 +336,11 @@
 		</Unit>
 		<Unit filename="egoboo.h" />
 		<Unit filename="egoboo_config.h" />
+		<Unit filename="egoboo_console.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="egoboo_console.h" />
+		<Unit filename="egoboo_console.inl" />
 		<Unit filename="egoboo_endian.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -425,7 +430,6 @@
 		<Unit filename="log.h" />
 		<Unit filename="lua_console.c">
 			<Option compilerVar="CC" />
-			<Option compile="0" />
 		</Unit>
 		<Unit filename="lua_console.h" />
 		<Unit filename="menu.c">

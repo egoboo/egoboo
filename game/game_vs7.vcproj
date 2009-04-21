@@ -544,12 +544,16 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\egoboo_console.c">
+			</File>
+			<File
+				RelativePath=".\egoboo_console.h">
+			</File>
+			<File
+				RelativePath=".\egoboo_console.inl">
+			</File>
+			<File
 				RelativePath=".\lua_console.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\lua_console.h">

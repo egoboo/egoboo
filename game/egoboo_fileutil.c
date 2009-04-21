@@ -335,4 +335,34 @@ void undo_pair( int base, int rand )
     pairto += pairfrom;
 }
 
+//--------------------------------------------------------------------------------------------
+void make_newloadname(  const char *modname,  const char *appendname,  char *newloadname )
+{
+    // ZZ> This function takes some names and puts 'em together
+    int cnt, tnc;
+    char ctmp;
+
+    cnt = 0;
+    ctmp = modname[cnt];
+    while ( ctmp != 0 )
+    {
+        newloadname[cnt] = ctmp;
+        cnt++;
+        ctmp = modname[cnt];
+    }
+
+    tnc = 0;
+    ctmp = appendname[tnc];
+
+    while ( ctmp != 0 )
+    {
+        newloadname[cnt] = ctmp;
+        cnt++;
+        tnc++;
+        ctmp = appendname[tnc];
+    }
+
+    newloadname[cnt] = 0;
+}
+
 

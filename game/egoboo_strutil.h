@@ -29,8 +29,6 @@
 
 extern void TrimStr( char *pStr );
 
-void   make_newloadname(  const char *modname,  const char *appendname, char *newloadname );
-
 char * str_decode( char *strout, size_t insize,  const char * strin );
 char * str_encode( char *strout, size_t insize,  const char * strin );
 

@@ -24,8 +24,8 @@
  * just go in proto.h.
  */
 
-#include "egoboo.h"
 #include "network.h"
+#include "egoboo.h"
 
 //Input player control
 #define MAXLOADPLAYER     100

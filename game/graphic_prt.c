@@ -21,9 +21,10 @@
  * Particle system drawing and management code.
  */
 
-#include "egoboo.h"
-#include "particle.h"
 #include "graphic.h"
+#include "particle.h"
+
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

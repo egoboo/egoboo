@@ -28,8 +28,6 @@
 #include "sound.h"
 
 #include "egoboo_fileutil.h"
-#include "egoboo_strutil.h"
-
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------

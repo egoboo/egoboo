@@ -36,9 +36,14 @@
 #include "network.h"
 #include "passage.h"
 
-#include "egoboo.h"
-#include "egoboo_strutil.h"
+#if defined(USE_LUA_CONSOLE)
+#    include "lua_console.h"
+#else
+#    include "egoboo_console.h"
+#endif
+
 #include "egoboo_fileutil.h"
+#include "egoboo.h"
 
 #include <SDL_image.h>
 
@@ -2309,7 +2314,6 @@ void render_bad_shadow( Uint16 character )
     Uint8 ambi;
     float level, height, height_factor, alpha;
     Sint8 hide;
-    int trans;
     int i;
     chr_t * pchr;
 
@@ -2381,7 +2385,7 @@ void render_bad_shadow( Uint16 character )
     v[3].s = particleimageu[236][0];
     v[3].t = particleimagev[253][1];
 
-    render_shadow_sprite(trans * INV_FF, v );
+    render_shadow_sprite(alpha, v );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2505,10 +2509,8 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
         {
             Uint8 ttype = mesh.mem.tile_list[fan].type;
 
-            if( FANOFF != ttype && ttype < MAXMESHTYPE )
+            if ( ttype < MAXMESHTYPE )
             {
-                ttype &= 0x3F;
-
                 vertex = mesh.mem.tile_list[fan].vrtstart;
                 lastvertex = vertex + tile_dict[ttype].numvertices;
 
@@ -2595,7 +2597,7 @@ void do_dynalight()
 
             vertex = mesh.mem.tile_list[fan].vrtstart;
 
-            if( ttype > MAXMESHTYPE )
+            if ( ttype > MAXMESHTYPE )
             {
                 lastvertex = vertex + 4;
             }
@@ -2697,7 +2699,7 @@ void draw_scene_zreflection()
     glEnable( GL_ALPHA_TEST );         // use alpha test to allow the thatched roof tiles to look like thatch
     glAlphaFunc( GL_GREATER, 0 );
 
-    meshlasttexture = ~0;
+    meshlasttexture = (Uint16)(~0);
     for ( cnt = 0; cnt < renderlist.ndr_count; cnt++ )
     {
         render_fan( renderlist.ndr[cnt] );
@@ -2714,7 +2716,7 @@ void draw_scene_zreflection()
         glEnable( GL_BLEND );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-        meshlasttexture = ~0;
+        meshlasttexture = (Uint16)(~0);
         for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
         {
             render_fan( renderlist.drf[cnt] );
@@ -2756,7 +2758,7 @@ void draw_scene_zreflection()
         glEnable( GL_DEPTH_TEST );
         glDepthMask( GL_TRUE );
 
-        meshlasttexture = ~0;
+        meshlasttexture = (Uint16)(~0);
         for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
         {
             render_fan( renderlist.drf[cnt] );
@@ -2770,7 +2772,7 @@ void draw_scene_zreflection()
     else
     {
         // Render the shadow floors as normal solid floors
-        meshlasttexture = ~0;
+        meshlasttexture = (Uint16)(~0);
         for ( cnt = 0; cnt < renderlist.drf_count; cnt++ )
         {
             render_fan( renderlist.drf[cnt] );
@@ -3856,9 +3858,7 @@ void flip_pages()
 {
     glFlush();
 
-#if defined(USE_LUA_CONSOLE)
-    lua_console_draw( our_lua_console );
-#endif
+    egoboo_console_draw_all();
 
     SDL_GL_SwapBuffers();
 }
@@ -4191,7 +4191,7 @@ void sdlinit( int argc, char **argv )
 #if defined(USE_LUA_CONSOLE)
     {
         SDL_Rect blah = {0, 0, scrx, scry / 4};
-        our_lua_console = lua_console_new(NULL, blah);
+        lua_console_new(NULL, blah);
     };
 #endif
 

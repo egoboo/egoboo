@@ -442,8 +442,6 @@ EXTERN  bool_t                 use_sdl_image EQ(btrue);    // Allow advanced SDL
 
 
 // KEYBOARD
-EXTERN Uint8  scancode_to_ascii[SDLK_LAST];
-EXTERN Uint8  scancode_to_ascii_shift[SDLK_LAST];
 EXTERN bool_t console_mode EQ( bfalse );                   // Input text from keyboard?
 EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
 
@@ -829,11 +827,5 @@ enum e_order
 //Quest system
 #define QUEST_BEATEN         -1
 #define QUEST_NONE             -2
-
-#if defined(USE_LUA_CONSOLE)
-// The Lua Console
-#   include "lua_console.h"
-EXTERN lua_console_t * our_lua_console EQ(NULL);
-#endif
 
 #define  _EGOBOO_H_

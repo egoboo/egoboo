@@ -785,10 +785,10 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     mesh_info_t * pinfo;
     mesh_mem_t  * pmem;
 
-    if (NULL == pmesh) 
-    { 
-        pmesh = calloc(1, sizeof(mesh_t)); 
-        pmesh = mesh_new(pmesh); 
+    if (NULL == pmesh)
+    {
+        pmesh = calloc(1, sizeof(mesh_t));
+        pmesh = mesh_new(pmesh);
     }
     if (NULL == pmesh) return pmesh;
 
@@ -4820,7 +4820,7 @@ int add_player( Uint16 character, Uint16 player, Uint32 device )
             PlaList[player].tlatch[cnt].x      = 0;
             PlaList[player].tlatch[cnt].y      = 0;
             PlaList[player].tlatch[cnt].button = 0;
-            PlaList[player].tlatch[cnt].time   = ~0;
+            PlaList[player].tlatch[cnt].time   = (Uint32)(~0);
         }
 
         if ( device != INPUT_BITS_NONE )
@@ -4882,7 +4882,6 @@ void let_all_characters_think()
 //--------------------------------------------------------------------------------------------
 bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
 {
-    bool_t retval = bfalse;
 
     if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
 
@@ -4973,19 +4972,19 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
         pmem->vrt_l = NULL;
     }
 
-    if( NULL != pmem->tile_list )
+    if ( NULL != pmem->tile_list )
     {
         free(pmem->tile_list);
         pmem->tile_list = NULL;
     }
 
-    if( NULL != pmem->blockstart )
+    if ( NULL != pmem->blockstart )
     {
         free(pmem->blockstart);
         pmem->blockstart = NULL;
     }
 
-    if( NULL != pmem->tilestart )
+    if ( NULL != pmem->tilestart )
     {
         free(pmem->tilestart);
         pmem->tilestart = NULL;
@@ -5196,8 +5195,8 @@ void mesh_make_vrtstart( mesh_t * pmesh )
 
                 pmem->tile_list[fan].vrtstart = vert;
 
-                if( ttype > MAXMESHTYPE )
-                {    
+                if ( ttype > MAXMESHTYPE )
+                {
                     vert += 4;
                 }
                 else

@@ -18,6 +18,8 @@ extern float pairfrom, pairto;
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
+void   make_newloadname(  const char *modname,  const char *appendname, char *newloadname );
+
 void   goto_colon( FILE* fileread );
 bool_t goto_colon_yesno( FILE* fileread );
 
@@ -37,3 +39,4 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite);
 
 void read_pair( FILE* fileread );
 void undo_pair( int base, int rand );
+

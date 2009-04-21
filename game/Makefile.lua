@@ -5,7 +5,7 @@ EGO_SRC  := camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
 	ego_wrap.c enchant.c file_common.c file_linux.c font.c \
 	game.c gltexture.c graphic.c graphic_fan.c graphic_mad.c graphic_prt.c \
 	input.c link.c log.c lua_console.c Md2.c menu.c module.c network.c particle.c \
-	passage.c script.c script_compile.c server.c sound.c sys_linux.c ui.c
+	passage.c script.c script_compile.c server.c sound.c sys_linux.c ui.c egoboo_console.c lua_console.c
 
 EGO_OBJ  := ${EGO_SRC:.c=.o}
 ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \
@@ -21,7 +21,7 @@ CC      := gcc
 OPT     := -Os -Wall
 INC     := -I. -I../enet/include -I/usr/include/lua5.1 ${SDLCONF_I}
 CFLAGS  := ${OPT} ${INC} -DUSE_LUA_CONSOLE
-LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -lSDL_console -llua5.1
+LDFLAGS := ${SDLCONF_L} -lSDL_ttf -lSDL_mixer -lGL -lGLU -lSDL_image -llua5.1
 
 EGO_BIN := egoboo_lua
 

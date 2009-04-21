@@ -21,10 +21,11 @@
 * Loads BMP files into OpenGL textures.
 */
 
-#include "egoboo.h" // GAC - Needed for Win32 stuff
 #include "gltexture.h"
 #include "graphic.h"
 #include "log.h"
+
+#include "egoboo.h" // GAC - Needed for Win32 stuff
 
 #include <SDL_image.h>
 

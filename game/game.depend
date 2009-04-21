@@ -1,9 +1,9 @@
 # depslib dependency file v1.0
-1239954891 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.c
 	"Md2.h"
+	"log.h"
 	"egoboo.h"
 	"egoboo_endian.h"
-	"log.h"
 	"id_normals.c"
 
 1239953969 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\md2.h
@@ -88,7 +88,7 @@
 
 1199080116 c:\sdks\sdl\include\close_code.h
 
-1240101261 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo.h
+1240280813 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo.h
 	"egoboo_typedef.h"
 	"egoboo_math.h"
 	"egoboo_config.h"
@@ -103,7 +103,6 @@
 	<math.h>
 	<SDL.h>
 	<SDL_opengl.h>
-	"lua_console.h"
 
 1240100809 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\proto.h
 	"egoboo_typedef.h"
@@ -291,7 +290,7 @@
 	<stdlib.h>
 	"egoboo_strutil.h"
 
-1239918473 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.h
+1240248141 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.h
 	"egoboo_typedef.h"
 	<string.h>
 	<ctype.h>
@@ -321,7 +320,7 @@
 	"egoboo_typedef.h"
 	<SDL.h>
 
-1240100790 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.c
+1240104808 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.c
 	"char.h"
 	"enchant.h"
 	"log.h"
@@ -340,12 +339,12 @@
 	"egoboo.h"
 	<assert.h>
 
-1239951614 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.h
+1240281143 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\char.h
 	"egoboo_typedef.h"
 	"sound.h"
 	"script.h"
-	"egoboo.h"
 	"Md2.h"
+	"egoboo.h"
 
 1239953774 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.h
 	"egoboo_typedef.h"
@@ -354,9 +353,9 @@
 1240087041 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.h
 	"egoboo_typedef.h"
 
-1239951750 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.h
-	"egoboo.h"
+1240281143 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.h
 	"network.h"
+	"egoboo.h"
 
 1239900704 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\client.c
 	"client.h"
@@ -387,7 +386,7 @@
 1239903382 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_math.c
 	"egoboo_math.h"
 
-1240095027 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.c
 	"egoboo_setup.h"
 	"log.h"
 	"configfile.h"
@@ -396,21 +395,21 @@
 	"particle.h"
 	"sound.h"
 	"network.h"
-	"egoboo.h"
 	"egoboo_fileutil.h"
+	"egoboo.h"
 
 1240101942 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_setup.h
 	"egoboo_typedef.h"
 
-1239918473 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.c
+1240248141 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_strutil.c
 	"egoboo_strutil.h"
 
-1239953774 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\enchant.c
 	"enchant.h"
 	"char.h"
 	"sound.h"
-	"egoboo.h"
 	"egoboo_fileutil.h"
+	"egoboo.h"
 
 1239931995 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file_common.c
 	"file_common.h"
@@ -443,7 +442,7 @@
 	"begin_code.h"
 	"close_code.h"
 
-1240083772 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\game.c
+1240281234 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\game.c
 	"egoboo.h"
 	"clock.h"
 	"link.h"
@@ -483,10 +482,10 @@
 	"egoboo_typedef.h"
 	<SDL.h>
 
-1240095025 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.h
-	"egoboo.h"
+1240281143 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic.h
 	"gltexture.h"
 	"module.h"
+	"egoboo.h"
 
 1239952243 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.h
 	"egoboo_typedef.h"
@@ -499,18 +498,18 @@
 	"begin_code.h"
 	"close_code.h"
 
-1239900704 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\gltexture.c
-	"egoboo.h"
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\gltexture.c
 	"gltexture.h"
 	"graphic.h"
 	"log.h"
+	"egoboo.h"
 	<SDL_image.h>
 
-1240095027 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_fan.c
-	"egoboo.h"
+1240281217 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_fan.c
 	"graphic.h"
+	"egoboo.h"
 
-1239952749 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_mad.c
+1240101943 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_mad.c
 	"graphic.h"
 	"Md2.h"
 	"id_md2.h"
@@ -519,10 +518,10 @@
 	"egoboo.h"
 	<SDL_opengl.h>
 
-1240093285 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_prt.c
-	"egoboo.h"
-	"particle.h"
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\graphic_prt.c
 	"graphic.h"
+	"particle.h"
+	"egoboo.h"
 
 1240087038 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.h
 	"egoboo_typedef.h"
@@ -595,27 +594,25 @@
 	<sys/types.h>
 	<netinet/in.h>
 
-1240095025 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\particle.c
 	"particle.h"
 	"log.h"
 	"sound.h"
 	"camera.h"
 	"enchant.h"
 	"char.h"
-	"egoboo.h"
 	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
+	"egoboo.h"
 
-1240101257 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\passage.c
 	"passage.h"
 	"char.h"
 	"script.h"
 	"sound.h"
 	"egoboo_fileutil.h"
-	"egoboo_strutil.h"
 	"egoboo.h"
 
-1240095025 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.c
+1240117456 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\script.c
 	"script.h"
 	"script_compile.h"
 	"log.h"
@@ -660,14 +657,15 @@
 	<SDL_image.h>
 	<assert.h>
 
-1240079513 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\input.c
+1240280813 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\input.c
 	"input.h"
+	"lua_console.h"
+	"egoboo_console.h"
 	"ui.h"
 	"log.h"
 	"network.h"
 	"egoboo_fileutil.h"
 	"egoboo.h"
-	<SDL_console.h>
 
 1239952639 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\menu.c
 	"menu.h"
@@ -684,12 +682,11 @@
 	"egoboo_setup.h"
 	"egoboo.h"
 
-1240078447 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sound.c
+1240281143 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\sound.c
 	"sound.h"
 	"camera.h"
 	"log.h"
 	"file_common.h"
-	"egoboo_strutil.h"
 	"egoboo_fileutil.h"
 	"egoboo.h"
 	<SDL.h>
@@ -701,8 +698,8 @@
 	<string.h>
 	<SDL_opengl.h>
 
-1240079513 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\lua_console.h
-	<SDL.h>
+1240279505 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\lua_console.h
+	"egoboo_console.h"
 
 1240087036 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\module.h
 	"egoboo_typedef.h"
@@ -712,11 +709,11 @@
 
 1240087034 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\file_common.h
 
-1240087842 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.h
+1240248141 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.h
 	<stdio.h>
 	"egoboo_typedef.h"
 
-1240101253 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ego_wrap.c
+1240277878 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\ego_wrap.c
 	<string.h>
 	"lua.h"
 	"lauxlib.h"
@@ -765,7 +762,7 @@
 	<stdio.h>
 	"lua.h"
 
-1239939210 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.c
+1240248141 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_fileutil.c
 	"egoboo_fileutil.h"
 	"log.h"
 	"egoboo.h"
@@ -780,10 +777,9 @@
 	"begin_code.h"
 	"close_code.h"
 
-1240086425 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\lua_console.c
+1240280835 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\lua_console.c
 	"lua_console.h"
-	<SDL.h>
-	<SDL_console.h>
+	"egoboo_console.inl"
 	<stdio.h>
 	<string.h>
 	<lua.h>
@@ -797,4 +793,20 @@
 	"script_compile.h"
 	"log.h"
 	"egoboo.h"
+
+1240279970 source:c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_console.c
+	"egoboo_console.inl"
+	"egoboo_config.h"
+	"egoboo_math.h"
+	<SDL.h>
+	<SDL_opengl.h>
+	<stdio.h>
+	<string.h>
+
+1240282481 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_console.inl
+	"egoboo_console.h"
+	"font.h"
+
+1240279880 c:\projects\ego\zefz-sourceforge\branches\2.6.x\game\egoboo_console.h
+	<SDL.h>
 

@@ -21,8 +21,8 @@
  * World mesh drawing.
  */
 
-#include "egoboo.h"
 #include "graphic.h"
+#include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ void render_fan( Uint32 fan )
 
     pmem  = &(mesh.mem);
 
-    if( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
+    if ( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
     ptile = pmem->tile_list + fan;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
@@ -116,7 +116,7 @@ void render_fan( Uint32 fan )
         if ( meshnotexture )
         {
             GLTexture_Bind( NULL );
-            meshlasttexture = ~0;
+            meshlasttexture = (Uint16)(~0);
         }
         else
         {
