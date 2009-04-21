@@ -528,6 +528,10 @@ int doChooseModule( float deltaTime )
             numValidModules = 0;
             for ( i = 0; i < ModList_count; i++ )
             {
+                // if this module is not valid given the game options and the
+                // selected players, skip it
+                if ( !modlist_test_by_index(i) ) continue;
+
                 if ( startNewPlayer && 0 == ModList[i].importamount )
                 {
                     // starter module
@@ -601,8 +605,12 @@ int doChooseModule( float deltaTime )
 
             for ( i = startIndex; i < ( startIndex + 3 ) && i < numValidModules; i++ )
             {
-                if ( ui_doImageButton( i, TxTitleImage + validModules[i],
-                                       moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
+                // fix the menu images in case one or more of them are undefined
+                int         imod       = validModules[i];
+                Uint32      tex_offset = ModList[imod].tex;
+                GLTexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+
+                if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
                     selectedModule = i;
                 }
@@ -2763,9 +2771,8 @@ void check_player_import( const char *dirname, bool_t initialize )
     fs_findClose();
 }
 
-
 //--------------------------------------------------------------------------------------------
-int get_skin(  const char *filename )
+int get_skin( const char *filename )
 {
     // ZZ> This function reads the skin.txt file...
     FILE*   fileread;
@@ -2790,55 +2797,48 @@ void load_all_menu_images()
     // ZZ> This function loads the title image for each module.  Modules without a
     //     title are marked as invalid
 
-    char searchname[15];
     char loadname[256];
-    const char *FileName;
+    int cnt;
     FILE* filesave;
 
-    // Convert searchname
-    strcpy( searchname, "modules" SLASH_STR "*.mod" );
+    // reset all the title images
+    release_all_titleimages();
+    TxTitleImage_count = 0;
 
     // Log a directory list
     filesave = fopen( "modules.txt", "w" );
     if ( filesave != NULL )
     {
         fprintf( filesave, "This file logs all of the modules found\n" );
-        fprintf( filesave, "** Denotes an invalid module (Or unlockable)\n\n" );
+        fprintf( filesave, "** Denotes an invalid module\n" );
+        fprintf( filesave, "## Denotes an unlockable module\n\n" );
     }
 
-    // Search for .mod directories
-    ModList_count = 0;
-    FileName = fs_findFirstFile( "modules", "mod" );
-    while ( NULL != FileName && ModList_count < MAXMODULE )
+    // load all the title images for modules that we are going to display
+    for ( cnt = 0; cnt < ModList_count; cnt++ )
     {
-        // clear out all old module data
-        memset( ModList + ModList_count, 0, sizeof(mod_t) );
+        // set the texture to some invlid value
+        ModList[cnt].tex = (Uint32)(~0);
 
-        // save the filename
-        strncpy( ModList[ModList_count].loadname, FileName, MAXCAPNAMESIZE );
-
-        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
-        if ( load_valid_module( ModList_count, loadname ) )
+        if ( !ModList[cnt].loaded )
         {
-            // NOTE: just because we can't load the ttle image DOES NOT mean that we ignore the module
-            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", FileName );
-            load_one_title_image( ModList_count, loadname );
+            fprintf( filesave, "**.  %s\n", ModList[cnt].loadname );
+        }
+        else if ( modlist_test_by_index( cnt ) )
+        {
+            // NOTE: just because we can't load the title image DOES NOT mean that we ignore the module
+            sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "title", ModList[cnt].loadname );
 
-            fprintf( filesave, "%02d.  %s\n", ModList_count, ModList[ModList_count].longname );
+            ModList[cnt].tex = load_one_title_image( loadname );
 
-            ModList_count++;
+            fprintf( filesave, "%02d.  %s\n", cnt, ModList[cnt].longname );
         }
         else
         {
-            fprintf( filesave, "**.  %s\n", FileName );
+            fprintf( filesave, "##.  %s\n", ModList[cnt].longname );
         }
-
-        FileName = fs_findNextFile();
     }
 
-    fs_findClose();
-
-    ModList[ModList_count].longname[0] = '\0';
     if ( filesave != NULL ) fclose( filesave );
 }
 

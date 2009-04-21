@@ -146,5 +146,5 @@ void   sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 void   sound_stop_channel( int whichchannel );
 void   sound_stop_song();
 
-void   load_global_waves(  const char *modname );
+void   load_global_waves( const char *modname );
 void   load_all_music_sounds();

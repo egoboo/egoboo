@@ -29,8 +29,8 @@
 
 extern void TrimStr( char *pStr );
 
-char * str_decode( char *strout, size_t insize,  const char * strin );
-char * str_encode( char *strout, size_t insize,  const char * strin );
+char * str_decode( char *strout, size_t insize, const char * strin );
+char * str_encode( char *strout, size_t insize, const char * strin );
 
 char * get_file_path( const char *character);
 

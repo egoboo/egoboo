@@ -25,7 +25,6 @@ static void egoboo_console_write( egoboo_console_t * pcon, const char *format, v
 static SDL_bool egoboo_console_draw( egoboo_console_t * pcon );
 static SDL_bool egoboo_console_run( egoboo_console_t * pcon );
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static SDL_bool egoboo_console_stack_unlink( egoboo_console_t * pcon )
@@ -59,7 +58,6 @@ static SDL_bool egoboo_console_stack_unlink( egoboo_console_t * pcon )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 static SDL_bool egoboo_console_stack_push_front( egoboo_console_t * pcon )
@@ -181,9 +179,9 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
 {
     SDL_bool retval = SDL_FALSE;
 
-    if(NULL == pcon) return retval;
+    if (NULL == pcon) return retval;
 
-    if(NULL != pcon->run_func)
+    if (NULL != pcon->run_func)
     {
         retval = pcon->run_func(pcon, pcon->run_data);
     }
@@ -203,7 +201,7 @@ SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
     // remove the console from the stack
     egoboo_console_stack_unlink(pcon);
 
-    if( do_free ) free( pcon );
+    if ( do_free ) free( pcon );
 
     return retval;
 }
@@ -298,7 +296,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
         int text_w, text_h, height;
 
         // make the texture a "null" texture
-        glBindTexture( GL_TEXTURE_2D, ~0 );
+        glBindTexture( GL_TEXTURE_2D, (GLuint)(~0) );
 
         // clip the viewport
         glEnable( GL_SCISSOR_TEST );
@@ -377,7 +375,6 @@ void egoboo_console_draw_all()
 
 }
 
-
 //--------------------------------------------------------------------------------------------
 void egoboo_console_show( egoboo_console_t * pcon )
 {
@@ -397,7 +394,6 @@ void egoboo_console_show( egoboo_console_t * pcon )
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void egoboo_console_hide( egoboo_console_t * pcon )
@@ -453,7 +449,6 @@ void egoboo_console_add_saved( egoboo_console_t * pcon, char * str )
     pcon->save_count++;
     pcon->save_index = pcon->save_count;
 }
-
 
 //--------------------------------------------------------------------------------------------
 SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
@@ -607,7 +602,6 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
         }
     }
 
-
     // handle normal keystrokes
     if ( NULL != pevt && !is_alt && vkey < SDLK_NUMLOCK )
     {
@@ -629,7 +623,6 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
 
     return pevt;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void init_scancodes()

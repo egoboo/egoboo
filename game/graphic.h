@@ -41,7 +41,6 @@
 #define FONTADD                         4           // Gap between letters
 #define NUMBAR                          6           // Number of status bars
 
-
 #define MAXLIGHTLEVEL                   16          // Number of premade light intensities
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
 #define MAXLIGHTROTATION                256         // Number of premade light maps
@@ -79,12 +78,14 @@ extern  STRING          TxFormatSupported[50]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
 
 extern  GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
-extern  GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 extern  GLTexture       TxFont;                     // OpenGL font surface
 extern  GLTexture       TxBars;                     // OpenGL status bar surface
 extern  GLTexture       TxBlip;                     // OpenGL you are here surface
 extern  GLTexture       TxMap;                      // OpenGL map surface
 extern  GLTexture       txTexture[MAXTEXTURE];      // All textures
+
+extern  Uint32          TxTitleImage_count;
+extern  GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
 #define MAXBLIP 128
@@ -171,7 +172,6 @@ struct s_dynalight
 
 typedef struct s_dynalight dynalight_t;
 
-
 extern int         dyna_distancetobeat;           // The number to beat
 extern int         dyna_list_max;                 // Max number of lights to draw
 extern int         dyna_list_count;               // Number of dynamic lights
@@ -211,13 +211,12 @@ void release_all_models();
 
 void   load_graphics();
 bool_t load_blip_bitmap();
-void   load_bars(  const char* szBitmap );
-void   load_map(  const char* szModule );
+void   load_bars( const char* szBitmap );
+void   load_map( const char* szModule );
 bool_t load_all_global_icons();
 
 float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
 void  make_lighttable( float lx, float ly, float lz, float ambi );
-
 
 void render_water();
 void draw_scene_zreflection();
@@ -228,9 +227,9 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );
 void draw_map( int x, int y );
 int  draw_one_bar( int bartype, int x, int y, int ticks, int maxticks );
-void draw_string(  const char *szText, int x, int y );
-int  length_of_word(  const char *szText );
-int  draw_wrap_string(  const char *szText, int x, int y, int maxx );
+void draw_string( const char *szText, int x, int y );
+int  length_of_word( const char *szText );
+int  draw_wrap_string( const char *szText, int x, int y, int maxx );
 int  draw_status( Uint16 character, int x, int y );
 void draw_text();
 void flip_pages();
@@ -263,20 +262,20 @@ bool_t dump_screenshot();
 void make_enviro();
 float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
 
-bool_t load_one_icon(  const char *szLoadName );
+bool_t load_one_icon( const char *szLoadName );
 
 void make_textureoffset();
 void tile_dictionary_load();
 
-void load_basic_textures(  const char *modname );
+void load_basic_textures( const char *modname );
 
 void clear_messages();
 
-void font_load(  const char* szBitmap,  const char* szSpacing );
+void font_load( const char* szBitmap, const char* szSpacing );
 
 void make_water();
-void read_wawalite(  const char *modname );
+void read_wawalite( const char *modname );
 
-int  load_one_title_image( int titleimage,  const char *szLoadName );
+Uint32 load_one_title_image( const char *szLoadName );
 
 void font_init();

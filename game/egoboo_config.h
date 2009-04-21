@@ -73,6 +73,5 @@
 #define SET_PACKING(NAME,PACKING) NAME
 #endif
 
-
 //Some macro switches
 //#define OLD_CAMERA_MODE       //Use the old camera style

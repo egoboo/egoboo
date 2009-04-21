@@ -108,7 +108,7 @@ void packet_addUnsignedShort( Uint16 us );
 void packet_addSignedShort( Sint16 ss );
 void packet_addUnsignedInt( Uint32 ui );
 void packet_addSignedInt( Sint32 si );
-void packet_addString(  const char *string );
+void packet_addString( const char *string );
 
 void net_sendPacketToHost();
 void net_sendPacketToAllPlayers();
@@ -120,10 +120,10 @@ void net_send_message();
 void net_updateFileTransfers();
 int  net_pendingFileTransfers();
 
-void net_copyFileToAllPlayers(  const char *source,  const char *dest );
-void net_copyFileToHost(  const char *source,  const char *dest );
-void net_copyDirectoryToHost(  const char *dirname,  const char *todirname );
-void net_copyDirectoryToAllPlayers(  const char *dirname,  const char *todirname );
+void net_copyFileToAllPlayers( const char *source, const char *dest );
+void net_copyFileToHost( const char *source, const char *dest );
+void net_copyDirectoryToHost( const char *dirname, const char *todirname );
+void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname );
 void net_sayHello();
 void cl_talkToHost();
 void sv_talkToRemotes();

@@ -41,7 +41,7 @@ bool_t link_follow_modname( const char * modname )
 
     bool_t retval;
 
-    if ( NULL == modname || '\0' == modname[0] ) return bfalse;
+    if ( !modlist_test_by_name(modname) ) return bfalse;
 
     // export all the local and remote characters
     game_update_imports();

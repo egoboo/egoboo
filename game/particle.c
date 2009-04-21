@@ -781,7 +781,7 @@ int prt_is_over_water( Uint16 cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
+int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
     //     found
@@ -1016,7 +1016,7 @@ int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_particles(  const char* modname )
+void reset_particles( const char* modname )
 {
     // ZZ> This resets all particle data and reads in the coin and water particles
     int cnt, object;

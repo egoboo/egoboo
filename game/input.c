@@ -36,7 +36,6 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 Uint32 input_device_count = 0;
@@ -347,7 +346,7 @@ bool_t scantag_read_one( FILE *fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void scantag_read_all(  const char *szFilename )
+void scantag_read_all( const char *szFilename )
 {
     // ZZ> This function reads the scancode.txt file
     FILE* fileread;
@@ -363,7 +362,7 @@ void scantag_read_all(  const char *szFilename )
 }
 
 //--------------------------------------------------------------------------------------------
-int scantag_get_value(  const char *string )
+int scantag_get_value( const char *string )
 {
     // ZZ> This function matches the string with its tag, and returns the value...
     //     It will return 255 if there are no matches.
@@ -452,7 +451,6 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 
     return retval;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void reset_players()

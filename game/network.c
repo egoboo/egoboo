@@ -28,6 +28,7 @@
 #include "log.h"
 #include "input.h"
 #include "char.h"
+#include "module.h"
 
 #include "egoboo.h"
 
@@ -50,7 +51,6 @@ int                     numpla = 0;                     // Number of players
 int                     local_numlpla;                  //
 player_t                PlaList[MAXPLAYER];
 
-
 FILE * globalnetworkerr = NULL;
 
 Uint32                  randsave;
@@ -65,7 +65,6 @@ int                     numplayer  = 0;
 char                    netplayername[MAXNETPLAYER][NETNAMESIZE];
 
 int                     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -278,7 +277,7 @@ void packet_addSignedInt( Sint32 si )
 }
 
 //--------------------------------------------------------------------------------------------
-void packet_addString(  const char *string )
+void packet_addString( const char *string )
 {
     // ZZ> This function appends a null terminated string to the packet
     char* cp;
@@ -318,6 +317,7 @@ void packet_doneReading()
 void packet_readString( char *buffer, int maxLen )
 {
     // ZZ> This function reads a null terminated string from the packet
+
     Uint8 uc;
     Uint16 outindex;
 
@@ -340,6 +340,7 @@ void packet_readString( char *buffer, int maxLen )
 Uint8 packet_readUnsignedByte()
 {
     // ZZ> This function reads an Uint8 from the packet
+
     Uint8 uc;
     uc = ( Uint8 )net_readPacket->data[net_readLocation];
     net_readLocation++;
@@ -350,6 +351,7 @@ Uint8 packet_readUnsignedByte()
 Sint8 packet_readSignedByte()
 {
     // ZZ> This function reads a Sint8 from the packet
+
     Sint8 sc;
     sc = ( signed char )net_readPacket->data[net_readLocation];
     net_readLocation++;
@@ -360,6 +362,7 @@ Sint8 packet_readSignedByte()
 Uint16 packet_readUnsignedShort()
 {
     // ZZ> This function reads an Uint16 from the packet
+
     Uint16 us;
     Uint16* usp;
     usp = ( Uint16* )( &net_readPacket->data[net_readLocation] );
@@ -374,6 +377,7 @@ Uint16 packet_readUnsignedShort()
 Sint16 packet_readSignedShort()
 {
     // ZZ> This function reads a Sint16 from the packet
+
     Sint16 ss;
     signed short* ssp;
     ssp = ( signed short* )( &net_readPacket->data[net_readLocation] );
@@ -388,6 +392,7 @@ Sint16 packet_readSignedShort()
 Uint32 packet_readUnsignedInt()
 {
     // ZZ> This function reads an Uint32 from the packet
+
     Uint32 ui;
     Uint32* uip;
     uip = ( Uint32* )( &net_readPacket->data[net_readLocation] );
@@ -402,6 +407,7 @@ Uint32 packet_readUnsignedInt()
 Sint32 packet_readSignedInt()
 {
     // ZZ> This function reads a Sint32 from the packet
+
     Sint32 si;
     signed int* sip;
     sip = ( signed int* )( &net_readPacket->data[net_readLocation] );
@@ -416,6 +422,7 @@ Sint32 packet_readSignedInt()
 size_t packet_remainingSize()
 {
     // ZZ> This function tells if there's still data left in the packet
+
     return net_readPacket->dataLength - net_readLocation;
 }
 
@@ -423,6 +430,7 @@ size_t packet_remainingSize()
 void net_sendPacketToHost()
 {
     // ZZ> This function sends a packet to the host
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
 }
@@ -431,6 +439,7 @@ void net_sendPacketToHost()
 void net_sendPacketToAllPlayers()
 {
     // ZZ> This function sends a packet to all the players
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_host_broadcast( net_myHost, NET_UNRELIABLE_CHANNEL, packet );
 }
@@ -439,6 +448,7 @@ void net_sendPacketToAllPlayers()
 void net_sendPacketToHostGuaranteed()
 {
     // ZZ> This function sends a packet to the host
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_peer_send( net_gameHost, NET_UNRELIABLE_CHANNEL, packet );
 }
@@ -447,6 +457,7 @@ void net_sendPacketToHostGuaranteed()
 void net_sendPacketToAllPlayersGuaranteed()
 {
     // ZZ> This function sends a packet to all the players
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_host_broadcast( net_myHost, NET_GUARANTEED_CHANNEL, packet );
 }
@@ -455,6 +466,7 @@ void net_sendPacketToAllPlayersGuaranteed()
 void net_sendPacketToOnePlayerGuaranteed( int player )
 {
     // ZZ> This function sends a packet to one of the players
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     if ( player < numplayer )
     {
@@ -466,6 +478,7 @@ void net_sendPacketToOnePlayerGuaranteed( int player )
 void net_sendPacketToPeer( ENetPeer *peer )
 {
     // JF> This function sends a packet to a given peer
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, ENET_PACKET_FLAG_RELIABLE );
     enet_peer_send( peer, NET_UNRELIABLE_CHANNEL, packet );
 }
@@ -474,15 +487,17 @@ void net_sendPacketToPeer( ENetPeer *peer )
 void net_sendPacketToPeerGuaranteed( ENetPeer *peer )
 {
     // JF> This funciton sends a packet to a given peer, with guaranteed delivery
+
     ENetPacket *packet = enet_packet_create( packetbuffer, packetsize, 0 );
     enet_peer_send( peer, NET_GUARANTEED_CHANNEL, packet );
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToAllPlayers(  const char *source,  const char *dest )
+void net_copyFileToAllPlayers( const char *source, const char *dest )
 {
     // JF> This function queues up files to send to all the hosts.
     //     TODO: Deal with having to send to up to MAXPLAYER players...
+
     NetFileTransfer *state;
     if ( net_numFileTransfers < NET_MAX_FILE_TRANSFERS )
     {
@@ -511,7 +526,7 @@ void net_copyFileToAllPlayers(  const char *source,  const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToAllPlayersOld(  const char *source,  const char *dest )
+void net_copyFileToAllPlayersOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the host to every remote computer.
     //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -591,7 +606,7 @@ void net_copyFileToAllPlayersOld(  const char *source,  const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToHost(  const char *source,  const char *dest )
+void net_copyFileToHost( const char *source, const char *dest )
 {
     NetFileTransfer *state;
 
@@ -638,7 +653,7 @@ void net_copyFileToHost(  const char *source,  const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyFileToHostOld(  const char *source,  const char *dest )
+void net_copyFileToHostOld( const char *source, const char *dest )
 {
     // ZZ> This function copies a file on the remote to the host computer.
     //     Packets are sent in chunks of COPYSIZE bytes.  The max file size
@@ -729,7 +744,7 @@ void net_copyFileToHostOld(  const char *source,  const char *dest )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyDirectoryToHost(  const char *dirname,  const char *todirname )
+void net_copyDirectoryToHost( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
     char searchname[128];
@@ -772,7 +787,7 @@ void net_copyDirectoryToHost(  const char *dirname,  const char *todirname )
 }
 
 //--------------------------------------------------------------------------------------------
-void net_copyDirectoryToAllPlayers(  const char *dirname,  const char *todirname )
+void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 {
     // ZZ> This function copies all files in a directory
     char searchname[128];
@@ -1220,7 +1235,7 @@ void net_handlePacket( ENetEvent *event )
                 strcpy( pickedmodule, filename );
 
                 // Check to see if the module exists
-                pickedindex = find_module( pickedmodule );
+                pickedindex = modlist_get_mod_number( pickedmodule );
                 if ( pickedindex == -1 )
                 {
                     // The module doesn't exist locally
@@ -1686,6 +1701,7 @@ void stop_players_from_joining()
 int sv_hostGame()
 {
     // ZZ> This function tries to host a new session
+
     ENetAddress address;
     if ( networkon )
     {

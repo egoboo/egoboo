@@ -30,6 +30,7 @@
 #include "enchant.h"
 #include "passage.h"
 #include "input.h"
+#include "file_common.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -42,11 +43,11 @@ mod_t ModList[MAXMODULE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t load_module_info( FILE * fileread, mod_t * pmod );
+static bool_t module_load_info( const char * szLoadName, mod_t * pmod );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-int module_reference_matches(  const char *szLoadName, Uint32 idsz )
+int module_reference_matches( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function returns btrue if the named module has the required IDSZ
     FILE *fileread;
@@ -54,61 +55,53 @@ int module_reference_matches(  const char *szLoadName, Uint32 idsz )
     Uint32 newidsz;
     int foundidsz;
     int cnt;
-    if ( idsz == IDSZ_NONE )
-        return btrue;
-    if ( szLoadName[0] == 'N' && szLoadName[1] == 'O' && szLoadName[2] == 'N' && szLoadName[3] == 'E' && szLoadName[4] == 0 )
-        return bfalse;
 
-    foundidsz = bfalse;
+    if ( idsz == IDSZ_NONE ) return btrue;
+
+    if ( 0 == strcmp( szLoadName, "NONE" )  ) return bfalse;
+
     sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
     fileread = fopen( newloadname, "r" );
-    if ( NULL == fileread )
+    if ( NULL == fileread ) return bfalse;
+
+    // Read basic data
+    parse_filename = szLoadName;
+    goto_colon( fileread );  // Name of module...  Doesn't matter
+    goto_colon( fileread );  // Reference directory...
+    goto_colon( fileread );  // Reference IDSZ...
+    goto_colon( fileread );  // Import...
+    goto_colon( fileread );  // Export...
+    goto_colon( fileread );  // Min players...
+    goto_colon( fileread );  // Max players...
+    goto_colon( fileread );  // Respawn...
+    goto_colon( fileread );  // BAD! NOT USED
+    goto_colon( fileread );  // Rank...
+
+    // Summary...
+    for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        log_warning("Cannot open file! (%s)\n", newloadname);
-        return bfalse;
+        goto_colon( fileread );
     }
-    else
+
+    // Now check expansions
+    foundidsz = bfalse;
+    while ( goto_colon_yesno( fileread )  )
     {
-        // Read basic data
-        parse_filename = szLoadName;
-        goto_colon( fileread );  // Name of module...  Doesn't matter
-        goto_colon( fileread );  // Reference directory...
-        goto_colon( fileread );  // Reference IDSZ...
-        goto_colon( fileread );  // Import...
-        goto_colon( fileread );  // Export...
-        goto_colon( fileread );  // Min players...
-        goto_colon( fileread );  // Max players...
-        goto_colon( fileread );  // Respawn...
-        goto_colon( fileread );  // BAD! NOT USED
-        goto_colon( fileread );  // Rank...
-
-        // Summary...
-        cnt = 0;
-
-        while ( cnt < SUMMARYLINES )
+        newidsz = fget_idsz( fileread );
+        if ( newidsz == idsz )
         {
-            goto_colon( fileread );
-            cnt++;
+            foundidsz = btrue;
+            break;
         }
-
-        // Now check expansions
-        while ( goto_colon_yesno( fileread ) && !foundidsz )
-        {
-            newidsz = fget_idsz( fileread );
-            if ( newidsz == idsz )
-            {
-                foundidsz = btrue;
-            }
-        }
-
-        fclose( fileread );
     }
+
+    fclose( fileread );
 
     return foundidsz;
 }
 
 //--------------------------------------------------------------------------------------------
-void add_module_idsz(  const char *szLoadName, Uint32 idsz )
+void module_add_idsz( const char *szLoadName, IDSZ idsz )
 {
     // ZZ> This function appends an IDSZ to the module's menu.txt file
     FILE *filewrite;
@@ -134,59 +127,44 @@ void add_module_idsz(  const char *szLoadName, Uint32 idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-int find_module(  const char *smallname )
+int modlist_get_mod_number( const char *szModName )
 {
     // ZZ> This function returns -1 if the module does not exist locally, the module
     //     index otherwise
 
-    int cnt, index;
-    cnt = 0;
-    index = -1;
+    int modnum, retval = -1;
 
-    while ( cnt < ModList_count )
+    for ( modnum = 0; modnum < ModList_count; modnum++ )
     {
-        if ( strcmp( smallname, ModList[cnt].loadname ) == 0 )
+        if ( 0 == strcmp( ModList[modnum].loadname, szModName ) )
         {
-            index = cnt;
-            cnt = ModList_count;
+            retval = modnum;
+            break;
         }
-
-        cnt++;
     }
 
-    return index;
+    return modnum;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_valid_module( int modnumber,  const char *szLoadName )
+bool_t modlist_test_by_index( int modnumber )
 {
-    // ZZ> This function loads the module data file
-    FILE  *fileread;
-    IDSZ   idsz;
-    int    iTmp;
-
-    bool_t playerhasquest;
-    Sint16 questlevel;
-
+    int     cnt;
     mod_t * pmod;
+    bool_t  allowed;
+    bool_t  playerhasquest;
 
-    if ( modnumber >= MAXMODULE ) return bfalse;
+    if ( modnumber < 0 || modnumber >= ModList_count || modnumber >= MAXMODULE ) return bfalse;
     pmod = ModList + modnumber;
 
-    fileread = fopen( szLoadName, "r" );
-    if ( NULL == fileread ) return bfalse;
-    parse_filename = szLoadName;
-
-    // Read basic data
-    goto_colon( fileread );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
-    goto_colon( fileread );  fscanf( fileread, "%s", pmod->reference );
-    goto_colon( fileread );  idsz = fget_idsz( fileread ); fgetc(fileread); questlevel = fget_int( fileread );
+    // if the module data was never loaded, then it is not valid
+    if ( !pmod->loaded ) return bfalse;
 
     //Check all selected players directories !!TODO!!
     playerhasquest = bfalse;
-    for ( iTmp = 0; iTmp < mnu_selectedPlayerCount; iTmp++ )
+    for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
     {
-        if ( questlevel <= check_player_quest( loadplayer[mnu_selectedPlayer[iTmp]].name, idsz ))
+        if ( pmod->quest_level <= check_player_quest( loadplayer[mnu_selectedPlayer[cnt]].name, pmod->quest_idsz ))
         {
             playerhasquest = btrue;
             break;
@@ -194,26 +172,52 @@ bool_t load_valid_module( int modnumber,  const char *szLoadName )
     }
 
     //So, do we load the module or not?
-    pmod->loaded = bfalse;
-    if ( gDevMode || playerhasquest || module_reference_matches( pmod->reference, idsz ) )
+    allowed = bfalse;
+    if ( gDevMode || playerhasquest || module_reference_matches( pmod->reference, pmod->quest_idsz ) )
     {
-        parse_filename = szLoadName;
-        load_module_info( fileread, pmod );
+        allowed = btrue;
     }
 
-    return pmod->loaded;
+    return allowed;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_module_info( FILE * fileread, mod_t * pmod )
+bool_t modlist_test_by_name( const char *szModName )
+{
+    // ZZ> This function tests to see if a module can be entered by
+    //     the players
+
+    // find the module by name
+    int modnumber = modlist_get_mod_number( szModName );
+
+    return modlist_test_by_index( modnumber );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t module_load_info( const char * szLoadName, mod_t * pmod )
 {
     // BB > this function actually reads in the module data
 
+    FILE * fileread;
     STRING readtext, szLine;
     int cnt, tnc, iTmp;
     char cTmp;
 
-    if ( NULL == fileread || NULL == pmod ) return bfalse;
+    // clear all the module info
+    if ( NULL == pmod ) return bfalse;
+    memset( pmod, 0, sizeof(mod_t) );
+
+    // see if we can open the file
+    fileread = fopen( szLoadName, "r" );
+    if ( NULL == fileread ) return bfalse;
+
+    // the file is open
+    parse_filename = szLoadName;
+
+    // Read basic data
+    goto_colon( fileread );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
+    goto_colon( fileread );  fscanf( fileread, "%s", pmod->reference );
+    goto_colon( fileread );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_char = fgetc(fileread); pmod->quest_level = fget_int( fileread );
 
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
     pmod->importamount = iTmp;
@@ -262,8 +266,38 @@ bool_t load_module_info( FILE * fileread, mod_t * pmod )
         cnt++;
     }
 
+    fclose(fileread);
+
     pmod->loaded = btrue;
 
     return pmod->loaded;
+}
+
+//--------------------------------------------------------------------------------------------
+void modlist_load_all_info()
+{
+    STRING loadname;
+    const char *FileName;
+
+    // Search for all .mod directories and load the module info
+    ModList_count = 0;
+    FileName = fs_findFirstFile( "modules", "mod" );
+    while ( NULL != FileName && ModList_count < MAXMODULE )
+    {
+        // save the filename
+        sprintf( loadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", FileName );
+
+        if ( module_load_info( loadname, ModList + ModList_count ) )
+        {
+            strncpy( ModList[ModList_count].loadname, FileName, MAXCAPNAMESIZE );
+
+            ModList_count++;
+        };
+
+        FileName = fs_findNextFile();
+    }
+    fs_findClose();
+    ModList[ModList_count].longname[0] = '\0';
+
 }
 

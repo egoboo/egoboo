@@ -94,8 +94,7 @@ extern Uint16 md2_loadframe;                               // Where to load next
 //Function prototypes
 int  md2_rip_frame_name( int frame );
 void md2_rip_frames( Uint16 modelindex );
-int  md2_load_one(  const char* szLoadname, Uint16 modelindex );
-
+int  md2_load_one( const char* szLoadname, Uint16 modelindex );
 
 Md2Model *md2_loadFromFile( const char *fileName );
 void      md2_freeModel( Md2Model *model );

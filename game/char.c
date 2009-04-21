@@ -714,7 +714,6 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         ChrList[character].keepaction = btrue;
     }
 
-
     // Set the positions
     if ( ChrList[character].matrixvalid )
     {
@@ -1603,7 +1602,6 @@ void character_swipe( Uint16 cnt, Uint8 slot )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void drop_money( Uint16 character, Uint16 money )
 {
@@ -1890,7 +1888,7 @@ void resize_characters()
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_name(  const char *szSaveName, Uint16 character )
+void export_one_character_name( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function makes the naming.txt file for the character
     FILE* filewrite;
@@ -1937,7 +1935,7 @@ void export_one_character_name(  const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_profile(  const char *szSaveName, Uint16 character )
+void export_one_character_profile( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a data.txt file for the given character.
     //     it is assumed that all enchantments have been done away with
@@ -2242,7 +2240,7 @@ void export_one_character_profile(  const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-void export_one_character_skin(  const char *szSaveName, Uint16 character )
+void export_one_character_skin( const char *szSaveName, Uint16 character )
 {
     // ZZ> This function creates a skin.txt file for the given character.
     FILE* filewrite;
@@ -2262,7 +2260,7 @@ void export_one_character_skin(  const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_character_profile(  const char *szLoadName )
+int load_one_character_profile( const char *szLoadName )
 {
     // ZZ> This function fills a character profile with data from data.txt, returning
     // the object slot that the profile was stuck into.  It may cause the program
@@ -3130,7 +3128,6 @@ char * chop_create( Uint16 profile )
     {
         write = 0;
 
-
         for ( section = 0; section < MAXSECTION; section++ )
         {
             if ( 0 != CapList[profile].chop_sectionsize[section] )
@@ -3197,7 +3194,7 @@ void init_ai_state( ai_state_t * pself, Uint16 index, Uint16 profile, Uint16 mod
 
 //--------------------------------------------------------------------------------------------
 int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
-                         Uint8 skin, Uint16 facing,  const char *name, int override )
+                         Uint8 skin, Uint16 facing, const char *name, int override )
 {
     // ZZ> This function spawns a character and returns the character's index number
     //     if it worked, MAXCHR otherwise
@@ -4311,7 +4308,7 @@ int restock_ammo( Uint16 character, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t add_quest_idsz(  const char *whichplayer, IDSZ idsz )
+bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz )
 {
     /// @details ZF@> This function writes a IDSZ (With quest level 0) into a player quest.txt file, returns btrue if succeeded
 
@@ -4345,7 +4342,7 @@ bool_t add_quest_idsz(  const char *whichplayer, IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-Sint16 modify_quest_idsz(  const char *whichplayer, IDSZ idsz, Sint16 adjustment )
+Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment )
 {
     /// @details ZF@> This function increases or decreases a Quest IDSZ quest level by the amount determined in
     ///     adjustment. It then returns the current quest level it now has.
@@ -4449,7 +4446,7 @@ char * undo_idsz( IDSZ idsz )
 }
 
 //--------------------------------------------------------------------------------------------
-Sint16 check_player_quest(  const char *whichplayer, IDSZ idsz )
+Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
 {
     /// @details ZF@> This function checks if the specified player has the IDSZ in his or her quest.txt
     /// and returns the quest level of that specific quest (Or QUEST_NONE if it is not found, QUEST_BEATEN if it is finished)

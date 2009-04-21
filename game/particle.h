@@ -33,7 +33,6 @@
 #define MAXPARTICLEIMAGE                256         // Number of particle images ( frames )
 #define DYNAFANS  12
 
-
 // dynalight constants
 #define DYNAOFF   0
 #define DYNAON    1
@@ -140,7 +139,6 @@ typedef struct s_pip pip_t;
 extern int   numpip;
 extern pip_t PipList[TOTALMAXPRTPIP];
 
-
 //------------------------------------
 // Particle variables
 //------------------------------------
@@ -211,7 +209,6 @@ extern prt_t            PrtList[TOTALMAXPRT];
 void free_one_particle_no_sound( Uint16 particle );
 void free_one_particle( Uint16 particle );
 
-
 void move_particles( void );
 void free_all_particles();
 
@@ -226,8 +223,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
 int prt_count_free();
 
-int load_one_particle(  const char *szLoadName, Uint16 object, Uint16 pip );
-void reset_particles(  const char* modname );
+int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip );
+void reset_particles( const char* modname );
 
 Uint8 __prthitawall( Uint16 particle );
 

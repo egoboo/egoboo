@@ -65,7 +65,6 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
     return btrue;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void goto_colon( FILE* fileread )
 {
@@ -120,8 +119,6 @@ char fget_first_letter( FILE* fileread )
     return cTmp;
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
 {
@@ -159,9 +156,8 @@ bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
     return ferror(fileread);
 }
 
-
 //--------------------------------------------------------------------------------------------
-void ftruthf( FILE* filewrite,  const char* text, Uint8 truth )
+void ftruthf( FILE* filewrite, const char* text, Uint8 truth )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     btrue bfalse statements
@@ -178,7 +174,7 @@ void ftruthf( FILE* filewrite,  const char* text, Uint8 truth )
 }
 
 //--------------------------------------------------------------------------------------------
-void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype )
+void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -204,7 +200,7 @@ void fdamagf( FILE* filewrite,  const char* text, Uint8 damagetype )
 }
 
 //--------------------------------------------------------------------------------------------
-void factiof( FILE* filewrite,  const char* text, Uint8 action )
+void factiof( FILE* filewrite, const char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
@@ -234,7 +230,7 @@ void factiof( FILE* filewrite,  const char* text, Uint8 action )
 }
 
 //--------------------------------------------------------------------------------------------
-void fgendef( FILE* filewrite,  const char* text, Uint8 gender )
+void fgendef( FILE* filewrite, const char* text, Uint8 gender )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     MALE FEMALE OTHER statements
@@ -249,7 +245,7 @@ void fgendef( FILE* filewrite,  const char* text, Uint8 gender )
 }
 
 //--------------------------------------------------------------------------------------------
-void fpairof( FILE* filewrite,  const char* text, int base, int rand )
+void fpairof( FILE* filewrite, const char* text, int base, int rand )
 {
     // ZZ> This function mimics fprintf in spitting out
     //     damage/stat pairs
@@ -259,7 +255,7 @@ void fpairof( FILE* filewrite,  const char* text, int base, int rand )
 }
 
 //--------------------------------------------------------------------------------------------
-void funderf( FILE* filewrite,  const char* text,  const char* usename )
+void funderf( FILE* filewrite, const char* text, const char* usename )
 {
     // ZZ> This function mimics fprintf in spitting out
     //     a name with underscore spaces
@@ -336,7 +332,7 @@ void undo_pair( int base, int rand )
 }
 
 //--------------------------------------------------------------------------------------------
-void make_newloadname(  const char *modname,  const char *appendname,  char *newloadname )
+void make_newloadname( const char *modname, const char *appendname,  char *newloadname )
 {
     // ZZ> This function takes some names and puts 'em together
     int cnt, tnc;

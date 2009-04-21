@@ -23,7 +23,6 @@
 #include "egoboo.h"
 #include "egoboo_endian.h"
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -382,7 +381,7 @@ void md2_rip_frames( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-int md2_load_one(  const char* szLoadname, Uint16 modelindex )
+int md2_load_one( const char* szLoadname, Uint16 modelindex )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
     //    int iFileHandleRead;

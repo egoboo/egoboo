@@ -231,7 +231,6 @@ void let_character_think( Uint16 character )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void set_alerts( Uint16 character )
 {
@@ -344,7 +343,6 @@ bool_t script_set_exe( ai_state_t * pself, size_t offset )
 
     return btrue;
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
@@ -1464,7 +1462,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FADDIDSZ:
             // This function adds an idsz to the module's menu.txt file
-            add_module_idsz( pickedmodule, pstate->argument );
+            module_add_idsz( pickedmodule, pstate->argument );
             break;
 
         case FSETSTATE:
@@ -3848,7 +3846,13 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
                 // !!!use the message text to control the links!!!!
                 returncode = link_follow_modname( ptext );
-                //returncode = link_follow( LinkList, pstate->argument );
+
+                if (!returncode)
+                {
+                    STRING tmpbuf;
+                    snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s", pchr->name );
+                    debug_message(tmpbuf);
+                }
             }
             break;
 
@@ -4595,7 +4599,6 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
         fprintf( scr_file, "%s %s(%d) ", op, varname, iTmp );
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -5806,7 +5809,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function adds an idsz to the module's menu.txt file
-    add_module_idsz( pickedmodule, pstate->argument );
+    module_add_idsz( pickedmodule, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -10762,7 +10765,13 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
 
     // Skips to the next module!
     returncode = link_follow_modname( ptext );
-    //returncode = link_follow( LinkList, pstate->argument );
+
+    if (!returncode)
+    {
+        STRING tmpbuf;
+        snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s", pchr->name );
+        debug_message(tmpbuf);
+    }
 
     SCRIPT_FUNCTION_END();
 }

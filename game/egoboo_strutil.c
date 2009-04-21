@@ -71,7 +71,7 @@ void TrimStr( char *pStr )
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_decode( char *strout, size_t insize,  const char * strin )
+char * str_decode( char *strout, size_t insize, const char * strin )
 {
     /// @details BB> str_decode converts a string from "storage mode" to an actual string
 
@@ -94,7 +94,7 @@ char * str_decode( char *strout, size_t insize,  const char * strin )
 }
 
 //--------------------------------------------------------------------------------------------
-char * str_encode( char *strout, size_t insize,  const char * strin )
+char * str_encode( char *strout, size_t insize, const char * strin )
 {
     /// @details BB> str_encode converts an actual string to "storage mode"
 

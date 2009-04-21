@@ -83,7 +83,7 @@ bool_t setup_quit()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_read(  const char* filename )
+bool_t setup_read( const char* filename )
 {
     // BB> read the setup file
 
@@ -487,7 +487,7 @@ static void export_control( FILE * filewrite, const char * text, Sint32 device, 
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t input_settings_load(  const char *szFilename )
+bool_t input_settings_load( const char *szFilename )
 {
     // ZZ> This function reads the controls.txt file
     FILE* fileread;

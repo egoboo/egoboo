@@ -38,7 +38,7 @@ FILE * debug_script_file = NULL;
 static void   insert_space( int position );
 //static void   copy_one_line( int write );
 static int    load_one_line( int read );
-static int    load_parsed_line( int read );
+//static int    load_parsed_line( int read );
 static void   surround_space( int position );
 //static void   parse_null_terminate_comments();
 static int    get_indentation();
@@ -50,7 +50,7 @@ static void   emit_opcode( Uint32 highbits );
 static void   parse_line_by_line();
 static Uint32 jump_goto( int index, int index_end );
 static void   parse_jumps( int ainumber );
-//static void   log_code( int ainumber,  const char* savename );
+//static void   log_code( int ainumber, const char* savename );
 static int    ai_goto_colon( int read );
 static void   get_code( int read );
 
@@ -202,26 +202,26 @@ int load_one_line( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_parsed_line( int read )
-{
-    // ZZ> This function loads a line into the line buffer
-    char cTmp;
-
-    // Parse to start to maintain indentation
-    iLineSize = 0;
-    cTmp = cLoadBuffer[read];
-
-    while ( cTmp != '\0' )
-    {
-        cLineBuffer[iLineSize] = cTmp;  iLineSize++;
-        read++;  cTmp = cLoadBuffer[read];
-    }
-
-    cLineBuffer[iLineSize] = '\0';
-    read++; // skip terminating zero for next call of load_parsed_line()
-    return read;
-}
-
+//int load_parsed_line( int read )
+//{
+//    // ZZ> This function loads a line into the line buffer
+//    char cTmp;
+//
+//    // Parse to start to maintain indentation
+//    iLineSize = 0;
+//    cTmp = cLoadBuffer[read];
+//
+//    while ( cTmp != '\0' )
+//    {
+//        cLineBuffer[iLineSize] = cTmp;  iLineSize++;
+//        read++;  cTmp = cLoadBuffer[read];
+//    }
+//
+//    cLineBuffer[iLineSize] = '\0';
+//    read++; // skip terminating zero for next call of load_parsed_line()
+//    return read;
+//}
+//
 //--------------------------------------------------------------------------------------------
 void surround_space( int position )
 {
@@ -745,7 +745,7 @@ void get_code( int read )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_ai_codes(  const char* loadname )
+void load_ai_codes( const char* loadname )
 {
     // ZZ> This function loads all of the function and variable names
     FILE* fileread;
@@ -773,7 +773,7 @@ void load_ai_codes(  const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_ai_script(  const char *loadname )
+int load_ai_script( const char *loadname )
 {
     // ZZ> This function loads a script to memory and
     //     returns bfalse if it fails to do so

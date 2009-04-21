@@ -27,7 +27,6 @@
 
 #include "egoboo.h"
 
-
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f                     //
 #define PITDEPTH            -30                     // Depth to kill character
@@ -536,7 +535,7 @@ int chr_count_free();
 char * chop_create( Uint16 profile );
 
 int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
-                         Uint8 skin, Uint16 facing,  const char *name, int override );
+                         Uint8 skin, Uint16 facing, const char *name, int override );
 
 void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
@@ -556,18 +555,18 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people );
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void chr_set_frame( Uint16 character, int frame, Uint16 lip );
 
-void export_one_character_name(  const char *szSaveName, Uint16 character );
-void export_one_character_profile(  const char *szSaveName, Uint16 character );
-void export_one_character_skin(  const char *szSaveName, Uint16 character );
-int load_one_character_profile(  const char *szLoadName );
+void export_one_character_name( const char *szSaveName, Uint16 character );
+void export_one_character_profile( const char *szSaveName, Uint16 character );
+void export_one_character_skin( const char *szSaveName, Uint16 character );
+int load_one_character_profile( const char *szLoadName );
 
-void chop_load( Uint16 profile,  const char *szLoadname );
+void chop_load( Uint16 profile, const char *szLoadname );
 void character_swipe( Uint16 cnt, Uint8 slot );
 
 int check_skills( Uint16 who, IDSZ whichskill );
 
 //---------------------------------------------------------------------------------------------
 // Quest system
-bool_t add_quest_idsz(  const char *whichplayer, IDSZ idsz );
-Sint16 modify_quest_idsz(  const char *whichplayer, IDSZ idsz, Sint16 adjustment );
-Sint16 check_player_quest(  const char *whichplayer, IDSZ idsz );
+bool_t add_quest_idsz( const char *whichplayer, IDSZ idsz );
+Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment );
+Sint16 check_player_quest( const char *whichplayer, IDSZ idsz );

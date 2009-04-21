@@ -22,7 +22,6 @@
  * (such as data loading) that really should not be in here.
  */
 
-
 #include "graphic.h"
 
 #include "log.h"
@@ -60,15 +59,18 @@
 //--------------------------------------------------------------------------------------------
 
 Uint8           maxformattypes = 0;
-STRING          TxFormatSupported[50]; // OpenGL icon surfaces
+STRING          TxFormatSupported[50];      // OpenGL icon surfaces
 
 GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
-GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 GLTexture       TxFont;                     // OpenGL font surface
 GLTexture       TxBars;                     // OpenGL status bar surface
 GLTexture       TxBlip;                     // OpenGL you are here surface
 GLTexture       TxMap;                      // OpenGL map surface
 GLTexture       txTexture[MAXTEXTURE];      // All textures
+
+Uint32          TxTitleImage_count = 0;
+GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+
 
 SDL_Surface *    displaySurface = NULL;
 
@@ -211,7 +213,6 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
         dict[fantype].numvertices = vertices;
         dict[bigfantype].numvertices = vertices;  // Dupe
 
-
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
             goto_colon( fileread );
@@ -253,7 +254,6 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
     }
 
     fclose( fileread );
-
 
     // Correct all of them silly texture positions for seamless tiling
     for ( entry = 0; entry < dict_size / 2; entry++ )
@@ -651,7 +651,7 @@ bool_t load_all_global_icons()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_one_icon(  const char *szLoadName )
+bool_t load_one_icon( const char *szLoadName )
 {
     // ZZ> This function is used to load an icon.  Most icons are loaded
     //     without this function though...
@@ -865,7 +865,7 @@ void release_all_models()
 }
 
 //--------------------------------------------------------------------------------------------
-void debug_message(  const char *text )
+void debug_message( const char *text )
 {
     // ZZ> This function sticks a message in the display queue and sets its timer
     int slot = get_free_message();
@@ -1158,7 +1158,6 @@ void make_renderlist()
     renderlist.sha_count = 0;
     renderlist.drf_count = 0;
     renderlist.ndr_count = 0;
-
 
     // Make sure it doesn't die ugly !!!BAD!!!
 
@@ -1513,7 +1512,7 @@ void animate_tiles()
 }
 
 //--------------------------------------------------------------------------------------------
-void load_basic_textures(  const char *modname )
+void load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
     char newloadname[256];
@@ -1548,7 +1547,7 @@ void load_basic_textures(  const char *modname )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_bars(  const char* szBitmap )
+void load_bars( const char* szBitmap )
 {
     // ZZ> This function loads the status bar bitmap
     if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR ) )
@@ -1558,7 +1557,7 @@ void load_bars(  const char* szBitmap )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_map(  const char* szModule )
+void load_map( const char* szModule )
 {
     // ZZ> This function loads the map bitmap
     char szMap[256];
@@ -1624,7 +1623,7 @@ void font_release()
 }
 
 //--------------------------------------------------------------------------------------------
-void font_load(  const char* szBitmap,  const char* szSpacing )
+void font_load( const char* szBitmap, const char* szSpacing )
 {
     // ZZ> This function loads the font bitmap and sets up the coordinates
     //     of each font on that bitmap...  Bitmap must have 16x6 fonts
@@ -1781,7 +1780,7 @@ void make_water()
 }
 
 //--------------------------------------------------------------------------------------------
-void read_wawalite(  const char *modname )
+void read_wawalite( const char *modname )
 {
     // ZZ> This function sets up water and lighting for the module
     char newloadname[256];
@@ -2179,7 +2178,6 @@ void render_shadow_sprite( float intensity, GLVERTEX v[] )
     }
     glEnd();
 }
-
 
 //--------------------------------------------------------------------------------------------
 void render_shadow( Uint16 character )
@@ -3261,7 +3259,7 @@ void EndText()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_string(  const char *szText, int x, int y )
+void draw_string( const char *szText, int x, int y )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer
     Uint8 cTmp = szText[0];
@@ -3302,7 +3300,7 @@ void draw_string(  const char *szText, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-int length_of_word(  const char *szText )
+int length_of_word( const char *szText )
 {
     // ZZ> This function returns the number of pixels the
     //     next word will take on screen in the x direction
@@ -3338,7 +3336,7 @@ int length_of_word(  const char *szText )
 }
 
 //--------------------------------------------------------------------------------------------
-int draw_wrap_string(  const char *szText, int x, int y, int maxx )
+int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer,
     //     wrapping over the right side and returning the new y value
@@ -3923,17 +3921,22 @@ void draw_main()
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_title_image( int titleimage,  const char *szLoadName )
+Uint32 load_one_title_image( const char *szLoadName )
 {
     // ZZ> This function loads a title in the specified image slot, forcing it into
     //     system memory.  Returns btrue if it worked
 
     Uint32 tx_id;
+    Uint32 index;
 
-    tx_id = GLTexture_Load(GL_TEXTURE_2D, TxTitleImage + titleimage, szLoadName, INVALID_KEY );
+    index = (Uint32)(~0);
+    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
+    {
+        index = TxTitleImage_count;
+        TxTitleImage_count++;
+    }
 
-    return INVALID_TX_ID != tx_id;
-
+    return index;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4413,7 +4416,6 @@ float light_for_normal( int rotation, int normal, float lx, float ly, float lz, 
     return fTmp;
 }
 
-
 //---------------------------------------------------------------------------------------------
 void make_lighttable( float lx, float ly, float lz, float ambi )
 {
@@ -4469,7 +4471,6 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void make_enviro( void )
@@ -4627,7 +4628,6 @@ void project_view( camera_t * pcam )
         cornerlistlowtohighy[2] = extra[1];
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void clear_messages()

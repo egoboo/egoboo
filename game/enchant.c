@@ -681,7 +681,7 @@ void free_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_one_enchant_type(  const char* szLoadName, Uint16 profile )
+bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
     FILE* fileread;

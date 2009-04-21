@@ -112,15 +112,15 @@ static void make_onwhichfan( void );
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static bool_t load_module(  const char *smallname );
+static bool_t load_module( const char *smallname );
 static void   quit_module( void );
 static void   release_module();
 
-static void   setup_characters(  const char *modname );
-static void   setup_alliances(  const char *modname );
-static void   load_all_messages(  const char *loadname, Uint16 object );
-static int    load_one_object( int skin,  const char* tmploadname );
-static int    load_all_objects(  const char *modname );
+static void   setup_characters( const char *modname );
+static void   setup_alliances( const char *modname );
+static void   load_all_messages( const char *loadname, Uint16 object );
+static int    load_one_object( int skin, const char* tmploadname );
+static int    load_all_objects( const char *modname );
 static void   load_all_global_objects(int skin);
 
 static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
@@ -146,7 +146,7 @@ static Uint16 test_frame_name( char letter );
 
 static Uint16 action_number();
 static Uint16 action_frame();
-static void   action_check_copy(  const char* loadname, Uint16 object );
+static void   action_check_copy( const char* loadname, Uint16 object );
 static void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
 
 static void   mad_get_framefx( int frame );
@@ -155,9 +155,8 @@ static void   mad_make_equally_lit( int model );
 static void   mad_make_framelip( Uint16 object, int action );
 static void   mad_rip_actions( Uint16 object );
 
-static void load_action_names(  const char* loadname );
-static void log_madused(  const char *savename );
-
+static void load_action_names( const char* loadname );
+static void log_madused( const char *savename );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -472,7 +471,7 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_action_names(  const char* loadname )
+void load_action_names( const char* loadname )
 {
     // ZZ> This function loads all of the 2 letter action names
     FILE* fileread;
@@ -498,7 +497,7 @@ void load_action_names(  const char* loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void log_madused(  const char *savename )
+void log_madused( const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
     FILE* hFileWrite;
@@ -629,7 +628,7 @@ int generate_number( int numbase, int numrand )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_alliances(  const char *modname )
+void setup_alliances( const char *modname )
 {
     // ZZ> This function reads the alliance file
     char newloadname[256];
@@ -898,7 +897,6 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     mesh_make_fanstart( pmesh );
     mesh_make_vrtstart( pmesh );
 
-
     // Fix the tile offsets for the mesh textures
     for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
     {
@@ -1068,7 +1066,7 @@ static void get_message( FILE* fileread )
 }
 
 //--------------------------------------------------------------------------------------------
-void load_all_messages(  const char *loadname, Uint16 object )
+void load_all_messages( const char *loadname, Uint16 object )
 {
     // ZZ> This function loads all of an objects messages
     FILE *fileread;
@@ -1318,6 +1316,10 @@ int SDL_main( int argc, char **argv )
     frameDuration = clk_getFrameDuration();
     gameactive = btrue;
 
+    // load all module info at game initialization
+    // this will not change unless a new module is downloaded for a network game?
+    modlist_load_all_info();
+
     while ( gameactive || menuActive )
     {
         // Clock updates each frame
@@ -1523,7 +1525,7 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_object( int skin,  const char* tmploadname )
+int load_one_object( int skin, const char* tmploadname )
 {
     // ZZ> This function loads one object and returns the number of skins
     int object;
@@ -1792,8 +1794,6 @@ void mad_rip_actions( Uint16 object )
     mad_get_walk_frame( object, LIPWB, ACTIONWB );
     mad_get_walk_frame( object, LIPWC, ACTIONWC );
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 /*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
@@ -2148,7 +2148,7 @@ void mad_make_equally_lit( int model )
 }
 
 //--------------------------------------------------------------------------------------------
-void action_check_copy(  const char* loadname, Uint16 object )
+void action_check_copy( const char* loadname, Uint16 object )
 {
     // ZZ> This function copies a model's actions
     FILE *fileread;
@@ -2193,7 +2193,6 @@ int action_which( char cTmp )
 
     return action;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void make_onwhichfan( void )
@@ -2368,7 +2367,6 @@ Uint16 terp_dir_fast( Uint16 majordir, Uint16 minordir )
     return minordir;
 }
 
-
 //--------------------------------------------------------------------------------------------
 void do_enchant_spawn()
 {
@@ -2510,7 +2508,6 @@ void update_pits()
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void do_weather_spawn()
 {
@@ -2568,7 +2565,6 @@ void do_weather_spawn()
 
     gCamera.swing = ( gCamera.swing + gCamera.swingrate ) & 16383;
 }
-
 
 //--------------------------------------------------------------------------------------------
 void set_one_player_latch( Uint16 player )
@@ -2842,7 +2838,6 @@ void set_local_latches( void )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void prime_names()
 {
@@ -2867,7 +2862,6 @@ void prime_names()
         cnt++;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void check_stats()
@@ -2970,7 +2964,6 @@ void check_stats()
         stat_check_delay = 1000;
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void show_stat( Uint16 statindex )
@@ -3190,7 +3183,6 @@ void show_magic_status( Uint16 statindex )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 void bump_characters( void )
@@ -3987,7 +3979,6 @@ void bump_characters( void )
     }
 }
 
-
 //--------------------------------------------------------------------------------------------
 void stat_return()
 {
@@ -4145,9 +4136,8 @@ void tilt_characters_to_terrain()
 
 }
 
-
 //--------------------------------------------------------------------------------------------
-int load_all_objects(  const char *modname )
+int load_all_objects( const char *modname )
 {
     // ZZ> This function loads a module's local objects and overrides the global ones already loaded
     const char *filehandle;
@@ -4445,8 +4435,6 @@ void setup_characters( const char *modname )
     tilt_characters_to_terrain();
 }
 
-
-
 //--------------------------------------------------------------------------------------------
 void load_all_global_objects(int skin)
 {
@@ -4479,7 +4467,6 @@ void load_all_global_objects(int skin)
 
     fs_findClose();
 }
-
 
 //--------------------------------------------------------------------------------------------
 bool_t load_module( const char *smallname )
@@ -4618,8 +4605,6 @@ void reaffirm_attached_particles( Uint16 character )
     // Set the alert for reaffirmation ( for exploding barrels with fire )
     ChrList[character].ai.alert |= ALERTIF_REAFFIRMED;
 }
-
-
 
 //--------------------------------------------------------------------------------------------
 void game_quit_module()
@@ -5109,7 +5094,6 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
 //    }
 //}
 
-
 mesh_info_t * mesh_info_new( mesh_info_t * pinfo )
 {
     if (NULL == pinfo) return pinfo;
@@ -5209,7 +5193,6 @@ void mesh_make_vrtstart( mesh_t * pmesh )
         }
     }
 }
-
 
 //--------------------------------------------------------------------------------------------
 mesh_t * mesh_new( mesh_t * pmesh )

@@ -30,7 +30,6 @@
 
 struct s_script_state;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -68,4 +67,4 @@ int close_passage( Uint16 passage );
 void clear_passages();
 void add_shop_passage( Uint16 owner, Uint16 passage );
 void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
-void setup_passage(  const char *modname );
+void setup_passage( const char *modname );

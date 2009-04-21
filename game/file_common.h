@@ -3,7 +3,7 @@
 //---------------------------------------------------------------------------------------------
 // Filesystem functions
 
-int DirGetAttrib(  const char *fromdir );
+int DirGetAttrib( const char *fromdir );
 
 void fs_init();
 const char *fs_getTempDirectory();

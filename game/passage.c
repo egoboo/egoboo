@@ -359,7 +359,7 @@ void check_passage_music()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 who_is_blocking_passage_ID( Uint16 passage, Uint32 idsz )
+Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 {
     // ZZ> This function returns MAXCHR if there is no character in the passage who
     //     have an item with the given ID.  Otherwise, the index of the first character
@@ -583,7 +583,7 @@ void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
 }
 
 //--------------------------------------------------------------------------------------------
-void setup_passage(  const char *modname )
+void setup_passage( const char *modname )
 {
     // ZZ> This function reads the passage file
     char newloadname[256];

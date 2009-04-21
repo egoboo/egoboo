@@ -45,7 +45,7 @@ extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 void menu_frameStep();
 
-void  check_player_import(  const char *dirname, bool_t initialize );
+void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );
 int initMenus();

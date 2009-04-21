@@ -27,7 +27,6 @@
 
 #include <SDL.h>
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // old user interface variables
@@ -74,7 +73,6 @@ typedef struct s_mouse mouse_t;
 
 extern mouse_t mous;
 
-
 //--------------------------------------------------------------------------------------------
 //KEYBOARD
 #define KEYB_BUFFER_SIZE 2048
@@ -110,7 +108,6 @@ struct s_device_joystick
 typedef struct s_device_joystick device_joystick_t;
 
 extern device_joystick_t joy[MAXJOYSTICK];
-
 
 //--------------------------------------------------------------------------------------------
 enum e_input_device
@@ -242,11 +239,9 @@ void   input_read();
 
 Uint32 input_get_buttonmask( Uint32 idevice );
 
-
-void   scantag_read_all(  const char *szFilename );
-int    scantag_get_value(  const char *string );
+void   scantag_read_all( const char *szFilename );
+int    scantag_get_value( const char *string );
 char*  scantag_get_string( Sint32 device, Sint32 tag, bool_t onlykeys );
-
 
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 

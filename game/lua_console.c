@@ -74,7 +74,6 @@ void initialize_lua()
     }
 };
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
@@ -109,7 +108,6 @@ lua_console_t * lua_console_new( lua_console_t * pcon, SDL_Rect Con_rect )
     return pcon;
 }
 
-
 //--------------------------------------------------------------------------------------------
 SDL_bool lua_console_delete( lua_console_t * pcon )
 {
@@ -131,8 +129,8 @@ SDL_bool lua_console_delete( lua_console_t * pcon )
 //--------------------------------------------------------------------------------------------
 egoboo_console_t * lua_console_get_base( lua_console_t * pcon )
 {
-    if(NULL == pcon) return NULL;
-    
+    if (NULL == pcon) return NULL;
+
     return &(pcon->base);
 }
 
@@ -156,7 +154,6 @@ int lua_console_report (lua_console_t * pcon, int status)
 
     return status;
 }
-
 
 //--------------------------------------------------------------------------------------------
 SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )

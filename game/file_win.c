@@ -219,7 +219,7 @@ void fs_findClose()
     win32_hFind = NULL;
 }
 
-int DirGetAttrib(  const char *fromdir )
+int DirGetAttrib( const char *fromdir )
 {
     return( GetFileAttributes( fromdir ) );
 }

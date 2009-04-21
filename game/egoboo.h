@@ -119,7 +119,6 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
 #define MAXSTAT             16                      // Maximum status displays
 
-
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
 #define MAXTOTALMESSAGE     4096                    //
@@ -238,7 +237,6 @@ enum e_xp_type
 #define WATERPOINTS 4                               // Points in a water fan
 #define WATERMODE 4                                 // Ummm...  For making it work, yeah...
 
-
 #define TURNSPD                         0.01f         // Cutoff for turning or same direction
 
 #define MD2START                        0x32504449  // MD2 files start with these four bytes
@@ -297,7 +295,6 @@ enum e_xp_type
 #define STOPBOUNCING                    0.1f //1.0f         // To make objects stop bouncing
 #define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
 
-
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
 EXTERN Sint32 framelimit                EQ(30);
@@ -336,7 +333,6 @@ EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 // Character defines
 //------------------------------------
 #define MAXSKIN   4
-
 
 EXTERN Sint16                  damagetileparttype;
 EXTERN short                   damagetilepartand;
@@ -437,14 +433,11 @@ EXTERN bool_t                  shasprite  EQ( bfalse );        // Shadow sprites
 EXTERN bool_t                  zreflect  EQ( bfalse );         // Reflection z buffering?
 EXTERN  bool_t                 use_sdl_image EQ(btrue);    // Allow advanced SDL_Image functions?
 
-
 // EWWWW. GLOBALS ARE EVIL.
-
 
 // KEYBOARD
 EXTERN bool_t console_mode EQ( bfalse );                   // Input text from keyboard?
 EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
-
 
 // Weather and water gfx
 EXTERN int                     weatherplayer;
@@ -513,9 +506,7 @@ EXTERN int                     mousicon  EQ( 0 );
 EXTERN int                     joyaicon  EQ( 0 );
 EXTERN int                     joybicon  EQ( 0 );
 
-
 EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
-
 
 #define INVISIBLE           20                      // The character can't be detected
 
@@ -524,7 +515,6 @@ EXTERN bool_t                    local_seekurse       EQ( bfalse );
 EXTERN Uint16                    local_senseenemies   EQ( MAXCHR );
 EXTERN IDSZ                      local_senseenemiesID;
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
-
 
 //------------------------------------
 // Model stuff
@@ -578,7 +568,6 @@ EXTERN Uint16  skintoicon[MAXTEXTURE];                  // Skin to icon
 EXTERN Uint16  bookicon_count    EQ(0);
 EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 
-
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
 // phisics info
@@ -599,7 +588,6 @@ EXTERN Uint16          globesttarget;                                      // Fo
 EXTERN Uint16          globestangle;                                       //
 EXTERN Uint16          glouseangle;                                        //
 EXTERN int             globestdistance;
-
 
 // Bump List
 struct s_bumplist
@@ -703,10 +691,8 @@ typedef struct s_tile_definition tile_definition_t;
 
 tile_definition_t tile_dict[MAXMESHTYPE];
 
-
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
-
 
 EXTERN Uint8 asciitofont[256];                                   // Conversion table
 
@@ -727,7 +713,6 @@ EXTERN char            msgtext[MESSAGEBUFFERSIZE];                         // Th
 EXTERN Uint16 endtextindex[8];
 EXTERN char   endtext[MAXENDTEXT];     // The end-module text
 EXTERN int    endtextwrite;
-
 
 // This stuff is for actions
 #define ACTIONDA            0

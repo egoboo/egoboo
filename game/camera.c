@@ -117,7 +117,6 @@ void camera_make_matrix( camera_t * pcam )
     pcam->mView = MatrixMult( RotateZ( pcam->turnleftright ), pcam->mView );
     pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
 
-
 //        glMatrixMode(GL_MODELVIEW);
 ///        glLoadMatrixf(pcam->mView.v);
 }
@@ -144,7 +143,6 @@ void camera_move( camera_t * pcam )
     Sint16 locoalive;
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 character, turnsin, turncos;
-
 
     if ( pcam->turn_mode )
         pcam->turn_time = 255;
@@ -190,8 +188,6 @@ void camera_move( camera_t * pcam )
 
         pcam->trackz = 128 + get_level( pcam->trackx, pcam->tracky, bfalse );
     }
-
-
 
     if ( CAM_PLAYER == pcam->move_mode )
     {
@@ -338,7 +334,6 @@ void camera_move( camera_t * pcam )
             }
         }
     }
-
 
     // Keyboard camera controls
     if ( keyb.on )
@@ -497,7 +492,6 @@ void camera_reset( camera_t * pcam )
         pcam->turn_mode = turn_mode_save;
         pcam->turn_time = 0;
     }
-
 
 }
 

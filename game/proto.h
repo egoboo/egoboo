@@ -61,7 +61,7 @@ void export_all_local_players( void );
 
 // Messages
 void display_message( struct s_script_state * pstate, int message, Uint16 character );
-void debug_message(  const char *text );
+void debug_message( const char *text );
 void show_stat( Uint16 statindex );
 void show_armor( Uint16 statindex );
 void show_full_status( Uint16 statindex );
@@ -109,12 +109,7 @@ void set_one_player_latch( Uint16 player );
 int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
 // Module
-int    find_module(  const char *smallname );
-int    module_reference_matches(  const char *szLoadName, IDSZ idsz );
-void   add_module_idsz(  const char *szLoadName, IDSZ idsz );
-bool_t load_valid_module( int modnumber,  const char *szLoadName );
 bool_t load_blip_bitmap();
-
 
 //---------------------------------------------------------------------------------------------
 //AI targeting
@@ -122,8 +117,5 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
-
-
-
 
 #define _PROTO_H_
