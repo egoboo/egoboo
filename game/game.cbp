@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug Win32 - gcc">
 				<Option platforms="Windows;" />
-				<Option output="Debug_gcc\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Debug_gcc/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Debug_gcc" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -24,14 +24,14 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
-					<Add directory="..\enet\include" />
-					<Add directory="C:\SDKs\SDL\include" />
-					<Add directory="C:\SDKs\SDL_image" />
-					<Add directory="C:\SDKs\SDL_mixer" />
-					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="..\game" />
-					<Add directory="C:\SDKs\lua-5.1.2\include" />
-					<Add directory="C:\SDKs\SDL_console-2.1\include" />
+					<Add directory="../enet/include" />
+					<Add directory="C:/SDKs/SDL/include" />
+					<Add directory="C:/SDKs/SDL_image" />
+					<Add directory="C:/SDKs/SDL_mixer" />
+					<Add directory="C:/SDKs/SDL_ttf" />
+					<Add directory="../game" />
+					<Add directory="C:/SDKs/lua-5.1.2/include" />
+					<Add directory="C:/SDKs/SDL_console-2.1/include" />
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
@@ -46,18 +46,18 @@
 					<Add library="ws2_32" />
 					<Add library="shlwapi" />
 					<Add library="Winmm" />
-					<Add directory="..\enet\Debug" />
-					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
-					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
-					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
-					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
-					<Add directory="C:\SDKs\lua-5.1.2\lib\static" />
-					<Add directory="C:\SDKs\SDL_console-2.1\bin" />
+					<Add directory="../enet/Debug" />
+					<Add directory="C:/SDKs/SDL-1.2.13/lib" />
+					<Add directory="C:/SDKs/SDL_image-1.2.6/lib" />
+					<Add directory="C:/SDKs/SDL_mixer-1.2.8/lib" />
+					<Add directory="C:/SDKs/SDL_ttf-2.0.9/lib" />
+					<Add directory="C:/SDKs/lua-5.1.2/lib/static" />
+					<Add directory="C:/SDKs/SDL_console-2.1/bin" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 - gcc">
 				<Option platforms="Windows;" />
-				<Option output="Release_gcc\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Release_gcc/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release_gcc" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -70,12 +70,12 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
-					<Add directory="..\enet\include" />
-					<Add directory="C:\SDKs\SDL\include" />
-					<Add directory="C:\SDKs\SDL_image" />
-					<Add directory="C:\SDKs\SDL_mixer" />
-					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="..\game" />
+					<Add directory="../enet/include" />
+					<Add directory="C:/SDKs/SDL/include" />
+					<Add directory="C:/SDKs/SDL_image" />
+					<Add directory="C:/SDKs/SDL_mixer" />
+					<Add directory="C:/SDKs/SDL_ttf" />
+					<Add directory="../game" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -89,17 +89,17 @@
 					<Add library="ws2_32" />
 					<Add library="Winmm" />
 					<Add library="shlwapi" />
-					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
-					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
-					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
-					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
-					<Add directory="..\enet\Release" />
+					<Add directory="C:/SDKs/SDL-1.2.13/lib" />
+					<Add directory="C:/SDKs/SDL_image-1.2.6/lib" />
+					<Add directory="C:/SDKs/SDL_mixer-1.2.8/lib" />
+					<Add directory="C:/SDKs/SDL_ttf-2.0.9/lib" />
+					<Add directory="../enet/Release" />
 				</Linker>
 			</Target>
 			<Target title="Debug Blah-nix">
 				<Option platforms="Unix;" />
-				<Option output="Debug_nix\Egoboo2x" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\2.6.x" />
+				<Option output="Debug_nix/Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../2.6.x" />
 				<Option object_output="Debug_nix" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -110,10 +110,11 @@
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
 					<Add option="-DMT" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\include\SDL" />
-					<Add directory="..\enet" />
-					<Add directory="..\enet\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/SDL" />
+					<Add directory="../enet" />
+					<Add directory="../enet/include" />
+					<Add directory="/usr/include/lua50" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -126,13 +127,13 @@
 					<Add library="libGL" />
 					<Add library="libGLU" />
 					<Add library="libenet" />
-					<Add directory="..\enet\lib" />
-					<Add directory="\usr\lib" />
+					<Add directory="../enet/lib" />
+					<Add directory="/usr/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Blah-nix">
 				<Option platforms="Unix;" />
-				<Option output="Release_nix\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Release_nix/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release_nix" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -144,10 +145,10 @@
 					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DMT" />
-					<Add directory="\usr\include" />
-					<Add directory="\usr\include\SDL" />
-					<Add directory="..\enet" />
-					<Add directory="..\enet\include" />
+					<Add directory="/usr/include" />
+					<Add directory="/usr/include/SDL" />
+					<Add directory="../enet" />
+					<Add directory="../enet/include" />
 				</Compiler>
 				<Linker>
 					<Add library="libSDL" />
@@ -158,13 +159,13 @@
 					<Add library="libGL" />
 					<Add library="libGLU" />
 					<Add library="libenet" />
-					<Add directory="..\enet\lib" />
-					<Add directory="\usr\lib" />
+					<Add directory="../enet/lib" />
+					<Add directory="/usr/lib" />
 				</Linker>
 			</Target>
 			<Target title="Debug OsX">
 				<Option platforms="Mac;" />
-				<Option output="Debug_mac\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Debug_mac/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Debug_mac" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -175,10 +176,10 @@
 					<Add option="-O0" />
 					<Add option="-D_DEBUG" />
 					<Add option="-D_CONSOLE" />
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -187,7 +188,7 @@
 			</Target>
 			<Target title="Release OsX">
 				<Option platforms="Mac;" />
-				<Option output="Release_mac\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Release_mac/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release_mac" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -198,15 +199,15 @@
 					<Add option="-W" />
 					<Add option="-Wall" />
 					<Add option="-DNDEBUG" />
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\enet\include" />
+					<Add directory="$(SolutionDir)/enet/include" />
 				</ResourceCompiler>
 			</Target>
 			<Target title="Debug Win32 - msvc">
 				<Option platforms="Windows;" />
-				<Option output="Debug_msvc\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Debug_msvc/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Debug_msvc" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -224,15 +225,15 @@
 					<Add option="/D_WINDOWS" />
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 					<Add option="/D_CONSOLE" />
-					<Add directory="$(SolutionDir)\enet\include" />
-					<Add directory="C:\SDKs\SDL\include" />
-					<Add directory="C:\SDKs\SDL_image" />
-					<Add directory="C:\SDKs\SDL_mixer" />
-					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="$(SolutionDir)\game" />
+					<Add directory="$(SolutionDir)/enet/include" />
+					<Add directory="C:/SDKs/SDL/include" />
+					<Add directory="C:/SDKs/SDL_image" />
+					<Add directory="C:/SDKs/SDL_mixer" />
+					<Add directory="C:/SDKs/SDL_ttf" />
+					<Add directory="$(SolutionDir)/game" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-s" />
@@ -248,16 +249,16 @@
 					<Add library="ws2_32" />
 					<Add library="shlwapi" />
 					<Add library="Winmm" />
-					<Add directory="..\enet\Debug" />
-					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
-					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
-					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
-					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+					<Add directory="../enet/Debug" />
+					<Add directory="C:/SDKs/SDL-1.2.13/lib" />
+					<Add directory="C:/SDKs/SDL_image-1.2.6/lib" />
+					<Add directory="C:/SDKs/SDL_mixer-1.2.8/lib" />
+					<Add directory="C:/SDKs/SDL_ttf-2.0.9/lib" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 - msvc">
 				<Option platforms="Windows;" />
-				<Option output="Release_msvc\Egoboo2x" prefix_auto="1" extension_auto="1" />
+				<Option output="Release_msvc/Egoboo2x" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release_msvc" />
 				<Option type="0" />
 				<Option compiler="gcc" />
@@ -276,15 +277,15 @@
 					<Add option="/D_WINDOWS" />
 					<Add option="/D_CRT_SECURE_NO_DEPRECATE" />
 					<Add option="/D_CONSOLE" />
-					<Add directory="$(SolutionDir)\enet\include" />
-					<Add directory="C:\SDKs\SDL\include" />
-					<Add directory="C:\SDKs\SDL_image" />
-					<Add directory="C:\SDKs\SDL_mixer" />
-					<Add directory="C:\SDKs\SDL_ttf" />
-					<Add directory="$(SolutionDir)\game" />
+					<Add directory="$(SolutionDir)/enet/include" />
+					<Add directory="C:/SDKs/SDL/include" />
+					<Add directory="C:/SDKs/SDL_image" />
+					<Add directory="C:/SDKs/SDL_mixer" />
+					<Add directory="C:/SDKs/SDL_ttf" />
+					<Add directory="$(SolutionDir)/game" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(SolutionDir)\res" />
+					<Add directory="$(SolutionDir)/res" />
 				</ResourceCompiler>
 				<Linker>
 					<Add library="SDLmain" />
@@ -297,11 +298,11 @@
 					<Add library="ws2_32" />
 					<Add library="Winmm" />
 					<Add library="shlwapi" />
-					<Add directory="..\enet\Release" />
-					<Add directory="C:\SDKs\SDL-1.2.13\lib" />
-					<Add directory="C:\SDKs\SDL_image-1.2.6\lib" />
-					<Add directory="C:\SDKs\SDL_mixer-1.2.8\lib" />
-					<Add directory="C:\SDKs\SDL_ttf-2.0.9\lib" />
+					<Add directory="../enet/Release" />
+					<Add directory="C:/SDKs/SDL-1.2.13/lib" />
+					<Add directory="C:/SDKs/SDL_image-1.2.6/lib" />
+					<Add directory="C:/SDKs/SDL_mixer-1.2.8/lib" />
+					<Add directory="C:/SDKs/SDL_ttf-2.0.9/lib" />
 				</Linker>
 			</Target>
 		</Build>

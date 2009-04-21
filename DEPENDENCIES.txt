@@ -21,12 +21,7 @@ At the present time, there is an experimental integration of Lua into the progra
 
 This will automatically generate the file ego_wrapper.c necessary to build the project. This file is *not* being shipped with the source distribution because it is possible that swig will generate different code on different platforms.  You can obtain SWIG for free at http://www.swig.org/
 
-This integration is *currently* also using the SDL_console library. This could be replaced with a custom console implementation.
-
 You can ontain Lua from www.liblua.org. Any version above 5.1 should be completely compatible with SWIG.
-
-You can obtain SDL_console from sdlconsole.sourceforge.net
-
 
 = Win32 =
 
@@ -54,9 +49,9 @@ You should link to the following libraries
 	- SDL_mixer.lib
 	- SDL_image.lib
 
-	for the lua integration, you need
+	for the lua integration, you need the lua 5.0 or better libraries. These should be the static link libraries.
 	- lua5.1.lib
-	- SDL_console.lib
+	- lualib5.1.lib
 
 Most of these libraries require dll files to be in your system path, most likely in the game directory. The exception are the OpenGL and system libraries which are located in special folders under the windows directory. Because of other dependencies of the SDL libraries, you will need some version of the following libraries
 
@@ -87,9 +82,9 @@ You should link to the following libraries
 	- libSDL_mixer
 	- libSDL_image
 
-	for the lua integration, you need
-	- liblua
-	- libSDL_console
+	for the lua integration, you need the Lua 5.0 libraries
+	- liblua50
+	- liblualib50
 
 Obtain the libraries from your package manager. It may be necessary to get the dev versions of the package, and possibly to build and install them to be able to build egoboo from sources.
 

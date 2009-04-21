@@ -4141,7 +4141,7 @@ void sdlinit( int argc, char **argv )
     log_info("Opening SDL Video Mode... ");
 
     vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags
-    vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
+    //vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
     vflags |= ( fullscreen ? SDL_FULLSCREEN : 0 );
 
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, vflags );

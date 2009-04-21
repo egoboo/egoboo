@@ -139,7 +139,7 @@ void egoboo_console_add_output( egoboo_console_t * pcon, char * szNew )
         dst = pcon->output_buffer - pcon->output_carat;
     }
 
-    pcon->output_carat += snprintf( dst, EGOBOO_CONSOLE_OUTPUT - pcon->output_carat, src );
+    pcon->output_carat += snprintf( dst, EGOBOO_CONSOLE_OUTPUT - pcon->output_carat, "%s", src );
     pcon->output_buffer[EGOBOO_CONSOLE_OUTPUT-1] = '\0';
 
 }
@@ -182,7 +182,7 @@ SDL_bool egoboo_console_run( egoboo_console_t * pcon )
     SDL_bool retval = SDL_FALSE;
 
     if(NULL == pcon) return retval;
-    
+
     if(NULL != pcon->run_func)
     {
         retval = pcon->run_func(pcon, pcon->run_data);
