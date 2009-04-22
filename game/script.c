@@ -3805,7 +3805,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
             //case FGETSKILLLEVEL:
             //        // This function sets tmpargument to the shield profiency level of the target
-            //        pstate->argument = CapList[ChrList[character].attachedto].shieldprofiency;
+            //        pstate->argument = CapList[ChrList[ChrList[character].attachedto].model].shieldprofiency;
             //    break;
 
         case FIFTARGETHASNOTFULLMANA:
@@ -3883,7 +3883,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
             while (iTmp < MAXPRTPIPPEROBJECT)
             {
-                if (PipList[MadList[pself->target].prtpip[iTmp]].intdamagebonus || PipList[MadList[pself->target].prtpip[iTmp]].wisdamagebonus)
+                if (PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].wisdamagebonus)
                 {
                     returncode = btrue;
                     break;
@@ -10827,7 +10827,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 
     while (iTmp < MAXPRTPIPPEROBJECT)
     {
-        if (PipList[MadList[pself->target].prtpip[iTmp]].intdamagebonus || PipList[MadList[pself->target].prtpip[iTmp]].wisdamagebonus)
+        if (PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].wisdamagebonus)
         {
             returncode = btrue;
             break;
