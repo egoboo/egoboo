@@ -1,7 +1,7 @@
 // Randomly create contents...
 IfSpawned
   JoinNullTeam  // So mimics don't chase...
-  tmpargument = rand % 8
+  tmpargument = rand % 9
   tmpy = tmpargument // Remember offset for messages
   SetState  // To make checks easier...
   IfStateIs0
@@ -20,6 +20,8 @@ IfSpawned
     tmpx = [HEAL]
   IfStateIs7
     tmpx = [ROGU]
+  IfStateIs8
+    tmpx = [ARCH]
   tmpargument = 0
   SetXY  // Remember who gets it
   SetState

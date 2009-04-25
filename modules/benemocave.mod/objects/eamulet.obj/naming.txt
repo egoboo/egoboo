@@ -1,5 +1,5 @@
-:an_Amulet_
+:an_Pendant_
 :STOP
 
-:of_Elements
+:of_Magic_Immunity
 :STOP

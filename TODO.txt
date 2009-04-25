@@ -1,5 +1,4 @@
 MASTER TODO LIST:
-- BUG: Teleport script function is messed. Doesn't teleport character but ai target instead.
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - Wizards cannot use lamps
 - Runes crushed messages are missing

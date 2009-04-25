@@ -6,8 +6,9 @@ IfSpawned
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and telling allies to run away
 IfKilled
+
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
   DropItems

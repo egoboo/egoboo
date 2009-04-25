@@ -143,7 +143,7 @@ Tranch:    NONE      72   24.5 53.5 0.0  E   0   0   0   0   0   F   F   Evil
 Candles:   NONE      99   48   10   0    N   0   0   0   0   0   F   F   Null
 FChest:    NONE      53   50.5 8.5  0.0  S   99  0   0   3   0   F   F   Null
   Rot:     NONE      101  0    0    0    I   0   0   0   0   0   F   F   Null
-  Jester:  NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
+  Moon:    NONE      37   0    0    0    I   0   0   0   0   0   F   F   Null
   Staff:   NONE      57   0    0    0    R   0   0   0   0   0   F   F   Null
 RockHead:  NONE      47   48   10   0.0  S   0   0   0   1   0   F   F   Evil
 
@@ -152,7 +152,6 @@ RockHead:  NONE      47   48   10   0.0  S   0   0   0   1   0   F   F   Evil
 Lich:      NONE      80   47.5 10.5 0.0  S   39  0   0 32975 2   F   F   Evil
   OrbStorm:NONE      60  0    0    0    L   0   0   0   0   0   F   F   Null
   LifeDrai:NONE      59   0    0    0    R   0   0   0   0   0   F   F   Null
-
 
 
 //Bodyguards

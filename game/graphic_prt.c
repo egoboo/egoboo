@@ -39,6 +39,7 @@ extern void Begin3DMode();
 //--------------------------------------------------------------------------------------------
 void render_antialias_prt()
 {
+	//Render an antialiased particle
     GLVERTEX v[TOTALMAXPRT];
     GLVERTEX vtlist[4];
     Uint16 prt, pip, image, cnt, numparticle;

@@ -11,17 +11,31 @@ Welcome to the newest guide of how to compile Egoboo with Visual C++ Studio 2005
 - SDL ttf devel package (http://www.libsdl.org/projects/SDL_ttf/)
 - SDL image devel package (http://www.libsdl.org/projects/SDL_image/)
 
-The devel packages should look something like this: SDL_image-devel-1.2.6-VC8.zip (This case being SDL_image version 1.2.6
+The devel packages should look something like this: SDL_image-devel-1.2.6-VC8.zip 
+(This case being SDL_image version 1.2.6)
 
 Okay this is good to start with.
 
 Step 1:
 
-Install Visual C++ 2005/2008. Good. Download all the packages that I mentioned above. Now, the developer packages are a bit complicated to handle, but here is what you do. Unpack them all. Now, in each package you will see two folders called "include" and "lib". Before you do anything, I want you to go to program files, and find the directory of Visual C++ 2005. In that directory, there will be a folder called VC. In that folder, there will be two other folders called "include" and "lib" as well. From all the unzipped packages, I want you to take all the files in the "include" folders and put it inside the "include" folder of the VC directory. Do the same thing with the files in the "lib" folders in your unzipped packages, send them to the "lib" folder in the VC directory.
+Install Visual C++ 2005/2008. Good. Download all the packages that I mentioned above. 
+Now, the developer packages are a bit complicated to handle, but here is what you do. 
+Unpack them all. Now, in each package you will see two folders called "include" and "lib". 
+Before you do anything, I want you to go to program files, and find the directory of Visual C++ 2005. 
+In that directory, there will be a folder called VC. In that folder, there will be two other folders called 
+"include" and "lib" as well. From all the unzipped packages, I want you to take all the files in the "include" 
+folders and put it inside the "include" folder of the VC directory. Do the same thing with the files in the "lib" 
+folders in your unzipped packages, send them to the "lib" folder in the VC directory.
 
 Step 2:
 
-The Egoboo project file is in the source code folder that you downloaded from the game website or the SVN repository. It is the .sln file. Open version 9 for studio 2008 and version 8 for 2005 (Version 7 is for older ones). Open it up with Visual C++ 2005/2008. If everything goes right, all of the needed compile settings should be set for you Razz, but we are checking it, just to make sure. Now, you will see two folders on the left side called "enet" and "game". Right click "game". Go to "Linker" (Click the + button) and select Input. Go to Additional dependencies, double click it. A button like this: ... will appear on the right side, click it. You should have it like this:
+The Egoboo project file is in the source code folder that you downloaded from the game website or the SVN 
+repository. It is the .sln file. Open version 9 for studio 2008 and version 8 for 2005 (Version 7 is for older 
+ones). Open it up with Visual C++ 2005/2008. If everything goes right, all of the needed compile settings should 
+be set for you Razz, but we are checking it, just to make sure. Now, you will see two folders on the left side 
+called "enet" and "game". Right click "game". Go to "Linker" (Click the + button) and select Input. Go to 
+Additional dependencies, double click it. A button like this: ... will appear on the right side, click it. 
+You should have it like this:
 
 shlwapi.lib
 SHFolder.lib
@@ -35,11 +49,17 @@ SDL_ttf.lib
 SDL_mixer.lib
 SDL_image.lib
 
-Once you made sure that these match, you can continue. (Note: they don't have to be exactly the same, but this is how I recommend you to have it).
+for the lua integration, you need the lua 5.0 or better libraries. These should be the static link libraries.
+lua5.1.lib
+lualib5.1.lib
+
+Once you made sure that these match, you can continue. (Note: they don't have to be exactly the same, but this is 
+how I recommend you to have it). If the system did not find a library or expects a different filename, it will alert you.
 
 Step 3:
 
-Go to build -> build solution and there you go! Note: just remember about switching between debug mode and release mode (Batch build or debug build).
+Go to build -> build solution and there you go! Note: just remember about switching between debug mode and release 
+mode (Batch build or debug build).
 
 If you got any problems, don't hesitate to ask for help in the help section of the forums.
 

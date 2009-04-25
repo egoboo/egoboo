@@ -11,4 +11,5 @@ Message9: This_%c_has_armor_in_it,_but_it's_for_an_Elf.
 Message10: This_%c_has_armor_in_it,_but_it's_for_an_Adventurer.
 Message11: This_%c_has_armor_in_it,_but_it's_for_a_Wizard.
 Message12: This_%c_has_armor_in_it,_but_it's_for_a_Healer.
-Message6: This_%c_has_armor_in_it,_but_it's_for_a_Rogue
+Message6: This_%c_has_armor_in_it,_but_it's_for_a_Rogue.
+Message6: This_%c_has_armor_in_it,_but_it's_for_a_Archaeologist.

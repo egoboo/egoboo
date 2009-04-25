@@ -65,15 +65,19 @@ IfTimeOut
     SetTargetToDistantEnemy                //SetTargetToWhoeverIsInPassage
       IfTargetIsAPlayer
         IfStateIs0
-          tmpargument = [HEAL]
-          IfTargetHasID
-            tmpargument = 13		//Special healer greet
-          Else
-            tmpargument = [PALA]
-            IfTargetHasID
-              tmpargument = 12		//Special paladin greet
-            Else
-              tmpargument = 7		//Normal greet
+
+//BAD: we are missing some voice acting here
+//          tmpargument = [HEAL]
+//          IfTargetHasID
+//            tmpargument = 13		//Special healer greet
+//          Else
+//            tmpargument = [PALA]
+//            IfTargetHasID
+//              tmpargument = 12		//Special paladin greet
+//            Else
+//              tmpargument = 7		//Normal greet
+          
+          tmpargument = 7
           PlayFullSound
           SendMessage
           tmpargument = 1
@@ -88,7 +92,7 @@ IfTimeOut
               IfTargetHasID
                 tmpargument = 14		//Special talk
               Else
-              tmpargument = rand % 3 + 4	//Normal random talk
+                tmpargument = rand % 3 + 5	//Normal random talk
             PlayFullSound
             SendMessage
 
@@ -96,9 +100,9 @@ IfTimeOut
             SetState
     Else
       IfStateIs1			//They are running away!
-        tmpargument = 9
-        //PlaySound
-        //SendMessage
+        tmpargument = 4
+        PlaySound
+        SendMessage
     SetTurnModeToWatchTarget
 
   //When not imprisoned, draw our gear
@@ -108,7 +112,6 @@ IfTimeOut
     Else
       tmpargument = LATCHPACKRIGHT		//weapon
       PressLatchButton
-
 
   //Follow
   IfStateIs3
