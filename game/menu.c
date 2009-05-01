@@ -1485,7 +1485,6 @@ int doAudioOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
     static GLTexture background;
-    // static float lerp;
     static int menuChoice = 0;
     static char Cmaxsoundchannel[128];
     static char Cbuffersize[128];

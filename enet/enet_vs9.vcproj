@@ -4,6 +4,7 @@
 	Version="9,00"
 	Name="enet"
 	ProjectGUID="{F4A0A221-1948-4A47-846B-8DE949633638}"
+	RootNamespace="enet"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="131072"
 	>
@@ -41,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)enet\include\enet&quot;;&quot;$(ProjectDir)include&quot;"
+				AdditionalIncludeDirectories="$(ProjectDir)include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -50,6 +51,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -87,7 +89,6 @@
 			ConfigurationType="4"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			CharacterSet="2"
-			EnableManagedIncrementalBuild="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -114,6 +115,7 @@
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -196,10 +198,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\include\enet\enet_time.h"
-				>
-			</File>
-			<File
 				RelativePath=".\include\enet\list.h"
 				>
 			</File>
@@ -209,6 +207,10 @@
 			</File>
 			<File
 				RelativePath=".\include\enet\protocol.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\enet\time.h"
 				>
 			</File>
 			<File

@@ -18,7 +18,7 @@
 //********************************************************************************************
 
 /* Egoboo - GLTexture.c
-* Loads BMP files into OpenGL textures.
+* Loads texture files into OpenGL textures.
 */
 
 #include "gltexture.h"
@@ -328,7 +328,7 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
             gluBuild2DMipmaps( GL_TEXTURE_2D, 4, image->w, image->h, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );    //With mipmapping
         else
             glTexImage2D( tx_target, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );
-    }
+  }
 
     SDL_FreeSurface( image );
 
@@ -445,13 +445,9 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
     }
     else
     {
-        // try all different formats
-        for (type = 0; type < maxformattypes; type++)
-        {
-            snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
-            image = SDL_LoadBMP(fullname);
-            if (NULL != image) break;
-        }
+        // normal SDL only supports bmp
+        snprintf(fullname, sizeof(fullname), "%s.bmp", filename);
+        image = SDL_LoadBMP(fullname);
     }
 
     //We could not load the image

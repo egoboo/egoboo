@@ -5189,7 +5189,7 @@ void move_characters( void )
         }
 
         // Do "Be careful!" delay
-        if ( ChrList[cnt].carefultime != 0 )
+        if ( ChrList[cnt].carefultime > 0 )
         {
             ChrList[cnt].carefultime--;
         }
@@ -5302,7 +5302,7 @@ void chop_load( Uint16 profile, const char *szLoadname )
         while ( goto_colon_yesno( fileread ) && section < MAXSECTION )
         {
             fscanf( fileread, "%s", mychop );
-            if ( mychop[0] != 'S' || mychop[1] != 'T' || mychop[2] != 'O' || mychop[3] != 'P' )
+            if ( strcmp(mychop, "STOP") ) // mychop[0] != 'S' || mychop[1] != 'T' || mychop[2] != 'O' || mychop[3] != 'P' )
             {
                 if ( chop.carat >= CHOPDATACHUNK )  chop.carat = CHOPDATACHUNK - 1;
 

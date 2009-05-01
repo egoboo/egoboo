@@ -21,7 +21,7 @@ IfOrdered
       tmpx = selfx > 7 - tmpx
       tmpy = selfy > 7 - tmpy
       tmpturn = xydistance
-      tmpdistance = 5  // Number of tiles
+      tmpdistance = 5*128  // Number of tiles
 
       IfDistanceIsMoreThanTurn
         tmpargument = 2
@@ -57,7 +57,6 @@ IfKilled
   SendMessageNear
 
   // Scream
-  tmpdistance = rand % 2047 + 11000
   tmpargument = 3
   PlaySound
 

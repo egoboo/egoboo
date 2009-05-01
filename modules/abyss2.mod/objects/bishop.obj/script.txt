@@ -23,7 +23,7 @@ IfStateIs1
       SendMessage
       tmpargument = 1
       SendMessage
-'
+
       //Become invincible (just in case)
       tmpargument = 0
       ChangeArmor

@@ -78,7 +78,7 @@ void let_character_think( Uint16 character )
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
-    if ( !pchr->alive ) return;
+	//if ( !pchr->alive ) return;
 
     // debug a certain script
     //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );

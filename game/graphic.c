@@ -177,9 +177,9 @@ void move_water( void )
 void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
 {
     // ZZ> This function loads fan types for the terrain
-    int cnt, entry;
-    int numfantype, fantype, bigfantype, vertices;
-    int numcommand, command, commandsize;
+    Uint32 cnt, entry, vertices, commandsize;
+    int numfantype, fantype, bigfantype;
+    int numcommand, command;
     int itmp;
     float ftmp;
     FILE* fileread;
@@ -1135,7 +1135,8 @@ void create_szfpstext( int frames )
 void make_renderlist()
 {
     // ZZ> This function figures out which mesh fans to draw
-    int cnt, fan, fanx, fany;
+    int cnt, fanx, fany;
+	Uint32 fan;
     int row, run, numrow;
     int xlist[4], ylist[4];
     int leftnum, leftlist[4];
@@ -1516,7 +1517,6 @@ void load_basic_textures( const char *modname )
 {
     // ZZ> This function loads the standard textures for a module
     char newloadname[256];
-    int entry;
 
     // Particle sprites
     GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
@@ -2190,7 +2190,6 @@ void render_shadow( Uint16 character )
     float height, size_umbra, size_penumbra;
     float alpha, alpha_umbra, alpha_penumbra;
     Sint8 hide;
-    int i;
     chr_t * pchr;
 
     if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
@@ -2309,10 +2308,8 @@ void render_bad_shadow( Uint16 character )
     // ZZ> This function draws a sprite shadow
     GLVERTEX v[4];
     float size, x, y;
-    Uint8 ambi;
     float level, height, height_factor, alpha;
     Sint8 hide;
-    int i;
     chr_t * pchr;
 
     if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
@@ -3925,8 +3922,6 @@ Uint32 load_one_title_image( const char *szLoadName )
 {
     // ZZ> This function loads a title in the specified image slot, forcing it into
     //     system memory.  Returns btrue if it worked
-
-    Uint32 tx_id;
     Uint32 index;
 
     index = (Uint32)(~0);

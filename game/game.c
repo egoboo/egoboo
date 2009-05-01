@@ -775,9 +775,9 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     // ZZ> This function loads the level.mpd file
     FILE* fileread;
     char newloadname[256];
-    int itmp, cnt, tiles_x, tiles_y;
+    int itmp, tiles_x, tiles_y;
     float ftmp;
-    int fan;
+    Uint32 fan, cnt;
     int numvert;
     Uint8 btemp;
 
@@ -1932,7 +1932,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //If maxdistance is 0 then it searches without a max limit.
     Uint16 besttarget = MAXCHR, cnt;
-    Uint32 longdist = pow(2, 31);
+	Uint32 longdist = TILESIZE*(mesh.info.tiles_x+mesh.info.tiles_y); //pow(2, 31);
     if (team == NONE) return MAXCHR;
 
     for (cnt = 0; cnt < MAXCHR; cnt++)

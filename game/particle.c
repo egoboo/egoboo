@@ -384,7 +384,8 @@ Uint8 __prthitawall( Uint16 particle )
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
-    int cnt, tnc;
+    int tnc;
+	Uint16 cnt;
     Uint16 facing, pip, particle;
     float level;
 

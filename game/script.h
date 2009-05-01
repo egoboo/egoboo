@@ -34,7 +34,7 @@
 
 //AI targeting
 #define NEARBY      3*TILESIZE    //3 tiles
-#define WIDE        6*TILESIZE    //8 tiles
+#define WIDE        6*TILESIZE    //6 tiles
 #define NEAREST     0           //unlimited range
 #define TILESIZE    128       //Size of one texture tile in egoboo
 

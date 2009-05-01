@@ -126,7 +126,8 @@ bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
     //     it for underscores.  The szName argument is rewritten with the null terminated
     //     string
 
-    int cnt, read;
+    int read;
+	Uint32 cnt;
     char cTmp;
     STRING szTmp;
 
