@@ -430,7 +430,8 @@ enum e_script_functions
 
     //Scripted AI functions (v1.10)
     FTAKEPICTURE,                // == 364
-    FIFOPERATORISMACINTOSH       // == 365
+    FIFOPERATORISMACINTOSH,      // == 365
+    FIFMODULEHASIDSZ	         // == 366
 };
 
 //--------------------------------------------------------------------------------------------

@@ -844,8 +844,9 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
         case FSETTERRAINSPEECH:    returncode = scr_set_TerrainSpeech( pstate, pself );    break;
         case FSETSELECTSPEECH:     returncode = scr_set_SelectSpeech( pstate, pself );     break;
 
-        case FTAKEPICTURE:           returncode = scr_TakePicture( pstate, pself );          break;
+        case FTAKEPICTURE:           returncode = scr_TakePicture( pstate, pself );         break;
         case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
+		case FIFMODULEHASIDSZ:		 returncode = scr_IfModuleHasIDSZ( pstate, pself );     break;
 
             // if none of the above, skip the line and log an error
         default:
@@ -3850,7 +3851,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
                 if (!returncode)
                 {
                     STRING tmpbuf;
-                    snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s", pchr->name );
+                    snprintf(tmpbuf, sizeof(tmpbuf), "That's too scary for %s...", pchr->name );
                     debug_message(tmpbuf);
                 }
             }
@@ -11151,6 +11152,7 @@ Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_END();
 }
+
 //--------------------------------------------------------------------------------------------
 Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 {
@@ -11163,5 +11165,17 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
 #endif
 
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
+{
+	//Proceeds if the specified module has the required IDSZ specified in tmpdistance
+	//The module folder name to be checked is a string from message.txt
+    SCRIPT_FUNCTION_BEGIN();
+
+	//BAD: TODO: use message.txt to send the module name
+	returncode = module_reference_matches("module.mod", pstate->distance);
     SCRIPT_FUNCTION_END();
 }
