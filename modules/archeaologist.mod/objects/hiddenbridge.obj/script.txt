@@ -1,7 +1,0 @@
-//When Spawned
-IfSpawned
-  tmpargument = 65
-  SetFlyHeight
-
-// All Done
-End

@@ -31,7 +31,7 @@ Bump size      : 30
 Bump height    : 90
 Bump dampen    : 0.35
 Weight         : 80
-Jump power     : 8.00
+Jump power     : 10.00
 Jump number    : 1
 Sneak speed    : 1
 Walk speed     : 3

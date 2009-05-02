@@ -14,7 +14,7 @@ IfKilled				// This reduces the height of the char
   IfTargetIsSelf			    // No, just a damage tile
     tmpargument = 4
   SendMessageNear				  
-  tmpargument = 65535			  // Drop money
+  tmpargument = selfmoney		  // Drop money
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //

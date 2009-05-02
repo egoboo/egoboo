@@ -34,7 +34,24 @@ IfKilled
 IfAttacked
   tmpargument = rand & 1 + 1
   PlaySound
+  
+  //Return fire
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    IfStateIs0
+      tmpargument = 1
+      SetState
+      tmpargument = 3		//My god shall protect me!
+      PlayFullSound
+      tmpargument = 1
+      SendMessage
+    Else
+      SetTargetToOldTarget
+  Else
+    SetTargetToOldTarget
 
+//------------------------------------------------------------------------------
+//The main AI loop
 IfTimeOut
   tmpargument = rand & 31 + 15
   SetTime
@@ -45,7 +62,7 @@ IfTimeOut
     tmpy = selfspawny
     ClearWaypoints
     AddWaypoint
-    tmpdistance = 180000
+    tmpdistance = 128*4
     SetTargetToDistantEnemy
       tmpargument = 1
       SetState
@@ -59,7 +76,7 @@ IfTimeOut
 
     //Start boss music
     tmpdistance = 0
-    tmpargument = 16
+    tmpargument = 20
     PlayMusic
     
     SetTargetToNearestEnemy
