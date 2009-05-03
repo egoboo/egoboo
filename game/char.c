@@ -1810,7 +1810,7 @@ void give_team_experience( Uint8 team, int amount, Uint8 xptype )
 {
     // ZZ> This function gives a character experience, and pawns off level gains to
     //     another function
-    int cnt;
+    Uint16 cnt;
 
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {

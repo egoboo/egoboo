@@ -66,5 +66,5 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz );
 int close_passage( Uint16 passage );
 void clear_passages();
 void add_shop_passage( Uint16 owner, Uint16 passage );
-void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask );
+void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask );
 void setup_passage( const char *modname );

@@ -534,3 +534,4 @@ Uint8 scr_set_AssistSpeech( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_set_TerrainSpeech( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_set_SelectSpeech( script_state_t * pstate, ai_state_t * pself );
 Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself );
+Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself );

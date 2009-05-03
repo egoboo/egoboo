@@ -1,6 +1,7 @@
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
+- Update: Some various improvements in the physics engine.
 - Update: New voices for the Archaeologist class. (Credits to Seanbot)
 - Update: Expanded the Global Object Repository a lot.
 - Update: It is now harder to use poisoned weapons without the poison use skill.
@@ -11,10 +12,12 @@ Version 2.7.x (??.??.2009)
 - Update: The input control settings in the game menu now supports other devices than
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
-- Update: Improved the debbuging output Egoboo gives.
+- Update: Improved the debugging output Egoboo gives.
+- Bugfix: Fixed a potentional bug where the player could move through closed doors. 
+- Bugfix: Fixed some boss AI behaviour bugs in the Zombi Starter module.
 - Bugfix: Fixed the crash bug in the Forgotten Fortress.
 - Bugfix: Fixed a bug in King Bishop's AI when you rescue him.
-- Bugfix: Fixed potentional crash bug.
+- Bugfix: Fixed potential crash bug.
 - Bugfix: Various forms of bonus damage should now properly work.
 - Bugfix: Fixed an exploit with the Catacombs 1 boss.
 - Bugfix: Zombor can now solve the riddle of the dead.
@@ -37,21 +40,21 @@ Version 2.7.0 (05.03.2009)
 - New Feature: Egoboo now uses SDL_Image which improves the texture loading for Egoboo
   We now have support for png, jpg, tif, pcx, gif, etc.
 - New Feature: Added a new ranged attack spell for divine casters called 'Moonbeam'.
-- New Feature: Input controls settings can now be changed in the ingame menu. 
+- New Feature: Input controls settings can now be changed in the in-game menu. 
 - New Feature: Added a new NPC to Zippy Town and in Bishopia City.
 - New Feature: The new Quest System is now in the game.
 - New Feature: Added two new pets to the pet trader.
 - New Feature: A new quest "The Benemo Cave" has been added.
 - New Feature: Some new skills have been added and changed (classes.txt)
-- Update: Major gameplay rebalancing for every class.
+- Update: Major game play re-balancing for every class.
 - Update: Rust maggots can now eat metal items that are dropped on the floor.
 - Update: Duration for messages can now be adjusted in Video Settings.
-- Update: Major gameplay rebalancing in many aspects of the game.
+- Update: Major game-play re-balancing in many aspects of the game.
 - Update: Egoboo supports .ogg as well as .wav for sound effects now.
 - Update: Cobol bodies are now crushable.
 - Update: Doubled the sustain cost for the Haste spell.
 - Update: Intelligence and wisdom now gives a bonus to xp gained. Every point of INT
-  above 10 gives 0,5% bonus and WIS gives 0,25% bonus. Below 10 gives penality instead.
+  above 10 gives 0,5% bonus and WIS gives 0,25% bonus. Below 10 gives penalty instead.
 - Update: Items now reduce in value if their charges or ammo is drained.
 - Update: Zombor's life steal and daze attacks now only apply to unarmed attacks.
 - Update: The Symbol of Turning has been tuned down a lot.
@@ -72,14 +75,14 @@ Version 2.7.0 (05.03.2009)
 - Update: The Katana can now be used as a Simple weapon.
 - Update: Paladins can now use crossbows again.
 - Update: The Bridge spell is now more powerful than before.
-- Update: Reduced the difficulity of the Crypt Lich boss battle.
+- Update: Reduced the difficulty of the Crypt Lich boss battle.
 - Update: The katana has increased attack range.
 - Update: The invisibility spell now costs a lot less mana to sustain.
 - Update: Zippy Town now sells life potions.
 - Update: Random potion skins for unidentified potions was removed.
 - Update: Improved some memory optimization.
 - Update: Each class can now have multiple skill IDSZ using expansions.
-- Bugfix: Fixed exploit where Fearies could give permanent levitation.
+- Bugfix: Fixed exploit where Faeries could give permanent levitation.
 - Bugfix: Particles should now correctly find their target.
 - Bugfix: Optimized and fixed the AI targeting system a LOT.
 - Bugfix: Fixed the pet trader trading pets for the wrong items.
@@ -92,17 +95,17 @@ Version 2.7.0 (05.03.2009)
 - Bugfix: Fixed various bugs with the Pet Trader in Zippy town.
 - Bugfix: Items held in the hands of a player no longer becomes 100% invisible
   when the player character turns invisible.
-- Bugfix: Ghouls in the Shadow Palace now respawn correctly when killed.
+- Bugfix: Ghouls in the Shadow Palace now re-spawn correctly when killed.
 - Bugfix: Stealing from shops works now without any strange bugs.
 - Bugfix: A large number of incorrect messaging issues.
 - Bugfix: The Holy Aura skill doesn't trigger on slain undead now.
-- Bugfix: Fixed bug in the Rogue Starter causing the rogue always to score backstabs.
+- Bugfix: Fixed bug in the Rogue Starter causing the rogue always to score back stabs.
 - Bugfix: The usual bunch of minor matters.
 - Note: Paladins can joust with lances again.
 
 Version 2.6.8 (23.11.2008)
 - New Feature: Added about 6 new NPC's to spice up both towns. (Some are quest related)
-- New Feature: A new sidequest module "The Forgotten Fortress"! (Credits to PurpleSquerkle)
+- New Feature: A new side quest module "The Forgotten Fortress"! (Credits to PurpleSquerkle)
 - New Feature: Most classes now gain new skills when gaining levels. In addition the
   level cap was increased from 6 to 20. See classes.txt for more information.
 - New Feature: Added 6 new spells (Both divine and arcane).
@@ -117,14 +120,14 @@ Version 2.6.8 (23.11.2008)
 - Update: Hell Rovers in the Abyss have been made somewhat weaker.
 - Update: Severely reduced Eyeball life regeneration.
 - Update: Improved the weather effect in the Forgotten Fortress.
-- Update: Archeaologist Starter is now slightly harder to unlock.
+- Update: Archaeologist Starter is now slightly harder to unlock.
 - Update: The bonuses gained from a Potion of Power has tripled.
 - Update: Potions have random skins if they are not identified.
 - Update: The Mystic Mold pet has a proper icon now.
 - Update: Moggy and Meena do not automatically attack unmoving mimics anymore.
 - Update: Any invisible character can try to steal from a shop.
 - Update: There is now a % chance based on pet DEX and shopkeeper WIS if pets can 
-  steal from shops without being detected and alert the guards to become agressive!
+  steal from shops without being detected and alert the guards to become aggressive!
 - Update: Charged items like crossbows and wands reduce in value when ammo is used.
 - Update: Recorded new voices for the Mercenaries in the Soldier Starter.
 - Update: Improved the Brom and Mim AI in the adventurer starter.
@@ -135,7 +138,7 @@ Version 2.6.8 (23.11.2008)
 - Update: The missile spell was tuned down for game balance.
 - Update: Reduced the regeneration rate for various monsters.
 - Update: Torches give slightly more light.
-- Update: Taking screenshots now initiates a timer for the next shot.
+- Update: Taking screen shots now initiates a timer for the next shot.
 - Update: Iron balls now reduce speed five times more than before.
 - Update: Lances are less powerful than before.
 - Update: Speed potions now have duration of 1 minute instead of 20 seconds.
@@ -144,14 +147,14 @@ Version 2.6.8 (23.11.2008)
 - Update: Lich boss fight in the Crypt has been updated (Tougher than before).
 - Update: Mephits are a bit tougher than before.
 - Update: The Fireball spell is now much more effective in use!
-- Update: Sand Trolls can now be backstabbed.
+- Update: Sand Trolls can now be back stabbed.
 - Update: The Zombi class is now weaker due balance issues.
 - Update: The Hell Rover monster is now a mount.
 - Update: The Sword Wall spell is now more powerful.
-- Update: The Archeologist Starter is now a secret unlockable module.
+- Update: The Archaeologist Starter is now a secret unlockable module.
 - Update: Stalkers are now invisible.
 - Update: The Paladin has a nifty new voice (Credits to Leviticus)
-- Update: Changed some minor gameplay approach in the Elf Starter.
+- Update: Changed some minor game-play approach in the Elf Starter.
 - Update: The Zombi class now generates random names.
 - Update: The Missile spell is now more easier to hit with.
 - Update: Each object should be able to support up to 20 different sounds now
@@ -162,7 +165,7 @@ Version 2.6.8 (23.11.2008)
 - Bugfix: Fixed a bad passage entry in the Adventurer Starter.
 - Bugfix: The Guard Captain in Bishopia no longer loops the MODULE UNLOCKED message.
 - Bugfix: Fixed the Scroll of Identify being broken and unusable.
-- Bugfix: Stone Idols, Graves and Sarcophaguses cannot be destroyed with bare hands now.
+- Bugfix: Stone Idols, Graves and Sarcophagus's cannot be destroyed with bare hands now.
 - Bugfix: The Elf Starter is now correctly beatable and exports.
 - Bugfix: Some minor typos fixed.
 - Bugfix: The fire from grub bug spits now correctly generate light.
@@ -170,7 +173,7 @@ Version 2.6.8 (23.11.2008)
 - Bugfix: Fixed character variables not getting properly reset when exported.
 - Bugfix: Fixed the Elf Starter not properly exporting and added some bonus winning xp.
 - Bugfix: Fixed various bugs with the Pet Trader in Zippy town.
-- Bugfix: Fixed some upper case file naming that caused things to malfunciton on linux.
+- Bugfix: Fixed some upper case file naming that caused things to malfunction on Linux.
 - Bugfix: The Musketoon now correctly pierces (ignores) armor.
 - Bugfix: Defeating the Deamon Lord exports your character (Three times is the charm)
 - Bugfix: Fixed Wand of Missile particle spawning bug.
@@ -178,7 +181,7 @@ Version 2.6.8 (23.11.2008)
 - Bugfix: You can now properly split mana potion stacks.
 - Bugfix: Fixed some incorrect pricing for different items around the game.
 - Bugfix: Hopefully removed the bug that caused the game to crash when Squidgies were nearby.
-- Bugfix: Rogues do not poison themselves when using Katana or Handcrossbow anymore.
+- Bugfix: Rogues do not poison themselves when using Katana or Hand-crossbow anymore.
 - Bugfix: Various messaging errors were fixed.
 - Bugfix: A bug causing shopkeepers not to tell about transactions properly.
 - Bugfix: The Wand of Missile properly burns out after all charges are gone.
@@ -230,8 +233,8 @@ Version 2.6.5b (05.09.2008)
  Version 2.6.5 (23.08.2008)
 - Update: Shields now have a block rating, depending on attacker vs. defender
   strength. Also added Tower Shield with higher block rating.
-- Update: Only characters with the Weapon Profiency skill can now use Katanas,
-  Swords, Scythe, Hatchets, Broadswords, Warhammer and Longbows
+- Update: Only characters with the Weapon Proficiency skill can now use Katina's,
+  Swords, Scythe, Hatchets, Broadswords, War hammer and Longbows
 - Update: The graveyard man in Bishopia now has unique voices
 - Update: Zombor Starter has been updated.
 - Update: A number of various object updates (Credits to PurpleSquerkle)
@@ -241,12 +244,12 @@ Version 2.6.5b (05.09.2008)
   Now spells gain +2% effect bonus per point of int/wis over 14 and -2% for
   each point below 14 (instead of old +1 full damage for each stat point).
 - Update: A number of inventory icons were improved (Credits to Chainsaw)
-- Update: All pets are now thougher than before.
+- Update: All pets are now tougher than before.
 - Update: The Lance is more powerful than before
 - Update: Knives can now be stacked and thrown
 - Update: Wells now refill mana as well as life
 - Update: Various adjustments to the attack speed system
-- Update: The whip now deals +2 bonus damage in the hands of an Archeologist
+- Update: The whip now deals +2 bonus damage in the hands of an Archaeologist
 - Update: Some camera modifications
 - Update: Couple of improvements to Linux installation (Credits to penguinflyer)
 - Update: A couple of texture skins were improved.
@@ -255,12 +258,12 @@ Version 2.6.5b (05.09.2008)
 - Update: Many balance issues improved.
 - Bugfix: Fixed the Grub Mum boss joining a different team than her Grub children.
 - Bugfix: Log.txt now correctly always gives all warning and error output.
-- Bugfix: The alpha blendig bug messing up vertrices.
+- Bugfix: The alpha blending bug messing up vertexes.
 - Bugfix: Removed bug where the game would freeze when changing music
 - Bugfix: Bunch of minor stuff.
 
 Version 2.6.4 (19.07.2008)
-- New Feature: The archeologist starter is in the game. Go treasure hunting!
+- New Feature: The archaeologist starter is in the game. Go treasure hunting!
 - Update: The attack speed of many weapons is now affected by dexterity
 - Update: Rusty items are no longer target to rust attacks
 - Update: Bishopia textures were updated.
@@ -281,9 +284,9 @@ Version 2.6.3b (01.06.2008)
 - Bugfix: Fixed a bug with the menu when starting a module.
 
 Version 2.6.3 (01.06.2008)
-- New Feature: A new sidequest -Griffin Tower- has been added into the game.
+- New Feature: A new side-quest -Griffin Tower- has been added into the game.
 - New Feature: Some new items and models has been added around the game (Credits to Chainsaw).
-- New Feature: Another sidequest -The Crypt - has been added. 
+- New Feature: Another side-quest -The Crypt - has been added. 
 - New Feature: The Bishopia Graveyard has been added into the City.
 - Update: The Katana skin and model has been improved.
 - Update: Bishopia City has new blue roofs.
@@ -317,7 +320,7 @@ Version 2.6.1 (05.05.2008)
 - Bugfix: Added missing key in Catacombs level 1
 - Bugfix: Music works again.
 - Bugfix: Shadow Palace no longer crashes.
-- Bugfix: Mephit wings stop flapping if their master dissappears.
+- Bugfix: Mephit wings stop flapping if their master disappears.
 - Note: Reverted back to old SDL, hopefully Egoboo runs on more systems now.
 
 Version 2.6.0 (21.04.2008)
@@ -326,7 +329,7 @@ Version 2.6.0 (21.04.2008)
 - New Feature: A new boss music track has been added.
 - New Feature: The Paladin has new textures, icons and sounds.
 - New Feature: Knife's Heist! A module for every treasure hungry rogue out there!
-- Update: The difficulity for the Adventurer starter has been tuned down.
+- Update: The difficulty for the Adventurer starter has been tuned down.
 - Update: The teleport spell can now malfunction (Chance based on intelligence)
 - Update: The Bind spell can now be resisted (Checks caster Int vs. target Wis)
 - Update: The Ice Palace now has a new title icon (Credits to Chainsaw)
@@ -338,10 +341,10 @@ Version 2.6.0 (21.04.2008)
 - Update: The Spork of Fire has a new skin.
 - Update: The Bishopia guards have new sounds and talk when you bump them.
 - Update: Improved the aim of the Longbow (Now superb for aiming up and down)
-- Update: Some rebalancing was made to a number of modules.
-- Update: Tuned down the difficulity of the Ash Arena.
+- Update: Some re-balancing was made to a number of modules.
+- Update: Tuned down the difficulty of the Ash Arena.
 - Update: Identify scrolls now also unkurse the target item (And reduced the price by 50%).
-- Update: Improved the install compitabillity for Linux OS.
+- Update: Improved the install compatibility for Linux OS.
 - Update: A number of item stacks can now be split and dropped.
 - Update: The adventurer module had a number of updates.
 - Update: The SDL has been updated to newest version.
@@ -349,14 +352,14 @@ Version 2.6.0 (21.04.2008)
 - Update: Many AI scripts and functions had some major improvements. 
 - Update: Lamps gives greater lightning.
 - Update: A new title image for the paladin, matching his new look.
-- Update: Ghouls are now a lot more agressive.
+- Update: Ghouls are now a lot more aggressive.
 - Update: A lot of text fixes within the Game Manual
 - Bugfix: The firebomb trapped chest in the Abyss now correctly drops loot.
 - Bugfix: Switches in the Catacombs can no longer be killed.
 - Bugfix: The Relic of Turning from the Catacombs now works correctly.
 - Bugfix: Fixed some monsters getting spawned stuck inside walls.
 - Bugfix: The map in the Shadow Palace now works again (Credits to Florian Natterer).
-- Bugfix: Bishopia Torches now lightable (Credits to Agent of Dread)
+- Bugfix: Bishopia Torches now light-able (Credits to Agent of Dread)
 - Bugfix: The ammo quiver is no longer thrown when used.
 - Bugfix: A ton of minor messaging bugs!
 - Bugfix: K'nife should now stay alive in his prison until the player arrives.
@@ -386,32 +389,32 @@ Version 2.4.4 (24.10.2007)
 - Update: The Paladin and Wizard starter is now easier to finish (Also increased paladin life).
 - Update: Did some minor upgrades to several Starters (New effects, balance and fixes)
 - Update: Few other minor monster changes/tweaks
-- Bugfix: Ammo quivers can no longer reload ninjastar bags.
+- Bugfix: Ammo quivers can no longer reload ninja-star bags.
 - Bugfix: Lags between music switching should be reduced.
 - Bugfix: Music track changes should now be correct (They were wrong before).
 - Bugfix: Some AI script issues in the Soldier Starter
 - Bugfix: Bug making the overlay effects in the G'nome starter not work properly.
 
 Version 2.4.3 (22.09.2007)
-- New Feature: Ingame video and audio setup now works!
-- New Feature: Ansiotropic, Bilinear and Trilinear texture filtering has been added in addition to Linear filtering.
+- New Feature: In-game video and audio setup now works!
+- New Feature: Anisotropic, Bilinear and Trilinear texture filtering has been added in addition to Linear filtering.
 - New Feature: High wisdom and intelligence can now directly influence all spell damage dealt
-- New Feature: The badass Zombi monster has new special powers and improved AI!
+- New Feature: The bad-ass Zombi monster has new special powers and improved AI!
 - New Feature: Overlay effects have been added (Gnome starter)!
-- Update: Added the autocamera rotation function (Still needs some work for perfection).
-- Update: Pressing F8 ingame now pauses the game until you press F8 again.
+- Update: Added the auto-camera rotation function (Still needs some work for perfection).
+- Update: Pressing F8 in-game now pauses the game until you press F8 again.
 - Update: Pressing the buttons "control+q" now quits the game anytime.
 - Update: Some optimizing and improvement in the sound and music code.
-- Update: Xp penality upon death has been reduced from 25% to 15%.
-- Update: Cleaned up the game structure, reducing number of files needed by 195 and disk usage by 780 kb.
+- Update: Xp penalty upon death has been reduced from 25% to 15%.
+- Update: Cleaned up the game structure, reducing number of files needed by 195 and disk usage by 780 Kb.
 - Bugfix: A bug in the soldier starter causing locked doors not to open
 - Bugfix: When reloading gunpowder weapons, the G'nome no longer throws away an ammo box while doing so.
 - Bugfix: Holding the Spork of Fire always made you instantly win any level.
 
 Version 2.4.1 (16.08.2007)
-- New Feature: A new fully working music system for both ingame and in the menu! (Including sound fading and 3D positioning)
+- New Feature: A new fully working music system for both in-game and in the menu! (Including sound fading and 3D positioning)
 - New Feature: Over 10 new different music tracks for different modules and themes
-- New Feature: Graphic enchantments like Antialasing, Shading, Dithering and Prespective Correction is now added and
+- New Feature: Graphic enchantments like Anti-aliasing, Shading, Dithering and Perspective Correction is now added and
   is fully functional.
 - Update: The ultimate powers of the rouge and paladin has changed (Rouge can do triple jumps while paladin converts evil
   damage to mana).
@@ -430,19 +433,19 @@ Version 2.3.9 (06.08.2007)
 - New Feature: Over ten new magical items, divine spells and potions (Including powerful elixirs
   which permanently boost your health!)
 - Update: The XP loss system was greatly improved! No more bugs or strange errors. From now on you
-  always lose a clean 25% of your total XP if you respawn. If you are brought back trough an 
+  always lose a clean 25% of your total XP if you re-spawn. If you are brought back trough an 
   spell/scroll, then you will not lose any XP at all!
 - Update: Money is no longer lost when dropped in water.
 - Update: Mana cost for the Haste spell was reduced by 33%
-- Update: The Orbstorm spell now costs significally more mana to use.
+- Update: The Orbstorm spell now costs significantly more mana to use.
 - Update: Energy Drain is now permanent (Life loss as described in the manual).
 - Update: The Game Manual had a big update in the spell section. All spells from both the new
   Divine type and the old Arcane are added with detailed description. In addition more
-  information and help about spellcasting can be found there too. Lastly an new section
+  information and help about spell-casting can be found there too. Lastly an new section
   about status condition is described.
 - Bugfix: Picking up more than 9999$ does no longer drop your money back to 0$. (Credits to Florian Natterer)
 - Bugfix: Items and equipment in Bishopia shops are now never cursed.
-- Bugfix: You could sell the Bridge of Light spell for 200 zorkmids and rebuy it for 100!
+- Bugfix: You could sell the Bridge of Light spell for 200 zorkmids and re-buy it for 100!
 - Bugfix: Fixed the Ice Ball wand icon.
 - Bugfix: The Holy Rune in the Catacomb module now correctly works for divine casters.
 - Bugfix: The northwest gate in the Abyss module is opened again when you kill the vampires. (Credits to Florian Natterer)
@@ -451,20 +454,20 @@ Version 2.3.9 (06.08.2007)
 - Bugfix: Lot of other fixes and tweaks.
 - Note: The installer includes a package called vcredist.exe which installs all required files to 
   run Egoboo, which means it should work on most computers now.
-- Note: The old option to play with more than 1 player is added. Just run multiplayer.exe - It is also possible to play
-  over network or internet with it (Read manual). Anyways multiplayer.exe does have a number of bugs and errors that
-  are fixed in the normal exe file, but for those who really want to play multi or hotseat - this is a option.
+- Note: The old option to play with more than 1 player is added. Just run multi-player.exe - It is also possible to play
+  over network or Internet with it (Read manual). Anyways multi-player.exe does have a number of bugs and errors that
+  are fixed in the normal exe file, but for those who really want to play multi or hot-seat - this is a option.
 
 Version 2.3.8 (10.06.2007)
 - New Feature: The Catacombs level 2 is finished! This is a high level dungeon filled with
-  undead and lots of other nasty suprises - enjoy!
+  undead and lots of other nasty surprises - enjoy!
 - New Feature: Couple of new items and monsters (Weapons, ghosts, amulets, etc).
 - Update: Tons of fixes, changes and tweaks in the Bishopia module (Including new items, sounds, etc.)
 - Update: Various IDSZ references updated to be more correct.
 - Update: Improved the AI for the Deamon Lord and Vampires.
-- Update: Some minor rebalancing trougout all of the classes.
+- Update: Some minor re-balancing throughout all of the classes.
 - Update: Smoothed out the wall textures in the Ice Palace.
-- Update: You can no longer respawn when killed in towns and cities.
+- Update: You can no longer re-spawn when killed in towns and cities.
 - Bugfix: The Soldier starter is now always beatable in addition to some minor other enhancements to 
   the module (Credits to Florian Natterer).
 - Bugfix: Fixed various bugs in the Ice Palace
@@ -473,11 +476,11 @@ Version 2.3.8 (10.06.2007)
 
 Version 2.3.7 (27.03.2007)
 - Update: Now the city of Bishopia has a title art.
-- Update: Manapotions are now 60% cheaper than before.
+- Update: Mana potions are now 60% cheaper than before.
 - Update: Did some minor improvement tweaks on Bishopia City.
 - Update: Made some changes to the Catacomb art titles to make them more distinct.
 - Update: Fire Mephit AI has been improved (Mephits no longer flock and move trough. 
-  eachother). Also redid the mephit/wing structure to optimize the need of datafiles to 1/6.
+  each other). Also redid the mephit/wing structure to optimize the need of data files to 1/6.
 - Bugfix: Abyss Level 2 module is now beatable and exportable.
 - Bugfix: Did some script AI fixes for the Bishopia Guards.
 - Bugfix: Now the module unlock bug really is totally free of bugs!
@@ -487,30 +490,30 @@ Version 2.3.6 (15.03.2007)
 - New Feature: A showcase for level 3 in the final Catacomb modules has been added.
 - New Feature: Bishopia module is finally finished (For beta testing)!
 - New Feature: About 30 new objects, including potions, weapons, magic, etc.
-- New Feature: New improved user intreface menu!
+- New Feature: New improved user interface menu!
 - Update: The Arena module has been reimplemented
 - Update: Did some changes to the Paladin starter. It is slightly easier to win.
 - Update: Egoboo now uses SDL version 1.2.11
 - Update: Paladins can no longer use crossbows
-- Update: Xp penality has been tuned down by about 33%
+- Update: Xp penalty has been tuned down by about 33%
 - Update: Longbows have improved aim while crossbows have increased reload time
 - Update: It takes longer time between shots of a gonne (While pistol shoots faster)
 - Update: Greatly improved the Ulna monster AI (Normal Ulnas, leaders and throwers
   use the same AI and data to optimize)
 - Bugfix: Fixed particles sometimes not appearing when they should
 - Bugfix: Gong sound now plays correctly
-- Bugfix: No respawn modules now work correctly
+- Bugfix: No re-spawn modules now work correctly
 - Bugfix: Module Unlock system error removed
 - Bugfix: Whitebeard in the G'nome module can now fire a gonne again
 - Bugfix: Pressing Escape while in a module no longer quits the game
 - Bugfix: Numerous minor tweaks, improvements and fixes
-- Note: Random maps has been temproary removed (No active developers were working on it)
+- Note: Random maps has been temporarily removed (No active developers were working on it)
 - Note: Menu music is removed until an later version (Until SDL_mixer is added again)
 
 Version 2.2.4 (08.01.2007)
 - New Feature: A proper installer has been added (Thanks to Alazamir)
 - New Feature: Each class has now a unlockable special power (Read game manual for more info)
-- New Feature: Death penality has been added (Xp loss) - Still in test phase for balancing
+- New Feature: Death penalty has been added (Xp loss) - Still in test phase for balancing
 - New Feature: Module unlock system has been enabled! You now need to beat a specific palace before you 
   can advance to the next one.
 - Update: Players no longer need to identify spellbooks they buy in cities
@@ -527,12 +530,12 @@ Version 2.2.4 (08.01.2007)
 - Update: Trolls are tougher to defeat than before
 - Bugfix: Fixed paladin skin bugs
 - Bugfix: Sound delay error removed!
-- Bugfix: Sand Palace double keyuse bug fixed...
-- Bugfix: Ash palace requires you now to find the spork to win (Not only killing the boss)
+- Bugfix: Sand Palace double key use bug fixed...
+- Bugfix: Ash palace requires you now to find the Spork to win (Not only killing the boss)
 - Bugfix: Several minor fixes and tweaks
 - Note: Networking support has been removed for as long as it takes to remove the
   module cap on it (It only worked with less than 10 modules implemented into the game).
-- Note: The city of bishopia is delayed because the source code did not support its large amount of content.
+- Note: The city of Bishopia is delayed because the source code did not support its large amount of content.
   Game source is being fixed for next update so that the module will correctly work again.
 - Note: Secret unlockable Arena module has been removed for until version 2.2.5
   
@@ -541,17 +544,17 @@ Version 2.2.3 (08.10 2006)
 - New Feature: The Ice Palace has been added (Beta Version)!
 - New Feature: 3 totally new monsters and a couple of new magic items
 - New Feature: Network Support added! - Read game manual for more info (Thanks to Jonathan Fischer)
-- New Feature: Map Tilesets have been added (For Developers)
+- New Feature: Map Tile-sets have been added (For Developers)
 - Update: The game Setup has been updated
 - Update: Updated the GPL document (General Public License)
 - Update: Macintosh users can now play Egoboo as well!
 - Update: Original Egoboo icon included
 - Update: G'nomes have now a lvl cap of 6 instead of 4
-- Update: A really major update has been done to the Game Manual (Lots of info on how to develop egoboo)
+- Update: A really major update has been done to the Game Manual (Lots of info on how to develop Egoboo)
 - Update: The Wizard Starter had some minor tweaking
 - Bugfix: 3D Positional sounds are now functional
 - Bugfix: Removed bug making the player automatically attack when starting the game
-- Bugfix: Game physhics now work in Adventurer Starter again
+- Bugfix: Game physics now work in Adventurer Starter again
 - Bugfix: Lots of Minor Bugfixes
 
 
@@ -561,5 +564,5 @@ Version 2.2.1 (29.July 2006)
 - New Feature: Starter Modules including Elf, Wizard, Soldier and Paladin Starters!
 - Update: The Egoboo Manual is now up to date!
 - Bugfix: Fixed Healer Starter bug: Always exporting the character
-- Bugfix: Rouge Starter bug: K'nife not responding propely
-- Bugfix: A bug making all shields in Ash Palace dissapear (Credits to Denis Jaimes)
+- Bugfix: Rouge Starter bug: K'nife not responding properly
+- Bugfix: A bug making all shields in Ash Palace disappear (Credits to Denis Jaimes)

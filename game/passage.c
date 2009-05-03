@@ -453,6 +453,7 @@ int close_passage( Uint16 passage )
     float bumpsize;
     Uint16 numcrushed;
     Uint16 crushedcharacters[MAXCHR];
+
     if ( ( passmask[passage]&( MESHFX_IMPASS | MESHFX_WALL ) ) )
     {
         // Make sure it isn't blocked
@@ -500,7 +501,7 @@ int close_passage( Uint16 passage )
     }
 
     // Close it off
-    if ( passage < numpassage )
+    if ( passage <= numpassage )
     {
         passopen[passage] = bfalse;
         y = passtly[passage];
@@ -558,7 +559,7 @@ void add_shop_passage( Uint16 owner, Uint16 passage )
 }
 
 //--------------------------------------------------------------------------------------------
-void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
+void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 {
     // ZZ> This function creates a passage area
 
@@ -570,15 +571,16 @@ void add_passage( int tlx, int tly, int brx, int bry, Uint8 open, Uint8 mask )
         brx = CLIP(brx, 0, mesh.info.tiles_x - 1);
         bry = CLIP(bry, 0, mesh.info.tiles_y - 1);
 
-        passtlx[numpassage]      = tlx;
-        passtly[numpassage]      = tly;
-        passbrx[numpassage]      = brx;
-        passbry[numpassage]      = bry;
-        passmask[numpassage]     = mask;
-        passagemusic[numpassage] = -1;          // Set no song as default
-        passopen[numpassage]     = (open == btrue);
+        passtlx[numpassage]       = tlx;
+        passtly[numpassage]       = tly;
+        passbrx[numpassage]       = brx;
+        passbry[numpassage]       = bry;
+        passmask[numpassage]      = mask;
+        passagemusic[numpassage]  = -1;          // Set no song as default		
+		if(!open) close_passage( numpassage );	 // Is it open or closed?
+		else passopen[numpassage] = btrue;
 
-        numpassage++;
+		numpassage++;
     }
 }
 

@@ -608,7 +608,7 @@ EXTERN float  vellrtwist[256];            // For sliding down steep hills
 EXTERN float  veludtwist[256];            //
 EXTERN Uint8  flattwist[256];             //
 
-EXTERN int mesh_maxtotalvertices EQ(256*256*6);                 // of vertices
+EXTERN Uint32 mesh_maxtotalvertices EQ(256*256*6);                 // of vertices
 
 struct s_mesh_info
 {

@@ -1099,7 +1099,7 @@ int doInputOptions( float deltaTime )
     static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 2];
 
     Sint8 result = 0;
-    static int player = 0;
+    static Uint32 player = 0;
 
     Uint32              i;
     int                 idevice, iicon;

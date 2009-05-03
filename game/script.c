@@ -384,8 +384,7 @@ bool_t run_function_call( script_state_t * pstate, ai_state_t * pself )
 bool_t run_operation( script_state_t * pstate, ai_state_t * pself )
 {
     char * variable;
-    int i, operand_count;
-    Uint32 var_value;
+    Uint32 var_value, operand_count, i;
 
     // check for valid pointers
     if ( NULL == pstate || NULL == pself ) return bfalse;
