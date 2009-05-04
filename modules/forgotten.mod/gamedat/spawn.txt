@@ -106,7 +106,7 @@ mchest.obj:   NONE    37  61.0   36.0   3.0   W    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    38  61.0   35.0   3.0   W    13   0  0   0   0   F   F   M
 unknown:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    38  61.0   41.0   3.0   W    13   0  0   0   0   F   F   M
-  Clairvoyance:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  GLOBAL Clairvoyance:   NONE    85  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    38  61.0   40.0   3.0   W    13   0  0   0   0   F   F   M
 oilpotion.obj:   NONE    41  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 lamp.obj:   NONE    42  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

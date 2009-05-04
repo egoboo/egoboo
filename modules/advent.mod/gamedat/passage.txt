@@ -13,10 +13,10 @@
 8 Gelfeet:     49 45      50 46          F       T             F
 9 Gelfeet:     59 51      60 52          F       T             F
 
-10MuseBoss:    2  2       20 18          F       F             F
-11MuseGel:     50 40      61 51          F       F             F
-12MuseTrog:    4  29      11 40          F       F             F
+10MuseBoss:    2  2       20 18          T       T             F
+11MuseGel:     50 40      61 51          T       T             F
+12MuseTrog:    4  29      11 40          T       T             F
 
-13MuseBook:    22 8       31 14          F       F             F
-14MuseMouse:   50 22      61 33          F       F             F
-15MuseMimic:   16 34      23 41          F       F             F
+13MuseBook:    22 8       31 14          T       T             F
+14MuseMouse:   50 22      61 33          T       T             F
+15MuseMimic:   16 34      23 41          T       T             F

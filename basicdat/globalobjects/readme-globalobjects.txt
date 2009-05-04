@@ -26,3 +26,8 @@ SLOT  OBJECT
 76    Bull Wolf
 77    Hatchet
 78    Kite Shield
+84    Armor Chest (random type, tris0 to tris2)
+85    Rune of Clairvoyance
+86    Life Potion
+87    Mana Potion
+88    Rune of Confusion

@@ -1,0 +1,134 @@
+// Randomly create contents...
+IfSpawned
+  JoinNullTeam  // So mimics don't chase...
+  tmpargument = rand % 9
+  tmpy = tmpargument // Remember offset for messages
+  SetState  // To make checks easier...
+  IfStateIs0
+    tmpx = [ARCH]
+  IfStateIs1
+    tmpx = [GNOM]
+  IfStateIs2
+    tmpx = [SOLD]
+  IfStateIs3
+    tmpx = [ELFF]
+  IfStateIs4
+    tmpx = [ADVE]
+  IfStateIs5
+    tmpx = [WIZA]
+  IfStateIs6
+    tmpx = [HEAL]
+  IfStateIs7
+    tmpx = [ROGU]
+  IfStateIs8
+    tmpx = [PALA]
+  tmpargument = 0
+  SetXY  // Remember who gets it
+  SetState
+  tmpx = rand & 255  // Figure out type of armor, 0 1 or 2...  3 isn't sold
+  tmpy = 170
+  IfXIsMoreThanY		//Best
+    tmpargument = 2
+  tmpy = 170
+  IfXIsLessThanY		//Second
+    tmpargument = 1
+  tmpy = 64
+  IfXIsLessThanY		//Normal
+    tmpargument = 0
+  SetContent
+
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+      // Open it up
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        PlaySound
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        // Tell the players...
+        tmpargument = 4
+        SendMessageNear
+
+// Someone is trying to open it
+IfBumped
+  // Can they open the chest?
+  SetTargetToWhoeverBumped
+  IfTargetCanOpenStuff
+
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+
+      // Are they in front?
+      IfFacingTarget
+
+        // Make target crouch
+        tmpargument = ACTIONMG
+        TargetDoAction
+
+        // Give some experience
+        tmpargument = 5
+        tmpdistance = EXPDARE
+        GiveExperienceToTarget
+
+        // Open it up
+        tmpargument = ACTIONMG
+        DoAction
+          tmpargument = 1
+          SetState
+          tmpargument = 60
+          SetBumpHeight
+          KeepAction
+          tmpargument = 0
+          PlaySound
+          // Wait a while
+          tmpargument = 40
+          SetTime
+          // Tell the players...
+          tmpargument = 5
+          SendMessageNear
+    Else
+      // Wait before allowing a swap
+      IfTimeOut
+        // Reset the timer
+        tmpargument = 40
+        SetTime
+
+        // Make target crouch
+        tmpargument = ACTIONMG
+        TargetDoAction
+
+        // Can the target use this armor
+        tmpargument = 0
+        GetXY
+        tmpargument = tmpx  // The character's IDSZ
+        IfTargetHasID
+          GetContent // The armor type...  0 - 3
+          tmpdistance = tmpy  // The base cost of the new armor
+
+          // Swap armor
+          ChangeTargetArmor
+          SetContent
+          tmpargument = tmpx
+          tmpx = tmpdistance
+          SendMessageNear
+        Else
+          // Say it's for someone else
+          tmpargument = 11 + tmpy  // tmpy is message offset...
+          SendMessageNear
+
+// All done
+End
