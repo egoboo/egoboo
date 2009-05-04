@@ -976,12 +976,10 @@ int doChoosePlayer( float deltaTime )
     return result;
 }
 
-// TODO: This needs to be finished
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
     static GLTexture background;
-    // static float lerp;
     static int menuChoice = 0;
 
     int result = 0;

@@ -160,7 +160,7 @@ bool_t modlist_test_by_index( int modnumber )
     // if the module data was never loaded, then it is not valid
     if ( !pmod->loaded ) return bfalse;
 
-    //Check all selected players directories !!TODO!!
+    //Check all selected players directories
     playerhasquest = bfalse;
     for ( cnt = 0; cnt < mnu_selectedPlayerCount; cnt++ )
     {

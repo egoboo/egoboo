@@ -39,7 +39,7 @@ int   passtlx[MAXPASS];          // Passage positions
 int   passtly[MAXPASS];
 int   passbrx[MAXPASS];
 int   passbry[MAXPASS];
-int   passagemusic[MAXPASS];        // Music track appointed to the specific passage
+Sint8 passagemusic[MAXPASS];        // Music track appointed to the specific passage
 Uint8 passmask[MAXPASS];
 Uint8 passopen[MAXPASS];      // Is the passage open?
 
@@ -308,7 +308,7 @@ Uint16 who_is_blocking_passage( Uint16 passage )
 //--------------------------------------------------------------------------------------------
 void check_passage_music()
 {
-    // This function checks all passages if there is a player in it, if it is, it plays a specified
+    // ZF> This function checks all passages if there is a player in it, if it is, it plays a specified
     // song set in by the AI script functions
     float tlx, tly, brx, bry;
     Uint16 character, passage;
@@ -331,7 +331,7 @@ void check_passage_music()
 
             while ( character < MAXCHR )
             {
-                if ( ChrList[character].on )
+                if ( ChrList[character].on && ChrList[character].isplayer )
                 {
                     bumpsize = ChrList[character].bumpsize;
                     if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAXCHR && bumpsize != 0 )
@@ -340,7 +340,7 @@ void check_passage_music()
                         {
                             if ( ChrList[character].ypos > tly - bumpsize && ChrList[character].ypos < bry + bumpsize )
                             {
-                                if ( ChrList[character].alive && !ChrList[character].isitem && ChrList[character].isplayer )
+                                if ( ChrList[character].alive && !ChrList[character].isitem )
                                 {
                                     // Found a player, start music track
                                     sound_play_song( passagemusic[passage], 0, -1 );
@@ -531,7 +531,7 @@ int close_passage( Uint16 passage )
 //--------------------------------------------------------------------------------------------
 void clear_passages()
 {
-    int cnt = 0;
+    Uint16 cnt = 0;
 
     // ZZ> This function clears the passage list ( for doors )
     numpassage = 0;
@@ -541,7 +541,7 @@ void clear_passages()
     {
         shopowner[cnt] = NOOWNER;
         shoppassage[cnt] = 0;
-        cnt++;
+		cnt++;
     }
 }
 

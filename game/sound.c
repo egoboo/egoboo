@@ -581,7 +581,7 @@ void load_global_waves( const char * modname )
     g_wavelist[GSND_PITFALL] = sound_load_chunk( wavename );
 
     /*
-    // These new values todo should determine sound and particle effects
+    // These new values todo should determine global sound and particle effects
     Weather Type: DROPS, RAIN, SNOW
     Water Type: LAVA, WATER, DARK
     */
@@ -598,7 +598,7 @@ void load_global_waves( const char * modname )
         snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "%s", tmploadname, wavenames[cnt] );
 
         ptmp = sound_load_chunk( wavename );
-        if (NULL == ptmp)
+        if (NULL != ptmp)
         {
             g_wavelist[cnt] = ptmp;
         };

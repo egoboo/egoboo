@@ -925,9 +925,11 @@ int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip )
 
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].friendlyfire = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;   //PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
-
-        goto_colon( fileread );
+        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;   
+		
+		goto_colon( fileread );
+		//PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
+        
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].newtargetonspawn = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].newtargetonspawn = btrue;

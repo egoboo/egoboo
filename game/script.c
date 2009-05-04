@@ -101,7 +101,8 @@ void let_character_think( Uint16 character )
             script_error_name = szAisName[script_error_index];
         }
     }
-    if ( debug_scripts )
+    
+	if ( debug_scripts )
     {
         FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
 

@@ -47,7 +47,6 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
 {
     /// @details BB@> copy a line of arbitrary length, in chunks of length
     ///      sizeof(linebuffer)
-    /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
     if (NULL == fileread || NULL == filewrite) return bfalse;

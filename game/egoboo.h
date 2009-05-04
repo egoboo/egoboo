@@ -321,6 +321,7 @@ EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 #define SOUTH 49152                                 //
 #define EAST 32768                                  //
 #define WEST 0                                      //
+#define RANDOM rand() % 65535                       //
 #define FRONT 0                                     // Attack directions
 #define BEHIND 32768                                //
 #define LEFT 49152                                  //

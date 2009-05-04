@@ -76,7 +76,6 @@ struct s_chr_setup_info
     Sint32 slot;
     float  x, y, z;
     int    passage, content, money, level, skin;
-    bool_t ghost;
     bool_t stat;
     Uint8  team;
     Uint16 facing;
@@ -1543,7 +1542,8 @@ int load_one_object( int skin, const char* tmploadname )
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( MadList[object].name, tmploadname, sizeof(MadList[object].name) / sizeof(*MadList[object].name) );
-    // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
+    
+	// Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
     MadList[object].name[ sizeof(MadList[object].name) / sizeof(*MadList[object].name) - 1 ] = '\0';
 
     // Load the AI script for this object
@@ -4245,16 +4245,18 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     if ( 'S' == toupper(cTmp) )  pinfo->facing = SOUTH;
     if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
     if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
+    if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;
     if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
     if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
     if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
-    cTmp = fget_first_letter( fileread );
+	if(pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;		//Randomize skin?
+
+	cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
 
-    cTmp = fget_first_letter( fileread );
-    pinfo->ghost = ( 'T' == toupper(cTmp) );
+    cTmp = fget_first_letter( fileread );	//BAD! Unused ghost value
 
     cTmp = fget_first_letter( fileread );
     pinfo->team = ( cTmp - 'A' ) % MAXTEAM;
@@ -4306,13 +4308,6 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
             give_experience( ichr, 25, XPDIRECT, btrue );
             do_level_up( ichr );
         }
-    }
-
-    if ( pinfo->ghost )
-    {
-        // Make the character a pinfo->ghost !!!BAD!!!  Can do with enchants
-        ChrList[ichr].alpha = 128;
-        ChrList[ichr].light = 255;
     }
 
     return btrue;

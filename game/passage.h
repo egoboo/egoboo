@@ -44,7 +44,7 @@ extern int passtlx[MAXPASS];          // Passage positions
 extern int passtly[MAXPASS];
 extern int passbrx[MAXPASS];
 extern int passbry[MAXPASS];
-extern int passagemusic[MAXPASS];        // Music track appointed to the specific passage
+extern Sint8 passagemusic[MAXPASS];        // Music track appointed to the specific passage
 extern Uint8 passmask[MAXPASS];
 extern Uint8 passopen[MAXPASS];      // Is the passage open?
 

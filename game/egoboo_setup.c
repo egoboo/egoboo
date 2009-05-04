@@ -187,7 +187,7 @@ bool_t setup_download()
     // Draw water with more layers?
     GetKey_bool( "MULTI_LAYER_WATER", twolayerwateron, bfalse );
 
-    // TODO: This is not implemented
+    // Allow overlay effects?
     GetKey_bool( "OVERLAY", overlayvalid, bfalse );
 
     // Allow backgrounds?
@@ -364,7 +364,7 @@ bool_t setup_upload()
     // Draw water with more layers?
     SetKey_bool( "MULTI_LAYER_WATER", twolayerwateron );
 
-    // TODO: This is not implemented
+    // Allow overlay effects?
     SetKey_bool( "OVERLAY", overlayvalid );
 
     // Allow backgrounds?
