@@ -191,6 +191,7 @@ bool_t sdl_audio_initialize()
 //--------------------------------------------------------------------------------------------
 bool_t sdl_mixer_initialize()
 {
+	//ZF> This intitializes the SDL_mixer services
     if ( !mixeron )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
@@ -457,7 +458,7 @@ void sound_halt()
 //------------------------------------
 int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
 {
-    // This function plays a specified sound
+    // ZF> This function plays a specified sound
 
     int channel;
     float pan;
@@ -468,7 +469,7 @@ int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
     dist = SQRT( POW( ABS( gCamera.trackx - xpos ), 2 ) + POW( ABS( gCamera.tracky - ypos ), 2 ) ); // Ugly, but just the dist formula
     dist >>= 7;
 
-    // adjust for the local_listening skill
+    // adjust for the local_listening skill (reduce distance by 33%)
     if ( local_listening ) dist *= 0.66f;
 
     // adjust for the soundvolume
@@ -486,24 +487,11 @@ int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
         channel = Mix_PlayChannel( -1, pchunk, 0 );
         if ( -1 == channel )
         {
-            // log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
+            log_warning( "Mix_PlayChannel: %s\n", Mix_GetError() );
         }
         else
         {
             Mix_SetPosition( channel, pan, dist );
-
-            //float cosval;
-            //int leftvol;
-
-            //cosval = cos(pan);
-            //cosval *= cosval;
-
-            //leftvol  = cosval * 255;
-
-            //dist = MIN(dist, 255);
-
-            //Mix_SetDistance(channel, dist);
-            //Mix_SetPanning(channel, leftvol, 255-leftvol);
         }
     }
 

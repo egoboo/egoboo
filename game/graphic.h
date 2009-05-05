@@ -148,7 +148,7 @@ extern Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
 
 #define ROTMESHTOPSIDE                  55          // For figuring out what to draw
 #define ROTMESHBOTTOMSIDE               65          //
-#define ROTMESHUP                       40 //35          //
+#define ROTMESHUP                       40
 #define ROTMESHDOWN                     60          //
 
 extern int rotmeshtopside;                                 // The ones that get used
@@ -176,6 +176,9 @@ extern int         dyna_distancetobeat;           // The number to beat
 extern int         dyna_list_max;                 // Max number of lights to draw
 extern int         dyna_list_count;               // Number of dynamic lights
 extern dynalight_t dyna_list[TOTALMAXDYNA];
+
+// Anisotropic filtering - yay! :P
+EXTERN float maxAnisotropy;                    // Max anisotropic filterings (Between 1.00f and 16.00f)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -265,7 +268,7 @@ float light_for_normal( int rotation, int normal, float lx, float ly, float lz, 
 bool_t load_one_icon( const char *szLoadName );
 
 void make_textureoffset();
-void tile_dictionary_load();
+void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);
 
 void load_basic_textures( const char *modname );
 

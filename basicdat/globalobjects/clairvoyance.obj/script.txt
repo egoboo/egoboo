@@ -60,11 +60,11 @@ Else
     tmpx = targetwis > 8
     tmpy = 23
     IfXIsMoreThanY
-      ShowYouAreHere      //Also display position if enough WIS
+      ShowYouAreHere      //Also display position if enough WIS (require 23)
       tmpy = 26
       IfXIsMoreThanY
         SetTargetToWhoeverIsHolding
-        tmpargument = RED //Also display enemies if enough WIS
+        tmpargument = RED //Also display enemies if enough WIS  (require 26)
         AddBlipAllEnemies
     ShowMap
       tmpargument = 3

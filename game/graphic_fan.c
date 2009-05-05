@@ -104,8 +104,12 @@ void render_fan( Uint32 fan )
                 v[cnt].g =
                     v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
 
+//BAD!! This is a bad temp fix!
+#ifdef _DEBUG
             v[cnt].s = tile_dict[type].u[badvertex] + offu;
             v[cnt].t = tile_dict[type].v[badvertex] + offv;
+#endif
+//BAD!! For some reason this causes a module to crash in release mode
             badvertex++;
         }
     }

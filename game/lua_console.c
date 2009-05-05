@@ -178,7 +178,7 @@ SDL_bool lua_console_run( egoboo_console_t * ego_con, void * data )
         lua_console_report(lua_con, status);
     };
 
-    return 0 == status;
+    return (SDL_bool)(0 == status);
 };
 
 //--------------------------------------------------------------------------------------------

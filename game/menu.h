@@ -36,8 +36,8 @@ struct s_load_player_info
 };
 typedef struct s_load_player_info LOAD_PLAYER_INFO;
 
-int              loadplayer_count;
-LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
+extern int              loadplayer_count;
+extern LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 
 extern int    mnu_selectedPlayerCount;
 extern int    mnu_selectedInput[MAXPLAYER];

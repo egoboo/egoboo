@@ -1027,7 +1027,6 @@ void reset_particles( const char* modname )
     char *loadpath;
 
     // Load in the standard global particles ( the coins for example )
-    // BAD! This should only be needed once at the start of the game
     numpip = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
     if ( !load_one_particle( loadpath, 0, 0 ) )

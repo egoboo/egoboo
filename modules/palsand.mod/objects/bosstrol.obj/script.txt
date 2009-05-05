@@ -90,7 +90,7 @@ IfKilled
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make smoke
@@ -99,12 +99,6 @@ IfKilled
   // Open the boss passage
   tmpargument = passage
   OpenPassage
-
-  // Set the music for the tranch surprise...
-  tmpargument = 42
-  tmpturn = IGCOMBAT
-  tmpdistance = 4
-  SetMusicPassage
 
 //------------------------------------------------------------------------------
 // ZZ> For helper AIs
@@ -134,7 +128,6 @@ IfAttacked
       DoActionOverride
       KeepAction
       tmpargument = 5
-      tmpdistance = 11025
       PlaySound
     // Make blud
     Else

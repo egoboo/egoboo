@@ -483,11 +483,6 @@ EXTERN Uint8                   foggrn  EQ( 255 );             //
 EXTERN Uint8                   fogblu  EQ( 255 );             //
 EXTERN Uint8                   fogaffectswater;
 
-// Anisotropic filtering - yay! :P
-//#define GL_TEXTURE_MAX_ANISOTROPY_EXT 0x84FE
-//#define GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT 0x84FF
-EXTERN float maxAnisotropy;                    // Max anisotropic filterings (Between 1.00f and 16.00f)
-
 //Texture filtering
 typedef enum e_tx_filters
 {
@@ -657,7 +652,6 @@ struct s_mesh_mem
     Uint8*          vrt_a;                                 // Vertex base light
     Uint8*          vrt_l;                                 // Vertex light
 };
-
 typedef struct s_mesh_mem mesh_mem_t;
 
 struct s_mesh
@@ -687,7 +681,6 @@ struct s_tile_definition
     Uint8           command_entries[MAXMESHCOMMAND];      // Entries in each command
     Uint16          command_verts[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
 };
-
 typedef struct s_tile_definition tile_definition_t;
 
 tile_definition_t tile_dict[MAXMESHTYPE];

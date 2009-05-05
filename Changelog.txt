@@ -1,6 +1,8 @@
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
+- Update: Replaced the Ice Pup with new Ice Strider mounts in the Ice Palace.
+- Update: Added support for up to x16 fullscreen antialiasing.
 - Update: Some various improvements in the physics engine.
 - Update: New voices for the Archaeologist class. (Credits to Seanbot)
 - Update: Expanded the Global Object Repository a lot.

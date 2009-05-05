@@ -470,8 +470,8 @@ SDL_Event * egoboo_console_handle_events( SDL_Event * pevt )
     // get any keymods
     kmod = SDL_GetModState();
 
-    is_alt   = ( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
-    is_shift = ( 0 != (kmod & KMOD_SHIFT) );
+    is_alt   = (SDL_bool)( 0 != (kmod & (KMOD_ALT | KMOD_CTRL) ) );
+    is_shift = (SDL_bool)( 0 != (kmod & KMOD_SHIFT) );
 
     // start the top console
     if ( !is_alt && !is_shift && SDLK_BACKQUOTE == vkey )

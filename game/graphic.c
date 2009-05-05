@@ -1956,7 +1956,8 @@ void read_wawalite( const char *modname )
         }
 
         fclose( fileread );
-        // Do it
+        
+		// Do it
         make_lighttable( lx, ly, lz, la );
         make_lighttospek();
         make_water();
@@ -2578,7 +2579,8 @@ void do_dynalight()
             }
         }
     }
-    else if ( shading != GL_FLAT )
+    
+	else if ( shading != GL_FLAT )
     {
         // Add to base light level in normal mode
         for ( entry = 0; entry < renderlist.all_count; entry++ )
@@ -3062,8 +3064,7 @@ void draw_map( int x, int y )
     // ZZ> This function draws the map
     EnableTexturing();
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-    //glNormal3f( 0.0f, 0.0f, 1.0f );
-
+    
     GLTexture_Bind( &TxMap );
 
     glBegin( GL_QUADS );
@@ -3622,28 +3623,16 @@ void draw_text()
         // In-Game help
         sprintf( text, "!!!MOUSE HELP!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        if ( rtscontrol )
-        {
-            sprintf( text, "  Left Drag to select units" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Left Click to order them" );
-            draw_string( text, 0, y );  y += fontyspacing;
-
-        }
-        else
-        {
-            sprintf( text, "  Edit CONTROLS.TXT to change" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Left Click to use an item" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Left and Right Click to grab" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Middle Click to jump" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  A and S keys do stuff" );
-            draw_string( text, 0, y );  y += fontyspacing;
-        }
-
+        sprintf( text, "  Go to input settings to change" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Left Click to use an item" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Left and Right Click to grab" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Middle Click to jump" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  A and S keys do stuff" );
+        draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "  Right Drag to move camera" );
         draw_string( text, 0, y );  y += fontyspacing;
     }
@@ -3652,44 +3641,28 @@ void draw_text()
         // In-Game help
         sprintf( text, "!!!JOYSTICK HELP!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        if ( rtscontrol )
-        {
-            sprintf( text, "  Joystick not available" );
-            draw_string( text, 0, y );  y += fontyspacing;
-        }
-        else
-        {
-            sprintf( text, "  Edit CONTROLS.TXT to change" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Hit the buttons" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  You'll figure it out" );
-            draw_string( text, 0, y );  y += fontyspacing;
-        }
+        sprintf( text, "  Go to input settings to change." );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Hit the buttons" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  You'll figure it out" );
+        draw_string( text, 0, y );  y += fontyspacing;
     }
     if ( SDLKEYDOWN( SDLK_F3 ) )
     {
         // In-Game help
         sprintf( text, "!!!KEYBOARD HELP!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        if ( rtscontrol )
-        {
-            sprintf( text, "  Keyboard not available" );
-            draw_string( text, 0, y );  y += fontyspacing;
-        }
-        else
-        {
-            sprintf( text, "  Edit CONTROLS.TXT to change" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  TGB control one hand" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  YHN control the other" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Keypad to move and jump" );
-            draw_string( text, 0, y );  y += fontyspacing;
-            sprintf( text, "  Number keys for stats" );
-            draw_string( text, 0, y );  y += fontyspacing;
-        }
+        sprintf( text, "  Go to input settings to change." );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  TGB control one hand" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  YHN control the other" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Keypad to move and jump" );
+        draw_string( text, 0, y );  y += fontyspacing;
+        sprintf( text, "  Number keys for stats" );
+        draw_string( text, 0, y );  y += fontyspacing;
     }
     if ( gDevMode && SDLKEYDOWN( SDLK_F5 ) )
     {
@@ -3882,7 +3855,7 @@ void draw_scene()
         render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
     }
 
-    // no need to have a completely different function just to torn the reflections off and on
+    // no need to have a completely different function just to turn the reflections off and on
     {
         bool_t refon_save = refon;
         refon = refon && zreflect;

@@ -36,7 +36,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// BB > enumerated "speech" sounds, so that we COULD ge tthe scripts to classify which
+// BB > enumerated "speech" sounds, so that we COULD ge the scripts to classify which
 // sound to use for the "ouch", the "too much baggage", etc.
 // also some left-over sounds from the RTS days, but they might be useful if an NPC
 // uses messages to control his minions.

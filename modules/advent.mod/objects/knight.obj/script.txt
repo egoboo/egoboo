@@ -60,24 +60,27 @@ IfTimeOut				// This is done every so often
       // Say it next time
       tmpargument = tmpx - 1
       SetContent
-  SetTargetToNearbyEnemy		  // Look out for enemies
-    tmpargument = 1			      //
-    SetState				      // Change to combat mode
-    tmpargument = selfhateid		      //
-    IfTargetHasID			      // Battle cry versus hate group
-      IfTargetIsOldTarget		        //
-        DoNothing
-      Else				        //
-        tmpargument = 1			          //
-        SendMessageNear			          //
-        tmpargument = 3			          //
-        PlaySound			          //
+  tmpx = leaderdistance
+  tmpy = 128*6
+  IfXIsLessThanY
+    SetTargetToNearbyEnemy		  // Look out for enemies
+      tmpargument = 1			      //
+      SetState				      // Change to combat mode
+      tmpargument = selfhateid		      //
+      IfTargetHasID			      // Battle cry versus hate group
+        IfTargetIsOldTarget		        //
+          DoNothing
+        Else				        //
+          tmpargument = 1			          //
+          SendMessageNear			          //
+          tmpargument = 3			          //
+          PlaySound			          //
 
   IfStateIs0				  // State 0 ( Follow )
     tmpargument = 100
     SetSpeedPercent
     tmpx = leaderdistance
-    tmpy = 700
+    tmpy = 128*5
     IfXIsMoreThanY
       tmpdistance = 133        //Catch up fast! 33% bonus speed
       SetSpeedPercent
@@ -93,8 +96,8 @@ IfTimeOut				// This is done every so often
     IfXIsLessThanY			    //
       tmpargument = LATCHRIGHT		      // Right Attack == 2
       PressLatchButton			      //
-    tmpy = 700
-    IfXIsMoreThanY
+    tmpy = 128*6                //Keep within 6 tiles distance
+    IfXIsMoreThanY                
       tmpargument = 0
       SetState
     tmpx = leaderdistance

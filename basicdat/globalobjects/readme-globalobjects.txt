@@ -5,6 +5,7 @@ Don't put unique scripted stuff here, like bosses, doors/gates or NPC's.
 
 SLOT  OBJECT
 37    Grub Bug
+40    Ice Strider
 44    Chest Mimic
 46    Spiked Mace
 47    Torch
@@ -31,3 +32,4 @@ SLOT  OBJECT
 86    Life Potion
 87    Mana Potion
 88    Rune of Confusion
+90    Quiver

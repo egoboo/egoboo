@@ -1,61 +1,62 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 Player 1:   NONE    0  11.5   29.5   5.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 Player 2:   NONE    9  13.5   29.5   8.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 Player 3:   NONE    18  11.5   27.5   12.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 Player 4:   NONE    27  13.5   26.5   14.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 Music:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  29.5   26.5   1.0   S    14   1  0   100   6   F   F   E
-hatchet.obj:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-wshield.obj:   NONE    39  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  wshield.obj:   NONE    39  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  26.5   27.5   1.0   S    2   0  0   600   0   F   F   E
-xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-cinq.obj:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  24.5   23.5   2.0   S    1   0  0   100   0   F   F   E
-cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  24.5   32.5   1.0   N    3   0  0   100   0   F   F   E
-cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  26.5   29.5   1.0   N    4   0  0   700   0   F   F   E
-xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-hatchet.obj:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  hatchet.obj:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  26.5   32.5   2.0   N    5   0  0   100   0   F   F   E
-cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-icedog.obj:   NONE    40  26.5   32.5   1.0   N    0   0  0   0   0   F   F   N
-icedog.obj:   NONE    40  24.5   23.5   1.0   S    0   0  0   0   0   F   F   N
+  cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+GLOBAL strider.obj:   NONE    40  26.5   32.5   1.0   N    0   0  0   0   0   F   F   N
+GLOBAL strider.obj:   NONE    40  24.5   23.5   1.0   S    0   0  0   0   0   F   F   N
+
 halldoor.obj:   NONE    38  12.0   20.0   1.0   S    0   0  0   0   0   F   F   N
 lockdoor.obj:   NONE    56  12.0   36.8   1.0   N    0   0  2   1   0   F   F   N
 halldoor.obj:   NONE    38  26.0   19.0   1.0   N    0   0  4   0   0   F   F   N
@@ -67,11 +68,11 @@ fchest.obj:   NONE    36  22.5   33.0   1.0   E    0   0  0   1   0   F   F   N
 keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 bridge.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 icemephit.obj:   NONE    77  13.0   9.0   1.0   S    0   1  0   0   0   F   F   E
-icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 icemephit.obj:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
-icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 icemephit.obj:   NONE    77  14.0   12.0   1.0   E    0   1  0   0   0   F   F   E
-icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 mchest.obj:   NONE    43  12.5   11.5   1.0   N    0   0  0   0   0   F   F   N
 halldoor.obj:   NONE    38  36.0   16.0   1.0   S    0   0  8   0   0   F   F   N
 halldoor.obj:   NONE    38  44.0   12.0   1.0   N    0   0  12   0   0   F   F   N
@@ -105,7 +106,7 @@ lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 haste.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
 keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-icedog.obj:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
+GLOBAL strider.obj:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
 snowcobol.obj:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
 xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 hatchet.obj:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -128,7 +129,7 @@ rustmaggot.obj:   NONE    54  48.0   5.0   1.0   N    0   0  0   0   0   F   F  
 rustmaggot.obj:   NONE    54  50.0   6.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot.obj:   NONE    54  46.0   8.0   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot.obj:   NONE    54  50.0   10.0   1.0   N    0   0  0   0   0   F   F   E
-icedog.obj:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
+GLOBAL strider.obj:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
 frostorb.obj:   NONE    55  21.5   53.5   1.0   N    0   0  0   0   0   F   F   E
 frostorb.obj:   NONE    55  29.0   49.0   1.0   N    0   0  0   0   0   F   F   E
 frostorb.obj:   NONE    55  25.0   53.0   1.0   E    0   0  0   0   0   F   F   N

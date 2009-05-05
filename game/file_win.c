@@ -33,9 +33,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-WIN32_FIND_DATA win32_wfdData;
-HANDLE win32_hFind;
-
 // Paths that the game will deal with
 static char win32_tempPath[MAX_PATH] = {0};
 static char win32_importPath[MAX_PATH] = {0};

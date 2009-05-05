@@ -1,8 +1,8 @@
-Object slot number ( 0 to 63, don't use twice )	: 85
-Class name     : Rune
+Slot number    : 90
+Class name     : Quiver
 Uniform light  : FALSE
-Maximum ammo   : 0
-Current ammo   : 0
+Maximum ammo   : 3
+Current ammo   : 1
 Gender         : OTHER
 
 Life color     : 1
@@ -26,7 +26,7 @@ DEX up         : 0.00-0.00
 
 Size           : 1.00
 Size up        : 0.05
-Shadow size    : 7
+Shadow size    : 15
 Bump size      : 1
 Bump height    : 0
 Bump dampen    : 0.80
@@ -53,23 +53,23 @@ NonI angle     : 0
 I facing       : 0
 I angle        : 32768
 
-Base defense   :  10  10  10  10
-S damage shift :   1   1   1   1
-C damage shift :   1   1   1   1
-P damage shift :   1   1   1   1
-H damage shift :   1   1   1   1
-E damage shift :   1   1   1   1
-F damage shift :   1   1   1   1
-I damage shift :   1   1   1   1
-Z damage shift :   1   1   1   1
-S damage code  :   F   F   F   F
-C damage code  :   F   F   F   F
-P damage code  :   F   F   F   F
-H damage code  :   T   T   T   T
-E damage code  :   F   F   F   F
-F damage code  :   F   F   F   F
-I damage code  :   F   F   F   F
-Z damage code  :   F   F   F   F
+Base defense   :   0  10  10  10
+S damage shift :   3   1   1   1
+C damage shift :   3   1   1   1
+P damage shift :   3   1   1   1
+H damage shift :   3   1   1   1
+E damage shift :   3   1   1   1
+F damage shift :   3   1   1   1
+I damage shift :   3   1   1   1
+Z damage shift :   3   1   1   1
+S damage code  :   C   F   F   F
+C damage code  :   C   F   F   F
+P damage code  :   C   F   F   F
+H damage code  :   C   T   T   T
+E damage code  :   C   F   F   F
+F damage code  :   C   F   F   F
+I damage code  :   C   F   F   F
+Z damage code  :   C   F   F   F
 Acceleration   :   0   0   0   0
 
 EXP for 2nd    : 200
@@ -89,30 +89,30 @@ EXPREVENGE     : 2.00
 EXPTEAMWORK    : 0.10
 EXPROLEPLAY    : 1.00
 
-IDSZ Parent    : [RUNE]
-IDSZ Type      : [REST]
-IDSZ Skill     : [HMAG]
-IDSZ Special   : [GOOD]
+IDSZ Parent    : [ITEM]
+IDSZ Type      : [BAMO]
+IDSZ Skill     : [GBUB]
+IDSZ Special   : [MIPP]
 IDSZ Hate      : [NONE]
 IDSZ Vulnie    : [NONE]
 
 Is an item     : TRUE
 Is a mount     : FALSE
-Is stackable   : FALSE
+Is stackable   : TRUE
 Name known     : FALSE
 Usage known    : TRUE
 Is exportable  : TRUE
-Requires skill : TRUE
+Requires skill : FALSE
 Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
 
-Damage type    : HOLY
-Attack type    : WALK
+Damage type    : POKE
+Attack type    : THRUST
 
 Attached parts : 0
 Reaffirm type  : NONE
-Particle type  : 0
+Particle type  : 255
 
 Left valid     : TRUE
 Right valid    : TRUE
@@ -138,7 +138,7 @@ Skin 0 name    : Skin_0
 Skin 1 name    : Skin_1
 Skin 2 name    : Skin_2
 Skin 3 name    : Skin_3
-Skin 0 cost    : 100
+Skin 0 cost    : 30
 Skin 1 cost    : 0
 Skin 2 cost    : 0
 Skin 3 cost    : 0
@@ -155,9 +155,9 @@ Footfall sound : -1
 Jump sound     : -1
 
 :[GOLD] 0
-:[HIDE] 1
+:[SHAD] 1
 :[PLAT] 1
 :[SKIN] 0
 :[CONT] 0
-:[STAT] 1
+:[STAT] 0
 :[LEVL] 0

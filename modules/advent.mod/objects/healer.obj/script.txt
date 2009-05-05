@@ -15,7 +15,7 @@ IfKilled				// This reduces the height of the char
     IfTargetIsSelf			    // No, just a damage tile
       tmpargument = 4			      //
   SendMessage				  //
-  tmpargument = 65535			  // Drop money
+  tmpargument = selfmoney			  // Drop money
   DropMoney				  //
   tmpargument = 45			  //
   SetBumpHeight				  //
@@ -49,9 +49,12 @@ IfTimeOut				// This is done every so often
     tmpx = targetx			    //
     tmpy = targety			    //
   Else					  // Find someone to bash
-    SetTargetToNearbyEnemy		    //
-      tmpargument = 1			      //
-      SetState				      //
+    tmpx = leaderdistance
+    tmpy = 128*6
+    IfXIsMoreThanY
+      SetTargetToNearbyEnemy		    //
+        tmpargument = 1			      //
+        SetState				      //
 
   IfStateIs0				  // State 0 ( Follow )
     tmpargument = 100

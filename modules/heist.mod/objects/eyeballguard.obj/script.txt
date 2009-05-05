@@ -63,12 +63,8 @@ IfTimeOut
         tmpy = selfy
         tmpdistance = selfz + 50
         SpawnExactParticle
-//        tmpargument = 256		//1 ray costs 1 mana
-//        SetTargetToSelf
-//        CostTargetMana
       tmpx = targetx
       tmpy = targety			//Move towards him or her
-
     Else				//Enemy ran away
       tmpargument = 0
       SetState
@@ -87,7 +83,7 @@ IfStateIs1		//Or in combat
   tmpargument = 1
 SetTargetToSelf
 IfTargetIsAlive		//and when killed
-  GetState		//DoNothing
+  DoNothing
 Else		
   tmpargument = 2
 SetTargetToOldTarget
@@ -135,20 +131,18 @@ IfAttacked
 
   //Backstab?
   IfStateIs0				//Hasn't seen a enemy yet
-    IfHitFromBehind
-      tmpargument = [DISA]		//Is it a rouge?
-      IfTargetHasSkillID		
-        SetTargetToSelf
-        KillTarget			//Yep, instant kill
-        SetTargetToWhoeverAttacked
-        tmpargument = 25
-        tmpdistance = EXPMURDER
-        GiveExperienceToTarget		//Give some bonus xp
-        tmpargument = 3
-        SetState			//Backstabs are undetected
-        SetContent			//For death message
-        tmpargument = 1
-        SendMessageNear		      
+    IfBackstabbed
+      SetTargetToSelf
+      KillTarget			//Yep, instant kill
+      SetTargetToWhoeverAttacked
+      tmpargument = 25
+      tmpdistance = EXPMURDER
+      GiveExperienceToTarget		//Give some bonus xp
+      tmpargument = 3
+      SetState			//Backstabs are undetected
+      SetContent			//For death message
+      tmpargument = 1
+      SendMessageNear		      
 
   IfTargetIsOnHatedTeam
     tmpargument = 3			//Backstabbed?
@@ -160,7 +154,6 @@ IfAttacked
     SetTargetToOldTarget
 
   tmpargument = rand % 3		  //Play damaged sound
-  tmpdistance = rand & 4095 + 8000	  
   PlaySound
 
 //---------------------------------------------------------------------------------
@@ -185,13 +178,12 @@ IfKilled
   SetShadowSize
 
   //Drop stash
-  tmpargument = 65535			  
+  tmpargument = selfmoney
   DropMoney	
   DropKeys
 
   //Death sound
-  tmpargument = 1			  
-  tmpdistance = rand & 2047 + 10000	  
+  tmpargument = 1	  
   PlaySound
 
   //Death stuff

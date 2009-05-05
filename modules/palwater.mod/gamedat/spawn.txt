@@ -84,7 +84,7 @@ ItemChest: NONE     43    53.0 35.0 0.0  N   0   0   0   1   0   F   F   Null
   2xLPoti: NONE     59    0    0    0    I   0   0   0   0   0   F   F   Null
   Stilett: NONE     53    0    0    0    I   0   0   0   0   0   F   F   Null
   2xMPoti: NONE     60    0    0    0    I   0   0   0   0   0   F   F   Null
-SoldChest: NONE     40    51.5 35.0 0.0  N   0   0   0   1   0   F   F   Null
+SoldChest: NONE     54    51.5 35.0 0.0  N   0   0   0   1   0   F   F   Null
 RoguChest: NONE     41    54.5 35.0 0.0  N   0   0   0   1   0   F   F   Null
 HealChest: NONE     70    8.5  57.5 0.0  N   0   0   0   1   0   F   F   Null
 WizaChest: NONE     71    17.5 57.5 0.0  N   0   0   0   1   0   F   F   Null
@@ -176,3 +176,4 @@ Spork:     NONE    119    27   53   0    S   0   0   0   0   0   F   F   Null
 
 
 GnomeText: NONE    121    11.5 7.5  0.0  S   0   0   0   0   0   F   F   Null
+GLOBAL strider.obj:   NONE    40  13.0   56.5   0.0   N    0   0  0   0   0   F   F   Null

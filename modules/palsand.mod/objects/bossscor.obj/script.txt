@@ -150,7 +150,6 @@ IfTimeOut
 // ZZ> Handle being attacked by making a sound...  Drop claws...
 IfAttacked
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
 
   GetDamageType

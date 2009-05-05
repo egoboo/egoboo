@@ -721,7 +721,7 @@ mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y )
 {
     if (NULL == pmesh)
     {
-        pmesh = calloc(1, sizeof(mesh_t));
+//        pmesh = calloc(1, sizeof(mesh_t));
         pmesh = mesh_new(pmesh);
     }
 
@@ -785,7 +785,7 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 
     if (NULL == pmesh)
     {
-        pmesh = calloc(1, sizeof(mesh_t));
+//        pmesh = calloc(1, sizeof(mesh_t));
         pmesh = mesh_new(pmesh);
     }
     if (NULL == pmesh) return pmesh;
@@ -2887,10 +2887,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 5; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 5; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 5; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 5; stat_check_delay = 500; }
 
         statdelay = 0;
     }
@@ -2898,10 +2898,10 @@ void check_stats()
     // !!!BAD!!!  LIFE CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 128; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
     }
 
     // Display armor stats?

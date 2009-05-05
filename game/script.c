@@ -4996,7 +4996,6 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
         // Secondly we run the Compass function (If we are not in follow mode)
         if ( pstate->distance != MOVE_FOLLOW )
         {
-            //sTmp = ( pstate->turn + 16384 );
             pstate->x = pstate->x - turntocos[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
             pstate->y = pstate->y - turntosin[(pstate->turn & 0xFFFF)>>2] * pstate->distance;
         }
