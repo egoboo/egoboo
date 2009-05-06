@@ -1,7 +1,15 @@
 // ZZ> This function makes an item fall to the floor when spawned
 IfSpawned
-  tmpargument = 2
+  GetContent
   SetState
+  IfStateIs0
+    DoNothing
+  Else
+    // Start sprung
+    tmpargument = 2
+    SetState
+    tmpargument = ACTIONUA
+    DoActionOverride
   KeepAction
   MakeCrushValid
   MakeAmmoKnown
@@ -34,6 +42,7 @@ IfDropped
 
 // Lay a trap
 IfUsed
+  SetTargetToWhoeverIsHolding
   tmpargument = 40
   SetReloadTime
   tmpx = 0
@@ -111,7 +120,6 @@ IfGrabbed
       SetTargetToSelf
       StopTargetMovement
       tmpargument = 0
-      tmpdistance = 22050
       PlaySound
   Else
     UndoEnchant
@@ -127,7 +135,6 @@ IfGrabbed
 
 IfHitGround				// Make a sound
   tmpargument = 1			  //
-  tmpdistance = rand % 2047 + 10000	  //
   PlaySound				  //
 
 IfNotDropped
@@ -154,13 +161,13 @@ IfTimeOut
     SetTargetToNearestLifeform
       SetTargetToLowestTarget
       IfTargetIsFlying
-        GetState  // NOP
+        DoNothing
       Else
         // Does it have legs?
         tmpargument = [XLEG]
         IfTargetHasAnyID
           // No legs...
-          GetState  // NOP
+          DoNothing
         Else
           // Got legs
           tmpx = targetdistance
@@ -178,7 +185,6 @@ IfTimeOut
               EnchantTarget
               StopTargetMovement
               tmpargument = 0
-              tmpdistance = 22050
               PlaySound
 
 // All Done

@@ -1,10 +1,9 @@
 // ZZ> This function makes an item fall to the floor when spawned
-
 IfSpawned
   GetContent
   SetState
   IfStateIs0
-    GetState
+    DoNothing
   Else
     // Start sprung
     tmpargument = 2
@@ -17,7 +16,6 @@ IfSpawned
   // Don't activate right away
   tmpargument = 100
   SetTime
-
 
 IfCrushed
   tmpx = selfx
@@ -32,7 +30,6 @@ IfCrushed
   tmpargument = 1
   SendMessageNear
 
-
 IfDropped
   // Unhidden, used state
   tmpargument = 2
@@ -44,8 +41,8 @@ IfDropped
   StopTargetMovement
 
 // Lay a trap
-
 IfUsed
+  SetTargetToWhoeverIsHolding
   tmpargument = 40
   SetReloadTime
   tmpx = 0
@@ -90,7 +87,6 @@ IfUsed
     SendMessageNear
 
 // Tell them what they've won...
-
 IfGrabbed
   SetTargetToWhoeverIsHolding
   IfStateIs0
@@ -124,7 +120,6 @@ IfGrabbed
       SetTargetToSelf
       StopTargetMovement
       tmpargument = 0
-      tmpdistance = 22050
       PlaySound
   Else
     UndoEnchant
@@ -138,17 +133,13 @@ IfGrabbed
     tmpargument = 1
     SetState
 
-
 IfHitGround				// Make a sound
-  tmpargument = 1
-  tmpdistance = rand & 2047 + 10000
-  PlaySound
-
+  tmpargument = 1			  //
+  PlaySound				  //
 
 IfNotDropped
   tmpargument = 2
   SendMessageNear
-
 
 IfTakenOut
   SetTargetToWhoeverIsHolding
@@ -156,13 +147,11 @@ IfTakenOut
     tmpargument = 4
     SendMessageNear
 
-
 IfNotPutAway
   tmpargument = 3
   SendMessageNear
 
 // See if the trap is sprung
-
 IfTimeOut
   tmpargument = 6
   SetTime
@@ -172,13 +161,13 @@ IfTimeOut
     SetTargetToNearestLifeform
       SetTargetToLowestTarget
       IfTargetIsFlying
-        GetState  // NOP
+        DoNothing
       Else
         // Does it have legs?
         tmpargument = [XLEG]
         IfTargetHasAnyID
           // No legs...
-          GetState  // NOP
+          DoNothing
         Else
           // Got legs
           tmpx = targetdistance
@@ -196,9 +185,7 @@ IfTimeOut
               EnchantTarget
               StopTargetMovement
               tmpargument = 0
-              tmpdistance = 22050
               PlaySound
 
 // All Done
-
 End

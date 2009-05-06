@@ -52,7 +52,7 @@
 ///
 /// 2000-12-10
 ///  @li Added the length of the string buffer used as parameter for ConfigFile_GetValue_String.
-///  @li Added ConfigFile_SetValue_Boolean, SetConfigIntVaalue and ConfigFile_SetValue_Float to standardise
+///  @li Added ConfigFile_SetValue_Boolean, SetConfigIntValue and ConfigFile_SetValue_Float to standardise
 ///      the way to set usual data types.
 ///  @li Added ConfigFile_GetValue_Boolean, ConfigFile_GetValue_Int and GetConfigFloatValue.
 

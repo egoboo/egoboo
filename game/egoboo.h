@@ -415,7 +415,7 @@ EXTERN short                   local_slot[16];                // For local impor
 
 // Setup values
 EXTERN int                     maxmessage  EQ( MAXMESSAGE );  //
-EXTERN int                     scrd  EQ( 8 );                 // Screen bit depth
+EXTERN int                     scrd  EQ( 32 );                 // Screen bit depth
 EXTERN int                     scrz  EQ( 16 );                // Screen z-buffer depth ( 8 unsupported )
 EXTERN int                     scrx  EQ( 320 );               // Screen X size
 EXTERN int                     scry  EQ( 200 );               // Screen Y size

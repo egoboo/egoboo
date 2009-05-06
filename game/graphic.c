@@ -4114,7 +4114,8 @@ void sdlinit( int argc, char **argv )
     vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags
     //vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
     vflags |= ( fullscreen ? SDL_FULLSCREEN : 0 );
-
+	
+	if(scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt" );
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, vflags );
     if ( displaySurface == NULL )
     {

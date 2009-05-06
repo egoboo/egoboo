@@ -27,7 +27,6 @@ IfDropped
 // Play a clink or clang
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand & 2047 + 10000
   PlaySound
 
 // Alert others to draw
@@ -46,8 +45,8 @@ IfGrabbed
 
 // Give the user a bonus, but it's addictive...
 IfUsed
+  SetTargetToWhoeverIsHolding
   tmpargument = 1
-  tmpdistance = rand & 2047 + 21000
   PlaySound
   tmpargument = 80
   SetReloadTime

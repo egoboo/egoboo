@@ -104,12 +104,8 @@ void render_fan( Uint32 fan )
                 v[cnt].g =
                     v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
 
-//BAD!! This is a bad temp fix!
-#ifdef _DEBUG
-            v[cnt].s = tile_dict[type].u[badvertex] + offu;
-            v[cnt].t = tile_dict[type].v[badvertex] + offv;
-#endif
-//BAD!! For some reason this causes a module to crash in release mode
+			v[cnt].s = tile_dict[type].u[cnt] + offu;
+            v[cnt].t = tile_dict[type].v[cnt] + offv;
             badvertex++;
         }
     }
@@ -143,10 +139,11 @@ void render_fan( Uint32 fan )
             for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++ )
             {
                 vertex = tile_dict[type].command_verts[entry];
+                glTexCoord2fv ( &v[vertex].s ); 
                 glColor3fv( &v[vertex].r );
                 glTexCoord2f ( tile_dict[type].u[vertex] + offu, tile_dict[type].v[vertex] + offv );
                 glVertex3fv ( &v[vertex].x );
-                entry++;
+				entry++;
             }
 
         }

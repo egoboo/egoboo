@@ -28,8 +28,8 @@ IfCalledForHelp				// Help others
     Else				    // Too late
       SetTargetToOldTarget		      //
 IfTimeOut				// This is done every so often
-  tmpargument = 2			  // Check state
-  IfStateIs				  // State 2 ( Helper )
+  
+  IfStateIs2				  // State 2 ( Helper )
     IfTargetIsHurt			    // Heal wounded
       tmpx = targetdistance		      //
       tmpy = 300			      //
@@ -70,8 +70,7 @@ IfTimeOut				// This is done every so often
     tmpturn = 49152 + leaderturn	    // Stand to side
     Compass
 
-  tmpargument = 1			  //
-  IfStateIs				  // State 1 ( Combat )
+  IfStateIs1				  // State 1 ( Combat )
     tmpx = targetdistance		    // Close enough to attack?
     tmpy = 200				    //
     IfXIsLessThanY			    //
@@ -98,6 +97,7 @@ IfTimeOut				// This is done every so often
   AddWaypoint				  //
   tmpargument = rand & 15 + 15		  // Try again later
   SetTime				  //
+
 IfAttacked				// Counter attack if not healing
   tmpargument = 0			  //
   IfStateIs				  //

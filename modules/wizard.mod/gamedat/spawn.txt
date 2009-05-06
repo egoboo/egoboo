@@ -2,11 +2,11 @@
 
 //Player with starting stuff
 PlayerAtBoss   NONE    0  11.5   17.5   1.0   N    0   0  0   0   0   T   F   G
-Player1:   NONE    0  30.5   57.5   1.0   N    0   0  0   0   0   T   F   A
-missile.obj:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-qstaff.obj:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-light.obj:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-identify.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+Player1:         NONE    0  30.5   57.5   1.0   N    0   0  0   0   0   T   F   A
+  missile.obj:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  qstaff.obj:    NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  light.obj:     NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  identify.obj:  NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 table.obj:   NONE    36  10.5   32.0   1.0   E    0   0  0   0   0   F   F   N
 table.obj:   NONE    36  10.5   30.6   1.0   E    0   0  0   0   0   F   F   N
@@ -27,13 +27,25 @@ summoningbook.obj:   NONE    46  30.9   28.5   1.0   N    0   0  0   0   0   F  
 
 //The death mephit
 mephit.obj:   NONE    61  8.5   29.5   1.0   N    9   3  0   0   0   F   F   E
-mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 //Moss mephits guarding knight room
 mephit.obj:   NONE    61  41.5   18.5   1.0   N    4   2  0   0   0   F   F   E
-mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 mephit.obj:   NONE    61  41.5   15.5   1.0   N    5   2  0   0   0   F   F   E
-mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  37.5   19.5   1.0   N    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  37.5   14.5   1.0   S    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  40.5   19.5   1.0   N    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  34.5   19.5   1.0   N    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  34.5   14.5   1.0   S    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+knightsuit.obj:   NONE    50  40.5   14.5   1.0   S    0   0  0   0   0   F   F   N
+  torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 brazier.obj:   NONE    37  32.5   30.5   1.0   N    0   0  0   0   0   F   F   E
 brazier.obj:   NONE    37  29.5   30.5   1.0   N    0   0  0   0   0   F   F   E
@@ -50,18 +62,6 @@ powbox.obj:   NONE    51  49.3   38.5   1.0   N    0   1  0   0   0   F   F   N
 powbox.obj:   NONE    51  49.5   38.5   3.0   N    0   0  0   0   0   F   F   N
 powbox.obj:   NONE    51  49.5   39.2   1.0   N    0   1  0   0   0   F   F   N
 powbox.obj:   NONE    51  50.0   38.5   1.0   N    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  37.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  37.5   14.5   1.0   S    0   0  0   0   0   F   F   N
-spear.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  40.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  34.5   19.5   1.0   N    0   0  0   0   0   F   F   N
-spear.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  34.5   14.5   1.0   S    0   0  0   0   0   F   F   N
-torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    50  40.5   14.5   1.0   S    0   0  0   0   0   F   F   N
-torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 bookshelf.obj:   NONE    38  49.5   59.5   1.0   N    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    37  48.5   54.5   1.0   N    0   0  0   0   0   F   F   E
 bookshelf.obj:   NONE    38  52.5   59.5   1.0   N    0   0  0   0   0   F   F   N
@@ -97,10 +97,10 @@ burning.obj:   NONE    69  53.0   38.0   1.0   N    0   0  0   0   0   F   F   N
 
 //Treasure chest in alchemy room
 wchest.obj:   NONE    70  52.5   43.5   1.0   N    0   0  0   0   0   F   F   N
-dragonblud.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-mpotion.obj:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-spear.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  dragonblud.obj:   NONE    68  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  mpotion.obj:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 brazier.obj:   NONE    37  53.5   38.5   1.0   N    0   0  0   0   0   F   F   E
 table.obj:   NONE    36  7.5   32.0   1.0   W    0   0  0   0   0   F   F   N
@@ -133,7 +133,7 @@ platform.obj:   NONE    40  55.0   28.5   0.0   N    0   0  0   0   0   F   F   
 
 //Lava chest
 wchest.obj:   NONE    70  55.0   30.0   1.0   N    7   0  0   0   0   F   F   N
-redstone.obj:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  redstone.obj:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 pillar.obj:   NONE    43  15.5   14.5   1.0   N    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    43  15.5   19.5   1.0   N    0   0  0   0   0   F   F   N
@@ -163,24 +163,24 @@ Music:   NONE    100  30.5   57.5   3.0   N    0   0  0   0   0   T   F   N
 
 //Lich boss with stash
 lich.obj:   Asmodeus    73  11.5   17.5   1.0   N    19   0  0   38297   6   F   F   E
-swordwall.obj:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-magicmissle.obj:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-identify.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  swordwall.obj:   NONE    74  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  magicmissle.obj:   NONE    48  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  identify.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 throne.obj:   NONE    45  9.5   17.0   1.0   E    0   0  0   0   0   F   F   N
 
 
 //All cobolds with their stash
 cobol.obj:   NONE    76  10.5   48.5   1.0   N    1   2  0   100   0   F   F   E
-knife.obj:   NONE    77  0.0   0.0   0.0   RI    0   0  0   0   0   F   F   N
+  knife.obj:   NONE    77  0.0   0.0   0.0   RI    0   0  0   0   0   F   F   N
 cobol.obj:   NONE    76  10.0   46.0   1.0   N    2   2  0   100   0   F   F   E
-knife.obj:   NONE    77  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  knife.obj:   NONE    77  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 cobol.obj:   NONE    76  12.0   46.0   1.0   N    5   1  0   150   2   F   F   E
-knife.obj:   NONE    77  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knife.obj:   NONE    77  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-greenleaf.obj:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  knife.obj:   NONE    77  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  knife.obj:   NONE    77  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  greenleaf.obj:   NONE    67  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Chest with open lock spell
 wchest.obj:   NONE    70  57.8   4.5   1.0   W    0   0  0   1   0   F   F   N
-openlock.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  openlock.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

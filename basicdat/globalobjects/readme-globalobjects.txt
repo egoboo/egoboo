@@ -6,6 +6,7 @@ Don't put unique scripted stuff here, like bosses, doors/gates or NPC's.
 SLOT  OBJECT
 37    Grub Bug
 40    Ice Strider
+41    Bear Trap
 44    Chest Mimic
 46    Spiked Mace
 47    Torch
