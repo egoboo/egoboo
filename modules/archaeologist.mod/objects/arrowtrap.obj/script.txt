@@ -1,0 +1,90 @@
+//Spawn trap warnings
+IfStateIs1
+  SetTargetToNearestLifeform
+    tmpargument = [TECH]			//Does the target have disarm skill?
+    IfTargetHasSkillID
+      IfTargetIsAPlayer			//Only for players
+        tmpx = targetdistance
+        tmpy = 1500			//Detect range
+        IfXIsLessThanY
+          tmpargument = 4
+          tmpx = selfx
+          tmpy = selfy
+          tmpdistance = selfz
+          SpawnExactParticle
+
+IfTimeOut
+  //Check for rouges to find it
+  SetTargetToNearestLifeform
+    tmpargument = [TECH]			//Does the target have disarm skill?
+    IfTargetHasSkillID
+      IfTargetIsAPlayer			//Only for players
+        tmpx = targetdistance
+        tmpy = 500			//Detect range
+        IfXIsLessThanY
+          IfStateIs0
+            tmpx = rand & 255
+            tmpy = 25			//How often to check
+            IfXIsLessThanY
+              tmpx = rand & 255 * 10 + targetint	//0-10 + the characters intelligence
+              tmpy = 5888				//need to be more than 23 points added together
+              IfXIsMoreThanY
+                tmpargument = 1
+                SendMessageNear
+                tmpargument = 15
+                tmpdistance = EXPDARE
+                GiveExperienceToTarget		//Award some xp
+                tmpargument = 2
+                PlaySound				//Play sound effect
+                tmpargument = 1
+                SetState				//Mark as detected
+
+  GetContent
+  tmpx = tmpargument
+  tmpy = 1
+  IfXIsEqualToY
+    // Go away
+    tmpargument = 0
+    SetContent
+
+    // Wait a while (reset)
+    tmpargument = 70
+    SetTime
+    tmpargument = 0
+    SetContent
+
+  Else
+
+    IfXIsLessThanY
+      // Check the passage
+      tmpargument = passage
+      SetTargetToWhoeverIsInPassage
+        IfTargetIsOnOtherTeam
+          tmpargument = 0
+          SendMessageNear
+          PlaySound
+          tmpargument = rand & 2 + 4			//How many arrows to spawn
+          SetContent
+
+      // Wait a while
+      tmpargument = 1
+      SetTime
+
+    IfXIsMoreThanY
+      // Down the counter
+      tmpargument = tmpx - 1
+      SetContent
+
+      //Shoot an arrow
+      tmpargument = 0
+      tmpdistance = 600
+      tmpx = selfx
+      tmpy = selfy
+      SpawnExactParticle
+      SpawnExactParticle
+      // Wait a while
+      tmpargument = 15
+      SetTime
+
+// All done
+End

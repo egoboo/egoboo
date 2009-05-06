@@ -1,0 +1,67 @@
+//====== Meat spit ========
+//- Modelled, Skinned and scripted by Chainsaw.
+//- Read the text file included for usage and instructions.
+//- Checks "Ammo" to determine amount of uses left. Cunfigure it in "Data.txt".
+//- Heals target somewhere between 1 to 3 Hp.
+//- Changes to an empty spit once the "Ammo" runs out.
+//Content 0: Ready for eating!
+//Content 1: No more meat!
+//State 0: Ready to do stuff!
+//State 1: Cooldown time for bumping
+
+//Eat meat bumping
+tmpargument = 0
+IfContentIs
+  IfStateIs0
+    IfBumped
+      SetTargetToWhoeverBumped	  //
+        IfTargetCanOpenStuff	    // Avoid NPCs or Monsters trigering the script.
+          IfTargetIsHurt
+            tmpargument = ACTIONMJ	      // Spin the meat
+            DoAction
+            tmpargument = rand & 768 + 256 // Heal 1-3 Hp.
+            HealTarget
+            tmpargument = ACTIONMC  // Drinking animation. (No eating animation exists...)
+            TargetDoAction
+            CostAmmo  // Decrease amount of times useable.
+            tmpargument = 0
+            SendMessage
+            PlaySound
+          Else
+            tmpargument = 2		//not hungry
+            SendMessageNear
+
+          //No meat left
+          IfAmmoOut
+            tmpargument = 1
+            SetContent
+            SetState
+            tmpargument = ACTIONMG	      //Make the meat dissapear
+            DoActionOverride
+            KeepAction
+
+          tmpargument = 100
+          SetTime
+          tmpargument = 1
+          SetState
+
+//No more meat bumping
+tmpargument = 1
+IfContentIs
+  IfStateIs0
+    IfBumped
+      SetTargetToWhoeverBumped
+      IfTargetCanOpenStuff
+        tmpargument = 1
+        SendMessage
+        SetState
+        tmpargument = 100
+        SetTime
+
+//Ready the spit for eating again
+IfTimeOut
+  tmpargument = 0
+  SetState
+
+End				// Finished with this character
+

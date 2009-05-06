@@ -1,0 +1,28 @@
+IfSpawned
+  tmpargument = 13
+  tmpdistance = 0
+  PlayMusic
+  PitsKill
+
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  tmpargument = 0
+  SendMessageNear
+
+  //Award some xp
+  tmpargument = 70
+  tmpdistance = EXPSECRET
+  GiveExperienceToTarget
+
+  // Become the export object
+  SetTargetToSelf
+  tmpargument = 52
+  ChangeTargetClass
+
+// Make sparklies
+IfTimeOut
+  SpawnPoof
+  tmpargument = 15
+  SetTime
+
+End

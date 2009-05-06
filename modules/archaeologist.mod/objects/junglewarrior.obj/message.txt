@@ -1,0 +1,6 @@
+Message 0: %t_killed_a_%c!
+Message 1: A_%c_was_unlucky...
+Message 2: %t_backstabbed_the_%c!
+Message 3: The_%c_shaman_was_killed!
+Message 4: The_%c_looks_better...
+Message 5: An_elite_%c_died.

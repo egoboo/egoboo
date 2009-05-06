@@ -1,0 +1,39 @@
+IfSpawned
+  DisaffirmCharacter
+
+IfAttacked
+  tmpargument = 0
+  PlaySound
+
+IfReaffirmed
+  tmpargument = 1	//On Fire!
+  SetState
+
+IfStateIs1
+  IfTimeOut
+    tmpargument = 25
+    SetTime
+    SetTargetToSelf
+    tmpargument = rand & 300 + 300
+    tmpdistance = DAMAGEFIRE
+    DamageTarget
+
+IfKilled
+  tmpargument = 0
+  SetState
+
+  // Drop goodies
+  DropItems
+  tmpargument = 65535
+  DropMoney
+
+  tmpargument = ACTIONKA
+  DoAction
+
+  tmpargument = 45
+  SetBumpHeight
+  SetBumpSize
+
+  DisaffirmCharacter
+
+End

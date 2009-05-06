@@ -1,0 +1,9 @@
+//                 TopleftXY  BottomrightXY    Open    ShootThrough  SlippyClose
+0 ArrowTrap:    10    41     12  42         T       T             F
+1 PyramidOne:    72    50     72  51         F       T             F
+2 PyramidTwo:    65    50     66  51         F       T             F
+3 PyramidThree:    58    50     58  51         F       T             F
+4 TempleGate:    10    76     11  76         F       T             F
+5 TempleGateOpen:    10    77     11  78         T       T             F
+6 BackGate:    22    85     22  86         F       T             F
+7 BackGateOpen:    23    85     24  86         T       T             F
