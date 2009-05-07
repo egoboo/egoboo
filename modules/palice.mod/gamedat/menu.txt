@@ -21,4 +21,4 @@ Level rating ( * to  ***** ) 			: ****
 
 
 // Module expansion IDSZs ( with a colon in front )
-
+:[PRNT] worldmap.mod 0 0 0 
