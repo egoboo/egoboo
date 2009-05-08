@@ -3292,11 +3292,11 @@ void bump_characters( void )
         if ( !ChrList[chara].on ) continue;
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( ChrList[character].inpack || 0 == ChrList[character].bumpheight ) continue;
+        if ( ChrList[chara].inpack || 0 == ChrList[chara].bumpheight ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ ChrList[character].model ].hidestate;
-        if ( hide != NOHIDE && hide == ChrList[character].ai.state ) continue;
+        hide = CapList[ ChrList[chara].model ].hidestate;
+        if ( hide != NOHIDE && hide == ChrList[chara].ai.state ) continue;
 
         xa = ChrList[chara].xpos;
         ya = ChrList[chara].ypos;
