@@ -3545,37 +3545,61 @@ void bump_characters( void )
                                 if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
                                 {
                                     // an acrual collision
-                                    float vdot;
                                     glVector vcom;
+                                    float vdot, ratio;
+                                    float wta, wtb;
 
-                                    vcom.x = ChrList[chara].xvel * ChrList[chara].weight + ChrList[charb].xvel * ChrList[charb].weight;
-                                    vcom.y = ChrList[chara].yvel * ChrList[chara].weight + ChrList[charb].yvel * ChrList[charb].weight;
-                                    vcom.z = ChrList[chara].zvel * ChrList[chara].weight + ChrList[charb].zvel * ChrList[charb].weight;
+                                    wta = 0xFFFF == ChrList[chara].weight ? -0xFFFF : ChrList[chara].weight;
+                                    wtb = 0xFFFF == ChrList[charb].weight ? -0xFFFF : ChrList[charb].weight;
 
-                                    if ( ChrList[chara].weight + ChrList[charb].weight > 0 )
+                                    if ( wta == 0 && wtb == 0 )
                                     {
-                                        vcom.x /= ChrList[chara].weight + ChrList[charb].weight;
-                                        vcom.y /= ChrList[chara].weight + ChrList[charb].weight;
-                                        vcom.z /= ChrList[chara].weight + ChrList[charb].weight;
+                                        wta = wtb = 1.0f;
+                                    }
+                                    else if ( wta == 0 )
+                                    {
+                                        wta = 1;
+                                        wtb = -0xFFFF;
+                                    }
+                                    else if ( wtb == 0 )
+                                    {
+                                        wtb = 1;
+                                        wta = -0xFFFF;
+                                    }
+
+
+                                    vcom.x = ChrList[chara].xvel * ABS(wta) + ChrList[charb].xvel * ABS(wtb);
+                                    vcom.y = ChrList[chara].yvel * ABS(wta) + ChrList[charb].yvel * ABS(wtb);
+                                    vcom.z = ChrList[chara].zvel * ABS(wta) + ChrList[charb].zvel * ABS(wtb);
+
+                                    if ( ABS(wta) + ABS(wtb) > 0 )
+                                    {
+                                        vcom.x /= ABS(wta) + ABS(wtb);
+                                        vcom.y /= ABS(wta) + ABS(wtb);
+                                        vcom.z /= ABS(wta) + ABS(wtb);
                                     }
 
                                     // do the bounce
-                                    if ( ChrList[chara].weight != 0xFFFF )
+                                    if ( wta >= 0 )
                                     {
                                         vdot = ( ChrList[chara].xvel - vcom.x ) * nrm.x + ( ChrList[chara].yvel - vcom.y ) * nrm.y + ( ChrList[chara].zvel - vcom.z ) * nrm.z;
 
-                                        ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ChrList[chara].bumpdampen;
-                                        ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ChrList[chara].bumpdampen;
-                                        ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ChrList[chara].bumpdampen;
+                                        ratio = ChrList[chara].bumpdampen * (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                                        ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ratio;
+                                        ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ratio;
+                                        ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ratio;
                                     }
 
-                                    if ( ChrList[charb].weight != 0xFFFF )
+                                    if ( wtb >= 0 )
                                     {
                                         vdot = ( ChrList[charb].xvel - vcom.x ) * nrm.x + ( ChrList[charb].yvel - vcom.y ) * nrm.y + ( ChrList[charb].zvel - vcom.z ) * nrm.z;
 
-                                        ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ChrList[charb].bumpdampen;
-                                        ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ChrList[charb].bumpdampen;
-                                        ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ChrList[charb].bumpdampen;
+                                        ratio = ChrList[charb].bumpdampen * (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                                        ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ratio;
+                                        ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ratio;
+                                        ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ratio;
                                     }
 
                                     collision = btrue;
@@ -3583,6 +3607,46 @@ void bump_characters( void )
                                 else
                                 {
                                     float tmin;
+                                    float wta, wtb;
+
+                                    wta = 0xFFFF == ChrList[chara].weight ? -0xFFFF : ChrList[chara].weight;
+                                    wtb = 0xFFFF == ChrList[charb].weight ? -0xFFFF : ChrList[charb].weight;
+
+                                    if ( wta == 0 && wtb == 0 )
+                                    {
+                                        wta = wtb = 1;
+                                    }
+                                    else if ( wta == 0 )
+                                    {
+                                        wta = 1;
+                                        wtb = -0xFFFF;
+                                    }
+                                    else if ( wtb == 0 )
+                                    {
+                                        wtb = 1;
+                                        wta = -0xFFFF;
+                                    }
+
+                                    if ( 0.0f == ChrList[chara].bumpdampen && 0.0f == ChrList[charb].bumpdampen )
+                                    {
+                                        /* do nothing */
+                                    }
+                                    else if ( 0.0f == ChrList[chara].bumpdampen )
+                                    {
+                                        // make the weight infinite
+                                        wta = -0xFFFF;
+                                    }
+                                    else if ( 0.0f == ChrList[charb].bumpdampen )
+                                    {
+                                        // make the weight infinite
+                                        wtb = -0xFFFF;
+                                    }
+                                    else
+                                    {
+                                        // adjust the weights to respect bumpdampen
+                                        wta /= ChrList[chara].bumpdampen;
+                                        wtb /= ChrList[charb].bumpdampen;
+                                    }
 
                                     tmin = 1e6;
                                     if ( nrm.x != 0 )
@@ -3610,18 +3674,22 @@ void bump_characters( void )
 
                                     if ( tmin < 1e6 )
                                     {
-                                        if ( ChrList[chara].weight != 0xFFFF )
+                                        if ( wtb >= 0.0f )
                                         {
-                                            ChrList[chara].phys_pos_x += tmin * nrm.x * 0.125f;
-                                            ChrList[chara].phys_pos_y += tmin * nrm.y * 0.125f;
-                                            ChrList[chara].phys_pos_z += tmin * nrm.z * 0.125f;
+                                            float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                                            ChrList[chara].phys_pos_x += tmin * nrm.x * 0.25f * ratio;
+                                            ChrList[chara].phys_pos_y += tmin * nrm.y * 0.25f * ratio;
+                                            ChrList[chara].phys_pos_z += tmin * nrm.z * 0.25f * ratio;
                                         }
 
-                                        if ( ChrList[charb].weight != 0xFFFF )
+                                        if ( wtb >= 0.0f )
                                         {
-                                            ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.125f;
-                                            ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.125f;
-                                            ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.125f;
+                                            float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
+
+                                            ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.25f * ratio;
+                                            ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.25f * ratio;
+                                            ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.25f * ratio;
                                         }
                                     }
                                 }
@@ -3656,7 +3724,7 @@ void bump_characters( void )
                         {
                             // Then check bounding box square...  Square+Diamond=Octagon
                             if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
-                                    ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                                 ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
                             {
                                 // Now see if either is on top the other like a platform
                                 if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
