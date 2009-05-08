@@ -35,3 +35,4 @@ SLOT  OBJECT
 88    Rune of Confusion
 90    Quiver
 94    Chest Key (silver key [KEYC])
+96    Bomb

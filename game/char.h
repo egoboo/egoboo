@@ -30,7 +30,6 @@
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f                     //
 #define PITDEPTH            -30                     // Depth to kill character
-#define VOLMIN              -4000            // Minumum Volume level
 
 #define BORETIME            (rand()&255)+120
 #define CAREFULTIME         50
@@ -46,7 +45,7 @@
 // Throwing
 #define THROWFIX            30.0f                    // To correct thrown velocities
 #define MINTHROWVELOCITY    15.0f                    //
-#define MAXTHROWVELOCITY    45.0f                    //
+#define MAXTHROWVELOCITY    75.0f                    //
 
 // Inventory
 #define MAXNUMINPACK        6                       // Max number of items to carry in pack

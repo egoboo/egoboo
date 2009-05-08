@@ -487,7 +487,7 @@ int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
         channel = Mix_PlayChannel( -1, pchunk, 0 );
         if ( -1 == channel )
         {
-            log_warning( "Mix_PlayChannel: %s\n", Mix_GetError() );
+            log_warning( "Mix_PlayChannel: %s\n", Mix_GetError() );		//Something went wrong
         }
         else
         {

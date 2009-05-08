@@ -192,7 +192,7 @@ IfAttacked
     tmpx = 2			//Only if idle of in combat mode
     tmpy = tmpargument
     IfXIsLessThanY
-      tmpx = targetx		//Else - counter attack
+      tmpx = targetx    //Else - counter attack
       tmpy = targety
       tmpdistance = 200
       tmpturn = targetturnto
@@ -201,7 +201,7 @@ IfAttacked
       AddWaypoint
       tmpargument = 30
       SetTime
-  Else				//Whoops, friendly fire
+  Else          //Whoops, friendly fire
     SetTargetToNearestEnemy
 
   //Cover in fear if damaged by holy
@@ -212,7 +212,7 @@ IfAttacked
     tmpargument = 1
     SendMessageNear
     tmpargument = 3
-    IfStateIsNot	//Dont do this if in gass form
+    IfStateIsNot    //Dont do this if in gass form
       tmpargument = 2	//Become Feared
       SetState
     tmpargument = 4     //Play feared ouch sound

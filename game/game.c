@@ -1937,15 +1937,27 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 
     for (cnt = 0; cnt < MAXCHR; cnt++)
     {
-        if (ChrList[cnt].on && cnt != character && (targetdead || ChrList[cnt].alive) && (targetitems || (!ChrList[cnt].isitem && !ChrList[cnt].invictus)) && ChrList[cnt].attachedto == MAXCHR
-                && (team != ENEMY || ChrList[character].canseeinvisible || ( ChrList[cnt].alpha > INVISIBLE && ChrList[cnt].light > INVISIBLE ) )
-                && (team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team]) )
+		//Skip non-existing objects, held objects and self
+		if( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || cnt == character ) continue;
+
+		//Target items
+        if( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
+
+		//Target dead stuff
+		if( !targetdead && !ChrList[cnt].alive ) continue;
+
+		//Dont target hostile invisible stuff, unless we can actually see them
+        if( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible 
+			&& ( ChrList[cnt].alpha < INVISIBLE && ChrList[cnt].light < INVISIBLE )) ) continue;
+        
+		//Which team to target
+		if( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
         {
-            //Check for IDSZ too
-            if (idsz == IDSZ_NONE
-                    || (excludeidsz != (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz))
-                    || (excludeidsz != (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE]   == idsz)) )
-            {
+            //Check for specific IDSZ too?
+            if ( idsz != IDSZ_NONE && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz)
+				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz ) ) continue;
+			
+			{
                 Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - ChrList[character].xpos, 2))
                                               + ABS( pow(ChrList[cnt].ypos - ChrList[character].ypos, 2))
                                               + ABS( pow(ChrList[cnt].zpos - ChrList[character].zpos, 2)) );
@@ -2023,6 +2035,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
         // They are either both valid or both invalid, in either case we can't help
+		return;
     }
     else
     {
@@ -3279,10 +3292,10 @@ void bump_characters( void )
         if ( !ChrList[chara].on ) continue;
 
         // Don't bump held objects
-        if ( MAXCHR != ChrList[chara].attachedto ) continue;
+       // if ( MAXCHR != ChrList[chara].attachedto ) continue;
 
         // Don't bump items
-        if ( 0 == ChrList[chara].bumpheight /* || ChrList[chara].isitem */ ) continue;
+       // if ( 0 == ChrList[chara].bumpheight /* || ChrList[chara].isitem */ ) continue;
 
         xa = ChrList[chara].xpos;
         ya = ChrList[chara].ypos;

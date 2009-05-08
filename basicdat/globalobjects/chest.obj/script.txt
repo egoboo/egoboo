@@ -5,15 +5,6 @@
 //Content 0: Locked chest
 //Content 1: Unlocked Chest
 
-//Using a key to unlock the chest
-IfBumped
-  tmpargument = 0
-  IfContentIs
-    tmpargument = [KEYC]
-    IfTargetHasItemID
-      tmpargument = 1  //Unlocked
-      SetContent
-
 // Someone cast an unlock spell
 IfOrdered
   tmpx = selforder
@@ -46,21 +37,60 @@ IfBumped
   // Can they open the chest?
   SetTargetToWhoeverBumped
   IfTargetCanOpenStuff
-    
-    // Is it closed?
-    tmpargument = 0
-    IfStateIs
+    IfFacingTarget
+      // Is it closed?
       tmpargument = 0
-      IfContentIs  //LOCKED
-        // Are they in front?
-        IfFacingTarget
-          tmpargument = 1
-          SendMessageNear 
-
-      Else //UNLOCKED
-        // Are they in front?
-        IfFacingTarget
-
+      IfStateIs
+      
+        //LOCKED
+        tmpargument = 0
+        IfContentIs  
+          tmpargument = [DISA]
+          IfTargetHasSkillID          //They picked the lock
+          
+            //Unlock it
+            tmpargument = 1
+            SetContent
+            PlaySound
+            tmpargument = 6
+            SendMessageNear
+            
+            //Award some xp
+            tmpargument = 25
+            tmpdistance = EXPROLEPLAY
+            GiveExperienceToTarget
+            
+            //Animate
+            tmpargument = ACTIONMG
+            TargetDoAction
+          Else          
+            tmpargument = [KEYC]
+            CostTargetItemID          //They used a key
+            
+              //Unlock it
+              tmpargument = 1  
+              SetContent
+              PlaySound
+              tmpargument = 5
+              SendMessageNear
+              
+              //Award some xp
+              tmpargument = 10
+              tmpdistance = EXPSECRET
+              GiveExperienceToTarget
+      
+              //Animate
+              tmpargument = ACTIONMG
+              TargetDoAction
+            Else
+              IfTimeOut           //Tell it's locked
+                tmpargument = 1
+                SendMessageNear
+                tmpargument = 40
+                SetTime
+            
+        //UNLOCKED
+        Else 
           // Give some experience
           tmpargument = 5
           tmpdistance = EXPDARE
@@ -75,43 +105,43 @@ IfBumped
             SetBumpHeight
             KeepAction
             tmpargument = 0
-            tmpdistance = 11025
             PlaySound
+        
             // Wait a while
             tmpargument = 40
             SetTime
+    
             // Tell the players...
             tmpargument = 4
             SendMessageNear
-                    
-        
-    // Wait before allowing a swap
-    IfTimeOut
-      // Reset the timer
-      tmpargument = 40
-      SetTime
-
+      Else                
+        // Wait before allowing loot
+        IfTimeOut
+          // Reset the timer
+          tmpargument = 40
+          SetTime
             
-      // Make target crouch
-      IfFacingTarget
-        tmpargument = ACTIONMG
-        TargetDoAction
+          // Make target crouch
+          IfFacingTarget
+            tmpargument = ACTIONMG
+            TargetDoAction
 
-      // Say it's empty...
-    IfStateIs2
-      // Say the chest is empty...
-      tmpargument = 0
-      SendMessageNear
+          // Say it's empty...
+          IfStateIs2
+            // Say the chest is empty...
+            tmpargument = 0
+            SendMessageNear
 
-    // Drop the contents
-    IfStateIs1
-      DropItems
-      DropMoney
-      DropKeys
-      tmpargument = 2
-      SendMessageNear
-      tmpargument = 2 //Empty now...
-      SetState
+          // Drop the contents
+          IfStateIs1
+            DropItems
+            tmpargument = selfmoney
+            DropMoney
+            DropKeys
+            tmpargument = 2
+            SendMessageNear
+            tmpargument = 2     //Empty now...
+            SetState
 
 // All done
 End

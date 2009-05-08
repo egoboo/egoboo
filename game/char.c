@@ -4519,7 +4519,6 @@ void move_characters( void )
     float level, friction;
     float dvx, dvy, dvmax;
     Uint16 action, weapon, mount, item;
-    int distance, volume;
     bool_t watchtarget, grounded;
 
     // Move every character
@@ -4683,16 +4682,13 @@ void move_characters( void )
                             if ( ChrList[cnt].actionready )    chr_play_action( cnt, ACTIONJA, btrue );
 
                             // Play the jump sound (Boing!)
-                            distance = ABS( gCamera.trackx - ChrList[cnt].xpos ) + ABS( gCamera.tracky - ChrList[cnt].ypos );
-                            volume = -distance;
-                            if ( volume > VOLMIN )
-                            {
-                                int ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
-                                if ( ijump >= 0 && ijump < MAXWAVE )
-                                {
-                                    sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
-                                }
-                            }
+							{
+								int ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
+								if ( ijump >= 0 && ijump < MAXWAVE )
+								{
+										sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
+								}
+							}
 
                         }
                     }
