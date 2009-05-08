@@ -105,6 +105,7 @@ int load_one_line( int read )
     // ZZ> This function loads a line into the line buffer
     int stillgoing, foundtext;
     char cTmp;
+    bool_t tabs_warning_needed;
 
     // Parse to start to maintain indentation
     cLineBuffer[0] = '\0';
@@ -112,6 +113,7 @@ int load_one_line( int read )
     stillgoing = btrue;
 
     // try to trap all end of line conditions so we can properly count the lines
+    tabs_warning_needed = bfalse;
     while ( read < iLoadSize )
     {
         cTmp = cLoadBuffer[read];
@@ -139,7 +141,7 @@ int load_one_line( int read )
 
         if ( '\t' == cTmp )
         {
-            log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d)\n", globalparsename, Token_iLine );
+            tabs_warning_needed = btrue;
             cTmp = ' ';
         }
 
@@ -191,24 +193,28 @@ int load_one_line( int read )
         iLineSize = 0;
     }
 
+    // terminate the line buffer properly
     cLineBuffer[iLineSize] = '\0';
 
+    if ( iLineSize > 0  && tabs_warning_needed )
+    {
+        log_warning( "Tab character used to define spacing will cause an error \"%s\"(%d) - \n\t\"%s\"\n", globalparsename, Token_iLine, cLineBuffer );
+    }
+
     // Parse to end of line
-    stillgoing = btrue;
     while ( read < iLoadSize )
     {
-        cTmp = cLoadBuffer[read];
-        if ( cTmp == 0x0a && cLoadBuffer[read] == 0x0d )
+        if ( 0x0a == cLoadBuffer[read] && 0x0d == cLoadBuffer[read+1] )
         {
             read += 2;
             break;
         }
-        if ( cTmp == 0x0d && cLoadBuffer[read] == 0x0a )
+        else if ( 0x0d == cLoadBuffer[read] && 0x0a == cLoadBuffer[read+1] )
         {
             read += 2;
             break;
-        };
-        if ( cTmp == '\0' || cTmp == 0x0a || cTmp == 0x0d )
+        }
+        else if ( cLoadBuffer[read] == '\0' || 0x0a == cLoadBuffer[read] || 0x0d == cLoadBuffer[read] )
         {
             read += 1;
             break;

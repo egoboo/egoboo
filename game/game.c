@@ -1957,7 +1957,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
             if ( idsz != IDSZ_NONE && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz)
 				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz ) ) continue;
 			
-			{
+            {
                 Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - ChrList[character].xpos, 2))
                                               + ABS( pow(ChrList[cnt].ypos - ChrList[character].ypos, 2))
                                               + ABS( pow(ChrList[cnt].zpos - ChrList[character].zpos, 2)) );
@@ -3291,11 +3291,12 @@ void bump_characters( void )
         // make sure that it is on
         if ( !ChrList[chara].on ) continue;
 
-        // Don't bump held objects
-       // if ( MAXCHR != ChrList[chara].attachedto ) continue;
+        // reject characters that are in packs, or are marked as non-colliding
+        if ( ChrList[character].inpack || 0 == ChrList[character].bumpheight ) continue;
 
-        // Don't bump items
-       // if ( 0 == ChrList[chara].bumpheight /* || ChrList[chara].isitem */ ) continue;
+        // reject characters that are hidden
+        hide = CapList[ ChrList[character].model ].hidestate;
+        if ( hide != NOHIDE && hide == ChrList[character].ai.state ) continue;
 
         xa = ChrList[chara].xpos;
         ya = ChrList[chara].ypos;
