@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - enchant.c
+/* Egoboo - enchant.c handles enchantments attached to objects
  */
 #include "enchant.h"
 

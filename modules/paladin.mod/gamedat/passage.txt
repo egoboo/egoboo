@@ -20,7 +20,7 @@
 15 LastRoomDoorOpen:  49  38     52  39         T       T             F
 16 MiddleIronDoor:  23  46     24  47         F       F             F
 17 MiddleIronDooropen:  23  45     24  48         T       T             F
-18 UndeadTag:  23  45     24  48         F       T             F
+18 UndeadTag:  23  45     24  48         T       T             F
 19 ExitDoor:  23  3     24  4         F       F             F
 20 ExitDoorOpen:  23  2     24  5         T       T             F
 21 Exit:  23  0     24  2         T       T             F

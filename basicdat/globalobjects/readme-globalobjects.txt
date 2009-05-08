@@ -34,3 +34,4 @@ SLOT  OBJECT
 87    Mana Potion
 88    Rune of Confusion
 90    Quiver
+94    Chest Key (silver key [KEYC])

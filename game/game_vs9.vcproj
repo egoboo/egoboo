@@ -554,7 +554,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\System.h"
+				RelativePath=".\system.h"
 				>
 			</File>
 			<File
@@ -756,13 +756,6 @@
 			<File
 				RelativePath=".\egoboo_console.c"
 				>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo_console.h"

@@ -1662,6 +1662,7 @@ void call_for_help( Uint16 character )
 //--------------------------------------------------------------------------------------------
 Uint32 xp_for_next_level(Uint16 character)
 {
+	//This calculates the xp needed to reach next level
     Uint32 curlevel;
     Uint16 profile;
     Uint32 xpneeded = (Uint32)(~0);
@@ -1670,7 +1671,7 @@ Uint32 xp_for_next_level(Uint16 character)
     profile  = ChrList[character].model;
     if (profile == MAXMODEL) return xpneeded;
 
-    // Do level ups and stat changes
+    // Calculate xp needed
     curlevel = ChrList[character].experiencelevel;
     if ( curlevel + 1 < MAXLEVEL )
     {
@@ -1723,56 +1724,56 @@ void do_level_up( Uint16 character )
             }
 
             // Size
-            ChrList[character].sizegoto += CapList[profile].sizeperlevel * 0.5f;  // Limit this?
+            ChrList[character].sizegoto += CapList[profile].sizeperlevel * 0.25f;  // Limit this?
             ChrList[character].sizegototime += SIZETIME;
 
             // Strength
             number = generate_number( CapList[profile].strengthperlevelbase, CapList[profile].strengthperlevelrand );
-            number = number + ChrList[character].strength;
+            number += ChrList[character].strength;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].strength = number;
 
             // Wisdom
             number = generate_number( CapList[profile].wisdomperlevelbase, CapList[profile].wisdomperlevelrand );
-            number = number + ChrList[character].wisdom;
+            number += ChrList[character].wisdom;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].wisdom = number;
 
             // Intelligence
             number = generate_number( CapList[profile].intelligenceperlevelbase, CapList[profile].intelligenceperlevelrand );
-            number = number + ChrList[character].intelligence;
+            number += ChrList[character].intelligence;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].intelligence = number;
 
             // Dexterity
             number = generate_number( CapList[profile].dexterityperlevelbase, CapList[profile].dexterityperlevelrand );
-            number = number + ChrList[character].dexterity;
+            number += ChrList[character].dexterity;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].dexterity = number;
 
             // Life
             number = generate_number( CapList[profile].lifeperlevelbase, CapList[profile].lifeperlevelrand );
-            number = number + ChrList[character].lifemax;
+            number += ChrList[character].lifemax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             ChrList[character].life += ( number - ChrList[character].lifemax );
             ChrList[character].lifemax = number;
 
             // Mana
             number = generate_number( CapList[profile].manaperlevelbase, CapList[profile].manaperlevelrand );
-            number = number + ChrList[character].manamax;
+            number += ChrList[character].manamax;
             if ( number > PERFECTBIG ) number = PERFECTBIG;
             ChrList[character].mana += ( number - ChrList[character].manamax );
             ChrList[character].manamax = number;
 
             // Mana Return
             number = generate_number( CapList[profile].manareturnperlevelbase, CapList[profile].manareturnperlevelrand );
-            number = number + ChrList[character].manareturn;
+            number += ChrList[character].manareturn;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].manareturn = number;
 
             // Mana Flow
             number = generate_number( CapList[profile].manaflowperlevelbase, CapList[profile].manaflowperlevelrand );
-            number = number + ChrList[character].manaflow;
+            number += ChrList[character].manaflow;
             if ( number > PERFECTSTAT ) number = PERFECTSTAT;
             ChrList[character].manaflow = number;
         }

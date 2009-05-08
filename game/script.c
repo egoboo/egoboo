@@ -10629,7 +10629,8 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList[pself->target].grogtime += pstate->argument;
+	if(CapList[ChrList[pself->target].model].canbegrogged) ChrList[pself->target].grogtime += pstate->argument;
+	else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -10642,7 +10643,8 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList[pself->target].dazetime += pstate->argument;
+	if(CapList[ChrList[pself->target].model].canbedazed) ChrList[pself->target].dazetime += pstate->argument;
+	else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }

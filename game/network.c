@@ -911,7 +911,7 @@ void sv_talkToRemotes()
     // ZZ> This function sends the character data to all the remote machines
     int player, time;
     Sint16 sTmp;
-    static Uint32 last_frame = ~0;
+    static Uint32 last_frame = (Uint32)~0;
 
     // make sure there is only one update per frame;
     if ( frame_wld == last_frame ) return;
