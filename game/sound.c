@@ -456,48 +456,65 @@ void sound_halt()
 //------------------------------------
 // Mix_Chunk stuff -------------------
 //------------------------------------
-int sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk )
+int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
 {
-    // ZF> This function plays a specified sound
+    // This function plays a specified sound
 
     int channel;
-    float pan;
-    int dist, volume;
+    float diff_x, diff_y;
+    float dist2;
+    int volume;
+
+    const float reverb_dist2 = 200 * 200;
+
     if ( !mixeron || NULL == pchunk ) return -1;
 
     // measure the distance in tiles
-    dist = SQRT( POW( ABS( gCamera.trackx - xpos ), 2 ) + POW( ABS( gCamera.tracky - ypos ), 2 ) ); // Ugly, but just the dist formula
-    dist >>= 7;
+    diff_x = pos_x - gCamera.trackx;
+    diff_y = pos_y - gCamera.tracky;
+    dist2 = diff_x*diff_x + diff_y*diff_y;
 
-    // adjust for the local_listening skill (reduce distance by 33%)
-    if ( local_listening ) dist *= 0.66f;
+    // adjust for the local_listening skill
+    if ( local_listening ) dist2 *= 0.66f * 0.66f;
 
-    // adjust for the soundvolume
-    dist *= VOLUMERATIO * 2;
-    volume = 255 - dist;
-    dist   = 255 - ( volume * soundvolume ) / 100;
-
-    // determine the angle in radians
-    pan    = ( ( 1.5f * PI ) - ATAN2( gCamera.y - ypos, gCamera.x - xpos ) - gCamera.turnleftright ); // Convert the camera angle to the nearest integer degree
+    volume  = 128 * reverb_dist2 / (reverb_dist2 + dist2);
+    volume *= ( volume * soundvolume ) / 100;
 
     // play the sound
     channel = -1;
-    if ( dist <= 255 )
+    if ( volume > 0 )
     {
         channel = Mix_PlayChannel( -1, pchunk, 0 );
         if ( -1 == channel )
         {
-            log_warning( "Mix_PlayChannel: %s\n", Mix_GetError() );		//Something went wrong
+            // log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
         }
         else
         {
-            Mix_SetPosition( channel, pan, dist );
+            float pan;
+            float cosval;
+            int leftvol;
+
+            // determine the angle away from "forward"
+            pan = ATAN2( diff_y, diff_x ) - gCamera.turnleftright;
+            volume *= (2.0f + cos( pan )) / 3.0f;
+
+            // determine the angle from the left ear
+            pan += ( 1.5f * PI );
+
+            // determine the panning
+            cosval = cos(pan);
+            cosval *= cosval;
+            leftvol  = cosval * 128;
+
+            // apply the volume adjustments
+            Mix_Volume(channel, volume);
+            Mix_SetPanning(channel, 127 + leftvol, 255 - leftvol);
         }
     }
 
     return channel;
 }
-
 //--------------------------------------------------------------------------------------------
 void sound_stop_channel( int whichchannel )
 {

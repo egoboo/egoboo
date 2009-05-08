@@ -88,11 +88,9 @@ void render_fan( Uint32 fan )
     badvertex = ptile->vrtstart;          // Get big reference value
 
     //[claforte] Put this in an initialization function.
-    glEnableClientState( GL_VERTEX_ARRAY );
-
-    glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
-    glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
-
+    //glEnableClientState( GL_VERTEX_ARRAY );
+    //glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
+    //glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
     {
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
@@ -100,9 +98,7 @@ void render_fan( Uint32 fan )
             v[cnt].y = pmem->vrt_y[badvertex];
             v[cnt].z = pmem->vrt_z[badvertex];
 
-            v[cnt].r =
-                v[cnt].g =
-                    v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
+            v[cnt].r = v[cnt].g = v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
 
 			v[cnt].s = tile_dict[type].u[cnt] + offu;
             v[cnt].t = tile_dict[type].v[cnt] + offv;
@@ -131,7 +127,6 @@ void render_fan( Uint32 fan )
 
     // Render each command
     entry = 0;
-
     for ( cnt = 0; cnt < commands; cnt++ )
     {
         glBegin ( GL_TRIANGLE_FAN );
@@ -139,10 +134,11 @@ void render_fan( Uint32 fan )
             for ( tnc = 0; tnc < tile_dict[type].command_entries[cnt]; tnc++ )
             {
                 vertex = tile_dict[type].command_verts[entry];
+
                 glTexCoord2fv ( &v[vertex].s ); 
                 glColor3fv( &v[vertex].r );
-                glTexCoord2f ( tile_dict[type].u[vertex] + offu, tile_dict[type].v[vertex] + offv );
                 glVertex3fv ( &v[vertex].x );
+
 				entry++;
             }
 
