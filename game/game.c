@@ -4041,6 +4041,12 @@ void bump_characters( void )
             // restore the old values
             ChrList[character].xpos = tmpx;
         }
+        else
+        {
+            ChrList[character].xvel += ChrList[character].phys_pos_x;
+            ChrList[character].oldx = tmpx;
+
+        }
 
         tmpy = ChrList[character].ypos;
         ChrList[character].ypos += ChrList[character].phys_pos_y;
@@ -4048,6 +4054,11 @@ void bump_characters( void )
         {
             // restore the old values
             ChrList[character].ypos = tmpy;
+        }
+        else
+        {
+            ChrList[character].yvel += ChrList[character].phys_pos_y;
+            ChrList[character].oldy = tmpy;
         }
 
         tmpz = ChrList[character].zpos;
@@ -4057,7 +4068,11 @@ void bump_characters( void )
             // restore the old values
             ChrList[character].zpos = tmpz;
         }
-
+        else
+        {
+            ChrList[character].zvel += ChrList[character].phys_pos_z;
+            ChrList[character].oldz = tmpz;
+        }
     }
 }
 
