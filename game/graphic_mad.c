@@ -158,28 +158,27 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
 void render_enviromad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws an environment mapped model
-    GLVERTEX v[MAXVERTICES];
+    GLvertex v[MAXVERTICES];
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
-    glMatrix tempWorld = mWorld;
 
-    Uint16 model = ChrList[character].model;
-    Uint16 texture = ChrList[character].texture;
-    Uint16 frame = ChrList[character].frame;
-    Uint16 lastframe = ChrList[character].lastframe;
-    Uint16 framestt = MadList[ChrList[character].model].framestart;
-    Uint8  lip = ChrList[character].lip >> 6;
+    Uint16 model = ChrList[character].inst.imad;
+    Uint16 texture = ChrList[character].inst.texture;
+    Uint16 frame = ChrList[character].inst.frame;
+    Uint16 lastframe = ChrList[character].inst.lastframe;
+    Uint16 framestt = MadList[ChrList[character].inst.imad].framestart;
+    Uint8  lip = ChrList[character].inst.lip >> 6;
     Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
     Uint32 alpha = trans;
     Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
     Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
-    float  uoffset = textureoffset[ FP8_TO_INT( ChrList[character].uoffset ) ] - gCamera.turnleftrightone;
-    float  voffset = textureoffset[ FP8_TO_INT( ChrList[character].voffset ) ];
-    Uint8  rs = ChrList[character].redshift;
-    Uint8  gs = ChrList[character].grnshift;
-    Uint8  bs = ChrList[character].blushift;
+    float  uoffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.uoffset ) ] - gCamera.turnleftrightone;
+    float  voffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.voffset ) ];
+    Uint8  rs = ChrList[character].inst.redshift;
+    Uint8  gs = ChrList[character].inst.grnshift;
+    Uint8  bs = ChrList[character].inst.blushift;
     float  flip = lip / 4.0f;
-    Uint8  light = ( 255 == ChrList[character].light ) ? 0 : ( (ChrList[character].light + 1) * (ChrList[character].alpha + 1) ) >> 8;
+    Uint8  light = ( 255 == ChrList[character].inst.light ) ? 0 : ( (ChrList[character].inst.light + 1) * (ChrList[character].inst.alpha + 1) ) >> 8;
 
     // Original points with linear interpolation ( lip )
 
@@ -195,12 +194,12 @@ void render_enviromad( Uint16 character, Uint8 trans )
         lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
-        ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
+        ChrList[character].inst.vrta[cnt] = 0.9f * ChrList[character].inst.vrta[cnt] + 0.1f * lite;
 
         v[cnt].a = ( float ) alpha * INV_FF;
-        v[cnt].r = ( float )( ChrList[character].vrta[cnt] >> rs ) * INV_FF;
-        v[cnt].g = ( float )( ChrList[character].vrta[cnt] >> gs ) * INV_FF;
-        v[cnt].b = ( float )( ChrList[character].vrta[cnt] >> bs ) * INV_FF;
+        v[cnt].r = ( float )( ChrList[character].inst.vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( ChrList[character].inst.vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( ChrList[character].inst.vrta[cnt] >> bs ) * INV_FF;
     }
 
     // Do fog...
@@ -245,18 +244,15 @@ void render_enviromad( Uint16 character, Uint8 trans )
     }
     */
 
-    mWorld = ChrList[character].matrix;
-    // GS - Begin3DMode ();
-
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
+    glMatrixMode( GL_MODELVIEW_MATRIX );
+    glPushMatrix();
+    glMultMatrixf( ChrList[character].inst.matrix.v );
 
     // Choose texture and matrix
-    GLTexture_Bind( txTexture + texture );
+    GLtexture_Bind( txTexture + texture );
 
     // Render each command
     entry = 0;
-
     for ( cnt = 0; cnt < MadList[model].commands; cnt++ )
     {
         if (cnt > MAXCOMMAND) continue;
@@ -270,7 +266,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
                 {
                     glColor4fv( &v[vertex].r );
                     glTexCoord2f ( indextoenvirox[Md2FrameList[framestt].vrta[vertex]] + uoffset,
-                                   lighttoenviroy[ChrList[character].vrta[vertex]] + voffset );
+                                   lighttoenviroy[ChrList[character].inst.vrta[vertex]] + voffset );
                     glVertex3fv ( &v[vertex].x );
                 }
 
@@ -280,41 +276,38 @@ void render_enviromad( Uint16 character, Uint8 trans )
         glEnd ();
     }
 
-    mWorld = tempWorld;
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
-    // GS - End3DMode ();
+    glMatrixMode( GL_MODELVIEW_MATRIX );
+    glPopMatrix();
 }
 
 //--------------------------------------------------------------------------------------------
 void render_texmad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function draws a model
-    GLVERTEX v[MAXVERTICES];
+    GLvertex v[MAXVERTICES];
     Uint16 cnt, tnc, entry;
     Uint16 vertex;
 
     // To make life easier
-    Uint16 model = ChrList[character].model;
-    Uint16 texture = ChrList[character].texture;
-    Uint16 frame = ChrList[character].frame;
-    Uint16 lastframe = ChrList[character].lastframe;
-    Uint8  lip = ChrList[character].lip >> 6;
+    Uint16 model = ChrList[character].inst.imad;
+    Uint16 texture = ChrList[character].inst.texture;
+    Uint16 frame = ChrList[character].inst.frame;
+    Uint16 lastframe = ChrList[character].inst.lastframe;
+    Uint8  lip = ChrList[character].inst.lip >> 6;
     Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
     Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
     Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
     Uint32 alpha = trans;
-    Uint8  spek = ChrList[character].sheen;
+    Uint8  spek = ChrList[character].inst.sheen;
 
-    float uoffset = textureoffset[ FP8_TO_INT( ChrList[character].uoffset ) ];
-    float voffset = textureoffset[ FP8_TO_INT( ChrList[character].voffset ) ];
-    Uint8 rs = ChrList[character].redshift;
-    Uint8 gs = ChrList[character].grnshift;
-    Uint8 bs = ChrList[character].blushift;
+    float uoffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.uoffset ) ];
+    float voffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.voffset ) ];
+    Uint8 rs = ChrList[character].inst.redshift;
+    Uint8 gs = ChrList[character].inst.grnshift;
+    Uint8 bs = ChrList[character].inst.blushift;
     float flip = lip / 4.0f;
-    Uint8  light = ( 255 == ChrList[character].light ) ? 0 : ( (ChrList[character].light + 1) * (ChrList[character].alpha + 1) ) >> 8;
+    Uint8  light = ( 255 == ChrList[character].inst.light ) ? 0 : ( (ChrList[character].inst.light + 1) * (ChrList[character].inst.alpha + 1) ) >> 8;
 
-    glMatrix mTempWorld = mWorld;
     if ( phongon && trans == 255 )
         spek = 0;
 
@@ -330,12 +323,12 @@ void render_texmad( Uint16 character, Uint8 trans )
         lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
-        ChrList[character].vrta[cnt] = 0.9f * ChrList[character].vrta[cnt] + 0.1f * lite;
+        ChrList[character].inst.vrta[cnt] = 0.9f * ChrList[character].inst.vrta[cnt] + 0.1f * lite;
 
         v[cnt].a = ( float ) alpha * INV_FF;
-        v[cnt].r = ( float )( ChrList[character].vrta[cnt] >> rs ) * INV_FF;
-        v[cnt].g = ( float )( ChrList[character].vrta[cnt] >> gs ) * INV_FF;
-        v[cnt].b = ( float )( ChrList[character].vrta[cnt] >> bs ) * INV_FF;
+        v[cnt].r = ( float )( ChrList[character].inst.vrta[cnt] >> rs ) * INV_FF;
+        v[cnt].g = ( float )( ChrList[character].inst.vrta[cnt] >> gs ) * INV_FF;
+        v[cnt].b = ( float )( ChrList[character].inst.vrta[cnt] >> bs ) * INV_FF;
     }
 
     /*
@@ -375,13 +368,11 @@ void render_texmad( Uint16 character, Uint8 trans )
     */
 
     // Choose texture and matrix
-    GLTexture_Bind( txTexture + texture );
+    GLtexture_Bind( txTexture + texture );
 
-    mWorld = ChrList[character].matrix;
-
-    // Begin3DMode();
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
+    glMatrixMode( GL_MODELVIEW_MATRIX );
+    glPushMatrix();
+    glMultMatrixf( ChrList[character].inst.matrix.v );
 
     // Render each command
     entry = 0;
@@ -408,11 +399,8 @@ void render_texmad( Uint16 character, Uint8 trans )
         glEnd ();
     }
 
-    // End3DMode ();
-
-    mWorld = mTempWorld;
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
+    glMatrixMode( GL_MODELVIEW_MATRIX );
+    glPopMatrix();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -422,7 +410,7 @@ void render_mad( Uint16 character, Uint8 trans )
     Sint8 hide = CapList[ChrList[character].model].hidestate;
     if ( hide == NOHIDE || hide != ChrList[character].ai.state )
     {
-        if ( ChrList[character].enviro )
+        if ( ChrList[character].inst.enviro )
             render_enviromad( character, trans );
         else
             render_texmad( character, trans );
@@ -439,13 +427,14 @@ void render_refmad( int tnc, Uint8 trans )
     int zpos;
     Uint8 sheen_save;
     Uint8 fog_save;
-    glVector pos_save;
+    GLvector4 pos_save;
+
     if ( !CapList[ChrList[tnc].model].reflect ) return;
 
     level = ChrList[tnc].level;
     trans_temp = trans;
 
-    zpos = ( ChrList[tnc].matrix ).CNV( 3, 2 ) - level;
+    zpos = ChrList[tnc].inst.matrix.CNV( 3, 2 ) - level;
     if (zpos < 0) zpos = 0;
 
     trans_temp -= zpos >> 1;
@@ -455,22 +444,22 @@ void render_refmad( int tnc, Uint8 trans )
     if ( trans_temp > 255 ) trans_temp = 255;
     if ( trans_temp <= 0 ) return;
 
-    ChrList[tnc].redshift += 1;
-    ChrList[tnc].grnshift += 1;
-    ChrList[tnc].blushift += 1;
+    ChrList[tnc].inst.redshift += 1;
+    ChrList[tnc].inst.grnshift += 1;
+    ChrList[tnc].inst.blushift += 1;
 
-    sheen_save = ChrList[tnc].sheen;
-    ChrList[tnc].sheen >>= 1;
+    sheen_save = ChrList[tnc].inst.sheen;
+    ChrList[tnc].inst.sheen >>= 1;
 
-    pos_save.x = ( ChrList[tnc].matrix ).CNV( 0, 2 );
-    pos_save.y = ( ChrList[tnc].matrix ).CNV( 1, 2 );
-    pos_save.z = ( ChrList[tnc].matrix ).CNV( 2, 2 );
-    pos_save.w = ( ChrList[tnc].matrix ).CNV( 3, 2 );
+    pos_save.x = ChrList[tnc].inst.matrix.CNV( 0, 2 );
+    pos_save.y = ChrList[tnc].inst.matrix.CNV( 1, 2 );
+    pos_save.z = ChrList[tnc].inst.matrix.CNV( 2, 2 );
+    pos_save.w = ChrList[tnc].inst.matrix.CNV( 3, 2 );
 
-    ( ChrList[tnc].matrix ).CNV( 0, 2 ) = -( ChrList[tnc].matrix ).CNV( 0, 2 );
-    ( ChrList[tnc].matrix ).CNV( 1, 2 ) = -( ChrList[tnc].matrix ).CNV( 1, 2 );
-    ( ChrList[tnc].matrix ).CNV( 2, 2 ) = -( ChrList[tnc].matrix ).CNV( 2, 2 );
-    ( ChrList[tnc].matrix ).CNV( 3, 2 ) = -( ChrList[tnc].matrix ).CNV( 3, 2 ) + level + level;
+    ChrList[tnc].inst.matrix.CNV( 0, 2 ) = -ChrList[tnc].inst.matrix.CNV( 0, 2 );
+    ChrList[tnc].inst.matrix.CNV( 1, 2 ) = -ChrList[tnc].inst.matrix.CNV( 1, 2 );
+    ChrList[tnc].inst.matrix.CNV( 2, 2 ) = -ChrList[tnc].inst.matrix.CNV( 2, 2 );
+    ChrList[tnc].inst.matrix.CNV( 3, 2 ) = -ChrList[tnc].inst.matrix.CNV( 3, 2 ) + level + level;
 
     fog_save = fogon;
     fogon    = bfalse;
@@ -479,16 +468,16 @@ void render_refmad( int tnc, Uint8 trans )
 
     fogon = fog_save;
 
-    ( ChrList[tnc].matrix ).CNV( 0, 2 ) = pos_save.x;
-    ( ChrList[tnc].matrix ).CNV( 1, 2 ) = pos_save.y;
-    ( ChrList[tnc].matrix ).CNV( 2, 2 ) = pos_save.z;
-    ( ChrList[tnc].matrix ).CNV( 3, 2 ) = pos_save.w;
+    ChrList[tnc].inst.matrix.CNV( 0, 2 ) = pos_save.x;
+    ChrList[tnc].inst.matrix.CNV( 1, 2 ) = pos_save.y;
+    ChrList[tnc].inst.matrix.CNV( 2, 2 ) = pos_save.z;
+    ChrList[tnc].inst.matrix.CNV( 3, 2 ) = pos_save.w;
 
-    ChrList[tnc].sheen = sheen_save;
+    ChrList[tnc].inst.sheen = sheen_save;
 
-    ChrList[tnc].redshift -= 1;
-    ChrList[tnc].grnshift -= 1;
-    ChrList[tnc].blushift -= 1;
+    ChrList[tnc].inst.redshift -= 1;
+    ChrList[tnc].inst.grnshift -= 1;
+    ChrList[tnc].inst.blushift -= 1;
 
 }
 

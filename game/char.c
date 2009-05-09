@@ -76,24 +76,24 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
     Uint16 frame;
     Sint16 z;
 
-    frame = ChrList[character].frame;
+    frame = ChrList[character].inst.frame;
 
-    for ( cnt = 0; cnt < MadList[ChrList[character].model].transvertices; cnt++  )
+    for ( cnt = 0; cnt < MadList[ChrList[character].inst.imad].transvertices; cnt++  )
     {
         z = Md2FrameList[frame].vrtz[cnt];
         if ( z < low )
         {
-            ChrList[character].vrta[cnt] = valuelow;
+            ChrList[character].inst.vrta[cnt] = valuelow;
         }
         else
         {
             if ( z > high )
             {
-                ChrList[character].vrta[cnt] = valuehigh;
+                ChrList[character].inst.vrta[cnt] = valuehigh;
             }
             else
             {
-                ChrList[character].vrta[cnt] = ( valuehigh * ( z - low ) / ( high - low ) ) +
+                ChrList[character].inst.vrta[cnt] = ( valuehigh * ( z - low ) / ( high - low ) ) +
                                                ( valuelow * ( high - z ) / ( high - low ) );
             }
         }
@@ -137,11 +137,11 @@ void keep_weapons_with_holders()
             else
             {
                 // Keep in hand weapons with character
-                if ( ChrList[character].matrixvalid && ChrList[cnt].matrixvalid )
+                if ( ChrList[character].inst.matrixvalid && ChrList[cnt].inst.matrixvalid )
                 {
-                    ChrList[cnt].xpos = ChrList[cnt].matrix.CNV( 3, 0 );
-                    ChrList[cnt].ypos = ChrList[cnt].matrix.CNV( 3, 1 );
-                    ChrList[cnt].zpos = ChrList[cnt].matrix.CNV( 3, 2 );
+                    ChrList[cnt].xpos = ChrList[cnt].inst.matrix.CNV( 3, 0 );
+                    ChrList[cnt].ypos = ChrList[cnt].inst.matrix.CNV( 3, 1 );
+                    ChrList[cnt].zpos = ChrList[cnt].inst.matrix.CNV( 3, 2 );
                 }
                 else
                 {
@@ -157,25 +157,25 @@ void keep_weapons_with_holders()
                 {
 
                     // Items become partially invisible in hands of players
-                    if ( ChrList[character].isplayer && ChrList[character].alpha != 255 )
-                        ChrList[cnt].alpha = 128;
+                    if ( ChrList[character].isplayer && ChrList[character].inst.alpha != 255 )
+                        ChrList[cnt].inst.alpha = 128;
                     else
                     {
                         // Only if not naturally transparent
                         if ( CapList[ChrList[cnt].model].alpha == 255 )
-                            ChrList[cnt].alpha = ChrList[character].alpha;
-                        else ChrList[cnt].alpha = CapList[ChrList[cnt].model].alpha;
+                            ChrList[cnt].inst.alpha = ChrList[character].inst.alpha;
+                        else ChrList[cnt].inst.alpha = CapList[ChrList[cnt].model].alpha;
                     }
 
                     //Do light too
-                    if ( ChrList[character].isplayer && ChrList[character].light != 255 )
-                        ChrList[cnt].light = 128;
+                    if ( ChrList[character].isplayer && ChrList[character].inst.light != 255 )
+                        ChrList[cnt].inst.light = 128;
                     else
                     {
                         // Only if not naturally transparent
                         if ( CapList[ChrList[cnt].model].light == 255 )
-                            ChrList[cnt].light = ChrList[character].light;
-                        else ChrList[cnt].light = CapList[ChrList[cnt].model].light;
+                            ChrList[cnt].inst.light = ChrList[character].inst.light;
+                        else ChrList[cnt].inst.light = CapList[ChrList[cnt].model].light;
                     }
                 }
             }
@@ -190,7 +190,7 @@ void make_one_character_matrix( Uint16 cnt )
 {
     // ZZ> This function sets one character's matrix
     Uint16 tnc;
-    ChrList[cnt].matrixvalid = btrue;
+    ChrList[cnt].inst.matrixvalid = btrue;
     if ( ChrList[cnt].overlay )
     {
         // Overlays are kept with their target...
@@ -198,26 +198,11 @@ void make_one_character_matrix( Uint16 cnt )
         ChrList[cnt].xpos = ChrList[tnc].xpos;
         ChrList[cnt].ypos = ChrList[tnc].ypos;
         ChrList[cnt].zpos = ChrList[tnc].zpos;
-        ChrList[cnt].matrix.CNV( 0, 0 ) = ChrList[tnc].matrix.CNV( 0, 0 );
-        ChrList[cnt].matrix.CNV( 0, 1 ) = ChrList[tnc].matrix.CNV( 0, 1 );
-        ChrList[cnt].matrix.CNV( 0, 2 ) = ChrList[tnc].matrix.CNV( 0, 2 );
-        ChrList[cnt].matrix.CNV( 0, 3 ) = ChrList[tnc].matrix.CNV( 0, 3 );
-        ChrList[cnt].matrix.CNV( 1, 0 ) = ChrList[tnc].matrix.CNV( 1, 0 );
-        ChrList[cnt].matrix.CNV( 1, 1 ) = ChrList[tnc].matrix.CNV( 1, 1 );
-        ChrList[cnt].matrix.CNV( 1, 2 ) = ChrList[tnc].matrix.CNV( 1, 2 );
-        ChrList[cnt].matrix.CNV( 1, 3 ) = ChrList[tnc].matrix.CNV( 1, 3 );
-        ChrList[cnt].matrix.CNV( 2, 0 ) = ChrList[tnc].matrix.CNV( 2, 0 );
-        ChrList[cnt].matrix.CNV( 2, 1 ) = ChrList[tnc].matrix.CNV( 2, 1 );
-        ChrList[cnt].matrix.CNV( 2, 2 ) = ChrList[tnc].matrix.CNV( 2, 2 );
-        ChrList[cnt].matrix.CNV( 2, 3 ) = ChrList[tnc].matrix.CNV( 2, 3 );
-        ChrList[cnt].matrix.CNV( 3, 0 ) = ChrList[tnc].matrix.CNV( 3, 0 );
-        ChrList[cnt].matrix.CNV( 3, 1 ) = ChrList[tnc].matrix.CNV( 3, 1 );
-        ChrList[cnt].matrix.CNV( 3, 2 ) = ChrList[tnc].matrix.CNV( 3, 2 );
-        ChrList[cnt].matrix.CNV( 3, 3 ) = ChrList[tnc].matrix.CNV( 3, 3 );
+        CopyMatrix( &(ChrList[cnt].inst.matrix), &(ChrList[tnc].inst.matrix) );
     }
     else
     {
-        ChrList[cnt].matrix = ScaleXYZRotateXYZTranslate( ChrList[cnt].fat, ChrList[cnt].fat, ChrList[cnt].fat,
+        ChrList[cnt].inst.matrix = ScaleXYZRotateXYZTranslate( ChrList[cnt].fat, ChrList[cnt].fat, ChrList[cnt].fat,
                               ChrList[cnt].turnleftright >> 2,
                               ( ( Uint16 ) ( ChrList[cnt].turnmapud + 32768 ) ) >> 2,
                               ( ( Uint16 ) ( ChrList[cnt].turnmaplr + 32768 ) ) >> 2,
@@ -329,20 +314,20 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
     }
 
     // Do we have a matrix???
-    if ( ChrList[character].matrixvalid )// mesh.mem.inrenderlist[ChrList[character].onwhichfan])
+    if ( ChrList[character].inst.matrixvalid )// mesh.mem.inrenderlist[ChrList[character].onwhichfan])
     {
         // Transform the weapon grip from model to world space
         model = ChrList[character].model;
-        frame = ChrList[character].frame;
-        lastframe = ChrList[character].lastframe;
-        lip = ChrList[character].lip >> 6;
+        frame = ChrList[character].inst.frame;
+        lastframe = ChrList[character].inst.lastframe;
+        lip = ChrList[character].inst.lip >> 6;
         flip = lip / 4.0f;
 
         if ( grip == GRIP_ORIGIN )
         {
-            PrtList[particle].xpos = ChrList[character].matrix.CNV( 3, 0 );
-            PrtList[particle].ypos = ChrList[character].matrix.CNV( 3, 1 );
-            PrtList[particle].zpos = ChrList[character].matrix.CNV( 3, 2 );
+            PrtList[particle].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
+            PrtList[particle].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
+            PrtList[particle].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
             return;
         }
 
@@ -354,19 +339,19 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         pointz = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
 
         // Do the transform
-        PrtList[particle].xpos = ( pointx * ChrList[character].matrix.CNV( 0, 0 ) +
-                                   pointy * ChrList[character].matrix.CNV( 1, 0 ) +
-                                   pointz * ChrList[character].matrix.CNV( 2, 0 ) );
-        PrtList[particle].ypos = ( pointx * ChrList[character].matrix.CNV( 0, 1 ) +
-                                   pointy * ChrList[character].matrix.CNV( 1, 1 ) +
-                                   pointz * ChrList[character].matrix.CNV( 2, 1 ) );
-        PrtList[particle].zpos = ( pointx * ChrList[character].matrix.CNV( 0, 2 ) +
-                                   pointy * ChrList[character].matrix.CNV( 1, 2 ) +
-                                   pointz * ChrList[character].matrix.CNV( 2, 2 ) );
+        PrtList[particle].xpos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 0 ) +
+                                   pointy * ChrList[character].inst.matrix.CNV( 1, 0 ) +
+                                   pointz * ChrList[character].inst.matrix.CNV( 2, 0 ) );
+        PrtList[particle].ypos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 1 ) +
+                                   pointy * ChrList[character].inst.matrix.CNV( 1, 1 ) +
+                                   pointz * ChrList[character].inst.matrix.CNV( 2, 1 ) );
+        PrtList[particle].zpos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 2 ) +
+                                   pointy * ChrList[character].inst.matrix.CNV( 1, 2 ) +
+                                   pointz * ChrList[character].inst.matrix.CNV( 2, 2 ) );
 
-        PrtList[particle].xpos += ChrList[character].matrix.CNV( 3, 0 );
-        PrtList[particle].ypos += ChrList[character].matrix.CNV( 3, 1 );
-        PrtList[particle].zpos += ChrList[character].matrix.CNV( 3, 2 );
+        PrtList[particle].xpos += ChrList[character].inst.matrix.CNV( 3, 0 );
+        PrtList[particle].ypos += ChrList[character].inst.matrix.CNV( 3, 1 );
+        PrtList[particle].zpos += ChrList[character].inst.matrix.CNV( 3, 2 );
     }
     else
     {
@@ -394,13 +379,13 @@ void make_one_weapon_matrix( Uint16 iweap )
     if (ichr >= MAXCHR || !ChrList[ichr].on) return;
 
     // make sure that the matrix is invalid incase of an error
-    ChrList[iweap].matrixvalid = bfalse;
+    ChrList[iweap].inst.matrixvalid = bfalse;
 
     // Transform the weapon grip from model space to world space
     ichr_model = ChrList[ichr].model;
-    ichr_frame = ChrList[ichr].frame;
-    ichr_lastframe = ChrList[ichr].lastframe;
-    ichr_lip = ChrList[ichr].lip >> 6;
+    ichr_frame = ChrList[ichr].inst.frame;
+    ichr_lastframe = ChrList[ichr].inst.lastframe;
+    ichr_lip = ChrList[ichr].inst.lip >> 6;
     ichr_flip = ichr_lip / 4.0f;
 
     iweappoints = 0;
@@ -437,42 +422,42 @@ void make_one_weapon_matrix( Uint16 iweap )
     for ( tnc = 0; tnc < iweappoints; tnc++ )
     {
         // Do the transform
-        nupointx[tnc] = ( pointx[tnc] * ChrList[ichr].matrix.CNV( 0, 0 ) +
-                          pointy[tnc] * ChrList[ichr].matrix.CNV( 1, 0 ) +
-                          pointz[tnc] * ChrList[ichr].matrix.CNV( 2, 0 ) );
-        nupointy[tnc] = ( pointx[tnc] * ChrList[ichr].matrix.CNV( 0, 1 ) +
-                          pointy[tnc] * ChrList[ichr].matrix.CNV( 1, 1 ) +
-                          pointz[tnc] * ChrList[ichr].matrix.CNV( 2, 1 ) );
-        nupointz[tnc] = ( pointx[tnc] * ChrList[ichr].matrix.CNV( 0, 2 ) +
-                          pointy[tnc] * ChrList[ichr].matrix.CNV( 1, 2 ) +
-                          pointz[tnc] * ChrList[ichr].matrix.CNV( 2, 2 ) );
+        nupointx[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 0 ) +
+                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 0 ) +
+                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 0 ) );
+        nupointy[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 1 ) +
+                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 1 ) +
+                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 1 ) );
+        nupointz[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 2 ) +
+                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 2 ) +
+                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 2 ) );
 
-        nupointx[tnc] += ChrList[ichr].matrix.CNV( 3, 0 );
-        nupointy[tnc] += ChrList[ichr].matrix.CNV( 3, 1 );
-        nupointz[tnc] += ChrList[ichr].matrix.CNV( 3, 2 );
+        nupointx[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 0 );
+        nupointy[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 1 );
+        nupointz[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 2 );
     }
 
     if (1 == iweappoints)
     {
         // attach to single point
-        ChrList[iweap].matrix = ScaleXYZRotateXYZTranslate(ChrList[iweap].fat, ChrList[iweap].fat, ChrList[iweap].fat,
+        ChrList[iweap].inst.matrix = ScaleXYZRotateXYZTranslate(ChrList[iweap].fat, ChrList[iweap].fat, ChrList[iweap].fat,
                                 ChrList[iweap].turnleftright >> 2,
                                 ( ( Uint16 ) ( ChrList[iweap].turnmapud + 32768 ) ) >> 2,
                                 ( ( Uint16 ) ( ChrList[iweap].turnmaplr + 32768 ) ) >> 2,
                                 nupointx[0], nupointy[0], nupointz[0]);
 
-        ChrList[iweap].matrixvalid = btrue;
+        ChrList[iweap].inst.matrixvalid = btrue;
     }
     else if (4 == iweappoints)
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        ChrList[iweap].matrix = FourPoints( nupointx[0], nupointy[0], nupointz[0],
+        ChrList[iweap].inst.matrix = FourPoints( nupointx[0], nupointy[0], nupointz[0],
                                             nupointx[1], nupointy[1], nupointz[1],
                                             nupointx[2], nupointy[2], nupointz[2],
                                             nupointx[3], nupointy[3], nupointz[3],
                                             ChrList[iweap].fat );
-        ChrList[iweap].matrixvalid = btrue;
+        ChrList[iweap].inst.matrixvalid = btrue;
     }
 }
 
@@ -487,7 +472,7 @@ void make_character_matrices()
 
     while ( cnt < MAXCHR )
     {
-        ChrList[cnt].matrixvalid = bfalse;
+        ChrList[cnt].inst.matrixvalid = bfalse;
         cnt++;
     }
 
@@ -572,7 +557,7 @@ void free_all_characters()
         ChrList[numfreechr].numinpack = 0;
         ChrList[numfreechr].nextinpack = MAXCHR;
         ChrList[numfreechr].staton = bfalse;
-        ChrList[numfreechr].matrixvalid = bfalse;
+        ChrList[numfreechr].inst.matrixvalid = bfalse;
         freechrlist[numfreechr] = numfreechr;
         numfreechr++;
     }
@@ -715,11 +700,11 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     }
 
     // Set the positions
-    if ( ChrList[character].matrixvalid )
+    if ( ChrList[character].inst.matrixvalid )
     {
-        ChrList[character].xpos = ChrList[character].matrix.CNV( 3, 0 );
-        ChrList[character].ypos = ChrList[character].matrix.CNV( 3, 1 );
-        ChrList[character].zpos = ChrList[character].matrix.CNV( 3, 2 );
+        ChrList[character].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
+        ChrList[character].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
+        ChrList[character].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
     }
     else
     {
@@ -843,8 +828,8 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
             enchant = EncList[enchant].nextenchant;
         }
 
-        ChrList[character].alpha = ChrList[character].basealpha;
-        ChrList[character].light = CapList[ChrList[character].model].light;
+        ChrList[character].inst.alpha = ChrList[character].basealpha;
+        ChrList[character].inst.light = CapList[ChrList[character].model].light;
         enchant = ChrList[character].firstenchant;
 
         while ( enchant < MAXENCHANT )
@@ -879,8 +864,8 @@ void reset_character_alpha( Uint16 character )
                 enchant = EncList[enchant].nextenchant;
             }
 
-            ChrList[character].alpha = ChrList[character].basealpha;
-            ChrList[character].light = CapList[ChrList[character].model].light;
+            ChrList[character].inst.alpha = ChrList[character].basealpha;
+            ChrList[character].inst.light = CapList[ChrList[character].model].light;
             enchant = ChrList[character].firstenchant;
 
             while ( enchant < MAXENCHANT )
@@ -923,11 +908,11 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     ChrList[character].attachedto     = mount;
     ChrList[mount].holdingwhich[slot] = character;
 
-    tnc = MadList[ChrList[mount].model].vertices - grip;
+    tnc = MadList[ChrList[mount].inst.imad].vertices - grip;
 
     for (i = 0; i < GRIP_VERTS; i++)
     {
-        if (tnc + i < MadList[ChrList[mount].model].vertices )
+        if (tnc + i < MadList[ChrList[mount].inst.imad].vertices )
         {
             ChrList[character].weapongrip[i] = i + tnc;
         }
@@ -940,9 +925,9 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     // catually make position of the object coincide with its actual held position
     make_one_weapon_matrix( character );
 
-    ChrList[character].xpos = ChrList[character].matrix.CNV( 3, 0 );
-    ChrList[character].ypos = ChrList[character].matrix.CNV( 3, 1 );
-    ChrList[character].zpos = ChrList[character].matrix.CNV( 3, 2 );
+    ChrList[character].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
+    ChrList[character].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
+    ChrList[character].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
 
     ChrList[character].inwater = bfalse;
     ChrList[character].jumptime = JUMPDELAY * 4;
@@ -1310,10 +1295,10 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         return bfalse;
 
     // Do we have a matrix???
-    if ( ChrList[chara].matrixvalid )// mesh.mem.inrenderlist[ChrList[chara].onwhichfan])
+    if ( ChrList[chara].inst.matrixvalid )// mesh.mem.inrenderlist[ChrList[chara].onwhichfan])
     {
         // Transform the weapon grip from model to world space
-        frame = ChrList[chara].frame;
+        frame = ChrList[chara].inst.frame;
         vertex = MadList[model].vertices - grip;
 
         // Calculate grip point locations
@@ -1322,18 +1307,18 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         pointz = Md2FrameList[frame].vrtz[vertex];/// ChrList[cnt].scale;
 
         // Do the transform
-        xa = ( pointx * ChrList[chara].matrix.CNV( 0, 0 ) +
-               pointy * ChrList[chara].matrix.CNV( 1, 0 ) +
-               pointz * ChrList[chara].matrix.CNV( 2, 0 ) );
-        ya = ( pointx * ChrList[chara].matrix.CNV( 0, 1 ) +
-               pointy * ChrList[chara].matrix.CNV( 1, 1 ) +
-               pointz * ChrList[chara].matrix.CNV( 2, 1 ) );
-        za = ( pointx * ChrList[chara].matrix.CNV( 0, 2 ) +
-               pointy * ChrList[chara].matrix.CNV( 1, 2 ) +
-               pointz * ChrList[chara].matrix.CNV( 2, 2 ) );
-        xa += ChrList[chara].matrix.CNV( 3, 0 );
-        ya += ChrList[chara].matrix.CNV( 3, 1 );
-        za += ChrList[chara].matrix.CNV( 3, 2 );
+        xa = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 0 ) +
+               pointy * ChrList[chara].inst.matrix.CNV( 1, 0 ) +
+               pointz * ChrList[chara].inst.matrix.CNV( 2, 0 ) );
+        ya = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 1 ) +
+               pointy * ChrList[chara].inst.matrix.CNV( 1, 1 ) +
+               pointz * ChrList[chara].inst.matrix.CNV( 2, 1 ) );
+        za = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 2 ) +
+               pointy * ChrList[chara].inst.matrix.CNV( 1, 2 ) +
+               pointz * ChrList[chara].inst.matrix.CNV( 2, 2 ) );
+        xa += ChrList[chara].inst.matrix.CNV( 3, 0 );
+        ya += ChrList[chara].inst.matrix.CNV( 3, 1 );
+        za += ChrList[chara].inst.matrix.CNV( 3, 2 );
     }
     else
     {
@@ -1399,7 +1384,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                 if ( inshop )
                 {
                     // Pay the shop owner, or don't allow grab...
-                    if ( ChrList[chara].isitem || ( ChrList[chara].alpha < INVISIBLE) )
+                    if ( ChrList[chara].isitem || ( ChrList[chara].inst.alpha < INVISIBLE) )
                     {
                         // Pets can try to steal in addition to invisible characters
                         STRING text;
@@ -1874,12 +1859,12 @@ void resize_characters()
 
                 if ( CapList[ChrList[cnt].model].weight == 0xFF )
                 {
-                    ChrList[cnt].weight = 0xFFFF;
+                    ChrList[cnt].weight = 0xFFFFFFFF;
                 }
                 else
                 {
                     int itmp = CapList[ChrList[cnt].model].weight * ChrList[cnt].fat * ChrList[cnt].fat * ChrList[cnt].fat;
-                    ChrList[cnt].weight = MIN( itmp, 0xFFFE );
+                    ChrList[cnt].weight = MIN( itmp, 0xFFFFFFFE );
                 }
             }
         }
@@ -2275,10 +2260,15 @@ int load_one_character_profile( const char *szLoadName )
     int idsz_cnt;
     IDSZ idsz, test;
 
+
+    CapList[object].loaded = bfalse;
+
     // Open the file
     fileread = fopen( szLoadName, "r" );
     if ( fileread != NULL )
     {
+        CapList[object].loaded = btrue;
+
         parse_filename = szLoadName;  //For debugging goto_colon()
 
         // Read in the object slot
@@ -2827,7 +2817,7 @@ void damage_character( Uint16 character, Uint16 direction,
                 if ( 0 == ( effects&DAMFXBLOC ) )
                 {
                     // Only damage if hitting from proper direction
-                    if ( Md2FrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
+                    if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFXINVICTUS )
                     {
                         // I Frame...
                         direction -= CapList[model].iframefacing;
@@ -3202,6 +3192,8 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
     Uint16 ichr;
     int tnc;
+    chr_t * pchr;
+    cap_t * pcap;
 
     if ( profile >= MAXMODEL )
     {
@@ -3261,87 +3253,90 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
         return ichr;
     }
 
+    pchr = ChrList + ichr;
+    pcap = CapList + profile;
+
     // Make sure the team is valid
     team = MIN( team, MAXTEAM - 1 );
 
     // IMPORTANT!!!
-    ChrList[ichr].indolist = bfalse;
-    ChrList[ichr].isequipped = bfalse;
-    ChrList[ichr].sparkle = NOSPARKLE;
-    ChrList[ichr].overlay = bfalse;
-    ChrList[ichr].missilehandler = ichr;
+    pchr->indolist = bfalse;
+    pchr->isequipped = bfalse;
+    pchr->sparkle = NOSPARKLE;
+    pchr->overlay = bfalse;
+    pchr->missilehandler = ichr;
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
     {
-        ChrList[ichr].soundindex[tnc] = CapList[profile].soundindex[tnc];
+        pchr->soundindex[tnc] = pcap->soundindex[tnc];
     }
 
     // Set up model stuff
-    ChrList[ichr].reloadtime = 0;
-    ChrList[ichr].inwhichhand = SLOT_LEFT;
-    ChrList[ichr].waskilled = bfalse;
-    ChrList[ichr].inpack = bfalse;
-    ChrList[ichr].nextinpack = MAXCHR;
-    ChrList[ichr].numinpack = 0;
-    ChrList[ichr].model = profile;
-    ChrList[ichr].basemodel = profile;
-    ChrList[ichr].stoppedby = CapList[profile].stoppedby;
-    ChrList[ichr].lifeheal = CapList[profile].lifeheal;
-    ChrList[ichr].manacost = CapList[profile].manacost;
-    ChrList[ichr].inwater = bfalse;
-    ChrList[ichr].nameknown = CapList[profile].nameknown;
-    ChrList[ichr].ammoknown = CapList[profile].nameknown;
-    ChrList[ichr].hitready = btrue;
-    ChrList[ichr].boretime = BORETIME;
-    ChrList[ichr].carefultime = CAREFULTIME;
-    ChrList[ichr].canbecrushed = bfalse;
-    ChrList[ichr].damageboost = 0;
-    ChrList[ichr].icon = CapList[profile].icon;
+    pchr->reloadtime = 0;
+    pchr->inwhichhand = SLOT_LEFT;
+    pchr->waskilled = bfalse;
+    pchr->inpack = bfalse;
+    pchr->nextinpack = MAXCHR;
+    pchr->numinpack = 0;
+    pchr->model = profile;
+    pchr->basemodel = profile;
+    pchr->stoppedby = pcap->stoppedby;
+    pchr->lifeheal = pcap->lifeheal;
+    pchr->manacost = pcap->manacost;
+    pchr->inwater = bfalse;
+    pchr->nameknown = pcap->nameknown;
+    pchr->ammoknown = pcap->nameknown;
+    pchr->hitready = btrue;
+    pchr->boretime = BORETIME;
+    pchr->carefultime = CAREFULTIME;
+    pchr->canbecrushed = bfalse;
+    pchr->damageboost = 0;
+    pchr->icon = pcap->icon;
 
     // Enchant stuff
-    ChrList[ichr].firstenchant = MAXENCHANT;
-    ChrList[ichr].undoenchant = MAXENCHANT;
-    ChrList[ichr].canseeinvisible = CapList[profile].canseeinvisible;
-    ChrList[ichr].canchannel = bfalse;
-    ChrList[ichr].missiletreatment = MISNORMAL;
-    ChrList[ichr].missilecost = 0;
+    pchr->firstenchant = MAXENCHANT;
+    pchr->undoenchant = MAXENCHANT;
+    pchr->canseeinvisible = pcap->canseeinvisible;
+    pchr->canchannel = bfalse;
+    pchr->missiletreatment = MISNORMAL;
+    pchr->missilecost = 0;
 
     //Skillz
-    ChrList[ichr].canjoust = CapList[profile].canjoust;
-    ChrList[ichr].canuseadvancedweapons = CapList[profile].canuseadvancedweapons;
-    ChrList[ichr].shieldproficiency = CapList[profile].shieldproficiency;
-    ChrList[ichr].canusedivine = CapList[profile].canusedivine;
-    ChrList[ichr].canusearcane = CapList[profile].canusearcane;
-    ChrList[ichr].canusetech = CapList[profile].canusetech;
-    ChrList[ichr].candisarm = CapList[profile].candisarm;
-    ChrList[ichr].canbackstab = CapList[profile].canbackstab;
-    ChrList[ichr].canusepoison = CapList[profile].canusepoison;
-    ChrList[ichr].canread = CapList[profile].canread;
-    ChrList[ichr].canseekurse = CapList[profile].canseekurse;
+    pchr->canjoust = pcap->canjoust;
+    pchr->canuseadvancedweapons = pcap->canuseadvancedweapons;
+    pchr->shieldproficiency = pcap->shieldproficiency;
+    pchr->canusedivine = pcap->canusedivine;
+    pchr->canusearcane = pcap->canusearcane;
+    pchr->canusetech = pcap->canusetech;
+    pchr->candisarm = pcap->candisarm;
+    pchr->canbackstab = pcap->canbackstab;
+    pchr->canusepoison = pcap->canusepoison;
+    pchr->canread = pcap->canread;
+    pchr->canseekurse = pcap->canseekurse;
 
     // Kurse state
-    ChrList[ichr].iskursed = ( ( rand() % 100 ) < CapList[profile].kursechance );
-    if ( !CapList[profile].isitem )  ChrList[ichr].iskursed = bfalse;
+    pchr->iskursed = ( ( rand() % 100 ) < pcap->kursechance );
+    if ( !pcap->isitem )  pchr->iskursed = bfalse;
 
     // Ammo
-    ChrList[ichr].ammomax = CapList[profile].ammomax;
-    ChrList[ichr].ammo = CapList[profile].ammo;
+    pchr->ammomax = pcap->ammomax;
+    pchr->ammo = pcap->ammo;
 
     // Gender
-    ChrList[ichr].gender = CapList[profile].gender;
-    if ( ChrList[ichr].gender == GENRANDOM )  ChrList[ichr].gender = GENFEMALE + ( rand() & 1 );
+    pchr->gender = pcap->gender;
+    if ( pchr->gender == GENRANDOM )  pchr->gender = GENFEMALE + ( rand() & 1 );
 
-    ChrList[ichr].isplayer = bfalse;
-    ChrList[ichr].islocalplayer = bfalse;
+    pchr->isplayer = bfalse;
+    pchr->islocalplayer = bfalse;
 
     // AI stuff
-    init_ai_state( &(ChrList[ichr].ai), ichr, profile, ChrList[ichr].model, TeamList[team].morale );
+    init_ai_state( &(pchr->ai), ichr, profile, pchr->model, TeamList[team].morale );
 
     // Team stuff
-    ChrList[ichr].team = team;
-    ChrList[ichr].baseteam = team;
-    if ( !CapList[profile].invictus )  TeamList[team].morale++;
+    pchr->team = team;
+    pchr->baseteam = team;
+    if ( !pcap->invictus )  TeamList[team].morale++;
 
     // Firstborn becomes the leader
     if ( TeamList[team].leader == NOLEADER )
@@ -3350,9 +3345,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     }
 
     // Skin
-    if ( CapList[profile].skinoverride != NOSKINOVERRIDE )
+    if ( pcap->skinoverride != NOSKINOVERRIDE )
     {
-        skin = CapList[profile].skinoverride % MAXSKIN;
+        skin = pcap->skinoverride % MAXSKIN;
     }
     if ( skin >= MadList[profile].skins )
     {
@@ -3363,164 +3358,153 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
         }
     }
 
-    ChrList[ichr].skin    = skin;
-    ChrList[ichr].texture = MadList[profile].skinstart + skin;
+    pchr->skin    = skin;
 
     // Life and Mana
-    ChrList[ichr].alive = btrue;
-    ChrList[ichr].lifecolor = CapList[profile].lifecolor;
-    ChrList[ichr].manacolor = CapList[profile].manacolor;
-    ChrList[ichr].lifemax = generate_number( CapList[profile].lifebase, CapList[profile].liferand );
-    ChrList[ichr].life = ChrList[ichr].lifemax;
-    ChrList[ichr].lifereturn = CapList[profile].lifereturn;
-    ChrList[ichr].manamax = generate_number( CapList[profile].manabase, CapList[profile].manarand );
-    ChrList[ichr].manaflow = generate_number( CapList[profile].manaflowbase, CapList[profile].manaflowrand );
-    ChrList[ichr].manareturn = generate_number( CapList[profile].manareturnbase, CapList[profile].manareturnrand );
-    ChrList[ichr].mana = ChrList[ichr].manamax;
+    pchr->alive = btrue;
+    pchr->lifecolor = pcap->lifecolor;
+    pchr->manacolor = pcap->manacolor;
+    pchr->lifemax = generate_number( pcap->lifebase, pcap->liferand );
+    pchr->life = pchr->lifemax;
+    pchr->lifereturn = pcap->lifereturn;
+    pchr->manamax = generate_number( pcap->manabase, pcap->manarand );
+    pchr->manaflow = generate_number( pcap->manaflowbase, pcap->manaflowrand );
+    pchr->manareturn = generate_number( pcap->manareturnbase, pcap->manareturnrand );
+    pchr->mana = pchr->manamax;
 
     // SWID
-    ChrList[ichr].strength = generate_number( CapList[profile].strengthbase, CapList[profile].strengthrand );
-    ChrList[ichr].wisdom = generate_number( CapList[profile].wisdombase, CapList[profile].wisdomrand );
-    ChrList[ichr].intelligence = generate_number( CapList[profile].intelligencebase, CapList[profile].intelligencerand );
-    ChrList[ichr].dexterity = generate_number( CapList[profile].dexteritybase, CapList[profile].dexterityrand );
+    pchr->strength = generate_number( pcap->strengthbase, pcap->strengthrand );
+    pchr->wisdom = generate_number( pcap->wisdombase, pcap->wisdomrand );
+    pchr->intelligence = generate_number( pcap->intelligencebase, pcap->intelligencerand );
+    pchr->dexterity = generate_number( pcap->dexteritybase, pcap->dexterityrand );
 
     // Damage
-    ChrList[ichr].defense = CapList[profile].defense[skin];
-    ChrList[ichr].reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
-    ChrList[ichr].damagetargettype = CapList[profile].damagetargettype;
+    pchr->defense = pcap->defense[skin];
+    pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
+    pchr->damagetargettype = pcap->damagetargettype;
     tnc = 0;
 
     while ( tnc < DAMAGE_COUNT )
     {
-        ChrList[ichr].damagemodifier[tnc] = CapList[profile].damagemodifier[tnc][skin];
+        pchr->damagemodifier[tnc] = pcap->damagemodifier[tnc][skin];
         tnc++;
     }
 
     //latches
-    ChrList[ichr].latchx = 0;
-    ChrList[ichr].latchy = 0;
-    ChrList[ichr].latchbutton = 0;
+    pchr->latchx = 0;
+    pchr->latchy = 0;
+    pchr->latchbutton = 0;
 
-    ChrList[ichr].turnmode = TURNMODEVELOCITY;
+    pchr->turnmode = TURNMODEVELOCITY;
 
     // Flags
-    ChrList[ichr].stickybutt = CapList[profile].stickybutt;
-    ChrList[ichr].openstuff = CapList[profile].canopenstuff;
-    ChrList[ichr].transferblend = CapList[profile].transferblend;
-    ChrList[ichr].enviro = CapList[profile].enviro;
-    ChrList[ichr].waterwalk = CapList[profile].waterwalk;
-    ChrList[ichr].platform = CapList[profile].platform;
-    ChrList[ichr].isitem = CapList[profile].isitem;
-    ChrList[ichr].invictus = CapList[profile].invictus;
-    ChrList[ichr].ismount = CapList[profile].ismount;
-    ChrList[ichr].cangrabmoney = CapList[profile].cangrabmoney;
+    pchr->stickybutt = pcap->stickybutt;
+    pchr->openstuff = pcap->canopenstuff;
+    pchr->transferblend = pcap->transferblend;
+    pchr->waterwalk = pcap->waterwalk;
+    pchr->platform = pcap->platform;
+    pchr->isitem = pcap->isitem;
+    pchr->invictus = pcap->invictus;
+    pchr->ismount = pcap->ismount;
+    pchr->cangrabmoney = pcap->cangrabmoney;
 
     // Jumping
-    ChrList[ichr].jump = CapList[profile].jump;
-    ChrList[ichr].jumpnumber = 0;
-    ChrList[ichr].jumpnumberreset = CapList[profile].jumpnumber;
-    ChrList[ichr].jumptime = JUMPDELAY;
+    pchr->jump = pcap->jump;
+    pchr->jumpnumber = 0;
+    pchr->jumpnumberreset = pcap->jumpnumber;
+    pchr->jumptime = JUMPDELAY;
 
     // Other junk
-    ChrList[ichr].flyheight = CapList[profile].flyheight;
-    ChrList[ichr].maxaccel = CapList[profile].maxaccel[skin];
-    ChrList[ichr].alpha = ChrList[ichr].basealpha = CapList[profile].alpha;
-    ChrList[ichr].light = CapList[profile].light;
-    ChrList[ichr].flashand = CapList[profile].flashand;
-    ChrList[ichr].sheen = CapList[profile].sheen;
-    ChrList[ichr].dampen = CapList[profile].dampen;
+    pchr->flyheight = pcap->flyheight;
+    pchr->maxaccel = pcap->maxaccel[skin];
+    pchr->basealpha = pcap->alpha;
+    pchr->flashand = pcap->flashand;
+    pchr->dampen = pcap->dampen;
 
     // Character size and bumping
-    ChrList[ichr].fat = CapList[profile].size;
-    ChrList[ichr].sizegoto = ChrList[ichr].fat;
-    ChrList[ichr].sizegototime = 0;
-    ChrList[ichr].shadowsize = CapList[profile].shadowsize * ChrList[ichr].fat;
-    ChrList[ichr].bumpsize = CapList[profile].bumpsize * ChrList[ichr].fat;
-    ChrList[ichr].bumpsizebig = CapList[profile].bumpsizebig * ChrList[ichr].fat;
-    ChrList[ichr].bumpheight = CapList[profile].bumpheight * ChrList[ichr].fat;
+    pchr->fat = pcap->size;
+    pchr->sizegoto = pchr->fat;
+    pchr->sizegototime = 0;
+    pchr->shadowsize = pcap->shadowsize * pchr->fat;
+    pchr->bumpsize = pcap->bumpsize * pchr->fat;
+    pchr->bumpsizebig = pcap->bumpsizebig * pchr->fat;
+    pchr->bumpheight = pcap->bumpheight * pchr->fat;
 
-    ChrList[ichr].shadowsizesave = CapList[profile].shadowsize;
-    ChrList[ichr].bumpsizesave = CapList[profile].bumpsize;
-    ChrList[ichr].bumpsizebigsave = CapList[profile].bumpsizebig;
-    ChrList[ichr].bumpheightsave = CapList[profile].bumpheight;
+    pchr->shadowsizesave = pcap->shadowsize;
+    pchr->bumpsizesave = pcap->bumpsize;
+    pchr->bumpsizebigsave = pcap->bumpsizebig;
+    pchr->bumpheightsave = pcap->bumpheight;
 
-    ChrList[ichr].bumpdampen = CapList[profile].bumpdampen;
-    if ( CapList[profile].weight == 0xFF )
+    pchr->bumpdampen = pcap->bumpdampen;
+    if ( pcap->weight == 0xFF )
     {
-        ChrList[ichr].weight = 0xFFFF;
+        pchr->weight = 0xFFFFFFFF;
     }
     else
     {
-        int itmp = CapList[profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;
-        ChrList[ichr].weight = MIN( itmp, 0xFFFE );
+        int itmp = pcap->weight * pchr->fat * pchr->fat * pchr->fat;
+        pchr->weight = MIN( itmp, 0xFFFFFFFE );
     }
 
     // Grip info
-    ChrList[ichr].attachedto = MAXCHR;
-    ChrList[ichr].holdingwhich[0] = MAXCHR;
-    ChrList[ichr].holdingwhich[1] = MAXCHR;
+    pchr->attachedto = MAXCHR;
+    pchr->holdingwhich[0] = MAXCHR;
+    pchr->holdingwhich[1] = MAXCHR;
 
     // Image rendering
-    ChrList[ichr].uoffset = 0;
-    ChrList[ichr].voffset = 0;
-    ChrList[ichr].uoffvel = CapList[profile].uoffvel;
-    ChrList[ichr].voffvel = CapList[profile].voffvel;
-    ChrList[ichr].redshift = 0;
-    ChrList[ichr].grnshift = 0;
-    ChrList[ichr].blushift = 0;
+    pchr->uoffvel = pcap->uoffvel;
+    pchr->voffvel = pcap->voffvel;
 
     // Movement
-    ChrList[ichr].sneakspd = CapList[profile].sneakspd;
-    ChrList[ichr].walkspd = CapList[profile].walkspd;
-    ChrList[ichr].runspd = CapList[profile].runspd;
+    pchr->sneakspd = pcap->sneakspd;
+    pchr->walkspd = pcap->walkspd;
+    pchr->runspd = pcap->runspd;
 
     // Set up position
-    ChrList[ichr].xpos = x;
-    ChrList[ichr].ypos = y;
-    ChrList[ichr].oldx = x;
-    ChrList[ichr].oldy = y;
-    ChrList[ichr].turnleftright = facing;
-    ChrList[ichr].lightturnleftright = 0;
-    ChrList[ichr].onwhichfan   = mesh_get_tile(x, y);
-    ChrList[ichr].onwhichblock = mesh_get_block( x, y );
-    ChrList[ichr].level = get_level( ChrList[ichr].xpos, ChrList[ichr].ypos, ChrList[ichr].waterwalk ) + RAISE;
-    if ( z < ChrList[ichr].level ) z = ChrList[ichr].level;
+    pchr->xpos = x;
+    pchr->ypos = y;
+    pchr->oldx = x;
+    pchr->oldy = y;
+    pchr->turnleftright = facing;
+    pchr->lightturnleftright = 0;
+    pchr->onwhichfan   = mesh_get_tile(x, y);
+    pchr->onwhichblock = mesh_get_block( x, y );
+    pchr->level = get_level( pchr->xpos, pchr->ypos, pchr->waterwalk ) + RAISE;
+    if ( z < pchr->level ) z = pchr->level;
 
-    ChrList[ichr].zpos = z;
-    ChrList[ichr].oldz = z;
-    ChrList[ichr].xstt = ChrList[ichr].xpos;
-    ChrList[ichr].ystt = ChrList[ichr].ypos;
-    ChrList[ichr].zstt = ChrList[ichr].zpos;
-    ChrList[ichr].xvel = 0;
-    ChrList[ichr].yvel = 0;
-    ChrList[ichr].zvel = 0;
-    ChrList[ichr].turnmaplr = 32768;  // These two mean on level surface
-    ChrList[ichr].turnmapud = 32768;
+    pchr->zpos = z;
+    pchr->oldz = z;
+    pchr->xstt = pchr->xpos;
+    pchr->ystt = pchr->ypos;
+    pchr->zstt = pchr->zpos;
+    pchr->xvel = 0;
+    pchr->yvel = 0;
+    pchr->zvel = 0;
+    pchr->turnmaplr = 32768;  // These two mean on level surface
+    pchr->turnmapud = 32768;
 
     // action stuff
-    ChrList[ichr].actionready = btrue;
-    ChrList[ichr].keepaction = bfalse;
-    ChrList[ichr].loopaction = bfalse;
-    ChrList[ichr].action = ACTIONDA;
-    ChrList[ichr].nextaction = ACTIONDA;
-    ChrList[ichr].lip = 0;
-    ChrList[ichr].frame = MadList[ChrList[ichr].model].framestart;
-    ChrList[ichr].lastframe = ChrList[ichr].frame;
+    pchr->actionready = btrue;
+    pchr->keepaction = bfalse;
+    pchr->loopaction = bfalse;
+    pchr->action = ACTIONDA;
+    pchr->nextaction = ACTIONDA;
 
-    ChrList[ichr].holdingweight = 0;
+
+    pchr->holdingweight = 0;
 
     // Timers set to 0
-    ChrList[ichr].grogtime = 0;
-    ChrList[ichr].dazetime = 0;
+    pchr->grogtime = 0;
+    pchr->dazetime = 0;
 
     // Money is added later
-    ChrList[ichr].money = CapList[profile].money;
+    pchr->money = pcap->money;
 
     // Name the character
     if ( name == NULL )
     {
         // Generate a random name
-        sprintf( ChrList[ichr].name, "%s", chop_create( profile ) );
+        sprintf( pchr->name, "%s", chop_create( profile ) );
     }
     else
     {
@@ -3529,53 +3513,77 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
         while ( tnc < MAXCAPNAMESIZE - 1 )
         {
-            ChrList[ichr].name[tnc] = name[tnc];
+            pchr->name[tnc] = name[tnc];
             tnc++;
         }
 
-        ChrList[ichr].name[tnc] = 0;
+        pchr->name[tnc] = 0;
     }
 
-    // Set up initial fade in lighting
-    for ( tnc = 0; tnc < MadList[ChrList[ichr].model].transvertices; tnc++ )
+    // initalize the character instance
     {
-        ChrList[ichr].vrta[tnc] = 0;
+        chr_instance_t * pinst = &(pchr->inst);
+
+        pinst->imad = profile;
+        pinst->texture = MadList[pinst->imad].skinstart + skin;
+        pinst->enviro = pcap->enviro;
+        pinst->alpha = pchr->basealpha;
+        pinst->light = pcap->light;
+        pinst->sheen = pcap->sheen;
+        pinst->uoffset = 0;
+        pinst->voffset = 0;
+        pinst->redshift = 0;
+        pinst->grnshift = 0;
+        pinst->blushift = 0;
+
+        pinst->light_turn_z = 0;
+        pinst->lip = 0;
+        pinst->frame = MadList[pinst->imad].framestart;
+        pinst->lastframe = pinst->frame;
+
+        // Set up initial fade in lighting
+        for ( tnc = 0; tnc < MadList[pinst->imad].transvertices; tnc++ )
+        {
+            pinst->vrta[tnc] = 0;
+        }
     }
+
+
 
     // Particle attachments
     tnc = 0;
-    while ( tnc < CapList[profile].attachedprtamount )
+    while ( tnc < pcap->attachedprtamount )
     {
-        spawn_one_particle( ChrList[ichr].xpos, ChrList[ichr].ypos, ChrList[ichr].zpos,
-                            0, ChrList[ichr].model, CapList[profile].attachedprttype,
-                            ichr, GRIP_LAST + tnc, ChrList[ichr].team, ichr, tnc, MAXCHR );
+        spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos,
+                            0, pchr->model, pcap->attachedprttype,
+                            ichr, GRIP_LAST + tnc, pchr->team, ichr, tnc, MAXCHR );
         tnc++;
     }
 
-    ChrList[ichr].reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
+    pchr->reaffirmdamagetype = pcap->attachedprtreaffirmdamagetype;
 
     // Experience
-    tnc = generate_number( CapList[profile].experiencebase, CapList[profile].experiencerand );
+    tnc = generate_number( pcap->experiencebase, pcap->experiencerand );
     if ( tnc > MAXXP ) tnc = MAXXP;
 
-    ChrList[ichr].experience = tnc;
-    ChrList[ichr].experiencelevel = CapList[profile].leveloverride;
+    pchr->experience = tnc;
+    pchr->experiencelevel = pcap->leveloverride;
 
     //Items that are spawned inside shop passages are more expensive than normal
-    if (CapList[profile].isvaluable)
+    if (pcap->isvaluable)
     {
-        ChrList[ichr].isshopitem = btrue;
+        pchr->isshopitem = btrue;
     }
     else
     {
-        ChrList[ichr].isshopitem = bfalse;
-        if (ChrList[ichr].isitem && !ChrList[ichr].inpack && ChrList[ichr].attachedto == MAXCHR)
+        pchr->isshopitem = bfalse;
+        if (pchr->isitem && !pchr->inpack && pchr->attachedto == MAXCHR)
         {
             float tlx, tly, brx, bry;
             Uint16 passage = 0;
             float bumpsize;
 
-            bumpsize = ChrList[ichr].bumpsize;
+            bumpsize = pchr->bumpsize;
 
             while (passage < numpassage)
             {
@@ -3586,12 +3594,12 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
                 bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
                 //Check if the character is inside that passage
-                if ( ChrList[ichr].xpos > tlx - bumpsize && ChrList[ichr].xpos < brx + bumpsize )
+                if ( pchr->xpos > tlx - bumpsize && pchr->xpos < brx + bumpsize )
                 {
-                    if ( ChrList[ichr].ypos > tly - bumpsize && ChrList[ichr].ypos < bry + bumpsize )
+                    if ( pchr->ypos > tly - bumpsize && pchr->ypos < bry + bumpsize )
                     {
                         //Yep, flag as valuable (does not export)
-                        ChrList[ichr].isshopitem = btrue;
+                        pchr->isshopitem = btrue;
                         break;
                     }
                 }
@@ -3601,7 +3609,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
         }
     }
 
-    ChrList[ichr].on = btrue;
+    pchr->on = btrue;
 
     return ichr;
 }
@@ -3638,9 +3646,7 @@ void respawn_character( Uint16 character )
     ChrList[character].loopaction = bfalse;
     ChrList[character].action = ACTIONDA;
     ChrList[character].nextaction = ACTIONDA;
-    ChrList[character].lip = 0;
-    ChrList[character].frame = MadList[ChrList[character].model].framestart;
-    ChrList[character].lastframe = ChrList[character].frame;
+
     ChrList[character].platform = CapList[ChrList[character].model].platform;
     ChrList[character].flyheight = CapList[ChrList[character].model].flyheight;
     ChrList[character].bumpdampen = CapList[ChrList[character].model].bumpdampen;
@@ -3668,6 +3674,13 @@ void respawn_character( Uint16 character )
             ChrList[item].isequipped = bfalse;
             ChrList[item].ai.alert |= ALERTIF_ATLASTWAYPOINT;  // doubles as PutAway
         }
+    }
+
+    // re-initialize the instance
+    {
+        ChrList[character].inst.lip       = 0;
+        ChrList[character].inst.frame     = MadList[ChrList[character].inst.imad].framestart;
+        ChrList[character].inst.lastframe = ChrList[character].inst.frame;
     }
 
 }
@@ -3701,7 +3714,6 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     if ( skin > MadList[sTmp].skins )  skin = 0;
 
     ChrList[character].skin    = skin;
-    ChrList[character].texture = MadList[sTmp].skinstart + skin;
 
     // Change stats associated with skin
     ChrList[character].defense = CapList[sTmp].defense[skin];
@@ -3746,217 +3758,224 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
     int tnc, enchant;
     Uint16 sTmp, item;
 
-    profile = profile % MAXMODEL;
-    if ( MadList[profile].used )
+    if( profile > MAXMODEL || !MadList[profile].used ) return;
+
+    // Drop left weapon
+    sTmp = ChrList[ichr].holdingwhich[0];
+    if ( sTmp != MAXCHR && ( !CapList[profile].gripvalid[0] || CapList[profile].ismount ) )
     {
-        // Drop left weapon
-        sTmp = ChrList[ichr].holdingwhich[0];
-        if ( sTmp != MAXCHR && ( !CapList[profile].gripvalid[0] || CapList[profile].ismount ) )
+        detach_character_from_mount( sTmp, btrue, btrue );
+        if ( ChrList[ichr].ismount )
         {
-            detach_character_from_mount( sTmp, btrue, btrue );
-            if ( ChrList[ichr].ismount )
-            {
-                ChrList[sTmp].zvel = DISMOUNTZVEL;
-                ChrList[sTmp].zpos += DISMOUNTZVEL;
-                ChrList[sTmp].jumptime = JUMPDELAY;
-            }
-        }
-
-        // Drop right weapon
-        sTmp = ChrList[ichr].holdingwhich[1];
-        if ( sTmp != MAXCHR && !CapList[profile].gripvalid[1] )
-        {
-            detach_character_from_mount( sTmp, btrue, btrue );
-            if ( ChrList[ichr].ismount )
-            {
-                ChrList[sTmp].zvel = DISMOUNTZVEL;
-                ChrList[sTmp].zpos += DISMOUNTZVEL;
-                ChrList[sTmp].jumptime = JUMPDELAY;
-            }
-        }
-
-        // Remove particles
-        disaffirm_attached_particles( ichr );
-
-        // Remove enchantments
-        if ( leavewhich == LEAVEFIRST )
-        {
-            // Remove all enchantments except top one
-            enchant = ChrList[ichr].firstenchant;
-            if ( enchant != MAXENCHANT )
-            {
-                while ( EncList[enchant].nextenchant != MAXENCHANT )
-                {
-                    remove_enchant( EncList[enchant].nextenchant );
-                }
-            }
-        }
-
-        if ( leavewhich == LEAVENONE )
-        {
-            // Remove all enchantments
-            disenchant_character( ichr );
-        }
-
-        // Stuff that must be set
-        ChrList[ichr].model = profile;
-        ChrList[ichr].stoppedby = CapList[profile].stoppedby;
-        ChrList[ichr].lifeheal = CapList[profile].lifeheal;
-        ChrList[ichr].manacost = CapList[profile].manacost;
-
-        // Ammo
-        ChrList[ichr].ammomax = CapList[profile].ammomax;
-        ChrList[ichr].ammo = CapList[profile].ammo;
-
-        // Gender
-        if ( CapList[profile].gender != GENRANDOM )  // GENRANDOM means keep old gender
-        {
-            ChrList[ichr].gender = CapList[profile].gender;
-        }
-
-        for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
-        {
-            ChrList[ichr].soundindex[tnc] = CapList[profile].soundindex[tnc];
-        }
-
-        // AI stuff
-        ChrList[ichr].ai.type = MadList[profile].ai;
-        ChrList[ichr].ai.state = 0;
-        ChrList[ichr].ai.timer = 0;
-
-        ChrList[ichr].latchx = 0;
-        ChrList[ichr].latchy = 0;
-        ChrList[ichr].latchbutton = 0;
-        ChrList[ichr].turnmode = TURNMODEVELOCITY;
-        // Flags
-        ChrList[ichr].stickybutt = CapList[profile].stickybutt;
-        ChrList[ichr].openstuff = CapList[profile].canopenstuff;
-        ChrList[ichr].transferblend = CapList[profile].transferblend;
-        ChrList[ichr].enviro = CapList[profile].enviro;
-        ChrList[ichr].platform = CapList[profile].platform;
-        ChrList[ichr].isitem = CapList[profile].isitem;
-        ChrList[ichr].invictus = CapList[profile].invictus;
-        ChrList[ichr].ismount = CapList[profile].ismount;
-        ChrList[ichr].cangrabmoney = CapList[profile].cangrabmoney;
-        ChrList[ichr].jumptime = JUMPDELAY;
-        // Character size and bumping
-        ChrList[ichr].shadowsize = (Uint8)(CapList[profile].shadowsize * ChrList[ichr].fat);
-        ChrList[ichr].bumpsize = (Uint8) (CapList[profile].bumpsize * ChrList[ichr].fat);
-        ChrList[ichr].bumpsizebig = CapList[profile].bumpsizebig * ChrList[ichr].fat;
-        ChrList[ichr].bumpheight = CapList[profile].bumpheight * ChrList[ichr].fat;
-
-        ChrList[ichr].shadowsizesave = CapList[profile].shadowsize;
-        ChrList[ichr].bumpsizesave = CapList[profile].bumpsize;
-        ChrList[ichr].bumpsizebigsave = CapList[profile].bumpsizebig;
-        ChrList[ichr].bumpheightsave = CapList[profile].bumpheight;
-
-        ChrList[ichr].bumpdampen = CapList[profile].bumpdampen;
-
-        if ( CapList[profile].weight == 0xFF )
-        {
-            ChrList[ichr].weight = 0xFFFF;
-        }
-        else
-        {
-            int itmp = CapList[profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;
-            ChrList[ichr].weight = MIN( itmp, 0xFFFE );
-        }
-
-        // Character scales...  Magic numbers
-        if ( ChrList[ichr].attachedto != MAXCHR )
-        {
-            int i;
-            Uint16 iholder = ChrList[ichr].attachedto;
-            tnc = MadList[ChrList[iholder].model].vertices - (ChrList[ichr].inwhichhand + 1) * GRIP_VERTS;
-
-            for (i = 0; i < GRIP_VERTS; i++)
-            {
-                if (tnc + i < MadList[ChrList[iholder].model].vertices )
-                {
-                    ChrList[ichr].weapongrip[i] = tnc + i;
-                }
-                else
-                {
-                    ChrList[ichr].weapongrip[i] = 0xFFFF;
-                }
-            }
-        }
-
-        item = ChrList[ichr].holdingwhich[0];
-        if ( item != MAXCHR )
-        {
-            int i;
-
-            tnc = MadList[ChrList[ichr].model].vertices - GRIP_LEFT;
-
-            for (i = 0; i < GRIP_VERTS; i++)
-            {
-                if (tnc + i < MadList[ChrList[ichr].model].vertices )
-                {
-                    ChrList[item].weapongrip[i] = i + tnc;
-                }
-                else
-                {
-                    ChrList[item].weapongrip[i] = 0xFFFF;
-                }
-            }
-        }
-
-        item = ChrList[ichr].holdingwhich[1];
-        if ( item != MAXCHR )
-        {
-            int i;
-
-            tnc = MadList[ChrList[ichr].model].vertices - GRIP_RIGHT;
-
-            for (i = 0; i < GRIP_VERTS; i++)
-            {
-                if (tnc + i < MadList[ChrList[ichr].model].vertices )
-                {
-                    ChrList[item].weapongrip[i] = i + tnc;
-                }
-                else
-                {
-                    ChrList[item].weapongrip[i] = 0xFFFF;
-                }
-            }
-        }
-
-        // Image rendering
-        ChrList[ichr].uoffset = 0;
-        ChrList[ichr].voffset = 0;
-        ChrList[ichr].uoffvel = CapList[profile].uoffvel;
-        ChrList[ichr].voffvel = CapList[profile].voffvel;
-
-        // Movement
-        ChrList[ichr].sneakspd = CapList[profile].sneakspd;
-        ChrList[ichr].walkspd = CapList[profile].walkspd;
-        ChrList[ichr].runspd = CapList[profile].runspd;
-
-        // AI and action stuff
-        ChrList[ichr].actionready = btrue;
-        ChrList[ichr].keepaction = bfalse;
-        ChrList[ichr].loopaction = bfalse;
-        ChrList[ichr].action = ACTIONDA;
-        ChrList[ichr].nextaction = ACTIONDA;
-        ChrList[ichr].lip = 0;
-        ChrList[ichr].frame = MadList[profile].framestart;
-        ChrList[ichr].lastframe = ChrList[ichr].frame;
-        ChrList[ichr].holdingweight = 0;
-
-        // Set the skin
-        change_armor( ichr, skin );
-
-        // Reaffirm them particles...
-        ChrList[ichr].reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
-        reaffirm_attached_particles( ichr );
-
-        // Set up initial fade in lighting
-        for ( tnc = 0; tnc < MadList[ChrList[ichr].model].transvertices; tnc++ )
-        {
-            ChrList[ichr].vrta[tnc] = 0;
+            ChrList[sTmp].zvel = DISMOUNTZVEL;
+            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].jumptime = JUMPDELAY;
         }
     }
+
+    // Drop right weapon
+    sTmp = ChrList[ichr].holdingwhich[1];
+    if ( sTmp != MAXCHR && !CapList[profile].gripvalid[1] )
+    {
+        detach_character_from_mount( sTmp, btrue, btrue );
+        if ( ChrList[ichr].ismount )
+        {
+            ChrList[sTmp].zvel = DISMOUNTZVEL;
+            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].jumptime = JUMPDELAY;
+        }
+    }
+
+    // Remove particles
+    disaffirm_attached_particles( ichr );
+
+    // Remove enchantments
+    if ( leavewhich == LEAVEFIRST )
+    {
+        // Remove all enchantments except top one
+        enchant = ChrList[ichr].firstenchant;
+        if ( enchant != MAXENCHANT )
+        {
+            while ( EncList[enchant].nextenchant != MAXENCHANT )
+            {
+                remove_enchant( EncList[enchant].nextenchant );
+            }
+        }
+    }
+
+    if ( leavewhich == LEAVENONE )
+    {
+        // Remove all enchantments
+        disenchant_character( ichr );
+    }
+
+    // Stuff that must be set
+    ChrList[ichr].model = profile;
+    ChrList[ichr].stoppedby = CapList[profile].stoppedby;
+    ChrList[ichr].lifeheal = CapList[profile].lifeheal;
+    ChrList[ichr].manacost = CapList[profile].manacost;
+
+    // Ammo
+    ChrList[ichr].ammomax = CapList[profile].ammomax;
+    ChrList[ichr].ammo = CapList[profile].ammo;
+
+    // Gender
+    if ( CapList[profile].gender != GENRANDOM )  // GENRANDOM means keep old gender
+    {
+        ChrList[ichr].gender = CapList[profile].gender;
+    }
+
+    for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
+    {
+        ChrList[ichr].soundindex[tnc] = CapList[profile].soundindex[tnc];
+    }
+
+    // AI stuff
+    ChrList[ichr].ai.type = MadList[profile].ai;
+    ChrList[ichr].ai.state = 0;
+    ChrList[ichr].ai.timer = 0;
+
+    ChrList[ichr].latchx = 0;
+    ChrList[ichr].latchy = 0;
+    ChrList[ichr].latchbutton = 0;
+    ChrList[ichr].turnmode = TURNMODEVELOCITY;
+    // Flags
+    ChrList[ichr].stickybutt = CapList[profile].stickybutt;
+    ChrList[ichr].openstuff = CapList[profile].canopenstuff;
+    ChrList[ichr].transferblend = CapList[profile].transferblend;
+    ChrList[ichr].platform = CapList[profile].platform;
+    ChrList[ichr].isitem = CapList[profile].isitem;
+    ChrList[ichr].invictus = CapList[profile].invictus;
+    ChrList[ichr].ismount = CapList[profile].ismount;
+    ChrList[ichr].cangrabmoney = CapList[profile].cangrabmoney;
+    ChrList[ichr].jumptime = JUMPDELAY;
+    // Character size and bumping
+    ChrList[ichr].shadowsize = (Uint8)(CapList[profile].shadowsize * ChrList[ichr].fat);
+    ChrList[ichr].bumpsize = (Uint8) (CapList[profile].bumpsize * ChrList[ichr].fat);
+    ChrList[ichr].bumpsizebig = CapList[profile].bumpsizebig * ChrList[ichr].fat;
+    ChrList[ichr].bumpheight = CapList[profile].bumpheight * ChrList[ichr].fat;
+
+    ChrList[ichr].shadowsizesave = CapList[profile].shadowsize;
+    ChrList[ichr].bumpsizesave = CapList[profile].bumpsize;
+    ChrList[ichr].bumpsizebigsave = CapList[profile].bumpsizebig;
+    ChrList[ichr].bumpheightsave = CapList[profile].bumpheight;
+
+    ChrList[ichr].bumpdampen = CapList[profile].bumpdampen;
+
+    if ( CapList[profile].weight == 0xFF )
+    {
+        ChrList[ichr].weight = 0xFFFFFFFF;
+    }
+    else
+    {
+        int itmp = CapList[profile].weight * ChrList[ichr].fat * ChrList[ichr].fat * ChrList[ichr].fat;
+        ChrList[ichr].weight = MIN( itmp, 0xFFFFFFFE );
+    }
+
+    // Character scales...  Magic numbers
+    if ( ChrList[ichr].attachedto != MAXCHR )
+    {
+        int i;
+        Uint16 iholder = ChrList[ichr].attachedto;
+        tnc = MadList[ChrList[iholder].inst.imad].vertices - (ChrList[ichr].inwhichhand + 1) * GRIP_VERTS;
+
+        for (i = 0; i < GRIP_VERTS; i++)
+        {
+            if (tnc + i < MadList[ChrList[iholder].inst.imad].vertices )
+            {
+                ChrList[ichr].weapongrip[i] = tnc + i;
+            }
+            else
+            {
+                ChrList[ichr].weapongrip[i] = 0xFFFF;
+            }
+        }
+    }
+
+    item = ChrList[ichr].holdingwhich[0];
+    if ( item != MAXCHR )
+    {
+        int i;
+
+        tnc = MadList[ChrList[ichr].inst.imad].vertices - GRIP_LEFT;
+
+        for (i = 0; i < GRIP_VERTS; i++)
+        {
+            if (tnc + i < MadList[ChrList[ichr].inst.imad].vertices )
+            {
+                ChrList[item].weapongrip[i] = i + tnc;
+            }
+            else
+            {
+                ChrList[item].weapongrip[i] = 0xFFFF;
+            }
+        }
+    }
+
+    item = ChrList[ichr].holdingwhich[1];
+    if ( item != MAXCHR )
+    {
+        int i;
+
+        tnc = MadList[ChrList[ichr].inst.imad].vertices - GRIP_RIGHT;
+
+        for (i = 0; i < GRIP_VERTS; i++)
+        {
+            if (tnc + i < MadList[ChrList[ichr].inst.imad].vertices )
+            {
+                ChrList[item].weapongrip[i] = i + tnc;
+            }
+            else
+            {
+                ChrList[item].weapongrip[i] = 0xFFFF;
+            }
+        }
+    }
+
+    // Image rendering
+    ChrList[ichr].uoffvel = CapList[profile].uoffvel;
+    ChrList[ichr].voffvel = CapList[profile].voffvel;
+
+    // Movement
+    ChrList[ichr].sneakspd = CapList[profile].sneakspd;
+    ChrList[ichr].walkspd = CapList[profile].walkspd;
+    ChrList[ichr].runspd = CapList[profile].runspd;
+
+    // AI and action stuff
+    ChrList[ichr].actionready = btrue;
+    ChrList[ichr].keepaction = bfalse;
+    ChrList[ichr].loopaction = bfalse;
+    ChrList[ichr].action = ACTIONDA;
+    ChrList[ichr].nextaction = ACTIONDA;
+    ChrList[ichr].holdingweight = 0;
+
+    // initialize the instance
+    {
+        chr_instance_t * pinst = &(ChrList[ichr].inst);
+
+        pinst->imad    = profile;
+        pinst->texture = MadList[pinst->imad].skinstart + ChrList[ichr].skin;
+        pinst->enviro  = CapList[pinst->imad].enviro;
+        pinst->uoffset = 0;
+        pinst->voffset = 0;
+
+        pinst->lip       = 0;
+        pinst->frame     = MadList[pinst->imad].framestart;
+        pinst->lastframe = pinst->frame;
+
+        // Set up initial fade in lighting
+        for ( tnc = 0; tnc < MadList[pinst->imad].transvertices; tnc++ )
+        {
+            pinst->vrta[tnc] = 0;
+        }
+    }
+
+    // Set the skin
+    change_armor( ichr, skin );
+
+    // Reaffirm them particles...
+    ChrList[ichr].reaffirmdamagetype = CapList[profile].attachedprtreaffirmdamagetype;
+    reaffirm_attached_particles( ichr );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4548,8 +4567,8 @@ void move_characters( void )
         //            }
 
         // Texture movement
-        ChrList[cnt].uoffset += ChrList[cnt].uoffvel;
-        ChrList[cnt].voffset += ChrList[cnt].voffvel;
+        ChrList[cnt].inst.uoffset += ChrList[cnt].uoffvel;
+        ChrList[cnt].inst.voffset += ChrList[cnt].voffvel;
         if ( ChrList[cnt].alive )
         {
             if ( ChrList[cnt].attachedto == MAXCHR )
@@ -4589,7 +4608,7 @@ void move_characters( void )
                     if ( cnt != ChrList[cnt].ai.target )
                         ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( ChrList[ChrList[cnt].ai.target].ypos - ChrList[cnt].ypos, ChrList[ChrList[cnt].ai.target].xpos - ChrList[cnt].xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
                 }
-                if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXSTOP )
+                if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXSTOP )
                 {
                     dvx = 0;
                     dvy = 0;
@@ -4789,7 +4808,7 @@ void move_characters( void )
                     allowedtoattack = btrue;
 
                     // First check if reload time and action is okay
-                    if ( !MadList[ChrList[cnt].model].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
+                    if ( !MadList[ChrList[cnt].inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
                     else
                     {
                         // Then check if a skill is needed
@@ -4847,7 +4866,7 @@ void move_characters( void )
                         // Attack button
                         if ( allowedtoattack )
                         {
-                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].model].actionvalid[action] )
+                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
                                 if ( ChrList[cnt].mana >= ChrList[weapon].manacost || ChrList[cnt].canchannel )
@@ -4897,7 +4916,7 @@ void move_characters( void )
                     allowedtoattack = btrue;
 
                     // First check if reload time and action is okay
-                    if ( !MadList[ChrList[cnt].model].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
+                    if ( !MadList[ChrList[cnt].inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
                     else
                     {
                         // Then check if a skill is needed
@@ -4956,7 +4975,7 @@ void move_characters( void )
                         // Attack button
                         if ( allowedtoattack )
                         {
-                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].model].actionvalid[action] )
+                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
                                 if ( ChrList[cnt].mana >= ChrList[weapon].manacost || ChrList[cnt].canchannel )
@@ -5049,7 +5068,7 @@ void move_characters( void )
                             friction = slippyfriction;
                             ChrList[cnt].jumpready = btrue;
                             if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
-                            if ( ChrList[cnt].weight != 0xFFFF )
+                            if ( ChrList[cnt].weight != 0xFFFFFFFF )
                             {
                                 // Slippy hills make characters slide
                                 ChrList[cnt].xvel += vellrtwist[twist];
@@ -5117,29 +5136,29 @@ void move_characters( void )
         ChrList[cnt].yvel = ChrList[cnt].yvel * friction;
 
         // Animate the character
-        ChrList[cnt].lip = ( ChrList[cnt].lip + 64 );
-        if ( ChrList[cnt].lip == 192 )
+        ChrList[cnt].inst.lip = ( ChrList[cnt].inst.lip + 64 );
+        if ( ChrList[cnt].inst.lip == 192 )
         {
             // Check frame effects
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXACTLEFT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXACTLEFT )
                 character_swipe( cnt, 0 );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXACTRIGHT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXACTRIGHT )
                 character_swipe( cnt, 1 );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXGRABLEFT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXGRABLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, bfalse );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXGRABRIGHT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXGRABRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, bfalse );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXCHARLEFT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXCHARLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, btrue );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXCHARRIGHT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXCHARRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, btrue );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXDROPLEFT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPLEFT )
                 detach_character_from_mount( ChrList[cnt].holdingwhich[0], bfalse, btrue );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXDROPRIGHT )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPRIGHT )
                 detach_character_from_mount( ChrList[cnt].holdingwhich[1], bfalse, btrue );
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
                 ChrList[cnt].ai.poof_time = frame_wld;
-            if ( Md2FrameList[ChrList[cnt].frame].framefx&MADFXFOOTFALL )
+            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXFOOTFALL )
             {
                 int ifoot = CapList[ChrList[cnt].model].soundindex[SOUND_FOOTFALL];
                 if ( ifoot >= 0 && ifoot < MAXWAVE )
@@ -5148,18 +5167,18 @@ void move_characters( void )
                 }
             }
         }
-        if ( ChrList[cnt].lip == 0 )
+        if ( ChrList[cnt].inst.lip == 0 )
         {
             // Change frames
-            ChrList[cnt].lastframe = ChrList[cnt].frame;
-            ChrList[cnt].frame++;
-            if ( ChrList[cnt].frame == MadList[ChrList[cnt].model].actionend[ChrList[cnt].action] )
+            ChrList[cnt].inst.lastframe = ChrList[cnt].inst.frame;
+            ChrList[cnt].inst.frame++;
+            if ( ChrList[cnt].inst.frame == MadList[ChrList[cnt].inst.imad].actionend[ChrList[cnt].action] )
             {
                 // Action finished
                 if ( ChrList[cnt].keepaction )
                 {
                     // Keep the last frame going
-                    ChrList[cnt].frame = ChrList[cnt].lastframe;
+                    ChrList[cnt].inst.frame = ChrList[cnt].inst.lastframe;
                 }
                 else
                 {
@@ -5178,7 +5197,7 @@ void move_characters( void )
                         }
                     }
 
-                    ChrList[cnt].frame = MadList[ChrList[cnt].model].actionstart[ChrList[cnt].action];
+                    ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].actionstart[ChrList[cnt].action];
                 }
 
                 ChrList[cnt].actionready = btrue;
@@ -5194,8 +5213,8 @@ void move_characters( void )
         // Get running, walking, sneaking, or dancing, from speed
         if ( !( ChrList[cnt].keepaction || ChrList[cnt].loopaction ) )
         {
-            framelip = Md2FrameList[ChrList[cnt].frame].framelip;  // 0 - 15...  Way through animation
-            if ( ChrList[cnt].actionready && ChrList[cnt].lip == 0 && grounded && ChrList[cnt].flyheight == 0 && ( framelip&7 ) < 2 )
+            framelip = Md2FrameList[ChrList[cnt].inst.frame].framelip;  // 0 - 15...  Way through animation
+            if ( ChrList[cnt].actionready && ChrList[cnt].inst.lip == 0 && grounded && ChrList[cnt].flyheight == 0 && ( framelip&7 ) < 2 )
             {
                 // Do the motion stuff
                 speed = ABS( ( int ) ChrList[cnt].xvel ) + ABS( ( int ) ChrList[cnt].yvel );
@@ -5215,7 +5234,7 @@ void move_characters( void )
                         if ( ChrList[cnt].action > ACTIONDD )
                         {
                             ChrList[cnt].action = ACTIONDA;
-                            ChrList[cnt].frame = MadList[ChrList[cnt].model].actionstart[ChrList[cnt].action];
+                            ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].actionstart[ChrList[cnt].action];
                         }
                     }
                 }
@@ -5227,7 +5246,7 @@ void move_characters( void )
                         ChrList[cnt].nextaction = ACTIONWA;
                         if ( ChrList[cnt].action != ACTIONWA )
                         {
-                            ChrList[cnt].frame = MadList[ChrList[cnt].model].frameliptowalkframe[LIPWA][framelip];
+                            ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWA][framelip];
                             ChrList[cnt].action = ACTIONWA;
                         }
                     }
@@ -5238,7 +5257,7 @@ void move_characters( void )
                             ChrList[cnt].nextaction = ACTIONWB;
                             if ( ChrList[cnt].action != ACTIONWB )
                             {
-                                ChrList[cnt].frame = MadList[ChrList[cnt].model].frameliptowalkframe[LIPWB][framelip];
+                                ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWB][framelip];
                                 ChrList[cnt].action = ACTIONWB;
                             }
                         }
@@ -5247,7 +5266,7 @@ void move_characters( void )
                             ChrList[cnt].nextaction = ACTIONWC;
                             if ( ChrList[cnt].action != ACTIONWC )
                             {
-                                ChrList[cnt].frame = MadList[ChrList[cnt].model].frameliptowalkframe[LIPWC][framelip];
+                                ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWC][framelip];
                                 ChrList[cnt].action = ACTIONWC;
                             }
                         }

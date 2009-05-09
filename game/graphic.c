@@ -61,15 +61,15 @@
 Uint8           maxformattypes = 0;
 STRING          TxFormatSupported[50];      // OpenGL icon surfaces
 
-GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
-GLTexture       TxFont;                     // OpenGL font surface
-GLTexture       TxBars;                     // OpenGL status bar surface
-GLTexture       TxBlip;                     // OpenGL you are here surface
-GLTexture       TxMap;                      // OpenGL map surface
-GLTexture       txTexture[MAXTEXTURE];      // All textures
+GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+GLtexture       TxFont;                     // OpenGL font surface
+GLtexture       TxBars;                     // OpenGL status bar surface
+GLtexture       TxBlip;                     // OpenGL you are here surface
+GLtexture       TxMap;                      // OpenGL map surface
+GLtexture       txTexture[MAXTEXTURE];      // All textures
 
 Uint32          TxTitleImage_count = 0;
-GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 
 SDL_Surface *    displaySurface = NULL;
@@ -104,11 +104,6 @@ int rotmeshtopside;
 int rotmeshbottomside;
 int rotmeshup;
 int rotmeshdown;
-
-glMatrix mWorld;                       // World Matrix
-glMatrix mView;                        // View Matrix
-glMatrix mViewSave;                    // View Matrix initial state
-glMatrix mProjection;                  // Projection Matrix
 
 int         dyna_distancetobeat;           // The number to beat
 int         dyna_list_max   = 8;           // Max number of lights to draw
@@ -549,19 +544,24 @@ void display_message( script_state_t * pstate, int message, Uint16 character )
 
 //--------------------------------------------------------------------------------------------
 // This needs work
-void Begin3DMode()
+void Begin3DMode( camera_t * pcam )
 {
     glMatrixMode( GL_PROJECTION );
-    glLoadMatrixf( mProjection.v );
+    glPushMatrix();
+    glLoadMatrixf( pcam->mProjection.v );
 
     glMatrixMode( GL_MODELVIEW );
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
+    glPushMatrix();
+    glLoadMatrixf( pcam->mView.v );
 }
 
 void End3DMode()
 {
+    glMatrixMode( GL_MODELVIEW );
+    glPopMatrix();
 
+    glMatrixMode( GL_PROJECTION );
+    glPopMatrix();
 }
 
 /********************> Begin2DMode() <*****/
@@ -655,7 +655,7 @@ bool_t load_one_icon( const char *szLoadName )
 {
     // ZZ> This function is used to load an icon.  Most icons are loaded
     //     without this function though...
-    if ( INVALID_TX_ID == GLTexture_Load( GL_TEXTURE_2D,  TxIcon + globalicon_count,  szLoadName, INVALID_KEY ) )
+    if ( INVALID_TX_ID == GLtexture_Load( GL_TEXTURE_2D,  TxIcon + globalicon_count,  szLoadName, INVALID_KEY ) )
     {
         return bfalse;
     }
@@ -672,7 +672,7 @@ void init_all_icons()
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
-        GLTexture_new( TxIcon + cnt );
+        GLtexture_new( TxIcon + cnt );
     }
 
     iconrect.left = 0;
@@ -691,7 +691,7 @@ void init_all_titleimages()
 
     for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     {
-        GLTexture_new( TxTitleImage + cnt );
+        GLtexture_new( TxTitleImage + cnt );
     }
 }
 
@@ -700,7 +700,7 @@ void init_bars()
 {
     int cnt;
 
-    GLTexture_new( &TxBars );
+    GLtexture_new( &TxBars );
 
     // Make the blit rectangles
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -722,7 +722,7 @@ void init_blip()
 {
     int cnt;
 
-    GLTexture_new( &TxBlip );
+    GLtexture_new( &TxBlip );
 
     // Set up the rectangles
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -739,7 +739,7 @@ void init_blip()
 void init_map()
 {
     // ZZ> This function releases all the map images
-    GLTexture_new( &TxMap );
+    GLtexture_new( &TxMap );
 
     // Set up the rectangles
     maprect.left   = 0;
@@ -756,7 +756,7 @@ void init_all_textures()
 
     for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
     {
-        GLTexture_new( txTexture + cnt );
+        GLtexture_new( txTexture + cnt );
     }
 }
 
@@ -786,7 +786,7 @@ void release_all_icons()
 
     for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
     {
-        GLTexture_Release( TxIcon + cnt );
+        GLtexture_Release( TxIcon + cnt );
         skintoicon[cnt] = 0;
     }
 
@@ -807,20 +807,20 @@ void release_all_titleimages()
 
     for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     {
-        GLTexture_Release( TxTitleImage + cnt );
+        GLtexture_Release( TxTitleImage + cnt );
     }
 }
 
 //---------------------------------------------------------------------------------------------
 void release_bars()
 {
-    GLTexture_Release( &TxBars );
+    GLtexture_Release( &TxBars );
 }
 
 //---------------------------------------------------------------------------------------------
 void release_blip()
 {
-    GLTexture_Release( &TxBlip );
+    GLtexture_Release( &TxBlip );
 
     youarehereon = bfalse;
     numblip      = 0;
@@ -829,7 +829,7 @@ void release_blip()
 //---------------------------------------------------------------------------------------------
 void release_map()
 {
-    GLTexture_Release( &TxMap );
+    GLtexture_Release( &TxMap );
 
     mapvalid = bfalse;
     mapon    = bfalse;
@@ -843,7 +843,7 @@ void release_all_textures()
 
     for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
     {
-        GLTexture_Release( txTexture + cnt );
+        GLtexture_Release( txTexture + cnt );
     }
 }
 
@@ -1365,7 +1365,7 @@ void order_dolist( void )
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         character = dolist[cnt];  olddolist[cnt] = character;
-        if ( ChrList[character].light != 255 || ChrList[character].alpha != 255 )
+        if ( ChrList[character].inst.light != 255 || ChrList[character].inst.alpha != 255 )
         {
             // This makes stuff inside an invisible character visible...
             // A key inside a Jellcube, for example
@@ -1400,9 +1400,9 @@ void flash_character( Uint16 character, Uint8 value )
     // ZZ> This function sets a character's lighting
     int cnt;
 
-    for ( cnt = 0; cnt < MadList[ChrList[character].model].transvertices; cnt++  )
+    for ( cnt = 0; cnt < MadList[ChrList[character].inst.imad].transvertices; cnt++  )
     {
-        ChrList[character].vrta[cnt] = value;
+        ChrList[character].inst.vrta[cnt] = value;
     }
 }
 
@@ -1519,30 +1519,30 @@ void load_basic_textures( const char *modname )
     char newloadname[256];
 
     // Particle sprites
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, TRANSCOLOR);
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, TRANSCOLOR);
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-    GLTexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, TRANSCOLOR );
 
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
+    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
+    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
 
     // Texture 7 is the phong map
-    GLTexture_Load( GL_TEXTURE_2D,  txTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
+    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
 
 }
 
@@ -1550,7 +1550,7 @@ void load_basic_textures( const char *modname )
 void load_bars( const char* szBitmap )
 {
     // ZZ> This function loads the status bar bitmap
-    if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR ) )
+    if ( INVALID_TX_ID == GLtexture_Load(GL_TEXTURE_2D, &TxBars, szBitmap, TRANSCOLOR ) )
     {
         log_warning( "Cannot load file! (\"%s\")\n", szBitmap );
     }
@@ -1570,7 +1570,7 @@ void load_map( const char* szModule )
 
     // Load the images
     sprintf( szMap, "%sgamedat" SLASH_STR "plan", szModule );
-    if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY ) )
+    if ( INVALID_TX_ID == GLtexture_Load(GL_TEXTURE_2D, &TxMap, szMap, INVALID_KEY ) )
     {
         log_warning( "Cannot load file! (\"%s\")\n", szMap );
     }
@@ -1585,7 +1585,7 @@ void load_map( const char* szModule )
 void font_init()
 {
     //Intitializes the font, ready to use
-    GLTexture_new( &TxFont );
+    GLtexture_new( &TxFont );
 
     font_release();
 }
@@ -1598,7 +1598,7 @@ void font_release()
     Uint16 i, ix, iy, cnt;
     float dx, dy;
 
-    GLTexture_Release( &TxFont );
+    GLtexture_Release( &TxFont );
 
     // Mark all as unused
     for ( cnt = 0; cnt < 256; cnt++ )
@@ -1634,14 +1634,14 @@ void font_load( const char* szBitmap, const char* szSpacing )
     FILE *fileread;
 
     font_release();
-    if ( INVALID_TX_ID == GLTexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) )
+    if ( INVALID_TX_ID == GLtexture_Load( GL_TEXTURE_2D, &TxFont, szBitmap, TRANSCOLOR ) )
     {
         log_error( "Cannot load file! (\"%s\")\n", szBitmap );
     }
 
     // Get the size of the bitmap
-    xsize = GLTexture_GetImageWidth( &TxFont );
-    ysize = GLTexture_GetImageHeight( &TxFont );
+    xsize = GLtexture_GetImageWidth( &TxFont );
+    ysize = GLtexture_GetImageHeight( &TxFont );
     if ( xsize == 0 || ysize == 0 )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
@@ -1972,7 +1972,7 @@ void read_wawalite( const char *modname )
 void render_background( Uint16 texture )
 {
     // ZZ> This function draws the large background
-    GLVERTEX vtlist[4];
+    GLvertex vtlist[4];
     float size;
     float sinsize, cossize;
     float x, y, z, u, v;
@@ -2030,7 +2030,7 @@ void render_background( Uint16 texture )
         cullface_save = glIsEnabled( GL_CULL_FACE );
         glDisable( GL_CULL_FACE );
 
-        GLTexture_Bind( txTexture + texture );
+        GLtexture_Bind( txTexture + texture );
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glBegin ( GL_TRIANGLE_FAN );
@@ -2054,7 +2054,7 @@ void render_background( Uint16 texture )
 void render_foreground_overlay( Uint16 texture )
 {
     // ZZ> This function draws the large foreground
-    GLVERTEX vtlist[4];
+    GLvertex vtlist[4];
     int i;
     float size;
     float sinsize, cossize;
@@ -2133,7 +2133,7 @@ void render_foreground_overlay( Uint16 texture )
         glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
 
-        GLTexture_Bind(txTexture + texture);
+        GLtexture_Bind(txTexture + texture);
 
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glBegin ( GL_TRIANGLE_FAN );
@@ -2161,7 +2161,7 @@ void render_foreground_overlay( Uint16 texture )
 }
 
 //--------------------------------------------------------------------------------------------
-void render_shadow_sprite( float intensity, GLVERTEX v[] )
+void render_shadow_sprite( float intensity, GLvertex v[] )
 {
     int i;
 
@@ -2184,7 +2184,7 @@ void render_shadow_sprite( float intensity, GLVERTEX v[] )
 void render_shadow( Uint16 character )
 {
     // ZZ> This function draws a NIFTY shadow
-    GLVERTEX v[4];
+    GLvertex v[4];
 
     float x, y;
     float level;
@@ -2204,7 +2204,7 @@ void render_shadow( Uint16 character )
     if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent
-    alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
+    alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
     if ( alpha * 255 < 1.0f ) return;
 
     // much resuced shadow if on a reflective tile
@@ -2217,7 +2217,7 @@ void render_shadow( Uint16 character )
     // Original points
     level = pchr->level;
     level += SHADOWRAISE;
-    height = pchr->matrix.CNV( 3, 2 ) - level;
+    height = pchr->inst.matrix.CNV( 3, 2 ) - level;
     if ( height < 0 ) height = 0;
 
     size_umbra    = 1.5f * ( pchr->bumpsize - height / 30.0f );
@@ -2240,11 +2240,11 @@ void render_shadow( Uint16 character )
         alpha_penumbra = CLIP(alpha_penumbra, 0.0f, 1.0f);
     }
 
-    x = pchr->matrix.CNV( 3, 0 );
-    y = pchr->matrix.CNV( 3, 1 );
+    x = pchr->inst.matrix.CNV( 3, 0 );
+    y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    GLTexture_Bind( txTexture + particletexture );
+    GLtexture_Bind( txTexture + particletexture );
 
     // GOOD SHADOW
     v[0].s = particleimageu[238][0];
@@ -2307,7 +2307,7 @@ void render_shadow( Uint16 character )
 void render_bad_shadow( Uint16 character )
 {
     // ZZ> This function draws a sprite shadow
-    GLVERTEX v[4];
+    GLvertex v[4];
     float size, x, y;
     float level, height, height_factor, alpha;
     Sint8 hide;
@@ -2324,7 +2324,7 @@ void render_bad_shadow( Uint16 character )
     if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent or completely glowing
-    alpha = (pchr->alpha * INV_FF) * (pchr->light * INV_FF);
+    alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
     if ( alpha < INV_FF ) return;
 
     // much reduced shadow if on a reflective tile
@@ -2337,7 +2337,7 @@ void render_bad_shadow( Uint16 character )
     // Original points
     level = pchr->level;
     level += SHADOWRAISE;
-    height = pchr->matrix.CNV( 3, 2 ) - level;
+    height = pchr->inst.matrix.CNV( 3, 2 ) - level;
     height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f );
     if ( height_factor <= 0.0f ) return;
 
@@ -2345,8 +2345,8 @@ void render_bad_shadow( Uint16 character )
     alpha *= height_factor * 0.5f + 0.25f;
     if ( alpha < INV_FF ) return;
 
-    x = pchr->matrix.CNV( 3, 0 );
-    y = pchr->matrix.CNV( 3, 1 );
+    x = pchr->inst.matrix.CNV( 3, 0 );
+    y = pchr->inst.matrix.CNV( 3, 1 );
 
     size = pchr->shadowsize * height_factor;
 
@@ -2367,7 +2367,7 @@ void render_bad_shadow( Uint16 character )
     v[3].z = ( float ) level;
 
     // Choose texture and matrix
-    GLTexture_Bind( txTexture + particletexture );
+    GLtexture_Bind( txTexture + particletexture );
 
     v[0].s = particleimageu[236][0];
     v[0].t = particleimagev[236][0];
@@ -2643,8 +2643,7 @@ void render_water()
     int cnt;
 
     // Set the transformation thing
-    glLoadMatrixf( mView.v );
-    glMultMatrixf( mWorld.v );
+    glLoadMatrixf( gCamera.mView.v );
 
     // Bottom layer first
     if ( clearson && numwaterlayer > 1 && waterlayerz[1] > -waterlayeramp[1] )
@@ -2731,7 +2730,7 @@ void draw_scene_zreflection()
             tnc = dolist[cnt];
             if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( mesh.mem.tile_list[ChrList[tnc].onwhichfan].fx&MESHFX_DRAWREF )) )
             {
-                render_refmad( tnc, FP8_MUL( ChrList[tnc].alpha, ChrList[tnc].light ) );
+                render_refmad( tnc, FP8_MUL( ChrList[tnc].inst.alpha, ChrList[tnc].inst.light ) );
             }
         }
 
@@ -2740,7 +2739,7 @@ void draw_scene_zreflection()
         glDisable( GL_DEPTH_TEST );
         glDepthMask( GL_FALSE );
         glFrontFace( GL_CW );
-        render_refprt();
+        render_refprt( &gCamera );
 
         // Render the shadow floors ( let everything show through )
         // turn on the depth mask, so that no objects under the floor will show through
@@ -2820,7 +2819,7 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( ChrList[tnc].alpha == 255 && ChrList[tnc].light == 255 )
+        if ( ChrList[tnc].inst.alpha == 255 && ChrList[tnc].inst.light == 255 )
             render_mad( tnc, 255 );
     }
 
@@ -2837,9 +2836,9 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( ChrList[tnc].alpha != 255 && ChrList[tnc].light == 255 )
+        if ( ChrList[tnc].inst.alpha != 255 && ChrList[tnc].inst.light == 255 )
         {
-            trans = ChrList[tnc].alpha;
+            trans = ChrList[tnc].inst.alpha;
             if ( trans < SEEINVISIBLE && ( local_seeinvisible || ChrList[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
@@ -2857,24 +2856,24 @@ void draw_scene_zreflection()
     for ( cnt = 0; cnt < numdolist; cnt++ )
     {
         tnc = dolist[cnt];
-        if ( ChrList[tnc].light != 255 )
+        if ( ChrList[tnc].inst.light != 255 )
         {
-            trans = ChrList[tnc].light;
+            trans = ChrList[tnc].inst.light;
             if ( trans < SEEINVISIBLE && ( local_seeinvisible || ChrList[tnc].islocalplayer ) )  trans = SEEINVISIBLE;
 
             render_mad( tnc, trans );
         }
 
         // Do phong highlights
-        if ( phongon && ChrList[tnc].alpha == 255 && ChrList[tnc].light == 255 && !ChrList[tnc].enviro && ChrList[tnc].sheen > 0 )
+        if ( phongon && ChrList[tnc].inst.alpha == 255 && ChrList[tnc].inst.light == 255 && !ChrList[tnc].inst.enviro && ChrList[tnc].inst.sheen > 0 )
         {
             Uint16 texturesave;
-            ChrList[tnc].enviro = btrue;
-            texturesave = ChrList[tnc].texture;
-            ChrList[tnc].texture = TX_PHONG;  // The phong map texture...
-            render_mad( tnc, ChrList[tnc].sheen << 4 );
-            ChrList[tnc].texture = texturesave;
-            ChrList[tnc].enviro = bfalse;
+            ChrList[tnc].inst.enviro = btrue;
+            texturesave = ChrList[tnc].inst.texture;
+            ChrList[tnc].inst.texture = TX_PHONG;  // The phong map texture...
+            render_mad( tnc, ChrList[tnc].inst.sheen << 4 );
+            ChrList[tnc].inst.texture = texturesave;
+            ChrList[tnc].inst.enviro = bfalse;
         }
     }
 
@@ -2889,7 +2888,7 @@ void draw_scene_zreflection()
     glDisable( GL_BLEND );
     glEnable( GL_ALPHA_TEST );
     glAlphaFunc( GL_GREATER, 0 );
-    render_prt();
+    render_prt( &gCamera );
     glDisable( GL_ALPHA_TEST );
 
     glDepthMask( GL_TRUE );
@@ -2954,7 +2953,7 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
         glNormal3f( 0.0f, 0.0f, 1.0f );
 
-        GLTexture_Bind( &TxBlip );
+        GLtexture_Bind( &TxBlip );
 
         xl = ( ( float )bliprect[color].left ) / (float)TxBlip.txW;
         xr = ( ( float )bliprect[color].right ) / (float)TxBlip.txW;
@@ -2988,7 +2987,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
         EnableTexturing();    // Enable texture mapping
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
-        GLTexture_Bind( TxIcon + icontype );
+        GLtexture_Bind( TxIcon + icontype );
 
         xl = ( ( float )iconrect.left ) / 32;
         xr = ( ( float )iconrect.right ) / 32;
@@ -3065,7 +3064,7 @@ void draw_map( int x, int y )
     EnableTexturing();
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
     
-    GLTexture_Bind( &TxMap );
+    GLtexture_Bind( &TxMap );
 
     glBegin( GL_QUADS );
     {
@@ -3090,7 +3089,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 && ticks >= 0 )
     {
         // Draw the tab
-        GLTexture_Bind( &TxBars );
+        GLtexture_Bind( &TxBars );
 
         xl = ( ( float )tabrect[bartype].left ) / 128;
         xr = ( ( float )tabrect[bartype].right ) / 128;
@@ -3116,7 +3115,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         while ( ticks >= NUMTICK )
         {
             barrect[bartype].right = BARX;
-            GLTexture_Bind( &TxBars );
+            GLtexture_Bind( &TxBars );
 
             xl = ( ( float )barrect[bartype].left ) / 128;
             xr = ( ( float )barrect[bartype].right ) / 128;
@@ -3141,7 +3140,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         {
             // Draw the filled ones
             barrect[bartype].right = ( ticks << 3 ) + TABX;
-            GLTexture_Bind( &TxBars );
+            GLtexture_Bind( &TxBars );
 
             xl = ( ( float )barrect[bartype].left ) / 128;
             xr = ( ( float )barrect[bartype].right ) / 128;
@@ -3162,7 +3161,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
             if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
 
             barrect[0].right = ( noticks << 3 ) + TABX;
-            GLTexture_Bind( &TxBars );
+            GLtexture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3185,7 +3184,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         while ( maxticks >= NUMTICK )
         {
             barrect[0].right = BARX;
-            GLTexture_Bind( &TxBars );
+            GLtexture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3208,7 +3207,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         if ( maxticks > 0 )
         {
             barrect[0].right = ( maxticks << 3 ) + TABX;
-            GLTexture_Bind( &TxBars );
+            GLtexture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3235,7 +3234,7 @@ void BeginText()
 {
     EnableTexturing();    // Enable texture mapping
 
-    GLTexture_Bind( &TxFont );
+    GLtexture_Bind( &TxFont );
 
     glEnable( GL_ALPHA_TEST );
     glAlphaFunc( GL_GREATER, 0 );
@@ -3448,14 +3447,14 @@ int draw_status( Uint16 character, int x, int y )
     draw_string( generictext, x + 8, y ); y += fontyspacing + 8;
 
     // Draw the icons
-    draw_one_icon( skintoicon[ChrList[character].texture], x + 40, y, ChrList[character].sparkle );
+    draw_one_icon( skintoicon[ChrList[character].inst.texture], x + 40, y, ChrList[character].sparkle );
 
     item = ChrList[character].holdingwhich[0];
     if ( item != MAXCHR )
     {
         if ( ChrList[item].icon )
         {
-            draw_one_icon( skintoicon[ChrList[item].texture], x + 8, y, ChrList[item].sparkle );
+            draw_one_icon( skintoicon[ChrList[item].inst.texture], x + 8, y, ChrList[item].sparkle );
             if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3485,7 +3484,7 @@ int draw_status( Uint16 character, int x, int y )
     {
         if ( ChrList[item].icon )
         {
-            draw_one_icon( skintoicon[ChrList[item].texture], x + 72, y, ChrList[item].sparkle );
+            draw_one_icon( skintoicon[ChrList[item].inst.texture], x + 72, y, ChrList[item].sparkle );
             if ( ChrList[item].ammomax != 0 && ChrList[item].ammoknown )
             {
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
@@ -3716,13 +3715,13 @@ void draw_text()
         // White debug mode
         sprintf( text, "!!!DEBUG MODE-7!!!" );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 0 ), mView.CNV( 1, 0 ), mView.CNV( 2, 0 ), mView.CNV( 3, 0 ) );
+        sprintf( text, "CAM %f %f %f %f", gCamera.mView.CNV( 0, 0 ), gCamera.mView.CNV( 1, 0 ), gCamera.mView.CNV( 2, 0 ), gCamera.mView.CNV( 3, 0 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 1 ), mView.CNV( 1, 1 ), mView.CNV( 2, 1 ), mView.CNV( 3, 1 ) );
+        sprintf( text, "CAM %f %f %f %f", gCamera.mView.CNV( 0, 1 ), gCamera.mView.CNV( 1, 1 ), gCamera.mView.CNV( 2, 1 ), gCamera.mView.CNV( 3, 1 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 2 ), mView.CNV( 1, 2 ), mView.CNV( 2, 2 ), mView.CNV( 3, 2 ) );
+        sprintf( text, "CAM %f %f %f %f", gCamera.mView.CNV( 0, 2 ), gCamera.mView.CNV( 1, 2 ), gCamera.mView.CNV( 2, 2 ), gCamera.mView.CNV( 3, 2 ) );
         draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", mView.CNV( 0, 3 ), mView.CNV( 1, 3 ), mView.CNV( 2, 3 ), mView.CNV( 3, 3 ) );
+        sprintf( text, "CAM %f %f %f %f", gCamera.mView.CNV( 0, 3 ), gCamera.mView.CNV( 1, 3 ), gCamera.mView.CNV( 2, 3 ), gCamera.mView.CNV( 3, 3 ) );
         draw_string( text, 0, y );  y += fontyspacing;
         sprintf( text, "x %f", gCamera.centerx );
         draw_string( text, 0, y );  y += fontyspacing;
@@ -3834,7 +3833,7 @@ void flip_pages()
 //--------------------------------------------------------------------------------------------
 void draw_scene()
 {
-    Begin3DMode();
+    Begin3DMode( &gCamera );
 
     make_prtlist();
     do_dynalight();
@@ -3898,7 +3897,7 @@ Uint32 load_one_title_image( const char *szLoadName )
     Uint32 index;
 
     index = (Uint32)(~0);
-    if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
+    if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxTitleImage + TxTitleImage_count, szLoadName, INVALID_KEY ) )
     {
         index = TxTitleImage_count;
         TxTitleImage_count++;
@@ -3911,7 +3910,7 @@ Uint32 load_one_title_image( const char *szLoadName )
 bool_t load_blip_bitmap()
 {
     // This function loads the blip bitmaps
-    if ( INVALID_TX_ID == GLTexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) )
+    if ( INVALID_TX_ID == GLtexture_Load(GL_TEXTURE_2D, &TxBlip, "basicdat" SLASH_STR "blip", INVALID_KEY ) )
     {
         log_warning( "Blip bitmap not loaded! (\"%s\")\n", "basicdat" SLASH_STR "blip" );
         return bfalse;
@@ -3926,25 +3925,25 @@ bool_t load_blip_bitmap()
 //  // ZZ> This function draws a title image on the backbuffer
 //  GLfloat  txWidth, txHeight;
 //
-//  if ( INVALID_TX_ID != GLTexture_GetTextureID( TxTitleImage + image ) )
+//  if ( INVALID_TX_ID != GLtexture_GetTextureID( TxTitleImage + image ) )
 //  {
 //    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 //    Begin2DMode();
 //    glNormal3f( 0, 0, 1 );  // glNormal3f( 0, 1, 0 );
 //
 //    /* Calculate the texture width & height */
-//    txWidth = ( GLfloat )( GLTexture_GetImageWidth( TxTitleImage + image ) / GLTexture_GetDimensions( TxTitleImage + image ) );
-//    txHeight = ( GLfloat )( GLTexture_GetImageHeight( TxTitleImage + image ) / GLTexture_GetDimensions( TxTitleImage + image ) );
+//    txWidth = ( GLfloat )( GLtexture_GetImageWidth( TxTitleImage + image ) / GLtexture_GetDimensions( TxTitleImage + image ) );
+//    txHeight = ( GLfloat )( GLtexture_GetImageHeight( TxTitleImage + image ) / GLtexture_GetDimensions( TxTitleImage + image ) );
 //
 //    /* Bind the texture */
-//    GLTexture_Bind( TxTitleImage + image );
+//    GLtexture_Bind( TxTitleImage + image );
 //
 //    /* Draw the quad */
 //    glBegin( GL_QUADS );
 //    {
-//        glTexCoord2f( 0, 1 );  glVertex2f( x, y + GLTexture_GetImageHeight( TxTitleImage + image ) );
-//        glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLTexture_GetImageWidth( TxTitleImage + image ), y + GLTexture_GetImageHeight( TxTitleImage + image ) );
-//        glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLTexture_GetImageWidth( TxTitleImage + image ), y );
+//        glTexCoord2f( 0, 1 );  glVertex2f( x, y + GLtexture_GetImageHeight( TxTitleImage + image ) );
+//        glTexCoord2f( txWidth, 1 );  glVertex2f( x + GLtexture_GetImageWidth( TxTitleImage + image ), y + GLtexture_GetImageHeight( TxTitleImage + image ) );
+//        glTexCoord2f( txWidth, 1 - txHeight );  glVertex2f( x + GLtexture_GetImageWidth( TxTitleImage + image ), y );
 //        glTexCoord2f( 0, 1 - txHeight );  glVertex2f( x, y );
 //    }
 //    glEnd();
@@ -4476,23 +4475,18 @@ void project_view( camera_t * pcam )
     //     go when projected onto the plane of the mesh.  Used later for
     //     determining which mesh fans need to be rendered
 
-    int cnt, tnc, extra[2];
+    int cnt, tnc, extra[4];
     float ztemp;
     float numstep;
     float zproject;
     float xfin, yfin, zfin;
-    glMatrix mTemp;
-
-    // make this camera's matricies the global matrices
-    CopyMatrix( &mWorld,      &pcam->mWorld);                       // World Matrix
-    CopyMatrix( &mView,       &pcam->mView);                         // View Matrix
-    CopyMatrix( &mProjection, &pcam->mProjection);             // Projection Matrix
+    GLmatrix mTemp;
 
     // Range
     ztemp = ( pcam->z );
 
     // Topleft
-    mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateY( -rotmeshtopside * PI / 360 ), gCamera.mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
@@ -4507,7 +4501,7 @@ void project_view( camera_t * pcam )
     }
 
     // Topright
-    mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateY( rotmeshtopside * PI / 360 ), gCamera.mView );
     mTemp = MatrixMult( RotateX( rotmeshup * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
@@ -4522,7 +4516,7 @@ void project_view( camera_t * pcam )
     }
 
     // Bottomright
-    mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateY( rotmeshbottomside * PI / 360 ), gCamera.mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down
@@ -4537,7 +4531,7 @@ void project_view( camera_t * pcam )
     }
 
     // Bottomleft
-    mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), mView );
+    mTemp = MatrixMult( RotateY( -rotmeshbottomside * PI / 360 ), gCamera.mView );
     mTemp = MatrixMult( RotateX( -rotmeshdown * PI / 360 ), mTemp );
     zproject = mTemp.CNV( 2, 2 );             //2,2
     // Camera must look down

@@ -29,7 +29,7 @@
 void render_fan( Uint32 fan )
 {
     // ZZ> This function draws a mesh fan
-    GLVERTEX v[MAXMESHVERTICES];
+    GLvertex v[MAXMESHVERTICES];
     Uint16 commands;
     Uint16 vertices;
     Uint16 basetile;
@@ -90,7 +90,7 @@ void render_fan( Uint32 fan )
     //[claforte] Put this in an initialization function.
     //glEnableClientState( GL_VERTEX_ARRAY );
     //glVertexPointer( 3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].x );
-    //glTexCoordPointer( 2, GL_FLOAT, sizeof( GLVERTEX ) - 2*sizeof( GLfloat ), &v[0].s );
+    //glTexCoordPointer( 2, GL_FLOAT, sizeof( GLvertex ) - 2*sizeof( GLfloat ), &v[0].s );
     {
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
@@ -111,12 +111,12 @@ void render_fan( Uint32 fan )
     {
         if ( meshnotexture )
         {
-            GLTexture_Bind( NULL );
+            GLtexture_Bind( NULL );
             meshlasttexture = (Uint16)(~0);
         }
         else
         {
-            GLTexture_Bind( txTexture + texture );
+            GLtexture_Bind( txTexture + texture );
             meshlasttexture = texture;
         }
     }
@@ -152,7 +152,7 @@ void render_fan( Uint32 fan )
 void render_water_fan( Uint32 fan, Uint8 layer )
 {
     // ZZ> This function draws a water fan
-    GLVERTEX v[MAXMESHVERTICES];
+    GLvertex v[MAXMESHVERTICES];
     Uint16 type;
     Uint16 commands;
     Uint16 vertices;
@@ -186,8 +186,8 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     vertices = tile_dict[type].numvertices;// Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    x1 = ( float ) GLTexture_GetTextureWidth( txTexture + texture ) / ( float ) GLTexture_GetImageWidth( txTexture + texture );
-    y1 = ( float ) GLTexture_GetTextureHeight( txTexture + texture ) / ( float ) GLTexture_GetImageHeight( txTexture + texture );
+    x1 = ( float ) GLtexture_GetTextureWidth( txTexture + texture ) / ( float ) GLtexture_GetImageWidth( txTexture + texture );
+    y1 = ( float ) GLtexture_GetTextureHeight( txTexture + texture ) / ( float ) GLtexture_GetImageHeight( txTexture + texture );
 
     fx_off[0] = x1;
     fy_off[0] = 0;
@@ -226,7 +226,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLTexture_Bind( txTexture + texture );
+        GLtexture_Bind( txTexture + texture );
         meshlasttexture = texture;
     }
 

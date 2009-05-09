@@ -247,8 +247,8 @@ int initMenus()
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
-    static GLTexture logo;
+    static GLtexture background;
+    static GLtexture logo;
 
     // static float lerp;
     static int menuChoice = 0;
@@ -265,14 +265,14 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             // set up menu variables
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
 
             // load the menu image
-            GLTexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
 
             // load the logo image
-            GLTexture_Load( GL_TEXTURE_2D, &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
 
             // calculate the centered position of the background
             fminw = (float) MIN(displaySurface->w, background.imgW) / (float) background.imgW;
@@ -378,7 +378,7 @@ int doMainMenu( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -395,7 +395,7 @@ int doMainMenu( float deltaTime )
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
+    static GLtexture background;
     static int menuChoice;
     int result = 0;
 
@@ -403,8 +403,8 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
             menuState = MM_Entering;
@@ -476,7 +476,7 @@ int doSinglePlayerMenu( float deltaTime )
 
         case MM_Finish:
             // Release the background texture
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
 
             // reset the ui
             ui_Reset();
@@ -498,7 +498,7 @@ int doChooseModule( float deltaTime )
 {
     static int menuState = MM_Begin;
     static int startIndex;
-    static GLTexture background;
+    static GLtexture background;
     static int validModules[MAXMODULE];
     static int numValidModules;
 
@@ -516,8 +516,8 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
 
@@ -608,7 +608,7 @@ int doChooseModule( float deltaTime )
                 // fix the menu images in case one or more of them are undefined
                 int         imod       = validModules[i];
                 Uint32      tex_offset = ModList[imod].tex;
-                GLTexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+                GLtexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
                 if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
@@ -685,7 +685,7 @@ int doChooseModule( float deltaTime )
             // fall through for now
 
         case MM_Finish:
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
 
             menuState = MM_Begin;
             if ( selectedModule == -1 )
@@ -733,14 +733,14 @@ int doChooseModule( float deltaTime )
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
+    static GLtexture background;
     int result = 0;
     int i, j, x, y;
     char srcDir[64], destDir[64];
     static int startIndex = 0;
 
     static int numVertical, numHorizontal;
-    static GLTexture TxInput[4];
+    static GLtexture TxInput[4];
     static Uint32 BitsInput[4];
 
     switch ( menuState )
@@ -748,31 +748,31 @@ int doChoosePlayer( float deltaTime )
         case MM_Begin:
             mnu_selectedPlayerCount = 0;
 
-            GLTexture_new( &background );
+            GLtexture_new( &background );
 
             for (i = 0; i < 4; i++)
             {
-                GLTexture_new(TxInput + i);
+                GLtexture_new(TxInput + i);
             };
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
-            GLTexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", INVALID_KEY );
 
-            GLTexture_Load( GL_TEXTURE_2D, TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
 
-            GLTexture_Load( GL_TEXTURE_2D, TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
 
-            GLTexture_Load( GL_TEXTURE_2D, TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
 
-            GLTexture_Load( GL_TEXTURE_2D, TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
+            GLtexture_Load( GL_TEXTURE_2D, TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
 
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
@@ -923,10 +923,10 @@ int doChoosePlayer( float deltaTime )
 
             for (i = 0; i < 4; i++)
             {
-                GLTexture_delete(TxInput + i);
+                GLtexture_delete(TxInput + i);
             };
 
-            GLTexture_delete( &background );
+            GLtexture_delete( &background );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -979,7 +979,7 @@ int doChoosePlayer( float deltaTime )
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
+    static GLtexture background;
     static int menuChoice = 0;
 
     int result = 0;
@@ -988,8 +988,8 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
 
@@ -1074,7 +1074,7 @@ int doOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1482,7 +1482,7 @@ int doInputOptions( float deltaTime )
 int doAudioOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
+    static GLtexture background;
     static int menuChoice = 0;
     static char Cmaxsoundchannel[128];
     static char Cbuffersize[128];
@@ -1495,8 +1495,8 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
             // let this fall through into MM_Entering
@@ -1698,7 +1698,7 @@ int doAudioOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1715,7 +1715,7 @@ int doAudioOptions( float deltaTime )
 int doVideoOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLTexture background;
+    static GLtexture background;
     static int menuChoice = 0;
     int result = 0;
     static STRING Cantialiasing;
@@ -1728,8 +1728,8 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLTexture_new( &background );
-            GLTexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLtexture_new( &background );
+            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
 
@@ -2322,7 +2322,7 @@ int doVideoOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLTexture_Release( &background );
+            GLtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui

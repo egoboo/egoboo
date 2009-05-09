@@ -582,13 +582,13 @@ void statlist_sort()
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
-    if ( MadList[ChrList[character].model].actionvalid[action] )
+    if ( MadList[ChrList[character].inst.imad].actionvalid[action] )
     {
         ChrList[character].nextaction = ACTIONDA;
         ChrList[character].action = action;
-        ChrList[character].lip = 0;
-        ChrList[character].lastframe = ChrList[character].frame;
-        ChrList[character].frame = MadList[ChrList[character].model].actionstart[ChrList[character].action];
+        ChrList[character].inst.lip = 0;
+        ChrList[character].inst.lastframe = ChrList[character].inst.frame;
+        ChrList[character].inst.frame = MadList[ChrList[character].inst.imad].actionstart[ChrList[character].action];
         ChrList[character].actionready = actionready;
     }
 }
@@ -600,9 +600,9 @@ void chr_set_frame( Uint16 character, int frame, Uint16 lip )
     //     rotate Tank turrets
     ChrList[character].nextaction = ACTIONDA;
     ChrList[character].action = ACTIONDA;
-    ChrList[character].lip = ( lip << 6 );
-    ChrList[character].lastframe = MadList[ChrList[character].model].actionstart[ACTIONDA] + frame;
-    ChrList[character].frame = MadList[ChrList[character].model].actionstart[ACTIONDA] + frame + 1;
+    ChrList[character].inst.lip = ( lip << 6 );
+    ChrList[character].inst.lastframe = MadList[ChrList[character].inst.imad].actionstart[ACTIONDA] + frame;
+    ChrList[character].inst.frame = MadList[ChrList[character].inst.imad].actionstart[ACTIONDA] + frame + 1;
     ChrList[character].actionready = btrue;
 }
 
@@ -1209,10 +1209,6 @@ void reset_timers()
 int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
-    glVector t1 = {0, 0, 0};
-    glVector t2 = {0, 0, -1};
-    glVector t3 = {0, 1, 0};
-
     double frameDuration;
     int menuActive = 1;
     int menuResult;
@@ -1269,16 +1265,6 @@ int SDL_main( int argc, char **argv )
     rotmeshbottomside = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
     rotmeshup         = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHUP / ( 1.33333f );
     rotmeshdown       = ( ( float )displaySurface->w / displaySurface->h ) * ROTMESHDOWN / ( 1.33333f );
-
-    mWorld      = IdentityMatrix();
-    mView       = mViewSave = ViewMatrix( t1, t2, t3, 0 );
-    mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
-    mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), mProjection ); // Fix Z value...
-    mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), mProjection );  // HUK // ...'cause it needs it
-
-    //[claforte] Fudge the values.
-    mProjection.v[10] /= 2.0f;
-    mProjection.v[11] /= 2.0f;
 
     camera_new( &gCamera );
 
@@ -1621,12 +1607,12 @@ int load_one_object( int skin, const char* tmploadname )
     for ( cnt = 0; cnt < 4; cnt++)
     {
         snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-        if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
+        if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
         {
             numskins++;
 
             snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-            if ( INVALID_TX_ID != GLTexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
+            if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
             {
                 for ( /* nothing */ ; numicon < numskins; numicon++ )
                 {
@@ -1932,7 +1918,10 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //If maxdistance is 0 then it searches without a max limit.
     Uint16 besttarget = MAXCHR, cnt;
-	Uint32 longdist = TILESIZE*(mesh.info.tiles_x+mesh.info.tiles_y); //pow(2, 31);
+	float longdist = TILESIZE*MAX(mesh.info.tiles_x,mesh.info.tiles_y); //pow(2, 31);
+    float longdist2 = longdist * longdist;
+    float maxdistance2 = maxdistance * maxdistance;
+
     if (team == NONE) return MAXCHR;
 
     for (cnt = 0; cnt < MAXCHR; cnt++)
@@ -1948,7 +1937,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 
 		//Dont target hostile invisible stuff, unless we can actually see them
         if( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible 
-			&& ( ChrList[cnt].alpha < INVISIBLE && ChrList[cnt].light < INVISIBLE )) ) continue;
+			&& ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE )) ) continue;
         
 		//Which team to target
 		if( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
@@ -1958,13 +1947,18 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz ) ) continue;
 			
             {
-                Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - ChrList[character].xpos, 2))
-                                              + ABS( pow(ChrList[cnt].ypos - ChrList[character].ypos, 2))
-                                              + ABS( pow(ChrList[cnt].zpos - ChrList[character].zpos, 2)) );
-                if (dist < longdist && (maxdistance == 0 || dist < maxdistance) )
+                float dx, dy, dz;
+                float dist2;
+            
+                dx = ChrList[cnt].xpos - ChrList[character].xpos;
+                dy = ChrList[cnt].ypos - ChrList[character].ypos;
+                dz = ChrList[cnt].zpos - ChrList[character].zpos;
+
+                dist2 = dx*dx + dy*dy + dz*dz;
+                if (dist2 < longdist2 && (maxdistance == 0 || dist2 < maxdistance2) )
                 {
                     besttarget = cnt;
-                    longdist = dist;
+                    longdist2 = dist2;
                 }
             }
         }
@@ -3365,13 +3359,13 @@ void bump_characters( void )
                         }
 
                         // check bounding box x
-                        if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) )
+                        if ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize )
                         {
                             collide_x = btrue;
                         }
 
                         // check bounding box y
-                        if ( ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                        if ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize )
                         {
                             collide_y = btrue;
                         }
@@ -3452,15 +3446,14 @@ void bump_characters( void )
                         collide_y  = ( dy   < ChrList[chara].bumpsize    + ChrList[charb].bumpsize    );
                         collide_z  = ( MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX(za, zb) > 0 );
 
-                        if ( !collision && collide_z && collide_x && collide_y && collide_xy )
+                        if ( !collision && collide_z &&  collide_x && collide_y && collide_xy )
                         {
                             float vdot;
 
                             float depth_x, depth_y, depth_xy, depth_yx, depth_z;
-                            glVector nrm;
+                            GLvector3 nrm;
 
                             nrm.x = nrm.y = nrm.z = 0.0f;
-                            nrm.w = 1.0f;
 
                             depth_x  = MIN(xa + ChrList[chara].bumpsize, xb + ChrList[charb].bumpsize) - MAX(xa - ChrList[chara].bumpsize, xb - ChrList[charb].bumpsize);
                             if ( depth_x < 0.0f )
@@ -3469,7 +3462,10 @@ void bump_characters( void )
                             }
                             else
                             {
-                                nrm.x += 1 / depth_x;
+                                float sgn = xb - xa;
+                                sgn = sgn > 0 ? -1 : 1;
+
+                                nrm.x += sgn / depth_x;
                             }
 
                             depth_y  = MIN(ya + ChrList[chara].bumpsize, yb + ChrList[charb].bumpsize) - MAX(ya - ChrList[chara].bumpsize, yb - ChrList[charb].bumpsize);
@@ -3479,29 +3475,37 @@ void bump_characters( void )
                             }
                             else
                             {
-                                nrm.y += 1 / depth_y;
+                                float sgn = yb - ya;
+                                sgn = sgn > 0 ? -1 : 1;
+
+                                nrm.y += sgn / depth_y;
                             }
 
-                            depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsize, xb + yb - ChrList[charb].bumpsizebig);
+                            depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsizebig, xb + yb - ChrList[charb].bumpsizebig);
                             if ( depth_xy < 0.0f )
                             {
                                 depth_xy = 0.0f;
                             }
                             else
                             {
-                                nrm.x += 1 / depth_xy;
-                                nrm.y += 1 / depth_xy;
+                                float sgn = (xb + yb) - (xa + ya);
+                                sgn = sgn > 0 ? -1 : 1;
+
+                                nrm.x += sgn / depth_xy;
+                                nrm.y += sgn / depth_xy;
                             }
 
-                            depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsize, -xb + yb - ChrList[charb].bumpsizebig);
+                            depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsizebig, -xb + yb - ChrList[charb].bumpsizebig);
                             if ( depth_yx < 0.0f )
                             {
                                 depth_yx = 0.0f;
                             }
                             else
                             {
-                                nrm.x -= 1 / depth_yx;
-                                nrm.y += 1 / depth_yx;
+                                float sgn = (-xb + yb) - (-xa + ya);
+                                sgn = sgn > 0 ? -1 : 1;
+                                nrm.x -= sgn / depth_yx;
+                                nrm.y += sgn / depth_yx;
                             }
 
                             depth_z  = MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX( za, zb );
@@ -3511,12 +3515,11 @@ void bump_characters( void )
                             }
                             else
                             {
-                                nrm.z += 1 / depth_z;
-                            }
+                                float sgn = zb - za;
+                                sgn = sgn > 0 ? -1 : 1;
 
-                            if ( xa < xb ) nrm.x *= -1;
-                            if ( ya < yb ) nrm.y *= -1;
-                            if ( za < zb ) nrm.z *= -1;
+                                nrm.z += sgn / depth_z;
+                            }
 
                             vdot = (ChrList[chara].xvel - ChrList[charb].xvel) * nrm.x +
                                    (ChrList[chara].yvel - ChrList[charb].yvel) * nrm.y +
@@ -3531,7 +3534,7 @@ void bump_characters( void )
                                 bool_t was_collide_xy = bfalse;
                                 bool_t was_collide_z  = bfalse;
 
-                                nrm = Normalize( nrm );
+                                nrm = VNormalize( nrm );
 
                                 was_dx = ABS( (xa - ChrList[chara].xvel) - (xb - ChrList[charb].xvel) );
                                 was_dy = ABS( (ya - ChrList[chara].yvel) - (yb - ChrList[charb].yvel) );
@@ -3544,13 +3547,13 @@ void bump_characters( void )
 
                                 if ( collide_xy != was_collide_xy || collide_x != was_collide_x || collide_y != was_collide_y )
                                 {
-                                    // an acrual collision
-                                    glVector vcom;
+                                    // an actual collision
+                                    GLvector3 vcom;
                                     float vdot, ratio;
                                     float wta, wtb;
 
-                                    wta = 0xFFFF == ChrList[chara].weight ? -0xFFFF : ChrList[chara].weight;
-                                    wtb = 0xFFFF == ChrList[charb].weight ? -0xFFFF : ChrList[charb].weight;
+                                    wta = 0xFFFFFFFF == ChrList[chara].weight ? -(float)0xFFFFFFFF : ChrList[chara].weight;
+                                    wtb = 0xFFFFFFFF == ChrList[charb].weight ? -(float)0xFFFFFFFF : ChrList[charb].weight;
 
                                     if ( wta == 0 && wtb == 0 )
                                     {
@@ -3609,8 +3612,8 @@ void bump_characters( void )
                                     float tmin;
                                     float wta, wtb;
 
-                                    wta = 0xFFFF == ChrList[chara].weight ? -0xFFFF : ChrList[chara].weight;
-                                    wtb = 0xFFFF == ChrList[charb].weight ? -0xFFFF : ChrList[charb].weight;
+                                    wta = 0xFFFFFFFF == ChrList[chara].weight ? -(float)0xFFFFFFFF : ChrList[chara].weight;
+                                    wtb = 0xFFFFFFFF == ChrList[charb].weight ? -(float)0xFFFFFFFF : ChrList[charb].weight;
 
                                     if ( wta == 0 && wtb == 0 )
                                     {
@@ -3732,7 +3735,7 @@ void bump_characters( void )
                                     // Is A falling on B?
                                     if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
                                     {
-                                        if ( MadList[ChrList[chara].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
+                                        if ( MadList[ChrList[chara].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
                                         {
                                             attach_character_to_mount( chara, charb, GRIP_ONLY );
                                             ChrList[chara].ai.bumplast = chara;
@@ -3747,7 +3750,7 @@ void bump_characters( void )
                                         // Is B falling on A?
                                         if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
                                         {
-                                            if ( MadList[ChrList[charb].model].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
+                                            if ( MadList[ChrList[charb].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
                                             {
                                                 attach_character_to_mount( charb, chara, GRIP_ONLY );
 
@@ -3883,7 +3886,7 @@ void bump_characters( void )
                                                     }
 
                                                     // Do confuse effects
-                                                    if ( 0 == ( Md2FrameList[ChrList[chara].frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
+                                                    if ( 0 == ( Md2FrameList[ChrList[chara].inst.frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFXBLOC )
                                                     {
                                                         if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
                                                         {

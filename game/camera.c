@@ -41,12 +41,11 @@ camera_t gCamera;
 
 camera_t * camera_new( camera_t * pcam )
 {
-    memset( pcam, 0, sizeof(camera_t) );
+    GLvector3 t1 = {0, 0, 0};
+    GLvector3 t2 = {0, 0, -1};
+    GLvector3 t3 = {0, 1, 0};
 
-    // copy the global matricies to this camera
-    CopyMatrix( &pcam->mWorld,      &mWorld);                       // World Matrix
-    CopyMatrix( &pcam->mView,       &mView);                         // View Matrix
-    CopyMatrix( &pcam->mProjection, &mProjection);             // Projection Matrix
+    memset( pcam, 0, sizeof(camera_t) );
 
     pcam->move_mode = CAM_PLAYER;
     pcam->turn_mode = autoturncamera;
@@ -69,12 +68,21 @@ camera_t * camera_new( camera_t * pcam )
     pcam->turnupdown         =  ( float )( PI / 4 );
     pcam->roll               =  0;
 
+    pcam->mView       = pcam->mViewSave = ViewMatrix( t1, t2, t3, 0 );
+    pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
+    pcam->mProjection = MatrixMult( Translate( 0, 0, -0.999996f ), pcam->mProjection ); // Fix Z value...
+    pcam->mProjection = MatrixMult( ScaleXYZ( -1, -1, 100000 ), pcam->mProjection );  // HUK // ...'cause it needs it
+
+    //[claforte] Fudge the values.
+    pcam->mProjection.v[10] /= 2.0f;
+    pcam->mProjection.v[11] /= 2.0f;
+
     return pcam;
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void dump_matrix( glMatrix a )
+void dump_matrix( GLmatrix a )
 {
     int i; int j;
 
@@ -106,8 +114,7 @@ void camera_make_matrix( camera_t * pcam )
 {
     // ZZ> This function sets pcam->mView to the camera's location and rotation
 
-    pcam->mView = mViewSave;
-    pcam->mView = MatrixMult( Translate( pcam->x, -pcam->y, pcam->z ), pcam->mView );  // xgg
+    pcam->mView = MatrixMult( Translate( pcam->x, -pcam->y, pcam->z ), pcam->mViewSave );  // xgg
     if ( pcam->swingamp > 0.001f )
     {
         pcam->roll = turntosin[pcam->swing] * pcam->swingamp;
@@ -117,8 +124,6 @@ void camera_make_matrix( camera_t * pcam )
     pcam->mView = MatrixMult( RotateZ( pcam->turnleftright ), pcam->mView );
     pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
 
-//        glMatrixMode(GL_MODELVIEW);
-///        glLoadMatrixf(pcam->mView.v);
 }
 
 //--------------------------------------------------------------------------------------------

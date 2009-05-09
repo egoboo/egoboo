@@ -288,16 +288,16 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     ChrList[character].flashand = EveList[enchanttype].setvalue[valueindex];
                     break;
                 case SETLIGHTBLEND:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].light;
-                    ChrList[character].light = EveList[enchanttype].setvalue[valueindex];
+                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.light;
+                    ChrList[character].inst.light = EveList[enchanttype].setvalue[valueindex];
                     break;
                 case SETALPHABLEND:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].alpha;
-                    ChrList[character].alpha = EveList[enchanttype].setvalue[valueindex];
+                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.alpha;
+                    ChrList[character].inst.alpha = EveList[enchanttype].setvalue[valueindex];
                     break;
                 case SETSHEEN:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].sheen;
-                    ChrList[character].sheen = EveList[enchanttype].setvalue[valueindex];
+                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.sheen;
+                    ChrList[character].inst.sheen = EveList[enchanttype].setvalue[valueindex];
                     break;
                 case SETFLYTOHEIGHT:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].flyheight;
@@ -404,22 +404,22 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
             ChrList[character].maxaccel += fvaluetoadd;
             break;
         case ADDRED:
-            newvalue = ChrList[character].redshift;
+            newvalue = ChrList[character].inst.redshift;
             valuetoadd = EveList[enchanttype].addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].redshift += valuetoadd;
+            ChrList[character].inst.redshift += valuetoadd;
             break;
         case ADDGRN:
-            newvalue = ChrList[character].grnshift;
+            newvalue = ChrList[character].inst.grnshift;
             valuetoadd = EveList[enchanttype].addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].grnshift += valuetoadd;
+            ChrList[character].inst.grnshift += valuetoadd;
             break;
         case ADDBLU:
-            newvalue = ChrList[character].blushift;
+            newvalue = ChrList[character].inst.blushift;
             valuetoadd = EveList[enchanttype].addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].blushift += valuetoadd;
+            ChrList[character].inst.blushift += valuetoadd;
             break;
         case ADDDEFENSE:
             newvalue = ChrList[character].defense;
@@ -636,16 +636,16 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchan
                     ChrList[overlay].overlay = btrue;
 
                     // Start out with ActionMJ...  Object activated
-                    if ( MadList[ChrList[overlay].model].actionvalid[ACTIONMJ] )
+                    if ( MadList[ChrList[overlay].inst.imad].actionvalid[ACTIONMJ] )
                     {
                         ChrList[overlay].action = ACTIONMJ;
-                        ChrList[overlay].lip = 0;
-                        ChrList[overlay].frame = MadList[ChrList[overlay].model].actionstart[ACTIONMJ];
-                        ChrList[overlay].lastframe = ChrList[overlay].frame;
+                        ChrList[overlay].inst.lip = 0;
+                        ChrList[overlay].inst.frame = MadList[ChrList[overlay].inst.imad].actionstart[ACTIONMJ];
+                        ChrList[overlay].inst.lastframe = ChrList[overlay].inst.frame;
                         ChrList[overlay].actionready = bfalse;
                     }
 
-                    ChrList[overlay].light = 254;  // Assume it's transparent...
+                    ChrList[overlay].inst.light = 254;  // Assume it's transparent...
                 }
             }
         }
@@ -1072,13 +1072,13 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
                 ChrList[character].flashand = EncList[enchantindex].setsave[valueindex];
                 break;
             case SETLIGHTBLEND:
-                ChrList[character].light = EncList[enchantindex].setsave[valueindex];
+                ChrList[character].inst.light = EncList[enchantindex].setsave[valueindex];
                 break;
             case SETALPHABLEND:
-                ChrList[character].alpha = EncList[enchantindex].setsave[valueindex];
+                ChrList[character].inst.alpha = EncList[enchantindex].setsave[valueindex];
                 break;
             case SETSHEEN:
-                ChrList[character].sheen = EncList[enchantindex].setsave[valueindex];
+                ChrList[character].inst.sheen = EncList[enchantindex].setsave[valueindex];
                 break;
             case SETFLYTOHEIGHT:
                 ChrList[character].flyheight = EncList[enchantindex].setsave[valueindex];
@@ -1147,15 +1147,15 @@ void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
             break;
         case ADDRED:
             valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].redshift -= valuetoadd;
+            ChrList[character].inst.redshift -= valuetoadd;
             break;
         case ADDGRN:
             valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].grnshift -= valuetoadd;
+            ChrList[character].inst.grnshift -= valuetoadd;
             break;
         case ADDBLU:
             valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].blushift -= valuetoadd;
+            ChrList[character].inst.blushift -= valuetoadd;
             break;
         case ADDDEFENSE:
             valuetoadd = EncList[enchantindex].addsave[valueindex];

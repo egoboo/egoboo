@@ -678,7 +678,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         vertices = MadList[model].vertices;
         direction = ( ATAN2( PrtList[particle].yvel, PrtList[particle].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
         direction = ChrList[character].turnleftright - direction + 32768;
-        if ( Md2FrameList[ChrList[character].frame].framefx&MADFXINVICTUS )
+        if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFXINVICTUS )
         {
             // I Frame
             if ( PipList[pip].damfx&DAMFXBLOC )
@@ -728,7 +728,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     x = -y * fsin;
                     y = y * fcos;
                     z = z << 10;/// ChrList[character].scale;
-                    frame = MadList[ChrList[character].model].framestart;
+                    frame = MadList[ChrList[character].inst.imad].framestart;
                     cnt = 0;
 
                     while ( cnt < vertices )
@@ -792,9 +792,13 @@ int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip )
     float fTmp;
     char cTmp;
 
+    PipList[numpip].loaded = bfalse;
+
     fileread = fopen( szLoadName, "r" );
     if ( fileread != NULL )
     {
+        PipList[numpip].loaded = btrue;
+
         // General data
         parse_filename = szLoadName;    //For debugging missing colons
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );

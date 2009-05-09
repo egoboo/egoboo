@@ -26,6 +26,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+struct s_camera;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 #define MAPSIZE 96
 
 #define TABX                            32//16      // Size of little name tag on the bar
@@ -68,24 +72,19 @@ typedef enum e_tx_type
 extern Uint16           dolist[MAXCHR];             // List of which characters to draw
 extern Uint16           numdolist;                  // How many in the list
 
-extern glMatrix mWorld;                       // World Matrix
-extern glMatrix mView;                        // View Matrix
-extern glMatrix mViewSave;                    // View Matrix initial state
-extern glMatrix mProjection;                  // Projection Matrix
-
 /*OpenGL Textures*/
 extern  STRING          TxFormatSupported[50]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
 
-extern  GLTexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
-extern  GLTexture       TxFont;                     // OpenGL font surface
-extern  GLTexture       TxBars;                     // OpenGL status bar surface
-extern  GLTexture       TxBlip;                     // OpenGL you are here surface
-extern  GLTexture       TxMap;                      // OpenGL map surface
-extern  GLTexture       txTexture[MAXTEXTURE];      // All textures
+extern  GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+extern  GLtexture       TxFont;                     // OpenGL font surface
+extern  GLtexture       TxBars;                     // OpenGL status bar surface
+extern  GLtexture       TxBlip;                     // OpenGL you are here surface
+extern  GLtexture       TxMap;                      // OpenGL map surface
+extern  GLtexture       txTexture[MAXTEXTURE];      // All textures
 
 extern  Uint32          TxTitleImage_count;
-extern  GLTexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+extern  GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
 #define MAXBLIP 128
@@ -111,9 +110,9 @@ typedef struct
 {
     GLfloat x, y, z, w;
     GLfloat r, g, b, a;
-    Uint32   color; // should replace r,g,b,a and be called by glColor4ubv
+    GLuint  color; // should replace r,g,b,a and be called by glColor4ubv
     GLfloat s, t; // u and v in D3D I guess
-} GLVERTEX;
+} GLvertex;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -239,10 +238,10 @@ void flip_pages();
 void draw_scene();
 void draw_main();
 
-void render_prt();
+void render_prt( struct s_camera * pcam );
 void render_shadow( Uint16 character );
 void render_bad_shadow( Uint16 character );
-void render_refprt();
+void render_refprt( struct s_camera * pcam );
 void render_fan( Uint32 fan );
 void render_water_fan( Uint32 fan, Uint8 layer );
 void render_enviromad( Uint16 character, Uint8 trans );
@@ -282,3 +281,7 @@ void read_wawalite( const char *modname );
 Uint32 load_one_title_image( const char *szLoadName );
 
 void font_init();
+
+
+void Begin3DMode( struct s_camera * pcam );
+void End3DMode();

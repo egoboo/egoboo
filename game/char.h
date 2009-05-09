@@ -91,6 +91,8 @@ extern team_t TeamList[MAXTEAM];
 
 struct s_cap
 {
+    bool_t       loaded;
+
     short        importslot;
 
     // naming
@@ -278,16 +280,64 @@ typedef struct s_cap cap_t;
 extern int   importobject;
 extern cap_t CapList[MAXMODEL];
 
+#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_PROFILE) )
+#define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
+#define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
+
+
 //------------------------------------
 // Character variables
 //------------------------------------
+
+// all the model data that the renderer needs to render the character
+struct s_chr_instance
+{
+    // position info
+    GLmatrix       matrix;          // Character's matrix
+    char           matrixvalid;     // Did we make one yet?
+    Uint16         turn_z;
+
+    // render mode info
+    Uint8          alpha;           // 255 = Solid, 0 = Invisible
+    Uint8          light;           // 1 = Light, 0 = Normal
+    Uint8          sheen;           // 0-15, how shiny it is
+    Uint8          enviro;          // Environment map?
+
+    // color info
+    Uint8          redshift;        // Color channel shifting
+    Uint8          grnshift;
+    Uint8          blushift;
+
+    // texture info
+    Uint16         texture;         // The texture id of the character's skin
+    Uint16         uoffset;         // For moving textures
+    Uint16         voffset;
+
+    // lighting
+    Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
+    Uint8          lightlevel_amb;  // 0-255, terrain light
+    Uint8          lightlevel_dir;  // 0-255, terrain light
+    Uint8          vrta[MAXVERTICES];// Lighting hack ( Ooze )
+
+    // model info
+    Uint16         imad;            // Character's model
+    Uint16         frame;           // Character's frame
+    Uint16         lastframe;       // Character's last frame
+    Uint8          lip;             // Character's frame in betweening
+};
+
+typedef struct s_chr_instance chr_instance_t;
+
 struct s_chr
 {
-    glMatrix       matrix;          // Character's matrix
-    char           matrixvalid;     // Did we make one yet?
-    char           name[MAXCAPNAMESIZE];  // Character name
     bool_t         on;              // Does it exist?
     Uint8          onold;           // Network fix
+
+    char           name[MAXCAPNAMESIZE];  // Character name
+
+    // the render data
+    chr_instance_t inst;
+
     Uint8          alive;           // Is it alive?
     Uint8          waskilled;       // Fix for network
     Uint8          inpack;          // Is it in the inventory?
@@ -318,7 +368,6 @@ struct s_chr
     bool_t         islocalplayer;   // btrue = local player
     ai_state_t     ai;
     Uint8          stickybutt;      // Rests on floor
-    Uint8          enviro;          // Environment map?
     float          oldx;            // Character's last position
     float          oldy;            //
     float          oldz;            //
@@ -355,8 +404,6 @@ struct s_chr
     Uint32         onwhichfan;      // Where the char is
     Uint32         onwhichblock;    // The character's collision block
     Uint8          indolist;        // Has it been added yet?
-    Uint16         uoffset;         // For moving textures
-    Uint16         voffset;         //
     Uint16         uoffvel;         // Moving texture speed
     Uint16         voffvel;         //
     Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
@@ -364,7 +411,6 @@ struct s_chr
     Uint16         turnmaplr;       //
     Uint16         turnmapud;       //
     Uint16         skin;            // Character's skin
-    Uint16         texture;         // The texture id of the character's skin
     Uint8          model;           // Character's model
     Uint8          basemodel;       // The true form
     Uint8          actionready;     // Ready to play a new one
@@ -372,27 +418,18 @@ struct s_chr
     bool_t         keepaction;      // Keep the action playing
     bool_t         loopaction;      // Loop it too
     Uint8          nextaction;      // Character's action to play next
-    Uint16         frame;           // Character's frame
-    Uint16         lastframe;       // Character's last frame
-    Uint8          lip;             // Character's frame in betweening
-    Uint8          vrta[MAXVERTICES];// Lighting hack ( Ooze )
+
     Uint16         holdingwhich[MAXSLOT]; // !=MAXCHR if character is holding something
     Uint16         attachedto;      // !=MAXCHR if character is a held weapon
     Uint16         weapongrip[GRIP_VERTS];   // Vertices which describe the weapon grip
-    Uint8          alpha;           // 255 = Solid, 0 = Invisible
     Uint8          basealpha;
-    Uint8          light;           // 1 = Light, 0 = Normal
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
     Uint8          lightlevel_amb;  // 0-255, terrain light
     Uint8          lightlevel_dir;  // 0-255, terrain light
-    Uint8          sheen;           // 0-15, how shiny it is
     Uint8          transferblend;   // Give transparency to weapons?
     Uint8          isitem;          // Is it grabbable?
     Uint8          invictus;        // Totally invincible?
     Uint8          ismount;         // Can you ride it?
-    Uint8          redshift;        // Color channel shifting
-    Uint8          grnshift;        //
-    Uint8          blushift;        //
     Uint8          shadowsize;      // Size of shadow
     Uint8          bumpsize;        // Size of bumpers
     Uint8          bumpsizebig;     // For octagonal bumpers
@@ -414,7 +451,7 @@ struct s_chr
     Uint8          damagemodifier[DAMAGE_COUNT];  // Resistances and inversion
     Uint8          damagetime;      // Invincibility timer
     Uint8          defense;         // Base defense rating
-    Uint16         weight;          // Weight ( for pressure plates )
+    Uint32         weight;          // Weight ( for pressure plates )
     Uint16         holdingweight;   // For weighted buttons
     Sint16         money;           // Money
     Sint16         lifereturn;      // Regeneration/poison
@@ -470,6 +507,11 @@ struct s_chr
 typedef struct s_chr chr_t;
 
 extern chr_t ChrList[MAXCHR];
+
+#define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAXCHR) )
+#define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
+#define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

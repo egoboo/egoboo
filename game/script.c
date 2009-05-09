@@ -149,7 +149,7 @@ void let_character_think( Uint16 character )
     // Reset the target if it can't be seen
     if ( !ChrList[pself->index].canseeinvisible && ChrList[pself->index].alive )
     {
-        if ( ChrList[pself->target].alpha <= INVISIBLE || ChrList[pself->target].light <= INVISIBLE )
+        if ( ChrList[pself->target].inst.alpha <= INVISIBLE || ChrList[pself->target].inst.light <= INVISIBLE )
         {
             pself->target = pself->index;
         }
@@ -1252,12 +1252,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( pstate->argument < MAXACTION && pchr->actionready )
             {
-                if ( MadList[pchr->model].actionvalid[pstate->argument] )
+                if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
                 {
                     pchr->action = pstate->argument;
-                    pchr->lip = 0;
-                    pchr->lastframe = pchr->frame;
-                    pchr->frame = MadList[pchr->model].actionstart[pstate->argument];
+                    pchr->inst.lip = 0;
+                    pchr->inst.lastframe = pchr->inst.frame;
+                    pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pstate->argument];
                     pchr->actionready = bfalse;
                     returncode = btrue;
                 }
@@ -1310,12 +1310,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             {
                 if ( pstate->argument < MAXACTION && ChrList[pself->target].actionready )
                 {
-                    if ( MadList[ChrList[pself->target].model].actionvalid[pstate->argument] )
+                    if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
                     {
                         ChrList[pself->target].action = pstate->argument;
-                        ChrList[pself->target].lip = 0;
-                        ChrList[pself->target].lastframe = ChrList[pself->target].frame;
-                        ChrList[pself->target].frame = MadList[ChrList[pself->target].model].actionstart[pstate->argument];
+                        ChrList[pself->target].inst.lip = 0;
+                        ChrList[pself->target].inst.lastframe = ChrList[pself->target].inst.frame;
+                        ChrList[pself->target].inst.frame = MadList[ChrList[pself->target].inst.imad].actionstart[pstate->argument];
                         ChrList[pself->target].actionready = bfalse;
                         returncode = btrue;
                     }
@@ -1434,12 +1434,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( pstate->argument < MAXACTION )
             {
-                if ( MadList[pchr->model].actionvalid[pstate->argument] )
+                if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
                 {
                     pchr->action = pstate->argument;
-                    pchr->lip = 0;
-                    pchr->lastframe = pchr->frame;
-                    pchr->frame = MadList[pchr->model].actionstart[pstate->argument];
+                    pchr->inst.lip = 0;
+                    pchr->inst.lastframe = pchr->inst.frame;
+                    pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pstate->argument];
                     pchr->actionready = bfalse;
                     returncode = btrue;
                 }
@@ -1453,7 +1453,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FSENDMESSAGE:
             // This function sends a message to the players
-            display_message( pstate, MadList[pchr->model].msgstart + pstate->argument, pself->index );
+            display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
             break;
 
         case FCALLFORHELP:
@@ -1925,7 +1925,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FIFINVISIBLE:
             // This function passes if the character is invisible
-            returncode = ( pchr->alpha <= INVISIBLE ) || ( pchr->light <= INVISIBLE );
+            returncode = ( pchr->inst.alpha <= INVISIBLE ) || ( pchr->inst.light <= INVISIBLE );
             break;
 
         case FIFARMORIS:
@@ -2094,27 +2094,27 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FSETREDSHIFT:
             // This function alters a character's coloration
-            pchr->redshift = pstate->argument;
+            pchr->inst.redshift = pstate->argument;
             break;
 
         case FSETGREENSHIFT:
             // This function alters a character's coloration
-            pchr->grnshift = pstate->argument;
+            pchr->inst.grnshift = pstate->argument;
             break;
 
         case FSETBLUESHIFT:
             // This function alters a character's coloration
-            pchr->blushift = pstate->argument;
+            pchr->inst.blushift = pstate->argument;
             break;
 
         case FSETLIGHT:
             // This function alters a character's transparency
-            pchr->light = pstate->argument;
+            pchr->inst.light = pstate->argument;
             break;
 
         case FSETALPHA:
             // This function alters a character's transparency
-            pchr->alpha = pstate->argument;
+            pchr->inst.alpha = pstate->argument;
             break;
 
         case FIFHITFROMBEHIND:
@@ -2299,7 +2299,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             iTmp = ABS( pchr->oldx - gCamera.trackx ) + ABS( pchr->oldy - gCamera.tracky );
             if ( iTmp < MSGDISTANCE )
             {
-                display_message( pstate, MadList[pchr->model].msgstart + pstate->argument, pself->index );
+                display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
             }
             break;
 
@@ -2709,12 +2709,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( pstate->argument < MAXACTION )
             {
-                if ( MadList[ChrList[pself->child].model].actionvalid[pstate->argument] )
+                if ( MadList[ChrList[pself->child].inst.imad].actionvalid[pstate->argument] )
                 {
                     ChrList[pself->child].action = pstate->argument;
-                    ChrList[pself->child].lip = 0;
-                    ChrList[pself->child].frame = MadList[ChrList[pself->child].model].actionstart[pstate->argument];
-                    ChrList[pself->child].lastframe = ChrList[pself->child].frame;
+                    ChrList[pself->child].inst.lip = 0;
+                    ChrList[pself->child].inst.frame = MadList[ChrList[pself->child].inst.imad].actionstart[pstate->argument];
+                    ChrList[pself->child].inst.lastframe = ChrList[pself->child].inst.frame;
                     ChrList[pself->child].actionready = bfalse;
                     returncode = btrue;
                 }
@@ -3323,12 +3323,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             if ( pstate->argument < MAXACTION )
             {
-                if ( MadList[ChrList[pself->target].model].actionvalid[pstate->argument] )
+                if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
                 {
                     ChrList[pself->target].action = pstate->argument;
-                    ChrList[pself->target].lip = 0;
-                    ChrList[pself->target].frame = MadList[ChrList[pself->target].model].actionstart[pstate->argument];
-                    ChrList[pself->target].lastframe = ChrList[pself->target].frame;
+                    ChrList[pself->target].inst.lip = 0;
+                    ChrList[pself->target].inst.frame = MadList[ChrList[pself->target].inst.imad].actionstart[pstate->argument];
+                    ChrList[pself->target].inst.lastframe = ChrList[pself->target].inst.frame;
                     ChrList[pself->target].actionready = bfalse;
                     returncode = btrue;
                 }
@@ -3516,7 +3516,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FADDENDMESSAGE:
             // This function appends a message to the end-module text buffer
-            append_end_text( pstate,  MadList[pchr->model].msgstart + pstate->argument, pself->index );
+            append_end_text( pstate,  MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
             break;
 
         case FPLAYMUSIC:
@@ -3884,7 +3884,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
             while (iTmp < MAXPRTPIPPEROBJECT)
             {
-                if (PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].wisdamagebonus)
+                if (PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].wisdamagebonus)
                 {
                     returncode = btrue;
                     break;
@@ -5453,12 +5453,12 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < MAXACTION && pchr->actionready )
     {
-        if ( MadList[pchr->model].actionvalid[pstate->argument] )
+        if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
             pchr->action = pstate->argument;
-            pchr->lip = 0;
-            pchr->lastframe = pchr->frame;
-            pchr->frame = MadList[pchr->model].actionstart[pstate->argument];
+            pchr->inst.lip = 0;
+            pchr->inst.lastframe = pchr->inst.frame;
+            pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pstate->argument];
             pchr->actionready = bfalse;
             returncode = btrue;
         }
@@ -5549,12 +5549,12 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     {
         if ( pstate->argument < MAXACTION && ChrList[pself->target].actionready )
         {
-            if ( MadList[ChrList[pself->target].model].actionvalid[pstate->argument] )
+            if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
             {
                 ChrList[pself->target].action = pstate->argument;
-                ChrList[pself->target].lip = 0;
-                ChrList[pself->target].lastframe = ChrList[pself->target].frame;
-                ChrList[pself->target].frame = MadList[ChrList[pself->target].model].actionstart[pstate->argument];
+                ChrList[pself->target].inst.lip = 0;
+                ChrList[pself->target].inst.lastframe = ChrList[pself->target].inst.frame;
+                ChrList[pself->target].inst.frame = MadList[ChrList[pself->target].inst.imad].actionstart[pstate->argument];
                 ChrList[pself->target].actionready = bfalse;
                 returncode = btrue;
             }
@@ -5743,12 +5743,12 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < MAXACTION )
     {
-        if ( MadList[pchr->model].actionvalid[pstate->argument] )
+        if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
             pchr->action = pstate->argument;
-            pchr->lip = 0;
-            pchr->lastframe = pchr->frame;
-            pchr->frame = MadList[pchr->model].actionstart[pstate->argument];
+            pchr->inst.lip = 0;
+            pchr->inst.lastframe = pchr->inst.frame;
+            pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pstate->argument];
             pchr->actionready = bfalse;
             returncode = btrue;
         }
@@ -5779,7 +5779,7 @@ Uint8 scr_SendPlayerMessage( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sends a message to the players
-    display_message( pstate, MadList[pchr->model].msgstart + pstate->argument, pself->index );
+    display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6907,7 +6907,7 @@ Uint8 scr_Invisible( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function passes if the character is invisible
-    returncode = ( pchr->alpha <= INVISIBLE ) || ( pchr->light <= INVISIBLE );
+    returncode = ( pchr->inst.alpha <= INVISIBLE ) || ( pchr->inst.light <= INVISIBLE );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7237,7 +7237,7 @@ Uint8 scr_set_RedShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function alters a character's coloration
-    pchr->redshift = pstate->argument;
+    pchr->inst.redshift = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7252,7 +7252,7 @@ Uint8 scr_set_GreenShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function alters a character's coloration
-    pchr->grnshift = pstate->argument;
+    pchr->inst.grnshift = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7267,7 +7267,7 @@ Uint8 scr_set_BlueShift( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function alters a character's coloration
-    pchr->blushift = pstate->argument;
+    pchr->inst.blushift = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7281,7 +7281,7 @@ Uint8 scr_set_Light( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->light = pstate->argument;
+    pchr->inst.light = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7296,7 +7296,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function alters a character's transparency
-    pchr->alpha = pstate->argument;
+    pchr->inst.alpha = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -7742,7 +7742,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
     iTmp = ABS( pchr->oldx - gCamera.trackx ) + ABS( pchr->oldy - gCamera.tracky );
     if ( iTmp < MSGDISTANCE )
     {
-        display_message( pstate, MadList[pchr->model].msgstart + pstate->argument, pself->index );
+        display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
     }
 
     SCRIPT_FUNCTION_END();
@@ -8550,12 +8550,12 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < MAXACTION )
     {
-        if ( MadList[ChrList[pself->child].model].actionvalid[pstate->argument] )
+        if ( MadList[ChrList[pself->child].inst.imad].actionvalid[pstate->argument] )
         {
             ChrList[pself->child].action = pstate->argument;
-            ChrList[pself->child].lip = 0;
-            ChrList[pself->child].frame = MadList[ChrList[pself->child].model].actionstart[pstate->argument];
-            ChrList[pself->child].lastframe = ChrList[pself->child].frame;
+            ChrList[pself->child].inst.lip = 0;
+            ChrList[pself->child].inst.frame = MadList[ChrList[pself->child].inst.imad].actionstart[pstate->argument];
+            ChrList[pself->child].inst.lastframe = ChrList[pself->child].inst.frame;
             ChrList[pself->child].actionready = bfalse;
             returncode = btrue;
         }
@@ -9685,12 +9685,12 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( pstate->argument < MAXACTION )
     {
-        if ( MadList[ChrList[pself->target].model].actionvalid[pstate->argument] )
+        if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
         {
             ChrList[pself->target].action = pstate->argument;
-            ChrList[pself->target].lip = 0;
-            ChrList[pself->target].frame = MadList[ChrList[pself->target].model].actionstart[pstate->argument];
-            ChrList[pself->target].lastframe = ChrList[pself->target].frame;
+            ChrList[pself->target].inst.lip = 0;
+            ChrList[pself->target].inst.frame = MadList[ChrList[pself->target].inst.imad].actionstart[pstate->argument];
+            ChrList[pself->target].inst.lastframe = ChrList[pself->target].inst.frame;
             ChrList[pself->target].actionready = bfalse;
             returncode = btrue;
         }
@@ -10090,7 +10090,7 @@ Uint8 scr_AddEndMessage( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    append_end_text( pstate,  MadList[pchr->model].msgstart + pstate->argument, pself->index );
+    append_end_text( pstate,  MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
 
     SCRIPT_FUNCTION_END();
 }
@@ -10829,7 +10829,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
 
     while (iTmp < MAXPRTPIPPEROBJECT)
     {
-        if (PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].model].prtpip[iTmp]].wisdamagebonus)
+        if (PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].wisdamagebonus)
         {
             returncode = btrue;
             break;

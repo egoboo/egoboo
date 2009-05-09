@@ -357,7 +357,7 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, GLTexture *img, int x, int y, int width, int height )
+void ui_drawImage( ui_id_t id, GLtexture *img, int x, int y, int width, int height )
 {
     int w, h;
     float x1, y1;
@@ -374,11 +374,11 @@ void ui_drawImage( ui_id_t id, GLTexture *img, int x, int y, int width, int heig
             h = height;
         }
 
-        x1 = ( float ) GLTexture_GetImageWidth( img )  / ( float ) GLTexture_GetTextureWidth( img );
-        y1 = ( float ) GLTexture_GetImageHeight( img ) / ( float ) GLTexture_GetTextureHeight( img );
+        x1 = ( float ) GLtexture_GetImageWidth( img )  / ( float ) GLtexture_GetTextureWidth( img );
+        y1 = ( float ) GLtexture_GetImageHeight( img ) / ( float ) GLtexture_GetTextureHeight( img );
 
         // Draw the image
-        GLTexture_Bind( img );
+        GLtexture_Bind( img );
 
         glBegin( GL_TRIANGLE_STRIP );
         {
@@ -498,7 +498,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, GLTexture *img, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButton( ui_id_t id, GLtexture *img, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -516,7 +516,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, GLTexture *img, int x, int y, int 
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLTexture *img, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLtexture *img, const char *text, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -637,7 +637,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLTexture *img, int x, int y, int width, int height )
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height )
 {
     if ( NULL == pw ) return bfalse;
 

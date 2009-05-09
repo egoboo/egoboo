@@ -67,9 +67,8 @@ enum e_camera_mode
 
 struct s_camera
 {
-    glMatrix mWorld;                // World Matrix
-    glMatrix mView;                 // View Matrix
-    glMatrix mProjection;           // Projection Matrix
+    GLmatrix mView, mViewSave;      // View Matrix
+    GLmatrix mProjection;           // Projection Matrix
 
     Uint8  move_mode;               // what is the camera mode
     Uint8  turn_mode;               // what is the camera mode

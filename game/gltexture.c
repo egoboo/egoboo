@@ -17,7 +17,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - GLTexture.c
+/* Egoboo - GLtexture.c
 * Loads texture files into OpenGL textures.
 */
 
@@ -153,12 +153,12 @@ void GLSetup_SupportedFormats()
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-GLTexture * GLTexture_new( GLTexture * ptx )
+GLtexture * GLtexture_new( GLtexture * ptx )
 {
-    GLTexture_delete( ptx );
+    GLtexture_delete( ptx );
     if (!ErrorImage_defined) ErrorImage_create();
 
-    memset(ptx, 0, sizeof(GLTexture));
+    memset(ptx, 0, sizeof(GLtexture));
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
@@ -172,7 +172,7 @@ GLTexture * GLTexture_new( GLTexture * ptx )
 }
 
 //--------------------------------------------------------------------------------------------
-void    GLTexture_delete( GLTexture * ptx )
+void    GLtexture_delete( GLtexture * ptx )
 {
     // actually delete the OpenGL texture data
     glDeleteTextures( 1, &ptx->textureID );
@@ -188,14 +188,14 @@ void    GLTexture_delete( GLTexture * ptx )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * image, Uint32 key )
+Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key )
 {
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
     if ( NULL == texture || NULL == image) return INVALID_TX_ID;
 
     // make sure the old texture has been freed
-    GLTexture_Release( texture );
+    GLtexture_Release( texture );
     if ( NULL == image ) return INVALID_TX_ID;
 
     /* set the color key, if valid */
@@ -312,7 +312,7 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
     texture->texture_target = tx_target;
 
     /* Set up some parameters for the format of the OpenGL texture */
-    GLTexture_Bind( texture );
+    GLtexture_Bind( texture );
 
     /* actually create the OpenGL textures */
     if ( image->format->Aloss == 8 && tx_target == GL_TEXTURE_2D )
@@ -338,7 +338,7 @@ Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * i
 }
 
 //--------------------------------------------------------------------------------------------
-void    GLTexture_Bind( GLTexture *texture )
+void    GLtexture_Bind( GLtexture *texture )
 {
     GLenum target;
     GLuint id;
@@ -421,7 +421,7 @@ void    GLTexture_Bind( GLTexture *texture )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filename, Uint32 key )
+Uint32  GLtexture_Load( GLenum tx_target, GLtexture *texture, const char *filename, Uint32 key )
 {
     STRING fullname;
     Uint32 retval;
@@ -429,7 +429,7 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
     SDL_Surface * image = NULL;
 
     // get rid of any old data
-    GLTexture_Release( texture );
+    GLtexture_Release( texture );
 
     // load the image
     image = NULL;
@@ -453,7 +453,7 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
     //We could not load the image
     if ( NULL == image ) return INVALID_TX_ID;
 
-    retval = GLTexture_Convert( tx_target, texture, image, key );
+    retval = GLtexture_Convert( tx_target, texture, image, key );
     strncpy(texture->name, fullname, sizeof(texture->name));
 
     texture->wrap_s = GL_REPEAT;
@@ -463,37 +463,37 @@ Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filena
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint  GLTexture_GetTextureID( GLTexture *texture )
+GLuint  GLtexture_GetTextureID( GLtexture *texture )
 {
     return texture->textureID;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei GLTexture_GetImageHeight( GLTexture *texture )
+GLsizei GLtexture_GetImageHeight( GLtexture *texture )
 {
     return texture->imgH;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei GLTexture_GetImageWidth( GLTexture *texture )
+GLsizei GLtexture_GetImageWidth( GLtexture *texture )
 {
     return texture->imgW;
 }
 
 //--------------------------------------------------------------------------------------------
-void    GLTexture_SetAlpha( GLTexture *texture, GLfloat alpha )
+void    GLtexture_SetAlpha( GLtexture *texture, GLfloat alpha )
 {
     texture->alpha = alpha;
 }
 
 //--------------------------------------------------------------------------------------------
-GLfloat GLTexture_GetAlpha( GLTexture *texture )
+GLfloat GLtexture_GetAlpha( GLtexture *texture )
 {
     return texture->alpha;
 }
 
 //--------------------------------------------------------------------------------------------
-void    GLTexture_Release( GLTexture *texture )
+void    GLtexture_Release( GLtexture *texture )
 {
     if (!ErrorImage_defined) ErrorImage_create();
 
@@ -516,13 +516,13 @@ void    GLTexture_Release( GLTexture *texture )
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei GLTexture_GetTextureWidth( GLTexture *texture )
+GLsizei GLtexture_GetTextureWidth( GLtexture *texture )
 {
     return texture->txW;
 }
 
 //--------------------------------------------------------------------------------------------
-GLsizei GLTexture_GetTextureHeight( GLTexture *texture )
+GLsizei GLtexture_GetTextureHeight( GLtexture *texture )
 {
     return texture->txH;
 }

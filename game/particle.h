@@ -20,6 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -57,6 +58,7 @@
 
 struct s_pip
 {
+    bool_t  loaded;
     bool_t  force;                        // Force spawn?
 
     Uint8   type;                         // Transparency mode
@@ -139,6 +141,29 @@ typedef struct s_pip pip_t;
 extern int   numpip;
 extern pip_t PipList[TOTALMAXPRTPIP];
 
+#define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < TOTALMAXPRTPIP) )
+#define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
+#define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
+
+
+//------------------------------------
+// Particle graphic data
+//------------------------------------
+struct s_prt_instance
+{
+    bool_t valid;
+
+    GLvector3 pos;
+    GLvector3 up;
+    GLvector3 right;
+
+    Uint8  type;
+    Uint16 image;
+    float  color_component, alpha_component;
+    float  size;
+};
+typedef struct s_prt_instance prt_instance_t;
+
 //------------------------------------
 // Particle variables
 //------------------------------------
@@ -192,6 +217,8 @@ struct s_prt
     float   dynalightlevel;                  //
     bool_t  dynalighton;                     // Dynamic light?
     Uint16  target;                          // Who it's chasing
+
+    prt_instance_t inst;
 };
 typedef struct s_prt prt_t;
 
@@ -202,6 +229,11 @@ extern float            particleimagev[MAXPARTICLEIMAGE][2];        //
 extern Uint16           maxparticles;                              // max number of particles
 
 extern prt_t            PrtList[TOTALMAXPRT];
+
+#define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTALMAXPRT) )
+#define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
+#define INVALID_PRT( IPRT )       ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
+
 
 //--------------------------------------------------------------------------------------------
 // function prototypes

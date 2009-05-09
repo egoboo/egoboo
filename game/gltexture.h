@@ -19,7 +19,7 @@
 //*
 //********************************************************************************************
 
-/* Egoboo - GLTexture.c
+/* Egoboo - GLtexture.c
  * Loads BMP files into OpenGL textures.
  */
 
@@ -29,7 +29,7 @@
 #define INVALID_TX_ID (~(GLuint)0)
 #define INVALID_KEY   (~(Uint32)0)
 
-/**> DATA STRUCTURE: GLTexture <**/
+/**> DATA STRUCTURE: GLtexture <**/
 struct ogl_texture_t
 {
     char    name[256];
@@ -42,23 +42,23 @@ struct ogl_texture_t
     GLenum  texture_target;
     GLint   wrap_s, wrap_t;
 };
-typedef struct ogl_texture_t GLTexture;
+typedef struct ogl_texture_t GLtexture;
 
-GLTexture * GLTexture_new( GLTexture * ptx );
-void        GLTexture_delete( GLTexture * ptx );
+GLtexture * GLtexture_new( GLtexture * ptx );
+void        GLtexture_delete( GLtexture * ptx );
 
-/**> FUNCTION PROTOTYPES: GLTexture <**/
+/**> FUNCTION PROTOTYPES: GLtexture <**/
 void    GLSetup_SupportedFormats();
-Uint32  GLTexture_Load( GLenum tx_target, GLTexture *texture, const char *filename, Uint32 key );
-GLuint  GLTexture_GetTextureID( GLTexture *texture );
-GLsizei GLTexture_GetImageHeight( GLTexture *texture );
-GLsizei GLTexture_GetImageWidth( GLTexture *texture );
-GLsizei GLTexture_GetTextureWidth( GLTexture *texture );
-GLsizei GLTexture_GetTextureHeight( GLTexture *texture );
-void    GLTexture_SetAlpha( GLTexture *texture, GLfloat alpha );
-GLfloat GLTexture_GetAlpha( GLTexture *texture );
-void    GLTexture_Release( GLTexture *texture );
-void    GLTexture_Bind( GLTexture *texture );
-Uint32  GLTexture_Convert( GLenum tx_target, GLTexture *texture, SDL_Surface * image, Uint32 key );
+Uint32  GLtexture_Load( GLenum tx_target, GLtexture *texture, const char *filename, Uint32 key );
+GLuint  GLtexture_GetTextureID( GLtexture *texture );
+GLsizei GLtexture_GetImageHeight( GLtexture *texture );
+GLsizei GLtexture_GetImageWidth( GLtexture *texture );
+GLsizei GLtexture_GetTextureWidth( GLtexture *texture );
+GLsizei GLtexture_GetTextureHeight( GLtexture *texture );
+void    GLtexture_SetAlpha( GLtexture *texture, GLfloat alpha );
+GLfloat GLtexture_GetAlpha( GLtexture *texture );
+void    GLtexture_Release( GLtexture *texture );
+void    GLtexture_Bind( GLtexture *texture );
+Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key );
 
-#define  _GLTexture_H_
+#define  _GLtexture_H_
