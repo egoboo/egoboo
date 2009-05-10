@@ -95,8 +95,7 @@ IfHitGround
     DamageTarget
 
 IfTimeOut				// When the fuse goes, the bomb blows
-  GetState
-  tmpx = tmpargument
+  tmpx = selfstate
   tmpy = 2
   IfXIsLessThanY
     SetTargetToSelf			// Call explosion by dropping life below threshold
@@ -107,7 +106,7 @@ IfTimeOut				// When the fuse goes, the bomb blows
     SetTargetToNearestLifeform
       SetTargetToLowestTarget
       IfTargetIsFlying
-        GetState  // NOP
+        DoNothing
       Else
         // Does it have legs?
         tmpargument = [XLEG]
@@ -162,6 +161,7 @@ IfXIsLessThanY
       GoPoof
 
 IfUsed
+  SetTargetToWhoeverIsHolding
   tmpargument = [TECH]
   IfTargetHasSkillID
     GetContent
@@ -187,7 +187,7 @@ Else
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturn
-      tmpdistance = 30
+      tmpdistance = targetstr > 8 + 30  //Strength increases range
       Compass
       tmpdistance = targetz + 15
       tmpturn = rand

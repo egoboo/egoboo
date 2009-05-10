@@ -493,26 +493,12 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchan
     }
 
     // Target and owner must both be alive and on and valid
-    if ( target < MAXCHR )
-    {
-        if ( !ChrList[target].on || !ChrList[target].alive )
-            return MAXENCHANT;
-    }
-    else
-    {
-        // Invalid target
+    if ( !ChrList[target].on || !ChrList[target].alive || target >= MAXCHR )
         return MAXENCHANT;
-    }
-    if ( owner < MAXCHR )
-    {
-        if ( !ChrList[owner].on || !ChrList[owner].alive )
-            return MAXENCHANT;
-    }
-    else
-    {
-        // Invalid target
+    if ( !ChrList[owner].on || !ChrList[owner].alive || owner >= MAXCHR )
         return MAXENCHANT;
-    }
+
+
     if ( EveList[enchanttype].valid )
     {
         if ( enchantindex == MAXENCHANT )

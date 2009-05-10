@@ -14,7 +14,6 @@
 //  Records how long the button has been held down to see if the
 //  attack should be considered a throw.
 
-
 IfSpawned
   JoinNullTeam
   ReaffirmCharacter
@@ -29,10 +28,9 @@ IfSpawned
       Compass
       SetTargetToSelf
       AccelerateTarget
-      tmpargument = rand & 512 + 1200
+      tmpargument = rand & 511 + 1200
       AccelerateUp
       tmpargument = 1
-      tmpdistance = rand & 2047 + 10000
       PlaySound
     Else				// Possibility of land mine
       tmpargument = [TRAP]
@@ -68,7 +66,6 @@ IfSpawned
     tmpargument = 210
     SetTime
 
-
 IfReaffirmed				// If we lit this item...
   IfHeld
     DisaffirmCharacter
@@ -83,7 +80,6 @@ IfReaffirmed				// If we lit this item...
     tmpy = 3
     IfXIsMoreThanY
       DisaffirmCharacter
-
 IfDisaffirmed				// Go out if hits water when it's lit
   GetState
   tmpx = tmpargument
@@ -92,17 +88,14 @@ IfDisaffirmed				// Go out if hits water when it's lit
     tmpargument = 2
     SetState
 
-
 IfHitGround
   IfStateIs1
     SetTargetToSelf
     tmpargument = 1024
     DamageTarget
 
-
 IfTimeOut				// When the fuse goes, the bomb blows
-  GetState
-  tmpx = tmpargument
+  tmpx = selfstate
   tmpy = 2
   IfXIsLessThanY
     SetTargetToSelf			// Call explosion by dropping life below threshold
@@ -113,12 +106,12 @@ IfTimeOut				// When the fuse goes, the bomb blows
     SetTargetToNearestLifeform
       SetTargetToLowestTarget
       IfTargetIsFlying
-        GetState  // NOP
+        DoNothing
       Else
         // Does it have legs?
         tmpargument = [XLEG]
         IfTargetHasAnyID
-          GetState  // NOP
+          DoNothing
         Else
           tmpx = targetdistance
           tmpy = 35
@@ -136,7 +129,6 @@ IfTimeOut				// When the fuse goes, the bomb blows
     tmpargument = 6
     SetTime
 
-
 IfCrushed				// Surprise when you leave bombs in doorways!
   tmpargument = 2
   SendMessageNear
@@ -148,11 +140,8 @@ IfCrushed				// Surprise when you leave bombs in doorways!
   GoPoof
 
 // Don't attack bombs... it's not safe!
-
 tmpx = selflife
-
 tmpy = 25560
-
 IfXIsLessThanY
   IfHeld				// Don't die
     tmpargument = 25599 - selflife
@@ -171,8 +160,8 @@ IfXIsLessThanY
       SpawnExactParticle
       GoPoof
 
-
 IfUsed
+  SetTargetToWhoeverIsHolding
   tmpargument = [TECH]
   IfTargetHasSkillID
     GetContent
@@ -186,9 +175,11 @@ IfUsed
       tmpargument = 3
       SetState
   Else
-    tmpargument = 4
-    SendMessageNear
-
+    IfTimeOut
+      tmpargument = 4			//Cant use this..
+      SendMessageNear
+      tmpargument = 50
+      SetTime
 Else
   IfStateIs3
     tmpargument = ACTIONMG
@@ -196,7 +187,7 @@ Else
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturn
-      tmpdistance = 30
+      tmpdistance = targetstr > 8 + 30  //Strength increases range
       Compass
       tmpdistance = targetz + 15
       tmpturn = rand
@@ -223,18 +214,16 @@ Else
       tmpargument = 0			// Reset charge
       SetContent
 
-
 IfTakenOut
   SetTargetToWhoeverIsHolding
   SetOwnerToTarget
-  tmpargument = 3
-  SendMessageNear
-
+  IfTargetIsAPlayer
+    tmpargument = 3
+    SendMessageNear
 IfDropped				// Make it lie on floor
   tmpargument = 2
   SetState
   KeepAction
-
 IfGrabbed
   SetTargetToWhoeverIsHolding
   SetOwnerToTarget
@@ -281,6 +270,5 @@ IfGrabbed
     // Idle state
     tmpargument = 2
     SetState
-
 
 End					// Finished

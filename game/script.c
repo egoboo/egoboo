@@ -9760,7 +9760,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAXCHAR != get_target(pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    returncode = (MAXCHR != get_target(pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -9775,7 +9775,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAXCHAR != get_target(pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    returncode = (MAXCHR != get_target(pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) );
 
     SCRIPT_FUNCTION_END();
 }

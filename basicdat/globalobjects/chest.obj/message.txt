@@ -3,5 +3,12 @@ Message 1: The_chest_is_locked...
 Message 2: %t_looted_the_%c.
 Message 3: The_%c_has_opened.
 Message 4: %t_opened_the_%c.
-Message 5: %t_used_a_Chets_Key.
+Message 5: %t_used_a_Chest_Key.
 Message 6: %t_picked_the_lock!
+Message 7: %t_found_a_Map!
+Message 8: %t_found_another_map.
+Message 9: A_Flame_Trap_was_sprung!
+Message 10: %t_disarmed_a_Flame_Trap...
+Message 11: %t_set_off_a_Flame_Trap!
+Message 12: Wait!__There's_a_false_bottom!
+Message 13: %t_found_an_Invisible_%c!

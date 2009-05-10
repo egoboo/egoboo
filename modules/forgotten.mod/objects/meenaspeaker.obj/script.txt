@@ -1,6 +1,9 @@
-tmpargument = passage
-tmpdistance = [ASPK]
-SetTargetToPassageID
+IfTimeOut
+  tmpargument = 5
+  SetTime
+  tmpargument = passage
+  tmpdistance = [ASPK]
+  SetTargetToPassageID
     GetContent
     SendMessageNear
     PlayFullSound

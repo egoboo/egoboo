@@ -453,7 +453,6 @@ void render_prt( camera_t * pcam )
 
                 glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
             }
-
             // [claforte] Fudge the value.
             size = pinst->size;
 

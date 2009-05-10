@@ -1,9 +1,21 @@
 //The States and Contents
 //State 0: Closed chest
 //State 1: Opened Chest
-//State 2: Empty Chest
-//Content 0: Locked chest
-//Content 1: Unlocked Chest
+//State 2: Looted Chest
+//+1 content = locked
+//+2 content = map
+//+4 content = fire trapped
+//+8 content = secret bottom
+//+16 content = invisible
+//+32 contains armor (!invalidates map and secret bottom!) (TODO)
+
+//Invisible chest
+IfSpawned
+  tmpx = selfcontent & 16
+  tmpy = 16
+  IfXIsEqualToY
+    tmpargument = 0
+    SetLight
 
 // Someone cast an unlock spell
 IfOrdered
@@ -13,25 +25,56 @@ IfOrdered
     // Is it closed?
     tmpargument = 0
     IfStateIs
-      // Open it up
-      tmpargument = ACTIONMG
-      DoAction
-        tmpargument = 1
-        SetState
-        tmpargument = 1
-        SetContent
-        tmpargument = 60
-        SetBumpHeight
-        KeepAction
-        tmpargument = 0
-        PlaySound
-        // Wait a while
-        tmpargument = 40
-        SetTime
-        // Tell the players...
-        tmpargument = 3
-        SendMessageNear
 
+      //Fire trapped?
+      tmpx = selfcontent & 4
+      tmpy = 4
+      IfXIsEqualToY
+        tmpargument = ACTIONKD
+        DoAction
+          // Tell the players...
+          tmpargument = 11
+          SendMessageNear
+
+          // Spawn the trap particle
+          tmpx = selfx
+          tmpy = selfy
+          tmpdistance = selfz
+          tmpargument = 0
+          SpawnExactParticle
+
+          // Wake up sleepers
+          tmpargument = [WAKE]
+          tmpdistance = [WAKE]
+          OrderSpecialID
+      
+      // Open it up
+      Else 
+        tmpargument = ACTIONMG
+        DoAction
+          tmpargument = 1
+          SetState
+          tmpargument = 60
+          SetBumpHeight
+          KeepAction
+          tmpargument = 0
+          PlaySound
+          
+          // Wait a while
+          tmpargument = 40
+          SetTime
+          
+          // Tell the players...
+          tmpargument = 3
+          SendMessageNear
+
+          //Unlock?
+          tmpx = selfcontent & 1
+          tmpy = 1
+          IfXIsEqualToY
+            tmpargument = selfcontent - 1
+            SetContent
+  
 // Someone is trying to open it
 IfBumped
   // Can they open the chest?
@@ -42,15 +85,17 @@ IfBumped
       tmpargument = 0
       IfStateIs
       
-        //LOCKED
-        tmpargument = 0
-        IfContentIs  
+        //Locked?
+        tmpx = selfcontent & 1
+        tmpy = 1
+        IfXIsEqualToY
           tmpargument = [DISA]
           IfTargetHasSkillID          //They picked the lock
           
             //Unlock it
-            tmpargument = 1
+            tmpargument = selfcontent - 1
             SetContent
+            tmpargument = 1
             PlaySound
             tmpargument = 6
             SendMessageNear
@@ -68,8 +113,9 @@ IfBumped
             CostTargetItemID          //They used a key
             
               //Unlock it
-              tmpargument = 1  
+              tmpargument = selfcontent - 1
               SetContent
+              tmpargument = 1
               PlaySound
               tmpargument = 5
               SendMessageNear
@@ -88,32 +134,116 @@ IfBumped
                 SendMessageNear
                 tmpargument = 40
                 SetTime
-            
-        //UNLOCKED
+                              
+        //Unlocked!
         Else 
           // Give some experience
           tmpargument = 5
           tmpdistance = EXPDARE
           GiveExperienceToTarget
-
-          // Open it up
+          
+          //Animate
           tmpargument = ACTIONMG
-          DoAction
-            tmpargument = 1
-            SetState
-            tmpargument = 60
-            SetBumpHeight
-            KeepAction
-            tmpargument = 0
-            PlaySound
-        
-            // Wait a while
-            tmpargument = 40
-            SetTime
-    
-            // Tell the players...
-            tmpargument = 4
+          TargetDoAction
+
+          //Invisible chests!
+          tmpx = selfcontent & 16
+          tmpy = 16
+          IfXIsEqualToY
+            tmpargument = 13
             SendMessageNear
+            tmpargument = 30
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+            tmpargument = selfcontent - 16
+            SetContent            
+          
+          //Check for firetrap
+          tmpx = selfcontent & 4
+          tmpy = 4
+          IfXIsEqualToY
+            // Check for disarm skill
+            tmpx = 0
+            tmpy = 75  // 75% chance to fail
+            tmpargument = [DISA]
+            IfTargetHasSkillID
+              tmpargument = targetdex > 7            //+2% chance of success per dexterity point
+              tmpargument = tmpargument + targetlevel //+1% chance of success per level
+              tmpx = rand % 100 + targetdex
+
+            // Check if it was disarmed
+            IfXIsMoreThanY
+            
+              // Give some experience
+              tmpargument = 45
+              tmpdistance = EXPROLEPLAY
+              GiveExperienceToTarget
+
+              // Open it up
+              tmpargument = ACTIONMG
+              DoAction
+                // The trap has been disarmed
+                tmpargument = 10
+                SendMessageNear
+                
+                // Open up for real
+                tmpargument = 1
+                SetState
+                tmpargument = 60
+                SetBumpHeight
+                KeepAction
+                tmpargument = 0
+                PlaySound
+                
+                // Wait a while
+                tmpargument = 40
+                SetTime
+            Else
+              // Play the trap action
+              tmpargument = ACTIONKD
+              DoAction
+                // The trap has been sprung
+                tmpargument = 0
+                SetBumpHeight
+                
+                // Wait a while
+                tmpargument = 500
+                SetTime
+                
+                // Tell the players...
+                tmpargument = 9
+                SendMessageNear
+                
+                // Spawn the trap particle
+                tmpx = selfx
+                tmpy = selfy
+                tmpdistance = selfz
+                tmpargument = 0
+                SpawnExactParticle
+                
+                // Wake up sleepers
+                tmpargument = [WAKE]
+                tmpdistance = [WAKE]
+                OrderSpecialID
+          Else          
+            // Open it up
+            tmpargument = ACTIONMG
+            DoAction
+              tmpargument = 1
+              SetState
+              tmpargument = 60
+              SetBumpHeight
+              KeepAction
+              tmpargument = 0
+              PlaySound
+          
+              // Wait a while
+              tmpargument = 40
+              SetTime
+      
+              // Tell the players...
+              tmpargument = 4
+              SendMessageNear
       Else                
         // Wait before allowing loot
         IfTimeOut
@@ -125,7 +255,39 @@ IfBumped
           IfFacingTarget
             tmpargument = ACTIONMG
             TargetDoAction
-
+            
+          //Secret bottom
+          tmpx = selfstate
+          tmpy = 2
+          IfXIsMoreThanY
+            tmpargument = [DISA]
+            IfTargetHasSkillID
+              tmpx = 65535              // Character easily finds the false bottom
+            Else
+              tmpx = targetwis
+            tmpy = rand & 4095 + 3584   // Need between 14 and 30 wisdom
+            IfXIsMoreThanY
+            
+              //Drop opposite of last
+              IfStateIs3
+                tmpargument = selfmoney
+                DropMoney
+              Else
+                DropItems
+                DropKeys
+              
+              //Truly empty now
+              tmpargument = 2
+              SetState
+              
+              //award some xp
+              tmpargument = 10
+              tmpdistance = EXPSECRET
+              GiveExperienceToTarget
+            Else
+              tmpargument = 2       //They did not find it... tell its empty
+              SendMessageNear
+            
           // Say it's empty...
           IfStateIs2
             // Say the chest is empty...
@@ -134,14 +296,55 @@ IfBumped
 
           // Drop the contents
           IfStateIs1
-            DropItems
-            tmpargument = selfmoney
-            DropMoney
-            DropKeys
-            tmpargument = 2
-            SendMessageNear
-            tmpargument = 2     //Empty now...
-            SetState
+          
+            //Contains map
+            tmpx = selfcontent & 2
+            tmpy = 2
+            IfXIsEqualToY
+              ShowMap
+                ShowYouAreHere
+                // Give Experience
+                tmpargument = 20
+                tmpdistance = EXPSECRET
+                GiveExperienceToTarget
+
+                // Tell everyone
+                tmpargument = 7
+                SendMessage
+                tmpargument = 2
+                PlayFullSound
+              Else
+                // Don't need two maps...
+                tmpargument = 8
+                SendMessageNear
+            Else
+            
+              //Secret bottom?
+              tmpx = selfcontent & 8
+              tmpy = 8
+              IfXIsEqualToY
+                tmpargument = 2
+                SendMessageNear
+                tmpargument = rand & 1 + 3    //Set the secret bottom
+                SetState
+                IfStateIs3    //Drop items first
+                  DropItems
+                  DropKeys
+                IfStateIs4    //Drop money first
+                  tmpargument = selfmoney
+                  DropMoney
+              Else
+                tmpargument = 2
+                SendMessageNear
+                tmpargument = selfmoney
+                DropMoney
+                DropItems
+                DropKeys
+            
+            //Empty now...
+            IfStateIs1          //no secret bottom
+              tmpargument = 2
+              SetState
 
 // All done
 End

@@ -102,7 +102,7 @@ unknown:   NONE    15  38.0   39.0   1.0   E    0   1  0   0   0   F   F   V
 unknown:   NONE    15  34.0   39.0   1.0   W    0   2  0   0   0   F   F   V
 unknown:   NONE    33  11.0   28.0   1.0   N    0   0  9   0   0   F   F   N
 treasuredoor.obj:   NONE    43  7.0   22.0   1.0   E    0   0  11   0   0   F   F   N
-mchest.obj:   NONE    37  61.0   36.0   3.0   W    0   0  0   0   0   F   F   N
+mchest.obj:   NONE    60  61.0   36.0   3.0   W    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    38  61.0   35.0   3.0   W    13   0  0   0   0   F   F   M
 unknown:   NONE    36  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 mimic.obj:   NONE    38  61.0   41.0   3.0   W    13   0  0   0   0   F   F   M

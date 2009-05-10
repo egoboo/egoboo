@@ -15,7 +15,6 @@ IfOrdered
         SetBumpHeight
         KeepAction
         tmpargument = 0
-        tmpdistance = 11025
         PlaySound
         // Wait a while
         tmpargument = 40
@@ -55,7 +54,6 @@ IfBumped
           SetBumpHeight
           KeepAction
           tmpargument = 0
-          tmpdistance = 11025
           PlaySound
           // Wait a while
           tmpargument = 40
