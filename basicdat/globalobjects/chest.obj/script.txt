@@ -84,7 +84,10 @@ IfBumped
       // Is it closed?
       tmpargument = 0
       IfStateIs
-      
+        //Animate the target
+        tmpargument = ACTIONMG
+        TargetDoAction      
+        
         //Locked?
         tmpx = selfcontent & 1
         tmpy = 1
@@ -105,9 +108,6 @@ IfBumped
             tmpdistance = EXPROLEPLAY
             GiveExperienceToTarget
             
-            //Animate
-            tmpargument = ACTIONMG
-            TargetDoAction
           Else          
             tmpargument = [KEYC]
             CostTargetItemID          //They used a key
@@ -125,9 +125,6 @@ IfBumped
               tmpdistance = EXPSECRET
               GiveExperienceToTarget
       
-              //Animate
-              tmpargument = ACTIONMG
-              TargetDoAction
             Else
               IfTimeOut           //Tell it's locked
                 tmpargument = 1

@@ -36,3 +36,5 @@ SLOT  OBJECT
 90    Quiver
 94    Chest Key (silver key [KEYC])
 96    Bomb
+98    Poisoned Katana
+99    Darkness Amulet (Kursed!)

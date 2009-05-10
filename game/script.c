@@ -5865,7 +5865,8 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function fails if the target can't open stuff
-    returncode = ChrList[pself->target].openstuff;
+	if(ChrList[pself->target].ismount && ChrList[ChrList[pself->target].holdingwhich[SLOT_LEFT]].openstuff) returncode = btrue;
+    else returncode = ChrList[pself->target].openstuff;
 
     SCRIPT_FUNCTION_END();
 }

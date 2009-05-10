@@ -24,7 +24,9 @@ IfSpawned
       tmpx = 0
       tmpy = 0
       tmpturn = ownerturn
-      tmpdistance = rand & 7 + 20
+      tmpdistance = targetstr > 7
+      tmpdistance = tmpdistance * 20
+      tmpdistance = rand % 20 + tmpdistance    //Strength increases range
       Compass
       SetTargetToSelf
       AccelerateTarget
@@ -187,7 +189,7 @@ Else
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturn
-      tmpdistance = targetstr > 8 + 30  //Strength increases range
+      tmpdistance = 30
       Compass
       tmpdistance = targetz + 15
       tmpturn = rand

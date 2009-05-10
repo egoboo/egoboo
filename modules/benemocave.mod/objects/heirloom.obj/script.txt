@@ -1,0 +1,85 @@
+// General item stuff
+IfSpawned
+  tmpargument = ACTIONJB
+  DoAction
+  KeepAction
+  MakeCrushValid
+IfDropped
+  KeepAction
+IfHitGround
+  tmpargument = 0
+  PlaySound
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+
+// Make it poof
+IfCrushed
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 1
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+  tmpargument = 7
+  SendMessageNear
+
+// Equip the item
+IfPutAway
+  SetTargetToWhoeverIsHolding
+  tmpargument = [NECK]
+  IfTargetHasItemIDEquipped
+    IfTargetIsAPlayer
+      tmpargument = 1
+      SendMessageNear
+  Else
+    tmpargument = [XARM]
+    IfTargetHasAnyID
+      IfTargetIsAPlayer
+        tmpargument = 2
+        SendMessageNear
+    Else
+      Equip
+      tmpargument = 1
+      SetState
+      IfKursed
+        IfTargetIsAPlayer
+          tmpargument = 3
+          SendMessageNear
+      Else
+        IfTargetIsAPlayer
+          tmpargument = 4
+          SendMessageNear
+
+// Take away any bonus for wearing
+IfTakenOut
+  IfTargetIsAPlayer
+    tmpargument = 8
+    IfStateIs1
+      tmpargument = 5
+    SendMessageNear
+  tmpargument = 0
+  SetState
+
+// Say it's kursed
+IfNotTakenOut
+  IfTargetIsAPlayer
+    tmpargument = 6
+    SendMessageNear
+
+IfTimeOut
+  // Make sparklies
+  tmpargument = 2
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  tmpargument = 10
+  SetTime
+  
+End

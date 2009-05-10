@@ -92,6 +92,13 @@ IfKilled
   tmpargument = 14		//Music track
   tmpdistance = 0		//Fade in time
   PlayMusic
+  
+  //Create the heirloom!
+  tmpargument = 38
+  tmpdistance = selfz
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  SpawnExactCharacterXYZ
 
 //------------------------------------------------------------------------------
 IfAttacked

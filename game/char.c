@@ -2810,7 +2810,7 @@ void damage_character( Uint16 character, Uint16 direction,
         if ( damage > 0 )
         {
             // Only damage if not invincible
-            if ( 0 == ChrList[character].damagetime && ( !ChrList[character].invictus || ignoreinvincible ) )
+            if ( (0 == ChrList[character].damagetime || ignoreinvincible) && !ChrList[character].invictus )
             {
                 model = ChrList[character].model;
 

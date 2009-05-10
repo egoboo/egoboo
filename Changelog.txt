@@ -1,6 +1,7 @@
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
+- Update: Strength now affects the throwing range of bombs.
 - Update: Doubled the max throwing range of thrown weapons.
 - Update: Replaced the Ice Pup with the new Ice Strider mounts in the Ice Palace.
 - Update: Added support for up to x16 fullscreen antialiasing.
@@ -16,6 +17,7 @@ Version 2.7.x (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debugging output Egoboo gives.
+- Bugfix: The Benemo Quest now drops a heirloom so that you can collect the quest reward.
 - Bugfix: Fixed minor possible bug where Daze and Grog resistance would not work.
 - Bugfix: Fixed a potentional bug where the player could move through closed doors. 
 - Bugfix: Fixed some boss AI behaviour bugs in the Zombi Starter module.

@@ -134,7 +134,7 @@ ItemChest: NONE     40    11.5 28.5 0    S   0   0   0   1   0   F   F   Null
   LRing:   NONE     85    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    45   48.5 0    N  99   0   0   0   0   F   F   Null
 ItemChest: NONE     40    46.5 44.5 0    W  99   0   0   3   0   F   F   Null
-  DAmulet: NONE     81    0    0    0    I   0   0   0   0   0   F   F   Null
+  DAmulet: NONE     99    0    0    0    I   0   0   0   0   0   F   F   Null
 LockChest: NONE     45    45.5 41.5 0    S   0   0   0   0   0   F   F   Null
   EAmulet: NONE     84    0    0    0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE     40    42.5 43.5 0    E  99   0   0   2   0   F   F   Null
@@ -296,4 +296,4 @@ Bandit:    NONE     50    29   42   0    W   9   0   0   0   3   F   F   Evil
 BossBndit: NONE     87    30   42   0    W  99   0   0   0   0   F   F   Evil
   PKatana: NONE     66    0    0    0    R   0   0   0   0   0   F   F   Null
   Musketo: NONE     79    0    0    0    L   0   0   0   0   0   F   F   Null
-  PKatana: NONE     66    0    0    0    I   0   0   0   0   0   F   F   Null
+  PKatana: NONE     66    0    0    0    I   0   0   0   0   0   F   F   Null  
