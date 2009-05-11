@@ -1,0 +1,148 @@
+// Venomous Jack-in-a-Box
+//  done by Pteromys of the completely irrelevant
+//   Melon Island... http://melonisland.net
+//  based mostly off the bear trap
+//  I made this thing because I was so frustrated
+//   at not getting the bomb script to work
+//  I actually grew to like this... so I decided
+//   to let you guys play with it too.
+//
+//  Object states:              Particles:
+//   0: ready to strike          0: poof smoke
+//   1: hidden in hand           1: damager
+//   2: inert                    2: plays the song
+
+IfSpawned
+  MakeCrushValid
+  IfHeld
+    tmpargument = 1
+    SetState
+  Else
+    IfStateIs0			//Is this thing wound up?
+      SetTargetToOwner
+      JoinTargetTeam
+      SetTargetToNearestEnemy
+        SetTargetToLowestTarget
+      SetTurnModeToWatchTarget		// Follow the enemy around
+      // Safety timer...
+      tmpargument = 320
+      SetTime
+      // All around the cobbler's bench...
+      tmpargument = 2
+      tmpdistance = SPAWNLAST
+      SpawnAttachedParticle
+
+
+IfCrushed
+  tmpargument = 7
+  IfNameIsKnown
+    tmpargument = 2
+  SendMessageNear  
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 0
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  GoPoof
+
+IfDropped				// From hidden to idle
+  tmpargument = 2
+  SetState
+  SetTurnModeToVelocity
+
+// Lay a trap
+IfUsed
+  tmpargument = 50
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  tmpargument = [TECH]
+  IfTargetHasSkillID
+    IfTargetIsMounted
+      tmpargument = 5         //Can't use from here
+      SendMessageNear
+    Else
+      tmpargument = ACTIONMG		// Drop me!
+      TargetDoAction
+        tmpx = targetx
+        tmpy = targety
+        tmpturn = targetturn
+        tmpdistance = 30
+        Compass
+        tmpdistance = targetz + 15
+        tmpturn = rand
+        SpawnCharacterXYZ
+          GoPoof
+        Else
+          tmpargument = 5
+          SendMessageNear
+      tmpargument = 25
+      SetTargetReloadTime
+  Else
+    tmpargument = 6           //Don't know what it is
+    SendMessageNear
+
+
+
+// You found a venomous jack-in-a-box! (or an ugly toy)
+IfGrabbed
+  // Hidden state
+  tmpargument = 1
+  SetState
+  DisaffirmCharacter
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  tmpargument = [TECH]
+  IfTargetHasSkillID
+    IfNameIsKnown
+      DoNothing
+    Else
+      MakeNameKnown
+      tmpargument = 30
+      tmpdistance = EXPDARE       //Award some xp
+      GiveExperienceToTarget
+    tmpargument = 0
+    SendMessageNear
+  Else
+    tmpargument = 1
+    SendMessageNear
+
+IfTakenOut
+  SetTargetToWhoeverIsHolding
+  SetOwnerToTarget
+  IfTargetIsAPlayer
+    tmpargument = [TECH]
+    IfTargetHasSkillID
+      tmpargument = 3
+    Else
+      tmpargument = 4     //what a ugly toy
+    SendMessageNear
+
+
+// To bite or not to bite? Hmm... that's a good question.
+IfStateIs0			// I am ready to spring!
+  IfTimeOut
+    SetTargetToSelf
+    SetOwnerToTarget
+    SetTargetToNearestEnemy
+    SetTargetToLowestTarget
+    tmpx = targetdistance
+    tmpy = 300
+    IfXIsLessThanY
+      tmpx = selfz + 40       //Don't attack mounted ones
+      tmpy = targetz
+      IfXIsMoreThanY
+        IfFacingTarget
+          tmpargument = 2		// Don't strike twice
+          SetState
+          SetTurnModeToVelocity		// Stop turning
+          tmpargument = ACTIONUA	// Do biting motion
+          DoActionOverride
+          tmpargument = 1		// Spawn damager particle
+          tmpdistance = SPAWNLAST
+          SpawnAttachedParticle
+    tmpargument = 10
+    SetTime
+End

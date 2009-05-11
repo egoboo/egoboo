@@ -4389,6 +4389,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
         let_character_think( ichr );  // Empty the grabbed messages
 
         ChrList[ichr].attachedto = MAXCHR;  // Fix grab
+
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
     {

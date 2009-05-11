@@ -1,0 +1,2 @@
+Message 0: A_Tourist_hostage_was_rescued!
+Message 1: All_hostages_were_saved!_(200_bonus_XP!)

@@ -1,0 +1,52 @@
+// See if there is a character in the detect passage
+IfTimeOut
+  tmpargument = 10
+  SetTime
+  KeepAction
+
+  // Check if the detect passage is blocked
+  SetTargetToSelf
+  tmpargument = passage + 1
+  SetTargetToWhoeverIsInPassage
+  IfTargetCanOpenStuff
+    tmpargument = passage
+    OpenPassage    
+  Else
+    tmpargument = passage
+    IfPassageOpen
+      ClosePassage
+      
+// Handle the animation and sound
+tmpargument = passage	// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      PlaySound			      //
+
+      // Make the jewel light up
+      tmpargument = 0
+      IfArmorIs
+        tmpargument = 1
+        ChangeArmor
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    //
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      PlaySound			      //
+      
+      // Make the jewel darken
+      tmpargument = 1
+      IfArmorIs
+        tmpargument = 0
+        ChangeArmor
+
+End				// Finished with this character

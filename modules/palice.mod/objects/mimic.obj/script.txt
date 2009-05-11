@@ -24,7 +24,6 @@ IfOrdered
 // ZZ> This function makes the character wait for the enemy to open it
 IfKilled				// This reduces the height of the char
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
 
   tmpargument = 0			    //
@@ -42,7 +41,6 @@ IfTargetKilled				// Check for more food
   SetState				  //
 IfAttacked				// Retaliation
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
   SetTargetToWhoeverAttacked		  // Get the enemy
     tmpargument = 0			    //
@@ -77,7 +75,6 @@ IfTimeOut				// This is done every so often
     tmpy = 250				    //
     IfXIsLessThanY			    // Stick and move
       tmpargument = 2
-      tmpdistance = rand & 1023 + 10500
       PlaySound
 
       tmpargument = 1			      // Attack Left = 1
@@ -86,7 +83,6 @@ IfTimeOut				// This is done every so often
       tmpy = rand & 511 - 256 + targety	      //
     Else				    // Get closer
       tmpargument = 1
-      tmpdistance = rand & 1023 + 10500
       PlaySound
 
       tmpx = targetx			      //

@@ -1,0 +1,6 @@
+// This is the default AI script
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    DropItems
+End

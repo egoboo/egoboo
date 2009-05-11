@@ -1,6 +1,8 @@
 Version 2.7.x (??.??.2009)
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
+- New Feature: New Sidequest module "The Cobol Palace". Save the world of Bishopia from 
+  the evil Cobol Emperors menace!
 - Update: Strength now affects the throwing range of bombs.
 - Update: Doubled the max throwing range of thrown weapons.
 - Update: Replaced the Ice Pup with the new Ice Strider mounts in the Ice Palace.

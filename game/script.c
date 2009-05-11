@@ -5119,7 +5119,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     returncode = bfalse;
     if ( sTmp != MAXCHR )
     {

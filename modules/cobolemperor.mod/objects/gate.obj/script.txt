@@ -1,0 +1,24 @@
+//-----------------------------------------------------------------------------------------------
+//Handle opening of individual gates
+KeepAction
+tmpargument = passage
+IfPassageOpen
+  IfStateIs0
+    tmpargument = ACTIONMG
+    DoAction			//Dont repeat
+    tmpargument = 0
+    PlaySound			//Play clinking
+    tmpargument = 1
+    SetState			//Dont repeat
+Else
+  IfStateIs1
+    tmpargument = ACTIONMJ
+    DoAction			//Close gate
+    tmpargument = 0
+    PlaySound			//Play clinking
+    tmpargument = 0
+    SetState			//Dont do again
+
+//-----------------------------------------------------------------------------------------------
+End				// Finished with this character
+//-----------------------------------------------------------------------------------------------

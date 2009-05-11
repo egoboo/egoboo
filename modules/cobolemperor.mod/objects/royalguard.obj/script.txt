@@ -1,0 +1,172 @@
+//------------------------------------------------------------------------------
+//Bumpy bump
+IfBumped
+  SetTargetToWhoeverBumped
+    // Jump over barriers, onto mounts
+    IfTargetIsAlive
+      IfTargetIsAPlatform
+        // Jump over some stuff
+        tmpargument = LATCHJUMP
+        PressLatchButton
+      IfTargetIsAMount
+        // Jump onto mounts
+        tmpx = targetx
+        tmpy = targety
+        ClearWaypoints
+        AddWaypoint
+
+        tmpargument = 30
+        SetTime
+    Else
+      // Jump over corpses
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+//Shield usage
+IfStateIs1
+  IfTargetIsAttacking
+    tmpx = targetdistance
+    tmpy = 400
+    IfXIsLessThanY
+      IfFacingTarget
+          IfHoldingShield
+            PressLatchButton
+
+//------------------------------------------------------------------------------
+IfKilled
+  // Tell the players
+  tmpargument = 0
+  IfTargetIsOnSameTeam
+    tmpargument = 1
+  SendMessageNear
+
+  //Make everyone attack
+  CallForHelp
+  
+  tmpargument = 1
+  PlaySound
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 40
+  SetBumpHeight
+
+  //Make em crushable
+  MakeCrushValid
+  
+//Mooshed in a passage
+IfCrushed
+  tmpargument = 1
+  tmpx = 0
+  tmpy = 0
+  tmpdistance = SPAWNORIGIN
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  SpawnParticle
+  GoPoof
+
+//------------------------------------------------------------------------------
+IfAttacked
+  CallForHelp
+  SetTargetToWhoeverAttacked
+  IfStateIs0
+    IfBackstabbed
+      // This is what Rogues do best...
+      tmpargument = 1
+      SendMessageNear
+
+      // Give experience
+      tmpargument = 30
+      tmpdistance = EXPMURDER
+      GiveExperienceToTarget
+
+      // Do it
+      SetTargetToSelf
+      KillTarget
+  Else
+    IfTargetIsOnHatedTeam
+      // Counter attack
+      tmpargument = 1
+      SetState
+    Else
+      // Friendly fire, get out of the way
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+      ClearWaypoints
+      AddWaypoint
+      SetTargetToOldTarget
+
+    tmpargument = rand & 1 + 2
+    PlaySound
+
+//------------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+  tmpargument = rand & 31 + 25
+  SetTime
+  
+  //Guard
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+    
+  //Combat
+  IfStateIs1
+    SetTurnModeToWatchTarget
+    tmpdistance = 128*12
+    SetTargetToDistantEnemy
+      tmpx = rand & 511 + targetx - 256
+      tmpy = rand & 511 + targety - 256
+      tmpdistance = 600
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      
+      //Attack
+      tmpx = targetdistance
+      tmpy = 150
+      IfXIsLessThanY
+        IfFacingTarget
+          IfHoldingMeleeWeapon
+            PressLatchButton
+            
+      //Formation (needs to be replaced by phalanax formation)
+      SetTargetToNearestFriend
+      tmpx = targetdistance
+      tmpy = 128
+      IfXIsLessThanY
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = -250
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+      SetTargetToNearestEnemy
+    Else
+      tmpargument = 0
+      SetState
+      
+//------------------------------------------------------------------------------
+IfCalledForHelp
+  tmpargument = 1
+  SetState
+
+//------------------------------------------------------------------------------
+IfHealed
+  tmpargument = 2
+  SendMessageNear
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

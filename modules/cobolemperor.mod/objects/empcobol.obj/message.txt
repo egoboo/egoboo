@@ -1,0 +1,6 @@
+Message 0: %t_has_slain_%c_%n!
+Message 1: %c_%n_was_too_good_for_%g_own_health.
+Message 2: The_great_%c_%n_looks_better...
+Message 3: %t_stabbed_%c_in_the_back!
+Message 4: The_%c_is_no_longer_enraged...
+Message 5: The_%c_went_berserk!

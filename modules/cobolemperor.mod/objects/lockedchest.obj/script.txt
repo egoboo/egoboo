@@ -1,0 +1,138 @@
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+      // Open it up
+      tmpargument = ACTIONMG
+      DoAction
+        tmpargument = 1
+        SetState
+        tmpargument = 60
+        SetBumpHeight
+        KeepAction
+        tmpargument = 0
+        tmpdistance = 11025
+        PlaySound
+        // Wait a while
+        tmpargument = 40
+        SetTime
+        // Tell the players...
+        tmpargument = 3
+        SendMessageNear
+
+// Someone is trying to open it
+IfBumped
+  // Can they open the chest?
+  SetTargetToWhoeverBumped
+  IfTargetCanOpenStuff
+
+    // Is it closed?
+    tmpargument = 0
+    IfStateIs
+
+      // Are they in front?
+      IfFacingTarget
+
+        // Can they pick the lock?
+        tmpargument = [DISA]
+        IfTargetHasSkillID
+
+          // Make target crouch
+          tmpargument = ACTIONMG
+          TargetDoAction
+          tmpargument = 1
+          PlaySound
+
+          // Give some experience
+          tmpargument = 25
+          tmpdistance = EXPROLEPLAY
+          GiveExperienceToTarget
+
+          // Open it up
+          tmpargument = ACTIONMG
+          DoAction
+            tmpargument = 1
+            SetState
+            tmpargument = 60
+            SetBumpHeight
+            KeepAction
+            tmpargument = 0
+            tmpdistance = 11025
+            PlaySound
+            // Wait a while
+            tmpargument = 40
+            SetTime
+            // Tell the players...
+            tmpargument = 4
+            SendMessageNear
+        Else
+
+          // Do they have a chest key?
+          tmpargument = [KEYC]
+          CostTargetItemID
+
+            // Make target crouch
+            tmpargument = ACTIONMG
+            TargetDoAction
+            tmpargument = 1
+            PlaySound
+
+            // Give some experience
+            tmpargument = 5
+            tmpdistance = EXPDARE
+            GiveExperienceToTarget
+
+            // Open it up
+            tmpargument = ACTIONMG
+            DoAction
+              tmpargument = 1
+              SetState
+              tmpargument = 60
+              SetBumpHeight
+              KeepAction
+              tmpargument = 0
+              tmpdistance = 11025
+              PlaySound
+              // Wait a while
+              tmpargument = 40
+              SetTime
+              // Tell the players...
+              tmpargument = 5
+              SendMessageNear
+          IfTimeOut
+            // Say it's locked...
+            tmpargument = 2
+            SendMessageNear
+            // Wait a while
+            tmpargument = 40
+            SetTime
+    Else
+      // Wait before allowing to loot
+      IfTimeOut
+        // Reset the timer
+        tmpargument = 40
+        SetTime
+
+        // Make target crouch
+        tmpargument = ACTIONMG
+        TargetDoAction
+
+        // Can the target use this armor
+        tmpargument = 0
+        IfContentIs
+          DropItems
+          DropMoney
+          DropKeys
+          tmpargument = 0
+          SendMessageNear
+        Else
+          // Say it's empty
+          tmpargument = 1
+          SendMessageNear
+
+// All done
+End

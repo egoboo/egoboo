@@ -1,0 +1,63 @@
+// Someone cast an unlock spell
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    // Open it up
+    tmpargument = passage + 1
+    OpenPassage
+      tmpargument = 1
+      SendMessageNear
+    Else
+      tmpargument = 2
+      SendMessageNear
+
+// See if there is a character in the detect passage
+IfTimeOut
+  tmpargument = 10
+  SetTime
+  KeepAction
+  tmpargument = passage
+  IfPassageOpen
+    DoNothing
+  Else
+    GetContent
+    tmpdistance = tmpargument + [KEYA]  // KEYA - KEYZ
+    tmpargument = passage + 1
+    SetTargetToPassageID
+      tmpargument = tmpdistance
+      CostTargetItemID
+        // Give EXP
+        tmpargument = 10
+        tmpdistance = EXPSECRET
+        GiveExperienceToTarget
+
+        // Display text
+        tmpargument = 0
+        SendMessageNear
+
+        // Open it up
+        tmpargument = passage
+        OpenPassage
+
+// Handle the animation and sound
+tmpargument = passage	// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      PlaySound			      //
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    //
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      PlaySound			      //
+End				// Finished with this character

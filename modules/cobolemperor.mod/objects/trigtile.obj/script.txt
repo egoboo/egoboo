@@ -1,0 +1,178 @@
+//Prevents bumping when not in trigger mode
+IfSpawned
+  IfStateIs0
+    tmpargument = 0
+    SetBumpHeight
+    SetBumpSize
+
+// Parent spawner state
+IfStateIs0
+  IfTimeOut
+    tmpargument = 50
+    SetTime
+
+    IfTargetIsSelf
+      // First find the nearest chest
+      tmpargument = [LOCK]
+      tmpdistance = 14 // Items, friends and enemies
+      SetTargetToNearestBlahID
+    Else
+      // Check the chest's state
+      GetTargetState
+      tmpx = tmpargument
+      tmpy = 0
+      IfXIsEqualToY
+        DoNothing
+      Else
+        tmpx = 0
+        tmpy = 0
+        tmpargument = passage
+        tmpdistance = 185 // Tile to find
+        FindTileInPassage
+          // Make a child
+          tmpargument = 1
+          tmpdistance = 0
+          tmpturn = 0
+          SpawnCharacter
+            SetChildState
+            tmpargument = ACTIONMC
+            ChildDoActionOverride
+            // Change the tile image
+            tmpargument = 186
+            SetTileXY
+        Else
+          GoPoof  // Out of children...
+
+// Find an enemy state
+IfStateIs1
+  IfSpawned
+    // Play the spawn sound
+    tmpargument = 1
+    PlaySound
+
+    // Do misc setup
+    SetTurnModeToSpin
+    tmpargument = 60
+    SetTime
+  IfTimeOut
+    SetTargetToNearestEnemy
+      tmpx = targetx - selfx < 3 + targetx
+      tmpy = targety - selfy < 3 + targety
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 2
+      SetState
+      tmpargument = 20
+      SetTime
+
+// Chase an enemy state
+IfStateIs2
+  IfTimeOut
+    SetTargetToSelf
+    tmpx = targetspeedx < 6
+    tmpy = targetspeedy < 6
+    SetTargetToNearestEnemy
+      tmpdistance = 600
+      tmpturn = targetturnto
+      Compass
+      tmpx = tmpx + selfx
+      tmpy = tmpy + selfy
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 20
+      SetTime
+  tmpx = 0
+  IfBumped
+    SetOldTarget
+    SetTargetToWhoeverBumped
+    IfTargetIsOnHatedTeam
+      IfTargetIsDefending
+        // Check incoming direction
+        tmpx = targetturnto + 49152 - targetturn & 65535
+        tmpy = 32768
+        IfXIsLessThanY
+          // Hit shield
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          tmpargument = 0
+          SpawnExactParticle
+          tmpargument = 2
+        Else
+          // Hit character
+          tmpargument = rand & 1023 + 512 // 2 - 6 damage
+          DamageTarget
+          tmpargument = 1
+        tmpx = 1
+      Else
+        // Damage and break
+        tmpargument = rand & 1023 + 512 // 2 - 6 damage
+        DamageTarget
+        tmpargument = 1
+        tmpx = 1
+    Else
+      SetTargetToOldTarget
+      tmpx = rand & 511 - 256 + selfx
+      tmpy = rand & 511 - 256 + selfy
+      ClearWaypoints
+      AddWaypoint
+      tmpargument = 10
+      SetTime
+      tmpx = 0
+  IfHealed
+    SetTargetToWhoeverHealed
+    tmpargument = 0
+    tmpx = 1
+  tmpy = 0
+  IfXIsMoreThanY // It was damaged or bumped
+    // Message...  Argument set earlier
+    SendMessageNear
+
+    // Experience as a consolation prize
+    tmpargument = 5
+    tmpdistance = EXPSECRET
+    GiveExperienceToTarget
+
+    // Sound effect
+    tmpargument = 0
+    PlaySound
+
+    // Death animation and alpha fade
+    tmpargument = 0
+    SetBumpHeight
+    SetBumpSize
+    tmpargument = ACTIONKA
+    DoActionOverride
+    KeepAction
+    tmpargument = 3
+    SetState
+    tmpargument = 8
+    SetTime
+    tmpargument = 0
+    SetContent
+    tmpx = 250
+    tmpargument = 0
+    SetXY
+
+// Dissolve state
+IfStateIs3
+  tmpargument = 0
+  GetXY
+  tmpx = tmpx - 7
+  SetXY
+  tmpargument = tmpx
+  SetAlpha
+  IfTimeOut
+    GetContent
+    tmpargument = tmpargument + 1
+    tmpx = tmpargument
+    tmpy = 3
+    IfXIsMoreThanY
+      GoPoof
+    Else
+      SetContent
+      ChangeArmor
+      tmpargument = 8
+      SetTime
+
+End					// Finished with this character

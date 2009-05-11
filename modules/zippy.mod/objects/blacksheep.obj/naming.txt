@@ -2,16 +2,19 @@
 :La
 :She
 :Li
+:Go
 :STOP
 
 :r
 :m
 :e
 :n
+:a
 :STOP
 
 :y
 :b
 :p
 :da
+:t
 :STOP

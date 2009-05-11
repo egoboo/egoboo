@@ -2,18 +2,18 @@
 IfSpawned
   SetTargetToSelf
   SetTargetToTargetLeftHand	//Target the wing
-  tmpargument = 1
-  IfArmorIs
-    ChangeTargetArmor
-  tmpargument = 2
-  IfArmorIs
-    ChangeTargetArmor
-  tmpargument = 3
-  IfArmorIs
-    ChangeTargetArmor
-    SetTargetToSelf
-    tmpargument = 1280
-    GiveLifeToTarget		//5 bonus hp
+    tmpargument = 1
+    IfArmorIs
+      ChangeTargetArmor
+    tmpargument = 2
+    IfArmorIs
+      ChangeTargetArmor
+    tmpargument = 3
+    IfArmorIs
+      ChangeTargetArmor
+      SetTargetToSelf
+      tmpargument = 1280
+      GiveLifeToTarget		//5 bonus hp
 
 //------------------------------------------------------------------------------
 //Death Mephit poison attack
@@ -45,7 +45,7 @@ IfKilled
   IfTargetIsOnSameTeam
     tmpargument = 1		//Friendly fire
     IfTargetIsSelf
-      tmpargument =3		//Sucide!
+      tmpargument = 3		//Sucide!
   SendMessageNear
 
   //Award bonus xp for death mephits

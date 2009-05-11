@@ -1,0 +1,178 @@
+// Whirlwind Spell
+//    By Pteromys of Melon Island - http://melonisland.net
+//  Usage:
+//    Hold down ATTACK to charge up a spell. When the smokies
+//     start moving vertically, release it to make a little
+//     twister that sucks enemies in. Press ATTACK again to
+//     kill the twister.  Useful for "congregating" enemies
+//     so you can finish them off with a fireball.
+//  Guide to object states:
+//   0   spellbook or a spell in hand
+//   1   a whirlwind
+//  Offhand peculiarities noticed while scripting:
+//   Crushing will have no effect on an object that has bump
+//   dimensions of zero.
+
+IfSpawned
+  IfStateIs0					// A spellbook
+    KeepAction
+  Else						// Or a howling gale?
+    NotAnItem					// Don't let anyone pick it up
+    MakeNameUnknown
+    MakeCrushValid
+    tmpargument = 254
+    SetLight
+    SetTurnModeToSpin
+    tmpargument = 50
+    SetTime
+
+IfChanged					// It's a spell in hand
+  tmpargument = 0
+  SetState
+  KeepAction
+
+// Spell AI...
+IfStateIs0
+  IfTakenOut
+    tmpargument = 0
+    SetContent
+    SetTargetToWhoeverIsHolding
+      IfTargetIsAPlayer
+        tmpargument = 0
+        SendMessageNear
+
+  IfUsed
+    UnsparkleIcon
+    UndoEnchant					// Kill the previous one
+      tmpargument = 50
+      SetReloadTime
+    Else
+      SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpx = targetmanaflow
+      tmpy = 1536
+      IfXIsMoreThanY
+        tmpargument = 1536
+        IfContentIs				// Fully charged?
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = targetz
+          tmpargument = 2
+          SpawnExactParticle
+        Else					// Keep pumping
+          tmpargument = 12
+          CostTargetMana
+            GetContent
+            tmpargument = tmpargument + 12
+            SetContent
+
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 1
+            SpawnExactParticle
+      Else
+        tmpargument = 50			// Too advanced of a spell
+        SetReloadTime
+        tmpargument = 1
+        SendMessageNear
+        tmpargument = 0
+        SetContent
+  Else
+    GetContent
+    tmpx = tmpargument
+    tmpy = 0
+    IfXIsMoreThanY
+      tmpargument = 1536
+      IfContentIs
+        SetTargetToWhoeverIsHolding
+        SetOwnerToTarget
+        StopTargetMovement			// Recoil
+        tmpx = 0
+        tmpy = 0
+        tmpturn = targetturn + 32767
+        tmpdistance = 8
+        Compass
+        AccelerateTarget
+
+        SetTargetToWideEnemy  //Try to find a enemy (targets caster if failed)
+        tmpx = rand & 511 + targetx	- 256			// Attempt to spawn a whirlwind
+        tmpy = rand & 511 + targety - 256
+        tmpdistance = targetz + 15
+        SetTargetToWhoeverIsHolding
+        tmpturn = targetturn
+        SpawnCharacterXYZ
+          tmpargument = 1
+          SetChildState
+          EnchantChild
+            tmpargument = YELLOW
+            SparkleIcon
+            tmpargument = 2
+            SendMessageNear
+          tmpargument = 0
+          PlaySound
+        Else					// Backfire if the spell was cast into a wall
+          tmpargument = rand & 1023 + 1536
+          DamageTarget
+          tmpargument = 3
+          SendMessageNear
+
+        IfTargetIsAPlayer
+          IfUsageIsKnown
+            DoNothing
+          Else
+            tmpargument = 30
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+            MakeUsageKnown
+            MakeNameKnown
+
+        tmpargument = 0
+        SetContent
+        tmpargument = 50
+        SetReloadTime
+      Else
+        tmpargument = 4
+        SendMessageNear
+        tmpargument = 0
+        SetContent
+
+Else					// AI for the blast of wind
+  IfTimeOut
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    tmpturn = rand % 65535
+    tmpdistance = 200			// Do not stray more than 200 units from home
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand & 31 + 32
+    SetTime
+
+  IfInWater				// Become a waterspout
+    tmpargument = 1
+    ChangeArmor
+
+  IfCrushed
+    SetTargetToSelf
+      DisenchantTarget
+  IfKilled
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 3
+    SpawnExactParticle
+    tmpargument = 5
+    SendMessageNear
+
+IfStateIs0
+  IfDropped				// Turn back into a spellbook (do last)
+    tmpargument = 0
+    SetContent
+    BecomeSpellbook
+    DisaffirmCharacter
+    tmpargument = ACTIONJB
+    DoActionOverride
+    KeepAction
+
+End

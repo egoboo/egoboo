@@ -1,0 +1,172 @@
+//Slow down movement
+IfSpawned
+  Sneak
+  
+//------------------------------------------------------------------------------
+//Scream and shout
+IfUsed
+  tmpargument = rand & 1 + 8
+  PlaySound
+
+//------------------------------------------------------------------------------
+//Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = ACTIONMC
+  DoAction
+    tmpx = rand & 1
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = 6
+      SendMessageNear
+      tmpargument = 10
+      PlaySound
+    Else
+      tmpargument = 7
+      SendMessageNear
+      tmpargument = 9
+      PlaySound
+    
+//------------------------------------------------------------------------------
+//Handle death by sending a message and other stuff
+IfKilled
+  tmpargument = 5
+  PlaySound
+  tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  tmpargument = selfmoney
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+//Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 6
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 3
+    PlaySound
+
+//------------------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+  tmpargument = rand & 31 + 20
+  SetTime
+  
+  //Prisoned
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    ClearWaypoints
+    AddWaypoint
+  
+  //Following the player
+  IfStateIs1
+    SetTurnModeToVelocity
+    tmpx = rand & 511 + ownerx - 256
+    tmpy = rand & 511 + ownery - 256
+    ClearWaypoints
+    AddWaypoint
+    
+    //8% chance to wander off taking pictures
+    tmpx = rand % 100
+    tmpy = 8
+    IfXIsLessThanY
+      SetTargetToWideEnemy
+        SetTurnModeToWatchTarget
+        tmpargument = 2
+        SetState
+        tmpargument = 1
+        SendMessage
+
+  
+  //Wander off taking pictures
+  IfStateIs2
+    tmpx = rand & 1023 + selfx - 512
+    tmpy = rand & 1023 + selfy - 512
+    ClearWaypoints
+    AddWaypoint
+    
+    //Take picture of monster
+    IfTargetIsOnOtherTeam
+      tmpx = targetx
+      tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = -400
+      Compass
+      ClearWaypoints
+      AddWaypoint
+      IfFacingTarget
+        tmpargument = LATCHRIGHT
+        PressLatchButton
+        SetTurnModeToVelocity
+    Else
+      SetTargetToNearestLifeform    
+      
+  //Randomly take pictures
+  tmpargument = 0
+  IfStateIsNot  
+    tmpx = rand & 255
+    tmpy = 8
+    IfXIsLessThanY
+      tmpargument = LATCHRIGHT
+      PressLatchButton
+  
+  //Adjust speed according to distance to target
+  tmpx = targetdistance
+  tmpy = 128*3
+  IfXIsMoreThanY
+    Walk
+  Else
+    Sneak
+
+//------------------------------------------------------------------------------
+//Bumping            
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsAPlayer
+    tmpargument = 1
+    IfStateIsNot
+      tmpargument = 1
+      SetState
+      
+      //Hey!
+      tmpargument = rand & 1 + 6
+      PlaySound
+      tmpargument = 2
+      SendMessageNear
+    
+    SetOwnerToTarget
+  Else
+    IfTargetIsAPlatform
+      //Jump over obstacles
+      tmpargument = LATCHJUMP
+      PressLatchButton
+    Else
+      IfTargetIsAlive
+        IfTargetIsOnHatedTeam
+          tmpargument = 2
+          IfStateIsNot
+            tmpargument = 2
+            SetState
+            tmpargument = 1
+            SendMessage
+      Else
+        //Jump over corpses
+        tmpargument = LATCHJUMP
+        PressLatchButton
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------
