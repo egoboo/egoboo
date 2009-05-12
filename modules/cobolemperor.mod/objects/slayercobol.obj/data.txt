@@ -120,7 +120,7 @@ Item carries to next module ( TRUE or FALSE )	: FALSE
 Item requires skill ID to use ( TRUE or FALSE )	: FALSE
 Object is a platform ( TRUE or FALSE)		: FALSE
 Object collects money ( TRUE or FALSE )		: TRUE
-Object can open chests/doors ( TRUE or FALSE )	: TRUE
+Object can open chests/doors ( TRUE or FALSE )	: FALSE
 
 
 // Other item and damage stuff
