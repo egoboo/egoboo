@@ -1604,7 +1604,7 @@ int load_one_object( int skin, const char* tmploadname )
     MadList[object].skinstart = skin;
     numskins = 0;
     numicon = 0;
-    for ( cnt = 0; cnt < 4; cnt++)
+    for ( cnt = 0; cnt < MAXSKIN; cnt++)
     {
         snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
         if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
@@ -1917,14 +1917,14 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 {
     //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //If maxdistance is 0 then it searches without a max limit.
-    Uint16 besttarget = MAXCHR, cnt;
+    Uint16 besttarget = MAXCHR, cnt = 0;
 	float longdist = TILESIZE*MAX(mesh.info.tiles_x,mesh.info.tiles_y); //pow(2, 31);
     float longdist2 = longdist * longdist;
     float maxdistance2 = maxdistance * maxdistance;
 
     if (team == NONE) return MAXCHR;
 
-    for (cnt = 0; cnt < MAXCHR; cnt++)
+    for (/*nothing*/; cnt != MAXCHR; cnt++)
     {
 		//Skip non-existing objects, held objects and self
 		if( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || cnt == character ) continue;
@@ -2894,10 +2894,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience += 5; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience += 5; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience += 5; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience += 5; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience++; stat_check_delay = 500; }
 
         statdelay = 0;
     }

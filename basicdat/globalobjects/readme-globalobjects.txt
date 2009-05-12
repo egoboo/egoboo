@@ -34,6 +34,7 @@ SLOT  OBJECT
 87    Mana Potion
 88    Rune of Confusion
 90    Quiver
+91    Book of Firering
 94    Chest Key (silver key [KEYC])
 96    Bomb
 98    Poisoned Katana

@@ -1,21 +1,7 @@
-// handle bunching + sticking
-// handle spacing
-
 // Find guy to protect
 IfSpawned
-  tmpx = 0
-  tmpy = 1
-  tmpargument = 0
-  SetXY
-  SetState
-
-tmpargument = 0
-GetXY
-IfXIsLessThanY
   SetTargetToNearestFriend
     SetOwnerToTarget
-    tmpx = 2
-    SetXY    
 
 // Get mean if characters wanna be bad
 IfAttacked
@@ -25,86 +11,145 @@ IfAttacked
       JoinEvilTeam
   SetTargetToOldTarget
 IfCalledForHelp
-  SetTargetToWhoeverCalledForHelp
-    SetOwnerToTarget
-    tmpargument=0
-    SetState
-    JoinEvilTeam
+  SetTargetToWideEnemy
+    SetTargetToWhoeverCalledForHelp
+      SetOwnerToTarget
+      tmpargument = 0
+      SetState
+  JoinEvilTeam
 
+//----------------------------------------------------------------------------------
 // Show the character's location
 tmpx = selfx
 tmpy = selfy
 tmpargument = 4
 ShowBlipXY
 
+//----------------------------------------------------------------------------------
+//Use shield
+IfTargetIsOnHatedTeam
+  IfTargetIsAttacking
+    IfFacingTarget
+      IfHoldingShield
+        PressLatchButton
+        
+//----------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
   CallForHelp			//Alert friends
-  tmpargument = 0			  // Last words...
-  SetState				  //
+  JoinEvilTeam
+
   IfTargetIsOnSameTeam			  // Fragged!
     tmpargument = 3			    //
     IfTargetIsSelf			    // No, just a damage tile
       tmpargument = 4			      //
   SendMessage				  //
+
   tmpargument = selfmoney			  // Drop money
   DropMoney				  //
+
   tmpargument = 45			  //
   SetBumpHeight				  //
 
-  IfAttacked				// Attacked
+//----------------------------------------------------------------------------------
+IfAttacked				// Attacked
   SetTargetToWhoeverAttacked		  //
     IfTargetIsAlive			    //
-      tmpargument = 1			        //
-      SetState			        //  
+      IfTargetIsOnHatedTeam
+        tmpargument = 1			        //
+        IfHoldingRangedWeapon
+          tmpargument = 2
+        SetState			        //  
       tmpargument = rand & 1 + 4	// Ouch!
       PlaySound			        //
     Else				    //Attacker died already
       SetTargetToOldTarget		      //
 
-IfTargetKilled				// Return to follow mode
-  tmpargument = 0			  // State 0 ( Follow )
-  SetState				  //
-
+//----------------------------------------------------------------------------------
 IfTimeOut				// This is done every so often
   SetTargetToWideEnemy		  // Look out for enemies
     tmpargument = 1			      //
+    IfHoldingRangedWeapon
+      tmpargument = 2
     SetState				      // Change to combat mode
-  tmpargument = 0			  // Check state
-  IfStateIs				  // State 0 ( Follow )
+  Else
+    tmpargument = 0
+    SetState
+
+  IfStateIs0				  // State 0 ( Follow )
     tmpx = ownerx			    //
     tmpy = ownery			    //
     GetContent
     tmpturn = tmpargument < 14    // Stand to side
     tmpdistance = 500			    //
     Compass				    //
-  Else					  // State 1 ( Combat )
+
+  IfStateIs1					  // State 1 ( Combat )
     tmpx = targetdistance		    // Close enough to attack?
     tmpy = 200				    //
     IfXIsLessThanY			    //
-      tmpargument = LATCHRIGHT		      // Right Attack == 2
-      PressLatchButton			      //
-    tmpx = targetx			    // Move towards enemy
-    tmpy = targety			    //
+      IfFacingTarget
+        IfHoldingMeleeWeapon
+          PressLatchButton			      //
+    tmpx = rand & 255 + targetx - 128			    // Move towards enemy
+    tmpy = rand & 255 + targety - 128			    //
     tmpturn = targetturnto		    //
-    tmpdistance = 200			    //
+    tmpdistance = 600			    //
     Compass				    //
+    
+  IfStateIs2
+    IfFacingTarget
+      SetOldTarget
+      tmpx = targetdistance
+      SetTargetToNearestFriend
+      IfFacingTarget
+        tmpy = targetdistance
+      Else
+        tmpx = 0
+        tmpy = 1
+      SetTargetToOldTarget
+      IfXIsLessThanY
+        IfHoldingRangedWeapon
+          PressLatchButton
+    tmpx = targetdistance
+    tmpy = 800
+    IfXIsMoreThanY
+      tmpx = targetx			    // Move towards enemy
+      tmpy = targety			    //
+    Else
+      tmpy = 300
+      IfXIsLessThanY
+        tmpx = rand & 2046 + selfx - 1023			    // Move away from enemy
+        tmpy = rand & 2046 + selfy - 1023			    //
+      Else
+        tmpx = selfx        //We are okay
+        tmpy = selfy
+    tmpdistance = 50
+    tmpturn = targetturnto
+    Compass
+  
   ClearWaypoints			  //
   AddWaypoint				  //
-  tmpargument = rand&20			  // Try again later
+  tmpargument = rand & 15 + 10			  // Try again later
   SetTime				  //
 
+//----------------------------------------------------------------------------------
 IfBumped				// Bumped
   SetTargetToWhoeverBumped		  //
     tmpargument = 0			    // Return to follow state
     SetTargetToNearbyEnemy		    // Look out for enemies
       tmpargument = 1			      // Stay in combat state
+      IfHoldingRangedWeapon
+        tmpargument = 2
     Else				    // Revert
       SetTargetToOldTarget		      //
     SetState				    //
-    tmpx = rand&511+selfx-256		    //
-    tmpy = rand&511+selfy-256		    //
+    tmpx = rand & 511 + selfx - 256		    //
+    tmpy = rand & 511 + selfy - 256		    //
     ClearWaypoints			    //
     AddWaypoint				    //
     tmpargument = 40			    // Try again soon
     SetTime				    //
+
+//----------------------------------------------------------------------------------
 End					// All done
+//----------------------------------------------------------------------------------

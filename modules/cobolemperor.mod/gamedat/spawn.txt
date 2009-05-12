@@ -237,6 +237,8 @@ GLOBAL bullwolf.obj:   NONE    76  71.0   74.0   1.0   N    0   0  0   0   0   F
   cobol.obj:   NONE    37  71.0   74.0   2.0   N    15   1  0   200   2   F   F   E
     GLOBAL Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
     GLOBAL KShield:   NONE      78   0    0    0    L   0   0   0   0   0   F   F   Null
+GLOBAL chest.obj:   NONE    59  71.0   75.0   0.0   N    0   0  0   0   0   F   F   N
+  keya.obj:   NONE    48  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Armory
 shutdoor.obj:   NONE    82  68.0   64.0   0.0   N    0   0  44   0   0   F   F   N

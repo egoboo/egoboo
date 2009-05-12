@@ -3449,7 +3449,7 @@ int draw_status( Uint16 character, int x, int y )
     // Draw the icons
     draw_one_icon( skintoicon[ChrList[character].inst.texture], x + 40, y, ChrList[character].sparkle );
 
-    item = ChrList[character].holdingwhich[0];
+    item = ChrList[character].holdingwhich[SLOT_LEFT];
     if ( item != MAXCHR )
     {
         if ( ChrList[item].icon )
@@ -3467,7 +3467,9 @@ int draw_status( Uint16 character, int x, int y )
         }
         else if ( bookicon_count > 0 )
         {
-            draw_one_icon( bookicon[ ChrList[item].money % bookicon_count ], x + 8, y, ChrList[item].sparkle );
+			Uint16 icon = ChrList[item].money;
+			if(icon > bookicon_count) icon = bookicon_count;
+            draw_one_icon( bookicon[ icon ], x + 8, y, ChrList[item].sparkle );
         }
         else
         {
@@ -3479,7 +3481,7 @@ int draw_status( Uint16 character, int x, int y )
         draw_one_icon( nullicon, x + 8, y, NOSPARKLE );
     }
 
-    item = ChrList[character].holdingwhich[1];
+    item = ChrList[character].holdingwhich[SLOT_RIGHT];
     if ( item != MAXCHR )
     {
         if ( ChrList[item].icon )
@@ -3497,7 +3499,9 @@ int draw_status( Uint16 character, int x, int y )
         }
         else if ( bookicon_count > 0 )
         {
-            draw_one_icon( bookicon[ ChrList[item].money % bookicon_count ], x + 72, y, ChrList[item].sparkle );
+			Uint16 icon = ChrList[item].money;
+			if(icon > bookicon_count) icon = bookicon_count;
+            draw_one_icon( bookicon[ icon ], x + 72, y, ChrList[item].sparkle );
         }
         else
         {
