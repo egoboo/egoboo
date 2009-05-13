@@ -75,4 +75,4 @@
 
 //Some macro switches
 //#define OLD_CAMERA_MODE       //Use the old camera style
-//#define USE_LUA_CONSOLE       //LUA support for the console
+#undef USE_LUA_CONSOLE       //LUA support for the console

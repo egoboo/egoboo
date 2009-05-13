@@ -20,7 +20,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(SolutionDir)enet\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_LUA_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -532,18 +532,6 @@
 			Name="lua_interface"
 			Filter="">
 			<File
-				RelativePath=".\ego.i">
-			</File>
-			<File
-				RelativePath=".\ego_wrap.c">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						DisableSpecificWarnings="4127"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\egoboo_console.c">
 			</File>
 			<File
@@ -554,6 +542,18 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\lua_console.h">

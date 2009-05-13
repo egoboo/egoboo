@@ -157,12 +157,17 @@ static void   mad_rip_actions( Uint16 object );
 static void load_action_names( const char* loadname );
 static void log_madused( const char *savename );
 
+static bool_t game_begin_menu( int which );
+static void   game_end_menu();
+
+static void   memory_cleanUp(void);
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-char  idsz_string[5] = { '\0' };
+char idsz_string[5] = { '\0' };
 
-static void memory_cleanUp(void);
+static int gamemenu_depth = -1;
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -1205,14 +1210,37 @@ void reset_timers()
     outofsync = bfalse;
 }
 
+
+//--------------------------------------------------------------------------------------------
+int game_do_menu( double frameDuration, bool_t needs_clear )
+{
+    int menuResult;
+
+    // do menus
+    if( needs_clear )
+    {
+        glClear( GL_COLOR_BUFFER_BIT );
+    };
+
+    ui_beginFrame( frameDuration );
+    {
+        menuResult = doMenu( ( float )frameDuration );
+        request_flip_pages();
+    }
+    ui_endFrame();
+
+    return menuResult;
+}
+
 //--------------------------------------------------------------------------------------------
 int SDL_main( int argc, char **argv )
 {
     // ZZ> This is where the program starts and all the high level stuff happens
+
     double frameDuration;
-    int menuActive = 1;
     int menuResult;
     int frame_next = 0, frame_now = 0;
+    bool_t menu_was_active, menu_is_active;
 
     // Initialize logging first, so that we can use it everywhere.
     log_init();
@@ -1305,40 +1333,53 @@ int SDL_main( int argc, char **argv )
     // this will not change unless a new module is downloaded for a network game?
     modlist_load_all_info();
 
-    while ( gameactive || menuActive )
+    menuactive = btrue;
+    gameactive = bfalse;
+    menu_was_active = menu_is_active = (menuactive || gamemenuactive);
+    while ( gameactive || menuactive )
     {
+        menu_was_active = menu_is_active;
+        menu_is_active = (menuactive || gamemenuactive);
+
+        if( menu_is_active )
+        {
+            SDL_ShowCursor( SDL_ENABLE );
+            SDL_WM_GrabInput ( SDL_GRAB_ON );
+        }
+        else
+        {
+            // restore mouse defaults
+            SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
+        }
+
         // Clock updates each frame
         clk_frameStep();
         frameDuration = clk_getFrameDuration();
 
+        // do the panic button
+        input_read();
+        if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
+        {
+            menuactive = bfalse;
+            gameactive = bfalse;
+        }
+
         // Either run through the menus, or jump into the game
-        if ( menuActive )
+        if ( menuactive )
         {
             // Play the menu music
             sound_play_song( 0, 0, -1 );
 
-            // do menus
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-            input_read();
-
-            // Pressed panic button
-            if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
-            {
-                menuActive = 0;
-                gameactive = bfalse;
-            }
-
-            ui_beginFrame( frameDuration );
-
-            menuResult = doMenu( ( float )frameDuration );
+            menuResult = game_do_menu( frameDuration, btrue);
 
             switch ( menuResult )
             {
-                case 1:
+                case MENU_SELECT:
                     // Go ahead and start the game
-                    menuActive = 0;
+                    menuactive = bfalse;
                     gameactive = btrue;
-                    networkon = bfalse;
+                    networkon  = bfalse;
                     hostactive = btrue;
                     if ( gGrabMouse )
                     {
@@ -1350,25 +1391,39 @@ int SDL_main( int argc, char **argv )
                     }
                     break;
 
-                case - 1:
+                case MENU_QUIT:
                     // The user selected "Quit"
-                    menuActive = 0;
+                    menuactive = bfalse;
                     gameactive = bfalse;
                     break;
             }
-            ui_endFrame();
-
-            flip_pages();
         }
         else if ( gameactive )
         {
+            bool_t game_menu_is_active, game_menu_was_active;
             // Start a new module
             seed = time( NULL );
 
             moduleactive = game_init_module( pickedmodule, seed );
 
+            game_menu_was_active = game_menu_is_active = gamemenuactive;
             while ( moduleactive )
             {
+                game_menu_was_active = menu_is_active;
+                game_menu_is_active = gamemenuactive;
+
+                if( game_menu_is_active )
+                {
+                    SDL_ShowCursor( SDL_ENABLE );
+                    SDL_WM_GrabInput ( SDL_GRAB_ON );
+                }
+                else
+                {
+                    // restore mouse defaults
+                    SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+                    SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
+                }
+
                 // This is the control loop
                 input_read();
                 if ( networkon && console_done )
@@ -1390,12 +1445,13 @@ int SDL_main( int argc, char **argv )
                 }
 
                 // Check for pause key    // TODO: What to do in network games?
-                if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
-                if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on && pausekeyready )
+                //if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
+                if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on )
                 {
-                    pausekeyready = bfalse;
-                    if ( gamepaused ) gamepaused = bfalse;
-                    else gamepaused = btrue;
+                    if( !gamemenuactive )
+                    {
+                        game_begin_menu( GamePaused );
+                    }
                 }
 
                 // Do important things
@@ -1447,6 +1503,18 @@ int SDL_main( int argc, char **argv )
 
                     draw_main();
 
+                    if( gamemenuactive )
+                    {
+                        game_do_menu( frameDuration, bfalse );
+
+                        if( mnu_get_menu_depth() <= gamemenu_depth )
+                        {
+                            mnu_draw_background = btrue;
+                            gamemenuactive = bfalse;
+                            gamemenu_depth = -1;
+                        }
+                    }
+
                     msgtimechange++;
                     if ( statdelay > 0 )  statdelay--;
                 }
@@ -1457,16 +1525,21 @@ int SDL_main( int argc, char **argv )
                 {
                     quit_module();
                     gameactive = bfalse;
-                    menuActive = 1;
+                    menuactive = btrue;
 
                     // Let the normal OS mouse cursor work
                     SDL_WM_GrabInput( SDL_GRAB_OFF );
                     SDL_ShowCursor( 1 );
                 }
+
+                do_flip_pages();
             }
 
             game_quit_module();
         }
+
+
+        do_flip_pages();
     }
 
     return btrue;
@@ -3734,7 +3807,7 @@ void bump_characters( void )
                                     // Is A falling on B?
                                     if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
                                     {
-                                        if ( MadList[ChrList[chara].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[0] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
+                                        if ( MadList[ChrList[chara].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
                                         {
                                             attach_character_to_mount( chara, charb, GRIP_ONLY );
                                             ChrList[chara].ai.bumplast = chara;
@@ -3749,7 +3822,7 @@ void bump_characters( void )
                                         // Is B falling on A?
                                         if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
                                         {
-                                            if ( MadList[ChrList[charb].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[0] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
+                                            if ( MadList[ChrList[charb].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
                                             {
                                                 attach_character_to_mount( charb, chara, GRIP_ONLY );
 
@@ -3932,11 +4005,11 @@ void bump_characters( void )
                                                         if ( ChrList[chara].ismount )
                                                         {
                                                             // Let mounts collect money for their riders
-                                                            if ( ChrList[chara].holdingwhich[0] != MAXCHR )
+                                                            if ( ChrList[chara].holdingwhich[SLOT_LEFT] != MAXCHR )
                                                             {
-                                                                ChrList[ChrList[chara].holdingwhich[0]].money += PipList[pip].bumpmoney;
-                                                                if ( ChrList[ChrList[chara].holdingwhich[0]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[0]].money = MAXMONEY;
-                                                                if ( ChrList[ChrList[chara].holdingwhich[0]].money < 0 ) ChrList[ChrList[chara].holdingwhich[0]].money = 0;
+                                                                ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money += PipList[pip].bumpmoney;
+                                                                if ( ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money = MAXMONEY;
+                                                                if ( ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money < 0 ) ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money = 0;
 
                                                                 PrtList[partb].time = 1;
                                                             }
@@ -3994,7 +4067,7 @@ void bump_characters( void )
                                             }
                                             else
                                             {
-                                                // Reflect it back in the direction it gCamera.e
+                                                // Reflect it back in the direction it came
                                                 PrtList[partb].xvel = -PrtList[partb].xvel;
                                                 PrtList[partb].yvel = -PrtList[partb].yvel;
                                             }
@@ -4029,6 +4102,10 @@ void bump_characters( void )
     for ( character = 0; character < MAXCHR; character++ )
     {
         float tmpx, tmpy, tmpz;
+        float bump_str = 1.0f - (float)ChrList[character].phys_dismount_timer / PHYS_DISMOUNT_TIME;
+
+        // decrement the dismount timer
+        if( ChrList[character].phys_dismount_timer > 0 ) ChrList[character].phys_dismount_timer--;
 
         // do the "integration" of the accumulated accelerations
         ChrList[character].xvel += ChrList[character].phys_vel_x;
@@ -4036,44 +4113,52 @@ void bump_characters( void )
         ChrList[character].zvel += ChrList[character].phys_vel_z;
 
         // do the "integration" on the position
-        tmpx = ChrList[character].xpos;
-        ChrList[character].xpos += ChrList[character].phys_pos_x;
-        if ( __chrhitawall(character) )
+        if( ABS(ChrList[character].phys_pos_x) > 0 )
         {
-            // restore the old values
-            ChrList[character].xpos = tmpx;
-        }
-        else
-        {
-            ChrList[character].xvel += ChrList[character].phys_pos_x;
-            ChrList[character].oldx = tmpx;
-
-        }
-
-        tmpy = ChrList[character].ypos;
-        ChrList[character].ypos += ChrList[character].phys_pos_y;
-        if ( __chrhitawall(character) )
-        {
-            // restore the old values
-            ChrList[character].ypos = tmpy;
-        }
-        else
-        {
-            ChrList[character].yvel += ChrList[character].phys_pos_y;
-            ChrList[character].oldy = tmpy;
+            tmpx = ChrList[character].xpos;
+            ChrList[character].xpos += ChrList[character].phys_pos_x;
+            if ( __chrhitawall(character) )
+            {
+                // restore the old values
+                ChrList[character].xpos = tmpx;
+            }
+            else
+            {
+                ChrList[character].xvel += ChrList[character].phys_pos_x * bump_str;
+                ChrList[character].oldx = tmpx;
+            }
         }
 
-        tmpz = ChrList[character].zpos;
-        ChrList[character].zpos += ChrList[character].phys_pos_z;
-        if ( ChrList[character].zpos < ChrList[character].level )
+        if( ABS(ChrList[character].phys_pos_y) > 0 )
         {
-            // restore the old values
-            ChrList[character].zpos = tmpz;
+            tmpy = ChrList[character].ypos;
+            ChrList[character].ypos += ChrList[character].phys_pos_y;
+            if ( __chrhitawall(character) )
+            {
+                // restore the old values
+                ChrList[character].ypos = tmpy;
+            }
+            else
+            {
+                ChrList[character].yvel += ChrList[character].phys_pos_y * bump_str;
+                ChrList[character].oldy = tmpy;
+            }
         }
-        else
+
+        if( ABS(ChrList[character].phys_pos_z) > 0 )
         {
-            ChrList[character].zvel += ChrList[character].phys_pos_z;
-            ChrList[character].oldz = tmpz;
+            tmpz = ChrList[character].zpos;
+            ChrList[character].zpos += ChrList[character].phys_pos_z;
+            if ( ChrList[character].zpos < ChrList[character].level )
+            {
+                // restore the old values
+                ChrList[character].zpos = tmpz;
+            }
+            else
+            {
+                ChrList[character].zvel += ChrList[character].phys_pos_z * bump_str;
+                ChrList[character].oldz = tmpz;
+            }
         }
     }
 }
@@ -5365,4 +5450,33 @@ Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y )
     if ( tile_y < 0 || tile_y >= pmesh->info.tiles_y )  return INVALID_TILE;
 
     return tile_x + pmesh->mem.tilestart[tile_y];
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t game_begin_menu( int which )
+{
+    if( !gamemenuactive )
+    {
+        gamemenu_depth = mnu_get_menu_depth();
+    }
+
+    if( mnu_begin_menu( which ) )
+    {
+        mnu_draw_background = bfalse;
+        gamemenuactive = btrue;
+    }
+
+    return gamemenuactive;
+}
+
+//--------------------------------------------------------------------------------------------
+void game_end_menu()
+{
+    mnu_end_menu();
+
+    if( mnu_get_menu_depth() <= gamemenu_depth )
+    {
+        gamemenuactive = bfalse;
+        gamemenu_depth = -1;
+    }
 }

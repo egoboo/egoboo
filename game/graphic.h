@@ -234,7 +234,8 @@ int  length_of_word( const char *szText );
 int  draw_wrap_string( const char *szText, int x, int y, int maxx );
 int  draw_status( Uint16 character, int x, int y );
 void draw_text();
-void flip_pages();
+void request_flip_pages();
+void do_flip_pages();
 void draw_scene();
 void draw_main();
 

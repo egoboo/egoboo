@@ -677,15 +677,18 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         return;
     }
 
+    // set the dismount timer
+    ChrList[character].phys_dismount_timer = PHYS_DISMOUNT_TIME;
+
     // Figure out which hand it's in
     hand = ChrList[character].inwhichhand;
 
     // Rip 'em apart
     ChrList[character].attachedto = MAXCHR;
-    if ( ChrList[mount].holdingwhich[0] == character )
-        ChrList[mount].holdingwhich[0] = MAXCHR;
-    if ( ChrList[mount].holdingwhich[1] == character )
-        ChrList[mount].holdingwhich[1] = MAXCHR;
+    if ( ChrList[mount].holdingwhich[SLOT_LEFT] == character )
+        ChrList[mount].holdingwhich[SLOT_LEFT] = MAXCHR;
+    if ( ChrList[mount].holdingwhich[SLOT_RIGHT] == character )
+        ChrList[mount].holdingwhich[SLOT_RIGHT] = MAXCHR;
 
     if ( ChrList[character].alive )
     {
@@ -1241,8 +1244,8 @@ void drop_all_items( Uint16 character )
     {
         if ( ChrList[character].on )
         {
-            detach_character_from_mount( ChrList[character].holdingwhich[0], btrue, bfalse );
-            detach_character_from_mount( ChrList[character].holdingwhich[1], btrue, bfalse );
+            detach_character_from_mount( ChrList[character].holdingwhich[SLOT_LEFT], btrue, bfalse );
+            detach_character_from_mount( ChrList[character].holdingwhich[SLOT_RIGHT], btrue, bfalse );
             if ( ChrList[character].numinpack > 0 )
             {
                 direction = ChrList[character].turnleftright + 32768;
@@ -1343,7 +1346,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         if ( ChrList[charb].alive && (people == ChrList[charb].isitem) ) continue;
 
         // do not pick up your mount
-        if ( ChrList[charb].holdingwhich[0] == chara || ChrList[charb].holdingwhich[1] == chara ) continue;
+        if ( ChrList[charb].holdingwhich[SLOT_LEFT] == chara || ChrList[charb].holdingwhich[SLOT_RIGHT] == chara ) continue;
 
         xb = ChrList[charb].xpos;
         yb = ChrList[charb].ypos;
@@ -2849,19 +2852,19 @@ void damage_character( Uint16 character, Uint16 direction,
                             if ( ChrList[character].action < ACTIONPC )
                             {
                                 // Check left hand
-                                if ( ChrList[character].holdingwhich[0] != MAXCHR )
+                                if ( ChrList[character].holdingwhich[SLOT_LEFT] != MAXCHR )
                                 {
-                                    left = ( ~CapList[ChrList[ChrList[character].holdingwhich[0]].model].iframeangle );
-                                    right = CapList[ChrList[ChrList[character].holdingwhich[0]].model].iframeangle;
+                                    left = ( ~CapList[ChrList[ChrList[character].holdingwhich[SLOT_LEFT]].model].iframeangle );
+                                    right = CapList[ChrList[ChrList[character].holdingwhich[SLOT_LEFT]].model].iframeangle;
                                 }
                             }
                             else
                             {
                                 // Check right hand
-                                if ( ChrList[character].holdingwhich[1] != MAXCHR )
+                                if ( ChrList[character].holdingwhich[SLOT_RIGHT] != MAXCHR )
                                 {
-                                    left = ( ~CapList[ChrList[ChrList[character].holdingwhich[1]].model].iframeangle );
-                                    right = CapList[ChrList[ChrList[character].holdingwhich[1]].model].iframeangle;
+                                    left = ( ~CapList[ChrList[ChrList[character].holdingwhich[SLOT_RIGHT]].model].iframeangle );
+                                    right = CapList[ChrList[ChrList[character].holdingwhich[SLOT_RIGHT]].model].iframeangle;
                                 }
                             }
                         }
@@ -3466,8 +3469,8 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
     // Grip info
     pchr->attachedto = MAXCHR;
-    pchr->holdingwhich[0] = MAXCHR;
-    pchr->holdingwhich[1] = MAXCHR;
+    pchr->holdingwhich[SLOT_LEFT] = MAXCHR;
+    pchr->holdingwhich[SLOT_RIGHT] = MAXCHR;
 
     // Image rendering
     pchr->uoffvel = pcap->uoffvel;
@@ -3779,7 +3782,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
     if( profile > MAXMODEL || !MadList[profile].used ) return;
 
     // Drop left weapon
-    sTmp = ChrList[ichr].holdingwhich[0];
+    sTmp = ChrList[ichr].holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR && ( !CapList[profile].gripvalid[0] || CapList[profile].ismount ) )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
@@ -3792,7 +3795,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
     }
 
     // Drop right weapon
-    sTmp = ChrList[ichr].holdingwhich[1];
+    sTmp = ChrList[ichr].holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR && !CapList[profile].gripvalid[1] )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
@@ -3910,7 +3913,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         }
     }
 
-    item = ChrList[ichr].holdingwhich[0];
+    item = ChrList[ichr].holdingwhich[SLOT_LEFT];
     if ( item != MAXCHR )
     {
         int i;
@@ -3930,7 +3933,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
         }
     }
 
-    item = ChrList[ichr].holdingwhich[1];
+    item = ChrList[ichr].holdingwhich[SLOT_RIGHT];
     if ( item != MAXCHR )
     {
         int i;
@@ -4152,7 +4155,7 @@ void switch_team( Uint16 character, Uint8 team )
             TeamList[ChrList[character].baseteam].morale--;
             TeamList[team].morale++;
         }
-        if ( ( !ChrList[character].ismount || ChrList[character].holdingwhich[0] == MAXCHR ) &&
+        if ( ( !ChrList[character].ismount || ChrList[character].holdingwhich[SLOT_LEFT] == MAXCHR ) &&
                 ( !ChrList[character].isitem || ChrList[character].attachedto == MAXCHR ) )
         {
             ChrList[character].team = team;
@@ -4573,16 +4576,6 @@ void move_characters( void )
         ChrList[cnt].oldy = ChrList[cnt].ypos;
         ChrList[cnt].oldz = ChrList[cnt].zpos;
         ChrList[cnt].oldturn = ChrList[cnt].turnleftright;
-        //            if(ChrList[cnt].attachedto!=MAXCHR)
-        //            {
-        //                ChrList[cnt].turnleftright = ChrList[ChrList[cnt].attachedto].turnleftright;
-        //                if(ChrList[cnt].indolist==bfalse)
-        //                {
-        //                    ChrList[cnt].xpos = ChrList[ChrList[cnt].attachedto].xpos;
-        //                    ChrList[cnt].ypos = ChrList[ChrList[cnt].attachedto].ypos;
-        //                    ChrList[cnt].zpos = ChrList[ChrList[cnt].attachedto].zpos;
-        //                }
-        //            }
 
         // Texture movement
         ChrList[cnt].inst.uoffset += ChrList[cnt].uoffvel;
@@ -4591,6 +4584,9 @@ void move_characters( void )
         {
             if ( ChrList[cnt].attachedto == MAXCHR )
             {
+                float new_vx, new_vy;
+                float new_ax, new_ay;
+
                 // Character latches for generalized movement
                 dvx = ChrList[cnt].latchx;
                 dvy = ChrList[cnt].latchy;
@@ -4610,12 +4606,24 @@ void move_characters( void )
                     dvy = dvmax;
                 }
 
+                new_vx = dvx * airfriction / (1.0f - airfriction);
+                new_vy = dvy * airfriction / (1.0f - airfriction);
+
+                new_ax = new_vx - ChrList[cnt].xvel;
+                new_ay = new_vy - ChrList[cnt].yvel;
+
+                dvmax = ChrList[cnt].maxaccel;
+                if ( new_ax < -dvmax ) new_ax = -dvmax;
+                if ( new_ax >  dvmax ) new_ax =  dvmax;
+                if ( new_ay < -dvmax ) new_ay = -dvmax;
+                if ( new_ay >  dvmax ) new_ay =  dvmax;
+
                 // Get direction from the DESIRED change in velocity
                 if ( ChrList[cnt].turnmode == TURNMODEWATCH )
                 {
                     if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                     {
-                        ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                        ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
                     }
                 }
 
@@ -4624,24 +4632,21 @@ void move_characters( void )
                 if ( watchtarget )
                 {
                     if ( cnt != ChrList[cnt].ai.target )
+                    {
                         ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( ChrList[ChrList[cnt].ai.target].ypos - ChrList[cnt].ypos, ChrList[ChrList[cnt].ai.target].xpos - ChrList[cnt].xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                    }
                 }
+
                 if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXSTOP )
                 {
-                    dvx = 0;
-                    dvy = 0;
+                    new_ax = 0;
+                    new_ay = 0;
                 }
                 else
                 {
                     // Limit to max acceleration
-                    dvmax = ChrList[cnt].maxaccel;
-                    if ( dvx < -dvmax ) dvx = -dvmax;
-                    if ( dvx > dvmax ) dvx = dvmax;
-                    if ( dvy < -dvmax ) dvy = -dvmax;
-                    if ( dvy > dvmax ) dvy = dvmax;
-
-                    ChrList[cnt].xvel += dvx;
-                    ChrList[cnt].yvel += dvy;
+                    ChrList[cnt].xvel += new_ax;
+                    ChrList[cnt].yvel += new_ay;
                 }
 
                 // Get direction from ACTUAL change in velocity
@@ -4704,11 +4709,11 @@ void move_characters( void )
                             ChrList[cnt].hitready = btrue;
                             if ( ChrList[cnt].inwater )
                             {
-                                ChrList[cnt].zvel = WATERJUMP;
+                                ChrList[cnt].zvel = WATERJUMP * 1.2;
                             }
                             else
                             {
-                                ChrList[cnt].zvel = ChrList[cnt].jump;
+                                ChrList[cnt].zvel = ChrList[cnt].jump * 1.2;
                             }
 
                             ChrList[cnt].jumptime = JUMPDELAY;
@@ -4733,7 +4738,7 @@ void move_characters( void )
                 if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_ALTLEFT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
                 {
                     ChrList[cnt].reloadtime = GRABDELAY;
-                    if ( ChrList[cnt].holdingwhich[0] == MAXCHR )
+                    if ( ChrList[cnt].holdingwhich[SLOT_LEFT] == MAXCHR )
                     {
                         // Grab left
                         chr_play_action( cnt, ACTIONME, bfalse );
@@ -4747,7 +4752,7 @@ void move_characters( void )
                 if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_ALTRIGHT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
                 {
                     ChrList[cnt].reloadtime = GRABDELAY;
-                    if ( ChrList[cnt].holdingwhich[1] == MAXCHR )
+                    if ( ChrList[cnt].holdingwhich[SLOT_RIGHT] == MAXCHR )
                     {
                         // Grab right
                         chr_play_action( cnt, ACTIONMF, bfalse );
@@ -4761,7 +4766,7 @@ void move_characters( void )
                 if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_PACKLEFT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
                 {
                     ChrList[cnt].reloadtime = PACKDELAY;
-                    item = ChrList[cnt].holdingwhich[0];
+                    item = ChrList[cnt].holdingwhich[SLOT_LEFT];
                     if ( item != MAXCHR )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
@@ -4787,7 +4792,7 @@ void move_characters( void )
                 if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_PACKRIGHT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
                 {
                     ChrList[cnt].reloadtime = PACKDELAY;
-                    item = ChrList[cnt].holdingwhich[1];
+                    item = ChrList[cnt].holdingwhich[SLOT_RIGHT];
                     if ( item != MAXCHR )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
@@ -4813,7 +4818,7 @@ void move_characters( void )
                 if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_LEFT ) && ChrList[cnt].reloadtime == 0 )
                 {
                     // Which weapon?
-                    weapon = ChrList[cnt].holdingwhich[0];
+                    weapon = ChrList[cnt].holdingwhich[SLOT_LEFT];
                     if ( weapon == MAXCHR )
                     {
                         // Unarmed means character itself is the weapon
@@ -4921,7 +4926,7 @@ void move_characters( void )
                 else if ( 0 != (ChrList[cnt].latchbutton & LATCHBUTTON_RIGHT) && ChrList[cnt].reloadtime == 0 )
                 {
                     // Which weapon?
-                    weapon = ChrList[cnt].holdingwhich[1];
+                    weapon = ChrList[cnt].holdingwhich[SLOT_RIGHT];
                     if ( weapon == MAXCHR )
                     {
                         // Unarmed means character itself is the weapon
@@ -5077,7 +5082,7 @@ void move_characters( void )
                             ChrList[cnt].jumpnumber = ChrList[cnt].jumpnumberreset;
                             if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
 
-                            ChrList[cnt].zvel = -ChrList[cnt].zvel * ChrList[cnt].dampen;
+                            ChrList[cnt].zvel *= -ChrList[cnt].dampen;
                             ChrList[cnt].zvel += gravity;
                         }
                         else
@@ -5107,7 +5112,7 @@ void move_characters( void )
                         ChrList[cnt].jumpnumber = ChrList[cnt].jumpnumberreset;
                         if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
 
-                        ChrList[cnt].zvel = -ChrList[cnt].zvel * ChrList[cnt].dampen;
+                        ChrList[cnt].zvel *= -ChrList[cnt].dampen;
                         ChrList[cnt].zvel += gravity;
                     }
                 }
@@ -5171,9 +5176,9 @@ void move_characters( void )
             if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXCHARRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, btrue );
             if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPLEFT )
-                detach_character_from_mount( ChrList[cnt].holdingwhich[0], bfalse, btrue );
+                detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_LEFT], bfalse, btrue );
             if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPRIGHT )
-                detach_character_from_mount( ChrList[cnt].holdingwhich[1], bfalse, btrue );
+                detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_RIGHT], bfalse, btrue );
             if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
                 ChrList[cnt].ai.poof_time = frame_wld;
             if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXFOOTFALL )
@@ -5304,14 +5309,14 @@ void move_characters( void )
             detach_character_from_mount( cnt, btrue, bfalse );
         }
 
-        if ( ChrList[cnt].holdingwhich[0] != MAXCHR )
+        if ( ChrList[cnt].holdingwhich[SLOT_LEFT] != MAXCHR )
         {
-            detach_character_from_mount( ChrList[cnt].holdingwhich[0], btrue, bfalse );
+            detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_LEFT], btrue, bfalse );
         }
 
-        if ( ChrList[cnt].holdingwhich[1] != MAXCHR )
+        if ( ChrList[cnt].holdingwhich[SLOT_RIGHT] != MAXCHR )
         {
-            detach_character_from_mount( ChrList[cnt].holdingwhich[1], btrue, bfalse );
+            detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_RIGHT], btrue, bfalse );
         }
 
         free_inventory( cnt );

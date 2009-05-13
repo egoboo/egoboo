@@ -407,7 +407,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
                             }
 
                             // Check left hand
-                            sTmp = ChrList[character].holdingwhich[0];
+                            sTmp = ChrList[character].holdingwhich[SLOT_LEFT];
                             if ( sTmp != MAXCHR )
                             {
                                 sTmp = ChrList[sTmp].model;
@@ -419,7 +419,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
                             }
 
                             // Check right hand
-                            sTmp = ChrList[character].holdingwhich[1];
+                            sTmp = ChrList[character].holdingwhich[SLOT_RIGHT];
                             if ( sTmp != MAXCHR )
                             {
                                 sTmp = ChrList[sTmp].model;

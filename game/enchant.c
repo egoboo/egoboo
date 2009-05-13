@@ -170,8 +170,8 @@ bool_t remove_enchant( Uint16 enchantindex )
     numfreeenchant++;
 
     // Now fix dem weapons
-    reset_character_alpha( ChrList[character].holdingwhich[0] );
-    reset_character_alpha( ChrList[character].holdingwhich[1] );
+    reset_character_alpha( ChrList[character].holdingwhich[SLOT_LEFT] );
+    reset_character_alpha( ChrList[character].holdingwhich[SLOT_RIGHT] );
 
     return btrue;
 }
@@ -507,22 +507,22 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchan
             if ( EveList[enchanttype].retarget )
             {
                 // Is at least one valid?
-                if ( ChrList[target].holdingwhich[0] == MAXCHR && ChrList[target].holdingwhich[1] == MAXCHR )
+                if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[target].holdingwhich[SLOT_RIGHT] == MAXCHR )
                 {
                     // No weapons to pick
                     return MAXENCHANT;
                 }
 
                 // Left, right, or both are valid
-                if ( ChrList[target].holdingwhich[0] == MAXCHR )
+                if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR )
                 {
                     // Only right hand is valid
-                    target = ChrList[target].holdingwhich[1];
+                    target = ChrList[target].holdingwhich[SLOT_RIGHT];
                 }
                 else
                 {
                     // Pick left hand
-                    target = ChrList[target].holdingwhich[0];
+                    target = ChrList[target].holdingwhich[SLOT_LEFT];
                 }
             }
 

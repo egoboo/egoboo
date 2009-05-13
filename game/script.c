@@ -196,11 +196,11 @@ void let_character_think( Uint16 character )
     if ( !ChrList[pself->index].isplayer )
     {
         float latch2;
-        if ( ChrList[pself->index].ismount && MAXCHR != ChrList[pself->index].holdingwhich[0] && ChrList[ChrList[pself->index].holdingwhich[0]].on )
+        if ( ChrList[pself->index].ismount && MAXCHR != ChrList[pself->index].holdingwhich[SLOT_LEFT] && ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].on )
         {
             // Mount
-            ChrList[pself->index].latchx = ChrList[ChrList[pself->index].holdingwhich[0]].latchx;
-            ChrList[pself->index].latchy = ChrList[ChrList[pself->index].holdingwhich[0]].latchy;
+            ChrList[pself->index].latchx = ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].latchx;
+            ChrList[pself->index].latchy = ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].latchy;
         }
         else if ( pself->wp_tail != pself->wp_head )
         {
@@ -1074,7 +1074,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FSETTARGETTOTARGETLEFTHAND:
             // This function sets the target to the target's left item
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             returncode = bfalse;
             if ( sTmp != MAXCHR )
             {
@@ -1085,7 +1085,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FSETTARGETTOTARGETRIGHTHAND:
             // This function sets the target to the target's right item
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             returncode = bfalse;
             if ( sTmp != MAXCHR )
             {
@@ -1172,7 +1172,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check left hand
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -1181,7 +1181,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -1195,7 +1195,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // hand in tmpargument
             returncode = bfalse;
             // Check left hand
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -1207,7 +1207,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR && !returncode )
             {
                 sTmp = ChrList[sTmp].model;
@@ -1277,7 +1277,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FDROPWEAPONS:
             // This funtion drops the character's in hand items/riders
-            sTmp = pchr->holdingwhich[0];
+            sTmp = pchr->holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 detach_character_from_mount( sTmp, btrue, btrue );
@@ -1289,7 +1289,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
                 }
             }
 
-            sTmp = pchr->holdingwhich[1];
+            sTmp = pchr->holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 detach_character_from_mount( sTmp, btrue, btrue );
@@ -1380,26 +1380,26 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check left hand
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
                 if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
                 {
                     returncode = btrue;
-                    iTmp = ChrList[pself->target].holdingwhich[0];
+                    iTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
                 }
             }
 
             // Check right hand
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
                 if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
                 {
                     returncode = btrue;
-                    iTmp = ChrList[pself->target].holdingwhich[1];
+                    iTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
                 }
             }
             if ( returncode )
@@ -1809,13 +1809,13 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
             // This function sets the target to the character's left/only grip weapon,
             // failing if there is none
-            if ( pchr->holdingwhich[0] == MAXCHR )
+            if ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR )
             {
                 returncode = bfalse;
             }
             else
             {
-                pself->target = pchr->holdingwhich[0];
+                pself->target = pchr->holdingwhich[SLOT_LEFT];
             }
             break;
 
@@ -2039,16 +2039,16 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FIFUNARMED:
             // This function proceeds if the character has no item in hand
-            returncode = ( pchr->holdingwhich[0] == MAXCHR && pchr->holdingwhich[1] == MAXCHR );
+            returncode = ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR && pchr->holdingwhich[SLOT_RIGHT] == MAXCHR );
             break;
 
         case FRESTOCKTARGETAMMOIDALL:
             // This function restocks the ammo of every item the character is holding,
             // if the item matches the ID given ( parent or child type )
             iTmp = 0;  // Amount of ammo given
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             iTmp += restock_ammo( sTmp, pstate->argument );
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             iTmp += restock_ammo( sTmp, pstate->argument );
             sTmp = ChrList[pself->target].nextinpack;
 
@@ -2066,11 +2066,11 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // This function restocks the ammo of the first item the character is holding,
             // if the item matches the ID given ( parent or child type )
             iTmp = 0;  // Amount of ammo given
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             iTmp += restock_ammo( sTmp, pstate->argument );
             if ( iTmp == 0 )
             {
-                sTmp = ChrList[pself->target].holdingwhich[1];
+                sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
                 iTmp += restock_ammo( sTmp, pstate->argument );
                 if ( iTmp == 0 )
                 {
@@ -2324,7 +2324,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // in tmpargument, returning the latch to press to use it
             returncode = bfalse;
             // Check left hand
-            sTmp = pchr->holdingwhich[0];
+            sTmp = pchr->holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -2336,7 +2336,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            sTmp = pchr->holdingwhich[1];
+            sTmp = pchr->holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -2356,7 +2356,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             pstate->argument = 0;
             // Check left hand
-            tTmp = pchr->holdingwhich[0];
+            tTmp = pchr->holdingwhich[SLOT_LEFT];
             if ( tTmp != MAXCHR )
             {
                 sTmp = ChrList[tTmp].model;
@@ -2368,7 +2368,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            tTmp = pchr->holdingwhich[1];
+            tTmp = pchr->holdingwhich[SLOT_RIGHT];
             if ( tTmp != MAXCHR )
             {
                 sTmp = ChrList[tTmp].model;
@@ -2389,7 +2389,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             pstate->argument = 0;
             // Check left hand
-            sTmp = pchr->holdingwhich[0];
+            sTmp = pchr->holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -2401,7 +2401,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            sTmp = pchr->holdingwhich[1];
+            sTmp = pchr->holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -2422,7 +2422,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             returncode = bfalse;
             pstate->argument = 0;
             // Check left hand
-            sTmp = pchr->holdingwhich[0];
+            sTmp = pchr->holdingwhich[SLOT_LEFT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -2434,7 +2434,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             }
 
             // Check right hand
-            sTmp = pchr->holdingwhich[1];
+            sTmp = pchr->holdingwhich[SLOT_RIGHT];
             if ( sTmp != MAXCHR )
             {
                 sTmp = ChrList[sTmp].model;
@@ -3283,9 +3283,9 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FUNKURSETARGETINVENTORY:
             // This function unkurses every item a character is holding
-            sTmp = ChrList[pself->target].holdingwhich[0];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
             ChrList[sTmp].iskursed = bfalse;
-            sTmp = ChrList[pself->target].holdingwhich[1];
+            sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
             ChrList[sTmp].iskursed = bfalse;
             sTmp = ChrList[pself->target].nextinpack;
 
@@ -3400,7 +3400,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             sTmp = pchr->attachedto;
             if ( sTmp != MAXCHR )
             {
-                returncode = ( ChrList[sTmp].holdingwhich[0] == pself->index );
+                returncode = ( ChrList[sTmp].holdingwhich[SLOT_LEFT] == pself->index );
             }
             break;
 
@@ -5140,7 +5140,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     returncode = bfalse;
     if ( sTmp != MAXCHR )
     {
@@ -5311,7 +5311,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check left hand
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -5320,7 +5320,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -5343,7 +5343,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     // Check left hand
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -5355,7 +5355,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR && !returncode )
     {
         sTmp = ChrList[sTmp].model;
@@ -5508,7 +5508,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This funtion drops the character's in hand items/riders
-    sTmp = pchr->holdingwhich[0];
+    sTmp = pchr->holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
@@ -5520,7 +5520,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    sTmp = pchr->holdingwhich[1];
+    sTmp = pchr->holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
@@ -5677,26 +5677,26 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check left hand
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
         {
             returncode = btrue;
-            iTmp = ChrList[pself->target].holdingwhich[0];
+            iTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
         }
     }
 
     // Check right hand
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
         {
             returncode = btrue;
-            iTmp = ChrList[pself->target].holdingwhich[1];
+            iTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
         }
     }
 
@@ -6621,13 +6621,13 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
     // failing if there is no rider
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pchr->holdingwhich[0] == MAXCHR )
+    if ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR )
     {
         returncode = bfalse;
     }
     else
     {
-        pself->target = pchr->holdingwhich[0];
+        pself->target = pchr->holdingwhich[SLOT_LEFT];
     }
 
     SCRIPT_FUNCTION_END();
@@ -6637,7 +6637,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_get_AttackTurn( script_state_t * pstate, ai_state_t * pself )
 {
     // This function sets tmpturn to the direction from which the last attack
-    // gCamera.e.
+    // came.
     // Not particularly useful in most cases, but it could be.
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7142,7 +7142,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->holdingwhich[0] == MAXCHR && pchr->holdingwhich[1] == MAXCHR );
+    returncode = ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR && pchr->holdingwhich[SLOT_RIGHT] == MAXCHR );
 
     SCRIPT_FUNCTION_END();
 }
@@ -7161,9 +7161,9 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     // This function restocks the ammo of every item the character is holding,
     // if the item matches the ID given ( parent or child type )
     iTmp = 0;  // Amount of ammo given
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     iTmp += restock_ammo( sTmp, pstate->argument );
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( sTmp, pstate->argument );
     sTmp = ChrList[pself->target].nextinpack;
 
@@ -7191,11 +7191,11 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = 0;  // Amount of ammo given
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     iTmp += restock_ammo( sTmp, pstate->argument );
     if ( iTmp == 0 )
     {
-        sTmp = ChrList[pself->target].holdingwhich[1];
+        sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
         iTmp += restock_ammo( sTmp, pstate->argument );
         if ( iTmp == 0 )
         {
@@ -7307,7 +7307,7 @@ Uint8 scr_set_Alpha( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromBehind()
-    // This function proceeds if the last attack to the character gCamera.e from behind
+    // This function proceeds if the last attack to the character came from behind
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -7322,7 +7322,7 @@ Uint8 scr_HitFromBehind( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromFront()
-    // This function proceeds if the last attack to the character gCamera.e
+    // This function proceeds if the last attack to the character came
     // from the front
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7338,7 +7338,7 @@ Uint8 scr_HitFromFront( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromLeft()
-    // This function proceeds if the last attack to the character gCamera.e
+    // This function proceeds if the last attack to the character came
     // from the left
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7355,7 +7355,7 @@ Uint8 scr_HitFromLeft( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_HitFromRight( script_state_t * pstate, ai_state_t * pself )
 {
     // _HitFromRight()
-    // This function proceeds if the last attack to the character gCamera.e
+    // This function proceeds if the last attack to the character came
     // from the right
 
     SCRIPT_FUNCTION_BEGIN();
@@ -7802,7 +7802,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     // Check left hand
-    sTmp = pchr->holdingwhich[0];
+    sTmp = pchr->holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -7814,7 +7814,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    sTmp = pchr->holdingwhich[1];
+    sTmp = pchr->holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -7845,7 +7845,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check left hand
-    tTmp = pchr->holdingwhich[0];
+    tTmp = pchr->holdingwhich[SLOT_LEFT];
     if ( tTmp != MAXCHR )
     {
         sTmp = ChrList[tTmp].model;
@@ -7857,7 +7857,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    tTmp = pchr->holdingwhich[1];
+    tTmp = pchr->holdingwhich[SLOT_RIGHT];
     if ( tTmp != MAXCHR )
     {
         sTmp = ChrList[tTmp].model;
@@ -7887,7 +7887,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check left hand
-    sTmp = pchr->holdingwhich[0];
+    sTmp = pchr->holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -7899,7 +7899,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    sTmp = pchr->holdingwhich[1];
+    sTmp = pchr->holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -7930,7 +7930,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     pstate->argument = 0;
 
     // Check left hand
-    sTmp = pchr->holdingwhich[0];
+    sTmp = pchr->holdingwhich[SLOT_LEFT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -7942,7 +7942,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     }
 
     // Check right hand
-    sTmp = pchr->holdingwhich[1];
+    sTmp = pchr->holdingwhich[SLOT_RIGHT];
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
@@ -9610,9 +9610,9 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function unkurses every item a character is holding
-    sTmp = ChrList[pself->target].holdingwhich[0];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     ChrList[sTmp].iskursed = bfalse;
-    sTmp = ChrList[pself->target].holdingwhich[1];
+    sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     ChrList[sTmp].iskursed = bfalse;
     sTmp = ChrList[pself->target].nextinpack;
 
@@ -9833,7 +9833,7 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     sTmp = pchr->attachedto;
     if ( sTmp != MAXCHR )
     {
-        returncode = ( ChrList[sTmp].holdingwhich[0] == pself->index );
+        returncode = ( ChrList[sTmp].holdingwhich[SLOT_LEFT] == pself->index );
     }
 
     SCRIPT_FUNCTION_END();

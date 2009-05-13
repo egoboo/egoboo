@@ -34,6 +34,7 @@
 #include "file_common.h"
 #include "network.h"
 #include "passage.h"
+#include "menu.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"
@@ -123,8 +124,12 @@ static rect_t             barrect[NUMBAR];            // The bar rectangles
 static rect_t             bliprect[NUMBAR];           // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
 
+static bool_t             gfx_page_flip_requested = bfalse;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void flip_pages();
+
 static void font_release();
 
 static void project_view(camera_t * pcam);
@@ -1470,8 +1475,8 @@ void add_to_dolist( Uint16 ichr )
         }
 
         // Add its weapons too
-        add_to_dolist( ChrList[ichr].holdingwhich[0] );
-        add_to_dolist( ChrList[ichr].holdingwhich[1] );
+        add_to_dolist( ChrList[ichr].holdingwhich[SLOT_LEFT] );
+        add_to_dolist( ChrList[ichr].holdingwhich[SLOT_RIGHT] );
     }
 
 }
@@ -1519,7 +1524,7 @@ void load_basic_textures( const char *modname )
     char newloadname[256];
 
     // Particle sprites
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle", TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
@@ -3738,8 +3743,8 @@ void draw_text()
     // Draw paused text
     if ( gamepaused && !SDLKEYDOWN( SDLK_F11 ) )
     {
-        sprintf( text, "GAME PAUSED" );
-        draw_string( text, -90 + displaySurface->w / 2, 0 + displaySurface->h / 2 );
+        //sprintf( text, "GAME PAUSED" );
+        //draw_string( text, -90 + displaySurface->w / 2, 0 + displaySurface->h / 2 );
     }
 
     // Pressed panic button
@@ -3825,11 +3830,30 @@ void draw_text()
 }
 
 //--------------------------------------------------------------------------------------------
+void do_flip_pages()
+{
+    if( gfx_page_flip_requested )
+    {
+        gfx_page_flip_requested = bfalse;       
+        flip_pages();
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void request_flip_pages()
+{
+    gfx_page_flip_requested = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
 void flip_pages()
 {
     glFlush();
 
     egoboo_console_draw_all();
+
+    frame_all++;
+    frame_fps++;
 
     SDL_GL_SwapBuffers();
 }
@@ -3884,13 +3908,11 @@ void draw_scene()
 void draw_main()
 {
     // ZZ> This function does all the drawing stuff
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     draw_scene();
     draw_text();
-    flip_pages();
-    frame_all++;
-    frame_fps++;
+
+    request_flip_pages();
 }
 
 //--------------------------------------------------------------------------------------------

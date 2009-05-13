@@ -57,6 +57,10 @@ enum MenuStates
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
+static int    mnu_whichMenu       = MainMenu;
+
+bool_t mnu_draw_background = btrue;
+
 #define MAXWIDGET 100
 //static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
@@ -173,10 +177,21 @@ struct
     char **buttons;
 } SlidyButtonState;
 
-static void initSlidyButtons( float lerp, const char *buttons[] )
+static void initSlidyButtons( float lerp, const char *button_text[] )
 {
+    int i;
+
+    // Figure out where to draw the buttons
+    buttonLeft = 40;
+    buttonTop = displaySurface->h - 20;
+
+    for ( i = 0; button_text[i][0] != 0; i++ )
+    {
+        buttonTop -= 35;
+    }
+
     SlidyButtonState.lerp = lerp;
-    SlidyButtonState.buttons = ( char** )buttons;
+    SlidyButtonState.buttons = ( char** )button_text;
 }
 
 static void updateSlidyButtons( float deltaTime )
@@ -214,14 +229,8 @@ int initMenus()
         return 0;
     }
 
-    // Figure out where to draw the buttons
-    buttonLeft = 40;
-    buttonTop = displaySurface->h - 20;
-
-    for ( i = 0; mainMenuButtons[i][0] != 0; i++ )
-    {
-        buttonTop -= 35;
-    }
+    // intialize the buttons for the main menu
+    initSlidyButtons( 0, mainMenuButtons );
 
     // Figure out where to draw the copyright text
     copyrightLeft = 0;
@@ -236,7 +245,8 @@ int initMenus()
     optionsTextLeft = 0;
     optionsTextLeft = 0;
     fnt_getTextBoxSize( menuFont, optionsText, 20, &optionsTextLeft, &optionsTextTop );
-    // Draw the copyright text to the right of the buttons
+
+    // Draw the options text to the right of the buttons
     optionsTextLeft = 280;
     // And relative to the bottom of the screen
     optionsTextTop = displaySurface->h - optionsTextTop - 20;
@@ -300,8 +310,11 @@ int doMainMenu( float deltaTime )
             // background
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
-            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -322,8 +335,11 @@ int doMainMenu( float deltaTime )
 
             glColor4f( 1, 1, 1, 1 );
 
-            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
-            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -361,8 +377,11 @@ int doMainMenu( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
-            ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
+                ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -417,7 +436,10 @@ int doSinglePlayerMenu( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background image
-            ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -432,7 +454,10 @@ int doSinglePlayerMenu( float deltaTime )
         case MM_Running:
 
             // Draw the background image
-            ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -461,7 +486,11 @@ int doSinglePlayerMenu( float deltaTime )
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, copyrightText, copyrightLeft, copyrightTop, 0, 0, 20 );
@@ -568,7 +597,11 @@ int doChooseModule( float deltaTime )
             glColor4f( 1, 1, 1, 1 );
             x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
             y = displaySurface->h - background.imgH;
-            ui_drawImage( 0, &background, x, y, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, x, y, 0, 0 );
+            }
 
             // use the mouse wheel to scan the modules
             if ( mouse_wheel_event )
@@ -811,7 +844,11 @@ int doChoosePlayer( float deltaTime )
             // Draw the background
             x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
             y = displaySurface->h - background.imgH;
-            ui_drawImage( 0, &background, x, y, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, x, y, 0, 0 );
+            }
 
             // use the mouse wheel to scan the characters
             if ( mouse_wheel_event )
@@ -1002,7 +1039,10 @@ int doOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // "Copyright" text
             fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -1021,7 +1061,11 @@ int doOptions( float deltaTime )
             // Do normal run
             // Background
             glColor4f( 1, 1, 1, 1 );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // "Options" text
             fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -1058,7 +1102,11 @@ int doOptions( float deltaTime )
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // "Options" text
             fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -1507,7 +1555,10 @@ int doAudioOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // Load the current settings
             if ( soundvalid ) audioOptionsButtons[0] = "On";
@@ -1535,7 +1586,11 @@ int doAudioOptions( float deltaTime )
             // Do normal run
             // Background
             glColor4f( 1, 1, 1, 1 );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h - 270, 0, 0, 20 );
 
@@ -1690,7 +1745,11 @@ int doAudioOptions( float deltaTime )
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // Fall trough
             menuState = MM_Finish;
@@ -1739,7 +1798,10 @@ int doVideoOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // Load all the current video settings
             if (antialiasing == bfalse) strcpy(Cantialiasing , "Off");
@@ -1882,7 +1944,11 @@ int doVideoOptions( float deltaTime )
             // Do normal run
             // Background
             glColor4f( 1, 1, 1, 1 );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // Antialiasing Button
             fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
@@ -2311,7 +2377,11 @@ int doVideoOptions( float deltaTime )
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
-            ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+
+            if( mnu_draw_background )
+            {
+                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+            }
 
             // "Options" text
             fnt_drawTextBox( menuFont, optionsText, optionsTextLeft, optionsTextTop, 0, 0, 20 );
@@ -2400,85 +2470,213 @@ int doNotImplemented( float deltaTime )
     return 0;
 }
 
-// All the different menus.  yay!
-enum
+
+int doGamePaused( float deltaTime )
 {
-    MainMenu,
-    SinglePlayer,
-    MultiPlayer,
-    ChooseModule,
-    ChoosePlayer,
-    TestResults,
-    Options,
-    VideoOptions,
-    AudioOptions,
-    InputOptions,
-    NewPlayer,
-    LoadPlayer,
-    HostGame,
-    JoinGame
-};
+    static int menuState = MM_Begin;
+    static int menuChoice = 0;
+
+    static const char * buttons[] =
+    {
+        "Quit Game",
+        "Audio Options",
+        "Input Controls",
+        "Video Settings",
+        "Return to Game",
+        ""
+    };
+
+    int result = 0, cnt;
+
+    switch ( menuState )
+    {
+        case MM_Begin:
+            // set up menu variables
+            menuChoice = 0;
+            menuState = MM_Entering;
+
+            initSlidyButtons( 1.0f, buttons );
+
+            gamepaused = btrue;
+
+        case MM_Entering:
+            drawSlidyButtons();
+            updateSlidyButtons( -deltaTime );
+
+            // Let lerp wind down relative to the time elapsed
+            if ( SlidyButtonState.lerp <= 0.0f )
+            {
+                menuState = MM_Running;
+            }
+            break;
+
+        case MM_Running:
+            // Do normal run
+            // Background
+            glColor4f( 1, 1, 1, 1 );
+
+            // Buttons
+            for( cnt = 0; cnt < 5; cnt ++ )
+            {
+                if ( BUTTON_UP == ui_doButton( cnt+1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
+                {
+                    // audio options
+                    menuChoice = cnt+1;
+                }
+            }
+
+            if ( menuChoice != 0 )
+            {
+                menuState = MM_Leaving;
+                initSlidyButtons( 0.0f, buttons );
+            }
+            break;
+
+        case MM_Leaving:
+            // Do buttons sliding out and background fading
+            // Do the same stuff as in MM_Entering, but backwards
+            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            // Buttons
+            drawSlidyButtons();
+            updateSlidyButtons( deltaTime );
+            if ( SlidyButtonState.lerp >= 1.0f )
+            {
+                menuState = MM_Finish;
+            }
+            break;
+
+        case MM_Finish:
+            // Free the background texture; don't need to hold onto it
+            menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
+
+            // reset the ui
+            ui_Reset();
+
+            gamepaused = bfalse;
+
+            // Set the next menu to load
+            result = menuChoice;
+            break;
+    }
+
+    return result;
+}
+
+
+#define MENU_STACK_COUNT 256
+int menu_stack_index = 0;
+int menu_stack[MENU_STACK_COUNT];
+
+bool_t menu_stack_push( int menu )
+{
+    if( menu_stack_index < 0 )
+    {
+        menu_stack_index = 0;
+    }
+    if(menu_stack_index > MENU_STACK_COUNT)
+    {
+        menu_stack_index = MENU_STACK_COUNT;
+    }
+
+    if( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
+
+
+    menu_stack[menu_stack_index] = menu;
+    menu_stack_index++;
+
+    return btrue;
+}
+
+int menu_stack_pop()
+{
+    if( menu_stack_index < 0 )
+    {
+        menu_stack_index = 0;
+        return MainMenu;
+    }
+    if(menu_stack_index > MENU_STACK_COUNT)
+    {
+        menu_stack_index = MENU_STACK_COUNT;
+    }
+
+    if( menu_stack_index == 0 ) return MainMenu;
+
+    menu_stack_index--;
+    return menu_stack[menu_stack_index];
+}
+
+void menu_stack_clear()
+{
+    menu_stack_index = 0;
+    menu_stack[0] = MainMenu;
+}
 
 int doMenu( float deltaTime )
 {
-    static int whichMenu = MainMenu;
-    static int lastMenu = MainMenu;
-    int result = 0;
+    int retval, result = 0;
 
-    switch ( whichMenu )
+    if( mnu_whichMenu == MainMenu )
+    {
+        menu_stack_clear();
+    };
+
+    retval = MENU_NOTHING;
+
+    switch ( mnu_whichMenu )
     {
         case MainMenu:
             result = doMainMenu( deltaTime );
             if ( result != 0 )
             {
-                lastMenu = MainMenu;
-
-                if ( result == 1 ) { whichMenu = ChooseModule; startNewPlayer = btrue; }
-                else if ( result == 2 ) { whichMenu = ChoosePlayer; startNewPlayer = bfalse; }
-                else if ( result == 3 ) whichMenu = Options;
-                else if ( result == 4 ) return -1;  // need to request a quit somehow
-
+                if ( result == 1 )      { mnu_begin_menu( ChooseModule ); startNewPlayer = btrue; }
+                else if ( result == 2 ) { mnu_begin_menu( ChoosePlayer ); startNewPlayer = bfalse; }
+                else if ( result == 3 ) { mnu_begin_menu( Options ); }
+                else if ( result == 4 ) retval = MENU_QUIT;  // need to request a quit somehow
             }
             break;
 
         case SinglePlayer:
             result = doSinglePlayerMenu( deltaTime );
+
             if ( result != 0 )
             {
-                lastMenu = SinglePlayer;
                 if ( result == 1 )
                 {
-                    whichMenu = ChooseModule;
+                    mnu_begin_menu( ChooseModule );
                     startNewPlayer = btrue;
                 }
                 else if ( result == 2 )
                 {
-                    whichMenu = ChoosePlayer;
+                    mnu_begin_menu( ChoosePlayer );
                     startNewPlayer = bfalse;
                 }
                 else if ( result == 3 )
                 {
-                    whichMenu = MainMenu;
+                    mnu_end_menu();
+                    retval = MENU_END;
                 }
                 else
                 {
-                    whichMenu = NewPlayer;
+                    mnu_begin_menu( NewPlayer );
                 }
             }
             break;
 
         case ChooseModule:
             result = doChooseModule( deltaTime );
-            if ( result == -1 ) whichMenu = lastMenu;
-            else if ( result == 1 ) whichMenu = TestResults;  // imports are not valid (starter module)
-            else if ( result == 2 ) whichMenu = TestResults;  // imports are valid
+
+            if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
+            else if ( result == 1 ) mnu_begin_menu( TestResults );  // imports are not valid (starter module)
+            else if ( result == 2 ) mnu_begin_menu( TestResults );  // imports are valid
 
             break;
 
         case ChoosePlayer:
             result = doChoosePlayer( deltaTime );
-            if ( result == -1 )    whichMenu = lastMenu;
-            else if ( result == 1 )  whichMenu = ChooseModule;
+
+            if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
+            else if ( result == 1 ) mnu_begin_menu( ChooseModule );
 
             break;
 
@@ -2486,10 +2684,10 @@ int doMenu( float deltaTime )
             result = doOptions( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 ) whichMenu = AudioOptions;
-                else if ( result == 2 ) whichMenu = InputOptions;
-                else if ( result == 3 ) whichMenu = VideoOptions;
-                else if ( result == 4 ) whichMenu = MainMenu;
+                if ( result == 1 )      mnu_begin_menu( AudioOptions );
+                else if ( result == 2 ) mnu_begin_menu( InputOptions );
+                else if ( result == 3 ) mnu_begin_menu( VideoOptions );
+                else if ( result == 4 ) { mnu_end_menu(); retval = MENU_END; }
             }
             break;
 
@@ -2497,7 +2695,8 @@ int doMenu( float deltaTime )
             result = doAudioOptions( deltaTime );
             if ( result != 0 )
             {
-                whichMenu = Options;
+                mnu_end_menu();
+                retval = MENU_END;
             }
             break;
 
@@ -2505,7 +2704,8 @@ int doMenu( float deltaTime )
             result = doVideoOptions( deltaTime );
             if ( result != 0 )
             {
-                whichMenu = Options;
+                mnu_end_menu();
+                retval = MENU_END;
             }
             break;
 
@@ -2513,7 +2713,8 @@ int doMenu( float deltaTime )
             result = doInputOptions( deltaTime );
             if ( result != 0 )
             {
-                whichMenu = Options;
+                mnu_end_menu();
+                retval = MENU_END;
             }
             break;
 
@@ -2521,20 +2722,41 @@ int doMenu( float deltaTime )
             result = doShowMenuResults( deltaTime );
             if ( result != 0 )
             {
-                whichMenu = MainMenu;
-                return 1;
+                mnu_end_menu();
+                retval = MENU_SELECT;
             }
             break;
 
+        case GamePaused:
+            result = doGamePaused( deltaTime );
+            if ( result != 0 )
+            {
+                if ( result == 1 )      
+                { 
+                    mnu_end_menu(); 
+                    result = MENU_QUIT; 
+                    gameactive = bfalse; 
+                    moduleactive = bfalse;
+                    menuactive = btrue; 
+                }
+                else if ( result == 2 ) mnu_begin_menu( AudioOptions );
+                else if ( result == 3 ) mnu_begin_menu( InputOptions );
+                else if ( result == 4 ) mnu_begin_menu( VideoOptions );
+                else if ( result == 5 ) { mnu_end_menu(); retval = MENU_END; }
+            }
+            break;
+
+        case NotImplemented:
         default:
             result = doNotImplemented( deltaTime );
             if ( result != 0 )
             {
-                whichMenu = lastMenu;
+                mnu_end_menu();
+                retval = MENU_END;
             }
     }
 
-    return 0;
+    return retval;
 }
 
 void menu_frameStep()
@@ -2839,3 +3061,25 @@ void load_all_menu_images()
     if ( filesave != NULL ) fclose( filesave );
 }
 
+
+
+//--------------------------------------------------------------------------------------------
+bool_t mnu_begin_menu( int which )
+{
+    if( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
+    mnu_whichMenu = which;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void   mnu_end_menu()
+{
+    mnu_whichMenu = menu_stack_pop();
+}
+
+//--------------------------------------------------------------------------------------------
+int mnu_get_menu_depth()
+{
+    return menu_stack_index;
+}

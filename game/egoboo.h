@@ -376,6 +376,7 @@ EXTERN bool_t                    fullscreen EQ( bfalse );        // Start in ful
 EXTERN bool_t                    clearson  EQ( btrue );             // Do we clear every time?
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
+EXTERN bool_t                    gamemenuactive EQ( bfalse );
 EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
 EXTERN bool_t                    staton  EQ( btrue );               // Draw the status bars?
 EXTERN bool_t                    phongon  EQ( btrue );              // Do phong overlay?
@@ -569,12 +570,12 @@ EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
 // phisics info
 EXTERN float           hillslide  EQ( 1.00f );                                 //
-EXTERN float           slippyfriction  EQ( 1.00f );  //1.05f for Chevron          // Friction
-EXTERN float           airfriction  EQ( 0.95f );                                //
-EXTERN float           waterfriction  EQ( 0.85f );                              //
-EXTERN float           noslipfriction  EQ( 0.95f );                            //
-EXTERN float           platstick  EQ( 0.040f );                                 //
-EXTERN float           gravity  EQ( ( float ) - 1.0f );                        // Gravitational accel
+EXTERN float           slippyfriction  EQ( 1.00f );                            // Friction
+EXTERN float           airfriction  EQ( 0.91f );                               // 0.9868 is approximately real world air friction
+EXTERN float           waterfriction  EQ( 0.80f );                             //
+EXTERN float           noslipfriction  EQ( 0.91f );                            //
+EXTERN float           platstick  EQ( 0.040f );                                //
+EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
 
 EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
 EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      // Type of damage

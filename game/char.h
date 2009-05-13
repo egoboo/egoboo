@@ -34,13 +34,15 @@
 #define BORETIME            (rand()&255)+120
 #define CAREFULTIME         50
 
-#define REEL                7600.0f      // Dampen for melee knock back
-#define REELBASE            0.35f         //
+#define REEL                7600.0f     // Dampen for melee knock back
+#define REELBASE            0.35f       //
 
-#define RIPPLEAND           15                      // How often ripples spawn
+#define RIPPLEAND           15          // How often ripples spawn
 
-#define RIPPLETOLERANCE     60                      // For deep water
-#define SPLASHTOLERANCE     10                      //
+#define RIPPLETOLERANCE     60          // For deep water
+#define SPLASHTOLERANCE     10          //
+
+#define PHYS_DISMOUNT_TIME  25          // time delay for full object-object interaction
 
 // Throwing
 #define THROWFIX            30.0f                    // To correct thrown velocities
@@ -502,6 +504,7 @@ struct s_chr
     float          phys_vel_x;
     float          phys_vel_y;
     float          phys_vel_z;
+    int            phys_dismount_timer;
 };
 
 typedef struct s_chr chr_t;

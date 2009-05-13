@@ -27,6 +27,32 @@
 #include "network.h"
 #include "egoboo.h"
 
+// All the different menus.  yay!
+enum
+{
+    MainMenu,
+    SinglePlayer,
+    MultiPlayer,
+    ChooseModule,
+    ChoosePlayer,
+    TestResults,
+    Options,
+    VideoOptions,
+    AudioOptions,
+    InputOptions,
+    NewPlayer,
+    LoadPlayer,
+    HostGame,
+    JoinGame,
+    GamePaused,
+    NotImplemented
+};
+
+#define MENU_SELECT   1
+#define MENU_NOTHING  0
+#define MENU_END     -1
+#define MENU_QUIT    -2
+
 //Input player control
 #define MAXLOADPLAYER     100
 struct s_load_player_info
@@ -43,11 +69,18 @@ extern int    mnu_selectedPlayerCount;
 extern int    mnu_selectedInput[MAXPLAYER];
 extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
+extern bool_t mnu_draw_background;
+
 void menu_frameStep();
 
 void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );
 int initMenus();
+
+bool_t mnu_begin_menu( int which );
+void   mnu_end_menu();
+
+int mnu_get_menu_depth();
 
 #define egoboo_Menu_h
