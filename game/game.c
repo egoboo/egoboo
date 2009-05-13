@@ -112,7 +112,6 @@ static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
 static bool_t load_module( const char *smallname );
-static void   quit_module( void );
 static void   release_module();
 
 static void   setup_characters( const char *modname );
@@ -167,7 +166,8 @@ static void   memory_cleanUp(void);
 
 char idsz_string[5] = { '\0' };
 
-static int gamemenu_depth = -1;
+static int    gamemenu_depth = -1;
+static bool_t game_end_requested = bfalse;
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -1407,6 +1407,7 @@ int SDL_main( int argc, char **argv )
             moduleactive = game_init_module( pickedmodule, seed );
 
             game_menu_was_active = game_menu_is_active = gamemenuactive;
+            game_end_requested = bfalse;
             while ( moduleactive )
             {
                 game_menu_was_active = menu_is_active;
@@ -1521,15 +1522,10 @@ int SDL_main( int argc, char **argv )
 
                 // Check for quitters
                 // :TODO: local_noplayers is not set correctly
-                if ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| local_noplayers*/ )
+                if ( !game_end_requested && ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| local_noplayers*/ ) )
                 {
-                    quit_module();
-                    gameactive = bfalse;
-                    menuactive = btrue;
-
-                    // Let the normal OS mouse cursor work
-                    SDL_WM_GrabInput( SDL_GRAB_OFF );
-                    SDL_ShowCursor( 1 );
+                    game_end_requested = btrue;
+                    game_begin_menu( ShowEndgame );
                 }
 
                 do_flip_pages();

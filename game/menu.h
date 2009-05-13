@@ -35,7 +35,7 @@ enum
     MultiPlayer,
     ChooseModule,
     ChoosePlayer,
-    TestResults,
+    ShowMenuResults,
     Options,
     VideoOptions,
     AudioOptions,
@@ -45,6 +45,7 @@ enum
     HostGame,
     JoinGame,
     GamePaused,
+    ShowEndgame,
     NotImplemented
 };
 

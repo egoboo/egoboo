@@ -481,7 +481,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
 
     // And then draw the text that goes on top of the button
     font = ui_getFont();
-    if ( font )
+    if ( NULL != font && NULL != text && '\0' != text[0] )
     {
         // find the width & height of the text to be drawn, so that it can be centered inside
         // the button

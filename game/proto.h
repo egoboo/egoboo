@@ -110,6 +110,7 @@ int  add_player( Uint16 character, Uint16 player, Uint32 device );
 
 // Module
 bool_t load_blip_bitmap();
+void   quit_module();
 
 //---------------------------------------------------------------------------------------------
 //AI targeting

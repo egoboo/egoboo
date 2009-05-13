@@ -706,7 +706,6 @@ EXTERN char            msgtext[MESSAGEBUFFERSIZE];                         // Th
 
 //End text
 #define MAXENDTEXT 1024
-EXTERN Uint16 endtextindex[8];
 EXTERN char   endtext[MAXENDTEXT];     // The end-module text
 EXTERN int    endtextwrite;
 

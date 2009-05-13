@@ -220,8 +220,6 @@ static void drawSlidyButtons()
 
 int initMenus()
 {
-    int i;
-
     menuFont = fnt_loadFont( "basicdat" SLASH_STR "Negatori.ttf", 18 );
     if ( !menuFont )
     {
@@ -2563,6 +2561,114 @@ int doGamePaused( float deltaTime )
     return result;
 }
 
+int doShowEndgame( float deltaTime )
+{
+    static int menuState = MM_Begin;
+    static int menuChoice = 0;
+    static int x, y, w, h;
+    static Font *font;
+
+    static const char * buttons[] =
+    {
+        "Continue",
+        ""
+    };
+
+    int cnt, retval;
+
+    retval = 0;
+    switch ( menuState )
+    {
+        case MM_Begin:
+            menuState = MM_Entering;
+            displaySurface = SDL_GetVideoSurface();
+            font = ui_getFont();
+
+            initSlidyButtons( 1.0f, buttons );
+
+            x = 70;
+            y = 70;
+            w = displaySurface->w - 2*x;
+            h = displaySurface->h - 2*y;
+
+            gamepaused = btrue;
+
+        case MM_Entering:
+
+            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            ui_drawTextBox( endtext, x, y, w, h, 20 );
+            drawSlidyButtons();
+
+            updateSlidyButtons( -deltaTime );
+
+            // Let lerp wind down relative to the time elapsed
+            if ( SlidyButtonState.lerp <= 0.0f )
+            {
+                menuState = MM_Running;
+            }
+            break;
+
+        case MM_Running:
+            glColor4f( 1, 1, 1, 1 );
+
+            // Buttons
+            for( cnt = 0; cnt < 1; cnt ++ )
+            {
+                if ( BUTTON_UP == ui_doButton( cnt+1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
+                {
+                    // audio options
+                    menuChoice = cnt+1;
+                    menuState = MM_Leaving;
+                }
+            }
+
+            // escape also kills this menu
+            if ( SDLKEYDOWN( SDLK_ESCAPE ) )
+            {
+                menuChoice = 1;
+                menuState = MM_Leaving;
+            }
+
+            ui_drawTextBox( endtext, x, y, w, h, 20 );
+
+            break;
+
+        case MM_Leaving:
+            // Do buttons sliding out and background fading
+            // Do the same stuff as in MM_Entering, but backwards
+            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            ui_drawTextBox( endtext, x, y, w, h, 20 );
+
+            // Buttons
+            drawSlidyButtons();
+            updateSlidyButtons( deltaTime );
+            if ( SlidyButtonState.lerp >= 1.0f )
+            {
+                menuState = MM_Finish;
+            }
+            break;
+
+        case MM_Finish:
+
+            // actually quit the module
+            quit_module();
+
+            gameactive   = bfalse;
+            moduleactive = bfalse;
+            menuactive   = btrue;
+
+            menuState = MM_Begin;
+
+            // Set the next menu to load
+            retval = menuChoice;
+    }
+
+    return retval;
+}
+
+
 
 #define MENU_STACK_COUNT 256
 int menu_stack_index = 0;
@@ -2667,8 +2773,8 @@ int doMenu( float deltaTime )
             result = doChooseModule( deltaTime );
 
             if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( result == 1 ) mnu_begin_menu( TestResults );  // imports are not valid (starter module)
-            else if ( result == 2 ) mnu_begin_menu( TestResults );  // imports are valid
+            else if ( result == 1 ) mnu_begin_menu( ShowMenuResults );  // imports are not valid (starter module)
+            else if ( result == 2 ) mnu_begin_menu( ShowMenuResults );  // imports are valid
 
             break;
 
@@ -2718,7 +2824,7 @@ int doMenu( float deltaTime )
             }
             break;
 
-        case TestResults:
+        case ShowMenuResults:
             result = doShowMenuResults( deltaTime );
             if ( result != 0 )
             {
@@ -2743,6 +2849,16 @@ int doMenu( float deltaTime )
                 else if ( result == 3 ) mnu_begin_menu( InputOptions );
                 else if ( result == 4 ) mnu_begin_menu( VideoOptions );
                 else if ( result == 5 ) { mnu_end_menu(); retval = MENU_END; }
+            }
+            break;
+
+        case ShowEndgame:
+            result = doShowEndgame( deltaTime );
+            if ( result == 1 )      
+            { 
+                mnu_end_menu(); 
+                retval = MENU_END;  
+                menuactive = btrue; 
             }
             break;
 
