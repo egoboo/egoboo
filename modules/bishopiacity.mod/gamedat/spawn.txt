@@ -2,7 +2,7 @@
 //-----------------------------------------------------------------------------------
 //PLAYERS
 //-----------------------------------------------------------------------------------
-Player1:   NONE    0  56.5   74.5   1.0   N    0   0  0   0   0   T   F   G			//Player 1 stuff
+Player1:   NONE    0  56.5   74.5   0.0   N    0   0  0   0   0   T   F   G			//Player 1 stuff
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -11,7 +11,7 @@ Player1:   NONE    0  56.5   74.5   1.0   N    0   0  0   0   0   T   F   G			//
   unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-Player2:   NONE    9  58.5   74.5   1.0   N    0   0  0   0   0   T   F   G			//Player 2 stuff
+Player2:   NONE    9  58.5   74.5   0.0   N    0   0  0   0   0   T   F   G			//Player 2 stuff
   unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -20,7 +20,7 @@ Player2:   NONE    9  58.5   74.5   1.0   N    0   0  0   0   0   T   F   G			//
   unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-Player3:   NONE    18  58.5   72.5   1.0   N    0   0  0   0   0   T   F   G			//Player 3 stuff
+Player3:   NONE    18  58.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 3 stuff
   unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -29,7 +29,7 @@ Player3:   NONE    18  58.5   72.5   1.0   N    0   0  0   0   0   T   F   G			/
   unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-Player4:   NONE    27  54.5   72.5   1.0   N    0   0  0   0   0   T   F   G			//Player 4 stuff
+Player4:   NONE    27  54.5   72.5   0.0   N    0   0  0   0   0   T   F   G			//Player 4 stuff
   unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -53,14 +53,14 @@ moduletool.obj:   NONE    99  25.0   42.0   1.0   N    0   0  0   4   0   F   F 
 moduletool.obj:   NONE    99  24.0   43.0   1.0   N    0   0  0   4   0   F   F   N
 moduletool.obj:   NONE    99  25.0   43.0   1.0   N    0   0  0   4   0   F   F   N
 
-shopkeep2.obj:   Olaf    52  9.5   98.5   1.0   N    3   0  0   1   0   F   F   G		//Junk shop
-pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep2.obj:   Olaf    52  9.5   98.5   0.0   N    3   0  0   1   0   F   F   G		//Junk shop
+  pistol.obj:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-shopkeep.obj:   Dunlar    49  51.5   27.5   1.0   N    199   0  1   1   0   F   F   G		//Weapon shop
-warhammer.obj:   NONE    95  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep.obj:   Dunlar    49  51.5   27.5   0.0   N    199   0  1   1   0   F   F   G		//Weapon shop
+  warhammer.obj:   NONE    95  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-magicshop.obj:   Zambini    80  72.0   96.0   1.0   N    999   0  6   0   0   F   F   G		//Spell shop
-qstaff.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+magicshop.obj:   Zambini    80  72.0   96.0   0.0   N    999   0  6   0   0   F   F   G		//Spell shop
+  qstaff.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 randommagic.obj:   NONE    99  68.5   96.5   1.0   N    0   0  0   3   0   F   F   N
 randommagic.obj:   NONE    99  75.5   96.5   1.0   N    0   0  0   3   0   F   F   N
 randommagic.obj:   NONE    99  75.5   94.5   1.0   N    0   0  0   3   0   F   F   N
@@ -90,20 +90,20 @@ moduletool.obj:   NONE    99  73.5   97.5   1.0   N    0   0  0   0   0   F   F 
 moduletool.obj:   NONE    99  70.5   95.5   1.0   N    0   0  0   0   0   F   F   N
   protect2.obj:   NONE    111  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   
-shopkeep2.obj:   Mylvin    52  50.5   75.5   1.0   N    125   1  7   0   0   F   F   G		//Potion shop
-pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep2.obj:   Mylvin    52  50.5   75.5   0.0   N    125   1  7   0   0   F   F   G		//Potion shop
+  pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 
-shopkeep.obj:   Shady    49  63.5   28.0   1.0   N    59   2  8   1   0   F   F   G		//Rouge shop
-pstiletto.obj:   NONE    107  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep.obj:   Shady    49  63.5   28.0   0.0   N    59   2  8   1   0   F   F   G		//Rouge shop
+  pstiletto.obj:   NONE    107  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-shopkeep.obj:   Secret    49  79.0   36.0   1.0   N    0   1  9   0   0   F   F   G		//Secret shop
-wsword.obj:   NONE    122  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep.obj:   Secret    49  79.0   36.0   0.0   N    0   1  9   0   0   F   F   G		//Secret shop
+  wsword.obj:   NONE    122  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-shopkeep2.obj:   Alkor    52  78.0   81.5   1.0   W    99   2  10   0   0   F   F   G		//G'nome shop
-pistol.obj:   NONE    98  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+shopkeep2.obj:   Alkor    52  78.0   81.5   0.0   W    99   2  10   0   0   F   F   G		//G'nome shop
+  pistol.obj:   NONE    98  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 shopkeep.obj:   Gerard    49  49.0   42.0   1.0   N    399   3  10   0   0   F   F   G		//Armor shop
-spikedmace.obj:   NONE    66  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
+  spikedmace.obj:   NONE    66  0.0   0.0   1.0   I    0   0  0   0   0   F   F   N
 achest.obj:   NONE    89  53.5   44.5   1.0   N    0   0  0   0   0   F   F   N
 achest.obj:   NONE    89  51.5   44.5   1.0   N    0   0  0   0   0   F   F   N
 achest.obj:   NONE    89  49.5   44.5   1.0   N    0   0  0   0   0   F   F   N
@@ -169,11 +169,11 @@ gshield.obj:   NONE    76  65.5   32.5   3.0   L    0   0  0   0   0   F   F   N
 
 //Ninja guards
 guard.obj:   NONE    51  73.5   32.5   3.0   N    0   2  0   0   0   F   F   G
-pstiletto.obj:   NONE    107  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  pstiletto.obj:   NONE    107  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  65.5   32.5   3.0   N    0   2  0   0   0   F   F   G
-lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    61  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
 guard.obj:   NONE    51  59.5   12.5   3.0   E    0   2  0   0   0   F   F   G
-scimitar.obj:   NONE    92  65.5   32.5   3.0   R    0   0  0   0   0   F   F   N
+  scimitar.obj:   NONE    92  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
 
 //-----------------------------------------------------------------------------------
 //NPC
@@ -288,30 +288,30 @@ brazier.obj:   NONE    83  70.5   99.5   1.0   N    0   0  0   0   0   F   F   N
 outhouse.obj:   NONE    94  8.5   87.5   1.0   E    0   0  0   0   0   F   F   N
 outhouse.obj:   NONE    94  8.5   89.5   1.0   E    0   0  0   0   0   F   F   N
 outhouse.obj:   NONE    94  82.0   15.0   1.0   E    0   0  0   0   0   F   F   N
-pot.obj:   NONE    90  57.5   77.5   1.0   E    0   0  0   0   0   F   F   N
-pot.obj:   NONE    90  63.0   100.0   1.0   S    0   0  0   0   0   F   F   N
+pot.obj:   NONE    90  57.5   77.5   0.0   ?    0   0  0   0   0   F   F   N
+pot.obj:   NONE    90  63.0   100.0   0.0  ?    0   0  0   0   0   F   F   N
 wheel.obj:   NONE    91  104.5   59.5   1.0   E    0   0  0   0   0   F   F   N
 wheel.obj:   NONE    91  95.5   76.5   1.0   N    0   0  0   0   0   F   F   N
 
 //All the sign posts
-sign.obj:   NONE    56  57.5   106.5   1.0   N    0   3  0   0   0   F   F   N		//Griffin tower
-sign.obj:   NONE    56  35.5   14.5   1.0   N    0   3  0   1   0   F   F   N		//Welcome sign
-sign.obj:   NONE    56  89.0   61.5   1.0   E    0   0  0   2   0   F   F   N		//Dock sign
-sign.obj:   NONE    56  16.0   100.5   1.0   W    0   0  0   3   0   F   F   N		//Junkshop
-sign.obj:   NONE    56  16.5   57.5   1.0   W    0   3  0   4   0   F   F   N		//Council hall
-sign.obj:   NONE    56  25.5   23.5   1.0   N    0   3  0   5   0   F   F   N		//Barracks
-sign.obj:   NONE    56  19.8   43.3   1.0   E    0   0  0   6   0   F   F   N		//Paladin order
-sign.obj:   NONE    56  71.3   34.0   1.0   N    0   0  0   7   0   F   F   N		//Rouge shop
-sign.obj:   NONE    56  77.3   47.8   1.0   N    0   0  0   8   0   F   F   N		//Tavern
-sign.obj:   NONE    56  50.5   33.5   1.0   N    0   1  0   9   0   F   F   N		//Smith
-sign.obj:   NONE    56  72.5   90.0   1.0   E    0   2  0   10   0   F   F   N		//Zambini
-sign.obj:   NONE    56  54.5   73.5   1.0   N    0   2  0   11   0   F   F   N		//Alchemist
-sign.obj:   NONE    56  80.5   35.5   1.0   E    0   0  0   12   0   F   F   N		//Secret shop
-sign.obj:   NONE    56  16.5   24.5   1.0   W    0   0  0   13   0   F   F   N		//Training ground
-sign.obj:   NONE    56  56.5   62.5   1.0   N    0   0  0   14   0   F   F   N      //Graveyard
-sign.obj:   NONE    56  45.5   62.5   1.0   N    0   0  0   14   0   F   F   N		//Graveyard
-sign.obj:   NONE    56  81.5   87.5   1.0   N    0   1  0   15   0   F   F   N		//Alkor shop
-sign.obj:   NONE    56  48.5   36.5   1.0   N    0   1  0   16   0   F   F   N		//Armory
+sign.obj:   NONE    56  57.5   106.5  0.0   N    0   3  0   0   0   F   F   N		//Griffin tower
+sign.obj:   NONE    56  35.5   14.5   0.0   N    0   3  0   1   0   F   F   N		//Welcome sign
+sign.obj:   NONE    56  89.0   61.5   0.0   E    0   0  0   2   0   F   F   N		//Dock sign
+sign.obj:   NONE    56  16.0   100.5  0.0   W    0   0  0   3   0   F   F   N		//Junkshop
+sign.obj:   NONE    56  16.5   57.5   0.0   W    0   3  0   4   0   F   F   N		//Council hall
+sign.obj:   NONE    56  25.5   23.5   0.0   N    0   3  0   5   0   F   F   N		//Barracks
+sign.obj:   NONE    56  19.8   43.3   0.0   E    0   0  0   6   0   F   F   N		//Paladin order
+sign.obj:   NONE    56  71.3   34.0   0.0   N    0   0  0   7   0   F   F   N		//Rouge shop
+sign.obj:   NONE    56  77.3   47.8   0.0   N    0   0  0   8   0   F   F   N		//Tavern
+sign.obj:   NONE    56  50.5   33.5   0.0   N    0   1  0   9   0   F   F   N		//Smith
+sign.obj:   NONE    56  72.5   90.0   0.0   E    0   2  0   10   0   F   F   N		//Zambini
+sign.obj:   NONE    56  54.5   73.5   0.0   N    0   2  0   11   0   F   F   N		//Alchemist
+sign.obj:   NONE    56  80.5   35.5   0.0   E    0   0  0   12   0   F   F   N		//Secret shop
+sign.obj:   NONE    56  16.5   24.5   0.0   W    0   0  0   13   0   F   F   N		//Training ground
+sign.obj:   NONE    56  56.5   62.5   0.0   N    0   0  0   14   0   F   F   N      //Graveyard
+sign.obj:   NONE    56  45.5   62.5   0.0   N    0   0  0   14   0   F   F   N		//Graveyard
+sign.obj:   NONE    56  81.5   87.5   0.0   N    0   1  0   15   0   F   F   N		//Alkor shop
+sign.obj:   NONE    56  48.5   36.5   0.0   N    0   1  0   16   0   F   F   N		//Armory
 
 //Graveyard
 grave.obj:   NONE    135  53.5   55.5   1.0   S    0   1  0   0   0   F   F   N
@@ -360,5 +360,7 @@ Moggy:   NONE    145  78.5   46.0   1.0   W    0   0  0   0   0   F   F   G
   Mace:  NONE    78  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 Meena:   NONE    146  0.0   0.0   1.0   N    0   0  0   0   0   F   F   G	
   Knife: NONE    59  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-Beggar:   NONE   151  28.0   48.5   0.0   E    3   0  0   0   0   F   F   G		
-Angus  :   NONE    153  16.5   58.5   1.0   E    149   0  0   0   0   F   F   G			//Player 1 stuff
+Beggar:  NONE    151  28.0   48.5   0.0   E    3   0  0   0   0   F   F   G		
+Angus:   NONE    153  16.5   58.5   0.0   E    149   0  0   0   0   F   F   G
+Sultan:  NONE    156  22.5   56.5   0.0   W    0   0  0   0   0   F   F   G
+  scimitar.obj:   NONE    92  0.0   0.0   0.0   R    0   0  0   0   0   F   F   Null
