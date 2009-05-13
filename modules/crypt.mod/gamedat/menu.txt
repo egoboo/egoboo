@@ -1,5 +1,5 @@
 // This file contains info for the module's menu description
-Name ( with underscores for spaces )		: The_crypt
+Name ( with underscores for spaces )		: The_Crypt
 Reference module ( Directory name or NONE )	: bishopiacity.mod
 Required reference IDSZ ( or [NONE] )		: [CRYP] 1
 Number of imports ( 0 to 4 )			: 2

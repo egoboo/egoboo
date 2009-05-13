@@ -774,64 +774,72 @@ bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile )
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
     EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
-    if ( cTmp == 'T' ) iTmp = DAMAGEINVERT;
-    if ( cTmp == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
+    if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
+    if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
     fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
     num++;

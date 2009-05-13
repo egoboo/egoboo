@@ -1938,14 +1938,13 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 		//Dont target hostile invisible stuff, unless we can actually see them
         if( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible 
 			&& ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE )) ) continue;
-        
+
 		//Which team to target
 		if( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
         {
             //Check for specific IDSZ too?
             if ( idsz != IDSZ_NONE && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz)
-				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz ) ) continue;
-			
+				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz )) continue;
             {
                 float dx, dy, dz;
                 float dist2;

@@ -2029,6 +2029,8 @@ void export_one_character_profile( const char *szSaveName, Uint16 character )
                     codes[skin] = 'T';
                 if ( CapList[profile].damagemodifier[damagetype][skin]&DAMAGECHARGE )
                     codes[skin] = 'C';
+                if ( CapList[profile].damagemodifier[damagetype][skin]&DAMAGEMANA )
+                    codes[skin] = 'M';
 
                 skin++;
             }
@@ -2426,17 +2428,25 @@ int load_one_character_profile( const char *szLoadName )
         {
             goto_colon( fileread );
 
-            cTmp = fget_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEINVERT;
-            if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGECHARGE;
+            cTmp = fget_first_letter( fileread );  
+			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEINVERT;
+            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGECHARGE;
+            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEINVERT;
-            if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGECHARGE;
+            cTmp = fget_first_letter( fileread );  
+			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEINVERT;
+            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGECHARGE;
+            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEINVERT;
-            if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGECHARGE;
+            cTmp = fget_first_letter( fileread );  
+			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEINVERT;
+            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGECHARGE;
+            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEINVERT;
-            if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGECHARGE;
+            cTmp = fget_first_letter( fileread );  
+			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEINVERT;
+            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGECHARGE;
+            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEMANA;
         }
 
         goto_colon( fileread );
@@ -2785,6 +2795,14 @@ void damage_character( Uint16 character, Uint16 direction,
         damage = damagebase + ( rand() % damagerand );
         basedamage = damage;
         damage = damage >> ( ChrList[character].damagemodifier[damagetype] & DAMAGESHIFT );
+
+		// Allow damage to be dealt to mana (mana shield spell)
+        if ( ChrList[character].damagemodifier[damagetype]&DAMAGEMANA )
+        {
+			int manadamage;
+			manadamage = MAX(damage - ChrList[character].mana, 0);
+            ChrList[character].mana = MAX(ChrList[character].mana-damage, 0);
+        }
 
         // Allow charging (Invert damage to mana)
         if ( ChrList[character].damagemodifier[damagetype]&DAMAGECHARGE )

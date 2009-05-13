@@ -20,7 +20,7 @@ unknown:   NONE    30  42.5   38.5   0.0   N    0   3  0   0   0   F   F   E
   claw.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    30  45.5   31.0   0.0   E    0   0  0   0   0   F   F   E
   claw.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    30  45.5   31.0   0.0   E    0   2  0   0   0   F   F   E
+unknown:   NONE    30  45.5   31.0   0.0   E    0   0  0   0   0   F   F   E
   claw.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 crab.obj:   NONE    79  12.5   26.0   0.0   W    0   0  0   0   0   F   F   E

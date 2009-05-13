@@ -3,10 +3,10 @@ Version 2.7.x (??.??.2009)
   in hotseat mode!
 - New Feature: New Sidequest module "The Cobol Palace". Save the world of Bishopia from 
   the evil Cobol Emperors menace!
+- New Feature: Added support for up to x16 fullscreen antialiasing.
 - Update: Strength now affects the throwing range of bombs.
 - Update: Doubled the max throwing range of thrown weapons.
 - Update: Replaced the Ice Pup with the new Ice Strider mounts in the Ice Palace.
-- Update: Added support for up to x16 fullscreen antialiasing.
 - Update: Some various improvements in the physics engine.
 - Update: New voices for the Archaeologist class. (Credits to Seanbot)
 - Update: Expanded the Global Object Repository a lot.
@@ -19,8 +19,10 @@ Version 2.7.x (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debugging output Egoboo gives.
+- Bugfix: Arrow particles now face the correct direction when fired.
 - Bugfix: The Benemo Quest now drops a heirloom so that you can collect the quest reward.
-- Bugfix: Fixed minor possible bug where Daze and Grog resistance would not work.
+  (Or you can sell the Heirloom and take the money instead)
+- Bugfix: Fixed minor potentional bug where Daze and Grog resistance would not work.
 - Bugfix: Fixed a potentional bug where the player could move through closed doors. 
 - Bugfix: Fixed some boss AI behaviour bugs in the Zombi Starter module.
 - Bugfix: Fixed the crash bug in the Forgotten Fortress.

@@ -19,25 +19,26 @@ IfTimeOut
   Else
     tmpargument = passage + 1
     SetTargetToWhoeverIsInPassage
-      tmpargument = [TOUR]
-      IfTargetHasQuest          //Only open if they have the quest
-        // Give EXP
-        tmpargument = 10
-        tmpdistance = EXPQUEST
-        GiveExperienceToTarget
+      IfTargetIsAPlayer
+        tmpargument = [TOUR]
+        IfTargetHasQuest          //Only open if they have the quest
+          // Give EXP
+          tmpargument = 10
+          tmpdistance = EXPQUEST
+          GiveExperienceToTarget
 
-        // Display text
-        tmpargument = 2
-        SendMessageNear
+          // Display text
+          tmpargument = 2
+          SendMessageNear
 
-        // Open it up
-        tmpargument = passage
-        OpenPassage
-      Else
-        tmpargument = 0
-        SendMessageNear
-        tmpargument = 120
-        SetTime
+          // Open it up
+          tmpargument = passage
+          OpenPassage
+        Else
+          tmpargument = 0
+          SendMessageNear
+          tmpargument = 120
+          SetTime
 
 // Handle the animation and sound
 tmpargument = passage	// Is the passage clear?

@@ -13,8 +13,10 @@ IfOrdered
     SetTargetToNearestEnemy
   Else
     // Someone died, so make Scrub Lumpkins run away
-    tmpargument = 0
+    tmpargument = 3
     IfArmorIs
+      DoNothing
+    Else
       // It's a Scrub, so check distance
       tmpx = selforder > 8
       tmpy = selforder & 255
@@ -191,6 +193,10 @@ IfTimeOut
     tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
     SetTargetToWideBlahID
       tmpx = 1
+      
+  tmpargument = [LUMP]
+  IfTargetHasID
+    tmpx = 0
 
   tmpy = 0
   IfXIsMoreThanY
@@ -322,7 +328,6 @@ IfTimeOut
                 // Nope, so cheer...
                 tmpargument = ACTIONMC
                 DoAction
-                tmpdistance = rand % 2047 + 11000
                 tmpargument = tmpdistance & 1
                 PlaySound
         tmpx = targetx

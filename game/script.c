@@ -82,6 +82,7 @@ void let_character_think( Uint16 character )
 
     // debug a certain script
     //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
+	debug_scripts = (ChrList[pself->index].model == 30 && pself->index == 396);
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
@@ -5932,7 +5933,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     // This function applies little bit of love to the character's target.
     // The amount is set in tmpargument
-    damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
+    damage_character( pself->target, FRONT, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
 
     SCRIPT_FUNCTION_END();
 }
@@ -10930,6 +10931,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 
     //ThIs function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
     //and sets tmpdistance to the Quest Level of the specIfied quest.
+	returncode = bfalse;
     if ( ChrList[pself->target].isplayer )
     {
         iTmp = check_player_quest( ChrList[pself->target].name, pstate->argument );
@@ -10938,7 +10940,6 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
             returncode = btrue;
             pstate->distance = iTmp;
         }
-        else returncode = bfalse;
     }
 
     SCRIPT_FUNCTION_END();

@@ -169,6 +169,7 @@ enum e_damage_type
     DAMAGE_COUNT                             // Damage types
 };
 
+#define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
 #define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
 #define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
 #define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )

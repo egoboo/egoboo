@@ -24,7 +24,7 @@ Wisdom ( eg. 3-18 )				: 8-12
 Wisdom increase per level ( eg. 0-1 )		: 1-2
 Intelligence ( eg. 3-18 )			: 8-12
 Intelligence increase per level ( eg. 0-1 )	: 0-1
-Dexterity ( eg. 3-18 )				: 6-11
+Dexterity ( eg. 3-18 )				: 12-14
 Dexterity increase per level ( eg. 0-1 )	: 1-3
 
 
