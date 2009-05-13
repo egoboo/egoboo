@@ -118,7 +118,7 @@ static int                fontoffset;                 // Line up fonts from top 
 
 static SDL_Rect           fontrect[NUMFONT];          // The font rectangles
 static Uint8              fontxspacing[NUMFONT];      // The spacing stuff
-static Uint8              fontyspacing;               //
+static Uint8              fontyspacing; 
 static rect_t             tabrect[NUMBAR];            // The tab rectangles
 static rect_t             barrect[NUMBAR];            // The bar rectangles
 static rect_t             bliprect[NUMBAR];           // The blip rectangles
@@ -1141,7 +1141,7 @@ void make_renderlist()
 {
     // ZZ> This function figures out which mesh fans to draw
     int cnt, fanx, fany;
-	Uint32 fan;
+    Uint32 fan;
     int row, run, numrow;
     int xlist[4], ylist[4];
     int leftnum, leftlist[4];
@@ -1524,7 +1524,8 @@ void load_basic_textures( const char *modname )
     char newloadname[256];
 
     // Particle sprites
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE_TRANS, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE_LIGHT, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", INVALID_KEY );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
@@ -1961,8 +1962,8 @@ void read_wawalite( const char *modname )
         }
 
         fclose( fileread );
-        
-		// Do it
+
+        // Do it
         make_lighttable( lx, ly, lz, la );
         make_lighttospek();
         make_water();
@@ -2249,7 +2250,7 @@ void render_shadow( Uint16 character )
     y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    GLtexture_Bind( txTexture + particletexture );
+    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
 
     // GOOD SHADOW
     v[0].s = particleimageu[238][0];
@@ -2372,7 +2373,7 @@ void render_bad_shadow( Uint16 character )
     v[3].z = ( float ) level;
 
     // Choose texture and matrix
-    GLtexture_Bind( txTexture + particletexture );
+    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
 
     v[0].s = particleimageu[236][0];
     v[0].t = particleimagev[236][0];
@@ -2584,8 +2585,8 @@ void do_dynalight()
             }
         }
     }
-    
-	else if ( shading != GL_FLAT )
+
+    else if ( shading != GL_FLAT )
     {
         // Add to base light level in normal mode
         for ( entry = 0; entry < renderlist.all_count; entry++ )
@@ -3068,7 +3069,7 @@ void draw_map( int x, int y )
     // ZZ> This function draws the map
     EnableTexturing();
     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-    
+
     GLtexture_Bind( &TxMap );
 
     glBegin( GL_QUADS );
@@ -3472,8 +3473,8 @@ int draw_status( Uint16 character, int x, int y )
         }
         else if ( bookicon_count > 0 )
         {
-			Uint16 icon = ChrList[item].money;
-			if(icon > bookicon_count) icon = bookicon_count;
+            Uint16 icon = ChrList[item].money;
+            if (icon > bookicon_count) icon = bookicon_count;
             draw_one_icon( bookicon[ icon ], x + 8, y, ChrList[item].sparkle );
         }
         else
@@ -3504,8 +3505,8 @@ int draw_status( Uint16 character, int x, int y )
         }
         else if ( bookicon_count > 0 )
         {
-			Uint16 icon = ChrList[item].money;
-			if(icon > bookicon_count) icon = bookicon_count;
+            Uint16 icon = ChrList[item].money;
+            if (icon > bookicon_count) icon = bookicon_count;
             draw_one_icon( bookicon[ icon ], x + 72, y, ChrList[item].sparkle );
         }
         else
@@ -3832,9 +3833,9 @@ void draw_text()
 //--------------------------------------------------------------------------------------------
 void do_flip_pages()
 {
-    if( gfx_page_flip_requested )
+    if ( gfx_page_flip_requested )
     {
-        gfx_page_flip_requested = bfalse;       
+        gfx_page_flip_requested = bfalse;
         flip_pages();
     }
 }
@@ -4139,8 +4140,8 @@ void sdlinit( int argc, char **argv )
     vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags
     //vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
     vflags |= ( fullscreen ? SDL_FULLSCREEN : 0 );
-	
-	if(scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt" );
+
+    if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt" );
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, vflags );
     if ( displaySurface == NULL )
     {

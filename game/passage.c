@@ -541,7 +541,7 @@ void clear_passages()
     {
         shopowner[cnt] = NOOWNER;
         shoppassage[cnt] = 0;
-		cnt++;
+        cnt++;
     }
 }
 
@@ -576,11 +576,11 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
         passbrx[numpassage]       = brx;
         passbry[numpassage]       = bry;
         passmask[numpassage]      = mask;
-        passagemusic[numpassage]  = -1;          // Set no song as default		
-		if(!open) close_passage( numpassage );	 // Is it open or closed?
-		else passopen[numpassage] = btrue;
+        passagemusic[numpassage]  = -1;          // Set no song as default
+        if (!open) close_passage( numpassage );  // Is it open or closed?
+        else passopen[numpassage] = btrue;
 
-		numpassage++;
+        numpassage++;
     }
 }
 

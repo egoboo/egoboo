@@ -101,8 +101,8 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     char chrlast = 0;
     char *pin, *pout = strout, *plast = pout + insize;
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-	
-	pin = strin;
+
+    pin = strin;
 
     while ( pout < plast && '\0' != *pin )
     {
@@ -158,7 +158,7 @@ char * get_file_path( const char *szName )
     char * ppath, * ppath_end;
     char letter;
 
-	pname = szName;
+    pname = szName;
     pname_end = pname + 255;
 
     ppath = szPathname;

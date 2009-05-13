@@ -26,10 +26,10 @@
 
 // AI stuff
 #define AISMAXCOMPILESIZE   (128*4096/4)            // For parsing AI scripts
-#define MAXLINESIZE         1024                    //
-#define MAXAI               129                     //
+#define MAXLINESIZE         1024
+#define MAXAI               129
 #define MAXCODE             1024                    // Number of lines in AICODES.TXT
-#define MAXCODENAMESIZE     64                      //
+#define MAXCODENAMESIZE     64
 
 #define FUNCTION_BIT 0x80000000
 #define DATA_BITS    0x78000000
@@ -431,7 +431,7 @@ enum e_script_functions
     //Scripted AI functions (v1.10)
     FTAKEPICTURE,                // == 364
     FIFOPERATORISMACINTOSH,      // == 365
-    FIFMODULEHASIDSZ	         // == 366
+    FIFMODULEHASIDSZ             // == 366
 };
 
 //--------------------------------------------------------------------------------------------

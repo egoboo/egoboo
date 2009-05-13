@@ -78,7 +78,7 @@ void render_fan( Uint32 fan )
     }
 
     offu = mesh.tileoff_u[tile & 0xFF];          // Texture offsets
-    offv = mesh.tileoff_v[tile & 0xFF];          //
+    offv = mesh.tileoff_v[tile & 0xFF]; 
 
     texture = ( tile >> 6 ) + TX_TILE_0;       // 64 tiles in each 256x256 texture
     vertices = tile_dict[type].numvertices;    // Number of vertices
@@ -100,7 +100,7 @@ void render_fan( Uint32 fan )
 
             v[cnt].r = v[cnt].g = v[cnt].b = FP8_TO_FLOAT(pmem->vrt_l[badvertex]);
 
-			v[cnt].s = tile_dict[type].u[cnt] + offu;
+            v[cnt].s = tile_dict[type].u[cnt] + offu;
             v[cnt].t = tile_dict[type].v[cnt] + offv;
             badvertex++;
         }
@@ -135,11 +135,11 @@ void render_fan( Uint32 fan )
             {
                 vertex = tile_dict[type].command_verts[entry];
 
-                glTexCoord2fv ( &v[vertex].s ); 
+                glTexCoord2fv ( &v[vertex].s );
                 glColor3fv( &v[vertex].r );
                 glVertex3fv ( &v[vertex].x );
 
-				entry++;
+                entry++;
             }
 
         }
@@ -179,7 +179,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     // To make life easier
     type = 0;                           // Command type ( index to points in fan )
     offu = waterlayeru[layer];          // Texture offsets
-    offv = waterlayerv[layer];          //
+    offv = waterlayerv[layer];
     frame = waterlayerframe[layer];     // Frame
 
     texture = layer + TX_WATER_TOP;         // Water starts at texture 5

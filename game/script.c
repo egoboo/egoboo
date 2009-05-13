@@ -78,11 +78,11 @@ void let_character_think( Uint16 character )
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
-	//if ( !pchr->alive ) return;
+    //if ( !pchr->alive ) return;
 
     // debug a certain script
     //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
-	debug_scripts = (ChrList[pself->index].model == 30 && pself->index == 396);
+    debug_scripts = (ChrList[pself->index].model == 30 && pself->index == 396);
 
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
@@ -102,8 +102,8 @@ void let_character_think( Uint16 character )
             script_error_name = szAisName[script_error_index];
         }
     }
-    
-	if ( debug_scripts )
+
+    if ( debug_scripts )
     {
         FILE * scr_file = (NULL == debug_script_file) ? stdout : debug_script_file;
 
@@ -847,7 +847,7 @@ Uint8 run_function_2( script_state_t * pstate, ai_state_t * pself )
 
         case FTAKEPICTURE:           returncode = scr_TakePicture( pstate, pself );         break;
         case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
-		case FIFMODULEHASIDSZ:		 returncode = scr_IfModuleHasIDSZ( pstate, pself );     break;
+        case FIFMODULEHASIDSZ:       returncode = scr_IfModuleHasIDSZ( pstate, pself );     break;
 
             // if none of the above, skip the line and log an error
         default:
@@ -5866,7 +5866,7 @@ Uint8 scr_TargetCanOpenStuff( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function fails if the target can't open stuff
-	if(ChrList[pself->target].ismount && ChrList[ChrList[pself->target].holdingwhich[SLOT_LEFT]].openstuff) returncode = btrue;
+    if (ChrList[pself->target].ismount && ChrList[ChrList[pself->target].holdingwhich[SLOT_LEFT]].openstuff) returncode = btrue;
     else returncode = ChrList[pself->target].openstuff;
 
     SCRIPT_FUNCTION_END();
@@ -10631,8 +10631,8 @@ Uint8 scr_GrogTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	if(CapList[ChrList[pself->target].model].canbegrogged) ChrList[pself->target].grogtime += pstate->argument;
-	else returncode = bfalse;
+    if (CapList[ChrList[pself->target].model].canbegrogged) ChrList[pself->target].grogtime += pstate->argument;
+    else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -10645,8 +10645,8 @@ Uint8 scr_DazeTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	if(CapList[ChrList[pself->target].model].canbedazed) ChrList[pself->target].dazetime += pstate->argument;
-	else returncode = bfalse;
+    if (CapList[ChrList[pself->target].model].canbedazed) ChrList[pself->target].dazetime += pstate->argument;
+    else returncode = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -10931,7 +10931,7 @@ Uint8 scr_TargetHasQuest( script_state_t * pstate, ai_state_t * pself )
 
     //ThIs function proceeds if the Target has the unfinIshed quest specIfied in tmpargument
     //and sets tmpdistance to the Quest Level of the specIfied quest.
-	returncode = bfalse;
+    returncode = bfalse;
     if ( ChrList[pself->target].isplayer )
     {
         iTmp = check_player_quest( ChrList[pself->target].name, pstate->argument );
@@ -11174,11 +11174,11 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
-	//Proceeds if the specified module has the required IDSZ specified in tmpdistance
-	//The module folder name to be checked is a string from message.txt
+    //Proceeds if the specified module has the required IDSZ specified in tmpdistance
+    //The module folder name to be checked is a string from message.txt
     SCRIPT_FUNCTION_BEGIN();
 
-	//BAD: TODO: use message.txt to send the module name
-	returncode = module_reference_matches("module.mod", pstate->distance);
+    //BAD: TODO: use message.txt to send the module name
+    returncode = module_reference_matches("module.mod", pstate->distance);
     SCRIPT_FUNCTION_END();
 }

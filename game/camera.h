@@ -48,16 +48,16 @@ enum e_camera_mode
 // Multi cam (uses macro to switch between old and new camera
 #ifndef OLD_CAMERA_MODE
 #    define MINZOOM                         800         // Camera distance
-#    define MAXZOOM                         700         //
+#    define MAXZOOM                         700
 #    define MINZADD                         800         // Camera height
-#    define MAXZADD                         2500        //
+#    define MAXZADD                         2500
 #    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
 #    define MAXUPDOWN                       (0.10f*PI)
 #else
 #    define MINZOOM                         500         // Camera distance
-#    define MAXZOOM                         600         //
+#    define MAXZOOM                         600
 #    define MINZADD                         800         // Camera height
-#    define MAXZADD                         1500  //1000        //
+#    define MAXZADD                         1500  //1000
 #    define MINUPDOWN                       (0.24f*PI)    // Camera updown angle
 #    define MAXUPDOWN                       (0.18f*PI)//(0.15f*PI) // (0.18f*PI)
 #endif
@@ -75,31 +75,31 @@ struct s_camera
     Uint8  turn_time;               // time for the smooth turn
 
     int    swing;                   // Camera swingin'
-    int    swingrate;               //
-    float  swingamp;                //
+    int    swingrate;
+    float  swingamp;
     float  x;                       // Camera position
-    float  y;                       //
+    float  y;
     float  z;                       // 500-1000
     float  zoom;                    // Distance from the trackee
     float  trackxvel;               // Change in trackee position
-    float  trackyvel;               //
-    float  trackzvel;               //
+    float  trackyvel;
+    float  trackzvel;
     float  centerx;                 // Move character to side before tracking
-    float  centery;                 //
+    float  centery;
     float  trackx;                  // Trackee position
-    float  tracky;                  //
-    float  trackz;                  //
-    float  tracklevel;              //
+    float  tracky;
+    float  trackz;
+    float  tracklevel;
     float  zadd;                    // Camera height above terrain
     float  zaddgoto;                // Desired z position
-    float  zgoto;                   //
+    float  zgoto;
     float  turnleftright;           // Camera rotations
     float  turnleftrightone;
     Uint16 turnleftrightshort;
     float  turnadd;                 // Turning rate
     float  sustain;                 // Turning rate falloff
     float  turnupdown;
-    float  roll;                    //
+    float  roll;
 };
 
 typedef struct s_camera camera_t;

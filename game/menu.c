@@ -39,9 +39,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// TEMPORARY!
-#define NET_DONE_SENDING_FILES 10009
-#define NET_NUM_FILES_TO_SEND  10010
 
 #define INVALID_PLA MAXPLAYER
 
@@ -54,14 +51,29 @@ enum MenuStates
     MM_Finish
 };
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+#define MENU_STACK_COUNT 256
+#define MAXWIDGET        100
 
-static int    mnu_whichMenu       = MainMenu;
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+// "Slidy" buttons used in some of the menus.  They're shiny.
+struct
+{
+    float lerp;
+    int top;
+    int left;
+    char **buttons;
+} SlidyButtonState;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+static int menu_stack_index = 0;
+static int menu_stack[MENU_STACK_COUNT];
+
+static int  mnu_whichMenu       = MainMenu;
 
 bool_t mnu_draw_background = btrue;
 
-#define MAXWIDGET 100
 //static int         mnu_widgetCount;
 static ui_Widget_t mnu_widgetList[MAXWIDGET];
 
@@ -71,13 +83,6 @@ LOAD_PLAYER_INFO loadplayer[MAXLOADPLAYER];
 int    mnu_selectedPlayerCount = 0;
 int    mnu_selectedInput[MAXPLAYER] = {0};
 Uint16 mnu_selectedPlayer[MAXPLAYER] = {0};
-
-static bool_t mnu_checkSelectedPlayer      ( Uint16 player );
-static Uint16 mnu_getSelectedPlayer        ( Uint16 player );
-static bool_t mnu_addSelectedPlayer        ( Uint16 player );
-static bool_t mnu_removeSelectedPlayer     ( Uint16 player );
-static bool_t mnu_addSelectedPlayerInput   ( Uint16 player, Uint32 input );
-static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
 
 static int selectedModule = -1;
 
@@ -166,18 +171,25 @@ static int selectedPlayer = 0;           // Which player is currently selected t
 static int  get_skin( const char *filename );
 static void load_all_menu_images();
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// "Slidy" buttons used in some of the menus.  They're shiny.
-struct
-{
-    float lerp;
-    int top;
-    int left;
-    char **buttons;
-} SlidyButtonState;
+static bool_t menu_stack_push( int menu );
+static int    menu_stack_pop();
+static void   menu_stack_clear();
 
-static void initSlidyButtons( float lerp, const char *button_text[] )
+static void initSlidyButtons( float lerp, const char *button_text[] );
+static void updateSlidyButtons( float deltaTime );
+static void drawSlidyButtons();
+
+
+static bool_t mnu_checkSelectedPlayer( Uint16 player );
+static Uint16 mnu_getSelectedPlayer( Uint16 player );
+static bool_t mnu_addSelectedPlayer( Uint16 player );
+static bool_t mnu_removeSelectedPlayer( Uint16 player );
+static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input );
+static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input );
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void initSlidyButtons( float lerp, const char *button_text[] )
 {
     int i;
 
@@ -194,12 +206,14 @@ static void initSlidyButtons( float lerp, const char *button_text[] )
     SlidyButtonState.buttons = ( char** )button_text;
 }
 
-static void updateSlidyButtons( float deltaTime )
+//--------------------------------------------------------------------------------------------
+void updateSlidyButtons( float deltaTime )
 {
     SlidyButtonState.lerp += ( deltaTime * 1.5f );
 }
 
-static void drawSlidyButtons()
+//--------------------------------------------------------------------------------------------
+void drawSlidyButtons()
 {
     int i;
 
@@ -212,6 +226,8 @@ static void drawSlidyButtons()
     }
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 /** initMenus
 * Loads resources for the menus, and figures out where things should
 * be positioned.  If we ever allow changing resolution on the fly, this
@@ -252,6 +268,8 @@ int initMenus()
     return 1;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -308,7 +326,7 @@ int doMainMenu( float deltaTime )
             // background
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
@@ -333,7 +351,7 @@ int doMainMenu( float deltaTime )
 
             glColor4f( 1, 1, 1, 1 );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
@@ -375,7 +393,7 @@ int doMainMenu( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, bg_rect.x,   bg_rect.y,   bg_rect.w,   bg_rect.h   );
                 ui_drawImage( 0, &logo,       logo_rect.x, logo_rect.y, logo_rect.w, logo_rect.h );
@@ -409,6 +427,7 @@ int doMainMenu( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -434,7 +453,7 @@ int doSinglePlayerMenu( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background image
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
             }
@@ -452,7 +471,7 @@ int doSinglePlayerMenu( float deltaTime )
         case MM_Running:
 
             // Draw the background image
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
             }
@@ -485,7 +504,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
             }
@@ -519,6 +538,7 @@ int doSinglePlayerMenu( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 // TODO: I totally fudged the layout of this menu by adding an offset for when
 // the game isn't in 640x480.  Needs to be fixed.
 int doChooseModule( float deltaTime )
@@ -596,7 +616,7 @@ int doChooseModule( float deltaTime )
             x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
             y = displaySurface->h - background.imgH;
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, x, y, 0, 0 );
             }
@@ -761,6 +781,7 @@ int doChooseModule( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -843,7 +864,7 @@ int doChoosePlayer( float deltaTime )
             x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
             y = displaySurface->h - background.imgH;
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, x, y, 0, 0 );
             }
@@ -1011,6 +1032,7 @@ int doChoosePlayer( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1037,7 +1059,7 @@ int doOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1060,7 +1082,7 @@ int doOptions( float deltaTime )
             // Background
             glColor4f( 1, 1, 1, 1 );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1101,7 +1123,7 @@ int doOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1134,6 +1156,7 @@ int doOptions( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doInputOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1524,6 +1547,7 @@ int doInputOptions( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 //Audio options menu
 int doAudioOptions( float deltaTime )
 {
@@ -1553,7 +1577,7 @@ int doAudioOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1585,7 +1609,7 @@ int doAudioOptions( float deltaTime )
             // Background
             glColor4f( 1, 1, 1, 1 );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1744,7 +1768,7 @@ int doAudioOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1769,6 +1793,7 @@ int doAudioOptions( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doVideoOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -1796,7 +1821,7 @@ int doVideoOptions( float deltaTime )
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -1943,7 +1968,7 @@ int doVideoOptions( float deltaTime )
             // Background
             glColor4f( 1, 1, 1, 1 );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -2376,7 +2401,7 @@ int doVideoOptions( float deltaTime )
             // Do the same stuff as in MM_Entering, but backwards
             glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
 
-            if( mnu_draw_background )
+            if ( mnu_draw_background )
             {
                 ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
             }
@@ -2404,6 +2429,7 @@ int doVideoOptions( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doShowMenuResults( float deltaTime )
 {
     int x, y;
@@ -2449,6 +2475,7 @@ int doShowMenuResults( float deltaTime )
     return 1;
 }
 
+//--------------------------------------------------------------------------------------------
 int doNotImplemented( float deltaTime )
 {
     int x, y;
@@ -2469,6 +2496,7 @@ int doNotImplemented( float deltaTime )
 }
 
 
+//--------------------------------------------------------------------------------------------
 int doGamePaused( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2514,12 +2542,12 @@ int doGamePaused( float deltaTime )
             glColor4f( 1, 1, 1, 1 );
 
             // Buttons
-            for( cnt = 0; cnt < 5; cnt ++ )
+            for ( cnt = 0; cnt < 5; cnt ++ )
             {
-                if ( BUTTON_UP == ui_doButton( cnt+1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
+                if ( BUTTON_UP == ui_doButton( cnt + 1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
                 {
                     // audio options
-                    menuChoice = cnt+1;
+                    menuChoice = cnt + 1;
                 }
             }
 
@@ -2561,6 +2589,7 @@ int doGamePaused( float deltaTime )
     return result;
 }
 
+//--------------------------------------------------------------------------------------------
 int doShowEndgame( float deltaTime )
 {
     static int menuState = MM_Begin;
@@ -2588,8 +2617,8 @@ int doShowEndgame( float deltaTime )
 
             x = 70;
             y = 70;
-            w = displaySurface->w - 2*x;
-            h = displaySurface->h - 2*y;
+            w = displaySurface->w - 2 * x;
+            h = displaySurface->h - 2 * y;
 
             gamepaused = btrue;
 
@@ -2613,12 +2642,12 @@ int doShowEndgame( float deltaTime )
             glColor4f( 1, 1, 1, 1 );
 
             // Buttons
-            for( cnt = 0; cnt < 1; cnt ++ )
+            for ( cnt = 0; cnt < 1; cnt ++ )
             {
-                if ( BUTTON_UP == ui_doButton( cnt+1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
+                if ( BUTTON_UP == ui_doButton( cnt + 1, buttons[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
                 {
                     // audio options
-                    menuChoice = cnt+1;
+                    menuChoice = cnt + 1;
                     menuState = MM_Leaving;
                 }
             }
@@ -2669,60 +2698,12 @@ int doShowEndgame( float deltaTime )
 }
 
 
-
-#define MENU_STACK_COUNT 256
-int menu_stack_index = 0;
-int menu_stack[MENU_STACK_COUNT];
-
-bool_t menu_stack_push( int menu )
-{
-    if( menu_stack_index < 0 )
-    {
-        menu_stack_index = 0;
-    }
-    if(menu_stack_index > MENU_STACK_COUNT)
-    {
-        menu_stack_index = MENU_STACK_COUNT;
-    }
-
-    if( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
-
-
-    menu_stack[menu_stack_index] = menu;
-    menu_stack_index++;
-
-    return btrue;
-}
-
-int menu_stack_pop()
-{
-    if( menu_stack_index < 0 )
-    {
-        menu_stack_index = 0;
-        return MainMenu;
-    }
-    if(menu_stack_index > MENU_STACK_COUNT)
-    {
-        menu_stack_index = MENU_STACK_COUNT;
-    }
-
-    if( menu_stack_index == 0 ) return MainMenu;
-
-    menu_stack_index--;
-    return menu_stack[menu_stack_index];
-}
-
-void menu_stack_clear()
-{
-    menu_stack_index = 0;
-    menu_stack[0] = MainMenu;
-}
-
+//--------------------------------------------------------------------------------------------
 int doMenu( float deltaTime )
 {
     int retval, result = 0;
 
-    if( mnu_whichMenu == MainMenu )
+    if ( mnu_whichMenu == MainMenu )
     {
         menu_stack_clear();
     };
@@ -2837,13 +2818,13 @@ int doMenu( float deltaTime )
             result = doGamePaused( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      
-                { 
-                    mnu_end_menu(); 
-                    result = MENU_QUIT; 
-                    gameactive = bfalse; 
+                if ( result == 1 )
+                {
+                    mnu_end_menu();
+                    result = MENU_QUIT;
+                    gameactive = bfalse;
                     moduleactive = bfalse;
-                    menuactive = btrue; 
+                    menuactive = btrue;
                 }
                 else if ( result == 2 ) mnu_begin_menu( AudioOptions );
                 else if ( result == 3 ) mnu_begin_menu( InputOptions );
@@ -2854,11 +2835,11 @@ int doMenu( float deltaTime )
 
         case ShowEndgame:
             result = doShowEndgame( deltaTime );
-            if ( result == 1 )      
-            { 
-                mnu_end_menu(); 
-                retval = MENU_END;  
-                menuactive = btrue; 
+            if ( result == 1 )
+            {
+                mnu_end_menu();
+                retval = MENU_END;
+                menuactive = btrue;
             }
             break;
 
@@ -2875,13 +2856,9 @@ int doMenu( float deltaTime )
     return retval;
 }
 
-void menu_frameStep()
-{
-
-}
-
 //--------------------------------------------------------------------------------------------
-static bool_t mnu_checkSelectedPlayer( Uint16 player )
+//--------------------------------------------------------------------------------------------
+bool_t mnu_checkSelectedPlayer( Uint16 player )
 {
     int i;
     if ( player > loadplayer_count ) return bfalse;
@@ -2895,7 +2872,7 @@ static bool_t mnu_checkSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-static Uint16 mnu_getSelectedPlayer( Uint16 player )
+Uint16 mnu_getSelectedPlayer( Uint16 player )
 {
     Uint16 ipla;
     if ( player > loadplayer_count ) return INVALID_PLA;
@@ -2909,7 +2886,7 @@ static Uint16 mnu_getSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t mnu_addSelectedPlayer( Uint16 player )
+bool_t mnu_addSelectedPlayer( Uint16 player )
 {
     if ( player > loadplayer_count || mnu_selectedPlayerCount >= MAXPLAYER ) return bfalse;
     if ( mnu_checkSelectedPlayer( player ) ) return bfalse;
@@ -2922,7 +2899,7 @@ static bool_t mnu_addSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t mnu_removeSelectedPlayer( Uint16 player )
+bool_t mnu_removeSelectedPlayer( Uint16 player )
 {
     int i;
     bool_t found = bfalse;
@@ -2964,7 +2941,7 @@ static bool_t mnu_removeSelectedPlayer( Uint16 player )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
+bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
 {
     int i;
     bool_t done, retval = bfalse;
@@ -3027,7 +3004,7 @@ static bool_t mnu_addSelectedPlayerInput( Uint16 player, Uint32 input )
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
+bool_t mnu_removeSelectedPlayerInput( Uint16 player, Uint32 input )
 {
     int i;
     bool_t retval = bfalse;
@@ -3182,7 +3159,7 @@ void load_all_menu_images()
 //--------------------------------------------------------------------------------------------
 bool_t mnu_begin_menu( int which )
 {
-    if( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
+    if ( !menu_stack_push( mnu_whichMenu ) ) return bfalse;
     mnu_whichMenu = which;
 
     return btrue;
@@ -3198,4 +3175,52 @@ void   mnu_end_menu()
 int mnu_get_menu_depth()
 {
     return menu_stack_index;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t menu_stack_push( int menu )
+{
+    if ( menu_stack_index < 0 )
+    {
+        menu_stack_index = 0;
+    }
+    if (menu_stack_index > MENU_STACK_COUNT)
+    {
+        menu_stack_index = MENU_STACK_COUNT;
+    }
+
+    if ( menu_stack_index >= MENU_STACK_COUNT ) return bfalse;
+
+
+    menu_stack[menu_stack_index] = menu;
+    menu_stack_index++;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+int menu_stack_pop()
+{
+    if ( menu_stack_index < 0 )
+    {
+        menu_stack_index = 0;
+        return MainMenu;
+    }
+    if (menu_stack_index > MENU_STACK_COUNT)
+    {
+        menu_stack_index = MENU_STACK_COUNT;
+    }
+
+    if ( menu_stack_index == 0 ) return MainMenu;
+
+    menu_stack_index--;
+    return menu_stack[menu_stack_index];
+}
+
+//--------------------------------------------------------------------------------------------
+void menu_stack_clear()
+{
+    menu_stack_index = 0;
+    menu_stack[0] = MainMenu;
 }

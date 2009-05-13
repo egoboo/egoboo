@@ -72,8 +72,6 @@ extern Uint16 mnu_selectedPlayer[MAXPLAYER];
 
 extern bool_t mnu_draw_background;
 
-void menu_frameStep();
-
 void  check_player_import( const char *dirname, bool_t initialize );
 
 int doMenu( float deltaTime );

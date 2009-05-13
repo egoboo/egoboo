@@ -50,7 +50,7 @@
 chop_data_t chop = {0, 0};
 
 static int            numfreechr = 0;             // For allocation
-static Uint16         freechrlist[MAXCHR];        //
+static Uint16         freechrlist[MAXCHR];
 
 team_t TeamList[MAXTEAM];
 
@@ -94,7 +94,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
             else
             {
                 ChrList[character].inst.vrta[cnt] = ( valuehigh * ( z - low ) / ( high - low ) ) +
-                                               ( valuelow * ( high - z ) / ( high - low ) );
+                                                    ( valuelow * ( high - z ) / ( high - low ) );
             }
         }
     }
@@ -203,10 +203,10 @@ void make_one_character_matrix( Uint16 cnt )
     else
     {
         ChrList[cnt].inst.matrix = ScaleXYZRotateXYZTranslate( ChrList[cnt].fat, ChrList[cnt].fat, ChrList[cnt].fat,
-                              ChrList[cnt].turnleftright >> 2,
-                              ( ( Uint16 ) ( ChrList[cnt].turnmapud + 32768 ) ) >> 2,
-                              ( ( Uint16 ) ( ChrList[cnt].turnmaplr + 32768 ) ) >> 2,
-                              ChrList[cnt].xpos, ChrList[cnt].ypos, ChrList[cnt].zpos );
+                                   ChrList[cnt].turnleftright >> 2,
+                                   ( ( Uint16 ) ( ChrList[cnt].turnmapud + 32768 ) ) >> 2,
+                                   ( ( Uint16 ) ( ChrList[cnt].turnmaplr + 32768 ) ) >> 2,
+                                   ChrList[cnt].xpos, ChrList[cnt].ypos, ChrList[cnt].zpos );
     }
 }
 
@@ -441,10 +441,10 @@ void make_one_weapon_matrix( Uint16 iweap )
     {
         // attach to single point
         ChrList[iweap].inst.matrix = ScaleXYZRotateXYZTranslate(ChrList[iweap].fat, ChrList[iweap].fat, ChrList[iweap].fat,
-                                ChrList[iweap].turnleftright >> 2,
-                                ( ( Uint16 ) ( ChrList[iweap].turnmapud + 32768 ) ) >> 2,
-                                ( ( Uint16 ) ( ChrList[iweap].turnmaplr + 32768 ) ) >> 2,
-                                nupointx[0], nupointy[0], nupointz[0]);
+                                     ChrList[iweap].turnleftright >> 2,
+                                     ( ( Uint16 ) ( ChrList[iweap].turnmapud + 32768 ) ) >> 2,
+                                     ( ( Uint16 ) ( ChrList[iweap].turnmaplr + 32768 ) ) >> 2,
+                                     nupointx[0], nupointy[0], nupointz[0]);
 
         ChrList[iweap].inst.matrixvalid = btrue;
     }
@@ -453,10 +453,10 @@ void make_one_weapon_matrix( Uint16 iweap )
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
         ChrList[iweap].inst.matrix = FourPoints( nupointx[0], nupointy[0], nupointz[0],
-                                            nupointx[1], nupointy[1], nupointz[1],
-                                            nupointx[2], nupointy[2], nupointz[2],
-                                            nupointx[3], nupointy[3], nupointz[3],
-                                            ChrList[iweap].fat );
+                                     nupointx[1], nupointy[1], nupointz[1],
+                                     nupointx[2], nupointy[2], nupointz[2],
+                                     nupointx[3], nupointy[3], nupointz[3],
+                                     ChrList[iweap].fat );
         ChrList[iweap].inst.matrixvalid = btrue;
     }
 }
@@ -1650,7 +1650,7 @@ void call_for_help( Uint16 character )
 //--------------------------------------------------------------------------------------------
 Uint32 xp_for_next_level(Uint16 character)
 {
-	//This calculates the xp needed to reach next level
+    //This calculates the xp needed to reach next level
     Uint32 curlevel;
     Uint16 profile;
     Uint32 xpneeded = (Uint32)(~0);
@@ -2431,23 +2431,23 @@ int load_one_character_profile( const char *szLoadName )
         {
             goto_colon( fileread );
 
-            cTmp = fget_first_letter( fileread );  
-			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEINVERT;
+            cTmp = fget_first_letter( fileread );
+            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEINVERT;
             else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGECHARGE;
             else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  
-			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEINVERT;
+            cTmp = fget_first_letter( fileread );
+            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEINVERT;
             else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGECHARGE;
             else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  
-			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEINVERT;
+            cTmp = fget_first_letter( fileread );
+            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEINVERT;
             else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGECHARGE;
             else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEMANA;
 
-            cTmp = fget_first_letter( fileread );  
-			if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEINVERT;
+            cTmp = fget_first_letter( fileread );
+            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEINVERT;
             else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGECHARGE;
             else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEMANA;
         }
@@ -2799,12 +2799,12 @@ void damage_character( Uint16 character, Uint16 direction,
         basedamage = damage;
         damage = damage >> ( ChrList[character].damagemodifier[damagetype] & DAMAGESHIFT );
 
-		// Allow damage to be dealt to mana (mana shield spell)
+        // Allow damage to be dealt to mana (mana shield spell)
         if ( ChrList[character].damagemodifier[damagetype]&DAMAGEMANA )
         {
-			int manadamage;
-			manadamage = MAX(damage - ChrList[character].mana, 0);
-            ChrList[character].mana = MAX(ChrList[character].mana-damage, 0);
+            int manadamage;
+            manadamage = MAX(damage - ChrList[character].mana, 0);
+            ChrList[character].mana = MAX(ChrList[character].mana - damage, 0);
         }
 
         // Allow charging (Invert damage to mana)
@@ -3779,7 +3779,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
     int tnc, enchant;
     Uint16 sTmp, item;
 
-    if( profile > MAXMODEL || !MadList[profile].used ) return;
+    if ( profile > MAXMODEL || !MadList[profile].used ) return;
 
     // Drop left weapon
     sTmp = ChrList[ichr].holdingwhich[SLOT_LEFT];
@@ -4724,13 +4724,13 @@ void move_characters( void )
                             if ( ChrList[cnt].actionready )    chr_play_action( cnt, ACTIONJA, btrue );
 
                             // Play the jump sound (Boing!)
-							{
-								int ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
-								if ( ijump >= 0 && ijump < MAXWAVE )
-								{
-										sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
-								}
-							}
+                            {
+                                int ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
+                                if ( ijump >= 0 && ijump < MAXWAVE )
+                                {
+                                    sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
+                                }
+                            }
 
                         }
                     }

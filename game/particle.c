@@ -35,14 +35,14 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int       numfreeprt = 0;                            // For allocation
-static Uint16    freeprtlist[TOTALMAXPRT];                        //
+static Uint16    freeprtlist[TOTALMAXPRT];
 
 int              numpip   = 0;
 pip_t            PipList[TOTALMAXPRTPIP];
 
 Uint16           particletexture = 0;                        // All in one bitmap
 float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
-float            particleimagev[MAXPARTICLEIMAGE][2];        //
+float            particleimagev[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
 prt_t            PrtList[TOTALMAXPRT];
@@ -385,7 +385,7 @@ void move_particles( void )
 {
     // ZZ> This is the particle physics function
     int tnc;
-	Uint16 cnt;
+    Uint16 cnt;
     Uint16 facing, pip, particle;
     float level;
 
@@ -929,11 +929,11 @@ int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip )
 
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].friendlyfire = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;   
-		
-		goto_colon( fileread );
-		//PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
-        
+        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;
+
+        goto_colon( fileread );
+        //PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
+
         goto_colon( fileread );  cTmp = fget_first_letter( fileread );
         PipList[numpip].newtargetonspawn = bfalse;
         if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].newtargetonspawn = btrue;

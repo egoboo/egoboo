@@ -132,148 +132,6 @@ int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_antialias_prt( camera_t * pcam )
-{
-    //Render an antialiased particle
-
-    prt_registry_entity_t reg[TOTALMAXPRT];
-    GLvector3 vfwd, vcam;
-    GLvertex vtlist[4];
-    int cnt, numparticle;
-    Uint16 prt;
-    float size;
-    Uint8 i;
-
-    do_instance_update( pcam );
-
-    vfwd = mat_getCamForward( pcam->mView );
-    vcam.x = pcam->x;
-    vcam.y = pcam->y;
-    vcam.z = pcam->z;
-
-    // Calculate the up and right vectors for billboarding.
-    Begin3DMode( pcam );
-    {
-        // Original points
-        numparticle = 0;
-        for ( cnt = 0; cnt < maxparticles; cnt++ )
-        {
-            prt_t * pprt = PrtList + cnt;
-            prt_instance_t * pinst = &(pprt->inst);
-
-            if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan ) continue;
-
-            if ( pinst->size != 0 )
-            {
-                GLvector3 vpos;
-                float dist;
-
-                vpos.x = pprt->xpos - vcam.x;
-                vpos.y = pprt->ypos - vcam.y;
-                vpos.z = pprt->zpos - vcam.z;
-
-                dist = VDotProduct( vfwd, vpos );
-
-                if ( dist > 0 )
-                {
-                    reg[numparticle].index = cnt;
-                    reg[numparticle].dist  = dist;
-                    numparticle++;
-                }
-            }
-        }
-
-        // sort the particles from close to far
-        qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
-
-
-        {
-            GLint depthfunc_save, alphafunc_save, alphablendsrc_save, alphablenddst_save, alphatestref_save  ;
-            GLboolean depthmask_save, cullface_save, depthtest_save, alphatest_save, blend_save;
-
-            GLtexture_Bind( txTexture + particletexture );
-
-            depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
-            glDepthMask( GL_FALSE );
-
-            depthtest_save = glIsEnabled( GL_DEPTH_TEST );
-            glEnable( GL_DEPTH_TEST );
-
-            glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
-            glDepthFunc( GL_LESS );
-
-            alphatest_save = glIsEnabled( GL_ALPHA_TEST );
-            glEnable( GL_ALPHA_TEST );
-
-            glGetIntegerv( GL_ALPHA_TEST_FUNC, &alphafunc_save );
-            glGetIntegerv( GL_ALPHA_TEST_REF, &alphatestref_save );
-            glAlphaFunc( GL_GREATER, 0 );
-
-            blend_save = glIsEnabled( GL_BLEND );
-            glEnable( GL_BLEND );
-
-            glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
-            glGetIntegerv( GL_BLEND_DST, &alphablenddst_save  );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-            cullface_save = glIsEnabled( GL_CULL_FACE );
-            glDisable( GL_CULL_FACE );
-
-            // Render each particle that was on
-            for ( cnt = 0; cnt < numparticle; cnt++ )
-            {
-                prt_t * pprt;
-                prt_instance_t * pinst;
-
-                // Get the index from the color slot
-                prt = reg[cnt].index;
-
-                pprt = PrtList + prt;
-                pinst = &(pprt->inst);
-                if (!pinst->valid) continue;
-
-                // Render solid ones twice...  For Antialias
-                if ( PrtList[prt].type != PRTSOLIDSPRITE  ) continue;
-
-                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
-
-                // Figure out the sprite's size based on distance
-                size = pinst->size * 1.1f;  // [claforte] Fudge the value.
-
-                // Calculate the position of the four corners of the billboard
-                // used to display the particle.
-                calc_billboard_verts( vtlist, pinst, size );
-
-                // Go on and draw it
-                glBegin( GL_TRIANGLE_FAN );
-                {
-                    for ( i = 0; i < 4; i++ )
-                    {
-                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-                    }
-                }
-                glEnd();
-            }
-
-            //Restore values
-            glDepthMask( depthmask_save );
-            if (depthtest_save) glEnable( GL_DEPTH_TEST ); else glDisable( GL_DEPTH_TEST );
-
-            glDepthFunc( depthfunc_save );
-            if (alphatest_save) glEnable( GL_ALPHA_TEST ); else glDisable( GL_ALPHA_TEST );
-
-            glAlphaFunc( alphafunc_save, alphatestref_save );
-            if (blend_save) glEnable( GL_BLEND ); else glDisable( GL_BLEND );
-
-            glBlendFunc( alphablendsrc_save, alphablenddst_save );
-            if (cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
-        }
-    }
-    End3DMode();
-}
-
-//--------------------------------------------------------------------------------------------
 void render_prt( camera_t * pcam )
 {
     // ZZ> This function draws the sprites for particle systems
@@ -343,11 +201,11 @@ void render_prt( camera_t * pcam )
     // Calculate the up and right vectors for billboarding.
     Begin3DMode( pcam );
     {
-        // Choose texture and matrix
-        GLtexture_Bind( txTexture + particletexture );
-
         //----------------------------
         // DO SOLID SPRITES FIRST
+
+        GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+
         glDisable( GL_CULL_FACE );
         glDisable( GL_DITHER );
 
@@ -370,14 +228,14 @@ void render_prt( camera_t * pcam )
             // Draw sprites this round
             if ( PRTSOLIDSPRITE != PrtList[prt].type ) continue;
 
-            // [claforte] Fudge the value.
-            size = pinst->size;
+            // billboard for the particle
+            calc_billboard_verts( vtlist, pinst, pinst->size );
 
             //--------------------
             // Render the antialias version of the particle
 
-            // billboard for the antialias
-            calc_billboard_verts( vtlist, pinst, size + 2 );
+            glEnable( GL_ALPHA_TEST );
+            glAlphaFunc( GL_LESS, 1 );
 
             glEnable( GL_BLEND );
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -399,9 +257,13 @@ void render_prt( camera_t * pcam )
 
             // Calculate the position of the four corners of the billboard
             // used to display the particle.
-            calc_billboard_verts( vtlist, pinst, size );
+
+            glDepthMask( GL_TRUE );
 
             glDisable( GL_BLEND );
+
+            glEnable( GL_ALPHA_TEST );
+            glAlphaFunc( GL_EQUAL, 1 );
 
             glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
 
@@ -418,6 +280,7 @@ void render_prt( camera_t * pcam )
 
         //----------------------------
         // DO BOTH TYPES OF TRANSPARENT SPRITES NEXT
+
         glDepthMask( GL_FALSE );
         glEnable( GL_BLEND );
 
@@ -445,6 +308,8 @@ void render_prt( camera_t * pcam )
                 // light sprites
                 glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
                 glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+
+                GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
             }
             else
             {
@@ -452,6 +317,8 @@ void render_prt( camera_t * pcam )
                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
                 glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
+
+                GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
             }
             // [claforte] Fudge the value.
             size = pinst->size;
@@ -543,7 +410,7 @@ void render_refprt( camera_t * pcam )
     qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
 
     // Choose texture.
-    GLtexture_Bind( txTexture + particletexture );
+    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
 
     glDisable( GL_CULL_FACE );
     glDisable( GL_DITHER );

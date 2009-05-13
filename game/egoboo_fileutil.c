@@ -145,7 +145,7 @@ bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
     //     string
 
     int read;
-	Uint32 cnt;
+    Uint32 cnt;
     char cTmp;
     STRING szTmp;
 

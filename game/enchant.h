@@ -113,9 +113,9 @@ struct s_eve
     Sint16  time;                        // Time in seconds
     Sint32  endmessage;                  // Message for end -1 for none
     Sint16  ownermana;                   // Boost values
-    Sint16  ownerlife;                   //
-    Sint16  targetmana;                  //
-    Sint16  targetlife;                  //
+    Sint16  ownerlife;
+    Sint16  targetmana;
+    Sint16  targetlife;
     Uint8   dontdamagetype;              // Don't work if ...
     Uint8   onlydamagetype;              // Only work if ...
     IDSZ    removedbyidsz;               // By particle or [NONE]
@@ -151,9 +151,9 @@ struct s_enc
     Uint16  spawner;                 // The spellbook character
     Uint16  overlay;                 // The overlay character
     Sint16  ownermana;               // Boost values
-    Sint16  ownerlife;               //
-    Sint16  targetmana;              //
-    Sint16  targetlife;              //
+    Sint16  ownerlife;
+    Sint16  targetmana;
+    Sint16  targetlife;
 
     Uint16  nextenchant;             // Next in the list
 

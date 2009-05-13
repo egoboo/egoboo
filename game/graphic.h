@@ -34,13 +34,13 @@ struct s_camera;
 
 #define TABX                            32//16      // Size of little name tag on the bar
 #define BARX                            112//216         // Size of bar
-#define BARY                            16//8           //
+#define BARY                            16//8
 #define NUMTICK                         10//50          // Number of ticks per row
 #define TICKX                           8//4           // X size of each tick
 #define MAXTICK                         (NUMTICK*10) // Max number of ticks to draw
 
 #define NUMFONTX                        16          // Number of fonts in the bitmap
-#define NUMFONTY                        6           //
+#define NUMFONTY                        6
 #define NUMFONT                         (NUMFONTX*NUMFONTY)
 #define FONTADD                         4           // Gap between letters
 #define NUMBAR                          6           // Number of status bars
@@ -49,13 +49,14 @@ struct s_camera;
 #define MAXSPEKLEVEL                    16          // Number of premade specularities
 #define MAXLIGHTROTATION                256         // Number of premade light maps
 
-#define DONTFLASH                       255         //
+#define DONTFLASH                       255
 #define SEEKURSEAND                     31          // Blacking flash
 
 // Special Textures
 typedef enum e_tx_type
 {
-    TX_PARTICLE = 0,
+    TX_PARTICLE_TRANS = 0,
+    TX_PARTICLE_LIGHT,
     TX_TILE_0,
     TX_TILE_1,
     TX_TILE_2,
@@ -141,19 +142,19 @@ extern Uint8           lightdirectionlookup[65536];                        // Fo
 extern Uint8           lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
 extern float           indextoenvirox[MD2LIGHTINDICES];                    // Environment map
 extern float           lighttoenviroy[256];                                // Environment map
-extern Uint32          lighttospek[MAXSPEKLEVEL][256];                     //
+extern Uint32          lighttospek[MAXSPEKLEVEL][256];
 
 // camera optimization
 
 #define ROTMESHTOPSIDE                  55          // For figuring out what to draw
-#define ROTMESHBOTTOMSIDE               65          //
+#define ROTMESHBOTTOMSIDE               65
 #define ROTMESHUP                       40
-#define ROTMESHDOWN                     60          //
+#define ROTMESHDOWN                     60
 
 extern int rotmeshtopside;                                 // The ones that get used
-extern int rotmeshbottomside;                              //
-extern int rotmeshup;                                      //
-extern int rotmeshdown;                                    //
+extern int rotmeshbottomside;
+extern int rotmeshup;
+extern int rotmeshdown;
 
 // Lightning effects
 
@@ -164,7 +165,7 @@ struct s_dynalight
 {
     int   distance;      // The distances
     float x;             // Light position
-    float y;             //
+    float y;
     float level;         // Light intensity
     float falloff;       // Light radius
 };

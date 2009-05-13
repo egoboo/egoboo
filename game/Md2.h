@@ -81,8 +81,8 @@ struct s_md2_frame
     Uint16  framefx;                       // Invincibility, Spawning
 
     float   vrtx[MAXVERTICES];             // Vertex position
-    float   vrty[MAXVERTICES];             //
-    float   vrtz[MAXVERTICES];             //
+    float   vrty[MAXVERTICES];
+    float   vrtz[MAXVERTICES];
     Uint8   vrta[MAXVERTICES];             // Light index of vertex
 };
 typedef struct s_md2_frame md2_frame_t;

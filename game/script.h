@@ -79,7 +79,7 @@
 #define MAXWAY              8                       // Waypoints
 #define WAYTHRESH           64                      // Threshold for reaching waypoint
 #define MAXSTOR             16                      // Storage data (Used in SetXY)
-#define STORAND             15                      //
+#define STORAND             15
 
 struct s_ai_state
 {
@@ -112,7 +112,7 @@ struct s_ai_state
     int            passage;       // The passage associated with this character
     int            timer;         // AI Timer
     int            x[MAXSTOR];    // Temporary values...  SetXY
-    int            y[MAXSTOR];    //
+    int            y[MAXSTOR];
 
     // ai memory from the last event
     Uint16         bumplast;        // Last character it was bumped by

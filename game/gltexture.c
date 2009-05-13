@@ -328,7 +328,7 @@ Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * i
             gluBuild2DMipmaps( GL_TEXTURE_2D, 4, image->w, image->h, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );    //With mipmapping
         else
             glTexImage2D( tx_target, 0, GL_RGBA, image->w, image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, image->pixels );
-  }
+    }
 
     SDL_FreeSurface( image );
 

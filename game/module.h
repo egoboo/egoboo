@@ -42,7 +42,7 @@ struct s_mod
     Uint8   importamount;                 // # of import characters
     Uint8   allowexport;                  // Export characters?
     Uint8   minplayers;                   // Number of players
-    Uint8   maxplayers;                   //
+    Uint8   maxplayers;
     bool_t  monstersonly;                 // Only allow monsters
     bool_t  rtscontrol;                   // Real Time Stragedy?
     Uint8   respawnvalid;                 // Allow respawn

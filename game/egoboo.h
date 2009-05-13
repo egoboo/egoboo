@@ -90,7 +90,7 @@ EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define NOHIDE              127                     // Don't hide
 
 // Stats
-#define MANARETURNSHIFT     22                       //
+#define MANARETURNSHIFT     22
 #define LOWSTAT             256                     // Worst...
 #define PERFECTSTAT         (70*256)                // Maximum stat without magic effects
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
@@ -103,7 +103,7 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define DAMFXBLOC           2                       // Cannot be blocked by shield
 #define DAMFXARRO           4                       // Only hurts the one it's attached to
 #define DAMFXTURN           8                       // Turn to attached direction
-#define DAMFXTIME           16                      //
+#define DAMFXTIME           16
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
@@ -113,16 +113,16 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
 // Geneder stuff
 #define GENFEMALE           0                       // Gender
-#define GENMALE             1                       //
-#define GENOTHER            2                       //
-#define GENRANDOM           3                       //
+#define GENMALE             1
+#define GENOTHER            2
+#define GENRANDOM           3
 
 #define MAXSTAT             16                      // Maximum status displays
 
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
-#define MAXTOTALMESSAGE     4096                    //
-#define MESSAGESIZE         80                      //
+#define MAXTOTALMESSAGE     4096
+#define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
 EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
@@ -144,8 +144,8 @@ EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the mes
 // Animation walking
 #define LIPDA               0                       // For smooth transitions 'tween
 #define LIPWA               1                       //   walking rates
-#define LIPWB               2                       //
-#define LIPWC               3                       //
+#define LIPWB               2
+#define LIPWC               3
 
 #define NOACTION            0xffff                     // Action not valid for this character
 #define MAXACTION           76                         // Number of action types
@@ -154,18 +154,18 @@ EXTERN char                 cActionName[MAXACTION][2]; // Two letter name code
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
 
-#define DAMAGENULL          255                        //
+#define DAMAGENULL          255
 
 enum e_damage_type
 {
-    DAMAGE_SLASH = 0,                        //
-    DAMAGE_CRUSH,                            //
-    DAMAGE_POKE,                             //
+    DAMAGE_SLASH = 0,
+    DAMAGE_CRUSH,
+    DAMAGE_POKE,
     DAMAGE_HOLY,                             // (Most invert Holy damage )
-    DAMAGE_EVIL,                             //
-    DAMAGE_FIRE,                             //
-    DAMAGE_ICE,                              //
-    DAMAGE_ZAP,                              //
+    DAMAGE_EVIL,
+    DAMAGE_FIRE,
+    DAMAGE_ICE,
+    DAMAGE_ZAP,
     DAMAGE_COUNT                             // Damage types
 };
 
@@ -176,10 +176,10 @@ enum e_damage_type
 #define DAMAGETILETIME      32                      // Invincibility time
 #define DAMAGETIME          16                      // Invincibility time
 #define DEFENDTIME          16                      // Invincibility time
-#define DROPXYVEL           8                       //
-#define DROPZVEL            7                       //
-#define JUMPATTACKVEL       -2                      //
-#define WATERJUMP           12                      //
+#define DROPXYVEL           8
+#define DROPZVEL            7
+#define JUMPATTACKVEL       -2
+#define WATERJUMP           12
 
 #define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
 #define TURNMODEWATCH       1                       // For watch towers
@@ -215,13 +215,13 @@ enum e_xp_type
 #define XPDIRECT            255                     // No modification
 
 #define LATCHBUTTON_LEFT      ( 1 << 0 )                      // Character button presses
-#define LATCHBUTTON_RIGHT     ( 1 << 1 )                      //
-#define LATCHBUTTON_JUMP      ( 1 << 2 )                      //
+#define LATCHBUTTON_RIGHT     ( 1 << 1 )
+#define LATCHBUTTON_JUMP      ( 1 << 2 )
 #define LATCHBUTTON_ALTLEFT   ( 1 << 3 )                      // ( Alts are for grab/drop )
-#define LATCHBUTTON_ALTRIGHT  ( 1 << 4 )                     //
+#define LATCHBUTTON_ALTRIGHT  ( 1 << 4 )
 #define LATCHBUTTON_PACKLEFT  ( 1 << 5 )                     // ( Packs are for inventory cycle )
-#define LATCHBUTTON_PACKRIGHT ( 1 << 6 )                     //
-#define LATCHBUTTON_RESPAWN   ( 1 << 7 )                    //
+#define LATCHBUTTON_PACKRIGHT ( 1 << 6 )
+#define LATCHBUTTON_RESPAWN   ( 1 << 7 )
 
 // Z velocity stuff
 #define JUMPDELAY           20                      // Time between jumps
@@ -229,12 +229,12 @@ enum e_xp_type
 #define MAPID 0x4470614d                        // The string... MapD
 
 #define RAISE 12 //25                               // Helps correct z level
-#define SHADOWRAISE 5                               //
-#define DAMAGERAISE 25                              //
+#define SHADOWRAISE 5
+#define DAMAGERAISE 25
 
 #define MAXWATERLAYER 2                             // Maximum water layers
 #define MAXWATERFRAME 512                           // Maximum number of wave frames
-#define WATERFRAMEAND (MAXWATERFRAME-1)             //
+#define WATERFRAMEAND (MAXWATERFRAME-1)
 #define WATERPOINTS 4                               // Points in a water fan
 #define WATERMODE 4                                 // Ummm...  For making it work, yeah...
 
@@ -261,9 +261,9 @@ enum e_xp_type
 #define GRIP_ONLY                        GRIP_LEFT     // Only weapon grip starts 4 from last
 #define GRIP_LAST                        1             // Spawn particles at the last vertex
 #define GRIP_ORIGIN                      0             // Spawn attachments at the center
-#define GRIP_INVENTORY                   0             //
+#define GRIP_INVENTORY                   0
 
-#define CHOPPERMODEL                    32          //
+#define CHOPPERMODEL                    32
 
 #define MAXMESHFAN                      (512*512)   // Terrain mesh size
 #define MAXMESHTILEY                    1024        // Max tiles in y direction
@@ -313,20 +313,20 @@ EXTERN bool_t  gDevMode EQ( bfalse );
 
 EXTERN int     animtileupdateand  EQ( 7 );                        // New tile every 7 frames
 EXTERN Uint16  animtileframeand  EQ( 3 );              // Only 4 frames
-EXTERN Uint16  animtilebaseand  EQ( 0xfffc );          //
+EXTERN Uint16  animtilebaseand  EQ( 0xfffc );
 EXTERN Uint16  biganimtileframeand  EQ( 7 );           // For big tiles
-EXTERN Uint16  biganimtilebaseand  EQ( 0xfff8 );       //
+EXTERN Uint16  biganimtilebaseand  EQ( 0xfff8 );
 EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 
 #define NORTH 16384                                 // Character facings
-#define SOUTH 49152                                 //
-#define EAST 32768                                  //
-#define WEST 0                                      //
-#define RANDOM rand() % 65535                       //
+#define SOUTH 49152
+#define EAST 32768
+#define WEST 0
+#define RANDOM rand() % 65535
 #define FRONT 0                                     // Attack directions
-#define BEHIND 32768                                //
-#define LEFT 49152                                  //
-#define RIGHT 16384                                 //
+#define BEHIND 32768
+#define LEFT 49152
+#define RIGHT 16384
 
 #define MAXXP 200000                               // Maximum experience
 #define MAXMONEY 9999                               // Maximum money
@@ -399,12 +399,12 @@ EXTERN bool_t                    usefaredge;                 // Far edge maps? (
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
 EXTERN Uint8                     autoturncamera;             // Type of camera control...
 EXTERN Uint8                     importamount;               // Number of imports for this module
-EXTERN Uint8                     playeramount;               //
+EXTERN Uint8                     playeramount;
 EXTERN Uint32                    seed  EQ( 0 );              // The module seed
 EXTERN char                      pickedmodule[64];           // The module load name
 EXTERN int                       pickedindex;                // The module index number
 EXTERN int                       playersready;               // Number of players ready to start
-EXTERN int                       playersloaded;              //
+EXTERN int                       playersloaded;
 
 //Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
@@ -416,7 +416,7 @@ EXTERN Uint32                  local_control[16];             // Input bits for 
 EXTERN short                   local_slot[16];                // For local imports
 
 // Setup values
-EXTERN int                     maxmessage  EQ( MAXMESSAGE );  //
+EXTERN int                     maxmessage  EQ( MAXMESSAGE );
 EXTERN int                     scrd  EQ( 32 );                 // Screen bit depth
 EXTERN int                     scrz  EQ( 16 );                // Screen z-buffer depth ( 8 unsupported )
 EXTERN int                     scrx  EQ( 320 );               // Screen X size
@@ -461,28 +461,28 @@ EXTERN float                   waterlayerz[MAXWATERLAYER];     // Base height of
 EXTERN Uint8                   waterlayeralpha[MAXWATERLAYER]; // Transparency
 EXTERN float                   waterlayeramp[MAXWATERLAYER];   // Amplitude of waves
 EXTERN float                   waterlayeru[MAXWATERLAYER];     // Coordinates of texture
-EXTERN float                   waterlayerv[MAXWATERLAYER];     //
+EXTERN float                   waterlayerv[MAXWATERLAYER];
 EXTERN float                   waterlayeruadd[MAXWATERLAYER];  // Texture movement
-EXTERN float                   waterlayervadd[MAXWATERLAYER];  //
+EXTERN float                   waterlayervadd[MAXWATERLAYER];
 EXTERN float                   waterlayerzadd[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
 EXTERN Uint8                   waterlayercolor[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
 EXTERN Uint16                  waterlayerframe[MAXWATERLAYER]; // Frame
 EXTERN Uint16                  waterlayerframeadd[MAXWATERLAYER];      // Speed
 EXTERN float                   waterlayerdistx[MAXWATERLAYER];         // For distant backgrounds
-EXTERN float                   waterlayerdisty[MAXWATERLAYER];         //
+EXTERN float                   waterlayerdisty[MAXWATERLAYER];
 EXTERN Uint32                  waterspek[256];             // Specular highlights
-EXTERN float                   foregroundrepeat  EQ( 1 );     //
-EXTERN float                   backgroundrepeat  EQ( 1 );     //
+EXTERN float                   foregroundrepeat  EQ( 1 );
+EXTERN float                   backgroundrepeat  EQ( 1 );
 
 // Fog stuff
-EXTERN bool_t                  fogallowed  EQ( btrue );        //
+EXTERN bool_t                  fogallowed  EQ( btrue );
 EXTERN bool_t                  fogon  EQ( bfalse );            // Do ground fog?
-EXTERN float                   fogbottom  EQ( 0.0f );          //
-EXTERN float                   fogtop  EQ( 100 );             //
-EXTERN float                   fogdistance  EQ( 100 );        //
+EXTERN float                   fogbottom  EQ( 0.0f );
+EXTERN float                   fogtop  EQ( 100 );
+EXTERN float                   fogdistance  EQ( 100 );
 EXTERN Uint8                   fogred  EQ( 255 );             //  Fog collour
-EXTERN Uint8                   foggrn  EQ( 255 );             //
-EXTERN Uint8                   fogblu  EQ( 255 );             //
+EXTERN Uint8                   foggrn  EQ( 255 );
+EXTERN Uint8                   fogblu  EQ( 255 );
 EXTERN Uint8                   fogaffectswater;
 
 //Texture filtering
@@ -549,7 +549,7 @@ struct s_mad
     Uint16  commandsize[MAXCOMMAND];       // Entries used by command
     Uint16  commandvrt[MAXCOMMANDENTRIES]; // Which vertex
     float   commandu[MAXCOMMANDENTRIES];   // Texture position
-    float   commandv[MAXCOMMANDENTRIES];   //
+    float   commandv[MAXCOMMANDENTRIES];
 
     Uint16  frameliptowalkframe[4][16];    // For walk animations
 
@@ -569,12 +569,12 @@ EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
 // phisics info
-EXTERN float           hillslide  EQ( 1.00f );                                 //
+EXTERN float           hillslide  EQ( 1.00f );
 EXTERN float           slippyfriction  EQ( 1.00f );                            // Friction
 EXTERN float           airfriction  EQ( 0.91f );                               // 0.9868 is approximately real world air friction
-EXTERN float           waterfriction  EQ( 0.80f );                             //
-EXTERN float           noslipfriction  EQ( 0.91f );                            //
-EXTERN float           platstick  EQ( 0.040f );                                //
+EXTERN float           waterfriction  EQ( 0.80f );
+EXTERN float           noslipfriction  EQ( 0.91f );
+EXTERN float           platstick  EQ( 0.040f );
 EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
 
 EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
@@ -583,8 +583,8 @@ EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      /
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 
 EXTERN Uint16          globesttarget;                                      // For find_target
-EXTERN Uint16          globestangle;                                       //
-EXTERN Uint16          glouseangle;                                        //
+EXTERN Uint16          globestangle;
+EXTERN Uint16          glouseangle;
 EXTERN int             globestdistance;
 
 // Bump List
@@ -601,10 +601,10 @@ EXTERN bumplist_t bumplist[MAXMESHFAN/16];
 
 //Mesh
 EXTERN Uint32 maplrtwist[256];            // For surface normal of mesh
-EXTERN Uint32 mapudtwist[256];            //
+EXTERN Uint32 mapudtwist[256];
 EXTERN float  vellrtwist[256];            // For sliding down steep hills
-EXTERN float  veludtwist[256];            //
-EXTERN Uint8  flattwist[256];             //
+EXTERN float  veludtwist[256];
+EXTERN Uint8  flattwist[256];
 
 EXTERN Uint32 mesh_maxtotalvertices EQ(256*256*6);                 // of vertices
 
@@ -615,15 +615,15 @@ struct s_mesh_info
     size_t          vertcount;                         // For malloc
 
     int             tiles_x;                          // Size in tiles
-    int             tiles_y;                          //
+    int             tiles_y;
     Uint32          tiles_count;                      // Number of tiles
 
     int             blocks_x;                         // Size in blocks
-    int             blocks_y;                         //
+    int             blocks_y;
     Uint32          blocks_count;                     // Number of blocks (collision areas)
 
     float           edge_x;                           // Limits
-    float           edge_y;                           //
+    float           edge_y;
 };
 typedef struct s_mesh_info mesh_info_t;
 
@@ -632,7 +632,7 @@ struct s_tile_info
     Uint8   type;                              // Tile type
     Uint16  img;                               // Get texture from this
     Uint8   fx;                                 // Special effects flags
-    Uint8   twist;                              //
+    Uint8   twist;
     Uint32  vrtstart;                           // Which vertex to start at
 
     bool_t  inrenderlist;
@@ -649,7 +649,7 @@ struct s_mesh_mem
     Uint32*         tilestart;                         // Which fan to start a row with
 
     float*          vrt_x;                                 // Vertex position
-    float*          vrt_y;                                 //
+    float*          vrt_y;
     float*          vrt_z;                                 // Vertex elevation
     Uint8*          vrt_a;                                 // Vertex base light
     Uint8*          vrt_l;                                 // Vertex light
@@ -662,7 +662,7 @@ struct s_mesh
     mesh_mem_t  mem;
 
     float       tileoff_u[MAXTILETYPE];                          // Tile texture offset
-    float       tileoff_v[MAXTILETYPE];                          //
+    float       tileoff_v[MAXTILETYPE];
 };
 typedef struct s_mesh mesh_t;
 
@@ -677,7 +677,7 @@ struct s_tile_definition
 {
     Uint8           numvertices;                // Number of vertices
     float           u[MAXMESHVERTICES];         // Vertex texture posi
-    float           v[MAXMESHVERTICES];         //
+    float           v[MAXMESHVERTICES];
 
     Uint8           command_count;                        // Number of commands
     Uint8           command_entries[MAXMESHCOMMAND];      // Entries in each command
@@ -693,9 +693,9 @@ tile_definition_t tile_dict[MAXMESHTYPE];
 EXTERN Uint8 asciitofont[256];                                   // Conversion table
 
 // Display messages
-EXTERN Uint16          msgtimechange EQ( 0 );                                  //
+EXTERN Uint16          msgtimechange EQ( 0 );
 EXTERN Uint16          msgstart EQ( 0 );                                       // The message queue
-EXTERN Sint16          msgtime[MAXMESSAGE];                                //
+EXTERN Sint16          msgtime[MAXMESSAGE];
 EXTERN char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];            // The displayed text
 
 // Message files

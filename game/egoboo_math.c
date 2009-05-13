@@ -87,8 +87,8 @@ GLvector3 VCrossProduct( GLvector3 A, GLvector3 B )
 }
 
 float VDotProduct( GLvector3 A, GLvector3 B )
-{ 
-    return A.x*B.x + A.y*B.y + A.z*B.z; 
+{
+    return A.x*B.x + A.y*B.y + A.z*B.z;
 }
 
 //---------------------------------------------------------------------------------------------

@@ -7,27 +7,27 @@
 // Network stuff
 
 #define NETREFRESH          1000                    // Every second
-#define NONETWORK           numservice              //
+#define NONETWORK           numservice
 #define MAXSERVICE          16
 #define NETNAMESIZE         16
 #define MAXSESSION          16
 #define MAXNETPLAYER         8
 
 #define TO_ANY_TEXT         25935                               // Message headers
-#define TO_HOST_MODULEOK    14951                               //
-#define TO_HOST_LATCH       33911                               //
-#define TO_HOST_RTS         30376                               //
-#define TO_HOST_IM_LOADED   40192                               //
-#define TO_HOST_FILE        20482                               //
-#define TO_HOST_DIR         49230                               //
-#define TO_HOST_FILESENT    13131                               //
-#define TO_REMOTE_MODULE    56025                               //
-#define TO_REMOTE_LATCH     12715                               //
-#define TO_REMOTE_FILE      62198                               //
-#define TO_REMOTE_DIR       11034                               //
-#define TO_REMOTE_RTS        5143                               //
-#define TO_REMOTE_START     51390                               //
-#define TO_REMOTE_FILESENT  19903                               //
+#define TO_HOST_MODULEOK    14951
+#define TO_HOST_LATCH       33911
+#define TO_HOST_RTS         30376
+#define TO_HOST_IM_LOADED   40192
+#define TO_HOST_FILE        20482
+#define TO_HOST_DIR         49230
+#define TO_HOST_FILESENT    13131
+#define TO_REMOTE_MODULE    56025
+#define TO_REMOTE_LATCH     12715
+#define TO_REMOTE_FILE      62198
+#define TO_REMOTE_DIR       11034
+#define TO_REMOTE_RTS        5143
+#define TO_REMOTE_START     51390
+#define TO_REMOTE_FILESENT  19903
 
 #define SHORTLATCH 1024.0f
 #define CHARVEL 5.0f
@@ -35,9 +35,9 @@
 #define COPYSIZE    4096
 #define TOTALSIZE   2097152
 #define MAXPLAYER   8                               // 2 to a power...  2^3
-#define MAXLAG      64                              //
-#define LAGAND      63                              //
-#define STARTTALK   10                              //
+#define MAXLAG      64
+#define LAGAND      63
+#define STARTTALK   10
 
 extern Uint32                  nexttimestamp;                // Expected timestamp
 extern FILE                   *globalnetworkerr;             // For debuggin' network
@@ -86,7 +86,7 @@ extern int                     lag;                             // Lag tolerance
 extern Uint32                  numplatimes;
 
 extern int                     numpla;                                   // Number of players
-extern int                     local_numlpla;                            //
+extern int                     local_numlpla;
 extern player_t                PlaList[MAXPLAYER];
 
 //---------------------------------------------------------------------------------------------

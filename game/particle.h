@@ -42,13 +42,13 @@
 
 // pre-defined global particles
 #define COIN1               0                       // Coins are the first particles loaded
-#define COIN5               1                       //
-#define COIN25              2                       //
-#define COIN100             3                       //
+#define COIN5               1
+#define COIN25              2
+#define COIN100             3
 #define WEATHER4            4                       // Weather particles
 #define WEATHER5            5                       // Weather particle finish
 #define SPLASH              6                       // Water effects are next
-#define RIPPLE              7                       //
+#define RIPPLE              7
 #define DEFEND              8                       // Defend particle
 
 //------------------------------------
@@ -123,7 +123,7 @@ struct s_pip
     float   homingaccel;                  // Acceleration rate
     float   homingfriction;               // Deceleration rate
     float   dynalightleveladd;            // Dyna light changes
-    float   dynalightfalloffadd;          //
+    float   dynalightfalloffadd;
     bool_t  targetcaster;                 // Target caster?
     bool_t  spawnenchant;                 // Spawn enchant?
     bool_t  needtarget;                   // Need a target?
@@ -184,13 +184,13 @@ struct s_prt
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
     float   xpos;                            // Position
-    float   ypos;                            //
-    float   zpos;                            //
+    float   ypos;
+    float   zpos;
     float   xvel;                            // Velocity
-    float   yvel;                            //
-    float   zvel;                            //
+    float   yvel;
+    float   zvel;
     float   level;                           // Height of tile
-    Uint8   spawncharacterstate;             //
+    Uint8   spawncharacterstate;
     Uint16  rotate;                          // Rotation direction
     Sint16  rotateadd;                       // Rotation rate
     Uint32  onwhichfan;                      // Where the part is
@@ -206,7 +206,7 @@ struct s_prt
     Uint16  time;                            // Duration of particle
     Uint16  spawntime;                       // Time until spawn
     Uint8   bumpsize;                        // Size of bumpers
-    Uint8   bumpsizebig;                     //
+    Uint8   bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
     Uint16  bumpnext;                        // Next particle on fanblock
     Uint16  damagebase;                      // For strength
@@ -214,7 +214,7 @@ struct s_prt
     Uint8   damagetype;                      // Damage type
     Uint16  chr;                             // The character that is attacking
     float   dynalightfalloff;                // Dyna light...
-    float   dynalightlevel;                  //
+    float   dynalightlevel;
     bool_t  dynalighton;                     // Dynamic light?
     Uint16  target;                          // Who it's chasing
 
@@ -222,9 +222,8 @@ struct s_prt
 };
 typedef struct s_prt prt_t;
 
-extern Uint16           particletexture;                            // All in one bitmap
 extern float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
-extern float            particleimagev[MAXPARTICLEIMAGE][2];        //
+extern float            particleimagev[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
 

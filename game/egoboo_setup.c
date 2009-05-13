@@ -134,7 +134,7 @@ bool_t setup_download()
 
     // Color depth
     GetKey_int( "COLOR_DEPTH", scrd, 32 );
-	scrd = 32;	//Force 32 bit
+    scrd = 32;  //Force 32 bit
 
     // The z depth
     GetKey_int( "Z_DEPTH", scrz, 8 );

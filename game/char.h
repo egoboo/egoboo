@@ -28,26 +28,26 @@
 #include "egoboo.h"
 
 #define SPINRATE            200                     // How fast spinners spin
-#define WATCHMIN            0.01f                     //
+#define WATCHMIN            0.01f
 #define PITDEPTH            -30                     // Depth to kill character
 
 #define BORETIME            (rand()&255)+120
 #define CAREFULTIME         50
 
 #define REEL                7600.0f     // Dampen for melee knock back
-#define REELBASE            0.35f       //
+#define REELBASE            0.35f
 
 #define RIPPLEAND           15          // How often ripples spawn
 
 #define RIPPLETOLERANCE     60          // For deep water
-#define SPLASHTOLERANCE     10          //
+#define SPLASHTOLERANCE     10
 
 #define PHYS_DISMOUNT_TIME  25          // time delay for full object-object interaction
 
 // Throwing
 #define THROWFIX            30.0f                    // To correct thrown velocities
-#define MINTHROWVELOCITY    15.0f                    //
-#define MAXTHROWVELOCITY    75.0f                    //
+#define MINTHROWVELOCITY    15.0f
+#define MAXTHROWVELOCITY    75.0f
 
 // Inventory
 #define MAXNUMINPACK        6                       // Max number of items to carry in pack
@@ -100,7 +100,7 @@ struct s_cap
     // naming
     char         classname[MAXCAPNAMESIZE];     // Class name
     Uint16       chop_sectionsize[MAXSECTION];   // Number of choices, 0
-    Uint16       chop_sectionstart[MAXSECTION];  //
+    Uint16       chop_sectionstart[MAXSECTION];
 
     // skins
     char         skinname[MAXSKIN][MAXCAPNAMESIZE];   // Skin name
@@ -121,46 +121,46 @@ struct s_cap
 
     // inventory
     Uint8        ammomax;                       // Ammo stuff
-    Uint8        ammo;                          //
+    Uint8        ammo;
     Sint16       money;                         // Money
 
     // characer stats
     Uint8        gender;                        // Gender
     Uint16       lifebase;                      // Life
-    Uint16       liferand;                      //
-    Uint16       lifeperlevelbase;              //
-    Uint16       lifeperlevelrand;              //
-    Sint16       lifereturn;                    //
-    Uint16       lifeheal;                      //
+    Uint16       liferand;
+    Uint16       lifeperlevelbase;
+    Uint16       lifeperlevelrand;
+    Sint16       lifereturn;
+    Uint16       lifeheal;
     Uint16       manabase;                      // Mana
-    Uint16       manarand;                      //
-    Sint16       manacost;                      //
-    Uint16       manaperlevelbase;              //
-    Uint16       manaperlevelrand;              //
-    Uint16       manareturnbase;                //
-    Uint16       manareturnrand;                //
-    Uint16       manareturnperlevelbase;        //
-    Uint16       manareturnperlevelrand;        //
-    Uint16       manaflowbase;                  //
-    Uint16       manaflowrand;                  //
-    Uint16       manaflowperlevelbase;          //
-    Uint16       manaflowperlevelrand;          //
+    Uint16       manarand;
+    Sint16       manacost;
+    Uint16       manaperlevelbase;
+    Uint16       manaperlevelrand;
+    Uint16       manareturnbase;
+    Uint16       manareturnrand;
+    Uint16       manareturnperlevelbase;
+    Uint16       manareturnperlevelrand;
+    Uint16       manaflowbase;
+    Uint16       manaflowrand;
+    Uint16       manaflowperlevelbase;
+    Uint16       manaflowperlevelrand;
     Uint16       strengthbase;                  // Strength
-    Uint16       strengthrand;                  //
-    Uint16       strengthperlevelbase;          //
-    Uint16       strengthperlevelrand;          //
+    Uint16       strengthrand;
+    Uint16       strengthperlevelbase;
+    Uint16       strengthperlevelrand;
     Uint16       wisdombase;                    // Wisdom
-    Uint16       wisdomrand;                    //
-    Uint16       wisdomperlevelbase;            //
-    Uint16       wisdomperlevelrand;            //
+    Uint16       wisdomrand;
+    Uint16       wisdomperlevelbase;
+    Uint16       wisdomperlevelrand;
     Uint16       intelligencebase;              // Intlligence
-    Uint16       intelligencerand;              //
-    Uint16       intelligenceperlevelbase;      //
-    Uint16       intelligenceperlevelrand;      //
+    Uint16       intelligencerand;
+    Uint16       intelligenceperlevelbase;
+    Uint16       intelligenceperlevelrand;
     Uint16       dexteritybase;                 // Dexterity
-    Uint16       dexterityrand;                 //
-    Uint16       dexterityperlevelbase;         //
-    Uint16       dexterityperlevelrand;         //
+    Uint16       dexterityrand;
+    Uint16       dexterityperlevelbase;
+    Uint16       dexterityperlevelrand;
 
     // physics
     Uint8        weight;                        // Weight
@@ -172,7 +172,7 @@ struct s_cap
     Uint8        shadowsize;                    // Shadow size
     Uint8        bumpsize;                      // Bounding octagon
     Uint8        bumpsizebig;                   // For octagonal bumpers
-    Uint8        bumpheight;                    //
+    Uint8        bumpheight;
 
     // movement
     float        jump;                          // Jump power
@@ -190,18 +190,18 @@ struct s_cap
     bool_t       sheen;                         // How shiny it is ( 0-15 )
     bool_t       enviro;                        // Phong map this baby?
     Uint16       uoffvel;                       // Texture movement rates
-    Uint16       voffvel;                       //
+    Uint16       voffvel;
     bool_t       uniformlit;                    // Bad lighting?
     Uint8        lifecolor;                     // Bar colors
-    Uint8        manacolor;                     //
+    Uint8        manacolor;
 
     // random stuff
     bool_t       stickybutt;                    // Stick to the ground?
 
     Uint16       iframefacing;                  // Invincibility frame
-    Uint16       iframeangle;                   //
+    Uint16       iframeangle;
     Uint16       nframefacing;                  // Normal frame
-    Uint16       nframeangle;                   //
+    Uint16       nframeangle;
 
     // defense
     Uint8        resistbumpspawn;               // Don't catch fire
@@ -211,7 +211,7 @@ struct s_cap
     // xp
     Uint32       experienceforlevel[MAXLEVEL];  // Experience needed for next level
     Uint32       experiencebase;                // Starting experience
-    Uint16       experiencerand;                //
+    Uint16       experiencerand;
     Uint16       experienceworth;               // Amount given to killer/user
     float        experienceexchange;            // Adds to worth
     float        experiencerate[XP_COUNT];
@@ -240,16 +240,16 @@ struct s_cap
     Uint8        damagetargettype;              // For AI DamageTarget
     Uint8        weaponaction;                  // Animation needed to swing
     bool_t       gripvalid[MAXSLOT];            // Left/Right hands valid
-    Uint8        attackattached;                //
-    Sint8        attackprttype;                 //
+    Uint8        attackattached;
+    Sint8        attackprttype;
     Uint8        attachedprtamount;             // Sticky particles
     Uint8        attachedprtreaffirmdamagetype; // Relight that torch...
-    Uint16       attachedprttype;               //
+    Uint16       attachedprttype;
     Uint8        gopoofprtamount;               // Poof effect
-    Sint16       gopoofprtfacingadd;            //
-    Uint16       gopoofprttype;                 //
+    Sint16       gopoofprtfacingadd;
+    Uint16       gopoofprttype;
     bool_t       bludvalid;                    // Blud ( yuck )
-    Uint8        bludprttype;                  //
+    Uint8        bludprttype;
     bool_t       ridercanattack;                // Rider attack?
     bool_t       canbedazed;                    // Can it be dazed?
     bool_t       canbegrogged;                  // Can it be grogged?
@@ -350,15 +350,15 @@ struct s_chr
     Uint8          lifecolor;       // Bar color
     Sint16         life;            // Basic character stats
     Sint16         lifemax;         //   All 8.8 fixed point
-    Uint16         lifeheal;        //
+    Uint16         lifeheal;
     Uint8          manacolor;       // Bar color
     Uint8          ammomax;         // Ammo stuff
-    Uint16         ammo;            //
+    Uint16         ammo;
     Uint8          gender;          // Gender
     Sint16         mana;            // Mana stuff
-    Sint16         manamax;         //
-    Sint16         manaflow;        //
-    Sint16         manareturn;      //
+    Sint16         manamax;
+    Sint16         manaflow;
+    Sint16         manareturn;
     Sint16         strength;        // Strength
     Sint16         wisdom;          // Wisdom
     Sint16         intelligence;    // Intelligence
@@ -371,25 +371,25 @@ struct s_chr
     ai_state_t     ai;
     Uint8          stickybutt;      // Rests on floor
     float          oldx;            // Character's last position
-    float          oldy;            //
-    float          oldz;            //
-    Uint8          inwater;         //
-    Uint16         oldturn;         //
+    float          oldy;
+    float          oldz;
+    Uint8          inwater;
+    Uint16         oldturn;
     Uint8          flyheight;       // Height to stabilize at
     Uint8          team;            // Character's team
     Uint8          baseteam;        // Character's starting team
     Uint8          staton;          // Display stats?
     float          xstt;            // Starting position
-    float          ystt;            //
-    float          zstt;            //
+    float          ystt;
+    float          zstt;
     float          xpos;            // Character's position
-    float          ypos;            //
-    float          zpos;            //
+    float          ypos;
+    float          zpos;
     float          xvel;            // Character's velocity
-    float          yvel;            //
-    float          zvel;            //
+    float          yvel;
+    float          zvel;
     float          latchx;          // Character latches
-    float          latchy;          //
+    float          latchy;
     Uint32         latchbutton;     // Button latches
     Uint16         reloadtime;      // Time before another shot
     float          maxaccel;        // Maximum acceleration
@@ -407,11 +407,11 @@ struct s_chr
     Uint32         onwhichblock;    // The character's collision block
     Uint8          indolist;        // Has it been added yet?
     Uint16         uoffvel;         // Moving texture speed
-    Uint16         voffvel;         //
+    Uint16         voffvel;
     Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
     Uint16         lightturnleftright;// Character's light rotation 0 to 0xFFFF
-    Uint16         turnmaplr;       //
-    Uint16         turnmapud;       //
+    Uint16         turnmaplr;
+    Uint16         turnmapud;
     Uint16         skin;            // Character's skin
     Uint8          model;           // Character's model
     Uint8          basemodel;       // The true form
@@ -437,9 +437,9 @@ struct s_chr
     Uint8          bumpsizebig;     // For octagonal bumpers
     Uint8          bumpheight;      // Distance from head to toe
     Uint8          shadowsizesave;  // Without size modifiers
-    Uint8          bumpsizesave;    //
-    Uint8          bumpsizebigsave; //
-    Uint8          bumpheightsave;  //
+    Uint8          bumpsizesave;
+    Uint8          bumpsizebigsave;
+    Uint8          bumpheightsave;
     Uint16         bumpnext;        // Next character on fanblock
     float          bumpdampen;      // Character bump mass
     Uint8          platform;        // Can it be stood on
@@ -474,7 +474,7 @@ struct s_chr
     Uint8          isequipped;      // For boots and rings and stuff
     Uint16         firstenchant;    // Linked list for enchants
     Uint16         undoenchant;     // Last enchantment spawned
-    bool_t         canchannel;      //
+    bool_t         canchannel;
     bool_t         overlay;         // Is this an overlay?  Track aitarget...
     Uint8          missiletreatment;// For deflection, etc.
     Uint8          missilecost;     // Mana cost for each one
@@ -485,10 +485,10 @@ struct s_chr
 
     //Skills
     Sint8           shieldproficiency;  // Can it use shields?
-    bool_t          canjoust; //
-    bool_t          canuseadvancedweapons; //
-    bool_t          canseeinvisible; //
-    bool_t          canseekurse;     //
+    bool_t          canjoust;
+    bool_t          canuseadvancedweapons;
+    bool_t          canseeinvisible;
+    bool_t          canseekurse;
     bool_t          canusedivine;
     bool_t          canusearcane;
     bool_t          canusetech;

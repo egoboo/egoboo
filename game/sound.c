@@ -191,7 +191,7 @@ bool_t sdl_audio_initialize()
 //--------------------------------------------------------------------------------------------
 bool_t sdl_mixer_initialize()
 {
-	//ZF> This intitializes the SDL_mixer services
+    //ZF> This intitializes the SDL_mixer services
     if ( !mixeron )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
@@ -472,7 +472,7 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
     // measure the distance in tiles
     diff_x = pos_x - gCamera.trackx;
     diff_y = pos_y - gCamera.tracky;
-    dist2 = diff_x*diff_x + diff_y*diff_y;
+    dist2 = diff_x * diff_x + diff_y * diff_y;
 
     // adjust for the local_listening skill
     if ( local_listening ) dist2 *= 0.66f * 0.66f;

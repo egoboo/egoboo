@@ -1217,7 +1217,7 @@ int game_do_menu( double frameDuration, bool_t needs_clear )
     int menuResult;
 
     // do menus
-    if( needs_clear )
+    if ( needs_clear )
     {
         glClear( GL_COLOR_BUFFER_BIT );
     };
@@ -1341,7 +1341,7 @@ int SDL_main( int argc, char **argv )
         menu_was_active = menu_is_active;
         menu_is_active = (menuactive || gamemenuactive);
 
-        if( menu_is_active )
+        if ( menu_is_active )
         {
             SDL_ShowCursor( SDL_ENABLE );
             SDL_WM_GrabInput ( SDL_GRAB_ON );
@@ -1413,7 +1413,7 @@ int SDL_main( int argc, char **argv )
                 game_menu_was_active = menu_is_active;
                 game_menu_is_active = gamemenuactive;
 
-                if( game_menu_is_active )
+                if ( game_menu_is_active )
                 {
                     SDL_ShowCursor( SDL_ENABLE );
                     SDL_WM_GrabInput ( SDL_GRAB_ON );
@@ -1449,7 +1449,7 @@ int SDL_main( int argc, char **argv )
                 //if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
                 if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on )
                 {
-                    if( !gamemenuactive )
+                    if ( !gamemenuactive )
                     {
                         game_begin_menu( GamePaused );
                     }
@@ -1504,11 +1504,11 @@ int SDL_main( int argc, char **argv )
 
                     draw_main();
 
-                    if( gamemenuactive )
+                    if ( gamemenuactive )
                     {
                         game_do_menu( frameDuration, bfalse );
 
-                        if( mnu_get_menu_depth() <= gamemenu_depth )
+                        if ( mnu_get_menu_depth() <= gamemenu_depth )
                         {
                             mnu_draw_background = btrue;
                             gamemenuactive = bfalse;
@@ -1597,8 +1597,8 @@ int load_one_object( int skin, const char* tmploadname )
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
     strncpy( MadList[object].name, tmploadname, sizeof(MadList[object].name) / sizeof(*MadList[object].name) );
-    
-	// Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
+
+    // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
     MadList[object].name[ sizeof(MadList[object].name) / sizeof(*MadList[object].name) - 1 ] = '\0';
 
     // Load the AI script for this object
@@ -1987,7 +1987,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //If maxdistance is 0 then it searches without a max limit.
     Uint16 besttarget = MAXCHR, cnt = 0;
-	float longdist = TILESIZE*MAX(mesh.info.tiles_x,mesh.info.tiles_y); //pow(2, 31);
+    float longdist = TILESIZE * MAX(mesh.info.tiles_x, mesh.info.tiles_y); //pow(2, 31);
     float longdist2 = longdist * longdist;
     float maxdistance2 = maxdistance * maxdistance;
 
@@ -1995,34 +1995,34 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 
     for (/*nothing*/; cnt != MAXCHR; cnt++)
     {
-		//Skip non-existing objects, held objects and self
-		if( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || cnt == character ) continue;
+        //Skip non-existing objects, held objects and self
+        if ( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || cnt == character ) continue;
 
-		//Target items
-        if( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
+        //Target items
+        if ( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
 
-		//Target dead stuff
-		if( !targetdead && !ChrList[cnt].alive ) continue;
+        //Target dead stuff
+        if ( !targetdead && !ChrList[cnt].alive ) continue;
 
-		//Dont target hostile invisible stuff, unless we can actually see them
-        if( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible 
-			&& ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE )) ) continue;
+        //Dont target hostile invisible stuff, unless we can actually see them
+        if ( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible
+                && ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE )) ) continue;
 
-		//Which team to target
-		if( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
+        //Which team to target
+        if ( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
         {
             //Check for specific IDSZ too?
             if ( idsz != IDSZ_NONE && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz)
-				&& excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz )) continue;
+                    && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz )) continue;
             {
                 float dx, dy, dz;
                 float dist2;
-            
+
                 dx = ChrList[cnt].xpos - ChrList[character].xpos;
                 dy = ChrList[cnt].ypos - ChrList[character].ypos;
                 dz = ChrList[cnt].zpos - ChrList[character].zpos;
 
-                dist2 = dx*dx + dy*dy + dz*dz;
+                dist2 = dx * dx + dy * dy + dz * dz;
                 if (dist2 < longdist2 && (maxdistance == 0 || dist2 < maxdistance2) )
                 {
                     besttarget = cnt;
@@ -2097,7 +2097,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
         // They are either both valid or both invalid, in either case we can't help
-		return;
+        return;
     }
     else
     {
@@ -3795,7 +3795,7 @@ void bump_characters( void )
                         {
                             // Then check bounding box square...  Square+Diamond=Octagon
                             if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
-                                 ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
+                                    ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
                             {
                                 // Now see if either is on top the other like a platform
                                 if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
@@ -4101,7 +4101,7 @@ void bump_characters( void )
         float bump_str = 1.0f - (float)ChrList[character].phys_dismount_timer / PHYS_DISMOUNT_TIME;
 
         // decrement the dismount timer
-        if( ChrList[character].phys_dismount_timer > 0 ) ChrList[character].phys_dismount_timer--;
+        if ( ChrList[character].phys_dismount_timer > 0 ) ChrList[character].phys_dismount_timer--;
 
         // do the "integration" of the accumulated accelerations
         ChrList[character].xvel += ChrList[character].phys_vel_x;
@@ -4109,7 +4109,7 @@ void bump_characters( void )
         ChrList[character].zvel += ChrList[character].phys_vel_z;
 
         // do the "integration" on the position
-        if( ABS(ChrList[character].phys_pos_x) > 0 )
+        if ( ABS(ChrList[character].phys_pos_x) > 0 )
         {
             tmpx = ChrList[character].xpos;
             ChrList[character].xpos += ChrList[character].phys_pos_x;
@@ -4125,7 +4125,7 @@ void bump_characters( void )
             }
         }
 
-        if( ABS(ChrList[character].phys_pos_y) > 0 )
+        if ( ABS(ChrList[character].phys_pos_y) > 0 )
         {
             tmpy = ChrList[character].ypos;
             ChrList[character].ypos += ChrList[character].phys_pos_y;
@@ -4141,7 +4141,7 @@ void bump_characters( void )
             }
         }
 
-        if( ABS(ChrList[character].phys_pos_z) > 0 )
+        if ( ABS(ChrList[character].phys_pos_z) > 0 )
         {
             tmpz = ChrList[character].zpos;
             ChrList[character].zpos += ChrList[character].phys_pos_z;
@@ -4431,12 +4431,12 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
-	if(pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;		//Randomize skin?
+    if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     //Randomize skin?
 
-	cTmp = fget_first_letter( fileread );
+    cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
 
-    cTmp = fget_first_letter( fileread );	//BAD! Unused ghost value
+    cTmp = fget_first_letter( fileread );   //BAD! Unused ghost value
 
     cTmp = fget_first_letter( fileread );
     pinfo->team = ( cTmp - 'A' ) % MAXTEAM;
@@ -5451,12 +5451,12 @@ Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y )
 //--------------------------------------------------------------------------------------------
 bool_t game_begin_menu( int which )
 {
-    if( !gamemenuactive )
+    if ( !gamemenuactive )
     {
         gamemenu_depth = mnu_get_menu_depth();
     }
 
-    if( mnu_begin_menu( which ) )
+    if ( mnu_begin_menu( which ) )
     {
         mnu_draw_background = bfalse;
         gamemenuactive = btrue;
@@ -5470,7 +5470,7 @@ void game_end_menu()
 {
     mnu_end_menu();
 
-    if( mnu_get_menu_depth() <= gamemenu_depth )
+    if ( mnu_get_menu_depth() <= gamemenu_depth )
     {
         gamemenuactive = bfalse;
         gamemenu_depth = -1;

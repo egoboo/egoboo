@@ -65,7 +65,7 @@ struct s_mouse
     Sint32                  y;               // Mouse Y movement counter
     Sint32                  z;               // Mouse wheel movement counter
     float                   latcholdx;       // For sustain
-    float                   latcholdy;       //
+    float                   latcholdy;
     Uint8                   button[4];       // Mouse button states
     Uint32                  b;               // Button masks
 };
@@ -99,9 +99,9 @@ extern keyboard_t keyb;
 struct s_device_joystick
 {
     bool_t  on;                // Is the holy joystick alive?
-    float   x;                 //
-    float   y;                 //
-    Uint8   button[JOYBUTTON]; //
+    float   x;
+    float   y;
+    Uint8   button[JOYBUTTON];
     Uint32  b;                 // Button masks
     SDL_Joystick * sdl_ptr;
 };
@@ -121,11 +121,11 @@ typedef enum  e_input_device input_device_t;
 
 enum e_input_bits
 {
-    INPUT_BITS_NONE      = 0,                               //
+    INPUT_BITS_NONE      = 0,
     INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_KEYBOARD  ),        // Input devices
-    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_MOUSE     ),        //
-    INPUT_BITS_JOYA      = ( 1 << (INPUT_DEVICE_JOY + 0) ),        //
-    INPUT_BITS_JOYB      = ( 1 << (INPUT_DEVICE_JOY + 1) )         //
+    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_MOUSE     ),
+    INPUT_BITS_JOYA      = ( 1 << (INPUT_DEVICE_JOY + 0) ),
+    INPUT_BITS_JOYB      = ( 1 << (INPUT_DEVICE_JOY + 1) )
 };
 
 extern Uint32 input_device_count;
