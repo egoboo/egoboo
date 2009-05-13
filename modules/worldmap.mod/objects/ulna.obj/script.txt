@@ -4,99 +4,53 @@ IfOrdered
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
-    tmpargument = 0 - 500
-    SetContent // Won't come back...
 
 
 //------------------------------------------------------------------------------
-// ZZ> Most undead have an enchantment sustaining them
+// Undead are sustained by magic
 IfSpawned
-  EnchantTarget  // Enchant self...
-
-
-//------------------------------------------------------------------------------
-// ZZ> Rise from the dead...  Takes several times to wake...
-IfCleanedUp
-  GetContent
-  tmpx = tmpargument
-  tmpy = 0 - 1
-  IfXIsMoreThanY
-    tmpargument = tmpargument + 1
-    SetContent
-    tmpy = selfcounter & 7 + 7
-    IfXIsMoreThanY
-      tmpx = selfz
-      tmpy = 0 - 20
-      IfXIsMoreThanY
-        tmpargument = 0
-        SetContent
-
-
-        tmpargument = 1
-        SendMessageNear
-        SetTargetToSelf
-        RespawnTarget // Same location, RespawnCharacter returns to start...
-        EnchantTarget  // Enchant self...
-        tmpargument = 244  // Frame 61...
-        SetFrame
-        tmpargument = ACTIONMD
-        DoActionOverride
-        tmpargument = 50
-        SetReloadTime
-        tmpargument = 0
-        ChangeArmor
-      Else
-        // No coming back from the pit...
-        tmpargument = tmpy
-        SetContent
-
+  EnchantTarget // target is self...
+  Walk
 
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
-  tmpargument = 1
-  ChangeArmor
-
-
+  tmpargument = MESSAGEDEATH
   IfTargetIsOnSameTeam
     tmpargument = MESSAGEFRAG
     IfTargetIsSelf
-      tmpargument = 0 - 500
-      SetContent // Won't come back...
       tmpargument = MESSAGEACCIDENT
-  Else
-    GetDamageType
-    tmpx = tmpargument
-    tmpy = DAMAGEHOLY
-    IfXIsEqualToY
-      tmpargument = 0 - 500
-      SetContent // Won't come back...
-      tmpargument = 2
-    Else
-      tmpargument = MESSAGEDEATH
   SendMessageNear
-
 
   // Drop goodies
   tmpargument = 65535
   DropMoney
 
-
-  // Play the sound
-  tmpargument = 1
-  tmpdistance = rand & 2047 + 10000
-  PlaySound
-
+  // Respawn the team
+//  tmpx = selfmorale
+//  tmpy = 1
+//  IfXIsLessThanY
+//    CleanUp
 
   // Make the character body
-  tmpargument = 25
+  tmpargument = 45
   SetBumpHeight
 
 
 
 //------------------------------------------------------------------------------
-// ZZ> Let the character walk around
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+
+
+//------------------------------------------------------------------------------
+// ZZ> Respawn the character
+IfCleanedUp
+  GoPoof
+
 IfTimeOut
   tmpx = rand & 255
   tmpy = 235
@@ -107,6 +61,9 @@ IfTimeOut
     // Randomize the frames...
     tmpargument = tmpx & 1 + LATCHLEFT
     PressLatchButton
+  SetTargetToWideEnemy
+    tmpx = targetx
+    tmpy = targety
   SetTargetToNearbyEnemy
     tmpx = targetdistance
     tmpy = 110
@@ -128,26 +85,18 @@ IfTimeOut
     tmpy = rand & 1023 - 512 + selfspawny
   ClearWaypoints
   AddWaypoint
-IfAtLastWaypoint
-  tmpargument = 0
+  tmpargument = rand & 200
   SetTime
+//IfAtLastWaypoint
+  //tmpargument = 0
+  //SetTime
 
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
 IfAttacked
   // Image changes with damage
-  tmpx = selflife
-  tmpy = 2048
-  IfXIsLessThanY
-    tmpargument = 1
-    ChangeArmor
 
-
-  // Scream
-  tmpargument = 0
-  tmpdistance = rand & 2047 + 10000
-  PlaySound
   // Chase the attacker
   SetTargetToWhoeverAttacked
   IfTargetIsOnHatedTeam

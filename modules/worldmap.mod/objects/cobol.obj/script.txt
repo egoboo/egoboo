@@ -111,7 +111,6 @@ IfKilled
       GiveExperienceToTarget
 
 
-
   // Just to be sure
   tmpargument = ACTIONKA
   DoActionOverride

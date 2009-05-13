@@ -1,19 +1,18 @@
 // Check for a kill order
-
 IfOrdered
   tmpx = selforder
   tmpy = [UNDO]
   IfXIsEqualToY
     UndoEnchant
 
-// Undead are sustained by magic
 
+// Undead are sustained by magic
 IfSpawned
   MakeCrushValid
   EnchantTarget // target is self...
 
-// Make ping as if it were invincible
 
+// Make ping as if it were invincible
 IfHealed
   IfStateIs0
     tmpx = selfx
@@ -26,8 +25,8 @@ IfHealed
     tmpargument = 20
     SetTime
 
-// Die and poof
 
+// Die and poof
 IfKilled
   tmpargument = MESSAGEDEATH
   SendMessageNear
@@ -38,7 +37,6 @@ IfKilled
   tmpargument = [WAKE]
   tmpdistance = [WAKE]
   OrderSpecialID
-
 IfCrushed
   tmpargument = MESSAGEDEATH
   SendMessageNear
@@ -50,8 +48,8 @@ IfCrushed
   tmpdistance = [WAKE]
   OrderSpecialID
 
-// Chase good guys
 
+// Chase good guys
 IfTimeOut
   IfTargetIsSelf
     tmpdistance = 90000  // Square of range
@@ -76,16 +74,16 @@ IfTimeOut
   SetState
 
 
-// Find a new target
 
+// Find a new target
 IfTargetKilled
   SetTargetToSelf
   tmpargument = 0
   SetTime
 
 
-// Make good guys unable to attack
 
+// Make good guys unable to attack
 IfBumped
   IfStateIs0
     SetTargetToWhoeverBumped
@@ -112,6 +110,6 @@ IfBumped
     AddWaypoint
     SetTargetToSelf
 
-// All Done
 
+// All Done
 End

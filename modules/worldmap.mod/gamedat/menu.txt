@@ -1,5 +1,5 @@
 // This file contains info for the module's menu description
-Name ( with underscores for spaces )		: World_Map
+Name ( with underscores for spaces )		: Lorule
 Reference module ( Directory name or NONE )     : NONE
 Required reference IDSZ ( or [NONE] )           : [NONE]
 Number of imports ( 0 to 4 )                    : 4
@@ -12,14 +12,15 @@ Level rating ( *, **, ***, ****, or ***** )     : *
 
 
 // Module summary ( Must be 8 lines...  Each line mush have at least an _ )
-:World_Map
-:Explore_Bishopia
+:The_Land_of_Lorule
 :_
-:Wander_around_Bishopia
-:looking_for_adventure
+:Adventure_waits_around_
+:every_corner!
 :_
+:Take_care_on_your_quest_for_
+:glory...
 :_
-:Map_is_a_work_in_progress
 
 
 // Module expansion IDSZs ( with a colon in front )
+

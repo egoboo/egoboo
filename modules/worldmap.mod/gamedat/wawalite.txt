@@ -45,12 +45,12 @@ Light Y direction ( 1.00 )				: 1.00
 Light Z direction ( 0.50 )				: 0.50
 Ambient light ( 0.20 )					: 0.15
 
-Hillslide ( 1.00 )					:  2.00
-Slippy friction ( 1.00 )				:  0.80
+Hillslide ( 1.00 )					:  1.00
+Slippy friction ( 1.00 )				:  0.91
 Air friction ( .95 )					:  0.91
 Water friction ( .85 )					:  0.80
 Normal friction ( .95 )					:  0.91
-Gravity ( -1.0 )					: -1.00
+Gravity ( -1.0 )					      : -1.00
 Animated tile update AND ( 0, 1, 3, 7, 15, 31 )		:  3
 Animated tile frame AND ( 3 == 4 frame, 7 == 8 frame )  :  3
 Damage tile damage ( 0 to 65535, 512 is 1 life block )	:  512

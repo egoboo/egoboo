@@ -1,4 +1,3 @@
-
 IfSpawned
   MakeCrushValid
 
@@ -53,8 +52,8 @@ IfBumped
     SetTargetToOldTarget
 
 
-// Look for enemies
 
+// Look for enemies
 IfTimeOut
   SetTargetToNearestEnemy
     IfFacingTarget
@@ -104,6 +103,6 @@ IfTimeOut
   tmpargument = rand & 31 + 25
   SetTime
 
-// All done
 
+// All done
 End

@@ -18,7 +18,7 @@ IfAttacked
 
   // Fix the end text
   ClearEndMessage
-  tmpargument = 4
+  GetContent
   AddEndMessage
 
   // this code uses message 4 in message.txt as the name of the module

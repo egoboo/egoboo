@@ -44,7 +44,6 @@ tmpargument = 2
 SpawnExactParticle
 
 
-
 tmpx = selfx
 
 tmpy = selfy - 50

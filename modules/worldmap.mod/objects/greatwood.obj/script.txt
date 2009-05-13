@@ -13,6 +13,7 @@ IfTimeOut
 IfAttacked
 
   // Fix the module exporting
+  tmpargument = 4  
   BeatModule
   EnableExport
 
@@ -22,15 +23,8 @@ IfAttacked
   AddEndMessage
 
   // this code uses message 4 in message.txt as the name of the module
-  // to load. In this case message 4 would be palwater.mod
+  // to load. In this case message 4 would be zippy.mod
   tmpargument = 4
   FollowLink
-
-SetTargetToNearestLifeform
-  tmpx = selfx
-  tmpy = selfy - 100
-  tmpdistance = selfz + 200
-  tmpargument = 0
-  SpawnExactParticle
 
 End				// Finished with this character
