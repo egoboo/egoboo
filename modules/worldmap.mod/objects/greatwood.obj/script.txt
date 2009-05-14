@@ -23,7 +23,7 @@ IfAttacked
   AddEndMessage
 
   // this code uses message 4 in message.txt as the name of the module
-  // to load. In this case message 4 would be zippy.mod
+  // to load. In this case message 4 would be greatwood.mod
   tmpargument = 4
   FollowLink
 

@@ -1935,7 +1935,7 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
                         Uint32 dist = ( Uint32 ) SQRT(ABS( pow(ChrList[cnt].xpos - xpos, 2))
                                                       + ABS( pow(ChrList[cnt].ypos - ypos, 2))
                                                       + ABS( pow(ChrList[cnt].zpos - zpos, 2)) );
-                        if (dist < longdist && dist < WIDE )
+                        if (dist < longdist && dist <= WIDE )
                         {
                             besttarget = cnt;
                             longdist = dist;
@@ -2023,7 +2023,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
                 dz = ChrList[cnt].zpos - ChrList[character].zpos;
 
                 dist2 = dx * dx + dy * dy + dz * dz;
-                if (dist2 < longdist2 && (maxdistance == 0 || dist2 < maxdistance2) )
+                if (dist2 < longdist2 && (maxdistance == 0 || dist2 <= maxdistance2) )
                 {
                     besttarget = cnt;
                     longdist2 = dist2;
@@ -4432,7 +4432,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
     if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     //Randomize skin?
-
+	
     cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
 

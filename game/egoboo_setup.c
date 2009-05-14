@@ -119,7 +119,7 @@ bool_t setup_download()
     lCurSectionName = "GRAPHIC";
 
     // Draw z reflection?
-    GetKey_bool( "Z_REFLECTION", zreflect, bfalse );
+    GetKey_bool( "Z_REFLECTION", prtreflect, bfalse );
 
     // Max number of vertrices (Should always be 100!)
     GetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices, 100 );
@@ -159,7 +159,7 @@ bool_t setup_download()
     // Perspective correction
     GetKey_bool( "PERSPECTIVE_CORRECT", perspective, bfalse );
 
-    // Enable dithering? (Reduces quality but increases preformance)
+    // Enable dithering?
     GetKey_bool( "DITHERING", dither, bfalse );
 
     // Reflection fadeout
@@ -314,7 +314,7 @@ bool_t setup_upload()
     lCurSectionName = "GRAPHIC";
 
     // Draw z reflection?
-    SetKey_bool( "Z_REFLECTION", zreflect );
+    SetKey_bool( "Z_REFLECTION", prtreflect );
 
     // Max number of vertrices (Should always be 100!)
     SetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices / 1024 );
@@ -344,7 +344,7 @@ bool_t setup_upload()
     // Perspective correction
     SetKey_bool( "PERSPECTIVE_CORRECT", perspective );
 
-    // Enable dithering? (Reduces quality but increases preformance)
+    // Enable dithering?
     SetKey_bool( "DITHERING", dither );
 
     // Reflection fadeout

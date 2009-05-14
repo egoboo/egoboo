@@ -468,7 +468,7 @@ void camera_reset( camera_t * pcam )
     pcam->turnadd = 0;
     pcam->tracklevel = 0;
     pcam->zadd = 1500;
-    pcam->zaddgoto = 1500;
+    pcam->zaddgoto = MAXZADD;
     pcam->zgoto = 1500;
     pcam->turnleftright = ( float ) ( -PI / 4 );
     pcam->turnleftrightone = ( float ) ( -PI / 4 ) / ( TWO_PI );

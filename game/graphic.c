@@ -2741,11 +2741,14 @@ void draw_scene_zreflection()
         }
 
         // Render the reflected sprites
-        glDisable( GL_CULL_FACE );
-        glDisable( GL_DEPTH_TEST );
-        glDepthMask( GL_FALSE );
-        glFrontFace( GL_CW );
-        render_refprt( &gCamera );
+        if(prtreflect)
+		{
+			glDisable( GL_CULL_FACE );
+			glDisable( GL_DEPTH_TEST );
+			glDepthMask( GL_FALSE );
+			glFrontFace( GL_CW );
+			render_refprt( &gCamera );
+		}
 
         // Render the shadow floors ( let everything show through )
         // turn on the depth mask, so that no objects under the floor will show through
@@ -3883,7 +3886,8 @@ void draw_scene()
         render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
     }
 
-    // no need to have a completely different function just to turn the reflections off and on
+
+/*    // no need to have a completely different function just to turn the reflections off and on
     {
         bool_t refon_save = refon;
         refon = refon && zreflect;
@@ -3892,6 +3896,8 @@ void draw_scene()
 
         refon = refon_save;
     }
+*/
+	draw_scene_zreflection();
 
     // clear the depth buffer
     glClear( GL_DEPTH_BUFFER_BIT );
@@ -4125,13 +4131,13 @@ void sdlinit( int argc, char **argv )
         SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, scrd - colordepth * 3 );
     }
 #endif
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, btrue );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
 
     //Check if antialiasing is enabled
     if (antialiasing != bfalse)
     {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, btrue);
         SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
     }
 
@@ -4350,9 +4356,18 @@ void load_graphics()
 
     glHint( GL_PERSPECTIVE_CORRECTION_HINT, quality );
 
-    // Enable dithering? (This actually reduces quality but increases preformance)
-    if ( dither ) glEnable( GL_DITHER );
-    else glDisable( GL_DITHER );
+
+    // Enable dithering?
+    if ( dither )
+	{
+		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
+		glEnable( GL_DITHER );
+	}
+    else
+	{
+		glHint(GL_GENERATE_MIPMAP_HINT, GL_FASTEST);
+		glDisable( GL_DITHER );
+	}
 
     // Enable gourad shading? (Important!)
     glShadeModel( shading );

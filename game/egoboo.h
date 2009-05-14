@@ -433,7 +433,7 @@ EXTERN bool_t                  shaon  EQ( bfalse );            // Shadows?
 EXTERN Uint8                   texturefilter  EQ( 1 );     // Texture filtering?
 EXTERN bool_t                  wateron  EQ( btrue );           // Water overlays?
 EXTERN bool_t                  shasprite  EQ( bfalse );        // Shadow sprites?
-EXTERN bool_t                  zreflect  EQ( bfalse );         // Reflection z buffering?
+EXTERN bool_t                  prtreflect  EQ( bfalse );         // Reflect particles?
 EXTERN  bool_t                 use_sdl_image EQ(btrue);    // Allow advanced SDL_Image functions?
 
 // EWWWW. GLOBALS ARE EVIL.

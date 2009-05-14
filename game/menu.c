@@ -1828,7 +1828,7 @@ int doVideoOptions( float deltaTime )
 
             // Load all the current video settings
             if (antialiasing == bfalse) strcpy(Cantialiasing , "Off");
-            else snprintf(Cantialiasing, sizeof(antialiasing), "X%i", antialiasing);
+            else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", antialiasing);
             videoOptionsButtons[0] = Cantialiasing;
 
             //Message duration
@@ -1887,10 +1887,10 @@ int doVideoOptions( float deltaTime )
             if ( refon )
             {
                 videoOptionsButtons[4] = "Low";
-                if ( reffadeor == 0 )
+                if ( prtreflect )
                 {
                     videoOptionsButtons[4] = "Medium";
-                    if ( zreflect ) videoOptionsButtons[4] = "High";
+                    if ( reffadeor == 0 ) videoOptionsButtons[4] = "High";
                 }
             }
             else videoOptionsButtons[4] = "Off";
@@ -2047,7 +2047,7 @@ int doVideoOptions( float deltaTime )
                 }
             }
 
-            // Dithering and Gourad Shading
+            // Dithering
             fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) )
             {
@@ -2083,34 +2083,35 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, displaySurface->h - 250, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h - 250, 100, 30 ) )
             {
-                if ( refon && reffadeor == 0 && zreflect )
+				
+                if ( refon && reffadeor == 0 && prtreflect )
                 {
                     refon = bfalse;
-                    reffadeor = bfalse;
-                    zreflect = bfalse;
+                    reffadeor = 255;
+                    prtreflect = bfalse;
                     videoOptionsButtons[4] = "Off";
                 }
                 else
                 {
-                    if ( refon && reffadeor == 255 && !zreflect )
+                    if ( refon && !prtreflect )
                     {
                         videoOptionsButtons[4] = "Medium";
-                        reffadeor = 0;
-                        zreflect = bfalse;
+                        reffadeor = 255;
+						prtreflect = btrue;
                     }
                     else
                     {
-                        if ( refon && reffadeor == 0 && !zreflect )
+                        if ( refon && reffadeor == 255 && prtreflect )
                         {
                             videoOptionsButtons[4] = "High";
-                            zreflect = btrue;
+                            reffadeor = 0;
                         }
                         else
                         {
                             refon = btrue;
-                            reffadeor = 255;        // Just in case so we dont get stuck at "Low"
+                            reffadeor = 255;
                             videoOptionsButtons[4] = "Low";
-                            zreflect = bfalse;
+                            prtreflect = bfalse;
                         }
                     }
                 }
