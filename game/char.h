@@ -42,7 +42,7 @@
 #define RIPPLETOLERANCE     60          // For deep water
 #define SPLASHTOLERANCE     10
 
-#define PHYS_DISMOUNT_TIME  25          // time delay for full object-object interaction
+#define PHYS_DISMOUNT_TIME  50          // time delay for full object-object interaction
 
 // Throwing
 #define THROWFIX            30.0f                    // To correct thrown velocities

@@ -136,15 +136,11 @@ void render_prt( camera_t * pcam )
 {
     // ZZ> This function draws the sprites for particle systems
 
-    GLint depthfunc_save, alphafunc_save, alphablendsrc_save, alphablenddst_save, alphatestref_save  ;
-    GLboolean depthmask_save, depthtest_save, alphatest_save, blend_save;
-
     prt_registry_entity_t reg[TOTALMAXPRT];
     GLvector3 vfwd, vcam;
     GLvertex vtlist[4];
     int cnt, numparticle;
     Uint16 prt;
-    float size;
     int i;
 
     do_instance_update( pcam );
@@ -186,173 +182,157 @@ void render_prt( camera_t * pcam )
     // sort the particles from close to far
     qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
 
-    blend_save = glIsEnabled( GL_BLEND );
-    glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
-    glGetIntegerv( GL_BLEND_DST, &alphablenddst_save  );
-
-    alphatest_save = glIsEnabled( GL_ALPHA_TEST );
-    glGetIntegerv( GL_ALPHA_TEST_FUNC, &alphafunc_save );
-    glGetIntegerv( GL_ALPHA_TEST_REF, &alphatestref_save );
-
-    depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
-    depthtest_save = glIsEnabled( GL_DEPTH_TEST );
-    glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
-
-    // Calculate the up and right vectors for billboarding.
     Begin3DMode( pcam );
     {
         //----------------------------
         // DO SOLID SPRITES FIRST
-
-        GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
-
-        glDisable( GL_CULL_FACE );
-        glDisable( GL_DITHER );
-
-        glEnable( GL_DEPTH_TEST );
-        glDepthFunc( GL_LESS );
-
-        // apply solid particles from near to far
-        for ( cnt = 0; cnt < numparticle; cnt++ )
+        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            prt_t * pprt;
-            prt_instance_t * pinst;
+            GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
 
-            // Get the index from the color slot
-            prt = reg[cnt].index;
+            glDisable( GL_CULL_FACE );
+            glDisable( GL_DITHER );
 
-            pprt = PrtList + prt;
-            pinst = &(pprt->inst);
-            if (!pinst->valid) continue;
+            glEnable( GL_DEPTH_TEST );
+            glDepthFunc( GL_LESS );
 
-            // Draw sprites this round
-            if ( PRTSOLIDSPRITE != PrtList[prt].type ) continue;
-
-            // billboard for the particle
-            calc_billboard_verts( vtlist, pinst, pinst->size );
-
-            //--------------------
-            // Render the antialias version of the particle
-
-            glEnable( GL_ALPHA_TEST );
-            glAlphaFunc( GL_LESS, 1 );
-
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
-
-            glBegin( GL_TRIANGLE_FAN );
+            // apply solid particles from near to far
+            for ( cnt = 0; cnt < numparticle; cnt++ )
             {
-                for ( i = 0; i < 4; i++ )
+                prt_t * pprt;
+                prt_instance_t * pinst;
+
+                // Get the index from the color slot
+                prt = reg[cnt].index;
+
+                pprt = PrtList + prt;
+                pinst = &(pprt->inst);
+                if (!pinst->valid) continue;
+
+                // Draw sprites this round
+                if ( PRTSOLIDSPRITE != PrtList[prt].type ) continue;
+
+                // billboard for the particle
+                calc_billboard_verts( vtlist, pinst, pinst->size );
+
+                //--------------------
+                // Render the solid version of the particle
+
+                // Calculate the position of the four corners of the billboard
+                // used to display the particle.
+
+                glDepthMask( GL_TRUE );
+
+                glDisable( GL_BLEND );
+
+                glEnable( GL_ALPHA_TEST );
+                glAlphaFunc( GL_EQUAL, 1 );
+
+                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
+
+                glBegin( GL_TRIANGLE_FAN );
                 {
-                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    }
                 }
+                glEnd();
             }
-            glEnd();
 
-            //--------------------
-            // Render the solid version of the particle
-
-            // Calculate the position of the four corners of the billboard
-            // used to display the particle.
-
-            glDepthMask( GL_TRUE );
-
-            glDisable( GL_BLEND );
-
-            glEnable( GL_ALPHA_TEST );
-            glAlphaFunc( GL_EQUAL, 1 );
-
-            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
-
-            glBegin( GL_TRIANGLE_FAN );
-            {
-                for ( i = 0; i < 4; i++ )
-                {
-                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-                }
-            }
-            glEnd();
         }
+        glPopAttrib();
 
         //----------------------------
-        // DO BOTH TYPES OF TRANSPARENT SPRITES NEXT
-
-        glDepthMask( GL_FALSE );
-        glEnable( GL_BLEND );
-
-        glEnable( GL_DEPTH_TEST );
-        glDepthFunc( GL_LESS );
-
-        // apply transparent particles from far to near
-        for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
+        // DO ALL KINDS OF TRANSPARENT SPRITES NEXT
+        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            prt_t * pprt;
-            prt_instance_t * pinst;
+            glDepthMask( GL_FALSE );
+            glEnable( GL_BLEND );
 
-            // Get the index from the color slot
-            prt = reg[cnt].index;
+            glEnable( GL_DEPTH_TEST );
+            glDepthFunc( GL_LEQUAL );
 
-            pprt = PrtList + prt;
-            pinst = &(pprt->inst);
-            if (!pinst->valid) continue;
-
-            // Draw sprites this round
-            if ( PRTSOLIDSPRITE == PrtList[prt].type ) continue;
-
-            if ( PRTLIGHTSPRITE == PrtList[prt].type )
+            // apply transparent particles from far to near
+            for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
             {
-                // light sprites
-                glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-                glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+                prt_t * pprt;
+                prt_instance_t * pinst;
 
-                GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
-            }
-            else
-            {
-                // transparent sprites
-                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                // Get the index from the color slot
+                prt = reg[cnt].index;
 
-                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
+                pprt = PrtList + prt;
+                pinst = &(pprt->inst);
+                if (!pinst->valid) continue;
 
-                GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
-            }
-            // [claforte] Fudge the value.
-            size = pinst->size;
-
-            // Calculate the position of the four corners of the billboard
-            // used to display the particle.
-            calc_billboard_verts( vtlist, pinst, size );
-
-            // Go on and draw it
-            glBegin( GL_TRIANGLE_FAN );
-            {
-                for ( i = 0; i < 4; i++ )
+                if ( PRTSOLIDSPRITE == PrtList[prt].type )
                 {
-                    glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                    glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    // do the alpha blended edge of the solid particle
+
+                    glEnable( GL_ALPHA_TEST );
+                    glAlphaFunc( GL_LESS, 1 );
+
+                    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+                    glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+
+                    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
                 }
+                else if ( PRTLIGHTSPRITE == PrtList[prt].type )
+                {
+                    // do the light sprites
+
+                    glDisable( GL_ALPHA_TEST );
+
+                    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+                    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+
+                    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
+                }
+                else if ( PRTALPHASPRITE == PrtList[prt].type )
+                {
+                    // do the transparent sprites
+
+                    glEnable( GL_ALPHA_TEST );
+                    glAlphaFunc( GL_GREATER, 0 );
+
+                    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+                    glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
+
+                    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+                }
+                else
+                {
+                    // unknown type
+                    continue;
+                }
+
+                // Calculate the position of the four corners of the billboard
+                // used to display the particle.
+                calc_billboard_verts( vtlist, pinst, pinst->size );
+
+                // Go on and draw it
+                glBegin( GL_TRIANGLE_FAN );
+                {
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                    }
+                }
+                glEnd();
             }
-            glEnd();
+
         }
+        glPopAttrib();
 
     }
     End3DMode();
 
-    // restore some stuff
-    if ( blend_save ) glEnable( GL_BLEND ); else glDisable( GL_BLEND );
-    glBlendFunc( alphablendsrc_save, alphablenddst_save );
 
-    if ( alphatest_save ) glEnable( GL_ALPHA_TEST ); else glDisable( GL_ALPHA_TEST );
-    glAlphaFunc( alphafunc_save, alphatestref_save );
-
-    glDepthMask( depthmask_save );
-
-    if ( depthtest_save ) glEnable( GL_DEPTH_TEST ); else glDisable( depthtest_save );
-    glDepthFunc( depthfunc_save );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -620,27 +600,25 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     }
 
     // calculate the actual vectors using the particle rotation
-    //turn = pprt->rotate >> 2;
-    //pinst->up.x    = vup.x * turntocos[turn] + vright.x * turntosin[turn];
-    //pinst->up.y    = vup.y * turntocos[turn] + vright.y * turntosin[turn];
-    //pinst->up.z    = vup.z * turntocos[turn] + vright.z * turntosin[turn];
+    turn = (pprt->rotate - 0x6000) >> 2;
+    pinst->up.x    = vup.x * turntocos[turn] - vright.x * turntosin[turn];
+    pinst->up.y    = vup.y * turntocos[turn] - vright.y * turntosin[turn];
+    pinst->up.z    = vup.z * turntocos[turn] - vright.z * turntosin[turn];
 
-    //pinst->right.x =-vup.x * turntosin[turn] + vright.x * turntocos[turn];
-    //pinst->right.y =-vup.y * turntosin[turn] + vright.y * turntocos[turn];
-    //pinst->right.z =-vup.z * turntosin[turn] + vright.z * turntocos[turn];
+    pinst->right.x = vup.x * turntosin[turn] + vright.x * turntocos[turn];
+    pinst->right.y = vup.y * turntosin[turn] + vright.y * turntocos[turn];
+    pinst->right.z = vup.z * turntosin[turn] + vright.z * turntocos[turn];
 
-    pinst->up    = vup;
-    pinst->right = vright;
+    //pinst->up    = vup;
+    //pinst->right = vright;
 
-
-    // set the alpha components based on the type
+    // set some particle dependent properties
+    pinst->alpha_component = 1.0f;
     switch ( pinst->type )
     {
-        case PRTSOLIDSPRITE: pinst->alpha_component = antialiastrans * INV_FF; break;
+        case PRTSOLIDSPRITE: break;
         case PRTALPHASPRITE: pinst->alpha_component = particletrans * INV_FF; break;
-
-        default:
-        case PRTLIGHTSPRITE: pinst->alpha_component = 1.0f; break;
+        case PRTLIGHTSPRITE: pinst->size *= 1.5; break;
     }
 
     pinst->valid = btrue;

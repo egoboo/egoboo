@@ -4423,12 +4423,12 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     pinfo->attach = ATTACH_NONE;
     cTmp = fget_first_letter( fileread );
     if ( 'S' == toupper(cTmp) )  pinfo->facing = SOUTH;
-    if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
-    if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
-    if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;
-    if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
-    if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
-    if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
+    else if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
+    else if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
+    else if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;
+    else if ( 'L' == toupper(cTmp) )  pinfo->attach = ATTACH_LEFT;
+    else if ( 'R' == toupper(cTmp) )  pinfo->attach = ATTACH_RIGHT;
+    else if ( 'I' == toupper(cTmp) )  pinfo->attach = ATTACH_INVENTORY;
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
     if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     //Randomize skin?

@@ -58,6 +58,7 @@
 
 struct s_pip
 {
+    STRING  name;
     bool_t  loaded;
     bool_t  force;                        // Force spawn?
 

@@ -32,6 +32,7 @@
 #include "file_common.h"
 #include "Md2.h"
 #include "passage.h"
+#include "graphic.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
@@ -3707,6 +3708,47 @@ void respawn_character( Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
+int chr_change_skin( Uint16 character, int skin )
+{
+    Uint16 model, imad;
+
+    if( character >= MAXCHR || !ChrList[character].on ) return 0;
+
+    model = ChrList[character].model;
+    if( model >= MAXMODEL || !MadList[model].used ) 
+    {
+        ChrList[character].skin    = 0;
+        ChrList[character].inst.texture = TX_WATER_TOP;
+        return 0;
+    }
+
+    // make sure that the instance has a valid model
+    imad = ChrList[character].inst.imad;
+    if( imad >= MAXMODEL || !MadList[imad].used )
+    {
+        imad = model;
+        ChrList[character].inst.imad = model;
+    }
+
+    // do the best we can to change the skin
+    if( MadList[imad].skins == 0 )
+    {
+        ChrList[character].skin    = 0;
+        ChrList[character].inst.texture = TX_WATER_TOP;
+    }
+    else
+    {
+        // limit the skin
+        if( skin > MadList[imad].skins) skin = 0;
+
+        ChrList[character].skin         = skin;
+        ChrList[character].inst.texture = MadList[imad].skinstart + skin;
+    }
+
+    return ChrList[character].skin;
+};
+
+//--------------------------------------------------------------------------------------------
 Uint16 change_armor( Uint16 character, Uint16 skin )
 {
     // ZZ> This function changes the armor of the character
@@ -3732,9 +3774,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 
     // Change the skin
     sTmp = ChrList[character].model;
-    if ( skin > MadList[sTmp].skins )  skin = 0;
-
-    ChrList[character].skin    = skin;
+    skin = chr_change_skin( character, skin );
 
     // Change stats associated with skin
     ChrList[character].defense = CapList[sTmp].defense[skin];

@@ -405,7 +405,7 @@ void move_particles( void )
         if ( PrtList[cnt].image >= PrtList[cnt].imagemax )
             PrtList[cnt].image = 0;
 
-        PrtList[cnt].rotate += PrtList[cnt].rotateadd;
+        //PrtList[cnt].rotate += PrtList[cnt].rotateadd;
         if ( ( (int)PrtList[cnt].size + (int)PrtList[cnt].sizeadd ) > (int)0x0000FFFF ) PrtList[cnt].size = 0xFFFF;
         else if ( ( PrtList[cnt].size + PrtList[cnt].sizeadd ) < 0 ) PrtList[cnt].size = 0;
         else PrtList[cnt].size += PrtList[cnt].sizeadd;
@@ -797,6 +797,7 @@ int load_one_particle( const char *szLoadName, Uint16 object, Uint16 pip )
     fileread = fopen( szLoadName, "r" );
     if ( fileread != NULL )
     {
+        strncpy( PipList[numpip].name, szLoadName, SDL_arraysize(PipList[numpip].name) );
         PipList[numpip].loaded = btrue;
 
         // General data
