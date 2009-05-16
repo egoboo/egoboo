@@ -938,6 +938,7 @@ void update_game()
                 {
                     respawn_character( PlaList[cnt].index );
                     ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
+					ChrList[cnt].money *= EXPKEEP;
                 }
             }
             else
@@ -2607,9 +2608,8 @@ void do_weather_spawn()
                 if ( PlaList[weatherplayer].valid )
                 {
                     foundone = btrue;
-                    cnt = MAXPLAYER;
+                    break;
                 }
-
                 cnt++;
             }
 
@@ -2625,14 +2625,19 @@ void do_weather_spawn()
                     y = ChrList[cnt].ypos;
                     z = ChrList[cnt].zpos;
                     particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
-                    if ( weatheroverwater && particle != TOTALMAXPRT )
-                    {
-                        if ( !prt_is_over_water( particle ) )
-                        {
-                            free_one_particle_no_sound( particle );
-                        }
-                    }
-
+                    
+					if(particle != TOTALMAXPRT)
+					{
+						if(__prthitawall( particle ) ) free_one_particle_no_sound( particle );
+						else if ( weatheroverwater )
+						{
+							if ( !prt_is_over_water( particle ) )
+							{
+								free_one_particle_no_sound( particle );
+							}
+						}
+					}
+					
                 }
             }
         }

@@ -1,5 +1,5 @@
 //Play music
-tmpargument = 8
+tmpargument = 24
 tmpdistance = 0
 PlayMusic
 

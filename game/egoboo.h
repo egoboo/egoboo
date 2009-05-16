@@ -54,7 +54,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.7.0c"                         // Version of the game
+#define VERSION "2.7.3"                         // Version of the game
 
 // My lil' random number table
 #define MAXRAND 4096
@@ -64,13 +64,12 @@ EXTERN Uint16  randindex EQ( 0 );
 EXTERN Uint16  randie[MAXRAND];
 
 EXTERN bool_t    gamepaused EQ( bfalse );    // Is the game paused?
-EXTERN bool_t    pausekeyready EQ( btrue );  // Is the game paused?
+EXTERN bool_t    pausekeyready EQ( btrue );  // Ready to pause game?
 EXTERN bool_t    overrideslots EQ( bfalse );     //Override existing slots?
 EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 
-#define TITLESIZE           128                     // Size of a title image
 #define MAXINVENTORY        7
 #define MAXIMPORTPERPLAYER  (MAXINVENTORY + 2)
 #define MAXIMPORT           (4*MAXIMPORTPERPLAYER)          // Number of subdirs in IMPORT directory
@@ -92,7 +91,7 @@ EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 // Stats
 #define MANARETURNSHIFT     22
 #define LOWSTAT             256                     // Worst...
-#define PERFECTSTAT         (70*256)                // Maximum stat without magic effects
+#define PERFECTSTAT         (60*256)                // Maximum stat without magic effects
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
 #define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
 
@@ -154,7 +153,6 @@ EXTERN char                 cActionName[MAXACTION][2]; // Two letter name code
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
 
-#define DAMAGENULL          255
 
 enum e_damage_type
 {
@@ -168,11 +166,13 @@ enum e_damage_type
     DAMAGE_ZAP,
     DAMAGE_COUNT                             // Damage types
 };
+#define DAMAGENULL          255
 
 #define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
 #define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
 #define DAMAGEINVERT        4                       // 00000x00 Makes damage heal
 #define DAMAGESHIFT         3                       // 000000xx Resistance ( 1 is common )
+
 #define DAMAGETILETIME      32                      // Invincibility time
 #define DAMAGETIME          16                      // Invincibility time
 #define DEFENDTIME          16                      // Invincibility time
@@ -582,10 +582,9 @@ EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      /
 
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 
-EXTERN Uint16          globesttarget;                                      // For find_target
-EXTERN Uint16          globestangle;
+//BAD!!
 EXTERN Uint16          glouseangle;
-EXTERN int             globestdistance;
+//BAD!!
 
 // Bump List
 struct s_bumplist

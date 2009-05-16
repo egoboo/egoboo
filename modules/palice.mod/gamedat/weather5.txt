@@ -1,15 +1,15 @@
 // Weather particle end animation
 Force spawn ( TRUE or FALSE )				: FALSE
-Image type ( SOLID, LIGHT, or TRANS )			: TRANS
-Starting frame ( 0 to 255 )				: 40
-Number of frames ( 1 to 16 )				: 8
-Frame rate ( 0 to 1000 )				: 60
+Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
+Starting frame ( 0 to 255 )				: 73
+Number of frames ( 1 to 16 )				: 1
+Frame rate ( 0 to 1000 )				: 0
 Frame rate randomness ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 Rotation base ( 0 to 65535 )				: 24576
 Random rotation add ( 0, 1, 3, 7, 15, 31, 63... )	: 0
 Rotation rate ( 0 to 1000 )				: 0
-Starting size ( 0 to 65535 )				: 7000
-Size increase rate ( 0 to 1000 )			: 300
+Starting size ( 0 to 65535 )				: 6000
+Size increase rate ( 0 to 1000 )			: -300
 Speed limit ( 0.0 to 10.0 )				: 0.0
 Facing rate ( 0 to 1000 )				: 0
 
@@ -19,8 +19,8 @@ Facing rate ( 0 to 1000 )				: 0
 Water ends particle ( TRUE or FALSE )			: FALSE
 Bump ends particle ( TRUE or FALSE )			: FALSE
 End if hits ground ( TRUE or FALSE )			: FALSE
-End after last frame ( TRUE or FALSE )			: TRUE
-Time before end ( 1 to 1000, 0 )			: 0
+End after last frame ( TRUE or FALSE )			: FALSE
+Time before end ( 1 to 1000, 0 )			: 20
 
 
 
@@ -31,8 +31,7 @@ Bump size ( 0 to 60 )					: 00
 Bump height ( 0 to 60 )					: 00
 Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 0-0
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
-              EVIL, FIRE, ICE, ZAP )			: FIRE
-
+              EVIL, FIRE, ICE, ZAP )			: ICE
 
 
 

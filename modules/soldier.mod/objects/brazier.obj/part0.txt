@@ -29,7 +29,7 @@ Bounce dampen ( 0.0 to 0.9 )				: 0.0
 Bump money ( 0 to 100 )					: 0
 Bump size ( 0 to 60 )					: 1 5
 Bump height ( 0 to 60 )					: 100
-Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 1-2
+Bump damage amount ( 0-0 to 0-16 to 16-16 )		: 2
 Bump damage type ( SLASH, CRUSH, POKE, HOLY,
               EVIL, FIRE, ICE, ZAP )			: FIRE
 
@@ -89,7 +89,7 @@ Start on target ( TRUE or FALSE )			: FALSE
 Only damage friendly ( TRUE or FALSE )			: FALSE
 Spawn sound ( -1 for none )				: 1
 End sound ( -1 for none )				: 0
-Friendly fire ( TRUE or FALSE )				: FALSE
+Friendly fire ( TRUE or FALSE )				: TRUE
 Only hit hate group ( TRUE or FALSE )			: FALSE
 New target on spawn ( TRUE or FALSE )			: FALSE
 Target angle ( 0 to 32768 )				: 0

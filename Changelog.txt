@@ -1,4 +1,5 @@
-Version 2.7.x (??.??.2009)
+Version 2.7.3 (??.??.2009)
+- New Feature: Enhanced some atmospheric effects for the Ice Palace.
 - New Feature: Now you can play up to four players on the same computer at the same time
   in hotseat mode!
 - New Feature: New Sidequest module "The Cobol Palace". Save the world of Bishopia from 
@@ -19,6 +20,8 @@ Version 2.7.x (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debugging output Egoboo gives.
+- Bugfix: Weather effects no longer spawn inside walls.
+- Bugfix: Ulna in Soldier Starter attacking braziers.
 - Bugfix: Arrow particles now face the correct direction when fired.
 - Bugfix: The Benemo Quest now drops a heirloom so that you can collect the quest reward.
   (Or you can sell the Heirloom and take the money instead)

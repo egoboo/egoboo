@@ -123,7 +123,7 @@ IfTimeOut
       SetState
 
     //Combat music
-    tmpargument = 16
+    tmpargument = 20
     tmpdistance = 0
     PlayMusic
 

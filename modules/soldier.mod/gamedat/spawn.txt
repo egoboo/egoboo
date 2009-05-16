@@ -51,8 +51,8 @@ unknown:   NONE    22  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna.obj:   NONE    45  43.5   37.5   1.0   N    0   0  0   0   0   F   F   E
 claw.obj:   NONE    38  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 claw.obj:   NONE    38  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-brazier.obj:   NONE    47  48.5   41.5   1.0   N    0   0  0   0   0   F   F   G
-brazier.obj:   NONE    47  41.5   36.5   1.0   N    0   0  0   0   0   F   F   G
+brazier.obj:   NONE    47  48.5   41.5   1.0   N    0   0  0   0   0   F   F   N
+brazier.obj:   NONE    47  41.5   36.5   1.0   N    0   0  0   0   0   F   F   N
 trog.obj:   NONE    64  19.5   15.5   1.0   N    1   0  0   0   0   F   F   E
 cinq.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 lumpkin.obj:   NONE    40  8.5   23.5   1.0   N    0   0  0   0   0   F   F   E

@@ -1503,12 +1503,12 @@ int doInputOptions( float deltaTime )
                     player = 0;
                 }
             }
-            else if ( ui_doImageButtonWithText( 16, TxIcon + (keybicon + iicon), inputOptionsButtons[CONTROL_COMMAND_COUNT+0],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
+            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxIcon + (keybicon + iicon), inputOptionsButtons[CONTROL_COMMAND_COUNT+0],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
             {
                 if (input_device_count > 0)
                 {
                     player++;
-                    player %= input_device_count;
+                    player %= input_device_count; 
                 }
 
                 snprintf(inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof(STRING), "Player %i", player + 1);

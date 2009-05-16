@@ -1517,6 +1517,7 @@ void unbuffer_player_latches()
 
                 // Cost some experience for doing this...  Never lose a level
                 ChrList[character].experience *= EXPKEEP;
+				ChrList[character].money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN
