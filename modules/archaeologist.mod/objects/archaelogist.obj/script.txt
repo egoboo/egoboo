@@ -62,9 +62,9 @@ IfXIsMoreThanY
 //-----------------------------------------------------------------------------
 //Snake phobia =)
 IfStateIs0
-  SetTargetToWideEnemy
   tmpargument = [SNAK]
-  IfTargetHasID
+  tmpdistance = BLAHENEMIES+BLAHFRIENDS   //Even friendly ones!
+  SetTargetToWideBlahID
     tmpargument = 12
     PlayFullSound
     tmpargument = 1

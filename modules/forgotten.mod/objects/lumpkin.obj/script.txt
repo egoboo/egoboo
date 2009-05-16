@@ -333,8 +333,31 @@ IfTimeOut
         Compass
       Else
         // Find a weapon!!!
-        tmpx = rand & 255 - 128 + selfx
-        tmpy = rand & 255 - 128 + selfy
+        tmpx = 0
+        tmpargument = [GONN]      //Gonne
+        tmpdistance = BLAHITEMS
+        SetTargetToWideBlahID
+          tmpx = 1
+        Else
+          tmpargument = [CLAW]    //Claw
+          SetTargetToWideBlahID
+            tmpx = 1
+          Else
+            tmpargument = [TORC]  //Torch
+            SetTargetToWideBlahID
+              tmpx = 1
+        tmpy = 1
+        IfXIsEqualToY
+          tmpx = targetdistance
+          tmpy = 70
+          IfXIsLessThanY
+            tmpargument = rand & 1 + LATCHALTLEFT
+            PressLatchButton
+          tmpx = targetx
+          tmpy = targety
+        Else
+          tmpx = rand & 1023 + selfx - 512
+          tmpy = rand & 1023 + selfy - 512
     tmpargument = rand & 7 + 8
   ClearWaypoints
   AddWaypoint

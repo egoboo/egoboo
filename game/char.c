@@ -890,8 +890,12 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     int i, tnc, slot;
 
     // Make sure both are still around
-    if ( !ChrList[character].on || !ChrList[mount].on || ChrList[character].inpack || ChrList[mount].inpack )
+	if ( !ChrList[character].on || !ChrList[mount].on || ChrList[character].inpack || ChrList[mount].inpack )
         return;
+
+#ifdef DISABLE_BODY_GRAB
+	if(!ChrList[character].alive) return;
+#endif
 
     // Figure out which slot this grip relates to
     if ( grip == GRIP_LEFT )

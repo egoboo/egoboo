@@ -75,4 +75,5 @@
 
 //Some macro switches
 //#define OLD_CAMERA_MODE       //Use the old camera style
-#undef USE_LUA_CONSOLE       //LUA support for the console
+//#define USE_LUA_CONSOLE       //LUA support for the console
+#define DISABLE_BODY_GRAB		//Disable the grabbing of bodies

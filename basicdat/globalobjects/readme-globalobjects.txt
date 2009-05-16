@@ -12,7 +12,7 @@ SLOT  OBJECT
 47    Torch
 50    Sword
 51    Spear
-59    Chest (locked or unlocked, no secret bottom)
+59    Generic Chest (See script on how to use content)
 61    Longbow
 63    Tower Shield
 64    Book of Enchant

@@ -21,7 +21,7 @@ IfSpawned
     tmpargument = 25	//Team Z
   Else
     tmpargument = 4	//Team E
-  JoinEvilTeam    //TODO: JoinTeam
+  JoinTeam
 
   SetTargetToSelf
   SetOwnerToTarget

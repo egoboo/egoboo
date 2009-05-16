@@ -1,3 +1,4 @@
+//------------------------------------------------------------------------------
 //Set correct wing colour
 IfSpawned
   SetTargetToSelf
@@ -110,32 +111,24 @@ IfTimeOut
 
   //Guard in a circle
   IfStateIs0
-    tmpargument = 20
-    SetTime    
+    tmpargument = rand & 31 + 30
+    SetTime
     SetTargetToWideEnemy	//Enemy found, target him
       tmpargument = 1 
       SetState 		//and charge
     Else			//Circle around
-      Run
-      SetTurnModeToWatch
-      tmpx = selfx
-      tmpy = selfy
-      tmpturn = selfturn + 6192
-      tmpdistance = 200
-      Compass
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
       ClearWaypoints
       AddWaypoint		       
 
   //Move towards enemy
   IfStateIs1
-    SetTurnModeToVelocity
     tmpx = targetdistance
     tmpy = 128*3
     IfXIsLessThanY
       tmpargument = 2
       SetState		//Melee
-      tmpargument = 5
-      SetTime
     Else				//Move towards enemy in a
       tmpx = rand & 1023 + targetx - 511	//random direction pattern
       tmpy = rand & 1023 + targety - 511
@@ -178,26 +171,39 @@ IfTimeOut
     //Move towards target
     tmpx = targetx
     tmpy = targety
-    tmpdistance = 800
+    tmpdistance = 100
     tmpturn = targetturnto
     Compass
     ClearWaypoints
     AddWaypoint
 
   //Dont flock
-  SetOldTarget			//Remember enemy
-  SetTargetToNearestFriend
+  IfTargetIsOnHatedTeam
     tmpx = targetdistance
-    tmpy = 80
-    IfXIsLessThanY			//Too close to friend?
-      tmpx = targetx
-      tmpy = targety
-      tmpdistance = 300
-      tmpturn = targetturnto + 32768
-      Compass
-      ClearWaypoints
-      AddWaypoint
-  SetTargetToOldTarget		//Set target back to enemy
+    tmpy = 128
+    IfXIsMoreThanY
+      SetOldTarget			//Remember enemy
+      SetTargetToNearestFriend
+        tmpx = targetdistance
+        tmpy = 80
+        IfXIsLessThanY			//Too close to friend?
+          tmpx = targetx
+          tmpy = targety
+          tmpdistance = 300
+          tmpturn = targetturnto + 32768
+          Compass
+          ClearWaypoints
+          AddWaypoint
+      SetTargetToOldTarget		//Set target back to enemy
+
+  //Fly up or down depending on opponent altitude
+  tmpargument = 20
+  IfTargetIsOnHatedTeam
+    tmpx = targetz
+    tmpy = 20
+    IfXIsMoreThanY
+      tmpargument = targetaltitude + 20
+  SetFlyHeight
 
 //------------------------------------------------------------------------------
 //Handle being attacked by countering
@@ -241,10 +247,28 @@ IfAttacked
 //Slash and bite (Okay forget the biting part)
 IfBumped
   SetTargetToWhoeverBumped
+  
+  //Fly over obstacles
+  IfTargetIsAPlatform
+    tmpargument = selfz + 80
+    SetFlyHeight
+    tmpargument = 50
+    SetTime
+  Else
+    IfTargetIsAlive
+      DoNothing
+    Else
+      tmpargument = selfz + 80
+      SetFlyHeight
+      tmpargument = 50
+      SetTime      
+
+  //Attack or scuttle
   IfTargetIsOnHatedTeam
     IfFacingTarget
-      tmpargument = LATCHRIGHT
-      PressLatchButton
+      IfTargetIsAlive
+        tmpargument = LATCHRIGHT
+        PressLatchButton
   Else
     tmpx = rand & 511 + targetx - 256
     tmpy = rand & 511 + targety - 256

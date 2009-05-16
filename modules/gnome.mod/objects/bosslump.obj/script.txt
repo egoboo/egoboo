@@ -1,9 +1,4 @@
 //------------------------------------------------------------------------------
-// ZZ> Boss stuff...
-IfSpawned
-  DisableExport
-
-//------------------------------------------------------------------------------
 // ZZ> Run away if too close to killer
 IfOrdered
   tmpx = selforder
@@ -68,6 +63,7 @@ IfKilled
     tmpargument = 8
     AddEndMessage
 
+    //Make enemy cheer
     IfTargetIsAlive
       tmpargument = ACTIONMC
       TargetDoAction
@@ -80,12 +76,13 @@ IfKilled
     //Award bonus xp if captain survived
     tmpargument = [CAPT]
     tmpdistance = 2
-    SetTargetToWideBlahID
+    SetTargetToNearestBlahID
       tmpargument = 100
     Else
       tmpargument = 20
     tmpdistance = EXPQUEST
     GiveExperienceToTargetTeam
+    
   Else
     IfTargetIsOnOtherTeam
       tmpargument = MESSAGEDEATH
@@ -107,7 +104,7 @@ IfCleanedUp
 // ZZ> Handle being bumped by countering or wandering
 IfBumped
   IfStateIsRetreat
-    GetState // NOP
+    DoNothing
   Else
     SetTargetToWhoeverBumped
     IfTargetIsOnHatedTeam
@@ -373,8 +370,31 @@ IfTimeOut
         Compass
       Else
         // Find a weapon!!!
-        tmpx = rand & 255 - 128 + selfx
-        tmpy = rand & 255 - 128 + selfy
+        tmpx = 0
+        tmpargument = [GONN]      //Gonne
+        tmpdistance = BLAHITEMS
+        SetTargetToWideBlahID
+          tmpx = 1
+        Else
+          tmpargument = [CLAW]    //Claw
+          SetTargetToWideBlahID
+            tmpx = 1
+          Else
+            tmpargument = [TORC]  //Torch
+            SetTargetToWideBlahID
+              tmpx = 1
+        tmpy = 1
+        IfXIsEqualToY
+          tmpx = targetdistance
+          tmpy = 70
+          IfXIsLessThanY
+            tmpargument = rand & 1 + LATCHALTLEFT
+            PressLatchButton
+          tmpx = targetx
+          tmpy = targety
+        Else
+          tmpx = rand & 1023 + selfx - 512
+          tmpy = rand & 1023 + selfy - 512
     tmpargument = rand & 7 + 8
   ClearWaypoints
   AddWaypoint

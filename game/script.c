@@ -8490,17 +8490,21 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     {
-        TARGET_TYPE blahteam = ALL;
+        TARGET_TYPE blahteam = NONE;
+	    returncode = bfalse;
+       	
+		//Determine which team to target
+		if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
         if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
-        if ( (( pstate->distance >> 1 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
-        else if ((( pstate->distance >> 1 ) & 1)) blahteam = ENEMY;
-        else returncode = bfalse;
-        if (returncode)
-        {
-            returncode = bfalse;
-            if (get_target(pself->index, WIDE, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                           ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
-        }
+        if ( (( pstate->distance >> 1 ) & 1) )
+		{
+			if( blahteam == FRIEND ) blahteam = ALL;
+            else blahteam = ENEMY;
+		}
+
+		//Try to find one
+        if (get_target(pself->index, WIDE, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
+                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
     }
 
     SCRIPT_FUNCTION_END();
@@ -9727,15 +9731,21 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
     {
         TARGET_TYPE blahteam = NONE;
-        returncode = bfalse;
+	    returncode = bfalse;
+       	
+		//Determine which team to target
+		if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
         if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
-        if ( (( pstate->distance >> 1 ) & 1) && blahteam == FRIEND ) blahteam = ALL;
-        else if ((( pstate->distance >> 1 ) & 1)) blahteam = ENEMY;
-        if (blahteam != NONE)
-        {
-            if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                           ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
-        }
+        if ( (( pstate->distance >> 1 ) & 1) )
+		{
+			if( blahteam == FRIEND ) blahteam = ALL;
+            else blahteam = ENEMY;
+		}
+
+		//Try to find one
+        if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
+                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+
     }
 
     SCRIPT_FUNCTION_END();

@@ -1997,7 +1997,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     for (/*nothing*/; cnt != MAXCHR; cnt++)
     {
         //Skip non-existing objects, held objects and self
-        if ( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || cnt == character ) continue;
+		if ( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || ChrList[cnt].inpack || cnt == character ) continue;
 
         //Target items
         if ( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;

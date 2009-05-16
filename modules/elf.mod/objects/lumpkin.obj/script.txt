@@ -18,20 +18,20 @@ IfOrdered
       DoNothing
     Else
       // It's a Scrub, so check distance
-      tmpx = selforder > 8
-      tmpy = selforder & 255
-      tmpx = selfx > 7 - tmpx
-      tmpy = selfy > 7 - tmpy
-      tmpturn = xydistance
-      tmpdistance = 5*128  // Number of tiles
-
-      IfDistanceIsMoreThanTurn
-        tmpargument = 2
-        SendMessageNear
-        tmpargument = rand & 3 + 7
-        SetContent
-        tmpargument = STATERETREAT
-        SetState
+      SetTargetToNearestEnemy
+      tmpargument = [LUMP]
+      IfTargetHasID
+        DoNothing
+      Else
+        tmpx = 7*128  // Number of tiles
+        tmpy = targetdistance
+        IfXIsMoreThanY
+          tmpargument = 2
+          SendMessageNear
+          tmpargument = rand & 3 + 7
+          SetContent
+          tmpargument = STATERETREAT
+          SetState
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and telling allies to run away
@@ -194,10 +194,6 @@ IfTimeOut
     SetTargetToWideBlahID
       tmpx = 1
       
-  tmpargument = [LUMP]
-  IfTargetHasID
-    tmpx = 0
-
   tmpy = 0
   IfXIsMoreThanY
     // Default to previous state
@@ -336,8 +332,31 @@ IfTimeOut
         Compass
       Else
         // Find a weapon!!!
-        tmpx = rand & 255 - 128 + selfx
-        tmpy = rand & 255 - 128 + selfy
+        tmpx = 0
+        tmpargument = [GONN]      //Gonne
+        tmpdistance = BLAHITEMS
+        SetTargetToWideBlahID
+          tmpx = 1
+        Else
+          tmpargument = [CLAW]    //Claw
+          SetTargetToWideBlahID
+            tmpx = 1
+          Else
+            tmpargument = [TORC]  //Torch
+            SetTargetToWideBlahID
+              tmpx = 1
+        tmpy = 1
+        IfXIsEqualToY
+          tmpx = targetdistance
+          tmpy = 70
+          IfXIsLessThanY
+            tmpargument = rand & 1 + LATCHALTLEFT
+            PressLatchButton
+          tmpx = targetx
+          tmpy = targety
+        Else
+          tmpx = rand & 1023 + selfx - 512
+          tmpy = rand & 1023 + selfy - 512
     tmpargument = rand & 7 + 8
   ClearWaypoints
   AddWaypoint

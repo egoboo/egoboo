@@ -37,7 +37,7 @@ Player 4:   NONE    27  13.5   26.5   14.0   S    0   0  0   0   0   T   F   G
   unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 Music:   NONE    126  29.5   26.5   3.0   N    0   0  0   0   0   F   F   N
-snowcobol.obj:   NONE    42  29.5   26.5   1.0   S    14   1  0   100   6   F   F   E
+snowcobol.obj:   NONE    42  29.5   26.5   1.0   S    4   1  0   100   6   F   F   E
   hatchet.obj:   NONE    37  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   wshield.obj:   NONE    39  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  26.5   27.5   1.0   S    2   0  0   600   0   F   F   E
@@ -62,12 +62,15 @@ lockdoor.obj:   NONE    56  12.0   36.8   1.0   N    0   0  2   1   0   F   F   
 halldoor.obj:   NONE    38  26.0   19.0   1.0   N    0   0  4   0   0   F   F   N
 lockdoor.obj:   NONE    56  26.0   38.0   1.0   N    0   0  14   0   0   F   F   N
 
-fchest.obj:   NONE    36  22.5   24.0   1.0   E    199   0  0   2   0   F   F   N
+fchest.obj:   NONE    36  22.5   24.0   1.0   E    57   0  0   2   0   F   F   N
   xbow.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 fchest.obj:   NONE    36  22.5   33.0   1.0   E    0   0  0   1   0   F   F   N
   keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   bridge.obj:   NONE    52  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Map room
 icemephit.obj:   NONE    77  13.0   9.0   1.0   S    0   1  0   0   0   F   F   E
   icewing.obj:   NONE    78  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 icemephit.obj:   NONE    77  10.0   11.0   1.0   N    0   1  0   0   0   F   F   E
@@ -80,44 +83,48 @@ halldoor.obj:   NONE    38  44.0   12.0   1.0   N    0   0  12   0   0   F   F  
 halldoor.obj:   NONE    38  31.0   12.0   1.0   W    0   2  6   0   0   F   F   N
 halldoor.obj:   NONE    38  43.0   50.0   1.0   W    0   0  20   0   0   F   F   N
 
+//Optional treasure chamber
 lachest.obj:   NONE    68  9.0   56.0   1.0   N    0   0  0   0   0   F   F   N
   frog.obj:   NONE    65  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   wshield.obj:   NONE    39  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-
 lachest.obj:   NONE    68  14.8   56.0   1.0   N    0   0  0   0   0   F   F   N
   sloth.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-
-squidgie.obj:   NONE    46  25.0   14.0   1.0   S    0   0  0   0   0   F   F   E
-squidgie.obj:   NONE    46  28.0   11.0   1.0   E    0   0  0   0   0   F   F   E
-squidgie.obj:   NONE    46  25.0   9.0   1.0   W    0   0  0   0   0   F   F   E
-
 frostlizard.obj:   NONE    48  14.0   44.0   1.0   N    0   0  0   0   0   F   F   E
   keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 frostlizard.obj:   NONE    48  9.0   46.0   1.0   N    0   0  0   0   0   F   F   E
   keyc.obj:   NONE    44  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-yeti.obj:   NONE    51  46.5   40.5   0.0   N    175   0  23   0   0   F   F   E
+squidgie.obj:   NONE    46  25.0   14.0   0.0   ?    0   0  0   0   0   F   F   E
+squidgie.obj:   NONE    46  28.0   11.0   0.0   ?    0   0  0   0   0   F   F   E
+squidgie.obj:   NONE    46  25.0   9.0    0.0   ?    0   0  0   0   0   F   F   E
+
+yeti.obj:   NONE    51  46.5   40.5   0.0   N    99   0  23   0   0   F   F   E
 lockdoor.obj:   NONE    56  38.0   46.0   0.0   S    0   0  17   0   0   F   F   N
 
 halldoor.obj:   NONE    38  46.0   34.0   1.0   S    0   0  23   2   0   F   F   N
 rusteater.obj:   NONE    53  47.5   7.5   1.0   N    0   0  0   0   0   F   F   E
 rustmaggot.obj:   NONE    54  48.5   7.5   1.0   N    0   0  0   0   0   F   F   E
+
+//Treasure chamber
 fchest.obj:   NONE    36  46.5   27.5   1.0   S    0   0  0   1   0   F   F   N
-ibrace.obj:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-smite.obj:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  ibrace.obj:   NONE    66  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  smite.obj:   NONE    59  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 achest.obj:   NONE    67  44.5   27.5   1.0   S    0   0  0   2   0   F   F   N
 fchest.obj:   NONE    36  46.5   30.5   1.0   N    0   0  0   1   0   F   F   N
-lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-haste.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  haste.obj:   NONE    62  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+//Mimic room
 mimic.obj:   NONE    41  57.0   50.5   1.0   N    9   0  0   0   0   F   F   E
-keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  keya.obj:   NONE    45  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
 GLOBAL strider.obj:   NONE    40  56.5   30.5   2.0   N    0   0  0   0   0   F   F   E
 snowcobol.obj:   NONE    42  55.5   21.5   1.0   N    2   2  0   100   0   F   F   E
 xbow.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 hatchet.obj:   NONE    37  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-snowcobol.obj:   NONE    42  57.5   22.5   1.0   N    14   2  0   100   6   F   F   E
+snowcobol.obj:   NONE    42  57.5   22.5   1.0   N    5   2  0   100   6   F   F   E
 cinq.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 wshield.obj:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 snowcobol.obj:   NONE    42  56.5   30.5   2.5   N    5   0  0   100   0   F   F   E
@@ -140,6 +147,7 @@ rustmaggot.obj:   NONE    54  50.0   10.0   1.0   N    0   0  0   0   0   F   F 
 
 GLOBAL strider.obj:   NONE    40  54.5   25.5   1.0   N    0   0  0   0   0   F   F   N
 
+//Ice chamber
 frostorb.obj:   NONE    55  21.5   53.5   1.0   N    0   0  0   0   0   F   F   E
 frostorb.obj:   NONE    55  29.0   49.0   1.0   N    0   0  0   0   0   F   F   E
 frostorb.obj:   NONE    55  25.0   53.0   1.0   E    0   0  0   0   0   F   F   N
@@ -150,7 +158,7 @@ frostlizard.obj:   NONE    48  44.0   16.0   1.0   N    0   0  0   0   0   F   F
 frostlizard.obj:   NONE    48  42.0   19.0   1.0   N    0   0  0   0   0   F   F   E
 monsterdrop.obj:   NONE    58  35.0   11.0   1.0   N    0   0  19   46   0   F   F   E
 spork.obj:   NONE    60  36.5   28.5   2.0   W    0   0  0   0   0   F   F   N
-xchest.obj:   NONE    64  56.5   8.5   1.0   N    399   0  0   0   0   F   F   N
+xchest.obj:   NONE    64  56.5   8.5   1.0   N    99   0  0   0   0   F   F   N
   Regeneration:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 monsterdrop.obj:   NONE    58  57.5   40.5   1.0   N    0   0  22   54   0   F   F   E
 achest.obj:   NONE    67  44.5   30.5   1.0   N    0   1  0   3   0   F   F   N
