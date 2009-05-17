@@ -3637,9 +3637,9 @@ void draw_text()
         {
             Uint16 iTmp;
 
-            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAXCHR; tTmp++ )
+            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAXCHR; iTmp++ )
             {
-                uint16 icap;
+                Uint16 icap;
 
                 if( !ChrList[iTmp].on ) continue;
 
