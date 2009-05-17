@@ -750,7 +750,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
     // Only damage if hitting from proper direction
     vertices = pmad->vertices;
-    direction = ( ATAN2( pprt->yvel, pprt->xvel ) + PI ) * 0xFFFF / ( TWO_PI );
+    direction = ( ATAN2( pprt->yvel, pprt->xvel ) + PI ) * 0xFFFF / TWO_PI;
     direction = pchr->turnleftright - direction + 32768;
     if ( Md2FrameList[pchr->inst.frame].framefx&MADFXINVICTUS )
     {

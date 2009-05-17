@@ -52,6 +52,16 @@ Sint8       songplaying   = -1;
 
 Mix_Chunk * g_wavelist[GSND_COUNT];
 
+#define COIN1               0                       // Coins are the first particles loaded
+#define COIN5               1
+#define COIN25              2
+#define COIN100             3
+#define WEATHER4            4                       // Weather particles
+#define WEATHER5            5                       // Weather particle finish
+#define SPLASH              6                       // Water effects are next
+#define RIPPLE              7
+#define DEFEND              8                       // Defend particle
+
 // text filenames for the global sounds
 static const char * wavenames[GSND_COUNT] =
 {
@@ -603,6 +613,12 @@ void load_global_waves( const char * modname )
         snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "%s", tmploadname, wavenames[cnt] );
 
         ptmp = sound_load_chunk( wavename );
+        if( NULL == ptmp )
+        {
+            snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "sound%d", tmploadname, cnt );
+            ptmp = sound_load_chunk( wavename );
+        }
+
         if (NULL != ptmp)
         {
             g_wavelist[cnt] = ptmp;

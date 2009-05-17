@@ -2398,7 +2398,7 @@ void make_onwhichfan( void )
             if ( !ChrList[character].inwater )
             {
                 // Splash
-                if ( ChrList[character].attachedto == MAXCHR )
+                if ( INVALID_CHR( ChrList[character].attachedto ) )
                 {
                     spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, watersurfacelevel + RAISE,
                                         0, MAXMODEL, SPLASH, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
@@ -5005,23 +5005,23 @@ bool_t load_module( const char *smallname )
     beatmodule = bfalse;
     timeron = bfalse;
 
-    snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
     make_randie();
     reset_teams();
-    load_one_icon( "basicdat" SLASH_STR "nullicon" );  // This works (without transparency)
-
-    load_global_waves( modname );
-
-    reset_particles( modname );
-    read_wawalite( modname );
-    make_twist();
-    reset_messages();
-    prime_names();
-    load_basic_textures( modname );
-    release_all_ai_scripts();
-    load_ai_script( "basicdat" SLASH_STR "script.txt" );
     release_all_models();
     free_all_enchants();
+    reset_messages();
+    prime_names();
+    release_all_ai_scripts();
+
+    load_one_icon( "basicdat" SLASH_STR "nullicon" );
+    make_twist();
+    load_ai_script( "basicdat" SLASH_STR "script.txt" );
+
+    snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
+    load_global_waves( modname );
+    reset_particles( modname );
+    read_wawalite( modname );
+    load_basic_textures( modname );
 
     //Load all objects
     {
@@ -5061,11 +5061,6 @@ bool_t load_module( const char *smallname )
     load_map( modname );
 
     log_madused( "slotused.txt" );
-
-    // Start playing the damage tile sound silently...
-    /*PORT
-    play_sound_pvf_looped(damagetilesound, PANMID, VOLMIN, FRQDEFAULT);
-    */
 
     return btrue;
 }
