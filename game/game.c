@@ -167,7 +167,7 @@ static void   memory_cleanUp(void);
 char idsz_string[5] = { '\0' };
 
 static int    gamemenu_depth = -1;
-static bool_t game_end_requested = bfalse;
+static bool_t game_escape_requested = bfalse;
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -1410,7 +1410,7 @@ int SDL_main( int argc, char **argv )
             moduleactive = game_init_module( pickedmodule, seed );
 
             game_menu_was_active = game_menu_is_active = gamemenuactive;
-            game_end_requested = bfalse;
+            game_escape_requested = bfalse;
             while ( moduleactive )
             {
                 game_menu_was_active = menu_is_active;
@@ -1446,16 +1446,6 @@ int SDL_main( int argc, char **argv )
                     }
 
                     screenshotkeyready = bfalse;
-                }
-
-                // Check for pause key    // TODO: What to do in network games?
-                //if ( !SDLKEYDOWN( SDLK_F8 ) ) pausekeyready = btrue;
-                if ( SDLKEYDOWN( SDLK_F8 ) && keyb.on )
-                {
-                    if ( !gamemenuactive )
-                    {
-                        game_begin_menu( GamePaused );
-                    }
                 }
 
                 // Do important things
@@ -1515,6 +1505,7 @@ int SDL_main( int argc, char **argv )
                         {
                             mnu_draw_background = btrue;
                             gamemenuactive = bfalse;
+                            game_escape_requested = bfalse;
                             gamemenu_depth = -1;
                         }
                     }
@@ -1525,10 +1516,18 @@ int SDL_main( int argc, char **argv )
 
                 // Check for quitters
                 // :TODO: local_noplayers is not set correctly
-                if ( !game_end_requested && ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| local_noplayers*/ ) )
+                if ( !game_escape_requested && ( SDLKEYDOWN( SDLK_ESCAPE ) /*|| local_noplayers*/ ) )
                 {
-                    game_end_requested = btrue;
-                    game_begin_menu( ShowEndgame );
+                    game_escape_requested = btrue;
+
+                    if( beatmodule )
+                    {
+                        game_begin_menu( ShowEndgame );
+                    }
+                    else
+                    {
+                        game_begin_menu( GamePaused );
+                    }
                 }
 
                 do_flip_pages();

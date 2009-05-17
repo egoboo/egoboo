@@ -2600,7 +2600,7 @@ int doShowEndgame( float deltaTime )
 
     static const char * buttons[] =
     {
-        "Continue",
+        "BLAH",
         ""
     };
 
@@ -2615,6 +2615,15 @@ int doShowEndgame( float deltaTime )
             font = ui_getFont();
 
             initSlidyButtons( 1.0f, buttons );
+
+            if( exportvalid )
+            {
+                buttons[0] = "Save and Exit";
+            }
+            else
+            {
+                buttons[0] = "Exit Game";
+            }
 
             x = 70;
             y = 70;
@@ -2684,6 +2693,33 @@ int doShowEndgame( float deltaTime )
 
             // actually quit the module
             quit_module();
+
+            // put this in the right menu
+            if( beatmodule && startNewPlayer )
+            {
+                int return_menu;
+
+                // we started with a new player and beat the module... yay!
+                // now we want to graduate to the ChoosePlayer menu to
+                // build our party
+
+                startNewPlayer = bfalse;
+
+                // what menu were we supposed to go to?
+                return_menu = MainMenu;
+                if( menu_stack_index > 0 )
+                {
+                    return_menu = menu_stack[menu_stack_index-1];
+                }
+
+                // if we beat a beginner module, we want to 
+                // go to ChoosePlayer instead of ChooseModule.
+                if( return_menu == ChooseModule )
+                {
+                    menu_stack_pop();
+                    menu_stack_push( ChoosePlayer );
+                }
+            }
 
             gameactive   = bfalse;
             moduleactive = bfalse;
