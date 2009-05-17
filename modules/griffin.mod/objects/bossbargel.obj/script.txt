@@ -14,6 +14,7 @@ IfSpawned
   tmpargument = 7
   PlayMusic
 
+//Show where we are!
 tmpx = selfx
 tmpy = selfy
 tmpargument = RED
@@ -32,7 +33,7 @@ IfKilled
   PlaySound
 
   //Yummy!
-  tmpargument = 6000
+  tmpargument = selfmoney
   DropItems
   DropMoney
   DropKeys
@@ -50,6 +51,16 @@ IfKilled
   tmpargument = [BEAT]
   AddIDSZ
   EnableExport
+  
+  //Add the end text
+  ClearEndMessage
+  tmpargument = 5
+  AddEndMessage
+  tmpargument = 6
+  AddEndMessage
+  tmpargument = 7
+  AddEndMessage
+
 
 //-------------------------------------------------------------------------------------------
 //Ouch and teleport away

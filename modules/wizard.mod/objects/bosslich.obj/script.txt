@@ -89,7 +89,17 @@ IfKilled
   
   // Fix the end text
   ClearEndMessage
-  tmpargument = 3
+  tmpargument = 6
+  AddEndMessage
+  tmpargument = 7
+  AddEndMessage
+  tmpargument = 8
+  AddEndMessage
+  tmpargument = 9
+  AddEndMessage
+  tmpargument = 10
+  AddEndMessage
+  tmpargument = 11
   AddEndMessage
 
   // Order team to die

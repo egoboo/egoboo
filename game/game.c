@@ -3937,7 +3937,7 @@ void bump_characters( void )
                                     ChrList[charb].ai.bumplast = chara;
 
                                     ChrList[chara].ai.alert |= ALERTIF_BUMPED;
-                                    ChrList[charb].ai.alert |= ALERTIF_BUMPED;
+                                    ChrList[charb].ai.alert |= ALERTIF_BUMPED;			
                                 }
                             }
                         }

@@ -24,7 +24,7 @@ IfKilled
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
@@ -42,9 +42,16 @@ IfKilled
   // Mark this module as beaten, hidden modules may open up
   tmpargument = [BEAT]
   AddIDSZ
+  
   // Fix the end text
   ClearEndMessage
   tmpargument = 3
+  AddEndMessage
+  tmpargument = 4
+  AddEndMessage
+  tmpargument = 5
+  AddEndMessage
+  tmpargument = 6
   AddEndMessage
 
   // Order team to die

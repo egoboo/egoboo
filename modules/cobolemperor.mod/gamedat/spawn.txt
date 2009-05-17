@@ -1,7 +1,7 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HeroAtJester  NONE    0  40.5   11.5   1.0   N    0   0  0   0   0   T   F   G
 HeroAtBoss   NONE    0  30.5   11.5   1.0   N    0   0  0   0   0   T   F   G
-HERO 1:      NONE    0  39.5   74.5   0.0   W    0   0  0   0   0   T   F   G
+HERO 1:      NONE    0  39.5   74.5   0.0   N    0   0  0   0   0   T   F   G
   unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -245,11 +245,12 @@ shutdoor.obj:   NONE    82  68.0   64.0   0.0   N    0   0  44   0   0   F   F  
 shutdoor.obj:   NONE    82  68.0   50.0   0.0   S    0   0  42   0   0   F   F   N
 knightsuit.obj:   NONE    49  72.5   60.5   0.0   W    0   1  0   0   0   F   F   N
   GLOBAL torch.obj:   NONE    47  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-knightsuit.obj:   NONE    49  72.5   53.5   0.0   W    0   1  0   0   0   F   F   N
+GLOBAL rack.obj:   NONE    100  72.5   53.5   0.0   W    0   1  0   0   0   F   F   N
   GLOBAL Sword:   NONE      50   0    0    0    R   0   0   0   0   0   F   F   Null
   GLOBAL Tower Shield:   NONE      63   0    0    0    L   0   0   0   0   0   F   F   Null
-knightsuit.obj:   NONE    49  63.5   53.5   0.0   E    0   1  0   0   0   F   F   N
+GLOBAL rack.obj:   NONE    100  63.5   53.5   0.0   E    0   1  0   0   0   F   F   N
   GLOBAL Spear:   NONE      51   0    0    0    R   0   0   0   0   0   F   F   Null
+  GLOBAL Spear:   NONE      51   0    0    0    L   0   0   0   0   0   F   F   Null
 knightsuit.obj:   NONE    49  63.5   60.5   0.0   E    0   1  0   0   0   F   F   N
   GLOBAL Hatchet:   NONE      77   0    0    0    R   0   0   0   0   0   F   F   Null
 GLOBAL chest.obj:   NONE    59  72.5   57.0   0.0   W    19   0  0   16   0   F   F   N

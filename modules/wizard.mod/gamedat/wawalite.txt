@@ -11,7 +11,7 @@ Water specular start ( 0-255 )				: 150
 Water specular level ( 0-255 )				: 150
 Water douse level ( For torches, 90 )			: 45
 Water surface level ( For water striders, 55 )		: 25
-Water light ( TRUE or FALSE )				: TRUE
+Water light ( TRUE or FALSE )				: FALSE
 Water is really water? ( TRUE or FALSE )		: FALSE
 Use watertop.bmp as an overlay? ( TRUE or FALSE )       : FALSE
 Use waterlow.bmp as a background? ( TRUE or FALSE )	: FALSE

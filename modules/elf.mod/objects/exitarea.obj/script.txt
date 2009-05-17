@@ -17,13 +17,26 @@ IfTimeOut
       IfStateIs0
         tmpargument = 1
         IfContentIs
+
+          //Beat the module!
           ClearEndMessage
-          tmpargument = 2
+          tmpargument = 3
+          AddEndMessage
+          tmpargument = 4
+          AddEndMessage
+          tmpargument = 5
+          AddEndMessage
+          tmpargument = 6
+          AddEndMessage
+          tmpargument = 7
+          AddEndMessage
+          tmpargument = 8
           AddEndMessage
           tmpargument = [BEAT]
           AddIDSZ
           EnableExport
           BeatModule
+  
           tmpargument = 2
           SendMessageNear
           tmpargument = 1

@@ -1,0 +1,24 @@
+//Start as a empty weapons rack?
+IfSpawned
+  SetTargetToSelf
+  SetTargetToTargetLeftHand
+    DoNothing
+  Else
+    SetTargetToTargetRightHand
+      DoNothing
+    Else
+      tmpargument = 1
+      SetState
+
+//Drop items
+IfStateIs0
+  IfBumped
+    SetTargetToWhoeverBumped
+    IfTargetIsAPlayer
+      DropItems
+      tmpargument = 0
+      SendMessageNear
+      tmpargument = 1
+      SetState
+
+End

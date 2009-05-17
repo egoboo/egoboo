@@ -32,7 +32,7 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 Size ( eg. 1.0 )				: 1.0
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 3
-Bump size ( eg. 30 )				: 40
+Bump size ( eg. 30 )				: 30
 Bump height ( eg. 70 )				: 70
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.5
 Weight ( 0 to 255 )				: 40
@@ -161,7 +161,7 @@ Particle type ( 0 to 3 )			: 0
 
 // Extra stuff I forgot 
 Character can walk on water ( TRUE or FALSE )	: FALSE
-Character bounciness ( 0.00 to 0.95 )		: 0.04
+Character bounciness ( 0.00 to 0.95 )		: 0.025
 
 
 // More stuff I forgot
