@@ -2,7 +2,6 @@ MASTER TODO LIST:
 - Spellbooks not being spellbooks when spawning instead of dropped.
 - Wizards cannot use lamps
 - Runes crushed messages are missing
-- Exploding oil when taken out? (lit lamp was held in other hand)
 - The ice in the Ice Palace is VERY slippery...
 - Squidgies still messing things up!
 - Crusader shield IfPutAway not working. It also refills mana!

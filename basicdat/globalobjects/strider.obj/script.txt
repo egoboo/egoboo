@@ -17,7 +17,16 @@ IfTimeOut
   AddWaypoint
   tmpargument = 75
   SetTime
-
+  
+  //Bite enemies
+  SetTargetToRider      
+    SetTargetToNearbyEnemy
+      tmpx = targetdistance
+      tmpy = 128
+      IfXIsLessThanY
+        IfFacingTarget
+          tmpargument = ACTIONTC
+          DoAction  
 //------------------------------------------------------------------------------
 // Bite characters that it bumps
 IfBumped

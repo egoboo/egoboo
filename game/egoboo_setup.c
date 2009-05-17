@@ -118,13 +118,6 @@ bool_t setup_download()
 
     lCurSectionName = "GRAPHIC";
 
-    // Draw z reflection?
-    GetKey_bool( "Z_REFLECTION", prtreflect, bfalse );
-
-    // Max number of vertrices (Should always be 100!)
-    GetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices, 100 );
-    mesh_maxtotalvertices *= 1024;
-
     // Do fullscreen?
     GetKey_bool( "FULLSCREEN", fullscreen, bfalse );
 
@@ -175,6 +168,9 @@ bool_t setup_download()
 
     // Draw Reflection?
     GetKey_bool( "REFLECTION", refon, bfalse );
+
+	// Draw particles in reflection?
+    GetKey_bool( "PARTICLE_REFLECTION", prtreflect, bfalse );
 
     // Draw shadows?
     GetKey_bool( "SHADOWS", shaon, bfalse );
@@ -296,6 +292,12 @@ bool_t setup_download()
     GetKey_bool( "DEV_MODE", gDevMode, btrue );
     GetKey_bool( "SDL_IMAGE", use_sdl_image, btrue );
 
+    // Which diffculty mode do we use?
+    GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
+    if ( lTempStr[0] == 'E' || lTempStr[0] == 'e' )  difficulty = GAME_EASY;
+    if ( lTempStr[0] == 'N' || lTempStr[0] == 'n' )  difficulty = GAME_NORMAL;
+    if ( lTempStr[0] == 'H' || lTempStr[0] == 'h' )  difficulty = GAME_HARD;
+
     return btrue;
 }
 
@@ -312,12 +314,6 @@ bool_t setup_upload()
     // *********************************************
 
     lCurSectionName = "GRAPHIC";
-
-    // Draw z reflection?
-    SetKey_bool( "Z_REFLECTION", prtreflect );
-
-    // Max number of vertrices (Should always be 100!)
-    SetKey_int( "MAX_NUMBER_VERTICES", mesh_maxtotalvertices / 1024 );
 
     // Do fullscreen?
     SetKey_bool( "FULLSCREEN", fullscreen );
@@ -352,6 +348,9 @@ bool_t setup_upload()
 
     // Draw Reflection?
     SetKey_bool( "REFLECTION", refon );
+
+	// Draw particles in reflection?
+    SetKey_bool( "PARTICLE_REFLECTION", prtreflect );
 
     // Draw shadows?
     SetKey_bool( "SHADOWS", shaon );
@@ -473,6 +472,16 @@ bool_t setup_upload()
     SetKey_bool( "GRAB_MOUSE", gGrabMouse );
     SetKey_bool( "DEV_MODE", gDevMode );
     SetKey_bool( "SDL_IMAGE", use_sdl_image );
+
+    // Save diffculty mode
+    switch (difficulty)
+    {
+        case GAME_EASY:			SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
+        case GAME_HARD:			SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
+        
+        default:
+        case GAME_NORMAL:		SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
+    }
 
     return btrue;
 }

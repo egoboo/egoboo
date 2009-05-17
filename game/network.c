@@ -866,7 +866,7 @@ void cl_talkToHost()
     if ( SDLKEYDOWN( SDLK_SPACE )
             && ( local_allpladead || respawnanytime )
             && respawnvalid
-            && !rtscontrol
+            && difficulty < GAME_HARD
             && !console_mode )
     {
         player = 0;

@@ -3850,7 +3850,7 @@ void draw_text()
     }
     if ( local_allpladead || respawnanytime )
     {
-        if ( respawnvalid )
+        if ( respawnvalid && difficulty < GAME_HARD )
         {
             draw_string( "PRESS SPACE TO RESPAWN", 0, y );
             y += fontyspacing;

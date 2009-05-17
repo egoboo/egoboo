@@ -934,7 +934,7 @@ void update_game()
             if ( !ChrList[PlaList[cnt].index].alive )
             {
                 numdead++;
-                if ( local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && 0 == revivetimer )
+                if ( difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && 0 == revivetimer )
                 {
                     respawn_character( PlaList[cnt].index );
                     ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
@@ -5217,9 +5217,9 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
     // free any memory already allocated
     if ( !mesh_mem_free(pmem) ) return bfalse;
 
-    if ( pinfo->vertcount > mesh_maxtotalvertices )
+    if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
     {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, mesh_maxtotalvertices );
+        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
         return bfalse;
     }
 
@@ -5227,31 +5227,31 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
     pmem->vrt_x = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_x == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_y = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_y == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_z = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_z == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_a = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
     if ( pmem->vrt_a == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_l = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
     if ( pmem->vrt_l == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! See setup.txt\n" );
+        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     // set the vertex count

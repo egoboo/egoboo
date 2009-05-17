@@ -82,8 +82,7 @@ void let_character_think( Uint16 character )
 
     // debug a certain script
     //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
-    debug_scripts = (ChrList[pself->index].model == 30 && pself->index == 396);
-
+    
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
 

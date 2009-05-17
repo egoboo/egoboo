@@ -63,6 +63,14 @@
 EXTERN Uint16  randindex EQ( 0 );
 EXTERN Uint16  randie[MAXRAND];
 
+enum e_game_difficulty
+{
+    GAME_EASY  = 0,
+    GAME_NORMAL,
+    GAME_HARD
+};
+
+EXTERN Uint8     difficulty EQ( GAME_NORMAL );    // What is the current game difficulty
 EXTERN bool_t    gamepaused EQ( bfalse );    // Is the game paused?
 EXTERN bool_t    pausekeyready EQ( btrue );  // Ready to pause game?
 EXTERN bool_t    overrideslots EQ( bfalse );     //Override existing slots?
@@ -605,7 +613,7 @@ EXTERN float  vellrtwist[256];            // For sliding down steep hills
 EXTERN float  veludtwist[256];
 EXTERN Uint8  flattwist[256];
 
-EXTERN Uint32 mesh_maxtotalvertices EQ(256*256*6);                 // of vertices
+#define MESH_MAXTOTALVERTRICES 1024*100
 
 struct s_mesh_info
 {
