@@ -20,6 +20,7 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
 #define LINK_COUNT 16
 
@@ -35,5 +36,9 @@ typedef struct sLink Link_t;
 extern Link_t LinkList[LINK_COUNT];
 
 //Function prototypes
-bool_t link_follow_modname( const char * modname );
+bool_t link_follow_modname( const char * modname, bool_t push_current_module );
 bool_t link_build( const char * fname, Link_t list[] );
+
+bool_t link_pop_module();
+bool_t link_load_parent( const char * modname, GLvector3 pos );
+

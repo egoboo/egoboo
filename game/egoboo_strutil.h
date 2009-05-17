@@ -27,6 +27,20 @@
 #include <string.h>
 #include <ctype.h>
 
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+// end-of-string character. assume standard null terminated string
+#define EOS '\0'
+#define NULL_STRING { EOS }
+
+#define EMPTY_CSTR(PSTR) ((NULL!=PSTR) && (EOS == PSTR[0]))
+#define VALID_CSTR(PSTR) ((NULL!=PSTR) && (EOS != PSTR[0]))
+#define INVALID_CSTR(PSTR) ((NULL==PSTR) || (EOS == PSTR[0]))
+
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
 extern void TrimStr( char *pStr );
 
 char * str_decode( char *strout, size_t insize, const char * strin );

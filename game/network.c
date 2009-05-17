@@ -1232,15 +1232,15 @@ void net_handlePacket( ENetEvent *event )
             {
                 seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
-                strcpy( pickedmodule, filename );
+                strcpy( pickedmodule_name, filename );
 
                 // Check to see if the module exists
-                pickedindex = modlist_get_mod_number( pickedmodule );
-                if ( pickedindex == -1 )
+                pickedmodule_index = modlist_get_mod_number( pickedmodule_name );
+                if ( pickedmodule_index == -1 )
                 {
                     // The module doesn't exist locally
                     // !!!BAD!!!  Copy the data from the host
-                    pickedindex = 0;
+                    pickedmodule_index = 0;
                 }
 
                 // Make ourselves ready

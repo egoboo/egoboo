@@ -32,6 +32,7 @@
 #include "char.h"
 #include "file_common.h"
 #include "particle.h"
+#include "link.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
@@ -746,7 +747,8 @@ int doChooseModule( float deltaTime )
             else
             {
                 // Save the name of the module that we've picked
-                strncpy( pickedmodule, ModList[selectedModule].loadname, 64 );
+                pickedmodule_index = selectedModule;
+                strncpy( pickedmodule_name, ModList[selectedModule].loadname, SDL_arraysize(pickedmodule_name) );
 
                 // If the module allows imports, return 1.  Else, return 2
                 if ( ModList[selectedModule].importamount > 0 )
@@ -2505,11 +2507,11 @@ int doGamePaused( float deltaTime )
 
     static const char * buttons[] =
     {
-        "Quit Game",
+        "Quit Module",
         "Audio Options",
         "Input Controls",
         "Video Settings",
-        "Return to Game",
+        "Return to Module",
         ""
     };
 
@@ -2690,45 +2692,60 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Finish:
-
-            // actually quit the module
-            quit_module();
-
-            // put this in the right menu
-            if( beatmodule && startNewPlayer )
             {
-                int return_menu;
+                bool_t reloaded = bfalse;
 
-                // we started with a new player and beat the module... yay!
-                // now we want to graduate to the ChoosePlayer menu to
-                // build our party
+                // try to pop the last module off the module stack
+                reloaded = link_pop_module();
 
-                startNewPlayer = bfalse;
+                // try to go to the world map
+                //if( !reloaded )
+                //{
+                //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
+                //}
 
-                // what menu were we supposed to go to?
-                return_menu = MainMenu;
-                if( menu_stack_index > 0 )
+                // fix the menu that is returned when you break out of the game
+                if( beatmodule && startNewPlayer )
                 {
-                    return_menu = menu_stack[menu_stack_index-1];
+                    int return_menu;
+
+                    // we started with a new player and beat the module... yay!
+                    // now we want to graduate to the ChoosePlayer menu to
+                    // build our party
+
+                    startNewPlayer = bfalse;
+
+                    // what menu were we supposed to go to?
+                    return_menu = MainMenu;
+                    if( menu_stack_index > 0 )
+                    {
+                        return_menu = menu_stack[menu_stack_index-1];
+                    }
+
+                    // if we beat a beginner module, we want to 
+                    // go to ChoosePlayer instead of ChooseModule.
+                    if( return_menu == ChooseModule )
+                    {
+                        menu_stack_pop();
+                        menu_stack_push( ChoosePlayer );
+                    }
                 }
 
-                // if we beat a beginner module, we want to 
-                // go to ChoosePlayer instead of ChooseModule.
-                if( return_menu == ChooseModule )
+                // actually quit the module
+                if( !reloaded )
                 {
-                    menu_stack_pop();
-                    menu_stack_push( ChoosePlayer );
+                    quit_module();
+                    pickedmodule_index = -1;
+                    gameactive   = bfalse;
+                    moduleactive = bfalse;
+                    menuactive   = btrue;
                 }
+
+                menuState = MM_Begin;
+
+                // Set the next menu to load
+                retval = menuChoice;
             }
-
-            gameactive   = bfalse;
-            moduleactive = bfalse;
-            menuactive   = btrue;
-
-            menuState = MM_Begin;
-
-            // Set the next menu to load
-            retval = menuChoice;
     }
 
     return retval;
@@ -2857,11 +2874,28 @@ int doMenu( float deltaTime )
             {
                 if ( result == 1 )
                 {
+                    bool_t reloaded = bfalse;
+
                     mnu_end_menu();
+
+                    // try to pop the last module off the module stack
+                    reloaded = link_pop_module();
+
+                    // try to go to the world map
+                    //if( !reloaded )
+                    //{
+                    //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
+                    //}
+
+                    if( !reloaded )
+                    {
+                        game_quit_module();
+                        gameactive = bfalse;
+                        moduleactive = bfalse;
+                        menuactive = btrue;
+                    }
+
                     result = MENU_QUIT;
-                    gameactive = bfalse;
-                    moduleactive = bfalse;
-                    menuactive = btrue;
                 }
                 else if ( result == 2 ) mnu_begin_menu( AudioOptions );
                 else if ( result == 3 ) mnu_begin_menu( InputOptions );

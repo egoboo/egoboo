@@ -1085,33 +1085,39 @@ static void get_message( FILE* fileread )
     //     is null terminated.
     int cnt;
     char cTmp;
-    char szTmp[256];
-    if ( msgtotal < MAXTOTALMESSAGE )
+    STRING szTmp;
+
+    if ( msgtotalindex >= MESSAGEBUFFERSIZE )
     {
-        if ( msgtotalindex >= MESSAGEBUFFERSIZE )
-        {
-            msgtotalindex = MESSAGEBUFFERSIZE - 1;
-        }
-
-        msgindex[msgtotal] = msgtotalindex;
-        fscanf( fileread, "%s", szTmp );
-        szTmp[255] = 0;
-        cTmp = szTmp[0];
-        cnt = 1;
-
-        while ( cTmp != 0 && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
-        {
-            if ( cTmp == '_' )  cTmp = ' ';
-
-            msgtext[msgtotalindex] = cTmp;
-            msgtotalindex++;
-            cTmp = szTmp[cnt];
-            cnt++;
-        }
-
-        msgtext[msgtotalindex] = 0;  msgtotalindex++;
-        msgtotal++;
+        msgtotalindex = MESSAGEBUFFERSIZE - 1;
+        msgtext[msgtotalindex] = '\0';
+        return;
     }
+
+    if ( msgtotal >= MAXTOTALMESSAGE )
+    {
+        return;
+    }
+
+    msgindex[msgtotal] = msgtotalindex;
+    fscanf( fileread, "%255s", szTmp );
+    szTmp[255] = '\0';
+
+    cTmp = szTmp[0];
+    cnt = 1;
+    while ( '\0' != cTmp && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
+    {
+        if ( cTmp == '_' )  cTmp = ' ';
+
+        msgtext[msgtotalindex] = cTmp;
+        msgtotalindex++;
+        cTmp = szTmp[cnt];
+        cnt++;
+    }
+
+    msgtext[msgtotalindex] = '\0';  
+    msgtotalindex++;
+    msgtotal++;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1449,7 +1455,7 @@ int SDL_main( int argc, char **argv )
             // Start a new module
             seed = time( NULL );
 
-            moduleactive = game_init_module( pickedmodule, seed );
+            moduleactive = game_init_module( pickedmodule_name, seed );
 
             game_menu_was_active = game_menu_is_active = gamemenuactive;
             game_escape_requested = bfalse;
@@ -3330,7 +3336,6 @@ void bump_characters( void )
     Uint16 character, particle, ichr_a, ichr_b, iprt_b;
     Uint16 ipip_b, direction;
     Uint32 fanblock, prtidparent, prtidtype, eveidremove;
-    IDSZ   chridvulnerability;
     Sint8 hide;
     int tnc, dist, chrinblock, prtinblock, enchant, temp;
     float ax, ay, nx, ny, scale;  // For deflection
@@ -3709,26 +3714,22 @@ void bump_characters( void )
                         collide_y  = (dy <= pchr_a->bumpsize) || (dy <= pchr_b->bumpsize);
                         collide_xy = (dist <= pchr_a->bumpsizebig) || (dist <= pchr_b->bumpsizebig);
 
-                        ////////////////////////////////
-
-                        if( pchr_a->zvel - pchr_b->zvel < 0 )
+                        if( collide_x && collide_y && collide_xy )
                         {
-                            // A falling on B
-                            if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
+                            if( pchr_a->zvel - pchr_b->zvel < 0 )
                             {
-                                attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
-                                pchr_a->ai.bumplast = ichr_a;
-                                pchr_b->ai.bumplast = ichr_b;
+                                // A falling on B
+                                if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
+                                {
+                                    attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
+                                }
                             }
-                        }
-                        else
-                        {
-                            if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
+                            else
                             {
-                                attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
-
-                                pchr_a->ai.bumplast = ichr_a;
-                                pchr_b->ai.bumplast = ichr_b;
+                                if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
+                                {
+                                    attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
+                                }
                             }
                         }
                     }
@@ -3775,8 +3776,6 @@ void bump_characters( void )
         was_xa = xa - pchr_a->xvel;
         was_ya = ya - pchr_a->yvel;
         was_za = za - pchr_a->zvel;
-
-        chridvulnerability = pcap_a->idsz[IDSZ_VULNERABILITY];
 
         if( 0 == pchr_a->bumpheight ) interaction_strength = 0;
         interaction_strength *= pchr_a->inst.alpha * INV_FF;
@@ -4177,7 +4176,7 @@ void bump_characters( void )
 
 
                     // Now check collisions with every bump particle in same area
-                    //if ( pchr_a->alive )
+                    if ( pchr_a->alive )
                     {
                         for ( tnc = 0, iprt_b = bumplist[fanblock].prt;
                                 tnc < prtinblock;
@@ -4293,7 +4292,7 @@ void bump_characters( void )
                                                     }
 
                                                     // Damage the character
-                                                    if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
+                                                    if ( pcap_a->idsz[IDSZ_VULNERABILITY] != IDSZ_NONE && ( pcap_a->idsz[IDSZ_VULNERABILITY] == prtidtype || pcap_a->idsz[IDSZ_VULNERABILITY] == prtidparent ) )
                                                     {
                                                         damage_character( ichr_a, direction, pprt_b->damagebase << 1, pprt_b->damagerand << 1, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                                                         pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
@@ -4722,17 +4721,12 @@ int load_all_objects( const char *modname )
     filehandle = fs_findFirstFile( newloadname, "obj" );
 
     keeplooking = btrue;
-    if ( filehandle != NULL )
+    while ( filehandle != NULL )
     {
-        while ( keeplooking )
-        {
-            sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( filename, skin );
+        sprintf( filename, "%s%s", newloadname, filehandle );
+        skin += load_one_object( filename, skin );
 
-            filehandle = fs_findNextFile();
-
-            keeplooking = ( filehandle != NULL );
-        }
+        filehandle = fs_findNextFile();
     }
 
     fs_findClose();
@@ -5042,6 +5036,14 @@ bool_t load_module( const char *smallname )
         // just return a failure value and log a warning message for debugging purposes
         log_warning( "Uh oh! Problems loading the mesh! (%s)\n", modname );
         return bfalse;
+    }
+    else
+    {
+        renderlist.all_count = 0;
+        renderlist.ref_count = 0;
+        renderlist.sha_count = 0;
+        renderlist.drf_count = 0;
+        renderlist.ndr_count = 0;
     }
 
     setup_particles();

@@ -1232,7 +1232,10 @@ void make_renderlist()
     for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
     {
         fan = renderlist.all[cnt];
-        tlist[fan].inrenderlist = bfalse;
+        if( fan < mesh.info.tiles_count )
+        {
+            tlist[fan].inrenderlist = bfalse;
+        }
     }
 
     renderlist.all_count = 0;

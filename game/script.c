@@ -1463,7 +1463,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FADDIDSZ:
             // This function adds an idsz to the module's menu.txt file
-            module_add_idsz( pickedmodule, pstate->argument );
+            module_add_idsz( pickedmodule_name, pstate->argument );
             break;
 
         case FSETSTATE:
@@ -3846,7 +3846,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
                 ptext = msgtext + message_index;
 
                 // !!!use the message text to control the links!!!!
-                returncode = link_follow_modname( ptext );
+                returncode = link_follow_modname( ptext, btrue );
 
                 if (!returncode)
                 {
@@ -5809,7 +5809,7 @@ Uint8 scr_AddIDSZ( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function adds an idsz to the module's menu.txt file
-    module_add_idsz( pickedmodule, pstate->argument );
+    module_add_idsz( pickedmodule_name, pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -10777,7 +10777,7 @@ Uint8 scr_FollowLink( script_state_t * pstate, ai_state_t * pself )
     ptext = msgtext + message_index;
 
     // Skips to the next module!
-    returncode = link_follow_modname( ptext );
+    returncode = link_follow_modname( ptext, btrue );
 
     if (!returncode)
     {

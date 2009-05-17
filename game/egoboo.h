@@ -408,8 +408,8 @@ EXTERN Uint8                     autoturncamera;             // Type of camera c
 EXTERN Uint8                     importamount;               // Number of imports for this module
 EXTERN Uint8                     playeramount;
 EXTERN Uint32                    seed  EQ( 0 );              // The module seed
-EXTERN char                      pickedmodule[64];           // The module load name
-EXTERN int                       pickedindex;                // The module index number
+EXTERN char                      pickedmodule_name[64];           // The module load name
+EXTERN int                       pickedmodule_index;                // The module index number
 EXTERN int                       playersready;               // Number of players ready to start
 EXTERN int                       playersloaded;
 
