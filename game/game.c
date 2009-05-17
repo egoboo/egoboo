@@ -3327,8 +3327,8 @@ void show_magic_status( Uint16 statindex )
 void bump_characters( void )
 {
     // ZZ> This function sets handles characters hitting other characters or particles
-    Uint16 character, particle, chara, charb, partb;
-    Uint16 pip, direction;
+    Uint16 character, particle, ichr_a, ichr_b, iprt_b;
+    Uint16 ipip_b, direction;
     Uint32 fanblock, prtidparent, prtidtype, eveidremove;
     IDSZ   chridvulnerability;
     Sint8 hide;
@@ -3361,7 +3361,7 @@ void bump_characters( void )
         ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( ChrList[character].inpack || 0 == ChrList[character].bumpheight ) continue;
+        if ( ChrList[character].inpack ) continue;
 
         // reject characters that are hidden
         hide = CapList[ ChrList[character].model ].hidestate;
@@ -3407,7 +3407,7 @@ void bump_characters( void )
 
 
     // scan all possible object-object interactions, looking for platform attachments
-    for ( chara = 0; chara < MAXCHR; chara++ )
+    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -3417,29 +3417,39 @@ void bump_characters( void )
 
         float xa, ya, za;
 
+        chr_t * pchr_a;
+        cap_t * pcap_a;
+
         // make sure that it is on
-        if ( !ChrList[chara].on ) continue;
+        if ( !ChrList[ichr_a].on ) continue;
+        pchr_a = ChrList + ichr_a;
+
+        if( INVALID_CAP( pchr_a->model ) ) continue;
+        pcap_a = CapList + pchr_a->model;
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( ChrList[chara].inpack || 0 == ChrList[chara].bumpheight ) continue;
+        if ( pchr_a->inpack || 0 == pchr_a->bumpheight ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ ChrList[chara].model ].hidestate;
-        if ( hide != NOHIDE && hide == ChrList[chara].ai.state ) continue;
+        hide = CapList[ pchr_a->model ].hidestate;
+        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
+
+        // if you are mounted, only your mount is affected by platforms
+        if( VALID_CHR(pchr_a->attachedto) ) continue;
 
         // only interested in object-platform interactions
-        if( !ChrList[chara].platform && !CapList[ChrList[chara].model].canuseplatforms ) continue;
+        if( !pchr_a->platform && !pcap_a->canuseplatforms ) continue;
 
-        xa = ChrList[chara].xpos;
-        ya = ChrList[chara].ypos;
-        za = ChrList[chara].zpos;
+        xa = pchr_a->xpos;
+        ya = pchr_a->ypos;
+        za = pchr_a->zpos;
 
         // determine the size of this object in blocks
-        ixmin = ChrList[chara].xpos - ChrList[chara].bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
-        ixmax = ChrList[chara].xpos + ChrList[chara].bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
 
-        iymin = ChrList[chara].ypos - ChrList[chara].bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
-        iymax = ChrList[chara].ypos + ChrList[chara].bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -3458,9 +3468,9 @@ void bump_characters( void )
                     chrinblock = bumplist[fanblock].chrnum;
                     prtinblock = bumplist[fanblock].prtnum;
 
-                    for ( tnc = 0, charb = bumplist[fanblock].chr;
-                        tnc < chrinblock && charb != MAXCHR;
-                        tnc++, charb = ChrList[charb].bumpnext)
+                    for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
+                        tnc < chrinblock && ichr_b != MAXCHR;
+                        tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
                         bool_t platform_a, platform_b;
                         bool_t mount_a, mount_b;
@@ -3472,36 +3482,45 @@ void bump_characters( void )
                         bool_t collide_y  = bfalse;
                         bool_t collide_xy = bfalse;
 
-                        // Don't collide with self, and only do each collision pair once
-                        if ( charb <= chara ) continue;
+                        chr_t * pchr_b;
+                        cap_t * pcap_b;
 
-                        // don't interact with your mount, or your held items
-                        if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
+                        // make sure that it is on
+                        if ( !ChrList[ichr_b].on ) continue;
+                        pchr_b = ChrList + ichr_b;
+
+                        if( INVALID_CAP( pchr_b->model ) ) continue;
+                        pcap_b = CapList + pchr_b->model;
+
+                        // Don't collide with self, and only do each collision pair once
+                        if ( ichr_b <= ichr_a ) continue;
+
+                        // if you are mounted, only your mount is affected by platforms
+                        if( VALID_CHR(pchr_b->attachedto) ) continue;
 
                         // only check possible object-platform interactions
-                        platform_a = CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform;
-                        platform_b = CapList[ChrList[chara].model].canuseplatforms && ChrList[charb].platform;
+                        platform_a = pcap_b->canuseplatforms && pchr_a->platform;
+                        platform_b = pcap_a->canuseplatforms && pchr_b->platform;
                         if( !platform_a && !platform_b ) continue;
 
-                        xb = ChrList[charb].xpos;
-                        yb = ChrList[charb].ypos;
-                        zb = ChrList[charb].zpos;
+                        xb = pchr_b->xpos;
+                        yb = pchr_b->ypos;
+                        zb = pchr_b->zpos;
 
                         // If we can mount this platform, skip it
-                        mount_a = !ChrList[charb].isitem && ChrList[chara].ismount && CapList[ChrList[chara].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[chara].holdingwhich[SLOT_LEFT]);
-                        if( mount_a && ChrList[chara].phys_level < zb + ChrList[charb].bumpheight + PLATTOLERANCE ) 
+                        mount_a = !pchr_b->isitem && pchr_a->ismount && pcap_a->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_a->holdingwhich[SLOT_LEFT]);
+                        if( mount_a && pchr_a->phys_level < zb + pchr_b->bumpheight + PLATTOLERANCE ) 
                             continue;
 
                         // If we can mount this platform, skip it
-                        mount_b = !ChrList[chara].isitem && ChrList[charb].ismount && CapList[ChrList[charb].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[charb].holdingwhich[SLOT_LEFT]);
-                        if( mount_b && ChrList[charb].phys_level < za + ChrList[chara].bumpheight + PLATTOLERANCE ) 
+                        mount_b = !pchr_a->isitem && pchr_b->ismount && pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
+                        if( mount_b && pchr_b->phys_level < za + pchr_a->bumpheight + PLATTOLERANCE ) 
                             continue;
-
 
                         dx = ABS( xa - xb );
                         dy = ABS( ya - yb );
                         dist = dx + dy;
-                        depth_z = MIN( zb + ChrList[charb].bumpheight, za + ChrList[chara].bumpheight ) - MAX(za, zb);
+                        depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
 
                         if( depth_z > PLATTOLERANCE || depth_z < -PLATTOLERANCE ) continue;
 
@@ -3509,13 +3528,13 @@ void bump_characters( void )
                         lerp_z  = depth_z / PLATTOLERANCE;
                         lerp_z  = CLIP( lerp_z, 0, 1 );
 
-                        radius    = MIN(ChrList[chara].bumpsize,     ChrList[charb].bumpsize  ); /* * (1.0f - lerp_z) + (ChrList[chara].bumpsize    + ChrList[charb].bumpsize   ) * lerp_z; */
-                        radius_xy = MIN(ChrList[chara].bumpsizebig, ChrList[charb].bumpsizebig); /* * (1.0f - lerp_z) + (ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig) * lerp_z; */
+                        radius    = MIN(pchr_a->bumpsize,     pchr_b->bumpsize  ); /* * (1.0f - lerp_z) + (pchr_a->bumpsize    + pchr_b->bumpsize   ) * lerp_z; */
+                        radius_xy = MIN(pchr_a->bumpsizebig, pchr_b->bumpsizebig); /* * (1.0f - lerp_z) + (pchr_a->bumpsizebig + pchr_b->bumpsizebig) * lerp_z; */
 
                         // estimate the collisions this frame
-                        collide_x  = (dx <= ChrList[chara].bumpsize) || (dx <= ChrList[charb].bumpsize);
-                        collide_y  = (dy <= ChrList[chara].bumpsize) || (dy <= ChrList[charb].bumpsize);
-                        collide_xy = (dist <= ChrList[chara].bumpsizebig) || (dist <= ChrList[charb].bumpsizebig);
+                        collide_x  = (dx <= pchr_a->bumpsize) || (dx <= pchr_b->bumpsize);
+                        collide_y  = (dy <= pchr_a->bumpsize) || (dy <= pchr_b->bumpsize);
+                        collide_xy = (dist <= pchr_a->bumpsizebig) || (dist <= pchr_b->bumpsizebig);
 
                         if( collide_x && collide_y && collide_xy && depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
                         {
@@ -3530,39 +3549,39 @@ void bump_characters( void )
                             {
                                 float depth_a, depth_b;
 
-                                depth_a = zb + ChrList[charb].bumpheight - za;
-                                depth_b = za + ChrList[chara].bumpheight - zb;
+                                depth_a = zb + pchr_b->bumpheight - za;
+                                depth_b = za + pchr_a->bumpheight - zb;
 
-                                depth_z = MIN( zb + ChrList[charb].bumpheight, za + ChrList[chara].bumpheight ) - MAX(za, zb);
+                                depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
 
                                 chara_on_top = ABS(depth_z - depth_a) < ABS(depth_z - depth_b);
                             }
                             else if( platform_a )
                             {
                                 chara_on_top = bfalse;
-                                depth_z = za + ChrList[chara].bumpheight - zb; 
+                                depth_z = za + pchr_a->bumpheight - zb; 
                             }
                             else if( platform_b )
                             {
                                 chara_on_top = btrue;
-                                depth_z = zb + ChrList[charb].bumpheight - za;
+                                depth_z = zb + pchr_b->bumpheight - za;
                             }
 
                             // check for the best possible attachment
                             if( chara_on_top )
                             {
-                                if( zb + ChrList[charb].bumpheight > ChrList[chara].phys_level )
+                                if( zb + pchr_b->bumpheight > pchr_a->phys_level )
                                 {
-                                    ChrList[chara].phys_level = zb + ChrList[charb].bumpheight;
-                                    ChrList[chara].onwhichplatform = charb;
+                                    pchr_a->phys_level = zb + pchr_b->bumpheight;
+                                    pchr_a->onwhichplatform = ichr_b;
                                 }
                             }
                             else
                             {
-                                if( za + ChrList[chara].bumpheight > ChrList[charb].phys_level )
+                                if( za + pchr_a->bumpheight > pchr_b->phys_level )
                                 {
-                                    ChrList[charb].phys_level = za + ChrList[chara].bumpheight;
-                                    ChrList[charb].onwhichplatform = chara;
+                                    pchr_b->phys_level = za + pchr_a->bumpheight;
+                                    pchr_b->onwhichplatform = ichr_a;
                                 }
                             }
                         }
@@ -3572,8 +3591,9 @@ void bump_characters( void )
         }
     }
 
-    // handle all the character-character and character-particle interactions
-    for ( chara = 0; chara < MAXCHR; chara++ )
+
+    // scan all possible object-object interactions, looking for possible mounts
+    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -3581,34 +3601,38 @@ void bump_characters( void )
         int ix_block, ixmax_block, ixmin_block;
         int iy_block, iymax_block, iymin_block;
 
-        float xa, ya, za, was_xa, was_ya, was_za;
+        float xa, ya, za;
+
+        chr_t * pchr_a;
+        cap_t * pcap_a;
 
         // make sure that it is on
-        if ( !ChrList[chara].on ) continue;
+        if ( !ChrList[ichr_a].on ) continue;
+        pchr_a = ChrList + ichr_a;
+
+        if( INVALID_CAP( pchr_a->model ) ) continue;
+        pcap_a = CapList + pchr_a->model;
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( ChrList[chara].inpack || 0 == ChrList[chara].bumpheight ) continue;
+        if ( pchr_a->inpack || 0 == pchr_a->bumpheight ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ ChrList[chara].model ].hidestate;
-        if ( hide != NOHIDE && hide == ChrList[chara].ai.state ) continue;
+        hide = CapList[ pchr_a->model ].hidestate;
+        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
 
-        xa = ChrList[chara].xpos;
-        ya = ChrList[chara].ypos;
-        za = ChrList[chara].zpos;
+        // if you are already mounted, ignore all new mounts
+        if( VALID_CHR(pchr_a->attachedto) ) continue;
 
-        was_xa = xa - ChrList[chara].xvel;
-        was_ya = ya - ChrList[chara].yvel;
-        was_za = za - ChrList[chara].zvel;
-
-        chridvulnerability = CapList[ChrList[chara].model].idsz[IDSZ_VULNERABILITY];
+        xa = pchr_a->xpos;
+        ya = pchr_a->ypos;
+        za = pchr_a->zpos;
 
         // determine the size of this object in blocks
-        ixmin = ChrList[chara].xpos - ChrList[chara].bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
-        ixmax = ChrList[chara].xpos + ChrList[chara].bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
 
-        iymin = ChrList[chara].ypos - ChrList[chara].bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
-        iymax = ChrList[chara].ypos + ChrList[chara].bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -3616,7 +3640,6 @@ void bump_characters( void )
         iymax_block = iymax >> 9; iymax_block = CLIP( iymax_block, 0, MAXMESHBLOCKY );
         iymin_block = iymin >> 9; iymin_block = CLIP( iymin_block, 0, MAXMESHBLOCKY );
 
-        // handle all the character-character interactions
         for (ix_block = ixmin_block; ix_block <= ixmax_block; ix_block++)
         {
             for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
@@ -3628,9 +3651,165 @@ void bump_characters( void )
                     chrinblock = bumplist[fanblock].chrnum;
                     prtinblock = bumplist[fanblock].prtnum;
 
-                    for ( tnc = 0, charb = bumplist[fanblock].chr;
-                            tnc < chrinblock && charb != MAXCHR;
-                            tnc++, charb = ChrList[charb].bumpnext)
+                    for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
+                        tnc < chrinblock && ichr_b != MAXCHR;
+                        tnc++, ichr_b = ChrList[ichr_b].bumpnext)
+                    {
+                        bool_t mount_a, mount_b;
+                        float  xb, yb, zb;
+                        float  dx, dy, dist;
+                        float  depth_z, lerp_z, radius, radius_xy;
+
+                        bool_t collide_x  = bfalse;
+                        bool_t collide_y  = bfalse;
+                        bool_t collide_xy = bfalse;
+
+                        chr_t * pchr_b;
+                        cap_t * pcap_b;
+
+                        // Don't collide with self, and only do each collision pair once
+                        if ( ichr_b <= ichr_a ) continue;
+
+                        // make sure that it is on
+                        if ( !ChrList[ichr_b].on ) continue;
+                        pchr_b = ChrList + ichr_b;
+
+                        if( INVALID_CAP( pchr_b->model ) ) continue;
+                        pcap_b = CapList + pchr_b->model;
+
+                        // if you are already mounted, ignore all new mounts
+                        if( VALID_CHR(pchr_b->attachedto) ) continue;
+
+                        xb = pchr_b->xpos;
+                        yb = pchr_b->ypos;
+                        zb = pchr_b->zpos;
+
+                        // can either of these objects mount the other?
+                        mount_a = !pchr_b->isitem && pchr_a->ismount && pcap_a->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_a->holdingwhich[SLOT_LEFT]);
+                        mount_b = !pchr_a->isitem && pchr_b->ismount && pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
+
+                        if( !mount_a && !mount_b ) continue;
+
+                        dx = ABS( xa - xb );
+                        dy = ABS( ya - yb );
+                        dist = dx + dy;
+                        depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
+
+                        if( depth_z > PLATTOLERANCE || depth_z < -PLATTOLERANCE ) continue;
+
+                        // estimate the radius of interaction based on the z overlap
+                        lerp_z  = depth_z / PLATTOLERANCE;
+                        lerp_z  = CLIP( lerp_z, 0, 1 );
+
+                        radius    = MIN(pchr_a->bumpsize,     pchr_b->bumpsize  ); /* * (1.0f - lerp_z) + (pchr_a->bumpsize    + pchr_b->bumpsize   ) * lerp_z; */
+                        radius_xy = MIN(pchr_a->bumpsizebig, pchr_b->bumpsizebig); /* * (1.0f - lerp_z) + (pchr_a->bumpsizebig + pchr_b->bumpsizebig) * lerp_z; */
+
+                        // estimate the collisions this frame
+                        collide_x  = (dx <= pchr_a->bumpsize) || (dx <= pchr_b->bumpsize);
+                        collide_y  = (dy <= pchr_a->bumpsize) || (dy <= pchr_b->bumpsize);
+                        collide_xy = (dist <= pchr_a->bumpsizebig) || (dist <= pchr_b->bumpsizebig);
+
+                        ////////////////////////////////
+
+                        if( pchr_a->zvel - pchr_b->zvel < 0 )
+                        {
+                            // A falling on B
+                            if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
+                            {
+                                attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
+                                pchr_a->ai.bumplast = ichr_a;
+                                pchr_b->ai.bumplast = ichr_b;
+                            }
+                        }
+                        else
+                        {
+                            if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
+                            {
+                                attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
+
+                                pchr_a->ai.bumplast = ichr_a;
+                                pchr_b->ai.bumplast = ichr_b;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    // handle all the character-character and character-particle interactions
+    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
+    {
+        int ixmax, ixmin;
+        int iymax, iymin;
+
+        int ix_block, ixmax_block, ixmin_block;
+        int iy_block, iymax_block, iymin_block;
+
+        float xa, ya, za, was_xa, was_ya, was_za;
+        chr_t * pchr_a;
+        cap_t * pcap_a;
+
+        float interaction_strength = 1.0f;
+
+        // make sure that it is on
+        if ( !ChrList[ichr_a].on ) continue;
+        pchr_a = ChrList + ichr_a;
+
+        if( INVALID_CAP( pchr_a->model ) ) continue;
+        pcap_a = CapList + pchr_a->model;
+
+        // reject characters that are in packs, or are marked as non-colliding
+        if ( pchr_a->inpack ) continue;
+
+        // reject characters that are hidden
+        hide = CapList[ pchr_a->model ].hidestate;
+        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
+
+        xa = pchr_a->xpos;
+        ya = pchr_a->ypos;
+        za = pchr_a->zpos;
+
+        was_xa = xa - pchr_a->xvel;
+        was_ya = ya - pchr_a->yvel;
+        was_za = za - pchr_a->zvel;
+
+        chridvulnerability = pcap_a->idsz[IDSZ_VULNERABILITY];
+
+        if( 0 == pchr_a->bumpheight ) interaction_strength = 0;
+        interaction_strength *= pchr_a->inst.alpha * INV_FF;
+
+        // determine the size of this object in blocks
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+
+        ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
+        ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
+
+        iymax_block = iymax >> 9; iymax_block = CLIP( iymax_block, 0, MAXMESHBLOCKY );
+        iymin_block = iymin >> 9; iymin_block = CLIP( iymin_block, 0, MAXMESHBLOCKY );
+
+        // handle all the interactions on this block
+        for (ix_block = ixmin_block; ix_block <= ixmax_block; ix_block++)
+        {
+            for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
+            {
+                // Allow raw access here because we were careful :)
+                fanblock = mesh_get_block_int(&mesh, ix_block, iy_block);
+                if ( INVALID_BLOCK != fanblock )
+                {
+                    chrinblock = bumplist[fanblock].chrnum;
+                    prtinblock = bumplist[fanblock].prtnum;
+
+                    // handle all the character-character interactions
+                    for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
+                            tnc < chrinblock && ichr_b != MAXCHR;
+                            tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
                         float xb, yb, zb, was_xb, was_yb, was_zb;
 
@@ -3644,77 +3823,91 @@ void bump_characters( void )
                         bool_t collide_xy = bfalse, was_collide_xy;
                         bool_t collide_z  = bfalse, was_collide_z;
 
+                        chr_t * pchr_b;
+                        cap_t * pcap_b;
+
                         // Don't collide with self, and only do each collision pair once
-                        if ( charb <= chara ) continue;
+                        if ( ichr_b <= ichr_a ) continue;
+
+                        if( !ChrList[ichr_b].on ) continue;
+                        pchr_b = ChrList + ichr_b;
+
+                        if( INVALID_CAP( pchr_b->model ) ) continue;
+                        pcap_b = CapList + pchr_b->model;
+
+                        if( 0 == pchr_b->bumpheight ) interaction_strength = 0;
+                        interaction_strength *= pchr_b->inst.alpha * INV_FF;
+
+                        if( 0.0f == interaction_strength ) continue;
 
                         // don't interact with your mount, or your held items
-                        if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
+                        if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) continue;
 
-                        if( chara == ChrList[charb].onwhichplatform )
+                        if( ichr_a == pchr_b->onwhichplatform )
                         {
-                            // we know that chara is a platform and charb is on it
+                            // we know that ichr_a is a platform and ichr_b is on it
 
-                            lerp_z = (ChrList[charb].zpos - ChrList[charb].phys_level) / PLATTOLERANCE;
+                            lerp_z = (pchr_b->zpos - pchr_b->phys_level) / PLATTOLERANCE;
                             lerp_z = CLIP( lerp_z, -1, 1 );
 
                             if( lerp_z < 0 )
                             {
-                                ChrList[charb].phys_pos_z += (ChrList[charb].phys_level - ChrList[charb].zpos) * 0.25f * (-lerp_z);
+                                pchr_b->phys_pos_z += (pchr_b->phys_level - pchr_b->zpos) * 0.25f * (-lerp_z);
                             };
 
                             if( lerp_z > 0 )
                             {
-                                ChrList[chara].holdingweight += ChrList[charb].weight * lerp_z;
+                                pchr_a->holdingweight += pchr_b->weight * lerp_z;
 
-                                ChrList[charb].phys_vel_x += ( ChrList[chara].xvel - ChrList[charb].xvel ) * platstick * lerp_z;
-                                ChrList[charb].phys_vel_y += ( ChrList[chara].yvel - ChrList[charb].yvel ) * platstick * lerp_z;
-                                ChrList[charb].phys_vel_z +=  ( ChrList[chara].zvel - ChrList[charb].zvel ) * lerp_z;
-                                ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick * lerp_z;
+                                pchr_b->phys_vel_x += ( pchr_a->xvel - pchr_b->xvel ) * platstick * lerp_z;
+                                pchr_b->phys_vel_y += ( pchr_a->yvel - pchr_b->yvel ) * platstick * lerp_z;
+                                pchr_b->phys_vel_z +=  ( pchr_a->zvel - pchr_b->zvel ) * lerp_z;
+                                pchr_b->turnleftright += ( pchr_a->turnleftright - pchr_a->oldturn ) * platstick * lerp_z;
 
-                                ChrList[charb].jumpready = btrue;
-                                ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
+                                pchr_b->jumpready = btrue;
+                                pchr_b->jumpnumber = pchr_b->jumpnumberreset;
                             }
 
                             // this is handled
                             continue;
                         }
                         
-                        if( charb == ChrList[chara].onwhichplatform )
+                        if( ichr_b == pchr_a->onwhichplatform )
                         {
-                            // we know that charb is a platform and chara is on it
+                            // we know that ichr_b is a platform and ichr_a is on it
 
-                            lerp_z = (ChrList[chara].zpos - ChrList[chara].phys_level) / PLATTOLERANCE;
+                            lerp_z = (pchr_a->zpos - pchr_a->phys_level) / PLATTOLERANCE;
                             lerp_z = CLIP( lerp_z, -1, 1 );
 
                             if( lerp_z < 0 )
                             {
-                                ChrList[chara].phys_pos_z += (ChrList[chara].phys_level - ChrList[chara].zpos) * 0.25f * lerp_z;
+                                pchr_a->phys_pos_z += (pchr_a->phys_level - pchr_a->zpos) * 0.25f * lerp_z;
                             }
 
                             if( lerp_z > 0 )
                             {
-                                ChrList[charb].holdingweight += ChrList[chara].weight * lerp_z;
+                                pchr_b->holdingweight += pchr_a->weight * lerp_z;
 
-                                ChrList[chara].phys_vel_x += ( ChrList[charb].xvel - ChrList[chara].xvel ) * platstick * lerp_z;
-                                ChrList[chara].phys_vel_y += ( ChrList[charb].yvel - ChrList[chara].yvel ) * platstick * lerp_z;
-                                ChrList[chara].phys_vel_z +=  ( ChrList[charb].zvel - ChrList[chara].zvel ) * lerp_z;
-                                ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick * lerp_z;
+                                pchr_a->phys_vel_x += ( pchr_b->xvel - pchr_a->xvel ) * platstick * lerp_z;
+                                pchr_a->phys_vel_y += ( pchr_b->yvel - pchr_a->yvel ) * platstick * lerp_z;
+                                pchr_a->phys_vel_z +=  ( pchr_b->zvel - pchr_a->zvel ) * lerp_z;
+                                pchr_a->turnleftright += ( pchr_b->turnleftright - pchr_b->oldturn ) * platstick * lerp_z;
 
-                                ChrList[chara].jumpready = btrue;
-                                ChrList[chara].jumpnumber = ChrList[charb].jumpnumberreset;
+                                pchr_a->jumpready = btrue;
+                                pchr_a->jumpnumber = pchr_b->jumpnumberreset;
                             }
 
                             // this is handled
                             continue;
                         }
 
-                        xb = ChrList[charb].xpos;
-                        yb = ChrList[charb].ypos;
-                        zb = ChrList[charb].zpos;
+                        xb = pchr_b->xpos;
+                        yb = pchr_b->ypos;
+                        zb = pchr_b->zpos;
 
-                        was_xb = xb - ChrList[charb].xvel;
-                        was_yb = yb - ChrList[charb].yvel;
-                        was_zb = zb - ChrList[charb].zvel;
+                        was_xb = xb - pchr_b->xvel;
+                        was_yb = yb - pchr_b->yvel;
+                        was_zb = zb - pchr_b->zvel;
 
                         dx = ABS( xa - xb );
                         dy = ABS( ya - yb );
@@ -3724,15 +3917,15 @@ void bump_characters( void )
                         was_dy = ABS( was_ya - was_yb );
                         was_dist = was_dx + was_dy;
 
-                        depth_z = MIN( zb + ChrList[charb].bumpheight, za + ChrList[chara].bumpheight ) - MAX(za, zb);
-                        was_depth_z = MIN( was_zb + ChrList[charb].bumpheight, was_za + ChrList[chara].bumpheight ) - MAX(was_za, was_zb);
+                        depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
+                        was_depth_z = MIN( was_zb + pchr_b->bumpheight, was_za + pchr_a->bumpheight ) - MAX(was_za, was_zb);
 
                         // estimate the radius of interaction based on the z overlap
                         lerp_z  = depth_z / PLATTOLERANCE;
                         lerp_z  = CLIP( lerp_z, 0, 1 );
 
-                        radius    = MIN(ChrList[chara].bumpsize, ChrList[charb].bumpsize) * (1.0f - lerp_z) + (ChrList[chara].bumpsize + ChrList[charb].bumpsize) * lerp_z;
-                        radius_xy = MIN(ChrList[chara].bumpsizebig, ChrList[charb].bumpsizebig) * (1.0f - lerp_z) + (ChrList[chara].bumpsizebig + ChrList[charb].bumpsizebig) * lerp_z;
+                        radius    = MIN(pchr_a->bumpsize, pchr_b->bumpsize) * (1.0f - lerp_z) + (pchr_a->bumpsize + pchr_b->bumpsize) * lerp_z;
+                        radius_xy = MIN(pchr_a->bumpsizebig, pchr_b->bumpsizebig) * (1.0f - lerp_z) + (pchr_a->bumpsizebig + pchr_b->bumpsizebig) * lerp_z;
 
                         // estimate the collisions this frame
                         collide_x  = (dx <= radius);
@@ -3753,8 +3946,8 @@ void bump_characters( void )
                             float wta, wtb;
                             bool_t collision = bfalse;
 
-                            wta = 0xFFFFFFFF == ChrList[chara].weight ? -(float)0xFFFFFFFF : ChrList[chara].weight;
-                            wtb = 0xFFFFFFFF == ChrList[charb].weight ? -(float)0xFFFFFFFF : ChrList[charb].weight;
+                            wta = 0xFFFFFFFF == pchr_a->weight ? -(float)0xFFFFFFFF : pchr_a->weight;
+                            wtb = 0xFFFFFFFF == pchr_b->weight ? -(float)0xFFFFFFFF : pchr_b->weight;
 
                             if ( wta == 0 && wtb == 0 )
                             {
@@ -3771,16 +3964,16 @@ void bump_characters( void )
                                 wta = -0xFFFF;
                             }
 
-                            if ( 0.0f == ChrList[chara].bumpdampen && 0.0f == ChrList[charb].bumpdampen )
+                            if ( 0.0f == pchr_a->bumpdampen && 0.0f == pchr_b->bumpdampen )
                             {
                                 /* do nothing */
                             }
-                            else if ( 0.0f == ChrList[chara].bumpdampen )
+                            else if ( 0.0f == pchr_a->bumpdampen )
                             {
                                 // make the weight infinite
                                 wta = -0xFFFF;
                             }
-                            else if ( 0.0f == ChrList[charb].bumpdampen )
+                            else if ( 0.0f == pchr_b->bumpdampen )
                             {
                                 // make the weight infinite
                                 wtb = -0xFFFF;
@@ -3788,8 +3981,8 @@ void bump_characters( void )
                             else
                             {
                                 // adjust the weights to respect bumpdampen
-                                wta /= ChrList[chara].bumpdampen;
-                                wtb /= ChrList[charb].bumpdampen;
+                                wta /= pchr_a->bumpdampen;
+                                wtb /= pchr_b->bumpdampen;
                             }
 
                             if ( !collision && collide_z )
@@ -3798,13 +3991,13 @@ void bump_characters( void )
                                 GLvector3 nrm;
                                 int exponent = 1;
                                 
-                                if( CapList[ChrList[chara].model].canuseplatforms && ChrList[charb].platform ) exponent += 2;
-                                if( CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform ) exponent += 2;
+                                if( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
+                                if( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
 
 
                                 nrm.x = nrm.y = nrm.z = 0.0f;
 
-                                depth_x  = MIN(xa + ChrList[chara].bumpsize, xb + ChrList[charb].bumpsize) - MAX(xa - ChrList[chara].bumpsize, xb - ChrList[charb].bumpsize);
+                                depth_x  = MIN(xa + pchr_a->bumpsize, xb + pchr_b->bumpsize) - MAX(xa - pchr_a->bumpsize, xb - pchr_b->bumpsize);
                                 if ( depth_x < 0.0f )
                                 {
                                     depth_x = 0.0f;
@@ -3817,7 +4010,7 @@ void bump_characters( void )
                                     nrm.x += sgn / POW(depth_x/PLATTOLERANCE, exponent);
                                 }
 
-                                depth_y  = MIN(ya + ChrList[chara].bumpsize, yb + ChrList[charb].bumpsize) - MAX(ya - ChrList[chara].bumpsize, yb - ChrList[charb].bumpsize);
+                                depth_y  = MIN(ya + pchr_a->bumpsize, yb + pchr_b->bumpsize) - MAX(ya - pchr_a->bumpsize, yb - pchr_b->bumpsize);
                                 if ( depth_y < 0.0f )
                                 {
                                     depth_y = 0.0f;
@@ -3830,7 +4023,7 @@ void bump_characters( void )
                                     nrm.y += sgn / POW(depth_y/PLATTOLERANCE, exponent);
                                 }
 
-                                depth_xy = MIN(xa + ya + ChrList[chara].bumpsizebig, xb + yb + ChrList[charb].bumpsizebig) - MAX(xa + ya - ChrList[chara].bumpsizebig, xb + yb - ChrList[charb].bumpsizebig);
+                                depth_xy = MIN(xa + ya + pchr_a->bumpsizebig, xb + yb + pchr_b->bumpsizebig) - MAX(xa + ya - pchr_a->bumpsizebig, xb + yb - pchr_b->bumpsizebig);
                                 if ( depth_xy < 0.0f )
                                 {
                                     depth_xy = 0.0f;
@@ -3844,7 +4037,7 @@ void bump_characters( void )
                                     nrm.y += sgn / POW(depth_xy/PLATTOLERANCE, exponent);
                                 }
 
-                                depth_yx = MIN(-xa + ya + ChrList[chara].bumpsizebig, -xb + yb + ChrList[charb].bumpsizebig) - MAX(-xa + ya - ChrList[chara].bumpsizebig, -xb + yb - ChrList[charb].bumpsizebig);
+                                depth_yx = MIN(-xa + ya + pchr_a->bumpsizebig, -xb + yb + pchr_b->bumpsizebig) - MAX(-xa + ya - pchr_a->bumpsizebig, -xb + yb - pchr_b->bumpsizebig);
                                 if ( depth_yx < 0.0f )
                                 {
                                     depth_yx = 0.0f;
@@ -3857,14 +4050,14 @@ void bump_characters( void )
                                     nrm.y += sgn / POW(depth_yx/PLATTOLERANCE, exponent);
                                 }
 
-                                depth_z  = MIN(za + ChrList[chara].bumpheight, zb + ChrList[charb].bumpheight) - MAX( za, zb );
+                                depth_z  = MIN(za + pchr_a->bumpheight, zb + pchr_b->bumpheight) - MAX( za, zb );
                                 if ( depth_z < 0.0f )
                                 {
                                     depth_z = 0.0f;
                                 }
                                 else
                                 {
-                                    float sgn = (zb + ChrList[charb].bumpheight/2) - (za + ChrList[chara].bumpheight / 2);
+                                    float sgn = (zb + pchr_b->bumpheight/2) - (za + pchr_a->bumpheight / 2);
                                     sgn = sgn > 0 ? -1 : 1;
 
                                     nrm.z += sgn / POW(exponent * depth_z/PLATTOLERANCE, exponent);
@@ -3882,9 +4075,9 @@ void bump_characters( void )
                                         GLvector3 vcom;
                                         float vdot, ratio;
 
-                                        vcom.x = ChrList[chara].xvel * ABS(wta) + ChrList[charb].xvel * ABS(wtb);
-                                        vcom.y = ChrList[chara].yvel * ABS(wta) + ChrList[charb].yvel * ABS(wtb);
-                                        vcom.z = ChrList[chara].zvel * ABS(wta) + ChrList[charb].zvel * ABS(wtb);
+                                        vcom.x = pchr_a->xvel * ABS(wta) + pchr_b->xvel * ABS(wtb);
+                                        vcom.y = pchr_a->yvel * ABS(wta) + pchr_b->yvel * ABS(wtb);
+                                        vcom.z = pchr_a->zvel * ABS(wta) + pchr_b->zvel * ABS(wtb);
 
                                         if ( ABS(wta) + ABS(wtb) > 0 )
                                         {
@@ -3896,24 +4089,24 @@ void bump_characters( void )
                                         // do the bounce
                                         if ( wta >= 0 )
                                         {
-                                            vdot = ( ChrList[chara].xvel - vcom.x ) * nrm.x + ( ChrList[chara].yvel - vcom.y ) * nrm.y + ( ChrList[chara].zvel - vcom.z ) * nrm.z;
+                                            vdot = ( pchr_a->xvel - vcom.x ) * nrm.x + ( pchr_a->yvel - vcom.y ) * nrm.y + ( pchr_a->zvel - vcom.z ) * nrm.z;
 
                                             ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
 
-                                            ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + vcom.x - vdot * nrm.x * ratio;
-                                            ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + vcom.y - vdot * nrm.y * ratio;
-                                            ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + vcom.z - vdot * nrm.z * ratio;
+                                            pchr_a->phys_vel_x  += -pchr_a->xvel + vcom.x - vdot * nrm.x * ratio;
+                                            pchr_a->phys_vel_y  += -pchr_a->yvel + vcom.y - vdot * nrm.y * ratio;
+                                            pchr_a->phys_vel_z  += -pchr_a->zvel + vcom.z - vdot * nrm.z * ratio;
                                         }
 
                                         if ( wtb >= 0 )
                                         {
-                                            vdot = ( ChrList[charb].xvel - vcom.x ) * nrm.x + ( ChrList[charb].yvel - vcom.y ) * nrm.y + ( ChrList[charb].zvel - vcom.z ) * nrm.z;
+                                            vdot = ( pchr_b->xvel - vcom.x ) * nrm.x + ( pchr_b->yvel - vcom.y ) * nrm.y + ( pchr_b->zvel - vcom.z ) * nrm.z;
 
                                             ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
 
-                                            ChrList[charb].phys_vel_x  += -ChrList[charb].xvel + vcom.x - vdot * nrm.x * ratio;
-                                            ChrList[charb].phys_vel_y  += -ChrList[charb].yvel + vcom.y - vdot * nrm.y * ratio;
-                                            ChrList[charb].phys_vel_z  += -ChrList[charb].zvel + vcom.z - vdot * nrm.z * ratio;
+                                            pchr_b->phys_vel_x  += -pchr_b->xvel + vcom.x - vdot * nrm.x * ratio;
+                                            pchr_b->phys_vel_y  += -pchr_b->yvel + vcom.y - vdot * nrm.y * ratio;
+                                            pchr_b->phys_vel_z  += -pchr_b->zvel + vcom.z - vdot * nrm.z * ratio;
                                         }
 
                                         collision = btrue;
@@ -3952,18 +4145,18 @@ void bump_characters( void )
                                             {
                                                 float ratio = (float)ABS(wtb) / ((float)ABS(wta) + (float)ABS(wtb));
 
-                                                ChrList[chara].phys_pos_x += tmin * nrm.x * 0.25f * ratio;
-                                                ChrList[chara].phys_pos_y += tmin * nrm.y * 0.25f * ratio;
-                                                ChrList[chara].phys_pos_z += tmin * nrm.z * 0.25f * ratio;
+                                                pchr_a->phys_pos_x += tmin * nrm.x * 0.25f * ratio;
+                                                pchr_a->phys_pos_y += tmin * nrm.y * 0.25f * ratio;
+                                                pchr_a->phys_pos_z += tmin * nrm.z * 0.25f * ratio;
                                             }
 
                                             if ( wtb >= 0.0f )
                                             {
                                                 float ratio = (float)ABS(wta) / ((float)ABS(wta) + (float)ABS(wtb));
 
-                                                ChrList[charb].phys_pos_x -= tmin * nrm.x * 0.25f * ratio;
-                                                ChrList[charb].phys_pos_y -= tmin * nrm.y * 0.25f * ratio;
-                                                ChrList[charb].phys_pos_z -= tmin * nrm.z * 0.25f * ratio;
+                                                pchr_b->phys_pos_x -= tmin * nrm.x * 0.25f * ratio;
+                                                pchr_b->phys_pos_y -= tmin * nrm.y * 0.25f * ratio;
+                                                pchr_b->phys_pos_z -= tmin * nrm.z * 0.25f * ratio;
                                             }
                                         }
                                     }
@@ -3971,153 +4164,104 @@ void bump_characters( void )
 
                                 if ( collision )
                                 {
-                                    ChrList[chara].ai.bumplast = charb;
-                                    ChrList[charb].ai.bumplast = chara;
+                                    pchr_a->ai.bumplast = ichr_b;
+                                    pchr_b->ai.bumplast = ichr_a;
 
-                                    ChrList[chara].ai.alert |= ALERTIF_BUMPED;
-                                    ChrList[charb].ai.alert |= ALERTIF_BUMPED;			
+                                    pchr_a->ai.alert |= ALERTIF_BUMPED;
+                                    pchr_b->ai.alert |= ALERTIF_BUMPED;			
                                 }
                             }
                         }
                     }
 
-                    // do mounting
-                    charb = ChrList[chara].ai.bumplast;
-                    if ( charb != chara && ChrList[charb].on && !ChrList[charb].inpack && ChrList[charb].attachedto == MAXCHR && 0 != ChrList[chara].bumpheight && 0 != ChrList[charb].bumpheight )
-                    {
-                        float xb, yb, zb;
-                        float dx, dy;
 
-                        xb = ChrList[charb].xpos;
-                        yb = ChrList[charb].ypos;
-                        zb = ChrList[charb].zpos;
-
-                        // First check absolute value diamond
-                        dx = ABS( xa - xb );
-                        dy = ABS( ya - yb );
-                        dist = dx + dy;
-                        if ( dist < ChrList[chara].bumpsizebig || dist < ChrList[charb].bumpsizebig )
-                        {
-                            // Then check bounding box square...  Square+Diamond=Octagon
-                            if ( ( dx < ChrList[chara].bumpsize || dx < ChrList[charb].bumpsize ) &&
-                                    ( dy < ChrList[chara].bumpsize || dy < ChrList[charb].bumpsize ) )
-                            {
-                                // Now see if either is on top the other like a platform
-                                if ( za > zb + ChrList[charb].bumpheight - PLATTOLERANCE + ChrList[chara].zvel - ChrList[charb].zvel && ( CapList[ChrList[chara].model].canuseplatforms || za > zb + ChrList[charb].bumpheight ) )
-                                {
-                                    // Is A falling on B?
-                                    if ( za < zb + ChrList[charb].bumpheight && ChrList[charb].platform && ChrList[chara].alive )//&&ChrList[chara].flyheight==0)
-                                    {
-                                        if ( MadList[ChrList[chara].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[charb].ismount && !ChrList[chara].isitem && ChrList[charb].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[chara].attachedto == MAXCHR && ChrList[chara].jumptime == 0 && ChrList[chara].flyheight == 0 )
-                                        {
-                                            attach_character_to_mount( chara, charb, GRIP_ONLY );
-                                            ChrList[chara].ai.bumplast = chara;
-                                            ChrList[charb].ai.bumplast = charb;
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    if ( zb > za + ChrList[chara].bumpheight - PLATTOLERANCE + ChrList[charb].zvel - ChrList[chara].zvel && ( CapList[ChrList[charb].model].canuseplatforms || zb > za + ChrList[chara].bumpheight ) )
-                                    {
-                                        // Is B falling on A?
-                                        if ( zb < za + ChrList[chara].bumpheight && ChrList[chara].platform && ChrList[charb].alive )//&&ChrList[charb].flyheight==0)
-                                        {
-                                            if ( MadList[ChrList[charb].inst.imad].actionvalid[ACTIONMI] && ChrList[chara].alive && ChrList[charb].alive && ChrList[chara].ismount && !ChrList[charb].isitem && ChrList[chara].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[charb].attachedto == MAXCHR && ChrList[charb].jumptime == 0 && ChrList[charb].flyheight == 0 )
-                                            {
-                                                attach_character_to_mount( charb, chara, GRIP_ONLY );
-
-                                                ChrList[chara].ai.bumplast = chara;
-                                                ChrList[charb].ai.bumplast = charb;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
 
                     // Now check collisions with every bump particle in same area
-                    if ( ChrList[chara].alive )
+                    //if ( pchr_a->alive )
                     {
-                        for ( tnc = 0, partb = bumplist[fanblock].prt;
+                        for ( tnc = 0, iprt_b = bumplist[fanblock].prt;
                                 tnc < prtinblock;
-                                tnc++, partb = PrtList[partb].bumpnext )
+                                tnc++, iprt_b = PrtList[iprt_b].bumpnext )
                         {
                             float xb, yb, zb;
                             float dx, dy;
+                            prt_t * pprt_b;
+                            pip_t * ppip_b;
+
+                            if( !VALID_PRT( iprt_b ) ) continue;
+                            pprt_b = PrtList + iprt_b;
+
+                            ipip_b = pprt_b->pip;
+                            if( INVALID_PIP( ipip_b ) ) continue;
+                            ppip_b = PipList + ipip_b;
 
                             // do not collide with the thing that you're attached to
-                            if ( chara == PrtList[partb].attachedtocharacter ) continue;
+                            if ( ichr_a == pprt_b->attachedtocharacter ) continue;
 
-                            // if there's no friendly fire, particles issued by chara can't hit it
-                            if ( !PipList[PrtList[partb].pip].friendlyfire && chara == PrtList[partb].chr ) continue;
+                            // if there's no friendly fire, particles issued by ichr_a can't hit it
+                            if ( !ppip_b->friendlyfire && ichr_a == pprt_b->chr ) continue;
 
-                            xb = PrtList[partb].xpos;
-                            yb = PrtList[partb].ypos;
-                            zb = PrtList[partb].zpos;
+                            xb = pprt_b->xpos;
+                            yb = pprt_b->ypos;
+                            zb = pprt_b->zpos;
 
                             // First check absolute value diamond
                             dx = ABS( xa - xb );
                             dy = ABS( ya - yb );
                             dist = dx + dy;
-                            if ( dist < ChrList[chara].bumpsizebig || dist < PrtList[partb].bumpsizebig )
+                            if ( dist < pchr_a->bumpsizebig || dist < pprt_b->bumpsizebig )
                             {
                                 // Then check bounding box square...  Square+Diamond=Octagon
-                                if ( ( dx < ChrList[chara].bumpsize  || dx < PrtList[partb].bumpsize ) &&
-                                        ( dy < ChrList[chara].bumpsize  || dy < PrtList[partb].bumpsize ) &&
-                                        ( zb > za - PrtList[partb].bumpheight && zb < za + ChrList[chara].bumpheight + PrtList[partb].bumpheight ) )
+                                if ( ( dx < pchr_a->bumpsize  || dx < pprt_b->bumpsize ) &&
+                                     ( dy < pchr_a->bumpsize  || dy < pprt_b->bumpsize ) &&
+                                     ( zb > za - pprt_b->bumpheight && zb < za + pchr_a->bumpheight + pprt_b->bumpheight ) )
                                 {
-                                    pip = PrtList[partb].pip;
-                                    if ( zb > za + ChrList[chara].bumpheight + PrtList[partb].zvel && PrtList[partb].zvel < 0 && ChrList[chara].platform && PrtList[partb].attachedtocharacter == MAXCHR )
+                                    if ( zb > za + pchr_a->bumpheight + pprt_b->zvel && pprt_b->zvel < 0 && pchr_a->platform && INVALID_CHR(pprt_b->attachedtocharacter) )
                                     {
                                         // Particle is falling on A
-                                        PrtList[partb].zpos = za + ChrList[chara].bumpheight;
-                                        PrtList[partb].zvel = -PrtList[partb].zvel * PipList[pip].dampen;
-                                        PrtList[partb].xvel += ( ChrList[chara].xvel ) * platstick;
-                                        PrtList[partb].yvel += ( ChrList[chara].yvel ) * platstick;
+                                        pprt_b->zpos = za + pchr_a->bumpheight;
+                                        pprt_b->zvel = -pprt_b->zvel * ppip_b->dampen;
+                                        pprt_b->xvel += ( pchr_a->xvel ) * platstick;
+                                        pprt_b->yvel += ( pchr_a->yvel ) * platstick;
                                     }
 
                                     // Check reaffirmation of particles
-                                    if ( PrtList[partb].attachedtocharacter != chara )
+                                    if ( pchr_a->reloadtime == 0 && pchr_a->damagetime == 0 )
                                     {
-                                        if ( ChrList[chara].reloadtime == 0 )
+                                        if ( ichr_a != pprt_b->attachedtocharacter && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
                                         {
-                                            if ( ChrList[chara].reaffirmdamagetype == PrtList[partb].damagetype && ChrList[chara].damagetime == 0 )
-                                            {
-                                                reaffirm_attached_particles( chara );
-                                            }
+                                            reaffirm_attached_particles( ichr_a );
                                         }
                                     }
 
                                     // Check for missile treatment
-                                    if ( ( ChrList[chara].damagemodifier[PrtList[partb].damagetype]&3 ) < 2 ||
-                                            ChrList[chara].missiletreatment == MISNORMAL ||
-                                            PrtList[partb].attachedtocharacter != MAXCHR ||
-                                            ( PrtList[partb].chr == chara && !PipList[pip].friendlyfire ) ||
-                                            ( ChrList[ChrList[chara].missilehandler].mana < ( ChrList[chara].missilecost << 4 ) && !ChrList[ChrList[chara].missilehandler].canchannel ) )
+                                    if ( ( pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||
+                                            pchr_a->missiletreatment == MISNORMAL ||
+                                            pprt_b->attachedtocharacter != MAXCHR ||
+                                            ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
+                                            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
                                     {
-                                        if ( ( TeamList[PrtList[partb].team].hatesteam[ChrList[chara].team] || ( PipList[pip].friendlyfire && ( ( chara != PrtList[partb].chr && chara != ChrList[PrtList[partb].chr].attachedto ) || PipList[pip].onlydamagefriendly ) ) ) && !ChrList[chara].invictus )
+                                        if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
                                         {
-                                            spawn_bump_particles( chara, partb ); // Catch on fire
-                                            if ( ( PrtList[partb].damagebase | PrtList[partb].damagerand ) > 1 )
+                                            spawn_bump_particles( ichr_a, iprt_b ); // Catch on fire
+                                            if ( ( pprt_b->damagebase | pprt_b->damagerand ) > 1 )
                                             {
-                                                prtidparent = CapList[PrtList[partb].model].idsz[IDSZ_PARENT];
-                                                prtidtype = CapList[PrtList[partb].model].idsz[IDSZ_TYPE];
-                                                if ( ChrList[chara].damagetime == 0 && PrtList[partb].attachedtocharacter != chara && ( PipList[pip].damfx&DAMFX_ARRO ) == 0 )
+                                                prtidparent = CapList[pprt_b->model].idsz[IDSZ_PARENT];
+                                                prtidtype = CapList[pprt_b->model].idsz[IDSZ_TYPE];
+                                                if ( pchr_a->damagetime == 0 && pprt_b->attachedtocharacter != ichr_a && ( ppip_b->damfx&DAMFX_ARRO ) == 0 )
                                                 {
-                                                    // Normal partb damage
-                                                    if ( PipList[pip].allowpush )
+                                                    // Normal iprt_b damage
+                                                    if ( ppip_b->allowpush )
                                                     {
-                                                        ChrList[chara].phys_vel_x  += -ChrList[chara].xvel + PrtList[partb].xvel * ChrList[chara].bumpdampen;
-                                                        ChrList[chara].phys_vel_y  += -ChrList[chara].yvel + PrtList[partb].yvel * ChrList[chara].bumpdampen;
-                                                        ChrList[chara].phys_vel_z  += -ChrList[chara].zvel + PrtList[partb].zvel * ChrList[chara].bumpdampen;
+                                                        pchr_a->phys_vel_x  += -pchr_a->xvel + pprt_b->xvel * pchr_a->bumpdampen;
+                                                        pchr_a->phys_vel_y  += -pchr_a->yvel + pprt_b->yvel * pchr_a->bumpdampen;
+                                                        pchr_a->phys_vel_z  += -pchr_a->zvel + pprt_b->zvel * pchr_a->bumpdampen;
                                                     }
 
-                                                    direction = ( ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
-                                                    direction = ChrList[chara].turnleftright - direction + 32768;
+                                                    direction = ( ATAN2( pprt_b->yvel, pprt_b->xvel ) + PI ) * 0xFFFF / ( TWO_PI );
+                                                    direction = pchr_a->turnleftright - direction + 32768;
                                                     // Check all enchants to see if they are removed
-                                                    enchant = ChrList[chara].firstenchant;
+                                                    enchant = pchr_a->firstenchant;
 
                                                     while ( enchant != MAXENCHANT )
                                                     {
@@ -4133,124 +4277,124 @@ void bump_characters( void )
 
                                                     // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
                                                     //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
-                                                    if ( PipList[pip].intdamagebonus )
+                                                    if ( ppip_b->intdamagebonus )
                                                     {
                                                         int percent;
-                                                        percent = ( ChrList[PrtList[partb].chr].intelligence - 3584 ) >> 7;
+                                                        percent = ( ChrList[pprt_b->chr].intelligence - 3584 ) >> 7;
                                                         percent /= 100;
-                                                        PrtList[partb].damagebase *= 1 + percent;
+                                                        pprt_b->damagebase *= 1 + percent;
                                                     }
-                                                    if ( PipList[pip].wisdamagebonus )
+                                                    if ( ppip_b->wisdamagebonus )
                                                     {
                                                         int percent;
-                                                        percent = ( ChrList[PrtList[partb].chr].wisdom - 3584 ) >> 7;
+                                                        percent = ( ChrList[pprt_b->chr].wisdom - 3584 ) >> 7;
                                                         percent /= 100;
-                                                        PrtList[partb].damagebase *= 1 + percent;
+                                                        pprt_b->damagebase *= 1 + percent;
                                                     }
 
                                                     // Damage the character
                                                     if ( chridvulnerability != IDSZ_NONE && ( chridvulnerability == prtidtype || chridvulnerability == prtidparent ) )
                                                     {
-                                                        damage_character( chara, direction, PrtList[partb].damagebase << 1, PrtList[partb].damagerand << 1, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
-                                                        ChrList[chara].ai.alert |= ALERTIF_HITVULNERABLE;
+                                                        damage_character( ichr_a, direction, pprt_b->damagebase << 1, pprt_b->damagerand << 1, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
+                                                        pchr_a->ai.alert |= ALERTIF_HITVULNERABLE;
                                                     }
                                                     else
                                                     {
-                                                        damage_character( chara, direction, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                        damage_character( ichr_a, direction, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                                                     }
 
                                                     // Do confuse effects
-                                                    if ( 0 == ( Md2FrameList[ChrList[chara].inst.frame].framefx&MADFXINVICTUS ) || PipList[pip].damfx&DAMFX_BLOC )
+                                                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame].framefx&MADFXINVICTUS ) || ppip_b->damfx&DAMFX_BLOC )
                                                     {
-                                                        if ( PipList[pip].grogtime != 0 && CapList[ChrList[chara].model].canbegrogged )
+                                                        if ( ppip_b->grogtime != 0 && pcap_a->canbegrogged )
                                                         {
-                                                            ChrList[chara].grogtime += PipList[pip].grogtime;
-                                                            if ( ChrList[chara].grogtime < 0 )  ChrList[chara].grogtime = 32767;
+                                                            pchr_a->grogtime += ppip_b->grogtime;
+                                                            if ( pchr_a->grogtime < 0 )  pchr_a->grogtime = 32767;
 
-                                                            ChrList[chara].ai.alert |= ALERTIF_GROGGED;
+                                                            pchr_a->ai.alert |= ALERTIF_GROGGED;
                                                         }
-                                                        if ( PipList[pip].dazetime != 0 && CapList[ChrList[chara].model].canbedazed )
+                                                        if ( ppip_b->dazetime != 0 && pcap_a->canbedazed )
                                                         {
-                                                            ChrList[chara].dazetime += PipList[pip].dazetime;
-                                                            if ( ChrList[chara].dazetime < 0 )  ChrList[chara].dazetime = 32767;
+                                                            pchr_a->dazetime += ppip_b->dazetime;
+                                                            if ( pchr_a->dazetime < 0 )  pchr_a->dazetime = 32767;
 
-                                                            ChrList[chara].ai.alert |= ALERTIF_DAZED;
+                                                            pchr_a->ai.alert |= ALERTIF_DAZED;
                                                         }
                                                     }
 
                                                     // Notify the attacker of a scored hit
-                                                    if ( PrtList[partb].chr != MAXCHR )
+                                                    if ( pprt_b->chr != MAXCHR )
                                                     {
-                                                        ChrList[PrtList[partb].chr].ai.alert |= ALERTIF_SCOREDAHIT;
-                                                        ChrList[PrtList[partb].chr].ai.hitlast = chara;
+                                                        ChrList[pprt_b->chr].ai.alert |= ALERTIF_SCOREDAHIT;
+                                                        ChrList[pprt_b->chr].ai.hitlast = ichr_a;
                                                     }
                                                 }
-                                                if ( ( frame_wld&31 ) == 0 && PrtList[partb].attachedtocharacter == chara )
+                                                if ( ( frame_wld&31 ) == 0 && pprt_b->attachedtocharacter == ichr_a )
                                                 {
-                                                    // Attached partb damage ( Burning )
-                                                    if ( PipList[pip].xyvelbase == 0 )
+                                                    // Attached iprt_b damage ( Burning )
+                                                    if ( ppip_b->xyvelbase == 0 )
                                                     {
                                                         // Make character limp
-                                                        ChrList[chara].phys_vel_x += -ChrList[chara].xvel;
-                                                        ChrList[chara].phys_vel_y += -ChrList[chara].yvel;
+                                                        pchr_a->phys_vel_x += -pchr_a->xvel;
+                                                        pchr_a->phys_vel_y += -pchr_a->yvel;
                                                     }
 
-                                                    damage_character( chara, 32768, PrtList[partb].damagebase, PrtList[partb].damagerand, PrtList[partb].damagetype, PrtList[partb].team, PrtList[partb].chr, PipList[pip].damfx, bfalse );
+                                                    damage_character( ichr_a, 32768, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                                                 }
                                             }
-                                            if ( PipList[pip].endbump )
+                                            if ( ppip_b->endbump )
                                             {
-                                                if ( PipList[pip].bumpmoney )
+                                                if ( ppip_b->bumpmoney )
                                                 {
-                                                    if ( ChrList[chara].cangrabmoney && ChrList[chara].alive && ChrList[chara].damagetime == 0 && ChrList[chara].money != MAXMONEY )
+                                                    if ( pchr_a->cangrabmoney && pchr_a->alive && pchr_a->damagetime == 0 && pchr_a->money != MAXMONEY )
                                                     {
-                                                        if ( ChrList[chara].ismount )
+                                                        if ( pchr_a->ismount )
                                                         {
                                                             // Let mounts collect money for their riders
-                                                            if ( ChrList[chara].holdingwhich[SLOT_LEFT] != MAXCHR )
+                                                            if ( pchr_a->holdingwhich[SLOT_LEFT] != MAXCHR )
                                                             {
-                                                                ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money += PipList[pip].bumpmoney;
-                                                                if ( ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money > MAXMONEY ) ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money = MAXMONEY;
-                                                                if ( ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money < 0 ) ChrList[ChrList[chara].holdingwhich[SLOT_LEFT]].money = 0;
+                                                                ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money += ppip_b->bumpmoney;
+                                                                if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money > MAXMONEY ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = MAXMONEY;
+                                                                if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money < 0 ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = 0;
 
-                                                                PrtList[partb].time = 1;
+                                                                pprt_b->time = 1;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             // Normal money collection
-                                                            ChrList[chara].money += PipList[pip].bumpmoney;
-                                                            if ( ChrList[chara].money > MAXMONEY ) ChrList[chara].money = MAXMONEY;
-                                                            if ( ChrList[chara].money < 0 ) ChrList[chara].money = 0;
+                                                            pchr_a->money += ppip_b->bumpmoney;
+                                                            if ( pchr_a->money > MAXMONEY ) pchr_a->money = MAXMONEY;
+                                                            if ( pchr_a->money < 0 ) pchr_a->money = 0;
 
-                                                            PrtList[partb].time = 1;
+                                                            pprt_b->time = 1;
                                                         }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    PrtList[partb].time = 1;
+                                                    pprt_b->time = 1;
                                                     // Only hit one character, not several
-                                                    PrtList[partb].damagebase = 0;
-                                                    PrtList[partb].damagerand = 1;
+                                                    pprt_b->damagebase = 0;
+                                                    pprt_b->damagerand = 1;
                                                 }
                                             }
                                         }
                                     }
                                     else
                                     {
-                                        if ( PrtList[partb].chr != chara )
+                                        if ( pprt_b->chr != ichr_a )
                                         {
-                                            cost_mana( ChrList[chara].missilehandler, ( ChrList[chara].missilecost << 4 ), PrtList[partb].chr );
+                                            cost_mana( pchr_a->missilehandler, ( pchr_a->missilecost << 4 ), pprt_b->chr );
 
                                             // Treat the missile
-                                            if ( ChrList[chara].missiletreatment == MISDEFLECT )
+                                            if ( pchr_a->missiletreatment == MISDEFLECT )
                                             {
                                                 // Use old position to find normal
-                                                ax = PrtList[partb].xpos - PrtList[partb].xvel;
-                                                ay = PrtList[partb].ypos - PrtList[partb].yvel;
-                                                ax = ChrList[chara].xpos - ax;
-                                                ay = ChrList[chara].ypos - ay;
+                                                ax = pprt_b->xpos - pprt_b->xvel;
+                                                ay = pprt_b->ypos - pprt_b->yvel;
+                                                ax = pchr_a->xpos - ax;
+                                                ay = pchr_a->ypos - ay;
                                                 // Find size of normal
                                                 scale = ax * ax + ay * ay;
                                                 if ( scale > 0 )
@@ -4260,34 +4404,34 @@ void bump_characters( void )
                                                     nx = ax / scale;
                                                     ny = ay / scale;
                                                     // Deflect the incoming ray off the normal
-                                                    scale = ( PrtList[partb].xvel * nx + PrtList[partb].yvel * ny ) * 2;
+                                                    scale = ( pprt_b->xvel * nx + pprt_b->yvel * ny ) * 2;
                                                     ax = scale * nx;
                                                     ay = scale * ny;
-                                                    PrtList[partb].xvel = PrtList[partb].xvel - ax;
-                                                    PrtList[partb].yvel = PrtList[partb].yvel - ay;
+                                                    pprt_b->xvel = pprt_b->xvel - ax;
+                                                    pprt_b->yvel = pprt_b->yvel - ay;
                                                 }
                                             }
                                             else
                                             {
                                                 // Reflect it back in the direction it came
-                                                PrtList[partb].xvel = -PrtList[partb].xvel;
-                                                PrtList[partb].yvel = -PrtList[partb].yvel;
+                                                pprt_b->xvel = -pprt_b->xvel;
+                                                pprt_b->yvel = -pprt_b->yvel;
                                             }
 
                                             // Change the owner of the missile
-                                            if ( !PipList[pip].homing )
+                                            if ( !ppip_b->homing )
                                             {
-                                                PrtList[partb].team = ChrList[chara].team;
-                                                PrtList[partb].chr = chara;
+                                                pprt_b->team = pchr_a->team;
+                                                pprt_b->chr = ichr_a;
                                             }
 
-                                            // Change the direction of the partb
-                                            if ( PipList[pip].rotatetoface )
+                                            // Change the direction of the iprt_b
+                                            if ( ppip_b->rotatetoface )
                                             {
                                                 // Turn to face new direction
-                                                facing = ATAN2( PrtList[partb].yvel, PrtList[partb].xvel ) * 0xFFFF / ( TWO_PI );
+                                                facing = ATAN2( pprt_b->yvel, pprt_b->xvel ) * 0xFFFF / ( TWO_PI );
                                                 facing += 32768;
-                                                PrtList[partb].facing = facing;
+                                                pprt_b->facing = facing;
                                             }
                                         }
                                     }

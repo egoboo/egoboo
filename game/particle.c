@@ -718,99 +718,118 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     Uint16 frame;
     Uint16 facing, bestvertex;
     Uint16 amount;
-    Uint16 pip;
     Uint16 vertices;
     Uint16 direction, left, right, model;
     float fsin, fcos;
+    pip_t * ppip;
+    chr_t * pchr;
+    mad_t * pmad;
+    prt_t * pprt;
+    cap_t * pcap;
 
-    pip = PrtList[particle].pip;
-    amount = PipList[pip].bumpspawnamount;
-    if ( amount != 0 || PipList[pip].spawnenchant )
+    if( INVALID_PRT(particle) ) return;
+    pprt = PrtList + particle;
+
+    if( INVALID_PIP(pprt->pip) ) return;
+    ppip = PipList + pprt->pip;
+
+    // no point in going on, is there?
+    if( 0 == ppip->bumpspawnamount && !ppip->spawnenchant ) return;
+    amount = ppip->bumpspawnamount;
+
+    if( INVALID_CHR(character) ) return;
+    pchr = ChrList + character;
+
+    model = pchr->inst.imad;
+    if( model > MAXMODEL || !MadList[model].used ) return;
+    pmad = MadList + model;
+
+    model = pchr->model;
+    if( INVALID_CAP( model ) ) return;
+    pcap = CapList + model;
+
+    // Only damage if hitting from proper direction
+    vertices = pmad->vertices;
+    direction = ( ATAN2( pprt->yvel, pprt->xvel ) + PI ) * 0xFFFF / ( TWO_PI );
+    direction = pchr->turnleftright - direction + 32768;
+    if ( Md2FrameList[pchr->inst.frame].framefx&MADFXINVICTUS )
     {
-        // Only damage if hitting from proper direction
-        model = ChrList[character].model;
-        vertices = MadList[model].vertices;
-        direction = ( ATAN2( PrtList[particle].yvel, PrtList[particle].xvel ) + PI ) * 0xFFFF / ( TWO_PI );
-        direction = ChrList[character].turnleftright - direction + 32768;
-        if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFXINVICTUS )
+        // I Frame
+        if ( ppip->damfx&DAMFX_BLOC )
         {
-            // I Frame
-            if ( PipList[pip].damfx&DAMFX_BLOC )
-            {
-                left = 0xFFFF;
-                right = 0;
-            }
-            else
-            {
-                direction -= CapList[model].iframefacing;
-                left = ( ~CapList[model].iframeangle );
-                right = CapList[model].iframeangle;
-            }
+            left = 0xFFFF;
+            right = 0;
         }
         else
         {
-            // N Frame
-            direction -= CapList[model].nframefacing;
-            left = ( ~CapList[model].nframeangle );
-            right = CapList[model].nframeangle;
+            direction -= pcap->iframefacing;
+            left = 0xFFFF - pcap->iframeangle;
+            right = pcap->iframeangle;
+        }
+    }
+    else
+    {
+        // N Frame
+        direction -= pcap->nframefacing;
+        left = 0xFFFF - pcap->nframeangle;
+        right = pcap->nframeangle;
+    }
+
+    // Check that direction
+    if ( direction <= left && direction >= right )
+    {
+        // Spawn new enchantments
+        if ( ppip->spawnenchant )
+        {
+            spawn_enchant( pprt->chr, character, MAXCHR, MAXENCHANT, pprt->model );
         }
 
-        // Check that direction
-        if ( direction <= left && direction >= right )
+        // Spawn particles
+        if ( amount != 0 && !pcap->resistbumpspawn && !pchr->invictus && vertices != 0 && ( pchr->damagemodifier[pprt->damagetype]&DAMAGESHIFT ) < 3 )
         {
-            // Spawn new enchantments
-            if ( PipList[pip].spawnenchant )
+            if ( amount == 1 )
             {
-                spawn_enchant( PrtList[particle].chr, character, MAXCHR, MAXENCHANT, PrtList[particle].model );
-            }
+                // A single particle ( arrow? ) has been stuck in the character...
+                // Find best vertex to attach to
+                bestvertex = 0;
+                bestdistance = 9999999;
+                z = -pchr->zpos + pprt->zpos + RAISE;
+                facing = pprt->facing - pchr->turnleftright - 16384;
+                facing = facing >> 2;
+                fsin = turntosin[facing];
+                fcos = turntocos[facing];
+                y = 8192;
+                x = -y * fsin;
+                y = y * fcos;
+                z = z << 10;/// pchr->scale;
+                frame = pmad->framestart;
+                cnt = 0;
 
-            // Spawn particles
-            if ( amount != 0 && !CapList[ChrList[character].model].resistbumpspawn && !ChrList[character].invictus && vertices != 0 && ( ChrList[character].damagemodifier[PrtList[particle].damagetype]&DAMAGESHIFT ) < 3 )
-            {
-                if ( amount == 1 )
+                while ( cnt < vertices )
                 {
-                    // A single particle ( arrow? ) has been stuck in the character...
-                    // Find best vertex to attach to
-                    bestvertex = 0;
-                    bestdistance = 9999999;
-                    z = -ChrList[character].zpos + PrtList[particle].zpos + RAISE;
-                    facing = PrtList[particle].facing - ChrList[character].turnleftright - 16384;
-                    facing = facing >> 2;
-                    fsin = turntosin[facing];
-                    fcos = turntocos[facing];
-                    y = 8192;
-                    x = -y * fsin;
-                    y = y * fcos;
-                    z = z << 10;/// ChrList[character].scale;
-                    frame = MadList[ChrList[character].inst.imad].framestart;
-                    cnt = 0;
-
-                    while ( cnt < vertices )
+                    distance = ABS( x - Md2FrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - Md2FrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - Md2FrameList[frame].vrtz[vertices-cnt-1] ) );
+                    if ( distance < bestdistance )
                     {
-                        distance = ABS( x - Md2FrameList[frame].vrtx[vertices-cnt-1] ) + ABS( y - Md2FrameList[frame].vrty[vertices-cnt-1] ) + ( ABS( z - Md2FrameList[frame].vrtz[vertices-cnt-1] ) );
-                        if ( distance < bestdistance )
-                        {
-                            bestdistance = distance;
-                            bestvertex = cnt;
-                        }
-
-                        cnt++;
+                        bestdistance = distance;
+                        bestvertex = cnt;
                     }
 
-                    spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, PrtList[particle].model, PipList[pip].bumpspawnpip,
-                                        character, bestvertex + 1, PrtList[particle].team, PrtList[particle].chr, cnt, character );
+                    cnt++;
                 }
-                else
-                {
-                    amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
-                    cnt = 0;
 
-                    while ( cnt < amount )
-                    {
-                        spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, PrtList[particle].model, PipList[pip].bumpspawnpip,
-                                            character, rand() % vertices, PrtList[particle].team, PrtList[particle].chr, cnt, character );
-                        cnt++;
-                    }
+                spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, 0, pprt->model, ppip->bumpspawnpip,
+                    character, bestvertex + 1, pprt->team, pprt->chr, cnt, character );
+            }
+            else
+            {
+                amount = ( amount * vertices ) >> 5;  // Correct amount for size of character
+                cnt = 0;
+
+                while ( cnt < amount )
+                {
+                    spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, 0, pprt->model, ppip->bumpspawnpip,
+                        character, rand() % vertices, pprt->team, pprt->chr, cnt, character );
+                    cnt++;
                 }
             }
         }
