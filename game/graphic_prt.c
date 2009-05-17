@@ -546,7 +546,7 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     pinst->pos.y = pprt->ypos;
     pinst->pos.z = pprt->zpos;
 
-    // get the vector from the camera to teh particle
+    // get the vector from the camera to the particle
     vfwd.x = pinst->pos.x - pcam->x;
     vfwd.y = pinst->pos.y - pcam->y;
     vfwd.z = pinst->pos.z - pcam->z;
@@ -576,7 +576,7 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     //    vright = VNormalize( vright );
     //}
     //else 
-        if ( ppip->rotatetoface )
+        if ( ppip->rotatetoface && (ABS( pprt->xvel ) + ABS( pprt->yvel ) + ABS( pprt->zvel ) > 0) )
     {
         // the particle points along its direction of travel
 

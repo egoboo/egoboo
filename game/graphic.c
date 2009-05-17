@@ -3635,34 +3635,36 @@ void draw_text()
         //If one of the players can sense enemies via EMP, draw them as blips on the map
         if ( local_senseenemies )
         {
-            Uint16 iTmp = 0;
+            Uint16 iTmp;
 
-            while ( numblip < MAXBLIP && iTmp < MAXCHR )
+            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAXCHR; tTmp++ )
             {
+                uint16 icap;
+
+                if( !ChrList[iTmp].on ) continue;
+
+                icap = ChrList[iTmp].model;
+                if( !VALID_CAP(icap) ) continue;
+
                 //Show only hated team
-                if (ChrList[iTmp].on && TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team])
+                if ( TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team] )
                 {
-                    //Only if they match the required IDSZ ([NONE] always works)
+                    // Only if they match the required IDSZ ([NONE] always works)
                     if ( local_senseenemiesID == Make_IDSZ("NONE")
-                            || CapList[iTmp].idsz[IDSZ_PARENT] == local_senseenemiesID
-                            || CapList[iTmp].idsz[IDSZ_TYPE] == local_senseenemiesID)
+                            || CapList[icap].idsz[IDSZ_PARENT] == local_senseenemiesID
+                            || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
                         if ( ChrList[iTmp].xpos < mesh.info.edge_x && ChrList[iTmp].ypos < mesh.info.edge_y )
                         {
                             //Valid colors only
-                            if ( numblip < NUMBLIP )
-                            {
-                                blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / mesh.info.edge_x;
-                                blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / mesh.info.edge_y;
-                                blipc[numblip] = 0; //Red blips
-                                numblip++;
-                            }
+                            blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / mesh.info.edge_x;
+                            blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / mesh.info.edge_y;
+                            blipc[numblip] = 0; //Red blips
+                            numblip++;
                         }
                     }
                 }
-
-                iTmp++;
             }
         }
 
