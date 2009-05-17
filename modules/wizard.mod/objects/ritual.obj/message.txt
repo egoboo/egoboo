@@ -1,5 +1,5 @@
 Message 0: An_ancient_book_about_summoning! 
-Message 1: Add_greeanleaf_and_some_dragon_blud... 
+Message 1: Add_greenleaf_and_some_dragon_blud... 
 Message 2: Next_add_a_nightberry_nut! <---- NOT USED YET
 Message 3: Finally_add_a_Bludstone_Gem_to_complete 
 Message 4: the_ritual!!

@@ -1,4 +1,4 @@
-Version 2.7.3 (??.??.2009)
+Version 2.7.3 (18.05.2009)
 - New Feature: Module Linking is now implemented. This allows your player to directly go
   from one module to the next in game without needing to go through the main menu again and
   load the module manually.

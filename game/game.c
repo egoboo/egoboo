@@ -2039,8 +2039,8 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         //Target items
         if ( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
 
-        //Target dead stuff
-        if ( !targetdead && !ChrList[cnt].alive ) continue;
+        //Either only target dead stuff or alive stuff
+        if ( targetdead == ChrList[cnt].alive ) continue;
 
         //Dont target hostile invisible stuff, unless we can actually see them
         if ( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible

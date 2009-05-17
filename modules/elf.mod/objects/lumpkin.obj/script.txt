@@ -2,17 +2,40 @@
 IfSpawned
   tmpargument = 30
   SetTime
+  
+//------------------------------------------------------------------------------
+//Remove alert
+IfTargetKilled
+  IfTargetIsOnHatedTeam
+    tmpargument = 0
+    tmpx = 0
+    tmpy = 0
+    SetXY
+
+//------------------------------------------------------------------------------
+//Alert countdown
+tmpargument = 0
+GetXY
+IfXIsMoreThanY
+  tmpx = tmpx - 1
+  SetXY
 
 //------------------------------------------------------------------------------
 // ZZ> Run away if too close to killer
 IfOrdered
+  
+  // Someone said that there's an enemy around, so look for 'im
   tmpx = selforder
   tmpy = [FAER]
   IfXIsEqualToY
-    // Someone said that there's an enemy around, so look for 'im
-    SetTargetToNearestEnemy
-  Else
-    // Someone died, so make Scrub Lumpkins run away
+    tmpargument = 0
+    tmpx = 50*30      //Alert for 30 seconds
+    tmpy = 0
+    SetXY
+  
+  // Someone died, so make Scrub Lumpkins run away
+  tmpy = [RUNN]
+  IfXIsEqualToY
     tmpargument = 3
     IfArmorIs
       DoNothing
@@ -23,7 +46,7 @@ IfOrdered
       IfTargetHasID
         DoNothing
       Else
-        tmpx = 7*128  // Number of tiles
+        tmpx = 10*128  // Number of tiles
         tmpy = targetdistance
         IfXIsMoreThanY
           tmpargument = 2
@@ -46,9 +69,7 @@ IfKilled
   SetBumpHeight
 
   // Tell friends to run away
-  tmpx = targetx > 7
-  tmpy = targety > 7
-  tmpargument = tmpx < 8 + tmpy
+  tmpargument = [RUNN]
   IssueOrder
 
   // Send the message
@@ -95,11 +116,17 @@ IfAttacked
       IfTargetHasID
         tmpargument = [FAER]
         IssueOrder
+        tmpargument = 0
+        tmpx = 30*50    //30 seconds
+        tmpy = 0
+        SetXY
+      
       tmpargument = rand & 1
       tmpargument = tmpargument < 3 - tmpargument
+      
       // Check remaining life and remaining friends
       tmpx = selfmorale < 8 + selflife
-      tmpy = 800
+      tmpy = 1024
       IfXIsLessThanY
         tmpargument = rand & 3 + 7
         SetContent
@@ -110,7 +137,7 @@ IfAttacked
 // ZZ> Handle being healed by spitting out a message and stopping retreat
 IfHealed
   IfStateIsRetreat
-    tmpargument = STATECHARGE
+    tmpargument = STATECHARGE   //Get our morale back!
     SetState
     tmpargument = 5
   Else
@@ -118,7 +145,7 @@ IfHealed
   SendMessageNear
 
 //------------------------------------------------------------------------------
-// ZZ> Handle blocking an attack by countering
+//Handle blocking an attack by countering
 IfBlocked
   IfStateIsRetreat
     DoNothing
@@ -173,27 +200,23 @@ IfTimeOut
   SetTurnModeToVelocity
 
   // Find an enemy
-  tmpx = 0
-  IfTargetIsOnHatedTeam
-    // Already have an enemy
-    tmpx = targetdistance
-    tmpy = 900
-    IfXIsMoreThanY
-      tmpx = 0
-      // Find a new enemy
-      tmpargument = [LUMP]
-      tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
-      SetTargetToWideBlahID
-        tmpx = 1
-    Else
-      // Keep the current enemy
-      tmpx = 1
-  Else
+  SetTargetToWideEnemy
+    tmpx = 1
     tmpargument = [LUMP]
-    tmpdistance = 18  // BLAHENEMIES | BLAHINVERTID
-    SetTargetToWideBlahID
-      tmpx = 1
-      
+    IfTargetHasID
+      tmpargument = 0
+      GetXY
+      IfXIsMoreThanY
+        tmpx = 1          //Imposter! Attack!
+      Else
+        tmpx = 0                //Ignore him
+        SetTargetToOldTarget                
+    Else
+      tmpx = 0                  //Ignore him
+      SetTargetToOldTarget
+  Else
+    tmpx = 0
+    
   tmpy = 0
   IfXIsMoreThanY
     // Default to previous state
@@ -342,15 +365,19 @@ IfTimeOut
           SetTargetToWideBlahID
             tmpx = 1
           Else
-            tmpargument = [TORC]  //Torch
+            tmpargument = [SWOR]  //Sword
             SetTargetToWideBlahID
               tmpx = 1
+            Else
+              tmpargument = [TORC]  //Torch
+              SetTargetToWideBlahID
+                tmpx = 1
         tmpy = 1
         IfXIsEqualToY
           tmpx = targetdistance
           tmpy = 70
           IfXIsLessThanY
-            tmpargument = rand & 1 + LATCHALTLEFT
+            tmpargument = rand & 1 + LATCHALTLEFT   //randomize left or right grab
             PressLatchButton
           tmpx = targetx
           tmpy = targety
