@@ -255,7 +255,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
 int prt_count_free();
 
-int load_one_particle_profile( const char *szLoadName, Uint16 object, Uint16 pip );
+int load_one_particle_profile( const char *szLoadName );
 void reset_particles( const char* modname );
 
 Uint8 __prthitawall( Uint16 particle );

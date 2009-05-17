@@ -836,7 +836,7 @@ int prt_is_over_water( Uint16 cnt )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_particle_profile( const char *szLoadName, Uint16 object, Uint16 pip )
+int load_one_particle_profile( const char *szLoadName )
 {
     // ZZ> This function loads a particle template, returning bfalse if the file wasn't
     //     found
@@ -845,215 +845,222 @@ int load_one_particle_profile( const char *szLoadName, Uint16 object, Uint16 pip
     int iTmp;
     float fTmp;
     char cTmp;
+    pip_t * ppip;
 
-    PipList[numpip].loaded = bfalse;
+    Uint16 retval = TOTALMAXPRTPIP;
+
+    if( numpip >= TOTALMAXPRTPIP ) return TOTALMAXPRTPIP;
+    ppip = PipList + numpip;
+
+    // clear the pip
+    memset( ppip, 0, sizeof(pip_t) );
 
     fileread = fopen( szLoadName, "r" );
-    if ( fileread != NULL )
+    if ( NULL == fileread )
     {
-        strncpy( PipList[numpip].name, szLoadName, SDL_arraysize(PipList[numpip].name) );
-        PipList[numpip].loaded = btrue;
-
-        // General data
-        parse_filename = szLoadName;    //For debugging missing colons
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].force = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  PipList[numpip].force = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'L' || cTmp == 'l' )  PipList[numpip].type = PRTLIGHTSPRITE;
-        else if ( cTmp == 'S' || cTmp == 's' )  PipList[numpip].type = PRTSOLIDSPRITE;
-        else if ( cTmp == 'T' || cTmp == 't' )  PipList[numpip].type = PRTALPHASPRITE;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].imagebase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].numframes = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].imageadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].imageaddrand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].rotatebase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].rotaterand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].rotateadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].sizebase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].sizeadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].spdlimit = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].facingadd = iTmp;
-
-        // override the base rotation
-        if( 0xFFFF != prt_direction[ PipList[numpip].imagebase ] )
-        {
-            PipList[numpip].rotatebase = prt_direction[ PipList[numpip].imagebase ];
-        };
-
-        // Ending conditions
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].endwater = btrue;
-        if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endwater = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].endbump = btrue;
-        if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endbump = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].endground = btrue;
-        if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endground = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].endlastframe = btrue;
-        if ( cTmp == 'F' || cTmp == 'f' )  PipList[numpip].endlastframe = bfalse;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].time = iTmp;
-
-        // Collision data
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].dampen = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].bumpmoney = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].bumpsize = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].bumpheight = iTmp;
-        goto_colon( fileread );  read_pair( fileread );
-        PipList[numpip].damagebase = pairbase;
-        PipList[numpip].damagerand = pairrand;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'S' || cTmp == 's' ) PipList[numpip].damagetype = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' ) PipList[numpip].damagetype = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' ) PipList[numpip].damagetype = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' ) PipList[numpip].damagetype = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' ) PipList[numpip].damagetype = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' ) PipList[numpip].damagetype = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' ) PipList[numpip].damagetype = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' ) PipList[numpip].damagetype = DAMAGE_ZAP;
-
-        // Lighting data
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].dynalightmode = DYNAOFF;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].dynalightmode = DYNAON;
-        if ( cTmp == 'L' || cTmp == 'l' ) PipList[numpip].dynalightmode = DYNALOCAL;
-
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].dynalevel = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].dynafalloff = iTmp;
-        if ( PipList[numpip].dynafalloff > MAXFALLOFF && rtscontrol )  PipList[numpip].dynafalloff = MAXFALLOFF;
-
-        // Initial spawning of this particle
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].facingbase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].facingrand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].xyspacingbase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].xyspacingrand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].zspacingbase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].zspacingrand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].xyvelbase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].xyvelrand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].zvelbase = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].zvelrand = iTmp;
-
-        // Continuous spawning of other particles
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].contspawntime = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].contspawnamount = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].contspawnfacingadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].contspawnpip = iTmp;
-
-        // End spawning of other particles
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].endspawnamount = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].endspawnfacingadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].endspawnpip = iTmp;
-
-        // Bump spawning of attached particles
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].bumpspawnamount = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].bumpspawnpip = iTmp;
-
-        // Random stuff  !!!BAD!!! Not complete
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].dazetime = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].grogtime = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].spawnenchant = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].spawnenchant = btrue;
-
-        goto_colon( fileread );  // !!Cause roll
-        goto_colon( fileread );  // !!Cause pancake
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].needtarget = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].needtarget = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].targetcaster = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].targetcaster = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].startontarget = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].startontarget = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].onlydamagefriendly = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].onlydamagefriendly = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        PipList[numpip].soundspawn = CLIP(iTmp, -1, MAXWAVE);
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-        PipList[numpip].soundend = CLIP(iTmp, -1, MAXWAVE);
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].friendlyfire = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].friendlyfire = btrue;
-
-        goto_colon( fileread );
-        //PipList[numpip].hateonly = bfalse; TODO: BAD not implemented yet
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].newtargetonspawn = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].newtargetonspawn = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); PipList[numpip].targetangle = iTmp >> 1;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].homing = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].homing = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].homingfriction = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); PipList[numpip].homingaccel = fTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        PipList[numpip].rotatetoface = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' ) PipList[numpip].rotatetoface = btrue;
-
-        // Clear expansions...
-        PipList[numpip].zaimspd = 0;
-        PipList[numpip].soundfloor = -1;
-        PipList[numpip].soundwall = -1;
-        PipList[numpip].endwall = PipList[numpip].endground;
-        PipList[numpip].damfx = DAMFX_TURN;
-        if ( PipList[numpip].homing )  PipList[numpip].damfx = DAMFX_NONE;
-
-        PipList[numpip].allowpush = btrue;
-        PipList[numpip].dynalightfalloffadd = 0;
-        PipList[numpip].dynalightleveladd = 0;
-        PipList[numpip].intdamagebonus = bfalse;
-        PipList[numpip].wisdamagebonus = bfalse;
-
-        // Read expansions
-        while ( goto_colon_yesno( fileread ) )
-        {
-            idsz = fget_idsz( fileread );
-
-                 if ( idsz == Make_IDSZ( "TURN" ) )  PipList[numpip].damfx = DAMFX_NONE;
-            else if ( idsz == Make_IDSZ( "ARMO" ) )  PipList[numpip].damfx |= DAMFX_ARMO;
-            else if ( idsz == Make_IDSZ( "BLOC" ) )  PipList[numpip].damfx |= DAMFX_BLOC;
-            else if ( idsz == Make_IDSZ( "ARRO" ) )  PipList[numpip].damfx |= DAMFX_ARRO;
-            else if ( idsz == Make_IDSZ( "TIME" ) )  PipList[numpip].damfx |= DAMFX_TIME;
-            else if ( idsz == Make_IDSZ( "ZSPD" ) )  PipList[numpip].zaimspd = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "FSND" ) )  PipList[numpip].soundfloor = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "WSND" ) )  PipList[numpip].soundwall = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "WEND" ) )  PipList[numpip].endwall = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "PUSH" ) )  PipList[numpip].allowpush = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "DLEV" ) )  PipList[numpip].dynalightleveladd = fget_int( fileread ) / 1000.0f;
-            else if ( idsz == Make_IDSZ( "DRAD" ) )  PipList[numpip].dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
-            else if ( idsz == Make_IDSZ( "IDAM" ) )  PipList[numpip].intdamagebonus = fget_int( fileread );
-            else if ( idsz == Make_IDSZ( "WDAM" ) )  PipList[numpip].wisdamagebonus = fget_int( fileread );
-        }
-
-        // Make sure it's referenced properly
-        MadList[object].prtpip[pip] = numpip;
-        numpip++;
-
-        fclose( fileread );
-        return btrue;
+        return TOTALMAXPRTPIP;
     }
 
-    return bfalse;
+    retval = numpip;
+    numpip++;
+
+    strncpy( ppip->name, szLoadName, SDL_arraysize(ppip->name) );
+    ppip->loaded = btrue;
+
+    // General data
+    parse_filename = szLoadName;    //For debugging missing colons
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->force = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  ppip->force = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'L' || cTmp == 'l' )  ppip->type = PRTLIGHTSPRITE;
+    else if ( cTmp == 'S' || cTmp == 's' )  ppip->type = PRTSOLIDSPRITE;
+    else if ( cTmp == 'T' || cTmp == 't' )  ppip->type = PRTALPHASPRITE;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imagebase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->numframes = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imageadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imageaddrand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotatebase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotaterand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotateadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->sizebase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->sizeadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->spdlimit = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingadd = iTmp;
+
+    // override the base rotation
+    if( 0xFFFF != prt_direction[ ppip->imagebase ] )
+    {
+        ppip->rotatebase = prt_direction[ ppip->imagebase ];
+    };
+
+    // Ending conditions
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->endwater = btrue;
+    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endwater = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->endbump = btrue;
+    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endbump = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->endground = btrue;
+    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endground = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->endlastframe = btrue;
+    if ( cTmp == 'F' || cTmp == 'f' )  ppip->endlastframe = bfalse;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->time = iTmp;
+
+    // Collision data
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->dampen = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpmoney = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpsize = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpheight = iTmp;
+    goto_colon( fileread );  read_pair( fileread );
+    ppip->damagebase = pairbase;
+    ppip->damagerand = pairrand;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'S' || cTmp == 's' ) ppip->damagetype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' ) ppip->damagetype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' ) ppip->damagetype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' ) ppip->damagetype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' ) ppip->damagetype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' ) ppip->damagetype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' ) ppip->damagetype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' ) ppip->damagetype = DAMAGE_ZAP;
+
+    // Lighting data
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->dynalightmode = DYNAOFF;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->dynalightmode = DYNAON;
+    if ( cTmp == 'L' || cTmp == 'l' ) ppip->dynalightmode = DYNALOCAL;
+
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
+    if ( ppip->dynafalloff > MAXFALLOFF && rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
+
+    // Initial spawning of this particle
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingrand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingbase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingrand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingbase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingrand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelbase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelrand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zvelbase = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zvelrand = iTmp;
+
+    // Continuous spawning of other particles
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawntime = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnamount = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnfacingadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnpip = iTmp;
+
+    // End spawning of other particles
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnamount = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnfacingadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnpip = iTmp;
+
+    // Bump spawning of attached particles
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnamount = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnpip = iTmp;
+
+    // Random stuff  !!!BAD!!! Not complete
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->dazetime = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->grogtime = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->spawnenchant = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->spawnenchant = btrue;
+
+    goto_colon( fileread );  // !!Cause roll
+    goto_colon( fileread );  // !!Cause pancake
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->needtarget = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->needtarget = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->targetcaster = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->targetcaster = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->startontarget = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->startontarget = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->onlydamagefriendly = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->onlydamagefriendly = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    ppip->soundspawn = CLIP(iTmp, -1, MAXWAVE);
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    ppip->soundend = CLIP(iTmp, -1, MAXWAVE);
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->friendlyfire = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->friendlyfire = btrue;
+
+    goto_colon( fileread );
+    //ppip->hateonly = bfalse; TODO: BAD not implemented yet
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->newtargetonspawn = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->newtargetonspawn = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->targetangle = iTmp >> 1;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->homing = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->homing = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->homingfriction = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->homingaccel = fTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    ppip->rotatetoface = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' ) ppip->rotatetoface = btrue;
+
+    // Clear expansions...
+    ppip->zaimspd = 0;
+    ppip->soundfloor = -1;
+    ppip->soundwall = -1;
+    ppip->endwall = ppip->endground;
+    ppip->damfx = DAMFX_TURN;
+    if ( ppip->homing )  ppip->damfx = DAMFX_NONE;
+
+    ppip->allowpush = btrue;
+    ppip->dynalightfalloffadd = 0;
+    ppip->dynalightleveladd = 0;
+    ppip->intdamagebonus = bfalse;
+    ppip->wisdamagebonus = bfalse;
+
+    // Read expansions
+    while ( goto_colon_yesno( fileread ) )
+    {
+        idsz = fget_idsz( fileread );
+
+             if ( idsz == Make_IDSZ( "TURN" ) )  ppip->damfx = DAMFX_NONE;
+        else if ( idsz == Make_IDSZ( "ARMO" ) )  ppip->damfx |= DAMFX_ARMO;
+        else if ( idsz == Make_IDSZ( "BLOC" ) )  ppip->damfx |= DAMFX_BLOC;
+        else if ( idsz == Make_IDSZ( "ARRO" ) )  ppip->damfx |= DAMFX_ARRO;
+        else if ( idsz == Make_IDSZ( "TIME" ) )  ppip->damfx |= DAMFX_TIME;
+        else if ( idsz == Make_IDSZ( "ZSPD" ) )  ppip->zaimspd = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "FSND" ) )  ppip->soundfloor = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "WSND" ) )  ppip->soundwall = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "WEND" ) )  ppip->endwall = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "PUSH" ) )  ppip->allowpush = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "DLEV" ) )  ppip->dynalightleveladd = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == Make_IDSZ( "DRAD" ) )  ppip->dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
+        else if ( idsz == Make_IDSZ( "IDAM" ) )  ppip->intdamagebonus = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "WDAM" ) )  ppip->wisdamagebonus = fget_int( fileread );
+    }
+
+    fclose( fileread );
+
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1067,61 +1074,61 @@ void reset_particles( const char* modname )
     // Load in the standard global particles ( the coins for example )
     numpip = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
-    if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
-    if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
-    if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
-    if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Load module specific information
     make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
-    if ( !load_one_particle_profile( newloadname, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
-    if ( !load_one_particle_profile( newloadname, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
-    if ( !load_one_particle_profile( newloadname, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
-        if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+        if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
-    if ( !load_one_particle_profile( newloadname, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
-        if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+        if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
@@ -1129,7 +1136,7 @@ void reset_particles( const char* modname )
 
     // This is also global...
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
-    if ( !load_one_particle_profile( loadpath, 0, 0 ) )
+    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }

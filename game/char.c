@@ -108,81 +108,95 @@ void keep_weapons_with_holders()
     int cnt, character;
 
     // !!!BAD!!!  May need to do 3 levels of attachment...
-    cnt = 0;
-
-    while ( cnt < MAXCHR )
+   
+    for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        if ( ChrList[cnt].on )
-        {
-            character = ChrList[cnt].attachedto;
-            if ( character == MAXCHR )
-            {
-                // Keep inventory with character
-                if ( !ChrList[cnt].inpack )
-                {
-                    character = ChrList[cnt].nextinpack;
+        if ( !ChrList[cnt].on ) continue;
 
-                    while ( character != MAXCHR )
-                    {
-                        ChrList[character].xpos = ChrList[cnt].xpos;
-                        ChrList[character].ypos = ChrList[cnt].ypos;
-                        ChrList[character].zpos = ChrList[cnt].zpos;
-                        // Copy olds to make SendMessageNear work
-                        ChrList[character].oldx = ChrList[cnt].xpos;
-                        ChrList[character].oldy = ChrList[cnt].ypos;
-                        ChrList[character].oldz = ChrList[cnt].zpos;
-                        character = ChrList[character].nextinpack;
-                    }
+        character = ChrList[cnt].attachedto;
+        if ( INVALID_CHR(character) )
+        {
+            ChrList[cnt].attachedto = MAXCHR;
+
+            // Keep inventory with character
+            if ( !ChrList[cnt].inpack )
+            {
+                character = ChrList[cnt].nextinpack;
+
+                while ( character != MAXCHR )
+                {
+                    ChrList[character].xpos = ChrList[cnt].xpos;
+                    ChrList[character].ypos = ChrList[cnt].ypos;
+                    ChrList[character].zpos = ChrList[cnt].zpos;
+
+                    // Copy olds to make SendMessageNear work
+                    ChrList[character].oldx = ChrList[cnt].oldx;
+                    ChrList[character].oldy = ChrList[cnt].oldy;
+                    ChrList[character].oldz = ChrList[cnt].oldz;
+
+                    character = ChrList[character].nextinpack;
                 }
+            }
+        }
+        else
+        {
+            // Keep in hand weapons with character
+            if ( ChrList[cnt].inst.matrixvalid )
+            {
+                ChrList[cnt].xpos = ChrList[cnt].inst.matrix.CNV( 3, 0 );
+                ChrList[cnt].ypos = ChrList[cnt].inst.matrix.CNV( 3, 1 );
+                ChrList[cnt].zpos = ChrList[cnt].inst.matrix.CNV( 3, 2 );
             }
             else
             {
-                // Keep in hand weapons with character
-                if ( ChrList[character].inst.matrixvalid && ChrList[cnt].inst.matrixvalid )
+                ChrList[cnt].xpos = ChrList[character].xpos;
+                ChrList[cnt].ypos = ChrList[character].ypos;
+                ChrList[cnt].zpos = ChrList[character].zpos;
+            }
+
+            ChrList[cnt].turnleftright = ChrList[character].turnleftright;
+
+            // Copy this stuff ONLY if it's a weapon, not for mounts
+            if ( ChrList[character].transferblend && ChrList[cnt].isitem )
+            {
+
+                // Items become partially invisible in hands of players
+                if ( ChrList[character].isplayer && ChrList[character].inst.alpha != 255 )
                 {
-                    ChrList[cnt].xpos = ChrList[cnt].inst.matrix.CNV( 3, 0 );
-                    ChrList[cnt].ypos = ChrList[cnt].inst.matrix.CNV( 3, 1 );
-                    ChrList[cnt].zpos = ChrList[cnt].inst.matrix.CNV( 3, 2 );
+                    ChrList[cnt].inst.alpha = 128;
                 }
                 else
                 {
-                    ChrList[cnt].xpos = ChrList[character].xpos;
-                    ChrList[cnt].ypos = ChrList[character].ypos;
-                    ChrList[cnt].zpos = ChrList[character].zpos;
+                    // Only if not naturally transparent
+                    if ( CapList[ChrList[cnt].model].alpha == 255 )
+                    {
+                        ChrList[cnt].inst.alpha = ChrList[character].inst.alpha;
+                    }
+                    else 
+                    {
+                        ChrList[cnt].inst.alpha = CapList[ChrList[cnt].model].alpha;
+                    }
                 }
 
-                ChrList[cnt].turnleftright = ChrList[character].turnleftright;
-
-                // Copy this stuff ONLY if it's a weapon, not for mounts
-                if ( ChrList[character].transferblend && ChrList[cnt].isitem )
+                //Do light too
+                if ( ChrList[character].isplayer && ChrList[character].inst.light != 255 )
                 {
-
-                    // Items become partially invisible in hands of players
-                    if ( ChrList[character].isplayer && ChrList[character].inst.alpha != 255 )
-                        ChrList[cnt].inst.alpha = 128;
-                    else
+                    ChrList[cnt].inst.light = 128;
+                }
+                else
+                {
+                    // Only if not naturally transparent
+                    if ( CapList[ChrList[cnt].model].light == 255 )
                     {
-                        // Only if not naturally transparent
-                        if ( CapList[ChrList[cnt].model].alpha == 255 )
-                            ChrList[cnt].inst.alpha = ChrList[character].inst.alpha;
-                        else ChrList[cnt].inst.alpha = CapList[ChrList[cnt].model].alpha;
+                        ChrList[cnt].inst.light = ChrList[character].inst.light;
                     }
-
-                    //Do light too
-                    if ( ChrList[character].isplayer && ChrList[character].inst.light != 255 )
-                        ChrList[cnt].inst.light = 128;
-                    else
+                    else 
                     {
-                        // Only if not naturally transparent
-                        if ( CapList[ChrList[cnt].model].light == 255 )
-                            ChrList[cnt].inst.light = ChrList[character].inst.light;
-                        else ChrList[cnt].inst.light = CapList[ChrList[cnt].model].light;
+                        ChrList[cnt].inst.light = CapList[ChrList[cnt].model].light;
                     }
                 }
             }
         }
-
-        cnt++;
     }
 }
 
@@ -191,15 +205,25 @@ void make_one_character_matrix( Uint16 cnt )
 {
     // ZZ> This function sets one character's matrix
     Uint16 tnc;
-    ChrList[cnt].inst.matrixvalid = btrue;
+
+    if( INVALID_CHR( cnt ) ) return;
+
+    ChrList[cnt].inst.matrixvalid = bfalse;
+
     if ( ChrList[cnt].overlay )
     {
         // Overlays are kept with their target...
         tnc = ChrList[cnt].ai.target;
-        ChrList[cnt].xpos = ChrList[tnc].xpos;
-        ChrList[cnt].ypos = ChrList[tnc].ypos;
-        ChrList[cnt].zpos = ChrList[tnc].zpos;
-        CopyMatrix( &(ChrList[cnt].inst.matrix), &(ChrList[tnc].inst.matrix) );
+
+        if( VALID_CHR(tnc) )
+        {
+            ChrList[cnt].xpos = ChrList[tnc].xpos;
+            ChrList[cnt].ypos = ChrList[tnc].ypos;
+            ChrList[cnt].zpos = ChrList[tnc].zpos;
+
+            ChrList[cnt].inst.matrixvalid = ChrList[tnc].inst.matrixvalid;
+            CopyMatrix( &(ChrList[cnt].inst.matrix), &(ChrList[tnc].inst.matrix) );
+        }
     }
     else
     {
@@ -208,6 +232,7 @@ void make_one_character_matrix( Uint16 cnt )
                                    ( ( Uint16 ) ( ChrList[cnt].turnmapud + 32768 ) ) >> 2,
                                    ( ( Uint16 ) ( ChrList[cnt].turnmaplr + 32768 ) ) >> 2,
                                    ChrList[cnt].xpos, ChrList[cnt].ypos, ChrList[cnt].zpos );
+        ChrList[cnt].inst.matrixvalid = btrue;
     }
 }
 
@@ -303,9 +328,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
     Uint16 vertex, model, frame, lastframe;
     Uint8 lip;
     float flip;
-    float pointx = 0;
-    float pointy = 0;
-    float pointz = 0;
+    GLvector4 point[1], nupoint[1];
 
     // Check validity of attachment
     if ( !ChrList[character].on || ChrList[character].inpack )
@@ -335,24 +358,17 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         vertex = MadList[model].vertices - grip;
 
         // Calculate grip point locations with linear interpolation and other silly things
-        pointx = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
-        pointy = Md2FrameList[lastframe].vrty[vertex] + (Md2FrameList[frame].vrty[vertex] - Md2FrameList[lastframe].vrty[vertex]) * flip;
-        pointz = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
+        point[0].x = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
+        point[0].y = Md2FrameList[lastframe].vrty[vertex] + (Md2FrameList[frame].vrty[vertex] - Md2FrameList[lastframe].vrty[vertex]) * flip;
+        point[0].z = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
+        point[0].w = 1.0f;
 
         // Do the transform
-        PrtList[particle].xpos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 0 ) +
-                                   pointy * ChrList[character].inst.matrix.CNV( 1, 0 ) +
-                                   pointz * ChrList[character].inst.matrix.CNV( 2, 0 ) );
-        PrtList[particle].ypos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 1 ) +
-                                   pointy * ChrList[character].inst.matrix.CNV( 1, 1 ) +
-                                   pointz * ChrList[character].inst.matrix.CNV( 2, 1 ) );
-        PrtList[particle].zpos = ( pointx * ChrList[character].inst.matrix.CNV( 0, 2 ) +
-                                   pointy * ChrList[character].inst.matrix.CNV( 1, 2 ) +
-                                   pointz * ChrList[character].inst.matrix.CNV( 2, 2 ) );
+        TransformVertices( &(ChrList[character].inst.matrix), point, nupoint, 1 );
 
-        PrtList[particle].xpos += ChrList[character].inst.matrix.CNV( 3, 0 );
-        PrtList[particle].ypos += ChrList[character].inst.matrix.CNV( 3, 1 );
-        PrtList[particle].zpos += ChrList[character].inst.matrix.CNV( 3, 2 );
+        PrtList[particle].xpos = nupoint[0].x;
+        PrtList[particle].ypos = nupoint[0].y;
+        PrtList[particle].zpos = nupoint[0].z;
     }
     else
     {
@@ -367,17 +383,19 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
 void make_one_weapon_matrix( Uint16 iweap )
 {
     // ZZ> This function sets one weapon's matrix, based on who it's attached to
-    int    cnt, tnc, vertex;
+    int    cnt, vertex;
     Uint16 ichr, ichr_model, ichr_frame, ichr_lastframe;
     Uint8  ichr_lip;
     float  ichr_flip;
-    float  pointx[GRIP_VERTS], pointy[GRIP_VERTS], pointz[GRIP_VERTS];
-    float  nupointx[GRIP_VERTS], nupointy[GRIP_VERTS], nupointz[GRIP_VERTS];
+    GLvector4  point[GRIP_VERTS];
+    GLvector4  nupoint[GRIP_VERTS];
     int    iweappoints;
+
+    if ( INVALID_CHR(iweap) ) return;
 
     // make sure that we are attached to a valid character
     ichr = ChrList[iweap].attachedto;
-    if (ichr >= MAXCHR || !ChrList[ichr].on) return;
+    if ( INVALID_CHR(ichr) ) return;
 
     // make sure that the matrix is invalid incase of an error
     ChrList[iweap].inst.matrixvalid = bfalse;
@@ -389,6 +407,7 @@ void make_one_weapon_matrix( Uint16 iweap )
     ichr_lip = ChrList[ichr].inst.lip >> 6;
     ichr_flip = ichr_lip / 4.0f;
 
+    // count the valid weapon connection points
     iweappoints = 0;
     for (cnt = 0; cnt < GRIP_VERTS; cnt++)
     {
@@ -397,12 +416,16 @@ void make_one_weapon_matrix( Uint16 iweap )
             iweappoints++;
         }
     }
+
+    // do the best we can
     if (0 == iweappoints)
     {
         // punt! attach to origin
-        pointx[0] = ChrList[0].xpos;
-        pointy[0] = ChrList[0].ypos;
-        pointz[0] = ChrList[0].zpos;
+        point[0].x = ChrList[0].xpos;
+        point[0].y = ChrList[0].ypos;
+        point[0].z = ChrList[0].zpos;
+        point[0].w = 1;
+
         iweappoints = 1;
     }
     else
@@ -414,29 +437,15 @@ void make_one_weapon_matrix( Uint16 iweap )
             if (0xFFFF == vertex) continue;
 
             // Calculate grip point locations with linear interpolation and other silly things
-            pointx[cnt] = Md2FrameList[ichr_lastframe].vrtx[vertex] + (Md2FrameList[ichr_frame].vrtx[vertex] - Md2FrameList[ichr_lastframe].vrtx[vertex]) * ichr_flip;
-            pointy[cnt] = Md2FrameList[ichr_lastframe].vrty[vertex] + (Md2FrameList[ichr_frame].vrty[vertex] - Md2FrameList[ichr_lastframe].vrty[vertex]) * ichr_flip;
-            pointz[cnt] = Md2FrameList[ichr_lastframe].vrtz[vertex] + (Md2FrameList[ichr_frame].vrtz[vertex] - Md2FrameList[ichr_lastframe].vrtz[vertex]) * ichr_flip;
+            point[cnt].x = Md2FrameList[ichr_lastframe].vrtx[vertex] + (Md2FrameList[ichr_frame].vrtx[vertex] - Md2FrameList[ichr_lastframe].vrtx[vertex]) * ichr_flip;
+            point[cnt].y = Md2FrameList[ichr_lastframe].vrty[vertex] + (Md2FrameList[ichr_frame].vrty[vertex] - Md2FrameList[ichr_lastframe].vrty[vertex]) * ichr_flip;
+            point[cnt].z = Md2FrameList[ichr_lastframe].vrtz[vertex] + (Md2FrameList[ichr_frame].vrtz[vertex] - Md2FrameList[ichr_lastframe].vrtz[vertex]) * ichr_flip;
+            point[cnt].w = 1;
         }
     }
 
-    for ( tnc = 0; tnc < iweappoints; tnc++ )
-    {
-        // Do the transform
-        nupointx[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 0 ) +
-                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 0 ) +
-                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 0 ) );
-        nupointy[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 1 ) +
-                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 1 ) +
-                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 1 ) );
-        nupointz[tnc] = ( pointx[tnc] * ChrList[ichr].inst.matrix.CNV( 0, 2 ) +
-                          pointy[tnc] * ChrList[ichr].inst.matrix.CNV( 1, 2 ) +
-                          pointz[tnc] * ChrList[ichr].inst.matrix.CNV( 2, 2 ) );
-
-        nupointx[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 0 );
-        nupointy[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 1 );
-        nupointz[tnc] += ChrList[ichr].inst.matrix.CNV( 3, 2 );
-    }
+    // use the math function instead of rolling out own
+    TransformVertices( &(ChrList[ichr].inst.matrix), point, nupoint, iweappoints );
 
     if (1 == iweappoints)
     {
@@ -445,7 +454,7 @@ void make_one_weapon_matrix( Uint16 iweap )
                                      ChrList[iweap].turnleftright >> 2,
                                      ( ( Uint16 ) ( ChrList[iweap].turnmapud + 32768 ) ) >> 2,
                                      ( ( Uint16 ) ( ChrList[iweap].turnmaplr + 32768 ) ) >> 2,
-                                     nupointx[0], nupointy[0], nupointz[0]);
+                                     nupoint[0].x, nupoint[0].y, nupoint[0].z);
 
         ChrList[iweap].inst.matrixvalid = btrue;
     }
@@ -453,11 +462,12 @@ void make_one_weapon_matrix( Uint16 iweap )
     {
         // Calculate weapon's matrix based on positions of grip points
         // chrscale is recomputed at time of attachment
-        ChrList[iweap].inst.matrix = FourPoints( nupointx[0], nupointy[0], nupointz[0],
-                                     nupointx[1], nupointy[1], nupointz[1],
-                                     nupointx[2], nupointy[2], nupointz[2],
-                                     nupointx[3], nupointy[3], nupointz[3],
-                                     ChrList[iweap].fat );
+        ChrList[iweap].inst.matrix = FourPoints( 
+            nupoint[0].x, nupoint[0].y, nupoint[0].z,
+            nupoint[1].x, nupoint[1].y, nupoint[1].z,
+            nupoint[2].x, nupoint[2].y, nupoint[2].z,
+            nupoint[3].x, nupoint[3].y, nupoint[3].z, ChrList[iweap].fat );
+
         ChrList[iweap].inst.matrixvalid = btrue;
     }
 }
@@ -890,8 +900,9 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     int i, tnc, slot;
 
     // Make sure both are still around
-	if ( !ChrList[character].on || !ChrList[mount].on || ChrList[character].inpack || ChrList[mount].inpack )
-        return;
+	if ( INVALID_CHR(character) || INVALID_CHR(mount) ) return; 
+    
+    if( ChrList[character].inpack || ChrList[mount].inpack ) return;
 
 #ifdef DISABLE_BODY_GRAB
 	if(!ChrList[character].alive) return;
@@ -1286,10 +1297,10 @@ void drop_all_items( Uint16 character )
 bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
 {
     // ZZ> This function makes the character pick up an item if there's one around
-    float xa, ya, za, xb, yb, zb, dist;
+    float xb, yb, zb, dist;
     int charb, slot;
     Uint16 vertex, model, frame, passage, cnt, owner = NOOWNER;
-    float pointx, pointy, pointz;
+    GLvector4 point[1], nupoint[1];
     bool_t inshop;
     int loc;
     float price;
@@ -1310,30 +1321,20 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         vertex = MadList[model].vertices - grip;
 
         // Calculate grip point locations
-        pointx = Md2FrameList[frame].vrtx[vertex];/// ChrList[cnt].scale;
-        pointy = Md2FrameList[frame].vrty[vertex];/// ChrList[cnt].scale;
-        pointz = Md2FrameList[frame].vrtz[vertex];/// ChrList[cnt].scale;
+        point[0].x = Md2FrameList[frame].vrtx[vertex];/// ChrList[cnt].scale;
+        point[0].y = Md2FrameList[frame].vrty[vertex];/// ChrList[cnt].scale;
+        point[0].z = Md2FrameList[frame].vrtz[vertex];/// ChrList[cnt].scale;
+        point[0].w = 1.0f;
 
         // Do the transform
-        xa = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 0 ) +
-               pointy * ChrList[chara].inst.matrix.CNV( 1, 0 ) +
-               pointz * ChrList[chara].inst.matrix.CNV( 2, 0 ) );
-        ya = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 1 ) +
-               pointy * ChrList[chara].inst.matrix.CNV( 1, 1 ) +
-               pointz * ChrList[chara].inst.matrix.CNV( 2, 1 ) );
-        za = ( pointx * ChrList[chara].inst.matrix.CNV( 0, 2 ) +
-               pointy * ChrList[chara].inst.matrix.CNV( 1, 2 ) +
-               pointz * ChrList[chara].inst.matrix.CNV( 2, 2 ) );
-        xa += ChrList[chara].inst.matrix.CNV( 3, 0 );
-        ya += ChrList[chara].inst.matrix.CNV( 3, 1 );
-        za += ChrList[chara].inst.matrix.CNV( 3, 2 );
+        TransformVertices( &(ChrList[chara].inst.matrix), point, nupoint, 1 );
     }
     else
     {
         // Just wing it
-        xa = ChrList[chara].xpos;
-        ya = ChrList[chara].ypos;
-        za = ChrList[chara].zpos;
+        nupoint[0].x = ChrList[chara].xpos;
+        nupoint[0].y = ChrList[chara].ypos;
+        nupoint[0].z = ChrList[chara].zpos;
     }
 
     // Go through all characters to find the best match
@@ -1358,9 +1359,9 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         zb = ChrList[charb].zpos;
 
         // First check absolute value diamond
-        xb = ABS( xa - xb );
-        yb = ABS( ya - yb );
-        zb = ABS( za - zb );
+        xb = ABS( nupoint[0].x - xb );
+        yb = ABS( nupoint[0].y - yb );
+        zb = ABS( nupoint[0].z - zb );
         dist = xb + yb;
 
         if ( dist < GRABSIZE && zb < GRABSIZE )
@@ -2256,7 +2257,7 @@ void export_one_character_skin( const char *szSaveName, Uint16 character )
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_character_profile( const char *szLoadName )
+int load_one_character_profile( const char * tmploadname )
 {
     // ZZ> This function fills a character profile with data from data.txt, returning
     // the object slot that the profile was stuck into.  It may cause the program
@@ -2271,6 +2272,10 @@ int load_one_character_profile( const char *szLoadName )
     int idsz_cnt;
     IDSZ idsz;
     cap_t * pcap;
+    int cnt;
+    STRING szLoadName, wavename;
+
+    make_newloadname( tmploadname, SLASH_STR "data.txt", szLoadName );
 
     // Open the file
     fileread = fopen( szLoadName, "r" );
@@ -2725,6 +2730,18 @@ int load_one_character_profile( const char *szLoadName )
     }
 
     fclose( fileread );
+
+    // Load the random naming table for this object
+    make_newloadname( tmploadname, SLASH_STR "naming.txt", szLoadName );
+    chop_load( object, szLoadName );
+
+    // Load the waves for this object
+    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
+    {
+        sprintf( wavename, SLASH_STR "sound%d", cnt );
+        make_newloadname( tmploadname, wavename, szLoadName );
+        pcap->wavelist[cnt] = sound_load_chunk( szLoadName );
+    }
 
     return object;
 }

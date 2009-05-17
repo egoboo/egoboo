@@ -58,9 +58,9 @@
 // Don't make len larger than 64
 #define GetKey_string(label, var, len, default) \
     { \
-        if ( ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, (label), lTempStr, sizeof( lTempStr ) / sizeof( *lTempStr ) ) == 0 ) \
+        if ( ConfigFile_GetValue_String( lConfigSetup, lCurSectionName, (label), lTempStr, SDL_arraysize( lTempStr ) ) == 0 ) \
         { \
-            strncpy( lTempStr, (default), sizeof( lTempStr ) / sizeof( *lTempStr ) ); \
+            strncpy( lTempStr, (default), SDL_arraysize( lTempStr ) ); \
         } \
         strncpy( (var), lTempStr, (len) ); \
         (var)[(len) - 1] = '\0'; \

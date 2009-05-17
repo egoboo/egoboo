@@ -389,16 +389,48 @@ GLmatrix ProjectionMatrix( const float near_plane,    // distance to near clippi
 // This is just a MulVectorMatrix for now. The W division and screen size multiplication
 // must be done afterward.
 // Isn't tested!!!!
-void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  pNumVertor )
+void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  NumVertor )
 {
-    while ( pNumVertor-- )
+    // BB > the matrix transformation for OpenGL vertices. some minor optimizations.
+
+    if( 1.0f == pSourceV->w )
     {
-        pDestV->x = pSourceV->x * pMatrix->v[0] + pSourceV->y * pMatrix->v[4] + pSourceV->z * pMatrix->v[8] + pSourceV->w * pMatrix->v[12];
-        pDestV->y = pSourceV->x * pMatrix->v[1] + pSourceV->y * pMatrix->v[5] + pSourceV->z * pMatrix->v[9] + pSourceV->w * pMatrix->v[13];
-        pDestV->z = pSourceV->x * pMatrix->v[2] + pSourceV->y * pMatrix->v[6] + pSourceV->z * pMatrix->v[10] + pSourceV->w * pMatrix->v[14];
-        pDestV->w = pSourceV->x * pMatrix->v[3] + pSourceV->y * pMatrix->v[7] + pSourceV->z * pMatrix->v[11] + pSourceV->w * pMatrix->v[15];
-        pDestV++;
-        pSourceV++;
+        while ( NumVertor-- )
+        {
+            pDestV->x = pSourceV->x * pMatrix->v[0] + pSourceV->y * pMatrix->v[4] + pSourceV->z * pMatrix->v[ 8] + pMatrix->v[12];
+            pDestV->y = pSourceV->x * pMatrix->v[1] + pSourceV->y * pMatrix->v[5] + pSourceV->z * pMatrix->v[ 9] + pMatrix->v[13];
+            pDestV->z = pSourceV->x * pMatrix->v[2] + pSourceV->y * pMatrix->v[6] + pSourceV->z * pMatrix->v[10] + pMatrix->v[14];
+            pDestV->w = pSourceV->x * pMatrix->v[3] + pSourceV->y * pMatrix->v[7] + pSourceV->z * pMatrix->v[11] + pMatrix->v[15];
+
+            pDestV++;
+            pSourceV++;
+        }
+    }
+    else if( 0.0f == pSourceV->w )
+    {
+        while ( NumVertor-- )
+        {
+            pDestV->x = pSourceV->x * pMatrix->v[0] + pSourceV->y * pMatrix->v[4] + pSourceV->z * pMatrix->v[ 8];
+            pDestV->y = pSourceV->x * pMatrix->v[1] + pSourceV->y * pMatrix->v[5] + pSourceV->z * pMatrix->v[ 9];
+            pDestV->z = pSourceV->x * pMatrix->v[2] + pSourceV->y * pMatrix->v[6] + pSourceV->z * pMatrix->v[10];
+            pDestV->w = pSourceV->x * pMatrix->v[3] + pSourceV->y * pMatrix->v[7] + pSourceV->z * pMatrix->v[11];
+
+            pDestV++;
+            pSourceV++;
+        }
+    }
+    else
+    {
+        while ( NumVertor-- )
+        {
+            pDestV->x = pSourceV->x * pMatrix->v[0] + pSourceV->y * pMatrix->v[4] + pSourceV->z * pMatrix->v[8]  + pSourceV->w * pMatrix->v[12];
+            pDestV->y = pSourceV->x * pMatrix->v[1] + pSourceV->y * pMatrix->v[5] + pSourceV->z * pMatrix->v[9]  + pSourceV->w * pMatrix->v[13];
+            pDestV->z = pSourceV->x * pMatrix->v[2] + pSourceV->y * pMatrix->v[6] + pSourceV->z * pMatrix->v[10] + pSourceV->w * pMatrix->v[14];
+            pDestV->w = pSourceV->x * pMatrix->v[3] + pSourceV->y * pMatrix->v[7] + pSourceV->z * pMatrix->v[11] + pSourceV->w * pMatrix->v[15];
+
+            pDestV++;
+            pSourceV++;
+        }
     }
 }
 

@@ -117,7 +117,7 @@ static void   release_module();
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
 static void   load_all_messages( const char *loadname, Uint16 object );
-static int    load_one_object( int skin, const char* tmploadname );
+static int    load_one_object( const char* tmploadname , int skin );
 static int    load_all_objects( const char *modname );
 static void   load_all_global_objects(int skin);
 
@@ -1582,34 +1582,31 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_object( int skin, const char* tmploadname )
+int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
 {
-    // ZZ> This function loads one object and returns the number of skins
-    int object;
     int numskins, numicon;
-    STRING newloadname, wavename;
+    STRING newloadname;
     int cnt;
+    mad_t * pmad;
 
-    // Load the object data file and get the object number
-    make_newloadname( tmploadname, SLASH_STR "data.txt", newloadname );
-    object = load_one_character_profile( newloadname );
+    if( object > MAXMODEL ) return 0;
+    pmad = MadList + object;
 
-    if( !VALID_CAP(object) ) return 0;  // no skins for an invalid object
+    // clear out the mad
+    memset( pmad, 0, sizeof(mad_t) );
 
-    // mark the mad as used
-    MadList[object].used   = btrue;
+    // mark it as used
+    pmad->used = btrue;
 
     // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-    strncpy( MadList[object].name, tmploadname, sizeof(MadList[object].name) / sizeof(*MadList[object].name) );
-
-    // Make sure the string is null-terminated (strncpy doesn't do that if it's too long)
-    MadList[object].name[ sizeof(MadList[object].name) / sizeof(*MadList[object].name) - 1 ] = '\0';
+    strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );
+    pmad->name[ SDL_arraysize(pmad->name) - 1 ] = '\0';
 
     // Load the AI script for this object
     make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
 
     // Create a reference to the one we just loaded
-    MadList[object].ai = load_ai_script( newloadname );
+    pmad->ai = load_ai_script( newloadname );
 
     // Load the object model
     make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
@@ -1633,12 +1630,6 @@ int load_one_object( int skin, const char* tmploadname )
     md2_load_one( newloadname, object );
     md2_models[object] = md2_loadFromFile( newloadname );
 
-    // Fix lighting if need be
-    if ( CapList[object].uniformlit )
-    {
-        mad_make_equally_lit( object );
-    }
-
     // Create the actions table for this object
     mad_rip_actions( object );
 
@@ -1650,31 +1641,17 @@ int load_one_object( int skin, const char* tmploadname )
     make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
     load_all_messages( newloadname, object );
 
-    // Load the random naming table for this object
-    make_newloadname( tmploadname, SLASH_STR "naming.txt", newloadname );
-    chop_load( object, newloadname );
-
     // Load the particles for this object
     for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
     {
         sprintf( newloadname, "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
-        load_one_particle_profile( newloadname, object, cnt );
-    }
 
-    // Load the waves for this object
-    for ( cnt = 0; cnt < MAXWAVE; cnt++ )
-    {
-        sprintf( wavename, SLASH_STR "sound%d", cnt );
-        make_newloadname( tmploadname, wavename, newloadname );
-        CapList[object].wavelist[cnt] = sound_load_chunk( newloadname );
+        // Make sure it's referenced properly
+        pmad->prtpip[cnt] = load_one_particle_profile( newloadname );
     }
-
-    // Load the enchantment for this object
-    make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
-    load_one_enchant_profile( newloadname, object );
 
     // Load the skins and icons
-    MadList[object].skinstart = skin;
+    pmad->skinstart = skin;
     numskins = 0;
     numicon = 0;
     for ( cnt = 0; cnt < MAXSKIN; cnt++)
@@ -1708,7 +1685,7 @@ int load_one_object( int skin, const char* tmploadname )
     if ( 0 == numskins )
     {
         // If we didn't get a skin, set it to the water texture
-        MadList[object].skinstart = TX_WATER_TOP;
+        pmad->skinstart = TX_WATER_TOP;
         numskins = 1;
         if (gDevMode)
         {
@@ -1716,7 +1693,37 @@ int load_one_object( int skin, const char* tmploadname )
         }
     }
 
-    MadList[object].skins = numskins;
+    pmad->skins = numskins;
+
+    return numskins;
+}
+
+//--------------------------------------------------------------------------------------------
+int load_one_object( const char* tmploadname, int skin )
+{
+    // ZZ> This function loads one object and returns the number of skins
+    int object;
+    int numskins;
+    STRING newloadname;
+
+    // Load the object data file and get the object number
+    object = load_one_character_profile( tmploadname );
+
+    if( !VALID_CAP(object) ) return 0;  // no skins for an invalid object
+
+    // Load the model for this object
+    numskins = load_one_model_profile( tmploadname, object, skin );
+
+    // Load the enchantment for this object
+    make_newloadname( tmploadname, SLASH_STR "enchant.txt", newloadname );
+    load_one_enchant_profile( newloadname, object );
+
+    // Fix lighting if need be
+    if ( CapList[object].uniformlit )
+    {
+        mad_make_equally_lit( object );
+    }
+
     return numskins;
 }
 
@@ -2098,6 +2105,9 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
 {
     // ZZ> This function makes sure both actions are valid if either of them
     //     are valid.  It will copy start and ends to mirror the valid action.
+
+    if( object > MAXMODEL || !MadList[object].used ) return;
+
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
         // They are either both valid or both invalid, in either case we can't help
@@ -2234,6 +2244,8 @@ void action_check_copy( const char* loadname, Uint16 object )
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
+    if( object > MAXMODEL || !MadList[object].used ) return;
+
     MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
@@ -2241,9 +2253,11 @@ void action_check_copy( const char* loadname, Uint16 object )
         while ( goto_colon_yesno( fileread ) )
         {
             fscanf( fileread, "%s%s", szOne, szTwo );
+
             actiona = action_which( szOne[0] );
             actionb = action_which( szTwo[0] );
-            action_copy_correct( object, actiona, actionb );
+
+            action_copy_correct( object, actiona + 0, actionb + 0 );
             action_copy_correct( object, actiona + 1, actionb + 1 );
             action_copy_correct( object, actiona + 2, actionb + 2 );
             action_copy_correct( object, actiona + 3, actionb + 3 );
@@ -3412,9 +3426,10 @@ void bump_characters( void )
                         tnc++, charb = ChrList[charb].bumpnext)
                     {
                         bool_t platform_a, platform_b;
+                        bool_t mount_a, mount_b;
                         float  xb, yb, zb;
-                        float dx, dy, dist;
-                        float depth_z, lerp_z, radius, radius_xy;
+                        float  dx, dy, dist;
+                        float  depth_z, lerp_z, radius, radius_xy;
 
                         bool_t collide_x  = bfalse;
                         bool_t collide_y  = bfalse;
@@ -3422,6 +3437,9 @@ void bump_characters( void )
 
                         // Don't collide with self, and only do each collision pair once
                         if ( charb <= chara ) continue;
+
+                        // don't interact with your mount, or your held items
+                        if ( chara == ChrList[charb].attachedto || charb == ChrList[chara].attachedto ) continue;
 
                         // only check possible object-platform interactions
                         platform_a = CapList[ChrList[charb].model].canuseplatforms && ChrList[chara].platform;
@@ -3431,6 +3449,17 @@ void bump_characters( void )
                         xb = ChrList[charb].xpos;
                         yb = ChrList[charb].ypos;
                         zb = ChrList[charb].zpos;
+
+                        // If we can mount this platform, skip it
+                        mount_a = !ChrList[charb].isitem && ChrList[chara].ismount && CapList[ChrList[chara].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[chara].holdingwhich[SLOT_LEFT]);
+                        if( mount_a && ChrList[chara].level < zb + ChrList[charb].bumpheight + PLATTOLERANCE ) 
+                            continue;
+
+                        // If we can mount this platform, skip it
+                        mount_b = !ChrList[chara].isitem && ChrList[charb].ismount && CapList[ChrList[charb].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[charb].holdingwhich[SLOT_LEFT]);
+                        if( mount_b && ChrList[charb].level < za + ChrList[chara].bumpheight + PLATTOLERANCE ) 
+                            continue;
+
 
                         dx = ABS( xa - xb );
                         dy = ABS( ya - yb );
@@ -3588,23 +3617,26 @@ void bump_characters( void )
                         {
                             // we know that chara is a platform and charb is on it
 
-                            lerp_z = (ChrList[charb].level - ChrList[charb].zpos) / PLATTOLERANCE;
-                            lerp_z = CLIP( lerp_z, 0, 1 );
+                            lerp_z = (ChrList[charb].zpos - ChrList[charb].level) / PLATTOLERANCE;
+                            lerp_z = CLIP( lerp_z, -1, 1 );
 
-                            ChrList[chara].holdingweight += ChrList[charb].weight * lerp_z;
+                            if( lerp_z < 0 )
+                            {
+                                ChrList[charb].phys_pos_z += (ChrList[charb].level - ChrList[charb].zpos) * 0.25f * (-lerp_z);
+                            };
 
                             if( lerp_z > 0 )
                             {
-                                ChrList[charb].phys_pos_z += (ChrList[charb].level - ChrList[charb].zpos) * 0.25f * lerp_z;
-                            };
+                                ChrList[chara].holdingweight += ChrList[charb].weight * lerp_z;
 
-                            ChrList[charb].phys_vel_x += ( ChrList[chara].xvel - ChrList[charb].xvel ) * platstick * lerp_z;
-                            ChrList[charb].phys_vel_y += ( ChrList[chara].yvel - ChrList[charb].yvel ) * platstick * lerp_z;
-                            ChrList[charb].phys_vel_z +=  ( ChrList[chara].zvel - ChrList[charb].zvel ) * lerp_z;
-                            ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick * lerp_z;
+                                ChrList[charb].phys_vel_x += ( ChrList[chara].xvel - ChrList[charb].xvel ) * platstick * lerp_z;
+                                ChrList[charb].phys_vel_y += ( ChrList[chara].yvel - ChrList[charb].yvel ) * platstick * lerp_z;
+                                ChrList[charb].phys_vel_z +=  ( ChrList[chara].zvel - ChrList[charb].zvel ) * lerp_z;
+                                ChrList[charb].turnleftright += ( ChrList[chara].turnleftright - ChrList[chara].oldturn ) * platstick * lerp_z;
 
-                            ChrList[charb].jumpready = btrue;
-                            ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
+                                ChrList[charb].jumpready = btrue;
+                                ChrList[charb].jumpnumber = ChrList[charb].jumpnumberreset;
+                            }
 
                             // this is handled
                             continue;
@@ -3614,23 +3646,26 @@ void bump_characters( void )
                         {
                             // we know that charb is a platform and chara is on it
 
-                            lerp_z = (ChrList[chara].level - ChrList[chara].zpos) / PLATTOLERANCE;
-                            lerp_z = CLIP( lerp_z, 0, 1 );
+                            lerp_z = (ChrList[chara].zpos - ChrList[chara].level) / PLATTOLERANCE;
+                            lerp_z = CLIP( lerp_z, -1, 1 );
 
-                            ChrList[charb].holdingweight += ChrList[chara].weight * lerp_z;
+                            if( lerp_z < 0 )
+                            {
+                                ChrList[chara].phys_pos_z += (ChrList[chara].level - ChrList[chara].zpos) * 0.25f * lerp_z;
+                            }
 
                             if( lerp_z > 0 )
                             {
-                                ChrList[chara].phys_pos_z += (ChrList[chara].level - ChrList[chara].zpos) * 0.25f * lerp_z;
-                            };
+                                ChrList[charb].holdingweight += ChrList[chara].weight * lerp_z;
 
-                            ChrList[chara].phys_vel_x += ( ChrList[charb].xvel - ChrList[chara].xvel ) * platstick * lerp_z;
-                            ChrList[chara].phys_vel_y += ( ChrList[charb].yvel - ChrList[chara].yvel ) * platstick * lerp_z;
-                            ChrList[chara].phys_vel_z +=  ( ChrList[charb].zvel - ChrList[chara].zvel ) * lerp_z;
-                            ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick * lerp_z;
+                                ChrList[chara].phys_vel_x += ( ChrList[charb].xvel - ChrList[chara].xvel ) * platstick * lerp_z;
+                                ChrList[chara].phys_vel_y += ( ChrList[charb].yvel - ChrList[chara].yvel ) * platstick * lerp_z;
+                                ChrList[chara].phys_vel_z +=  ( ChrList[charb].zvel - ChrList[chara].zvel ) * lerp_z;
+                                ChrList[chara].turnleftright += ( ChrList[charb].turnleftright - ChrList[charb].oldturn ) * platstick * lerp_z;
 
-                            ChrList[chara].jumpready = btrue;
-                            ChrList[chara].jumpnumber = ChrList[charb].jumpnumberreset;
+                                ChrList[chara].jumpready = btrue;
+                                ChrList[chara].jumpnumber = ChrList[charb].jumpnumberreset;
+                            }
 
                             // this is handled
                             continue;
@@ -4495,7 +4530,7 @@ int load_all_objects( const char *modname )
                 CapList[importobject].importslot = cnt;
 
                 // load it
-                skin += load_one_object( skin, filename );
+                skin += load_one_object( filename, skin );
             }
         }
     }
@@ -4511,7 +4546,7 @@ int load_all_objects( const char *modname )
         while ( keeplooking )
         {
             sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( skin, filename );
+            skin += load_one_object( filename, skin );
 
             filehandle = fs_findNextFile();
 
@@ -4767,7 +4802,7 @@ void load_all_global_objects(int skin)
         while ( keeplooking )
         {
             sprintf( filename, "%s%s", newloadname, filehandle );
-            skin += load_one_object( skin, filename );
+            skin += load_one_object( filename, skin );
 
             filehandle = fs_findNextFile();
 

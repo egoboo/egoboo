@@ -115,7 +115,7 @@ GLmatrix  ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, cons
 GLmatrix  FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
 GLmatrix  ViewMatrix( const GLvector3 from, const GLvector3 at, const GLvector3 world_up, const float roll );
 GLmatrix  ProjectionMatrix( const float near_plane, const float far_plane, const float fov );
-void      TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  pNumVertor );
+void      TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDestV, Uint32  NumVertor );
 
 GLvector3 mat_getChrUp(GLmatrix mat);
 GLvector3 mat_getChrRight(GLmatrix mat);
