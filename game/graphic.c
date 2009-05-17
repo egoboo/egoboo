@@ -1874,180 +1874,184 @@ void read_wawalite( const char *modname )
 
     make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
     fileread = fopen( newloadname, "r" );
-    if ( fileread )
-    {
-        goto_colon( fileread );
-        //  !!!BAD!!!
-        //  Random map...
-        //  If someone else wants to handle this, here are some thoughts for approaching
-        //  it.  The .MPD file for the level should give the basic size of the map.  Use
-        //  a standard tile set like the Palace modules.  Only use objects that are in
-        //  the module's object directory, and only use some of them.  Imagine several Rock
-        //  Moles eating through a stone filled level to make a path from the entrance to
-        //  the exit.  Door placement will be difficult.
-        //  !!!BAD!!!
-
-        // Read water data first
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  numwaterlayer = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspekstart = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspeklevel = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  waterlight = btrue;
-        else waterlight = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        wateriswater = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  wateriswater = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( ( cTmp == 'T' || cTmp == 't' ) && overlayvalid )  overlayon = btrue;
-        else overlayon = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( ( cTmp == 'T' || cTmp == 't' ) && backgroundvalid )  clearson = bfalse;
-        else clearson = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[0] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[0] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[1] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[1] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  foregroundrepeat = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  backgroundrepeat = iTmp;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[0] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[0] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[0] = fTmp;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[1] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[1] = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[1] = fTmp;
-
-        waterlayeru[0] = 0;
-        waterlayerv[0] = 0;
-        waterlayeru[1] = 0;
-        waterlayerv[1] = 0;
-        waterlayerframe[0] = rand() & WATERFRAMEAND;
-        waterlayerframe[1] = rand() & WATERFRAMEAND;
-        // Read light data second
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lx = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  ly = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lz = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  la = fTmp;
-        // Read tile data third
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileupdateand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
-        biganimtileframeand = ( iTmp << 1 ) + 1;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  damagetiletype = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  damagetiletype = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  damagetiletype = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  damagetiletype = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGE_ZAP;
-
-        // Read weather data fourth
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        weatheroverwater = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  weatheroverwater = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  weathertimereset = iTmp;
-        weathertime = weathertimereset;
-        weatherplayer = 0;
-        // Read extra data
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        mesh.info.exploremode = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  mesh.info.exploremode = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        usefaredge = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
-
-        gCamera.swing = 0;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingrate = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingamp = fTmp;
-
-        // Read unnecessary data...  Only read if it exists...
-        fogon = bfalse;
-        fogaffectswater = btrue;
-        fogtop = 100;
-        fogbottom = 0;
-        fogdistance = 100;
-        fogred = 255;
-        foggrn = 255;
-        fogblu = 255;
-        damagetileparttype = -1;
-        damagetilepartand = 255;
-        damagetilesound = -1;
-        damagetilesoundtime = TILESOUNDTIME;
-        damagetilemindistance = 9999;
-        if ( goto_colon_yesno( fileread ) )
-        {
-            fogon = fogallowed;
-            fscanf( fileread, "%f", &fTmp );  fogtop = fTmp;
-            goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogbottom = fTmp;
-            goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
-            goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
-            goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
-            goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'F' || cTmp == 'f' )  fogaffectswater = bfalse;
-
-            fogdistance = ( fogtop - fogbottom );
-            if ( fogdistance < 1.0f )  fogon = bfalse;
-
-            // Read extra stuff for damage tile particles...
-            if ( goto_colon_yesno( fileread ) )
-            {
-                fscanf( fileread, "%d", &iTmp );  damagetileparttype = iTmp;
-                goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-                damagetilepartand = iTmp;
-                goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-                damagetilesound = CLIP(iTmp, -1, MAXWAVE);
-            }
-        }
-
-        // Allow slow machines to ignore the fancy stuff
-        if ( !twolayerwateron && numwaterlayer > 1 )
-        {
-            numwaterlayer = 1;
-            iTmp = waterlayeralpha[0];
-            iTmp = FP8_MUL( waterlayeralpha[1], iTmp ) + iTmp;
-            if ( iTmp > 255 ) iTmp = 255;
-
-            waterlayeralpha[0] = iTmp;
-        }
-
-        fclose( fileread );
-
-        // Do it
-        make_lighttable( lx, ly, lz, la );
-        make_lighttospek();
-        make_water();
-    }
-    else
+    if ( NULL == fileread )
     {
         log_error( "Could not read file! (wawalite.txt)\n" );
+        return;
     }
+
+    goto_colon( fileread );
+    //  !!!BAD!!!
+    //  Random map...
+    //  If someone else wants to handle this, here are some thoughts for approaching
+    //  it.  The .MPD file for the level should give the basic size of the map.  Use
+    //  a standard tile set like the Palace modules.  Only use objects that are in
+    //  the module's object directory, and only use some of them.  Imagine several Rock
+    //  Moles eating through a stone filled level to make a path from the entrance to
+    //  the exit.  Door placement will be difficult.
+    //  !!!BAD!!!
+
+    // Read water data first
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  numwaterlayer = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspekstart = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspeklevel = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'T' || cTmp == 't' )  waterlight = btrue;
+    else waterlight = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    wateriswater = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  wateriswater = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( ( cTmp == 'T' || cTmp == 't' ) && overlayvalid )  draw_overlay = btrue;
+    else draw_overlay = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( ( cTmp == 'T' || cTmp == 't' ) && backgroundvalid )  draw_background = btrue;
+    else draw_background = bfalse;
+
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[0] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[0] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[1] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[1] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  foregroundrepeat = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  backgroundrepeat = iTmp;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[0] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[0] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[0] = fTmp;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[1] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[1] = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[1] = fTmp;
+
+    waterlayeru[0] = 0;
+    waterlayerv[0] = 0;
+    waterlayeru[1] = 0;
+    waterlayerv[1] = 0;
+    waterlayerframe[0] = rand() & WATERFRAMEAND;
+    waterlayerframe[1] = rand() & WATERFRAMEAND;
+    // Read light data second
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lx = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  ly = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lz = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  la = fTmp;
+    // Read tile data third
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileupdateand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
+    biganimtileframeand = ( iTmp << 1 ) + 1;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  damagetiletype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  damagetiletype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  damagetiletype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  damagetiletype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGE_ZAP;
+
+    // Read weather data fourth
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    weatheroverwater = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  weatheroverwater = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  weathertimereset = iTmp;
+    weathertime = weathertimereset;
+    weatherplayer = 0;
+    // Read extra data
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    mesh.info.exploremode = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  mesh.info.exploremode = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    usefaredge = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
+
+    gCamera.swing = 0;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingrate = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingamp = fTmp;
+
+    // Read unnecessary data...  Only read if it exists...
+    fogon = bfalse;
+    fogaffectswater = btrue;
+    fogtop = 100;
+    fogbottom = 0;
+    fogdistance = 100;
+    fogred = 255;
+    foggrn = 255;
+    fogblu = 255;
+    damagetileparttype = -1;
+    damagetilepartand = 255;
+    damagetilesound = -1;
+    damagetilesoundtime = TILESOUNDTIME;
+    damagetilemindistance = 9999;
+    if ( goto_colon_yesno( fileread ) )
+    {
+        fogon = fogallowed;
+        fscanf( fileread, "%f", &fTmp );  fogtop = fTmp;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogbottom = fTmp;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
+        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'F' || cTmp == 'f' )  fogaffectswater = bfalse;
+
+        fogdistance = ( fogtop - fogbottom );
+        if ( fogdistance < 1.0f )  fogon = bfalse;
+
+        // Read extra stuff for damage tile particles...
+        if ( goto_colon_yesno( fileread ) )
+        {
+            fscanf( fileread, "%d", &iTmp );  damagetileparttype = iTmp;
+            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+            damagetilepartand = iTmp;
+            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+            damagetilesound = CLIP(iTmp, -1, MAXWAVE);
+        }
+    }
+
+    // Allow slow machines to ignore the fancy stuff
+    if ( !twolayerwateron && numwaterlayer > 1 )
+    {
+        numwaterlayer = 1;
+        iTmp = waterlayeralpha[0];
+        iTmp = FP8_MUL( waterlayeralpha[1], iTmp ) + iTmp;
+        if ( iTmp > 255 ) iTmp = 255;
+
+        waterlayeralpha[0] = iTmp;
+    }
+
+    fclose( fileread );
+
+    // Do it
+    make_lighttable( lx, ly, lz, la );
+    make_lighttospek();
+    make_water();
+
+    draw_water_0 = !draw_overlay && (numwaterlayer > 0);
+    clearson     = !draw_background;
+    draw_water_1 = !draw_background && (numwaterlayer > 1);
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2728,34 +2732,26 @@ void render_water()
     glLoadMatrixf( gCamera.mView.v );
 
     // Bottom layer first
-    if ( clearson && numwaterlayer > 1 && waterlayerz[1] > -waterlayeramp[1] )
+    if ( draw_water_1 && waterlayerz[1] > -waterlayeramp[1] )
     {
-        cnt = 0;
-
-        while ( cnt < renderlist.all_count )
+        for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
         {
             if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 1 );
             }
-
-            cnt++;
         }
     }
 
     // Top layer second
-    if ( !overlayon && numwaterlayer > 0 && waterlayerz[0] > -waterlayeramp[0] )
+    if ( draw_water_0 && waterlayerz[0] > -waterlayeramp[0] )
     {
-        cnt = 0;
-
-        while ( cnt < renderlist.all_count )
+        for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
         {
             if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 0 );
             }
-
-            cnt++;
         }
     }
 }
@@ -3956,12 +3952,12 @@ void draw_scene()
     {
         glClear( GL_COLOR_BUFFER_BIT );
     }
-    else
+
+    if( draw_background )
     {
         // Render the background
         render_background( TX_WATER_LOW );  // TX_WATER_LOW for waterlow.bmp
     }
-
 
 /*    // no need to have a completely different function just to turn the reflections off and on
     {
@@ -3979,7 +3975,7 @@ void draw_scene()
     glClear( GL_DEPTH_BUFFER_BIT );
 
     // Foreground overlay
-    if ( overlayon )
+    if ( draw_overlay )
     {
         render_foreground_overlay( TX_WATER_TOP );  // TX_WATER_TOP is watertop.bmp
     }

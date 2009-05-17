@@ -2649,7 +2649,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
             // This function sets the character's current frame
             sTmp = pstate->argument & 3;
             iTmp = pstate->argument >> 2;
-            chr_set_frame( pself->index, iTmp, sTmp );
+            chr_set_frame( pself->index, ACTIONDA, iTmp, sTmp );
             break;
 
         case FBREAKPASSAGE:
@@ -8441,7 +8441,7 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 
     sTmp = pstate->argument & 3;
     iTmp = pstate->argument >> 2;
-    chr_set_frame( pself->index, iTmp, sTmp );
+    chr_set_frame( pself->index, ACTIONDA, iTmp, sTmp );
 
     SCRIPT_FUNCTION_END();
 }

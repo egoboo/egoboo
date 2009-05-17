@@ -4567,7 +4567,7 @@ void move_characters( void )
     float level, friction_xy, friction_z;
     float dvx, dvy, dvmax;
     Uint16 action, weapon, mount, item;
-    bool_t watchtarget, grounded;
+    bool_t watchtarget;
 
     // Move every character
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
@@ -4578,8 +4578,6 @@ void move_characters( void )
 
         if ( !ChrList[cnt].on || ChrList[cnt].inpack ) continue;
         pchr = ChrList + cnt;
-
-        grounded = bfalse;
 
         // Down that ol' damage timer
         pchr->damagetime -= ( pchr->damagetime != 0 );
@@ -5053,6 +5051,8 @@ void move_characters( void )
         zlerp = (pchr->zpos - level) / PLATTOLERANCE;
         zlerp = CLIP(zlerp, 0, 1);
 
+        pchr->phys_grounded = (pchr->flyheight == 0) && ((pchr->zpos - pchr->level) < PLATTOLERANCE / 4);
+
         friction_z = pchr->inwater ? waterfriction : 0.9868;
         if ( pchr->flyheight == 0 )
         {
@@ -5073,7 +5073,6 @@ void move_characters( void )
             {
                 // Character is on the ground
                 pchr->zpos = level;
-                grounded = btrue;
                 if ( pchr->hitready )
                 {
                     pchr->ai.alert |= ALERTIF_HITGROUND;
@@ -5209,6 +5208,7 @@ void move_characters( void )
                 }
             }
         }
+
         if ( pchr->inst.lip == 0 )
         {
             // Change frames
@@ -5256,7 +5256,7 @@ void move_characters( void )
         if ( !( pchr->keepaction || pchr->loopaction ) )
         {
             framelip = Md2FrameList[pchr->inst.frame].framelip;  // 0 - 15...  Way through animation
-            if ( pchr->actionready && pchr->inst.lip == 0 && grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
+            if ( pchr->actionready && pchr->inst.lip == 0 && pchr->phys_grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
             {
                 // Do the motion stuff
                 speed = ABS( ( int ) pchr->xvel ) + ABS( ( int ) pchr->yvel );

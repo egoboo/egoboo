@@ -364,13 +364,13 @@ void camera_move( camera_t * pcam )
     pcam->trackxvel += pcam->trackx;
     pcam->trackyvel += pcam->tracky;
     pcam->trackzvel += pcam->trackz;
-    if ( overlayon )
+    if ( draw_water_0 )
     {
         // Do fg distance effect
         waterlayeru[0] += pcam->trackxvel * waterlayerdistx[0];
         waterlayerv[0] += pcam->trackyvel * waterlayerdisty[0];
     }
-    if ( !clearson )
+    if ( draw_water_1 )
     {
         // Do bg distance effect
         waterlayeru[1] += pcam->trackxvel * waterlayerdistx[1];

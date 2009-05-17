@@ -381,7 +381,6 @@ EXTERN Uint32          pity;
 EXTERN Uint32          pitz;
 
 EXTERN bool_t                    fullscreen EQ( bfalse );        // Start in fullscreen?
-EXTERN bool_t                    clearson  EQ( btrue );             // Do we clear every time?
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
 EXTERN bool_t                    gamemenuactive EQ( bfalse );
@@ -414,6 +413,12 @@ EXTERN int                       pickedindex;                // The module index
 EXTERN int                       playersready;               // Number of players ready to start
 EXTERN int                       playersloaded;
 
+EXTERN bool_t                   clearson         EQ( btrue  );   // Do we clear every time?
+EXTERN bool_t                   draw_background  EQ( bfalse );   // Do we draw the background image?
+EXTERN bool_t                   draw_water_1     EQ( btrue  );   // Do we draw water layer 1 (TX_WATER_TOP)
+EXTERN bool_t                   draw_overlay     EQ( bfalse );   // Draw overlay?
+EXTERN bool_t                   draw_water_0     EQ( btrue  );   // Do we draw water layer 1 (TX_WATER_LOW)
+
 //Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
 EXTERN Uint16                   revivetimer EQ(0);
@@ -431,7 +436,6 @@ EXTERN int                     scrx  EQ( 320 );               // Screen X size
 EXTERN int                     scry  EQ( 200 );               // Screen Y size
 EXTERN Uint8                   reffadeor  EQ( 0 );            // 255 = Don't fade reflections
 EXTERN Uint8                   messageon  EQ( btrue );         // Messages?
-EXTERN bool_t                  overlayon  EQ( bfalse );        // Draw overlay?
 EXTERN bool_t                  perspective  EQ( bfalse );      // Perspective correct textures?
 EXTERN bool_t                  dither  EQ( bfalse );           // Dithering?
 EXTERN GLuint                  shading  EQ( GL_SMOOTH );           // Gourad shading?

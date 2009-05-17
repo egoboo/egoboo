@@ -94,7 +94,7 @@ void   fgetadd( float min, float value, float max, float* valuetoadd );
 // Action
 int  action_which( char cTmp );
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
-void chr_set_frame( Uint16 character, int frame, Uint16 lip );
+void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
 
 // Mesh
 float get_level( float x, float y, bool_t waterwalk );

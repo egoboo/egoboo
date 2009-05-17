@@ -587,28 +587,70 @@ void statlist_sort()
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
-    if ( MadList[ChrList[character].inst.imad].actionvalid[action] )
+    
+    chr_t * pchr;
+    mad_t * pmad;
+
+    if( INVALID_CHR(character) ) return;
+    pchr = ChrList + character;
+
+    if( pchr->inst.imad > MAXMODEL || !MadList[pchr->inst.imad].used ) return;
+    pmad = MadList + pchr->inst.imad;
+
+    if ( pmad->actionvalid[action] )
     {
-        ChrList[character].nextaction = ACTIONDA;
-        ChrList[character].action = action;
-        ChrList[character].inst.lip = 0;
-        ChrList[character].inst.lastframe = ChrList[character].inst.frame;
-        ChrList[character].inst.frame = MadList[ChrList[character].inst.imad].actionstart[ChrList[character].action];
-        ChrList[character].actionready = actionready;
+        pchr->nextaction = ACTIONDA;
+        pchr->action = action;
+
+        pchr->inst.lip = 0;
+        pchr->inst.lastframe = pchr->inst.frame;
+        pchr->inst.frame     = pmad->actionstart[pchr->action];
+        pchr->actionready    = actionready;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void chr_set_frame( Uint16 character, int frame, Uint16 lip )
+void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
 {
     // ZZ> This function sets the frame for a character explicitly...  This is used to
     //     rotate Tank turrets
-    ChrList[character].nextaction = ACTIONDA;
-    ChrList[character].action = ACTIONDA;
-    ChrList[character].inst.lip = ( lip << 6 );
-    ChrList[character].inst.lastframe = MadList[ChrList[character].inst.imad].actionstart[ACTIONDA] + frame;
-    ChrList[character].inst.frame = MadList[ChrList[character].inst.imad].actionstart[ACTIONDA] + frame + 1;
-    ChrList[character].actionready = btrue;
+
+    chr_t * pchr;
+    mad_t * pmad;
+
+    if( INVALID_CHR(character) ) return;
+    pchr = ChrList + character;
+
+    if( pchr->inst.imad > MAXMODEL || !MadList[pchr->inst.imad].used ) return;
+    pmad = MadList + pchr->inst.imad;
+
+    if ( pmad->actionvalid[action] )
+    {
+        int framesinaction, frame_stt, frame_end;
+
+        pchr->nextaction = ACTIONDA;
+        pchr->action = ACTIONDA;
+        pchr->actionready = btrue;
+
+        framesinaction = (pmad->actionend[action] - pmad->actionstart[action]) + 1;
+        if( framesinaction <= 1 )
+        {
+            frame_stt = pmad->actionstart[action];
+            frame_end = frame_stt;
+        }
+        else
+        {
+            frame %= framesinaction;
+            frame_stt = pmad->actionstart[action] + frame;
+
+            frame = (frame+1) % framesinaction;
+            frame_end = frame_stt + 1;
+        }
+
+        pchr->inst.lip = ( lip << 6 );
+        pchr->inst.lastframe = frame_stt;
+        pchr->inst.frame     = frame_end;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
