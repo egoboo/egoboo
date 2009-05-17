@@ -105,7 +105,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     {
         if ( !ChrList[character].on || ChrList[character].inpack ) continue;
 
-        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].zpos < ChrList[character].level + 20 ) && (MAXCHR == ChrList[character].attachedto) )
+        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].zpos < ChrList[character].floor_level + 20 ) && (MAXCHR == ChrList[character].attachedto) )
         {
             fan = mesh_get_tile( ChrList[character].xpos, ChrList[character].ypos );
             if ( INVALID_TILE != fan )

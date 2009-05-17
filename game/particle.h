@@ -190,7 +190,7 @@ struct s_prt
     float   xvel;                            // Velocity
     float   yvel;
     float   zvel;
-    float   level;                           // Height of tile
+    float   floor_level;                           // Height of tile
     Uint8   spawncharacterstate;
     Uint16  rotate;                          // Rotation direction
     Sint16  rotateadd;                       // Rotation rate

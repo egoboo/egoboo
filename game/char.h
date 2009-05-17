@@ -398,7 +398,7 @@ struct s_chr
     float          sizegoto;        // Character's size goto
     Uint8          sizegototime;    // Time left in size change
     float          dampen;          // Bounciness
-    float          level;           // Height of tile
+    float          floor_level;           // Height of tile
     float          jump;            // Jump power
     Uint8          jumptime;        // Delay until next jump
     Uint8          jumpnumber;      // Number of jumps remaining
@@ -508,6 +508,7 @@ struct s_chr
     float          phys_vel_z;
     int            phys_dismount_timer;
     bool_t         phys_grounded;
+    float          phys_level;
 };
 
 typedef struct s_chr chr_t;

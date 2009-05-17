@@ -214,7 +214,7 @@ void camera_move( camera_t * pcam )
                         x += ChrList[character].xpos;
                         y += ChrList[character].ypos;
                         z += ChrList[character].zpos;
-                        level += ChrList[character].level;
+                        level += ChrList[character].phys_level;
                     }
                     else
                     {
@@ -222,7 +222,7 @@ void camera_move( camera_t * pcam )
                         x += ChrList[ChrList[character].attachedto].xpos;
                         y += ChrList[ChrList[character].attachedto].ypos;
                         z += ChrList[ChrList[character].attachedto].zpos;
-                        level += ChrList[ChrList[character].attachedto].level;
+                        level += ChrList[ChrList[character].attachedto].phys_level;
                     }
 
                     locoalive++;

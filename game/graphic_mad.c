@@ -431,7 +431,7 @@ void render_refmad( int tnc, Uint8 trans )
 
     if ( !CapList[ChrList[tnc].model].reflect ) return;
 
-    level = ChrList[tnc].level;
+    level = ChrList[tnc].floor_level;
     trans_temp = trans;
 
     zpos = ChrList[tnc].inst.matrix.CNV( 3, 2 ) - level;

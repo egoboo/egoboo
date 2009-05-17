@@ -2352,14 +2352,10 @@ void make_onwhichfan( void )
         if ( !ChrList[character].on || ChrList[character].inpack ) continue;
 
         level = get_level( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk ) + RAISE;
-        if( VALID_CHR( ChrList[character].onwhichplatform ) )
-        {
-            level = MAX(level, ChrList[ChrList[character].onwhichplatform].zpos + ChrList[ChrList[character].onwhichplatform].bumpheight );
-        }
 
         if ( ChrList[character].alive )
         {
-            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
+            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].floor_level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
             {
                 if ( ( ChrList[character].damagemodifier[damagetiletype]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
                 {
@@ -2437,7 +2433,7 @@ void make_onwhichfan( void )
             ChrList[character].inwater = bfalse;
         }
 
-        ChrList[character].level = level;
+        ChrList[character].floor_level = level;
     }
 
     // Play the damage tile sound
@@ -3358,7 +3354,7 @@ void bump_characters( void )
         // reset the holding weight each update
         ChrList[character].holdingweight   = 0;
         ChrList[character].onwhichplatform = MAXCHR;
-        ChrList[character].level = get_level( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk );
+        ChrList[character].phys_level = ChrList[character].floor_level;
 
         // reset the fan and block position
         ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
@@ -3493,12 +3489,12 @@ void bump_characters( void )
 
                         // If we can mount this platform, skip it
                         mount_a = !ChrList[charb].isitem && ChrList[chara].ismount && CapList[ChrList[chara].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[chara].holdingwhich[SLOT_LEFT]);
-                        if( mount_a && ChrList[chara].level < zb + ChrList[charb].bumpheight + PLATTOLERANCE ) 
+                        if( mount_a && ChrList[chara].phys_level < zb + ChrList[charb].bumpheight + PLATTOLERANCE ) 
                             continue;
 
                         // If we can mount this platform, skip it
                         mount_b = !ChrList[chara].isitem && ChrList[charb].ismount && CapList[ChrList[charb].model].slotvalid[SLOT_LEFT] && INVALID_CHR(ChrList[charb].holdingwhich[SLOT_LEFT]);
-                        if( mount_b && ChrList[charb].level < za + ChrList[chara].bumpheight + PLATTOLERANCE ) 
+                        if( mount_b && ChrList[charb].phys_level < za + ChrList[chara].bumpheight + PLATTOLERANCE ) 
                             continue;
 
 
@@ -3555,17 +3551,17 @@ void bump_characters( void )
                             // check for the best possible attachment
                             if( chara_on_top )
                             {
-                                if( zb + ChrList[charb].bumpheight > ChrList[chara].level )
+                                if( zb + ChrList[charb].bumpheight > ChrList[chara].phys_level )
                                 {
-                                    ChrList[chara].level = zb + ChrList[charb].bumpheight;
+                                    ChrList[chara].phys_level = zb + ChrList[charb].bumpheight;
                                     ChrList[chara].onwhichplatform = charb;
                                 }
                             }
                             else
                             {
-                                if( za + ChrList[chara].bumpheight > ChrList[charb].level )
+                                if( za + ChrList[chara].bumpheight > ChrList[charb].phys_level )
                                 {
-                                    ChrList[charb].level = za + ChrList[chara].bumpheight;
+                                    ChrList[charb].phys_level = za + ChrList[chara].bumpheight;
                                     ChrList[charb].onwhichplatform = chara;
                                 }
                             }
@@ -3658,12 +3654,12 @@ void bump_characters( void )
                         {
                             // we know that chara is a platform and charb is on it
 
-                            lerp_z = (ChrList[charb].zpos - ChrList[charb].level) / PLATTOLERANCE;
+                            lerp_z = (ChrList[charb].zpos - ChrList[charb].phys_level) / PLATTOLERANCE;
                             lerp_z = CLIP( lerp_z, -1, 1 );
 
                             if( lerp_z < 0 )
                             {
-                                ChrList[charb].phys_pos_z += (ChrList[charb].level - ChrList[charb].zpos) * 0.25f * (-lerp_z);
+                                ChrList[charb].phys_pos_z += (ChrList[charb].phys_level - ChrList[charb].zpos) * 0.25f * (-lerp_z);
                             };
 
                             if( lerp_z > 0 )
@@ -3687,12 +3683,12 @@ void bump_characters( void )
                         {
                             // we know that charb is a platform and chara is on it
 
-                            lerp_z = (ChrList[chara].zpos - ChrList[chara].level) / PLATTOLERANCE;
+                            lerp_z = (ChrList[chara].zpos - ChrList[chara].phys_level) / PLATTOLERANCE;
                             lerp_z = CLIP( lerp_z, -1, 1 );
 
                             if( lerp_z < 0 )
                             {
-                                ChrList[chara].phys_pos_z += (ChrList[chara].level - ChrList[chara].zpos) * 0.25f * lerp_z;
+                                ChrList[chara].phys_pos_z += (ChrList[chara].phys_level - ChrList[chara].zpos) * 0.25f * lerp_z;
                             }
 
                             if( lerp_z > 0 )
@@ -4355,7 +4351,7 @@ void bump_characters( void )
         {
             tmpz = ChrList[character].zpos;
             ChrList[character].zpos += ChrList[character].phys_pos_z;
-            if ( ChrList[character].zpos < ChrList[character].level )
+            if ( ChrList[character].zpos < ChrList[character].phys_level )
             {
                 // restore the old values
                 ChrList[character].zpos = tmpz;

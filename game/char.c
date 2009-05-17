@@ -1229,7 +1229,9 @@ void drop_keys( Uint16 character )
                             direction = RANDIE;
                             ChrList[item].turnleftright = direction + 32768;
                             cosdir = direction + 16384;
-                            ChrList[item].level = ChrList[character].level;
+                            ChrList[item].phys_level = ChrList[character].phys_level;
+                            ChrList[item].floor_level = ChrList[character].floor_level;
+                            ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
                             ChrList[item].xpos = ChrList[character].xpos;
                             ChrList[item].ypos = ChrList[character].ypos;
                             ChrList[item].zpos = ChrList[character].zpos;
@@ -1278,7 +1280,9 @@ void drop_all_items( Uint16 character )
                         ChrList[item].xpos = ChrList[character].xpos;
                         ChrList[item].ypos = ChrList[character].ypos;
                         ChrList[item].zpos = ChrList[character].zpos;
-                        ChrList[item].level = ChrList[character].level;
+                        ChrList[item].phys_level = ChrList[character].phys_level;
+                        ChrList[item].floor_level = ChrList[character].floor_level;
+                        ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
                         ChrList[item].turnleftright = direction + 32768;
                         ChrList[item].xvel = turntocos[direction>>2] * DROPXYVEL;
                         ChrList[item].yvel = turntosin[direction>>2] * DROPXYVEL;
@@ -3460,8 +3464,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->lightturnleftright = 0;
     pchr->onwhichfan   = mesh_get_tile(x, y);
     pchr->onwhichblock = mesh_get_block( x, y );
-    pchr->level = get_level( pchr->xpos, pchr->ypos, pchr->waterwalk ) + RAISE;
-    if ( z < pchr->level ) z = pchr->level;
+    pchr->floor_level = get_level( pchr->xpos, pchr->ypos, pchr->waterwalk ) + RAISE;
+    pchr->phys_level = pchr->floor_level;
+    if ( z < pchr->phys_level ) z = pchr->phys_level;
 
     pchr->zpos = z;
     pchr->oldz = z;
@@ -5047,11 +5052,11 @@ void move_characters( void )
         }
 
         // Is the character in the air?
-        level = pchr->level;
+        level = pchr->phys_level;
         zlerp = (pchr->zpos - level) / PLATTOLERANCE;
         zlerp = CLIP(zlerp, 0, 1);
 
-        pchr->phys_grounded = (pchr->flyheight == 0) && ((pchr->zpos - pchr->level) < PLATTOLERANCE / 4);
+        pchr->phys_grounded = (pchr->flyheight == 0) && ((pchr->zpos - pchr->phys_level) < PLATTOLERANCE / 4);
 
         friction_z = pchr->inwater ? waterfriction : 0.9868;
         if ( pchr->flyheight == 0 )
@@ -5090,7 +5095,7 @@ void move_characters( void )
 
                     if ( 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_SLIPPY ) )
                     {
-                        if ( wateriswater && 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_WATER ) && pchr->level < watersurfacelevel + RAISE + 1 )
+                        if ( wateriswater && 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_WATER ) && pchr->floor_level < watersurfacelevel + RAISE + 1 )
                         {
                             // It says it's slippy, but the water is covering it...
                             // Treat exactly as normal

@@ -4286,7 +4286,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFALTITUDE:
                 varname = "SELFALTITUDE";
-                iTmp = ChrList[pself->index].zpos - ChrList[pself->index].level;
+                iTmp = ChrList[pself->index].zpos - ChrList[pself->index].floor_level;
                 break;
 
             case VARSELFID:
@@ -4430,7 +4430,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETALTITUDE:
                 varname = "TARGETALTITUDE";
-                iTmp = ChrList[pself->target].zpos - ChrList[pself->target].level;
+                iTmp = ChrList[pself->target].zpos - ChrList[pself->target].floor_level;
                 break;
 
             case VARTARGETZ:

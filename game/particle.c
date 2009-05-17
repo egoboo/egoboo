@@ -225,7 +225,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
         pprt->pip = ipip;
         pprt->model = model;
         pprt->inview = bfalse;
-        pprt->level = 0;
+        pprt->floor_level = 0;
         pprt->team = team;
         pprt->chr = characterorigin;
         pprt->damagetype = ppip->damagetype;
@@ -449,7 +449,7 @@ void move_particles( void )
 
         PrtList[cnt].onwhichfan   = mesh_get_tile ( PrtList[cnt].xpos, PrtList[cnt].ypos );
         PrtList[cnt].onwhichblock = mesh_get_block( PrtList[cnt].xpos, PrtList[cnt].ypos );
-        PrtList[cnt].level      = get_level( PrtList[cnt].xpos, PrtList[cnt].ypos, bfalse );
+        PrtList[cnt].floor_level  = get_level( PrtList[cnt].xpos, PrtList[cnt].ypos, bfalse );
 
         // To make it easier
         pip = PrtList[cnt].pip;
@@ -469,7 +469,7 @@ void move_particles( void )
         PrtList[cnt].dynalightfalloff += PipList[pip].dynalightfalloffadd;
 
         // Make it sit on the floor...  Shift is there to correct for sprite size
-        level = PrtList[cnt].level + ( PrtList[cnt].size >> 9 );
+        level = PrtList[cnt].floor_level + ( PrtList[cnt].size >> 9 );
 
         // Check floor collision and do iterative physics
         if ( ( PrtList[cnt].zpos < level && PrtList[cnt].zvel < 0.1f ) || ( PrtList[cnt].zpos < level - PRTLEVELFIX ) )

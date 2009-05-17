@@ -2301,7 +2301,7 @@ void render_shadow( Uint16 character )
     if ( alpha * 255 < 1.0f ) return;
 
     // Original points
-    level = pchr->level;
+    level = pchr->floor_level;
     level += SHADOWRAISE;
     height = pchr->inst.matrix.CNV( 3, 2 ) - level;
     if ( height < 0 ) height = 0;
@@ -2421,7 +2421,7 @@ void render_bad_shadow( Uint16 character )
     if ( alpha < INV_FF ) return;
 
     // Original points
-    level = pchr->level;
+    level = pchr->floor_level;
     level += SHADOWRAISE;
     height = pchr->inst.matrix.CNV( 3, 2 ) - level;
     height_factor = 1.0f - height / ( pchr->shadowsize * 5.0f );
