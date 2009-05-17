@@ -448,7 +448,7 @@ void sound_restart()
         }
         else
         {
-            log_warning( "sound_restart() - Cannot get the sound module to restart.\n" );
+            log_warning( "sound_restart() - Cannot get the sound module to restart. (%s)\n", Mix_GetError() );
         }
     }
 }

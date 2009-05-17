@@ -1,4 +1,7 @@
 Version 2.7.3 (??.??.2009)
+- New Feature: Module Linking is now implemented. This allows your player to directly go
+  from one module to the next in game without needing to go through the main menu again and
+  load the module manually.
 - New Feature: Improved and more user-friendly ingame UI!
 - New Feature: Enhanced some atmospheric effects for the Ice Palace.
 - New Feature: Now you can play up to four players on the same computer at the same time
@@ -22,6 +25,7 @@ Version 2.7.3 (??.??.2009)
   just keyboard!
 - Update: Improved the stability of the game in the way Egoboo loads and uses textures.
 - Update: Improved the debugging output Egoboo gives.
+- Bugfix: Fixed various bugs in the Animate Mimic spell.
 - Bugfix: Weather effects no longer spawn inside walls.
 - Bugfix: Ulna in Soldier Starter attacking braziers.
 - Bugfix: Arrow particles now face the correct direction when fired.

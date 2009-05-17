@@ -4791,8 +4791,14 @@ void move_characters( void )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
                         {
-                            // The item couldn't be put away
+							// The item couldn't be put away
                             ChrList[item].ai.alert |= ALERTIF_NOTPUTAWAY;
+							if( pchr->isplayer && CapList[ChrList[item].model].istoobig )
+							{
+								STRING text;
+                            	snprintf( text, sizeof(text), "The %s is too big to be put away...", CapList[ChrList[item].model].classname);
+								debug_message( text );
+							}
                         }
                         else
                         {
@@ -4817,8 +4823,14 @@ void move_characters( void )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
                         {
-                            // The item couldn't be put away
+							// The item couldn't be put away
                             ChrList[item].ai.alert |= ALERTIF_NOTPUTAWAY;
+							if( pchr->isplayer && CapList[ChrList[item].model].istoobig )
+							{
+								STRING text;
+                            	snprintf( text, sizeof(text), "The %s is too big to be put away...", CapList[ChrList[item].model].classname);
+								debug_message( text );
+							}
                         }
                         else
                         {

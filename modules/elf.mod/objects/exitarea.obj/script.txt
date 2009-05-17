@@ -1,6 +1,4 @@
-IfSpawned
-  DisableExport
-
+//Someone freed the faeries?
 IfOrdered
   tmpx = selforder
   tmpy = [FAER]

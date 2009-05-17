@@ -1,5 +1,5 @@
 // ZZ> This function makes the button go up or down
-tmpx = 109				// Threshold weight
+tmpx = 60				// Threshold weight
 tmpy = weight				// Weight of characters on top
 IfXIsLessThanY				//
   tmpargument = 1			  //

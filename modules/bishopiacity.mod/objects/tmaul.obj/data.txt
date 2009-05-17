@@ -192,7 +192,7 @@ Sound of Footfall ( -1 for none )		: -1
 Sound of Jump ( -1 for none )			: -1
 
 //Expansions
-:[HUGE] 1
+:[PACK] 1
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

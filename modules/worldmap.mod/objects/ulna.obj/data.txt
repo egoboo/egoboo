@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 18
+Object slot number ( 0 to 63, don't use twice )	: 48
 Class name (Use _ for spaces)   		 : Ulna
 Uniform light (TRUE or FALSE		 : FALSE
 Maximum ammo (Set to 0 for N/A) 	 : 0

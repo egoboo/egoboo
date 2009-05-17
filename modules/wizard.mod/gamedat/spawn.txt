@@ -47,8 +47,8 @@ knightsuit.obj:   NONE    50  34.5   14.5   1.0   S    0   0  0   0   0   F   F 
 knightsuit.obj:   NONE    50  40.5   14.5   1.0   S    0   0  0   0   0   F   F   N
   torch.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
-brazier.obj:   NONE    37  32.5   30.5   1.0   N    0   0  0   0   0   F   F   E
-brazier.obj:   NONE    37  29.5   30.5   1.0   N    0   0  0   0   0   F   F   E
+brazier.obj:   NONE    37  32.5   30.5   0.0   N    0   0  0   0   0   F   F   E
+brazier.obj:   NONE    37  29.5   30.5   0.0   N    0   0  0   0   0   F   F   E
 pillar.obj:   NONE    43  28.5   35.5   1.0   N    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    43  33.5   35.5   1.0   N    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    43  26.5   28.5   1.0   N    0   0  0   0   0   F   F   N
@@ -62,27 +62,27 @@ powbox.obj:   NONE    51  49.3   38.5   1.0   N    0   1  0   0   0   F   F   N
 powbox.obj:   NONE    51  49.5   38.5   3.0   N    0   0  0   0   0   F   F   N
 powbox.obj:   NONE    51  49.5   39.2   1.0   N    0   1  0   0   0   F   F   N
 powbox.obj:   NONE    51  50.0   38.5   1.0   N    0   0  0   0   0   F   F   N
-bookshelf.obj:   NONE    38  49.5   59.5   1.0   N    0   0  0   0   0   F   F   N
-brazier.obj:   NONE    37  48.5   54.5   1.0   N    0   0  0   0   0   F   F   E
-bookshelf.obj:   NONE    38  52.5   59.5   1.0   N    0   0  0   0   0   F   F   N
-brazier.obj:   NONE    37  53.5   54.5   1.0   N    0   0  0   0   0   F   F   E
-bookshelf.obj:   NONE    38  53.5   56.5   1.0   W    0   0  0   0   0   F   F   N
-bookshelf.obj:   NONE    38  48.5   56.5   1.0   E    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    38  49.5   59.5   0.0   N    0   0  0   0   0   F   F   N
+brazier.obj:   NONE    37  48.5   54.5   0.0   N    0   0  0   0   0   F   F   E
+bookshelf.obj:   NONE    38  52.5   59.5   0.0   N    0   0  0   0   0   F   F   N
+brazier.obj:   NONE    37  53.5   54.5   0.0   N    0   0  0   0   0   F   F   E
+bookshelf.obj:   NONE    38  53.5   56.5   0.0   W    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    38  48.5   56.5   0.0   E    0   0  0   0   0   F   F   N
 candle.obj:   NONE    58  31.0   30.1   1.0   N    0   0  4   0   0   F   F   N
-bookstand.obj:   NONE    55  48.5   58.5   1.0   E    0   0  0   0   0   F   F   N
+bookstand.obj:   NONE    55  48.5   58.5   0.0   E    0   0  0   0   0   F   F   N
 protect.obj:   NONE    64  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-bookstand.obj:   NONE    55  51.5   38.5   1.0   S    0   0  0   0   0   F   F   N
+bookstand.obj:   NONE    55  51.5   38.5   0.0   S    0   0  0   0   0   F   F   N
 burning.obj:   NONE    69  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-bookstand.obj:   NONE    55  51.0   59.5   1.0   N    0   0  0   0   0   F   F   N
-bookstand.obj:   NONE    55  53.5   58.5   1.0   W    0   0  0   0   0   F   F   N
-icemephit.obj:   NONE    61  34.5   30.5   1.0   N    6   1  0   0   0   F   F   E
+bookstand.obj:   NONE    55  51.0   59.5   0.0   N    0   0  0   0   0   F   F   N
+bookstand.obj:   NONE    55  53.5   58.5   0.0   W    0   0  0   0   0   F   F   N
+icemephit.obj:   NONE    61  34.5   30.5   0.0   N    6   1  0   0   0   F   F   E
 icewing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-pot.obj:   NONE    44  43.5   56.5   1.0   N    0   0  0   0   0   F   F   N
-bookshelf.obj:   NONE    38  38.5   57.5   1.0   E    0   0  0   0   0   F   F   N
-brazier.obj:   NONE    37  43.5   55.5   1.0   N    0   0  0   0   0   F   F   E
-brazier.obj:   NONE    37  43.5   57.5   1.0   N    0   0  0   0   0   F   F   E
-table.obj:   NONE    36  40.3   59.5   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  40.3   58.8   1.0   N    0   0  0   0   0   F   F   N
+pot.obj:   NONE    44  43.5   56.5   0.0   N    0   0  0   0   0   F   F   N
+bookshelf.obj:   NONE    38  38.5   57.5   0.0   E    0   0  0   0   0   F   F   N
+brazier.obj:   NONE    37  43.5   55.5   0.0   N    0   0  0   0   0   F   F   E
+brazier.obj:   NONE    37  43.5   57.5   0.0   N    0   0  0   0   0   F   F   E
+table.obj:   NONE    36  40.3   59.5   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  40.3   58.8   0.0   N    0   0  0   0   0   F   F   N
 crate.obj:   NONE    54  38.5   54.5   1.0   N    0   0  0   0   0   F   F   N
 firemephit.obj:   NONE    61  50.5   56.0   3.0   N    8   0  0   0   0   F   F   E
 firewing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
@@ -91,8 +91,8 @@ mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   
 mpotion.obj:   NONE    53  38.7   54.5   2.0   N    0   0  0   0   0   F   F   N
 mephit.obj:   NONE    61  31.5   43.5   1.0   N    4   1  0   0   0   F   F   E
 mephitwing.obj:   NONE    62  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-chair.obj:   NONE    66  52.8   40.3   1.0   E    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  48.5   43.5   1.0   N    0   0  0   0   0   F   F   N
+chair.obj:   NONE    66  52.8   40.3   0.0   E    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  48.5   43.5   0.0   N    0   0  0   0   0   F   F   N
 burning.obj:   NONE    69  53.0   38.0   1.0   N    0   0  0   0   0   F   F   N
 
 //Treasure chest in alchemy room
@@ -103,14 +103,14 @@ GLOBAL chest.obj: NONE    59  52.5   43.5   1.0   N    0   0  0   1   0   F   F 
   mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 brazier.obj:   NONE    37  53.5   38.5   1.0   N    0   0  0   0   0   F   F   E
-table.obj:   NONE    36  7.5   32.0   1.0   W    0   0  0   0   0   F   F   N
-table.obj:   NONE    36  7.5   30.6   1.0   W    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  6.8   30.8   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  6.6   32.4   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  11.5   30.5   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  11.3   32.0   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  9.8   31.5   1.0   N    0   0  0   0   0   F   F   N
-stool.obj:   NONE    39  8.3   32.5   1.0   N    0   0  0   0   0   F   F   N
+table.obj:   NONE    36  7.5   32.0   0.0   W    0   0  0   0   0   F   F   N
+table.obj:   NONE    36  7.5   30.6   0.0   W    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  6.8   30.8   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  6.6   32.4   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  11.5   30.5   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  11.3   32.0   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  9.8   31.5   0.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  8.3   32.5   0.0   N    0   0  0   0   0   F   F   N
 pot.obj:   NONE    44  6.5   28.5   1.0   N    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    37  9.0   33.5   1.0   N    0   0  0   0   0   F   F   E
 crate.obj:   NONE    54  55.8   4.2   3.0   N    0   2  0   0   0   F   F   N
@@ -152,7 +152,7 @@ crate.obj:   NONE    54  56.0   5.0   1.0   N    0   0  0   0   0   F   F   N
 keya.obj:   NONE    71  7.8   32.0   4.0   E    0   0  0   0   0   F   F   N
 trigdoor.obj:   NONE    72  19.0   25.0   1.0   S    0   1  1   0   0   F   F   N
 trigdoor.obj:   NONE    72  15.0   39.0   1.0   E    0   0  0   1   0   F   F   N
-stool.obj:   NONE    39  57.5   9.5   1.0   N    0   0  0   0   0   F   F   N
+stool.obj:   NONE    39  57.5   9.5   0.0   N    0   0  0   0   0   F   F   N
 ghoul.obj:   NONE    75  13.5   19.5   1.0   N    0   0  0   0   0   F   F   E
 ghoul.obj:   NONE    75  13.5   15.5   1.0   N    0   0  0   0   0   F   F   E
 ghoul.obj:   NONE    75  11.5   19.5   1.0   N    0   0  0   0   0   F   F   E
@@ -184,5 +184,5 @@ GLOBAL chest.obj: NONE 59  9.0   49.0   0.0   N  0   0  0   1   0   F   F   E
   mushroom.obj:   NONE    49  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Chest with open lock spell
-GLOBAL chest.obj: NONE    59  57.8   4.5   1.0   W    0   0  0   1   0   F   F   N
+GLOBAL chest.obj: NONE    59  57.8   4.5   1.0   W    0   0  0   0   0   F   F   N
   openlock.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

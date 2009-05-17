@@ -311,8 +311,6 @@ EXTERN Sint32 framelimit                EQ(30);
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
 
-#define TRANSCOLOR                      0           // Transparent color
-
 // Debug option
 EXTERN bool_t  gGrabMouse EQ( btrue );
 EXTERN bool_t  gHideMouse EQ( bfalse );
@@ -336,7 +334,7 @@ EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 #define LEFT 49152
 #define RIGHT 16384
 
-#define MAXXP 200000                               // Maximum experience
+#define MAXXP 200000                                // Maximum experience
 #define MAXMONEY 9999                               // Maximum money
 
 //------------------------------------
@@ -415,9 +413,9 @@ EXTERN int                       playersloaded;
 
 EXTERN bool_t                   clearson         EQ( btrue  );   // Do we clear every time?
 EXTERN bool_t                   draw_background  EQ( bfalse );   // Do we draw the background image?
-EXTERN bool_t                   draw_water_1     EQ( btrue  );   // Do we draw water layer 1 (TX_WATER_TOP)
 EXTERN bool_t                   draw_overlay     EQ( bfalse );   // Draw overlay?
 EXTERN bool_t                   draw_water_0     EQ( btrue  );   // Do we draw water layer 1 (TX_WATER_LOW)
+EXTERN bool_t                   draw_water_1     EQ( btrue  );   // Do we draw water layer 2 (TX_WATER_TOP)
 
 //Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?

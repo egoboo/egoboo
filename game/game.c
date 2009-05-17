@@ -270,7 +270,6 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 
         // Copy all of the particle files
         tnc = 0;
-
         while ( tnc < MAXPRTPIPPEROBJECT )
         {
             sprintf( fromfile, "%s" SLASH_STR "part%d.txt", fromdir, tnc );
@@ -281,7 +280,6 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 
         // Copy all of the sound files
         tnc = 0;
-
         while ( tnc < MAXWAVE )
         {
             sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
@@ -297,8 +295,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
 
         // Copy all of the image files (try to copy all supported formats too)
         tnc = 0;
-
-        while ( tnc < 4 )
+        while ( tnc < MAXSKIN )
         {
             Uint8 type = 0;
 
@@ -325,6 +322,9 @@ void export_all_players( bool_t require_local )
     //     PLAYERS directory
     bool_t is_local;
     int cnt, character, item, number;
+	
+	//Stop if export isnt valid
+	if(!exportvalid) return;
 
     if( !exportvalid ) return;
 
@@ -344,12 +344,12 @@ void export_all_players( bool_t require_local )
         export_one_character( character, character, number, is_local );
 
         // Export the left hand item
-        number = 0;
+        number = SLOT_LEFT;
         item = ChrList[character].holdingwhich[number];
         if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the right hand item
-        number = 1;
+        number = SLOT_RIGHT;
         item = ChrList[character].holdingwhich[number];
         if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
@@ -960,7 +960,7 @@ void update_game()
                 {
                     respawn_character( PlaList[cnt].index );
                     ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
-					ChrList[cnt].money *= EXPKEEP;
+					if(difficulty > GAME_EASY) ChrList[cnt].money *= EXPKEEP;
                 }
             }
             else
@@ -5113,7 +5113,7 @@ void game_quit_module()
 {
     // BB > all of the de-initialization code after the module actually ends
 
-    release_module();
+	release_module();
     close_session();
 
     // reset the "ui" mouse state

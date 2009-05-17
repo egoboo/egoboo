@@ -67,13 +67,17 @@ Else
     // Stupid AI
     IfTimeOut
       // Movement
-      tmpx = rand & 511 + ownerx - 256
-      tmpy = rand & 511 + ownery - 256
+      SetTargetToNearbyEnemy
+        tmpargument = 60
+        SetTime             // Reset the timer
+      Else
+        SetTargetToOwner
+        tmpargument = 125   // Reset the timer
+        SetTime
+      tmpx = rand & 511 + targetx - 256
+      tmpy = rand & 511 + targety - 256
       ClearWaypoints
       AddWaypoint
-      // Reset the timer
-      tmpargument = 125
-      SetTime
       tmpargument = rand & 1 + 1
       PlaySound
     IfBumped
@@ -201,7 +205,7 @@ IfStateIs0
       // Put particles around the target
       tmpargument = [CHES]
       tmpdistance = 14  // Friends, items and Enemies...
-      SetTargetToNearestBlahID
+      SetTargetToWideBlahID
         tmpx = targetx
         tmpy = targety
         tmpdistance = targetz
@@ -219,17 +223,40 @@ IfStateIs0
       // Find a dead humanoid
       tmpargument = [CHES]
       tmpdistance = 14
-      SetTargetToNearestBlahID
+      SetTargetToWideBlahID
         // Poof that target ( players can't be )
-        MakeNameKnown
-        MakeUsageKnown
+        
+        //Some modules get broke if not
+        DropTargetKeys          
+
+        //Identify it        
+        SetOldTarget
+        SetTargetToWhoeverIsHolding
+        IfTargetIsAPlayer
+          IfNameIsKnown
+            DoNothing
+          Else
+            MakeNameKnown
+            MakeUsageKnown
+            tmpargument = 20
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+        
+        //Characters with more than 18 INT can extract money as well
+        tmpx = targetint
+        SetTargetToOldTarget
+        tmpy = 4608
+        IfXIsMoreThanY
+          tmpargument = targetmoney
+          DropTargetMoney
+ 
         tmpx = targetx
         tmpy = targety
         tmpturn = targetturn
         tmpdistance = targetz
-        //TODO: DropTargetKeys          //Some modules get broke if not
+        
+        // Replace the target with a mimic
         PoofTarget
-          // Replace the target with a mimic
           SetTargetToWhoeverIsHolding
           SetOwnerToTarget
           SpawnCharacterXYZ
@@ -244,7 +271,7 @@ IfStateIs0
 
             // Set the AI type
             GetContent
-            tmpargument = tmpargument > 8 // State of new Zombi, 0 to 3
+            tmpargument = tmpargument > 8 // State of new mimic, 0 to 3
             SetChildState
             tmpargument = ACTIONMD
             ChildDoActionOverride

@@ -1507,7 +1507,7 @@ void unbuffer_player_latches()
         }
 
         // Let players respawn
-        if ( ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
+        if ( difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
         {
             if ( !ChrList[character].alive && 0 == revivetimer )
             {
@@ -1517,7 +1517,7 @@ void unbuffer_player_latches()
 
                 // Cost some experience for doing this...  Never lose a level
                 ChrList[character].experience *= EXPKEEP;
-				ChrList[character].money *= EXPKEEP;
+				if(difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN

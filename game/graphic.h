@@ -52,6 +52,8 @@ struct s_camera;
 #define DONTFLASH                       255
 #define SEEKURSEAND                     31          // Blacking flash
 
+#define TRANSCOLOR                      0           // Transparent color
+
 // Special Textures
 typedef enum e_tx_type
 {
