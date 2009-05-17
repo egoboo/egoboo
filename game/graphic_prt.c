@@ -600,7 +600,7 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     }
 
     // calculate the actual vectors using the particle rotation
-    turn = (pprt->rotate - 0x6000) >> 2;
+    turn = pprt->rotate >> 2;
     pinst->up.x    = vup.x * turntocos[turn] - vright.x * turntosin[turn];
     pinst->up.y    = vup.y * turntocos[turn] - vright.y * turntosin[turn];
     pinst->up.z    = vup.z * turntocos[turn] - vright.z * turntosin[turn];

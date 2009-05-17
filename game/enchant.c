@@ -23,6 +23,7 @@
 
 #include "char.h"
 #include "sound.h"
+#include "camera.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -40,7 +41,9 @@ enc_t EncList[MAXENCHANT];
 bool_t remove_enchant( Uint16 enchantindex )
 {
     // ZZ> This function removes a specific enchantment and adds it to the unused list
-    Uint16 character, overlay;
+    Sint16 iwave;
+    Uint16 itarget, ispawner, ieve;
+    Uint16 overlay;
     Uint16 lastenchant, currentenchant;
     int add;
 
@@ -48,29 +51,48 @@ bool_t remove_enchant( Uint16 enchantindex )
     if ( !EncList[enchantindex].on ) return bfalse;
 
     // Unsparkle the spellbook
-    character = EncList[enchantindex].spawner;
-    if ( character < MAXCHR )
+    ispawner = EncList[enchantindex].spawner;
+    if ( ispawner < MAXCHR && ChrList[ispawner].on )
     {
-        ChrList[character].sparkle = NOSPARKLE;
+        ChrList[ispawner].sparkle = NOSPARKLE;
 
         // Make the spawner unable to undo the enchantment
-        if ( ChrList[character].undoenchant == enchantindex )
+        if ( ChrList[ispawner].undoenchant == enchantindex )
         {
-            ChrList[character].undoenchant = MAXENCHANT;
+            ChrList[ispawner].undoenchant = MAXENCHANT;
         }
     }
 
+    // who is the target?
+    itarget = EncList[enchantindex].target;
+
     // Play the end sound
-    character = EncList[enchantindex].target;
-    if ( EveList[enchantindex].waveindex >= 0 && EveList[enchantindex].waveindex < MAXWAVE )
+
+    ieve = EncList[enchantindex].eve;
+    if( ieve < MAXEVE && EveList[ieve].valid )
     {
-        Sint16 iwave    = EveList[enchantindex].waveindex;
-        Uint16 ispawner = EncList[enchantindex].spawner;
-        if ( MAXCHR != ispawner && iwave >= 0 && iwave < MAXWAVE )
+        iwave = EveList[ieve].endsoundindex;
+        if ( iwave >= 0 && iwave < MAXWAVE )
         {
-            sound_play_chunk(ChrList[character].oldx, ChrList[character].oldy, CapList[ChrList[ispawner].model].wavelist[iwave]);
+            Uint16 ispawner = EncList[enchantindex].spawner;
+            if( VALID_CHR(ispawner) )
+            {
+                Uint16 imodel = ChrList[ispawner].model;
+                if( VALID_CAP(imodel) )
+                {
+                    if ( VALID_CHR(itarget) )
+                    {
+                        sound_play_chunk(ChrList[itarget].oldx, ChrList[itarget].oldy, CapList[imodel].wavelist[iwave]);
+                    }
+                    else
+                    {
+                        sound_play_chunk( gCamera.trackx, gCamera.tracky, CapList[imodel].wavelist[iwave]);
+                    }
+                }
+            }
         }
     }
+
 
     // Unset enchant values, doing morph last
     unset_enchant_value( enchantindex, SETDAMAGETYPE );
@@ -99,7 +121,6 @@ bool_t remove_enchant( Uint16 enchantindex )
 
     // Remove all of the cumulative values
     add = 0;
-
     while ( add < MAXEVEADDVALUE )
     {
         remove_enchant_value( enchantindex, add );
@@ -107,24 +128,27 @@ bool_t remove_enchant( Uint16 enchantindex )
     }
 
     // Unlink it
-    if ( ChrList[character].firstenchant == enchantindex )
+    if( itarget < MAXCHR && ChrList[itarget].on )
     {
-        // It was the first in the list
-        ChrList[character].firstenchant = EncList[enchantindex].nextenchant;
-    }
-    else
-    {
-        // Search until we find it
-        lastenchant = currentenchant = ChrList[character].firstenchant;
-
-        while ( currentenchant != enchantindex )
+        if ( ChrList[itarget].firstenchant == enchantindex )
         {
-            lastenchant = currentenchant;
-            currentenchant = EncList[currentenchant].nextenchant;
+            // It was the first in the list
+            ChrList[itarget].firstenchant = EncList[enchantindex].nextenchant;
         }
+        else
+        {
+            // Search until we find it
+            lastenchant = currentenchant = ChrList[itarget].firstenchant;
 
-        // Relink the last enchantment
-        EncList[lastenchant].nextenchant = EncList[enchantindex].nextenchant;
+            while ( currentenchant != enchantindex )
+            {
+                lastenchant = currentenchant;
+                currentenchant = EncList[currentenchant].nextenchant;
+            }
+
+            // Relink the last enchantment
+            EncList[lastenchant].nextenchant = EncList[enchantindex].nextenchant;
+        }
     }
 
     // See if we spit out an end message
@@ -142,15 +166,18 @@ bool_t remove_enchant( Uint16 enchantindex )
     // Check to see if the character dies
     if ( EveList[EncList[enchantindex].eve].killonend )
     {
-        if ( ChrList[character].invictus )  TeamList[ChrList[character].baseteam].morale++;
+        if( itarget < MAXCHR && ChrList[itarget].on )
+        {
+            if ( ChrList[itarget].invictus )  TeamList[ChrList[itarget].baseteam].morale++;
 
-        ChrList[character].invictus = bfalse;
-        kill_character( character, MAXCHR );
+            ChrList[itarget].invictus = bfalse;
+            kill_character( itarget, MAXCHR );
+        }
     }
 
     // Kill overlay too...
     overlay = EncList[enchantindex].overlay;
-    if ( overlay < MAXCHR )
+    if ( overlay < MAXCHR && ChrList[overlay].on )
     {
         if ( ChrList[overlay].invictus )  TeamList[ChrList[overlay].baseteam].morale++;
 
@@ -159,19 +186,25 @@ bool_t remove_enchant( Uint16 enchantindex )
     }
 
     // Remove see kurse enchant
-    if ( EveList[EncList[enchantindex].eve].seekurse && !CapList[ChrList[character].model].canseekurse )
+    if( itarget < MAXCHR && ChrList[itarget].on )
     {
-        ChrList[character].canseekurse = bfalse;
+        if ( EveList[EncList[enchantindex].eve].seekurse && !CapList[ChrList[itarget].model].canseekurse )
+        {
+            ChrList[itarget].canseekurse = bfalse;
+        }
+    }
+
+    // Now fix dem weapons
+    if( itarget < MAXCHR && ChrList[itarget].on )
+    {
+        reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_LEFT] );
+        reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_RIGHT] );
     }
 
     // Now get rid of it
     EncList[enchantindex].on = bfalse;
     freeenchant[numfreeenchant] = enchantindex;
     numfreeenchant++;
-
-    // Now fix dem weapons
-    reset_character_alpha( ChrList[character].holdingwhich[SLOT_LEFT] );
-    reset_character_alpha( ChrList[character].holdingwhich[SLOT_RIGHT] );
 
     return btrue;
 }
@@ -239,66 +272,82 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagetargettype;
                     ChrList[character].damagetargettype = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETNUMBEROFJUMPS:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].jumpnumberreset;
                     ChrList[character].jumpnumberreset = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETLIFEBARCOLOR:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].lifecolor;
                     ChrList[character].lifecolor = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETMANABARCOLOR:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].manacolor;
                     ChrList[character].manacolor = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETSLASHMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_SLASH];
                     ChrList[character].damagemodifier[DAMAGE_SLASH] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETCRUSHMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_CRUSH];
                     ChrList[character].damagemodifier[DAMAGE_CRUSH] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETPOKEMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_POKE];
                     ChrList[character].damagemodifier[DAMAGE_POKE] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETHOLYMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_HOLY];
                     ChrList[character].damagemodifier[DAMAGE_HOLY] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETEVILMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_EVIL];
                     ChrList[character].damagemodifier[DAMAGE_EVIL] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETFIREMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_FIRE];
                     ChrList[character].damagemodifier[DAMAGE_FIRE] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETICEMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_ICE];
                     ChrList[character].damagemodifier[DAMAGE_ICE] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETZAPMODIFIER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_ZAP];
                     ChrList[character].damagemodifier[DAMAGE_ZAP] = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETFLASHINGAND:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].flashand;
                     ChrList[character].flashand = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETLIGHTBLEND:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.light;
                     ChrList[character].inst.light = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETALPHABLEND:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.alpha;
                     ChrList[character].inst.alpha = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETSHEEN:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.sheen;
                     ChrList[character].inst.sheen = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETFLYTOHEIGHT:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].flyheight;
                     if ( ChrList[character].flyheight == 0 && ChrList[character].zpos > -2 )
@@ -306,6 +355,7 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         ChrList[character].flyheight = EveList[enchanttype].setvalue[valueindex];
                     }
                     break;
+
                 case SETWALKONWATER:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].waterwalk;
                     if ( !ChrList[character].waterwalk )
@@ -313,25 +363,30 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         ChrList[character].waterwalk = EveList[enchanttype].setvalue[valueindex];
                     }
                     break;
+
                 case SETCANSEEINVISIBLE:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].canseeinvisible;
                     ChrList[character].canseeinvisible = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETMISSILETREATMENT:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].missiletreatment;
                     ChrList[character].missiletreatment = EveList[enchanttype].setvalue[valueindex];
                     break;
+
                 case SETCOSTFOREACHMISSILE:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].missilecost;
                     ChrList[character].missilecost = EveList[enchanttype].setvalue[valueindex];
                     ChrList[character].missilehandler = EncList[enchantindex].owner;
                     break;
+
                 case SETMORPH:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].skin;
                     // Special handler for morph
                     change_character( character, enchanttype, 0, LEAVEALL ); // LEAVEFIRST);
                     ChrList[character].ai.alert |= ALERTIF_CHANGED;
                     break;
+
                 case SETCHANNEL:
                     EncList[enchantindex].setsave[valueindex] = ChrList[character].canchannel;
                     ChrList[character].canchannel = EveList[enchanttype].setvalue[valueindex];
@@ -475,171 +530,181 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional )
+Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, Uint16 modeloptional )
 {
     // ZZ> This function enchants a target, returning the enchantment index or MAXENCHANT
     //     if failed
-    Uint16 enchanttype, overlay;
+    Uint16 ieve, overlay;
     int add;
+    eve_t * peve;
+
+    // Target and owner must both be alive and on and valid
+    if ( INVALID_CHR(target) || !ChrList[target].alive )
+        return MAXENCHANT;
+
+    if ( INVALID_CHR(owner) || !ChrList[owner].alive )
+        return MAXENCHANT;
+
     if ( modeloptional < MAXMODEL )
     {
         // The enchantment type is given explicitly
-        enchanttype = modeloptional;
+        ieve = modeloptional;
     }
     else
     {
         // The enchantment type is given by the spawner
-        enchanttype = ChrList[spawner].model;
+        ieve = ChrList[spawner].model;
     }
+    if( ieve >= MAXEVE || !EveList[ieve].valid ) return MAXMODEL;
+    peve = EveList + ieve;
 
-    // Target and owner must both be alive and on and valid
-    if ( !ChrList[target].on || !ChrList[target].alive || target >= MAXCHR )
-        return MAXENCHANT;
-    if ( !ChrList[owner].on || !ChrList[owner].alive || owner >= MAXCHR )
-        return MAXENCHANT;
-
-
-    if ( EveList[enchanttype].valid )
+    if ( ienc == MAXENCHANT )
     {
-        if ( enchantindex == MAXENCHANT )
+        // Should it choose an inhand item?
+        if ( peve->retarget )
         {
-            // Should it choose an inhand item?
-            if ( EveList[enchanttype].retarget )
+            // Is at least one valid?
+            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[target].holdingwhich[SLOT_RIGHT] == MAXCHR )
             {
-                // Is at least one valid?
-                if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[target].holdingwhich[SLOT_RIGHT] == MAXCHR )
-                {
-                    // No weapons to pick
-                    return MAXENCHANT;
-                }
-
-                // Left, right, or both are valid
-                if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR )
-                {
-                    // Only right hand is valid
-                    target = ChrList[target].holdingwhich[SLOT_RIGHT];
-                }
-                else
-                {
-                    // Pick left hand
-                    target = ChrList[target].holdingwhich[SLOT_LEFT];
-                }
+                // No weapons to pick
+                return MAXENCHANT;
             }
 
-            // Make sure it's valid
-            if ( EveList[enchanttype].dontdamagetype != DAMAGENULL )
+            // Left, right, or both are valid
+            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR )
             {
-                if ( ( ChrList[target].damagemodifier[EveList[enchanttype].dontdamagetype]&7 ) >= 3 )  // Invert | Shift = 7
-                {
-                    return MAXENCHANT;
-                }
+                // Only right hand is valid
+                target = ChrList[target].holdingwhich[SLOT_RIGHT];
             }
-            if ( EveList[enchanttype].onlydamagetype != DAMAGENULL )
+            else
             {
-                if ( ChrList[target].damagetargettype != EveList[enchanttype].onlydamagetype )
-                {
-                    return MAXENCHANT;
-                }
-            }
-
-            // Find one to use
-            enchantindex = get_free_enchant();
-        }
-        else
-        {
-            numfreeenchant--;  // To keep it in order
-        }
-        if ( enchantindex < MAXENCHANT )
-        {
-            // Make a new one
-            EncList[enchantindex].on      = btrue;
-            EncList[enchantindex].target  = target;
-            EncList[enchantindex].owner   = owner;
-            EncList[enchantindex].spawner = spawner;
-            if ( spawner < MAXCHR )
-            {
-                ChrList[spawner].undoenchant = enchantindex;
-            }
-
-            EncList[enchantindex].eve = enchanttype;
-            EncList[enchantindex].time = EveList[enchanttype].time;
-            EncList[enchantindex].spawntime = 1;
-            EncList[enchantindex].ownermana = EveList[enchanttype].ownermana;
-            EncList[enchantindex].ownerlife = EveList[enchanttype].ownerlife;
-            EncList[enchantindex].targetmana = EveList[enchanttype].targetmana;
-            EncList[enchantindex].targetlife = EveList[enchanttype].targetlife;
-
-            // Add it as first in the list
-            EncList[enchantindex].nextenchant = ChrList[target].firstenchant;
-            ChrList[target].firstenchant = enchantindex;
-
-            // Now set all of the specific values, morph first
-            set_enchant_value( enchantindex, SETMORPH, enchanttype );
-            set_enchant_value( enchantindex, SETDAMAGETYPE, enchanttype );
-            set_enchant_value( enchantindex, SETNUMBEROFJUMPS, enchanttype );
-            set_enchant_value( enchantindex, SETLIFEBARCOLOR, enchanttype );
-            set_enchant_value( enchantindex, SETMANABARCOLOR, enchanttype );
-            set_enchant_value( enchantindex, SETSLASHMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETCRUSHMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETPOKEMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETHOLYMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETEVILMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETFIREMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETICEMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETZAPMODIFIER, enchanttype );
-            set_enchant_value( enchantindex, SETFLASHINGAND, enchanttype );
-            set_enchant_value( enchantindex, SETLIGHTBLEND, enchanttype );
-            set_enchant_value( enchantindex, SETALPHABLEND, enchanttype );
-            set_enchant_value( enchantindex, SETSHEEN, enchanttype );
-            set_enchant_value( enchantindex, SETFLYTOHEIGHT, enchanttype );
-            set_enchant_value( enchantindex, SETWALKONWATER, enchanttype );
-            set_enchant_value( enchantindex, SETCANSEEINVISIBLE, enchanttype );
-            set_enchant_value( enchantindex, SETMISSILETREATMENT, enchanttype );
-            set_enchant_value( enchantindex, SETCOSTFOREACHMISSILE, enchanttype );
-            set_enchant_value( enchantindex, SETCHANNEL, enchanttype );
-
-            // Now do all of the stat adds
-            add = 0;
-
-            while ( add < MAXEVEADDVALUE )
-            {
-                add_enchant_value( enchantindex, add, enchanttype );
-                add++;
-            }
-
-            // Create an overlay character?
-            EncList[enchantindex].overlay = MAXCHR;
-            if ( EveList[enchanttype].overlay )
-            {
-                overlay = spawn_one_character( ChrList[target].xpos, ChrList[target].ypos, ChrList[target].zpos,
-                                               enchanttype, ChrList[target].team, 0, ChrList[target].turnleftright,
-                                               NULL, MAXCHR );
-                if ( overlay < MAXCHR )
-                {
-                    EncList[enchantindex].overlay = overlay;  // Kill this character on end...
-                    ChrList[overlay].ai.target = target;
-                    ChrList[overlay].ai.state = EveList[enchanttype].overlay;
-                    ChrList[overlay].overlay = btrue;
-
-                    // Start out with ActionMJ...  Object activated
-                    if ( MadList[ChrList[overlay].inst.imad].actionvalid[ACTIONMJ] )
-                    {
-                        ChrList[overlay].action = ACTIONMJ;
-                        ChrList[overlay].inst.lip = 0;
-                        ChrList[overlay].inst.frame = MadList[ChrList[overlay].inst.imad].actionstart[ACTIONMJ];
-                        ChrList[overlay].inst.lastframe = ChrList[overlay].inst.frame;
-                        ChrList[overlay].actionready = bfalse;
-                    }
-
-                    ChrList[overlay].inst.light = 254;  // Assume it's transparent...
-                }
+                // Pick left hand
+                target = ChrList[target].holdingwhich[SLOT_LEFT];
             }
         }
 
-        return enchantindex;
+        if ( INVALID_CHR(target) || !ChrList[target].alive ) return MAXENCHANT;
+
+        // Make sure it's valid
+        if ( peve->dontdamagetype != DAMAGENULL )
+        {
+            if ( ( ChrList[target].damagemodifier[peve->dontdamagetype] & 7 ) >= 3 )  // Invert | Shift = 7
+            {
+                return MAXENCHANT;
+            }
+        }
+        if ( peve->onlydamagetype != DAMAGENULL )
+        {
+            if ( ChrList[target].damagetargettype != peve->onlydamagetype )
+            {
+                return MAXENCHANT;
+            }
+        }
+
+        // Find one to use
+        ienc = get_free_enchant();
+    }
+    else
+    {
+        numfreeenchant--;  // To keep it in order
     }
 
-    return MAXENCHANT;
+    if ( ienc < MAXENCHANT )
+    {
+        enc_t * penc = EncList + ienc;
+        chr_t * ptarget = ChrList + target;
+
+        memset( penc, 0, sizeof(enc_t) );
+
+        // Make a new one
+        penc->on      = btrue;
+        penc->target  = VALID_CHR(target)  ? target  : MAXCHR;
+        penc->owner   = VALID_CHR(owner)   ? owner   : MAXCHR;
+        penc->spawner = VALID_CHR(spawner) ? spawner : MAXCHR;
+
+        if ( VALID_CHR(spawner) )
+        {
+            ChrList[spawner].undoenchant = ienc;
+        }
+
+        penc->eve = ieve;
+        penc->time = peve->time;
+        penc->spawntime = 1;
+        penc->ownermana = peve->ownermana;
+        penc->ownerlife = peve->ownerlife;
+        penc->targetmana = peve->targetmana;
+        penc->targetlife = peve->targetlife;
+
+        // Add it as first in the list
+        penc->nextenchant = ptarget->firstenchant;
+        ptarget->firstenchant = ienc;
+
+        // Now set all of the specific values, morph first
+        set_enchant_value( ienc, SETMORPH, ieve );
+        set_enchant_value( ienc, SETDAMAGETYPE, ieve );
+        set_enchant_value( ienc, SETNUMBEROFJUMPS, ieve );
+        set_enchant_value( ienc, SETLIFEBARCOLOR, ieve );
+        set_enchant_value( ienc, SETMANABARCOLOR, ieve );
+        set_enchant_value( ienc, SETSLASHMODIFIER, ieve );
+        set_enchant_value( ienc, SETCRUSHMODIFIER, ieve );
+        set_enchant_value( ienc, SETPOKEMODIFIER, ieve );
+        set_enchant_value( ienc, SETHOLYMODIFIER, ieve );
+        set_enchant_value( ienc, SETEVILMODIFIER, ieve );
+        set_enchant_value( ienc, SETFIREMODIFIER, ieve );
+        set_enchant_value( ienc, SETICEMODIFIER, ieve );
+        set_enchant_value( ienc, SETZAPMODIFIER, ieve );
+        set_enchant_value( ienc, SETFLASHINGAND, ieve );
+        set_enchant_value( ienc, SETLIGHTBLEND, ieve );
+        set_enchant_value( ienc, SETALPHABLEND, ieve );
+        set_enchant_value( ienc, SETSHEEN, ieve );
+        set_enchant_value( ienc, SETFLYTOHEIGHT, ieve );
+        set_enchant_value( ienc, SETWALKONWATER, ieve );
+        set_enchant_value( ienc, SETCANSEEINVISIBLE, ieve );
+        set_enchant_value( ienc, SETMISSILETREATMENT, ieve );
+        set_enchant_value( ienc, SETCOSTFOREACHMISSILE, ieve );
+        set_enchant_value( ienc, SETCHANNEL, ieve );
+
+        // Now do all of the stat adds
+        add = 0;
+        while ( add < MAXEVEADDVALUE )
+        {
+            add_enchant_value( ienc, add, ieve );
+            add++;
+        }
+
+        // Create an overlay character?
+        penc->overlay = MAXCHR;
+        if ( peve->overlay )
+        {
+            overlay = spawn_one_character( ptarget->xpos, ptarget->ypos, ptarget->zpos,
+                ieve, ptarget->team, 0, ptarget->turnleftright, NULL, MAXCHR );
+
+            if ( VALID_CHR(overlay) )
+            {
+                chr_t * povl = ChrList + overlay;
+
+                penc->overlay = overlay;  // Kill this character on end...
+                povl->ai.target = target;
+                povl->ai.state = peve->overlay;
+                povl->overlay = btrue;
+
+                // Start out with ActionMJ...  Object activated
+                if ( MadList[povl->inst.imad].actionvalid[ACTIONMJ] )
+                {
+                    povl->action = ACTIONMJ;
+                    povl->inst.lip = 0;
+                    povl->inst.frame = MadList[povl->inst.imad].actionstart[ACTIONMJ];
+                    povl->inst.lastframe = povl->inst.frame;
+                    povl->actionready = bfalse;
+                }
+
+                povl->inst.light = 254;  // Assume it's transparent...
+            }
+        }
+    }
+
+
+    return ienc;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -667,337 +732,326 @@ void free_all_enchants()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile )
+bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 {
     // ZZ> This function loads the enchantment associated with an object
     FILE* fileread;
     char cTmp;
-    int iTmp, tTmp, idsz, test;
+    int iTmp, tTmp;
+    IDSZ idsz;
     float fTmp;
     int num;
+    eve_t * peve;
 
-    parse_filename = szLoadName;
-    EveList[profile].valid = bfalse;
+    if( profile > MAXEVE ) return bfalse;
+    peve = EveList + profile;
+
+    memset( peve, 0, sizeof(eve_t) );
+
     fileread = fopen( szLoadName, "r" );
     if ( NULL == fileread )
     {
         return bfalse;
     }
+    parse_filename = szLoadName;
 
     // btrue/bfalse values
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].retarget = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].retarget = btrue;
+    peve->retarget = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->retarget = btrue;
 
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].override = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].override = btrue;
+    peve->override = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->override = btrue;
 
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].removeoverridden = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].removeoverridden = btrue;
+    peve->removeoverridden = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->removeoverridden = btrue;
 
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].killonend = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].killonend = btrue;
+    peve->killonend = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->killonend = btrue;
 
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].poofonend = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].poofonend = btrue;
+    peve->poofonend = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->poofonend = btrue;
 
     // More stuff
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  EveList[profile].time = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  EveList[profile].endmessage = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  peve->time = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  peve->endmessage = iTmp;
 
     // Drain stuff
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].ownermana = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].targetmana = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->ownermana = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->targetmana = fTmp * 256;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].endifcantpay = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  EveList[profile].endifcantpay = btrue;
+    peve->endifcantpay = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  peve->endifcantpay = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].ownerlife = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  EveList[profile].targetlife = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->ownerlife = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->targetlife = fTmp * 256;
 
     // Specifics
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].dontdamagetype = DAMAGENULL;
-    if ( cTmp == 'S' || cTmp == 's' )  EveList[profile].dontdamagetype = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].dontdamagetype = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  EveList[profile].dontdamagetype = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  EveList[profile].dontdamagetype = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  EveList[profile].dontdamagetype = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  EveList[profile].dontdamagetype = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  EveList[profile].dontdamagetype = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].dontdamagetype = DAMAGE_ZAP;
+    peve->dontdamagetype = DAMAGENULL;
+    if ( cTmp == 'S' || cTmp == 's' )  peve->dontdamagetype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  peve->dontdamagetype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  peve->dontdamagetype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  peve->dontdamagetype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  peve->dontdamagetype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  peve->dontdamagetype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  peve->dontdamagetype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  peve->dontdamagetype = DAMAGE_ZAP;
 
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].onlydamagetype = DAMAGENULL;
-    if ( cTmp == 'S' || cTmp == 's' )  EveList[profile].onlydamagetype = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].onlydamagetype = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  EveList[profile].onlydamagetype = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  EveList[profile].onlydamagetype = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  EveList[profile].onlydamagetype = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  EveList[profile].onlydamagetype = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  EveList[profile].onlydamagetype = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].onlydamagetype = DAMAGE_ZAP;
+    peve->onlydamagetype = DAMAGENULL;
+    if ( cTmp == 'S' || cTmp == 's' )  peve->onlydamagetype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  peve->onlydamagetype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  peve->onlydamagetype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  peve->onlydamagetype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  peve->onlydamagetype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  peve->onlydamagetype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  peve->onlydamagetype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  peve->onlydamagetype = DAMAGE_ZAP;
 
-    goto_colon( fileread );  EveList[profile].removedbyidsz = fget_idsz( fileread );
+    goto_colon( fileread );  peve->removedbyidsz = fget_idsz( fileread );
 
     // Now the set values
     num = 0;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
-    EveList[profile].setvalue[num] = DAMAGE_SLASH;
-    if ( cTmp == 'C' || cTmp == 'c' )  EveList[profile].setvalue[num] = DAMAGE_CRUSH;
-    if ( cTmp == 'P' || cTmp == 'p' )  EveList[profile].setvalue[num] = DAMAGE_POKE;
-    if ( cTmp == 'H' || cTmp == 'h' )  EveList[profile].setvalue[num] = DAMAGE_HOLY;
-    if ( cTmp == 'E' || cTmp == 'e' )  EveList[profile].setvalue[num] = DAMAGE_EVIL;
-    if ( cTmp == 'F' || cTmp == 'f' )  EveList[profile].setvalue[num] = DAMAGE_FIRE;
-    if ( cTmp == 'I' || cTmp == 'i' )  EveList[profile].setvalue[num] = DAMAGE_ICE;
-    if ( cTmp == 'Z' || cTmp == 'z' )  EveList[profile].setvalue[num] = DAMAGE_ZAP;
+    peve->setvalue[num] = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  peve->setvalue[num] = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  peve->setvalue[num] = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  peve->setvalue[num] = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  peve->setvalue[num] = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  peve->setvalue[num] = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  peve->setvalue[num] = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  peve->setvalue[num] = DAMAGE_ZAP;
 
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
     if ( toupper(cTmp) == 'C' ) iTmp = DAMAGECHARGE;
     if ( toupper(cTmp) == 'M' ) iTmp = DAMAGEMANA;
 
-    fscanf( fileread, "%d", &tTmp );  EveList[profile].setvalue[num] = iTmp | tTmp;
+    fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    fscanf( fileread, "%d", &iTmp );  EveList[profile].setvalue[num] = iTmp;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
-    EveList[profile].setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
-    EveList[profile].setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
-    EveList[profile].setvalue[num] = MISNORMAL;
-    if ( cTmp == 'R' || cTmp == 'r' )  EveList[profile].setvalue[num] = MISREFLECT;
-    if ( cTmp == 'D' || cTmp == 'd' )  EveList[profile].setvalue[num] = MISDEFLECT;
+    peve->setvalue[num] = MISNORMAL;
+    if ( cTmp == 'R' || cTmp == 'r' )  peve->setvalue[num] = MISREFLECT;
+    if ( cTmp == 'D' || cTmp == 'd' )  peve->setvalue[num] = MISDEFLECT;
 
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
-    EveList[profile].setvalue[num] = (Uint8) fTmp;
+    peve->setvalue[num] = (Uint8) fTmp;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    EveList[profile].setvalue[num] = btrue;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setvalue[num] = btrue;
     num++;
     goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    EveList[profile].setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
-    EveList[profile].setvalue[num] = btrue;
+    peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
+    peve->setvalue[num] = btrue;
     num++;
 
     // Now read in the add values
     num = 0;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 16;
+    peve->addvalue[num] = (Sint32) fTmp * 16;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 127;
+    peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 127;
+    peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 127;
+    peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    EveList[profile].addvalue[num] = iTmp;
+    peve->addvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    EveList[profile].addvalue[num] = iTmp;
+    peve->addvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    EveList[profile].addvalue[num] = iTmp;
+    peve->addvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    EveList[profile].addvalue[num] = iTmp;
+    peve->addvalue[num] = iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Defense is backwards
-    EveList[profile].addvalue[num] = -iTmp;
+    peve->addvalue[num] = -iTmp;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
     goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
-    EveList[profile].addvalue[num] = (Sint32) fTmp * 4;
+    peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
 
     // Clear expansions...
-    EveList[profile].contspawntime = 0;
-    EveList[profile].contspawnamount = 0;
-    EveList[profile].contspawnfacingadd = 0;
-    EveList[profile].contspawnpip = 0;
-    EveList[profile].waveindex = -1;
-    EveList[profile].frequency = 11025;
-    EveList[profile].stayifnoowner = 0;
-    EveList[profile].overlay = 0;
+    peve->contspawntime = 0;
+    peve->contspawnamount = 0;
+    peve->contspawnfacingadd = 0;
+    peve->contspawnpip = 0;
+    peve->endsoundindex = -1;
+    peve->endsoundfrequency = 11025;
+    peve->stayifnoowner = 0;
+    peve->overlay = 0;
 
     // Read expansions
     while ( goto_colon_yesno( fileread ) )
     {
         idsz = fget_idsz( fileread );
-        fscanf( fileread, "%c%d", &cTmp, &iTmp );
-        test = Make_IDSZ( "AMOU" );  // [AMOU]
-        if ( idsz == test )  EveList[profile].contspawnamount = iTmp;
 
-        test = Make_IDSZ( "TYPE" );  // [TYPE]
-        if ( idsz == test )  EveList[profile].contspawnpip = iTmp;
-
-        test = Make_IDSZ( "TIME" );  // [TIME]
-        if ( idsz == test )  EveList[profile].contspawntime = iTmp;
-
-        test = Make_IDSZ( "FACE" );  // [FACE]
-        if ( idsz == test )  EveList[profile].contspawnfacingadd = iTmp;
-
-        test = Make_IDSZ( "SEND" );  // [SEND]
-        if ( idsz == test )
+             if ( idsz == Make_IDSZ( "AMOU" ) )  peve->contspawnamount = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "TYPE" ) )  peve->contspawnpip = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "TIME" ) )  peve->contspawntime = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "FACE" ) )  peve->contspawnfacingadd = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "SEND" ) )
         {
             // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
-            EveList[profile].waveindex = CLIP(iTmp, -1, MAXWAVE);
+            int itmp = fget_int( fileread );
+            peve->endsoundindex = CLIP(itmp, -1, MAXWAVE);
         }
-
-        test = Make_IDSZ( "SFQR" );  // [SFRQ]
-        if ( idsz == test )  EveList[profile].frequency = iTmp;  // OUTDATED??
-
-        test = Make_IDSZ( "STAY" );  // [STAY]
-        if ( idsz == test )
-            EveList[profile].stayifnoowner = iTmp;
-
-        test = Make_IDSZ( "OVER" );  // [OVER]
-        if ( idsz == test )  EveList[profile].overlay = iTmp;
-
-        test = Make_IDSZ( "CKUR" );  // [CKUR]
-        if ( idsz == test )  EveList[profile].seekurse = iTmp;
+        else if ( idsz == Make_IDSZ( "SFQR" ) ) peve->endsoundfrequency = fget_int( fileread );  // OUTDATED??
+        else if ( idsz == Make_IDSZ( "STAY" ) ) peve->stayifnoowner = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "OVER" ) ) peve->overlay = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "CKUR" ) ) peve->seekurse = fget_int( fileread );
     }
 
     // All done ( finally )
     fclose( fileread );
 
-    EveList[profile].valid = btrue;
+    peve->valid = btrue;
 
     return btrue;
 }
@@ -1029,71 +1083,93 @@ void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
             case SETDAMAGETYPE:
                 ChrList[character].damagetargettype = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETNUMBEROFJUMPS:
                 ChrList[character].jumpnumberreset = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETLIFEBARCOLOR:
                 ChrList[character].lifecolor = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETMANABARCOLOR:
                 ChrList[character].manacolor = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETSLASHMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_SLASH] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETCRUSHMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_CRUSH] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETPOKEMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_POKE] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETHOLYMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_HOLY] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETEVILMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_EVIL] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETFIREMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_FIRE] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETICEMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_ICE] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETZAPMODIFIER:
                 ChrList[character].damagemodifier[DAMAGE_ZAP] = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETFLASHINGAND:
                 ChrList[character].flashand = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETLIGHTBLEND:
                 ChrList[character].inst.light = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETALPHABLEND:
                 ChrList[character].inst.alpha = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETSHEEN:
                 ChrList[character].inst.sheen = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETFLYTOHEIGHT:
                 ChrList[character].flyheight = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETWALKONWATER:
                 ChrList[character].waterwalk = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETCANSEEINVISIBLE:
                 ChrList[character].canseeinvisible = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETMISSILETREATMENT:
                 ChrList[character].missiletreatment = EncList[enchantindex].setsave[valueindex];
                 break;
+
             case SETCOSTFOREACHMISSILE:
                 ChrList[character].missilecost = EncList[enchantindex].setsave[valueindex];
                 ChrList[character].missilehandler = character;
                 break;
+
             case SETMORPH:
                 // Need special handler for when this is removed
                 change_character( character, ChrList[character].basemodel, EncList[enchantindex].setsave[valueindex], LEAVEALL );
                 break;
+
             case SETCHANNEL:
                 ChrList[character].canchannel = EncList[enchantindex].setsave[valueindex];
                 break;

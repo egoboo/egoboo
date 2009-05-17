@@ -93,6 +93,7 @@ extern team_t TeamList[MAXTEAM];
 
 struct s_cap
 {
+    STRING       name;
     bool_t       loaded;
 
     short        importslot;
@@ -239,7 +240,7 @@ struct s_cap
     bool_t       ripple;                        // Spawn ripples?
     Uint8        damagetargettype;              // For AI DamageTarget
     Uint8        weaponaction;                  // Animation needed to swing
-    bool_t       gripvalid[MAXSLOT];            // Left/Right hands valid
+    bool_t       slotvalid[MAXSLOT];            // Left/Right hands valid
     Uint8        attackattached;
     Sint8        attackprttype;
     Uint8        attachedprtamount;             // Sticky particles
@@ -282,7 +283,7 @@ typedef struct s_cap cap_t;
 extern int   importobject;
 extern cap_t CapList[MAXMODEL];
 
-#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_PROFILE) )
+#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAXMODEL) )
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
@@ -455,6 +456,7 @@ struct s_chr
     Uint8          defense;         // Base defense rating
     Uint32         weight;          // Weight ( for pressure plates )
     Uint16         holdingweight;   // For weighted buttons
+    Uint16         onwhichplatform; // Am I on a platform?
     Sint16         money;           // Money
     Sint16         lifereturn;      // Regeneration/poison
     Sint16         manacost;        // Mana cost to use

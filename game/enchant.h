@@ -123,10 +123,10 @@ struct s_eve
     Uint8   contspawnamount;             // Spawn amount
     Uint16  contspawnfacingadd;          // Spawn in circle
     Uint16  contspawnpip;                // Spawn type ( local )
-    Sint16  waveindex;                   // Sound on end (-1 for none)
-    Uint16  frequency;                   // Sound frequency
+    Sint16  endsoundindex;               // Sound on end (-1 for none)
+    Uint16  endsoundfrequency;           // Sound frequency
     Uint8   overlay;                     // Spawn an overlay?
-    Uint16  seekurse;                     // Spawn an overlay?
+    Uint16  seekurse;
 };
 typedef struct s_eve eve_t;
 
@@ -178,7 +178,7 @@ void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
                         Uint16 enchanttype );
 Uint16 spawn_enchant( Uint16 owner, Uint16 target,
                       Uint16 spawner, Uint16 enchantindex, Uint16 modeloptional );
-bool_t load_one_enchant_type( const char* szLoadName, Uint16 profile );
+bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile );
 void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex );
 void disenchant_character( Uint16 cnt );

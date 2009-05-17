@@ -908,7 +908,7 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     }
 
     // Make sure the the slot is valid
-    if ( !CapList[ChrList[mount].model].gripvalid[slot] )
+    if ( !CapList[ChrList[mount].model].slotvalid[slot] )
         return;
 
     // Put 'em together
@@ -1299,7 +1299,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
     slot = ( grip / GRIP_VERTS ) - 1;  // 0 is left, 1 is right
 
     // Make sure the character doesn't have something already, and that it has hands
-    if ( ChrList[chara].holdingwhich[slot] != MAXCHR || !CapList[model].gripvalid[slot] )
+    if ( ChrList[chara].holdingwhich[slot] != MAXCHR || !CapList[model].slotvalid[slot] )
         return bfalse;
 
     // Do we have a matrix???
@@ -2112,8 +2112,8 @@ void export_one_character_profile( const char *szSaveName, Uint16 character )
         fprintf( filewrite, "\n" );
 
         // Character hands
-        ftruthf( filewrite, "Left valid     : ", CapList[profile].gripvalid[0] );
-        ftruthf( filewrite, "Right valid    : ", CapList[profile].gripvalid[1] );
+        ftruthf( filewrite, "Left valid     : ", CapList[profile].slotvalid[SLOT_LEFT] );
+        ftruthf( filewrite, "Right valid    : ", CapList[profile].slotvalid[SLOT_RIGHT] );
         fprintf( filewrite, "\n" );
 
         // Particle spawning on attack
@@ -2261,6 +2261,7 @@ int load_one_character_profile( const char *szLoadName )
     // ZZ> This function fills a character profile with data from data.txt, returning
     // the object slot that the profile was stuck into.  It may cause the program
     // to abort if bad things happen.
+
     FILE* fileread;
     Sint16 object = -1;
     int iTmp;
@@ -2268,515 +2269,462 @@ int load_one_character_profile( const char *szLoadName )
     char cTmp;
     Uint8 damagetype, level, xptype;
     int idsz_cnt;
-    IDSZ idsz, test;
-
-
-    CapList[object].loaded = bfalse;
+    IDSZ idsz;
+    cap_t * pcap;
 
     // Open the file
     fileread = fopen( szLoadName, "r" );
-    if ( fileread != NULL )
-    {
-        CapList[object].loaded = btrue;
-
-        parse_filename = szLoadName;  //For debugging goto_colon()
-
-        // Read in the object slot
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); object = iTmp;
-        if ( object < 0 )
-        {
-            if ( importobject < 0 )
-            {
-                log_warning( "Object slot number cannot be negative (%s)\n", szLoadName );
-            }
-            else
-            {
-                object = importobject;
-            }
-        }
-
-        // Make sure global objects don't load over existing models
-        if ( MadList[object].used )
-        {
-            if ( object == SPELLBOOK ) log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
-            else if (overrideslots)  log_error( "Object slot %i used twice (%s)\n", object, szLoadName );
-            else return -1;   //Stop, we don't want to override it
-        }
-
-        MadList[object].used = btrue;
-
-        // clear out the sounds
-        for ( iTmp = 0; iTmp < SOUND_COUNT; iTmp++ )
-        {
-            CapList[object].soundindex[iTmp] = -1;
-        }
-
-        // Read in the real general data
-        goto_colon( fileread );  fget_name( fileread, CapList[object].classname, sizeof(CapList[object].classname) );
-
-        // Light cheat
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].uniformlit = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' || GL_FLAT == shading )  CapList[object].uniformlit = btrue;
-
-        // Ammo
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].ammomax = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].ammo = iTmp;
-        // Gender
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].gender = GENOTHER;
-        if ( cTmp == 'F' || cTmp == 'f' )  CapList[object].gender = GENFEMALE;
-        if ( cTmp == 'M' || cTmp == 'm' )  CapList[object].gender = GENMALE;
-        if ( cTmp == 'R' || cTmp == 'r' )  CapList[object].gender = GENRANDOM;
-
-        // Read in the object stats
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].lifecolor = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].manacolor = iTmp;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].lifebase = pairbase;  CapList[object].liferand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].lifeperlevelbase = pairbase;  CapList[object].lifeperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manabase = pairbase;  CapList[object].manarand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manaperlevelbase = pairbase;  CapList[object].manaperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manareturnbase = pairbase;  CapList[object].manareturnrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manareturnperlevelbase = pairbase;  CapList[object].manareturnperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manaflowbase = pairbase;  CapList[object].manaflowrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].manaflowperlevelbase = pairbase;  CapList[object].manaflowperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].strengthbase = pairbase;  CapList[object].strengthrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].strengthperlevelbase = pairbase;  CapList[object].strengthperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].wisdombase = pairbase;  CapList[object].wisdomrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].wisdomperlevelbase = pairbase;  CapList[object].wisdomperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].intelligencebase = pairbase;  CapList[object].intelligencerand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].intelligenceperlevelbase = pairbase;  CapList[object].intelligenceperlevelrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].dexteritybase = pairbase;  CapList[object].dexterityrand = pairrand;
-        goto_colon( fileread );  read_pair( fileread );
-        CapList[object].dexterityperlevelbase = pairbase;  CapList[object].dexterityperlevelrand = pairrand;
-
-        // More physical attributes
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].size = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].sizeperlevel = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].shadowsize = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].bumpsize = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].bumpheight = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].bumpdampen = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].weight = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].jump = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].jumpnumber = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].sneakspd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].walkspd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].runspd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].flyheight = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].flashand = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].alpha = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].light = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].transferblend = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].transferblend = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].sheen = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].enviro = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].enviro = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].uoffvel = fTmp * 0xFFFF;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].voffvel = fTmp * 0xFFFF;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].stickybutt = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].stickybutt = btrue;
-
-        // Invulnerability data
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].invictus = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].invictus = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].nframefacing = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].nframeangle = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].iframefacing = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].iframeangle = iTmp;
-
-        // Resist burning and stuck arrows with nframe angle of 1 or more
-        if ( CapList[object].nframeangle > 0 )
-        {
-            if ( CapList[object].nframeangle == 1 )
-            {
-                CapList[object].nframeangle = 0;
-            }
-        }
-
-        // Skin defenses ( 4 skins )
-        goto_colon( fileread );
-        fscanf( fileread, "%d", &iTmp );  CapList[object].defense[0] = 255 - iTmp;
-        fscanf( fileread, "%d", &iTmp );  CapList[object].defense[1] = 255 - iTmp;
-        fscanf( fileread, "%d", &iTmp );  CapList[object].defense[2] = 255 - iTmp;
-        fscanf( fileread, "%d", &iTmp );  CapList[object].defense[3] = 255 - iTmp;
-
-        for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-        {
-            goto_colon( fileread );
-            fscanf( fileread, "%d", &iTmp );  CapList[object].damagemodifier[damagetype][0] = iTmp;
-            fscanf( fileread, "%d", &iTmp );  CapList[object].damagemodifier[damagetype][1] = iTmp;
-            fscanf( fileread, "%d", &iTmp );  CapList[object].damagemodifier[damagetype][2] = iTmp;
-            fscanf( fileread, "%d", &iTmp );  CapList[object].damagemodifier[damagetype][3] = iTmp;
-        }
-
-        for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
-        {
-            goto_colon( fileread );
-
-            cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEINVERT;
-            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGECHARGE;
-            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][0] |= DAMAGEMANA;
-
-            cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEINVERT;
-            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGECHARGE;
-            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][1] |= DAMAGEMANA;
-
-            cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEINVERT;
-            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGECHARGE;
-            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][2] |= DAMAGEMANA;
-
-            cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEINVERT;
-            else if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGECHARGE;
-            else if ( toupper(cTmp) == 'M' )  CapList[object].damagemodifier[damagetype][3] |= DAMAGEMANA;
-        }
-
-        goto_colon( fileread );
-        fscanf( fileread, "%f", &fTmp );  CapList[object].maxaccel[0] = fTmp / 80.0f;
-        fscanf( fileread, "%f", &fTmp );  CapList[object].maxaccel[1] = fTmp / 80.0f;
-        fscanf( fileread, "%f", &fTmp );  CapList[object].maxaccel[2] = fTmp / 80.0f;
-        fscanf( fileread, "%f", &fTmp );  CapList[object].maxaccel[3] = fTmp / 80.0f;
-
-        // Experience and level data
-        CapList[object].experienceforlevel[0] = 0;
-
-        for ( level = 1; level < MAXLEVEL; level++ )
-        {
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].experienceforlevel[level] = iTmp;
-        }
-
-        goto_colon( fileread );  read_pair( fileread );
-        pairbase = pairbase >> 8;
-        pairrand = pairrand >> 8;
-        if ( pairrand < 1 )  pairrand = 1;
-
-        CapList[object].experiencebase = pairbase;
-        CapList[object].experiencerand = pairrand;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].experienceworth = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].experienceexchange = fTmp;
-
-        for ( xptype = 0; xptype < XP_COUNT; xptype++ )
-        {
-            goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].experiencerate[xptype] = fTmp + 0.001f;
-        }
-
-        // IDSZ tags
-        for ( idsz_cnt = 0; idsz_cnt < IDSZ_COUNT; idsz_cnt++ )
-        {
-            goto_colon( fileread );  iTmp = fget_idsz( fileread );  CapList[object].idsz[idsz_cnt] = iTmp;
-        }
-
-        // Item and damage flags
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].isitem = bfalse;  CapList[object].ripple = btrue;
-        if ( cTmp == 'T' || cTmp == 't' )  { CapList[object].isitem = btrue; CapList[object].ripple = bfalse; }
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].ismount = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].ismount = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].isstackable = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].isstackable = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].nameknown = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].nameknown = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].usageknown = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].usageknown = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].cancarrytonextmodule = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].cancarrytonextmodule = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].needskillidtouse = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].needskillidtouse = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].platform = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].platform = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].cangrabmoney = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].cangrabmoney = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].canopenstuff = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].canopenstuff = btrue;
-
-        // More item and damage stuff
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'S' || cTmp == 's' )  CapList[object].damagetargettype = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].damagetargettype = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  CapList[object].damagetargettype = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  CapList[object].damagetargettype = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  CapList[object].damagetargettype = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  CapList[object].damagetargettype = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  CapList[object].damagetargettype = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  CapList[object].damagetargettype = DAMAGE_ZAP;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].weaponaction = action_which( cTmp );
-
-        // Particle attachments
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].attachedprtamount = iTmp;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'N' || cTmp == 'n' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGENULL;
-        if ( cTmp == 'S' || cTmp == 's' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_SLASH;
-        if ( cTmp == 'C' || cTmp == 'c' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_CRUSH;
-        if ( cTmp == 'P' || cTmp == 'p' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_POKE;
-        if ( cTmp == 'H' || cTmp == 'h' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_HOLY;
-        if ( cTmp == 'E' || cTmp == 'e' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_EVIL;
-        if ( cTmp == 'F' || cTmp == 'f' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_FIRE;
-        if ( cTmp == 'I' || cTmp == 'i' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_ICE;
-        if ( cTmp == 'Z' || cTmp == 'z' )  CapList[object].attachedprtreaffirmdamagetype = DAMAGE_ZAP;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].attachedprttype = iTmp;
-
-        // Character hands
-        CapList[object].gripvalid[0] = bfalse;
-        CapList[object].gripvalid[1] = bfalse;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].gripvalid[0] = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].gripvalid[1] = btrue;
-
-        // Attack order ( weapon )
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].attackattached = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].attackattached = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].attackprttype = iTmp;
-
-        // GoPoof
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].gopoofprtamount = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].gopoofprtfacingadd = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].gopoofprttype = iTmp;
-
-        // Blud
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].bludvalid = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].bludvalid = btrue;
-        if ( cTmp == 'U' || cTmp == 'u' )  CapList[object].bludvalid = ULTRABLUDY;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].bludprttype = iTmp;
-
-        // Stuff I forgot
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].waterwalk = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].waterwalk = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].dampen = fTmp;
-
-        // More stuff I forgot
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].lifeheal = fTmp * 256;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].manacost = fTmp * 256;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].lifereturn = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].stoppedby = iTmp | MESHFX_IMPASS;
-        goto_colon( fileread );  fget_name( fileread, CapList[object].skinname[0], sizeof(CapList[object].skinname[0]) );
-        goto_colon( fileread );  fget_name( fileread, CapList[object].skinname[1], sizeof(CapList[object].skinname[1]) );
-        goto_colon( fileread );  fget_name( fileread, CapList[object].skinname[2], sizeof(CapList[object].skinname[2]) );
-        goto_colon( fileread );  fget_name( fileread, CapList[object].skinname[3], sizeof(CapList[object].skinname[3]) );
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].skincost[0] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].skincost[1] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].skincost[2] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  CapList[object].skincost[3] = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  CapList[object].strengthdampen = fTmp;
-
-        // Another memory lapse
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-        CapList[object].ridercanattack = btrue;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].ridercanattack = bfalse;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can be dazed
-        CapList[object].canbedazed = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].canbedazed = btrue;
-
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can be grogged
-        CapList[object].canbegrogged = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].canbegrogged = btrue;
-
-        goto_colon( fileread );  // !!!BAD!!! Life add
-        goto_colon( fileread );  // !!!BAD!!! Mana add
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can see invisible
-        CapList[object].canseeinvisible = bfalse;
-        if ( cTmp == 'T' || cTmp == 't' )  CapList[object].canseeinvisible = btrue;
-
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Chance of kursed
-        CapList[object].kursechance = iTmp;
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Footfall sound
-        CapList[object].soundindex[SOUND_FOOTFALL] = CLIP(iTmp, -1, MAXWAVE);
-        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Jump sound
-        CapList[object].soundindex[SOUND_JUMP] = CLIP(iTmp, -1, MAXWAVE);
-
-        // Clear expansions...
-        CapList[object].skindressy = bfalse;
-        CapList[object].resistbumpspawn = bfalse;
-        CapList[object].istoobig = bfalse;
-        CapList[object].reflect = btrue;
-        CapList[object].alwaysdraw = bfalse;
-        CapList[object].isranged = bfalse;
-        CapList[object].hidestate = NOHIDE;
-        CapList[object].isequipment = bfalse;
-        CapList[object].bumpsizebig = CapList[object].bumpsize + ( CapList[object].bumpsize >> 1 );
-        CapList[object].canseekurse = bfalse;
-        CapList[object].money = 0;
-        CapList[object].icon = CapList[object].usageknown;
-        CapList[object].forceshadow = bfalse;
-        CapList[object].skinoverride = NOSKINOVERRIDE;
-        CapList[object].contentoverride = 0;
-        CapList[object].stateoverride = 0;
-        CapList[object].leveloverride = 0;
-        CapList[object].canuseplatforms = !CapList[object].platform;
-        CapList[object].isvaluable = 0;
-
-        //Skills
-        CapList[object].canuseadvancedweapons = 0;
-        CapList[object].canjoust = 0;
-        CapList[object].canusetech = 0;
-        CapList[object].canusedivine = 0;
-        CapList[object].canusearcane = 0;
-        CapList[object].shieldproficiency = 0;
-        CapList[object].candisarm = 0;
-        CapList[object].canbackstab = 0;
-        CapList[object].canusepoison = 0;
-        CapList[object].canread = 0;
-
-        // Read expansions
-        while ( goto_colon_yesno( fileread ) )
-        {
-            idsz = fget_idsz( fileread );
-            fscanf( fileread, "%c%d", &cTmp, &iTmp );
-
-            test = Make_IDSZ( "DRES" );  // [DRES]
-            if ( idsz == test )  CapList[object].skindressy |= 1 << iTmp;
-
-            test = Make_IDSZ( "GOLD" );  // [GOLD]
-            if ( idsz == test )  CapList[object].money = iTmp;
-
-            test = Make_IDSZ( "STUK" );  // [STUK]
-            if ( idsz == test )  CapList[object].resistbumpspawn = 1 - iTmp;
-
-            test = Make_IDSZ( "PACK" );  // [PACK]
-            if ( idsz == test )  CapList[object].istoobig = 1 - iTmp;
-
-            test = Make_IDSZ( "VAMP" );  // [VAMP]
-            if ( idsz == test )  CapList[object].reflect = 1 - iTmp;
-
-            test = Make_IDSZ( "DRAW" );  // [DRAW]
-            if ( idsz == test )  CapList[object].alwaysdraw = iTmp;
-
-            test = Make_IDSZ( "RANG" );  // [RANG]
-            if ( idsz == test )  CapList[object].isranged = iTmp;
-
-            test = Make_IDSZ( "HIDE" );  // [HIDE]
-            if ( idsz == test )  CapList[object].hidestate = iTmp;
-
-            test = Make_IDSZ( "EQUI");  // [EQUI]
-            if ( idsz == test )  CapList[object].isequipment = iTmp;
-
-            test = Make_IDSZ( "SQUA");  // [SQUA]
-            if ( idsz == test )  CapList[object].bumpsizebig = CapList[object].bumpsize << 1;
-
-            test = Make_IDSZ( "ICON" );  // [ICON]
-            if ( idsz == test )  CapList[object].icon = iTmp;
-
-            test = Make_IDSZ( "SHAD" );  // [SHAD]
-            if ( idsz == test )  CapList[object].forceshadow = iTmp;
-
-            test = Make_IDSZ( "CKUR" );  // [CKUR]
-            if ( idsz == test )  CapList[object].canseekurse = iTmp;
-
-            test = Make_IDSZ( "SKIN" );  // [SKIN]
-            if ( idsz == test )  CapList[object].skinoverride = iTmp & 3;
-
-            test = Make_IDSZ( "CONT" );  // [CONT]
-            if ( idsz == test )  CapList[object].contentoverride = iTmp;
-
-            test = Make_IDSZ( "STAT" );  // [STAT]
-            if ( idsz == test )  CapList[object].stateoverride = iTmp;
-
-            test = Make_IDSZ( "LEVL" );  // [LEVL]
-            if ( idsz == test )  CapList[object].leveloverride = iTmp;
-
-            test = Make_IDSZ( "PLAT" );  // [PLAT]
-            if ( idsz == test )  CapList[object].canuseplatforms = iTmp;
-
-            test = Make_IDSZ( "RIPP" );  // [RIPP]
-            if ( idsz == test )  CapList[object].ripple = iTmp;
-
-            test = Make_IDSZ( "VALU" );  // [VALU]
-            if ( idsz == test ) CapList[object].isvaluable = iTmp;
-
-            //Read Skills
-            test = Make_IDSZ( "AWEP" );  // [AWEP]
-            if ( idsz == test )  CapList[object].canuseadvancedweapons = iTmp;
-
-            test = Make_IDSZ( "SHPR" );  // [SHPR]
-            if ( idsz == test )  CapList[object].shieldproficiency = iTmp;
-
-            test = Make_IDSZ( "JOUS" );  // [JOUS]
-            if ( idsz == test )  CapList[object].canjoust = iTmp;
-
-            test = Make_IDSZ( "WMAG" );  // [WMAG]
-            if ( idsz == test )  CapList[object].canusearcane = iTmp;
-
-            test = Make_IDSZ( "HMAG" );  // [HMAG]
-            if ( idsz == test )  CapList[object].canusedivine = iTmp;
-
-            test = Make_IDSZ( "TECH" );  // [TECH]
-            if ( idsz == test )  CapList[object].canusetech = iTmp;
-
-            test = Make_IDSZ( "DISA" );  // [DISA]
-            if ( idsz == test )  CapList[object].candisarm = iTmp;
-
-            test = Make_IDSZ( "STAB" );  // [STAB]
-            if ( idsz == test )  CapList[object].canbackstab = iTmp;
-
-            test = Make_IDSZ( "POIS" );  // [POIS]
-            if ( idsz == test )  CapList[object].canusepoison = iTmp;
-
-            test = Make_IDSZ( "READ" );  // [READ]
-            if ( idsz == test )  CapList[object].canread = iTmp;
-        }
-
-        fclose( fileread );
-    }
-    else
+    if ( fileread == NULL )
     {
         // The data file wasn't found
         log_error( "DATA.TXT was not found! (%s)\n", szLoadName );
+        return MAXMODEL;
     }
+
+    parse_filename = szLoadName;  //For debugging goto_colon()
+
+    // Read in the object slot
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); object = iTmp;
+    if ( object < 0 )
+    {
+        if ( importobject < 0 )
+        {
+            log_warning( "Object slot number cannot be negative (%s)\n", szLoadName );
+        }
+        else
+        {
+            object = importobject;
+        }
+    }
+
+    if( !VALID_CAP_RANGE( object ) ) return MAXMODEL;
+    pcap = CapList + object;
+
+    // Make sure global objects don't load over existing models
+    if ( pcap->loaded )
+    {
+        if ( object == SPELLBOOK ) 
+            log_error( "Object slot %i is a special reserved slot number (cannot be used by %s).\n", SPELLBOOK, szLoadName );
+        else if ( overrideslots )  
+            log_error( "Object slot %i used twice (%s, %s)\n", object, pcap->name, szLoadName );
+        else return -1;   //Stop, we don't want to override it
+    }
+
+    // clear out all the data
+    memset( pcap, 0, sizeof(cap_t) );
+
+    strncpy( pcap->name, szLoadName, SDL_arraysize(pcap->name) );
+
+    // mark it as loaded
+    pcap->loaded = btrue;
+
+    // clear out the sounds
+    for ( iTmp = 0; iTmp < SOUND_COUNT; iTmp++ )
+    {
+        pcap->soundindex[iTmp] = -1;
+    }
+
+    // Read in the real general data
+    goto_colon( fileread );  fget_name( fileread, pcap->classname, sizeof(pcap->classname) );
+
+    // Light cheat
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->uniformlit = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' || GL_FLAT == shading )  pcap->uniformlit = btrue;
+
+    // Ammo
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->ammomax = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->ammo = iTmp;
+    // Gender
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->gender = GENOTHER;
+    if ( cTmp == 'F' || cTmp == 'f' )  pcap->gender = GENFEMALE;
+    if ( cTmp == 'M' || cTmp == 'm' )  pcap->gender = GENMALE;
+    if ( cTmp == 'R' || cTmp == 'r' )  pcap->gender = GENRANDOM;
+
+    // Read in the object stats
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->lifecolor = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->manacolor = iTmp;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->lifebase = pairbase;  pcap->liferand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->lifeperlevelbase = pairbase;  pcap->lifeperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manabase = pairbase;  pcap->manarand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manaperlevelbase = pairbase;  pcap->manaperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manareturnbase = pairbase;  pcap->manareturnrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manareturnperlevelbase = pairbase;  pcap->manareturnperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manaflowbase = pairbase;  pcap->manaflowrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->manaflowperlevelbase = pairbase;  pcap->manaflowperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->strengthbase = pairbase;  pcap->strengthrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->strengthperlevelbase = pairbase;  pcap->strengthperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->wisdombase = pairbase;  pcap->wisdomrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->wisdomperlevelbase = pairbase;  pcap->wisdomperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->intelligencebase = pairbase;  pcap->intelligencerand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->intelligenceperlevelbase = pairbase;  pcap->intelligenceperlevelrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->dexteritybase = pairbase;  pcap->dexterityrand = pairrand;
+    goto_colon( fileread );  read_pair( fileread );
+    pcap->dexterityperlevelbase = pairbase;  pcap->dexterityperlevelrand = pairrand;
+
+    // More physical attributes
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->size = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->sizeperlevel = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->shadowsize = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->bumpsize = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->bumpheight = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->bumpdampen = MAX(0.01, fTmp);
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->weight = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->jump = fTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->jumpnumber = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->sneakspd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->walkspd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->runspd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->flyheight = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->flashand = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->alpha = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->light = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->transferblend = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->transferblend = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->sheen = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->enviro = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->enviro = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->uoffvel = fTmp * 0xFFFF;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->voffvel = fTmp * 0xFFFF;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->stickybutt = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->stickybutt = btrue;
+
+    // Invulnerability data
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->invictus = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->invictus = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->nframefacing = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->nframeangle = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->iframefacing = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->iframeangle = iTmp;
+
+    // Resist burning and stuck arrows with nframe angle of 1 or more
+    if ( pcap->nframeangle > 0 )
+    {
+        if ( pcap->nframeangle == 1 )
+        {
+            pcap->nframeangle = 0;
+        }
+    }
+
+    // Skin defenses ( 4 skins )
+    goto_colon( fileread );
+    fscanf( fileread, "%d", &iTmp );  pcap->defense[0] = 255 - iTmp;
+    fscanf( fileread, "%d", &iTmp );  pcap->defense[1] = 255 - iTmp;
+    fscanf( fileread, "%d", &iTmp );  pcap->defense[2] = 255 - iTmp;
+    fscanf( fileread, "%d", &iTmp );  pcap->defense[3] = 255 - iTmp;
+
+    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    {
+        goto_colon( fileread );
+        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][0] = iTmp;
+        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][1] = iTmp;
+        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][2] = iTmp;
+        fscanf( fileread, "%d", &iTmp );  pcap->damagemodifier[damagetype][3] = iTmp;
+    }
+
+    for ( damagetype = 0; damagetype < DAMAGE_COUNT; damagetype++ )
+    {
+        goto_colon( fileread );
+
+        cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][0] |= DAMAGEINVERT;
+        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][0] |= DAMAGECHARGE;
+        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][0] |= DAMAGEMANA;
+
+        cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][1] |= DAMAGEINVERT;
+        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][1] |= DAMAGECHARGE;
+        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][1] |= DAMAGEMANA;
+
+        cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][2] |= DAMAGEINVERT;
+        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][2] |= DAMAGECHARGE;
+        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][2] |= DAMAGEMANA;
+
+        cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'T' || cTmp == 't' )  pcap->damagemodifier[damagetype][3] |= DAMAGEINVERT;
+        else if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagemodifier[damagetype][3] |= DAMAGECHARGE;
+        else if ( toupper(cTmp) == 'M' )  pcap->damagemodifier[damagetype][3] |= DAMAGEMANA;
+    }
+
+    goto_colon( fileread );
+    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[0] = fTmp / 80.0f;
+    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[1] = fTmp / 80.0f;
+    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[2] = fTmp / 80.0f;
+    fscanf( fileread, "%f", &fTmp );  pcap->maxaccel[3] = fTmp / 80.0f;
+
+    // Experience and level data
+    pcap->experienceforlevel[0] = 0;
+
+    for ( level = 1; level < MAXLEVEL; level++ )
+    {
+        goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->experienceforlevel[level] = iTmp;
+    }
+
+    goto_colon( fileread );  read_pair( fileread );
+    pairbase = pairbase >> 8;
+    pairrand = pairrand >> 8;
+    if ( pairrand < 1 )  pairrand = 1;
+
+    pcap->experiencebase = pairbase;
+    pcap->experiencerand = pairrand;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->experienceworth = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->experienceexchange = fTmp;
+
+    for ( xptype = 0; xptype < XP_COUNT; xptype++ )
+    {
+        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->experiencerate[xptype] = fTmp + 0.001f;
+    }
+
+    // IDSZ tags
+    for ( idsz_cnt = 0; idsz_cnt < IDSZ_COUNT; idsz_cnt++ )
+    {
+        goto_colon( fileread );  iTmp = fget_idsz( fileread );  pcap->idsz[idsz_cnt] = iTmp;
+    }
+
+    // Item and damage flags
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->isitem = bfalse;  pcap->ripple = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  { pcap->isitem = btrue; pcap->ripple = bfalse; }
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->ismount = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->ismount = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->isstackable = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->isstackable = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->nameknown = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->nameknown = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->usageknown = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->usageknown = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->cancarrytonextmodule = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->cancarrytonextmodule = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->needskillidtouse = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->needskillidtouse = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->platform = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->platform = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->cangrabmoney = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->cangrabmoney = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->canopenstuff = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->canopenstuff = btrue;
+
+    // More item and damage stuff
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'S' || cTmp == 's' )  pcap->damagetargettype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  pcap->damagetargettype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  pcap->damagetargettype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  pcap->damagetargettype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  pcap->damagetargettype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  pcap->damagetargettype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  pcap->damagetargettype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  pcap->damagetargettype = DAMAGE_ZAP;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->weaponaction = action_which( cTmp );
+
+    // Particle attachments
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->attachedprtamount = iTmp;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'N' || cTmp == 'n' )  pcap->attachedprtreaffirmdamagetype = DAMAGENULL;
+    if ( cTmp == 'S' || cTmp == 's' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  pcap->attachedprtreaffirmdamagetype = DAMAGE_ZAP;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->attachedprttype = iTmp;
+
+    // Character hands
+    pcap->slotvalid[SLOT_LEFT] = bfalse;
+    pcap->slotvalid[SLOT_RIGHT] = bfalse;
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->slotvalid[SLOT_LEFT] = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->slotvalid[SLOT_RIGHT] = btrue;
+
+    // Attack order ( weapon )
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->attackattached = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->attackattached = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->attackprttype = iTmp;
+
+    // GoPoof
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprtamount = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprtfacingadd = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->gopoofprttype = iTmp;
+
+    // Blud
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->bludvalid = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->bludvalid = btrue;
+    if ( cTmp == 'U' || cTmp == 'u' )  pcap->bludvalid = ULTRABLUDY;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->bludprttype = iTmp;
+
+    // Stuff I forgot
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->waterwalk = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->waterwalk = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->dampen = fTmp;
+
+    // More stuff I forgot
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->lifeheal = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->manacost = fTmp * 256;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->lifereturn = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->stoppedby = iTmp | MESHFX_IMPASS;
+    goto_colon( fileread );  fget_name( fileread, pcap->skinname[0], sizeof(pcap->skinname[0]) );
+    goto_colon( fileread );  fget_name( fileread, pcap->skinname[1], sizeof(pcap->skinname[1]) );
+    goto_colon( fileread );  fget_name( fileread, pcap->skinname[2], sizeof(pcap->skinname[2]) );
+    goto_colon( fileread );  fget_name( fileread, pcap->skinname[3], sizeof(pcap->skinname[3]) );
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[0] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[1] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[2] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pcap->skincost[3] = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  pcap->strengthdampen = fTmp;
+
+    // Another memory lapse
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    pcap->ridercanattack = btrue;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->ridercanattack = bfalse;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can be dazed
+    pcap->canbedazed = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->canbedazed = btrue;
+
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can be grogged
+    pcap->canbegrogged = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->canbegrogged = btrue;
+
+    goto_colon( fileread );  // !!!BAD!!! Life add
+    goto_colon( fileread );  // !!!BAD!!! Mana add
+    goto_colon( fileread );  cTmp = fget_first_letter( fileread );  // Can see invisible
+    pcap->canseeinvisible = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  pcap->canseeinvisible = btrue;
+
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Chance of kursed
+    pcap->kursechance = iTmp;
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Footfall sound
+    pcap->soundindex[SOUND_FOOTFALL] = CLIP(iTmp, -1, MAXWAVE);
+    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Jump sound
+    pcap->soundindex[SOUND_JUMP] = CLIP(iTmp, -1, MAXWAVE);
+
+    // Clear expansions...
+    pcap->skindressy = bfalse;
+    pcap->resistbumpspawn = bfalse;
+    pcap->istoobig = bfalse;
+    pcap->reflect = btrue;
+    pcap->alwaysdraw = bfalse;
+    pcap->isranged = bfalse;
+    pcap->hidestate = NOHIDE;
+    pcap->isequipment = bfalse;
+    pcap->bumpsizebig = pcap->bumpsize + ( pcap->bumpsize >> 1 );
+    pcap->canseekurse = bfalse;
+    pcap->money = 0;
+    pcap->icon = pcap->usageknown;
+    pcap->forceshadow = bfalse;
+    pcap->skinoverride = NOSKINOVERRIDE;
+    pcap->contentoverride = 0;
+    pcap->stateoverride = 0;
+    pcap->leveloverride = 0;
+    pcap->canuseplatforms = !pcap->platform;
+    pcap->isvaluable = 0;
+
+    //Skills
+    pcap->canuseadvancedweapons = 0;
+    pcap->canjoust = 0;
+    pcap->canusetech = 0;
+    pcap->canusedivine = 0;
+    pcap->canusearcane = 0;
+    pcap->shieldproficiency = 0;
+    pcap->candisarm = 0;
+    pcap->canbackstab = 0;
+    pcap->canusepoison = 0;
+    pcap->canread = 0;
+
+    // Read expansions
+    while ( goto_colon_yesno( fileread ) )
+    {
+        idsz = fget_idsz( fileread );
+
+             if ( idsz == Make_IDSZ( "DRES" ) ) pcap->skindressy |= 1 << fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "GOLD" ) ) pcap->money = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "STUK" ) ) pcap->resistbumpspawn = 1 - fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "PACK" ) ) pcap->istoobig = 1 - fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "VAMP" ) ) pcap->reflect = 1 - fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "DRAW" ) ) pcap->alwaysdraw = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "RANG" ) ) pcap->isranged = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "HIDE" ) ) pcap->hidestate = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "EQUI" ) ) pcap->isequipment = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "SQUA" ) ) pcap->bumpsizebig = pcap->bumpsize << 1;
+        else if ( idsz == Make_IDSZ( "ICON" ) ) pcap->icon = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "SHAD" ) ) pcap->forceshadow = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "CKUR" ) ) pcap->canseekurse = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "SKIN" ) ) pcap->skinoverride = fget_int( fileread ) & 3;
+        else if ( idsz == Make_IDSZ( "CONT" ) ) pcap->contentoverride = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "STAT" ) ) pcap->stateoverride = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "LEVL" ) ) pcap->leveloverride = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "PLAT" ) ) pcap->canuseplatforms = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "RIPP" ) ) pcap->ripple = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "VALU" ) ) pcap->isvaluable = fget_int( fileread );
+
+        //Read Skills
+        else if ( idsz == Make_IDSZ( "AWEP" ) ) pcap->canuseadvancedweapons = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "SHPR" ) ) pcap->shieldproficiency = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "JOUS" ) ) pcap->canjoust = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "WMAG" ) ) pcap->canusearcane = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "HMAG" ) ) pcap->canusedivine = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "TECH" ) ) pcap->canusetech = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "DISA" ) ) pcap->candisarm = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "STAB" ) ) pcap->canbackstab = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "POIS" ) ) pcap->canusepoison = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "READ" ) ) pcap->canread = fget_int( fileread );
+    }
+
+    fclose( fileread );
 
     return object;
 }
@@ -2840,7 +2788,7 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 model = ChrList[character].model;
 
-                if ( 0 == ( effects&DAMFXBLOC ) )
+                if ( 0 == ( effects&DAMFX_BLOC ) )
                 {
                     // Only damage if hitting from proper direction
                     if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFXINVICTUS )
@@ -2891,7 +2839,7 @@ void damage_character( Uint16 character, Uint16 direction,
 
                 if ( damage != 0 )
                 {
-                    if ( effects&DAMFXARMO )
+                    if ( effects&DAMFX_ARMO )
                     {
                         ChrList[character].life -= damage;
                     }
@@ -3051,7 +2999,7 @@ void damage_character( Uint16 character, Uint16 direction,
                             chr_play_action( character, action, bfalse );
 
                             // Make the character invincible for a limited time only
-                            if ( !( effects & DAMFXTIME ) )
+                            if ( !( effects & DAMFX_TIME ) )
                                 ChrList[character].damagetime = DAMAGETIME;
                         }
                     }
@@ -3095,11 +3043,11 @@ void kill_character( Uint16 character, Uint16 killer )
         ChrList[character].damagemodifier[DAMAGE_CRUSH] = 1;
         if ( killer != MAXCHR )
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFXARMO | DAMFXBLOC, btrue );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFX_ARMO | DAMFX_BLOC, btrue );
         }
         else
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFXARMO | DAMFXBLOC, btrue );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFX_ARMO | DAMFX_BLOC, btrue );
         }
 
         ChrList[character].damagemodifier[DAMAGE_CRUSH] = modifier;
@@ -3518,6 +3466,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
 
     pchr->holdingweight = 0;
+    pchr->onwhichplatform = MAXCHR;
 
     // Timers set to 0
     pchr->grogtime = 0;
@@ -3816,8 +3765,7 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
 }
 
 //--------------------------------------------------------------------------------------------
-void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
-                       Uint8 leavewhich )
+void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
 {
     // ZZ> This function polymorphs a character, changing stats, dropping weapons
     int tnc, enchant;
@@ -3827,7 +3775,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
 
     // Drop left weapon
     sTmp = ChrList[ichr].holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR && ( !CapList[profile].gripvalid[0] || CapList[profile].ismount ) )
+    if ( sTmp != MAXCHR && ( !CapList[profile].slotvalid[SLOT_LEFT] || CapList[profile].ismount ) )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( ChrList[ichr].ismount )
@@ -3840,7 +3788,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
 
     // Drop right weapon
     sTmp = ChrList[ichr].holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR && !CapList[profile].gripvalid[1] )
+    if ( sTmp != MAXCHR && !CapList[profile].slotvalid[SLOT_RIGHT] )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( ChrList[ichr].ismount )
@@ -4013,6 +3961,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin,
     ChrList[ichr].action = ACTIONDA;
     ChrList[ichr].nextaction = ACTIONDA;
     ChrList[ichr].holdingweight = 0;
+    ChrList[ichr].onwhichplatform = MAXCHR;
 
     // initialize the instance
     {
@@ -4475,7 +4424,6 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
             {
                 // scan the line for quest info
                 newidsz = fget_idsz( fileread );
-                fget_first_letter( fileread );      //Skip the ] bracket
                 QuestLevel = fget_int( fileread );
 
                 // modify it
@@ -4556,7 +4504,6 @@ Sint16 check_player_quest( const char *whichplayer, IDSZ idsz )
         if ( newidsz == idsz )
         {
             foundidsz = btrue;
-            fget_first_letter( fileread );   //Skip the ] bracket
             result = fget_int( fileread );  //Read value behind colon and IDSZ
         }
     }
@@ -4600,7 +4547,7 @@ void move_characters( void )
     Uint32 mapud, maplr;
     Uint8 twist, actionready;
     Uint8 speed, framelip, allowedtoattack;
-    float level, friction;
+    float level, friction_xy, friction_z;
     float dvx, dvy, dvmax;
     Uint16 action, weapon, mount, item;
     bool_t watchtarget, grounded;
@@ -4608,42 +4555,47 @@ void move_characters( void )
     // Move every character
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
+        float zlerp;
+
+        chr_t * pchr;
+
         if ( !ChrList[cnt].on || ChrList[cnt].inpack ) continue;
+        pchr = ChrList + cnt;
 
         grounded = bfalse;
 
         // Down that ol' damage timer
-        ChrList[cnt].damagetime -= ( ChrList[cnt].damagetime != 0 );
+        pchr->damagetime -= ( pchr->damagetime != 0 );
 
         // Character's old location
-        ChrList[cnt].oldx = ChrList[cnt].xpos;
-        ChrList[cnt].oldy = ChrList[cnt].ypos;
-        ChrList[cnt].oldz = ChrList[cnt].zpos;
-        ChrList[cnt].oldturn = ChrList[cnt].turnleftright;
+        pchr->oldx = pchr->xpos;
+        pchr->oldy = pchr->ypos;
+        pchr->oldz = pchr->zpos;
+        pchr->oldturn = pchr->turnleftright;
 
         // Texture movement
-        ChrList[cnt].inst.uoffset += ChrList[cnt].uoffvel;
-        ChrList[cnt].inst.voffset += ChrList[cnt].voffvel;
-        if ( ChrList[cnt].alive )
+        pchr->inst.uoffset += pchr->uoffvel;
+        pchr->inst.voffset += pchr->voffvel;
+        if ( pchr->alive )
         {
-            if ( ChrList[cnt].attachedto == MAXCHR )
+            if ( pchr->attachedto == MAXCHR )
             {
                 float new_vx, new_vy;
                 float new_ax, new_ay;
 
                 // Character latches for generalized movement
-                dvx = ChrList[cnt].latchx;
-                dvy = ChrList[cnt].latchy;
+                dvx = pchr->latchx;
+                dvy = pchr->latchy;
 
                 // Reverse movements for daze
-                if ( ChrList[cnt].dazetime > 0 )
+                if ( pchr->dazetime > 0 )
                 {
                     dvx = -dvx;
                     dvy = -dvy;
                 }
 
                 // Switch x and y for daze
-                if ( ChrList[cnt].grogtime > 0 )
+                if ( pchr->grogtime > 0 )
                 {
                     dvmax = dvx;
                     dvx = dvy;
@@ -4653,35 +4605,35 @@ void move_characters( void )
                 new_vx = dvx * airfriction / (1.0f - airfriction);
                 new_vy = dvy * airfriction / (1.0f - airfriction);
 
-                new_ax = new_vx - ChrList[cnt].xvel;
-                new_ay = new_vy - ChrList[cnt].yvel;
+                new_ax = new_vx - pchr->xvel;
+                new_ay = new_vy - pchr->yvel;
 
-                dvmax = ChrList[cnt].maxaccel;
+                dvmax = pchr->maxaccel;
                 if ( new_ax < -dvmax ) new_ax = -dvmax;
                 if ( new_ax >  dvmax ) new_ax =  dvmax;
                 if ( new_ay < -dvmax ) new_ay = -dvmax;
                 if ( new_ay >  dvmax ) new_ay =  dvmax;
 
                 // Get direction from the DESIRED change in velocity
-                if ( ChrList[cnt].turnmode == TURNMODEWATCH )
+                if ( pchr->turnmode == TURNMODEWATCH )
                 {
                     if ( ( ABS( dvx ) > WATCHMIN || ABS( dvy ) > WATCHMIN ) )
                     {
-                        ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                        pchr->turnleftright = terp_dir( pchr->turnleftright, ( ATAN2( dvx, dvy ) + PI ) * 0xFFFF / ( TWO_PI ) );
                     }
                 }
 
                 // Face the target
-                watchtarget = ( ChrList[cnt].turnmode == TURNMODEWATCHTARGET );
+                watchtarget = ( pchr->turnmode == TURNMODEWATCHTARGET );
                 if ( watchtarget )
                 {
-                    if ( cnt != ChrList[cnt].ai.target )
+                    if ( cnt != pchr->ai.target )
                     {
-                        ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( ChrList[ChrList[cnt].ai.target].ypos - ChrList[cnt].ypos, ChrList[ChrList[cnt].ai.target].xpos - ChrList[cnt].xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                        pchr->turnleftright = terp_dir( pchr->turnleftright, ( ATAN2( ChrList[pchr->ai.target].ypos - pchr->ypos, ChrList[pchr->ai.target].xpos - pchr->xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
                     }
                 }
 
-                if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXSTOP )
+                if ( Md2FrameList[pchr->inst.frame].framefx&MADFXSTOP )
                 {
                     new_ax = 0;
                     new_ay = 0;
@@ -4689,100 +4641,100 @@ void move_characters( void )
                 else
                 {
                     // Limit to max acceleration
-                    ChrList[cnt].xvel += new_ax;
-                    ChrList[cnt].yvel += new_ay;
+                    pchr->xvel += new_ax;
+                    pchr->yvel += new_ay;
                 }
 
                 // Get direction from ACTUAL change in velocity
-                if ( ChrList[cnt].turnmode == TURNMODEVELOCITY )
+                if ( pchr->turnmode == TURNMODEVELOCITY )
                 {
                     if ( dvx < -TURNSPD || dvx > TURNSPD || dvy < -TURNSPD || dvy > TURNSPD )
                     {
-                        if ( ChrList[cnt].isplayer )
+                        if ( pchr->isplayer )
                         {
                             // Players turn quickly
-                            ChrList[cnt].turnleftright = terp_dir_fast( ChrList[cnt].turnleftright, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                            pchr->turnleftright = terp_dir_fast( pchr->turnleftright, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
                         }
                         else
                         {
                             // AI turn slowly
-                            ChrList[cnt].turnleftright = terp_dir( ChrList[cnt].turnleftright, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                            pchr->turnleftright = terp_dir( pchr->turnleftright, ( ATAN2( dvy, dvx ) + PI ) * 0xFFFF / ( TWO_PI ) );
                         }
                     }
                 }
 
                 // Otherwise make it spin
-                else if ( ChrList[cnt].turnmode == TURNMODESPIN )
+                else if ( pchr->turnmode == TURNMODESPIN )
                 {
-                    ChrList[cnt].turnleftright += SPINRATE;
+                    pchr->turnleftright += SPINRATE;
                 }
             }
 
             // Character latches for generalized buttons
-            if ( ChrList[cnt].latchbutton != 0 )
+            if ( pchr->latchbutton != 0 )
             {
-                if ( 0 != (ChrList[cnt].latchbutton & LATCHBUTTON_JUMP) )
+                if ( 0 != (pchr->latchbutton & LATCHBUTTON_JUMP) )
                 {
-                    if ( ChrList[cnt].attachedto != MAXCHR && ChrList[cnt].jumptime == 0 )
+                    if ( pchr->attachedto != MAXCHR && pchr->jumptime == 0 )
                     {
                         int ijump;
 
                         detach_character_from_mount( cnt, btrue, btrue );
-                        ChrList[cnt].jumptime = JUMPDELAY;
-                        ChrList[cnt].zvel = DISMOUNTZVEL;
-                        if ( ChrList[cnt].flyheight != 0 )
-                            ChrList[cnt].zvel = DISMOUNTZVELFLY;
+                        pchr->jumptime = JUMPDELAY;
+                        pchr->zvel = DISMOUNTZVEL;
+                        if ( pchr->flyheight != 0 )
+                            pchr->zvel = DISMOUNTZVELFLY;
 
-                        ChrList[cnt].zpos += ChrList[cnt].zvel;
-                        if ( ChrList[cnt].jumpnumberreset != JUMPINFINITE && ChrList[cnt].jumpnumber != 0 )
-                            ChrList[cnt].jumpnumber--;
+                        pchr->zpos += pchr->zvel;
+                        if ( pchr->jumpnumberreset != JUMPINFINITE && pchr->jumpnumber != 0 )
+                            pchr->jumpnumber--;
 
                         // Play the jump sound
-                        ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
+                        ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
                         if ( ijump >= 0 && ijump < MAXWAVE )
                         {
-                            sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
+                            sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ijump] );
                         }
 
                     }
-                    if ( ChrList[cnt].jumptime == 0 && ChrList[cnt].jumpnumber != 0 && ChrList[cnt].flyheight == 0 )
+                    if ( pchr->jumptime == 0 && pchr->jumpnumber != 0 && pchr->flyheight == 0 )
                     {
-                        if ( ChrList[cnt].jumpnumberreset != 1 || ChrList[cnt].jumpready )
+                        if ( pchr->jumpnumberreset != 1 || pchr->jumpready )
                         {
                             // Make the character jump
-                            ChrList[cnt].hitready = btrue;
-                            if ( ChrList[cnt].inwater )
+                            pchr->hitready = btrue;
+                            if ( pchr->inwater )
                             {
-                                ChrList[cnt].zvel = WATERJUMP * 1.2;
+                                pchr->zvel = WATERJUMP * 1.2;
                             }
                             else
                             {
-                                ChrList[cnt].zvel = ChrList[cnt].jump * 1.2;
+                                pchr->zvel = pchr->jump * 1.2;
                             }
 
-                            ChrList[cnt].jumptime = JUMPDELAY;
-                            ChrList[cnt].jumpready = bfalse;
-                            if ( ChrList[cnt].jumpnumberreset != JUMPINFINITE ) ChrList[cnt].jumpnumber--;
+                            pchr->jumptime = JUMPDELAY;
+                            pchr->jumpready = bfalse;
+                            if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
 
                             // Set to jump animation if not doing anything better
-                            if ( ChrList[cnt].actionready )    chr_play_action( cnt, ACTIONJA, btrue );
+                            if ( pchr->actionready )    chr_play_action( cnt, ACTIONJA, btrue );
 
                             // Play the jump sound (Boing!)
                             {
-                                int ijump = CapList[ChrList[cnt].model].soundindex[SOUND_JUMP];
+                                int ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
                                 if ( ijump >= 0 && ijump < MAXWAVE )
                                 {
-                                    sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ijump] );
+                                    sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ijump] );
                                 }
                             }
 
                         }
                     }
                 }
-                if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_ALTLEFT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
+                if ( 0 != ( pchr->latchbutton & LATCHBUTTON_ALTLEFT ) && pchr->actionready && pchr->reloadtime == 0 )
                 {
-                    ChrList[cnt].reloadtime = GRABDELAY;
-                    if ( ChrList[cnt].holdingwhich[SLOT_LEFT] == MAXCHR )
+                    pchr->reloadtime = GRABDELAY;
+                    if ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR )
                     {
                         // Grab left
                         chr_play_action( cnt, ACTIONME, bfalse );
@@ -4793,10 +4745,10 @@ void move_characters( void )
                         chr_play_action( cnt, ACTIONMA, bfalse );
                     }
                 }
-                if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_ALTRIGHT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
+                if ( 0 != ( pchr->latchbutton & LATCHBUTTON_ALTRIGHT ) && pchr->actionready && pchr->reloadtime == 0 )
                 {
-                    ChrList[cnt].reloadtime = GRABDELAY;
-                    if ( ChrList[cnt].holdingwhich[SLOT_RIGHT] == MAXCHR )
+                    pchr->reloadtime = GRABDELAY;
+                    if ( pchr->holdingwhich[SLOT_RIGHT] == MAXCHR )
                     {
                         // Grab right
                         chr_play_action( cnt, ACTIONMF, bfalse );
@@ -4807,10 +4759,10 @@ void move_characters( void )
                         chr_play_action( cnt, ACTIONMB, bfalse );
                     }
                 }
-                if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_PACKLEFT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
+                if ( 0 != ( pchr->latchbutton & LATCHBUTTON_PACKLEFT ) && pchr->actionready && pchr->reloadtime == 0 )
                 {
-                    ChrList[cnt].reloadtime = PACKDELAY;
-                    item = ChrList[cnt].holdingwhich[SLOT_LEFT];
+                    pchr->reloadtime = PACKDELAY;
+                    item = pchr->holdingwhich[SLOT_LEFT];
                     if ( item != MAXCHR )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
@@ -4833,10 +4785,10 @@ void move_characters( void )
                     // Make it take a little time
                     chr_play_action( cnt, ACTIONMG, bfalse );
                 }
-                if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_PACKRIGHT ) && ChrList[cnt].actionready && ChrList[cnt].reloadtime == 0 )
+                if ( 0 != ( pchr->latchbutton & LATCHBUTTON_PACKRIGHT ) && pchr->actionready && pchr->reloadtime == 0 )
                 {
-                    ChrList[cnt].reloadtime = PACKDELAY;
-                    item = ChrList[cnt].holdingwhich[SLOT_RIGHT];
+                    pchr->reloadtime = PACKDELAY;
+                    item = pchr->holdingwhich[SLOT_RIGHT];
                     if ( item != MAXCHR )
                     {
                         if ( ( ChrList[item].iskursed || CapList[ChrList[item].model].istoobig ) && !CapList[ChrList[item].model].isequipment )
@@ -4859,10 +4811,10 @@ void move_characters( void )
                     // Make it take a little time
                     chr_play_action( cnt, ACTIONMG, bfalse );
                 }
-                if ( 0 != ( ChrList[cnt].latchbutton & LATCHBUTTON_LEFT ) && ChrList[cnt].reloadtime == 0 )
+                if ( 0 != ( pchr->latchbutton & LATCHBUTTON_LEFT ) && pchr->reloadtime == 0 )
                 {
                     // Which weapon?
-                    weapon = ChrList[cnt].holdingwhich[SLOT_LEFT];
+                    weapon = pchr->holdingwhich[SLOT_LEFT];
                     if ( weapon == MAXCHR )
                     {
                         // Unarmed means character itself is the weapon
@@ -4875,7 +4827,7 @@ void move_characters( void )
                     allowedtoattack = btrue;
 
                     // First check if reload time and action is okay
-                    if ( !MadList[ChrList[cnt].inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
+                    if ( !MadList[pchr->inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
                     else
                     {
                         // Then check if a skill is needed
@@ -4891,11 +4843,11 @@ void move_characters( void )
                         {
                             // This character can't use this weapon
                             ChrList[weapon].reloadtime = 50;
-                            if ( ChrList[cnt].staton )
+                            if ( pchr->staton )
                             {
                                 // Tell the player that they can't use this weapon
                                 STRING text;
-                                snprintf( text, sizeof(text),  "%s can't use this item...", ChrList[cnt].name );
+                                snprintf( text, sizeof(text),  "%s can't use this item...", pchr->name );
                                 debug_message( text );
                             }
                         }
@@ -4911,17 +4863,17 @@ void move_characters( void )
                     if ( allowedtoattack )
                     {
                         // Rearing mount
-                        mount = ChrList[cnt].attachedto;
+                        mount = pchr->attachedto;
                         if ( mount != MAXCHR )
                         {
                             allowedtoattack = CapList[ChrList[mount].model].ridercanattack;
                             if ( ChrList[mount].ismount && ChrList[mount].alive && !ChrList[mount].isplayer && ChrList[mount].actionready )
                             {
-                                if ( ( action != ACTIONPA || !allowedtoattack ) && ChrList[cnt].actionready )
+                                if ( ( action != ACTIONPA || !allowedtoattack ) && pchr->actionready )
                                 {
-                                    chr_play_action( ChrList[cnt].attachedto, ACTIONUA + ( rand()&1 ), bfalse );
-                                    ChrList[ChrList[cnt].attachedto].ai.alert |= ALERTIF_USED;
-                                    ChrList[cnt].ai.lastitemused = mount;
+                                    chr_play_action( pchr->attachedto, ACTIONUA + ( rand()&1 ), bfalse );
+                                    ChrList[pchr->attachedto].ai.alert |= ALERTIF_USED;
+                                    pchr->ai.lastitemused = mount;
                                 }
                                 else
                                 {
@@ -4933,15 +4885,15 @@ void move_characters( void )
                         // Attack button
                         if ( allowedtoattack )
                         {
-                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].inst.imad].actionvalid[action] )
+                            if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
-                                if ( ChrList[cnt].mana >= ChrList[weapon].manacost || ChrList[cnt].canchannel )
+                                if ( pchr->mana >= ChrList[weapon].manacost || pchr->canchannel )
                                 {
                                     cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing
-                                    ChrList[cnt].life += ChrList[weapon].lifeheal;
-                                    if ( ChrList[cnt].life > ChrList[cnt].lifemax )  ChrList[cnt].life = ChrList[cnt].lifemax;
+                                    pchr->life += ChrList[weapon].lifeheal;
+                                    if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                                     actionready = bfalse;
                                     if ( action == ACTIONPA )
@@ -4954,23 +4906,23 @@ void move_characters( void )
                                         // Make the weapon attack too
                                         chr_play_action( weapon, ACTIONMJ, bfalse );
                                         ChrList[weapon].ai.alert |= ALERTIF_USED;
-                                        ChrList[cnt].ai.lastitemused = weapon;
+                                        pchr->ai.lastitemused = weapon;
                                     }
                                     else
                                     {
                                         // Flag for unarmed attack
-                                        ChrList[cnt].ai.alert |= ALERTIF_USED;
-                                        ChrList[cnt].ai.lastitemused = cnt;
+                                        pchr->ai.alert |= ALERTIF_USED;
+                                        pchr->ai.lastitemused = cnt;
                                     }
                                 }
                             }
                         }
                     }
                 }
-                else if ( 0 != (ChrList[cnt].latchbutton & LATCHBUTTON_RIGHT) && ChrList[cnt].reloadtime == 0 )
+                else if ( 0 != (pchr->latchbutton & LATCHBUTTON_RIGHT) && pchr->reloadtime == 0 )
                 {
                     // Which weapon?
-                    weapon = ChrList[cnt].holdingwhich[SLOT_RIGHT];
+                    weapon = pchr->holdingwhich[SLOT_RIGHT];
                     if ( weapon == MAXCHR )
                     {
                         // Unarmed means character itself is the weapon
@@ -4983,7 +4935,7 @@ void move_characters( void )
                     allowedtoattack = btrue;
 
                     // First check if reload time and action is okay
-                    if ( !MadList[ChrList[cnt].inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
+                    if ( !MadList[pchr->inst.imad].actionvalid[action] || ChrList[weapon].reloadtime > 0 ) allowedtoattack = bfalse;
                     else
                     {
                         // Then check if a skill is needed
@@ -4999,11 +4951,11 @@ void move_characters( void )
                         {
                             // This character can't use this weapon
                             ChrList[weapon].reloadtime = 50;
-                            if ( ChrList[cnt].staton )
+                            if ( pchr->staton )
                             {
                                 // Tell the player that they can't use this weapon
                                 STRING text;
-                                snprintf( text, sizeof(text), "%s can't use this item...", ChrList[cnt].name );
+                                snprintf( text, sizeof(text), "%s can't use this item...", pchr->name );
                                 debug_message( text );
                             }
                         }
@@ -5014,23 +4966,23 @@ void move_characters( void )
                         if ( ChrList[weapon].reloadtime == 0 )
                         {
                             ChrList[weapon].ai.alert |= ALERTIF_USED;
-                            ChrList[cnt].ai.lastitemused = weapon;
+                            pchr->ai.lastitemused = weapon;
                         }
                     }
                     if ( allowedtoattack )
                     {
                         // Rearing mount
-                        mount = ChrList[cnt].attachedto;
+                        mount = pchr->attachedto;
                         if ( mount != MAXCHR )
                         {
                             allowedtoattack = CapList[ChrList[mount].model].ridercanattack;
                             if ( ChrList[mount].ismount && ChrList[mount].alive && !ChrList[mount].isplayer && ChrList[mount].actionready )
                             {
-                                if ( ( action != ACTIONPC || !allowedtoattack ) && ChrList[cnt].actionready )
+                                if ( ( action != ACTIONPC || !allowedtoattack ) && pchr->actionready )
                                 {
-                                    chr_play_action( ChrList[cnt].attachedto, ACTIONUC + ( rand()&1 ), bfalse );
-                                    ChrList[ChrList[cnt].attachedto].ai.alert |= ALERTIF_USED;
-                                    ChrList[cnt].ai.lastitemused = ChrList[cnt].attachedto;
+                                    chr_play_action( pchr->attachedto, ACTIONUC + ( rand()&1 ), bfalse );
+                                    ChrList[pchr->attachedto].ai.alert |= ALERTIF_USED;
+                                    pchr->ai.lastitemused = pchr->attachedto;
                                 }
                                 else
                                 {
@@ -5042,15 +4994,15 @@ void move_characters( void )
                         // Attack button
                         if ( allowedtoattack )
                         {
-                            if ( ChrList[cnt].actionready && MadList[ChrList[cnt].inst.imad].actionvalid[action] )
+                            if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
-                                if ( ChrList[cnt].mana >= ChrList[weapon].manacost || ChrList[cnt].canchannel )
+                                if ( pchr->mana >= ChrList[weapon].manacost || pchr->canchannel )
                                 {
                                     cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing
-                                    ChrList[cnt].life += ChrList[weapon].lifeheal;
-                                    if ( ChrList[cnt].life > ChrList[cnt].lifemax )  ChrList[cnt].life = ChrList[cnt].lifemax;
+                                    pchr->life += ChrList[weapon].lifeheal;
+                                    if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                                     actionready = bfalse;
                                     if ( action == ACTIONPC )
@@ -5063,13 +5015,13 @@ void move_characters( void )
                                         // Make the weapon attack too
                                         chr_play_action( weapon, ACTIONMJ, bfalse );
                                         ChrList[weapon].ai.alert |= ALERTIF_USED;
-                                        ChrList[cnt].ai.lastitemused = weapon;
+                                        pchr->ai.lastitemused = weapon;
                                     }
                                     else
                                     {
                                         // Flag for unarmed attack
-                                        ChrList[cnt].ai.alert |= ALERTIF_USED;
-                                        ChrList[cnt].ai.lastitemused = cnt;
+                                        pchr->ai.alert |= ALERTIF_USED;
+                                        pchr->ai.lastitemused = cnt;
                                     }
                                 }
                             }
@@ -5080,261 +5032,267 @@ void move_characters( void )
         }
 
         // Is the character in the air?
-        level = ChrList[cnt].level;
-        if ( ChrList[cnt].flyheight == 0 )
+        level = pchr->level;
+        zlerp = (pchr->zpos - level) / PLATTOLERANCE;
+        zlerp = CLIP(zlerp, 0, 1);
+
+        friction_z = pchr->inwater ? waterfriction : 0.9868;
+        if ( pchr->flyheight == 0 )
         {
-            ChrList[cnt].zpos += ChrList[cnt].zvel;
-            if ( ChrList[cnt].zpos > level || ( ChrList[cnt].zvel > STOPBOUNCING && ChrList[cnt].zpos > level - STOPBOUNCING ) )
+            pchr->zpos += pchr->zvel;
+            if ( pchr->zpos > level || ( pchr->zvel > STOPBOUNCING && pchr->zpos > level - STOPBOUNCING ) )
             {
                 // Character is in the air
-                ChrList[cnt].jumpready = bfalse;
-                ChrList[cnt].zvel += gravity;
+                pchr->jumpready = bfalse;
+                pchr->zvel += gravity * zlerp;
 
                 // Down jump timers for flapping characters
-                if ( ChrList[cnt].jumptime != 0 ) ChrList[cnt].jumptime--;
+                if ( pchr->jumptime != 0 ) pchr->jumptime--;
 
-                // Airborne characters still get friction to make control easier
-                friction = airfriction;
+                // Airborne characters still get friction_xy to make control easier
+                friction_xy = airfriction;
             }
             else
             {
                 // Character is on the ground
-                ChrList[cnt].zpos = level;
+                pchr->zpos = level;
                 grounded = btrue;
-                if ( ChrList[cnt].hitready )
+                if ( pchr->hitready )
                 {
-                    ChrList[cnt].ai.alert |= ALERTIF_HITGROUND;
-                    ChrList[cnt].hitready = bfalse;
+                    pchr->ai.alert |= ALERTIF_HITGROUND;
+                    pchr->hitready = bfalse;
                 }
 
                 // Make the characters slide
                 twist = 119;
-                friction = noslipfriction;
-                if ( INVALID_TILE != ChrList[cnt].onwhichfan )
+                friction_xy = noslipfriction;
+                if ( INVALID_TILE != pchr->onwhichfan )
                 {
-                    Uint32 itile = ChrList[cnt].onwhichfan;
+                    Uint32 itile = pchr->onwhichfan;
 
                     twist = mesh.mem.tile_list[itile].twist;
 
                     if ( 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_SLIPPY ) )
                     {
-                        if ( wateriswater && 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_WATER ) && ChrList[cnt].level < watersurfacelevel + RAISE + 1 )
+                        if ( wateriswater && 0 != ( mesh.mem.tile_list[itile].fx & MESHFX_WATER ) && pchr->level < watersurfacelevel + RAISE + 1 )
                         {
                             // It says it's slippy, but the water is covering it...
                             // Treat exactly as normal
-                            ChrList[cnt].jumpready = btrue;
-                            ChrList[cnt].jumpnumber = ChrList[cnt].jumpnumberreset;
-                            if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
+                            pchr->jumpready = btrue;
+                            pchr->jumpnumber = pchr->jumpnumberreset;
+                            if ( pchr->jumptime > 0 ) pchr->jumptime--;
 
-                            ChrList[cnt].zvel *= -ChrList[cnt].dampen;
-                            ChrList[cnt].zvel += gravity;
+                            pchr->zvel *= -pchr->dampen;
+                            pchr->zvel += gravity * zlerp;
                         }
                         else
                         {
                             // It's slippy all right...
-                            friction = slippyfriction;
-                            ChrList[cnt].jumpready = btrue;
-                            if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
-                            if ( ChrList[cnt].weight != 0xFFFFFFFF )
+                            friction_xy = slippyfriction;
+                            pchr->jumpready = btrue;
+                            if ( pchr->jumptime > 0 ) pchr->jumptime--;
+                            if ( pchr->weight != 0xFFFFFFFF )
                             {
                                 // Slippy hills make characters slide
-                                ChrList[cnt].xvel += vellrtwist[twist];
-                                ChrList[cnt].yvel += veludtwist[twist];
-                                ChrList[cnt].zvel = -SLIDETOLERANCE;
+                                pchr->xvel += vellrtwist[twist];
+                                pchr->yvel += veludtwist[twist];
+                                pchr->zvel = -SLIDETOLERANCE;
                             }
                             if ( flattwist[twist] )
                             {
                                 // Reset jumping on flat areas of slippiness
-                                ChrList[cnt].jumpnumber = ChrList[cnt].jumpnumberreset;
+                                pchr->jumpnumber = pchr->jumpnumberreset;
                             }
                         }
                     }
                     else
                     {
                         // Reset jumping
-                        ChrList[cnt].jumpready = btrue;
-                        ChrList[cnt].jumpnumber = ChrList[cnt].jumpnumberreset;
-                        if ( ChrList[cnt].jumptime > 0 ) ChrList[cnt].jumptime--;
+                        pchr->jumpready = btrue;
+                        pchr->jumpnumber = pchr->jumpnumberreset;
+                        if ( pchr->jumptime > 0 ) pchr->jumptime--;
 
-                        ChrList[cnt].zvel *= -ChrList[cnt].dampen;
-                        ChrList[cnt].zvel += gravity;
+                        pchr->zvel *= -pchr->dampen;
+                        pchr->zvel += gravity * zlerp;
                     }
                 }
 
                 // Characters with sticky butts lie on the surface of the mesh
-                if ( ChrList[cnt].stickybutt || !ChrList[cnt].alive )
+                if ( pchr->stickybutt || !pchr->alive )
                 {
-                    maplr = ChrList[cnt].turnmaplr;
+                    maplr = pchr->turnmaplr;
                     maplr = ( maplr << 3 ) - maplr + maplrtwist[twist];
-                    mapud = ChrList[cnt].turnmapud;
+                    mapud = pchr->turnmapud;
                     mapud = ( mapud << 3 ) - mapud + mapudtwist[twist];
-                    ChrList[cnt].turnmaplr = maplr >> 3;
-                    ChrList[cnt].turnmapud = mapud >> 3;
+                    pchr->turnmaplr = maplr >> 3;
+                    pchr->turnmapud = mapud >> 3;
                 }
             }
         }
         else
         {
             //  Flying
-            ChrList[cnt].jumpready = bfalse;
-            ChrList[cnt].zpos += ChrList[cnt].zvel;
+            pchr->jumpready = bfalse;
+            pchr->zpos += pchr->zvel;
             if ( level < 0 ) level = 0;  // Don't fall in pits...
 
-            ChrList[cnt].zvel += ( level + ChrList[cnt].flyheight - ChrList[cnt].zpos ) * FLYDAMPEN;
-            if ( ChrList[cnt].zpos < level )
+            pchr->zvel += ( level + pchr->flyheight - pchr->zpos ) * FLYDAMPEN;
+            if ( pchr->zpos < level )
             {
-                ChrList[cnt].zpos = level;
-                ChrList[cnt].zvel = 0;
+                pchr->zpos = level;
+                pchr->zvel = 0;
             }
 
-            // Airborne characters still get friction to make control easier
-            friction = airfriction;
+            // Airborne characters still get friction_xy to make control easier
+            friction_xy = airfriction;
+            friction_z = 1.0f;
         }
 
         // Move the character
-        ChrList[cnt].xpos += ChrList[cnt].xvel;
-        if ( __chrhitawall( cnt ) ) { ChrList[cnt].xpos = ChrList[cnt].oldx; ChrList[cnt].xvel = -ChrList[cnt].xvel; }
+        pchr->xpos += pchr->xvel;
+        if ( __chrhitawall( cnt ) ) { pchr->xpos = pchr->oldx; pchr->xvel = -pchr->xvel; }
 
-        ChrList[cnt].ypos += ChrList[cnt].yvel;
-        if ( __chrhitawall( cnt ) ) { ChrList[cnt].ypos = ChrList[cnt].oldy; ChrList[cnt].yvel = -ChrList[cnt].yvel; }
+        pchr->ypos += pchr->yvel;
+        if ( __chrhitawall( cnt ) ) { pchr->ypos = pchr->oldy; pchr->yvel = -pchr->yvel; }
 
         // Apply friction for next time
-        ChrList[cnt].xvel = ChrList[cnt].xvel * friction;
-        ChrList[cnt].yvel = ChrList[cnt].yvel * friction;
+        pchr->xvel *= friction_xy;
+        pchr->yvel *= friction_xy;
+        pchr->zvel *= friction_z;
 
         // Animate the character
-        ChrList[cnt].inst.lip = ( ChrList[cnt].inst.lip + 64 );
-        if ( ChrList[cnt].inst.lip == 192 )
+        pchr->inst.lip = ( pchr->inst.lip + 64 );
+        if ( pchr->inst.lip == 192 )
         {
             // Check frame effects
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXACTLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXACTLEFT )
                 character_swipe( cnt, 0 );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXACTRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXACTRIGHT )
                 character_swipe( cnt, 1 );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXGRABLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXGRABLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, bfalse );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXGRABRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXGRABRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, bfalse );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXCHARLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXCHARLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, btrue );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXCHARRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXCHARRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, btrue );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPLEFT )
-                detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_LEFT], bfalse, btrue );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXDROPRIGHT )
-                detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_RIGHT], bfalse, btrue );
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXPOOF && !ChrList[cnt].isplayer )
-                ChrList[cnt].ai.poof_time = frame_wld;
-            if ( Md2FrameList[ChrList[cnt].inst.frame].framefx&MADFXFOOTFALL )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXDROPLEFT )
+                detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXDROPRIGHT )
+                detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXPOOF && !pchr->isplayer )
+                pchr->ai.poof_time = frame_wld;
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXFOOTFALL )
             {
-                int ifoot = CapList[ChrList[cnt].model].soundindex[SOUND_FOOTFALL];
+                int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
                 if ( ifoot >= 0 && ifoot < MAXWAVE )
                 {
-                    sound_play_chunk( ChrList[cnt].xpos, ChrList[cnt].ypos, CapList[ChrList[cnt].model].wavelist[ifoot] );
+                    sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ifoot] );
                 }
             }
         }
-        if ( ChrList[cnt].inst.lip == 0 )
+        if ( pchr->inst.lip == 0 )
         {
             // Change frames
-            ChrList[cnt].inst.lastframe = ChrList[cnt].inst.frame;
-            ChrList[cnt].inst.frame++;
-            if ( ChrList[cnt].inst.frame == MadList[ChrList[cnt].inst.imad].actionend[ChrList[cnt].action] )
+            pchr->inst.lastframe = pchr->inst.frame;
+            pchr->inst.frame++;
+            if ( pchr->inst.frame == MadList[pchr->inst.imad].actionend[pchr->action] )
             {
                 // Action finished
-                if ( ChrList[cnt].keepaction )
+                if ( pchr->keepaction )
                 {
                     // Keep the last frame going
-                    ChrList[cnt].inst.frame = ChrList[cnt].inst.lastframe;
+                    pchr->inst.frame = pchr->inst.lastframe;
                 }
                 else
                 {
-                    if ( !ChrList[cnt].loopaction )
+                    if ( !pchr->loopaction )
                     {
                         // Go on to the next action
-                        ChrList[cnt].action = ChrList[cnt].nextaction;
-                        ChrList[cnt].nextaction = ACTIONDA;
+                        pchr->action = pchr->nextaction;
+                        pchr->nextaction = ACTIONDA;
                     }
                     else
                     {
                         // See if the character is mounted...
-                        if ( ChrList[cnt].attachedto != MAXCHR )
+                        if ( pchr->attachedto != MAXCHR )
                         {
-                            ChrList[cnt].action = ACTIONMI;
+                            pchr->action = ACTIONMI;
                         }
                     }
 
-                    ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].actionstart[ChrList[cnt].action];
+                    pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pchr->action];
                 }
 
-                ChrList[cnt].actionready = btrue;
+                pchr->actionready = btrue;
             }
         }
 
         // Do "Be careful!" delay
-        if ( ChrList[cnt].carefultime > 0 )
+        if ( pchr->carefultime > 0 )
         {
-            ChrList[cnt].carefultime--;
+            pchr->carefultime--;
         }
 
         // Get running, walking, sneaking, or dancing, from speed
-        if ( !( ChrList[cnt].keepaction || ChrList[cnt].loopaction ) )
+        if ( !( pchr->keepaction || pchr->loopaction ) )
         {
-            framelip = Md2FrameList[ChrList[cnt].inst.frame].framelip;  // 0 - 15...  Way through animation
-            if ( ChrList[cnt].actionready && ChrList[cnt].inst.lip == 0 && grounded && ChrList[cnt].flyheight == 0 && ( framelip&7 ) < 2 )
+            framelip = Md2FrameList[pchr->inst.frame].framelip;  // 0 - 15...  Way through animation
+            if ( pchr->actionready && pchr->inst.lip == 0 && grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
             {
                 // Do the motion stuff
-                speed = ABS( ( int ) ChrList[cnt].xvel ) + ABS( ( int ) ChrList[cnt].yvel );
-                if ( speed < ChrList[cnt].sneakspd )
+                speed = ABS( ( int ) pchr->xvel ) + ABS( ( int ) pchr->yvel );
+                if ( speed < pchr->sneakspd )
                 {
-                    //                        ChrList[cnt].nextaction = ACTIONDA;
+                    //                        pchr->nextaction = ACTIONDA;
                     // Do boredom
-                    ChrList[cnt].boretime--;
-                    if ( ChrList[cnt].boretime < 0 )
+                    pchr->boretime--;
+                    if ( pchr->boretime < 0 )
                     {
-                        ChrList[cnt].ai.alert |= ALERTIF_BORED;
-                        ChrList[cnt].boretime = BORETIME;
+                        pchr->ai.alert |= ALERTIF_BORED;
+                        pchr->boretime = BORETIME;
                     }
                     else
                     {
                         // Do standstill
-                        if ( ChrList[cnt].action > ACTIONDD )
+                        if ( pchr->action > ACTIONDD )
                         {
-                            ChrList[cnt].action = ACTIONDA;
-                            ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].actionstart[ChrList[cnt].action];
+                            pchr->action = ACTIONDA;
+                            pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pchr->action];
                         }
                     }
                 }
                 else
                 {
-                    ChrList[cnt].boretime = BORETIME;
-                    if ( speed < ChrList[cnt].walkspd )
+                    pchr->boretime = BORETIME;
+                    if ( speed < pchr->walkspd )
                     {
-                        ChrList[cnt].nextaction = ACTIONWA;
-                        if ( ChrList[cnt].action != ACTIONWA )
+                        pchr->nextaction = ACTIONWA;
+                        if ( pchr->action != ACTIONWA )
                         {
-                            ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWA][framelip];
-                            ChrList[cnt].action = ACTIONWA;
+                            pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWA][framelip];
+                            pchr->action = ACTIONWA;
                         }
                     }
                     else
                     {
-                        if ( speed < ChrList[cnt].runspd )
+                        if ( speed < pchr->runspd )
                         {
-                            ChrList[cnt].nextaction = ACTIONWB;
-                            if ( ChrList[cnt].action != ACTIONWB )
+                            pchr->nextaction = ACTIONWB;
+                            if ( pchr->action != ACTIONWB )
                             {
-                                ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWB][framelip];
-                                ChrList[cnt].action = ACTIONWB;
+                                pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWB][framelip];
+                                pchr->action = ACTIONWB;
                             }
                         }
                         else
                         {
-                            ChrList[cnt].nextaction = ACTIONWC;
-                            if ( ChrList[cnt].action != ACTIONWC )
+                            pchr->nextaction = ACTIONWC;
+                            if ( pchr->action != ACTIONWC )
                             {
-                                ChrList[cnt].inst.frame = MadList[ChrList[cnt].inst.imad].frameliptowalkframe[LIPWC][framelip];
-                                ChrList[cnt].action = ACTIONWC;
+                                pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWC][framelip];
+                                pchr->action = ACTIONWC;
                             }
                         }
                     }

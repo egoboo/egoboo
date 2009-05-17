@@ -51,7 +51,6 @@ struct s_mod
 
     IDSZ    quest_idsz;                   // the quest required to unlock this module
     int     quest_level;                  // the quest level required to unlock this module
-    char    quest_char;                   // ??
 
     Uint32  tex;                          // the index of the tile image
 

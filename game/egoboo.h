@@ -97,12 +97,12 @@ EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 
 EXTERN int wraptolerance  EQ( 80 );        // Status bar
 
-#define DAMFXNONE           0                       // Damage effects
-#define DAMFXARMO           1                       // Armor piercing
-#define DAMFXBLOC           2                       // Cannot be blocked by shield
-#define DAMFXARRO           4                       // Only hurts the one it's attached to
-#define DAMFXTURN           8                       // Turn to attached direction
-#define DAMFXTIME           16
+#define DAMFX_NONE           0                       // Damage effects
+#define DAMFX_ARMO           1                       // Armor piercing
+#define DAMFX_BLOC           2                       // Cannot be blocked by shield
+#define DAMFX_ARRO           4                       // Only hurts the one it's attached to
+#define DAMFX_TURN           8                       // Turn to attached direction
+#define DAMFX_TIME           16
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 

@@ -38,15 +38,23 @@ IDSZ fget_idsz( FILE* fileread )
     // ZZ> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
+
     char cTmp = fget_first_letter( fileread );
     if ( cTmp == '[' )
     {
         idsz = 0;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
-        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp;
+        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
+        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
+        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
+        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp;
+
+        cTmp = fgetc( fileread );
+        if( cTmp != ']' )
+        {
+            log_error( "Missing closing bracket on IDSZ, \"%s\"\n", parse_filename );
+        }
     }
+
 
     return idsz;
 }

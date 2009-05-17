@@ -217,7 +217,7 @@ bool_t module_load_info( const char * szLoadName, mod_t * pmod )
     // Read basic data
     goto_colon( fileread );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
     goto_colon( fileread );  fscanf( fileread, "%s", pmod->reference );
-    goto_colon( fileread );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_char = fgetc(fileread); pmod->quest_level = fget_int( fileread );
+    goto_colon( fileread );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_level = fget_int( fileread );
 
     goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
     pmod->importamount = iTmp;

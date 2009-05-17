@@ -1511,7 +1511,7 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FDAMAGETARGET:
             // This function applies little bit of love to the character's target.
             // The amount is set in tmpargument
-            damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
+            damage_character( pself->target, 0, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFX_BLOC, btrue );
             break;
 
         case FIFXISLESSTHANY:
@@ -5933,7 +5933,7 @@ Uint8 scr_DamageTarget( script_state_t * pstate, ai_state_t * pself )
 
     // This function applies little bit of love to the character's target.
     // The amount is set in tmpargument
-    damage_character( pself->target, FRONT, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFXBLOC, btrue );
+    damage_character( pself->target, FRONT, pstate->argument, 1, pchr->damagetargettype, pchr->team, pself->index, DAMFX_BLOC, btrue );
 
     SCRIPT_FUNCTION_END();
 }

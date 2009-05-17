@@ -35,6 +35,7 @@
 #include "network.h"
 #include "passage.h"
 #include "menu.h"
+#include "enchant.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"
@@ -768,15 +769,28 @@ void init_all_textures()
 //---------------------------------------------------------------------------------------------
 void init_all_models()
 {
-    // ZZ> This function initializes all of the models
+    // ZZ> This function initializes all of the model profiles
 
     Uint16 cnt;
 
+    for ( cnt = 0; cnt < TOTALMAXPRTPIP; cnt++ )
+    {
+        memset( PipList + cnt, 0, sizeof(pip_t) );
+    }
+
+    for ( cnt = 0; cnt < MAXEVE; cnt++ )
+    {
+        memset( EveList + cnt, 0, sizeof(pip_t) );
+    }
+
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
-        CapList[cnt].classname[0] = 0;
+        memset( CapList + cnt, 0, sizeof(cap_t) );
+    };
 
-        MadList[cnt].used = bfalse;
+    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
+        memset( MadList + cnt, 0, sizeof(mad_t) );
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
@@ -858,11 +872,24 @@ void release_all_models()
     // ZZ> This function clears out all of the models
     Uint16 cnt;
 
+    for ( cnt = 0; cnt < TOTALMAXPRTPIP; cnt++ )
+    {
+        memset( PipList + cnt, 0, sizeof(pip_t) );
+    }
+
+    for ( cnt = 0; cnt < MAXEVE; cnt++ )
+    {
+        memset( EveList + cnt, 0, sizeof(pip_t) );
+    }
+
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
-        CapList[cnt].classname[0] = 0;
+        memset( CapList + cnt, 0, sizeof(cap_t) );
+    };
 
-        MadList[cnt].used = bfalse;
+    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    {
+        memset( MadList + cnt, 0, sizeof(mad_t) );
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
     }
 
