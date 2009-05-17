@@ -4330,7 +4330,11 @@ void issue_clean( Uint16 character )
     {
         if ( !ChrList[cnt].on || team != ChrList[cnt].team ) continue;
 
-        ChrList[cnt].ai.timer  = frame_wld + 2;  // Don't let it think too much...
+        if( !ChrList[cnt].alive ) 
+        {
+            ChrList[cnt].ai.timer  = frame_wld + 2;  // Don't let it think too much...
+        }
+
         ChrList[cnt].ai.alert |= ALERTIF_CLEANEDUP;
     }
 }

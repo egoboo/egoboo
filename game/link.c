@@ -91,11 +91,9 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
         link_push_module();
     }
 
-    // export all the local and remote characters
-    game_update_imports();
-
+    // export all the local and remote characters and
     // quit the old module
-    game_quit_module();
+    game_finish_module();
 
     // try to load the new module
     retval = game_init_module( modname, seed );

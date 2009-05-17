@@ -2734,7 +2734,7 @@ int doShowEndgame( float deltaTime )
                 // actually quit the module
                 if( !reloaded )
                 {
-                    quit_module();
+                    game_finish_module();
                     pickedmodule_index = -1;
                     gameactive   = bfalse;
                     moduleactive = bfalse;
@@ -2889,7 +2889,7 @@ int doMenu( float deltaTime )
 
                     if( !reloaded )
                     {
-                        game_quit_module();
+                        game_finish_module();
                         gameactive = bfalse;
                         moduleactive = bfalse;
                         menuactive = btrue;

@@ -326,6 +326,8 @@ void export_all_players( bool_t require_local )
     bool_t is_local;
     int cnt, character, item, number;
 
+    if( !exportvalid ) return;
+
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
@@ -368,39 +370,15 @@ void export_all_players( bool_t require_local )
 }
 
 //---------------------------------------------------------------------------------------------
-void export_all_local_players( void )
-{
-    // ZZ> This function saves all the local players in the
-    //     PLAYERS directory
-
-    // Check each player
-    if ( exportvalid )
-    {
-        export_all_players( btrue );
-    }
-}
-
-//---------------------------------------------------------------------------------------------
 void quit_module()
 {
     // ZZ> This function forces a return to the menu
     moduleactive = bfalse;
-    hostactive = bfalse;
+    hostactive   = bfalse;
 
-    export_all_local_players();
+    game_update_imports();
 
-    release_all_icons();
-    release_all_titleimages();
-    release_bars();
-    release_blip();
-    release_map();
-    release_all_textures();
-    release_all_models();
-    release_all_ai_scripts();
-
-    gamepaused = bfalse;
-
-    mesh_delete( &mesh );
+    release_module();
 
     if ( mixeron  )
     {
@@ -412,10 +390,12 @@ void quit_module()
 void quit_game()
 {
     // ZZ> This function exits the game entirely
+
     if ( gameactive )
     {
         gameactive = bfalse;
     }
+
     if ( moduleactive )
     {
         quit_module();
@@ -3834,11 +3814,6 @@ void bump_characters( void )
                         if( INVALID_CAP( pchr_b->model ) ) continue;
                         pcap_b = CapList + pchr_b->model;
 
-                        if( 0 == pchr_b->bumpheight ) interaction_strength = 0;
-                        interaction_strength *= pchr_b->inst.alpha * INV_FF;
-
-                        if( 0.0f == interaction_strength ) continue;
-
                         // don't interact with your mount, or your held items
                         if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) continue;
 
@@ -3851,21 +3826,20 @@ void bump_characters( void )
 
                             if( lerp_z < 0 )
                             {
-                                pchr_b->phys_pos_z += (pchr_b->phys_level - pchr_b->zpos) * 0.25f * (-lerp_z);
+                                pchr_b->phys_pos_z += (RAISE + pchr_b->phys_level - pchr_b->zpos) * 0.25f * (-lerp_z);
                             };
 
-                            if( lerp_z > 0 )
-                            {
-                                pchr_a->holdingweight += pchr_b->weight * lerp_z;
+                            lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
 
-                                pchr_b->phys_vel_x += ( pchr_a->xvel - pchr_b->xvel ) * platstick * lerp_z;
-                                pchr_b->phys_vel_y += ( pchr_a->yvel - pchr_b->yvel ) * platstick * lerp_z;
-                                pchr_b->phys_vel_z +=  ( pchr_a->zvel - pchr_b->zvel ) * lerp_z;
-                                pchr_b->turnleftright += ( pchr_a->turnleftright - pchr_a->oldturn ) * platstick * lerp_z;
+                            pchr_a->holdingweight += pchr_b->weight * lerp_z;
 
-                                pchr_b->jumpready = btrue;
-                                pchr_b->jumpnumber = pchr_b->jumpnumberreset;
-                            }
+                            pchr_b->phys_vel_x += ( pchr_a->xvel - pchr_b->xvel ) * platstick * lerp_z;
+                            pchr_b->phys_vel_y += ( pchr_a->yvel - pchr_b->yvel ) * platstick * lerp_z;
+                            pchr_b->phys_vel_z +=  ( pchr_a->zvel - pchr_b->zvel ) * lerp_z;
+                            pchr_b->turnleftright += ( pchr_a->turnleftright - pchr_a->oldturn ) * platstick * lerp_z;
+
+                            pchr_b->jumpready = btrue;
+                            pchr_b->jumpnumber = pchr_b->jumpnumberreset;
 
                             // this is handled
                             continue;
@@ -3880,25 +3854,30 @@ void bump_characters( void )
 
                             if( lerp_z < 0 )
                             {
-                                pchr_a->phys_pos_z += (pchr_a->phys_level - pchr_a->zpos) * 0.25f * lerp_z;
+                                pchr_a->phys_pos_z += (RAISE + pchr_a->phys_level - pchr_a->zpos) * 0.25f * lerp_z;
                             }
 
-                            if( lerp_z > 0 )
-                            {
-                                pchr_b->holdingweight += pchr_a->weight * lerp_z;
+                            lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
+ 
+                            pchr_b->holdingweight += pchr_a->weight * lerp_z;
 
-                                pchr_a->phys_vel_x += ( pchr_b->xvel - pchr_a->xvel ) * platstick * lerp_z;
-                                pchr_a->phys_vel_y += ( pchr_b->yvel - pchr_a->yvel ) * platstick * lerp_z;
-                                pchr_a->phys_vel_z +=  ( pchr_b->zvel - pchr_a->zvel ) * lerp_z;
-                                pchr_a->turnleftright += ( pchr_b->turnleftright - pchr_b->oldturn ) * platstick * lerp_z;
+                            pchr_a->phys_vel_x += ( pchr_b->xvel - pchr_a->xvel ) * platstick * lerp_z;
+                            pchr_a->phys_vel_y += ( pchr_b->yvel - pchr_a->yvel ) * platstick * lerp_z;
+                            pchr_a->phys_vel_z +=  ( pchr_b->zvel - pchr_a->zvel ) * lerp_z;
+                            pchr_a->turnleftright += ( pchr_b->turnleftright - pchr_b->oldturn ) * platstick * lerp_z;
 
-                                pchr_a->jumpready = btrue;
-                                pchr_a->jumpnumber = pchr_b->jumpnumberreset;
-                            }
+                            pchr_a->jumpready = btrue;
+                            pchr_a->jumpnumber = pchr_b->jumpnumberreset;
+
 
                             // this is handled
                             continue;
                         }
+
+                        if( 0 == pchr_b->bumpheight ) interaction_strength = 0;
+                        interaction_strength *= pchr_b->inst.alpha * INV_FF;
+
+                        if( 0.0f == interaction_strength ) continue;
 
                         xb = pchr_b->xpos;
                         yb = pchr_b->ypos;
@@ -5146,7 +5125,10 @@ void game_quit_module()
     // reset some of the module state variables
     beatmodule  = bfalse;
     exportvalid = bfalse;
+    moduleactive = bfalse;
+    hostactive   = bfalse;
 }
+
 
 //-----------------------------------------------------------------
 bool_t game_init_module( const char * modname, Uint32 seed )
@@ -5271,13 +5253,21 @@ void release_module()
     release_all_icons();
     release_all_titleimages();
     release_bars();
-    release_blip();
     release_map();
     release_all_textures();
     release_all_models();
+    release_all_ai_scripts();
+
+    mesh_delete( &mesh );
 
     // Close and then reopen SDL_mixer. it's easier than manually unloading each sound ;)
     sound_restart();
+
+    // fade out any sound
+    if ( mixeron  )
+    {
+        Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -5822,4 +5812,14 @@ void game_end_menu()
         gamemenuactive = bfalse;
         gamemenu_depth = -1;
     }
+}
+
+//--------------------------------------------------------------------------------------------
+void game_finish_module()
+{
+    // export all the local and remote characters
+    game_update_imports();
+
+    // quit the old module
+    game_quit_module();
 }
