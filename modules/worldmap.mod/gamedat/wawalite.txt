@@ -10,7 +10,7 @@ Number of Water Layers ( 1=Fast, 2=Good )		: 2
 Water specular start ( 0-255 )				: 255
 Water specular level ( 0-255 )				: 128
 Water douse level ( For torches, 90 )			: 85
-Water surface level ( For water striders, 55 )		: 65
+Water surface level ( For water striders, 55 )		: 30
 Water light ( TRUE or FALSE )				: FALSE
 Water is really water? ( TRUE or FALSE )		: TRUE
 Use watertop.bmp as an overlay? ( TRUE or FALSE )	: FALSE
