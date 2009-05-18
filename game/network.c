@@ -66,6 +66,8 @@ char                    netplayername[MAXNETPLAYER][NETNAMESIZE];
 
 int                     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 
+Uint32 sv_last_frame = (Uint32)~0;
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -911,12 +913,13 @@ void sv_talkToRemotes()
     // ZZ> This function sends the character data to all the remote machines
     int player, time;
     Sint16 sTmp;
-    static Uint32 last_frame = (Uint32)~0;
-
+    
     // make sure there is only one update per frame;
-    if ( frame_wld == last_frame ) return;
-    last_frame = frame_wld;
+    if ( frame_wld == sv_last_frame ) return;
+    sv_last_frame = frame_wld;
+
     if ( rtscontrol ) return;
+
     if ( hostactive )
     {
         if ( networkon )
@@ -1540,6 +1543,9 @@ void net_initialize()
     memset( packetbuffer, 0, MAXSENDSIZE );
     memset( net_transferStates, 0, sizeof( NetFileTransfer ) * NET_MAX_FILE_TRANSFERS );
     memset( &net_receiveState, 0, sizeof( NetFileTransfer ) );
+
+    sv_last_frame = (Uint32)~0;
+
     if ( networkon )
     {
         // initialize enet

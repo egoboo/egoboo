@@ -9,8 +9,8 @@ Random map ( TRUE or FALSE ) ( doesn't work )           : FALSE
 Number of Water Layers ( 1=Fast, 2=Good )		: 2
 Water specular start ( 0-255 )				: 255
 Water specular level ( 0-255 )				: 128
-Water douse level ( For torches, 90 )			: 85
-Water surface level ( For water striders, 55 )		: 30
+Water douse level ( For torches, 90 )			: 22
+Water surface level ( For water striders, 55 )		: 22
 Water light ( TRUE or FALSE )				: FALSE
 Water is really water? ( TRUE or FALSE )		: TRUE
 Use watertop.bmp as an overlay? ( TRUE or FALSE )	: FALSE
@@ -22,7 +22,7 @@ Background distance effect Y ( 0.0 to 1.0 )             : 0.000
 Number of foreground repeats ( 1 to 5 )                 : 1
 Number of background repeats ( 1 to 5 )                 : 2
 
-Level 0... Base water level ( 85 )			: 55
+Level 0... Base water level ( 85 )			: 22
 Level 0... Alpha level ( 100 )				: 110
 Level 0... Wave speed ( 3 )				: 8
 Level 0... Brightness ( 15 )				: 15
@@ -31,7 +31,7 @@ Level 0... Wave amplitude ( 7.0 )			: 5.0
 Level 0... U speed ( .0002 )				: -.0010
 Level 0... V speed ( .0002 )				: -.0025
 
-Level 1... Base water level ( 80 )			: 55
+Level 1... Base water level ( 80 )			: 22
 Level 1... Alpha level ( 100 )				: 170
 Level 1... Wave speed ( 2 )				: 6
 Level 1... Brightness ( 31 )				: 31

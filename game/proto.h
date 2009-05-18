@@ -54,6 +54,7 @@ bool_t game_init_module( const char * modname, Uint32 seed );
 // the hook for exporting all the current players and reloading them
 bool_t game_update_imports();
 void   game_finish_module();
+bool_t game_begin_module( const char * modname, Uint32 seed );
 
 // Exporting stuff
 void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is_local );

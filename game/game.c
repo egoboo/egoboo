@@ -1396,15 +1396,6 @@ int SDL_main( int argc, char **argv )
                     menuactive = bfalse;
                     gameactive = btrue;
                     networkon  = bfalse;
-                    hostactive = btrue;
-                    if ( gGrabMouse )
-                    {
-                        SDL_WM_GrabInput ( SDL_GRAB_ON );
-                    }
-                    if ( gHideMouse )
-                    {
-                        SDL_ShowCursor( 0 );  // Hide the mouse cursor
-                    }
                     break;
 
                 case MENU_QUIT:
@@ -1420,7 +1411,7 @@ int SDL_main( int argc, char **argv )
             // Start a new module
             seed = time( NULL );
 
-            moduleactive = game_init_module( pickedmodule_name, seed );
+            moduleactive = game_begin_module( pickedmodule_name, seed );
 
             game_menu_was_active = game_menu_is_active = gamemenuactive;
             game_escape_requested = bfalse;
@@ -5151,6 +5142,7 @@ bool_t game_init_module( const char * modname, Uint32 seed )
     make_character_matrices();
     attach_particles();
 
+    net_initialize();
     if ( networkon )
     {
         net_sayHello();
@@ -5820,3 +5812,14 @@ void game_finish_module()
     // quit the old module
     game_quit_module();
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t game_begin_module( const char * modname, Uint32 seed )
+{
+    hostactive = btrue; // very important or the input will not work
+
+    SDL_WM_GrabInput ( SDL_GRAB_ON );  // grab the cursor
+    SDL_ShowCursor( SDL_DISABLE );     // Hide the mouse cursor
+
+    return game_init_module( modname, seed );
+};

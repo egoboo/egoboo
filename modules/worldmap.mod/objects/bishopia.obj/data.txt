@@ -1,6 +1,6 @@
 // Real general data
-Object slot number ( 0 to 63, don't use twice )	: 59
-Object class name ( use underscore for spaces ) : Tree
+Object slot number ( 0 to 63, don't use twice )	: 45
+Object class name ( use underscore for spaces ) : Bishopia
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
 Maximum ammo ( 0 for doesn't matter )		: 0
 Starting ammo ( 0 for doesn't matter )		: 0
@@ -10,7 +10,7 @@ Gender ( MALE or FEMALE or OTHER )		: OTHER
 // Object stats
 Life point bar color ( 0 to 5, 1 is red )	: 1
 Mana point bar color ( 0 to 5, 5 is purple )	: 5
-Life points ( eg. 3-5 )				: 1
+Life points ( eg. 3-5 )				: 50
 Life points increase per level ( eg. 1-3 )	: 0
 Mana points ( eg. 0-0 )				: 0
 Mana points increase per level ( eg. 1-1 )	: 0
@@ -29,11 +29,11 @@ Dexterity increase per level ( eg. 0-1 )	: 0
 
 
 // More physical attributes
-Size ( eg. 1.0 )				: 1.0
+Size ( eg. 1.0 )				: 1.5
 Size increase per level ( eg. 0.05 )		: 0.05
 Shadow size ( eg. 30, 0 is none )		: 0
-Bump size ( eg. 30 )				: 50
-Bump height ( eg. 70 )				: 60
+Bump size ( eg. 30 )				: 80
+Bump height ( eg. 70 )				: 50
 Bump dampen ( 0.0 to 1.0, lower is massive )	: 0.0
 Weight ( 0 to 255 )				: 255
 Jump power ( eg. 14.0 )				: 0.0
@@ -50,11 +50,11 @@ Sheen ( 0 - 15, 0 is dull, 15 is shiny )	: 0
 Phong mapping ( TRUE or FALSE )			: FALSE
 Texture X movement rate ( eg. 0.0 )		: 0.0
 Texture Y movement rate ( eg. 0.0 )		: 0.0
-Conform to hills like a chair ( TRUE or FALSE )	: TRUE
+Conform to hills like a chair ( TRUE or FALSE )	: FALSE
 
 
 // Invulnerability data
-Object is totally invincible ( TRUE or FALSE )	: TRUE
+Object is totally invincible ( TRUE or FALSE )	: FALSE
 NonIFrame Invulnerability facing ( 0 to 65535 )	: 0
 NonIFrame Invulnerability angle ( 0 to 32768 )	: 0
 IFrame Invulnerability facing ( 0 to 65535 )	: 0
@@ -102,8 +102,8 @@ Experience rate... Talking in character ( 1.0 )	: 1.0
 
 
 // IDSZ Identification tags ( [NONE] is valid )
-Parent ID ( eg. [FROG] for Trogs )		: [BUTT]
-Type ID ( eg. [TROG] for Trogs )		: [NONE]
+Parent ID ( eg. [FROG] for Trogs )		: [LEVL]
+Type ID ( eg. [TROG] for Trogs )		: [SAND]
 Skill ID ( eg. [WMAG] for wizard spells )	: [NONE]
 Special ID ( eg. [SUM0] for animated bones )	: [NONE]
 Hate group ID ( eg. [GOBL] for dwarves )	: [NONE]
