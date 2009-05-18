@@ -11,6 +11,13 @@ IfTargetKilled
     tmpx = 0
     tmpy = 0
     SetXY
+    
+  //Dont attack dead bodies
+  IfStateIsRetreat
+    DoNothing
+  Else
+    tmpargument = STATEGUARD
+    SetState
 
 //------------------------------------------------------------------------------
 //Alert countdown
@@ -29,7 +36,7 @@ IfOrdered
   tmpy = [FAER]
   IfXIsEqualToY
     tmpargument = 0
-    tmpx = 50*30      //Alert for 30 seconds
+    tmpx = 50*25      //Stay alert for 25 seconds
     tmpy = 0
     SetXY
   
@@ -106,6 +113,7 @@ IfAttacked
   // Scream
   tmpargument = 2
   PlaySound
+  
   // Pick either 0 or 7, Parry or Combat
   SetTargetToWhoeverAttacked
   IfStateIsRetreat
@@ -117,7 +125,7 @@ IfAttacked
         tmpargument = [FAER]
         IssueOrder
         tmpargument = 0
-        tmpx = 30*50    //30 seconds
+        tmpx = 25*50    //25 seconds
         tmpy = 0
         SetXY
       
@@ -198,47 +206,40 @@ IfTimeOut
   // Choose a new state, by setting tmpargument
   // Look for enemies
   SetTurnModeToVelocity
-
+  
   // Find an enemy
-//  SetTargetToWideEnemy
-//    tmpx = 1
-//    tmpargument = [LUMP]
-//    IfTargetHasID
-//      tmpargument = 0
-//      GetXY
-//      IfXIsMoreThanY
-//        tmpx = 1          //Imposter! Attack!
-//      Else
-//        tmpx = 0                //Ignore him
-//        SetTargetToOldTarget                
-//    Else
-//      tmpx = 0                  //Ignore him
-//      SetTargetToOldTarget
-//  Else
-//    tmpx = 0
-    
-  // Find an enemy
-  tmpx = 0
-  IfTargetIsOnHatedTeam
-    // Already have an enemy
-    tmpx = targetdistance
-    tmpy = 900
-    IfXIsMoreThanY
-      tmpx = 0
-      // Find a new enemy
+  tmpargument = 0
+  GetXY
+  IfXIsMoreThanY
+    SetTargetToWideEnemy          //If we are alert, target even morphed characters
+  Else
+    tmpx = 0
+    IfTargetIsOnHatedTeam
+      IfTargetIsAlive
+        // Already have an enemy
+        tmpx = targetdistance
+        tmpy = 900
+        IfXIsMoreThanY
+          tmpx = 0
+          // Find a new enemy
+          tmpargument = [LUMP]
+          tmpdistance = BLAHENEMIES + BLAHINVERTID
+          SetTargetToWideBlahID
+            tmpx = 1
+        Else
+          // Keep the current enemy
+          tmpx = 1
+      Else
+        tmpargument = [LUMP]
+        tmpdistance = BLAHENEMIES + BLAHINVERTID
+        SetTargetToWideBlahID
+          tmpx = 1    
+    Else
       tmpargument = [LUMP]
       tmpdistance = BLAHENEMIES + BLAHINVERTID
       SetTargetToWideBlahID
-        tmpx = 1
-    Else
-      // Keep the current enemy
-      tmpx = 1
-  Else
-    tmpargument = [LUMP]
-    tmpdistance = BLAHENEMIES + BLAHINVERTID
-    SetTargetToWideBlahID
-      tmpx = 1    
-    
+        tmpx = 1    
+      
   tmpy = 0
   IfXIsMoreThanY
     // Default to previous state

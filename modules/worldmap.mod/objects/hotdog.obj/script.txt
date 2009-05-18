@@ -1,12 +1,8 @@
 //------------------------------------------------------------------------------
 // ZZ> Breath some fire
-
 GetContent
-
 tmpx = tmpargument
-
 tmpy = 0
-
 IfXIsMoreThanY
   SetTargetToSelf
   tmpargument = 20
@@ -20,15 +16,14 @@ IfXIsMoreThanY
     SpawnParticle
     tmpdistance = 256 - selfmana < 1
     tmpargument = 2
-    SetVolume
+    //PlaySoundVolume
   Else
     tmpargument = 0
     SetContent
     tmpargument = 2
-    StopSound
+    //StopSound
     Run
   SetTargetToOldTarget
-
 Else
   IfUsed
     tmpx = selfmana
@@ -41,11 +36,10 @@ Else
       PlaySound
       tmpargument = 2
       tmpdistance = 11025
-      PlaySoundLooped
-      tmpdistance = 0
-      SetVolume
+      PlaySound
+      //tmpdistance = 0
+      //PlaySoundVolume
       Sneak
-
 
 //------------------------------------------------------------------------------
 IfTimeOut
@@ -56,10 +50,8 @@ IfTimeOut
   tmpargument = 50
   SetTime
 
-
 //------------------------------------------------------------------------------
 // ZZ> Bite characters that it bumps
-
 IfBumped
   SetTargetToWhoeverBumped
   IfTargetIsOnHatedTeam
@@ -71,16 +63,14 @@ IfBumped
 
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
-
 IfSpawned
   JoinNullTeam  // For rebirth...
-
 IfKilled
   JoinGoodTeam  // For rebirth...
 
   // Stop fire
   tmpargument = 2
-  StopSound
+  //StopSound
 
   tmpargument = 5
   tmpdistance = rand & 2047 + 10000
@@ -100,7 +90,6 @@ IfKilled
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
-
 IfAttacked
   // Drop rider
   tmpx = rand & 255
@@ -111,7 +100,6 @@ IfAttacked
   tmpargument = rand & 1 + 3
   tmpdistance = rand & 2047 + 10000
   PlaySound
-
 
 //------------------------------------------------------------------------------
 End

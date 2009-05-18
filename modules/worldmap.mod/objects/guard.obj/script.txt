@@ -36,16 +36,6 @@ IfCalledForHelp
     SetState
     JoinEvilTeam
 
-// Show the character's location
-
-tmpx = selfx
-
-tmpy = selfy
-
-tmpargument = 4
-
-ShowBlipXY
-
 IfKilled				// This reduces the height of the char
   tmpargument = 0			  // Last words...
   SetState

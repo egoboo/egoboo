@@ -120,7 +120,7 @@ Item carries to next module ( TRUE or FALSE )	: FALSE
 Item requires skill ID to use ( TRUE or FALSE )	: FALSE
 Object is a platform ( TRUE or FALSE)		: TRUE
 Object collects money ( TRUE or FALSE )		: TRUE
-Object can open chests/doors ( TRUE or FALSE )	: FALSE
+Object can open chests/doors ( TRUE or FALSE )	: TRUE
 
 
 // Other item and damage stuff
@@ -154,8 +154,8 @@ Facing add for each one ( 0 to 65535 )		: 8192
 Particle type ( 0 to 3 )			: 1
 
 
-// Particle spawning for Blood ( If you want it, you put it in... )
-Blood valid ( TRUE or FALSE )			: FALSE
+// Particle spawning for Blud ( If you want it, you put it in... )
+Blud valid ( TRUE or FALSE )			: FALSE
 Particle type ( 0 to 3 )			: 0
 
 

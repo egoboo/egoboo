@@ -1,4 +1,5 @@
 Version 2.7.3 (18.05.2009)
+- New Feature: The World Map module! You can now travel around Lorule and visit towns and dungeons.
 - New Feature: Module Linking is now implemented. This allows your player to directly go
   from one module to the next in game without needing to go through the main menu again and
   load the module manually.
@@ -9,10 +10,11 @@ Version 2.7.3 (18.05.2009)
 - New Feature: New Sidequest module "The Cobol Palace". Save the world of Bishopia from 
   the evil Cobol Emperor's menace!
 - New Feature: Added support for up to x16 fullscreen antialiasing.
+- Update: Reworked the whole physics engine.
 - Update: The G'nome Starter is now a unlockable module.
 - Update: Strength now affects the throwing range of bombs.
 - Update: Doubled the max throwing range of thrown weapons.
-- Update: Replaced the Ice Pup with the new Ice Strider mounts in the Ice Palace.
+- Update: Replaced the Ice Pup with the new Ice Strider mount in the Ice Palace.
 - Update: Some various improvements in the physics engine.
 - Update: New voices for the Archaeologist class. (Credits to Seanbot)
 - Update: Expanded the Global Object Repository a lot.

@@ -19,7 +19,7 @@
 //-----------------------------------------------------------------------------
 //Danger sense skill
 tmpx = selflevel
-tmpy = 12          //Need level 15
+tmpy = 13          //Need level 15
 IfXIsMoreThanY
   SetTargetToSelf           //Make sure the enemy is correct
   tmpargument = [NONE]      //All enemies

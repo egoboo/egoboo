@@ -1,4 +1,4 @@
-Object slot number ( 0 to 63, don't use twice )	: 100
+Object slot number ( 0 to 63, don't use twice )	: 97
 Class name     : Book
 Uniform light  : FALSE
 Maximum ammo   : 0

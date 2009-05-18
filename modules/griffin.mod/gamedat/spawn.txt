@@ -24,58 +24,61 @@
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 PLAYER 1:   NONE    0  76.5   42.5   2.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 PLAYER 2:   NONE    9  76.5   42.5   2.0   S    0   0  0   0   0   T   F   G
-unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    10  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    11  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    12  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    13  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    14  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    15  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    16  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    17  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 PLAYER 3:   NONE    18  75.5   40.5   2.0   W    0   0  0   0   0   T   F   G
-unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    19  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    20  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    21  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    22  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    23  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    24  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    25  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    26  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 PLAYER 4:   NONE    27  75.5   42.5   2.0   E    0   0  0   0   0   T   F   G
-unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    28  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  unknown:   NONE    29  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  unknown:   NONE    30  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    31  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    32  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    33  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    34  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  unknown:   NONE    35  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 
 //--------------------------------------------------------------------------------
 //Barricade
-stairs.obj:   NONE    37  76.5   41.5   2.0   W    0   0  0   0   0   F   F   N
+stairs.obj:   NONE    37  76.5   41.5   1.5   W    0   0  0   0   0   F   F   N
 table.obj:   NONE    38  63.5   44.5   1.0   W    0   0  0   1   0   F   F   N
 table.obj:   NONE    38  65.5   37.5   1.0   S    0   0  0   1   0   F   F   N
 lpotion.obj:   NONE    36  66.0   38.0   1.0   N    0   0  0   0   0   F   F   N
 deadbody.obj:   NONE    39  64.5   43.5   1.0   N    0   0  0   0   0   F   F   N
 haypile.obj:   NONE    40  64.0   40.0   1.0   N    0   0  0   0   0   F   F   N
 cinq.obj:   NONE    41  65.0   40.0   1.0   N    0   0  0   0   0   F   F   N
+GLOBAL rack.obj:   NONE    100  75.25   44.75   0.0   N    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+GLOBAL rack.obj:   NONE    100  75.25   38.25   0.0   S    0   0  0   0   0   F   F   N
 
-guard.obj:   NONE    45  68.0   42.0   2.0   N    0   0  0   0   0  F   F   G
+guard.obj:   NONE    45  68.0   42.0   1.0   N    0   0  0   0   0  F   F   G
 spear.obj:   NONE    52  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
 gshield.obj:   NONE    50  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
 
-guard.obj:   NONE    45  65.0   45.0   1.0   N    0   0  0   0   0   F   F   G
+guard.obj:   NONE    45  65.0   45.0   0.0   N    0   0  0   0   0   F   F   G
 sword.obj:   NONE    49  63.5   44.5   1.0   R    0   0  0   0   0   F   F   N
 gshield.obj:   NONE    50  63.5   44.5   1.0   L    0   0  0   0   0   F   F   N
 
@@ -128,16 +131,14 @@ haypile.obj:   NONE    40  63.0   58.0   1.0   N    0   0  0   0   0   F   F   N
 //--------------------------------------------------------------------------------
 //Closed prison
 prisoner.obj:   NONE    44  62.5   53.5   1.0   N    0   0  0   0   0   F   F   E
-gshield.obj:   NONE    57  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
-ironball.obj:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
-
+  knife.obj:   NONE    57  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  ironball.obj:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
 prisoner.obj:   NONE    44  62.5   57.5   1.0   N    0   0  0   0   0   F   F   E
-gshield.obj:   NONE    50  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
-gshield.obj:   NONE    48  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
-
+  shield.obj:   NONE    50  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    49  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
 prisoner.obj:   NONE    44  59.5   54.5   1.0   N    0   0  0   0   0   F   F   E
-gshield.obj:   NONE    52  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
-ironball.obj:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
+  gshield.obj:   NONE    52  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
+  ironball.obj:   NONE    55  0.5   44.5   1.0   L    0   0  0   0   0   F   F   N
 
 lumpkin.obj:   NONE    59  60.5   56.5   1.0   N    0   0  0   0   0   F   F   E
 gshield.obj:   NONE    57  0.5   0.5   1.0   R    0   0  0   0   0   F   F   N
@@ -275,9 +276,9 @@ chair.obj:   NONE    66  70.0   10.0   1.0   S    0   0  0   1   0   F   F   N
 //--------------------------------------------------------------------------------
 //Cobol boss
 bosscobol.obj:   NONE    72  19.5   15.5   1.0   N    9   0  0   0   0   F   F   E
-tshield.obj:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-pstiletto.obj:   NONE    54  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
-keya.obj:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  tshield.obj:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  pstiletto.obj:   NONE    54  0.5   44.5   1.0   R    0   0  0   0   0   F   F   N
+  keya.obj:   NONE    70  49.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 cobol.obj:   NONE    63  20.5   17.5   1.0   N    8   0  0   200   0   F   F   E
 cinq.obj:   NONE    41  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
@@ -355,18 +356,18 @@ spear.obj:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ironball.obj:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 prisoner.obj:   NONE    44  69.0   74.0   1.0   N    0   0  0   0   0   F   F   E
-spear.obj:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 cobol.obj:   NONE    63  67.0   74.0   1.0   N    0   1  0   600   0   F   F   E
-lbow.obj:   NONE    46  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-ironball.obj:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    46  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  ironball.obj:   NONE    55  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 cobol.obj:   NONE    63  70.0   72.0   1.0   N    0   1  0   200   0   F   F   E
-spkmace.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-shield.obj:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  spkmace.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  shield.obj:   NONE    60  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 lumpkin.obj:   NONE    59  68.0   72.0   1.0   N    0   0  0   0   0   F   F   E
-sword.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    49  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 
 keyc.obj:   NONE    64  70.0   74.0   1.0   N    0   0  0   0   0   F   F   N
 haypile.obj:   NONE    40  64.0   72.0   1.0   N    0   0  0   0   0   F   F   N
@@ -382,12 +383,15 @@ table.obj:   NONE    38  71.5   52.5   1.0   W    0   0  0   0   0   F   F   N
 chair.obj:   NONE    66  72.5   52.5   1.0   W    0   0  0   0   0   F   F   N
 table.obj:   NONE    38  76.5   55.5   1.0   E    0   0  0   0   0   F   F   N
 chair.obj:   NONE    66  75.5   55.5   1.0   E    0   0  0   1   0   F   F   N
-crate.obj:   NONE    42  76.0   51.0   1.0   N    0   0  0   0   0   F   F   N
-mushroom.obj:   NONE    74  75.0   53.0   1.0   N    0   0  0   0   0   F   F   N
+crate.obj:   NONE    42  76.0   51.0   0.0   ?    0   4  0   0   0   F   F   N
+mushroom.obj:   NONE    74  76.0   51.0   1.0   ?    0   0  0   0   0   F   F   N
 
 gate.obj:   NONE    43  73.0   46.5   1.0   N    0   0  16   0   0   F   F   N
 switch.obj:   NONE    58  74.5   49.5   1.0   W    0   0  16   0   0   F   F   N
 
+GLOBAL rack.obj:   NONE    100  76.75   53.0   0.0   W    0   0  0   0   0   F   F   N
+  spear.obj:   NONE    52  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  lbow.obj:   NONE    46  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 
 //--------------------------------------------------------------------------------
@@ -395,10 +399,14 @@ switch.obj:   NONE    58  74.5   49.5   1.0   W    0   0  16   0   0   F   F   N
 table.obj:   NONE    38  72.0   27.0   1.0   N    0   0  0   1   0   F   F   N
 table.obj:   NONE    38  73.0   27.25   1.0   N    0   0  0   1   0   F   F   N
 deadbody.obj:   NONE    39  74.0   31.0   1.0   N    0   4  0   0   0   F   F   N
-lpotion.obj:   NONE    36  72.0   30.0   1.0   N    0   0  0   0   0   F   F   N
+lpotion.obj:   NONE    36  72.0   30.0   1.0   ?    0   0  0   0   0   F   F   N
 
 gate.obj:   NONE    43  73.0   36.5   2.0   N    0   0  15   0   0   F   F   N
-switch.obj:   NONE    58  75.25   33.5   1.0   E    0   0  15   0   0   F   F   N
+switch.obj:   NONE    58  75.25   33.5   0.0   E    0   0  15   0   0   F   F   N
+
+GLOBAL rack.obj:   NONE    100  75.75   30.0   0.0   W    0   0  0   0   0   F   F   N
+  spkmace.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  sword.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 //--------------------------------------------------------------------------------
 //Boss room
@@ -429,7 +437,7 @@ ninjastars.obj:   NONE    47  63.5   44.5   1.0   R    0   0  0   0   0   F   F 
 gate.obj:   NONE    43  10.0   36.0   1.0   N    0   0  14   0   0   F   F   N
 armorchest.obj:   NONE    48  8.5   41.5   1.0   N    0   0  0   0   0   F   F   N
 lockedchest.obj:   NONE    61  11.5   41.5   1.0   N    0   0  0   0   0   F   F   N
-mushroom.obj:   NONE    74  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-identify.obj:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-LightningWard:   NONE    81  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-SkullTrap:   NONE    100  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  mushroom.obj:   NONE    74  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  identify.obj:   NONE    80  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  LightningWard:   NONE    81  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  SkullTrap:   NONE    97  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N

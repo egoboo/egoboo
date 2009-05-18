@@ -122,7 +122,7 @@ IfKilled
   PlaySound
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropItems
   DropKeys
@@ -274,10 +274,9 @@ IfTimeOut
       SetTime
         
       // Charge and attack the enemy
-      SetTargetToNearestEnemy
-      tmpx = targetdistance
-      tmpy = 2500
-      IfXIsLessThanY
+      tmpdistance = 128*12
+      SetTargetToDistantEnemy
+        tmpx = targetdistance
         tmpy = 450
         IfXIsMoreThanY
           tmpx = rand & 511 + targetx - 256
@@ -324,11 +323,9 @@ IfTimeOut
       tmpargument = rand & 15 + 30 // Time
       SetTime 
 
-      SetTargetToNearestEnemy
-      SetTurnModeToWatchTarget
-      tmpx = targetdistance
-      tmpy = 2500
-      IfXIsLessThanY
+      tmpdistance = 128*12
+      SetTargetToDistantEnemy
+        SetTurnModeToWatchTarget
         tmpx = targetx
         tmpy = targety
         tmpturn = targetturnto
