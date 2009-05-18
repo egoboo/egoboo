@@ -40,4 +40,46 @@ IfTimeOut
     SpawnExactParticle
     SpawnExactParticle
     SpawnExactParticle
+    
+// ZZ> This function anounces your location
+IfBumped			// 
+  tmpargument = 0
+  GetXY
+  IfXIsEqualToY
+    SetTargetToWhoeverBumped	  //
+      IfTargetIsAPlayer
+        tmpargument = rand & 3 + 1		        //
+        SendMessage		        //
+        tmpargument = 0
+        tmpx = 180
+        tmpy = 0
+        SetXY
+
+//Countdown the timer        
+tmpargument = 0
+GetXY
+IfXIsMoreThanY
+    tmpx = tmpx - 1
+    tmpy = 0
+    SetXY    
+        
+//This makes the player enter the module
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    GetContent
+    tmpargument = 0
+    BeatModule
+    EnableExport
+
+    // Fix the end text
+    ClearEndMessage
+    GetContent
+    AddEndMessage
+    
+    //palwater.mod
+    tmpargument = 5
+    FollowLink
+End				// Finished with this character
+
 End				// Finished with this character

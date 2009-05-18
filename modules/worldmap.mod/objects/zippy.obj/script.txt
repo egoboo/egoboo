@@ -1,29 +1,30 @@
 // ZZ> This function anounces your location
-//  Once module linking is finished, add script to enter module.
-
 IfTimeOut
-  IfBumped
-    SetTargetToWhoeverBumped
-      IfTargetCanOpenStuff
-        tmpargument = rand & 3
-        SendMessage
+  IfBumped			// 
+    SetTargetToWhoeverBumped	  //
+      IfTargetIsAPlayer
+        tmpargument = rand & 3		        //
+        SendMessage		        //
         tmpargument = 180
         SetTime
-
+        
+        
+//This makes the player enter the module
 IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    GetContent
+    tmpargument = 0
+    BeatModule
+    EnableExport
 
-  // Fix the module exporting 
-  BeatModule
-  EnableExport
-
-  // Fix the end text
-  ClearEndMessage
-  GetContent
-  AddEndMessage
-
-  // this code uses message 4 in message.txt as the name of the module
-  // to load. In this case message 4 would be zippy.mod
-  tmpargument = 4
-  FollowLink
+    // Fix the end text
+    ClearEndMessage
+    GetContent
+    AddEndMessage
+    
+    //zippy.mod
+    tmpargument = 4
+    FollowLink
 
 End				// Finished with this character

@@ -1,23 +1,30 @@
 // ZZ> This function anounces your location
-//  Once module linking is finished, add script to enter module.
 IfTimeOut
   IfBumped			// 
     SetTargetToWhoeverBumped	  //
-      IfTargetCanOpenStuff	    //
+      IfTargetIsAPlayer
         tmpargument = rand & 3		        //
         SendMessage		        //
         tmpargument = 180
         SetTime
+        
+        
+//This makes the player enter the module
 IfAttacked
-  GetContent
-  tmpargument = 0
-  //GetState
-  BeatModule
-  EnableExport
-  // Fix the end text
-  ClearEndMessage
-  GetContent
-  AddEndMessage
-  EndModule
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    GetContent
+    tmpargument = 0
+    BeatModule
+    EnableExport
+
+    // Fix the end text
+    ClearEndMessage
+    GetContent
+    AddEndMessage
+
+    //palash.mod
+    tmpargument = 4
+    FollowLink
 
 End				// Finished with this character
