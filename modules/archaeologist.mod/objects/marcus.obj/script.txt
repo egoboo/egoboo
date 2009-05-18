@@ -15,6 +15,20 @@ IfBumped
       SetState
       tmpargument = 1
       SendMessageNear
+      
+      //End text
+      ClearEndMessage
+      tmpargument = 2
+      AddEndMessage
+      tmpargument = 3
+      AddEndMessage
+      tmpargument = 4
+      AddEndMessage
+      tmpargument = 5
+      AddEndMessage
+      tmpargument = 6
+      AddEndMessage
+      
     IfStateIs0
       tmpargument = 2
       PlaySound

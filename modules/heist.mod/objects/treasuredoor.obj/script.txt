@@ -36,5 +36,14 @@ IfContentIs			//Need four
     EnableExport
     tmpargument = [BEAT]
     AddIDSZ
+    
+    //End message
+    ClearEndMessage
+    tmpargument = 1
+    AddEndMessage
+    tmpargument = 2
+    AddEndMessage
+    tmpargument = 3
+    AddEndMessage
 
 End

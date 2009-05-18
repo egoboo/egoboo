@@ -1,3 +1,11 @@
+//The player is in a battle so don't spawn more yet
+IfOrdered
+  tmpx = selforder
+  tmpy = [ENCO]
+  IfXIsEqualToY
+    tmpargument = 1500    //30 seconds
+    SetTime
+
 // ZZ> This function spawns enemies when near a hero
 IfTimeOut				// This is done every so often
   SetTargetToNearbyEnemy		  // Look for enemies
@@ -159,8 +167,10 @@ IfTimeOut				// This is done every so often
       CleanUp
       
       //Wait long
-      tmpargument = 5000
+      tmpargument = 1500
       SetTime
+      tmpargument = [ENCO]
+      IssueOrder                //this makes others wait as well
   Else					  // Wander around home position
     tmpx = rand % 5000 - 2500 + selfspawnx   //
     tmpy = rand % 5000 - 2500 + selfspawny   //
