@@ -796,6 +796,9 @@ int doChoosePlayer( float deltaTime )
     static int numVertical, numHorizontal;
     static GLtexture TxInput[4];
     static Uint32 BitsInput[4];
+    int cnt, menuChoice;
+
+    static const char * button_text[] = { "Select Player", "Back", ""};
 
     switch ( menuState )
     {
@@ -811,8 +814,6 @@ int doChoosePlayer( float deltaTime )
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
-
-            GLtexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", INVALID_KEY );
 
             GLtexture_Load( GL_TEXTURE_2D, TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
@@ -831,7 +832,9 @@ int doChoosePlayer( float deltaTime )
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
 
-            numVertical   = (displaySurface->h - 47) / 47;
+            initSlidyButtons( 1.0f, button_text );
+
+            numVertical   = buttonTop / 47 - 2;
             numHorizontal = 1;
 
             x = 20;
@@ -856,8 +859,18 @@ int doChoosePlayer( float deltaTime )
             // fall through
 
         case MM_Entering:
-            menuState = MM_Running;
-            // fall through
+            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            drawSlidyButtons();
+
+            updateSlidyButtons( -deltaTime );
+
+            // Let lerp wind down relative to the time elapsed
+            if ( SlidyButtonState.lerp <= 0.0f )
+            {
+                menuState = MM_Running;
+            }
+            break;
 
         case MM_Running:
             // Figure out how many players we can show without scrolling
@@ -876,11 +889,17 @@ int doChoosePlayer( float deltaTime )
             {
                 if (mous.z > 0)
                 {
-                    startIndex++;
+                    if( startIndex + numVertical < loadplayer_count )
+                    {
+                        startIndex++;
+                    }
                 }
                 else if (mous.z < 0)
                 {
-                    startIndex--;
+                    if( startIndex > 0 )
+                    {
+                        startIndex--;
+                    }
                 }
 
                 mouse_wheel_event = bfalse;
@@ -961,21 +980,37 @@ int doChoosePlayer( float deltaTime )
             }
 
             // Buttons for going ahead
-            if ( BUTTON_UP == ui_doButton( 100, "Select Player", 40, 350, 200, 30 ) )
+            menuChoice = -1;
+            for ( cnt = 0; cnt < 2; cnt ++ )
             {
-                menuState = MM_Leaving;
+                if ( BUTTON_UP == ui_doButton( cnt + 100, button_text[cnt], buttonLeft, buttonTop + ( cnt * 35 ), 200, 30 ) )
+                {
+                    // audio options
+                    menuChoice = cnt + 1;
+                    menuState = MM_Leaving;
+                }
             }
 
-            if ( BUTTON_UP == ui_doButton( 101, "Back", 40, 385, 200, 30 ) )
+            switch( menuChoice )
             {
-                mnu_selectedPlayerCount = 0;
-                menuState = MM_Leaving;
+                case 1: menuState = MM_Leaving; break;
+                case 2: mnu_selectedPlayerCount = 0; menuState = MM_Leaving; break;
             }
             break;
 
         case MM_Leaving:
-            menuState = MM_Finish;
-            // fall through
+            // Do buttons sliding out and background fading
+            // Do the same stuff as in MM_Entering, but backwards
+            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+
+            // Buttons
+            drawSlidyButtons();
+            updateSlidyButtons( deltaTime );
+            if ( SlidyButtonState.lerp >= 1.0f )
+            {
+                menuState = MM_Finish;
+            }
+            break;
 
         case MM_Finish:
 
