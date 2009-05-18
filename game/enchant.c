@@ -38,7 +38,20 @@ enc_t EncList[MAXENCHANT];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t remove_enchant( Uint16 enchantindex )
+
+void free_one_enchant(Uint16 ienc )
+{
+    // Now get rid of it
+
+    if( ienc > MAXENCHANT || !EncList[ienc].on ) return;
+
+    EncList[ienc].on = bfalse;
+    freeenchant[numfreeenchant] = ienc;
+    numfreeenchant++;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t remove_enchant( Uint16 ienc )
 {
     // ZZ> This function removes a specific enchantment and adds it to the unused list
     Sint16 iwave;
@@ -46,35 +59,36 @@ bool_t remove_enchant( Uint16 enchantindex )
     Uint16 overlay;
     Uint16 lastenchant, currentenchant;
     int add;
+    enc_t * penc;
 
-    if ( enchantindex >= MAXENCHANT ) return bfalse;
-    if ( !EncList[enchantindex].on ) return bfalse;
+    if ( ienc >= MAXENCHANT ) return bfalse;
+    if ( !EncList[ienc].on ) return bfalse;
+    penc = EncList + ienc;
 
     // Unsparkle the spellbook
-    ispawner = EncList[enchantindex].spawner;
-    if ( ispawner < MAXCHR && ChrList[ispawner].on )
+    ispawner = penc->spawner;
+    if ( VALID_CHR(ispawner) )
     {
         ChrList[ispawner].sparkle = NOSPARKLE;
 
         // Make the spawner unable to undo the enchantment
-        if ( ChrList[ispawner].undoenchant == enchantindex )
+        if ( ChrList[ispawner].undoenchant == ienc )
         {
             ChrList[ispawner].undoenchant = MAXENCHANT;
         }
     }
 
     // who is the target?
-    itarget = EncList[enchantindex].target;
+    itarget = penc->target;
 
     // Play the end sound
-
-    ieve = EncList[enchantindex].eve;
+    ieve = penc->eve;
     if( ieve < MAXEVE && EveList[ieve].valid )
     {
         iwave = EveList[ieve].endsoundindex;
         if ( iwave >= 0 && iwave < MAXWAVE )
         {
-            Uint16 ispawner = EncList[enchantindex].spawner;
+            Uint16 ispawner = penc->spawner;
             if( VALID_CHR(ispawner) )
             {
                 Uint16 imodel = ChrList[ispawner].model;
@@ -95,76 +109,74 @@ bool_t remove_enchant( Uint16 enchantindex )
 
 
     // Unset enchant values, doing morph last
-    unset_enchant_value( enchantindex, SETDAMAGETYPE );
-    unset_enchant_value( enchantindex, SETNUMBEROFJUMPS );
-    unset_enchant_value( enchantindex, SETLIFEBARCOLOR );
-    unset_enchant_value( enchantindex, SETMANABARCOLOR );
-    unset_enchant_value( enchantindex, SETSLASHMODIFIER );
-    unset_enchant_value( enchantindex, SETCRUSHMODIFIER );
-    unset_enchant_value( enchantindex, SETPOKEMODIFIER );
-    unset_enchant_value( enchantindex, SETHOLYMODIFIER );
-    unset_enchant_value( enchantindex, SETEVILMODIFIER );
-    unset_enchant_value( enchantindex, SETFIREMODIFIER );
-    unset_enchant_value( enchantindex, SETICEMODIFIER );
-    unset_enchant_value( enchantindex, SETZAPMODIFIER );
-    unset_enchant_value( enchantindex, SETFLASHINGAND );
-    unset_enchant_value( enchantindex, SETLIGHTBLEND );
-    unset_enchant_value( enchantindex, SETALPHABLEND );
-    unset_enchant_value( enchantindex, SETSHEEN );
-    unset_enchant_value( enchantindex, SETFLYTOHEIGHT );
-    unset_enchant_value( enchantindex, SETWALKONWATER );
-    unset_enchant_value( enchantindex, SETCANSEEINVISIBLE );
-    unset_enchant_value( enchantindex, SETMISSILETREATMENT );
-    unset_enchant_value( enchantindex, SETCOSTFOREACHMISSILE );
-    unset_enchant_value( enchantindex, SETCHANNEL );
-    unset_enchant_value( enchantindex, SETMORPH );
+    unset_enchant_value( ienc, SETDAMAGETYPE );
+    unset_enchant_value( ienc, SETNUMBEROFJUMPS );
+    unset_enchant_value( ienc, SETLIFEBARCOLOR );
+    unset_enchant_value( ienc, SETMANABARCOLOR );
+    unset_enchant_value( ienc, SETSLASHMODIFIER );
+    unset_enchant_value( ienc, SETCRUSHMODIFIER );
+    unset_enchant_value( ienc, SETPOKEMODIFIER );
+    unset_enchant_value( ienc, SETHOLYMODIFIER );
+    unset_enchant_value( ienc, SETEVILMODIFIER );
+    unset_enchant_value( ienc, SETFIREMODIFIER );
+    unset_enchant_value( ienc, SETICEMODIFIER );
+    unset_enchant_value( ienc, SETZAPMODIFIER );
+    unset_enchant_value( ienc, SETFLASHINGAND );
+    unset_enchant_value( ienc, SETLIGHTBLEND );
+    unset_enchant_value( ienc, SETALPHABLEND );
+    unset_enchant_value( ienc, SETSHEEN );
+    unset_enchant_value( ienc, SETFLYTOHEIGHT );
+    unset_enchant_value( ienc, SETWALKONWATER );
+    unset_enchant_value( ienc, SETCANSEEINVISIBLE );
+    unset_enchant_value( ienc, SETMISSILETREATMENT );
+    unset_enchant_value( ienc, SETCOSTFOREACHMISSILE );
+    unset_enchant_value( ienc, SETCHANNEL );
+    unset_enchant_value( ienc, SETMORPH );
 
     // Remove all of the cumulative values
-    add = 0;
-    while ( add < MAXEVEADDVALUE )
+    for ( add = 0; add < MAXEVEADDVALUE; add++ )
     {
-        remove_enchant_value( enchantindex, add );
-        add++;
+        remove_enchant_value( ienc, add );
     }
 
     // Unlink it
     if( itarget < MAXCHR && ChrList[itarget].on )
     {
-        if ( ChrList[itarget].firstenchant == enchantindex )
+        if ( ChrList[itarget].firstenchant == ienc )
         {
             // It was the first in the list
-            ChrList[itarget].firstenchant = EncList[enchantindex].nextenchant;
+            ChrList[itarget].firstenchant = penc->nextenchant;
         }
         else
         {
             // Search until we find it
             lastenchant = currentenchant = ChrList[itarget].firstenchant;
 
-            while ( currentenchant != enchantindex )
+            while ( currentenchant != ienc )
             {
                 lastenchant = currentenchant;
                 currentenchant = EncList[currentenchant].nextenchant;
             }
 
             // Relink the last enchantment
-            EncList[lastenchant].nextenchant = EncList[enchantindex].nextenchant;
+            EncList[lastenchant].nextenchant = penc->nextenchant;
         }
     }
 
     // See if we spit out an end message
-    if ( EveList[EncList[enchantindex].eve].endmessage >= 0 )
+    if ( EveList[penc->eve].endmessage >= 0 )
     {
-        display_message( NULL, MadList[EncList[enchantindex].eve].msgstart + EveList[EncList[enchantindex].eve].endmessage, EncList[enchantindex].target );
+        display_message( NULL, MadList[penc->eve].msgstart + EveList[penc->eve].endmessage, penc->target );
     }
 
     // Check to see if we spawn a poof
-    if ( EveList[EncList[enchantindex].eve].poofonend )
+    if ( EveList[penc->eve].poofonend )
     {
-        spawn_poof( EncList[enchantindex].target, EncList[enchantindex].eve );
+        spawn_poof( penc->target, penc->eve );
     }
 
     // Check to see if the character dies
-    if ( EveList[EncList[enchantindex].eve].killonend )
+    if ( EveList[penc->eve].killonend )
     {
         if( itarget < MAXCHR && ChrList[itarget].on )
         {
@@ -176,7 +188,7 @@ bool_t remove_enchant( Uint16 enchantindex )
     }
 
     // Kill overlay too...
-    overlay = EncList[enchantindex].overlay;
+    overlay = penc->overlay;
     if ( overlay < MAXCHR && ChrList[overlay].on )
     {
         if ( ChrList[overlay].invictus )  TeamList[ChrList[overlay].baseteam].morale++;
@@ -186,71 +198,78 @@ bool_t remove_enchant( Uint16 enchantindex )
     }
 
     // Remove see kurse enchant
-    if( itarget < MAXCHR && ChrList[itarget].on )
+    if( VALID_CHR( itarget ) )
     {
-        if ( EveList[EncList[enchantindex].eve].seekurse && !CapList[ChrList[itarget].model].canseekurse )
+        if ( EveList[penc->eve].seekurse && !CapList[ChrList[itarget].model].canseekurse )
         {
             ChrList[itarget].canseekurse = bfalse;
         }
     }
 
     // Now fix dem weapons
-    if( itarget < MAXCHR && ChrList[itarget].on )
+    if( VALID_CHR( itarget ) )
     {
         reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_LEFT] );
         reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_RIGHT] );
     }
 
-    // Now get rid of it
-    EncList[enchantindex].on = bfalse;
-    freeenchant[numfreeenchant] = enchantindex;
-    numfreeenchant++;
+    free_one_enchant( ienc );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-Uint16 enchant_value_filled( Uint16 enchantindex, Uint8 valueindex )
+Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function returns MAXENCHANT if the enchantment's target has no conflicting
-    //     set values in its other enchantments.  Otherwise it returns the enchantindex
+    //     set values in its other enchantments.  Otherwise it returns the ienc
     //     of the conflicting enchantment
     Uint16 character, currenchant;
 
-    character = EncList[enchantindex].target;
+    if( ienc > MAXENCHANT || !EncList[ienc].on ) return MAXENCHANT;
+
+    character = EncList[ienc].target;
     currenchant = ChrList[character].firstenchant;
 
     while ( currenchant != MAXENCHANT )
     {
         if ( EncList[currenchant].setyesno[valueindex] )
         {
-            return currenchant;
+            break;
         }
 
         currenchant = EncList[currenchant].nextenchant;
     }
 
-    return MAXENCHANT;
+    return currenchant;
 }
 
 //--------------------------------------------------------------------------------------------
-void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
-                        Uint16 enchanttype )
+void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
     // ZZ> This function sets and saves one of the character's stats
     Uint16 conflict, character;
+    enc_t * penc;
+    eve_t * peve;
+    chr_t * ptarget;
 
-    EncList[enchantindex].setyesno[valueindex] = bfalse;
-    if ( EveList[enchanttype].setyesno[valueindex] )
+    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    penc = EncList + ienc;
+
+    if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    peve = EveList + ieve;
+
+    penc->setyesno[valueindex] = bfalse;
+    if ( peve->setyesno[valueindex] )
     {
-        conflict = enchant_value_filled( enchantindex, valueindex );
-        if ( conflict == MAXENCHANT || EveList[enchanttype].override )
+        conflict = enchant_value_filled( ienc, valueindex );
+        if ( conflict == MAXENCHANT || peve->override )
         {
             // Check for multiple enchantments
             if ( conflict < MAXENCHANT )
             {
                 // Multiple enchantments aren't allowed for sets
-                if ( EveList[enchanttype].removeoverridden )
+                if ( peve->removeoverridden )
                 {
                     // Kill the old enchantment
                     remove_enchant( conflict );
@@ -263,270 +282,296 @@ void set_enchant_value( Uint16 enchantindex, Uint8 valueindex,
             }
 
             // Set the value, and save the character's real stat
-            character = EncList[enchantindex].target;
-            EncList[enchantindex].setyesno[valueindex] = btrue;
-
-            switch ( valueindex )
+            character = penc->target;
+            if( VALID_CHR(penc->target) )
             {
-                case SETDAMAGETYPE:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagetargettype;
-                    ChrList[character].damagetargettype = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                ptarget = ChrList + character;
+                penc->setyesno[valueindex] = btrue;
 
-                case SETNUMBEROFJUMPS:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].jumpnumberreset;
-                    ChrList[character].jumpnumberreset = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                switch ( valueindex )
+                {
+                    case SETDAMAGETYPE:
+                        penc->setsave[valueindex] = ptarget->damagetargettype;
+                        ptarget->damagetargettype = peve->setvalue[valueindex];
+                        break;
 
-                case SETLIFEBARCOLOR:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].lifecolor;
-                    ChrList[character].lifecolor = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETNUMBEROFJUMPS:
+                        penc->setsave[valueindex] = ptarget->jumpnumberreset;
+                        ptarget->jumpnumberreset = peve->setvalue[valueindex];
+                        break;
 
-                case SETMANABARCOLOR:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].manacolor;
-                    ChrList[character].manacolor = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETLIFEBARCOLOR:
+                        penc->setsave[valueindex] = ptarget->lifecolor;
+                        ptarget->lifecolor = peve->setvalue[valueindex];
+                        break;
 
-                case SETSLASHMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_SLASH];
-                    ChrList[character].damagemodifier[DAMAGE_SLASH] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETMANABARCOLOR:
+                        penc->setsave[valueindex] = ptarget->manacolor;
+                        ptarget->manacolor = peve->setvalue[valueindex];
+                        break;
 
-                case SETCRUSHMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_CRUSH];
-                    ChrList[character].damagemodifier[DAMAGE_CRUSH] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETSLASHMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_SLASH];
+                        ptarget->damagemodifier[DAMAGE_SLASH] = peve->setvalue[valueindex];
+                        break;
 
-                case SETPOKEMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_POKE];
-                    ChrList[character].damagemodifier[DAMAGE_POKE] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETCRUSHMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_CRUSH];
+                        ptarget->damagemodifier[DAMAGE_CRUSH] = peve->setvalue[valueindex];
+                        break;
 
-                case SETHOLYMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_HOLY];
-                    ChrList[character].damagemodifier[DAMAGE_HOLY] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETPOKEMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_POKE];
+                        ptarget->damagemodifier[DAMAGE_POKE] = peve->setvalue[valueindex];
+                        break;
 
-                case SETEVILMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_EVIL];
-                    ChrList[character].damagemodifier[DAMAGE_EVIL] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETHOLYMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_HOLY];
+                        ptarget->damagemodifier[DAMAGE_HOLY] = peve->setvalue[valueindex];
+                        break;
 
-                case SETFIREMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_FIRE];
-                    ChrList[character].damagemodifier[DAMAGE_FIRE] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETEVILMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_EVIL];
+                        ptarget->damagemodifier[DAMAGE_EVIL] = peve->setvalue[valueindex];
+                        break;
 
-                case SETICEMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_ICE];
-                    ChrList[character].damagemodifier[DAMAGE_ICE] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETFIREMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_FIRE];
+                        ptarget->damagemodifier[DAMAGE_FIRE] = peve->setvalue[valueindex];
+                        break;
 
-                case SETZAPMODIFIER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].damagemodifier[DAMAGE_ZAP];
-                    ChrList[character].damagemodifier[DAMAGE_ZAP] = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETICEMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_ICE];
+                        ptarget->damagemodifier[DAMAGE_ICE] = peve->setvalue[valueindex];
+                        break;
 
-                case SETFLASHINGAND:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].flashand;
-                    ChrList[character].flashand = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETZAPMODIFIER:
+                        penc->setsave[valueindex] = ptarget->damagemodifier[DAMAGE_ZAP];
+                        ptarget->damagemodifier[DAMAGE_ZAP] = peve->setvalue[valueindex];
+                        break;
 
-                case SETLIGHTBLEND:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.light;
-                    ChrList[character].inst.light = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETFLASHINGAND:
+                        penc->setsave[valueindex] = ptarget->flashand;
+                        ptarget->flashand = peve->setvalue[valueindex];
+                        break;
 
-                case SETALPHABLEND:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.alpha;
-                    ChrList[character].inst.alpha = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETLIGHTBLEND:
+                        penc->setsave[valueindex] = ptarget->inst.light;
+                        ptarget->inst.light = peve->setvalue[valueindex];
+                        break;
 
-                case SETSHEEN:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].inst.sheen;
-                    ChrList[character].inst.sheen = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETALPHABLEND:
+                        penc->setsave[valueindex] = ptarget->inst.alpha;
+                        ptarget->inst.alpha = peve->setvalue[valueindex];
+                        break;
 
-                case SETFLYTOHEIGHT:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].flyheight;
-                    if ( ChrList[character].flyheight == 0 && ChrList[character].zpos > -2 )
-                    {
-                        ChrList[character].flyheight = EveList[enchanttype].setvalue[valueindex];
-                    }
-                    break;
+                    case SETSHEEN:
+                        penc->setsave[valueindex] = ptarget->inst.sheen;
+                        ptarget->inst.sheen = peve->setvalue[valueindex];
+                        break;
 
-                case SETWALKONWATER:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].waterwalk;
-                    if ( !ChrList[character].waterwalk )
-                    {
-                        ChrList[character].waterwalk = EveList[enchanttype].setvalue[valueindex];
-                    }
-                    break;
+                    case SETFLYTOHEIGHT:
+                        penc->setsave[valueindex] = ptarget->flyheight;
+                        if ( ptarget->flyheight == 0 && ptarget->zpos > -2 )
+                        {
+                            ptarget->flyheight = peve->setvalue[valueindex];
+                        }
+                        break;
 
-                case SETCANSEEINVISIBLE:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].canseeinvisible;
-                    ChrList[character].canseeinvisible = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETWALKONWATER:
+                        penc->setsave[valueindex] = ptarget->waterwalk;
+                        if ( !ptarget->waterwalk )
+                        {
+                            ptarget->waterwalk = peve->setvalue[valueindex];
+                        }
+                        break;
 
-                case SETMISSILETREATMENT:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].missiletreatment;
-                    ChrList[character].missiletreatment = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETCANSEEINVISIBLE:
+                        penc->setsave[valueindex] = ptarget->canseeinvisible;
+                        ptarget->canseeinvisible = peve->setvalue[valueindex];
+                        break;
 
-                case SETCOSTFOREACHMISSILE:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].missilecost;
-                    ChrList[character].missilecost = EveList[enchanttype].setvalue[valueindex];
-                    ChrList[character].missilehandler = EncList[enchantindex].owner;
-                    break;
+                    case SETMISSILETREATMENT:
+                        penc->setsave[valueindex] = ptarget->missiletreatment;
+                        ptarget->missiletreatment = peve->setvalue[valueindex];
+                        break;
 
-                case SETMORPH:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].skin;
-                    // Special handler for morph
-                    change_character( character, enchanttype, 0, LEAVEALL ); // LEAVEFIRST);
-                    ChrList[character].ai.alert |= ALERTIF_CHANGED;
-                    break;
+                    case SETCOSTFOREACHMISSILE:
+                        penc->setsave[valueindex] = ptarget->missilecost;
+                        ptarget->missilecost = peve->setvalue[valueindex];
+                        ptarget->missilehandler = penc->owner;
+                        break;
 
-                case SETCHANNEL:
-                    EncList[enchantindex].setsave[valueindex] = ChrList[character].canchannel;
-                    ChrList[character].canchannel = EveList[enchanttype].setvalue[valueindex];
-                    break;
+                    case SETMORPH:
+                        penc->setsave[valueindex] = ptarget->skin;
+                        // Special handler for morph
+                        change_character( character, ieve, 0, LEAVEALL ); // LEAVEFIRST);
+                        ptarget->ai.alert |= ALERTIF_CHANGED;
+                        break;
+
+                    case SETCHANNEL:
+                        penc->setsave[valueindex] = ptarget->canchannel;
+                        ptarget->canchannel = peve->setvalue[valueindex];
+                        break;
+                }
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void add_enchant_value( Uint16 enchantindex, Uint8 valueindex,
-                        Uint16 enchanttype )
+void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 {
     // ZZ> This function does cumulative modification to character stats
     int valuetoadd, newvalue;
     float fvaluetoadd, fnewvalue;
     Uint16 character;
+    enc_t * penc;
+    eve_t * peve;
+    chr_t * ptarget;
 
-    character = EncList[enchantindex].target;
+    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    penc = EncList + ienc;
+
+    if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    peve = EveList + ieve;
+
+    character = penc->target;
+    if( INVALID_CHR(penc->target) ) return;
+    ptarget = ChrList + character;
 
     valuetoadd = 0;
-
     switch ( valueindex )
     {
         case ADDJUMPPOWER:
-            fnewvalue = ChrList[character].jump;
-            fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 16.0f;
+            fnewvalue = ptarget->jump;
+            fvaluetoadd = peve->addvalue[valueindex] / 16.0f;
             fgetadd( 0, fnewvalue, 30.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 16.0f; // Get save value
             fvaluetoadd = valuetoadd / 16.0f;
-            ChrList[character].jump += fvaluetoadd;
+            ptarget->jump += fvaluetoadd;
             break;
+
         case ADDBUMPDAMPEN:
-            fnewvalue = ChrList[character].bumpdampen;
-            fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 128.0f;
+            fnewvalue = ptarget->bumpdampen;
+            fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 1.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            ChrList[character].bumpdampen += fvaluetoadd;
+            ptarget->bumpdampen += fvaluetoadd;
             break;
+
         case ADDBOUNCINESS:
-            fnewvalue = ChrList[character].dampen;
-            fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 128.0f;
+            fnewvalue = ptarget->dampen;
+            fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0, fnewvalue, 0.95f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            ChrList[character].dampen += fvaluetoadd;
+            ptarget->dampen += fvaluetoadd;
             break;
+
         case ADDDAMAGE:
-            newvalue = ChrList[character].damageboost;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->damageboost;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, 4096, &valuetoadd );
-            ChrList[character].damageboost += valuetoadd;
+            ptarget->damageboost += valuetoadd;
             break;
+
         case ADDSIZE:
-            fnewvalue = ChrList[character].sizegoto;
-            fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 128.0f;
+            fnewvalue = ptarget->sizegoto;
+            fvaluetoadd = peve->addvalue[valueindex] / 128.0f;
             fgetadd( 0.5f, fnewvalue, 2.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 128.0f; // Get save value
             fvaluetoadd = valuetoadd / 128.0f;
-            ChrList[character].sizegoto += fvaluetoadd;
-            ChrList[character].sizegototime = SIZETIME;
+            ptarget->sizegoto += fvaluetoadd;
+            ptarget->sizegototime = SIZETIME;
             break;
+
         case ADDACCEL:
-            fnewvalue = ChrList[character].maxaccel;
-            fvaluetoadd = EveList[enchanttype].addvalue[valueindex] / 80.0f;
+            fnewvalue = ptarget->maxaccel;
+            fvaluetoadd = peve->addvalue[valueindex] / 80.0f;
             fgetadd( 0, fnewvalue, 1.5f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 1000.0f; // Get save value
             fvaluetoadd = valuetoadd / 1000.0f;
-            ChrList[character].maxaccel += fvaluetoadd;
+            ptarget->maxaccel += fvaluetoadd;
             break;
+
         case ADDRED:
-            newvalue = ChrList[character].inst.redshift;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex];
+            newvalue = ptarget->inst.redshift;
+            valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].inst.redshift += valuetoadd;
+            ptarget->inst.redshift += valuetoadd;
             break;
+
         case ADDGRN:
-            newvalue = ChrList[character].inst.grnshift;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex];
+            newvalue = ptarget->inst.grnshift;
+            valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].inst.grnshift += valuetoadd;
+            ptarget->inst.grnshift += valuetoadd;
             break;
+
         case ADDBLU:
-            newvalue = ChrList[character].inst.blushift;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex];
+            newvalue = ptarget->inst.blushift;
+            valuetoadd = peve->addvalue[valueindex];
             getadd( 0, newvalue, 6, &valuetoadd );
-            ChrList[character].inst.blushift += valuetoadd;
+            ptarget->inst.blushift += valuetoadd;
             break;
+
         case ADDDEFENSE:
-            newvalue = ChrList[character].defense;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex];
+            newvalue = ptarget->defense;
+            valuetoadd = peve->addvalue[valueindex];
             getadd( 55, newvalue, 255, &valuetoadd );  // Don't fix again!
-            ChrList[character].defense += valuetoadd;
+            ptarget->defense += valuetoadd;
             break;
+
         case ADDMANA:
-            newvalue = ChrList[character].manamax;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->manamax;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, PERFECTBIG, &valuetoadd );
-            ChrList[character].manamax += valuetoadd;
-            ChrList[character].mana += valuetoadd;
-            if ( ChrList[character].mana < 0 )  ChrList[character].mana = 0;
-
+            ptarget->manamax += valuetoadd;
+            ptarget->mana += valuetoadd;
+            if ( ptarget->mana < 0 )  ptarget->mana = 0;
             break;
+
         case ADDLIFE:
-            newvalue = ChrList[character].lifemax;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->lifemax;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( LOWSTAT, newvalue, PERFECTBIG, &valuetoadd );
-            ChrList[character].lifemax += valuetoadd;
-            ChrList[character].life += valuetoadd;
-            if ( ChrList[character].life < 1 )  ChrList[character].life = 1;
+            ptarget->lifemax += valuetoadd;
+            ptarget->life += valuetoadd;
+            if ( ptarget->life < 1 )  ptarget->life = 1;
+            break;
 
-            break;
         case ADDSTRENGTH:
-            newvalue = ChrList[character].strength;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->strength;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ChrList[character].strength += valuetoadd;
+            ptarget->strength += valuetoadd;
             break;
+
         case ADDWISDOM:
-            newvalue = ChrList[character].wisdom;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->wisdom;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ChrList[character].wisdom += valuetoadd;
+            ptarget->wisdom += valuetoadd;
             break;
+
         case ADDINTELLIGENCE:
-            newvalue = ChrList[character].intelligence;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->intelligence;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ChrList[character].intelligence += valuetoadd;
+            ptarget->intelligence += valuetoadd;
             break;
+
         case ADDDEXTERITY:
-            newvalue = ChrList[character].dexterity;
-            valuetoadd = EveList[enchanttype].addvalue[valueindex] << 6;
+            newvalue = ptarget->dexterity;
+            valuetoadd = peve->addvalue[valueindex] << 6;
             getadd( 0, newvalue, HIGHSTAT, &valuetoadd );
-            ChrList[character].dexterity += valuetoadd;
+            ptarget->dexterity += valuetoadd;
             break;
     }
 
-    EncList[enchantindex].addsave[valueindex] = valuetoadd;  // Save the value for undo
+    penc->addsave[valueindex] = valuetoadd;  // Save the value for undo
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1070,196 +1115,227 @@ Uint16 get_free_enchant()
 }
 
 //--------------------------------------------------------------------------------------------
-void unset_enchant_value( Uint16 enchantindex, Uint8 valueindex )
+void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function unsets a set value
     Uint16 character;
-    if ( EncList[enchantindex].setyesno[valueindex] )
+    enc_t * penc;
+    chr_t * ptarget;
+
+    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    penc = EncList + ienc;
+
+    character = penc->target;
+    if( INVALID_CHR(penc->target) ) return;
+    ptarget = ChrList + character;
+
+    if ( penc->setyesno[valueindex] )
     {
-        character = EncList[enchantindex].target;
+        character = penc->target;
 
         switch ( valueindex )
         {
             case SETDAMAGETYPE:
-                ChrList[character].damagetargettype = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagetargettype = penc->setsave[valueindex];
                 break;
 
             case SETNUMBEROFJUMPS:
-                ChrList[character].jumpnumberreset = EncList[enchantindex].setsave[valueindex];
+                ptarget->jumpnumberreset = penc->setsave[valueindex];
                 break;
 
             case SETLIFEBARCOLOR:
-                ChrList[character].lifecolor = EncList[enchantindex].setsave[valueindex];
+                ptarget->lifecolor = penc->setsave[valueindex];
                 break;
 
             case SETMANABARCOLOR:
-                ChrList[character].manacolor = EncList[enchantindex].setsave[valueindex];
+                ptarget->manacolor = penc->setsave[valueindex];
                 break;
 
             case SETSLASHMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_SLASH] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_SLASH] = penc->setsave[valueindex];
                 break;
 
             case SETCRUSHMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_CRUSH] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_CRUSH] = penc->setsave[valueindex];
                 break;
 
             case SETPOKEMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_POKE] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_POKE] = penc->setsave[valueindex];
                 break;
 
             case SETHOLYMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_HOLY] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_HOLY] = penc->setsave[valueindex];
                 break;
 
             case SETEVILMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_EVIL] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_EVIL] = penc->setsave[valueindex];
                 break;
 
             case SETFIREMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_FIRE] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_FIRE] = penc->setsave[valueindex];
                 break;
 
             case SETICEMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_ICE] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_ICE] = penc->setsave[valueindex];
                 break;
 
             case SETZAPMODIFIER:
-                ChrList[character].damagemodifier[DAMAGE_ZAP] = EncList[enchantindex].setsave[valueindex];
+                ptarget->damagemodifier[DAMAGE_ZAP] = penc->setsave[valueindex];
                 break;
 
             case SETFLASHINGAND:
-                ChrList[character].flashand = EncList[enchantindex].setsave[valueindex];
+                ptarget->flashand = penc->setsave[valueindex];
                 break;
 
             case SETLIGHTBLEND:
-                ChrList[character].inst.light = EncList[enchantindex].setsave[valueindex];
+                ptarget->inst.light = penc->setsave[valueindex];
                 break;
 
             case SETALPHABLEND:
-                ChrList[character].inst.alpha = EncList[enchantindex].setsave[valueindex];
+                ptarget->inst.alpha = penc->setsave[valueindex];
                 break;
 
             case SETSHEEN:
-                ChrList[character].inst.sheen = EncList[enchantindex].setsave[valueindex];
+                ptarget->inst.sheen = penc->setsave[valueindex];
                 break;
 
             case SETFLYTOHEIGHT:
-                ChrList[character].flyheight = EncList[enchantindex].setsave[valueindex];
+                ptarget->flyheight = penc->setsave[valueindex];
                 break;
 
             case SETWALKONWATER:
-                ChrList[character].waterwalk = EncList[enchantindex].setsave[valueindex];
+                ptarget->waterwalk = penc->setsave[valueindex];
                 break;
 
             case SETCANSEEINVISIBLE:
-                ChrList[character].canseeinvisible = EncList[enchantindex].setsave[valueindex];
+                ptarget->canseeinvisible = penc->setsave[valueindex];
                 break;
 
             case SETMISSILETREATMENT:
-                ChrList[character].missiletreatment = EncList[enchantindex].setsave[valueindex];
+                ptarget->missiletreatment = penc->setsave[valueindex];
                 break;
 
             case SETCOSTFOREACHMISSILE:
-                ChrList[character].missilecost = EncList[enchantindex].setsave[valueindex];
-                ChrList[character].missilehandler = character;
+                ptarget->missilecost = penc->setsave[valueindex];
+                ptarget->missilehandler = character;
                 break;
 
             case SETMORPH:
                 // Need special handler for when this is removed
-                change_character( character, ChrList[character].basemodel, EncList[enchantindex].setsave[valueindex], LEAVEALL );
+                change_character( character, ptarget->basemodel, penc->setsave[valueindex], LEAVEALL );
                 break;
 
             case SETCHANNEL:
-                ChrList[character].canchannel = EncList[enchantindex].setsave[valueindex];
+                ptarget->canchannel = penc->setsave[valueindex];
                 break;
         }
 
-        EncList[enchantindex].setyesno[valueindex] = bfalse;
+        penc->setyesno[valueindex] = bfalse;
     }
 }
 
 //--------------------------------------------------------------------------------------------
-void remove_enchant_value( Uint16 enchantindex, Uint8 valueindex )
+void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
 {
     // ZZ> This function undoes cumulative modification to character stats
     float fvaluetoadd;
     int valuetoadd;
+    Uint16 character;
+    enc_t * penc;
+    chr_t * ptarget;
 
-    Uint16 character = EncList[enchantindex].target;
+    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    penc = EncList + ienc;
+
+    character = penc->target;
+    if( INVALID_CHR(penc->target) ) return;
+    ptarget = ChrList + character;
 
     switch ( valueindex )
     {
         case ADDJUMPPOWER:
-            fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 16.0f;
-            ChrList[character].jump -= fvaluetoadd;
+            fvaluetoadd = penc->addsave[valueindex] / 16.0f;
+            ptarget->jump -= fvaluetoadd;
             break;
+
         case ADDBUMPDAMPEN:
-            fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0f;
-            ChrList[character].bumpdampen -= fvaluetoadd;
+            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+            ptarget->bumpdampen -= fvaluetoadd;
             break;
+
         case ADDBOUNCINESS:
-            fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0f;
-            ChrList[character].dampen -= fvaluetoadd;
+            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+            ptarget->dampen -= fvaluetoadd;
             break;
+
         case ADDDAMAGE:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].damageboost -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->damageboost -= valuetoadd;
             break;
+
         case ADDSIZE:
-            fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 128.0f;
-            ChrList[character].sizegoto -= fvaluetoadd;
-            ChrList[character].sizegototime = SIZETIME;
+            fvaluetoadd = penc->addsave[valueindex] / 128.0f;
+            ptarget->sizegoto -= fvaluetoadd;
+            ptarget->sizegototime = SIZETIME;
             break;
+
         case ADDACCEL:
-            fvaluetoadd = EncList[enchantindex].addsave[valueindex] / 1000.0f;
-            ChrList[character].maxaccel -= fvaluetoadd;
+            fvaluetoadd = penc->addsave[valueindex] / 1000.0f;
+            ptarget->maxaccel -= fvaluetoadd;
             break;
+
         case ADDRED:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].inst.redshift -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->inst.redshift -= valuetoadd;
             break;
+
         case ADDGRN:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].inst.grnshift -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->inst.grnshift -= valuetoadd;
             break;
+
         case ADDBLU:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].inst.blushift -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->inst.blushift -= valuetoadd;
             break;
+
         case ADDDEFENSE:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].defense -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->defense -= valuetoadd;
             break;
+
         case ADDMANA:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].manamax -= valuetoadd;
-            ChrList[character].mana -= valuetoadd;
-            if ( ChrList[character].mana < 0 ) ChrList[character].mana = 0;
-
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->manamax -= valuetoadd;
+            ptarget->mana -= valuetoadd;
+            if ( ptarget->mana < 0 ) ptarget->mana = 0;
             break;
+
         case ADDLIFE:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].lifemax -= valuetoadd;
-            ChrList[character].life -= valuetoadd;
-            if ( ChrList[character].life < 1 ) ChrList[character].life = 1;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->lifemax -= valuetoadd;
+            ptarget->life -= valuetoadd;
+            if ( ptarget->life < 1 ) ptarget->life = 1;
+            break;
 
-            break;
         case ADDSTRENGTH:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].strength -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->strength -= valuetoadd;
             break;
+
         case ADDWISDOM:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].wisdom -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->wisdom -= valuetoadd;
             break;
+
         case ADDINTELLIGENCE:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].intelligence -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->intelligence -= valuetoadd;
             break;
+
         case ADDDEXTERITY:
-            valuetoadd = EncList[enchantindex].addsave[valueindex];
-            ChrList[character].dexterity -= valuetoadd;
+            valuetoadd = penc->addsave[valueindex];
+            ptarget->dexterity -= valuetoadd;
             break;
     }
 }

@@ -5277,8 +5277,8 @@ Uint8 scr_TargetHasID( script_state_t * pstate, ai_state_t * pself )
 
     // This function proceeds if ID matches tmpargument
     sTmp = ChrList[pself->target].model;
-    returncode = CapList[sTmp].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument;
-    returncode = returncode | ( CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument );
+    returncode = ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument ) ||
+                 ( CapList[sTmp].idsz[IDSZ_TYPE  ] == ( IDSZ ) pstate->argument );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6778,8 +6778,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function finds an enemy, and proceeds only if there is one
-    returncode = bfalse;
-    if (get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+    returncode = (MAXCHR != get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse));
 
     SCRIPT_FUNCTION_END();
 }
@@ -8487,7 +8486,6 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     // and who is located in the general vicinity of the character
 
     SCRIPT_FUNCTION_BEGIN();
-
     {
         TARGET_TYPE blahteam = NONE;
 	    returncode = bfalse;
@@ -8502,8 +8500,9 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 		}
 
 		//Try to find one
-        if (get_target(pself->index, WIDE, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+        returncode =  (MAXCHR != get_target(
+            pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1, 
+            pstate->argument, ( pstate->distance >> 4 ) & 1 ));
     }
 
     SCRIPT_FUNCTION_END();

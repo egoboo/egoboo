@@ -200,22 +200,44 @@ IfTimeOut
   SetTurnModeToVelocity
 
   // Find an enemy
-  SetTargetToWideEnemy
-    tmpx = 1
-    tmpargument = [LUMP]
-    IfTargetHasID
-      tmpargument = 0
-      GetXY
-      IfXIsMoreThanY
-        tmpx = 1          //Imposter! Attack!
-      Else
-        tmpx = 0                //Ignore him
-        SetTargetToOldTarget                
+//  SetTargetToWideEnemy
+//    tmpx = 1
+//    tmpargument = [LUMP]
+//    IfTargetHasID
+//      tmpargument = 0
+//      GetXY
+//      IfXIsMoreThanY
+//        tmpx = 1          //Imposter! Attack!
+//      Else
+//        tmpx = 0                //Ignore him
+//        SetTargetToOldTarget                
+//    Else
+//      tmpx = 0                  //Ignore him
+//      SetTargetToOldTarget
+//  Else
+//    tmpx = 0
+    
+  // Find an enemy
+  tmpx = 0
+  IfTargetIsOnHatedTeam
+    // Already have an enemy
+    tmpx = targetdistance
+    tmpy = 900
+    IfXIsMoreThanY
+      tmpx = 0
+      // Find a new enemy
+      tmpargument = [LUMP]
+      tmpdistance = BLAHENEMIES + BLAHINVERTID
+      SetTargetToWideBlahID
+        tmpx = 1
     Else
-      tmpx = 0                  //Ignore him
-      SetTargetToOldTarget
+      // Keep the current enemy
+      tmpx = 1
   Else
-    tmpx = 0
+    tmpargument = [LUMP]
+    tmpdistance = BLAHENEMIES + BLAHINVERTID
+    SetTargetToWideBlahID
+      tmpx = 1    
     
   tmpy = 0
   IfXIsMoreThanY
