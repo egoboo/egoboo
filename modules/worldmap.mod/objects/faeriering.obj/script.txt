@@ -1,0 +1,149 @@
+//This makes the magic ring (30% chance to be there)
+IfStateIs0
+  IfSpawned
+    tmpx = rand % 100
+    tmpy = 70
+    IfXIsLessThanY
+      GoPoof
+    Else
+      // Plop down some Flowers
+      tmpargument = 0
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      tmpargument = 1
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+
+      // Ring'o'Mushrooms
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = 0
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = tmpturn + 8192
+      tmpdistance = 145
+      Compass
+      tmpdistance = 0
+      tmpargument = 2
+      SpawnExactParticle
+
+    // Plants
+      tmpargument = 3
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+
+      tmpargument = 4
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnExactParticle
+      
+      //Spawn the other faeries
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnCharacter
+      tmpargument = 1
+      SetChildState
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      SpawnCharacter
+      tmpargument = 2
+      SetChildState
+
+//randomize "skin"
+IfSpawned    
+  tmpargument = 5 + selfstate
+  tmpdistance = SPAWNORIGIN
+  SpawnAttachedParticle
+    
+    
+
+// ZZ> This controls the faerie AI
+IfTimeOut
+  // Fly around the middle of the room
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  tmpturn = xyturnto + 16384
+  tmpdistance = 200
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 31 + 20
+  SetTime
+
+// All done
+End

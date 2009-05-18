@@ -1,0 +1,43 @@
+IfTimeOut
+  tmpargument = 30
+  SetTime
+  
+  //bubbling sound
+  tmpargument = 0
+  IfContentIs
+    tmpargument = 1
+    PlaySound
+    tmpargument = 4
+    SetContent
+  Else
+    tmpargument = selfcontent - 1
+    SetContent
+
+  //Either check for a outburst or spawn fireballs
+  IfStateIs0
+    SetTargetToNearbyEnemy
+      tmpx = rand & 255
+      tmpy = 10
+      IfXIsLessThanY        //Erupt!
+        tmpargument = 8
+        SetState
+        tmpargument = 0
+        SendMessage
+  Else
+    tmpargument = selfstate - 1
+    SetState
+    
+    //Spawn a fireball
+    tmpargument = 0
+    tmpdistance = selfz + 100
+    tmpx = selfx
+    tmpy = selfy
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+End				// Finished with this character

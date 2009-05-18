@@ -7,8 +7,114 @@ IfContentIs
   tmpdistance = 0
   PlayMusic
 
-    
-  //Plains of Bishopia
+  //ELVEN WOODS
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpdistance = 0
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 54 < 7 + tmpx
+  tmpy = 69 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 63 < 7 + tmpx
+  tmpy = 65 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 67 < 7 + tmpx
+  tmpy = 61 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 63 < 7 + tmpx
+  tmpy = 55 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 67 < 7 + tmpx
+  tmpy = 52 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 72 < 7 + tmpx
+  tmpy = 55 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 50 < 7 + tmpx
+  tmpy = 72 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 76 < 7 + tmpx
+  tmpy = 53 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 70 < 7 + tmpx
+  tmpy = 45 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 72 < 7 + tmpx
+  tmpy = 42 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 65 < 7 + tmpx
+  tmpy = 56 < 7 + tmpy
+  SpawnExactParticle
+  
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 62 < 7 + tmpx
+  tmpy = 61 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 56 < 7 + tmpx
+  tmpy = 60 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 51 < 7 + tmpx
+  tmpy = 66 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = rand % 6 + 4        //Two grass types, mushroom and rock
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx = 44 < 7 + tmpx
+  tmpy = 73 < 7 + tmpy
+  SpawnExactParticle
+
+  //PLAINS OF BISHOPIA
   tmpargument = rand % 4 + 4        //Two grass types, mushroom and rock
   tmpdistance = 0
   tmpx = rand & 255 - 128
@@ -136,6 +242,29 @@ IfContentIs
   tmpy =  50 < 7 + tmpy
   SpawnExactParticle
 
+  //THE GREAT DESERT  
+  tmpargument = 2        //Skull
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx =  24 < 7 + tmpx
+  tmpy =  54 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = 2        //Skull
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx =  22 < 7 + tmpx
+  tmpy =  60 < 7 + tmpy
+  SpawnExactParticle
+
+  tmpargument = 2        //Skull
+  tmpx = rand & 255 - 128
+  tmpy = rand & 255 - 128
+  tmpx =  14 < 7 + tmpx
+  tmpy =  50 < 7 + tmpy
+  SpawnExactParticle
+
+  
   //Show the map
   ShowMap
   ShowYouAreHere

@@ -11,7 +11,6 @@ IfKilled				// This reduces the height of the char
   tmpargument = 65535			  // Drop money
   DropMoney				  //
   tmpargument = 2			  //
-  tmpdistance = rand & 4095 + 8000	  //
   PlaySound				  //
 IfAttacked				// Counter attack
   SetTargetToWhoeverAttacked		  //
@@ -22,7 +21,6 @@ IfAttacked				// Counter attack
     Else				    //
       SetTargetToOldTarget		      //
   tmpargument = rand & 1		  //
-  tmpdistance = rand & 4095 + 8000	  //
   PlaySound				  //
 IfTargetKilled				// Return to follow mode
   tmpargument = 0			  //
@@ -47,7 +45,6 @@ IfTimeOut				// This is done every so often
   tmpy = 25				  //
   IfXIsLessThanY			  // Play a random grunt?
     tmpargument = 3			    //
-    tmpdistance = rand & 4095 + 9000	    //
     PlaySound				    //
   IfStateIs0				  // State 0 ( Follow )
     tmpx = rand & 1023 - 512 + leaderx	    //

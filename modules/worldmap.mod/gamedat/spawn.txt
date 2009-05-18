@@ -1,5 +1,6 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-Hero 00:   NONE      0    53.5 45.0 6.0   N   0   0   0   0   0   T   F   Good
+Hero 00   NONE      0    53.5 45.0 6.0   N   0   0   0   0   0   T   F   Good
+Hero 00:   NONE      0    24.0 25.0 6.0   N   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
   Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null
@@ -111,6 +112,8 @@ pinetree.obj:   NONE    53  56.0   65.0   1.0   ?    0   0  0   0   0   F   F   
 pinetree.obj:   NONE    53  64.0   63.0   1.0   ?    0   0  0   0   0   F   F   N
 pinetree.obj:   NONE    53  59.0   54.0   1.0   ?    0   0  0   0   0   F   F   N
 
+faeriering.obj:   NONE    80  55.0   68.0   0.0   ?    0   0  0   0   0   F   F   N
+
 // other stuff
 moduletool.obj: NONE    125  53.0   45.0   1.0   N    0   0  0   0   0   F   F   N
 
@@ -139,3 +142,6 @@ PineTree:   NONE      53     82.0 41.0 0.0   ?   0   0   0   0   0   F   F   Nul
 PineTree:   NONE      53     76.8 40.0 0.0   ?   0   0   0   0   0   F   F   Null
 PineTree:   NONE      53     79.5 36.0 0.0   ?   0   2   0   0   0   F   F   Null
 PineTree:   NONE      53     75.7 37.5 0.0   ?   0   0   0   0   0   F   F   Null
+
+//Ashlands
+Volcano:   NONE      200     23.0 23.0 3.0   ?   0   0   0   0   0   F   F   Evil

@@ -76,13 +76,22 @@ IfTimeOut				// This is done every so often
       
       tmpy = 40       //trees
       IfXIsEqualToY
-        tmpargument = 72           //tranch
-        tmpx = selfx               //where to spawn x
-        tmpy = selfy               //where to spawn y
-        tmpdistance = selfz + 200  //how high?
-        tmpturn = selfturn         //what direction should it face?
+        tmpargument = 50            //mosquito
+        tmpx = selfx + 150
+        tmpy = selfy + 150
+        tmpdistance = selfz + 200
+        tmpturn = rand
         SpawnExactCharacterXYZ
-        
+        tmpx = selfx - 150
+        tmpturn = rand
+        SpawnExactCharacterXYZ
+        tmpy = selfy - 150
+        tmpturn = rand
+        SpawnExactCharacterXYZ
+        tmpx = selfx + 150
+        tmpturn = rand
+        SpawnExactCharacterXYZ        
+      
       tmpy = 48       //grass
       IfXIsEqualToY
         tmpargument = 38           //grub bug
@@ -106,11 +115,11 @@ IfTimeOut				// This is done every so often
                       
       tmpy = 56      //mountains
       IfXIsEqualToY
-        tmpargument = 65           //fright - no good - replace
+        tmpargument = 97           //cockatrice
         tmpx = selfx               //where to spawn x
         tmpy = selfy               //where to spawn y
         tmpdistance = selfz + 200  //how high?
-        tmpturn = selfturn         //what direction should it face?
+        tmpturn = rand         //what direction should it face?
         SpawnExactCharacterXYZ
       
       tmpy = 72      //desert
@@ -121,6 +130,10 @@ IfTimeOut				// This is done every so often
         tmpx = selfx               //where to spawn x
         tmpy = selfy              //where to spawn y
         SpawnExactCharacterXYZ
+        tmpturn = rand
+        tmpx = selfx + 200               //where to spawn x
+        tmpy = selfy - 150              //where to spawn y
+        SpawnExactCharacterXYZ
 
       //Mosquito
       tmpx = tmpargument
@@ -129,7 +142,7 @@ IfTimeOut				// This is done every so often
         tmpx = selfx + 150
         tmpy = selfy + 150
         tmpdistance = selfz + 200
-        tmpturn = selfturn
+        tmpturn = rand
         SpawnExactCharacterXYZ
         tmpx = selfx - 150
         SpawnExactCharacterXYZ
@@ -156,10 +169,6 @@ IfTimeOut				// This is done every so often
   tmpargument = rand & 63 + 20		  // Wait a while and try again
   SetTime				  //
 End					// Finished with this character
-
-
-
-
 
 
 

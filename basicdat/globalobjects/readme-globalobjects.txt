@@ -37,6 +37,7 @@ SLOT  OBJECT
 91    Book of Firering
 94    Chest Key (silver key [KEYC])
 96    Bomb
+97    Cockatrice
 98    Poisoned Katana
 99    Darkness Amulet (Kursed!)
 100   Weapon Rack

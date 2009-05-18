@@ -1,0 +1,93 @@
+//Randomize skin, each skin has one elemental resistance
+IfSpawned
+  tmpargument = rand % 4
+  ChangeArmor
+  JoinEvilTeam
+
+//---------------------------------------------------------------------
+//Paralysing effect
+IfScoredAHit
+  SetTargetToWhoeverWasHit
+  tmpargument = 100 + selflevel*15	//2 seconds +0.3 per level
+  SetTargetReloadTime
+  tmpargument = 2
+  SendMessageNear
+  tmpargument = 3
+  PlaySound
+
+//---------------------------------------------------------------------
+//Die
+IfKilled				// This reduces the height of the char
+  IfTargetIsOnHatedTeam			  // Final words
+    tmpargument = 0			    //
+  Else
+    tmpargument = 1
+  SendMessageNear
+  tmpargument = 20			  // Dead height
+  SetBumpHeight				  //
+  tmpargument = 2			  // Sound
+  PlaySound				  //
+
+
+//---------------------------------------------------------------------
+//Say ouch
+IfAttacked				// Don't take kindly to attackers
+  SetTargetToWhoeverAttacked		  //
+    tmpargument = rand & 1			    // Sound
+    PlaySound				    //
+
+
+//---------------------------------------------------------------------
+// Attack whoever it bumped
+IfBumped				
+  SetTargetToWhoeverBumped		  //
+  IfTargetIsOnHatedTeam			  // Make sure it's an enemy
+    tmpargument = LATCHLEFT		    // Bite 'em
+    PressLatchButton			    //
+  Else					  // Scooch around friendly
+    tmpx = rand & 1023 + targetx - 512      //
+    tmpy = rand & 1023 + targety - 512      //
+    ClearWaypoints			    //
+    AddWaypoint				    //
+    SetTargetToOldTarget		    //
+
+//---------------------------------------------------------------------
+//Main AI loop
+IfTimeOut
+  tmpargument = rand & 31 + 20		  // Wait a while and try again
+  SetTime
+
+  SetTargetToWideEnemy			  // Look for enemies
+    tmpx = targetx
+    tmpy = 400
+    IfXIsMoreThanY
+      tmpx = targetx
+      tmpy = targety
+      tmpdistance = 1500
+      tmpturn = targetturnto
+      Compass
+    Else
+      tmpx = rand & 511 - 256 + targetx	    //
+      tmpy = rand & 511 - 256 + targety	    //
+      tmpturn = targetturnto
+      tmpdistance = 400
+      Compass
+  Else					  // Wander around home position
+    tmpx = rand & 1023 - 512 + selfx   //
+    tmpy = rand & 1023 - 512 + selfy   //
+  ClearWaypoints			  //
+  AddWaypoint				  //
+	
+
+  //Attack!
+  IfTargetIsOnHatedTeam
+    IfFacingTarget
+      tmpx = targetdistance
+      tmpy = 150
+      IfXIsLessThanY
+        tmpargument = LATCHLEFT		    // Bite 'em
+        PressLatchButton
+
+//---------------------------------------------------------------------
+End					// Finished with this character
+//---------------------------------------------------------------------
