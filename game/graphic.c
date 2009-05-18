@@ -3585,7 +3585,7 @@ void draw_text()
         draw_map( 0, displaySurface->h - MAPSIZE );
 
         //If one of the players can sense enemies via EMP, draw them as blips on the map
-        if ( local_senseenemies )
+        if ( MAXCHR != local_senseenemies )
         {
             Uint16 iTmp;
 
