@@ -34,7 +34,7 @@
 		C448193B0E97F50700FF170F /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819380E97F50700FF170F /* SDL_mixer.framework */; };
 		C448193C0E97F50700FF170F /* SDL_ttf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C44819390E97F50700FF170F /* SDL_ttf.framework */; };
 		C46398970EBE6530006D617D /* link.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398950EBE6530006D617D /* link.c */; };
-		C46398C30EBE6EA8006D617D /* egoboo_endian.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398C20EBE6EA8006D617D /* egobo_oendian.c */; };
+		C46398C30EBE6EA8006D617D /* egoboo_endian.c in Sources */ = {isa = PBXBuildFile; fileRef = C46398C20EBE6EA8006D617D /* egoboo_endian.c */; };
 		C469AB120EA1075B005CDBE7 /* SDLMain.nib in Resources */ = {isa = PBXBuildFile; fileRef = C469AB110EA1075B005CDBE7 /* SDLMain.nib */; };
 		C469AB740EA11626005CDBE7 /* sys_mac.c in Sources */ = {isa = PBXBuildFile; fileRef = C469AB730EA11626005CDBE7 /* sys_mac.c */; };
 		C46DAF0E0E9D34B900084BE5 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819370E97F50700FF170F /* SDL_image.framework */; };
@@ -62,6 +62,12 @@
 		C49FFDA50E97F96E00E13A99 /* server.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD160E97F96E00E13A99 /* server.c */; };
 		C49FFDA70E97F96E00E13A99 /* sound.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD180E97F96E00E13A99 /* sound.c */; };
 		C49FFDAE0E97F96E00E13A99 /* ui.c in Sources */ = {isa = PBXBuildFile; fileRef = C49FFD200E97F96E00E13A99 /* ui.c */; };
+		C4C850050FC048AB00E98D52 /* egoboo_console.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C84FF50FC048AB00E98D52 /* egoboo_console.c */; };
+		C4C850060FC048AB00E98D52 /* egoboo_fileutil.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C84FF70FC048AB00E98D52 /* egoboo_fileutil.c */; };
+		C4C850070FC048AB00E98D52 /* lua_console.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C84FFC0FC048AB00E98D52 /* lua_console.c */; };
+		C4C850090FC048AB00E98D52 /* script_compile.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C850020FC048AB00E98D52 /* script_compile.c */; };
+		C4C850290FC0708500E98D52 /* ego_wrap.c in Sources */ = {isa = PBXBuildFile; fileRef = C4C850280FC0708500E98D52 /* ego_wrap.c */; };
+		C4C8506A0FC087A700E98D52 /* liblua5.1.a in Frameworks */ = {isa = PBXBuildFile; fileRef = C4C8503C0FC0798B00E98D52 /* liblua5.1.a */; };
 		C4F69F1D0E9830BB0086650C /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69EF90E9830BB0086650C /* host.c */; };
 		C4F69F280E9830BB0086650C /* list.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F050E9830BB0086650C /* list.c */; };
 		C4F69F2B0E9830BB0086650C /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F080E9830BB0086650C /* memory.c */; };
@@ -120,8 +126,6 @@
 		8D1107320486CEB800E47090 /* Egoboo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Egoboo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C4006A6F0F00C640009D62E8 /* api.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = api.txt; sourceTree = "<group>"; };
 		C4006A700F00C640009D62E8 /* design.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = design.txt; sourceTree = "<group>"; };
-		C4006A710F00C640009D62E8 /* enet_vs7.cbp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.cbp; sourceTree = "<group>"; };
-		C4006A720F00C640009D62E8 /* enet_vs7.layout */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.layout; sourceTree = "<group>"; };
 		C4006A730F00C640009D62E8 /* enet_vs7.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs7.vcproj; sourceTree = "<group>"; };
 		C4006A740F00C640009D62E8 /* enet_vs9.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = enet_vs9.vcproj; sourceTree = "<group>"; };
 		C4006A750F00C640009D62E8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -132,18 +136,13 @@
 		C4006A7E0F00C797009D62E8 /* change.log */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = change.log; sourceTree = "<group>"; };
 		C4006A7F0F00C797009D62E8 /* egoboo_endian.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_endian.h; sourceTree = "<group>"; };
 		C4006A800F00C797009D62E8 /* egoboo.sh */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.script.sh; path = egoboo.sh; sourceTree = "<group>"; };
-		C4006A810F00C797009D62E8 /* Egoboodoc.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboodoc.txt; sourceTree = "<group>"; };
-		C4006A820F00C797009D62E8 /* game_vs7.cbp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.cbp; sourceTree = "<group>"; };
-		C4006A830F00C797009D62E8 /* game_vs7.depend */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = game_vs7.depend; sourceTree = "<group>"; };
 		C4006A840F00C797009D62E8 /* game_vs7.layout */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.layout; sourceTree = "<group>"; };
 		C4006A850F00C797009D62E8 /* game_vs7.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs7.vcproj; sourceTree = "<group>"; };
 		C4006A860F00C797009D62E8 /* game_vs9.vcproj */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = game_vs9.vcproj; sourceTree = "<group>"; };
 		C4006A870F00C797009D62E8 /* graphic.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = graphic.h; sourceTree = "<group>"; };
 		C4006A880F00C797009D62E8 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		C4006A890F00C82C009D62E8 /* Changelog.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Changelog.txt; sourceTree = "<group>"; };
-		C4006A8A0F00C82C009D62E8 /* classes.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = classes.txt; sourceTree = "<group>"; };
 		C4006A8B0F00C82C009D62E8 /* controls.txt */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = controls.txt; sourceTree = "<group>"; };
-		C4006A8C0F00C82C009D62E8 /* Egoboo Manual.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Egoboo Manual.pdf"; sourceTree = "<group>"; };
 		C4006A8D0F00C82C009D62E8 /* Egoboo_vs7.sln */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboo_vs7.sln; sourceTree = "<group>"; };
 		C4006A8E0F00C82C009D62E8 /* Egoboo_vs9.sln */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Egoboo_vs9.sln; sourceTree = "<group>"; };
 		C4006A8F0F00C82C009D62E8 /* Egoboo.workspace */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xml; path = Egoboo.workspace; sourceTree = "<group>"; };
@@ -187,7 +186,7 @@
 		C483328E0E98625500B78406 /* unix.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = unix.h; sourceTree = "<group>"; };
 		C483328F0E98625500B78406 /* utility.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = utility.h; sourceTree = "<group>"; };
 		C48332900E98625500B78406 /* win32.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = win32.h; sourceTree = "<group>"; };
-		C483329E0E9862F300B78406 /* file_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_linux.c"; sourceTree = "<group>"; };
+		C483329E0E9862F300B78406 /* file_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = file_linux.c; sourceTree = "<group>"; };
 		C483329F0E9862F300B78406 /* sys_linux.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_linux.c; sourceTree = "<group>"; };
 		C48B376D0F890E8800563245 /* egoboo_setup.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = egoboo_setup.c; sourceTree = "<group>"; };
 		C48B376E0F890E8800563245 /* egoboo_setup.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = egoboo_setup.h; sourceTree = "<group>"; };
@@ -226,6 +225,34 @@
 		C49FFD1A0E97F96E00E13A99 /* System.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = System.h; sourceTree = "<group>"; };
 		C49FFD200E97F96E00E13A99 /* ui.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = ui.c; sourceTree = "<group>"; };
 		C49FFD210E97F96E00E13A99 /* ui.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = ui.h; sourceTree = "<group>"; };
+		C4C84FF50FC048AB00E98D52 /* egoboo_console.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = egoboo_console.c; sourceTree = "<group>"; };
+		C4C84FF60FC048AB00E98D52 /* egoboo_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_console.h; sourceTree = "<group>"; };
+		C4C84FF70FC048AB00E98D52 /* egoboo_fileutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = egoboo_fileutil.c; sourceTree = "<group>"; };
+		C4C84FF80FC048AB00E98D52 /* egoboo_fileutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = egoboo_fileutil.h; sourceTree = "<group>"; };
+		C4C84FF90FC048AB00E98D52 /* enchant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = enchant.h; sourceTree = "<group>"; };
+		C4C84FFA0FC048AB00E98D52 /* file_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_common.h; sourceTree = "<group>"; };
+		C4C84FFB0FC048AB00E98D52 /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = input.h; sourceTree = "<group>"; };
+		C4C84FFC0FC048AB00E98D52 /* lua_console.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lua_console.c; sourceTree = "<group>"; };
+		C4C84FFD0FC048AB00E98D52 /* lua_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lua_console.h; sourceTree = "<group>"; };
+		C4C84FFE0FC048AB00E98D52 /* Makefile.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.lua; sourceTree = "<group>"; };
+		C4C84FFF0FC048AB00E98D52 /* module.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = module.h; sourceTree = "<group>"; };
+		C4C850000FC048AB00E98D52 /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network.h; sourceTree = "<group>"; };
+		C4C850010FC048AB00E98D52 /* passage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = passage.h; sourceTree = "<group>"; };
+		C4C850020FC048AB00E98D52 /* script_compile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = script_compile.c; sourceTree = "<group>"; };
+		C4C850030FC048AB00E98D52 /* script_compile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script_compile.h; sourceTree = "<group>"; };
+		C4C850040FC048AB00E98D52 /* sound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound.h; sourceTree = "<group>"; };
+		C4C8500A0FC049B000E98D52 /* egoboo_console.inl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = egoboo_console.inl; sourceTree = "<group>"; };
+		C4C8500B0FC049B000E98D52 /* egoboo_vs6.dsp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = egoboo_vs6.dsp; sourceTree = "<group>"; };
+		C4C8500C0FC049B000E98D52 /* game.cbp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = game.cbp; sourceTree = "<group>"; };
+		C4C8500D0FC049B000E98D52 /* game.depend */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = game.depend; sourceTree = "<group>"; };
+		C4C8500E0FC049B000E98D52 /* use_swig_nix.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = use_swig_nix.sh; sourceTree = "<group>"; };
+		C4C8500F0FC049B000E98D52 /* use_swig_win32.bat */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = use_swig_win32.bat; sourceTree = "<group>"; };
+		C4C850100FC049F200E98D52 /* enet.cbp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = enet.cbp; sourceTree = "<group>"; };
+		C4C850110FC049F200E98D52 /* enet.layout */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = enet.layout; sourceTree = "<group>"; };
+		C4C850120FC049F200E98D52 /* enet_vs6.dsp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = enet_vs6.dsp; sourceTree = "<group>"; };
+		C4C850270FC0708500E98D52 /* ego.i */ = {isa = PBXFileReference; explicitFileType = sourcecode; fileEncoding = 4; path = ego.i; sourceTree = "<group>"; };
+		C4C850280FC0708500E98D52 /* ego_wrap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ego_wrap.c; sourceTree = "<group>"; };
+		C4C8503C0FC0798B00E98D52 /* liblua5.1.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblua5.1.a; path = /usr/local/lib/liblua5.1.a; sourceTree = "<absolute>"; };
 		C4F69EF90E9830BB0086650C /* host.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = host.c; sourceTree = "<group>"; };
 		C4F69F050E9830BB0086650C /* list.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = list.c; sourceTree = "<group>"; };
 		C4F69F080E9830BB0086650C /* memory.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = memory.c; sourceTree = "<group>"; };
@@ -234,7 +261,7 @@
 		C4F69F0C0E9830BB0086650C /* protocol.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = protocol.c; sourceTree = "<group>"; };
 		C4F69F120E9830BB0086650C /* unix.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = unix.c; sourceTree = "<group>"; };
 		C4F69F150E9830BB0086650C /* win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = win32.c; sourceTree = "<group>"; };
-		C4F69F3D0E9831820086650C /* file_common.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_common.c"; sourceTree = "<group>"; };
+		C4F69F3D0E9831820086650C /* file_common.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = file_common.c; sourceTree = "<group>"; };
 		C4F69F3E0E9831820086650C /* egoboo_strutil.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_strutil.c; sourceTree = "<group>"; };
 		C4F69F3F0E9831820086650C /* egoboo_strutil.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_strutil.h; sourceTree = "<group>"; };
 		C4F69F400E9831820086650C /* egoboo_typedef.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_typedef.h; sourceTree = "<group>"; };
@@ -243,13 +270,13 @@
 		C4F69F430E9831820086650C /* graphic_fan.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_fan.c; sourceTree = "<group>"; };
 		C4F69F440E9831820086650C /* graphic_mad.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_mad.c; sourceTree = "<group>"; };
 		C4F69F450E9831820086650C /* graphic_prt.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = graphic_prt.c; sourceTree = "<group>"; };
-		C4F69F470E9831820086650C /* file_mac.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = "file_mac.m"; sourceTree = "<group>"; };
+		C4F69F470E9831820086650C /* file_mac.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; lineEnding = 2; path = file_mac.m; sourceTree = "<group>"; };
 		C4F69F4A0E9831820086650C /* Makefile.unix */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = Makefile.unix; sourceTree = "<group>"; };
 		C4F69F4B0E9831820086650C /* egoboo_math.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = egoboo_math.c; sourceTree = "<group>"; };
 		C4F69F4D0E9831820086650C /* menu.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = menu.c; sourceTree = "<group>"; };
 		C4F69F4E0E9831820086650C /* network.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = network.c; sourceTree = "<group>"; };
 		C4F69F500E9831820086650C /* sys_win32.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = sys_win32.c; sourceTree = "<group>"; };
-		C4F69F580E9831820086650C /* file_win.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = "file_win.c"; sourceTree = "<group>"; };
+		C4F69F580E9831820086650C /* file_win.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; lineEnding = 2; path = file_win.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,6 +291,7 @@
 				C448193A0E97F50700FF170F /* SDL_image.framework in Frameworks */,
 				C448193B0E97F50700FF170F /* SDL_mixer.framework in Frameworks */,
 				C448193C0E97F50700FF170F /* SDL_ttf.framework in Frameworks */,
+				C4C8506A0FC087A700E98D52 /* liblua5.1.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +345,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C4C8503C0FC0798B00E98D52 /* liblua5.1.a */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				002F3C6009D0951E00EBEB88 /* GLUT.framework */,
 				002F3C0009D093BD00EBEB88 /* OpenGL.framework */,
@@ -354,18 +383,22 @@
 			children = (
 				C4006A7E0F00C797009D62E8 /* change.log */,
 				C4006A800F00C797009D62E8 /* egoboo.sh */,
-				C4006A810F00C797009D62E8 /* Egoboodoc.txt */,
-				C4006A820F00C797009D62E8 /* game_vs7.cbp */,
-				C4006A830F00C797009D62E8 /* game_vs7.depend */,
+				C4C8500A0FC049B000E98D52 /* egoboo_console.inl */,
+				C4C8500B0FC049B000E98D52 /* egoboo_vs6.dsp */,
+				C483329E0E9862F300B78406 /* file_linux.c */,
+				C4F69F580E9831820086650C /* file_win.c */,
+				C4C8500C0FC049B000E98D52 /* game.cbp */,
+				C4C8500D0FC049B000E98D52 /* game.depend */,
 				C4006A840F00C797009D62E8 /* game_vs7.layout */,
 				C4006A850F00C797009D62E8 /* game_vs7.vcproj */,
 				C4006A860F00C797009D62E8 /* game_vs9.vcproj */,
-				C483329E0E9862F300B78406 /* file_linux.c */,
 				C4006A880F00C797009D62E8 /* Makefile */,
+				C4C84FFE0FC048AB00E98D52 /* Makefile.lua */,
 				C4F69F4A0E9831820086650C /* Makefile.unix */,
 				C483329F0E9862F300B78406 /* sys_linux.c */,
 				C4F69F500E9831820086650C /* sys_win32.c */,
-				C4F69F580E9831820086650C /* file_win.c */,
+				C4C8500E0FC049B000E98D52 /* use_swig_nix.sh */,
+				C4C8500F0FC049B000E98D52 /* use_swig_win32.bat */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -375,8 +408,9 @@
 			children = (
 				C4006A6F0F00C640009D62E8 /* api.txt */,
 				C4006A700F00C640009D62E8 /* design.txt */,
-				C4006A710F00C640009D62E8 /* enet_vs7.cbp */,
-				C4006A720F00C640009D62E8 /* enet_vs7.layout */,
+				C4C850100FC049F200E98D52 /* enet.cbp */,
+				C4C850110FC049F200E98D52 /* enet.layout */,
+				C4C850120FC049F200E98D52 /* enet_vs6.dsp */,
 				C4006A730F00C640009D62E8 /* enet_vs7.vcproj */,
 				C4006A740F00C640009D62E8 /* enet_vs9.vcproj */,
 				C4006A6B0F00C5F2009D62E8 /* include */,
@@ -439,9 +473,7 @@
 			children = (
 				C4006A990F00C871009D62E8 /* basicdat */,
 				C4006A890F00C82C009D62E8 /* Changelog.txt */,
-				C4006A8A0F00C82C009D62E8 /* classes.txt */,
 				C4006A8B0F00C82C009D62E8 /* controls.txt */,
-				C4006A8C0F00C82C009D62E8 /* Egoboo Manual.pdf */,
 				C4006A920F00C82C009D62E8 /* License.pdf */,
 				C4006AE90F00C89A009D62E8 /* modules */,
 				C48C06810F32F583006984C2 /* players */,
@@ -488,9 +520,15 @@
 				C49FFC9C0E97F96E00E13A99 /* clock.h */,
 				C49FFC9D0E97F96E00E13A99 /* configfile.c */,
 				C49FFC9E0E97F96E00E13A99 /* configfile.h */,
+				C4C850270FC0708500E98D52 /* ego.i */,
+				C4C850280FC0708500E98D52 /* ego_wrap.c */,
 				C49FFC9F0E97F96E00E13A99 /* egoboo.h */,
 				C46B616F0EC2DED3008B84E8 /* egoboo_config.h */,
+				C4C84FF50FC048AB00E98D52 /* egoboo_console.c */,
+				C4C84FF60FC048AB00E98D52 /* egoboo_console.h */,
 				C4006A7F0F00C797009D62E8 /* egoboo_endian.h */,
+				C4C84FF70FC048AB00E98D52 /* egoboo_fileutil.c */,
+				C4C84FF80FC048AB00E98D52 /* egoboo_fileutil.h */,
 				C4F69F4B0E9831820086650C /* egoboo_math.c */,
 				C46B61700EC2DED3008B84E8 /* egoboo_math.h */,
 				C48B376D0F890E8800563245 /* egoboo_setup.c */,
@@ -500,7 +538,10 @@
 				C4F69F3F0E9831820086650C /* egoboo_strutil.h */,
 				C4F69F400E9831820086650C /* egoboo_typedef.h */,
 				C49FFCB10E97F96E00E13A99 /* enchant.c */,
+				C4C84FF90FC048AB00E98D52 /* enchant.h */,
 				C4F69F3D0E9831820086650C /* file_common.c */,
+				C4C84FFA0FC048AB00E98D52 /* file_common.h */,
+				C4F69F470E9831820086650C /* file_mac.m */,
 				C49FFCB80E97F96E00E13A99 /* font.c */,
 				C49FFCB90E97F96E00E13A99 /* font.h */,
 				C49FFCBC0E97F96E00E13A99 /* game.c */,
@@ -514,26 +555,34 @@
 				C49FFCCB0E97F96E00E13A99 /* id_md2.h */,
 				C49FFCCC0E97F96E00E13A99 /* id_normals.c */,
 				C49FFCCE0E97F96E00E13A99 /* input.c */,
+				C4C84FFB0FC048AB00E98D52 /* input.h */,
+				C4C84FFC0FC048AB00E98D52 /* lua_console.c */,
+				C4C84FFD0FC048AB00E98D52 /* lua_console.h */,
 				C46398950EBE6530006D617D /* link.c */,
 				C46398960EBE6530006D617D /* link.h */,
 				C49FFCDB0E97F96E00E13A99 /* log.c */,
 				C49FFCDC0E97F96E00E13A99 /* log.h */,
-				C4F69F470E9831820086650C /* file_mac.m */,
 				C49FFCE20E97F96E00E13A99 /* Md2.c */,
 				C49FFCE30E97F96E00E13A99 /* Md2.h */,
 				C4F69F4D0E9831820086650C /* menu.c */,
 				C49FFCE60E97F96E00E13A99 /* menu.h */,
 				C49FFCEA0E97F96E00E13A99 /* module.c */,
+				C4C84FFF0FC048AB00E98D52 /* module.h */,
 				C4F69F4E0E9831820086650C /* network.c */,
+				C4C850000FC048AB00E98D52 /* network.h */,
 				C49FFD020E97F96E00E13A99 /* particle.c */,
 				C46B61710EC2DED3008B84E8 /* particle.h */,
 				C49FFD050E97F96E00E13A99 /* passage.c */,
+				C4C850010FC048AB00E98D52 /* passage.h */,
 				C49FFD0A0E97F96E00E13A99 /* proto.h */,
 				C49FFD0B0E97F96E00E13A99 /* script.c */,
 				C46B61720EC2DED3008B84E8 /* script.h */,
+				C4C850020FC048AB00E98D52 /* script_compile.c */,
+				C4C850030FC048AB00E98D52 /* script_compile.h */,
 				C49FFD160E97F96E00E13A99 /* server.c */,
 				C49FFD170E97F96E00E13A99 /* server.h */,
 				C49FFD180E97F96E00E13A99 /* sound.c */,
+				C4C850040FC048AB00E98D52 /* sound.h */,
 				C469AB730EA11626005CDBE7 /* sys_mac.c */,
 				C49FFD1A0E97F96E00E13A99 /* System.h */,
 				C49FFD200E97F96E00E13A99 /* ui.c */,
@@ -564,6 +613,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C01FCF4A08A954540054247B /* Build configuration list for PBXNativeTarget "Egoboo" */;
 			buildPhases = (
+				C4C8502B0FC070F600E98D52 /* ShellScript */,
 				8D1107290486CEB800E47090 /* Resources */,
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
@@ -585,9 +635,11 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "Egoboo" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			mainGroup = 29B97314FDCFA39411CA2CEA /* Egoboo */;
 			projectDirPath = "";
+			projectRoot = ..;
 			targets = (
 				8D1107260486CEB800E47090 /* Egoboo */,
 				C48C064D0F32D9B5006984C2 /* Distribution */,
@@ -617,10 +669,9 @@
 			inputPaths = (
 				"$(SRCROOT)/../basicdat",
 				"$(SRCROOT)/../Changelog.txt",
-				"$(SRCROOT)/../classes.txt",
 				"$(SRCROOT)/../controls.txt",
+				"$(SRCROOT)/../doc",
 				"$(BUILT_PRODUCTS_DIR)/Egoboo.app",
-				"$(SRCROOT)/../Egoboo Manual.pdf",
 				"$(SRCROOT)/../License.pdf",
 				"$(SRCROOT)/../modules",
 				"$(SRCROOT)/../players",
@@ -633,6 +684,21 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "die() { exit 1; }\ncd \"${BUILD_ROOT}\" || die\n[ -e Egoboo ] && rm -rf Egoboo\necho \"Creating ${BUILD_ROOT}/Egoboo\"\nmkdir -p Egoboo/Egoboo || die\necho \"Copying distribution files into ${BUILD_ROOT}/Egoboo\"\nfor (( i=0 ; i < SCRIPT_INPUT_FILE_COUNT ; i++ ))\ndo\n\tf=SCRIPT_INPUT_FILE_${i}\n\tcp -pR \"${!f}\" Egoboo/Egoboo/ || die\n\tfind Egoboo -name .svn -prune -exec rm -rf '{}' ';'\n\tfind Egoboo -name .DS_Store -delete\ndone\necho \"Creating disk image\"\nhdiutil create -srcfolder Egoboo \"${SCRIPT_OUTPUT_FILE_0}\" -volname Egoboo -ov -format UDBZ || die\n# -format UDBZ only works with 10.4 and later; use UDZO for 10.3\necho \"Removing ${BUILDROOT}/Egoboo\"\nrm -rf Egoboo";
+		};
+		C4C8502B0FC070F600E98D52 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/../game/ego.i",
+			);
+			outputPaths = (
+				"$(SRCROOT)/../game/ego_wrap.c",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "swig -lua -o \"${SCRIPT_OUTPUT_FILE_0}\" \"${SCRIPT_INPUT_FILE_0}\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -682,6 +748,11 @@
 				C46398970EBE6530006D617D /* link.c in Sources */,
 				C46398C30EBE6EA8006D617D /* egoboo_endian.c in Sources */,
 				C48B377E0F890E8A00563245 /* egoboo_setup.c in Sources */,
+				C4C850050FC048AB00E98D52 /* egoboo_console.c in Sources */,
+				C4C850060FC048AB00E98D52 /* egoboo_fileutil.c in Sources */,
+				C4C850070FC048AB00E98D52 /* lua_console.c in Sources */,
+				C4C850090FC048AB00E98D52 /* script_compile.c in Sources */,
+				C4C850290FC0708500E98D52 /* ego_wrap.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -717,6 +788,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = Egoboo;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
@@ -734,6 +809,10 @@
 				GCC_MODEL_TUNING = G5;
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = Egoboo;
 				WRAPPER_EXTENSION = app;
 			};
@@ -765,6 +844,7 @@
 					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
 					/Library/Frameworks/SDL.framework/Headers,
+					/opt/local/include,
 					"$(HEADER_SEARCH_PATHS)",
 				);
 				PREBINDING = NO;
@@ -804,6 +884,7 @@
 					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
 					/Library/Frameworks/SDL.framework/Headers,
+					/opt/local/include,
 					"$(HEADER_SEARCH_PATHS)",
 				);
 				PREBINDING = NO;
