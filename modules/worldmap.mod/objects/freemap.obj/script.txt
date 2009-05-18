@@ -1,6 +1,0 @@
-IfSpawned
-  EnableExport
-  ShowMap
-  ShowYouAreHere
-  GoPoof
-End					// All done

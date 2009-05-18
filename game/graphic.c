@@ -36,6 +36,7 @@
 #include "passage.h"
 #include "menu.h"
 #include "enchant.h"
+#include "egoboo_strutil.h"
 
 #if defined(USE_LUA_CONSOLE)
 #    include "lua_console.h"

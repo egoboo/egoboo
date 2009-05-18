@@ -7,12 +7,10 @@ IfOrdered
     tmpargument = 0 - 500
     SetContent // Won't come back...
 
-
 //------------------------------------------------------------------------------
 // ZZ> Most undead have an enchantment sustaining them
 IfSpawned
   EnchantTarget  // Enchant self...
-
 
 //------------------------------------------------------------------------------
 // ZZ> Rise from the dead...  Takes several times to wake...
@@ -30,14 +28,12 @@ IfCleanedUp
       IfXIsMoreThanY
         tmpargument = 0
         SetContent
-
-
         tmpargument = 1
         SendMessageNear
         SetTargetToSelf
-        RespawnTarget // Same location, RespawnCharacter returns to start...
-        EnchantTarget  // Enchant self...
-        tmpargument = 244  // Frame 61...
+        RespawnTarget 		// Same location, RespawnCharacter returns to start...
+        EnchantTarget  		// Enchant self...
+        tmpargument = 244  	// Frame 61...
         SetFrame
         tmpargument = ACTIONMD
         DoActionOverride
@@ -50,14 +46,11 @@ IfCleanedUp
         tmpargument = tmpy
         SetContent
 
-
-
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
   tmpargument = 1
   ChangeArmor
-
 
   IfTargetIsOnSameTeam
     tmpargument = MESSAGEFRAG
@@ -72,28 +65,26 @@ IfKilled
     IfXIsEqualToY
       tmpargument = 0 - 500
       SetContent // Won't come back...
+      SetTargetToWhoeverAttacked		//Give exp
+      tmpargument = 20
+      tmpdistance = EXPREVENGE
+      GiveExperienceToTarget
       tmpargument = 2
     Else
       tmpargument = MESSAGEDEATH
   SendMessageNear
 
-
   // Drop goodies
   tmpargument = 65535
   DropMoney
 
-
   // Play the sound
   tmpargument = 1
-  tmpdistance = rand & 2047 + 10000
   PlaySound
-
 
   // Make the character body
   tmpargument = 25
   SetBumpHeight
-
-
 
 //------------------------------------------------------------------------------
 // ZZ> Let the character walk around
@@ -102,14 +93,13 @@ IfTimeOut
   tmpy = 235
   IfXIsMoreThanY
     tmpargument = tmpx & 1 + 2
-    tmpdistance = rand & 2047 + 10000
     PlaySound
     // Randomize the frames...
     tmpargument = tmpx & 1 + LATCHLEFT
     PressLatchButton
   SetTargetToNearbyEnemy
     tmpx = targetdistance
-    tmpy = 110
+    tmpy = 140
     IfXIsLessThanY
       IfFacingTarget
         tmpargument = rand & 1 + LATCHLEFT
@@ -122,7 +112,7 @@ IfTimeOut
     tmpturn = targetturnto
     Compass
   Else
-    tmpargument = rand & 31 + 120
+    tmpargument = rand & 31 + 60
     SetTime
     tmpx = rand & 1023 - 512 + selfspawnx
     tmpy = rand & 1023 - 512 + selfspawny
@@ -131,7 +121,6 @@ IfTimeOut
 IfAtLastWaypoint
   tmpargument = 0
   SetTime
-
 
 //------------------------------------------------------------------------------
 // ZZ> Handle being attacked by blocking or countering or running away
@@ -143,11 +132,10 @@ IfAttacked
     tmpargument = 1
     ChangeArmor
 
-
   // Scream
   tmpargument = 0
-  tmpdistance = rand & 2047 + 10000
   PlaySound
+
   // Chase the attacker
   SetTargetToWhoeverAttacked
   IfTargetIsOnHatedTeam
@@ -160,7 +148,6 @@ IfAttacked
     AddWaypoint
     tmpargument = 30
     SetTime
-
 
 //------------------------------------------------------------------------------
 IfBumped
@@ -183,7 +170,6 @@ IfBumped
     tmpargument = 0
     SetTime
     SetTargetToOldTarget
-
 
 //------------------------------------------------------------------------------
 End

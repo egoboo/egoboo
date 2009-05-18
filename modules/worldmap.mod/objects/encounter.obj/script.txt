@@ -7,14 +7,16 @@ IfTimeOut				// This is done every so often
       GetTileXY
       tmpx = tmpargument
       tmpargument = 50  //mosquito is default
+      
       tmpy = 0        //Water
       IfXIsEqualToY
         tmpargument = 37           //Squidgie
         tmpdistance = selfz + 200  //how high?
-        tmpturn = selfturn         //what direction should it face?
+        tmpturn = rand                  //what direction should it face?
         tmpx = selfx               //where to spawn x
         tmpy = selfy              //where to spawn y
         SpawnExactCharacterXYZ
+      
       tmpy = 8        //beach
       IfXIsEqualToY
         tmpargument = 79           //crab
@@ -23,31 +25,38 @@ IfTimeOut				// This is done every so often
         tmpx = targetx + 150               //where to spawn x
         tmpy = targety + 150              //where to spawn y
         SpawnExactCharacterXYZ
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx - 150               //where to spawn x
         tmpy = targety - 150              //where to spawn y
         SpawnExactCharacterXYZ
+      
       tmpy = 16       //doom wastes
       IfXIsEqualToY
-        tmpargument = 18           //ulna works okay
-        tmpdistance = selfz + 200  //how high?
-        tmpturn = selfturn         //what direction should it face?
+        tmpargument = 18                    //ulna works okay
+        tmpdistance = selfz + 200           //how high?
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx + 150               //where to spawn x
         tmpy = targety + 150              //where to spawn y
         SpawnExactCharacterXYZ
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx - 150               //where to spawn x
         tmpy = targety - 150              //where to spawn y
         SpawnExactCharacterXYZ
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx - 150               //where to spawn x
         tmpy = targety + 150              //where to spawn y
         SpawnExactCharacterXYZ
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx + 150               //where to spawn x
         tmpy = targety - 150              //where to spawn y
         SpawnExactCharacterXYZ
         tmpargument = 65
+        tmpturn = rand                  //what direction should it face?
         tmpx = selfx               //where to spawn x
         tmpy = selfy              //where to spawn y
         SpawnExactCharacterXYZ
-      tmpy = 24       //gnome land
+      
+      tmpy = 24                   //gnome land
       IfXIsEqualToY
         tmpargument = 72           //tranch
         tmpdistance = selfz + 200  //how high?
@@ -55,6 +64,7 @@ IfTimeOut				// This is done every so often
         tmpx = selfx               //where to spawn x
         tmpy = selfy              //where to spawn y
         SpawnExactCharacterXYZ
+      
       tmpy = 32       //ice
       IfXIsEqualToY
         tmpargument = 98           //ghoul - no good - replace
@@ -63,6 +73,7 @@ IfTimeOut				// This is done every so often
         tmpdistance = selfz + 200  //how high?
         tmpturn = selfturn         //what direction should it face?
         SpawnExactCharacterXYZ
+      
       tmpy = 40       //trees
       IfXIsEqualToY
         tmpargument = 72           //tranch
@@ -71,59 +82,28 @@ IfTimeOut				// This is done every so often
         tmpdistance = selfz + 200  //how high?
         tmpturn = selfturn         //what direction should it face?
         SpawnExactCharacterXYZ
+        
       tmpy = 48       //grass
       IfXIsEqualToY
         tmpargument = 38           //grub bug
         tmpdistance = selfz  //how high?
-        tmpturn = selfturn         //what direction should it face?
+        tmpturn = rand                  //what direction should it face?
         tmpx = targetx + 150               //where to spawn x
         tmpy = targety + 150              //where to spawn y
         SpawnExactCharacterXYZ
         tmpx = targetx - 150               //where to spawn x
         tmpy = targety - 150              //where to spawn y
+        tmpturn = rand                  //what direction should it face?
         SpawnExactCharacterXYZ
         tmpx = targetx - 150               //where to spawn x
         tmpy = targety + 150              //where to spawn y
+        tmpturn = rand                  //what direction should it face?
         SpawnExactCharacterXYZ
         tmpx = targetx + 150               //where to spawn x
         tmpy = targety - 150              //where to spawn y
+        tmpturn = rand                  //what direction should it face?
         SpawnExactCharacterXYZ
-        tmpx = targetx              //where to spawn x
-        tmpy = targety + 150              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx               //where to spawn x
-        tmpy = targety - 150              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 150               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 150               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx              //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
+                      
       tmpy = 56      //mountains
       IfXIsEqualToY
         tmpargument = 65           //fright - no good - replace
@@ -132,6 +112,7 @@ IfTimeOut				// This is done every so often
         tmpdistance = selfz + 200  //how high?
         tmpturn = selfturn         //what direction should it face?
         SpawnExactCharacterXYZ
+      
       tmpy = 72      //desert
       IfXIsEqualToY
         tmpargument = 72           //tranch
@@ -141,6 +122,7 @@ IfTimeOut				// This is done every so often
         tmpy = selfy              //where to spawn y
         SpawnExactCharacterXYZ
 
+      //Mosquito
       tmpx = tmpargument
       tmpy = 50
       IfXIsEqualToY
@@ -162,6 +144,10 @@ IfTimeOut				// This is done every so often
       tmpargument = 0		        //
       SendMessage		        //
       CleanUp
+      
+      //Wait long
+      tmpargument = 5000
+      SetTime
   Else					  // Wander around home position
     tmpx = rand % 5000 - 2500 + selfspawnx   //
     tmpy = rand % 5000 - 2500 + selfspawny   //
@@ -170,3 +156,46 @@ IfTimeOut				// This is done every so often
   tmpargument = rand & 63 + 20		  // Wait a while and try again
   SetTime				  //
 End					// Finished with this character
+
+
+
+
+
+
+
+        tmpx = targetx              //where to spawn x
+        tmpy = targety + 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx               //where to spawn x
+        tmpy = targety - 150              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 150               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 150               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx                    //where to spawn x
+        tmpy = targety + 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx               //where to spawn x
+        tmpy = targety - 300              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx - 300               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ
+        tmpx = targetx + 300               //where to spawn x
+        tmpy = targety              //where to spawn y
+        SpawnExactCharacterXYZ

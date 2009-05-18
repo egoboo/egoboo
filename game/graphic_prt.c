@@ -630,8 +630,6 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     }
     else if( ORIENTATION_H == pinst->orientation )
     {
-        GLvector3 vtmp;
-
         vup.x = vup.y = 0;
         vup.z = 1;
 
