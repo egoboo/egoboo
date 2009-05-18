@@ -1,5 +1,5 @@
 // Fireball
-Force spawn ( TRUE or FALSE )				: FALSE
+Force spawn ( TRUE or FALSE )				: TRUE
 Image type ( SOLID, LIGHT, or TRANS )			: LIGHT
 Starting frame ( 0 to 255 )				: 219
 Number of frames ( 1 to 16 )				: 1

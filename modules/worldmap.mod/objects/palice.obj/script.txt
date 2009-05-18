@@ -1,0 +1,29 @@
+// ZZ> This function anounces your location
+IfTimeOut
+  IfBumped			// 
+    SetTargetToWhoeverBumped	  //
+      IfTargetIsAPlayer
+        tmpargument = rand & 3		        //
+        SendMessage		        //
+        tmpargument = 180
+        SetTime
+        
+        
+//This makes the player enter the module
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsAPlayer
+    GetContent
+    tmpargument = 0
+    BeatModule
+    EnableExport
+
+    // Fix the end text
+    ClearEndMessage
+    GetContent
+    AddEndMessage
+    
+    //palsand.mod
+    tmpargument = 4
+    FollowLink
+End				// Finished with this character
