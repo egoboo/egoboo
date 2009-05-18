@@ -1,9 +1,52 @@
+//-----------------------------------------------------------
 // This initializes music and goes away
-
 //Play the default module music track
-tmpargument = 22
-tmpdistance = 0
-PlayMusic
+tmpargument = 0
+IfContentIs
+  tmpargument = 22
+  tmpdistance = 0
+  PlayMusic
 
-GoPoof
+  GoPoof
+
+//-----------------------------------------------------------
+// This makes it windy and snowy
+tmpargument = 1
+IfContentIs
+  JoinEvilTeam
+  
+  //Howling wind
+  IfTimeOut
+    SetTargetToNearestEnemy
+    IfTargetIsAPlayer
+      tmpx = targetdistance
+      tmpy = 128*8
+      IfXIsLessThanY
+        tmpargument = rand % 4
+        PlayFullSound
+    Else
+      tmpargument = rand % 4
+      PlaySound
+    tmpargument = rand % 100 + 175
+    SetTime
+    
+  //Snowfall
+  tmpargument = selfstate + 1
+  SetState
+  tmpx = selfstate
+  tmpy = 20
+  IfXIsMoreThanY
+    tmpargument = 0
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = 800
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SpawnExactParticle
+    SetState    
+
+//-----------------------------------------------------------
 End					// All done
+//-----------------------------------------------------------
