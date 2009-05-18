@@ -1055,6 +1055,7 @@ int load_one_particle_profile( const char *szLoadName )
     ppip->dynalightleveladd = 0;
     ppip->intdamagebonus = bfalse;
     ppip->wisdamagebonus = bfalse;
+    ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
 
     // Read expansions
     while ( goto_colon_yesno( fileread ) )
@@ -1075,6 +1076,19 @@ int load_one_particle_profile( const char *szLoadName )
         else if ( idsz == Make_IDSZ( "DRAD" ) )  ppip->dynalightfalloffadd = fget_int( fileread ) / 1000.0f;
         else if ( idsz == Make_IDSZ( "IDAM" ) )  ppip->intdamagebonus = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "WDAM" ) )  ppip->wisdamagebonus = fget_int( fileread );
+        else if ( idsz == Make_IDSZ( "ORNT" ) )
+        {
+            char cTmp = fget_first_letter( fileread );
+            switch( toupper(cTmp) )
+            {
+                case 'X': ppip->orientation = ORIENTATION_X; break;  // put particle up along the world or body-fixed x-axis
+                case 'Y': ppip->orientation = ORIENTATION_Y; break;  // put particle up along the world or body-fixed y-axis
+                case 'Z': ppip->orientation = ORIENTATION_Z; break;  // put particle up along the world or body-fixed z-axis
+                case 'V': ppip->orientation = ORIENTATION_V; break;  // vertical, like a candle
+                case 'H': ppip->orientation = ORIENTATION_H; break;  // horizontal, like a plate
+                case 'B': ppip->orientation = ORIENTATION_B; break;  // billboard
+            }
+        }
     }
 
     fclose( fileread );

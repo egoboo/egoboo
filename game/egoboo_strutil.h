@@ -48,4 +48,6 @@ char * str_encode( char *strout, size_t insize, const char * strin );
 
 char * get_file_path( const char *character);
 
+void str_add_linebreaks( const char * text, size_t text_len, size_t line_len );
+
 #define _EGOBOOSTRUTIL_H_

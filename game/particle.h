@@ -51,6 +51,18 @@
 #define RIPPLE              7
 #define DEFEND              8                       // Defend particle
 
+enum e_prt_orientations
+{
+    ORIENTATION_B = 0,   // billboard
+    ORIENTATION_X,       // put particle up along the world or body-fixed x-axis
+    ORIENTATION_Y,       // put particle up along the world or body-fixed y-axis
+    ORIENTATION_Z,       // put particle up along the world or body-fixed z-axis
+    ORIENTATION_V,       // vertical, like a candle
+    ORIENTATION_H        // horizontal, like a plate
+};
+typedef enum e_prt_orientations prt_ori_t;
+
+
 //------------------------------------
 // Particle template
 //------------------------------------
@@ -135,6 +147,8 @@ struct s_pip
     bool_t  allowpush;                    // Allow particle to push characters around
     bool_t  intdamagebonus;               // Add intelligence as damage bonus
     bool_t  wisdamagebonus;               // Add wisdom as damage bonus
+
+    prt_ori_t orientation;
 };
 
 typedef struct s_pip pip_t;
@@ -162,6 +176,8 @@ struct s_prt_instance
     Uint16 image;
     float  color_component, alpha_component;
     float  size;
+
+    prt_ori_t orientation;
 };
 typedef struct s_prt_instance prt_instance_t;
 

@@ -460,7 +460,7 @@ GLvector3 mat_getChrUp(GLmatrix mat)
 };
 
 //----------------------------------------------------
-GLvector3 mat_getRight(GLmatrix mat)
+GLvector3 mat_getChrRight(GLmatrix mat)
 {
     GLvector3 right;
 
@@ -523,4 +523,6 @@ GLvector3 mat_getCamForward(GLmatrix mat)
 
     return frw;
 };
+
+
 

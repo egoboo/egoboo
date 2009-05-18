@@ -182,3 +182,49 @@ char * get_file_path( const char *szName )
     return szPathname;
 }
 
+//--------------------------------------------------------------------------------------------
+void str_add_linebreaks( const char * text, size_t text_len, size_t line_len )
+{
+    char * text_end, * text_break, * text_stt;
+
+    if( NULL == text || '\0' == text[0] || 0 == text_len  || 0 == line_len ) return;
+
+    text_end = text + text_len;
+    text_break = text_stt = text;
+    while(text < text_end && '\0' != *text)
+    {
+        // scan for the next whitespace
+        text = strpbrk(text, " \n");
+        if( '\0' == text ) 
+        {
+            // reached the end of the string
+            break;
+        }
+        else if ( '\n' == *text )
+        {
+            // respect existing line breaks
+            text_break = text;
+            text++;
+            continue;
+        }
+
+        // until the line is too long, then insert
+        // replace the last good ' ' with '\n'
+        if( ((size_t)text - (size_t)text_break) > line_len )
+        {
+            if( ' ' != text_break )
+            {
+                text_break = text;   
+            }
+
+            // convert the character
+            *text_break = '\n';
+
+            // start over again
+            text = text_break;
+        }
+
+        text++;
+    }
+}
+

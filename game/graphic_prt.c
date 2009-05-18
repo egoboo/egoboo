@@ -546,6 +546,8 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     pinst->pos.y = pprt->ypos;
     pinst->pos.z = pprt->zpos;
 
+    pinst->orientation = ppip->orientation;
+
     // get the vector from the camera to the particle
     vfwd.x = pinst->pos.x - pcam->x;
     vfwd.y = pinst->pos.y - pcam->y;
@@ -553,30 +555,57 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
-    //if ( VALID_CHR( pprt->attachedtocharacter ) )
-    //{
-    //    chr_instance_t * pinst = &(ChrList[pprt->attachedtocharacter].inst);
+    if( ORIENTATION_B == pinst->orientation )
+    {
+        // use the camera up vector
+        vup = mat_getCamUp( pcam->mView );
+        vup = VNormalize( vup );
 
-    //    if ( pinst->matrixvalid )
-    //    {
-    //        // use the character matrix to orient the particle
-    //        // assume that the particle "up" is in the z-direction in the object's
-    //        // body fixed axes. should work for the gonnes & such
-    //        vup = mat_getChrUp( pinst->matrix );
-    //        vup = VNormalize( vup );
-    //    }
-    //    else
-    //    {
-    //        vup = mat_getCamUp( pcam->mView );
-    //        vup = VNormalize( vup );
-    //    }
+        // get the correct "right" vector
+        vright = VCrossProduct( vfwd, vup );
+        vright = VNormalize( vright );
+    }
+    else if ( VALID_CHR( pprt->attachedtocharacter ) )
+    {
+        chr_instance_t * cinst = &(ChrList[pprt->attachedtocharacter].inst);
 
-    //    // get the correct "right" vector
-    //    vright = VCrossProduct( vfwd, vup );
-    //    vright = VNormalize( vright );
-    //}
-    //else 
-        if ( ppip->rotatetoface && (ABS( pprt->xvel ) + ABS( pprt->yvel ) + ABS( pprt->zvel ) > 0) )
+        if ( cinst->matrixvalid )
+        {
+            // use the character matrix to orient the particle
+            // assume that the particle "up" is in the z-direction in the object's
+            // body fixed axes. should work for the gonnes & such
+
+            switch( pinst->orientation )
+            {
+                case ORIENTATION_X: vup = mat_getChrForward( cinst->matrix ); break;
+                case ORIENTATION_Y: vup = mat_getChrRight( cinst->matrix ); break;
+
+                default:
+                case ORIENTATION_Z: vup = mat_getChrUp( cinst->matrix ); break;
+            }
+
+            vup = VNormalize( vup );
+        }
+        else
+        {
+            // use the camera directions?
+            switch( pinst->orientation )
+            {
+                case ORIENTATION_X: vup = mat_getCamForward( pcam->mView ); break;
+                case ORIENTATION_Y: vup = mat_getCamRight( pcam->mView ); break;
+
+                default:
+                case ORIENTATION_Z: vup = mat_getCamUp( pcam->mView ); break;
+            }
+        }
+
+        vup = VNormalize( vup );
+
+        // get the correct "right" vector
+        vright = VCrossProduct( vfwd, vup );
+        vright = VNormalize( vright );
+    }
+    else if ( ppip->rotatetoface && (ABS( pprt->xvel ) + ABS( pprt->yvel ) + ABS( pprt->zvel ) > 0) )
     {
         // the particle points along its direction of travel
 
@@ -588,6 +617,33 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         // get the correct "right" vector
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
+    }
+    else if( ORIENTATION_V == pinst->orientation )
+    {
+        // use the camera up vector
+        vup.x = vup.y = 0;
+        vup.z = 1;
+
+        // get the correct "right" vector
+        vright = VCrossProduct( vfwd, vup );
+        vright = VNormalize( vright );
+    }
+    else if( ORIENTATION_H == pinst->orientation )
+    {
+        GLvector3 vtmp;
+
+        vup.x = vup.y = 0;
+        vup.z = 1;
+
+        // force right to be horizontal
+        vright = VCrossProduct( vfwd, vup ); 
+
+        // force "up" to be close to the camera forward, but horizontal
+        vup = VCrossProduct( vup, vright );
+
+        // notmalize them
+        vright = VNormalize( vright );
+        vright = VNormalize( vup );
     }
     else
     {

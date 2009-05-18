@@ -220,13 +220,10 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         // Delete all the old items
         if ( owner == character )
         {
-            tnc = 0;
-
-            while ( tnc < 8 )
+            for ( tnc = 0; tnc < 8; tnc++ )
             {
                 sprintf( tofile, "%s" SLASH_STR "%d.obj", todir, tnc );  /*.OBJ*/
                 fs_removeDirectoryAndContents( tofile );
-                tnc++;
             }
         }
 
@@ -269,18 +266,15 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         fs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
-        tnc = 0;
-        while ( tnc < MAXPRTPIPPEROBJECT )
+        for ( tnc = 0; tnc < MAXPRTPIPPEROBJECT; tnc++ )
         {
             sprintf( fromfile, "%s" SLASH_STR "part%d.txt", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "part%d.txt", todir,   tnc );
             fs_copyFile( fromfile, tofile );
-            tnc++;
         }
 
         // Copy all of the sound files
-        tnc = 0;
-        while ( tnc < MAXWAVE )
+        for ( tnc = 0; tnc < MAXWAVE; tnc++ )
         {
             sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
@@ -289,17 +283,15 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
             sprintf( fromfile, "%s" SLASH_STR "sound%d.ogg", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "sound%d.ogg", todir,   tnc );
             fs_copyFile( fromfile, tofile );
-
-            tnc++;
         }
 
         // Copy all of the image files (try to copy all supported formats too)
-        tnc = 0;
-        while ( tnc < MAXSKIN )
+        
+        for ( tnc = 0; tnc < MAXSKIN; tnc++ )
         {
-            Uint8 type = 0;
+            Uint8 type;
 
-            while (type < maxformattypes)
+            for (type = 0; type < maxformattypes; type++)
             {
                 sprintf( fromfile, "%s" SLASH_STR "tris%d%s", fromdir, tnc, TxFormatSupported[type] );
                 sprintf( tofile,   "%s" SLASH_STR "tris%d%s", todir,   tnc, TxFormatSupported[type] );
@@ -307,10 +299,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
                 sprintf( fromfile, "%s" SLASH_STR "icon%d%s", fromdir, tnc, TxFormatSupported[type] );
                 sprintf( tofile,   "%s" SLASH_STR "icon%d%s", todir,   tnc, TxFormatSupported[type] );
                 fs_copyFile( fromfile, tofile );
-                type++;
             }
-
-            tnc++;
         }
     }
 }
@@ -325,8 +314,6 @@ void export_all_players( bool_t require_local )
 	
 	//Stop if export isnt valid
 	if(!exportvalid) return;
-
-    if( !exportvalid ) return;
 
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -354,16 +341,14 @@ void export_all_players( bool_t require_local )
         if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
-        number = 2;
-        item = ChrList[character].nextinpack;
-        while ( item != MAXCHR )
+        for ( number = 2, item = ChrList[character].nextinpack; 
+              number < 8 && item != MAXCHR; 
+              item = ChrList[item].nextinpack )
         {
             if ( ChrList[item].isitem )
             {
                 export_one_character( item, character, number++, is_local );
             }
-
-            item = ChrList[item].nextinpack;
         }
     }
 
@@ -2024,17 +2009,21 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 {
     //ZF> This is the new improved AI targeting system. Also includes distance in the Z direction.
     //If maxdistance is 0 then it searches without a max limit.
-    Uint16 besttarget = MAXCHR, cnt = 0;
-    float longdist = TILESIZE * MAX(mesh.info.tiles_x, mesh.info.tiles_y); //pow(2, 31);
-    float longdist2 = longdist * longdist;
-    float maxdistance2 = maxdistance * maxdistance;
+    Uint16 besttarget;
+    int cnt;
+    float longdist2, maxdistance2 = maxdistance * maxdistance;
 
     if (team == NONE) return MAXCHR;
 
-    for (/*nothing*/; cnt != MAXCHR; cnt++)
+    besttarget = MAXCHR;
+    longdist2 = 0;
+    for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
+        bool_t is_hated, hates_me;
+        bool_t is_friend, is_prey, is_predator, is_mutual;
+
         //Skip non-existing objects, held objects and self
-		if ( !ChrList[cnt].on || ChrList[cnt].attachedto != MAXCHR || ChrList[cnt].inpack || cnt == character ) continue;
+		if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].inpack || cnt == character ) continue;
 
         //Target items
         if ( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
@@ -2043,15 +2032,23 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         if ( targetdead == ChrList[cnt].alive ) continue;
 
         //Dont target hostile invisible stuff, unless we can actually see them
-        if ( TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] && (!ChrList[character].canseeinvisible
-                && ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE )) ) continue;
+        if ( !ChrList[character].canseeinvisible && ( ChrList[cnt].inst.alpha < INVISIBLE && ChrList[cnt].inst.light < INVISIBLE ) ) continue;
+
+        is_hated = TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team];
+        hates_me = TeamList[ChrList[cnt].team].hatesteam[ChrList[character].team];
+
+        is_friend    = !is_hated && !hates_me;
+        is_prey      = is_hated && !hates_me;
+        is_predator  = !is_hated && hates_me;
+        is_mutual    = is_hated && hates_me;
 
         //Which team to target
-        if ( team == ALL || team != TeamList[ChrList[character].team].hatesteam[ChrList[cnt].team] )
+        if ( team == ALL || (team == ENEMY && is_hated) || (team == FRIEND && !is_hated) )
         {
+            bool_t match_idsz = (idsz == CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] ) || ( idsz == CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] ); 
+
             //Check for specific IDSZ too?
-            if ( idsz != IDSZ_NONE && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] == idsz)
-                    && excludeidsz == (CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] == idsz )) continue;
+            if ( idsz == IDSZ_NONE || ( excludeidsz != match_idsz ) )
             {
                 float dx, dy, dz;
                 float dist2;
@@ -2061,7 +2058,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
                 dz = ChrList[cnt].zpos - ChrList[character].zpos;
 
                 dist2 = dx * dx + dy * dy + dz * dz;
-                if (dist2 < longdist2 && (maxdistance == 0 || dist2 <= maxdistance2) )
+                if ( (MAXCHR == besttarget || dist2 < longdist2) && (maxdistance == 0 || dist2 <= maxdistance2) )
                 {
                     besttarget = cnt;
                     longdist2 = dist2;
