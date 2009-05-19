@@ -1672,7 +1672,7 @@ int doAudioOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) )
             {
                 soundvolume += 5;
-                if (soundvolume > 100) soundvolume = 100;
+                if (soundvolume > 100) soundvolume = 0;
 
                 sprintf( Csoundvolume, "%i", soundvolume );
                 audioOptionsButtons[1] = Csoundvolume;
@@ -1697,7 +1697,7 @@ int doAudioOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) )
             {
                 musicvolume += 5;
-                if (musicvolume > 100) musicvolume = 100;
+                if (musicvolume > 100) musicvolume = 0;
 
                 sprintf( Cmusicvolume, "%i", musicvolume );
                 audioOptionsButtons[3] = Cmusicvolume;
@@ -1779,21 +1779,15 @@ int doAudioOptions( float deltaTime )
                 // save the setup file
                 setup_upload();
                 setup_write();
-                if ( !musicvalid && !soundvalid )
+                
+				//Reload the sound system
+				sound_restart();
+				
+				//Do we restart the music?
+                if ( mixeron && musicvalid )
                 {
-                    sound_halt();
-                }
-                if ( mixeron )
-                {
-                    // fix the sound system
-                    if ( musicvalid )
-                    {
-                        sound_play_song( 0, 0, -1 );
-                    }
-                    else
-                    {
-                        Mix_PauseMusic();
-                    }
+					load_all_music_sounds();
+					sound_play_song( 0, 0, -1 );
                 }
 
                 menuState = MM_Leaving;

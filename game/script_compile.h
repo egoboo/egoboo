@@ -526,7 +526,8 @@ enum e_script_variables
     VARTARGETTURNAWAY,   // == 69
     VARSELFLEVEL,        // == 70
     VARTARGETRELOADTIME, // == 71
-    VARSELFCONTENT       // == 72
+    VARSELFCONTENT,      // == 72
+    VARSPAWNDISTANCE     // == 73
 };
 
 //--------------------------------------------------------------------------------------------

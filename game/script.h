@@ -110,7 +110,7 @@ struct s_ai_state
     int            state;         // Short term memory for AI
     int            content;       // More short term memory
     int            passage;       // The passage associated with this character
-    int            timer;         // AI Timer
+    Uint32         timer;         // AI Timer
     int            x[MAXSTOR];    // Temporary values...  SetXY
     int            y[MAXSTOR];
 

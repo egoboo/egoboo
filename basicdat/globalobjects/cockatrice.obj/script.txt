@@ -2,18 +2,30 @@
 IfSpawned
   tmpargument = rand % 4
   ChangeArmor
-  JoinEvilTeam
+  tmpargument = STATEGUARD
+  SetState
 
 //---------------------------------------------------------------------
 //Paralysing effect
 IfScoredAHit
   SetTargetToWhoeverWasHit
-  tmpargument = 100 + selflevel*15	//2 seconds +0.3 per level
-  SetTargetReloadTime
-  tmpargument = 2
-  SendMessageNear
-  tmpargument = 3
-  PlaySound
+  tmpx = targetlife > 8
+  tmpy = selfstr > 8
+  tmpy = 25 + tmpy - tmpx
+  tmpx = rand % 100
+  IfXIsLessThanY
+    tmpargument = selflevel*15 + 125	//2,5 seconds +0.3 per level
+    SetTargetReloadTime
+    tmpargument = 2
+    SendMessageNear
+    tmpargument = 3
+    PlaySound
+  tmpargument = 80
+  SetReloadTime
+  
+  //Keep distance
+  tmpargument = STATESURROUND 
+  SetState
 
 //---------------------------------------------------------------------
 //Die
@@ -33,17 +45,22 @@ IfKilled				// This reduces the height of the char
 //Say ouch
 IfAttacked				// Don't take kindly to attackers
   SetTargetToWhoeverAttacked		  //
-    tmpargument = rand & 1			    // Sound
-    PlaySound				    //
-
-
+  IfTargetIsOnHatedTeam
+    tmpargument = STATECOMBAT
+    SetState
+  Else
+    SetTargetToOldTarget
+    
+  tmpargument = rand & 1			    // Sound
+  PlaySound				    //
+    
 //---------------------------------------------------------------------
 // Attack whoever it bumped
 IfBumped				
   SetTargetToWhoeverBumped		  //
   IfTargetIsOnHatedTeam			  // Make sure it's an enemy
-    tmpargument = LATCHLEFT		    // Bite 'em
-    PressLatchButton			    //
+    tmpargument = STATECOMBAT
+    SetState
   Else					  // Scooch around friendly
     tmpx = rand & 1023 + targetx - 512      //
     tmpy = rand & 1023 + targety - 512      //
@@ -56,38 +73,87 @@ IfBumped
 IfTimeOut
   tmpargument = rand & 31 + 20		  // Wait a while and try again
   SetTime
+  
+  IfStateIsSurround
+    SetTurnModeToWatchTarget
+    tmpx = rand & 511 + targetx - 256
+    tmpy = rand & 511 + targety - 256
+    tmpdistance = 0 - 400
+    tmpturn = targetturnto
+    Compass
+    ClearWaypoints
+    AddWaypoint
+    
+    //Engage randomly
+    tmpx = rand & 255
+    tmpy = 30
+    IfXIsLessThanY
+      tmpargument = STATECOMBAT
+      SetState
+      tmpargument = 5
+      PlaySound
 
-  SetTargetToWideEnemy			  // Look for enemies
+  IfStateIsCombat
+    tmpx = spawndistance
+    tmpy = 128*10
+    IfXIsMoreThanY
+      tmpx = targetdistance
+      tmpy = 512
+      IfXIsMoreThanY
+        tmpargument = STATEGUARD      //enemy ran away
+        SetState
+        
     tmpx = targetx
     tmpy = 400
     IfXIsMoreThanY
       tmpx = targetx
       tmpy = targety
-      tmpdistance = 1500
+      tmpdistance = 1500        //catch up fast
       tmpturn = targetturnto
       Compass
+      ClearWaypoints			  //
+      AddWaypoint				  //
     Else
       tmpx = rand & 511 - 256 + targetx	    //
-      tmpy = rand & 511 - 256 + targety	    //
+      tmpy = rand & 511 - 256 + targety	    // attack from random direction!
       tmpturn = targetturnto
       tmpdistance = 400
       Compass
-  Else					  // Wander around home position
-    tmpx = rand & 1023 - 512 + selfx   //
-    tmpy = rand & 1023 - 512 + selfy   //
-  ClearWaypoints			  //
-  AddWaypoint				  //
+      ClearWaypoints			  //
+      AddWaypoint				  //
+      
+    //Attack!
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 150
+        IfXIsLessThanY
+          tmpargument = LATCHLEFT		    // Bite 'em
+          PressLatchButton
+
+  IfStateIsGuard
+    SetTurnModeToVelocity
+    // Wander around home position
+    tmpx = rand & 1023 - 512 + selfspawnx   //
+    tmpy = rand & 1023 - 512 + selfspawny   //
+    ClearWaypoints			  //
+    AddWaypoint				  //
+    
+    SetTargetToNearbyEnemy
+      tmpargument = STATESURROUND
+      SetState
+      tmpargument = 5
+      PlaySound
+
+//---------------------------------------------------------------------
+//Dont attack dead stuff
+IfTargetKilled
+  SetTargetToWideEnemy
+    tmpargument = STATECOMBAT
+  Else
+    tmpargument = STATEGUARD
+  SetState
 	
-
-  //Attack!
-  IfTargetIsOnHatedTeam
-    IfFacingTarget
-      tmpx = targetdistance
-      tmpy = 150
-      IfXIsLessThanY
-        tmpargument = LATCHLEFT		    // Bite 'em
-        PressLatchButton
-
 //---------------------------------------------------------------------
 End					// Finished with this character
 //---------------------------------------------------------------------

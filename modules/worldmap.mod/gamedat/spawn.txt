@@ -1,4 +1,5 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
+Hero 00:   NONE      97    53.5 45.0 6.0   N   0   0   0   0   0   F  F   Eood
 Hero 00:   NONE      0    53.5 45.0 6.0   N   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
@@ -51,7 +52,7 @@ bishopia.obj:    NONE    45  40.0   55.5   0.0   E    0   0  2   0   0   F   F  
 Ice Palace:      NONE    81  81.0   23.5   1.0   W   0   0   2   0   0   F   F   Evil
 
 // encounters
-encounter.obj:   NONE    54  60.0   35.0   0.0   N    0   0  2   0   0   F   F   E
+encounter.obj:   NONE    54  60.0   35.0   0.0   N    0   0  0   0   0   F   F   E
 encounter.obj:   NONE    54  30.0   26.0   1.0   N    0   0  0   0   0   F   F   E
 encounter.obj:   NONE    54  45.0   34.0   2.0   N    0   0  0   0   0   F   F   E
 encounter.obj:   NONE    54  57.0   19.0   1.0   N    0   0  0   0   0   F   F   E
@@ -145,4 +146,4 @@ PineTree:   NONE      53     79.5 36.0 0.0   ?   0   2   0   0   0   F   F   Nul
 PineTree:   NONE      53     75.7 37.5 0.0   ?   0   0   0   0   0   F   F   Null
 
 //Ashlands
-Volcano:   NONE      200     23.0 23.0 3.0   ?   0   0   0   0   0   F   F   Evil
+Volcano:   NONE      200     26.0 32.5 1.0   ?   0   0   0   0   0   F   F   Evil

@@ -521,7 +521,7 @@ EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD
 EXTERN bool_t                    local_seeinvisible   EQ( bfalse );
 EXTERN bool_t                    local_seekurse       EQ( bfalse );
 EXTERN Uint16                    local_senseenemies   EQ( MAXCHR );
-EXTERN IDSZ                      local_senseenemiesID;
+EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
 
 //------------------------------------

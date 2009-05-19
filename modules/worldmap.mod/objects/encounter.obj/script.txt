@@ -3,11 +3,16 @@ IfOrdered
   tmpx = selforder
   tmpy = [ENCO]
   IfXIsEqualToY
-    tmpargument = 1500    //30 seconds
+    tmpargument = 1250    //25 seconds
     SetTime
 
 // ZZ> This function spawns enemies when near a hero
 IfTimeOut				// This is done every so often
+  
+  //Reset the timer
+  tmpargument = rand & 63 + 20
+  SetTime				  //
+  
   SetTargetToNearbyEnemy		  // Look for enemies
     IfTargetIsOnHatedTeam         //
       tmpx = selfx
@@ -176,45 +181,5 @@ IfTimeOut				// This is done every so often
     tmpy = rand % 5000 - 2500 + selfspawny   //
   ClearWaypoints			  //
   AddWaypoint				  //
-  tmpargument = rand & 63 + 20		  // Wait a while and try again
-  SetTime				  //
+  
 End					// Finished with this character
-
-
-
-        tmpx = targetx              //where to spawn x
-        tmpy = targety + 150              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx               //where to spawn x
-        tmpy = targety - 150              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 150               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 150               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx                    //where to spawn x
-        tmpy = targety + 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx               //where to spawn x
-        tmpy = targety - 300              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx - 300               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ
-        tmpx = targetx + 300               //where to spawn x
-        tmpy = targety              //where to spawn y
-        SpawnExactCharacterXYZ

@@ -76,7 +76,7 @@ extern Uint16           dolist[MAXCHR];             // List of which characters 
 extern Uint16           numdolist;                  // How many in the list
 
 /*OpenGL Textures*/
-extern  STRING          TxFormatSupported[50]; // OpenGL icon surfaces
+extern  STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
 
 extern  GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces

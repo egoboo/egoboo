@@ -1337,9 +1337,6 @@ int SDL_main( int argc, char **argv )
     SDL_WM_GrabInput( SDL_GRAB_OFF );
     SDL_ShowCursor( btrue );
 
-    // can't be done globally :(
-    local_senseenemiesID = IDSZ_NONE;
-
     // Network's temporarily disabled
     clk_frameStep();
     frameDuration = clk_getFrameDuration();
@@ -3303,9 +3300,9 @@ void bump_characters( void )
     // ZZ> This function sets handles characters hitting other characters or particles
     Uint16 character, particle, ichr_a, ichr_b, iprt_b;
     Uint16 ipip_b, direction;
-    Uint32 fanblock, prtidparent, prtidtype, eveidremove;
+    Uint32 fanblock, prtidparent, prtidtype, eveidremove, dist;
     Sint8 hide;
-    int tnc, dist, chrinblock, prtinblock, enchant, temp;
+    int tnc, chrinblock, prtinblock, enchant, temp;
     float ax, ay, nx, ny, scale;  // For deflection
     Uint16 facing;
 
@@ -5238,6 +5235,10 @@ bool_t game_update_imports()
 void release_module()
 {
     // ZZ> This function frees up memory used by the module
+
+	// Disable EMP
+    local_senseenemiesID = IDSZ_NONE;
+    local_senseenemies = MAXCHR;
 
     release_all_icons();
     release_all_titleimages();

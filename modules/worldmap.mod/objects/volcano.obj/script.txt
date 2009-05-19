@@ -17,7 +17,7 @@ IfTimeOut
   IfStateIs0
     SetTargetToNearbyEnemy
       tmpx = rand & 255
-      tmpy = 10
+      tmpy = 20
       IfXIsLessThanY        //Erupt!
         tmpargument = 8
         SetState

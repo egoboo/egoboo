@@ -397,7 +397,7 @@ int sound_play_mix( float xpos, float ypos, mix_ptr_t * pptr )
     {
         if ( gDevMode )
         {
-            //log_warning( "Sound file not correctly loaded (Not found?).\n" );
+			if(gDevMode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
         }
         return -1;
     }
@@ -445,6 +445,7 @@ void sound_restart()
         {
             mixeron = btrue;
             Mix_AllocateChannels( maxsoundchannel );
+			Mix_VolumeMusic( musicvolume );
         }
         else
         {
@@ -477,7 +478,7 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
 
     const float reverb_dist2 = 200 * 200;
 
-    if ( !mixeron || NULL == pchunk ) return -1;
+    if ( !soundvalid || !mixeron || NULL == pchunk ) return -1;
 
     // measure the distance in tiles
     diff_x = pos_x - gCamera.trackx;
@@ -497,7 +498,7 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
         channel = Mix_PlayChannel( -1, pchunk, 0 );
         if ( -1 == channel )
         {
-            // log_warning( "All sound channels are currently in use. Sound is NOT playing.\n" );
+			if(gDevMode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
         else
         {
@@ -539,7 +540,7 @@ void sound_stop_channel( int whichchannel )
 //------------------------------------
 void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
-    if ( !mixeron ) return;
+    if ( !musicvalid || !mixeron ) return;
 
     // This functions plays a specified track loaded into memory
     if ( songplaying != songnumber && musicvalid )
@@ -635,6 +636,8 @@ void load_all_music_sounds()
     char songname[128];
     FILE *playlist;
     int cnt;
+	
+	if( musicinmemory || !musicvalid ) return;
 
     // Open the playlist listing all music files
     playlist = fopen( "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt", "r" );
@@ -644,20 +647,16 @@ void load_all_music_sounds()
         return;
     }
 
-    // Load the music data into memory
-    if ( musicvalid && !musicinmemory )
+    // Load the music data into memory    
+    for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
     {
-        for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
-        {
-            goto_colon_yesno( playlist );
-            fscanf( playlist, "%s", songname );
-            sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
+        goto_colon_yesno( playlist );
+        fscanf( playlist, "%s", songname );
+        sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
 
-            musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
-        }
-
-        musicinmemory = btrue;
+        musictracksloaded[cnt] = Mix_LoadMUS( loadpath );
     }
+    musicinmemory = btrue;
 
     fclose( playlist );
 }

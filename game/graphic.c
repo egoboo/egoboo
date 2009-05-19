@@ -62,7 +62,7 @@
 //--------------------------------------------------------------------------------------------
 
 Uint8           maxformattypes = 0;
-STRING          TxFormatSupported[50];      // OpenGL icon surfaces
+STRING          TxFormatSupported[20];      // List of texture formats that we search for
 
 GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
 GLtexture       TxFont;                     // OpenGL font surface

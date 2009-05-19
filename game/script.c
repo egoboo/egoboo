@@ -1324,6 +1324,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 iTmp = ChrList[pself->target].reloadtime;
                 break;
 
+            case VARSPAWNDISTANCE:
+                varname = "SPAWNDISTANCE";
+				iTmp = ABS( ( int )( ChrList[pself->index].xstt - ChrList[pself->index].xpos ) ) +
+                       ABS( ( int )( ChrList[pself->index].ystt - ChrList[pself->index].ypos ) );
+                break;
+
             default:
                 log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
                 break;

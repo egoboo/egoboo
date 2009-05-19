@@ -130,6 +130,9 @@ void GLSetup_SupportedFormats()
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpg"); type++;
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpeg"); type++;
         snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".xpm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pnm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".lbm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tga"); type++;
     }
 
     // These typed are natively supported with SDL

@@ -360,6 +360,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\script_functions.c"
+				>
+			</File>
+			<File
 				RelativePath=".\server.c"
 				>
 			</File>
@@ -543,6 +547,10 @@
 			</File>
 			<File
 				RelativePath=".\script_compile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\script_functions.h"
 				>
 			</File>
 			<File
