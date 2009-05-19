@@ -42,6 +42,7 @@
 #include "sound.h"
 
 #include "script.h"
+#include "script_functions.h"
 
 #include "module.h"
 
@@ -65,6 +66,8 @@
 %include "egoboo.h"
 
 %include "script.h"
+%include "script_functions.h"
+
 %include "proto.h"
 %include "link.h"
 

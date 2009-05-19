@@ -253,6 +253,9 @@
 				RelativePath=".\script_compile.c">
 			</File>
 			<File
+				RelativePath=".\script_functions.c">
+			</File>
+			<File
 				RelativePath=".\server.c">
 			</File>
 			<File
@@ -393,6 +396,9 @@
 				RelativePath=".\script_compile.h">
 			</File>
 			<File
+				RelativePath=".\script_functions.h">
+			</File>
+			<File
 				RelativePath=".\server.h">
 			</File>
 			<File
@@ -531,6 +537,18 @@
 		<Filter
 			Name="lua_interface"
 			Filter="">
+			<File
+				RelativePath=".\ego.i">
+			</File>
+			<File
+				RelativePath=".\ego_wrap.c">
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="TRUE">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath=".\egoboo_console.c">
 			</File>

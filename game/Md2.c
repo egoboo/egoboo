@@ -40,7 +40,7 @@ md2_frame_t Md2FrameList[MAXFRAME];
 //--------------------------------------------------------------------------------------------
 float kMd2Normals[][3] =
 {
-#include "id_normals.c"
+#include "id_normals.inl"
     ,
     {0, 0, 0}  // Spiky Mace
 };

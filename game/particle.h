@@ -88,8 +88,8 @@ struct s_pip
     float   spdlimit;                     // Speed limit
     float   dampen;                       // Bounciness
     Sint8   bumpmoney;                    // Value of particle
-    Uint8   bumpsize;                     // Bounding box size
-    Uint8   bumpheight;                   // Bounding box height
+    Uint32  bumpsize;                     // Bounding box size
+    Uint32  bumpheight;                   // Bounding box height
     bool_t  endwater;                     // End if underwater
     bool_t  endbump;                      // End if bumped
     bool_t  endground;                    // End if on ground
@@ -222,8 +222,8 @@ struct s_prt
     Uint8   light;                           // Light level
     Uint16  time;                            // Duration of particle
     Uint16  spawntime;                       // Time until spawn
-    Uint8   bumpsize;                        // Size of bumpers
-    Uint8   bumpsizebig;
+    Uint32  bumpsize;                        // Size of bumpers
+    Uint32  bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
     Uint16  bumpnext;                        // Next particle on fanblock
     Uint16  damagebase;                      // For strength

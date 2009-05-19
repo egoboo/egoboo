@@ -170,10 +170,10 @@ struct s_cap
 
     float        size;                          // Scale of model
     float        sizeperlevel;                  // Scale increases
-    Uint8        shadowsize;                    // Shadow size
-    Uint8        bumpsize;                      // Bounding octagon
-    Uint8        bumpsizebig;                   // For octagonal bumpers
-    Uint8        bumpheight;
+    Uint32       shadowsize;                    // Shadow size
+    Uint32       bumpsize;                      // Bounding octagon
+    Uint32       bumpsizebig;                   // For octagonal bumpers
+    Uint32       bumpheight;
 
     // movement
     float        jump;                          // Jump power
@@ -433,14 +433,14 @@ struct s_chr
     Uint8          isitem;          // Is it grabbable?
     Uint8          invictus;        // Totally invincible?
     Uint8          ismount;         // Can you ride it?
-    Uint8          shadowsize;      // Size of shadow
-    Uint8          bumpsize;        // Size of bumpers
-    Uint8          bumpsizebig;     // For octagonal bumpers
-    Uint8          bumpheight;      // Distance from head to toe
-    Uint8          shadowsizesave;  // Without size modifiers
-    Uint8          bumpsizesave;
-    Uint8          bumpsizebigsave;
-    Uint8          bumpheightsave;
+    Uint32         shadowsize;      // Size of shadow
+    Uint32         bumpsize;        // Size of bumpers
+    Uint32         bumpsizebig;     // For octagonal bumpers
+    Uint32         bumpheight;      // Distance from head to toe
+    Uint32         shadowsizesave;  // Without size modifiers
+    Uint32         bumpsizesave;
+    Uint32         bumpsizebigsave;
+    Uint32         bumpheightsave;
     Uint16         bumpnext;        // Next character on fanblock
     float          bumpdampen;      // Character bump mass
     Uint8          platform;        // Can it be stood on
