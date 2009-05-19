@@ -5342,7 +5342,7 @@ void move_characters( void )
     // Do poofing
     for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        if ( !ChrList[cnt].on || !(ChrList[cnt].ai.poof_time >= 0 && ChrList[cnt].ai.poof_time <= frame_wld)  ) continue;
+        if ( !ChrList[cnt].on || !(ChrList[cnt].ai.poof_time >= 0 && ChrList[cnt].ai.poof_time <= (Sint32)frame_wld)  ) continue;
 
         if ( ChrList[cnt].attachedto != MAXCHR )
         {

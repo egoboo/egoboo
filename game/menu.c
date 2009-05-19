@@ -1206,7 +1206,7 @@ int doInputOptions( float deltaTime )
     static Uint32 player = 0;
 
     Uint32              i;
-    int                 idevice, iicon;
+    Sint32              idevice, iicon;
     device_controls_t * pdevice;
 
     pdevice = NULL;
@@ -1787,7 +1787,7 @@ int doAudioOptions( float deltaTime )
                 if ( mixeron && musicvalid )
                 {
 					load_all_music_sounds();
-					sound_play_song( 0, 0, -1 );
+					Mix_FadeInMusic( musictracksloaded[songplaying], -1, 500 );
                 }
 
                 menuState = MM_Leaving;

@@ -116,17 +116,12 @@ bool_t goto_colon_yesno( FILE* fileread )
 {
     // ZZ> This function moves a file read pointer to the next colon, or it returns
     //     bfalse if there are no more
-    char cTmp;
+    char cTmp = ' ';
 
-    do
-    {
-        if ( fscanf( fileread, "%c", &cTmp ) == EOF )
-        {
-            return bfalse;
-        }
-    }
-    while ( cTmp != ':' );
-
+	while( cTmp != ':' )
+	{
+		if ( fscanf( fileread, "%c", &cTmp ) == EOF ) return bfalse;
+	}
     return btrue;
 }
 

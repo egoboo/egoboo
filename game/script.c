@@ -65,7 +65,7 @@ void let_character_think( Uint16 character )
     pself = &(pchr->ai);
 
     // has the time for this character to die come and gone?
-    if ( pself->poof_time >= 0 && pself->poof_time <= frame_wld ) return;
+    if ( pself->poof_time >= 0 && pself->poof_time <= (Sint32)frame_wld ) return;
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off

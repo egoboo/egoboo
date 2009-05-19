@@ -127,13 +127,14 @@ extern bool_t      musicinmemory;                          // Is the music loade
 extern Sint8       songplaying;                            // Current song that is playing
 extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   // This is a specific music file loaded into memory
 
+#define INVALID_SOUND -1
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // The global functions for the sound module
 
 bool_t sound_initialize();
 void   sound_restart();
-void   sound_halt();
 
 Mix_Chunk * sound_load_chunk( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );

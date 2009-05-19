@@ -1584,7 +1584,7 @@ void memory_cleanUp(void)
 //--------------------------------------------------------------------------------------------
 int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
 {
-    int numskins, numicon;
+    Uint8 numskins, numicon;
     STRING newloadname;
     int cnt;
     mad_t * pmad;

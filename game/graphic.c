@@ -81,7 +81,7 @@ Uint16           numdolist = 0;
 Uint16           dolist[MAXCHR];
 
 bool_t           meshnotexture = bfalse;
-Uint16           meshlasttexture = ~0;
+Uint16           meshlasttexture = (Uint16)~0;
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0};
 

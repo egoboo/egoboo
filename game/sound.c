@@ -438,7 +438,7 @@ void sound_restart()
     }
 
     // loose the info on the currently playing song
-    songplaying = -1;
+    //songplaying = -1;
     if ( musicvalid || soundvalid )
     {
         if ( -1 != Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) )
@@ -451,16 +451,6 @@ void sound_restart()
         {
             log_warning( "sound_restart() - Cannot get the sound module to restart. (%s)\n", Mix_GetError() );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void sound_halt()
-{
-    if ( mixeron )
-    {
-        Mix_CloseAudio();
-        mixeron = bfalse;
     }
 }
 
@@ -478,7 +468,7 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
 
     const float reverb_dist2 = 200 * 200;
 
-    if ( !soundvalid || !mixeron || NULL == pchunk ) return -1;
+    if ( !soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
     // measure the distance in tiles
     diff_x = pos_x - gCamera.trackx;
@@ -492,11 +482,11 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
     volume *= ( volume * soundvolume ) / 100;
 
     // play the sound
-    channel = -1;
+    channel = INVALID_SOUND;
     if ( volume > 0 )
     {
         channel = Mix_PlayChannel( -1, pchunk, 0 );
-        if ( -1 == channel )
+        if ( INVALID_SOUND == channel )
         {
 			if(gDevMode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
@@ -543,13 +533,13 @@ void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
     if ( !musicvalid || !mixeron ) return;
 
     // This functions plays a specified track loaded into memory
-    if ( songplaying != songnumber && musicvalid )
+    if ( songplaying != songnumber )
     {
         // Mix_FadeOutMusic(fadetime);      // Stops the game too
 
         if ( loops != 0 )
         {
-            if ( -1 != songplaying )
+            if ( INVALID_SOUND != songplaying )
             {
                 music_stack_push( musictracksloaded[songplaying], songplaying );
             }
@@ -635,7 +625,7 @@ void load_all_music_sounds()
     char loadpath[128];
     char songname[128];
     FILE *playlist;
-    int cnt;
+    Uint8 cnt;
 	
 	if( musicinmemory || !musicvalid ) return;
 

@@ -310,6 +310,36 @@ IfContentIs
     SpawnExactParticle
     SetState    
 
+// This spawns some rain
+tmpargument = 2
+IfContentIs
+  JoinEvilTeam
+  
+  tmpargument = 1
+  SetState
+  
+  //Rain mode
+  IfStateIs1
+    tmpx = rand % 5
+    tmpy = 0
+    IfXIsEqualToY
+      tmpargument = 9
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = 800
+      SpawnExactParticle
+
+  //Check for rain
+  IfTimeOut
+    tmpargument = 1500      //30 seconds
+    SetTime
+    tmpargument = 0
+    tmpx = rand % 100
+    tmpy = 25
+    IfXIsLessThanY
+      tmpargument = 1
+    SetState
+    
 //-----------------------------------------------------------
 End					// All done
 //-----------------------------------------------------------
