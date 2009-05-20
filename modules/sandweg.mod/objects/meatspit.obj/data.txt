@@ -1,9 +1,9 @@
 // Real general data
 Object slot number ( 0 to 63, don't use twice )	: 37
-Object class name ( use underscore for spaces ) : Grub_Spit
+Object class name ( use underscore for spaces ) : Meat_Spit
 Object is lit uniformly ( TRUE or FALSE )	: FALSE
-Maximum ammo ( 0 for doesn't matter )		: 0
-Starting ammo ( 0 for doesn't matter )		: 0
+Maximum ammo ( 0 for doesn't matter )		: 5
+Starting ammo ( 0 for doesn't matter )		: 5
 Gender ( MALE or FEMALE or OTHER )		: OTHER
 
 
@@ -132,7 +132,7 @@ Attack type if it's a weapon ( UNARMED, THRUST,
 
 
 // Particle attachments
-Number of particles to attach ( 0 )		: 1
+Number of particles to attach ( 0 )		: 0
 Reaffirm attachments when damaged ( NONE, SLASH,
   CRUSH, POKE, HOLY, EVIL, FIRE, ICE, ZAP,)	: FIRE
 Particle type ( 0 to 3 )			: 0
@@ -144,8 +144,8 @@ Right grip valid ( TRUE or FALSE )		: FALSE
 
 
 // Particle spawning on attack order ( for weapon characters )
-Particle attached to weapon ( TRUE or FALSE )	: TRUE
-Particle type ( 0 to 3 )			: 1
+Particle attached to weapon ( TRUE or FALSE )	: FALSE
+Particle type ( 0 to 3 )			: 0
 
 
 // Particle spawning for GoPoof
@@ -154,8 +154,8 @@ Facing add for each one ( 0 to 65535 )		: 0
 Particle type ( 0 to 3 )			: 0
 
 
-// Particle spawning for Blood ( If you want it, you put it in... )
-Blood valid ( TRUE or FALSE )			: FALSE
+// Particle spawning for Blud ( If you want it, you put it in... )
+Blud valid ( TRUE or FALSE )			: FALSE
 Particle type ( 0 to 3 )			: 0
 
 
@@ -169,8 +169,8 @@ Life healing when used ( 0.0 to 100.0 )		: 0.0
 Mana cost to use ( 0.0 to 100.0 )		: 0.0
 Life return rate, ( 0 to 255 )			: 0
 Stoppedby mask ( 48 is the only one )		: 48
-Skin Name 0 ( use underscores for spaces )	: Skin_0
-Skin Name 1 ( use underscores for spaces )	: Skin_1
+Skin Name 0 ( use underscores for spaces )	: Has_meat
+Skin Name 1 ( use underscores for spaces )	: No_Meat_left
 Skin Name 2 ( use underscores for spaces )	: Skin_2
 Skin Name 3 ( use underscores for spaces )	: Skin_3
 Skin Cost 0 ( 0 to 65535 )			: 0
