@@ -1,14 +1,4 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-unknown:   NONE    0  35.5   37.5   1.0   N    0   2  0   0   0   T   F   G
-unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
-unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    4  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-
 Hero 00:   NONE      0    35.5 37.5 1.0   N   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
