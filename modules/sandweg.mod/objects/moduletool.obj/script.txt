@@ -1,0 +1,13 @@
+IfSpawned
+  
+  EnableExport
+  ShowMap
+  ShowYouAreHere
+
+  //Play music
+  tmpargument = 4
+  tmpdistance = 0
+  PlayMusic
+  
+  GoPoof
+End					// All done
