@@ -2249,8 +2249,7 @@ void render_shadow( Uint16 character )
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    hide = CapList[pchr->model].hidestate;
-    if ( hide != NOHIDE && hide == pchr->ai.state ) return;
+    if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
     if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
@@ -2369,8 +2368,7 @@ void render_bad_shadow( Uint16 character )
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
-    hide = CapList[pchr->model].hidestate;
-    if ( hide != NOHIDE && hide == pchr->ai.state ) return;
+    if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
     if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;

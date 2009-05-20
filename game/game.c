@@ -1626,7 +1626,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 void make_onwhichfan( void )
 {
     // ZZ> This function figures out which fan characters are on and sets their level
-    Uint16 character, distance;
+    Uint16 character, distance, particle;
     int ripand;
     // int volume;
     float level;
@@ -1634,10 +1634,21 @@ void make_onwhichfan( void )
     // First figure out which fan each character is in
     for ( character = 0; character < MAXCHR; character++ )
     {
+        Uint8 hide;
+        Uint16 icap;
         if ( !ChrList[character].on ) continue;
 
         ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
         ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
+
+        // reject characters that are hidden
+        icap = ChrList[character].model;
+        hide = CapList[ icap ].hidestate;
+        ChrList[character].is_hidden = bfalse;
+        if( hide != NOHIDE && hide == ChrList[character].ai.state )
+        {
+            ChrList[character].is_hidden = btrue;
+        }
     }
 
     // Get levels every update
@@ -1730,22 +1741,23 @@ void make_onwhichfan( void )
         ChrList[character].floor_level = level;
     }
 
-    // Play the damage tile sound
-    if ( damagetilesound >= 0 )
+
+
+    for ( particle = 0; particle < maxparticles; particle++ )
     {
-        if ( ( frame_wld & 3 ) == 0 )
+        Uint16 ichr;
+        if ( !PrtList[particle].on ) continue;
+
+        PrtList[particle].onwhichfan   = mesh_get_tile ( PrtList[particle].xpos, PrtList[particle].ypos );
+        PrtList[particle].onwhichblock = mesh_get_block( PrtList[particle].xpos, PrtList[particle].ypos );
+        PrtList[particle].floor_level  = get_level( PrtList[character].xpos, PrtList[character].ypos, bfalse );
+
+        // reject particles that are hidden
+        PrtList[particle].is_hidden = bfalse;
+        ichr = PrtList[particle].attachedtocharacter;
+        if( VALID_CHR( ichr ) )
         {
-            // Change the volume...
-            /*PORT
-            volume = -(damagetilemindistance + (damagetilesoundtime<<8));
-            volume = volume<<VOLSHIFT;
-            if(volume > VOLMIN)
-            {
-            lpDSBuffer[damagetilesound]->SetVolume(volume);
-            }
-            if(damagetilesoundtime < TILESOUNDTIME)  damagetilesoundtime++;
-            else damagetilemindistance = 9999;
-            */
+            PrtList[particle].is_hidden = ChrList[ichr].is_hidden;
         }
     }
 }
@@ -2624,7 +2636,6 @@ void bump_characters( void )
     Uint16 character, particle, ichr_a, ichr_b, iprt_b;
     Uint16 ipip_b, direction;
     Uint32 fanblock, prtidparent, prtidtype, eveidremove, dist;
-    Sint8 hide;
     int tnc, chrinblock, prtinblock, enchant, temp;
     float ax, ay, nx, ny, scale;  // For deflection
     Uint16 facing;
@@ -2660,8 +2671,7 @@ void bump_characters( void )
         if ( pchr->inpack ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ pchr->model ].hidestate;
-        if ( hide != NOHIDE && hide == pchr->ai.state ) continue;
+        if ( pchr->is_hidden ) continue;
 
         if ( INVALID_BLOCK != pchr->onwhichblock )
         {
@@ -2679,6 +2689,9 @@ void bump_characters( void )
         // reject invalid particles
         if ( !PrtList[particle].on ) continue;
         pprt = PrtList + particle;
+
+        // reject characters that are hidden
+        if ( pprt->is_hidden ) continue;
 
         // reset the fan and block position
         pprt->onwhichfan   = mesh_get_tile ( pprt->xpos, pprt->ypos );
@@ -2730,8 +2743,7 @@ void bump_characters( void )
         if ( pchr_a->inpack || 0 == pchr_a->bumpheight ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ pchr_a->model ].hidestate;
-        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
+        if ( pchr_a->is_hidden ) continue;
 
         // if you are mounted, only your mount is affected by platforms
         if( VALID_CHR(pchr_a->attachedto) ) continue;
@@ -2916,8 +2928,7 @@ void bump_characters( void )
         if ( pchr_a->inpack || 0 == pchr_a->bumpheight ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ pchr_a->model ].hidestate;
-        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
+        if ( pchr_a->is_hidden ) continue;
 
         // if you are already mounted, ignore all new mounts
         if( VALID_CHR(pchr_a->attachedto) ) continue;
@@ -3060,8 +3071,7 @@ void bump_characters( void )
         if ( pchr_a->inpack ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ pchr_a->model ].hidestate;
-        if ( hide != NOHIDE && hide == pchr_a->ai.state ) continue;
+        if ( pchr_a->is_hidden ) continue;
 
         xa = pchr_a->xpos;
         ya = pchr_a->ypos;
@@ -3553,7 +3563,8 @@ void bump_characters( void )
                                                         }
                                                         else
                                                         {
-                                                            float factor = pchr_a->bumpdampen * 110 / pchr_a->weight;
+                                                            float factor = MIN( 1.0f, 110 / pchr_a->weight );   // 110 is the "iconic" weight of the adventurer
+                                                            factor = MIN( 1.0f, factor * pchr_a->bumpdampen );
 
                                                             pchr_a->phys_vel_x  += pprt_b->xvel * factor;
                                                             pchr_a->phys_vel_y  += pprt_b->yvel * factor;

@@ -157,7 +157,9 @@ void render_prt( camera_t * pcam )
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
-        if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan ) continue;
+        if ( !pprt->on || !pprt->inview ) continue;
+
+        if( pprt->is_hidden || INVALID_TILE == pprt->onwhichfan ) continue;
 
         if ( pinst->size != 0 )
         {

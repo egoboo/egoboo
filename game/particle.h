@@ -200,18 +200,23 @@ struct s_prt
     Uint8   type;                            // Transparency mode, 0-2
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
+
     float   xpos;                            // Position
     float   ypos;
     float   zpos;
+
     float   xvel;                            // Velocity
     float   yvel;
     float   zvel;
+
+    Uint32  onwhichfan;                      // Where the part is
+    Uint32  onwhichblock;                         // The particle's collision block
+    bool_t  is_hidden;
+
     float   floor_level;                           // Height of tile
     Uint8   spawncharacterstate;
     Uint16  rotate;                          // Rotation direction
     Sint16  rotateadd;                       // Rotation rate
-    Uint32  onwhichfan;                      // Where the part is
-    Uint32  onwhichblock;                         // The particle's collision block
     Uint16  size;                            // Size of particle>>8
     Sint16  sizeadd;                         // Change in size
     bool_t  inview;                          // Render this one?

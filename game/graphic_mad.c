@@ -408,13 +408,17 @@ void render_texmad( Uint16 character, Uint8 trans )
 void render_mad( Uint16 character, Uint8 trans )
 {
     // ZZ> This function picks the actual function to use
-    Sint8 hide = CapList[ChrList[character].model].hidestate;
-    if ( hide == NOHIDE || hide != ChrList[character].ai.state )
+
+    if ( !ChrList[character].is_hidden )
     {
         if ( ChrList[character].inst.enviro )
+        {
             render_enviromad( character, trans );
+        }
         else
+        {
             render_texmad( character, trans );
+        }
     }
 }
 

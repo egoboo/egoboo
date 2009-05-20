@@ -61,7 +61,7 @@ void let_character_think( Uint16 character )
     chr_t          * pchr;
     ai_state_t     * pself;
 
-    if ( character >= MAXCHR || !ChrList[character].on )  return;
+    if ( INVALID_CHR( character ) )  return;
     pchr  = ChrList + character;
     pself = &(pchr->ai);
 

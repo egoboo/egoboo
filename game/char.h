@@ -343,19 +343,23 @@ struct s_chr
 
     Uint8          alive;           // Is it alive?
     Uint8          waskilled;       // Fix for network
+
     Uint8          inpack;          // Is it in the inventory?
     Uint8          wasinpack;       // Temporary thing...
     Uint16         nextinpack;    // Link to the next item
     Uint8          numinpack;       // How many
+
     Uint8          openstuff;       // Can it open chests/doors?
+
+    Uint8          ammomax;         // Ammo stuff
+    Uint16         ammo;
+    Uint8          gender;          // Gender
+
     Uint8          lifecolor;       // Bar color
     Sint16         life;            // Basic character stats
     Sint16         lifemax;         //   All 8.8 fixed point
     Uint16         lifeheal;
     Uint8          manacolor;       // Bar color
-    Uint8          ammomax;         // Ammo stuff
-    Uint16         ammo;
-    Uint8          gender;          // Gender
     Sint16         mana;            // Mana stuff
     Sint16         manamax;
     Sint16         manaflow;
@@ -364,36 +368,53 @@ struct s_chr
     Sint16         wisdom;          // Wisdom
     Sint16         intelligence;    // Intelligence
     Sint16         dexterity;       // Dexterity
-    bool_t         icon;            // Show the icon?
-    Uint8          sparkle;         // Sparkle color or 0 for off
-    bool_t         cangrabmoney;    // Picks up coins?
+
     bool_t         isplayer;        // btrue = player
     bool_t         islocalplayer;   // btrue = local player
     ai_state_t     ai;
+
+    bool_t         icon;            // Show the icon?
+    Uint8          sparkle;         // Sparkle color or 0 for off
+
+    bool_t         cangrabmoney;    // Picks up coins?
+
     Uint8          stickybutt;      // Rests on floor
-    float          oldx;            // Character's last position
-    float          oldy;
-    float          oldz;
     Uint8          inwater;
-    Uint16         oldturn;
-    Uint8          flyheight;       // Height to stabilize at
+
     Uint8          team;            // Character's team
     Uint8          baseteam;        // Character's starting team
+
     Uint8          staton;          // Display stats?
+
     float          xstt;            // Starting position
     float          ystt;
     float          zstt;
+
     float          xpos;            // Character's position
     float          ypos;
     float          zpos;
+
     float          xvel;            // Character's velocity
     float          yvel;
     float          zvel;
+
+    Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
+    Uint16         turnmaplr;
+    Uint16         turnmapud;
+
+    float          oldx;            // Character's last position
+    float          oldy;
+    float          oldz;
+    Uint16         oldturn;
+    Uint8          flyheight;       // Height to stabilize at
+
     float          latchx;          // Character latches
     float          latchy;
     Uint32         latchbutton;     // Button latches
+
     Uint16         reloadtime;      // Time before another shot
     float          maxaccel;        // Maximum acceleration
+
     float          fat;             // Character's size
     float          sizegoto;        // Character's size goto
     Uint8          sizegototime;    // Time left in size change
@@ -404,15 +425,16 @@ struct s_chr
     Uint8          jumpnumber;      // Number of jumps remaining
     Uint8          jumpnumberreset; // Number of jumps total, 255=Flying
     Uint8          jumpready;       // For standing on a platform character
+
+    Uint8          indolist;        // Has it been added yet?
     Uint32         onwhichfan;      // Where the char is
     Uint32         onwhichblock;    // The character's collision block
-    Uint8          indolist;        // Has it been added yet?
+    bool_t         is_hidden;
+
     Uint16         uoffvel;         // Moving texture speed
     Uint16         voffvel;
-    Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
     Uint16         lightturnleftright;// Character's light rotation 0 to 0xFFFF
-    Uint16         turnmaplr;
-    Uint16         turnmapud;
+
     Uint16         skin;            // Character's skin
     Uint8          model;           // Character's model
     Uint8          basemodel;       // The true form
