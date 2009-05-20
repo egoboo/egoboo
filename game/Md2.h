@@ -29,8 +29,32 @@
 #define MAXVERTICES                     2048        // Max number of points in a model
 #define MAXFRAME                        (128*32)    // Max number of frames in all models
 
-// TEMPORARY: Needs to be moved out of egoboo.h eventually
-extern struct Md2Model *md2_models[MAXMODEL];                 // Md2 models
+#define MAXCOMMAND                      512         // Max number of commands
+#define MAXCOMMANDSIZE                  128          // Max number of points in a command
+#define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
+
+struct s_md2_ogl_commandlist
+{
+    Uint16  count;                  // Number of commands
+
+    GLenum  type[MAXCOMMAND];       // Fan or strip
+    Uint16  size[MAXCOMMAND];       // Entries used by command
+
+    Uint16  vrt[MAXCOMMANDENTRIES]; // Which vertex
+    float   u[MAXCOMMANDENTRIES];   // Texture position
+    float   v[MAXCOMMANDENTRIES];
+};
+typedef struct s_md2_ogl_commandlist md2_ogl_commandlist_t;
+
+struct s_ego_md2
+{
+    md2_ogl_commandlist_t cmd;
+
+    Uint16  frames;                        // Number of frames
+    Uint16  framestart;                    // Starting frame of model
+    Uint16  vertices;                      // Number of vertices
+};
+typedef struct s_ego_md2 ego_md2_t;
 
 typedef struct Md2Vertex
 {
@@ -93,8 +117,8 @@ extern Uint16 md2_loadframe;                               // Where to load next
 
 //Function prototypes
 int  md2_rip_frame_name( int frame );
-void md2_rip_frames( Uint16 modelindex );
-int  md2_load_one( const char* szLoadname, Uint16 modelindex );
+void md2_rip_frames( ego_md2_t * pflist );
+int  md2_load_one( const char* szLoadname, ego_md2_t * pmd2 );
 
 Md2Model *md2_loadFromFile( const char *fileName );
 void      md2_freeModel( Md2Model *model );

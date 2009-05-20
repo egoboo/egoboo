@@ -20,6 +20,7 @@
 #include "egoboo_fileutil.h"
 
 #include "log.h"
+#include "mad.h"
 
 #include "egoboo.h"
 
@@ -227,27 +228,27 @@ void factiof( FILE* filewrite, const char* text, Uint8 action )
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
     fprintf( filewrite, "%s", text );
-    if ( action == ACTIONDA )
+    if ( action == ACTION_DA )
         fprintf( filewrite, "WALK\n" );
-    if ( action == ACTIONUA )
+    if ( action == ACTION_UA )
         fprintf( filewrite, "UNARMED\n" );
-    if ( action == ACTIONTA )
+    if ( action == ACTION_TA )
         fprintf( filewrite, "THRUST\n" );
-    if ( action == ACTIONSA )
+    if ( action == ACTION_SA )
         fprintf( filewrite, "SLASH\n" );
-    if ( action == ACTIONCA )
+    if ( action == ACTION_CA )
         fprintf( filewrite, "CHOP\n" );
-    if ( action == ACTIONBA )
+    if ( action == ACTION_BA )
         fprintf( filewrite, "BASH\n" );
-    if ( action == ACTIONLA )
+    if ( action == ACTION_LA )
         fprintf( filewrite, "LONGBOW\n" );
-    if ( action == ACTIONXA )
+    if ( action == ACTION_XA )
         fprintf( filewrite, "XBOW\n" );
-    if ( action == ACTIONFA )
+    if ( action == ACTION_FA )
         fprintf( filewrite, "FLING\n" );
-    if ( action == ACTIONPA )
+    if ( action == ACTION_PA )
         fprintf( filewrite, "PARRY\n" );
-    if ( action == ACTIONZA )
+    if ( action == ACTION_ZA )
         fprintf( filewrite, "ZAP\n" );
 }
 

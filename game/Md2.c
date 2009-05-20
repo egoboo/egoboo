@@ -27,11 +27,7 @@
 //--------------------------------------------------------------------------------------------
 
 static int  md2_rip_header();
-static void md2_fix_normals( Uint16 modelindex );
-static void md2_rip_commands( Uint16 modelindex );
-static void md2_get_transvertices( Uint16 modelindex );
-
-static int vertexconnected( Uint16 modelindex, int vertex );
+static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
 
 Uint16      md2_loadframe = 0;
 md2_frame_t Md2FrameList[MAXFRAME];
@@ -97,68 +93,7 @@ int md2_rip_header()
 }
 
 //---------------------------------------------------------------------------------------------
-void md2_fix_normals( Uint16 modelindex )
-{
-    // ZZ> This function helps light not flicker so much
-    int cnt, tnc;
-    Uint16 indexofcurrent, indexofnext, indexofnextnext, indexofnextnextnext;
-    Uint16 indexofnextnextnextnext;
-    Uint32 frame;
-
-    frame = MadList[modelindex].framestart;
-    cnt = 0;
-
-    while ( cnt < MadList[modelindex].vertices )
-    {
-        tnc = 0;
-
-        while ( tnc < MadList[modelindex].frames )
-        {
-            indexofcurrent = Md2FrameList[frame].vrta[cnt];
-            indexofnext = Md2FrameList[frame+1].vrta[cnt];
-            indexofnextnext = Md2FrameList[frame+2].vrta[cnt];
-            indexofnextnextnext = Md2FrameList[frame+3].vrta[cnt];
-            indexofnextnextnextnext = Md2FrameList[frame+4].vrta[cnt];
-            if ( indexofcurrent == indexofnextnext && indexofnext != indexofcurrent )
-            {
-                Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-            }
-            if ( indexofcurrent == indexofnextnextnext )
-            {
-                if ( indexofnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
-                }
-            }
-            if ( indexofcurrent == indexofnextnextnextnext )
-            {
-                if ( indexofnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+1].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+2].vrta[cnt] = indexofcurrent;
-                }
-                if ( indexofnextnextnext != indexofcurrent )
-                {
-                    Md2FrameList[frame+3].vrta[cnt] = indexofcurrent;
-                }
-            }
-
-            tnc++;
-        }
-
-        cnt++;
-    }
-}
-
-//---------------------------------------------------------------------------------------------
-void md2_rip_commands( Uint16 modelindex )
+void md2_rip_commands( md2_ogl_commandlist_t * pclist )
 {
     // ZZ> This function converts an md2's GL commands into our little command list thing
     int iTmp;
@@ -209,8 +144,8 @@ void md2_rip_commands( Uint16 modelindex )
         command_error = (iCommandCount >= MAXCOMMAND);
         if (!command_error)
         {
-            MadList[modelindex].commandtype[iCommandCount] = command_type;
-            MadList[modelindex].commandsize[iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
+            pclist->type[iCommandCount] = command_type;
+            pclist->size[iCommandCount] = MIN(iNumVertices, MAXCOMMANDENTRIES);
         }
 
         // Read in vertices for each command
@@ -229,9 +164,9 @@ void md2_rip_commands( Uint16 modelindex )
             if ( iTmp > MAXVERTICES ) iTmp = MAXVERTICES - 1;
             if ( !command_error && !entry_error )
             {
-                MadList[modelindex].commandu[entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
-                MadList[modelindex].commandv[entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
-                MadList[modelindex].commandvrt[entry] = iTmp;
+                pclist->u[entry]   = fTmpu - ( 0.5f / 64 ); // GL doesn't align correctly
+                pclist->v[entry]   = fTmpv - ( 0.5f / 64 ); // with D3D
+                pclist->vrt[entry] = iTmp;
             }
 
             entry++;
@@ -257,7 +192,7 @@ void md2_rip_commands( Uint16 modelindex )
         log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
-    MadList[modelindex].commands = MIN(MAXCOMMAND, iCommandCount);
+    pclist->count = MIN(MAXCOMMAND, iCommandCount);
 }
 
 //---------------------------------------------------------------------------------------------
@@ -310,7 +245,7 @@ int md2_rip_frame_name( int frame )
 }
 
 //---------------------------------------------------------------------------------------------
-void md2_rip_frames( Uint16 modelindex )
+void md2_rip_frames( ego_md2_t * pmd2 )
 {
     // ZZ> This function gets frames from the load buffer and adds them to
     //     the indexed model
@@ -337,9 +272,9 @@ void md2_rip_frames( Uint16 modelindex )
     iFrameOffset = ENDIAN_INT32( ipIntPointer[14] ) >> 2;
 
     // Read in each frame
-    MadList[modelindex].framestart = md2_loadframe;
-    MadList[modelindex].frames = iNumFrames;
-    MadList[modelindex].vertices = iNumVertices;
+    pmd2->framestart = md2_loadframe;
+    pmd2->frames     = iNumFrames;
+    pmd2->vertices   = iNumVertices;
     cnt = 0;
 
     while ( cnt < iNumFrames && md2_loadframe < MAXFRAME )
@@ -381,7 +316,7 @@ void md2_rip_frames( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-int md2_load_one( const char* szLoadname, Uint16 modelindex )
+int md2_load_one( const char* szLoadname, ego_md2_t * pmd2 )
 {
     // ZZ> This function loads an id md2 file, storing the converted data in the indexed model
     //    int iFileHandleRead;
@@ -411,59 +346,12 @@ int md2_load_one( const char* szLoadname, Uint16 modelindex )
         return bfalse;
 
     // Get the frame vertices
-    md2_rip_frames( modelindex );
+    md2_rip_frames( pmd2 );
+
     // Get the commands
-    md2_rip_commands( modelindex );
-    // Fix them normals
-    md2_fix_normals( modelindex );
-    // Figure out how many vertices to transform
-    md2_get_transvertices( modelindex );
+    md2_rip_commands( &(pmd2->cmd) );
 
     fclose( file );
 
     return btrue;
 }
-
-//---------------------------------------------------------------------------------------------
-void md2_get_transvertices( Uint16 modelindex )
-{
-    // ZZ> This function gets the number of vertices to transform for a model...
-    //     That means every one except the grip ( unconnected ) vertices
-
-    //if (modelindex == 0)
-    //{
-    //    for ( cnt = 0; cnt < MadList[modelindex].vertices; cnt++ )
-    //    {
-    //        printf("%d-%d\n", cnt, vertexconnected( modelindex, cnt ) );
-    //    }
-    //}
-
-    MadList[modelindex].transvertices = MadList[modelindex].vertices;
-}
-
-//---------------------------------------------------------------------------------------------
-int vertexconnected( Uint16 modelindex, int vertex )
-{
-    // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
-    int cnt, tnc, entry;
-
-    entry = 0;
-
-    for ( cnt = 0; cnt < MadList[modelindex].commands; cnt++ )
-    {
-        for ( tnc = 0; tnc < MadList[modelindex].commandsize[cnt]; tnc++ )
-        {
-            if ( MadList[modelindex].commandvrt[entry] == vertex )
-            {
-                // The vertex is used
-                return 1;
-            }
-
-            entry++;
-        }
-    }
-
-    // The vertex is not used
-    return 0;
-}
-

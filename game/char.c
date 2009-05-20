@@ -33,6 +33,7 @@
 #include "Md2.h"
 #include "passage.h"
 #include "graphic.h"
+#include "mad.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
@@ -242,70 +243,87 @@ void make_one_character_matrix( Uint16 cnt )
 //--------------------------------------------------------------------------------------------
 void free_one_character( Uint16 character )
 {
+    if( VALID_CHR_RANGE( character ) )
+    {
+        // the character "destructor"
+        // sets all boolean values to false, incluting the "on" flag
+        memset( ChrList + character, 0, sizeof(chr_t) );
+
+        ChrList[character].nextinpack = MAXCHR;
+
+        // push it on the stack
+        freechrlist[numfreechr] = character;
+        numfreechr++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void free_one_character_in_game( Uint16 character )
+{
     // ZZ> This function sticks a character back on the free character stack
     int cnt;
 
-    freechrlist[numfreechr] = character;
-    numfreechr++;
-
-    // Remove from stat list
-    if ( ChrList[character].staton )
+    if ( VALID_CHR( character ) )
     {
-        ChrList[character].staton = bfalse;
-        cnt = 0;
-
-        while ( cnt < numstat )
+        // Remove from stat list
+        if ( ChrList[character].staton )
         {
-            if ( statlist[cnt] == character )
+            bool_t stat_found;
+
+            ChrList[character].staton = bfalse;
+            
+            stat_found = bfalse;
+            for ( cnt = 0; cnt < numstat; cnt++ )
             {
-                cnt++;
-
-                while ( cnt < numstat )
+                if ( statlist[cnt] == character ) 
                 {
-                    statlist[cnt-1] = statlist[cnt];
-                    cnt++;
+                    stat_found = btrue;
+                    break;
                 }
-
-                numstat--;
             }
 
-            cnt++;
+            if( stat_found )
+            {
+                for ( cnt++; cnt < numstat; cnt++ )
+                {
+                    statlist[cnt-1] = statlist[cnt];
+                }
+                numstat--;
+            }
         }
-    }
 
-    // Make sure everyone knows it died
-    if ( ChrList[character].alive && !CapList[ChrList[character].model].invictus )
-    {
-        TeamList[ChrList[character].baseteam].morale--;
-    }
-
-    cnt = 0;
-
-    while ( cnt < MAXCHR )
-    {
-        if ( ChrList[cnt].on )
+        // Make sure everyone knows it died
+        for ( cnt = 0; cnt < MAXCHR; cnt++ )
         {
+            if ( !ChrList[cnt].on || cnt == character ) continue;
+
             if ( ChrList[cnt].ai.target == character )
             {
                 ChrList[cnt].ai.alert |= ALERTIF_TARGETKILLED;
                 ChrList[cnt].ai.target = cnt;
             }
+
             if ( TeamList[ChrList[cnt].team].leader == character )
             {
                 ChrList[cnt].ai.alert |= ALERTIF_LEADERKILLED;
-            }
+            }   
         }
 
-        cnt++;
-    }
-    if ( TeamList[ChrList[character].team].leader == character )
-    {
-        TeamList[ChrList[character].team].leader = NOLEADER;
+
+        // Handle the team
+        if ( ChrList[character].alive && !CapList[ChrList[character].model].invictus )
+        {
+            TeamList[ChrList[character].baseteam].morale--;
+        }
+
+        if ( TeamList[ChrList[character].team].leader == character )
+        {
+            TeamList[ChrList[character].team].leader = NOLEADER;
+        }
     }
 
-    ChrList[character].on = bfalse;
-    ChrList[character].alive = bfalse;
-    ChrList[character].inpack = bfalse;
+    // actually get rid of the character
+    free_one_character( character );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -318,7 +336,7 @@ void free_inventory( Uint16 character )
     while ( cnt < MAXCHR )
     {
         next = ChrList[cnt].nextinpack;
-        free_one_character( cnt );
+        free_one_character_in_game( cnt );
         cnt = next;
     }
 }
@@ -358,7 +376,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
             return;
         }
 
-        vertex = MadList[model].vertices - grip;
+        vertex = MadList[model].md2.vertices - grip;
 
         // Calculate grip point locations with linear interpolation and other silly things
         point[0].x = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
@@ -560,24 +578,21 @@ int get_free_character()
 void free_all_characters()
 {
     // ZZ> This function resets the character allocation list
-    local_noplayers = btrue;
-    numfreechr = 0;
 
-    while ( numfreechr < MAXCHR )
+    int cnt;
+
+    numfreechr = 0;
+    for ( cnt = 0; cnt < MAXCHR; cnt++ )
     {
-        ChrList[numfreechr].on = bfalse;
-        ChrList[numfreechr].alive = bfalse;
-        ChrList[numfreechr].inpack = bfalse;
-        ChrList[numfreechr].numinpack = 0;
-        ChrList[numfreechr].nextinpack = MAXCHR;
-        ChrList[numfreechr].staton = bfalse;
-        ChrList[numfreechr].inst.matrixvalid = bfalse;
-        freechrlist[numfreechr] = numfreechr;
-        numfreechr++;
+        free_one_character( cnt );
     }
 
+    // free_all_players
     numpla = 0;
     local_numlpla = 0;
+    local_noplayers = btrue;
+
+    // free_all_stats
     numstat = 0;
 }
 
@@ -707,12 +722,12 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     if ( ChrList[character].alive )
     {
         // play the falling animation...
-        chr_play_action( character, ACTIONJB + hand, bfalse );
+        chr_play_action( character, ACTION_JB + hand, bfalse );
     }
-    else if ( ChrList[character].action < ACTIONKA || ChrList[character].action > ACTIONKD )
+    else if ( ChrList[character].action < ACTION_KA || ChrList[character].action > ACTION_KD )
     {
         // play the "killed" animation...
-        chr_play_action( character, ACTIONKA + hand, bfalse );
+        chr_play_action( character, ACTION_KA + hand, bfalse );
         ChrList[character].keepaction = btrue;
     }
 
@@ -930,11 +945,11 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     ChrList[character].attachedto     = mount;
     ChrList[mount].holdingwhich[slot] = character;
 
-    tnc = MadList[ChrList[mount].inst.imad].vertices - grip;
+    tnc = MadList[ChrList[mount].inst.imad].md2.vertices - grip;
 
     for (i = 0; i < GRIP_VERTS; i++)
     {
-        if (tnc + i < MadList[ChrList[mount].inst.imad].vertices )
+        if (tnc + i < MadList[ChrList[mount].inst.imad].md2.vertices )
         {
             ChrList[character].weapongrip[i] = i + tnc;
         }
@@ -958,12 +973,12 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     if ( ChrList[mount].ismount && grip == GRIP_ONLY )
     {
         // Riding mount
-        chr_play_action( character, ACTIONMI, btrue );
+        chr_play_action( character, ACTION_MI, btrue );
         ChrList[character].loopaction = btrue;
     }
     else if ( ChrList[character].alive )
     {
-        chr_play_action( character, ACTIONMM + slot, bfalse );
+        chr_play_action( character, ACTION_MM + slot, bfalse );
         if ( ChrList[character].isitem )
         {
             // Item grab
@@ -1087,7 +1102,7 @@ void pack_add_item( Uint16 item, Uint16 character )
                 detach_character_from_mount( item, btrue, bfalse );
             }
 
-            free_one_character( item );
+            free_one_character_in_game( item );
         }
         else
         {
@@ -1325,7 +1340,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
     {
         // Transform the weapon grip from model to world space
         frame = ChrList[chara].inst.frame;
-        vertex = MadList[model].vertices - grip;
+        vertex = MadList[model].md2.vertices - grip;
 
         // Calculate grip point locations
         point[0].x = Md2FrameList[frame].vrtx[vertex];/// ChrList[cnt].scale;
@@ -1465,7 +1480,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                 if ( people )
                 {
                     // Do a slam animation...  ( Be sure to drop!!! )
-                    chr_play_action( chara, ACTIONMC + slot, bfalse );
+                    chr_play_action( chara, ACTION_MC + slot, bfalse );
                 }
                 return btrue;
             }
@@ -1503,7 +1518,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
         weapon = cnt;
         spawngrip = (slot + 1) * GRIP_VERTS;  // 0 -> GRIP_LEFT, 1 -> GRIP_RIGHT
     }
-    if ( weapon != cnt && ( ( CapList[ChrList[weapon].model].isstackable && ChrList[weapon].ammo > 1 ) || ( action >= ACTIONFA && action <= ACTIONFD ) ) )
+    if ( weapon != cnt && ( ( CapList[ChrList[weapon].model].isstackable && ChrList[weapon].ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
         x = ChrList[cnt].xpos;
@@ -1530,7 +1545,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
             {
                 // Poof the item
                 detach_character_from_mount( weapon, btrue, bfalse );
-                free_one_character( weapon );
+                free_one_character_in_game( weapon );
             }
             else
             {
@@ -2815,7 +2830,7 @@ void damage_character( Uint16 character, Uint16 direction,
                 if ( 0 == ( effects&DAMFX_BLOC ) )
                 {
                     // Only damage if hitting from proper direction
-                    if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFXINVICTUS )
+                    if ( Md2FrameList[ChrList[character].inst.frame].framefx&MADFX_INVICTUS )
                     {
                         // I Frame...
                         direction -= CapList[model].iframefacing;
@@ -2823,10 +2838,10 @@ void damage_character( Uint16 character, Uint16 direction,
                         right = CapList[model].iframeangle;
 
                         // Check for shield
-                        if ( ChrList[character].action >= ACTIONPA && ChrList[character].action <= ACTIONPD )
+                        if ( ChrList[character].action >= ACTION_PA && ChrList[character].action <= ACTION_PD )
                         {
                             // Using a shield?
-                            if ( ChrList[character].action < ACTIONPC )
+                            if ( ChrList[character].action < ACTION_PC )
                             {
                                 // Check left hand
                                 if ( ChrList[character].holdingwhich[SLOT_LEFT] != MAXCHR )
@@ -2907,7 +2922,7 @@ void damage_character( Uint16 character, Uint16 direction,
                     }
 
                     // Taking damage action
-                    action = ACTIONHA;
+                    action = ACTION_HA;
                     if ( ChrList[character].life < 0 )
                     {
                         // Character has died
@@ -2918,7 +2933,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         ChrList[character].life = -1;
                         ChrList[character].platform = btrue;
                         ChrList[character].bumpdampen = ChrList[character].bumpdampen / 2.0f;
-                        action = ACTIONKA;
+                        action = ACTION_KA;
                         // Give kill experience
                         experience = CapList[model].experienceworth + ( ChrList[character].experience * CapList[model].experienceexchange );
                         if ( attacker < MAXCHR )
@@ -3059,22 +3074,28 @@ void kill_character( Uint16 character, Uint16 killer )
 {
     // ZZ> This function kills a character...  MAXCHR killer for accidental death
     Uint8 modifier;
-    if ( ChrList[character].alive )
+    chr_t * pchr;
+
+    if( INVALID_CHR( character ) ) return;
+    pchr = ChrList + character;
+
+    if ( pchr->alive )
     {
-        ChrList[character].damagetime = 0;
-        ChrList[character].life = 1;
-        modifier = ChrList[character].damagemodifier[DAMAGE_CRUSH];
-        ChrList[character].damagemodifier[DAMAGE_CRUSH] = 1;
-        if ( killer != MAXCHR )
+        pchr->damagetime = 0;
+        pchr->life = 1;
+        modifier = pchr->damagemodifier[DAMAGE_CRUSH];
+        pchr->damagemodifier[DAMAGE_CRUSH] = 1;
+
+        if ( VALID_CHR( killer ) )
         {
             damage_character( character, 0, 512, 1, DAMAGE_CRUSH, ChrList[killer].team, killer, DAMFX_ARMO | DAMFX_BLOC, btrue );
         }
         else
         {
-            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFX_ARMO | DAMFX_BLOC, btrue );
+            damage_character( character, 0, 512, 1, DAMAGE_CRUSH, DAMAGETEAM, pchr->ai.bumplast, DAMFX_ARMO | DAMFX_BLOC, btrue );
         }
 
-        ChrList[character].damagemodifier[DAMAGE_CRUSH] = modifier;
+        pchr->damagemodifier[DAMAGE_CRUSH] = modifier;
     }
 }
 
@@ -3195,6 +3216,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
     if ( profile >= MAXMODEL )
     {
+        log_warning( "spawn_one_character() - profile value too large %d out of %d\n", profile, MAXMODEL );
         return MAXCHR;
     }
 
@@ -3486,8 +3508,8 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->actionready = btrue;
     pchr->keepaction = bfalse;
     pchr->loopaction = bfalse;
-    pchr->action = ACTIONDA;
-    pchr->nextaction = ACTIONDA;
+    pchr->action = ACTION_DA;
+    pchr->nextaction = ACTION_DA;
 
 
     pchr->holdingweight = 0;
@@ -3538,7 +3560,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
         pinst->light_turn_z = 0;
         pinst->lip = 0;
-        pinst->frame = MadList[pinst->imad].framestart;
+        pinst->frame = MadList[pinst->imad].md2.framestart;
         pinst->lastframe = pinst->frame;
 
         // Set up initial fade in lighting
@@ -3644,8 +3666,8 @@ void respawn_character( Uint16 character )
     ChrList[character].actionready = btrue;
     ChrList[character].keepaction = bfalse;
     ChrList[character].loopaction = bfalse;
-    ChrList[character].action = ACTIONDA;
-    ChrList[character].nextaction = ACTIONDA;
+    ChrList[character].action = ACTION_DA;
+    ChrList[character].nextaction = ACTION_DA;
 
     ChrList[character].platform = CapList[ChrList[character].model].platform;
     ChrList[character].flyheight = CapList[ChrList[character].model].flyheight;
@@ -3679,7 +3701,7 @@ void respawn_character( Uint16 character )
     // re-initialize the instance
     {
         ChrList[character].inst.lip       = 0;
-        ChrList[character].inst.frame     = MadList[ChrList[character].inst.imad].framestart;
+        ChrList[character].inst.frame     = MadList[ChrList[character].inst.imad].md2.framestart;
         ChrList[character].inst.lastframe = ChrList[character].inst.frame;
     }
 
@@ -3915,11 +3937,11 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     {
         int i;
         Uint16 iholder = ChrList[ichr].attachedto;
-        tnc = MadList[ChrList[iholder].inst.imad].vertices - (ChrList[ichr].inwhichhand + 1) * GRIP_VERTS;
+        tnc = MadList[ChrList[iholder].inst.imad].md2.vertices - (ChrList[ichr].inwhichhand + 1) * GRIP_VERTS;
 
         for (i = 0; i < GRIP_VERTS; i++)
         {
-            if (tnc + i < MadList[ChrList[iholder].inst.imad].vertices )
+            if (tnc + i < MadList[ChrList[iholder].inst.imad].md2.vertices )
             {
                 ChrList[ichr].weapongrip[i] = tnc + i;
             }
@@ -3935,11 +3957,11 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     {
         int i;
 
-        tnc = MadList[ChrList[ichr].inst.imad].vertices - GRIP_LEFT;
+        tnc = MadList[ChrList[ichr].inst.imad].md2.vertices - GRIP_LEFT;
 
         for (i = 0; i < GRIP_VERTS; i++)
         {
-            if (tnc + i < MadList[ChrList[ichr].inst.imad].vertices )
+            if (tnc + i < MadList[ChrList[ichr].inst.imad].md2.vertices )
             {
                 ChrList[item].weapongrip[i] = i + tnc;
             }
@@ -3955,11 +3977,11 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     {
         int i;
 
-        tnc = MadList[ChrList[ichr].inst.imad].vertices - GRIP_RIGHT;
+        tnc = MadList[ChrList[ichr].inst.imad].md2.vertices - GRIP_RIGHT;
 
         for (i = 0; i < GRIP_VERTS; i++)
         {
-            if (tnc + i < MadList[ChrList[ichr].inst.imad].vertices )
+            if (tnc + i < MadList[ChrList[ichr].inst.imad].md2.vertices )
             {
                 ChrList[item].weapongrip[i] = i + tnc;
             }
@@ -3983,8 +4005,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     ChrList[ichr].actionready = btrue;
     ChrList[ichr].keepaction = bfalse;
     ChrList[ichr].loopaction = bfalse;
-    ChrList[ichr].action = ACTIONDA;
-    ChrList[ichr].nextaction = ACTIONDA;
+    ChrList[ichr].action = ACTION_DA;
+    ChrList[ichr].nextaction = ACTION_DA;
     ChrList[ichr].holdingweight = 0;
     ChrList[ichr].onwhichplatform = MAXCHR;
 
@@ -3999,7 +4021,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
         pinst->voffset = 0;
 
         pinst->lip       = 0;
-        pinst->frame     = MadList[pinst->imad].framestart;
+        pinst->frame     = MadList[pinst->imad].md2.framestart;
         pinst->lastframe = pinst->frame;
 
         // Set up initial fade in lighting
@@ -4660,7 +4682,7 @@ void move_characters( void )
                     }
                 }
 
-                if ( Md2FrameList[pchr->inst.frame].framefx&MADFXSTOP )
+                if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_STOP )
                 {
                     new_ax = 0;
                     new_ay = 0;
@@ -4744,7 +4766,7 @@ void move_characters( void )
                             if ( pchr->jumpnumberreset != JUMPINFINITE ) pchr->jumpnumber--;
 
                             // Set to jump animation if not doing anything better
-                            if ( pchr->actionready )    chr_play_action( cnt, ACTIONJA, btrue );
+                            if ( pchr->actionready )    chr_play_action( cnt, ACTION_JA, btrue );
 
                             // Play the jump sound (Boing!)
                             {
@@ -4764,12 +4786,12 @@ void move_characters( void )
                     if ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR )
                     {
                         // Grab left
-                        chr_play_action( cnt, ACTIONME, bfalse );
+                        chr_play_action( cnt, ACTION_ME, bfalse );
                     }
                     else
                     {
                         // Drop left
-                        chr_play_action( cnt, ACTIONMA, bfalse );
+                        chr_play_action( cnt, ACTION_MA, bfalse );
                     }
                 }
                 if ( 0 != ( pchr->latchbutton & LATCHBUTTON_ALTRIGHT ) && pchr->actionready && pchr->reloadtime == 0 )
@@ -4778,12 +4800,12 @@ void move_characters( void )
                     if ( pchr->holdingwhich[SLOT_RIGHT] == MAXCHR )
                     {
                         // Grab right
-                        chr_play_action( cnt, ACTIONMF, bfalse );
+                        chr_play_action( cnt, ACTION_MF, bfalse );
                     }
                     else
                     {
                         // Drop right
-                        chr_play_action( cnt, ACTIONMB, bfalse );
+                        chr_play_action( cnt, ACTION_MB, bfalse );
                     }
                 }
                 if ( 0 != ( pchr->latchbutton & LATCHBUTTON_PACKLEFT ) && pchr->actionready && pchr->reloadtime == 0 )
@@ -4816,7 +4838,7 @@ void move_characters( void )
                     }
 
                     // Make it take a little time
-                    chr_play_action( cnt, ACTIONMG, bfalse );
+                    chr_play_action( cnt, ACTION_MG, bfalse );
                 }
                 if ( 0 != ( pchr->latchbutton & LATCHBUTTON_PACKRIGHT ) && pchr->actionready && pchr->reloadtime == 0 )
                 {
@@ -4848,7 +4870,7 @@ void move_characters( void )
                     }
 
                     // Make it take a little time
-                    chr_play_action( cnt, ACTIONMG, bfalse );
+                    chr_play_action( cnt, ACTION_MG, bfalse );
                 }
                 if ( 0 != ( pchr->latchbutton & LATCHBUTTON_LEFT ) && pchr->reloadtime == 0 )
                 {
@@ -4891,7 +4913,7 @@ void move_characters( void )
                             }
                         }
                     }
-                    if ( action == ACTIONDA )
+                    if ( action == ACTION_DA )
                     {
                         allowedtoattack = bfalse;
                         if ( ChrList[weapon].reloadtime == 0 )
@@ -4908,9 +4930,9 @@ void move_characters( void )
                             allowedtoattack = CapList[ChrList[mount].model].ridercanattack;
                             if ( ChrList[mount].ismount && ChrList[mount].alive && !ChrList[mount].isplayer && ChrList[mount].actionready )
                             {
-                                if ( ( action != ACTIONPA || !allowedtoattack ) && pchr->actionready )
+                                if ( ( action != ACTION_PA || !allowedtoattack ) && pchr->actionready )
                                 {
-                                    chr_play_action( pchr->attachedto, ACTIONUA + ( rand()&1 ), bfalse );
+                                    chr_play_action( pchr->attachedto, ACTION_UA + ( rand()&1 ), bfalse );
                                     ChrList[pchr->attachedto].ai.alert |= ALERTIF_USED;
                                     pchr->ai.lastitemused = mount;
                                 }
@@ -4935,7 +4957,7 @@ void move_characters( void )
                                     if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                                     actionready = bfalse;
-                                    if ( action == ACTIONPA )
+                                    if ( action == ACTION_PA )
                                         actionready = btrue;
 
                                     action += rand() & 1;
@@ -4943,7 +4965,7 @@ void move_characters( void )
                                     if ( weapon != cnt )
                                     {
                                         // Make the weapon attack too
-                                        chr_play_action( weapon, ACTIONMJ, bfalse );
+                                        chr_play_action( weapon, ACTION_MJ, bfalse );
                                         ChrList[weapon].ai.alert |= ALERTIF_USED;
                                         pchr->ai.lastitemused = weapon;
                                     }
@@ -4999,7 +5021,7 @@ void move_characters( void )
                             }
                         }
                     }
-                    if ( action == ACTIONDC )
+                    if ( action == ACTION_DC )
                     {
                         allowedtoattack = bfalse;
                         if ( ChrList[weapon].reloadtime == 0 )
@@ -5017,9 +5039,9 @@ void move_characters( void )
                             allowedtoattack = CapList[ChrList[mount].model].ridercanattack;
                             if ( ChrList[mount].ismount && ChrList[mount].alive && !ChrList[mount].isplayer && ChrList[mount].actionready )
                             {
-                                if ( ( action != ACTIONPC || !allowedtoattack ) && pchr->actionready )
+                                if ( ( action != ACTION_PC || !allowedtoattack ) && pchr->actionready )
                                 {
-                                    chr_play_action( pchr->attachedto, ACTIONUC + ( rand()&1 ), bfalse );
+                                    chr_play_action( pchr->attachedto, ACTION_UC + ( rand()&1 ), bfalse );
                                     ChrList[pchr->attachedto].ai.alert |= ALERTIF_USED;
                                     pchr->ai.lastitemused = pchr->attachedto;
                                 }
@@ -5044,7 +5066,7 @@ void move_characters( void )
                                     if ( pchr->life > pchr->lifemax )  pchr->life = pchr->lifemax;
 
                                     actionready = bfalse;
-                                    if ( action == ACTIONPC )
+                                    if ( action == ACTION_PC )
                                         actionready = btrue;
 
                                     action += rand() & 1;
@@ -5052,7 +5074,7 @@ void move_characters( void )
                                     if ( weapon != cnt )
                                     {
                                         // Make the weapon attack too
-                                        chr_play_action( weapon, ACTIONMJ, bfalse );
+                                        chr_play_action( weapon, ACTION_MJ, bfalse );
                                         ChrList[weapon].ai.alert |= ALERTIF_USED;
                                         pchr->ai.lastitemused = weapon;
                                     }
@@ -5205,25 +5227,25 @@ void move_characters( void )
         if ( pchr->inst.lip == 192 )
         {
             // Check frame effects
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXACTLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_ACTLEFT )
                 character_swipe( cnt, 0 );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXACTRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_ACTRIGHT )
                 character_swipe( cnt, 1 );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXGRABLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_GRABLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, bfalse );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXGRABRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_GRABRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, bfalse );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXCHARLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_CHARLEFT )
                 character_grab_stuff( cnt, GRIP_LEFT, btrue );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXCHARRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_CHARRIGHT )
                 character_grab_stuff( cnt, GRIP_RIGHT, btrue );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXDROPLEFT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_DROPLEFT )
                 detach_character_from_mount( pchr->holdingwhich[SLOT_LEFT], bfalse, btrue );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXDROPRIGHT )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_DROPRIGHT )
                 detach_character_from_mount( pchr->holdingwhich[SLOT_RIGHT], bfalse, btrue );
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXPOOF && !pchr->isplayer )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_POOF && !pchr->isplayer )
                 pchr->ai.poof_time = frame_wld;
-            if ( Md2FrameList[pchr->inst.frame].framefx&MADFXFOOTFALL )
+            if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_FOOTFALL )
             {
                 int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
                 if ( ifoot >= 0 && ifoot < MAXWAVE )
@@ -5252,14 +5274,14 @@ void move_characters( void )
                     {
                         // Go on to the next action
                         pchr->action = pchr->nextaction;
-                        pchr->nextaction = ACTIONDA;
+                        pchr->nextaction = ACTION_DA;
                     }
                     else
                     {
                         // See if the character is mounted...
                         if ( pchr->attachedto != MAXCHR )
                         {
-                            pchr->action = ACTIONMI;
+                            pchr->action = ACTION_MI;
                         }
                     }
 
@@ -5286,7 +5308,7 @@ void move_characters( void )
                 speed = ABS( ( int ) pchr->xvel ) + ABS( ( int ) pchr->yvel );
                 if ( speed < pchr->sneakspd )
                 {
-                    //                        pchr->nextaction = ACTIONDA;
+                    //                        pchr->nextaction = ACTION_DA;
                     // Do boredom
                     pchr->boretime--;
                     if ( pchr->boretime < 0 )
@@ -5297,9 +5319,9 @@ void move_characters( void )
                     else
                     {
                         // Do standstill
-                        if ( pchr->action > ACTIONDD )
+                        if ( pchr->action > ACTION_DD )
                         {
-                            pchr->action = ACTIONDA;
+                            pchr->action = ACTION_DA;
                             pchr->inst.frame = MadList[pchr->inst.imad].actionstart[pchr->action];
                         }
                     }
@@ -5309,31 +5331,31 @@ void move_characters( void )
                     pchr->boretime = BORETIME;
                     if ( speed < pchr->walkspd )
                     {
-                        pchr->nextaction = ACTIONWA;
-                        if ( pchr->action != ACTIONWA )
+                        pchr->nextaction = ACTION_WA;
+                        if ( pchr->action != ACTION_WA )
                         {
                             pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWA][framelip];
-                            pchr->action = ACTIONWA;
+                            pchr->action = ACTION_WA;
                         }
                     }
                     else
                     {
                         if ( speed < pchr->runspd )
                         {
-                            pchr->nextaction = ACTIONWB;
-                            if ( pchr->action != ACTIONWB )
+                            pchr->nextaction = ACTION_WB;
+                            if ( pchr->action != ACTION_WB )
                             {
                                 pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWB][framelip];
-                                pchr->action = ACTIONWB;
+                                pchr->action = ACTION_WB;
                             }
                         }
                         else
                         {
-                            pchr->nextaction = ACTIONWC;
-                            if ( pchr->action != ACTIONWC )
+                            pchr->nextaction = ACTION_WC;
+                            if ( pchr->action != ACTION_WC )
                             {
                                 pchr->inst.frame = MadList[pchr->inst.imad].frameliptowalkframe[LIPWC][framelip];
-                                pchr->action = ACTIONWC;
+                                pchr->action = ACTION_WC;
                             }
                         }
                     }
@@ -5363,7 +5385,7 @@ void move_characters( void )
         }
 
         free_inventory( cnt );
-        free_one_character( cnt );
+        free_one_character_in_game( cnt );
     }
 }
 

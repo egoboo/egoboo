@@ -39,6 +39,7 @@
 #include "menu.h"
 #include "file_common.h"
 #include "network.h"
+#include "mad.h"
 
 #include "char.h"
 #include "particle.h"
@@ -116,7 +117,6 @@ static void   release_module();
 
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
-static void   load_all_messages( const char *loadname, Uint16 object );
 static int    load_one_object( const char* tmploadname , int skin );
 static int    load_all_objects( const char *modname );
 static void   load_all_global_objects(int skin);
@@ -140,20 +140,6 @@ static mesh_info_t * mesh_info_delete( mesh_info_t * pinfo );
 static void          mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  );
 
 // Model stuff
-static Uint16 test_frame_name( char letter );
-
-static Uint16 action_number();
-static Uint16 action_frame();
-static void   action_check_copy( const char* loadname, Uint16 object );
-static void   action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb );
-
-static void   mad_get_framefx( int frame );
-static void   mad_get_walk_frame( Uint16 object, int lip, int action );
-static void   mad_make_equally_lit( int model );
-static void   mad_make_framelip( Uint16 object, int action );
-static void   mad_rip_actions( Uint16 object );
-
-static void load_action_names( const char* loadname );
 static void log_madused( const char *savename );
 
 static bool_t game_begin_menu( int which );
@@ -440,32 +426,6 @@ void fgetadd( float min, float value, float max, float* valuetoadd )
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void load_action_names( const char* loadname )
-{
-    // ZZ> This function loads all of the 2 letter action names
-    FILE* fileread;
-    int cnt;
-    char first, second;
-
-    fileread = fopen( loadname, "r" );
-    if ( fileread )
-    {
-        cnt = 0;
-
-        while ( cnt < MAXACTION )
-        {
-            goto_colon( fileread );
-            fscanf( fileread, "%c%c", &first, &second );
-            cActionName[cnt][0] = first;
-            cActionName[cnt][1] = second;
-            cnt++;
-        }
-
-        fclose( fileread );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
 void log_madused( const char *savename )
 {
     // ZZ> This is a debug function for checking model loads
@@ -564,7 +524,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 
     if ( pmad->actionvalid[action] )
     {
-        pchr->nextaction = ACTIONDA;
+        pchr->nextaction = ACTION_DA;
         pchr->action = action;
 
         pchr->inst.lip = 0;
@@ -593,8 +553,8 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     {
         int framesinaction, frame_stt, frame_end;
 
-        pchr->nextaction = ACTIONDA;
-        pchr->action = ACTIONDA;
+        pchr->nextaction = ACTION_DA;
+        pchr->action = ACTION_DA;
         pchr->actionready = btrue;
 
         framesinaction = (pmad->actionend[action] - pmad->actionstart[action]) + 1;
@@ -899,7 +859,7 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
         fread( &btemp, 1, 1, fileread );
-        pmem->vrt_a[cnt] = btemp; //ENDIAN_INT32( itmp );
+        pmem->vrt_a[cnt] = btemp;
         pmem->vrt_l[cnt] = 0;
     }
 
@@ -1040,69 +1000,6 @@ void update_timers()
         create_szfpstext( frame_fps );
         clock_fps = 0;
         frame_fps = 0;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-static void get_message( FILE* fileread )
-{
-    // ZZ> This function loads a string into the message buffer, making sure it
-    //     is null terminated.
-    int cnt;
-    char cTmp;
-    STRING szTmp;
-
-    if ( msgtotalindex >= MESSAGEBUFFERSIZE )
-    {
-        msgtotalindex = MESSAGEBUFFERSIZE - 1;
-        msgtext[msgtotalindex] = '\0';
-        return;
-    }
-
-    if ( msgtotal >= MAXTOTALMESSAGE )
-    {
-        return;
-    }
-
-    msgindex[msgtotal] = msgtotalindex;
-    fscanf( fileread, "%255s", szTmp );
-    szTmp[255] = '\0';
-
-    cTmp = szTmp[0];
-    cnt = 1;
-    while ( '\0' != cTmp && msgtotalindex < MESSAGEBUFFERSIZE - 1 )
-    {
-        if ( cTmp == '_' )  cTmp = ' ';
-
-        msgtext[msgtotalindex] = cTmp;
-        msgtotalindex++;
-        cTmp = szTmp[cnt];
-        cnt++;
-    }
-
-    msgtext[msgtotalindex] = '\0';  
-    msgtotalindex++;
-    msgtotal++;
-}
-
-//--------------------------------------------------------------------------------------------
-void load_all_messages( const char *loadname, Uint16 object )
-{
-    // ZZ> This function loads all of an objects messages
-    FILE *fileread;
-
-    MadList[object].msgstart = 0;
-    fileread = fopen( loadname, "r" );
-    if ( fileread )
-    {
-        MadList[object].msgstart = msgtotal;
-
-        while ( goto_colon_yesno( fileread ) )
-        {
-            get_message( fileread );
-        }
-
-        fclose( fileread );
     }
 }
 
@@ -1284,7 +1181,7 @@ int SDL_main( int argc, char **argv )
     scantag_read_all( "basicdat" SLASH_STR "scancode.txt" );
     input_settings_load( "controls.txt" );
 
-    release_all_ai_scripts();
+
     load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
     load_action_names( "basicdat" SLASH_STR "actions.txt" );
 
@@ -1582,123 +1479,6 @@ void memory_cleanUp(void)
 }
 
 //--------------------------------------------------------------------------------------------
-int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
-{
-    Uint8 numskins, numicon;
-    STRING newloadname;
-    int cnt;
-    mad_t * pmad;
-
-    if( object > MAXMODEL ) return 0;
-    pmad = MadList + object;
-
-    // clear out the mad
-    memset( pmad, 0, sizeof(mad_t) );
-
-    // mark it as used
-    pmad->used = btrue;
-
-    // Make up a name for the model...  IMPORT\TEMP0000.OBJ
-    strncpy( pmad->name, tmploadname, SDL_arraysize(pmad->name) );
-    pmad->name[ SDL_arraysize(pmad->name) - 1 ] = '\0';
-
-    // Load the AI script for this object
-    make_newloadname( tmploadname, SLASH_STR "script.txt", newloadname );
-
-    // Create a reference to the one we just loaded
-    pmad->ai = load_ai_script( newloadname );
-
-    // Load the object model
-    make_newloadname( tmploadname, SLASH_STR "tris.md2", newloadname );
-
-#ifdef __unix__
-
-    // unix is case sensitive, but sometimes this file is called tris.MD2
-    if ( access( newloadname, R_OK ) )
-    {
-        make_newloadname( tmploadname, SLASH_STR "tris.MD2", newloadname );
-
-        // still no luck !
-        if ( access( newloadname, R_OK ) )
-        {
-            log_warning( "Cannot open: %s\n", newloadname );
-        }
-    }
-
-#endif
-
-    md2_load_one( newloadname, object );
-    md2_models[object] = md2_loadFromFile( newloadname );
-
-    // Create the actions table for this object
-    mad_rip_actions( object );
-
-    // Copy entire actions to save frame space COPY.TXT
-    make_newloadname( tmploadname, SLASH_STR "copy.txt", newloadname );
-    action_check_copy( newloadname, object );
-
-    // Load the messages for this object
-    make_newloadname( tmploadname, SLASH_STR "message.txt", newloadname );
-    load_all_messages( newloadname, object );
-
-    // Load the particles for this object
-    for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
-    {
-        sprintf( newloadname, "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
-
-        // Make sure it's referenced properly
-        pmad->prtpip[cnt] = load_one_particle_profile( newloadname );
-    }
-
-    // Load the skins and icons
-    pmad->skinstart = skin;
-    numskins = 0;
-    numicon = 0;
-    for ( cnt = 0; cnt < MAXSKIN; cnt++)
-    {
-        snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-        if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
-        {
-            numskins++;
-
-            snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-            if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
-            {
-                for ( /* nothing */ ; numicon < numskins; numicon++ )
-                {
-                    skintoicon[skin + numicon] = globalicon_count;
-                    if ( SPELLBOOK == object )
-                    {
-                        if ( bookicon_count < MAXSKIN )
-                        {
-                            bookicon[bookicon_count] = globalicon_count;
-                            bookicon_count++;
-                        }
-                    }
-                }
-
-                globalicon_count++;
-            }
-        }
-    }
-
-    if ( 0 == numskins )
-    {
-        // If we didn't get a skin, set it to the water texture
-        pmad->skinstart = TX_WATER_TOP;
-        numskins = 1;
-        if (gDevMode)
-        {
-            log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
-        }
-    }
-
-    pmad->skins = numskins;
-
-    return numskins;
-}
-
-//--------------------------------------------------------------------------------------------
 int load_one_object( const char* tmploadname, int skin )
 {
     // ZZ> This function loads one object and returns the number of skins
@@ -1726,197 +1506,6 @@ int load_one_object( const char* tmploadname, int skin )
 
     return numskins;
 }
-
-//--------------------------------------------------------------------------------------------
-void mad_rip_actions( Uint16 object )
-{
-    // ZZ> This function creates the frame lists for each action based on the
-    //     name of each md2 frame in the model
-
-    int frame, framesinaction;
-    int action, lastaction;
-
-    // Clear out all actions and reset to invalid
-    action = 0;
-
-    while ( action < MAXACTION )
-    {
-        MadList[object].actionvalid[action] = bfalse;
-        action++;
-    }
-
-    // Set the primary dance action to be the first frame, just as a default
-    MadList[object].actionvalid[ACTIONDA] = btrue;
-    MadList[object].actionstart[ACTIONDA] = MadList[object].framestart;
-    MadList[object].actionend[ACTIONDA] = MadList[object].framestart + 1;
-
-    // Now go huntin' to see what each frame is, look for runs of same action
-    md2_rip_frame_name( 0 );
-    lastaction = action_number();  framesinaction = 0;
-    frame = 0;
-
-    while ( frame < MadList[object].frames )
-    {
-        md2_rip_frame_name( frame );
-        action = action_number();
-        if ( lastaction == action )
-        {
-            framesinaction++;
-        }
-        else
-        {
-            // Write the old action
-            if ( lastaction < MAXACTION )
-            {
-                MadList[object].actionvalid[lastaction] = btrue;
-                MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
-                MadList[object].actionend[lastaction] = MadList[object].framestart + frame;
-            }
-
-            framesinaction = 1;
-            lastaction = action;
-        }
-
-        mad_get_framefx( MadList[object].framestart + frame );
-        frame++;
-    }
-
-    // Write the old action
-    if ( lastaction < MAXACTION )
-    {
-        MadList[object].actionvalid[lastaction] = btrue;
-        MadList[object].actionstart[lastaction] = MadList[object].framestart + frame - framesinaction;
-        MadList[object].actionend[lastaction]   = MadList[object].framestart + frame;
-    }
-
-    // Make sure actions are made valid if a similar one exists
-    action_copy_correct( object, ACTIONDA, ACTIONDB );  // All dances should be safe
-    action_copy_correct( object, ACTIONDB, ACTIONDC );
-    action_copy_correct( object, ACTIONDC, ACTIONDD );
-    action_copy_correct( object, ACTIONDB, ACTIONDC );
-    action_copy_correct( object, ACTIONDA, ACTIONDB );
-    action_copy_correct( object, ACTIONUA, ACTIONUB );
-    action_copy_correct( object, ACTIONUB, ACTIONUC );
-    action_copy_correct( object, ACTIONUC, ACTIONUD );
-    action_copy_correct( object, ACTIONTA, ACTIONTB );
-    action_copy_correct( object, ACTIONTC, ACTIONTD );
-    action_copy_correct( object, ACTIONCA, ACTIONCB );
-    action_copy_correct( object, ACTIONCC, ACTIONCD );
-    action_copy_correct( object, ACTIONSA, ACTIONSB );
-    action_copy_correct( object, ACTIONSC, ACTIONSD );
-    action_copy_correct( object, ACTIONBA, ACTIONBB );
-    action_copy_correct( object, ACTIONBC, ACTIONBD );
-    action_copy_correct( object, ACTIONLA, ACTIONLB );
-    action_copy_correct( object, ACTIONLC, ACTIONLD );
-    action_copy_correct( object, ACTIONXA, ACTIONXB );
-    action_copy_correct( object, ACTIONXC, ACTIONXD );
-    action_copy_correct( object, ACTIONFA, ACTIONFB );
-    action_copy_correct( object, ACTIONFC, ACTIONFD );
-    action_copy_correct( object, ACTIONPA, ACTIONPB );
-    action_copy_correct( object, ACTIONPC, ACTIONPD );
-    action_copy_correct( object, ACTIONZA, ACTIONZB );
-    action_copy_correct( object, ACTIONZC, ACTIONZD );
-    action_copy_correct( object, ACTIONWA, ACTIONWB );
-    action_copy_correct( object, ACTIONWB, ACTIONWC );
-    action_copy_correct( object, ACTIONWC, ACTIONWD );
-    action_copy_correct( object, ACTIONDA, ACTIONWD );  // All walks should be safe
-    action_copy_correct( object, ACTIONWC, ACTIONWD );
-    action_copy_correct( object, ACTIONWB, ACTIONWC );
-    action_copy_correct( object, ACTIONWA, ACTIONWB );
-    action_copy_correct( object, ACTIONJA, ACTIONJB );
-    action_copy_correct( object, ACTIONJB, ACTIONJC );
-    action_copy_correct( object, ACTIONDA, ACTIONJC );  // All jumps should be safe
-    action_copy_correct( object, ACTIONJB, ACTIONJC );
-    action_copy_correct( object, ACTIONJA, ACTIONJB );
-    action_copy_correct( object, ACTIONHA, ACTIONHB );
-    action_copy_correct( object, ACTIONHB, ACTIONHC );
-    action_copy_correct( object, ACTIONHC, ACTIONHD );
-    action_copy_correct( object, ACTIONHB, ACTIONHC );
-    action_copy_correct( object, ACTIONHA, ACTIONHB );
-    action_copy_correct( object, ACTIONKA, ACTIONKB );
-    action_copy_correct( object, ACTIONKB, ACTIONKC );
-    action_copy_correct( object, ACTIONKC, ACTIONKD );
-    action_copy_correct( object, ACTIONKB, ACTIONKC );
-    action_copy_correct( object, ACTIONKA, ACTIONKB );
-    action_copy_correct( object, ACTIONMH, ACTIONMI );
-    action_copy_correct( object, ACTIONDA, ACTIONMM );
-    action_copy_correct( object, ACTIONMM, ACTIONMN );
-
-    // Create table for doing transition from one type of walk to another...
-    // Clear 'em all to start
-    for ( frame = 0; frame < MadList[object].frames; frame++ )
-    {
-        Md2FrameList[frame+MadList[object].framestart].framelip = 0;
-    }
-
-    // Need to figure out how far into action each frame is
-    mad_make_framelip( object, ACTIONWA );
-    mad_make_framelip( object, ACTIONWB );
-    mad_make_framelip( object, ACTIONWC );
-
-    // Now do the same, in reverse, for walking animations
-    mad_get_walk_frame( object, LIPDA, ACTIONDA );
-    mad_get_walk_frame( object, LIPWA, ACTIONWA );
-    mad_get_walk_frame( object, LIPWB, ACTIONWB );
-    mad_get_walk_frame( object, LIPWC, ACTIONWC );
-}
-
-//--------------------------------------------------------------------------------------------
-/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-Uint16 donttarget, Uint16 oldtarget )
-{
-// ZZ> This function helps find a target, returning btrue if it found a decent target
-int cnt;
-Uint16 angle;
-Uint16 charb;
-Uint8 enemies, returncode;
-Uint32 fanblock;
-int distance;
-
-returncode = bfalse;
-
-// Current fanblock
-if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-{
-fanblock = mesh_get_block_int(&mesh, x,y);
-
-enemies = bfalse;
-if ( !onlyfriends ) enemies = btrue;
-
-charb = bumplist[fanblock].chr;
-cnt = 0;
-while ( cnt < bumplist[fanblock].chrnum )
-{
-if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
-{
-if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
-{
-distance = ABS( ChrList[charb].xpos - chrx ) + ABS( ChrList[charb].ypos - chry );
-if ( distance < globestdistance )
-{
-angle = ( ATAN2( ChrList[charb].ypos - chry, ChrList[charb].xpos - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
-angle = facing - angle;
-if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
-{
-returncode = btrue;
-globesttarget = charb;
-globestdistance = distance;
-glouseangle = angle;
-if ( angle  > 32767 )
-globestangle = -angle;
-else
-globestangle = angle;
-}
-}
-}
-}
-charb = ChrList[charb].bumpnext;
-cnt++;
-}
-}
-return returncode;
-}*/
 
 //--------------------------------------------------------------------------------------------
 Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
@@ -1961,37 +1550,6 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
     //All done
     return besttarget;
 }
-//--------------------------------------------------------------------------------------------
-/*Uint16 find_target( float chrx, float chry, Uint16 facing,
-Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-Uint8 team, Uint16 donttarget, Uint16 oldtarget )
-{
-// This function finds the best target for the given parameters
-Uint8 done;
-int x, y;
-
-x = chrx;
-y = chry;
-x = x >> 9;
-y = y >> 9;
-globestdistance = 9999;
-globestangle = targetangle;
-done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-return MAXCHR;
-}*/
-
 //--------------------------------------------------------------------------------------------
 Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_t targetitems, bool_t targetdead, IDSZ idsz, bool_t excludeidsz )
 {
@@ -2062,241 +1620,6 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     }
 
     return besttarget;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 action_number()
-{
-    // ZZ> This function returns the number of the action in cFrameName, or
-    //     it returns NOACTION if it could not find a match
-    int cnt;
-    char first, second;
-
-    first = cFrameName[0];
-    second = cFrameName[1];
-
-    for ( cnt = 0; cnt < MAXACTION; cnt++ )
-    {
-        if ( first == cActionName[cnt][0] && second == cActionName[cnt][1] )
-        {
-            return cnt;
-        }
-    }
-
-    return NOACTION;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 action_frame()
-{
-    // ZZ> This function returns the frame number in the third and fourth characters
-    //     of cFrameName
-    int number;
-    sscanf( &cFrameName[2], "%d", &number );
-    return number;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint16 test_frame_name( char letter )
-{
-    // ZZ> This function returns btrue if the 4th, 5th, 6th, or 7th letters
-    //     of the frame name matches the input argument
-    if ( cFrameName[4] == letter ) return btrue;
-    if ( cFrameName[4] == 0 ) return bfalse;
-    if ( cFrameName[5] == letter ) return btrue;
-    if ( cFrameName[5] == 0 ) return bfalse;
-    if ( cFrameName[6] == letter ) return btrue;
-    if ( cFrameName[6] == 0 ) return bfalse;
-    if ( cFrameName[7] == letter ) return btrue;
-
-    return bfalse;
-}
-
-//--------------------------------------------------------------------------------------------
-void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
-{
-    // ZZ> This function makes sure both actions are valid if either of them
-    //     are valid.  It will copy start and ends to mirror the valid action.
-
-    if( object > MAXMODEL || !MadList[object].used ) return;
-
-    if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
-    {
-        // They are either both valid or both invalid, in either case we can't help
-        return;
-    }
-    else
-    {
-        // Fix the invalid one
-        if ( !MadList[object].actionvalid[actiona] )
-        {
-            // Fix actiona
-            MadList[object].actionvalid[actiona] = btrue;
-            MadList[object].actionstart[actiona] = MadList[object].actionstart[actionb];
-            MadList[object].actionend[actiona] = MadList[object].actionend[actionb];
-        }
-        else
-        {
-            // Fix actionb
-            MadList[object].actionvalid[actionb] = btrue;
-            MadList[object].actionstart[actionb] = MadList[object].actionstart[actiona];
-            MadList[object].actionend[actionb] = MadList[object].actionend[actiona];
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void mad_get_walk_frame( Uint16 object, int lip, int action )
-{
-    // ZZ> This helps make walking look right
-    int frame = 0;
-    int framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
-
-    while ( frame < 16 )
-    {
-        int framealong = 0;
-        if ( framesinaction > 0 )
-        {
-            framealong = ( ( frame * framesinaction / 16 ) + 2 ) % framesinaction;
-        }
-
-        MadList[object].frameliptowalkframe[lip][frame] = MadList[object].actionstart[action] + framealong;
-        frame++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void mad_get_framefx( int frame )
-{
-    // ZZ> This function figures out the IFrame invulnerability, and Attack, Grab, and
-    //     Drop timings
-    Uint16 fx = 0;
-    if ( test_frame_name( 'I' ) )
-        fx = fx | MADFXINVICTUS;
-    if ( test_frame_name( 'L' ) )
-    {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFXACTLEFT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFXGRABLEFT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFXDROPLEFT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFXCHARLEFT;
-    }
-    if ( test_frame_name( 'R' ) )
-    {
-        if ( test_frame_name( 'A' ) )
-            fx = fx | MADFXACTRIGHT;
-        if ( test_frame_name( 'G' ) )
-            fx = fx | MADFXGRABRIGHT;
-        if ( test_frame_name( 'D' ) )
-            fx = fx | MADFXDROPRIGHT;
-        if ( test_frame_name( 'C' ) )
-            fx = fx | MADFXCHARRIGHT;
-    }
-    if ( test_frame_name( 'S' ) )
-        fx = fx | MADFXSTOP;
-    if ( test_frame_name( 'F' ) )
-        fx = fx | MADFXFOOTFALL;
-    if ( test_frame_name( 'P' ) )
-        fx = fx | MADFXPOOF;
-
-    Md2FrameList[frame].framefx = fx;
-}
-
-//--------------------------------------------------------------------------------------------
-void mad_make_framelip( Uint16 object, int action )
-{
-    // ZZ> This helps make walking look right
-    int frame, framesinaction;
-    if ( MadList[object].actionvalid[action] )
-    {
-        framesinaction = MadList[object].actionend[action] - MadList[object].actionstart[action];
-        frame = MadList[object].actionstart[action];
-
-        while ( frame < MadList[object].actionend[action] )
-        {
-            Md2FrameList[frame].framelip = ( frame - MadList[object].actionstart[action] ) * 15 / framesinaction;
-            Md2FrameList[frame].framelip = ( Md2FrameList[frame].framelip ) & 15;
-            frame++;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void mad_make_equally_lit( int model )
-{
-    // ZZ> This function makes ultra low poly models look better
-    int frame, cnt, vert;
-    if ( MadList[model].used )
-    {
-        frame = MadList[model].framestart;
-
-        for ( cnt = 0; cnt < MadList[model].frames; cnt++ )
-        {
-            vert = 0;
-
-            while ( vert < MAXVERTICES )
-            {
-                Md2FrameList[frame].vrta[vert] = EQUALLIGHTINDEX;
-                vert++;
-            }
-
-            frame++;
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-void action_check_copy( const char* loadname, Uint16 object )
-{
-    // ZZ> This function copies a model's actions
-    FILE *fileread;
-    int actiona, actionb;
-    char szOne[16], szTwo[16];
-
-    if( object > MAXMODEL || !MadList[object].used ) return;
-
-    MadList[object].msgstart = 0;
-    fileread = fopen( loadname, "r" );
-    if ( fileread )
-    {
-        while ( goto_colon_yesno( fileread ) )
-        {
-            fscanf( fileread, "%s%s", szOne, szTwo );
-
-            actiona = action_which( szOne[0] );
-            actionb = action_which( szTwo[0] );
-
-            action_copy_correct( object, actiona + 0, actionb + 0 );
-            action_copy_correct( object, actiona + 1, actionb + 1 );
-            action_copy_correct( object, actiona + 2, actionb + 2 );
-            action_copy_correct( object, actiona + 3, actionb + 3 );
-        }
-
-        fclose( fileread );
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-int action_which( char cTmp )
-{
-    // ZZ> This function changes a letter into an action code
-    int action;
-    action = ACTIONDA;
-    if ( cTmp == 'U' || cTmp == 'u' )  action = ACTIONUA;
-    if ( cTmp == 'T' || cTmp == 't' )  action = ACTIONTA;
-    if ( cTmp == 'S' || cTmp == 's' )  action = ACTIONSA;
-    if ( cTmp == 'C' || cTmp == 'c' )  action = ACTIONCA;
-    if ( cTmp == 'B' || cTmp == 'b' )  action = ACTIONBA;
-    if ( cTmp == 'L' || cTmp == 'l' )  action = ACTIONLA;
-    if ( cTmp == 'X' || cTmp == 'x' )  action = ACTIONXA;
-    if ( cTmp == 'F' || cTmp == 'f' )  action = ACTIONFA;
-    if ( cTmp == 'P' || cTmp == 'p' )  action = ACTIONPA;
-    if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTIONZA;
-
-    return action;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2658,12 +1981,12 @@ void do_weather_spawn()
                     
 					if(particle != TOTALMAXPRT)
 					{
-						if(__prthitawall( particle ) ) free_one_particle_no_sound( particle );
+						if(__prthitawall( particle ) ) free_one_particle( particle );
 						else if ( weatheroverwater )
 						{
 							if ( !prt_is_over_water( particle ) )
 							{
-								free_one_particle_no_sound( particle );
+								free_one_particle( particle );
 							}
 						}
 					}
@@ -3319,48 +2642,54 @@ void bump_characters( void )
     // Fill 'em back up
     for ( character = 0; character < MAXCHR; character++ )
     {
+        chr_t * pchr;
+
         if ( !ChrList[character].on ) continue;
+        pchr = ChrList + character;
 
         // reset the holding weight each update
-        ChrList[character].holdingweight   = 0;
-        ChrList[character].onwhichplatform = MAXCHR;
-        ChrList[character].phys_level = ChrList[character].floor_level;
+        pchr->holdingweight   = 0;
+        pchr->onwhichplatform = MAXCHR;
+        pchr->phys_level = pchr->floor_level;
 
         // reset the fan and block position
-        ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
-        ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
+        pchr->onwhichfan   = mesh_get_tile ( pchr->xpos, pchr->ypos );
+        pchr->onwhichblock = mesh_get_block( pchr->xpos, pchr->ypos );
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( ChrList[character].inpack ) continue;
+        if ( pchr->inpack ) continue;
 
         // reject characters that are hidden
-        hide = CapList[ ChrList[character].model ].hidestate;
-        if ( hide != NOHIDE && hide == ChrList[character].ai.state ) continue;
+        hide = CapList[ pchr->model ].hidestate;
+        if ( hide != NOHIDE && hide == pchr->ai.state ) continue;
 
-        if ( INVALID_BLOCK != ChrList[character].onwhichblock )
+        if ( INVALID_BLOCK != pchr->onwhichblock )
         {
             // Insert before any other characters on the block
-            ChrList[character].bumpnext = bumplist[ChrList[character].onwhichblock].chr;
-            bumplist[ChrList[character].onwhichblock].chr = character;
-            bumplist[ChrList[character].onwhichblock].chrnum++;
+            pchr->bumpnext = bumplist[pchr->onwhichblock].chr;
+            bumplist[pchr->onwhichblock].chr = character;
+            bumplist[pchr->onwhichblock].chrnum++;
         }
     }
 
     for ( particle = 0; particle < maxparticles; particle++ )
     {
+        prt_t * pprt;
+
         // reject invalid particles
         if ( !PrtList[particle].on ) continue;
+        pprt = PrtList + particle;
 
         // reset the fan and block position
-        PrtList[particle].onwhichfan   = mesh_get_tile ( PrtList[particle].xpos, PrtList[particle].ypos );
-        PrtList[particle].onwhichblock = mesh_get_block( PrtList[particle].xpos, PrtList[particle].ypos );
+        pprt->onwhichfan   = mesh_get_tile ( pprt->xpos, pprt->ypos );
+        pprt->onwhichblock = mesh_get_block( pprt->xpos, pprt->ypos );
 
-        if ( INVALID_BLOCK != PrtList[particle].onwhichblock )
+        if ( INVALID_BLOCK != pprt->onwhichblock )
         {
             // Insert before any other particles on the block
-            PrtList[particle].bumpnext = bumplist[PrtList[particle].onwhichblock].prt;
-            bumplist[PrtList[particle].onwhichblock].prt = particle;
-            bumplist[PrtList[particle].onwhichblock].prtnum++;
+            pprt->bumpnext = bumplist[pprt->onwhichblock].prt;
+            bumplist[pprt->onwhichblock].prt = particle;
+            bumplist[pprt->onwhichblock].prtnum++;
         }
     }
 
@@ -3684,14 +3013,14 @@ void bump_characters( void )
                             if( pchr_a->zvel - pchr_b->zvel < 0 )
                             {
                                 // A falling on B
-                                if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
+                                if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTION_MI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
                                 {
                                     attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
                                 }
                             }
                             else
                             {
-                                if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTIONMI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
+                                if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTION_MI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
                                 {
                                     attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
                                 }
@@ -4214,18 +3543,29 @@ void bump_characters( void )
                                                 if ( pchr_a->damagetime == 0 && pprt_b->attachedtocharacter != ichr_a && ( ppip_b->damfx&DAMFX_ARRO ) == 0 )
                                                 {
                                                     // Normal iprt_b damage
-                                                    if ( ppip_b->allowpush )
+                                                    if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
                                                     {
-                                                        pchr_a->phys_vel_x  += -pchr_a->xvel + pprt_b->xvel * pchr_a->bumpdampen;
-                                                        pchr_a->phys_vel_y  += -pchr_a->yvel + pprt_b->yvel * pchr_a->bumpdampen;
-                                                        pchr_a->phys_vel_z  += -pchr_a->zvel + pprt_b->zvel * pchr_a->bumpdampen;
+                                                        if( 0 == pchr_a->weight )
+                                                        {
+                                                            pchr_a->phys_vel_x  += pprt_b->xvel - pchr_a->xvel;
+                                                            pchr_a->phys_vel_y  += pprt_b->yvel - pchr_a->yvel;
+                                                            pchr_a->phys_vel_z  += pprt_b->zvel - pchr_a->zvel;
+                                                        }
+                                                        else
+                                                        {
+                                                            float factor = pchr_a->bumpdampen * 110 / pchr_a->weight;
+
+                                                            pchr_a->phys_vel_x  += pprt_b->xvel * factor;
+                                                            pchr_a->phys_vel_y  += pprt_b->yvel * factor;
+                                                            pchr_a->phys_vel_z  += pprt_b->zvel * factor;
+                                                        }
                                                     }
 
                                                     direction = ( ATAN2( pprt_b->yvel, pprt_b->xvel ) + PI ) * 0xFFFF / ( TWO_PI );
                                                     direction = pchr_a->turnleftright - direction + 32768;
+
                                                     // Check all enchants to see if they are removed
                                                     enchant = pchr_a->firstenchant;
-
                                                     while ( enchant != MAXENCHANT )
                                                     {
                                                         eveidremove = EveList[EncList[enchant].eve].removedbyidsz;
@@ -4247,6 +3587,7 @@ void bump_characters( void )
                                                         percent /= 100;
                                                         pprt_b->damagebase *= 1 + percent;
                                                     }
+
                                                     if ( ppip_b->wisdamagebonus )
                                                     {
                                                         int percent;
@@ -4267,7 +3608,7 @@ void bump_characters( void )
                                                     }
 
                                                     // Do confuse effects
-                                                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame].framefx&MADFXINVICTUS ) || ppip_b->damfx&DAMFX_BLOC )
+                                                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_BLOC )
                                                     {
                                                         if ( ppip_b->grogtime != 0 && pcap_a->canbegrogged )
                                                         {
@@ -4292,6 +3633,7 @@ void bump_characters( void )
                                                         ChrList[pprt_b->chr].ai.hitlast = ichr_a;
                                                     }
                                                 }
+
                                                 if ( ( frame_wld&31 ) == 0 && pprt_b->attachedtocharacter == ichr_a )
                                                 {
                                                     // Attached iprt_b damage ( Burning )
@@ -4305,6 +3647,7 @@ void bump_characters( void )
                                                     damage_character( ichr_a, 32768, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
                                                 }
                                             }
+
                                             if ( ppip_b->endbump )
                                             {
                                                 if ( ppip_b->bumpmoney )
@@ -4812,8 +4155,8 @@ void setup_characters( const char *modname )
 
     chr_setup_info_t info;
 
-    // Turn all characters off
-    free_all_characters();
+    // Turn all objects off
+    free_all_objects();
 
     // Turn some back on
     make_newloadname( modname, "gamedat" SLASH_STR "spawn.txt", newloadname );
@@ -4972,16 +4315,18 @@ bool_t load_module( const char *smallname )
     make_randie();
     reset_teams();
     release_all_models();
-    free_all_enchants();
+    free_all_objects();
     reset_messages();
     prime_names();
-    release_all_ai_scripts();
 
     load_one_icon( "basicdat" SLASH_STR "nullicon" );
     make_twist();
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
+    // generate the module directory
     snprintf( modname, sizeof(modname), "modules" SLASH_STR "%s" SLASH_STR, smallname );
+
+    // load a bunch of assets that are used in the module
     load_global_waves( modname );
     reset_particles( modname );
     read_wawalite( modname );
@@ -5039,7 +4384,7 @@ void disaffirm_attached_particles( Uint16 character )
     {
         if ( PrtList[particle].on && PrtList[particle].attachedtocharacter == character )
         {
-            free_one_particle( particle );
+            free_one_particle_in_game( particle );
         }
     }
 
@@ -5824,3 +5169,102 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 
     return game_init_module( modname, seed );
 };
+
+//--------------------------------------------------------------------------------------------
+/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+Uint8 onlyfriends, Uint8 anyone, Uint8 team,
+Uint16 donttarget, Uint16 oldtarget )
+{
+// ZZ> This function helps find a target, returning btrue if it found a decent target
+int cnt;
+Uint16 angle;
+Uint16 charb;
+Uint8 enemies, returncode;
+Uint32 fanblock;
+int distance;
+
+returncode = bfalse;
+
+// Current fanblock
+if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+{
+fanblock = mesh_get_block_int(&mesh, x,y);
+
+enemies = bfalse;
+if ( !onlyfriends ) enemies = btrue;
+
+charb = bumplist[fanblock].chr;
+cnt = 0;
+while ( cnt < bumplist[fanblock].chrnum )
+{
+if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
+{
+if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
+{
+distance = ABS( ChrList[charb].xpos - chrx ) + ABS( ChrList[charb].ypos - chry );
+if ( distance < globestdistance )
+{
+angle = ( ATAN2( ChrList[charb].ypos - chry, ChrList[charb].xpos - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
+angle = facing - angle;
+if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
+{
+returncode = btrue;
+globesttarget = charb;
+globestdistance = distance;
+glouseangle = angle;
+if ( angle  > 32767 )
+globestangle = -angle;
+else
+globestangle = angle;
+}
+}
+}
+}
+charb = ChrList[charb].bumpnext;
+cnt++;
+}
+}
+return returncode;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 find_target( float chrx, float chry, Uint16 facing,
+Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+Uint8 team, Uint16 donttarget, Uint16 oldtarget )
+{
+// This function finds the best target for the given parameters
+Uint8 done;
+int x, y;
+
+x = chrx;
+y = chry;
+x = x >> 9;
+y = y >> 9;
+globestdistance = 9999;
+globestangle = targetangle;
+done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
+
+done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
+
+return MAXCHR;
+}*/
+
+
+//--------------------------------------------------------------------------------------------
+void free_all_objects( void )
+{
+    // BB > every instance of the three object types used in the game.
+
+    free_all_particles();
+    free_all_enchants();
+    free_all_characters();
+}

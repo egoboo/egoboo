@@ -33,6 +33,7 @@
 #include "file_common.h"
 #include "particle.h"
 #include "link.h"
+#include "mad.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
@@ -3165,7 +3166,7 @@ void check_player_import( const char *dirname, bool_t initialize )
         skin = get_skin( filename );
 
         snprintf( filename, sizeof(filename), "%s" SLASH_STR "%s" SLASH_STR "tris.md2", dirname, foundfile );
-        md2_load_one( filename, loadplayer_count );
+        md2_load_one( filename, &(MadList[loadplayer_count].md2) );
 
         sprintf( filename, "%s" SLASH_STR "%s" SLASH_STR "icon%d", dirname, foundfile, skin );
         load_one_icon( filename );

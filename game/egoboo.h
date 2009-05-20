@@ -134,30 +134,6 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
 
-// Model tags
-#define MADFXINVICTUS       1                       // I Invincible
-#define MADFXACTLEFT        2                       // AL Activate left item
-#define MADFXACTRIGHT       4                       // AR Activate right item
-#define MADFXGRABLEFT       8                       // GL GO Grab left/Grab only item
-#define MADFXGRABRIGHT      16                      // GR Grab right item
-#define MADFXDROPLEFT       32                      // DL DO Drop left/Drop only item
-#define MADFXDROPRIGHT      64                      // DR Drop right item
-#define MADFXSTOP           128                     // S Stop movement
-#define MADFXFOOTFALL       256                     // F Footfall sound
-#define MADFXCHARLEFT       512                     // CL Grab left/Grab only character
-#define MADFXCHARRIGHT      1024                    // CR Grab right character
-#define MADFXPOOF           2048                    // P Poof
-
-// Animation walking
-#define LIPDA               0                       // For smooth transitions 'tween
-#define LIPWA               1                       //   walking rates
-#define LIPWB               2
-#define LIPWC               3
-
-#define NOACTION            0xffff                     // Action not valid for this character
-#define MAXACTION           76                         // Number of action types
-EXTERN char                 cActionName[MAXACTION][2]; // Two letter name code
-
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
 
@@ -527,49 +503,9 @@ EXTERN bool_t                    local_listening      EQ( bfalse );  // Players 
 //------------------------------------
 // Model stuff
 //------------------------------------
-#define MAXPRTPIPPEROBJECT       13                                      // Max part*.txt per object
-#define MAXCOMMAND                      512         // Max number of commands
-#define MAXCOMMANDSIZE                  128          // Max number of points in a command
-#define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
-
 EXTERN int             globalicon_count;                              // Number of icons
 
-struct s_mad
-{
-    bool_t  used;                          // Model slot
-    STRING  name;                          // Model name
 
-    // templates
-    Uint16  ai;                            // AI for each model
-    Uint16  prtpip[MAXPRTPIPPEROBJECT];    // Local particles
-
-    Uint16  skins;                         // Number of skins
-    Uint16  skinstart;                     // Starting skin of model
-
-    Uint16  frames;                        // Number of frames
-    Uint16  framestart;                    // Starting frame of model
-
-    Uint16  msgstart;                      // The first message
-
-    Uint16  vertices;                      // Number of vertices
-    Uint16  transvertices;                 // Number to transform
-
-    Uint16  commands;                      // Number of commands
-    GLenum  commandtype[MAXCOMMAND];       // Fan or strip
-    Uint16  commandsize[MAXCOMMAND];       // Entries used by command
-    Uint16  commandvrt[MAXCOMMANDENTRIES]; // Which vertex
-    float   commandu[MAXCOMMANDENTRIES];   // Texture position
-    float   commandv[MAXCOMMANDENTRIES];
-
-    Uint16  frameliptowalkframe[4][16];    // For walk animations
-
-    Uint8   actionvalid[MAXACTION];        // bfalse if not valid
-    Uint16  actionstart[MAXACTION];        // First frame of anim
-    Uint16  actionend[MAXACTION];          // One past last frame
-};
-typedef struct s_mad mad_t;
-
-EXTERN mad_t   MadList[MAXMODEL];
 
 EXTERN Uint16  skintoicon[MAXTEXTURE];                  // Skin to icon
 
@@ -718,84 +654,6 @@ EXTERN char            msgtext[MESSAGEBUFFERSIZE];                         // Th
 EXTERN char   endtext[MAXENDTEXT];     // The end-module text
 EXTERN int    endtextwrite;
 
-// This stuff is for actions
-#define ACTIONDA            0
-#define ACTIONDB            1
-#define ACTIONDC            2
-#define ACTIONDD            3
-#define ACTIONUA            4
-#define ACTIONUB            5
-#define ACTIONUC            6
-#define ACTIONUD            7
-#define ACTIONTA            8
-#define ACTIONTB            9
-#define ACTIONTC            10
-#define ACTIONTD            11
-#define ACTIONCA            12
-#define ACTIONCB            13
-#define ACTIONCC            14
-#define ACTIONCD            15
-#define ACTIONSA            16
-#define ACTIONSB            17
-#define ACTIONSC            18
-#define ACTIONSD            19
-#define ACTIONBA            20
-#define ACTIONBB            21
-#define ACTIONBC            22
-#define ACTIONBD            23
-#define ACTIONLA            24
-#define ACTIONLB            25
-#define ACTIONLC            26
-#define ACTIONLD            27
-#define ACTIONXA            28
-#define ACTIONXB            29
-#define ACTIONXC            30
-#define ACTIONXD            31
-#define ACTIONFA            32
-#define ACTIONFB            33
-#define ACTIONFC            34
-#define ACTIONFD            35
-#define ACTIONPA            36
-#define ACTIONPB            37
-#define ACTIONPC            38
-#define ACTIONPD            39
-#define ACTIONEA            40
-#define ACTIONEB            41
-#define ACTIONRA            42
-#define ACTIONZA            43
-#define ACTIONZB            44
-#define ACTIONZC            45
-#define ACTIONZD            46
-#define ACTIONWA            47
-#define ACTIONWB            48
-#define ACTIONWC            49
-#define ACTIONWD            50
-#define ACTIONJA            51
-#define ACTIONJB            52
-#define ACTIONJC            53
-#define ACTIONHA            54
-#define ACTIONHB            55
-#define ACTIONHC            56
-#define ACTIONHD            57
-#define ACTIONKA            58
-#define ACTIONKB            59
-#define ACTIONKC            60
-#define ACTIONKD            61
-#define ACTIONMA            62
-#define ACTIONMB            63
-#define ACTIONMC            64
-#define ACTIONMD            65
-#define ACTIONME            66
-#define ACTIONMF            67
-#define ACTIONMG            68
-#define ACTIONMH            69
-#define ACTIONMI            70
-#define ACTIONMJ            71
-#define ACTIONMK            72
-#define ACTIONML            73
-#define ACTIONMM            74
-#define ACTIONMN            75
-
 #define CLOSETOLERANCE      2                       // For closing doors
 
 // Status displays
@@ -816,5 +674,7 @@ enum e_order
 //Quest system
 #define QUEST_BEATEN         -1
 #define QUEST_NONE             -2
+
+// Objects
 
 #define  _EGOBOO_H_

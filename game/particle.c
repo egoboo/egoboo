@@ -28,6 +28,7 @@
 #include "camera.h"
 #include "enchant.h"
 #include "char.h"
+#include "mad.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -53,8 +54,8 @@ int              numpip   = 0;
 pip_t            PipList[TOTALMAXPRTPIP];
 
 Uint16           particletexture = 0;                        // All in one bitmap
-float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
-float            particleimagev[MAXPARTICLEIMAGE][2];
+float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
+float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
 prt_t            PrtList[TOTALMAXPRT];
@@ -90,12 +91,20 @@ int prt_count_free()
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle_no_sound( Uint16 particle )
+void free_one_particle( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack
-    freeprtlist[numfreeprt] = particle;
-    numfreeprt++;
-    PrtList[particle].on = bfalse;
+
+    if( VALID_PRT_RANGE(particle) )
+    {
+        // particle "destructor"
+        // sets all boolean values to false, incluting the "on" flag
+        memset( PrtList + particle, 0, sizeof(prt_t) );
+
+        // push it on the stack
+        freeprtlist[numfreeprt] = particle;
+        numfreeprt++;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -123,34 +132,36 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
 }
 
 //--------------------------------------------------------------------------------------------
-void free_one_particle( Uint16 particle )
+void free_one_particle_in_game( Uint16 particle )
 {
     // ZZ> This function sticks a particle back on the free particle stack and
     //     plays the sound associated with the particle
-    Uint16 child;
-    prt_t * pprt;
-
-    if( INVALID_PRT( particle) ) return;
-    pprt = PrtList + particle;
-
-    if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
+    
+    if( VALID_PRT( particle) )
     {
-        child = spawn_one_character( pprt->xpos, pprt->ypos, pprt->zpos,
-                                     pprt->model, pprt->team, 0, pprt->facing,
-                                     NULL, MAXCHR );
-        if ( VALID_CHR(child) )
-        {
-            ChrList[child].ai.state = pprt->spawncharacterstate;
-            ChrList[child].ai.owner = pprt->chr;
-        }
-    }
+        Uint16 child;
+        prt_t * pprt = PrtList + particle;
 
-    if( VALID_PIP(pprt->pip) )
+        if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
+        {
+            child = spawn_one_character( pprt->xpos, pprt->ypos, pprt->zpos,
+                                        pprt->model, pprt->team, 0, pprt->facing,
+                                        NULL, MAXCHR );
+            if ( VALID_CHR(child) )
+            {
+                ChrList[child].ai.state = pprt->spawncharacterstate;
+                ChrList[child].ai.owner = pprt->chr;
+            }
+        }
+
+        if( VALID_PIP(pprt->pip) )
     {
         play_particle_sound( particle, PipList[pprt->pip].soundend );
     }
 
-    free_one_particle_no_sound( particle );
+    }
+
+    free_one_particle( particle );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -307,7 +318,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
             // Does it go away?
             if ( pprt->target == MAXCHR && ppip->needtarget )
             {
-                free_one_particle( iprt );
+                free_one_particle_in_game( iprt );
                 return maxparticles;
             }
 
@@ -636,7 +647,7 @@ void move_particles( void )
             else
             {
                 // Just destroy the particle
-                //                    free_one_particle(cnt);
+                //                    free_one_particle_in_game(cnt);
                 PrtList[cnt].time = 1;
             }
         }
@@ -661,7 +672,7 @@ void move_particles( void )
                     tnc++;
                 }
 
-                free_one_particle( cnt );
+                free_one_particle_in_game( cnt );
             }
         }
 
@@ -674,13 +685,14 @@ void move_particles( void )
 void free_all_particles()
 {
     // ZZ> This function resets the particle allocation lists
-    numfreeprt = 0;
+    
+    int cnt;
 
-    while ( numfreeprt < maxparticles )
+    numfreeprt = 0;
+    for( cnt = 0; cnt < maxparticles; cnt++ )
     {
-        PrtList[numfreeprt].on = 0;
-        freeprtlist[numfreeprt] = numfreeprt;
-        numfreeprt++;
+        // reuse this code
+        free_one_particle( cnt );
     }
 }
 
@@ -698,10 +710,10 @@ void setup_particles()
     {
         x = cnt & 15;
         y = cnt >> 4;
-        particleimageu[cnt][0] = ( float )( ( 0.05f + x ) / 16.0f );
-        particleimageu[cnt][1] = ( float )( ( 0.95f + x ) / 16.0f );
-        particleimagev[cnt][0] = ( float )( ( 0.05f + y ) / 16.0f );
-        particleimagev[cnt][1] = ( float )( ( 0.95f + y ) / 16.0f );
+        sprite_list_u[cnt][0] = ( float )( ( 0.05f + x ) / 16.0f );
+        sprite_list_u[cnt][1] = ( float )( ( 0.95f + x ) / 16.0f );
+        sprite_list_v[cnt][0] = ( float )( ( 0.05f + y ) / 16.0f );
+        sprite_list_v[cnt][1] = ( float )( ( 0.95f + y ) / 16.0f );
     }
 
     // Reset the allocation table
@@ -749,10 +761,10 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     pcap = CapList + model;
 
     // Only damage if hitting from proper direction
-    vertices = pmad->vertices;
+    vertices = pmad->md2.vertices;
     direction = ( ATAN2( pprt->yvel, pprt->xvel ) + PI ) * 0xFFFF / TWO_PI;
     direction = pchr->turnleftright - direction + 32768;
-    if ( Md2FrameList[pchr->inst.frame].framefx&MADFXINVICTUS )
+    if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_INVICTUS )
     {
         // I Frame
         if ( ppip->damfx&DAMFX_BLOC )
@@ -802,7 +814,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 x = -y * fsin;
                 y = y * fcos;
                 z = z << 10;/// pchr->scale;
-                frame = pmad->framestart;
+                frame = pmad->md2.framestart;
                 cnt = 0;
 
                 while ( cnt < vertices )

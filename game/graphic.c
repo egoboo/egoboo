@@ -36,6 +36,9 @@
 #include "passage.h"
 #include "menu.h"
 #include "enchant.h"
+#include "mad.h"
+#include "script_compile.h"
+
 #include "egoboo_strutil.h"
 
 #if defined(USE_LUA_CONSOLE)
@@ -792,8 +795,12 @@ void init_all_models()
     for ( cnt = 0; cnt < MAXMODEL; cnt++ )
     {
         memset( MadList + cnt, 0, sizeof(mad_t) );
+
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
+        MadList[cnt].ai = 0;
     }
+
+    init_all_ai_scripts();
 
     md2_loadframe = 0;
 }
@@ -892,9 +899,12 @@ void release_all_models()
     {
         memset( MadList + cnt, 0, sizeof(mad_t) );
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
+        MadList[cnt].ai = 0;
     }
 
     md2_loadframe = 0;
+
+    release_all_ai_scripts();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2289,17 +2299,17 @@ void render_shadow( Uint16 character )
     GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
 
     // GOOD SHADOW
-    v[0].s = particleimageu[238][0];
-    v[0].t = particleimagev[238][0];
+    v[0].s = sprite_list_u[238][0];
+    v[0].t = sprite_list_v[238][0];
 
-    v[1].s = particleimageu[255][1];
-    v[1].t = particleimagev[238][0];
+    v[1].s = sprite_list_u[255][1];
+    v[1].t = sprite_list_v[238][0];
 
-    v[2].s = particleimageu[255][1];
-    v[2].t = particleimagev[255][1];
+    v[2].s = sprite_list_u[255][1];
+    v[2].t = sprite_list_v[255][1];
 
-    v[3].s = particleimageu[238][0];
-    v[3].t = particleimagev[255][1];
+    v[3].s = sprite_list_u[238][0];
+    v[3].t = sprite_list_v[255][1];
 
     if ( size_penumbra > 0 )
     {
@@ -2411,17 +2421,17 @@ void render_bad_shadow( Uint16 character )
     // Choose texture and matrix
     GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
 
-    v[0].s = particleimageu[236][0];
-    v[0].t = particleimagev[236][0];
+    v[0].s = sprite_list_u[236][0];
+    v[0].t = sprite_list_v[236][0];
 
-    v[1].s = particleimageu[253][1];
-    v[1].t = particleimagev[236][0];
+    v[1].s = sprite_list_u[253][1];
+    v[1].t = sprite_list_v[236][0];
 
-    v[2].s = particleimageu[253][1];
-    v[2].t = particleimagev[253][1];
+    v[2].s = sprite_list_u[253][1];
+    v[2].t = sprite_list_v[253][1];
 
-    v[3].s = particleimageu[236][0];
-    v[3].t = particleimagev[253][1];
+    v[3].s = sprite_list_u[236][0];
+    v[3].t = sprite_list_v[253][1];
 
     render_shadow_sprite(alpha, v );
 }

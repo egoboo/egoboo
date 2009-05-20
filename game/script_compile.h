@@ -536,4 +536,6 @@ enum e_script_variables
 
 void load_ai_codes( const char* loadname );
 int  load_ai_script( const char *loadname );
+
+void init_all_ai_scripts();
 void release_all_ai_scripts();

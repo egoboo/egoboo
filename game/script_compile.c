@@ -864,15 +864,20 @@ int load_ai_script( const char *loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void release_all_ai_scripts()
+void init_all_ai_scripts()
 {
     // ZZ> This function starts ai loading in the right spot
     int cnt;
 
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
-    {
-        MadList[cnt].ai = 0;
-    }
+    iAisIndex = 0;
+    iNumAis = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void release_all_ai_scripts()
+{
+    // ZZ> This function starts ai loading in the right spot
+    int cnt;
 
     iAisIndex = 0;
     iNumAis = 0;

@@ -27,6 +27,7 @@
 #include "id_md2.h"
 #include "camera.h"
 #include "char.h"
+#include "mad.h"
 
 #include "egoboo.h"
 
@@ -166,7 +167,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint16 texture = ChrList[character].inst.texture;
     Uint16 frame = ChrList[character].inst.frame;
     Uint16 lastframe = ChrList[character].inst.lastframe;
-    Uint16 framestt = MadList[ChrList[character].inst.imad].framestart;
+    Uint16 framestt = MadList[ChrList[character].inst.imad].md2.framestart;
     Uint8  lip = ChrList[character].inst.lip >> 6;
     Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
     Uint32 alpha = trans;
@@ -182,7 +183,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
 
     // Original points with linear interpolation ( lip )
 
-    for ( cnt = 0; cnt < MadList[model].vertices; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].md2.vertices; cnt++ )
     {
         Uint8 lite_last, lite_next, lite;
 
@@ -253,16 +254,16 @@ void render_enviromad( Uint16 character, Uint8 trans )
 
     // Render each command
     entry = 0;
-    for ( cnt = 0; cnt < MadList[model].commands; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].md2.cmd.count; cnt++ )
     {
         if (cnt > MAXCOMMAND) continue;
 
-        glBegin ( MadList[model].commandtype[cnt] );
+        glBegin ( MadList[model].md2.cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < MadList[model].commandsize[cnt]; tnc++ )
+            for ( tnc = 0; tnc < MadList[model].md2.cmd.size[cnt]; tnc++ )
             {
-                vertex = MadList[model].commandvrt[entry];
-                if ( vertex < MadList[model].vertices && entry < MAXCOMMANDENTRIES )
+                vertex = MadList[model].md2.cmd.vrt[entry];
+                if ( vertex < MadList[model].md2.vertices && entry < MAXCOMMANDENTRIES )
                 {
                     glColor4fv( &v[vertex].r );
                     glTexCoord2f ( indextoenvirox[Md2FrameList[framestt].vrta[vertex]] + uoffset,
@@ -311,7 +312,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     if ( phongon && trans == 255 )
         spek = 0;
 
-    for ( cnt = 0; cnt < MadList[model].vertices; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].md2.vertices; cnt++ )
     {
         Uint8 lite_last, lite_next, lite;
 
@@ -377,19 +378,19 @@ void render_texmad( Uint16 character, Uint8 trans )
     // Render each command
     entry = 0;
 
-    for ( cnt = 0; cnt < MadList[model].commands; cnt++ )
+    for ( cnt = 0; cnt < MadList[model].md2.cmd.count; cnt++ )
     {
         if (cnt > MAXCOMMAND) continue;
 
-        glBegin ( MadList[model].commandtype[cnt] );
+        glBegin ( MadList[model].md2.cmd.type[cnt] );
         {
-            for ( tnc = 0; tnc < MadList[model].commandsize[cnt]; tnc++ )
+            for ( tnc = 0; tnc < MadList[model].md2.cmd.size[cnt]; tnc++ )
             {
-                vertex = MadList[model].commandvrt[entry];
-                if ( vertex < MadList[model].vertices && entry < MAXCOMMANDENTRIES )
+                vertex = MadList[model].md2.cmd.vrt[entry];
+                if ( vertex < MadList[model].md2.vertices && entry < MAXCOMMANDENTRIES )
                 {
                     glColor4fv( &v[vertex].r );
-                    glTexCoord2f ( MadList[model].commandu[entry] + uoffset, MadList[model].commandv[entry] + voffset );
+                    glTexCoord2f ( MadList[model].md2.cmd.u[entry] + uoffset, MadList[model].md2.cmd.v[entry] + voffset );
                     glVertex3fv ( &v[vertex].x );
                 }
 

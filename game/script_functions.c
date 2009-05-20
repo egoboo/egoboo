@@ -10,6 +10,7 @@
 #include "char.h"
 #include "particle.h"
 #include "network.h"
+#include "mad.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -861,7 +862,7 @@ Uint8 scr_DoAction( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->argument < MAXACTION && pchr->actionready )
+    if ( pstate->argument < ACTION_COUNT && pchr->actionready )
     {
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
@@ -957,7 +958,7 @@ Uint8 scr_TargetDoAction( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( ChrList[pself->target].alive )
     {
-        if ( pstate->argument < MAXACTION && ChrList[pself->target].actionready )
+        if ( pstate->argument < ACTION_COUNT && ChrList[pself->target].actionready )
         {
             if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
             {
@@ -1119,14 +1120,14 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
                 // Remove from the pack
                 ChrList[tTmp].nextinpack = ChrList[iTmp].nextinpack;
                 ChrList[pself->target].numinpack--;
-                free_one_character( iTmp );
+                free_one_character_in_game( iTmp );
                 iTmp = MAXCHR;
             }
             else
             {
                 // Drop from hand
                 detach_character_from_mount( iTmp, btrue, bfalse );
-                free_one_character( iTmp );
+                free_one_character_in_game( iTmp );
                 iTmp = MAXCHR;
             }
         }
@@ -1151,7 +1152,7 @@ Uint8 scr_DoActionOverride( script_state_t * pstate, ai_state_t * pself )
     // This function starts a new action, if it is valid for the model
     // It will fail if the action is invalid
     returncode = bfalse;
-    if ( pstate->argument < MAXACTION )
+    if ( pstate->argument < ACTION_COUNT )
     {
         if ( MadList[pchr->inst.imad].actionvalid[pstate->argument] )
         {
@@ -1642,7 +1643,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
     {
         if ( __chrhitawall( sTmp ) )
         {
-            free_one_character( sTmp );
+            free_one_character_in_game( sTmp );
             sTmp = MAXCHR;
         }
         else
@@ -2953,7 +2954,7 @@ Uint8 scr_TargetIsDefending( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList[pself->target].action >= ACTIONPA && ChrList[pself->target].action <= ACTIONPD );
+    returncode = ( ChrList[pself->target].action >= ACTION_PA && ChrList[pself->target].action <= ACTION_PD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2966,7 +2967,7 @@ Uint8 scr_TargetIsAttacking( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList[pself->target].action >= ACTIONUA && ChrList[pself->target].action <= ACTIONFD );
+    returncode = ( ChrList[pself->target].action >= ACTION_UA && ChrList[pself->target].action <= ACTION_FD );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3299,7 +3300,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
-        if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTIONPA )
+        if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTION_PA )
         {
             pstate->argument = LATCHBUTTON_LEFT;
             returncode = btrue;
@@ -3311,7 +3312,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
-        if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTIONPA )
+        if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTION_PA )
         {
             if ( pstate->argument == 0 || ( frame_all&1 ) )
             {
@@ -3342,7 +3343,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
-        if ( CapList[sTmp].weaponaction == ACTIONPA )
+        if ( CapList[sTmp].weaponaction == ACTION_PA )
         {
             pstate->argument = LATCHBUTTON_LEFT;
             returncode = btrue;
@@ -3354,7 +3355,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
     if ( sTmp != MAXCHR )
     {
         sTmp = ChrList[sTmp].model;
-        if ( CapList[sTmp].weaponaction == ACTIONPA )
+        if ( CapList[sTmp].weaponaction == ACTION_PA )
         {
             pstate->argument = LATCHBUTTON_RIGHT;
             returncode = btrue;
@@ -3850,7 +3851,7 @@ Uint8 scr_set_Frame( script_state_t * pstate, ai_state_t * pself )
 
     sTmp = pstate->argument & 3;
     iTmp = pstate->argument >> 2;
-    chr_set_frame( pself->index, ACTIONDA, iTmp, sTmp );
+    chr_set_frame( pself->index, ACTION_DA, iTmp, sTmp );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3962,7 +3963,7 @@ Uint8 scr_ChildDoActionOverride( script_state_t * pstate, ai_state_t * pself )
     // This function starts a new action, if it is valid for the model
     // It will fail if the action is invalid
     returncode = bfalse;
-    if ( pstate->argument < MAXACTION )
+    if ( pstate->argument < ACTION_COUNT )
     {
         if ( MadList[ChrList[pself->child].inst.imad].actionvalid[pstate->argument] )
         {
@@ -4862,7 +4863,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( __chrhitawall( sTmp ) )
         {
-            free_one_character( sTmp );
+            free_one_character_in_game( sTmp );
             sTmp = MAXCHR;
         }
         else
@@ -4899,7 +4900,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
     {
         if ( __chrhitawall( sTmp ) )
         {
-            free_one_character( sTmp );
+            free_one_character_in_game( sTmp );
             sTmp = MAXCHR;
         }
         else
@@ -5041,12 +5042,12 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_TargetIsSneaking( script_state_t * pstate, ai_state_t * pself )
 {
     // _TargetIsSneaking()
-    // This function proceeds if the target is doing ACTIONWA or ACTIONDA
+    // This function proceeds if the target is doing ACTION_WA or ACTION_DA
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // This function proceeds if the target is doing ACTIONDA or ACTIONWA
-    returncode = ( ChrList[pself->target].action == ACTIONDA || ChrList[pself->target].action == ACTIONWA );
+    // This function proceeds if the target is doing ACTION_DA or ACTION_WA
+    returncode = ( ChrList[pself->target].action == ACTION_DA || ChrList[pself->target].action == ACTION_WA );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5097,7 +5098,7 @@ Uint8 scr_TargetDoActionSetFrame( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->argument < MAXACTION )
+    if ( pstate->argument < ACTION_COUNT )
     {
         if ( MadList[ChrList[pself->target].inst.imad].actionvalid[pstate->argument] )
         {
@@ -6220,7 +6221,7 @@ Uint8 scr_TargetIsAWeapon( script_state_t * pstate, ai_state_t * pself )
 
     // Proceeds if the AI Target Is a melee or ranged weapon
     sTmp = ChrList[pself->target].model;
-    returncode = CapList[sTmp].isranged || (CapList[sTmp].weaponaction != ACTIONPA);
+    returncode = CapList[sTmp].isranged || (CapList[sTmp].weaponaction != ACTION_PA);
 
     SCRIPT_FUNCTION_END();
 }

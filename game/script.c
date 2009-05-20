@@ -28,6 +28,7 @@
 #include "log.h"
 #include "camera.h"
 #include "char.h"
+#include "mad.h"
 
 #include <assert.h>
 

@@ -562,7 +562,7 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
                              Uint8 valuehigh, Sint16 high );
 void flash_character( Uint16 character, Uint8 value );
 
-void free_one_character( Uint16 character );
+void free_one_character_in_game( Uint16 character );
 void make_one_weapon_matrix( Uint16 cnt );
 void make_character_matrices();
 int get_free_character();

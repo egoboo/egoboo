@@ -239,8 +239,8 @@ struct s_prt
 };
 typedef struct s_prt prt_t;
 
-extern float            particleimageu[MAXPARTICLEIMAGE][2];        // Texture coordinates
-extern float            particleimagev[MAXPARTICLEIMAGE][2];
+extern float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
+extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
 
@@ -254,8 +254,8 @@ extern prt_t            PrtList[TOTALMAXPRT];
 //--------------------------------------------------------------------------------------------
 // function prototypes
 
-void free_one_particle_no_sound( Uint16 particle );
 void free_one_particle( Uint16 particle );
+void free_one_particle_in_game( Uint16 particle );
 
 void move_particles( void );
 void free_all_particles();

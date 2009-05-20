@@ -703,15 +703,15 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size )
     vlst[3].y = pinst->pos.y + ( -pinst->right.y + pinst->up.y ) * size;
     vlst[3].z = pinst->pos.z + ( -pinst->right.z + pinst->up.z ) * size;
 
-    vlst[0].s = particleimageu[pinst->image][1];
-    vlst[0].t = particleimagev[pinst->image][1];
+    vlst[0].s = sprite_list_u[pinst->image][1];
+    vlst[0].t = sprite_list_v[pinst->image][1];
 
-    vlst[1].s = particleimageu[pinst->image][0];
-    vlst[1].t = particleimagev[pinst->image][1];
+    vlst[1].s = sprite_list_u[pinst->image][0];
+    vlst[1].t = sprite_list_v[pinst->image][1];
 
-    vlst[2].s = particleimageu[pinst->image][0];
-    vlst[2].t = particleimagev[pinst->image][0];
+    vlst[2].s = sprite_list_u[pinst->image][0];
+    vlst[2].t = sprite_list_v[pinst->image][0];
 
-    vlst[3].s = particleimageu[pinst->image][1];
-    vlst[3].t = particleimagev[pinst->image][0];
+    vlst[3].s = sprite_list_u[pinst->image][1];
+    vlst[3].t = sprite_list_v[pinst->image][0];
 }

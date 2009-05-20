@@ -39,6 +39,8 @@ struct s_mesh * mesh_load( const char *modname, struct s_mesh * pmesh );
 
 // object initialization
 void  prime_names( void );
+void  free_all_objects( void );
+
 
 ///////////////////////////////
 // EXTERNAL FUNCTIONS

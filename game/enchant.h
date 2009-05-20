@@ -100,6 +100,7 @@ typedef enum enchant_add
 struct s_eve
 {
     bool_t  valid;                       // Enchant.txt loaded?
+
     bool_t  override;                    // Override other enchants?
     bool_t  removeoverridden;            // Remove other enchants?
     bool_t  setyesno[MAXEVESETVALUE];    // Set this value?
@@ -131,6 +132,10 @@ struct s_eve
 typedef struct s_eve eve_t;
 
 extern eve_t EveList[MAXEVE];
+
+#define VALID_EVE_RANGE( IEVE ) ( ((IEVE) >= 0) && ((IEVE) < MAXEVE) )
+#define VALID_EVE( IEVE )       ( VALID_EVE_RANGE( IEVE ) && EveList[IEVE].valid )
+#define INVALID_EVE( IEVE )     ( !VALID_EVE_RANGE( IEVE ) || !EveList[IEVE].valid )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -165,6 +170,12 @@ typedef struct s_enc enc_t;
 
 extern enc_t EncList[MAXENCHANT];
 
+#define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAXENCHANT) )
+#define VALID_ENC( IENC )       ( VALID_ENC_RANGE( IENC ) && EncList[IENC].on )
+#define INVALID_ENC( IENC )     ( !VALID_ENC_RANGE( IENC ) || !EncList[IENC].on )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 //Prototypes
 void free_all_enchants();
 void getadd( int min, int value, int max, int* valuetoadd );

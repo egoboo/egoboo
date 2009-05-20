@@ -229,6 +229,9 @@
 				RelativePath=".\log.c">
 			</File>
 			<File
+				RelativePath=".\mad.c">
+			</File>
+			<File
 				RelativePath=".\Md2.c">
 			</File>
 			<File
@@ -367,6 +370,9 @@
 			</File>
 			<File
 				RelativePath=".\log.h">
+			</File>
+			<File
+				RelativePath=".\mad.h">
 			</File>
 			<File
 				RelativePath=".\Md2.h">

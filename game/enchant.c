@@ -24,6 +24,7 @@
 #include "char.h"
 #include "sound.h"
 #include "camera.h"
+#include "mad.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -39,21 +40,26 @@ enc_t EncList[MAXENCHANT];
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-void free_one_enchant(Uint16 ienc )
+void free_one_enchant( Uint16 ienc )
 {
     // Now get rid of it
 
-    if( ienc > MAXENCHANT || !EncList[ienc].on ) return;
+    if( VALID_ENC_RANGE(ienc) )
+    {
+        // enchant "destructor"
+        // sets all boolean values to false, incluting the "on" flag
+        memset( EncList + ienc, 0, sizeof(enc_t) );
 
-    EncList[ienc].on = bfalse;
-    freeenchant[numfreeenchant] = ienc;
-    numfreeenchant++;
+        freeenchant[numfreeenchant] = ienc;
+        numfreeenchant++;
+    }
 };
 
 //--------------------------------------------------------------------------------------------
 bool_t remove_enchant( Uint16 ienc )
 {
     // ZZ> This function removes a specific enchantment and adds it to the unused list
+
     Sint16 iwave;
     Uint16 itarget, ispawner, ieve;
     Uint16 overlay;
@@ -734,11 +740,11 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
                 povl->overlay = btrue;
 
                 // Start out with ActionMJ...  Object activated
-                if ( MadList[povl->inst.imad].actionvalid[ACTIONMJ] )
+                if ( MadList[povl->inst.imad].actionvalid[ACTION_MJ] )
                 {
-                    povl->action = ACTIONMJ;
+                    povl->action = ACTION_MJ;
                     povl->inst.lip = 0;
-                    povl->inst.frame = MadList[povl->inst.imad].actionstart[ACTIONMJ];
+                    povl->inst.frame = MadList[povl->inst.imad].actionstart[ACTION_MJ];
                     povl->inst.lastframe = povl->inst.frame;
                     povl->actionready = bfalse;
                 }
@@ -766,13 +772,14 @@ void disenchant_character( Uint16 cnt )
 void free_all_enchants()
 {
     // ZZ> This functions frees all of the enchantments
-    numfreeenchant = 0;
 
-    while ( numfreeenchant < MAXENCHANT )
+    int cnt;
+
+    numfreeenchant = 0;
+    for( cnt = 0; cnt < MAXENCHANT; cnt++)
     {
-        freeenchant[numfreeenchant] = numfreeenchant;
-        EncList[numfreeenchant].on = bfalse;
-        numfreeenchant++;
+        // reuse this code
+        free_one_enchant( cnt );
     }
 }
 
