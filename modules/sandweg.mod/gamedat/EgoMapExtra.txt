@@ -1,0 +1,198 @@
+File Version: 5
+Lights: 64
+   Pos:     25 30
+   Radius:  6
+   Level:    200
+   Pos:     25 34
+   Radius:  6
+   Level:    200
+   Pos:     26 39
+   Radius:  6
+   Level:    200
+   Pos:     22 36
+   Radius:  6
+   Level:    200
+   Pos:     35 36
+   Radius:  6
+   Level:    200
+   Pos:     31 44
+   Radius:  6
+   Level:    200
+   Pos:     42 39
+   Radius:  6
+   Level:    200
+   Pos:     36 40
+   Radius:  6
+   Level:    200
+   Pos:     35 31
+   Radius:  6
+   Level:    200
+   Pos:     18 29
+   Radius:  6
+   Level:    200
+   Pos:     15 40
+   Radius:  6
+   Level:    200
+   Pos:     9 32
+   Radius:  6
+   Level:    200
+   Pos:     11 23
+   Radius:  6
+   Level:    200
+   Pos:     25 23
+   Radius:  6
+   Level:    200
+   Pos:     16 20
+   Radius:  6
+   Level:    200
+   Pos:     12 13
+   Radius:  6
+   Level:    200
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+   Pos:     0 0
+   Radius:  -1
+   Level:    0
+TileSetName: caves1
+AmbientLight: 100
+DirectedtLight: 16
+AmbiCutLight: 1
