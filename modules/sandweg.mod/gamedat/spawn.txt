@@ -8,12 +8,71 @@ unknown:   NONE    5  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+
+Hero 00:   NONE      0    35.5 37.5 1.0   N   0   0   0   0   0   T   F   Good
+  Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 04: NONE      4    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 05: NONE      5    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 06: NONE      6    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 07: NONE      7    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 08: NONE      8    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 09:   NONE      9    35.5 40.5 1.0  N   0   0   0   0   0   T   F   Good
+  Hero 10: NONE     10    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 11: NONE     11    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 12: NONE     12    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 13: NONE     13    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 14: NONE     14    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 15: NONE     15    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 16: NONE     16    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 17: NONE     17    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 18:   NONE     18    38.5 37.5 1.0  N   0   0   0   0   0   T   F   Good
+  Hero 19: NONE     19    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 20: NONE     20    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 21: NONE     21    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 22: NONE     22    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 23: NONE     23    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 24: NONE     24    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 25: NONE     25    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 26: NONE     26    0    0    0    I   0   0   0   0   0   F   F   Null
+
+Hero 27:   NONE     27    38.5 40.5 1.0  N   0   0   0   0   0   T   F   Good
+  Hero 28: NONE     28    0    0    0    L   0   0   0   0   0   F   F   Null
+  Hero 29: NONE     29    0    0    0    R   0   0   0   0   0   F   F   Null
+  Hero 30: NONE     30    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 31: NONE     31    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 32: NONE     32    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 33: NONE     33    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 34: NONE     34    0    0    0    I   0   0   0   0   0   F   F   Null
+  Hero 35: NONE     35    0    0    0    I   0   0   0   0   0   F   F   Null
+
 freemap.obj:   NONE    126  24.5   30.5   1.0   N    0   0  0   0   0   F   F   N
 irondoor.obj:   NONE    36  31.5   37.5   1.0   N    0   2  0   0   0   F   F   N
 spit.obj:   NONE    37  20.5   34.5   1.0   N    0   0  0   0   0   F   F   N
 well.obj:   NONE    39  13.0   35.0   1.0   N    0   0  0   0   0   F   F   N
 gate.obj:   NONE    40  35.5   27.5   1.0   E    0   0  0   0   0   F   F   N
 gate.obj:   NONE    40  23.5   51.5   1.0   N    0   1  0   0   0   F   F   N
-tent.obj:   NONE    45  27.0   26.0   2.0   N    0   0  0   0   0   F   F   N
-tent.obj:   NONE    45  29.0   26.0   1.0   N    0   1  0   0   0   F   F   N
-tent.obj:   NONE    45  25.0   21.0   1.0   N    0   2  0   0   0   F   F   N
+
+dustdevil.obj:   NONE    113 27.0   26.0   2.0   N    0   0  0   0   0   F   F   E
+dustdevil.obj:   NONE    113 29.0   26.0   1.0   N    0   1  0   0   0   F   F   E
+dustdevil.obj:   NONE    113 25.0   21.0   1.0   N    0   2  0   0   0   F   F   E
+
+// encounters
+encounter.obj:   NONE    54  60.0   35.0   0.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  30.0   26.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  45.0   34.0   2.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  57.0   19.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  70.0   24.0   2.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  85.0   34.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  67.5   56.5   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  84.0   58.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  53.0   67.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  36.0   74.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  23.0   62.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  10.0   50.0   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  24.5   37.5   1.0   N    0   0  0   0   0   F   F   E
+encounter.obj:   NONE    54  9.0    25.0   1.0   N    0   0  0   0   0   F   F   E
+

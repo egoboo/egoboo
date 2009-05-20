@@ -1,0 +1,53 @@
+// Dustdevil object
+// Based off of the Whirlwind Spell
+// by Pteromys of Melon Island - http://melonisland.net
+//
+//  Offhand peculiarities noticed while scripting:
+//   Crushing will have no effect on an object that has bump
+//   dimensions of zero.
+
+IfSpawned
+  EnchantTarget                     // Enchant self...
+  NotAnItem					// Don't let anyone pick it up
+  MakeNameUnknown
+  MakeCrushValid
+  tmpargument = 255
+  SetLight
+  tmpargument = 127
+  SetAlpha
+  SetTurnModeToSpin
+  tmpargument = 50
+  SetTime  
+
+IfTimeOut
+  tmpx = selfspawnx
+  tmpy = selfspawny
+  tmpturn = rand % 65535
+  tmpdistance = 2000			// Do not stray more than 2000 units from home
+  Compass
+  ClearWaypoints
+  AddWaypoint
+  tmpargument = rand & 63 + 64
+  SetTime
+  tmpargument = 0
+  tmpdistance = 11025
+  PlaySound
+
+IfInWater				// Become a waterspout
+  tmpargument = 1
+  ChangeArmor
+
+IfCrushed
+  SetTargetToSelf
+    DisenchantTarget
+
+IfKilled
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz
+  tmpargument = 3
+  SpawnExactParticle
+  tmpargument = 5
+  SendMessageNear
+
+End
