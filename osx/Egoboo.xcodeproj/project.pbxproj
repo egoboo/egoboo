@@ -40,6 +40,8 @@
 		C46DAF0E0E9D34B900084BE5 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819370E97F50700FF170F /* SDL_image.framework */; };
 		C46DAF0F0E9D34B900084BE5 /* SDL_mixer.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819380E97F50700FF170F /* SDL_mixer.framework */; };
 		C46DAF100E9D34B900084BE5 /* SDL_ttf.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C44819390E97F50700FF170F /* SDL_ttf.framework */; };
+		C48323CB0FC43B16006F1F5D /* mad.c in Sources */ = {isa = PBXBuildFile; fileRef = C48323C70FC43B16006F1F5D /* mad.c */; };
+		C48323CC0FC43B16006F1F5D /* script_functions.c in Sources */ = {isa = PBXBuildFile; fileRef = C48323C90FC43B16006F1F5D /* script_functions.c */; };
 		C48332A20E98632D00B78406 /* menu.c in Sources */ = {isa = PBXBuildFile; fileRef = C4F69F4D0E9831820086650C /* menu.c */; };
 		C48B377E0F890E8A00563245 /* egoboo_setup.c in Sources */ = {isa = PBXBuildFile; fileRef = C48B376D0F890E8800563245 /* egoboo_setup.c */; };
 		C48B377F0F890E8A00563245 /* egoboo_setup.h in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = C48B376E0F890E8800563245 /* egoboo_setup.h */; };
@@ -177,6 +179,10 @@
 		C46B61700EC2DED3008B84E8 /* egoboo_math.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = egoboo_math.h; sourceTree = "<group>"; };
 		C46B61710EC2DED3008B84E8 /* particle.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = particle.h; sourceTree = "<group>"; };
 		C46B61720EC2DED3008B84E8 /* script.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = script.h; sourceTree = "<group>"; };
+		C48323C70FC43B16006F1F5D /* mad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mad.c; sourceTree = "<group>"; };
+		C48323C80FC43B16006F1F5D /* mad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mad.h; sourceTree = "<group>"; };
+		C48323C90FC43B16006F1F5D /* script_functions.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = script_functions.c; sourceTree = "<group>"; };
+		C48323CA0FC43B16006F1F5D /* script_functions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = script_functions.h; sourceTree = "<group>"; };
 		C48332880E98625500B78406 /* enet.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = enet.h; sourceTree = "<group>"; };
 		C48332890E98625500B78406 /* list.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = list.h; sourceTree = "<group>"; };
 		C483328A0E98625500B78406 /* memory.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; lineEnding = 2; path = memory.h; sourceTree = "<group>"; };
@@ -562,6 +568,8 @@
 				C46398960EBE6530006D617D /* link.h */,
 				C49FFCDB0E97F96E00E13A99 /* log.c */,
 				C49FFCDC0E97F96E00E13A99 /* log.h */,
+				C48323C70FC43B16006F1F5D /* mad.c */,
+				C48323C80FC43B16006F1F5D /* mad.h */,
 				C49FFCE20E97F96E00E13A99 /* Md2.c */,
 				C49FFCE30E97F96E00E13A99 /* Md2.h */,
 				C4F69F4D0E9831820086650C /* menu.c */,
@@ -579,6 +587,8 @@
 				C46B61720EC2DED3008B84E8 /* script.h */,
 				C4C850020FC048AB00E98D52 /* script_compile.c */,
 				C4C850030FC048AB00E98D52 /* script_compile.h */,
+				C48323C90FC43B16006F1F5D /* script_functions.c */,
+				C48323CA0FC43B16006F1F5D /* script_functions.h */,
 				C49FFD160E97F96E00E13A99 /* server.c */,
 				C49FFD170E97F96E00E13A99 /* server.h */,
 				C49FFD180E97F96E00E13A99 /* sound.c */,
@@ -753,6 +763,8 @@
 				C4C850070FC048AB00E98D52 /* lua_console.c in Sources */,
 				C4C850090FC048AB00E98D52 /* script_compile.c in Sources */,
 				C4C850290FC0708500E98D52 /* ego_wrap.c in Sources */,
+				C48323CB0FC43B16006F1F5D /* mad.c in Sources */,
+				C48323CC0FC43B16006F1F5D /* script_functions.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
