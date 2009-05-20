@@ -132,6 +132,11 @@ IfTimeOut
       tmpy = tmpy + targety + targety + targety > 2
       tmpx = tmpx - selfx < 1 + selfx
       tmpy = tmpy - selfy < 1 + selfy
+  
+    //Play boss music
+    tmpargument = 34
+    tmpdistance = 400
+    PlayMusic  
   Else
     // Circle to guard terrain
     Sneak
@@ -143,6 +148,12 @@ IfTimeOut
     Compass
     tmpargument = 5
     SetTime
+    
+    //Play normal music
+    tmpargument = 4
+    tmpdistance = 1500
+    PlayMusic
+
   ClearWaypoints
   AddWaypoint
 

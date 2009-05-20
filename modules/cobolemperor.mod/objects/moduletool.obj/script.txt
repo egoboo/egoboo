@@ -29,6 +29,12 @@ IfContentIs
     tmpargument = 11
     tmpdistance = 0
     PlayMusic
+    
+  //Setup the boss music
+  IfSpawned
+    tmpargument = 68
+    tmpdistance = 25
+    SetMusicPassage
 
   //Check to open or close puzzle door
   IfTimeOut

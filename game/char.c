@@ -43,8 +43,11 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define BUY  0
-#define SELL 1
+//These are shop orders
+#define BUY			0
+#define SELL		1
+#define NOAFFORD	2
+#define THEFT		3
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -1412,7 +1415,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                             debug_message( text );
                             ChrList[owner].ai.alert |= ALERTIF_ORDERED;
                             ChrList[owner].ai.order = STOLEN;
-                            ChrList[owner].ai.rank  = 3;
+                            ChrList[owner].ai.rank  = THEFT;
                         }
                     }
                     else
@@ -1448,7 +1451,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                         else
                         {
                             // Don't allow purchase
-                            ChrList[owner].ai.rank = 2;  // 2 for "you can't afford that"
+                            ChrList[owner].ai.rank = NOAFFORD;  // 2 for "you can't afford that"
                             inshop = btrue;
                         }
                     }

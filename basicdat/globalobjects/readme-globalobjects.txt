@@ -12,6 +12,7 @@ SLOT  OBJECT
 47    Torch
 50    Sword
 51    Spear
+55    Pit Cobra
 59    Generic Chest (See script on how to use content)
 61    Longbow
 63    Tower Shield

@@ -45,7 +45,7 @@ IfKilled
   AddEndMessage
 
   //Victory tune
-  tmpargument = 11		//Music track
+  tmpargument = 14		//Music track
   tmpdistance = 0		//Fade in time
   PlayMusic
 
@@ -71,22 +71,8 @@ IfSpawned
   CleanUp
 
 //------------------------------------------------------------------------------
-// ZZ> Handle wandering around
-IfStateIs1
-  // Wander around the boss room
-  IfAtWaypoint
-    tmpx = rand % 1332 + 508
-    tmpy = rand % 1594 + 462
-    ClearWaypoints
-    AddWaypoint
-
-   //Play dramatic boss music
-  SetTargetToWideEnemy
-    tmpargument = 6		//Music track
-    tmpdistance = 0		//Fade in time
-    PlayMusic
-
-Else
+tmpargument = 1
+IfStateIsNot
   // Teleport from the waterway to the boss room
   IfAtLastWaypoint
     IfSpawned
@@ -108,12 +94,34 @@ Else
         ShowYouAreHere
 
 //------------------------------------------------------------------------------
+// ZZ> Handle wandering around
+IfTimeOut
+  IfStateIs1
+    // Wander around the boss room
+    IfAtWaypoint
+      tmpx = rand % 1332 + 508
+      tmpy = rand % 1594 + 462
+      ClearWaypoints
+      AddWaypoint
+
+     //Play dramatic boss music
+    SetTargetToWideEnemy
+      tmpargument = 6		//Music track
+      tmpdistance = 0		//Fade in time
+      PlayMusic
+
+  //Ready next attack again
+  CleanUp
+  tmpargument = 0
+  SetContent
+  tmpargument = 50
+  SetTime
+  
+//------------------------------------------------------------------------------
 // Damage anyone that touches the Mum
 IfBumped
-  GetContent        //Set a cooldown timer
-  tmpx = tmpargument
-  tmpy = 0
-  IfXIsEqualToY
+  tmpargument = 0
+  IfContentIs
     SetTargetToWhoeverBumped
     IfTargetIsOnHatedTeam
       tmpargument = rand & 511 + 512           //2-4 damage
@@ -121,14 +129,6 @@ IfBumped
       DamageTarget
       tmpargument = 1
       SetContent
-
-//Ready next attack again
-IfTimeOut
-  CleanUp
-  tmpargument = 0
-  SetContent
-  tmpargument = 50
-  SetTime
 
 //------------------------------------------------------------------------------
 //Let the characters know where she is...

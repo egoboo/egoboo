@@ -194,7 +194,7 @@ IfTimeOut
       tmpy = 210
       IfXIsLessThanY
         IfHoldingMeleeWeapon
-          tmpx = selfstate*10
+          tmpx = selfstate*10     //Double attack rage in berserk
           tmpy = rand % 35
           IfXIsMoreThanY
             tmpargument = ACTIONBC

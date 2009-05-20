@@ -71,9 +71,22 @@ IfTimeOut				// This is done every so often
   SetTargetToWideEnemy		  // Look for enemies
     tmpx = rand & 255 - 128 + targetx	    //
     tmpy = rand & 255 - 128 + targety	    //
+    
+    //Play the boss music
+    tmpargument = 25
+    tmpdistance = 500
+    PlayMusic
+  
   Else					  // Wander around home position
     tmpx = rand & 1023 - 512 + selfspawnx   //
     tmpy = rand & 1023 - 512 + selfspawny   //
+    
+    
+    //Play the normal music
+    tmpargument = 11
+    tmpdistance = 1500
+    PlayMusic
+    
   ClearWaypoints			  //
   AddWaypoint				  //
   tmpargument = rand & 31 + 25		  // Wait a while and try again

@@ -26,3 +26,4 @@ Music 21: Safe_Haven.ogg
 Music 22: Irish_Night.ogg
 Music 23: Once_lost.ogg
 Music 24: icylands.ogg
+Music 25: heroism.ogg
