@@ -507,6 +507,7 @@ struct s_chr
     Uint16         damageboost;     // Add to swipe damage
     bool_t         isshopitem;     // Spawned in a shop?
     Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
+	Sint8          loopedsound;			//Which sound channel it is looping on, -1 is none.
 
     //Skills
     Sint8           shieldproficiency;  // Can it use shields?
@@ -635,6 +636,8 @@ void chop_load( Uint16 profile, const char *szLoadname );
 void character_swipe( Uint16 cnt, Uint8 slot );
 
 int check_skills( Uint16 who, IDSZ whichskill );
+
+bool_t stop_object_looped_sound( Uint16 character );
 
 //---------------------------------------------------------------------------------------------
 // Quest system

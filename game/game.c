@@ -1323,7 +1323,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
 		if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].inpack || cnt == character ) continue;
 
         //Target items
-        if ( !targetitems && ( ChrList[cnt].isitem && ChrList[cnt].invictus ) ) continue;
+        if ( !targetitems && ( ChrList[cnt].isitem || ChrList[cnt].invictus ) ) continue;
 
         //Either only target dead stuff or alive stuff
         if ( targetdead == ChrList[cnt].alive ) continue;
@@ -4421,7 +4421,7 @@ void release_module()
     release_map();
     release_all_textures();
     release_all_models();
-    release_all_ai_scripts();
+    reset_all_ai_scripts();
 
     mesh_delete( PMesh );
 

@@ -758,7 +758,7 @@ void init_all_models()
         MadList[cnt].ai = 0;
     }
 
-    init_all_ai_scripts();
+    reset_all_ai_scripts();
 
     md2_loadframe = 0;
 }
@@ -862,7 +862,7 @@ void release_all_models()
 
     md2_loadframe = 0;
 
-    release_all_ai_scripts();
+    reset_all_ai_scripts();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -890,6 +890,9 @@ void debug_message( const char *text )
 void reset_end_text()
 {
     // ZZ> This function resets the end-module text
+	endtextwrite = sprintf( endtext, "The game has ended..." );
+
+	/*
     if ( numpla > 1 )
     {
         endtextwrite = sprintf( endtext, "Sadly, they were never heard from again..." );
@@ -907,6 +910,7 @@ void reset_end_text()
             endtextwrite = sprintf( endtext, "Sadly, no trace was ever found..." );
         }
     }
+	*/
 
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }

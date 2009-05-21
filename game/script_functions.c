@@ -3711,17 +3711,12 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
     // PlaySoundLooped( tmpargument = "sound", tmpdistance = "frequency" )
 
     // This function starts playing a continuous sound
-    //!!BAD!! DOESN'T WORK !!BAD!!
-
-    // You could use this, but right now there's no way to stop the sound later, so it's better not to start it
-
     SCRIPT_FUNCTION_BEGIN();
-
-    //if ( moduleactive )
-    //{
-    //    sound_play_chunk(CapList[pchr->model].wavelist[pstate->argument], PANMID, volume, pstate->distance);
-    //}
-
+	if( pchr->loopedsound != pstate->argument && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+	{
+		stop_object_looped_sound( pself->index );		//Stop existing sound loop (if any)
+		pchr->loopedsound = sound_play_chunk_looped(pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument], -1);
+	}
     SCRIPT_FUNCTION_END();
 }
 
@@ -3729,15 +3724,11 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 {
     // StopSound( tmpargument = "sound" )
-    // This function stops the playing of a continuous sound
-    //!!BAD!! DOESN'T WORK !!BAD!!
-
-    // TODO: implement this (the scripter doesn't know which channel to stop)
-    // This function stops playing a sound
+    // This function stops the playing of a continuous sound!
 
     SCRIPT_FUNCTION_BEGIN();
 
-    // sound_stop_channel([pstate->argument]);
+	stop_object_looped_sound( pself->index );
 
     SCRIPT_FUNCTION_END();
 }

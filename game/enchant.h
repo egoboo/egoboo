@@ -125,7 +125,6 @@ struct s_eve
     Uint16  contspawnfacingadd;          // Spawn in circle
     Uint16  contspawnpip;                // Spawn type ( local )
     Sint16  endsoundindex;               // Sound on end (-1 for none)
-    Uint16  endsoundfrequency;           // Sound frequency
     Uint8   overlay;                     // Spawn an overlay?
     Uint16  seekurse;
 };

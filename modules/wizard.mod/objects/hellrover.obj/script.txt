@@ -14,9 +14,10 @@ IfSpawned
   
   //Make the summoner it's master!
   tmpdistance = 6
-  tmpargument = [HUMA]
+  tmpargument = [WIZA]
   SetTargetToNearestBlahID
     SetOwnerToTarget
+    JoinGoodTeam
     
 //Bites drains mana!
 IfScoredAHit
@@ -44,6 +45,7 @@ SetTargetToRider
       SetState              //New master
       SetOwnerToTarget
       JoinTargetTeam
+      SetTurnModeToVelocity
 Else
   tmpargument = 0
   SetState
@@ -83,7 +85,11 @@ IfKilled
   PlayFullSound
   tmpargument = 0			  // Last words...
   SendMessageNear
+  
+  //Explode
   tmpargument = 0
+  tmpx = 0
+  tmpy = 0
   tmpdistance = SPAWNORIGIN
   SpawnParticle
   GoPoof
@@ -116,7 +122,8 @@ IfAttacked				// Attacked
 //Unmounted AI
 IfStateIs0
   IfTimeOut				// This is done every so often
-    tmpargument = rand & 15 + 20		 // Try again later
+    SetTurnModeToVelocity
+    tmpargument = rand & 15 + 35		 // Try again later
     SetTime
    
     tmpx = 0
@@ -127,18 +134,27 @@ IfStateIs0
     SetTargetToWideBlahID
       tmpx = 1
     tmpargument = [LICH]
-    tmpdistance = 2
+    tmpdistance = BLAHENEMIES
     SetTargetToWideBlahID		//Priority 1: Find the boss lich
       tmpx = 1
     
     //If tmpx = 1, we go combat mode
     tmpy = 1
     IfXIsEqualToY
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsMoreThanY
+        tmpdistance = 1500      //Charge
+
+      Else
+        SetTurnModeToWatchTarget    //Close combat mode
+        tmpdistance = 200
+        
       tmpx = targetx
-      tmpy = targety
-      tmpdistance = 1500
+      tmpy = targety          
       tmpturn = targetturnto
       Compass
+      
       ClearWaypoints
       AddWaypoint
               
@@ -161,17 +177,24 @@ IfStateIs0
             SetTargetToSelf
             tmpargument = 1024		//7 mana
             CostTargetMana
-            SetTargetToOldTarget	
+            SetTargetToOldTarget
+            
+        //Bite
+        tmpx = targetdistance
+        tmpy = 150
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
 
     //No enemies, follow leader
-    Else 
+    Else
       SetTargetToOwner
-      tmpx = targetx			    //
-      tmpy = targety			    //
-      tmpturn = 16384 + targetturn	    // Stand to side
-      tmpdistance = 600			    //
-      Compass				    //
-      ClearWaypoints			  
-      AddWaypoint		  
+      tmpx = ownerdistance
+      tmpy = 128*3
+      IfXIsMoreThanY
+        tmpx = rand & 511 + ownerx - 256			    //
+        tmpy = rand & 511 + ownery - 256			    //
+        ClearWaypoints			  
+        AddWaypoint		  
 
 End					// Finished with this character

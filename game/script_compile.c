@@ -864,19 +864,9 @@ int load_ai_script( const char *loadname )
 }
 
 //--------------------------------------------------------------------------------------------
-void init_all_ai_scripts()
+void reset_all_ai_scripts()
 {
     // ZZ> This function starts ai loading in the right spot
-
-    iAisIndex = 0;
-    iNumAis = 0;
-}
-
-//--------------------------------------------------------------------------------------------
-void release_all_ai_scripts()
-{
-    // ZZ> This function starts ai loading in the right spot
-
     iAisIndex = 0;
     iNumAis = 0;
 }

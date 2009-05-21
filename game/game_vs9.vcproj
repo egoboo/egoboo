@@ -296,26 +296,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\id_normals.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\input.c"
 				>
 			</File>
@@ -328,6 +308,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mad.c"
+				>
+			</File>
+			<File
 				RelativePath=".\Md2.c"
 				>
 			</File>
@@ -337,6 +321,10 @@
 			</File>
 			<File
 				RelativePath=".\module.c"
+				>
+			</File>
+			<File
+				RelativePath=".\mpd.c"
 				>
 			</File>
 			<File
@@ -466,6 +454,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_platform.h"
+				>
+			</File>
+			<File
 				RelativePath=".\egoboo_setup.h"
 				>
 			</File>
@@ -502,6 +494,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\id_normals.inl"
+				>
+			</File>
+			<File
 				RelativePath=".\input.h"
 				>
 			</File>
@@ -514,6 +510,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mad.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Md2.h"
 				>
 			</File>
@@ -523,6 +523,10 @@
 			</File>
 			<File
 				RelativePath=".\module.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mpd.h"
 				>
 			</File>
 			<File

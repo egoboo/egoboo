@@ -141,7 +141,8 @@ Mix_Music * sound_load_music( const char * szFileName );
 bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 
 int    sound_play_mix( float xpos, float ypos, struct s_mix_ptr * pptr );
-int    sound_play_chunk( float xpos, float ypos, Mix_Chunk * pchunk );
+int    sound_play_chunk_looped( float xpos, float ypos, Mix_Chunk * pchunk, Sint8 loops );
+#define sound_play_chunk( pos_x, pos_y, pchunk ) sound_play_chunk_looped( pos_x,pos_y, pchunk, 0 )
 void   sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 
 void   sound_stop_channel( int whichchannel );

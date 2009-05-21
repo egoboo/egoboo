@@ -11,7 +11,7 @@ IfSpawned
   SpawnExactParticle      //Unleash the power!!
   tmpargument = 150
   SetTime
-
+    
 //Bites drains mana!
 IfScoredAHit
   SetTargetToWhoeverWasHit
@@ -23,7 +23,7 @@ IfScoredAHit
     SetTargetToSelf
     tmpargument = 512
     PumpTarget
-
+    
 //Get a new master
 SetTargetToRider
   IfStateIs0
@@ -38,10 +38,11 @@ SetTargetToRider
       SetState              //New master
       SetOwnerToTarget
       JoinTargetTeam
+      SetTurnModeToVelocity
 Else
   tmpargument = 0
   SetState
-
+      
 //Bite bumpers
 IfBumped
   SetTargetToWhoeverBumped
@@ -52,9 +53,9 @@ IfBumped
 
 //How often can it attack?
 IfUsed
-  tmpargument = 80
+  tmpargument = 50
   SetReloadTime
-
+  
   //Rider wants to use lightningbolt abillity
   IfStateIs1
     tmpx = selfmana
@@ -65,23 +66,27 @@ IfUsed
       tmpy = selfy            // y
       tmpdistance = selfz     // z
       SpawnExactParticle      //Unleash the power!!
-
+            
       //Cost 7 mana
       SetTargetToSelf
       tmpargument = 1024		//4 mana
       CostTargetMana
-
+      
 //Death stuff
 IfKilled
   tmpargument = 3
   PlayFullSound
   tmpargument = 0			  // Last words...
   SendMessageNear
+  
+  //Explode
   tmpargument = 0
+  tmpx = 0
+  tmpy = 0
   tmpdistance = SPAWNORIGIN
   SpawnParticle
   GoPoof
-
+  
 //Say ouch
 IfAttacked				// Attacked
   SetOldTarget
@@ -90,10 +95,10 @@ IfAttacked				// Attacked
   SetTargetToWhoeverAttacked		  //
     IfTargetIsAlive			    //
       IfTargetIsOnSameTeam		      // Go after 'em
-        SetTargetToOldTarget
+        SetTargetToOldTarget  
     Else				    //Attacker died already
       SetTargetToOldTarget		      //
-
+      
   //Chance to throw off the rider
   SetTargetToRider
     tmpargument = targetdex > 8
@@ -101,18 +106,19 @@ IfAttacked				// Attacked
     tmpy = 50                           //Treshold to be thrown off
     IfXIsLessThanY
       DropWeapons                       //Buckle em' off!
-  SetTargetToOldTarget
+  SetTargetToOldTarget  
 
   //Back attacks always buckle the rider
   IfHitFromBehind
     DropWeapons
-
+  
 //Unmounted AI
 IfStateIs0
   IfTimeOut				// This is done every so often
-    tmpargument = rand & 15 + 20		 // Try again later
+    SetTurnModeToVelocity
+    tmpargument = rand & 15 + 35		 // Try again later
     SetTime
-
+   
     tmpx = 0
     SetTargetToWideEnemy		  //Priority 3: Look out for enemies
       tmpx = 1
@@ -121,21 +127,30 @@ IfStateIs0
     SetTargetToWideBlahID
       tmpx = 1
     tmpargument = [LICH]
-    tmpdistance = 2
+    tmpdistance = BLAHENEMIES
     SetTargetToWideBlahID		//Priority 1: Find the boss lich
       tmpx = 1
-
+    
     //If tmpx = 1, we go combat mode
     tmpy = 1
     IfXIsEqualToY
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsMoreThanY
+        tmpdistance = 1500      //Charge
+
+      Else
+        SetTurnModeToWatchTarget    //Close combat mode
+        tmpdistance = 200
+        
       tmpx = targetx
-      tmpy = targety
-      tmpdistance = 1500
+      tmpy = targety          
       tmpturn = targetturnto
       Compass
+      
       ClearWaypoints
       AddWaypoint
-
+              
       //LIGHTNING POWER
       IfFacingTarget			//Do we fire a lightning bolt?
         tmpx = rand % 50
@@ -149,23 +164,30 @@ IfStateIs0
             tmpy = selfy            // y
             tmpdistance = selfz     // z
             SpawnExactParticle      //Unleash the power!!
-
+            
             //Cost 7 mana
             SetOldTarget
             SetTargetToSelf
             tmpargument = 1024		//7 mana
             CostTargetMana
             SetTargetToOldTarget
+            
+        //Bite
+        tmpx = targetdistance
+        tmpy = 150
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
 
     //No enemies, follow leader
     Else
       SetTargetToOwner
-      tmpx = targetx			    //
-      tmpy = targety			    //
-      tmpturn = 16384 + targetturn	    // Stand to side
-      tmpdistance = 600			    //
-      Compass				    //
-      ClearWaypoints
-      AddWaypoint
+      tmpx = ownerdistance
+      tmpy = 128*3
+      IfXIsMoreThanY
+        tmpx = rand & 511 + ownerx - 256			    //
+        tmpy = rand & 511 + ownery - 256			    //
+        ClearWaypoints			  
+        AddWaypoint		  
 
 End					// Finished with this character

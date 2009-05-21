@@ -418,7 +418,7 @@ int sound_play_mix( float xpos, float ypos, mix_ptr_t * pptr )
         retval = Mix_PlayMusic( pptr->ptr.mus, 1 );
 
         // invalidate the song
-        songplaying = -1;
+        songplaying = INVALID_SOUND;
 
         // since music_stack_finished_callback() is registered using Mix_HookMusicFinished(),
         // it will resume when pptr->ptr.mus is finished playing
@@ -457,10 +457,9 @@ void sound_restart()
 //------------------------------------
 // Mix_Chunk stuff -------------------
 //------------------------------------
-int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
+int sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8 loops )
 {
-    // This function plays a specified sound
-
+    // This function plays a specified sound and returns which channel it's using
     int channel;
     float diff_x, diff_y;
     float dist2;
@@ -485,7 +484,7 @@ int sound_play_chunk( float pos_x, float pos_y, Mix_Chunk * pchunk )
     channel = INVALID_SOUND;
     if ( volume > 0 )
     {
-        channel = Mix_PlayChannel( -1, pchunk, 0 );
+        channel = Mix_PlayChannel( -1, pchunk, loops );
         if ( INVALID_SOUND == channel )
         {
 			if(gDevMode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );

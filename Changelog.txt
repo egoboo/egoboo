@@ -1,4 +1,11 @@
-Version 2.7.3 (18.05.2009)
+Version 2.7.3b (??.??.2009)
+- Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Enchantments that give Kurse Seeing should properly work now.
+- Bugfix: Looped sounds should now work again.
+- Bugfix: Fixed some buggy spawning points.
+
+Version 2.7.3 (20.05.2009)
+- New Feature: Another new music soundtrack by Edward Blakely!
 - New Feature: The World Map module! You can now travel around Lorule and visit towns and dungeons.
 - New Feature: Module Linking is now implemented. This allows your player to directly go
   from one module to the next in game without needing to go through the main menu again and

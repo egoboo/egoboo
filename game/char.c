@@ -3206,6 +3206,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         ChrList[character].ai.alert |= ALERTIF_KILLED;
                         ChrList[character].sparkle = NOSPARKLE;
                         ChrList[character].ai.timer = frame_wld + 1;  // No timeout...
+						stop_object_looped_sound( character );			//Stop sound loops
 
                         let_character_think( character );
                     }
@@ -3246,6 +3247,17 @@ void damage_character( Uint16 character, Uint16 direction,
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t stop_object_looped_sound( Uint16 character )
+{
+	//ZF> This makes a object stop playing it's looping sound
+	if( INVALID_CHR( character ) || ChrList[character].loopedsound == INVALID_SOUND ) return bfalse;
+	
+	sound_stop_channel( ChrList[character].loopedsound );
+	ChrList[character].loopedsound = INVALID_SOUND;
+	return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3464,6 +3476,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->sparkle = NOSPARKLE;
     pchr->overlay = bfalse;
     pchr->missilehandler = ichr;
+	pchr->loopedsound = INVALID_SOUND;
 
     // sound stuff...  copy from the cap
     for ( tnc = 0; tnc < SOUND_COUNT; tnc++ )
@@ -5563,6 +5576,7 @@ void move_characters( void )
             detach_character_from_mount( ChrList[cnt].holdingwhich[SLOT_RIGHT], btrue, bfalse );
         }
 
+		stop_object_looped_sound( cnt );
         free_inventory( cnt );
         free_one_character_in_game( cnt );
     }

@@ -752,6 +752,9 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
                 povl->inst.light = 254;  // Assume it's transparent...
             }
         }
+
+		//Allow them to see kurses?
+		if(peve->seekurse) ChrList[target].canseekurse = btrue;
     }
 
 
@@ -1075,9 +1078,9 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->contspawnfacingadd = 0;
     peve->contspawnpip = 0;
     peve->endsoundindex = -1;
-    peve->endsoundfrequency = 11025;
     peve->stayifnoowner = 0;
     peve->overlay = 0;
+	peve->seekurse = bfalse;
 
     // Read expansions
     while ( goto_colon( NULL, fileread, btrue ) )
@@ -1094,7 +1097,6 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
             int itmp = fget_int( fileread );
             peve->endsoundindex = CLIP(itmp, -1, MAX_WAVE);
         }
-        else if ( idsz == Make_IDSZ( "SFQR" ) ) peve->endsoundfrequency = fget_int( fileread );  // OUTDATED??
         else if ( idsz == Make_IDSZ( "STAY" ) ) peve->stayifnoowner = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "OVER" ) ) peve->overlay = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "CKUR" ) ) peve->seekurse = fget_int( fileread );
