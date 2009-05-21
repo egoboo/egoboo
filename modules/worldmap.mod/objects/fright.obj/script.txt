@@ -49,7 +49,7 @@ IfCrushed
 // Chase good guys
 IfTimeOut
   IfTargetIsSelf
-    tmpdistance = 90000  // Square of range
+    tmpdistance = 128*10
     SetTargetToDistantEnemy
     tmpx = rand & 511 - 256 + selfspawnx
     tmpy = rand & 511 - 256 + selfspawny
@@ -63,6 +63,9 @@ IfTimeOut
     Else
       tmpx = targetx
       tmpy = targety
+      tmpturn = targetturnto
+      tmpdistance = 200
+      Compass
   ClearWaypoints
   AddWaypoint
   tmpargument = 20
@@ -87,7 +90,7 @@ IfBumped
         SendMessageNear
         tmpargument = 1
         SetState
-        tmpargument = 250
+        tmpargument = selflevel * 15 + 250     //5 seconds + 0.3 seconds per level
         SetTargetReloadTime
         tmpargument = 40
         SetTime

@@ -27,76 +27,6 @@ IfScoredAHit
     EnchantTarget
 
 //------------------------------------------------------------------------------
-// ZZ> Handle death by sending a message and other stuff
-IfKilled
-  // Spit out text
-  tmpargument = 0
-  IfArmorIs
-    DoNothing			//Fire mephit death
-  Else
-    tmpargument = 1
-    IfArmorIs
-      tmpargument = 4		//Ice mephit death
-    Else
-      tmpargument = 2		//moss mephit death
-      IfArmorIs
-        tmpargument = 5
-      Else
-        tmpargument = 6		//Death mephit death
-  IfTargetIsOnSameTeam
-    tmpargument = 1		//Friendly fire
-    IfTargetIsSelf
-      tmpargument =3		//Sucide!
-  SendMessageNear
-
-  //Award bonus xp for death mephits
-  tmpargument = 3
-  IfArmorIs
-    tmpargument = 20
-    tmpdistance = EXPKILL
-    GiveExperienceToTarget
-
-  // Drop goodies
-  tmpargument = selfmoney
-  DropMoney
-
-  // Make the character body
-  tmpargument = 45
-  SetBumpHeight
-
-  // Stop flying
-  tmpargument = 0
-  SetFlyHeight
-
-  //Sound
-  tmpargument = 1
-  PlaySound
-
-  //Spawn different types of blud
-  tmpargument = 1
-  tmpdistance = rand % 50 + selfz
-  tmpx = selfx
-  tmpy = selfy
-  tmpargument = 0		//Fire mephit
-  IfArmorIs
-    tmpargument = 1		//Red blud
-  Else
-    tmpargument = 1		//Ice mephit
-    IfArmorIs
-      tmpargument = 3		//Blue blud
-    Else
-      tmpargument = 2		//Moss mephit
-      IfArmorIs
-        tmpargument = 5		//Green blud
-      Else
-        tmpargument = 3		//death mephit also has Blue blud
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-  SpawnExactParticle
-
-//------------------------------------------------------------------------------
 //Enemy target has been defeated
 IfTargetKilled
   SetTargetToNearestEnemy
@@ -276,6 +206,76 @@ IfBumped
     AddWaypoint
     SetTargetToOldTarget	//Oops, friendly xD
 
+//------------------------------------------------------------------------------
+// Handle death by sending a message and other stuff
+IfKilled
+  // Spit out text
+  tmpargument = 0
+  IfArmorIs
+    DoNothing			//Fire mephit death
+  Else
+    tmpargument = 1
+    IfArmorIs
+      tmpargument = 4		//Ice mephit death
+    Else
+      tmpargument = 2		//moss mephit death
+      IfArmorIs
+        tmpargument = 5
+      Else
+        tmpargument = 6		//Death mephit death
+  IfTargetIsOnSameTeam
+    tmpargument = 1		//Friendly fire
+    IfTargetIsSelf
+      tmpargument =3		//Sucide!
+  SendMessageNear
+
+  //Award bonus xp for death mephits
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = 20
+    tmpdistance = EXPKILL
+    GiveExperienceToTarget
+
+  // Drop goodies
+  tmpargument = selfmoney
+  DropMoney
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+  // Stop flying
+  tmpargument = 0
+  SetFlyHeight
+
+  //Sound
+  tmpargument = 1
+  PlaySound
+
+  //Spawn different types of blud
+  tmpargument = 1
+  tmpdistance = rand % 50 + selfz
+  tmpx = selfx
+  tmpy = selfy
+  tmpargument = 0		//Fire mephit
+  IfArmorIs
+    tmpargument = 1		//Red blud
+  Else
+    tmpargument = 1		//Ice mephit
+    IfArmorIs
+      tmpargument = 3		//Blue blud
+    Else
+      tmpargument = 2		//Moss mephit
+      IfArmorIs
+        tmpargument = 5		//Green blud
+      Else
+        tmpargument = 3		//death mephit also has Blue blud
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  SpawnExactParticle
+  
 //------------------------------------------------------------------------------
 End
 //------------------------------------------------------------------------------

@@ -54,7 +54,7 @@
 #    define EQ(x)
 #endif
 
-#define VERSION "2.7.3"                         // Version of the game
+#define VERSION "2.7.3b"                         // Version of the game
 
 // My lil' random number table
 #define MAXRAND 4096

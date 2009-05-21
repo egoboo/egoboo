@@ -1295,7 +1295,6 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
                 }
             }
         }
-
     }
 
     //All done
@@ -1365,7 +1364,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     }
 
 	//Target the holder if there is nothing better to target
-	if(besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND))
+	if(besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND) && ChrList[ChrList[character].attachedto].alive)
 	{
 		besttarget = ChrList[character].attachedto;
 	}

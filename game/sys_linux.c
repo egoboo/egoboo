@@ -59,12 +59,6 @@ double sys_getTime()
 }
 
 //--------------------------------------------------------------------------------------------
-int sys_frameStep()
-{
-    return 0;
-}
-
-//--------------------------------------------------------------------------------------------
 //This is where the whole thing actually starts in Linux
 int main( int argc, char* argv[] )
 {
