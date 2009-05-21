@@ -23,7 +23,8 @@
 //         Null is predefined to be the neutral team.
 
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
-Hero 00:   NONE      0    8.5  8.5  0.0  S   0   0   0   0   0   T   F   Good
+Hero 00:   NONE      0    23.5  53.5  0.0  S   0   0   0   0   0   T   F   Good
+Hero 00   NONE      0    8.5  8.5  0.0  S   0   0   0   0   0   T   F   Good
   Hero 01: NONE      1    0    0    0    L   0   0   0   0   0   F   F   Null
   Hero 02: NONE      2    0    0    0    R   0   0   0   0   0   F   F   Null
   Hero 03: NONE      3    0    0    0    I   0   0   0   0   0   F   F   Null

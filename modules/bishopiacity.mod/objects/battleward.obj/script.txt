@@ -98,13 +98,22 @@ IfStateIs0
           SparkleIcon
           tmpargument = 2
           SendMessageNear
+          
+          //Identify it
+          IfNameIsKnown
+            DoNothing
+          Else
+            tmpargument = 20
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+            MakeNameKnown
+            MakeUsageKnown
         Else
           tmpargument = 1
           SendMessageNear
 
         // Do flashy things
         tmpargument = 0
-        tmpdistance = 11025
         PlaySound
         tmpargument = 60
         SetReloadTime

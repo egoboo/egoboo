@@ -40,6 +40,9 @@
 #define DYNALOCAL 2
 #define MAXFALLOFF 1400
 
+//Physics
+#define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
+
 // pre-defined global particles
 #define COIN1               0                       // Coins are the first particles loaded
 #define COIN5               1

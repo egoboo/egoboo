@@ -63,6 +63,7 @@
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
+#define STOPBOUNCING         0.1f //1.0f				// To make objects stop bouncing
 
 //------------------------------------
 // Team variables

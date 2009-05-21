@@ -123,7 +123,10 @@ IfTimeOut
       
   //Combat
   IfStateIs1
-    tmpx = leaderdistance
+    SetTargetToNearbyEnemy      //Don't blindly follow our boss while we are under attack
+      tmpx = 0
+    Else
+      tmpx = leaderdistance
     tmpy = 800
     IfXIsLessThanY                //Follow boss if he is far away
       SetTargetToWideEnemy
@@ -151,7 +154,10 @@ IfTimeOut
   //Ressurected AI
   IfStateIs2
     SetTurnModeToVelocity
-    tmpx = leaderdistance
+    SetTargetToNearbyEnemy      //Don't blindly follow our boss while we are under attack
+      tmpx = 0
+    Else
+      tmpx = leaderdistance
     tmpy = 375
     IfXIsLessThanY
       tmpx = rand & 511 + selfx - 256

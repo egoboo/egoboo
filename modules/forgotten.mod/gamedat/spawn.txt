@@ -2,7 +2,7 @@
 
 //Player 1
 PlayerAtBoss   NONE    0  24.0   46.0   1.0   N    0   0  0   0   0   T   F   G
-Player1:   NONE    0  4.5   4.5   1.0   N    0   0  0   0   0   T   F   G
+Player1:   NONE    0  4.5   4.5   0.0   N    0   0  0   0   0   T   F   G
 unknown:   NONE    1  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    2  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 unknown:   NONE    3  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -14,7 +14,7 @@ unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    9  58.0   9.0   1.0   N    0   0  0   0   0   F   F   N
 
 
-unknown:   NONE    10  23.0   13.0   1.0   N    0   0  0   0   0   F   F   N
+unknown:   NONE    10  23.0   13.0   0.0   N    0   0  0   0   0   F   F   N
 unknown:   NONE    11  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 unknown:   NONE    12  23.0   5.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    12  22.0   2.0   1.0   N    0   0  0   0   0   F   F   I
@@ -22,12 +22,12 @@ unknown:   NONE    12  24.0   7.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    12  24.0   2.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    14  56.0   27.0   1.0   N    0   0  2   13   0   F   F   I
 
-MOGGY:   NONE    21  6.0   7.0   1.0   N    19   0  0   3   0   T   F   G
+MOGGY:   NONE    21  6.0   7.0   0.0   N    19   0  0   3   0   T   F   G
   unknown:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    23  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    53  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
-MEENA:     NONE    22  7.0   6.0   1.0   N    7   0  0   0   0   T   F   G
+MEENA:     NONE    22  7.0   6.0   0.0   N    7   0  0   0   0   T   F   G
   unknown:   NONE    57  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   unknown:   NONE    39  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   unknown:   NONE    55  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
@@ -209,12 +209,13 @@ unknown:   NONE    54  09.0   25.0   0.0   N    0   0  23   3   0   F   F   N
 unknown:   NONE    54  14.0   26.0   0.0   N    0   0  24   4   0   F   F   N
 unknown:   NONE    54  21.0   52.0   0.0   N    0   0  25   5   0   F   F   N
 unknown:   NONE    54  02.0   17.0   0.0   N    0   0  26   6   0   F   F   N
+
 unknown:   NONE    25  46.0   7.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    25  41.0   2.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    25  40.0   5.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    25  42.0   8.0   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    25  51.0   5.0   1.0   N    0   0  0   0   0   F   F   I
-unknown:   NONE    25  32.0   1.0   1.0   N    0   0  0   0   0   F   F   I
+unknown:   NONE    25  32.0   1.5   1.0   N    0   0  0   0   0   F   F   I
 unknown:   NONE    25  35.0   5.0   1.0   N    0   0  0   0   0   F   F   I
 
 //Extra hard extension!

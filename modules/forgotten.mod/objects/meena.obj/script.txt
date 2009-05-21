@@ -87,7 +87,10 @@ IfTimeOut
       
   //Combat
   IfStateIs1
-    tmpx = leaderdistance
+    SetTargetToNearbyEnemy      //Don't blindly follow our boss while we are under attack
+      tmpx = 0
+    Else
+      tmpx = leaderdistance
     tmpy = 800
     IfXIsLessThanY                //Follow boss if he is far away
       SetTargetToWideEnemy
@@ -112,7 +115,10 @@ IfTimeOut
   //Ressurected AI
   IfStateIs3
     SetTurnModeToVelocity
-    tmpx = leaderdistance
+    SetTargetToNearbyEnemy      //Don't blindly follow our boss while we are under attack
+      tmpx = 0
+    Else
+      tmpx = leaderdistance
     tmpy = 375
     IfXIsLessThanY
       tmpx = rand & 511 + selfx - 256
@@ -158,7 +164,7 @@ IfTimeOut
       tmpargument = 0
       SetXY                 //Store previous waypoint if fails
       tmpx = 0
-      tmpdistance = 8           //Items
+      tmpdistance = BLAHITEMS
       tmpargument = [KNIF]
       SetTargetToWideBlahID
         tmpx = 1

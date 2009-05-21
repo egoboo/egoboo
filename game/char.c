@@ -1994,8 +1994,11 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
         }
 
         //Intelligence and slightly wisdom increases xp gained (0,5% per int and 0,25% per wisdom above 10)
-        newamount = newamount * (1 + ((float)FP8_TO_INT(ChrList[character].intelligence - 2560) / 200))
-                    + (1 + ((float)FP8_TO_INT(ChrList[character].wisdom - 2560) / 400));
+		{
+			float intadd = (FP8_TO_INT(ChrList[character].intelligence) - 10.0f) / 200.0f;
+			float wisadd = (FP8_TO_INT(ChrList[character].wisdom) - 10.0f)		 / 400.0f;
+			newamount *= 1.00f + intadd + wisadd;
+		}
 
         ChrList[character].experience += newamount;
     }
@@ -4835,12 +4838,13 @@ void move_characters( void )
                     dvy = -dvy;
                 }
 
-                // Switch x and y for daze
+                // Switch x and y for grog
                 if ( pchr->grogtime > 0 )
                 {
-                    dvmax = dvx;
+					float savex;
+                    savex = dvx;
                     dvx = dvy;
-                    dvy = dvmax;
+                    dvy = savex;
                 }
 
                 new_vx = dvx * airfriction / (1.0f - airfriction);

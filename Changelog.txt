@@ -1,7 +1,11 @@
 Version 2.7.3b (??.??.2009)
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Mosquitoes should now properly increase size when filled with blood.
+- Bugfix: Intelligence and wisdom bonus effect to spells should now work properly again.
+- Bugfix: The Giant Scorpion boss music should now play properly.
 - Bugfix: Mephits stop flying when killed now.
+- Bugfix: Fixed experience bonus from high intelligence and wisdom not working.
 - Bugfix: Beneficial spells can now properly target allies.
 - Bugfix: Enchantments that give Kurse Seeing should properly work now.
 - Bugfix: Looped sounds should now work again.

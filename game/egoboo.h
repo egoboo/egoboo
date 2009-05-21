@@ -245,12 +245,6 @@ enum e_xp_type
 
 #define CHOPPERMODEL                    32
 
-
-// Physics
-
-#define STOPBOUNCING                    0.1f //1.0f         // To make objects stop bouncing
-#define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
-
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
 EXTERN Sint32 framelimit                EQ(30);

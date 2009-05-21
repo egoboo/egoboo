@@ -134,7 +134,7 @@ IfTimeOut
       tmpy = tmpy - selfy < 1 + selfy
   
     //Play boss music
-    tmpargument = 34
+    tmpargument = 25
     tmpdistance = 400
     PlayMusic  
   Else

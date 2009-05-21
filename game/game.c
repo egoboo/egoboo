@@ -565,10 +565,10 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
         }
         else
         {
-            frame %= framesinaction;
+            frame = MIN(frame, framesinaction);
             frame_stt = pmad->actionstart[action] + frame;
 
-            frame = (frame+1) % framesinaction;
+			frame = MIN(frame+1, framesinaction);
             frame_end = frame_stt + 1;
         }
 
@@ -3362,9 +3362,9 @@ void bump_characters( void )
                                     }
 
                                     // Check for missile treatment
-                                    if ( ( pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||
-                                            pchr_a->missiletreatment == MISNORMAL ||
-                                            pprt_b->attachedtocharacter != MAX_CHR ||
+                                    if (  pchr_a->missiletreatment == MISNORMAL ||
+                                            /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
+                                            /*pprt_b->attachedtocharacter != MAX_CHR ||*/
                                             ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
                                             ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
                                     {
@@ -3418,18 +3418,18 @@ void bump_characters( void )
                                                     //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
                                                     if ( ppip_b->intdamagebonus )
                                                     {
-                                                        int percent;
-                                                        percent = ( ChrList[pprt_b->chr].intelligence - 3584 ) >> 7;
+                                                        float percent;
+                                                        percent = ( (FP8_TO_INT(ChrList[pprt_b->chr].intelligence)) - 14 ) *2;
                                                         percent /= 100;
-                                                        pprt_b->damagebase *= 1 + percent;
+                                                        pprt_b->damagebase *= 1.00f + percent;
                                                     }
 
                                                     if ( ppip_b->wisdamagebonus )
                                                     {
-                                                        int percent;
-                                                        percent = ( ChrList[pprt_b->chr].wisdom - 3584 ) >> 7;
+                                                        float percent;
+                                                        percent = ( FP8_TO_INT(ChrList[pprt_b->chr].wisdom) - 14 ) *2;
                                                         percent /= 100;
-                                                        pprt_b->damagebase *= 1 + percent;
+                                                        pprt_b->damagebase *= 1.00f + percent;
                                                     }
 
                                                     // Damage the character

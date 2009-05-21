@@ -1,6 +1,11 @@
 //This is a special secret: if the module is beaten within the time limit
 //a secret module will be unlocked! Content/50 is seconds left.
 IfSpawned
+
+  //Prepeare the victory song
+  tmpargument = 58
+  tmpdistance = 14
+  SetMusicPassage
   
   //Play Music
   tmpargument = 4
