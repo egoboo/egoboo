@@ -1,5 +1,7 @@
 Version 2.7.3b (??.??.2009)
+- Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Beneficial spells can now properly target allies.
 - Bugfix: Enchantments that give Kurse Seeing should properly work now.
 - Bugfix: Looped sounds should now work again.
 - Bugfix: Fixed some buggy spawning points.

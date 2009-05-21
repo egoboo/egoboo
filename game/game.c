@@ -1320,7 +1320,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         bool_t is_friend, is_prey, is_predator, is_mutual;
 
         //Skip non-existing objects, held objects and self
-		if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].inpack || cnt == character ) continue;
+		if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].inpack || cnt == character || ChrList[character].attachedto == cnt ) continue;
 
         //Target items
         if ( !targetitems && ( ChrList[cnt].isitem || ChrList[cnt].invictus ) ) continue;
@@ -1363,6 +1363,12 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
             }
         }
     }
+
+	//Target the holder if there is nothing better to target
+	if(besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND))
+	{
+		besttarget = ChrList[character].attachedto;
+	}
 
     //Now set the target
     if (besttarget != MAX_CHR)
