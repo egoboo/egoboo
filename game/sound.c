@@ -640,7 +640,7 @@ void load_all_music_sounds()
     // Load the music data into memory    
     for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
     {
-        goto_colon_yesno( playlist );
+        goto_colon( NULL, playlist, btrue );
         fscanf( playlist, "%s", songname );
         sprintf( loadpath, ( "basicdat" SLASH_STR "music" SLASH_STR "%s" ), songname );
 

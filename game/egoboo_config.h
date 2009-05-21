@@ -15,65 +15,46 @@
 //*    General Public License for more details.
 //*
 //*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
+//*    along with Egoboo.  If not, see <http://www.gnu.org/licenses/>.
 //*
 //********************************************************************************************
 
-#if defined(_MSC_VER)
-// Microsoft Visual C compiler
 
-// snprintf and vsnprintf are not considered native functions in MSVC
-// they are defined with an underscore to indicate this
-#    define snprintf  _snprintf
+/// @file
+/// @brief System-dependent global parameters.
+///   @todo  move more of the typical config stuff to this file.
+///   @todo  add in linux and mac stuff.
+///   @todo  some of this stuff is compiler dependent, rather than system dependent.
 
-//This isn't needed in MSVC 2008 and causes errors
-#if _MSC_VER < 1500
-#    define vsnprintf _vsnprintf
-#endif
+#include "egoboo_endian.h"
+#include "egoboo_platform.h"
 
-// sets the packing of a data structure at declaration
-//#    define SET_PACKING(NAME,PACKING) __declspec( align( PACKING ) ) NAME
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+// compliation flags
 
-// Turn off warnings that we don't care about.
-#    pragma warning(disable : 4305) // truncation from 'double' to 'float'
-#    pragma warning(disable : 4244) // conversion from 'double' to 'float'
-#    pragma warning(disable : 4201) // nonstandard extension used : nameless struct/union
-//#    pragma warning(disable : 4554) // possibly operator precendence error
-//#    pragma warning(disable : 4761)
-//#    pragma warning(disable : 4244) // truncation from 'type' to 'type'
-#endif
+// object pre-allocations
+#define MAX_CHR            512             // Maximum number of characters
+#define MAX_ENC            200             // Maximum number of enchantments
+#define TOTAL_MAX_PRT     2048             // Maximum number of particles
+#define TOTAL_MAX_DYNA      64             // Maximum number of dynamic lights
 
-#if defined(__GNUC__)
-// the gcc C compiler
+#define MAX_TEXTURE        (MAX_CHR * 4)     // Maximum number of textures
+#define MAX_ICON           (MAX_TEXTURE + 4) // Maximum number of icons
 
-// sets the packing of a data structure at declaration
-//#    define SET_PACKING(NAME,PACKING) NAME __attribute__ ((aligned (PACKING)))
+// profile pre-allocations
+#define MAX_PROFILE        256        // Maximum number of object profiles
+#define MAX_AI             129        // Maximum number of scripts
 
-#endif
-
-#ifdef __unix__
-#    include <unistd.h>
-#endif
-
-// Speeds up compile times a bit.  We don't need everything in windows.h
-#ifdef WIN32
-#    define WIN32_LEAN_AND_MEAN
-#endif
-
-// Define the filesystem appropriate slash characters
-#ifdef WIN32
-#    define SLASH_STR "\\"
-#    define SLASH_CHR '\\'
-#else
-#    define SLASH_STR "/"
-#    define SLASH_CHR '/'
-#endif
-
-#if !defined(SET_PACKING)
-#define SET_PACKING(NAME,PACKING) NAME
-#endif
+// per-object pre-allocations
+#define MAX_WAVE             30        // Maximum number of *.wav/*.ogg per object
+#define MAX_PIP_PER_PROFILE  13        // Maximum number of part*.txt per object
+#define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
 //Some macro switches
-//#define OLD_CAMERA_MODE       //Use the old camera style
-//#define USE_LUA_CONSOLE       //LUA support for the console
+#undef OLD_CAMERA_MODE       //Use the old camera style
+#undef USE_LUA_CONSOLE       //LUA support for the console
 #define DISABLE_BODY_GRAB		//Disable the grabbing of bodies
+#define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
+
+#define EGOBOO_CONFIG

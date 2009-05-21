@@ -27,7 +27,7 @@
 // AI stuff
 #define AISMAXCOMPILESIZE   (128*4096/4)            // For parsing AI scripts
 #define MAXLINESIZE         1024
-#define MAXAI               129
+#define MAX_AI               129
 #define MAXCODE             1024                    // Number of lines in AICODES.TXT
 #define MAXCODENAMESIZE     64
 
@@ -43,9 +43,9 @@
 //--------------------------------------------------------------------------------------------
 extern int    iNumAis;
 extern int    iAisIndex;
-extern STRING szAisName[MAXAI];
-extern Uint32 iAisStartPosition[MAXAI];
-extern Uint32 iAisEndPosition[MAXAI];
+extern STRING szAisName[MAX_AI];
+extern Uint32 iAisStartPosition[MAX_AI];
+extern Uint32 iAisEndPosition[MAX_AI];
 extern Uint32 iCompiledAis[AISMAXCOMPILESIZE];
 
 extern bool_t debug_scripts;

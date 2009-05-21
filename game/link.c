@@ -128,7 +128,7 @@ bool_t link_build( const char * fname, Link_t list[] )
     if ( NULL == pfile ) return bfalse;
 
     i = 0;
-    while ( goto_colon_yesno( pfile ) && i < LINK_COUNT )
+    while ( goto_colon( NULL, pfile, btrue ) && i < LINK_COUNT )
     {
         fscanf( pfile, "%s", list[i].modname );
         list[i].valid = btrue;
@@ -163,7 +163,7 @@ bool_t link_pop_module()
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(j=0; j<MAXCHR; j++)
+            for(j=0; j<MAX_CHR; j++)
             {
                 if( !ChrList[j].on ) continue;
 

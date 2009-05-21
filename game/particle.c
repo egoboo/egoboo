@@ -29,6 +29,7 @@
 #include "enchant.h"
 #include "char.h"
 #include "mad.h"
+#include "mpd.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -48,17 +49,17 @@ typedef enum e_particle_direction particle_direction_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static int       numfreeprt = 0;                            // For allocation
-static Uint16    freeprtlist[TOTALMAXPRT];
+static Uint16    freeprtlist[TOTAL_MAX_PRT];
 
 int              numpip   = 0;
-pip_t            PipList[TOTALMAXPRTPIP];
+pip_t            PipList[MAX_PIP];
 
 Uint16           particletexture = 0;                        // All in one bitmap
 float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
 float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 Uint16           maxparticles = 512;                            // max number of particles
-prt_t            PrtList[TOTALMAXPRT];
+prt_t            PrtList[TOTAL_MAX_PRT];
 
 
 
@@ -117,7 +118,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
     if( !VALID_PRT(particle) ) return;
     pprt = PrtList + particle;
 
-    if ( sound >= 0 && sound < MAXWAVE )
+    if ( sound >= 0 && sound < MAX_WAVE )
     {
         if ( VALID_CAP( pprt->model ) )
         {
@@ -146,7 +147,7 @@ void free_one_particle_in_game( Uint16 particle )
         {
             child = spawn_one_character( pprt->xpos, pprt->ypos, pprt->zpos,
                                         pprt->model, pprt->team, 0, pprt->facing,
-                                        NULL, MAXCHR );
+                                        NULL, MAX_CHR );
             if ( VALID_CHR(child) )
             {
                 ChrList[child].ai.state = pprt->spawncharacterstate;
@@ -173,7 +174,7 @@ int get_free_particle( int force )
     int particle;
 
     // Return maxparticles if we can't find one
-    particle = TOTALMAXPRT;
+    particle = TOTAL_MAX_PRT;
     if ( numfreeprt == 0 )
     {
         if ( force )
@@ -203,7 +204,7 @@ int get_free_particle( int force )
         }
     }
 
-    return (particle >= maxparticles) ? TOTALMAXPRT : particle;
+    return (particle >= maxparticles) ? TOTAL_MAX_PRT : particle;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -219,11 +220,11 @@ Uint16 spawn_one_particle( float x, float y, float z,
     pip_t * ppip;
 
     // Convert from local ipip to global ipip
-    if ( ipip < MAXPRTPIPPEROBJECT && model < MAXMODEL && MadList[model].used )
+    if ( ipip < MAX_PIP_PER_PROFILE && model < MAX_PROFILE && MadList[model].used )
     {
         ipip = MadList[model].prtpip[ipip];
     }
-    if( INVALID_PIP(ipip) ) return TOTALMAXPRT;
+    if( INVALID_PIP(ipip) ) return TOTAL_MAX_PRT;
     ppip = PipList + ipip;
 
     iprt = get_free_particle( ppip->force );
@@ -256,7 +257,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
         pprt->dynalightlevel = ppip->dynalevel;
         pprt->dynalightfalloff = ppip->dynafalloff;
 
-        // Set character attachments ( characterattach==MAXCHR means none )
+        // Set character attachments ( characterattach==MAX_CHR means none )
         pprt->attachedtocharacter = characterattach;
         pprt->grip = grip;
 
@@ -282,9 +283,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
                 // Find a target
                 pprt->target = get_particle_target( x, y, z, facing, ipip, team, characterorigin, oldtarget );
-                if ( pprt->target != MAXCHR && !ppip->homing )
+                if ( pprt->target != MAX_CHR && !ppip->homing )
                 {
-                    facing = facing - glouseangle;
+                    facing -= glouseangle;
                 }
 
                 // Correct facing for dexterity...
@@ -297,7 +298,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
                     offsetfacing -= ( ppip->facingrand >> 1 );
                     offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
                 }
-                if ( pprt->target != MAXCHR && ppip->zaimspd != 0 )
+                if ( pprt->target != MAX_CHR && ppip->zaimspd != 0 )
                 {
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
@@ -316,14 +317,14 @@ Uint16 spawn_one_particle( float x, float y, float z,
             }
 
             // Does it go away?
-            if ( pprt->target == MAXCHR && ppip->needtarget )
+            if ( pprt->target == MAX_CHR && ppip->needtarget )
             {
                 free_one_particle_in_game( iprt );
                 return maxparticles;
             }
 
             // Start on top of target
-            if ( pprt->target != MAXCHR && ppip->startontarget )
+            if ( pprt->target != MAX_CHR && ppip->startontarget )
             {
                 x = ChrList[pprt->target].xpos;
                 y = ChrList[pprt->target].ypos;
@@ -346,9 +347,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
         x = x + turntocos[( facing+8192 )&TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
         y = y + turntosin[( facing+8192 )&TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
         if ( x < 0 )  x = 0;
-        if ( x > mesh.info.edge_x - 2 )  x = mesh.info.edge_x - 2;
+        if ( x > PMesh->info.edge_x - 2 )  x = PMesh->info.edge_x - 2;
         if ( y < 0 )  y = 0;
-        if ( y > mesh.info.edge_y - 2 )  y = mesh.info.edge_y - 2;
+        if ( y > PMesh->info.edge_y - 2 )  y = PMesh->info.edge_y - 2;
 
         pprt->xpos = x;
         pprt->ypos = y;
@@ -396,8 +397,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
         }
 
         // Set onwhichfan...
-        pprt->onwhichfan   = mesh_get_tile( pprt->xpos, pprt->ypos );
-        pprt->onwhichblock = mesh_get_block( pprt->xpos, pprt->ypos );
+        pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->xpos, pprt->ypos );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->xpos, pprt->ypos );
 
         // Damage stuff
         pprt->damagebase = ppip->damagebase;
@@ -408,7 +409,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
         if ( pprt->spawntime != 0 )
         {
             pprt->spawntime = 1;
-            if ( pprt->attachedtocharacter != MAXCHR )
+            if ( pprt->attachedtocharacter != MAX_CHR )
             {
                 pprt->spawntime++; // Because attachment takes an update before it happens
             }
@@ -429,16 +430,16 @@ Uint8 __prthitawall( Uint16 particle )
     Uint32 fan;
     Uint8  retval = MESHFX_IMPASS | MESHFX_WALL;
 
-    fan = mesh_get_tile( PrtList[particle].xpos, PrtList[particle].ypos );
+    fan = mesh_get_tile( PMesh, PrtList[particle].xpos, PrtList[particle].ypos );
     if ( INVALID_TILE != fan )
     {
         if ( PipList[PrtList[particle].pip].bumpmoney )
         {
-            retval = mesh.mem.tile_list[fan].fx & ( MESHFX_IMPASS | MESHFX_WALL );
+            retval = PMesh->mem.tile_list[fan].fx & ( MESHFX_IMPASS | MESHFX_WALL );
         }
         else
         {
-            retval = mesh.mem.tile_list[fan].fx & MESHFX_IMPASS;
+            retval = PMesh->mem.tile_list[fan].fx & MESHFX_IMPASS;
         }
     }
 
@@ -464,9 +465,9 @@ void move_particles( void )
 
         if( pprt->is_hidden ) continue;
 
-        pprt->onwhichfan   = mesh_get_tile ( pprt->xpos, pprt->ypos );
-        pprt->onwhichblock = mesh_get_block( pprt->xpos, pprt->ypos );
-        pprt->floor_level  = get_level( pprt->xpos, pprt->ypos, bfalse );
+        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->xpos, pprt->ypos );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->xpos, pprt->ypos );
+        pprt->floor_level  = get_level( PMesh, pprt->xpos, pprt->ypos, bfalse );
 
         // To make it easier
         ipip = pprt->pip;
@@ -622,8 +623,8 @@ void move_particles( void )
                 {
                     particle = spawn_one_particle( pprt->xpos, pprt->ypos, pprt->zpos,
                                                    facing, pprt->model, ppip->contspawnpip,
-                                                   MAXCHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
-                    if ( PipList[pprt->pip].facingadd != 0 && particle != TOTALMAXPRT )
+                                                   MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
+                    if ( PipList[pprt->pip].facingadd != 0 && particle != TOTAL_MAX_PRT )
                     {
                         // Hack to fix velocity
                         PrtList[particle].xvel += pprt->xvel;
@@ -637,11 +638,11 @@ void move_particles( void )
         }
 
         // Check underwater
-        if ( pprt->zpos < waterdouselevel && ppip->endwater && INVALID_TILE != pprt->onwhichfan && 0 != ( mesh.mem.tile_list[pprt->onwhichfan].fx & MESHFX_WATER ) )
+        if ( pprt->zpos < waterdouselevel && ppip->endwater && INVALID_TILE != pprt->onwhichfan && 0 != ( PMesh->mem.tile_list[pprt->onwhichfan].fx & MESHFX_WATER ) )
         {
             // Splash for particles is just a ripple
             spawn_one_particle( pprt->xpos, pprt->ypos, watersurfacelevel,
-                                0, MAXMODEL, RIPPLE, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                                0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
 
             // Check for disaffirming character
             if ( VALID_CHR( pprt->attachedtocharacter ) && pprt->chr == pprt->attachedtocharacter )
@@ -672,7 +673,7 @@ void move_particles( void )
                 {
                     spawn_one_particle( pprt->xpos - pprt->xvel, pprt->ypos - pprt->yvel, pprt->zpos,
                                         facing, pprt->model, ppip->endspawnpip,
-                                        MAXCHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
+                                        MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
                     facing += ppip->endspawnfacingadd;
                     tnc++;
                 }
@@ -758,7 +759,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     pchr = ChrList + character;
 
     model = pchr->inst.imad;
-    if( model > MAXMODEL || !MadList[model].used ) return;
+    if( model > MAX_PROFILE || !MadList[model].used ) return;
     pmad = MadList + model;
 
     model = pchr->model;
@@ -798,7 +799,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
-            spawn_enchant( pprt->chr, character, MAXCHR, MAXENCHANT, pprt->model );
+            spawn_enchant( pprt->chr, character, MAX_CHR, MAX_ENC, pprt->model );
         }
 
         // Spawn particles
@@ -861,10 +862,10 @@ int prt_is_over_water( Uint16 cnt )
 
     if ( cnt < maxparticles )
     {
-        fan = mesh_get_tile( PrtList[cnt].xpos, PrtList[cnt].ypos );
+        fan = mesh_get_tile( PMesh, PrtList[cnt].xpos, PrtList[cnt].ypos );
         if ( INVALID_TILE != fan )
         {
-            if ( 0 != ( mesh.mem.tile_list[fan].fx & MESHFX_WATER ) )  return btrue;
+            if ( 0 != ( PMesh->mem.tile_list[fan].fx & MESHFX_WATER ) )  return btrue;
         }
     }
 
@@ -883,9 +884,9 @@ int load_one_particle_profile( const char *szLoadName )
     char cTmp;
     pip_t * ppip;
 
-    Uint16 retval = TOTALMAXPRTPIP;
+    Uint16 retval = MAX_PIP;
 
-    if( numpip >= TOTALMAXPRTPIP ) return TOTALMAXPRTPIP;
+    if( numpip >= MAX_PIP ) return MAX_PIP;
     ppip = PipList + numpip;
 
     // clear the pip
@@ -894,7 +895,7 @@ int load_one_particle_profile( const char *szLoadName )
     fileread = fopen( szLoadName, "r" );
     if ( NULL == fileread )
     {
-        return TOTALMAXPRTPIP;
+        return MAX_PIP;
     }
 
     retval = numpip;
@@ -905,26 +906,26 @@ int load_one_particle_profile( const char *szLoadName )
 
     // General data
     parse_filename = szLoadName;    //For debugging missing colons
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->force = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  ppip->force = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( cTmp == 'L' || cTmp == 'l' )  ppip->type = PRTLIGHTSPRITE;
     else if ( cTmp == 'S' || cTmp == 's' )  ppip->type = PRTSOLIDSPRITE;
     else if ( cTmp == 'T' || cTmp == 't' )  ppip->type = PRTALPHASPRITE;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imagebase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->numframes = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imageadd = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->imageaddrand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotatebase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotaterand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->rotateadd = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->sizebase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->sizeadd = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->spdlimit = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imagebase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->numframes = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imageadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->imageaddrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotatebase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotaterand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->rotateadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->sizebase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->sizeadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->spdlimit = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingadd = iTmp;
 
     // override the base rotation
     if( 0xFFFF != prt_direction[ ppip->imagebase ] )
@@ -933,33 +934,33 @@ int load_one_particle_profile( const char *szLoadName )
     };
 
     // Ending conditions
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->endwater = btrue;
     if ( cTmp == 'F' || cTmp == 'f' )  ppip->endwater = bfalse;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->endbump = btrue;
     if ( cTmp == 'F' || cTmp == 'f' )  ppip->endbump = bfalse;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->endground = btrue;
     if ( cTmp == 'F' || cTmp == 'f' )  ppip->endground = bfalse;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->endlastframe = btrue;
     if ( cTmp == 'F' || cTmp == 'f' )  ppip->endlastframe = bfalse;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->time = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->time = iTmp;
 
     // Collision data
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->dampen = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpmoney = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpsize = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpheight = iTmp;
-    goto_colon( fileread );  read_pair( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dampen = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpmoney = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpsize = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpheight = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fget_pair( fileread );
     ppip->damagebase = pairbase;
     ppip->damagerand = pairrand;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( cTmp == 'S' || cTmp == 's' ) ppip->damagetype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' ) ppip->damagetype = DAMAGE_CRUSH;
     if ( cTmp == 'P' || cTmp == 'p' ) ppip->damagetype = DAMAGE_POKE;
@@ -970,92 +971,92 @@ int load_one_particle_profile( const char *szLoadName )
     if ( cTmp == 'Z' || cTmp == 'z' ) ppip->damagetype = DAMAGE_ZAP;
 
     // Lighting data
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->dynalightmode = DYNAOFF;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->dynalightmode = DYNAON;
     if ( cTmp == 'L' || cTmp == 'l' ) ppip->dynalightmode = DYNALOCAL;
 
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
     if ( ppip->dynafalloff > MAXFALLOFF && rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->facingrand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingbase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingrand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingbase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingrand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelbase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelrand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zvelbase = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->zvelrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingbase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyspacingrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingbase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zspacingrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelbase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->xyvelrand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zvelbase = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->zvelrand = iTmp;
 
     // Continuous spawning of other particles
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawntime = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnamount = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnfacingadd = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnpip = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawntime = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnamount = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnfacingadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->contspawnpip = iTmp;
 
     // End spawning of other particles
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnamount = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnfacingadd = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnpip = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnamount = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnfacingadd = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->endspawnpip = iTmp;
 
     // Bump spawning of attached particles
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnamount = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnpip = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnamount = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->bumpspawnpip = iTmp;
 
     // Random stuff  !!!BAD!!! Not complete
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->dazetime = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->grogtime = iTmp;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dazetime = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->grogtime = iTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->spawnenchant = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->spawnenchant = btrue;
 
-    goto_colon( fileread );  // !!Cause roll
-    goto_colon( fileread );  // !!Cause pancake
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  // !!Cause roll
+    goto_colon( NULL, fileread, bfalse );  // !!Cause pancake
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->needtarget = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->needtarget = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->targetcaster = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->targetcaster = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->startontarget = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->startontarget = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->onlydamagefriendly = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->onlydamagefriendly = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    ppip->soundspawn = CLIP(iTmp, -1, MAXWAVE);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+    ppip->soundspawn = CLIP(iTmp, -1, MAX_WAVE);
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-    ppip->soundend = CLIP(iTmp, -1, MAXWAVE);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+    ppip->soundend = CLIP(iTmp, -1, MAX_WAVE);
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->friendlyfire = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->friendlyfire = btrue;
 
-    goto_colon( fileread );
+    goto_colon( NULL, fileread, bfalse );
     //ppip->hateonly = bfalse; TODO: BAD not implemented yet
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->newtargetonspawn = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->newtargetonspawn = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp ); ppip->targetangle = iTmp >> 1;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->targetangle = iTmp >> 1;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->homing = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->homing = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->homingfriction = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp ); ppip->homingaccel = fTmp;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->homingfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->homingaccel = fTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     ppip->rotatetoface = bfalse;
     if ( cTmp == 'T' || cTmp == 't' ) ppip->rotatetoface = btrue;
 
@@ -1075,7 +1076,7 @@ int load_one_particle_profile( const char *szLoadName )
     ppip->orientation = ORIENTATION_B;  // make the orientation the normal billboarded orientation
 
     // Read expansions
-    while ( goto_colon_yesno( fileread ) )
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
         idsz = fget_idsz( fileread );
 
@@ -1124,61 +1125,61 @@ void reset_particles( const char* modname )
     // Load in the standard global particles ( the coins for example )
     numpip = 0;
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "1money.txt";
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "5money.txt";
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "25money.txt";
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "100money.txt";
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Load module specific information
     make_newloadname( modname, "gamedat" SLASH_STR "weather4.txt", newloadname );
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "weather5.txt", newloadname );
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
         log_error( "Data file was not found! (%s)\n", newloadname );
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
-        if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+        if ( MAX_PIP == load_one_particle_profile( loadpath ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
     }
 
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( newloadname ) )
+    if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
         if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
-        if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+        if ( MAX_PIP == load_one_particle_profile( loadpath ) )
         {
             log_error( "Data file was not found! (%s)\n", loadpath );
         }
@@ -1186,18 +1187,18 @@ void reset_particles( const char* modname )
 
     // This is also global...
     loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "defend.txt";
-    if ( TOTALMAXPRTPIP == load_one_particle_profile( loadpath ) )
+    if ( MAX_PIP == load_one_particle_profile( loadpath ) )
     {
         log_error( "Data file was not found! (%s)\n", loadpath );
     }
 
     // Now clear out the local pips
     object = 0;
-    while ( object < MAXMODEL )
+    while ( object < MAX_PROFILE )
     {
         cnt = 0;
 
-        while ( cnt < MAXPRTPIPPEROBJECT )
+        while ( cnt < MAX_PIP_PER_PROFILE )
         {
             MadList[object].prtpip[cnt] = 0;
             cnt++;

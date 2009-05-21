@@ -95,7 +95,7 @@ typedef enum enchant_add
 //--------------------------------------------------------------------------------------------
 // Enchantment template
 
-#define MAXEVE                          MAXMODEL    // One enchant type per model
+#define MAXEVE                          MAX_PROFILE    // One enchant type per model
 
 struct s_eve
 {
@@ -141,7 +141,7 @@ extern eve_t EveList[MAXEVE];
 //--------------------------------------------------------------------------------------------
 // Enchantment variables
 
-#define MAXENCHANT                      200         // Number of enchantments
+#define MAX_ENC                      200         // Number of enchantments
 
 struct s_enc
 {
@@ -168,9 +168,9 @@ struct s_enc
 };
 typedef struct s_enc enc_t;
 
-extern enc_t EncList[MAXENCHANT];
+extern enc_t EncList[MAX_ENC];
 
-#define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAXENCHANT) )
+#define VALID_ENC_RANGE( IENC ) ( ((IENC) >= 0) && ((IENC) < MAX_ENC) )
 #define VALID_ENC( IENC )       ( VALID_ENC_RANGE( IENC ) && EncList[IENC].on )
 #define INVALID_ENC( IENC )     ( !VALID_ENC_RANGE( IENC ) || !EncList[IENC].on )
 

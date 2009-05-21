@@ -9,7 +9,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mad_t   MadList[MAXMODEL];
+mad_t   MadList[MAX_PROFILE];
 
 static char cActionName[ACTION_COUNT][2]; // Two letter name code
 
@@ -76,7 +76,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     // ZZ> This function makes sure both actions are valid if either of them
     //     are valid.  It will copy start and ends to mirror the valid action.
 
-    if( object > MAXMODEL || !MadList[object].used ) return;
+    if( object > MAX_PROFILE || !MadList[object].used ) return;
 
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
@@ -111,13 +111,13 @@ void action_check_copy( const char* loadname, Uint16 object )
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
-    if( object > MAXMODEL || !MadList[object].used ) return;
+    if( object > MAX_PROFILE || !MadList[object].used ) return;
 
     MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
     if ( fileread )
     {
-        while ( goto_colon_yesno( fileread ) )
+        while ( goto_colon( NULL, fileread, btrue ) )
         {
             fscanf( fileread, "%s%s", szOne, szTwo );
 
@@ -273,7 +273,7 @@ void load_action_names( const char* loadname )
 
         while ( cnt < ACTION_COUNT )
         {
-            goto_colon( fileread );
+            goto_colon( NULL, fileread, bfalse );
             fscanf( fileread, "%c%c", &first, &second );
             cActionName[cnt][0] = first;
             cActionName[cnt][1] = second;
@@ -292,7 +292,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     int cnt;
     mad_t * pmad;
 
-    if( object > MAXMODEL ) return 0;
+    if( object > MAX_PROFILE ) return 0;
     pmad = MadList + object;
 
     // clear out the mad
@@ -348,7 +348,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     load_all_messages( newloadname, object );
 
     // Load the particles for this object
-    for ( cnt = 0; cnt < MAXPRTPIPPEROBJECT; cnt++ )
+    for ( cnt = 0; cnt < MAX_PIP_PER_PROFILE; cnt++ )
     {
         sprintf( newloadname, "%s" SLASH_STR "part%d.txt", tmploadname, cnt );
 
@@ -658,7 +658,7 @@ void load_all_messages( const char *loadname, Uint16 object )
     {
         MadList[object].msgstart = msgtotal;
 
-        while ( goto_colon_yesno( fileread ) )
+        while ( goto_colon( NULL, fileread, btrue ) )
         {
             get_message( fileread );
         }

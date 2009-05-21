@@ -212,14 +212,14 @@ bool_t setup_download()
 
     // Max number of lights
     GetKey_int( "MAX_DYNAMIC_LIGHTS", dyna_list_max, 12 );
-    if ( dyna_list_max > TOTALMAXDYNA ) dyna_list_max = TOTALMAXDYNA;
+    if ( dyna_list_max > TOTAL_MAX_DYNA ) dyna_list_max = TOTAL_MAX_DYNA;
 
     // Get the FPS limit
     GetKey_int( "MAX_FPS_LIMIT", framelimit, 30 );
 
     // Get the particle limit
     GetKey_int( "MAX_PARTICLES", maxparticles, 512 );
-    if (maxparticles > TOTALMAXPRT) maxparticles = TOTALMAXPRT;
+    if (maxparticles > TOTAL_MAX_PRT) maxparticles = TOTAL_MAX_PRT;
 
     // *********************************************
     // * SOUND Section
@@ -521,7 +521,7 @@ bool_t input_settings_load( const char *szFilename )
     // read the keyboard controls
     for (i = KEY_CONTROL_BEGIN; i <= KEY_CONTROL_END; i++)
     {
-        goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+        goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
         controls[INPUT_DEVICE_KEYBOARD].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_KEYBOARD].control[i].is_key = ( currenttag[0] == 'K' );
     };
@@ -532,7 +532,7 @@ bool_t input_settings_load( const char *szFilename )
     // read the mouse controls
     for (i = MOS_CONTROL_BEGIN; i <= MOS_CONTROL_END; i++)
     {
-        goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+        goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
         controls[INPUT_DEVICE_MOUSE].control[i].tag    = scantag_get_value( currenttag );
         controls[INPUT_DEVICE_MOUSE].control[i].is_key = ( currenttag[0] == 'K' );
     };
@@ -545,7 +545,7 @@ bool_t input_settings_load( const char *szFilename )
     {
         for (i = JOY_CONTROL_BEGIN; i <= JOY_CONTROL_END; i++)
         {
-            goto_colon( fileread ); fscanf( fileread, "%s", currenttag );
+            goto_colon( NULL, fileread, bfalse ); fscanf( fileread, "%s", currenttag );
             controls[INPUT_DEVICE_JOY + cnt].control[i].tag    = scantag_get_value( currenttag );
             controls[INPUT_DEVICE_JOY + cnt].control[i].is_key = ( currenttag[0] == 'K' );
         };

@@ -2351,7 +2351,7 @@ int doVideoOptions( float deltaTime )
             if ( BUTTON_UP == ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) )
             {
                 maxparticles += 128;
-                if (maxparticles > TOTALMAXPRT || maxparticles < 256) maxparticles = 256;
+                if (maxparticles > TOTAL_MAX_PRT || maxparticles < 256) maxparticles = 256;
 
                 sprintf( Cmaxparticles, "%i", maxparticles );    // Convert integer to a char we can use
                 videoOptionsButtons[14] =  Cmaxparticles;
@@ -3195,7 +3195,7 @@ int get_skin( const char *filename )
     fileread = fopen( filename, "r" );
     if ( fileread )
     {
-        goto_colon_yesno( fileread );
+        goto_colon( NULL, fileread, btrue );
         fscanf( fileread, "%d", &skin );
         skin %= MAXSKIN;
         fclose( fileread );

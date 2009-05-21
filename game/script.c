@@ -83,12 +83,12 @@ void let_character_think( Uint16 character )
     script_error_model     = pchr->model;
     script_error_index     = (Uint16)(~0);
     script_error_name      = "UNKNOWN";
-    if ( script_error_model < MAXMODEL )
+    if ( script_error_model < MAX_PROFILE )
     {
         script_error_classname = CapList[ script_error_model ].classname;
 
         script_error_index = MadList[script_error_model].ai;
-        if ( script_error_index < MAXAI )
+        if ( script_error_index < MAX_AI )
         {
             script_error_name = szAisName[script_error_index];
         }
@@ -187,7 +187,7 @@ void let_character_think( Uint16 character )
     if ( !ChrList[pself->index].isplayer )
     {
         float latch2;
-        if ( ChrList[pself->index].ismount && MAXCHR != ChrList[pself->index].holdingwhich[SLOT_LEFT] && ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].on )
+        if ( ChrList[pself->index].ismount && MAX_CHR != ChrList[pself->index].holdingwhich[SLOT_LEFT] && ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].on )
         {
             // Mount
             ChrList[pself->index].latchx = ChrList[ChrList[pself->index].holdingwhich[SLOT_LEFT]].latchx;
@@ -233,7 +233,7 @@ void set_alerts( Uint16 character )
     if ( !ChrList[character].on ) return;
 
     // mounts do not get to think for themselves
-    if ( MAXCHR != ChrList[character].attachedto ) return;
+    if ( MAX_CHR != ChrList[character].attachedto ) return;
     if ( ChrList[character].ai.wp_tail != ChrList[character].ai.wp_head )
     {
         if ( ChrList[character].xpos < ChrList[character].ai.wp_pos_x[ChrList[character].ai.wp_tail] + WAYTHRESH &&
@@ -271,7 +271,7 @@ void issue_order( Uint16 character, Uint32 order )
     counter = 0;
     cnt = 0;
 
-    while ( cnt < MAXCHR )
+    while ( cnt < MAX_CHR )
     {
         if ( ChrList[cnt].team == team )
         {
@@ -295,7 +295,7 @@ void issue_special_order( Uint32 order, IDSZ idsz )
     counter = 0;
     cnt = 0;
 
-    while ( cnt < MAXCHR )
+    while ( cnt < MAX_CHR )
     {
         if ( ChrList[cnt].on )
         {

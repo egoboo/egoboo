@@ -136,7 +136,7 @@ void render_prt( camera_t * pcam )
 {
     // ZZ> This function draws the sprites for particle systems
 
-    prt_registry_entity_t reg[TOTALMAXPRT];
+    prt_registry_entity_t reg[TOTAL_MAX_PRT];
     GLvector3 vfwd, vcam;
     GLvertex vtlist[4];
     int cnt, numparticle;
@@ -342,7 +342,7 @@ void render_refprt( camera_t * pcam )
 {
     // ZZ> This function draws sprites reflected in the floor
 
-    prt_registry_entity_t reg[TOTALMAXPRT];
+    prt_registry_entity_t reg[TOTAL_MAX_PRT];
     GLvector3 vfwd, vcam;
     GLvertex vtlist[4];
     int prt, numparticle;

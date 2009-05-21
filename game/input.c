@@ -335,7 +335,7 @@ bool_t scantag_read_one( FILE *fileread )
 
     bool_t retval;
 
-    retval = goto_colon_yesno( fileread ) && (scantag_count < MAXTAG);
+    retval = goto_colon( NULL, fileread, btrue ) && (scantag_count < MAXTAG);
     if ( retval )
     {
         fscanf( fileread, "%s%d", scantag[scantag_count].name, &scantag[scantag_count].value );
@@ -460,7 +460,7 @@ void reset_players()
 
     // Reset the local data stuff
     local_seekurse     = bfalse;
-    local_senseenemies = MAXCHR;
+    local_senseenemies = MAX_CHR;
     local_seeinvisible = bfalse;
     local_allpladead    = bfalse;
 

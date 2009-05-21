@@ -62,6 +62,7 @@
 #define PLATADD             -10                     // Height add...
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
+#define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
 
 //------------------------------------
 // Team variables
@@ -219,7 +220,7 @@ struct s_cap
 
     // sound
     Sint8        soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-    Mix_Chunk *  wavelist[MAXWAVE];             // sounds in a object
+    Mix_Chunk *  wavelist[MAX_WAVE];             // sounds in a object
 
     // flags
     bool_t       isitem;                        // Is it an item?
@@ -281,9 +282,9 @@ struct s_cap
 typedef struct s_cap cap_t;
 
 extern int   importobject;
-extern cap_t CapList[MAXMODEL];
+extern cap_t CapList[MAX_PROFILE];
 
-#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAXMODEL) )
+#define VALID_CAP_RANGE( ICAP ) ( ((ICAP) >= 0) && ((ICAP) < MAX_PROFILE) )
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
@@ -444,8 +445,8 @@ struct s_chr
     bool_t         loopaction;      // Loop it too
     Uint8          nextaction;      // Character's action to play next
 
-    Uint16         holdingwhich[MAXSLOT]; // !=MAXCHR if character is holding something
-    Uint16         attachedto;      // !=MAXCHR if character is a held weapon
+    Uint16         holdingwhich[MAXSLOT]; // !=MAX_CHR if character is holding something
+    Uint16         attachedto;      // !=MAX_CHR if character is a held weapon
     Uint16         weapongrip[GRIP_VERTS];   // Vertices which describe the weapon grip
     Uint8          basealpha;
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
@@ -535,9 +536,9 @@ struct s_chr
 
 typedef struct s_chr chr_t;
 
-extern chr_t ChrList[MAXCHR];
+extern chr_t ChrList[MAX_CHR];
 
-#define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAXCHR) )
+#define VALID_CHR_RANGE( ICHR ) ( ((ICHR) >= 0) && ((ICHR) < MAX_CHR) )
 #define VALID_CHR( ICHR )       ( VALID_CHR_RANGE( ICHR ) && ChrList[ICHR].on )
 #define INVALID_CHR( ICHR )     ( !VALID_CHR_RANGE( ICHR ) || !ChrList[ICHR].on )
 
@@ -546,7 +547,7 @@ extern chr_t ChrList[MAXCHR];
 //--------------------------------------------------------------------------------------------
 // This is for random naming
 
-#define MAXCHOP                         (MAXMODEL*CHOPPERMODEL)
+#define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
 #define CHOPSIZE                        8
 #define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)
 
@@ -585,8 +586,8 @@ void flash_character_height( Uint16 character, Uint8 valuelow, Sint16 low,
 void flash_character( Uint16 character, Uint8 value );
 
 void free_one_character_in_game( Uint16 character );
-void make_one_weapon_matrix( Uint16 cnt );
-void make_character_matrices();
+void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_phys  );
+void make_character_matrices(bool_t do_physics);
 int get_free_character();
 void free_inventory( Uint16 character );
 

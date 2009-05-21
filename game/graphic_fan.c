@@ -44,9 +44,9 @@ void render_fan( Uint32 fan )
     mesh_mem_t  * pmem;
     tile_info_t * ptile;
 
-    pmem  = &(mesh.mem);
+    pmem  = &(PMesh->mem);
 
-    if ( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
+    if ( INVALID_TILE == fan || fan >= PMesh->info.tiles_count ) return;
     ptile = pmem->tile_list + fan;
 
     // vertex is a value from 0-15, for the meshcommandref/u/v variables
@@ -77,8 +77,8 @@ void render_fan( Uint32 fan )
         }
     }
 
-    offu = mesh.tileoff_u[tile & 0xFF];          // Texture offsets
-    offv = mesh.tileoff_v[tile & 0xFF]; 
+    offu = PMesh->tileoff_u[tile & 0xFF];          // Texture offsets
+    offv = PMesh->tileoff_v[tile & 0xFF]; 
 
     texture = ( tile >> 6 ) + TX_TILE_0;       // 64 tiles in each 256x256 texture
     vertices = tile_dict[type].numvertices;    // Number of vertices
@@ -165,13 +165,13 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     int ix, iy, ix_off[4] = {1, 1, 0, 0}, iy_off[4] = {0, 1, 1, 0};
     float x1, y1, fx_off[4], fy_off[4];
 
-    if ( INVALID_TILE == fan || fan >= mesh.info.tiles_count ) return;
+    if ( INVALID_TILE == fan || fan >= PMesh->info.tiles_count ) return;
 
     // BB > the water info is for TILES, not fot vertices, so ignore all vertex info and just draw the water
     //      tile where it's supposed to go
 
-    ix = fan % mesh.info.tiles_x;
-    iy = fan / mesh.info.tiles_x;
+    ix = fan % PMesh->info.tiles_x;
+    iy = fan / PMesh->info.tiles_x;
 
     // just do the mode this way instead of requiring all meshes to be multiples of 4
     mode = (iy & 1) | ((ix & 1) << 1);
@@ -202,7 +202,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     fy_off[3] = 0;
 
     // Original points
-    badvertex = mesh.mem.tile_list[fan].vrtstart;          // Get big reference value
+    badvertex = PMesh->mem.tile_list[fan].vrtstart;          // Get big reference value
     {
         for ( cnt = 0; cnt < 4; cnt++ )
         {
@@ -212,7 +212,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
             v[cnt].t = fy_off[cnt] + offv;
             v[cnt].z = waterlayerzadd[layer][frame][mode][cnt] + waterlayerz[layer];
 
-            ambi = ( Uint32 ) mesh.mem.vrt_l[badvertex] >> 1;
+            ambi = ( Uint32 ) PMesh->mem.vrt_l[badvertex] >> 1;
             ambi += waterlayercolor[layer][frame][mode][cnt];
             v[cnt].r = FP8_TO_FLOAT( ambi );
             v[cnt].g = FP8_TO_FLOAT( ambi );

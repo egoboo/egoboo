@@ -44,9 +44,9 @@ static char   Token_cWord[MAXCODENAMESIZE];
 
 int    iNumAis = 0;
 int    iAisIndex = 0;
-STRING szAisName[MAXAI];
-Uint32 iAisStartPosition[MAXAI];
-Uint32 iAisEndPosition[MAXAI];
+STRING szAisName[MAX_AI];
+Uint32 iAisStartPosition[MAX_AI];
+Uint32 iAisEndPosition[MAX_AI];
 Uint32 iCompiledAis[AISMAXCOMPILESIZE];
 
 bool_t debug_scripts = bfalse;
@@ -819,7 +819,7 @@ int load_ai_script( const char *loadname )
 
         return retval;
     }
-    if ( iNumAis >= MAXAI )
+    if ( iNumAis >= MAX_AI )
     {
         log_warning( "Too many script files. Cannot load file \"%s\"\n", loadname );
         return retval;
@@ -867,7 +867,6 @@ int load_ai_script( const char *loadname )
 void init_all_ai_scripts()
 {
     // ZZ> This function starts ai loading in the right spot
-    int cnt;
 
     iAisIndex = 0;
     iNumAis = 0;
@@ -877,7 +876,6 @@ void init_all_ai_scripts()
 void release_all_ai_scripts()
 {
     // ZZ> This function starts ai loading in the right spot
-    int cnt;
 
     iAisIndex = 0;
     iNumAis = 0;

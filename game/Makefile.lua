@@ -6,7 +6,7 @@ EGO_SRC  := camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
 	game.c gltexture.c graphic.c graphic_fan.c graphic_mad.c graphic_prt.c \
 	input.c link.c log.c lua_console.c Md2.c menu.c module.c network.c particle.c \
 	passage.c script.c script_compile.c server.c sound.c sys_linux.c ui.c \
-	egoboo_console.c lua_console.c script_functions.c mad.c
+	egoboo_console.c lua_console.c script_functions.c mad.c mpd.c
 
 EGO_OBJ  := ${EGO_SRC:.c=.o}
 ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \

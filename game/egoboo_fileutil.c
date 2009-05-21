@@ -1,28 +1,11 @@
-//********************************************************************************************
-//*
-//*    This file is part of Egoboo.
-//*
-//*    Egoboo is free software: you can redistribute it and/or modify it
-//*    under the terms of the GNU General Public License as published by
-//*    the Free Software Foundation, either version 3 of the License, or
-//*    (at your option) any later version.
-//*
-//*    Egoboo is distributed in the hope that it will be useful, but
-//*    WITHOUT ANY WARRANTY; without even the implied warranty of
-//*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//*    General Public License for more details.
-//*
-//*    You should have received a copy of the GNU General Public License
-//*    along with Egoboo.  If not, see <http:// www.gnu.org/licenses/>.
-//*
-//********************************************************************************************
-
 #include "egoboo_fileutil.h"
 
 #include "log.h"
-#include "mad.h"
 
+#include "egoboo_strutil.h"
 #include "egoboo.h"
+
+#include "mad.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -39,42 +22,30 @@ IDSZ fget_idsz( FILE* fileread )
     // ZZ> This function reads and returns an IDSZ tag, or IDSZ_NONE if there wasn't one
 
     IDSZ idsz = IDSZ_NONE;
-
     char cTmp = fget_first_letter( fileread );
     if ( cTmp == '[' )
     {
         idsz = 0;
-        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
-        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
-        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
-        cTmp = ( toupper(fgetc( fileread )) - 'A' ) & 0x1F;  idsz |= cTmp;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 15;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 10;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp << 5;
+        cTmp = ( fgetc( fileread ) - 'A' ) & 0x1F;  idsz |= cTmp;
 
         cTmp = fgetc( fileread );
-        if( cTmp != ']' )
+        if ( ']' != cTmp )
         {
-            log_error( "Missing closing bracket on IDSZ, \"%s\"\n", parse_filename );
+            log_warning("Problem reading IDSZ in \"%s\"\n", parse_filename );
         }
     }
-
 
     return idsz;
 }
 
 //--------------------------------------------------------------------------------------------
-int fget_int( FILE* fileread )
-{
-    int iTmp = 0;
-    if ( feof( fileread ) ) return iTmp;
-
-    fscanf( fileread, "%d", &iTmp );
-    return iTmp;
-}
-
-//--------------------------------------------------------------------------------------------
 bool_t fcopy_line(FILE * fileread, FILE * filewrite)
 {
-    /// @details BB@> copy a line of arbitrary length, in chunks of length
-    ///      sizeof(linebuffer)
+    /// @details BB@> copy a line of arbitrary length, in chunks of length sizeof(linebuffer)
+    /// @todo This should be moved to file_common.c
 
     char linebuffer[64];
     if (NULL == fileread || NULL == filewrite) return bfalse;
@@ -82,10 +53,9 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
 
     fgets(linebuffer, sizeof(linebuffer), fileread);
     fputs(linebuffer, filewrite);
-
-    while ( strlen(linebuffer) == sizeof(linebuffer) )
+    while ( strlen(linebuffer) == SDL_arraysize(linebuffer) )
     {
-        fgets(linebuffer, sizeof(linebuffer), fileread);
+        fgets(linebuffer, SDL_arraysize(linebuffer), fileread);
         fputs(linebuffer, filewrite);
     }
 
@@ -93,37 +63,84 @@ bool_t fcopy_line(FILE * fileread, FILE * filewrite)
 }
 
 //--------------------------------------------------------------------------------------------
-void goto_colon( FILE* fileread )
+bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional )
 {
-    // ZZ> This function moves a file read pointer to the next colon
-    //    char cTmp;
-    Uint32 ch = fgetc( fileread );
+    // ZZ> This function moves a file read pointer to the next colon char cTmp;
+    // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
+    //     Also, the two functions goto_colon and goto_colon_yesno have been combined
 
-    //    fscanf(fileread, "%c", &cTmp);
-    while ( ch != ':' )
+    int cTmp, write;
+
+    if ( feof(fileread) || ferror(fileread) ) return bfalse;
+
+    write = 0;
+    if (NULL != buffer) buffer[0] = '\0';
+    cTmp = fgetc( fileread );
+    while ( !feof(fileread) && !ferror(fileread) )
     {
-        if ( ch == EOF )
+        if ( ':' == cTmp ) break;
+
+        if ( 0x0A == cTmp || 0x0D == cTmp )
         {
-            // not enough colons in file!
-            log_error( "There are not enough colons in file! (%s)\n", parse_filename );
+            write = 0;
+        }
+        else
+        {
+            if (NULL != buffer) buffer[write++] = cTmp;
         }
 
-        ch = fgetc( fileread );
+        cTmp = fgetc( fileread );
     }
+    if (NULL != buffer) buffer[write] = '\0';
+
+    if ( !optional && ':' != cTmp )
+    {
+        // not enough colons in file!
+        log_error( "There are not enough colons in file! (%s)\n", parse_filename );
+    }
+
+    return (':' == cTmp);
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t goto_colon_yesno( FILE* fileread )
+char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional )
 {
-    // ZZ> This function moves a file read pointer to the next colon, or it returns
-    //     bfalse if there are no more
-    char cTmp = ' ';
+    // ZZ> This function moves a file read pointer to the next colon char *pmem;
+    // BB> buffer points to a 256 character buffer that will get the data between the newline and the ':'
+    //     Also, the two functions goto_colon and goto_colon_yesno have been combined
 
-	while( cTmp != ':' )
-	{
-		if ( fscanf( fileread, "%c", &cTmp ) == EOF ) return bfalse;
-	}
-    return btrue;
+    char cTmp;
+    int    write;
+
+    if ( NULL == pmem || pmem >= pmem_end ) return pmem;
+
+    write = 0;
+    if (NULL != buffer) buffer[0] = '\0';
+    cTmp = *(pmem++);
+    while ( pmem < pmem_end )
+    {
+        if ( ':' == cTmp ) { pmem++; break; }
+
+        if ( 0x0A == cTmp || 0x0D == cTmp )
+        {
+            write = 0;
+        }
+        else
+        {
+            if (NULL != buffer) buffer[write++] = cTmp;
+        }
+
+        cTmp = *(pmem++);
+    }
+    if (NULL != buffer) buffer[write] = '\0';
+
+    if ( !optional && ':' != cTmp )
+    {
+        // not enough colons in file!
+        log_error( "There are not enough colons in file! (%s)\n", parse_filename );
+    }
+
+    return pmem;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -132,7 +149,6 @@ char fget_first_letter( FILE* fileread )
     // ZZ> This function returns the next non-whitespace character
     char cTmp;
     fscanf( fileread, "%c", &cTmp );
-
     while ( isspace( cTmp ) )
     {
         fscanf( fileread, "%c", &cTmp );
@@ -148,35 +164,29 @@ bool_t fget_name( FILE* fileread,  char *szName, size_t max_len )
     //     it for underscores.  The szName argument is rewritten with the null terminated
     //     string
 
-    int read;
-    Uint32 cnt;
-    char cTmp;
-    STRING szTmp;
+    int fields;
+
+    STRING format;
 
     if (NULL == szName) return bfalse;
     szName[0] = '\0';
 
-    if (NULL == fileread || (0 != ferror(fileread)) || feof(fileread) ) return bfalse;
+    if ( NULL == fileread || (0 != ferror(fileread)) || feof(fileread) ) return bfalse;
 
     // limit the max length of the string!
-    // return value if the number of fields read, not amount read from file
-    read = fscanf( fileread, "%256s", szTmp );
+    // return value if the number of fields fields, not amount fields from file
+    sprintf( format, "%%%ds", max_len - 1 );
 
     szName[0] = '\0';
-    if ( read > 0 )
+    fields = fscanf( fileread, format, szName );
+
+    if ( fields > 0 )
     {
-        for ( cnt = 0; cnt < max_len - 1; cnt++ )
-        {
-            cTmp = szTmp[cnt];
-            if ( '\0' == cTmp ) break;
-            if ( '_'  == cTmp ) cTmp = ' ';
+        szName[max_len-1] = '\0';
+        str_decode( szName, max_len, szName );
+    };
 
-            szName[cnt] = cTmp;
-        }
-        szName[cnt] = '\0';
-    }
-
-    return ferror(fileread);
+    return (1 == fields) && ferror(fileread);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -218,7 +228,7 @@ void fdamagf( FILE* filewrite, const char* text, Uint8 damagetype )
         fprintf( filewrite, "ICE\n" );
     if ( damagetype == DAMAGE_ZAP )
         fprintf( filewrite, "ZAP\n" );
-    if ( damagetype == DAMAGENULL )
+    if ( damagetype == DAMAGE_NONE )
         fprintf( filewrite, "NONE\n" );
 }
 
@@ -289,7 +299,6 @@ void funderf( FILE* filewrite, const char* text, const char* usename )
     cnt = 0;
     cTmp = usename[0];
     cnt++;
-
     while ( cTmp != 0 )
     {
         if ( cTmp == ' ' )
@@ -309,11 +318,13 @@ void funderf( FILE* filewrite, const char* text, const char* usename )
 }
 
 //--------------------------------------------------------------------------------------------
-void read_pair( FILE* fileread )
+bool_t fget_pair( FILE* fileread )
 {
     // ZZ> This function reads a damage/stat pair ( eg. 5-9 )
     char cTmp;
     float  fBase, fRand;
+
+    if ( NULL == fileread || ferror(fileread) || feof(fileread) ) return bfalse;
 
     fscanf( fileread, "%f", &fBase );  // The first number
     pairbase = fBase * 256;
@@ -322,7 +333,7 @@ void read_pair( FILE* fileread )
     {
         // Not in correct format, so fail
         pairrand = 1;
-        return;
+        return btrue;
     }
 
     fscanf( fileread, "%f", &fRand );  // The second number
@@ -330,6 +341,8 @@ void read_pair( FILE* fileread )
     pairrand = pairrand - pairbase;
     if ( pairrand < 1 )
         pairrand = 1;
+
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -372,7 +385,6 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
 
     tnc = 0;
     ctmp = appendname[tnc];
-
     while ( ctmp != 0 )
     {
         newloadname[cnt] = ctmp;
@@ -384,4 +396,285 @@ void make_newloadname( const char *modname, const char *appendname,  char *newlo
     newloadname[cnt] = 0;
 }
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int fget_version( FILE* fileread )
+{
+    // BB> scanr the file for a "// file_version blah" flag
+    long filepos;
+    int  ch;
+    bool_t newline, iscomment;
+    STRING keyword;
+    int file_version, fields;
 
+    if ( ferror(fileread) ) return -1;
+
+    filepos = ftell( fileread );
+
+    rewind( fileread );
+
+    file_version = -1;
+    iscomment = bfalse;
+    while ( !feof( fileread ) )
+    {
+        ch = fgetc( fileread  );
+
+        // trap new lines
+        if ( 0x0A == ch || 0x0D == ch ) { newline = btrue; iscomment = bfalse; continue; }
+
+        // ignore whitespace
+        if ( isspace( ch ) ) continue;
+
+        // possible comment
+        if ( '/' == ch )
+        {
+            ch = fgetc( fileread  );
+            if ( '/' == ch )
+            {
+                iscomment = btrue;
+            }
+        }
+
+        if ( iscomment )
+        {
+            // this is a comment. if the first word is not "file_version", then it is
+            // the wrong type of line to be a file_version statement
+
+            fields = fscanf( fileread, "%255s %d", keyword, &file_version );
+            if ( 2 == fields && 0 == stricmp( keyword, "file_version" ) )
+            {
+                // !! found it !!
+                break;
+            }
+            else
+            {
+                iscomment = bfalse;
+            }
+        }
+        else
+        {
+            // read everything to the end of the line because it is
+            // the wrong type of line to be a file_version statement
+
+            ch = fgetc( fileread  );
+            while ( !feof( fileread ) && 0x0A != ch && 0x0D != ch )
+            {
+                ch = fgetc( fileread  );
+            }
+
+            iscomment = bfalse;
+            continue;
+        }
+    };
+
+    // reset the file pointer
+    fseek( fileread, filepos, SEEK_SET );
+
+    // flear any error we may have generated
+    clearerr( fileread );
+
+    return file_version;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fput_version( FILE* filewrite, int file_version )
+{
+    if ( ferror( filewrite ) ) return bfalse;
+
+    return 0 != fprintf( filewrite, "\n// version %d\n", file_version );
+}
+
+//--------------------------------------------------------------------------------------------
+char * copy_mem_to_delimiter( char * pmem, char * pmem_end, FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len )
+{
+    // BB> copy data from one file to another until the delimiter delim has been found
+    //     could be used to merge a template file with data
+
+    int write;
+    char cTmp, temp_buffer[1024];
+
+    if ( NULL == pmem || NULL == filewrite ) return pmem;
+
+    if ( ferror(filewrite) ) return pmem;
+
+    write = 0;
+    temp_buffer[0] = '\0';
+    cTmp = *(pmem++);
+    while ( pmem < pmem_end )
+    {
+        if ( delim == cTmp ) break;
+
+        if ( 0x0A == cTmp || 0x0D == cTmp )
+        {
+            // output the temp_buffer
+            temp_buffer[write] = '\0';
+            fputs( temp_buffer, filewrite );
+            fputc( cTmp, filewrite );
+
+            // reset the temp_buffer pointer
+            write = 0;
+            temp_buffer[0] = '\0';
+        }
+        else
+        {
+            if ( write > SDL_arraysize(temp_buffer) - 2 )
+            {
+                log_error( "copy_mem_to_delimiter() - temp_buffer overflow.\n" );
+            }
+
+            temp_buffer[write++] = cTmp;
+        }
+
+        // only copy if it is not the
+        cTmp = *(pmem++);
+    }
+    temp_buffer[write] = '\0';
+
+    if ( NULL != user_buffer )
+    {
+        strncpy( user_buffer, temp_buffer, user_buffer_len - 1 );
+        user_buffer[user_buffer_len - 1] = '\0';
+    }
+
+    if (delim == cTmp)
+    {
+        pmem--;
+    }
+
+    return pmem;
+}
+
+//--------------------------------------------------------------------------------------------
+char fget_next_char( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_first_letter( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+int fget_int( FILE * fileread )
+{
+    int iTmp = 0;
+
+    fscanf( fileread, "%d", &iTmp );
+
+    return iTmp;
+}
+
+//--------------------------------------------------------------------------------------------
+int fget_next_int( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_int( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fget_next_string( FILE * fileread, char * str, size_t str_len )
+{
+    int fields;
+    STRING format_str;
+
+    if ( NULL == str || 0 == str_len ) return bfalse;
+
+    goto_colon( NULL, fileread, bfalse );
+
+    sprintf( format_str, "%%%ds", str_len - 1 );
+
+    str[0] = '\0';
+    fields = fscanf( fileread, format_str, str );
+    str[str_len-1] = '\0';
+
+    return 1 == fields;
+}
+
+//--------------------------------------------------------------------------------------------
+float fget_float( FILE * fileread )
+{
+    float fTmp;
+
+    fTmp = 0;
+    fscanf( fileread, "%f", &fTmp );
+
+    return fTmp;
+}
+
+//--------------------------------------------------------------------------------------------
+float  fget_next_float( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_float( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fget_next_name ( FILE * fileread, char * name, size_t name_len )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_name( fileread, name, name_len );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fget_next_pair( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_pair( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+IDSZ fget_next_idsz( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_idsz( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+int fget_damage_type( FILE * fileread )
+{
+    char cTmp;
+    int type = DAMAGE_NONE;
+
+    cTmp = fget_first_letter( fileread );
+
+    switch ( toupper( cTmp ) )
+    {
+        case 'S': type = DAMAGE_SLASH; break;
+        case 'C': type = DAMAGE_CRUSH; break;
+        case 'P': type = DAMAGE_POKE;  break;
+        case 'H': type = DAMAGE_HOLY;  break;
+        case 'E': type = DAMAGE_EVIL;  break;
+        case 'F': type = DAMAGE_FIRE;  break;
+        case 'I': type = DAMAGE_ICE;   break;
+        case 'Z': type = DAMAGE_ZAP;   break;
+    }
+
+    return type;
+}
+
+//--------------------------------------------------------------------------------------------
+int fget_next_damage_type( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_damage_type( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fget_bool( FILE * fileread )
+{
+    char cTmp = fget_first_letter( fileread );
+
+    return ( 'T' == toupper(cTmp) );
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fget_next_bool( FILE * fileread )
+{
+    goto_colon( NULL, fileread, bfalse );
+
+    return fget_bool( fileread );
+}

@@ -191,7 +191,7 @@ void camera_move( camera_t * pcam )
             pcam->turnadd -= CAMKEYTURN;
         }
 
-        pcam->trackz = 128 + get_level( pcam->trackx, pcam->tracky, bfalse );
+        pcam->trackz = 128 + get_level( PMesh, pcam->trackx, pcam->tracky, bfalse );
     }
 
     if ( CAM_PLAYER == pcam->move_mode )
@@ -208,7 +208,7 @@ void camera_move( camera_t * pcam )
                 character = PlaList[cnt].index;
                 if ( ChrList[character].alive )
                 {
-                    if ( ChrList[character].attachedto == MAXCHR )
+                    if ( ChrList[character].attachedto == MAX_CHR )
                     {
                         // The character is on foot
                         x += ChrList[character].xpos;
@@ -249,7 +249,7 @@ void camera_move( camera_t * pcam )
         y = pcam->tracky;
         z = pcam->trackz;
 
-        level = 128 + get_level(x, y, bfalse);
+        level = 128 + get_level(PMesh, x, y, bfalse);
     }
 
     pcam->trackxvel = -pcam->trackx;
@@ -453,8 +453,8 @@ void camera_reset( camera_t * pcam )
     int cnt;
 
     pcam->swing = 0;
-    pcam->x = mesh.info.edge_x / 2;
-    pcam->y = mesh.info.edge_y / 2;
+    pcam->x = PMesh->info.edge_x / 2;
+    pcam->y = PMesh->info.edge_y / 2;
     pcam->z = 1500;
     pcam->zoom = 1000;
     pcam->trackxvel = 0;

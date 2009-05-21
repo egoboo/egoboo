@@ -28,7 +28,7 @@
     chr_t * pchr; \
     Uint16 sTmp = 0; \
     Uint8 returncode = 1; \
-    if( NULL == pstate || NULL == pself || pself->index >= MAXCHR || !ChrList[pself->index].on ) return 0;\
+    if( NULL == pstate || NULL == pself || pself->index >= MAX_CHR || !ChrList[pself->index].on ) return 0;\
     pchr = ChrList + pself->index;
 
 #define SCRIPT_FUNCTION_END() \
@@ -516,7 +516,7 @@ Uint8 scr_set_TargetToNearbyEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if (get_target( pself->index, NEARBY, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+    if (get_target( pself->index, NEARBY, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAX_CHR) returncode = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -532,7 +532,7 @@ Uint8 scr_set_TargetToTargetLeftHand( script_state_t * pstate, ai_state_t * psel
 
     sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
     returncode = bfalse;
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         pself->target = sTmp;
         returncode = btrue;
@@ -552,7 +552,7 @@ Uint8 scr_set_TargetToTargetRightHand( script_state_t * pstate, ai_state_t * pse
 
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     returncode = bfalse;
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         pself->target = sTmp;
         returncode = btrue;
@@ -568,7 +568,7 @@ Uint8 scr_set_TargetToWhoeverAttacked( script_state_t * pstate, ai_state_t * pse
     // This function sets the target to whoever attacked the character last, failing for damage tiles
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pself->attacklast != MAXCHR )
+    if ( pself->attacklast != MAX_CHR )
     {
         pself->target = pself->attacklast;
     }
@@ -707,12 +707,12 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check the pack
     sTmp = ChrList[pself->target].nextinpack;
-    while ( sTmp != MAXCHR )
+    while ( sTmp != MAX_CHR )
     {
         if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
         {
             returncode = btrue;
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -722,7 +722,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check left hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
@@ -731,7 +731,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
@@ -754,7 +754,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     // Check left hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
@@ -766,7 +766,7 @@ Uint8 scr_TargetHoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR && !returncode )
+    if ( sTmp != MAX_CHR && !returncode )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
@@ -919,7 +919,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
 
     // This funtion drops the character's in hand items/riders
     sTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( pchr->ismount )
@@ -931,7 +931,7 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
     }
 
     sTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( pchr->ismount )
@@ -1067,17 +1067,17 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
 
     // Check the pack
-    iTmp = MAXCHR;
+    iTmp = MAX_CHR;
     tTmp = pself->target;
     sTmp = ChrList[tTmp].nextinpack;
 
-    while ( sTmp != MAXCHR )
+    while ( sTmp != MAX_CHR )
     {
         if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( IDSZ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
         {
             returncode = btrue;
             iTmp = sTmp;
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -1088,7 +1088,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check left hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
@@ -1100,7 +1100,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( IDSZ ) pstate->argument )
@@ -1121,14 +1121,14 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
                 ChrList[tTmp].nextinpack = ChrList[iTmp].nextinpack;
                 ChrList[pself->target].numinpack--;
                 free_one_character_in_game( iTmp );
-                iTmp = MAXCHR;
+                iTmp = MAX_CHR;
             }
             else
             {
                 // Drop from hand
                 detach_character_from_mount( iTmp, btrue, bfalse );
                 free_one_character_in_game( iTmp );
-                iTmp = MAXCHR;
+                iTmp = MAX_CHR;
             }
         }
         else
@@ -1324,7 +1324,7 @@ Uint8 scr_set_TargetToWhoeverIsHolding( script_state_t * pstate, ai_state_t * ps
     // This function sets the target to the character's mount or holder,
     // failing if the character has no mount or holder
     returncode = bfalse;
-    if ( pchr->attachedto < MAXCHR )
+    if ( pchr->attachedto < MAX_CHR )
     {
         pself->target = pchr->attachedto;
         returncode = btrue;
@@ -1637,14 +1637,14 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, 0, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAXCHR );
+    sTmp = spawn_one_character( pstate->x, pstate->y, 0, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     returncode = bfalse;
-    if ( sTmp < MAXCHR )
+    if ( sTmp < MAX_CHR )
     {
         if ( __chrhitawall( sTmp ) )
         {
             free_one_character_in_game( sTmp );
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -1661,7 +1661,7 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = (sTmp != MAXCHR);
+    returncode = (sTmp != MAX_CHR);
 
     SCRIPT_FUNCTION_END();
 }
@@ -1694,7 +1694,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
     if ( INVALID_TILE != pchr->onwhichfan )
     {
         returncode = btrue;
-        mesh.mem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
+        PMesh->mem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -1756,7 +1756,7 @@ Uint8 scr_DetachFromHolder( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function drops the character, failing only if it was not held
-    if ( pchr->attachedto != MAXCHR )
+    if ( pchr->attachedto != MAX_CHR )
     {
         detach_character_from_mount( pself->index, btrue, btrue );
     }
@@ -1822,7 +1822,7 @@ Uint8 scr_Sitting( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds if the character is riding another
-    returncode = ( pchr->attachedto != MAXCHR );
+    returncode = ( pchr->attachedto != MAX_CHR );
 
     SCRIPT_FUNCTION_END();
 }
@@ -1863,7 +1863,7 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound
-    if ( pchr->oldz > PITNOSOUND && pstate->argument >= 0 && pstate->argument < MAXWAVE )
+    if ( pchr->oldz > PITNOSOUND && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
         sound_play_chunk( pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument] );
     }
@@ -1884,14 +1884,14 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
 
     // This function spawns a particle
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
-    if ( tTmp != TOTALMAXPRT )
+    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    if ( tTmp != TOTAL_MAX_PRT )
     {
         // Detach the particle
         attach_particle_to_character( tTmp, pself->index, pstate->distance );
-        PrtList[tTmp].attachedtocharacter = MAXCHR;
+        PrtList[tTmp].attachedtocharacter = MAX_CHR;
         // Correct X, Y, Z spacing
         PrtList[tTmp].xpos += pstate->x;
         PrtList[tTmp].ypos += pstate->y;
@@ -2031,7 +2031,7 @@ Uint8 scr_set_TargetToRider( script_state_t * pstate, ai_state_t * pself )
     // failing if there is no rider
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR )
+    if ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR )
     {
         returncode = bfalse;
     }
@@ -2153,7 +2153,7 @@ Uint8 scr_TranslateOrder( script_state_t * pstate, ai_state_t * pself )
     // This function gets the order and sets tmpx, tmpy, tmpargument and the
     // target ( if valid )
     sTmp = pself->order >> 24;
-    if ( sTmp < MAXCHR )
+    if ( sTmp < MAX_CHR )
     {
         pself->target = sTmp;
     }
@@ -2189,7 +2189,7 @@ Uint8 scr_set_TargetToWideEnemy( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function finds an enemy, and proceeds only if there is one
-    returncode = (MAXCHR != get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse));
+    returncode = (MAX_CHR != get_target( pself->index, WIDE, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse));
 
     SCRIPT_FUNCTION_END();
 }
@@ -2421,8 +2421,8 @@ Uint8 scr_EnchantTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function enchants the target
-    sTmp = spawn_enchant( pself->owner, pself->target, pself->index, MAXENCHANT, MAXMODEL );
-    returncode = ( sTmp != MAXENCHANT );
+    sTmp = spawn_enchant( pself->owner, pself->target, pself->index, MAX_ENC, MAX_PROFILE );
+    returncode = ( sTmp != MAX_ENC );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2439,8 +2439,8 @@ Uint8 scr_EnchantChild( script_state_t * pstate, ai_state_t * pself )
 
     // This function can be used with SpawnCharacter to enchant the
     // newly spawned character
-    sTmp = spawn_enchant( pself->owner, pself->child, pself->index, MAXENCHANT, MAXMODEL );
-    returncode = ( sTmp != MAXENCHANT );
+    sTmp = spawn_enchant( pself->owner, pself->child, pself->index, MAX_ENC, MAX_PROFILE );
+    returncode = ( sTmp != MAX_ENC );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2455,7 +2455,7 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
     {
         // Yeah!  It worked!
         sTmp = pself->target;
@@ -2551,7 +2551,7 @@ Uint8 scr_Unarmed( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->holdingwhich[SLOT_LEFT] == MAXCHR && pchr->holdingwhich[SLOT_RIGHT] == MAXCHR );
+    returncode = ( pchr->holdingwhich[SLOT_LEFT] == MAX_CHR && pchr->holdingwhich[SLOT_RIGHT] == MAX_CHR );
 
     SCRIPT_FUNCTION_END();
 }
@@ -2576,7 +2576,7 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     iTmp += restock_ammo( sTmp, pstate->argument );
     sTmp = ChrList[pself->target].nextinpack;
 
-    while ( sTmp != MAXCHR )
+    while ( sTmp != MAX_CHR )
     {
         iTmp += restock_ammo( sTmp, pstate->argument );
         sTmp = ChrList[sTmp].nextinpack;
@@ -2610,7 +2610,7 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
         {
             sTmp = ChrList[pself->target].nextinpack;
 
-            while ( sTmp != MAXCHR && iTmp == 0 )
+            while ( sTmp != MAX_CHR && iTmp == 0 )
             {
                 iTmp += restock_ammo( sTmp, pstate->argument );
                 sTmp = ChrList[sTmp].nextinpack;
@@ -2813,7 +2813,7 @@ Uint8 scr_UndoEnchant( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( pchr->undoenchant != MAXENCHANT );
+    returncode = ( pchr->undoenchant != MAX_ENC );
     remove_enchant( pchr->undoenchant );
 
     SCRIPT_FUNCTION_END();
@@ -3212,7 +3212,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     // Check left hand
     sTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
@@ -3224,7 +3224,7 @@ Uint8 scr_HoldingItemID( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].idsz[IDSZ_PARENT] == ( IDSZ ) pstate->argument || CapList[sTmp].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
@@ -3255,7 +3255,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 
     // Check left hand
     tTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( tTmp != MAXCHR )
+    if ( tTmp != MAX_CHR )
     {
         sTmp = ChrList[tTmp].model;
         if ( CapList[sTmp].isranged && ( ChrList[tTmp].ammomax == 0 || ( ChrList[tTmp].ammo != 0 && ChrList[tTmp].ammoknown ) ) )
@@ -3267,7 +3267,7 @@ Uint8 scr_HoldingRangedWeapon( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     tTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( tTmp != MAXCHR )
+    if ( tTmp != MAX_CHR )
     {
         sTmp = ChrList[tTmp].model;
         if ( CapList[sTmp].isranged && ( ChrList[tTmp].ammomax == 0 || ( ChrList[tTmp].ammo != 0 && ChrList[tTmp].ammoknown ) ) )
@@ -3297,7 +3297,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 
     // Check left hand
     sTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTION_PA )
@@ -3309,7 +3309,7 @@ Uint8 scr_HoldingMeleeWeapon( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( !CapList[sTmp].isranged && CapList[sTmp].weaponaction != ACTION_PA )
@@ -3340,7 +3340,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 
     // Check left hand
     sTmp = pchr->holdingwhich[SLOT_LEFT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].weaponaction == ACTION_PA )
@@ -3352,7 +3352,7 @@ Uint8 scr_HoldingShield( script_state_t * pstate, ai_state_t * pself )
 
     // Check right hand
     sTmp = pchr->holdingwhich[SLOT_RIGHT];
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         sTmp = ChrList[sTmp].model;
         if ( CapList[sTmp].weaponaction == ACTION_PA )
@@ -3420,7 +3420,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( INVALID_TILE != pchr->onwhichfan )
     {
-        returncode = ( ( 0 != ( mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) ) && wateriswater );
+        returncode = ( ( 0 != ( PMesh->mem.tile_list[pchr->onwhichfan].fx & MESHFX_WATER ) ) && wateriswater );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3556,10 +3556,10 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
-    returncode = (tTmp != TOTALMAXPRT);
+    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -3575,9 +3575,9 @@ Uint8 scr_SpawnExactParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAXCHR, 0, pchr->team, tTmp, 0, MAXCHR );
+    spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3650,7 +3650,7 @@ Uint8 scr_set_TargetToLowestTarget( script_state_t * pstate, ai_state_t * pself 
 
     // This sets the target to whatever the target is being held by,
     // The lowest in the set.  This function never fails
-    while ( pself->target != MAXCHR && ChrList[pself->target].attachedto != MAXCHR )
+    while ( pself->target != MAX_CHR && ChrList[pself->target].attachedto != MAX_CHR )
     {
         pself->target = ChrList[pself->target].attachedto;
     }
@@ -3794,12 +3794,12 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
     // This function proceeds if the target has a matching item equipped
     returncode = bfalse;
     sTmp = ChrList[pself->target].nextinpack;
-    while ( sTmp != MAXCHR )
+    while ( sTmp != MAX_CHR )
     {
         if ( sTmp != pself->index && ChrList[sTmp].isequipped && ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument ) )
         {
             returncode = btrue;
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -3911,7 +3911,7 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
 		}
 
 		//Try to find one
-        returncode =  (MAXCHR != get_target(
+        returncode =  (MAX_CHR != get_target(
             pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1, 
             pstate->argument, ( pstate->distance >> 4 ) & 1 ));
     }
@@ -4037,15 +4037,15 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
 
     // This function spawns an attached particle, then sets its size
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
+    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
     if ( tTmp < maxparticles )
     {
         PrtList[tTmp].size = pstate->turn;
     }
 
-    returncode = (tTmp != TOTALMAXPRT);
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4117,7 +4117,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     {
         volume = pstate->distance;
         iTmp = -1;
-        if ( pstate->argument >= 0 && pstate->argument < MAXWAVE )
+        if ( pstate->argument >= 0 && pstate->argument < MAX_WAVE )
         {
             iTmp = sound_play_chunk( pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument] );
         }
@@ -4145,11 +4145,11 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
 
     // This function spawns an attached particle with facing
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pstate->turn & 0xFFFF, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
+    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pstate->turn & 0xFFFF, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
 
-    returncode = (tTmp != TOTALMAXPRT);
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4179,7 +4179,7 @@ Uint8 scr_set_TargetToDistantEnemy( script_state_t * pstate, ai_state_t * pself 
     // This function finds an enemy, within a certain distance to the character, and
     // proceeds only if there is one
     returncode = bfalse;
-    if (get_target(pself->index, pstate->distance, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAXCHR) returncode = btrue;
+    if (get_target(pself->index, pstate->distance, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse) != MAX_CHR) returncode = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4196,7 +4196,7 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
     // This function teleports the character to the X, Y location, failing if the
     // location is off the map or blocked
     returncode = bfalse;
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
     {
         float x_old, y_old;
 
@@ -4391,12 +4391,12 @@ Uint8 scr_ShowBlipXY( script_state_t * pstate, ai_state_t * pself )
     // Add a blip
     if ( numblip < MAXBLIP )
     {
-        if ( pstate->x > 0 && pstate->x < mesh.info.edge_x && pstate->y > 0 && pstate->y < mesh.info.edge_y )
+        if ( pstate->x > 0 && pstate->x < PMesh->info.edge_x && pstate->y > 0 && pstate->y < PMesh->info.edge_y )
         {
             if ( pstate->argument < NUMBAR && pstate->argument >= 0 )
             {
-                blipx[numblip] = pstate->x * MAPSIZE / mesh.info.edge_x;
-                blipy[numblip] = pstate->y * MAPSIZE / mesh.info.edge_y;
+                blipx[numblip] = pstate->x * MAPSIZE / PMesh->info.edge_x;
+                blipy[numblip] = pstate->y * MAPSIZE / PMesh->info.edge_y;
                 blipc[numblip] = pstate->argument;
                 numblip++;
             }
@@ -4425,7 +4425,7 @@ Uint8 scr_HealTarget( script_state_t * pstate, ai_state_t * pself )
         // Check all enchants to see if they are removed
         iTmp = ChrList[pself->target].firstenchant;
 
-        while ( iTmp != MAXENCHANT )
+        while ( iTmp != MAX_ENC )
         {
             test = Make_IDSZ( "HEAL" );  // [HEAL]
             sTmp = EncList[iTmp].nextenchant;
@@ -4491,7 +4491,7 @@ Uint8 scr_MakeSimilarNamesKnown( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = 0;
-    while ( iTmp < MAXCHR )
+    while ( iTmp < MAX_CHR )
     {
         sTmp = btrue;
         tTmp = 0;
@@ -4528,11 +4528,11 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAXCHR );
+    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
 
-    returncode = (tTmp != TOTALMAXPRT);
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4651,7 +4651,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
     // USAGE:  wizards casting spells
 
     SCRIPT_FUNCTION_BEGIN();
-    if ( pchr->attachedto != MAXCHR )
+    if ( pchr->attachedto != MAX_CHR )
     {
         if ( pchr->inwhichhand == SLOT_LEFT )
         {
@@ -4677,7 +4677,7 @@ Uint8 scr_TargetIsMounted( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    if ( ChrList[pself->target].attachedto != MAXCHR )
+    if ( ChrList[pself->target].attachedto != MAX_CHR )
     {
         returncode = ChrList[ChrList[pself->target].attachedto].ismount;
     }
@@ -4726,11 +4726,11 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    iTmp = mesh_get_tile( pstate->x, pstate->y );
+    iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
     if ( iTmp != INVALID_TILE )
     {
         returncode = btrue;
-        pstate->argument = mesh.mem.tile_list[iTmp].img & 0xFF;
+        pstate->argument = PMesh->mem.tile_list[iTmp].img & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4747,11 +4747,11 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     returncode = bfalse;
-    iTmp = mesh_get_tile( pstate->x, pstate->y );
+    iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
     if ( iTmp != INVALID_TILE )
     {
         returncode = btrue;
-        mesh.mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
+        PMesh->mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4798,7 +4798,7 @@ Uint8 scr_set_TargetToWhoeverIsInPassage( script_state_t * pstate, ai_state_t * 
 
     sTmp = who_is_blocking_passage( pstate->argument );
     returncode = bfalse;
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         pself->target = sTmp;
         returncode = btrue;
@@ -4838,7 +4838,7 @@ Uint8 scr_set_EnchantBoostValues( script_state_t * pstate, ai_state_t * pself )
 
     // This function sets the boost values for the last enchantment
     iTmp = pchr->undoenchant;
-    if ( iTmp != MAXENCHANT )
+    if ( iTmp != MAX_ENC )
     {
         EncList[iTmp].ownermana = pstate->argument;
         EncList[iTmp].ownerlife = pstate->distance;
@@ -4857,14 +4857,14 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAXCHR );
+    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pchr->model, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     returncode = bfalse;
-    if ( sTmp < MAXCHR )
+    if ( sTmp < MAX_CHR )
     {
         if ( __chrhitawall( sTmp ) )
         {
             free_one_character_in_game( sTmp );
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -4877,7 +4877,7 @@ Uint8 scr_SpawnCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = (sTmp != MAXCHR);
+    returncode = (sTmp != MAX_CHR);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4894,14 +4894,14 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAXCHR );
+    sTmp = spawn_one_character( pstate->x, pstate->y, pstate->distance, pstate->argument, pchr->team, 0, pstate->turn & 0xFFFF, NULL, MAX_CHR );
     returncode = bfalse;
-    if ( sTmp < MAXCHR )
+    if ( sTmp < MAX_CHR )
     {
         if ( __chrhitawall( sTmp ) )
         {
             free_one_character_in_game( sTmp );
-            sTmp = MAXCHR;
+            sTmp = MAX_CHR;
         }
         else
         {
@@ -4914,7 +4914,7 @@ Uint8 scr_SpawnExactCharacterXYZ( script_state_t * pstate, ai_state_t * pself )
         }
     }
 
-    returncode = (sTmp != MAXCHR);
+    returncode = (sTmp != MAX_CHR);
 
     SCRIPT_FUNCTION_END();
 }
@@ -4946,7 +4946,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound loud for everyone...  Victory music
-    if ( moduleactive && pstate->argument >= 0 && pstate->argument < MAXWAVE )
+    if ( moduleactive && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
         sound_play_chunk( gCamera.trackx, gCamera.tracky, CapList[pchr->model].wavelist[pstate->argument] );
     }
@@ -4966,15 +4966,15 @@ Uint8 scr_SpawnExactChaseParticle( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAXCHR, 0, pchr->team, tTmp, 0, MAXCHR );
+    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
     if ( tTmp < maxparticles )
     {
         PrtList[tTmp].target = pself->target;
     }
 
-    returncode = (tTmp != TOTALMAXPRT);
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -5029,7 +5029,7 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     ChrList[sTmp].iskursed = bfalse;
     sTmp = ChrList[pself->target].nextinpack;
 
-    while ( sTmp != MAXCHR )
+    while ( sTmp != MAX_CHR )
     {
         ChrList[sTmp].iskursed = bfalse;
         sTmp = ChrList[sTmp].nextinpack;
@@ -5153,7 +5153,7 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
 		//Try to find one
         if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
-                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAXCHR) returncode = btrue;
+                       ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAX_CHR) returncode = btrue;
 
     }
 
@@ -5168,7 +5168,7 @@ Uint8 scr_set_TargetToNearestEnemy( script_state_t * pstate, ai_state_t * pself 
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAXCHR != get_target(pself->index, 0, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    returncode = (MAX_CHR != get_target(pself->index, 0, ENEMY, bfalse, bfalse, IDSZ_NONE, bfalse ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5181,7 +5181,7 @@ Uint8 scr_set_TargetToNearestFriend( script_state_t * pstate, ai_state_t * pself
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAXCHR != get_target(pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    returncode = (MAX_CHR != get_target(pself->index, 0, FRIEND, bfalse, bfalse, IDSZ_NONE, bfalse ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5196,7 +5196,7 @@ Uint8 scr_set_TargetToNearestLifeform( script_state_t * pstate, ai_state_t * pse
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = (MAXCHR != get_target(pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) );
+    returncode = (MAX_CHR != get_target(pself->index, 0, ALL, bfalse, bfalse, IDSZ_NONE, bfalse ) );
 
     SCRIPT_FUNCTION_END();
 }
@@ -5250,7 +5250,7 @@ Uint8 scr_HeldInLeftHand( script_state_t * pstate, ai_state_t * pself )
     // character
     returncode = bfalse;
     sTmp = pchr->attachedto;
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         returncode = ( ChrList[sTmp].holdingwhich[SLOT_LEFT] == pself->index );
     }
@@ -5755,7 +5755,7 @@ Uint8 scr_DisenchantTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    returncode = ( ChrList[pself->target].firstenchant != MAXENCHANT );
+    returncode = ( ChrList[pself->target].firstenchant != MAX_ENC );
     disenchant_character( pself->target );
 
     SCRIPT_FUNCTION_END();
@@ -5772,7 +5772,7 @@ Uint8 scr_DisenchantAll( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     iTmp = 0;
-    while ( iTmp < MAXENCHANT )
+    while ( iTmp < MAX_ENC )
     {
         remove_enchant( iTmp );
         iTmp++;
@@ -5796,7 +5796,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     // Find the closest Teammate
     iTmp = 10000;
     sTmp = 0;
-    while(sTmp < MAXCHR)
+    while(sTmp < MAX_CHR)
     {
     if(ChrList[sTmp].on && ChrList[sTmp].alive && ChrList[sTmp].Team == pchr->Team)
     {
@@ -5937,7 +5937,7 @@ Uint8 scr_set_TargetToPassageID( script_state_t * pstate, ai_state_t * pself )
 
     sTmp = who_is_blocking_passage_ID( pstate->argument, pstate->distance );
     returncode = bfalse;
-    if ( sTmp != MAXCHR )
+    if ( sTmp != MAX_CHR )
     {
         pself->target = sTmp;
         returncode = btrue;
@@ -5974,15 +5974,15 @@ Uint8 scr_SpawnExactParticleEndSpawn( script_state_t * pstate, ai_state_t * psel
     SCRIPT_FUNCTION_BEGIN();
 
     tTmp = pself->index;
-    if ( pchr->attachedto != MAXCHR )  tTmp = pchr->attachedto;
+    if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAXCHR, 0, pchr->team, tTmp, 0, MAXCHR );
+    tTmp = spawn_one_particle( pstate->x, pstate->y, pstate->distance, pchr->turnleftright, pchr->model, pstate->argument, MAX_CHR, 0, pchr->team, tTmp, 0, MAX_CHR );
     if ( tTmp != maxparticles )
     {
         PrtList[tTmp].spawncharacterstate = pstate->turn;
     }
 
-    returncode = (tTmp != TOTALMAXPRT);
+    returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
 }
@@ -6248,7 +6248,7 @@ Uint8 scr_TargetIsASpell( script_state_t * pstate, ai_state_t * pself )
     iTmp = 0;
     returncode = bfalse;
 
-    while (iTmp < MAXPRTPIPPEROBJECT)
+    while (iTmp < MAX_PIP_PER_PROFILE)
     {
         if (PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].intdamagebonus || PipList[MadList[ChrList[pself->target].inst.imad].prtpip[iTmp]].wisdamagebonus)
         {
@@ -6325,7 +6325,7 @@ Uint8 scr_BeatQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     iTmp = 0;
 
-    while (iTmp < MAXCHR)
+    while (iTmp < MAX_CHR)
     {
         if ( ChrList[iTmp].isplayer )
         {
@@ -6431,7 +6431,7 @@ Uint8 scr_PitsFall( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // ThIs function activates pit teleportation...
-    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < mesh.info.edge_x - EDGE && pstate->y < mesh.info.edge_y - EDGE )
+    if ( pstate->x > EDGE && pstate->y > EDGE && pstate->x < PMesh->info.edge_x - EDGE && pstate->y < PMesh->info.edge_y - EDGE )
     {
         pitsfall = btrue;
         pitx = pstate->x;

@@ -241,6 +241,9 @@
 				RelativePath=".\module.c">
 			</File>
 			<File
+				RelativePath=".\mpd.c">
+			</File>
+			<File
 				RelativePath=".\network.c">
 			</File>
 			<File
@@ -336,6 +339,9 @@
 				RelativePath=".\egoboo_math.h">
 			</File>
 			<File
+				RelativePath=".\egoboo_platform.h">
+			</File>
+			<File
 				RelativePath=".\egoboo_setup.h">
 			</File>
 			<File
@@ -382,6 +388,9 @@
 			</File>
 			<File
 				RelativePath=".\module.h">
+			</File>
+			<File
+				RelativePath=".\mpd.h">
 			</File>
 			<File
 				RelativePath=".\network.h">

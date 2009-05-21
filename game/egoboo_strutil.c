@@ -25,18 +25,18 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// TrimStr remove all space and tabs in the beginning and at the end of the string
-void TrimStr( char *pStr )
+void str_trim( char *pStr )
 {
-    Sint32 DebPos, CurPos, EndPos = 0;
-    if ( pStr == NULL )
+    /// @details ZZ> str_trim remove all space and tabs in the beginning and at the _dtor of the string
+
+    Sint32 DebPos = 0, EndPos = 0, CurPos = 0;
+
+    if ( NULL == pStr  )
     {
         return;
     }
-
     // look for the first character in string
     DebPos = 0;
-
     while ( isspace( pStr[DebPos] ) && pStr[DebPos] != 0 )
     {
         DebPos++;
@@ -44,16 +44,15 @@ void TrimStr( char *pStr )
 
     // look for the last character in string
     CurPos = DebPos;
-
     while ( pStr[CurPos] != 0 )
     {
         if ( !isspace( pStr[CurPos] ) )
         {
             EndPos = CurPos;
         }
-
         CurPos++;
     }
+
     if ( DebPos != 0 )
     {
         // shift string left
@@ -61,7 +60,6 @@ void TrimStr( char *pStr )
         {
             pStr[CurPos] = pStr[CurPos + DebPos];
         }
-
         pStr[CurPos] = 0;
     }
     else
@@ -75,20 +73,19 @@ char * str_decode( char *strout, size_t insize, const char * strin )
 {
     /// @details BB> str_decode converts a string from "storage mode" to an actual string
 
-    char *pin = '\0', *pout = strout, *plast = pout + insize;
-    if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-    strcpy(pin, strin);
+    char *pin = strin, *pout = strout, *plast = pout + insize;
 
-    while ( pout < plast && '\0' != *pin )
+    if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
+    while ( pout < plast && EOS != *pin )
     {
         *pout = *pin;
         if      ( '_' == *pout ) *pout = ' ';
         else if ( '~' == *pout ) *pout = '\t';
-
         pout++;
         pin++;
     };
-    if ( pout < plast ) *pout = '\0';
+
+    if ( pout < plast ) *pout = EOS;
 
     return strout;
 }
@@ -99,12 +96,10 @@ char * str_encode( char *strout, size_t insize, const char * strin )
     /// @details BB> str_encode converts an actual string to "storage mode"
 
     char chrlast = 0;
-    char *pin, *pout = strout, *plast = pout + insize;
+    char *pin = strin, *pout = strout, *plast = pout + insize;
+
     if ( NULL == strin || NULL == strout || 0 == insize ) return NULL;
-
-    pin = strin;
-
-    while ( pout < plast && '\0' != *pin )
+    while ( pout < plast && EOS != *pin )
     {
         if ( !isspace( *pin ) && isprint( *pin ) )
         {
@@ -141,18 +136,95 @@ char * str_encode( char *strout, size_t insize, const char * strin )
             pin++;
         }
     };
-    if ( pout < plast ) *pout = '\0';
+
+    if ( pout < plast ) *pout = EOS;
 
     return strout;
 }
 
 //--------------------------------------------------------------------------------------------
-char * get_file_path( const char *szName )
+char * str_convert_slash_net(char * str, size_t size)
+{
+    /// @details BB> converts the slashes in a string to those appropriate for the Net
+
+    size_t i;
+
+    if ( INVALID_CSTR(str) ) return str;
+
+    for (i = 0; i < size; i++)
+    {
+        if ('/' == str[i] || '\\' == str[i])
+        {
+            str[i] = NET_SLASH_CHR;
+        }
+    }
+
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------
+char * str_convert_slash_sys(char * str, size_t size)
+{
+    /// @details BB> converts the slashes in a string to those appropriate this system
+
+    size_t i;
+
+    if ( INVALID_CSTR(str) ) return str;
+
+    for (i = 0; i < size; i++)
+    {
+        if ('/' == str[i] || '\\' == str[i])
+        {
+            str[i] = SLASH_CHR;
+        }
+    }
+
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------
+char * str_append_slash_net(char * str, size_t size)
+{
+    /// @details BB> appends a network-type slash to a string, if it does not already have one
+
+    size_t len;
+
+    if ( INVALID_CSTR(str) ) return str;
+
+    len = strlen( str );
+    if ( str[len-1] != '/' && str[len-1] != '\\' )
+    {
+        strncat(str, NET_SLASH_STR, size);
+    }
+
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------
+char * str_append_slash(char * str, size_t size)
+{
+    /// @details BB> appends this system's slash to a string, if it does not already have one
+
+    size_t len;
+
+    if ( INVALID_CSTR(str) ) return NULL;
+
+    len = strlen( str );
+    if ( str[len-1] != '/' && str[len-1] != '\\' )
+    {
+        strncat(str, SLASH_STR, size);
+    }
+
+    return str;
+}
+
+//--------------------------------------------------------------------------------------------
+char * str_encode_path( const char *szName )
 {
     //ZF> This turns a szName name into a proper filepath for loading and saving files
     //    also turns all letter to lower case in case of case sensitive OS.
 
-    static char szPathname[16];
+    static STRING szPathname;
 
     char * pname, * pname_end;
     char * ppath, * ppath_end;
@@ -162,8 +234,7 @@ char * get_file_path( const char *szName )
     pname_end = pname + 255;
 
     ppath = szPathname;
-    ppath_end = ppath + 11;
-
+    ppath_end = ppath + 255 - 5;
     while ( '\0' != *pname && pname < pname_end && ppath < ppath_end )
     {
         letter = tolower( *pname );
@@ -177,7 +248,7 @@ char * get_file_path( const char *szName )
     }
     *ppath = '\0';
 
-    strncat(szPathname, ".obj", sizeof(szPathname) - strlen(szPathname) );
+    strncat(szPathname, ".obj", SDL_arraysize(szPathname) - strlen(szPathname) );
 
     return szPathname;
 }
@@ -227,4 +298,3 @@ void str_add_linebreaks( const char * text, size_t text_len, size_t line_len )
         text++;
     }
 }
-

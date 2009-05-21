@@ -32,24 +32,23 @@
 #include "link.h"
 
 #include "char.h"
-
 #include "particle.h"
-
 #include "enchant.h"
+#include "Md2.h"
+#include "mpd.h"
 
 #include "passage.h"
-
 #include "sound.h"
+#include "module.h"
+#include "camera.h"
 
 #include "script.h"
 #include "script_functions.h"
 
-#include "module.h"
-
 #include "graphic.h"
 #include "gltexture.h"
 
-#include "camera.h"
+
 %}
 
 // A stupid hack because SWIG can't deal with including 
@@ -72,15 +71,13 @@
 %include "link.h"
 
 %include "char.h"
-
 %include "particle.h"
-
 %include "enchant.h"
+%include "Md2.h"
+%include "mpd.h"
 
 %include "passage.h"
-
 %include "sound.h"
-
 %include "module.h"
 
 %include "graphic.h"

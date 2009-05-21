@@ -32,10 +32,6 @@ struct s_script_state;
 ///////////////////////////////
 // internal game functions that would never be called by a script
 
-struct s_mesh;
-
-// loading/saving
-struct s_mesh * mesh_load( const char *modname, struct s_mesh * pmesh );
 
 // object initialization
 void  prime_names( void );
@@ -98,14 +94,6 @@ void   fgetadd( float min, float value, float max, float* valuetoadd );
 int  action_which( char cTmp );
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
-
-// Mesh
-float get_level( float x, float y, bool_t waterwalk );
-Uint32 mesh_get_block( float pos_x, float pos_y );
-Uint32 mesh_get_tile ( float pos_x, float pos_y );
-
-Uint32 mesh_get_block_int( struct s_mesh * pmesh, int block_x, int block_y );
-Uint32 mesh_get_tile_int( struct s_mesh * pmesh, int tile_x,  int tile_y );
 
 // Player
 void set_one_player_latch( Uint16 player );

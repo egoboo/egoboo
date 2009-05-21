@@ -86,6 +86,17 @@ struct s_chr_setup_info
 typedef struct s_chr_setup_info chr_setup_info_t;
 
 //--------------------------------------------------------------------------------------------
+// Bump List
+struct s_bumplist
+{
+    Uint16  chr;                     // For character collisions
+    Uint16  chrnum;                  // Number on the block
+    Uint16  prt;                     // For particle collisions
+    Uint16  prtnum;                  // Number on the block
+};
+typedef struct s_bumplist bumplist_t;
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // game initialization / deinitialization - not accessible by scripts
@@ -125,19 +136,6 @@ static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
 static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
 static void setup_characters( const char *modname );
 
-// mesh initialization - not accessible by scripts
-static void   make_twist();
-static void   mesh_make_vrtstart( mesh_t * pmesh );
-static void   mesh_make_fanstart( mesh_t * pmesh );
-
-static mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem );
-static mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem );
-static bool_t       mesh_mem_free( mesh_mem_t * pmem );
-static bool_t       mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo );
-
-static mesh_info_t * mesh_info_new( mesh_info_t * pinfo );
-static mesh_info_t * mesh_info_delete( mesh_info_t * pinfo );
-static void          mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  );
 
 // Model stuff
 static void log_madused( const char *savename );
@@ -154,6 +152,8 @@ char idsz_string[5] = { '\0' };
 
 static int    gamemenu_depth = -1;
 static bool_t game_escape_requested = bfalse;
+
+static bumplist_t bumplist[MAXMESHFAN/16];
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -176,7 +176,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     if ( ( CapList[profile].cancarrytonextmodule || !CapList[profile].isitem ) && exportvalid )
     {
         // TWINK_BO.OBJ
-        sprintf(todirname, "%s", get_file_path(ChrList[owner].name) );
+        sprintf(todirname, "%s", str_encode_path(ChrList[owner].name) );
 
         // Is it a character or an item?
         if ( owner != character )
@@ -252,7 +252,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         fs_copyFile( fromfile, tofile );
 
         // Copy all of the particle files
-        for ( tnc = 0; tnc < MAXPRTPIPPEROBJECT; tnc++ )
+        for ( tnc = 0; tnc < MAX_PIP_PER_PROFILE; tnc++ )
         {
             sprintf( fromfile, "%s" SLASH_STR "part%d.txt", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "part%d.txt", todir,   tnc );
@@ -260,7 +260,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         }
 
         // Copy all of the sound files
-        for ( tnc = 0; tnc < MAXWAVE; tnc++ )
+        for ( tnc = 0; tnc < MAX_WAVE; tnc++ )
         {
             sprintf( fromfile, "%s" SLASH_STR "sound%d.wav", fromdir, tnc );
             sprintf( tofile,   "%s" SLASH_STR "sound%d.wav", todir,   tnc );
@@ -319,16 +319,16 @@ void export_all_players( bool_t require_local )
         // Export the left hand item
         number = SLOT_LEFT;
         item = ChrList[character].holdingwhich[number];
-        if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
+        if ( item != MAX_CHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the right hand item
         number = SLOT_RIGHT;
         item = ChrList[character].holdingwhich[number];
-        if ( item != MAXCHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
+        if ( item != MAX_CHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
         for ( number = 2, item = ChrList[character].nextinpack; 
-              number < 8 && item != MAXCHR; 
+              number < 8 && item != MAX_CHR; 
               item = ChrList[item].nextinpack )
         {
             if ( ChrList[item].isitem )
@@ -439,7 +439,7 @@ void log_madused( const char *savename )
         fprintf( hFileWrite, "%d of %d frames used...\n", md2_loadframe, MAXFRAME );
         cnt = 0;
 
-        while ( cnt < MAXMODEL )
+        while ( cnt < MAX_PROFILE )
         {
             fprintf( hFileWrite, "%3d %32s %s\n", cnt, CapList[cnt].classname, MadList[cnt].name );
             cnt++;
@@ -519,7 +519,7 @@ void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
     if( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if( pchr->inst.imad > MAXMODEL || !MadList[pchr->inst.imad].used ) return;
+    if( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -546,7 +546,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     if( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if( pchr->inst.imad > MAXMODEL || !MadList[pchr->inst.imad].used ) return;
+    if( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -612,7 +612,7 @@ void setup_alliances( const char *modname )
     fileread = fopen( newloadname, "r" );
     if ( fileread )
     {
-        while ( goto_colon_yesno( fileread ) )
+        while ( goto_colon( NULL, fileread, btrue ) )
         {
             fscanf( fileread, "%s", szTemp );
             teama = ( szTemp[0] - 'A' ) % MAXTEAM;
@@ -625,258 +625,6 @@ void setup_alliances( const char *modname )
     }
 }
 
-//--------------------------------------------------------------------------------------------
-void make_twist()
-{
-    // ZZ> This function precomputes surface normals and steep hill acceleration for
-    //     the mesh
-    Uint16 cnt;
-    int x, y;
-    float xslide, yslide;
-
-    cnt = 0;
-
-    while ( cnt < 256 )
-    {
-        y = (cnt >> 4) & 0x0F;
-        x = (cnt >> 0) & 0x0F;
-        y -= 7;  // -7 to 8
-        x -= 7;  // -7 to 8
-
-        mapudtwist[cnt] = 32768 + y * SLOPE;
-        maplrtwist[cnt] = 32768 + x * SLOPE;
-
-        if ( ABS( y ) >= 7 ) y = y << 1;
-        if ( ABS( x ) >= 7 ) x = x << 1;
-
-        xslide = x * SLIDE;
-        yslide = y * SLIDE;
-        if ( xslide < 0 )
-        {
-            xslide += SLIDEFIX;
-            if ( xslide > 0 )
-                xslide = 0;
-        }
-        else
-        {
-            xslide -= SLIDEFIX;
-            if ( xslide < 0 )
-                xslide = 0;
-        }
-        if ( yslide < 0 )
-        {
-            yslide += SLIDEFIX;
-            if ( yslide > 0 )
-                yslide = 0;
-        }
-        else
-        {
-            yslide -= SLIDEFIX;
-            if ( yslide < 0 )
-                yslide = 0;
-        }
-
-        veludtwist[cnt] = -yslide * hillslide;
-        vellrtwist[cnt] =  xslide * hillslide;
-        flattwist[cnt] = bfalse;
-        if ( ABS( veludtwist[cnt] ) + ABS( vellrtwist[cnt] ) < SLIDEFIX*4 )
-        {
-            flattwist[cnt] = btrue;
-        }
-
-        cnt++;
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y )
-{
-    if (NULL == pmesh)
-    {
-//        pmesh = calloc(1, sizeof(mesh_t));
-        pmesh = mesh_new(pmesh);
-    }
-
-    if (NULL != pmesh)
-    {
-        // intitalize the mesh info using the max number of vertices for each tile
-        mesh_info_init( &(pmesh->info), -1, tiles_x, tiles_y );
-
-        // allocate the mesh memory
-        mesh_mem_allocate( &(pmesh->mem), &(pmesh->info) );
-
-        return pmesh;
-    };
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-void mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  )
-{
-    // set the desired number of tiles
-    pinfo->tiles_x = tiles_x;
-    pinfo->tiles_y = tiles_y;
-    pinfo->tiles_count = pinfo->tiles_x * pinfo->tiles_y;
-
-    // set the desired number of fertices
-    if ( numvert < 0 )
-    {
-        numvert = MAXMESHVERTICES * pinfo->tiles_count;
-    };
-    pinfo->vertcount = numvert;
-
-    // set the desired blocknumber of blocks
-    pinfo->blocks_x = (pinfo->tiles_x >> 2);
-    if ( 0 != (pinfo->tiles_x & 0x03) ) pinfo->blocks_x++;
-
-    pinfo->blocks_y = (pinfo->tiles_y >> 2);
-    if ( 0 != (pinfo->tiles_y & 0x03) ) pinfo->blocks_y++;
-
-    pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
-
-    // set the mesh edge info
-    pinfo->edge_x = pinfo->tiles_x << 7;
-    pinfo->edge_y = pinfo->tiles_y << 7;
-};
-
-//--------------------------------------------------------------------------------------------
-mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
-{
-    // ZZ> This function loads the level.mpd file
-    FILE* fileread;
-    char newloadname[256];
-    int itmp, tiles_x, tiles_y;
-    float ftmp;
-    Uint32 fan, cnt;
-    int numvert;
-    Uint8 btemp;
-
-    mesh_info_t * pinfo;
-    mesh_mem_t  * pmem;
-
-    if (NULL == pmesh)
-    {
-//        pmesh = calloc(1, sizeof(mesh_t));
-        pmesh = mesh_new(pmesh);
-    }
-    if (NULL == pmesh) return pmesh;
-
-    pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mem);
-
-    // free any memory that has been allocated
-    mesh_renew(pmesh);
-
-    make_newloadname( modname, "gamedat" SLASH_STR "level.mpd", newloadname );
-    fileread = fopen( newloadname, "rb" );
-    if ( NULL == fileread )
-    {
-        log_warning( "Cannot find level.mpd!!\n" );
-        return NULL;
-    }
-
-    fread( &itmp, 4, 1, fileread );
-    if ( MAPID != ( Uint32 )ENDIAN_INT32( itmp ) )
-    {
-        log_warning( "This is not a valid level.mpd!!\n" );
-        fclose( fileread );
-        return NULL;
-    }
-
-    // Read the number of vertices
-    fread( &itmp, 4, 1, fileread );  numvert   = ( int )ENDIAN_INT32( itmp );
-
-    // grab the tiles in x and y
-    fread( &itmp, 4, 1, fileread );  tiles_x = ( int )ENDIAN_INT32( itmp );
-    if ( pinfo->tiles_x >= MAXMESHTILEY )
-    {
-        mesh_delete( pmesh );
-        log_warning( "Invalid mesh size. Mesh too large in x direction.\n" );
-        fclose( fileread );
-        return NULL;
-    }
-
-    fread( &itmp, 4, 1, fileread );  tiles_y = ( int )ENDIAN_INT32( itmp );
-    if ( pinfo->tiles_y >= MAXMESHTILEY )
-    {
-        mesh_delete( pmesh );
-        log_warning( "Invalid mesh size. Mesh too large in y direction.\n" );
-        fclose( fileread );
-        return NULL;
-    }
-
-    // intitalize the mesh info
-    mesh_info_init( pinfo, numvert, tiles_x, tiles_y );
-
-    // allocate the mesh memory
-    if ( !mesh_mem_allocate( pmem, pinfo ) )
-    {
-        mesh_delete( pmesh );
-        fclose( fileread );
-        log_warning( "Could not allocate memory for the mesh!!\n" );
-        return NULL;
-    }
-
-    // Load fan data
-    for ( fan = 0; fan < pinfo->tiles_count; fan++ )
-    {
-        fread( &itmp, 4, 1, fileread );
-        pmem->tile_list[fan].type = (ENDIAN_INT32( itmp ) >> 24) & 0xFF;
-        pmem->tile_list[fan].fx   = (ENDIAN_INT32( itmp ) >> 16) & 0xFF;
-        pmem->tile_list[fan].img  = (ENDIAN_INT32( itmp )      ) & 0xFFFF;
-    }
-
-    // Load twist data
-    for ( fan = 0; fan < pinfo->tiles_count; fan++ )
-    {
-        fread( &itmp, 1, 1, fileread );
-        pmem->tile_list[fan].twist = ENDIAN_INT32( itmp );
-    }
-
-    // Load vertex x data
-    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
-    {
-        fread( &ftmp, 4, 1, fileread );
-        pmem->vrt_x[cnt] = ENDIAN_FLOAT( ftmp );
-    }
-
-    // Load vertex y data
-    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
-    {
-        fread( &ftmp, 4, 1, fileread );
-        pmem->vrt_y[cnt] = ENDIAN_FLOAT( ftmp );
-    }
-
-    // Load vertex z data
-    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
-    {
-        fread( &ftmp, 4, 1, fileread );
-        pmem->vrt_z[cnt] = ENDIAN_FLOAT( ftmp ) / 16.0f;  // Cartman uses 4 bit fixed point for Z
-    }
-
-    // Load vertex a data
-    for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
-    {
-        fread( &btemp, 1, 1, fileread );
-        pmem->vrt_a[cnt] = btemp;
-        pmem->vrt_l[cnt] = 0;
-    }
-
-    fclose( fileread );
-
-    mesh_make_fanstart( pmesh );
-    mesh_make_vrtstart( pmesh );
-
-    // Fix the tile offsets for the mesh textures
-    for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
-    {
-        pmesh->tileoff_u[cnt] = ( cnt & 7 ) / 8.0f;
-        pmesh->tileoff_v[cnt] = ( cnt >> 3 ) / 8.0f;
-    }
-
-    return pmesh;
-}
 
 //--------------------------------------------------------------------------------------------
 void update_game()
@@ -948,7 +696,7 @@ void update_game()
         make_onwhichfan();
         move_characters();
         move_particles();
-        make_character_matrices();
+        make_character_matrices( frame_all != 0 );
         attach_particles();
         bump_characters();
 
@@ -1218,7 +966,7 @@ int SDL_main( int argc, char **argv )
     init_all_textures();
     init_all_models();
     font_init();
-    mesh_new( &mesh );
+    mesh_new( PMesh );
 
     // Load stuff into memory
     make_textureoffset();
@@ -1253,14 +1001,15 @@ int SDL_main( int argc, char **argv )
 
         if ( menu_is_active )
         {
-            SDL_ShowCursor( SDL_ENABLE );
-            SDL_WM_GrabInput ( SDL_GRAB_ON );
+            // menu settings
+            SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            SDL_ShowCursor( SDL_ENABLE  );
         }
         else
         {
-            // restore mouse defaults
-            SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            // in-game settings
             SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
+            SDL_WM_GrabInput ( SDL_GRAB_ON );
         }
 
         // Clock updates each frame
@@ -1316,14 +1065,15 @@ int SDL_main( int argc, char **argv )
 
                 if ( game_menu_is_active )
                 {
-                    SDL_ShowCursor( SDL_ENABLE );
-                    SDL_WM_GrabInput ( SDL_GRAB_ON );
+                    // menu settings
+                    SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+                    SDL_ShowCursor( SDL_ENABLE  );
                 }
                 else
                 {
-                    // restore mouse defaults
-                    SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+                    // in-game settings
                     SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
+                    SDL_WM_GrabInput ( SDL_GRAB_ON );
                 }
 
                 // This is the control loop
@@ -1513,12 +1263,12 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
                             Uint16 oldtarget )
 {
     //ZF> This is the new improved targeting system for particles. Also includes distance in the Z direction.
-    Uint16 besttarget = MAXCHR, cnt;
+    Uint16 besttarget = MAX_CHR, cnt;
     Uint16 longdist = WIDE;
 
-    for (cnt = 0; cnt < MAXCHR; cnt++)
+    for (cnt = 0; cnt < MAX_CHR; cnt++)
     {
-        if (ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].isitem && ChrList[cnt].attachedto == MAXCHR
+        if (ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].isitem && ChrList[cnt].attachedto == MAX_CHR
                 && !ChrList[cnt].invictus)
         {
             if ((PipList[particletype].onlydamagefriendly && team == ChrList[cnt].team) || (!PipList[particletype].onlydamagefriendly && TeamList[team].hatesteam[ChrList[cnt].team]) )
@@ -1537,6 +1287,7 @@ Uint16 get_particle_target( float xpos, float ypos, float zpos, Uint16 facing,
                                                       + ABS( pow(ChrList[cnt].zpos - zpos, 2)) );
                         if (dist < longdist && dist <= WIDE )
                         {
+                            glouseangle = angle;
                             besttarget = cnt;
                             longdist = dist;
                         }
@@ -1559,11 +1310,11 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     int cnt;
     float longdist2, maxdistance2 = maxdistance * maxdistance;
 
-    if (team == NONE) return MAXCHR;
+    if (team == NONE) return MAX_CHR;
 
-    besttarget = MAXCHR;
+    besttarget = MAX_CHR;
     longdist2 = 0;
-    for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         bool_t is_hated, hates_me;
         bool_t is_friend, is_prey, is_predator, is_mutual;
@@ -1604,7 +1355,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
                 dz = ChrList[cnt].zpos - ChrList[character].zpos;
 
                 dist2 = dx * dx + dy * dy + dz * dz;
-                if ( (MAXCHR == besttarget || dist2 < longdist2) && (maxdistance == 0 || dist2 <= maxdistance2) )
+                if ( (MAX_CHR == besttarget || dist2 < longdist2) && (maxdistance == 0 || dist2 <= maxdistance2) )
                 {
                     besttarget = cnt;
                     longdist2 = dist2;
@@ -1614,7 +1365,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
     }
 
     //Now set the target
-    if (besttarget != MAXCHR)
+    if (besttarget != MAX_CHR)
     {
         ChrList[character].ai.target = besttarget;
     }
@@ -1632,14 +1383,14 @@ void make_onwhichfan( void )
     float level;
 
     // First figure out which fan each character is in
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         Uint8 hide;
         Uint16 icap;
         if ( !ChrList[character].on ) continue;
 
-        ChrList[character].onwhichfan   = mesh_get_tile ( ChrList[character].xpos, ChrList[character].ypos );
-        ChrList[character].onwhichblock = mesh_get_block( ChrList[character].xpos, ChrList[character].ypos );
+        ChrList[character].onwhichfan   = mesh_get_tile ( PMesh, ChrList[character].xpos, ChrList[character].ypos );
+        ChrList[character].onwhichblock = mesh_get_block( PMesh, ChrList[character].xpos, ChrList[character].ypos );
 
         // reject characters that are hidden
         icap = ChrList[character].model;
@@ -1652,15 +1403,15 @@ void make_onwhichfan( void )
     }
 
     // Get levels every update
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         if ( !ChrList[character].on || ChrList[character].inpack ) continue;
 
-        level = get_level( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk ) + RAISE;
+        level = get_level( PMesh, ChrList[character].xpos, ChrList[character].ypos, ChrList[character].waterwalk ) + RAISE;
 
         if ( ChrList[character].alive )
         {
-            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].floor_level + DAMAGERAISE ) && ( MAXCHR == ChrList[character].attachedto ) )
+            if ( ( INVALID_TILE != ChrList[character].onwhichfan ) && ( 0 != ( PMesh->mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_DAMAGE ) ) && ( ChrList[character].zpos <= ChrList[character].floor_level + DAMAGERAISE ) && ( MAX_CHR == ChrList[character].attachedto ) )
             {
                 if ( ( ChrList[character].damagemodifier[damagetiletype]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
                 {
@@ -1681,7 +1432,7 @@ void make_onwhichfan( void )
                     if ( (damagetileparttype != ((Sint16)~0)) && ( frame_wld&damagetilepartand ) == 0 )
                     {
                         spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
-                                            0, MAXMODEL, damagetileparttype, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                                            0, MAX_PROFILE, damagetileparttype, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     }
                 }
                 if ( ChrList[character].reaffirmdamagetype == damagetiletype )
@@ -1692,7 +1443,7 @@ void make_onwhichfan( void )
             }
         }
 
-        if ( ChrList[character].zpos < watersurfacelevel && INVALID_TILE != ChrList[character].onwhichfan && 0 != ( mesh.mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_WATER ) )
+        if ( ChrList[character].zpos < watersurfacelevel && INVALID_TILE != ChrList[character].onwhichfan && 0 != ( PMesh->mem.tile_list[ChrList[character].onwhichfan].fx & MESHFX_WATER ) )
         {
             if ( !ChrList[character].inwater )
             {
@@ -1700,7 +1451,7 @@ void make_onwhichfan( void )
                 if ( INVALID_CHR( ChrList[character].attachedto ) )
                 {
                     spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, watersurfacelevel + RAISE,
-                                        0, MAXMODEL, SPLASH, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                                        0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                 }
 
                 ChrList[character].inwater = btrue;
@@ -1719,7 +1470,7 @@ void make_onwhichfan( void )
                     if ( ( frame_wld&ripand ) == 0 && ChrList[character].zpos < watersurfacelevel && ChrList[character].alive )
                     {
                         spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, watersurfacelevel,
-                                            0, MAXMODEL, RIPPLE, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                                            0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     }
                 }
                 if ( wateriswater && ( frame_wld&7 ) == 0 )
@@ -1748,9 +1499,9 @@ void make_onwhichfan( void )
         Uint16 ichr;
         if ( !PrtList[particle].on ) continue;
 
-        PrtList[particle].onwhichfan   = mesh_get_tile ( PrtList[particle].xpos, PrtList[particle].ypos );
-        PrtList[particle].onwhichblock = mesh_get_block( PrtList[particle].xpos, PrtList[particle].ypos );
-        PrtList[particle].floor_level  = get_level( PrtList[character].xpos, PrtList[character].ypos, bfalse );
+        PrtList[particle].onwhichfan   = mesh_get_tile ( PMesh, PrtList[particle].xpos, PrtList[particle].ypos );
+        PrtList[particle].onwhichblock = mesh_get_block( PMesh, PrtList[particle].xpos, PrtList[particle].ypos );
+        PrtList[particle].floor_level  = get_level( PMesh, PrtList[character].xpos, PrtList[character].ypos, bfalse );
 
         // reject particles that are hidden
         PrtList[particle].is_hidden = bfalse;
@@ -1816,7 +1567,7 @@ void do_enchant_spawn()
     int cnt, tnc;
     Uint16 facing, eve, character;
 
-    for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
+    for ( cnt = 0; cnt < MAX_ENC; cnt++ )
     {
         if ( !EncList[cnt].on ) continue;
 
@@ -1833,7 +1584,7 @@ void do_enchant_spawn()
                 {
                     spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
                                         facing, eve, EveList[eve].contspawnpip,
-                                        MAXCHR, GRIP_LAST, ChrList[EncList[cnt].owner].team, EncList[cnt].owner, tnc, MAXCHR );
+                                        MAX_CHR, GRIP_LAST, ChrList[EncList[cnt].owner].team, EncList[cnt].owner, tnc, MAX_CHR );
                     facing += EveList[eve].contspawnfacingadd;
                 }
             }
@@ -1870,17 +1621,17 @@ void update_pits()
             // Kill or teleport any characters that fell in a pit...
             cnt = 0;
 
-            while ( cnt < MAXCHR )
+            while ( cnt < MAX_CHR )
             {
                 if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].inpack )
                 {
-                    if ( !ChrList[cnt].invictus && ChrList[cnt].zpos < PITDEPTH && ChrList[cnt].attachedto == MAXCHR )
+                    if ( !ChrList[cnt].invictus && ChrList[cnt].zpos < PITDEPTH && ChrList[cnt].attachedto == MAX_CHR )
                     {
                         //Do we kill it?
                         if (pitskill)
                         {
                             // Got one!
-                            kill_character( cnt, MAXCHR );
+                            kill_character( cnt, MAX_CHR );
                             ChrList[cnt].xvel = 0;
                             ChrList[cnt].yvel = 0;
 
@@ -1906,7 +1657,7 @@ void update_pits()
                                 ChrList[cnt].zpos = ChrList[cnt].oldz;
 
                                 // Kill it instead
-                                kill_character( cnt, MAXCHR );
+                                kill_character( cnt, MAX_CHR );
                                 ChrList[cnt].xvel = 0;
                                 ChrList[cnt].yvel = 0;
                             }
@@ -1989,9 +1740,9 @@ void do_weather_spawn()
                     x = ChrList[cnt].xpos;
                     y = ChrList[cnt].ypos;
                     z = ChrList[cnt].zpos;
-                    particle = spawn_one_particle( x, y, z, 0, MAXMODEL, WEATHER4, MAXCHR, GRIP_LAST, NULLTEAM, MAXCHR, 0, MAXCHR );
+                    particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     
-					if(particle != TOTALMAXPRT)
+					if(particle != TOTAL_MAX_PRT)
 					{
 						if(__prthitawall( particle ) ) free_one_particle( particle );
 						else if ( weatheroverwater )
@@ -2053,7 +1804,7 @@ void set_one_player_latch( Uint16 player )
                     }
 
                     scale = scale / mous.sense;
-                    if ( ChrList[character].attachedto != MAXCHR )
+                    if ( ChrList[character].attachedto != MAX_CHR )
                     {
                         // Mounted
                         inputx = mous.x * ChrList[ChrList[character].attachedto].maxaccel * scale;
@@ -2122,7 +1873,7 @@ void set_one_player_latch( Uint16 player )
                 if ( dist > 0 )
                 {
                     scale = 1.0f / dist;
-                    if ( ChrList[character].attachedto != MAXCHR )
+                    if ( ChrList[character].attachedto != MAX_CHR )
                     {
                         // Mounted
                         inputx = joy[0].x * ChrList[ChrList[character].attachedto].maxaccel * scale;
@@ -2181,7 +1932,7 @@ void set_one_player_latch( Uint16 player )
                 if ( dist > 0 )
                 {
                     scale = 1.0f / dist;
-                    if ( ChrList[character].attachedto != MAXCHR )
+                    if ( ChrList[character].attachedto != MAX_CHR )
                     {
                         // Mounted
                         inputx = joy[1].x * ChrList[ChrList[character].attachedto].maxaccel * scale;
@@ -2229,7 +1980,7 @@ void set_one_player_latch( Uint16 player )
         if ( ( device & INPUT_BITS_KEYBOARD ) && keyb.on )
         {
             // Movement
-            if ( ChrList[character].attachedto != MAXCHR )
+            if ( ChrList[character].attachedto != MAX_CHR )
             {
                 // Mounted
                 inputx = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_RIGHT ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_LEFT ) ) * ChrList[ChrList[character].attachedto].maxaccel;
@@ -2293,7 +2044,7 @@ void prime_names()
     chop.carat = 0;
     cnt = 0;
 
-    while ( cnt < MAXMODEL )
+    while ( cnt < MAX_PROFILE )
     {
         tnc = 0;
 
@@ -2332,10 +2083,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAX_CHR )  { ChrList[PlaList[0].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAX_CHR )  { ChrList[PlaList[1].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAX_CHR )  { ChrList[PlaList[2].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAX_CHR )  { ChrList[PlaList[3].index].experience++; stat_check_delay = 500; }
 
         statdelay = 0;
     }
@@ -2343,10 +2094,10 @@ void check_stats()
     // !!!BAD!!!  LIFE CHEAT
     if ( gDevMode && SDLKEYDOWN( SDLK_z ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAXCHR )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAXCHR )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAXCHR )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAXCHR )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && PlaList[0].index < MAX_CHR )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && PlaList[1].index < MAX_CHR )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && PlaList[2].index < MAX_CHR )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && PlaList[3].index < MAX_CHR )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
     }
 
     // Display armor stats?
@@ -2532,14 +2283,14 @@ void show_full_status( Uint16 statindex )
             character = statlist[statindex];
 
             // Enchanted?
-            while ( i != MAXENCHANT )
+            while ( i != MAX_ENC )
             {
                 // Found a active enchantment that is not a skill of the character
                 if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
                 i++;
             }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
             else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
 
             debug_message( text );
@@ -2588,14 +2339,14 @@ void show_magic_status( Uint16 statindex )
             character = statlist[statindex];
 
             // Enchanted?
-            while ( i != MAXENCHANT )
+            while ( i != MAX_ENC )
             {
                 // Found a active enchantment that is not a skill of the character
                 if ( EncList[i].on && EncList[i].spawner != character && EncList[i].target == character ) break;
 
                 i++;
             }
-            if ( i != MAXENCHANT ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
+            if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
             else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
 
             debug_message( text );
@@ -2641,17 +2392,17 @@ void bump_characters( void )
     Uint16 facing;
 
     // Clear the lists
-    for ( fanblock = 0; fanblock < mesh.info.blocks_count; fanblock++ )
+    for ( fanblock = 0; fanblock < PMesh->info.blocks_count; fanblock++ )
     {
-        bumplist[fanblock].chr    = MAXCHR;
+        bumplist[fanblock].chr    = MAX_CHR;
         bumplist[fanblock].chrnum = 0;
 
-        bumplist[fanblock].prt    = TOTALMAXPRT;
+        bumplist[fanblock].prt    = TOTAL_MAX_PRT;
         bumplist[fanblock].prtnum = 0;
     }
 
     // Fill 'em back up
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         chr_t * pchr;
 
@@ -2660,12 +2411,12 @@ void bump_characters( void )
 
         // reset the holding weight each update
         pchr->holdingweight   = 0;
-        pchr->onwhichplatform = MAXCHR;
+        pchr->onwhichplatform = MAX_CHR;
         pchr->phys_level = pchr->floor_level;
 
         // reset the fan and block position
-        pchr->onwhichfan   = mesh_get_tile ( pchr->xpos, pchr->ypos );
-        pchr->onwhichblock = mesh_get_block( pchr->xpos, pchr->ypos );
+        pchr->onwhichfan   = mesh_get_tile ( PMesh, pchr->xpos, pchr->ypos );
+        pchr->onwhichblock = mesh_get_block( PMesh, pchr->xpos, pchr->ypos );
 
         // reject characters that are in packs, or are marked as non-colliding
         if ( pchr->inpack ) continue;
@@ -2694,8 +2445,8 @@ void bump_characters( void )
         if ( pprt->is_hidden ) continue;
 
         // reset the fan and block position
-        pprt->onwhichfan   = mesh_get_tile ( pprt->xpos, pprt->ypos );
-        pprt->onwhichblock = mesh_get_block( pprt->xpos, pprt->ypos );
+        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->xpos, pprt->ypos );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->xpos, pprt->ypos );
 
         if ( INVALID_BLOCK != pprt->onwhichblock )
         {
@@ -2707,7 +2458,7 @@ void bump_characters( void )
     }
 
     // blank the accumulators
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         ChrList[character].phys_pos_x = 0.0f;
         ChrList[character].phys_pos_y = 0.0f;
@@ -2719,7 +2470,7 @@ void bump_characters( void )
 
 
     // scan all possible object-object interactions, looking for platform attachments
-    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
+    for ( ichr_a = 0; ichr_a < MAX_CHR; ichr_a++ )
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -2756,11 +2507,11 @@ void bump_characters( void )
         za = pchr_a->zpos;
 
         // determine the size of this object in blocks
-        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
-        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, PMesh->info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, PMesh->info.edge_x);
 
-        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
-        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, PMesh->info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, PMesh->info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -2773,14 +2524,14 @@ void bump_characters( void )
             for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
             {
                 // Allow raw access here because we were careful :)
-                fanblock = mesh_get_block_int(&mesh, ix_block, iy_block);
+                fanblock = mesh_get_block_int(PMesh, ix_block, iy_block);
                 if ( INVALID_BLOCK != fanblock )
                 {
                     chrinblock = bumplist[fanblock].chrnum;
                     prtinblock = bumplist[fanblock].prtnum;
 
                     for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
-                        tnc < chrinblock && ichr_b != MAXCHR;
+                        tnc < chrinblock && ichr_b != MAX_CHR;
                         tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
                         bool_t platform_a, platform_b;
@@ -2904,7 +2655,7 @@ void bump_characters( void )
 
 
     // scan all possible object-object interactions, looking for possible mounts
-    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
+    for ( ichr_a = 0; ichr_a < MAX_CHR; ichr_a++ )
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -2938,11 +2689,11 @@ void bump_characters( void )
         za = pchr_a->zpos;
 
         // determine the size of this object in blocks
-        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
-        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, PMesh->info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, PMesh->info.edge_x);
 
-        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
-        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, PMesh->info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, PMesh->info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -2955,20 +2706,20 @@ void bump_characters( void )
             for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
             {
                 // Allow raw access here because we were careful :)
-                fanblock = mesh_get_block_int(&mesh, ix_block, iy_block);
+                fanblock = mesh_get_block_int(PMesh, ix_block, iy_block);
                 if ( INVALID_BLOCK != fanblock )
                 {
                     chrinblock = bumplist[fanblock].chrnum;
                     prtinblock = bumplist[fanblock].prtnum;
 
                     for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
-                        tnc < chrinblock && ichr_b != MAXCHR;
+                        tnc < chrinblock && ichr_b != MAX_CHR;
                         tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
                         bool_t mount_a, mount_b;
                         float  xb, yb, zb;
                         float  dx, dy, dist;
-                        float  depth_z, lerp_z, radius, radius_xy;
+                        float  depth_z;
 
                         bool_t collide_x  = bfalse;
                         bool_t collide_y  = bfalse;
@@ -2976,6 +2727,8 @@ void bump_characters( void )
 
                         chr_t * pchr_b;
                         cap_t * pcap_b;
+
+                        bool_t mounted;
 
                         // Don't collide with self, and only do each collision pair once
                         if ( ichr_b <= ichr_a ) continue;
@@ -2995,45 +2748,112 @@ void bump_characters( void )
                         zb = pchr_b->zpos;
 
                         // can either of these objects mount the other?
-                        mount_a = !pchr_b->isitem && pchr_a->ismount && pcap_a->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_a->holdingwhich[SLOT_LEFT]);
-                        mount_b = !pchr_a->isitem && pchr_b->ismount && pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
+                        mount_a = pchr_a->ismount && pchr_a->alive &&
+                                  pcap_a->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_a->holdingwhich[SLOT_LEFT]) && 
+                                  !pchr_b->isitem && pchr_b->alive && 0 == pchr_b->flyheight && 
+                                  INVALID_CHR(pchr_b->attachedto) && MadList[pchr_b->inst.imad].actionvalid[ACTION_MI];
+
+                        mount_b = pchr_b->ismount && pchr_b->alive &&
+                                  pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]) && 
+                                  !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
+                                  INVALID_CHR(pchr_a->attachedto) && MadList[pchr_a->inst.imad].actionvalid[ACTION_MI];
 
                         if( !mount_a && !mount_b ) continue;
 
-                        dx = ABS( xa - xb );
-                        dy = ABS( ya - yb );
-                        dist = dx + dy;
-                        depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
-
-                        if( depth_z > PLATTOLERANCE || depth_z < -PLATTOLERANCE ) continue;
-
-                        // estimate the radius of interaction based on the z overlap
-                        lerp_z  = depth_z / PLATTOLERANCE;
-                        lerp_z  = CLIP( lerp_z, 0, 1 );
-
-                        radius    = MIN(pchr_a->bumpsize,     pchr_b->bumpsize  ); /* * (1.0f - lerp_z) + (pchr_a->bumpsize    + pchr_b->bumpsize   ) * lerp_z; */
-                        radius_xy = MIN(pchr_a->bumpsizebig, pchr_b->bumpsizebig); /* * (1.0f - lerp_z) + (pchr_a->bumpsizebig + pchr_b->bumpsizebig) * lerp_z; */
-
-                        // estimate the collisions this frame
-                        collide_x  = (dx <= pchr_a->bumpsize) || (dx <= pchr_b->bumpsize);
-                        collide_y  = (dy <= pchr_a->bumpsize) || (dy <= pchr_b->bumpsize);
-                        collide_xy = (dist <= pchr_a->bumpsizebig) || (dist <= pchr_b->bumpsizebig);
-
-                        if( collide_x && collide_y && collide_xy )
+                        mounted = bfalse;
+                        if( !mounted && mount_b && (pchr_a->zvel - pchr_b->zvel) < 0 )
                         {
-                            if( pchr_a->zvel - pchr_b->zvel < 0 )
+                            // A falling on B?
+                            GLvector4 point[1], nupoint[1];
+
+                            // determine the actual location of the mount point
                             {
-                                // A falling on B
-                                if( mount_b && MadList[pchr_a->inst.imad].actionvalid[ACTION_MI] && pchr_a->alive && pchr_b->alive && pchr_b->ismount && !pchr_a->isitem && pchr_b->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_a->attachedto == MAXCHR && pchr_a->jumptime == 0 && pchr_a->flyheight == 0 )
+                                int frame, lastframe, lip, vertex;
+                                float flip;
+                                chr_instance_t * pinst = &(pchr_b->inst);
+
+                                frame = pinst->frame;
+                                lastframe = pinst->lastframe;
+                                lip = pinst->lip >> 6;
+                                flip = lip / 4.0f;
+
+                                vertex = MadList[pinst->imad].md2.vertices - GRIP_LEFT;
+
+                                // Calculate grip point locations with linear interpolation and other silly things
+                                point[0].x = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
+                                point[0].y = Md2FrameList[lastframe].vrty[vertex] + (Md2FrameList[frame].vrty[vertex] - Md2FrameList[lastframe].vrty[vertex]) * flip;
+                                point[0].z = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
+                                point[0].w = 1.0f;
+
+                                // Do the transform
+                                TransformVertices( &(pinst->matrix), point, nupoint, 1 );
+                            }
+
+                            dx = ABS( xa - nupoint[0].x );
+                            dy = ABS( ya - nupoint[0].y );
+                            dist = dx + dy;
+                            depth_z = za - nupoint[0].z;
+
+                            if( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
+                            {
+                                // estimate the collisions this frame
+                                collide_x  = (dx <= pchr_a->bumpsize * 2);
+                                collide_y  = (dy <= pchr_a->bumpsize * 2);
+                                collide_xy = (dist <= pchr_a->bumpsizebig * 2);
+
+                                if( collide_x && collide_y && collide_xy )
                                 {
                                     attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
+                                    mounted = VALID_CHR( pchr_a->attachedto );
                                 }
                             }
-                            else
+                        }
+
+                        if( !mounted && mount_a && (pchr_b->zvel - pchr_a->zvel) < 0 )
+                        {
+                            // B falling on A?
+
+                            GLvector4 point[1], nupoint[1];
+
+                            // determine the actual location of the mount point
                             {
-                                if( mount_a && MadList[pchr_b->inst.imad].actionvalid[ACTION_MI] && pchr_a->alive && pchr_b->alive && pchr_a->ismount && !pchr_b->isitem && pchr_a->holdingwhich[SLOT_LEFT] == MAXCHR && pchr_b->attachedto == MAXCHR && pchr_b->jumptime == 0 && pchr_b->flyheight == 0 )
+                                int frame, lastframe, lip, vertex;
+                                float flip;
+                                chr_instance_t * pinst = &(pchr_a->inst);
+
+                                frame = pinst->frame;
+                                lastframe = pinst->lastframe;
+                                lip = pinst->lip >> 6;
+                                flip = lip / 4.0f;
+
+                                vertex = MadList[pinst->imad].md2.vertices - GRIP_LEFT;
+
+                                // Calculate grip point locations with linear interpolation and other silly things
+                                point[0].x = Md2FrameList[lastframe].vrtx[vertex] + (Md2FrameList[frame].vrtx[vertex] - Md2FrameList[lastframe].vrtx[vertex]) * flip;
+                                point[0].y = Md2FrameList[lastframe].vrty[vertex] + (Md2FrameList[frame].vrty[vertex] - Md2FrameList[lastframe].vrty[vertex]) * flip;
+                                point[0].z = Md2FrameList[lastframe].vrtz[vertex] + (Md2FrameList[frame].vrtz[vertex] - Md2FrameList[lastframe].vrtz[vertex]) * flip;
+                                point[0].w = 1.0f;
+
+                                // Do the transform
+                                TransformVertices( &(pinst->matrix), point, nupoint, 1 );
+                            }
+
+                            dx = ABS( xb - nupoint[0].x );
+                            dy = ABS( yb - nupoint[0].y );
+                            dist = dx + dy;
+                            depth_z = zb - nupoint[0].z;
+
+                            if( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
+                            {
+                                // estimate the collisions this frame
+                                collide_x  = (dx <= pchr_b->bumpsize * 2);
+                                collide_y  = (dy <= pchr_b->bumpsize * 2);
+                                collide_xy = (dist <= pchr_b->bumpsizebig * 2);
+
+                                if( collide_x && collide_y && collide_xy )
                                 {
                                     attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
+                                    mounted = VALID_CHR( pchr_a->attachedto );
                                 }
                             }
                         }
@@ -3046,7 +2866,7 @@ void bump_characters( void )
 
 
     // handle all the character-character and character-particle interactions
-    for ( ichr_a = 0; ichr_a < MAXCHR; ichr_a++ )
+    for ( ichr_a = 0; ichr_a < MAX_CHR; ichr_a++ )
     {
         int ixmax, ixmin;
         int iymax, iymin;
@@ -3085,11 +2905,11 @@ void bump_characters( void )
         interaction_strength *= pchr_a->inst.alpha * INV_FF;
 
         // determine the size of this object in blocks
-        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, mesh.info.edge_x);
-        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, mesh.info.edge_x);
+        ixmin = pchr_a->xpos - pchr_a->bumpsize; ixmin = CLIP(ixmin, 0, PMesh->info.edge_x);
+        ixmax = pchr_a->xpos + pchr_a->bumpsize; ixmax = CLIP(ixmax, 0, PMesh->info.edge_x);
 
-        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, mesh.info.edge_y);
-        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, mesh.info.edge_y);
+        iymin = pchr_a->ypos - pchr_a->bumpsize; iymin = CLIP(iymin, 0, PMesh->info.edge_y);
+        iymax = pchr_a->ypos + pchr_a->bumpsize; iymax = CLIP(iymax, 0, PMesh->info.edge_y);
 
         ixmax_block = ixmax >> 9; ixmax_block = CLIP( ixmax_block, 0, MAXMESHBLOCKY );
         ixmin_block = ixmin >> 9; ixmin_block = CLIP( ixmin_block, 0, MAXMESHBLOCKY );
@@ -3103,7 +2923,7 @@ void bump_characters( void )
             for (iy_block = iymin_block; iy_block <= iymax_block; iy_block++)
             {
                 // Allow raw access here because we were careful :)
-                fanblock = mesh_get_block_int(&mesh, ix_block, iy_block);
+                fanblock = mesh_get_block_int(PMesh, ix_block, iy_block);
                 if ( INVALID_BLOCK != fanblock )
                 {
                     chrinblock = bumplist[fanblock].chrnum;
@@ -3111,7 +2931,7 @@ void bump_characters( void )
 
                     // handle all the character-character interactions
                     for ( tnc = 0, ichr_b = bumplist[fanblock].chr;
-                            tnc < chrinblock && ichr_b != MAXCHR;
+                            tnc < chrinblock && ichr_b != MAX_CHR;
                             tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
                         float xb, yb, zb, was_xb, was_yb, was_zb;
@@ -3539,7 +3359,7 @@ void bump_characters( void )
                                     // Check for missile treatment
                                     if ( ( pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||
                                             pchr_a->missiletreatment == MISNORMAL ||
-                                            pprt_b->attachedtocharacter != MAXCHR ||
+                                            pprt_b->attachedtocharacter != MAX_CHR ||
                                             ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
                                             ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
                                     {
@@ -3577,7 +3397,7 @@ void bump_characters( void )
 
                                                     // Check all enchants to see if they are removed
                                                     enchant = pchr_a->firstenchant;
-                                                    while ( enchant != MAXENCHANT )
+                                                    while ( enchant != MAX_ENC )
                                                     {
                                                         eveidremove = EveList[EncList[enchant].eve].removedbyidsz;
                                                         temp = EncList[enchant].nextenchant;
@@ -3638,7 +3458,7 @@ void bump_characters( void )
                                                     }
 
                                                     // Notify the attacker of a scored hit
-                                                    if ( pprt_b->chr != MAXCHR )
+                                                    if ( pprt_b->chr != MAX_CHR )
                                                     {
                                                         ChrList[pprt_b->chr].ai.alert |= ALERTIF_SCOREDAHIT;
                                                         ChrList[pprt_b->chr].ai.hitlast = ichr_a;
@@ -3668,7 +3488,7 @@ void bump_characters( void )
                                                         if ( pchr_a->ismount )
                                                         {
                                                             // Let mounts collect money for their riders
-                                                            if ( pchr_a->holdingwhich[SLOT_LEFT] != MAXCHR )
+                                                            if ( pchr_a->holdingwhich[SLOT_LEFT] != MAX_CHR )
                                                             {
                                                                 ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money += ppip_b->bumpmoney;
                                                                 if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money > MAXMONEY ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = MAXMONEY;
@@ -3762,7 +3582,7 @@ void bump_characters( void )
     }
 
     // accumulate the accumulators
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         float tmpx, tmpy, tmpz;
         float bump_str = 1.0f - (float)ChrList[character].phys_dismount_timer / PHYS_DISMOUNT_TIME;
@@ -3835,7 +3655,7 @@ void stat_return()
     // Do reload time
     cnt = 0;
 
-    while ( cnt < MAXCHR )
+    while ( cnt < MAX_CHR )
     {
         if ( ChrList[cnt].reloadtime > 0 )
         {
@@ -3852,7 +3672,7 @@ void stat_return()
         clock_stat -= ONESECOND;
 
         // Do all the characters
-        for ( cnt = 0; cnt < MAXCHR; cnt++ )
+        for ( cnt = 0; cnt < MAX_CHR; cnt++ )
         {
             if ( !ChrList[cnt].on ) continue;
 
@@ -3879,7 +3699,7 @@ void stat_return()
         }
 
         // Run through all the enchants as well
-        for ( cnt = 0; cnt < MAXENCHANT; cnt++ )
+        for ( cnt = 0; cnt < MAX_ENC; cnt++ )
         {
             if ( !EncList[cnt].on ) continue;
 
@@ -3964,13 +3784,13 @@ void tilt_characters_to_terrain()
     int cnt;
     Uint8 twist;
 
-    for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         if ( !ChrList[cnt].on ) continue;
 
         if ( ChrList[cnt].stickybutt && INVALID_TILE != ChrList[cnt].onwhichfan )
         {
-            twist = mesh.mem.tile_list[ChrList[cnt].onwhichfan].twist;
+            twist = PMesh->mem.tile_list[ChrList[cnt].onwhichfan].twist;
             ChrList[cnt].turnmaplr = maplrtwist[twist];
             ChrList[cnt].turnmapud = mapudtwist[twist];
         }
@@ -4002,7 +3822,7 @@ int load_all_objects( const char *modname )
     overrideslots = btrue;
 
     // Clear the import slots...
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         CapList[cnt].importslot = 10000;
     }
@@ -4061,7 +3881,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     if ( NULL == fileread || NULL == pinfo ) return bfalse;
 
     // check for another entry
-    if ( !goto_colon_yesno( fileread ) ) return bfalse;
+    if ( !goto_colon( NULL, fileread, btrue ) ) return bfalse;
 
     fscanf( fileread, "%s", pinfo->spawn_name );
     for ( cnt = 0; cnt < sizeof(pinfo->spawn_name); cnt++ )
@@ -4112,7 +3932,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     // trap bad pointers
     if ( NULL == pinfo ) return bfalse;
 
-    if ( ichr >= MAXCHR || !ChrList[ichr].on ) return bfalse;
+    if ( ichr >= MAX_CHR || !ChrList[ichr].on ) return bfalse;
 
     ChrList[ichr].money += pinfo->money;
     if ( ChrList[ichr].money > MAXMONEY )  ChrList[ichr].money = MAXMONEY;
@@ -4130,7 +3950,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
         ChrList[ichr].attachedto = pinfo->parent;  // Make grab work
         let_character_think( ichr );  // Empty the grabbed messages
 
-        ChrList[ichr].attachedto = MAXCHR;  // Fix grab
+        ChrList[ichr].attachedto = MAX_CHR;  // Fix grab
 
     }
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
@@ -4174,7 +3994,7 @@ void setup_characters( const char *modname )
     fileread = fopen( newloadname, "r" );
 
     numpla = 0;
-    info.parent = MAXCHR;
+    info.parent = MAX_CHR;
     if ( NULL == fileread )
     {
         log_error( "Cannot read file: %s", newloadname );
@@ -4188,9 +4008,9 @@ void setup_characters( const char *modname )
             // Spawn the character
             if ( info.team < numplayer || !rtscontrol || info.team >= MAXPLAYER )
             {
-                new_object = spawn_one_character( info.x, info.y, info.z, info.slot, info.team, info.skin, info.facing, info.pname, MAXCHR );
+                new_object = spawn_one_character( info.x, info.y, info.z, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
-                if ( MAXCHR != new_object )
+                if ( MAX_CHR != new_object )
                 {
                     // determine the attachment
                     if ( info.attach == ATTACH_NONE )
@@ -4331,7 +4151,6 @@ bool_t load_module( const char *smallname )
     prime_names();
 
     load_one_icon( "basicdat" SLASH_STR "nullicon" );
-    make_twist();
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
     // generate the module directory
@@ -4350,7 +4169,7 @@ bool_t load_module( const char *smallname )
         load_all_global_objects(skin);
     }
 
-    if ( NULL == mesh_load( modname, &mesh ) )
+    if ( NULL == mesh_load( modname, PMesh ) )
     {
         // do not cause the program to fail, in case we are using a script function to load a module
         // just return a failure value and log a warning message for debugging purposes
@@ -4436,8 +4255,8 @@ void reaffirm_attached_particles( Uint16 character )
 
     while ( numberattached < CapList[ChrList[character].model].attachedprtamount )
     {
-        particle = spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, ChrList[character].model, CapList[ChrList[character].model].attachedprttype, character, GRIP_LAST + numberattached, ChrList[character].team, character, numberattached, MAXCHR );
-        if ( particle != TOTALMAXPRT )
+        particle = spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, 0, ChrList[character].model, CapList[ChrList[character].model].attachedprttype, character, GRIP_LAST + numberattached, ChrList[character].team, character, numberattached, MAX_CHR );
+        if ( particle != TOTAL_MAX_PRT )
         {
             attach_particle_to_character( particle, character, PrtList[particle].grip );
         }
@@ -4492,7 +4311,7 @@ bool_t game_init_module( const char * modname, Uint32 seed )
     camera_reset(&gCamera);
     reset_timers();
     figure_out_what_to_draw();
-    make_character_matrices();
+    make_character_matrices( frame_all != 0 );
     attach_particles();
 
     net_initialize();
@@ -4544,7 +4363,7 @@ bool_t game_update_imports()
         // find the saved copy of the players that are in memory right now
         for ( tnc = 0; tnc < loadplayer_count; tnc++ )
         {
-            if ( 0 == strcmp( loadplayer[tnc].dir, get_file_path(ChrList[character].name) ) )
+            if ( 0 == strcmp( loadplayer[tnc].dir, str_encode_path(ChrList[character].name) ) )
             {
                 break;
             }
@@ -4552,7 +4371,7 @@ bool_t game_update_imports()
 
         if ( tnc == loadplayer_count )
         {
-            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, get_file_path(ChrList[character].name) ) ;
+            log_warning( "game_update_imports() - cannot find exported file for \"%s\" (\"%s\") \n", ChrList[character].name, str_encode_path(ChrList[character].name) ) ;
             continue;
         }
 
@@ -4594,7 +4413,7 @@ void release_module()
 
 	// Disable EMP
     local_senseenemiesID = IDSZ_NONE;
-    local_senseenemies = MAXCHR;
+    local_senseenemies = MAX_CHR;
 
     release_all_icons();
     release_all_titleimages();
@@ -4604,7 +4423,7 @@ void release_module()
     release_all_models();
     release_all_ai_scripts();
 
-    mesh_delete( &mesh );
+    mesh_delete( PMesh );
 
     // Close and then reopen SDL_mixer. it's easier than manually unloading each sound ;)
     sound_restart();
@@ -4627,7 +4446,7 @@ void attach_particles()
 
     while ( cnt < maxparticles )
     {
-        if ( PrtList[cnt].on && PrtList[cnt].attachedtocharacter != MAXCHR )
+        if ( PrtList[cnt].on && PrtList[cnt].attachedtocharacter != MAX_CHR )
         {
             attach_particle_to_character( cnt, PrtList[cnt].attachedtocharacter, PrtList[cnt].grip );
 
@@ -4693,7 +4512,7 @@ void let_all_characters_think()
     last_frame = frame_wld;
 
     numblip = 0;
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         bool_t is_crushed, is_cleanedup, can_think;
 
@@ -4723,122 +4542,6 @@ void let_all_characters_think()
     }
 }
 
-//--------------------------------------------------------------------------------------------
-bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
-{
-
-    if ( NULL == pmem || NULL == pinfo || 0 == pinfo->vertcount ) return bfalse;
-
-    // free any memory already allocated
-    if ( !mesh_mem_free(pmem) ) return bfalse;
-
-    if ( pinfo->vertcount > MESH_MAXTOTALVERTRICES )
-    {
-        log_warning( "Mesh requires too much memory ( %d requested, but max is %d ). \n", pinfo->vertcount, MESH_MAXTOTALVERTRICES );
-        return bfalse;
-    }
-
-    // allocate new memory
-    pmem->vrt_x = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
-    if ( pmem->vrt_x == NULL )
-    {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
-    }
-
-    pmem->vrt_y = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
-    if ( pmem->vrt_y == NULL )
-    {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
-    }
-
-    pmem->vrt_z = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
-    if ( pmem->vrt_z == NULL )
-    {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
-    }
-
-    pmem->vrt_a = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
-    if ( pmem->vrt_a == NULL )
-    {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
-    }
-
-    pmem->vrt_l = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
-    if ( pmem->vrt_l == NULL )
-    {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
-    }
-
-    // set the vertex count
-    pmem->vertcount = pinfo->vertcount;
-
-    pmem->tile_list  = (tile_info_t *) calloc( pinfo->tiles_count, sizeof(tile_info_t) );
-
-    pmem->blockstart = (Uint32*) calloc( pinfo->blocks_y, sizeof(Uint32) );
-    pmem->tilestart  = (Uint32*) calloc( pinfo->tiles_y, sizeof(Uint32) );
-
-    return btrue;
-}
-
-//--------------------------------------------------------------------------------------------
-bool_t mesh_mem_free( mesh_mem_t * pmem )
-{
-    if ( NULL == pmem ) return bfalse;
-
-    // free the memory
-    if ( pmem->vrt_x != NULL )
-    {
-        free( pmem->vrt_x );
-        pmem->vrt_x = NULL;
-    }
-
-    if ( pmem->vrt_y != NULL )
-    {
-        free( pmem->vrt_y );
-        pmem->vrt_y = NULL;
-    }
-
-    if ( pmem->vrt_z != NULL )
-    {
-        free( pmem->vrt_z );
-        pmem->vrt_z = NULL;
-    }
-
-    if ( pmem->vrt_a != NULL )
-    {
-        free( pmem->vrt_a );
-        pmem->vrt_a = NULL;
-    }
-
-    if ( pmem->vrt_l != NULL )
-    {
-        free( pmem->vrt_l );
-        pmem->vrt_l = NULL;
-    }
-
-    if ( NULL != pmem->tile_list )
-    {
-        free(pmem->tile_list);
-        pmem->tile_list = NULL;
-    }
-
-    if ( NULL != pmem->blockstart )
-    {
-        free(pmem->blockstart);
-        pmem->blockstart = NULL;
-    }
-
-    if ( NULL != pmem->tilestart )
-    {
-        free(pmem->tilestart);
-        pmem->tilestart = NULL;
-    }
-
-    // reset some values to safe values
-    pmem->vertcount = 0;
-
-    return btrue;
-}
 
 //struct s_line_of_sight_info
 //{
@@ -4922,11 +4625,11 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
 //        {
 //            // collide the ray with the mesh
 //
-//            if( 0!= (mesh.mem.tile_list[fan].fx & plos->stopped_by) )
+//            if( 0!= (PMesh->mem.tile_list[fan].fx & plos->stopped_by) )
 //            {
 //                plos->collide_x  = xDraw;
 //                plos->collide_y  = yDraw;
-//                plos->collide_fx = mesh.mem.tile_list[fan].fx & plos->stopped_by;
+//                plos->collide_fx = PMesh->mem.tile_list[fan].fx & plos->stopped_by;
 //
 //                return btrue;
 //            }
@@ -4953,183 +4656,6 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
 //    }
 //}
 
-mesh_info_t * mesh_info_new( mesh_info_t * pinfo )
-{
-    if (NULL == pinfo) return pinfo;
-
-    memset( pinfo, 0, sizeof(mesh_info_t) );
-
-    return pinfo;
-}
-
-mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem )
-{
-    if (NULL == pmem) return pmem;
-
-    memset( pmem, 0, sizeof(mesh_mem_t) );
-
-    return pmem;
-}
-
-//--------------------------------------------------------------------------------------------
-void mesh_make_fanstart( mesh_t * pmesh )
-{
-    // ZZ> This function builds a look up table to ease calculating the
-    //     fan number given an x,y pair
-    int cnt;
-
-    mesh_info_t * pinfo;
-    mesh_mem_t  * pmem;
-
-    if (NULL == pmesh) return;
-
-    pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mem);
-
-    // do the tilestart
-    for ( cnt = 0; cnt < pinfo->tiles_y; cnt++ )
-    {
-        pmem->tilestart[cnt] = pinfo->tiles_x * cnt;
-    }
-
-    // calculate some of the block info
-    if ( pinfo->blocks_x >= MAXMESHBLOCKY )
-    {
-        log_warning( "Number of mesh blocks in the x direction too large (%d out of %d).\n", pinfo->blocks_x, MAXMESHBLOCKY );
-    }
-
-    if ( pinfo->blocks_y >= MAXMESHBLOCKY )
-    {
-        log_warning( "Number of mesh blocks in the y direction too large (%d out of %d).\n", pinfo->blocks_y, MAXMESHBLOCKY );
-    }
-
-    // do the blockstart
-    for ( cnt = 0; cnt < pinfo->blocks_y; cnt++ )
-    {
-        pmem->blockstart[cnt] = pinfo->blocks_x * cnt;
-    }
-
-}
-
-//--------------------------------------------------------------------------------------------
-void mesh_make_vrtstart( mesh_t * pmesh )
-{
-    int x, y, vert;
-    Uint32 fan;
-
-    mesh_info_t * pinfo;
-    mesh_mem_t  * pmem;
-
-    if (NULL == pmesh) return;
-
-    pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mem);
-
-    vert = 0;
-    for ( y = 0; y < pinfo->tiles_y; y++ )
-    {
-        for ( x = 0; x < pinfo->tiles_x; x++ )
-        {
-            // allow raw access because we are careful
-            fan = mesh_get_tile_int( &mesh, x, y );
-            if ( INVALID_TILE != fan )
-            {
-                Uint8 ttype = pmem->tile_list[fan].type;
-
-                pmem->tile_list[fan].vrtstart = vert;
-
-                if ( ttype > MAXMESHTYPE )
-                {
-                    vert += 4;
-                }
-                else
-                {
-                    // throw away any remaining upper bits
-                    ttype &= 0x3F;
-                    vert += tile_dict[ttype].numvertices;
-                }
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_t * mesh_new( mesh_t * pmesh )
-{
-    if ( NULL != pmesh )
-    {
-        memset( pmesh, 0, sizeof(mesh_t) );
-
-        mesh_mem_new( &(pmesh->mem) );
-        mesh_info_new( &(pmesh->info) );
-    }
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_t * mesh_delete( mesh_t * pmesh )
-{
-    if ( NULL != pmesh )
-    {
-        mesh_mem_delete( &(pmesh->mem) );
-        mesh_info_delete( &(pmesh->info)  );
-    }
-
-    return pmesh;
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_t * mesh_renew( mesh_t * pmesh )
-{
-    pmesh = mesh_delete( pmesh );
-
-    return mesh_new( pmesh );
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_info_t * mesh_info_delete( mesh_info_t * pinfo )
-{
-    if ( NULL != pinfo )
-    {
-        memset( pinfo, 0, sizeof(mesh_info_t) );
-    }
-
-    return pinfo;
-}
-
-//--------------------------------------------------------------------------------------------
-mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem )
-{
-    if ( NULL != pmem )
-    {
-        mesh_mem_free( pmem );
-    }
-
-    return pmem;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 mesh_get_block_int( mesh_t * pmesh, int block_x, int block_y )
-{
-    if ( NULL == pmesh ) return INVALID_BLOCK;
-
-    if ( block_x < 0 || block_x >= pmesh->info.blocks_x )  return INVALID_BLOCK;
-    if ( block_y < 0 || block_y >= pmesh->info.blocks_y )  return INVALID_BLOCK;
-
-    return block_x + pmesh->mem.blockstart[block_y];
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y )
-{
-    if ( NULL == pmesh ) return INVALID_TILE;
-
-    if ( tile_x < 0 || tile_x >= pmesh->info.tiles_x )  return INVALID_TILE;
-    if ( tile_y < 0 || tile_y >= pmesh->info.tiles_y )  return INVALID_TILE;
-
-    return tile_x + pmesh->mem.tilestart[tile_y];
-}
 
 //--------------------------------------------------------------------------------------------
 bool_t game_begin_menu( int which )
@@ -5175,8 +4701,8 @@ bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     hostactive = btrue; // very important or the input will not work
 
-    SDL_WM_GrabInput ( SDL_GRAB_ON );  // grab the cursor
-    SDL_ShowCursor( SDL_DISABLE );     // Hide the mouse cursor
+    SDL_WM_GrabInput ( SDL_GRAB_ON );                            // grab the cursor
+    SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
 
     return game_init_module( modname, seed );
 };
@@ -5199,7 +4725,7 @@ returncode = bfalse;
 // Current fanblock
 if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
 {
-fanblock = mesh_get_block_int(&mesh, x,y);
+fanblock = mesh_get_block_int(PMesh, x,y);
 
 enemies = bfalse;
 if ( !onlyfriends ) enemies = btrue;
@@ -5266,7 +4792,7 @@ done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, any
 done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
 if ( done ) return globesttarget;
 
-return MAXCHR;
+return MAX_CHR;
 }*/
 
 

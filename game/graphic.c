@@ -67,12 +67,12 @@
 Uint8           maxformattypes = 0;
 STRING          TxFormatSupported[20];      // List of texture formats that we search for
 
-GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+GLtexture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
 GLtexture       TxFont;                     // OpenGL font surface
 GLtexture       TxBars;                     // OpenGL status bar surface
 GLtexture       TxBlip;                     // OpenGL you are here surface
 GLtexture       TxMap;                      // OpenGL map surface
-GLtexture       txTexture[MAXTEXTURE];      // All textures
+GLtexture       txTexture[MAX_TEXTURE];     // All textures
 
 Uint32          TxTitleImage_count = 0;
 GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
@@ -81,7 +81,7 @@ GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 SDL_Surface *    displaySurface = NULL;
 
 Uint16           numdolist = 0;
-Uint16           dolist[MAXCHR];
+Uint16           dolist[MAX_CHR];
 
 bool_t           meshnotexture = bfalse;
 Uint16           meshlasttexture = (Uint16)~0;
@@ -114,7 +114,7 @@ int rotmeshdown;
 int         dyna_distancetobeat;           // The number to beat
 int         dyna_list_max   = 8;           // Max number of lights to draw
 int         dyna_list_count = 0;           // Number of dynamic lights
-dynalight_t dyna_list[TOTALMAXDYNA];
+dynalight_t dyna_list[TOTAL_MAX_DYNA];
 
 // Interface stuff
 static rect_t             iconrect;                   // The 32x32 icon rectangle
@@ -206,49 +206,49 @@ void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
         return;
     }
 
-    goto_colon( fileread );
+    goto_colon( NULL, fileread, bfalse );
     fscanf( fileread, "%d", &numfantype );
 
     for ( fantype = 0; fantype < numfantype; fantype++ )
     {
         bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
 
-        goto_colon( fileread );
+        goto_colon( NULL, fileread, bfalse );
         fscanf( fileread, "%d", &vertices );
         dict[fantype].numvertices = vertices;
         dict[bigfantype].numvertices = vertices;  // Dupe
 
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
-            goto_colon( fileread );
+            goto_colon( NULL, fileread, bfalse );
             fscanf( fileread, "%d", &itmp );
 
-            goto_colon( fileread );
+            goto_colon( NULL, fileread, bfalse );
             fscanf( fileread, "%f", &ftmp );
             dict[fantype].u[cnt] = ftmp;
             dict[bigfantype].u[cnt] = ftmp;  // Dupe
 
-            goto_colon( fileread );
+            goto_colon( NULL, fileread, bfalse );
             fscanf( fileread, "%f", &ftmp );
             dict[fantype].v[cnt] = ftmp;
             dict[bigfantype].v[cnt] = ftmp;  // Dupe
         }
 
-        goto_colon( fileread );
+        goto_colon( NULL, fileread, bfalse );
         fscanf( fileread, "%d", &numcommand );
         dict[fantype].command_count = numcommand;
         dict[bigfantype].command_count = numcommand;  // Dupe
 
         for ( entry = 0, command = 0; command < numcommand; command++ )
         {
-            goto_colon( fileread );
+            goto_colon( NULL, fileread, bfalse );
             fscanf( fileread, "%d", &commandsize );
             dict[fantype].command_entries[command] = commandsize;
             dict[bigfantype].command_entries[command] = commandsize;  // Dupe
 
             for ( cnt = 0; cnt < commandsize; cnt++ )
             {
-                goto_colon( fileread );
+                goto_colon( NULL, fileread, bfalse );
                 fscanf( fileread, "%d", &itmp );
                 dict[fantype].command_verts[entry] = itmp;
                 dict[bigfantype].command_verts[entry] = itmp;  // Dupe
@@ -595,48 +595,6 @@ void End2DMode( void )
     glEnable( GL_DEPTH_TEST );
 }
 
-//---------------------------------------------------------------------------------------------
-float get_level( float x, float y, bool_t waterwalk )
-{
-    // ZZ> This function returns the height of a point within a mesh fan, precise
-    //     If waterwalk is nonzero and the fan is watery, then the level returned is the
-    //     level of the water.
-
-    Uint32 tile;
-    int ix, iy;
-
-    float z0, z1, z2, z3;         // Height of each fan corner
-    float zleft, zright, zdone;   // Weighted height of each side
-
-    tile = mesh_get_tile(x, y);
-    if ( INVALID_TILE == tile ) return 0;
-
-    ix = x;
-    iy = y;
-
-    ix &= 127;
-    iy &= 127;
-
-    z0 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 0 ];
-    z1 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 1 ];
-    z2 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 2 ];
-    z3 = mesh.mem.vrt_z[ mesh.mem.tile_list[tile].vrtstart + 3 ];
-
-    zleft = ( z0 * ( 128 - iy ) + z3 * iy ) / (float)(1 << 7);
-    zright = ( z1 * ( 128 - iy ) + z2 * iy ) / (float)(1 << 7);
-    zdone = ( zleft * ( 128 - ix ) + zright * ix ) / (float)(1 << 7);
-
-    if ( waterwalk )
-    {
-        if ( watersurfacelevel > zdone && 0 != ( mesh.mem.tile_list[tile].fx & MESHFX_WATER ) && wateriswater )
-        {
-            return watersurfacelevel;
-        }
-    }
-
-    return zdone;
-}
-
 //--------------------------------------------------------------------------------------------
 // ZF> Load all the global icons used in all modules
 bool_t load_all_global_icons()
@@ -680,7 +638,7 @@ void init_all_icons()
     // ZZ> This function sets the icon pointers to NULL
     int cnt;
 
-    for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
+    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
         GLtexture_new( TxIcon + cnt );
     }
@@ -764,7 +722,7 @@ void init_all_textures()
     // ZZ> This function clears out all of the textures
     int cnt;
 
-    for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
+    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
         GLtexture_new( txTexture + cnt );
     }
@@ -777,7 +735,7 @@ void init_all_models()
 
     Uint16 cnt;
 
-    for ( cnt = 0; cnt < TOTALMAXPRTPIP; cnt++ )
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
         memset( PipList + cnt, 0, sizeof(pip_t) );
     }
@@ -787,12 +745,12 @@ void init_all_models()
         memset( EveList + cnt, 0, sizeof(pip_t) );
     }
 
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         memset( CapList + cnt, 0, sizeof(cap_t) );
     };
 
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         memset( MadList + cnt, 0, sizeof(mad_t) );
 
@@ -811,7 +769,7 @@ void release_all_icons()
     // ZZ> This function clears out all of the icons
     int cnt;
 
-    for ( cnt = 0; cnt < MAXTEXTURE + 1; cnt++ )
+    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
         GLtexture_Release( TxIcon + cnt );
         skintoicon[cnt] = 0;
@@ -820,7 +778,7 @@ void release_all_icons()
     bookicon_count = 0;
     for ( cnt = 0; cnt < MAXSKIN; cnt++ )
     {
-        bookicon[cnt] = MAXTEXTURE + 1;
+        bookicon[cnt] = MAX_ICON;
     }
 
     globalicon_count = 0;
@@ -868,7 +826,7 @@ void release_all_textures()
     // ZZ> This function releases all of the textures
     int cnt;
 
-    for ( cnt = 0; cnt < MAXTEXTURE; cnt++ )
+    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
         GLtexture_Release( txTexture + cnt );
     }
@@ -880,7 +838,7 @@ void release_all_models()
     // ZZ> This function clears out all of the models
     Uint16 cnt;
 
-    for ( cnt = 0; cnt < TOTALMAXPRTPIP; cnt++ )
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
     {
         memset( PipList + cnt, 0, sizeof(pip_t) );
     }
@@ -890,12 +848,12 @@ void release_all_models()
         memset( EveList + cnt, 0, sizeof(pip_t) );
     }
 
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         memset( CapList + cnt, 0, sizeof(cap_t) );
     };
 
-    for ( cnt = 0; cnt < MAXMODEL; cnt++ )
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
     {
         memset( MadList + cnt, 0, sizeof(mad_t) );
         strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
@@ -1189,13 +1147,13 @@ void make_renderlist()
     int x, stepx, divx, basex;
     int from, to;
 
-    tile_info_t * tlist = mesh.mem.tile_list;
+    tile_info_t * tlist = PMesh->mem.tile_list;
 
     // Clear old render lists
     for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
     {
         fan = renderlist.all[cnt];
-        if( fan < mesh.info.tiles_count )
+        if( fan < PMesh->info.tiles_count )
         {
             tlist[fan].inrenderlist = bfalse;
         }
@@ -1275,11 +1233,11 @@ void make_renderlist()
 
         while ( fany < run )
         {
-            if ( fany >= 0 && fany < mesh.info.tiles_y )
+            if ( fany >= 0 && fany < PMesh->info.tiles_y )
             {
                 fanx = x >> 7;
                 if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= mesh.info.tiles_x )  fanx = mesh.info.tiles_x - 1;
+                if ( fanx >= PMesh->info.tiles_x )  fanx = PMesh->info.tiles_x - 1;
 
                 fanrowstart[row] = fanx;
                 row++;
@@ -1313,11 +1271,11 @@ void make_renderlist()
 
         while ( fany < run )
         {
-            if ( fany >= 0 && fany < mesh.info.tiles_y )
+            if ( fany >= 0 && fany < PMesh->info.tiles_y )
             {
                 fanx = x >> 7;
                 if ( fanx < 0 )  fanx = 0;
-                if ( fanx >= mesh.info.tiles_x - 1 )  fanx = mesh.info.tiles_x - 1;//-2
+                if ( fanx >= PMesh->info.tiles_x - 1 )  fanx = PMesh->info.tiles_x - 1;//-2
 
                 fanrowrun[row] = ABS( fanx - fanrowstart[row] ) + 1;
                 row++;
@@ -1338,11 +1296,11 @@ void make_renderlist()
     // Fill 'em up again
     fany = ylist[0] >> 7;
     if ( fany < 0 ) fany = 0;
-    if ( fany >= mesh.info.tiles_y ) fany = mesh.info.tiles_y - 1;
+    if ( fany >= PMesh->info.tiles_y ) fany = PMesh->info.tiles_y - 1;
 
     for ( row = 0; row < numrow; row++, fany++ )
     {
-        cnt = mesh.mem.tilestart[fany] + fanrowstart[row];
+        cnt = PMesh->mem.tilestart[fany] + fanrowstart[row];
 
         run = fanrowrun[row];
         for ( fanx = 0; fanx < run && renderlist.all_count < MAXMESHRENDER; fanx++, cnt++ )
@@ -1405,8 +1363,8 @@ void order_dolist( void )
     //     which is needed for reflections to properly clip themselves.
     //     Order from closest to farthest
     int tnc, cnt, character, order;
-    int dist[MAXCHR];
-    Uint16 olddolist[MAXCHR];
+    int dist[MAX_CHR];
+    Uint16 olddolist[MAX_CHR];
 
     // Figure the distance of each
     for ( cnt = 0; cnt < numdolist; cnt++ )
@@ -1459,30 +1417,30 @@ void add_to_dolist( Uint16 ichr )
     // This function puts a character in the list
     int itile;
 
-    if ( ichr >= MAXCHR || ChrList[ichr].indolist ) return;
+    if ( ichr >= MAX_CHR || ChrList[ichr].indolist ) return;
 
     itile = ChrList[ichr].onwhichfan;
     if ( INVALID_TILE == itile ) return;
 
-    if ( mesh.mem.tile_list[itile].inrenderlist )
+    if ( PMesh->mem.tile_list[itile].inrenderlist )
     {
-        if ( 0 == ( 0xFF00 & mesh.mem.tile_list[itile].img ) )
+        if ( 0 == ( 0xFF00 & PMesh->mem.tile_list[itile].img ) )
         {
             int itmp, imin, isum;
 
-            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 0];
+            itmp = PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 0];
             imin = itmp;
             isum = itmp;
 
-            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 1];
+            itmp = PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 1];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
-            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 2];
+            itmp = PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 2];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
-            itmp = mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 3];
+            itmp = PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 3];
             imin  = MIN(imin, itmp);
             isum += itmp;
 
@@ -1539,7 +1497,7 @@ void make_dolist()
     numdolist = 0;
 
     // Now fill it up again
-    for ( cnt = 0; cnt < MAXCHR; cnt++ )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
         if ( ChrList[cnt].on && !ChrList[cnt].inpack )
         {
@@ -1712,11 +1670,11 @@ void font_load( const char* szBitmap, const char* szSpacing )
     ystt = 0;
 
     // Uniform font height is at the top
-    goto_colon( fileread );
+    goto_colon( NULL, fileread, bfalse );
     fscanf( fileread, "%d", &yspacing );
     fontoffset = yspacing;
 
-    for ( cnt = 0; cnt < NUMFONT && goto_colon_yesno( fileread ); cnt++ )
+    for ( cnt = 0; cnt < NUMFONT && goto_colon( NULL, fileread, btrue ); cnt++ )
     {
         fscanf( fileread, "%c%d", &cTmp, &xspacing );
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
@@ -1846,7 +1804,7 @@ void read_wawalite( const char *modname )
         return;
     }
 
-    goto_colon( fileread );
+    goto_colon( NULL, fileread, bfalse );
     //  !!!BAD!!!
     //  Random map...
     //  If someone else wants to handle this, here are some thoughts for approaching
@@ -1858,51 +1816,51 @@ void read_wawalite( const char *modname )
     //  !!!BAD!!!
 
     // Read water data first
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  numwaterlayer = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspekstart = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterspeklevel = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  numwaterlayer = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterspekstart = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterspeklevel = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterdouselevel = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  watersurfacelevel = iTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( cTmp == 'T' || cTmp == 't' )  waterlight = btrue;
     else waterlight = bfalse;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     wateriswater = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  wateriswater = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( ( cTmp == 'T' || cTmp == 't' ) && overlayvalid )  draw_overlay = btrue;
     else draw_overlay = bfalse;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( ( cTmp == 'T' || cTmp == 't' ) && backgroundvalid )  draw_background = btrue;
     else draw_background = bfalse;
 
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[0] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[0] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[1] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[1] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  foregroundrepeat = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  backgroundrepeat = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayerdistx[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayerdisty[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  foregroundrepeat = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  backgroundrepeat = iTmp;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[0] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[0] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[0] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[0] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[0] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[0] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[0] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayerz[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlightadd[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[0] = fTmp;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerz[1] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[1] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[1] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[1] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  waterlightadd[1] = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[1] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[1] = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayerz[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayeralpha[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlayerframeadd[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlightlevel[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  waterlightadd[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayeramp[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayeruadd[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterlayervadd[1] = fTmp;
 
     waterlayeru[0] = 0;
     waterlayerv[0] = 0;
@@ -1911,22 +1869,22 @@ void read_wawalite( const char *modname )
     waterlayerframe[0] = rand() & WATERFRAMEAND;
     waterlayerframe[1] = rand() & WATERFRAMEAND;
     // Read light data second
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lx = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  ly = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  lz = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  la = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  lx = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  ly = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  lz = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  la = fTmp;
     // Read tile data third
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileupdateand = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtileupdateand = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtileframeand = iTmp;
     biganimtileframeand = ( iTmp << 1 ) + 1;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  damagetileamount = iTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     if ( cTmp == 'S' || cTmp == 's' )  damagetiletype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  damagetiletype = DAMAGE_CRUSH;
     if ( cTmp == 'P' || cTmp == 'p' )  damagetiletype = DAMAGE_POKE;
@@ -1937,25 +1895,25 @@ void read_wawalite( const char *modname )
     if ( cTmp == 'Z' || cTmp == 'z' )  damagetiletype = DAMAGE_ZAP;
 
     // Read weather data fourth
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     weatheroverwater = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  weatheroverwater = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  weathertimereset = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  weathertimereset = iTmp;
     weathertime = weathertimereset;
     weatherplayer = 0;
     // Read extra data
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    mesh.info.exploremode = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  mesh.info.exploremode = btrue;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    PMesh->info.exploremode = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  PMesh->info.exploremode = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     usefaredge = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  usefaredge = btrue;
 
     gCamera.swing = 0;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingrate = fTmp;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  gCamera.swingamp = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  gCamera.swingrate = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  gCamera.swingamp = fTmp;
 
     // Read unnecessary data...  Only read if it exists...
     fogon = bfalse;
@@ -1971,28 +1929,28 @@ void read_wawalite( const char *modname )
     damagetilesound = -1;
     damagetilesoundtime = TILESOUNDTIME;
     damagetilemindistance = 9999;
-    if ( goto_colon_yesno( fileread ) )
+    if ( goto_colon( NULL, fileread, btrue ) )
     {
         fogon = fogallowed;
         fscanf( fileread, "%f", &fTmp );  fogtop = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogbottom = fTmp;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
-        goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
-        goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fogbottom = fTmp;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fogred = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  foggrn = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fogblu = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
         if ( cTmp == 'F' || cTmp == 'f' )  fogaffectswater = bfalse;
 
         fogdistance = ( fogtop - fogbottom );
         if ( fogdistance < 1.0f )  fogon = bfalse;
 
         // Read extra stuff for damage tile particles...
-        if ( goto_colon_yesno( fileread ) )
+        if ( goto_colon( NULL, fileread, btrue ) )
         {
             fscanf( fileread, "%d", &iTmp );  damagetileparttype = iTmp;
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
             damagetilepartand = iTmp;
-            goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
-            damagetilesound = CLIP(iTmp, -1, MAXWAVE);
+            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+            damagetilesound = CLIP(iTmp, -1, MAX_WAVE);
         }
     }
 
@@ -2242,24 +2200,23 @@ void render_shadow( Uint16 character )
     float level;
     float height, size_umbra, size_penumbra;
     float alpha, alpha_umbra, alpha_penumbra;
-    Sint8 hide;
     chr_t * pchr;
 
-    if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    if ( character >= MAX_CHR || !ChrList[character].on || ChrList[character].inpack ) return;
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == PMesh->mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
     if ( alpha * 255 < 1.0f ) return;
 
     // much resuced shadow if on a reflective tile
-    if ( 0 != (mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
+    if ( 0 != (PMesh->mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
@@ -2361,24 +2318,23 @@ void render_bad_shadow( Uint16 character )
     GLvertex v[4];
     float size, x, y;
     float level, height, height_factor, alpha;
-    Sint8 hide;
     chr_t * pchr;
 
-    if ( character >= MAXCHR || !ChrList[character].on || ChrList[character].inpack ) return;
+    if ( character >= MAX_CHR || !ChrList[character].on || ChrList[character].inpack ) return;
     pchr = ChrList + character;
 
     // if the character is hidden, not drawn at all, so no shadow
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == mesh.mem.tile_list[pchr->onwhichfan].img ) return;
+    if ( INVALID_TILE == pchr->onwhichfan || FANOFF == PMesh->mem.tile_list[pchr->onwhichfan].img ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
     if ( alpha < INV_FF ) return;
 
     // much reduced shadow if on a reflective tile
-    if ( 0 != (mesh.mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
+    if ( 0 != (PMesh->mem.tile_list[pchr->onwhichfan].fx & MESHFX_DRAWREF) )
     {
         alpha *= 0.1f;
     }
@@ -2455,10 +2411,10 @@ void light_characters()
         }
 
         // grab the corner intensities
-        tl = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 0 ];
-        tr = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 1 ];
-        br = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 2 ];
-        bl = mesh.mem.vrt_l[ mesh.mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 3 ];
+        tl = PMesh->mem.vrt_l[ PMesh->mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 0 ];
+        tr = PMesh->mem.vrt_l[ PMesh->mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 1 ];
+        br = PMesh->mem.vrt_l[ PMesh->mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 2 ];
+        bl = PMesh->mem.vrt_l[ PMesh->mem.tile_list[ChrList[tnc].onwhichfan].vrtstart + 3 ];
 
         // determine the amount of directionality
         light_min = MIN(MIN(tl, tr), MIN(bl, br));
@@ -2484,7 +2440,7 @@ void light_characters()
         ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
         ChrList[tnc].lightlevel_amb = light - ChrList[tnc].lightlevel_dir;
 
-        if ( !mesh.info.exploremode && ChrList[tnc].lightlevel_dir > 0 )
+        if ( !PMesh->info.exploremode && ChrList[tnc].lightlevel_dir > 0 )
         {
             // Look up light direction using corners again
             tl = ( tl << 8 ) & 0xf000;
@@ -2513,7 +2469,7 @@ void light_particles()
         if ( !PrtList[iprt].on ) continue;
 
         character = PrtList[iprt].attachedtocharacter;
-        if ( MAXCHR != character )
+        if ( MAX_CHR != character )
         {
             PrtList[iprt].light = ChrList[character].lightlevel_amb;
         }
@@ -2526,10 +2482,10 @@ void light_particles()
             int itmp = 0;
             Uint32 itile = PrtList[iprt].onwhichfan;
 
-            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 0];
-            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 1];
-            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 2];
-            itmp += mesh.mem.vrt_l[mesh.mem.tile_list[itile].vrtstart + 3];
+            itmp += PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 0];
+            itmp += PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 1];
+            itmp += PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 2];
+            itmp += PMesh->mem.vrt_l[PMesh->mem.tile_list[itile].vrtstart + 3];
 
             PrtList[iprt].light = itmp / 4;
         }
@@ -2546,25 +2502,25 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
     float level;
     float light;
 
-    if ( fanx >= 0 && fanx < mesh.info.tiles_x && fany >= 0 && fany < mesh.info.tiles_y )
+    if ( fanx >= 0 && fanx < PMesh->info.tiles_x && fany >= 0 && fany < PMesh->info.tiles_y )
     {
         // allow raw access because we were careful
-        fan = mesh_get_tile_int( &mesh, fanx, fany );
+        fan = mesh_get_tile_int( PMesh, fanx, fany );
 
         if ( INVALID_TILE != fan )
         {
-            Uint8 ttype = mesh.mem.tile_list[fan].type;
+            Uint8 ttype = PMesh->mem.tile_list[fan].type;
 
             if ( ttype < MAXMESHTYPE )
             {
-                vertex = mesh.mem.tile_list[fan].vrtstart;
+                vertex = PMesh->mem.tile_list[fan].vrtstart;
                 lastvertex = vertex + tile_dict[ttype].numvertices;
 
                 while ( vertex < lastvertex )
                 {
-                    light = mesh.mem.vrt_a[vertex];
-                    x = PrtList[particle].xpos - mesh.mem.vrt_x[vertex];
-                    y = PrtList[particle].ypos - mesh.mem.vrt_y[vertex];
+                    light = PMesh->mem.vrt_a[vertex];
+                    x = PrtList[particle].xpos - PMesh->mem.vrt_x[vertex];
+                    y = PrtList[particle].ypos - PMesh->mem.vrt_y[vertex];
                     level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
                     level = 255 - level;
                     level = level * PrtList[particle].dynalightlevel;
@@ -2572,8 +2528,8 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
                     {
                         if ( level > 255 ) level = 255;
 
-                        mesh.mem.vrt_l[vertex] = level;
-                        mesh.mem.vrt_a[vertex] = level;
+                        PMesh->mem.vrt_l[vertex] = level;
+                        PMesh->mem.vrt_a[vertex] = level;
                     }
 
                     vertex++;
@@ -2594,7 +2550,7 @@ void do_dynalight()
     float light;
 
     // Do each floor tile
-    if ( mesh.info.exploremode )
+    if ( PMesh->info.exploremode )
     {
         // Set base light level in explore mode...  Don't need to do every frame
         if ( ( frame_all & 7 ) == 0 )
@@ -2640,9 +2596,9 @@ void do_dynalight()
             fan = renderlist.all[entry];
             if ( INVALID_TILE == fan ) continue;
 
-            ttype = mesh.mem.tile_list[fan].type;
+            ttype = PMesh->mem.tile_list[fan].type;
 
-            vertex = mesh.mem.tile_list[fan].vrtstart;
+            vertex = PMesh->mem.tile_list[fan].vrtstart;
 
             if ( ttype > MAXMESHTYPE )
             {
@@ -2657,13 +2613,13 @@ void do_dynalight()
             while ( vertex < lastvertex )
             {
                 // Do light particles
-                light = mesh.mem.vrt_a[vertex];
+                light = PMesh->mem.vrt_a[vertex];
                 cnt = 0;
 
                 while ( cnt < dyna_list_count )
                 {
-                    x = dyna_list[cnt].x - mesh.mem.vrt_x[vertex];
-                    y = dyna_list[cnt].y - mesh.mem.vrt_y[vertex];
+                    x = dyna_list[cnt].x - PMesh->mem.vrt_x[vertex];
+                    y = dyna_list[cnt].y - PMesh->mem.vrt_y[vertex];
                     level = ( x * x + y * y ) / dyna_list[cnt].falloff;
                     level = 255 - level;
                     if ( level > 0 )
@@ -2676,7 +2632,7 @@ void do_dynalight()
                 if ( light > 255 ) light = 255;
                 if ( light < 0 ) light = 0;
 
-                mesh.mem.vrt_l[vertex] = light;
+                PMesh->mem.vrt_l[vertex] = light;
                 vertex++;
             }
 
@@ -2700,7 +2656,7 @@ void render_water()
     {
         for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
         {
-            if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
+            if ( 0 != ( PMesh->mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 1 );
             }
@@ -2712,7 +2668,7 @@ void render_water()
     {
         for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
         {
-            if ( 0 != ( mesh.mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
+            if ( 0 != ( PMesh->mem.tile_list[renderlist.all[cnt]].fx & MESHFX_WATER ) )
             {
                 render_water_fan( renderlist.all[cnt], 0 );
             }
@@ -2770,7 +2726,7 @@ void draw_scene_zreflection()
         for ( cnt = 0; cnt < numdolist; cnt++ )
         {
             tnc = dolist[cnt];
-            if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( mesh.mem.tile_list[ChrList[tnc].onwhichfan].fx&MESHFX_DRAWREF )) )
+            if ( INVALID_TILE != ChrList[tnc].onwhichfan && (0 != ( PMesh->mem.tile_list[ChrList[tnc].onwhichfan].fx&MESHFX_DRAWREF )) )
             {
                 render_refmad( tnc, FP8_MUL( ChrList[tnc].inst.alpha, ChrList[tnc].inst.light ) );
             }
@@ -2943,48 +2899,6 @@ void draw_scene_zreflection()
 }
 
 //--------------------------------------------------------------------------------------------
-Uint32 mesh_get_block( float pos_x, float pos_y )
-{
-    Uint32 block = INVALID_BLOCK;
-
-    if ( pos_x >= 0.0f && pos_x < mesh.info.edge_x && pos_y >= 0.0f && pos_y < mesh.info.edge_y )
-    {
-        int ix, iy;
-
-        ix = pos_x;
-        iy = pos_y;
-
-        ix >>= 9;
-        iy >>= 9;
-
-        block = mesh_get_block_int(&mesh, ix, iy);
-    }
-
-    return block;
-}
-
-//--------------------------------------------------------------------------------------------
-Uint32 mesh_get_tile( float pos_x, float pos_y )
-{
-    Uint32 tile = INVALID_TILE;
-
-    if ( pos_x >= 0.0f && pos_x < mesh.info.edge_x && pos_y >= 0.0f && pos_y < mesh.info.edge_y )
-    {
-        int ix, iy;
-
-        ix = pos_x;
-        iy = pos_y;
-
-        ix >>= 7;
-        iy >>= 7;
-
-        tile = mesh_get_tile_int( &mesh, ix, iy );
-    }
-
-    return tile;
-}
-
-//--------------------------------------------------------------------------------------------
 void draw_blip( float sizeFactor, Uint8 color, int x, int y )
 
 {
@@ -3027,7 +2941,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
     int position, blipx, blipy;
     float xl, xr, yt, yb;
     int width, height;
-    if ( icontype >= 0 && icontype < MAXTEXTURE + 1 )
+    if ( icontype >= 0 && icontype < MAX_ICON )
     {
         EnableTexturing();    // Enable texture mapping
         glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -3495,7 +3409,7 @@ int draw_status( Uint16 character, int x, int y )
     draw_one_icon( skintoicon[ChrList[character].inst.texture], x + 40, y, ChrList[character].sparkle );
 
     item = ChrList[character].holdingwhich[SLOT_LEFT];
-    if ( item != MAXCHR )
+    if ( item != MAX_CHR )
     {
         if ( ChrList[item].icon )
         {
@@ -3527,7 +3441,7 @@ int draw_status( Uint16 character, int x, int y )
     }
 
     item = ChrList[character].holdingwhich[SLOT_RIGHT];
-    if ( item != MAXCHR )
+    if ( item != MAX_CHR )
     {
         if ( ChrList[item].icon )
         {
@@ -3594,11 +3508,11 @@ void draw_text()
         draw_map( 0, displaySurface->h - MAPSIZE );
 
         //If one of the players can sense enemies via EMP, draw them as blips on the map
-        if ( MAXCHR != local_senseenemies )
+        if ( MAX_CHR != local_senseenemies )
         {
             Uint16 iTmp;
 
-            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAXCHR; iTmp++ )
+            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
             {
                 Uint16 icap;
 
@@ -3616,11 +3530,11 @@ void draw_text()
                             || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
-                        if ( ChrList[iTmp].xpos < mesh.info.edge_x && ChrList[iTmp].ypos < mesh.info.edge_y )
+                        if ( ChrList[iTmp].xpos < PMesh->info.edge_x && ChrList[iTmp].ypos < PMesh->info.edge_y )
                         {
                             //Valid colors only
-                            blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / mesh.info.edge_x;
-                            blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / mesh.info.edge_y;
+                            blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / PMesh->info.edge_x;
+                            blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / PMesh->info.edge_y;
                             blipc[numblip] = 0; //Red blips
                             numblip++;
                         }
@@ -3643,7 +3557,7 @@ void draw_text()
                     tnc = PlaList[cnt].index;
                     if ( ChrList[tnc].alive )
                     {
-                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / mesh.info.edge_x, ( ChrList[tnc].ypos*MAPSIZE / mesh.info.edge_y ) + displaySurface->h - MAPSIZE );
+                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].ypos*MAPSIZE / PMesh->info.edge_y ) + displaySurface->h - MAPSIZE );
                     }
                 }
             }
@@ -4219,14 +4133,6 @@ void sdlinit( int argc, char **argv )
 
     // Set the window name
     SDL_WM_SetCaption( "Egoboo", "Egoboo" );
-    if ( gGrabMouse )
-    {
-        SDL_WM_GrabInput ( SDL_GRAB_ON );
-    }
-    if ( gHideMouse )
-    {
-        SDL_ShowCursor( 0 );  // Hide the mouse cursor
-    }
 
     input_init();
 
@@ -4552,7 +4458,7 @@ void make_enviro( void )
 void project_view( camera_t * pcam )
 {
     // ZZ> This function figures out where the corners of the view area
-    //     go when projected onto the plane of the mesh.  Used later for
+    //     go when projected onto the plane of the PMesh->  Used later for
     //     determining which mesh fans need to be rendered
 
     int cnt, tnc, extra[4];
@@ -4704,7 +4610,7 @@ void make_prtlist( void )
         PrtList[cnt].inview = bfalse;
         if ( PrtList[cnt].on && INVALID_TILE != PrtList[cnt].onwhichfan )
         {
-            PrtList[cnt].inview = mesh.mem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
+            PrtList[cnt].inview = PMesh->mem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
 
             // Set up the lights we need
             if ( PrtList[cnt].dynalighton )

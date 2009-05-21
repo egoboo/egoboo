@@ -43,7 +43,7 @@ float kMd2Normals[][3] =
 
 // TEMPORARY: Global list of Md2Models.  It's declared in egoboo.h, which
 // is why I have to include it here at the moment.
-struct Md2Model *md2_models[MAXMODEL];
+struct Md2Model *md2_models[MAX_PROFILE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

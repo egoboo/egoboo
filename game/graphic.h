@@ -21,6 +21,7 @@
 
 #include "gltexture.h"
 #include "module.h"
+#include "mpd.h"
 
 #include "egoboo.h"
 
@@ -72,19 +73,19 @@ typedef enum e_tx_type
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern Uint16           dolist[MAXCHR];             // List of which characters to draw
+extern Uint16           dolist[MAX_CHR];             // List of which characters to draw
 extern Uint16           numdolist;                  // How many in the list
 
 /*OpenGL Textures*/
 extern  STRING          TxFormatSupported[20]; // OpenGL icon surfaces
 extern  Uint8           maxformattypes;
 
-extern  GLtexture       TxIcon[MAXTEXTURE+1];       // OpenGL icon surfaces
+extern  GLtexture       TxIcon[MAX_ICON];       // OpenGL icon surfaces
 extern  GLtexture       TxFont;                     // OpenGL font surface
 extern  GLtexture       TxBars;                     // OpenGL status bar surface
 extern  GLtexture       TxBlip;                     // OpenGL you are here surface
 extern  GLtexture       TxMap;                      // OpenGL map surface
-extern  GLtexture       txTexture[MAXTEXTURE];      // All textures
+extern  GLtexture       txTexture[MAX_TEXTURE];      // All textures
 
 extern  Uint32          TxTitleImage_count;
 extern  GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
@@ -161,7 +162,7 @@ extern int rotmeshdown;
 // Lightning effects
 
 #define MAXDYNADIST                     2700        // Leeway for offscreen lights
-#define TOTALMAXDYNA                    64          // Absolute max number of dynamic lights
+#define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
 
 struct s_dynalight
 {
@@ -177,7 +178,7 @@ typedef struct s_dynalight dynalight_t;
 extern int         dyna_distancetobeat;           // The number to beat
 extern int         dyna_list_max;                 // Max number of lights to draw
 extern int         dyna_list_count;               // Number of dynamic lights
-extern dynalight_t dyna_list[TOTALMAXDYNA];
+extern dynalight_t dyna_list[TOTAL_MAX_DYNA];
 
 // Anisotropic filtering - yay! :P
 EXTERN float maxAnisotropy;                    // Max anisotropic filterings (Between 1.00f and 16.00f)

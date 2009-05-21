@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-#define MAXWAVE           30             // Up to 30 wave/ogg per model
+#define MAX_WAVE           30             // Up to 30 wave/ogg per model
 #define VOLUMERATIO        7             // Volume ratio
 #define MAXPLAYLISTLENGTH 35             // Max number of different tracks loaded into memory
 

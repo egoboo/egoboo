@@ -39,8 +39,8 @@ extern float pairfrom, pairto;
 
 void   make_newloadname( const char *modname, const char *appendname, char *newloadname );
 
-void   goto_colon( FILE* fileread );
-bool_t goto_colon_yesno( FILE* fileread );
+bool_t goto_colon( char * buffer, FILE* fileread, bool_t optional );
+char * goto_colon_mem( char * buffer, char * pmem, char * pmem_end, bool_t optional );
 
 bool_t fget_name( FILE* fileread,  char *szName, size_t max_len );
 Sint32 fget_int( FILE* fileread );
@@ -56,6 +56,29 @@ void funderf( FILE* filewrite, const char* text, const char* usename );
 
 bool_t fcopy_line(FILE * fileread, FILE * filewrite);
 
-void read_pair( FILE* fileread );
-void undo_pair( int base, int rand );
+bool_t fget_pair( FILE* fileread );
+void   undo_pair( int base, int rand );
 
+int    fget_version( FILE* fileread );
+bool_t fput_version( FILE* filewrite, int version );
+
+bool_t copy_file_to_delimiter( FILE * fileread, FILE * filewrite, int delim, char * buffer, size_t bufflen );
+char * copy_mem_to_delimiter( char * pmem, char * pmem_end, FILE * filewrite, int delim, char * user_buffer, size_t user_buffer_len );
+char   fget_next_char( FILE * fileread );
+int    fget_next_int( FILE * fileread );
+bool_t fget_next_string( FILE * fileread, char * str, size_t str_len );
+float  fget_next_float( FILE * fileread );
+
+bool_t fget_next_name( FILE * fileread, char * name, size_t name_len );
+
+bool_t fget_next_pair( FILE * fileread );
+IDSZ   fget_next_idsz( FILE * fileread );
+
+int   fget_int( FILE * fileread );
+float fget_float( FILE * fileread );
+
+int fget_damage_type( FILE * fileread );
+int fget_next_damage_type( FILE * fileread );
+
+bool_t fget_bool( FILE * fileread );
+bool_t fget_next_bool( FILE * fileread );

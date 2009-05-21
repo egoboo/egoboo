@@ -33,7 +33,7 @@ enum
 #define LIPWB               2
 #define LIPWC               3
 
-#define MAXPRTPIPPEROBJECT               13                                      // Max part*.txt per object
+#define MAX_PIP_PER_PROFILE               13                                      // Max part*.txt per object
 
 // This stuff is for actions
 #define NOACTION            0xffff                     // Action not valid for this character
@@ -127,7 +127,7 @@ struct s_mad
 
     // templates
     Uint16  ai;                            // AI for each model
-    Uint16  prtpip[MAXPRTPIPPEROBJECT];    // Local particles
+    Uint16  prtpip[MAX_PIP_PER_PROFILE];    // Local particles
 
     Uint16  skins;                         // Number of skins
     Uint16  skinstart;                     // Starting skin of model
@@ -149,7 +149,7 @@ struct s_mad
 };
 typedef struct s_mad mad_t;
 
-extern mad_t   MadList[MAXMODEL];
+extern mad_t   MadList[MAX_PROFILE];
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_PROFILE) )
 #define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )

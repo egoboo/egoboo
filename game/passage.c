@@ -26,6 +26,7 @@
 #include "char.h"
 #include "script.h"
 #include "sound.h"
+#include "mpd.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -70,11 +71,11 @@ int open_passage( Uint16 passage )
 
             while ( x <= passbrx[passage] )
             {
-                fan = mesh_get_tile_int( &mesh, x, y );
+                fan = mesh_get_tile_int( PMesh, x, y );
 
                 if ( INVALID_TILE != fan )
                 {
-                    mesh.mem.tile_list[fan].fx &= ~( MESHFX_WALL | MESHFX_IMPASS );
+                    PMesh->mem.tile_list[fan].fx &= ~( MESHFX_WALL | MESHFX_IMPASS );
                 }
                 x++;
             }
@@ -101,16 +102,16 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
 
     endtile = starttile + frames - 1;
     useful = bfalse;
-    for ( character = 0; character < MAXCHR; character++ )
+    for ( character = 0; character < MAX_CHR; character++ )
     {
         if ( !ChrList[character].on || ChrList[character].inpack ) continue;
 
-        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].zpos < ChrList[character].floor_level + 20 ) && (MAXCHR == ChrList[character].attachedto) )
+        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].zpos < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
         {
-            fan = mesh_get_tile( ChrList[character].xpos, ChrList[character].ypos );
+            fan = mesh_get_tile( PMesh, ChrList[character].xpos, ChrList[character].ypos );
             if ( INVALID_TILE != fan )
             {
-                tile = mesh.mem.tile_list[fan].img;
+                tile = PMesh->mem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
                     x = ChrList[character].xpos;
@@ -131,14 +132,14 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
                             tile++;
                             if ( tile == endtile )
                             {
-                                mesh.mem.tile_list[fan].fx |= meshfxor;
+                                PMesh->mem.tile_list[fan].fx |= meshfxor;
                                 if ( become != 0 )
                                 {
                                     tile = become;
                                 }
                             }
 
-                            mesh.mem.tile_list[fan].img = tile;
+                            PMesh->mem.tile_list[fan].img = tile;
                         }
                     }
                 }
@@ -162,19 +163,19 @@ void flash_passage( Uint16 passage, Uint8 color )
     {
         for ( x = passtlx[passage]; x <= passbrx[passage]; x++ )
         {
-            fan = mesh_get_tile_int( &mesh, x, y );
+            fan = mesh_get_tile_int( PMesh, x, y );
 
             if ( INVALID_TILE != fan )
             {
-                Uint16 ttype = mesh.mem.tile_list[fan].type;
+                Uint16 ttype = PMesh->mem.tile_list[fan].type;
 
                 ttype &= 0x3F;
 
                 numvert = tile_dict[ttype].numvertices;
-                vert    = mesh.mem.tile_list[fan].vrtstart;
+                vert    = PMesh->mem.tile_list[fan].vrtstart;
                 for ( cnt = 0; cnt < numvert; cnt++ )
                 {
-                    mesh.mem.vrt_a[vert] = color;
+                    PMesh->mem.vrt_a[vert] = color;
                     vert++;
                 }
             }
@@ -205,11 +206,11 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     {
         while ( x <= passbrx[passage] )
         {
-            fan = mesh_get_tile_int( &mesh, x, y );
+            fan = mesh_get_tile_int( PMesh, x, y );
 
             if ( INVALID_TILE != fan )
             {
-                if ( (mesh.mem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
                 {
                     pstate->x = ( x << 7 ) + 64;
                     pstate->y = ( y << 7 ) + 64;
@@ -230,12 +231,12 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 
         while ( x <= passbrx[passage] )
         {
-            fan = mesh_get_tile_int( &mesh, x, y );
+            fan = mesh_get_tile_int( PMesh, x, y );
 
             if ( INVALID_TILE != fan )
             {
 
-                if ( (mesh.mem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
                 {
                     pstate->x = ( x << 7 ) + 64;
                     pstate->y = ( y << 7 ) + 64;
@@ -255,7 +256,7 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 //--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage( Uint16 passage )
 {
-    // ZZ> This function returns MAXCHR if there is no character in the passage,
+    // ZZ> This function returns MAX_CHR if there is no character in the passage,
     //     otherwise the index of the first character found is returned...
     //     Finds living ones, then items and corpses
     float tlx, tly, brx, bry;
@@ -269,15 +270,15 @@ Uint16 who_is_blocking_passage( Uint16 passage )
     bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
     // Look at each character
-    foundother = MAXCHR;
+    foundother = MAX_CHR;
     character = 0;
 
-    while ( character < MAXCHR )
+    while ( character < MAX_CHR )
     {
         if ( ChrList[character].on )
         {
             bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAXCHR && bumpsize != 0 )
+            if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
             {
                 if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
                 {
@@ -329,12 +330,12 @@ void check_passage_music()
             // Look at each character
             character = 0;
 
-            while ( character < MAXCHR )
+            while ( character < MAX_CHR )
             {
                 if ( ChrList[character].on && ChrList[character].isplayer )
                 {
                     bumpsize = ChrList[character].bumpsize;
-                    if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAXCHR && bumpsize != 0 )
+                    if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
                     {
                         if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
                         {
@@ -361,7 +362,7 @@ void check_passage_music()
 //--------------------------------------------------------------------------------------------
 Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 {
-    // ZZ> This function returns MAXCHR if there is no character in the passage who
+    // ZZ> This function returns MAX_CHR if there is no character in the passage who
     //     have an item with the given ID.  Otherwise, the index of the first character
     //     found is returned...  Only finds living characters...
     float tlx, tly, brx, bry;
@@ -377,7 +378,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     // Look at each character
     character = 0;
 
-    while ( character < MAXCHR )
+    while ( character < MAX_CHR )
     {
         if ( ChrList[character].on )
         {
@@ -395,7 +396,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
                             // Check the pack
                             sTmp = ChrList[character].nextinpack;
 
-                            while ( sTmp != MAXCHR )
+                            while ( sTmp != MAX_CHR )
                             {
                                 if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == idsz || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == idsz )
                                 {
@@ -408,7 +409,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 
                             // Check left hand
                             sTmp = ChrList[character].holdingwhich[SLOT_LEFT];
-                            if ( sTmp != MAXCHR )
+                            if ( sTmp != MAX_CHR )
                             {
                                 sTmp = ChrList[sTmp].model;
                                 if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
@@ -420,7 +421,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
 
                             // Check right hand
                             sTmp = ChrList[character].holdingwhich[SLOT_RIGHT];
-                            if ( sTmp != MAXCHR )
+                            if ( sTmp != MAX_CHR )
                             {
                                 sTmp = ChrList[sTmp].model;
                                 if ( CapList[sTmp].idsz[IDSZ_PARENT] == idsz || CapList[sTmp].idsz[IDSZ_TYPE] == idsz )
@@ -439,7 +440,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     }
 
     // No characters found
-    return MAXCHR;
+    return MAX_CHR;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -452,7 +453,7 @@ int close_passage( Uint16 passage )
     Uint16 character;
     float bumpsize;
     Uint16 numcrushed;
-    Uint16 crushedcharacters[MAXCHR];
+    Uint16 crushedcharacters[MAX_CHR];
 
     if ( ( passmask[passage]&( MESHFX_IMPASS | MESHFX_WALL ) ) )
     {
@@ -464,10 +465,10 @@ int close_passage( Uint16 passage )
         numcrushed = 0;
         character = 0;
 
-        while ( character < MAXCHR )
+        while ( character < MAX_CHR )
         {
             bumpsize = ChrList[character].bumpsize;
-            if ( ChrList[character].on && ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAXCHR && ChrList[character].bumpsize != 0 )
+            if ( ChrList[character].on && ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
             {
                 if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
                 {
@@ -512,11 +513,11 @@ int close_passage( Uint16 passage )
 
             while ( x <= passbrx[passage] )
             {
-                fan = mesh_get_tile_int( &mesh, x, y );
+                fan = mesh_get_tile_int( PMesh, x, y );
 
                 if ( INVALID_TILE != fan )
                 {
-                    mesh.mem.tile_list[fan].fx = mesh.mem.tile_list[fan].fx | passmask[passage];
+                    PMesh->mem.tile_list[fan].fx = PMesh->mem.tile_list[fan].fx | passmask[passage];
                 }
                 x++;
             }
@@ -565,11 +566,11 @@ void add_passage( int tlx, int tly, int brx, int bry, bool_t open, Uint8 mask )
 
     if ( numpassage < MAXPASS )
     {
-        tlx = CLIP(tlx, 0, mesh.info.tiles_x - 1);
-        tly = CLIP(tly, 0, mesh.info.tiles_y - 1);
+        tlx = CLIP(tlx, 0, PMesh->info.tiles_x - 1);
+        tly = CLIP(tly, 0, PMesh->info.tiles_y - 1);
 
-        brx = CLIP(brx, 0, mesh.info.tiles_x - 1);
-        bry = CLIP(bry, 0, mesh.info.tiles_y - 1);
+        brx = CLIP(brx, 0, PMesh->info.tiles_x - 1);
+        bry = CLIP(bry, 0, PMesh->info.tiles_y - 1);
 
         passtlx[numpassage]       = tlx;
         passtly[numpassage]       = tly;
@@ -603,7 +604,7 @@ void setup_passage( const char *modname )
     fileread = fopen( newloadname, "r" );
     if ( fileread )
     {
-        while ( goto_colon_yesno( fileread ) )
+        while ( goto_colon( NULL, fileread, btrue ) )
         {
             fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
             cTmp = fget_first_letter( fileread );

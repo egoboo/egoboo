@@ -66,26 +66,26 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
 
     // Read basic data
     parse_filename = szLoadName;
-    goto_colon( fileread );  // Name of module...  Doesn't matter
-    goto_colon( fileread );  // Reference directory...
-    goto_colon( fileread );  // Reference IDSZ...
-    goto_colon( fileread );  // Import...
-    goto_colon( fileread );  // Export...
-    goto_colon( fileread );  // Min players...
-    goto_colon( fileread );  // Max players...
-    goto_colon( fileread );  // Respawn...
-    goto_colon( fileread );  // BAD! NOT USED
-    goto_colon( fileread );  // Rank...
+    goto_colon( NULL, fileread, bfalse );  // Name of module...  Doesn't matter
+    goto_colon( NULL, fileread, bfalse );  // Reference directory...
+    goto_colon( NULL, fileread, bfalse );  // Reference IDSZ...
+    goto_colon( NULL, fileread, bfalse );  // Import...
+    goto_colon( NULL, fileread, bfalse );  // Export...
+    goto_colon( NULL, fileread, bfalse );  // Min players...
+    goto_colon( NULL, fileread, bfalse );  // Max players...
+    goto_colon( NULL, fileread, bfalse );  // Respawn...
+    goto_colon( NULL, fileread, bfalse );  // BAD! NOT USED
+    goto_colon( NULL, fileread, bfalse );  // Rank...
 
     // Summary...
     for ( cnt = 0; cnt < SUMMARYLINES; cnt++ )
     {
-        goto_colon( fileread );
+        goto_colon( NULL, fileread, bfalse );
     }
 
     // Now check expansions
     foundidsz = bfalse;
-    while ( goto_colon_yesno( fileread )  )
+    while ( goto_colon( NULL, fileread, btrue )  )
     {
         newidsz = fget_idsz( fileread );
         if ( newidsz == idsz )
@@ -215,30 +215,30 @@ bool_t module_load_info( const char * szLoadName, mod_t * pmod )
     parse_filename = szLoadName;
 
     // Read basic data
-    goto_colon( fileread );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
-    goto_colon( fileread );  fscanf( fileread, "%s", pmod->reference );
-    goto_colon( fileread );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_level = fget_int( fileread );
+    goto_colon( NULL, fileread, bfalse );  fget_name( fileread, pmod->longname, sizeof(pmod->longname) );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", pmod->reference );
+    goto_colon( NULL, fileread, bfalse );  pmod->quest_idsz = fget_idsz( fileread ); pmod->quest_level = fget_int( fileread );
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
     pmod->importamount = iTmp;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     pmod->allowexport = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  pmod->allowexport = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pmod->minplayers = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pmod->minplayers = iTmp;
 
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  pmod->maxplayers = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  pmod->maxplayers = iTmp;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     pmod->respawnvalid = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  pmod->respawnvalid = btrue;
     if ( cTmp == 'A' || cTmp == 'a' )  pmod->respawnvalid = ANYTIME;
 
-    goto_colon( fileread );   //BAD: Skip line
+    goto_colon( NULL, fileread, bfalse );   //BAD: Skip line
     pmod->rtscontrol = bfalse;
 
-    goto_colon( fileread );  fscanf( fileread, "%s", readtext );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%s", readtext );
     for ( iTmp = 0; iTmp < RANKSIZE - 1; iTmp++ )
     {
         pmod->rank[iTmp] = readtext[iTmp];
@@ -249,7 +249,7 @@ bool_t module_load_info( const char * szLoadName, mod_t * pmod )
     cnt = 0;
     while ( cnt < SUMMARYLINES )
     {
-        goto_colon( fileread );  fscanf( fileread, "%255s", szLine );
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%255s", szLine );
         tnc = 0;
 
         cTmp = szLine[tnc];  if ( cTmp == '_' )  cTmp = ' ';

@@ -66,8 +66,6 @@ typedef enum e_prt_orientations prt_ori_t;
 //------------------------------------
 // Particle template
 //------------------------------------
-#define TOTALMAXPRTPIP         1024                                      // Particle templates
-
 struct s_pip
 {
     STRING  name;
@@ -154,9 +152,9 @@ struct s_pip
 typedef struct s_pip pip_t;
 
 extern int   numpip;
-extern pip_t PipList[TOTALMAXPRTPIP];
+extern pip_t PipList[MAX_PIP];
 
-#define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < TOTALMAXPRTPIP) )
+#define VALID_PIP_RANGE( IPIP ) ( ((IPIP) >= 0) && ((IPIP) < MAX_PIP) )
 #define VALID_PIP( IPIP )       ( VALID_PIP_RANGE( IPIP ) && PipList[IPIP].loaded )
 #define INVALID_PIP( IPIP )     ( !VALID_PIP_RANGE( IPIP ) || !PipList[IPIP].loaded )
 
@@ -185,7 +183,7 @@ typedef struct s_prt_instance prt_instance_t;
 // Particle variables
 //------------------------------------
 #define SPAWNNOCHARACTER        255                                      // For particles that spawn characters...
-#define TOTALMAXPRT            2048                                      // True max number of particles
+#define TOTAL_MAX_PRT            2048                                      // True max number of particles
 
 struct s_prt
 {
@@ -249,9 +247,9 @@ extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
 
-extern prt_t            PrtList[TOTALMAXPRT];
+extern prt_t            PrtList[TOTAL_MAX_PRT];
 
-#define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTALMAXPRT) )
+#define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
 #define INVALID_PRT( IPRT )       ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
 

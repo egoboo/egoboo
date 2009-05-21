@@ -32,10 +32,10 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 static Uint16       numfreeenchant = 0;         // For allocating new ones
-static Uint16       freeenchant[MAXENCHANT];
+static Uint16       freeenchant[MAX_ENC];
 
 eve_t EveList[MAXEVE];
-enc_t EncList[MAXENCHANT];
+enc_t EncList[MAX_ENC];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ bool_t remove_enchant( Uint16 ienc )
     int add;
     enc_t * penc;
 
-    if ( ienc >= MAXENCHANT ) return bfalse;
+    if ( ienc >= MAX_ENC ) return bfalse;
     if ( !EncList[ienc].on ) return bfalse;
     penc = EncList + ienc;
 
@@ -80,7 +80,7 @@ bool_t remove_enchant( Uint16 ienc )
         // Make the spawner unable to undo the enchantment
         if ( ChrList[ispawner].undoenchant == ienc )
         {
-            ChrList[ispawner].undoenchant = MAXENCHANT;
+            ChrList[ispawner].undoenchant = MAX_ENC;
         }
     }
 
@@ -92,7 +92,7 @@ bool_t remove_enchant( Uint16 ienc )
     if( ieve < MAXEVE && EveList[ieve].valid )
     {
         iwave = EveList[ieve].endsoundindex;
-        if ( iwave >= 0 && iwave < MAXWAVE )
+        if ( iwave >= 0 && iwave < MAX_WAVE )
         {
             Uint16 ispawner = penc->spawner;
             if( VALID_CHR(ispawner) )
@@ -146,7 +146,7 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Unlink it
-    if( itarget < MAXCHR && ChrList[itarget].on )
+    if( itarget < MAX_CHR && ChrList[itarget].on )
     {
         if ( ChrList[itarget].firstenchant == ienc )
         {
@@ -184,23 +184,23 @@ bool_t remove_enchant( Uint16 ienc )
     // Check to see if the character dies
     if ( EveList[penc->eve].killonend )
     {
-        if( itarget < MAXCHR && ChrList[itarget].on )
+        if( itarget < MAX_CHR && ChrList[itarget].on )
         {
             if ( ChrList[itarget].invictus )  TeamList[ChrList[itarget].baseteam].morale++;
 
             ChrList[itarget].invictus = bfalse;
-            kill_character( itarget, MAXCHR );
+            kill_character( itarget, MAX_CHR );
         }
     }
 
     // Kill overlay too...
     overlay = penc->overlay;
-    if ( overlay < MAXCHR && ChrList[overlay].on )
+    if ( overlay < MAX_CHR && ChrList[overlay].on )
     {
         if ( ChrList[overlay].invictus )  TeamList[ChrList[overlay].baseteam].morale++;
 
         ChrList[overlay].invictus = bfalse;
-        kill_character( overlay, MAXCHR );
+        kill_character( overlay, MAX_CHR );
     }
 
     // Remove see kurse enchant
@@ -227,17 +227,17 @@ bool_t remove_enchant( Uint16 ienc )
 //--------------------------------------------------------------------------------------------
 Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
 {
-    // ZZ> This function returns MAXENCHANT if the enchantment's target has no conflicting
+    // ZZ> This function returns MAX_ENC if the enchantment's target has no conflicting
     //     set values in its other enchantments.  Otherwise it returns the ienc
     //     of the conflicting enchantment
     Uint16 character, currenchant;
 
-    if( ienc > MAXENCHANT || !EncList[ienc].on ) return MAXENCHANT;
+    if( ienc > MAX_ENC || !EncList[ienc].on ) return MAX_ENC;
 
     character = EncList[ienc].target;
     currenchant = ChrList[character].firstenchant;
 
-    while ( currenchant != MAXENCHANT )
+    while ( currenchant != MAX_ENC )
     {
         if ( EncList[currenchant].setyesno[valueindex] )
         {
@@ -259,7 +259,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
@@ -269,10 +269,10 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     if ( peve->setyesno[valueindex] )
     {
         conflict = enchant_value_filled( ienc, valueindex );
-        if ( conflict == MAXENCHANT || peve->override )
+        if ( conflict == MAX_ENC || peve->override )
         {
             // Check for multiple enchantments
-            if ( conflict < MAXENCHANT )
+            if ( conflict < MAX_ENC )
             {
                 // Multiple enchantments aren't allowed for sets
                 if ( peve->removeoverridden )
@@ -436,7 +436,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
@@ -583,7 +583,7 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 //--------------------------------------------------------------------------------------------
 Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, Uint16 modeloptional )
 {
-    // ZZ> This function enchants a target, returning the enchantment index or MAXENCHANT
+    // ZZ> This function enchants a target, returning the enchantment index or MAX_ENC
     //     if failed
     Uint16 ieve, overlay;
     int add;
@@ -591,12 +591,12 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
 
     // Target and owner must both be alive and on and valid
     if ( INVALID_CHR(target) || !ChrList[target].alive )
-        return MAXENCHANT;
+        return MAX_ENC;
 
     if ( INVALID_CHR(owner) || !ChrList[owner].alive )
-        return MAXENCHANT;
+        return MAX_ENC;
 
-    if ( modeloptional < MAXMODEL )
+    if ( modeloptional < MAX_PROFILE )
     {
         // The enchantment type is given explicitly
         ieve = modeloptional;
@@ -606,23 +606,23 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         // The enchantment type is given by the spawner
         ieve = ChrList[spawner].model;
     }
-    if( ieve >= MAXEVE || !EveList[ieve].valid ) return MAXMODEL;
+    if( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
     peve = EveList + ieve;
 
-    if ( ienc == MAXENCHANT )
+    if ( ienc == MAX_ENC )
     {
         // Should it choose an inhand item?
         if ( peve->retarget )
         {
             // Is at least one valid?
-            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR && ChrList[target].holdingwhich[SLOT_RIGHT] == MAXCHR )
+            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAX_CHR && ChrList[target].holdingwhich[SLOT_RIGHT] == MAX_CHR )
             {
                 // No weapons to pick
-                return MAXENCHANT;
+                return MAX_ENC;
             }
 
             // Left, right, or both are valid
-            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAXCHR )
+            if ( ChrList[target].holdingwhich[SLOT_LEFT] == MAX_CHR )
             {
                 // Only right hand is valid
                 target = ChrList[target].holdingwhich[SLOT_RIGHT];
@@ -634,21 +634,21 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
             }
         }
 
-        if ( INVALID_CHR(target) || !ChrList[target].alive ) return MAXENCHANT;
+        if ( INVALID_CHR(target) || !ChrList[target].alive ) return MAX_ENC;
 
         // Make sure it's valid
-        if ( peve->dontdamagetype != DAMAGENULL )
+        if ( peve->dontdamagetype != DAMAGE_NONE )
         {
             if ( ( ChrList[target].damagemodifier[peve->dontdamagetype] & 7 ) >= 3 )  // Invert | Shift = 7
             {
-                return MAXENCHANT;
+                return MAX_ENC;
             }
         }
-        if ( peve->onlydamagetype != DAMAGENULL )
+        if ( peve->onlydamagetype != DAMAGE_NONE )
         {
             if ( ChrList[target].damagetargettype != peve->onlydamagetype )
             {
-                return MAXENCHANT;
+                return MAX_ENC;
             }
         }
 
@@ -660,7 +660,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         numfreeenchant--;  // To keep it in order
     }
 
-    if ( ienc < MAXENCHANT )
+    if ( ienc < MAX_ENC )
     {
         enc_t * penc = EncList + ienc;
         chr_t * ptarget = ChrList + target;
@@ -669,9 +669,9 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
 
         // Make a new one
         penc->on      = btrue;
-        penc->target  = VALID_CHR(target)  ? target  : MAXCHR;
-        penc->owner   = VALID_CHR(owner)   ? owner   : MAXCHR;
-        penc->spawner = VALID_CHR(spawner) ? spawner : MAXCHR;
+        penc->target  = VALID_CHR(target)  ? target  : MAX_CHR;
+        penc->owner   = VALID_CHR(owner)   ? owner   : MAX_CHR;
+        penc->spawner = VALID_CHR(spawner) ? spawner : MAX_CHR;
 
         if ( VALID_CHR(spawner) )
         {
@@ -724,11 +724,11 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         }
 
         // Create an overlay character?
-        penc->overlay = MAXCHR;
+        penc->overlay = MAX_CHR;
         if ( peve->overlay )
         {
             overlay = spawn_one_character( ptarget->xpos, ptarget->ypos, ptarget->zpos,
-                ieve, ptarget->team, 0, ptarget->turnleftright, NULL, MAXCHR );
+                ieve, ptarget->team, 0, ptarget->turnleftright, NULL, MAX_CHR );
 
             if ( VALID_CHR(overlay) )
             {
@@ -762,7 +762,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
 void disenchant_character( Uint16 cnt )
 {
     // ZZ> This function removes all enchantments from a character
-    while ( ChrList[cnt].firstenchant != MAXENCHANT )
+    while ( ChrList[cnt].firstenchant != MAX_ENC )
     {
         remove_enchant( ChrList[cnt].firstenchant );
     }
@@ -776,7 +776,7 @@ void free_all_enchants()
     int cnt;
 
     numfreeenchant = 0;
-    for( cnt = 0; cnt < MAXENCHANT; cnt++)
+    for( cnt = 0; cnt < MAX_ENC; cnt++)
     {
         // reuse this code
         free_one_enchant( cnt );
@@ -808,43 +808,43 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     parse_filename = szLoadName;
 
     // btrue/bfalse values
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->retarget = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->retarget = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->override = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->override = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->removeoverridden = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->removeoverridden = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->killonend = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->killonend = btrue;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->poofonend = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->poofonend = btrue;
 
     // More stuff
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  peve->time = iTmp;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  peve->endmessage = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  peve->time = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  peve->endmessage = iTmp;
 
     // Drain stuff
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->ownermana = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->targetmana = fTmp * 256;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  peve->ownermana = fTmp * 256;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  peve->targetmana = fTmp * 256;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->endifcantpay = bfalse;
     if ( cTmp == 'T' || cTmp == 't' )  peve->endifcantpay = btrue;
 
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->ownerlife = fTmp * 256;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );  peve->targetlife = fTmp * 256;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  peve->ownerlife = fTmp * 256;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  peve->targetlife = fTmp * 256;
 
     // Specifics
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    peve->dontdamagetype = DAMAGENULL;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    peve->dontdamagetype = DAMAGE_NONE;
     if ( cTmp == 'S' || cTmp == 's' )  peve->dontdamagetype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  peve->dontdamagetype = DAMAGE_CRUSH;
     if ( cTmp == 'P' || cTmp == 'p' )  peve->dontdamagetype = DAMAGE_POKE;
@@ -854,8 +854,8 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     if ( cTmp == 'I' || cTmp == 'i' )  peve->dontdamagetype = DAMAGE_ICE;
     if ( cTmp == 'Z' || cTmp == 'z' )  peve->dontdamagetype = DAMAGE_ZAP;
 
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
-    peve->onlydamagetype = DAMAGENULL;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    peve->onlydamagetype = DAMAGE_NONE;
     if ( cTmp == 'S' || cTmp == 's' )  peve->onlydamagetype = DAMAGE_SLASH;
     if ( cTmp == 'C' || cTmp == 'c' )  peve->onlydamagetype = DAMAGE_CRUSH;
     if ( cTmp == 'P' || cTmp == 'p' )  peve->onlydamagetype = DAMAGE_POKE;
@@ -865,11 +865,11 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     if ( cTmp == 'I' || cTmp == 'i' )  peve->onlydamagetype = DAMAGE_ICE;
     if ( cTmp == 'Z' || cTmp == 'z' )  peve->onlydamagetype = DAMAGE_ZAP;
 
-    goto_colon( fileread );  peve->removedbyidsz = fget_idsz( fileread );
+    goto_colon( NULL, fileread, bfalse );  peve->removedbyidsz = fget_idsz( fileread );
 
     // Now the set values
     num = 0;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
     peve->setvalue[num] = DAMAGE_SLASH;
@@ -882,19 +882,19 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     if ( cTmp == 'Z' || cTmp == 'z' )  peve->setvalue[num] = DAMAGE_ZAP;
 
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -903,7 +903,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -912,7 +912,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -921,7 +921,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -930,7 +930,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -939,7 +939,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -948,7 +948,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -957,7 +957,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );  iTmp = 0;
     if ( toupper(cTmp) == 'T' ) iTmp = DAMAGEINVERT;
@@ -966,37 +966,37 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     fscanf( fileread, "%d", &tTmp );  peve->setvalue[num] = iTmp | tTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%d", &iTmp );  peve->setvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
     peve->setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
     peve->setvalue[num] = ( cTmp == 'T' || cTmp == 't' );
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     cTmp = fget_first_letter( fileread );
     peve->setvalue[num] = MISNORMAL;
@@ -1004,68 +1004,68 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     if ( cTmp == 'D' || cTmp == 'd' )  peve->setvalue[num] = MISDEFLECT;
 
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     fscanf( fileread, "%f", &fTmp );  fTmp = fTmp * 16;
     peve->setvalue[num] = (Uint8) fTmp;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     peve->setvalue[num] = btrue;
     num++;
-    goto_colon( fileread );  cTmp = fget_first_letter( fileread );
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     peve->setyesno[num] = ( cTmp == 'T' || cTmp == 't' );
     peve->setvalue[num] = btrue;
     num++;
 
     // Now read in the add values
     num = 0;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 16;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 127;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
     peve->addvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
     peve->addvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
     peve->addvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
     peve->addvalue[num] = iTmp;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%d", &iTmp );  // Defense is backwards
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  // Defense is backwards
     peve->addvalue[num] = -iTmp;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
-    goto_colon( fileread );  fscanf( fileread, "%f", &fTmp );
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );
     peve->addvalue[num] = (Sint32) fTmp * 4;
     num++;
 
@@ -1080,7 +1080,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->overlay = 0;
 
     // Read expansions
-    while ( goto_colon_yesno( fileread ) )
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
         idsz = fget_idsz( fileread );
 
@@ -1092,7 +1092,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
         {
             // This is wrong, it gets stored or loaded incorrectly (Loaded in game.c)
             int itmp = fget_int( fileread );
-            peve->endsoundindex = CLIP(itmp, -1, MAXWAVE);
+            peve->endsoundindex = CLIP(itmp, -1, MAX_WAVE);
         }
         else if ( idsz == Make_IDSZ( "SFQR" ) ) peve->endsoundfrequency = fget_int( fileread );  // OUTDATED??
         else if ( idsz == Make_IDSZ( "STAY" ) ) peve->stayifnoowner = fget_int( fileread );
@@ -1111,14 +1111,14 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 //--------------------------------------------------------------------------------------------
 Uint16 get_free_enchant()
 {
-    // ZZ> This function returns the next free enchantment or MAXENCHANT if there are none
+    // ZZ> This function returns the next free enchantment or MAX_ENC if there are none
     if ( numfreeenchant > 0 )
     {
         numfreeenchant--;
         return freeenchant[numfreeenchant];
     }
 
-    return MAXENCHANT;
+    return MAX_ENC;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1129,7 +1129,7 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     character = penc->target;
@@ -1251,7 +1251,7 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if( ienc >= MAXENCHANT || !EncList[ienc].on) return;
+    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     character = penc->target;

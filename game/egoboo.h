@@ -150,7 +150,7 @@ enum e_damage_type
     DAMAGE_ZAP,
     DAMAGE_COUNT                             // Damage types
 };
-#define DAMAGENULL          255
+#define DAMAGE_NONE          255
 
 #define DAMAGEMANA          16                      // 000x0000 Deals damage to mana
 #define DAMAGECHARGE        8                       // 0000x000 Converts damage to mana
@@ -210,7 +210,6 @@ enum e_xp_type
 // Z velocity stuff
 #define JUMPDELAY           20                      // Time between jumps
 
-#define MAPID 0x4470614d                        // The string... MapD
 
 #define RAISE 12 //25                               // Helps correct z level
 #define SHADOWRAISE 5
@@ -230,9 +229,6 @@ enum e_xp_type
 #define EQUALLIGHTINDEX                 162         // I added an extra index to do the
 // spikey mace...
 
-#define MAXTEXTURE                      768         // Max number of textures
-#define MAXMODEL                        256         // Max number of models
-#define MAXCHR                          512         // Max number of characters
 
 //Object positions
 #define MAXSLOT                          2
@@ -249,33 +245,8 @@ enum e_xp_type
 
 #define CHOPPERMODEL                    32
 
-#define MAXMESHFAN                      (512*512)   // Terrain mesh size
-#define MAXMESHTILEY                    1024        // Max tiles in y direction
-#define MAXMESHBLOCKY                   (( MAXMESHTILEY >> 2 )+1)  // max blocks in the y direction
-#define BYTESFOREACHVERTEX              14            // 14 bytes each
-#define MAXMESHVERTICES                 16            // Fansquare vertices
-#define MAXMESHTYPE                     64            // Number of fansquare command types
-#define MAXMESHCOMMAND                  4             // Draw up to 4 fans
-#define MAXMESHCOMMANDENTRIES           32            // Fansquare command list size
-#define MAXMESHCOMMANDSIZE              32            // Max trigs in each command
-#define MAXTILETYPE                     256           // Max number of tile images
-#define MAXMESHRENDER                   1024          // Max number of tiles to draw
-#define FANOFF                          0xffff        // Don't draw the fansquare if tile = this
-
-#define MESHFX_REF                       0           // 0 This tile is drawn 1st
-#define MESHFX_SHA                       1           // 0 This tile is drawn 2nd
-#define MESHFX_DRAWREF                   2           // 1 Draw reflection of characters
-#define MESHFX_ANIM                      4           // 2 Animated tile ( 4 frame )
-#define MESHFX_WATER                     8           // 3 Render water above surface ( Water details are set per module )
-#define MESHFX_WALL                      16          // 4 Wall ( Passable by ghosts, particles )
-#define MESHFX_IMPASS                    32          // 5 Impassable
-#define MESHFX_DAMAGE                    64          // 6 Damage
-#define MESHFX_SLIPPY                    128         // 7 Ice or normal
 
 // Physics
-#define SLOPE                           800         // Slope increments for terrain normals
-#define SLIDE                           0.04f         // Acceleration for steep hills
-#define SLIDEFIX                        0.08f         // To make almost flat surfaces flat
 
 #define STOPBOUNCING                    0.1f //1.0f         // To make objects stop bouncing
 #define STOPBOUNCINGPART                5.0f         // To make particles stop bouncing
@@ -496,7 +467,7 @@ EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD
 
 EXTERN bool_t                    local_seeinvisible   EQ( bfalse );
 EXTERN bool_t                    local_seekurse       EQ( bfalse );
-EXTERN Uint16                    local_senseenemies   EQ( MAXCHR );
+EXTERN Uint16                    local_senseenemies   EQ( MAX_CHR );
 EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
 
@@ -507,7 +478,7 @@ EXTERN int             globalicon_count;                              // Number 
 
 
 
-EXTERN Uint16  skintoicon[MAXTEXTURE];                  // Skin to icon
+EXTERN Uint16  skintoicon[MAX_TEXTURE];                  // Skin to icon
 
 EXTERN Uint16  bookicon_count    EQ(0);
 EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
@@ -528,112 +499,7 @@ EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      /
 
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 
-//BAD!!
-EXTERN Uint16          glouseangle;
-//BAD!!
-
-// Bump List
-struct s_bumplist
-{
-    Uint16  chr;                     // For character collisions
-    Uint16  chrnum;                  // Number on the block
-    Uint16  prt;                     // For particle collisions
-    Uint16  prtnum;                  // Number on the block
-};
-typedef struct s_bumplist bumplist_t;
-
-EXTERN bumplist_t bumplist[MAXMESHFAN/16];
-
-//Mesh
-EXTERN Uint32 maplrtwist[256];            // For surface normal of mesh
-EXTERN Uint32 mapudtwist[256];
-EXTERN float  vellrtwist[256];            // For sliding down steep hills
-EXTERN float  veludtwist[256];
-EXTERN Uint8  flattwist[256];
-
-#define MESH_MAXTOTALVERTRICES 1024*100
-
-struct s_mesh_info
-{
-    Uint8           exploremode;                      // Explore mode?
-
-    size_t          vertcount;                         // For malloc
-
-    int             tiles_x;                          // Size in tiles
-    int             tiles_y;
-    Uint32          tiles_count;                      // Number of tiles
-
-    int             blocks_x;                         // Size in blocks
-    int             blocks_y;
-    Uint32          blocks_count;                     // Number of blocks (collision areas)
-
-    float           edge_x;                           // Limits
-    float           edge_y;
-};
-typedef struct s_mesh_info mesh_info_t;
-
-struct s_tile_info
-{
-    Uint8   type;                              // Tile type
-    Uint16  img;                               // Get texture from this
-    Uint8   fx;                                 // Special effects flags
-    Uint8   twist;
-    Uint32  vrtstart;                           // Which vertex to start at
-
-    bool_t  inrenderlist;
-};
-typedef struct s_tile_info tile_info_t;
-
-struct s_mesh_mem
-{
-    size_t          vertcount;                                      // For malloc
-
-    tile_info_t *   tile_list;                               // Command type
-
-    Uint32*         blockstart;
-    Uint32*         tilestart;                         // Which fan to start a row with
-
-    float*          vrt_x;                                 // Vertex position
-    float*          vrt_y;
-    float*          vrt_z;                                 // Vertex elevation
-    Uint8*          vrt_a;                                 // Vertex base light
-    Uint8*          vrt_l;                                 // Vertex light
-};
-typedef struct s_mesh_mem mesh_mem_t;
-
-struct s_mesh
-{
-    mesh_info_t info;
-    mesh_mem_t  mem;
-
-    float       tileoff_u[MAXTILETYPE];                          // Tile texture offset
-    float       tileoff_v[MAXTILETYPE];
-};
-typedef struct s_mesh mesh_t;
-
-EXTERN mesh_t mesh;
-
-mesh_t * mesh_new( mesh_t * pmesh );
-mesh_t * mesh_renew( mesh_t * pmesh );
-mesh_t * mesh_delete( mesh_t * pmesh );
-mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y );
-
-struct s_tile_definition
-{
-    Uint8           numvertices;                // Number of vertices
-    float           u[MAXMESHVERTICES];         // Vertex texture posi
-    float           v[MAXMESHVERTICES];
-
-    Uint8           command_count;                        // Number of commands
-    Uint8           command_entries[MAXMESHCOMMAND];      // Entries in each command
-    Uint16          command_verts[MAXMESHCOMMANDENTRIES]; // Fansquare vertex list
-};
-typedef struct s_tile_definition tile_definition_t;
-
-tile_definition_t tile_dict[MAXMESHTYPE];
-
-#define INVALID_BLOCK ((Uint32)(~0))
-#define INVALID_TILE  ((Uint32)(~0))
+EXTERN Uint16          glouseangle;                                        // actually still used
 
 EXTERN Uint8 asciitofont[256];                                   // Conversion table
 
