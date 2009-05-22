@@ -190,7 +190,7 @@ void render_prt( camera_t * pcam )
         // DO SOLID SPRITES FIRST
         glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+            GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
 
             glDisable( GL_CULL_FACE );
             glDisable( GL_DITHER );
@@ -280,7 +280,7 @@ void render_prt( camera_t * pcam )
 
                     glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
 
-                    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+                    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
                 }
                 else if ( PRTLIGHTSPRITE == PrtList[prt].type )
                 {
@@ -291,7 +291,7 @@ void render_prt( camera_t * pcam )
                     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
                     glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
 
-                    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
+                    GLtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
                 }
                 else if ( PRTALPHASPRITE == PrtList[prt].type )
                 {
@@ -304,7 +304,7 @@ void render_prt( camera_t * pcam )
 
                     glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
 
-                    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+                    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
                 }
                 else
                 {
@@ -392,7 +392,7 @@ void render_refprt( camera_t * pcam )
     qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
 
     // Choose texture.
-    GLtexture_Bind( txTexture + TX_PARTICLE_TRANS );
+    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
 
     glDisable( GL_CULL_FACE );
     glDisable( GL_DITHER );

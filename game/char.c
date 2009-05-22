@@ -640,7 +640,8 @@ void make_character_matrices(bool_t do_physics)
             if( ChrList[cnt].inst.matrixvalid ) continue;
 
             imount = ChrList[ichr].attachedto;
-            if( INVALID_CHR(imount) ) continue;
+            if( INVALID_CHR(imount) ) { ChrList[ichr].attachedto = MAX_CHR; continue; }
+            if( imount == ichr ) { imount = MAX_CHR; continue; }
 
             // can't evaluate this link yet
             if( !ChrList[imount].inst.matrixvalid )

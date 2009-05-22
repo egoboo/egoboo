@@ -364,18 +364,18 @@ void camera_move( camera_t * pcam )
     pcam->trackxvel += pcam->trackx;
     pcam->trackyvel += pcam->tracky;
     pcam->trackzvel += pcam->trackz;
-    if ( draw_water_0 )
-    {
-        // Do fg distance effect
-        waterlayeru[0] += pcam->trackxvel * waterlayerdistx[0];
-        waterlayerv[0] += pcam->trackyvel * waterlayerdisty[0];
-    }
-    if ( draw_water_1 )
-    {
-        // Do bg distance effect
-        waterlayeru[1] += pcam->trackxvel * waterlayerdistx[1];
-        waterlayerv[1] += pcam->trackyvel * waterlayerdisty[1];
-    }
+    //if ( draw_water_0 )
+    //{
+    //    // Do fg distance effect
+    //    waterlayeru[0] += pcam->trackxvel * waterlayerdistx[0];
+    //    waterlayerv[0] += pcam->trackyvel * waterlayerdisty[0];
+    //}
+    //if ( draw_water_1 )
+    //{
+    //    // Do bg distance effect
+    //    waterlayeru[1] += pcam->trackxvel * waterlayerdistx[1];
+    //    waterlayerv[1] += pcam->trackyvel * waterlayerdisty[1];
+    //}
 
     // Center on target for doing rotation...
     if ( pcam->turn_time != 0 )

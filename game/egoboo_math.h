@@ -91,8 +91,16 @@ typedef float glvector4_base_t[4];
 
 typedef struct s_glmatrix  { glmatrix_base_t  v; } GLmatrix;
 typedef union  u_glvector2 { glvector2_base_t v; struct { float x, y; }; } GLvector2;
-typedef union  u_glvector3 { glvector3_base_t v; struct { float x, y, z; }; } GLvector3;
-typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; } GLvector4;
+typedef union  u_glvector3 { glvector3_base_t v; struct { float x, y, z; }; struct { float r, g, b; }; } GLvector3;
+typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; struct { float r, g, b, a; }; } GLvector4;
+
+#define ZERO_VECT2 { {0,0} }
+#define ZERO_VECT3 { {0,0,0} }
+#define ZERO_VECT4 { {0,0,0,0} }
+
+#define VECT2(XX,YY) { {XX,YY} }
+#define VECT3(XX,YY,ZZ) { {XX,YY,ZZ} }
+#define VECT4(XX,YY,ZZ,WW) { {XX,YY,ZZ,WW} }
 
 
 /**> GLOBAL VARIABLES <**/

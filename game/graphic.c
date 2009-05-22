@@ -72,7 +72,7 @@ GLtexture       TxFont;                     // OpenGL font surface
 GLtexture       TxBars;                     // OpenGL status bar surface
 GLtexture       TxBlip;                     // OpenGL you are here surface
 GLtexture       TxMap;                      // OpenGL map surface
-GLtexture       txTexture[MAX_TEXTURE];     // All textures
+GLtexture       TxTexture[MAX_TEXTURE];     // All textures
 
 Uint32          TxTitleImage_count = 0;
 GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
@@ -89,7 +89,8 @@ Uint16           meshlasttexture = (Uint16)~0;
 renderlist_t     renderlist = {0, 0, 0, 0, 0};
 
 Uint8            lightdirectionlookup[65536];
-Uint8            lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
+float            lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
+float            lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
 float            indextoenvirox[MD2LIGHTINDICES];
 float            lighttoenviroy[256];
 Uint32           lighttospek[MAXSPEKLEVEL][256];
@@ -724,7 +725,7 @@ void init_all_textures()
 
     for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
-        GLtexture_new( txTexture + cnt );
+        GLtexture_new( TxTexture + cnt );
     }
 }
 
@@ -769,19 +770,24 @@ void release_all_icons()
     // ZZ> This function clears out all of the icons
     int cnt;
 
+    // release all icon textures
     for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
         GLtexture_Release( TxIcon + cnt );
+    }
+    globalicon_count = 0;
+
+    // remove the texture references
+    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
+    {
         skintoicon[cnt] = 0;
     }
-
+        
     bookicon_count = 0;
     for ( cnt = 0; cnt < MAXSKIN; cnt++ )
     {
-        bookicon[cnt] = MAX_ICON;
+        bookicon[cnt] = 0;
     }
-
-    globalicon_count = 0;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -828,7 +834,7 @@ void release_all_textures()
 
     for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
-        GLtexture_Release( txTexture + cnt );
+        GLtexture_Release( TxTexture + cnt );
     }
 }
 
@@ -1528,31 +1534,31 @@ void load_basic_textures( const char *modname )
     char newloadname[256];
 
     // Particle sprites
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE_TRANS, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_PARTICLE_LIGHT, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", INVALID_KEY );
+    GLtexture_Load(GL_TEXTURE_2D, TxTexture + TX_PARTICLE_TRANS, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_trans", TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, TxTexture + TX_PARTICLE_LIGHT, "basicdat" SLASH_STR "globalparticles" SLASH_STR "particle_light", INVALID_KEY );
 
     // Module background tiles
     make_newloadname( modname, "gamedat" SLASH_STR "tile0", newloadname );
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_0, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, TxTexture + TX_TILE_0, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile1", newloadname );
-    GLtexture_Load(GL_TEXTURE_2D,  txTexture + TX_TILE_1, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D,  TxTexture + TX_TILE_1, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile2", newloadname );
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_2, newloadname, TRANSCOLOR);
+    GLtexture_Load(GL_TEXTURE_2D, TxTexture + TX_TILE_2, newloadname, TRANSCOLOR);
 
     make_newloadname( modname, "gamedat" SLASH_STR "tile3", newloadname );
-    GLtexture_Load(GL_TEXTURE_2D, txTexture + TX_TILE_3, newloadname, TRANSCOLOR );
+    GLtexture_Load(GL_TEXTURE_2D, TxTexture + TX_TILE_3, newloadname, TRANSCOLOR );
 
     // Water textures
     make_newloadname( modname, "gamedat" SLASH_STR "watertop", newloadname );
-    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
+    GLtexture_Load( GL_TEXTURE_2D,  TxTexture + TX_WATER_TOP, newloadname, TRANSCOLOR );
 
     make_newloadname( modname, "gamedat" SLASH_STR "waterlow", newloadname );
-    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
+    GLtexture_Load( GL_TEXTURE_2D,  TxTexture + TX_WATER_LOW, newloadname, TRANSCOLOR);
 
     // Texture 7 is the phong map
-    GLtexture_Load( GL_TEXTURE_2D,  txTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
+    GLtexture_Load( GL_TEXTURE_2D,  TxTexture + TX_PHONG, "basicdat" SLASH_STR "phong", TRANSCOLOR );
 
 }
 
@@ -1985,195 +1991,225 @@ void read_wawalite( const char *modname )
 //--------------------------------------------------------------------------------------------
 void render_background( Uint16 texture )
 {
-    // ZZ> This function draws the large background
-    GLvertex vtlist[4];
-    float size;
-    float sinsize, cossize;
-    float x, y, z, u, v;
-    float loc_backgroundrepeat;
-    Uint8 i;
+  // ZZ> This function draws the large background
+  GLvertex vtlist[4];
+  int i;
+  float z0, d, mag0,mag1, Qx,Qy;
 
-    // Figure out the coordinates of its corners
-    x = displaySurface->w << 6;
-    y = displaySurface->h << 6;
-    z = 0.99999f;
-    size = x + y + 1;
-    sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;   // why 3/8 of a turn???
-    cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;   // why 3/8 of a turn???
-    u = waterlayeru[1];
-    v = waterlayerv[1];
-    loc_backgroundrepeat = backgroundrepeat * MIN( x / displaySurface->w, y / displaySurface->h );
+  z0 = 1500; // the original height of the gCamera.era
+  d = MIN(waterlayerdistx[0], waterlayerdisty[0])/10.0f;
+  mag0 = 1.0f/(1.0f + z0*d);
+  //mag1 = backgroundrepeat/128.0f/10;
+  mag1 = 1.0f/128.0f/5.0f;
 
-    vtlist[0].x = x + cossize;
-    vtlist[0].y = y - sinsize;
-    vtlist[0].z = z;
-    vtlist[0].s = 0 + u;
-    vtlist[0].t = 0 + v;
+  // clip the waterlayer uv offset
+  waterlayeru[0] = waterlayeru[0] - (float)floor(waterlayeru[0]);
+  waterlayerv[0] = waterlayerv[0] - (float)floor(waterlayerv[0]);
 
-    vtlist[1].x = x + sinsize;
-    vtlist[1].y = y + cossize;
-    vtlist[1].z = z;
-    vtlist[1].s = loc_backgroundrepeat + u;
-    vtlist[1].t = 0 + v;
+  // Figure out the coordinates of its corners
+  Qx = -PMesh->info.edge_x;
+  Qy = -PMesh->info.edge_y;
+  vtlist[0].x = mag0 * gCamera.x + Qx * ( 1.0f - mag0 );
+  vtlist[0].y = mag0 * gCamera.y + Qy * ( 1.0f - mag0 );
+  vtlist[0].z = 0;
+  vtlist[0].s = Qx * mag1 + waterlayeru[0];
+  vtlist[0].t = Qy * mag1 + waterlayerv[0];
 
-    vtlist[2].x = x - cossize;
-    vtlist[2].y = y + sinsize;
-    vtlist[2].z = z;
-    vtlist[2].s = loc_backgroundrepeat + u;
-    vtlist[2].t = loc_backgroundrepeat + v;
+  Qx = 2*PMesh->info.edge_x;
+  Qy = -PMesh->info.edge_y;
+  vtlist[1].x = mag0 * gCamera.x + Qx * ( 1.0f - mag0 );
+  vtlist[1].y = mag0 * gCamera.y + Qy * ( 1.0f - mag0 );
+  vtlist[1].z = 0;
+  vtlist[1].s = Qx * mag1 + waterlayeru[0];
+  vtlist[1].t = Qy * mag1 + waterlayerv[0];
 
-    vtlist[3].x = x - sinsize;
-    vtlist[3].y = y - cossize;
-    vtlist[3].z = z;
-    vtlist[3].s = 0 + u;
-    vtlist[3].t = loc_backgroundrepeat + v;
+  Qx = 2*PMesh->info.edge_x;
+  Qy = 2*PMesh->info.edge_y;
+  vtlist[2].x = mag0 * gCamera.x + Qx * ( 1.0f - mag0 );
+  vtlist[2].y = mag0 * gCamera.y + Qy * ( 1.0f - mag0 );
+  vtlist[2].z = 0;
+  vtlist[2].s = Qx * mag1 + waterlayeru[0];
+  vtlist[2].t = Qy * mag1 + waterlayerv[0];
 
+  Qx = -PMesh->info.edge_x;
+  Qy = 2*PMesh->info.edge_y;
+  vtlist[3].x = mag0 * gCamera.x + Qx * ( 1.0f - mag0 );
+  vtlist[3].y = mag0 * gCamera.y + Qy * ( 1.0f - mag0 );
+  vtlist[3].z = 0;
+  vtlist[3].s = Qx * mag1 + waterlayeru[0];
+  vtlist[3].t = Qy * mag1 + waterlayerv[0];
+
+  {
+    GLvector3 intens = VECT3(0.0f, 0.0f, 0.0f);
+    float alpha  = 1.0f;
+    GLint shading_save, depthfunc_save;
+    GLboolean depthmask_save, cullface_save;
+
+    //if(gLight.on)
+    //{
+    //  float fcos;
+    //  GLvector3 updir = VECT3( 0,0,-gPhys.gravity);
+
+    //  VNormalizeEq3( updir.v, 1.0f );
+    //  fcos = VDotProduct3(gLight.spekdir, updir);
+    //  intens = gLight.ambicol;
+    //  if(fcos > 0)
+    //  {
+    //    intens = VAdd3( VScale3(gLight.spekcol, fcos*fcos), intens);
+    //  }
+    //}
+
+    alpha = waterlayeralpha[0] / 255.0f;
+
+    GLtexture_Bind ( TxTexture + texture );
+
+    glGetIntegerv( GL_SHADE_MODEL, &shading_save );
+    glShadeModel( GL_FLAT );  // Flat shade this
+
+    depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
+    glDepthMask( GL_FALSE );
+
+    glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
+    glDepthFunc( GL_ALWAYS );
+
+    cullface_save = glIsEnabled( GL_CULL_FACE );
+    glDisable( GL_CULL_FACE );
+
+    glColor4f( 1, 1, 1, alpha );
+    glBegin ( GL_TRIANGLE_FAN );
+    for ( i = 0; i < 4; i++ )
     {
-        GLint shading_save, depthfunc_save;
-        GLboolean depthmask_save, cullface_save;
-
-        glGetIntegerv( GL_SHADE_MODEL, &shading_save );
-        glShadeModel( GL_FLAT );  // Flat shade this
-
-        depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
-        glDepthMask( GL_FALSE );
-
-        glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
-        glDepthFunc( GL_ALWAYS );
-
-        cullface_save = glIsEnabled( GL_CULL_FACE );
-        glDisable( GL_CULL_FACE );
-
-        GLtexture_Bind( txTexture + texture );
-
-        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        glBegin ( GL_TRIANGLE_FAN );
-        {
-            for ( i = 0; i < 4; i++ )
-            {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-            }
-        }
-        glEnd ();
-
-        glDepthFunc( depthfunc_save );
-        glDepthMask( depthmask_save );
-        glShadeModel(shading_save);
-        if (cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
+      glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+      glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
     }
+    glEnd ();
+
+    glDepthFunc( depthfunc_save );
+    glDepthMask( depthmask_save );
+    glShadeModel(shading_save);
+    if(cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
+  }
 }
+
 
 //--------------------------------------------------------------------------------------------
 void render_foreground_overlay( Uint16 texture )
 {
-    // ZZ> This function draws the large foreground
-    GLvertex vtlist[4];
-    int i;
-    float size;
-    float sinsize, cossize;
-    float x, y, z;
-    float u, v;
-    float loc_foregroundrepeat;
+  // ZZ> This function draws the large foreground
+  GLvertex vtlist[4];
+  GLvector3 vforw_wind, vforw_cam;
+  int i;
+  float size;
+  float sinsize, cossize;
+  float x, y, z;
+  float u, v;
+  float loc_foregroundrepeat;
 
-    // Figure out the screen coordinates of its corners
-    x = displaySurface->w << 6;
-    y = displaySurface->h << 6;
-    z = 0;
-    u = waterlayeru[1];
-    v = waterlayerv[1];
-    size = x + y + 1;
-    sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-    cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-    loc_foregroundrepeat = foregroundrepeat * MIN( x / displaySurface->w, y / displaySurface->h );
+  // Figure out the screen coordinates of its corners
+  x = scrx << 6;
+  y = scry << 6;
+  z = 0;
+  u = waterlayeru[1];
+  v = waterlayerv[1];
+  size = x + y + 1;
+  sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+  cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+  loc_foregroundrepeat = foregroundrepeat * MIN( x / scrx, y / scrx );
 
-    vtlist[0].x = x + cossize;
-    vtlist[0].y = y - sinsize;
-    vtlist[0].z = z;
-    vtlist[0].s = 0 + u;
-    vtlist[0].t = 0 + v;
+  vtlist[0].x = x + cossize;
+  vtlist[0].y = y - sinsize;
+  vtlist[0].z = z;
+  vtlist[0].s = 0 + u;
+  vtlist[0].t = 0 + v;
 
-    vtlist[1].x = x + sinsize;
-    vtlist[1].y = y + cossize;
-    vtlist[1].z = z;
-    vtlist[1].s = loc_foregroundrepeat + u;
-    vtlist[1].t = v;
+  vtlist[1].x = x + sinsize;
+  vtlist[1].y = y + cossize;
+  vtlist[1].z = z;
+  vtlist[1].s = loc_foregroundrepeat + u;
+  vtlist[1].t = 0 + v;
 
-    vtlist[2].x = x - cossize;
-    vtlist[2].y = y + sinsize;
-    vtlist[2].z = z;
-    vtlist[2].s = loc_foregroundrepeat + u;
-    vtlist[2].t = loc_foregroundrepeat + v;
+  vtlist[2].x = x - cossize;
+  vtlist[2].y = y + sinsize;
+  vtlist[2].z = z;
+  vtlist[2].s = loc_foregroundrepeat + u;
+  vtlist[2].t = loc_foregroundrepeat + v;
 
-    vtlist[3].x = x - sinsize;
-    vtlist[3].y = y - cossize;
-    vtlist[3].z = z;
-    vtlist[3].s = 0 + u;
-    vtlist[3].t = loc_foregroundrepeat + v;
+  vtlist[3].x = x - sinsize;
+  vtlist[3].y = y - cossize;
+  vtlist[3].z = z;
+  vtlist[3].s = 0 + u;
+  vtlist[3].t = loc_foregroundrepeat + v;
 
+  vforw_wind.x = waterlayeruadd[1];
+  vforw_wind.y = waterlayervadd[1];
+  vforw_wind.z = 0;
+  vforw_wind = VNormalize( vforw_wind );
+  vforw_cam  = mat_getCamForward( gCamera.mView );
+
+  {
+    float alpha;
+    GLint shading_save, depthfunc_save, smoothhint_save;
+    GLboolean depthmask_save, cullface_save, alphatest_save;
+
+    GLint alphatestfunc_save, alphatestref_save, alphablendsrc_save, alphablenddst_save;
+    GLboolean alphablend_save;
+
+    glGetIntegerv(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
+    glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
+
+    GLtexture_Bind ( TxTexture + texture );
+
+    glGetIntegerv( GL_SHADE_MODEL, &shading_save );
+    glShadeModel( GL_FLAT );  // Flat shade this
+
+    depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
+    glDepthMask( GL_FALSE );
+
+    glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
+    glDepthFunc( GL_ALWAYS );
+
+    cullface_save = glIsEnabled( GL_CULL_FACE );
+    glDisable( GL_CULL_FACE );
+
+    alphatest_save = glIsEnabled( GL_ALPHA_TEST );
+    glEnable( GL_ALPHA_TEST );
+
+    glGetIntegerv( GL_ALPHA_TEST_FUNC, &alphatestfunc_save );
+    glGetIntegerv( GL_ALPHA_TEST_REF, &alphatestref_save );
+    glAlphaFunc( GL_GREATER, 0 );
+
+    alphablend_save = glIsEnabled( GL_BLEND );
+    glEnable( GL_BLEND );
+
+    glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
+    glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
+
+    // make the texture begin to disappear if you are not looking straight down
+    alpha = VDotProduct( vforw_wind, vforw_cam );
+
+    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
+    glBegin ( GL_TRIANGLE_FAN );
+    for ( i = 0; i < 4; i++ )
     {
-        GLint shading_save, depthfunc_save, smoothhint_save;
-        GLboolean depthmask_save, cullface_save, alphatest_save;
-
-        GLint alphatestfunc_save, alphatestref_save, alphablendsrc_save, alphablenddst_save;
-        GLboolean alphablend_save;
-
-        glGetIntegerv(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
-        glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
-
-        glGetIntegerv( GL_SHADE_MODEL, &shading_save );
-        glShadeModel( GL_FLAT );  // Flat shade this
-
-        depthmask_save = glIsEnabled( GL_DEPTH_WRITEMASK );
-        glDepthMask( GL_FALSE );
-
-        glGetIntegerv( GL_DEPTH_FUNC, &depthfunc_save );
-        glDepthFunc( GL_ALWAYS );
-
-        cullface_save = glIsEnabled( GL_CULL_FACE );
-        glDisable( GL_CULL_FACE );
-
-        alphatest_save = glIsEnabled( GL_ALPHA_TEST );
-        glEnable( GL_ALPHA_TEST );
-
-        glGetIntegerv( GL_ALPHA_TEST_FUNC, &alphatestfunc_save );
-        glGetIntegerv( GL_ALPHA_TEST_REF, &alphatestref_save );
-        glAlphaFunc( GL_GREATER, 0 );
-
-        alphablend_save = glIsEnabled( GL_BLEND );
-        glEnable( GL_BLEND );
-
-        glGetIntegerv( GL_BLEND_SRC, &alphablendsrc_save );
-        glGetIntegerv( GL_BLEND_DST, &alphablenddst_save );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
-
-        GLtexture_Bind(txTexture + texture);
-
-        glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-        glBegin ( GL_TRIANGLE_FAN );
-        {
-            for ( i = 0; i < 4; i++ )
-            {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-            }
-        }
-        glEnd ();
-
-        glHint( GL_POLYGON_SMOOTH_HINT, smoothhint_save );
-        glShadeModel( shading_save );
-        glDepthMask( depthmask_save );
-        glDepthFunc( depthfunc_save );
-        if (cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
-        if (alphatest_save) glEnable( GL_ALPHA_TEST ); else glDisable( GL_ALPHA_TEST );
-
-        glAlphaFunc( alphatestfunc_save, alphatestref_save );
-        if (alphablend_save) glEnable( GL_BLEND ); else glDisable( GL_BLEND );
-
-        glBlendFunc( alphablendsrc_save, alphablenddst_save );
+      glTexCoord2f ( vtlist[i].s, vtlist[i].t );
+      glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
     }
-}
+    glEnd ();
 
+    glHint( GL_POLYGON_SMOOTH_HINT, smoothhint_save );
+    glShadeModel( shading_save );
+    glDepthMask( depthmask_save );
+    glDepthFunc( depthfunc_save );
+
+    if(cullface_save) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
+    if(alphatest_save) glEnable( GL_ALPHA_TEST ); else glDisable( GL_ALPHA_TEST );
+    glAlphaFunc( alphatestfunc_save, alphatestref_save );
+
+    if(alphablend_save) glEnable( GL_BLEND ); else glDisable( GL_BLEND );
+    glBlendFunc( alphablendsrc_save, alphablenddst_save );
+  }
+}//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
@@ -2256,7 +2292,7 @@ void render_shadow( Uint16 character )
     y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
+    GLtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
 
     // GOOD SHADOW
     v[0].s = sprite_list_u[238][0];
@@ -2377,7 +2413,7 @@ void render_bad_shadow( Uint16 character )
     v[3].z = ( float ) level;
 
     // Choose texture and matrix
-    GLtexture_Bind( txTexture + TX_PARTICLE_LIGHT );
+    GLtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
 
     v[0].s = sprite_list_u[236][0];
     v[0].t = sprite_list_v[236][0];
@@ -2441,7 +2477,7 @@ void light_characters()
         light = (128 - iy) * itop + iy * ibot;
         light >>= 14;
 
-        ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / (light_max + light_min);
+        ChrList[tnc].lightlevel_dir = ( light * (light_max - light_min) ) / light_max;
         ChrList[tnc].lightlevel_amb = light - ChrList[tnc].lightlevel_dir;
 
         if ( !PMesh->info.exploremode && ChrList[tnc].lightlevel_dir > 0 )
@@ -4355,25 +4391,50 @@ void load_graphics()
 }
 
 //---------------------------------------------------------------------------------------------
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi )
+float calc_light_rotation( int rotation, int normal )
 {
     // ZZ> This function helps make_lighttable
     float fTmp;
-    float nx, ny, nz;
+    GLvector3 nrm, nrm2;
     float sinrot, cosrot;
 
-    nx = kMd2Normals[normal][0];
-    ny = kMd2Normals[normal][1];
-    nz = kMd2Normals[normal][2];
+    nrm.x = kMd2Normals[normal][0];
+    nrm.y = kMd2Normals[normal][1];
+    nrm.z = kMd2Normals[normal][2];
+
     sinrot = sinlut[rotation];
     cosrot = coslut[rotation];
-    fTmp = cosrot * nx + sinrot * ny;
-    ny = cosrot * ny - sinrot * nx;
-    nx = fTmp;
-    fTmp = nx * lx + ny * ly + nz * lz + ambi;
-    if ( fTmp < ambi ) fTmp = ambi;
 
-    return fTmp;
+    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
+    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
+    nrm2.z = nrm.z;
+    
+    return (nrm2.x < 0) ? 0 : (nrm2.x * nrm2.x);
+}
+
+//---------------------------------------------------------------------------------------------
+float calc_light_global( int rotation, int normal, float lx, float ly, float lz )
+{
+    // ZZ> This function helps make_lighttable
+    float fTmp;
+    GLvector3 nrm, nrm2;
+    float sinrot, cosrot;
+
+    nrm.x = kMd2Normals[normal][0];
+    nrm.y = kMd2Normals[normal][1];
+    nrm.z = kMd2Normals[normal][2];
+
+    sinrot = sinlut[rotation];
+    cosrot = coslut[rotation];
+
+    nrm2.x = cosrot * nrm.x + sinrot * nrm.y;
+    nrm2.y = cosrot * nrm.y - sinrot * nrm.x;
+    nrm2.z = nrm.z;
+
+    fTmp = nrm2.x * lx + nrm2.y * ly + nrm2.z * lz;
+    if( fTmp < 0 ) fTmp = 0;
+    
+    return fTmp * fTmp;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -4394,41 +4455,16 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
     {
         for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
         {
-            lev = MAXLIGHTLEVEL - 1;
-            itmp = ( 255 * light_for_normal( tnc,
-                                             cnt,
-                                             lx * lev / MAXLIGHTLEVEL,
-                                             ly * lev / MAXLIGHTLEVEL,
-                                             lz * lev / MAXLIGHTLEVEL,
-                                             ambi ) );
-
-            // This creates the light value for each level entry
-            while ( lev >= 0 )
-            {
-                itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-                if ( itmptwo > 255 )  itmptwo = 255;
-
-                lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
-                lev--;
-            }
+            lighttable_local[tnc][cnt]  = calc_light_rotation( tnc, cnt );
+            lighttable_global[tnc][cnt] = ambi * (1.0f + calc_light_global( tnc, cnt, lx, ly, lz ));
         }
     }
 
     // Fill in index number 162 for the spike mace
     for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
     {
-        lev = MAXLIGHTLEVEL - 1;
-        itmp = 255;
-
-        // This creates the light value for each level entry
-        while ( lev >= 0 )
-        {
-            itmptwo = ( ( ( lev * itmp / ( MAXLIGHTLEVEL - 1 ) ) ) );
-            if ( itmptwo > 255 )  itmptwo = 255;
-
-            lighttable[lev][tnc][cnt] = ( Uint8 ) itmptwo;
-            lev--;
-        }
+        lighttable_local[tnc][cnt] = 0;
+        lighttable_global[tnc][cnt] = ambi;
     }
 }
 

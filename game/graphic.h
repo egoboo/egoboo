@@ -85,7 +85,7 @@ extern  GLtexture       TxFont;                     // OpenGL font surface
 extern  GLtexture       TxBars;                     // OpenGL status bar surface
 extern  GLtexture       TxBlip;                     // OpenGL you are here surface
 extern  GLtexture       TxMap;                      // OpenGL map surface
-extern  GLtexture       txTexture[MAX_TEXTURE];      // All textures
+extern  GLtexture       TxTexture[MAX_TEXTURE];      // All textures
 
 extern  Uint32          TxTitleImage_count;
 extern  GLtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
@@ -142,7 +142,8 @@ typedef struct s_renderlist renderlist_t;
 extern renderlist_t renderlist;
 
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
-extern Uint8           lighttable[MAXLIGHTLEVEL][MAXLIGHTROTATION][MD2LIGHTINDICES];
+extern float           lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
+extern float           lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
 extern float           indextoenvirox[MD2LIGHTINDICES];                    // Environment map
 extern float           lighttoenviroy[256];                                // Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
@@ -221,7 +222,7 @@ void   load_bars( const char* szBitmap );
 void   load_map( const char* szModule );
 bool_t load_all_global_icons();
 
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
+float light_for_normal( int rotation, int normal, float lx, float ly, float lz );
 void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();
@@ -267,7 +268,6 @@ int glinit( int argc, char **argv );
 bool_t dump_screenshot();
 
 void make_enviro();
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz, float ambi );
 
 bool_t load_one_icon( const char *szLoadName );
 

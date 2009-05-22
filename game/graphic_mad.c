@@ -171,7 +171,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
     Uint8  lip = ChrList[character].inst.lip >> 6;
     Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
     Uint32 alpha = trans;
-    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir;
     Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
     float  uoffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.uoffset ) ] - gCamera.turnleftrightone;
     float  voffset = textureoffset[ FP8_TO_INT( ChrList[character].inst.voffset ) ];
@@ -191,8 +191,8 @@ void render_enviromad( Uint16 character, Uint8 trans )
         v[cnt].y = Md2FrameList[lastframe].vrty[cnt] + (Md2FrameList[frame].vrty[cnt] - Md2FrameList[lastframe].vrty[cnt]) * flip;
         v[cnt].z = Md2FrameList[lastframe].vrtz[cnt] + (Md2FrameList[frame].vrtz[cnt] - Md2FrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[lastframe].vrta[cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
+        lite_last = /* light + lightlevel_amb + */ lightlevel_dir * lighttable_local[lightrotation][Md2FrameList[lastframe].vrta[cnt]];
+        lite_next = /* light + lightlevel_amb + */ lightlevel_dir * lighttable_local[lightrotation][Md2FrameList[frame].vrta[cnt]];
         lite = lite_last + (lite_next - lite_last) * flip;
 
         ChrList[character].inst.vrta[cnt] = 0.9f * ChrList[character].inst.vrta[cnt] + 0.1f * lite;
@@ -250,7 +250,7 @@ void render_enviromad( Uint16 character, Uint8 trans )
     glMultMatrixf( ChrList[character].inst.matrix.v );
 
     // Choose texture and matrix
-    GLtexture_Bind( txTexture + texture );
+    GLtexture_Bind( TxTexture + texture );
 
     // Render each command
     entry = 0;
@@ -296,7 +296,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint16 lastframe = ChrList[character].inst.lastframe;
     Uint8  lip = ChrList[character].inst.lip >> 6;
     Uint8  lightrotation = FP8_TO_INT( ChrList[character].turnleftright + ChrList[character].lightturnleftright );
-    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir >> 4;
+    Uint8  lightlevel_dir = ChrList[character].lightlevel_dir;
     Uint8  lightlevel_amb = ChrList[character].lightlevel_amb;
     Uint32 alpha = trans;
     Uint8  spek = ChrList[character].inst.sheen;
@@ -307,22 +307,26 @@ void render_texmad( Uint16 character, Uint8 trans )
     Uint8 gs = ChrList[character].inst.grnshift;
     Uint8 bs = ChrList[character].inst.blushift;
     float flip = lip / 4.0f;
-    Uint8  light = ( 255 == ChrList[character].inst.light ) ? 0 : ( (ChrList[character].inst.light + 1) * (ChrList[character].inst.alpha + 1) ) >> 8;
+    Uint8 self_light = ( 255 == ChrList[character].inst.light ) ? 0 : ( (ChrList[character].inst.light + 1) * (ChrList[character].inst.alpha + 1) ) >> 8;
 
     if ( phongon && trans == 255 )
         spek = 0;
 
     for ( cnt = 0; cnt < MadList[model].md2.vertices; cnt++ )
     {
-        Uint8 lite_last, lite_next, lite;
+        Uint16 lite_last, lite_next, lite;
 
         v[cnt].x = Md2FrameList[lastframe].vrtx[cnt] + (Md2FrameList[frame].vrtx[cnt] - Md2FrameList[lastframe].vrtx[cnt]) * flip;
         v[cnt].y = Md2FrameList[lastframe].vrty[cnt] + (Md2FrameList[frame].vrty[cnt] - Md2FrameList[lastframe].vrty[cnt]) * flip;
         v[cnt].z = Md2FrameList[lastframe].vrtz[cnt] + (Md2FrameList[frame].vrtz[cnt] - Md2FrameList[lastframe].vrtz[cnt]) * flip;
 
-        lite_last = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[lastframe].vrta[cnt]];
-        lite_next = light + lightlevel_amb + lighttable[lightlevel_dir][lightrotation][Md2FrameList[frame].vrta[cnt]];
+        lite_last = self_light + lightlevel_amb + lightlevel_dir * lighttable_local[lightrotation][Md2FrameList[lastframe].vrta[cnt]];
+        lite_last += 255 * lighttable_global[lightrotation][Md2FrameList[lastframe].vrta[cnt]];
+        lite_next = self_light + lightlevel_amb + lightlevel_dir * lighttable_local[lightrotation][Md2FrameList[frame].vrta[cnt]];
+        lite_next += 255 * lighttable_global[lightrotation][Md2FrameList[frame].vrta[cnt]];
+
         lite = lite_last + (lite_next - lite_last) * flip;
+        lite = CLIP(lite, 0, 255);
 
         ChrList[character].inst.vrta[cnt] = 0.9f * ChrList[character].inst.vrta[cnt] + 0.1f * lite;
 
@@ -369,7 +373,7 @@ void render_texmad( Uint16 character, Uint8 trans )
     */
 
     // Choose texture and matrix
-    GLtexture_Bind( txTexture + texture );
+    GLtexture_Bind( TxTexture + texture );
 
     glMatrixMode( GL_MODELVIEW_MATRIX );
     glPushMatrix();

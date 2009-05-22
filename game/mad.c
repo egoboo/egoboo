@@ -363,7 +363,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     for ( cnt = 0; cnt < MAXSKIN; cnt++)
     {
         snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-        if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, txTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
+        if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
         {
             numskins++;
 

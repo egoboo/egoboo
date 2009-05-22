@@ -116,7 +116,7 @@ void render_fan( Uint32 fan )
         }
         else
         {
-            GLtexture_Bind( txTexture + texture );
+            GLtexture_Bind( TxTexture + texture );
             meshlasttexture = texture;
         }
     }
@@ -186,8 +186,8 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     vertices = tile_dict[type].numvertices;// Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    x1 = ( float ) GLtexture_GetTextureWidth( txTexture + texture ) / ( float ) GLtexture_GetImageWidth( txTexture + texture );
-    y1 = ( float ) GLtexture_GetTextureHeight( txTexture + texture ) / ( float ) GLtexture_GetImageHeight( txTexture + texture );
+    x1 = ( float ) GLtexture_GetTextureWidth( TxTexture + texture ) / ( float ) GLtexture_GetImageWidth( TxTexture + texture );
+    y1 = ( float ) GLtexture_GetTextureHeight( TxTexture + texture ) / ( float ) GLtexture_GetImageHeight( TxTexture + texture );
 
     fx_off[0] = x1;
     fy_off[0] = 0;
@@ -226,7 +226,7 @@ void render_water_fan( Uint32 fan, Uint8 layer )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLtexture_Bind( txTexture + texture );
+        GLtexture_Bind( TxTexture + texture );
         meshlasttexture = texture;
     }
 
