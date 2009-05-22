@@ -2584,6 +2584,9 @@ int doGamePaused( float deltaTime )
                 }
             }
 
+			//Quick return to game
+			if(SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 5;
+
             if ( menuChoice != 0 )
             {
                 menuState = MM_Leaving;

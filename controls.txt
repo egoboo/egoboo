@@ -26,14 +26,14 @@ Right Hand Use		 : KEY_Y
 Right Hand Get/Drop  : KEY_H
 Right Hand Inventory : KEY_N
 Send Message		 : KEY_M
-Camera Rotate Left	 : KEY_PAD_7
-Camera Rotate Right  : KEY_PAD_9
-Camera Zoom In		 : KEY_PAD_PLUS
-Camera Zoom Out	 : KEY_PAD_MINUS
-Up					 : KEY_PAD_8
-Down				 : KEY_PAD_2
-Left				 : KEY_PAD_4
-Right				 : KEY_PAD_6
+Camera Rotate Left	 : KEY_5
+Camera Rotate Right  : KEY_6
+Camera Zoom In		 : KEY_EQUALS
+Camera Zoom Out	 : KEY_MINUS
+Up					 : KEY_UP
+Down				 : KEY_DOWN
+Left				 : KEY_LEFT
+Right				 : KEY_RIGHT
 
 
 Mouse

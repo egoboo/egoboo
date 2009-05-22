@@ -1002,14 +1002,14 @@ int SDL_main( int argc, char **argv )
         if ( menu_is_active )
         {
             // menu settings
-            SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            SDL_WM_GrabInput ( SDL_GRAB_OFF );
             SDL_ShowCursor( SDL_ENABLE  );
         }
         else
         {
             // in-game settings
             SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
-            SDL_WM_GrabInput ( SDL_GRAB_ON );
+			SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
         }
 
         // Clock updates each frame

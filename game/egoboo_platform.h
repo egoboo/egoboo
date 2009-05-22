@@ -39,6 +39,9 @@
 #        error Only OS X builds are supported
 #    endif
 
+// make this function work cross-platform
+#    define stricmp  strcasecmp
+
 #endif
 
 //------------------------------------------------------------------------------
@@ -76,6 +79,9 @@
 #    endif
 
 #    include <unistd.h>
+
+// make this function work cross-platform
+#    define stricmp  strcasecmp
 
 #endif
 

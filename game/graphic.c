@@ -4093,17 +4093,19 @@ void sdlinit( int argc, char **argv )
     //Check if antialiasing is enabled
     if (antialiasing != bfalse)
     {
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, btrue);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
+		Sint8 success = 0;
+        success += SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, btrue);
+		success += SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, antialiasing);
+        if(success != 0) log_message("Could not set X%i antialiasing. (Not supported by your gfx card?)\n");
     }
 
+    if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
     log_info("Opening SDL Video Mode... ");
 
     vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags
     //vflags |= SDL_ASYNCBLIT | SDL_OPENGLBLIT;            // flags for the console
     vflags |= ( fullscreen ? SDL_FULLSCREEN : 0 );
 
-    if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt" );
     displaySurface = SDL_SetVideoMode( scrx, scry, scrd, vflags );
     if ( displaySurface == NULL )
     {
@@ -4136,7 +4138,7 @@ void sdlinit( int argc, char **argv )
     }
 
     // Set the window name
-    SDL_WM_SetCaption( "Egoboo", "Egoboo" );
+    SDL_WM_SetCaption( "Egoboo " VERSION, "Egoboo" );
 
     input_init();
 
