@@ -202,13 +202,8 @@ struct s_prt
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
 
-    float   xpos;                            // Position
-    float   ypos;
-    float   zpos;
-
-    float   xvel;                            // Velocity
-    float   yvel;
-    float   zvel;
+    GLvector3   pos;                            // Position
+    GLvector3   vel;                            // Velocity
 
     Uint32  onwhichfan;                      // Where the part is
     Uint32  onwhichblock;                         // The particle's collision block

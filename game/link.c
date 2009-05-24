@@ -177,17 +177,17 @@ bool_t link_pop_module()
             // is the character is found, restore the old position
             if( NULL != pchr )
             {
-                pchr->xpos = phero->pos.x;
-                pchr->ypos = phero->pos.y;
-                pchr->zpos = phero->pos.z;
+                pchr->pos.x = phero->pos.x;
+                pchr->pos.y = phero->pos.y;
+                pchr->pos.z = phero->pos.z;
 
-                pchr->oldx = phero->pos.x;
-                pchr->oldy = phero->pos.y;
-                pchr->oldz = phero->pos.z;
+                pchr->pos_old.x = phero->pos.x;
+                pchr->pos_old.y = phero->pos.y;
+                pchr->pos_old.z = phero->pos.z;
 
-                pchr->xstt = phero->pos_stt.x;
-                pchr->ystt = phero->pos_stt.y;
-                pchr->zstt = phero->pos_stt.z;
+                pchr->pos_stt.x = phero->pos_stt.x;
+                pchr->pos_stt.y = phero->pos_stt.y;
+                pchr->pos_stt.z = phero->pos_stt.z;
             }
         };
     }
@@ -238,13 +238,13 @@ bool_t link_push_module()
             // copy some important info
             phero->object_index = pchr->model;
 
-            phero->pos_stt.x    = pchr->xstt;
-            phero->pos_stt.y    = pchr->ystt;
-            phero->pos_stt.z    = pchr->zstt;
+            phero->pos_stt.x    = pchr->pos_stt.x;
+            phero->pos_stt.y    = pchr->pos_stt.y;
+            phero->pos_stt.z    = pchr->pos_stt.z;
 
-            phero->pos.x        = pchr->ypos;
-            phero->pos.y        = pchr->ypos;
-            phero->pos.z        = pchr->zpos;
+            phero->pos.x        = pchr->pos.y;
+            phero->pos.y        = pchr->pos.y;
+            phero->pos.z        = pchr->pos.z;
         }
     }
 

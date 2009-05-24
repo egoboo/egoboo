@@ -122,8 +122,8 @@ typedef enum  e_input_device input_device_t;
 enum e_input_bits
 {
     INPUT_BITS_NONE      = 0,
-    INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_KEYBOARD  ),        // Input devices
-    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_MOUSE     ),
+    INPUT_BITS_MOUSE     = ( 1 << INPUT_DEVICE_MOUSE  ),        // Input devices
+    INPUT_BITS_KEYBOARD  = ( 1 << INPUT_DEVICE_KEYBOARD     ),
     INPUT_BITS_JOYA      = ( 1 << (INPUT_DEVICE_JOY + 0) ),
     INPUT_BITS_JOYB      = ( 1 << (INPUT_DEVICE_JOY + 1) )
 };

@@ -196,8 +196,8 @@ void let_character_think( Uint16 character )
         else if ( pself->wp_tail != pself->wp_head )
         {
             // Normal AI
-            ChrList[pself->index].latchx = ( pself->wp_pos_x[pself->wp_tail] - ChrList[pself->index].xpos ) / (128 << 2);
-            ChrList[pself->index].latchy = ( pself->wp_pos_y[pself->wp_tail] - ChrList[pself->index].ypos ) / (128 << 2);
+            ChrList[pself->index].latchx = ( pself->wp_pos_x[pself->wp_tail] - ChrList[pself->index].pos.x ) / (128 << 2);
+            ChrList[pself->index].latchy = ( pself->wp_pos_y[pself->wp_tail] - ChrList[pself->index].pos.y ) / (128 << 2);
         }
         else
         {
@@ -236,10 +236,10 @@ void set_alerts( Uint16 character )
     if ( MAX_CHR != ChrList[character].attachedto ) return;
     if ( ChrList[character].ai.wp_tail != ChrList[character].ai.wp_head )
     {
-        if ( ChrList[character].xpos < ChrList[character].ai.wp_pos_x[ChrList[character].ai.wp_tail] + WAYTHRESH &&
-                ChrList[character].xpos > ChrList[character].ai.wp_pos_x[ChrList[character].ai.wp_tail] - WAYTHRESH &&
-                ChrList[character].ypos < ChrList[character].ai.wp_pos_y[ChrList[character].ai.wp_tail] + WAYTHRESH &&
-                ChrList[character].ypos > ChrList[character].ai.wp_pos_y[ChrList[character].ai.wp_tail] - WAYTHRESH )
+        if ( ChrList[character].pos.x < ChrList[character].ai.wp_pos_x[ChrList[character].ai.wp_tail] + WAYTHRESH &&
+                ChrList[character].pos.x > ChrList[character].ai.wp_pos_x[ChrList[character].ai.wp_tail] - WAYTHRESH &&
+                ChrList[character].pos.y < ChrList[character].ai.wp_pos_y[ChrList[character].ai.wp_tail] + WAYTHRESH &&
+                ChrList[character].pos.y > ChrList[character].ai.wp_pos_y[ChrList[character].ai.wp_tail] - WAYTHRESH )
         {
             ChrList[character].ai.alert |= ALERTIF_ATWAYPOINT;
             ChrList[character].ai.wp_tail++;
@@ -943,12 +943,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFX:
                 varname = "SELFX";
-                iTmp = ChrList[pself->index].xpos;
+                iTmp = ChrList[pself->index].pos.x;
                 break;
 
             case VARSELFY:
                 varname = "SELFY";
-                iTmp = ChrList[pself->index].ypos;
+                iTmp = ChrList[pself->index].pos.y;
                 break;
 
             case VARSELFTURN:
@@ -978,18 +978,18 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETX:
                 varname = "TARGETX";
-                iTmp = ChrList[pself->target].xpos;
+                iTmp = ChrList[pself->target].pos.x;
                 break;
 
             case VARTARGETY:
                 varname = "TARGETY";
-                iTmp = ChrList[pself->target].ypos;
+                iTmp = ChrList[pself->target].pos.y;
                 break;
 
             case VARTARGETDISTANCE:
                 varname = "TARGETdistance";
-                iTmp = ABS( ( int )( ChrList[pself->target].xpos - ChrList[pself->index].xpos ) ) +
-                       ABS( ( int )( ChrList[pself->target].ypos - ChrList[pself->index].ypos ) );
+                iTmp = ABS( ( int )( ChrList[pself->target].pos.x - ChrList[pself->index].pos.x ) ) +
+                       ABS( ( int )( ChrList[pself->target].pos.y - ChrList[pself->index].pos.y ) );
                 break;
 
             case VARTARGETTURN:
@@ -999,17 +999,17 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARLEADERX:
                 varname = "LEADERX";
-                iTmp = ChrList[pself->index].xpos;
+                iTmp = ChrList[pself->index].pos.x;
                 if ( TeamList[ChrList[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].xpos;
+                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].pos.x;
 
                 break;
 
             case VARLEADERY:
                 varname = "LEADERY";
-                iTmp = ChrList[pself->index].ypos;
+                iTmp = ChrList[pself->index].pos.y;
                 if ( TeamList[ChrList[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].ypos;
+                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].pos.y;
 
                 break;
 
@@ -1017,8 +1017,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "LEADERdistance";
                 iTmp = 10000;
                 if ( TeamList[ChrList[pself->index].team].leader != NOLEADER )
-                    iTmp = ABS( ( int )( ChrList[TeamList[ChrList[pself->index].team].leader].xpos - ChrList[pself->index].xpos ) ) +
-                           ABS( ( int )( ChrList[TeamList[ChrList[pself->index].team].leader].ypos - ChrList[pself->index].ypos ) );
+                    iTmp = ABS( ( int )( ChrList[TeamList[ChrList[pself->index].team].leader].pos.x - ChrList[pself->index].pos.x ) ) +
+                           ABS( ( int )( ChrList[TeamList[ChrList[pself->index].team].leader].pos.y - ChrList[pself->index].pos.y ) );
 
                 break;
 
@@ -1034,7 +1034,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "GOTOX";
                 if (pself->wp_tail == pself->wp_head)
                 {
-                    iTmp = ChrList[pself->index].xpos;
+                    iTmp = ChrList[pself->index].pos.x;
                 }
                 else
                 {
@@ -1046,7 +1046,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "GOTOY";
                 if (pself->wp_tail == pself->wp_head)
                 {
-                    iTmp = ChrList[pself->index].ypos;
+                    iTmp = ChrList[pself->index].pos.y;
                 }
                 else
                 {
@@ -1062,14 +1062,14 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 }
                 else
                 {
-                    iTmp = ABS( ( int )( pself->wp_pos_x[pself->wp_tail] - ChrList[pself->index].xpos ) ) +
-                           ABS( ( int )( pself->wp_pos_y[pself->wp_tail] - ChrList[pself->index].ypos ) );
+                    iTmp = ABS( ( int )( pself->wp_pos_x[pself->wp_tail] - ChrList[pself->index].pos.x ) ) +
+                           ABS( ( int )( pself->wp_pos_y[pself->wp_tail] - ChrList[pself->index].pos.y ) );
                 }
                 break;
 
             case VARTARGETTURNTO:
                 varname = "TARGETTURNTO";
-                iTmp = ATAN2( ChrList[pself->target].ypos - ChrList[pself->index].ypos, ChrList[pself->target].xpos - ChrList[pself->index].xpos ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList[pself->target].pos.y - ChrList[pself->index].pos.y, ChrList[pself->target].pos.x - ChrList[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
@@ -1086,7 +1086,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFALTITUDE:
                 varname = "SELFALTITUDE";
-                iTmp = ChrList[pself->index].zpos - ChrList[pself->index].floor_level;
+                iTmp = ChrList[pself->index].pos.z - ChrList[pself->index].floor_level;
                 break;
 
             case VARSELFID:
@@ -1145,27 +1145,27 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETSPEEDX:
                 varname = "TARGETSPEEDX";
-                iTmp = ChrList[pself->target].xvel;
+                iTmp = ChrList[pself->target].vel.x;
                 break;
 
             case VARTARGETSPEEDY:
                 varname = "TARGETSPEEDY";
-                iTmp = ChrList[pself->target].yvel;
+                iTmp = ChrList[pself->target].vel.y;
                 break;
 
             case VARTARGETSPEEDZ:
                 varname = "TARGETSPEEDZ";
-                iTmp = ChrList[pself->target].zvel;
+                iTmp = ChrList[pself->target].vel.z;
                 break;
 
             case VARSELFSPAWNX:
                 varname = "SELFSPAWNX";
-                iTmp = ChrList[pself->index].xstt;
+                iTmp = ChrList[pself->index].pos_stt.x;
                 break;
 
             case VARSELFSPAWNY:
                 varname = "SELFSPAWNY";
-                iTmp = ChrList[pself->index].ystt;
+                iTmp = ChrList[pself->index].pos_stt.y;
                 break;
 
             case VARSELFSTATE:
@@ -1225,17 +1225,17 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFZ:
                 varname = "SELFZ";
-                iTmp = ChrList[pself->index].zpos;
+                iTmp = ChrList[pself->index].pos.z;
                 break;
 
             case VARTARGETALTITUDE:
                 varname = "TARGETALTITUDE";
-                iTmp = ChrList[pself->target].zpos - ChrList[pself->target].floor_level;
+                iTmp = ChrList[pself->target].pos.z - ChrList[pself->target].floor_level;
                 break;
 
             case VARTARGETZ:
                 varname = "TARGETZ";
-                iTmp = ChrList[pself->target].zpos;
+                iTmp = ChrList[pself->target].pos.z;
                 break;
 
             case VARSELFINDEX:
@@ -1245,12 +1245,12 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERX:
                 varname = "OWNERX";
-                iTmp = ChrList[pself->owner].xpos;
+                iTmp = ChrList[pself->owner].pos.x;
                 break;
 
             case VAROWNERY:
                 varname = "OWNERY";
-                iTmp = ChrList[pself->owner].ypos;
+                iTmp = ChrList[pself->owner].pos.y;
                 break;
 
             case VAROWNERTURN:
@@ -1260,20 +1260,20 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERDISTANCE:
                 varname = "OWNERdistance";
-                iTmp = ABS( ( int )( ChrList[pself->owner].xpos - ChrList[pself->index].xpos ) ) +
-                       ABS( ( int )( ChrList[pself->owner].ypos - ChrList[pself->index].ypos ) );
+                iTmp = ABS( ( int )( ChrList[pself->owner].pos.x - ChrList[pself->index].pos.x ) ) +
+                       ABS( ( int )( ChrList[pself->owner].pos.y - ChrList[pself->index].pos.y ) );
                 break;
 
             case VAROWNERTURNTO:
                 varname = "OWNERTURNTO";
-                iTmp = ATAN2( ChrList[pself->owner].ypos - ChrList[pself->index].ypos, ChrList[pself->owner].xpos - ChrList[pself->index].xpos ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList[pself->owner].pos.y - ChrList[pself->index].pos.y, ChrList[pself->owner].pos.x - ChrList[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
 
             case VARXYTURNTO:
                 varname = "XYTURNTO";
-                iTmp = ATAN2( pstate->y - ChrList[pself->index].ypos, pstate->x - ChrList[pself->index].xpos ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( pstate->y - ChrList[pself->index].pos.y, pstate->x - ChrList[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
@@ -1310,7 +1310,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURNAWAY:
                 varname = "TARGETTURNAWAY";
-                iTmp = ATAN2( ChrList[pself->target].ypos - ChrList[pself->index].ypos, ChrList[pself->target].xpos - ChrList[pself->index].xpos ) * 0xFFFF / ( TWO_PI );
+                iTmp = ATAN2( ChrList[pself->target].pos.y - ChrList[pself->index].pos.y, ChrList[pself->target].pos.x - ChrList[pself->index].pos.x ) * 0xFFFF / ( TWO_PI );
                 iTmp += 32768;
                 iTmp &= 0xFFFF;
                 break;
@@ -1327,8 +1327,8 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-				iTmp = ABS( ( int )( ChrList[pself->index].xstt - ChrList[pself->index].xpos ) ) +
-                       ABS( ( int )( ChrList[pself->index].ystt - ChrList[pself->index].ypos ) );
+				iTmp = ABS( ( int )( ChrList[pself->index].pos_stt.x - ChrList[pself->index].pos.x ) ) +
+                       ABS( ( int )( ChrList[pself->index].pos_stt.y - ChrList[pself->index].pos.y ) );
                 break;
 
             default:

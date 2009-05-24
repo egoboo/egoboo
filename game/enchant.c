@@ -102,7 +102,7 @@ bool_t remove_enchant( Uint16 ienc )
                 {
                     if ( VALID_CHR(itarget) )
                     {
-                        sound_play_chunk(ChrList[itarget].oldx, ChrList[itarget].oldy, CapList[imodel].wavelist[iwave]);
+                        sound_play_chunk(ChrList[itarget].pos_old.x, ChrList[itarget].pos_old.y, CapList[imodel].wavelist[iwave]);
                     }
                     else
                     {
@@ -378,7 +378,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 
                     case SETFLYTOHEIGHT:
                         penc->setsave[valueindex] = ptarget->flyheight;
-                        if ( ptarget->flyheight == 0 && ptarget->zpos > -2 )
+                        if ( ptarget->flyheight == 0 && ptarget->pos.z > -2 )
                         {
                             ptarget->flyheight = peve->setvalue[valueindex];
                         }
@@ -727,7 +727,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         penc->overlay = MAX_CHR;
         if ( peve->overlay )
         {
-            overlay = spawn_one_character( ptarget->xpos, ptarget->ypos, ptarget->zpos,
+            overlay = spawn_one_character( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
                 ieve, ptarget->team, 0, ptarget->turnleftright, NULL, MAX_CHR );
 
             if ( VALID_CHR(overlay) )

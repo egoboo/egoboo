@@ -373,9 +373,9 @@ void render_refprt( camera_t * pcam )
             GLvector3 vpos;
             float dist;
 
-            vpos.x = pprt->xpos - vcam.x;
-            vpos.y = pprt->ypos - vcam.y;
-            vpos.z = pprt->zpos - vcam.z;
+            vpos.x = pprt->pos.x - vcam.x;
+            vpos.y = pprt->pos.y - vcam.y;
+            vpos.z = pprt->pos.z - vcam.z;
 
             dist = VDotProduct( vfwd, vpos );
 
@@ -420,7 +420,7 @@ void render_refprt( camera_t * pcam )
         calc_billboard_verts( vtlist, pinst, size );
 
         // Fill in the rest of the data
-        startalpha = ( int )( 255 + pprt->zpos - level );
+        startalpha = ( int )( 255 + pprt->pos.z - level );
         if ( startalpha < 0 ) startalpha = 0;
 
         startalpha = ( startalpha | reffadeor ) >> 1;  // Fix for Riva owners
@@ -468,7 +468,7 @@ void render_refprt( camera_t * pcam )
         calc_billboard_verts( vtlist, pinst, size );
 
         // Fill in the rest of the data
-        startalpha = ( int )( 255 + pprt->zpos - level );
+        startalpha = ( int )( 255 + pprt->pos.z - level );
         if ( startalpha < 0 ) startalpha = 0;
 
         startalpha = ( startalpha | reffadeor ) >> ( 1 + PrtList[prt].type );  // Fix for Riva owners
@@ -544,9 +544,9 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     pinst->image = FP8_TO_INT( pprt->image + pprt->imagestt );
 
     // set the position
-    pinst->pos.x = pprt->xpos;
-    pinst->pos.y = pprt->ypos;
-    pinst->pos.z = pprt->zpos;
+    pinst->pos.x = pprt->pos.x;
+    pinst->pos.y = pprt->pos.y;
+    pinst->pos.z = pprt->pos.z;
 
     pinst->orientation = ppip->orientation;
 
@@ -557,7 +557,20 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
-    if( ORIENTATION_B == pinst->orientation )
+    if ( ppip->rotatetoface && INVALID_CHR( pprt->attachedtocharacter ) && (ABS( pprt->vel.x ) + ABS( pprt->vel.y ) + ABS( pprt->vel.z ) > 0) )
+    {
+        // the particle points along its direction of travel
+
+        vup.x = pprt->vel.x;
+        vup.y = pprt->vel.y;
+        vup.z = pprt->vel.z;
+        vup   = VNormalize( vup );
+
+        // get the correct "right" vector
+        vright = VCrossProduct( vfwd, vup );
+        vright = VNormalize( vright );
+    }
+    else if( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = mat_getCamUp( pcam->mView );
@@ -601,19 +614,6 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
             }
         }
 
-        vup = VNormalize( vup );
-
-        // get the correct "right" vector
-        vright = VCrossProduct( vfwd, vup );
-        vright = VNormalize( vright );
-    }
-    else if ( ppip->rotatetoface && (ABS( pprt->xvel ) + ABS( pprt->yvel ) + ABS( pprt->zvel ) > 0) )
-    {
-        // the particle points along its direction of travel
-
-        vup.x = pprt->xvel;
-        vup.y = pprt->yvel;
-        vup.z = pprt->zvel;
         vup = VNormalize( vup );
 
         // get the correct "right" vector

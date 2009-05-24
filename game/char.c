@@ -45,10 +45,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //These are shop orders
+
 #define BUY			0
 #define SELL		1
 #define NOAFFORD	2
 #define THEFT		3
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -129,14 +131,14 @@ void keep_weapons_with_holders()
 
                 while ( character != MAX_CHR )
                 {
-                    ChrList[character].xpos = ChrList[cnt].xpos;
-                    ChrList[character].ypos = ChrList[cnt].ypos;
-                    ChrList[character].zpos = ChrList[cnt].zpos;
+                    ChrList[character].pos.x = ChrList[cnt].pos.x;
+                    ChrList[character].pos.y = ChrList[cnt].pos.y;
+                    ChrList[character].pos.z = ChrList[cnt].pos.z;
 
                     // Copy olds to make SendMessageNear work
-                    ChrList[character].oldx = ChrList[cnt].oldx;
-                    ChrList[character].oldy = ChrList[cnt].oldy;
-                    ChrList[character].oldz = ChrList[cnt].oldz;
+                    ChrList[character].pos_old.x = ChrList[cnt].pos_old.x;
+                    ChrList[character].pos_old.y = ChrList[cnt].pos_old.y;
+                    ChrList[character].pos_old.z = ChrList[cnt].pos_old.z;
 
                     character = ChrList[character].nextinpack;
                 }
@@ -147,15 +149,15 @@ void keep_weapons_with_holders()
             // Keep in hand weapons with character
             if ( ChrList[cnt].inst.matrixvalid )
             {
-                ChrList[cnt].xpos = ChrList[cnt].inst.matrix.CNV( 3, 0 );
-                ChrList[cnt].ypos = ChrList[cnt].inst.matrix.CNV( 3, 1 );
-                ChrList[cnt].zpos = ChrList[cnt].inst.matrix.CNV( 3, 2 );
+                ChrList[cnt].pos.x = ChrList[cnt].inst.matrix.CNV( 3, 0 );
+                ChrList[cnt].pos.y = ChrList[cnt].inst.matrix.CNV( 3, 1 );
+                ChrList[cnt].pos.z = ChrList[cnt].inst.matrix.CNV( 3, 2 );
             }
             else
             {
-                ChrList[cnt].xpos = ChrList[character].xpos;
-                ChrList[cnt].ypos = ChrList[character].ypos;
-                ChrList[cnt].zpos = ChrList[character].zpos;
+                ChrList[cnt].pos.x = ChrList[character].pos.x;
+                ChrList[cnt].pos.y = ChrList[character].pos.y;
+                ChrList[cnt].pos.z = ChrList[character].pos.z;
             }
 
             ChrList[cnt].turnleftright = ChrList[character].turnleftright;
@@ -221,9 +223,9 @@ void make_one_character_matrix( Uint16 cnt )
 
         if( VALID_CHR(tnc) )
         {
-            ChrList[cnt].xpos = ChrList[tnc].xpos;
-            ChrList[cnt].ypos = ChrList[tnc].ypos;
-            ChrList[cnt].zpos = ChrList[tnc].zpos;
+            ChrList[cnt].pos.x = ChrList[tnc].pos.x;
+            ChrList[cnt].pos.y = ChrList[tnc].pos.y;
+            ChrList[cnt].pos.z = ChrList[tnc].pos.z;
 
             ChrList[cnt].inst.matrixvalid = ChrList[tnc].inst.matrixvalid;
             CopyMatrix( &(ChrList[cnt].inst.matrix), &(ChrList[tnc].inst.matrix) );
@@ -235,7 +237,7 @@ void make_one_character_matrix( Uint16 cnt )
                                    ChrList[cnt].turnleftright >> 2,
                                    ( ( Uint16 ) ( ChrList[cnt].turnmapud + 32768 ) ) >> 2,
                                    ( ( Uint16 ) ( ChrList[cnt].turnmaplr + 32768 ) ) >> 2,
-                                   ChrList[cnt].xpos, ChrList[cnt].ypos, ChrList[cnt].zpos );
+                                   ChrList[cnt].pos.x, ChrList[cnt].pos.y, ChrList[cnt].pos.z );
         ChrList[cnt].inst.matrixvalid = btrue;
     }
 }
@@ -370,9 +372,9 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
 
         if ( grip == GRIP_ORIGIN )
         {
-            PrtList[particle].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
-            PrtList[particle].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
-            PrtList[particle].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
+            PrtList[particle].pos.x = ChrList[character].inst.matrix.CNV( 3, 0 );
+            PrtList[particle].pos.y = ChrList[character].inst.matrix.CNV( 3, 1 );
+            PrtList[particle].pos.z = ChrList[character].inst.matrix.CNV( 3, 2 );
             return;
         }
 
@@ -387,16 +389,16 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int grip )
         // Do the transform
         TransformVertices( &(ChrList[character].inst.matrix), point, nupoint, 1 );
 
-        PrtList[particle].xpos = nupoint[0].x;
-        PrtList[particle].ypos = nupoint[0].y;
-        PrtList[particle].zpos = nupoint[0].z;
+        PrtList[particle].pos.x = nupoint[0].x;
+        PrtList[particle].pos.y = nupoint[0].y;
+        PrtList[particle].pos.z = nupoint[0].z;
     }
     else
     {
         // No matrix, so just wing it...
-        PrtList[particle].xpos = ChrList[character].xpos;
-        PrtList[particle].ypos = ChrList[character].ypos;
-        PrtList[particle].zpos = ChrList[character].zpos;
+        PrtList[particle].pos.x = ChrList[character].pos.x;
+        PrtList[particle].pos.y = ChrList[character].pos.y;
+        PrtList[particle].pos.z = ChrList[character].pos.z;
     }
 }
 
@@ -412,6 +414,9 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
     int    iweap_points;
 
     chr_t * pweap, * pholder;
+
+    // turn this off for now
+    do_physics = bfalse;
 
     if ( INVALID_CHR(iweap) || INVALID_CHR(iholder) ) return;
     pweap = ChrList + iweap;
@@ -441,9 +446,9 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
     if (0 == iweap_points)
     {
         // punt! attach to origin
-        point[0].x = ChrList[0].xpos;
-        point[0].y = ChrList[0].ypos;
-        point[0].z = ChrList[0].zpos;
+        point[0].x = ChrList[0].pos.x;
+        point[0].y = ChrList[0].pos.y;
+        point[0].z = ChrList[0].pos.z;
         point[0].w = 1;
 
         iweap_points = 1;
@@ -491,14 +496,14 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
         pweap->inst.matrixvalid = btrue;
     }
 
-    ptemp.x = pweap->xpos;
-    ptemp.y = pweap->ypos;
-    ptemp.z = pweap->zpos;
+    ptemp.x = pweap->pos.x;
+    ptemp.y = pweap->pos.y;
+    ptemp.z = pweap->pos.z;
 
     // update the position of the object
-    pweap->xpos = nupoint[0].x;
-    pweap->ypos = nupoint[0].y;
-    pweap->zpos = nupoint[0].z;
+    pweap->pos.x = nupoint[0].x;
+    pweap->pos.y = nupoint[0].y;
+    pweap->pos.z = nupoint[0].z;
 
     if( do_physics )
     {
@@ -555,9 +560,9 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
         // figure out a better way!
 
         // calculate the center-of-mass velocity
-        //vcom.x = (ABS(wt_weap) * dx + ABS(wt_holder) * pholder->xvel) / ( ABS(wt_weap) + ABS(wt_holder) );
-        //vcom.y = (ABS(wt_weap) * dy + ABS(wt_holder) * pholder->yvel) / ( ABS(wt_weap) + ABS(wt_holder) );
-        //vcom.z = (ABS(wt_weap) * dz + ABS(wt_holder) * pholder->zvel) / ( ABS(wt_weap) + ABS(wt_holder) );
+        //vcom.x = (ABS(wt_weap) * dx + ABS(wt_holder) * pholder->vel.x) / ( ABS(wt_weap) + ABS(wt_holder) );
+        //vcom.y = (ABS(wt_weap) * dy + ABS(wt_holder) * pholder->vel.y) / ( ABS(wt_weap) + ABS(wt_holder) );
+        //vcom.z = (ABS(wt_weap) * dz + ABS(wt_holder) * pholder->vel.z) / ( ABS(wt_weap) + ABS(wt_holder) );
 
         if ( wt_weap >= 0.0f )
         {
@@ -570,9 +575,9 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
             pweap->phys_pos_y -= dy * ratio;
             pweap->phys_pos_z -= dz * ratio;
 
-            //pweap->phys_vel_x += (dx-vcom.x)*damp + vcom.x - pweap->xvel;
-            //pweap->phys_vel_y += (dy-vcom.y)*damp + vcom.y - pweap->yvel;
-            //pweap->phys_vel_z += (dz-vcom.z)*damp + vcom.z - pweap->zvel;
+            //pweap->phys_vel_x += (dx-vcom.x)*damp + vcom.x - pweap->vel.x;
+            //pweap->phys_vel_y += (dy-vcom.y)*damp + vcom.y - pweap->vel.y;
+            //pweap->phys_vel_z += (dz-vcom.z)*damp + vcom.z - pweap->vel.z;
         }
 
         if ( wt_holder >= 0.0f )
@@ -583,9 +588,9 @@ void make_one_weapon_matrix( Uint16 iweap, Uint16 iholder, bool_t do_physics )
             pholder->phys_pos_y -= dy * ratio;
             pholder->phys_pos_z -= dz * ratio;
 
-            //pholder->phys_vel_x += (pholder->xvel-vcom.x)*damp + vcom.x - pholder->xvel;
-            //pholder->phys_vel_y += (pholder->yvel-vcom.y)*damp + vcom.y - pholder->yvel;
-            //pholder->phys_vel_z += (pholder->zvel-vcom.z)*damp + vcom.z - pholder->zvel;
+            //pholder->phys_vel_x += (pholder->vel.x-vcom.x)*damp + vcom.x - pholder->vel.x;
+            //pholder->phys_vel_y += (pholder->vel.y-vcom.y)*damp + vcom.y - pholder->vel.y;
+            //pholder->phys_vel_z += (pholder->vel.z-vcom.z)*damp + vcom.z - pholder->vel.z;
         }
 
     }
@@ -668,56 +673,56 @@ void make_character_matrices(bool_t do_physics)
             if( !ChrList[ichr].on ) continue;
 
             // do the "integration" of the accumulated accelerations
-            ChrList[ichr].xvel += ChrList[ichr].phys_vel_x;
-            ChrList[ichr].yvel += ChrList[ichr].phys_vel_y;
-            ChrList[ichr].zvel += ChrList[ichr].phys_vel_z;
+            ChrList[ichr].vel.x += ChrList[ichr].phys_vel_x;
+            ChrList[ichr].vel.y += ChrList[ichr].phys_vel_y;
+            ChrList[ichr].vel.z += ChrList[ichr].phys_vel_z;
 
             // do the "integration" on the position
             if ( ABS(ChrList[ichr].phys_pos_x) > 0 )
             {
-                tmpx = ChrList[ichr].xpos;
-                ChrList[ichr].xpos += ChrList[ichr].phys_pos_x;
+                tmpx = ChrList[ichr].pos.x;
+                ChrList[ichr].pos.x += ChrList[ichr].phys_pos_x;
                 if ( __chrhitawall(ichr) )
                 {
                     // restore the old values
-                    ChrList[ichr].xpos = tmpx;
+                    ChrList[ichr].pos.x = tmpx;
                 }
                 else
                 {
-                    //ChrList[ichr].xvel += ChrList[ichr].phys_pos_x;
-                    ChrList[ichr].oldx = tmpx;
+                    //ChrList[ichr].vel.x += ChrList[ichr].phys_pos_x;
+                    ChrList[ichr].pos_old.x = tmpx;
                 }
             }
 
             if ( ABS(ChrList[ichr].phys_pos_y) > 0 )
             {
-                tmpy = ChrList[ichr].ypos;
-                ChrList[ichr].ypos += ChrList[ichr].phys_pos_y;
+                tmpy = ChrList[ichr].pos.y;
+                ChrList[ichr].pos.y += ChrList[ichr].phys_pos_y;
                 if ( __chrhitawall(ichr) )
                 {
                     // restore the old values
-                    ChrList[ichr].ypos = tmpy;
+                    ChrList[ichr].pos.y = tmpy;
                 }
                 else
                 {
-                    //ChrList[ichr].yvel += ChrList[ichr].phys_pos_y;
-                    ChrList[ichr].oldy = tmpy;
+                    //ChrList[ichr].vel.y += ChrList[ichr].phys_pos_y;
+                    ChrList[ichr].pos_old.y = tmpy;
                 }
             }
 
             if ( ABS(ChrList[ichr].phys_pos_z) > 0 )
             {
-                tmpz = ChrList[ichr].zpos;
-                ChrList[ichr].zpos += ChrList[ichr].phys_pos_z;
-                if ( ChrList[ichr].zpos < ChrList[ichr].phys_level )
+                tmpz = ChrList[ichr].pos.z;
+                ChrList[ichr].pos.z += ChrList[ichr].phys_pos_z;
+                if ( ChrList[ichr].pos.z < ChrList[ichr].phys_level )
                 {
                     // restore the old values
-                    ChrList[ichr].zpos = tmpz;
+                    ChrList[ichr].pos.z = tmpz;
                 }
                 else
                 {
-                    //ChrList[ichr].zvel += ChrList[ichr].phys_pos_z;
-                    ChrList[ichr].oldz = tmpz;
+                    //ChrList[ichr].vel.z += ChrList[ichr].phys_pos_z;
+                    ChrList[ichr].pos_old.z = tmpz;
                 }
             }
         }
@@ -727,9 +732,9 @@ void make_character_matrices(bool_t do_physics)
         {
             if( !ChrList[ichr].inst.matrixvalid ) continue;
 
-            ChrList[ichr].inst.matrix.CNV( 3, 0 ) = ChrList[ichr].xpos;
-            ChrList[ichr].inst.matrix.CNV( 3, 1 ) = ChrList[ichr].ypos;
-            ChrList[ichr].inst.matrix.CNV( 3, 2 ) = ChrList[ichr].zpos;
+            ChrList[ichr].inst.matrix.CNV( 3, 0 ) = ChrList[ichr].pos.x;
+            ChrList[ichr].inst.matrix.CNV( 3, 1 ) = ChrList[ichr].pos.y;
+            ChrList[ichr].inst.matrix.CNV( 3, 2 ) = ChrList[ichr].pos.z;
         } 
     }
 }
@@ -787,7 +792,7 @@ Uint8 __chrhitawall( Uint16 character )
     float fx, fy;
     Uint32 itile;
 
-    y = ChrList[character].ypos;  x = ChrList[character].xpos;  bs = ChrList[character].bumpsize >> 1;
+    y = ChrList[character].pos.y;  x = ChrList[character].pos.x;  bs = ChrList[character].bumpsize >> 1;
 
     fx = x - bs; fy = y - bs;
     passtl = MESHFX_IMPASS;
@@ -914,22 +919,22 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     // Set the positions
     if ( ChrList[character].inst.matrixvalid )
     {
-        ChrList[character].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
-        ChrList[character].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
-        ChrList[character].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
+        ChrList[character].pos.x = ChrList[character].inst.matrix.CNV( 3, 0 );
+        ChrList[character].pos.y = ChrList[character].inst.matrix.CNV( 3, 1 );
+        ChrList[character].pos.z = ChrList[character].inst.matrix.CNV( 3, 2 );
     }
     else
     {
-        ChrList[character].xpos = ChrList[mount].xpos;
-        ChrList[character].ypos = ChrList[mount].ypos;
-        ChrList[character].zpos = ChrList[mount].zpos;
+        ChrList[character].pos.x = ChrList[mount].pos.x;
+        ChrList[character].pos.y = ChrList[mount].pos.y;
+        ChrList[character].pos.z = ChrList[mount].pos.z;
     }
 
     // Make sure it's not dropped in a wall...
     if ( __chrhitawall( character ) )
     {
-        ChrList[character].xpos = ChrList[mount].xpos;
-        ChrList[character].ypos = ChrList[mount].ypos;
+        ChrList[character].pos.x = ChrList[mount].pos.x;
+        ChrList[character].pos.y = ChrList[mount].pos.y;
     }
 
     // Check for shop passages
@@ -944,11 +949,11 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
         while ( cnt < numshoppassage )
         {
             passage = shoppassage[cnt];
-            loc = ChrList[character].xpos;
+            loc = ChrList[character].pos.x;
             loc = loc >> 7;
             if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
             {
-                loc = ChrList[character].ypos;
+                loc = ChrList[character].pos.y;
                 loc = loc >> 7;
                 if ( loc >= passtly[passage] && loc <= passbry[passage] )
                 {
@@ -1003,16 +1008,16 @@ void detach_character_from_mount( Uint16 character, Uint8 ignorekurse,
     if ( inshop )
     {
         // Drop straight down to avoid theft
-        ChrList[character].xvel = 0;
-        ChrList[character].yvel = 0;
+        ChrList[character].vel.x = 0;
+        ChrList[character].vel.y = 0;
     }
     else
     {
-        ChrList[character].xvel = ChrList[mount].xvel;
-        ChrList[character].yvel = ChrList[mount].yvel;
+        ChrList[character].vel.x = ChrList[mount].vel.x;
+        ChrList[character].vel.y = ChrList[mount].vel.y;
     }
 
-    ChrList[character].zvel = DROPZVEL;
+    ChrList[character].vel.z = DROPZVEL;
 
     // Turn looping off
     ChrList[character].loopaction = bfalse;
@@ -1142,9 +1147,9 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip )
     // catually make position of the object coincide with its actual held position
     make_one_weapon_matrix( character, mount, bfalse );
 
-    ChrList[character].xpos = ChrList[character].inst.matrix.CNV( 3, 0 );
-    ChrList[character].ypos = ChrList[character].inst.matrix.CNV( 3, 1 );
-    ChrList[character].zpos = ChrList[character].inst.matrix.CNV( 3, 2 );
+    ChrList[character].pos.x = ChrList[character].inst.matrix.CNV( 3, 0 );
+    ChrList[character].pos.y = ChrList[character].inst.matrix.CNV( 3, 1 );
+    ChrList[character].pos.z = ChrList[character].inst.matrix.CNV( 3, 2 );
 
     ChrList[character].inwater = bfalse;
     ChrList[character].jumptime = JUMPDELAY * 4;
@@ -1395,7 +1400,7 @@ void drop_keys( Uint16 character )
     {
         if ( ChrList[character].on )
         {
-            if ( ChrList[character].zpos > -2 ) // Don't lose keys in pits...
+            if ( ChrList[character].pos.z > -2 ) // Don't lose keys in pits...
             {
                 // The IDSZs to find
                 testa = Make_IDSZ( "KEYA" );  // [KEYA]
@@ -1430,12 +1435,12 @@ void drop_keys( Uint16 character )
                             ChrList[item].phys_level = ChrList[character].phys_level;
                             ChrList[item].floor_level = ChrList[character].floor_level;
                             ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
-                            ChrList[item].xpos = ChrList[character].xpos;
-                            ChrList[item].ypos = ChrList[character].ypos;
-                            ChrList[item].zpos = ChrList[character].zpos;
-                            ChrList[item].xvel = turntocos[direction>>2] * DROPXYVEL;
-                            ChrList[item].yvel = turntosin[direction>>2] * DROPXYVEL;
-                            ChrList[item].zvel = DROPZVEL;
+                            ChrList[item].pos.x = ChrList[character].pos.x;
+                            ChrList[item].pos.y = ChrList[character].pos.y;
+                            ChrList[item].pos.z = ChrList[character].pos.z;
+                            ChrList[item].vel.x = turntocos[direction>>2] * DROPXYVEL;
+                            ChrList[item].vel.y = turntosin[direction>>2] * DROPXYVEL;
+                            ChrList[item].vel.z = DROPZVEL;
                             ChrList[item].team = ChrList[item].baseteam;
                         }
                         else
@@ -1475,16 +1480,16 @@ void drop_all_items( Uint16 character )
                         detach_character_from_mount( item, btrue, btrue );
                         ChrList[item].hitready = btrue;
                         ChrList[item].ai.alert |= ALERTIF_DROPPED;
-                        ChrList[item].xpos = ChrList[character].xpos;
-                        ChrList[item].ypos = ChrList[character].ypos;
-                        ChrList[item].zpos = ChrList[character].zpos;
+                        ChrList[item].pos.x = ChrList[character].pos.x;
+                        ChrList[item].pos.y = ChrList[character].pos.y;
+                        ChrList[item].pos.z = ChrList[character].pos.z;
                         ChrList[item].phys_level = ChrList[character].phys_level;
                         ChrList[item].floor_level = ChrList[character].floor_level;
                         ChrList[item].onwhichplatform = ChrList[character].onwhichplatform;
                         ChrList[item].turnleftright = direction + 32768;
-                        ChrList[item].xvel = turntocos[direction>>2] * DROPXYVEL;
-                        ChrList[item].yvel = turntosin[direction>>2] * DROPXYVEL;
-                        ChrList[item].zvel = DROPZVEL;
+                        ChrList[item].vel.x = turntocos[direction>>2] * DROPXYVEL;
+                        ChrList[item].vel.y = turntosin[direction>>2] * DROPXYVEL;
+                        ChrList[item].vel.z = DROPZVEL;
                         ChrList[item].team = ChrList[item].baseteam;
                     }
 
@@ -1534,9 +1539,9 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
     else
     {
         // Just wing it
-        nupoint[0].x = ChrList[chara].xpos;
-        nupoint[0].y = ChrList[chara].ypos;
-        nupoint[0].z = ChrList[chara].zpos;
+        nupoint[0].x = ChrList[chara].pos.x;
+        nupoint[0].y = ChrList[chara].pos.y;
+        nupoint[0].z = ChrList[chara].pos.z;
     }
 
     // Go through all characters to find the best match
@@ -1556,9 +1561,9 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
         // do not pick up your mount
         if ( ChrList[charb].holdingwhich[SLOT_LEFT] == chara || ChrList[charb].holdingwhich[SLOT_RIGHT] == chara ) continue;
 
-        xb = ChrList[charb].xpos;
-        yb = ChrList[charb].ypos;
-        zb = ChrList[charb].zpos;
+        xb = ChrList[charb].pos.x;
+        yb = ChrList[charb].pos.y;
+        zb = ChrList[charb].pos.z;
 
         // First check absolute value diamond
         xb = ABS( nupoint[0].x - xb );
@@ -1576,11 +1581,11 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                 {
                     passage = shoppassage[cnt];
 
-                    loc = ChrList[charb].xpos;
+                    loc = ChrList[charb].pos.x;
                     loc = loc >> 7;
                     if ( loc >= passtlx[passage] && loc <= passbrx[passage] )
                     {
-                        loc = ChrList[charb].ypos;
+                        loc = ChrList[charb].pos.y;
                         loc = loc >> 7;
                         if ( loc >= passtly[passage] && loc <= passbry[passage] )
                         {
@@ -1667,7 +1672,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
             else
             {
                 // Lift the item a little and quit...
-                ChrList[charb].zvel = DROPZVEL;
+                ChrList[charb].vel.z = DROPZVEL;
                 ChrList[charb].hitready = btrue;
                 ChrList[charb].ai.alert |= ALERTIF_DROPPED;
                 break;
@@ -1701,9 +1706,9 @@ void character_swipe( Uint16 cnt, Uint8 slot )
     if ( weapon != cnt && ( ( CapList[ChrList[weapon].model].isstackable && ChrList[weapon].ammo > 1 ) || ( action >= ACTION_FA && action <= ACTION_FD ) ) )
     {
         // Throw the weapon if it's stacked or a hurl animation
-        x = ChrList[cnt].xpos;
-        y = ChrList[cnt].ypos;
-        z = ChrList[cnt].zpos;
+        x = ChrList[cnt].pos.x;
+        y = ChrList[cnt].pos.y;
+        z = ChrList[cnt].pos.z;
         thrown = spawn_one_character( x, y, z, ChrList[weapon].model, ChrList[cnt].team, 0, ChrList[cnt].turnleftright, ChrList[weapon].name, MAX_CHR );
         if ( thrown < MAX_CHR )
         {
@@ -1718,9 +1723,9 @@ void character_swipe( Uint16 cnt, Uint8 slot )
             }
 
             tTmp = ChrList[cnt].turnleftright >> 2;
-            ChrList[thrown].xvel += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
-            ChrList[thrown].yvel += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
-            ChrList[thrown].zvel = DROPZVEL;
+            ChrList[thrown].vel.x += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
+            ChrList[thrown].vel.y += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * velocity;
+            ChrList[thrown].vel.z = DROPZVEL;
             if ( ChrList[weapon].ammo <= 1 )
             {
                 // Poof the item
@@ -1746,7 +1751,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
             // HERE
             if ( CapList[ChrList[weapon].model].attackprttype != -1 )
             {
-                particle = spawn_one_particle( ChrList[weapon].xpos, ChrList[weapon].ypos, ChrList[weapon].zpos, ChrList[cnt].turnleftright, ChrList[weapon].model, CapList[ChrList[weapon].model].attackprttype, weapon, spawngrip, ChrList[cnt].team, cnt, 0, MAX_CHR );
+                particle = spawn_one_particle( ChrList[weapon].pos.x, ChrList[weapon].pos.y, ChrList[weapon].pos.z, ChrList[cnt].turnleftright, ChrList[weapon].model, CapList[ChrList[weapon].model].attackprttype, weapon, spawngrip, ChrList[cnt].team, cnt, 0, MAX_CHR );
                 if ( particle != TOTAL_MAX_PRT )
                 {
                     if ( !CapList[ChrList[weapon].model].attackattached )
@@ -1756,7 +1761,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                         {
                             attach_particle_to_character( particle, weapon, spawngrip );
                             // Correct Z spacing base, but nothing else...
-                            PrtList[particle].zpos += PipList[PrtList[particle].pip].zspacingbase;
+                            PrtList[particle].pos.z += PipList[PrtList[particle].pip].zspacingbase;
                         }
 
                         PrtList[particle].attachedtocharacter = MAX_CHR;
@@ -1764,12 +1769,12 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                         // Don't spawn in walls
                         if ( __prthitawall( particle ) )
                         {
-                            PrtList[particle].xpos = ChrList[weapon].xpos;
-                            PrtList[particle].ypos = ChrList[weapon].ypos;
+                            PrtList[particle].pos.x = ChrList[weapon].pos.x;
+                            PrtList[particle].pos.y = ChrList[weapon].pos.y;
                             if ( __prthitawall( particle ) )
                             {
-                                PrtList[particle].xpos = ChrList[cnt].xpos;
-                                PrtList[particle].ypos = ChrList[cnt].ypos;
+                                PrtList[particle].pos.x = ChrList[cnt].pos.x;
+                                PrtList[particle].pos.y = ChrList[cnt].pos.y;
                             }
                         }
                     }
@@ -1777,9 +1782,9 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                     {
                         // Attached particles get a strength bonus for reeling...
                         dampen = REELBASE + ( ChrList[cnt].strength / REEL );
-                        PrtList[particle].xvel = PrtList[particle].xvel * dampen;
-                        PrtList[particle].yvel = PrtList[particle].yvel * dampen;
-                        PrtList[particle].zvel = PrtList[particle].zvel * dampen;
+                        PrtList[particle].vel.x = PrtList[particle].vel.x * dampen;
+                        PrtList[particle].vel.y = PrtList[particle].vel.y * dampen;
+                        PrtList[particle].vel.z = PrtList[particle].vel.z * dampen;
                     }
 
                     // Initial particles get a strength bonus, which may be 0.00f
@@ -1804,7 +1809,7 @@ void drop_money( Uint16 character, Uint16 money )
     // ZZ> This function drops some of a character's money
     Uint16 huns, tfives, fives, ones, cnt;
     if ( money > ChrList[character].money )  money = ChrList[character].money;
-    if ( money > 0 && ChrList[character].zpos > -2 )
+    if ( money > 0 && ChrList[character].pos.z > -2 )
     {
         ChrList[character].money = ChrList[character].money - money;
         huns = money / 100;  money -= ( huns << 7 ) - ( huns << 5 ) + ( huns << 2 );
@@ -1814,22 +1819,22 @@ void drop_money( Uint16 character, Uint16 money )
 
         for ( cnt = 0; cnt < ones; cnt++ )
         {
-            spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos,  ChrList[character].zpos, 0, MAX_PROFILE, COIN1, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y,  ChrList[character].pos.z, 0, MAX_PROFILE, COIN1, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < fives; cnt++ )
         {
-            spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos,  ChrList[character].zpos, 0, MAX_PROFILE, COIN5, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y,  ChrList[character].pos.z, 0, MAX_PROFILE, COIN5, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < tfives; cnt++ )
         {
-            spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos,  ChrList[character].zpos, 0, MAX_PROFILE, COIN25, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y,  ChrList[character].pos.z, 0, MAX_PROFILE, COIN25, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
         }
 
         for ( cnt = 0; cnt < huns; cnt++ )
         {
-            spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos,  ChrList[character].zpos, 0, MAX_PROFILE, COIN100, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
+            spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y,  ChrList[character].pos.z, 0, MAX_PROFILE, COIN100, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, cnt, MAX_CHR );
         }
 
         ChrList[character].damagetime = DAMAGETIME;  // So it doesn't grab it again
@@ -3078,7 +3083,7 @@ void damage_character( Uint16 character, Uint16 direction,
                         // Spawn blud particles
                         if ( CapList[model].bludvalid && ( damagetype < DAMAGE_HOLY || CapList[model].bludvalid == ULTRABLUDY ) )
                         {
-                            spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos,
+                            spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].pos.z,
                                                 ChrList[character].turnleftright + direction, ChrList[character].model, CapList[model].bludprttype,
                                                 MAX_CHR, GRIP_LAST, ChrList[character].team, character, 0, MAX_CHR );
                         }
@@ -3230,7 +3235,7 @@ void damage_character( Uint16 character, Uint16 direction,
                 else
                 {
                     // Spawn a defend particle
-                    spawn_one_particle( ChrList[character].xpos, ChrList[character].ypos, ChrList[character].zpos, ChrList[character].turnleftright, MAX_PROFILE, DEFEND, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                    spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].pos.z, ChrList[character].turnleftright, MAX_PROFILE, DEFEND, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     ChrList[character].damagetime    = DEFENDTIME;
                     ChrList[character].ai.alert     |= ALERTIF_BLOCKED;
                     ChrList[character].ai.attacklast = attacker;     // For the ones attacking a shield
@@ -3308,7 +3313,7 @@ void spawn_poof( Uint16 character, Uint16 profile )
 
     while ( iTmp < CapList[profile].gopoofprtamount )
     {
-        spawn_one_particle( ChrList[character].oldx, ChrList[character].oldy, ChrList[character].oldz,
+        spawn_one_particle( ChrList[character].pos_old.x, ChrList[character].pos_old.y, ChrList[character].pos_old.z,
                             sTmp, profile, CapList[profile].gopoofprttype,
                             MAX_CHR, GRIP_LAST, ChrList[character].team, origin, iTmp, MAX_CHR );
         sTmp += CapList[profile].gopoofprtfacingadd;
@@ -3677,26 +3682,31 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->runspd = pcap->runspd;
 
     // Set up position
-    pchr->xpos = x;
-    pchr->ypos = y;
-    pchr->oldx = x;
-    pchr->oldy = y;
+    pchr->pos.x = x;
+    pchr->pos.y = y;
+    pchr->pos_old.x = x;
+    pchr->pos_old.y = y;
     pchr->turnleftright = facing;
     pchr->lightturnleftright = 0;
     pchr->onwhichfan   = mesh_get_tile( PMesh, x, y );
     pchr->onwhichblock = mesh_get_block( PMesh, x, y );
-    pchr->floor_level = get_level( PMesh, pchr->xpos, pchr->ypos, pchr->waterwalk ) + RAISE;
+    pchr->floor_level = get_level( PMesh, pchr->pos.x, pchr->pos.y, pchr->waterwalk ) + RAISE;
     pchr->phys_level = pchr->floor_level;
     if ( z < pchr->phys_level ) z = pchr->phys_level;
 
-    pchr->zpos = z;
-    pchr->oldz = z;
-    pchr->xstt = pchr->xpos;
-    pchr->ystt = pchr->ypos;
-    pchr->zstt = pchr->zpos;
-    pchr->xvel = 0;
-    pchr->yvel = 0;
-    pchr->zvel = 0;
+    pchr->pos.z = z;
+    pchr->pos_old.z = z;
+    pchr->pos_stt.x = pchr->pos.x;
+    pchr->pos_stt.y = pchr->pos.y;
+    pchr->pos_stt.z = pchr->pos.z;
+
+    pchr->vel.x = 0;
+    pchr->vel.y = 0;
+    pchr->vel.z = 0;
+    pchr->vel_old.x = 0;
+    pchr->vel_old.y = 0;
+    pchr->vel_old.z = 0;
+
     pchr->turnmaplr = 32768;  // These two mean on level surface
     pchr->turnmapud = 32768;
 
@@ -3772,7 +3782,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     tnc = 0;
     while ( tnc < pcap->attachedprtamount )
     {
-        spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos,
+        spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z,
                             0, pchr->model, pcap->attachedprttype,
                             ichr, GRIP_LAST + tnc, pchr->team, ichr, tnc, MAX_CHR );
         tnc++;
@@ -3812,9 +3822,9 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
                 bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
 
                 //Check if the character is inside that passage
-                if ( pchr->xpos > tlx - bumpsize && pchr->xpos < brx + bumpsize )
+                if ( pchr->pos.x > tlx - bumpsize && pchr->pos.x < brx + bumpsize )
                 {
-                    if ( pchr->ypos > tly - bumpsize && pchr->ypos < bry + bumpsize )
+                    if ( pchr->pos.y > tly - bumpsize && pchr->pos.y < bry + bumpsize )
                     {
                         //Yep, flag as valuable (does not export)
                         pchr->isshopitem = btrue;
@@ -3846,12 +3856,12 @@ void respawn_character( Uint16 character )
     ChrList[character].carefultime = CAREFULTIME;
     ChrList[character].life = ChrList[character].lifemax;
     ChrList[character].mana = ChrList[character].manamax;
-    ChrList[character].xpos = ChrList[character].xstt;
-    ChrList[character].ypos = ChrList[character].ystt;
-    ChrList[character].zpos = ChrList[character].zstt;
-    ChrList[character].xvel = 0;
-    ChrList[character].yvel = 0;
-    ChrList[character].zvel = 0;
+    ChrList[character].pos.x = ChrList[character].pos_stt.x;
+    ChrList[character].pos.y = ChrList[character].pos_stt.y;
+    ChrList[character].pos.z = ChrList[character].pos_stt.z;
+    ChrList[character].vel.x = 0;
+    ChrList[character].vel.y = 0;
+    ChrList[character].vel.z = 0;
     ChrList[character].team = ChrList[character].baseteam;
     ChrList[character].canbecrushed = bfalse;
     ChrList[character].turnmaplr = 32768;  // These two mean on level surface
@@ -4023,8 +4033,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( ChrList[ichr].ismount )
         {
-            ChrList[sTmp].zvel = DISMOUNTZVEL;
-            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].vel.z = DISMOUNTZVEL;
+            ChrList[sTmp].pos.z += DISMOUNTZVEL;
             ChrList[sTmp].jumptime = JUMPDELAY;
         }
     }
@@ -4036,8 +4046,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( ChrList[ichr].ismount )
         {
-            ChrList[sTmp].zvel = DISMOUNTZVEL;
-            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].vel.z = DISMOUNTZVEL;
+            ChrList[sTmp].pos.z += DISMOUNTZVEL;
             ChrList[sTmp].jumptime = JUMPDELAY;
         }
     }
@@ -4301,8 +4311,8 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
   seeinvisible = ChrList[character].canseeinvisible;
 
   // Current fanblock
-  x = ( ( int )ChrList[character].xpos ) >> 9;
-  y = ( ( int )ChrList[character].ypos ) >> 9;
+  x = ( ( int )ChrList[character].pos.x ) >> 9;
+  y = ( ( int )ChrList[character].pos.y ) >> 9;
   return get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, 0 );
 }*/
 
@@ -4364,8 +4374,8 @@ Uint8 cost_mana( Uint16 character, int amount, Uint16 killer )
         {
           if ( ChrList[character].canseeinvisible || ( ChrList[cnt].alpha > INVISIBLE && ChrList[cnt].light > INVISIBLE ) )
           {
-            xdistance = (int) (ChrList[cnt].xpos - ChrList[character].xpos);
-            ydistance = (int) (ChrList[cnt].ypos - ChrList[character].ypos);
+            xdistance = (int) (ChrList[cnt].pos.x - ChrList[character].pos.x);
+            ydistance = (int) (ChrList[cnt].pos.y - ChrList[character].pos.y);
             distance = xdistance * xdistance + ydistance * ydistance;
             if ( distance < maxdistance )
             {
@@ -4439,8 +4449,8 @@ void switch_team( Uint16 character, Uint8 team )
                 if ( CapList[ChrList[charb].model].idsz[IDSZ_PARENT] == idsz ||
                      CapList[ChrList[charb].model].idsz[IDSZ_TYPE] == idsz )
                 {
-                  xdis = ChrList[character].xpos - ChrList[charb].xpos;
-                  ydis = ChrList[character].ypos - ChrList[charb].ypos;
+                  xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+                  ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
                   xdis = xdis * xdis;
                   ydis = ydis * ydis;
                   distance = xdis + ydis;
@@ -4453,8 +4463,8 @@ void switch_team( Uint16 character, Uint8 team )
               }
               else
               {
-                xdis = ChrList[character].xpos - ChrList[charb].xpos;
-                ydis = ChrList[character].ypos - ChrList[charb].ypos;
+                xdis = ChrList[character].pos.x - ChrList[charb].pos.x;
+                ydis = ChrList[character].pos.y - ChrList[charb].pos.y;
                 xdis = xdis * xdis;
                 ydis = ydis * ydis;
                 distance = xdis + ydis;
@@ -4485,8 +4495,8 @@ void switch_team( Uint16 character, Uint8 team )
   seeinvisible = ChrList[character].canseeinvisible;
 
   // Current fanblock
-  x = ( ( int )ChrList[character].xpos ) >> 9;
-  y = ( ( int )ChrList[character].ypos ) >> 9;
+  x = ( ( int )ChrList[character].pos.x ) >> 9;
+  y = ( ( int )ChrList[character].pos.y ) >> 9;
 
   globalnearest = MAX_CHR;
   globaldistance = 999999;
@@ -4515,8 +4525,8 @@ void switch_team( Uint16 character, Uint8 team )
   seeinvisible = ChrList[character].canseeinvisible;
 
   // Current fanblock
-  x = ( ( int )ChrList[character].xpos ) >> 9;
-  y = ( ( int )ChrList[character].ypos ) >> 9;
+  x = ( ( int )ChrList[character].pos.x ) >> 9;
+  y = ( ( int )ChrList[character].pos.y ) >> 9;
   enemy = get_target_in_block( x, y, character, items, friends, enemies, dead, seeinvisible, idsz, excludeid );
   if ( enemy != MAX_CHR )  return enemy;
 
@@ -4813,9 +4823,14 @@ void move_characters( void )
         pchr->damagetime -= ( pchr->damagetime != 0 );
 
         // Character's old location
-        pchr->oldx = pchr->xpos;
-        pchr->oldy = pchr->ypos;
-        pchr->oldz = pchr->zpos;
+        pchr->pos_old.x = pchr->pos.x;
+        pchr->pos_old.y = pchr->pos.y;
+        pchr->pos_old.z = pchr->pos.z;
+
+        pchr->vel_old.x = pchr->vel.x;
+        pchr->vel_old.y = pchr->vel.y;
+        pchr->vel_old.z = pchr->vel.z;
+
         pchr->oldturn = pchr->turnleftright;
 
         // Texture movement
@@ -4851,8 +4866,8 @@ void move_characters( void )
                 new_vx = dvx * airfriction / (1.0f - airfriction);
                 new_vy = dvy * airfriction / (1.0f - airfriction);
 
-                new_ax = new_vx - pchr->xvel;
-                new_ay = new_vy - pchr->yvel;
+                new_ax = new_vx - pchr->vel.x;
+                new_ay = new_vy - pchr->vel.y;
 
                 dvmax = pchr->maxaccel;
                 if ( new_ax < -dvmax ) new_ax = -dvmax;
@@ -4875,7 +4890,7 @@ void move_characters( void )
                 {
                     if ( cnt != pchr->ai.target )
                     {
-                        pchr->turnleftright = terp_dir( pchr->turnleftright, ( ATAN2( ChrList[pchr->ai.target].ypos - pchr->ypos, ChrList[pchr->ai.target].xpos - pchr->xpos ) + PI ) * 0xFFFF / ( TWO_PI ) );
+                        pchr->turnleftright = terp_dir( pchr->turnleftright, ( ATAN2( ChrList[pchr->ai.target].pos.y - pchr->pos.y, ChrList[pchr->ai.target].pos.x - pchr->pos.x ) + PI ) * 0xFFFF / ( TWO_PI ) );
                     }
                 }
 
@@ -4887,8 +4902,8 @@ void move_characters( void )
                 else
                 {
                     // Limit to max acceleration
-                    pchr->xvel += new_ax;
-                    pchr->yvel += new_ay;
+                    pchr->vel.x += new_ax;
+                    pchr->vel.y += new_ay;
                 }
 
                 // Get direction from ACTUAL change in velocity
@@ -4927,11 +4942,11 @@ void move_characters( void )
 
                         detach_character_from_mount( cnt, btrue, btrue );
                         pchr->jumptime = JUMPDELAY;
-                        pchr->zvel = DISMOUNTZVEL;
+                        pchr->vel.z = DISMOUNTZVEL;
                         if ( pchr->flyheight != 0 )
-                            pchr->zvel = DISMOUNTZVELFLY;
+                            pchr->vel.z = DISMOUNTZVELFLY;
 
-                        pchr->zpos += pchr->zvel;
+                        pchr->pos.z += pchr->vel.z;
                         if ( pchr->jumpnumberreset != JUMPINFINITE && pchr->jumpnumber != 0 )
                             pchr->jumpnumber--;
 
@@ -4939,7 +4954,7 @@ void move_characters( void )
                         ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
                         if ( ijump >= 0 && ijump < MAX_WAVE )
                         {
-                            sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ijump] );
+                            sound_play_chunk( pchr->pos.x, pchr->pos.y, CapList[pchr->model].wavelist[ijump] );
                         }
 
                     }
@@ -4951,11 +4966,11 @@ void move_characters( void )
                             pchr->hitready = btrue;
                             if ( pchr->inwater )
                             {
-                                pchr->zvel = WATERJUMP * 1.2;
+                                pchr->vel.z = WATERJUMP * 1.2;
                             }
                             else
                             {
-                                pchr->zvel = pchr->jump * 1.2;
+                                pchr->vel.z = pchr->jump * 1.2;
                             }
 
                             pchr->jumptime = JUMPDELAY;
@@ -4970,7 +4985,7 @@ void move_characters( void )
                                 int ijump = CapList[pchr->model].soundindex[SOUND_JUMP];
                                 if ( ijump >= 0 && ijump < MAX_WAVE )
                                 {
-                                    sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ijump] );
+                                    sound_play_chunk( pchr->pos.x, pchr->pos.y, CapList[pchr->model].wavelist[ijump] );
                                 }
                             }
 
@@ -5291,20 +5306,20 @@ void move_characters( void )
 
         // Is the character in the air?
         level = pchr->phys_level;
-        zlerp = (pchr->zpos - level) / PLATTOLERANCE;
+        zlerp = (pchr->pos.z - level) / PLATTOLERANCE;
         zlerp = CLIP(zlerp, 0, 1);
 
-        pchr->phys_grounded = (pchr->flyheight == 0) && ((pchr->zpos - pchr->phys_level) < PLATTOLERANCE / 4);
+        pchr->phys_grounded = (pchr->flyheight == 0) && ((pchr->pos.z - pchr->phys_level) < PLATTOLERANCE / 4);
 
         friction_z = pchr->inwater ? waterfriction : 0.9868;
         if ( pchr->flyheight == 0 )
         {
-            pchr->zpos += pchr->zvel;
-            if ( pchr->zpos > level || ( pchr->zvel > STOPBOUNCING && pchr->zpos > level - STOPBOUNCING ) )
+            pchr->pos.z += pchr->vel.z;
+            if ( pchr->pos.z > level || ( pchr->vel.z > STOPBOUNCING && pchr->pos.z > level - STOPBOUNCING ) )
             {
                 // Character is in the air
                 pchr->jumpready = bfalse;
-                pchr->zvel += gravity * zlerp;
+                pchr->vel.z += gravity * zlerp;
 
                 // Down jump timers for flapping characters
                 if ( pchr->jumptime != 0 ) pchr->jumptime--;
@@ -5315,7 +5330,7 @@ void move_characters( void )
             else
             {
                 // Character is on the ground
-                pchr->zpos = level;
+                pchr->pos.z = level;
                 if ( pchr->hitready )
                 {
                     pchr->ai.alert |= ALERTIF_HITGROUND;
@@ -5341,8 +5356,8 @@ void move_characters( void )
                             pchr->jumpnumber = pchr->jumpnumberreset;
                             if ( pchr->jumptime > 0 ) pchr->jumptime--;
 
-                            pchr->zvel *= -pchr->dampen;
-                            pchr->zvel += gravity * zlerp;
+                            pchr->vel.z *= -pchr->dampen;
+                            pchr->vel.z += gravity * zlerp;
                         }
                         else
                         {
@@ -5353,9 +5368,9 @@ void move_characters( void )
                             if ( pchr->weight != 0xFFFFFFFF )
                             {
                                 // Slippy hills make characters slide
-                                pchr->xvel += vellrtwist[twist];
-                                pchr->yvel += veludtwist[twist];
-                                pchr->zvel = -SLIDETOLERANCE;
+                                pchr->vel.x += vellrtwist[twist];
+                                pchr->vel.y += veludtwist[twist];
+                                pchr->vel.z = -SLIDETOLERANCE;
                             }
                             if ( flattwist[twist] )
                             {
@@ -5371,8 +5386,8 @@ void move_characters( void )
                         pchr->jumpnumber = pchr->jumpnumberreset;
                         if ( pchr->jumptime > 0 ) pchr->jumptime--;
 
-                        pchr->zvel *= -pchr->dampen;
-                        pchr->zvel += gravity * zlerp;
+                        pchr->vel.z *= -pchr->dampen;
+                        pchr->vel.z += gravity * zlerp;
                     }
                 }
 
@@ -5392,14 +5407,14 @@ void move_characters( void )
         {
             //  Flying
             pchr->jumpready = bfalse;
-            pchr->zpos += pchr->zvel;
+            pchr->pos.z += pchr->vel.z;
             if ( level < 0 ) level = 0;  // Don't fall in pits...
 
-            pchr->zvel += ( level + pchr->flyheight - pchr->zpos ) * FLYDAMPEN;
-            if ( pchr->zpos < level )
+            pchr->vel.z += ( level + pchr->flyheight - pchr->pos.z ) * FLYDAMPEN;
+            if ( pchr->pos.z < level )
             {
-                pchr->zpos = level;
-                pchr->zvel = 0;
+                pchr->pos.z = level;
+                pchr->vel.z = 0;
             }
 
             // Airborne characters still get friction_xy to make control easier
@@ -5408,16 +5423,16 @@ void move_characters( void )
         }
 
         // Move the character
-        pchr->xpos += pchr->xvel;
-        if ( __chrhitawall( cnt ) ) { pchr->xpos = pchr->oldx; pchr->xvel = -pchr->xvel; }
+        pchr->pos.x += pchr->vel.x;
+        if ( __chrhitawall( cnt ) ) { pchr->pos.x = pchr->pos_old.x; pchr->vel.x = -pchr->vel.x; }
 
-        pchr->ypos += pchr->yvel;
-        if ( __chrhitawall( cnt ) ) { pchr->ypos = pchr->oldy; pchr->yvel = -pchr->yvel; }
+        pchr->pos.y += pchr->vel.y;
+        if ( __chrhitawall( cnt ) ) { pchr->pos.y = pchr->pos_old.y; pchr->vel.y = -pchr->vel.y; }
 
         // Apply friction for next time
-        pchr->xvel *= friction_xy;
-        pchr->yvel *= friction_xy;
-        pchr->zvel *= friction_z;
+        pchr->vel.x *= friction_xy;
+        pchr->vel.y *= friction_xy;
+        pchr->vel.z *= friction_z;
 
         // Animate the character
         pchr->inst.lip = ( pchr->inst.lip + 64 );
@@ -5447,7 +5462,7 @@ void move_characters( void )
                 int ifoot = CapList[pchr->model].soundindex[SOUND_FOOTFALL];
                 if ( ifoot >= 0 && ifoot < MAX_WAVE )
                 {
-                    sound_play_chunk( pchr->xpos, pchr->ypos, CapList[pchr->model].wavelist[ifoot] );
+                    sound_play_chunk( pchr->pos.x, pchr->pos.y, CapList[pchr->model].wavelist[ifoot] );
                 }
             }
         }
@@ -5502,7 +5517,7 @@ void move_characters( void )
             if ( pchr->actionready && pchr->inst.lip == 0 && pchr->phys_grounded && pchr->flyheight == 0 && ( framelip&7 ) < 2 )
             {
                 // Do the motion stuff
-                speed = ABS( ( int ) pchr->xvel ) + ABS( ( int ) pchr->yvel );
+                speed = ABS( ( int ) pchr->vel.x ) + ABS( ( int ) pchr->vel.y );
                 if ( speed < pchr->sneakspd )
                 {
                     //                        pchr->nextaction = ACTION_DA;
@@ -5639,4 +5654,3 @@ void chop_load( Uint16 profile, const char *szLoadname )
         fclose( fileread );
     }
 }
-

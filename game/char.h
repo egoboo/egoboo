@@ -388,25 +388,17 @@ struct s_chr
 
     Uint8          staton;          // Display stats?
 
-    float          xstt;            // Starting position
-    float          ystt;
-    float          zstt;
-
-    float          xpos;            // Character's position
-    float          ypos;
-    float          zpos;
-
-    float          xvel;            // Character's velocity
-    float          yvel;
-    float          zvel;
+    GLvector3      pos_stt;            // Starting position
+    GLvector3      pos;            // Character's position
+    GLvector3      vel;            // Character's velocity
 
     Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
     Uint16         turnmaplr;
     Uint16         turnmapud;
 
-    float          oldx;            // Character's last position
-    float          oldy;
-    float          oldz;
+    GLvector3      pos_old;            // Character's last position
+    GLvector3      vel_old;            // Character's last velocity
+
     Uint16         oldturn;
     Uint8          flyheight;       // Height to stabilize at
 

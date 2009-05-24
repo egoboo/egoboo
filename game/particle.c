@@ -123,11 +123,11 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
         if ( VALID_CAP( pprt->model ) )
         {
             cap_t * pcap = CapList + pprt->model;
-            sound_play_chunk( pprt->xpos, pprt->ypos, pcap->wavelist[sound] );
+            sound_play_chunk( pprt->pos.x, pprt->pos.y, pcap->wavelist[sound] );
         }
         else
         {
-            sound_play_chunk( pprt->xpos, pprt->ypos, g_wavelist[sound] );
+            sound_play_chunk( pprt->pos.x, pprt->pos.y, g_wavelist[sound] );
         }
     }
 }
@@ -145,7 +145,7 @@ void free_one_particle_in_game( Uint16 particle )
 
         if ( pprt->spawncharacterstate != SPAWNNOCHARACTER )
         {
-            child = spawn_one_character( pprt->xpos, pprt->ypos, pprt->zpos,
+            child = spawn_one_character( pprt->pos.x, pprt->pos.y, pprt->pos.z,
                                         pprt->model, pprt->team, 0, pprt->facing,
                                         NULL, MAX_CHR );
             if ( VALID_CHR(child) )
@@ -215,7 +215,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
 {
     // ZZ> This function spawns a new particle, and returns the number of that particle
     int iprt, velocity;
-    float xvel, yvel, zvel, tvel;
+    GLvector3 vel;
+    float tvel;
     int offsetfacing = 0, newrand;
     pip_t * ppip;
 
@@ -265,7 +266,7 @@ Uint16 spawn_one_particle( float x, float y, float z,
         facing += ppip->facingbase;
 
         // Targeting...
-        zvel = 0;
+        vel.z = 0;
         newrand = RANDIE;
         z = z + ppip->zspacingbase + ( newrand & ppip->zspacingrand ) - ( ppip->zspacingrand >> 1 );
         newrand = RANDIE;
@@ -303,14 +304,14 @@ Uint16 spawn_one_particle( float x, float y, float z,
                     // These aren't velocities...  This is to do aiming on the Z axis
                     if ( velocity > 0 )
                     {
-                        xvel = ChrList[pprt->target].xpos - x;
-                        yvel = ChrList[pprt->target].ypos - y;
-                        tvel = SQRT( xvel * xvel + yvel * yvel ) / velocity;  // This is the number of steps...
+                        vel.x = ChrList[pprt->target].pos.x - x;
+                        vel.y = ChrList[pprt->target].pos.y - y;
+                        tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
                         if ( tvel > 0 )
                         {
-                            zvel = ( ChrList[pprt->target].zpos + ( ChrList[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the zvel alteration
-                            if ( zvel < -( ppip->zaimspd >> 1 ) ) zvel = -( ppip->zaimspd >> 1 );
-                            if ( zvel > ppip->zaimspd ) zvel = ppip->zaimspd;
+                            vel.z = ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
+                            if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
+                            if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
                         }
                     }
                 }
@@ -326,8 +327,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
             // Start on top of target
             if ( pprt->target != MAX_CHR && ppip->startontarget )
             {
-                x = ChrList[pprt->target].xpos;
-                y = ChrList[pprt->target].ypos;
+                x = ChrList[pprt->target].pos.x;
+                y = ChrList[pprt->target].pos.y;
             }
         }
         else
@@ -351,18 +352,18 @@ Uint16 spawn_one_particle( float x, float y, float z,
         if ( y < 0 )  y = 0;
         if ( y > PMesh->info.edge_y - 2 )  y = PMesh->info.edge_y - 2;
 
-        pprt->xpos = x;
-        pprt->ypos = y;
-        pprt->zpos = z;
+        pprt->pos.x = x;
+        pprt->pos.y = y;
+        pprt->pos.z = z;
 
         // Velocity data
-        xvel = turntocos[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
-        yvel = turntosin[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
+        vel.x = turntocos[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
+        vel.y = turntosin[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
         newrand = RANDIE;
-        zvel += ppip->zvelbase + ( newrand & ppip->zvelrand ) - ( ppip->zvelrand >> 1 );
-        pprt->xvel = xvel;
-        pprt->yvel = yvel;
-        pprt->zvel = zvel;
+        vel.z += ppip->zvelbase + ( newrand & ppip->zvelrand ) - ( ppip->zvelrand >> 1 );
+        pprt->vel.x = vel.x;
+        pprt->vel.y = vel.y;
+        pprt->vel.z = vel.z;
 
         // Template values
         pprt->bumpsize = ppip->bumpsize;
@@ -397,8 +398,8 @@ Uint16 spawn_one_particle( float x, float y, float z,
         }
 
         // Set onwhichfan...
-        pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->xpos, pprt->ypos );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->xpos, pprt->ypos );
+        pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
 
         // Damage stuff
         pprt->damagebase = ppip->damagebase;
@@ -430,7 +431,7 @@ Uint8 __prthitawall( Uint16 particle )
     Uint32 fan;
     Uint8  retval = MESHFX_IMPASS | MESHFX_WALL;
 
-    fan = mesh_get_tile( PMesh, PrtList[particle].xpos, PrtList[particle].ypos );
+    fan = mesh_get_tile( PMesh, PrtList[particle].pos.x, PrtList[particle].pos.y );
     if ( INVALID_TILE != fan )
     {
         if ( PipList[PrtList[particle].pip].bumpmoney )
@@ -465,9 +466,9 @@ void move_particles( void )
 
         if( pprt->is_hidden ) continue;
 
-        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->xpos, pprt->ypos );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->xpos, pprt->ypos );
-        pprt->floor_level  = get_level( PMesh, pprt->xpos, pprt->ypos, bfalse );
+        pprt->onwhichfan   = mesh_get_tile ( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+        pprt->floor_level  = get_level( PMesh, pprt->pos.x, pprt->pos.y, bfalse );
 
         // To make it easier
         ipip = pprt->pip;
@@ -491,23 +492,23 @@ void move_particles( void )
         level = pprt->floor_level + ( pprt->size >> 9 );
 
         // Check floor collision and do iterative physics
-        if ( ( pprt->zpos < level && pprt->zvel < 0.1f ) || ( pprt->zpos < level - PRTLEVELFIX ) )
+        if ( ( pprt->pos.z < level && pprt->vel.z < 0.1f ) || ( pprt->pos.z < level - PRTLEVELFIX ) )
         {
-            pprt->zpos = level;
-            pprt->xvel = pprt->xvel * noslipfriction;
-            pprt->yvel = pprt->yvel * noslipfriction;
+            pprt->pos.z = level;
+            pprt->vel.x = pprt->vel.x * noslipfriction;
+            pprt->vel.y = pprt->vel.y * noslipfriction;
             if ( ppip->endground )  pprt->time = 1;
-            if ( pprt->zvel < 0 )
+            if ( pprt->vel.z < 0 )
             {
-                if ( pprt->zvel > -STOPBOUNCINGPART )
+                if ( pprt->vel.z > -STOPBOUNCINGPART )
                 {
                     // Make it not bounce
-                    pprt->zpos -= 0.0001f;
+                    pprt->pos.z -= 0.0001f;
                 }
                 else
                 {
                     // Make it bounce
-                    pprt->zvel = -pprt->zvel * ppip->dampen;
+                    pprt->vel.z = -pprt->vel.z * ppip->dampen;
                     // Play the sound for hitting the floor [FSND]
                     play_particle_sound( cnt, ppip->soundfloor );
                 }
@@ -515,13 +516,13 @@ void move_particles( void )
         }
         else if ( INVALID_CHR( pprt->attachedtocharacter ) )
             {
-                pprt->xpos += pprt->xvel;
+                pprt->pos.x += pprt->vel.x;
                 if ( __prthitawall( cnt ) )
                 {
                     // Play the sound for hitting a wall [WSND]
                     play_particle_sound( cnt, ppip->soundwall );
-                    pprt->xpos -= pprt->xvel;
-                    pprt->xvel = ( -pprt->xvel * ppip->dampen );
+                    pprt->pos.x -= pprt->vel.x;
+                    pprt->vel.x = ( -pprt->vel.x * ppip->dampen );
                     if ( ppip->endwall )
                     {
                         pprt->time = 1;
@@ -547,11 +548,11 @@ void move_particles( void )
                     }
                 }
 
-                pprt->ypos += pprt->yvel;
+                pprt->pos.y += pprt->vel.y;
                 if ( __prthitawall( cnt ) )
                 {
-                    pprt->ypos -= pprt->yvel;
-                    pprt->yvel = ( -pprt->yvel * ppip->dampen );
+                    pprt->pos.y -= pprt->vel.y;
+                    pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
                     if ( ppip->endwall )
                     {
                         pprt->time = 1;
@@ -575,8 +576,8 @@ void move_particles( void )
                     }
                 }
 
-                pprt->zpos += pprt->zvel;
-                pprt->zvel += gravity;
+                pprt->pos.z += pprt->vel.z;
+                pprt->vel.z += gravity;
             }
 
 
@@ -591,15 +592,15 @@ void move_particles( void )
             {
                 if ( INVALID_CHR( pprt->attachedtocharacter ) )
                 {
-                    pprt->xvel = ( pprt->xvel + ( ( ChrList[pprt->target].xpos - pprt->xpos ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->yvel = ( pprt->yvel + ( ( ChrList[pprt->target].ypos - pprt->ypos ) * ppip->homingaccel ) ) * ppip->homingfriction;
-                    pprt->zvel = ( pprt->zvel + ( ( ChrList[pprt->target].zpos + ( ChrList[pprt->target].bumpheight >> 1 ) - pprt->zpos ) * ppip->homingaccel ) );
+                    pprt->vel.x = ( pprt->vel.x + ( ( ChrList[pprt->target].pos.x - pprt->pos.x ) * ppip->homingaccel ) ) * ppip->homingfriction;
+                    pprt->vel.y = ( pprt->vel.y + ( ( ChrList[pprt->target].pos.y - pprt->pos.y ) * ppip->homingaccel ) ) * ppip->homingfriction;
+                    pprt->vel.z = ( pprt->vel.z + ( ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpheight >> 1 ) - pprt->pos.z ) * ppip->homingaccel ) );
 
                 }
                 if ( ppip->rotatetoface )
                 {
                     // Turn to face target
-                    facing = ATAN2( ChrList[pprt->target].ypos - pprt->ypos, ChrList[pprt->target].xpos - pprt->xpos ) * 0xFFFF / ( TWO_PI );
+                    facing = ATAN2( ChrList[pprt->target].pos.y - pprt->pos.y, ChrList[pprt->target].pos.x - pprt->pos.x ) * 0xFFFF / ( TWO_PI );
                     facing += 32768;
                     pprt->facing = facing;
                 }
@@ -607,7 +608,7 @@ void move_particles( void )
         }
 
         // Do speed limit on Z
-        if ( pprt->zvel < -ppip->spdlimit )  pprt->zvel = -ppip->spdlimit;
+        if ( pprt->vel.z < -ppip->spdlimit )  pprt->vel.z = -ppip->spdlimit;
 
         // Spawn new particles if continually spawning
         if ( ppip->contspawnamount > 0 )
@@ -621,14 +622,14 @@ void move_particles( void )
 
                 while ( tnc < ppip->contspawnamount )
                 {
-                    particle = spawn_one_particle( pprt->xpos, pprt->ypos, pprt->zpos,
+                    particle = spawn_one_particle( pprt->pos.x, pprt->pos.y, pprt->pos.z,
                                                    facing, pprt->model, ppip->contspawnpip,
                                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
                     if ( PipList[pprt->pip].facingadd != 0 && particle != TOTAL_MAX_PRT )
                     {
                         // Hack to fix velocity
-                        PrtList[particle].xvel += pprt->xvel;
-                        PrtList[particle].yvel += pprt->yvel;
+                        PrtList[particle].vel.x += pprt->vel.x;
+                        PrtList[particle].vel.y += pprt->vel.y;
                     }
 
                     facing += ppip->contspawnfacingadd;
@@ -638,10 +639,10 @@ void move_particles( void )
         }
 
         // Check underwater
-        if ( pprt->zpos < waterdouselevel && ppip->endwater && INVALID_TILE != pprt->onwhichfan && 0 != ( PMesh->mem.tile_list[pprt->onwhichfan].fx & MESHFX_WATER ) )
+        if ( pprt->pos.z < waterdouselevel && ppip->endwater && INVALID_TILE != pprt->onwhichfan && 0 != ( PMesh->mem.tile_list[pprt->onwhichfan].fx & MESHFX_WATER ) )
         {
             // Splash for particles is just a ripple
-            spawn_one_particle( pprt->xpos, pprt->ypos, watersurfacelevel,
+            spawn_one_particle( pprt->pos.x, pprt->pos.y, watersurfacelevel,
                                 0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
 
             // Check for disaffirming character
@@ -671,7 +672,7 @@ void move_particles( void )
 
                 while ( tnc < ppip->endspawnamount )
                 {
-                    spawn_one_particle( pprt->xpos - pprt->xvel, pprt->ypos - pprt->yvel, pprt->zpos,
+                    spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,
                                         facing, pprt->model, ppip->endspawnpip,
                                         MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
                     facing += ppip->endspawnfacingadd;
@@ -768,7 +769,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
     // Only damage if hitting from proper direction
     vertices = pmad->md2.vertices;
-    direction = ( ATAN2( pprt->yvel, pprt->xvel ) + PI ) * 0xFFFF / TWO_PI;
+    direction = ( ATAN2( pprt->vel.y, pprt->vel.x ) + PI ) * 0xFFFF / TWO_PI;
     direction = pchr->turnleftright - direction + 32768;
     if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_INVICTUS )
     {
@@ -811,7 +812,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                 // Find best vertex to attach to
                 bestvertex = 0;
                 bestdistance = 9999999;
-                z = -pchr->zpos + pprt->zpos + RAISE;
+                z = -pchr->pos.z + pprt->pos.z + RAISE;
                 facing = pprt->facing - pchr->turnleftright - 16384;
                 facing = facing >> 2;
                 fsin = turntosin[facing];
@@ -835,7 +836,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
                     cnt++;
                 }
 
-                spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, 0, pprt->model, ppip->bumpspawnpip,
+                spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
                     character, bestvertex + 1, pprt->team, pprt->chr, cnt, character );
             }
             else
@@ -845,7 +846,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 
                 while ( cnt < amount )
                 {
-                    spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, 0, pprt->model, ppip->bumpspawnpip,
+                    spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, 0, pprt->model, ppip->bumpspawnpip,
                         character, rand() % vertices, pprt->team, pprt->chr, cnt, character );
                     cnt++;
                 }
@@ -862,7 +863,7 @@ int prt_is_over_water( Uint16 cnt )
 
     if ( cnt < maxparticles )
     {
-        fan = mesh_get_tile( PMesh, PrtList[cnt].xpos, PrtList[cnt].ypos );
+        fan = mesh_get_tile( PMesh, PrtList[cnt].pos.x, PrtList[cnt].pos.y );
         if ( INVALID_TILE != fan )
         {
             if ( 0 != ( PMesh->mem.tile_list[fan].fx & MESHFX_WATER ) )  return btrue;

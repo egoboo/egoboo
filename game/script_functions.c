@@ -380,16 +380,16 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
     {
         if ( pstate->distance != MOVE_FOLLOW )
         {
-            pstate->x = ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].xpos;
-            pstate->y = ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].ypos;
+            pstate->x = ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].pos.x;
+            pstate->y = ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].pos.y;
         }
         else
         {
-            pstate->x = ( rand() & 1023 ) - 512 + ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].xpos;
-            pstate->y = ( rand() & 1023 ) - 512 + ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].ypos;
+            pstate->x = ( rand() & 1023 ) - 512 + ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].pos.x;
+            pstate->y = ( rand() & 1023 ) - 512 + ChrList[ ChrList[ ChrList[pself->target].model ].ai.target ].pos.y;
         }
 
-        pstate->turn = ATAN2( ChrList[pself->target].ypos - pchr->ypos, ChrList[pself->target].xpos - pchr->xpos ) * 0xFFFF / ( TWO_PI );
+        pstate->turn = ATAN2( ChrList[pself->target].pos.y - pchr->pos.y, ChrList[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
         if ( pstate->distance == MOVE_RETREAT )
         {
             pstate->turn += ( rand() & 16383 ) - 8192;
@@ -924,8 +924,8 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList[sTmp].zvel = DISMOUNTZVEL;
-            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].vel.z = DISMOUNTZVEL;
+            ChrList[sTmp].pos.z += DISMOUNTZVEL;
             ChrList[sTmp].jumptime = JUMPDELAY;
         }
     }
@@ -936,8 +936,8 @@ Uint8 scr_DropWeapons( script_state_t * pstate, ai_state_t * pself )
         detach_character_from_mount( sTmp, btrue, btrue );
         if ( pchr->ismount )
         {
-            ChrList[sTmp].zvel = DISMOUNTZVEL;
-            ChrList[sTmp].zpos += DISMOUNTZVEL;
+            ChrList[sTmp].vel.z = DISMOUNTZVEL;
+            ChrList[sTmp].pos.z += DISMOUNTZVEL;
             ChrList[sTmp].jumptime = JUMPDELAY;
         }
     }
@@ -1653,8 +1653,8 @@ Uint8 scr_SpawnCharacter( script_state_t * pstate, ai_state_t * pself )
             pself->child = sTmp;
 
             tTmp = pchr->turnleftright >> 2;
-            ChrList[sTmp].xvel += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * pstate->distance;
-            ChrList[sTmp].yvel += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * pstate->distance;
+            ChrList[sTmp].vel.x += turntocos[( tTmp+8192 )&TRIG_TABLE_MASK] * pstate->distance;
+            ChrList[sTmp].vel.y += turntosin[( tTmp+8192 )&TRIG_TABLE_MASK] * pstate->distance;
 
             ChrList[sTmp].ai.passage = pself->passage;
             ChrList[sTmp].ai.owner   = pself->owner;
@@ -1863,9 +1863,9 @@ Uint8 scr_PlaySound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound
-    if ( pchr->oldz > PITNOSOUND && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+    if ( pchr->pos_old.z > PITNOSOUND && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
-        sound_play_chunk( pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument] );
+        sound_play_chunk( pchr->pos_old.x, pchr->pos_old.y, CapList[pchr->model].wavelist[pstate->argument] );
     }
 
     SCRIPT_FUNCTION_END();
@@ -1886,24 +1886,24 @@ Uint8 scr_SpawnParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
     if ( tTmp != TOTAL_MAX_PRT )
     {
         // Detach the particle
         attach_particle_to_character( tTmp, pself->index, pstate->distance );
         PrtList[tTmp].attachedtocharacter = MAX_CHR;
         // Correct X, Y, Z spacing
-        PrtList[tTmp].xpos += pstate->x;
-        PrtList[tTmp].ypos += pstate->y;
-        PrtList[tTmp].zpos += PipList[PrtList[tTmp].pip].zspacingbase;
+        PrtList[tTmp].pos.x += pstate->x;
+        PrtList[tTmp].pos.y += pstate->y;
+        PrtList[tTmp].pos.z += PipList[PrtList[tTmp].pip].zspacingbase;
 
         // Don't spawn in walls
         if ( __prthitawall( tTmp ) )
         {
-            PrtList[tTmp].xpos = pchr->xpos;
+            PrtList[tTmp].pos.x = pchr->pos.x;
             if ( __prthitawall( tTmp ) )
             {
-                PrtList[tTmp].ypos = pchr->ypos;
+                PrtList[tTmp].pos.y = pchr->pos.y;
             }
         }
     }
@@ -2460,26 +2460,26 @@ Uint8 scr_TeleportTarget( script_state_t * pstate, ai_state_t * pself )
         // Yeah!  It worked!
         sTmp = pself->target;
         detach_character_from_mount( sTmp, btrue, bfalse );
-        ChrList[sTmp].oldx = ChrList[sTmp].xpos;
-        ChrList[sTmp].oldy = ChrList[sTmp].ypos;
-        ChrList[sTmp].xpos = pstate->x;
-        ChrList[sTmp].ypos = pstate->y;
-        ChrList[sTmp].zpos = pstate->distance;
+        ChrList[sTmp].pos_old.x = ChrList[sTmp].pos.x;
+        ChrList[sTmp].pos_old.y = ChrList[sTmp].pos.y;
+        ChrList[sTmp].pos.x = pstate->x;
+        ChrList[sTmp].pos.y = pstate->y;
+        ChrList[sTmp].pos.z = pstate->distance;
         ChrList[sTmp].turnleftright = pstate->turn & 0xFFFF;
         if ( __chrhitawall( sTmp ) )
         {
             // No it didn't...
-            ChrList[sTmp].xpos = ChrList[sTmp].oldx;
-            ChrList[sTmp].ypos = ChrList[sTmp].oldy;
-            ChrList[sTmp].zpos = ChrList[sTmp].oldz;
+            ChrList[sTmp].pos.x = ChrList[sTmp].pos_old.x;
+            ChrList[sTmp].pos.y = ChrList[sTmp].pos_old.y;
+            ChrList[sTmp].pos.z = ChrList[sTmp].pos_old.z;
             ChrList[sTmp].turnleftright = ChrList[sTmp].oldturn;
             returncode = bfalse;
         }
         else
         {
-            ChrList[sTmp].oldx = ChrList[sTmp].xpos;
-            ChrList[sTmp].oldy = ChrList[sTmp].ypos;
-            ChrList[sTmp].oldz = ChrList[sTmp].zpos;
+            ChrList[sTmp].pos_old.x = ChrList[sTmp].pos.x;
+            ChrList[sTmp].pos_old.y = ChrList[sTmp].pos.y;
+            ChrList[sTmp].pos_old.z = ChrList[sTmp].pos.z;
             ChrList[sTmp].oldturn = ChrList[sTmp].turnleftright;
             returncode = btrue;
         }
@@ -3150,7 +3150,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = ABS( pchr->oldx - gCamera.trackx ) + ABS( pchr->oldy - gCamera.tracky );
+    iTmp = ABS( pchr->pos_old.x - gCamera.trackx ) + ABS( pchr->pos_old.y - gCamera.tracky );
     if ( iTmp < MSGDISTANCE )
     {
         display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
@@ -3480,9 +3480,9 @@ Uint8 scr_StopTargetMovement( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList[pself->target].xvel = 0;
-    ChrList[pself->target].yvel = 0;
-    if ( ChrList[pself->target].zvel > 0 ) ChrList[pself->target].zvel = gravity;
+    ChrList[pself->target].vel.x = 0;
+    ChrList[pself->target].vel.y = 0;
+    if ( ChrList[pself->target].vel.z > 0 ) ChrList[pself->target].vel.z = gravity;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3558,7 +3558,7 @@ Uint8 scr_SpawnAttachedParticle( script_state_t * pstate, ai_state_t * pself )
     tTmp = pself->index;
     if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
     returncode = (tTmp != TOTAL_MAX_PRT);
 
     SCRIPT_FUNCTION_END();
@@ -3590,8 +3590,8 @@ Uint8 scr_AccelerateTarget( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    ChrList[pself->target].xvel += pstate->x;
-    ChrList[pself->target].yvel += pstate->y;
+    ChrList[pself->target].vel.x += pstate->x;
+    ChrList[pself->target].vel.y += pstate->y;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3715,7 +3715,7 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 	if( pchr->loopedsound != pstate->argument && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
 	{
 		stop_object_looped_sound( pself->index );		//Stop existing sound loop (if any)
-		pchr->loopedsound = sound_play_chunk_looped(pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument], -1);
+		pchr->loopedsound = sound_play_chunk_looped(pchr->pos_old.x, pchr->pos_old.y, CapList[pchr->model].wavelist[pstate->argument], -1);
 	}
     SCRIPT_FUNCTION_END();
 }
@@ -4030,7 +4030,7 @@ Uint8 scr_SpawnAttachedSizedParticle( script_state_t * pstate, ai_state_t * psel
     tTmp = pself->index;
     if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turnleftright, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
     if ( tTmp < maxparticles )
     {
         PrtList[tTmp].size = pstate->turn;
@@ -4088,7 +4088,7 @@ Uint8 scr_FacingTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function proceeds only if the character is facing the target
-    sTmp = ATAN2( ChrList[pself->target].ypos - pchr->ypos, ChrList[pself->target].xpos - pchr->xpos ) * 0xFFFF / ( TWO_PI );
+    sTmp = ATAN2( ChrList[pself->target].pos.y - pchr->pos.y, ChrList[pself->target].pos.x - pchr->pos.x ) * 0xFFFF / ( TWO_PI );
     sTmp += 32768 - pchr->turnleftright;
     returncode = ( sTmp > 55535 || sTmp < 10000 );
 
@@ -4110,7 +4110,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
         iTmp = -1;
         if ( pstate->argument >= 0 && pstate->argument < MAX_WAVE )
         {
-            iTmp = sound_play_chunk( pchr->oldx, pchr->oldy, CapList[pchr->model].wavelist[pstate->argument] );
+            iTmp = sound_play_chunk( pchr->pos_old.x, pchr->pos_old.y, CapList[pchr->model].wavelist[pstate->argument] );
         }
 
         if ( -1 != iTmp )
@@ -4138,7 +4138,7 @@ Uint8 scr_SpawnAttachedFacedParticle( script_state_t * pstate, ai_state_t * psel
     tTmp = pself->index;
     if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pstate->turn & 0xFFFF, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pstate->turn & 0xFFFF, pchr->model, pstate->argument, pself->index, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
 
     returncode = (tTmp != TOTAL_MAX_PRT);
 
@@ -4191,23 +4191,23 @@ Uint8 scr_Teleport( script_state_t * pstate, ai_state_t * pself )
     {
         float x_old, y_old;
 
-        x_old = pchr->xpos;
-        y_old = pchr->ypos;
-        pchr->xpos = pstate->x;
-        pchr->ypos = pstate->y;
+        x_old = pchr->pos.x;
+        y_old = pchr->pos.y;
+        pchr->pos.x = pstate->x;
+        pchr->pos.y = pstate->y;
         if ( 0 == __chrhitawall( pself->index ) )
         {
             // Yeah!  It worked!
             detach_character_from_mount( pself->index, btrue, bfalse );
-            pchr->oldx = pchr->xpos;
-            pchr->oldy = pchr->ypos;
+            pchr->pos_old.x = pchr->pos.x;
+            pchr->pos_old.y = pchr->pos.y;
             returncode = btrue;
         }
         else
         {
             // No it didn't...
-            pchr->xpos = x_old;
-            pchr->ypos = y_old;
+            pchr->pos.x = x_old;
+            pchr->pos.y = y_old;
             returncode = bfalse;
         }
     }
@@ -4521,7 +4521,7 @@ Uint8 scr_SpawnAttachedHolderParticle( script_state_t * pstate, ai_state_t * pse
     tTmp = pself->index;
     if ( pchr->attachedto != MAX_CHR )  tTmp = pchr->attachedto;
 
-    tTmp = spawn_one_particle( pchr->xpos, pchr->ypos, pchr->zpos, pchr->turnleftright, pchr->model, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
+    tTmp = spawn_one_particle( pchr->pos.x, pchr->pos.y, pchr->pos.z, pchr->turnleftright, pchr->model, pstate->argument, tTmp, pstate->distance, pchr->team, tTmp, 0, MAX_CHR );
 
     returncode = (tTmp != TOTAL_MAX_PRT);
 
@@ -5066,13 +5066,13 @@ Uint8 scr_RespawnTarget( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     sTmp = pself->target;
-    ChrList[sTmp].oldx = ChrList[sTmp].xpos;
-    ChrList[sTmp].oldy = ChrList[sTmp].ypos;
-    ChrList[sTmp].oldz = ChrList[sTmp].zpos;
+    ChrList[sTmp].pos_old.x = ChrList[sTmp].pos.x;
+    ChrList[sTmp].pos_old.y = ChrList[sTmp].pos.y;
+    ChrList[sTmp].pos_old.z = ChrList[sTmp].pos.z;
     respawn_character( sTmp );
-    ChrList[sTmp].xpos = ChrList[sTmp].oldx;
-    ChrList[sTmp].ypos = ChrList[sTmp].oldy;
-    ChrList[sTmp].zpos = ChrList[sTmp].oldz;
+    ChrList[sTmp].pos.x = ChrList[sTmp].pos_old.x;
+    ChrList[sTmp].pos.y = ChrList[sTmp].pos_old.y;
+    ChrList[sTmp].pos.z = ChrList[sTmp].pos_old.z;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5584,7 +5584,7 @@ Uint8 scr_AccelerateUp( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pchr->zvel += pstate->argument / 100.0f;
+    pchr->vel.z += pstate->argument / 100.0f;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5791,7 +5791,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     {
     if(ChrList[sTmp].on && ChrList[sTmp].alive && ChrList[sTmp].Team == pchr->Team)
     {
-    distance = ABS(gCamera.trackx-ChrList[sTmp].oldx)+ABS(gCamera.tracky-ChrList[sTmp].oldy);
+    distance = ABS(gCamera.trackx-ChrList[sTmp].pos_old.x)+ABS(gCamera.tracky-ChrList[sTmp].pos_old.y);
     if(distance < iTmp)  iTmp = distance;
     }
     sTmp++;

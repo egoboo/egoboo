@@ -211,17 +211,17 @@ void camera_move( camera_t * pcam )
                     if ( ChrList[character].attachedto == MAX_CHR )
                     {
                         // The character is on foot
-                        x += ChrList[character].xpos;
-                        y += ChrList[character].ypos;
-                        z += ChrList[character].zpos;
+                        x += ChrList[character].pos.x;
+                        y += ChrList[character].pos.y;
+                        z += ChrList[character].pos.z;
                         level += ChrList[character].phys_level;
                     }
                     else
                     {
                         // The character is mounted
-                        x += ChrList[ChrList[character].attachedto].xpos;
-                        y += ChrList[ChrList[character].attachedto].ypos;
-                        z += ChrList[ChrList[character].attachedto].zpos;
+                        x += ChrList[ChrList[character].attachedto].pos.x;
+                        y += ChrList[ChrList[character].attachedto].pos.y;
+                        z += ChrList[ChrList[character].attachedto].pos.z;
                         level += ChrList[ChrList[character].attachedto].phys_level;
                     }
 

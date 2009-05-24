@@ -1388,7 +1388,7 @@ void order_dolist( void )
         }
         else
         {
-            dist[cnt] = (int) (ABS( ChrList[character].xpos - gCamera.x ) + ABS( ChrList[character].ypos - gCamera.y ));
+            dist[cnt] = (int) (ABS( ChrList[character].pos.x - gCamera.x ) + ABS( ChrList[character].pos.y - gCamera.y ));
         }
     }
 
@@ -1644,7 +1644,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
     // ZZ> This function loads the font bitmap and sets up the coordinates
     //     of each font on that bitmap...  Bitmap must have 16x6 fonts
     int cnt, y, xsize, ysize, xdiv, ydiv;
-    int xstt, ystt;
+    int stt_x, stt_y;
     int xspacing, yspacing;
     char cTmp;
     FILE *fileread;
@@ -1676,8 +1676,8 @@ void font_load( const char* szBitmap, const char* szSpacing )
 
     parse_filename = szSpacing;
     y = 0;
-    xstt = 0;
-    ystt = 0;
+    stt_x = 0;
+    stt_y = 0;
 
     // Uniform font height is at the top
     goto_colon( NULL, fileread, bfalse );
@@ -1688,19 +1688,19 @@ void font_load( const char* szBitmap, const char* szSpacing )
     {
         fscanf( fileread, "%c%d", &cTmp, &xspacing );
         if ( asciitofont[(Uint8)cTmp] == 255 ) asciitofont[(Uint8)cTmp] = (Uint8) cnt;
-        if ( xstt + xspacing + 1 > 255 )
+        if ( stt_x + xspacing + 1 > 255 )
         {
-            xstt = 0;
-            ystt += yspacing;
+            stt_x = 0;
+            stt_y += yspacing;
         }
 
-        fontrect[cnt].x = xstt;
+        fontrect[cnt].x = stt_x;
         fontrect[cnt].w = xspacing;
-        fontrect[cnt].y = ystt;
+        fontrect[cnt].y = stt_y;
         fontrect[cnt].h = yspacing - 2;
         fontxspacing[cnt] = xspacing + 1;
 
-        xstt += xspacing + 1;
+        stt_x += xspacing + 1;
     }
     fclose( fileread );
 
@@ -2469,8 +2469,8 @@ void light_characters()
         }
 
         // Interpolate lighting level using tile corners
-        ix = ((int)ChrList[tnc].xpos) & 127;
-        iy = ((int)ChrList[tnc].ypos) & 127;
+        ix = ((int)ChrList[tnc].pos.x) & 127;
+        iy = ((int)ChrList[tnc].pos.y) & 127;
 
         itop = tl * (128 - ix) + tr * ix;
         ibot = bl * (128 - ix) + br * ix;
@@ -2559,8 +2559,8 @@ void set_fan_light( int fanx, int fany, Uint16 particle )
                 while ( vertex < lastvertex )
                 {
                     light = PMesh->mem.vrt_a[vertex];
-                    x = PrtList[particle].xpos - PMesh->mem.vrt_x[vertex];
-                    y = PrtList[particle].ypos - PMesh->mem.vrt_y[vertex];
+                    x = PrtList[particle].pos.x - PMesh->mem.vrt_x[vertex];
+                    y = PrtList[particle].pos.y - PMesh->mem.vrt_y[vertex];
                     level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
                     level = 255 - level;
                     level = level * PrtList[particle].dynalightlevel;
@@ -2601,8 +2601,8 @@ void do_dynalight()
             {
                 if ( PrtList[cnt].on && PrtList[cnt].dynalighton )
                 {
-                    fanx = PrtList[cnt].xpos;
-                    fany = PrtList[cnt].ypos;
+                    fanx = PrtList[cnt].pos.x;
+                    fany = PrtList[cnt].pos.y;
                     fanx = fanx >> 7;
                     fany = fany >> 7;
                     addy = -DYNAFANS;
@@ -3336,7 +3336,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 {
     // ZZ> This function spits a line of null terminated text onto the backbuffer,
     //     wrapping over the right side and returning the new y value
-    int sttx = x;
+    int stt_x = x;
     Uint8 cTmp = szText[0];
     int newy = y + fontyspacing;
     Uint8 newword = btrue;
@@ -3344,7 +3344,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
 
     BeginText();
 
-    maxx = maxx + sttx;
+    maxx = maxx + stt_x;
 
     while ( cTmp != 0 )
     {
@@ -3357,7 +3357,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
             if ( endx > maxx )
             {
                 // Wrap the end and cut off spaces and tabs
-                x = sttx + fontyspacing;
+                x = stt_x + fontyspacing;
                 y += fontyspacing;
                 newy += fontyspacing;
 
@@ -3378,7 +3378,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
             }
             else if ( cTmp == '\n' )
             {
-                x = sttx;
+                x = stt_x;
                 y += fontyspacing;
                 newy += fontyspacing;
             }
@@ -3570,11 +3570,11 @@ void draw_text()
                             || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
                     {
                         //Inside the map?
-                        if ( ChrList[iTmp].xpos < PMesh->info.edge_x && ChrList[iTmp].ypos < PMesh->info.edge_y )
+                        if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
                         {
                             //Valid colors only
-                            blipx[numblip] = ChrList[iTmp].xpos * MAPSIZE / PMesh->info.edge_x;
-                            blipy[numblip] = ChrList[iTmp].ypos * MAPSIZE / PMesh->info.edge_y;
+                            blipx[numblip] = ChrList[iTmp].pos.x * MAPSIZE / PMesh->info.edge_x;
+                            blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
                             blipc[numblip] = 0; //Red blips
                             numblip++;
                         }
@@ -3597,7 +3597,7 @@ void draw_text()
                     tnc = PlaList[cnt].index;
                     if ( ChrList[tnc].alive )
                     {
-                        draw_blip( 0.75f, 0, ChrList[tnc].xpos*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].ypos*MAPSIZE / PMesh->info.edge_y ) + displaySurface->h - MAPSIZE );
+                        draw_blip( 0.75f, 0, ChrList[tnc].pos.x*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].pos.y*MAPSIZE / PMesh->info.edge_y ) + displaySurface->h - MAPSIZE );
                     }
                 }
             }
@@ -3687,10 +3687,10 @@ void draw_text()
                  ChrList[tnc].damagemodifier[7]&3 );
         draw_string( text, 0, y );  y += fontyspacing;
         tnc = PlaList[0].index;
-        sprintf( text, "  PLA0 %5.1f %5.1f", ChrList[tnc].xpos / 128.0f, ChrList[tnc].ypos / 128.0f );
+        sprintf( text, "  PLA0 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
         tnc = PlaList[1].index;
-        sprintf( text, "  PLA1 %5.1f %5.1f", ChrList[tnc].xpos / 128.0f, ChrList[tnc].ypos / 128.0f );
+        sprintf( text, "  PLA1 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
         draw_string( text, 0, y );  y += fontyspacing;
     }
     if ( gDevMode &&  SDLKEYDOWN( SDLK_F6 ) )
@@ -4655,9 +4655,9 @@ void make_prtlist( void )
             // Set up the lights we need
             if ( PrtList[cnt].dynalighton )
             {
-                disx = PrtList[cnt].xpos - gCamera.trackx;
+                disx = PrtList[cnt].pos.x - gCamera.trackx;
                 disx = ABS( disx );
-                disy = PrtList[cnt].ypos - gCamera.tracky;
+                disy = PrtList[cnt].pos.y - gCamera.tracky;
                 disy = ABS( disy );
                 distance = disx + disy;
                 if ( distance < dyna_distancetobeat )
@@ -4703,8 +4703,8 @@ void make_prtlist( void )
                         }
                     }
 
-                    dyna_list[slot].x = PrtList[cnt].xpos;
-                    dyna_list[slot].y = PrtList[cnt].ypos;
+                    dyna_list[slot].x = PrtList[cnt].pos.x;
+                    dyna_list[slot].y = PrtList[cnt].pos.y;
                     dyna_list[slot].level = PrtList[cnt].dynalightlevel;
                     dyna_list[slot].falloff = PrtList[cnt].dynalightfalloff;
                 }

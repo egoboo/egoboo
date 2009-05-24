@@ -106,25 +106,25 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     {
         if ( !ChrList[character].on || ChrList[character].inpack ) continue;
 
-        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].zpos < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
+        if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].pos.z < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
         {
-            fan = mesh_get_tile( PMesh, ChrList[character].xpos, ChrList[character].ypos );
+            fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
             if ( INVALID_TILE != fan )
             {
                 tile = PMesh->mem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
-                    x = ChrList[character].xpos;
+                    x = ChrList[character].pos.x;
                     x >>= 7;
                     if ( x >= passtlx[passage] && x <= passbrx[passage] )
                     {
-                        y = ChrList[character].ypos;
+                        y = ChrList[character].pos.y;
                         y >>= 7;
                         if ( y >= passtly[passage] && y <= passbry[passage] )
                         {
                             // Remember where the hit occured...
-                            pstate->x = ChrList[character].xpos;
-                            pstate->y = ChrList[character].ypos;
+                            pstate->x = ChrList[character].pos.x;
+                            pstate->y = ChrList[character].pos.y;
 
                             useful = btrue;
 
@@ -280,9 +280,9 @@ Uint16 who_is_blocking_passage( Uint16 passage )
             bumpsize = ChrList[character].bumpsize;
             if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
             {
-                if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
+                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
-                    if ( ChrList[character].ypos > tly - bumpsize && ChrList[character].ypos < bry + bumpsize )
+                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                     {
                         if ( ChrList[character].alive && !ChrList[character].isitem )
                         {
@@ -337,9 +337,9 @@ void check_passage_music()
                     bumpsize = ChrList[character].bumpsize;
                     if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
                     {
-                        if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
+                        if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                         {
-                            if ( ChrList[character].ypos > tly - bumpsize && ChrList[character].ypos < bry + bumpsize )
+                            if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                             {
                                 if ( ChrList[character].alive && !ChrList[character].isitem )
                                 {
@@ -385,9 +385,9 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
             bumpsize = ChrList[character].bumpsize;
             if ( ( !ChrList[character].isitem ) && bumpsize != 0 && ChrList[character].inpack == 0 )
             {
-                if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
+                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
-                    if ( ChrList[character].ypos > tly - bumpsize && ChrList[character].ypos < bry + bumpsize )
+                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                     {
                         if ( ChrList[character].alive )
                         {
@@ -470,9 +470,9 @@ int close_passage( Uint16 passage )
             bumpsize = ChrList[character].bumpsize;
             if ( ChrList[character].on && ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
             {
-                if ( ChrList[character].xpos > tlx - bumpsize && ChrList[character].xpos < brx + bumpsize )
+                if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
-                    if ( ChrList[character].ypos > tly - bumpsize && ChrList[character].ypos < bry + bumpsize )
+                    if ( ChrList[character].pos.y > tly - bumpsize && ChrList[character].pos.y < bry + bumpsize )
                     {
                         if ( !ChrList[character].canbecrushed )
                         {

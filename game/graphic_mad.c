@@ -433,7 +433,7 @@ void render_refmad( int tnc, Uint8 trans )
 
     float level;
     int trans_temp;
-    int zpos;
+    int pos_z;
     Uint8 sheen_save;
     Uint8 fog_save;
     GLvector4 pos_save;
@@ -443,10 +443,10 @@ void render_refmad( int tnc, Uint8 trans )
     level = ChrList[tnc].floor_level;
     trans_temp = trans;
 
-    zpos = ChrList[tnc].inst.matrix.CNV( 3, 2 ) - level;
-    if (zpos < 0) zpos = 0;
+    pos_z = ChrList[tnc].inst.matrix.CNV( 3, 2 ) - level;
+    if (pos_z < 0) pos_z = 0;
 
-    trans_temp -= zpos >> 1;
+    trans_temp -= pos_z >> 1;
     if ( trans_temp < 0 ) trans_temp = 0;
 
     trans_temp |= reffadeor;  // Fix for Riva owners

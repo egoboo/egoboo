@@ -386,7 +386,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_mix( float xpos, float ypos, mix_ptr_t * pptr )
+int sound_play_mix( float pos_x, float pos_y, mix_ptr_t * pptr )
 {
     int retval = -1;
     if ( !soundvalid || !mixeron )
@@ -405,7 +405,7 @@ int sound_play_mix( float xpos, float ypos, mix_ptr_t * pptr )
     retval = -1;
     if ( MIX_SND == pptr->type )
     {
-        retval = sound_play_chunk( xpos, ypos, pptr->ptr.snd );
+        retval = sound_play_chunk( pos_x, pos_y, pptr->ptr.snd );
     }
     else if ( MIX_MUS == pptr->type )
     {
