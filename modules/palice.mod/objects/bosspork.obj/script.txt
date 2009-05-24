@@ -33,6 +33,10 @@ IfGrabbed
   AddEndMessage
   tmpargument = 2
   AddEndMessage
+  tmpargument = 3
+  AddEndMessage
+  tmpargument = 4
+  AddEndMessage
 
   // Mark this module as beaten, hidden modules may open up
   // Mark this module as beaten, hidden modules may open up

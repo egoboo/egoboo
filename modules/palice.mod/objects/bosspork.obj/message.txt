@@ -1,3 +1,5 @@
 Message 0: %t_found_the_%c!
-Message 1: With_the_discovery_of_the_%c,_the_lost_Lord_Bishop_seems
-Message 2: _closer_than_ever,_but_where_will_you_look_next?
+Message 1: Yes!_The_final_Spork_is_in_your_hands!_With_the_%c_
+Message 2: your_collection_of_all_5_sporks_should_be_complete._
+Message 3: Head_to_the_Royal_Catacombs_and_use_the_sporks_to_open_the_ancient_grave.
+Message 4: You_did_keep_all_sporks_did_you_not_%t?

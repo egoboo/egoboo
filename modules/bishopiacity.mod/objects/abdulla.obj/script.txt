@@ -151,7 +151,7 @@ IfStateIs0
               tmpx = targetx
               tmpy = targety
               tmpdistance = targetz + 50
-              tmpargument = 153             //soul carver !!TODO!!
+              tmpargument = 158             //Ring of Protection !!TODO: randomize ring type!!
               SpawnExactCharacterXYZ
             Else
               tmpargument = 4               //Repeat the reward sentence

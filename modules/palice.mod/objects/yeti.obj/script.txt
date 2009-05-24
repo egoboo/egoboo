@@ -176,6 +176,13 @@ IfKilled
   tmpargument = 14
   tmpdistance = 0
   PlayMusic
+  
+  //Forgot spork ending
+  ClearEndMessage
+  tmpargument = 3
+  AddEndMessage
+  tmpargument = 4
+  AddEndMessage
 
 //------------------------------------------------------------------------------
 //Handle being attacked by blocking or countering or running away

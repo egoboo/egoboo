@@ -42,3 +42,4 @@ SLOT  OBJECT
 98    Poisoned Katana
 99    Darkness Amulet (Kursed!)
 100   Weapon Rack
+158   Ring of Protection

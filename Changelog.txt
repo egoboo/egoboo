@@ -1,6 +1,11 @@
 Version 2.7.3b (??.??.2009)
+- Update: Rings now sparkle so that they are more visible.
+- Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.
+- Bugfix: Minor graphics fixes.
+- Bugfix: Fixed the Unlock spell having unlimited range.
 - Bugfix: Mosquitoes should now properly increase size when filled with blood.
 - Bugfix: Intelligence and wisdom bonus effect to spells should now work properly again.
 - Bugfix: The Giant Scorpion boss music should now play properly.

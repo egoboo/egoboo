@@ -5,6 +5,12 @@ IfTimeOut
   SetTargetToWhoeverIsInPassage
     IfTargetIsAPlayer
       ClearEndMessage
+      tmpargument = 0
+      AddEndMessage
+      tmpargument = 1
+      AddEndMessage
+      tmpargument = 2
+      AddEndMessage
       EnableExport
       BeatModule
       tmpargument = 0

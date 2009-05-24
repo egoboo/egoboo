@@ -57,6 +57,17 @@ IfKilled
   //Victory tune
   tmpargument = 14
   PlayMusic
+  
+  //End text
+  ClearEndMessage
+  tmpargument = 6
+  AddEndMessage
+  tmpargument = 7
+  AddEndMessage
+  tmpargument = 8
+  AddEndMessage
+  tmpargument = 9
+  AddEndMessage
 
 //------------------------------------------------------------------------------
 IfAttacked

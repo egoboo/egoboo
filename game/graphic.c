@@ -4394,7 +4394,6 @@ void load_graphics()
 float calc_light_rotation( int rotation, int normal )
 {
     // ZZ> This function helps make_lighttable
-    float fTmp;
     GLvector3 nrm, nrm2;
     float sinrot, cosrot;
 
@@ -4441,8 +4440,7 @@ float calc_light_global( int rotation, int normal, float lx, float ly, float lz 
 void make_lighttable( float lx, float ly, float lz, float ambi )
 {
     // ZZ> This function makes a light table to fake directional lighting
-    int lev, cnt, tnc;
-    int itmp, itmptwo;
+    Uint32 cnt, tnc;
 
     // Build a lookup table for sin/cos
     for ( cnt = 0; cnt < MAXLIGHTROTATION; cnt++ )
