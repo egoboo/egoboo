@@ -11,7 +11,6 @@ IfGrabbed
   EnableExport
   BeatModule
   tmpargument = 0
-  tmpdistance = 11025
   PlayFullSound
   StopMusic
 
@@ -47,5 +46,6 @@ IfGrabbed
   // Become the export object
   SetTargetToSelf
   tmpargument = 119
-  ChangeTargetClass
+  //ChangeTargetClass
+  GoPoof
 End					// All done

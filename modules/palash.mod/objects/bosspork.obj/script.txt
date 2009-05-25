@@ -45,5 +45,7 @@ IfGrabbed
   // Become the export object
   SetTargetToSelf
   tmpargument = 117
-  ChangeTargetClass
+  //ChangeTargetClass
+  GoPoof
+  
 End					// All done

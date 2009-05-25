@@ -4126,7 +4126,7 @@ void sdlinit( int argc, char **argv )
 
 	//Some bug causes non 32-bit to crash on windows, so send them a warning
 #ifdef WIN32
-	if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
+	if (scrd != 32) log_warning( "Color depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
 #endif
 
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, btrue );

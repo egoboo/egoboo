@@ -10,6 +10,16 @@ unknown:   NONE    6  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    7  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 unknown:   NONE    8  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
+//Start room
+sporkdoor.obj:   NONE    36  16.0   28.0   1.0   W    0   0  0   0   0   F   F   N
+moduletool.obj:   NONE    44  5.5   27.5   1.0   N    0   0  0   0   0   F   F   E
+stairs.obj:   NONE    53  9.5   20.5   1.0   S    0   0  0   0   0   F   F   N
+sporkbutton.obj:   NONE    54  10.0   30.0   2.0   N    0   3  0   1   0   F   F   N
+sporkbutton.obj:   NONE    54  9.0   28.0   2.0   N    0   0  0   4   0   F   F   N
+sporkbutton.obj:   NONE    54  8.0   26.0   2.0   N    0   1  0   0   0   F   F   N
+sporkbutton.obj:   NONE    54  8.0   30.0   2.0   N    0   2  0   3   0   F   F   N
+sporkbutton.obj:   NONE    54  10.0   26.0   2.0   N    0   3  0   2   0   F   F   N
+
 butcher.obj:   NONE    50  37.0   28.0   1.0   N    39   0  0   0   5   F   F   E
 butcheraxe.obj:   NONE    45  37.0   28.0   1.0   R    0   0  0   0   0   F   F   E
 keyb.obj:   NONE    87  37.0   28.0   1.0   I    0   0  0   0   0   F   F   N
@@ -22,14 +32,7 @@ pillar.obj:   NONE    51  22.5   20.0   1.0   N    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    51  19.5   20.0   1.0   E    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    51  22.5   36.0   1.0   W    0   0  0   0   0   F   F   N
 pillar.obj:   NONE    51  19.5   36.0   1.0   S    0   0  0   0   0   F   F   N
-sporkdoor.obj:   NONE    36  16.0   28.0   1.0   W    0   0  0   0   0   F   F   N
-moduletool.obj:   NONE    44  5.5   27.5   1.0   N    0   0  0   0   0   F   F   E
-stairs.obj:   NONE    53  9.5   20.5   1.0   S    0   0  0   0   0   F   F   N
-sporkbutton.obj:   NONE    54  10.0   30.0   2.0   N    0   3  0   0   0   F   F   N
-sporkbutton.obj:   NONE    54  9.0   28.0   2.0   N    0   0  0   4   0   F   F   N
-sporkbutton.obj:   NONE    54  8.0   26.0   2.0   N    0   1  0   1   0   F   F   N
-sporkbutton.obj:   NONE    54  8.0   30.0   2.0   N    0   2  0   2   0   F   F   N
-sporkbutton.obj:   NONE    54  10.0   26.0   2.0   N    0   3  0   3   0   F   F   N
+
 puzzlemod.obj:   NONE    40  12.5   50.5   1.0   N    0   0  0   0   0   F   F   N
 puzzleswitch.obj:   NONE    57  8.5   51.5   1.0   N    0   0  0   1   0   F   F   N
 puzzleswitch.obj:   NONE    57  8.5   49.5   1.0   N    0   0  0   3   0   F   F   N
