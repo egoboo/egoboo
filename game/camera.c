@@ -41,9 +41,9 @@ camera_t gCamera;
 
 camera_t * camera_new( camera_t * pcam )
 {
-    GLvector3 t1 = {0, 0, 0};
-    GLvector3 t2 = {0, 0, -1};
-    GLvector3 t3 = {0, 1, 0};
+	GLvector3 t1 = {{0, 0, 0}};
+	GLvector3 t2 = {{0, 0, -1}};
+	GLvector3 t3 = {{0, 1, 0}};
 
     memset( pcam, 0, sizeof(camera_t) );
 

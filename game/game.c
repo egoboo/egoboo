@@ -1089,14 +1089,14 @@ int SDL_main( int argc, char **argv )
                 if ( game_menu_is_active )
                 {
                     // menu settings
-                    SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
                     SDL_ShowCursor( SDL_ENABLE  );
+					SDL_WM_GrabInput ( SDL_GRAB_OFF );
                 }
                 else
                 {
                     // in-game settings
                     SDL_ShowCursor( gHideMouse ? SDL_DISABLE : SDL_ENABLE );
-                    SDL_WM_GrabInput ( SDL_GRAB_ON );
+                    SDL_WM_GrabInput ( gGrabMouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
                 }
 
                 // This is the control loop
@@ -4889,7 +4889,7 @@ bool_t game_begin_menu( int which )
 }
 
 //--------------------------------------------------------------------------------------------
-void game_end_menu()
+static void game_end_menu()
 {
     mnu_end_menu();
 

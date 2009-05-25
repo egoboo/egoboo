@@ -18,7 +18,7 @@ F11                   - Take screenshot
 
 Keyboard
 ========
-Jump				 : KEY_PAD_0
+Jump				 : KEY_SPACE
 Left Hand Use		 : KEY_T
 Left Hand Get/Drop	 : KEY_G
 Left Hand Inventory  : KEY_B

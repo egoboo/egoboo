@@ -1248,6 +1248,8 @@ int doInputOptions( float deltaTime )
             //Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
+			gamepaused = btrue;			// In case we are running as an in-game menu
+
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
@@ -1579,6 +1581,7 @@ int doInputOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
+			gamepaused = bfalse;			// In case we are running as an in-game menu
             break;
     }
 
@@ -1607,6 +1610,7 @@ int doAudioOptions( float deltaTime )
             GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
+			gamepaused = btrue;			// In case we are running as an in-game menu
             // let this fall through into MM_Entering
 
         case MM_Entering:
@@ -1819,6 +1823,7 @@ int doAudioOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
+			gamepaused = bfalse;			// In case we are running as an in-game menu
             break;
     }
 
@@ -1846,6 +1851,7 @@ int doVideoOptions( float deltaTime )
             GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
+			gamepaused = btrue;			// In case we are running as an in-game menu
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
@@ -2456,6 +2462,7 @@ int doVideoOptions( float deltaTime )
 
             // Set the next menu to load
             result = menuChoice;
+			gamepaused = bfalse;			// In case we are running as an in-game menu
             break;
     }
 

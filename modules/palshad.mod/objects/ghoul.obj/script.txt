@@ -10,21 +10,22 @@ IfOrdered
 //------------------------------------------------------------------------------
 // ZZ> Most undead have an enchantment sustaining them
 IfSpawned
+  SetTargetToSelf
   EnchantTarget  // Enchant self...
 
 //------------------------------------------------------------------------------
-// ZZ> Rise from the dead...  Takes several times to wake...
+//Rise from the dead...  Takes several times to wake...
 IfCleanedUp
-  GetContent
-  tmpx = tmpargument
-  tmpy = 0 - 1
+  tmpx = selfcontent
+  tmpy = 0
   IfXIsMoreThanY
-    tmpargument = tmpargument + 1
+    tmpargument = selfcontent - 1
     SetContent
-    tmpy = selfcounter & 7 + 7
-    IfXIsMoreThanY
+    tmpx = selfcontent
+    tmpy = 0
+    IfXIsEqualToY
       tmpx = selfz
-      tmpy = 0 - 20
+      tmpy = -20
       IfXIsMoreThanY
         tmpargument = 0
         SetContent
@@ -55,7 +56,7 @@ IfKilled
   IfTargetIsOnSameTeam
     tmpargument = MESSAGEFRAG
     IfTargetIsSelf
-      tmpargument = 0 - 500
+      tmpargument = -500
       SetContent // Won't come back...
       tmpargument = MESSAGEACCIDENT
   Else
@@ -63,7 +64,7 @@ IfKilled
     tmpx = tmpargument
     tmpy = DAMAGEHOLY
     IfXIsEqualToY
-      tmpargument = 0 - 500
+      tmpargument = -500
       SetContent // Won't come back...
       SetTargetToWhoeverAttacked		//Give exp
       tmpargument = 20
@@ -75,7 +76,7 @@ IfKilled
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Play the sound
@@ -85,6 +86,14 @@ IfKilled
   // Make the character body
   tmpargument = 25
   SetBumpHeight
+  
+  //return from the dead?
+  tmpx = selfcontent
+  tmpy = -1
+  IfXIsMoreThanY
+    tmpargument = rand & 7 + 7    //How many CleanUp updates needed
+    SetContent
+    
 
 //------------------------------------------------------------------------------
 // ZZ> Let the character walk around
@@ -102,13 +111,13 @@ IfTimeOut
     tmpy = 140
     IfXIsLessThanY
       IfFacingTarget
-        tmpargument = rand & 1 + LATCHLEFT
+        tmpargument = rand & 1 + LATCHLEFT    //Random attack
         PressLatchButton
     tmpargument = 20
     SetTime
     tmpx = targetx
     tmpy = targety
-    tmpdistance = 200
+    tmpdistance = 300
     tmpturn = targetturnto
     Compass
   Else

@@ -57,24 +57,24 @@ IfUsed
     tmpargument = 50
     SetTargetReloadTime
   
-  //Enchant them
-  IfTargetIsAPlayer
-    tmpargument = 0
-    IfContentIs
-      EnchantTarget
-      tmpargument = 1
-      SetContent
-      tmpargument = 14
-      SendMessageNear
-      tmpargument = YELLOW
-      SparkleIcon
+    //Enchant them
+    IfTargetIsAPlayer
       tmpargument = 0
-      PlaySound
-      CostAmmo
-    Else
-      UndoEnchant
-      tmpargument = 0
-      SetContent
+      IfContentIs
+        EnchantTarget
+        tmpargument = 1
+        SetContent
+        tmpargument = 14
+        SendMessageNear
+        tmpargument = YELLOW
+        SparkleIcon
+        tmpargument = 0
+        PlaySound
+        CostAmmo
+      Else
+        UndoEnchant
+        tmpargument = 0
+        SetContent
 
   //Show stats
   IfTargetIsAPlayer
@@ -95,7 +95,7 @@ IfUsed
       tmpx = 3
     tmpargument = 4 + tmpx
     tmpx = selfstr > 8
-    tmpy = selfwis > 8
+    tmpy = selfdex > 8
     SendMessageNear
 
     // Mental Stats
@@ -131,6 +131,8 @@ IfTakenOut
       
 // ZZ> This controls the faerie AI
 IfTimeOut
+  tmpargument = rand & 15 + 25
+  SetTime
   
   //Handle charging
   tmpargument = 1
@@ -147,8 +149,6 @@ IfTimeOut
     tmpargument = 0
     SetContent
     
-  tmpargument = rand & 15 + 25
-  SetTime
   IfStateIs0
     // Circle around start location
     tmpx = rand & 511 + selfx - 256
@@ -165,8 +165,6 @@ IfTimeOut
       tmpturn = ownerturnto
       tmpdistance = 500
       Compass
-      ClearWaypoints
-      AddWaypoint
     Else
       // Circle around the player
       tmpx = ownerx
@@ -174,8 +172,8 @@ IfTimeOut
       tmpturn = xyturnto + 16384
       tmpdistance = 100
       Compass
-      ClearWaypoints
-      AddWaypoint
+    ClearWaypoints
+    AddWaypoint
       
 // All done
 End

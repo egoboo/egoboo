@@ -204,19 +204,30 @@ IfTimeOut
 
     //Reload weapon
     IfHoldingRangedWeapon
-      DoNothing
-    Else
+      SetOldTarget
       SetTargetToSelf
-      tmpargument = ACTIONMC
-      DoAction
-      tmpargument = [XBOW]
-      RestockTargetAmmoIDFirst
-      tmpargument = [LBOW]
-      RestockTargetAmmoIDFirst
-      tmpargument = 1
-      SendMessageNear
-      tmpargument = 9
-      PlaySound
+      
+      //First get a target on the ranged weapon
+      SetTargetToTargetRightHand
+        DoNothing
+      Else
+        SetTargetToTargetLeftHand
+      
+      //Are we low on ammo?
+      tmpx = targetammo
+      tmpy = 5
+      IfXIsLessThanY
+        SetTargetToSelf
+        tmpargument = ACTIONMC
+        DoAction
+        tmpargument = [XBOW]
+        RestockTargetAmmoIDFirst
+        tmpargument = [LBOW]
+        RestockTargetAmmoIDFirst
+        tmpargument = 1
+        SendMessageNear
+        tmpargument = 9
+        PlaySound
       SetTargetToOldTarget
 
 

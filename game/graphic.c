@@ -3737,11 +3737,11 @@ void draw_text()
     }
 
     // Draw paused text
-    if ( gamepaused && !SDLKEYDOWN( SDLK_F11 ) )
+    /*if ( gamepaused && !SDLKEYDOWN( SDLK_F11 ) )
     {
-        //sprintf( text, "GAME PAUSED" );
-        //draw_string( text, -90 + displaySurface->w / 2, 0 + displaySurface->h / 2 );
-    }
+        sprintf( text, "GAME PAUSED" );
+        draw_string( text, -90 + displaySurface->w / 2, 0 + displaySurface->h / 2 );
+    }*/
 
     // Pressed panic button
     if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )

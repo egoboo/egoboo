@@ -19,7 +19,7 @@ static void load_all_messages( const char *loadname, Uint16 object );
 static void get_message( FILE* fileread );
 static void md2_fix_normals( Uint16 modelindex );
 static void md2_get_transvertices( Uint16 modelindex );
-static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
+//static int  vertexconnected( md2_ogl_commandlist_t * pclist, int vertex );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -618,7 +618,7 @@ void md2_get_transvertices( Uint16 modelindex )
 }
 
 //---------------------------------------------------------------------------------------------
-int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
+/*int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 {
     // ZZ> This function returns 1 if the model vertex is connected, 0 otherwise
     int cnt, tnc, entry;
@@ -641,7 +641,7 @@ int vertexconnected( md2_ogl_commandlist_t * pclist, int vertex )
 
     // The vertex is not used
     return 0;
-}
+}*/
 
 
 

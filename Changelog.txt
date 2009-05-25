@@ -4,6 +4,8 @@ Version 2.7.3b (??.??.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Ghouls should not return from the dead when already alive anymore.
+- Bugfix: Fixed impassable passage in Catacombs 1.
 - Bugfix: Fixed a serious bug that caused the quest system to fail.
 - Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.
 - Bugfix: Minor graphics fixes.
@@ -17,6 +19,7 @@ Version 2.7.3b (??.??.2009)
 - Bugfix: Enchantments that give Kurse Seeing should properly work now.
 - Bugfix: Looped sounds should now work again.
 - Bugfix: Fixed some buggy spawning points.
+- Note: The Worldmap module was removed until it is in a more finished state.
 
 Version 2.7.3 (20.05.2009)
 - New Feature: Another new music soundtrack by Edward Blakely!
