@@ -4123,6 +4123,12 @@ void sdlinit( int argc, char **argv )
         SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, scrd - colordepth * 3 );
     }
 #endif
+
+	//Some bug causes non 32-bit to crash on windows, so send them a warning
+#ifdef WIN32
+	if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
+#endif
+
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, btrue );
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, scrz );
 
@@ -4135,7 +4141,6 @@ void sdlinit( int argc, char **argv )
         if(success != 0) log_message("Could not set X%i antialiasing. (Not supported by your gfx card?)\n");
     }
 
-    if (scrd != 32) log_warning( "Screen depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
     log_info("Opening SDL Video Mode... ");
 
     vflags = SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_OPENGL; // basic flags

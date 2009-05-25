@@ -236,6 +236,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\egoboo_typedef.c"
+				>
+			</File>
+			<File
 				RelativePath=".\enchant.c"
 				>
 			</File>

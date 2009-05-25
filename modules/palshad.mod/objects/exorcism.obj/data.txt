@@ -107,7 +107,7 @@ Is platform    : FALSE
 Collects money : FALSE
 Can open stuff : FALSE
 
-Damage type    : ZAP
+Damage type    : HOLY
 Attack type    : WALK
 
 Attached parts : 0

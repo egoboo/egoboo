@@ -6387,15 +6387,17 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ChrList[PlaList[iTmp].index].isplayer )
         {
-            returncode = btrue;
-            if (!add_quest_idsz(ChrList[PlaList[iTmp].index].name , pstate->argument ))       //Try to add it if not already there or beaten
-            {
-                Sint16 i;
-                i = check_player_quest( ChrList[PlaList[iTmp].index].name, pstate->argument);   //Get the current quest level
-                if (i < 0 || i >= pstate->distance) returncode = bfalse;      //It was already beaten
-                else modify_quest_idsz( ChrList[PlaList[iTmp].index].name, pstate->argument, pstate->distance );//Not beaten yet, increase level by 1
-            }
-        }
+			Sint16 i;
+            add_quest_idsz(ChrList[PlaList[iTmp].index].name , pstate->argument );       //Try to add it if not already there or beaten
+            i = check_player_quest( ChrList[PlaList[iTmp].index].name, pstate->argument);   //Get the current quest level
+            
+			if (i <= QUEST_BEATEN || i >= pstate->distance) returncode = bfalse;      //It was already beaten or high enough level
+            else 
+			{
+				modify_quest_idsz( ChrList[PlaList[iTmp].index].name, pstate->argument, pstate->distance );//Not beaten yet, set level to tmpdistance
+				returncode = btrue;
+			}
+		}
 
         iTmp++;
     }

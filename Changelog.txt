@@ -1,8 +1,10 @@
 Version 2.7.3b (??.??.2009)
+- Update: Several improvements to the Physics engine.
 - Update: Rings now sparkle so that they are more visible.
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Fixed a serious bug that caused the quest system to fail.
 - Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.
 - Bugfix: Minor graphics fixes.
 - Bugfix: Fixed the Unlock spell having unlimited range.

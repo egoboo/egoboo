@@ -222,7 +222,6 @@ void   load_bars( const char* szBitmap );
 void   load_map( const char* szModule );
 bool_t load_all_global_icons();
 
-float light_for_normal( int rotation, int normal, float lx, float ly, float lz );
 void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();

@@ -72,7 +72,7 @@ Else
       
     // Find a target
     SetTargetToWideEnemy
-      // Can it be enchanted?
+      // Can it be affected?
       tmpargument = [UNDE]       //Only works vs. undead
       IfTargetHasAnyID
         //If not killed by disenchanting, at least do some damage
@@ -80,7 +80,7 @@ Else
         SetTargetToWhoeverIsHolding
         tmpargument = 4
         SendMessageNear
-        tmpargument = targetwis / 2
+        tmpargument = targetwis > 1
         tmpargument = rand % tmpargument + 512       // 2 + 0-1 damage per 2 points of wisdom
         tmpdistance = DAMAGEHOLY
         SetTargetToOldTarget

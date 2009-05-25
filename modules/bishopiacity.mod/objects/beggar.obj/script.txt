@@ -50,7 +50,7 @@ IfBumped
               ChangeArmor
             tmpy = 15
             IfXIsEqualToY
-              tmpargument = 3
+              tmpargument = 3   //final!
               ChangeArmor
               tmpargument = 5
               SetState

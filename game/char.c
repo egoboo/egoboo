@@ -4653,7 +4653,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
 
         // create a "tmp_*" copy of the file
         snprintf( newloadname, sizeof( newloadname ), "players/%s/quest.txt", str_encode_path(whichplayer));
-        snprintf( copybuffer, sizeof( copybuffer ), "players/%s/tmp_quest.txt", whichplayer);
+        snprintf( copybuffer, sizeof( copybuffer ), "players/%s/tmp_quest.txt", str_encode_path(whichplayer));
         fs_copyFile( newloadname, copybuffer );
 
         // open the tmp file for reading and overwrite the original file
