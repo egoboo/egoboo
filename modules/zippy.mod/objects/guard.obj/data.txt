@@ -193,7 +193,6 @@ Sound of Jump ( -1 for none )			: 2
 
 //Expansions
 :[AWEP] 1             //Advanced weapons profiency
-:[SPHR] 4             //Shield profiency
 
 //-Notes------------------------------------------------------------------------
 // Money, items, skin, name, team, and position are all set at spawn time

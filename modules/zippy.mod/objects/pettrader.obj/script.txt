@@ -297,11 +297,11 @@ IfKilled
   PlaySound
   tmpargument = 0
   SendMessageNear
+  tmpargument = selfmoney
   DropMoney
   
 //Become bad
 IfCalledForHelp
-  JoinEvilTeam
   tmpargument = 2
   SetState
   
@@ -310,7 +310,8 @@ IfAttacked
   SetTargetToWhoeverAttacked
   IfTargetIsOnSameTeam
     IfTargetIsAPlayer
-      JoinEvilTeam
+      tmpargument = 5       //Team EVIL
+      TargetJoinTeam
       CallForHelp
       tmpargument = 2
       SetState

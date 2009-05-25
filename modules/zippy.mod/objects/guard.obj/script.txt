@@ -8,7 +8,8 @@ IfAttacked
   SetTargetToWhoeverAttacked
     IfTargetIsAPlayer
       CallForHelp
-      JoinEvilTeam
+      tmpargument = 5
+      TargetJoinTeam
   SetTargetToOldTarget
 IfCalledForHelp
   SetTargetToWideEnemy
@@ -16,7 +17,6 @@ IfCalledForHelp
       SetOwnerToTarget
       tmpargument = 0
       SetState
-  JoinEvilTeam
 
 //----------------------------------------------------------------------------------
 // Show the character's location
@@ -36,7 +36,8 @@ IfTargetIsOnHatedTeam
 //----------------------------------------------------------------------------------
 IfKilled				// This reduces the height of the char
   CallForHelp			//Alert friends
-  JoinEvilTeam
+  tmpargument = 5
+  TargetJoinTeam
 
   IfTargetIsOnSameTeam			  // Fragged!
     tmpargument = 3			    //
@@ -67,14 +68,15 @@ IfAttacked				// Attacked
 //----------------------------------------------------------------------------------
 IfTimeOut				// This is done every so often
   SetTargetToWideEnemy		  // Look out for enemies
-    tmpargument = 1			      //
     IfHoldingRangedWeapon
       tmpargument = 2
+    Else
+      tmpargument = 1
     SetState				      // Change to combat mode
   Else
     tmpargument = 0
     SetState
-
+    
   IfStateIs0				  // State 0 ( Follow )
     tmpx = ownerx			    //
     tmpy = ownery			    //
@@ -83,6 +85,7 @@ IfTimeOut				// This is done every so often
     tmpdistance = 500			    //
     Compass				    //
 
+  //Melee combat
   IfStateIs1					  // State 1 ( Combat )
     tmpx = targetdistance		    // Close enough to attack?
     tmpy = 200				    //
@@ -95,7 +98,10 @@ IfTimeOut				// This is done every so often
     tmpturn = targetturnto		    //
     tmpdistance = 600			    //
     Compass				    //
+    DebugMessage
+
     
+  //ranged combat
   IfStateIs2
     IfFacingTarget
       SetOldTarget
@@ -129,7 +135,7 @@ IfTimeOut				// This is done every so often
   
   ClearWaypoints			  //
   AddWaypoint				  //
-  tmpargument = rand & 15 + 10			  // Try again later
+  tmpargument = rand & 15 + 20			  // Try again later
   SetTime				  //
 
 //----------------------------------------------------------------------------------

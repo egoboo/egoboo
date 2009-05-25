@@ -1,10 +1,10 @@
 // Get mean if characters wanna be bad
 IfAttacked
+  SetTargetToWhoeverAttacked
   CallForHelp
-  JoinEvilTeam
-IfCalledForHelp
-  JoinEvilTeam
-
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
+  
 //------------------------------------------------------------------------------
 // ZZ> Move around...  Start at state 0
 IfTimeOut

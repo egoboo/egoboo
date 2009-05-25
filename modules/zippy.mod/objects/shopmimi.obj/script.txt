@@ -22,7 +22,6 @@ IfOrdered
 // ZZ> This function makes the character wait for the enemy to open it
 IfKilled				// This reduces the height of the char
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
 
   tmpargument = 0			    //
@@ -45,7 +44,6 @@ IfTargetKilled				// Check for more food
   SetState				  //
 IfAttacked				// Retaliation
   tmpargument = 0
-  tmpdistance = rand & 1023 + 10500
   PlaySound
   SetTargetToWhoeverAttacked		  // Get the enemy
     tmpargument = 0			    //

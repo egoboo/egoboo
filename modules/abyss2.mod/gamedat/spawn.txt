@@ -131,7 +131,7 @@ toast.obj:   NONE    49  50.0   98.0   1.0   N    0   0  0   0   0   F   F   E
 toast.obj:   NONE    49  50.5   73.5   1.0   N    0   0  0   0   0   F   F   E
 toast.obj:   NONE    49  57.5   105.0   1.0   N    0   0  0   0   0   F   F   E
 toast.obj:   NONE    49  56.0   99.0   1.0   N    0   0  0   0   0   F   F   E
-GigaGel:   NONE    93  47.5   71.5   1.0   N    0   0  0   0   0   F   F   E
+GigaGel:   NONE    93  47.5   72.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  47.5   83.5   1.0   N    0   0  0   0   0   F   F   E
 GigaGel:   NONE    93  47.5   95.5   1.0   N    0   0  0   0   0   F   F   E
 

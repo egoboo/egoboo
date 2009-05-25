@@ -1616,6 +1616,7 @@ bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people )
                             ChrList[owner].ai.alert |= ALERTIF_ORDERED;
                             ChrList[owner].ai.order = STOLEN;
                             ChrList[owner].ai.rank  = THEFT;
+							ChrList[owner].ai.target = chara;
                         }
                     }
                     else

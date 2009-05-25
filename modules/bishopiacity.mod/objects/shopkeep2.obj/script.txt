@@ -532,7 +532,7 @@ IfTimeOut
   //COMBAT
   IfStateIs1
     IfHoldingRangedWeapon
-      GetState
+      DoNothing
     Else
       SetTargetToSelf
       tmpargument = [PIST]
@@ -551,6 +551,7 @@ IfTimeOut
       tmpx = selfx		//Face enemy
       tmpy = selfy
       tmpturn = targetturnto
+      tmpdistance = 50
       Compass
       ClearWaypoints
       AddWaypoint

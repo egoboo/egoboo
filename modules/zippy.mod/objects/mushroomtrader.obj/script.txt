@@ -1,11 +1,14 @@
 // Get mean if characters wanna be bad
 IfAttacked
+  SetTargetToWhoeverAttacked
   CallForHelp
-  JoinEvilTeam
-IfCalledForHelp
-  JoinEvilTeam
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 IfKilled
+  SetTargetToWhoeverAttacked
   CallForHelp
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
   
 //Talk
 IfBumped
@@ -110,7 +113,6 @@ ShowBlipXY
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
-  JoinEvilTeam
   tmpargument = 2
   PlaySound
   tmpargument = 0

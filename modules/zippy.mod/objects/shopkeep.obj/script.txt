@@ -1,14 +1,15 @@
 // Get mean if characters wanna be bad
 IfAttacked
   CallForHelp
-  JoinEvilTeam
-IfCalledForHelp
-  JoinEvilTeam
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 IfKilled
-  CallForHelp
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 IfSomeoneIsStealing     //Someone is stealing from our shop! ><
   CallForHelp           //Call the guards!
-  JoinEvilTeam
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 
 //------------------------------------------------------------------------------
 // ZZ> Setup shop...
@@ -210,9 +211,7 @@ IfTimeOut
 //------------------------------------------------------------------------------
 // ZZ> Handle death by sending a message and other stuff
 IfKilled
-  JoinEvilTeam
   tmpargument = 3
-  tmpdistance = rand & 1027 + 11000
   PlaySound
   tmpargument = MESSAGEDEATH
   IfTargetIsOnSameTeam
@@ -222,7 +221,7 @@ IfKilled
   SendMessage
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
 
   // Make the character body
@@ -244,7 +243,6 @@ IfAttacked
     PlaySound
     tmpargument = MESSAGEOUCH
     SendMessageNear
-    JoinEvilTeam
   Else
     tmpargument = rand & 1 + 4
     PlaySound

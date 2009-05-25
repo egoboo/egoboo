@@ -240,7 +240,7 @@ IfTimeOut
       tmpx = targetx
       tmpy = targety
       tmpturn = targetturnto
-      tmpdistance = 850
+      tmpdistance = 800
       Compass
       ClearWaypoints
       AddWaypoint
@@ -262,7 +262,7 @@ IfTimeOut
     SetTime
     SetTargetToNearestEnemy		//Enemy in sight
       IfHoldingMeleeWeapon		//charge in melee
-        tmpargument = 3
+        tmpargument = 4
         SetState
       Else
         tmpargument = 1			//Keep distance with ranged
@@ -280,7 +280,7 @@ IfTimeOut
     SetTime
     SetTargetToNearestEnemy	//Enemy located, attack him
       IfHoldingMeleeWeapon		//charge in melee
-        tmpargument = 3
+        tmpargument = 4
         SetState
       Else
         tmpargument = 1			//Keep distance with ranged

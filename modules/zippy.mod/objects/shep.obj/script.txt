@@ -1,11 +1,13 @@
 // Get mean if characters wanna be bad
 IfAttacked
   CallForHelp
-  JoinEvilTeam
+  SetTargetToWhoeverAttacked
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 IfKilled
-  CallForHelp
-IfCalledForHelp
-  JoinEvilTeam
+  SetTargetToWhoeverAttacked
+  tmpargument = 5       //Team EVIL
+  TargetJoinTeam
 
 IfSpawned
   tmpargument = 20

@@ -1,28 +1,24 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 
 //Encampment
-unknown:   NONE    0  9.5   87.0   1.0   N    0   0  0   0   0   T   F   G
+HERO:   NONE    0  9.5   87.0   0.0   N    0   0  0   0   0   T   F   G
 pistol.obj:   NONE    58  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 whip.obj:   NONE    59  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 
 marcus.obj:   NONE    62  8.5   85.5   0.0   S    4   0  0   0   0   F   F   G
-shovel.obj:   NONE    63  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-meatspit.obj:   NONE    60  9.0   88.0   0.0   S    0   0  0   0   0   F   F   N
-
+  shovel.obj:   NONE    63  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 chest.obj:   NONE    55  11.0   89.5   0.0   N    0   0  0   0   0   F   F   N
-ammobox.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-shovel.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-pick.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-
+  ammobox.obj:   NONE    56  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  shovel.obj:   NONE    63  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  pick.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 chest.obj:   NONE    55  8.0   87.0   0.0   E    0   0  0   0   0   F   F   N
-lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-oil.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-lamp.obj:   NONE    40  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lpotion.obj:   NONE    61  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  oil.obj:   NONE    71  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  lamp.obj:   NONE    40  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 
 gate.obj:   NONE    39  22.5   86.0   1.0   E    0   0  6   2   0   F   F   N
-
 tent:   NONE    69  8.5   90.5   0.0   N    0   1  0   0   0   F   F   N
-
+meatspit.obj:   NONE    60  9.0   88.0   0.0   S    0   0  0   0   0   F   F   N
 
 //Mini temple
 brazier.obj:   NONE    36  7.5   54.5   1.0   N    0   0  0   0   0   F   F   N
@@ -110,8 +106,10 @@ gate.obj:   NONE    39  72.8   51.0   2.0   E    0   0  1   0   0   F   F   N
 gate.obj:   NONE    39  66.8   51.0   4.0   W    0   0  2   0   0   F   F   N
 gate.obj:   NONE    39  60.8   51.0   5.0   E    0   0  3   0   0   F   F   N
 gate.obj:   NONE    39  11.0   76.5   1.0   S    0   0  4   2   0   F   F   N
+
 pedestal.obj:   NONE    50  51.0   51.0   6.0   E    0   0  0   0   0   F   F   N
-bossidol.obj:   NONE    51  51.0   51.0   7.0   E    0   0  0   0   0   F   F   N
+  bossidol.obj:   NONE    51  51.0   51.0   7.0   E    0   0  0   0   0   F   F   N
+
 smallsign.obj:   NONE    44  12.5   78.3   1.0   S    0   0  0   0   0   F   F   N
 smallsign.obj:   NONE    44  9.5   78.3   1.0   S    0   4  0   1   0   F   F   N
 smallsign.obj:   NONE    44  14.5   28.5   1.0   S    0   4  0   2   0   F   F   N
