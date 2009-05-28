@@ -376,8 +376,8 @@ dragonstatue.obj:   NONE    45  97.0   54.0   8.0   N    0   0  0   12000   0   
 WatcherBoss:   NONE    107  77.0   45.5   1.0   S    0   0  0   0   0   F   F   E
 WierdBoss:    NONE    106  84.5   55.5   1.0   N    0   0  0   0   0   F   F   E
 BlackShineKnight:    NONE    104  84.5   45.5   1.0   S    59   0  0   0   0   F   F   E
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  spkmace.obj:   NONE    51  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  darkmace.obj:   NONE    56  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
+  darkmace.obj:   NONE    56  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
 ManaScorpion:    NONE    102  77.0   55.5   1.0   N    0   0  0   0   0   F   F   E
   WithHisClaw:   NONE    103  0.0   0.0   0.0   L    0   1  0   0   0   F   F   N
   WithHisClaw:   NONE    103  0.0   0.0   0.0   R    0   1  0   0   0   F   F   N

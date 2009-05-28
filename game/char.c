@@ -4322,14 +4322,14 @@ Uint8 cost_mana( Uint16 character, int amount, Uint16 killer )
 {
     // ZZ> This function takes mana from a character ( or gives mana ),
     //     and returns btrue if the character had enough to pay, or bfalse
-    //     otherwise
+    //     otherwise. This can kill a character in hard mode.
     int iTmp;
 
     iTmp = ChrList[character].mana - amount;
     if ( iTmp < 0 )
     {
         ChrList[character].mana = 0;
-        if ( ChrList[character].canchannel )
+        if ( ChrList[character].canchannel && (difficulty >= GAME_HARD || ChrList[character].life > iTmp+LOWSTAT ) )
         {
             ChrList[character].life += iTmp;
             if ( ChrList[character].life <= 0 )
@@ -5162,7 +5162,7 @@ void move_characters( void )
                             if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
-                                if ( pchr->mana >= ChrList[weapon].manacost || pchr->canchannel )
+								if ( pchr->mana >= ChrList[weapon].manacost || ( pchr->canchannel && pchr->life+LOWSTAT >= ChrList[weapon].manacost ) )
                                 {
                                     cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing
@@ -5271,7 +5271,7 @@ void move_characters( void )
                             if ( pchr->actionready && MadList[pchr->inst.imad].actionvalid[action] )
                             {
                                 // Check mana cost
-                                if ( pchr->mana >= ChrList[weapon].manacost || pchr->canchannel )
+                                if ( pchr->mana >= ChrList[weapon].manacost || ( pchr->canchannel && pchr->life+LOWSTAT >= ChrList[weapon].manacost ) )
                                 {
                                     cost_mana( cnt, ChrList[weapon].manacost, weapon );
                                     // Check life healing

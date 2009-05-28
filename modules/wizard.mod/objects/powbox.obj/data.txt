@@ -161,7 +161,7 @@ Particle type ( 0 to 3 )			: 0
 
 // Extra stuff I forgot 
 Character can walk on water ( TRUE or FALSE )	: FALSE
-Character bounciness ( 0.00 to 0.95 )		: .1
+Character bounciness ( 0.00 to 0.95 )		: 0.0
 
 
 // More stuff I forgot

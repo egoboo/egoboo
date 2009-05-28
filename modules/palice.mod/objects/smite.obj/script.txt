@@ -1,5 +1,6 @@
 //Make it Glow
-ReaffirmCharacter
+IfSpawned
+  ReaffirmCharacter
 
 //Blacken Status bars
 IfHeld

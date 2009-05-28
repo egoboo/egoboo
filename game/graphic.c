@@ -1102,6 +1102,10 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
                         }
                     }
                 }
+				if ( cTmp == '#' )  // New line (enter)
+                {
+					sprintf( szTmp, "\n" );
+                }
 
                 // Copy the generated text
                 cTmp = *eread;  eread++;

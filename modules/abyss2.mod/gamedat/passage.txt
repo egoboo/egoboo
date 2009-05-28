@@ -42,5 +42,5 @@
 36 BossMusic: 	67 49      70 50          T       T             F
 37 LastSealGate: 64 25      65 25          T       T             F
 38 LastSealOpen: 64 24      65 24          T       T             F
-39 InnerSanctum: 94 49      97 51          F       T             F
+39 InnerSanctum: 94 49      97 51          T       T             F
 40 DracoLich: 	90 49      97 51          T       T             F

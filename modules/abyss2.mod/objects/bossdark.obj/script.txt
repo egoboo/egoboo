@@ -93,6 +93,7 @@ Else
     IfStateIs4
       tmpargument = 1
       SetState
+      
     // Wait for the good guys to barge in...
     IfStateIs0
       tmpargument = 20
@@ -100,7 +101,6 @@ Else
       SetTargetToSelf
       tmpdistance = 128*10
       SetTargetToDistantEnemy
-      IfTargetIsOnHatedTeam
         tmpargument = rand & 15 + 50
         SetTime
         Run
@@ -111,9 +111,8 @@ Else
         SetState
       Else
         Stop
-        SetTurnModeToWatch
         tmpx = selfx
-        tmpy = selfy + 200
+        tmpy = selfy
         ClearWaypoints
         AddWaypoint
 
@@ -151,17 +150,20 @@ Else
     // Rush the enemy
     IfStateIs1
       SetTurnModeToVelocity
-      tmpx = targetdistance
+      IfTargetIsOnHatedTeam
+        tmpx = targetdistance
+      Else
+        tmpx = 1500
       tmpy = 1400
       IfXIsMoreThanY
         // Find a new enemy
         tmpdistance = 128*10
         SetTargetToDistantEnemy
-          tmpargument = 5
+          DoNothing
         Else
           tmpargument = 0
           SetState
-          tmpargument = 5
+        tmpargument = 5
         SetTime
       Else
         // Charge the enemy
@@ -170,12 +172,6 @@ Else
         tmpturn = targetturnto
         tmpdistance = 200
         Compass
-        SetOldTarget
-        SetTargetToNearestFriend
-          tmpdistance = 500 - targetdistance > 1
-          tmpturn = targetturnto + 32768
-          Compass
-          SetTargetToOldTarget
         ClearWaypoints
         AddWaypoint
         tmpargument = 2
@@ -195,8 +191,6 @@ Else
     SetTargetToWhoeverAttacked
     tmpargument = rand & 1
     PlaySound
-
-
 
 //------------------------------------------------------------------------------
 End
