@@ -312,24 +312,6 @@ Level	Ability
 -------------------------------------------
 
 
-ARCHER (Under Development)
--------------------------------------------
-Level	Ability
-1     - Siege Engines (Bonus to aiming and fire rate of Balistea, bows and xbows. Also bonus damage with those weapons, It equals Level/3)
-2     - n/a
-3     - Stealth (Standing still)
-4     - Poison Use
-5     - n/a
-6     - Backstab
-7     - n/a
-8     - Critical Strike
-9     - n/a
-10    - Grogging Hit
-11    - Sneak (Can move 1 step at the time while stealthing)
-12    - n/a
-13    - Cripple (Hit with bow/xbow/Ballsita has a chance of slowing the enemy.)
--------------------------------------------
-
 TOURIST (Under Development)
 -------------------------------------------
 Level	Ability
