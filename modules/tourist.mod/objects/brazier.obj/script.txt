@@ -1,0 +1,59 @@
+// ZZ> This function controls the burning of the fire holder
+IfSpawned
+  tmpargument = rand & 15		  // Initial flicker
+  SetFrame
+  GetContent
+  SetState
+  IfStateIs0
+    // Off to begin
+    DisaffirmCharacter
+  IfStateIs1
+    // On permanently
+    tmpargument = 2
+    SetState
+  IfStateIs3
+    // Off to begin, close passage when fire gone
+    DisaffirmCharacter
+    tmpargument = 0
+    SetState
+
+IfStateIs0  
+  // Not lit...
+  IfReaffirmed
+    tmpargument = 1
+    SetState
+    tmpargument = 200			  // Burn for 4 seconds
+    SetTime
+    // Open the passage
+    tmpargument = passage
+    OpenPassage
+      tmpargument = 2
+      PlaySound
+      tmpargument = 1
+      SendMessageNear
+    
+IfStateIs1
+  // Lit...
+  IfReaffirmed
+    tmpargument = 200
+    SetTime
+  IfTimeOut
+    DisaffirmCharacter
+    tmpargument = 0
+    SetState
+    SendMessageNear
+    // Fade out the light
+    tmpargument = 3
+    tmpx = 0
+    tmpy = 0
+    tmpdistance = SPAWNLAST
+    SpawnParticle
+
+    // Close the passage
+    tmpargument = passage
+    ClosePassage
+
+IfReaffirmed
+  tmpargument = 50
+  SetReloadTime
+End					// All done

@@ -1,0 +1,46 @@
+// ZZ> This function makes the button open the passage
+tmpx = 20				// Threshold weight
+tmpy = weight				// Weight of characters on top
+IfXIsLessThanY				// Open it
+  SetTargetToWhoeverBumped		  //
+  tmpargument = passage
+  IfPassageOpen
+    DoNothing
+  Else
+    GetContent				  // 0 - 25...  KEYA - KEYZ
+    tmpargument = tmpargument + [KEYA]	  //
+    CostTargetItemID			  // Check for Key
+      tmpargument = passage		    //
+      OpenPassage				    //
+
+      tmpargument = 10
+      tmpdistance = EXPSECRET
+      GiveExperienceToTarget
+      
+      tmpargument = 0
+      PlaySound
+
+      tmpargument = 0			      //
+      SendMessageNear			      //
+tmpargument = passage			//
+IfPassageOpen				// Go down
+  tmpargument = 0			  //
+  IfStateIs				  //
+    tmpargument = ACTIONMG		    //
+    DoAction				    //
+      tmpargument = 1			      // 1 is down
+      SetState				      //
+      KeepAction			      // Make it stay on last frame
+      tmpargument = 0			      //
+      SetBumpHeight			      //
+Else					// Pop up
+  tmpargument = 1			  //
+  IfStateIs				  //
+    tmpargument = ACTIONMJ		    //
+    DoAction				    //
+      tmpargument = 0			      // 0 is up
+      SetState				      //
+      KeepAction			      // Make it stay on last frame
+      tmpargument = 30			      //
+      SetBumpHeight			      //
+End					// Finished with this character

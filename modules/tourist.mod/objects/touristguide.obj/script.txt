@@ -1,0 +1,29 @@
+//ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  tmpargument = 50                //1 second cooldown
+  SetReloadTime
+  tmpargument = 131 - selfammo    //Magic number = max ammo+1
+  SendMessageNear
+  tmpargument = 1
+  PlaySound
+  CostAmmo
+  IfAmmoOut
+    tmpargument = [GUID]        //Reset book
+    RestockTargetAmmoIDFirst
+
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  //
+
+End					// All done

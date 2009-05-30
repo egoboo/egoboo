@@ -1,0 +1,23 @@
+Module Name :Tourist_Starter
+Reference Directory :NONE
+Required reference IDSZ :[TOUR] 2
+Number of imports ( 0 to 4 ) :0
+Exporting ( TRUE or FALSE ) :FALSE
+Minimum players ( 1 to 4 ) :1
+Maximum players ( 1 to 4 ) :1
+Respawning ( TRUE or FALSE ) :FALSE
+RTS control (TRUE, FALSE, ALL) :FALSE
+Level rating ( * to  ***** ) :******
+
+// Module summary
+:You_got_sepearated_from_your_group
+:and_fell_into_an_ancient_hole._Who
+:knows_what_wonders_you_can_find_in
+:this_dusty_place?_You_better_explore
+:and_take_some_great_pictures_while
+:you_are_here!_Something_down_here
+:must_be_worth_taking_a_picture_of...
+:_
+
+// IDZs
+

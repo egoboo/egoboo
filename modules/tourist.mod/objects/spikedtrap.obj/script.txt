@@ -1,0 +1,60 @@
+//-----------------------------------------------------------------------------------------------
+//Reset trap at start
+IfSpawned
+  tmpargument = ACTIONMG
+  DoAction
+  KeepAction
+
+//-----------------------------------------------------------------------------------------------
+//Ready the trap
+IfOrdered
+  tmpx = selforder
+  tmpy = selfcontent
+  IfXIsEqualToY
+    tmpargument = 1   //ready trap
+    SetState
+    tmpargument = 15
+    SetTime
+    
+  tmpy = [STOP]
+  IfXIsEqualToY
+    tmpargument = 500  //ten seconds is just enough
+    SetTime
+
+//-----------------------------------------------------------------------------------------------
+//Trap effects
+IfStateIs1
+  IfTimeOut
+    tmpargument = 0
+    PlaySound			//Play clinking
+    tmpargument = ACTIONMG
+    DoAction
+    
+    //Deal damage to nearby stuff
+    tmpargument = 0
+    tmpx = 0
+    tmpy = 0
+    tmpdistance = SPAWNORIGIN
+    SpawnParticle
+          
+    //ready it again
+    tmpargument = 0
+    SetState
+    
+    tmpargument = selfcontent + 1
+    tmpdistance = [GATE]
+    OrderSpecialID
+    
+//-----------------------------------------------------------------------------------------------
+tmpargument = 0
+IfContentIs
+  IfTimeOut  
+    tmpargument = 75  //Do this every 1.5 seconds
+    SetTime
+    
+    tmpargument = 1
+    SetState
+
+//-----------------------------------------------------------------------------------------------
+End				// Finished with this character
+//-----------------------------------------------------------------------------------------------

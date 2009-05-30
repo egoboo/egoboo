@@ -1,0 +1,43 @@
+//------------------------------------------------------------------------------
+//Dont move while falling and set target point
+IfSpawned
+  tmpx = selfmoney
+  tmpy = selfcontent
+  ClearWaypoints
+  AddWaypoint
+
+//------------------------------------------------------------------------------
+//Make it roll
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  tmpargument = 400
+  SetSpeedPercent
+  
+//------------------------------------------------------------------------------
+//Reached the end!
+tmpx = gotodistance
+tmpy = 100
+IfXIsLessThanY
+  IfStateIs0
+    tmpx = selfspawnx
+    tmpy = selfspawny
+    tmpargument = 1
+    SetState
+  Else
+    tmpx = selfmoney
+    tmpy = selfcontent
+    tmpargument = 0
+    SetState
+  ClearWaypoints
+  AddWaypoint
+    
+//------------------------------------------------------------------------------
+//Crush folks
+IfBumped
+  SetTargetToWhoeverBumped
+  KillTarget
+  tmpargument = LATCHJUMP
+  PressLatchButton			//"bump" over them
+
+End					// All done

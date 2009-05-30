@@ -65,6 +65,8 @@ IfTimeOut
               tmpargument = selfcontent
               PlaySound
               SendMessageNear
+              tmpargument = 150
+              SetTime
 
           //Look at him
           SetTurnModeToWatchTarget
@@ -72,6 +74,8 @@ IfTimeOut
           tmpy = targety
           ClearWaypoints
           AddWaypoint
+        Else
+          SetTurnModeToVelocity
       Else
         SetTurnModeToVelocity     
 

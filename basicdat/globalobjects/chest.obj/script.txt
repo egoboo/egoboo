@@ -9,7 +9,7 @@
 //+4 content = fire trapped
 //+8 content = secret bottom
 //+16 content = invisible
-//+32 content = contains armor (!invalidates map and secret bottom!) (TODO)
+//+32 content = contains armor (!invalidates map and secret bottom!)
 //+64 content = armor costs money (only works with +32 content!)
 //------------------------------------------------------------------------------------
 //ARMOR TYPES DEPEND ON SELFLEVEL

@@ -1,0 +1,103 @@
+//ZZ> This function makes an item fall to the floor when spawned
+IfSpawned				//
+  tmpargument = ACTIONJB		  //
+  DoAction				  //
+  KeepAction				  //
+  
+  //Reset difficulity counter
+  tmpargument = 0
+  SetContent
+
+IfGrabbed
+  SetTargetToWhoeverIsHolding		  //
+  IfTargetIsAPlayer			  //
+    tmpargument = 0			  //
+    SendMessageNear			  //
+
+IfUsed
+  tmpargument = 50                //1 second cooldown
+  SetReloadTime
+  SetTargetToWhoeverIsHolding
+  tmpargument = [TOUR]
+  IfTargetHasID
+    tmpargument = [LOCK]
+    tmpdistance = 14 // Items, Friends, and Enemies
+    SetTargetToWideBlahID
+      tmpx = targetdistance
+      tmpy = 128
+      IfXIsLessThanY
+        IfFacingTarget
+          GetTargetState
+          tmpx = tmpargument
+          tmpy = 0
+          IfXIsEqualToY
+            SetOldTarget
+            SetTargetToWhoeverIsHolding
+            tmpargument = ACTIONMG
+            TargetDoAction
+            GetContent
+            tmpx = targetdex > 7   //2% per dex
+            tmpy = rand % 100 + tmpargument       //Gets harder each time failed
+            //tmpargument = 6
+            //SendMessage             //Uncomment for see the actual % results ingame
+            IfXIsMoreThanY
+              
+              //Award some xp
+              tmpargument = 20
+              tmpdistance = EXPROLEPLAY
+              GiveExperienceToTarget
+              
+              //Tell it was a success!
+              tmpargument = 1
+              PlaySound
+              tmpargument = 3
+              SendMessageNear
+              
+              //Open it up!
+              SetTargetToOldTarget
+              tmpargument = 491 // The special unlock order
+              OrderTarget
+            Else
+              tmpx = tmpx*4
+              IfXIsLessThanY
+                tmpargument = 5       //Broke it!
+                SendMessageNear
+                tmpargument = 30
+                tmpdistance = EXPDARE
+                GiveExperienceToTarget
+                tmpargument = 3
+                PlaySound
+                
+                //Allow for multiple credit cards
+                CostAmmo
+                IfAmmoOut
+                  GoPoof
+              Else
+                GetContent
+                tmpargument = rand & 2 + tmpargument + 2      //Increase difficulity by 2-4%
+                SetContent
+                tmpargument = 4     //Need more practice
+                SendMessageNear
+                tmpargument = 2
+                PlaySound
+          Else
+            tmpargument = 1
+            SendMessageNear
+        Else
+          tmpargument = 1
+          SendMessageNear
+      Else
+        tmpargument = 1             //Bah, there is a better way to do this
+        SendMessageNear
+    Else
+      tmpargument = 1               //but I'm too lazy right now (use states)
+      SendMessageNear
+  Else
+    tmpargument = 2
+    SendMessageNear
+
+IfHitGround				// Make a sound
+  tmpargument = 0			  //
+  PlaySound				  //
+
+End					// All done

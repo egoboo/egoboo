@@ -1,0 +1,27 @@
+// Make it stay open or close
+IfSpawned
+  KeepAction			//Start at off
+
+//Turn switch when bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfStateIs0
+    IfTargetIsAPlayer
+      tmpargument = ACTIONMG	    //Turn
+      DoAction
+      tmpargument = [STOP]	//Say stop
+      tmpdistance = [GATE]	//To all with [GATE] IDSZ
+      OrderSpecialID
+      tmpargument = 1		//Don't do again
+      SetState
+      tmpargument = 0
+      PlaySound
+      SendMessageNear
+      tmpargument = 120
+      SetTime
+      
+IfTimeOut
+  tmpargument = 0
+  SetState
+  
+End				// Finished with this character

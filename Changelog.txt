@@ -4,6 +4,7 @@ Version 2.7.3b (??.??.2009)
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Land Mines should work properly again.
 - Bugfix: Fixed numerous bugs in the final boss fight.
 - Bugfix: Ghouls should not return from the dead when already alive anymore.
 - Bugfix: Fixed impassable passage in Catacombs 1.

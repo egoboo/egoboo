@@ -97,8 +97,7 @@ IfTimeOut				// This is done every so often
     tmpy = rand & 255 + targety - 128			    //
     tmpturn = targetturnto		    //
     tmpdistance = 600			    //
-    Compass				    //
-    DebugMessage
+    Compass
 
     
   //ranged combat
