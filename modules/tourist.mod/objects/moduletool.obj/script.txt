@@ -66,14 +66,15 @@ IfStateIs1
     tmpargument = 5
     AddEndMessage  
     
-    //Finish it
-    BeatModule
-    EndModule
-    tmpargument = [BEAT]
-    AddIDSZ
-  
     //Just to be nice, we restock the camera ammo
     tmpargument = [CAME]
     RestockTargetAmmoIDFirst
   
+    //Finish it
+    BeatModule
+    EnableExport
+    tmpargument = [BEAT]
+    AddIDSZ
+    EndModule
+      
 End					// All done
