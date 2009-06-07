@@ -1598,7 +1598,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
 void make_water()
 {
     // ZZ> This function sets up water movements
-    int layer, frame, point, mode, cnt;
+    int layer, frame, point, cnt;
     float temp;
     Uint8 spek;
 

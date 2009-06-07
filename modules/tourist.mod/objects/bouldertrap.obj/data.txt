@@ -79,7 +79,7 @@ EVIL inversion ( eg. F F F T )			:  F  F  F  F
 FIRE inversion ( eg. F F F T )			:  F  F  F  F
 ICE inversion ( eg. F F F T )			:  F  F  F  F
 ZAP inversion ( eg. F F F T )			:  F  F  F  F
-Acceleration rate ( eg. 40 38 30 20 )		:  300  0  0  0
+Acceleration rate ( eg. 40 38 30 20 )		:  150  0  0  0
 
 
 // Experience and level data

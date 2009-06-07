@@ -187,7 +187,7 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
 {
     /// @details BB> let SDL_GL try to set a new video mode.
 
-    SDLX_video_parameters_t param_old, param_new;
+    SDLX_video_parameters_t param_old;
     SDLX_video_parameters_t * retval = NULL;
 
     // initialize v_old and param_old

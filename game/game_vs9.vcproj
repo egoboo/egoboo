@@ -282,6 +282,22 @@
 			<File
 				RelativePath=".\gltexture.c"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\graphic.c"
@@ -336,6 +352,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ogl_debug.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_extensions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_include.c"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_texture.c"
+				>
+			</File>
+			<File
 				RelativePath=".\particle.c"
 				>
 			</File>
@@ -353,6 +385,14 @@
 			</File>
 			<File
 				RelativePath=".\script_functions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\SDL_extensions.c"
+				>
+			</File>
+			<File
+				RelativePath=".\SDL_GL_extensions.c"
 				>
 			</File>
 			<File
@@ -538,6 +578,22 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ogl_debug.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_include.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ogl_texture.h"
+				>
+			</File>
+			<File
 				RelativePath=".\particle.h"
 				>
 			</File>
@@ -559,6 +615,14 @@
 			</File>
 			<File
 				RelativePath=".\script_functions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SDL_extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SDL_GL_extensions.h"
 				>
 			</File>
 			<File

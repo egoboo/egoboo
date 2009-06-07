@@ -1,9 +1,15 @@
-Version 2.7.3b (??.??.2009)
+Version 2.7.4 (??.??.2009)
+- New Feature: Added a new secret class into the game - The Tourist Starter!
+- Update: Added some more extensive debugging and graphics initialization routines.
+- Update: Major updates to the lightning engine.
 - Update: Several improvements to the Physics engine.
 - Update: Rings now sparkle so that they are more visible.
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Egoboo should no longer crash in 24-bit color mode.
+- Bugfix: Fixed some minor particle rendering bugs.
+- Bugfix: Significant tweaks to improve the physics engine.
 - Bugfix: Land Mines should work properly again.
 - Bugfix: Fixed numerous bugs in the final boss fight.
 - Bugfix: Ghouls should not return from the dead when already alive anymore.

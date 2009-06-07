@@ -157,7 +157,6 @@ GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * ima
     SDL_Surface     * screen;
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
-    SDL_Surface     * tmp;
     Uint32            convert_flags;
     bool_t            use_alpha;
 

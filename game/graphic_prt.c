@@ -440,7 +440,6 @@ bool_t render_one_prt_ref( Uint16 iprt )
     // BB > render one particle
 
     GLvertex vtlist[4];
-    float size;
     int startalpha;
     int i;
     prt_t * pprt;

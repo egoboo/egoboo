@@ -4,8 +4,6 @@ HERO:   NONE    0  57.5   58.5   7.0   N    1000   0  0   0   0   T   F   G
   touristguide.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   fortunecookie.obj:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   fakecreditcard.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-keya.obj:   NONE    37  42.5   56.0   0.0   I    0   0  0   0   0   F   F   N
-keya.obj:   NONE    37  42.5   56.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Start room
 shaft.obj:   NONE    42  57.5   58.5   0.0   N    0   0  0   0   0   F   F   N
