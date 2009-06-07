@@ -73,9 +73,9 @@ int open_passage( Uint16 passage )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
-                if ( INVALID_TILE != fan )
+                if ( VALID_TILE(PMesh, fan) )
                 {
-                    PMesh->mem.tile_list[fan].fx &= ~( MESHFX_WALL | MESHFX_IMPASS );
+                    PMesh->mem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
                 }
                 x++;
             }
@@ -109,7 +109,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
         if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].pos.z < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
         {
             fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
-            if ( INVALID_TILE != fan )
+            if ( VALID_TILE(PMesh, fan) )
             {
                 tile = PMesh->mem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
@@ -165,7 +165,7 @@ void flash_passage( Uint16 passage, Uint8 color )
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( INVALID_TILE != fan )
+            if ( VALID_TILE(PMesh, fan) )
             {
                 Uint16 ttype = PMesh->mem.tile_list[fan].type;
 
@@ -196,8 +196,8 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
     if ( passage >= numpassage ) return bfalse;
 
     // Do the first row
-    x = pstate->x >> 7;
-    y = pstate->y >> 7;
+    x = pstate->x >> TILE_BITS;
+    y = pstate->y >> TILE_BITS;
 
     if ( x < passtlx[passage] )  x = passtlx[passage];
     if ( y < passtly[passage] )  y = passtly[passage];
@@ -208,12 +208,12 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( INVALID_TILE != fan )
+            if ( VALID_TILE(PMesh, fan) )
             {
                 if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
                 {
-                    pstate->x = ( x << 7 ) + 64;
-                    pstate->y = ( y << 7 ) + 64;
+                    pstate->x = ( x << TILE_BITS ) + 64;
+                    pstate->y = ( y << TILE_BITS ) + 64;
                     return btrue;
                 }
 
@@ -233,13 +233,13 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
         {
             fan = mesh_get_tile_int( PMesh, x, y );
 
-            if ( INVALID_TILE != fan )
+            if ( VALID_TILE(PMesh, fan) )
             {
 
                 if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
                 {
-                    pstate->x = ( x << 7 ) + 64;
-                    pstate->y = ( y << 7 ) + 64;
+                    pstate->x = ( x << TILE_BITS ) + 64;
+                    pstate->y = ( y << TILE_BITS ) + 64;
                     return btrue;
                 }
             }
@@ -264,10 +264,10 @@ Uint16 who_is_blocking_passage( Uint16 passage )
     float bumpsize;
 
     // Passage area
-    tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
-    tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
-    brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
-    bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+    tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
+    tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
+    brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+    bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
     // Look at each character
     foundother = MAX_CHR;
@@ -322,10 +322,10 @@ void check_passage_music()
         if ( passagemusic[passage] != -1 )       // Only check passages that have music assigned to them
         {
             // Passage area
-            tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
-            tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
-            brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
-            bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+            tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
+            tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
+            brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+            bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
             // Look at each character
             character = 0;
@@ -370,10 +370,10 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
     float bumpsize;
 
     // Passage area
-    tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
-    tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
-    brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
-    bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+    tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
+    tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
+    brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+    bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
 
     // Look at each character
     character = 0;
@@ -455,13 +455,13 @@ int close_passage( Uint16 passage )
     Uint16 numcrushed;
     Uint16 crushedcharacters[MAX_CHR];
 
-    if ( ( passmask[passage]&( MESHFX_IMPASS | MESHFX_WALL ) ) )
+    if ( 0 != ( passmask[passage] & ( MPDFX_IMPASS | MPDFX_WALL ) ) )
     {
         // Make sure it isn't blocked
-        tlx = ( passtlx[passage] << 7 ) - CLOSETOLERANCE;
-        tly = ( passtly[passage] << 7 ) - CLOSETOLERANCE;
-        brx = ( ( passbrx[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
-        bry = ( ( passbry[passage] + 1 ) << 7 ) + CLOSETOLERANCE;
+        tlx = ( passtlx[passage] << TILE_BITS ) - CLOSETOLERANCE;
+        tly = ( passtly[passage] << TILE_BITS ) - CLOSETOLERANCE;
+        brx = ( ( passbrx[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
+        bry = ( ( passbry[passage] + 1 ) << TILE_BITS ) + CLOSETOLERANCE;
         numcrushed = 0;
         character = 0;
 
@@ -515,7 +515,7 @@ int close_passage( Uint16 passage )
             {
                 fan = mesh_get_tile_int( PMesh, x, y );
 
-                if ( INVALID_TILE != fan )
+                if ( VALID_TILE(PMesh, fan) )
                 {
                     PMesh->mem.tile_list[fan].fx = PMesh->mem.tile_list[fan].fx | passmask[passage];
                 }
@@ -612,11 +612,11 @@ void setup_passage( const char *modname )
             if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
 
             cTmp = fget_first_letter( fileread );
-            mask = MESHFX_IMPASS | MESHFX_WALL;
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_IMPASS;
+            mask = MPDFX_IMPASS | MPDFX_WALL;
+            if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_IMPASS;
 
             cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MESHFX_SLIPPY;
+            if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_SLIPPY;
 
             add_passage( tlx, tly, brx, bry, open, mask );
         }

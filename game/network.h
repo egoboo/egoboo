@@ -44,8 +44,6 @@ extern FILE                   *globalnetworkerr;             // For debuggin' ne
 
 extern Uint32                  randsave;                  // Used in network timer
 extern int                     networkservice;
-extern char                    nethostname[64];                            // Name for hosting session
-extern char                    netmessagename[64];                         // Name for messages
 extern int                     numservice;                                 // How many we found
 extern char                    netservicename[MAXSERVICE][NETNAMESIZE];    // Names of services
 extern int                     numsession;                                 // How many we found
@@ -82,7 +80,6 @@ struct s_player
 
 typedef struct s_player player_t;
 
-extern int                     lag;                             // Lag tolerance
 extern Uint32                  numplatimes;
 
 extern int                     numpla;                                   // Number of players

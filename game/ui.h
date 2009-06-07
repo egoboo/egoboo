@@ -25,7 +25,7 @@
  */
 
 #include "font.h"
-#include "gltexture.h"
+#include "ogl_texture.h"
 #include "egoboo_typedef.h"
 
 #include <SDL.h>
@@ -56,7 +56,7 @@ struct s_ui_Widget
     ui_id_t      id;
     Font        *pfont;
     const char  *text;
-    GLtexture   *img;
+    GLXtexture   *img;
     int          x;
     int          y;
     int          width;
@@ -67,7 +67,7 @@ typedef struct s_ui_Widget ui_Widget_t;
 
 bool_t ui_copyWidget( ui_Widget_t * pw2, ui_Widget_t * pw1 );
 bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels );
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height );
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLXtexture *img, int x, int y, int width, int height );
 bool_t ui_widgetAddMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetRemoveMask( ui_Widget_t * pw, Uint32 mbits );
 bool_t ui_widgetSetMask( ui_Widget_t * pw, Uint32 mbits );
@@ -87,8 +87,8 @@ void ui_endFrame();
 // UI controls
 ui_buttonValues ui_doWidget( ui_Widget_t * pWidget );
 ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int width, int height );
-ui_buttonValues ui_doImageButton( ui_id_t id, GLtexture *img, int x, int y, int width, int height );
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLtexture *img, const char *text, int x, int y, int width, int height );
+ui_buttonValues ui_doImageButton( ui_id_t id, GLXtexture *img, int x, int y, int width, int height );
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLXtexture *img, const char *text, int x, int y, int width, int height );
 // int  ui_doTextBox(ui_id_t id, const char *text, int x, int y, int width, int height);
 
 // Utility functions
@@ -108,7 +108,7 @@ ui_buttonValues  ui_WidgetBehavior( ui_Widget_t * pw );
 
 // Drawing
 void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * pcolor );
-void ui_drawImage( ui_id_t id, GLtexture *img, int x, int y, int width, int height );
+void ui_drawImage( ui_id_t id, GLXtexture *img, int x, int y, int width, int height );
 void ui_drawTextBox( const char *text, int x, int y, int width, int height, int spacing );
 
 #define egoboo_ui_h

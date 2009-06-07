@@ -33,6 +33,7 @@
 #include "log.h"
 #include "network.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
@@ -192,7 +193,7 @@ void input_read()
     while ( SDL_PollEvent( &evt ) )
     {
 
-        if ( gDevMode )
+        if ( cfg.dev_mode )
         {
             if ( NULL == egoboo_console_handle_events( &evt ) )
             {
@@ -275,6 +276,13 @@ void input_read()
                                 }
                                 keyb.buffer[keyb.buffer_count] = '\0';
                             }
+                        }
+                    }
+                    else
+                    {
+                        if( SDLK_ESCAPE == evt.key.keysym.sym )
+                        {
+                            game_escape_requested = btrue;
                         }
                     }
                 }

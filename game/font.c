@@ -23,6 +23,8 @@
  */
 
 #include "font.h"
+#include "log.h"
+
 #include "egoboo_typedef.h"
 
 #include <stdlib.h>
@@ -55,8 +57,15 @@ int fnt_init()
     initialized = TTF_WasInit();
     if ( !initialized )
     {
-        if ( TTF_Init() >= 0 )
+        log_info( "Initializing the SDL_ttf font handler... " );
+        if ( TTF_Init() < 0 )
         {
+            log_message( "Failed!\n" );
+        }
+        else
+        {
+            log_message( "Success!\n" );
+
             if ( !fnt_atexit_registered )
             {
                 fnt_atexit_registered  = 1;
@@ -167,7 +176,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     // Everything looks good
     newFont = ( Font* )malloc( sizeof( Font ) );
     newFont->ttfFont = ttfFont;
-    newFont->texture = (GLuint)(~0);
+    glGenTextures( 1, &newFont->texture );
 
     return newFont;
 }

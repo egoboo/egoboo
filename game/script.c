@@ -66,7 +66,7 @@ void let_character_think( Uint16 character )
     pself = &(pchr->ai);
 
     // has the time for this character to die come and gone?
-    if ( pself->poof_time >= 0 && pself->poof_time <= (Sint32)frame_wld ) return;
+    if ( pself->poof_time >= 0 && pself->poof_time <= (Sint32)update_wld ) return;
 
     // characters that are not "alive" should have greatly limited access to scripting...
     // in the past it was completely turned off
@@ -112,7 +112,7 @@ void let_character_think( Uint16 character )
         fprintf( scr_file,  "\tstate     == %d\n", pself->state   );
         fprintf( scr_file,  "\tcontent   == %d\n", pself->content );
         fprintf( scr_file,  "\ttimer     == %d\n", pself->timer   );
-        fprintf( scr_file,  "\tframe_wld == %d\n", frame_wld      );
+        fprintf( scr_file,  "\tupdate_wld == %d\n", update_wld      );
 
         // ai memory from the last event
         fprintf( scr_file,  "\tbumplast       == %d\n", pself->bumplast );
@@ -141,7 +141,7 @@ void let_character_think( Uint16 character )
     // Reset the target if it can't be seen
     if ( !ChrList[pself->index].canseeinvisible && ChrList[pself->index].alive )
     {
-        if ( ChrList[pself->target].inst.alpha <= INVISIBLE || ChrList[pself->target].inst.light <= INVISIBLE )
+        if ( FF_MUL( ChrList[pself->target].inst.alpha, ChrList[pself->target].inst.max_light ) <= INVISIBLE )
         {
             pself->target = pself->index;
         }
@@ -953,7 +953,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSELFTURN:
                 varname = "SELFTURN";
-                iTmp = ChrList[pself->index].turnleftright;
+                iTmp = ChrList[pself->index].turn_z;
                 break;
 
             case VARSELFCOUNTER:
@@ -994,7 +994,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARTARGETTURN:
                 varname = "TARGETTURN";
-                iTmp = ChrList[pself->target].turnleftright;
+                iTmp = ChrList[pself->target].turn_z;
                 break;
 
             case VARLEADERX:
@@ -1024,9 +1024,9 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARLEADERTURN:
                 varname = "LEADERTURN";
-                iTmp = ChrList[pself->index].turnleftright;
+                iTmp = ChrList[pself->index].turn_z;
                 if ( TeamList[ChrList[pself->index].team].leader != NOLEADER )
-                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].turnleftright;
+                    iTmp = ChrList[TeamList[ChrList[pself->index].team].leader].turn_z;
 
                 break;
 
@@ -1255,7 +1255,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VAROWNERTURN:
                 varname = "OWNERTURN";
-                iTmp = ChrList[pself->owner].turnleftright;
+                iTmp = ChrList[pself->owner].turn_z;
                 break;
 
             case VAROWNERDISTANCE:

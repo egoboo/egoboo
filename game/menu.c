@@ -35,6 +35,8 @@
 #include "link.h"
 #include "mad.h"
 
+#include "SDL_extensions.h"
+
 #include "egoboo_fileutil.h"
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -197,7 +199,7 @@ void initSlidyButtons( float lerp, const char *button_text[] )
 
     // Figure out where to draw the buttons
     buttonLeft = 40;
-    buttonTop = displaySurface->h - 20;
+    buttonTop = sdl_scr.y - 20;
 
     for ( i = 0; button_text[i][0] != 0; i++ )
     {
@@ -255,7 +257,7 @@ int initMenus()
     // Draw the copyright text to the right of the buttons
     copyrightLeft = 280;
     // And relative to the bottom of the screen
-    copyrightTop = displaySurface->h - copyrightTop - 20;
+    copyrightTop = sdl_scr.y - copyrightTop - 20;
 
     // Figure out where to draw the options text
     optionsTextLeft = 0;
@@ -265,7 +267,7 @@ int initMenus()
     // Draw the options text to the right of the buttons
     optionsTextLeft = 280;
     // And relative to the bottom of the screen
-    optionsTextTop = displaySurface->h - optionsTextTop - 20;
+    optionsTextTop = sdl_scr.y - optionsTextTop - 20;
 
     return 1;
 }
@@ -275,8 +277,8 @@ int initMenus()
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
-    static GLtexture logo;
+    static GLXtexture background;
+    static GLXtexture logo;
 
     // static float lerp;
     static int menuChoice = 0;
@@ -293,24 +295,24 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             // set up menu variables
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
 
             // load the menu image
-            GLtexture_Load( GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
 
             // load the logo image
-            GLtexture_Load( GL_TEXTURE_2D, &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
+            ego_texture_load( &logo,       "basicdat" SLASH_STR "menu" SLASH_STR "menu_logo", INVALID_KEY );
 
             // calculate the centered position of the background
-            fminw = (float) MIN(displaySurface->w, background.imgW) / (float) background.imgW;
-            fminh = (float) MIN(displaySurface->h, background.imgH) / (float) background.imgW;
+            fminw = (float) MIN(sdl_scr.x, background.imgW) / (float) background.imgW;
+            fminh = (float) MIN(sdl_scr.y, background.imgH) / (float) background.imgW;
             fmin  = MIN(fminw, fminh);
 
             bg_rect.w = background.imgW * fmin;
             bg_rect.h = background.imgH * fmin;
-            bg_rect.x = (displaySurface->w - bg_rect.w) * 0.5f;
-            bg_rect.y = (displaySurface->h - bg_rect.h) * 0.5f;
+            bg_rect.x = (sdl_scr.x - bg_rect.w) * 0.5f;
+            bg_rect.y = (sdl_scr.y - bg_rect.h) * 0.5f;
 
             // calculate the position of the logo
             fmin  = MIN(bg_rect.w * 0.5f / logo.imgW, bg_rect.h * 0.5f / logo.imgH);
@@ -415,7 +417,7 @@ int doMainMenu( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -433,7 +435,7 @@ int doMainMenu( float deltaTime )
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
+    static GLXtexture background;
     static int menuChoice;
     int result = 0;
 
@@ -441,8 +443,8 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
             menuState = MM_Entering;
@@ -457,7 +459,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Draw the background image
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, sdl_scr.x - background.imgW, 0, 0, 0 );
             }
 
             // "Copyright" text
@@ -475,7 +477,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Draw the background image
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, sdl_scr.x - background.imgW, 0, 0, 0 );
             }
 
             // "Copyright" text
@@ -508,7 +510,7 @@ int doSinglePlayerMenu( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, displaySurface->w - background.imgW, 0, 0, 0 );
+                ui_drawImage( 0, &background, sdl_scr.x - background.imgW, 0, 0, 0 );
             }
 
             // "Copyright" text
@@ -524,7 +526,7 @@ int doSinglePlayerMenu( float deltaTime )
 
         case MM_Finish:
             // Release the background texture
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
 
             // reset the ui
             ui_Reset();
@@ -547,7 +549,7 @@ int doChooseModule( float deltaTime )
 {
     static int menuState = MM_Begin;
     static int startIndex;
-    static GLtexture background;
+    static GLXtexture background;
     static int validModules[MAXMODULE];
     static int numValidModules;
 
@@ -565,8 +567,8 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
 
@@ -600,8 +602,8 @@ int doChooseModule( float deltaTime )
             }
 
             // Figure out at what offset we want to draw the module menu.
-            moduleMenuOffsetX = ( displaySurface->w - 640 ) / 2;
-            moduleMenuOffsetY = ( displaySurface->h - 480 ) / 2;
+            moduleMenuOffsetX = ( sdl_scr.x - 640 ) / 2;
+            moduleMenuOffsetY = ( sdl_scr.y - 480 ) / 2;
 
             menuState = MM_Entering;
 
@@ -615,8 +617,8 @@ int doChooseModule( float deltaTime )
         case MM_Running:
             // Draw the background
             glColor4f( 1, 1, 1, 1 );
-            x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
-            y = displaySurface->h - background.imgH;
+            x = ( sdl_scr.x / 2 ) - ( background.imgW / 2 );
+            y = sdl_scr.y - background.imgH;
 
             if ( mnu_draw_background )
             {
@@ -661,7 +663,7 @@ int doChooseModule( float deltaTime )
                 // fix the menu images in case one or more of them are undefined
                 int         imod       = validModules[i];
                 Uint32      tex_offset = ModList[imod].tex;
-                GLtexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+                GLXtexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
                 if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
@@ -738,7 +740,7 @@ int doChooseModule( float deltaTime )
             // fall through for now
 
         case MM_Finish:
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
 
             menuState = MM_Begin;
             if ( selectedModule == -1 )
@@ -788,14 +790,14 @@ int doChooseModule( float deltaTime )
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
+    static GLXtexture background;
     int result = 0;
     int i, j, x, y;
     char srcDir[64], destDir[64];
     static int startIndex = 0;
 
     static int numVertical, numHorizontal;
-    static GLtexture TxInput[4];
+    static GLXtexture TxInput[4];
     static Uint32 BitsInput[4];
     int cnt, menuChoice;
 
@@ -806,29 +808,29 @@ int doChoosePlayer( float deltaTime )
         case MM_Begin:
             mnu_selectedPlayerCount = 0;
 
-            GLtexture_new( &background );
+            GLXtexture_new( &background );
 
             for (i = 0; i < 4; i++)
             {
-                GLtexture_new(TxInput + i);
+                GLXtexture_new(TxInput + i);
             };
 
             mnu_selectedPlayerCount = 0;
             mnu_selectedPlayer[0] = 0;
 
-            GLtexture_Load( GL_TEXTURE_2D, TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
+            ego_texture_load( TxInput + 0, "basicdat" SLASH_STR "keybicon", INVALID_KEY );
             BitsInput[0] = INPUT_BITS_KEYBOARD;
 
-            GLtexture_Load( GL_TEXTURE_2D, TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
+            ego_texture_load( TxInput + 1, "basicdat" SLASH_STR "mousicon", INVALID_KEY );
             BitsInput[1] = INPUT_BITS_MOUSE;
 
-            GLtexture_Load( GL_TEXTURE_2D, TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
+            ego_texture_load( TxInput + 2, "basicdat" SLASH_STR "joyaicon", INVALID_KEY );
             BitsInput[2] = INPUT_BITS_JOYA;
 
-            GLtexture_Load( GL_TEXTURE_2D, TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
+            ego_texture_load( TxInput + 3, "basicdat" SLASH_STR "joybicon", INVALID_KEY );
             BitsInput[3] = INPUT_BITS_JOYB;
 
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
 
             // load information for all the players that could be imported
             check_player_import( "players", btrue );
@@ -877,8 +879,8 @@ int doChoosePlayer( float deltaTime )
             // Figure out how many players we can show without scrolling
 
             // Draw the background
-            x = ( displaySurface->w / 2 ) - ( background.imgW / 2 );
-            y = displaySurface->h - background.imgH;
+            x = ( sdl_scr.x / 2 ) - ( background.imgW / 2 );
+            y = sdl_scr.y - background.imgH;
 
             if ( mnu_draw_background )
             {
@@ -1017,10 +1019,10 @@ int doChoosePlayer( float deltaTime )
 
             for (i = 0; i < 4; i++)
             {
-                GLtexture_delete(TxInput + i);
+                GLXtexture_delete(TxInput + i);
             };
 
-            GLtexture_delete( &background );
+            GLXtexture_delete( &background );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1074,7 +1076,7 @@ int doChoosePlayer( float deltaTime )
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
+    static GLXtexture background;
     static int menuChoice = 0;
 
     int result = 0;
@@ -1083,8 +1085,8 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
 
@@ -1099,7 +1101,7 @@ int doOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // "Copyright" text
@@ -1122,7 +1124,7 @@ int doOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // "Options" text
@@ -1163,7 +1165,7 @@ int doOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // "Options" text
@@ -1180,7 +1182,7 @@ int doOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1263,7 +1265,7 @@ int doInputOptions( float deltaTime )
             // Do normal run
             // Background
             glColor4f( 1, 1, 1, 1 );
-            fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, displaySurface->h - 470, 0, 0, 20 );
+            fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, sdl_scr.y - 470, 0, 0, 20 );
 
             //Are we waiting for input?
             if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  //Someone pressed abort
@@ -1382,8 +1384,8 @@ int doInputOptions( float deltaTime )
             //Left hand
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_USE][0] )
             {
-                fnt_drawTextBox( menuFont, "Use:", buttonLeft, displaySurface->h - 440, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], buttonLeft + 100, displaySurface->h - 440, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Use:", buttonLeft, sdl_scr.y - 440, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 1, inputOptionsButtons[CONTROL_LEFT_USE], buttonLeft + 100, sdl_scr.y - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_USE;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_USE], "...", sizeof(STRING) );
@@ -1391,8 +1393,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_GET][0] )
             {
-                fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft, displaySurface->h - 410, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], buttonLeft + 100, displaySurface->h - 410, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft, sdl_scr.y - 410, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 2, inputOptionsButtons[CONTROL_LEFT_GET], buttonLeft + 100, sdl_scr.y - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_GET;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_GET], "...", sizeof(STRING) );
@@ -1400,8 +1402,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT_PACK][0] )
             {
-                fnt_drawTextBox( menuFont, "Inventory:", buttonLeft, displaySurface->h - 380, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], buttonLeft + 100, displaySurface->h - 380, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Inventory:", buttonLeft, sdl_scr.y - 380, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 3, inputOptionsButtons[CONTROL_LEFT_PACK], buttonLeft + 100, sdl_scr.y - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT_PACK;
                     strncpy( inputOptionsButtons[CONTROL_LEFT_PACK], "...", sizeof(STRING) );
@@ -1409,11 +1411,11 @@ int doInputOptions( float deltaTime )
             }
 
             //Right hand
-            fnt_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, displaySurface->h - 470, 0, 0, 20 );
+            fnt_drawTextBox( menuFont, "RIGHT HAND", buttonLeft + 300, sdl_scr.y - 470, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_USE][0] )
             {
-                fnt_drawTextBox( menuFont, "Use:", buttonLeft + 300, displaySurface->h - 440, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], buttonLeft + 400, displaySurface->h - 440, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Use:", buttonLeft + 300, sdl_scr.y - 440, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 4, inputOptionsButtons[CONTROL_RIGHT_USE], buttonLeft + 400, sdl_scr.y - 440, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_USE;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_USE], "...", sizeof(STRING) );
@@ -1421,8 +1423,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_GET][0] )
             {
-                fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, displaySurface->h - 410, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], buttonLeft + 400, displaySurface->h - 410, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Get/Drop:", buttonLeft + 300, sdl_scr.y - 410, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 5, inputOptionsButtons[CONTROL_RIGHT_GET], buttonLeft + 400, sdl_scr.y - 410, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_GET;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_GET], "...", sizeof(STRING) );
@@ -1430,8 +1432,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT_PACK][0] )
             {
-                fnt_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, displaySurface->h - 380, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], buttonLeft + 400, displaySurface->h - 380, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Inventory:", buttonLeft + 300, sdl_scr.y - 380, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 6, inputOptionsButtons[CONTROL_RIGHT_PACK], buttonLeft + 400, sdl_scr.y - 380, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT_PACK;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT_PACK], "...", sizeof(STRING) );
@@ -1439,11 +1441,11 @@ int doInputOptions( float deltaTime )
             }
 
             //Controls
-            fnt_drawTextBox( menuFont, "CONTROLS", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
+            fnt_drawTextBox( menuFont, "CONTROLS", buttonLeft, sdl_scr.y - 320, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_JUMP][0] )
             {
-                fnt_drawTextBox( menuFont, "Jump:", buttonLeft, displaySurface->h - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], buttonLeft + 100, displaySurface->h - 290, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Jump:", buttonLeft, sdl_scr.y - 290, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 7, inputOptionsButtons[CONTROL_JUMP], buttonLeft + 100, sdl_scr.y - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_JUMP;
                     strncpy( inputOptionsButtons[CONTROL_JUMP], "...", sizeof(STRING) );
@@ -1451,8 +1453,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_UP][0] )
             {
-                fnt_drawTextBox( menuFont, "Up:", buttonLeft, displaySurface->h - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], buttonLeft + 100, displaySurface->h - 260, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Up:", buttonLeft, sdl_scr.y - 260, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 8, inputOptionsButtons[CONTROL_UP], buttonLeft + 100, sdl_scr.y - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_UP;
                     strncpy( inputOptionsButtons[CONTROL_UP], "...", sizeof(STRING) );
@@ -1460,8 +1462,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_DOWN][0] )
             {
-                fnt_drawTextBox( menuFont, "Down:", buttonLeft, displaySurface->h - 230, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], buttonLeft + 100, displaySurface->h - 230, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Down:", buttonLeft, sdl_scr.y - 230, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 9, inputOptionsButtons[CONTROL_DOWN], buttonLeft + 100, sdl_scr.y - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_DOWN;
                     strncpy( inputOptionsButtons[CONTROL_DOWN], "...", sizeof(STRING) );
@@ -1469,8 +1471,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_LEFT][0] )
             {
-                fnt_drawTextBox( menuFont, "Left:", buttonLeft, displaySurface->h - 200, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], buttonLeft + 100, displaySurface->h - 200, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Left:", buttonLeft, sdl_scr.y - 200, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 10, inputOptionsButtons[CONTROL_LEFT], buttonLeft + 100, sdl_scr.y - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_LEFT], "...", sizeof(STRING) );
@@ -1478,8 +1480,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_RIGHT][0] )
             {
-                fnt_drawTextBox( menuFont, "Right:", buttonLeft, displaySurface->h - 170, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], buttonLeft + 100, displaySurface->h - 170, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Right:", buttonLeft, sdl_scr.y - 170, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 11, inputOptionsButtons[CONTROL_RIGHT], buttonLeft + 100, sdl_scr.y - 170, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_RIGHT], "...", sizeof(STRING) );
@@ -1487,11 +1489,11 @@ int doInputOptions( float deltaTime )
             }
 
             //Controls
-            fnt_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
+            fnt_drawTextBox( menuFont, "CAMERA CONTROL", buttonLeft + 300, sdl_scr.y - 320, 0, 0, 20 );
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_IN][0] )
             {
-                fnt_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, displaySurface->h - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Zoom In:", buttonLeft + 300, sdl_scr.y - 290, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA_IN], buttonLeft + 450, sdl_scr.y - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_IN;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_IN], "...", sizeof(STRING) );
@@ -1500,8 +1502,8 @@ int doInputOptions( float deltaTime )
             else
             {
                 // single button camera control
-                fnt_drawTextBox( menuFont, "Camera:", buttonLeft + 300, displaySurface->h - 290, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], buttonLeft + 450, displaySurface->h - 290, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Camera:", buttonLeft + 300, sdl_scr.y - 290, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 12, inputOptionsButtons[CONTROL_CAMERA], buttonLeft + 450, sdl_scr.y - 290, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA], "...", sizeof(STRING) );
@@ -1509,8 +1511,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_OUT][0] )
             {
-                fnt_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, displaySurface->h - 260, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], buttonLeft + 450, displaySurface->h - 260, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Zoom Out:", buttonLeft + 300, sdl_scr.y - 260, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 13, inputOptionsButtons[CONTROL_CAMERA_OUT], buttonLeft + 450, sdl_scr.y - 260, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_OUT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_OUT], "...", sizeof(STRING) );
@@ -1518,8 +1520,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_LEFT][0] )
             {
-                fnt_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, displaySurface->h - 230, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], buttonLeft + 450, displaySurface->h - 230, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Rotate Left:", buttonLeft + 300, sdl_scr.y - 230, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 14, inputOptionsButtons[CONTROL_CAMERA_LEFT], buttonLeft + 450, sdl_scr.y - 230, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_LEFT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_LEFT], "...", sizeof(STRING) );
@@ -1527,8 +1529,8 @@ int doInputOptions( float deltaTime )
             }
             if ( '\0' != inputOptionsButtons[CONTROL_CAMERA_RIGHT][0] )
             {
-                fnt_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
-                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], buttonLeft + 450, displaySurface->h - 200, 140, 30 ) )
+                fnt_drawTextBox( menuFont, "Rotate Right:", buttonLeft + 300, sdl_scr.y - 200, 0, 0, 20 );
+                if ( BUTTON_UP == ui_doButton( 15, inputOptionsButtons[CONTROL_CAMERA_RIGHT], buttonLeft + 450, sdl_scr.y - 200, 140, 30 ) )
                 {
                     waitingforinput = CONTROL_CAMERA_RIGHT;
                     strncpy( inputOptionsButtons[CONTROL_CAMERA_RIGHT], "...", sizeof(STRING) );
@@ -1538,12 +1540,12 @@ int doInputOptions( float deltaTime )
             //The select player button
             if ( iicon < 0 )
             {
-                if ( BUTTON_UP == ui_doButton( 16, "Select Player...", buttonLeft + 300, displaySurface->h - 90, 140, 50 ) )
+                if ( BUTTON_UP == ui_doButton( 16, "Select Player...", buttonLeft + 300, sdl_scr.y - 90, 140, 50 ) )
                 {
                     player = 0;
                 }
             }
-            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxIcon + (keybicon + iicon), inputOptionsButtons[CONTROL_COMMAND_COUNT+0],  buttonLeft + 300, displaySurface->h - 90, 140, 50 ))
+            else if ( BUTTON_UP ==  ui_doImageButtonWithText( 16, TxIcon + (keybicon + iicon), inputOptionsButtons[CONTROL_COMMAND_COUNT+0],  buttonLeft + 300, sdl_scr.y - 90, 140, 50 ))
             {
                 if (input_device_count > 0)
                 {
@@ -1555,7 +1557,7 @@ int doInputOptions( float deltaTime )
             }
 
             //Save settings button
-            if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], buttonLeft, displaySurface->h - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 17, inputOptionsButtons[CONTROL_COMMAND_COUNT+1], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
                 // save settings and go back
                 player = 0;
@@ -1593,7 +1595,7 @@ int doInputOptions( float deltaTime )
 int doAudioOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
+    static GLXtexture background;
     static int menuChoice = 0;
     static char Cmaxsoundchannel[128];
     static char Cbuffersize[128];
@@ -1606,8 +1608,8 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
 			gamepaused = btrue;			// In case we are running as an in-game menu
@@ -1621,25 +1623,25 @@ int doAudioOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // Load the current settings
-            if ( soundvalid ) audioOptionsButtons[0] = "On";
+            if ( cfg.sound_allowed ) audioOptionsButtons[0] = "On";
             else audioOptionsButtons[0] = "Off";
 
-            sprintf( Csoundvolume, "%i", soundvolume );
+            sprintf( Csoundvolume, "%i", cfg.sound_volume );
             audioOptionsButtons[1] = Csoundvolume;
-            if ( musicvalid ) audioOptionsButtons[2] = "On";
+            if ( cfg.music_allowed ) audioOptionsButtons[2] = "On";
             else audioOptionsButtons[2] = "Off";
 
-            sprintf( Cmusicvolume, "%i", musicvolume );
+            sprintf( Cmusicvolume, "%i", cfg.music_volume );
             audioOptionsButtons[3] = Cmusicvolume;
 
-            sprintf( Cmaxsoundchannel, "%i", maxsoundchannel );
+            sprintf( Cmaxsoundchannel, "%i", cfg.sound_channel_count );
             audioOptionsButtons[4] = Cmaxsoundchannel;
 
-            sprintf( Cbuffersize, "%i", buffersize );
+            sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
             audioOptionsButtons[5] = Cbuffersize;
 
             // Fall trough
@@ -1653,146 +1655,127 @@ int doAudioOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
-            fnt_drawTextBox( menuFont, "Sound:", buttonLeft, displaySurface->h - 270, 0, 0, 20 );
+            fnt_drawTextBox( menuFont, "Sound:", buttonLeft, sdl_scr.y - 270, 0, 0, 20 );
 
             // Buttons
-            if ( BUTTON_UP == ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, displaySurface->h - 270, 100, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, sdl_scr.y - 270, 100, 30 ) )
             {
-                if ( soundvalid )
+                if ( cfg.sound_allowed )
                 {
-                    soundvalid = bfalse;
+                    cfg.sound_allowed = bfalse;
                     audioOptionsButtons[0] = "Off";
                 }
                 else
                 {
-                    soundvalid = btrue;
+                    cfg.sound_allowed = btrue;
                     audioOptionsButtons[0] = "On";
                 }
             }
 
-            fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, displaySurface->h - 235, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, displaySurface->h - 235, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, sdl_scr.y - 235, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 2, audioOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 235, 100, 30 ) )
             {
-                soundvolume += 5;
-                if (soundvolume > 100) soundvolume = 0;
+                cfg.sound_volume += 5;
+                if (cfg.sound_volume > 100) cfg.sound_volume = 0;
 
-                sprintf( Csoundvolume, "%i", soundvolume );
+                sprintf( Csoundvolume, "%i", cfg.sound_volume );
                 audioOptionsButtons[1] = Csoundvolume;
             }
 
-            fnt_drawTextBox( menuFont, "Music:", buttonLeft, displaySurface->h - 165, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, displaySurface->h - 165, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Music:", buttonLeft, sdl_scr.y - 165, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, sdl_scr.y - 165, 100, 30 ) )
             {
-                if ( musicvalid )
+                if ( cfg.music_allowed )
                 {
-                    musicvalid = bfalse;
+                    cfg.music_allowed = bfalse;
                     audioOptionsButtons[2] = "Off";
                 }
                 else
                 {
-                    musicvalid = btrue;
+                    cfg.music_allowed = btrue;
                     audioOptionsButtons[2] = "On";
                 }
             }
 
-            fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, displaySurface->h - 130, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, displaySurface->h - 130, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, sdl_scr.y - 130, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, sdl_scr.y - 130, 100, 30 ) )
             {
-                musicvolume += 5;
-                if (musicvolume > 100) musicvolume = 0;
+                if( cfg.music_volume < 0 )
+                {
+                    cfg.music_volume = 0;
+                }
+                else
+                {
+                    cfg.music_volume += 5;
+                }
 
-                sprintf( Cmusicvolume, "%i", musicvolume );
+                if (cfg.music_volume > 100) cfg.music_volume = 0;
+
+                sprintf( Cmusicvolume, "%i", cfg.music_volume );
                 audioOptionsButtons[3] = Cmusicvolume;
             }
 
-            fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, displaySurface->h - 200, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, displaySurface->h - 200, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, sdl_scr.y - 200, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, sdl_scr.y - 200, 100, 30 ) )
             {
-                switch ( maxsoundchannel )
+                if( cfg.sound_channel_count >= 8 )
                 {
-                    case 128:
-                        maxsoundchannel = 8;
-                        break;
-
-                    case 8:
-                        maxsoundchannel = 16;
-                        break;
-
-                    case 16:
-                        maxsoundchannel = 24;
-                        break;
-
-                    case 24:
-                        maxsoundchannel = 32;
-                        break;
-
-                    case 32:
-                        maxsoundchannel = 64;
-                        break;
-
-                    case 64:
-                        maxsoundchannel = 128;
-                        break;
-
-                    default:
-                        maxsoundchannel = 16;
-                        break;
+                    cfg.sound_channel_count <<= 1;
+                }
+                else
+                {
+                    cfg.sound_channel_count = 8;
                 }
 
-                sprintf( Cmaxsoundchannel, "%i", maxsoundchannel );
+                if( cfg.sound_channel_count > 128 )
+                {
+                    cfg.sound_channel_count = 8;
+                }
+
+                sprintf( Cmaxsoundchannel, "%i", cfg.sound_channel_count );
                 audioOptionsButtons[4] = Cmaxsoundchannel;
             }
 
-            fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, displaySurface->h - 165, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, displaySurface->h - 165, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, sdl_scr.y - 165, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, sdl_scr.y - 165, 100, 30 ) )
             {
-                switch ( buffersize )
+                if( cfg.sound_buffer_size >= 512 )
                 {
-                    case 8192:
-                        buffersize = 512;
-                        break;
-
-                    case 512:
-                        buffersize = 1024;
-                        break;
-
-                    case 1024:
-                        buffersize = 2048;
-                        break;
-
-                    case 2048:
-                        buffersize = 4096;
-                        break;
-
-                    case 4096:
-                        buffersize = 8192;
-                        break;
-
-                    default:
-                        buffersize = 2048;
-                        break;
+                    cfg.sound_buffer_size <<= 1;
+                }
+                else
+                {
+                    cfg.sound_buffer_size = 512;
                 }
 
-                sprintf( Cbuffersize, "%i", buffersize );
+                if( cfg.sound_buffer_size > 8196 )
+                {
+                    cfg.sound_buffer_size = 512;
+                }
+
+                sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
                 audioOptionsButtons[5] = Cbuffersize;
             }
-            if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], buttonLeft, displaySurface->h - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
+                // synchronoze the config values with the various game subsystems
+                setup_synch( &cfg );
+
                 // save the setup file
-                setup_upload();
+                setup_upload( &cfg );
                 setup_write();
                 
 				//Reload the sound system
 				sound_restart();
 				
 				//Do we restart the music?
-                if ( mixeron && musicvalid )
+                if ( cfg.music_allowed )
                 {
 					load_all_music_sounds();
-					Mix_FadeInMusic( musictracksloaded[songplaying], -1, 500 );
+                    fade_in_music( musictracksloaded[songplaying] );
                 }
 
                 menuState = MM_Leaving;
@@ -1806,7 +1789,7 @@ int doAudioOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // Fall trough
@@ -1815,7 +1798,7 @@ int doAudioOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1834,7 +1817,7 @@ int doAudioOptions( float deltaTime )
 int doVideoOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLtexture background;
+    static GLXtexture background;
     static int menuChoice = 0;
     int result = 0;
     static STRING Cantialiasing;
@@ -1842,13 +1825,14 @@ int doVideoOptions( float deltaTime )
     static char Cmaxlights[128];
     static char Cscrz[128];
     static char Cmaxparticles[128];
+    static char Cmaxdyna[128];
 
     switch ( menuState )
     {
         case MM_Begin:
             // set up menu variables
-            GLtexture_new( &background );
-            GLtexture_Load(GL_TEXTURE_2D, &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+            GLXtexture_new( &background );
+            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
 			gamepaused = btrue;			// In case we are running as an in-game menu
@@ -1861,16 +1845,16 @@ int doVideoOptions( float deltaTime )
             // Draw the background
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // Load all the current video settings
-            if (antialiasing == bfalse) strcpy(Cantialiasing , "Off");
-            else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", antialiasing);
+            if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
+            else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
             videoOptionsButtons[0] = Cantialiasing;
 
             //Message duration
-            switch ( messagetime )
+            switch ( cfg.message_duration )
             {
                 case 250:
                     videoOptionsButtons[1] = "Short";
@@ -1890,7 +1874,7 @@ int doVideoOptions( float deltaTime )
             }
 
             //Texture filtering
-            switch ( texturefilter )
+            switch ( cfg.texturefilter_req )
             {
                 case TX_UNFILTERED:
                     videoOptionsButtons[5] = "Unfiltered";
@@ -1915,20 +1899,20 @@ int doVideoOptions( float deltaTime )
                     break;
                 default:                  // Set to defaults
                     videoOptionsButtons[5] = "Linear";
-                    texturefilter = TX_LINEAR;
+                    cfg.texturefilter_req = TX_LINEAR;
                     break;
             }
-            if ( dither ) videoOptionsButtons[2] = "Yes";
+            if ( cfg.use_dither ) videoOptionsButtons[2] = "Yes";
             else          videoOptionsButtons[2] = "No";
-            if ( fullscreen ) videoOptionsButtons[3] = "True";
+            if ( cfg.fullscreen_req ) videoOptionsButtons[3] = "True";
             else              videoOptionsButtons[3] = "False";
-            if ( refon )
+            if ( cfg.reflect_allowed )
             {
                 videoOptionsButtons[4] = "Low";
-                if ( prtreflect )
+                if ( cfg.reflect_prt )
                 {
                     videoOptionsButtons[4] = "Medium";
-                    if ( reffadeor == 0 ) videoOptionsButtons[4] = "High";
+                    if ( cfg.reflect_fade == 0 ) videoOptionsButtons[4] = "High";
                 }
             }
             else videoOptionsButtons[4] = "Off";
@@ -1938,51 +1922,51 @@ int doVideoOptions( float deltaTime )
             if ( maxmessage == 0 ) sprintf( Cmaxmessage, "None" );           // Set to default
 
             videoOptionsButtons[11] = Cmaxmessage;
-            if ( shaon )
+            if ( cfg.shadow_allowed )
             {
                 videoOptionsButtons[6] = "Normal";
-                if ( !shasprite ) videoOptionsButtons[6] = "Best";
+                if ( !cfg.shadow_sprite ) videoOptionsButtons[6] = "Best";
             }
             else videoOptionsButtons[6] = "Off";
-            if ( scrz != 32 && scrz != 16 && scrz != 24 )
+            if ( cfg.scrz_req != 32 && cfg.scrz_req != 16 && cfg.scrz_req != 24 )
             {
-                scrz = 16;              // Set to default
+                cfg.scrz_req = 16;              // Set to default
             }
 
-            sprintf( Cscrz, "%i", scrz );      // Convert the integer to a char we can use
+            sprintf( Cscrz, "%i", cfg.scrz_req );      // Convert the integer to a char we can use
             videoOptionsButtons[7] = Cscrz;
 
             sprintf( Cmaxlights, "%i", dyna_list_max );
             videoOptionsButtons[8] = Cmaxlights;
-            if ( phongon )
+            if ( cfg.use_phong )
             {
                 videoOptionsButtons[9] = "Okay";
-                if ( overlayvalid && backgroundvalid )
+                if ( cfg.overlay_allowed && cfg.background_allowed )
                 {
                     videoOptionsButtons[9] = "Good";
-                    if ( perspective ) videoOptionsButtons[9] = "Superb";
+                    if ( cfg.use_perspective ) videoOptionsButtons[9] = "Superb";
                 }
                 else                            // Set to defaults
                 {
-                    perspective = bfalse;
-                    backgroundvalid = bfalse;
-                    overlayvalid = bfalse;
+                    cfg.use_perspective    = bfalse;
+                    cfg.background_allowed = bfalse;
+                    cfg.overlay_allowed    = bfalse;
                 }
             }
             else                              // Set to defaults
             {
-                perspective = bfalse;
-                backgroundvalid = bfalse;
-                overlayvalid = bfalse;
+                cfg.use_perspective    = bfalse;
+                cfg.background_allowed = bfalse;
+                cfg.overlay_allowed    = bfalse;
                 videoOptionsButtons[9] = "Off";
             }
-            if ( twolayerwateron ) videoOptionsButtons[10] = "On";
+            if ( cfg.twolayerwater_allowed ) videoOptionsButtons[10] = "On";
             else videoOptionsButtons[10] = "Off";
 
-            sprintf( Cmaxparticles, "%i", maxparticles );      // Convert the integer to a char we can use
+            sprintf( Cmaxparticles, "%i", cfg.particle_count_req );      // Convert the integer to a char we can use
             videoOptionsButtons[14] = Cmaxparticles;
 
-            switch ( scrx )
+            switch ( cfg.scrx_req )
             {
                 case 1024: videoOptionsButtons[12] = "1024X768";
                     break;
@@ -2008,328 +1992,275 @@ int doVideoOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // Antialiasing Button
-            fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, displaySurface->h - 215, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, displaySurface->h - 215, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, sdl_scr.y - 215, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, sdl_scr.y - 215, 100, 30 ) )
             {
-                switch (antialiasing)
+                if( cfg.multisamples < 0 ) cfg.multisamples = 0;
+
+                if( cfg.multisamples <= 0 )
                 {
-                    case 0:
-                        {
-                            antialiasing = 2;
-                            videoOptionsButtons[0] = "X2";
-                            break;
-                        }
-                    case 2:
-                        {
-                            antialiasing = 4;
-                            videoOptionsButtons[0] = "X4";
-                            break;
-                        }
-                    case 4:
-                        {
-                            antialiasing = 8;
-                            videoOptionsButtons[0] = "X8";
-                            break;
-                        }
-                    case 8:
-                        {
-                            antialiasing = 16;
-                            videoOptionsButtons[0] = "X16";
-                            break;
-                        }
-                    case 16:
-                        {
-                            antialiasing = bfalse;
-                            videoOptionsButtons[0] = "Off";
-                            break;
-                        }
-                    default:
-                        {
-                            antialiasing = bfalse;
-                            videoOptionsButtons[0] = "Off";
-                            log_warning("Tried to load a invalid antialiasing format from setup.txt\n");
-                            break;
-                        }
+                    cfg.multisamples = 1;
                 }
-            }
+                else
+                {
+                    cfg.multisamples <<= 1;
+                }
+
+                if( cfg.multisamples > 16 ) cfg.multisamples = 0;
+
+                if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
+                else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
+
+                videoOptionsButtons[0] = Cantialiasing; 
+             }
 
             // Message time
-            fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, displaySurface->h - 180, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, displaySurface->h - 180, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 180, 100, 30 ) )
             {
-                switch ( messagetime )
+                switch ( cfg.message_duration )
                 {
                     case 250:
-                        messagetime = 150;
+                        cfg.message_duration = 150;
                         videoOptionsButtons[1] = "Short";
                         break;
 
                     case 150:
-                        messagetime = 200;
+                        cfg.message_duration = 200;
                         videoOptionsButtons[1] = "Normal";
                         break;
 
                     case 200:
-                        messagetime = 250;
+                        cfg.message_duration = 250;
                         videoOptionsButtons[1] = "Long";
                         break;
 
                     default:
-                        messagetime = 200;
+                        cfg.message_duration = 200;
                         videoOptionsButtons[1] = "Normal";
                         break;
                 }
             }
 
             // Dithering
-            fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, displaySurface->h - 145, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, displaySurface->h - 145, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, sdl_scr.y - 145, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, sdl_scr.y - 145, 100, 30 ) )
             {
-                if ( dither  )
+                if ( cfg.use_dither )
                 {
                     videoOptionsButtons[2] = "No";
-                    dither = bfalse;
+                    cfg.use_dither = bfalse;
                 }
                 else
                 {
                     videoOptionsButtons[2] = "Yes";
-                    dither = btrue;
+                    cfg.use_dither = btrue;
                 }
             }
 
             // Fullscreen
-            fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, displaySurface->h - 110, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, displaySurface->h - 110, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, sdl_scr.y - 110, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, sdl_scr.y - 110, 100, 30 ) )
             {
-                if ( fullscreen )
+                if ( cfg.fullscreen_req )
                 {
                     videoOptionsButtons[3] = "False";
-                    fullscreen = bfalse;
+                    cfg.fullscreen_req = bfalse;
                 }
                 else
                 {
                     videoOptionsButtons[3] = "True";
-                    fullscreen = btrue;
+                    cfg.fullscreen_req = btrue;
                 }
             }
 
             // Reflection
-            fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, displaySurface->h - 250, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, displaySurface->h - 250, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, sdl_scr.y - 250, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, sdl_scr.y - 250, 100, 30 ) )
             {
 				
-                if ( refon && reffadeor == 0 && prtreflect )
+                if ( cfg.reflect_allowed && cfg.reflect_fade == 0 && cfg.reflect_prt )
                 {
-                    refon = bfalse;
-                    reffadeor = 255;
-                    prtreflect = bfalse;
+                    cfg.reflect_allowed = bfalse;
+                    cfg.reflect_fade = 255;
+                    cfg.reflect_prt = bfalse;
                     videoOptionsButtons[4] = "Off";
                 }
                 else
                 {
-                    if ( refon && !prtreflect )
+                    if ( cfg.reflect_allowed && !cfg.reflect_prt )
                     {
                         videoOptionsButtons[4] = "Medium";
-                        reffadeor = 255;
-						prtreflect = btrue;
+                        cfg.reflect_fade = 255;
+						cfg.reflect_prt = btrue;
                     }
                     else
                     {
-                        if ( refon && reffadeor == 255 && prtreflect )
+                        if ( cfg.reflect_allowed && cfg.reflect_fade == 255 && cfg.reflect_prt )
                         {
                             videoOptionsButtons[4] = "High";
-                            reffadeor = 0;
+                            cfg.reflect_fade = 0;
                         }
                         else
                         {
-                            refon = btrue;
-                            reffadeor = 255;
+                            cfg.reflect_allowed = btrue;
+                            cfg.reflect_fade = 255;
                             videoOptionsButtons[4] = "Low";
-                            prtreflect = bfalse;
+                            cfg.reflect_prt = bfalse;
                         }
                     }
                 }
             }
 
             // Texture Filtering
-            fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, displaySurface->h - 285, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, displaySurface->h - 285, 130, 30 ) )
+            fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, sdl_scr.y - 285, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, sdl_scr.y - 285, 130, 30 ) )
             {
-                switch ( texturefilter )
+                switch ( cfg.texturefilter_req )
                 {
                     case TX_ANISOTROPIC:
-                        texturefilter = TX_UNFILTERED;
+                        cfg.texturefilter_req = TX_UNFILTERED;
                         videoOptionsButtons[5] = "Unfiltered";
                         break;
 
                     case TX_UNFILTERED:
-                        texturefilter = TX_LINEAR;
+                        cfg.texturefilter_req = TX_LINEAR;
                         videoOptionsButtons[5] = "Linear";
                         break;
 
                     case TX_LINEAR:
-                        texturefilter = TX_MIPMAP;
+                        cfg.texturefilter_req = TX_MIPMAP;
                         videoOptionsButtons[5] = "Mipmap";
                         break;
 
                     case TX_MIPMAP:
-                        texturefilter = TX_BILINEAR;
+                        cfg.texturefilter_req = TX_BILINEAR;
                         videoOptionsButtons[5] = "Bilinear";
                         break;
 
                     case TX_BILINEAR:
-                        texturefilter = TX_TRILINEAR_1;
+                        cfg.texturefilter_req = TX_TRILINEAR_1;
                         videoOptionsButtons[5] = "Trilinear 1";
                         break;
 
                     case TX_TRILINEAR_1:
-                        texturefilter = TX_TRILINEAR_2;
+                        cfg.texturefilter_req = TX_TRILINEAR_2;
                         videoOptionsButtons[5] = "Trilinear 2";
                         break;
 
                     case TX_TRILINEAR_2:
-                        texturefilter = TX_ANISOTROPIC;
+                        cfg.texturefilter_req = TX_ANISOTROPIC;
                         videoOptionsButtons[5] = "Anisotropic";
                         break;
 
                     default:
-                        texturefilter = TX_LINEAR;
+                        cfg.texturefilter_req = TX_LINEAR;
                         videoOptionsButtons[5] = "Linear";
                         break;
                 }
             }
 
             // Shadows
-            fnt_drawTextBox( menuFont, "Shadows:", buttonLeft, displaySurface->h - 320, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, displaySurface->h - 320, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Shadows:", buttonLeft, sdl_scr.y - 320, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 7, videoOptionsButtons[6], buttonLeft + 150, sdl_scr.y - 320, 100, 30 ) )
             {
-                if ( shaon && !shasprite )
+                if ( cfg.shadow_allowed && !cfg.shadow_sprite )
                 {
-                    shaon = bfalse;
-                    shasprite = bfalse;                // Just in case
+                    cfg.shadow_allowed = bfalse;
+                    cfg.shadow_sprite = bfalse;                // Just in case
                     videoOptionsButtons[6] = "Off";
                 }
                 else
                 {
-                    if ( shaon && shasprite )
+                    if ( cfg.shadow_allowed && cfg.shadow_sprite )
                     {
                         videoOptionsButtons[6] = "Best";
-                        shasprite = bfalse;
+                        cfg.shadow_sprite = bfalse;
                     }
                     else
                     {
-                        shaon = btrue;
-                        shasprite = btrue;
+                        cfg.shadow_allowed = btrue;
+                        cfg.shadow_sprite = btrue;
                         videoOptionsButtons[6] = "Normal";
                     }
                 }
             }
 
             // Z bit
-            fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, displaySurface->h - 320, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, displaySurface->h - 320, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, sdl_scr.y - 320, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, sdl_scr.y - 320, 100, 30 ) )
             {
-                switch ( scrz )
+                if( cfg.scrz_req < 0 )
                 {
-                    case 32:
-                        videoOptionsButtons[7] = "16";
-                        scrz = 16;
-                        break;
-
-                    case 16:
-                        videoOptionsButtons[7] = "24";
-                        scrz = 24;
-                        break;
-
-                    case 24:
-                        videoOptionsButtons[7] = "32";
-                        scrz = 32;
-                        break;
-
-                    default:
-                        videoOptionsButtons[7] = "16";
-                        scrz = 16;
-                        break;
+                    cfg.scrz_req = 8;
                 }
+                else
+                {
+                    cfg.scrz_req += 8;
+                }
+
+                if( cfg.scrz_req > 32) cfg.scrz_req = 8;
+
+                snprintf(Cscrz, SDL_arraysize(Cscrz), "%d", cfg.scrz_req );
+                videoOptionsButtons[7] = Cscrz;
             }
 
             // Max dynamic lights
-            fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, displaySurface->h - 285, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, displaySurface->h - 285, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, sdl_scr.y - 285, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, sdl_scr.y - 285, 100, 30 ) )
             {
-                switch ( dyna_list_max )
+                if( cfg.dyna_count_req < 8 )
                 {
-                    case 64:
-                        videoOptionsButtons[8] = "12";
-                        dyna_list_max = 12;
-                        break;
-
-                    case 12:
-                        videoOptionsButtons[8] = "16";
-                        dyna_list_max = 16;
-                        break;
-
-                    case 16:
-                        videoOptionsButtons[8] = "24";
-                        dyna_list_max = 24;
-                        break;
-
-                    case 24:
-                        videoOptionsButtons[8] = "32";
-                        dyna_list_max = 32;
-                        break;
-
-                    case 32:
-                        videoOptionsButtons[8] = "48";
-                        dyna_list_max = 48;
-                        break;
-
-                    case 48:
-                        videoOptionsButtons[8] = "64";
-                        dyna_list_max = 64;
-                        break;
-
-                    default:
-                        videoOptionsButtons[8] = "12";
-                        dyna_list_max = 12;
-                        break;
+                    cfg.dyna_count_req = 8;
                 }
+                else
+                {
+                    cfg.dyna_count_req += 8;
+                }
+
+                if( cfg.dyna_count_req >= TOTAL_MAX_DYNA )
+                {
+                    cfg.dyna_count_req = 8;
+                }
+
+                snprintf(Cmaxdyna, SDL_arraysize(Cmaxdyna), "%d", cfg.dyna_count_req );
+                videoOptionsButtons[8] = Cmaxdyna;
             }
 
             // Perspective correction and phong mapping
-            fnt_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, displaySurface->h - 250, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, displaySurface->h - 250, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "3D Effects:", buttonLeft + 300, sdl_scr.y - 250, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 10, videoOptionsButtons[9], buttonLeft + 450, sdl_scr.y - 250, 100, 30 ) )
             {
-                if ( phongon && perspective && overlayvalid && backgroundvalid )
+                if ( cfg.use_phong && cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                 {
-                    phongon = bfalse;
-                    perspective = bfalse;
-                    overlayvalid = bfalse;
-                    backgroundvalid = bfalse;
+                    cfg.use_phong          = bfalse;
+                    cfg.use_perspective    = bfalse;
+                    cfg.overlay_allowed    = bfalse;
+                    cfg.background_allowed = bfalse;
                     videoOptionsButtons[9] = "Off";
                 }
                 else
                 {
-                    if ( !phongon )
+                    if ( !cfg.use_phong )
                     {
                         videoOptionsButtons[9] = "Okay";
-                        phongon = btrue;
+                        cfg.use_phong = btrue;
                     }
                     else
                     {
-                        if ( !perspective && overlayvalid && backgroundvalid )
+                        if ( !cfg.use_perspective && cfg.overlay_allowed && cfg.background_allowed )
                         {
                             videoOptionsButtons[9] = "Superb";
-                            perspective = btrue;
+                            cfg.use_perspective = btrue;
                         }
                         else
                         {
-                            overlayvalid = btrue;
-                            backgroundvalid = btrue;
+                            cfg.overlay_allowed = btrue;
+                            cfg.background_allowed = btrue;
                             videoOptionsButtons[9] = "Good";
                         }
                     }
@@ -2337,92 +2268,108 @@ int doVideoOptions( float deltaTime )
             }
 
             // Water Quality
-            fnt_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, displaySurface->h - 215, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, displaySurface->h - 215, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Good Water:", buttonLeft + 300, sdl_scr.y - 215, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 11, videoOptionsButtons[10], buttonLeft + 450, sdl_scr.y - 215, 100, 30 ) )
             {
-                if ( twolayerwateron )
+                if ( cfg.twolayerwater_allowed )
                 {
                     videoOptionsButtons[10] = "Off";
-                    twolayerwateron = bfalse;
+                    cfg.twolayerwater_allowed = bfalse;
                 }
                 else
                 {
                     videoOptionsButtons[10] = "On";
-                    twolayerwateron = btrue;
+                    cfg.twolayerwater_allowed = btrue;
                 }
             }
 
             // Max particles
-            fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, displaySurface->h - 180, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, displaySurface->h - 180, 100, 30 ) )
+            fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, sdl_scr.y - 180, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, sdl_scr.y - 180, 100, 30 ) )
             {
-                maxparticles += 128;
-                if (maxparticles > TOTAL_MAX_PRT || maxparticles < 256) maxparticles = 256;
+                if( cfg.particle_count_req < 256 )
+                {
+                    cfg.particle_count_req = 256;
+                }
+                else
+                {
+                    cfg.particle_count_req += 128;
+                }
 
-                sprintf( Cmaxparticles, "%i", maxparticles );    // Convert integer to a char we can use
+                if (cfg.particle_count_req >= TOTAL_MAX_PRT ) maxparticles = 256;
+
+                snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i", cfg.particle_count_req );    // Convert integer to a char we can use
                 videoOptionsButtons[14] =  Cmaxparticles;
             }
 
             // Text messages
-            fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, displaySurface->h - 145, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, displaySurface->h - 145, 75, 30 ) )
+            fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, sdl_scr.y - 145, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, sdl_scr.y - 145, 75, 30 ) )
             {
-                if ( maxmessage != MAXMESSAGE )
+                if( cfg.message_count_req < 0 )
                 {
-                    maxmessage++;
-                    messageon = btrue;
-                    sprintf( Cmaxmessage, "%i", maxmessage );    // Convert integer to a char we can use
+                    cfg.message_count_req = 0;
                 }
                 else
                 {
-                    maxmessage = 0;
-                    messageon = bfalse;
+                    cfg.message_count_req++;
+                }
+
+                if( 0 == cfg.message_count_req )
+                {
                     sprintf( Cmaxmessage, "None" );
+                }
+                else
+                {
+                    sprintf( Cmaxmessage, "%i", cfg.message_count_req );    // Convert integer to a char we can use
                 }
 
                 videoOptionsButtons[11] = Cmaxmessage;
             }
 
             // Screen Resolution
-            fnt_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, displaySurface->h - 110, 0, 0, 20 );
-            if ( BUTTON_UP == ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, displaySurface->h - 110, 125, 30 ) )
+            fnt_drawTextBox( menuFont, "Resolution:", buttonLeft + 300, sdl_scr.y - 110, 0, 0, 20 );
+            if ( BUTTON_UP == ui_doButton( 13, videoOptionsButtons[12], buttonLeft + 450, sdl_scr.y - 110, 125, 30 ) )
             {
                 // TODO: add widescreen support
-                switch ( scrx )
+                switch ( cfg.scrx_req )
                 {
                     case 1024:
-                        scrx = 640;
-                        scry = 480;
-                        videoOptionsButtons[12] = "640X480";
+                        cfg.scrx_req = 640;
+                        cfg.scry_req = 480;
+                        videoOptionsButtons[12] = "640x480";
                         break;
 
                     case 640:
-                        scrx = 800;
-                        scry = 600;
-                        videoOptionsButtons[12] = "800X600";
+                        cfg.scrx_req = 800;
+                        cfg.scry_req = 600;
+                        videoOptionsButtons[12] = "800x600";
                         break;
 
                     case 800:
-                        scrx = 1024;
-                        scry = 768;
-                        videoOptionsButtons[12] = "1024X768";
+                        cfg.scrx_req = 1024;
+                        cfg.scry_req = 768;
+                        videoOptionsButtons[12] = "1024x768";
                         break;
 
                     default:
-                        scrx = 640;
-                        scry = 480;
-                        videoOptionsButtons[12] = "640X480";
+                        cfg.scrx_req = 640;
+                        cfg.scry_req = 480;
+                        videoOptionsButtons[12] = "640x480";
                         break;
                 }
             }
 
             // Save settings button
-            if ( BUTTON_UP == ui_doButton( 14, videoOptionsButtons[13], buttonLeft, displaySurface->h - 60, 200, 30 ) )
+            if ( BUTTON_UP == ui_doButton( 14, videoOptionsButtons[13], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
                 menuChoice = 1;
 
+                // synchronoze the config values with the various game subsystems
+                setup_synch( &cfg );
+
                 // save the setup file
-                setup_upload();
+                setup_upload( &cfg );
                 setup_write();
 
                 // Reload some of the graphics
@@ -2442,7 +2389,7 @@ int doVideoOptions( float deltaTime )
 
             if ( mnu_draw_background )
             {
-                ui_drawImage( 0, &background, ( displaySurface->w - background.imgW ), 0, 0, 0 );
+                ui_drawImage( 0, &background, ( sdl_scr.x - background.imgW ), 0, 0, 0 );
             }
 
             // "Options" text
@@ -2454,7 +2401,7 @@ int doVideoOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLtexture_Release( &background );
+            GLXtexture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -2477,10 +2424,9 @@ int doShowMenuResults( float deltaTime )
     Font *font;
     Uint8 i;
 
-    displaySurface = SDL_GetVideoSurface();
     font = ui_getFont();
 
-    ui_drawButton( UI_Nothing, 30, 30, displaySurface->w - 60, displaySurface->h - 65, NULL );
+    ui_drawButton( UI_Nothing, 30, 30, sdl_scr.x - 60, sdl_scr.y - 65, NULL );
 
     x = 35;
     y = 35;
@@ -2525,8 +2471,8 @@ int doNotImplemented( float deltaTime )
     fnt_getTextSize( ui_getFont(), notImplementedMessage, &w, &h );
     w += 50; // add some space on the sides
 
-    x = displaySurface->w / 2 - w / 2;
-    y = displaySurface->h / 2 - 17;
+    x = sdl_scr.x / 2 - w / 2;
+    y = sdl_scr.y / 2 - 17;
     if ( BUTTON_UP == ui_doButton( 1, notImplementedMessage, x, y, w, 30 ) )
     {
         return 1;
@@ -2653,7 +2599,6 @@ int doShowEndgame( float deltaTime )
     {
         case MM_Begin:
             menuState = MM_Entering;
-            displaySurface = SDL_GetVideoSurface();
             font = ui_getFont();
 
             initSlidyButtons( 1.0f, buttons );
@@ -2669,8 +2614,8 @@ int doShowEndgame( float deltaTime )
 
             x = 70;
             y = 70;
-            w = displaySurface->w - 2 * x;
-            h = displaySurface->h - 2 * y;
+            w = sdl_scr.x - 2 * x;
+            h = sdl_scr.y - 2 * y;
 
             gamepaused = btrue;
 

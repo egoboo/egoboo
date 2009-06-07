@@ -19,8 +19,10 @@
 
 #include "egoboo_fileutil.h"
 
+#include "ogl_texture.h"
 #include "log.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_strutil.h"
 #include "egoboo.h"
 
@@ -33,6 +35,9 @@ const char *parse_filename  = NULL;
 
 int   pairbase, pairrand;
 float pairfrom, pairto;
+
+STRING          TxFormatSupported[20]; // OpenGL icon surfaces
+Uint8           maxformattypes;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -696,4 +701,101 @@ bool_t fget_next_bool( FILE * fileread )
     goto_colon( NULL, fileread, bfalse );
 
     return fget_bool( fileread );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void GLSetup_SupportedFormats()
+{
+    //ZF> This need only to be once
+    Uint8 type = 0;
+
+    // define extra supported file types with SDL_image
+    // these should probably be ordered so that the types that
+    // support transparency are first
+    if ( cfg.sdl_image_allowed )
+    {
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".png"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tif"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tiff"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".gif"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pcx"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".ppm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpg"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpeg"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".xpm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pnm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".lbm"); type++;
+        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tga"); type++;
+    }
+
+    // These typed are natively supported with SDL
+    // Place them *after* the SDL_image types, so that if both are present,
+    // the other types will be preferred over bmp
+    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
+    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
+
+    //Save the amount of format types we have in store
+    maxformattypes = type;
+    if ( !cfg.sdl_image_allowed )
+    {
+        log_message( "Failed!\n" );
+        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n");
+    }
+    else
+    {
+        log_message( "Success!\n" );
+    }
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key )
+{
+    STRING fullname;
+    Uint32 retval;
+    Uint8 type = 0;
+    SDL_Surface * image = NULL;
+    GLenum tx_target;
+
+    // get rid of any old data
+    GLXtexture_Release( texture );
+
+    // load the image
+    retval = INVALID_TX_ID;
+    if ( cfg.sdl_image_allowed )
+    {
+        // try all different formats
+        for (type = 0; type < maxformattypes; type++)
+        {
+            snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
+            retval = GLXtexture_Load( GL_TEXTURE_2D, texture, fullname, key );
+            if( INVALID_TX_ID != retval ) break;
+        }
+    }
+    else
+    {
+        image = NULL;
+
+        // normal SDL only supports bmp
+        snprintf(fullname, sizeof(fullname), "%s.bmp", filename);
+        image = SDL_LoadBMP(fullname);
+
+        //We could not load the image
+        if ( NULL == image ) return INVALID_TX_ID;
+
+        tx_target = GL_TEXTURE_2D;
+        if( image->w != image->h && (image->w == 1 || image->h) )
+        {
+            tx_target = GL_TEXTURE_1D;
+        }
+
+        retval = GLXtexture_Convert( tx_target, texture, image, key );
+        strncpy(texture->name, fullname, sizeof(texture->name));
+
+        texture->base.wrap_s = GL_REPEAT;
+        texture->base.wrap_t = GL_REPEAT;
+    }
+
+    return retval;
 }

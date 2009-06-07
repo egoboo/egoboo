@@ -22,6 +22,8 @@
 #include "egoboo_config.h"
 #include "egoboo_math.h"
 
+#include "SDL_extensions.h"
+
 #include <SDL.h>
 #include <SDL_opengl.h>
 
@@ -239,7 +241,7 @@ void egoboo_console_draw_begin()
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glViewport( 0, 0, displaySurface->w, displaySurface->h );
+    glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -247,7 +249,7 @@ void egoboo_console_draw_begin()
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glOrtho( 0, displaySurface->w, displaySurface->h, 0, -1, 1 );
+    glOrtho( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();

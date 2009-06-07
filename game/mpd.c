@@ -25,6 +25,11 @@
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define CARTMAN_FIXNUM  4.125 // 4.150		// Magic number
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -42,6 +47,11 @@ static mesh_info_t * mesh_info_new( mesh_info_t * pinfo );
 static mesh_info_t * mesh_info_delete( mesh_info_t * pinfo );
 static void          mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t tiles_y  );
 
+static Uint8 cartman_get_fan_twist( mesh_t * pmesh, Uint32 tile );
+static Uint8 cartman_get_twist(int x, int y);
+static bool_t twist_to_normal( Uint8 twist, GLfloat v[], float slide );
+
+static bool_t mesh_make_normals( mesh_t * pmesh );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -49,14 +59,18 @@ static mesh_t _mesh[2];
 
 mesh_t * PMesh = _mesh + 0;
 
-Uint32 maplrtwist[256];            // For surface normal of mesh
-Uint32 mapudtwist[256];
-float  vellrtwist[256];            // For sliding down steep hills
-float  veludtwist[256];
-Uint8  flattwist[256];
+GLvector3 map_twist_nrm[256];
+Uint32 map_twist_y[256];            // For surface normal of mesh
+Uint32 map_twist_x[256];
+float  map_twistvel_x[256];            // For sliding down steep hills
+float  map_twistvel_y[256];
+float  map_twistvel_z[256];
+Uint8  map_twist_flat[256];
 
 mesh_t            mesh;
 tile_definition_t tile_dict[MAXMESHTYPE];
+
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -94,8 +108,8 @@ void mesh_info_init( mesh_info_t * pinfo, int numvert, size_t tiles_x, size_t ti
     pinfo->blocks_count = pinfo->blocks_x * pinfo->blocks_y;
 
     // set the mesh edge info
-    pinfo->edge_x = pinfo->tiles_x << 7;
-    pinfo->edge_y = pinfo->tiles_y << 7;
+    pinfo->edge_x = pinfo->tiles_x << TILE_BITS;
+    pinfo->edge_y = pinfo->tiles_y << TILE_BITS;
 };
 
 //--------------------------------------------------------------------------------------------
@@ -195,7 +209,7 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 {
     // ZZ> This function loads the level.mpd file
     FILE* fileread;
-    char newloadname[256];
+    STRING newloadname;
     int itmp, tiles_x, tiles_y;
     float ftmp;
     Uint32 fan, cnt;
@@ -315,9 +329,19 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 
     fclose( fileread );
 
+    make_twist();
+
     mesh_make_fanstart( pmesh );
     mesh_make_vrtstart( pmesh );
-    make_twist();
+
+    // recalculate the twist
+    for ( fan = 0; fan < pinfo->tiles_count; fan++ )
+    {
+        Uint8 twist = cartman_get_fan_twist(pmesh, fan);
+        pmem->tile_list[fan].twist = twist;
+    }
+
+    mesh_make_normals( pmesh );
 
     // Fix the tile offsets for the mesh textures
     for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
@@ -371,31 +395,43 @@ bool_t mesh_mem_allocate( mesh_mem_t * pmem, mesh_info_t * pinfo  )
     pmem->vrt_x = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_x == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_y = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_y == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_z = ( float * ) calloc( pinfo->vertcount, sizeof(float) );
     if ( pmem->vrt_z == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_a = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
     if ( pmem->vrt_a == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     pmem->vrt_l = ( Uint8 * ) calloc( pinfo->vertcount, sizeof(Uint8) );
     if ( pmem->vrt_l == NULL )
     {
-        log_error( "Reduce the maximum number of pinfo->vertcount! (Check MESH_MAXTOTALVERTRICES)\n" );
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    }
+
+    pmem->cache = ( light_cache_t * ) calloc( pinfo->vertcount, sizeof(light_cache_t) );
+    if ( pmem->cache == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
+    }
+
+    pmem->nrm = ( GLvector3 * ) calloc( pinfo->vertcount, sizeof(GLvector3) );
+    if ( pmem->nrm == NULL )
+    {
+        log_error( "Reduce the maximum number of vertices! (Check MESH_MAXTOTALVERTRICES)\n" );
     }
 
     // set the vertex count
@@ -461,6 +497,18 @@ bool_t mesh_mem_free( mesh_mem_t * pmem )
     {
         free(pmem->tilestart);
         pmem->tilestart = NULL;
+    }
+
+    if ( NULL != pmem->cache )
+    {
+        free(pmem->cache);
+        pmem->cache = NULL;
+    }
+
+    if ( NULL != pmem->nrm )
+    {
+        free(pmem->nrm);
+        pmem->nrm = NULL;
     }
 
     // reset some values to safe values
@@ -530,7 +578,7 @@ void mesh_make_vrtstart( mesh_t * pmesh )
         {
             // allow raw access because we are careful
             fan = mesh_get_tile_int( pmesh, x, y );
-            if ( INVALID_TILE != fan )
+            if ( VALID_TILE(pmesh, fan) )
             {
                 Uint8 ttype = pmem->tile_list[fan].type;
 
@@ -558,60 +606,31 @@ void make_twist()
     // ZZ> This function precomputes surface normals and steep hill acceleration for
     //     the mesh
     Uint16 cnt;
-    int x, y;
-    float xslide, yslide;
 
-    cnt = 0;
-
-    while ( cnt < 256 )
+    for ( cnt = 0; cnt < 256; cnt++ )
     {
-        y = (cnt >> 4) & 0x0F;
-        x = (cnt >> 0) & 0x0F;
-        y -= 7;  // -7 to 8
-        x -= 7;  // -7 to 8
+        GLfloat nrm[3];
 
-        mapudtwist[cnt] = 32768 + y * SLOPE;
-        maplrtwist[cnt] = 32768 + x * SLOPE;
+        twist_to_normal(cnt, nrm, 1.0f);
 
-        if ( ABS( y ) >= 7 ) y = y << 1;
-        if ( ABS( x ) >= 7 ) x = x << 1;
+        map_twist_nrm[cnt].x = nrm[0];
+        map_twist_nrm[cnt].y = nrm[1];
+        map_twist_nrm[cnt].z = nrm[2];
 
-        xslide = x * SLIDE;
-        yslide = y * SLIDE;
-        if ( xslide < 0 )
+        map_twist_x[cnt] = 32768 - ATAN2( nrm[1], nrm[2] ) / TWO_PI * 0xFFFF;
+        map_twist_y[cnt] = 32768 + ATAN2( nrm[0], nrm[2] ) / TWO_PI * 0xFFFF;
+
+        // this is about 5 degrees off of vertical
+        map_twist_flat[cnt] = bfalse;
+        if( nrm[2] > 0.9945f )
         {
-            xslide += SLIDEFIX;
-            if ( xslide > 0 )
-                xslide = 0;
-        }
-        else
-        {
-            xslide -= SLIDEFIX;
-            if ( xslide < 0 )
-                xslide = 0;
-        }
-        if ( yslide < 0 )
-        {
-            yslide += SLIDEFIX;
-            if ( yslide > 0 )
-                yslide = 0;
-        }
-        else
-        {
-            yslide -= SLIDEFIX;
-            if ( yslide < 0 )
-                yslide = 0;
+            map_twist_flat[cnt] = btrue;
         }
 
-        veludtwist[cnt] = -yslide * hillslide;
-        vellrtwist[cnt] =  xslide * hillslide;
-        flattwist[cnt] = bfalse;
-        if ( ABS( veludtwist[cnt] ) + ABS( vellrtwist[cnt] ) < SLIDEFIX*4 )
-        {
-            flattwist[cnt] = btrue;
-        }
-
-        cnt++;
+        // projection of the gravity perpendicular to the surface
+        map_twistvel_x[cnt] = nrm[0] * ABS(nrm[2]) * gravity;
+        map_twistvel_y[cnt] = nrm[1] * ABS(nrm[2]) * gravity;
+        map_twistvel_z[cnt] = nrm[2] * nrm[2] * gravity;
     }
 }
 
@@ -643,13 +662,13 @@ float get_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
     z2 = pmesh->mem.vrt_z[ pmesh->mem.tile_list[tile].vrtstart + 2 ];
     z3 = pmesh->mem.vrt_z[ pmesh->mem.tile_list[tile].vrtstart + 3 ];
 
-    zleft = ( z0 * ( 128 - iy ) + z3 * iy ) / (float)(1 << 7);
-    zright = ( z1 * ( 128 - iy ) + z2 * iy ) / (float)(1 << 7);
-    zdone = ( zleft * ( 128 - ix ) + zright * ix ) / (float)(1 << 7);
+    zleft = ( z0 * ( 128 - iy ) + z3 * iy ) / TILE_SIZE;
+    zright = ( z1 * ( 128 - iy ) + z2 * iy ) / TILE_SIZE;
+    zdone = ( zleft * ( 128 - ix ) + zright * ix ) / TILE_SIZE;
 
     if ( waterwalk )
     {
-        if ( watersurfacelevel > zdone && 0 != ( pmesh->mem.tile_list[tile].fx & MESHFX_WATER ) && wateriswater )
+        if ( watersurfacelevel > zdone && 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) && wateriswater )
         {
             return watersurfacelevel;
         }
@@ -700,3 +719,172 @@ Uint32 mesh_get_tile( mesh_t * pmesh, float pos_x, float pos_y )
     return tile;
 }
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+Uint8 cartman_get_fan_twist( mesh_t * pmesh, Uint32 tile )
+{
+    int vrtstart;
+    float z0, z1, z2, z3;
+    float zx, zy;
+
+    // check for a valid tile
+    if( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
+
+    // check for fanoff
+    if( 0 != (0xFF00 & pmesh->mem.tile_list[tile].img) ) return TWIST_FLAT;
+
+
+    vrtstart = pmesh->mem.tile_list[tile].vrtstart;
+
+    z0 = pmesh->mem.vrt_z[vrtstart + 0];
+    z1 = pmesh->mem.vrt_z[vrtstart + 1];
+    z2 = pmesh->mem.vrt_z[vrtstart + 2];
+    z3 = pmesh->mem.vrt_z[vrtstart + 3];
+
+    zx = CARTMAN_FIXNUM * (z0+z3-z1-z2)/SLOPE;
+    zy = CARTMAN_FIXNUM * (z2+z3-z0-z1)/SLOPE;
+
+    return cartman_get_twist( zx, zy );
+
+}
+
+//------------------------------------------------------------------------------
+Uint8 cartman_get_twist(int x, int y)
+{
+    Uint8 twist;
+
+    // x and y should be from -7 to 8
+    if(x < -7) x = -7;
+    if(x > 8) x = 8;
+    if(y < -7) y = -7;
+    if(y > 8) y = 8;
+
+    // Now between 0 and 15
+    x = x+7;
+    y = y+7;
+    twist = (y<<4)+x;
+
+    return twist;
+}
+
+//------------------------------------------------------------------------------
+bool_t twist_to_normal( Uint8 twist, GLfloat v[], float slide )
+{
+    int ix, iy;
+    float dx, dy;
+    float nx, ny, nz, nz2;
+    float diff_xy;
+
+    if(NULL == v) return bfalse;
+
+    diff_xy = 128.0f / slide;
+
+    ix = (twist >> 0) & 0x0f;
+    iy = (twist >> 4) & 0x0f;
+    ix -= 7;
+    iy -= 7;
+
+    dx =-ix / (float)CARTMAN_FIXNUM * (float)SLOPE;
+    dy = iy / (float)CARTMAN_FIXNUM * (float)SLOPE;
+
+    // determine the square of the z normal
+    nz2 =  diff_xy*diff_xy / ( dx*dx+ dy*dy + diff_xy*diff_xy );
+
+    // determine the z normal
+    nz = 0.0f;
+    if( nz2 > 0.0f )
+    {
+        nz = SQRT( nz2 );
+    }
+
+    nx = - dx * nz / diff_xy;
+    ny = - dy * nz / diff_xy;
+
+    v[0] = nx;
+    v[1] = ny;
+    v[2] = nz;
+
+    return btrue;
+}
+
+//------------------------------------------------------------------------------
+Uint32 mesh_test_fx( mesh_t * pmesh, Uint32 itile, Uint32 flags )
+{
+    // test for mesh
+    if( NULL == pmesh ) return 0;
+
+    // test for invalid tile
+    if( itile > pmesh->info.tiles_count ) 
+    {
+        return flags & (MPDFX_WALL | MPDFX_IMPASS);
+    }
+
+    // test for FANOFF
+    if( 0xFF00 == (0xFF00 & pmesh->mem.tile_list[itile].img) ) 
+    {
+        return flags & (MPDFX_WALL | MPDFX_IMPASS);
+    }
+
+    return pmesh->mem.tile_list[itile].fx & flags;
+}
+
+//------------------------------------------------------------------------------
+bool_t mesh_make_normals( mesh_t * pmesh )
+{
+    int ix, iy;
+    int dx, dy;
+    GLvector3 nrm_sum;
+    Uint32 fan;
+    int wt_sum;
+
+    // test for mesh
+    if( NULL == pmesh ) return bfalse;
+
+    for(iy = 0; iy<pmesh->info.tiles_y; iy++)
+    {
+        for(ix = 0; ix<pmesh->info.tiles_x; ix++)
+        {
+            // find the average normal for the upper left map vertex
+            wt_sum = 0;
+            nrm_sum.x = nrm_sum.y = nrm_sum.z = 0;
+            for(dy=-1; dy<=0; dy++)
+            {
+                for(dx=-1; dx<=0; dx++)
+                {
+                    fan = mesh_get_tile_int(pmesh, ix + dx, iy+dy);
+                    if( VALID_TILE(pmesh, fan) )
+                    {
+                        Uint8 twist = pmesh->mem.tile_list[fan].twist;
+
+                        nrm_sum.x += map_twist_nrm[twist].x;
+                        nrm_sum.y += map_twist_nrm[twist].y;
+                        nrm_sum.z += map_twist_nrm[twist].z;
+
+                        wt_sum++;
+                    }
+                }
+            }
+
+            fan = mesh_get_tile_int(pmesh, ix, iy);
+            if( VALID_TILE(pmesh, fan) )
+            {
+                if( 0 == wt_sum )
+                {
+                    pmesh->mem.nrm[fan].x = pmesh->mem.nrm[fan].y = 0.0f;
+                    pmesh->mem.nrm[fan].z = 1.0f;
+                }
+                else if ( 1 == wt_sum )
+                {
+                    pmesh->mem.nrm[fan] = nrm_sum;
+                }
+                else
+                {
+                    pmesh->mem.nrm[fan] = VNormalize( nrm_sum );
+                }
+            }
+        }
+    }
+
+    return btrue;
+}

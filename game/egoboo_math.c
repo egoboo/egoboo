@@ -35,13 +35,10 @@ void make_turntosin( void )
     int cnt;
     float ftmp = TWO_PI / (float)TRIG_TABLE_SIZE;
 
-    cnt = 0;
-
-    while ( cnt < 16384 )
+    for ( cnt = 0; cnt < TRIG_TABLE_SIZE; cnt++ )
     {
         turntosin[cnt] = SIN( cnt * ftmp );
         turntocos[cnt] = COS( cnt * ftmp );
-        cnt++;
     }
 }
 
@@ -226,14 +223,14 @@ GLmatrix ScaleXYZ( const float sizex, const float sizey, const float sizez )
 /*D3DMATRIX ScaleXYZRotateXYZTranslate(const float sizex, const float sizey, const float sizez,
    Uint16 turnz, Uint16 turnx, Uint16 turny,
    float tx, float ty, float tz)*/
-GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz )
+GLmatrix ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz )
 {
-    float cx = turntocos[turnx];
-    float sx = turntosin[turnx];
-    float cy = turntocos[turny];
-    float sy = turntosin[turny];
-    float cz = turntocos[turnz];
-    float sz = turntosin[turnz];
+    float cx = turntocos[ turn_x & TRIG_TABLE_MASK ];
+    float sx = turntosin[ turn_x & TRIG_TABLE_MASK ];
+    float cy = turntocos[ turn_y & TRIG_TABLE_MASK ];
+    float sy = turntosin[ turn_y & TRIG_TABLE_MASK ];
+    float cz = turntocos[ turn_z & TRIG_TABLE_MASK ];
+    float sz = turntosin[ turn_z & TRIG_TABLE_MASK ];
 
     float sxsy = sx * sy;
     float cxsy = cx * sy;
@@ -333,10 +330,10 @@ GLmatrix ViewMatrix( const GLvector3 from,     // camera location
     GLvector3 up, right, view_dir;
 
     view_dir = VNormalize( VSub( at, from ) );
-    right = VCrossProduct( world_up, view_dir );
-    up = VCrossProduct( view_dir, right );
-    right = VNormalize( right );
-    up = VNormalize( up );
+    right    = VCrossProduct( world_up, view_dir );
+    up       = VCrossProduct( view_dir, right );
+    right    = VNormalize( right );
+    up       = VNormalize( up );
 
     view.CNV( 0, 0 ) = right.x;       //0,0
     view.CNV( 1, 0 ) = right.y;       //1,0
@@ -465,9 +462,9 @@ GLvector3 mat_getChrRight(GLmatrix mat)
     GLvector3 right;
 
     // for a character
-    right.x = mat.CNV( 0, 0 );
-    right.y = mat.CNV( 0, 1 );
-    right.z = mat.CNV( 0, 2 );
+    right.x = -mat.CNV( 0, 0 );
+    right.y = -mat.CNV( 0, 1 );
+    right.z = -mat.CNV( 0, 2 );
 
     return right;
 };

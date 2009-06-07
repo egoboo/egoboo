@@ -30,6 +30,8 @@
 #define PI                  3.1415926535897932384626433832795f
 #define TWO_PI              6.283185307179586476925286766559f
 #define INV_FF              0.003921568627450980392156862745098f
+#define INV_0100            0.00390625f
+#define INV_FFFF            0.000015259021896696421759365224689097f
 
 #define TRIG_TABLE_BITS   14
 #define TRIG_TABLE_SIZE   (1<<TRIG_TABLE_BITS)
@@ -119,7 +121,7 @@ GLmatrix  RotateX( const float rads );
 GLmatrix  RotateY( const float rads );
 GLmatrix  RotateZ( const float rads );
 GLmatrix  ScaleXYZ( const float sizex, const float sizey, const float sizez );
-GLmatrix  ScaleXYZRotateXYZTranslate( const float sizex, const float sizey, const float sizez, Uint16 turnz, Uint16 turnx, Uint16 turny, float tx, float ty, float tz );
+GLmatrix  ScaleXYZRotateXYZTranslate(  const float sizex, const float sizey, const float sizez, const Uint16 turn_z, const Uint16 turn_x, const Uint16 turn_y, const float tx, const float ty, const float tz  );
 GLmatrix  FourPoints( float orix, float oriy, float oriz, float widx, float widy, float widz, float forx, float fory, float forz, float upx,  float upy,  float upz, float scale );
 GLmatrix  ViewMatrix( const GLvector3 from, const GLvector3 at, const GLvector3 world_up, const float roll );
 GLmatrix  ProjectionMatrix( const float near_plane, const float far_plane, const float fov );

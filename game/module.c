@@ -32,6 +32,7 @@
 #include "input.h"
 #include "file_common.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
@@ -173,7 +174,7 @@ bool_t modlist_test_by_index( int modnumber )
 
     //So, do we load the module or not?
     allowed = bfalse;
-    if ( gDevMode || playerhasquest || module_reference_matches( pmod->reference, pmod->quest_idsz ) )
+    if ( cfg.dev_mode || playerhasquest || module_reference_matches( pmod->reference, pmod->quest_idsz ) )
     {
         allowed = btrue;
     }

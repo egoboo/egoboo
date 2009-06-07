@@ -194,9 +194,6 @@
 				RelativePath=".\game.c">
 			</File>
 			<File
-				RelativePath=".\gltexture.c">
-			</File>
-			<File
 				RelativePath=".\graphic.c">
 			</File>
 			<File
@@ -362,9 +359,6 @@
 			</File>
 			<File
 				RelativePath=".\font.h">
-			</File>
-			<File
-				RelativePath=".\gltexture.h">
 			</File>
 			<File
 				RelativePath=".\graphic.h">
@@ -594,6 +588,50 @@
 			</File>
 			<File
 				RelativePath=".\lua_console.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="SDL extensions"
+			Filter="">
+			<File
+				RelativePath=".\SDL_extensions.c">
+			</File>
+			<File
+				RelativePath=".\SDL_extensions.h">
+			</File>
+			<File
+				RelativePath=".\SDL_GL_extensions.c">
+			</File>
+			<File
+				RelativePath=".\SDL_GL_extensions.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="OpenGL extensions"
+			Filter="">
+			<File
+				RelativePath=".\ogl_debug.c">
+			</File>
+			<File
+				RelativePath=".\ogl_debug.h">
+			</File>
+			<File
+				RelativePath=".\ogl_extensions.c">
+			</File>
+			<File
+				RelativePath=".\ogl_extensions.h">
+			</File>
+			<File
+				RelativePath=".\ogl_include.c">
+			</File>
+			<File
+				RelativePath=".\ogl_include.h">
+			</File>
+			<File
+				RelativePath=".\ogl_texture.c">
+			</File>
+			<File
+				RelativePath=".\ogl_texture.h">
 			</File>
 		</Filter>
 	</Files>

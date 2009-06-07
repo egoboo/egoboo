@@ -74,32 +74,25 @@ struct s_camera
     Uint8  turn_mode;               // what is the camera mode
     Uint8  turn_time;               // time for the smooth turn
 
-    int    swing;                   // Camera swingin'
-    int    swingrate;
-    float  swingamp;
-    float  x;                       // Camera position
-    float  y;
-    float  z;                       // 500-1000
-    float  zoom;                    // Distance from the trackee
-    float  trackxvel;               // Change in trackee position
-    float  trackyvel;
-    float  trackzvel;
-    float  centerx;                 // Move character to side before tracking
-    float  centery;
-    float  trackx;                  // Trackee position
-    float  tracky;
-    float  trackz;
-    float  tracklevel;
-    float  zadd;                    // Camera height above terrain
-    float  zaddgoto;                // Desired z position
-    float  zgoto;
-    float  turnleftright;           // Camera rotations
-    float  turnleftrightone;
-    Uint16 turnleftrightshort;
-    float  turnadd;                 // Turning rate
-    float  sustain;                 // Turning rate falloff
-    float  turnupdown;
-    float  roll;
+    int       swing;                   // Camera swingin'
+    int       swingrate;
+    float     swingamp;
+    GLvector3 pos;                       // Camera position (z = 500-1000)
+    float     zoom;                    // Distance from the trackee
+    GLvector3 track_vel;               // Change in trackee position
+    GLvector3 track_pos;                  // Trackee position
+    float     track_level;
+    GLvector3 center;                 // Move character to side before tracking
+    float     zadd;                    // Camera height above terrain
+    float     zaddgoto;                // Desired z position
+    float     zgoto;
+    float     turn_z_rad;           // Camera rotations
+    float     turn_z_one;
+    Uint16    turn_z;
+    float     turnadd;                 // Turning rate
+    float     sustain;                 // Turning rate falloff
+    float     turnupdown;
+    float     roll;
 };
 
 typedef struct s_camera camera_t;

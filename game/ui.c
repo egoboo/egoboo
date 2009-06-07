@@ -26,6 +26,8 @@
 #include "graphic.h"
 #include "egoboo.h"
 
+#include "SDL_extensions.h"
+
 #include <string.h>
 #include <SDL_opengl.h>
 
@@ -122,8 +124,6 @@ void ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    displaySurface = SDL_GetVideoSurface();
-
     glPushAttrib( GL_ENABLE_BIT );
     glDisable( GL_DEPTH_TEST );
     glDisable( GL_CULL_FACE );
@@ -132,7 +132,7 @@ void ui_beginFrame( float deltaTime )
     glEnable( GL_BLEND );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glViewport( 0, 0, displaySurface->w, displaySurface->h );
+    glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
@@ -140,7 +140,7 @@ void ui_beginFrame( float deltaTime )
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
-    glOrtho( 0, displaySurface->w, displaySurface->h, 0, -1, 1 );
+    glOrtho( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
@@ -357,7 +357,7 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, GLtexture *img, int x, int y, int width, int height )
+void ui_drawImage( ui_id_t id, GLXtexture *img, int x, int y, int width, int height )
 {
     int w, h;
     float x1, y1;
@@ -374,11 +374,11 @@ void ui_drawImage( ui_id_t id, GLtexture *img, int x, int y, int width, int heig
             h = height;
         }
 
-        x1 = ( float ) GLtexture_GetImageWidth( img )  / ( float ) GLtexture_GetTextureWidth( img );
-        y1 = ( float ) GLtexture_GetImageHeight( img ) / ( float ) GLtexture_GetTextureHeight( img );
+        x1 = ( float ) GLXtexture_GetImageWidth( img )  / ( float ) GLXtexture_GetTextureWidth( img );
+        y1 = ( float ) GLXtexture_GetImageHeight( img ) / ( float ) GLXtexture_GetTextureHeight( img );
 
         // Draw the image
-        GLtexture_Bind( img );
+        GLXtexture_Bind( img );
 
         glBegin( GL_TRIANGLE_STRIP );
         {
@@ -498,7 +498,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, GLtexture *img, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButton( ui_id_t id, GLXtexture *img, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -516,7 +516,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, GLtexture *img, int x, int y, int 
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLtexture *img, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLXtexture *img, const char *text, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -637,7 +637,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLtexture *img, int x, int y, int width, int height )
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLXtexture *img, int x, int y, int width, int height )
 {
     if ( NULL == pw ) return bfalse;
 

@@ -75,6 +75,70 @@
 
 static ConfigFilePtr_t lConfigSetup = NULL;
 
+egoboo_config_t cfg;
+egoboo_config_t cfg_default;
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void egoboo_config_init()
+{
+    memset( &cfg_default, 0, sizeof(egoboo_config_t) );
+
+    // {GRAPHIC}
+    cfg_default.fullscreen_req        = bfalse;        // Start in fullscreen?
+    cfg_default.scrd_req              = 32;                 // Screen bit depth
+    cfg_default.scrz_req              = 8;                // Screen z-buffer depth ( 8 unsupported )
+    cfg_default.scrx_req              = 640;               // Screen X size
+    cfg_default.scry_req              = 480;               // Screen Y size
+    cfg_default.message_count_req     = 6;
+    cfg_default.message_duration      = 50;                     // Time to keep the message alive
+    cfg_default.staton                = btrue;               // Draw the status bars?
+    cfg_default.use_perspective       = bfalse;      // Perspective correct textures?
+    cfg_default.use_dither            = bfalse;           // Dithering?
+    cfg_default.reflect_fade          = btrue;            // 255 = Don't fade reflections
+    cfg_default.reflect_allowed       = bfalse;            // Reflections?
+    cfg_default.reflect_prt           = bfalse;         // Reflect particles?
+    cfg_default.shadow_allowed        = bfalse;            // Shadows?
+    cfg_default.shadow_sprite         = bfalse;        // Shadow sprites?
+    cfg_default.use_phong             = btrue;              // Do phong overlay?
+    cfg_default.twolayerwater_allowed = btrue;      // Two layer water?
+    cfg_default.overlay_allowed       = bfalse;               // Allow large overlay?
+    cfg_default.background_allowed    = bfalse;            // Allow large background?
+    cfg_default.fog_allowed           = btrue;
+    cfg_default.gourard_req           = btrue;              // Gourad shading?
+    cfg_default.multisamples          = 0;                  // Antialiasing?
+    cfg_default.texturefilter_req     = TX_UNFILTERED;      // Texture filtering?
+    cfg_default.dyna_count_req        = 12;                 // Max number of lights to draw
+    cfg_default.framelimit            = 30;
+    cfg_default.particle_count_req    = 512;                              // max number of particles
+
+    // {SOUND}
+    cfg_default.sound_allowed         = bfalse;
+    cfg_default.music_allowed         = bfalse;
+    cfg_default.music_volume          = 50;                            // The sound volume of music
+    cfg_default.sound_volume          = 75;          // Volume of sounds played
+    cfg_default.sound_channel_count   = 16;      // Max number of sounds playing at the same time
+    cfg_default.sound_buffer_size     = 2048;
+
+    // {CONTROL}
+    cfg_default.autoturncamera        = 255;             // Type of camera control...
+
+    // {NETWORK}
+    cfg_default.network_allowed       = bfalse;            // Try to connect?
+    cfg_default.network_lag           = 2;                             // Lag tolerance
+    strcpy( cfg_default.network_hostname,    "no host"     );                            // Name for hosting session
+    strcpy( cfg_default.network_messagename, "little Raoul");                         // Name for messages
+
+    // {DEBUG}
+    cfg_default.fps_allowed       = btrue;             // FPS displayed?
+    cfg_default.grab_mouse        = btrue;
+    cfg_default.hide_mouse        = btrue;
+    cfg_default.dev_mode          = bfalse;
+    cfg_default.sdl_image_allowed = btrue;    // Allow advanced SDL_Image functions?
+    cfg_default.difficulty        = GAME_NORMAL;    // What is the current game difficulty
+};
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 bool_t setup_quit()
@@ -101,7 +165,7 @@ bool_t setup_write()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_download()
+bool_t setup_download(egoboo_config_t * pcfg)
 {
     // BB > download the ConfigFile_t keys into game variables
     //      use default values to fill in any missing keys
@@ -110,7 +174,13 @@ bool_t setup_download()
     bool_t lTempBool;
     Sint32 lTempInt;
     char   lTempStr[256];
-    if (NULL == lConfigSetup) return bfalse;
+
+    if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
+
+    // set the default egoboo values
+    egoboo_config_init();
+
+    memcpy( pcfg, &cfg_default, sizeof(egoboo_config_t) );
 
     // *********************************************
     // * GRAPHIC Section
@@ -119,106 +189,88 @@ bool_t setup_download()
     lCurSectionName = "GRAPHIC";
 
     // Do fullscreen?
-    GetKey_bool( "FULLSCREEN", fullscreen, bfalse );
+    GetKey_bool( "FULLSCREEN", pcfg->fullscreen_req, cfg_default.fullscreen_req );
 
     // Screen Size
-    GetKey_int( "SCREENSIZE_X", scrx, 640 );
-    GetKey_int( "SCREENSIZE_Y", scry, 480 );
+    GetKey_int( "SCREENSIZE_X", pcfg->scrx_req, cfg_default.scrx_req );
+    GetKey_int( "SCREENSIZE_Y", pcfg->scry_req, cfg_default.scry_req );
 
     // Color depth
-    GetKey_int( "COLOR_DEPTH", scrd, 32 );
+    GetKey_int( "COLOR_DEPTH", pcfg->scrd_req, cfg_default.scrd_req );
 
     // The z depth
-    GetKey_int( "Z_DEPTH", scrz, 8 );
+    GetKey_int( "Z_DEPTH", pcfg->scrz_req, cfg_default.scrz_req );
 
     // Max number of messages displayed
-    GetKey_int( "MAX_TEXT_MESSAGE", maxmessage, 6 );
-    messageon = btrue;
-    if ( maxmessage < 1 )  { maxmessage = 1;  messageon = bfalse; }
-    if ( maxmessage > MAXMESSAGE )  { maxmessage = MAXMESSAGE; }
+    GetKey_int( "MAX_TEXT_MESSAGE", pcfg->message_count_req, cfg_default.message_count_req );
 
     // Max number of messages displayed
-    GetKey_int( "MESSAGE_DURATION", messagetime, 50 );
+    GetKey_int( "MESSAGE_DURATION", pcfg->message_duration, cfg_default.message_duration );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    GetKey_bool( "STATUS_BAR", staton, btrue );
-    wraptolerance = 32;
-    if ( staton )
-    {
-        wraptolerance = 90;
-    }
+    GetKey_bool( "STATUS_BAR", pcfg->staton, cfg_default.staton );
 
     // Perspective correction
-    GetKey_bool( "PERSPECTIVE_CORRECT", perspective, bfalse );
+    GetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective, cfg_default.use_perspective );
 
     // Enable dithering?
-    GetKey_bool( "DITHERING", dither, bfalse );
+    GetKey_bool( "DITHERING", pcfg->use_dither, cfg_default.use_dither );
 
     // Reflection fadeout
-    GetKey_bool( "FLOOR_REFLECTION_FADEOUT", lTempBool, bfalse );
-    if ( lTempBool )
-    {
-        reffadeor = 0;
-    }
-    else
-    {
-        reffadeor = 255;
-    }
+    GetKey_bool( "FLOOR_REFLECTION_FADEOUT", pcfg->reflect_fade, cfg_default.reflect_fade );
 
     // Draw Reflection?
-    GetKey_bool( "REFLECTION", refon, bfalse );
+    GetKey_bool( "REFLECTION", pcfg->reflect_allowed, cfg_default.reflect_allowed );
 
 	// Draw particles in reflection?
-    GetKey_bool( "PARTICLE_REFLECTION", prtreflect, bfalse );
+    GetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt, cfg_default.reflect_prt );
 
     // Draw shadows?
-    GetKey_bool( "SHADOWS", shaon, bfalse );
+    GetKey_bool( "SHADOWS", pcfg->shadow_allowed, cfg_default.shadow_allowed );
 
     // Draw good shadows?
-    GetKey_bool( "SHADOW_AS_SPRITE", shasprite, btrue );
+    GetKey_bool( "SHADOW_AS_SPRITE", pcfg->shadow_sprite, cfg_default.shadow_sprite );
 
     // Draw phong mapping?
-    GetKey_bool( "PHONG", phongon, btrue );
+    GetKey_bool( "PHONG", pcfg->use_phong, cfg_default.use_phong );
 
     // Draw water with more layers?
-    GetKey_bool( "MULTI_LAYER_WATER", twolayerwateron, bfalse );
+    GetKey_bool( "MULTI_LAYER_WATER", pcfg->twolayerwater_allowed, cfg_default.twolayerwater_allowed );
 
     // Allow overlay effects?
-    GetKey_bool( "OVERLAY", overlayvalid, bfalse );
+    GetKey_bool( "OVERLAY", pcfg->overlay_allowed, cfg_default.overlay_allowed );
 
     // Allow backgrounds?
-    GetKey_bool( "BACKGROUND", backgroundvalid, bfalse );
+    GetKey_bool( "BACKGROUND", pcfg->background_allowed, cfg_default.background_allowed );
 
     // Enable fog?
-    GetKey_bool( "FOG", fogallowed, bfalse );
+    GetKey_bool( "FOG", pcfg->fog_allowed, cfg_default.fog_allowed );
 
     // Do gourad shading?
-    GetKey_bool( "GOURAUD_SHADING", lTempBool, btrue );
-    shading = lTempBool ? GL_SMOOTH : GL_FLAT;
+    GetKey_bool( "GOURAUD_SHADING", pcfg->gourard_req, cfg_default.gourard_req );
 
     // Enable antialiasing?
-    GetKey_int( "ANTIALIASING", antialiasing, bfalse );
+    GetKey_int( "ANTIALIASING", pcfg->multisamples, cfg_default.multisamples );
 
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
-    if ( lTempStr[0] == 'U' || lTempStr[0] == 'u' )  texturefilter = TX_UNFILTERED;
-    if ( lTempStr[0] == 'L' || lTempStr[0] == 'l' )  texturefilter = TX_LINEAR;
-    if ( lTempStr[0] == 'M' || lTempStr[0] == 'm' )  texturefilter = TX_MIPMAP;
-    if ( lTempStr[0] == 'B' || lTempStr[0] == 'b' )  texturefilter = TX_BILINEAR;
-    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  texturefilter = TX_TRILINEAR_1;
-    if ( lTempStr[0] == '2'                       )  texturefilter = TX_TRILINEAR_2;
-    if ( lTempStr[0] == 'A' || lTempStr[0] == 'a' )  texturefilter = TX_ANISOTROPIC;
+    pcfg->texturefilter_req =  cfg_default.texturefilter_req;
+    if ( toupper(lTempStr[0]) == 'U' )  pcfg->texturefilter_req = TX_UNFILTERED;
+    if ( toupper(lTempStr[0]) == 'L' )  pcfg->texturefilter_req = TX_LINEAR;
+    if ( toupper(lTempStr[0]) == 'M' )  pcfg->texturefilter_req = TX_MIPMAP;
+    if ( toupper(lTempStr[0]) == 'B' )  pcfg->texturefilter_req = TX_BILINEAR;
+    if ( toupper(lTempStr[0]) == 'T' )  pcfg->texturefilter_req = TX_TRILINEAR_1;
+    if ( toupper(lTempStr[0]) == '2' )  pcfg->texturefilter_req = TX_TRILINEAR_2;
+    if ( toupper(lTempStr[0]) == 'A' )  pcfg->texturefilter_req = TX_ANISOTROPIC;
 
     // Max number of lights
-    GetKey_int( "MAX_DYNAMIC_LIGHTS", dyna_list_max, 12 );
-    if ( dyna_list_max > TOTAL_MAX_DYNA ) dyna_list_max = TOTAL_MAX_DYNA;
+    GetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req, cfg_default.dyna_count_req );
 
     // Get the FPS limit
-    GetKey_int( "MAX_FPS_LIMIT", framelimit, 30 );
+    GetKey_int( "MAX_FPS_LIMIT", pcfg->framelimit, 30 );
 
     // Get the particle limit
-    GetKey_int( "MAX_PARTICLES", maxparticles, 512 );
-    if (maxparticles > TOTAL_MAX_PRT) maxparticles = TOTAL_MAX_PRT;
+    GetKey_int( "MAX_PARTICLES", pcfg->particle_count_req, cfg_default.particle_count_req );
 
     // *********************************************
     // * SOUND Section
@@ -227,26 +279,22 @@ bool_t setup_download()
     lCurSectionName = "SOUND";
 
     // Enable sound
-    GetKey_bool( "SOUND", soundvalid, bfalse );
+    GetKey_bool( "SOUND", pcfg->sound_allowed, cfg_default.sound_allowed );
 
     // Enable music
-    GetKey_bool( "MUSIC", musicvalid, bfalse );
+    GetKey_bool( "MUSIC", pcfg->music_allowed, cfg_default.music_allowed );
 
     // Music volume
-    GetKey_int( "MUSIC_VOLUME", musicvolume, 50 );
+    GetKey_int( "MUSIC_VOLUME", pcfg->music_volume, cfg_default.music_volume );
 
     // Sound volume
-    GetKey_int( "SOUND_VOLUME", soundvolume, 75 );
+    GetKey_int( "SOUND_VOLUME", pcfg->sound_volume, cfg_default.sound_volume );
 
     // Max number of sound channels playing at the same time
-    GetKey_int( "MAX_SOUND_CHANNEL", maxsoundchannel, 16 );
-    if ( maxsoundchannel < 8 ) maxsoundchannel = 8;
-    if ( maxsoundchannel > 128 ) maxsoundchannel = 128;
+    GetKey_int( "MAX_SOUND_CHANNEL", pcfg->sound_channel_count, cfg_default.sound_channel_count );
 
     // The output buffer size
-    GetKey_int( "OUTPUT_BUFFER_SIZE", buffersize, 2048 );
-    if ( buffersize < 512 ) buffersize = 512;
-    if ( buffersize > 8196 ) buffersize = 8196;
+    GetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size, cfg_default.sound_buffer_size );
 
     // *********************************************
     // * CONTROL Section
@@ -256,9 +304,10 @@ bool_t setup_download()
 
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
-    if ( lTempStr[0] == 'G' || lTempStr[0] == 'g' )  autoturncamera = 255;
-    if ( lTempStr[0] == 'T' || lTempStr[0] == 't' )  autoturncamera = btrue;
-    if ( lTempStr[0] == 'F' || lTempStr[0] == 'f' )  autoturncamera = bfalse;
+    pcfg->autoturncamera = cfg_default.autoturncamera;
+    if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = 255;
+    if ( toupper(lTempStr[0]) == 'T' )  pcfg->autoturncamera = btrue;
+    if ( toupper(lTempStr[0]) == 'F' )  pcfg->autoturncamera = bfalse;
 
     // *********************************************
     // * NETWORK Section
@@ -267,16 +316,16 @@ bool_t setup_download()
     lCurSectionName = "NETWORK";
 
     // Enable networking systems?
-    GetKey_bool( "NETWORK_ON", networkon, bfalse );
+    GetKey_bool( "NETWORK_ON", pcfg->network_allowed, cfg_default.network_allowed );
 
     // Max lag
-    GetKey_int( "LAG_TOLERANCE", lag, 2 );
+    GetKey_int( "LAG_TOLERANCE", pcfg->network_lag, cfg_default.network_lag );
 
     // Name or IP of the host or the target to join
-    GetKey_string( "HOST_NAME", nethostname, 64, "no host" );
+    GetKey_string( "HOST_NAME", pcfg->network_hostname, SDL_arraysize(pcfg->network_hostname), cfg_default.network_hostname );
 
     // Multiplayer name
-    GetKey_string( "MULTIPLAYER_NAME", netmessagename, 64, "little Raoul" );
+    GetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename, SDL_arraysize(pcfg->network_messagename), cfg_default.network_messagename );
 
     // *********************************************
     // * DEBUG Section
@@ -285,28 +334,62 @@ bool_t setup_download()
     lCurSectionName = "DEBUG";
 
     // Some special debug settings
-    GetKey_bool( "DISPLAY_FPS", fpson, btrue );
-    GetKey_bool( "HIDE_MOUSE", gHideMouse, btrue );
-    GetKey_bool( "GRAB_MOUSE", gGrabMouse, btrue );
-    GetKey_bool( "DEV_MODE", gDevMode, btrue );
-    GetKey_bool( "SDL_IMAGE", use_sdl_image, btrue );
+    GetKey_bool( "DISPLAY_FPS", pcfg->fps_allowed,       cfg_default.fps_allowed );
+    GetKey_bool( "HIDE_MOUSE",  pcfg->hide_mouse,        cfg_default.hide_mouse );
+    GetKey_bool( "GRAB_MOUSE",  pcfg->grab_mouse,        cfg_default.grab_mouse );
+    GetKey_bool( "DEV_MODE",    pcfg->dev_mode,          cfg_default.dev_mode );
+    GetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed, cfg_default.sdl_image_allowed );
 
     // Which diffculty mode do we use?
     GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
-    if ( lTempStr[0] == 'E' || lTempStr[0] == 'e' )  difficulty = GAME_EASY;
-    if ( lTempStr[0] == 'N' || lTempStr[0] == 'n' )  difficulty = GAME_NORMAL;
-    if ( lTempStr[0] == 'H' || lTempStr[0] == 'h' )  difficulty = GAME_HARD;
+    pcfg->difficulty = cfg_default.difficulty;
+    if ( toupper(lTempStr[0]) == 'E' )  pcfg->difficulty = GAME_EASY;
+    if ( toupper(lTempStr[0]) == 'N' )  pcfg->difficulty = GAME_NORMAL;
+    if ( toupper(lTempStr[0]) == 'H' )  pcfg->difficulty = GAME_HARD;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t setup_synch( egoboo_config_t * pcfg )
+{
+    if( NULL == pcfg ) return bfalse;
+
+    // FPS display
+    fpson = pcfg->fps_allowed;
+
+    // message display
+    messageon  = (pcfg->message_count_req > 0);
+    maxmessage = CLIP(pcfg->message_count_req, 1, MAXMESSAGE);
+
+    wraptolerance = pcfg->staton ? 90 : 32;
+
+    // texture parameters
+    tex_params.texturefilter = pcfg->texturefilter_req;
+
+    // Max number of lights
+    dyna_list_max = CLIP(pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA);
+
+    // Get the particle limit
+    maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);
+
+    // sound options
+    snd_config_synch( &snd, pcfg );
+
+    // renderer options
+    gfx_config_synch( &gfx, pcfg );
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t setup_upload()
+bool_t setup_upload( egoboo_config_t * pcfg )
 {
     // BB > upload game variables into the ConfigFile_t keys
 
     char  *lCurSectionName;
-    if (NULL == lConfigSetup) return bfalse;
+    if (NULL == lConfigSetup || NULL == pcfg) return bfalse;
 
     // *********************************************
     // * GRAPHIC Section
@@ -315,71 +398,71 @@ bool_t setup_upload()
     lCurSectionName = "GRAPHIC";
 
     // Do fullscreen?
-    SetKey_bool( "FULLSCREEN", fullscreen );
+    SetKey_bool( "FULLSCREEN", pcfg->fullscreen_req );
 
     // Screen Size
-    SetKey_int( "SCREENSIZE_X", scrx );
-    SetKey_int( "SCREENSIZE_Y", scry );
+    SetKey_int( "SCREENSIZE_X", pcfg->scrx_req );
+    SetKey_int( "SCREENSIZE_Y", pcfg->scry_req );
 
     // Color depth
-    SetKey_int( "COLOR_DEPTH", scrd );
+    SetKey_int( "COLOR_DEPTH", pcfg->scrd_req );
 
     // The z depth
-    SetKey_int( "Z_DEPTH", scrz );
+    SetKey_int( "Z_DEPTH", pcfg->scrz_req );
 
     // Max number of messages displayed
-    SetKey_int( "MAX_TEXT_MESSAGE", messageon ? maxmessage : 0 );
+    SetKey_int( "MAX_TEXT_MESSAGE", messageon ? pcfg->message_count_req : 0 );
 
     // Max number of messages displayed
-    SetKey_int( "MESSAGE_DURATION", messagetime );
+    SetKey_int( "MESSAGE_DURATION", pcfg->message_duration );
 
     // Show status bars? (Life, mana, character icons, etc.)
-    SetKey_bool( "STATUS_BAR", staton );
+    SetKey_bool( "STATUS_BAR", pcfg->staton );
 
     // Perspective correction
-    SetKey_bool( "PERSPECTIVE_CORRECT", perspective );
+    SetKey_bool( "PERSPECTIVE_CORRECT", pcfg->use_perspective );
 
     // Enable dithering?
-    SetKey_bool( "DITHERING", dither );
+    SetKey_bool( "DITHERING", pcfg->use_dither );
 
     // Reflection fadeout
-    SetKey_bool( "FLOOR_REFLECTION_FADEOUT", reffadeor != 0 );
+    SetKey_bool( "FLOOR_REFLECTION_FADEOUT", pcfg->reflect_fade );
 
     // Draw Reflection?
-    SetKey_bool( "REFLECTION", refon );
+    SetKey_bool( "REFLECTION", pcfg->reflect_allowed );
 
 	// Draw particles in reflection?
-    SetKey_bool( "PARTICLE_REFLECTION", prtreflect );
+    SetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt );
 
     // Draw shadows?
-    SetKey_bool( "SHADOWS", shaon );
+    SetKey_bool( "SHADOWS", pcfg->shadow_allowed );
 
     // Draw good shadows?
-    SetKey_bool( "SHADOW_AS_SPRITE", shasprite );
+    SetKey_bool( "SHADOW_AS_SPRITE", pcfg->shadow_sprite );
 
     // Draw phong mapping?
-    SetKey_bool( "PHONG", phongon );
+    SetKey_bool( "PHONG", pcfg->use_phong );
 
     // Draw water with more layers?
-    SetKey_bool( "MULTI_LAYER_WATER", twolayerwateron );
+    SetKey_bool( "MULTI_LAYER_WATER", pcfg->twolayerwater_allowed );
 
     // Allow overlay effects?
-    SetKey_bool( "OVERLAY", overlayvalid );
+    SetKey_bool( "OVERLAY", pcfg->overlay_allowed );
 
     // Allow backgrounds?
-    SetKey_bool( "BACKGROUND", backgroundvalid );
+    SetKey_bool( "BACKGROUND", pcfg->background_allowed );
 
     // Enable fog?
-    SetKey_bool( "FOG", fogallowed );
+    SetKey_bool( "FOG", pcfg->fog_allowed );
 
     // Do gourad shading?
-    SetKey_bool( "GOURAUD_SHADING", shading == GL_SMOOTH );
+    SetKey_bool( "GOURAUD_SHADING", pcfg->gourard_req );
 
     // Enable antialiasing?
-    SetKey_int( "ANTIALIASING", antialiasing );
+    SetKey_int( "ANTIALIASING", pcfg->multisamples );
 
     // Do we do texture filtering?
-    switch (texturefilter)
+    switch (pcfg->texturefilter_req)
     {
         case TX_UNFILTERED:  SetKey_string( "TEXTURE_FILTERING", "UNFILTERED" ); break;
         case TX_MIPMAP:      SetKey_string( "TEXTURE_FILTERING", "MIPMAP" ); break;
@@ -393,13 +476,13 @@ bool_t setup_upload()
     }
 
     // Max number of lights
-    SetKey_int( "MAX_DYNAMIC_LIGHTS", dyna_list_max );
+    SetKey_int( "MAX_DYNAMIC_LIGHTS", pcfg->dyna_count_req );
 
     // Get the FPS limit
-    SetKey_int( "MAX_FPS_LIMIT", framelimit );
+    SetKey_int( "MAX_FPS_LIMIT", pcfg->framelimit );
 
     // Get the particle limit
-    SetKey_int( "MAX_PARTICLES", maxparticles );
+    SetKey_int( "MAX_PARTICLES", pcfg->particle_count_req );
 
     // *********************************************
     // * SOUND Section
@@ -408,22 +491,22 @@ bool_t setup_upload()
     lCurSectionName = "SOUND";
 
     // Enable sound
-    SetKey_bool( "SOUND", soundvalid );
+    SetKey_bool( "SOUND", pcfg->sound_allowed );
 
     // Enable music
-    SetKey_bool( "MUSIC", musicvalid );
+    SetKey_bool( "MUSIC", pcfg->music_allowed );
 
     // Music volume
-    SetKey_int( "MUSIC_VOLUME", musicvolume );
+    SetKey_int( "MUSIC_VOLUME", pcfg->music_volume );
 
     // Sound volume
-    SetKey_int( "SOUND_VOLUME", soundvolume );
+    SetKey_int( "SOUND_VOLUME", pcfg->sound_volume );
 
     // Max number of sound channels playing at the same time
-    SetKey_int( "MAX_SOUND_CHANNEL", maxsoundchannel );
+    SetKey_int( "MAX_SOUND_CHANNEL", pcfg->sound_channel_count );
 
     // The output buffer size
-    SetKey_int( "OUTPUT_BUFFER_SIZE", buffersize );
+    SetKey_int( "OUTPUT_BUFFER_SIZE", pcfg->sound_buffer_size );
 
     // *********************************************
     // * CONTROL Section
@@ -432,7 +515,7 @@ bool_t setup_upload()
     lCurSectionName = "CONTROL";
 
     // Camera control mode
-    switch ( autoturncamera )
+    switch ( pcfg->autoturncamera )
     {
         case bfalse: SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
         case 255:    SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
@@ -448,16 +531,16 @@ bool_t setup_upload()
     lCurSectionName = "NETWORK";
 
     // Enable networking systems?
-    SetKey_bool( "NETWORK_ON", networkon );
+    SetKey_bool( "NETWORK_ON", pcfg->network_allowed );
 
     // Name or IP of the host or the target to join
-    SetKey_string( "HOST_NAME", nethostname );
+    SetKey_string( "HOST_NAME", pcfg->network_hostname );
 
     // Multiplayer name
-    SetKey_string( "MULTIPLAYER_NAME", netmessagename );
+    SetKey_string( "MULTIPLAYER_NAME", pcfg->network_messagename );
 
     // Max lag
-    SetKey_int( "LAG_TOLERANCE", lag );
+    SetKey_int( "LAG_TOLERANCE", pcfg->network_lag );
 
     // *********************************************
     // * DEBUG Section
@@ -466,14 +549,14 @@ bool_t setup_upload()
     lCurSectionName = "DEBUG";
 
     // Some special debug settings
-    SetKey_bool( "DISPLAY_FPS", fpson );
-    SetKey_bool( "HIDE_MOUSE", gHideMouse );
-    SetKey_bool( "GRAB_MOUSE", gGrabMouse );
-    SetKey_bool( "DEV_MODE", gDevMode );
-    SetKey_bool( "SDL_IMAGE", use_sdl_image );
+    SetKey_bool( "DISPLAY_FPS", pcfg->fps_allowed );
+    SetKey_bool( "HIDE_MOUSE",  pcfg->hide_mouse );
+    SetKey_bool( "GRAB_MOUSE",  pcfg->grab_mouse );
+    SetKey_bool( "DEV_MODE",    pcfg->dev_mode );
+    SetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed );
 
     // Save diffculty mode
-    switch (difficulty)
+    switch (pcfg->difficulty)
     {
         case GAME_EASY:			SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
         case GAME_HARD:			SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;

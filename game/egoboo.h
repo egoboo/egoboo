@@ -70,7 +70,6 @@ enum e_game_difficulty
     GAME_HARD
 };
 
-EXTERN Uint8     difficulty EQ( GAME_NORMAL );    // What is the current game difficulty
 EXTERN bool_t    gamepaused EQ( bfalse );    // Is the game paused?
 EXTERN bool_t    pausekeyready EQ( btrue );  // Ready to pause game?
 EXTERN bool_t    overrideslots EQ( bfalse );     //Override existing slots?
@@ -103,18 +102,16 @@ EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
 #define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
 
-EXTERN int wraptolerance  EQ( 80 );        // Status bar
-
 #define DAMFX_NONE           0                       // Damage effects
-#define DAMFX_ARMO           1                       // Armor piercing
-#define DAMFX_BLOC           2                       // Cannot be blocked by shield
-#define DAMFX_ARRO           4                       // Only hurts the one it's attached to
-#define DAMFX_TURN           8                       // Turn to attached direction
-#define DAMFX_TIME           16
+#define DAMFX_ARMO           (1 << 1)                // Armor piercing
+#define DAMFX_NBLOC          (1 << 2)                // Cannot be blocked by shield
+#define DAMFX_ARRO           (1 << 3)                // Only hurts the one it's attached to
+#define DAMFX_TURN           (1 << 4)                // Turn to attached direction
+#define DAMFX_TIME           (1 << 5)
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
-#define ULTRABLUDY         2                       // This makes any damage draw blud
+#define ULTRABLUDY           2                       // This makes any damage draw blud
 
 #define SPELLBOOK           127                     // The spellbook model
 
@@ -131,7 +128,6 @@ EXTERN int wraptolerance  EQ( 80 );        // Status bar
 #define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-EXTERN Uint16 messagetime   EQ(200);                     // Time to keep the message alive
 #define TABAND              31                      // Tab size
 
 #define GRABSIZE            90.0f                      // Grab tolerance
@@ -247,16 +243,9 @@ enum e_xp_type
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
-EXTERN Sint32 framelimit                EQ(30);
 #define UPDATES_PER_SEC                 50
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
-
-// Debug option
-EXTERN bool_t  gGrabMouse EQ( btrue );
-EXTERN bool_t  gHideMouse EQ( bfalse );
-EXTERN bool_t  gDevMode EQ( bfalse );
-// Debug option
 
 EXTERN int     animtileupdateand  EQ( 7 );                        // New tile every 7 frames
 EXTERN Uint16  animtileframeand  EQ( 3 );              // Only 4 frames
@@ -295,8 +284,8 @@ EXTERN Uint16                  damagetilemindistance;
 // Display
 EXTERN Uint8                   timeron  EQ( bfalse );          // Game timer displayed?
 EXTERN Uint32                  timervalue  EQ( 0 );           // Timer time ( 50ths of a second )
+EXTERN bool_t                  fpson EQ(btrue);
 EXTERN char                    szfpstext[]  EQ( "000 FPS" );
-EXTERN Uint8                   fpson  EQ( btrue );             // FPS displayed?
 
 // Timers
 EXTERN Sint32          clock_stt;                   // GetTickCount at start
@@ -304,11 +293,11 @@ EXTERN Sint32          clock_all  EQ( 0 );             // The total number of ti
 EXTERN Sint32          clock_lst  EQ( 0 );             // The last total of ticks so far
 EXTERN Sint32          clock_wld  EQ( 0 );             // The sync clock
 EXTERN Sint32          clock_fps  EQ( 0 );             // The number of ticks this second
-EXTERN Uint32          frame_wld  EQ( 0 );             // The number of frames that should have been drawn
+EXTERN Uint32          update_wld  EQ( 0 );            // The number of times the game has been updated
 EXTERN Uint32          frame_all  EQ( 0 );             // The total number of frames drawn so far
 EXTERN Uint32          frame_fps  EQ( 0 );             // The number of frames drawn this second
 EXTERN Uint32          clock_stat  EQ( 0 );            // For stat regeneration
-EXTERN Uint32          pitclock  EQ( 0 );             // For pit kills
+EXTERN Uint32          clock_pit  EQ( 0 );             // For pit kills
 EXTERN Uint32          outofsync  EQ( 0 );
 EXTERN Uint8           parseerror  EQ( bfalse );
 
@@ -319,16 +308,12 @@ EXTERN Uint32          pitx;
 EXTERN Uint32          pity;
 EXTERN Uint32          pitz;
 
-EXTERN bool_t                    fullscreen EQ( bfalse );        // Start in fullscreen?
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
 EXTERN bool_t                    gamemenuactive EQ( bfalse );
 EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
-EXTERN bool_t                    staton  EQ( btrue );               // Draw the status bars?
-EXTERN bool_t                    phongon  EQ( btrue );              // Do phong overlay?
-EXTERN bool_t                    networkon  EQ( btrue );            // Try to connect?
+EXTERN bool_t                    networkon  EQ( bfalse );            // Try to connect?
 EXTERN bool_t                    serviceon  EQ( bfalse );        // Do I need to free the interface?
-EXTERN bool_t                    twolayerwateron  EQ( btrue );      // Two layer water?
 EXTERN bool_t                    menuactive  EQ( bfalse );       // Menu running?
 EXTERN bool_t                    hostactive  EQ( bfalse );       // Hosting?
 EXTERN bool_t                    readytostart;               // Ready to hit the Start Game button?
@@ -338,12 +323,9 @@ EXTERN bool_t                    respawnanytime;             // True if it's a s
 EXTERN bool_t                    importvalid;                // Can it import?
 EXTERN bool_t                    exportvalid;                // Can it export?
 EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
-EXTERN bool_t                    backgroundvalid;            // Allow large background?
-EXTERN bool_t                    overlayvalid;               // Allow large overlay?
 EXTERN bool_t                    local_noplayers;             // Are there any local players?
 EXTERN bool_t                    usefaredge;                 // Far edge maps? (Outdoor)
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
-EXTERN Uint8                     autoturncamera;             // Type of camera control...
 EXTERN Uint8                     importamount;               // Number of imports for this module
 EXTERN Uint8                     playeramount;
 EXTERN Uint32                    seed  EQ( 0 );              // The module seed
@@ -351,12 +333,7 @@ EXTERN char                      pickedmodule_name[64];           // The module 
 EXTERN int                       pickedmodule_index;                // The module index number
 EXTERN int                       playersready;               // Number of players ready to start
 EXTERN int                       playersloaded;
-
-EXTERN bool_t                   clearson         EQ( btrue  );   // Do we clear every time?
-EXTERN bool_t                   draw_background  EQ( bfalse );   // Do we draw the background image?
-EXTERN bool_t                   draw_overlay     EQ( bfalse );   // Draw overlay?
-EXTERN bool_t                   draw_water_0     EQ( btrue  );   // Do we draw water layer 1 (TX_WATER_LOW)
-EXTERN bool_t                   draw_water_1     EQ( btrue  );   // Do we draw water layer 2 (TX_WATER_TOP)
+EXTERN bool_t                    game_escape_requested EQ(bfalse);  // has someone asked for the game to quit?
 
 //Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
@@ -368,24 +345,10 @@ EXTERN Uint32                  local_control[16];             // Input bits for 
 EXTERN short                   local_slot[16];                // For local imports
 
 // Setup values
-EXTERN int                     maxmessage  EQ( MAXMESSAGE );
-EXTERN int                     scrd  EQ( 32 );                 // Screen bit depth
-EXTERN int                     scrz  EQ( 16 );                // Screen z-buffer depth ( 8 unsupported )
-EXTERN int                     scrx  EQ( 320 );               // Screen X size
-EXTERN int                     scry  EQ( 200 );               // Screen Y size
-EXTERN Uint8                   reffadeor  EQ( 0 );            // 255 = Don't fade reflections
-EXTERN Uint8                   messageon  EQ( btrue );         // Messages?
-EXTERN bool_t                  perspective  EQ( bfalse );      // Perspective correct textures?
-EXTERN bool_t                  dither  EQ( bfalse );           // Dithering?
-EXTERN GLuint                  shading  EQ( GL_SMOOTH );           // Gourad shading?
-EXTERN Uint8                   antialiasing  EQ( bfalse );     // Antialiasing?
-EXTERN bool_t                  refon  EQ( bfalse );            // Reflections?
-EXTERN bool_t                  shaon  EQ( bfalse );            // Shadows?
-EXTERN Uint8                   texturefilter  EQ( 1 );     // Texture filtering?
-EXTERN bool_t                  wateron  EQ( btrue );           // Water overlays?
-EXTERN bool_t                  shasprite  EQ( bfalse );        // Shadow sprites?
-EXTERN bool_t                  prtreflect  EQ( bfalse );         // Reflect particles?
-EXTERN  bool_t                 use_sdl_image EQ(btrue);    // Allow advanced SDL_Image functions?
+EXTERN Uint8                   messageon      EQ( btrue );         // Messages?
+EXTERN int                     maxmessage     EQ( MAXMESSAGE );
+EXTERN int                     wraptolerance  EQ( 80 );            // Status bar
+EXTERN bool_t                  wateron        EQ( btrue );         // Water overlays?
 
 // EWWWW. GLOBALS ARE EVIL.
 
@@ -405,7 +368,9 @@ EXTERN float                   waterdouselevel EQ( 0 );            // Surface le
 EXTERN Uint8                   waterlight EQ( 0 );                 // Is it light ( default is alpha )
 EXTERN Uint8                   waterspekstart EQ( 128 );           // Specular begins at which light value
 EXTERN Uint8                   waterspeklevel EQ( 128 );           // General specular amount (0-255)
-EXTERN Uint8                   wateriswater  EQ( btrue );          // Is it water?  ( Or lava... )
+EXTERN bool_t                  wateriswater  EQ( btrue );          // Is it water?  ( Or lava... )
+EXTERN bool_t                  water_background_req EQ(bfalse);
+EXTERN bool_t                  water_overlay_req    EQ(bfalse);
 EXTERN Uint8                   waterlightlevel[MAXWATERLAYER]; // General light amount (0-63)
 EXTERN Uint8                   waterlightadd[MAXWATERLAYER];   // Ambient light amount (0-63)
 EXTERN float                   waterlayerz[MAXWATERLAYER];     // Base height of water
@@ -415,8 +380,8 @@ EXTERN float                   waterlayeru[MAXWATERLAYER];     // Coordinates of
 EXTERN float                   waterlayerv[MAXWATERLAYER];
 EXTERN float                   waterlayeruadd[MAXWATERLAYER];  // Texture movement
 EXTERN float                   waterlayervadd[MAXWATERLAYER];
-EXTERN float                   waterlayerzadd[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
-EXTERN Uint8                   waterlayercolor[MAXWATERLAYER][MAXWATERFRAME][WATERMODE][WATERPOINTS];
+EXTERN float                   waterlayerzadd[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
+EXTERN Uint8                   waterlayercolor[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 EXTERN Uint16                  waterlayerframe[MAXWATERLAYER]; // Frame
 EXTERN Uint16                  waterlayerframeadd[MAXWATERLAYER];      // Speed
 EXTERN float                   waterlayerdistx[MAXWATERLAYER];         // For distant backgrounds
@@ -426,7 +391,6 @@ EXTERN float                   foregroundrepeat  EQ( 1 );
 EXTERN float                   backgroundrepeat  EQ( 1 );
 
 // Fog stuff
-EXTERN bool_t                  fogallowed  EQ( btrue );
 EXTERN bool_t                  fogon  EQ( bfalse );            // Do ground fog?
 EXTERN float                   fogbottom  EQ( 0.0f );
 EXTERN float                   fogtop  EQ( 100 );
@@ -435,18 +399,6 @@ EXTERN Uint8                   fogred  EQ( 255 );             //  Fog collour
 EXTERN Uint8                   foggrn  EQ( 255 );
 EXTERN Uint8                   fogblu  EQ( 255 );
 EXTERN Uint8                   fogaffectswater;
-
-//Texture filtering
-typedef enum e_tx_filters
-{
-    TX_UNFILTERED,
-    TX_LINEAR,
-    TX_MIPMAP,
-    TX_BILINEAR,
-    TX_TRILINEAR_1,
-    TX_TRILINEAR_2,
-    TX_ANISOTROPIC
-} TX_FILTERS;
 
 // Input player control
 EXTERN int                     nullicon  EQ( 0 );
@@ -485,7 +437,7 @@ EXTERN float           slippyfriction  EQ( 1.00f );                            /
 EXTERN float           airfriction  EQ( 0.91f );                               // 0.9868 is approximately real world air friction
 EXTERN float           waterfriction  EQ( 0.80f );
 EXTERN float           noslipfriction  EQ( 0.91f );
-EXTERN float           platstick  EQ( 0.040f );
+EXTERN float           platstick  EQ( 0.1f );
 EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
 
 EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
@@ -517,9 +469,10 @@ EXTERN int    endtextwrite;
 #define CLOSETOLERANCE      2                       // For closing doors
 
 // Status displays
+EXTERN bool_t staton   EQ( btrue );
+EXTERN int    statdelay  EQ( 25 );
 EXTERN int    numstat  EQ( 0 );
 EXTERN Uint16 statlist[MAXSTAT];
-EXTERN int    statdelay  EQ( 25 );
 
 enum e_order
 {

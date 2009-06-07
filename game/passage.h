@@ -39,17 +39,17 @@ struct s_script_state;
 #define STOLEN  0xFFFF        // Someone stole a item
 
 // Passages
-extern int numpassage;              // Number of passages in the module
-extern int passtlx[MAXPASS];          // Passage positions
-extern int passtly[MAXPASS];
-extern int passbrx[MAXPASS];
-extern int passbry[MAXPASS];
+extern int   numpassage;              // Number of passages in the module
+extern int   passtlx[MAXPASS];          // Passage positions
+extern int   passtly[MAXPASS];
+extern int   passbrx[MAXPASS];
+extern int   passbry[MAXPASS];
 extern Sint8 passagemusic[MAXPASS];        // Music track appointed to the specific passage
 extern Uint8 passmask[MAXPASS];
 extern Uint8 passopen[MAXPASS];      // Is the passage open?
 
 // For shops
-extern int numshoppassage;
+extern int     numshoppassage;
 extern Uint16  shoppassage[MAXPASS];  // The passage number
 extern Uint16  shopowner[MAXPASS];    // Who gets the gold?
 

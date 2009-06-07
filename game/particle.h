@@ -173,12 +173,18 @@ struct s_prt_instance
     GLvector3 up;
     GLvector3 right;
 
-    Uint8  type;
-    Uint16 image;
-    float  color_component, alpha_component;
-    float  size;
+    Uint8    type;
+    Uint16   image;
+
+    Uint8    light;
+    float    color_component, alpha_component;
+    float    size;
 
     prt_ori_t orientation;
+
+    // graphical optimizations
+    bool_t         indolist;        // Has it been added yet?
+
 };
 typedef struct s_prt_instance prt_instance_t;
 
@@ -220,9 +226,11 @@ struct s_prt
     Uint16  imageadd;                        // Animation rate
     Uint16  imagemax;                        // End of image loop
     Uint16  imagestt;                        // Start of image loop
-    Uint8   light;                           // Light level
-    Uint16  time;                            // Duration of particle
+
+    Uint32  _time;                           // Duration of particle
+    bool_t  poofme;                          // end this particle for being out of time
     Uint16  spawntime;                       // Time until spawn
+
     Uint32  bumpsize;                        // Size of bumpers
     Uint32  bumpsizebig;
     Uint8   bumpheight;                      // Bounding box height
@@ -236,6 +244,8 @@ struct s_prt
     bool_t  dynalighton;                     // Dynamic light?
     Uint16  target;                          // Who it's chasing
 
+    bool_t  is_eternal;
+
     prt_instance_t inst;
 };
 typedef struct s_prt prt_t;
@@ -244,12 +254,11 @@ extern float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture co
 extern float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
 extern Uint16           maxparticles;                              // max number of particles
-
 extern prt_t            PrtList[TOTAL_MAX_PRT];
 
 #define VALID_PRT_RANGE( IPRT ) ( ((IPRT) >= 0) && ((IPRT) < maxparticles) && ((IPRT) < TOTAL_MAX_PRT) )
 #define VALID_PRT( IPRT )       ( VALID_PRT_RANGE( IPRT ) && PrtList[IPRT].on )
-#define INVALID_PRT( IPRT )       ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
+#define INVALID_PRT( IPRT )     ( !VALID_PRT_RANGE( IPRT ) || !PrtList[IPRT].on )
 
 
 //--------------------------------------------------------------------------------------------

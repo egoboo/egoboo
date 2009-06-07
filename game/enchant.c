@@ -102,11 +102,11 @@ bool_t remove_enchant( Uint16 ienc )
                 {
                     if ( VALID_CHR(itarget) )
                     {
-                        sound_play_chunk(ChrList[itarget].pos_old.x, ChrList[itarget].pos_old.y, CapList[imodel].wavelist[iwave]);
+                        sound_play_chunk(ChrList[itarget].pos_old, CapList[imodel].wavelist[iwave]);
                     }
                     else
                     {
-                        sound_play_chunk( gCamera.trackx, gCamera.tracky, CapList[imodel].wavelist[iwave]);
+                        sound_play_chunk( gCamera.track_pos, CapList[imodel].wavelist[iwave]);
                     }
                 }
             }
@@ -146,7 +146,7 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Unlink it
-    if( itarget < MAX_CHR && ChrList[itarget].on )
+    if( VALID_CHR(itarget) )
     {
         if ( ChrList[itarget].firstenchant == ienc )
         {
@@ -184,7 +184,7 @@ bool_t remove_enchant( Uint16 ienc )
     // Check to see if the character dies
     if ( EveList[penc->eve].killonend )
     {
-        if( itarget < MAX_CHR && ChrList[itarget].on )
+        if( VALID_CHR(itarget) )
         {
             if ( ChrList[itarget].invictus )  TeamList[ChrList[itarget].baseteam].morale++;
 
@@ -195,7 +195,7 @@ bool_t remove_enchant( Uint16 ienc )
 
     // Kill overlay too...
     overlay = penc->overlay;
-    if ( overlay < MAX_CHR && ChrList[overlay].on )
+    if ( VALID_CHR(overlay) )
     {
         if ( ChrList[overlay].invictus )  TeamList[ChrList[overlay].baseteam].morale++;
 
@@ -450,12 +450,12 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     switch ( valueindex )
     {
         case ADDJUMPPOWER:
-            fnewvalue = ptarget->jump;
+            fnewvalue = ptarget->jump_power;
             fvaluetoadd = peve->addvalue[valueindex] / 16.0f;
             fgetadd( 0, fnewvalue, 30.0f, &fvaluetoadd );
             valuetoadd = fvaluetoadd * 16.0f; // Get save value
             fvaluetoadd = valuetoadd / 16.0f;
-            ptarget->jump += fvaluetoadd;
+            ptarget->jump_power += fvaluetoadd;
             break;
 
         case ADDBUMPDAMPEN:
@@ -728,7 +728,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         if ( peve->overlay )
         {
             overlay = spawn_one_character( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
-                ieve, ptarget->team, 0, ptarget->turnleftright, NULL, MAX_CHR );
+                ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
 
             if ( VALID_CHR(overlay) )
             {
@@ -744,8 +744,8 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
                 {
                     povl->action = ACTION_MJ;
                     povl->inst.lip = 0;
-                    povl->inst.frame = MadList[povl->inst.imad].actionstart[ACTION_MJ];
-                    povl->inst.lastframe = povl->inst.frame;
+                    povl->inst.frame_nxt = MadList[povl->inst.imad].actionstart[ACTION_MJ];
+                    povl->inst.frame_lst = povl->inst.frame_nxt;
                     povl->actionready = bfalse;
                 }
 
@@ -1264,7 +1264,7 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     {
         case ADDJUMPPOWER:
             fvaluetoadd = penc->addsave[valueindex] / 16.0f;
-            ptarget->jump -= fvaluetoadd;
+            ptarget->jump_power -= fvaluetoadd;
             break;
 
         case ADDBUMPDAMPEN:

@@ -31,6 +31,7 @@
 #include "mad.h"
 #include "mpd.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
 
@@ -123,11 +124,11 @@ void play_particle_sound( Uint16 particle, Sint8 sound )
         if ( VALID_CAP( pprt->model ) )
         {
             cap_t * pcap = CapList + pprt->model;
-            sound_play_chunk( pprt->pos.x, pprt->pos.y, pcap->wavelist[sound] );
+            sound_play_chunk( pprt->pos, pcap->wavelist[sound] );
         }
         else
         {
-            sound_play_chunk( pprt->pos.x, pprt->pos.y, g_wavelist[sound] );
+            sound_play_chunk( pprt->pos, g_wavelist[sound] );
         }
     }
 }
@@ -218,7 +219,9 @@ Uint16 spawn_one_particle( float x, float y, float z,
     GLvector3 vel;
     float tvel;
     int offsetfacing = 0, newrand;
+    prt_t * pprt;
     pip_t * ppip;
+    Uint32 prt_lifetime;
 
     // Convert from local ipip to global ipip
     if ( ipip < MAX_PIP_PER_PROFILE && model < MAX_PROFILE && MadList[model].used )
@@ -229,196 +232,207 @@ Uint16 spawn_one_particle( float x, float y, float z,
     ppip = PipList + ipip;
 
     iprt = get_free_particle( ppip->force );
-    if ( VALID_PRT_RANGE(iprt) )
+    if ( !VALID_PRT_RANGE(iprt) ) return TOTAL_MAX_PRT;
+    pprt = PrtList + iprt;
+
+    // clear out all data
+    memset( pprt, 0, sizeof(prt_t));
+
+    // Necessary data for any part
+    pprt->on = btrue;
+    pprt->pip = ipip;
+    pprt->model = model;
+    pprt->inview = bfalse;
+    pprt->floor_level = 0;
+    pprt->team = team;
+    pprt->chr = characterorigin;
+    pprt->damagetype = ppip->damagetype;
+    pprt->spawncharacterstate = SPAWNNOCHARACTER;
+
+    // Lighting and sound
+    pprt->dynalighton = bfalse;
+    if ( multispawn == 0 )
     {
-        // Necessary data for any part
-        prt_t * pprt = PrtList + iprt;
-
-        pprt->on = btrue;
-        pprt->pip = ipip;
-        pprt->model = model;
-        pprt->inview = bfalse;
-        pprt->floor_level = 0;
-        pprt->team = team;
-        pprt->chr = characterorigin;
-        pprt->damagetype = ppip->damagetype;
-        pprt->spawncharacterstate = SPAWNNOCHARACTER;
-
-        // Lighting and sound
-        pprt->dynalighton = bfalse;
-        if ( multispawn == 0 )
+        pprt->dynalighton = ppip->dynalightmode;
+        if ( ppip->dynalightmode == DYNALOCAL )
         {
-            pprt->dynalighton = ppip->dynalightmode;
-            if ( ppip->dynalightmode == DYNALOCAL )
-            {
-                pprt->dynalighton = bfalse;
-            }
+            pprt->dynalighton = bfalse;
         }
+    }
 
-        pprt->dynalightlevel = ppip->dynalevel;
-        pprt->dynalightfalloff = ppip->dynafalloff;
+    pprt->dynalightlevel = ppip->dynalevel;
+    pprt->dynalightfalloff = ppip->dynafalloff;
 
-        // Set character attachments ( characterattach==MAX_CHR means none )
-        pprt->attachedtocharacter = characterattach;
-        pprt->grip = grip;
+    // Set character attachments ( characterattach==MAX_CHR means none )
+    pprt->attachedtocharacter = characterattach;
+    pprt->grip = grip;
 
-        // Correct facing
-        facing += ppip->facingbase;
+    // Correct facing
+    facing += ppip->facingbase;
 
-        // Targeting...
-        vel.z = 0;
-        newrand = RANDIE;
-        z = z + ppip->zspacingbase + ( newrand & ppip->zspacingrand ) - ( ppip->zspacingrand >> 1 );
-        newrand = RANDIE;
-        velocity = ( ppip->xyvelbase + ( newrand & ppip->xyvelrand ) );
-        pprt->target = oldtarget;
-        if ( ppip->newtargetonspawn )
+    // Targeting...
+    vel.z = 0;
+    newrand = RANDIE;
+    z = z + ppip->zspacingbase + ( newrand & ppip->zspacingrand ) - ( ppip->zspacingrand >> 1 );
+    newrand = RANDIE;
+    velocity = ( ppip->xyvelbase + ( newrand & ppip->xyvelrand ) );
+    pprt->target = oldtarget;
+    if ( ppip->newtargetonspawn )
+    {
+        if ( ppip->targetcaster )
         {
-            if ( ppip->targetcaster )
-            {
-                // Set the target to the caster
-                pprt->target = characterorigin;
-            }
-            else
-            {
-
-                // Find a target
-                pprt->target = get_particle_target( x, y, z, facing, ipip, team, characterorigin, oldtarget );
-                if ( pprt->target != MAX_CHR && !ppip->homing )
-                {
-                    facing -= glouseangle;
-                }
-
-                // Correct facing for dexterity...
-                offsetfacing = 0;
-                if ( ChrList[characterorigin].dexterity < PERFECTSTAT )
-                {
-                    // Correct facing for randomness
-                    offsetfacing = RANDIE;
-                    offsetfacing = offsetfacing & ppip->facingrand;
-                    offsetfacing -= ( ppip->facingrand >> 1 );
-                    offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
-                }
-                if ( pprt->target != MAX_CHR && ppip->zaimspd != 0 )
-                {
-                    // These aren't velocities...  This is to do aiming on the Z axis
-                    if ( velocity > 0 )
-                    {
-                        vel.x = ChrList[pprt->target].pos.x - x;
-                        vel.y = ChrList[pprt->target].pos.y - y;
-                        tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
-                        if ( tvel > 0 )
-                        {
-                            vel.z = ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
-                            if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
-                            if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
-                        }
-                    }
-                }
-            }
-
-            // Does it go away?
-            if ( pprt->target == MAX_CHR && ppip->needtarget )
-            {
-                free_one_particle_in_game( iprt );
-                return maxparticles;
-            }
-
-            // Start on top of target
-            if ( pprt->target != MAX_CHR && ppip->startontarget )
-            {
-                x = ChrList[pprt->target].pos.x;
-                y = ChrList[pprt->target].pos.y;
-            }
+            // Set the target to the caster
+            pprt->target = characterorigin;
         }
         else
         {
-            // Correct facing for randomness
-            offsetfacing = RANDIE;
-            offsetfacing = offsetfacing & ppip->facingrand;
-            offsetfacing -= ( ppip->facingrand >> 1 );
+            // Find a target
+            pprt->target = get_particle_target( x, y, z, facing, ipip, team, characterorigin, oldtarget );
+            if ( pprt->target != MAX_CHR && !ppip->homing )
+            {
+                facing -= glouseangle;
+            }
+
+            // Correct facing for dexterity...
+            offsetfacing = 0;
+            if ( ChrList[characterorigin].dexterity < PERFECTSTAT )
+            {
+                // Correct facing for randomness
+                offsetfacing = RANDIE;
+                offsetfacing = offsetfacing & ppip->facingrand;
+                offsetfacing -= ( ppip->facingrand >> 1 );
+                offsetfacing = ( offsetfacing * ( PERFECTSTAT - ChrList[characterorigin].dexterity ) ) / PERFECTSTAT;  // Divided by PERFECTSTAT
+            }
+            if ( pprt->target != MAX_CHR && ppip->zaimspd != 0 )
+            {
+                // These aren't velocities...  This is to do aiming on the Z axis
+                if ( velocity > 0 )
+                {
+                    vel.x = ChrList[pprt->target].pos.x - x;
+                    vel.y = ChrList[pprt->target].pos.y - y;
+                    tvel = SQRT( vel.x * vel.x + vel.y * vel.y ) / velocity;  // This is the number of steps...
+                    if ( tvel > 0 )
+                    {
+                        vel.z = ( ChrList[pprt->target].pos.z + ( ChrList[pprt->target].bumpsize >> 1 ) - z ) / tvel;  // This is the vel.z alteration
+                        if ( vel.z < -( ppip->zaimspd >> 1 ) ) vel.z = -( ppip->zaimspd >> 1 );
+                        if ( vel.z > ppip->zaimspd ) vel.z = ppip->zaimspd;
+                    }
+                }
+            }
         }
 
-        facing += offsetfacing;
-        pprt->facing = facing;
-        facing = facing >> 2;
-
-        // Location data from arguments
-        newrand = RANDIE;
-        x = x + turntocos[( facing+8192 )&TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
-        y = y + turntosin[( facing+8192 )&TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
-        if ( x < 0 )  x = 0;
-        if ( x > PMesh->info.edge_x - 2 )  x = PMesh->info.edge_x - 2;
-        if ( y < 0 )  y = 0;
-        if ( y > PMesh->info.edge_y - 2 )  y = PMesh->info.edge_y - 2;
-
-        pprt->pos.x = x;
-        pprt->pos.y = y;
-        pprt->pos.z = z;
-
-        // Velocity data
-        vel.x = turntocos[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
-        vel.y = turntosin[( facing+8192 )&TRIG_TABLE_MASK] * velocity;
-        newrand = RANDIE;
-        vel.z += ppip->zvelbase + ( newrand & ppip->zvelrand ) - ( ppip->zvelrand >> 1 );
-        pprt->vel.x = vel.x;
-        pprt->vel.y = vel.y;
-        pprt->vel.z = vel.z;
-
-        // Template values
-        pprt->bumpsize = ppip->bumpsize;
-        pprt->bumpsizebig = pprt->bumpsize + ( pprt->bumpsize >> 1 );
-        pprt->bumpheight = ppip->bumpheight;
-        pprt->type = ppip->type;
-
-        // Image data
-        newrand = RANDIE;
-        pprt->rotate = ( newrand & ppip->rotaterand ) + ppip->rotatebase;
-        pprt->rotateadd = ppip->rotateadd;
-        pprt->size = ppip->sizebase;
-        pprt->sizeadd = ppip->sizeadd;
-        pprt->image = 0;
-        newrand = RANDIE;
-        pprt->imageadd = ppip->imageadd + ( newrand & ppip->imageaddrand );
-        pprt->imagestt = INT_TO_FP8( ppip->imagebase );
-        pprt->imagemax = INT_TO_FP8( ppip->numframes );
-        pprt->time = ppip->time;
-        if ( ppip->endlastframe && pprt->imageadd != 0 )
+        // Does it go away?
+        if ( pprt->target == MAX_CHR && ppip->needtarget )
         {
-            if ( pprt->time == 0 )
-            {
-                // Part time is set to 1 cycle
-                pprt->time = ( pprt->imagemax / pprt->imageadd ) - 1;
-            }
-            else
-            {
-                // Part time is used to give number of cycles
-                pprt->time = pprt->time * ( ( pprt->imagemax / pprt->imageadd ) - 1 );
-            }
+            free_one_particle_in_game( iprt );
+            return maxparticles;
         }
 
-        // Set onwhichfan...
-        pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
-        pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
-
-        // Damage stuff
-        pprt->damagebase = ppip->damagebase;
-        pprt->damagerand = ppip->damagerand;
-
-        // Spawning data
-        pprt->spawntime = ppip->contspawntime;
-        if ( pprt->spawntime != 0 )
+        // Start on top of target
+        if ( pprt->target != MAX_CHR && ppip->startontarget )
         {
-            pprt->spawntime = 1;
-            if ( pprt->attachedtocharacter != MAX_CHR )
-            {
-                pprt->spawntime++; // Because attachment takes an update before it happens
-            }
+            x = ChrList[pprt->target].pos.x;
+            y = ChrList[pprt->target].pos.y;
         }
-
-        // Sound effect
-        play_particle_sound( iprt, ppip->soundspawn );
     }
+    else
+    {
+        // Correct facing for randomness
+        offsetfacing = RANDIE;
+        offsetfacing = offsetfacing & ppip->facingrand;
+        offsetfacing -= ( ppip->facingrand >> 1 );
+    }
+
+    facing += offsetfacing;
+    pprt->facing = facing;
+    facing = facing >> 2;
+
+    // Location data from arguments
+    newrand = RANDIE;
+    x += turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
+    y += turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * ( ppip->xyspacingbase + ( newrand & ppip->xyspacingrand ) );
+    x = CLIP(x, 0, PMesh->info.edge_x - 2);
+    y = CLIP(y, 0, PMesh->info.edge_y - 2);
+
+    pprt->pos.x = x;
+    pprt->pos.y = y;
+    pprt->pos.z = z;
+
+    // Velocity data
+    vel.x = turntocos[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
+    vel.y = turntosin[( facing+8192 ) & TRIG_TABLE_MASK] * velocity;
+    newrand = RANDIE;
+    vel.z += ppip->zvelbase + ( newrand & ppip->zvelrand ) - ( ppip->zvelrand >> 1 );
+    pprt->vel = vel;
+
+    // Template values
+    pprt->bumpsize = ppip->bumpsize;
+    pprt->bumpsizebig = pprt->bumpsize + ( pprt->bumpsize >> 1 );
+    pprt->bumpheight = ppip->bumpheight;
+    pprt->type = ppip->type;
+
+    // Image data
+    newrand = RANDIE;
+    pprt->rotate = ( newrand & ppip->rotaterand ) + ppip->rotatebase;
+    pprt->rotateadd = ppip->rotateadd;
+    pprt->size = ppip->sizebase;
+    pprt->sizeadd = ppip->sizeadd;
+    pprt->image = 0;
+    newrand = RANDIE;
+    pprt->imageadd = ppip->imageadd + ( newrand & ppip->imageaddrand );
+    pprt->imagestt = INT_TO_FP8( ppip->imagebase );
+    pprt->imagemax = INT_TO_FP8( ppip->numframes );
+    prt_lifetime = ppip->time;
+    if ( ppip->endlastframe && pprt->imageadd != 0 )
+    {
+        if ( ppip->time == 0 )
+        {
+            // Part time is set to 1 cycle
+            int frames = ( pprt->imagemax / pprt->imageadd ) - 1;
+            prt_lifetime = frames;
+        }
+        else
+        {
+            // Part time is used to give number of cycles
+            int frames = ( ( pprt->imagemax / pprt->imageadd ) - 1 );
+            prt_lifetime = ppip->time * frames;
+        }
+    }
+
+    // "no lifetime" = "eternal"
+    pprt->is_eternal = bfalse;
+    pprt->_time      = ~0;
+    if( 0 == prt_lifetime )
+    {
+        pprt->is_eternal = btrue;
+    }
+    else
+    {
+        pprt->_time = frame_all + prt_lifetime;
+    }
+
+
+    // Set onwhichfan...
+    pprt->onwhichfan   = mesh_get_tile( PMesh, pprt->pos.x, pprt->pos.y );
+    pprt->onwhichblock = mesh_get_block( PMesh, pprt->pos.x, pprt->pos.y );
+
+    // Damage stuff
+    pprt->damagebase = ppip->damagebase;
+    pprt->damagerand = ppip->damagerand;
+
+    // Spawning data
+    pprt->spawntime = ppip->contspawntime;
+    if ( pprt->spawntime != 0 )
+    {
+        pprt->spawntime = 1;
+        if ( pprt->attachedtocharacter != MAX_CHR )
+        {
+            pprt->spawntime++; // Because attachment takes an update before it happens
+        }
+    }
+
+    // Sound effect
+    play_particle_sound( iprt, ppip->soundspawn );
 
     return iprt;
 }
@@ -429,18 +443,18 @@ Uint8 __prthitawall( Uint16 particle )
     // ZZ> This function returns nonzero if the particle hit a wall
 
     Uint32 fan;
-    Uint8  retval = MESHFX_IMPASS | MESHFX_WALL;
+    Uint8  retval = MPDFX_IMPASS | MPDFX_WALL;
 
     fan = mesh_get_tile( PMesh, PrtList[particle].pos.x, PrtList[particle].pos.y );
-    if ( INVALID_TILE != fan )
+    if ( VALID_TILE(PMesh, fan) )
     {
         if ( PipList[PrtList[particle].pip].bumpmoney )
         {
-            retval = PMesh->mem.tile_list[fan].fx & ( MESHFX_IMPASS | MESHFX_WALL );
+            retval = mesh_test_fx(PMesh, fan, MPDFX_IMPASS | MPDFX_WALL );
         }
         else
         {
-            retval = PMesh->mem.tile_list[fan].fx & MESHFX_IMPASS;
+            retval = mesh_test_fx(PMesh, fan, MPDFX_IMPASS);
         }
     }
 
@@ -451,6 +465,7 @@ Uint8 __prthitawall( Uint16 particle )
 void move_particles( void )
 {
     // ZZ> This is the particle physics function
+
     int tnc;
     Uint16 cnt;
     Uint16 facing, ipip, particle;
@@ -476,7 +491,7 @@ void move_particles( void )
         ppip = PipList + ipip;
 
         // Animate particle
-        pprt->image += pprt->image + pprt->imageadd;
+        pprt->image = pprt->image + pprt->imageadd;
         if ( pprt->image >= pprt->imagemax ) pprt->image = 0;
 
         pprt->rotate += pprt->rotateadd;
@@ -489,7 +504,7 @@ void move_particles( void )
         pprt->dynalightfalloff += ppip->dynalightfalloffadd;
 
         // Make it sit on the floor...  Shift is there to correct for sprite size
-        level = pprt->floor_level + ( pprt->size >> 9 );
+        level = pprt->floor_level + (FP8_TO_INT( pprt->size ) >> 1);
 
         // Check floor collision and do iterative physics
         if ( ( pprt->pos.z < level && pprt->vel.z < 0.1f ) || ( pprt->pos.z < level - PRTLEVELFIX ) )
@@ -497,7 +512,11 @@ void move_particles( void )
             pprt->pos.z = level;
             pprt->vel.x = pprt->vel.x * noslipfriction;
             pprt->vel.y = pprt->vel.y * noslipfriction;
-            if ( ppip->endground )  pprt->time = 1;
+            if ( ppip->endground )
+            {
+                pprt->_time  = frame_all + 1;
+                pprt->poofme = btrue;
+            }
             if ( pprt->vel.z < 0 )
             {
                 if ( pprt->vel.z > -STOPBOUNCINGPART )
@@ -515,70 +534,72 @@ void move_particles( void )
             }
         }
         else if ( INVALID_CHR( pprt->attachedtocharacter ) )
+        {
+            pprt->pos.x += pprt->vel.x;
+            if ( __prthitawall( cnt ) )
             {
-                pprt->pos.x += pprt->vel.x;
-                if ( __prthitawall( cnt ) )
+                // Play the sound for hitting a wall [WSND]
+                play_particle_sound( cnt, ppip->soundwall );
+                pprt->pos.x -= pprt->vel.x;
+                pprt->vel.x = ( -pprt->vel.x * ppip->dampen );
+                if ( ppip->endwall )
                 {
-                    // Play the sound for hitting a wall [WSND]
-                    play_particle_sound( cnt, ppip->soundwall );
-                    pprt->pos.x -= pprt->vel.x;
-                    pprt->vel.x = ( -pprt->vel.x * ppip->dampen );
-                    if ( ppip->endwall )
+                    pprt->_time  = frame_all + 1;
+                    pprt->poofme = btrue;
+                }
+                else
+                {
+                    // Change facing
+                    facing = pprt->facing;
+                    if ( facing < 32768 )
                     {
-                        pprt->time = 1;
+                        facing -= NORTH;
+                        facing = ~facing;
+                        facing += NORTH;
                     }
                     else
                     {
-                        // Change facing
-                        facing = pprt->facing;
-                        if ( facing < 32768 )
-                        {
-                            facing -= NORTH;
-                            facing = ~facing;
-                            facing += NORTH;
-                        }
-                        else
-                        {
-                            facing -= SOUTH;
-                            facing = ~facing;
-                            facing += SOUTH;
-                        }
-
-                        pprt->facing = facing;
+                        facing -= SOUTH;
+                        facing = ~facing;
+                        facing += SOUTH;
                     }
+
+                    pprt->facing = facing;
                 }
-
-                pprt->pos.y += pprt->vel.y;
-                if ( __prthitawall( cnt ) )
-                {
-                    pprt->pos.y -= pprt->vel.y;
-                    pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
-                    if ( ppip->endwall )
-                    {
-                        pprt->time = 1;
-                    }
-                    else
-                    {
-                        // Change facing
-                        facing = pprt->facing;
-                        if ( facing < 16384 || facing > 49152 )
-                        {
-                            facing = ~facing;
-                        }
-                        else
-                        {
-                            facing -= EAST;
-                            facing = ~facing;
-                            facing += EAST;
-                        }
-
-                        pprt->facing = facing;
-                    }
-                }
-
-                pprt->pos.z += pprt->vel.z;
-                pprt->vel.z += gravity;
             }
+
+            pprt->pos.y += pprt->vel.y;
+            if ( __prthitawall( cnt ) )
+            {
+                pprt->pos.y -= pprt->vel.y;
+                pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
+                if ( ppip->endwall )
+                {
+                    pprt->_time  = frame_all + 1;
+                    pprt->poofme = btrue;
+                }
+                else
+                {
+                    // Change facing
+                    facing = pprt->facing;
+                    if ( facing < 16384 || facing > 49152 )
+                    {
+                        facing = ~facing;
+                    }
+                    else
+                    {
+                        facing -= EAST;
+                        facing = ~facing;
+                        facing += EAST;
+                    }
+
+                    pprt->facing = facing;
+                }
+            }
+
+            pprt->pos.z += pprt->vel.z;
+            pprt->vel.z += gravity;
+        }
 
 
         // Do homing
@@ -586,7 +607,8 @@ void move_particles( void )
         {
             if ( !ChrList[pprt->target].alive )
             {
-                pprt->time = 1;
+                pprt->_time  = frame_all + 1;
+                pprt->poofme = btrue;
             }
             else
             {
@@ -639,7 +661,7 @@ void move_particles( void )
         }
 
         // Check underwater
-        if ( pprt->pos.z < waterdouselevel && ppip->endwater && INVALID_TILE != pprt->onwhichfan && 0 != ( PMesh->mem.tile_list[pprt->onwhichfan].fx & MESHFX_WATER ) )
+        if ( pprt->pos.z < waterdouselevel && ppip->endwater && VALID_TILE(PMesh, pprt->onwhichfan) && (0 != mesh_test_fx( PMesh, pprt->onwhichfan, MPDFX_WATER )) )
         {
             // Splash for particles is just a ripple
             spawn_one_particle( pprt->pos.x, pprt->pos.y, watersurfacelevel,
@@ -655,17 +677,18 @@ void move_particles( void )
             {
                 // Just destroy the particle
                 //                    free_one_particle_in_game(cnt);
-                pprt->time = 1;
+                pprt->_time  = frame_all + 1;
+                pprt->poofme = btrue;
             }
         }
 
         //            else
         //            {
         // Spawn new particles if time for old one is up
-        if ( pprt->time != 0 )
+        if ( pprt->poofme || !pprt->is_eternal )
         {
-            pprt->time--;
-            if ( pprt->time == 0 )
+            // determine if the time if up
+            if ( pprt->poofme || frame_all >= pprt->_time )
             {
                 facing = pprt->facing;
                 tnc = 0;
@@ -731,6 +754,7 @@ void setup_particles()
 void spawn_bump_particles( Uint16 character, Uint16 particle )
 {
     // ZZ> This function is for catching characters on fire and such
+
     int cnt;
     Sint16 x, y, z;
     int distance, bestdistance;
@@ -738,7 +762,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     Uint16 facing, bestvertex;
     Uint16 amount;
     Uint16 vertices;
-    Uint16 direction, left, right, model;
+    Uint16 direction, model;
     float fsin, fcos;
     pip_t * ppip;
     chr_t * pchr;
@@ -768,35 +792,14 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
     pcap = CapList + model;
 
     // Only damage if hitting from proper direction
-    vertices = pmad->md2.vertices;
     direction = ( ATAN2( pprt->vel.y, pprt->vel.x ) + PI ) * 0xFFFF / TWO_PI;
-    direction = pchr->turnleftright - direction + 32768;
-    if ( Md2FrameList[pchr->inst.frame].framefx&MADFX_INVICTUS )
-    {
-        // I Frame
-        if ( ppip->damfx&DAMFX_BLOC )
-        {
-            left = 0xFFFF;
-            right = 0;
-        }
-        else
-        {
-            direction -= pcap->iframefacing;
-            left = 0xFFFF - pcap->iframeangle;
-            right = pcap->iframeangle;
-        }
-    }
-    else
-    {
-        // N Frame
-        direction -= pcap->nframefacing;
-        left = 0xFFFF - pcap->nframeangle;
-        right = pcap->nframeangle;
-    }
+    direction = pchr->turn_z - direction + 32768;
 
     // Check that direction
-    if ( direction <= left && direction >= right )
+    if ( !is_invictus_direction( direction, character, ppip->damfx) )
     {
+        vertices = pmad->md2.vertices;
+
         // Spawn new enchantments
         if ( ppip->spawnenchant )
         {
@@ -810,16 +813,17 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
             {
                 // A single particle ( arrow? ) has been stuck in the character...
                 // Find best vertex to attach to
+
                 bestvertex = 0;
                 bestdistance = 9999999;
+
                 z = -pchr->pos.z + pprt->pos.z + RAISE;
-                facing = pprt->facing - pchr->turnleftright - 16384;
+                facing = pprt->facing - pchr->turn_z - 16384;
                 facing = facing >> 2;
-                fsin = turntosin[facing];
-                fcos = turntocos[facing];
-                y = 8192;
-                x = -y * fsin;
-                y = y * fcos;
+                fsin = turntosin[facing & TRIG_TABLE_MASK ];
+                fcos = turntocos[facing & TRIG_TABLE_MASK ];
+                x = -8192 * fsin;
+                y =  8192 * fcos;
                 z = z << 10;/// pchr->scale;
                 frame = pmad->md2.framestart;
                 cnt = 0;
@@ -861,13 +865,12 @@ int prt_is_over_water( Uint16 cnt )
     // This function returns btrue if the particle is over a water tile
     int fan;
 
-    if ( cnt < maxparticles )
+    if ( INVALID_PRT(cnt) ) return bfalse;
+
+    fan = mesh_get_tile( PMesh, PrtList[cnt].pos.x, PrtList[cnt].pos.y );
+    if ( VALID_TILE(PMesh, fan) )
     {
-        fan = mesh_get_tile( PMesh, PrtList[cnt].pos.x, PrtList[cnt].pos.y );
-        if ( INVALID_TILE != fan )
-        {
-            if ( 0 != ( PMesh->mem.tile_list[fan].fx & MESHFX_WATER ) )  return btrue;
-        }
+        if ( 0 != mesh_test_fx( PMesh, fan, MPDFX_WATER ) )  return btrue;
     }
 
     return bfalse;
@@ -1083,7 +1086,7 @@ int load_one_particle_profile( const char *szLoadName )
 
              if ( idsz == Make_IDSZ( "TURN" ) )  ppip->damfx = DAMFX_NONE;
         else if ( idsz == Make_IDSZ( "ARMO" ) )  ppip->damfx |= DAMFX_ARMO;
-        else if ( idsz == Make_IDSZ( "BLOC" ) )  ppip->damfx |= DAMFX_BLOC;
+        else if ( idsz == Make_IDSZ( "BLOC" ) )  ppip->damfx |= DAMFX_NBLOC;
         else if ( idsz == Make_IDSZ( "ARRO" ) )  ppip->damfx |= DAMFX_ARRO;
         else if ( idsz == Make_IDSZ( "TIME" ) )  ppip->damfx |= DAMFX_TIME;
         else if ( idsz == Make_IDSZ( "ZSPD" ) )  ppip->zaimspd = fget_int( fileread );
@@ -1165,7 +1168,7 @@ void reset_particles( const char* modname )
     make_newloadname( modname, "gamedat" SLASH_STR "splash.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
-        if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+        if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "splash.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath ) )
@@ -1177,7 +1180,7 @@ void reset_particles( const char* modname )
     make_newloadname( modname, "gamedat" SLASH_STR "ripple.txt", newloadname );
     if ( MAX_PIP == load_one_particle_profile( newloadname ) )
     {
-        if (gDevMode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
+        if (cfg.dev_mode) log_message( "DEBUG: Data file was not found! (%s) - Defaulting to global particle.\n", newloadname );
 
         loadpath = "basicdat" SLASH_STR "globalparticles" SLASH_STR "ripple.txt";
         if ( MAX_PIP == load_one_particle_profile( loadpath ) )

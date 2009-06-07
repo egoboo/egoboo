@@ -24,6 +24,7 @@
 #include "sound.h"
 #include "script.h"
 #include "Md2.h"
+#include "graphic.h"
 
 #include "egoboo.h"
 
@@ -289,7 +290,6 @@ extern cap_t CapList[MAX_PROFILE];
 #define VALID_CAP( ICAP )       ( VALID_CAP_RANGE( ICAP ) && CapList[ICAP].loaded )
 #define INVALID_CAP( ICAP )     ( !VALID_CAP_RANGE( ICAP ) || !CapList[ICAP].loaded )
 
-
 //------------------------------------
 // Character variables
 //------------------------------------
@@ -306,7 +306,7 @@ struct s_chr_instance
     Uint8          alpha;           // 255 = Solid, 0 = Invisible
     Uint8          light;           // 1 = Light, 0 = Normal
     Uint8          sheen;           // 0-15, how shiny it is
-    Uint8          enviro;          // Environment map?
+    bool_t         enviro;          // Environment map?
 
     // color info
     Uint8          redshift;        // Color channel shifting
@@ -322,16 +322,43 @@ struct s_chr_instance
     Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
     Uint8          lightlevel_amb;  // 0-255, terrain light
     Uint8          lightlevel_dir;  // 0-255, terrain light
-    Uint8          vrta[MAXVERTICES];// Lighting hack ( Ooze )
 
     // model info
     Uint16         imad;            // Character's model
-    Uint16         frame;           // Character's frame
-    Uint16         lastframe;       // Character's last frame
+    Uint16         frame_nxt;       // Character's frame
+    Uint16         frame_lst;       // Character's last frame
     Uint8          lip;             // Character's frame in betweening
+
+    // linear interpolated frame vertices
+    Uint32         color_amb;
+    GLvector4      col_amb;
+    Uint8          max_light, min_light;
+    GLvertex       vlst[MAXVERTICES];
+
+    // graphical optimizations
+    bool_t         indolist;        // Has it been added yet?
+
+    // the save data to determine whether re-calculation of vlst is necessary
+    float  save_flip;
+    Uint32 save_frame;
+    int    save_vmin;
+    int    save_vmax;
+    Uint16 save_frame_nxt;
+    Uint16 save_frame_lst;
 };
 
 typedef struct s_chr_instance chr_instance_t;
+
+// Data for doing the physics in bump_characters(). should prevent you from being bumped into a wall
+struct s_phys_data
+{
+    GLvector3      apos_0, apos_1;
+    GLvector3      avel;
+    int            dismount_timer;
+    bool_t         grounded;
+    float          level;
+};
+typedef struct s_phys_data phys_data_t;
 
 struct s_chr
 {
@@ -392,14 +419,18 @@ struct s_chr
     GLvector3      pos;            // Character's position
     GLvector3      vel;            // Character's velocity
 
-    Uint16         turnleftright;   // Character's rotation 0 to 0xFFFF
-    Uint16         turnmaplr;
-    Uint16         turnmapud;
+    Uint16         turn_z;   // Character's rotation 0 to 0xFFFF
+    Uint16         map_turn_y;
+    Uint16         map_turn_x;
 
     GLvector3      pos_old;            // Character's last position
+
+    bool_t         safe_valid;
+    GLvector3      pos_safe;           // Character's last safe position
+
     GLvector3      vel_old;            // Character's last velocity
 
-    Uint16         oldturn;
+    Uint16         turn_old_z;
     Uint8          flyheight;       // Height to stabilize at
 
     float          latchx;          // Character latches
@@ -414,20 +445,18 @@ struct s_chr
     Uint8          sizegototime;    // Time left in size change
     float          dampen;          // Bounciness
     float          floor_level;           // Height of tile
-    float          jump;            // Jump power
+    float          jump_power;            // Jump power
     Uint8          jumptime;        // Delay until next jump
     Uint8          jumpnumber;      // Number of jumps remaining
     Uint8          jumpnumberreset; // Number of jumps total, 255=Flying
     Uint8          jumpready;       // For standing on a platform character
 
-    Uint8          indolist;        // Has it been added yet?
     Uint32         onwhichfan;      // Where the char is
     Uint32         onwhichblock;    // The character's collision block
     bool_t         is_hidden;
 
     Uint16         uoffvel;         // Moving texture speed
     Uint16         voffvel;
-    Uint16         lightturnleftright;// Character's light rotation 0 to 0xFFFF
 
     Uint16         skin;            // Character's skin
     Uint8          model;           // Character's model
@@ -443,22 +472,23 @@ struct s_chr
     Uint16         weapongrip[GRIP_VERTS];   // Vertices which describe the weapon grip
     Uint8          basealpha;
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
-    Uint8          lightlevel_amb;  // 0-255, terrain light
-    Uint8          lightlevel_dir;  // 0-255, terrain light
     Uint8          transferblend;   // Give transparency to weapons?
     Uint8          isitem;          // Is it grabbable?
     Uint8          invictus;        // Totally invincible?
     Uint8          ismount;         // Can you ride it?
     Uint32         shadowsize;      // Size of shadow
+    Uint32         shadowsizesave;  // Without size modifiers
+
     Uint32         bumpsize;        // Size of bumpers
     Uint32         bumpsizebig;     // For octagonal bumpers
     Uint32         bumpheight;      // Distance from head to toe
-    Uint32         shadowsizesave;  // Without size modifiers
     Uint32         bumpsizesave;
     Uint32         bumpsizebigsave;
     Uint32         bumpheightsave;
-    Uint16         bumpnext;        // Next character on fanblock
     float          bumpdampen;      // Character bump mass
+
+    Uint16         bumpnext;        // Next character on fanblock
+
     Uint8          platform;        // Can it be stood on
     Uint8          waterwalk;       // Always above watersurfacelevel?
     Uint8          turnmode;        // Turning mode
@@ -471,8 +501,10 @@ struct s_chr
     Uint8          damagetime;      // Invincibility timer
     Uint8          defense;         // Base defense rating
     Uint32         weight;          // Weight ( for pressure plates )
+
     Uint16         holdingweight;   // For weighted buttons
     Uint16         onwhichplatform; // Am I on a platform?
+
     Sint16         money;           // Money
     Sint16         lifereturn;      // Regeneration/poison
     Sint16         manacost;        // Mana cost to use
@@ -516,16 +548,8 @@ struct s_chr
     bool_t          canusepoison;
     bool_t          canread;
 
-    // Accumulators for doing the physics in bump_characters(). should prevent you from being bumped into a wall
-    float          phys_pos_x;
-    float          phys_pos_y;
-    float          phys_pos_z;
-    float          phys_vel_x;
-    float          phys_vel_y;
-    float          phys_vel_z;
-    int            phys_dismount_timer;
-    bool_t         phys_grounded;
-    float          phys_level;
+    // data for doing the physics in bump_characters()
+    phys_data_t    phys;
 };
 
 typedef struct s_chr chr_t;
@@ -593,7 +617,7 @@ void do_level_up( Uint16 character );
 
 void free_all_characters();
 
-Uint8 __chrhitawall( Uint16 character );
+Uint32 __chrhitawall( Uint16 character, float nrm[] );
 
 int chr_count_free();
 
@@ -631,6 +655,8 @@ void character_swipe( Uint16 cnt, Uint8 slot );
 int check_skills( Uint16 who, IDSZ whichskill );
 
 bool_t stop_object_looped_sound( Uint16 character );
+
+bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects );
 
 //---------------------------------------------------------------------------------------------
 // Quest system

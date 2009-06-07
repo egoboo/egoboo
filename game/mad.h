@@ -175,8 +175,8 @@ typedef struct s_mad mad_t;
 extern mad_t   MadList[MAX_PROFILE];
 
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_PROFILE) )
-#define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].loaded )
-#define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].loaded )
+#define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].used )
+#define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].used )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

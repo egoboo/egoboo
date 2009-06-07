@@ -5,6 +5,7 @@
 #include "graphic.h"
 #include "particle.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 
 //--------------------------------------------------------------------------------------------
@@ -331,7 +332,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
 #endif
 
     md2_load_one( newloadname, &(MadList[object].md2) );
-    md2_fix_normals( object );        // Fix them normals
+    //md2_fix_normals( object );        // Fix them normals
     md2_get_transvertices( object );  // Figure out how many vertices to transform
 
     pmad->md2_ptr = md2_loadFromFile( newloadname );
@@ -363,12 +364,12 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     for ( cnt = 0; cnt < MAXSKIN; cnt++)
     {
         snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "tris%d", tmploadname, cnt );
-        if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
+        if ( INVALID_TX_ID != ego_texture_load( TxTexture + (skin + numskins), newloadname, TRANSCOLOR ) )
         {
             numskins++;
 
             snprintf( newloadname, sizeof(newloadname), "%s" SLASH_STR "icon%d", tmploadname, cnt );
-            if ( INVALID_TX_ID != GLtexture_Load(GL_TEXTURE_2D, TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
+            if ( INVALID_TX_ID != ego_texture_load( TxIcon + globalicon_count, newloadname, INVALID_KEY ) )
             {
                 for ( /* nothing */ ; numicon < numskins; numicon++ )
                 {
@@ -393,7 +394,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
         // If we didn't get a skin, set it to the water texture
         pmad->skinstart = TX_WATER_TOP;
         numskins = 1;
-        if (gDevMode)
+        if (cfg.dev_mode)
         {
             log_message( "NOTE: Object is missing a skin (%s)!\n", tmploadname );
         }

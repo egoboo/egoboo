@@ -83,12 +83,16 @@ typedef char STRING[256];
 
 //--------------------------------------------------------------------------------------------
 //FAST CONVERSIONS
-#define FP8_TO_FLOAT(XX)   ( (float)(XX)/(float)0xFF )
-#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX)*(float)0xFF) )
+#define FP8_TO_FLOAT(XX)   ( (float)(XX) * INV_0100 )
+#define FLOAT_TO_FP8(XX)   ( (Uint32)((XX) * (float)(0x0100) )
 #define FP8_TO_INT(XX)     ( (XX) >> 8 )                      // fast version of XX / 256
 #define INT_TO_FP8(XX)     ( (XX) << 8 )                      // fast version of XX * 256
 #define FP8_MUL(XX, YY)    ( ((XX)*(YY)) >> 8 )
 #define FP8_DIV(XX, YY)    ( ((XX)<<8) / (YY) )
+
+// "fast" multiplication for the case where 0xFF == 1.00
+#define FF_MUL(XX, YY)     ( ( 0 == (XX) || 0 == (YY) ) ? 0 : ( ( ((XX)+1) * ((YY)+1) ) >> 8 ) )
+#define FF_TO_FLOAT( XX )  ( (float)(XX) * INV_FF )
 
 //--------------------------------------------------------------------------------------------
 //AI targeting

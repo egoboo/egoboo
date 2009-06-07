@@ -30,6 +30,7 @@
 #include "char.h"
 #include "module.h"
 
+#include "egoboo_setup.h"
 #include "egoboo.h"
 
 #include <enet/enet.h>
@@ -55,8 +56,6 @@ FILE * globalnetworkerr = NULL;
 
 Uint32                  randsave;
 int                     networkservice;
-char                    nethostname[64];
-char                    netmessagename[64];
 int                     numservice  = 0;
 char                    netservicename[MAXSERVICE][NETNAMESIZE];
 int                     numsession  = 0;
@@ -868,7 +867,7 @@ void cl_talkToHost()
     if ( SDLKEYDOWN( SDLK_SPACE )
             && ( local_allpladead || respawnanytime )
             && respawnvalid
-            && difficulty < GAME_HARD
+            && cfg.difficulty < GAME_HARD
             && !console_mode )
     {
         player = 0;
@@ -915,8 +914,8 @@ void sv_talkToRemotes()
     Sint16 sTmp;
     
     // make sure there is only one update per frame;
-    if ( frame_wld == sv_last_frame ) return;
-    sv_last_frame = frame_wld;
+    if ( update_wld == sv_last_frame ) return;
+    sv_last_frame = update_wld;
 
     if ( rtscontrol ) return;
 
@@ -924,7 +923,7 @@ void sv_talkToRemotes()
     {
         if ( networkon )
         {
-            time = frame_wld + lag;
+            time = update_wld + lag;
 
             // Send a message to all players
             net_startNewPacket();
@@ -949,7 +948,7 @@ void sv_talkToRemotes()
         }
         else
         {
-            time = frame_wld + 1;
+            time = update_wld + 1;
         }
 
         // update the local timed latches with the same info
@@ -970,7 +969,7 @@ void sv_talkToRemotes()
                 sTmp = PlaList[player].latchy * SHORTLATCH;
                 PlaList[player].tlatch[index].y = sTmp / SHORTLATCH;
 
-                PlaList[player].tlatch[index].time = frame_wld;
+                PlaList[player].tlatch[index].time = update_wld;
 
                 PlaList[player].tlatch_count++;
             }
@@ -1065,7 +1064,7 @@ void net_handlePacket( ENetEvent *event )
                     cnt++;
                   }
                   what = packet_readUnsignedInt();
-                  when = frame_wld + orderlag;
+                  when = update_wld + orderlag;
                   orderwhat[whichorder] = what;
                   orderwhen[whichorder] = when;
 
@@ -1373,7 +1372,7 @@ void net_handlePacket( ENetEvent *event )
                     log_warning( "net_handlePacket: OUT OF ORDER PACKET\n" );
                     outofsync = btrue;
                 }
-                if ( stamp <= frame_wld )
+                if ( stamp <= update_wld )
                 {
                     log_warning( "net_handlePacket: LATE PACKET\n" );
                     outofsync = btrue;
@@ -1482,7 +1481,7 @@ void unbuffer_player_latches()
         {
             int dt;
 
-            dt = (PlaList[cnt].tlatch[tnc].time - frame_wld) - 1;
+            dt = (PlaList[cnt].tlatch[tnc].time - update_wld) - 1;
             if ( dt > 0 ) break;
 
             weight += dt * dt;
@@ -1510,7 +1509,7 @@ void unbuffer_player_latches()
         }
 
         // Let players respawn
-        if ( difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
         {
             if ( !ChrList[character].alive && 0 == revivetimer )
             {
@@ -1520,7 +1519,7 @@ void unbuffer_player_latches()
 
                 // Cost some experience for doing this...  Never lose a level
                 ChrList[character].experience *= EXPKEEP;
-				if(difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
+				if(cfg.difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN

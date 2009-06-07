@@ -41,9 +41,8 @@ typedef struct s_prt_registry_entity prt_registry_entity_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static void do_instance_update( camera_t * pcam );
-static void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
-static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size );
+static void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt );
+static void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect );
 static int cmp_prt_registry_entity(const void * vlhs, const void * vrhs);
 
 //--------------------------------------------------------------------------------------------
@@ -54,7 +53,7 @@ Uint32  instance_update = (Uint32)~0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_billboard( camera_t * pcam, GLtexture * ptex, GLvector4 pos, float scale )
+void render_billboard( camera_t * pcam, GLXtexture * ptex, GLvector3 pos, float scale )
 {
     Begin3DMode( pcam );
     {
@@ -63,8 +62,8 @@ void render_billboard( camera_t * pcam, GLtexture * ptex, GLvector4 pos, float s
         float x1, y1;
         GLvector4 vector_up, vector_right;
 
-        x1 = ( float ) GLtexture_GetImageWidth( ptex )  / ( float ) GLtexture_GetTextureWidth( ptex );
-        y1 = ( float ) GLtexture_GetImageHeight( ptex )  / ( float ) GLtexture_GetTextureHeight( ptex );
+        x1 = ( float ) GLXtexture_GetImageWidth( ptex )  / ( float ) GLXtexture_GetTextureWidth( ptex );
+        y1 = ( float ) GLXtexture_GetImageHeight( ptex )  / ( float ) GLXtexture_GetTextureHeight( ptex );
 
         vector_right.x =  pcam->mView.CNV(0, 0) * x1 * scale;
         vector_right.y =  pcam->mView.CNV(1, 0) * x1 * scale;
@@ -75,40 +74,40 @@ void render_billboard( camera_t * pcam, GLtexture * ptex, GLvector4 pos, float s
         vector_up.z    = -pcam->mView.CNV(2, 1) * y1 * scale;
 
         // bottom left
-        vtlist[0].x = pos.x + ( -vector_right.x - vector_up.x );
-        vtlist[0].y = pos.y + ( -vector_right.y - vector_up.y );
-        vtlist[0].z = pos.z + ( -vector_right.z - vector_up.z );
-        vtlist[0].s = 0;
-        vtlist[0].t = 0;
+        vtlist[0].pos[XX] = pos.x + ( -vector_right.x - vector_up.x );
+        vtlist[0].pos[YY] = pos.y + ( -vector_right.y - vector_up.y );
+        vtlist[0].pos[ZZ] = pos.z + ( -vector_right.z - vector_up.z );
+        vtlist[0].tex[SS] = 0;
+        vtlist[0].tex[TT] = 0;
 
         // top left
-        vtlist[1].x = pos.x + ( -vector_right.x + vector_up.x );
-        vtlist[1].y = pos.y + ( -vector_right.y + vector_up.y );
-        vtlist[1].z = pos.z + ( -vector_right.z + vector_up.z );
-        vtlist[0].s = 0;
-        vtlist[0].t = y1;
+        vtlist[1].pos[XX] = pos.x + ( -vector_right.x + vector_up.x );
+        vtlist[1].pos[YY] = pos.y + ( -vector_right.y + vector_up.y );
+        vtlist[1].pos[ZZ] = pos.z + ( -vector_right.z + vector_up.z );
+        vtlist[0].tex[SS] = 0;
+        vtlist[0].tex[TT] = y1;
 
         // top right
-        vtlist[2].x = pos.x + ( vector_right.x + vector_up.x );
-        vtlist[2].y = pos.y + ( vector_right.y + vector_up.y );
-        vtlist[2].z = pos.z + ( vector_right.z + vector_up.z );
-        vtlist[0].s = x1;
-        vtlist[0].t = y1;
+        vtlist[2].pos[XX] = pos.x + ( vector_right.x + vector_up.x );
+        vtlist[2].pos[YY] = pos.y + ( vector_right.y + vector_up.y );
+        vtlist[2].pos[ZZ] = pos.z + ( vector_right.z + vector_up.z );
+        vtlist[0].tex[SS] = x1;
+        vtlist[0].tex[TT] = y1;
 
         // bottom right
-        vtlist[3].x = pos.x + ( vector_right.x - vector_up.x );
-        vtlist[3].y = pos.y + ( vector_right.y - vector_up.y );
-        vtlist[3].z = pos.z + ( vector_right.z - vector_up.z );
-        vtlist[0].s = x1;
-        vtlist[0].t = 0;
+        vtlist[3].pos[XX] = pos.x + ( vector_right.x - vector_up.x );
+        vtlist[3].pos[YY] = pos.y + ( vector_right.y - vector_up.y );
+        vtlist[3].pos[ZZ] = pos.z + ( vector_right.z - vector_up.z );
+        vtlist[0].tex[SS] = x1;
+        vtlist[0].tex[TT] = 0;
 
         // Go on and draw it
         glBegin( GL_QUADS );
         {
             for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
+                glTexCoord2fv ( vtlist[i].tex );
+                glVertex3fv ( vtlist[i].pos );
             }
         }
         glEnd();
@@ -132,27 +131,20 @@ int cmp_prt_registry_entity(const void * vlhs, const void * vrhs)
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_prt( camera_t * pcam )
+size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
 {
-    // ZZ> This function draws the sprites for particle systems
-
-    prt_registry_entity_t reg[TOTAL_MAX_PRT];
     GLvector3 vfwd, vcam;
-    GLvertex vtlist[4];
-    int cnt, numparticle;
-    Uint16 prt;
-    int i;
+    int cnt;
+    size_t numparticle;
 
-    do_instance_update( pcam );
+    update_all_prt_instance( pcam );
 
     vfwd = mat_getCamForward( pcam->mView );
-    vcam.x = pcam->x;
-    vcam.y = pcam->y;
-    vcam.z = pcam->z;
+    vcam = pcam->pos;
 
     // Original points
     numparticle = 0;
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
@@ -184,184 +176,235 @@ void render_prt( camera_t * pcam )
     // sort the particles from close to far
     qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
 
+    return numparticle;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t render_one_prt_solid( Uint16 iprt )
+{
+    // BB > Render the solid version of the particle
+
+    GLvertex vtlist[4];
+    int i;
+
+    prt_t * pprt;
+    prt_instance_t * pinst;
+
+    if( INVALID_PRT(iprt) ) return bfalse;
+    pprt = PrtList + iprt;
+    pinst = &(pprt->inst);
+
+    // if the particle instance data is not valid, do not continue
+    if ( !pinst->valid ) return bfalse;
+    
+    // only render solid sprites
+    if( PRTSOLIDSPRITE != pprt->type ) return bfalse;
+
+    // billboard for the particle
+    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
+
+    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    {
+        glDepthMask( GL_TRUE );
+
+        glDisable( GL_CULL_FACE );
+        glDisable( GL_DITHER );
+
+        glEnable( GL_DEPTH_TEST );
+        glDepthFunc( GL_LESS );
+
+        glDisable( GL_BLEND );
+
+        glEnable( GL_ALPHA_TEST );
+        glAlphaFunc( GL_EQUAL, 1 );
+
+        GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+
+        glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
+
+        glBegin( GL_TRIANGLE_FAN );
+        {
+            for ( i = 0; i < 4; i++ )
+            {
+                glTexCoord2fv( vtlist[i].tex );
+                glVertex3fv  ( vtlist[i].pos );
+            }
+        }
+        glEnd();
+    }
+    glPopAttrib();
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_solid( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
+{
+    // BB > do solid sprites first
+
+    int cnt;
+    Uint16 prt;
+
     Begin3DMode( pcam );
     {
-        //----------------------------
-        // DO SOLID SPRITES FIRST
-        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+        // apply solid particles from near to far
+        for ( cnt = 0; cnt < numparticle; cnt++ )
         {
-            GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            // Get the index from the color slot
+            prt = reg[cnt].index;
 
-            glDisable( GL_CULL_FACE );
-            glDisable( GL_DITHER );
-
-            glEnable( GL_DEPTH_TEST );
-            glDepthFunc( GL_LESS );
-
-            // apply solid particles from near to far
-            for ( cnt = 0; cnt < numparticle; cnt++ )
-            {
-                prt_t * pprt;
-                prt_instance_t * pinst;
-
-                // Get the index from the color slot
-                prt = reg[cnt].index;
-
-                pprt = PrtList + prt;
-                pinst = &(pprt->inst);
-                if (!pinst->valid) continue;
-
-                // Draw sprites this round
-                if ( PRTSOLIDSPRITE != PrtList[prt].type ) continue;
-
-                // billboard for the particle
-                calc_billboard_verts( vtlist, pinst, pinst->size );
-
-                //--------------------
-                // Render the solid version of the particle
-
-                // Calculate the position of the four corners of the billboard
-                // used to display the particle.
-
-                glDepthMask( GL_TRUE );
-
-                glDisable( GL_BLEND );
-
-                glEnable( GL_ALPHA_TEST );
-                glAlphaFunc( GL_EQUAL, 1 );
-
-                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
-
-                glBegin( GL_TRIANGLE_FAN );
-                {
-                    for ( i = 0; i < 4; i++ )
-                    {
-                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-                    }
-                }
-                glEnd();
-            }
-
+            render_one_prt_solid( reg[cnt].index );
         }
-        glPopAttrib();
-
-        //----------------------------
-        // DO ALL KINDS OF TRANSPARENT SPRITES NEXT
-        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
-        {
-            glDepthMask( GL_FALSE );
-            glEnable( GL_BLEND );
-
-            glEnable( GL_DEPTH_TEST );
-            glDepthFunc( GL_LEQUAL );
-
-            // apply transparent particles from far to near
-            for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
-            {
-                prt_t * pprt;
-                prt_instance_t * pinst;
-
-                // Get the index from the color slot
-                prt = reg[cnt].index;
-
-                pprt = PrtList + prt;
-                pinst = &(pprt->inst);
-                if (!pinst->valid) continue;
-
-                if ( PRTSOLIDSPRITE == PrtList[prt].type )
-                {
-                    // do the alpha blended edge of the solid particle
-
-                    glEnable( GL_ALPHA_TEST );
-                    glAlphaFunc( GL_LESS, 1 );
-
-                    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-                    glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
-
-                    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
-                }
-                else if ( PRTLIGHTSPRITE == PrtList[prt].type )
-                {
-                    // do the light sprites
-
-                    glDisable( GL_ALPHA_TEST );
-
-                    glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-                    glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
-
-                    GLtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
-                }
-                else if ( PRTALPHASPRITE == PrtList[prt].type )
-                {
-                    // do the transparent sprites
-
-                    glEnable( GL_ALPHA_TEST );
-                    glAlphaFunc( GL_GREATER, 0 );
-
-                    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-                    glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component / 10.0f );
-
-                    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
-                }
-                else
-                {
-                    // unknown type
-                    continue;
-                }
-
-                // Calculate the position of the four corners of the billboard
-                // used to display the particle.
-                calc_billboard_verts( vtlist, pinst, pinst->size );
-
-                // Go on and draw it
-                glBegin( GL_TRIANGLE_FAN );
-                {
-                    for ( i = 0; i < 4; i++ )
-                    {
-                        glTexCoord2f ( vtlist[i].s, vtlist[i].t );
-                        glVertex3f ( vtlist[i].x, vtlist[i].y, vtlist[i].z );
-                    }
-                }
-                glEnd();
-            }
-
-        }
-        glPopAttrib();
-
     }
     End3DMode();
-
 
 }
 
 //--------------------------------------------------------------------------------------------
-void render_refprt( camera_t * pcam )
+bool_t render_one_prt_trans( Uint16 iprt )
 {
-    // ZZ> This function draws sprites reflected in the floor
+    // BB> do all kinds of transparent sprites next
+
+    GLvertex vtlist[4];
+    int i;
+    prt_t * pprt;
+    prt_instance_t * pinst;
+
+    if( INVALID_PRT(iprt) ) return bfalse;
+    pprt = PrtList + iprt;
+    pinst = &(pprt->inst);
+
+    // if the particle instance data is not valid, do not continue
+    if ( !pinst->valid ) return bfalse;
+
+    // Calculate the position of the four corners of the billboard
+    // used to display the particle.
+    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
+
+    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    {
+        glDepthMask( GL_FALSE );
+
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
+
+        glEnable( GL_DEPTH_TEST );
+        glDepthFunc( GL_LEQUAL );
+
+        if ( PRTSOLIDSPRITE == PrtList[iprt].type )
+        {
+            // do the alpha blended edge of the solid particle
+
+            glEnable( GL_ALPHA_TEST );
+            glAlphaFunc( GL_LESS, 1 );
+
+            glEnable( GL_BLEND );
+            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+
+            GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+        }
+        else if ( PRTLIGHTSPRITE == PrtList[iprt].type )
+        {
+            // do the light sprites
+
+            glDisable( GL_ALPHA_TEST );
+
+            glEnable( GL_BLEND );
+            glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+            glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+
+            GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+        }
+        else if ( PRTALPHASPRITE == PrtList[iprt].type )
+        {
+            // do the transparent sprites
+
+            glEnable( GL_ALPHA_TEST );
+            glAlphaFunc( GL_GREATER, 0 );
+
+            glEnable( GL_BLEND );
+            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+
+            GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+        }
+        else
+        {
+            // unknown type
+            return bfalse;
+        }
+
+        // Go on and draw it
+        glBegin( GL_TRIANGLE_FAN );
+        {
+            for ( i = 0; i < 4; i++ )
+            {
+                glTexCoord2fv ( vtlist[i].tex );
+                glVertex3fv   ( vtlist[i].pos );
+            }
+        }
+        glEnd();
+    }
+    glPopAttrib();
+
+
+    return btrue;
+}
+
+
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_trans( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
+{
+    // BB> do all kinds of transparent sprites next
+
+    int cnt;
+
+    Begin3DMode( pcam );
+    {
+        // apply transparent particles from far to near
+        for ( cnt = numparticle - 1; cnt >= 0; cnt-- )
+        {
+            // Get the index from the color slot
+            render_one_prt_trans( reg[cnt].index );
+        }
+    }
+    End3DMode();
+}
+
+//--------------------------------------------------------------------------------------------
+void render_prt( camera_t * pcam )
+{
+    // ZZ> This function draws the sprites for particle systems
 
     prt_registry_entity_t reg[TOTAL_MAX_PRT];
-    GLvector3 vfwd, vcam;
-    GLvertex vtlist[4];
-    int prt, numparticle;
-    Uint16 cnt;
-    float size;
-    int startalpha;
-    float level = 0.00f;
-    int i;
+    size_t numparticle;
 
-    do_instance_update( pcam );
+    numparticle = render_all_prt_begin( pcam, reg, TOTAL_MAX_PRT );
+
+    render_all_prt_solid( pcam, reg, numparticle );
+    render_all_prt_trans( pcam, reg, numparticle );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], size_t reg_count )
+{
+    GLvector3 vfwd, vcam;
+    Uint16 cnt;
+    size_t numparticle;
+
+    update_all_prt_instance( pcam );
 
     vfwd = mat_getCamForward( pcam->mView );
-    vcam.x = pcam->x;
-    vcam.y = pcam->y;
-    vcam.z = pcam->z;
+    vcam = pcam->pos;
 
     // Original points
     numparticle = 0;
-    for ( cnt = 0; cnt < maxparticles; cnt++ )
+    for ( cnt = 0; cnt < maxparticles && numparticle < reg_count; cnt++ )
     {
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
@@ -373,10 +416,7 @@ void render_refprt( camera_t * pcam )
             GLvector3 vpos;
             float dist;
 
-            vpos.x = pprt->pos.x - vcam.x;
-            vpos.y = pprt->pos.y - vcam.y;
-            vpos.z = pprt->pos.z - vcam.z;
-
+            vpos = VSub( pinst->pos, vcam );
             dist = VDotProduct( vfwd, vpos );
 
             if ( dist > 0 )
@@ -391,111 +431,133 @@ void render_refprt( camera_t * pcam )
     // sort the particles from close to far
     qsort( reg, numparticle, sizeof(prt_registry_entity_t), cmp_prt_registry_entity );
 
-    // Choose texture.
-    GLtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+    return numparticle;
+}
 
-    glDisable( GL_CULL_FACE );
-    glDisable( GL_DITHER );
+//--------------------------------------------------------------------------------------------
+bool_t render_one_prt_ref( Uint16 iprt )
+{
+    // BB > render one particle
 
-    // Render each particle that was on
-    for ( cnt = 0; cnt < numparticle; cnt++ )
+    GLvertex vtlist[4];
+    float size;
+    int startalpha;
+    int i;
+    prt_t * pprt;
+    prt_instance_t * pinst;
+
+    if( INVALID_PRT(iprt) ) return bfalse;
+
+    pprt = PrtList + iprt;
+    pinst = &(pprt->inst);
+    if (!pinst->valid) return bfalse;
+
+    // Calculate the position of the four corners of the billboard
+    // used to display the particle.
+    calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, btrue );
+
+    // Fill in the rest of the data
+    startalpha = 255 - (pprt->pos.z - pprt->floor_level) / 2.0f;
+    startalpha = CLIP(startalpha, 0, 255);
+
+    startalpha = ( startalpha | gfx.reffadeor ) >> 1;  // Fix for Riva owners
+    startalpha = CLIP(startalpha, 0, 255);
+
+    if ( startalpha > 0 )
     {
-        prt_t * pprt;
-        prt_instance_t * pinst;
-
-        // Get the index from the color slot
-        prt = reg[cnt].index;
-
-        pprt = PrtList + prt;
-        pinst = &(pprt->inst);
-        if (!pinst->valid) continue;
-
-        // Draw lights this round
-        if ( PRTLIGHTSPRITE != PrtList[prt].type ) continue;
-
-        size = pinst->size * 1.5f;
-
-        // Calculate the position of the four corners of the billboard
-        // used to display the particle.
-        calc_billboard_verts( vtlist, pinst, size );
-
-        // Fill in the rest of the data
-        startalpha = ( int )( 255 + pprt->pos.z - level );
-        if ( startalpha < 0 ) startalpha = 0;
-
-        startalpha = ( startalpha | reffadeor ) >> 1;  // Fix for Riva owners
-        if ( startalpha > 255 ) startalpha = 255;
-        if ( startalpha > 0 )
+        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            glColor4f( 1.0f, 1.0f, 1.0f, startalpha * INV_FF );
+            glDisable( GL_CULL_FACE );
+            glDisable( GL_DITHER );
+
+            if ( PRTLIGHTSPRITE == PrtList[iprt].type )
+            {
+                // do the light sprites
+                float alpha = startalpha * INV_FF * pinst->color_component / 2.0f;
+
+                glDisable( GL_ALPHA_TEST );
+
+                glEnable( GL_BLEND );
+                glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+                glColor4f( alpha, alpha, alpha, 1.0f );
+
+                GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+            }
+            else if ( PRTSOLIDSPRITE == PrtList[iprt].type || PRTALPHASPRITE == PrtList[iprt].type )
+            {
+                // do the transparent sprites
+
+                float alpha = pinst->alpha_component * pinst->color_component / 2.0f;
+
+                glEnable( GL_ALPHA_TEST );
+                glAlphaFunc( GL_GREATER, 0 );
+
+                glEnable( GL_BLEND );
+                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, alpha );
+
+                GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            }
+            else
+            {
+                // unknown type
+                return bfalse;
+            }
 
             glBegin( GL_TRIANGLE_FAN );
             {
                 for ( i = 0; i < 4; i++ )
                 {
-                    glTexCoord2fv ( &vtlist[i].s );
-                    glVertex3fv ( &vtlist[i].x );
+                    glTexCoord2fv ( vtlist[i].tex );
+                    glVertex3fv ( vtlist[i].pos );
                 }
             }
             glEnd();
-
         }
+        glPopAttrib();
+
     }
 
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    return btrue;
+}
 
-    // Render each particle that was on
-    for ( cnt = 0; cnt < numparticle; cnt++ )
+
+//--------------------------------------------------------------------------------------------
+void render_all_prt_ref( camera_t * pcam, prt_registry_entity_t reg[], size_t numparticle )
+{
+    Uint16 prt;
+    int cnt;
+
+    Begin3DMode( pcam );
     {
-        prt_t * pprt;
-        prt_instance_t * pinst;
-
-        // Get the index from the color slot
-        prt = reg[cnt].index;
-
-        pprt = PrtList + prt;
-        pinst = &(pprt->inst);
-        if (!pinst->valid) continue;
-
-        // Draw solid and transparent sprites this round
-        if ( PRTLIGHTSPRITE == PrtList[prt].type ) continue;
-
-        // Figure out the sprite's size based on distance
-        size = ( float )( PrtList[prt].size ) * 0.00092f;
-
-        // Calculate the position of the four corners of the billboard
-        // used to display the particle.
-        calc_billboard_verts( vtlist, pinst, size );
-
-        // Fill in the rest of the data
-        startalpha = ( int )( 255 + pprt->pos.z - level );
-        if ( startalpha < 0 ) startalpha = 0;
-
-        startalpha = ( startalpha | reffadeor ) >> ( 1 + PrtList[prt].type );  // Fix for Riva owners
-        if ( startalpha > 255 ) startalpha = 255;
-        if ( startalpha > 0 )
+        // Render each particle that was on
+        for ( cnt = 0; cnt < numparticle; cnt++ )
         {
-            float color_component = pinst->color_component / 16.0f;
+            // Get the index from the color slot
+            prt = reg[cnt].index;
 
-            glColor4f( color_component, color_component, color_component, startalpha * INV_FF );
-
-            // Go on and draw it
-            glBegin( GL_TRIANGLE_FAN );
-            {
-                for ( i = 0; i < 4; i++ )
-                {
-                    glTexCoord2fv ( &vtlist[i].s );
-                    glVertex3fv ( &vtlist[i].x );
-                }
-            }
-            glEnd();
+            render_one_prt_ref( reg[cnt].index );
         }
     }
+    End3DMode();
+}
+
+//--------------------------------------------------------------------------------------------
+void render_prt_ref( camera_t * pcam )
+{
+    // ZZ> This function draws sprites reflected in the floor
+
+    prt_registry_entity_t reg[TOTAL_MAX_PRT];
+    size_t numparticle;
+
+    numparticle = render_all_prt_ref_begin( pcam, reg, TOTAL_MAX_PRT );
+    render_all_prt_ref( pcam, reg, numparticle );
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void do_instance_update( camera_t * pcam )
+void update_all_prt_instance( camera_t * pcam )
 {
     int cnt;
 
@@ -503,32 +565,31 @@ void do_instance_update( camera_t * pcam )
     if ( NULL == pcam ) return;
 
     // only one update per frame
-    if ( instance_update == frame_wld ) return;
-    instance_update = frame_wld;
+    if ( instance_update == update_wld ) return;
+    instance_update = update_wld;
 
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
-        if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan || pprt->size == 0 )
+        if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan || 0 == pprt->size )
         {
             pinst->valid = bfalse;
         }
         else
         {
             // calculate the "billboard" for this particle
-            prt_instance_upload( pcam, pinst, pprt );
+            prt_instance_update( pcam, pinst, pprt );
         }
     }
 };
 
 //--------------------------------------------------------------------------------------------
-void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
+void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt )
 {
     pip_t * ppip;
 
-    Uint16 turn;
     GLvector3 vfwd, vup, vright;
 
     if ( NULL == pprt || !pprt->on ) return;
@@ -538,22 +599,16 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
 
     pinst->type = pprt->type;
 
-    pinst->color_component = pprt->light * INV_FF;
+    pinst->color_component = pinst->light * INV_FF;
 
-    pinst->size  = FP8_TO_FLOAT( pprt->size ) * 0.25f;
     pinst->image = FP8_TO_INT( pprt->image + pprt->imagestt );
 
     // set the position
-    pinst->pos.x = pprt->pos.x;
-    pinst->pos.y = pprt->pos.y;
-    pinst->pos.z = pprt->pos.z;
-
+    pinst->pos         = pprt->pos;
     pinst->orientation = ppip->orientation;
 
     // get the vector from the camera to the particle
-    vfwd.x = pinst->pos.x - pcam->x;
-    vfwd.y = pinst->pos.y - pcam->y;
-    vfwd.z = pinst->pos.z - pcam->z;
+    vfwd = VSub( pinst->pos, pcam->pos );
     vfwd = VNormalize( vfwd );
 
     // set the up and right vectors
@@ -561,9 +616,7 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     {
         // the particle points along its direction of travel
 
-        vup.x = pprt->vel.x;
-        vup.y = pprt->vel.y;
-        vup.z = pprt->vel.z;
+        vup = pprt->vel;
         vup   = VNormalize( vup );
 
         // get the correct "right" vector
@@ -657,63 +710,86 @@ void prt_instance_upload( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     }
 
     // calculate the actual vectors using the particle rotation
-    turn = pprt->rotate >> 2;
-    pinst->up.x    = vup.x * turntocos[turn] - vright.x * turntosin[turn];
-    pinst->up.y    = vup.y * turntocos[turn] - vright.y * turntosin[turn];
-    pinst->up.z    = vup.z * turntocos[turn] - vright.z * turntosin[turn];
+    if( 0 == pprt->rotate )
+    {
+        pinst->up    = vup;
+        pinst->right = vright;
+    }
+    else
+    {
+        Uint16 turn    = pprt->rotate >> 2;
+        pinst->up.x    = vup.x * turntocos[turn & TRIG_TABLE_MASK ] - vright.x * turntosin[turn & TRIG_TABLE_MASK ];
+        pinst->up.y    = vup.y * turntocos[turn & TRIG_TABLE_MASK ] - vright.y * turntosin[turn & TRIG_TABLE_MASK ];
+        pinst->up.z    = vup.z * turntocos[turn & TRIG_TABLE_MASK ] - vright.z * turntosin[turn & TRIG_TABLE_MASK ];
 
-    pinst->right.x = vup.x * turntosin[turn] + vright.x * turntocos[turn];
-    pinst->right.y = vup.y * turntosin[turn] + vright.y * turntocos[turn];
-    pinst->right.z = vup.z * turntosin[turn] + vright.z * turntocos[turn];
-
-    //pinst->up    = vup;
-    //pinst->right = vright;
+        pinst->right.x = vup.x * turntosin[turn & TRIG_TABLE_MASK ] + vright.x * turntocos[turn & TRIG_TABLE_MASK ];
+        pinst->right.y = vup.y * turntosin[turn & TRIG_TABLE_MASK ] + vright.y * turntocos[turn & TRIG_TABLE_MASK ];
+        pinst->right.z = vup.z * turntosin[turn & TRIG_TABLE_MASK ] + vright.z * turntocos[turn & TRIG_TABLE_MASK ];
+    }
 
     // set some particle dependent properties
     pinst->alpha_component = 1.0f;
+    pinst->size = FP8_TO_FLOAT( pprt->size ) * 0.25f;
     switch ( pinst->type )
     {
-        case PRTSOLIDSPRITE: break;
-        case PRTALPHASPRITE: pinst->alpha_component = particletrans * INV_FF; break;
-        case PRTLIGHTSPRITE: pinst->size *= 1.5; break;
+        case PRTSOLIDSPRITE: pinst->size *= 0.9384f; break;
+        case PRTALPHASPRITE: pinst->size *= 0.9353f; pinst->alpha_component = particletrans * INV_FF; break;
+        case PRTLIGHTSPRITE: pinst->size *= 1.5912f; break;
     }
 
     pinst->valid = btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size )
+void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, float level, bool_t do_reflect )
 {
     // Calculate the position of the four corners of the billboard
     // used to display the particle.
 
+    int i;
+
     if ( NULL == vlst || NULL == pinst ) return;
 
-    vlst[0].x = pinst->pos.x + ( -pinst->right.x - pinst->up.x ) * size;
-    vlst[0].y = pinst->pos.y + ( -pinst->right.y - pinst->up.y ) * size;
-    vlst[0].z = pinst->pos.z + ( -pinst->right.z - pinst->up.z ) * size;
+    for( i=0; i<4; i++ )
+    {
+        vlst[i].pos[XX] = pinst->pos.x;
+        vlst[i].pos[YY] = pinst->pos.y;
+        vlst[i].pos[ZZ] = pinst->pos.z;
+    }
 
-    vlst[1].x = pinst->pos.x + (  pinst->right.x - pinst->up.x ) * size;
-    vlst[1].y = pinst->pos.y + (  pinst->right.y - pinst->up.y ) * size;
-    vlst[1].z = pinst->pos.z + (  pinst->right.z - pinst->up.z ) * size;
+    vlst[0].pos[XX] += ( -pinst->right.x - pinst->up.x ) * size;
+    vlst[0].pos[YY] += ( -pinst->right.y - pinst->up.y ) * size;
+    vlst[0].pos[ZZ] += ( -pinst->right.z - pinst->up.z ) * size;
 
-    vlst[2].x = pinst->pos.x + (  pinst->right.x + pinst->up.x ) * size;
-    vlst[2].y = pinst->pos.y + (  pinst->right.y + pinst->up.y ) * size;
-    vlst[2].z = pinst->pos.z + (  pinst->right.z + pinst->up.z ) * size;
+    vlst[1].pos[XX] += (  pinst->right.x - pinst->up.x ) * size;
+    vlst[1].pos[YY] += (  pinst->right.y - pinst->up.y ) * size;
+    vlst[1].pos[ZZ] += (  pinst->right.z - pinst->up.z ) * size;
 
-    vlst[3].x = pinst->pos.x + ( -pinst->right.x + pinst->up.x ) * size;
-    vlst[3].y = pinst->pos.y + ( -pinst->right.y + pinst->up.y ) * size;
-    vlst[3].z = pinst->pos.z + ( -pinst->right.z + pinst->up.z ) * size;
+    vlst[2].pos[XX] += (  pinst->right.x + pinst->up.x ) * size;
+    vlst[2].pos[YY] += (  pinst->right.y + pinst->up.y ) * size;
+    vlst[2].pos[ZZ] += (  pinst->right.z + pinst->up.z ) * size;
 
-    vlst[0].s = sprite_list_u[pinst->image][1];
-    vlst[0].t = sprite_list_v[pinst->image][1];
+    vlst[3].pos[XX] += ( -pinst->right.x + pinst->up.x ) * size;
+    vlst[3].pos[YY] += ( -pinst->right.y + pinst->up.y ) * size;
+    vlst[3].pos[ZZ] += ( -pinst->right.z + pinst->up.z ) * size;
 
-    vlst[1].s = sprite_list_u[pinst->image][0];
-    vlst[1].t = sprite_list_v[pinst->image][1];
+    if( do_reflect )
+    {
+        for( i=0; i<4; i++ )
+        {
+            vlst[i].pos[ZZ] = 2 * level - vlst[i].pos[ZZ];
+        }
+    }
 
-    vlst[2].s = sprite_list_u[pinst->image][0];
-    vlst[2].t = sprite_list_v[pinst->image][0];
-
-    vlst[3].s = sprite_list_u[pinst->image][1];
-    vlst[3].t = sprite_list_v[pinst->image][0];
+    vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
+    vlst[0].tex[TT] = sprite_list_v[pinst->image][1];
+                                                 
+    vlst[1].tex[SS] = sprite_list_u[pinst->image][0];
+    vlst[1].tex[TT] = sprite_list_v[pinst->image][1];
+                                                 
+    vlst[2].tex[SS] = sprite_list_u[pinst->image][0];
+    vlst[2].tex[TT] = sprite_list_v[pinst->image][0];
+                                                 
+    vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
+    vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
 }

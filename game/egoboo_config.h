@@ -57,4 +57,6 @@
 #define DISABLE_BODY_GRAB		//Disable the grabbing of bodies
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
 
+#undef RENDER_HMAP
+
 #define EGOBOO_CONFIG

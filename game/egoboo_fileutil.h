@@ -25,6 +25,9 @@
 #include "egoboo_typedef.h"
 
 //--------------------------------------------------------------------------------------------
+struct s_oglx_texture;
+
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 extern const char *parse_filename;          // For debuggin' goto_colon
@@ -32,6 +35,10 @@ extern const char *parse_filename;          // For debuggin' goto_colon
 // For damage/stat pair reads/writes
 extern int pairbase, pairrand;
 extern float pairfrom, pairto;
+
+extern  STRING          TxFormatSupported[20]; // OpenGL icon surfaces
+extern  Uint8           maxformattypes;
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -82,3 +89,6 @@ int fget_next_damage_type( FILE * fileread );
 
 bool_t fget_bool( FILE * fileread );
 bool_t fget_next_bool( FILE * fileread );
+
+void    GLSetup_SupportedFormats();
+Uint32  ego_texture_load( struct s_oglx_texture *texture, const char *filename, Uint32 key );

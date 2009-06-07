@@ -26,6 +26,7 @@
 #include "egoboo_typedef.h"
 
 struct s_script_state;
+struct s_chr_instance;
 
 ///////////////////////////////
 // INTERNAL FUNCTIONS
@@ -102,6 +103,9 @@ int  add_player( Uint16 character, Uint16 player, Uint32 device );
 // Module
 bool_t load_blip_bitmap();
 void   quit_module();
+
+// Model
+bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 
 //---------------------------------------------------------------------------------------------
 //AI targeting

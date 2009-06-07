@@ -24,8 +24,13 @@
  */
 
 #include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
 #include <SDL_mixer.h>
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_egoboo_config;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,6 +74,20 @@ enum e_sound_types
     SPEECH_END   = SPEECH_SELECT
 };
 
+typedef enum e_global_sounds
+{
+    GSND_GETCOIN = 0,
+    GSND_DEFEND,
+    GSND_WEATHER1,
+    GSND_WEATHER2,
+    GSND_COINFALL,
+    GSND_LEVELUP,
+    GSND_PITFALL,
+    GSND_COUNT
+} GSND_GLOBAL;
+
+#define INVALID_SOUND -1
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // an anonymized "pointer" type in case we want to store data that is either a
@@ -92,42 +111,32 @@ typedef struct s_mix_ptr mix_ptr_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-// global sounds
-typedef enum e_global_sounds
+// The global variables for the sound module
+
+struct s_snd_config
 {
-    GSND_GETCOIN = 0,
-    GSND_DEFEND,
-    GSND_WEATHER1,
-    GSND_WEATHER2,
-    GSND_COINFALL,
-    GSND_LEVELUP,
-    GSND_PITFALL,
-    GSND_COUNT
-} GSND_GLOBAL;
+    bool_t       soundvalid;           // Allow playing of sound?
+    Uint8        soundvolume;          // Volume of sounds played
+
+    bool_t       musicvalid;                             // Allow music and loops?
+    Uint8        musicvolume;                            // The sound volume of music
+
+    Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
+    Uint16       buffersize;           // Buffer size set in setup.txt
+};
+typedef struct s_snd_config snd_config_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+extern snd_config_t snd;
 
 extern Mix_Chunk * g_wavelist[GSND_COUNT];      // All sounds loaded into memory
 
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-// The global variables for the sound module
-
-// Sound using SDL_Mixer
-extern bool_t       mixeron;              // Is the SDL_Mixer loaded?
-extern Uint16       maxsoundchannel;      // Max number of sounds playing at the same time
-extern Uint16       buffersize;           // Buffer size set in setup.txt
-
-// sound effects
-extern bool_t       soundvalid;           // Allow playing of sound?
-extern Uint8        soundvolume;          // Volume of sounds played
-
-// music
-extern bool_t      musicvalid;                             // Allow music and loops?
-extern Uint8       musicvolume;                            // The sound volume of music
 extern bool_t      musicinmemory;                          // Is the music loaded in memory?
 extern Sint8       songplaying;                            // Current song that is playing
 extern Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];   // This is a specific music file loaded into memory
 
-#define INVALID_SOUND -1
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -140,13 +149,19 @@ Mix_Chunk * sound_load_chunk( const char * szFileName );
 Mix_Music * sound_load_music( const char * szFileName );
 bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type );
 
-int    sound_play_mix( float pos_x, float pos_y, struct s_mix_ptr * pptr );
-int    sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8 loops );
-#define sound_play_chunk( pos_x, pos_y, pchunk ) sound_play_chunk_looped( pos_x,pos_y, pchunk, 0 )
-void   sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
+int     sound_play_mix( GLvector3 pos, struct s_mix_ptr * pptr );
+int     sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops );
+#define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0 )
+void    sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
 
-void   sound_stop_channel( int whichchannel );
-void   sound_stop_song();
+void    sound_fade_all();
+void    fade_in_music( Mix_Music * music );
+
+void    sound_stop_channel( int whichchannel );
+void    sound_stop_song();
 
 void   load_global_waves( const char *modname );
 void   load_all_music_sounds();
+
+bool_t snd_config_synch( snd_config_t * psnd, struct s_egoboo_config * pcfg );
+

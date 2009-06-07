@@ -283,7 +283,7 @@ void str_add_linebreaks( const char * text, size_t text_len, size_t line_len )
         // replace the last good ' ' with '\n'
         if( ((size_t)text - (size_t)text_break) > line_len )
         {
-            if( ' ' != text_break )
+            if( ' ' != *text_break )
             {
                 text_break = text;   
             }

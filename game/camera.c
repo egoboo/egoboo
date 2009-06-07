@@ -28,6 +28,7 @@
 #include "graphic.h"
 #include "network.h"
 
+#include "egoboo_setup.h"
 #include "egoboo.h"
 
 //--------------------------------------------------------------------------------------------
@@ -48,21 +49,21 @@ camera_t * camera_new( camera_t * pcam )
     memset( pcam, 0, sizeof(camera_t) );
 
     pcam->move_mode = CAM_PLAYER;
-    pcam->turn_mode = autoturncamera;
+    pcam->turn_mode = cfg.autoturncamera;
 
     pcam->swing     =  0;
     pcam->swingrate =  0;
     pcam->swingamp  =  0;
-    pcam->x         =  0;
-    pcam->y         =  1500;
-    pcam->z         =  1500;
+    pcam->pos.x     =  0;
+    pcam->pos.y     =  1500;
+    pcam->pos.z     =  1500;
     pcam->zoom      =  1000;
-    pcam->zadd     =  800;
-    pcam->zaddgoto =  800;
-    pcam->zgoto    =  800;
-    pcam->turnleftright      =  ( float )( -PI / 4 );
-    pcam->turnleftrightone   =  ( float )( -PI / 4 ) / ( TWO_PI );
-    pcam->turnleftrightshort =  0;
+    pcam->zadd      =  800;
+    pcam->zaddgoto  =  800;
+    pcam->zgoto     =  800;
+    pcam->turn_z_rad         =  ( float )( -PI / 4 );
+    pcam->turn_z_one         =  pcam->turn_z_rad / ( TWO_PI );
+    pcam->turn_z =  ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
     pcam->turnadd            =  0;
     pcam->sustain            =  0.60f;
     pcam->turnupdown         =  ( float )( PI / 4 );
@@ -105,7 +106,7 @@ void camera_look_at( camera_t * pcam, float x, float y )
     pcam->zgoto = pcam->zadd;
     if ( pcam->turn_time != 0 )
     {
-        pcam->turnleftright = ( 1.5f * PI ) - ATAN2( y - pcam->y, x - pcam->x );  // xgg
+        pcam->turn_z_rad = ( 1.5f * PI ) - ATAN2( y - pcam->pos.y, x - pcam->pos.x );  // xgg
     }
 }
 
@@ -114,14 +115,14 @@ void camera_make_matrix( camera_t * pcam )
 {
     // ZZ> This function sets pcam->mView to the camera's location and rotation
 
-    pcam->mView = MatrixMult( Translate( pcam->x, -pcam->y, pcam->z ), pcam->mViewSave );  // xgg
+    pcam->mView = MatrixMult( Translate( pcam->pos.x, -pcam->pos.y, pcam->pos.z ), pcam->mViewSave );  // xgg
     if ( pcam->swingamp > 0.001f )
     {
         pcam->roll = turntosin[pcam->swing] * pcam->swingamp;
         pcam->mView = MatrixMult( RotateY( pcam->roll ), pcam->mView );
     }
 
-    pcam->mView = MatrixMult( RotateZ( pcam->turnleftright ), pcam->mView );
+    pcam->mView = MatrixMult( RotateZ( pcam->turn_z_rad ), pcam->mView );
     pcam->mView = MatrixMult( RotateX( pcam->turnupdown ), pcam->mView );
 
 }
@@ -147,7 +148,7 @@ void camera_move( camera_t * pcam )
     Uint16 cnt;
     Sint16 locoalive;
     float x, y, z, level, newx, newy, movex, movey;
-    Uint16 character, turnsin, turncos;
+    Uint16 character, turnsin;
 
     if ( pcam->turn_mode )
         pcam->turn_time = 255;
@@ -159,26 +160,26 @@ void camera_move( camera_t * pcam )
         // the keypad controls the camera
         if ( SDLKEYDOWN( SDLK_KP8 ) )
         {
-            pcam->trackx -= pcam->mView.CNV( 0, 1 ) * 50;
-            pcam->tracky -= pcam->mView.CNV( 1, 1 ) * 50;
+            pcam->track_pos.x -= pcam->mView.CNV( 0, 1 ) * 50;
+            pcam->track_pos.y -= pcam->mView.CNV( 1, 1 ) * 50;
         }
 
         if ( SDLKEYDOWN( SDLK_KP2 ) )
         {
-            pcam->trackx += pcam->mView.CNV( 0, 1 ) * 50;
-            pcam->tracky += pcam->mView.CNV( 1, 1 ) * 50;
+            pcam->track_pos.x += pcam->mView.CNV( 0, 1 ) * 50;
+            pcam->track_pos.y += pcam->mView.CNV( 1, 1 ) * 50;
         }
 
         if ( SDLKEYDOWN( SDLK_KP4 ) )
         {
-            pcam->trackx += pcam->mView.CNV( 0, 0 ) * 50;
-            pcam->tracky += pcam->mView.CNV( 1, 0 ) * 50;
+            pcam->track_pos.x += pcam->mView.CNV( 0, 0 ) * 50;
+            pcam->track_pos.y += pcam->mView.CNV( 1, 0 ) * 50;
         }
 
         if ( SDLKEYDOWN( SDLK_KP6 ) )
         {
-            pcam->trackx -= pcam->mView.CNV( 0, 0 ) * 10;
-            pcam->tracky -= pcam->mView.CNV( 1, 0 ) * 10;
+            pcam->track_pos.x -= pcam->mView.CNV( 0, 0 ) * 10;
+            pcam->track_pos.y -= pcam->mView.CNV( 1, 0 ) * 10;
         }
 
         if ( SDLKEYDOWN( SDLK_KP7 ) )
@@ -191,7 +192,7 @@ void camera_move( camera_t * pcam )
             pcam->turnadd -= CAMKEYTURN;
         }
 
-        pcam->trackz = 128 + get_level( PMesh, pcam->trackx, pcam->tracky, bfalse );
+        pcam->track_pos.z = 128 + get_level( PMesh, pcam->track_pos.x, pcam->track_pos.y, bfalse );
     }
 
     if ( CAM_PLAYER == pcam->move_mode )
@@ -214,7 +215,7 @@ void camera_move( camera_t * pcam )
                         x += ChrList[character].pos.x;
                         y += ChrList[character].pos.y;
                         z += ChrList[character].pos.z;
-                        level += ChrList[character].phys_level;
+                        level += ChrList[character].phys.level;
                     }
                     else
                     {
@@ -222,7 +223,7 @@ void camera_move( camera_t * pcam )
                         x += ChrList[ChrList[character].attachedto].pos.x;
                         y += ChrList[ChrList[character].attachedto].pos.y;
                         z += ChrList[ChrList[character].attachedto].pos.z;
-                        level += ChrList[ChrList[character].attachedto].phys_level;
+                        level += ChrList[ChrList[character].attachedto].phys.level;
                     }
 
                     locoalive++;
@@ -238,31 +239,31 @@ void camera_move( camera_t * pcam )
         }
         else
         {
-            x = pcam->trackx;
-            y = pcam->tracky;
-            z = pcam->trackz;
+            x = pcam->track_pos.x;
+            y = pcam->track_pos.y;
+            z = pcam->track_pos.z;
         }
     }
     else
     {
-        x = pcam->trackx;
-        y = pcam->tracky;
-        z = pcam->trackz;
+        x = pcam->track_pos.x;
+        y = pcam->track_pos.y;
+        z = pcam->track_pos.z;
 
         level = 128 + get_level(PMesh, x, y, bfalse);
     }
 
-    pcam->trackxvel = -pcam->trackx;
-    pcam->trackyvel = -pcam->tracky;
-    pcam->trackzvel = -pcam->trackz;
-    pcam->trackx = ( pcam->trackx + x ) / 2.0f;
-    pcam->tracky = ( pcam->tracky + y ) / 2.0f;
-    pcam->trackz = ( pcam->trackz + z ) / 2.0f;
-    pcam->tracklevel = ( pcam->tracklevel + level ) / 2.0f;
+    pcam->track_vel.x = -pcam->track_pos.x;
+    pcam->track_vel.y = -pcam->track_pos.y;
+    pcam->track_vel.z = -pcam->track_pos.z;
+    pcam->track_pos.x = ( pcam->track_pos.x + x ) / 2.0f;
+    pcam->track_pos.y = ( pcam->track_pos.y + y ) / 2.0f;
+    pcam->track_pos.z = ( pcam->track_pos.z + z ) / 2.0f;
+    pcam->track_level = ( pcam->track_level + level ) / 2.0f;
 
     pcam->turnadd = pcam->turnadd * pcam->sustain;
     pcam->zadd = ( pcam->zadd * 3.0f + pcam->zaddgoto ) / 4.0f;
-    pcam->z = ( pcam->z * 3.0f + pcam->zgoto ) / 4.0f;
+    pcam->pos.z = ( pcam->pos.z * 3.0f + pcam->zgoto ) / 4.0f;
 
     // Camera controls
     if ( pcam->turn_mode == 255 && local_numlpla == 1 )
@@ -357,36 +358,24 @@ void camera_move( camera_t * pcam )
         }
     }
 
-    pcam->x -= ( float ) ( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd;  // xgg
-    pcam->y += ( float ) ( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
+    pcam->pos.x -= ( float ) ( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd;  // xgg
+    pcam->pos.y += ( float ) ( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
 
     // Do distance effects for overlay and background
-    pcam->trackxvel += pcam->trackx;
-    pcam->trackyvel += pcam->tracky;
-    pcam->trackzvel += pcam->trackz;
-    //if ( draw_water_0 )
-    //{
-    //    // Do fg distance effect
-    //    waterlayeru[0] += pcam->trackxvel * waterlayerdistx[0];
-    //    waterlayerv[0] += pcam->trackyvel * waterlayerdisty[0];
-    //}
-    //if ( draw_water_1 )
-    //{
-    //    // Do bg distance effect
-    //    waterlayeru[1] += pcam->trackxvel * waterlayerdistx[1];
-    //    waterlayerv[1] += pcam->trackyvel * waterlayerdisty[1];
-    //}
+    pcam->track_vel.x += pcam->track_pos.x;
+    pcam->track_vel.y += pcam->track_pos.y;
+    pcam->track_vel.z += pcam->track_pos.z;
 
     // Center on target for doing rotation...
     if ( pcam->turn_time != 0 )
     {
-        pcam->centerx = pcam->centerx * 0.9f + pcam->trackx * 0.1f;
-        pcam->centery = pcam->centery * 0.9f + pcam->tracky * 0.1f;
+        pcam->center.x = pcam->center.x * 0.9f + pcam->track_pos.x * 0.1f;
+        pcam->center.y = pcam->center.y * 0.9f + pcam->track_pos.y * 0.1f;
     }
 
     // Create a tolerance area for walking without camera movement
-    x = pcam->trackx - pcam->x;
-    y = pcam->tracky - pcam->y;
+    x = pcam->track_pos.x - pcam->pos.x;
+    y = pcam->track_pos.y - pcam->pos.y;
     newx = -( pcam->mView.CNV( 0, 0 ) * x + pcam->mView.CNV( 1, 0 ) * y ); // newx = -(pcam->mView(0,0) * x + pcam->mView(1,0) * y);
     newy = -( pcam->mView.CNV( 0, 1 ) * x + pcam->mView.CNV( 1, 1 ) * y ); // newy = -(pcam->mView(0,1) * x + pcam->mView(1,1) * y);
 
@@ -431,19 +420,21 @@ void camera_move( camera_t * pcam )
         }
     }
 
-    turnsin = (Uint16)( pcam->turnleftrightone * TRIG_TABLE_SIZE ) & TRIG_TABLE_MASK;
-    turncos = ( turnsin + TRIG_TABLE_OFFSET ) & TRIG_TABLE_MASK;
-    pcam->centerx += ( movex * turntocos[turnsin] + movey * turntosin[turnsin] );
-    pcam->centery += ( -movex * turntosin[turnsin] + movey * turntocos[turnsin] );
+    turnsin = pcam->turn_z >> 2;
+    pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
+    pcam->center.y +=-movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
 
     // Finish up the camera
-    camera_look_at( pcam, pcam->centerx, pcam->centery );
-    pcam->x = ( float ) pcam->centerx + ( pcam->zoom * SIN( pcam->turnleftright ) );
-    pcam->y = ( float ) pcam->centery + ( pcam->zoom * COS( pcam->turnleftright ) );
+    camera_look_at( pcam, pcam->center.x, pcam->center.y );
+    pcam->pos.x = ( float ) pcam->center.x + ( pcam->zoom * SIN( pcam->turn_z_rad ) );
+    pcam->pos.y = ( float ) pcam->center.y + ( pcam->zoom * COS( pcam->turn_z_rad ) );
 
-    camera_adjust_angle( pcam, pcam->z );
+    camera_adjust_angle( pcam, pcam->pos.z );
 
     camera_make_matrix( pcam );
+
+    pcam->turn_z_one = ( pcam->turn_z_rad ) / ( TWO_PI );
+    pcam->turn_z = ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -453,26 +444,26 @@ void camera_reset( camera_t * pcam )
     int cnt;
 
     pcam->swing = 0;
-    pcam->x = PMesh->info.edge_x / 2;
-    pcam->y = PMesh->info.edge_y / 2;
-    pcam->z = 1500;
+    pcam->pos.x = PMesh->info.edge_x / 2;
+    pcam->pos.y = PMesh->info.edge_y / 2;
+    pcam->pos.z = 1500;
     pcam->zoom = 1000;
-    pcam->trackxvel = 0;
-    pcam->trackyvel = 0;
-    pcam->trackzvel = 1500;
-    pcam->centerx = pcam->x;
-    pcam->centery = pcam->y;
-    pcam->trackx = pcam->x;
-    pcam->tracky = pcam->y;
-    pcam->trackz = 1500;
+    pcam->track_vel.x = 0;
+    pcam->track_vel.y = 0;
+    pcam->track_vel.z = 1500;
+    pcam->center.x = pcam->pos.x;
+    pcam->center.y = pcam->pos.y;
+    pcam->track_pos.x = pcam->pos.x;
+    pcam->track_pos.y = pcam->pos.y;
+    pcam->track_pos.z = 1500;
     pcam->turnadd = 0;
-    pcam->tracklevel = 0;
+    pcam->track_level = 0;
     pcam->zadd = 1500;
     pcam->zaddgoto = MAXZADD;
     pcam->zgoto = 1500;
-    pcam->turnleftright = ( float ) ( -PI / 4 );
-    pcam->turnleftrightone = ( float ) ( -PI / 4 ) / ( TWO_PI );
-    pcam->turnleftrightshort = 0;
+    pcam->turn_z_rad = ( float ) ( -PI / 4 );
+    pcam->turn_z_one = pcam->turn_z_rad / ( TWO_PI );
+    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
     pcam->turnupdown = ( float ) ( PI / 4 );
     pcam->roll = 0;
 
@@ -489,8 +480,8 @@ void camera_reset( camera_t * pcam )
         for ( cnt = 0; cnt < 32; cnt++ )
         {
             camera_move( pcam );
-            pcam->centerx = pcam->trackx;
-            pcam->centery = pcam->tracky;
+            pcam->center.x = pcam->track_pos.x;
+            pcam->center.y = pcam->track_pos.y;
         }
 
         pcam->move_mode = move_mode_save;

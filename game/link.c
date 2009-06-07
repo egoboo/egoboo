@@ -177,17 +177,10 @@ bool_t link_pop_module()
             // is the character is found, restore the old position
             if( NULL != pchr )
             {
-                pchr->pos.x = phero->pos.x;
-                pchr->pos.y = phero->pos.y;
-                pchr->pos.z = phero->pos.z;
-
-                pchr->pos_old.x = phero->pos.x;
-                pchr->pos_old.y = phero->pos.y;
-                pchr->pos_old.z = phero->pos.z;
-
-                pchr->pos_stt.x = phero->pos_stt.x;
-                pchr->pos_stt.y = phero->pos_stt.y;
-                pchr->pos_stt.z = phero->pos_stt.z;
+                pchr->pos      = phero->pos;
+                pchr->pos_old  = phero->pos;
+                pchr->pos_safe = phero->pos;
+                pchr->pos_stt  = phero->pos_stt;
             }
         };
     }

@@ -21,7 +21,7 @@
 * Loads texture files into OpenGL textures.
 */
 
-#include "gltexture.h"
+#include "ogl_texture.h"
 #include "graphic.h"
 #include "log.h"
 
@@ -108,50 +108,6 @@ int powerOfTwo( int input )
     }
 
     return value;
-}
-
-//--------------------------------------------------------------------------------------------
-void GLSetup_SupportedFormats()
-{
-    //ZF> This need only to be once
-    Uint8 type = 0;
-
-    // define extra supported file types with SDL_image
-    // these should probably be ordered so that the types that
-    // support transparency are first
-    if (use_sdl_image)
-    {
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".png"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tif"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tiff"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".gif"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pcx"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".ppm"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpg"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".jpeg"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".xpm"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".pnm"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".lbm"); type++;
-        snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".tga"); type++;
-    }
-
-    // These typed are natively supported with SDL
-    // Place them *after* the SDL_image types, so that if both are present,
-    // the other types will be preferred over bmp
-    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".bmp"); type++;
-    snprintf(TxFormatSupported[type], sizeof(TxFormatSupported[type]), ".BMP"); type++;
-
-    //Save the amount of format types we have in store
-    maxformattypes = type;
-    if (!use_sdl_image)
-    {
-        log_message( "Failed!\n" );
-        log_info( "[SDL_IMAGE] set to \"FALSE\" in setup.txt, only support for .bmp files\n");
-    }
-    else
-    {
-        log_message( "Success!\n" );
-    }
 }
 
 //--------------------------------------------------------------------------------------------

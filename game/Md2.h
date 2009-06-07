@@ -36,6 +36,7 @@
 struct s_md2_ogl_commandlist
 {
     Uint16  count;                  // Number of commands
+    Uint16  entries;                // Number of command entries
 
     GLenum  type[MAXCOMMAND];       // Fan or strip
     Uint16  size[MAXCOMMAND];       // Entries used by command

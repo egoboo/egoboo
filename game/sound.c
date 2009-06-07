@@ -26,8 +26,11 @@
 #include "log.h"
 #include "file_common.h"
 
+#include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
+
+#include "egoboo_setup.h"
 
 #include <SDL.h>
 
@@ -35,17 +38,12 @@
 //--------------------------------------------------------------------------------------------
 
 // Sound using SDL_Mixer
-bool_t       mixeron         = bfalse;
-Uint16       maxsoundchannel = 32;
-Uint16       buffersize      = 8192;
+static bool_t mixeron         = bfalse;
 
-// sound effects
-bool_t       soundvalid      = bfalse;
-Uint8        soundvolume     = 0;
+
+snd_config_t snd;
 
 // music
-bool_t      musicvalid = bfalse;
-Uint8       musicvolume = 0;
 bool_t      musicinmemory = bfalse;
 Mix_Music * musictracksloaded[MAXPLAYLISTLENGTH];
 Sint8       songplaying   = -1;
@@ -122,7 +120,7 @@ static void music_stack_finished_callback(void)
         songplaying = song;
 
         // set the volume
-        Mix_VolumeMusic( musicvolume );
+        Mix_VolumeMusic( snd.musicvolume );
     }
 }
 
@@ -184,8 +182,8 @@ bool_t sdl_audio_initialize()
             log_warning( "SDL error == \"%s\"\n", SDL_GetError() );
 
             retval = bfalse;
-            musicvalid = bfalse;
-            soundvalid = bfalse;
+            snd.musicvalid = bfalse;
+            snd.soundvalid = bfalse;
         }
         else
         {
@@ -205,7 +203,7 @@ bool_t sdl_mixer_initialize()
     if ( !mixeron )
     {
         log_info( "Initializing SDL_mixer audio services version %d.%d.%d... ", SDL_MIXER_MAJOR_VERSION, SDL_MIXER_MINOR_VERSION, SDL_MIXER_PATCHLEVEL );
-        if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) < 0 )
+        if ( Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) < 0 )
         {
             mixeron = bfalse;
             log_message( "Failure!\n" );
@@ -213,8 +211,8 @@ bool_t sdl_mixer_initialize()
         }
         else
         {
-            Mix_VolumeMusic( musicvolume );
-            Mix_AllocateChannels( maxsoundchannel );
+            Mix_VolumeMusic( snd.musicvolume );
+            Mix_AllocateChannels( snd.maxsoundchannel );
 
             // initialize the music stack
             music_stack_init();
@@ -287,7 +285,7 @@ Mix_Chunk * sound_load_chunk( const char * szFileName )
         }
     }
 
-    if ( gDevMode && file_exists && NULL == tmp_chunk )
+    if ( cfg.dev_mode && file_exists && NULL == tmp_chunk )
     {
         // there is an error only if the file exists and can't be loaded
         log_warning( "Sound file not found/loaded %s.\n", szFileName );
@@ -329,7 +327,7 @@ Mix_Music * sound_load_music( const char * szFileName )
         }
     }
 
-    if ( gDevMode && file_exists && NULL == tmp_music )
+    if ( cfg.dev_mode && file_exists && NULL == tmp_music )
     {
         // there is an error only if the file exists and can't be loaded
         log_warning( "Music file not found/loaded %s.\n", szFileName );
@@ -374,7 +372,7 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
             break;
 
         default:
-            if ( gDevMode )
+            if ( cfg.dev_mode )
             {
                 // there is an error only if the file exists and can't be loaded
                 log_warning( "sound_load() - Mix type recognized %d.\n", type );
@@ -386,18 +384,18 @@ bool_t sound_load( mix_ptr_t * pptr, const char * szFileName, mix_type_t type )
 }
 
 //--------------------------------------------------------------------------------------------
-int sound_play_mix( float pos_x, float pos_y, mix_ptr_t * pptr )
+int sound_play_mix( GLvector3 pos, mix_ptr_t * pptr )
 {
     int retval = -1;
-    if ( !soundvalid || !mixeron )
+    if ( !snd.soundvalid || !mixeron )
     {
         return -1;
     }
     if ( NULL == pptr || MIX_UNKNOWN == pptr->type || NULL == pptr->ptr.unk )
     {
-        if ( gDevMode )
+        if ( cfg.dev_mode )
         {
-			if(gDevMode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
+			if(cfg.dev_mode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
         }
         return -1;
     }
@@ -405,7 +403,7 @@ int sound_play_mix( float pos_x, float pos_y, mix_ptr_t * pptr )
     retval = -1;
     if ( MIX_SND == pptr->type )
     {
-        retval = sound_play_chunk( pos_x, pos_y, pptr->ptr.snd );
+        retval = sound_play_chunk( pos, pptr->ptr.snd );
     }
     else if ( MIX_MUS == pptr->type )
     {
@@ -439,13 +437,13 @@ void sound_restart()
 
     // loose the info on the currently playing song
     //songplaying = -1;
-    if ( musicvalid || soundvalid )
+    if ( snd.musicvalid || snd.soundvalid )
     {
-        if ( -1 != Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, buffersize ) )
+        if ( -1 != Mix_OpenAudio( MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, 2, snd.buffersize ) )
         {
             mixeron = btrue;
-            Mix_AllocateChannels( maxsoundchannel );
-			Mix_VolumeMusic( musicvolume );
+            Mix_AllocateChannels( snd.maxsoundchannel );
+			Mix_VolumeMusic( snd.musicvolume );
         }
         else
         {
@@ -457,28 +455,27 @@ void sound_restart()
 //------------------------------------
 // Mix_Chunk stuff -------------------
 //------------------------------------
-int sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8 loops )
+int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
 {
     // This function plays a specified sound and returns which channel it's using
     int channel;
-    float diff_x, diff_y;
+    GLvector3 diff;
     float dist2;
     int volume;
 
     const float reverb_dist2 = 200 * 200;
 
-    if ( !soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
+    if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
     // measure the distance in tiles
-    diff_x = pos_x - gCamera.trackx;
-    diff_y = pos_y - gCamera.tracky;
-    dist2 = diff_x * diff_x + diff_y * diff_y;
+    diff = VSub( pos, gCamera.track_pos );
+    dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
     // adjust for the local_listening skill
     if ( local_listening ) dist2 *= 0.66f * 0.66f;
 
     volume  = 128 * reverb_dist2 / (reverb_dist2 + dist2);
-    volume *= ( volume * soundvolume ) / 100;
+    volume *= ( volume * snd.soundvolume ) / 100;
 
     // play the sound
     channel = INVALID_SOUND;
@@ -487,7 +484,7 @@ int sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8
         channel = Mix_PlayChannel( -1, pchunk, loops );
         if ( INVALID_SOUND == channel )
         {
-			if(gDevMode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+			if(cfg.dev_mode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
         else
         {
@@ -496,7 +493,7 @@ int sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8
             int leftvol;
 
             // determine the angle away from "forward"
-            pan = ATAN2( diff_y, diff_x ) - gCamera.turnleftright;
+            pan = ATAN2( diff.y, diff.x ) - gCamera.turn_z_rad;
             volume *= (2.0f + cos( pan )) / 3.0f;
 
             // determine the angle from the left ear
@@ -518,7 +515,7 @@ int sound_play_chunk_looped( float pos_x, float pos_y, Mix_Chunk * pchunk, Sint8
 //--------------------------------------------------------------------------------------------
 void sound_stop_channel( int whichchannel )
 {
-    if ( mixeron && soundvalid )
+    if ( mixeron && snd.soundvalid )
     {
         Mix_HaltChannel( whichchannel );
     }
@@ -529,7 +526,7 @@ void sound_stop_channel( int whichchannel )
 //------------------------------------
 void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 {
-    if ( !musicvalid || !mixeron ) return;
+    if ( !snd.musicvalid || !mixeron ) return;
 
     // This functions plays a specified track loaded into memory
     if ( songplaying != songnumber )
@@ -554,7 +551,7 @@ void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
 void sound_stop_song()
 {
     // This function sets music track to pause
-    if ( mixeron && musicvalid )
+    if ( mixeron && snd.musicvalid )
     {
         Mix_HaltMusic();
     }
@@ -626,7 +623,7 @@ void load_all_music_sounds()
     FILE *playlist;
     Uint8 cnt;
 	
-	if( musicinmemory || !musicvalid ) return;
+	if( musicinmemory || !snd.musicvalid ) return;
 
     // Open the playlist listing all music files
     playlist = fopen( "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt", "r" );
@@ -648,4 +645,67 @@ void load_all_music_sounds()
     musicinmemory = btrue;
 
     fclose( playlist );
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+bool_t snd_config_init( snd_config_t * psnd )
+{
+    if( NULL == psnd ) return bfalse;
+
+    psnd->soundvalid        = bfalse;
+    psnd->musicvalid        = bfalse;
+    psnd->musicvolume       = 50;                            // The sound volume of music
+    psnd->soundvolume       = 75;          // Volume of sounds played
+    psnd->maxsoundchannel   = 16;      // Max number of sounds playing at the same time
+    psnd->buffersize        = 2048;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
+{
+    if( NULL == psnd && NULL == pcfg ) return bfalse;
+
+    if( NULL == pcfg )
+    {
+        return snd_config_init( psnd );
+    }
+
+    // coerce pcfg to have valid values
+    pcfg->sound_channel_count = CLIP(pcfg->sound_channel_count, 8, 128);
+    pcfg->sound_buffer_size      = CLIP(pcfg->sound_buffer_size, 512, 8196);
+
+    if ( NULL != psnd )
+    {
+        psnd->soundvalid      = pcfg->sound_allowed;
+        psnd->soundvolume     = pcfg->sound_volume;
+        psnd->musicvalid      = pcfg->music_allowed;
+        psnd->musicvolume     = pcfg->music_volume;
+        psnd->maxsoundchannel = pcfg->sound_channel_count;
+        psnd->buffersize      = pcfg->sound_buffer_size;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void sound_fade_all()
+{
+    if ( mixeron  )
+    {
+        Mix_FadeOutChannel( -1, 500 );     // Stop all sounds that are playing
+    }
+}
+
+//--------------------------------------------------------------------------------------------
+void fade_in_music( Mix_Music * music )
+{
+    if ( mixeron  )
+    {
+        Mix_FadeInMusic( music, -1, 500 );
+    }				
 }

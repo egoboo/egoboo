@@ -192,7 +192,8 @@ void md2_rip_commands( md2_ogl_commandlist_t * pclist )
         log_warning("md2_rip_commands(\"%s\") - \n\tNumber of OpenGL command entries exceeds preset maximum: %d of %d\n", globalparsename, entry, MAXCOMMAND );
     }
 
-    pclist->count = MIN(MAXCOMMAND, iCommandCount);
+    pclist->entries = MIN(MAXCOMMANDENTRIES, entry);
+    pclist->count   = MIN(MAXCOMMAND, iCommandCount);
 }
 
 //---------------------------------------------------------------------------------------------
