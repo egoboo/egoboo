@@ -3,7 +3,9 @@ HERO:   NONE    0  57.5   58.5   7.0   N    1000   0  0   0   0   T   F   G
   camera.obj:   NONE    48  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
   touristguide.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   fortunecookie.obj:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
-  creditcard.obj:   NONE    51  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+  fakecreditcard.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
+keya.obj:   NONE    37  42.5   56.0   0.0   I    0   0  0   0   0   F   F   N
+keya.obj:   NONE    37  42.5   56.0   0.0   I    0   0  0   0   0   F   F   N
 
 //Start room
 shaft.obj:   NONE    42  57.5   58.5   0.0   N    0   0  0   0   0   F   F   N
@@ -99,10 +101,10 @@ bouldertrap.obj:   NONE    36  39.0   5.8   0.0   N    7650   0  0   1150   0   
 GLOBAL chest:   NONE    59  57.0   24.0   0.0   W    0   0  0   1   0   F   F   N
   GLOBAL torch:   NONE    47  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 brazier.obj:   NONE    39  48.5   21.0   0.0   N    0   0  0   1   0   F   F   N
-brazier.obj:   NONE    39  48.5   26.0   0.0   S    0   0  0   1   0   F   F   N
+brazier.obj:   NONE    39  48.5   26.5   0.0   S    0   0  0   1   0   F   F   N
 
 //running room
-brazier.obj:   NONE    39  32.0   6.0   1.0   N    0   0  0   0   0   F   F   N
+brazier.obj:   NONE    39  32.0   6.0   1.0   N    0   0  5   0   0   F   F   N
 gate.obj:   NONE    45  17.0   12.0   1.0   N    0   0  5   0   0   F   F   N
 
 //Last spikes

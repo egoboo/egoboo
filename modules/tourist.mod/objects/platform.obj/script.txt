@@ -1,12 +1,12 @@
 tmpx = selfz
 tmpy = 0
 IfXIsLessThanY
-  tmpargument = 40
+  tmpargument = 10
   SetFlyHeight
 
 //When Spawned
 IfSpawned
-  tmpargument = rand & 75 + 40
+  tmpargument = 10
   SetFlyHeight					//Randomize Z position
 
   //Platform near the start (TEAL)
@@ -165,11 +165,14 @@ Else
 
 //Don't get stuck in other platforms
 IfBumped
-  SetTargetToWhoeverBumped
-  tmpargument = [PLAT]
-  IfTargetHasID
-    tmpargument = rand & 63 + targetz - 32	//Fudge until success!
-    SetFlyHeight
+  tmpx = selfcontent
+  tmpy = 0            //The key platform doesnt do this, unless the key falls off
+  IfXIsMoreThanY
+    SetTargetToWhoeverBumped
+    tmpargument = [PLAT]
+    IfTargetHasID
+      tmpargument = rand & 63 + targetz - 32	//Fudge until success!
+      SetFlyHeight
 
 
 // All Done

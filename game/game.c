@@ -3394,7 +3394,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float depth_z;
 
     float interaction_strength = 1.0f;
-
     // make sure that it is on
     if ( !ChrList[ichr_a].on ) return bfalse;
     pchr_a = ChrList + ichr_a;
@@ -3462,7 +3461,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // Check reaffirmation of particles
     if ( pchr_a->reloadtime == 0 && pchr_a->damagetime == 0 )
     {
-        if ( ichr_a != pprt_b->attachedtocharacter && pchr_a->reaffirmdamagetype == pprt_b->damagetype )
+        if ( /*ichr_a != pprt_b->attachedtocharacter &&*/ pchr_a->reaffirmdamagetype == pprt_b->damagetype )
         {
             reaffirm_attached_particles( ichr_a );
         }
@@ -3470,8 +3469,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
+		  pprt_b->attachedtocharacter != MAX_CHR ||
         /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-        /*pprt_b->attachedtocharacter != MAX_CHR ||*/
         ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
         ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
@@ -3785,11 +3784,10 @@ void bump_characters( void )
         float tmpx, tmpy, tmpz;
         chr_t * pchr;
         float bump_str;
-
         if( !ChrList[cnt].on ) continue;
         pchr = ChrList + cnt;
 
-        bump_str = 1.0f;
+		bump_str = 1.0f;
         if( VALID_CHR( pchr->attachedto ) )
         {
             bump_str = 0;
@@ -5227,7 +5225,7 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     if( INVALID_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    // Ignore invalid characters
+    // Ignore invalid particles
     if( INVALID_PRT(iprt_b) ) return bfalse;
     pprt_b = PrtList + iprt_b;
 

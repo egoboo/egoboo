@@ -104,7 +104,7 @@ ulna.obj:   NONE    49  80.0   34.0   1.0   N    0   0  0   0   0   F   F   E
 katana.obj:   NONE    86  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
 ulna.obj:   NONE    49  78.0   35.0   1.0   N    50   0  0   0   3   F   F   E
 katana.obj:   NONE    86  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-shufflingheap.obj:   NONE    70  35.5   61.5   1.0   N    25   0  0   0   0   F   F   S
+shufflingheap.obj:   NONE    70  35.5   61.5   1.0   S    25   0  0   0   0   F   F   S
 shufflingheap.obj:   NONE    70  67.5   32.5   1.0   S    0   0  0   0   0   F   F   S
 vampirelord.obj:   NONE    72  76.5   76.5   1.0   N    75   0  22   0   0   F   F   E
 vamplordwing.obj:   NONE    73  0.0   0.0   1.0   L    0   0  0   0   0   F   F   S

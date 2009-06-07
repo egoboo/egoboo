@@ -4,7 +4,7 @@
 //             	  TopleftXY  BottomrightXY  	Open    ShootThrough  SlippyClose
 
 00 SporkDoor: 	  15 27      19 28         	 F       F             F
-01 FirstDoor: 	  24 27      25 28         	 F       F             F
+01 FirstDoor: 	  24 27      25 28         	 T       F             F
 02 FirstDoorOpen: 23 27      24 28         	 T       T             F
 03 StartMusic: 	  17 25      21 30         	 T       T             F
 04 LeverPuzzle:   10 53      11 57         	 F       F             F
