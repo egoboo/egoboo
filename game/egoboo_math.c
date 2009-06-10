@@ -67,7 +67,7 @@ GLvector3 VNormalize( GLvector3 vec )
     {
         float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
         float inv_len = 1.0f / SQRT( len2 );
-        assert( 0.0f!=len2 && !_isnan(inv_len) );
+        LOG_NAN(inv_len);
 
         tmp.x = vec.x * inv_len;
         LOG_NAN(tmp.x);
