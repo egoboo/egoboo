@@ -80,14 +80,14 @@ void oglx_report_caps()
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLfloat mag_f, GLfloat min_f, GLfloat anisotropy )
+void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat anisotropy )
 {
-    GL_DEBUG(glBindTexture)(target, id );
-    GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_S, wrap_s );
-    GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_T, wrap_t );
+    GL_DEBUG(glBindTexture)( target, id );
+    GL_DEBUG(glTexParameteri)( target, GL_TEXTURE_WRAP_S, wrap_s );
+    GL_DEBUG(glTexParameteri)( target, GL_TEXTURE_WRAP_T, wrap_t );
 
-    GL_DEBUG(glTexParameterf)(target, GL_TEXTURE_MAG_FILTER, mag_f );
-    GL_DEBUG(glTexParameterf)(target, GL_TEXTURE_MIN_FILTER, min_f );
+    GL_DEBUG(glTexParameteri)( target, GL_TEXTURE_MAG_FILTER, mag_f );
+    GL_DEBUG(glTexParameteri)( target, GL_TEXTURE_MIN_FILTER, min_f );
 
     if ( GL_TEXTURE_2D == target && ogl_caps.anisotropic_supported && anisotropy > 1.0f )
     {

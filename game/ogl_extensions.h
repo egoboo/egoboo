@@ -12,7 +12,7 @@ extern "C"
 //------------------------------------------------------------------------------
 // wrapper for uploading texture information
 
-    void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLfloat mag_f, GLfloat min_f, GLfloat aniso );
+    void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLint min_f, GLint mag_f, GLfloat aniso );
     void oglx_upload_1d(GLboolean use_alpha, GLsizei w, const GLvoid * data);
     void oglx_upload_2d(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
     void oglx_upload_2d_mipmap(GLboolean use_alpha, GLsizei w, GLsizei h, const GLvoid * data);
