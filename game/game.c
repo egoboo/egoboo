@@ -5782,6 +5782,20 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_z = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp;
 
+    light_d = 0.0f;
+    if( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
+    {
+        fTmp = SQRT( light_x*light_x + light_y*light_y + light_z*light_z );
+
+        // get the extra magnitude of the direct light
+        light_d = (1.0f - light_a) * fTmp;
+        light_d = CLIP(light_d, 0.0f, 1.0f);
+
+        light_x /= fTmp;
+        light_y /= fTmp;
+        light_z /= fTmp;
+    }
+
     // Read tile data third
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;

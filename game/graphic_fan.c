@@ -94,13 +94,17 @@ void render_fan( mesh_t * pmesh, Uint32 fan )
     //GL_DEBUG(glVertexPointer)(3, GL_FLOAT, sizeof( GLfloat )*7 + 4, &v[0].pos[XX] );
     //GL_DEBUG(glTexCoordPointer)(2, GL_FLOAT, sizeof( GLvertex ) - 2*sizeof( GLfloat ), &v[0].tex[SS] );
     {
+        float glob_amb = gfx.usefaredge ? light_a : 0;
+
         for ( cnt = 0; cnt < vertices; cnt++ )
         {
+            float ftmp;
             v[cnt].pos[XX] = pmem->vrt_x[badvertex];
             v[cnt].pos[YY] = pmem->vrt_y[badvertex];
             v[cnt].pos[ZZ] = pmem->vrt_z[badvertex];
 
-            v[cnt].col[RR] = v[cnt].col[GG] = v[cnt].col[BB] = FF_TO_FLOAT(pmem->vrt_l[badvertex]) + light_a ;
+            ftmp = FF_TO_FLOAT(pmem->vrt_l[badvertex]) + glob_amb ;
+            v[cnt].col[RR] = v[cnt].col[GG] = v[cnt].col[BB] = CLIP(ftmp, 0.0f, 1.0f);
 
             v[cnt].tex[SS] = tile_dict[type].u[cnt] + offu;
             v[cnt].tex[TT] = tile_dict[type].v[cnt] + offv;
@@ -321,6 +325,8 @@ void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer )
     GL_DEBUG(glDisable)(GL_CULL_FACE );
     badvertex = pmesh->mem.tile_list[fan].vrtstart;          // Get big reference value
     {
+        float glob_amb = gfx.usefaredge ? light_a : 0;
+
         for ( cnt = 0; cnt < 4; cnt++ )
         {
             float ftmp;
@@ -335,7 +341,7 @@ void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer )
 
             ambi = ( Uint32 ) pmesh->mem.vrt_l[badvertex];
             ambi += water.layer_color[layer][frame][tnc];
-            ftmp = FF_TO_FLOAT( ambi ) + light_a;
+            ftmp = FF_TO_FLOAT( ambi ) + glob_amb;
             ftmp = CLIP(ftmp, 0, 1);
 
             v[cnt].col[RR] = v[cnt].col[GG] = v[cnt].col[BB] = ftmp;

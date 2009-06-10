@@ -114,7 +114,7 @@ Uint16           meshlasttexture = (Uint16)~0;
 
 renderlist_t     renderlist = {0, 0, 0, 0, 0};
 
-float            light_a = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
+float            light_a = 0.0f, light_d = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
 Uint8            lightdirectionlookup[65536];
 float            lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
 float            lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -2566,7 +2566,6 @@ void do_mpd_lighting( mesh_t * pmesh, camera_t * pcam )
 
     int cnt, tnc, vertex, fan, entry;
     float level;
-    bool_t do_global = btrue;
 
     // refresh the dynamic light list
     make_dynalist( pcam );
@@ -2667,34 +2666,34 @@ void do_mpd_lighting( mesh_t * pmesh, camera_t * pcam )
                 }
             }
 
-            if ( do_global )
+            if ( gfx.usefaredge )
             {
                 // do global lighting
                 if ( light_x > 0 )
                 {
-                    local_lighting[0] += ABS(light_x) * light_a * 255;
+                    local_lighting[0] += ABS(light_x) * light_d * 255;
                 }
                 else if (light_x < 0)
                 {
-                    local_lighting[1] += ABS(light_x) * light_a * 255;
+                    local_lighting[1] += ABS(light_x) * light_d * 255;
                 }
 
                 if ( light_y > 0 )
                 {
-                    local_lighting[2] += ABS(light_y) * light_a * 255;
+                    local_lighting[2] += ABS(light_y) * light_d * 255;
                 }
                 else if (light_y < 0)
                 {
-                    local_lighting[3] += ABS(light_y) * light_a * 255;
+                    local_lighting[3] += ABS(light_y) * light_d * 255;
                 }
 
                 if ( light_z > 0 )
                 {
-                    local_lighting[4] += ABS(light_z) * light_a * 255;
+                    local_lighting[4] += ABS(light_z) * light_d * 255;
                 }
                 else if (light_z < 0)
                 {
-                    local_lighting[5] += ABS(light_z) * light_a * 255;
+                    local_lighting[5] += ABS(light_z) * light_d * 255;
                 }
             }
         }
@@ -2945,22 +2944,21 @@ void draw_scene_solid()
     // Render all solid objects
     for ( cnt = 0; cnt < dolist_count; cnt++ )
     {
-        GL_DEBUG(glDepthMask)(GL_TRUE );
+        GL_DEBUG(glDepthMask)( GL_TRUE );
 
-        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
-        GL_DEBUG(glDepthFunc)(GL_LEQUAL );
+        GL_DEBUG(glEnable)( GL_DEPTH_TEST );
+        GL_DEBUG(glDepthFunc)( GL_LEQUAL );
 
-        GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-        GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
+        GL_DEBUG(glEnable)( GL_ALPHA_TEST );
+        GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 );
 
-        GL_DEBUG(glDisable)(GL_BLEND );
+        GL_DEBUG(glDisable)( GL_BLEND );
+
+        GL_DEBUG(glDisable)( GL_CULL_FACE );
 
         if ( TOTAL_MAX_PRT == dolist[cnt].iprt && VALID_CHR( dolist[cnt].ichr ) )
         {
             tnc = dolist[cnt].ichr;
-
-            GL_DEBUG(glEnable)(GL_CULL_FACE );
-            GL_DEBUG(glFrontFace)(GL_CW );
 
             if ( ChrList[tnc].inst.alpha == 255 && ChrList[tnc].inst.light == 255 )
             {
@@ -2969,7 +2967,7 @@ void draw_scene_solid()
         }
         else if ( MAX_CHR == dolist[cnt].ichr && VALID_PRT( dolist[cnt].iprt ) )
         {
-            GL_DEBUG(glDisable)(GL_CULL_FACE );
+            GL_DEBUG(glDisable)( GL_CULL_FACE );
 
             render_one_prt_solid( dolist[cnt].iprt );
         }

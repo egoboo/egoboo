@@ -774,6 +774,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     Uint8  self_light;
     light_cache_t global_light, loc_light;
     float min_light;
+    Uint16 glob_amb = gfx.usefaredge ? (light_a * 255.0f) : 0;
 
     mad_t * pmad;
 
@@ -810,7 +811,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     flip = pinst->lip / 256.0f;
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
 
-    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light + light_a);
+    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light + glob_amb);
 
     pinst->col_amb.a = (alpha * INV_FF) * (pinst->alpha * INV_FF);
     pinst->col_amb.r = ( float )( pinst->color_amb >> rs ) * INV_FF;

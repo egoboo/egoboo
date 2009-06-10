@@ -337,7 +337,7 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     for ( cnt = 0; cnt < pmem->vertcount; cnt++ )
     {
         fread( &btemp, 1, 1, fileread );
-        pmem->vrt_a[cnt] = btemp;
+        pmem->vrt_a[cnt] = 0; // btemp;
         pmem->vrt_l[cnt] = 0;
     }
 
