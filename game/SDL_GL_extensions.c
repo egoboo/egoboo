@@ -173,7 +173,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         v->userAnisotropy = ogl_caps.maxAnisotropy;
     }
 
-    if ( v->userAnisotropy > 0 )
+    if ( v->userAnisotropy > 1.0f )
     {
         GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
     };

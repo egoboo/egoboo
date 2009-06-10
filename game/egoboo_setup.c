@@ -366,7 +366,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     wraptolerance = pcfg->staton ? 90 : 32;
 
     // texture parameters
-    tex_params.texturefilter = pcfg->texturefilter_req;
+    tex_params.texturefilter  = pcfg->texturefilter_req;
 
     // Get the particle limit
     maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);

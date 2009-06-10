@@ -89,11 +89,11 @@ void oglx_bind(GLenum target, GLuint id, GLint wrap_s, GLint wrap_t, GLfloat mag
     GL_DEBUG(glTexParameterf)(target, GL_TEXTURE_MAG_FILTER, mag_f );
     GL_DEBUG(glTexParameterf)(target, GL_TEXTURE_MIN_FILTER, min_f );
 
-    if ( ogl_caps.anisotropic_supported )
+    if ( GL_TEXTURE_2D == target && ogl_caps.anisotropic_supported && anisotropy > 1.0f )
     {
-        GL_DEBUG(glTexParameterf)(target, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy );
+        GL_DEBUG(glTexParameterf)( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy );
     }
-};
+}
 
 //------------------------------------------------------------------------------
 void oglx_upload_1d(GLboolean use_alpha, GLsizei w, const GLvoid * data)

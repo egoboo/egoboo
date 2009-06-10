@@ -4336,7 +4336,7 @@ void sdlinit_graphics()
     ogl_vparam.antialiasing   = GL_TRUE;
     ogl_vparam.perspective    = GL_FASTEST;
     ogl_vparam.shading        = GL_SMOOTH;
-    ogl_vparam.userAnisotropy = MAX(0, cfg.texturefilter_req - TX_TRILINEAR_2);
+    ogl_vparam.userAnisotropy = 16.0f * MAX(0, cfg.texturefilter_req - TX_TRILINEAR_2);
 
     log_info("Opening SDL Video Mode... ");
 
@@ -4352,6 +4352,7 @@ void sdlinit_graphics()
     }
     else
     {
+        tex_params.userAnisotropy = ogl_vparam.userAnisotropy;
         log_message( "Success!\n" );
     }
 
