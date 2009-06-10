@@ -25,6 +25,7 @@
 #include "camera.h"
 #include "log.h"
 #include "file_common.h"
+#include "game.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -395,7 +396,7 @@ int sound_play_mix( GLvector3 pos, mix_ptr_t * pptr )
     {
         if ( cfg.dev_mode )
         {
-			if(cfg.dev_mode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
+            if (cfg.dev_mode) log_warning( "Unable to load sound. (%s)\n", Mix_GetError() );
         }
         return -1;
     }
@@ -443,7 +444,7 @@ void sound_restart()
         {
             mixeron = btrue;
             Mix_AllocateChannels( snd.maxsoundchannel );
-			Mix_VolumeMusic( snd.musicvolume );
+            Mix_VolumeMusic( snd.musicvolume );
         }
         else
         {
@@ -468,7 +469,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
 
     // measure the distance in tiles
-    diff = VSub( pos, gCamera.track_pos );
+    diff = VSub( pos, PCamera->track_pos );
     dist2 = diff.x * diff.x + diff.y * diff.y + diff.z * diff.z;
 
     // adjust for the local_listening skill
@@ -484,7 +485,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
         channel = Mix_PlayChannel( -1, pchunk, loops );
         if ( INVALID_SOUND == channel )
         {
-			if(cfg.dev_mode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
+            if (cfg.dev_mode) log_warning( "Unable to play sound. (%s)\n", Mix_GetError() );
         }
         else
         {
@@ -493,7 +494,7 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
             int leftvol;
 
             // determine the angle away from "forward"
-            pan = ATAN2( diff.y, diff.x ) - gCamera.turn_z_rad;
+            pan = ATAN2( diff.y, diff.x ) - PCamera->turn_z_rad;
             volume *= (2.0f + cos( pan )) / 3.0f;
 
             // determine the angle from the left ear
@@ -600,7 +601,7 @@ void load_global_waves( const char * modname )
         snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "%s", tmploadname, wavenames[cnt] );
 
         ptmp = sound_load_chunk( wavename );
-        if( NULL == ptmp )
+        if ( NULL == ptmp )
         {
             snprintf( wavename, sizeof(wavename), "%s" SLASH_STR "sound%d", tmploadname, cnt );
             ptmp = sound_load_chunk( wavename );
@@ -622,8 +623,8 @@ void load_all_music_sounds()
     char songname[128];
     FILE *playlist;
     Uint8 cnt;
-	
-	if( musicinmemory || !snd.musicvalid ) return;
+
+    if ( musicinmemory || !snd.musicvalid ) return;
 
     // Open the playlist listing all music files
     playlist = fopen( "basicdat" SLASH_STR "music" SLASH_STR "playlist.txt", "r" );
@@ -633,7 +634,7 @@ void load_all_music_sounds()
         return;
     }
 
-    // Load the music data into memory    
+    // Load the music data into memory
     for ( cnt = 0; cnt < MAXPLAYLISTLENGTH && !feof( playlist ); cnt++ )
     {
         goto_colon( NULL, playlist, btrue );
@@ -653,7 +654,7 @@ void load_all_music_sounds()
 
 bool_t snd_config_init( snd_config_t * psnd )
 {
-    if( NULL == psnd ) return bfalse;
+    if ( NULL == psnd ) return bfalse;
 
     psnd->soundvalid        = bfalse;
     psnd->musicvalid        = bfalse;
@@ -668,9 +669,9 @@ bool_t snd_config_init( snd_config_t * psnd )
 //--------------------------------------------------------------------------------------------
 bool_t snd_config_synch( snd_config_t * psnd, egoboo_config_t * pcfg )
 {
-    if( NULL == psnd && NULL == pcfg ) return bfalse;
+    if ( NULL == psnd && NULL == pcfg ) return bfalse;
 
-    if( NULL == pcfg )
+    if ( NULL == pcfg )
     {
         return snd_config_init( psnd );
     }
@@ -707,5 +708,5 @@ void fade_in_music( Mix_Music * music )
     if ( mixeron  )
     {
         Mix_FadeInMusic( music, -1, 500 );
-    }				
+    }
 }

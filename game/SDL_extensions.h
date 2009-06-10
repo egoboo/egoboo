@@ -30,16 +30,16 @@ extern "C"
 //------------------------------------------------------------------------------
     struct s_SDLX_sdl_video_flags
     {
-        unsigned hw_surface:1;        // SDL_HWSURFACE   - Surface is in video memory
-        unsigned async_blit:1;        // SDL_ASYNCBLIT   - Use asynchronous blits if possible
-        unsigned any_format:1;        // SDL_ANYFORMAT   - Allow any video depth/pixel-format
-        unsigned hw_palette:1;        // SDL_HWPALETTE   - Surface has exclusive palette
-        unsigned double_buf:1;        // SDL_DOUBLEBUF   - Set up double-buffered video mode
-        unsigned full_screen:1;       // SDL_FULLSCREEN  - Surface is a full screen display
-        unsigned opengl:1;            // SDL_OPENGL      - Create an OpenGL rendering context
-        unsigned opengl_blit:1;       // SDL_OPENGLBLIT  - Create an OpenGL rendering context and use it for blitting
-        unsigned resizable:1;         // SDL_RESIZABLE   - This video mode may be resized
-        unsigned no_frame:1;          // SDL_NOFRAME     - No window caption or edge frame
+        unsigned hw_surface: 1;       // SDL_HWSURFACE   - Surface is in video memory
+        unsigned async_blit: 1;       // SDL_ASYNCBLIT   - Use asynchronous blits if possible
+        unsigned any_format: 1;       // SDL_ANYFORMAT   - Allow any video depth/pixel-format
+        unsigned hw_palette: 1;       // SDL_HWPALETTE   - Surface has exclusive palette
+        unsigned double_buf: 1;       // SDL_DOUBLEBUF   - Set up double-buffered video mode
+        unsigned full_screen: 1;      // SDL_FULLSCREEN  - Surface is a full screen display
+        unsigned opengl: 1;           // SDL_OPENGL      - Create an OpenGL rendering context
+        unsigned opengl_blit: 1;      // SDL_OPENGLBLIT  - Create an OpenGL rendering context and use it for blitting
+        unsigned resizable: 1;        // SDL_RESIZABLE   - This video mode may be resized
+        unsigned no_frame: 1;         // SDL_NOFRAME     - No window caption or edge frame
 
         // read-only data
         unsigned use_hwaccel: 1;      // SDL_HWACCEL     - Surface blit uses hardware acceleration
@@ -67,7 +67,7 @@ extern "C"
         int multi_buffers;      // SDL_GL_MULTISAMPLEBUFFERS
         int multi_samples;      // SDL_GL_MULTISAMPLESAMPLES
         int accelerated_visual; // SDL_GL_ACCELERATED_VISUAL
-        int swap_control;       // SDL_GL_SWAP_CONTROL   
+        int swap_control;       // SDL_GL_SWAP_CONTROL
     };
     typedef struct s_SDLX_sdl_gl_attrib SDLX_sdl_gl_attrib_t;
 
@@ -141,11 +141,14 @@ extern "C"
 //------------------------------------------------------------------------------
 
     SDL_bool      SDLX_Get_Screen_Info( SDLX_screen_info_t * psi, SDL_bool display );
-    SDL_Surface * SDLX_RequestVideoMode ( SDLX_video_parameters_t * v );
+    SDL_Surface * SDLX_RequestVideoMode ( SDLX_video_parameters_t * v, SDL_bool make_report );
 
-    SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new );
+    SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_video_parameters_t * v_new, SDL_bool make_report );
 
     SDL_bool SDLX_ExpandFormat(SDL_PixelFormat * pformat);
+
+    FILE * SDLX_set_stdout(FILE * pfile);
+    void   SDLX_report_mode( SDL_Surface * surface, SDLX_video_parameters_t * v );
 
 #ifdef __cplusplus
 };

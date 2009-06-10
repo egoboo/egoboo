@@ -203,7 +203,7 @@ struct s_prt
     Uint16  model;                           // Pip spawn model
 
     Uint16  attachedtocharacter;             // For torch flame
-    Uint16  grip;                            // The vertex it's on
+    Uint16  vrt_off;                         // It's vertex offset
     Uint8   type;                            // Transparency mode, 0-2
     Uint16  facing;                          // Direction of the part
     Uint8   team;                            // Team
@@ -276,7 +276,7 @@ void play_particle_sound( Uint16 particle, Sint8 sound );
 int get_free_particle( int force );
 Uint16 spawn_one_particle( float x, float y, float z,
                            Uint16 facing, Uint16 model, Uint16 pip,
-                           Uint16 characterattach, Uint16 grip, Uint8 team,
+                           Uint16 characterattach, Uint16 vrt_offset, Uint8 team,
                            Uint16 characterorigin, Uint16 multispawn, Uint16 oldtarget );
 
 int prt_count_free();

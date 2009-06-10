@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL_opengl.h>
+#include <stdio.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -80,6 +81,7 @@ extern "C"
     typedef struct s_oglx_caps oglx_caps_t;
 
     void oglx_Get_Screen_Info( oglx_caps_t * pcaps );
+    void oglx_report_caps();
 
     extern oglx_caps_t ogl_caps;
 
@@ -97,6 +99,11 @@ extern "C"
     typedef struct s_oglx_video_parameters oglx_video_parameters_t;
 
     GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid);
+
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+    FILE * oglx_set_stdout(FILE * pfile);
 
 #ifdef __cplusplus
 };

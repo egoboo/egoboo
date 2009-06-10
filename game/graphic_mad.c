@@ -28,6 +28,7 @@
 #include "camera.h"
 #include "char.h"
 #include "mad.h"
+#include "game.h"
 
 #include "egoboo.h"
 
@@ -130,32 +131,32 @@ void draw_textured_md2( const Md2Model *model, int from_, int to_, float lerp )
     tc = model->texCoords;
     triangles = model->triangles;
 
-    glEnableClientState( GL_VERTEX_ARRAY );
-    glEnableClientState( GL_NORMAL_ARRAY );
+    GL_DEBUG(glEnableClientState)(GL_VERTEX_ARRAY );
+    GL_DEBUG(glEnableClientState)(GL_NORMAL_ARRAY );
 
-    glVertexPointer( 3, GL_FLOAT, 0, md2_blendedVertices );
-    glNormalPointer( GL_FLOAT, 0, md2_blendedNormals );
+    GL_DEBUG(glVertexPointer)(3, GL_FLOAT, 0, md2_blendedVertices );
+    GL_DEBUG(glNormalPointer)(GL_FLOAT, 0, md2_blendedNormals );
 
-    glBegin( GL_TRIANGLES );
+    GL_DEBUG(glBegin)(GL_TRIANGLES );
     {
         for ( i = 0; i < numTriangles; i++ )
         {
             tri = &triangles[i];
 
-            glTexCoord2fv( ( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
-            glArrayElement( tri->vertexIndices[0] );
+            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[0]] ) );
+            GL_DEBUG(glArrayElement)(tri->vertexIndices[0] );
 
-            glTexCoord2fv( ( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
-            glArrayElement( tri->vertexIndices[1] );
+            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[1]] ) );
+            GL_DEBUG(glArrayElement)(tri->vertexIndices[1] );
 
-            glTexCoord2fv( ( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
-            glArrayElement( tri->vertexIndices[2] );
+            GL_DEBUG(glTexCoord2fv)( ( const GLfloat* )&( tc[tri->texCoordIndices[2]] ) );
+            GL_DEBUG(glArrayElement)(tri->vertexIndices[2] );
         }
     }
-    glEnd();
+    GL_DEBUG_END();
 
-    glDisableClientState( GL_VERTEX_ARRAY );
-    glDisableClientState( GL_NORMAL_ARRAY );
+    GL_DEBUG(glDisableClientState)(GL_VERTEX_ARRAY );
+    GL_DEBUG(glDisableClientState)(GL_NORMAL_ARRAY );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -174,24 +175,24 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     mad_t * pmad;
     chr_instance_t * pinst;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr  = ChrList + character;
     pinst = &(pchr->inst);
 
-    if( INVALID_MAD(pinst->imad) ) return;
+    if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     texture = pinst->texture;
 
-    uoffset = pinst->uoffset - gCamera.turn_z_one;
+    uoffset = pinst->uoffset - PCamera->turn_z_one;
     voffset = pinst->voffset;
 
     // prepare the object
     chr_instance_update( character, 255, bfalse );
 
-    glMatrixMode( GL_MODELVIEW_MATRIX );
-    glPushMatrix();
-    glMultMatrixf( pinst->matrix.v );
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Choose texture and matrix
     GLXtexture_Bind( TxTexture + texture );
@@ -203,9 +204,9 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     entry = 0;
     for ( cnt = 0; cnt < cmd_count; cnt++ )
     {
-        if( entry >= entry_count ) break;
+        if ( entry >= entry_count ) break;
 
-        glBegin ( pmad->md2.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(pmad->md2.cmd.type[cnt] );
         {
             for ( tnc = 0; tnc < pmad->md2.cmd.size[cnt]; tnc++ )
             {
@@ -213,18 +214,18 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
                 GLvector4 col;
                 GLfloat tex[2];
 
-                if( entry >= entry_count ) break;
+                if ( entry >= entry_count ) break;
 
                 vertex = pmad->md2.cmd.vrt[entry];
 
                 // normalize the color
                 cmax = 1.0f;
                 cmin = MIN(MIN(pinst->vlst[vertex].col_dir[RR], pinst->vlst[vertex].col_dir[GG]), pinst->vlst[vertex].col_dir[BB]);
-                if( 1.0f != cmin )
+                if ( 1.0f != cmin )
                 {
                     cmax = MAX(MAX(pinst->vlst[vertex].col_dir[RR], pinst->vlst[vertex].col_dir[GG]), pinst->vlst[vertex].col_dir[BB]);
 
-                    if( 0.0f == cmax || cmax == cmin )
+                    if ( 0.0f == cmax || cmax == cmin )
                     {
                         col.r = col.g = col.b = 1.0f;
                         col.a = 1.0f;
@@ -251,20 +252,20 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
 
                 if ( vertex < vrt_count )
                 {
-                    glColor4fv  ( col.v );
-                    glNormal3fv ( pinst->vlst[vertex].nrm );
-                    glTexCoord2fv ( tex );
-                    glVertex3fv ( pinst->vlst[vertex].pos );
+                    GL_DEBUG(glColor4fv)(col.v );
+                    GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
+                    GL_DEBUG(glTexCoord2fv)(tex );
+                    GL_DEBUG(glVertex3fv)(pinst->vlst[vertex].pos );
                 }
 
                 entry++;
             }
         }
-        glEnd ();
+        GL_DEBUG_END();
     }
 
-    glMatrixMode( GL_MODELVIEW_MATRIX );
-    glPopMatrix();
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
 }
 
 
@@ -326,11 +327,11 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     mad_t * pmad;
     chr_instance_t * pinst;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr  = ChrList + character;
     pinst = &(pchr->inst);
 
-    if( INVALID_MAD(pinst->imad) ) return;
+    if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     // To make life easier
@@ -345,9 +346,9 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     // Choose texture and matrix
     GLXtexture_Bind( TxTexture + texture );
 
-    glMatrixMode( GL_MODELVIEW_MATRIX );
-    glPushMatrix();
-    glMultMatrixf( pinst->matrix.v );
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Render each command
     cmd_count   = MIN(pmad->md2.cmd.count,   MAXCOMMAND);
@@ -356,15 +357,15 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     entry = 0;
     for (cnt = 0; cnt < cmd_count; cnt++ )
     {
-        if( entry >= entry_count ) break;
+        if ( entry >= entry_count ) break;
 
-        glBegin ( pmad->md2.cmd.type[cnt] );
+        GL_DEBUG(glBegin)(pmad->md2.cmd.type[cnt] );
         {
             for ( tnc = 0; tnc < pmad->md2.cmd.size[cnt]; tnc++ )
             {
                 GLfloat tex[2];
 
-                if( entry >= entry_count ) break;
+                if ( entry >= entry_count ) break;
 
                 vertex = pmad->md2.cmd.vrt[entry];
 
@@ -374,20 +375,20 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
                     tex[0] = pmad->md2.cmd.u[entry] + uoffset;
                     tex[1] = pmad->md2.cmd.v[entry] + voffset;
 
-                    glColor4fv  ( pinst->vlst[vertex].col );
-                    glNormal3fv ( pinst->vlst[vertex].nrm );
-                    glTexCoord2fv ( tex );
-                    glVertex3fv ( pinst->vlst[vertex].pos );
+                    GL_DEBUG(glColor4fv)(pinst->vlst[vertex].col );
+                    GL_DEBUG(glNormal3fv)(pinst->vlst[vertex].nrm );
+                    GL_DEBUG(glTexCoord2fv)(tex );
+                    GL_DEBUG(glVertex3fv)(pinst->vlst[vertex].pos );
                 }
 
                 entry++;
             }
         }
-        glEnd ();
+        GL_DEBUG_END();
     }
 
-    glMatrixMode( GL_MODELVIEW_MATRIX );
-    glPopMatrix();
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glPopMatrix)();
 }
 
 /*
@@ -433,7 +434,7 @@ void render_one_mad( Uint16 character, Uint8 trans )
 
     chr_t * pchr;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
     if ( pchr->is_hidden ) return;
@@ -461,7 +462,7 @@ void render_one_mad_ref( int tnc, Uint8 trans )
     chr_t * pchr;
     chr_instance_t * pinst;
 
-    if( INVALID_CHR(tnc) ) return;
+    if ( INVALID_CHR(tnc) ) return;
     pchr = ChrList + tnc;
     pinst = &(pchr->inst);
 
@@ -520,7 +521,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
     chr_t * pchr;
     chr_instance_t * pinst;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
     pinst = &(pchr->inst);
 
@@ -534,12 +535,12 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 //--------------------------------------------------------------------------------------------
 bool_t project_sum_lighting( light_cache_t * dst, light_cache_t * src, GLvector3 vec, int dir )
 {
-    if( NULL == src || NULL == dst ) return bfalse;
+    if ( NULL == src || NULL == dst ) return bfalse;
 
-    if( dir < 0 || dir > 4 || 0 != (dir&1) ) 
+    if ( dir < 0 || dir > 4 || 0 != (dir&1) )
         return bfalse;
 
-    if( vec.x > 0 )
+    if ( vec.x > 0 )
     {
         dst->lighting[dir+0] += ABS(vec.x) * src->lighting[0];
         dst->lighting[dir+1] += ABS(vec.x) * src->lighting[1];
@@ -550,25 +551,25 @@ bool_t project_sum_lighting( light_cache_t * dst, light_cache_t * src, GLvector3
         dst->lighting[dir+1] += ABS(vec.x) * src->lighting[0];
     }
 
-    if( vec.y > 0 )
+    if ( vec.y > 0 )
     {
         dst->lighting[dir+0] += ABS(vec.y) * src->lighting[2];
         dst->lighting[dir+1] += ABS(vec.y) * src->lighting[3];
     }
     else if (vec.y < 0)
     {
-        dst->lighting[dir+0] += ABS(vec.y) * src->lighting[3];                            
-        dst->lighting[dir+1] += ABS(vec.y) * src->lighting[2];                            
+        dst->lighting[dir+0] += ABS(vec.y) * src->lighting[3];
+        dst->lighting[dir+1] += ABS(vec.y) * src->lighting[2];
     }
 
-    if( vec.z > 0 )
+    if ( vec.z > 0 )
     {
         dst->lighting[dir+0] += ABS(vec.z) * src->lighting[4];
         dst->lighting[dir+1] += ABS(vec.z) * src->lighting[5];
     }
     else if (vec.z < 0)
     {
-        dst->lighting[dir+0] += ABS(vec.z) * src->lighting[5];  
+        dst->lighting[dir+0] += ABS(vec.z) * src->lighting[5];
         dst->lighting[dir+1] += ABS(vec.z) * src->lighting[4];
     }
 
@@ -582,21 +583,21 @@ bool_t project_lighting( light_cache_t * dst, light_cache_t * src, GLmatrix mat 
     GLvector3 fwd, right, up;
 
     // blank the destination lighting
-    if( NULL == dst ) return bfalse;
+    if ( NULL == dst ) return bfalse;
 
     dst->max_light = 0.0f;
-    for( cnt = 0; cnt<6; cnt++)
+    for ( cnt = 0; cnt < 6; cnt++)
     {
         dst->lighting[cnt] = 0.0f;
     }
 
-    if( NULL == src ) return bfalse;
-    if( src->max_light <= 0.0f ) return btrue;
+    if ( NULL == src ) return bfalse;
+    if ( src->max_light <= 0.0f ) return btrue;
 
     // grab the character directions
     fwd   = VNormalize( mat_getChrForward( mat ) );         // along body-fixed +y-axis
     right = VNormalize( mat_getChrRight( mat ) );        // along body-fixed +x-axis
-    up    = VNormalize( mat_getChrUp( mat ) );            // along body-fixed +z axis   
+    up    = VNormalize( mat_getChrUp( mat ) );            // along body-fixed +z axis
 
     // split the lighting cache up
     project_sum_lighting( dst, src, right, 0 );
@@ -605,7 +606,7 @@ bool_t project_lighting( light_cache_t * dst, light_cache_t * src, GLmatrix mat 
 
     // determine the maximum lighting amount
     dst->max_light = 0.0f;
-    for( cnt=0; cnt<6; cnt++ )
+    for ( cnt = 0; cnt < 6; cnt++ )
     {
         dst->max_light = MAX(dst->max_light, dst->lighting[cnt]);
     }
@@ -619,63 +620,63 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
     int   cnt, tnc;
     float wt_sum;
 
-    if( NULL == dst ) return bfalse;
+    if ( NULL == dst ) return bfalse;
 
     dst->max_light = 0.0f;
-    for( cnt = 0; cnt < 6; cnt++ )
+    for ( cnt = 0; cnt < 6; cnt++ )
     {
         dst->lighting[cnt] = 0.0f;
     }
 
-    if( NULL == src ) return bfalse;
+    if ( NULL == src ) return bfalse;
 
     u = CLIP(u, 0, 1);
     v = CLIP(v, 0, 1);
 
     wt_sum = 0.0f;
-    if( NULL != src[0] )
+    if ( NULL != src[0] )
     {
-        float wt = (1-u)*(1-v);
-        for(tnc = 0; tnc<6; tnc++)
+        float wt = (1 - u) * (1 - v);
+        for (tnc = 0; tnc < 6; tnc++)
         {
             dst->lighting[tnc] += src[0]->lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
 
-    if( NULL != src[1] )
+    if ( NULL != src[1] )
     {
-        float wt = u*(1-v);
-        for(tnc = 0; tnc<6; tnc++)
+        float wt = u * (1 - v);
+        for (tnc = 0; tnc < 6; tnc++)
         {
             dst->lighting[tnc] += src[1]->lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
 
-    if( NULL != src[2] )
+    if ( NULL != src[2] )
     {
-        float wt = (1-u)*v;
-        for(tnc = 0; tnc<6; tnc++)
+        float wt = (1 - u) * v;
+        for (tnc = 0; tnc < 6; tnc++)
         {
             dst->lighting[tnc] += src[2]->lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
 
-    if( NULL != src[3] )
+    if ( NULL != src[3] )
     {
-        float wt = u*v;
-        for(tnc = 0; tnc<6; tnc++)
+        float wt = u * v;
+        for (tnc = 0; tnc < 6; tnc++)
         {
             dst->lighting[tnc] += src[3]->lighting[tnc] * wt;
         }
         wt_sum += wt;
     }
 
-    if( wt_sum > 0.0f )
+    if ( wt_sum > 0.0f )
     {
-        for(tnc = 0; tnc<6; tnc++)
+        for (tnc = 0; tnc < 6; tnc++)
         {
             dst->lighting[tnc] /= wt_sum;
             dst->max_light = MAX(dst->max_light, dst->lighting[tnc]);
@@ -693,14 +694,14 @@ bool_t interpolate_mesh_lighting( mesh_t * pmesh, light_cache_t * dst, GLvector3
     light_cache_t * cache_list[4];
     int ix, iy, cnt;
     Uint32 fan[4];
-    float u,v, min_x,max_x, min_y,max_y;
+    float u, v, min_x, max_x, min_y, max_y;
 
     fan[0] = mesh_get_tile( pmesh, pos.x,             pos.y             );
     fan[1] = mesh_get_tile( pmesh, pos.x + TILE_SIZE, pos.y             );
     fan[2] = mesh_get_tile( pmesh, pos.x,             pos.y + TILE_SIZE );
     fan[3] = mesh_get_tile( pmesh, pos.x + TILE_SIZE, pos.y + TILE_SIZE );
 
-    for( cnt = 0; cnt<4; cnt++ )
+    for ( cnt = 0; cnt < 4; cnt++ )
     {
         cache_list[cnt] = VALID_TILE(pmesh, fan[cnt]) ? pmesh->mem.cache + fan[cnt] : NULL;
     }
@@ -724,13 +725,13 @@ float evaluate_mesh_lighting( light_cache_t * src, GLfloat nrm[] )
 {
     float lighting;
 
-    if( NULL == src || NULL == nrm ) return 0.0f;
+    if ( NULL == src || NULL == nrm ) return 0.0f;
 
-    if( src->max_light <= 0.0f ) return 0.0f;
+    if ( src->max_light <= 0.0f ) return 0.0f;
 
     lighting = 0.0f;
 
-    if( nrm[XX] > 0 )
+    if ( nrm[XX] > 0 )
     {
         lighting += ABS(nrm[XX]) * src->lighting[0];
     }
@@ -739,22 +740,22 @@ float evaluate_mesh_lighting( light_cache_t * src, GLfloat nrm[] )
         lighting += ABS(nrm[XX]) * src->lighting[1];
     }
 
-    if( nrm[YY] > 0 )
+    if ( nrm[YY] > 0 )
     {
         lighting += ABS(nrm[YY]) * src->lighting[2];
     }
     else if (nrm[YY] < 0)
     {
-        lighting += ABS(nrm[YY]) * src->lighting[3];                                                        
+        lighting += ABS(nrm[YY]) * src->lighting[3];
     }
 
-    if( nrm[ZZ] > 0 )
+    if ( nrm[ZZ] > 0 )
     {
         lighting += ABS(nrm[ZZ]) * src->lighting[4];
     }
     else if (nrm[ZZ] < 0)
     {
-        lighting += ABS(nrm[ZZ]) * src->lighting[5];  
+        lighting += ABS(nrm[ZZ]) * src->lighting[5];
     }
 
     return lighting;
@@ -767,9 +768,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     Uint16 cnt;
 
     Uint16 frame_nxt, frame_lst;
-    Uint8  lightrotation;
     Uint32 alpha;
-    Uint16  lightlevel_dir, lightlevel_amb;
     Uint8  rs, gs, bs;
     float  flip;
     Uint8  self_light;
@@ -778,17 +777,14 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
 
     mad_t * pmad;
 
-    if( NULL == pinst || NULL == pchr ) return;
+    if ( NULL == pinst || NULL == pchr ) return;
 
-    if( INVALID_MAD(pinst->imad) ) return;
+    if ( INVALID_MAD(pinst->imad) ) return;
     pmad = MadList + pinst->imad;
 
     // To make life easier
     frame_nxt = pinst->frame_nxt;
     frame_lst = pinst->frame_lst;
-    lightrotation = FP8_TO_INT( pchr->turn_z + pchr->inst.light_turn_z );
-    lightlevel_dir = pinst->lightlevel_dir;
-    lightlevel_amb = pinst->lightlevel_amb;
     alpha = trans;
 
     // interpolate the lighting for the origin of the object
@@ -798,12 +794,12 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     project_lighting( &loc_light, &global_light, pinst->matrix );
 
     min_light = loc_light.max_light;
-    for(cnt = 0; cnt<6; cnt++)
+    for (cnt = 0; cnt < 6; cnt++)
     {
         min_light = MIN(min_light, loc_light.lighting[cnt]);
     }
 
-    for(cnt = 0; cnt<6; cnt++)
+    for (cnt = 0; cnt < 6; cnt++)
     {
         loc_light.lighting[cnt] -= min_light;
     }
@@ -813,7 +809,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     bs = pinst->blushift;
     flip = pinst->lip / 256.0f;
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
-    
+
     pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light + light_a);
 
     pinst->col_amb.a = (alpha * INV_FF) * (pinst->alpha * INV_FF);
@@ -829,7 +825,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     {
         Uint16 lite;
 
-        if( pinst->vlst[cnt].nrm[0] == 0.0f && pinst->vlst[cnt].nrm[1] == 0.0f && pinst->vlst[cnt].nrm[2] == 0.0f )
+        if ( pinst->vlst[cnt].nrm[0] == 0.0f && pinst->vlst[cnt].nrm[1] == 0.0f && pinst->vlst[cnt].nrm[2] == 0.0f )
         {
             // this is the "ambient only" index, but it really means to sum up all the light
             GLfloat tnrm[3];
@@ -853,7 +849,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
         pinst->vlst[cnt].col_dir[GG] = ( float )( pinst->vlst[cnt].color_dir >> gs ) * INV_FF;
         pinst->vlst[cnt].col_dir[BB] = ( float )( pinst->vlst[cnt].color_dir >> bs ) * INV_FF;
 
-        if( do_lighting )
+        if ( do_lighting )
         {
             Uint16 light = pinst->color_amb + pinst->vlst[cnt].color_dir;
             light = CLIP(light, 0, 255);

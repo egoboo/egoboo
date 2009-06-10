@@ -1,6 +1,16 @@
 #include "SDL_GL_extensions.h"
 #include "ogl_debug.h"
 
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+#define LOCAL_STDOUT ((NULL == _SDL_GL_stdout) ? stdout : _SDL_GL_stdout)
+
+//---------------------------------------------------------------------
+//---------------------------------------------------------------------
+static FILE * _SDL_GL_stdout = NULL;
+
+//---------------------------------------------------------------------
 //---------------------------------------------------------------------
 // create the mask
 // this will work if both endian systems think they have "RGBA" graphics
@@ -116,45 +126,45 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 
     if ( v->multisample )
     {
-        glEnable(GL_MULTISAMPLE_ARB);
-        //glEnable(GL_MULTISAMPLE);
+        GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
+        //GL_DEBUG(glEnable)(GL_MULTISAMPLE);
     };
 
     //Enable perspective correction?
-    glHint( GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
+    GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
 
     //Enable dithering?
-    if ( v->dither ) glEnable( GL_DITHER );
-    else glDisable( GL_DITHER );
+    if ( v->dither ) GL_DEBUG(glEnable)(GL_DITHER );
+    else GL_DEBUG(glDisable)(GL_DITHER );
 
     //Enable gourad v->shading? (Important!)
-    glShadeModel( v->shading );
+    GL_DEBUG(glShadeModel)(v->shading );
 
     //Enable v->antialiasing?
     if ( v->antialiasing )
     {
-        glEnable( GL_LINE_SMOOTH );
-        glHint( GL_LINE_SMOOTH_HINT,    GL_NICEST );
+        GL_DEBUG(glEnable)(GL_LINE_SMOOTH );
+        GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT,    GL_NICEST );
 
-        glEnable( GL_POINT_SMOOTH );
-        glHint( GL_POINT_SMOOTH_HINT,   GL_NICEST );
+        GL_DEBUG(glEnable)(GL_POINT_SMOOTH );
+        GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT,   GL_NICEST );
 
-        glDisable( GL_POLYGON_SMOOTH );
-        glHint( GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
+        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
+        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
-        //  glEnable(GL_BLEND);
-        //  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        //  GL_DEBUG(glEnable)(GL_BLEND);
+        //  GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         // before every single draw command
         //
-        //glEnable(GL_POLYGON_SMOOTH);
-        //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+        //GL_DEBUG(glEnable)(GL_POLYGON_SMOOTH);
+        //GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     }
     else
     {
-        glDisable( GL_POINT_SMOOTH );
-        glDisable( GL_LINE_SMOOTH );
-        glDisable( GL_POLYGON_SMOOTH );
+        GL_DEBUG(glDisable)(GL_POINT_SMOOTH );
+        GL_DEBUG(glDisable)(GL_LINE_SMOOTH );
+        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
     }
 
     // anisotropic filtering
@@ -165,21 +175,40 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 
     if ( v->userAnisotropy > 0 )
     {
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
+        GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
     };
 
     //fill mode
-    glPolygonMode( GL_FRONT, GL_FILL );
-    glPolygonMode( GL_BACK,  GL_FILL );
+    GL_DEBUG(glPolygonMode)(GL_FRONT, GL_FILL );
+    GL_DEBUG(glPolygonMode)(GL_BACK,  GL_FILL );
 
     /* Disable OpenGL lighting */
-    glDisable( GL_LIGHTING );
+    GL_DEBUG(glDisable)(GL_LIGHTING );
 
     /* Backface culling */
-    glEnable( GL_CULL_FACE );  // This seems implied - DDOI
-    glCullFace( GL_BACK );
+    GL_DEBUG(glEnable)(GL_CULL_FACE );  // This seems implied - DDOI
+    GL_DEBUG(glCullFace)(GL_BACK );
 
     return SDL_TRUE;
+}
+
+//------------------------------------------------------------------------------
+void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
+{
+    SDL_Surface * surface = (NULL == retval) ? NULL : retval->surface;
+
+    SDLX_set_stdout( LOCAL_STDOUT );
+    SDLX_report_mode( surface, retval );
+
+    if( NULL != retval && retval->flags.opengl )
+    {
+        oglx_set_stdout( LOCAL_STDOUT );
+        oglx_report_caps();
+    }
+
+    fprintf( LOCAL_STDOUT, "=======================\n" );
+
+    fflush( LOCAL_STDOUT );
 }
 
 //------------------------------------------------------------------------------
@@ -202,12 +231,15 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     }
 
     // use the sdl extensions to set the SDL video mode
-    retval = SDLX_set_mode( v_old, v_new );
+    retval = SDLX_set_mode( v_old, v_new, SDL_FALSE );
+
+    // report on the success or failure to set the mode
+    SDL_GL_report_mode( retval );
 
     // set the opengl parameters
     if ( NULL != retval->surface && retval->flags.opengl )
     {
-        // correct the multisampling 
+        // correct the multisampling
         gl_new->multisample = retval->gl_att.multi_samples > 1;
 
         SDL_GL_set_gl_mode( gl_new );
@@ -216,3 +248,21 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     return retval;
 };
 
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+FILE * SDL_GL_set_stdout(FILE * pfile)
+{
+    FILE * pfile_old = _SDL_GL_stdout;
+
+    if( NULL == pfile )
+    {
+        _SDL_GL_stdout = stdout;
+    }
+    else
+    {
+        _SDL_GL_stdout = pfile;
+    }
+
+    return pfile_old;
+}

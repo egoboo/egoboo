@@ -124,3 +124,9 @@ void log_error( const char *format, ... )
     fflush( logFile );
     exit( -1 );
 }
+
+//--------------------------------------------------------------------------------------------
+FILE * log_get_file()
+{
+    return logFile;
+};

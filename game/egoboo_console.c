@@ -22,6 +22,7 @@
 #include "egoboo_config.h"
 #include "egoboo_math.h"
 
+#include "ogl_debug.h"
 #include "SDL_extensions.h"
 
 #include <SDL.h>
@@ -230,43 +231,41 @@ SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_begin()
 {
-    SDL_Surface * displaySurface = SDL_GetVideoSurface();
+    GL_DEBUG(glPushAttrib)( GL_ENABLE_BIT );
 
-    glPushAttrib( GL_ENABLE_BIT );
+    GL_DEBUG(glDisable)( GL_DEPTH_TEST );
+    GL_DEBUG(glDisable)( GL_CULL_FACE );
+    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_CULL_FACE );
-    glEnable( GL_TEXTURE_2D );
+    GL_DEBUG(glEnable)( GL_BLEND );
+    GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-    glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
+    GL_DEBUG(glViewport)( 0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
+    GL_DEBUG(glMatrixMode)( GL_PROJECTION );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG(glOrtho)( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glLoadIdentity)();
 }
 
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_end()
 {
     // Restore the OpenGL matrices to what they were
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
+    GL_DEBUG(glMatrixMode)( GL_PROJECTION );
+    GL_DEBUG(glPopMatrix)();
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
+    GL_DEBUG(glLoadIdentity)();
 
     // Re-enable any states disabled by gui_beginFrame
-    glPopAttrib();
+    GL_DEBUG(glPopAttrib)();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -285,43 +284,43 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
     pwin = &(pcon->rect);
 
-    glDisable( GL_TEXTURE_2D );
+    GL_DEBUG(glDisable)( GL_TEXTURE_2D );
 
-    glColor4f(1, 1, 1, 1);
-    glLineWidth( 5 );
-    glBegin( GL_LINE_LOOP );
+    GL_DEBUG(glColor4f)(1, 1, 1, 1);
+    GL_DEBUG(glLineWidth)( 5 );
+    GL_DEBUG(glBegin)( GL_LINE_LOOP );
     {
-        glVertex2i( pwin->x,           pwin->y );
-        glVertex2i( pwin->x + pwin->w, pwin->y );
-        glVertex2i( pwin->x + pwin->w, pwin->y + pwin->h );
-        glVertex2i( pwin->x,           pwin->y + pwin->h );
+        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y );
+        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y );
+        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y + pwin->h );
+        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y + pwin->h );
     }
-    glEnd();
-    glLineWidth( 1 );
+    GL_DEBUG_END();
+    GL_DEBUG(glLineWidth)( 1 );
 
-    glColor4f(0, 0, 0, 1);
-    glBegin( GL_POLYGON );
+    GL_DEBUG(glColor4f)(0, 0, 0, 1);
+    GL_DEBUG(glBegin)( GL_POLYGON );
     {
-        glVertex2i( pwin->x,           pwin->y );
-        glVertex2i( pwin->x + pwin->w, pwin->y );
-        glVertex2i( pwin->x + pwin->w, pwin->y + pwin->h );
-        glVertex2i( pwin->x,           pwin->y + pwin->h );
+        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y );
+        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y );
+        GL_DEBUG(glVertex2i)( pwin->x + pwin->w, pwin->y + pwin->h );
+        GL_DEBUG(glVertex2i)( pwin->x,           pwin->y + pwin->h );
     }
-    glEnd();
+    GL_DEBUG_END();
 
-    glEnable( GL_TEXTURE_2D );
+    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 
-    glColor4f(1, 1, 1, 1);
-    glPushAttrib( GL_SCISSOR_BIT | GL_ENABLE_BIT );
+    GL_DEBUG(glColor4f)(1, 1, 1, 1);
+    GL_DEBUG(glPushAttrib)( GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
 
         // make the texture a "null" texture
-        glBindTexture( GL_TEXTURE_2D, (GLuint)(~0) );
+        GL_DEBUG(glBindTexture)( GL_TEXTURE_2D, (GLuint)(~0) );
 
         // clip the viewport
-        glEnable( GL_SCISSOR_TEST );
-        glScissor( pwin->x, surf->h - (pwin->y + pwin->h), pwin->w, pwin->h );
+        GL_DEBUG(glEnable)( GL_SCISSOR_TEST );
+        GL_DEBUG(glScissor)( pwin->x, surf->h - (pwin->y + pwin->h), pwin->w, pwin->h );
 
         height = pwin->h;
 

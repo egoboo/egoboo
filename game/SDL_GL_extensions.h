@@ -22,6 +22,9 @@ extern "C"
     extern const Uint32 sdl_g_shift;
     extern const Uint32 sdl_r_shift;
 
+    FILE * SDL_GL_set_stdout(FILE * pfile);
+    FILE * SDL_GL_set_stderr(FILE * pfile);
+
 #ifdef __cplusplus
 };
 #endif

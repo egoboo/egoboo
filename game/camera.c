@@ -42,9 +42,9 @@ camera_t gCamera;
 
 camera_t * camera_new( camera_t * pcam )
 {
-	GLvector3 t1 = {{0, 0, 0}};
-	GLvector3 t2 = {{0, 0, -1}};
-	GLvector3 t3 = {{0, 1, 0}};
+    GLvector3 t1 = {{0, 0, 0}};
+    GLvector3 t2 = {{0, 0, -1}};
+    GLvector3 t3 = {{0, 1, 0}};
 
     memset( pcam, 0, sizeof(camera_t) );
 
@@ -142,7 +142,7 @@ void camera_adjust_angle( camera_t * pcam, float height )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_move( camera_t * pcam )
+void camera_move( camera_t * pcam, mesh_t * pmesh )
 {
     // ZZ> This function moves the camera
     Uint16 cnt;
@@ -192,7 +192,7 @@ void camera_move( camera_t * pcam )
             pcam->turnadd -= CAMKEYTURN;
         }
 
-        pcam->track_pos.z = 128 + get_level( PMesh, pcam->track_pos.x, pcam->track_pos.y, bfalse );
+        pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
     }
 
     if ( CAM_PLAYER == pcam->move_mode )
@@ -250,7 +250,7 @@ void camera_move( camera_t * pcam )
         y = pcam->track_pos.y;
         z = pcam->track_pos.z;
 
-        level = 128 + get_level(PMesh, x, y, bfalse);
+        level = 128 + mesh_get_level( pmesh, x, y );
     }
 
     pcam->track_vel.x = -pcam->track_pos.x;
@@ -422,7 +422,7 @@ void camera_move( camera_t * pcam )
 
     turnsin = pcam->turn_z >> 2;
     pcam->center.x += movex * turntocos[ turnsin & TRIG_TABLE_MASK ] + movey * turntosin[ turnsin & TRIG_TABLE_MASK ];
-    pcam->center.y +=-movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
+    pcam->center.y += -movex * turntosin[ turnsin & TRIG_TABLE_MASK ] + movey * turntocos[ turnsin & TRIG_TABLE_MASK ];
 
     // Finish up the camera
     camera_look_at( pcam, pcam->center.x, pcam->center.y );
@@ -438,14 +438,14 @@ void camera_move( camera_t * pcam )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_reset( camera_t * pcam )
+void camera_reset( camera_t * pcam, mesh_t * pmesh )
 {
     // ZZ> This function makes sure the camera starts in a suitable position
     int cnt;
 
     pcam->swing = 0;
-    pcam->pos.x = PMesh->info.edge_x / 2;
-    pcam->pos.y = PMesh->info.edge_y / 2;
+    pcam->pos.x = pmesh->info.edge_x / 2;
+    pcam->pos.y = pmesh->info.edge_y / 2;
     pcam->pos.z = 1500;
     pcam->zoom = 1000;
     pcam->track_vel.x = 0;
@@ -479,7 +479,7 @@ void camera_reset( camera_t * pcam )
 
         for ( cnt = 0; cnt < 32; cnt++ )
         {
-            camera_move( pcam );
+            camera_move( pcam, pmesh );
             pcam->center.x = pcam->track_pos.x;
             pcam->center.y = pcam->track_pos.y;
         }

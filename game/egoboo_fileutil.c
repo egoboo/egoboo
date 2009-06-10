@@ -770,7 +770,7 @@ Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key 
         {
             snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
             retval = GLXtexture_Load( GL_TEXTURE_2D, texture, fullname, key );
-            if( INVALID_TX_ID != retval ) break;
+            if ( INVALID_TX_ID != retval ) break;
         }
     }
     else
@@ -785,7 +785,7 @@ Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key 
         if ( NULL == image ) return INVALID_TX_ID;
 
         tx_target = GL_TEXTURE_2D;
-        if( image->w != image->h && (image->w == 1 || image->h) )
+        if ( image->w != image->h && (image->w == 1 || image->h) )
         {
             tx_target = GL_TEXTURE_1D;
         }

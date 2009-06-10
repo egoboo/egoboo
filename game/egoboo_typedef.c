@@ -26,104 +26,104 @@ static bool_t        hash_node_dtor(hash_node_t * n);
 //--------------------------------------------------------------------------------------------
 bool_t hash_node_dtor(hash_node_t * n)
 {
-  if(NULL == n) return bfalse;
+    if (NULL == n) return bfalse;
 
-  n->data = NULL;
+    n->data = NULL;
 
-  return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_ctor(hash_node_t * n, void * data)
 {
-  if(NULL == n) return n;
+    if (NULL == n) return n;
 
-  memset(n, 0, sizeof(hash_node_t));
+    memset(n, 0, sizeof(hash_node_t));
 
-  n->data = data;
+    n->data = data;
 
-  return n;
+    return n;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_create(void * data)
 {
-  hash_node_t * n = EGOBOO_NEW( hash_node_t );
-  if(NULL == n) return n;
+    hash_node_t * n = EGOBOO_NEW( hash_node_t );
+    if (NULL == n) return n;
 
-  return hash_node_ctor(n, data);
+    return hash_node_ctor(n, data);
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t hash_node_destroy(hash_node_t ** pn)
 {
-  bool_t retval = bfalse;
+    bool_t retval = bfalse;
 
-  if(NULL == pn || NULL == *pn) return bfalse;
+    if (NULL == pn || NULL == *pn) return bfalse;
 
-  retval = hash_node_dtor(*pn);
+    retval = hash_node_dtor(*pn);
 
-  EGOBOO_DELETE(*pn);
+    EGOBOO_DELETE(*pn);
 
-  return retval;
+    return retval;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_insert_after(hash_node_t lst[], hash_node_t * n)
 {
-  if( NULL == n ) return lst;
-  n->next = NULL;
+    if ( NULL == n ) return lst;
+    n->next = NULL;
 
-  if( NULL == lst ) return n;
+    if ( NULL == lst ) return n;
 
-  n->next = n->next;
-  lst->next = n;
+    n->next = n->next;
+    lst->next = n;
 
-  return lst;
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_insert_before(hash_node_t lst[], hash_node_t * n)
 {
-  if( NULL == n ) return lst;
-  n->next = NULL;
+    if ( NULL == n ) return lst;
+    n->next = NULL;
 
-  if( NULL == lst ) return n;
+    if ( NULL == lst ) return n;
 
-  n->next = lst;
+    n->next = lst;
 
-  return n;
+    return n;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_remove_after(hash_node_t lst[])
 {
-  hash_node_t * n;
+    hash_node_t * n;
 
-  if(NULL == lst) return NULL;
+    if (NULL == lst) return NULL;
 
-  n = lst->next;
-  if(NULL == n) return lst;
+    n = lst->next;
+    if (NULL == n) return lst;
 
-  lst->next = n->next;
-  n->next   = NULL;
+    lst->next = n->next;
+    n->next   = NULL;
 
-  return lst;
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_node_t * hash_node_remove(hash_node_t lst[])
 {
-  hash_node_t * n;
+    hash_node_t * n;
 
-  if(NULL == lst) return NULL;
+    if (NULL == lst) return NULL;
 
-  n = lst->next;
-  if(NULL == n) return NULL;
+    n = lst->next;
+    if (NULL == n) return NULL;
 
-  lst->next = NULL;
+    lst->next = NULL;
 
-  return n;
+    return n;
 }
 
 
@@ -131,77 +131,77 @@ hash_node_t * hash_node_remove(hash_node_t lst[])
 //--------------------------------------------------------------------------------------------
 bool_t hash_list_deallocate(hash_list_t * lst)
 {
-  if(NULL == lst) return bfalse;
-  if(0 == lst->allocated) return btrue;
+    if (NULL == lst) return bfalse;
+    if (0 == lst->allocated) return btrue;
 
-  EGOBOO_DELETE(lst->subcount);
-  EGOBOO_DELETE(lst->sublist);
-  lst->allocated = 0;
+    EGOBOO_DELETE(lst->subcount);
+    EGOBOO_DELETE(lst->sublist);
+    lst->allocated = 0;
 
-  return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t hash_list_allocate(hash_list_t * lst, int size)
 {
-  if(NULL == lst) return bfalse;
+    if (NULL == lst) return bfalse;
 
-  hash_list_deallocate(lst);
+    hash_list_deallocate(lst);
 
-  lst->subcount = EGOBOO_NEW_ARY(int, size);
-  if(NULL == lst->subcount)
-  {
-    return bfalse;
-  }
+    lst->subcount = EGOBOO_NEW_ARY(int, size);
+    if (NULL == lst->subcount)
+    {
+        return bfalse;
+    }
 
-  lst->sublist = EGOBOO_NEW_ARY( hash_node_t *, size );
-  if(NULL == lst->sublist)
-  {
-    EGOBOO_DELETE(lst->subcount);
-    return bfalse;
-  }
+    lst->sublist = EGOBOO_NEW_ARY( hash_node_t *, size );
+    if (NULL == lst->sublist)
+    {
+        EGOBOO_DELETE(lst->subcount);
+        return bfalse;
+    }
 
-  lst->allocated = size;
+    lst->allocated = size;
 
-  return btrue;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
 hash_list_t * hash_list_ctor(hash_list_t * lst, int size)
 {
-  if(NULL == lst) return NULL;
+    if (NULL == lst) return NULL;
 
-  if(size<0) size = 256;
-  hash_list_allocate(lst, size);
+    if (size < 0) size = 256;
+    hash_list_allocate(lst, size);
 
-  return lst;
+    return lst;
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t hash_list_dtor(hash_list_t * lst)
 {
-  if(NULL == lst) return bfalse;
+    if (NULL == lst) return bfalse;
 
-  hash_list_deallocate(lst);
+    hash_list_deallocate(lst);
 
-  return btrue;
+    return btrue;
 }
 //--------------------------------------------------------------------------------------------
 hash_list_t * hash_list_create(int size)
 {
-  return hash_list_ctor( EGOBOO_NEW( hash_list_t ), size);
+    return hash_list_ctor( EGOBOO_NEW( hash_list_t ), size);
 }
 
 //--------------------------------------------------------------------------------------------
 bool_t hash_list_destroy(hash_list_t ** plst)
 {
-  bool_t retval = bfalse;
+    bool_t retval = bfalse;
 
-  if(NULL == plst || NULL == *plst) return bfalse;
+    if (NULL == plst || NULL == *plst) return bfalse;
 
-  retval = hash_list_dtor(*plst);
+    retval = hash_list_dtor(*plst);
 
-  EGOBOO_DELETE(*plst);
+    EGOBOO_DELETE(*plst);
 
-  return retval;
+    return retval;
 }

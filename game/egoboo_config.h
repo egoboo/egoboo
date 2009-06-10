@@ -54,7 +54,7 @@
 //Some macro switches
 #undef OLD_CAMERA_MODE       //Use the old camera style
 #undef USE_LUA_CONSOLE       //LUA support for the console
-#define DISABLE_BODY_GRAB		//Disable the grabbing of bodies
+#define DISABLE_BODY_GRAB       //Disable the grabbing of bodies
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
 
 #undef RENDER_HMAP

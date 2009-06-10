@@ -28,6 +28,43 @@
 
 #include "egoboo.h"
 
+//Object positions
+enum e_slots
+{
+    SLOT_LEFT  = 0,
+    SLOT_RIGHT,
+    SLOT_COUNT
+};
+typedef enum e_slots slot_t;
+
+enum e_inventory
+{
+    INVEN_PACK = 0,
+    INVEN_NECK,
+    INVEN_WRIS,
+    INVEN_FOOT,
+    INVEN_COUNT
+};
+
+typedef enum e_inventory inventory_t;
+
+#define GRIP_VERTS                       4
+enum e_grip_offset
+{
+    GRIP_ORIGIN    =               0,                // Spawn attachments at the center
+    GRIP_LAST      =               1,                // Spawn particles at the last vertex
+    GRIP_LEFT      =              (1 * GRIP_VERTS),  // Left weapon grip starts  4 from last
+    GRIP_RIGHT     =              (2 * GRIP_VERTS),  // Right weapon grip starts 8 from last
+
+    // aliases
+    GRIP_INVENTORY =               GRIP_ORIGIN,
+    GRIP_ONLY      =               GRIP_LEFT
+};
+typedef enum e_grip_offset grip_offset_t;
+
+grip_offset_t slot_to_grip_offset( slot_t slot );
+slot_t        grip_offset_to_slot( grip_offset_t grip );
+
 #define SPINRATE            200                     // How fast spinners spin
 #define WATCHMIN            0.01f
 #define PITDEPTH            -30                     // Depth to kill character
@@ -64,7 +101,7 @@
 #define PLATASCEND          0.10f                     // Ascension rate
 #define PLATKEEP            0.90f                     // Retention rate
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
-#define STOPBOUNCING         0.1f //1.0f				// To make objects stop bouncing
+#define STOPBOUNCING         0.1f //1.0f                // To make objects stop bouncing
 
 //------------------------------------
 // Team variables
@@ -243,7 +280,7 @@ struct s_cap
     bool_t       ripple;                        // Spawn ripples?
     Uint8        damagetargettype;              // For AI DamageTarget
     Uint8        weaponaction;                  // Animation needed to swing
-    bool_t       slotvalid[MAXSLOT];            // Left/Right hands valid
+    bool_t       slotvalid[SLOT_COUNT];            // Left/Right hands valid
     Uint8        attackattached;
     Sint8        attackprttype;
     Uint8        attachedprtamount;             // Sticky particles
@@ -319,9 +356,9 @@ struct s_chr_instance
     Uint16         voffset;
 
     // lighting
-    Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
-    Uint8          lightlevel_amb;  // 0-255, terrain light
-    Uint8          lightlevel_dir;  // 0-255, terrain light
+    //Uint16         light_turn_z;    // Character's light rotation 0 to 0xFFFF
+    //Uint8          lightlevel_amb;  // 0-255, terrain light
+    //Uint8          lightlevel_dir;  // 0-255, terrain light
 
     // model info
     Uint16         imad;            // Character's model
@@ -373,10 +410,10 @@ struct s_chr
     Uint8          alive;           // Is it alive?
     Uint8          waskilled;       // Fix for network
 
-    Uint8          inpack;          // Is it in the inventory?
-    Uint8          wasinpack;       // Temporary thing...
-    Uint16         nextinpack;    // Link to the next item
-    Uint8          numinpack;       // How many
+    Uint8          pack_ispacked;    // Is it in the inventory?
+    Uint8          pack_waspacked;   // Temporary thing...
+    Uint16         pack_next;        // Link to the next item
+    Uint8          pack_count;       // How many
 
     Uint8          openstuff;       // Can it open chests/doors?
 
@@ -467,8 +504,9 @@ struct s_chr
     bool_t         loopaction;      // Loop it too
     Uint8          nextaction;      // Character's action to play next
 
-    Uint16         holdingwhich[MAXSLOT]; // !=MAX_CHR if character is holding something
-    Uint16         attachedto;      // !=MAX_CHR if character is a held weapon
+    Uint16         holdingwhich[SLOT_COUNT]; // !=MAX_CHR if character is holding something
+    Uint16         inventory[INVEN_COUNT];   // !=MAX_CHR if character is storing something
+    Uint16         attachedto;               // !=MAX_CHR if character is a held weapon
     Uint16         weapongrip[GRIP_VERTS];   // Vertices which describe the weapon grip
     Uint8          basealpha;
     Uint8          flashand;        // 1,3,7,15,31 = Flash, 255 = Don't
@@ -520,7 +558,7 @@ struct s_chr
     Sint16         boretime;        // Boredom timer
     Uint8          carefultime;     // "You hurt me!" timer
     bool_t         canbecrushed;    // Crush in a door?
-    Uint8          inwhichhand;     // SLOT_LEFT or SLOT_RIGHT
+    Uint8          inwhich_slot;     // SLOT_LEFT or SLOT_RIGHT
     Uint8          isequipped;      // For boots and rings and stuff
     Uint16         firstenchant;    // Linked list for enchants
     Uint16         undoenchant;     // Last enchantment spawned
@@ -532,7 +570,7 @@ struct s_chr
     Uint16         damageboost;     // Add to swipe damage
     bool_t         isshopitem;     // Spawned in a shop?
     Sint8          soundindex[SOUND_COUNT];       // a map for soundX.wav to sound types
-	Sint8          loopedsound;			//Which sound channel it is looping on, -1 is none.
+    Sint8          loopedsound;         //Which sound channel it is looping on, -1 is none.
 
     //Skills
     Sint8           shieldproficiency;  // Can it use shields?
@@ -634,12 +672,12 @@ Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
 void switch_team( Uint16 character, Uint8 team );
 void issue_clean( Uint16 character );
 int  restock_ammo( Uint16 character, IDSZ idsz );
-void attach_character_to_mount( Uint16 character, Uint16 mount, Uint16 grip );
-void pack_add_item( Uint16 item, Uint16 character );
-Uint16 pack_get_item( Uint16 character, Uint16 grip, Uint8 ignorekurse );
+void attach_character_to_mount( Uint16 character, Uint16 mount, grip_offset_t grip_off );
+bool_t inventory_add_item( Uint16 item, Uint16 character );
+Uint16 inventory_get_item( Uint16 character, grip_offset_t grip_off, bool_t ignorekurse );
 void drop_keys( Uint16 character );
-void drop_all_items( Uint16 character );
-bool_t character_grab_stuff( Uint16 chara, int grip, Uint8 people );
+bool_t drop_all_items( Uint16 character );
+bool_t character_grab_stuff( Uint16 chara, grip_offset_t grip, Uint8 people );
 
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
 void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
@@ -657,6 +695,8 @@ int check_skills( Uint16 who, IDSZ whichskill );
 bool_t stop_object_looped_sound( Uint16 character );
 
 bool_t is_invictus_direction( Uint16 direction, Uint16 character, Uint16 effects );
+
+void   init_slot_idsz();
 
 //---------------------------------------------------------------------------------------------
 // Quest system

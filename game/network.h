@@ -86,6 +86,13 @@ extern int                     numpla;                                   // Numb
 extern int                     local_numlpla;
 extern player_t                PlaList[MAXPLAYER];
 
+extern bool_t                  networkon;                  // Try to connect?
+extern bool_t                  serviceon;                  // Do I need to free the interface?
+extern bool_t                  hostactive;                 // Hosting?
+extern bool_t                  readytostart;               // Ready to hit the Start Game button?
+extern bool_t                  waitingforplayers;          // Has everyone talked to the host?
+
+
 //---------------------------------------------------------------------------------------------
 // Networking functions
 

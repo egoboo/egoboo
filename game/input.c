@@ -280,7 +280,7 @@ void input_read()
                     }
                     else
                     {
-                        if( SDLK_ESCAPE == evt.key.keysym.sym )
+                        if ( SDLK_ESCAPE == evt.key.keysym.sym )
                         {
                             game_escape_requested = btrue;
                         }

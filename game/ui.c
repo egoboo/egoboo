@@ -26,6 +26,7 @@
 #include "graphic.h"
 #include "egoboo.h"
 
+#include "ogl_debug.h"
 #include "SDL_extensions.h"
 
 #include <string.h>
@@ -124,26 +125,26 @@ void ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    glPushAttrib( GL_ENABLE_BIT );
-    glDisable( GL_DEPTH_TEST );
-    glDisable( GL_CULL_FACE );
-    glEnable( GL_TEXTURE_2D );
+    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT );
+    GL_DEBUG(glDisable)(GL_DEPTH_TEST );
+    GL_DEBUG(glDisable)(GL_CULL_FACE );
+    GL_DEBUG(glEnable)(GL_TEXTURE_2D );
 
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+    GL_DEBUG(glEnable)(GL_BLEND );
+    GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-    glViewport( 0, 0, sdl_scr.x, sdl_scr.y );
+    GL_DEBUG(glViewport)(0, 0, sdl_scr.x, sdl_scr.y );
 
     // Set up an ortho projection for the gui to use.  Controls are free to modify this
     // later, but most of them will need this, so it's done by default at the beginning
     // of a frame
-    glMatrixMode( GL_PROJECTION );
-    glPushMatrix();
-    glLoadIdentity();
-    glOrtho( 0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
+    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
+    GL_DEBUG(glPushMatrix)();
+    GL_DEBUG(glLoadIdentity)();
+    GL_DEBUG(glOrtho)(0, sdl_scr.x, sdl_scr.y, 0, -1, 1 );
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
+    GL_DEBUG(glLoadIdentity)();
 
     // hotness gets reset at the start of each frame
     ui_context.hot = UI_Nothing;
@@ -153,14 +154,14 @@ void ui_beginFrame( float deltaTime )
 void ui_endFrame()
 {
     // Restore the OpenGL matrices to what they were
-    glMatrixMode( GL_PROJECTION );
-    glPopMatrix();
+    GL_DEBUG(glMatrixMode)(GL_PROJECTION );
+    GL_DEBUG(glPopMatrix)();
 
-    glMatrixMode( GL_MODELVIEW );
-    glLoadIdentity();
+    GL_DEBUG(glMatrixMode)(GL_MODELVIEW );
+    GL_DEBUG(glLoadIdentity)();
 
     // Re-enable any states disabled by gui_beginFrame
-    glPopAttrib();
+    GL_DEBUG(glPopAttrib)();
 
     // Clear input states at the end of the frame
     ui_context.mousePressed = ui_context.mouseReleased = 0;
@@ -324,36 +325,35 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
     GLfloat color_3[4] = { 0.66f, 0.0f, 0.0f, 0.6f };
 
     // Draw the button
-    glDisable( GL_TEXTURE_2D );
+    GL_DEBUG(glDisable)(GL_TEXTURE_2D );
 
-    glBegin( GL_QUADS );
+    if ( NULL == pcolor )
     {
-        if ( NULL == pcolor )
+        if ( ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id )
         {
-            if ( ui_context.active != UI_Nothing && ui_context.active == id && ui_context.hot == id )
-            {
-                pcolor = color_1;
-            }
-            else if ( ui_context.hot != UI_Nothing && ui_context.hot == id )
-            {
-                pcolor = color_2;
-            }
-            else
-            {
-                pcolor = color_3;
-            }
+            pcolor = color_1;
         }
-
-        glColor4fv( pcolor );
-
-        glVertex2i( x, y );
-        glVertex2i( x, y + height );
-        glVertex2i( x + width, y + height );
-        glVertex2i( x + width, y );
+        else if ( ui_context.hot != UI_Nothing && ui_context.hot == id )
+        {
+            pcolor = color_2;
+        }
+        else
+        {
+            pcolor = color_3;
+        }
     }
-    glEnd();
 
-    glEnable( GL_TEXTURE_2D );
+    GL_DEBUG(glColor4fv)( pcolor );
+    GL_DEBUG(glBegin)( GL_QUADS );
+    {
+        GL_DEBUG(glVertex2f)(x, y );
+        GL_DEBUG(glVertex2f)(x, y + height );
+        GL_DEBUG(glVertex2f)(x + width, y + height );
+        GL_DEBUG(glVertex2f)(x + width, y );
+    }
+    GL_DEBUG_END();
+
+    GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -380,15 +380,14 @@ void ui_drawImage( ui_id_t id, GLXtexture *img, int x, int y, int width, int hei
         // Draw the image
         GLXtexture_Bind( img );
 
-        glBegin( GL_TRIANGLE_STRIP );
+        GL_DEBUG(glBegin)( GL_QUADS );
         {
-            glTexCoord2f(  0,  0 );  glVertex2i( x,     y );
-            glTexCoord2f( x1,  0 );  glVertex2i( x + w, y );
-            glTexCoord2f(  0, y1 );  glVertex2i( x,     y + h );
-            glTexCoord2f( x1, y1 );  glVertex2i( x + w, y + h );
+            GL_DEBUG(glTexCoord2f)( 0,  0 );  GL_DEBUG(glVertex2f)(x,     y );
+            GL_DEBUG(glTexCoord2f)(x1,  0 );  GL_DEBUG(glVertex2f)(x + w, y );
+            GL_DEBUG(glTexCoord2f)(x1, y1 );  GL_DEBUG(glVertex2f)(x + w, y + h );
+            GL_DEBUG(glTexCoord2f)( 0, y1 );  GL_DEBUG(glVertex2f)(x,     y + h );
         }
-        glEnd();
-
+        GL_DEBUG_END();
     }
 }
 
@@ -490,7 +489,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
         text_x = ( width - text_w ) / 2 + x;
         text_y = ( height - text_h ) / 2 + y;
 
-        glColor3f( 1, 1, 1 );
+        GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
     }
 
@@ -509,7 +508,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, GLXtexture *img, int x, int y, int
     ui_drawButton( id, x, y, width, height, NULL );
 
     // And then draw the image on top of it
-    glColor3f( 1, 1, 1 );
+    GL_DEBUG(glColor3f)(1, 1, 1 );
     ui_drawImage( id, img, x + 5, y + 5, width - 10, height - 10 );
 
     return result;
@@ -531,7 +530,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLXtexture *img, const cha
     ui_drawButton( id, x, y, width, height, NULL );
 
     // Draw the image part
-    glColor3f( 1, 1, 1 );
+    GL_DEBUG(glColor3f)(1, 1, 1 );
     ui_drawImage( id, img, x + 5, y + 5, 0, 0 );
 
     // And draw the text next to the image
@@ -546,7 +545,7 @@ ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLXtexture *img, const cha
         text_x = img->imgW + 10 + x;
         text_y = ( height - text_h ) / 2 + y;
 
-        glColor3f( 1, 1, 1 );
+        GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( font, text_x, text_y, text );
     }
 
@@ -576,7 +575,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         ui_Widget_t wtmp;
 
         // Draw the image part
-        glColor3f( 1, 1, 1 );
+        GL_DEBUG(glColor3f)(1, 1, 1 );
 
         ui_shrinkWidget( &wtmp, pw, 5 );
         wtmp.width = wtmp.height;
@@ -589,7 +588,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
     // And draw the text on the right hand side of any image
     if ( NULL != pw->pfont && NULL != pw->text && '\0' != pw->text[0] )
     {
-        glColor3f( 1, 1, 1 );
+        GL_DEBUG(glColor3f)(1, 1, 1 );
 
         // find the pw->width & pw->height of the pw->text to be drawn, so that it can be centered inside
         // the button
@@ -604,7 +603,7 @@ ui_buttonValues ui_doWidget( ui_Widget_t * pw )
         text_x = img_w + ( pw->width - img_w - text_w ) / 2 + pw->x;
         text_y = ( pw->height - text_h ) / 2 + pw->y;
 
-        glColor3f( 1, 1, 1 );
+        GL_DEBUG(glColor3f)(1, 1, 1 );
         fnt_drawText( pw->pfont, text_x, text_y, pw->text );
     }
 

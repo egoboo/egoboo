@@ -30,6 +30,7 @@
 #include "particle.h"
 #include "network.h"
 #include "mad.h"
+#include "game.h"
 
 #include "egoboo_setup.h"
 
@@ -456,7 +457,7 @@ Uint8 scr_Compass( script_state_t * pstate, ai_state_t * pself )
 
     pstate->x -= turntocos[ (pstate->turn >> 2) & TRIG_TABLE_MASK ] * pstate->distance;
     pstate->y -= turntosin[ (pstate->turn >> 2) & TRIG_TABLE_MASK ] * pstate->distance;
-                                                    
+
     SCRIPT_FUNCTION_END();
 }
 
@@ -727,7 +728,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
 
     // Check the pack
-    sTmp = ChrList[pself->target].nextinpack;
+    sTmp = ChrList[pself->target].pack_next;
     while ( sTmp != MAX_CHR )
     {
         if ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument )
@@ -737,7 +738,7 @@ Uint8 scr_TargetHasItemID( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            sTmp = ChrList[sTmp].nextinpack;
+            sTmp = ChrList[sTmp].pack_next;
         }
     }
 
@@ -1090,7 +1091,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
     // Check the pack
     iTmp = MAX_CHR;
     tTmp = pself->target;
-    sTmp = ChrList[tTmp].nextinpack;
+    sTmp = ChrList[tTmp].pack_next;
 
     while ( sTmp != MAX_CHR )
     {
@@ -1103,7 +1104,7 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         else
         {
             tTmp = sTmp;
-            sTmp = ChrList[sTmp].nextinpack;
+            sTmp = ChrList[sTmp].pack_next;
         }
     }
 
@@ -1136,11 +1137,11 @@ Uint8 scr_CostTargetItemID( script_state_t * pstate, ai_state_t * pself )
         if ( ChrList[iTmp].ammo <= 1 )
         {
             // Poof the item
-            if ( ChrList[iTmp].inpack )
+            if ( ChrList[iTmp].pack_ispacked )
             {
                 // Remove from the pack
-                ChrList[tTmp].nextinpack = ChrList[iTmp].nextinpack;
-                ChrList[pself->target].numinpack--;
+                ChrList[tTmp].pack_next = ChrList[iTmp].pack_next;
+                ChrList[pself->target].pack_count--;
                 free_one_character_in_game( iTmp );
                 iTmp = MAX_CHR;
             }
@@ -1392,8 +1393,8 @@ Uint8 scr_set_WeatherTime( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // set_ the weather timer
-    weathertimereset = pstate->argument;
-    weathertime = pstate->argument;
+    weather_data.timer_reset = pstate->argument;
+    weather.time = pstate->argument;
 
     SCRIPT_FUNCTION_END();
 }
@@ -2419,13 +2420,13 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function raises and lowers the module's water
-    fTmp = ( pstate->argument / 10.0f ) - waterdouselevel;
-    watersurfacelevel += fTmp;
-    waterdouselevel += fTmp;
+    fTmp = ( pstate->argument / 10.0f ) - water.douse_level;
+    water.surface_level += fTmp;
+    water.douse_level += fTmp;
 
     for ( iTmp = 0; iTmp < MAXWATERLAYER; iTmp++ )
     {
-        waterlayerz[iTmp] += fTmp;
+        water.layer_z[iTmp] += fTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2594,12 +2595,12 @@ Uint8 scr_RestockTargetAmmoIDAll( script_state_t * pstate, ai_state_t * pself )
     iTmp += restock_ammo( sTmp, pstate->argument );
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     iTmp += restock_ammo( sTmp, pstate->argument );
-    sTmp = ChrList[pself->target].nextinpack;
+    sTmp = ChrList[pself->target].pack_next;
 
     while ( sTmp != MAX_CHR )
     {
         iTmp += restock_ammo( sTmp, pstate->argument );
-        sTmp = ChrList[sTmp].nextinpack;
+        sTmp = ChrList[sTmp].pack_next;
     }
 
     pstate->argument = iTmp;
@@ -2628,12 +2629,12 @@ Uint8 scr_RestockTargetAmmoIDFirst( script_state_t * pstate, ai_state_t * pself 
         iTmp += restock_ammo( sTmp, pstate->argument );
         if ( iTmp == 0 )
         {
-            sTmp = ChrList[pself->target].nextinpack;
+            sTmp = ChrList[pself->target].pack_next;
 
             while ( sTmp != MAX_CHR && iTmp == 0 )
             {
                 iTmp += restock_ammo( sTmp, pstate->argument );
-                sTmp = ChrList[sTmp].nextinpack;
+                sTmp = ChrList[sTmp].pack_next;
             }
         }
     }
@@ -2848,7 +2849,7 @@ Uint8 scr_get_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = waterdouselevel * 10;
+    pstate->argument = water.douse_level * 10;
 
     SCRIPT_FUNCTION_END();
 }
@@ -3170,7 +3171,7 @@ Uint8 scr_SendMessageNear( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    iTmp = ABS( pchr->pos_old.x - gCamera.track_pos.x ) + ABS( pchr->pos_old.y - gCamera.track_pos.y );
+    iTmp = ABS( pchr->pos_old.x - PCamera->track_pos.x ) + ABS( pchr->pos_old.y - PCamera->track_pos.y );
     if ( iTmp < MSGDISTANCE )
     {
         display_message( pstate, MadList[pchr->inst.imad].msgstart + pstate->argument, pself->index );
@@ -3440,7 +3441,7 @@ Uint8 scr_OverWater( script_state_t * pstate, ai_state_t * pself )
     returncode = bfalse;
     if ( VALID_TILE(PMesh, pchr->onwhichfan) )
     {
-        returncode = ( ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER ) ) && wateriswater );
+        returncode = ( ( 0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_WATER ) ) && water_data.is_water );
     }
 
     SCRIPT_FUNCTION_END();
@@ -3733,11 +3734,11 @@ Uint8 scr_PlaySoundLooped( script_state_t * pstate, ai_state_t * pself )
 
     // This function starts playing a continuous sound
     SCRIPT_FUNCTION_BEGIN();
-	if( pchr->loopedsound != pstate->argument && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
-	{
-		stop_object_looped_sound( pself->index );		//Stop existing sound loop (if any)
-		pchr->loopedsound = sound_play_chunk_looped(pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument], -1);
-	}
+    if ( pchr->loopedsound != pstate->argument && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+    {
+        stop_object_looped_sound( pself->index );       //Stop existing sound loop (if any)
+        pchr->loopedsound = sound_play_chunk_looped(pchr->pos_old, CapList[pchr->model].wavelist[pstate->argument], -1);
+    }
     SCRIPT_FUNCTION_END();
 }
 
@@ -3749,7 +3750,7 @@ Uint8 scr_StopSound( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	stop_object_looped_sound( pself->index );
+    stop_object_looped_sound( pself->index );
 
     SCRIPT_FUNCTION_END();
 }
@@ -3805,7 +3806,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
 
     // This function proceeds if the target has a matching item equipped
     returncode = bfalse;
-    sTmp = ChrList[pself->target].nextinpack;
+    sTmp = ChrList[pself->target].pack_next;
     while ( sTmp != MAX_CHR )
     {
         if ( sTmp != pself->index && ChrList[sTmp].isequipped && ( CapList[ChrList[sTmp].model].idsz[IDSZ_PARENT] == ( Uint32 ) pstate->argument || CapList[ChrList[sTmp].model].idsz[IDSZ_TYPE] == ( Uint32 ) pstate->argument ) )
@@ -3815,7 +3816,7 @@ Uint8 scr_TargetHasItemIDEquipped( script_state_t * pstate, ai_state_t * pself )
         }
         else
         {
-            sTmp = ChrList[sTmp].nextinpack;
+            sTmp = ChrList[sTmp].pack_next;
         }
     }
 
@@ -3911,21 +3912,21 @@ Uint8 scr_set_TargetToWideBlahID( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     {
         TARGET_TYPE blahteam = NONE;
-	    returncode = bfalse;
-       	
-		//Determine which team to target
-		if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
+        returncode = bfalse;
+
+        //Determine which team to target
+        if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
         if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
         if ( (( pstate->distance >> 1 ) & 1) )
-		{
-			if( blahteam == FRIEND ) blahteam = ALL;
+        {
+            if ( blahteam == FRIEND ) blahteam = ALL;
             else blahteam = ENEMY;
-		}
+        }
 
-		//Try to find one
+        //Try to find one
         returncode =  (MAX_CHR != get_target(
-            pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1, 
-            pstate->argument, ( pstate->distance >> 4 ) & 1 ));
+                           pself->index, WIDE, blahteam, ( pstate->distance >> 3 ) & 1 , ( pstate->distance ) & 1,
+                           pstate->argument, ( pstate->distance >> 4 ) & 1 ));
     }
 
     SCRIPT_FUNCTION_END();
@@ -4579,11 +4580,11 @@ Uint8 scr_set_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - fogtop;
-    fogtop += fTmp;
-    fogdistance += fTmp;
-    fogon = cfg.fog_allowed;
-    if ( fogdistance < 1.0f )  fogon = bfalse;
+    fTmp = ( pstate->argument / 10.0f ) - fog.top;
+    fog.top += fTmp;
+    fog.distance += fTmp;
+    fog.on = cfg.fog_allowed;
+    if ( fog.distance < 1.0f )  fog.on = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4597,7 +4598,7 @@ Uint8 scr_get_FogLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fogtop * 10;
+    pstate->argument = fog.top * 10;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4613,9 +4614,9 @@ Uint8 scr_set_FogTAD( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function changes the fog color
-    fogred = pstate->turn;
-    foggrn = pstate->argument;
-    fogblu = pstate->distance;
+    fog.red = pstate->turn;
+    fog.grn = pstate->argument;
+    fog.blu = pstate->distance;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4632,11 +4633,11 @@ Uint8 scr_set_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    fTmp = ( pstate->argument / 10.0f ) - fogbottom;
-    fogbottom += fTmp;
-    fogdistance -= fTmp;
-    fogon = cfg.fog_allowed;
-    if ( fogdistance < 1.0f )  fogon = bfalse;
+    fTmp = ( pstate->argument / 10.0f ) - fog.bottom;
+    fog.bottom += fTmp;
+    fog.distance -= fTmp;
+    fog.on = cfg.fog_allowed;
+    if ( fog.distance < 1.0f )  fog.on = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4651,7 +4652,7 @@ Uint8 scr_get_FogBottomLevel( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    pstate->argument = fogbottom * 10;
+    pstate->argument = fog.bottom * 10;
 
     SCRIPT_FUNCTION_END();
 }
@@ -4667,7 +4668,7 @@ Uint8 scr_CorrectActionForHand( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
     if ( pchr->attachedto != MAX_CHR )
     {
-        if ( pchr->inwhichhand == SLOT_LEFT )
+        if ( pchr->inwhich_slot == SLOT_LEFT )
         {
             // A or B
             pstate->argument = pstate->argument + ( rand() & 1 );
@@ -4741,7 +4742,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
-    if ( iTmp != INVALID_TILE )
+    if ( VALID_TILE(PMesh, iTmp) )
     {
         returncode = btrue;
         pstate->argument = PMesh->mem.tile_list[iTmp].img & 0xFF;
@@ -4753,7 +4754,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
 //--------------------------------------------------------------------------------------------
 Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 {
-    // set_ShadowSize( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
+    // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
     // This function changes the tile type at the specified coordinates
 
     int iTmp;
@@ -4762,7 +4763,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
 
     returncode = bfalse;
     iTmp = mesh_get_tile( PMesh, pstate->x, pstate->y );
-    if ( iTmp != INVALID_TILE )
+    if ( VALID_TILE(PMesh, iTmp) )
     {
         returncode = btrue;
         PMesh->mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
@@ -4964,7 +4965,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     // This function plays a sound loud for everyone...  Victory music
     if ( moduleactive && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
-        sound_play_chunk( gCamera.track_pos, CapList[pchr->model].wavelist[pstate->argument] );
+        sound_play_chunk( PCamera->track_pos, CapList[pchr->model].wavelist[pstate->argument] );
     }
 
     SCRIPT_FUNCTION_END();
@@ -5043,12 +5044,12 @@ Uint8 scr_UnkurseTargetInventory( script_state_t * pstate, ai_state_t * pself )
     ChrList[sTmp].iskursed = bfalse;
     sTmp = ChrList[pself->target].holdingwhich[SLOT_RIGHT];
     ChrList[sTmp].iskursed = bfalse;
-    sTmp = ChrList[pself->target].nextinpack;
+    sTmp = ChrList[pself->target].pack_next;
 
     while ( sTmp != MAX_CHR )
     {
         ChrList[sTmp].iskursed = bfalse;
-        sTmp = ChrList[sTmp].nextinpack;
+        sTmp = ChrList[sTmp].pack_next;
     }
 
     SCRIPT_FUNCTION_END();
@@ -5153,18 +5154,18 @@ Uint8 scr_set_TargetToNearestBlahID( script_state_t * pstate, ai_state_t * pself
 
     {
         TARGET_TYPE blahteam = NONE;
-	    returncode = bfalse;
-       	
-		//Determine which team to target
-		if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
+        returncode = bfalse;
+
+        //Determine which team to target
+        if ( ( pstate->distance >> 3 ) & 1 )  blahteam = ALL;
         if ( ( pstate->distance >> 2 ) & 1 )  blahteam = FRIEND;
         if ( (( pstate->distance >> 1 ) & 1) )
-		{
-			if( blahteam == FRIEND ) blahteam = ALL;
+        {
+            if ( blahteam == FRIEND ) blahteam = ALL;
             else blahteam = ENEMY;
-		}
+        }
 
-		//Try to find one
+        //Try to find one
         if (get_target(pself->index, NEAREST, blahteam, ( ( pstate->distance >> 3 ) & 1 ),
                        ( ( pstate->distance ) & 1 ), pstate->argument, (( pstate->distance >> 4 ) & 1) ) != MAX_CHR) returncode = btrue;
 
@@ -5810,7 +5811,7 @@ Uint8 scr_set_VolumeNearestTeammate( script_state_t * pstate, ai_state_t * pself
     {
     if(ChrList[sTmp].on && ChrList[sTmp].alive && ChrList[sTmp].Team == pchr->Team)
     {
-    distance = ABS(gCamera.trackx-ChrList[sTmp].pos_old.x)+ABS(gCamera.tracky-ChrList[sTmp].pos_old.y);
+    distance = ABS(PCamera->trackx-ChrList[sTmp].pos_old.x)+ABS(PCamera->tracky-ChrList[sTmp].pos_old.y);
     if(distance < iTmp)  iTmp = distance;
     }
     sTmp++;
@@ -6406,17 +6407,17 @@ Uint8 scr_AddQuestAllPlayers( script_state_t * pstate, ai_state_t * pself )
     {
         if ( ChrList[PlaList[iTmp].index].isplayer )
         {
-			Sint16 i;
+            Sint16 i;
             add_quest_idsz(ChrList[PlaList[iTmp].index].name , pstate->argument );       //Try to add it if not already there or beaten
             i = check_player_quest( ChrList[PlaList[iTmp].index].name, pstate->argument);   //Get the current quest level
-            
-			if (i <= QUEST_BEATEN || i >= pstate->distance) returncode = bfalse;      //It was already beaten or high enough level
-            else 
-			{
-				modify_quest_idsz( ChrList[PlaList[iTmp].index].name, pstate->argument, pstate->distance );//Not beaten yet, set level to tmpdistance
-				returncode = btrue;
-			}
-		}
+
+            if (i <= QUEST_BEATEN || i >= pstate->distance) returncode = bfalse;      //It was already beaten or high enough level
+            else
+            {
+                modify_quest_idsz( ChrList[PlaList[iTmp].index].name, pstate->argument, pstate->distance );//Not beaten yet, set level to tmpdistance
+                returncode = btrue;
+            }
+        }
 
         iTmp++;
     }

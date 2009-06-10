@@ -23,6 +23,9 @@
 
 #include "egoboo_math.h"
 
+#include <assert.h>
+#include <float.h>
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 float turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
@@ -58,15 +61,22 @@ GLvector3 VSub( GLvector3 A, GLvector3 B )
 
 GLvector3 VNormalize( GLvector3 vec )
 {
-    GLvector3 tmp = vec;
+    GLvector3 tmp = VECT3(0.0f,0.0f,0.0f);
 
     if ( ABS(vec.x) + ABS(vec.y) + ABS(vec.z) > 0 )
     {
-        float len = SQRT( vec.x * vec.x + vec.y * vec.y + vec.z * vec.z );
+        float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+        float inv_len = 1.0f / SQRT( len2 );
+        assert( 0.0f!=len2 && !_isnan(inv_len) );
 
-        tmp.x /= len;
-        tmp.y /= len;
-        tmp.z /= len;
+        tmp.x = vec.x * inv_len;
+        assert( !_isnan(tmp.x) );
+
+        tmp.y = vec.y * inv_len;
+        assert( !_isnan(tmp.y) );
+
+        tmp.z = vec.z * inv_len;
+        assert( !_isnan(tmp.z) );
     }
 
     return tmp ;
@@ -390,7 +400,7 @@ void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDes
 {
     // BB > the matrix transformation for OpenGL vertices. some minor optimizations.
 
-    if( 1.0f == pSourceV->w )
+    if ( 1.0f == pSourceV->w )
     {
         while ( NumVertor-- )
         {
@@ -403,7 +413,7 @@ void  TransformVertices( GLmatrix *pMatrix, GLvector4 *pSourceV, GLvector4 *pDes
             pSourceV++;
         }
     }
-    else if( 0.0f == pSourceV->w )
+    else if ( 0.0f == pSourceV->w )
     {
         while ( NumVertor-- )
         {

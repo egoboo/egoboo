@@ -22,6 +22,8 @@
 
 #define DECLARE_GLOBALS
 
+#include "game.h"
+
 #include "egoboo.h"
 
 #include "clock.h"
@@ -61,6 +63,7 @@
 
 #include <time.h>
 #include <assert.h>
+#include <float.h>
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -75,7 +78,6 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
 struct s_chr_setup_info
 {
     STRING spawn_name;
@@ -107,11 +109,47 @@ typedef struct s_bumplist bumplist_t;
 
 struct s_collision_data
 {
-  Uint16 chra, chrb;
-  Uint16 prtb;
+    Uint16 chra, chrb;
+    Uint16 prtb;
 };
 
 typedef struct s_collision_data co_data_t;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static mesh_t   _mesh[2];
+static camera_t _camera[2];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+bool_t  gamepaused         = bfalse;
+bool_t  pausekeyready      = btrue;
+bool_t  overrideslots      = bfalse;
+bool_t  screenshotkeyready = btrue;
+
+char idsz_string[5] = { '\0' };
+
+mesh_t    * PMesh   = _mesh + 0;
+camera_t  * PCamera = _camera + 0;
+
+bool_t  pitskill  = bfalse;
+bool_t  pitsfall  = bfalse;
+Uint32  pitx;
+Uint32  pity;
+Uint32  pitz;
+
+animtile_data_t       animtile_data;
+animtile_instance_t   animtile[2];
+damagetile_data_t     damagetile_data;
+damagetile_instance_t damagetile;
+weather_data_t        weather_data;
+weather_instance_t    weather;
+water_data_t          water_data;
+water_instance_t      water;
+fog_data_t            fog_data;
+fog_instance_t        fog;
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -168,10 +206,6 @@ static bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cda
 
 static bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b );
 static bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b );
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-
-char idsz_string[5] = { '\0' };
 
 static int    gamemenu_depth = -1;
 static bool_t game_escape_latch = bfalse;
@@ -298,7 +332,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
         }
 
         // Copy all of the image files (try to copy all supported formats too)
-        
+
         for ( tnc = 0; tnc < MAXSKIN; tnc++ )
         {
             Uint8 type;
@@ -323,9 +357,9 @@ void export_all_players( bool_t require_local )
     //     PLAYERS directory
     bool_t is_local;
     int cnt, character, item, number;
-	
-	//Stop if export isnt valid
-	if(!exportvalid) return;
+
+    //Stop if export isnt valid
+    if (!exportvalid) return;
 
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -353,9 +387,9 @@ void export_all_players( bool_t require_local )
         if ( item != MAX_CHR && ChrList[item].isitem )  export_one_character( item, character, number, is_local );
 
         // Export the inventory
-        for ( number = 2, item = ChrList[character].nextinpack; 
-              number < 8 && item != MAX_CHR; 
-              item = ChrList[item].nextinpack )
+        for ( number = 2, item = ChrList[character].pack_next;
+                number < 8 && item != MAX_CHR;
+                item = ChrList[item].pack_next )
         {
             if ( ChrList[item].isitem )
             {
@@ -535,14 +569,14 @@ void statlist_sort()
 void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready )
 {
     // ZZ> This function starts a generic action for a character
-    
+
     chr_t * pchr;
     mad_t * pmad;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
+    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -566,10 +600,10 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
     chr_t * pchr;
     mad_t * pmad;
 
-    if( INVALID_CHR(character) ) return;
+    if ( INVALID_CHR(character) ) return;
     pchr = ChrList + character;
 
-    if( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
+    if ( pchr->inst.imad > MAX_PROFILE || !MadList[pchr->inst.imad].used ) return;
     pmad = MadList + pchr->inst.imad;
 
     if ( pmad->actionvalid[action] )
@@ -581,7 +615,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
         pchr->actionready = btrue;
 
         framesinaction = (pmad->actionend[action] - pmad->actionstart[action]) + 1;
-        if( framesinaction <= 1 )
+        if ( framesinaction <= 1 )
         {
             frame_stt = pmad->actionstart[action];
             frame_end = frame_stt;
@@ -591,7 +625,7 @@ void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip )
             frame = MIN(frame, framesinaction);
             frame_stt = pmad->actionstart[action] + frame;
 
-			frame = MIN(frame+1, framesinaction);
+            frame = MIN(frame + 1, framesinaction);
             frame_end = frame_stt + 1;
         }
 
@@ -676,7 +710,7 @@ void update_game()
                 {
                     respawn_character( PlaList[cnt].index );
                     ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
-					if(cfg.difficulty > GAME_EASY) ChrList[cnt].money *= EXPKEEP;
+                    if (cfg.difficulty > GAME_EASY) ChrList[cnt].money *= EXPKEEP;
                 }
             }
             else
@@ -904,7 +938,7 @@ int game_do_menu( double frameDuration, bool_t needs_clear )
     // do menus
     if ( needs_clear )
     {
-        glClear( GL_COLOR_BUFFER_BIT );
+        GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT );
     };
 
     ui_beginFrame( frameDuration );
@@ -981,7 +1015,10 @@ int SDL_main( int argc, char **argv )
     rotmeshup         = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
     rotmeshdown       = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
 
-    camera_new( &gCamera );
+    camera_new( PCamera );
+
+    // initialize the IDSZ values for various slots
+    init_slot_idsz();
 
     // initialize all these structures
     init_all_icons();
@@ -998,7 +1035,6 @@ int SDL_main( int argc, char **argv )
     make_lightdirectionlookup();
     make_turntosin();
     make_enviro();
-    tile_dictionary_load( tile_dict, MAXMESHTYPE );
     load_blip_bitmap();
     load_all_music_sounds();
     initMenus();        // Start the game menu
@@ -1034,7 +1070,7 @@ int SDL_main( int argc, char **argv )
         {
             // in-game settings
             SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
-			SDL_WM_GrabInput ( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            SDL_WM_GrabInput ( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
         }
 
         // Clock updates each frame
@@ -1092,7 +1128,7 @@ int SDL_main( int argc, char **argv )
                 {
                     // menu settings
                     SDL_ShowCursor( SDL_ENABLE  );
-					SDL_WM_GrabInput ( SDL_GRAB_OFF );
+                    SDL_WM_GrabInput ( SDL_GRAB_OFF );
                 }
                 else
                 {
@@ -1165,7 +1201,7 @@ int SDL_main( int argc, char **argv )
                     float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
                     frame_next = frame_now + frameskip; //FPS limit
 
-                    camera_move(&gCamera);
+                    camera_move(PCamera, PMesh);
                     draw_main();
 
                     if ( gamemenuactive )
@@ -1192,13 +1228,13 @@ int SDL_main( int argc, char **argv )
                 //   game_escape_requested  = btrue;
                 //}
 
-                if( game_escape_requested )
+                if ( game_escape_requested )
                 {
                     game_escape_requested = bfalse;
 
                     if ( !game_escape_latch )
                     {
-                        if( beatmodule )
+                        if ( beatmodule )
                         {
                             game_begin_menu( ShowEndgame );
                         }
@@ -1275,7 +1311,7 @@ int load_one_object( const char* tmploadname, int skin )
     // Load the object data file and get the object number
     object = load_one_character_profile( tmploadname );
 
-    if( !VALID_CAP(object) ) return 0;  // no skins for an invalid object
+    if ( !VALID_CAP(object) ) return 0; // no skins for an invalid object
 
     // Load the model for this object
     numskins = load_one_model_profile( tmploadname, object, skin );
@@ -1355,7 +1391,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         bool_t is_friend, is_prey, is_predator, is_mutual;
 
         //Skip non-existing objects, held objects and self
-		if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].inpack || cnt == character || ChrList[character].attachedto == cnt ) continue;
+        if ( !ChrList[cnt].on || VALID_CHR(ChrList[cnt].attachedto) || ChrList[cnt].pack_ispacked || cnt == character || ChrList[character].attachedto == cnt ) continue;
 
         //Target items
         if ( !targetitems && ( ChrList[cnt].isitem || ChrList[cnt].invictus ) ) continue;
@@ -1377,7 +1413,7 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         //Which team to target
         if ( team == ALL || (team == ENEMY && is_hated) || (team == FRIEND && !is_hated) )
         {
-            bool_t match_idsz = (idsz == CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] ) || ( idsz == CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] ); 
+            bool_t match_idsz = (idsz == CapList[ChrList[cnt].model].idsz[IDSZ_PARENT] ) || ( idsz == CapList[ChrList[cnt].model].idsz[IDSZ_TYPE] );
 
             //Check for specific IDSZ too?
             if ( idsz == IDSZ_NONE || ( excludeidsz != match_idsz ) )
@@ -1399,11 +1435,11 @@ Uint16 get_target( Uint16 character, Uint32 maxdistance, TARGET_TYPE team, bool_
         }
     }
 
-	//Target the holder if there is nothing better to target
-	if(besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND) && ChrList[ChrList[character].attachedto].alive)
-	{
-		besttarget = ChrList[character].attachedto;
-	}
+    //Target the holder if there is nothing better to target
+    if (besttarget == MAX_CHR && VALID_CHR(ChrList[character].attachedto) && (team == ALL || team == FRIEND) && ChrList[ChrList[character].attachedto].alive)
+    {
+        besttarget = ChrList[character].attachedto;
+    }
 
     //Now set the target
     if (besttarget != MAX_CHR)
@@ -1437,7 +1473,7 @@ void make_onwhichfan( void )
         icap = ChrList[character].model;
         hide = CapList[ icap ].hidestate;
         ChrList[character].is_hidden = bfalse;
-        if( hide != NOHIDE && hide == ChrList[character].ai.state )
+        if ( hide != NOHIDE && hide == ChrList[character].ai.state )
         {
             ChrList[character].is_hidden = btrue;
         }
@@ -1446,40 +1482,40 @@ void make_onwhichfan( void )
     // Get levels every update
     for ( character = 0; character < MAX_CHR; character++ )
     {
-        if ( !ChrList[character].on || ChrList[character].inpack ) continue;
+        if ( !ChrList[character].on || ChrList[character].pack_ispacked ) continue;
 
-        level = get_level( PMesh, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].waterwalk ) + RAISE;
+        level = get_mesh_level( PMesh, ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].waterwalk ) + RAISE;
 
         if ( ChrList[character].alive )
         {
-            if ( VALID_TILE( PMesh, ChrList[character].onwhichfan ) && 
-                 ( 0 != mesh_test_fx( PMesh, ChrList[character].onwhichfan, MPDFX_DAMAGE ) ) && 
-                 ( ChrList[character].pos.z <= ChrList[character].floor_level + DAMAGERAISE ) && 
-                 ( MAX_CHR == ChrList[character].attachedto ) )
+            if ( VALID_TILE( PMesh, ChrList[character].onwhichfan ) &&
+                    ( 0 != mesh_test_fx( PMesh, ChrList[character].onwhichfan, MPDFX_DAMAGE ) ) &&
+                    ( ChrList[character].pos.z <= ChrList[character].floor_level + DAMAGERAISE ) &&
+                    ( MAX_CHR == ChrList[character].attachedto ) )
             {
-                if ( ( ChrList[character].damagemodifier[damagetiletype]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
+                if ( ( ChrList[character].damagemodifier[damagetile_data.type]&DAMAGESHIFT ) != 3 && !ChrList[character].invictus ) // 3 means they're pretty well immune
                 {
-                    distance = ABS( gCamera.track_pos.x - ChrList[character].pos.x ) + ABS( gCamera.track_pos.y - ChrList[character].pos.y );
-                    if ( distance < damagetilemindistance )
+                    distance = ABS( PCamera->track_pos.x - ChrList[character].pos.x ) + ABS( PCamera->track_pos.y - ChrList[character].pos.y );
+                    if ( distance < damagetile.min_distance )
                     {
-                        damagetilemindistance = distance;
+                        damagetile.min_distance = distance;
                     }
-                    if ( distance < damagetilemindistance + 256 )
+                    if ( distance < damagetile.min_distance + 256 )
                     {
-                        damagetilesoundtime = 0;
+                        damagetile.sound_time = 0;
                     }
                     if ( ChrList[character].damagetime == 0 )
                     {
-                        damage_character( character, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
+                        damage_character( character, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[character].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, bfalse );
                         ChrList[character].damagetime = DAMAGETILETIME;
                     }
-                    if ( (damagetileparttype != ((Sint16)~0)) && ( update_wld&damagetilepartand ) == 0 )
+                    if ( (damagetile_data.parttype != ((Sint16)~0)) && ( update_wld & damagetile_data.partand ) == 0 )
                     {
                         spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].pos.z,
-                                            0, MAX_PROFILE, damagetileparttype, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
+                                            0, MAX_PROFILE, damagetile_data.parttype, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     }
                 }
-                if ( ChrList[character].reaffirmdamagetype == damagetiletype )
+                if ( ChrList[character].reaffirmdamagetype == damagetile_data.type )
                 {
                     if ( ( update_wld&TILEREAFFIRMAND ) == 0 )
                         reaffirm_attached_particles( character );
@@ -1487,18 +1523,18 @@ void make_onwhichfan( void )
             }
         }
 
-        if ( ChrList[character].pos.z < watersurfacelevel && (0 != mesh_test_fx( PMesh, ChrList[character].onwhichfan, MPDFX_WATER )) )
+        if ( ChrList[character].pos.z < water.surface_level && (0 != mesh_test_fx( PMesh, ChrList[character].onwhichfan, MPDFX_WATER )) )
         {
             if ( !ChrList[character].inwater )
             {
                 // Splash
                 if ( INVALID_CHR( ChrList[character].attachedto ) )
                 {
-                    spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, watersurfacelevel + RAISE,
+                    spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, water.surface_level + RAISE,
                                         0, MAX_PROFILE, SPLASH, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                 }
 
-                if ( wateriswater )
+                if ( water_data.is_water )
                 {
                     ChrList[character].ai.alert |= ALERTIF_INWATER;
                 }
@@ -1506,18 +1542,18 @@ void make_onwhichfan( void )
             else
             {
                 // Ripple
-                if ( ChrList[character].pos.z > watersurfacelevel - RIPPLETOLERANCE && CapList[ChrList[character].model].ripple )
+                if ( ChrList[character].pos.z > water.surface_level - RIPPLETOLERANCE && CapList[ChrList[character].model].ripple )
                 {
                     // Ripples
                     ripand = ( ( int )ChrList[character].vel.x != 0 ) | ( ( int )ChrList[character].vel.y != 0 );
                     ripand = RIPPLEAND >> ripand;
-                    if ( ( update_wld&ripand ) == 0 && ChrList[character].pos.z < watersurfacelevel && ChrList[character].alive )
+                    if ( ( update_wld&ripand ) == 0 && ChrList[character].pos.z < water.surface_level && ChrList[character].alive )
                     {
-                        spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, watersurfacelevel,
+                        spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, water.surface_level,
                                             0, MAX_PROFILE, RIPPLE, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
                     }
                 }
-                if ( wateriswater && 0 == ( frame_all & 7 ) )
+                if ( water_data.is_water && 0 == ( frame_all & 7 ) )
                 {
                     ChrList[character].jumpready = btrue;
                     ChrList[character].jumpnumber = 1; // ChrList[character].jumpnumberreset;
@@ -1543,12 +1579,12 @@ void make_onwhichfan( void )
 
         PrtList[particle].onwhichfan   = mesh_get_tile ( PMesh, PrtList[particle].pos.x, PrtList[particle].pos.y );
         PrtList[particle].onwhichblock = mesh_get_block( PMesh, PrtList[particle].pos.x, PrtList[particle].pos.y );
-        PrtList[particle].floor_level  = get_level( PMesh, PrtList[character].pos.x, PrtList[character].pos.y, bfalse );
+        PrtList[particle].floor_level  = mesh_get_level( PMesh, PrtList[character].pos.x, PrtList[character].pos.y );
 
         // reject particles that are hidden
         PrtList[particle].is_hidden = bfalse;
         ichr = PrtList[particle].attachedtocharacter;
-        if( VALID_CHR( ichr ) )
+        if ( VALID_CHR( ichr ) )
         {
             PrtList[particle].is_hidden = ChrList[ichr].is_hidden;
         }
@@ -1654,7 +1690,7 @@ void update_pits()
                     if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
                     {
                         PrtList[cnt]._time  = frame_all + 1;
-                        PrtList[cnt].poofme = btrue; 
+                        PrtList[cnt].poofme = btrue;
                     }
                 }
 
@@ -1666,7 +1702,7 @@ void update_pits()
 
             while ( cnt < MAX_CHR )
             {
-                if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].inpack )
+                if ( ChrList[cnt].on && ChrList[cnt].alive && !ChrList[cnt].pack_ispacked )
                 {
                     if ( !ChrList[cnt].invictus && ChrList[cnt].pos.z < PITDEPTH && ChrList[cnt].attachedto == MAX_CHR )
                     {
@@ -1719,7 +1755,7 @@ void update_pits()
                                 //Play sound effect
                                 if (ChrList[cnt].isplayer)
                                 {
-                                    sound_play_chunk( gCamera.track_pos, g_wavelist[GSND_PITFALL] );
+                                    sound_play_chunk( PCamera->track_pos, g_wavelist[GSND_PITFALL] );
                                 }
                                 else
                                 {
@@ -1727,7 +1763,7 @@ void update_pits()
                                 }
 
                                 //Do some damage (same as damage tile)
-                                damage_character( cnt, 32768, damagetileamount, 1, damagetiletype, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
+                                damage_character( cnt, 32768, damagetile_data.amount, 1, damagetile_data.type, DAMAGETEAM, ChrList[cnt].ai.bumplast, DAMFX_NBLOC | DAMFX_ARMO, btrue );
                             }
                         }
                     }
@@ -1751,12 +1787,13 @@ void do_weather_spawn()
     int particle, cnt;
     float x, y, z;
     bool_t foundone;
-    if ( weathertime > 0 )
+
+    if ( weather.time > 0 )
     {
-        weathertime--;
-        if ( weathertime == 0 )
+        weather.time--;
+        if ( weather.time == 0 )
         {
-            weathertime = weathertimereset;
+            weather.time = weather_data.timer_reset;
 
             // Find a valid player
             foundone = bfalse;
@@ -1764,8 +1801,8 @@ void do_weather_spawn()
 
             while ( cnt < MAXPLAYER )
             {
-                weatherplayer = ( weatherplayer + 1 ) & ( MAXPLAYER - 1 );
-                if ( PlaList[weatherplayer].valid )
+                weather.iplayer = ( weather.iplayer + 1 ) & ( MAXPLAYER - 1 );
+                if ( PlaList[weather.iplayer].valid )
                 {
                     foundone = btrue;
                     break;
@@ -1777,33 +1814,33 @@ void do_weather_spawn()
             if ( foundone )
             {
                 // Yes, but is the character valid?
-                cnt = PlaList[weatherplayer].index;
-                if ( ChrList[cnt].on && !ChrList[cnt].inpack )
+                cnt = PlaList[weather.iplayer].index;
+                if ( ChrList[cnt].on && !ChrList[cnt].pack_ispacked )
                 {
                     // Yes, so spawn over that character
                     x = ChrList[cnt].pos.x;
                     y = ChrList[cnt].pos.y;
                     z = ChrList[cnt].pos.z;
                     particle = spawn_one_particle( x, y, z, 0, MAX_PROFILE, WEATHER4, MAX_CHR, GRIP_LAST, NULLTEAM, MAX_CHR, 0, MAX_CHR );
-                    
-					if(particle != TOTAL_MAX_PRT)
-					{
-						if(__prthitawall( particle ) ) free_one_particle( particle );
-						else if ( weatheroverwater )
-						{
-							if ( !prt_is_over_water( particle ) )
-							{
-								free_one_particle( particle );
-							}
-						}
-					}
-					
+
+                    if (particle != TOTAL_MAX_PRT)
+                    {
+                        if (__prthitawall( particle ) ) free_one_particle( particle );
+                        else if ( weather_data.over_water )
+                        {
+                            if ( !prt_is_over_water( particle ) )
+                            {
+                                free_one_particle( particle );
+                            }
+                        }
+                    }
+
                 }
             }
         }
     }
 
-    gCamera.swing = ( gCamera.swing + gCamera.swingrate ) & 16383;
+    PCamera->swing = ( PCamera->swing + PCamera->swingrate ) & 16383;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1835,7 +1872,7 @@ void set_one_player_latch( Uint16 player )
             // Movement
             newx = 0;
             newy = 0;
-            if ( ( gCamera.turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
                 dist = SQRT( mous.x * mous.x + mous.y * mous.y );
@@ -1851,9 +1888,9 @@ void set_one_player_latch( Uint16 player )
                     inputx = mous.x * scale;
                     inputy = mous.y * scale;
 
-                    turnsin = gCamera.turn_z >> 2;
+                    turnsin = PCamera->turn_z >> 2;
                     turnsin = turnsin & 16383;
-                    if ( gCamera.turn_mode == 255 &&
+                    if ( PCamera->turn_mode == 255 &&
                             local_numlpla == 1 &&
                             control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
 
@@ -1895,7 +1932,7 @@ void set_one_player_latch( Uint16 player )
         if ( ( device & INPUT_BITS_JOYA ) && joy[0].on )
         {
             // Movement
-            if ( ( gCamera.turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
             {
                 newx = 0;
@@ -1910,9 +1947,9 @@ void set_one_player_latch( Uint16 player )
                     inputy = joy[0].y * scale;
                 }
 
-                turnsin = gCamera.turn_z >> 2;
+                turnsin = PCamera->turn_z >> 2;
                 turnsin = turnsin & 16383;
-                if ( gCamera.turn_mode == 255 &&
+                if ( PCamera->turn_mode == 255 &&
                         local_numlpla == 1 &&
                         !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
 
@@ -1943,7 +1980,7 @@ void set_one_player_latch( Uint16 player )
         if ( ( device & INPUT_BITS_JOYB ) && joy[1].on )
         {
             // Movement
-            if ( ( gCamera.turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
             {
                 newx = 0;
@@ -1958,9 +1995,9 @@ void set_one_player_latch( Uint16 player )
                     inputy = joy[1].y * scale;
                 }
 
-                turnsin = gCamera.turn_z >> 2;
+                turnsin = PCamera->turn_z >> 2;
                 turnsin = turnsin & 16383;
-                if ( gCamera.turn_mode == 255 &&
+                if ( PCamera->turn_mode == 255 &&
                         local_numlpla == 1 &&
                         !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
 
@@ -2004,9 +2041,9 @@ void set_one_player_latch( Uint16 player )
                 inputy = ( control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_DOWN ) - control_is_pressed( INPUT_DEVICE_KEYBOARD,  CONTROL_UP ) );
             }
 
-            turnsin = gCamera.turn_z >> 2;
+            turnsin = PCamera->turn_z >> 2;
             turnsin = turnsin & 16383;
-            if ( gCamera.turn_mode == 255 && local_numlpla == 1 )  inputx = 0;
+            if ( PCamera->turn_mode == 255 && local_numlpla == 1 )  inputx = 0;
 
             newx = (  inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
             newy = ( -inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
@@ -2424,7 +2461,7 @@ void fill_bumplists()
         pchr->onwhichblock = mesh_get_block( PMesh, pchr->pos.x, pchr->pos.y );
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( pchr->inpack ) continue;
+        if ( pchr->pack_ispacked ) continue;
 
         // reject characters that are hidden
         if ( pchr->is_hidden ) continue;
@@ -2472,7 +2509,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
     int tnc, chrinblock, prtinblock;
     int cnt;
 
-    if(NULL == chr_co_list)
+    if (NULL == chr_co_list)
     {
         chr_co_list = hash_list_create(-1);
         assert(NULL != chr_co_list);
@@ -2480,7 +2517,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
 
     // renew the collision list. Since we are filling this list with pre-allocated hash_node_t's,
     // there is no need to delete any of the existing chr_co_list->sublist elements
-    for(cnt=0; cnt<256; cnt++)
+    for (cnt = 0; cnt < 256; cnt++)
     {
         chr_co_list->subcount[cnt] = 0;
         chr_co_list->sublist[cnt]  = NULL;
@@ -2503,7 +2540,7 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
         pchr_a = ChrList + ichr_a;
 
         // reject characters that are in packs, or are marked as non-colliding
-        if ( pchr_a->inpack ) continue;
+        if ( pchr_a->pack_ispacked ) continue;
 
         // reject characters that are hidden
         if ( pchr_a->is_hidden ) continue;
@@ -2538,9 +2575,9 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
                             tnc < chrinblock && ichr_b != MAX_CHR;
                             tnc++, ichr_b = ChrList[ichr_b].bumpnext)
                     {
-                        if( detect_chr_chr_collision(ichr_a, ichr_b) )
+                        if ( detect_chr_chr_collision(ichr_a, ichr_b) )
                         {
-                            add_chr_chr_collision( ichr_a, ichr_b, cdata, cdata_count, hnlst, hn_count ); 
+                            add_chr_chr_collision( ichr_a, ichr_b, cdata, cdata_count, hnlst, hn_count );
                         }
                     }
 
@@ -2551,9 +2588,9 @@ void fill_collision_list( co_data_t cdata[], int * cdata_count, hash_node_t hnls
                                 tnc < prtinblock;
                                 tnc++, iprt_b = PrtList[iprt_b].bumpnext )
                         {
-                            if( detect_chr_prt_collision(ichr_a, iprt_b) )
+                            if ( detect_chr_prt_collision(ichr_a, iprt_b) )
                             {
-                                add_chr_prt_collision( ichr_a, iprt_b, cdata, cdata_count, hnlst, hn_count ); 
+                                add_chr_prt_collision( ichr_a, iprt_b, cdata, cdata_count, hnlst, hn_count );
                             }
                         }
                     }
@@ -2575,21 +2612,21 @@ bool_t can_mount( Uint16 ichr_a, Uint16 ichr_b )
     if ( INVALID_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    if( INVALID_CAP( pchr_a->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_a->model ) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
     // make sure that B is valid
     if ( INVALID_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList + ichr_b;
 
-    if( INVALID_CAP( pchr_b->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_b->model ) ) return bfalse;
     pcap_b = CapList + pchr_b->model;
 
-    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight && 
-        INVALID_CHR(pchr_a->attachedto) && MadList[pchr_a->inst.imad].actionvalid[ACTION_MI];
+    is_valid_rider_a = !pchr_a->isitem && pchr_a->alive && 0 == pchr_a->flyheight &&
+                       INVALID_CHR(pchr_a->attachedto) && MadList[pchr_a->inst.imad].actionvalid[ACTION_MI];
 
     is_valid_mount_b = pchr_b->ismount && pchr_b->alive &&
-        pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
+                       pcap_b->slotvalid[SLOT_LEFT] && INVALID_CHR(pchr_b->holdingwhich[SLOT_LEFT]);
 
     return is_valid_rider_a && is_valid_mount_b;
 }
@@ -2617,23 +2654,23 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     if ( INVALID_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    if( INVALID_CAP( pchr_a->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_a->model ) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
     // make sure that B is valid
     if ( INVALID_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList + ichr_b;
 
-    if( INVALID_CAP( pchr_b->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_b->model ) ) return bfalse;
     pcap_b = CapList + pchr_b->model;
 
     // if you are mounted, only your mount is affected by platforms
-    if( VALID_CHR(pchr_a->attachedto) || VALID_CHR(pchr_b->attachedto) ) return bfalse;
+    if ( VALID_CHR(pchr_a->attachedto) || VALID_CHR(pchr_b->attachedto) ) return bfalse;
 
     // only check possible object-platform interactions
     platform_a = pcap_b->canuseplatforms && pchr_a->platform;
     platform_b = pcap_a->canuseplatforms && pchr_b->platform;
-    if( !platform_a && !platform_b ) return bfalse;
+    if ( !platform_a && !platform_b ) return bfalse;
 
     xa = pchr_a->pos.x;
     ya = pchr_a->pos.y;
@@ -2645,12 +2682,12 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 
     // If we can mount this platform, skip it
     mount_a = can_mount(ichr_b, ichr_a);
-    if( mount_a && pchr_a->phys.level < zb + pchr_b->bumpheight + PLATTOLERANCE ) 
+    if ( mount_a && pchr_a->phys.level < zb + pchr_b->bumpheight + PLATTOLERANCE )
         return bfalse;
 
     //// If we can mount this platform, skip it
     mount_b = can_mount(ichr_a, ichr_b);
-    if( mount_b && pchr_b->phys.level < za + pchr_a->bumpheight + PLATTOLERANCE ) 
+    if ( mount_b && pchr_b->phys.level < za + pchr_a->bumpheight + PLATTOLERANCE )
         return bfalse;
 
     dx = ABS( xa - xb );
@@ -2658,7 +2695,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     dist = dx + dy;
     depth_z = MIN( zb + pchr_b->bumpheight, za + pchr_a->bumpheight ) - MAX(za, zb);
 
-    if( depth_z > PLATTOLERANCE || depth_z < -PLATTOLERANCE ) return bfalse;
+    if ( depth_z > PLATTOLERANCE || depth_z < -PLATTOLERANCE ) return bfalse;
 
     // estimate the radius of interaction based on the z overlap
     lerp_z  = depth_z / PLATTOLERANCE;
@@ -2669,8 +2706,8 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
 
     // determine how the characters can be attached
     chara_on_top = btrue;
-    depth_z = 2*PLATTOLERANCE;
-    if( platform_a && platform_b )
+    depth_z = 2 * PLATTOLERANCE;
+    if ( platform_a && platform_b )
     {
         float depth_a, depth_b;
 
@@ -2682,7 +2719,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         chara_on_top = ABS(depth_z - depth_a) < ABS(depth_z - depth_b);
 
         // the collision is determined by the platform size
-        if( chara_on_top )
+        if ( chara_on_top )
         {
             collide_x  = (dx <= pchr_b->bumpsize);
             collide_y  = (dy <= pchr_b->bumpsize);
@@ -2695,17 +2732,17 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
             collide_xy = (dist <= pchr_a->bumpsizebig);
         }
     }
-    else if( platform_a )
+    else if ( platform_a )
     {
         chara_on_top = bfalse;
-        depth_z = za + pchr_a->bumpheight - zb; 
+        depth_z = za + pchr_a->bumpheight - zb;
 
         // the collision is determined by the platform size
         collide_x  = (dx <= pchr_a->bumpsize);
         collide_y  = (dy <= pchr_a->bumpsize);
         collide_xy = (dist <= pchr_a->bumpsizebig);
     }
-    else if( platform_b )
+    else if ( platform_b )
     {
         chara_on_top = btrue;
         depth_z = zb + pchr_b->bumpheight - za;
@@ -2717,12 +2754,12 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
     }
 
 
-    if( collide_x && collide_y && collide_xy && depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
+    if ( collide_x && collide_y && collide_xy && depth_z > -PLATTOLERANCE && depth_z < PLATTOLERANCE )
     {
         // check for the best possible attachment
-        if( chara_on_top )
+        if ( chara_on_top )
         {
-            if( zb + pchr_b->bumpheight > pchr_a->phys.level )
+            if ( zb + pchr_b->bumpheight > pchr_a->phys.level )
             {
                 pchr_a->phys.level = zb + pchr_b->bumpheight;
                 pchr_a->onwhichplatform = ichr_b;
@@ -2730,7 +2767,7 @@ bool_t do_platforms( Uint16 ichr_a, Uint16 ichr_b )
         }
         else
         {
-            if( za + pchr_a->bumpheight > pchr_b->phys.level )
+            if ( za + pchr_a->bumpheight > pchr_b->phys.level )
             {
                 pchr_b->phys.level = za + pchr_a->bumpheight;
                 pchr_b->onwhichplatform = ichr_a;
@@ -2764,14 +2801,14 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     if ( INVALID_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    if( INVALID_CAP( pchr_a->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_a->model ) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
     // make sure that B is valid
     if ( INVALID_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList + ichr_b;
 
-    if( INVALID_CAP( pchr_b->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_b->model ) ) return bfalse;
     pcap_b = CapList + pchr_b->model;
 
     xa = pchr_a->pos.x;
@@ -2786,10 +2823,10 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
     mount_a = can_mount(ichr_b, ichr_a);
     mount_b = can_mount(ichr_a, ichr_b);
 
-    if( !mount_a && !mount_b ) return bfalse;
+    if ( !mount_a && !mount_b ) return bfalse;
 
     mounted = bfalse;
-    if( !mounted && mount_b && (pchr_a->vel.z - pchr_b->vel.z) < 0 )
+    if ( !mounted && mount_b && (pchr_a->vel.z - pchr_b->vel.z) < 0 )
     {
         // A falling on B?
         GLvector4 point[1], nupoint[1];
@@ -2825,14 +2862,14 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
         dist = dx + dy;
         depth_z = za - nupoint[0].z;
 
-        if( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
+        if ( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
         {
             // estimate the collisions this frame
             collide_x  = (dx <= pchr_a->bumpsize * 2);
             collide_y  = (dy <= pchr_a->bumpsize * 2);
             collide_xy = (dist <= pchr_a->bumpsizebig * 2);
 
-            if( collide_x && collide_y && collide_xy )
+            if ( collide_x && collide_y && collide_xy )
             {
                 attach_character_to_mount( ichr_a, ichr_b, GRIP_ONLY );
                 mounted = VALID_CHR( pchr_a->attachedto );
@@ -2840,7 +2877,7 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
         }
     }
 
-    if( !mounted && mount_a && (pchr_b->vel.z - pchr_a->vel.z) < 0 )
+    if ( !mounted && mount_a && (pchr_b->vel.z - pchr_a->vel.z) < 0 )
     {
         // B falling on A?
 
@@ -2877,14 +2914,14 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
         dist = dx + dy;
         depth_z = zb - nupoint[0].z;
 
-        if( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
+        if ( depth_z >= -MOUNTTOLERANCE && depth_z <= MOUNTTOLERANCE )
         {
             // estimate the collisions this frame
             collide_x  = (dx <= pchr_b->bumpsize * 2);
             collide_y  = (dy <= pchr_b->bumpsize * 2);
             collide_xy = (dist <= pchr_b->bumpsizebig * 2);
 
-            if( collide_x && collide_y && collide_xy )
+            if ( collide_x && collide_y && collide_xy )
             {
                 attach_character_to_mount( ichr_b, ichr_a, GRIP_ONLY );
                 mounted = VALID_CHR( pchr_a->attachedto );
@@ -2898,8 +2935,8 @@ bool_t do_mounts( Uint16 ichr_a, Uint16 ichr_b )
 //--------------------------------------------------------------------------------------------
 bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 {
-    float xa,ya,za, xb,yb,zb;
-    float was_xa,was_ya,was_za, was_xb,was_yb,was_zb;
+    float xa, ya, za, xb, yb, zb;
+    float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
     chr_t * pchr_a, * pchr_b;
     cap_t * pcap_a, * pcap_b;
 
@@ -2921,14 +2958,14 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     if ( !VALID_CHR( ichr_a ) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    if( INVALID_CAP( pchr_a->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_a->model ) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
     // make sure that it is on
     if ( !VALID_CHR( ichr_b ) ) return bfalse;
     pchr_b = ChrList + ichr_b;
 
-    if( INVALID_CAP( pchr_b->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_b->model ) ) return bfalse;
     pcap_b = CapList + pchr_b->model;
 
     // don't interact with your mount, or your held items
@@ -2937,7 +2974,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
     // don't do anything if there is no interaction strength
     interaction_strength = 1.0f;
-    if( 0 == pchr_a->bumpsize || 0 == pchr_b->bumpsize ) return bfalse;
+    if ( 0 == pchr_a->bumpsize || 0 == pchr_b->bumpsize ) return bfalse;
     interaction_strength *= pchr_a->inst.alpha * INV_FF;
     interaction_strength *= pchr_b->inst.alpha * INV_FF;
 
@@ -2959,7 +2996,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     was_zb = zb - pchr_b->vel.z;
 
     // platform interaction
-    if( ichr_a == pchr_b->onwhichplatform )
+    if ( ichr_a == pchr_b->onwhichplatform )
     {
         // we know that ichr_a is a platform and ichr_b is on it
         Sint16 rot_a, rot_b;
@@ -2970,19 +3007,19 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         rot_b = pchr_b->turn_z - pchr_b->turn_old_z;
         rot_a = pchr_a->turn_z - pchr_a->turn_old_z;
 
-        if( lerp_z < 0 )
+        if ( lerp_z < 0 )
         {
             pchr_b->phys.apos_0.z += (pchr_b->phys.level - pchr_b->pos.z) * 0.25f * (-lerp_z);
             pchr_b->jumpnumber = pchr_b->jumpnumberreset;
         }
-        else if( lerp_z < 1 )
+        else if ( lerp_z < 1 )
         {
             pchr_b->phys.apos_0.z += (pchr_b->phys.level - pchr_b->pos.z) * 0.125f * lerp_z;
         }
 
         lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
 
-        if( lerp_z > 0 )
+        if ( lerp_z > 0 )
         {
             pchr_a->holdingweight += pchr_b->weight * lerp_z;
 
@@ -2990,17 +3027,17 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             pchr_b->turn_z     += ( rot_a - rot_b ) * platstick * lerp_z;
         };
 
-        if( lerp_z < 0.25f )
+        if ( lerp_z < 0.25f )
         {
             pchr_b->jumpready = btrue;
         };
-        
+
         // this is handled
         return btrue;
     }
 
     // platform interaction
-    if( ichr_b == pchr_a->onwhichplatform )
+    if ( ichr_b == pchr_a->onwhichplatform )
     {
         // we know that ichr_b is a platform and ichr_a is on it
         Sint16 rot_a, rot_b;
@@ -3011,19 +3048,19 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         rot_b = pchr_b->turn_z - pchr_b->turn_old_z;
         rot_a = pchr_a->turn_z - pchr_a->turn_old_z;
 
-        if( lerp_z < 0 )
+        if ( lerp_z < 0 )
         {
             pchr_a->phys.apos_0.z += (pchr_a->phys.level - pchr_a->pos.z) * 0.25f * (-lerp_z);
             pchr_a->jumpnumber = pchr_a->jumpnumberreset;
         }
-        else if( lerp_z < 1 )
+        else if ( lerp_z < 1 )
         {
             pchr_a->phys.apos_0.z += (pchr_a->phys.level - pchr_a->pos.z) * 0.125f * lerp_z;
         }
 
         lerp_z = 1.0f - CLIP( lerp_z, 0, 1 );
 
-        if( lerp_z > 0 )
+        if ( lerp_z > 0 )
         {
             pchr_b->holdingweight += pchr_a->weight * lerp_z;
 
@@ -3031,7 +3068,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             pchr_a->turn_z     += ( rot_b - rot_a ) * platstick * lerp_z;
         }
 
-        if( lerp_z < 0.25f )
+        if ( lerp_z < 0.25f )
         {
             pchr_a->jumpready = btrue;
         }
@@ -3041,7 +3078,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     }
 
     // items can interact with platforms but not with other characters/objects
-    if( pchr_a->isitem || pchr_b->isitem ) return bfalse;
+    if ( pchr_a->isitem || pchr_b->isitem ) return bfalse;
 
     dx = ABS( xa - xb );
     dy = ABS( ya - yb );
@@ -3062,15 +3099,15 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     radius_xy = MIN(pchr_a->bumpsizebig, pchr_b->bumpsizebig) * (1.0f - lerp_z) + (pchr_a->bumpsizebig + pchr_b->bumpsizebig) * lerp_z;
 
     // estimate the collisions this frame
-    collide_x  = (dx <= radius);
-    collide_y  = (dy <= radius);
-    collide_xy = (dist <= radius_xy);
+    collide_x  = (dx < radius);
+    collide_y  = (dy < radius);
+    collide_xy = (dist < radius_xy);
     collide_z  = (depth_z > 0);
 
     // estimate the collisions last frame
-    was_collide_x  = (was_dx <= radius);
-    was_collide_y  = (was_dy <= radius);
-    was_collide_xy = (was_dist <= radius_xy);
+    was_collide_x  = (was_dx < radius);
+    was_collide_y  = (was_dy < radius);
+    was_collide_xy = (was_dist < radius_xy);
     was_collide_z  = (was_depth_z > 0);
 
     //------------------
@@ -3122,14 +3159,14 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         GLvector3 nrm;
         int exponent = 1;
 
-        if( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
-        if( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
+        if ( pcap_a->canuseplatforms && pchr_b->platform ) exponent += 2;
+        if ( pcap_b->canuseplatforms && pchr_a->platform ) exponent += 2;
 
 
         nrm.x = nrm.y = nrm.z = 0.0f;
 
         depth_x  = MIN(xa + pchr_a->bumpsize, xb + pchr_b->bumpsize) - MAX(xa - pchr_a->bumpsize, xb - pchr_b->bumpsize);
-        if ( depth_x < 0.0f )
+        if ( depth_x <= 0.0f )
         {
             depth_x = 0.0f;
         }
@@ -3138,11 +3175,11 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             float sgn = xb - xa;
             sgn = sgn > 0 ? -1 : 1;
 
-            nrm.x += sgn / POW(depth_x/PLATTOLERANCE, exponent);
+            nrm.x += sgn / POW(depth_x / PLATTOLERANCE, exponent);
         }
 
         depth_y  = MIN(ya + pchr_a->bumpsize, yb + pchr_b->bumpsize) - MAX(ya - pchr_a->bumpsize, yb - pchr_b->bumpsize);
-        if ( depth_y < 0.0f )
+        if ( depth_y <= 0.0f )
         {
             depth_y = 0.0f;
         }
@@ -3151,11 +3188,11 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             float sgn = yb - ya;
             sgn = sgn > 0 ? -1 : 1;
 
-            nrm.y += sgn / POW(depth_y/PLATTOLERANCE, exponent);
+            nrm.y += sgn / POW(depth_y / PLATTOLERANCE, exponent);
         }
 
         depth_xy = MIN(xa + ya + pchr_a->bumpsizebig, xb + yb + pchr_b->bumpsizebig) - MAX(xa + ya - pchr_a->bumpsizebig, xb + yb - pchr_b->bumpsizebig);
-        if ( depth_xy < 0.0f )
+        if ( depth_xy <= 0.0f )
         {
             depth_xy = 0.0f;
         }
@@ -3164,12 +3201,12 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
             float sgn = (xb + yb) - (xa + ya);
             sgn = sgn > 0 ? -1 : 1;
 
-            nrm.x += sgn / POW(depth_xy/PLATTOLERANCE, exponent);
-            nrm.y += sgn / POW(depth_xy/PLATTOLERANCE, exponent);
+            nrm.x += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
+            nrm.y += sgn / POW(depth_xy / PLATTOLERANCE, exponent);
         }
 
         depth_yx = MIN(-xa + ya + pchr_a->bumpsizebig, -xb + yb + pchr_b->bumpsizebig) - MAX(-xa + ya - pchr_a->bumpsizebig, -xb + yb - pchr_b->bumpsizebig);
-        if ( depth_yx < 0.0f )
+        if ( depth_yx <= 0.0f )
         {
             depth_yx = 0.0f;
         }
@@ -3177,21 +3214,21 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         {
             float sgn = (-xb + yb) - (-xa + ya);
             sgn = sgn > 0 ? -1 : 1;
-            nrm.x -= sgn / POW(depth_yx/PLATTOLERANCE, exponent);
-            nrm.y += sgn / POW(depth_yx/PLATTOLERANCE, exponent);
+            nrm.x -= sgn / POW(depth_yx / PLATTOLERANCE, exponent);
+            nrm.y += sgn / POW(depth_yx / PLATTOLERANCE, exponent);
         }
 
         depth_z  = MIN(za + pchr_a->bumpheight, zb + pchr_b->bumpheight) - MAX( za, zb );
-        if ( depth_z < 0.0f )
+        if ( depth_z <= 0.0f )
         {
             depth_z = 0.0f;
         }
         else
         {
-            float sgn = (zb + pchr_b->bumpheight/2) - (za + pchr_a->bumpheight / 2);
+            float sgn = (zb + pchr_b->bumpheight / 2) - (za + pchr_a->bumpheight / 2);
             sgn = sgn > 0 ? -1 : 1;
 
-            nrm.z += sgn / POW(exponent * depth_z/PLATTOLERANCE, exponent);
+            nrm.z += sgn / POW(exponent * depth_z / PLATTOLERANCE, exponent);
         }
 
 
@@ -3236,7 +3273,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                 // generic coefficient of restitution
                 float cr = 0.5f;
 
-                if( (wta < 0 && wtb < 0) || (wta == wtb) )
+                if ( (wta < 0 && wtb < 0) || (wta == wtb) )
                 {
                     float factor = 0.5f * (1.0f - cr);
 
@@ -3248,7 +3285,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                     imp_b.y = factor * (vperp_a.y - vperp_b.y);
                     imp_b.z = factor * (vperp_a.z - vperp_b.z);
                 }
-                else if( (wta < 0) || (wtb == 0) )
+                else if ( (wta < 0) || (wtb == 0) )
                 {
                     float factor = (1.0f - cr);
 
@@ -3256,7 +3293,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                     imp_b.y = factor * (vperp_a.y - vperp_b.y);
                     imp_b.z = factor * (vperp_a.z - vperp_b.z);
                 }
-                else if( (wtb < 0) || (wta == 0) )
+                else if ( (wtb < 0) || (wta == 0) )
                 {
                     float factor = (1.0f - cr);
 
@@ -3283,10 +3320,12 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                 pchr_a->phys.avel.x += imp_a.x;
                 pchr_a->phys.avel.y += imp_a.y;
                 pchr_a->phys.avel.z += imp_a.z;
+                assert( !_isnan(pchr_a->phys.avel.z) );
 
                 pchr_b->phys.avel.x += imp_b.x;
                 pchr_b->phys.avel.y += imp_b.y;
                 pchr_b->phys.avel.z += imp_b.z;
+                assert( !_isnan(pchr_b->phys.avel.z) );
 
                 collision = btrue;
             }
@@ -3356,38 +3395,40 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
 
             // add in the friction due to the "collision"
             // assume coeff of friction of 0.5
-            if( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f && 
-                ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f && 
-                pchr_a->phys.dismount_timer <= 0)
+            if ( ABS(imp_a.x) + ABS(imp_a.y) + ABS(imp_a.z) > 0.0f &&
+                    ABS(vpara_a.x) + ABS(vpara_a.y) + ABS(vpara_a.z) > 0.0f &&
+                    pchr_a->phys.dismount_timer <= 0)
             {
                 float imp, vel, factor;
-                
-                imp = 0.5f * SQRT( imp_a.x*imp_a.x + imp_a.y*imp_a.y + imp_a.z*imp_a.z );
-                vel = SQRT( vpara_a.x*vpara_a.x + vpara_a.y*vpara_a.y + vpara_a.z*vpara_a.z );
 
-                factor = imp/vel;
-                factor = CLIP(factor,0.0f,1.0f);
+                imp = 0.5f * SQRT( imp_a.x * imp_a.x + imp_a.y * imp_a.y + imp_a.z * imp_a.z );
+                vel = SQRT( vpara_a.x * vpara_a.x + vpara_a.y * vpara_a.y + vpara_a.z * vpara_a.z );
+
+                factor = imp / vel;
+                factor = CLIP(factor, 0.0f, 1.0f);
 
                 pchr_a->phys.avel.x -= factor * vpara_a.x;
                 pchr_a->phys.avel.y -= factor * vpara_a.y;
                 pchr_a->phys.avel.z -= factor * vpara_a.z;
+                assert( !_isnan(pchr_a->phys.avel.z) );
             }
 
-            if( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f && 
-                ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f && 
-                pchr_b->phys.dismount_timer <= 0)
+            if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
+                    ABS(vpara_b.x) + ABS(vpara_b.y) + ABS(vpara_b.z) > 0.0f &&
+                    pchr_b->phys.dismount_timer <= 0)
             {
                 float imp, vel, factor;
-                
-                imp = 0.5f * SQRT( imp_b.x*imp_b.x + imp_b.y*imp_b.y + imp_b.z*imp_b.z );
-                vel = SQRT( vpara_b.x*vpara_b.x + vpara_b.y*vpara_b.y + vpara_b.z*vpara_b.z );
 
-                factor = imp/vel;
-                factor = CLIP(factor,0.0f,1.0f);
+                imp = 0.5f * SQRT( imp_b.x * imp_b.x + imp_b.y * imp_b.y + imp_b.z * imp_b.z );
+                vel = SQRT( vpara_b.x * vpara_b.x + vpara_b.y * vpara_b.y + vpara_b.z * vpara_b.z );
+
+                factor = imp / vel;
+                factor = CLIP(factor, 0.0f, 1.0f);
 
                 pchr_b->phys.avel.x -= factor * vpara_b.x;
                 pchr_b->phys.avel.y -= factor * vpara_b.y;
                 pchr_b->phys.avel.z -= factor * vpara_b.z;
+                assert( !_isnan(pchr_b->phys.avel.z) );
             }
         }
     }
@@ -3398,7 +3439,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         pchr_b->ai.bumplast = ichr_a;
 
         pchr_a->ai.alert |= ALERTIF_BUMPED;
-        pchr_b->ai.alert |= ALERTIF_BUMPED;			
+        pchr_b->ai.alert |= ALERTIF_BUMPED;
     }
 
     return btrue;
@@ -3415,8 +3456,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     float ax, ay, nx, ny, scale;  // For deflection
     Uint16 facing;
 
-    float xa,ya,za, xb,yb,zb;
-    float was_xa,was_ya,was_za, was_xb,was_yb,was_zb;
+    float xa, ya, za, xb, yb, zb;
+    float was_xa, was_ya, was_za, was_xb, was_yb, was_zb;
     chr_t * pchr_a;
     cap_t * pcap_a;
 
@@ -3435,14 +3476,14 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     if ( !pchr_a->alive ) return bfalse;
 
-    if( INVALID_CAP( pchr_a->model ) ) return bfalse;
+    if ( INVALID_CAP( pchr_a->model ) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
-    if( !VALID_PRT( iprt_b ) ) return bfalse;
+    if ( !VALID_PRT( iprt_b ) ) return bfalse;
     pprt_b = PrtList + iprt_b;
 
     ipip_b = pprt_b->pip;
-    if( INVALID_PIP( ipip_b ) ) return bfalse;
+    if ( INVALID_PIP( ipip_b ) ) return bfalse;
     ppip_b = PipList + ipip_b;
 
     // do not collide with the thing that you're attached to
@@ -3467,7 +3508,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     was_yb = yb - pprt_b->vel.y;
     was_zb = zb - pprt_b->vel.z;
 
-    if( 0 == pchr_a->bumpsize ) interaction_strength = 0;
+    if ( 0 == pchr_a->bumpsize ) interaction_strength = 0;
     interaction_strength *= pchr_a->inst.alpha * INV_FF;
 
     dx = ABS( xa - xb );
@@ -3481,10 +3522,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     depth_z = MIN( za + pchr_a->bumpheight, zb + pprt_b->bumpheight ) - MAX( za, zb - pprt_b->bumpheight );
     collide_z = depth_z > 0;
 
-    if( !collide_x || !collide_y || !collide_xy || !collide_z ) return bfalse;
+    if ( !collide_x || !collide_y || !collide_xy || !collide_z ) return bfalse;
 
-    if ( pchr_a->platform && INVALID_CHR(pprt_b->attachedtocharacter) && 
-        (zb > za + pchr_a->bumpheight + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
+    if ( pchr_a->platform && INVALID_CHR(pprt_b->attachedtocharacter) &&
+            (zb > za + pchr_a->bumpheight + pprt_b->vel.z) && (pprt_b->vel.z - pchr_a->vel.z < 0) )
     {
         // Particle is falling on A
         pprt_b->pos.z = za + pchr_a->bumpheight;
@@ -3504,10 +3545,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
-        /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-        /*pprt_b->attachedtocharacter != MAX_CHR ||*/
-        ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-        ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
+            /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
+            /*pprt_b->attachedtocharacter != MAX_CHR ||*/
+            ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
+            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
@@ -3521,11 +3562,12 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     // Normal iprt_b damage
                     if ( ppip_b->allowpush && pchr_a->weight != 0xFFFFFFFF )
                     {
-                        if( 0 == pchr_a->weight )
+                        if ( 0 == pchr_a->weight )
                         {
                             pchr_a->phys.avel.x  += pprt_b->vel.x - pchr_a->vel.x;
                             pchr_a->phys.avel.y  += pprt_b->vel.y - pchr_a->vel.y;
                             pchr_a->phys.avel.z  += pprt_b->vel.z - pchr_a->vel.z;
+                            assert( !_isnan(pchr_a->phys.avel.z) );
                         }
                         else
                         {
@@ -3535,6 +3577,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             pchr_a->phys.avel.x  += pprt_b->vel.x * factor;
                             pchr_a->phys.avel.y  += pprt_b->vel.y * factor;
                             pchr_a->phys.avel.z  += pprt_b->vel.z * factor;
+                            assert( !_isnan(pchr_a->phys.avel.z) );
                         }
                     }
 
@@ -3560,7 +3603,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     if ( ppip_b->intdamagebonus )
                     {
                         float percent;
-                        percent = ( (FP8_TO_INT(ChrList[pprt_b->chr].intelligence)) - 14 ) *2;
+                        percent = ( (FP8_TO_INT(ChrList[pprt_b->chr].intelligence)) - 14 ) * 2;
                         percent /= 100;
                         pprt_b->damagebase *= 1.00f + percent;
                     }
@@ -3568,7 +3611,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     if ( ppip_b->wisdamagebonus )
                     {
                         float percent;
-                        percent = ( FP8_TO_INT(ChrList[pprt_b->chr].wisdom) - 14 ) *2;
+                        percent = ( FP8_TO_INT(ChrList[pprt_b->chr].wisdom) - 14 ) * 2;
                         percent /= 100;
                         pprt_b->damagebase *= 1.00f + percent;
                     }
@@ -3641,7 +3684,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                                 if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money < 0 ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = 0;
 
                                 pprt_b->_time = frame_all + 1;
-                                pprt_b->poofme = btrue; 
+                                pprt_b->poofme = btrue;
                             }
                         }
                         else
@@ -3771,11 +3814,11 @@ void bump_characters( void )
         int count = chr_co_list->subcount[cnt];
 
         n = chr_co_list->sublist[cnt];
-        for( tnc = 0; tnc<count && NULL != n; tnc++, n = n->next )
+        for ( tnc = 0; tnc < count && NULL != n; tnc++, n = n->next )
         {
             // only look at character-character interactions
             d = (co_data_t *)(n->data);
-            if(TOTAL_MAX_PRT != d->prtb) continue;
+            if (TOTAL_MAX_PRT != d->prtb) continue;
 
             do_platforms( d->chra, d->chrb );
         }
@@ -3789,11 +3832,11 @@ void bump_characters( void )
         int count = chr_co_list->subcount[cnt];
 
         n = chr_co_list->sublist[cnt];
-        for( tnc = 0; tnc<count && NULL != n; tnc++, n = n->next )
+        for ( tnc = 0; tnc < count && NULL != n; tnc++, n = n->next )
         {
             // only look at character-character interactions
             d = (co_data_t *)(n->data);
-            if(TOTAL_MAX_PRT != d->prtb) continue;
+            if (TOTAL_MAX_PRT != d->prtb) continue;
 
             do_mounts( d->chra, d->chrb );
         }
@@ -3806,12 +3849,12 @@ void bump_characters( void )
         int count = chr_co_list->subcount[cnt];
 
         n = chr_co_list->sublist[cnt];
-        for( tnc = 0; tnc<count && NULL != n; tnc++, n = n->next )
+        for ( tnc = 0; tnc < count && NULL != n; tnc++, n = n->next )
         {
             // only look at character-character interactions
             d = (co_data_t *)(n->data);
 
-            if( TOTAL_MAX_PRT == d->prtb )
+            if ( TOTAL_MAX_PRT == d->prtb )
             {
                 do_chr_chr_collision( d->chra, d->chrb );
             }
@@ -3830,15 +3873,15 @@ void bump_characters( void )
         float bump_str;
         float nrm[2];
 
-        if( !ChrList[cnt].on ) continue;
+        if ( !ChrList[cnt].on ) continue;
         pchr = ChrList + cnt;
 
         bump_str = 1.0f;
-        if( VALID_CHR( pchr->attachedto ) )
+        if ( VALID_CHR( pchr->attachedto ) )
         {
             bump_str = 0;
         }
-        else if( pchr->phys.dismount_timer > 0 )
+        else if ( pchr->phys.dismount_timer > 0 )
         {
             bump_str = 1.0f - (float)pchr->phys.dismount_timer / PHYS_DISMOUNT_TIME;
             bump_str = bump_str * bump_str * 0.5f;
@@ -4174,7 +4217,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
 
     fscanf( fileread, "%d%d%d%d%d", &pinfo->money, &pinfo->skin, &pinfo->passage, &pinfo->content, &pinfo->level );
     if (pinfo->skin >= MAXSKIN) pinfo->skin = rand() % MAXSKIN;     //Randomize skin?
-	
+
     cTmp = fget_first_letter( fileread );
     pinfo->stat = ( 'T' == toupper(cTmp) );
 
@@ -4204,7 +4247,7 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     if ( pinfo->attach == ATTACH_INVENTORY )
     {
         // Inventory character
-        pack_add_item( ichr, pinfo->parent );
+        inventory_add_item( ichr, pinfo->parent );
 
         ChrList[ichr].ai.alert |= ALERTIF_GRABBED;  // Make spellbooks change
         ChrList[ichr].attachedto = pinfo->parent;  // Make grab work
@@ -4216,8 +4259,8 @@ bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo )
     else if ( pinfo->attach == ATTACH_LEFT || pinfo->attach == ATTACH_RIGHT )
     {
         // Wielded character
-        Uint16 grip = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
-        attach_character_to_mount( ichr, pinfo->parent, grip );
+        grip_offset_t grip_off = ( ATTACH_LEFT == pinfo->attach ) ? GRIP_LEFT : GRIP_RIGHT;
+        attach_character_to_mount( ichr, pinfo->parent, grip_off );
 
         // Handle the "grabbed" messages
         let_character_think( ichr );
@@ -4438,6 +4481,20 @@ bool_t load_module( const char *smallname )
     }
     else
     {
+        // do something to remove the ambient light fromt the mesh
+        int cnt;
+        Uint16 min_vrt_a = 255;
+        for(cnt=0; cnt<PMesh->info.vertcount; cnt++)
+        {
+            min_vrt_a = MIN(min_vrt_a, PMesh->mem.vrt_a[cnt]);
+        }
+
+        for(cnt=0; cnt<PMesh->info.vertcount; cnt++)
+        {
+            PMesh->mem.vrt_a[cnt] -= min_vrt_a;
+        }
+
+        renderlist.pmesh     = PMesh;
         renderlist.all_count = 0;
         renderlist.ref_count = 0;
         renderlist.sha_count = 0;
@@ -4463,6 +4520,7 @@ bool_t load_module( const char *smallname )
 
     return btrue;
 }
+
 
 //--------------------------------------------------------------------------------------------
 void disaffirm_attached_particles( Uint16 character )
@@ -4518,7 +4576,7 @@ void reaffirm_attached_particles( Uint16 character )
         particle = spawn_one_particle( ChrList[character].pos.x, ChrList[character].pos.y, ChrList[character].pos.z, 0, ChrList[character].model, CapList[ChrList[character].model].attachedprttype, character, GRIP_LAST + numberattached, ChrList[character].team, character, numberattached, MAX_CHR );
         if ( particle != TOTAL_MAX_PRT )
         {
-            attach_particle_to_character( particle, character, PrtList[particle].grip );
+            attach_particle_to_character( particle, character, PrtList[particle].vrt_off );
         }
 
         numberattached++;
@@ -4533,7 +4591,7 @@ void game_quit_module()
 {
     // BB > all of the de-initialization code after the module actually ends
 
-	release_module();
+    release_module();
     close_session();
 
     // reset the "ui" mouse state
@@ -4571,7 +4629,7 @@ bool_t game_init_module( const char * modname, Uint32 seed )
     pressed = bfalse;
 
     make_onwhichfan();
-    camera_reset(&gCamera);
+    camera_reset(PCamera, PMesh);
     reset_timers();
     make_character_matrices( update_wld != 0 );
     attach_particles();
@@ -4673,7 +4731,7 @@ void release_module()
 {
     // ZZ> This function frees up memory used by the module
 
-	// Disable EMP
+    // Disable EMP
     local_senseenemiesID = IDSZ_NONE;
     local_senseenemies = MAX_CHR;
 
@@ -4707,7 +4765,7 @@ void attach_particles()
     {
         if ( PrtList[cnt].on && PrtList[cnt].attachedtocharacter != MAX_CHR )
         {
-            attach_particle_to_character( cnt, PrtList[cnt].attachedtocharacter, PrtList[cnt].grip );
+            attach_particle_to_character( cnt, PrtList[cnt].attachedtocharacter, PrtList[cnt].vrt_off );
 
             // Correct facing so swords knock characters in the right direction...
             if ( PipList[PrtList[cnt].pip].damfx&DAMFX_TURN )
@@ -4782,7 +4840,7 @@ void let_all_characters_think()
         is_crushed   = ( 0 != ( ChrList[character].ai.alert & ALERTIF_CRUSHED   ) );
 
         // let the script run sometimes even if the item is in your backpack
-        can_think = !ChrList[character].inpack || CapList[ChrList[character].model].isequipment;
+        can_think = !ChrList[character].pack_ispacked || CapList[ChrList[character].model].isequipment;
 
         // only let dead/destroyed things think if they have beem crushed/cleanedup
         if ( ( ChrList[character].alive && can_think ) || is_crushed || is_cleanedup )
@@ -5077,21 +5135,21 @@ bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], i
     co_data_t   * d;
 
     // create a hash that is order-independent
-    hashval = (ichr_a* 0x0111 + 0x006E) + (ichr_b* 0x0111 + 0x006E);
+    hashval = (ichr_a * 0x0111 + 0x006E) + (ichr_b * 0x0111 + 0x006E);
     hashval &= 0xFF;
 
     found = bfalse;
     count = chr_co_list->subcount[hashval];
-    if( count > 0)
+    if ( count > 0)
     {
         int i ;
 
         // this hash already exists. check to see if the binary collision exists, too
         n = chr_co_list->sublist[hashval];
-        for(i = 0; i<count; i++)
+        for (i = 0; i < count; i++)
         {
             d = (co_data_t *)(n->data);
-            if(d->chra == ichr_a && d->chrb == ichr_b)
+            if (d->chra == ichr_a && d->chrb == ichr_b)
             {
                 found = btrue;
                 break;
@@ -5100,7 +5158,7 @@ bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], i
     }
 
     // insert this collision
-    if(!found)
+    if (!found)
     {
         // pick a free collision data
         assert((*cdata_count) < CHR_MAX_COLLISIONS);
@@ -5143,16 +5201,16 @@ bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], i
 
     found = bfalse;
     count = chr_co_list->subcount[hashval];
-    if( count > 0)
+    if ( count > 0)
     {
         int i ;
 
         // this hash already exists. check to see if the binary collision exists, too
         n = chr_co_list->sublist[hashval];
-        for(i = 0; i<count; i++)
+        for (i = 0; i < count; i++)
         {
             d = (co_data_t *)(n->data);
-            if(d->chra == ichr_a && d->prtb == iprt_b)
+            if (d->chra == ichr_a && d->prtb == iprt_b)
             {
                 found = btrue;
                 break;
@@ -5161,7 +5219,7 @@ bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cdata[], i
     }
 
     // insert this collision
-    if(!found)
+    if (!found)
     {
         // pick a free collision data
         assert((*cdata_count) < CHR_MAX_COLLISIONS);
@@ -5195,28 +5253,28 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     bool_t collide_xy = bfalse;
     bool_t collide_z  = bfalse;
 
-    float xa,ya,za;
-    float xb,yb,zb;
-    float dxy, dx,dy,depth_z;
+    float xa, ya, za;
+    float xb, yb, zb;
+    float dxy, dx, dy, depth_z;
 
     chr_t *pchr_a, *pchr_b;
     cap_t *pcap_a, *pcap_b;
 
     // Don't collide with self
-    if( ichr_a == ichr_b ) return bfalse;
+    if ( ichr_a == ichr_b ) return bfalse;
 
     // Ignore invalid characters
-    if( INVALID_CHR(ichr_a) ) return bfalse;
+    if ( INVALID_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
-    if( INVALID_CAP(pchr_a->model) ) return bfalse;
+    if ( INVALID_CAP(pchr_a->model) ) return bfalse;
     pcap_a = CapList + pchr_a->model;
 
     // Ignore invalid characters
-    if( INVALID_CHR(ichr_b) ) return bfalse;
+    if ( INVALID_CHR(ichr_b) ) return bfalse;
     pchr_b = ChrList + ichr_b;
 
-    if( INVALID_CAP(pchr_b->model) ) return bfalse;
+    if ( INVALID_CAP(pchr_b->model) ) return bfalse;
     pcap_b = CapList + pchr_b->model;
 
     xa = pchr_a->pos.x;
@@ -5228,7 +5286,7 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     zb = pchr_b->pos.z;
 
     // don't collide if there is no interaction
-    if( 0 == pchr_a->bumpsize || 0 == pchr_b->bumpsize ) return bfalse;
+    if ( 0 == pchr_a->bumpsize || 0 == pchr_b->bumpsize ) return bfalse;
 
     // don't interact with your mount, or your held items
     if ( ichr_a == pchr_b->attachedto || ichr_b == pchr_a->attachedto ) return bfalse;
@@ -5248,8 +5306,8 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
     collide_y  = (dy  <= pchr_a->bumpsize    + pchr_b->bumpsize   );
     collide_xy = (dxy <= pchr_a->bumpsizebig + pchr_b->bumpsizebig);
 
-    if( (pchr_a->platform && pcap_b->canuseplatforms) ||
-        (pchr_b->platform && pcap_a->canuseplatforms) )
+    if ( (pchr_a->platform && pcap_b->canuseplatforms) ||
+            (pchr_b->platform && pcap_a->canuseplatforms) )
     {
         collide_z  = (depth_z > -PLATTOLERANCE);
     }
@@ -5258,7 +5316,7 @@ bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
         collide_z  = (depth_z > 0);
     }
 
-    if( !collide_x || !collide_y || !collide_z || !collide_xy ) return bfalse;
+    if ( !collide_x || !collide_y || !collide_z || !collide_xy ) return bfalse;
 
     return btrue;
 }
@@ -5271,19 +5329,19 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     bool_t collide_xy = bfalse;
     bool_t collide_z  = bfalse;
 
-    float xa,ya,za;
-    float xb,yb,zb;
-    float dxy, dx,dy,depth_z;
+    float xa, ya, za;
+    float xb, yb, zb;
+    float dxy, dx, dy, depth_z;
 
     chr_t * pchr_a;
     prt_t * pprt_b;
 
     // Ignore invalid characters
-    if( INVALID_CHR(ichr_a) ) return bfalse;
+    if ( INVALID_CHR(ichr_a) ) return bfalse;
     pchr_a = ChrList + ichr_a;
 
     // Ignore invalid characters
-    if( INVALID_PRT(iprt_b) ) return bfalse;
+    if ( INVALID_PRT(iprt_b) ) return bfalse;
     pprt_b = PrtList + iprt_b;
 
     // reject characters that are hidden
@@ -5298,7 +5356,7 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     zb = pprt_b->pos.z;
 
     // don't collide if there is no interaction
-    if( 0 == pchr_a->bumpsize || 0 == pprt_b->bumpsize ) return bfalse;
+    if ( 0 == pchr_a->bumpsize || 0 == pprt_b->bumpsize ) return bfalse;
 
     // First check absolute value diamond
     dx = ABS( xa - xb );
@@ -5313,7 +5371,7 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     collide_xy = (dxy <= pchr_a->bumpsizebig + pprt_b->bumpsizebig);
     collide_z  = (depth_z > 0);
 
-    if( !collide_x || !collide_y || !collide_z || !collide_xy ) return bfalse;
+    if ( !collide_x || !collide_y || !collide_z || !collide_xy ) return bfalse;
 
     return btrue;
 }
@@ -5327,15 +5385,15 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
 
     mad_t * pmad;
 
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     // get the model. try to heal a bad model.
-    if( INVALID_MAD(pinst->imad) ) return bfalse;
+    if ( INVALID_MAD(pinst->imad) ) return bfalse;
     pmad = MadList + pinst->imad;
 
     // handle the default parameters
-    if( vmin < 0 ) vmin = 0;
-    if( vmax < 0 ) vmax = pmad->md2.vertices - 1;
+    if ( vmin < 0 ) vmin = 0;
+    if ( vmax < 0 ) vmax = pmad->md2.vertices - 1;
 
     vmin = CLIP(vmin, 0, pmad->md2.vertices - 1);
     vmax = CLIP(vmax, 0, pmad->md2.vertices - 1);
@@ -5349,11 +5407,11 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
                    ( pinst->save_frame_lst == pinst->frame_lst && flip == 0.0f ) ||
                    ( pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst && pinst->save_flip == flip );
 
-    if( frames_match && vertices_match ) return bfalse;
+    if ( frames_match && vertices_match ) return bfalse;
 
-    if( pinst->frame_nxt == pinst->frame_lst || flip == 0.0f )
+    if ( pinst->frame_nxt == pinst->frame_lst || flip == 0.0f )
     {
-        for( i=vmin; i<=vmax; i++)
+        for ( i = vmin; i <= vmax; i++)
         {
             Uint16 vrta_lst;
 
@@ -5371,9 +5429,9 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
             pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
         }
     }
-    else if( flip == 1.0f )
+    else if ( flip == 1.0f )
     {
-        for( i=vmin; i<=vmax; i++)
+        for ( i = vmin; i <= vmax; i++)
         {
             Uint16 vrta_nxt;
 
@@ -5393,7 +5451,7 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
     }
     else
     {
-        for( i=vmin; i<=vmax; i++)
+        for ( i = vmin; i <= vmax; i++)
         {
             Uint16 vrta_lst, vrta_nxt;
 
@@ -5421,3 +5479,469 @@ bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax 
 
     return btrue;
 }
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+mesh_t * set_PMesh( mesh_t * pmpd )
+{
+    mesh_t * pmpd_old = PMesh;
+
+    PMesh = pmpd;
+
+    return pmpd_old;
+}
+
+//--------------------------------------------------------------------------------------------
+camera_t * set_PCamera( camera_t * pcam )
+{
+    camera_t * pcam_old = PCamera;
+
+    PCamera = pcam;
+
+    // Matrix init stuff (from remove.c)
+    rotmeshtopside    = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
+    rotmeshbottomside = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
+    rotmeshup         = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
+    rotmeshdown       = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
+
+    return pcam_old;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t water_data_init( water_data_t * pdata )
+{
+    if( NULL == pdata ) return bfalse;
+
+    memset( pdata, 0, sizeof(water_data_t) );
+
+    pdata->spek_start =   128;
+    pdata->spek_level =   128;
+    pdata->is_water   = btrue;
+
+    pdata->foregroundrepeat = 1;
+    pdata->backgroundrepeat = 1;
+
+    if ( pdata->light )
+    {
+        int layer;
+        for( layer = 0; layer < pdata->layer_count; layer++ )
+        {
+            pdata->layer_alpha[layer] = 255;  // Some cards don't support alpha lights...
+        }
+    }
+
+    return btrue;
+}
+
+bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
+{
+    int layer;
+
+    if (NULL == pinst) return bfalse;
+
+    memset(pinst, 0, sizeof(water_instance_t));
+
+    for( layer = 0; layer < MAXWATERLAYER; layer++)
+    {
+        pinst->layer_frame[layer] = rand() & WATERFRAMEAND;
+    }
+
+    if( NULL != pdata )
+    {
+        pinst->surface_level = pdata->surface_level;
+        pinst->douse_level   = pdata->douse_level;
+
+        for( layer = 0; layer < MAXWATERLAYER; layer++)
+        {
+            pinst->layer_z[layer] = pdata->layer_z[layer];
+        }
+    }
+
+    make_water( pinst, pdata );
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t weather_data_init( weather_data_t * pdata )
+{
+    if( NULL == pdata ) return bfalse;
+
+    memset( pdata, 0, sizeof(weather_data_t) );
+
+    pdata->timer_reset = 10;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata )
+{
+    if( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(weather_instance_t) );
+
+    if( NULL == pdata ) return bfalse;
+
+    pinst->time = pdata->timer_reset;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t fog_data_init( fog_data_t * pdata )
+{
+    if( NULL == pdata ) return bfalse;
+
+    pdata->top           = 100;
+    pdata->bottom        = 0.0f;
+    pdata->red           = 255;
+    pdata->grn           = 255;
+    pdata->blu           = 255;
+    pdata->affects_water = btrue;
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
+{
+    if( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(fog_instance_t) );
+
+    pinst->distance = 100;
+    pinst->on       = cfg.fog_allowed;
+
+    if( NULL == pdata ) return bfalse;
+
+    pinst->top    = pdata->top;
+    pinst->bottom = pdata->bottom;
+
+    pinst->red    = pdata->red;
+    pinst->grn    = pdata->grn;
+    pinst->blu    = pdata->blu;
+
+    pinst->distance = ( pdata->top - pdata->bottom );
+    if ( pinst->distance < 1.0f )  pinst->on = bfalse;
+
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t damagetile_data_init( damagetile_data_t * pdata )
+{
+    if( NULL == pdata ) return bfalse;
+
+    pdata->parttype = -1;
+    pdata->partand  = 255;
+    pdata->sound    = INVALID_SOUND;
+    pdata->type     = DAMAGE_FIRE;
+    pdata->amount   = 256;
+
+    return btrue;
+};
+
+//--------------------------------------------------------------------------------------------
+bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )
+{
+    if( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(damagetile_instance_t) );
+
+    pinst->sound_time   = TILESOUNDTIME;
+    pinst->min_distance = 9999;
+
+    if( NULL == pdata ) return bfalse;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t animtile_data_init( animtile_data_t * pdata )
+{
+    if( NULL == pdata ) return bfalse;
+
+    memset( pdata, 0, sizeof(animtile_data_t) );
+
+    pdata->update_and    = 7;                        // New tile every 7 frames
+    pdata->frame_and     = 3;              // Only 4 frames
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
+{
+    if( NULL == pinst ) return bfalse;
+
+    pinst[0].frame_and  = (1 << 3) - 1;
+    pinst[0].base_and   = ~pinst[0].frame_and;
+
+    pinst[1].frame_and  = (1 << 4) - 1;
+    pinst[1].base_and   = ~pinst[1].frame_and;
+
+    if( NULL != pdata ) return bfalse;
+
+    pinst[0].frame_and = pdata->frame_and;
+    pinst[0].base_and  = ~pinst[0].frame_and;
+
+    pinst[1].frame_and = ( pdata->frame_and << 1 ) | 1;
+    pinst[1].frame_and = ~pinst[1].frame_and;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void read_wawalite( const char *modname )
+{
+    // ZZ> This function sets up water and lighting for the module
+    char newloadname[256];
+    FILE* fileread;
+    float fTmp;
+    char cTmp;
+    int iTmp;
+
+    water_data_init( &water_data );
+    weather_data_init( &weather_data );
+    fog_data_init( &fog_data );
+    damagetile_data_init( &damagetile_data );
+    animtile_data_init( &animtile_data );
+
+    make_newloadname( modname, "gamedat" SLASH_STR "wawalite.txt", newloadname );
+    fileread = fopen( newloadname, "r" );
+    if ( NULL == fileread )
+    {
+        log_error( "Could not read file! (wawalite.txt)\n" );
+        return;
+    }
+
+    goto_colon( NULL, fileread, bfalse );
+    //  !!!BAD!!!
+    //  Random map...
+    //  If someone else wants to handle this, here are some thoughts for approaching
+    //  it.  The .MPD file for the level should give the basic size of the map.  Use
+    //  a standard tile set like the Palace modules.  Only use objects that are in
+    //  the module's object directory, and only use some of them.  Imagine several Rock
+    //  Moles eating through a stone filled level to make a path from the entrance to
+    //  the exit.  Door placement will be difficult.
+    //  !!!BAD!!!
+
+    // Read water data first
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_count = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.spek_start = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.spek_level = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.douse_level = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.surface_level = iTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'T' || cTmp == 't' )  water_data.light = btrue;
+    else water_data.light = bfalse;
+
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    water_data.is_water = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  water_data.is_water = btrue;
+
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    water_data.overlay_req = ('T' == toupper(cTmp));
+
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    water_data.background_req = ('T' == toupper(cTmp));
+
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_x[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_y[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_x[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_y[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.foregroundrepeat = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.backgroundrepeat = iTmp;
+
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_z[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_alpha[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_frame_add[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_level[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_add[0] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_amp[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_u_add[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_v_add[0] = fTmp;
+
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_z[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_alpha[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_frame_add[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_level[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_add[1] = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_amp[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_u_add[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_v_add[1] = fTmp;
+
+    // Read light data second
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_x = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_y = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_z = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp;
+
+    // Read tile data third
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  hillslide = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  slippyfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  airfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  waterfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  noslipfriction = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  gravity = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtile_data.update_and = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  animtile_data.frame_and = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  damagetile_data.amount = iTmp;
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    if ( cTmp == 'S' || cTmp == 's' )  damagetile_data.type = DAMAGE_SLASH;
+    if ( cTmp == 'C' || cTmp == 'c' )  damagetile_data.type = DAMAGE_CRUSH;
+    if ( cTmp == 'P' || cTmp == 'p' )  damagetile_data.type = DAMAGE_POKE;
+    if ( cTmp == 'H' || cTmp == 'h' )  damagetile_data.type = DAMAGE_HOLY;
+    if ( cTmp == 'E' || cTmp == 'e' )  damagetile_data.type = DAMAGE_EVIL;
+    if ( cTmp == 'F' || cTmp == 'f' )  damagetile_data.type = DAMAGE_FIRE;
+    if ( cTmp == 'I' || cTmp == 'i' )  damagetile_data.type = DAMAGE_ICE;
+    if ( cTmp == 'Z' || cTmp == 'z' )  damagetile_data.type = DAMAGE_ZAP;
+
+    // Read weather data fourth
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    weather_data.over_water = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  weather_data.over_water = btrue;
+
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  weather_data.timer_reset = iTmp;
+
+
+    // Read extra data
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    gfx.exploremode = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  gfx.exploremode = btrue;
+
+    goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+    gfx.usefaredge = bfalse;
+    if ( cTmp == 'T' || cTmp == 't' )  gfx.usefaredge = btrue;
+
+    PCamera->swing = 0;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingrate = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingamp = fTmp;
+
+    // Read unnecessary data...  Only read if it exists...
+    if ( goto_colon( NULL, fileread, btrue ) )
+    {
+        fscanf( fileread, "%f", &fTmp );  fog_data.top = fTmp;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.bottom = fTmp;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.red = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.grn = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  fog_data.blu = fTmp * 255;
+        goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'F' || cTmp == 'f' )  fog_data.affects_water = bfalse;
+
+        // Read extra stuff for damage tile particles...
+        if ( goto_colon( NULL, fileread, btrue ) )
+        {
+            fscanf( fileread, "%d", &iTmp );  damagetile_data.parttype = iTmp;
+            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+            damagetile_data.partand = iTmp;
+            goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );
+            damagetile_data.sound = CLIP(iTmp, -1, MAX_WAVE);
+        }
+    }
+
+    fclose( fileread );
+
+    fog_instance_init( &fog, &fog_data );
+    water_instance_init( &water, &water_data );
+    weather_instance_init( &weather, &weather_data );
+    damagetile_instance_init( &damagetile, &damagetile_data );
+    animtile_instance_init( animtile, &animtile_data );
+
+
+    // Allow slow machines to ignore the fancy stuff
+    if ( !cfg.twolayerwater_allowed && water_data.layer_count > 1 )
+    {
+        water_data.layer_count = 1;
+        iTmp = water_data.layer_alpha[0];
+        iTmp = FF_MUL( water_data.layer_alpha[1], iTmp ) + iTmp;
+        if ( iTmp > 255 ) iTmp = 255;
+
+        water_data.layer_alpha[0] = iTmp;
+    }
+
+    // Do it
+    make_lighttable( light_x, light_y, light_z, light_a );
+    make_lighttospek();
+}
+
+//---------------------------------------------------------------------------------------------
+float get_mesh_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
+{
+    // ZZ> This function returns the height of a point within a mesh fan, precise
+    //     If waterwalk is nonzero and the fan is watery, then the level returned is the
+    //     level of the water.
+
+    float zdone;
+
+    zdone = mesh_get_level( pmesh, x, y );
+
+    if ( waterwalk && water.surface_level > zdone && water_data.is_water )
+    {
+        int tile = mesh_get_tile( pmesh, x, y );
+
+        if (  0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) )
+        {
+            zdone = water.surface_level;
+        }
+    }
+
+    return zdone;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
+{
+    // ZZ> This function sets up water movements
+    int layer, frame, point, cnt;
+    float temp;
+    Uint8 spek;
+
+    if( NULL == pinst || NULL == pdata ) return bfalse;
+
+    for ( layer = 0; layer < pdata->layer_count; layer++ )
+    {
+        pinst->layer_u[layer] = 0;
+        pinst->layer_v[layer] = 0;
+
+        for ( frame = 0; frame < MAXWATERFRAME; frame++ )
+        {
+            // Do first mode
+            for ( point = 0; point < WATERPOINTS; point++ )
+            {
+                temp = SIN( ( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( PI / 2 * layer / MAXWATERLAYER ) );
+                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer_amp[layer];
+                pinst->layer_color[layer][frame][point] = ( pdata->light_level[layer] * ( temp + 1.0f ) ) + pdata->light_add[layer];
+            }
+        }
+    }
+
+    // Calculate specular highlights
+    spek = 0;
+    for ( cnt = 0; cnt < 256; cnt++ )
+    {
+        spek = 0;
+        if ( cnt > pdata->spek_start )
+        {
+            temp = cnt - pdata->spek_start;
+            temp = temp / ( 256 - pdata->spek_start );
+            temp = temp * temp;
+            spek = temp * pdata->spek_level;
+        }
+
+        // [claforte] Probably need to replace this with a
+        //            GL_DEBUG(glColor4f)(spek/256.0f, spek/256.0f, spek/256.0f, 1.0f) call:
+        if ( gfx.shading == GL_FLAT )
+            pinst->spek[cnt] = 0;
+        else
+            pinst->spek[cnt] = spek;
+    }
+
+    return btrue;
+}
+

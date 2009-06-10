@@ -82,8 +82,6 @@ typedef struct s_light_cache light_cache_t;
 //--------------------------------------------------------------------------------------------
 struct s_mesh_info
 {
-    Uint8           exploremode;                      // Explore mode?
-
     size_t          vertcount;                         // For malloc
 
     int             tiles_x;                          // Size in tiles
@@ -170,8 +168,6 @@ extern Uint8  map_twist_flat[256];
 
 extern tile_definition_t tile_dict[MAXMESHTYPE];
 
-extern mesh_t * PMesh;
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -183,7 +179,7 @@ mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y );
 // loading/saving
 mesh_t * mesh_load( const char *modname, mesh_t * pmesh );
 
-float get_level( mesh_t * pmesh, float x, float y, bool_t waterwalk );
+float  mesh_get_level( mesh_t * pmesh, float x, float y );
 Uint32 mesh_get_block( mesh_t * pmesh, float pos_x, float pos_y );
 Uint32 mesh_get_tile ( mesh_t * pmesh, float pos_x, float pos_y );
 
@@ -191,3 +187,7 @@ Uint32 mesh_get_block_int( mesh_t * pmesh, int block_x, int block_y );
 Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y );
 
 Uint32 mesh_test_fx( mesh_t * pmesh, Uint32 itile, Uint32 flags );
+
+void   mesh_make_twist();
+
+void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);

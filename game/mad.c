@@ -77,7 +77,7 @@ void action_copy_correct( Uint16 object, Uint16 actiona, Uint16 actionb )
     // ZZ> This function makes sure both actions are valid if either of them
     //     are valid.  It will copy start and ends to mirror the valid action.
 
-    if( object > MAX_PROFILE || !MadList[object].used ) return;
+    if ( object > MAX_PROFILE || !MadList[object].used ) return;
 
     if ( MadList[object].actionvalid[actiona] == MadList[object].actionvalid[actionb] )
     {
@@ -112,7 +112,7 @@ void action_check_copy( const char* loadname, Uint16 object )
     int actiona, actionb;
     char szOne[16], szTwo[16];
 
-    if( object > MAX_PROFILE || !MadList[object].used ) return;
+    if ( object > MAX_PROFILE || !MadList[object].used ) return;
 
     MadList[object].msgstart = 0;
     fileread = fopen( loadname, "r" );
@@ -293,7 +293,7 @@ int load_one_model_profile( const char* tmploadname, Uint16 object, int skin )
     int cnt;
     mad_t * pmad;
 
-    if( object > MAX_PROFILE ) return 0;
+    if ( object > MAX_PROFILE ) return 0;
     pmad = MadList + object;
 
     // clear out the mad
@@ -705,7 +705,7 @@ void get_message( FILE* fileread )
         cnt++;
     }
 
-    msgtext[msgtotalindex] = '\0';  
+    msgtext[msgtotalindex] = '\0';
     msgtotalindex++;
     msgtotal++;
 }

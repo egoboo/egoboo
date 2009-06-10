@@ -70,10 +70,6 @@ enum e_game_difficulty
     GAME_HARD
 };
 
-EXTERN bool_t    gamepaused EQ( bfalse );    // Is the game paused?
-EXTERN bool_t    pausekeyready EQ( btrue );  // Ready to pause game?
-EXTERN bool_t    overrideslots EQ( bfalse );     //Override existing slots?
-EXTERN bool_t    screenshotkeyready EQ( btrue );    // Ready to take screenshot?
 
 #define EXPKEEP 0.85f                                // Experience to keep when respawning
 
@@ -211,11 +207,6 @@ enum e_xp_type
 #define SHADOWRAISE 5
 #define DAMAGERAISE 25
 
-#define MAXWATERLAYER 2                             // Maximum water layers
-#define MAXWATERFRAME 512                           // Maximum number of wave frames
-#define WATERFRAMEAND (MAXWATERFRAME-1)
-#define WATERPOINTS 4                               // Points in a water fan
-#define WATERMODE 4                                 // Ummm...  For making it work, yeah...
 
 #define TURNSPD                         0.01f         // Cutoff for turning or same direction
 
@@ -226,19 +217,6 @@ enum e_xp_type
 // spikey mace...
 
 
-//Object positions
-#define MAXSLOT                          2
-#define SLOT_LEFT                        0
-#define SLOT_RIGHT                       1
-
-#define GRIP_VERTS                       4
-#define GRIP_RIGHT                   (2 * GRIP_VERTS)  // Right weapon grip starts 8 from last
-#define GRIP_LEFT                    (1 * GRIP_VERTS)  // Left weapon grip starts 4 from last
-#define GRIP_ONLY                        GRIP_LEFT     // Only weapon grip starts 4 from last
-#define GRIP_LAST                        1             // Spawn particles at the last vertex
-#define GRIP_ORIGIN                      0             // Spawn attachments at the center
-#define GRIP_INVENTORY                   0
-
 #define CHOPPERMODEL                    32
 
 /* SDL_GetTicks() always returns milli seconds */
@@ -247,12 +225,6 @@ enum e_xp_type
 #define UPDATE_SKIP                     ((float)TICKS_PER_SEC/(float)UPDATES_PER_SEC)
 #define ONESECOND                       TICKS_PER_SEC
 
-EXTERN int     animtileupdateand  EQ( 7 );                        // New tile every 7 frames
-EXTERN Uint16  animtileframeand  EQ( 3 );              // Only 4 frames
-EXTERN Uint16  animtilebaseand  EQ( 0xfffc );
-EXTERN Uint16  biganimtileframeand  EQ( 7 );           // For big tiles
-EXTERN Uint16  biganimtilebaseand  EQ( 0xfff8 );
-EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 
 #define NORTH 16384                                 // Character facings
 #define SOUTH 49152
@@ -271,15 +243,6 @@ EXTERN Uint16  animtileframeadd  EQ( 0 );              // Current frame
 // Character defines
 //------------------------------------
 #define MAXSKIN   4
-
-EXTERN Sint16                  damagetileparttype;
-EXTERN short                   damagetilepartand;
-EXTERN short                   damagetilesound;
-EXTERN short                   damagetilesoundtime;
-EXTERN Uint16                  damagetilemindistance;
-
-#define TILESOUNDTIME 16
-#define TILEREAFFIRMAND  3
 
 // Display
 EXTERN Uint8                   timeron  EQ( bfalse );          // Game timer displayed?
@@ -301,30 +264,18 @@ EXTERN Uint32          clock_pit  EQ( 0 );             // For pit kills
 EXTERN Uint32          outofsync  EQ( 0 );
 EXTERN Uint8           parseerror  EQ( bfalse );
 
-//Pitty stuff
-EXTERN bool_t          pitskill  EQ( bfalse );          // Do they kill?
-EXTERN bool_t          pitsfall  EQ( bfalse );          // Do they teleport?
-EXTERN Uint32          pitx;
-EXTERN Uint32          pity;
-EXTERN Uint32          pitz;
 
 EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
 EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
 EXTERN bool_t                    gamemenuactive EQ( bfalse );
 EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
-EXTERN bool_t                    networkon  EQ( bfalse );            // Try to connect?
-EXTERN bool_t                    serviceon  EQ( bfalse );        // Do I need to free the interface?
 EXTERN bool_t                    menuactive  EQ( bfalse );       // Menu running?
-EXTERN bool_t                    hostactive  EQ( bfalse );       // Hosting?
-EXTERN bool_t                    readytostart;               // Ready to hit the Start Game button?
-EXTERN bool_t                    waitingforplayers;          // Has everyone talked to the host?
 EXTERN bool_t                    respawnvalid;               // Can players respawn with Spacebar?
 EXTERN bool_t                    respawnanytime;             // True if it's a small level...
 EXTERN bool_t                    importvalid;                // Can it import?
 EXTERN bool_t                    exportvalid;                // Can it export?
 EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
 EXTERN bool_t                    local_noplayers;             // Are there any local players?
-EXTERN bool_t                    usefaredge;                 // Far edge maps? (Outdoor)
 EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
 EXTERN Uint8                     importamount;               // Number of imports for this module
 EXTERN Uint8                     playeramount;
@@ -356,49 +307,17 @@ EXTERN bool_t                  wateron        EQ( btrue );         // Water over
 EXTERN bool_t console_mode EQ( bfalse );                   // Input text from keyboard?
 EXTERN bool_t console_done EQ( bfalse );                   // Input text from keyboard finished?
 
-// Weather and water gfx
-EXTERN int                     weatherplayer;
-EXTERN int                     weatheroverwater EQ( bfalse );       // Only spawn over water?
-EXTERN int                     weathertimereset EQ( 10 );          // Rate at which weather particles spawn
-EXTERN int                     weathertime EQ( 0 );                // 0 is no weather
 
-EXTERN int                     numwaterlayer EQ( 0 );              // Number of layers
-EXTERN float                   watersurfacelevel EQ( 0 );          // Surface level for water striders
-EXTERN float                   waterdouselevel EQ( 0 );            // Surface level for torches
-EXTERN Uint8                   waterlight EQ( 0 );                 // Is it light ( default is alpha )
-EXTERN Uint8                   waterspekstart EQ( 128 );           // Specular begins at which light value
-EXTERN Uint8                   waterspeklevel EQ( 128 );           // General specular amount (0-255)
-EXTERN bool_t                  wateriswater  EQ( btrue );          // Is it water?  ( Or lava... )
-EXTERN bool_t                  water_background_req EQ(bfalse);
-EXTERN bool_t                  water_overlay_req    EQ(bfalse);
-EXTERN Uint8                   waterlightlevel[MAXWATERLAYER]; // General light amount (0-63)
-EXTERN Uint8                   waterlightadd[MAXWATERLAYER];   // Ambient light amount (0-63)
-EXTERN float                   waterlayerz[MAXWATERLAYER];     // Base height of water
-EXTERN Uint8                   waterlayeralpha[MAXWATERLAYER]; // Transparency
-EXTERN float                   waterlayeramp[MAXWATERLAYER];   // Amplitude of waves
-EXTERN float                   waterlayeru[MAXWATERLAYER];     // Coordinates of texture
-EXTERN float                   waterlayerv[MAXWATERLAYER];
-EXTERN float                   waterlayeruadd[MAXWATERLAYER];  // Texture movement
-EXTERN float                   waterlayervadd[MAXWATERLAYER];
-EXTERN float                   waterlayerzadd[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
-EXTERN Uint8                   waterlayercolor[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
-EXTERN Uint16                  waterlayerframe[MAXWATERLAYER]; // Frame
-EXTERN Uint16                  waterlayerframeadd[MAXWATERLAYER];      // Speed
-EXTERN float                   waterlayerdistx[MAXWATERLAYER];         // For distant backgrounds
-EXTERN float                   waterlayerdisty[MAXWATERLAYER];
-EXTERN Uint32                  waterspek[256];             // Specular highlights
-EXTERN float                   foregroundrepeat  EQ( 1 );
-EXTERN float                   backgroundrepeat  EQ( 1 );
+extern float           light_a, light_x, light_y, light_z;
+EXTERN float           hillslide  EQ( 1.00f );
+EXTERN float           slippyfriction  EQ( 1.00f );                            // Friction
+EXTERN float           airfriction  EQ( 0.91f );                               // 0.9868 is approximately real world air friction
+EXTERN float           waterfriction  EQ( 0.80f );
+EXTERN float           noslipfriction  EQ( 0.91f );
+EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
+
 
 // Fog stuff
-EXTERN bool_t                  fogon  EQ( bfalse );            // Do ground fog?
-EXTERN float                   fogbottom  EQ( 0.0f );
-EXTERN float                   fogtop  EQ( 100 );
-EXTERN float                   fogdistance  EQ( 100 );
-EXTERN Uint8                   fogred  EQ( 255 );             //  Fog collour
-EXTERN Uint8                   foggrn  EQ( 255 );
-EXTERN Uint8                   fogblu  EQ( 255 );
-EXTERN Uint8                   fogaffectswater;
 
 // Input player control
 EXTERN int                     nullicon  EQ( 0 );
@@ -432,16 +351,9 @@ EXTERN Uint16  bookicon[MAXSKIN];                      // The first book icon
 EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 
 // phisics info
-EXTERN float           hillslide  EQ( 1.00f );
-EXTERN float           slippyfriction  EQ( 1.00f );                            // Friction
-EXTERN float           airfriction  EQ( 0.91f );                               // 0.9868 is approximately real world air friction
-EXTERN float           waterfriction  EQ( 0.80f );
-EXTERN float           noslipfriction  EQ( 0.91f );
-EXTERN float           platstick  EQ( 0.1f );
-EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
 
-EXTERN int             damagetileamount  EQ( 256 );                           // Amount of damage
-EXTERN Uint8           damagetiletype  EQ( DAMAGE_FIRE );                      // Type of damage
+EXTERN float           platstick  EQ( 0.1f );
+
 
 EXTERN char            cFrameName[16];                                     // MD2 Frame Name
 

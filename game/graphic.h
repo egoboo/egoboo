@@ -117,6 +117,8 @@ typedef struct
 //--------------------------------------------------------------------------------------------
 struct s_renderlist
 {
+    mesh_t * pmesh;
+
     int     all_count;                               // Number to render, total
     int     ref_count;                               // ..., is reflected in the floor
     int     sha_count;                               // ..., is not reflected in the floor
@@ -137,7 +139,6 @@ typedef struct s_renderlist renderlist_t;
 extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
-extern float           light_a, light_x, light_y, light_z;
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
 extern float           lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
 extern float           lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
@@ -159,29 +160,6 @@ extern int rotmeshup;
 extern int rotmeshdown;
 
 //--------------------------------------------------------------------------------------------
-// Lightning effects
-
-#define MAXDYNADIST                     2700        // Leeway for offscreen lights
-#define TOTAL_MAX_DYNA                    64          // Absolute max number of dynamic lights
-
-struct s_dynalight
-{
-    float distance;      // The distances
-    float x;             // Light position
-    float y;
-    float z;
-    float level;         // Light intensity
-    float falloff;       // Light radius
-};
-
-typedef struct s_dynalight dynalight_t;
-
-extern float       dyna_distancetobeat;           // The number to beat
-extern int         dyna_list_max;                 // Max number of lights to draw
-extern int         dyna_list_count;               // Number of dynamic lights
-extern dynalight_t dyna_list[TOTAL_MAX_DYNA];
-
-//--------------------------------------------------------------------------------------------
 // encapsulation of all graphics options
 struct s_gfx_config
 {
@@ -201,6 +179,10 @@ struct s_gfx_config
     bool_t draw_overlay;      // Draw overlay?
     bool_t draw_water_0;      // Do we draw water layer 1 (TX_WATER_LOW)
     bool_t draw_water_1;      // Do we draw water layer 2 (TX_WATER_TOP)
+
+    int    dyna_list_max;     // Max number of dynamic lights to draw
+    bool_t exploremode;       // fog of war mode for mesh display
+    bool_t usefaredge;        // Far edge maps? (Outdoor)
 };
 typedef struct s_gfx_config gfx_config_t;
 
@@ -226,19 +208,20 @@ extern  Uint32          TxTitleImage_count;
 extern  GLXtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
-#define MAXBLIP 128
-#define NUMBLIP 6             //Blip textures
-EXTERN Uint16                  numblip  EQ( 0 );
-EXTERN Uint16                  blipx[MAXBLIP];
-EXTERN Uint16                  blipy[MAXBLIP];
-EXTERN Uint8                   blipc[MAXBLIP];
-EXTERN Uint8                   mapon  EQ( bfalse );
-EXTERN Uint8                   mapvalid  EQ( bfalse );
-EXTERN Uint8                   youarehereon  EQ( bfalse );
+#define MAXBLIP        128
+#define NUMBLIP          6                           // Blip textures
+extern Uint8           mapon;
+extern Uint8           mapvalid;
+extern Uint8           youarehereon;
+extern Uint16          numblip;
+extern Uint16          blipx[MAXBLIP];
+extern Uint16          blipy[MAXBLIP];
+extern Uint8           blipc[MAXBLIP];
 
 // JF - Added so that the video mode might be determined outside of the graphics code
 extern bool_t          meshnotexture;
 extern Uint16          meshlasttexture;             // Last texture used
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -250,12 +233,12 @@ void create_szfpstext( int frames );
 void make_lighttospek();
 void make_lighttable( float lx, float ly, float lz, float ambi );
 void make_lightdirectionlookup();
-void make_renderlist( struct s_camera * pcam );
+void make_renderlist( mesh_t * pmesh, struct s_camera * pcam );
 
 void   dolist_sort( struct s_camera * pcam );
-void   dolist_make();
-bool_t dolist_add_chr( Uint16 cnt );
-bool_t dolist_add_prt( Uint16 cnt );
+void   dolist_make( mesh_t * pmesh );
+bool_t dolist_add_chr( mesh_t * pmesh, Uint16 cnt );
+bool_t dolist_add_prt( mesh_t * pmesh, Uint16 cnt );
 
 void init_all_icons();
 void init_all_titleimages();
@@ -282,7 +265,7 @@ bool_t load_all_global_icons();
 void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();
-void draw_scene_zreflection( struct s_camera * pcam );
+void draw_scene_zreflection( mesh_t * pmesh, struct s_camera * pcam );
 void animate_tiles();
 void move_water();
 
@@ -304,16 +287,16 @@ void render_prt( struct s_camera * pcam );
 void render_shadow( Uint16 character );
 void render_bad_shadow( Uint16 character );
 void render_prt_ref( struct s_camera * pcam );
-void render_fan( Uint32 fan );
-void render_hmap_fan( Uint32 fan );
-void render_water_fan( Uint32 fan, Uint8 layer );
+void render_fan( mesh_t * pmesh, Uint32 fan );
+void render_hmap_fan( mesh_t * pmesh, Uint32 fan );
+void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer );
 void render_one_mad_enviro( Uint16 character, Uint8 trans );
 void render_one_mad_tex( Uint16 character, Uint8 trans );
 void render_one_mad( Uint16 character, Uint8 trans );
 void render_one_mad_ref( int tnc, Uint8 trans );
 
 void light_characters();
-void light_particles();
+void light_particles( mesh_t * pmesh );
 void set_fan_light( int fanx, int fany, Uint16 particle );
 void do_mpd_lighting();
 
@@ -328,7 +311,6 @@ void make_enviro();
 
 bool_t load_one_icon( const char *szLoadName );
 
-void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);
 
 void load_basic_textures( const char *modname );
 
@@ -336,8 +318,6 @@ void clear_messages();
 
 void font_load( const char* szBitmap, const char* szSpacing );
 
-void make_water();
-void read_wawalite( const char *modname );
 
 Uint32 load_one_title_image( const char *szLoadName );
 
@@ -350,3 +330,5 @@ bool_t render_one_prt_ref( Uint16 iprt );
 
 void Begin3DMode( struct s_camera * pcam );
 void End3DMode();
+
+void debug_message( const char *text );

@@ -34,6 +34,7 @@
 #include "particle.h"
 #include "link.h"
 #include "mad.h"
+#include "game.h"
 
 #include "SDL_extensions.h"
 
@@ -328,7 +329,7 @@ int doMainMenu( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -353,7 +354,7 @@ int doMainMenu( float deltaTime )
             // Do normal run
             // Background
 
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -395,7 +396,7 @@ int doMainMenu( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -454,7 +455,7 @@ int doSinglePlayerMenu( float deltaTime )
             // Let this fall through
 
         case MM_Entering:
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background image
             if ( mnu_draw_background )
@@ -506,7 +507,7 @@ int doSinglePlayerMenu( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -616,7 +617,7 @@ int doChooseModule( float deltaTime )
 
         case MM_Running:
             // Draw the background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
             x = ( sdl_scr.x / 2 ) - ( background.imgW / 2 );
             y = sdl_scr.y - background.imgH;
 
@@ -696,7 +697,7 @@ int doChooseModule( float deltaTime )
             {
                 y = 173 + 5;
                 x = 21 + 5;
-                glColor4f( 1, 1, 1, 1 );
+                GL_DEBUG(glColor4f)(1, 1, 1, 1 );
                 fnt_drawText( menuFont, moduleMenuOffsetX + x, moduleMenuOffsetY + y,
                               ModList[validModules[selectedModule]].longname );
                 y += 20;
@@ -862,7 +863,7 @@ int doChoosePlayer( float deltaTime )
             // fall through
 
         case MM_Entering:
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             drawSlidyButtons();
 
@@ -892,14 +893,14 @@ int doChoosePlayer( float deltaTime )
             {
                 if (mous.z > 0)
                 {
-                    if( startIndex + numVertical < loadplayer_count )
+                    if ( startIndex + numVertical < loadplayer_count )
                     {
                         startIndex++;
                     }
                 }
                 else if (mous.z < 0)
                 {
-                    if( startIndex > 0 )
+                    if ( startIndex > 0 )
                     {
                         startIndex--;
                     }
@@ -994,7 +995,7 @@ int doChoosePlayer( float deltaTime )
                 }
             }
 
-            switch( menuChoice )
+            switch ( menuChoice )
             {
                 case 1: menuState = MM_Leaving; break;
                 case 2: mnu_selectedPlayerCount = 0; menuState = MM_Leaving; break;
@@ -1004,7 +1005,7 @@ int doChoosePlayer( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Buttons
             drawSlidyButtons();
@@ -1096,7 +1097,7 @@ int doOptions( float deltaTime )
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -1120,7 +1121,7 @@ int doOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -1161,7 +1162,7 @@ int doOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -1250,12 +1251,12 @@ int doInputOptions( float deltaTime )
             //Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
-			gamepaused = btrue;			// In case we are running as an in-game menu
+            gamepaused = btrue;         // In case we are running as an in-game menu
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Running;
@@ -1264,7 +1265,7 @@ int doInputOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
             fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, sdl_scr.y - 470, 0, 0, 20 );
 
             //Are we waiting for input?
@@ -1550,7 +1551,7 @@ int doInputOptions( float deltaTime )
                 if (input_device_count > 0)
                 {
                     player++;
-                    player %= input_device_count; 
+                    player %= input_device_count;
                 }
 
                 snprintf(inputOptionsButtons[CONTROL_COMMAND_COUNT+0], sizeof(STRING), "Player %i", player + 1);
@@ -1569,7 +1570,7 @@ int doInputOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Fall trough
             menuState = MM_Finish;
@@ -1583,7 +1584,7 @@ int doInputOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
-			gamepaused = bfalse;			// In case we are running as an in-game menu
+            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -1612,13 +1613,13 @@ int doAudioOptions( float deltaTime )
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
-			gamepaused = btrue;			// In case we are running as an in-game menu
+            gamepaused = btrue;         // In case we are running as an in-game menu
             // let this fall through into MM_Entering
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -1651,7 +1652,7 @@ int doAudioOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -1703,7 +1704,7 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, sdl_scr.y - 130, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, sdl_scr.y - 130, 100, 30 ) )
             {
-                if( cfg.music_volume < 0 )
+                if ( cfg.music_volume < 0 )
                 {
                     cfg.music_volume = 0;
                 }
@@ -1721,7 +1722,7 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, sdl_scr.y - 200, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, sdl_scr.y - 200, 100, 30 ) )
             {
-                if( cfg.sound_channel_count >= 8 )
+                if ( cfg.sound_channel_count >= 8 )
                 {
                     cfg.sound_channel_count <<= 1;
                 }
@@ -1730,7 +1731,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_channel_count = 8;
                 }
 
-                if( cfg.sound_channel_count > 128 )
+                if ( cfg.sound_channel_count > 128 )
                 {
                     cfg.sound_channel_count = 8;
                 }
@@ -1742,7 +1743,7 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, sdl_scr.y - 165, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, sdl_scr.y - 165, 100, 30 ) )
             {
-                if( cfg.sound_buffer_size >= 512 )
+                if ( cfg.sound_buffer_size >= 512 )
                 {
                     cfg.sound_buffer_size <<= 1;
                 }
@@ -1751,7 +1752,7 @@ int doAudioOptions( float deltaTime )
                     cfg.sound_buffer_size = 512;
                 }
 
-                if( cfg.sound_buffer_size > 8196 )
+                if ( cfg.sound_buffer_size > 8196 )
                 {
                     cfg.sound_buffer_size = 512;
                 }
@@ -1767,14 +1768,14 @@ int doAudioOptions( float deltaTime )
                 // save the setup file
                 setup_upload( &cfg );
                 setup_write();
-                
-				//Reload the sound system
-				sound_restart();
-				
-				//Do we restart the music?
+
+                //Reload the sound system
+                sound_restart();
+
+                //Do we restart the music?
                 if ( cfg.music_allowed )
                 {
-					load_all_music_sounds();
+                    load_all_music_sounds();
                     fade_in_music( musictracksloaded[songplaying] );
                 }
 
@@ -1785,7 +1786,7 @@ int doAudioOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -1806,7 +1807,7 @@ int doAudioOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
-			gamepaused = bfalse;			// In case we are running as an in-game menu
+            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -1835,12 +1836,12 @@ int doVideoOptions( float deltaTime )
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
-			gamepaused = btrue;			// In case we are running as an in-game menu
+            gamepaused = btrue;         // In case we are running as an in-game menu
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Draw the background
             if ( mnu_draw_background )
@@ -1936,7 +1937,7 @@ int doVideoOptions( float deltaTime )
             sprintf( Cscrz, "%i", cfg.scrz_req );      // Convert the integer to a char we can use
             videoOptionsButtons[7] = Cscrz;
 
-            sprintf( Cmaxlights, "%i", dyna_list_max );
+            sprintf( Cmaxlights, "%i", cfg.dyna_count_req );
             videoOptionsButtons[8] = Cmaxlights;
             if ( cfg.use_phong )
             {
@@ -1988,7 +1989,7 @@ int doVideoOptions( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             if ( mnu_draw_background )
             {
@@ -1999,9 +2000,9 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, sdl_scr.y - 215, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, sdl_scr.y - 215, 100, 30 ) )
             {
-                if( cfg.multisamples < 0 ) cfg.multisamples = 0;
+                if ( cfg.multisamples < 0 ) cfg.multisamples = 0;
 
-                if( cfg.multisamples <= 0 )
+                if ( cfg.multisamples <= 0 )
                 {
                     cfg.multisamples = 1;
                 }
@@ -2010,13 +2011,13 @@ int doVideoOptions( float deltaTime )
                     cfg.multisamples <<= 1;
                 }
 
-                if( cfg.multisamples > 16 ) cfg.multisamples = 0;
+                if ( cfg.multisamples > 16 ) cfg.multisamples = 0;
 
                 if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
                 else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
 
-                videoOptionsButtons[0] = Cantialiasing; 
-             }
+                videoOptionsButtons[0] = Cantialiasing;
+            }
 
             // Message time
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
@@ -2082,7 +2083,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Reflections:", buttonLeft, sdl_scr.y - 250, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 5, videoOptionsButtons[4], buttonLeft + 150, sdl_scr.y - 250, 100, 30 ) )
             {
-				
+
                 if ( cfg.reflect_allowed && cfg.reflect_fade == 0 && cfg.reflect_prt )
                 {
                     cfg.reflect_allowed = bfalse;
@@ -2096,7 +2097,7 @@ int doVideoOptions( float deltaTime )
                     {
                         videoOptionsButtons[4] = "Medium";
                         cfg.reflect_fade = 255;
-						cfg.reflect_prt = btrue;
+                        cfg.reflect_prt = btrue;
                     }
                     else
                     {
@@ -2194,7 +2195,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Z Bit:", buttonLeft + 300, sdl_scr.y - 320, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 8, videoOptionsButtons[7], buttonLeft + 450, sdl_scr.y - 320, 100, 30 ) )
             {
-                if( cfg.scrz_req < 0 )
+                if ( cfg.scrz_req < 0 )
                 {
                     cfg.scrz_req = 8;
                 }
@@ -2203,7 +2204,7 @@ int doVideoOptions( float deltaTime )
                     cfg.scrz_req += 8;
                 }
 
-                if( cfg.scrz_req > 32) cfg.scrz_req = 8;
+                if ( cfg.scrz_req > 32) cfg.scrz_req = 8;
 
                 snprintf(Cscrz, SDL_arraysize(Cscrz), "%d", cfg.scrz_req );
                 videoOptionsButtons[7] = Cscrz;
@@ -2213,7 +2214,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Max Lights:", buttonLeft + 300, sdl_scr.y - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 9, videoOptionsButtons[8], buttonLeft + 450, sdl_scr.y - 285, 100, 30 ) )
             {
-                if( cfg.dyna_count_req < 8 )
+                if ( cfg.dyna_count_req < 8 )
                 {
                     cfg.dyna_count_req = 8;
                 }
@@ -2222,7 +2223,7 @@ int doVideoOptions( float deltaTime )
                     cfg.dyna_count_req += 8;
                 }
 
-                if( cfg.dyna_count_req >= TOTAL_MAX_DYNA )
+                if ( cfg.dyna_count_req >= TOTAL_MAX_DYNA )
                 {
                     cfg.dyna_count_req = 8;
                 }
@@ -2287,7 +2288,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Max Particles:", buttonLeft + 300, sdl_scr.y - 180, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 15, videoOptionsButtons[14], buttonLeft + 450, sdl_scr.y - 180, 100, 30 ) )
             {
-                if( cfg.particle_count_req < 256 )
+                if ( cfg.particle_count_req < 256 )
                 {
                     cfg.particle_count_req = 256;
                 }
@@ -2306,7 +2307,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Max  Messages:", buttonLeft + 300, sdl_scr.y - 145, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 12, videoOptionsButtons[11], buttonLeft + 450, sdl_scr.y - 145, 75, 30 ) )
             {
-                if( cfg.message_count_req < 0 )
+                if ( cfg.message_count_req < 0 )
                 {
                     cfg.message_count_req = 0;
                 }
@@ -2315,7 +2316,7 @@ int doVideoOptions( float deltaTime )
                     cfg.message_count_req++;
                 }
 
-                if( 0 == cfg.message_count_req )
+                if ( 0 == cfg.message_count_req )
                 {
                     sprintf( Cmaxmessage, "None" );
                 }
@@ -2385,7 +2386,7 @@ int doVideoOptions( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             if ( mnu_draw_background )
             {
@@ -2409,7 +2410,7 @@ int doVideoOptions( float deltaTime )
 
             // Set the next menu to load
             result = menuChoice;
-			gamepaused = bfalse;			// In case we are running as an in-game menu
+            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -2430,7 +2431,7 @@ int doShowMenuResults( float deltaTime )
 
     x = 35;
     y = 35;
-    glColor4f( 1, 1, 1, 1 );
+    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
     snprintf( text, sizeof(text), "Module selected: %s", ModList[selectedModule].loadname );
     fnt_drawText( font, x, y, text );
     y += 35;
@@ -2525,7 +2526,7 @@ int doGamePaused( float deltaTime )
         case MM_Running:
             // Do normal run
             // Background
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             // Buttons
             for ( cnt = 0; cnt < 5; cnt ++ )
@@ -2537,8 +2538,8 @@ int doGamePaused( float deltaTime )
                 }
             }
 
-			//Quick return to game
-			if(SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 5;
+            //Quick return to game
+            if (SDLKEYDOWN( SDLK_ESCAPE )) menuChoice = 5;
 
             if ( menuChoice != 0 )
             {
@@ -2550,7 +2551,7 @@ int doGamePaused( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             // Buttons
             drawSlidyButtons();
@@ -2603,7 +2604,7 @@ int doShowEndgame( float deltaTime )
 
             initSlidyButtons( 1.0f, buttons );
 
-            if( exportvalid )
+            if ( exportvalid )
             {
                 buttons[0] = "Save and Exit";
             }
@@ -2621,7 +2622,7 @@ int doShowEndgame( float deltaTime )
 
         case MM_Entering:
 
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             ui_drawTextBox( endtext, x, y, w, h, 20 );
             drawSlidyButtons();
@@ -2636,7 +2637,7 @@ int doShowEndgame( float deltaTime )
             break;
 
         case MM_Running:
-            glColor4f( 1, 1, 1, 1 );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
 
             // Buttons
             for ( cnt = 0; cnt < 1; cnt ++ )
@@ -2663,7 +2664,7 @@ int doShowEndgame( float deltaTime )
         case MM_Leaving:
             // Do buttons sliding out and background fading
             // Do the same stuff as in MM_Entering, but backwards
-            glColor4f( 1, 1, 1, 1 - SlidyButtonState.lerp );
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 - SlidyButtonState.lerp );
 
             ui_drawTextBox( endtext, x, y, w, h, 20 );
 
@@ -2690,7 +2691,7 @@ int doShowEndgame( float deltaTime )
                 //}
 
                 // fix the menu that is returned when you break out of the game
-                if( beatmodule && startNewPlayer )
+                if ( beatmodule && startNewPlayer )
                 {
                     int return_menu;
 
@@ -2702,14 +2703,14 @@ int doShowEndgame( float deltaTime )
 
                     // what menu were we supposed to go to?
                     return_menu = MainMenu;
-                    if( menu_stack_index > 0 )
+                    if ( menu_stack_index > 0 )
                     {
                         return_menu = menu_stack[menu_stack_index-1];
                     }
 
-                    // if we beat a beginner module, we want to 
+                    // if we beat a beginner module, we want to
                     // go to ChoosePlayer instead of ChooseModule.
-                    if( return_menu == ChooseModule )
+                    if ( return_menu == ChooseModule )
                     {
                         menu_stack_pop();
                         menu_stack_push( ChoosePlayer );
@@ -2717,7 +2718,7 @@ int doShowEndgame( float deltaTime )
                 }
 
                 // actually quit the module
-                if( !reloaded )
+                if ( !reloaded )
                 {
                     game_finish_module();
                     pickedmodule_index = -1;
@@ -2872,7 +2873,7 @@ int doMenu( float deltaTime )
                     //    reloaded = link_load_parent( ModList[pickedmodule_index].parent_modname, ModList[pickedmodule_index].parent_pos );
                     //}
 
-                    if( !reloaded )
+                    if ( !reloaded )
                     {
                         game_finish_module();
                         gameactive = bfalse;

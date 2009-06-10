@@ -23,6 +23,7 @@
 /// @details Implements OpenGL texture loading using SDL_image
 
 #include "ogl_texture.h"
+#include "ogl_debug.h"
 #include "SDL_GL_extensions.h"
 
 #include "graphic.h"
@@ -79,26 +80,26 @@ void ErrorImage_create(void)
 
 void ErrorImage_bind(GLenum target, GLuint id)
 {
-    glPushClientAttrib( GL_CLIENT_PIXEL_STORE_BIT ) ;
+    GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        GL_DEBUG(glPixelStorei)(GL_UNPACK_ALIGNMENT, 1);
 
-        glBindTexture(target, id);
+        GL_DEBUG(glBindTexture)(target, id);
 
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        GL_DEBUG(glTexParameteri)(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         if (target == GL_TEXTURE_1D)
         {
-            glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            GL_DEBUG(glTexImage1D)(GL_TEXTURE_1D, 0, GL_RGBA, ErrorImage_width, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
         }
         else
         {
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
+            GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D, 0, GL_RGBA, ErrorImage_width, ErrorImage_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, ErrorImage);
         }
     }
-    glPopClientAttrib();
+    GL_DEBUG(glPopClientAttrib)();
 
 }
 
@@ -110,7 +111,7 @@ GLXtexture * GLXtexture_new(GLXtexture * ptex)
 
     if ( INVALID_TX_ID != ptex->base.binding )
     {
-        glDeleteTextures( 1, &(ptex->base.binding) );
+        GL_DEBUG(glDeleteTextures)( 1, &(ptex->base.binding) );
         ptex->base.binding = INVALID_TX_ID;
     }
 
@@ -118,7 +119,7 @@ GLXtexture * GLXtexture_new(GLXtexture * ptex)
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
-    glGenTextures( 1, &(ptex->base.binding) );
+    GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
 
     // set the image to be clamped in s and t
     ptex->base.wrap_s = GL_CLAMP;
@@ -133,7 +134,7 @@ void GLXtexture_delete(GLXtexture * ptex)
     if ( NULL == ptex ) return;
 
     // actually delete the OpenGL texture data
-    glDeleteTextures( 1, &ptex->base.binding );
+    GL_DEBUG(glDeleteTextures)( 1, &ptex->base.binding );
     ptex->base.binding = INVALID_TX_ID;
 
     // set the image to be clamped in s and t
@@ -279,7 +280,7 @@ GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * ima
     /* Generate an OpenGL texture ID */
     if ( 0 == ptex->base.binding || INVALID_TX_ID == ptex->base.binding )
     {
-        glGenTextures( 1, &ptex->base.binding );
+        GL_DEBUG(glGenTextures)( 1, &ptex->base.binding );
     }
 
     ptex->base.target  = tx_target;
@@ -395,7 +396,7 @@ void  GLXtexture_Release( GLXtexture *texture )
     // Bind an "error texture" to this texture
     if (INVALID_TX_ID == texture->base.binding)
     {
-        glGenTextures( 1, &texture->base.binding );
+        GL_DEBUG(glGenTextures)( 1, &texture->base.binding );
     }
 
     ErrorImage_bind(GL_TEXTURE_2D, texture->base.binding);
@@ -433,9 +434,9 @@ void GLXtexture_Bind( GLXtexture *texture )
     filt_type  = tex_params.texturefilter;
     anisotropy = tex_params.userAnisotropy;
 
-    if ( !glIsEnabled( target ) )
+    if ( !GL_DEBUG(glIsEnabled)( target ) )
     {
-        glEnable( target );
+        GL_DEBUG(glEnable)( target );
     };
 
     if ( filt_type >= TX_ANISOTROPIC )

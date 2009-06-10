@@ -222,7 +222,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Draw Reflection?
     GetKey_bool( "REFLECTION", pcfg->reflect_allowed, cfg_default.reflect_allowed );
 
-	// Draw particles in reflection?
+    // Draw particles in reflection?
     GetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt, cfg_default.reflect_prt );
 
     // Draw shadows?
@@ -354,7 +354,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
 //--------------------------------------------------------------------------------------------
 bool_t setup_synch( egoboo_config_t * pcfg )
 {
-    if( NULL == pcfg ) return bfalse;
+    if ( NULL == pcfg ) return bfalse;
 
     // FPS display
     fpson = pcfg->fps_allowed;
@@ -367,9 +367,6 @@ bool_t setup_synch( egoboo_config_t * pcfg )
 
     // texture parameters
     tex_params.texturefilter = pcfg->texturefilter_req;
-
-    // Max number of lights
-    dyna_list_max = CLIP(pcfg->dyna_count_req, 0, TOTAL_MAX_DYNA);
 
     // Get the particle limit
     maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);
@@ -431,7 +428,7 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Draw Reflection?
     SetKey_bool( "REFLECTION", pcfg->reflect_allowed );
 
-	// Draw particles in reflection?
+    // Draw particles in reflection?
     SetKey_bool( "PARTICLE_REFLECTION", pcfg->reflect_prt );
 
     // Draw shadows?
@@ -558,11 +555,11 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Save diffculty mode
     switch (pcfg->difficulty)
     {
-        case GAME_EASY:			SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
-        case GAME_HARD:			SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
-        
+        case GAME_EASY:         SetKey_string( "DIFFICULTY_MODE", "EASY" ); break;
+        case GAME_HARD:         SetKey_string( "DIFFICULTY_MODE", "HARD" ); break;
+
         default:
-        case GAME_NORMAL:		SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
+        case GAME_NORMAL:       SetKey_string( "DIFFICULTY_MODE", "NORMAL" ); break;
     }
 
     return btrue;

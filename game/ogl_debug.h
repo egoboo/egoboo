@@ -454,6 +454,7 @@ extern "C"
     extern char * next_file;
 
     void handle_gl_error();
+    void print_gl_command();
 
 #define GL_DEBUG(XX) \
     (handle_gl_error(), \
@@ -462,8 +463,18 @@ extern "C"
      next_file = __FILE__, \
      XX)
 
+#define GL_DEBUG_END() \
+    handle_gl_error(); \
+    next_cmd = "UNKNOWN"; \
+    next_line = -1; \
+    next_file = "UNKNOWN"; \
+    glEnd(); \
+    glGetError();
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+
+FILE * set_ogl_debug_stderr(FILE * pfile);
 
 #ifdef __cplusplus
 };

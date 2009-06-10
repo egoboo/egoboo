@@ -25,6 +25,7 @@
 
 #include "particle.h"
 #include "char.h"
+#include "game.h"
 
 #include "camera.h"
 
@@ -102,15 +103,15 @@ void render_billboard( camera_t * pcam, GLXtexture * ptex, GLvector3 pos, float 
         vtlist[0].tex[TT] = 0;
 
         // Go on and draw it
-        glBegin( GL_QUADS );
+        GL_DEBUG(glBegin)(GL_QUADS );
         {
             for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2fv ( vtlist[i].tex );
-                glVertex3fv ( vtlist[i].pos );
+                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
             }
         }
-        glEnd();
+        GL_DEBUG_END();
 
     }
     End3DMode();
@@ -151,7 +152,7 @@ size_t render_all_prt_begin( camera_t * pcam, prt_registry_entity_t reg[], size_
 
         if ( !pprt->on || !pprt->inview ) continue;
 
-        if( pprt->is_hidden || INVALID_TILE == pprt->onwhichfan ) continue;
+        if ( pprt->is_hidden || !VALID_TILE(PMesh, pprt->onwhichfan) ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -190,49 +191,49 @@ bool_t render_one_prt_solid( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if( INVALID_PRT(iprt) ) return bfalse;
+    if ( INVALID_PRT(iprt) ) return bfalse;
     pprt = PrtList + iprt;
     pinst = &(pprt->inst);
 
     // if the particle instance data is not valid, do not continue
     if ( !pinst->valid ) return bfalse;
-    
+
     // only render solid sprites
-    if( PRTSOLIDSPRITE != pprt->type ) return bfalse;
+    if ( PRTSOLIDSPRITE != pprt->type ) return bfalse;
 
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
 
-    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
-        glDepthMask( GL_TRUE );
+        GL_DEBUG(glDepthMask)(GL_TRUE );
 
-        glDisable( GL_CULL_FACE );
-        glDisable( GL_DITHER );
+        GL_DEBUG(glDisable)(GL_CULL_FACE );
+        GL_DEBUG(glDisable)(GL_DITHER );
 
-        glEnable( GL_DEPTH_TEST );
-        glDepthFunc( GL_LESS );
+        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
+        GL_DEBUG(glDepthFunc)(GL_LESS );
 
-        glDisable( GL_BLEND );
+        GL_DEBUG(glDisable)(GL_BLEND );
 
-        glEnable( GL_ALPHA_TEST );
-        glAlphaFunc( GL_EQUAL, 1 );
+        GL_DEBUG(glEnable)(GL_ALPHA_TEST );
+        GL_DEBUG(glAlphaFunc)(GL_EQUAL, 1 );
 
         GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
 
-        glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
+        GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
 
-        glBegin( GL_TRIANGLE_FAN );
+        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
         {
             for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2fv( vtlist[i].tex );
-                glVertex3fv  ( vtlist[i].pos );
+                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
             }
         }
-        glEnd();
+        GL_DEBUG_END();
     }
-    glPopAttrib();
+    GL_DEBUG(glPopAttrib)();
 
     return btrue;
 }
@@ -270,7 +271,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if( INVALID_PRT(iprt) ) return bfalse;
+    if ( INVALID_PRT(iprt) ) return bfalse;
     pprt = PrtList + iprt;
     pinst = &(pprt->inst);
 
@@ -281,27 +282,27 @@ bool_t render_one_prt_trans( Uint16 iprt )
     // used to display the particle.
     calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
 
-    glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
-        glDepthMask( GL_FALSE );
+        GL_DEBUG(glDepthMask)(GL_FALSE );
 
-        glEnable( GL_BLEND );
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
+        GL_DEBUG(glEnable)(GL_BLEND );
+        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );  // some default
 
-        glEnable( GL_DEPTH_TEST );
-        glDepthFunc( GL_LEQUAL );
+        GL_DEBUG(glEnable)(GL_DEPTH_TEST );
+        GL_DEBUG(glDepthFunc)(GL_LEQUAL );
 
         if ( PRTSOLIDSPRITE == PrtList[iprt].type )
         {
             // do the alpha blended edge of the solid particle
 
-            glEnable( GL_ALPHA_TEST );
-            glAlphaFunc( GL_LESS, 1 );
+            GL_DEBUG(glEnable)(GL_ALPHA_TEST );
+            GL_DEBUG(glAlphaFunc)(GL_LESS, 1 );
 
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG(glEnable)(GL_BLEND );
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+            GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
 
             GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
@@ -309,11 +310,11 @@ bool_t render_one_prt_trans( Uint16 iprt )
         {
             // do the light sprites
 
-            glDisable( GL_ALPHA_TEST );
+            GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-            glColor4f( 1.0f, 1.0f, 1.0f, 1.0f );
+            GL_DEBUG(glEnable)(GL_BLEND );
+            GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+            GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
             GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
         }
@@ -321,13 +322,13 @@ bool_t render_one_prt_trans( Uint16 iprt )
         {
             // do the transparent sprites
 
-            glEnable( GL_ALPHA_TEST );
-            glAlphaFunc( GL_GREATER, 0 );
+            GL_DEBUG(glEnable)(GL_ALPHA_TEST );
+            GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
 
-            glEnable( GL_BLEND );
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            GL_DEBUG(glEnable)(GL_BLEND );
+            GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-            glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
+            GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
 
             GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
@@ -338,17 +339,17 @@ bool_t render_one_prt_trans( Uint16 iprt )
         }
 
         // Go on and draw it
-        glBegin( GL_TRIANGLE_FAN );
+        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
         {
             for ( i = 0; i < 4; i++ )
             {
-                glTexCoord2fv ( vtlist[i].tex );
-                glVertex3fv   ( vtlist[i].pos );
+                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
             }
         }
-        glEnd();
+        GL_DEBUG_END();
     }
-    glPopAttrib();
+    GL_DEBUG(glPopAttrib)();
 
 
     return btrue;
@@ -409,7 +410,7 @@ size_t render_all_prt_ref_begin( camera_t * pcam, prt_registry_entity_t reg[], s
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
-        if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan ) continue;
+        if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) ) continue;
 
         if ( pinst->size != 0 )
         {
@@ -445,7 +446,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
     prt_t * pprt;
     prt_instance_t * pinst;
 
-    if( INVALID_PRT(iprt) ) return bfalse;
+    if ( INVALID_PRT(iprt) ) return bfalse;
 
     pprt = PrtList + iprt;
     pinst = &(pprt->inst);
@@ -464,21 +465,21 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
     if ( startalpha > 0 )
     {
-        glPushAttrib( GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+        GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
-            glDisable( GL_CULL_FACE );
-            glDisable( GL_DITHER );
+            GL_DEBUG(glDisable)(GL_CULL_FACE );
+            GL_DEBUG(glDisable)(GL_DITHER );
 
             if ( PRTLIGHTSPRITE == PrtList[iprt].type )
             {
                 // do the light sprites
                 float alpha = startalpha * INV_FF * pinst->color_component / 2.0f;
 
-                glDisable( GL_ALPHA_TEST );
+                GL_DEBUG(glDisable)(GL_ALPHA_TEST );
 
-                glEnable( GL_BLEND );
-                glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_COLOR );
-                glColor4f( alpha, alpha, alpha, 1.0f );
+                GL_DEBUG(glEnable)(GL_BLEND );
+                GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
+                GL_DEBUG(glColor4f)(alpha, alpha, alpha, 1.0f );
 
                 GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
             }
@@ -488,13 +489,13 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 float alpha = pinst->alpha_component * pinst->color_component / 2.0f;
 
-                glEnable( GL_ALPHA_TEST );
-                glAlphaFunc( GL_GREATER, 0 );
+                GL_DEBUG(glEnable)(GL_ALPHA_TEST );
+                GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
 
-                glEnable( GL_BLEND );
-                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                GL_DEBUG(glEnable)(GL_BLEND );
+                GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                glColor4f( pinst->color_component, pinst->color_component, pinst->color_component, alpha );
+                GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, alpha );
 
                 GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
             }
@@ -504,17 +505,17 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 return bfalse;
             }
 
-            glBegin( GL_TRIANGLE_FAN );
+            GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
             {
                 for ( i = 0; i < 4; i++ )
                 {
-                    glTexCoord2fv ( vtlist[i].tex );
-                    glVertex3fv ( vtlist[i].pos );
+                    GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                    GL_DEBUG(glVertex3fv)(vtlist[i].pos );
                 }
             }
-            glEnd();
+            GL_DEBUG_END();
         }
-        glPopAttrib();
+        GL_DEBUG(glPopAttrib)();
 
     }
 
@@ -560,7 +561,7 @@ void update_all_prt_instance( camera_t * pcam )
 {
     int cnt;
 
-    if ( NULL == pcam ) pcam = &gCamera;
+    if ( NULL == pcam ) pcam = PCamera;
     if ( NULL == pcam ) return;
 
     // only one update per frame
@@ -572,7 +573,7 @@ void update_all_prt_instance( camera_t * pcam )
         prt_t * pprt = PrtList + cnt;
         prt_instance_t * pinst = &(pprt->inst);
 
-        if ( !pprt->on || !pprt->inview || INVALID_TILE == pprt->onwhichfan || 0 == pprt->size )
+        if ( !pprt->on || !pprt->inview || !VALID_TILE(PMesh, pprt->onwhichfan) || 0 == pprt->size )
         {
             pinst->valid = bfalse;
         }
@@ -622,7 +623,7 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
     }
-    else if( ORIENTATION_B == pinst->orientation )
+    else if ( ORIENTATION_B == pinst->orientation )
     {
         // use the camera up vector
         vup = mat_getCamUp( pcam->mView );
@@ -642,7 +643,7 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
             // assume that the particle "up" is in the z-direction in the object's
             // body fixed axes. should work for the gonnes & such
 
-            switch( pinst->orientation )
+            switch ( pinst->orientation )
             {
                 case ORIENTATION_X: vup = mat_getChrForward( cinst->matrix ); break;
                 case ORIENTATION_Y: vup = mat_getChrRight( cinst->matrix ); break;
@@ -656,7 +657,7 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         else
         {
             // use the camera directions?
-            switch( pinst->orientation )
+            switch ( pinst->orientation )
             {
                 case ORIENTATION_X: vup = mat_getCamForward( pcam->mView ); break;
                 case ORIENTATION_Y: vup = mat_getCamRight( pcam->mView ); break;
@@ -672,7 +673,7 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
     }
-    else if( ORIENTATION_V == pinst->orientation )
+    else if ( ORIENTATION_V == pinst->orientation )
     {
         // use the camera up vector
         vup.x = vup.y = 0;
@@ -682,13 +683,13 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
         vright = VCrossProduct( vfwd, vup );
         vright = VNormalize( vright );
     }
-    else if( ORIENTATION_H == pinst->orientation )
+    else if ( ORIENTATION_H == pinst->orientation )
     {
         vup.x = vup.y = 0;
         vup.z = 1;
 
         // force right to be horizontal
-        vright = VCrossProduct( vfwd, vup ); 
+        vright = VCrossProduct( vfwd, vup );
 
         // force "up" to be close to the camera forward, but horizontal
         vup = VCrossProduct( vup, vright );
@@ -709,7 +710,7 @@ void prt_instance_update( camera_t * pcam, prt_instance_t * pinst, prt_t * pprt 
     }
 
     // calculate the actual vectors using the particle rotation
-    if( 0 == pprt->rotate )
+    if ( 0 == pprt->rotate )
     {
         pinst->up    = vup;
         pinst->right = vright;
@@ -749,7 +750,7 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
     if ( NULL == vlst || NULL == pinst ) return;
 
-    for( i=0; i<4; i++ )
+    for ( i = 0; i < 4; i++ )
     {
         vlst[i].pos[XX] = pinst->pos.x;
         vlst[i].pos[YY] = pinst->pos.y;
@@ -772,9 +773,9 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
     vlst[3].pos[YY] += ( -pinst->right.y + pinst->up.y ) * size;
     vlst[3].pos[ZZ] += ( -pinst->right.z + pinst->up.z ) * size;
 
-    if( do_reflect )
+    if ( do_reflect )
     {
-        for( i=0; i<4; i++ )
+        for ( i = 0; i < 4; i++ )
         {
             vlst[i].pos[ZZ] = 2 * level - vlst[i].pos[ZZ];
         }
@@ -782,13 +783,13 @@ void calc_billboard_verts( GLvertex vlst[], prt_instance_t * pinst, float size, 
 
     vlst[0].tex[SS] = sprite_list_u[pinst->image][1];
     vlst[0].tex[TT] = sprite_list_v[pinst->image][1];
-                                                 
+
     vlst[1].tex[SS] = sprite_list_u[pinst->image][0];
     vlst[1].tex[TT] = sprite_list_v[pinst->image][1];
-                                                 
+
     vlst[2].tex[SS] = sprite_list_u[pinst->image][0];
     vlst[2].tex[TT] = sprite_list_v[pinst->image][0];
-                                                 
+
     vlst[3].tex[SS] = sprite_list_u[pinst->image][1];
     vlst[3].tex[TT] = sprite_list_v[pinst->image][0];
 }

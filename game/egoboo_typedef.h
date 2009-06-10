@@ -108,17 +108,17 @@ typedef enum target_type
 // a hash type for "efficiently" storing data
 struct s_hash_node
 {
-  struct s_hash_node * next;
-  void * data;
+    struct s_hash_node * next;
+    void * data;
 };
 typedef struct s_hash_node hash_node_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_hash_list
 {
-  int            allocated;
-  int         *  subcount;
-  hash_node_t ** sublist;
+    int            allocated;
+    int         *  subcount;
+    hash_node_t ** sublist;
 };
 typedef struct s_hash_list hash_list_t;
 

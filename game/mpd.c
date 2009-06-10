@@ -28,15 +28,15 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define CARTMAN_FIXNUM  4.125 // 4.150		// Magic number
+#define CARTMAN_FIXNUM  4.125 // 4.150      // Magic number
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
 // mesh initialization - not accessible by scripts
+static void   mesh_init_tile_offset( mesh_t * pmesh );
 static void   mesh_make_vrtstart( mesh_t * pmesh );
 static void   mesh_make_fanstart( mesh_t * pmesh );
-static void   make_twist();
 
 static mesh_mem_t * mesh_mem_new( mesh_mem_t * pmem );
 static mesh_mem_t * mesh_mem_delete( mesh_mem_t * pmem );
@@ -55,17 +55,13 @@ static bool_t mesh_make_normals( mesh_t * pmesh );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static mesh_t _mesh[2];
-
-mesh_t * PMesh = _mesh + 0;
-
 GLvector3 map_twist_nrm[256];
-Uint32 map_twist_y[256];            // For surface normal of mesh
-Uint32 map_twist_x[256];
-float  map_twistvel_x[256];            // For sliding down steep hills
-float  map_twistvel_y[256];
-float  map_twistvel_z[256];
-Uint8  map_twist_flat[256];
+Uint32    map_twist_y[256];            // For surface normal of mesh
+Uint32    map_twist_x[256];
+float     map_twistvel_x[256];            // For sliding down steep hills
+float     map_twistvel_y[256];
+float     map_twistvel_z[256];
+Uint8     map_twist_flat[256];
 
 mesh_t            mesh;
 tile_definition_t tile_dict[MAXMESHTYPE];
@@ -153,9 +149,15 @@ mesh_t * mesh_new( mesh_t * pmesh )
     {
         memset( pmesh, 0, sizeof(mesh_t) );
 
+        mesh_init_tile_offset( pmesh );
+
         mesh_mem_new( &(pmesh->mem) );
         mesh_info_new( &(pmesh->info) );
     }
+
+    // global initialization
+    mesh_make_twist();
+    tile_dictionary_load( tile_dict, MAXMESHTYPE );
 
     return pmesh;
 }
@@ -205,6 +207,19 @@ mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y )
 }
 
 //--------------------------------------------------------------------------------------------
+void mesh_init_tile_offset(mesh_t * pmesh)
+{
+    int cnt;
+
+    // Fix the tile offsets for the mesh textures
+    for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
+    {
+        pmesh->tileoff_u[cnt] = ( cnt & 7 ) / 8.0f;
+        pmesh->tileoff_v[cnt] = ( cnt >> 3 ) / 8.0f;
+    }
+ }
+
+//--------------------------------------------------------------------------------------------
 mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 {
     // ZZ> This function loads the level.mpd file
@@ -221,7 +236,6 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 
     if (NULL == pmesh)
     {
-//        pmesh = calloc(1, sizeof(mesh_t));
         pmesh = mesh_new(pmesh);
     }
     if (NULL == pmesh) return pmesh;
@@ -329,8 +343,6 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
 
     fclose( fileread );
 
-    make_twist();
-
     mesh_make_fanstart( pmesh );
     mesh_make_vrtstart( pmesh );
 
@@ -342,13 +354,6 @@ mesh_t * mesh_load( const char *modname, mesh_t * pmesh )
     }
 
     mesh_make_normals( pmesh );
-
-    // Fix the tile offsets for the mesh textures
-    for ( cnt = 0; cnt < MAXTILETYPE; cnt++ )
-    {
-        pmesh->tileoff_u[cnt] = ( cnt & 7 ) / 8.0f;
-        pmesh->tileoff_v[cnt] = ( cnt >> 3 ) / 8.0f;
-    }
 
     return pmesh;
 }
@@ -601,7 +606,7 @@ void mesh_make_vrtstart( mesh_t * pmesh )
 
 
 //--------------------------------------------------------------------------------------------
-void make_twist()
+void mesh_make_twist()
 {
     // ZZ> This function precomputes surface normals and steep hill acceleration for
     //     the mesh
@@ -622,7 +627,7 @@ void make_twist()
 
         // this is about 5 degrees off of vertical
         map_twist_flat[cnt] = bfalse;
-        if( nrm[2] > 0.9945f )
+        if ( nrm[2] > 0.9945f )
         {
             map_twist_flat[cnt] = btrue;
         }
@@ -636,11 +641,9 @@ void make_twist()
 
 
 //---------------------------------------------------------------------------------------------
-float get_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
+float mesh_get_level( mesh_t * pmesh, float x, float y )
 {
-    // ZZ> This function returns the height of a point within a mesh fan, precise
-    //     If waterwalk is nonzero and the fan is watery, then the level returned is the
-    //     level of the water.
+    // ZZ> This function returns the height of a point within a mesh fan, precisely
 
     Uint32 tile;
     int ix, iy;
@@ -649,7 +652,7 @@ float get_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
     float zleft, zright, zdone;   // Weighted height of each side
 
     tile = mesh_get_tile( pmesh, x, y );
-    if ( INVALID_TILE == tile ) return 0;
+    if ( !VALID_TILE(pmesh, tile) ) return 0;
 
     ix = x;
     iy = y;
@@ -665,14 +668,6 @@ float get_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
     zleft = ( z0 * ( 128 - iy ) + z3 * iy ) / TILE_SIZE;
     zright = ( z1 * ( 128 - iy ) + z2 * iy ) / TILE_SIZE;
     zdone = ( zleft * ( 128 - ix ) + zright * ix ) / TILE_SIZE;
-
-    if ( waterwalk )
-    {
-        if ( watersurfacelevel > zdone && 0 != mesh_test_fx( pmesh, tile, MPDFX_WATER ) && wateriswater )
-        {
-            return watersurfacelevel;
-        }
-    }
 
     return zdone;
 }
@@ -729,10 +724,10 @@ Uint8 cartman_get_fan_twist( mesh_t * pmesh, Uint32 tile )
     float zx, zy;
 
     // check for a valid tile
-    if( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
+    if ( INVALID_TILE == tile  || tile > pmesh->info.tiles_count ) return TWIST_FLAT;
 
     // check for fanoff
-    if( 0 != (0xFF00 & pmesh->mem.tile_list[tile].img) ) return TWIST_FLAT;
+    if ( 0 != (0xFF00 & pmesh->mem.tile_list[tile].img) ) return TWIST_FLAT;
 
 
     vrtstart = pmesh->mem.tile_list[tile].vrtstart;
@@ -742,8 +737,8 @@ Uint8 cartman_get_fan_twist( mesh_t * pmesh, Uint32 tile )
     z2 = pmesh->mem.vrt_z[vrtstart + 2];
     z3 = pmesh->mem.vrt_z[vrtstart + 3];
 
-    zx = CARTMAN_FIXNUM * (z0+z3-z1-z2)/SLOPE;
-    zy = CARTMAN_FIXNUM * (z2+z3-z0-z1)/SLOPE;
+    zx = CARTMAN_FIXNUM * (z0 + z3 - z1 - z2) / SLOPE;
+    zy = CARTMAN_FIXNUM * (z2 + z3 - z0 - z1) / SLOPE;
 
     return cartman_get_twist( zx, zy );
 
@@ -755,15 +750,15 @@ Uint8 cartman_get_twist(int x, int y)
     Uint8 twist;
 
     // x and y should be from -7 to 8
-    if(x < -7) x = -7;
-    if(x > 8) x = 8;
-    if(y < -7) y = -7;
-    if(y > 8) y = 8;
+    if (x < -7) x = -7;
+    if (x > 8) x = 8;
+    if (y < -7) y = -7;
+    if (y > 8) y = 8;
 
     // Now between 0 and 15
-    x = x+7;
-    y = y+7;
-    twist = (y<<4)+x;
+    x = x + 7;
+    y = y + 7;
+    twist = (y << 4) + x;
 
     return twist;
 }
@@ -776,7 +771,7 @@ bool_t twist_to_normal( Uint8 twist, GLfloat v[], float slide )
     float nx, ny, nz, nz2;
     float diff_xy;
 
-    if(NULL == v) return bfalse;
+    if (NULL == v) return bfalse;
 
     diff_xy = 128.0f / slide;
 
@@ -785,15 +780,15 @@ bool_t twist_to_normal( Uint8 twist, GLfloat v[], float slide )
     ix -= 7;
     iy -= 7;
 
-    dx =-ix / (float)CARTMAN_FIXNUM * (float)SLOPE;
+    dx = -ix / (float)CARTMAN_FIXNUM * (float)SLOPE;
     dy = iy / (float)CARTMAN_FIXNUM * (float)SLOPE;
 
     // determine the square of the z normal
-    nz2 =  diff_xy*diff_xy / ( dx*dx+ dy*dy + diff_xy*diff_xy );
+    nz2 =  diff_xy * diff_xy / ( dx * dx + dy * dy + diff_xy * diff_xy );
 
     // determine the z normal
     nz = 0.0f;
-    if( nz2 > 0.0f )
+    if ( nz2 > 0.0f )
     {
         nz = SQRT( nz2 );
     }
@@ -812,16 +807,16 @@ bool_t twist_to_normal( Uint8 twist, GLfloat v[], float slide )
 Uint32 mesh_test_fx( mesh_t * pmesh, Uint32 itile, Uint32 flags )
 {
     // test for mesh
-    if( NULL == pmesh ) return 0;
+    if ( NULL == pmesh ) return 0;
 
     // test for invalid tile
-    if( itile > pmesh->info.tiles_count ) 
+    if ( itile > pmesh->info.tiles_count )
     {
         return flags & (MPDFX_WALL | MPDFX_IMPASS);
     }
 
     // test for FANOFF
-    if( 0xFF00 == (0xFF00 & pmesh->mem.tile_list[itile].img) ) 
+    if ( 0xFF00 == (0xFF00 & pmesh->mem.tile_list[itile].img) )
     {
         return flags & (MPDFX_WALL | MPDFX_IMPASS);
     }
@@ -839,21 +834,21 @@ bool_t mesh_make_normals( mesh_t * pmesh )
     int wt_sum;
 
     // test for mesh
-    if( NULL == pmesh ) return bfalse;
+    if ( NULL == pmesh ) return bfalse;
 
-    for(iy = 0; iy<pmesh->info.tiles_y; iy++)
+    for (iy = 0; iy < pmesh->info.tiles_y; iy++)
     {
-        for(ix = 0; ix<pmesh->info.tiles_x; ix++)
+        for (ix = 0; ix < pmesh->info.tiles_x; ix++)
         {
             // find the average normal for the upper left map vertex
             wt_sum = 0;
             nrm_sum.x = nrm_sum.y = nrm_sum.z = 0;
-            for(dy=-1; dy<=0; dy++)
+            for (dy = -1; dy <= 0; dy++)
             {
-                for(dx=-1; dx<=0; dx++)
+                for (dx = -1; dx <= 0; dx++)
                 {
-                    fan = mesh_get_tile_int(pmesh, ix + dx, iy+dy);
-                    if( VALID_TILE(pmesh, fan) )
+                    fan = mesh_get_tile_int(pmesh, ix + dx, iy + dy);
+                    if ( VALID_TILE(pmesh, fan) )
                     {
                         Uint8 twist = pmesh->mem.tile_list[fan].twist;
 
@@ -867,9 +862,9 @@ bool_t mesh_make_normals( mesh_t * pmesh )
             }
 
             fan = mesh_get_tile_int(pmesh, ix, iy);
-            if( VALID_TILE(pmesh, fan) )
+            if ( VALID_TILE(pmesh, fan) )
             {
-                if( 0 == wt_sum )
+                if ( 0 == wt_sum )
                 {
                     pmesh->mem.nrm[fan].x = pmesh->mem.nrm[fan].y = 0.0f;
                     pmesh->mem.nrm[fan].z = 1.0f;
@@ -888,3 +883,108 @@ bool_t mesh_make_normals( mesh_t * pmesh )
 
     return btrue;
 }
+
+//--------------------------------------------------------------------------------------------
+void tile_dictionary_load(tile_definition_t dict[], size_t dict_size)
+{
+    // ZZ> This function loads fan types for the terrain
+    Uint32 cnt, entry, vertices, commandsize;
+    int numfantype, fantype, bigfantype;
+    int numcommand, command;
+    int itmp;
+    float ftmp;
+    FILE* fileread;
+
+    if ( NULL == dict || dict_size < 2 ) return;
+
+    // Initialize all mesh types to 0
+    for ( entry = 0; entry < dict_size; entry++ )
+    {
+        dict[entry].numvertices = 0;
+        dict[entry].command_count = 0;
+    }
+
+    // Open the file and go to it
+    fileread = fopen( "basicdat" SLASH_STR "fans.txt", "r" );
+    if ( NULL == fileread )
+    {
+        log_error( "Cannot load the tile definitions \"basicdat" SLASH_STR "fans.txt\" \n" );
+        return;
+    }
+
+    goto_colon( NULL, fileread, bfalse );
+    fscanf( fileread, "%d", &numfantype );
+
+    for ( fantype = 0; fantype < numfantype; fantype++ )
+    {
+        bigfantype = fantype + dict_size / 2;  // Duplicate for 64x64 tiles
+
+        goto_colon( NULL, fileread, bfalse );
+        fscanf( fileread, "%d", &vertices );
+        dict[fantype].numvertices = vertices;
+        dict[bigfantype].numvertices = vertices;  // Dupe
+
+        for ( cnt = 0; cnt < vertices; cnt++ )
+        {
+            goto_colon( NULL, fileread, bfalse );
+            fscanf( fileread, "%d", &itmp );
+
+            goto_colon( NULL, fileread, bfalse );
+            fscanf( fileread, "%f", &ftmp );
+            dict[fantype].u[cnt] = ftmp;
+            dict[bigfantype].u[cnt] = ftmp;  // Dupe
+
+            goto_colon( NULL, fileread, bfalse );
+            fscanf( fileread, "%f", &ftmp );
+            dict[fantype].v[cnt] = ftmp;
+            dict[bigfantype].v[cnt] = ftmp;  // Dupe
+        }
+
+        goto_colon( NULL, fileread, bfalse );
+        fscanf( fileread, "%d", &numcommand );
+        dict[fantype].command_count = numcommand;
+        dict[bigfantype].command_count = numcommand;  // Dupe
+
+        for ( entry = 0, command = 0; command < numcommand; command++ )
+        {
+            goto_colon( NULL, fileread, bfalse );
+            fscanf( fileread, "%d", &commandsize );
+            dict[fantype].command_entries[command] = commandsize;
+            dict[bigfantype].command_entries[command] = commandsize;  // Dupe
+
+            for ( cnt = 0; cnt < commandsize; cnt++ )
+            {
+                goto_colon( NULL, fileread, bfalse );
+                fscanf( fileread, "%d", &itmp );
+                dict[fantype].command_verts[entry] = itmp;
+                dict[bigfantype].command_verts[entry] = itmp;  // Dupe
+
+                entry++;
+            }
+        }
+    }
+
+    fclose( fileread );
+
+    // Correct all of them silly texture positions for seamless tiling
+    for ( entry = 0; entry < dict_size / 2; entry++ )
+    {
+        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
+        {
+            dict[entry].u[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].u[cnt] * 30.8f / 32 ) ) / 8;
+            dict[entry].v[cnt] = ( ( 0.6f / 32 ) + ( dict[entry].v[cnt] * 30.8f / 32 ) ) / 8;
+        }
+    }
+
+    // Do for big tiles too
+    for ( /* nothing */; entry < dict_size; entry++ )
+    {
+        for ( cnt = 0; cnt < dict[entry].numvertices; cnt++ )
+        {
+            dict[entry].u[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].u[cnt] * 62.8f / 64 ) ) / 4;
+            dict[entry].v[cnt] = ( ( 0.6f / 64 ) + ( dict[entry].v[cnt] * 62.8f / 64 ) ) / 4;
+        }
+    }
+
+}
+

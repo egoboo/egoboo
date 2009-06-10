@@ -27,6 +27,7 @@
 #include "script.h"
 #include "sound.h"
 #include "mpd.h"
+#include "game.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -104,7 +105,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
     useful = bfalse;
     for ( character = 0; character < MAX_CHR; character++ )
     {
-        if ( !ChrList[character].on || ChrList[character].inpack ) continue;
+        if ( !ChrList[character].on || ChrList[character].pack_ispacked ) continue;
 
         if ( ChrList[character].weight > 20 && (0 == ChrList[character].flyheight) && ( ChrList[character].pos.z < ChrList[character].floor_level + 20 ) && (MAX_CHR == ChrList[character].attachedto) )
         {
@@ -278,7 +279,7 @@ Uint16 who_is_blocking_passage( Uint16 passage )
         if ( ChrList[character].on )
         {
             bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
+            if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
             {
                 if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
@@ -335,7 +336,7 @@ void check_passage_music()
                 if ( ChrList[character].on && ChrList[character].isplayer )
                 {
                     bumpsize = ChrList[character].bumpsize;
-                    if ( ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
+                    if ( ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && bumpsize != 0 )
                     {
                         if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                         {
@@ -383,7 +384,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
         if ( ChrList[character].on )
         {
             bumpsize = ChrList[character].bumpsize;
-            if ( ( !ChrList[character].isitem ) && bumpsize != 0 && ChrList[character].inpack == 0 )
+            if ( ( !ChrList[character].isitem ) && bumpsize != 0 && ChrList[character].pack_ispacked == 0 )
             {
                 if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {
@@ -394,7 +395,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
                             // Found a live one...  Does it have a matching item?
 
                             // Check the pack
-                            sTmp = ChrList[character].nextinpack;
+                            sTmp = ChrList[character].pack_next;
 
                             while ( sTmp != MAX_CHR )
                             {
@@ -404,7 +405,7 @@ Uint16 who_is_blocking_passage_ID( Uint16 passage, IDSZ idsz )
                                     return character;
                                 }
 
-                                sTmp = ChrList[sTmp].nextinpack;
+                                sTmp = ChrList[sTmp].pack_next;
                             }
 
                             // Check left hand
@@ -468,7 +469,7 @@ int close_passage( Uint16 passage )
         while ( character < MAX_CHR )
         {
             bumpsize = ChrList[character].bumpsize;
-            if ( ChrList[character].on && ( !ChrList[character].inpack ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
+            if ( ChrList[character].on && ( !ChrList[character].pack_ispacked ) && ChrList[character].attachedto == MAX_CHR && ChrList[character].bumpsize != 0 )
             {
                 if ( ChrList[character].pos.x > tlx - bumpsize && ChrList[character].pos.x < brx + bumpsize )
                 {

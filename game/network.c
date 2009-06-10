@@ -54,18 +54,25 @@ player_t                PlaList[MAXPLAYER];
 
 FILE * globalnetworkerr = NULL;
 
-Uint32                  randsave;
-int                     networkservice;
-int                     numservice  = 0;
-char                    netservicename[MAXSERVICE][NETNAMESIZE];
-int                     numsession  = 0;
-char                    netsessionname[MAXSESSION][NETNAMESIZE];
-int                     numplayer  = 0;
-char                    netplayername[MAXNETPLAYER][NETNAMESIZE];
+Uint32  randsave;
+int     networkservice;
+int     numservice  = 0;
+char    netservicename[MAXSERVICE][NETNAMESIZE];
+int     numsession  = 0;
+char    netsessionname[MAXSESSION][NETNAMESIZE];
+int     numplayer  = 0;
+char    netplayername[MAXNETPLAYER][NETNAMESIZE];
 
-int                     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
+int     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 
 Uint32 sv_last_frame = (Uint32)~0;
+
+bool_t  networkon         = bfalse;       // Try to connect?
+bool_t  serviceon         = bfalse;       // Do I need to free the interface?
+bool_t  hostactive        = bfalse;       // Hosting?
+bool_t  readytostart      = bfalse;       // Ready to hit the Start Game button?
+bool_t  waitingforplayers = bfalse;       // Has everyone talked to the host?
+
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -912,7 +919,7 @@ void sv_talkToRemotes()
     // ZZ> This function sends the character data to all the remote machines
     int player, time;
     Sint16 sTmp;
-    
+
     // make sure there is only one update per frame;
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
@@ -1519,7 +1526,7 @@ void unbuffer_player_latches()
 
                 // Cost some experience for doing this...  Never lose a level
                 ChrList[character].experience *= EXPKEEP;
-				if(cfg.difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
+                if (cfg.difficulty > GAME_EASY) ChrList[character].money *= EXPKEEP;
             }
 
             // remove all latches other than LATCHBUTTON_RESPAWN

@@ -26,6 +26,7 @@
 #include "log.h"
 #include "graphic.h"
 #include "module.h"
+#include "game.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo_strutil.h"
@@ -80,13 +81,13 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     bool_t retval;
     int old_link_stack_count = link_stack_count;
 
-    if( !VALID_CSTR(modname) ) return bfalse;
+    if ( !VALID_CSTR(modname) ) return bfalse;
 
     if ( !modlist_test_by_name(modname) ) return bfalse;
 
     // push the link BEFORE you change the module data
     // otherwise you won't save the correct data!
-    if( push_current_module )
+    if ( push_current_module )
     {
         link_push_module();
     }
@@ -98,7 +99,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     // try to load the new module
     retval = game_begin_module( modname, seed );
 
-    if( !retval )
+    if ( !retval )
     {
         // if the module linking fails, make sure to remove any bad info from the stack
         link_stack_count = old_link_stack_count;
@@ -107,7 +108,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     {
         pickedmodule_index = modlist_get_mod_number(modname);
         pickedmodule_name[0] = '\0';
-        if( -1 != pickedmodule_index )
+        if ( -1 != pickedmodule_index )
         {
             strncpy( pickedmodule_name, ModList[pickedmodule_index].loadname, SDL_arraysize(pickedmodule_name) );
         }
@@ -122,7 +123,7 @@ bool_t link_build( const char * fname, Link_t list[] )
     FILE * pfile;
     int i;
 
-    if( !VALID_CSTR(fname) ) return bfalse;
+    if ( !VALID_CSTR(fname) ) return bfalse;
 
     pfile = fopen( fname, "r" );
     if ( NULL == pfile ) return bfalse;
@@ -145,29 +146,29 @@ bool_t link_pop_module()
     bool_t retval;
     link_stack_entry_t * pentry;
 
-    if( link_stack_count <= 0 ) return bfalse;
+    if ( link_stack_count <= 0 ) return bfalse;
     link_stack_count--;
 
     pentry = link_stack + link_stack_count;
 
     retval = link_follow_modname( pentry->modname, bfalse );
 
-    if( retval )
+    if ( retval )
     {
         int i, j;
 
         // restore the heroes' positions before jumping out of the module
-        for(i = 0; i<pentry->hero_count; i++)
+        for (i = 0; i < pentry->hero_count; i++)
         {
             chr_t * pchr;
             hero_spawn_data_t * phero = pentry->hero + i;
 
             pchr = NULL;
-            for(j=0; j<MAX_CHR; j++)
+            for (j = 0; j < MAX_CHR; j++)
             {
-                if( !ChrList[j].on ) continue;
+                if ( !ChrList[j].on ) continue;
 
-                if( phero->object_index == ChrList[j].model )
+                if ( phero->object_index == ChrList[j].model )
                 {
                     pchr = ChrList + j;
                     break;
@@ -175,7 +176,7 @@ bool_t link_pop_module()
             }
 
             // is the character is found, restore the old position
-            if( NULL != pchr )
+            if ( NULL != pchr )
             {
                 pchr->pos      = phero->pos;
                 pchr->pos_old  = phero->pos;
@@ -195,16 +196,16 @@ bool_t link_push_module()
     bool_t retval;
     link_stack_entry_t * pentry;
 
-    if( link_stack_count >= MAXPLAYER || pickedmodule_index < 0 ) return bfalse;
+    if ( link_stack_count >= MAXPLAYER || pickedmodule_index < 0 ) return bfalse;
 
     // grab an entry
     pentry = link_stack + link_stack_count;
     memset( pentry, 0, sizeof(link_stack_entry_t) );
 
     // store the load name of the module
-    strncpy( 
-        pentry->modname, 
-        ModList[pickedmodule_index].loadname, 
+    strncpy(
+        pentry->modname,
+        ModList[pickedmodule_index].loadname,
         SDL_arraysize(pentry->modname) );
 
     // find all of the exportable characters
@@ -223,7 +224,7 @@ bool_t link_push_module()
         if ( INVALID_CHR( ichr ) ) continue;
         pchr = ChrList + ichr;
 
-        if( pentry->hero_count < LINK_HEROES_MAX )
+        if ( pentry->hero_count < LINK_HEROES_MAX )
         {
             phero = pentry->hero + pentry->hero_count;
             pentry->hero_count++;
@@ -243,7 +244,7 @@ bool_t link_push_module()
 
     // the function only succeeds if at least one hero's info was cached
     retval = bfalse;
-    if( pentry->hero_count > 0 )
+    if ( pentry->hero_count > 0 )
     {
         link_stack_count++;
         retval = btrue;
@@ -260,10 +261,10 @@ bool_t link_load_parent( const char * modname, GLvector3 pos )
     link_stack_entry_t * pentry;
     GLvector3 pos_diff;
 
-    if( !VALID_CSTR(modname) ) return bfalse;
+    if ( !VALID_CSTR(modname) ) return bfalse;
 
     // push this module onto the stack so we can count the heroes
-    if( !link_push_module() ) return bfalse;
+    if ( !link_push_module() ) return bfalse;
 
     // grab the stored data
     pentry = link_stack + (link_stack_count - 1);
@@ -274,7 +275,7 @@ bool_t link_load_parent( const char * modname, GLvector3 pos )
     pos_diff.z = pos.z * 128 - pentry->hero[0].pos_stt.z;
 
     // adjust all the hero spawn points
-    for( i=0; i<pentry->hero_count; i++ )
+    for ( i = 0; i < pentry->hero_count; i++ )
     {
         hero_spawn_data_t * phero = pentry->hero + i;
 

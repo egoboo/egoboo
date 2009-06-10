@@ -90,7 +90,7 @@ void        GLXtexture_delete( GLXtexture * texture );
 struct s_oglx_texture_parameters
 {
     TX_FILTERS texturefilter;
-    GLfloat    userAnisotropy;  
+    GLfloat    userAnisotropy;
 };
 typedef struct s_oglx_texture_parameters oglx_texture_parameters_t;
 

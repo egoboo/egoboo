@@ -29,6 +29,7 @@
 #include "camera.h"
 #include "char.h"
 #include "mad.h"
+#include "game.h"
 
 #include <assert.h>
 
@@ -74,7 +75,7 @@ void let_character_think( Uint16 character )
 
     // debug a certain script
     //debug_scripts = ( pself->index == 385 && ChrList[pself->index].model == 76 );
-    
+
     // target_old is set to the target every time the script is run
     pself->target_old = pself->target;
 
@@ -1215,7 +1216,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSWINGTURN:
                 varname = "SWINGTURN";
-                iTmp = gCamera.swing << 2;
+                iTmp = PCamera->swing << 2;
                 break;
 
             case VARXYDISTANCE:
@@ -1327,7 +1328,7 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 
             case VARSPAWNDISTANCE:
                 varname = "SPAWNDISTANCE";
-				iTmp = ABS( ( int )( ChrList[pself->index].pos_stt.x - ChrList[pself->index].pos.x ) ) +
+                iTmp = ABS( ( int )( ChrList[pself->index].pos_stt.x - ChrList[pself->index].pos.x ) ) +
                        ABS( ( int )( ChrList[pself->index].pos_stt.y - ChrList[pself->index].pos.y ) );
                 break;
 

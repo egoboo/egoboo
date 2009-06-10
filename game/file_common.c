@@ -79,7 +79,7 @@ void fs_copyDirectory( const char *sourceDir, const char *destDir )
         // Make sure the destination directory exists
         fs_createDirectory( destDir );
 
-        while( fileName != NULL)
+        while ( fileName != NULL)
         {
             // Ignore files that begin with a .
             if ( fileName[0] != '.' )

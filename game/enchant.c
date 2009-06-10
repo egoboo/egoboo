@@ -25,6 +25,7 @@
 #include "sound.h"
 #include "camera.h"
 #include "mad.h"
+#include "game.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -44,7 +45,7 @@ void free_one_enchant( Uint16 ienc )
 {
     // Now get rid of it
 
-    if( VALID_ENC_RANGE(ienc) )
+    if ( VALID_ENC_RANGE(ienc) )
     {
         // enchant "destructor"
         // sets all boolean values to false, incluting the "on" flag
@@ -89,16 +90,16 @@ bool_t remove_enchant( Uint16 ienc )
 
     // Play the end sound
     ieve = penc->eve;
-    if( ieve < MAXEVE && EveList[ieve].valid )
+    if ( ieve < MAXEVE && EveList[ieve].valid )
     {
         iwave = EveList[ieve].endsoundindex;
         if ( iwave >= 0 && iwave < MAX_WAVE )
         {
             Uint16 ispawner = penc->spawner;
-            if( VALID_CHR(ispawner) )
+            if ( VALID_CHR(ispawner) )
             {
                 Uint16 imodel = ChrList[ispawner].model;
-                if( VALID_CAP(imodel) )
+                if ( VALID_CAP(imodel) )
                 {
                     if ( VALID_CHR(itarget) )
                     {
@@ -106,7 +107,7 @@ bool_t remove_enchant( Uint16 ienc )
                     }
                     else
                     {
-                        sound_play_chunk( gCamera.track_pos, CapList[imodel].wavelist[iwave]);
+                        sound_play_chunk( PCamera->track_pos, CapList[imodel].wavelist[iwave]);
                     }
                 }
             }
@@ -146,7 +147,7 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Unlink it
-    if( VALID_CHR(itarget) )
+    if ( VALID_CHR(itarget) )
     {
         if ( ChrList[itarget].firstenchant == ienc )
         {
@@ -184,7 +185,7 @@ bool_t remove_enchant( Uint16 ienc )
     // Check to see if the character dies
     if ( EveList[penc->eve].killonend )
     {
-        if( VALID_CHR(itarget) )
+        if ( VALID_CHR(itarget) )
         {
             if ( ChrList[itarget].invictus )  TeamList[ChrList[itarget].baseteam].morale++;
 
@@ -204,7 +205,7 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Remove see kurse enchant
-    if( VALID_CHR( itarget ) )
+    if ( VALID_CHR( itarget ) )
     {
         if ( EveList[penc->eve].seekurse && !CapList[ChrList[itarget].model].canseekurse )
         {
@@ -213,7 +214,7 @@ bool_t remove_enchant( Uint16 ienc )
     }
 
     // Now fix dem weapons
-    if( VALID_CHR( itarget ) )
+    if ( VALID_CHR( itarget ) )
     {
         reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_LEFT] );
         reset_character_alpha( ChrList[itarget].holdingwhich[SLOT_RIGHT] );
@@ -232,7 +233,7 @@ Uint16 enchant_value_filled( Uint16 ienc, Uint8 valueindex )
     //     of the conflicting enchantment
     Uint16 character, currenchant;
 
-    if( ienc > MAX_ENC || !EncList[ienc].on ) return MAX_ENC;
+    if ( ienc > MAX_ENC || !EncList[ienc].on ) return MAX_ENC;
 
     character = EncList[ienc].target;
     currenchant = ChrList[character].firstenchant;
@@ -259,10 +260,10 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
+    if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
-    if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return;
     peve = EveList + ieve;
 
     penc->setyesno[valueindex] = bfalse;
@@ -289,7 +290,7 @@ void set_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
 
             // Set the value, and save the character's real stat
             character = penc->target;
-            if( VALID_CHR(penc->target) )
+            if ( VALID_CHR(penc->target) )
             {
                 ptarget = ChrList + character;
                 penc->setyesno[valueindex] = btrue;
@@ -436,14 +437,14 @@ void add_enchant_value( Uint16 ienc, Uint8 valueindex, Uint16 ieve )
     eve_t * peve;
     chr_t * ptarget;
 
-    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
+    if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
-    if( ieve >= MAXEVE || !EveList[ieve].valid ) return;
+    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return;
     peve = EveList + ieve;
 
     character = penc->target;
-    if( INVALID_CHR(penc->target) ) return;
+    if ( INVALID_CHR(penc->target) ) return;
     ptarget = ChrList + character;
 
     valuetoadd = 0;
@@ -606,7 +607,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         // The enchantment type is given by the spawner
         ieve = ChrList[spawner].model;
     }
-    if( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
+    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
     peve = EveList + ieve;
 
     if ( ienc == MAX_ENC )
@@ -728,7 +729,7 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         if ( peve->overlay )
         {
             overlay = spawn_one_character( ptarget->pos.x, ptarget->pos.y, ptarget->pos.z,
-                ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
+                                           ieve, ptarget->team, 0, ptarget->turn_z, NULL, MAX_CHR );
 
             if ( VALID_CHR(overlay) )
             {
@@ -753,8 +754,8 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
             }
         }
 
-		//Allow them to see kurses?
-		if(peve->seekurse) ChrList[target].canseekurse = btrue;
+        //Allow them to see kurses?
+        if (peve->seekurse) ChrList[target].canseekurse = btrue;
     }
 
 
@@ -779,7 +780,7 @@ void free_all_enchants()
     int cnt;
 
     numfreeenchant = 0;
-    for( cnt = 0; cnt < MAX_ENC; cnt++)
+    for ( cnt = 0; cnt < MAX_ENC; cnt++)
     {
         // reuse this code
         free_one_enchant( cnt );
@@ -798,7 +799,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     int num;
     eve_t * peve;
 
-    if( profile > MAXEVE ) return bfalse;
+    if ( profile > MAXEVE ) return bfalse;
     peve = EveList + profile;
 
     memset( peve, 0, sizeof(eve_t) );
@@ -1080,14 +1081,14 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
     peve->endsoundindex = -1;
     peve->stayifnoowner = 0;
     peve->overlay = 0;
-	peve->seekurse = bfalse;
+    peve->seekurse = bfalse;
 
     // Read expansions
     while ( goto_colon( NULL, fileread, btrue ) )
     {
         idsz = fget_idsz( fileread );
 
-             if ( idsz == Make_IDSZ( "AMOU" ) )  peve->contspawnamount = fget_int( fileread );
+        if ( idsz == Make_IDSZ( "AMOU" ) )  peve->contspawnamount = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "TYPE" ) )  peve->contspawnpip = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "TIME" ) )  peve->contspawntime = fget_int( fileread );
         else if ( idsz == Make_IDSZ( "FACE" ) )  peve->contspawnfacingadd = fget_int( fileread );
@@ -1131,11 +1132,11 @@ void unset_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
+    if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     character = penc->target;
-    if( INVALID_CHR(penc->target) ) return;
+    if ( INVALID_CHR(penc->target) ) return;
     ptarget = ChrList + character;
 
     if ( penc->setyesno[valueindex] )
@@ -1253,11 +1254,11 @@ void remove_enchant_value( Uint16 ienc, Uint8 valueindex )
     enc_t * penc;
     chr_t * ptarget;
 
-    if( ienc >= MAX_ENC || !EncList[ienc].on) return;
+    if ( ienc >= MAX_ENC || !EncList[ienc].on) return;
     penc = EncList + ienc;
 
     character = penc->target;
-    if( INVALID_CHR(penc->target) ) return;
+    if ( INVALID_CHR(penc->target) ) return;
     ptarget = ChrList + character;
 
     switch ( valueindex )

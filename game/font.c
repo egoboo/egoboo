@@ -26,6 +26,7 @@
 #include "log.h"
 
 #include "egoboo_typedef.h"
+#include "ogl_debug.h"
 
 #include <stdlib.h>
 #include <stddef.h>
@@ -143,10 +144,10 @@ int copySurfaceToTexture( SDL_Surface *surface, GLuint texture, GLfloat *texCoor
     }
 
     // Send the texture to OpenGL
-    glBindTexture( GL_TEXTURE_2D, texture );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexImage2D( GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
+    GL_DEBUG(glBindTexture)(GL_TEXTURE_2D, texture );
+    GL_DEBUG(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    GL_DEBUG(glTexParameteri)(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    GL_DEBUG(glTexImage2D)(GL_TEXTURE_2D,  0, GL_RGBA,  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE,  image->pixels );
 
     // Don't need the extra image anymore
     SDL_FreeSurface( image );
@@ -176,7 +177,7 @@ Font* fnt_loadFont( const char *fileName, int pointSize )
     // Everything looks good
     newFont = ( Font* )malloc( sizeof( Font ) );
     newFont->ttfFont = ttfFont;
-    glGenTextures( 1, &newFont->texture );
+    GL_DEBUG(glGenTextures)(1, &newFont->texture );
 
     return newFont;
 }
@@ -187,7 +188,7 @@ void fnt_freeFont( Font *font )
     if ( font )
     {
         TTF_CloseFont( font->ttfFont );
-        glDeleteTextures( 1, &font->texture );
+        GL_DEBUG(glDeleteTextures)(1, &font->texture );
         free( font );
     }
 }
@@ -206,25 +207,28 @@ void fnt_drawText( Font *font, int x, int y, const char *text )
     // Does this font already have a texture?  If not, allocate it here
     if ( (GLuint)(~0) == font->texture )
     {
-        glGenTextures( 1, &font->texture );
+        GL_DEBUG(glGenTextures)(1, &font->texture );
     }
 
     // Copy the surface to the texture
     if ( copySurfaceToTexture( textSurf, font->texture, font->texCoords ) )
     {
         // And draw the darn thing
-        glBegin( GL_TRIANGLE_STRIP );
+        GL_DEBUG(glBegin)( GL_QUADS );
         {
-            glTexCoord2f( font->texCoords[0], font->texCoords[1] );
-            glVertex2i( x, y );
-            glTexCoord2f( font->texCoords[2], font->texCoords[1] );
-            glVertex2i( x + textSurf->w, y );
-            glTexCoord2f( font->texCoords[0], font->texCoords[3] );
-            glVertex2i( x, y + textSurf->h );
-            glTexCoord2f( font->texCoords[2], font->texCoords[3] );
-            glVertex2i( x + textSurf->w, y + textSurf->h );
+            GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[1] );
+            GL_DEBUG(glVertex2f)( x, y );
+
+            GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[1] );
+            GL_DEBUG(glVertex2f)( x + textSurf->w, y );
+
+            GL_DEBUG(glTexCoord2f)(font->texCoords[2], font->texCoords[3] );
+            GL_DEBUG(glVertex2f)( x + textSurf->w, y + textSurf->h );
+
+            GL_DEBUG(glTexCoord2f)(font->texCoords[0], font->texCoords[3] );
+            GL_DEBUG(glVertex2f)( x, y + textSurf->h );
         }
-        glEnd();
+        GL_DEBUG_END();
     }
 
     // Done with the surface
