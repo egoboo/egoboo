@@ -43,7 +43,7 @@ Level 1... V speed ( .0005 )				: .0005
 Light X direction ( 1.00 )				: 1.50
 Light Y direction ( 1.00 )				: 1.50
 Light Z direction ( 0.50 )				: 1.50
-Ambient light ( 0.20 )					: 1.50
+Ambient light ( 0.20 )					: 0.20
 
 Hillslide ( 1.00 )					:  4.00
 Slippy friction ( 1.00 )				:  0.84
@@ -61,6 +61,6 @@ Weather particles only over water ( TRUE or FALSE )	: FALSE
 Weather particle spawn rate ( 0 to 100, 0 is none )	: 0
 
 Explore mode ( TRUE or FALSE )				: FALSE
-Far Edge mode...  For outside levels ( TRUE or FALSE )	: FALSE
+Far Edge mode...  For outside levels ( TRUE or FALSE )	: TRUE
 Camera swing rate ( 0 to 100 )				: 0
 Camera swing amplitude ( 0, or .002 to .100 )		: 0
