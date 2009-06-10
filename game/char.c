@@ -1199,7 +1199,7 @@ void attach_character_to_mount( Uint16 character, Uint16 mount, grip_offset_t gr
 
     if ( ChrList[character].pack_ispacked || ChrList[mount].pack_ispacked ) return;
 
-#ifdef DISABLE_BODY_GRAB
+#if !defined(ENABLE_BODY_GRAB)
     if (!ChrList[character].alive) return;
 #endif
 
@@ -5628,7 +5628,7 @@ void move_characters( void )
 
         // Move the character
         pchr->pos.z += pchr->vel.z;
-        assert( !_isnan(pchr->pos.z) );
+        LOG_NAN(pchr->pos.z);
         if ( pchr->pos.z < pchr->floor_level )
         {
             pchr->vel.z *= -pchr->bumpdampen;
@@ -5660,7 +5660,7 @@ void move_characters( void )
 
         ftmp = pchr->pos.x;
         pchr->pos.x += pchr->vel.x;
-        assert( !_isnan(pchr->pos.x) );
+        LOG_NAN(pchr->pos.x);
         if ( __chrhitawall( cnt, nrm ) )
         {
             if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )
@@ -5706,7 +5706,7 @@ void move_characters( void )
 
         ftmp = pchr->pos.y;
         pchr->pos.y += pchr->vel.y;
-        assert( !_isnan(pchr->pos.y) );
+        LOG_NAN(pchr->pos.y);
         if ( __chrhitawall( cnt, nrm ) )
         {
             if ( ABS(pchr->vel.x) + ABS(pchr->vel.y) > 0 )

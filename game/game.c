@@ -3320,12 +3320,12 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                 pchr_a->phys.avel.x += imp_a.x;
                 pchr_a->phys.avel.y += imp_a.y;
                 pchr_a->phys.avel.z += imp_a.z;
-                assert( !_isnan(pchr_a->phys.avel.z) );
+                LOG_NAN(pchr_a->phys.avel.z);
 
                 pchr_b->phys.avel.x += imp_b.x;
                 pchr_b->phys.avel.y += imp_b.y;
                 pchr_b->phys.avel.z += imp_b.z;
-                assert( !_isnan(pchr_b->phys.avel.z) );
+                LOG_NAN(pchr_b->phys.avel.z);
 
                 collision = btrue;
             }
@@ -3410,7 +3410,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                 pchr_a->phys.avel.x -= factor * vpara_a.x;
                 pchr_a->phys.avel.y -= factor * vpara_a.y;
                 pchr_a->phys.avel.z -= factor * vpara_a.z;
-                assert( !_isnan(pchr_a->phys.avel.z) );
+                LOG_NAN(pchr_a->phys.avel.z);
             }
 
             if ( ABS(imp_b.x) + ABS(imp_b.y) + ABS(imp_b.z) > 0.0f &&
@@ -3428,7 +3428,7 @@ bool_t do_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b )
                 pchr_b->phys.avel.x -= factor * vpara_b.x;
                 pchr_b->phys.avel.y -= factor * vpara_b.y;
                 pchr_b->phys.avel.z -= factor * vpara_b.z;
-                assert( !_isnan(pchr_b->phys.avel.z) );
+                LOG_NAN(pchr_b->phys.avel.z);
             }
         }
     }
@@ -3567,7 +3567,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             pchr_a->phys.avel.x  += pprt_b->vel.x - pchr_a->vel.x;
                             pchr_a->phys.avel.y  += pprt_b->vel.y - pchr_a->vel.y;
                             pchr_a->phys.avel.z  += pprt_b->vel.z - pchr_a->vel.z;
-                            assert( !_isnan(pchr_a->phys.avel.z) );
+                            LOG_NAN(pchr_a->phys.avel.z);
                         }
                         else
                         {
@@ -3577,7 +3577,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             pchr_a->phys.avel.x  += pprt_b->vel.x * factor;
                             pchr_a->phys.avel.y  += pprt_b->vel.y * factor;
                             pchr_a->phys.avel.z  += pprt_b->vel.z * factor;
-                            assert( !_isnan(pchr_a->phys.avel.z) );
+                            LOG_NAN(pchr_a->phys.avel.z);
                         }
                     }
 

@@ -153,8 +153,8 @@
 // fix the naming of some linux-flovored functions in MSVC
 #if defined(_MSC_VER)
 #    define snprintf _snprintf
-
-#    define stricmp _stricmp
+#    define stricmp  _stricmp
+#    define isnan    _isnan
 
 //This isn't needed in MSVC 2008 and causes errors
 #    if _MSC_VER < 1500

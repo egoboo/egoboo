@@ -70,13 +70,13 @@ GLvector3 VNormalize( GLvector3 vec )
         assert( 0.0f!=len2 && !_isnan(inv_len) );
 
         tmp.x = vec.x * inv_len;
-        assert( !_isnan(tmp.x) );
+        LOG_NAN(tmp.x);
 
         tmp.y = vec.y * inv_len;
-        assert( !_isnan(tmp.y) );
+        LOG_NAN(tmp.y);
 
         tmp.z = vec.z * inv_len;
-        assert( !_isnan(tmp.z) );
+        LOG_NAN(tmp.z);
     }
 
     return tmp ;

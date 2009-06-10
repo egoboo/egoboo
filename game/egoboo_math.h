@@ -108,6 +108,12 @@ typedef union  u_glvector4 { glvector4_base_t v; struct { float x, y, z, w; }; s
 /**> GLOBAL VARIABLES <**/
 extern float                   turntosin[TRIG_TABLE_SIZE];           // Convert chrturn>>2...  to sine
 
+#if defined(TEST_NAN_RESULT)
+#    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
+#else
+#    define LOG_NAN(XX) 
+#endif
+
 /**> FUNCTION PROTOTYPES <**/
 GLvector3 VSub( GLvector3 A, GLvector3 B );
 GLvector3 VNormalize( GLvector3 vec );

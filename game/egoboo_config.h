@@ -52,11 +52,13 @@
 #define MAX_PIP             (MAX_PROFILE * MAX_PIP_PER_PROFILE)
 
 //Some macro switches
-#undef OLD_CAMERA_MODE       //Use the old camera style
-#undef USE_LUA_CONSOLE       //LUA support for the console
-#define DISABLE_BODY_GRAB       //Disable the grabbing of bodies
 #define USE_DEBUG (defined(_DEBUG) || !defined(NDEBUG))
 
-#undef RENDER_HMAP
+#undef  OLD_CAMERA_MODE       // Use the old camera style
+#undef  USE_LUA_CONSOLE       // LUA support for the console
+#undef  ENABLE_BODY_GRAB      // Enable the grabbing of bodies?
+#undef  TEST_NAN_RESULT       // Test the result of certain math operations?
+
+#undef  RENDER_HMAP           // render the mesh's heightmap?
 
 #define EGOBOO_CONFIG
