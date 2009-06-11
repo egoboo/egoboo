@@ -32,6 +32,9 @@ static int    iNumLine;
 static int    iLineSize;
 static char   cLineBuffer[MAXLINESIZE];
 
+static Uint8  cLoadBuffer[AISMAXLOADSIZE];
+
+
 int    iNumCode = 0;
 Uint8  cCodeType[MAXCODE];
 Uint32 iCodeValue[MAXCODE];
@@ -781,7 +784,7 @@ void load_ai_codes( const char* loadname )
     fileread = fopen( loadname, "rb" );
     if ( fileread )
     {
-        iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
+        iLoadSize = ( int )fread( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
         read = 0;
         read = ai_goto_colon( read );
 
@@ -827,7 +830,7 @@ int load_ai_script( const char *loadname )
     }
 
     // load the file
-    iLoadSize = ( int )fread( cLoadBuffer, 1, MD2MAXLOADSIZE, fileread );
+    iLoadSize = ( int )fread( cLoadBuffer, 1, AISMAXLOADSIZE, fileread );
     fclose( fileread );
 
     // if the file is empty, use the default script

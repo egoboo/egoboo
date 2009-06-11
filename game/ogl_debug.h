@@ -2,6 +2,10 @@
 
 #include "ogl_include.h"
 
+
+#define USE_GL_DEBUG
+
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -456,14 +460,16 @@ extern "C"
     void handle_gl_error();
     void print_gl_command();
 
-#define GL_DEBUG(XX) \
+#if defined(USE_GL_DEBUG)
+
+#    define GL_DEBUG(XX) \
     (handle_gl_error(), \
      next_cmd = #XX, \
      next_line = __LINE__, \
      next_file = __FILE__, \
      XX)
 
-#define GL_DEBUG_END() \
+#    define GL_DEBUG_END() \
     handle_gl_error(); \
     next_cmd = "UNKNOWN"; \
     next_line = -1; \
@@ -471,10 +477,17 @@ extern "C"
     glEnd(); \
     glGetError();
 
+#else
+
+#    define GL_DEBUG(XX)   XX
+#    define GL_DEBUG_END() glEnd();
+
+#endif
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 
-FILE * set_ogl_debug_stderr(FILE * pfile);
+    FILE * set_ogl_debug_stderr(FILE * pfile);
 
 #ifdef __cplusplus
 };

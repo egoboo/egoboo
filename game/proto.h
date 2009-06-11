@@ -25,37 +25,4 @@
 
 #include "egoboo_typedef.h"
 
-struct s_script_state;
-struct s_chr_instance;
-
-///////////////////////////////
-// INTERNAL FUNCTIONS
-///////////////////////////////
-// internal game functions that would never be called by a script
-
-
-// object initialization
-void  prime_names( void );
-void  free_all_objects( void );
-
-
-///////////////////////////////
-// EXTERNAL FUNCTIONS
-///////////////////////////////
-// functions that might be called by a script
-
-// Action
-int  action_which( char cTmp );
-void chr_play_action( Uint16 character, Uint16 action, Uint8 actionready );
-void chr_set_frame( Uint16 character, Uint16 action, int frame, Uint16 lip );
-
-// Module
-bool_t load_blip_bitmap();
-void   quit_module();
-
-// Model
-bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
-
-//---------------------------------------------------------------------------------------------
-
 #define _PROTO_H_

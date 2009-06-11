@@ -61,13 +61,13 @@ GLvector3 VSub( GLvector3 A, GLvector3 B )
 
 GLvector3 VNormalize( GLvector3 vec )
 {
-    GLvector3 tmp = VECT3(0.0f,0.0f,0.0f);
+    GLvector3 tmp = VECT3(0.0f, 0.0f, 0.0f);
 
     if ( ABS(vec.x) + ABS(vec.y) + ABS(vec.z) > 0 )
     {
         float len2 = vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
         float inv_len = 1.0f / SQRT( len2 );
-        LOG_NAN(inv_len);
+        LOG_NAN( inv_len );
 
         tmp.x = vec.x * inv_len;
         LOG_NAN(tmp.x);

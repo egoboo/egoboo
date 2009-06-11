@@ -1664,16 +1664,8 @@ int doAudioOptions( float deltaTime )
             // Buttons
             if ( BUTTON_UP == ui_doButton( 1, audioOptionsButtons[0], buttonLeft + 150, sdl_scr.y - 270, 100, 30 ) )
             {
-                if ( cfg.sound_allowed )
-                {
-                    cfg.sound_allowed = bfalse;
-                    audioOptionsButtons[0] = "Off";
-                }
-                else
-                {
-                    cfg.sound_allowed = btrue;
-                    audioOptionsButtons[0] = "On";
-                }
+                cfg.sound_allowed = !cfg.sound_allowed;
+                audioOptionsButtons[0] = cfg.sound_allowed ? "On" : "Off";
             }
 
             fnt_drawTextBox( menuFont, "Sound Volume:", buttonLeft, sdl_scr.y - 235, 0, 0, 20 );
@@ -1689,16 +1681,8 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Music:", buttonLeft, sdl_scr.y - 165, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 3, audioOptionsButtons[2], buttonLeft + 150, sdl_scr.y - 165, 100, 30 ) )
             {
-                if ( cfg.music_allowed )
-                {
-                    cfg.music_allowed = bfalse;
-                    audioOptionsButtons[2] = "Off";
-                }
-                else
-                {
-                    cfg.music_allowed = btrue;
-                    audioOptionsButtons[2] = "On";
-                }
+                cfg.music_allowed = !cfg.music_allowed;
+                audioOptionsButtons[2] = cfg.music_allowed ? "On" : "Off";
             }
 
             fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, sdl_scr.y - 130, 0, 0, 20 );
@@ -1722,13 +1706,13 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Sound Channels:", buttonLeft + 300, sdl_scr.y - 200, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 5, audioOptionsButtons[4], buttonLeft + 450, sdl_scr.y - 200, 100, 30 ) )
             {
-                if ( cfg.sound_channel_count >= 8 )
+                if ( cfg.sound_channel_count < 8 )
                 {
-                    cfg.sound_channel_count <<= 1;
+                    cfg.sound_channel_count = 8;
                 }
                 else
                 {
-                    cfg.sound_channel_count = 8;
+                    cfg.sound_channel_count <<= 1;
                 }
 
                 if ( cfg.sound_channel_count > 128 )
@@ -1743,13 +1727,13 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Buffer Size:", buttonLeft + 300, sdl_scr.y - 165, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, audioOptionsButtons[5], buttonLeft + 450, sdl_scr.y - 165, 100, 30 ) )
             {
-                if ( cfg.sound_buffer_size >= 512 )
+                if ( cfg.sound_buffer_size < 512 )
                 {
-                    cfg.sound_buffer_size <<= 1;
+                    cfg.sound_buffer_size = 512;
                 }
                 else
                 {
-                    cfg.sound_buffer_size = 512;
+                    cfg.sound_buffer_size <<= 1;
                 }
 
                 if ( cfg.sound_buffer_size > 8196 )
@@ -1760,6 +1744,7 @@ int doAudioOptions( float deltaTime )
                 sprintf( Cbuffersize, "%i", cfg.sound_buffer_size );
                 audioOptionsButtons[5] = Cbuffersize;
             }
+
             if ( BUTTON_UP == ui_doButton( 7, audioOptionsButtons[6], buttonLeft, sdl_scr.y - 60, 200, 30 ) )
             {
                 // synchronoze the config values with the various game subsystems
@@ -1855,23 +1840,17 @@ int doVideoOptions( float deltaTime )
             videoOptionsButtons[0] = Cantialiasing;
 
             //Message duration
-            switch ( cfg.message_duration )
+            if( cfg.message_duration <= 100 )
             {
-                case 250:
-                    videoOptionsButtons[1] = "Short";
-                    break;
-
-                case 150:
-                    videoOptionsButtons[1] = "Normal";
-                    break;
-
-                case 200:
-                    videoOptionsButtons[1] = "Long";
-                    break;
-
-                default:
-                    videoOptionsButtons[1] = "Custom";
-                    break;
+                videoOptionsButtons[1] = "Short";
+            }
+            else if ( cfg.message_duration <= 150 )
+            {
+                videoOptionsButtons[1] = "Normal";
+            }
+            else
+            {
+                videoOptionsButtons[1] = "Long";
             }
 
             //Texture filtering
@@ -1903,55 +1882,76 @@ int doVideoOptions( float deltaTime )
                     cfg.texturefilter_req = TX_LINEAR;
                     break;
             }
-            if ( cfg.use_dither ) videoOptionsButtons[2] = "Yes";
-            else          videoOptionsButtons[2] = "No";
-            if ( cfg.fullscreen_req ) videoOptionsButtons[3] = "True";
-            else              videoOptionsButtons[3] = "False";
+            
+            videoOptionsButtons[2] = cfg.use_dither ? "Yes" : "No";
+
+            videoOptionsButtons[3] = cfg.fullscreen_req ? "True" : "False";
+
             if ( cfg.reflect_allowed )
             {
                 videoOptionsButtons[4] = "Low";
                 if ( cfg.reflect_prt )
                 {
                     videoOptionsButtons[4] = "Medium";
-                    if ( cfg.reflect_fade == 0 ) videoOptionsButtons[4] = "High";
+                    if ( cfg.reflect_fade == 0 ) 
+                    {
+                        videoOptionsButtons[4] = "High";
+                    }
                 }
             }
-            else videoOptionsButtons[4] = "Off";
+            else 
+            {
+                videoOptionsButtons[4] = "Off";
+            }
 
-            sprintf( Cmaxmessage, "%i", maxmessage );
             if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
-            if ( maxmessage == 0 ) sprintf( Cmaxmessage, "None" );           // Set to default
-
+            if ( maxmessage == 0 ) 
+            {
+                sprintf( Cmaxmessage, "None" );           // Set to default
+            }
+            else
+            {
+                sprintf( Cmaxmessage, "%i", maxmessage );
+            }
             videoOptionsButtons[11] = Cmaxmessage;
+
             if ( cfg.shadow_allowed )
             {
                 videoOptionsButtons[6] = "Normal";
-                if ( !cfg.shadow_sprite ) videoOptionsButtons[6] = "Best";
+                if ( !cfg.shadow_sprite ) 
+                {
+                    videoOptionsButtons[6] = "Best";
+                }
             }
             else videoOptionsButtons[6] = "Off";
+
             if ( cfg.scrz_req != 32 && cfg.scrz_req != 16 && cfg.scrz_req != 24 )
             {
                 cfg.scrz_req = 16;              // Set to default
             }
-
             sprintf( Cscrz, "%i", cfg.scrz_req );      // Convert the integer to a char we can use
             videoOptionsButtons[7] = Cscrz;
 
             sprintf( Cmaxlights, "%i", cfg.dyna_count_req );
             videoOptionsButtons[8] = Cmaxlights;
+
             if ( cfg.use_phong )
             {
                 videoOptionsButtons[9] = "Okay";
                 if ( cfg.overlay_allowed && cfg.background_allowed )
                 {
                     videoOptionsButtons[9] = "Good";
-                    if ( cfg.use_perspective ) videoOptionsButtons[9] = "Superb";
+                    if ( cfg.use_perspective ) 
+                    {
+                        videoOptionsButtons[9] = "Superb";
+                    }
                 }
                 else                            // Set to defaults
                 {
                     cfg.use_perspective    = bfalse;
                     cfg.background_allowed = bfalse;
                     cfg.overlay_allowed    = bfalse;
+                    videoOptionsButtons[9] = "Off";
                 }
             }
             else                              // Set to defaults
@@ -1961,6 +1961,7 @@ int doVideoOptions( float deltaTime )
                 cfg.overlay_allowed    = bfalse;
                 videoOptionsButtons[9] = "Off";
             }
+
             if ( cfg.twolayerwater_allowed ) videoOptionsButtons[10] = "On";
             else videoOptionsButtons[10] = "Off";
 
@@ -2000,18 +2001,19 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Antialiasing:", buttonLeft, sdl_scr.y - 215, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 1, videoOptionsButtons[0], buttonLeft + 150, sdl_scr.y - 215, 100, 30 ) )
             {
-                if ( cfg.multisamples < 0 ) cfg.multisamples = 0;
+                // make the multi-sampling even
 
-                if ( cfg.multisamples <= 0 )
+                if ( cfg.multisamples < 0 )
                 {
-                    cfg.multisamples = 1;
+                    cfg.multisamples = 0;
                 }
                 else
                 {
-                    cfg.multisamples <<= 1;
+                    cfg.multisamples += 1;
                 }
 
-                if ( cfg.multisamples > 16 ) cfg.multisamples = 0;
+                // set some arbitrary limit
+                if ( cfg.multisamples > 4 ) cfg.multisamples = 0;
 
                 if (cfg.multisamples == 0) strcpy(Cantialiasing , "Off");
                 else snprintf(Cantialiasing, sizeof(Cantialiasing), "X%i", cfg.multisamples);
@@ -2023,27 +2025,31 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 180, 100, 30 ) )
             {
-                switch ( cfg.message_duration )
+                if( cfg.message_duration < 0 )
                 {
-                    case 250:
-                        cfg.message_duration = 150;
-                        videoOptionsButtons[1] = "Short";
-                        break;
+                    cfg.message_duration = 100;
+                }
+                else
+                {
+                    cfg.message_duration += 50;
+                }
 
-                    case 150:
-                        cfg.message_duration = 200;
-                        videoOptionsButtons[1] = "Normal";
-                        break;
+                if( cfg.message_duration >= 250 )
+                {
+                    cfg.message_duration = 100;
+                }
 
-                    case 200:
-                        cfg.message_duration = 250;
-                        videoOptionsButtons[1] = "Long";
-                        break;
-
-                    default:
-                        cfg.message_duration = 200;
-                        videoOptionsButtons[1] = "Normal";
-                        break;
+                if( cfg.message_duration <= 100 )
+                {
+                    videoOptionsButtons[1] = "Short";
+                }
+                else if ( cfg.message_duration <= 150 )
+                {
+                    videoOptionsButtons[1] = "Normal";
+                }
+                else
+                {
+                    videoOptionsButtons[1] = "Long";
                 }
             }
 
@@ -2051,32 +2057,17 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Dithering:", buttonLeft, sdl_scr.y - 145, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 3, videoOptionsButtons[2], buttonLeft + 150, sdl_scr.y - 145, 100, 30 ) )
             {
-                if ( cfg.use_dither )
-                {
-                    videoOptionsButtons[2] = "No";
-                    cfg.use_dither = bfalse;
-                }
-                else
-                {
-                    videoOptionsButtons[2] = "Yes";
-                    cfg.use_dither = btrue;
-                }
+                cfg.use_dither = !cfg.use_dither;
+                videoOptionsButtons[2] = cfg.use_dither ? "Yes" : "No";
             }
 
             // Fullscreen
             fnt_drawTextBox( menuFont, "Fullscreen:", buttonLeft, sdl_scr.y - 110, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, videoOptionsButtons[3], buttonLeft + 150, sdl_scr.y - 110, 100, 30 ) )
             {
-                if ( cfg.fullscreen_req )
-                {
-                    videoOptionsButtons[3] = "False";
-                    cfg.fullscreen_req = bfalse;
-                }
-                else
-                {
-                    videoOptionsButtons[3] = "True";
-                    cfg.fullscreen_req = btrue;
-                }
+                cfg.fullscreen_req = !cfg.fullscreen_req;
+
+                videoOptionsButtons[3] = cfg.fullscreen_req ? "True" : "False";
             }
 
             // Reflection
@@ -2121,46 +2112,54 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, sdl_scr.y - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, sdl_scr.y - 285, 130, 30 ) )
             {
+                if( cfg.texturefilter_req < TX_UNFILTERED )
+                {
+                    cfg.texturefilter_req = TX_UNFILTERED;
+                }
+                else
+                {
+                    cfg.texturefilter_req = (TX_FILTERS)( (int)cfg.texturefilter_req + 1 );
+                }
+
+                if( cfg.texturefilter_req > TX_ANISOTROPIC )
+                {
+                    cfg.texturefilter_req = TX_UNFILTERED;
+                }
+
                 switch ( cfg.texturefilter_req )
                 {
-                    case TX_ANISOTROPIC:
-                        cfg.texturefilter_req = TX_UNFILTERED;
+
+                    case TX_UNFILTERED:
                         videoOptionsButtons[5] = "Unfiltered";
                         break;
 
-                    case TX_UNFILTERED:
-                        cfg.texturefilter_req = TX_LINEAR;
+                    case TX_LINEAR:
                         videoOptionsButtons[5] = "Linear";
                         break;
 
-                    case TX_LINEAR:
-                        cfg.texturefilter_req = TX_MIPMAP;
+                    case TX_MIPMAP:
                         videoOptionsButtons[5] = "Mipmap";
                         break;
 
-                    case TX_MIPMAP:
-                        cfg.texturefilter_req = TX_BILINEAR;
+                    case TX_BILINEAR:
                         videoOptionsButtons[5] = "Bilinear";
                         break;
 
-                    case TX_BILINEAR:
-                        cfg.texturefilter_req = TX_TRILINEAR_1;
+                    case TX_TRILINEAR_1:
                         videoOptionsButtons[5] = "Trilinear 1";
                         break;
 
-                    case TX_TRILINEAR_1:
-                        cfg.texturefilter_req = TX_TRILINEAR_2;
+                    case TX_TRILINEAR_2:
                         videoOptionsButtons[5] = "Trilinear 2";
                         break;
 
-                    case TX_TRILINEAR_2:
-                        cfg.texturefilter_req = TX_ANISOTROPIC;
+                    case TX_ANISOTROPIC:
                         videoOptionsButtons[5] = "Anisotropic";
                         break;
 
                     default:
-                        cfg.texturefilter_req = TX_LINEAR;
-                        videoOptionsButtons[5] = "Linear";
+                        cfg.texturefilter_req = TX_UNFILTERED;
+                        videoOptionsButtons[5] = "Unfiltered";
                         break;
                 }
             }
@@ -2223,7 +2222,7 @@ int doVideoOptions( float deltaTime )
                     cfg.dyna_count_req += 8;
                 }
 
-                if ( cfg.dyna_count_req >= TOTAL_MAX_DYNA )
+                if ( cfg.dyna_count_req > TOTAL_MAX_DYNA )
                 {
                     cfg.dyna_count_req = 8;
                 }
@@ -2297,7 +2296,7 @@ int doVideoOptions( float deltaTime )
                     cfg.particle_count_req += 128;
                 }
 
-                if (cfg.particle_count_req >= TOTAL_MAX_PRT ) maxparticles = 256;
+                if (cfg.particle_count_req > TOTAL_MAX_PRT ) cfg.particle_count_req = 256;
 
                 snprintf( Cmaxparticles, SDL_arraysize(Cmaxparticles), "%i", cfg.particle_count_req );    // Convert integer to a char we can use
                 videoOptionsButtons[14] =  Cmaxparticles;
@@ -2314,6 +2313,11 @@ int doVideoOptions( float deltaTime )
                 else
                 {
                     cfg.message_count_req++;
+                }
+
+                if( cfg.message_count_req > MAXMESSAGE )
+                {
+                    cfg.message_count_req = 0;
                 }
 
                 if ( 0 == cfg.message_count_req )

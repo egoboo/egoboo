@@ -33,6 +33,10 @@
 #define MAXCOMMANDSIZE                  128          // Max number of points in a command
 #define MAXCOMMANDENTRIES               512         // Max entries in a command list ( trigs )
 
+#define MD2START                        0x32504449  // MD2 files start with these four bytes
+#define MD2MAXLOADSIZE                  (512*1024)  // Don't load any models bigger than 512k
+#define MD2LIGHTINDICES                 162         // MD2's store vertices as x,y,z,normal
+
 struct s_md2_ogl_commandlist
 {
     Uint16  count;                  // Number of commands

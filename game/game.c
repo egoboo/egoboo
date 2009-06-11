@@ -78,6 +78,10 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void quit_module();
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 struct s_chr_setup_info
 {
     STRING spawn_name;
@@ -128,6 +132,16 @@ bool_t  pausekeyready      = btrue;
 bool_t  overrideslots      = bfalse;
 bool_t  screenshotkeyready = btrue;
 
+//End text
+char   endtext[MAXENDTEXT];     // The end-module text
+int    endtextwrite = 0;
+
+// Status displays
+bool_t staton     = btrue;
+int    statdelay  = 25;
+int    numstat    = 0;
+Uint16 statlist[MAXSTAT];
+
 char idsz_string[5] = { '\0' };
 
 mesh_t    * PMesh   = _mesh + 0;
@@ -138,6 +152,8 @@ bool_t  pitsfall  = bfalse;
 Uint32  pitx;
 Uint32  pity;
 Uint32  pitz;
+
+Uint16  glouseangle = 0;                                        // actually still used
 
 animtile_data_t       animtile_data;
 animtile_instance_t   animtile[2];
@@ -4484,12 +4500,12 @@ bool_t load_module( const char *smallname )
         // do something to remove the ambient light fromt the mesh
         int cnt;
         Uint16 min_vrt_a = 255;
-        for(cnt=0; cnt<PMesh->info.vertcount; cnt++)
+        for (cnt = 0; cnt < PMesh->info.vertcount; cnt++)
         {
             min_vrt_a = MIN(min_vrt_a, PMesh->mem.vrt_a[cnt]);
         }
 
-        for(cnt=0; cnt<PMesh->info.vertcount; cnt++)
+        for (cnt = 0; cnt < PMesh->info.vertcount; cnt++)
         {
             PMesh->mem.vrt_a[cnt] -= min_vrt_a;
         }
@@ -5377,111 +5393,6 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
-{
-    int    i;
-    float  flip;
-    bool_t vertices_match, frames_match;
-
-    mad_t * pmad;
-
-    if ( NULL == pinst ) return bfalse;
-
-    // get the model. try to heal a bad model.
-    if ( INVALID_MAD(pinst->imad) ) return bfalse;
-    pmad = MadList + pinst->imad;
-
-    // handle the default parameters
-    if ( vmin < 0 ) vmin = 0;
-    if ( vmax < 0 ) vmax = pmad->md2.vertices - 1;
-
-    vmin = CLIP(vmin, 0, pmad->md2.vertices - 1);
-    vmax = CLIP(vmax, 0, pmad->md2.vertices - 1);
-
-    flip = pinst->lip / 256.0f;
-
-    // test to see if we have already calculated this data
-    vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
-
-    frames_match = ( pinst->save_frame_nxt == pinst->frame_nxt && flip == 1.0f ) ||
-                   ( pinst->save_frame_lst == pinst->frame_lst && flip == 0.0f ) ||
-                   ( pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst && pinst->save_flip == flip );
-
-    if ( frames_match && vertices_match ) return bfalse;
-
-    if ( pinst->frame_nxt == pinst->frame_lst || flip == 0.0f )
-    {
-        for ( i = vmin; i <= vmax; i++)
-        {
-            Uint16 vrta_lst;
-
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i];
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i];
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i];
-            pinst->vlst[i].pos[WW] = 1.0f;
-
-            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
-
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX];
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY];
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ];
-
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
-        }
-    }
-    else if ( flip == 1.0f )
-    {
-        for ( i = vmin; i <= vmax; i++)
-        {
-            Uint16 vrta_nxt;
-
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_nxt].vrtx[i];
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_nxt].vrty[i];
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_nxt].vrtz[i];
-            pinst->vlst[i].pos[WW] = 1.0f;
-
-            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
-
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_nxt][XX];
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_nxt][YY];
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_nxt][ZZ];
-
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_nxt];
-        }
-    }
-    else
-    {
-        for ( i = vmin; i <= vmax; i++)
-        {
-            Uint16 vrta_lst, vrta_nxt;
-
-            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + (Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i]) * flip;
-            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + (Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i]) * flip;
-            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + (Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i]) * flip;
-            pinst->vlst[i].pos[WW] = 1.0f;
-
-            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
-            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
-
-            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + (kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX]) * flip;
-            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + (kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY]) * flip;
-            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + (kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ]) * flip;
-
-            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + (indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst]) * flip;
-        }
-    }
-
-    pinst->save_frame     = update_wld;
-    pinst->save_vmin      = MIN(pinst->save_vmin, vmin);
-    pinst->save_vmax      = MAX(pinst->save_vmax, vmax);
-    pinst->save_frame_nxt = pinst->frame_nxt;
-    pinst->save_frame_lst = pinst->frame_lst;
-
-    return btrue;
-}
-
-
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 mesh_t * set_PMesh( mesh_t * pmpd )
 {
@@ -5511,7 +5422,7 @@ camera_t * set_PCamera( camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 bool_t water_data_init( water_data_t * pdata )
 {
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     memset( pdata, 0, sizeof(water_data_t) );
 
@@ -5525,7 +5436,7 @@ bool_t water_data_init( water_data_t * pdata )
     if ( pdata->light )
     {
         int layer;
-        for( layer = 0; layer < pdata->layer_count; layer++ )
+        for ( layer = 0; layer < pdata->layer_count; layer++ )
         {
             pdata->layer_alpha[layer] = 255;  // Some cards don't support alpha lights...
         }
@@ -5542,17 +5453,17 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
 
     memset(pinst, 0, sizeof(water_instance_t));
 
-    for( layer = 0; layer < MAXWATERLAYER; layer++)
+    for ( layer = 0; layer < MAXWATERLAYER; layer++)
     {
         pinst->layer_frame[layer] = rand() & WATERFRAMEAND;
     }
 
-    if( NULL != pdata )
+    if ( NULL != pdata )
     {
         pinst->surface_level = pdata->surface_level;
         pinst->douse_level   = pdata->douse_level;
 
-        for( layer = 0; layer < MAXWATERLAYER; layer++)
+        for ( layer = 0; layer < MAXWATERLAYER; layer++)
         {
             pinst->layer_z[layer] = pdata->layer_z[layer];
         }
@@ -5566,7 +5477,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t weather_data_init( weather_data_t * pdata )
 {
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     memset( pdata, 0, sizeof(weather_data_t) );
 
@@ -5578,11 +5489,11 @@ bool_t weather_data_init( weather_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     memset( pinst, 0, sizeof(weather_instance_t) );
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     pinst->time = pdata->timer_reset;
 
@@ -5592,7 +5503,7 @@ bool_t weather_instance_init( weather_instance_t * pinst, weather_data_t * pdata
 //--------------------------------------------------------------------------------------------
 bool_t fog_data_init( fog_data_t * pdata )
 {
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     pdata->top           = 100;
     pdata->bottom        = 0.0f;
@@ -5607,14 +5518,14 @@ bool_t fog_data_init( fog_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     memset( pinst, 0, sizeof(fog_instance_t) );
 
     pinst->distance = 100;
     pinst->on       = cfg.fog_allowed;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     pinst->top    = pdata->top;
     pinst->bottom = pdata->bottom;
@@ -5633,7 +5544,7 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t damagetile_data_init( damagetile_data_t * pdata )
 {
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     pdata->parttype = -1;
     pdata->partand  = 255;
@@ -5647,14 +5558,14 @@ bool_t damagetile_data_init( damagetile_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_t * pdata )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     memset( pinst, 0, sizeof(damagetile_instance_t) );
 
     pinst->sound_time   = TILESOUNDTIME;
     pinst->min_distance = 9999;
 
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     return btrue;
 }
@@ -5663,7 +5574,7 @@ bool_t damagetile_instance_init( damagetile_instance_t * pinst, damagetile_data_
 //--------------------------------------------------------------------------------------------
 bool_t animtile_data_init( animtile_data_t * pdata )
 {
-    if( NULL == pdata ) return bfalse;
+    if ( NULL == pdata ) return bfalse;
 
     memset( pdata, 0, sizeof(animtile_data_t) );
 
@@ -5677,7 +5588,7 @@ bool_t animtile_data_init( animtile_data_t * pdata )
 //--------------------------------------------------------------------------------------------
 bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata )
 {
-    if( NULL == pinst ) return bfalse;
+    if ( NULL == pinst ) return bfalse;
 
     pinst[0].frame_and  = (1 << 3) - 1;
     pinst[0].base_and   = ~pinst[0].frame_and;
@@ -5685,7 +5596,7 @@ bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pd
     pinst[1].frame_and  = (1 << 4) - 1;
     pinst[1].base_and   = ~pinst[1].frame_and;
 
-    if( NULL != pdata ) return bfalse;
+    if ( NULL != pdata ) return bfalse;
 
     pinst[0].frame_and = pdata->frame_and;
     pinst[0].base_and  = ~pinst[0].frame_and;
@@ -5783,9 +5694,9 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_a = fTmp;
 
     light_d = 0.0f;
-    if( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
+    if ( ABS(light_x) + ABS(light_y) + ABS(light_z) > 0 )
     {
-        fTmp = SQRT( light_x*light_x + light_y*light_y + light_z*light_z );
+        fTmp = SQRT( light_x * light_x + light_y * light_y + light_z * light_z );
 
         // get the extra magnitude of the direct light
         light_d = (1.0f - light_a) * fTmp;
@@ -5831,7 +5742,7 @@ void read_wawalite( const char *modname )
 
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     gfx.usefaredge = bfalse;
-    if ( cTmp == 'T' || cTmp == 't' )  gfx.usefaredge = btrue;
+    /* if ( cTmp == 'T' || cTmp == 't' ) */  gfx.usefaredge = btrue;
 
     PCamera->swing = 0;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingrate = fTmp;
@@ -5916,7 +5827,7 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
     float temp;
     Uint8 spek;
 
-    if( NULL == pinst || NULL == pdata ) return bfalse;
+    if ( NULL == pinst || NULL == pdata ) return bfalse;
 
     for ( layer = 0; layer < pdata->layer_count; layer++ )
     {
@@ -5957,5 +5868,250 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
     }
 
     return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void reset_end_text()
+{
+    // ZZ> This function resets the end-module text
+    endtextwrite = sprintf( endtext, "The game has ended..." );
+
+    /*
+    if ( numpla > 1 )
+    {
+        endtextwrite = sprintf( endtext, "Sadly, they were never heard from again..." );
+    }
+    else
+    {
+        if ( numpla == 0 )
+        {
+            // No players???
+            endtextwrite = sprintf( endtext, "The game has ended..." );
+        }
+        else
+        {
+            // One player
+            endtextwrite = sprintf( endtext, "Sadly, no trace was ever found..." );
+        }
+    }
+    */
+
+    str_add_linebreaks( endtext, endtextwrite, 20 );
+}
+
+//--------------------------------------------------------------------------------------------
+void append_end_text( script_state_t * pstate, int message, Uint16 character )
+{
+    // ZZ> This function appends a message to the end-module text
+    int read, cnt;
+    char *eread;
+    char szTmp[256];
+    char cTmp, lTmp;
+    Uint16 target, owner;
+
+    target = ChrList[character].ai.target;
+    owner = ChrList[character].ai.owner;
+    if ( message < msgtotal )
+    {
+        // Copy the message
+        read = msgindex[message];
+        cnt = 0;
+        cTmp = msgtext[read];  read++;
+
+        while ( cTmp != 0 )
+        {
+            if ( cTmp == '%' )
+            {
+                // Escape sequence
+                eread = szTmp;
+                szTmp[0] = 0;
+                cTmp = msgtext[read];  read++;
+                if ( cTmp == 'n' )  // Name
+                {
+                    if ( ChrList[character].nameknown )
+                        sprintf( szTmp, "%s", ChrList[character].name );
+                    else
+                    {
+                        lTmp = CapList[ChrList[character].model].classname[0];
+                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
+                        else
+                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
+                    }
+                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                }
+                if ( cTmp == 'c' )  // Class name
+                {
+                    eread = CapList[ChrList[character].model].classname;
+                }
+                if ( cTmp == 't' )  // Target name
+                {
+                    if ( ChrList[target].nameknown )
+                        sprintf( szTmp, "%s", ChrList[target].name );
+                    else
+                    {
+                        lTmp = CapList[ChrList[target].model].classname[0];
+                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
+                        else
+                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
+                    }
+                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                }
+                if ( cTmp == 'o' )  // Owner name
+                {
+                    if ( ChrList[owner].nameknown )
+                        sprintf( szTmp, "%s", ChrList[owner].name );
+                    else
+                    {
+                        lTmp = CapList[ChrList[owner].model].classname[0];
+                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
+                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
+                        else
+                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
+                    }
+                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
+                }
+                if ( cTmp == 's' )  // Target class name
+                {
+                    eread = CapList[ChrList[target].model].classname;
+                }
+                if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
+                {
+                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
+                }
+                if ( NULL == pstate )
+                {
+                    sprintf( szTmp, "%%%c???", cTmp );
+                }
+                else
+                {
+                    if ( cTmp == 'd' )  // tmpdistance value
+                    {
+                        sprintf( szTmp, "%d", pstate->distance );
+                    }
+                    if ( cTmp == 'x' )  // tmpx value
+                    {
+                        sprintf( szTmp, "%d", pstate->x );
+                    }
+                    if ( cTmp == 'y' )  // tmpy value
+                    {
+                        sprintf( szTmp, "%d", pstate->y );
+                    }
+                    if ( cTmp == 'D' )  // tmpdistance value
+                    {
+                        sprintf( szTmp, "%2d", pstate->distance );
+                    }
+                    if ( cTmp == 'X' )  // tmpx value
+                    {
+                        sprintf( szTmp, "%2d", pstate->x );
+                    }
+                    if ( cTmp == 'Y' )  // tmpy value
+                    {
+                        sprintf( szTmp, "%2d", pstate->y );
+                    }
+
+                }
+                if ( cTmp == 'a' )  // Character's ammo
+                {
+                    if ( ChrList[character].ammoknown )
+                        sprintf( szTmp, "%d", ChrList[character].ammo );
+                    else
+                        sprintf( szTmp, "?" );
+                }
+                if ( cTmp == 'k' )  // Kurse state
+                {
+                    if ( ChrList[character].iskursed )
+                        sprintf( szTmp, "kursed" );
+                    else
+                        sprintf( szTmp, "unkursed" );
+                }
+                if ( cTmp == 'p' )  // Character's possessive
+                {
+                    if ( ChrList[character].gender == GENFEMALE )
+                    {
+                        sprintf( szTmp, "her" );
+                    }
+                    else
+                    {
+                        if ( ChrList[character].gender == GENMALE )
+                        {
+                            sprintf( szTmp, "his" );
+                        }
+                        else
+                        {
+                            sprintf( szTmp, "its" );
+                        }
+                    }
+                }
+                if ( cTmp == 'm' )  // Character's gender
+                {
+                    if ( ChrList[character].gender == GENFEMALE )
+                    {
+                        sprintf( szTmp, "female " );
+                    }
+                    else
+                    {
+                        if ( ChrList[character].gender == GENMALE )
+                        {
+                            sprintf( szTmp, "male " );
+                        }
+                        else
+                        {
+                            sprintf( szTmp, " " );
+                        }
+                    }
+                }
+                if ( cTmp == 'g' )  // Target's possessive
+                {
+                    if ( ChrList[target].gender == GENFEMALE )
+                    {
+                        sprintf( szTmp, "her" );
+                    }
+                    else
+                    {
+                        if ( ChrList[target].gender == GENMALE )
+                        {
+                            sprintf( szTmp, "his" );
+                        }
+                        else
+                        {
+                            sprintf( szTmp, "its" );
+                        }
+                    }
+                }
+                if ( cTmp == '#' )  // New line (enter)
+                {
+                    sprintf( szTmp, "\n" );
+                }
+
+                // Copy the generated text
+                cTmp = *eread;  eread++;
+
+                while ( cTmp != 0 && endtextwrite < MAXENDTEXT - 1 )
+                {
+                    endtext[endtextwrite] = cTmp;
+                    cTmp = *eread;  eread++;
+                    endtextwrite++;
+                }
+            }
+            else
+            {
+                // Copy the letter
+                if ( endtextwrite < MAXENDTEXT - 1 )
+                {
+                    endtext[endtextwrite] = cTmp;
+                    endtextwrite++;
+                }
+            }
+
+            cTmp = msgtext[read];  read++;
+            cnt++;
+        }
+    }
+
+    endtext[endtextwrite] = 0;
+
+    str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 

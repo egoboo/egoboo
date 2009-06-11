@@ -87,63 +87,12 @@ typedef struct s_dynalight dynalight_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-gfx_config_t     gfx;
-
-SDLX_video_parameters_t sdl_vparam;
-oglx_video_parameters_t ogl_vparam;
-
-Uint8            maxformattypes = 0;
-STRING           TxFormatSupported[20];      // List of texture formats that we search for
-
-GLXtexture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
-GLXtexture       TxFont;                     // OpenGL font surface
-GLXtexture       TxBars;                     // OpenGL status bar surface
-GLXtexture       TxBlip;                     // OpenGL you are here surface
-GLXtexture       TxMap;                      // OpenGL map surface
-GLXtexture       TxTexture[MAX_TEXTURE];     // All textures
-
-Uint32          TxTitleImage_count = 0;
-GLXtexture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
-
-
-Uint16                dolist_count = 0;
-obj_registry_entity_t dolist[DOLIST_SIZE];
-
-bool_t           meshnotexture = bfalse;
-Uint16           meshlasttexture = (Uint16)~0;
-
-renderlist_t     renderlist = {0, 0, 0, 0, 0};
-
-float            light_a = 0.0f, light_d = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
-Uint8            lightdirectionlookup[65536];
-float            lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
-float            lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
-float            indextoenvirox[MD2LIGHTINDICES];
-float            lighttoenviroy[256];
-Uint32           lighttospek[MAXSPEKLEVEL][256];
-
-
-int rotmeshtopside;
-int rotmeshbottomside;
-int rotmeshup;
-int rotmeshdown;
-
-Uint8   mapon         = bfalse;
-Uint8   mapvalid      = bfalse;
-Uint8   youarehereon  = bfalse;
-Uint16  numblip       = 0;
-Uint16  blipx[MAXBLIP];
-Uint16  blipy[MAXBLIP];
-Uint8   blipc[MAXBLIP];
-
-
 static bool_t _sdl_atexit_registered    = bfalse;
 static bool_t _sdl_initialized_graphics = bfalse;
 static bool_t _sdl_initialized_base     = bfalse;
 static bool_t _ogl_initialized          = bfalse;
 
-static void sdlinit_base();
-static void sdlinit_graphics();
+static Uint8 asciitofont[256];                                   // Conversion table
 
 static float sinlut[MAXLIGHTROTATION];
 static float coslut[MAXLIGHTROTATION];
@@ -178,6 +127,71 @@ static bool_t             gfx_page_flip_requested = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+gfx_config_t     gfx;
+
+SDLX_video_parameters_t sdl_vparam;
+oglx_video_parameters_t ogl_vparam;
+
+Uint8            maxformattypes = 0;
+STRING           TxFormatSupported[20];      // List of texture formats that we search for
+
+GLXtexture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
+GLXtexture       TxFont;                     // OpenGL font surface
+GLXtexture       TxBars;                     // OpenGL status bar surface
+GLXtexture       TxBlip;                     // OpenGL you are here surface
+GLXtexture       TxMap;                      // OpenGL map surface
+GLXtexture       TxTexture[MAX_TEXTURE];     // All textures
+
+Uint32          TxTitleImage_count = 0;
+GLXtexture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+
+Uint16                dolist_count = 0;
+obj_registry_entity_t dolist[DOLIST_SIZE];
+
+bool_t           meshnotexture = bfalse;
+Uint16           meshlasttexture = (Uint16)~0;
+
+renderlist_t     renderlist = {0, 0, 0, 0, 0};
+
+float            light_a = 0.0f, light_d = 0.0f, light_x = 0.0f, light_y = 0.0f, light_z = 0.0f;
+Uint8            lightdirectionlookup[65536];
+float            lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
+float            lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
+float            indextoenvirox[MADLIGHTINDICES];
+float            lighttoenviroy[256];
+Uint32           lighttospek[MAXSPEKLEVEL][256];
+
+int rotmeshtopside;
+int rotmeshbottomside;
+int rotmeshup;
+int rotmeshdown;
+
+Uint8   mapon         = bfalse;
+Uint8   mapvalid      = bfalse;
+Uint8   youarehereon  = bfalse;
+Uint16  numblip       = 0;
+Uint16  blipx[MAXBLIP];
+Uint16  blipy[MAXBLIP];
+Uint8   blipc[MAXBLIP];
+
+Uint16  msgtimechange = 0;
+Uint16  msgstart      = 0;
+Sint16  msgtime[MAXMESSAGE];
+char    msgtextdisplay[MAXMESSAGE][MESSAGESIZE];
+
+int  nullicon  = 0;
+int  keybicon  = 0;
+int  mousicon  = 0;
+int  joyaicon  = 0;
+int  joybicon  = 0;
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+static void sdlinit_base();
+static void sdlinit_graphics();
+
 static void flip_pages();
 
 static void font_release();
@@ -833,251 +847,6 @@ void debug_message( const char *text )
 }
 
 //--------------------------------------------------------------------------------------------
-void reset_end_text()
-{
-    // ZZ> This function resets the end-module text
-    endtextwrite = sprintf( endtext, "The game has ended..." );
-
-    /*
-    if ( numpla > 1 )
-    {
-        endtextwrite = sprintf( endtext, "Sadly, they were never heard from again..." );
-    }
-    else
-    {
-        if ( numpla == 0 )
-        {
-            // No players???
-            endtextwrite = sprintf( endtext, "The game has ended..." );
-        }
-        else
-        {
-            // One player
-            endtextwrite = sprintf( endtext, "Sadly, no trace was ever found..." );
-        }
-    }
-    */
-
-    str_add_linebreaks( endtext, endtextwrite, 20 );
-}
-
-//--------------------------------------------------------------------------------------------
-void append_end_text( script_state_t * pstate, int message, Uint16 character )
-{
-    // ZZ> This function appends a message to the end-module text
-    int read, cnt;
-    char *eread;
-    char szTmp[256];
-    char cTmp, lTmp;
-    Uint16 target, owner;
-
-    target = ChrList[character].ai.target;
-    owner = ChrList[character].ai.owner;
-    if ( message < msgtotal )
-    {
-        // Copy the message
-        read = msgindex[message];
-        cnt = 0;
-        cTmp = msgtext[read];  read++;
-
-        while ( cTmp != 0 )
-        {
-            if ( cTmp == '%' )
-            {
-                // Escape sequence
-                eread = szTmp;
-                szTmp[0] = 0;
-                cTmp = msgtext[read];  read++;
-                if ( cTmp == 'n' )  // Name
-                {
-                    if ( ChrList[character].nameknown )
-                        sprintf( szTmp, "%s", ChrList[character].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[character].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", CapList[ChrList[character].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[character].model].classname );
-                    }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
-                }
-                if ( cTmp == 'c' )  // Class name
-                {
-                    eread = CapList[ChrList[character].model].classname;
-                }
-                if ( cTmp == 't' )  // Target name
-                {
-                    if ( ChrList[target].nameknown )
-                        sprintf( szTmp, "%s", ChrList[target].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[target].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", CapList[ChrList[target].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[target].model].classname );
-                    }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
-                }
-                if ( cTmp == 'o' )  // Owner name
-                {
-                    if ( ChrList[owner].nameknown )
-                        sprintf( szTmp, "%s", ChrList[owner].name );
-                    else
-                    {
-                        lTmp = CapList[ChrList[owner].model].classname[0];
-                        if ( lTmp == 'A' || lTmp == 'E' || lTmp == 'I' || lTmp == 'O' || lTmp == 'U' )
-                            sprintf( szTmp, "an %s", CapList[ChrList[owner].model].classname );
-                        else
-                            sprintf( szTmp, "a %s", CapList[ChrList[owner].model].classname );
-                    }
-                    if ( cnt == 0 && szTmp[0] == 'a' )  szTmp[0] = 'A';
-                }
-                if ( cTmp == 's' )  // Target class name
-                {
-                    eread = CapList[ChrList[target].model].classname;
-                }
-                if ( cTmp >= '0' && cTmp <= '3' )  // Target's skin name
-                {
-                    eread = CapList[ChrList[target].model].skinname[cTmp-'0'];
-                }
-                if ( NULL == pstate )
-                {
-                    sprintf( szTmp, "%%%c???", cTmp );
-                }
-                else
-                {
-                    if ( cTmp == 'd' )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%d", pstate->distance );
-                    }
-                    if ( cTmp == 'x' )  // tmpx value
-                    {
-                        sprintf( szTmp, "%d", pstate->x );
-                    }
-                    if ( cTmp == 'y' )  // tmpy value
-                    {
-                        sprintf( szTmp, "%d", pstate->y );
-                    }
-                    if ( cTmp == 'D' )  // tmpdistance value
-                    {
-                        sprintf( szTmp, "%2d", pstate->distance );
-                    }
-                    if ( cTmp == 'X' )  // tmpx value
-                    {
-                        sprintf( szTmp, "%2d", pstate->x );
-                    }
-                    if ( cTmp == 'Y' )  // tmpy value
-                    {
-                        sprintf( szTmp, "%2d", pstate->y );
-                    }
-
-                }
-                if ( cTmp == 'a' )  // Character's ammo
-                {
-                    if ( ChrList[character].ammoknown )
-                        sprintf( szTmp, "%d", ChrList[character].ammo );
-                    else
-                        sprintf( szTmp, "?" );
-                }
-                if ( cTmp == 'k' )  // Kurse state
-                {
-                    if ( ChrList[character].iskursed )
-                        sprintf( szTmp, "kursed" );
-                    else
-                        sprintf( szTmp, "unkursed" );
-                }
-                if ( cTmp == 'p' )  // Character's possessive
-                {
-                    if ( ChrList[character].gender == GENFEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENMALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
-                if ( cTmp == 'm' )  // Character's gender
-                {
-                    if ( ChrList[character].gender == GENFEMALE )
-                    {
-                        sprintf( szTmp, "female " );
-                    }
-                    else
-                    {
-                        if ( ChrList[character].gender == GENMALE )
-                        {
-                            sprintf( szTmp, "male " );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, " " );
-                        }
-                    }
-                }
-                if ( cTmp == 'g' )  // Target's possessive
-                {
-                    if ( ChrList[target].gender == GENFEMALE )
-                    {
-                        sprintf( szTmp, "her" );
-                    }
-                    else
-                    {
-                        if ( ChrList[target].gender == GENMALE )
-                        {
-                            sprintf( szTmp, "his" );
-                        }
-                        else
-                        {
-                            sprintf( szTmp, "its" );
-                        }
-                    }
-                }
-                if ( cTmp == '#' )  // New line (enter)
-                {
-                    sprintf( szTmp, "\n" );
-                }
-
-                // Copy the generated text
-                cTmp = *eread;  eread++;
-
-                while ( cTmp != 0 && endtextwrite < MAXENDTEXT - 1 )
-                {
-                    endtext[endtextwrite] = cTmp;
-                    cTmp = *eread;  eread++;
-                    endtextwrite++;
-                }
-            }
-            else
-            {
-                // Copy the letter
-                if ( endtextwrite < MAXENDTEXT - 1 )
-                {
-                    endtext[endtextwrite] = cTmp;
-                    endtextwrite++;
-                }
-            }
-
-            cTmp = msgtext[read];  read++;
-            cnt++;
-        }
-    }
-
-    endtext[endtextwrite] = 0;
-
-    str_add_linebreaks( endtext, endtextwrite, 20 );
-}
-
-//--------------------------------------------------------------------------------------------
 void create_szfpstext( int frames )
 {
     // ZZ> This function fills in the number of frames in "000 Frames per Second"
@@ -1104,7 +873,7 @@ void make_renderlist( mesh_t * pmesh, camera_t * pcam )
     tile_info_t * tlist;
 
     // Clear old render lists
-    if( NULL != renderlist.pmesh )
+    if ( NULL != renderlist.pmesh )
     {
         // clear out the inrenderlist flag for the old mesh
         tlist = renderlist.pmesh->mem.tile_list;
@@ -1127,12 +896,12 @@ void make_renderlist( mesh_t * pmesh, camera_t * pcam )
     renderlist.ndr_count = 0;
 
     // Make sure it doesn't die ugly !!!BAD!!!
-    if( NULL == pcam ) return;
+    if ( NULL == pcam ) return;
 
     // Find the render area corners
     project_view( pcam );
 
-    if( NULL == pmesh ) return;
+    if ( NULL == pmesh ) return;
 
     renderlist.pmesh = pmesh;
     tlist = pmesh->mem.tile_list;
@@ -2002,10 +1771,10 @@ void light_fans( renderlist_t * prlist )
     mesh_info_t * pinfo;
     mesh_mem_t  * pmem;
 
-    if( NULL == prlist ) return;
+    if ( NULL == prlist ) return;
 
     pmesh = prlist->pmesh;
-    if(NULL == pmesh) return;
+    if (NULL == pmesh) return;
     pinfo = &(pmesh->info);
     pmem  = &(pmesh->mem);
 
@@ -2447,12 +2216,12 @@ void light_particles( mesh_t * pmesh )
             Uint16  imad = pchr->inst.imad;
 
             // grab the lighting from the vertex that the particle is attached to
-            if( 0 == pprt->vrt_off )
+            if ( 0 == pprt->vrt_off )
             {
                 // not sure what to do here, since it is attached to the object's origin
                 pprt->inst.light = 0.5f * (pchr->inst.max_light + pchr->inst.min_light);
             }
-            else if( VALID_MAD(imad) )
+            else if ( VALID_MAD(imad) )
             {
                 int vertex = MAX(0, MadList[imad].md2.vertices - pprt->vrt_off);
                 int light  = pchr->inst.color_amb + pchr->inst.vlst[vertex].color_dir;
@@ -2772,9 +2541,9 @@ void draw_scene_mesh( renderlist_t * prlist )
     int cnt, tnc;
     mesh_t * pmesh;
 
-    if( NULL == prlist ) return;
+    if ( NULL == prlist ) return;
 
-    if( NULL == prlist->pmesh ) return;
+    if ( NULL == prlist->pmesh ) return;
     pmesh = prlist->pmesh;
 
     //---------------------------------------------
@@ -4327,10 +4096,11 @@ void sdlinit_graphics()
     sdl_vparam.flags.double_buf          = SDL_TRUE;
     sdl_vparam.flags.full_screen         = cfg.fullscreen_req;
 
+    sdl_vparam.gl_att.buffer_size        = cfg.scrd_req;
     sdl_vparam.gl_att.depth_size         = cfg.scrz_req;
-    sdl_vparam.gl_att.multi_buffers      = (cfg.multisamples > 1) ? 1 : 0;
-    sdl_vparam.gl_att.multi_samples      = cfg.multisamples;
-    sdl_vparam.gl_att.accelerated_visual = GL_FALSE;
+    sdl_vparam.gl_att.multi_buffers      = 1; //(cfg.multisamples > 1) ? 1 : 0;
+    sdl_vparam.gl_att.multi_samples      = 4; //cfg.multisamples;
+    sdl_vparam.gl_att.accelerated_visual = GL_TRUE;
 
     ogl_vparam.dither         = GL_FALSE;
     ogl_vparam.antialiasing   = GL_TRUE;
@@ -4352,40 +4122,24 @@ void sdlinit_graphics()
     }
     else
     {
-        tex_params.userAnisotropy = ogl_vparam.userAnisotropy;
+        // synch the texture parameters with the video mode
+        if( ogl_vparam.antialiasing )
+        {
+            // at least some antialiasing
+            tex_params.userAnisotropy = ogl_vparam.userAnisotropy;
+        }
+        else
+        {
+            // no antialiasing at all
+            tex_params.texturefilter  = MIN(tex_params.texturefilter, TX_TRILINEAR_2);
+            tex_params.userAnisotropy = 0.0f;
+        }
+
         log_message( "Success!\n" );
     }
 
     _sdl_initialized_graphics = btrue;
 
-
-//    /* Set the OpenGL Attributes */
-//#ifndef __unix__
-//    SDL_GL_SetAttribute( SDL_GL_RED_SIZE,   colordepth );
-//    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, colordepth  );
-//    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE,  colordepth );
-//    if ( cfg.scrd_req > colordepth * 3)
-//    {
-//        SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, cfg.scrd_req - colordepth * 3 );
-//    }
-//#endif
-//
-//  //Some bug causes non 32-bit to crash on windows, so send them a warning
-//#ifdef WIN32
-//  if (cfg.scrd_req != 32) log_warning( "Color depth is not 32! This can cause the game to crash upon startup. See setup.txt\n" );
-//#endif
-//
-//    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, btrue );
-//    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, cfg.scrz_req );
-//
-//    //Check if antialiasing is enabled
-//    if ( gfx.antialiasing && gfx.multisamples > 1 )
-//    {
-//      Sint8 success = 0;
-//        success += SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, GL_TRUE);
-//      success += SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, gfx.multisamples);
-//        if(success != 0) log_message("Could not set X%i antialiasing. (Not supported by your gfx card?)\n");
-//    }
 }
 
 
@@ -4677,13 +4431,13 @@ void load_graphics()
     GLenum quality;
 
     // Check if the computer graphic driver supports anisotropic filtering
-    if ( tex_params.texturefilter == TX_ANISOTROPIC )
+
+    if( !ogl_caps.anisotropic_supported )
     {
-        GL_DEBUG(glGetFloatv)(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_caps.maxAnisotropy );
-        if ( !strstr( ( char* )GL_DEBUG(glGetString)(GL_EXTENSIONS ), "GL_EXT_texture_filter_anisotropic" ) )
+        if( tex_params.texturefilter >= TX_ANISOTROPIC )
         {
+            tex_params.texturefilter >= TX_TRILINEAR_2;
             log_warning( "Your graphics driver does not support anisotropic filtering.\n" );
-            tex_params.texturefilter = TX_TRILINEAR_2; // Set filtering to trillienar instead
         }
     }
 
@@ -4705,20 +4459,20 @@ void load_graphics()
     }
 
     // Enable gourad shading? (Important!)
-    GL_DEBUG(glShadeModel)(gfx.shading );
+    GL_DEBUG(glShadeModel)( gfx.shading );
 
     // Enable antialiasing?
-    if ( gfx.antialiasing > 0 )
+    if ( gfx.antialiasing )
     {
         GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
 
-        GL_DEBUG(glEnable)(GL_LINE_SMOOTH );
+        GL_DEBUG(glEnable)( GL_LINE_SMOOTH );
         GL_DEBUG(glHint)(GL_LINE_SMOOTH_HINT,    GL_NICEST );
 
-        GL_DEBUG(glEnable)(GL_POINT_SMOOTH );
+        GL_DEBUG(glEnable)( GL_POINT_SMOOTH );
         GL_DEBUG(glHint)(GL_POINT_SMOOTH_HINT,   GL_NICEST );
 
-        GL_DEBUG(glDisable)(GL_POLYGON_SMOOTH );
+        GL_DEBUG(glDisable)( GL_POLYGON_SMOOTH );
         GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT,    GL_FASTEST );
 
         // PLEASE do not turn this on unless you use
@@ -4798,7 +4552,7 @@ void make_lighttable( float lx, float ly, float lz, float ambi )
         coslut[cnt] = COS( TWO_PI * cnt / MAXLIGHTROTATION );
     }
 
-    for ( cnt = 0; cnt < MD2LIGHTINDICES - 1; cnt++ )  // Spikey mace
+    for ( cnt = 0; cnt < MADLIGHTINDICES - 1; cnt++ )  // Spikey mace
     {
         for ( tnc = 0; tnc < MAXLIGHTROTATION; tnc++ )
         {
@@ -4823,7 +4577,7 @@ void make_enviro( void )
     float x, y, z;
 
     // Find the environment map positions
-    for ( cnt = 0; cnt < MD2LIGHTINDICES; cnt++ )
+    for ( cnt = 0; cnt < MADLIGHTINDICES; cnt++ )
     {
         x = kMd2Normals[cnt][0];
         y = kMd2Normals[cnt][1];
@@ -5252,7 +5006,6 @@ bool_t gfx_config_synch(gfx_config_t * pgfx, egoboo_config_t * pcfg )
     if ( NULL == pcfg ) return bfalse;
 
     pgfx->antialiasing = pcfg->multisamples > 0;
-    pgfx->multisamples = pcfg->multisamples;
 
     pgfx->refon        = pcfg->reflect_allowed;
     pgfx->reffadeor    = pcfg->reflect_fade ? 0 : 255;
@@ -5287,7 +5040,6 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
     pgfx->refon            = btrue;
     pgfx->reffadeor        = 0;
     pgfx->antialiasing     = bfalse;
-    pgfx->multisamples     = 0;
     pgfx->dither           = bfalse;
     pgfx->perspective      = bfalse;
     pgfx->phongon          = btrue;

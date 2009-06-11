@@ -68,7 +68,7 @@ void oglx_report_caps()
     fprintf( LOCAL_STDOUT, "\tGL_MAX_LIST_NESTING    == %d\n",   ogl_caps.max_list_nesting);
     fprintf( LOCAL_STDOUT, "\tGL_MAX_EVAL_ORDER      == %d\n\n", ogl_caps.max_eval_order);
 
-    if( ogl_caps.anisotropic_supported )
+    if ( ogl_caps.anisotropic_supported )
     {
         fprintf( LOCAL_STDOUT, "\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", ogl_caps.maxAnisotropy );
     }
@@ -226,7 +226,7 @@ FILE * oglx_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _oglx_stdout;
 
-    if( NULL == pfile )
+    if ( NULL == pfile )
     {
         _oglx_stdout = stdout;
     }

@@ -29,6 +29,7 @@
 #include "input.h"
 #include "char.h"
 #include "module.h"
+#include "game.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -45,14 +46,14 @@ static int  numfilesent = 0;                            // For network copy
 static int  numfileexpected = 0;                        // For network copy
 static int  numplayerrespond = 0;
 
-int                     lag  = 3;                       // Lag tolerance
-Uint32                  numplatimes = 0;
+int         lag  = 3;                       // Lag tolerance
+Uint32      numplatimes = 0;
 
-int                     numpla = 0;                     // Number of players
-int                     local_numlpla;
-player_t                PlaList[MAXPLAYER];
+int         numpla = 0;                     // Number of players
+int         local_numlpla;
+player_t    PlaList[MAXPLAYER];
 
-FILE * globalnetworkerr = NULL;
+FILE *      globalnetworkerr = NULL;
 
 Uint32  randsave;
 int     networkservice;

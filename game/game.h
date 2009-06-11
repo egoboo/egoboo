@@ -37,6 +37,18 @@ struct s_script_state;
 #define WATERFRAMEAND (MAXWATERFRAME-1)
 #define WATERPOINTS 4                               // Points in a water fan
 
+enum e_latchbutton
+{
+    LATCHBUTTON_LEFT      = ( 1 << 0 ),                      // Character button presses
+    LATCHBUTTON_RIGHT     = ( 1 << 1 ),
+    LATCHBUTTON_JUMP      = ( 1 << 2 ),
+    LATCHBUTTON_ALTLEFT   = ( 1 << 3 ),                      // ( Alts are for grab/drop )
+    LATCHBUTTON_ALTRIGHT  = ( 1 << 4 ),
+    LATCHBUTTON_PACKLEFT  = ( 1 << 5 ),                     // ( Packs are for inventory cycle )
+    LATCHBUTTON_PACKRIGHT = ( 1 << 6 ),
+    LATCHBUTTON_RESPAWN   = ( 1 << 7 )
+};
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 // animtile data in the wawalite.txt file
@@ -174,6 +186,22 @@ struct s_fog_instance
 typedef struct s_fog_instance fog_instance_t;
 extern fog_instance_t fog;
 
+//--------------------------------------------------------------------------------------------
+// Status displays
+
+#define MAXSTAT             16                      // Maximum status displays
+
+extern bool_t staton;
+extern int    statdelay;
+extern int    numstat;
+extern Uint16 statlist[MAXSTAT];
+
+//--------------------------------------------------------------------------------------------
+//End text
+#define MAXENDTEXT 1024
+
+extern char   endtext[MAXENDTEXT];     // The end-module text
+extern int    endtextwrite;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -187,11 +215,13 @@ extern struct s_mesh   * PMesh;
 extern struct s_camera * PCamera;
 
 //Pitty stuff
-extern bool_t          pitskill;          // Do they kill?
-extern bool_t          pitsfall;          // Do they teleport?
-extern Uint32          pitx;
-extern Uint32          pity;
-extern Uint32          pitz;
+extern bool_t  pitskill;          // Do they kill?
+extern bool_t  pitsfall;          // Do they teleport?
+extern Uint32  pitx;
+extern Uint32  pity;
+extern Uint32  pitz;
+
+extern Uint16  glouseangle;                                        // actually still used
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -253,6 +283,11 @@ Uint16 get_particle_target( float pos_x, float pos_y, float pos_z, Uint16 facing
                             Uint16 particletype, Uint8 team, Uint16 donttarget,
                             Uint16 oldtarget );
 
+// object initialization
+void  prime_names( void );
+void  free_all_objects( void );
+
+// Data
 struct s_mesh   * set_PMesh( struct s_mesh * pmpd );
 struct s_camera * set_PCamera( struct s_camera * pcam );
 

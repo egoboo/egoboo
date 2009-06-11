@@ -200,7 +200,7 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
     SDLX_set_stdout( LOCAL_STDOUT );
     SDLX_report_mode( surface, retval );
 
-    if( NULL != retval && retval->flags.opengl )
+    if ( NULL != retval && retval->flags.opengl )
     {
         oglx_set_stdout( LOCAL_STDOUT );
         oglx_report_caps();
@@ -255,7 +255,7 @@ FILE * SDL_GL_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _SDL_GL_stdout;
 
-    if( NULL == pfile )
+    if ( NULL == pfile )
     {
         _SDL_GL_stdout = stdout;
     }

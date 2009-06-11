@@ -1,7 +1,5 @@
 #include "SDL_extensions.h"
-//#include "ogl_extensions.h"
-//#include "ogl_debug.h"
-
+#include <SDL_opengl.h>
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -120,6 +118,7 @@ void SDLX_output_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     fprintf( LOCAL_STDOUT, "\tSDL_GL_GREEN_SIZE         == %d\n", patt->color[1] );
     fprintf( LOCAL_STDOUT, "\tSDL_GL_BLUE_SIZE          == %d\n", patt->color[2] );
     fprintf( LOCAL_STDOUT, "\tSDL_GL_ALPHA_SIZE         == %d\n", patt->color[3] );
+    fprintf( LOCAL_STDOUT, "\tSDL_GL_BUFFER_SIZE        == %d\n", patt->buffer_size );
     fprintf( LOCAL_STDOUT, "\tSDL_GL_DEPTH_SIZE         == %d\n", patt->depth_size );
 #endif
 
@@ -278,10 +277,8 @@ void SDLX_read_sdl_gl_attrib( SDLX_sdl_gl_attrib_t * patt )
     SDL_GL_GetAttribute( SDL_GL_ACCUM_ALPHA_SIZE,       patt->accum + 3           );
     SDL_GL_GetAttribute( SDL_GL_STEREO,               &(patt->stereo)             );
 
-    // if SDL is not aware of the "wglGetPixelFormatAttribivARB" extension (in windows),
-    // these parameters always return the same values
-    //SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &(patt->multi_buffers)      );
-    //SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &(patt->multi_samples)      );
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLEBUFFERS,   &(patt->multi_buffers)      );
+    SDL_GL_GetAttribute( SDL_GL_MULTISAMPLESAMPLES,   &(patt->multi_samples)      );
 
     SDL_GL_GetAttribute( SDL_GL_ACCELERATED_VISUAL,   &(patt->accelerated_visual) );
     SDL_GL_GetAttribute( SDL_GL_SWAP_CONTROL,         &(patt->swap_control)       );
@@ -361,88 +358,132 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
     if (NULL == v) return ret;
 
-    // fix bad colordepth
-    if ( (0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2]) ||
-            (v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > v->depth ) )
+    if( !v->flags.opengl )
     {
-        if (v->depth > 24)
-        {
-            v->gl_att.color[0] = v->gl_att.color[1] = v->gl_att.color[2] = v->depth / 4;
-        }
-        else
-        {
-            // do a kludge in case we have something silly like 16 bit "highcolor" mode
-            v->gl_att.color[0] = v->gl_att.color[2] = v->depth / 3;
-            v->gl_att.color[1] = v->depth - v->gl_att.color[0] - v->gl_att.color[2];
-        }
+        // set the 
+        flags = SDLX_upload_sdl_video_flags( v->flags );
 
-        v->gl_att.color[0] = (v->gl_att.color[0] > 8) ? 8 : v->gl_att.color[0];
-        v->gl_att.color[1] = (v->gl_att.color[1] > 8) ? 8 : v->gl_att.color[1];
-        v->gl_att.color[2] = (v->gl_att.color[2] > 8) ? 8 : v->gl_att.color[2];
-    }
-
-    // fix the alpha value
-    v->gl_att.color[3] = v->depth - v->gl_att.color[0] - v->gl_att.color[1] - v->gl_att.color[2];
-    v->gl_att.color[3] = (v->gl_att.color[3] < 0) ? 0 : v->gl_att.color[3];
-
-
-    // the GL_ATTRIB_* parameters must be set before opening the video mode
-    v->gl_att.doublebuffer = v->flags.double_buf ? SDL_TRUE : SDL_FALSE;
-    v->gl_att.buffer_size  = v->depth;
-    SDLX_set_sdl_gl_attrib( v );
-
-    flags = SDLX_upload_sdl_video_flags( v->flags );
-
-    // try a softer video initialization
-    // if it fails, then it tries to get the closest possible valid video mode
-    ret = NULL;
-    if ( 0 != SDL_VideoModeOK( v->width, v->height, v->depth, flags ) )
-    {
-        ret = SDL_SetVideoMode( v->width, v->height, v->depth, flags );
-    }
-
-    if ( NULL == ret )
-    {
-        // could not set the actual video mode
-        // assume that the MULTISAMPLE stuff is to blame first
-
-        v->gl_att.multi_samples >>= 1;
-        while ( v->gl_att.multi_samples > 1 )
-        {
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1               );
-            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, v->gl_att.multi_samples );
-
-            if ( 0 != SDL_VideoModeOK( v->width, v->height, v->depth, flags ) )
-            {
-                ret = SDL_SetVideoMode( v->width, v->height, v->depth, flags );
-                break;
-            }
-
-            v->gl_att.multi_samples >>= 1;
-        }
-    }
-
-    if ( NULL == ret )
-    {
-        // no multisample buffers
-        v->gl_att.multi_samples = 0;
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0 );
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0 );
-
-        // just take whatever is closest
-        flags |= SDL_ANYFORMAT;
+        // do our one-and-only video initialization
+        ret = NULL;
         if ( 0 != SDL_VideoModeOK( v->width, v->height, v->depth, flags ) )
         {
             ret = SDL_SetVideoMode( v->width, v->height, v->depth, flags );
         }
     }
+    else
+    {
+        int actual_multi_buffers = 0;
+        int buffer_size = v->gl_att.buffer_size;
+
+        if( 0 == buffer_size ) buffer_size = v->depth;
+        if( 0 == buffer_size ) buffer_size = 32;
+        if( buffer_size > 32 ) buffer_size = 32;
+
+        // fix bad colordepth
+        if ( (0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2]) ||
+             (v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
+        {
+            if (buffer_size > 24)
+            {
+                v->gl_att.color[0] = v->gl_att.color[1] = v->gl_att.color[2] = buffer_size / 4;
+            }
+            else
+            {
+                // do a kludge in case we have something silly like 16 bit "highcolor" mode
+                v->gl_att.color[0] = v->gl_att.color[2] = buffer_size / 3;
+                v->gl_att.color[1] = buffer_size - v->gl_att.color[0] - v->gl_att.color[2];
+            }
+
+            v->gl_att.color[0] = (v->gl_att.color[0] > 8) ? 8 : v->gl_att.color[0];
+            v->gl_att.color[1] = (v->gl_att.color[1] > 8) ? 8 : v->gl_att.color[1];
+            v->gl_att.color[2] = (v->gl_att.color[2] > 8) ? 8 : v->gl_att.color[2];
+        }
+
+        // fix the alpha value
+        v->gl_att.color[3] = buffer_size - v->gl_att.color[0] - v->gl_att.color[1] - v->gl_att.color[2];
+        v->gl_att.color[3] = (v->gl_att.color[3] < 0) ? 0 : v->gl_att.color[3];
+
+        // get the proper buffer size
+        buffer_size = v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] + v->gl_att.color[3];
+        buffer_size &= ~7;
+
+        // synch some parameters between OpenGL and SDL
+        v->depth               = buffer_size;
+        v->gl_att.buffer_size  = buffer_size;
+        v->gl_att.doublebuffer = v->flags.double_buf ? SDL_TRUE : SDL_FALSE;
+
+        // the GL_ATTRIB_* parameters must be set before opening the video mode
+        SDLX_set_sdl_gl_attrib( v );
+
+        // set the flags
+        flags = SDLX_upload_sdl_video_flags( v->flags );
+
+        // try a softer video initialization
+        // if it fails, then it tries to get the closest possible valid video mode
+        ret = NULL;
+        if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+        {
+            ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+        }
+
+        // attempt to see if our antialiasing setting is valid 
+
+        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
+
+        if( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
+        {
+            // could not create the multi-buffer with this pixel format
+            // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and 
+            // wglGetPixelFormatAttribivARB could not be found
+            // 
+            // This is the only feedback we have that the initialization failed
+            //
+            // we will try to reduce the amount of super sampling and try again
+
+            v->gl_att.multi_samples -= 1;
+            while ( v->gl_att.multi_samples > 1 && actual_multi_buffers == 0 )
+            {
+                v->gl_att.multi_buffers = 1;
+
+                SDLX_set_sdl_gl_attrib( v );
+
+                if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+                {
+                    ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+                }
+
+                actual_multi_buffers = 0;
+                SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers);
+
+                v->gl_att.multi_samples -= 1;
+            }
+        }
+
+        if ( NULL == ret )
+        {
+            // something is interfering with our ability to generate a screen.
+            // assume that it is a complete incompatability with multisampling
+
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0 );
+            SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 0 );
+
+            if ( 0 != SDL_VideoModeOK( v->width, v->height, buffer_size, flags ) )
+            {
+                ret = SDL_SetVideoMode( v->width, v->height, buffer_size, flags );
+            }
+        }
+
+        // grab the actual status of the multi_buffers and multi_samples
+        v->gl_att.multi_buffers = 0;
+        v->gl_att.multi_samples = 0;
+        v->gl_att.accelerated_visual = SDL_FALSE;
+        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &(v->gl_att.multi_buffers));
+        SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &(v->gl_att.multi_samples));
+        SDL_GL_GetAttribute(SDL_GL_ACCELERATED_VISUAL, &(v->gl_att.accelerated_visual) );
+    }
 
     // update the video parameters
-    if ( NULL == ret )
-    {
-        v->gl_att.multi_buffers = v->gl_att.multi_samples > 0;
-    }
-    else
+    if ( NULL != ret )
     {
         SDLX_Get_Screen_Info(&sdl_scr, make_report);
         SDLX_synch_video_parameters( ret, v );
@@ -473,7 +514,7 @@ SDL_bool SDLX_sdl_gl_attrib_default(SDLX_sdl_gl_attrib_t * patt)
     memset(patt, 0, sizeof(SDLX_sdl_gl_attrib_t));
 
     patt->multi_buffers      = 1;
-    patt->multi_samples      = 16;
+    patt->multi_samples      = 2;
     patt->accelerated_visual = 1;
 
     patt->color[0]    = 8;
@@ -564,7 +605,7 @@ SDLX_video_parameters_t * SDLX_set_mode(SDLX_video_parameters_t * v_old, SDLX_vi
     // assume any problem with setting the graphics mode is with the multisampling
     surface = SDLX_RequestVideoMode(&param_new, make_report);
 
-    if( make_report )
+    if ( make_report )
     {
         // report on the success or failure to set the mode
         SDLX_report_mode( surface, &param_new);
@@ -645,7 +686,7 @@ FILE * SDLX_set_stdout(FILE * pfile)
 {
     FILE * pfile_old = _SDLX_stdout;
 
-    if( NULL == pfile )
+    if ( NULL == pfile )
     {
         _SDLX_stdout = stdout;
     }

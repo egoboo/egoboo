@@ -19,6 +19,7 @@
 
 #include "Md2.h"
 #include "log.h"                //For error logging
+#include "mad.h"
 
 #include "egoboo.h"
 #include "egoboo_endian.h"
@@ -31,6 +32,8 @@ static void md2_rip_commands( md2_ogl_commandlist_t * pclist );
 
 Uint16      md2_loadframe = 0;
 md2_frame_t Md2FrameList[MAXFRAME];
+
+static Uint8 cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

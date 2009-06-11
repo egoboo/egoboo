@@ -22,6 +22,7 @@
 #include "ogl_texture.h"
 #include "module.h"
 #include "mpd.h"
+#include "mad.h"
 
 #include "egoboo.h"
 
@@ -29,6 +30,7 @@
 //--------------------------------------------------------------------------------------------
 struct s_camera;
 struct s_egoboo_config;
+struct s_chr_instance;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -140,11 +142,26 @@ extern renderlist_t renderlist;
 
 //--------------------------------------------------------------------------------------------
 extern Uint8           lightdirectionlookup[65536];                        // For lighting characters
-extern float           lighttable_local[MAXLIGHTROTATION][MD2LIGHTINDICES];
-extern float           lighttable_global[MAXLIGHTROTATION][MD2LIGHTINDICES];
-extern float           indextoenvirox[MD2LIGHTINDICES];                    // Environment map
+extern float           lighttable_local[MAXLIGHTROTATION][MADLIGHTINDICES];
+extern float           lighttable_global[MAXLIGHTROTATION][MADLIGHTINDICES];
+extern float           indextoenvirox[MADLIGHTINDICES];                    // Environment map
 extern float           lighttoenviroy[256];                                // Environment map
 extern Uint32          lighttospek[MAXSPEKLEVEL][256];
+
+//--------------------------------------------------------------------------------------------
+// Display messages
+extern Uint16          msgtimechange;
+extern Uint16          msgstart;                                       // The message queue
+extern Sint16          msgtime[MAXMESSAGE];
+extern char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];        // The displayed text
+
+//--------------------------------------------------------------------------------------------
+// Input player control
+extern int  nullicon;
+extern int  keybicon;
+extern int  mousicon;
+extern int  joyaicon;
+extern int  joybicon;
 
 //--------------------------------------------------------------------------------------------
 // camera optimization
@@ -167,7 +184,6 @@ struct s_gfx_config
     bool_t refon;
     Uint8  reffadeor;
     bool_t antialiasing;
-    int    multisamples;
     bool_t dither;
     bool_t perspective;
     bool_t phongon;
@@ -332,3 +348,5 @@ void Begin3DMode( struct s_camera * pcam );
 void End3DMode();
 
 void debug_message( const char *text );
+
+bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );

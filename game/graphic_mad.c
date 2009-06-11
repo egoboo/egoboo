@@ -880,3 +880,109 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     }
 
 }
+
+//--------------------------------------------------------------------------------------------
+bool_t chr_instance_update_vertices( chr_instance_t * pinst, int vmin, int vmax )
+{
+    int    i;
+    float  flip;
+    bool_t vertices_match, frames_match;
+
+    mad_t * pmad;
+
+    if ( NULL == pinst ) return bfalse;
+
+    // get the model. try to heal a bad model.
+    if ( INVALID_MAD(pinst->imad) ) return bfalse;
+    pmad = MadList + pinst->imad;
+
+    // handle the default parameters
+    if ( vmin < 0 ) vmin = 0;
+    if ( vmax < 0 ) vmax = pmad->md2.vertices - 1;
+
+    vmin = CLIP(vmin, 0, pmad->md2.vertices - 1);
+    vmax = CLIP(vmax, 0, pmad->md2.vertices - 1);
+
+    flip = pinst->lip / 256.0f;
+
+    // test to see if we have already calculated this data
+    vertices_match = (pinst->save_vmin <= vmin) && (pinst->save_vmax >= vmax);
+
+    frames_match = ( pinst->save_frame_nxt == pinst->frame_nxt && flip == 1.0f ) ||
+                   ( pinst->save_frame_lst == pinst->frame_lst && flip == 0.0f ) ||
+                   ( pinst->save_frame_nxt == pinst->frame_nxt && pinst->save_frame_lst == pinst->frame_lst && pinst->save_flip == flip );
+
+    if ( frames_match && vertices_match ) return bfalse;
+
+    if ( pinst->frame_nxt == pinst->frame_lst || flip == 0.0f )
+    {
+        for ( i = vmin; i <= vmax; i++)
+        {
+            Uint16 vrta_lst;
+
+            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i];
+            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i];
+            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i];
+            pinst->vlst[i].pos[WW] = 1.0f;
+
+            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
+
+            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX];
+            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY];
+            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ];
+
+            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst];
+        }
+    }
+    else if ( flip == 1.0f )
+    {
+        for ( i = vmin; i <= vmax; i++)
+        {
+            Uint16 vrta_nxt;
+
+            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_nxt].vrtx[i];
+            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_nxt].vrty[i];
+            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_nxt].vrtz[i];
+            pinst->vlst[i].pos[WW] = 1.0f;
+
+            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
+
+            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_nxt][XX];
+            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_nxt][YY];
+            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_nxt][ZZ];
+
+            pinst->vlst[i].env[XX] = indextoenvirox[vrta_nxt];
+        }
+    }
+    else
+    {
+        for ( i = vmin; i <= vmax; i++)
+        {
+            Uint16 vrta_lst, vrta_nxt;
+
+            pinst->vlst[i].pos[XX] = Md2FrameList[pinst->frame_lst].vrtx[i] + (Md2FrameList[pinst->frame_nxt].vrtx[i] - Md2FrameList[pinst->frame_lst].vrtx[i]) * flip;
+            pinst->vlst[i].pos[YY] = Md2FrameList[pinst->frame_lst].vrty[i] + (Md2FrameList[pinst->frame_nxt].vrty[i] - Md2FrameList[pinst->frame_lst].vrty[i]) * flip;
+            pinst->vlst[i].pos[ZZ] = Md2FrameList[pinst->frame_lst].vrtz[i] + (Md2FrameList[pinst->frame_nxt].vrtz[i] - Md2FrameList[pinst->frame_lst].vrtz[i]) * flip;
+            pinst->vlst[i].pos[WW] = 1.0f;
+
+            vrta_lst = Md2FrameList[pinst->frame_lst].vrta[i];
+            vrta_nxt = Md2FrameList[pinst->frame_nxt].vrta[i];
+
+            pinst->vlst[i].nrm[XX] = kMd2Normals[vrta_lst][XX] + (kMd2Normals[vrta_nxt][XX] - kMd2Normals[vrta_lst][XX]) * flip;
+            pinst->vlst[i].nrm[YY] = kMd2Normals[vrta_lst][YY] + (kMd2Normals[vrta_nxt][YY] - kMd2Normals[vrta_lst][YY]) * flip;
+            pinst->vlst[i].nrm[ZZ] = kMd2Normals[vrta_lst][ZZ] + (kMd2Normals[vrta_nxt][ZZ] - kMd2Normals[vrta_lst][ZZ]) * flip;
+
+            pinst->vlst[i].env[XX] = indextoenvirox[vrta_lst] + (indextoenvirox[vrta_nxt] - indextoenvirox[vrta_lst]) * flip;
+        }
+    }
+
+    pinst->save_frame     = update_wld;
+    pinst->save_vmin      = MIN(pinst->save_vmin, vmin);
+    pinst->save_vmax      = MAX(pinst->save_vmax, vmax);
+    pinst->save_frame_nxt = pinst->frame_nxt;
+    pinst->save_frame_lst = pinst->frame_lst;
+
+    return btrue;
+}
+
+

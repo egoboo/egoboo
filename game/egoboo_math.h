@@ -111,7 +111,7 @@ extern float                   turntosin[TRIG_TABLE_SIZE];           // Convert 
 #if defined(TEST_NAN_RESULT)
 #    define LOG_NAN(XX)      if( isnan(XX) ) log_error( "**** A math operation resulted in an invalid result (NAN) ****\n\t(\"%s\" - %d)\n", __FILE__, __LINE__ );
 #else
-#    define LOG_NAN(XX) 
+#    define LOG_NAN(XX)
 #endif
 
 /**> FUNCTION PROTOTYPES <**/

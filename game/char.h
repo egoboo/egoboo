@@ -28,6 +28,16 @@
 
 #include "egoboo.h"
 
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+#define TURNSPD                         0.01f         // Cutoff for turning or same direction
+#define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
+#define TURNMODEWATCH       1                       // For watch towers
+#define TURNMODESPIN        2                       // For spinning objects
+#define TURNMODEWATCHTARGET 3                       // For combat intensive AI
+
+#define MAXLEVEL            6                       // Basic Levels 0-5
+
 //Object positions
 enum e_slots
 {
@@ -603,6 +613,7 @@ extern chr_t ChrList[MAX_CHR];
 //--------------------------------------------------------------------------------------------
 // This is for random naming
 
+#define CHOPPERMODEL                    32
 #define MAXCHOP                         (MAX_PROFILE*CHOPPERMODEL)
 #define CHOPSIZE                        8
 #define CHOPDATACHUNK                   (MAXCHOP*CHOPSIZE)

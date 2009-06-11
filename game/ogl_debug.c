@@ -682,7 +682,7 @@ FILE * set_ogl_debug_stderr(FILE * pfile)
 {
     FILE * pfile_old = _ogl_debug_stderr;
 
-    if( NULL == pfile )
+    if ( NULL == pfile )
     {
         _ogl_debug_stderr  = stdout;
     }

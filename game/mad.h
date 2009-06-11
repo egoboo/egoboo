@@ -30,8 +30,14 @@
  *
  */
 
+#include "Md2.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+
+#define MADLIGHTINDICES                 (MD2LIGHTINDICES + 1) // MD2's store vertices as x,y,z,normal
+#define EQUALLIGHTINDEX                 162                // I added an extra index to do the spikey mace...
+
 
 // Model tags
 enum
@@ -177,6 +183,16 @@ extern mad_t   MadList[MAX_PROFILE];
 #define VALID_MAD_RANGE( IMAD ) ( ((IMAD) >= 0) && ((IMAD) < MAX_PROFILE) )
 #define VALID_MAD( IMAD )       ( VALID_MAD_RANGE( IMAD ) && MadList[IMAD].used )
 #define INVALID_MAD( IMAD )     ( !VALID_MAD_RANGE( IMAD ) || !MadList[IMAD].used )
+
+//--------------------------------------------------------------------------------------------
+// Message files
+extern Uint16          msgtotal;                                       // The number of messages
+extern Uint32          msgtotalindex;                                  // Where to put letter
+extern Uint32          msgindex[MAXTOTALMESSAGE];                      // Where it is
+extern char            msgtext[MESSAGEBUFFERSIZE];                     // The text buffer
+
+//--------------------------------------------------------------------------------------------
+extern char            cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

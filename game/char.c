@@ -6116,7 +6116,7 @@ slot_t grip_offset_to_slot( grip_offset_t grip_off )
 {
     slot_t retval = SLOT_LEFT;
 
-    if( 0 != grip_off % GRIP_VERTS )
+    if ( 0 != grip_off % GRIP_VERTS )
     {
         // this does not correspond to a valid slot
         // coerce it to the "default" slot
@@ -6144,4 +6144,5 @@ void init_slot_idsz()
     inventory_idsz[INVEN_WRIS]  = Make_IDSZ( "WRIS" );
     inventory_idsz[INVEN_FOOT]  = Make_IDSZ( "FOOT" );
 }
+
 

@@ -98,12 +98,15 @@ enum e_game_difficulty
 #define PERFECTBIG          (100*256)               // Perfect life or mana...
 #define HIGHSTAT            (100*256)                // Absolute max adding enchantments as well
 
-#define DAMFX_NONE           0                       // Damage effects
-#define DAMFX_ARMO           (1 << 1)                // Armor piercing
-#define DAMFX_NBLOC          (1 << 2)                // Cannot be blocked by shield
-#define DAMFX_ARRO           (1 << 3)                // Only hurts the one it's attached to
-#define DAMFX_TURN           (1 << 4)                // Turn to attached direction
-#define DAMFX_TIME           (1 << 5)
+enum e_damage_fx
+{
+    DAMFX_NONE           = 0,                       // Damage effects
+    DAMFX_ARMO           = (1 << 1),                // Armor piercing
+    DAMFX_NBLOC          = (1 << 2),                // Cannot be blocked by shield
+    DAMFX_ARRO           = (1 << 3),                // Only hurts the one it's attached to
+    DAMFX_TURN           = (1 << 4),                // Turn to attached direction
+    DAMFX_TIME           = (1 << 5)
+};
 
 #define HURTDAMAGE           256                     // Minimum damage for hurt animation
 
@@ -116,8 +119,6 @@ enum e_game_difficulty
 #define GENMALE             1
 #define GENOTHER            2
 #define GENRANDOM           3
-
-#define MAXSTAT             16                      // Maximum status displays
 
 // Messaging stuff
 #define MAXMESSAGE          6                       // Number of messages
@@ -157,12 +158,6 @@ enum e_damage_type
 #define JUMPATTACKVEL       -2
 #define WATERJUMP           12
 
-#define TURNMODEVELOCITY    0                       // Character gets rotation from velocity
-#define TURNMODEWATCH       1                       // For watch towers
-#define TURNMODESPIN        2                       // For spinning objects
-#define TURNMODEWATCHTARGET 3                       // For combat intensive AI
-
-#define MAXLEVEL            6                       // Basic Levels 0-5
 
 enum e_idsz_type
 {
@@ -190,34 +185,15 @@ enum e_xp_type
 };
 #define XPDIRECT            255                     // No modification
 
-#define LATCHBUTTON_LEFT      ( 1 << 0 )                      // Character button presses
-#define LATCHBUTTON_RIGHT     ( 1 << 1 )
-#define LATCHBUTTON_JUMP      ( 1 << 2 )
-#define LATCHBUTTON_ALTLEFT   ( 1 << 3 )                      // ( Alts are for grab/drop )
-#define LATCHBUTTON_ALTRIGHT  ( 1 << 4 )
-#define LATCHBUTTON_PACKLEFT  ( 1 << 5 )                     // ( Packs are for inventory cycle )
-#define LATCHBUTTON_PACKRIGHT ( 1 << 6 )
-#define LATCHBUTTON_RESPAWN   ( 1 << 7 )
 
 // Z velocity stuff
 #define JUMPDELAY           20                      // Time between jumps
 
 
-#define RAISE 12 //25                               // Helps correct z level
+#define RAISE       12 //25                               // Helps correct z level
 #define SHADOWRAISE 5
 #define DAMAGERAISE 25
 
-
-#define TURNSPD                         0.01f         // Cutoff for turning or same direction
-
-#define MD2START                        0x32504449  // MD2 files start with these four bytes
-#define MD2MAXLOADSIZE                  (512*1024)  // Don't load any models bigger than 512k
-#define MD2LIGHTINDICES                 163//162    // MD2's store vertices as x,y,z,normal
-#define EQUALLIGHTINDEX                 162         // I added an extra index to do the
-// spikey mace...
-
-
-#define CHOPPERMODEL                    32
 
 /* SDL_GetTicks() always returns milli seconds */
 #define TICKS_PER_SEC                   1000
@@ -316,18 +292,6 @@ EXTERN float           waterfriction  EQ( 0.80f );
 EXTERN float           noslipfriction  EQ( 0.91f );
 EXTERN float           gravity  EQ( -1.0f );                                   // Gravitational accel
 
-
-// Fog stuff
-
-// Input player control
-EXTERN int                     nullicon  EQ( 0 );
-EXTERN int                     keybicon  EQ( 0 );
-EXTERN int                     mousicon  EQ( 0 );
-EXTERN int                     joyaicon  EQ( 0 );
-EXTERN int                     joybicon  EQ( 0 );
-
-EXTERN Uint8                   cLoadBuffer[MD2MAXLOADSIZE];// Where to put an MD2
-
 #define INVISIBLE           20                      // The character can't be detected
 
 EXTERN bool_t                    local_seeinvisible   EQ( bfalse );
@@ -355,36 +319,7 @@ EXTERN const char *globalparsename  EQ( NULL ); // The SCRIPT.TXT filename
 EXTERN float           platstick  EQ( 0.1f );
 
 
-EXTERN char            cFrameName[16];                                     // MD2 Frame Name
-
-EXTERN Uint16          glouseangle;                                        // actually still used
-
-EXTERN Uint8 asciitofont[256];                                   // Conversion table
-
-// Display messages
-EXTERN Uint16          msgtimechange EQ( 0 );
-EXTERN Uint16          msgstart EQ( 0 );                                       // The message queue
-EXTERN Sint16          msgtime[MAXMESSAGE];
-EXTERN char            msgtextdisplay[MAXMESSAGE][MESSAGESIZE];            // The displayed text
-
-// Message files
-EXTERN Uint16          msgtotal EQ( 0 );                                       // The number of messages
-EXTERN Uint32          msgtotalindex EQ( 0 );                                  // Where to put letter
-EXTERN Uint32          msgindex[MAXTOTALMESSAGE];                          // Where it is
-EXTERN char            msgtext[MESSAGEBUFFERSIZE];                         // The text buffer
-
-//End text
-#define MAXENDTEXT 1024
-EXTERN char   endtext[MAXENDTEXT];     // The end-module text
-EXTERN int    endtextwrite;
-
 #define CLOSETOLERANCE      2                       // For closing doors
-
-// Status displays
-EXTERN bool_t staton   EQ( btrue );
-EXTERN int    statdelay  EQ( 25 );
-EXTERN int    numstat  EQ( 0 );
-EXTERN Uint16 statlist[MAXSTAT];
 
 enum e_order
 {

@@ -252,6 +252,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Enable antialiasing?
     GetKey_int( "ANTIALIASING", pcfg->multisamples, cfg_default.multisamples );
 
+    // coerce a "valid" multisample value
+    pcfg->multisamples = CLIP(pcfg->multisamples, 0, 4);
+
     // Do we do texture filtering?
     GetKey_string( "TEXTURE_FILTERING", lTempStr, 24, "LINEAR" );
     pcfg->texturefilter_req =  cfg_default.texturefilter_req;

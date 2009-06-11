@@ -217,7 +217,7 @@ void mesh_init_tile_offset(mesh_t * pmesh)
         pmesh->tileoff_u[cnt] = ( cnt & 7 ) / 8.0f;
         pmesh->tileoff_v[cnt] = ( cnt >> 3 ) / 8.0f;
     }
- }
+}
 
 //--------------------------------------------------------------------------------------------
 mesh_t * mesh_load( const char *modname, mesh_t * pmesh )

@@ -10,9 +10,17 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static char cActionName[ACTION_COUNT][2]; // Two letter name code
+
 mad_t   MadList[MAX_PROFILE];
 
-static char cActionName[ACTION_COUNT][2]; // Two letter name code
+Uint16  msgtotal      = 0;                                  // The number of messages
+Uint32  msgtotalindex = 0;                                  // Where to put letter
+Uint32  msgindex[MAXTOTALMESSAGE];                          // Where it is
+char    msgtext[MESSAGEBUFFERSIZE];                         // The text buffer
+
+
+char    cFrameName[16];                                     // MD2 Frame Name
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------

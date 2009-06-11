@@ -1007,9 +1007,11 @@ ConfigFile_retval ConfigFile_SetValue_Float( ConfigFilePtr_t pConfigFile, const 
 ConfigFile_retval ConfigFile_close( ConfigFilePtr_t pConfigFile )
 {
     if ( NULL == pConfigFile ) return ConfigFile_fail;
+
     if ( NULL != pConfigFile->f )
     {
         fclose( pConfigFile->f );
+        pConfigFile->f = NULL;
     }
 
     return ConfigFile_succeed;

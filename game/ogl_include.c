@@ -94,7 +94,7 @@ FILE * set_ogl_include_stderr(FILE * pfile)
 {
     FILE * pfile_old = _ogl_include_stderr;
 
-    if( NULL == pfile )
+    if ( NULL == pfile )
     {
         _ogl_include_stderr  = stdout;
     }
