@@ -1,8 +1,6 @@
 #include "SDL_extensions.h"
 #include <SDL_opengl.h>
 
-#include <../src/video/SDL_sysvideo.h>
-
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 #define LOCAL_STDOUT ((NULL == _SDLX_stdout) ? stdout : _SDLX_stdout)
@@ -379,7 +377,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
     if( !v->flags.opengl )
     {
-        // set the 
+        // set the
         flags = SDLX_upload_sdl_video_flags( v->flags );
 
         // do our one-and-only video initialization
@@ -446,16 +444,16 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         }
 
 #if !defined(__unix__)
-        // attempt to see if our antialiasing setting is valid 
+        // attempt to see if our antialiasing setting is valid
 
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
         if( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
         {
             // could not create the multi-buffer with this pixel format
-            // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and 
+            // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and
             // wglGetPixelFormatAttribivARB could not be found
-            // 
+            //
             // This is the only feedback we have that the initialization failed
             //
             // we will try to reduce the amount of super sampling and try again

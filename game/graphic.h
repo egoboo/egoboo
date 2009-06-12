@@ -31,6 +31,8 @@
 struct s_camera;
 struct s_egoboo_config;
 struct s_chr_instance;
+struct s_oglx_texture_parameters;
+struct s_egoboo_config;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -311,9 +313,9 @@ void render_one_mad_tex( Uint16 character, Uint8 trans );
 void render_one_mad( Uint16 character, Uint8 trans );
 void render_one_mad_ref( int tnc, Uint8 trans );
 
-void light_characters();
+//void light_characters();
 void light_particles( mesh_t * pmesh );
-void set_fan_light( int fanx, int fany, Uint16 particle );
+//void set_fan_light( int fanx, int fany, Uint16 particle );
 void do_mpd_lighting();
 
 void do_cursor();
@@ -351,4 +353,4 @@ void debug_message( const char *text );
 
 bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 
-bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg );
+bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );

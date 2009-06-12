@@ -210,12 +210,12 @@ GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid)
 {
     if (NULL == pvid) return GL_FALSE;
 
-    pvid->antialiasing     = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES
-    pvid->antialiasing_arb = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES_ARB
-    pvid->perspective      = GL_FASTEST;          ///< current correction hint
-    pvid->dither           = GL_FALSE;            ///< current dithering flag
-    pvid->shading          = GL_SMOOTH;           ///< current shading type
-    pvid->userAnisotropy   = 0.0f;
+    pvid->multisample     = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES
+    pvid->multisample_arb = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES_ARB
+    pvid->perspective     = GL_FASTEST;          ///< current correction hint
+    pvid->dither          = GL_FALSE;            ///< current dithering flag
+    pvid->shading         = GL_SMOOTH;           ///< current shading type
+    pvid->userAnisotropy  = 0.0f;
 
     return GL_TRUE;
 }

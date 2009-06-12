@@ -46,7 +46,7 @@
 #include "script_functions.h"
 
 #include "graphic.h"
-#include "gltexture.h"
+#include "ogl_texture.h"
 
 
 %}
@@ -81,6 +81,6 @@
 %include "module.h"
 
 %include "graphic.h"
-%include "gltexture.h"
+%include "ogl_texture.h"
 
 %include "camera.h"
