@@ -278,8 +278,8 @@ int initMenus()
 int doMainMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
-    static GLXtexture logo;
+    static oglx_texture background;
+    static oglx_texture logo;
 
     // static float lerp;
     static int menuChoice = 0;
@@ -296,7 +296,7 @@ int doMainMenu( float deltaTime )
             menuState = MM_Entering;
 
             // set up menu variables
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
 
             // load the menu image
@@ -418,7 +418,7 @@ int doMainMenu( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -436,7 +436,7 @@ int doMainMenu( float deltaTime )
 int doSinglePlayerMenu( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
+    static oglx_texture background;
     static int menuChoice;
     int result = 0;
 
@@ -444,7 +444,7 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
@@ -527,7 +527,7 @@ int doSinglePlayerMenu( float deltaTime )
 
         case MM_Finish:
             // Release the background texture
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
 
             // reset the ui
             ui_Reset();
@@ -550,7 +550,7 @@ int doChooseModule( float deltaTime )
 {
     static int menuState = MM_Begin;
     static int startIndex;
-    static GLXtexture background;
+    static oglx_texture background;
     static int validModules[MAXMODULE];
     static int numValidModules;
 
@@ -568,7 +568,7 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
@@ -664,7 +664,7 @@ int doChooseModule( float deltaTime )
                 // fix the menu images in case one or more of them are undefined
                 int         imod       = validModules[i];
                 Uint32      tex_offset = ModList[imod].tex;
-                GLXtexture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
+                oglx_texture * ptex       = ((Uint32)(~0) == tex_offset) ? NULL : TxTitleImage + tex_offset;
 
                 if ( ui_doImageButton( i, ptex, moduleMenuOffsetX + x, moduleMenuOffsetY + y, 138, 138 ) )
                 {
@@ -741,7 +741,7 @@ int doChooseModule( float deltaTime )
             // fall through for now
 
         case MM_Finish:
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
 
             menuState = MM_Begin;
             if ( selectedModule == -1 )
@@ -791,14 +791,14 @@ int doChooseModule( float deltaTime )
 int doChoosePlayer( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
+    static oglx_texture background;
     int result = 0;
     int i, j, x, y;
     char srcDir[64], destDir[64];
     static int startIndex = 0;
 
     static int numVertical, numHorizontal;
-    static GLXtexture TxInput[4];
+    static oglx_texture TxInput[4];
     static Uint32 BitsInput[4];
     int cnt, menuChoice;
 
@@ -809,11 +809,11 @@ int doChoosePlayer( float deltaTime )
         case MM_Begin:
             mnu_selectedPlayerCount = 0;
 
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
 
             for (i = 0; i < 4; i++)
             {
-                GLXtexture_new(TxInput + i);
+                oglx_texture_new(TxInput + i);
             };
 
             mnu_selectedPlayerCount = 0;
@@ -1020,10 +1020,10 @@ int doChoosePlayer( float deltaTime )
 
             for (i = 0; i < 4; i++)
             {
-                GLXtexture_delete(TxInput + i);
+                oglx_texture_delete(TxInput + i);
             };
 
-            GLXtexture_delete( &background );
+            oglx_texture_delete( &background );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1077,7 +1077,7 @@ int doChoosePlayer( float deltaTime )
 int doOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
+    static oglx_texture background;
     static int menuChoice = 0;
 
     int result = 0;
@@ -1086,7 +1086,7 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
@@ -1183,7 +1183,7 @@ int doOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1596,7 +1596,7 @@ int doInputOptions( float deltaTime )
 int doAudioOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
+    static oglx_texture background;
     static int menuChoice = 0;
     static char Cmaxsoundchannel[128];
     static char Cbuffersize[128];
@@ -1609,7 +1609,7 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
@@ -1784,7 +1784,7 @@ int doAudioOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui
@@ -1803,7 +1803,7 @@ int doAudioOptions( float deltaTime )
 int doVideoOptions( float deltaTime )
 {
     static int menuState = MM_Begin;
-    static GLXtexture background;
+    static oglx_texture background;
     static int menuChoice = 0;
     int result = 0;
     static STRING Cantialiasing;
@@ -1817,7 +1817,7 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            GLXtexture_new( &background );
+            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
@@ -2406,7 +2406,7 @@ int doVideoOptions( float deltaTime )
 
         case MM_Finish:
             // Free the background texture; don't need to hold onto it
-            GLXtexture_Release( &background );
+            oglx_texture_Release( &background );
             menuState = MM_Begin;  // Make sure this all resets next time doMainMenu is called
 
             // reset the ui

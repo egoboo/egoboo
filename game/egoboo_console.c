@@ -231,7 +231,7 @@ SDL_bool egoboo_console_delete( egoboo_console_t * pcon, SDL_bool do_free )
 //--------------------------------------------------------------------------------------------
 void egoboo_console_draw_begin()
 {
-    GL_DEBUG(glPushAttrib)( GL_ENABLE_BIT );
+    ATTRIB_PUSH( "egoboo_console_draw_begin", GL_ENABLE_BIT );
 
     GL_DEBUG(glDisable)( GL_DEPTH_TEST );
     GL_DEBUG(glDisable)( GL_CULL_FACE );
@@ -265,7 +265,7 @@ void egoboo_console_draw_end()
     GL_DEBUG(glLoadIdentity)();
 
     // Re-enable any states disabled by gui_beginFrame
-    GL_DEBUG(glPopAttrib)();
+    ATTRIB_POP( "egoboo_console_draw_end" );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -311,7 +311,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
     GL_DEBUG(glEnable)( GL_TEXTURE_2D );
 
     GL_DEBUG(glColor4f)(1, 1, 1, 1);
-    GL_DEBUG(glPushAttrib)( GL_SCISSOR_BIT | GL_ENABLE_BIT );
+    ATTRIB_PUSH( "egoboo_console_draw", GL_SCISSOR_BIT | GL_ENABLE_BIT );
     {
         int text_w, text_h, height;
 
@@ -374,6 +374,7 @@ SDL_bool egoboo_console_draw( egoboo_console_t * pcon )
 
     };
 
+    ATTRIB_POP( "egoboo_console_draw" );
     return SDL_TRUE;
 }
 

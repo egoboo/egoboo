@@ -997,9 +997,6 @@ int SDL_main( int argc, char **argv )
     // download the "setup.txt" values into the cfg struct
     setup_download( &cfg );
 
-    // synchronoze the config values with the various game subsystems
-    setup_synch( &cfg );
-
     log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
     GLSetup_SupportedFormats();
 
@@ -1012,6 +1009,11 @@ int SDL_main( int argc, char **argv )
     sdl_init();
     ogl_init();
     net_initialize();
+
+    // synchronoze the config values with the various game subsystems
+    // do this acter the sdl_init() and ogl_init() in case the config values are clamped
+    // to valid values
+    setup_synch( &cfg );
 
     ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
     sound_initialize();

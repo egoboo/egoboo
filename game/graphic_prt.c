@@ -54,7 +54,7 @@ Uint32  instance_update = (Uint32)~0;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void render_billboard( camera_t * pcam, GLXtexture * ptex, GLvector3 pos, float scale )
+void render_billboard( camera_t * pcam, oglx_texture * ptex, GLvector3 pos, float scale )
 {
     Begin3DMode( pcam );
     {
@@ -63,8 +63,8 @@ void render_billboard( camera_t * pcam, GLXtexture * ptex, GLvector3 pos, float 
         float x1, y1;
         GLvector4 vector_up, vector_right;
 
-        x1 = ( float ) GLXtexture_GetImageWidth( ptex )  / ( float ) GLXtexture_GetTextureWidth( ptex );
-        y1 = ( float ) GLXtexture_GetImageHeight( ptex )  / ( float ) GLXtexture_GetTextureHeight( ptex );
+        x1 = ( float ) oglx_texture_GetImageWidth( ptex )  / ( float ) oglx_texture_GetTextureWidth( ptex );
+        y1 = ( float ) oglx_texture_GetImageHeight( ptex )  / ( float ) oglx_texture_GetTextureHeight( ptex );
 
         vector_right.x =  pcam->mView.CNV(0, 0) * x1 * scale;
         vector_right.y =  pcam->mView.CNV(1, 0) * x1 * scale;
@@ -204,7 +204,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
     // billboard for the particle
     calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
 
-    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( "render_one_prt_solid", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
         GL_DEBUG(glDepthMask)(GL_TRUE );
 
@@ -219,7 +219,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
         GL_DEBUG(glEnable)(GL_ALPHA_TEST );
         GL_DEBUG(glAlphaFunc)(GL_EQUAL, 1 );
 
-        GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+        oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
 
         GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, 1.0f );
 
@@ -233,7 +233,7 @@ bool_t render_one_prt_solid( Uint16 iprt )
         }
         GL_DEBUG_END();
     }
-    GL_DEBUG(glPopAttrib)();
+    ATTRIB_POP( "render_one_prt_solid");
 
     return btrue;
 }
@@ -282,7 +282,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
     // used to display the particle.
     calc_billboard_verts( vtlist, pinst, pinst->size, pprt->floor_level, bfalse );
 
-    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+    ATTRIB_PUSH( "render_one_prt_trans", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
     {
         GL_DEBUG(glDepthMask)(GL_FALSE );
 
@@ -304,7 +304,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
 
-            GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
         else if ( PRTLIGHTSPRITE == PrtList[iprt].type )
         {
@@ -316,7 +316,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
             GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
             GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
-            GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+            oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
         }
         else if ( PRTALPHASPRITE == PrtList[iprt].type )
         {
@@ -330,7 +330,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
 
             GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, pinst->alpha_component );
 
-            GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+            oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
         }
         else
         {
@@ -349,7 +349,7 @@ bool_t render_one_prt_trans( Uint16 iprt )
         }
         GL_DEBUG_END();
     }
-    GL_DEBUG(glPopAttrib)();
+    ATTRIB_POP( "render_one_prt_trans" );
 
 
     return btrue;
@@ -465,7 +465,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
     if ( startalpha > 0 )
     {
-        GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
+        ATTRIB_PUSH( "render_one_prt_ref", GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_LIGHTING_BIT | GL_CURRENT_BIT );
         {
             GL_DEBUG(glDisable)(GL_CULL_FACE );
             GL_DEBUG(glDisable)(GL_DITHER );
@@ -481,7 +481,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
                 GL_DEBUG(glBlendFunc)(GL_ONE, GL_ONE_MINUS_SRC_COLOR );
                 GL_DEBUG(glColor4f)(alpha, alpha, alpha, 1.0f );
 
-                GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+                oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
             }
             else if ( PRTSOLIDSPRITE == PrtList[iprt].type || PRTALPHASPRITE == PrtList[iprt].type )
             {
@@ -497,7 +497,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
 
                 GL_DEBUG(glColor4f)(pinst->color_component, pinst->color_component, pinst->color_component, alpha );
 
-                GLXtexture_Bind( TxTexture + TX_PARTICLE_TRANS );
+                oglx_texture_Bind( TxTexture + TX_PARTICLE_TRANS );
             }
             else
             {
@@ -515,7 +515,7 @@ bool_t render_one_prt_ref( Uint16 iprt )
             }
             GL_DEBUG_END();
         }
-        GL_DEBUG(glPopAttrib)();
+        ATTRIB_POP( "render_one_prt_ref" );
 
     }
 

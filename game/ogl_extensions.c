@@ -19,8 +19,7 @@ void oglx_report_caps()
 {
     oglx_Get_Screen_Info(&ogl_caps);
 
-    fprintf( LOCAL_STDOUT, "\n=======================\n" );
-    fprintf( LOCAL_STDOUT, "OpenGL state parameters\n" );
+    fprintf( LOCAL_STDOUT, "\nOpenGL state parameters\n" );
     fprintf( LOCAL_STDOUT, "\tgl_version    == %s\n", ogl_caps.gl_version    );
     fprintf( LOCAL_STDOUT, "\tgl_vendor     == %s\n", ogl_caps.gl_vendor     );
     fprintf( LOCAL_STDOUT, "\tgl_renderer   == %s\n", ogl_caps.gl_renderer   );
@@ -73,7 +72,7 @@ void oglx_report_caps()
         fprintf( LOCAL_STDOUT, "\tGL_MAX_TEXTURE_MAX_ANISOTROPY_EXT == %f\n", ogl_caps.maxAnisotropy );
     }
 
-    fprintf( LOCAL_STDOUT, "=======================\n" );
+    fprintf( LOCAL_STDOUT, "==============================================================\n" );
 
     fflush( LOCAL_STDOUT );
 }
@@ -211,11 +210,12 @@ GLboolean oglx_video_parameters_default(oglx_video_parameters_t * pvid)
 {
     if (NULL == pvid) return GL_FALSE;
 
-    pvid->antialiasing   = GL_FALSE;            ///< current antialiasing value
-    pvid->perspective    = GL_FASTEST;          ///< current correction hint
-    pvid->dither         = GL_FALSE;            ///< current dithering flag
-    pvid->shading        = GL_SMOOTH;           ///< current shading type
-    pvid->userAnisotropy = 0.0f;
+    pvid->antialiasing     = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES
+    pvid->antialiasing_arb = GL_FALSE;            ///< current antialiasing used through GL_MULTISAMPLES_ARB
+    pvid->perspective      = GL_FASTEST;          ///< current correction hint
+    pvid->dither           = GL_FALSE;            ///< current dithering flag
+    pvid->shading          = GL_SMOOTH;           ///< current shading type
+    pvid->userAnisotropy   = 0.0f;
 
     return GL_TRUE;
 }

@@ -90,7 +90,8 @@ extern "C"
     struct s_oglx_video_parameters
     {
         GLboolean antialiasing;            ///< current antialiasing value
-        GLboolean multisample;             ///< whether multisampling is being supported
+        GLboolean multisample;             ///< whether multisampling is being supported through GL_MULTISAMPLE
+        GLboolean multisample_arb;         ///< whether multisampling is being supported through GL_MULTISAMPLE_ARB
         GLenum    perspective;             ///< current correction hint
         GLboolean dither;                  ///< current dithering flag
         GLenum    shading;                 ///< current shading type
@@ -108,4 +109,3 @@ extern "C"
 #ifdef __cplusplus
 };
 #endif
-

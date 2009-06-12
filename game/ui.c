@@ -125,7 +125,7 @@ void ui_handleSDLEvent( SDL_Event *evt )
 //--------------------------------------------------------------------------------------------
 void ui_beginFrame( float deltaTime )
 {
-    GL_DEBUG(glPushAttrib)(GL_ENABLE_BIT );
+    ATTRIB_PUSH( "ui_beginFrame", GL_ENABLE_BIT );
     GL_DEBUG(glDisable)(GL_DEPTH_TEST );
     GL_DEBUG(glDisable)(GL_CULL_FACE );
     GL_DEBUG(glEnable)(GL_TEXTURE_2D );
@@ -161,7 +161,7 @@ void ui_endFrame()
     GL_DEBUG(glLoadIdentity)();
 
     // Re-enable any states disabled by gui_beginFrame
-    GL_DEBUG(glPopAttrib)();
+    ATTRIB_POP( "ui_endFrame" );
 
     // Clear input states at the end of the frame
     ui_context.mousePressed = ui_context.mouseReleased = 0;
@@ -357,7 +357,7 @@ void ui_drawButton( ui_id_t id, int x, int y, int width, int height, GLfloat * p
 }
 
 //--------------------------------------------------------------------------------------------
-void ui_drawImage( ui_id_t id, GLXtexture *img, int x, int y, int width, int height )
+void ui_drawImage( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
 {
     int w, h;
     float x1, y1;
@@ -374,11 +374,11 @@ void ui_drawImage( ui_id_t id, GLXtexture *img, int x, int y, int width, int hei
             h = height;
         }
 
-        x1 = ( float ) GLXtexture_GetImageWidth( img )  / ( float ) GLXtexture_GetTextureWidth( img );
-        y1 = ( float ) GLXtexture_GetImageHeight( img ) / ( float ) GLXtexture_GetTextureHeight( img );
+        x1 = ( float ) oglx_texture_GetImageWidth( img )  / ( float ) oglx_texture_GetTextureWidth( img );
+        y1 = ( float ) oglx_texture_GetImageHeight( img ) / ( float ) oglx_texture_GetTextureHeight( img );
 
         // Draw the image
-        GLXtexture_Bind( img );
+        oglx_texture_Bind( img );
 
         GL_DEBUG(glBegin)( GL_QUADS );
         {
@@ -497,7 +497,7 @@ ui_buttonValues ui_doButton( ui_id_t id, const char *text, int x, int y, int wid
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButton( ui_id_t id, GLXtexture *img, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButton( ui_id_t id, oglx_texture *img, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -515,7 +515,7 @@ ui_buttonValues ui_doImageButton( ui_id_t id, GLXtexture *img, int x, int y, int
 }
 
 //--------------------------------------------------------------------------------------------
-ui_buttonValues ui_doImageButtonWithText( ui_id_t id, GLXtexture *img, const char *text, int x, int y, int width, int height )
+ui_buttonValues ui_doImageButtonWithText( ui_id_t id, oglx_texture *img, const char *text, int x, int y, int width, int height )
 {
     ui_buttonValues result;
 
@@ -636,7 +636,7 @@ bool_t ui_shrinkWidget( ui_Widget_t * pw2, ui_Widget_t * pw1, int pixels )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, GLXtexture *img, int x, int y, int width, int height )
+bool_t ui_initWidget( ui_Widget_t * pw, ui_id_t id, Font * pfont, const char *text, oglx_texture *img, int x, int y, int width, int height )
 {
     if ( NULL == pw ) return bfalse;
 

@@ -124,11 +124,20 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
 
     oglx_Get_Screen_Info(&ogl_caps);
 
-    if ( v->multisample )
+    if ( v->multisample_arb )
     {
+        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
         GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
-        //GL_DEBUG(glEnable)(GL_MULTISAMPLE);
-    };
+    }
+    else if( v->multisample )
+    {
+        GL_DEBUG(glEnable)(GL_MULTISAMPLE);
+    }
+    else
+    {
+        GL_DEBUG(glDisable)(GL_MULTISAMPLE);
+        GL_DEBUG(glDisable)(GL_MULTISAMPLE_ARB);
+    }
 
     //Enable perspective correction?
     GL_DEBUG(glHint)(GL_PERSPECTIVE_CORRECTION_HINT, v->perspective );
@@ -168,13 +177,14 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
     }
 
     // anisotropic filtering
-    if ( v->userAnisotropy > ogl_caps.maxAnisotropy )
-    {
-        v->userAnisotropy = ogl_caps.maxAnisotropy;
-    }
-
     if ( v->userAnisotropy > 1.0f )
     {
+        // limit the userAnisotropy top be in a valid range
+        if ( v->userAnisotropy > ogl_caps.maxAnisotropy )
+        {
+            v->userAnisotropy = ogl_caps.maxAnisotropy;
+        }
+
         GL_DEBUG(glTexParameterf)(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, v->userAnisotropy );
     };
 
@@ -206,8 +216,6 @@ void SDL_GL_report_mode( SDLX_video_parameters_t * retval )
         oglx_report_caps();
     }
 
-    fprintf( LOCAL_STDOUT, "=======================\n" );
-
     fflush( LOCAL_STDOUT );
 }
 
@@ -237,10 +245,12 @@ SDLX_video_parameters_t * SDL_GL_set_mode(SDLX_video_parameters_t * v_old, SDLX_
     SDL_GL_report_mode( retval );
 
     // set the opengl parameters
+    gl_new->multisample     = GL_FALSE;
+    gl_new->multisample_arb = GL_FALSE;
     if ( NULL != retval->surface && retval->flags.opengl )
     {
         // correct the multisampling
-        gl_new->multisample = retval->gl_att.multi_samples > 1;
+        gl_new->multisample_arb = retval->gl_att.multi_samples > 1;
 
         SDL_GL_set_gl_mode( gl_new );
     }

@@ -75,6 +75,7 @@ extern "C"
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 // SDL graphics info
+
     struct s_SDLX_screen_info
     {
         // JF - Added so that the video mode might be determined outside of the graphics code
@@ -84,15 +85,15 @@ extern "C"
 
         char          szDriver[256];    ///< graphics driver name;
 
-        int    d;                  ///< Screen bit depth
-        int    z;                  ///< Screen z-buffer depth ( 8 unsupported )
-        int    x;                  ///< Screen X size
-        int    y;                  ///< Screen Y size
-
-        Uint8  alpha;              ///< Screen alpha
+        int           d;                ///< Screen bit depth
+        int           x;                ///< Screen X size
+        int           y;                ///< Screen Y size
 
         // SDL OpenGL attributes
         SDLX_sdl_gl_attrib_t gl_att;
+
+        // bitfield for SDL video flags
+        SDLX_sdl_video_flags_t flags;
 
         // selected SDL bitfields
         unsigned hw_available: 1;
@@ -103,8 +104,6 @@ extern "C"
         unsigned blit_sw: 1;
         unsigned blit_sw_CC: 1;
         unsigned blit_sw_A: 1;
-
-        SDLX_sdl_video_flags_t flags;
     };
     typedef struct s_SDLX_screen_info SDLX_screen_info_t;
 

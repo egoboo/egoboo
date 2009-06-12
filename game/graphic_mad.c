@@ -195,7 +195,7 @@ void render_one_mad_enviro( Uint16 character, Uint8 trans )
     GL_DEBUG(glMultMatrixf)(pinst->matrix.v );
 
     // Choose texture and matrix
-    GLXtexture_Bind( TxTexture + texture );
+    oglx_texture_Bind( TxTexture + texture );
 
     // Render each command
     cmd_count   = MIN(pmad->md2.cmd.count,   MAXCOMMAND);
@@ -344,7 +344,7 @@ void render_one_mad_tex( Uint16 character, Uint8 trans )
     chr_instance_update( character, trans, btrue );
 
     // Choose texture and matrix
-    GLXtexture_Bind( TxTexture + texture );
+    oglx_texture_Bind( TxTexture + texture );
 
     GL_DEBUG(glMatrixMode)( GL_MODELVIEW );
     GL_DEBUG(glPushMatrix)();

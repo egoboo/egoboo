@@ -213,15 +213,15 @@ extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which c
 extern Uint16                dolist_count;                  // How many in the list
 
 /*OpenGL Textures*/
-extern  GLXtexture       TxIcon[MAX_ICON];       // OpenGL icon surfaces
-extern  GLXtexture       TxFont;                     // OpenGL font surface
-extern  GLXtexture       TxBars;                     // OpenGL status bar surface
-extern  GLXtexture       TxBlip;                     // OpenGL you are here surface
-extern  GLXtexture       TxMap;                      // OpenGL map surface
-extern  GLXtexture       TxTexture[MAX_TEXTURE];      // All textures
+extern  oglx_texture       TxIcon[MAX_ICON];       // OpenGL icon surfaces
+extern  oglx_texture       TxFont;                     // OpenGL font surface
+extern  oglx_texture       TxBars;                     // OpenGL status bar surface
+extern  oglx_texture       TxBlip;                     // OpenGL you are here surface
+extern  oglx_texture       TxMap;                      // OpenGL map surface
+extern  oglx_texture       TxTexture[MAX_TEXTURE];      // All textures
 
 extern  Uint32          TxTitleImage_count;
-extern  GLXtexture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+extern  oglx_texture       TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 // Minimap stuff
 #define MAXBLIP        128
@@ -350,3 +350,5 @@ void End3DMode();
 void debug_message( const char *text );
 
 bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
+
+bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg );

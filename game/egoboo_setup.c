@@ -380,6 +380,8 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     // renderer options
     gfx_config_synch( &gfx, pcfg );
 
+    oglx_texture_parameters_synch( &tex_params, pcfg );
+
     return btrue;
 }
 

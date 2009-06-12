@@ -100,12 +100,11 @@ void ErrorImage_bind(GLenum target, GLuint id)
         }
     }
     GL_DEBUG(glPopClientAttrib)();
-
 }
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-GLXtexture * GLXtexture_new(GLXtexture * ptex)
+oglx_texture * oglx_texture_new(oglx_texture * ptex)
 {
     if ( NULL == ptex ) return ptex;
 
@@ -115,7 +114,7 @@ GLXtexture * GLXtexture_new(GLXtexture * ptex)
         ptex->base.binding = INVALID_TX_ID;
     }
 
-    memset( ptex, 0, sizeof(GLXtexture) );
+    memset( ptex, 0, sizeof(oglx_texture) );
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
@@ -129,7 +128,7 @@ GLXtexture * GLXtexture_new(GLXtexture * ptex)
 }
 
 //--------------------------------------------------------------------------------------------
-void GLXtexture_delete(GLXtexture * ptex)
+void oglx_texture_delete(oglx_texture * ptex)
 {
     if ( NULL == ptex ) return;
 
@@ -153,7 +152,7 @@ void GLXtexture_delete(GLXtexture * ptex)
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * image, Uint32 key )
+GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface * image, Uint32 key )
 {
     SDL_Surface     * screen;
     SDL_PixelFormat * pformat;
@@ -168,7 +167,7 @@ GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * ima
     SDLX_Get_Screen_Info(&sdl_scr, bfalse);
 
     // make sure the old texture has been freed
-    GLXtexture_Release( ptex );
+    oglx_texture_Release( ptex );
 
     if ( NULL == image ) return INVALID_TX_ID;
 
@@ -286,8 +285,8 @@ GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * ima
     ptex->base.target  = tx_target;
     ptex->surface      = image;
 
-    /* Set up some parameters for the format of the GLXtexture */
-    GLXtexture_Bind( ptex );
+    /* Set up some parameters for the format of the oglx_texture */
+    oglx_texture_Bind( ptex );
 
     /* actually create the OpenGL textures */
     use_alpha = !( 8 == image->format->Aloss );
@@ -315,23 +314,23 @@ GLuint GLXtexture_Convert( GLenum tx_target, GLXtexture *ptex, SDL_Surface * ima
 }
 
 //--------------------------------------------------------------------------------------------
-GLuint GLXtexture_Load( GLenum tx_target, GLXtexture *ptex, const char *filename, Uint32 key )
+GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *filename, Uint32 key )
 {
     GLuint retval;
     SDL_Surface * image;
 
     // initialize the ptex
-    GLXtexture_delete( ptex );
-    if ( NULL == GLXtexture_new(ptex) ) return INVALID_TX_ID;
+    oglx_texture_delete( ptex );
+    if ( NULL == oglx_texture_new(ptex) ) return INVALID_TX_ID;
 
     image = IMG_Load( filename );
     if ( NULL == image ) return INVALID_TX_ID;
 
-    retval = GLXtexture_Convert( tx_target, ptex, image, key );
+    retval = oglx_texture_Convert( tx_target, ptex, image, key );
 
     if ( INVALID_TX_ID == retval )
     {
-        GLXtexture_delete(ptex);
+        oglx_texture_delete(ptex);
     }
     else
     {
@@ -344,50 +343,50 @@ GLuint GLXtexture_Load( GLenum tx_target, GLXtexture *ptex, const char *filename
     return retval;
 }
 
-/********************> GLXtexture_GetTextureID() <*****/
-GLuint  GLXtexture_GetTextureID( GLXtexture *texture )
+/********************> oglx_texture_GetTextureID() <*****/
+GLuint  oglx_texture_GetTextureID( oglx_texture *texture )
 {
     return texture->base.binding;
 }
 
-/********************> GLXtexture_GetImageHeight() <*****/
-GLsizei  GLXtexture_GetImageHeight( GLXtexture *texture )
+/********************> oglx_texture_GetImageHeight() <*****/
+GLsizei  oglx_texture_GetImageHeight( oglx_texture *texture )
 {
     return texture->imgH;
 }
 
-/********************> GLXtexture_GetImageWidth() <*****/
-GLsizei  GLXtexture_GetImageWidth( GLXtexture *texture )
+/********************> oglx_texture_GetImageWidth() <*****/
+GLsizei  oglx_texture_GetImageWidth( oglx_texture *texture )
 {
     return texture->imgW;
 }
 
-/********************> GLXtexture_GetTextureWidth() <*****/
-GLsizei  GLXtexture_GetTextureWidth( GLXtexture *texture )
+/********************> oglx_texture_GetTextureWidth() <*****/
+GLsizei  oglx_texture_GetTextureWidth( oglx_texture *texture )
 {
     return texture->base.width;
 }
 
-/********************> GLXtexture_GetTextureHeight() <*****/
-GLsizei  GLXtexture_GetTextureHeight( GLXtexture *texture )
+/********************> oglx_texture_GetTextureHeight() <*****/
+GLsizei  oglx_texture_GetTextureHeight( oglx_texture *texture )
 {
     return texture->base.height;
 }
 
-/********************> GLXtexture_SetAlpha() <*****/
-void  GLXtexture_SetAlpha( GLXtexture *texture, GLfloat alpha )
+/********************> oglx_texture_SetAlpha() <*****/
+void  oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha )
 {
     texture->alpha = alpha;
 }
 
-/********************> GLXtexture_GetAlpha() <*****/
-GLfloat  GLXtexture_GetAlpha( GLXtexture *texture )
+/********************> oglx_texture_GetAlpha() <*****/
+GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 {
     return texture->alpha;
 }
 
-/********************> GLXtexture_Release() <*****/
-void  GLXtexture_Release( GLXtexture *texture )
+/********************> oglx_texture_Release() <*****/
+void  oglx_texture_Release( oglx_texture *texture )
 {
     if (!ErrorImage_defined) ErrorImage_create();
 
@@ -412,8 +411,8 @@ void  GLXtexture_Release( GLXtexture *texture )
 
 }
 
-/********************> GLXtexture_Release() <*****/
-void GLXtexture_Bind( GLXtexture *texture )
+/********************> oglx_texture_Release() <*****/
+void oglx_texture_Bind( oglx_texture *texture )
 {
     int    filt_type, anisotropy;
     GLenum target;

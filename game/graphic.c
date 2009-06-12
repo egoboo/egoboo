@@ -136,15 +136,15 @@ oglx_video_parameters_t ogl_vparam;
 Uint8            maxformattypes = 0;
 STRING           TxFormatSupported[20];      // List of texture formats that we search for
 
-GLXtexture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
-GLXtexture       TxFont;                     // OpenGL font surface
-GLXtexture       TxBars;                     // OpenGL status bar surface
-GLXtexture       TxBlip;                     // OpenGL you are here surface
-GLXtexture       TxMap;                      // OpenGL map surface
-GLXtexture       TxTexture[MAX_TEXTURE];     // All textures
+oglx_texture       TxIcon[MAX_ICON];           // OpenGL icon surfaces
+oglx_texture       TxFont;                     // OpenGL font surface
+oglx_texture       TxBars;                     // OpenGL status bar surface
+oglx_texture       TxBlip;                     // OpenGL you are here surface
+oglx_texture       TxMap;                      // OpenGL map surface
+oglx_texture       TxTexture[MAX_TEXTURE];     // All textures
 
 Uint32          TxTitleImage_count = 0;
-GLXtexture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
+oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
 Uint16                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
@@ -595,7 +595,7 @@ void init_all_icons()
 
     for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
-        GLXtexture_new( TxIcon + cnt );
+        oglx_texture_new( TxIcon + cnt );
     }
 
     iconrect.left = 0;
@@ -614,7 +614,7 @@ void init_all_titleimages()
 
     for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     {
-        GLXtexture_new( TxTitleImage + cnt );
+        oglx_texture_new( TxTitleImage + cnt );
     }
 }
 
@@ -623,7 +623,7 @@ void init_bars()
 {
     int cnt;
 
-    GLXtexture_new( &TxBars );
+    oglx_texture_new( &TxBars );
 
     // Make the blit rectangles
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -645,7 +645,7 @@ void init_blip()
 {
     int cnt;
 
-    GLXtexture_new( &TxBlip );
+    oglx_texture_new( &TxBlip );
 
     // Set up the rectangles
     for ( cnt = 0; cnt < NUMBAR; cnt++ )
@@ -662,7 +662,7 @@ void init_blip()
 void init_map()
 {
     // ZZ> This function releases all the map images
-    GLXtexture_new( &TxMap );
+    oglx_texture_new( &TxMap );
 
     // Set up the rectangles
     maprect.left   = 0;
@@ -679,7 +679,7 @@ void init_all_textures()
 
     for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
-        GLXtexture_new( TxTexture + cnt );
+        oglx_texture_new( TxTexture + cnt );
     }
 }
 
@@ -727,7 +727,7 @@ void release_all_icons()
     // release all icon textures
     for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
-        GLXtexture_Release( TxIcon + cnt );
+        oglx_texture_Release( TxIcon + cnt );
     }
     globalicon_count = 0;
 
@@ -752,20 +752,20 @@ void release_all_titleimages()
 
     for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     {
-        GLXtexture_Release( TxTitleImage + cnt );
+        oglx_texture_Release( TxTitleImage + cnt );
     }
 }
 
 //---------------------------------------------------------------------------------------------
 void release_bars()
 {
-    GLXtexture_Release( &TxBars );
+    oglx_texture_Release( &TxBars );
 }
 
 //---------------------------------------------------------------------------------------------
 void release_blip()
 {
-    GLXtexture_Release( &TxBlip );
+    oglx_texture_Release( &TxBlip );
 
     youarehereon = bfalse;
     numblip      = 0;
@@ -774,7 +774,7 @@ void release_blip()
 //---------------------------------------------------------------------------------------------
 void release_map()
 {
-    GLXtexture_Release( &TxMap );
+    oglx_texture_Release( &TxMap );
 
     mapvalid = bfalse;
     mapon    = bfalse;
@@ -788,7 +788,7 @@ void release_all_textures()
 
     for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
-        GLXtexture_Release( TxTexture + cnt );
+        oglx_texture_Release( TxTexture + cnt );
     }
 }
 
@@ -1193,7 +1193,7 @@ void load_map( const char* szModule )
 void font_init()
 {
     //Intitializes the font, ready to use
-    GLXtexture_new( &TxFont );
+    oglx_texture_new( &TxFont );
 
     font_release();
 }
@@ -1206,7 +1206,7 @@ void font_release()
     Uint16 i, ix, iy, cnt;
     float dx, dy;
 
-    GLXtexture_Release( &TxFont );
+    oglx_texture_Release( &TxFont );
 
     // Mark all as unused
     for ( cnt = 0; cnt < 256; cnt++ )
@@ -1248,8 +1248,8 @@ void font_load( const char* szBitmap, const char* szSpacing )
     }
 
     // Get the size of the bitmap
-    xsize = GLXtexture_GetImageWidth( &TxFont );
-    ysize = GLXtexture_GetImageHeight( &TxFont );
+    xsize = oglx_texture_GetImageWidth( &TxFont );
+    ysize = oglx_texture_GetImageHeight( &TxFont );
     if ( xsize == 0 || ysize == 0 )
     {
         log_error( "Bad font size! (%i, %i)\n", xsize, ysize );
@@ -1373,7 +1373,7 @@ void render_background( Uint16 texture )
 
         alpha = water_data.layer_alpha[0] / 255.0f;
 
-        GLXtexture_Bind ( TxTexture + texture );
+        oglx_texture_Bind ( TxTexture + texture );
 
         GL_DEBUG(glGetIntegerv)(GL_SHADE_MODEL, &shading_save );
         GL_DEBUG(glShadeModel)(GL_FLAT );  // Flat shade this
@@ -1469,7 +1469,7 @@ void render_foreground_overlay( Uint16 texture )
         GL_DEBUG(glGetIntegerv)(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
         GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
 
-        GLXtexture_Bind ( TxTexture + texture );
+        oglx_texture_Bind ( TxTexture + texture );
 
         GL_DEBUG(glGetIntegerv)(GL_SHADE_MODEL, &shading_save );
         GL_DEBUG(glShadeModel)(GL_FLAT );  // Flat shade this
@@ -1604,7 +1604,7 @@ void render_shadow( Uint16 character )
     y = pchr->inst.matrix.CNV( 3, 1 );
 
     // Choose texture.
-    GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+    oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
 
     // GOOD SHADOW
     v[0].tex[SS] = sprite_list_u[238][0];
@@ -1725,7 +1725,7 @@ void render_bad_shadow( Uint16 character )
     v[3].pos[ZZ] = ( float ) level;
 
     // Choose texture and matrix
-    GLXtexture_Bind( TxTexture + TX_PARTICLE_LIGHT );
+    oglx_texture_Bind( TxTexture + TX_PARTICLE_LIGHT );
 
     v[0].tex[SS] = sprite_list_u[236][0];
     v[0].tex[TT] = sprite_list_v[236][0];
@@ -2886,12 +2886,12 @@ void draw_blip( float sizeFactor, Uint8 color, int x, int y )
         GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
         GL_DEBUG(glNormal3f)(0.0f, 0.0f, 1.0f );
 
-        GLXtexture_Bind( &TxBlip );
+        oglx_texture_Bind( &TxBlip );
 
-        xl = ( float )bliprect[color].left   / (float)GLXtexture_GetTextureWidth( &TxBlip );
-        xr = ( float )bliprect[color].right  / (float)GLXtexture_GetTextureWidth( &TxBlip );
-        yt = ( float )bliprect[color].top    / (float)GLXtexture_GetTextureHeight( &TxBlip );
-        yb = ( float )bliprect[color].bottom / (float)GLXtexture_GetTextureHeight( &TxBlip );
+        xl = ( float )bliprect[color].left   / (float)oglx_texture_GetTextureWidth( &TxBlip );
+        xr = ( float )bliprect[color].right  / (float)oglx_texture_GetTextureWidth( &TxBlip );
+        yt = ( float )bliprect[color].top    / (float)oglx_texture_GetTextureHeight( &TxBlip );
+        yb = ( float )bliprect[color].bottom / (float)oglx_texture_GetTextureHeight( &TxBlip );
         width = bliprect[color].right - bliprect[color].left;
         height = bliprect[color].bottom - bliprect[color].top;
 
@@ -2919,7 +2919,7 @@ void draw_one_icon( int icontype, int x, int y, Uint8 sparkle )
         EnableTexturing();    // Enable texture mapping
         GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
-        GLXtexture_Bind( TxIcon + icontype );
+        oglx_texture_Bind( TxIcon + icontype );
 
         xl = ( ( float )iconrect.left ) / 32;
         xr = ( ( float )iconrect.right ) / 32;
@@ -2996,7 +2996,7 @@ void draw_map( int x, int y )
     EnableTexturing();
     GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 
-    GLXtexture_Bind( &TxMap );
+    oglx_texture_Bind( &TxMap );
 
     GL_DEBUG(glBegin)(GL_QUADS );
     {
@@ -3021,7 +3021,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
     if ( maxticks > 0 && ticks >= 0 )
     {
         // Draw the tab
-        GLXtexture_Bind( &TxBars );
+        oglx_texture_Bind( &TxBars );
 
         xl = ( ( float )tabrect[bartype].left ) / 128;
         xr = ( ( float )tabrect[bartype].right ) / 128;
@@ -3047,7 +3047,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         while ( ticks >= NUMTICK )
         {
             barrect[bartype].right = BARX;
-            GLXtexture_Bind( &TxBars );
+            oglx_texture_Bind( &TxBars );
 
             xl = ( ( float )barrect[bartype].left ) / 128;
             xr = ( ( float )barrect[bartype].right ) / 128;
@@ -3072,7 +3072,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         {
             // Draw the filled ones
             barrect[bartype].right = ( ticks << 3 ) + TABX;
-            GLXtexture_Bind( &TxBars );
+            oglx_texture_Bind( &TxBars );
 
             xl = ( ( float )barrect[bartype].left ) / 128;
             xr = ( ( float )barrect[bartype].right ) / 128;
@@ -3093,7 +3093,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
             if ( noticks > ( NUMTICK - ticks ) ) noticks = ( NUMTICK - ticks );
 
             barrect[0].right = ( noticks << 3 ) + TABX;
-            GLXtexture_Bind( &TxBars );
+            oglx_texture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3116,7 +3116,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         while ( maxticks >= NUMTICK )
         {
             barrect[0].right = BARX;
-            GLXtexture_Bind( &TxBars );
+            oglx_texture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3139,7 +3139,7 @@ int draw_one_bar( int bartype, int x, int y, int ticks, int maxticks )
         if ( maxticks > 0 )
         {
             barrect[0].right = ( maxticks << 3 ) + TABX;
-            GLXtexture_Bind( &TxBars );
+            oglx_texture_Bind( &TxBars );
 
             xl = ( ( float )barrect[0].left ) / 128;
             xr = ( ( float )barrect[0].right ) / 128;
@@ -3166,7 +3166,7 @@ void BeginText()
 {
     EnableTexturing();    // Enable texture mapping
 
-    GLXtexture_Bind( &TxFont );
+    oglx_texture_Bind( &TxFont );
 
     GL_DEBUG(glEnable)(GL_ALPHA_TEST );
     GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
@@ -3866,25 +3866,25 @@ bool_t load_blip_bitmap()
 //  // ZZ> This function draws a title image on the backbuffer
 //  GLfloat  txWidth, txHeight;
 //
-//  if ( INVALID_TX_ID != GLXtexture_GetTextureID( TxTitleImage + image ) )
+//  if ( INVALID_TX_ID != oglx_texture_GetTextureID( TxTitleImage + image ) )
 //  {
 //    GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f );
 //    Begin2DMode();
 //    GL_DEBUG(glNormal3f)(0, 0, 1 );  // GL_DEBUG(glNormal3f)(0, 1, 0 );
 //
 //    /* Calculate the texture width & height */
-//    txWidth = ( GLfloat )( GLXtexture_GetImageWidth( TxTitleImage + image ) / GLXtexture_GetDimensions( TxTitleImage + image ) );
-//    txHeight = ( GLfloat )( GLXtexture_GetImageHeight( TxTitleImage + image ) / GLXtexture_GetDimensions( TxTitleImage + image ) );
+//    txWidth = ( GLfloat )( oglx_texture_GetImageWidth( TxTitleImage + image ) / oglx_texture_GetDimensions( TxTitleImage + image ) );
+//    txHeight = ( GLfloat )( oglx_texture_GetImageHeight( TxTitleImage + image ) / oglx_texture_GetDimensions( TxTitleImage + image ) );
 //
 //    /* Bind the texture */
-//    GLXtexture_Bind( TxTitleImage + image );
+//    oglx_texture_Bind( TxTitleImage + image );
 //
 //    /* Draw the quad */
 //    GL_DEBUG(glBegin)(GL_QUADS );
 //    {
-//        GL_DEBUG(glTexCoord2f)(0, 1 );  GL_DEBUG(glVertex2f)(x, y + GLXtexture_GetImageHeight( TxTitleImage + image ) );
-//        GL_DEBUG(glTexCoord2f)(txWidth, 1 );  GL_DEBUG(glVertex2f)(x + GLXtexture_GetImageWidth( TxTitleImage + image ), y + GLXtexture_GetImageHeight( TxTitleImage + image ) );
-//        GL_DEBUG(glTexCoord2f)(txWidth, 1 - txHeight );  GL_DEBUG(glVertex2f)(x + GLXtexture_GetImageWidth( TxTitleImage + image ), y );
+//        GL_DEBUG(glTexCoord2f)(0, 1 );  GL_DEBUG(glVertex2f)(x, y + oglx_texture_GetImageHeight( TxTitleImage + image ) );
+//        GL_DEBUG(glTexCoord2f)(txWidth, 1 );  GL_DEBUG(glVertex2f)(x + oglx_texture_GetImageWidth( TxTitleImage + image ), y + oglx_texture_GetImageHeight( TxTitleImage + image ) );
+//        GL_DEBUG(glTexCoord2f)(txWidth, 1 - txHeight );  GL_DEBUG(glVertex2f)(x + oglx_texture_GetImageWidth( TxTitleImage + image ), y );
 //        GL_DEBUG(glTexCoord2f)(0, 1 - txHeight );  GL_DEBUG(glVertex2f)(x, y );
 //    }
 //    GL_DEBUG_END();
@@ -3931,8 +3931,6 @@ int ogl_init()
     {
         sdlinit_graphics();
     }
-
-    //SDL_GL_set_gl_mode(&ogl_vparam);
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG(glClearColor)(0.0f, 0.0f, 0.0f, 0.0f); // Set the background black
@@ -4122,19 +4120,6 @@ void sdlinit_graphics()
     }
     else
     {
-        // synch the texture parameters with the video mode
-        if( ogl_vparam.antialiasing )
-        {
-            // at least some antialiasing
-            tex_params.userAnisotropy = ogl_vparam.userAnisotropy;
-        }
-        else
-        {
-            // no antialiasing at all
-            tex_params.texturefilter  = MIN(tex_params.texturefilter, TX_TRILINEAR_2);
-            tex_params.userAnisotropy = 0.0f;
-        }
-
         log_message( "Success!\n" );
     }
 
@@ -4294,17 +4279,6 @@ void sdlinit_graphics()
 //#endif
 //
 //}
-//
-/*struct s_packing_test
-{
-    Uint8 val1;
-    Uint8 val2;
-
-    Uint8 ary1[3];
-    Uint8 ary2[3];
-};
-
-static struct s_packing_test packing_test;*/
 
 //---------------------------------------------------------------------------------------------
 bool_t dump_screenshot()
@@ -4349,7 +4323,7 @@ bool_t dump_screenshot()
     }
 
     // we ARE using OpenGL
-    GL_DEBUG(glPushClientAttrib)(GL_CLIENT_PIXEL_STORE_BIT ) ;
+    GL_DEBUG(glPushClientAttrib)( GL_CLIENT_PIXEL_STORE_BIT ) ;
     {
         SDL_Surface *temp;
         char buff2[100];
@@ -5056,3 +5030,24 @@ bool_t gfx_config_init ( gfx_config_t * pgfx )
 
     return btrue;
 };
+
+//--------------------------------------------------------------------------------------------
+bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_config_t * pcfg )
+{
+    /// BB > synch the texture parameters with the video mode
+
+    if( NULL == ptex || NULL == pcfg ) return GL_FALSE;
+
+    if( ogl_caps.maxAnisotropy == 0.0f )
+    {
+        ptex->userAnisotropy = 0.0f;
+        ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
+    }
+    else
+    {
+        ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
+        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX(0, ptex->texturefilter - TX_TRILINEAR_2);
+    }
+
+    return GL_TRUE;
+}

@@ -117,12 +117,12 @@ void render_fan( mesh_t * pmesh, Uint32 fan )
     {
         if ( meshnotexture )
         {
-            GLXtexture_Bind( NULL );
+            oglx_texture_Bind( NULL );
             meshlasttexture = (Uint16)(~0);
         }
         else
         {
-            GLXtexture_Bind( TxTexture + texture );
+            oglx_texture_Bind( TxTexture + texture );
             meshlasttexture = texture;
         }
     }
@@ -232,7 +232,7 @@ void render_hmap_fan( mesh_t * pmesh, Uint32 fan )
         badvertex++;
     }
 
-    GLXtexture_Bind( NULL );
+    oglx_texture_Bind( NULL );
 
     // Render each command
     GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
@@ -287,8 +287,8 @@ void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer )
     vertices = tile_dict[type].numvertices;// Number of vertices
     commands = tile_dict[type].command_count;          // Number of commands
 
-    x1 = ( float ) GLXtexture_GetTextureWidth( TxTexture + texture ) / ( float ) GLXtexture_GetImageWidth( TxTexture + texture );
-    y1 = ( float ) GLXtexture_GetTextureHeight( TxTexture + texture ) / ( float ) GLXtexture_GetImageHeight( TxTexture + texture );
+    x1 = ( float ) oglx_texture_GetTextureWidth( TxTexture + texture ) / ( float ) oglx_texture_GetImageWidth( TxTexture + texture );
+    y1 = ( float ) oglx_texture_GetTextureHeight( TxTexture + texture ) / ( float ) oglx_texture_GetImageHeight( TxTexture + texture );
 
 
     fx_off[0] = x1;
@@ -354,7 +354,7 @@ void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer )
     // Change texture if need be
     if ( meshlasttexture != texture )
     {
-        GLXtexture_Bind( TxTexture + texture );
+        oglx_texture_Bind( TxTexture + texture );
         meshlasttexture = texture;
     }
 

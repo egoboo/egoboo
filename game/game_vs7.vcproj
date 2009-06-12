@@ -4,6 +4,7 @@
 	Version="7.10"
 	Name="game"
 	ProjectGUID="{E9988340-E474-4C0A-8496-EFF3296DE056}"
+	RootNamespace="game"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

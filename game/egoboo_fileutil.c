@@ -750,7 +750,7 @@ void GLSetup_SupportedFormats()
 
 
 //--------------------------------------------------------------------------------------------
-Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key )
+Uint32  ego_texture_load( oglx_texture *texture, const char *filename, Uint32 key )
 {
     STRING fullname;
     Uint32 retval;
@@ -759,7 +759,7 @@ Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key 
     GLenum tx_target;
 
     // get rid of any old data
-    GLXtexture_Release( texture );
+    oglx_texture_Release( texture );
 
     // load the image
     retval = INVALID_TX_ID;
@@ -769,7 +769,7 @@ Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key 
         for (type = 0; type < maxformattypes; type++)
         {
             snprintf(fullname, sizeof(fullname), "%s%s", filename, TxFormatSupported[type]);
-            retval = GLXtexture_Load( GL_TEXTURE_2D, texture, fullname, key );
+            retval = oglx_texture_Load( GL_TEXTURE_2D, texture, fullname, key );
             if ( INVALID_TX_ID != retval ) break;
         }
     }
@@ -790,7 +790,7 @@ Uint32  ego_texture_load( GLXtexture *texture, const char *filename, Uint32 key 
             tx_target = GL_TEXTURE_1D;
         }
 
-        retval = GLXtexture_Convert( tx_target, texture, image, key );
+        retval = oglx_texture_Convert( tx_target, texture, image, key );
         strncpy(texture->name, fullname, sizeof(texture->name));
 
         texture->base.wrap_s = GL_REPEAT;

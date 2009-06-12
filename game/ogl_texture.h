@@ -51,7 +51,8 @@ typedef enum e_tx_filters
     TX_BILINEAR,
     TX_TRILINEAR_1,
     TX_TRILINEAR_2,
-    TX_ANISOTROPIC
+    TX_ANISOTROPIC,
+    TX_FILTER_COUNT
 } TX_FILTERS;
 
 //--------------------------------------------------------------------------------------------
@@ -66,23 +67,23 @@ struct s_oglx_texture
     int           imgW, imgH; // the height & width of the texture data
     GLfloat       alpha;      // the alpha for the texture
 };
-typedef struct s_oglx_texture GLXtexture;
+typedef struct s_oglx_texture oglx_texture;
 
-GLuint  GLXtexture_Convert( GLenum tx_target, GLXtexture *texture, SDL_Surface * image, Uint32 key );
-GLuint  GLXtexture_Load( GLenum tx_target, GLXtexture *texture, const char *filename, Uint32 key );
-GLuint  GLXtexture_GetTextureID( GLXtexture *texture );
-GLsizei GLXtexture_GetImageHeight( GLXtexture *texture );
-GLsizei GLXtexture_GetImageWidth( GLXtexture *texture );
-GLsizei GLXtexture_GetTextureWidth( GLXtexture *texture );
-GLsizei GLXtexture_GetTextureHeight( GLXtexture *texture );
-void    GLXtexture_SetAlpha( GLXtexture *texture, GLfloat alpha );
-GLfloat GLXtexture_GetAlpha( GLXtexture *texture );
-void    GLXtexture_Release( GLXtexture *texture );
+GLuint  oglx_texture_Convert( GLenum tx_target, oglx_texture *texture, SDL_Surface * image, Uint32 key );
+GLuint  oglx_texture_Load( GLenum tx_target, oglx_texture *texture, const char *filename, Uint32 key );
+GLuint  oglx_texture_GetTextureID( oglx_texture *texture );
+GLsizei oglx_texture_GetImageHeight( oglx_texture *texture );
+GLsizei oglx_texture_GetImageWidth( oglx_texture *texture );
+GLsizei oglx_texture_GetTextureWidth( oglx_texture *texture );
+GLsizei oglx_texture_GetTextureHeight( oglx_texture *texture );
+void    oglx_texture_SetAlpha( oglx_texture *texture, GLfloat alpha );
+GLfloat oglx_texture_GetAlpha( oglx_texture *texture );
+void    oglx_texture_Release( oglx_texture *texture );
 
-void    GLXtexture_Bind( GLXtexture * texture );
+void    oglx_texture_Bind( oglx_texture * texture );
 
-GLXtexture * GLXtexture_new( GLXtexture * texture );
-void        GLXtexture_delete( GLXtexture * texture );
+oglx_texture * oglx_texture_new( oglx_texture * texture );
+void           oglx_texture_delete( oglx_texture * texture );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
