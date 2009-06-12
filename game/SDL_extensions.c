@@ -41,11 +41,11 @@ SDL_bool SDLX_Report_Screen_Info( SDLX_screen_info_t * psi )
 {
     int cnt;
 
-    if( NULL == psi ) return SDL_FALSE;
+    if ( NULL == psi ) return SDL_FALSE;
 
     fprintf( LOCAL_STDOUT, "\nSDL using video driver - %s\n", psi->szDriver );
 
-    if( NULL != psi->video_mode_list )
+    if ( NULL != psi->video_mode_list )
     {
         fprintf( LOCAL_STDOUT, "\tAvailable full-screen video modes...\n" );
         for ( cnt = 0; NULL != psi->video_mode_list[cnt]; ++cnt )
@@ -375,7 +375,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
     if (NULL == v) return ret;
 
-    if( !v->flags.opengl )
+    if ( !v->flags.opengl )
     {
         // set the
         flags = SDLX_upload_sdl_video_flags( v->flags );
@@ -392,13 +392,13 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
         int actual_multi_buffers = 0;
         int buffer_size = v->gl_att.buffer_size;
 
-        if( 0 == buffer_size ) buffer_size = v->depth;
-        if( 0 == buffer_size ) buffer_size = 32;
-        if( buffer_size > 32 ) buffer_size = 32;
+        if ( 0 == buffer_size ) buffer_size = v->depth;
+        if ( 0 == buffer_size ) buffer_size = 32;
+        if ( buffer_size > 32 ) buffer_size = 32;
 
         // fix bad colordepth
         if ( (0 == v->gl_att.color[0] && 0 == v->gl_att.color[1] && 0 == v->gl_att.color[2]) ||
-             (v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
+                (v->gl_att.color[0] + v->gl_att.color[1] + v->gl_att.color[2] > buffer_size ) )
         {
             if (buffer_size > 24)
             {
@@ -448,7 +448,7 @@ SDL_Surface * SDLX_RequestVideoMode( SDLX_video_parameters_t * v, SDL_bool make_
 
         SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &actual_multi_buffers );
 
-        if( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
+        if ( v->gl_att.multi_samples > 0 && actual_multi_buffers == 0 )
         {
             // could not create the multi-buffer with this pixel format
             // i.e. cross-platform equivalent of the vectors wglChoosePixelFormatARB and

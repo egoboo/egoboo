@@ -1206,8 +1206,8 @@ int doInputOptions( float deltaTime )
 
     static STRING inputOptionsButtons[CONTROL_COMMAND_COUNT + 2];
 
-    Sint8 result = 0;
-    static Uint32 player = 0;
+    Sint8  result = 0;
+    static Sint32 player = 0;
 
     Uint32              i;
     Sint32              idevice, iicon;
@@ -1840,7 +1840,7 @@ int doVideoOptions( float deltaTime )
             videoOptionsButtons[0] = Cantialiasing;
 
             //Message duration
-            if( cfg.message_duration <= 100 )
+            if ( cfg.message_duration <= 100 )
             {
                 videoOptionsButtons[1] = "Short";
             }
@@ -1882,7 +1882,7 @@ int doVideoOptions( float deltaTime )
                     cfg.texturefilter_req = TX_LINEAR;
                     break;
             }
-            
+
             videoOptionsButtons[2] = cfg.use_dither ? "Yes" : "No";
 
             videoOptionsButtons[3] = cfg.fullscreen_req ? "True" : "False";
@@ -1893,19 +1893,19 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.reflect_prt )
                 {
                     videoOptionsButtons[4] = "Medium";
-                    if ( cfg.reflect_fade == 0 ) 
+                    if ( cfg.reflect_fade == 0 )
                     {
                         videoOptionsButtons[4] = "High";
                     }
                 }
             }
-            else 
+            else
             {
                 videoOptionsButtons[4] = "Off";
             }
 
             if ( maxmessage > MAXMESSAGE || maxmessage < 0 ) maxmessage = MAXMESSAGE - 1;
-            if ( maxmessage == 0 ) 
+            if ( maxmessage == 0 )
             {
                 sprintf( Cmaxmessage, "None" );           // Set to default
             }
@@ -1918,7 +1918,7 @@ int doVideoOptions( float deltaTime )
             if ( cfg.shadow_allowed )
             {
                 videoOptionsButtons[6] = "Normal";
-                if ( !cfg.shadow_sprite ) 
+                if ( !cfg.shadow_sprite )
                 {
                     videoOptionsButtons[6] = "Best";
                 }
@@ -1941,7 +1941,7 @@ int doVideoOptions( float deltaTime )
                 if ( cfg.overlay_allowed && cfg.background_allowed )
                 {
                     videoOptionsButtons[9] = "Good";
-                    if ( cfg.use_perspective ) 
+                    if ( cfg.use_perspective )
                     {
                         videoOptionsButtons[9] = "Superb";
                     }
@@ -2025,7 +2025,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 180, 100, 30 ) )
             {
-                if( cfg.message_duration < 0 )
+                if ( cfg.message_duration < 0 )
                 {
                     cfg.message_duration = 100;
                 }
@@ -2034,12 +2034,12 @@ int doVideoOptions( float deltaTime )
                     cfg.message_duration += 50;
                 }
 
-                if( cfg.message_duration >= 250 )
+                if ( cfg.message_duration >= 250 )
                 {
                     cfg.message_duration = 100;
                 }
 
-                if( cfg.message_duration <= 100 )
+                if ( cfg.message_duration <= 100 )
                 {
                     videoOptionsButtons[1] = "Short";
                 }
@@ -2112,7 +2112,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, sdl_scr.y - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, sdl_scr.y - 285, 130, 30 ) )
             {
-                if( cfg.texturefilter_req < TX_UNFILTERED )
+                if ( cfg.texturefilter_req < TX_UNFILTERED )
                 {
                     cfg.texturefilter_req = TX_UNFILTERED;
                 }
@@ -2121,7 +2121,7 @@ int doVideoOptions( float deltaTime )
                     cfg.texturefilter_req = (TX_FILTERS)( (int)cfg.texturefilter_req + 1 );
                 }
 
-                if( cfg.texturefilter_req > TX_ANISOTROPIC )
+                if ( cfg.texturefilter_req > TX_ANISOTROPIC )
                 {
                     cfg.texturefilter_req = TX_UNFILTERED;
                 }
@@ -2315,7 +2315,7 @@ int doVideoOptions( float deltaTime )
                     cfg.message_count_req++;
                 }
 
-                if( cfg.message_count_req > MAXMESSAGE )
+                if ( cfg.message_count_req > MAXMESSAGE )
                 {
                     cfg.message_count_req = 0;
                 }

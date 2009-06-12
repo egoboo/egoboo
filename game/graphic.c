@@ -4406,11 +4406,11 @@ void load_graphics()
 
     // Check if the computer graphic driver supports anisotropic filtering
 
-    if( !ogl_caps.anisotropic_supported )
+    if ( !ogl_caps.anisotropic_supported )
     {
-        if( tex_params.texturefilter >= TX_ANISOTROPIC )
+        if ( tex_params.texturefilter >= TX_ANISOTROPIC )
         {
-            tex_params.texturefilter >= TX_TRILINEAR_2;
+            tex_params.texturefilter = TX_TRILINEAR_2;
             log_warning( "Your graphics driver does not support anisotropic filtering.\n" );
         }
     }
@@ -5036,9 +5036,9 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
 {
     /// BB > synch the texture parameters with the video mode
 
-    if( NULL == ptex || NULL == pcfg ) return GL_FALSE;
+    if ( NULL == ptex || NULL == pcfg ) return GL_FALSE;
 
-    if( ogl_caps.maxAnisotropy == 0.0f )
+    if ( ogl_caps.maxAnisotropy == 0.0f )
     {
         ptex->userAnisotropy = 0.0f;
         ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_TRILINEAR_2 );
@@ -5046,7 +5046,7 @@ bool_t oglx_texture_parameters_synch( oglx_texture_parameters_t * ptex, egoboo_c
     else
     {
         ptex->texturefilter  = MIN( pcfg->texturefilter_req, TX_FILTER_COUNT );
-        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX(0, ptex->texturefilter - TX_TRILINEAR_2);
+        ptex->userAnisotropy = ogl_caps.maxAnisotropy * MAX(0, (int)ptex->texturefilter - (int)TX_TRILINEAR_2);
     }
 
     return GL_TRUE;

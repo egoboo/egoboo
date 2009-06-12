@@ -129,7 +129,7 @@ SDL_bool SDL_GL_set_gl_mode(struct s_oglx_video_parameters * v)
         GL_DEBUG(glDisable)(GL_MULTISAMPLE);
         GL_DEBUG(glEnable)(GL_MULTISAMPLE_ARB);
     }
-    else if( v->multisample )
+    else if ( v->multisample )
     {
         GL_DEBUG(glEnable)(GL_MULTISAMPLE);
     }
