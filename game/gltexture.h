@@ -26,8 +26,6 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-#define INVALID_TX_ID (~(GLuint)0)
-#define INVALID_KEY   (~(Uint32)0)
 
 /**> DATA STRUCTURE: GLtexture <**/
 struct ogl_texture_t
@@ -44,11 +42,12 @@ struct ogl_texture_t
 };
 typedef struct ogl_texture_t GLtexture;
 
+/*
 GLtexture * GLtexture_new( GLtexture * ptx );
 void        GLtexture_delete( GLtexture * ptx );
-
+*/
 /**> FUNCTION PROTOTYPES: GLtexture <**/
-void    GLSetup_SupportedFormats();
+/*void    GLSetup_SupportedFormats();
 Uint32  GLtexture_Load( GLenum tx_target, GLtexture *texture, const char *filename, Uint32 key );
 GLuint  GLtexture_GetTextureID( GLtexture *texture );
 GLsizei GLtexture_GetImageHeight( GLtexture *texture );
@@ -60,5 +59,5 @@ GLfloat GLtexture_GetAlpha( GLtexture *texture );
 void    GLtexture_Release( GLtexture *texture );
 void    GLtexture_Bind( GLtexture *texture );
 Uint32  GLtexture_Convert( GLenum tx_target, GLtexture *texture, SDL_Surface * image, Uint32 key );
-
+*/
 #define  _GLtexture_H_

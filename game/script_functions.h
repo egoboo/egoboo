@@ -412,3 +412,4 @@ Uint8 scr_set_TerrainSpeech( struct s_script_state * pstate, struct s_ai_state *
 Uint8 scr_set_SelectSpeech( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_OperatorIsMacintosh( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_IfModuleHasIDSZ( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_MorphToTarget( struct script_state_t * pstate, struct ai_state_t * pself );

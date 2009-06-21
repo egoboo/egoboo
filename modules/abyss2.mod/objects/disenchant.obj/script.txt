@@ -33,15 +33,20 @@ IfUsed
             tmpdistance = targetz
             tmpargument = 0
             SpawnExactParticle
-
+      
       // Put particles around the target (If we find one)
       tmpx = 0
       SetTargetToNearbyEnemy        //Prefer enemies before others...
         tmpx = 1
       Else
         SetTargetToNearestLifeform
-          tmpx = 1
-
+          tmpx = targetdistance
+          tmpy = 128*3
+          IfXIsLessThanY
+            tmpx = 1
+          Else
+            tmpx = 0
+          
       tmpy = 1
       IfXIsEqualToY
         tmpx = targetx
@@ -62,9 +67,12 @@ Else
       tmpargument = ACTIONZA
       CorrectActionForHand
       TargetDoAction
-
+      
     // Find a target
     SetTargetToNearestLifeform
+    tmpx = targetdistance
+    tmpy = 128*3
+    IfXIsLessThanY
       // Can it be enchanted?
       tmpargument = [XENC]       //DEBUG: Remove?
       IfTargetHasAnyID
@@ -75,7 +83,7 @@ Else
         UnkurseTarget
         DisenchantTarget
         tmpargument = 2
-        SendMessageNear
+        SendMessageNear        
 
     Else
       // Couldn't find a target, target the other hand (or the caster if that also fails)
@@ -87,14 +95,14 @@ Else
       UnkurseTarget
       DisenchantTarget
       tmpargument = 2
-      SendMessageNear
-
+      SendMessageNear   
+  
   // Play a sound
     tmpargument = 0
     PlaySound
     tmpargument = 20
     SetReloadTime
-
+  
   Else
     tmpy = 0
     IfXIsMoreThanY

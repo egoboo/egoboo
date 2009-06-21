@@ -6614,3 +6614,19 @@ Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
     returncode = module_reference_matches("module.mod", pstate->distance);
     SCRIPT_FUNCTION_END();
 }
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
+{
+	//This morphs the character into the target
+    SCRIPT_FUNCTION_BEGIN();
+
+	change_character( pself->index, ChrList[pself->target].basemodel, ChrList[pself->target].skin, LEAVEALL );
+	pself->alert |= ALERTIF_CHANGED;
+	ChrList[pself->index].fat = ChrList[pself->target].fat;
+	ChrList[pself->index].sizegoto = ChrList[pself->target].fat;
+	ChrList[pself->index].sizegototime = SIZETIME;
+	ChrList[pself->index].ai.type = MadList[ChrList[pself->index].basemodel].ai;	//change back to our original AI
+
+    SCRIPT_FUNCTION_END();
+}

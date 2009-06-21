@@ -13,6 +13,7 @@ SLOT  OBJECT
 50    Sword
 51    Spear
 55    Pit Cobra
+56    Cinquedea
 59    Generic Chest (See script on how to use content)
 61    Longbow
 63    Tower Shield
@@ -29,6 +30,7 @@ SLOT  OBJECT
 76    Bull Wolf
 77    Hatchet
 78    Kite Shield
+82    Book of Lifedrain
 84    Armor Chest (random type, tris0 to tris2)
 85    Rune of Clairvoyance
 86    Life Potion
@@ -36,10 +38,13 @@ SLOT  OBJECT
 88    Rune of Confusion
 90    Quiver
 91    Book of Firering
+94    Door Key (golden key [KEYA])
 94    Chest Key (silver key [KEYC])
+95    Acid Blob
 96    Bomb
 97    Cockatrice
 98    Poisoned Katana
 99    Darkness Amulet (Kursed!)
 100   Weapon Rack
+111   Book of Battleward
 158   Ring of Protection

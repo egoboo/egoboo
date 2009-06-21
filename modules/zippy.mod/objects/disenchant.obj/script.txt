@@ -40,7 +40,12 @@ IfUsed
         tmpx = 1
       Else
         SetTargetToNearestLifeform
-          tmpx = 1
+          tmpx = targetdistance
+          tmpy = 128*3
+          IfXIsLessThanY
+            tmpx = 1
+          Else
+            tmpx = 0
           
       tmpy = 1
       IfXIsEqualToY
@@ -65,6 +70,9 @@ Else
       
     // Find a target
     SetTargetToNearestLifeform
+    tmpx = targetdistance
+    tmpy = 128*3
+    IfXIsLessThanY
       // Can it be enchanted?
       tmpargument = [XENC]       //DEBUG: Remove?
       IfTargetHasAnyID

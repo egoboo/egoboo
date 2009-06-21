@@ -371,6 +371,13 @@ IfKilled
   GiveExperienceToGoodTeam
   tmpargument = 14
   PlayMusic
+  
+  //Add the end text
+  ClearEndMessage
+  tmpargument = 8
+  AddEndMessage
+  tmpargument = 9
+  AddEndMessage
 
 //------------------------------------------------------------------------------
 End

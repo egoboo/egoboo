@@ -380,6 +380,7 @@ The symbol itself follows
 :F 364 TakePicture
 :F 365 IfOperatorIsMacintosh
 :F 366 IfModuleHasIDSZ
+:F 367 MorphToTarget
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS

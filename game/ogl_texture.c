@@ -157,7 +157,6 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     SDL_Surface     * screen;
     SDL_PixelFormat * pformat;
     SDL_PixelFormat   tmpformat;
-    Uint32            convert_flags;
     bool_t            use_alpha;
 
     SDLX_screen_info_t sdl_scr;

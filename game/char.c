@@ -3165,8 +3165,11 @@ void damage_character( Uint16 character, Uint16 direction,
         if ( ChrList[character].damagemodifier[damagetype]&DAMAGEMANA )
         {
             int manadamage;
-            manadamage = MAX(damage - ChrList[character].mana, 0);
-            ChrList[character].mana = MAX(ChrList[character].mana - damage, 0);
+            manadamage = MAX(ChrList[character].mana - damage, 0);
+            ChrList[character].mana = manadamage;
+			damage -= manadamage;
+			ChrList[character].ai.alert |= ALERTIF_ATTACKED;
+            ChrList[character].ai.attacklast = attacker;
         }
 
         // Allow charging (Invert damage to mana)
@@ -3177,7 +3180,6 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 ChrList[character].mana = ChrList[character].manamax;
             }
-
             return;
         }
 
@@ -3258,10 +3260,6 @@ void damage_character( Uint16 character, Uint16 direction,
                     }
                     if ( basedamage > HURTDAMAGE )
                     {
-                        // Call for help if below 1/2 life
-                        /*if(ChrList[character].life < (ChrList[character].lifemax>>1))
-                            call_for_help(character);*/
-
                         // Spawn blud particles
                         if ( CapList[model].bludvalid && ( damagetype < DAMAGE_HOLY || CapList[model].bludvalid == ULTRABLUDY ) )
                         {
@@ -4266,6 +4264,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     ChrList[ichr].latchy = 0;
     ChrList[ichr].latchbutton = 0;
     ChrList[ichr].turnmode = TURNMODEVELOCITY;
+
     // Flags
     ChrList[ichr].stickybutt = CapList[profile].stickybutt;
     ChrList[ichr].openstuff = CapList[profile].canopenstuff;
@@ -4276,6 +4275,7 @@ void change_character( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich
     ChrList[ichr].ismount = CapList[profile].ismount;
     ChrList[ichr].cangrabmoney = CapList[profile].cangrabmoney;
     ChrList[ichr].jumptime = JUMPDELAY;
+
     // Character size and bumping
     ChrList[ichr].shadowsize = (Uint8)(CapList[profile].shadowsize * ChrList[ichr].fat);
     ChrList[ichr].bumpsize = (Uint8) (CapList[profile].bumpsize * ChrList[ichr].fat);

@@ -1,0 +1,1 @@
+Message 0: %t_absorbed_the_%c!
