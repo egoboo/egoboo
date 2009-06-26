@@ -3,7 +3,7 @@
 //State 1: Opened Chest
 //State 2: Looted Chest
 //selfmoney = armor level (0-3, 4 is random)
-//selflevel = class (0 = random... TODO)
+//selflevel = armor type based on class (0 = random... see list below)
 //+1 content = locked
 //+2 content = map
 //+4 content = fire trapped
@@ -25,6 +25,7 @@
 //9 = Paladin.
 //10= Tourist.
 //11= Valkyrie.
+//12= All above excluding 9, 10 and 11
 
 //------------------------------------------------------------------------------------
 //Invisible chest
@@ -44,44 +45,58 @@ IfSpawned
     tmpx = selflevel
     tmpy = 0
     IfXIsEqualToY
-      tmpx = rand % 8       //Randomize
+      tmpx = rand % 11 + 1      //Randomize  (use in loot)
+    tmpy = 12
+    IfXIsEqualToY
+      tmpx = rand % 8 + 1       //Randomize  (use in shops)
     tmpy = 1
     IfXIsEqualToY
       tmpargument = [ARCH]  //Archaelogist
+      tmpturn = 23             //Which message to display when failed to loot
     tmpy = 2
     IfXIsEqualToY
       tmpargument = [GNOM]  //G'nome
+      tmpturn = 24             //Which message to display when failed to loot
     tmpy = 3
     IfXIsEqualToY
       tmpargument = [SOLD]  //Soldier
+      tmpturn = 25             //Which message to display when failed to loot
     tmpy = 4
     IfXIsEqualToY
       tmpargument = [ELFF]  //Elf
+      tmpturn = 26             //Which message to display when failed to loot
     tmpy = 5
     IfXIsEqualToY
       tmpargument = [ADVE]  //Adventurer
+      tmpturn = 27             //Which message to display when failed to loot
     tmpy = 6
     IfXIsEqualToY
       tmpargument = [WIZA]  //Wizard
+      tmpy = 28             //Which message to display when failed to loot
     tmpy = 7
     IfXIsEqualToY
       tmpargument = [HEAL]  //Healer
+      tmpturn = 29             //Which message to display when failed to loot
     tmpy = 8
     IfXIsEqualToY
       tmpargument = [ROGU]  //Rogue
+      tmpturn = 30             //Which message to display when failed to loot
     tmpy = 9
     IfXIsEqualToY
       tmpargument = [PALA]  //Paladin
+      tmpturn = 31             //Which message to display when failed to loot
     tmpy = 10
     IfXIsEqualToY
       tmpargument = [TOUR]  //Tourist
+      tmpturn = 32             //Which message to display when failed to loot
     tmpy = 11
     IfXIsEqualToY
       tmpargument = [VALK]  //Valkyrie
+      tmpturn = 33             //Which message to display when failed to loot
     
     //do it
     tmpx = tmpargument
-    tmpy = 0
+    tmpy = tmpturn
     tmpargument = 0
     SetXY
     
@@ -89,9 +104,8 @@ IfSpawned
     tmpx = selfmoney
     tmpy = 3
     IfXIsMoreThanY
-      tmpargument = rand & 3                  //!!!!!!!!!!!BAD TODO!!!!!!!!!!!!
-      tmpargument = selfmoney - tmpargument
-      DropMoney
+      tmpargument = rand % 4
+      SetMoney
 
 //------------------------------------------------------------------------------------
 // Someone cast an unlock spell
@@ -344,7 +358,7 @@ IfBumped
           tmpy = 32
           IfXIsEqualToY
             tmpargument = 0
-            GetXY
+            GetXY                   //tmpx is class IDSZ and tmpy is which message to play if failed
             tmpargument = tmpx
             IfTargetHasID
             
@@ -359,7 +373,11 @@ IfBumped
 
                   // Swap armor
                   ChangeTargetArmor
-                  SetContent
+                  
+                  //ChangeTargetArmor sets tmpargument to the current armor type in the chest
+                  //So not we use selfmoney to make the script remember the armor level
+                  SetMoney
+                  
                   tmpargument = 14 + tmpx
                   tmpx = tmpdistance
                   SendMessageNear
@@ -377,7 +395,7 @@ IfBumped
                 SendMessageNear
             Else
               //Wrong armor type for class
-              tmpargument = selflevel + 23
+              tmpargument = tmpy
               SendMessageNear
 
           //No armor, no traps, and no lock; just loot it already!

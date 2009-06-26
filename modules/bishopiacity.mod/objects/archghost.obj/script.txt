@@ -29,17 +29,28 @@ IfBumped
           //They want to enter!
           tmpargument = 10
           IfContentIs
-            tmpargument = 1
-            SendMessage
-            tmpargument = 7
-            PlayFullSound
-            tmpargument = [AMAG]
-            AddQuest
-            tmpargument = 5         //+1 later = 6
-            SetContent
+            tmpx = targetlevel
+            tmpy = 8
+            IfXIsMoreThanY
+              tmpargument = 8
+              SendMessage
+              tmpargument = 7
+              PlayFullSound
+              tmpargument = [AMAG]
+              tmpdistance = 0
+              AddTargetQuest
+              tmpargument = 5         //+1 later = 6
+              SetContent
+            Else
+              tmpargument = 1          //They are too low level!
+              SendMessage
+              tmpargument = 8
+              PlayFullSound
+              tmpargument = 3         //+1 later = 4
+              SetContent
           Else
             GetContent
-            PlaySound
+            PlayFullSound
             SendMessage
 
             //Find out if they want to enter

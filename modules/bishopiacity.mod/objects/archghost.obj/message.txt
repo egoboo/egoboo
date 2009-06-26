@@ -1,5 +1,5 @@
 Message 0: Oh,_hello_there.
-Message 1: %t_CANNOT_ENTER_HERE_YET...
+Message 1: I_am_sorry..._Only_the_most_powerful_mages_are_allowed_in_here...
 Message 2: Hey,_excuse_me!
 Message 3: Greetings_fellow_mage!
 Message 4: This_is_the_entrance_to_the_Arch-Mage_trials! 

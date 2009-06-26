@@ -1,3 +1,9 @@
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
 // Get mean if characters wanna be bad
 IfAttacked
   SetTargetToWhoeverAttacked

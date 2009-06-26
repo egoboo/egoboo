@@ -1,9 +1,3 @@
-// Show the character's location
-tmpx = selfx
-tmpy = selfy
-tmpargument = YELLOW
-ShowBlipXY
-
 // Get mean if characters wanna be bad
 IfAttacked
   SetTargetToWhoeverAttacked
@@ -45,8 +39,11 @@ IfTimeOut				// This is done every so often
   //First priority is to heal!
   SetTargetToNearestFriend
     IfTargetIsHurt
-      tmpargument = 2
-      SetState
+      IfTargetIsAPlayer       //We are mean... players have to pay!
+        DoNothing
+      Else
+        tmpargument = 2
+        SetState
 
   IfStateIs2				  // State 2 ( Helper )
     IfTargetIsHurt			    // Heal wounded

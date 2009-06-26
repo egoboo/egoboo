@@ -9,7 +9,12 @@ IfTimeOut
   AddWaypoint
   tmpargument = rand & 15 + 30
   SetTime
-
+  
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
 
 //------------------------------------------------------------------------------
 //Handle orders ( purchases )

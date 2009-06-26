@@ -112,6 +112,11 @@ IfTimeOut
       AddWaypoint
     tmpargument = 60
     SetTime
+    
+    //Draw weapon
+    IfUnarmed
+      tmpargument = LATCHPACKRIGHT
+      PressLatchButton
 
 //What to do if bumped
 IfStateIs0

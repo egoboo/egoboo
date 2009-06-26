@@ -6,6 +6,12 @@
 //tmpdistance = chance to get detected when stealing
 //Content set to 1 means spawn particles (Stakes that marks shop)
 
+// Show the character's location
+tmpx = selfx
+tmpy = selfy
+tmpargument = YELLOW
+ShowBlipXY
+
 //------------------------------------------------------------------------------
 // Get mean if characters wanna be bad
 IfAttacked
@@ -431,7 +437,7 @@ IfSpawned
     tmpdistance = 0
     tmpx = selfx
     tmpy = selfy
-    tmpargument = 59		//Knife
+    tmpargument = 89		//Knife
     SpawnExactCharacterXYZ
 //ITEM 1
     tmpturn = rand
