@@ -34,7 +34,7 @@ IfBumped
             tmpargument = 7
             PlayFullSound
             tmpargument = [AMAG]
-            AddIDSZ
+            AddQuest
             tmpargument = 5         //+1 later = 6
             SetContent
           Else
