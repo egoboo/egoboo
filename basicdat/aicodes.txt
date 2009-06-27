@@ -609,6 +609,7 @@ The symbol itself follows
 :V 073 spawndistance
 :V 074 targetmaxlife
 :V 075 targetteam
+:V 076 targetarmor
 :O 000 +
 :O 001 -
 :O 002 &

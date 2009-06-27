@@ -83,11 +83,11 @@ Acceleration rate ( eg. 40 38 30 20 )		: 40 40 40 40
 
 
 // Experience and level data
-Experience for level 1 ( 200 )			: 33333  // Don't advance
-Experience for level 2 ( 400 )			: 33333  // when morphed...
-Experience for level 3 ( 800 )			: 33333
-Experience for level 4 ( 1600 )			: 33333
-Experience for level 5 ( 3200 )			: 33333
+Experience for level 1 ( 200 )			: 99999  // Don't advance
+Experience for level 2 ( 400 )			: 99999  // when morphed...
+Experience for level 3 ( 800 )			: 99999
+Experience for level 4 ( 1600 )			: 99999
+Experience for level 5 ( 3200 )			: 99999
 Starting experience ( eg. 0-500 )		: 0-0
 Experience worth for this object ( 10 )		: 10
 Experience exchange for this object ( 0.001 )	: 0.01
