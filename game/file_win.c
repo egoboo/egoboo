@@ -149,7 +149,7 @@ void fs_deleteFile( const char *filename )
 
 void fs_copyFile( const char *source, const char *dest )
 {
-    CopyFile( source, dest, btrue );
+    CopyFile( source, dest, bfalse );
 }
 
 //---------------------------------------------------------------------------------------------

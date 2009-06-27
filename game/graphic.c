@@ -1782,7 +1782,7 @@ void light_fans( renderlist_t * prlist )
     {
         int vertex, numvertices;
         int ix, iy, dx, dy;
-        int fan;
+        Uint32 fan;
         float min_x, max_x, min_y, max_y, min_z, max_z;
         float offset_x[4] = {0, 1, 1, 0}, offset_y[4] = {0, 0, 1, 1};
 
@@ -2333,7 +2333,8 @@ void do_mpd_lighting( mesh_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function does dynamic lighting of visible fans
 
-    int cnt, tnc, vertex, fan, entry;
+    int cnt, tnc, vertex, entry;
+	Uint32 fan;
     float level;
 
     // refresh the dynamic light list
@@ -4790,7 +4791,7 @@ void make_dynalist( camera_t * pcam )
 bool_t dolist_add_chr( mesh_t * pmesh, Uint16 ichr )
 {
     // This function puts a character in the list
-    int itile;
+    Uint32 itile;
     chr_t * pchr;
     cap_t * pcap;
     chr_instance_t * pinst;

@@ -2530,9 +2530,9 @@ void export_one_character_profile( const char *szSaveName, Uint16 character )
         fprintf( filewrite, "\n" );
 
         // More stuff
-        fprintf( filewrite, "Life healing   : %5.3f\n", CapList[profile].lifeheal / 256.0f );
-        fprintf( filewrite, "Mana cost      : %5.3f\n", CapList[profile].manacost / 256.0f );
-        fprintf( filewrite, "Life return    : %d\n", CapList[profile].lifereturn );
+        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].lifeheal / 256.0f );		//These two are seriously outdated
+        fprintf( filewrite, "NOT USED       : %5.3f\n", CapList[profile].manacost / 256.0f );		//and shouldnt be used. Use scripts instead.
+        fprintf( filewrite, "Regeneration   : %d\n", CapList[profile].lifereturn );
         fprintf( filewrite, "Stopped by     : %d\n", CapList[profile].stoppedby );
         funderf( filewrite, "Skin 0 name    : ", CapList[profile].skinname[0] );
         funderf( filewrite, "Skin 1 name    : ", CapList[profile].skinname[1] );
@@ -4174,6 +4174,18 @@ Uint16 change_armor( Uint16 character, Uint16 skin )
     }
 
     return skin;
+}
+
+//--------------------------------------------------------------------------------------------
+void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich )
+{
+	//This function polymorphs a character permanently so that it can be exported properly
+	//A character turned into a frog with this function will also export as a frog!
+	if ( profile > MAX_PROFILE || !MadList[profile].used ) return;
+
+	strcpy(MadList[ChrList[ichr].model].name, MadList[profile].name);
+	change_character( ichr, profile, skin, leavewhich );
+	ChrList[ichr].basemodel = profile;
 }
 
 //--------------------------------------------------------------------------------------------

@@ -43,18 +43,28 @@ IfUsed
         tmpy = 50
         tmpx = targetmana
         IfXIsMoreThanY
+          tmpx = 0
           tmpargument = [WIZA]      //Level 5 wizards have 33% reduced mana cost
           IfTargetHasID
+            tmpx = 1
+          tmpargument = [ARCH]      //Archmages get this bonus as well
+          IfTargetHasID
+            tmpx = 1
+            
+          tmpdistance = 50
+          tmpy = 1
+          IfXIsEqualToY
             tmpargument = 50
             tmpx = targetlevel
             tmpy = 3
             IfXIsMoreThanY
               tmpargument = 33
+              tmpdistance = 75
           Else
             tmpargument = 50
           CostTargetMana
           GetContent
-          tmpargument = tmpargument + 50
+          tmpargument = tmpargument + tmpdistance
           SetContent
 
 Else			//Player released the charge
@@ -77,6 +87,10 @@ Else			//Player released the charge
       tmpy = 3
       IfXIsMoreThanY
         tmpdistance = 1
+    tmpargument = [ARCH]    //Archmages have always 100% success
+    IfTargetHasID
+     tmpdistance = 1
+
 
     //If tmpdistance = 1 then it's at least a level 5 wizard
     tmpturn = 0
@@ -88,8 +102,7 @@ Else			//Player released the charge
       tmpx = 50 - tmpturn   	//The chance to fail (50% -1% per 2 int)
       tmpy = rand % 100
     IfXIsLessThanY
-      GetContent
-      tmpdistance = tmpargument > 8 + 4 < 6
+      tmpdistance = selfcontent > 8 + 4 < 6
       tmpturn = targetturn
       tmpx = targetx
       tmpy = targety
@@ -108,7 +121,7 @@ Else			//Player released the charge
     Else			//Lost control!
       tmpargument = 4
       SendMessageNear
-      tmpdistance = tmpargument > 8 + 4 < 6
+      tmpdistance = selfcontent > 8 + 4 < 6
       tmpturn = rand
       tmpx = rand % 750 + selfx - 375
       tmpy = rand % 750 + selfy - 375

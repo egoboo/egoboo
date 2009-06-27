@@ -3563,10 +3563,11 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
-            /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-            /*pprt_b->attachedtocharacter != MAX_CHR ||*/
-            ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
+		  pprt_b->attachedtocharacter != MAX_CHR ||
+           /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/  
+          ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
+		  ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) 
+		    && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
@@ -3634,7 +3635,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pprt_b->damagebase *= 1.00f + percent;
                     }
 
-                    // Damage the character
+                    // Damage the character (Double the damage if it is vulnerable)
                     if ( pcap_a->idsz[IDSZ_VULNERABILITY] != IDSZ_NONE && ( pcap_a->idsz[IDSZ_VULNERABILITY] == prtidtype || pcap_a->idsz[IDSZ_VULNERABILITY] == prtidparent ) )
                     {
                         damage_character( ichr_a, direction, pprt_b->damagebase << 1, pprt_b->damagerand << 1, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
@@ -3650,16 +3651,12 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     {
                         if ( ppip_b->grogtime != 0 && pcap_a->canbegrogged )
                         {
-                            pchr_a->grogtime += ppip_b->grogtime;
-                            if ( pchr_a->grogtime < 0 )  pchr_a->grogtime = 32767;
-
+                            pchr_a->grogtime = MAX(0, MAX(pchr_a->grogtime+ppip_b->grogtime, 32767));
                             pchr_a->ai.alert |= ALERTIF_GROGGED;
                         }
                         if ( ppip_b->dazetime != 0 && pcap_a->canbedazed )
                         {
-                            pchr_a->dazetime += ppip_b->dazetime;
-                            if ( pchr_a->dazetime < 0 )  pchr_a->dazetime = 32767;
-
+                            pchr_a->dazetime = MAX(0, MAX(pchr_a->dazetime+ppip_b->dazetime, 32767));
                             pchr_a->ai.alert |= ALERTIF_DAZED;
                         }
                     }
@@ -3741,6 +3738,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             ay = pprt_b->pos.y - pprt_b->vel.y;
             ax = pchr_a->pos.x - ax;
             ay = pchr_a->pos.y - ay;
+
             // Find size of normal
             scale = ax * ax + ay * ay;
             if ( scale > 0 )
@@ -3749,6 +3747,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 scale = SQRT( scale );
                 nx = ax / scale;
                 ny = ay / scale;
+
                 // Deflect the incoming ray off the normal
                 scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
                 ax = scale * nx;
@@ -3757,6 +3756,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 pprt_b->vel.y = pprt_b->vel.y - ay;
             }
         }
+
+		//It's not deflect, so let's reflect it!
         else
         {
             // Reflect it back in the direction it came
@@ -3765,13 +3766,13 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
 
         // Change the owner of the missile
-        if ( !ppip_b->homing )
-        {
+        //if ( !ppip_b->homing )
+        //{
             pprt_b->team = pchr_a->team;
             pprt_b->chr = ichr_a;
-        }
+        //}
 
-        // Change the direction of the particle
+        // Change the facing direction of the particle
         if ( ppip_b->rotatetoface )
         {
             // Turn to face new direction
@@ -4500,7 +4501,7 @@ bool_t load_module( const char *smallname )
     else
     {
         // do something to remove the ambient light fromt the mesh
-        int cnt;
+        Uint32 cnt;
         Uint16 min_vrt_a = 255;
         for (cnt = 0; cnt < PMesh->info.vertcount; cnt++)
         {

@@ -4736,7 +4736,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     // This function sets tmpargument to the tile type at the specified
     // coordinates
 
-    int iTmp;
+    Uint32 iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4757,7 +4757,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     // scr_set_TileXY( tmpargument = "tile type", tmpx = "x", tmpy = "y" )
     // This function changes the tile type at the specified coordinates
 
-    int iTmp;
+    Uint32 iTmp;
 
     SCRIPT_FUNCTION_BEGIN();
 
@@ -4948,7 +4948,7 @@ Uint8 scr_ChangeTargetClass( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    change_character( pself->target, pstate->argument, 0, LEAVEALL );
+    change_character_full( pself->target, pstate->argument, 0, LEAVEALL );
 
     SCRIPT_FUNCTION_END();
 }
@@ -6619,6 +6619,7 @@ Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 {
 	//This morphs the character into the target
+	//Also set size and keeps the previous AI type
     SCRIPT_FUNCTION_BEGIN();
 
 	change_character( pself->index, ChrList[pself->target].basemodel, ChrList[pself->target].skin, LEAVEALL );
@@ -6628,5 +6629,55 @@ Uint8 scr_MorphToTarget( script_state_t * pstate, ai_state_t * pself )
 	ChrList[pself->index].sizegototime = SIZETIME;
 	ChrList[pself->index].ai.type = MadList[ChrList[pself->index].basemodel].ai;	//change back to our original AI
 
+    SCRIPT_FUNCTION_END();
+}
+
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_GiveManaFlowToTarget( script_state_t * pstate, ai_state_t * pself )
+{
+    // GiveManaFlowToTarget()
+    // Permanently boost the target's mana flow
+
+    int iTmp;
+
+    SCRIPT_FUNCTION_BEGIN();
+    if ( ChrList[pself->target].alive )
+    {
+        iTmp = pstate->argument;
+		getadd( 0, ChrList[pself->target].manaflow, PERFECTSTAT, &iTmp );
+		ChrList[pself->target].manaflow += iTmp;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
+{
+    // GiveManaReturnToTarget()
+    // Permanently boost the target's mana return
+
+    int iTmp;
+
+    SCRIPT_FUNCTION_BEGIN();
+    if ( ChrList[pself->target].alive )
+    {
+        iTmp = pstate->argument;
+		getadd( 0, ChrList[pself->target].manareturn, PERFECTSTAT, &iTmp );
+		ChrList[pself->target].manareturn += iTmp;
+    }
+
+    SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_SetMoney( script_state_t * pstate, ai_state_t * pself )
+{
+    // SetMoney()
+    // Permanently sets the money for the character to tmpargument
+
+    SCRIPT_FUNCTION_BEGIN();
+	ChrList[pself->index].money = MIN( MAX( pstate->argument, 0), MAXMONEY);
     SCRIPT_FUNCTION_END();
 }

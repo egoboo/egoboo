@@ -1,0 +1,4 @@
+Message 0: %t_found_%n.
+Message 1: %t_feels_recharged!
+Message 2: %t_feels_too_weak_to_use_%n.
+Message 3: %t_took_out_%n.

@@ -381,6 +381,9 @@ The symbol itself follows
 :F 365 IfOperatorIsMacintosh
 :F 366 IfModuleHasIDSZ
 :F 367 MorphToTarget
+:F 368 GiveManaFlowToTarget
+:F 369 GiveManaReturnToTarget
+:F 370 SetMoney
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS
@@ -604,6 +607,8 @@ The symbol itself follows
 :V 071 targetreloadtime
 :V 072 selfcontent
 :V 073 spawndistance
+:V 074 targetmaxlife
+:V 075 targetteam
 :O 000 +
 :O 001 -
 :O 002 &

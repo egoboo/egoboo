@@ -679,6 +679,7 @@ void respawn_character( Uint16 character );
 Uint16 change_armor( Uint16 character, Uint16 skin );
 void change_character( Uint16 cnt, Uint16 profile, Uint8 skin,
                        Uint8 leavewhich );
+void change_character_full( Uint16 ichr, Uint16 profile, Uint8 skin, Uint8 leavewhich );
 Uint8 cost_mana( Uint16 character, int amount, Uint16 killer );
 void switch_team( Uint16 character, Uint8 team );
 void issue_clean( Uint16 character );

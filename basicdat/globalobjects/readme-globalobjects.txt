@@ -4,6 +4,7 @@ Don't put unique scripted stuff here, like bosses, doors/gates or NPC's.
 (stuff that depend on it's module)
 
 SLOT  OBJECT
+0-36  *RESERVED FOR PLAYER SLOTS*
 37    Grub Bug
 40    Ice Strider
 41    Bear Trap
@@ -46,5 +47,15 @@ SLOT  OBJECT
 98    Poisoned Katana
 99    Darkness Amulet (Kursed!)
 100   Weapon Rack
+109   Book of Shock
+110   Book of Haste
 111   Book of Battleward
+114   Orb of Metamorph
+115   Orb of Meteor Swarm
+116   Orb of Dark Ritual
+117   Orb of Disjunciton
+118   Orb of Arcane Nova
+119   Orb of Disintergrate   
+120   Orb of Wonder
+127   *RESERVED FOR BOOK.OBJ*
 158   Ring of Protection

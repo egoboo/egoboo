@@ -841,6 +841,9 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
         case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
         case FIFMODULEHASIDSZ:       returncode = scr_IfModuleHasIDSZ( pstate, pself );     break;
 		case FMORPHTOTARGET:         returncode = scr_MorphToTarget( pstate, pself );       break;
+		case FGIVEMANAFLOWTOTARGET:  returncode = scr_GiveManaFlowToTarget( pstate, pself );break;
+		case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself );break;
+		case FSETMONEY:				 returncode = scr_SetMoney( pstate, pself );			break;
 
             // if none of the above, skip the line and log an error
         default:
@@ -1331,6 +1334,16 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "SPAWNDISTANCE";
                 iTmp = ABS( ( int )( ChrList[pself->index].pos_stt.x - ChrList[pself->index].pos.x ) ) +
                        ABS( ( int )( ChrList[pself->index].pos_stt.y - ChrList[pself->index].pos.y ) );
+                break;
+
+            case VARTARGETMAXLIFE:
+                varname = "TARGETMAXLIFE";
+				iTmp = ChrList[pself->target].lifemax;
+                break;
+
+            case VARTARGETTEAM:
+                varname = "TARGETTEAM";
+				iTmp = ChrList[pself->target].team;
                 break;
 
             default:

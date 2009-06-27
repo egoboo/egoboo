@@ -433,7 +433,10 @@ enum e_script_functions
     FTAKEPICTURE,                // == 364
     FIFOPERATORISMACINTOSH,      // == 365
     FIFMODULEHASIDSZ,            // == 366
-    FMORPHTOTARGET               // == 367
+    FMORPHTOTARGET,              // == 367
+    FGIVEMANAFLOWTOTARGET,       // == 368
+    FGIVEMANARETURNTOTARGET,     // == 369
+    FSETMONEY				     // == 370
 };
 
 //--------------------------------------------------------------------------------------------
@@ -529,7 +532,9 @@ enum e_script_variables
     VARSELFLEVEL,        // == 70
     VARTARGETRELOADTIME, // == 71
     VARSELFCONTENT,      // == 72
-    VARSPAWNDISTANCE     // == 73
+    VARSPAWNDISTANCE,    // == 73
+	VARTARGETMAXLIFE,    // == 74
+	VARTARGETTEAM        // == 75
 };
 
 //--------------------------------------------------------------------------------------------

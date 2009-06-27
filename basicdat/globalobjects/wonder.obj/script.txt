@@ -1,0 +1,286 @@
+//tell them what they found
+IfGrabbed
+  SetTargetToWhoeverIsHolding
+  IfTargetIsAPlayer
+    tmpargument = 0
+    SendMessageNear
+    
+//Clank!
+IfHitGround
+  tmpargument = 0
+  PlaySound
+  
+// Remove the charge
+IfTakenOut
+  tmpargument = 0
+  SetContent
+  SetTargetToWhoeverIsHolding
+    IfTargetIsAPlayer
+      tmpargument = 24
+      SendMessageNear
+
+// Allow it to be used
+IfUsed
+  SetTargetToWhoeverIsHolding
+  GetContent
+  tmpx = tmpargument
+  tmpy = 5120			//Max charge
+  IfXIsLessThanY
+    tmpy = targetmanaflow*2
+    IfXIsLessThanY
+      tmpx = 7			//Cast speed
+      tmpargument = tmpx
+      CostTargetMana
+        GetContent
+        tmpargument = tmpargument + tmpx
+        SetContent
+
+// Allow it to be cast or fizzle
+Else
+  GetContent
+  tmpx = tmpargument
+  tmpy = 5119						//Minimum needed charge
+  IfXIsMoreThanY
+    // Make the holder cast it
+    SetTargetToWhoeverIsHolding
+      SetOwnerToTarget
+      tmpargument = ACTIONZA
+      CorrectActionForHand
+      TargetDoAction
+    tmpargument = 1
+    SendMessageNear
+    tmpargument = 6
+    PlayFullSound
+    
+    tmpturn = targetwis > 8     //+1 every wisdom
+    tmpx = rand % 100 + tmpturn
+    tmpy = 40           //40% badstuff -1% per wisdom
+    
+    //GOODSTUFF
+    tmpargument = 5
+    tmpdistance = SPAWNORIGIN
+    SpawnParticle
+    SpawnParticle
+    SpawnParticle
+    SpawnParticle
+    SpawnParticle
+    IfXIsMoreThanY              
+      tmpargument = 3 //rand % 4
+      SetState
+      IfStateIs0                    //1 - Rejuvenate
+        tmpargument = 13
+        SendMessage
+        tmpargument = 9999
+        HealTarget
+        PumpTarget
+        UnkurseTargetInventory    
+      IfStateIs1                    //2 - Summon money
+        tmpargument = 14
+        SendMessage
+        tmpargument = 7
+        tmpx = selfy
+        tmpy = selfx
+        tmpdistance = selfz
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+        SpawnExactParticle
+      IfStateIs2                    //3 - Raise one random stat
+        tmpargument = 7
+        PlayFullSound
+        tmpargument = rand % 6
+        SetState
+        tmpargument = 256
+        IfStateIs0
+          GiveLifeToTarget
+          tmpargument = 15
+        IfStateIs1
+          GiveManaToTarget
+          tmpargument = 16
+        IfStateIs2
+          GiveDexterityToTarget
+          tmpargument = 17
+        IfStateIs3
+          GiveStrengthToTarget
+          tmpargument = 18
+        IfStateIs4
+          GiveWisdomToTarget
+          tmpargument = 19
+        IfStateIs5
+          GiveIntelligenceToTarget
+          tmpargument = 20
+        SendMessage
+      IfStateIs3                    //4 - Immortal
+        SetOwnerToTarget
+        EnchantTarget
+        tmpargument = 21
+        SendMessage
+      IfStateIs4                    //5 - XP!
+        tmpargument = 23
+        SendMessage
+        tmpargument = 500
+        tmpdistance = EXPROLEPLAY
+        GiveExperienceToTarget
+        tmpargument = 5
+        PlaySound
+        
+    
+    //BADSTUFF
+    Else
+      tmpargument = 6
+      tmpdistance = SPAWNORIGIN
+      SpawnParticle
+      SpawnParticle
+      SpawnParticle
+      SpawnParticle
+      SpawnParticle    
+      tmpargument = rand % 5
+      SetState
+      IfStateIs0                    //1 - Die
+        KillTarget
+        tmpargument = 5
+        SendMessage
+      IfStateIs1                    //2 - Nothing
+        tmpargument = 3
+        SendMessageNear
+        tmpargument = 2
+        PlaySound
+      IfStateIs2                    //3 - Damage self
+        tmpargument = 12
+        SendMessageNear
+        tmpargument = 1024
+        DamageTarget
+      IfStateIs3                    //4 - Summon enemy
+        SetTargetToNearestEnemy
+          tmpx = selfx
+          tmpy = selfy
+          TeleportTarget
+          tmpargument = 4
+          SendMessage
+        Else                //no enemies found
+          tmpargument = 3
+          SendMessageNear
+          tmpargument = 2
+          PlaySound
+      IfStateIs4                    //5 - Lose 1 random stat
+        tmpargument = rand % 6
+        SetState
+        tmpargument = 0 - 256
+        IfStateIs0
+          GiveLifeToTarget
+          tmpargument = 6
+        IfStateIs1
+          GiveManaToTarget
+          tmpargument = 7
+        IfStateIs2
+          GiveDexterityToTarget
+          tmpargument = 8
+        IfStateIs3
+          GiveStrengthToTarget
+          tmpargument = 9
+        IfStateIs4
+          GiveWisdomToTarget
+          tmpargument = 10
+        IfStateIs5
+          GiveIntelligenceToTarget
+          tmpargument = 11
+        SendMessage    
+      tmpargument = 1
+      PlaySound
+      
+    tmpargument = 150
+    SetReloadTime
+
+  Else
+    tmpy = 0
+    IfXIsMoreThanY
+      // Didn't pump it enough
+      tmpargument = 2
+      SendMessageNear
+      PlaySound
+	  
+  // Reset the charge counter
+  tmpargument = 0
+  SetContent
+  
+// Put the little mana ball on the
+// character's hand
+GetContent
+tmpx = tmpargument
+tmpy = 0
+IfXIsMoreThanY
+  tmpturn = tmpargument * 10 + 5800
+  tmpdistance = SPAWNLAST
+  tmpargument = 1
+  SpawnAttachedSizedParticle
+  
+  GetContent                                        //Phase 1
+  tmpx = tmpargument
+  tmpy = 1119
+  IfXIsMoreThanY
+    //And spawn particles around the target
+    SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 2
+    SpawnExactParticle
+    
+  GetContent                                        //Phase 2
+  tmpx = tmpargument
+  tmpy = 3119
+  IfXIsMoreThanY
+    //And spawn particles around the target
+    SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 3
+    SpawnExactParticle
+
+  GetContent                                        //Phase 3
+  tmpx = tmpargument
+  tmpy = 5119
+  IfXIsMoreThanY
+    //And spawn particles around the target
+    SetTargetToWhoeverIsHolding
+    tmpx = targetx
+    tmpy = targety
+    tmpdistance = targetz
+    tmpargument = 0
+    SpawnExactParticle
+
+IfTimeOut
+  GetContent
+  tmpx = tmpargument
+  tmpy = 0
+  IfXIsMoreThanY
+    tmpy = 5119
+    IfXIsLessThanY
+      tmpargument = 200
+      SetTime
+      tmpargument = 8
+      PlayFullSound
+      tmpy = 2000
+      IfXIsMoreThanY
+        tmpargument = 9
+        PlayFullSound
+
+
+End
