@@ -1,0 +1,162 @@
+//-------------------------------------------------------------------------------------------
+IfSpawned
+  tmpargument = STATEGUARD
+  SetState
+  KeepAction
+  
+//-------------------------------------------------------------------------------------------
+IfOrdered
+  tmpx = selforder
+  tmpy = [CHES]
+  IfXIsEqualToY
+  
+    //Activate combat AI
+    tmpargument = STATECOMBAT
+    SetState
+    UnkeepAction
+    
+    //Allow death
+    JoinGoodTeam
+    tmpargument = 1
+    ChangeArmor
+    SetTargetToSelf
+    EnchantTarget
+    
+    
+  //Stop if the game is over
+  tmpx = selforder
+  tmpy = [DEAD]
+  IfXIsEqualToY
+    SetTargetToSelf
+    KillTarget
+    
+//-------------------------------------------------------------------------------------------
+IfKilled				// This reduces the height of the char
+  tmpargument = 6
+  PlaySound				//Death sound
+
+  // Last words...
+  IfTargetIsSelf
+    DoNothing
+  Else
+    tmpargument = rand & 1 + 1
+    IfTargetIsOnSameTeam
+      tmpargument = 0
+    SendMessageNear	
+  
+  //Get rid of the spellbook
+  SetTargetToSelf
+  SetTargetToTargetRightHand
+    PoofTarget
+
+//-------------------------------------------------------------------------------------------
+IfAttacked				// Attacked
+  SetTargetToWhoeverAttacked		  //
+    IfTargetIsAlive			    //
+      IfTargetIsOnSameTeam
+        SetTargetToOldTarget
+    Else				    //Attacker died already
+      SetTargetToOldTarget		      //
+
+  //Ouch sound
+  tmpargument = tmpdistance & 1 + 4
+  PlaySound
+
+
+//-------------------------------------------------------------------------------------------
+IfTargetKilled				// Return to wander mode
+  SetTargetToNearbyEnemy
+    DoNothing
+  Else
+    tmpargument = STATERETREAT
+    SetState
+
+//-------------------------------------------------------------------------------------------
+//Charge a missile spell
+IfStateIsCharge
+  tmpargument = LATCHRIGHT
+  PressLatchButton
+  tmpx = selfcontent
+  tmpy = 100
+  IfXIsMoreThanY
+    tmpargument = STATERETREAT
+    SetState
+    tmpargument = 0
+    SetContent
+  Else
+    tmpargument = selfcontent + 1
+    SetContent
+    
+//-------------------------------------------------------------------------------------------
+IfTimeOut				// This is done every so often
+
+  //Always make sure we have a spellbook ready
+  IfUnarmed
+    tmpargument = LATCHPACKRIGHT
+    PressLatchButton
+
+  IfStateIsGuard
+    tmpx = selfx
+    tmpy = selfy 
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 20 + 50
+    SetTime
+    
+  IfStateIsCombat
+    SetTurnModeToWatchTarget
+    tmpargument = rand % 20
+    SetTime
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        tmpx = targetdistance		    // Close enough to attack?
+        tmpy = 128*3				    //
+        IfXIsLessThanY			    //
+          tmpargument = STATECHARGE
+          SetState
+          
+          //Never really run out of mana
+          tmpx = selfmana
+          tmpy = 512
+          IfXIsLessThanY
+            SetOldTarget
+            SetTargetToSelf
+            tmpargument = 512
+            PumpTarget
+            SetTargetToOldTarget
+        
+      tmpx = targetx			    // Move towards enemy
+      tmpy = targety
+      ClearWaypoints
+      AddWaypoint
+    Else
+      tmpargument = STATERETREAT
+      SetState
+      
+  IfStateIsRetreat
+    SetTurnModeToVelocity
+    tmpx = selfspawnx
+    tmpy = selfspawny 
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 20 + 50
+    SetTime
+    
+    //Engage enemy
+    SetTargetToWideEnemy
+      tmpargument = STATECOMBAT
+      SetState
+      
+//-------------------------------------------------------------------------------------------
+//Attack bumpers
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnSameTeam
+    SetTargetToOldTarget
+  Else
+    tmpargument = STATEGUARD
+    IfStateIsNot
+      tmpargument = STATECOMBAT
+      SetState
+    
+End					// Finished with this character

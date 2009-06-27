@@ -534,7 +534,8 @@ enum e_script_variables
     VARSELFCONTENT,      // == 72
     VARSPAWNDISTANCE,    // == 73
 	VARTARGETMAXLIFE,    // == 74
-	VARTARGETTEAM        // == 75
+	VARTARGETTEAM,       // == 75
+	VARTARGETARMOR       // == 76
 };
 
 //--------------------------------------------------------------------------------------------

@@ -1,0 +1,33 @@
+// Make it stay open or close
+IfSpawned
+  KeepAction			//Start at off
+  
+  //Become invisible
+  IfStateIs1
+    tmpargument = 0
+    SetLight
+    SetState
+
+//Turn switch when bumped
+IfBumped
+  SetTargetToWhoeverBumped
+  IfStateIs0
+    IfTargetCanOpenStuff
+      tmpargument = passage
+      OpenPassage
+      tmpargument = ACTIONMJ	    //Turn
+      DoActionOverride
+      KeepAction
+      
+      //Tell what happened and play click
+      tmpargument = 0
+      PlaySound
+      GetContent
+      SendMessageNear
+
+      //Dont repeat
+      tmpargument = 1
+      SetState
+
+
+End				// Finished with this character

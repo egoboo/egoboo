@@ -1,0 +1,20 @@
+IfSpawned
+  SetTargetToSelf
+  EnchantTarget
+
+IfKilled
+  tmpargument = 0
+  PlaySound
+  DropItems
+  
+  SpawnPoof
+  GoPoof
+  
+//Spelly effects
+tmpargument = 1
+tmpdistance = selfz
+tmpx = selfx
+tmpy = selfy
+SpawnExactParticle
+
+End

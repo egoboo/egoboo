@@ -1,0 +1,158 @@
+Slot number    : 102
+Class name     : Viking
+Uniform light  : FALSE
+Maximum ammo   : 0
+Current ammo   : 0
+Gender         : MALE
+
+Life color     : 1
+Mana color     : 2
+Life           : 7-8
+Life up        : 3.00-4.50
+Mana           : 50.00
+Mana up        : 0.00-0.00
+Mana return    : 50.00
+Mana return up : 0.00-0.00
+Mana flow      : 0.00
+Mana flow up   : 0.00-0.00
+STR            : 19.87
+STR up         : 3.00-4.00
+WIS            : 7.23
+WIS up         : 0.00-0.00
+INT            : 5.08
+INT up         : 0.00-0.00
+DEX            : 14.88
+DEX up         : 1.00-2.00
+
+Size           : 1.20
+Size up        : 0.05
+Shadow size    : 25
+Bump size      : 30
+Bump height    : 90
+Bump dampen    : 0.20
+Weight         : 140
+Jump power     : 9.00
+Jump number    : 1
+Sneak speed    : 1
+Walk speed     : 1
+Run speed      : 3
+Fly to height  : 0
+Flashing AND   : 255
+Alpha blending : 255
+Light blending : 255
+Transfer blend : TRUE
+Sheen          : 0
+Phong mapping  : FALSE
+Texture X add  : 0.00
+Texture Y add  : 0.00
+Sticky butt    : FALSE
+
+Invictus       : FALSE
+NonI facing    : 0
+NonI angle     : 0
+I facing       : 0
+I angle        : 16000
+
+Base defense   :  40  80 125  40
+S damage shift :   1   2   2   1
+C damage shift :   1   1   1   1
+P damage shift :   1   1   2   1
+H damage shift :   1   1   3   1
+E damage shift :   1   1   3   2
+F damage shift :   1   1   1   3
+I damage shift :   1   1   1   3
+Z damage shift :   1   1   1   2
+S damage code  :   F   F   F   F
+C damage code  :   F   F   F   F
+P damage code  :   F   F   F   F
+H damage code  :   T   T   F   T
+E damage code  :   M   F   T   F
+F damage code  :   M   F   F   F
+I damage code  :   M   F   F   F
+Z damage code  :   M   F   F   F
+Acceleration   :  50  40  45  55
+
+EXP for 2nd    : 300
+EXP for 3rd    : 900
+EXP for 4th    : 2000
+EXP for 5th    : 4500
+EXP for 6th    : 8500
+Starting EXP   : 60
+EXP worth      : 30
+EXP exchange   : 0.010
+EXPSECRET      : 0.10
+EXPQUEST       : 0.80
+EXPDARE        : 0.00
+EXPKILL        : 1.20
+EXPMURDER      : 0.30
+EXPREVENGE     : 0.00
+EXPTEAMWORK    : 0.30
+EXPROLEPLAY    : 1.00
+
+IDSZ Parent    : [HUMA]
+IDSZ Type      : [VIKI]
+IDSZ Skill     : [PILG]
+IDSZ Special   : [XENC]
+IDSZ Hate      : [NONE]
+IDSZ Vulnie    : [NONE]
+
+Is an item     : FALSE
+Is a mount     : FALSE
+Is stackable   : FALSE
+Name known     : FALSE
+Usage known    : TRUE
+Is exportable  : FALSE
+Requires skill : FALSE
+Is platform    : FALSE
+Collects money : TRUE
+Can open stuff : TRUE
+
+Damage type    : CRUSH
+Attack type    : SLASH
+
+Attached parts : 0
+Reaffirm type  : NONE
+Particle type  : 0
+
+Left valid     : TRUE
+Right valid    : TRUE
+
+Part on weapon : TRUE
+Part type      : 0
+
+Poof amount    : 8
+Facing add     : 8192
+Part type      : 1
+
+Blud valid    : FALSE
+Part type      : 0
+
+Waterwalking   : FALSE
+Bounce dampen  : 0.600
+
+Life healing   : 0.000
+Mana cost      : 0.000
+Life return    : 0
+Stopped by     : 48
+Skin 0 name    : some_Hard_leather
+Skin 1 name    : some_Ringmail
+Skin 2 name    : a_Darkshine_plate
+Skin 3 name    : blah
+Skin 0 cost    : 100
+Skin 1 cost    : 240
+Skin 2 cost    : 1340
+Skin 3 cost    : 55
+STR dampen     : 0.050
+
+No rider attak : FALSE
+Can be dazed   : TRUE
+Can be grogged : TRUE
+NOT USED       : 0
+NOT USED       : 0
+Can see invisi : TRUE
+Kursed chance  : 0
+Footfall sound : 0
+Jump sound     : 1
+
+:[DRES] 3
+:[AWEP] 1

@@ -1,0 +1,151 @@
+//-------------------------------------------------------------------------------------------
+IfSpawned
+  tmpargument = STATEGUARD
+  SetState
+  KeepAction
+  
+//-------------------------------------------------------------------------------------------
+IfOrdered
+  tmpx = selforder
+  tmpy = [CHES]
+  IfXIsEqualToY
+  
+    //Activate combat AI
+    tmpargument = STATEPARRY
+    SetState
+    UnkeepAction
+    
+    //Allow death
+    JoinEvilTeam
+    tmpargument = 1
+    ChangeArmor
+ 
+  tmpx = selforder
+  tmpy = [DEAD]
+  IfXIsEqualToY
+    SetTargetToSelf
+    KillTarget
+
+//-------------------------------------------------------------------------------------------
+IfKilled				// This reduces the height of the char
+  tmpargument = 2
+  PlaySound				//Death sound
+
+  // Last words...
+  tmpargument = 0
+  SendMessageNear	
+  
+  //End the chess game
+  tmpargument = [DEAD]
+  tmpdistance = [CHES]
+  OrderSpecialID
+  
+  //Open the next challenge
+  tmpargument = 8
+  OpenPassage
+
+//-------------------------------------------------------------------------------------------
+IfAttacked				// Attacked
+  SetTargetToWhoeverAttacked		  //
+    IfTargetIsAlive			    //
+      IfTargetIsOnSameTeam
+        SetTargetToOldTarget
+    Else				    //Attacker died already
+      SetTargetToOldTarget		      //
+
+  //Ouch sound
+  tmpargument = tmpdistance & 1 + 4
+  PlaySound
+
+
+//-------------------------------------------------------------------------------------------
+IfTargetKilled				// Return to wander mode
+  SetTargetToNearbyEnemy
+    tmpargument = STATECOMBAT
+  Else
+    tmpargument = STATERETREAT
+  SetState
+
+//-------------------------------------------------------------------------------------------
+//Charge defend spell
+IfStateIsParry
+  tmpx = selfcontent
+  tmpy = 280
+  IfXIsLessThanY
+    tmpargument = selfcontent + 1
+    SetContent
+    tmpargument = LATCHLEFT
+    PressLatchButton
+  Else
+    tmpargument = STATECOMBAT
+    SetState
+    
+//-------------------------------------------------------------------------------------------
+IfTimeOut				// This is done every so often
+
+  IfStateIsGuard
+    tmpx = selfspawnx
+    tmpy = selfspawny 
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 20 + 50
+    SetTime
+    
+  IfStateIsCombat
+    SetTurnModeToWatchTarget
+    tmpargument = rand % 20
+    SetTime
+    IfTargetIsOnHatedTeam
+      IfFacingTarget
+        tmpx = targetdistance
+        tmpy = 160
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT		      // Right Attack == 2
+          PressLatchButton
+          
+      // Move towards enemy
+      tmpx = targetx			    
+      tmpy = targety
+      tmpdistance = 600
+      tmpturn = targetturnto
+      Compass
+      ClearWaypoints
+      AddWaypoint
+    Else
+      tmpargument = STATERETREAT
+      SetState
+    
+  IfStateIsRetreat
+    SetTurnModeToVelocity
+    tmpx = selfspawnx
+    tmpy = selfspawny 
+    ClearWaypoints
+    AddWaypoint
+    tmpargument = rand % 20 + 50
+    SetTime
+    
+    //Engage enemy
+    SetTargetToNearbyEnemy
+      tmpargument = STATECOMBAT
+      SetState
+
+//-------------------------------------------------------------------------------------------
+//Attack bumpers
+IfBumped
+  SetTargetToWhoeverBumped
+  IfTargetIsOnSameTeam
+    SetTargetToOldTarget
+  Else
+    tmpargument = STATEGUARD
+    IfStateIsNot
+      tmpargument = STATECOMBAT
+      SetState
+    
+  //Jump over bodies
+  IfTargetIsAlive
+    DoNothing
+  Else
+    tmpargument = LATCHJUMP
+    PressLatchButton
+  
+End					// Finished with this character

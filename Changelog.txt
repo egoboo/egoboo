@@ -1,11 +1,10 @@
 Version 2.7.4 (??.??.2009)
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage!
-- Update: Minotores now have grab and parry animations.
+- Update: Minotores now have grab, drop and parry animations.
 - Update: Various new and improved title images.
 - Update: Added some more extensive debugging and graphics initialization routines.
 - Update: Major updates to the lightning engine.
-- Update: Several improvements to the Physics engine.
 - Update: Rings now sparkle so that they are more visible.
 - Update: Improved Linux and Macintosh compatability.
 - Update: Some minor rebalancing.

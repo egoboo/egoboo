@@ -1,0 +1,115 @@
+IfSpawned
+  tmpargument = 0
+  SetState
+  
+//Open the teleport blocker
+tmpargument = passage
+IfPassageOpen
+  tmpargument = passage + 1
+  OpenPassage
+  
+IfBumped                                          //PlayerBumpsBookStand
+  SetTargetToWhoeverBumped          //Targets the Bumper
+  IfFacingTarget
+    IfTimeOut
+      tmpargument = 50
+      SetTime
+      tmpargument = [READ]      //can they read?
+      IfTargetHasSkillID
+        
+        IfStateIs3
+          GetContent
+          SendMessageNear
+          
+          //Turn to next page
+          tmpargument = 0
+          PlaySound
+          
+          //Prepeare next message
+          tmpx = selfcontent
+          tmpy = 6
+          IfXIsEqualToY
+            tmpargument = 3
+          Else
+            tmpargument = selfcontent + 1
+          SetContent
+          
+          
+        IfStateIs2
+          //Give 1 permanent intelligence
+          tmpargument = 256
+          GiveIntelligenceToTarget
+          tmpargument = 7
+          SendMessage
+          tmpargument = 2
+          PlaySound
+          tmpargument = 3
+          SetState
+                    
+        //Undechipered tome
+        IfStateIs1
+          tmpdistance = 0
+          IfTargetCanSeeInvisible         //Truesight = automatic success
+            tmpdistance = 1
+          Else
+            tmpx = targetint
+            tmpy = 7936      //Need 31 int!
+            IfXIsMoreThanY
+              tmpdistance = 1
+            IfNameIsKnown         //They identified it... how?
+              tmpdistance = 1
+              
+          //Did they dechiper it?
+          tmpturn = 0
+          IfDistanceIsMoreThanTurn
+            tmpargument = 2
+            SetState
+            
+            //Award some XP
+            tmpargument = 50
+            tmpdistance = EXPSECRET
+            GiveExperienceToGoodTeam
+            
+            //Tell what they managed
+            tmpargument = 2
+            SendMessageNear
+            tmpargument = 1
+            PlaySound
+            
+          //Failed!
+          Else
+            tmpargument = 1
+            SendMessageNear
+              
+        //Unopened tome
+        IfStateIs0
+          tmpargument = ACTIONDB         //open the book and play a random message
+          DoAction
+          KeepAction
+          tmpargument = 1
+          SetState
+          
+          tmpargument = 0
+          SendMessageNear
+          tmpargument = 0
+          PlaySound		//Page turning sound
+          
+          //Set starting page
+          tmpargument = 3
+          SetContent
+      Else
+        tmpargument = 8
+        SendMessage
+
+//Magic sparks
+tmpargument = 0
+IfStateIsNot
+  tmpargument = 0
+  tmpx = selfx
+  tmpy = selfy
+  tmpdistance = selfz + 128
+  SpawnExactParticle
+  
+End
+
+//This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!

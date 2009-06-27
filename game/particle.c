@@ -865,7 +865,7 @@ void spawn_bump_particles( Uint16 character, Uint16 particle )
 int prt_is_over_water( Uint16 cnt )
 {
     // This function returns btrue if the particle is over a water tile
-    int fan;
+    Uint32 fan;
 
     if ( INVALID_PRT(cnt) ) return bfalse;
 

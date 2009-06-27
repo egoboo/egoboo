@@ -1,0 +1,3 @@
+Message 0: %t_defeated_the_%c_in_fair_combat!
+Message 1: %t's_weapon_has_no_effect!
+Message 2: The_%c_scored_a_critical_hit!

@@ -1,0 +1,58 @@
+// Create the character
+IfSpawned
+  IfStateIs1
+    SetTargetToSelf
+    tmpargument = 1
+    tmpdistance = 1
+    SpawnAttachedParticle
+    SetTurnModeToSpin
+  Else
+    tmpargument = 2		//Invisible
+    ChangeArmor
+    tmpargument = 0
+    SetAlpha
+  JoinEvilTeam
+
+IfStateIs0
+  IfTimeOut
+    tmpargument = rand % 20 + 50		//How often to spawn
+    SetTime
+    tmpdistance = 128*6
+    SetTargetToDistantEnemy
+      tmpx = rand & 511 + selfx - 256
+      tmpy = rand & 511 + selfy - 256
+      tmpdistance = selfz + 600
+      tmpturn = rand % 65535
+      SpawnCharacterXYZ
+      tmpargument = 1
+      SetChildState
+
+Else
+  IfHitGround
+    DisaffirmCharacter
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 4
+    SpawnExactParticle
+    tmpargument = 1
+    ChangeArmor
+    tmpargument = 128
+    SetLight
+    tmpargument = ACTIONKA
+    DoActionOverride
+  IfInWater
+    DisaffirmCharacter
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpargument = 4
+    SpawnExactParticle
+    tmpargument = 1
+    ChangeArmor
+    tmpargument = 128
+    SetLight
+    tmpargument = ACTIONKA
+    DoActionOverride
+
+End

@@ -162,7 +162,7 @@ int action_which( char cTmp )
         case 'F': action = ACTION_FA; break;
         case 'P': action = ACTION_PA; break;
         case 'Z': action = ACTION_ZA; break;
-        case 'W': action = ACTION_WA; break;
+       // case 'W': action = ACTION_WA; break;   //Zefz: Can't do this, attack animation WALK is used for doing nothing (for example charging spells)
         case 'H': action = ACTION_HA; break;
         case 'K': action = ACTION_KA; break;
         default:  action = ACTION_DA; break;
@@ -171,7 +171,6 @@ int action_which( char cTmp )
     return action;
 }
 
-//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void mad_get_walk_frame( Uint16 object, int lip, int action )
 {

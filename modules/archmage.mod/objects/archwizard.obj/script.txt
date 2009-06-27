@@ -1,0 +1,204 @@
+//Wizard special abillties:
+//LEVEL   ABILLITY
+//1     - Alchemy, Arcane Magic, Arch Magic, Teleport Mastery
+//2     - n/a
+//3     - Magical Ampitude
+//4     - n/a
+//5     - n/a
+//6     - n/a
+//7     - n/a
+//8     - Elemental Staff
+//9     - n/a
+//10    - n/a
+//11    - Mystic Intellect
+//12    - n/a
+//13    - n/a
+//14    - Wizard's Missile
+//-----------------------------------------------------------------------------
+//Reset
+IfSpawned
+  tmpargument = 0
+  SetState
+  SetContent
+
+//------------------------------------------------------------------------------
+//Mystic Intellect skill
+IfStateIs0
+  SetTargetToSelf
+  tmpx = selflevel
+  tmpy = 9              //Level 11
+  IfXIsMoreThanY
+    SetOwnerToTarget
+    EnchantTarget 	//Give the special bonus
+    tmpargument = 1
+    SetState
+    
+//------------------------------------------------------------------------------
+//Wizard's missile skill
+IfUsed
+  tmpx = selflevel
+  tmpy = 12          //Need level 14
+  IfXIsMoreThanY
+    SetTargetToSelf
+    tmpx = targetmana
+    tmpy = 255
+    IfXIsMoreThanY
+      tmpargument = 256
+      CostTargetMana
+      
+      //Spawn a homing missile
+      tmpargument = 3
+      tmpdistance = selfz
+      tmpx = selfx
+      tmpy = selfy
+      SpawnExactParticle
+
+//-----------------------------------------------------------------------------
+//Elemental staff skill
+tmpx = selflevel
+tmpy = 6                //Need level 8
+IfXIsMoreThanY   
+  IfScoredAHit
+    SetTargetToLastItemUsed
+      tmpargument = [STAFF]         //Only with quarter staffs
+      IfTargetHasID
+        SetTargetToWhoeverWasHit
+        tmpargument = rand % 3 + 6  //Randomize element type
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = targetz
+        SpawnExactParticle
+
+//-----------------------------------------------------------------------------
+// Alchemy special abillity
+SetTargetToSelf
+IfTargetIsAlive
+  SetTargetToTargetLeftHand	//Check left hand first
+    tmpargument = [POTI]
+    IfTargetHasID
+      IdentifyTarget		//Identify potions
+      SetTargetToSelf
+    tmpargument = [FLAS]
+    IfTargetHasID
+      IdentifyTarget		//And flasks
+  SetTargetToTargetRightHand	//Repeat with other hand
+    tmpargument = [POTI]
+    IfTargetHasID
+      IdentifyTarget		//Identify potions
+    tmpargument = [FLAS]
+    IfTargetHasID
+      IdentifyTarget		//And flasks
+
+//-----------------------------------------------------------------------------
+// Magical Ampitude
+tmpx = selflevel
+tmpy = 1            //Need level 3
+IfXIsMoreThanY
+SetTargetToSelf
+IfTargetIsAlive
+  SetTargetToTargetLeftHand	//Check left hand first
+    tmpargument = [WAND]
+    IfTargetHasID
+      IdentifyTarget		//Identify wands
+      SetTargetToSelf
+    tmpargument = [SCRO]
+    IfTargetHasID
+      IdentifyTarget		//And scrolls
+  SetTargetToTargetRightHand	//Repeat with other hand
+    tmpargument = [WAND]
+    IfTargetHasID
+      IdentifyTarget		//Identify wands
+    tmpargument = [SCRO]
+    IfTargetHasID
+      IdentifyTarget		//And scrolls
+
+//-----------------------------------------------------------------------------
+// ZZ> Gong sound
+IfCleanedUp
+  tmpargument = 2
+  PlayFullSound
+
+//------------------------------------------------------------------------------
+// ZZ> Scream and shout
+IfUsed
+  tmpargument = 10
+  PlaySound
+  
+//------------------------------------------------------------------------------
+// ZZ> Handle being bored by cheering or sneezing
+IfBored
+  tmpargument = 7
+  SendMessageNear
+  tmpargument = 11
+  PlaySound
+  tmpargument = ACTIONMC
+  DoAction
+
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  // Sound
+  IfTargetIsOnHatedTeam
+    tmpargument = 4
+  Else
+    tmpargument = 3
+  PlaySound
+
+  // Message
+  tmpargument = 3
+  IfArmorIs
+    tmpargument = MESSAGECOSTUME
+  Else
+    tmpargument = MESSAGEDEATH
+  IfTargetIsOnSameTeam
+    tmpargument = MESSAGEFRAG
+    IfTargetIsSelf
+      tmpargument = MESSAGEACCIDENT
+  SendMessage
+
+  // Drop goodies
+  tmpargument = 1+selflevel*selflevel*100		//The money loss formula
+  DropMoney
+  DropKeys
+
+  // Make the character body
+  tmpargument = 45
+  SetBumpHeight
+
+//------------------------------------------------------------------------------
+// ZZ> For helper AIs
+IfLeaderKilled
+  BecomeLeader
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being attacked by blocking or countering or running away
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnSameTeam
+    tmpargument = 8
+    PlaySound
+    tmpargument = MESSAGEOUCH
+    SendMessageNear
+  Else
+    tmpargument = rand & 1 + 5
+    PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle being healed by spitting out a message and stopping retreat
+IfHealed
+  tmpargument = 6
+  SendMessageNear
+  tmpargument = 9
+  PlaySound
+
+//------------------------------------------------------------------------------
+// ZZ> Handle not being able to carry something
+IfTooMuchBaggage
+  tmpargument = 8
+  SendMessageNear
+  tmpargument = 7
+  PlaySound
+
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

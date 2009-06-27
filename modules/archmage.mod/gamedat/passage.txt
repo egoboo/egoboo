@@ -1,0 +1,26 @@
+// This file contains passage rectangles, which are areas that behave like
+// an invisible wall when closed or an floor when open.  Passages are used
+// primarily in doors, but could have other uses.
+//             TopleftXY  BottomrightXY  Open    ShootThrough  SlippyClose
+0 DoorOne:        15  40      16  41          F       F             F
+1 DoorOneDetect:  15  37      16  39          F       T             F
+2 Chessboard:     15  12      15  12          T       T             F
+3 PuzzleRoom:     30  14      33  17          T       T             F
+4 DoorTwo:        15  22      16  23          F       F             F
+5 DoorTwoDetect:  15  20      16  21          F       T             F
+6 DoorThree:      15  24      16  25          F       F             F
+7 DoorThreeDetect:15  24      16  25          F       T             F
+8 DoorFour:       22  15      23  16          F       F             F
+9 DoorFourDetect: 24  15      26  16          F       T             F
+10 DoorFive:       38  15      39  16          F       F             F
+11 DoorFiveDetect: 40  15      42  16          F       T             F
+12 DoorSix:        47  22      48  23          F       F             F
+13 DoorSixDetect:  47  24      48  26          F       T             F
+14 DoorSeven:      47  38      48  39          F       F             F
+15 DoorSevenDetect:47  40      48  42          F       T             F
+16 DoorSevenLock:  47  37      48  38          T       T             F
+17 DoorEight:      40  47      41  48          F       F             F
+18 DoorEightDetect:36  47      38  48          F       T             F
+19 DoorEightTalk:  42  47      42  48          T       T             F
+20 DoorLast:       31  37      32  41          F       F             F
+21 DoorLastDetect: 31  42      32  42          T       T             F

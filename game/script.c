@@ -1346,6 +1346,11 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
 				iTmp = ChrList[pself->target].team;
                 break;
 
+            case VARTARGETARMOR:
+                varname = "TARGETARMOR";
+				iTmp = ChrList[pself->target].skin;
+                break;
+
             default:
                 log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
                 break;

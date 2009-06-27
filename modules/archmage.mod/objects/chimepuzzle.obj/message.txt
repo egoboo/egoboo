@@ -1,0 +1,2 @@
+Message 0: That_is_not_correct_%t!
+Message 1: %t_solved_the_puzzle!

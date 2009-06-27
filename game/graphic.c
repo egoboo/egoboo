@@ -1145,7 +1145,7 @@ void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
 //--------------------------------------------------------------------------------------------
 void do_chr_flashing()
 {
-    int i;
+    Uint32 i;
 
     for ( i = 0; i < dolist_count; i++)
     {
@@ -1833,7 +1833,8 @@ void light_fans( renderlist_t * prlist )
     // use the grid to light the tiles
     for ( entry = 0; entry < prlist->all_count; entry++ )
     {
-        int fan, ivrt;
+        int ivrt;
+		Uint32 fan;
 
         fan = prlist->all[entry];
         if ( !VALID_TILE(pmesh, fan) ) continue;
@@ -2680,7 +2681,7 @@ void draw_scene_mesh( renderlist_t * prlist )
 //--------------------------------------------------------------------------------------------
 void draw_scene_solid()
 {
-    int cnt, tnc;
+    Uint32 cnt, tnc;
 
     // ------------------------------
     // Render all solid objects
@@ -4956,7 +4957,7 @@ void dolist_make( ego_mpd_t * pmesh )
 {
     // ZZ> This function finds the characters that need to be drawn and puts them in the list
 
-    int cnt;
+    Uint32 cnt;
 
     // Remove everyone from the dolist
     for ( cnt = 0; cnt < dolist_count; cnt++ )
@@ -5000,7 +5001,7 @@ void dolist_sort( camera_t * pcam )
     //     which is needed for reflections to properly clip themselves.
     //     Order from closest to farthest
 
-    int       cnt, tnc;
+    Uint32    cnt, tnc;
     GLvector3 vcam;
     size_t    count;
 

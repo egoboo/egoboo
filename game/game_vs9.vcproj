@@ -340,6 +340,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mesh.c"
+				>
+			</File>
+			<File
 				RelativePath=".\module.c"
 				>
 			</File>
@@ -563,6 +567,10 @@
 			</File>
 			<File
 				RelativePath=".\menu.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mesh.h"
 				>
 			</File>
 			<File
@@ -836,13 +844,6 @@
 			<File
 				RelativePath=".\egoboo_console.c"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\egoboo_console.h"

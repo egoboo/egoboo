@@ -1,0 +1,109 @@
+// Make it stay open or close
+IfSpawned
+  //Become a locked door?
+  tmpargument = 1
+  IfContentIs
+    ChangeArmor
+    tmpargument = passage
+    ClosePassage
+  KeepAction
+
+//Open door and close it
+IfTimeOut
+  KeepAction
+  tmpargument = 10
+  SetTime
+  
+  tmpargument = passage
+  IfPassageOpen
+    DoNothing
+  Else
+  
+    //Normal door AI
+    tmpargument = 0
+    IfContentIs
+      tmpargument = passage
+      SetTargetToWhoeverIsInPassage
+        IfTargetIsAPlayer
+          tmpargument = 1
+          SendMessageNear
+          tmpargument = 300
+          SetTime
+          
+    //Locked door AI
+    tmpargument = 1
+    IfContentIs
+      tmpargument = passage + 2
+      SetTargetToWhoeverIsInPassage
+        IfTargetCanOpenStuff	//Only open for intelligent creatures
+          tmpargument = [KEYA]
+          CostTargetItemID
+            tmpargument = 0
+            SendMessageNear
+            tmpargument = passage
+            OpenPassage
+            tmpargument = 2
+            SetContent
+          
+            //award some xp
+            tmpargument = 10
+            tmpdistance = EXPSECRET
+            GiveExperienceToTarget
+          Else
+            //Is it still locked?
+            tmpargument = 1
+            SendMessageNear
+            tmpargument = 300
+            SetTime
+		
+IfOrdered
+  tmpx = selforder
+  tmpy = 491  // The unique code for an unlock order
+  IfXIsEqualToY
+    tmpargument = 1
+    IfContentIs
+      tmpargument = 4
+      SendMessageNear
+      tmpargument = passage
+      OpenPassage
+      tmpdistance = EXPSECRET
+      tmpargument = 15
+      GiveExperienceToGoodTeam
+      tmpargument = 2
+      SetContent
+    Else
+      tmpargument = 3
+      SendMessageNear
+      
+// Handle the animation and sound
+tmpargument = passage 	// Is the passage clear?
+IfPassageOpen			// 
+  tmpargument = 0		  //
+  IfStateIs			  // State 0 ( Closed )
+    tmpargument = ACTIONMG	    //
+    DoAction			    //
+      tmpargument = 1		      // Open it
+      SetState			      //
+      tmpargument = 0		      //
+      PlaySound			      //
+      
+      //Open the teleport blocker as well
+      tmpargument = passage + 1
+      OpenPassage
+Else
+  tmpargument = 1		  //
+  IfStateIs			  // State 1 ( Open )
+    tmpargument = ACTIONMJ	    //
+    DoAction			    //
+      tmpargument = 0		      // Close it
+      SetState			      //
+      tmpargument = 1		      //
+      PlaySound			      //
+      
+      //Door got relocked somehow
+      tmpargument = 2
+      IfContentIs
+        tmpargument = 1
+        SetContent
+       
+End				// Finished with this character

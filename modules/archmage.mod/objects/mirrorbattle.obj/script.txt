@@ -1,0 +1,247 @@
+//------------------------------------------------------------------------------
+// ZZ> Handle death by sending a message and other stuff
+IfKilled
+  // Spit out text
+  tmpargument = 0
+  SendMessageNear
+
+  //Become normal
+  SetTargetToSelf
+  IfTargetIsAPlayer
+    DisenchantTarget
+  Else
+    //Get rid of inventory items
+    SetTargetToTargetLeftHand
+      PoofTarget
+    SetTargetToSelf
+    SetTargetToTargetRightHand
+      PoofTarget
+      
+    //Go away and kill the player
+    SetTargetToWhoeverAttacked
+    tmpx = selfx
+    tmpy = selfy
+    tmpdistance = selfz
+    tmpturn = selfturn
+    TeleportTarget
+    KillTarget
+    GoPoof
+    
+//------------------------------------------------------------------------------
+tmpargument = 1
+IfStateIsNot
+  IfChanged
+    tmpargument = 1
+    SetState
+  
+//------------------------------------------------------------------------------
+IfTimeOut
+  tmpargument = 25
+  SetTime
+  
+  //Guard
+  IfStateIs0
+    SetTurnModeToVelocity
+    tmpdistance = 8*128
+    SetTargetToDistantEnemy	//Enemy found, target him
+      tmpargument = 6
+      PlayFullSound
+      
+      //Our life equals enemies original life
+      SetOldTarget
+      tmpturn = targetlife
+      SetTargetToSelf
+      tmpargument = -5120 //Remove 20 hp (all of it)
+      GiveLifeToTarget
+      tmpargument = tmpturn //New HP = enemy hp
+      GiveLifeToTarget
+      SetTargetToOldTarget
+      
+      //Turn him into us!
+      tmpargument = targetarmor       //Remember his armor level before morphed
+      EnchantTarget
+      MorphToTarget
+      ChangeArmor                     //Now we turn into the target's previous armor
+      tmpx = targetx
+      tmpy = targety
+      SetXY
+      
+      //Exchange places
+      tmpx = selfx
+      tmpy = selfy
+      tmpturn = selfturn
+      tmpdistance = selfz
+      TeleportTarget
+      GetXY
+      Teleport
+      
+      //Play sound
+      tmpargument = 1
+      SetState 		        //and change combat mode
+      
+  //Player AI
+  IfStateIs1
+    SetTargetToSelf
+    IfTargetIsAPlayer               //Minotore players get combat lock ability
+      SetTargetToWideEnemy
+      IfTargetIsOnHatedTeam
+        tmpx = targetdistance
+        tmpy = 450
+        IfXIsMoreThanY
+          SetTurnModeToVelocity
+          IfFacingTarget
+            tmpargument = 0
+            IfContentIs
+              tmpargument = 150
+              SetSpeedPercent       //Charge bonus
+              tmpargument = 1
+              SetContent
+              tmpargument = 2
+              PlaySound
+          Else
+            tmpargument = 100
+            SetSpeedPercent
+            tmpargument = 0
+            SetContent
+        Else
+          SetTurnModeToWatchTarget
+          tmpargument = 100
+          SetSpeedPercent
+          tmpargument = 0
+          SetContent
+      
+  //Offensive AI
+  IfStateIs2
+    SetTargetToNearestEnemy
+      tmpx = targetdistance
+      tmpy = 300
+      IfXIsMoreThanY
+        SetTurnModeToWatchTarget
+        tmpx = targetx
+        tmpy = targety
+        tmpdistance = -450
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+      Else
+        SetTurnModeToVelocity
+        tmpx = rand & 1024 + targetx - 512
+        tmpy = rand & 1024 + targety - 512
+        tmpdistance = 800
+        tmpturn = targetturnto
+        Compass
+        ClearWaypoints
+        AddWaypoint
+        
+      //Attack melee
+      tmpx = targetdistance
+      tmpy = 150
+      IfXIsLessThanY
+        IfFacingTarget
+          tmpargument = LATCHLEFT
+          PressLatchButton
+        
+//------------------------------------------------------------------------------
+//Charge haste spell
+IfStateIs1
+  tmpx = selfcontent
+  tmpy = 150
+  IfXIsLessThanY
+    tmpargument = LATCHLEFT
+    PressLatchButton
+    tmpargument = selfcontent + 1
+    SetContent
+  Else
+    tmpargument = 0
+    SetContent
+    tmpargument = 2
+    SetState
+          
+//------------------------------------------------------------------------------
+//Charge missiles
+IfStateIs2
+  IfTargetIsOnHatedTeam
+    IfTargetIsAlive
+      IfFacingTarget
+        tmpx = selfcontent
+        tmpy = 100
+        IfXIsLessThanY
+          tmpargument = LATCHRIGHT
+          PressLatchButton
+          tmpargument = selfcontent + 1
+          SetContent
+        Else
+          tmpargument = 0
+          SetContent
+
+//Never really run out of mana
+tmpx = selfmana
+tmpy = 256
+IfXIsLessThanY
+  tmpargument = 256
+  PumpTarget
+
+//------------------------------------------------------------------------------
+//If the AI kills the player, the player wins!
+IfScoredAHit
+  SetTargetToSelf
+  
+  //Reduce attack speed
+  tmpargument = 60
+  SetReloadTime
+  
+  IfTargetIsAPlayer
+    DoNothing
+  Else
+    SetTargetToWhoeverWasHit
+    IfTargetIsAlive
+      DoNothing
+    Else    
+      RespawnTarget
+      
+      //Exchange places again
+      tmpx = selfx
+      tmpy = selfy
+      tmpdistance = selfz
+      tmpturn = selfturn
+      TeleportTarget
+      
+      //Award XP
+      tmpargument = 100
+      tmpdistance = EXPSECRET
+      GiveExperienceToGoodTeam
+      
+      //Open next challenge
+      tmpargument = passage
+      OpenPassage
+      
+      //Go away and get rid of inhand items
+      SetTargetToSelf
+      SetTargetToTargetLeftHand
+        PoofTarget
+      SetTargetToSelf
+      SetTargetToTargetRightHand
+        PoofTarget
+      GoPoof
+
+    
+//------------------------------------------------------------------------------
+//Handle being attacked by countering
+IfAttacked
+  SetTargetToWhoeverAttacked
+  IfTargetIsOnHatedTeam
+    tmpargument = rand & 2 + 3
+    PlaySound		//Ouch sound
+  Else
+    SetTargetToOldTarget
+
+//------------------------------------------------------------------------------
+//Scream and shout
+IfUsed
+  tmpargument = 4
+  PlaySound
+  
+//------------------------------------------------------------------------------
+End
+//------------------------------------------------------------------------------

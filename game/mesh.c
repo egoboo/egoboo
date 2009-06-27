@@ -233,7 +233,7 @@ bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 {
     // BB> remove extra ambient light in the lightmap
 
-    int cnt;
+    Uint32 cnt;
     Uint16 min_vrt_a = 255;
 
     if( NULL == pmesh ) return bfalse;
@@ -254,7 +254,7 @@ bool_t mesh_remove_ambient( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_recalc_twist( ego_mpd_t * pmesh )
 {
-    int fan;
+    Uint32 fan;
     ego_mpd_info_t * pinfo;
     mesh_mem_t  * pmem;
 
@@ -337,7 +337,7 @@ ego_mpd_t * mesh_finalize( ego_mpd_t * pmesh )
 //--------------------------------------------------------------------------------------------
 bool_t mesh_convert( ego_mpd_t * pmesh_dst, mpd_t * pmesh_src )
 {
-    int cnt;
+    Uint32 cnt;
 
     mpd_mem_t  * pmem_src;
     mpd_info_t * pinfo_src;
@@ -910,7 +910,8 @@ bool_t mesh_make_bbox( ego_mpd_t * pmesh )
 {
     // BB> set the bounding box for each tile, and for the entire mesh
 
-    int cnt, mesh_vrt, tile_vrt;
+    int mesh_vrt, tile_vrt;
+	Uint32 cnt;
 
     mesh_mem_t * pmem;
     grid_mem_t * pgmem;
