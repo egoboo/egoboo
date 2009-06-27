@@ -46,6 +46,8 @@ static int  numfilesent = 0;                            // For network copy
 static int  numfileexpected = 0;                        // For network copy
 static int  numplayerrespond = 0;
 
+static bool_t net_instance_init( net_instance_t * pnet );
+
 int         lag  = 3;                       // Lag tolerance
 Uint32      numplatimes = 0;
 
@@ -55,7 +57,6 @@ player_t    PlaList[MAXPLAYER];
 
 FILE *      globalnetworkerr = NULL;
 
-Uint32  randsave;
 int     networkservice;
 int     numservice  = 0;
 char    netservicename[MAXSERVICE][NETNAMESIZE];
@@ -66,14 +67,15 @@ char    netplayername[MAXNETPLAYER][NETNAMESIZE];
 
 int     local_machine  = 0;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 
+int     playersready  = 0;         // Number of players ready to start
+int     playersloaded = 0;
+
+
 Uint32 sv_last_frame = (Uint32)~0;
 
-bool_t  networkon         = bfalse;       // Try to connect?
-bool_t  serviceon         = bfalse;       // Do I need to free the interface?
-bool_t  hostactive        = bfalse;       // Hosting?
-bool_t  readytostart      = bfalse;       // Ready to hit the Start Game button?
-bool_t  waitingforplayers = bfalse;       // Has everyone talked to the host?
+static net_instance_t gnet = { bfalse, bfalse, bfalse, bfalse, bfalse };
 
+net_instance_t * PNet = &gnet;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -84,19 +86,19 @@ enum NetworkConstant
     NET_UNRELIABLE_CHANNEL    = 0,
     NET_GUARANTEED_CHANNEL    = 1,
     NET_EGOBOO_NUM_CHANNELS,
-    NET_EGOBOO_PORT        = 34626,
-    NET_MAX_FILE_NAME      = 128,
+    NET_EGOBOO_PORT           = 34626,
+    NET_MAX_FILE_NAME         = 128,
     NET_MAX_FILE_TRANSFERS    = 1024  // Maximum files queued up at once
 };
 
 // Network messages
 enum NetworkMessage
 {
-    NET_TRANSFER_FILE      = 10001,  // Packet contains a file.
-    NET_TRANSFER_OK        = 10002,  // Acknowledgement packet for a file send
+    NET_TRANSFER_FILE       = 10001,  // Packet contains a file.
+    NET_TRANSFER_OK         = 10002,  // Acknowledgement packet for a file send
     NET_CREATE_DIRECTORY    = 10003,  // Tell the peer to create the named directory
-    NET_DONE_SENDING_FILES    = 10009,  // Sent when there are no more files to send.
-    NET_NUM_FILES_TO_SEND    = 10010  // Let the other person know how many files you're sending
+    NET_DONE_SENDING_FILES  = 10009,  // Sent when there are no more files to send.
+    NET_NUM_FILES_TO_SEND   = 10010  // Let the other person know how many files you're sending
 };
 
 // Network players information
@@ -108,23 +110,25 @@ typedef struct NetPlayerInfo
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-// ENet host & client identifiers
-ENetHost* net_myHost = NULL;
-ENetPeer* net_gameHost = NULL;
-ENetPeer* net_playerPeers[MAXPLAYER];
-NetPlayerInfo net_playerInfo[MAXNETPLAYER];
+Uint32 nexttimestamp;                          // Expected timestamp
 
-bool_t net_amHost = bfalse;
+
+// ENet host & client identifiers
+static ENetHost* net_myHost = NULL;
+static ENetPeer* net_gameHost = NULL;
+static ENetPeer* net_playerPeers[MAXPLAYER];
+static NetPlayerInfo net_playerInfo[MAXNETPLAYER];
+
+static bool_t net_amHost = bfalse;
 
 // Packet reading
-ENetPacket*    net_readPacket = NULL;
-size_t      net_readLocation = 0;
+static ENetPacket*    net_readPacket = NULL;
+static size_t         net_readLocation = 0;
 
 // Packet writing
-Uint32  packethead;                             // The write head
-Uint32  packetsize;                             // The size of the packet
-Uint8  packetbuffer[MAXSENDSIZE];              // The data packet
-Uint32  nexttimestamp;                          // Expected timestamp
+static Uint32  packethead;                             // The write head
+static Uint32  packetsize;                             // The size of the packet
+static Uint8   packetbuffer[MAXSENDSIZE];              // The data packet
 
 // File transfer variables & structures
 typedef struct NetFileTransfer
@@ -135,17 +139,17 @@ typedef struct NetFileTransfer
 } NetFileTransfer;
 
 // File transfer queue
-NetFileTransfer net_transferStates[NET_MAX_FILE_TRANSFERS];
-int net_numFileTransfers = 0;
-int net_fileTransferHead = 0;  // Queue indices
-int net_fileTransferTail = 0;
-int net_waitingForXferAck = 0;
+static NetFileTransfer net_transferStates[NET_MAX_FILE_TRANSFERS];
+static int net_numFileTransfers = 0;
+static int net_fileTransferHead = 0;  // Queue indices
+static int net_fileTransferTail = 0;
+static int net_waitingForXferAck = 0;
 
-Uint8  * transferBuffer = NULL;
-size_t   transferSize = 0;
+static Uint8  * transferBuffer = NULL;
+static size_t   transferSize = 0;
 
 // Receiving files
-NetFileTransfer net_receiveState;
+static NetFileTransfer net_receiveState;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -155,7 +159,7 @@ void close_session()
     ENetEvent event;
 
     // ZZ> This function gets the computer out of a network game
-    if ( networkon )
+    if ( gnet.on )
     {
         if ( net_amHost )
         {
@@ -547,7 +551,7 @@ void net_copyFileToAllPlayersOld( const char *source, const char *dest )
     char cTmp;
 
     log_info( "net_copyFileToAllPlayers: %s, %s\n", source, dest );
-    if ( networkon && hostactive )
+    if ( gnet.on && gnet.hostactive )
     {
         fileisdir = fs_fileIsDirectory( source );
         if ( fileisdir )
@@ -622,7 +626,7 @@ void net_copyFileToHost( const char *source, const char *dest )
     // JF> New function merely queues up a new file to be sent
 
     // If this is the host, just copy the file locally
-    if ( hostactive )
+    if ( gnet.hostactive )
     {
         // Simulate a network transfer
         if ( fs_fileIsDirectory( source ) )
@@ -675,7 +679,7 @@ void net_copyFileToHostOld( const char *source, const char *dest )
 
     log_info( "net_copyFileToHost: " );
     fileisdir = fs_fileIsDirectory( source );
-    if ( hostactive )
+    if ( gnet.hostactive )
     {
         // Simulate a network transfer
         if ( fileisdir )
@@ -840,28 +844,26 @@ void net_copyDirectoryToAllPlayers( const char *dirname, const char *todirname )
 void net_sayHello()
 {
     // ZZ> This function lets everyone know we're here
-    if ( networkon )
+
+    if ( !gnet.on )
     {
-        if ( hostactive )
+        gnet.waitingforplayers = bfalse;
+    }
+    else if ( gnet.hostactive )
+    {
+        log_info( "net_sayHello: Server saying hello.\n" );
+        playersloaded++;
+        if ( playersloaded >= numplayer )
         {
-            log_info( "net_sayHello: Server saying hello.\n" );
-            playersloaded++;
-            if ( playersloaded >= numplayer )
-            {
-                waitingforplayers = bfalse;
-            }
-        }
-        else
-        {
-            log_info( "net_sayHello: Client saying hello.\n" );
-            net_startNewPacket();
-            packet_addUnsignedShort( TO_HOST_IM_LOADED );
-            net_sendPacketToHostGuaranteed();
+            gnet.waitingforplayers = bfalse;
         }
     }
     else
     {
-        waitingforplayers = bfalse;
+        log_info( "net_sayHello: Client saying hello.\n" );
+        net_startNewPacket();
+        packet_addUnsignedShort( TO_HOST_IM_LOADED );
+        net_sendPacketToHostGuaranteed();
     }
 }
 
@@ -873,8 +875,8 @@ void cl_talkToHost()
 
     // Let the players respawn
     if ( SDLKEYDOWN( SDLK_SPACE )
-            && ( local_allpladead || respawnanytime )
-            && respawnvalid
+            && ( local_allpladead || PMod->respawnanytime )
+            && PMod->respawnvalid
             && cfg.difficulty < GAME_HARD
             && !console_mode )
     {
@@ -892,7 +894,7 @@ void cl_talkToHost()
     }
 
     // Start talkin'
-    if ( networkon && !hostactive && !rtscontrol )
+    if ( gnet.on && !gnet.hostactive && !PMod->rtscontrol )
     {
         net_startNewPacket();
         packet_addUnsignedShort( TO_HOST_LATCH );        // The message header
@@ -925,11 +927,11 @@ void sv_talkToRemotes()
     if ( update_wld == sv_last_frame ) return;
     sv_last_frame = update_wld;
 
-    if ( rtscontrol ) return;
+    if ( PMod->rtscontrol ) return;
 
-    if ( hostactive )
+    if ( gnet.hostactive )
     {
-        if ( networkon )
+        if ( gnet.on )
         {
             time = update_wld + lag;
 
@@ -1015,19 +1017,19 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_MODULEOK:
             log_info( "TO_HOSTMODULEOK\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 playersready++;
                 if ( playersready >= numplayer )
                 {
-                    readytostart = btrue;
+                    gnet.readytostart = btrue;
                 }
             }
             break;
 
         case TO_HOST_LATCH:
             log_info( "TO_HOST_LATCH\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 while ( packet_remainingSize() > 0 )
                 {
@@ -1042,13 +1044,13 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_IM_LOADED:
             log_info( "TO_HOST_IMLOADED\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 playersloaded++;
                 if ( playersloaded == numplayer )
                 {
                     // Let the games begin...
-                    waitingforplayers = bfalse;
+                    gnet.waitingforplayers = bfalse;
                     net_startNewPacket();
                     packet_addUnsignedShort( TO_REMOTE_START );
                     net_sendPacketToAllPlayersGuaranteed();
@@ -1058,7 +1060,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_RTS:
             log_info( "TO_HOST_RTS\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 /*whichorder = get_empty_order();
                 if(whichorder < MAXORDER)
@@ -1211,7 +1213,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_DIR:
             log_info( "TO_HOST_DIR\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 packet_readString( filename, 255 );
                 fs_createDirectory( filename );
@@ -1220,7 +1222,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_HOST_FILESENT:
             log_info( "TO_HOST_FILESENT\n" );
-            if ( hostactive )
+            if ( gnet.hostactive )
             {
                 numfileexpected += packet_readUnsignedInt();
                 numplayerrespond++;
@@ -1229,7 +1231,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_FILESENT:
             log_info( "TO_REMOTE_FILESENT\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
                 numfileexpected += packet_readUnsignedInt();
                 numplayerrespond++;
@@ -1238,42 +1240,53 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_MODULE:
             log_info( "TO_REMOTE_MODULE\n" );
-            if ( !hostactive && !readytostart )
+            if ( !gnet.hostactive && !gnet.readytostart )
             {
-                seed = packet_readUnsignedInt();
+                PMod->seed = packet_readUnsignedInt();
                 packet_readString( filename, 255 );
                 strcpy( pickedmodule_name, filename );
 
                 // Check to see if the module exists
                 pickedmodule_index = modlist_get_mod_number( pickedmodule_name );
-                if ( pickedmodule_index == -1 )
+                if ( -1 != pickedmodule_index )
+                {
+                    pickedmodule_ready = btrue;
+
+                    // Make ourselves ready
+                    gnet.readytostart = btrue;
+
+                    // Tell the host we're ready
+                    net_startNewPacket();
+                    packet_addUnsignedShort( TO_HOST_MODULEOK );
+                    net_sendPacketToHostGuaranteed();
+                }
+                else
                 {
                     // The module doesn't exist locally
-                    // !!!BAD!!!  Copy the data from the host
-                    pickedmodule_index = 0;
+                    pickedmodule_ready = bfalse;
+
+                    // Halt the process
+                    gnet.readytostart = bfalse;
+
+                    // Tell the host we're not ready
+                    net_startNewPacket();
+                    packet_addUnsignedShort( TO_HOST_MODULEBAD );
+                    net_sendPacketToHostGuaranteed();
                 }
-
-                // Make ourselves ready
-                readytostart = btrue;
-
-                // Tell the host we're ready
-                net_startNewPacket();
-                packet_addUnsignedShort( TO_HOST_MODULEOK );
-                net_sendPacketToHostGuaranteed();
             }
             break;
 
         case TO_REMOTE_START:
             log_info( "TO_REMOTE_START\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
-                waitingforplayers = bfalse;
+                gnet.waitingforplayers = bfalse;
             }
             break;
 
         case TO_REMOTE_RTS:
             log_info( "TO_REMOTE_RTS\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
                 /*    whichorder = get_empty_order();
                     if(whichorder < MAXORDER)
@@ -1296,7 +1309,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_FILE:
             log_info( "TO_REMOTE_FILE\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
                 packet_readString( filename, 255 );
                 newfilesize = packet_readUnsignedInt();
@@ -1358,7 +1371,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_DIR:
             log_info( "TO_REMOTE_DIR\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
                 packet_readString( filename, 255 );
                 fs_createDirectory( filename );
@@ -1367,7 +1380,7 @@ void net_handlePacket( ENetEvent *event )
 
         case TO_REMOTE_LATCH:
             log_info( "TO_REMOTE_LATCH\n" );
-            if ( !hostactive )
+            if ( !gnet.hostactive )
             {
                 stamp = packet_readUnsignedInt();
                 time = stamp & LAGAND;
@@ -1418,7 +1431,7 @@ void listen_for_packets()
     // ZZ> This function reads any new messages and sets the player latch and matrix needed
     //     lists...
     ENetEvent event;
-    if ( networkon )
+    if ( gnet.on )
     {
         // Listen for new messages
         while ( enet_host_service( net_myHost, &event, 0 ) != 0 )
@@ -1467,7 +1480,7 @@ void unbuffer_player_latches()
 {
     // ZZ> This function sets character latches based on player input to the host
     int cnt, character;
-    if ( rtscontrol ) { numplatimes--; return; }
+    if ( PMod->rtscontrol ) { numplatimes--; return; }
 
     // Copy the latches
 
@@ -1517,7 +1530,7 @@ void unbuffer_player_latches()
         }
 
         // Let players respawn
-        if ( cfg.difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && respawnvalid )
+        if ( cfg.difficulty < GAME_HARD && ( ChrList[character].latchbutton & LATCHBUTTON_RESPAWN ) && PMod->respawnvalid )
         {
             if ( !ChrList[character].alive && 0 == revivetimer )
             {
@@ -1540,9 +1553,11 @@ void unbuffer_player_latches()
 void net_initialize()
 {
     // ZZ> This starts up the network and logs whatever goes on
-    serviceon = bfalse;
+    gnet.serviceon = bfalse;
     numsession = 0;
     numservice = 0;
+
+    net_instance_init( &gnet );
 
     // Clear all the state variables to 0 to start.
     memset( net_playerPeers, 0, sizeof( ENetPeer* ) * MAXPLAYER );
@@ -1553,20 +1568,20 @@ void net_initialize()
 
     sv_last_frame = (Uint32)~0;
 
-    if ( networkon )
+    if ( gnet.on )
     {
         // initialize enet
         log_info( "net_initialize: Initializing enet... " );
         if ( enet_initialize() != 0 )
         {
             log_info( "Failure!\n" );
-            networkon = bfalse;
-            serviceon = 0;
+            gnet.on = bfalse;
+            gnet.serviceon = 0;
         }
         else
         {
             log_info( "Success!\n" );
-            serviceon = btrue;
+            gnet.serviceon = btrue;
             numservice = 1;
         }
     }
@@ -1591,7 +1606,7 @@ void find_open_sessions()
     // ZZ> This function finds some open games to join
     DPSESSIONDESC2      sessionDesc;
     HRESULT             hr;
-    if(networkon)
+    if(gnet.on)
       {
     numsession = 0;
     if(globalnetworkerr)  fprintf(globalnetworkerr, "  Looking for open games...\n");
@@ -1660,7 +1675,7 @@ int cl_joinGame( const char* hostname )
     // ZZ> This function tries to join one of the sessions we found
     ENetAddress address;
     ENetEvent event;
-    if ( networkon )
+    if ( gnet.on )
     {
         log_info( "cl_joinGame: Creating client network connection... " );
         // Create my host thingamabober
@@ -1717,7 +1732,7 @@ int sv_hostGame()
     // ZZ> This function tries to host a new session
 
     ENetAddress address;
-    if ( networkon )
+    if ( gnet.on )
     {
         // Try to create a new session
         address.host = ENET_HOST_ANY;
@@ -1736,7 +1751,7 @@ int sv_hostGame()
         net_amHost = btrue;
 
         // Moved from net_sayHello because there they cause a race issue
-        waitingforplayers = btrue;
+        gnet.waitingforplayers = btrue;
         playersloaded = 0;
     }
 
@@ -1855,11 +1870,22 @@ void net_send_message()
     // ZZ> sends the message in the keyboard buffer to all other players
     if ( console_mode || !console_done ) return;
 
-    //if(networkon)
+    //if(gnet.on)
     //{
     //    start_building_packet();
     //    add_packet_us(TO_ANY_TEXT);
     //    add_packet_sz(keyb.buffer);
     //    send_packet_to_all_players();
     //}
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t net_instance_init( net_instance_t * pnet )
+{
+    if( NULL == pnet ) return bfalse;
+
+    memset( pnet, 0, sizeof(net_instance_t) );
+
+    return bfalse;
 }

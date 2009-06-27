@@ -31,7 +31,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_mod
+struct s_mod_data
 {
     bool_t  loaded;
 
@@ -55,10 +55,30 @@ struct s_mod
     Uint32  tex;                          // the index of the tile image
 
 };
-typedef struct s_mod mod_t;
+typedef struct s_mod_data mod_data_t;
 
-extern int   ModList_count;                            // Number of modules
-extern mod_t ModList[MAXMODULE];
+extern int        ModList_count;                            // Number of modules
+extern mod_data_t ModList[MAXMODULE];
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+struct s_module_instance
+{
+    Uint8   importamount;               // Number of imports for this module
+    bool_t  exportvalid;                // Can it export?
+    Uint8   playeramount;               // How many players?
+    bool_t  importvalid;                // Can it import?
+    bool_t  respawnvalid;               // Can players respawn with Spacebar?
+    bool_t  respawnanytime;             // True if it's a small level...
+    bool_t  rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
+
+    bool_t  active;                     // Is the control loop still going?
+    bool_t  beat;                       // Show Module Ended text?
+    Uint32  seed;                       // The module seed
+    Uint32  randsave;
+};
+
+typedef struct s_module_instance module_instance_t;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -69,3 +89,10 @@ bool_t modlist_test_by_index( int modnumber );
 
 int    module_reference_matches( const char *szLoadName, IDSZ idsz );
 void   module_add_idsz( const char *szLoadName, IDSZ idsz );
+
+
+bool_t module_instance_init( module_instance_t * pgmod );
+bool_t module_upload( module_instance_t * pinst, int selectedModule, Uint32 seed );
+bool_t module_reset( module_instance_t * pinst, Uint32 seed  );
+bool_t module_start( module_instance_t * pinst );
+bool_t module_stop( module_instance_t * pinst );

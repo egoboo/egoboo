@@ -60,5 +60,6 @@
 #undef  TEST_NAN_RESULT       // Test the result of certain math operations?
 
 #undef  RENDER_HMAP           // render the mesh's heightmap?
+#undef  DEBUG_MESH_NORMALS    // render the mesh normals
 
 #define EGOBOO_CONFIG

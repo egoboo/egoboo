@@ -20,12 +20,91 @@
 //********************************************************************************************
 
 #include "egoboo_typedef.h"
+#include "egoboo_math.h"
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_mesh;
+struct s_ego_mpd;
 struct s_camera;
 struct s_script_state;
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+enum e_process_states
+{
+    proc_begin,
+    proc_entering,
+    proc_running,
+    proc_leaving,
+    proc_finish
+};
+typedef enum e_process_states process_state_t;
+
+//--------------------------------------------------------------------------------------------
+
+#define PROC_PBASE(PTR) (&( (PTR)->base ))
+
+struct s_process_instance
+{
+    bool_t          valid;
+    bool_t          paused;
+    bool_t          killme;
+    bool_t          terminated;
+    process_state_t state;
+    double          dtime;
+};
+typedef struct s_process_instance process_instance_t;
+
+//--------------------------------------------------------------------------------------------
+struct s_ego_process
+{
+    process_instance_t base;
+
+    double frameDuration;
+    int    menuResult;
+
+    bool_t was_active;
+    bool_t escape_requested, escape_latch;
+
+    int    frame_next, frame_now;
+};
+typedef struct s_ego_process ego_process_t;
+
+extern ego_process_t * EProc;
+
+//--------------------------------------------------------------------------------------------
+struct s_game_process
+{
+    process_instance_t base;
+
+    double frameDuration;
+    bool_t mod_paused, pause_key_ready;
+    bool_t was_active;
+
+    int    menu_depth;
+    bool_t escape_requested, escape_latch;
+
+    int    frame_next, frame_now;
+
+};
+typedef struct s_game_process game_process_t;
+
+extern game_process_t * GProc;
+
+//--------------------------------------------------------------------------------------------
+struct s_menu_process
+{
+    process_instance_t base;
+
+    bool_t was_active;
+    bool_t escape_requested, escape_latch;
+
+    int    frame_next, frame_now;
+};
+typedef struct s_menu_process menu_process_t;
+
+extern menu_process_t * MProc;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -114,29 +193,37 @@ extern weather_instance_t weather;
 
 //--------------------------------------------------------------------------------------------
 // water data in the wawalite.txt file
+
+struct s_water_layer_data
+{
+    Uint16    frame_add;    // Speed
+
+    float     z;            // Base height of water
+    float     amp;          // Amplitude of waves
+
+    GLvector2 dist;         // For distant backgrounds
+    Uint8     light_dir;    // direct  reflectivity 0 - 63
+    Uint8     light_add;    // ambient reflectivity 0 - 63
+
+    GLvector2 tx_add;       // Texture movement
+    Uint8     alpha;        // Transparency
+};
+typedef struct s_water_layer_data water_data_layer_t;
+
 struct s_water_data
 {
     float   surface_level;          // Surface level for water striders
     float   douse_level;            // Surface level for torches
-    Uint8   spek_start;           // Specular begins at which light value
-    Uint8   spek_level;           // General specular amount (0-255)
-    bool_t  is_water;          // Is it water?  ( Or lava... )
+    Uint8   spek_start;             // Specular begins at which light value
+    Uint8   spek_level;             // General specular amount (0-255)
+    bool_t  is_water;               // Is it water?  ( Or lava... )
     bool_t  background_req;
     bool_t  overlay_req;
 
-    Uint8   light;                               // Is it light ( default is alpha )
-    Uint8   light_level[MAXWATERLAYER];          // General light amount (0-63)
-    Uint8   light_add[MAXWATERLAYER];            // Ambient light amount (0-63)
+    bool_t  light;                               // Is it light ( default is alpha )
 
-    int     layer_count;                         // Number of layers
-    float   layer_z[MAXWATERLAYER];              // Base height of water
-    Uint8   layer_alpha[MAXWATERLAYER];          // Transparency
-    float   layer_u_add[MAXWATERLAYER];          // Texture movement
-    float   layer_v_add[MAXWATERLAYER];
-    Uint16  layer_frame_add[MAXWATERLAYER];      // Speed
-    float   layer_dist_x[MAXWATERLAYER];         // For distant backgrounds
-    float   layer_dist_y[MAXWATERLAYER];
-    float   layer_amp[MAXWATERLAYER];   // Amplitude of waves
+    int                layer_count;              // Number of layers
+    water_data_layer_t layer[MAXWATERLAYER];     // layer data
 
     float   foregroundrepeat;
     float   backgroundrepeat;
@@ -146,19 +233,29 @@ typedef struct s_water_data water_data_t;
 extern water_data_t water_data;
 
 //--------------------------------------------------------------------------------------------
+
+struct s_water_layer_instance
+{
+    Uint16    frame;        // Frame
+    float     z;            // Base height of water
+    GLvector2 dist;
+
+    GLvector2 tx;           // Coordinates of texture
+
+    float     light_dir;    // direct  reflectivity 0 - 1
+    float     light_add;    // ambient reflectivity 0 - 1
+};
+typedef struct s_water_layer_instance water_instance_layer_t;
+
 struct s_water_instance
 {
     float  surface_level;          // Surface level for water striders
     float  douse_level;            // Surface level for torches
     Uint32 spek[256];              // Specular highlights
 
-    Uint16 layer_frame[MAXWATERLAYER]; // Frame
-    float  layer_z[MAXWATERLAYER];     // Base height of water
-    float  layer_u[MAXWATERLAYER];     // Coordinates of texture
-    float  layer_v[MAXWATERLAYER];
+    water_instance_layer_t layer[MAXWATERLAYER];
 
     float  layer_z_add[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
-    Uint8  layer_color[MAXWATERLAYER][MAXWATERFRAME][WATERPOINTS];
 };
 
 typedef struct s_water_instance water_instance_t;
@@ -206,13 +303,12 @@ extern int    endtextwrite;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-extern bool_t    gamepaused;            // Is the game paused?
-extern bool_t    pausekeyready;         // Ready to pause game?
 extern bool_t    overrideslots;         //Override existing slots?
 extern bool_t    screenshotkeyready;    // Ready to take screenshot?
 
-extern struct s_mesh   * PMesh;
-extern struct s_camera * PCamera;
+extern struct s_ego_mpd         * PMesh;
+extern struct s_camera          * PCamera;
+extern struct s_module_instance * PMod;
 
 //Pitty stuff
 extern bool_t  pitskill;          // Do they kill?
@@ -228,9 +324,6 @@ extern Uint16  glouseangle;                                        // actually s
 
 // the hook for deinitializing an old module
 void   game_quit_module();
-
-// the hook for initializing a new module
-bool_t game_init_module( const char * modname, Uint32 seed );
 
 // the hook for exporting all the current players and reloading them
 bool_t game_update_imports();
@@ -288,7 +381,7 @@ void  prime_names( void );
 void  free_all_objects( void );
 
 // Data
-struct s_mesh   * set_PMesh( struct s_mesh * pmpd );
+struct s_ego_mpd   * set_PMesh( struct s_ego_mpd * pmpd );
 struct s_camera * set_PCamera( struct s_camera * pcam );
 
 bool_t animtile_data_init( animtile_data_t * pdata );
@@ -309,7 +402,25 @@ bool_t fog_instance_init( fog_instance_t * pinst, fog_data_t * pdata );
 bool_t animtile_data_init( animtile_data_t * pdata );
 bool_t animtile_instance_init( animtile_instance_t pinst[], animtile_data_t * pdata );
 
-float get_mesh_level( struct s_mesh * pmesh, float x, float y, bool_t waterwalk );
+float get_mesh_level( struct s_ego_mpd * pmesh, float x, float y, bool_t waterwalk );
 
 bool_t make_water( water_instance_t * pinst, water_data_t * pdata );
 void read_wawalite( const char *modname );
+
+bool_t game_choose_module( int imod, int seed );
+
+process_instance_t * process_instance_init( process_instance_t * proc );
+bool_t               process_instance_start( process_instance_t * proc );
+bool_t               process_instance_kill( process_instance_t * proc );
+bool_t               process_instance_validate( process_instance_t * proc );
+bool_t               process_instance_terminate( process_instance_t * proc );
+bool_t               process_instance_pause( process_instance_t * proc );
+bool_t               process_instance_resume( process_instance_t * proc );
+bool_t               process_instance_running( process_instance_t * proc );
+
+ego_process_t      * ego_process_init ( ego_process_t  * eproc );
+menu_process_t     * menu_process_init( menu_process_t * mproc );
+game_process_t     * game_process_init( game_process_t * gproc );
+
+void init_all_profiles();
+void release_all_profiles();

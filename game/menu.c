@@ -72,10 +72,10 @@ struct
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static int menu_stack_index = 0;
-static int menu_stack[MENU_STACK_COUNT];
+static int          menu_stack_index = 0;
+static which_menu_t menu_stack[MENU_STACK_COUNT];
 
-static int  mnu_whichMenu       = MainMenu;
+static which_menu_t mnu_whichMenu = emnu_Main;
 
 bool_t mnu_draw_background = btrue;
 
@@ -176,9 +176,10 @@ static int selectedPlayer = 0;           // Which player is currently selected t
 static int  get_skin( const char *filename );
 static void load_all_menu_images();
 
-static bool_t menu_stack_push( int menu );
-static int    menu_stack_pop();
-static void   menu_stack_clear();
+static bool_t       menu_stack_push( int menu );
+static which_menu_t menu_stack_pop();
+static which_menu_t menu_stack_peek();
+static void         menu_stack_clear();
 
 static void initSlidyButtons( float lerp, const char *button_text[] );
 static void updateSlidyButtons( float deltaTime );
@@ -294,10 +295,6 @@ int doMainMenu( float deltaTime )
 
             menuChoice = 0;
             menuState = MM_Entering;
-
-            // set up menu variables
-            oglx_texture_new( &background );
-            ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", TRANSCOLOR );
 
             // load the menu image
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_main", INVALID_KEY );
@@ -444,7 +441,6 @@ int doSinglePlayerMenu( float deltaTime )
     {
         case MM_Begin:
             // Load resources for this menu
-            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_advent", TRANSCOLOR );
             menuChoice = 0;
 
@@ -568,7 +564,6 @@ int doChooseModule( float deltaTime )
             load_all_menu_images();
 
             // Load font & background
-            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_sleepy", TRANSCOLOR );
             startIndex = 0;
             selectedModule = -1;
@@ -627,7 +622,7 @@ int doChooseModule( float deltaTime )
             }
 
             // use the mouse wheel to scan the modules
-            if ( mouse_wheel_event )
+            if ( cursor_wheel_event )
             {
                 if (mous.z > 0)
                 {
@@ -638,7 +633,7 @@ int doChooseModule( float deltaTime )
                     startIndex--;
                 }
 
-                mouse_wheel_event = bfalse;
+                cursor_wheel_event = bfalse;
                 mous.z = 0;
             }
 
@@ -754,28 +749,16 @@ int doChooseModule( float deltaTime )
                 pickedmodule_index = selectedModule;
                 strncpy( pickedmodule_name, ModList[selectedModule].loadname, SDL_arraysize(pickedmodule_name) );
 
-                // If the module allows imports, return 1.  Else, return 2
-                if ( ModList[selectedModule].importamount > 0 )
+                if( !game_choose_module(selectedModule, -1) )
                 {
-                    importvalid = btrue;
-                    result = 1;
+                    log_warning("Tried to select an invalid module. index == %d\n", selectedModule);
+                    result = -1;
                 }
                 else
                 {
-                    importvalid = bfalse;
-                    result = 2;
+                    pickedmodule_ready = btrue;
+                    result = (PMod->importamount > 0) ? 1 : 2;
                 }
-
-                importamount = ModList[selectedModule].importamount;
-                exportvalid  = ModList[selectedModule].allowexport;
-                playeramount = ModList[selectedModule].maxplayers;
-
-                respawnvalid = bfalse;
-                respawnanytime = bfalse;
-                if ( ModList[selectedModule].respawnvalid ) respawnvalid = btrue;
-                if ( ModList[selectedModule].respawnvalid == ANYTIME ) respawnanytime = btrue;
-
-                rtscontrol = bfalse;
             }
 
             // reset the ui
@@ -809,11 +792,9 @@ int doChoosePlayer( float deltaTime )
         case MM_Begin:
             mnu_selectedPlayerCount = 0;
 
-            oglx_texture_new( &background );
-
             for (i = 0; i < 4; i++)
             {
-                oglx_texture_new(TxInput + i);
+                oglx_texture_Release(TxInput + i);
             };
 
             mnu_selectedPlayerCount = 0;
@@ -889,7 +870,7 @@ int doChoosePlayer( float deltaTime )
             }
 
             // use the mouse wheel to scan the characters
-            if ( mouse_wheel_event )
+            if ( cursor_wheel_event )
             {
                 if (mous.z > 0)
                 {
@@ -906,7 +887,7 @@ int doChoosePlayer( float deltaTime )
                     }
                 }
 
-                mouse_wheel_event = bfalse;
+                cursor_wheel_event = bfalse;
                 mous.z = 0;
             }
 
@@ -940,7 +921,7 @@ int doChoosePlayer( float deltaTime )
                 {
                     if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && !mnu_checkSelectedPlayer( player ) )
                     {
-                        // button has become clicked
+                        // button has become cursor_clicked
                         //mnu_addSelectedPlayer(player);
                     }
                     else if ( 0 == ( mnu_widgetList[m].state & UI_BITS_CLICKED ) && mnu_checkSelectedPlayer( player ) )
@@ -967,7 +948,7 @@ int doChoosePlayer( float deltaTime )
                     {
                         if ( 0 != ( mnu_widgetList[m].state & UI_BITS_CLICKED ) )
                         {
-                            // button has become clicked
+                            // button has become cursor_clicked
                             if ( INVALID_PLA == splayer )
                             {
                                 mnu_addSelectedPlayer( player );
@@ -1020,10 +1001,10 @@ int doChoosePlayer( float deltaTime )
 
             for (i = 0; i < 4; i++)
             {
-                oglx_texture_delete(TxInput + i);
+                oglx_texture_Release(TxInput + i);
             };
 
-            oglx_texture_delete( &background );
+            oglx_texture_Release( &background );
 
             menuState = MM_Begin;
             if ( 0 == mnu_selectedPlayerCount )
@@ -1086,7 +1067,6 @@ int doOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
             menuChoice = 0;
             menuState = MM_Entering;
@@ -1251,8 +1231,6 @@ int doInputOptions( float deltaTime )
             //Load the global icons (keyboard, mouse, etc.)
             if ( !load_all_global_icons() ) log_warning( "Could not load all global icons!\n" );
 
-            gamepaused = btrue;         // In case we are running as an in-game menu
-
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
             // background
@@ -1269,7 +1247,7 @@ int doInputOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "LEFT HAND", buttonLeft, sdl_scr.y - 470, 0, 0, 20 );
 
             //Are we waiting for input?
-            if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  //Someone pressed abort
+            if (SDLKEYDOWN( SDLK_ESCAPE )) waitingforinput = -1;  //Someone cursor_pressed abort
 
             // Grab the key/button input from the selected device
             if (waitingforinput != -1)
@@ -1584,7 +1562,6 @@ int doInputOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
-            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -1609,11 +1586,10 @@ int doAudioOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+
             menuChoice = 0;
             menuState = MM_Entering;
-            gamepaused = btrue;         // In case we are running as an in-game menu
             // let this fall through into MM_Entering
 
         case MM_Entering:
@@ -1688,7 +1664,7 @@ int doAudioOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Music Volume:", buttonLeft, sdl_scr.y - 130, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 4, audioOptionsButtons[3], buttonLeft + 150, sdl_scr.y - 130, 100, 30 ) )
             {
-                if ( cfg.music_volume < 0 )
+                if ( cfg.music_volume <= 0 )
                 {
                     cfg.music_volume = 0;
                 }
@@ -1792,7 +1768,6 @@ int doAudioOptions( float deltaTime )
 
             // Set the next menu to load
             result = 1;
-            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -1817,11 +1792,10 @@ int doVideoOptions( float deltaTime )
     {
         case MM_Begin:
             // set up menu variables
-            oglx_texture_new( &background );
             ego_texture_load( &background, "basicdat" SLASH_STR "menu" SLASH_STR "menu_gnome", TRANSCOLOR );
+
             menuChoice = 0;
             menuState = MM_Entering;    // let this fall through into MM_Entering
-            gamepaused = btrue;         // In case we are running as an in-game menu
 
         case MM_Entering:
             // do buttons sliding in animation, and background fading in
@@ -2003,7 +1977,7 @@ int doVideoOptions( float deltaTime )
             {
                 // make the multi-sampling even
 
-                if ( cfg.multisamples < 0 )
+                if ( cfg.multisamples <= 0 )
                 {
                     cfg.multisamples = 0;
                 }
@@ -2025,7 +1999,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Message Duration:", buttonLeft, sdl_scr.y - 180, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 2, videoOptionsButtons[1], buttonLeft + 150, sdl_scr.y - 180, 100, 30 ) )
             {
-                if ( cfg.message_duration < 0 )
+                if ( cfg.message_duration <= 0 )
                 {
                     cfg.message_duration = 100;
                 }
@@ -2112,7 +2086,7 @@ int doVideoOptions( float deltaTime )
             fnt_drawTextBox( menuFont, "Texture Filtering:", buttonLeft, sdl_scr.y - 285, 0, 0, 20 );
             if ( BUTTON_UP == ui_doButton( 6, videoOptionsButtons[5], buttonLeft + 150, sdl_scr.y - 285, 130, 30 ) )
             {
-                if ( cfg.texturefilter_req < TX_UNFILTERED )
+                if ( cfg.texturefilter_req <= TX_UNFILTERED )
                 {
                     cfg.texturefilter_req = TX_UNFILTERED;
                 }
@@ -2414,7 +2388,6 @@ int doVideoOptions( float deltaTime )
 
             // Set the next menu to load
             result = menuChoice;
-            gamepaused = bfalse;            // In case we are running as an in-game menu
             break;
     }
 
@@ -2425,45 +2398,68 @@ int doVideoOptions( float deltaTime )
 int doShowMenuResults( float deltaTime )
 {
     int x, y;
-    STRING text;
-    Font *font;
     Uint8 i;
 
-    font = ui_getFont();
+    static STRING  text;
+    static Font   *font;
+    static int     menuState = MM_Begin;
+    static int     count;
 
-    ui_drawButton( UI_Nothing, 30, 30, sdl_scr.x - 60, sdl_scr.y - 65, NULL );
+    int menuResult = 0;
 
-    x = 35;
-    y = 35;
-    GL_DEBUG(glColor4f)(1, 1, 1, 1 );
-    snprintf( text, sizeof(text), "Module selected: %s", ModList[selectedModule].loadname );
-    fnt_drawText( font, x, y, text );
-    y += 35;
-    if ( importvalid )
+    switch( menuState )
     {
-        snprintf( text, sizeof(text), "Player selected: %s", loadplayer[selectedPlayer].name );
+        case MM_Begin:
+            font = ui_getFont();
+
+            count = 0;
+            menuState = MM_Entering;
+            // pass through
+
+        case MM_Entering:
+            menuState = MM_Running;
+            // pass through
+
+        case MM_Running:
+
+            ui_drawButton( UI_Nothing, 30, 30, sdl_scr.x - 60, sdl_scr.y - 65, NULL );
+
+            GL_DEBUG(glColor4f)(1, 1, 1, 1 );
+
+            x =  35;
+            y = 110;
+
+            // the module name
+            snprintf( text, sizeof(text), "%s", ModList[selectedModule].longname );
+            fnt_drawText( font, x, y, text );
+            y += 50;
+
+            // the summary
+            for ( i = 0; i < SUMMARYLINES; i++ )
+            {
+                fnt_drawText( menuFont, x, y, ModList[selectedModule].summary[i] );
+                y += 20;
+            }
+
+            // keep track of the iterations through this section for a timer
+            count++;
+            if( count > UPDATE_SKIP )
+            { 
+                menuState  = MM_Leaving;
+            }
+            break;
+
+        case MM_Leaving:
+            menuState = MM_Finish;
+            // pass through
+
+        case MM_Finish:
+            menuResult = 1;
+            menuState  = MM_Begin;
     }
-    else
-    {
-        snprintf( text, sizeof(text), "Starting a new player." );
-    }
 
-    fnt_drawText( font, x, y, text );
 
-    // And finally, the summary
-    y += 60;
-    snprintf( text, sizeof(text), "%s", ModList[selectedModule].longname );
-    fnt_drawText( font, x, y, text );
-    y += 30;
-    snprintf( text, sizeof(text), "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", ModList[selectedModule].loadname );
-
-    for ( i = 0; i < SUMMARYLINES; i++ )
-    {
-        fnt_drawText( menuFont, x, y, ModList[selectedModule].summary[i] );
-        y += 20;
-    }
-
-    return 1;
+    return menuResult;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2513,8 +2509,6 @@ int doGamePaused( float deltaTime )
             menuState = MM_Entering;
 
             initSlidyButtons( 1.0f, buttons );
-
-            gamepaused = btrue;
 
         case MM_Entering:
             drawSlidyButtons();
@@ -2573,8 +2567,6 @@ int doGamePaused( float deltaTime )
             // reset the ui
             ui_Reset();
 
-            gamepaused = bfalse;
-
             // Set the next menu to load
             result = menuChoice;
             break;
@@ -2608,7 +2600,7 @@ int doShowEndgame( float deltaTime )
 
             initSlidyButtons( 1.0f, buttons );
 
-            if ( exportvalid )
+            if ( PMod->exportvalid )
             {
                 buttons[0] = "Save and Exit";
             }
@@ -2621,8 +2613,6 @@ int doShowEndgame( float deltaTime )
             y = 70;
             w = sdl_scr.x - 2 * x;
             h = sdl_scr.y - 2 * y;
-
-            gamepaused = btrue;
 
         case MM_Entering:
 
@@ -2695,29 +2685,20 @@ int doShowEndgame( float deltaTime )
                 //}
 
                 // fix the menu that is returned when you break out of the game
-                if ( beatmodule && startNewPlayer )
+                if ( PMod->beat && startNewPlayer )
                 {
-                    int return_menu;
-
                     // we started with a new player and beat the module... yay!
                     // now we want to graduate to the ChoosePlayer menu to
                     // build our party
 
                     startNewPlayer = bfalse;
 
-                    // what menu were we supposed to go to?
-                    return_menu = MainMenu;
-                    if ( menu_stack_index > 0 )
-                    {
-                        return_menu = menu_stack[menu_stack_index-1];
-                    }
-
                     // if we beat a beginner module, we want to
                     // go to ChoosePlayer instead of ChooseModule.
-                    if ( return_menu == ChooseModule )
+                    if ( menu_stack_peek() == emnu_ChooseModule )
                     {
                         menu_stack_pop();
-                        menu_stack_push( ChoosePlayer );
+                        menu_stack_push( emnu_ChoosePlayer );
                     }
                 }
 
@@ -2726,9 +2707,7 @@ int doShowEndgame( float deltaTime )
                 {
                     game_finish_module();
                     pickedmodule_index = -1;
-                    gameactive   = bfalse;
-                    moduleactive = bfalse;
-                    menuactive   = btrue;
+                    process_instance_kill( PROC_PBASE(GProc) );
                 }
 
                 menuState = MM_Begin;
@@ -2747,7 +2726,7 @@ int doMenu( float deltaTime )
 {
     int retval, result = 0;
 
-    if ( mnu_whichMenu == MainMenu )
+    if ( mnu_whichMenu == emnu_Main )
     {
         menu_stack_clear();
     };
@@ -2756,30 +2735,30 @@ int doMenu( float deltaTime )
 
     switch ( mnu_whichMenu )
     {
-        case MainMenu:
+        case emnu_Main:
             result = doMainMenu( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      { mnu_begin_menu( ChooseModule ); startNewPlayer = btrue; }
-                else if ( result == 2 ) { mnu_begin_menu( ChoosePlayer ); startNewPlayer = bfalse; }
-                else if ( result == 3 ) { mnu_begin_menu( Options ); }
+                if ( result == 1 )      { mnu_begin_menu( emnu_ChooseModule ); startNewPlayer = btrue; }
+                else if ( result == 2 ) { mnu_begin_menu( emnu_ChoosePlayer ); startNewPlayer = bfalse; }
+                else if ( result == 3 ) { mnu_begin_menu( emnu_Options ); }
                 else if ( result == 4 ) retval = MENU_QUIT;  // need to request a quit somehow
             }
             break;
 
-        case SinglePlayer:
+        case emnu_SinglePlayer:
             result = doSinglePlayerMenu( deltaTime );
 
             if ( result != 0 )
             {
                 if ( result == 1 )
                 {
-                    mnu_begin_menu( ChooseModule );
+                    mnu_begin_menu( emnu_ChooseModule );
                     startNewPlayer = btrue;
                 }
                 else if ( result == 2 )
                 {
-                    mnu_begin_menu( ChoosePlayer );
+                    mnu_begin_menu( emnu_ChoosePlayer );
                     startNewPlayer = bfalse;
                 }
                 else if ( result == 3 )
@@ -2789,40 +2768,40 @@ int doMenu( float deltaTime )
                 }
                 else
                 {
-                    mnu_begin_menu( NewPlayer );
+                    mnu_begin_menu( emnu_NewPlayer );
                 }
             }
             break;
 
-        case ChooseModule:
+        case emnu_ChooseModule:
             result = doChooseModule( deltaTime );
 
             if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( result == 1 ) mnu_begin_menu( ShowMenuResults );  // imports are not valid (starter module)
-            else if ( result == 2 ) mnu_begin_menu( ShowMenuResults );  // imports are valid
+            else if ( result == 1 ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are not valid (starter module)
+            else if ( result == 2 ) mnu_begin_menu( emnu_ShowMenuResults );  // imports are valid
 
             break;
 
-        case ChoosePlayer:
+        case emnu_ChoosePlayer:
             result = doChoosePlayer( deltaTime );
 
             if ( result == -1 )     { mnu_end_menu(); retval = MENU_END; }
-            else if ( result == 1 ) mnu_begin_menu( ChooseModule );
+            else if ( result == 1 ) mnu_begin_menu( emnu_ChooseModule );
 
             break;
 
-        case Options:
+        case emnu_Options:
             result = doOptions( deltaTime );
             if ( result != 0 )
             {
-                if ( result == 1 )      mnu_begin_menu( AudioOptions );
-                else if ( result == 2 ) mnu_begin_menu( InputOptions );
-                else if ( result == 3 ) mnu_begin_menu( VideoOptions );
+                if ( result == 1 )      mnu_begin_menu( emnu_AudioOptions );
+                else if ( result == 2 ) mnu_begin_menu( emnu_InputOptions );
+                else if ( result == 3 ) mnu_begin_menu( emnu_VideoOptions );
                 else if ( result == 4 ) { mnu_end_menu(); retval = MENU_END; }
             }
             break;
 
-        case AudioOptions:
+        case emnu_AudioOptions:
             result = doAudioOptions( deltaTime );
             if ( result != 0 )
             {
@@ -2831,7 +2810,7 @@ int doMenu( float deltaTime )
             }
             break;
 
-        case VideoOptions:
+        case emnu_VideoOptions:
             result = doVideoOptions( deltaTime );
             if ( result != 0 )
             {
@@ -2840,7 +2819,7 @@ int doMenu( float deltaTime )
             }
             break;
 
-        case InputOptions:
+        case emnu_InputOptions:
             result = doInputOptions( deltaTime );
             if ( result != 0 )
             {
@@ -2849,7 +2828,7 @@ int doMenu( float deltaTime )
             }
             break;
 
-        case ShowMenuResults:
+        case emnu_ShowMenuResults:
             result = doShowMenuResults( deltaTime );
             if ( result != 0 )
             {
@@ -2858,7 +2837,7 @@ int doMenu( float deltaTime )
             }
             break;
 
-        case GamePaused:
+        case emnu_GamePaused:
             result = doGamePaused( deltaTime );
             if ( result != 0 )
             {
@@ -2880,31 +2859,28 @@ int doMenu( float deltaTime )
                     if ( !reloaded )
                     {
                         game_finish_module();
-                        gameactive = bfalse;
-                        moduleactive = bfalse;
-                        menuactive = btrue;
+                        process_instance_kill( PROC_PBASE(GProc) );
                     }
 
                     result = MENU_QUIT;
                 }
-                else if ( result == 2 ) mnu_begin_menu( AudioOptions );
-                else if ( result == 3 ) mnu_begin_menu( InputOptions );
-                else if ( result == 4 ) mnu_begin_menu( VideoOptions );
+                else if ( result == 2 ) mnu_begin_menu( emnu_AudioOptions );
+                else if ( result == 3 ) mnu_begin_menu( emnu_InputOptions );
+                else if ( result == 4 ) mnu_begin_menu( emnu_VideoOptions );
                 else if ( result == 5 ) { mnu_end_menu(); retval = MENU_END; }
             }
             break;
 
-        case ShowEndgame:
+        case emnu_ShowEndgame:
             result = doShowEndgame( deltaTime );
             if ( result == 1 )
             {
                 mnu_end_menu();
                 retval = MENU_END;
-                menuactive = btrue;
             }
             break;
 
-        case NotImplemented:
+        case emnu_NotImplemented:
         default:
             result = doNotImplemented( deltaTime );
             if ( result != 0 )
@@ -3261,27 +3237,40 @@ bool_t menu_stack_push( int menu )
 }
 
 //--------------------------------------------------------------------------------------------
-int menu_stack_pop()
+which_menu_t menu_stack_pop()
 {
     if ( menu_stack_index < 0 )
     {
         menu_stack_index = 0;
-        return MainMenu;
+        return emnu_Main;
     }
     if (menu_stack_index > MENU_STACK_COUNT)
     {
         menu_stack_index = MENU_STACK_COUNT;
     }
 
-    if ( menu_stack_index == 0 ) return MainMenu;
+    if ( menu_stack_index == 0 ) return emnu_Main;
 
     menu_stack_index--;
     return menu_stack[menu_stack_index];
 }
 
 //--------------------------------------------------------------------------------------------
+which_menu_t menu_stack_peek()
+{
+    which_menu_t return_menu = emnu_Main;
+
+    if ( menu_stack_index > 0 )
+    {
+        return_menu = menu_stack[menu_stack_index-1];
+    }
+
+    return return_menu;
+}
+
+//--------------------------------------------------------------------------------------------
 void menu_stack_clear()
 {
     menu_stack_index = 0;
-    menu_stack[0] = MainMenu;
+    menu_stack[0] = emnu_Main;
 }

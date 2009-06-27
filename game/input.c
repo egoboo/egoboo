@@ -32,6 +32,7 @@
 #include "ui.h"
 #include "log.h"
 #include "network.h"
+#include "game.h"
 
 #include "egoboo_setup.h"
 #include "egoboo_fileutil.h"
@@ -44,18 +45,18 @@ Uint32 input_device_count = 0;
 int       scantag_count = 0;
 scantag_t scantag[MAXTAG];
 
-mouse_t          mous;
+mouse_t           mous;
 keyboard_t        keyb;
 device_joystick_t joy[MAXJOYSTICK];
 
 device_controls_t controls[INPUT_DEVICE_COUNT + MAXJOYSTICK];
 
-int              cursorx = 0;
-int              cursory = 0;
-bool_t           pressed = bfalse;
-bool_t           clicked = bfalse;
-bool_t           pending_click = bfalse;
-bool_t           mouse_wheel_event = bfalse;
+int               cursor_x = 0;
+int               cursor_y = 0;
+bool_t            cursor_pressed = bfalse;
+bool_t            cursor_clicked = bfalse;
+bool_t            cursor_pending_click = bfalse;
+bool_t            cursor_wheel_event = bfalse;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -114,10 +115,14 @@ void input_init()
 void input_read_mouse()
 {
     int x, y, b;
-    if ( menuactive )
+    if ( process_instance_running( PROC_PBASE(MProc) ) )
+    {
         b = SDL_GetMouseState( &x, &y );
+    }
     else
+    {
         b = SDL_GetRelativeMouseState( &x, &y );
+    }
 
     mous.x = x; // mous.x and mous.y are the wrong type to use in above call
     mous.y = y;
@@ -188,6 +193,8 @@ void input_read()
     int cnt;
     SDL_Event evt;
 
+    if( 0 == SDL_WasInit(SDL_INIT_EVERYTHING) ) return;
+
     // Run through SDL's event loop to get info in the way that we want
     // it for the Gui code
     while ( SDL_PollEvent( &evt ) )
@@ -209,21 +216,21 @@ void input_read()
                 if (evt.button.button == SDL_BUTTON_WHEELUP)
                 {
                     mous.z++;
-                    mouse_wheel_event = btrue;
+                    cursor_wheel_event = btrue;
                 }
                 else if (evt.button.button == SDL_BUTTON_WHEELDOWN)
                 {
                     mous.z--;
-                    mouse_wheel_event = btrue;
+                    cursor_wheel_event = btrue;
                 }
                 else
                 {
-                    pending_click = btrue;
+                    cursor_pending_click = btrue;
                 }
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                pending_click = bfalse;
+                cursor_pending_click = bfalse;
                 break;
 
                 // use this loop to grab any console-mode entry from the keyboard
@@ -282,7 +289,8 @@ void input_read()
                     {
                         if ( SDLK_ESCAPE == evt.key.keysym.sym )
                         {
-                            game_escape_requested = btrue;
+                            // tell the main process about the escape request
+                            EProc->escape_requested = btrue;
                         }
                     }
                 }
@@ -360,13 +368,20 @@ void scantag_read_all( const char *szFilename )
     FILE* fileread;
 
     scantag_reset();
-    fileread = fopen( szFilename, "r" );
-    if ( fileread )
-    {
-        while ( scantag_read_one( fileread ) );
 
-        fclose( fileread );
+    parse_filename = "";
+    fileread = fopen( szFilename, "r" );
+    if ( NULL == fileread )
+    {
+        log_error( "Cannot read %s.", szFilename );
     }
+    parse_filename = szFilename;
+
+    while ( scantag_read_one( fileread ) );
+
+    fclose( fileread );
+
+    parse_filename = "";
 }
 
 //--------------------------------------------------------------------------------------------
@@ -434,7 +449,7 @@ char* scantag_get_string( Sint32 device, Sint32 tag, bool_t is_key )
 //--------------------------------------------------------------------------------------------
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 {
-    // ZZ> This function returns btrue if the given icontrol is pressed...
+    // ZZ> This function returns btrue if the given icontrol is cursor_pressed...
 
     bool_t retval = bfalse;
 
@@ -464,7 +479,7 @@ bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol )
 void reset_players()
 {
     // ZZ> This function clears the player list data
-    int cnt, tnc;
+    int cnt;
 
     // Reset the local data stuff
     local_seekurse     = bfalse;
@@ -475,25 +490,19 @@ void reset_players()
     // Reset the initial player data and latches
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        PlaList[cnt].valid = bfalse;
-        PlaList[cnt].index = 0;
-        PlaList[cnt].latchx = 0;
-        PlaList[cnt].latchy = 0;
-        PlaList[cnt].latchbutton = 0;
-
-        PlaList[cnt].tlatch_count = 0;
-        for ( tnc = 0; tnc < MAXLAG; tnc++ )
-        {
-            PlaList[cnt].tlatch[tnc].x      = 0;
-            PlaList[cnt].tlatch[tnc].y      = 0;
-            PlaList[cnt].tlatch[tnc].button = 0;
-            PlaList[cnt].tlatch[tnc].time   = 0;
-        }
-
-        PlaList[cnt].device = INPUT_BITS_NONE;
+        memset( PlaList + cnt, 0, sizeof(player_t) );
     }
+    numpla        = 0;
 
-    numpla = 0;
     nexttimestamp = ((Uint32)~0);
     numplatimes   = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void cursor_reset()
+{
+    cursor_pressed       = bfalse;
+    cursor_clicked       = bfalse;
+    cursor_pending_click = bfalse;
+    cursor_wheel_event   = bfalse;
 }

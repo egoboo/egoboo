@@ -39,12 +39,12 @@
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-int   ModList_count = 0;                            // Number of modules
-mod_t ModList[MAXMODULE];
+int        ModList_count = 0;                            // Number of modules
+mod_data_t ModList[MAXMODULE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-static bool_t module_load_info( const char * szLoadName, mod_t * pmod );
+static bool_t module_load_info( const char * szLoadName, mod_data_t * pmod );
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -62,8 +62,11 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
     if ( 0 == strcmp( szLoadName, "NONE" )  ) return bfalse;
 
     sprintf( newloadname, "modules" SLASH_STR "%s" SLASH_STR "gamedat" SLASH_STR "menu.txt", szLoadName );
+
+    parse_filename = "";
     fileread = fopen( newloadname, "r" );
     if ( NULL == fileread ) return bfalse;
+    parse_filename = newloadname;
 
     // Read basic data
     parse_filename = szLoadName;
@@ -97,6 +100,7 @@ int module_reference_matches( const char *szLoadName, IDSZ idsz )
     }
 
     fclose( fileread );
+    parse_filename = "";
 
     return foundidsz;
 }
@@ -151,7 +155,7 @@ int modlist_get_mod_number( const char *szModName )
 bool_t modlist_test_by_index( int modnumber )
 {
     int     cnt;
-    mod_t * pmod;
+    mod_data_t * pmod;
     bool_t  allowed;
     bool_t  playerhasquest;
 
@@ -195,7 +199,7 @@ bool_t modlist_test_by_name( const char *szModName )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t module_load_info( const char * szLoadName, mod_t * pmod )
+bool_t module_load_info( const char * szLoadName, mod_data_t * pmod )
 {
     // BB > this function actually reads in the module data
 
@@ -206,7 +210,7 @@ bool_t module_load_info( const char * szLoadName, mod_t * pmod )
 
     // clear all the module info
     if ( NULL == pmod ) return bfalse;
-    memset( pmod, 0, sizeof(mod_t) );
+    memset( pmod, 0, sizeof(mod_data_t) );
 
     // see if we can open the file
     fileread = fopen( szLoadName, "r" );
@@ -299,6 +303,87 @@ void modlist_load_all_info()
     }
     fs_findClose();
     ModList[ModList_count].longname[0] = '\0';
-
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t module_instance_init( module_instance_t * pinst )
+{
+    if( NULL == pinst ) return bfalse;
+
+    memset( pinst, 0, sizeof(module_instance_t) );
+
+    pinst->seed = ~0;
+
+    return btrue;
+}
+
+
+//--------------------------------------------------------------------------------------------
+bool_t module_upload( module_instance_t * pinst, int imod, Uint32 seed )
+{
+    mod_data_t * pdata;
+
+    if( imod < 0 || imod >= ModList_count ) return bfalse;
+
+    if( !module_instance_init(pinst) ) return bfalse;
+
+    pdata = ModList + imod;
+
+    pinst->importamount   = pdata->importamount;
+    pinst->exportvalid    = pdata->allowexport;
+    pinst->playeramount   = pdata->maxplayers;
+    pinst->importvalid    = ( pinst->importamount > 0 );
+    pinst->respawnvalid   = ( bfalse != pdata->respawnvalid );
+    pinst->respawnanytime = ( ANYTIME == pdata->respawnvalid );
+    pinst->rtscontrol     = bfalse;
+
+    pinst->active = bfalse;
+    pinst->beat   = bfalse;
+    pinst->seed   = seed;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t module_reset( module_instance_t * pinst, Uint32 seed )
+{
+    if(NULL == pinst) return bfalse;
+
+    pinst->beat        = bfalse;
+    pinst->exportvalid = bfalse;
+    pinst->seed        = seed;
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t module_start( module_instance_t * pinst )
+{
+    // BB> Let the module go
+
+    if(NULL == pinst) return bfalse;
+
+    pinst->active = btrue;
+
+    pinst->randsave = 0;
+    srand( pinst->randsave );
+
+    PNet->hostactive = btrue; // very important or the input will not work
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t module_stop( module_instance_t * pinst )
+{
+    // BB> stop the module
+
+    if(NULL == pinst) return bfalse;
+
+    pinst->active      = bfalse;
+
+    // ntework stuff
+    PNet->hostactive  = bfalse;
+
+    return btrue;
+}

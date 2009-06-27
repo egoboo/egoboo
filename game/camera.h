@@ -24,7 +24,7 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-struct s_mesh;
+struct s_ego_mpd;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -32,6 +32,13 @@ enum e_camera_mode
 {
     CAM_PLAYER = 0,
     CAM_FREE
+};
+
+enum e_camera_turn_mode
+{
+    CAMTURN_NONE = (1 == 0),  // false
+    CAMTURN_AUTO = (1 == 1),  // true
+    CAMTURN_GOOD = 255
 };
 
 #define TRACKXAREALOW     100
@@ -82,7 +89,6 @@ struct s_camera
     float     swingamp;
     GLvector3 pos;                       // Camera position (z = 500-1000)
     float     zoom;                    // Distance from the trackee
-    GLvector3 track_vel;               // Change in trackee position
     GLvector3 track_pos;                  // Trackee position
     float     track_level;
     GLvector3 center;                 // Move character to side before tracking
@@ -109,8 +115,8 @@ extern camera_t gCamera;
 //Function prototypes
 camera_t * camera_new( camera_t * pcam );
 
-void camera_reset( camera_t * pcam, struct s_mesh * pmesh );
+void camera_reset( camera_t * pcam, struct s_ego_mpd * pmesh );
 void camera_adjust_angle( camera_t * pcam, float height );
-void camera_move( camera_t * pcam, struct s_mesh * pmesh );
+void camera_move( camera_t * pcam, struct s_ego_mpd * pmesh );
 void camera_make_matrix( camera_t * pcam );
 void camera_look_at( camera_t * pcam, float x, float y );

@@ -126,7 +126,7 @@ static void music_stack_finished_callback(void)
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t music_stack_push(Mix_Music * mus, int song)
+bool_t music_stack_push(Mix_Music * mus, int song)
 {
     if ( music_stack_depth >= MUSIC_STACK_COUNT - 1 )
     {
@@ -143,22 +143,36 @@ static bool_t music_stack_push(Mix_Music * mus, int song)
 }
 
 //--------------------------------------------------------------------------------------------
-static bool_t music_stack_pop(Mix_Music ** mus, int * song)
+bool_t music_stack_pop(Mix_Music ** mus, int * song)
 {
     if (NULL == mus || NULL == song) return bfalse;
+
+    // fail if music isn't loaded
+    if( !musicinmemory )
+    {    
+        *mus = NULL;
+        *song = -1;
+        return bfalse;
+    }
+
+    // set the default to be song 0
+    *song = 0;
+    *mus  = musictracksloaded[*song];
+
+    // pop the stack, if possible
     if (music_stack_depth > 0)
     {
         music_stack_depth--;
-    }
 
-    *mus  = music_stack[music_stack_depth].mus;
-    *song = music_stack[music_stack_depth].number;
+        *mus  = music_stack[music_stack_depth].mus;
+        *song = music_stack[music_stack_depth].number;
+    }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static void music_stack_init()
+void music_stack_init()
 {
     // push on the default music value
     music_stack_push( musictracksloaded[0], 0 );
@@ -417,7 +431,7 @@ int sound_play_mix( GLvector3 pos, mix_ptr_t * pptr )
         retval = Mix_PlayMusic( pptr->ptr.mus, 1 );
 
         // invalidate the song
-        songplaying = INVALID_SOUND;
+        songplaying = -1;
 
         // since music_stack_finished_callback() is registered using Mix_HookMusicFinished(),
         // it will resume when pptr->ptr.mus is finished playing
@@ -467,6 +481,9 @@ int sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops )
     const float reverb_dist2 = 200 * 200;
 
     if ( !snd.soundvalid || !mixeron || NULL == pchunk ) return INVALID_SOUND;
+
+    // only play sound effects if the game is running
+    if( !process_instance_running( PROC_PBASE(GProc) ) )  return INVALID_SOUND;
 
     // measure the distance in tiles
     diff = VSub( pos, PCamera->track_pos );
@@ -547,6 +564,50 @@ void sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops )
         songplaying = songnumber;
     }
 }
+
+//--------------------------------------------------------------------------------------------
+void sound_finish_song( Uint16 fadetime )
+{
+    Mix_Music * mus;
+    int         song;
+
+    if ( !snd.musicvalid || !mixeron ) return;
+
+    if( !musicinmemory )
+    {
+        Mix_HaltMusic();
+        return;
+    }
+
+    // set the defaults
+    mus  = musictracksloaded[0];
+    song = 0;
+
+    // try to grab the last song playing
+    music_stack_pop(&mus, &song);
+
+    if( -1 == song )
+    {
+        // some wierd error
+        Mix_HaltMusic();
+    }
+    else
+    {
+        if( -1 != songplaying )
+        {
+            Mix_FadeOutMusic( fadetime );
+        }
+
+        // play the music
+        Mix_FadeInMusic( mus, -1, fadetime );
+
+        // set the volume
+        Mix_VolumeMusic( snd.musicvolume );
+
+        songplaying = song;
+    }
+}
+
 
 //--------------------------------------------------------------------------------------------
 void sound_stop_song()

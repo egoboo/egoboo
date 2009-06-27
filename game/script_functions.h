@@ -411,9 +411,8 @@ Uint8 scr_set_AssistSpeech( struct s_script_state * pstate, struct s_ai_state * 
 Uint8 scr_set_TerrainSpeech( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_set_SelectSpeech( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_OperatorIsMacintosh( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_IfModuleHasIDSZ( struct s_script_state * pstate, struct s_ai_state * pself );
+Uint8 scr_ModuleHasIDSZ( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_MorphToTarget(   struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_GiveManaFlowToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
 Uint8 scr_GiveManaReturnToTarget( struct s_script_state * pstate, struct s_ai_state * pself );
-Uint8 scr_SetMoney( struct s_script_state * pstate, struct s_ai_state * pself );
-
+Uint8 scr_set_Money( struct s_script_state * pstate, struct s_ai_state * pself );

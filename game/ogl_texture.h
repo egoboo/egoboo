@@ -62,14 +62,15 @@ struct s_oglx_texture
 {
     gl_texture_t base;
 
+    GLuint        valid;           // whether or not the texture has been initialized
     char          name[256];       // the name of the original file
-    SDL_Surface * surface;    // the original texture data
-    int           imgW, imgH; // the height & width of the texture data
-    GLfloat       alpha;      // the alpha for the texture
+    SDL_Surface * surface;         // the original texture data
+    int           imgW, imgH;      // the height & width of the texture data
+    GLfloat       alpha;           // the alpha for the texture
 };
 typedef struct s_oglx_texture oglx_texture;
 
-GLuint  oglx_texture_Convert( GLenum tx_target, oglx_texture *texture, SDL_Surface * image, Uint32 key );
+GLuint  oglx_texture_Convert( GLenum tx_target, oglx_texture *texture, SDL_Surface * pimage, Uint32 key );
 GLuint  oglx_texture_Load( GLenum tx_target, oglx_texture *texture, const char *filename, Uint32 key );
 GLuint  oglx_texture_GetTextureID( oglx_texture *texture );
 GLsizei oglx_texture_GetImageHeight( oglx_texture *texture );

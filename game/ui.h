@@ -53,15 +53,15 @@ enum e_ui_button_bits
 
 struct s_ui_Widget
 {
-    ui_id_t      id;
-    Font        *pfont;
-    const char  *text;
-    oglx_texture   *img;
-    int          x;
-    int          y;
-    int          width;
-    int          height;
-    Uint32 mask, state, timeout;
+    ui_id_t       id;
+    Font         *pfont;
+    const char   *text;
+    oglx_texture *img;
+    int           x;
+    int           y;
+    int           width;
+    int           height;
+    Uint32 mask,  state, timeout;
 };
 typedef struct s_ui_Widget ui_Widget_t;
 

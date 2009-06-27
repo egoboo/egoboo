@@ -148,17 +148,25 @@ int action_which( char cTmp )
 {
     // ZZ> This function changes a letter into an action code
     int action;
-    action = ACTION_DA;
-    if ( cTmp == 'U' || cTmp == 'u' )  action = ACTION_UA;
-    if ( cTmp == 'T' || cTmp == 't' )  action = ACTION_TA;
-    if ( cTmp == 'S' || cTmp == 's' )  action = ACTION_SA;
-    if ( cTmp == 'C' || cTmp == 'c' )  action = ACTION_CA;
-    if ( cTmp == 'B' || cTmp == 'b' )  action = ACTION_BA;
-    if ( cTmp == 'L' || cTmp == 'l' )  action = ACTION_LA;
-    if ( cTmp == 'X' || cTmp == 'x' )  action = ACTION_XA;
-    if ( cTmp == 'F' || cTmp == 'f' )  action = ACTION_FA;
-    if ( cTmp == 'P' || cTmp == 'p' )  action = ACTION_PA;
-    if ( cTmp == 'Z' || cTmp == 'z' )  action = ACTION_ZA;
+
+    switch( toupper(cTmp) )
+    {
+        case 'D': action = ACTION_DA; break;
+        case 'U': action = ACTION_UA; break;
+        case 'T': action = ACTION_TA; break;
+        case 'C': action = ACTION_CA; break;
+        case 'S': action = ACTION_SA; break;
+        case 'B': action = ACTION_BA; break;
+        case 'L': action = ACTION_LA; break;
+        case 'X': action = ACTION_XA; break;
+        case 'F': action = ACTION_FA; break;
+        case 'P': action = ACTION_PA; break;
+        case 'Z': action = ACTION_ZA; break;
+        case 'W': action = ACTION_WA; break;
+        case 'H': action = ACTION_HA; break;
+        case 'K': action = ACTION_KA; break;
+        default:  action = ACTION_DA; break;
+    }
 
     return action;
 }

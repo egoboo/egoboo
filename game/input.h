@@ -31,12 +31,12 @@
 //--------------------------------------------------------------------------------------------
 // old user interface variables
 
-extern int              cursorx;              // Cursor position
-extern int              cursory;
-extern bool_t           pressed;
-extern bool_t           clicked;
-extern bool_t           pending_click;
-extern bool_t           mouse_wheel_event;
+extern int              cursor_x;              // Cursor position
+extern int              cursor_y;
+extern bool_t           cursor_pressed;
+extern bool_t           cursor_clicked;
+extern bool_t           cursor_pending_click;
+extern bool_t           cursor_wheel_event;
 
 //--------------------------------------------------------------------------------------------
 // Key/Control input defenitions
@@ -246,3 +246,4 @@ char*  scantag_get_string( Sint32 device, Sint32 tag, bool_t onlykeys );
 bool_t control_is_pressed( Uint32 idevice, Uint8 icontrol );
 
 void reset_players();
+void cursor_reset();

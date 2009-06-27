@@ -35,8 +35,16 @@
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-#define ErrorImage_width 2
-#define ErrorImage_height 2
+#define VALID_VALUE        0x32B04E67
+#define ErrorImage_width   2
+#define ErrorImage_height  2
+
+#define VALID_BINDING( BIND ) ( (0 != (BIND)) && (INVALID_TX_ID != (BIND)) )
+#define ERROR_BINDING( BIND ) ( ErrorImage_binding == (BIND) )
+
+#define VALID_TEXTURE( PTEX ) ( (NULL != (PTEX)) && (VALID_VALUE == (PTEX)->valid) )
+
+static GLuint ErrorImage_binding = INVALID_TX_ID;
 
 oglx_texture_parameters_t tex_params = {TX_UNFILTERED, 0};
 
@@ -48,11 +56,19 @@ static GLubyte ErrorImage[ErrorImage_height][ErrorImage_width][4];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+static void ErrorImage_bind(GLenum target, GLuint id);
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
 void ErrorImage_create(void)
 {
     // BB > define a default "error texture"
 
     int i, j;
+
+    if( INVALID_TX_ID != ErrorImage_binding ) return;
+
+    GL_DEBUG(glGenTextures)( 1, &ErrorImage_binding );
 
     for (i = 0; i < ErrorImage_height; i++)
     {
@@ -74,6 +90,8 @@ void ErrorImage_create(void)
             ErrorImage[i][j][3] = (GLubyte) 255;
         }
     }
+
+    ErrorImage_bind( GL_TEXTURE_2D, ErrorImage_binding ); 
 
     ErrorImage_defined = GL_TRUE;
 }
@@ -108,17 +126,24 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
 {
     if ( NULL == ptex ) return ptex;
 
-    if ( INVALID_TX_ID != ptex->base.binding )
-    {
-        GL_DEBUG(glDeleteTextures)( 1, &(ptex->base.binding) );
-        ptex->base.binding = INVALID_TX_ID;
-    }
-
     memset( ptex, 0, sizeof(oglx_texture) );
 
     // only need one textureID per texture
     // do not need to ask for a new id, even if we change the texture data
     GL_DEBUG(glGenTextures)( 1, &(ptex->base.binding) );
+
+    // set the flag validity flag
+    if( VALID_BINDING(ptex->base.binding) && !ERROR_BINDING(ptex->base.binding) )
+    {
+        ptex->valid = VALID_VALUE;
+    }
+    else
+    {
+        ptex->valid = ~VALID_VALUE;
+    }
+
+    // set to 2d texture by default
+    ptex->base.target = GL_TEXTURE_2D;
 
     // set the image to be clamped in s and t
     ptex->base.wrap_s = GL_CLAMP;
@@ -130,11 +155,17 @@ oglx_texture * oglx_texture_new(oglx_texture * ptex)
 //--------------------------------------------------------------------------------------------
 void oglx_texture_delete(oglx_texture * ptex)
 {
-    if ( NULL == ptex ) return;
+    if ( !VALID_TEXTURE(ptex) )  return;
+
+    // set a bad value for ptex->valid
+    ptex->valid = ~VALID_VALUE;
 
     // actually delete the OpenGL texture data
-    GL_DEBUG(glDeleteTextures)( 1, &ptex->base.binding );
-    ptex->base.binding = INVALID_TX_ID;
+    if( VALID_BINDING(ptex->base.binding) )
+    {
+        GL_DEBUG(glDeleteTextures)( 1, &ptex->base.binding );
+        ptex->base.binding = INVALID_TX_ID;
+    }
 
     // set the image to be clamped in s and t
     ptex->base.wrap_s = GL_CLAMP;
@@ -276,7 +307,7 @@ GLuint oglx_texture_Convert( GLenum tx_target, oglx_texture *ptex, SDL_Surface *
     };
 
     /* Generate an OpenGL texture ID */
-    if ( 0 == ptex->base.binding || INVALID_TX_ID == ptex->base.binding )
+    if ( !VALID_BINDING(ptex->base.binding) || ERROR_BINDING(ptex->base.binding) )
     {
         GL_DEBUG(glGenTextures)( 1, &ptex->base.binding );
     }
@@ -318,16 +349,24 @@ GLuint oglx_texture_Load( GLenum tx_target, oglx_texture *ptex, const char *file
     GLuint retval;
     SDL_Surface * image;
 
-    // initialize the ptex
-    oglx_texture_delete( ptex );
-    if ( NULL == oglx_texture_new(ptex) ) return INVALID_TX_ID;
+    if( VALID_TEXTURE(ptex) )
+    {
+        // release any old texture
+        oglx_texture_Release( ptex );
+    }
+    else
+    {
+        // clean out any uninitialied data
+        ptex = oglx_texture_new(ptex);
+        if( NULL == ptex ) return INVALID_TX_ID;
+    }
 
     image = IMG_Load( filename );
     if ( NULL == image ) return INVALID_TX_ID;
 
     retval = oglx_texture_Convert( tx_target, ptex, image, key );
 
-    if ( INVALID_TX_ID == retval )
+    if ( !VALID_BINDING(retval) )
     {
         oglx_texture_delete(ptex);
     }
@@ -387,17 +426,19 @@ GLfloat  oglx_texture_GetAlpha( oglx_texture *texture )
 /********************> oglx_texture_Release() <*****/
 void  oglx_texture_Release( oglx_texture *texture )
 {
-    if (!ErrorImage_defined) ErrorImage_create();
+    if ( !VALID_TEXTURE(texture) ) return;
 
-    if ( NULL == texture ) return;
-
-    // Bind an "error texture" to this texture
-    if (INVALID_TX_ID == texture->base.binding)
+    // delete any existing SDL surface
+    if ( NULL != texture->surface )
     {
-        GL_DEBUG(glGenTextures)( 1, &texture->base.binding );
+        SDL_FreeSurface( texture->surface );
+        texture->surface = NULL;
     }
 
-    ErrorImage_bind(GL_TEXTURE_2D, texture->base.binding);
+    if (!ErrorImage_defined) ErrorImage_create();
+
+    // Bind the error texture instead of the old texture
+    ErrorImage_bind( texture->base.target, texture->base.binding );
 
     // Reset the other data
     texture->imgW = texture->base.width = ErrorImage_width;
@@ -418,11 +459,22 @@ void oglx_texture_Bind( oglx_texture *texture )
     GLuint id;
     GLint wrap_s, wrap_t;
 
+    // make sure the error texture exists
+    if (!ErrorImage_defined) ErrorImage_create();
+
+    // assume the texture is going to be the error texture
     target = GL_TEXTURE_2D;
-    id     = INVALID_TX_ID;
     wrap_s = wrap_t = GL_REPEAT;
-    if ( NULL != texture && 0 != texture->base.target && INVALID_TX_ID != texture->base.binding )
+    id = ErrorImage_binding;
+
+    if( NULL == texture )
     {
+        // NULL texture means white blob
+        id = INVALID_TX_ID;
+    }
+    else if ( VALID_TEXTURE(texture) && VALID_BINDING(texture->base.binding) )
+    {
+        // grab the info from the texture
         target = texture->base.target;
         id     = texture->base.binding;
         wrap_s = texture->base.wrap_s;

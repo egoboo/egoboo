@@ -26,6 +26,7 @@
 #include "particle.h"
 #include "sound.h"
 #include "network.h"
+#include "camera.h"
 
 #include "egoboo_fileutil.h"
 #include "egoboo.h"
@@ -308,9 +309,9 @@ bool_t setup_download(egoboo_config_t * pcfg)
     // Camera control mode
     GetKey_string( "AUTOTURN_CAMERA", lTempStr, 24, "GOOD" );
     pcfg->autoturncamera = cfg_default.autoturncamera;
-    if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = 255;
-    if ( toupper(lTempStr[0]) == 'T' )  pcfg->autoturncamera = btrue;
-    if ( toupper(lTempStr[0]) == 'F' )  pcfg->autoturncamera = bfalse;
+         if ( toupper(lTempStr[0]) == 'G' )  pcfg->autoturncamera = CAMTURN_GOOD;
+    else if ( toupper(lTempStr[0]) == 'T' )  pcfg->autoturncamera = CAMTURN_AUTO;
+    else if ( toupper(lTempStr[0]) == 'F' )  pcfg->autoturncamera = CAMTURN_NONE;
 
     // *********************************************
     // * NETWORK Section
@@ -368,9 +369,6 @@ bool_t setup_synch( egoboo_config_t * pcfg )
 
     wraptolerance = pcfg->staton ? 90 : 32;
 
-    // texture parameters
-    tex_params.texturefilter  = pcfg->texturefilter_req;
-
     // Get the particle limit
     maxparticles = CLIP(pcfg->particle_count_req, 0, TOTAL_MAX_PRT);
 
@@ -380,6 +378,7 @@ bool_t setup_synch( egoboo_config_t * pcfg )
     // renderer options
     gfx_config_synch( &gfx, pcfg );
 
+    // texture options
     oglx_texture_parameters_synch( &tex_params, pcfg );
 
     return btrue;
@@ -519,11 +518,11 @@ bool_t setup_upload( egoboo_config_t * pcfg )
     // Camera control mode
     switch ( pcfg->autoturncamera )
     {
-        case bfalse: SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
-        case 255:    SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
+        case CAMTURN_NONE: SetKey_bool( "AUTOTURN_CAMERA", bfalse ); break;
+        case CAMTURN_GOOD:    SetKey_string( "AUTOTURN_CAMERA", "GOOD" ); break;
 
         default:
-        case btrue : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
+        case CAMTURN_AUTO : SetKey_bool( "AUTOTURN_CAMERA", btrue );  break;
     }
 
     // *********************************************
@@ -593,10 +592,9 @@ bool_t input_settings_load( const char *szFilename )
     fileread = fopen( szFilename, "r" );
     if (NULL == fileread)
     {
-        log_warning("Could not load input settings (%s)!\n", szFilename);
+        log_error("Could not load input settings (%s)!\n", szFilename);
         return bfalse;
     }
-
     parse_filename = szFilename;
 
     // set the number of valid controls to be 0
@@ -639,6 +637,7 @@ bool_t input_settings_load( const char *szFilename )
     }
 
     fclose( fileread );
+    parse_filename = "";
 
     return btrue;
 }

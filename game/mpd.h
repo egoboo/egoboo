@@ -27,29 +27,21 @@
 //--------------------------------------------------------------------------------------------
 #define TILE_BITS     7
 #define TILE_SIZE     ((float)(1<<(TILE_BITS)))
-#define BLOCK_BITS    9
-#define BLOCK_SIZE    ((float)(1<<(BLOCK_BITS)))
 
 #define MAPID                     0x4470614d                   // The string... MapD
 #define MESH_MAXTOTALVERTRICES    1024*100
 #define MAXMESHFAN                (512*512)                  // Terrain mesh size
 #define MAXMESHTILEY              1024                       // Max tiles in y direction
-#define MAXMESHBLOCKY             (( MAXMESHTILEY >> (BLOCK_BITS-TILE_BITS) )+1)  // max blocks in the y direction
-#define BYTESFOREACHVERTEX        14                         // 14 bytes each
 #define MAXMESHVERTICES           16                         // Fansquare vertices
 #define MAXMESHTYPE               64                         // Number of fansquare command types
 #define MAXMESHCOMMAND            4                          // Draw up to 4 fans
 #define MAXMESHCOMMANDENTRIES     32                         // Fansquare command list size
 #define MAXMESHCOMMANDSIZE        32                         // Max trigs in each command
 #define MAXTILETYPE               256                        // Max number of tile images
-#define MAXMESHRENDER             1024                       // Max number of tiles to draw
 #define FANOFF                    0xFFFF                     // Don't draw the fansquare if tile = this
 
-// mesh physics
-#define SLOPE                           50            // increments for terrain slope
-#define SLIDE                           0.04f         // Acceleration for steep hills
-#define SLIDEFIX                        0.08f         // To make almost flat surfaces flat
-#define TWIST_FLAT                      119
+#define CARTMAN_FIXNUM            4.125 // 4.150             // Magic number
+#define CARTMAN_SLOPE             50                        // increments for terrain slope
 
 #define INVALID_BLOCK ((Uint32)(~0))
 #define INVALID_TILE  ((Uint32)(~0))
@@ -71,31 +63,14 @@ enum e_mpd_fx
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-
-struct s_light_cache
-{
-    float max_light;
-    float lighting[6];   // light from +x,-x, +y,-y, +z,-z
-};
-typedef struct s_light_cache light_cache_t;
-
-//--------------------------------------------------------------------------------------------
-struct s_mesh_info
+struct s_mpd_info
 {
     size_t          vertcount;                         // For malloc
 
     int             tiles_x;                          // Size in tiles
     int             tiles_y;
-    Uint32          tiles_count;                      // Number of tiles
-
-    int             blocks_x;                         // Size in blocks
-    int             blocks_y;
-    Uint32          blocks_count;                     // Number of blocks (collision areas)
-
-    float           edge_x;                           // Limits
-    float           edge_y;
 };
-typedef struct s_mesh_info mesh_info_t;
+typedef struct s_mpd_info mpd_info_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_tile_info
@@ -110,37 +85,33 @@ struct s_tile_info
 };
 typedef struct s_tile_info tile_info_t;
 
-//--------------------------------------------------------------------------------------------
-struct s_mesh_mem
-{
-    size_t          vertcount;                                      // For malloc
-
-    tile_info_t *   tile_list;                               // Command type
-
-    Uint32*         blockstart;
-    Uint32*         tilestart;                         // Which fan to start a row with
-
-    float*          vrt_x;                                 // Vertex position
-    float*          vrt_y;
-    float*          vrt_z;                                 // Vertex elevation
-    Uint8*          vrt_a;                                 // Vertex base light
-    Uint8*          vrt_l;                                 // Vertex light
-
-    light_cache_t * cache;
-    GLvector3     * nrm;
-};
-typedef struct s_mesh_mem mesh_mem_t;
 
 //--------------------------------------------------------------------------------------------
-struct s_mesh
+struct s_mpd_vertex
 {
-    mesh_info_t info;
-    mesh_mem_t  mem;
-
-    float       tileoff_u[MAXTILETYPE];                          // Tile texture offset
-    float       tileoff_v[MAXTILETYPE];
+    GLvector3  pos;                               // Vertex position
+    Uint8      a;                                 // Vertex base light
 };
-typedef struct s_mesh mesh_t;
+typedef struct s_mpd_vertex mpd_vertex_t;
+
+//--------------------------------------------------------------------------------------------
+struct s_mpd_mem
+{
+    size_t          tile_count;                       // Number of tiles
+    tile_info_t *   tile_list;                        // Tile info
+
+    size_t          vcount;                           // number of vertices
+    mpd_vertex_t *  vlst;                             // list of vertices
+};
+typedef struct s_mpd_mem mpd_mem_t;
+
+//--------------------------------------------------------------------------------------------
+struct s_mpd
+{
+    mpd_info_t info;
+    mpd_mem_t   mem;
+};
+typedef struct s_mpd mpd_t;
 
 //--------------------------------------------------------------------------------------------
 struct s_tile_definition
@@ -155,39 +126,18 @@ struct s_tile_definition
 };
 typedef struct s_tile_definition tile_definition_t;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-extern GLvector3 map_twist_nrm[256];
-extern Uint32 map_twist_y[256];            // For surface normal of mesh
-extern Uint32 map_twist_x[256];
-extern float  map_twistvel_x[256];            // For sliding down steep hills
-extern float  map_twistvel_y[256];
-extern float  map_twistvel_z[256];
-extern Uint8  map_twist_flat[256];
-
 extern tile_definition_t tile_dict[MAXMESHTYPE];
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+// the raw mpd loader
+mpd_t *      mpd_load( const char *modname, mpd_t * pmesh );
 
-mesh_t * mesh_new( mesh_t * pmesh );
-mesh_t * mesh_renew( mesh_t * pmesh );
-mesh_t * mesh_delete( mesh_t * pmesh );
-mesh_t * mesh_create( mesh_t * pmesh, int tiles_x, int tiles_y );
+mpd_t *      mpd_new( mpd_t * pmesh );
+mpd_t *      mpd_delete( mpd_t * pmesh );
+bool_t       mpd_free( mpd_t * pmesh );
 
-// loading/saving
-mesh_t * mesh_load( const char *modname, mesh_t * pmesh );
-
-float  mesh_get_level( mesh_t * pmesh, float x, float y );
-Uint32 mesh_get_block( mesh_t * pmesh, float pos_x, float pos_y );
-Uint32 mesh_get_tile ( mesh_t * pmesh, float pos_x, float pos_y );
-
-Uint32 mesh_get_block_int( mesh_t * pmesh, int block_x, int block_y );
-Uint32 mesh_get_tile_int( mesh_t * pmesh, int tile_x,  int tile_y );
-
-Uint32 mesh_test_fx( mesh_t * pmesh, Uint32 itile, Uint32 flags );
-
-void   mesh_make_twist();
-
-void tile_dictionary_load(tile_definition_t dict[], size_t dict_size);
+bool_t twist_to_normal( Uint8 twist, float v[], float slide );
+Uint8  cartman_get_twist(int x, int y);

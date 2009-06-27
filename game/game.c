@@ -42,7 +42,7 @@
 #include "file_common.h"
 #include "network.h"
 #include "mad.h"
-#include "mpd.h"
+#include "mesh.h"
 
 #include "char.h"
 #include "particle.h"
@@ -75,10 +75,6 @@
 
 #define CHR_MAX_COLLISIONS    512*16
 #define COLLISION_HASH_NODES (CHR_MAX_COLLISIONS*2)
-
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-static void quit_module();
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -122,18 +118,21 @@ typedef struct s_collision_data co_data_t;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
-static mesh_t   _mesh[2];
-static camera_t _camera[2];
+static ego_mpd_t            _mesh[2];
+static camera_t          _camera[2];
+static ego_process_t     _eproc;
+static menu_process_t    _mproc;
+static game_process_t    _gproc;
+static module_instance_t gmod;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t  gamepaused         = bfalse;
-bool_t  pausekeyready      = btrue;
 bool_t  overrideslots      = bfalse;
-bool_t  screenshotkeyready = btrue;
+
+bool_t    screenshotkeyready = btrue;
 
 //End text
-char   endtext[MAXENDTEXT];     // The end-module text
+char   endtext[MAXENDTEXT] = { '\0' };
 int    endtextwrite = 0;
 
 // Status displays
@@ -144,8 +143,12 @@ Uint16 statlist[MAXSTAT];
 
 char idsz_string[5] = { '\0' };
 
-mesh_t    * PMesh   = _mesh + 0;
-camera_t  * PCamera = _camera + 0;
+ego_mpd_t         * PMesh   = _mesh + 0;
+camera_t          * PCamera = _camera + 0;
+module_instance_t * PMod    = &gmod;
+ego_process_t     * EProc   = &_eproc;
+menu_process_t    * MProc   = &_mproc;
+game_process_t    * GProc   = &_gproc;
 
 bool_t  pitskill  = bfalse;
 bool_t  pitsfall  = bfalse;
@@ -166,7 +169,6 @@ water_instance_t      water;
 fog_data_t            fog_data;
 fog_instance_t        fog;
 
-
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -175,7 +177,7 @@ static void make_randie();
 static void reset_teams();
 static void reset_messages();
 static void reset_timers();
-static void quit_game( void );
+static void _quit_game( ego_process_t * pgame );
 
 // looping - stuff called every loop - not accessible by scripts
 static void do_enchant_spawn();
@@ -194,8 +196,8 @@ static void make_onwhichfan( void );
 static void let_all_characters_think();
 
 // module initialization / deinitialization - not accessible by scripts
-static bool_t load_module( const char *smallname );
-static void   release_module();
+static bool_t game_load_module_data( const char *smallname );
+static void   game_release_module_data();
 
 static void   setup_characters( const char *modname );
 static void   setup_alliances( const char *modname );
@@ -205,16 +207,11 @@ static void   load_all_global_objects(int skin);
 
 static bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo );
 static bool_t chr_setup_apply( Uint16 ichr, chr_setup_info_t *pinfo );
-static void setup_characters( const char *modname );
+static void   setup_characters( const char *modname );
 
 
 // Model stuff
 static void log_madused( const char *savename );
-
-static bool_t game_begin_menu( int which );
-static void   game_end_menu();
-
-static void   memory_cleanUp(void);
 
 // Collision stuff
 static bool_t add_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b, co_data_t cdata[], int * cdata_count, hash_node_t hnlst[], int * hn_count );
@@ -223,13 +220,46 @@ static bool_t add_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b, co_data_t cda
 static bool_t detect_chr_chr_collision( Uint16 ichr_a, Uint16 ichr_b );
 static bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b );
 
-static int    gamemenu_depth = -1;
-static bool_t game_escape_latch = bfalse;
-
 static bumplist_t bumplist[MAXMESHFAN/16];
 
 static int           chr_co_count = 0;
 static hash_list_t * chr_co_list;
+
+// "process" management
+
+static int do_ego_proc_begin( ego_process_t * eproc );
+static int do_ego_proc_running( ego_process_t * eproc );
+static int do_ego_proc_leaving( ego_process_t * eproc );
+static int do_ego_proc_run( ego_process_t * eproc, double frameDuration );
+
+static int do_menu_proc_begin( menu_process_t * mproc );
+static int do_menu_proc_running( menu_process_t * mproc );
+static int do_menu_proc_leaving( menu_process_t * mproc );
+static int do_menu_proc_run( menu_process_t * mproc, double frameDuration );
+
+static int do_game_proc_begin( game_process_t * gproc );
+static int do_game_proc_running( game_process_t * gproc );
+static int do_game_proc_leaving( game_process_t * gproc );
+static int do_game_proc_run( game_process_t * gproc, double frameDuration );
+
+// profile handling
+static void init_all_pip();
+static void init_all_eve();
+static void init_all_cap();
+static void init_all_mad();
+
+static void release_all_pip();
+static void release_all_eve();
+static void release_all_cap();
+static void release_all_mad();
+
+// misc
+static bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which );
+static void   game_end_menu( menu_process_t * mproc );
+
+static void   memory_cleanUp(void);
+
+static void   do_game_hud();
 
 //--------------------------------------------------------------------------------------------
 // Random Things-----------------------------------------------------------------
@@ -249,7 +279,7 @@ void export_one_character( Uint16 character, Uint16 owner, int number, bool_t is
     disenchant_character( character );
 
     profile = ChrList[character].model;
-    if ( ( CapList[profile].cancarrytonextmodule || !CapList[profile].isitem ) && exportvalid )
+    if ( ( CapList[profile].cancarrytonextmodule || !CapList[profile].isitem ) && PMod->exportvalid )
     {
         // TWINK_BO.OBJ
         sprintf(todirname, "%s", str_encode_path(ChrList[owner].name) );
@@ -374,8 +404,11 @@ void export_all_players( bool_t require_local )
     bool_t is_local;
     int cnt, character, item, number;
 
+    // Don't export if the module isn't running
+    if( !process_instance_running( PROC_PBASE(GProc) ) ) return;
+
     //Stop if export isnt valid
-    if (!exportvalid) return;
+    if (!PMod->exportvalid) return;
 
     // Check each player
     for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -416,34 +449,18 @@ void export_all_players( bool_t require_local )
 
 }
 
-//---------------------------------------------------------------------------------------------
-void quit_module()
-{
-    // ZZ> This function forces a return to the menu
-    moduleactive = bfalse;
-    hostactive   = bfalse;
-
-    game_update_imports();
-
-    release_module();
-
-    sound_fade_all();
-}
-
 //--------------------------------------------------------------------------------------------
-void quit_game()
+void _quit_game( ego_process_t * pgame )
 {
     // ZZ> This function exits the game entirely
 
-    if ( gameactive )
+    if ( process_instance_running( PROC_PBASE(pgame) ) )
     {
-        gameactive = bfalse;
+        game_quit_module();
     }
 
-    if ( moduleactive )
-    {
-        quit_module();
-    }
+    // tell the game to kill itself
+    process_instance_kill( PROC_PBASE(pgame) );
 
     empty_import_directory();
 }
@@ -705,50 +722,72 @@ void update_game()
     // ZZ> This function does several iterations of character movements and such
     //     to keep the game in sync.
     //     This is the main game loop
-    int cnt, numdead;
+    int cnt, numdead, numalive;
 
     // Check for all local players being dead
-    local_allpladead = bfalse;
+    local_allpladead   = bfalse;
     local_seeinvisible = bfalse;
-    local_seekurse = bfalse;
+    local_seekurse     = bfalse;
 
-    cnt = 0;
-    numdead = 0;
-
-    while ( cnt < MAXPLAYER )
+    numdead = numalive = 0;
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
     {
-        if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+        if ( !PlaList[cnt].valid) continue;
+
+        // only interested in local players
+        if( INPUT_BITS_NONE == PlaList[cnt].device ) continue;
+
+        // fix bad players
+        if( INVALID_CHR(PlaList[cnt].index) )
         {
-            if ( !ChrList[PlaList[cnt].index].alive )
-            {
-                numdead++;
-                if ( cfg.difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && respawnvalid && 0 == revivetimer )
-                {
-                    respawn_character( PlaList[cnt].index );
-                    ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
-                    if (cfg.difficulty > GAME_EASY) ChrList[cnt].money *= EXPKEEP;
-                }
-            }
-            else
-            {
-                if ( ChrList[PlaList[cnt].index].canseeinvisible )
-                {
-                    local_seeinvisible = btrue;
-                }
-                if ( ChrList[PlaList[cnt].index].canseekurse )
-                {
-                    local_seekurse = btrue;
-                }
-            }
+            PlaList[cnt].valid = bfalse;
+            continue;
         }
 
-        cnt++;
+        if ( ChrList[PlaList[cnt].index].alive )
+        {
+            numalive++;
+
+            if ( ChrList[PlaList[cnt].index].canseeinvisible )
+            {
+                local_seeinvisible = btrue;
+            }
+
+            if ( ChrList[PlaList[cnt].index].canseekurse )
+            {
+                local_seekurse = btrue;
+            }
+        }
+        else
+        {
+            numdead++;
+        }
     }
+
     if ( numdead >= local_numlpla )
     {
         local_allpladead = btrue;
     }
 
+    // check for autorespawn
+    for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+    {
+        if ( !PlaList[cnt].valid ) continue;
+
+        if( INVALID_CHR(PlaList[cnt].index) ) continue;
+
+        if ( !ChrList[PlaList[cnt].index].alive )
+        {
+            if ( cfg.difficulty < GAME_HARD && local_allpladead && SDLKEYDOWN( SDLK_SPACE ) && PMod->respawnvalid && 0 == revivetimer )
+            {
+                respawn_character( PlaList[cnt].index );
+                ChrList[cnt].experience *= EXPKEEP;  // Apply xp Penality
+                if (cfg.difficulty > GAME_EASY) ChrList[cnt].money *= EXPKEEP;
+            }
+        }
+    }
+
+    // get all player latches from the "remotes"
     sv_talkToRemotes();
 
     // [claforte Jan 6th 2001]
@@ -756,8 +795,8 @@ void update_game()
     while ( clock_wld < clock_all && numplatimes > 0 )
     {
         // Important stuff to keep in sync
-        srand( randsave );
-        randsave = rand();
+        srand( PMod->randsave );
+        PMod->randsave = rand();
 
         resize_characters();
         keep_weapons_with_holders();
@@ -793,7 +832,7 @@ void update_game()
         update_wld++;
     }
 
-    if ( networkon && !rtscontrol )
+    if ( PNet->on && !PMod->rtscontrol )
     {
         if ( numplatimes == 0 )
         {
@@ -801,7 +840,7 @@ void update_game()
             // Make it go slower so it doesn't happen again
             clock_wld += 25;
         }
-        if ( numplatimes > 3 && !hostactive )
+        if ( numplatimes > 3 && !PNet->hostactive )
         {
             // The host has too many messages, and is probably experiencing control
             // lag...  Speed it up so it gets closer to sync
@@ -831,36 +870,28 @@ void reset_teams()
     // ZZ> This function makes everyone hate everyone else
     int teama, teamb;
 
-    teama = 0;
-
-    while ( teama < MAXTEAM )
+    for ( teama = 0; teama < MAXTEAM; teama++ )
     {
         // Make the team hate everyone
-        teamb = 0;
-
-        while ( teamb < MAXTEAM )
+        for ( teamb = 0; teamb < MAXTEAM; teamb++ )
         {
             TeamList[teama].hatesteam[teamb] = btrue;
-            teamb++;
         }
 
         // Make the team like itself
         TeamList[teama].hatesteam[teama] = bfalse;
+
         // Set defaults
         TeamList[teama].leader = NOLEADER;
         TeamList[teama].sissy = 0;
         TeamList[teama].morale = 0;
-        teama++;
     }
 
     // Keep the null team neutral
-    teama = 0;
-
-    while ( teama < MAXTEAM )
+    for ( teama = 0; teama < MAXTEAM; teama++ )
     {
         TeamList[teama].hatesteam[NULLTEAM] = bfalse;
         TeamList[NULLTEAM].hatesteam[teama] = bfalse;
-        teama++;
     }
 }
 
@@ -874,23 +905,18 @@ void reset_messages()
     msgtotalindex = 0;
     msgtimechange = 0;
     msgstart = 0;
-    cnt = 0;
 
-    while ( cnt < MAXMESSAGE )
+    for ( cnt = 0; cnt < MAXMESSAGE; cnt++ )
     {
         msgtime[cnt] = 0;
-        cnt++;
     }
 
-    cnt = 0;
-
-    while ( cnt < MAXTOTALMESSAGE )
+    for ( cnt = 0; cnt < MAXTOTALMESSAGE; cnt++ )
     {
         msgindex[cnt] = 0;
-        cnt++;
     }
 
-    msgtext[0] = 0;
+    msgtext[0] = '\0';
 }
 
 //--------------------------------------------------------------------------------------------
@@ -945,38 +971,56 @@ void reset_timers()
     outofsync = bfalse;
 }
 
-
 //--------------------------------------------------------------------------------------------
-int game_do_menu( double frameDuration, bool_t needs_clear )
+int game_do_menu( menu_process_t * mproc )
 {
+    // BB> do menus
+
     int menuResult;
+    bool_t need_menu = bfalse;
 
-    // do menus
-    if ( needs_clear )
+    need_menu = bfalse;
+    if( flip_pages_requested() )
     {
-        GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT );
-    };
+        // someone else (and that means the game) has drawn a frame
+        // so we just need to draw the menu over that frame
+        need_menu = btrue;
 
-    ui_beginFrame( frameDuration );
-    {
-        menuResult = doMenu( ( float )frameDuration );
-        request_flip_pages();
+        // force the menu to be displayed immediately when the game stops
+        mproc->base.dtime = 1.0f / (float)cfg.framelimit;
     }
-    ui_endFrame();
+    else if (  !process_instance_running( PROC_PBASE(GProc) ) )
+    {
+        // the menu's frame rate is controlled by a timer
+        mproc->frame_now = SDL_GetTicks();
+        if (mproc->frame_now > mproc->frame_next)
+        {
+            float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
+            mproc->frame_next = mproc->frame_now + frameskip; //FPS limit
+
+            need_menu = btrue;
+            mproc->base.dtime = 1.0f / (float)cfg.framelimit;
+        }
+    }
+
+    menuResult = 0;
+    if( need_menu )
+    {
+        ui_beginFrame( mproc->base.dtime );
+        {
+            menuResult = doMenu( mproc->base.dtime );
+            request_flip_pages();
+        }
+        ui_endFrame();
+    }
 
     return menuResult;
 }
 
 //--------------------------------------------------------------------------------------------
-int SDL_main( int argc, char **argv )
+//--------------------------------------------------------------------------------------------
+int do_ego_proc_begin( ego_process_t * eproc )
 {
-    // ZZ> This is where the program starts and all the high level stuff happens
-
-    double frameDuration;
-    int menuResult;
-    int frame_next = 0, frame_now = 0;
-    bool_t menu_was_active, menu_is_active;
-
     // Initialize logging first, so that we can use it everywhere.
     log_init();
     log_setLoggingLevel( 2 );
@@ -997,282 +1041,630 @@ int SDL_main( int argc, char **argv )
     // download the "setup.txt" values into the cfg struct
     setup_download( &cfg );
 
-    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
-    GLSetup_SupportedFormats();
-
-    scantag_read_all( "basicdat" SLASH_STR "scancode.txt" );
-    input_settings_load( "controls.txt" );
-
-    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
-    load_action_names( "basicdat" SLASH_STR "actions.txt" );
-
+    // do basic system initialization
     sdl_init();
     ogl_init();
     net_initialize();
+
+    log_info( "Initializing SDL_Image version %d.%d.%d... ", SDL_IMAGE_MAJOR_VERSION, SDL_IMAGE_MINOR_VERSION, SDL_IMAGE_PATCHLEVEL ); \
+    GLSetup_SupportedFormats();
+
+    // read all the scantags
+    scantag_read_all( "basicdat" SLASH_STR "scancode.txt" );
+    input_settings_load( "controls.txt" );
 
     // synchronoze the config values with the various game subsystems
     // do this acter the sdl_init() and ogl_init() in case the config values are clamped
     // to valid values
     setup_synch( &cfg );
 
-    ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
+    // initialize the sound system
     sound_initialize();
+    load_all_music_sounds();
+
+    // make sure that a bunch of stuff gets initialized properly
+    module_instance_init( &gmod );
+    init_all_graphics();
+    init_all_profiles();
+    free_all_objects();
+    mesh_new( PMesh );
+
+    // setup the menu system's gui
+    ui_initialize( "basicdat" SLASH_STR "Negatori.ttf", 24 );
+    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );  // must be done after init_all_graphics()
+
+    // clear out the import directory
+    empty_import_directory();
 
     // register the memory_cleanUp function to automatically run whenever the program exits
     atexit( memory_cleanUp );
 
+    // initialize the game process (not active)
+    game_process_init( GProc );
+
+    // initialize the menu process (active)
+    menu_process_init( MProc );
+    process_instance_start( PROC_PBASE(MProc) );
+
+    // Initialize the process
+    process_instance_start( PROC_PBASE(eproc) );
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_ego_proc_running( ego_process_t * eproc )
+{
+    bool_t menu_valid, game_valid;
+
+    if( !process_instance_validate( PROC_PBASE(eproc) ) ) return -1;
+
+    eproc->was_active  = eproc->base.valid;
+
+    menu_valid = process_instance_validate( PROC_PBASE(MProc) );
+    game_valid = process_instance_validate( PROC_PBASE(GProc) );
+    if( !menu_valid && !game_valid )
+    {
+        process_instance_kill( PROC_PBASE(eproc) );
+        return 1;
+    }
+
+    if( eproc->base.paused ) return 0;
+
+    if ( process_instance_running( PROC_PBASE(MProc) ) )
+    {
+        // menu settings
+        SDL_WM_GrabInput ( SDL_GRAB_OFF );
+        SDL_ShowCursor( SDL_ENABLE  );
+    }
+    else
+    {
+        // in-game settings
+        SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
+        SDL_WM_GrabInput ( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+    }
+
+    // Clock updates each frame
+    clk_frameStep();
+    eproc->frameDuration = clk_getFrameDuration();
+
+    // read the input values
+    input_read();
+
+    if( pickedmodule_ready && !process_instance_running( PROC_PBASE(MProc) ) )
+    {
+        // a new module has been picked
+
+        // reset the flag
+        pickedmodule_ready = bfalse;
+
+        // start the game process
+        process_instance_start( PROC_PBASE(GProc) );
+    }
+
+    // Test the panic button
+    if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
+    {
+        // terminate the program
+        process_instance_kill( PROC_PBASE(eproc) );
+    }
+
+    // Check for screenshots
+    if ( !SDLKEYDOWN( SDLK_F11 ) )
+    {
+        screenshotkeyready = btrue;
+    }
+    else if ( screenshotkeyready && SDLKEYDOWN( SDLK_F11 ) && keyb.on )
+    {
+        screenshotkeyready = bfalse;
+
+        if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
+        {
+            debug_message( "Error writing screenshot!" );
+            log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
+        }
+    }
+
+    // handle an escape by passing it on to all active sub-processes
+    if ( eproc->escape_requested )
+    {
+        eproc->escape_requested = bfalse;
+
+        if( process_instance_running( PROC_PBASE(GProc) ) )
+        {
+            GProc->escape_requested = btrue;
+        }
+
+        if( process_instance_running( PROC_PBASE(MProc) ) )
+        {
+            MProc->escape_requested = btrue;
+        }
+    }
+
+    // run the sub-processes
+    do_game_proc_run( GProc, EProc->frameDuration );
+    do_menu_proc_run( MProc, EProc->frameDuration );
+
+    // a heads up display that can be used to debug values that are used by both the menu and the game
+    //do_game_hud();
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_ego_proc_leaving( ego_process_t * eproc )
+{
+    if( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+
+    // make sure that the
+    if( !GProc->base.terminated )
+    {
+        do_game_proc_run( GProc, eproc->frameDuration );
+    }
+
+    if( !MProc->base.terminated )
+    {
+        do_menu_proc_run( MProc, eproc->frameDuration );
+    }
+
+    if( GProc->base.terminated && MProc->base.terminated )
+    {
+        process_instance_terminate( PROC_PBASE(eproc) );
+    }
+
+    return eproc->base.terminated ? 1 : 0;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_ego_proc_run( ego_process_t * eproc, double frameDuration )
+{
+    int result = 0, proc_result = 0;
+
+    if( !process_instance_validate( PROC_PBASE(eproc) )  ) return -1;
+    eproc->base.dtime = frameDuration;
+
+    if( !eproc->base.paused ) return 0;
+
+    if( eproc->base.killme )
+    {
+        eproc->base.state = proc_leaving;
+    }
+
+    switch ( eproc->base.state )
+    {
+        case proc_begin:
+            proc_result = do_ego_proc_begin( eproc );
+
+            if( 1 == proc_result )
+            {
+                eproc->base.state = proc_entering;
+            }
+            break;
+
+        case proc_entering:
+            //proc_result = do_ego_proc_entering( eproc );
+
+            eproc->base.state = proc_running;
+            break;
+
+        case proc_running:
+            proc_result = do_ego_proc_running( eproc );
+
+            if( 1 == proc_result )
+            {
+                eproc->base.state = proc_leaving;
+            }
+            break;
+
+        case proc_leaving:
+            proc_result = do_ego_proc_leaving( eproc );
+
+            if( 1 == proc_result )
+            {
+                eproc->base.state  = proc_finish;
+                eproc->base.killme = bfalse;
+            }
+            break;
+
+        case proc_finish:
+            process_instance_terminate( PROC_PBASE(eproc) );
+            break;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_begin( menu_process_t * mproc )
+{
+    // play some music
+    sound_play_song( 0, 0, -1 );
+
+    // initialize all these structures
+    init_all_titleimages();
+    initMenus();        // start the menu menu
+
+    // load all module info at menu initialization
+    // this will not change unless a new module is downloaded for a network menu?
+    modlist_load_all_info();
+
+    // initialize the process state
+    mproc->base.valid = btrue;
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_running( menu_process_t * mproc )
+{
+    int menuResult;
+
+    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+
+    mproc->was_active = mproc->base.valid;
+
+    if( mproc->base.paused ) return 0;
+
+    // play the menu music
+    mnu_draw_background = !process_instance_running( PROC_PBASE(GProc) );
+    menuResult          = game_do_menu( mproc );
+
+    switch ( menuResult )
+    {
+        case MENU_SELECT:
+            // go ahead and start the game
+            process_instance_pause( PROC_PBASE(mproc) );
+            break;
+
+        case MENU_QUIT:
+            // the user selected "quit"
+            process_instance_kill( PROC_PBASE(mproc) );
+            break;
+    }
+
+    if ( mnu_get_menu_depth() <= GProc->menu_depth )
+    {
+        GProc->menu_depth   = -1;
+        GProc->escape_latch = bfalse;
+
+        // We have exited the menu and restarted the game
+        GProc->mod_paused = bfalse;
+        process_instance_pause( PROC_PBASE(MProc) );
+    }
+
+    return 0;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_leaving( menu_process_t * mproc )
+{
+    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+
+    // finish the menu song
+    sound_finish_song( 500 );
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_menu_proc_run( menu_process_t * mproc, double frameDuration )
+{
+    int result = 0, proc_result = 0;
+
+    if( !process_instance_validate( PROC_PBASE(mproc) ) ) return -1;
+    mproc->base.dtime = frameDuration;
+
+    if( mproc->base.paused ) return 0;
+
+    if( mproc->base.killme )
+    {
+        mproc->base.state = proc_leaving;
+    }
+
+    switch ( mproc->base.state )
+    {
+        case proc_begin:
+            proc_result = do_menu_proc_begin( mproc );
+
+            if( 1 == proc_result )
+            {
+                mproc->base.state = proc_entering;
+            }
+            break;
+
+        case proc_entering:
+            //proc_result = do_menu_proc_entering( mproc );
+
+            mproc->base.state = proc_running;
+            break;
+
+        case proc_running:
+            proc_result = do_menu_proc_running( mproc );
+
+            if( 1 == proc_result )
+            {
+                mproc->base.state = proc_leaving;
+            }
+            break;
+
+        case proc_leaving:
+            proc_result = do_menu_proc_leaving( mproc );
+
+            if( 1 == proc_result )
+            {
+                mproc->base.state  = proc_finish;
+                mproc->base.killme = bfalse;
+            }
+            break;
+
+        case proc_finish:
+            process_instance_terminate( PROC_PBASE(mproc) );
+            break;
+    }
+
+    return result;
+}
+
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int do_game_proc_begin( game_process_t * gproc )
+{
+
+    gproc->escape_latch = bfalse;
+
+    // initialize math objects
+    make_randie();
+    make_turntosin();
+
     // Linking system
     log_info( "Initializing module linking... " );
-    empty_import_directory();
     if ( link_build( "basicdat" SLASH_STR "link.txt", LinkList ) ) log_message( "Success!\n" );
     else log_message( "Failure!\n" );
 
-    // Matrix init stuff (from remove.c)
-    rotmeshtopside    = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
-    rotmeshbottomside = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
-    rotmeshup         = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
-    rotmeshdown       = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
-
-    camera_new( PCamera );
+    load_ai_codes( "basicdat" SLASH_STR "aicodes.txt" );
+    load_action_names( "basicdat" SLASH_STR "actions.txt" );
 
     // initialize the IDSZ values for various slots
     init_slot_idsz();
 
-    // initialize all these structures
-    init_all_icons();
-    init_all_titleimages();
-    init_bars();
-    init_blip();
-    init_map();
-    init_all_textures();
-    init_all_models();
-    font_init();
-    mesh_new( PMesh );
-
-    // Load stuff into memory
+    // do some graphics initialization
     make_lightdirectionlookup();
-    make_turntosin();
     make_enviro();
-    load_blip_bitmap();
-    load_all_music_sounds();
-    initMenus();        // Start the game menu
+    camera_new( PCamera );
 
-    // Let the normal OS mouse cursor work
-    SDL_WM_GrabInput( SDL_GRAB_OFF );
-    SDL_ShowCursor( btrue );
-
-    // Network's temporarily disabled
-    clk_frameStep();
-    frameDuration = clk_getFrameDuration();
-    gameactive = btrue;
-
-    // load all module info at game initialization
-    // this will not change unless a new module is downloaded for a network game?
-    modlist_load_all_info();
-
-    menuactive = btrue;
-    gameactive = bfalse;
-    menu_was_active = menu_is_active = (menuactive || gamemenuactive);
-    while ( gameactive || menuactive )
+    // try to start a new module
+    if( !game_begin_module( pickedmodule_name, ~0 ) )
     {
-        menu_was_active = menu_is_active;
-        menu_is_active = (menuactive || gamemenuactive);
+        // failure - kill the game process
+        process_instance_kill( PROC_PBASE(gproc) );
+        process_instance_resume( PROC_PBASE(MProc) );
+    }
 
-        if ( menu_is_active )
+    // Initialize the process
+    gproc->base.valid = btrue;
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_game_proc_running( game_process_t * gproc )
+{
+    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+
+    gproc->was_active  = gproc->base.valid;
+
+    if( gproc->base.paused ) return 0;
+
+    // This is the control loop
+    if ( PNet->on && console_done )
+    {
+        net_send_message();
+    }
+
+    // Do important things
+    if ( !gproc->mod_paused || PNet->on )
+    {
+        // start the console mode?
+        if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
         {
-            // menu settings
-            SDL_WM_GrabInput ( SDL_GRAB_OFF );
-            SDL_ShowCursor( SDL_ENABLE  );
+            // reset the keyboard buffer
+            SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
+            console_mode = btrue;
+            console_done = bfalse;
+            keyb.buffer_count = 0;
+            keyb.buffer[0] = '\0';
+        }
+
+        check_stats();
+        set_local_latches();
+        update_timers();
+        check_passage_music();
+
+        // NETWORK PORT
+        listen_for_packets();
+        if ( !PNet->waitingforplayers )
+        {
+            cl_talkToHost();
+            update_game();
         }
         else
         {
-            // in-game settings
-            SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
-            SDL_WM_GrabInput ( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
+            clock_wld = clock_all;
         }
+    }
+    else
+    {
+        update_timers();
+        clock_wld = clock_all;
+    }
 
-        // Clock updates each frame
-        clk_frameStep();
-        frameDuration = clk_getFrameDuration();
+    // Do the display stuff
+    gproc->frame_now = SDL_GetTicks();
+    if (gproc->frame_now > gproc->frame_next)
+    {
+        float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
+        gproc->frame_next = gproc->frame_now + frameskip; //FPS limit
 
-        // do the panic button
-        input_read();
-        if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
+        camera_move(PCamera, PMesh);
+        draw_main();
+
+        msgtimechange++;
+        if ( statdelay > 0 )  statdelay--;
+    }
+
+    // Check for quitters
+    // :TODO: local_noplayers is not set correctly
+    //if( local_noplayers  )
+    //{
+    //   gproc->escape_requested  = btrue;
+    //}
+
+    if ( gproc->escape_requested )
+    {
+        gproc->escape_requested = bfalse;
+
+
+        if ( !gproc->escape_latch )
         {
-            menuactive = bfalse;
-            gameactive = bfalse;
-        }
-
-        // Either run through the menus, or jump into the game
-        if ( menuactive )
-        {
-            // Play the menu music
-            sound_play_song( 0, 0, -1 );
-
-            menuResult = game_do_menu( frameDuration, btrue);
-
-            switch ( menuResult )
+            if ( PMod->beat )
             {
-                case MENU_SELECT:
-                    // Go ahead and start the game
-                    menuactive = bfalse;
-                    gameactive = btrue;
-                    networkon  = bfalse;
-                    break;
-
-                case MENU_QUIT:
-                    // The user selected "Quit"
-                    menuactive = bfalse;
-                    gameactive = bfalse;
-                    break;
+                game_begin_menu( MProc, emnu_ShowEndgame );
             }
-        }
-        else if ( gameactive )
-        {
-            bool_t game_menu_is_active, game_menu_was_active;
-            // Start a new module
-            seed = time( NULL );
-
-            moduleactive = game_begin_module( pickedmodule_name, seed );
-
-            game_menu_was_active = game_menu_is_active = gamemenuactive;
-            game_escape_latch = bfalse;
-            while ( moduleactive )
+            else
             {
-                game_menu_was_active = menu_is_active;
-                game_menu_is_active = gamemenuactive;
-
-                if ( game_menu_is_active )
-                {
-                    // menu settings
-                    SDL_ShowCursor( SDL_ENABLE  );
-                    SDL_WM_GrabInput ( SDL_GRAB_OFF );
-                }
-                else
-                {
-                    // in-game settings
-                    SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
-                    SDL_WM_GrabInput ( cfg.grab_mouse ? SDL_GRAB_ON : SDL_GRAB_OFF );
-                }
-
-                // This is the control loop
-                input_read();
-                if ( networkon && console_done )
-                {
-                    net_send_message();
-                }
-
-                //Check for screenshots
-                if ( !SDLKEYDOWN( SDLK_F11 ) ) screenshotkeyready = btrue;
-                if ( SDLKEYDOWN( SDLK_F11 ) && keyb.on && screenshotkeyready )
-                {
-                    if ( !dump_screenshot() )                // Take the shot, returns bfalse if failed
-                    {
-                        debug_message( "Error writing screenshot!" );
-                        log_warning( "Error writing screenshot\n" );    // Log the error in log.txt
-                    }
-
-                    screenshotkeyready = bfalse;
-                }
-
-                // Do important things
-                if ( !gamepaused || networkon )
-                {
-                    // start the console mode?
-                    if ( control_is_pressed( INPUT_DEVICE_KEYBOARD, CONTROL_MESSAGE ) )
-                    {
-                        // reset the keyboard buffer
-                        SDL_EnableKeyRepeat(20, SDL_DEFAULT_REPEAT_DELAY);
-                        console_mode = btrue;
-                        console_done = bfalse;
-                        keyb.buffer_count = 0;
-                        keyb.buffer[0] = '\0';
-                    }
-
-                    check_stats();
-                    set_local_latches();
-                    update_timers();
-                    check_passage_music();
-
-                    // NETWORK PORT
-                    listen_for_packets();
-                    if ( !waitingforplayers )
-                    {
-                        cl_talkToHost();
-                        update_game();
-                    }
-                    else
-                    {
-                        clock_wld = clock_all;
-                    }
-                }
-                else
-                {
-                    update_timers();
-                    clock_wld = clock_all;
-                }
-
-                // Do the display stuff
-                frame_now = SDL_GetTicks();
-                if (frame_now > frame_next)
-                {
-                    float  frameskip = (float)TICKS_PER_SEC / (float)cfg.framelimit;
-                    frame_next = frame_now + frameskip; //FPS limit
-
-                    camera_move(PCamera, PMesh);
-                    draw_main();
-
-                    if ( gamemenuactive )
-                    {
-                        game_do_menu( frameDuration, bfalse );
-
-                        if ( mnu_get_menu_depth() <= gamemenu_depth )
-                        {
-                            mnu_draw_background = btrue;
-                            gamemenuactive = bfalse;
-                            game_escape_latch = bfalse;
-                            gamemenu_depth = -1;
-                        }
-                    }
-
-                    msgtimechange++;
-                    if ( statdelay > 0 )  statdelay--;
-                }
-
-                // Check for quitters
-                // :TODO: local_noplayers is not set correctly
-                //if( local_noplayers  )
-                //{
-                //   game_escape_requested  = btrue;
-                //}
-
-                if ( game_escape_requested )
-                {
-                    game_escape_requested = bfalse;
-
-                    if ( !game_escape_latch )
-                    {
-                        if ( beatmodule )
-                        {
-                            game_begin_menu( ShowEndgame );
-                        }
-                        else
-                        {
-                            game_begin_menu( GamePaused );
-                        }
-
-                        game_escape_latch  = btrue;
-                    }
-                }
-
-                do_flip_pages();
+                game_begin_menu( MProc, emnu_GamePaused );
             }
 
-            game_quit_module();
+            gproc->escape_latch = btrue;
+            gproc->mod_paused   = btrue;
         }
+    }
 
+    return 0;
+}
 
+//--------------------------------------------------------------------------------------------
+int do_game_proc_leaving( game_process_t * gproc )
+{
+    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+
+    // get rid of all module data
+    game_quit_module();
+
+    // resume the menu
+    process_instance_resume( PROC_PBASE(MProc) );
+
+    return 1;
+}
+
+//--------------------------------------------------------------------------------------------
+int do_game_proc_run( game_process_t * gproc, double frameDuration )
+{
+    int result = 0, proc_result = 0;
+
+    if( !process_instance_validate( PROC_PBASE(gproc) ) ) return -1;
+    gproc->base.dtime = frameDuration;
+
+    if( gproc->base.paused ) return 0;
+
+    if( gproc->base.killme )
+    {
+        gproc->base.state = proc_leaving;
+    }
+
+    switch ( gproc->base.state )
+    {
+        case proc_begin:
+            proc_result = do_game_proc_begin( gproc );
+
+            if( 1 == proc_result )
+            {
+                gproc->base.state = proc_entering;
+            }
+            break;
+
+        case proc_entering:
+            //proc_result = do_game_proc_entering( gproc );
+
+            gproc->base.state = proc_running;
+            break;
+
+        case proc_running:
+            proc_result = do_game_proc_running( gproc );
+
+            if( 1 == proc_result )
+            {
+                gproc->base.state = proc_leaving;
+            }
+            break;
+
+        case proc_leaving:
+            proc_result = do_game_proc_leaving( gproc );
+
+            if( 1 == proc_result )
+            {
+                gproc->base.state  = proc_finish;
+                gproc->base.killme = bfalse;
+            }
+            break;
+
+        case proc_finish:
+            process_instance_terminate( PROC_PBASE(gproc) );
+            process_instance_resume   ( PROC_PBASE(MProc) );
+            break;
+    }
+
+    return result;
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+int SDL_main( int argc, char **argv )
+{
+    // ZZ> This is where the program starts and all the high level stuff happens
+
+    int   max_rate;
+    float frameskip;
+
+    // initialize the process
+    ego_process_init( EProc );
+
+    // turn on all basic services
+    do_ego_proc_begin( EProc );
+
+    // run the processes
+    request_clear_screen();
+    max_rate  = MAX(cfg.framelimit, UPDATE_SKIP) * 10;
+    frameskip = (float)TICKS_PER_SEC / (float)max_rate;
+    while( !EProc->base.killme && !EProc->base.terminated )
+    {
+        // put a throttle on the ego process
+        EProc->frame_now = SDL_GetTicks();
+        if (EProc->frame_now < EProc->frame_next) continue;
+
+        // update the timer
+        EProc->frame_next = EProc->frame_now + frameskip;
+
+        // clear the screen if needed
+        do_clear_screen();
+
+        do_ego_proc_running( EProc );
+
+        // flip the graphics page if need be
         do_flip_pages();
+
+        // let the OS breathe. It may delay as long as 10ms
+        //SDL_Delay(1);
+    }
+
+    // terminate the game and menu processes
+    process_instance_kill( PROC_PBASE(GProc) );
+    process_instance_kill( PROC_PBASE(MProc) );
+    while( !EProc->base.terminated )
+    {
+        do_ego_proc_leaving( EProc );
     }
 
     return btrue;
@@ -1286,7 +1678,7 @@ void memory_cleanUp(void)
     log_info("memory_cleanUp() - Attempting to clean up loaded things in memory... ");
 
     // quit any existing game
-    quit_game();
+    _quit_game( EProc );
 
     // synchronoze the config values with the various game subsystems
     setup_synch( &cfg );
@@ -1296,6 +1688,9 @@ void memory_cleanUp(void)
     setup_write();
     setup_quit();
 
+    // delete all the graphics allocated by SDL and OpenGL
+    delete_all_graphics();
+
     // make sure that the current control configuration is written
     input_settings_save( "controls.txt" );
 
@@ -1303,7 +1698,7 @@ void memory_cleanUp(void)
     ui_shutdown();
 
     // shut down the network
-    if (networkon)
+    if (PNet->on)
     {
         net_shutDown();
     }
@@ -1890,7 +2285,7 @@ void set_one_player_latch( Uint16 player )
             // Movement
             newx = 0;
             newy = 0;
-            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) )  // Don't allow movement in camera control mode
             {
                 dist = SQRT( mous.x * mous.x + mous.y * mous.y );
@@ -1908,7 +2303,7 @@ void set_one_player_latch( Uint16 player )
 
                     turnsin = PCamera->turn_z >> 2;
                     turnsin = turnsin & 16383;
-                    if ( PCamera->turn_mode == 255 &&
+                    if ( PCamera->turn_mode == CAMTURN_GOOD &&
                             local_numlpla == 1 &&
                             control_is_pressed( INPUT_DEVICE_MOUSE,  CONTROL_CAMERA ) == 0 )  inputx = 0;
 
@@ -1950,7 +2345,7 @@ void set_one_player_latch( Uint16 player )
         if ( ( device & INPUT_BITS_JOYA ) && joy[0].on )
         {
             // Movement
-            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )
             {
                 newx = 0;
@@ -1967,7 +2362,7 @@ void set_one_player_latch( Uint16 player )
 
                 turnsin = PCamera->turn_z >> 2;
                 turnsin = turnsin & 16383;
-                if ( PCamera->turn_mode == 255 &&
+                if ( PCamera->turn_mode == CAMTURN_GOOD &&
                         local_numlpla == 1 &&
                         !control_is_pressed( INPUT_DEVICE_JOY + 0, CONTROL_CAMERA ) )  inputx = 0;
 
@@ -1998,7 +2393,7 @@ void set_one_player_latch( Uint16 player )
         if ( ( device & INPUT_BITS_JOYB ) && joy[1].on )
         {
             // Movement
-            if ( ( PCamera->turn_mode == 255 && local_numlpla == 1 ) ||
+            if ( ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 ) ||
                     !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )
             {
                 newx = 0;
@@ -2015,7 +2410,7 @@ void set_one_player_latch( Uint16 player )
 
                 turnsin = PCamera->turn_z >> 2;
                 turnsin = turnsin & 16383;
-                if ( PCamera->turn_mode == 255 &&
+                if ( PCamera->turn_mode == CAMTURN_GOOD &&
                         local_numlpla == 1 &&
                         !control_is_pressed( INPUT_DEVICE_JOY + 1, CONTROL_CAMERA ) )  inputx = 0;
 
@@ -2061,7 +2456,7 @@ void set_one_player_latch( Uint16 player )
 
             turnsin = PCamera->turn_z >> 2;
             turnsin = turnsin & 16383;
-            if ( PCamera->turn_mode == 255 && local_numlpla == 1 )  inputx = 0;
+            if ( PCamera->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )  inputx = 0;
 
             newx = (  inputx * turntocos[turnsin & TRIG_TABLE_MASK ] + inputy * turntosin[turnsin & TRIG_TABLE_MASK ] );
             newy = ( -inputx * turntosin[turnsin & TRIG_TABLE_MASK ] + inputy * turntocos[turnsin & TRIG_TABLE_MASK ] );
@@ -2103,25 +2498,9 @@ void set_local_latches( void )
 void prime_names()
 {
     // ZZ> This function prepares the name chopper for use
-    int cnt, tnc;
 
     chop.count = 0;
     chop.carat = 0;
-    cnt = 0;
-
-    while ( cnt < MAX_PROFILE )
-    {
-        tnc = 0;
-
-        while ( tnc < MAXSECTION )
-        {
-            CapList[cnt].chop_sectionstart[tnc] = MAXCHOP;
-            CapList[cnt].chop_sectionsize[tnc] = 0;
-            tnc++;
-        }
-
-        cnt++;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3563,11 +3942,10 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
-		  pprt_b->attachedtocharacter != MAX_CHR ||
-           /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/  
-          ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-		  ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) 
-		    && !ChrList[pchr_a->missilehandler].canchannel ) )
+            /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
+            /*pprt_b->attachedtocharacter != MAX_CHR ||*/
+            ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
+            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
@@ -3635,7 +4013,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                         pprt_b->damagebase *= 1.00f + percent;
                     }
 
-                    // Damage the character (Double the damage if it is vulnerable)
+                    // Damage the character
                     if ( pcap_a->idsz[IDSZ_VULNERABILITY] != IDSZ_NONE && ( pcap_a->idsz[IDSZ_VULNERABILITY] == prtidtype || pcap_a->idsz[IDSZ_VULNERABILITY] == prtidparent ) )
                     {
                         damage_character( ichr_a, direction, pprt_b->damagebase << 1, pprt_b->damagerand << 1, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
@@ -3651,12 +4029,16 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     {
                         if ( ppip_b->grogtime != 0 && pcap_a->canbegrogged )
                         {
-                            pchr_a->grogtime = MAX(0, MAX(pchr_a->grogtime+ppip_b->grogtime, 32767));
+                            pchr_a->grogtime += ppip_b->grogtime;
+                            if ( pchr_a->grogtime < 0 )  pchr_a->grogtime = 32767;
+
                             pchr_a->ai.alert |= ALERTIF_GROGGED;
                         }
                         if ( ppip_b->dazetime != 0 && pcap_a->canbedazed )
                         {
-                            pchr_a->dazetime = MAX(0, MAX(pchr_a->dazetime+ppip_b->dazetime, 32767));
+                            pchr_a->dazetime += ppip_b->dazetime;
+                            if ( pchr_a->dazetime < 0 )  pchr_a->dazetime = 32767;
+
                             pchr_a->ai.alert |= ALERTIF_DAZED;
                         }
                     }
@@ -3738,7 +4120,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             ay = pprt_b->pos.y - pprt_b->vel.y;
             ax = pchr_a->pos.x - ax;
             ay = pchr_a->pos.y - ay;
-
             // Find size of normal
             scale = ax * ax + ay * ay;
             if ( scale > 0 )
@@ -3747,7 +4128,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 scale = SQRT( scale );
                 nx = ax / scale;
                 ny = ay / scale;
-
                 // Deflect the incoming ray off the normal
                 scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
                 ax = scale * nx;
@@ -3756,8 +4136,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 pprt_b->vel.y = pprt_b->vel.y - ay;
             }
         }
-
-		//It's not deflect, so let's reflect it!
         else
         {
             // Reflect it back in the direction it came
@@ -3766,13 +4144,13 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
 
         // Change the owner of the missile
-        //if ( !ppip_b->homing )
-        //{
+        if ( !ppip_b->homing )
+        {
             pprt_b->team = pchr_a->team;
             pprt_b->chr = ichr_a;
-        //}
+        }
 
-        // Change the facing direction of the particle
+        // Change the direction of the particle
         if ( ppip_b->rotatetoface )
         {
             // Turn to face new direction
@@ -4111,7 +4489,7 @@ void tilt_characters_to_terrain()
 
         if ( ChrList[cnt].stickybutt && VALID_TILE(PMesh, ChrList[cnt].onwhichfan) )
         {
-            twist = PMesh->mem.tile_list[ChrList[cnt].onwhichfan].twist;
+            twist = PMesh->mmem.tile_list[ChrList[cnt].onwhichfan].twist;
             ChrList[cnt].map_turn_y = map_twist_y[twist];
             ChrList[cnt].map_turn_x = map_twist_x[twist];
         }
@@ -4152,7 +4530,7 @@ int load_all_objects( const char *modname )
     importplayer = -1;
     importobject = -100;
     skin = TX_LAST;  // Character skins start after the last special texture
-    if ( importvalid )
+    if ( PMod->importvalid )
     {
         for ( cnt = 0; cnt < MAXIMPORT; cnt++ )
         {
@@ -4328,7 +4706,7 @@ void setup_characters( const char *modname )
         while ( chr_setup_read( fileread, &info ) )
         {
             // Spawn the character
-            if ( info.team < numplayer || !rtscontrol || info.team >= MAXPLAYER )
+            if ( info.team < numplayer || !PMod->rtscontrol || info.team >= MAXPLAYER )
             {
                 new_object = spawn_one_character( info.x, info.y, info.z, info.slot, info.team, info.skin, info.facing, info.pname, MAX_CHR );
 
@@ -4348,7 +4726,7 @@ void setup_characters( const char *modname )
                     if ( info.stat )
                     {
 
-                        if ( 0 == importamount && numpla < playeramount )
+                        if ( 0 == PMod->importamount && numpla < PMod->playeramount )
                         {
                             if ( 0 == local_numlpla )
                             {
@@ -4371,7 +4749,7 @@ void setup_characters( const char *modname )
                             }
 
                         }
-                        else if ( numpla < numimport && numpla < importamount && numpla < playeramount )
+                        else if ( numpla < numimport && numpla < PMod->importamount && numpla < PMod->playeramount )
                         {
                             // Multiplayer import module
                             local_index = -1;
@@ -4449,7 +4827,24 @@ void load_all_global_objects(int skin)
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t load_module( const char *smallname )
+void game_reset_module_data()
+{
+    // reset all
+    log_info( "Resetting module data\n" );
+
+    // unload a lot of data
+    reset_teams();
+    release_all_profiles();
+    free_all_objects();
+    reset_messages();
+    prime_names();
+    reset_players();
+    reset_end_text();
+    reset_renderlist();
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t game_load_module_data( const char *smallname )
 {
     // ZZ> This function loads a module
     STRING modname;
@@ -4462,16 +4857,6 @@ bool_t load_module( const char *smallname )
         log_warning( "Could not load all global icons!\n" );
     }
 
-    beatmodule = bfalse;
-    timeron = bfalse;
-
-    make_randie();
-    reset_teams();
-    release_all_models();
-    free_all_objects();
-    reset_messages();
-    prime_names();
-
     load_one_icon( "basicdat" SLASH_STR "nullicon" );
     load_ai_script( "basicdat" SLASH_STR "script.txt" );
 
@@ -4483,6 +4868,8 @@ bool_t load_module( const char *smallname )
     reset_particles( modname );
     read_wawalite( modname );
     load_basic_textures( modname );
+    load_blip_bitmap();
+    load_bars( "basicdat" SLASH_STR "bars" );
 
     //Load all objects
     {
@@ -4498,41 +4885,13 @@ bool_t load_module( const char *smallname )
         log_warning( "Uh oh! Problems loading the mesh! (%s)\n", modname );
         return bfalse;
     }
-    else
-    {
-        // do something to remove the ambient light fromt the mesh
-        Uint32 cnt;
-        Uint16 min_vrt_a = 255;
-        for (cnt = 0; cnt < PMesh->info.vertcount; cnt++)
-        {
-            min_vrt_a = MIN(min_vrt_a, PMesh->mem.vrt_a[cnt]);
-        }
-
-        for (cnt = 0; cnt < PMesh->info.vertcount; cnt++)
-        {
-            PMesh->mem.vrt_a[cnt] -= min_vrt_a;
-        }
-
-        renderlist.pmesh     = PMesh;
-        renderlist.all_count = 0;
-        renderlist.ref_count = 0;
-        renderlist.sha_count = 0;
-        renderlist.drf_count = 0;
-        renderlist.ndr_count = 0;
-    }
 
     setup_particles();
     setup_passage( modname );
-    reset_players();
-
     setup_characters( modname );
-
-    reset_end_text();
     setup_alliances( modname );
 
     // Load fonts and bars after other images, as not to hog videomem
-    font_load( "basicdat" SLASH_STR "font", "basicdat" SLASH_STR "font.txt" );
-    load_bars( "basicdat" SLASH_STR "bars" );
     load_map( modname );
 
     log_madused( "slotused.txt" );
@@ -4610,61 +4969,66 @@ void game_quit_module()
 {
     // BB > all of the de-initialization code after the module actually ends
 
-    release_module();
+    // stop the module
+    module_stop( PMod );
+
+    // get rid of the game/module data
+    game_release_module_data();
+
+    // turn off networking
     close_session();
 
     // reset the "ui" mouse state
-    pressed           = bfalse;
-    clicked           = bfalse;
-    pending_click     = bfalse;
-    mouse_wheel_event = bfalse;
+    cursor_reset();
 
-    // reset some of the module state variables
-    beatmodule  = bfalse;
-    exportvalid = bfalse;
-    moduleactive = bfalse;
-    hostactive   = bfalse;
+    // finish whatever in-game song is playing
+    sound_finish_song( 500 );
 }
 
 
 //-----------------------------------------------------------------
-bool_t game_init_module( const char * modname, Uint32 seed )
+bool_t game_begin_module( const char * modname, Uint32 seed )
 {
     // BB> all of the initialization code before the module actually starts
 
-    srand( seed );
+    if( ~0 == seed ) seed = time(NULL);
 
-    // start the new module
-    if ( !load_module( modname ) )
+    // make sure the old game has been quit
+    game_quit_module();
+
+    // re-initialize all game/module data
+    game_reset_module_data();
+
+    // load all the in-game module data
+    srand( seed );
+    if ( !game_load_module_data( modname ) )
     {
-        moduleactive = bfalse;
-        gameactive   = bfalse;
+        module_stop( PMod );
         return bfalse;
     };
+
+    timeron = bfalse;
+    reset_timers();
 
     // make sure the per-module configuration settings are correct
     setup_synch( &cfg );
 
-    pressed = bfalse;
-
+    // initialize the game objects
     make_onwhichfan();
-    camera_reset(PCamera, PMesh);
-    reset_timers();
+    cursor_reset();
+    module_reset( PMod, seed );
+    camera_reset( PCamera, PMesh );
     make_character_matrices( update_wld != 0 );
     attach_particles();
 
+    // initialize the network
     net_initialize();
-    if ( networkon )
-    {
-        net_sayHello();
-    }
+    net_sayHello();
 
-    // Let the game go
-    moduleactive = btrue;
-    randsave = 0;
-    srand( randsave );
+    // start the module
+    module_start( PMod );
 
-    return moduleactive;
+    return btrue;
 }
 
 //-----------------------------------------------------------------
@@ -4746,7 +5110,8 @@ bool_t game_update_imports()
     return btrue;
 }
 
-void release_module()
+//--------------------------------------------------------------------------------------------
+void game_release_module_data()
 {
     // ZZ> This function frees up memory used by the module
 
@@ -4759,16 +5124,10 @@ void release_module()
     release_bars();
     release_map();
     release_all_textures();
-    release_all_models();
-    reset_all_ai_scripts();
+    release_all_profiles();
+    release_all_ai_scripts();
 
     mesh_delete( PMesh );
-
-    // Close and then reopen SDL_mixer. it's easier than manually unloading each sound ;)
-    sound_restart();
-
-    // fade out any sound
-    sound_fade_all();
 }
 
 //--------------------------------------------------------------------------------------------
@@ -4961,11 +5320,11 @@ void let_all_characters_think()
 //        {
 //            // collide the ray with the mesh
 //
-//            if( 0!= (PMesh->mem.tile_list[fan].fx & plos->stopped_by) )
+//            if( 0!= (PMesh->mmem.tile_list[fan].fx & plos->stopped_by) )
 //            {
 //                plos->collide_x  = xDraw;
 //                plos->collide_y  = yDraw;
-//                plos->collide_fx = PMesh->mem.tile_list[fan].fx & plos->stopped_by;
+//                plos->collide_fx = PMesh->mmem.tile_list[fan].fx & plos->stopped_by;
 //
 //                return btrue;
 //            }
@@ -4994,31 +5353,32 @@ void let_all_characters_think()
 
 
 //--------------------------------------------------------------------------------------------
-bool_t game_begin_menu( int which )
+bool_t game_begin_menu( menu_process_t * mproc, which_menu_t which )
 {
-    if ( !gamemenuactive )
+    if( NULL == mproc ) return bfalse;
+
+    if ( !process_instance_running( PROC_PBASE(mproc) ) )
     {
-        gamemenu_depth = mnu_get_menu_depth();
+        GProc->menu_depth = mnu_get_menu_depth();
     }
 
     if ( mnu_begin_menu( which ) )
     {
-        mnu_draw_background = bfalse;
-        gamemenuactive = btrue;
+        process_instance_start( PROC_PBASE(mproc) );
     }
 
-    return gamemenuactive;
+    return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-static void game_end_menu()
+void game_end_menu( menu_process_t * mproc )
 {
     mnu_end_menu();
 
-    if ( mnu_get_menu_depth() <= gamemenu_depth )
+    if ( mnu_get_menu_depth() <= GProc->menu_depth )
     {
-        gamemenuactive = bfalse;
-        gamemenu_depth = -1;
+        process_instance_resume( PROC_PBASE(MProc) );
+        GProc->menu_depth = -1;
     }
 }
 
@@ -5033,109 +5393,9 @@ void game_finish_module()
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t game_begin_module( const char * modname, Uint32 seed )
-{
-    hostactive = btrue; // very important or the input will not work
-
-    SDL_WM_GrabInput ( SDL_GRAB_ON );                            // grab the cursor
-    SDL_ShowCursor( cfg.hide_mouse ? SDL_DISABLE : SDL_ENABLE );
-
-    return game_init_module( modname, seed );
-};
-
-//--------------------------------------------------------------------------------------------
-/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
-Uint8 onlyfriends, Uint8 anyone, Uint8 team,
-Uint16 donttarget, Uint16 oldtarget )
-{
-// ZZ> This function helps find a target, returning btrue if it found a decent target
-int cnt;
-Uint16 angle;
-Uint16 charb;
-Uint8 enemies, returncode;
-Uint32 fanblock;
-int distance;
-
-returncode = bfalse;
-
-// Current fanblock
-if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
-{
-fanblock = mesh_get_block_int(PMesh, x,y);
-
-enemies = bfalse;
-if ( !onlyfriends ) enemies = btrue;
-
-charb = bumplist[fanblock].chr;
-cnt = 0;
-while ( cnt < bumplist[fanblock].chrnum )
-{
-if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
-{
-if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
-{
-distance = ABS( ChrList[charb].pos.x - chrx ) + ABS( ChrList[charb].pos.y - chry );
-if ( distance < globestdistance )
-{
-angle = ( ATAN2( ChrList[charb].pos.y - chry, ChrList[charb].pos.x - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
-angle = facing - angle;
-if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
-{
-returncode = btrue;
-globesttarget = charb;
-globestdistance = distance;
-glouseangle = angle;
-if ( angle  > 32767 )
-globestangle = -angle;
-else
-globestangle = angle;
-}
-}
-}
-}
-charb = ChrList[charb].bumpnext;
-cnt++;
-}
-}
-return returncode;
-}*/
-
-//--------------------------------------------------------------------------------------------
-/*Uint16 find_target( float chrx, float chry, Uint16 facing,
-Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
-Uint8 team, Uint16 donttarget, Uint16 oldtarget )
-{
-// This function finds the best target for the given parameters
-Uint8 done;
-int x, y;
-
-x = chrx;
-y = chry;
-x = x >> BLOCK_BITS;
-y = y >> BLOCK_BITS;
-globestdistance = 9999;
-globestangle = targetangle;
-done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
-if ( done ) return globesttarget;
-
-return MAX_CHR;
-}*/
-
-
-//--------------------------------------------------------------------------------------------
 void free_all_objects( void )
 {
-    // BB > every instance of the three object types used in the game.
+    // BB > free every instance of the three object types used in the game.
 
     free_all_particles();
     free_all_enchants();
@@ -5397,9 +5657,9 @@ bool_t detect_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-mesh_t * set_PMesh( mesh_t * pmpd )
+ego_mpd_t * set_PMesh( ego_mpd_t * pmpd )
 {
-    mesh_t * pmpd_old = PMesh;
+    ego_mpd_t * pmpd_old = PMesh;
 
     PMesh = pmpd;
 
@@ -5441,7 +5701,7 @@ bool_t water_data_init( water_data_t * pdata )
         int layer;
         for ( layer = 0; layer < pdata->layer_count; layer++ )
         {
-            pdata->layer_alpha[layer] = 255;  // Some cards don't support alpha lights...
+            pdata->layer[layer].alpha = 255;  // Some cards don't support alpha lights...
         }
     }
 
@@ -5458,7 +5718,7 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++)
     {
-        pinst->layer_frame[layer] = rand() & WATERFRAMEAND;
+        pinst->layer[layer].frame = rand() & WATERFRAMEAND;
     }
 
     if ( NULL != pdata )
@@ -5468,7 +5728,11 @@ bool_t water_instance_init( water_instance_t * pinst, water_data_t * pdata )
 
         for ( layer = 0; layer < MAXWATERLAYER; layer++)
         {
-            pinst->layer_z[layer] = pdata->layer_z[layer];
+            pinst->layer[layer].z         = pdata->layer[layer].z;
+            pinst->layer[layer].dist      = pdata->layer[layer].dist;
+
+            pinst->layer[layer].light_dir = pdata->layer[layer].light_dir / 63.0f;
+            pinst->layer[layer].light_add = pdata->layer[layer].light_add / 63.0f;
         }
     }
 
@@ -5665,30 +5929,30 @@ void read_wawalite( const char *modname )
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     water_data.background_req = ('T' == toupper(cTmp));
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_x[0] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_y[0] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_x[1] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_dist_y[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.x = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].dist.y = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.x = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].dist.y = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.foregroundrepeat = iTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.backgroundrepeat = iTmp;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_z[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_alpha[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_frame_add[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_level[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_add[0] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_amp[0] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_u_add[0] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_v_add[0] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].z = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].alpha = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].frame_add = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_dir = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[0].light_add = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].amp = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.x = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[0].tx_add.y = fTmp;
 
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_z[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_alpha[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer_frame_add[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_level[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.light_add[1] = iTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_amp[1] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_u_add[1] = fTmp;
-    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer_v_add[1] = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].z = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].alpha = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].frame_add = iTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_dir = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp );  water_data.layer[1].light_add = CLIP(iTmp,0,63);
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].amp = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.x = fTmp;
+    goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  water_data.layer[1].tx_add.y = fTmp;
 
     // Read light data second
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  light_x = fTmp;
@@ -5745,7 +6009,7 @@ void read_wawalite( const char *modname )
 
     goto_colon( NULL, fileread, bfalse );  cTmp = fget_first_letter( fileread );
     gfx.usefaredge = bfalse;
-    /* if ( cTmp == 'T' || cTmp == 't' ) */  gfx.usefaredge = btrue;
+    if ( cTmp == 'T' || cTmp == 't' ) gfx.usefaredge = btrue;
 
     PCamera->swing = 0;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp );  PCamera->swingrate = fTmp;
@@ -5786,11 +6050,11 @@ void read_wawalite( const char *modname )
     if ( !cfg.twolayerwater_allowed && water_data.layer_count > 1 )
     {
         water_data.layer_count = 1;
-        iTmp = water_data.layer_alpha[0];
-        iTmp = FF_MUL( water_data.layer_alpha[1], iTmp ) + iTmp;
+        iTmp = water_data.layer[0].alpha;
+        iTmp = FF_MUL( water_data.layer[1].alpha, iTmp ) + iTmp;
         if ( iTmp > 255 ) iTmp = 255;
 
-        water_data.layer_alpha[0] = iTmp;
+        water_data.layer[0].alpha = iTmp;
     }
 
     // Do it
@@ -5799,7 +6063,7 @@ void read_wawalite( const char *modname )
 }
 
 //---------------------------------------------------------------------------------------------
-float get_mesh_level( mesh_t * pmesh, float x, float y, bool_t waterwalk )
+float get_mesh_level( ego_mpd_t * pmesh, float x, float y, bool_t waterwalk )
 {
     // ZZ> This function returns the height of a point within a mesh fan, precise
     //     If waterwalk is nonzero and the fan is watery, then the level returned is the
@@ -5834,8 +6098,8 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
 
     for ( layer = 0; layer < pdata->layer_count; layer++ )
     {
-        pinst->layer_u[layer] = 0;
-        pinst->layer_v[layer] = 0;
+        pinst->layer[layer].tx.x = 0;
+        pinst->layer[layer].tx.y = 0;
 
         for ( frame = 0; frame < MAXWATERFRAME; frame++ )
         {
@@ -5843,8 +6107,7 @@ bool_t make_water( water_instance_t * pinst, water_data_t * pdata )
             for ( point = 0; point < WATERPOINTS; point++ )
             {
                 temp = SIN( ( frame * TWO_PI / MAXWATERFRAME ) + ( TWO_PI * point / WATERPOINTS ) + ( PI / 2 * layer / MAXWATERLAYER ) );
-                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer_amp[layer];
-                pinst->layer_color[layer][frame][point] = ( pdata->light_level[layer] * ( temp + 1.0f ) ) + pdata->light_add[layer];
+                pinst->layer_z_add[layer][frame][point] = temp * pdata->layer[layer].amp;
             }
         }
     }
@@ -6118,3 +6381,392 @@ void append_end_text( script_state_t * pstate, int message, Uint16 character )
     str_add_linebreaks( endtext, endtextwrite, 20 );
 }
 
+//--------------------------------------------------------------------------------------------
+bool_t game_choose_module( int imod, int seed )
+{
+    if( seed < 0 ) seed = time(NULL);
+
+    if( NULL == PMod ) PMod = &gmod;
+
+    return module_upload( PMod, imod, seed );
+}
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+process_instance_t * process_instance_init( process_instance_t * proc )
+{
+    if( NULL == proc ) return proc;
+
+    memset( proc, 0, sizeof(process_instance_t) );
+
+    proc->terminated = btrue;
+
+    return proc;
+}
+
+bool_t process_instance_start( process_instance_t * proc )
+{
+    if( NULL == proc ) return bfalse;
+
+    // choose the correct proc->state
+    if( proc->terminated || proc->state > proc_leaving )
+    {
+        // must re-initialize the process
+        proc->state = proc_begin;
+    }
+    if( proc->state > proc_entering )
+    {
+        // the process is already initialized, just put it back in
+        // proc_entering mode
+        proc->state = proc_entering;
+    }
+
+    // tell it to run
+    proc->terminated = bfalse;
+    proc->valid      = btrue;
+    proc->paused     = bfalse;
+
+    return btrue;
+}
+
+bool_t process_instance_kill( process_instance_t * proc )
+{
+    if( NULL == proc ) return bfalse;
+    if( !process_instance_validate(proc) ) return btrue;
+
+    // turn the process back on with an order to commit suicide
+    proc->paused = bfalse;
+    proc->killme = btrue;
+
+    return btrue;
+}
+
+bool_t process_instance_validate( process_instance_t * proc )
+{
+    if(NULL == proc) return bfalse;
+
+    if( !proc->valid || proc->terminated )
+    {
+        process_instance_terminate( proc );
+    }
+
+    return proc->valid;
+}
+
+bool_t process_instance_terminate( process_instance_t * proc )
+{
+    if(NULL == proc) return bfalse;
+
+    proc->valid      = bfalse;
+    proc->terminated = btrue;
+    proc->state      = proc_begin;
+
+    return btrue;
+}
+
+bool_t process_instance_pause( process_instance_t * proc )
+{
+    bool_t old_value;
+
+    if( !process_instance_validate(proc) ) return bfalse;
+
+    old_value    = proc->paused;
+    proc->paused = btrue;
+
+    return old_value != proc->paused;
+}
+
+bool_t process_instance_resume( process_instance_t * proc )
+{
+    bool_t old_value;
+
+    if( !process_instance_validate(proc) ) return bfalse;
+
+    old_value    = proc->paused;
+    proc->paused = bfalse;
+
+    return old_value != proc->paused;
+}
+
+bool_t process_instance_running( process_instance_t * proc )
+{
+    if( !process_instance_validate(proc) ) return bfalse;
+
+    return !proc->paused;
+}
+
+//--------------------------------------------------------------------------------------------
+ego_process_t * ego_process_init( ego_process_t * eproc )
+{
+    if( NULL == eproc ) return NULL;
+
+    memset( eproc, 0, sizeof(ego_process_t) );
+
+    process_instance_init( PROC_PBASE(eproc) );
+
+    return eproc;
+}
+
+//--------------------------------------------------------------------------------------------
+menu_process_t * menu_process_init( menu_process_t * mproc )
+{
+    if( NULL == mproc ) return NULL;
+
+    memset( mproc, 0, sizeof(menu_process_t) );
+
+    process_instance_init( PROC_PBASE(mproc) );
+
+    return mproc;
+}
+
+//--------------------------------------------------------------------------------------------
+game_process_t * game_process_init( game_process_t * gproc )
+{
+    if( NULL == gproc ) return NULL;
+
+    memset( gproc, 0, sizeof(game_process_t) );
+
+    process_instance_init( PROC_PBASE(gproc) );
+
+    gproc->menu_depth = -1;
+    gproc->pause_key_ready = btrue;
+
+    return gproc;
+}
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void init_all_pip()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+    {
+        memset( PipList + cnt, 0, sizeof(pip_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_eve()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAXEVE; cnt++ )
+    {
+        memset( EveList + cnt, 0, sizeof(pip_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_cap()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        memset( CapList + cnt, 0, sizeof(cap_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_mad()
+{
+    Uint16 cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        memset( MadList + cnt, 0, sizeof(mad_t) );
+
+        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
+        MadList[cnt].ai = 0;
+    }
+
+    md2_loadframe = 0;
+}
+
+//---------------------------------------------------------------------------------------------
+void init_all_profiles()
+{
+    // ZZ> This function initializes all of the model profiles
+
+    init_all_pip();
+    init_all_eve();
+    init_all_cap();
+    init_all_mad();
+    init_all_ai_scripts();
+}
+
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+void release_all_pip()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+    {
+        memset( PipList + cnt, 0, sizeof(pip_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_eve()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXEVE; cnt++ )
+    {
+        memset( EveList + cnt, 0, sizeof(pip_t) );
+    }
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_cap()
+{
+    int cnt, tnc;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        cap_t * pcap = CapList + cnt;
+
+        memset( pcap, 0, sizeof(cap_t) );
+
+        for ( tnc = 0; tnc < MAXSECTION; tnc++ )
+        {
+            pcap->chop_sectionstart[tnc] = MAXCHOP;
+            pcap->chop_sectionsize[tnc] = 0;
+        }
+    };
+}
+
+//---------------------------------------------------------------------------------------------
+void release_all_mad()
+{
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+    {
+        memset( MadList + cnt, 0, sizeof(mad_t) );
+        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
+        MadList[cnt].ai = 0;
+    }
+
+    md2_loadframe = 0;
+}
+
+
+//---------------------------------------------------------------------------------------------
+void release_all_profiles()
+{
+    // ZZ> This function clears out all of the model data
+
+    release_all_pip();
+    release_all_eve();
+    release_all_cap();
+    release_all_mad();
+    release_all_ai_scripts();
+}
+
+//--------------------------------------------------------------------------------------------
+/*Uint8 find_target_in_block( int x, int y, float chrx, float chry, Uint16 facing,
+Uint8 onlyfriends, Uint8 anyone, Uint8 team,
+Uint16 donttarget, Uint16 oldtarget )
+{
+// ZZ> This function helps find a target, returning btrue if it found a decent target
+int cnt;
+Uint16 angle;
+Uint16 charb;
+Uint8 enemies, returncode;
+Uint32 fanblock;
+int distance;
+
+returncode = bfalse;
+
+// Current fanblock
+if ( x >= 0 && x < meshbloksx && y >= 0 && y < meshbloksy )
+{
+fanblock = mesh_get_block_int(PMesh, x,y);
+
+enemies = bfalse;
+if ( !onlyfriends ) enemies = btrue;
+
+charb = bumplist[fanblock].chr;
+cnt = 0;
+while ( cnt < bumplist[fanblock].chrnum )
+{
+if ( ChrList[charb].alive && !ChrList[charb].invictus && charb != donttarget && charb != oldtarget )
+{
+if ( anyone || ( ChrList[charb].team == team && onlyfriends ) || ( TeamList[team].hatesteam[ChrList[charb].team] && enemies ) )
+{
+distance = ABS( ChrList[charb].pos.x - chrx ) + ABS( ChrList[charb].pos.y - chry );
+if ( distance < globestdistance )
+{
+angle = ( ATAN2( ChrList[charb].pos.y - chry, ChrList[charb].pos.x - chrx ) + PI ) * 0xFFFF / ( TWO_PI );
+angle = facing - angle;
+if ( angle < globestangle || angle > ( 0xFFFF - globestangle ) )
+{
+returncode = btrue;
+globesttarget = charb;
+globestdistance = distance;
+glouseangle = angle;
+if ( angle  > 32767 )
+globestangle = -angle;
+else
+globestangle = angle;
+}
+}
+}
+}
+charb = ChrList[charb].bumpnext;
+cnt++;
+}
+}
+return returncode;
+}*/
+
+//--------------------------------------------------------------------------------------------
+/*Uint16 find_target( float chrx, float chry, Uint16 facing,
+Uint16 targetangle, Uint8 onlyfriends, Uint8 anyone,
+Uint8 team, Uint16 donttarget, Uint16 oldtarget )
+{
+// This function finds the best target for the given parameters
+Uint8 done;
+int x, y;
+
+x = chrx;
+y = chry;
+x = x >> BLOCK_BITS;
+y = y >> BLOCK_BITS;
+globestdistance = 9999;
+globestangle = targetangle;
+done = find_target_in_block( x, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
+
+done = find_target_in_block( x + 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x + 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y + 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+done |= find_target_in_block( x - 1, y - 1, chrx, chry, facing, onlyfriends, anyone, team, donttarget, oldtarget );
+if ( done ) return globesttarget;
+
+return MAX_CHR;
+}*/
+
+
+void do_game_hud()
+{
+    int y = 0;
+
+    if( flip_pages_requested() && cfg.dev_mode )
+    {
+        glColor4f( 1, 1, 1, 1 );
+        if ( fpson )
+        {
+            y = draw_string( 0, y, szfpstext );
+        }
+
+        y = draw_string( 0, y, "Menu time %f", MProc->base.dtime );
+    }
+}

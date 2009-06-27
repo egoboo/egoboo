@@ -26,7 +26,7 @@
 #include "char.h"
 #include "script.h"
 #include "sound.h"
-#include "mpd.h"
+#include "mesh.h"
 #include "game.h"
 
 #include "egoboo_fileutil.h"
@@ -76,7 +76,7 @@ int open_passage( Uint16 passage )
 
                 if ( VALID_TILE(PMesh, fan) )
                 {
-                    PMesh->mem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
+                    PMesh->mmem.tile_list[fan].fx &= ~( MPDFX_WALL | MPDFX_IMPASS );
                 }
                 x++;
             }
@@ -112,7 +112,7 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
             fan = mesh_get_tile( PMesh, ChrList[character].pos.x, ChrList[character].pos.y );
             if ( VALID_TILE(PMesh, fan) )
             {
-                tile = PMesh->mem.tile_list[fan].img;
+                tile = PMesh->mmem.tile_list[fan].img;
                 if ( tile >= starttile && tile < endtile )
                 {
                     x = ChrList[character].pos.x;
@@ -133,14 +133,14 @@ int break_passage( script_state_t * pstate, Uint16 passage, Uint16 starttile, Ui
                             tile++;
                             if ( tile == endtile )
                             {
-                                PMesh->mem.tile_list[fan].fx |= meshfxor;
+                                PMesh->mmem.tile_list[fan].fx |= meshfxor;
                                 if ( become != 0 )
                                 {
                                     tile = become;
                                 }
                             }
 
-                            PMesh->mem.tile_list[fan].img = tile;
+                            PMesh->mmem.tile_list[fan].img = tile;
                         }
                     }
                 }
@@ -168,15 +168,15 @@ void flash_passage( Uint16 passage, Uint8 color )
 
             if ( VALID_TILE(PMesh, fan) )
             {
-                Uint16 ttype = PMesh->mem.tile_list[fan].type;
+                Uint16 ttype = PMesh->mmem.tile_list[fan].type;
 
                 ttype &= 0x3F;
 
                 numvert = tile_dict[ttype].numvertices;
-                vert    = PMesh->mem.tile_list[fan].vrtstart;
+                vert    = PMesh->mmem.tile_list[fan].vrtstart;
                 for ( cnt = 0; cnt < numvert; cnt++ )
                 {
-                    PMesh->mem.vrt_a[vert] = color;
+                    PMesh->gmem.light[vert].a = color;
                     vert++;
                 }
             }
@@ -211,7 +211,7 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
 
             if ( VALID_TILE(PMesh, fan) )
             {
-                if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( (PMesh->mmem.tile_list[fan].img & 0xFF) == tiletype )
                 {
                     pstate->x = ( x << TILE_BITS ) + 64;
                     pstate->y = ( y << TILE_BITS ) + 64;
@@ -237,7 +237,7 @@ Uint8 find_tile_in_passage( script_state_t * pstate, Uint16 passage, int tiletyp
             if ( VALID_TILE(PMesh, fan) )
             {
 
-                if ( (PMesh->mem.tile_list[fan].img & 0xFF) == tiletype )
+                if ( (PMesh->mmem.tile_list[fan].img & 0xFF) == tiletype )
                 {
                     pstate->x = ( x << TILE_BITS ) + 64;
                     pstate->y = ( y << TILE_BITS ) + 64;
@@ -518,7 +518,7 @@ int close_passage( Uint16 passage )
 
                 if ( VALID_TILE(PMesh, fan) )
                 {
-                    PMesh->mem.tile_list[fan].fx = PMesh->mem.tile_list[fan].fx | passmask[passage];
+                    PMesh->mmem.tile_list[fan].fx = PMesh->mmem.tile_list[fan].fx | passmask[passage];
                 }
                 x++;
             }
@@ -601,27 +601,27 @@ void setup_passage( const char *modname )
     clear_passages();
 
     // Load the file
-    make_newloadname( modname, "/gamedat/passage.txt", newloadname );
+    make_newloadname( modname, "gamedat" SLASH_STR "passage.txt", newloadname );
     fileread = fopen( newloadname, "r" );
-    if ( fileread )
+    if ( NULL == fileread ) return;
+
+    while ( goto_colon( NULL, fileread, btrue ) )
     {
-        while ( goto_colon( NULL, fileread, btrue ) )
-        {
-            fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
-            cTmp = fget_first_letter( fileread );
-            open = bfalse;
-            if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
+        fscanf( fileread, "%d%d%d%d", &tlx, &tly, &brx, &bry );
+        cTmp = fget_first_letter( fileread );
+        open = bfalse;
+        if ( cTmp == 'T' || cTmp == 't' ) open = btrue;
 
-            cTmp = fget_first_letter( fileread );
-            mask = MPDFX_IMPASS | MPDFX_WALL;
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_IMPASS;
+        cTmp = fget_first_letter( fileread );
+        mask = MPDFX_IMPASS | MPDFX_WALL;
+        if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_IMPASS;
 
-            cTmp = fget_first_letter( fileread );
-            if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_SLIPPY;
+        cTmp = fget_first_letter( fileread );
+        if ( cTmp == 'T' || cTmp == 't' ) mask = MPDFX_SLIPPY;
 
-            add_passage( tlx, tly, brx, bry, open, mask );
-        }
-
-        fclose( fileread );
+        add_passage( tlx, tly, brx, bry, open, mask );
     }
+
+    fclose( fileread );
+
 }

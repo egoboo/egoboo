@@ -123,7 +123,8 @@ static rect_t             barrect[NUMBAR];            // The bar rectangles
 static rect_t             bliprect[NUMBAR];           // The blip rectangles
 static rect_t             maprect;                    // The map rectangle
 
-static bool_t             gfx_page_flip_requested = bfalse;
+static bool_t             gfx_page_flip_requested  = bfalse;
+static bool_t             gfx_page_clear_requested = btrue;
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -143,10 +144,10 @@ oglx_texture       TxBlip;                     // OpenGL you are here surface
 oglx_texture       TxMap;                      // OpenGL map surface
 oglx_texture       TxTexture[MAX_TEXTURE];     // All textures
 
-Uint32          TxTitleImage_count = 0;
+Uint32            TxTitleImage_count = 0;
 oglx_texture      TxTitleImage[MAXMODULE];    // OpenGL title image surfaces
 
-Uint16                dolist_count = 0;
+size_t                dolist_count = 0;
 obj_registry_entity_t dolist[DOLIST_SIZE];
 
 bool_t           meshnotexture = bfalse;
@@ -199,6 +200,10 @@ static void font_release();
 static void project_view( camera_t * pcam );
 static void make_dynalist( camera_t * pcam );
 
+static int _draw_string_raw( int x, int y, const char *format, ...  );
+
+static bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz );
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void EnableTexturing()
@@ -226,14 +231,15 @@ void move_water( void )
 
     for ( layer = 0; layer < MAXWATERLAYER; layer++ )
     {
-        water.layer_u[layer] += water_data.layer_u_add[layer];
-        water.layer_v[layer] += water_data.layer_v_add[layer];
-        if ( water.layer_u[layer] > 1.0f )  water.layer_u[layer] -= 1.0f;
-        if ( water.layer_v[layer] > 1.0f )  water.layer_v[layer] -= 1.0f;
-        if ( water.layer_u[layer] < -1.0f )  water.layer_u[layer] += 1.0f;
-        if ( water.layer_v[layer] < -1.0f )  water.layer_v[layer] += 1.0f;
+        water.layer[layer].tx.x += water_data.layer[layer].tx_add.x;
+        water.layer[layer].tx.y += water_data.layer[layer].tx_add.y;
 
-        water.layer_frame[layer] = ( water.layer_frame[layer] + water_data.layer_frame_add[layer] ) & WATERFRAMEAND;
+        if ( water.layer[layer].tx.x >  1.0f )  water.layer[layer].tx.x -= 1.0f;
+        if ( water.layer[layer].tx.y >  1.0f )  water.layer[layer].tx.y -= 1.0f;
+        if ( water.layer[layer].tx.x < -1.0f )  water.layer[layer].tx.x += 1.0f;
+        if ( water.layer[layer].tx.y < -1.0f )  water.layer[layer].tx.y += 1.0f;
+
+        water.layer[layer].frame = ( water.layer[layer].frame + water_data.layer[layer].frame_add ) & WATERFRAMEAND;
     }
 }
 
@@ -588,6 +594,19 @@ bool_t load_one_icon( const char *szLoadName )
 }
 
 //---------------------------------------------------------------------------------------------
+void init_all_graphics()
+{
+    init_all_icons();
+    init_all_titleimages();
+    init_all_textures();
+    init_all_icons();
+    init_bars();
+    init_blip();
+    init_map();
+    init_txfont();
+};
+
+//---------------------------------------------------------------------------------------------
 void init_all_icons()
 {
     // ZZ> This function sets the icon pointers to NULL
@@ -683,39 +702,26 @@ void init_all_textures()
     }
 }
 
-//---------------------------------------------------------------------------------------------
-void init_all_models()
+//--------------------------------------------------------------------------------------------
+void init_txfont()
 {
-    // ZZ> This function initializes all of the model profiles
+    //Intitializes the font, ready to use
+    oglx_texture_new( &TxFont );
 
-    Uint16 cnt;
+    font_init();
+}
 
-    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
-    {
-        memset( PipList + cnt, 0, sizeof(pip_t) );
-    }
-
-    for ( cnt = 0; cnt < MAXEVE; cnt++ )
-    {
-        memset( EveList + cnt, 0, sizeof(pip_t) );
-    }
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        memset( CapList + cnt, 0, sizeof(cap_t) );
-    };
-
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        memset( MadList + cnt, 0, sizeof(mad_t) );
-
-        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
-        MadList[cnt].ai = 0;
-    }
-
-    reset_all_ai_scripts();
-
-    md2_loadframe = 0;
+//---------------------------------------------------------------------------------------------
+void release_all_graphics()
+{
+    release_all_icons();
+    release_all_titleimages();
+    release_all_textures();
+    release_all_icons();
+    release_bars();
+    release_blip();
+    release_map();
+    release_txfont();
 }
 
 //---------------------------------------------------------------------------------------------
@@ -792,37 +798,87 @@ void release_all_textures()
     }
 }
 
-//---------------------------------------------------------------------------------------------
-void release_all_models()
+//--------------------------------------------------------------------------------------------
+void release_txfont()
 {
-    // ZZ> This function clears out all of the models
-    Uint16 cnt;
+    oglx_texture_Release( &TxFont );
+}
 
-    for ( cnt = 0; cnt < MAX_PIP; cnt++ )
+
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+void delete_all_graphics()
+{
+    delete_all_icons();
+    delete_all_titleimages();
+    delete_all_textures();
+    delete_all_icons();
+    delete_bars();
+    delete_blip();
+    delete_map();
+    delete_txfont();
+}
+
+//---------------------------------------------------------------------------------------------
+void delete_all_icons()
+{
+    // ZZ> This function sets the icon pointers to NULL
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_ICON; cnt++ )
     {
-        memset( PipList + cnt, 0, sizeof(pip_t) );
+        oglx_texture_delete( TxIcon + cnt );
     }
+}
 
-    for ( cnt = 0; cnt < MAXEVE; cnt++ )
+//---------------------------------------------------------------------------------------------
+void delete_all_titleimages()
+{
+    // ZZ> This function clears out all of the title images
+    int cnt;
+
+    for ( cnt = 0; cnt < MAXMODULE; cnt++ )
     {
-        memset( EveList + cnt, 0, sizeof(pip_t) );
+        oglx_texture_delete( TxTitleImage + cnt );
     }
+}
 
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
-    {
-        memset( CapList + cnt, 0, sizeof(cap_t) );
-    };
+//---------------------------------------------------------------------------------------------
+void delete_bars()
+{
+    oglx_texture_delete( &TxBars );
+}
 
-    for ( cnt = 0; cnt < MAX_PROFILE; cnt++ )
+//---------------------------------------------------------------------------------------------
+void delete_blip()
+{
+    oglx_texture_delete( &TxBlip );
+}
+
+//---------------------------------------------------------------------------------------------
+void delete_map()
+{
+    // ZZ> This function releases all the map images
+    oglx_texture_delete( &TxMap );
+}
+
+//---------------------------------------------------------------------------------------------
+void delete_all_textures()
+{
+    // ZZ> This function clears out all of the textures
+    int cnt;
+
+    for ( cnt = 0; cnt < MAX_TEXTURE; cnt++ )
     {
-        memset( MadList + cnt, 0, sizeof(mad_t) );
-        strncpy( MadList[cnt].name, "*NONE*", sizeof(MadList[cnt].name) );
-        MadList[cnt].ai = 0;
+        oglx_texture_delete( TxTexture + cnt );
     }
+}
 
-    md2_loadframe = 0;
-
-    reset_all_ai_scripts();
+//--------------------------------------------------------------------------------------------
+void delete_txfont()
+{
+    //Intitializes the font, ready to use
+    oglx_texture_delete( &TxFont );
 }
 
 //--------------------------------------------------------------------------------------------
@@ -857,11 +913,41 @@ void create_szfpstext( int frames )
 }
 
 //--------------------------------------------------------------------------------------------
-void make_renderlist( mesh_t * pmesh, camera_t * pcam )
+void reset_renderlist()
+{
+    // BB> Clear old render lists
+
+    if ( NULL != renderlist.pmesh )
+    {
+        int cnt;
+
+        // clear out the inrenderlist flag for the old mesh
+        tile_info_t * tlist = renderlist.pmesh->mmem.tile_list;
+
+        for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
+        {
+            Uint32 fan = renderlist.all[cnt];
+            if ( fan < renderlist.pmesh->info.tiles_count )
+            {
+                tlist[fan].inrenderlist = bfalse;
+            }
+        }
+
+        renderlist.pmesh = NULL;
+    }
+
+    renderlist.all_count = 0;
+    renderlist.ref_count = 0;
+    renderlist.sha_count = 0;
+    renderlist.drf_count = 0;
+    renderlist.ndr_count = 0;
+}
+
+//--------------------------------------------------------------------------------------------
+void make_renderlist( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function figures out which mesh fans to draw
     int cnt, fanx, fany;
-    Uint32 fan;
     int row, run, numrow;
     int xlist[4], ylist[4];
     int leftnum, leftlist[4];
@@ -872,28 +958,8 @@ void make_renderlist( mesh_t * pmesh, camera_t * pcam )
 
     tile_info_t * tlist;
 
-    // Clear old render lists
-    if ( NULL != renderlist.pmesh )
-    {
-        // clear out the inrenderlist flag for the old mesh
-        tlist = renderlist.pmesh->mem.tile_list;
-
-        for ( cnt = 0; cnt < renderlist.all_count; cnt++ )
-        {
-            fan = renderlist.all[cnt];
-            if ( fan < pmesh->info.tiles_count )
-            {
-                tlist[fan].inrenderlist = bfalse;
-            }
-        }
-    }
-
-    renderlist.pmesh = NULL;
-    renderlist.all_count = 0;
-    renderlist.ref_count = 0;
-    renderlist.sha_count = 0;
-    renderlist.drf_count = 0;
-    renderlist.ndr_count = 0;
+    // reset the current renderlist
+    reset_renderlist();
 
     // Make sure it doesn't die ugly !!!BAD!!!
     if ( NULL == pcam ) return;
@@ -904,7 +970,7 @@ void make_renderlist( mesh_t * pmesh, camera_t * pcam )
     if ( NULL == pmesh ) return;
 
     renderlist.pmesh = pmesh;
-    tlist = pmesh->mem.tile_list;
+    tlist = pmesh->mmem.tile_list;
 
     // It works better this way...
     cornery[cornerlistlowtohighy[3]] += 256;
@@ -1039,7 +1105,7 @@ void make_renderlist( mesh_t * pmesh, camera_t * pcam )
 
     for ( row = 0; row < numrow; row++, fany++ )
     {
-        cnt = pmesh->mem.tilestart[fany] + fanrowstart[row];
+        cnt = pmesh->gmem.tilestart[fany] + fanrowstart[row];
 
         run = fanrowrun[row];
         for ( fanx = 0; fanx < run && renderlist.all_count < MAXMESHRENDER; fanx++, cnt++ )
@@ -1192,21 +1258,10 @@ void load_map( const char* szModule )
 //--------------------------------------------------------------------------------------------
 void font_init()
 {
-    //Intitializes the font, ready to use
-    oglx_texture_new( &TxFont );
-
-    font_release();
-}
-
-//--------------------------------------------------------------------------------------------
-void font_release()
-{
     // BB > fill in default values
 
     Uint16 i, ix, iy, cnt;
     float dx, dy;
-
-    oglx_texture_Release( &TxFont );
 
     // Mark all as unused
     for ( cnt = 0; cnt < 256; cnt++ )
@@ -1241,7 +1296,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
     char cTmp;
     FILE *fileread;
 
-    font_release();
+    font_init();
     if ( INVALID_TX_ID == ego_texture_load( &TxFont, szBitmap, TRANSCOLOR ) )
     {
         log_error( "Cannot load file! (\"%s\")\n", szBitmap );
@@ -1260,13 +1315,14 @@ void font_load( const char* szBitmap, const char* szSpacing )
     xdiv = xsize / NUMFONTX;
 
     // Figure out where each font is and its spacing
+    parse_filename = "";
     fileread = fopen( szSpacing, "r" );
     if ( fileread == NULL )
     {
         log_error( "Font spacing not avalible! (%i, %i)\n", xsize, ysize );
     }
-
     parse_filename = szSpacing;
+
     y = 0;
     stt_x = 0;
     stt_y = 0;
@@ -1295,6 +1351,7 @@ void font_load( const char* szBitmap, const char* szSpacing )
         stt_x += xspacing + 1;
     }
     fclose( fileread );
+    parse_filename = "";
 
     // Space between lines
     fontyspacing = ( yspacing >> 1 ) + FONTADD;
@@ -1307,100 +1364,119 @@ void render_background( Uint16 texture )
     GLvertex vtlist[4];
     int i;
     float z0, d, mag0, mag1, Qx, Qy;
+    float light = 1.0f, intens = 1.0f, alpha = 1.0f;
 
-    z0 = 1500; // the original height of the PCamera->era
-    d = MIN(water_data.layer_dist_x[0], water_data.layer_dist_y[0]) / 10.0f;
+    ego_mpd_info_t * pinfo;
+
+    water_data_layer_t     * dlayer = water_data.layer + 0;
+    water_instance_layer_t * ilayer = water.layer      + 0;
+
+    z0 = 1500; // the original height of the camera
+    d = MIN(ilayer->dist.x, ilayer->dist.y) / 10.0f;
     mag0 = 1.0f / (1.0f + z0 * d);
     //mag1 = backgroundrepeat/128.0f/10;
     mag1 = 1.0f / 128.0f / 5.0f;
 
     // clip the waterlayer uv offset
-    water.layer_u[0] = water.layer_u[0] - (float)floor(water.layer_u[0]);
-    water.layer_v[0] = water.layer_v[0] - (float)floor(water.layer_v[0]);
+    ilayer->tx.x = ilayer->tx.x - (float)floor(ilayer->tx.x);
+    ilayer->tx.y = ilayer->tx.y - (float)floor(ilayer->tx.y);
+
+    pinfo = &(PMesh->info);
 
     // Figure out the coordinates of its corners
-    Qx = -PMesh->info.edge_x;
-    Qy = -PMesh->info.edge_y;
+    Qx = -pinfo->edge_x;
+    Qy = -pinfo->edge_y;
     vtlist[0].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
     vtlist[0].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
     vtlist[0].pos[ZZ] = 0;
-    vtlist[0].tex[SS] = Qx * mag1 + water.layer_u[0];
-    vtlist[0].tex[TT] = Qy * mag1 + water.layer_v[0];
+    vtlist[0].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[0].tex[TT] = Qy * mag1 + ilayer->tx.y;
 
-    Qx = 2 * PMesh->info.edge_x;
-    Qy = -PMesh->info.edge_y;
+    Qx = 2 * pinfo->edge_x;
+    Qy = -pinfo->edge_y;
     vtlist[1].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
     vtlist[1].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
     vtlist[1].pos[ZZ] = 0;
-    vtlist[1].tex[SS] = Qx * mag1 + water.layer_u[0];
-    vtlist[1].tex[TT] = Qy * mag1 + water.layer_v[0];
+    vtlist[1].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[1].tex[TT] = Qy * mag1 + ilayer->tx.y;
 
-    Qx = 2 * PMesh->info.edge_x;
-    Qy = 2 * PMesh->info.edge_y;
+    Qx = 2 * pinfo->edge_x;
+    Qy = 2 * pinfo->edge_y;
     vtlist[2].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
     vtlist[2].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
     vtlist[2].pos[ZZ] = 0;
-    vtlist[2].tex[SS] = Qx * mag1 + water.layer_u[0];
-    vtlist[2].tex[TT] = Qy * mag1 + water.layer_v[0];
+    vtlist[2].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[2].tex[TT] = Qy * mag1 + ilayer->tx.y;
 
-    Qx = -PMesh->info.edge_x;
-    Qy = 2 * PMesh->info.edge_y;
+    Qx = -pinfo->edge_x;
+    Qy = 2 * pinfo->edge_y;
     vtlist[3].pos[XX] = mag0 * PCamera->pos.x + Qx * ( 1.0f - mag0 );
     vtlist[3].pos[YY] = mag0 * PCamera->pos.y + Qy * ( 1.0f - mag0 );
     vtlist[3].pos[ZZ] = 0;
-    vtlist[3].tex[SS] = Qx * mag1 + water.layer_u[0];
-    vtlist[3].tex[TT] = Qy * mag1 + water.layer_v[0];
+    vtlist[3].tex[SS] = Qx * mag1 + ilayer->tx.x;
+    vtlist[3].tex[TT] = Qy * mag1 + ilayer->tx.y;
 
+    light = water_data.light ? 1.0f : 0.0f;
+    alpha = dlayer->alpha * INV_FF;
+
+    if( gfx.usefaredge )
     {
-        GLvector3 intens = VECT3(0.0f, 0.0f, 0.0f);
-        float alpha  = 1.0f;
-        GLint shading_save, depthfunc_save;
-        GLboolean depthmask_save, cullface_save;
+        float fcos;
 
-        //if(gLight.on)
-        //{
-        //  float fcos;
-        //  GLvector3 updir = VECT3( 0,0,-gPhys.gravity);
+        intens = light_a * ilayer->light_add;
 
-        //  VNormalizeEq3( updir.v, 1.0f );
-        //  fcos = VDotProduct3(gLight.spekdir, updir);
-        //  intens = gLight.ambicol;
-        //  if(fcos > 0)
-        //  {
-        //    intens = VAdd3( VScale3(gLight.spekcol, fcos*fcos), intens);
-        //  }
-        //}
+        fcos = light_z;
+        if(fcos > 0.0f)
+        {
+            intens += fcos*fcos * light_d * ilayer->light_dir;
+        }
 
-        alpha = water_data.layer_alpha[0] / 255.0f;
+        intens = CLIP(intens, 0.0f, 1.0f);
+    }
 
+    ATTRIB_PUSH( "render_background()", GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_ENABLE_BIT );
+    {
         oglx_texture_Bind ( TxTexture + texture );
 
-        GL_DEBUG(glGetIntegerv)(GL_SHADE_MODEL, &shading_save );
-        GL_DEBUG(glShadeModel)(GL_FLAT );  // Flat shade this
+        GL_DEBUG(glShadeModel)( GL_FLAT );   // GL_LIGHTING_BIT - Flat shade this
+        GL_DEBUG(glDepthMask)( GL_FALSE );   // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG(glDepthFunc)( GL_ALWAYS );  // GL_DEPTH_BUFFER_BIT
+        GL_DEBUG(glDisable)( GL_CULL_FACE ); // GL_POLYGON_BIT GL_ENABLE_BIT
 
-        depthmask_save = GL_DEBUG(glIsEnabled)(GL_DEPTH_WRITEMASK );
-        GL_DEBUG(glDepthMask)(GL_FALSE );
-
-        GL_DEBUG(glGetIntegerv)(GL_DEPTH_FUNC, &depthfunc_save );
-        GL_DEBUG(glDepthFunc)(GL_ALWAYS );
-
-        cullface_save = GL_DEBUG(glIsEnabled)(GL_CULL_FACE );
-        GL_DEBUG(glDisable)(GL_CULL_FACE );
-
-        GL_DEBUG(glColor4f)(1, 1, 1, alpha );
-        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
-        for ( i = 0; i < 4; i++ )
+        GL_DEBUG(glColor4f)( intens, intens, intens, alpha );
+        GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
         {
-            GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-            GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+            for ( i = 0; i < 4; i++ )
+            {
+                GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+            }
         }
         GL_DEBUG_END();
 
-        GL_DEBUG(glDepthFunc)(depthfunc_save );
-        GL_DEBUG(glDepthMask)(depthmask_save );
-        GL_DEBUG(glShadeModel)(shading_save);
-        if (cullface_save) GL_DEBUG(glEnable)(GL_CULL_FACE ); else GL_DEBUG(glDisable)(GL_CULL_FACE );
+        if( light > 0.0f )
+        {
+            ATTRIB_PUSH( "render_background() - glow", GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT );
+            {
+                GL_DEBUG(glEnable)( GL_BLEND );                             // GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT
+                GL_DEBUG(glBlendFunc)( GL_ONE_MINUS_SRC_ALPHA, GL_ONE );    // GL_COLOR_BUFFER_BIT
+
+                GL_DEBUG(glColor4f)( light, light, light, 1.0f );
+
+                GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+                {
+                    for ( i = 0; i < 4; i++ )
+                    {
+                        GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
+                        GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+                    }
+                }
+                GL_DEBUG_END();
+            }
+            ATTRIB_POP( "render_background() - glow" );
+        }
     }
+    ATTRIB_POP("render_background()");
 }
 
 
@@ -1408,120 +1484,100 @@ void render_background( Uint16 texture )
 void render_foreground_overlay( Uint16 texture )
 {
     // ZZ> This function draws the large foreground
-    GLvertex vtlist[4];
+
+    float alpha, ftmp;
     GLvector3 vforw_wind, vforw_cam;
-    int i;
-    float size;
-    float sinsize, cossize;
-    float x, y, z;
-    float u, v;
-    float loc_foregroundrepeat;
 
-    // Figure out the screen coordinates of its corners
-    x = sdl_scr.x << 6;
-    y = sdl_scr.y << 6;
-    z = 0;
-    u = water.layer_u[1];
-    v = water.layer_v[1];
-    size = x + y + 1;
-    sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-    cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
-    loc_foregroundrepeat = water_data.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
+    water_data_layer_t     * dlayer = water_data.layer + 1;
+    water_instance_layer_t * ilayer = water.layer      + 1;
 
-    vtlist[0].pos[XX] = x + cossize;
-    vtlist[0].pos[YY] = y - sinsize;
-    vtlist[0].pos[ZZ] = z;
-    vtlist[0].tex[SS] = 0 + u;
-    vtlist[0].tex[TT] = 0 + v;
-
-    vtlist[1].pos[XX] = x + sinsize;
-    vtlist[1].pos[YY] = y + cossize;
-    vtlist[1].pos[ZZ] = z;
-    vtlist[1].tex[SS] = loc_foregroundrepeat + u;
-    vtlist[1].tex[TT] = 0 + v;
-
-    vtlist[2].pos[XX] = x - cossize;
-    vtlist[2].pos[YY] = y + sinsize;
-    vtlist[2].pos[ZZ] = z;
-    vtlist[2].tex[SS] = loc_foregroundrepeat + u;
-    vtlist[2].tex[TT] = loc_foregroundrepeat + v;
-
-    vtlist[3].pos[XX] = x - sinsize;
-    vtlist[3].pos[YY] = y - cossize;
-    vtlist[3].pos[ZZ] = z;
-    vtlist[3].tex[SS] = 0 + u;
-    vtlist[3].tex[TT] = loc_foregroundrepeat + v;
-
-    vforw_wind.x = water_data.layer_u_add[1];
-    vforw_wind.y = water_data.layer_v_add[1];
+    vforw_wind.x = dlayer->tx_add.x;
+    vforw_wind.y = dlayer->tx_add.y;
     vforw_wind.z = 0;
     vforw_wind = VNormalize( vforw_wind );
+
     vforw_cam  = mat_getCamForward( PCamera->mView );
 
+    // make the texture begin to disappear if you are not looking straight down
+    ftmp = VDotProduct( vforw_wind, vforw_cam );
+
+    alpha = (1.0f - ftmp*ftmp) * (dlayer->alpha * INV_FF);
+
+    if( alpha != 0.0f )
     {
-        float alpha;
-        GLint shading_save, depthfunc_save, smoothhint_save;
-        GLboolean depthmask_save, cullface_save, alphatest_save;
+        GLvertex vtlist[4];
+        int i;
+        float size;
+        float sinsize, cossize;
+        float x, y, z;
+        float loc_foregroundrepeat;
 
-        GLint alphatestfunc_save, alphatestref_save, alphablendsrc_save, alphablenddst_save;
-        GLboolean alphablend_save;
+        // Figure out the screen coordinates of its corners
+        x = sdl_scr.x << 6;
+        y = sdl_scr.y << 6;
+        z = 0;
+        size = x + y + 1;
+        sinsize = turntosin[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+        cossize = turntocos[( 3*2047 ) & TRIG_TABLE_MASK] * size;
+        loc_foregroundrepeat = water_data.foregroundrepeat * MIN( x / sdl_scr.x, y / sdl_scr.x );
 
-        GL_DEBUG(glGetIntegerv)(GL_POLYGON_SMOOTH_HINT, &smoothhint_save);
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // make sure that the texture is as smooth as possible
+        vtlist[0].pos[XX] = x + cossize;
+        vtlist[0].pos[YY] = y - sinsize;
+        vtlist[0].pos[ZZ] = z;
+        vtlist[0].tex[SS] = ilayer->tx.x;
+        vtlist[0].tex[TT] = ilayer->tx.y;
 
-        oglx_texture_Bind ( TxTexture + texture );
+        vtlist[1].pos[XX] = x + sinsize;
+        vtlist[1].pos[YY] = y + cossize;
+        vtlist[1].pos[ZZ] = z;
+        vtlist[1].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
+        vtlist[1].tex[TT] = ilayer->tx.y;
 
-        GL_DEBUG(glGetIntegerv)(GL_SHADE_MODEL, &shading_save );
-        GL_DEBUG(glShadeModel)(GL_FLAT );  // Flat shade this
+        vtlist[2].pos[XX] = x - cossize;
+        vtlist[2].pos[YY] = y + sinsize;
+        vtlist[2].pos[ZZ] = z;
+        vtlist[2].tex[SS] = ilayer->tx.x + loc_foregroundrepeat;
+        vtlist[2].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
-        depthmask_save = GL_DEBUG(glIsEnabled)(GL_DEPTH_WRITEMASK );
-        GL_DEBUG(glDepthMask)(GL_FALSE );
+        vtlist[3].pos[XX] = x - sinsize;
+        vtlist[3].pos[YY] = y - cossize;
+        vtlist[3].pos[ZZ] = z;
+        vtlist[3].tex[SS] = ilayer->tx.x;
+        vtlist[3].tex[TT] = ilayer->tx.y + loc_foregroundrepeat;
 
-        GL_DEBUG(glGetIntegerv)(GL_DEPTH_FUNC, &depthfunc_save );
-        GL_DEBUG(glDepthFunc)(GL_ALWAYS );
-
-        cullface_save = GL_DEBUG(glIsEnabled)(GL_CULL_FACE );
-        GL_DEBUG(glDisable)(GL_CULL_FACE );
-
-        alphatest_save = GL_DEBUG(glIsEnabled)(GL_ALPHA_TEST );
-        GL_DEBUG(glEnable)(GL_ALPHA_TEST );
-
-        GL_DEBUG(glGetIntegerv)(GL_ALPHA_TEST_FUNC, &alphatestfunc_save );
-        GL_DEBUG(glGetIntegerv)(GL_ALPHA_TEST_REF, &alphatestref_save );
-        GL_DEBUG(glAlphaFunc)(GL_GREATER, 0 );
-
-        alphablend_save = GL_DEBUG(glIsEnabled)(GL_BLEND );
-        GL_DEBUG(glEnable)(GL_BLEND );
-
-        GL_DEBUG(glGetIntegerv)(GL_BLEND_SRC, &alphablendsrc_save );
-        GL_DEBUG(glGetIntegerv)(GL_BLEND_DST, &alphablenddst_save );
-        GL_DEBUG(glBlendFunc)(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // make the texture a filter
-
-        // make the texture begin to disappear if you are not looking straight down
-        alpha = VDotProduct( vforw_wind, vforw_cam );
-
-        GL_DEBUG(glColor4f)(1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
-        GL_DEBUG(glBegin)(GL_TRIANGLE_FAN );
-        for ( i = 0; i < 4; i++ )
+        ATTRIB_PUSH( "render_foreground_overlay()", GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_DEPTH_BUFFER_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT );
         {
-            GL_DEBUG(glTexCoord2fv)(vtlist[i].tex );
-            GL_DEBUG(glVertex3fv)(vtlist[i].pos );
+            GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, GL_NICEST );             // GL_HINT_BIT make sure that the texture is as smooth as possible
+
+            GL_DEBUG(glShadeModel)( GL_FLAT );      // GL_LIGHTING_BIT - Flat shade this
+
+            GL_DEBUG(glDepthMask)( GL_FALSE );     // GL_DEPTH_BUFFER_BIT
+            GL_DEBUG(glDepthFunc)( GL_ALWAYS );     // GL_DEPTH_BUFFER_BIT
+
+            GL_DEBUG(glDisable)( GL_CULL_FACE );   // GL_POLYGON_BIT GL_ENABLE_BIT
+
+            GL_DEBUG(glEnable)( GL_ALPHA_TEST );   // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
+            GL_DEBUG(glAlphaFunc)( GL_GREATER, 0 ); // GL_COLOR_BUFFER_BIT
+
+            GL_DEBUG(glEnable)( GL_BLEND );                                 // GL_COLOR_BUFFER_BIT GL_ENABLE_BIT
+            GL_DEBUG(glBlendFunc)( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_COLOR );  // GL_COLOR_BUFFER_BIT - make the texture a filter
+
+            oglx_texture_Bind ( TxTexture + texture );
+
+            GL_DEBUG(glColor4f)( 1.0f, 1.0f, 1.0f, 1.0f - ABS(alpha) );
+            GL_DEBUG(glBegin)( GL_TRIANGLE_FAN );
+            for ( i = 0; i < 4; i++ )
+            {
+                GL_DEBUG(glTexCoord2fv)( vtlist[i].tex );
+                GL_DEBUG(glVertex3fv)( vtlist[i].pos );
+            }
+            GL_DEBUG_END();
         }
-        GL_DEBUG_END();
-
-        GL_DEBUG(glHint)(GL_POLYGON_SMOOTH_HINT, smoothhint_save );
-        GL_DEBUG(glShadeModel)(shading_save );
-        GL_DEBUG(glDepthMask)(depthmask_save );
-        GL_DEBUG(glDepthFunc)(depthfunc_save );
-
-        if (cullface_save) GL_DEBUG(glEnable)(GL_CULL_FACE ); else GL_DEBUG(glDisable)(GL_CULL_FACE );
-        if (alphatest_save) GL_DEBUG(glEnable)(GL_ALPHA_TEST ); else GL_DEBUG(glDisable)(GL_ALPHA_TEST );
-        GL_DEBUG(glAlphaFunc)(alphatestfunc_save, alphatestref_save );
-
-        if (alphablend_save) GL_DEBUG(glEnable)(GL_BLEND ); else GL_DEBUG(glDisable)(GL_BLEND );
-        GL_DEBUG(glBlendFunc)(alphablendsrc_save, alphablenddst_save );
+        ATTRIB_POP( "render_foreground_overlay()" );
     }
-}//--------------------------------------------------------------------------------------------
+}
+    
+//--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void render_shadow_sprite( float intensity, GLvertex v[] )
 {
@@ -1561,7 +1617,7 @@ void render_shadow( Uint16 character )
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || FANOFF == PMesh->mem.tile_list[pchr->onwhichfan].img ) return;
+    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || 0 != (0xFF00 & PMesh->mmem.tile_list[pchr->onwhichfan].img) ) return;
 
     // no shadow if completely transparent
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
@@ -1679,7 +1735,7 @@ void render_bad_shadow( Uint16 character )
     if ( pchr->is_hidden ) return;
 
     // no shadow if off the mesh
-    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || FANOFF == PMesh->mem.tile_list[pchr->onwhichfan].img ) return;
+    if ( !VALID_TILE(PMesh, pchr->onwhichfan) || 0 != (0xFF00 & PMesh->mmem.tile_list[pchr->onwhichfan].img) ) return;
 
     // no shadow if completely transparent or completely glowing
     alpha = (pchr->inst.alpha * INV_FF) * (pchr->inst.light * INV_FF);
@@ -1742,187 +1798,76 @@ void render_bad_shadow( Uint16 character )
     render_shadow_sprite( alpha, v );
 }
 
-#define BLAH_MIX_1(DU,UU) (4.0f/9.0f*((UU)-(-1+(DU)))*((2+(DU))-(UU)))
-#define BLAH_MIX_2(DU,UU,DV,VV) (BLAH_MIX_1(DU,UU)*BLAH_MIX_1(DV,VV))
-
-float get_mix(float u0, float u, float v0, float v)
-{
-    float wt_u, wt_v;
-    float du = u - u0;
-    float dv = v - v0;
-
-    if ( ABS(du) > 1.5 || ABS(dv) > 1.5 ) return 0;
-
-    du *= 4.0f / 9.0f;
-    wt_u = (1.0f - du) * (1.0f + du);
-
-    dv *= 4.0f / 9.0f;
-    wt_v = (1.0f - dv) * (1.0f + dv);
-
-    return wt_u * wt_v;
-}
-
 //--------------------------------------------------------------------------------------------
 void light_fans( renderlist_t * prlist )
 {
-    int entry, cnt;
+    int   entry;
     Uint8 type;
-    mesh_t * pmesh;
-    mesh_info_t * pinfo;
-    mesh_mem_t  * pmem;
+    float light;
+    int   numvertices, vertex;
+
+    ego_mpd_t      * pmesh;
+    ego_mpd_info_t * pinfo;
+    mesh_mem_t     * pmem;
+    grid_mem_t     * pgmem;
 
     if ( NULL == prlist ) return;
 
     pmesh = prlist->pmesh;
     if (NULL == pmesh) return;
     pinfo = &(pmesh->info);
-    pmem  = &(pmesh->mem);
+    pmem  = &(pmesh->mmem);
+    pgmem = &(pmesh->gmem);
 
+    // cache the grid lighting
     for ( entry = 0; entry < prlist->all_count; entry++ )
     {
-        int vertex, numvertices;
-        int ix, iy, dx, dy;
-        Uint32 fan;
-        float min_x, max_x, min_y, max_y, min_z, max_z;
-        float offset_x[4] = {0, 1, 1, 0}, offset_y[4] = {0, 0, 1, 1};
+        int fan;
 
         fan = prlist->all[entry];
         if ( !VALID_TILE(pmesh, fan) ) continue;
 
-        ix = fan % pinfo->tiles_x;
-        iy = fan / pinfo->tiles_x;
-
-        min_x = ix * TILE_SIZE;
-        max_x = min_x + TILE_SIZE;
-        min_y = iy * TILE_SIZE;
-        max_y = min_y + TILE_SIZE;
-
-        type   = pmem->tile_list[fan].type;
-        vertex = pmem->tile_list[fan].vrtstart;
-
-        numvertices = tile_dict[type].numvertices;
-
-        // find the actual extent of the tile
-        //min_x = max_x = pmem->vrt_x[vertex];
-        //min_y = max_y = pmem->vrt_y[vertex];
-        //min_z = max_z = pmem->vrt_z[vertex];
-        //for(cnt=1; cnt<numvertices; cnt++)
-        //{
-        //    min_x = MIN(min_x, pmem->vrt_x[vertex + cnt]);
-        //    min_y = MIN(min_y, pmem->vrt_y[vertex + cnt]);
-        //    min_z = MIN(min_z, pmem->vrt_z[vertex + cnt]);
-
-        //    max_x = MAX(max_x, pmem->vrt_x[vertex + cnt]);
-        //    max_y = MAX(max_y, pmem->vrt_y[vertex + cnt]);
-        //    max_z = MAX(max_z, pmem->vrt_z[vertex + cnt]);
-        //};
-
-        // do the 4 corners
-        for (cnt = 0; cnt < 4; cnt++)
-        {
-            float u, v;
-            float light;
-
-            // find the normal
-            u = offset_x[cnt];
-            v = offset_y[cnt];
-
-            dx = u < 0.5f ? 0 : 1;
-            dy = v < 0.5f ? 0 : 1;
-
-            // get the vertex normal
-            fan = mesh_get_tile_int( pmesh, ix + dx, iy + dy );
-
-            light = 0;
-            if ( VALID_TILE(pmesh, fan) )
-            {
-                GLvector3 * pnrm;
-                light_cache_t * cache;
-
-                cache = pmem->cache + fan;
-                pnrm  = pmem->nrm   + fan;
-
-                if ( cache->max_light > 0 )
-                {
-                    if ( pnrm->x > 0 )
-                    {
-                        light += ABS(pnrm->x) * cache->lighting[0];
-                    }
-                    else if ( pnrm->x < 0 )
-                    {
-                        light += ABS(pnrm->x) * cache->lighting[1];
-                    }
-
-                    if ( pnrm->y > 0 )
-                    {
-                        light += ABS(pnrm->y) * cache->lighting[2];
-                    }
-                    else if ( pnrm->y < 0 )
-                    {
-                        light += ABS(pnrm->y) * cache->lighting[3];
-                    }
-
-                    if ( pnrm->z > 0 )
-                    {
-                        light += ABS(pnrm->z) * cache->lighting[4];
-                    }
-                    else if ( pnrm->z < 0 )
-                    {
-                        light += ABS(pnrm->z) * cache->lighting[5];
-                    }
-                }
-            }
-            light = CLIP(light, 0, 255);
-
-            pmem->vrt_l[vertex + cnt] = pmem->vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
-        }
-
-        // linearly interpolate the other vertices
-        for ( /* nothing */ ; cnt < numvertices; cnt++)
-        {
-            // sum up the lighting
-            int   tnc;
-            float u, v;
-            float light;
-            float weight_sum;
-
-            u = (pmem->vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
-            v = (pmem->vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
-
-            weight_sum = 0;
-            light      = 0;
-            for ( tnc = 0; tnc < 4; tnc++ )
-            {
-                float u2, v2;
-                float wt;
-
-                u2 = (pmem->vrt_x[vertex + tnc] - min_x) / (max_x - min_x);
-                v2 = (pmem->vrt_y[vertex + tnc] - min_y) / (max_y - min_y);
-
-                wt = get_mix(u2, u, v2, v);
-
-                weight_sum += wt;
-                light      += wt * pmem->vrt_l[vertex + tnc];
-            }
-
-            if ( light > 0 && weight_sum > 0.0 )
-            {
-                light /= weight_sum;
-            }
-            else
-            {
-                light = 0;
-            }
-            light = CLIP(light, 0, 255);
-
-            pmem->vrt_l[vertex + cnt] = pmem->vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
-        }
+        mesh_light_corners( prlist->pmesh, fan );
     }
 
+    // use the grid to light the tiles
+    for ( entry = 0; entry < prlist->all_count; entry++ )
+    {
+        int fan, ivrt;
+
+        fan = prlist->all[entry];
+        if ( !VALID_TILE(pmesh, fan) ) continue;
+
+        type   = pmem->tile_list[fan].type;
+        
+        numvertices = tile_dict[type].numvertices;
+
+        vertex = pmem->tile_list[fan].vrtstart;
+
+        // copy the 1st 4 vertices
+        for( ivrt = 0; ivrt < 4; ivrt++, vertex++ )
+        {
+            light = pmem->lcache[fan][ivrt];
+
+            pmem->clst[vertex][RR] = 
+            pmem->clst[vertex][GG] = 
+            pmem->clst[vertex][BB] = light * INV_FF;
+        };
+
+        for( /* nothing */ ; ivrt < numvertices; ivrt++, vertex++ )
+        {
+            light = 0;
+            mesh_interpolate_vertex( pmem, fan, pmem->plst[vertex], &light );
+
+            pmem->clst[vertex][RR] = 
+            pmem->clst[vertex][GG] = 
+            pmem->clst[vertex][BB] = light * INV_FF;
+        };
+    }
 }
 
 ////--------------------------------------------------------------------------------------------
-//void light_fans( mesh_t * pmesh)
+//void light_fans( ego_mpd_t * pmesh)
 //{
 //    int entry, cnt;
 //    Uint8 type;
@@ -1941,24 +1886,24 @@ void light_fans( renderlist_t * prlist )
 //        ix = fan % pmesh->info.tiles_x;
 //        iy = fan / pmesh->info.tiles_x;
 //
-//        type   = pmesh->mem.tile_list[fan].type;
-//        vertex = pmesh->mem.tile_list[fan].vrtstart;
+//        type   = pmesh->mmem.tile_list[fan].type;
+//        vertex = pmesh->mmem.tile_list[fan].vrtstart;
 //
 //        numvertices = tile_dict[type].numvertices;
 //
 //        // find the actual extent of the tile
-//        min_x = max_x = pmesh->mem.vrt_x[vertex];
-//        min_y = max_y = pmesh->mem.vrt_y[vertex];
-//        min_z = max_z = pmesh->mem.vrt_z[vertex];
+//        min_x = max_x = pmesh->mmem.vrt_x[vertex];
+//        min_y = max_y = pmesh->mmem.vrt_y[vertex];
+//        min_z = max_z = pmesh->mmem.vrt_z[vertex];
 //        for(cnt=1; cnt<numvertices; cnt++)
 //        {
-//            min_x = MIN(min_x, pmesh->mem.vrt_x[vertex + cnt]);
-//            min_y = MIN(min_y, pmesh->mem.vrt_y[vertex + cnt]);
-//            min_z = MIN(min_z, pmesh->mem.vrt_z[vertex + cnt]);
+//            min_x = MIN(min_x, pmesh->mmem.vrt_x[vertex + cnt]);
+//            min_y = MIN(min_y, pmesh->mmem.vrt_y[vertex + cnt]);
+//            min_z = MIN(min_z, pmesh->mmem.vrt_z[vertex + cnt]);
 //
-//            max_x = MAX(max_x, pmesh->mem.vrt_x[vertex + cnt]);
-//            max_y = MAX(max_y, pmesh->mem.vrt_y[vertex + cnt]);
-//            max_z = MAX(max_z, pmesh->mem.vrt_z[vertex + cnt]);
+//            max_x = MAX(max_x, pmesh->mmem.vrt_x[vertex + cnt]);
+//            max_y = MAX(max_y, pmesh->mmem.vrt_y[vertex + cnt]);
+//            max_z = MAX(max_z, pmesh->mmem.vrt_z[vertex + cnt]);
 //        };
 //
 //        // do the 4 corners
@@ -1970,8 +1915,8 @@ void light_fans( renderlist_t * prlist )
 //            GLvector3 nrm;
 //
 //            // find the normal
-//            u = (pmesh->mem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
-//            v = (pmesh->mem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
+//            u = (pmesh->mmem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
+//            v = (pmesh->mmem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
 //
 //            dx = u < 0.5f ? 0 : 1;
 //            dy = v < 0.5f ? 0 : 1;
@@ -1985,7 +1930,7 @@ void light_fans( renderlist_t * prlist )
 //            }
 //            else
 //            {
-//                nrm = pmesh->mem.nrm[fan];
+//                nrm = pmesh->mmem.nrm[fan];
 //            }
 //
 //            light = 0;
@@ -1999,10 +1944,10 @@ void light_fans( renderlist_t * prlist )
 //                    {
 //                        float wt;
 //                        GLvector3 * pnrm;
-//                        light_cache_t * cache;
+//                        lighting_cache_t * cache;
 //                        float loc_light;
 //
-//                        cache = pmesh->mem.cache + fan;
+//                        cache = pmesh->mmem.cache + fan;
 //
 //                        loc_light = 0;
 //                        if( cache->max_light > 0 )
@@ -2051,7 +1996,7 @@ void light_fans( renderlist_t * prlist )
 //            }
 //            light = CLIP(light, 0, 255);
 //
-//            pmesh->mem.vrt_l[vertex + cnt] = pmesh->mem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
+//            pmesh->mmem.vrt_l[vertex + cnt] = pmesh->mmem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
 //        }
 //
 //        // linearly interpolate the other vertices
@@ -2063,8 +2008,8 @@ void light_fans( renderlist_t * prlist )
 //            float light;
 //            float weight_sum;
 //
-//            u = (pmesh->mem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
-//            v = (pmesh->mem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
+//            u = (pmesh->mmem.vrt_x[vertex + cnt] - min_x) / (max_x - min_x);
+//            v = (pmesh->mmem.vrt_y[vertex + cnt] - min_y) / (max_y - min_y);
 //
 //            weight_sum = 0;
 //            light      = 0;
@@ -2073,13 +2018,13 @@ void light_fans( renderlist_t * prlist )
 //                float u2, v2;
 //                float wt;
 //
-//                u2 = (pmesh->mem.vrt_x[vertex + tnc] - min_x) / (max_x - min_x);
-//                v2 = (pmesh->mem.vrt_y[vertex + tnc] - min_y) / (max_y - min_y);
+//                u2 = (pmesh->mmem.vrt_x[vertex + tnc] - min_x) / (max_x - min_x);
+//                v2 = (pmesh->mmem.vrt_y[vertex + tnc] - min_y) / (max_y - min_y);
 //
 //                wt = get_mix(u2, u, v2, v);
 //
 //                weight_sum += wt;
-//                light      += wt * pmesh->mem.vrt_l[vertex + tnc];
+//                light      += wt * pmesh->mmem.vrt_l[vertex + tnc];
 //            }
 //
 //            if( light > 0 && weight_sum > 0.0 )
@@ -2092,7 +2037,7 @@ void light_fans( renderlist_t * prlist )
 //            }
 //            light = CLIP(light, 0, 255);
 //
-//            pmesh->mem.vrt_l[vertex + cnt] = pmesh->mem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
+//            pmesh->mmem.vrt_l[vertex + cnt] = pmesh->mmem.vrt_l[vertex + cnt] * 0.9f + light * 0.1f;
 //        }
 //    }
 //
@@ -2106,7 +2051,7 @@ void light_fans( renderlist_t * prlist )
 //    int cnt, tnc;
 //    Uint16 light_max, light_min;
 //    Uint16 tl, tr, bl, br;
-//    mesh_mem_t * pmem = &(PMesh->mem);
+//    mpd_mem_t * pmem = &(PMesh->mmem);
 //
 //    for ( cnt = 0; cnt < dolist_count; cnt++ )
 //    {
@@ -2195,7 +2140,7 @@ void light_fans( renderlist_t * prlist )
 //}
 
 //--------------------------------------------------------------------------------------------
-void light_particles( mesh_t * pmesh )
+void light_particles( ego_mpd_t * pmesh )
 {
     // ZZ> This function figures out particle lighting
     int iprt;
@@ -2235,16 +2180,18 @@ void light_particles( mesh_t * pmesh )
             Uint16 tl, tr, br, bl;
             Uint16 light_min, light_max;
             mesh_mem_t * pmem;
+            grid_mem_t * pgmem;
 
-            pmem = &(pmesh->mem);
+            pmem  = &(pmesh->mmem);
+            pgmem = &(pmesh->gmem);
 
             istart = pmem->tile_list[pprt->onwhichfan].vrtstart;
 
             // grab the corner intensities
-            tl = pmem->vrt_l[ istart + 0 ];
-            tr = pmem->vrt_l[ istart + 1 ];
-            br = pmem->vrt_l[ istart + 2 ];
-            bl = pmem->vrt_l[ istart + 3 ];
+            tl = pgmem->light[ pprt->onwhichfan + 0 ].l;
+            tr = pgmem->light[ pprt->onwhichfan + 1 ].l;
+            br = pgmem->light[ pprt->onwhichfan + 2 ].l;
+            bl = pgmem->light[ pprt->onwhichfan + 3 ].l;
 
             // determine the amount of directionality
             light_min = MIN(MIN(tl, tr), MIN(bl, br));
@@ -2282,7 +2229,7 @@ void light_particles( mesh_t * pmesh )
 
 
 ////--------------------------------------------------------------------------------------------
-//void set_fan_light( mesh_t * pmesh, int fanx, int fany, Uint16 particle )
+//void set_fan_light( ego_mpd_t * pmesh, int fanx, int fany, Uint16 particle )
 //{
 //    // ZZ> This function is a little helper, lighting the selected fan
 //    //     with the chosen particle
@@ -2298,18 +2245,18 @@ void light_particles( mesh_t * pmesh )
 //
 //        if ( VALID_TILE(pmesh, fan) )
 //        {
-//            Uint8 ttype = pmesh->mem.tile_list[fan].type;
+//            Uint8 ttype = pmesh->mmem.tile_list[fan].type;
 //
 //            if ( ttype < MAXMESHTYPE )
 //            {
-//                vertex = pmesh->mem.tile_list[fan].vrtstart;
+//                vertex = pmesh->mmem.tile_list[fan].vrtstart;
 //                lastvertex = vertex + tile_dict[ttype].numvertices;
 //
 //                while ( vertex < lastvertex )
 //                {
-//                    light = pmesh->mem.vrt_a[vertex];
-//                    x = PrtList[particle].pos.x - pmesh->mem.vrt_x[vertex];
-//                    y = PrtList[particle].pos.y - pmesh->mem.vrt_y[vertex];
+//                    light = pmesh->mmem.vrt_a[vertex];
+//                    x = PrtList[particle].pos.x - pmesh->mmem.vrt_x[vertex];
+//                    y = PrtList[particle].pos.y - pmesh->mmem.vrt_y[vertex];
 //                    level = ( x * x + y * y ) / PrtList[particle].dynalightfalloff;
 //                    level = 255 - level;
 //                    level = level * PrtList[particle].dynalightlevel;
@@ -2317,8 +2264,8 @@ void light_particles( mesh_t * pmesh )
 //                    {
 //                        if ( level > 255 ) level = 255;
 //
-//                        pmesh->mem.vrt_l[vertex] = level;
-//                        pmesh->mem.vrt_a[vertex] = level;
+//                        pmesh->mmem.vrt_l[vertex] = level;
+//                        pmesh->mmem.vrt_a[vertex] = level;
 //                    }
 //
 //                    vertex++;
@@ -2329,142 +2276,166 @@ void light_particles( mesh_t * pmesh )
 //}
 
 //--------------------------------------------------------------------------------------------
-void do_mpd_lighting( mesh_t * pmesh, camera_t * pcam )
+bool_t sum_dyna_lighting( dynalight_t * pdyna, float lighting[], float dx, float dy, float dz )
+{
+    float level;
+    float maxval   = 255;
+    float rho_sqr  = dx * dx + dy * dy;
+    float rho0_sqr = 0.1f * maxval * pdyna->falloff;
+
+    level = maxval / ( 1.0f + rho_sqr / rho0_sqr );
+    level *= pdyna->level;
+
+    if ( (int)level > 0 )
+    {
+        float rad_sqr = rho_sqr + dz * dz;
+        float rad = SQRT( rad_sqr );
+
+        dx /= rad;
+        dy /= rad;
+        dz /= rad;
+
+        if ( dx > 0 )
+        {
+            lighting[0] += ABS(dx) * level;
+        }
+        else if (dx < 0)
+        {
+            lighting[1] += ABS(dx) * level;
+        }
+
+        if ( dy > 0 )
+        {
+            lighting[2] += ABS(dy) * level;
+        }
+        else if (dy < 0)
+        {
+            lighting[3] += ABS(dy) * level;
+        }
+
+        if ( dz > 0 )
+        {
+            lighting[4] += ABS(dz) * level;
+        }
+        else if (dz < 0)
+        {
+            lighting[5] += ABS(dz) * level;
+        }
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t sum_global_lighting( float lighting[] )
+{
+    int cnt;
+    float glob_amb;
+
+    if( NULL == lighting ) return bfalse;
+
+    glob_amb = gfx.usefaredge ? (light_a * 255.0f) : MAX( 32.0f*light_a, INVISIBLE );
+    for( cnt = 0; cnt < 6; cnt++ )
+    {
+        lighting[cnt] = glob_amb * 0.362f;
+    }
+
+    if ( !gfx.usefaredge ) return btrue;
+
+    // do global lighting
+    if ( light_x > 0 )
+    {
+        lighting[0] += ABS(light_x) * light_d * 255;
+    }
+    else if (light_x < 0)
+    {
+        lighting[1] += ABS(light_x) * light_d * 255;
+    }
+
+    if ( light_y > 0 )
+    {
+        lighting[2] += ABS(light_y) * light_d * 255;
+    }
+    else if (light_y < 0)
+    {
+        lighting[3] += ABS(light_y) * light_d * 255;
+    }
+
+    if ( light_z > 0 )
+    {
+        lighting[4] += ABS(light_z) * light_d * 255;
+    }
+    else if (light_z < 0)
+    {
+        lighting[5] += ABS(light_z) * light_d * 255;
+    }
+
+    return btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void do_grid_dynalight( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function does dynamic lighting of visible fans
 
-    int cnt, tnc, vertex, entry;
-	Uint32 fan;
-    float level;
+    int   cnt, tnc, fan, entry;
+    float global_lighting[6];
+
+    ego_mpd_info_t * pinfo;
+    grid_mem_t     * pgmem;
+
+    if( NULL == pmesh ) return;
+    pinfo = &(pmesh->info);
+    pgmem = &(pmesh->gmem);
 
     // refresh the dynamic light list
     make_dynalist( pcam );
 
+    // sum up the lighting from global sources
+    sum_global_lighting( global_lighting );
+
     // Add to base light level in normal mode
     for ( entry = 0; entry < renderlist.all_count; entry++ )
     {
-        float x0, y0, z0, dx, dy, dz;
-        light_cache_t * cache;
-        float local_lighting[6];
+        float x0, y0, dx, dy;
+        lighting_cache_t * cache;
+        float local_lighting_low[6], local_lighting_hgh[6];
         int ix, iy;
-        int vrtstart;
 
         fan = renderlist.all[entry];
         if ( !VALID_TILE(pmesh, fan) ) continue;
 
-        vrtstart = pmesh->mem.tile_list[fan].vrtstart;
-
-        ix = fan % pmesh->info.tiles_x;
-        iy = fan / pmesh->info.tiles_x;
+        ix = fan % pinfo->tiles_x;
+        iy = fan / pinfo->tiles_x;
 
         x0 = ix * TILE_SIZE;
         y0 = iy * TILE_SIZE;
-        z0 = pmesh->mem.vrt_z[ vrtstart ];
 
-        cache = pmesh->mem.cache + fan;
+        cache = &(pgmem->light[fan].cache);
 
         // blank the lighting
         for (tnc = 0; tnc < 6; tnc++)
         {
-            local_lighting[tnc] = 0;
+            local_lighting_low[tnc] = 0.0f;
+            local_lighting_hgh[tnc] = 0.0f;
         };
 
         if ( gfx.shading != GL_FLAT )
         {
-            vertex = pmesh->mem.tile_list[fan].vrtstart;
-
             // add in the dynamic lighting
-            cnt = 0;
             for ( cnt = 0; cnt < dyna_list_count; cnt++ )
             {
                 dx = dyna_list[cnt].x - x0;
                 dy = dyna_list[cnt].y - y0;
-                dz = dyna_list[cnt].z - z0;
 
-                if ( ABS(dx) + ABS(dy) + ABS(dz) == 0 )
-                {
-                    level = dyna_list[cnt].level / 2;
-
-                    for (tnc = 0; tnc < 6; tnc++)
-                    {
-                        local_lighting[tnc] += level;
-                    };
-                }
-                else
-                {
-                    float mag2 = dx * dx + dy * dy + dz * dz;
-
-                    level = 255 - mag2 / dyna_list[cnt].falloff;
-                    level = CLIP( level, 0, 255 );
-                    level *= dyna_list[cnt].level;
-                    if ( (int)level > 0 )
-                    {
-                        float mag  = SQRT( mag2 );
-
-                        dx /= mag;
-                        dy /= mag;
-                        dz /= mag;
-
-                        if ( dx > 0 )
-                        {
-                            local_lighting[0] += ABS(dx) * level;
-                        }
-                        else if (dx < 0)
-                        {
-                            local_lighting[1] += ABS(dx) * level;
-                        }
-
-                        if ( dy > 0 )
-                        {
-                            local_lighting[2] += ABS(dy) * level;
-                        }
-                        else if (dy < 0)
-                        {
-                            local_lighting[3] += ABS(dy) * level;
-                        }
-
-                        if ( dz > 0 )
-                        {
-                            local_lighting[4] += ABS(dz) * level;
-                        }
-                        else if (dz < 0)
-                        {
-                            local_lighting[5] += ABS(dz) * level;
-                        }
-                    }
-
-                }
+                sum_dyna_lighting( dyna_list + cnt, local_lighting_low, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.mins[ZZ] );
+                sum_dyna_lighting( dyna_list + cnt, local_lighting_hgh, dx, dy, dyna_list[cnt].z - pmesh->mmem.bbox.maxs[ZZ] );
             }
 
-            if ( gfx.usefaredge )
+            for( cnt = 0; cnt < 6; cnt++ )
             {
-                // do global lighting
-                if ( light_x > 0 )
-                {
-                    local_lighting[0] += ABS(light_x) * light_d * 255;
-                }
-                else if (light_x < 0)
-                {
-                    local_lighting[1] += ABS(light_x) * light_d * 255;
-                }
-
-                if ( light_y > 0 )
-                {
-                    local_lighting[2] += ABS(light_y) * light_d * 255;
-                }
-                else if (light_y < 0)
-                {
-                    local_lighting[3] += ABS(light_y) * light_d * 255;
-                }
-
-                if ( light_z > 0 )
-                {
-                    local_lighting[4] += ABS(light_z) * light_d * 255;
-                }
-                else if (light_z < 0)
-                {
-                    local_lighting[5] += ABS(light_z) * light_d * 255;
-                }
+                local_lighting_low[cnt] += global_lighting[cnt];
+                local_lighting_hgh[cnt] += global_lighting[cnt];
             }
         }
 
@@ -2472,12 +2443,13 @@ void do_mpd_lighting( mesh_t * pmesh, camera_t * pcam )
         cache->max_light = 0;
         for ( tnc = 0; tnc < 6; tnc++ )
         {
-            cache->lighting[tnc] = cache->lighting[tnc] * 0.9f + local_lighting[tnc] * 0.1f;
-            cache->max_light = MAX(cache->max_light, cache->lighting[tnc]);
+            cache->lighting_low[tnc] = cache->lighting_low[tnc] * 0.9f + local_lighting_low[tnc] * 0.1f;
+            cache->max_light = MAX(cache->max_light, cache->lighting_low[tnc]);
+
+            cache->lighting_hgh[tnc] = cache->lighting_hgh[tnc] * 0.9f + local_lighting_hgh[tnc] * 0.1f;
+            cache->max_light = MAX(cache->max_light, cache->lighting_hgh[tnc]);
         }
     }
-
-
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2488,7 +2460,7 @@ void render_water( renderlist_t * prlist )
     int cnt;
 
     // Bottom layer first
-    if ( gfx.draw_water_1 && water.layer_z[1] > -water_data.layer_amp[1] )
+    if ( gfx.draw_water_1 && water.layer[1].z > -water_data.layer[1].amp )
     {
         for ( cnt = 0; cnt < prlist->all_count; cnt++ )
         {
@@ -2500,7 +2472,7 @@ void render_water( renderlist_t * prlist )
     }
 
     // Top layer second
-    if ( gfx.draw_water_0 && water.layer_z[0] > -water_data.layer_amp[0] )
+    if ( gfx.draw_water_0 && water.layer[0].z > -water_data.layer[0].amp )
     {
         for ( cnt = 0; cnt < prlist->all_count; cnt++ )
         {
@@ -2513,7 +2485,7 @@ void render_water( renderlist_t * prlist )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_init( mesh_t * pmesh, camera_t * pcam )
+void draw_scene_init( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // Which tiles can be displayed
     make_renderlist( pmesh, pcam );
@@ -2523,7 +2495,7 @@ void draw_scene_init( mesh_t * pmesh, camera_t * pcam )
     dolist_sort( pcam );
 
     // figure out the terrain lighting
-    do_mpd_lighting( renderlist.pmesh, pcam );
+    do_grid_dynalight( renderlist.pmesh, pcam );
 
     // apply the lighting to the characters and particles
     light_fans( &renderlist );
@@ -2540,7 +2512,7 @@ void draw_scene_mesh( renderlist_t * prlist )
     // BB> draw the mesh and any reflected objects
 
     int cnt, tnc;
-    mesh_t * pmesh;
+    ego_mpd_t * pmesh;
 
     if ( NULL == prlist ) return;
 
@@ -2851,7 +2823,7 @@ void draw_scene_trans()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_scene_zreflection( mesh_t * pmesh, camera_t * pcam )
+void draw_scene_zreflection( ego_mpd_t * pmesh, camera_t * pcam )
 {
     // ZZ> This function draws 3D objects
 
@@ -2980,7 +2952,7 @@ void draw_one_font( int fonttype, int x, int y )
     fy1 = fontrect[fonttype].y * dy + border;
     fy2 = ( fontrect[fonttype].y + fontrect[fonttype].h ) * dy - border;
 
-    GL_DEBUG(glBegin)(GL_QUADS );
+    GL_DEBUG(glBegin)( GL_QUADS );
     {
         GL_DEBUG(glTexCoord2f)(fx1, fy2 );   GL_DEBUG(glVertex2i)(x, y );
         GL_DEBUG(glTexCoord2f)(fx2, fy2 );   GL_DEBUG(glVertex2i)(x2, y );
@@ -2991,7 +2963,7 @@ void draw_one_font( int fonttype, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_map( int x, int y )
+void draw_map_texture( int x, int y )
 {
     // ZZ> This function draws the map
     EnableTexturing();
@@ -3189,44 +3161,90 @@ void EndText()
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_string( const char *szText, int x, int y )
+int write_draw_string( int x, int y, const char *format, va_list args  )
 {
-    // ZZ> This function spits a line of null terminated text onto the backbuffer
-    Uint8 cTmp = szText[0];
     int cnt = 1;
     int x_stt;
+    STRING szText;
+    Uint8 cTmp;
 
-    BeginText();
-
-    x_stt = x;
-    cnt = 0;
-    cTmp = szText[cnt];
-    while ( '\0' != cTmp )
+    if( vsnprintf( szText, SDL_arraysize(szText)-1, format, args ) <= 0 )
     {
-        // Convert ASCII to our own little font
-        if ( cTmp == '~' )
-        {
-            // Use squiggle for tab
-            x = (x + TABAND) & ( ~TABAND );
-        }
-        else if ( cTmp == '\n' )
-        {
-            x  = x_stt;
-            y += fontyspacing;
-        }
-        else
-        {
-            // Normal letter
-            cTmp = asciitofont[cTmp];
-            draw_one_font( cTmp, x, y );
-            x += fontxspacing[cTmp];
-        }
-
-        cnt++;
-        cTmp = szText[cnt];
+        return y;
     }
 
+    BeginText();
+    {
+        x_stt = x;
+        cnt = 0;
+        cTmp = szText[cnt];
+        while ( '\0' != cTmp )
+        {
+            // Convert ASCII to our own little font
+            if ( cTmp == '~' )
+            {
+                // Use squiggle for tab
+                x = (x & TABAND) + TABADD;
+            }
+            else if ( cTmp == '\n' )
+            {
+                x  = x_stt;
+                y += fontyspacing;
+            }
+            else
+            {
+                // Normal letter
+                cTmp = asciitofont[cTmp];
+                draw_one_font( cTmp, x, y );
+                x += fontxspacing[cTmp];
+            }
+
+            cnt++;
+            cTmp = szText[cnt];
+        }
+    }
     EndText();
+
+    y += fontyspacing;
+
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+int _draw_string_raw( int x, int y, const char *format, ...  )
+{
+    // BB> the same as draw string, but it does not use the Begin2DMode() ... End2DMode()
+    //     bookends.
+
+    va_list args;
+
+    va_start( args, format );
+    y = write_draw_string( x, y, format, args );
+    va_end( args );
+
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+int draw_string( int x, int y, const char *format, ...  )
+{
+    // ZZ> This function spits a line of null terminated text onto the backbuffer
+    //
+    // BB> Uses Begin2DMode() ... End2DMode() so that the function can basically be called from anywhere
+    //     The way they are currently implemented, this breaks the icon drawing in draw_status() if
+    //     you use draw_string() and then draw_icon(). Use _draw_string_raw(), instead.
+
+    va_list args;
+
+    Begin2DMode();
+    {
+        va_start( args, format );
+        y = write_draw_string( x, y, format, args );
+        va_end( args );
+    }
+    End2DMode();
+
+    return y;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3248,7 +3266,7 @@ int length_of_word( const char *szText )
         }
         else if ( cTmp == '~' )
         {
-            x += TABAND + 1;
+            x = (x & TABAND) + TABADD;
         }
 
         cnt++;
@@ -3307,8 +3325,7 @@ int draw_wrap_string( const char *szText, int x, int y, int maxx )
             if ( cTmp == '~' )
             {
                 // Use squiggle for tab
-                x = x & ( ~TABAND );
-                x += TABAND + 1;
+                x = (x & TABAND) + TABADD;
             }
             else if ( cTmp == '\n' )
             {
@@ -3373,11 +3390,10 @@ int draw_status( Uint16 character, int x, int y )
     }
 
     generictext[6] = '\0';
-    draw_string( generictext, x + 8, y ); y += fontyspacing;
+    y = _draw_string_raw( x + 8, y, generictext );
 
     // Write the character's money
-    sprintf( generictext, "$%4d", ChrList[character].money );
-    draw_string( generictext, x + 8, y ); y += fontyspacing + 8;
+    y = _draw_string_raw( x + 8, y, "$%4d", ChrList[character].money ) + 8;
 
     // Draw the icons
     draw_one_icon( skintoicon[ChrList[character].inst.texture], x + 40, y, ChrList[character].sparkle );
@@ -3393,8 +3409,7 @@ int draw_status( Uint16 character, int x, int y )
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", ChrList[item].ammo );
-                    draw_string( generictext, x + 8, y - 8 );
+                    _draw_string_raw( x + 8, y - 8, "%2d", ChrList[item].ammo );
                 }
             }
         }
@@ -3425,8 +3440,7 @@ int draw_status( Uint16 character, int x, int y )
                 if ( !CapList[ChrList[item].model].isstackable || ChrList[item].ammo > 1 )
                 {
                     // Show amount of ammo left
-                    sprintf( generictext, "%2d", ChrList[item].ammo );
-                    draw_string( generictext, x + 72, y - 8 );
+                    _draw_string_raw( x + 72, y - 8, "%2d", ChrList[item].ammo );
                 }
             }
         }
@@ -3459,15 +3473,10 @@ int draw_status( Uint16 character, int x, int y )
 }
 
 //--------------------------------------------------------------------------------------------
-void draw_text()
+int draw_all_status( int y )
 {
-    // ZZ> This function spits out some words
-    char text[512];
-    int y, cnt, tnc, fifties, seconds, minutes;
+    int cnt;
 
-    Begin2DMode();
-    // Status bars
-    y = 0;
     if ( staton )
     {
         for ( cnt = 0; cnt < numstat && y < sdl_scr.y; cnt++ )
@@ -3476,141 +3485,154 @@ void draw_text()
         }
     }
 
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_map()
+{
+    int cnt, tnc;
+
     // Map display
-    if ( mapvalid && mapon )
+    if ( !mapvalid || !mapon ) return;
+
+    draw_map_texture( 0, sdl_scr.y - MAPSIZE );
+
+    //If one of the players can sense enemies via EMP, draw them as blips on the map
+    if ( MAX_CHR != local_senseenemies )
     {
-        draw_map( 0, sdl_scr.y - MAPSIZE );
+        Uint16 iTmp;
 
-        //If one of the players can sense enemies via EMP, draw them as blips on the map
-        if ( MAX_CHR != local_senseenemies )
+        for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
         {
-            Uint16 iTmp;
+            Uint16 icap;
 
-            for ( iTmp = 0; numblip < MAXBLIP && iTmp < MAX_CHR; iTmp++ )
+            if ( !ChrList[iTmp].on ) continue;
+
+            icap = ChrList[iTmp].model;
+            if ( !VALID_CAP(icap) ) continue;
+
+            //Show only hated team
+            if ( TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team] )
             {
-                Uint16 icap;
-
-                if ( !ChrList[iTmp].on ) continue;
-
-                icap = ChrList[iTmp].model;
-                if ( !VALID_CAP(icap) ) continue;
-
-                //Show only hated team
-                if ( TeamList[ChrList[local_senseenemies].team].hatesteam[ChrList[iTmp].team] )
+                // Only if they match the required IDSZ ([NONE] always works)
+                if ( local_senseenemiesID == Make_IDSZ("NONE")
+                        || CapList[icap].idsz[IDSZ_PARENT] == local_senseenemiesID
+                        || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
                 {
-                    // Only if they match the required IDSZ ([NONE] always works)
-                    if ( local_senseenemiesID == Make_IDSZ("NONE")
-                            || CapList[icap].idsz[IDSZ_PARENT] == local_senseenemiesID
-                            || CapList[icap].idsz[IDSZ_TYPE] == local_senseenemiesID)
+                    //Inside the map?
+                    if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
                     {
-                        //Inside the map?
-                        if ( ChrList[iTmp].pos.x < PMesh->info.edge_x && ChrList[iTmp].pos.y < PMesh->info.edge_y )
-                        {
-                            //Valid colors only
-                            blipx[numblip] = ChrList[iTmp].pos.x * MAPSIZE / PMesh->info.edge_x;
-                            blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
-                            blipc[numblip] = 0; //Red blips
-                            numblip++;
-                        }
-                    }
-                }
-            }
-        }
-
-        for ( cnt = 0; cnt < numblip; cnt++ )
-        {
-            draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
-        }
-
-        if ( youarehereon && ( update_wld&8 ) )
-        {
-            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
-            {
-                if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
-                {
-                    tnc = PlaList[cnt].index;
-                    if ( ChrList[tnc].alive )
-                    {
-                        draw_blip( 0.75f, 0, ChrList[tnc].pos.x*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].pos.y*MAPSIZE / PMesh->info.edge_y ) + sdl_scr.y - MAPSIZE );
+                        //Valid colors only
+                        blipx[numblip] = ChrList[iTmp].pos.x * MAPSIZE / PMesh->info.edge_x;
+                        blipy[numblip] = ChrList[iTmp].pos.y * MAPSIZE / PMesh->info.edge_y;
+                        blipc[numblip] = 0; //Red blips
+                        numblip++;
                     }
                 }
             }
         }
     }
 
+    for ( cnt = 0; cnt < numblip; cnt++ )
+    {
+        draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
+    }
+
+    if ( youarehereon && ( update_wld&8 ) )
+    {
+        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+        {
+            if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+            {
+                tnc = PlaList[cnt].index;
+                if ( ChrList[tnc].alive )
+                {
+                    draw_blip( 0.75f, 0, ChrList[tnc].pos.x*MAPSIZE / PMesh->info.edge_x, ( ChrList[tnc].pos.y*MAPSIZE / PMesh->info.edge_y ) + sdl_scr.y - MAPSIZE );
+                }
+            }
+        }
+    }
+
+}
+
+//--------------------------------------------------------------------------------------------
+int draw_fps( int y )
+{
     // FPS text
-    y = 0;
+
     if ( outofsync )
     {
-        sprintf( text, "OUT OF SYNC" );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "OUT OF SYNC" );
     }
+
     if ( parseerror )
     {
-        sprintf( text, "SCRIPT ERROR ( SEE LOG.TXT )" );
-        draw_string( text, 0, y );
-        y += fontyspacing;
+        y = _draw_string_raw( 0, y, "SCRIPT ERROR ( SEE LOG.TXT )" );
     }
+
     if ( fpson )
     {
-        draw_string( szfpstext, 0, y );
-        y += fontyspacing;
+        y = _draw_string_raw( 0, y, szfpstext );
     }
+
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+int draw_help( int y )
+{
     if ( SDLKEYDOWN( SDLK_F1 ) )
     {
         // In-Game help
-        sprintf( text, "!!!MOUSE HELP!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Go to input settings to change" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Left Click to use an item" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Left and Right Click to grab" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Middle Click to jump" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  A and S keys do stuff" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Right Drag to move camera" );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!MOUSE HELP!!!" );
+        y = _draw_string_raw( 0, y, "~~Go to input settings to change" );
+        y = _draw_string_raw( 0, y, "Default settings" );
+        y = _draw_string_raw( 0, y, "~~Left Click to use an item" );
+        y = _draw_string_raw( 0, y, "~~Left and Right Click to grab" );
+        y = _draw_string_raw( 0, y, "~~Middle Click to jump" );
+        y = _draw_string_raw( 0, y, "~~A and S keys do stuff" );
+        y = _draw_string_raw( 0, y, "~~Right Drag to move camera" );
     }
     if ( SDLKEYDOWN( SDLK_F2 ) )
     {
         // In-Game help
-        sprintf( text, "!!!JOYSTICK HELP!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Go to input settings to change." );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Hit the buttons" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  You'll figure it out" );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!JOYSTICK HELP!!!" );
+        y = _draw_string_raw( 0, y, "~~Go to input settings to change." );
+        y = _draw_string_raw( 0, y, "~~Hit the buttons" );
+        y = _draw_string_raw( 0, y, "~~You'll figure it out" );
     }
     if ( SDLKEYDOWN( SDLK_F3 ) )
     {
         // In-Game help
-        sprintf( text, "!!!KEYBOARD HELP!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Go to input settings to change." );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  TGB control one hand" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  YHN control the other" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Keypad to move and jump" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  Number keys for stats" );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!KEYBOARD HELP!!!" );
+        y = _draw_string_raw( 0, y, "~~Go to input settings to change." );
+        y = _draw_string_raw( 0, y, "Default settings" );
+        y = _draw_string_raw( 0, y, "~~TGB control left hand" );
+        y = _draw_string_raw( 0, y, "~~YHN control right hand" );
+        y = _draw_string_raw( 0, y, "~~Keypad to move and jump" );
+        y = _draw_string_raw( 0, y, "~~Number keys for stats" );
     }
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F5 ) )
+
+    return y;
+}
+
+
+//--------------------------------------------------------------------------------------------
+int draw_debug( int y )
+{
+    int tnc;
+
+    if ( !cfg.dev_mode ) return y;
+
+    if ( SDLKEYDOWN( SDLK_F5 ) )
     {
         // Debug information
-        sprintf( text, "!!!DEBUG MODE-5!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-5!!!" );
+        y = _draw_string_raw( 0, y, "~~CAM %f %f %f", PCamera->pos.x, PCamera->pos.y, PCamera->pos.z );
+
         tnc = PlaList[0].index;
-        sprintf( text, "  PLA0DEF %d %d %d %d %d %d %d %d",
+        y = _draw_string_raw( 0, y, "~~PLA0DEF %d %d %d %d %d %d %d %d",
                  ChrList[tnc].damagemodifier[0]&3,
                  ChrList[tnc].damagemodifier[1]&3,
                  ChrList[tnc].damagemodifier[2]&3,
@@ -3618,122 +3640,98 @@ void draw_text()
                  ChrList[tnc].damagemodifier[4]&3,
                  ChrList[tnc].damagemodifier[5]&3,
                  ChrList[tnc].damagemodifier[6]&3,
-                 ChrList[tnc].damagemodifier[7]&3 );
-        draw_string( text, 0, y );  y += fontyspacing;
+                 ChrList[tnc].damagemodifier[7]&3  );
+
         tnc = PlaList[0].index;
-        sprintf( text, "  PLA0 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "~~PLA0 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
+
         tnc = PlaList[1].index;
-        sprintf( text, "  PLA1 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "~~PLA1 %5.1f %5.1f", ChrList[tnc].pos.x / 128.0f, ChrList[tnc].pos.y / 128.0f );
     }
-    if ( cfg.dev_mode &&  SDLKEYDOWN( SDLK_F6 ) )
+
+    if ( SDLKEYDOWN( SDLK_F6 ) )
     {
         // More debug information
-        sprintf( text, "!!!DEBUG MODE-6!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  FREEPRT %d", prt_count_free() );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  FREECHR %d", chr_count_free() );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  MACHINE %d", local_machine );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  EXPORT %d", exportvalid );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  FOGAFF %d", fog_data.affects_water );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  PASS %d/%d", numshoppassage, numpassage );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  NETPLAYERS %d", numplayer );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "  DAMAGEPART %d", damagetile_data.parttype );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
+        y = _draw_string_raw( 0, y, "~~FREEPRT %d", prt_count_free() );
+        y = _draw_string_raw( 0, y, "~~FREECHR %d", chr_count_free() );
+        y = _draw_string_raw( 0, y, "~~MACHINE %d", local_machine );
+        y = _draw_string_raw( 0, y, "~~EXPORT %d", PMod->exportvalid );
+        y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
+        y = _draw_string_raw( 0, y, "~~PASS %d/%d", numshoppassage, numpassage );
+        y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
+        y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile_data.parttype );
     }
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_F7 ) )
+
+    if ( SDLKEYDOWN( SDLK_F7 ) )
     {
         // White debug mode
-        sprintf( text, "!!!DEBUG MODE-7!!!" );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", PCamera->mView.CNV( 0, 0 ), PCamera->mView.CNV( 1, 0 ), PCamera->mView.CNV( 2, 0 ), PCamera->mView.CNV( 3, 0 ) );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", PCamera->mView.CNV( 0, 1 ), PCamera->mView.CNV( 1, 1 ), PCamera->mView.CNV( 2, 1 ), PCamera->mView.CNV( 3, 1 ) );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", PCamera->mView.CNV( 0, 2 ), PCamera->mView.CNV( 1, 2 ), PCamera->mView.CNV( 2, 2 ), PCamera->mView.CNV( 3, 2 ) );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "CAM %f %f %f %f", PCamera->mView.CNV( 0, 3 ), PCamera->mView.CNV( 1, 3 ), PCamera->mView.CNV( 2, 3 ), PCamera->mView.CNV( 3, 3 ) );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "x %f", PCamera->center.x );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "y %f", PCamera->center.y );
-        draw_string( text, 0, y );  y += fontyspacing;
-        sprintf( text, "turn %d %d", PCamera->turn_mode, PCamera->turn_time );
-        draw_string( text, 0, y );  y += fontyspacing;
+        y = _draw_string_raw( 0, y, "!!!DEBUG MODE-7!!!" );
+        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 0 ), PCamera->mView.CNV( 1, 0 ), PCamera->mView.CNV( 2, 0 ), PCamera->mView.CNV( 3, 0 ) );
+        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 1 ), PCamera->mView.CNV( 1, 1 ), PCamera->mView.CNV( 2, 1 ), PCamera->mView.CNV( 3, 1 ) );
+        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 2 ), PCamera->mView.CNV( 1, 2 ), PCamera->mView.CNV( 2, 2 ), PCamera->mView.CNV( 3, 2 ) );
+        y = _draw_string_raw( 0, y, "CAM <%f, %f, %f, %f>", PCamera->mView.CNV( 0, 3 ), PCamera->mView.CNV( 1, 3 ), PCamera->mView.CNV( 2, 3 ), PCamera->mView.CNV( 3, 3 ) );
+        y = _draw_string_raw( 0, y, "CAM center <%f, %f>", PCamera->center.x, PCamera->center.y );
+        y = _draw_string_raw( 0, y, "CAM turn %d %d", PCamera->turn_mode, PCamera->turn_time );
     }
 
-    // Draw paused text
-    /*if ( gamepaused && !SDLKEYDOWN( SDLK_F11 ) )
-    {
-        sprintf( text, "GAME PAUSED" );
-        draw_string( text, -90 + sdl_scr.x / 2, 0 + sdl_scr.y / 2 );
-    }*/
+    return y;
+}
 
-    // Pressed panic button
-    if ( SDLKEYDOWN( SDLK_q ) && SDLKEYDOWN( SDLK_LCTRL ) )
-    {
-        gameactive = bfalse;
-        moduleactive = bfalse;
-    }
+//--------------------------------------------------------------------------------------------
+int draw_timer( int y )
+{
+    int fifties, seconds, minutes;
+
     if ( timeron )
     {
         fifties = ( timervalue % 50 ) << 1;
         seconds = ( ( timervalue / 50 ) % 60 );
         minutes = ( timervalue / 3000 );
-        sprintf( text, "=%d:%02d:%02d=", minutes, seconds, fifties );
-        draw_string( text, 0, y );
-        y += fontyspacing;
+        y = _draw_string_raw( 0, y, "=%d:%02d:%02d=", minutes, seconds, fifties );
     }
-    if ( waitingforplayers )
+
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+int draw_game_status( int y )
+{
+
+    if ( PNet->waitingforplayers )
     {
-        sprintf( text, "Waiting for players... " );
-        draw_string( text, 0, y );
-        y += fontyspacing;
+        y = _draw_string_raw( 0, y, "Waiting for players... " );
     }
-    if ( local_allpladead || respawnanytime )
+
+    if ( local_allpladead || PMod->respawnanytime )
     {
-        if ( respawnvalid && cfg.difficulty < GAME_HARD )
+        if ( PMod->respawnvalid && cfg.difficulty < GAME_HARD )
         {
-            draw_string( "PRESS SPACE TO RESPAWN", 0, y );
-            y += fontyspacing;
+            y = _draw_string_raw( 0, y, "PRESS SPACE TO RESPAWN" );
         }
         else
         {
-            draw_string( "PRESS ESCAPE TO QUIT", 0, y );
-            y += fontyspacing;
+            y = _draw_string_raw( 0, y, "PRESS ESCAPE TO QUIT" );
         }
     }
-    else if ( beatmodule )
+    else if ( PMod->beat )
     {
-        sprintf( text, "VICTORY!  PRESS ESCAPE" );
-        draw_string( text, 0, y );
-        y += fontyspacing;
+        y = _draw_string_raw( 0, y, "VICTORY!  PRESS ESCAPE" );
     }
 
-    // Network message input
-    if ( console_mode )
-    {
-        char buffer[KEYB_BUFFER_SIZE + 128];
+    return y;
+}
 
-        snprintf( buffer, sizeof(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, (0 == (update_wld & 8)) ? "x" : "+" );
-
-        y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
-    }
+//--------------------------------------------------------------------------------------------
+int draw_messages( int y )
+{
+    int cnt, tnc;
 
     // Messages
     if ( messageon )
     {
         // Display the messages
         tnc = msgstart;
-
         for ( cnt = 0; cnt < maxmessage; cnt++ )
         {
             if ( msgtime[tnc] > 0 )
@@ -3749,23 +3747,113 @@ void draw_text()
                 }
             }
 
-            tnc++;
-            tnc = tnc % maxmessage;
+            tnc = (tnc + 1) % maxmessage;
         }
 
         msgtimechange = 0;
     }
 
+    return y;
+}
+
+//--------------------------------------------------------------------------------------------
+void draw_text()
+{
+    // ZZ> draw in-game heads up display
+
+    int y;
+
+    Begin2DMode();
+    {
+        draw_map();
+
+        y = draw_all_status( 0 );
+
+        y = draw_fps( 0 );
+        y = draw_help( y );
+        y = draw_debug( y );
+        y = draw_timer( y );
+        y = draw_game_status( y );
+
+
+        // Network message input
+        if ( console_mode )
+        {
+            char buffer[KEYB_BUFFER_SIZE + 128];
+
+            snprintf( buffer, sizeof(buffer), "%s > %s%s", cfg.network_messagename, keyb.buffer, (0 == (update_wld & 8)) ? "x" : "+" );
+
+            y = draw_wrap_string( buffer, 0, y, sdl_scr.x - wraptolerance );
+        }
+
+        y = draw_messages( y );
+    }
     End2DMode();
+}
+
+//--------------------------------------------------------------------------------------------
+void request_clear_screen()
+{
+    gfx_page_clear_requested = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+void do_clear_screen()
+{
+    bool_t try_clear;
+
+    try_clear = bfalse;
+    if( process_instance_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    {
+        try_clear = gfx_page_clear_requested;
+    }
+    else if( process_instance_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    {
+        try_clear = gfx_page_clear_requested;
+    }
+
+    if( try_clear )
+    {
+        bool_t game_needs_clear, menu_needs_clear;
+
+        gfx_page_clear_requested = bfalse;
+
+        // clear the depth buffer no matter what
+        GL_DEBUG(glDepthMask)( GL_TRUE );
+        GL_DEBUG(glClear)( GL_DEPTH_BUFFER_BIT );
+
+        // clear the color buffer only if necessary
+        game_needs_clear = gfx.clearson && process_instance_running( PROC_PBASE(GProc) );
+        menu_needs_clear = mnu_draw_background && process_instance_running( PROC_PBASE(MProc) );
+
+        if( game_needs_clear || menu_needs_clear )
+        {
+            glClear( GL_COLOR_BUFFER_BIT );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------
 void do_flip_pages()
 {
-    if ( gfx_page_flip_requested )
+    bool_t try_flip;
+
+    try_flip = bfalse;
+    if( process_instance_running( PROC_PBASE(GProc) ) && PROC_PBASE(GProc)->state > proc_begin )
+    {
+        try_flip = gfx_page_flip_requested;
+    }
+    else if( process_instance_running( PROC_PBASE(MProc) ) && PROC_PBASE(MProc)->state > proc_begin )
+    {
+        try_flip = gfx_page_flip_requested;
+    }
+
+    if ( try_flip )
     {
         gfx_page_flip_requested = bfalse;
         flip_pages();
+
+        gfx_page_clear_requested = btrue;
     }
 }
 
@@ -3773,6 +3861,12 @@ void do_flip_pages()
 void request_flip_pages()
 {
     gfx_page_flip_requested = btrue;
+}
+
+//--------------------------------------------------------------------------------------------
+bool_t flip_pages_requested()
+{
+    return gfx_page_flip_requested;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3793,16 +3887,6 @@ void draw_scene( camera_t * pcam )
 {
     Begin3DMode( pcam );
     {
-        // clear the depth buffer
-        GL_DEBUG(glDepthMask)(GL_TRUE );
-        GL_DEBUG(glClear)(GL_DEPTH_BUFFER_BIT );
-
-        // Clear the image if need be
-        if ( gfx.clearson )
-        {
-            GL_DEBUG(glClear)(GL_COLOR_BUFFER_BIT );
-        }
-
         if ( gfx.draw_background )
         {
             // Render the background
@@ -3900,20 +3984,20 @@ void do_cursor()
     // This function implements a mouse cursor
     input_read();
 
-    cursorx = mous.x;  if ( cursorx < 6 )  cursorx = 6;  if ( cursorx > sdl_scr.x - 16 )  cursorx = sdl_scr.x - 16;
+    cursor_x = mous.x;  if ( cursor_x < 6 )  cursor_x = 6;  if ( cursor_x > sdl_scr.x - 16 )  cursor_x = sdl_scr.x - 16;
 
-    cursory = mous.y;  if ( cursory < 8 )  cursory = 8;  if ( cursory > sdl_scr.y - 24 )  cursory = sdl_scr.y - 24;
+    cursor_y = mous.y;  if ( cursor_y < 8 )  cursor_y = 8;  if ( cursor_y > sdl_scr.y - 24 )  cursor_y = sdl_scr.y - 24;
 
-    clicked = bfalse;
-    if ( mous.button[0] && !pressed )
+    cursor_clicked = bfalse;
+    if ( mous.button[0] && !cursor_pressed )
     {
-        clicked = btrue;
+        cursor_clicked = btrue;
     }
 
-    pressed = mous.button[0];
+    cursor_pressed = mous.button[0];
     BeginText();  // Needed to setup text mode
-    // draw_one_font(11, cursorx-5, cursory-7);
-    draw_one_font( 95, cursorx - 5, cursory - 7 );
+    // draw_one_font(11, cursor_x-5, cursor_y-7);
+    draw_one_font( 95, cursor_x - 5, cursor_y - 7 );
     EndText();    // Needed when done with text mode
 }
 
@@ -3935,7 +4019,7 @@ int ogl_init()
 
     // GL_DEBUG(glClear)) stuff
     GL_DEBUG(glClearColor)(0.0f, 0.0f, 0.0f, 0.0f); // Set the background black
-    GL_DEBUG(glClearDepth)(1.0 );
+    GL_DEBUG(glClearDepth)( 1.0f );
 
     // depth buffer stuff
     GL_DEBUG(glClearDepth)( 1.0f );
@@ -4723,7 +4807,7 @@ void make_dynalist( camera_t * pcam )
 
         if ( !VALID_TILE(PMesh, PrtList[cnt].onwhichfan) ) continue;
 
-        PrtList[cnt].inview = PMesh->mem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
+        PrtList[cnt].inview = PMesh->mmem.tile_list[PrtList[cnt].onwhichfan].inrenderlist;
 
         // Set up the lights we need
         if ( !PrtList[cnt].dynalighton ) continue;
@@ -4788,10 +4872,10 @@ void make_dynalist( camera_t * pcam )
 
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_chr( mesh_t * pmesh, Uint16 ichr )
+bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 ichr )
 {
     // This function puts a character in the list
-    Uint32 itile;
+    int itile;
     chr_t * pchr;
     cap_t * pcap;
     chr_instance_t * pinst;
@@ -4810,7 +4894,7 @@ bool_t dolist_add_chr( mesh_t * pmesh, Uint16 ichr )
     itile = pchr->onwhichfan;
     if ( !VALID_TILE(pmesh, itile) ) return bfalse;
 
-    if ( pmesh->mem.tile_list[itile].inrenderlist )
+    if ( pmesh->mmem.tile_list[itile].inrenderlist )
     {
         dolist[dolist_count].ichr = ichr;
         dolist[dolist_count].iprt = TOTAL_MAX_PRT;
@@ -4841,7 +4925,7 @@ bool_t dolist_add_chr( mesh_t * pmesh, Uint16 ichr )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t dolist_add_prt( mesh_t * pmesh, Uint16 iprt )
+bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 iprt )
 {
     // This function puts a character in the list
     prt_t * pprt;
@@ -4868,7 +4952,7 @@ bool_t dolist_add_prt( mesh_t * pmesh, Uint16 iprt )
 
 
 //--------------------------------------------------------------------------------------------
-void dolist_make( mesh_t * pmesh )
+void dolist_make( ego_mpd_t * pmesh )
 {
     // ZZ> This function finds the characters that need to be drawn and puts them in the list
 

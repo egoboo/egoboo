@@ -21,7 +21,7 @@
 
 #include "ogl_texture.h"
 #include "module.h"
-#include "mpd.h"
+#include "mesh.h"
 #include "mad.h"
 
 #include "egoboo.h"
@@ -37,6 +37,8 @@ struct s_egoboo_config;
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 #define DOLIST_SIZE (MAX_CHR + TOTAL_MAX_PRT)
+
+#define MAXMESHRENDER             1024                       // Max number of tiles to draw
 
 #define MAPSIZE 96
 
@@ -100,10 +102,6 @@ int obj_registry_entity_cmp( const void * pleft, const void * pright );
 //--------------------------------------------------------------------------------------------
 //OPENGL VERTEX
 
-enum { XX = 0, YY, ZZ, WW };
-enum { RR = 0, GG, BB, AA };
-enum { SS = 0, TT };
-
 typedef struct
 {
     GLfloat pos[4];
@@ -121,7 +119,7 @@ typedef struct
 //--------------------------------------------------------------------------------------------
 struct s_renderlist
 {
-    mesh_t * pmesh;
+    ego_mpd_t * pmesh;
 
     int     all_count;                               // Number to render, total
     int     ref_count;                               // ..., is reflected in the floor
@@ -212,7 +210,7 @@ bool_t gfx_config_synch( gfx_config_t * pgfx, struct s_egoboo_config * pcfg );
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 extern obj_registry_entity_t dolist[DOLIST_SIZE];             // List of which characters to draw
-extern Uint16                dolist_count;                  // How many in the list
+extern size_t                dolist_count;                  // How many in the list
 
 /*OpenGL Textures*/
 extern  oglx_texture       TxIcon[MAX_ICON];       // OpenGL icon surfaces
@@ -251,28 +249,39 @@ void create_szfpstext( int frames );
 void make_lighttospek();
 void make_lighttable( float lx, float ly, float lz, float ambi );
 void make_lightdirectionlookup();
-void make_renderlist( mesh_t * pmesh, struct s_camera * pcam );
+void make_renderlist( ego_mpd_t * pmesh, struct s_camera * pcam );
 
 void   dolist_sort( struct s_camera * pcam );
-void   dolist_make( mesh_t * pmesh );
-bool_t dolist_add_chr( mesh_t * pmesh, Uint16 cnt );
-bool_t dolist_add_prt( mesh_t * pmesh, Uint16 cnt );
+void   dolist_make( ego_mpd_t * pmesh );
+bool_t dolist_add_chr( ego_mpd_t * pmesh, Uint16 cnt );
+bool_t dolist_add_prt( ego_mpd_t * pmesh, Uint16 cnt );
 
+void init_all_graphics();
 void init_all_icons();
 void init_all_titleimages();
 void init_bars();
 void init_blip();
 void init_map();
 void init_all_textures();
-void init_all_models();
+void init_txfont();
 
+void release_all_graphics();
 void release_all_icons();
 void release_all_titleimages();
 void release_bars();
 void release_blip();
 void release_map();
 void release_all_textures();
-void release_all_models();
+void release_txfont();
+
+void delete_all_graphics();
+void delete_all_icons();
+void delete_all_titleimages();
+void delete_bars();
+void delete_blip();
+void delete_map();
+void delete_all_textures();
+void delete_txfont();
 
 void   load_graphics();
 bool_t load_blip_bitmap();
@@ -283,21 +292,27 @@ bool_t load_all_global_icons();
 void  make_lighttable( float lx, float ly, float lz, float ambi );
 
 void render_water();
-void draw_scene_zreflection( mesh_t * pmesh, struct s_camera * pcam );
+void draw_scene_zreflection( ego_mpd_t * pmesh, struct s_camera * pcam );
 void animate_tiles();
 void move_water();
 
 void draw_one_icon( int icontype, int x, int y, Uint8 sparkle );
 void draw_one_font( int fonttype, int x, int y );
-void draw_map( int x, int y );
+void draw_map_texture( int x, int y );
 int  draw_one_bar( int bartype, int x, int y, int ticks, int maxticks );
-void draw_string( const char *szText, int x, int y );
+int  draw_string( int x, int y, const char *format, ... );
 int  length_of_word( const char *szText );
 int  draw_wrap_string( const char *szText, int x, int y, int maxx );
 int  draw_status( Uint16 character, int x, int y );
 void draw_text();
-void request_flip_pages();
-void do_flip_pages();
+
+void request_clear_screen();
+void do_clear_screen();
+
+bool_t flip_pages_requested();
+void   request_flip_pages();
+void   do_flip_pages();
+
 void draw_scene( struct s_camera * pcam );
 void draw_main();
 
@@ -305,18 +320,18 @@ void render_prt( struct s_camera * pcam );
 void render_shadow( Uint16 character );
 void render_bad_shadow( Uint16 character );
 void render_prt_ref( struct s_camera * pcam );
-void render_fan( mesh_t * pmesh, Uint32 fan );
-void render_hmap_fan( mesh_t * pmesh, Uint32 fan );
-void render_water_fan( mesh_t * pmesh, Uint32 fan, Uint8 layer );
+void render_fan( ego_mpd_t * pmesh, Uint32 fan );
+void render_hmap_fan( ego_mpd_t * pmesh, Uint32 fan );
+void render_water_fan( ego_mpd_t * pmesh, Uint32 fan, Uint8 layer );
 void render_one_mad_enviro( Uint16 character, Uint8 trans );
 void render_one_mad_tex( Uint16 character, Uint8 trans );
 void render_one_mad( Uint16 character, Uint8 trans );
 void render_one_mad_ref( int tnc, Uint8 trans );
 
 //void light_characters();
-void light_particles( mesh_t * pmesh );
+void light_particles( ego_mpd_t * pmesh );
 //void set_fan_light( int fanx, int fany, Uint16 particle );
-void do_mpd_lighting();
+void do_grid_dynalight();
 
 void do_cursor();
 
@@ -354,3 +369,5 @@ void debug_message( const char *text );
 bool_t chr_instance_update_vertices( struct s_chr_instance * pinst, int vmin, int vmax );
 
 bool_t oglx_texture_parameters_synch( struct s_oglx_texture_parameters * ptex, struct s_egoboo_config * pcfg );
+
+void reset_renderlist();

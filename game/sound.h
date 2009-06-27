@@ -153,6 +153,7 @@ int     sound_play_mix( GLvector3 pos, struct s_mix_ptr * pptr );
 int     sound_play_chunk_looped( GLvector3 pos, Mix_Chunk * pchunk, Sint8 loops );
 #define sound_play_chunk( pos, pchunk ) sound_play_chunk_looped( pos, pchunk, 0 )
 void    sound_play_song( Sint8 songnumber, Uint16 fadetime, Sint8 loops );
+void    sound_finish_song( Uint16 fadetime );
 
 void    sound_fade_all();
 void    fade_in_music( Mix_Music * music );

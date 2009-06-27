@@ -533,7 +533,7 @@ void chr_instance_update( Uint16 character, Uint8 trans, bool_t do_lighting )
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_sum_lighting( light_cache_t * dst, light_cache_t * src, GLvector3 vec, int dir )
+bool_t project_sum_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLvector3 vec, int dir )
 {
     if ( NULL == src || NULL == dst ) return bfalse;
 
@@ -542,42 +542,60 @@ bool_t project_sum_lighting( light_cache_t * dst, light_cache_t * src, GLvector3
 
     if ( vec.x > 0 )
     {
-        dst->lighting[dir+0] += ABS(vec.x) * src->lighting[0];
-        dst->lighting[dir+1] += ABS(vec.x) * src->lighting[1];
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[0];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[1];
     }
     else if (vec.x < 0)
     {
-        dst->lighting[dir+0] += ABS(vec.x) * src->lighting[1];
-        dst->lighting[dir+1] += ABS(vec.x) * src->lighting[0];
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.x) * src->lighting_low[1];
+        dst->lighting_hgh[dir+1] += ABS(vec.x) * src->lighting_hgh[0];
     }
 
     if ( vec.y > 0 )
     {
-        dst->lighting[dir+0] += ABS(vec.y) * src->lighting[2];
-        dst->lighting[dir+1] += ABS(vec.y) * src->lighting[3];
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[2];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[3];
     }
     else if (vec.y < 0)
     {
-        dst->lighting[dir+0] += ABS(vec.y) * src->lighting[3];
-        dst->lighting[dir+1] += ABS(vec.y) * src->lighting[2];
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.y) * src->lighting_low[3];
+        dst->lighting_hgh[dir+1] += ABS(vec.y) * src->lighting_hgh[2];
     }
 
     if ( vec.z > 0 )
     {
-        dst->lighting[dir+0] += ABS(vec.z) * src->lighting[4];
-        dst->lighting[dir+1] += ABS(vec.z) * src->lighting[5];
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[4];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[5];
     }
     else if (vec.z < 0)
     {
-        dst->lighting[dir+0] += ABS(vec.z) * src->lighting[5];
-        dst->lighting[dir+1] += ABS(vec.z) * src->lighting[4];
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
+                                                              
+        dst->lighting_low[dir+0] += ABS(vec.z) * src->lighting_low[5];
+        dst->lighting_hgh[dir+1] += ABS(vec.z) * src->lighting_hgh[4];
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t project_lighting( light_cache_t * dst, light_cache_t * src, GLmatrix mat )
+bool_t project_lighting( lighting_cache_t * dst, lighting_cache_t * src, GLmatrix mat )
 {
     int cnt;
     GLvector3 fwd, right, up;
@@ -588,7 +606,8 @@ bool_t project_lighting( light_cache_t * dst, light_cache_t * src, GLmatrix mat 
     dst->max_light = 0.0f;
     for ( cnt = 0; cnt < 6; cnt++)
     {
-        dst->lighting[cnt] = 0.0f;
+        dst->lighting_low[cnt] = 0.0f;
+        dst->lighting_hgh[cnt] = 0.0f;
     }
 
     if ( NULL == src ) return bfalse;
@@ -608,14 +627,15 @@ bool_t project_lighting( light_cache_t * dst, light_cache_t * src, GLmatrix mat 
     dst->max_light = 0.0f;
     for ( cnt = 0; cnt < 6; cnt++ )
     {
-        dst->max_light = MAX(dst->max_light, dst->lighting[cnt]);
+        dst->max_light = MAX(dst->max_light, dst->lighting_low[cnt]);
+        dst->max_light = MAX(dst->max_light, dst->lighting_hgh[cnt]);
     }
 
     return btrue;
 }
 
 //--------------------------------------------------------------------------------------------
-bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u, float v )
+bool_t interpolate_lighting( lighting_cache_t * dst, lighting_cache_t * src[], float u, float v )
 {
     int   cnt, tnc;
     float wt_sum;
@@ -625,7 +645,8 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
     dst->max_light = 0.0f;
     for ( cnt = 0; cnt < 6; cnt++ )
     {
-        dst->lighting[cnt] = 0.0f;
+        dst->lighting_low[cnt] = 0.0f;
+        dst->lighting_hgh[cnt] = 0.0f;
     }
 
     if ( NULL == src ) return bfalse;
@@ -639,7 +660,8 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
         float wt = (1 - u) * (1 - v);
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting[tnc] += src[0]->lighting[tnc] * wt;
+            dst->lighting_low[tnc] += src[0]->lighting_low[tnc] * wt;
+            dst->lighting_hgh[tnc] += src[0]->lighting_hgh[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -649,7 +671,8 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
         float wt = u * (1 - v);
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting[tnc] += src[1]->lighting[tnc] * wt;
+            dst->lighting_low[tnc] += src[1]->lighting_low[tnc] * wt;
+            dst->lighting_hgh[tnc] += src[1]->lighting_hgh[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -659,7 +682,8 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
         float wt = (1 - u) * v;
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting[tnc] += src[2]->lighting[tnc] * wt;
+            dst->lighting_low[tnc] += src[2]->lighting_low[tnc] * wt;
+            dst->lighting_hgh[tnc] += src[2]->lighting_hgh[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -669,7 +693,8 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
         float wt = u * v;
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting[tnc] += src[3]->lighting[tnc] * wt;
+            dst->lighting_low[tnc] += src[3]->lighting_low[tnc] * wt;
+            dst->lighting_hgh[tnc] += src[3]->lighting_hgh[tnc] * wt;
         }
         wt_sum += wt;
     }
@@ -678,8 +703,11 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
     {
         for (tnc = 0; tnc < 6; tnc++)
         {
-            dst->lighting[tnc] /= wt_sum;
-            dst->max_light = MAX(dst->max_light, dst->lighting[tnc]);
+            dst->lighting_low[tnc] /= wt_sum;
+            dst->lighting_hgh[tnc] /= wt_sum;
+
+            dst->max_light = MAX(dst->max_light, dst->lighting_low[tnc]);
+            dst->max_light = MAX(dst->max_light, dst->lighting_hgh[tnc]);
         }
     }
 
@@ -689,9 +717,9 @@ bool_t interpolate_lighting( light_cache_t * dst, light_cache_t * src[], float u
 
 
 //--------------------------------------------------------------------------------------------
-bool_t interpolate_mesh_lighting( mesh_t * pmesh, light_cache_t * dst, GLvector3 pos )
+bool_t interpolate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * dst, GLvector3 pos )
 {
-    light_cache_t * cache_list[4];
+    lighting_cache_t * cache_list[4];
     int ix, iy, cnt;
     Uint32 fan[4];
     float u, v, min_x, max_x, min_y, max_y;
@@ -703,7 +731,7 @@ bool_t interpolate_mesh_lighting( mesh_t * pmesh, light_cache_t * dst, GLvector3
 
     for ( cnt = 0; cnt < 4; cnt++ )
     {
-        cache_list[cnt] = VALID_TILE(pmesh, fan[cnt]) ? pmesh->mem.cache + fan[cnt] : NULL;
+        cache_list[cnt] = VALID_TILE(pmesh, fan[cnt]) ? &(pmesh->gmem.light[fan[cnt]].cache) : NULL;
     }
 
     ix    = floor( pos.x / TILE_SIZE );
@@ -721,41 +749,45 @@ bool_t interpolate_mesh_lighting( mesh_t * pmesh, light_cache_t * dst, GLvector3
 }
 
 //--------------------------------------------------------------------------------------------
-float evaluate_mesh_lighting( light_cache_t * src, GLfloat nrm[] )
+float evaluate_mesh_lighting( ego_mpd_t * pmesh, lighting_cache_t * src, GLfloat nrm[], float z )
 {
     float lighting;
+    float hgh_wt, low_wt;
 
     if ( NULL == src || NULL == nrm ) return 0.0f;
 
     if ( src->max_light <= 0.0f ) return 0.0f;
 
+    hgh_wt = (z - pmesh->mmem.bbox.mins[ZZ]) / (pmesh->mmem.bbox.maxs[ZZ] - pmesh->mmem.bbox.mins[ZZ]);
+    low_wt = 1.0f - hgh_wt;
+
     lighting = 0.0f;
 
     if ( nrm[XX] > 0 )
     {
-        lighting += ABS(nrm[XX]) * src->lighting[0];
+        lighting += ABS(nrm[XX]) * ( low_wt * src->lighting_low[0] + hgh_wt * src->lighting_hgh[0] );
     }
     else if (nrm[XX] < 0)
     {
-        lighting += ABS(nrm[XX]) * src->lighting[1];
+        lighting += ABS(nrm[XX]) * ( low_wt * src->lighting_low[1] + hgh_wt * src->lighting_hgh[1] );
     }
 
     if ( nrm[YY] > 0 )
     {
-        lighting += ABS(nrm[YY]) * src->lighting[2];
+        lighting += ABS(nrm[YY]) * ( low_wt * src->lighting_low[2] + hgh_wt * src->lighting_hgh[2] );
     }
     else if (nrm[YY] < 0)
     {
-        lighting += ABS(nrm[YY]) * src->lighting[3];
+        lighting += ABS(nrm[YY]) * ( low_wt * src->lighting_low[3] + hgh_wt * src->lighting_hgh[3] );
     }
 
     if ( nrm[ZZ] > 0 )
     {
-        lighting += ABS(nrm[ZZ]) * src->lighting[4];
+        lighting += ABS(nrm[ZZ]) * ( low_wt * src->lighting_low[4] + hgh_wt * src->lighting_hgh[4] );
     }
     else if (nrm[ZZ] < 0)
     {
-        lighting += ABS(nrm[ZZ]) * src->lighting[5];
+        lighting += ABS(nrm[ZZ]) * ( low_wt * src->lighting_low[5] + hgh_wt * src->lighting_hgh[5] );
     }
 
     return lighting;
@@ -772,9 +804,8 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     Uint8  rs, gs, bs;
     float  flip;
     Uint8  self_light;
-    light_cache_t global_light, loc_light;
+    lighting_cache_t global_light, loc_light;
     float min_light;
-    Uint16 glob_amb = gfx.usefaredge ? (light_a * 255.0f) : 0;
 
     mad_t * pmad;
 
@@ -797,12 +828,14 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     min_light = loc_light.max_light;
     for (cnt = 0; cnt < 6; cnt++)
     {
-        min_light = MIN(min_light, loc_light.lighting[cnt]);
+        min_light = MIN(min_light, loc_light.lighting_low[cnt]);
+        min_light = MIN(min_light, loc_light.lighting_hgh[cnt]);
     }
 
     for (cnt = 0; cnt < 6; cnt++)
     {
-        loc_light.lighting[cnt] -= min_light;
+        loc_light.lighting_low[cnt] -= min_light;
+        loc_light.lighting_hgh[cnt] -= min_light;
     }
 
     rs = pinst->redshift;
@@ -811,7 +844,7 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     flip = pinst->lip / 256.0f;
     self_light = ( 255 == pinst->light ) ? 0 : pinst->light;
 
-    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light + glob_amb);
+    pinst->color_amb = 0.9f * pinst->color_amb + 0.1f * (self_light + min_light);
 
     pinst->col_amb.a = (alpha * INV_FF) * (pinst->alpha * INV_FF);
     pinst->col_amb.r = ( float )( pinst->color_amb >> rs ) * INV_FF;
@@ -826,22 +859,25 @@ void chr_instance_update_lighting( chr_instance_t * pinst, chr_t * pchr, Uint8 t
     {
         Uint16 lite;
 
+        // a simple "height" measurement
+        float hgt = pinst->vlst[cnt].pos[ZZ] * pinst->matrix.CNV(3,3) + pinst->matrix.CNV(3,3);
+
         if ( pinst->vlst[cnt].nrm[0] == 0.0f && pinst->vlst[cnt].nrm[1] == 0.0f && pinst->vlst[cnt].nrm[2] == 0.0f )
         {
             // this is the "ambient only" index, but it really means to sum up all the light
             GLfloat tnrm[3];
             tnrm[0] = tnrm[1] = tnrm[2] = 1.0f;
-            lite  = evaluate_mesh_lighting( &loc_light, tnrm );
+            lite  = evaluate_mesh_lighting( PMesh, &loc_light, tnrm, hgt );
 
             tnrm[0] = tnrm[1] = tnrm[2] = -1.0f;
-            lite += evaluate_mesh_lighting( &loc_light, tnrm );
+            lite += evaluate_mesh_lighting( PMesh, &loc_light, tnrm, hgt );
 
             // average all the directions
             lite /= 6;
         }
         else
         {
-            lite = evaluate_mesh_lighting( &loc_light, pinst->vlst[cnt].nrm );
+            lite = evaluate_mesh_lighting( PMesh, &loc_light, pinst->vlst[cnt].nrm, hgt );
         }
 
         pinst->vlst[cnt].color_dir = 0.9f * pinst->vlst[cnt].color_dir + 0.1f * lite;

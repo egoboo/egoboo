@@ -15,6 +15,7 @@
 
 #define TO_ANY_TEXT         25935                               // Message headers
 #define TO_HOST_MODULEOK    14951
+#define TO_HOST_MODULEBAD   14952
 #define TO_HOST_LATCH       33911
 #define TO_HOST_RTS         30376
 #define TO_HOST_IM_LOADED   40192
@@ -53,6 +54,10 @@ extern char                    netplayername[MAXNETPLAYER][NETNAMESIZE];   // Na
 
 extern int                     local_machine;        // 0 is host, 1 is 1st remote, 2 is 2nd...
 
+extern int                     playersready;               // Number of players ready to start
+extern int                     playersloaded;
+
+
 struct s_time_latch
 {
     float   x;
@@ -86,12 +91,17 @@ extern int                     numpla;                                   // Numb
 extern int                     local_numlpla;
 extern player_t                PlaList[MAXPLAYER];
 
-extern bool_t                  networkon;                  // Try to connect?
-extern bool_t                  serviceon;                  // Do I need to free the interface?
-extern bool_t                  hostactive;                 // Hosting?
-extern bool_t                  readytostart;               // Ready to hit the Start Game button?
-extern bool_t                  waitingforplayers;          // Has everyone talked to the host?
+struct s_net_instance
+{
+    bool_t  on;                      // Try to connect?
+    bool_t  serviceon;               // Do I need to free the interface?
+    bool_t  hostactive;              // Hosting?
+    bool_t  readytostart;            // Ready to hit the Start Game button?
+    bool_t  waitingforplayers;       // Has everyone talked to the host?
+};
+typedef struct s_net_instance net_instance_t;
 
+extern net_instance_t * PNet;
 
 //---------------------------------------------------------------------------------------------
 // Networking functions

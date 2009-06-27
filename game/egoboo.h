@@ -125,7 +125,8 @@ enum e_damage_fx
 #define MAXTOTALMESSAGE     4096
 #define MESSAGESIZE         80
 #define MESSAGEBUFFERSIZE   (MAXTOTALMESSAGE*40)
-#define TABAND              31                      // Tab size
+#define TABADD              (1<<5)
+#define TABAND              (~(TABADD-1))                      // Tab size
 
 #define GRABSIZE            90.0f                      // Grab tolerance
 #define SEEINVISIBLE        128                        // Cutoff for invisible characters
@@ -241,26 +242,11 @@ EXTERN Uint32          outofsync  EQ( 0 );
 EXTERN Uint8           parseerror  EQ( bfalse );
 
 
-EXTERN bool_t                    gameactive  EQ( bfalse );       // Stay in game or quit to windows?
-EXTERN bool_t                    moduleactive  EQ( bfalse );     // Is the control loop still going?
-EXTERN bool_t                    gamemenuactive EQ( bfalse );
-EXTERN bool_t                    soundon  EQ( btrue );              // Is the sound alive?
-EXTERN bool_t                    menuactive  EQ( bfalse );       // Menu running?
-EXTERN bool_t                    respawnvalid;               // Can players respawn with Spacebar?
-EXTERN bool_t                    respawnanytime;             // True if it's a small level...
-EXTERN bool_t                    importvalid;                // Can it import?
-EXTERN bool_t                    exportvalid;                // Can it export?
-EXTERN bool_t                    rtscontrol;                 // Play as a real-time stragedy? BAD REMOVE
-EXTERN bool_t                    local_noplayers;             // Are there any local players?
-EXTERN bool_t                    beatmodule;                 // Show Module Ended text?
-EXTERN Uint8                     importamount;               // Number of imports for this module
-EXTERN Uint8                     playeramount;
-EXTERN Uint32                    seed  EQ( 0 );              // The module seed
-EXTERN char                      pickedmodule_name[64];           // The module load name
-EXTERN int                       pickedmodule_index;                // The module index number
-EXTERN int                       playersready;               // Number of players ready to start
-EXTERN int                       playersloaded;
-EXTERN bool_t                    game_escape_requested EQ(bfalse);  // has someone asked for the game to quit?
+EXTERN bool_t          soundon  EQ( btrue );              // Is the sound alive?
+
+EXTERN bool_t          pickedmodule_ready;              // Is there a new picked module?
+EXTERN char            pickedmodule_name[64];           // The module load name
+EXTERN int             pickedmodule_index;                // The module index number
 
 //Respawning
 EXTERN bool_t                   local_allpladead;            // Has everyone died?
@@ -299,6 +285,7 @@ EXTERN bool_t                    local_seekurse       EQ( bfalse );
 EXTERN Uint16                    local_senseenemies   EQ( MAX_CHR );
 EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
+EXTERN bool_t                    local_noplayers;             // Are there any local players?
 
 //------------------------------------
 // Model stuff

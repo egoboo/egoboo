@@ -127,6 +127,8 @@ double clk_guessFrameDuration()
     int c;
     double totalTime = 0;
 
+    if( NULL == clk_frameHistory ) return 0;
+
     for ( c = 0; c < clk_frameHistorySize; c++ )
     {
         totalTime += clk_frameHistory[c];
@@ -138,6 +140,8 @@ double clk_guessFrameDuration()
 //--------------------------------------------------------------------------------------------
 void clk_addToFrameHistory( double frame )
 {
+    if(NULL == clk_frameHistory) return;
+
     clk_frameHistory[clk_frameHistoryHead] = frame;
 
     clk_frameHistoryHead++;
@@ -183,6 +187,7 @@ double clk_getExactLastFrameDuration()
 void clk_frameStep()
 {
     double lastFrame = clk_getExactLastFrameDuration();
+
     clk_addToFrameHistory( lastFrame );
 
     // This feels wrong to me; we're guessing at how long this

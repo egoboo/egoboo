@@ -51,8 +51,11 @@ void free_one_enchant( Uint16 ienc )
         // sets all boolean values to false, incluting the "on" flag
         memset( EncList + ienc, 0, sizeof(enc_t) );
 
-        freeenchant[numfreeenchant] = ienc;
-        numfreeenchant++;
+        if( numfreeenchant < MAX_ENC )
+        {
+            freeenchant[numfreeenchant] = ienc;
+            numfreeenchant++;
+        }
     }
 };
 
@@ -804,6 +807,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     memset( peve, 0, sizeof(eve_t) );
 
+    parse_filename = "";
     fileread = fopen( szLoadName, "r" );
     if ( NULL == fileread )
     {
@@ -1105,6 +1109,7 @@ bool_t load_one_enchant_profile( const char* szLoadName, Uint16 profile )
 
     // All done ( finally )
     fclose( fileread );
+    parse_filename = "";
 
     peve->valid = btrue;
 

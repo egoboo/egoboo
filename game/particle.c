@@ -29,7 +29,7 @@
 #include "enchant.h"
 #include "char.h"
 #include "mad.h"
-#include "mpd.h"
+#include "mesh.h"
 #include "game.h"
 
 #include "egoboo_setup.h"
@@ -56,7 +56,6 @@ static Uint16    freeprtlist[TOTAL_MAX_PRT];
 int              numpip   = 0;
 pip_t            PipList[MAX_PIP];
 
-Uint16           particletexture = 0;                        // All in one bitmap
 float            sprite_list_u[MAXPARTICLEIMAGE][2];        // Texture coordinates
 float            sprite_list_v[MAXPARTICLEIMAGE][2];
 
@@ -105,8 +104,11 @@ void free_one_particle( Uint16 particle )
         memset( PrtList + particle, 0, sizeof(prt_t) );
 
         // push it on the stack
-        freeprtlist[numfreeprt] = particle;
-        numfreeprt++;
+        if( numfreeprt < TOTAL_MAX_PRT )
+        {
+            freeprtlist[numfreeprt] = particle;
+            numfreeprt++;
+        }
     }
 }
 
@@ -719,6 +721,7 @@ void free_all_particles()
 
     int cnt;
 
+    // free all the particles
     numfreeprt = 0;
     for ( cnt = 0; cnt < maxparticles; cnt++ )
     {
@@ -733,8 +736,6 @@ void setup_particles()
     // ZZ> This function sets up particle data
     int cnt;
     double x, y;
-
-    particletexture = 0;
 
     // Image coordinates on the big particle bitmap
     for ( cnt = 0; cnt < MAXPARTICLEIMAGE; cnt++ )
@@ -983,7 +984,7 @@ int load_one_particle_profile( const char *szLoadName )
 
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%f", &fTmp ); ppip->dynalevel = fTmp;
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->dynafalloff = iTmp;
-    if ( ppip->dynafalloff > MAXFALLOFF && rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
+    if ( ppip->dynafalloff > MAXFALLOFF && PMod->rtscontrol )  ppip->dynafalloff = MAXFALLOFF;
 
     // Initial spawning of this particle
     goto_colon( NULL, fileread, bfalse );  fscanf( fileread, "%d", &iTmp ); ppip->facingbase = iTmp;

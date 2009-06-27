@@ -97,7 +97,7 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     game_finish_module();
 
     // try to load the new module
-    retval = game_begin_module( modname, seed );
+    retval = game_begin_module( modname, PMod->seed );
 
     if ( !retval )
     {
@@ -106,8 +106,8 @@ bool_t link_follow_modname( const char * modname, bool_t push_current_module )
     }
     else
     {
-        pickedmodule_index = modlist_get_mod_number(modname);
         pickedmodule_name[0] = '\0';
+        pickedmodule_index = modlist_get_mod_number(modname);
         if ( -1 != pickedmodule_index )
         {
             strncpy( pickedmodule_name, ModList[pickedmodule_index].loadname, SDL_arraysize(pickedmodule_name) );

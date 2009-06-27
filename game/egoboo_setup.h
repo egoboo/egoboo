@@ -35,7 +35,7 @@ struct s_egoboo_config
     bool_t                  use_perspective;               // Perspective correct textures?
     bool_t                  use_dither;                    // Dithering?
     bool_t                  reflect_allowed;           // Reflections?
-    bool_t                  reflect_fade;              // 255 = Don't fade reflections
+    Uint8                   reflect_fade;              // 255 = Don't fade reflections
     bool_t                  reflect_prt;               // Reflect particles?
     bool_t                  shadow_allowed;            // Shadows?
     bool_t                  shadow_sprite;             // Shadow sprites?

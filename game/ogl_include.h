@@ -54,10 +54,15 @@ extern "C"
 #endif
 
 //--------------------------------------------------------------------------------------------
+
+    enum { XX = 0, YY, ZZ, WW };
+    enum { RR = 0, GG, BB, AA };
+    enum { SS = 0, TT };
+
     typedef GLfloat GLXmatrix[16];
     typedef GLfloat GLXvector4f[4];
     typedef GLfloat GLXvector3f[3];
-    typedef GLfloat GLXvector2f[3];
+    typedef GLfloat GLXvector2f[2];
 
 //--------------------------------------------------------------------------------------------
     struct oglx_vertex

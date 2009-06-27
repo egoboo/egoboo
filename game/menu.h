@@ -28,26 +28,27 @@
 #include "egoboo.h"
 
 // All the different menus.  yay!
-enum
+enum e_which_menu
 {
-    MainMenu,
-    SinglePlayer,
-    MultiPlayer,
-    ChooseModule,
-    ChoosePlayer,
-    ShowMenuResults,
-    Options,
-    VideoOptions,
-    AudioOptions,
-    InputOptions,
-    NewPlayer,
-    LoadPlayer,
-    HostGame,
-    JoinGame,
-    GamePaused,
-    ShowEndgame,
-    NotImplemented
+    emnu_Main,
+    emnu_SinglePlayer,
+    emnu_MultiPlayer,
+    emnu_ChooseModule,
+    emnu_ChoosePlayer,
+    emnu_ShowMenuResults,
+    emnu_Options,
+    emnu_VideoOptions,
+    emnu_AudioOptions,
+    emnu_InputOptions,
+    emnu_NewPlayer,
+    emnu_LoadPlayer,
+    emnu_HostGame,
+    emnu_JoinGame,
+    emnu_GamePaused,
+    emnu_ShowEndgame,
+    emnu_NotImplemented
 };
+typedef enum e_which_menu which_menu_t;
 
 #define MENU_SELECT   1
 #define MENU_NOTHING  0

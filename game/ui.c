@@ -251,13 +251,13 @@ ui_buttonValues ui_buttonBehavior( ui_id_t id, int x, int y, int width, int heig
 {
     ui_buttonValues result = BUTTON_NOCHANGE;
 
-    // If the mouse is over the button, try and set hotness so that it can be clicked
+    // If the mouse is over the button, try and set hotness so that it can be cursor_clicked
     if ( ui_mouseInside( x, y, width, height ) )
     {
         ui_sethot( id );
     }
 
-    // Check to see if the button gets clicked on
+    // Check to see if the button gets cursor_clicked on
     if ( ui_context.active == id )
     {
         if ( ui_context.mouseReleased == 1 )
@@ -285,13 +285,13 @@ ui_buttonValues ui_WidgetBehavior( ui_Widget_t * pWidget )
 {
     ui_buttonValues result = BUTTON_NOCHANGE;
 
-    // If the mouse is over the button, try and set hotness so that it can be clicked
+    // If the mouse is over the button, try and set hotness so that it can be cursor_clicked
     if ( ui_mouseInside( pWidget->x, pWidget->y, pWidget->width, pWidget->height ) )
     {
         ui_setWidgethot( pWidget );
     }
 
-    // Check to see if the button gets clicked on
+    // Check to see if the button gets cursor_clicked on
     if ( ui_context.active == pWidget->id )
     {
         if ( ui_context.mouseReleased == 1 )

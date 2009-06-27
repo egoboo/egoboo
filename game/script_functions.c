@@ -1716,7 +1716,7 @@ Uint8 scr_ChangeTile( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_TILE(PMesh, pchr->onwhichfan) )
     {
         returncode = btrue;
-        PMesh->mem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
+        PMesh->mmem.tile_list[pchr->onwhichfan].img = pstate->argument & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -2426,7 +2426,7 @@ Uint8 scr_set_WaterLevel( script_state_t * pstate, ai_state_t * pself )
 
     for ( iTmp = 0; iTmp < MAXWATERLAYER; iTmp++ )
     {
-        water.layer_z[iTmp] += fTmp;
+        water.layer[iTmp].z += fTmp;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4126,7 +4126,7 @@ Uint8 scr_PlaySoundVolume( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function sets the volume of a sound and plays it
-    if ( moduleactive && pstate->distance >= 0 )
+    if ( pstate->distance >= 0 )
     {
         volume = pstate->distance;
         iTmp = -1;
@@ -4745,7 +4745,7 @@ Uint8 scr_get_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_TILE(PMesh, iTmp) )
     {
         returncode = btrue;
-        pstate->argument = PMesh->mem.tile_list[iTmp].img & 0xFF;
+        pstate->argument = PMesh->mmem.tile_list[iTmp].img & 0xFF;
     }
 
     SCRIPT_FUNCTION_END();
@@ -4766,7 +4766,7 @@ Uint8 scr_set_TileXY( script_state_t * pstate, ai_state_t * pself )
     if ( VALID_TILE(PMesh, iTmp) )
     {
         returncode = btrue;
-        PMesh->mem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
+        PMesh->mmem.tile_list[iTmp].img = ( pstate->argument & 0xFF );
     }
 
     SCRIPT_FUNCTION_END();
@@ -4963,7 +4963,7 @@ Uint8 scr_PlayFullSound( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function plays a sound loud for everyone...  Victory music
-    if ( moduleactive && pstate->argument >= 0 && pstate->argument < MAX_WAVE )
+    if ( pstate->argument >= 0 && pstate->argument < MAX_WAVE )
     {
         sound_play_chunk( PCamera->track_pos, CapList[pchr->model].wavelist[pstate->argument] );
     }
@@ -5364,7 +5364,7 @@ Uint8 scr_BeatModule( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    beatmodule = btrue;
+    PMod->beat = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5378,7 +5378,7 @@ Uint8 scr_EndModule( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This tells the game to quit
-    game_escape_requested = btrue;
+    EProc->escape_requested = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5391,7 +5391,7 @@ Uint8 scr_DisableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    exportvalid = bfalse;
+    PMod->exportvalid = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -5404,7 +5404,7 @@ Uint8 scr_EnableExport( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-    exportvalid = btrue;
+    PMod->exportvalid = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6087,7 +6087,7 @@ Uint8 scr_EnableRespawn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function turns respawn with JUMP button on
-    respawnvalid = btrue;
+    PMod->respawnvalid = btrue;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6098,7 +6098,7 @@ Uint8 scr_DisableRespawn( script_state_t * pstate, ai_state_t * pself )
     SCRIPT_FUNCTION_BEGIN();
 
     // This function turns respawn with JUMP button off
-    respawnvalid = bfalse;
+    PMod->respawnvalid = bfalse;
 
     SCRIPT_FUNCTION_END();
 }
@@ -6604,7 +6604,7 @@ Uint8 scr_OperatorIsMacintosh( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_IfModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_ModuleHasIDSZ( script_state_t * pstate, ai_state_t * pself )
 {
     //Proceeds if the specified module has the required IDSZ specified in tmpdistance
     //The module folder name to be checked is a string from message.txt
@@ -6672,7 +6672,7 @@ Uint8 scr_GiveManaReturnToTarget( script_state_t * pstate, ai_state_t * pself )
 }
 
 //--------------------------------------------------------------------------------------------
-Uint8 scr_SetMoney( script_state_t * pstate, ai_state_t * pself )
+Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 {
     // SetMoney()
     // Permanently sets the money for the character to tmpargument

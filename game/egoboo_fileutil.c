@@ -261,29 +261,27 @@ void factiof( FILE* filewrite, const char* text, Uint8 action )
 {
     // ZZ> This function kinda mimics fprintf for the output of
     //     SLASH CRUSH POKE HOLY EVIL FIRE ICE ZAP statements
+
     fprintf( filewrite, "%s", text );
-    if ( action == ACTION_DA )
-        fprintf( filewrite, "WALK\n" );
-    if ( action == ACTION_UA )
-        fprintf( filewrite, "UNARMED\n" );
-    if ( action == ACTION_TA )
-        fprintf( filewrite, "THRUST\n" );
-    if ( action == ACTION_SA )
-        fprintf( filewrite, "SLASH\n" );
-    if ( action == ACTION_CA )
-        fprintf( filewrite, "CHOP\n" );
-    if ( action == ACTION_BA )
-        fprintf( filewrite, "BASH\n" );
-    if ( action == ACTION_LA )
-        fprintf( filewrite, "LONGBOW\n" );
-    if ( action == ACTION_XA )
-        fprintf( filewrite, "XBOW\n" );
-    if ( action == ACTION_FA )
-        fprintf( filewrite, "FLING\n" );
-    if ( action == ACTION_PA )
-        fprintf( filewrite, "PARRY\n" );
-    if ( action == ACTION_ZA )
-        fprintf( filewrite, "ZAP\n" );
+
+    switch( action )
+    {
+        case ACTION_DA: fprintf( filewrite, "DANCE\n");    break;
+        case ACTION_UA: fprintf( filewrite, "UNARMED\n"); break;
+        case ACTION_TA: fprintf( filewrite, "THRUST\n");  break;
+        case ACTION_CA: fprintf( filewrite, "CHOP\n");    break;
+        case ACTION_SA: fprintf( filewrite, "SLASH\n");   break;
+        case ACTION_BA: fprintf( filewrite, "BASH\n");    break;
+        case ACTION_LA: fprintf( filewrite, "LONGBOW\n"); break;
+        case ACTION_XA: fprintf( filewrite, "XBOW\n");    break;
+        case ACTION_FA: fprintf( filewrite, "FLING\n");   break;
+        case ACTION_PA: fprintf( filewrite, "PARRY\n");   break;
+        case ACTION_ZA: fprintf( filewrite, "ZAP\n");     break;
+        case ACTION_WA: fprintf( filewrite, "WALK\n");    break;
+        case ACTION_HA: fprintf( filewrite, "HIT\n");     break;
+        case ACTION_KA: fprintf( filewrite, "KILLED\n");  break;
+        default:        fprintf( filewrite, "NONE\n");    break;
+    }
 }
 
 //--------------------------------------------------------------------------------------------

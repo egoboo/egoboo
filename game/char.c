@@ -275,10 +275,12 @@ void free_one_character( Uint16 character )
 
     pchr->onwhichplatform = MAX_CHR;
 
-
     // push it on the stack
-    freechrlist[numfreechr] = character;
-    numfreechr++;
+    if( numfreechr < MAX_CHR )
+    {
+        freechrlist[numfreechr] = character;
+        numfreechr++;
+    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -383,7 +385,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     }
 
     // Do we have a matrix???
-    if ( ChrList[character].inst.matrixvalid )// PMesh->mem.inrenderlist[ChrList[character].onwhichfan])
+    if ( ChrList[character].inst.matrixvalid )// PMesh->mmem.inrenderlist[ChrList[character].onwhichfan])
     {
         // Transform the weapon vertex_offset from model to world space
         model = ChrList[character].inst.imad;
@@ -886,7 +888,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
                 itile = mesh_get_tile_int( PMesh, ix, iy );
                 if ( VALID_TILE(PMesh, itile) )
                 {
-                    if ( PMesh->mem.tile_list[itile].fx & ChrList[character].stoppedby )
+                    if ( PMesh->mmem.tile_list[itile].fx & ChrList[character].stoppedby )
                     {
                         nrm[XX] += (ix + 0.5f) * 128.0f - x;
                         nrm[YY] += (iy + 0.5f) * 128.0f - y;
@@ -897,7 +899,7 @@ Uint32 __chrhitawall( Uint16 character, float nrm[] )
                         nrm[YY] -= (iy + 0.5f) * 128.0f - y;
                     }
 
-                    pass |= PMesh->mem.tile_list[itile].fx;
+                    pass |= PMesh->mmem.tile_list[itile].fx;
                 }
             }
         }
@@ -2077,7 +2079,8 @@ void do_level_up( Uint16 character )
     int number;
     Uint16 profile;
     STRING text;
-    if (character >= MAX_CHR || !ChrList[character].on) return;
+
+    if ( INVALID_CHR(character) ) return;
 
     profile = ChrList[character].model;
     if ( profile >= MAX_PROFILE ) return;
@@ -3603,7 +3606,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
 
     if ( !MadList[profile].used )
     {
-        if ( profile > importamount * 9 )
+        if ( profile > PMod->importamount * 9 )
         {
             log_warning( "spawn_one_character() - trying to spawn using invalid profile %d\n", profile );
         }
@@ -5001,7 +5004,7 @@ void move_characters( void )
         twist = TWIST_FLAT;
         if ( VALID_TILE(PMesh, pchr->onwhichfan) && INVALID_CHR(pchr->onwhichplatform) )
         {
-            twist = PMesh->mem.tile_list[pchr->onwhichfan].twist;
+            twist = PMesh->mmem.tile_list[pchr->onwhichfan].twist;
         }
         is_watery = water_data.is_water && pchr->inwater;
         is_slippy = !is_watery && (0 != mesh_test_fx( PMesh, pchr->onwhichfan, MPDFX_SLIPPY ));

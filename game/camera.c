@@ -27,6 +27,7 @@
 #include "char.h"
 #include "graphic.h"
 #include "network.h"
+#include "SDL_extensions.h"
 
 #include "egoboo_setup.h"
 #include "egoboo.h"
@@ -61,13 +62,13 @@ camera_t * camera_new( camera_t * pcam )
     pcam->zadd      =  800;
     pcam->zaddgoto  =  800;
     pcam->zgoto     =  800;
-    pcam->turn_z_rad         =  ( float )( -PI / 4 );
-    pcam->turn_z_one         =  pcam->turn_z_rad / ( TWO_PI );
-    pcam->turn_z =  ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
-    pcam->turnadd            =  0;
-    pcam->sustain            =  0.60f;
-    pcam->turnupdown         =  ( float )( PI / 4 );
-    pcam->roll               =  0;
+    pcam->turn_z_rad = -PI / 4.0f;
+    pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
+    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x00010000L)) & 0x0000FFFFL;
+    pcam->turnadd    =  0;
+    pcam->sustain    =  0.60f;
+    pcam->turnupdown =  ( float )( PI / 4 );
+    pcam->roll       =  0;
 
     pcam->mView       = pcam->mViewSave = ViewMatrix( t1, t2, t3, 0 );
     pcam->mProjection = ProjectionMatrix( .001f, 2000.0f, ( float )( FOV * PI / 180 ) ); // 60 degree FOV
@@ -77,6 +78,12 @@ camera_t * camera_new( camera_t * pcam )
     //[claforte] Fudge the values.
     pcam->mProjection.v[10] /= 2.0f;
     pcam->mProjection.v[11] /= 2.0f;
+
+    // Matrix init stuff (from remove.c)
+    rotmeshtopside    = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHTOPSIDE / ( 1.33333f );
+    rotmeshbottomside = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHBOTTOMSIDE / ( 1.33333f );
+    rotmeshup         = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHUP / ( 1.33333f );
+    rotmeshdown       = ( ( float )sdl_scr.x / sdl_scr.y ) * ROTMESHDOWN / ( 1.33333f );
 
     return pcam;
 }
@@ -142,7 +149,7 @@ void camera_adjust_angle( camera_t * pcam, float height )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_move( camera_t * pcam, mesh_t * pmesh )
+void camera_move( camera_t * pcam, ego_mpd_t * pmesh )
 {
     // ZZ> This function moves the camera
     Uint16 cnt;
@@ -150,7 +157,7 @@ void camera_move( camera_t * pcam, mesh_t * pmesh )
     float x, y, z, level, newx, newy, movex, movey;
     Uint16 character, turnsin;
 
-    if ( pcam->turn_mode )
+    if ( CAMTURN_NONE != pcam->turn_mode )
         pcam->turn_time = 255;
     else if ( pcam->turn_time != 0 )
         pcam->turn_time--;
@@ -194,22 +201,34 @@ void camera_move( camera_t * pcam, mesh_t * pmesh )
 
         pcam->track_pos.z = 128 + mesh_get_level( pmesh, pcam->track_pos.x, pcam->track_pos.y );
     }
-
-    if ( CAM_PLAYER == pcam->move_mode )
+    else
     {
+        // find the average position
         x = 0;
         y = 0;
         z = 0;
         level = 0;
-        locoalive = 0;
-        for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
+
+        if ( CAM_PLAYER == pcam->move_mode )
         {
-            if ( PlaList[cnt].valid && PlaList[cnt].device != INPUT_BITS_NONE )
+            locoalive = 0;
+            for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
             {
+                if ( !PlaList[cnt].valid || INPUT_BITS_NONE == PlaList[cnt].device ) continue;
+
                 character = PlaList[cnt].index;
+                if( INVALID_CHR(character) )
+                {
+                    PlaList[cnt].valid  = bfalse;
+                    PlaList[cnt].index  = MAX_CHR;
+                    PlaList[cnt].device = INPUT_BITS_NONE;
+                    continue;
+                }
+
                 if ( ChrList[character].alive )
                 {
-                    if ( ChrList[character].attachedto == MAX_CHR )
+                    Uint16 imount = ChrList[character].attachedto;
+                    if ( imount == MAX_CHR )
                     {
                         // The character is on foot
                         x += ChrList[character].pos.x;
@@ -220,53 +239,53 @@ void camera_move( camera_t * pcam, mesh_t * pmesh )
                     else
                     {
                         // The character is mounted
-                        x += ChrList[ChrList[character].attachedto].pos.x;
-                        y += ChrList[ChrList[character].attachedto].pos.y;
-                        z += ChrList[ChrList[character].attachedto].pos.z;
-                        level += ChrList[ChrList[character].attachedto].phys.level;
+                        x += ChrList[imount].pos.x;
+                        y += ChrList[imount].pos.y;
+                        z += ChrList[imount].pos.z;
+                        level += ChrList[imount].phys.level;
                     }
 
                     locoalive++;
                 }
             }
-        }
-        if ( locoalive > 0 )
-        {
-            x = x / locoalive;
-            y = y / locoalive;
-            z = z / locoalive;
-            level = level / locoalive;
+
+            if ( locoalive > 0 )
+            {
+                x = x / locoalive;
+                y = y / locoalive;
+                z = z / locoalive;
+                level = level / locoalive;
+            }
+            else
+            {
+                x = pcam->track_pos.x;
+                y = pcam->track_pos.y;
+                z = pcam->track_pos.z;
+            }
+
         }
         else
         {
             x = pcam->track_pos.x;
             y = pcam->track_pos.y;
             z = pcam->track_pos.z;
+
+            level = 128 + mesh_get_level( pmesh, x, y );
         }
-    }
-    else
-    {
-        x = pcam->track_pos.x;
-        y = pcam->track_pos.y;
-        z = pcam->track_pos.z;
 
-        level = 128 + mesh_get_level( pmesh, x, y );
-    }
 
-    pcam->track_vel.x = -pcam->track_pos.x;
-    pcam->track_vel.y = -pcam->track_pos.y;
-    pcam->track_vel.z = -pcam->track_pos.z;
-    pcam->track_pos.x = ( pcam->track_pos.x + x ) / 2.0f;
-    pcam->track_pos.y = ( pcam->track_pos.y + y ) / 2.0f;
-    pcam->track_pos.z = ( pcam->track_pos.z + z ) / 2.0f;
-    pcam->track_level = ( pcam->track_level + level ) / 2.0f;
+        pcam->track_pos.x = 0.9f * pcam->track_pos.x + 0.1f * x;
+        pcam->track_pos.y = 0.9f * pcam->track_pos.y + 0.1f * y;
+        pcam->track_pos.z = 0.9f * pcam->track_pos.z + 0.1f * z;
+        pcam->track_level = 0.9f * pcam->track_level + 0.1f * level;
+    }
 
     pcam->turnadd = pcam->turnadd * pcam->sustain;
-    pcam->zadd = ( pcam->zadd * 3.0f + pcam->zaddgoto ) / 4.0f;
-    pcam->pos.z = ( pcam->pos.z * 3.0f + pcam->zgoto ) / 4.0f;
+    pcam->zadd    = 0.9f * pcam->zadd  + 0.1f * pcam->zaddgoto;
+    pcam->pos.z   = 0.9f * pcam->pos.z + 0.1f * pcam->zgoto;
 
     // Camera controls
-    if ( pcam->turn_mode == 255 && local_numlpla == 1 )
+    if ( pcam->turn_mode == CAMTURN_GOOD && local_numlpla == 1 )
     {
         if ( mous.on )
         {
@@ -361,11 +380,6 @@ void camera_move( camera_t * pcam, mesh_t * pmesh )
     pcam->pos.x -= ( float ) ( pcam->mView.CNV( 0, 0 ) ) * pcam->turnadd;  // xgg
     pcam->pos.y += ( float ) ( pcam->mView.CNV( 1, 0 ) ) * -pcam->turnadd;
 
-    // Do distance effects for overlay and background
-    pcam->track_vel.x += pcam->track_pos.x;
-    pcam->track_vel.y += pcam->track_pos.y;
-    pcam->track_vel.z += pcam->track_pos.z;
-
     // Center on target for doing rotation...
     if ( pcam->turn_time != 0 )
     {
@@ -438,7 +452,7 @@ void camera_move( camera_t * pcam, mesh_t * pmesh )
 }
 
 //--------------------------------------------------------------------------------------------
-void camera_reset( camera_t * pcam, mesh_t * pmesh )
+void camera_reset( camera_t * pcam, ego_mpd_t * pmesh )
 {
     // ZZ> This function makes sure the camera starts in a suitable position
     int cnt;
@@ -448,9 +462,6 @@ void camera_reset( camera_t * pcam, mesh_t * pmesh )
     pcam->pos.y = pmesh->info.edge_y / 2;
     pcam->pos.z = 1500;
     pcam->zoom = 1000;
-    pcam->track_vel.x = 0;
-    pcam->track_vel.y = 0;
-    pcam->track_vel.z = 1500;
     pcam->center.x = pcam->pos.x;
     pcam->center.y = pcam->pos.y;
     pcam->track_pos.x = pcam->pos.x;
@@ -461,10 +472,10 @@ void camera_reset( camera_t * pcam, mesh_t * pmesh )
     pcam->zadd = 1500;
     pcam->zaddgoto = MAXZADD;
     pcam->zgoto = 1500;
-    pcam->turn_z_rad = ( float ) ( -PI / 4 );
-    pcam->turn_z_one = pcam->turn_z_rad / ( TWO_PI );
-    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x10000)) & 0xFFFF;
-    pcam->turnupdown = ( float ) ( PI / 4 );
+    pcam->turn_z_rad = -PI / 4.0f;
+    pcam->turn_z_one = pcam->turn_z_rad / TWO_PI;
+    pcam->turn_z     = ((Uint32)(pcam->turn_z_one * 0x00010000L)) & 0x0000FFFFL;
+    pcam->turnupdown = PI / 4.0f;
     pcam->roll = 0;
 
     // Now move the camera towards the players
@@ -474,7 +485,7 @@ void camera_reset( camera_t * pcam, mesh_t * pmesh )
 
         pcam->mView = IdentityMatrix();
 
-        pcam->turn_mode = 1;
+        pcam->turn_mode = CAMTURN_AUTO;
         pcam->move_mode = CAM_PLAYER;
 
         for ( cnt = 0; cnt < 32; cnt++ )
