@@ -3,9 +3,17 @@ IfSpawned
   tmpargument = ACTIONJB
   DoAction
   KeepAction
-  MakeCrushValid
-  MakeAmmoKnown
 
+  //Normal
+  IfStateIs0
+    MakeCrushValid
+    MakeAmmoKnown
+  
+  //Thrown
+  IfStateIs1
+    tmpargument = rand & 511 + 1300
+    AccelerateUp
+    
 // Make it poof
 IfCrushed
   tmpx = selfx
@@ -24,11 +32,29 @@ IfCrushed
 IfDropped
   KeepAction
 
-// Play a clink or clang
+// Play a clink or be destroyed
 IfHitGround
-  tmpargument = 0
-  PlaySound
 
+  //It was dropped
+  IfStateIs0
+    tmpargument = 0
+    PlaySound
+    
+  //It was thrown
+  IfStateIs1
+    tmpargument = 2
+    PlaySound
+    
+    //Spawns a gassy cloud
+    tmpargument = 3
+    tmpx = 0
+    tmpy = 0
+    tmpdistance = SPAWNORIGIN
+    SpawnParticle
+
+    //go away
+    GoPoof
+    
 // Alert others to draw
 IfTakenOut
   SetTargetToWhoeverIsHolding
@@ -38,45 +64,53 @@ IfTakenOut
 
 // Tell them what they've won...
 IfGrabbed
-  SetTargetToWhoeverIsHolding
+  SetTargetToWhoeverIsHolding    
   IfTargetIsAPlayer
-    tmpargument = 0
-    SendMessageNear
-
+  
     //Characters with poison skill knows what this is
     IfNameIsKnown
       DoNothing
     Else
       tmpargument = [POIS]
       IfTargetHasSkillID
-        MakeSimilarNamesKnown 
+        MakeSimilarNamesKnown
 
-// Give the user a bonus, but it's addictive...
+    //the message
+    tmpargument = 0
+    SendMessageNear
+
+//Either throw or drink it
 IfUsed
-  tmpargument = 1
-  PlaySound
-  tmpargument = 40
-  SetReloadTime
-  MakeSimilarNamesKnown
-  IfUsageIsKnown
-    tmpargument = 3
-    SendMessageNear
-  Else
-    MakeUsageKnown
-    tmpargument = 4
-    IfTargetIsAPlayer
-      tmpargument = 5
-    SendMessageNear
-    tmpargument = 40
-    tmpdistance = EXPDARE
-    GiveExperienceToTarget
   SetTargetToWhoeverIsHolding
-    // Enchant the target
-//    tmpargument = [ROGU]
-//    IfTargetHasID
-//      tmpargument = 6
-//      SendMessageNear
-//    Else
+
+  //Characters with poison skill can throw these
+  tmpargument = [POIS]
+  IfTargetHasSkillID
+    tmpx = selfcontent
+    tmpy = targetstr > 7 + 30         //Max charge depends on strength
+    IfXIsLessThanY
+      tmpargument = selfcontent + 1
+      SetContent
+    
+  //Others stupidly drink it!
+  Else
+    
+    //tell them what they did
+    IfUsageIsKnown
+      tmpargument = 3
+      SendMessageNear
+    Else
+      MakeUsageKnown
+      tmpargument = 4
+      IfTargetIsAPlayer
+        tmpargument = 5
+      SendMessageNear
+      tmpargument = 40
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      MakeSimilarNamesKnown
+      
+    //Do the effects
     SetOwnerToTarget
     EnchantTarget
 
@@ -85,9 +119,48 @@ IfUsed
     tmpdistance = SPAWNORIGIN
     tmpargument = 1
     SpawnAttachedHolderParticle
-  CostAmmo
-  IfAmmoOut
-    GoPoof
+      
+    tmpargument = 1
+    PlaySound
+    tmpargument = 40
+    SetReloadTime
+    
+    //Use one bottle and go away if it was the last one
+    CostAmmo
+    IfAmmoOut
+      GoPoof
 
+Else
+  tmpx = selfcontent      //self content is throw charge
+  tmpy = 20
+  IfXIsMoreThanY
+    tmpx = selfx
+    tmpy = selfy
+    tmpturn = targetturn
+    tmpdistance = selfcontent > 1
+    SpawnCharacter
+    
+    //Make it break when hit ground
+    tmpargument = 1
+    SetChildState
+    SetChildAmmo
+
+    //Set some delay
+    tmpargument = 40
+    SetReloadTime
+    
+    //Play throwing swish
+    tmpargument = 3
+    PlaySound
+    
+    //Use one bottle and go away if it was the last one
+    CostAmmo
+    IfAmmoOut
+      GoPoof
+      
+  //Reset charge
+  tmpargument = 0
+  SetContent
+    
 // Finish up
 End

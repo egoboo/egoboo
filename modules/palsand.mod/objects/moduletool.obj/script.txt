@@ -18,8 +18,10 @@ IfSpawned
   SetTargetToPassageID
     tmpargument = [KEYS]
     CostTargetItemID
-      tmpargument = 13500       //Start at exactly 4.5 minutes
+      tmpargument = 1500*difficulty           //Start at exactly 5 minutes
+      tmpargument = 15000 - tmpargument       //-0.5 minutes per difficulty level
       SetContent
+      
       tmpargument = 0
       PlayFullSound
       tmpargument = [ARCH]

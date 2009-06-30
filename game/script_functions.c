@@ -6678,6 +6678,21 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
     // Permanently sets the money for the character to tmpargument
 
     SCRIPT_FUNCTION_BEGIN();
+
 	ChrList[pself->index].money = MIN( MAX( pstate->argument, 0), MAXMONEY);
+
+	SCRIPT_FUNCTION_END();
+}
+
+//--------------------------------------------------------------------------------------------
+Uint8 scr_TargetCanSeeKurses( script_state_t * pstate, ai_state_t * pself )
+{
+    // IfTargetCanSeeKurses()
+    // Proceeds if the target can see kursed stuff.
+
+    SCRIPT_FUNCTION_BEGIN();
+
+	returncode = ChrList[pself->target].canseekurse;
+
     SCRIPT_FUNCTION_END();
 }

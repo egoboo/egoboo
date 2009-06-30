@@ -13,6 +13,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 2 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 2 // Message
 
   tmpargument = 36
   SetTargetToWhoeverIsInPassage
@@ -21,6 +26,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 3 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 3 // Message
 
   tmpargument = 37
   SetTargetToWhoeverIsInPassage
@@ -29,6 +39,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 4 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 4 // Message
 
   tmpargument = 38
   SetTargetToWhoeverIsInPassage
@@ -37,6 +52,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 5 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 5 // Message
 
   tmpargument = 39
   SetTargetToWhoeverIsInPassage
@@ -45,6 +65,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 6 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 6 // Message
 
   tmpargument = 40
   SetTargetToWhoeverIsInPassage
@@ -53,6 +78,11 @@ IfTimeOut
       tmpargument = [GNOM]
       IfTargetHasID
         tmpx = 7 // Message
+        
+      //Check for truesight as well
+      IfTargetCanSeeInvisible
+        IfTargetCanSeeKurses
+          tmpx = 7 // Message
 
   IfDistanceIsMoreThanTurn
     // Display the message

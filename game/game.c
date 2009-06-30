@@ -2527,10 +2527,10 @@ void check_stats()
     // !!!BAD!!!  XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience++; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience++; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience+=25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience+=25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience+=25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience+=25; stat_check_delay = 500; }
 
         statdelay = 0;
     }
@@ -3943,9 +3943,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     // Check for missile treatment
     if (  pchr_a->missiletreatment == MISNORMAL ||
             /*pchr_a->damagemodifier[pprt_b->damagetype]&3 ) < 2 ||*/
-            /*pprt_b->attachedtocharacter != MAX_CHR ||*/
+              pprt_b->attachedtocharacter != MAX_CHR ||
             ( pprt_b->chr == ichr_a && !ppip_b->friendlyfire ) ||
-            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 4 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
+            ( ChrList[pchr_a->missilehandler].mana < ( pchr_a->missilecost << 8 ) && !ChrList[pchr_a->missilehandler].canchannel ) )
     {
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
@@ -4110,7 +4110,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
     }
     else if ( pprt_b->chr != ichr_a )
     {
-        cost_mana( pchr_a->missilehandler, ( pchr_a->missilecost << 4 ), pprt_b->chr );
+        cost_mana( pchr_a->missilehandler, ( pchr_a->missilecost << 8 ), pprt_b->chr );
 
         // Treat the missile
         if ( pchr_a->missiletreatment == MISDEFLECT )

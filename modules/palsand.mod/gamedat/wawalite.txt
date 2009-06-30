@@ -43,7 +43,7 @@ Level 1... V speed ( .0005 )				: .00
 Light X direction ( 1.00 )				: 1.00
 Light Y direction ( 1.00 )				: 1.00
 Light Z direction ( 0.50 )				: 1.00
-Ambient light ( 0.20 )					: 0.85
+Ambient light ( 0.20 )					: 8.85
 
 Hillslide ( 1.00 )					:  2.00
 Slippy friction ( 1.00 )				:  0.88

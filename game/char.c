@@ -3202,6 +3202,16 @@ void damage_character( Uint16 character, Uint16 direction,
             {
                 model = ChrList[character].model;
 
+				//Hard mode deals 50% extra to players damage!
+				if( cfg.difficulty == GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
+
+				//East mode deals 25% extra damage by players and 25% less to players
+				if( cfg.difficulty == GAME_EASY )
+				{
+					if( ChrList[attacker].isplayer && !ChrList[character].isplayer ) damage *= 1.25f;
+					if( !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 0.75f;
+				}
+
                 if ( 0 == ( effects & DAMFX_NBLOC ) )
                 {
                     // Only damage if hitting from proper direction
@@ -4948,7 +4958,7 @@ int check_skills( Uint16 who, IDSZ whichskill )
     else if ( Make_IDSZ( "DISA" ) == whichskill ) result = ChrList[who].candisarm;
     else if ( Make_IDSZ( "STAB" ) == whichskill ) result = ChrList[who].canbackstab;
     else if ( Make_IDSZ( "POIS" ) == whichskill ) result = ChrList[who].canusepoison;
-    else if ( Make_IDSZ( "READ" ) == whichskill ) result = ChrList[who].canread;
+	else if ( Make_IDSZ( "READ" ) == whichskill ) result = ChrList[who].canread || ( ChrList[who].canseeinvisible && ChrList[who].canseekurse ); //Truesight allows reading
 
     return result;
 }
@@ -4983,7 +4993,7 @@ void move_characters( void )
         pchr = ChrList + cnt;
 
         // Down that ol' damage timer
-        pchr->damagetime -= ( pchr->damagetime != 0 );
+        if(pchr->damagetime > 0) pchr->damagetime--;
 
         // Character's old location
         pchr->pos_old    = pchr->pos;

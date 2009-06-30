@@ -384,6 +384,7 @@ The symbol itself follows
 :F 368 GiveManaFlowToTarget
 :F 369 GiveManaReturnToTarget
 :F 370 SetMoney
+:F 371 IfTargetCanSeeKurses
 :C 001 BLAHDEAD
 :C 002 BLAHENEMIES
 :C 004 BLAHFRIENDS
@@ -610,6 +611,7 @@ The symbol itself follows
 :V 074 targetmaxlife
 :V 075 targetteam
 :V 076 targetarmor
+:V 077 difficulty
 :O 000 +
 :O 001 -
 :O 002 &

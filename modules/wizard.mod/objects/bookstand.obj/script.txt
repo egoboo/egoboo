@@ -1,3 +1,6 @@
+//if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
+//This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
+
 IfBumped                                          //PlayerBumpsBookStand
   SetTargetToWhoeverBumped          //Targets the Bumper
   IfTargetIsAPlayer                                  //Is the Bumper a player?
@@ -13,23 +16,32 @@ IfBumped                                          //PlayerBumpsBookStand
         tmpargument = ACTIONJA             //and show the empty bookstand anim
         DoAction
         KeepAction                                      //FOREVER MUAHAHA
-        tmpargument = 8                            //tell the player the book was dropped
+        tmpargument = 0                            //tell the player the book was dropped
         SendMessageNear
-        SetTargetToWhoeverBumped
-        tmpargument = 10			//Award some xp
+        
+        //Award some xp
+        tmpargument = 10			
         tmpdistance = EXPSECRET
         GiveExperienceToTarget
       Else
         tmpargument = ACTIONDB         //open the book and play a random message
         DoAction
         KeepAction
-        tmpargument = rand % 8
+        
+        //Can they read?
+        tmpargument = [READ]
+        IfTargetHasSkillID
+          tmpargument = rand % 8 + 2   //They can read
+        Else
+          tmpargument = 1             //They cannot read!
         SendMessageNear
+        
+        //Page turning sound
         tmpargument = 0
-        PlaySound		//Page turning sound
+        PlaySound		
+        
+      //set content to one so that anims, and messages aren't repeated!
       tmpargument = 1
-      SetContent              //set content to one so that anims, and messages aren't repeated!
-End
+      SetContent   
 
-//if you want to put a book in the bookstand set the Dir to "I" dont put it in L or anything.
-//This Object was bought to you by ptapasu in association with the Bishopia Literacy Society!
+End

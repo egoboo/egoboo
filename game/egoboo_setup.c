@@ -344,7 +344,7 @@ bool_t setup_download(egoboo_config_t * pcfg)
     GetKey_bool( "DEV_MODE",    pcfg->dev_mode,          cfg_default.dev_mode );
     GetKey_bool( "SDL_IMAGE",   pcfg->sdl_image_allowed, cfg_default.sdl_image_allowed );
 
-    // Which diffculty mode do we use?
+    // Which difficulty mode do we use?
     GetKey_string( "DIFFICULTY_MODE", lTempStr, 24, "NORMAL" );
     pcfg->difficulty = cfg_default.difficulty;
     if ( toupper(lTempStr[0]) == 'E' )  pcfg->difficulty = GAME_EASY;

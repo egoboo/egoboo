@@ -436,7 +436,8 @@ enum e_script_functions
     FMORPHTOTARGET,              // == 367
     FGIVEMANAFLOWTOTARGET,       // == 368
     FGIVEMANARETURNTOTARGET,     // == 369
-    FSETMONEY				     // == 370
+    FSETMONEY,				     // == 370
+    FIFTARGETCANSEEKURSES        // == 371
 };
 
 //--------------------------------------------------------------------------------------------
@@ -535,7 +536,8 @@ enum e_script_variables
     VARSPAWNDISTANCE,    // == 73
 	VARTARGETMAXLIFE,    // == 74
 	VARTARGETTEAM,       // == 75
-	VARTARGETARMOR       // == 76
+	VARTARGETARMOR,      // == 76
+	VARDIFFICULTY        // == 77
 };
 
 //--------------------------------------------------------------------------------------------

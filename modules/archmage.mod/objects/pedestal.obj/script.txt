@@ -2,7 +2,8 @@
 IfSpawned
   tmpargument = 1
   IfContentIs
-    tmpargument = 24000      //8 minutes
+    tmpargument = diffculty * 3000
+    tmpargument = 27000 - tmpargument  //9 minutes - 1 for every difficulty level
     SetContent
 
 //Countdown the timer

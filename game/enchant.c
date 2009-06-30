@@ -593,11 +593,8 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
     int add;
     eve_t * peve;
 
-    // Target and owner must both be alive and on and valid
+    // Target must both be alive and on and valid
     if ( INVALID_CHR(target) || !ChrList[target].alive )
-        return MAX_ENC;
-
-    if ( INVALID_CHR(owner) || !ChrList[owner].alive )
         return MAX_ENC;
 
     if ( modeloptional < MAX_PROFILE )
@@ -610,8 +607,14 @@ Uint16 spawn_enchant( Uint16 owner, Uint16 target, Uint16 spawner, Uint16 ienc, 
         // The enchantment type is given by the spawner
         ieve = ChrList[spawner].model;
     }
-    if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
+
+	// Owner must both be alive and on and valid if it isn't a stayifnoowner enchant
+    if ( !EveList[ieve].stayifnoowner && ( INVALID_CHR(owner) || !ChrList[target].alive) )
+        return MAX_ENC;
+
+	if ( ieve >= MAXEVE || !EveList[ieve].valid ) return MAX_PROFILE;
     peve = EveList + ieve;
+
 
     if ( ienc == MAX_ENC )
     {

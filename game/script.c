@@ -33,6 +33,8 @@
 
 #include <assert.h>
 
+#include "egoboo_setup.h"
+
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 
@@ -839,11 +841,12 @@ Uint8 run_function( script_state_t * pstate, ai_state_t * pself )
 
         case FTAKEPICTURE:           returncode = scr_TakePicture( pstate, pself );         break;
         case FIFOPERATORISMACINTOSH: returncode = scr_OperatorIsMacintosh( pstate, pself ); break;
-        case FIFMODULEHASIDSZ:       returncode = scr_ModuleHasIDSZ( pstate, pself );     break;
+        case FIFMODULEHASIDSZ:       returncode = scr_ModuleHasIDSZ( pstate, pself );       break;
 		case FMORPHTOTARGET:         returncode = scr_MorphToTarget( pstate, pself );       break;
 		case FGIVEMANAFLOWTOTARGET:  returncode = scr_GiveManaFlowToTarget( pstate, pself );break;
 		case FGIVEMANARETURNTOTARGET:returncode = scr_GiveManaReturnToTarget( pstate, pself );break;
-		case FSETMONEY:				 returncode = scr_set_Money( pstate, pself );			break;
+		case FSETMONEY:				 returncode = scr_set_Money( pstate, pself );		    break;
+        case FIFTARGETCANSEEKURSES:  returncode = scr_TargetCanSeeKurses( pstate, pself );  break;
 
             // if none of the above, skip the line and log an error
         default:
@@ -1350,6 +1353,13 @@ void run_operand( script_state_t * pstate, ai_state_t * pself )
                 varname = "TARGETARMOR";
 				iTmp = ChrList[pself->target].skin;
                 break;
+
+            case VARDIFFICULTY:
+                varname = "DIFFICULTY";
+				iTmp = cfg.difficulty;
+                break;
+
+				
 
             default:
                 log_message( "SCRIPT ERROR: run_operand() - model == %d, class name == \"%s\" - Unknown variable found!\n", script_error_model, script_error_classname );
