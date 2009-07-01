@@ -12,7 +12,6 @@ IfGrabbed				// Tell them what they've won, Johnny!
     SendMessageNear
 IfHitGround
   tmpargument = 0
-  tmpdistance = rand % 2047 + 8000
   PlaySound
   tmpargument = ACTIONDB
   DoAction
@@ -32,8 +31,7 @@ IfUsed
 
     //Aiming Cursor
     SetTargetToOwner
-    GetContent
-    tmpdistance = tmpargument > 8 + 4 < 6
+    tmpdistance = selfcontent > 8 + 4 < 6
     tmpturn = targetturn
     tmpx = targetx
     tmpy = targety
@@ -42,8 +40,7 @@ IfUsed
     tmpargument = 4
     SpawnExactParticle
 
-    GetContent
-    tmpx = tmpargument
+    tmpx = selfcontent
     tmpy = 768					//Don't overcharge
     IfXIsLessThanY
       tmpy = targetmanaflow			//Enough spell power?
@@ -65,12 +62,10 @@ IfUsed
     SparkleIcon
 
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 750
   IfXIsMoreThanY		//Enough power to activate?
-    GetContent
-    tmpdistance = tmpargument > 8 + 4 < 6
+    tmpdistance = selfcontent > 8 + 4 < 6
     tmpturn = targetturn
     tmpx = targetx
     tmpy = targety
@@ -78,13 +73,24 @@ Else
     tmpdistance = targetz
     tmpargument = 2
     SpawnExactParticle
+    
     tmpargument = 100		//Set cooldown time
     SetReloadTime
+    
     tmpargument = 3
     SendMessageNear		//Tell what happened
     tmpargument = 1
-    tmpdistance = rand % 6000 + 11000
-    PlaySound
+    PlaySound    
+      
+    //Award xp and stuff for daring to do it
+    IfNameIsKnown
+      DoNothing
+    Else
+      tmpargument = 20
+      tmpdistance = EXPDARE
+      GiveExperienceToTarget
+      MakeNameKnown
+      MakeUsageKnown
   Else
     GetContent
     tmpx = tmpargument
@@ -93,21 +99,10 @@ Else
       tmpargument = 1
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      tmpdistance = rand % 6000 + 11000
       PlaySound
   tmpargument = 0
   SetContent			//Reset counter
   UnsparkleIcon
-
-  //Award xp and stuff for daring to do it
-  IfNameIsKnown
-    DoNothing
-  Else
-    tmpargument = 20
-    tmpdistance = EXPDARE
-    GiveExperienceToTarget
-    MakeNameKnown
-    MakeUsageKnown
 
 // Put the little mana ball on the
 // character's hand

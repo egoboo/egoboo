@@ -72,36 +72,58 @@ IfUsed
       tmpdistance = SPAWNORIGIN
       tmpargument = 1
       SpawnAttachedHolderParticle
+      
+      tmpargument = 40
+      SetReloadTime        
+
+      //Messages
+      IfUsageIsKnown
+        tmpargument = 3
+        SendMessageNear
+      Else
+        MakeSimilarNamesKnown
+        MakeUsageKnown
+        tmpargument = 4
+        IfTargetIsAPlayer
+          tmpargument = 5
+        SendMessageNear
+        tmpargument = 40
+        tmpdistance = EXPDARE
+        GiveExperienceToTarget
+      
+      //Normal potion
+      tmpargument = 0
+      IfArmorIs
+        // Decrease max mana a little
+        tmpargument = 0 - 32		      
+        GiveManaToTarget
+
+        // Increase current mana
+        tmpargument = rand % 2047 + 2048	//Amount of mana gained
+        PumpTarget
+        
+        //Do flashy effects      
+        tmpargument = 1
+        PlaySound      
+      
+      //Super potion
+      tmpargument = 1
+      IfArmorIs
+
+        // Heal all damage
+        tmpargument = 256*50	//Amount of mana gained
+        PumpTarget
+
+        //Do flashy effects      
+        tmpargument = 2
+        PlaySound
+        
+      
+      //Use a potion
       CostAmmo
       IfAmmoOut
         GoPoof
-    
-      tmpargument = 1
-      PlaySound
-      tmpargument = 40
-      SetReloadTime
-          
-    
-        IfUsageIsKnown
-          tmpargument = 3
-          SendMessageNear
-        Else
-          MakeSimilarNamesKnown
-          MakeUsageKnown
-          tmpargument = 4
-          IfTargetIsAPlayer
-            tmpargument = 5
-          SendMessageNear
-          tmpargument = 40
-          tmpdistance = EXPDARE
-          GiveExperienceToTarget
-        SetTargetToWhoeverIsHolding
-          // Decrease max mana a little
-          tmpargument = 0 - 32
-          GiveManaToTarget
-          // Increase current mana
-          tmpargument = rand & 2047 + 2048
-          PumpTarget
+
     Else
       tmpx = selfx	//Where to spawn the object
       tmpy = selfy
@@ -144,6 +166,32 @@ IfUsed
     PlaySound
     tmpargument = 40
     SetReloadTime
+
+
+//-------------------------------------------------------------------------------
+//Allow to become a super potion
+tmpargument = 0
+IfArmorIs
+  IfOrdered
+    tmpx = selforder
+    tmpy = [ENCH]
+    IfXIsEqualToY
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = BLUE
+      SparkleIcon
+      
+//This make super potions sparkle
+Else
+  tmpx = rand & 2
+  tmpy = 0
+  IfXIsEqualToY
+    tmpargument = 2
+    tmpx = rand % 50 - 25
+    tmpy = rand % 50 - 25
+    tmpdistance = rand & 31
+    SpawnParticle
+  
 //-------------------------------------------------------------------------------
 // Finish up
 End

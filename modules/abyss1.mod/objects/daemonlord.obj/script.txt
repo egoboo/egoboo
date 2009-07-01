@@ -73,9 +73,12 @@ IfKilled
   GiveExperienceToGoodTeam
 
    // Mark this module as beaten, hidden modules may open up
-  tmpargument = [MAIN]
-  tmpdistance = 7           //The quest level
-  AddQuestAllPlayers        //Add it
+  tmpx = difficulty
+  tmpy = 0
+  IfXIsMoreThanY              //Don't do this on Easy mode
+    tmpargument = [MAIN]
+    tmpdistance = 7           //The quest level
+    AddQuestAllPlayers        //Add it
 
   // Spit out text
   tmpargument = 0
@@ -134,7 +137,20 @@ IfKilled
   tmpy = selfy
   tmpdistance = selfz + 75
   SpawnExactCharacterXYZ
-
+  
+  //End text (depending on difficulty)
+  ClearEndMessage
+  tmpx = difficulty
+  tmpy = 0
+  IfXIsEqualToY
+    tmpargument = 7
+    AddEndMessage
+  Else
+    tmpargument = 5
+    AddEndMessage
+    tmpargument = 6
+    AddEndMessage
+  
 //------------------------------------------------------------------------------
 //What to do if enemies are defeated
 IfTargetKilled

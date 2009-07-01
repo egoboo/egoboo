@@ -26,39 +26,41 @@ Else
 
 //Spell stuff
 IfUsed
-  
+  SetTargetToWhoeverIsHolding
+      
   //Dismiss existing magic
   UnsparkleIcon
   UndoEnchant
-  
-  SetTargetToWhoeverIsHolding
-  tmpargument = [HMAG]
-  IfTargetHasSkillID				//Need divine spell skill
-    tmpx = selfcontent
-    tmpy = 768					//Don't overcharge
-    IfXIsLessThanY
-      tmpy = targetmanaflow			//Enough spell power?
-      IfYIsMoreThanX
-        tmpargument = 8				//Mana cost
-        CostTargetMana		
-          tmpargument = selfcontent + 8		//Casting Time
-          SetContent                //Increase the charge
+    tmpargument = 60
+    SetReloadTime
+  Else    
+    tmpargument = [HMAG]
+    IfTargetHasSkillID				//Need divine spell skill
+      tmpx = selfcontent
+      tmpy = 768					//Don't overcharge
+      IfXIsLessThanY
+        tmpy = targetmanaflow			//Enough spell power?
+        IfYIsMoreThanX
+          tmpargument = 8				//Mana cost
+          CostTargetMana		
+            tmpargument = selfcontent + 8		//Casting Time
+            SetContent                //Increase the charge
 
-          // Spawn particles around weapon
-          SetTargetToNearestFriend
-          tmpx = targetdistance
-          tmpy = 450
-          IfXIsMoreThanY
-            SetTargetToWhoeverIsHolding
-          IfHeldInLeftHand
-            SetTargetToTargetRightHand
-          Else
-            SetTargetToTargetLeftHand
-          tmpx = targetx
-          tmpy = targety
-          tmpdistance = targetz
-          tmpargument = 1
-          SpawnExactParticle
+            // Spawn particles around weapon
+            SetTargetToNearestFriend
+            tmpx = targetdistance
+            tmpy = 450
+            IfXIsMoreThanY
+              SetTargetToWhoeverIsHolding
+            IfHeldInLeftHand
+              SetTargetToTargetRightHand
+            Else
+              SetTargetToTargetLeftHand
+            tmpx = targetx
+            tmpy = targety
+            tmpdistance = targetz
+            tmpargument = 1
+            SpawnExactParticle
 
 Else
   tmpx = selfcontent
@@ -66,7 +68,6 @@ Else
   IfXIsMoreThanY		//Enough power to activate?
     
     //Do the enchant
-    tmpdistance = 0
     SetTargetToWhoeverIsHolding
     SetOwnerToTarget			//Make the caster sustain the spell
     
@@ -77,13 +78,11 @@ Else
       SetTargetToWhoeverIsHolding
     IfHeldInLeftHand
       SetTargetToTargetRightHand
-        tmpdistance = 1
     Else
       SetTargetToTargetLeftHand
-        tmpdistance = 1
     
-    tmpturn = 0
-    IfDistanceIsMoreThanTurn
+    tmpargument = [XWEP]
+    IfTargetHasAnyID
       EnchantTarget
       
       //Set cooldown time
@@ -113,7 +112,7 @@ Else
       tmpargument = 4
       SendMessageNear		//Tell it didn't work
       tmpargument = 2
-      PlaySound
+      PlaySound        
   Else
     tmpx = selfcontent
     tmpy = 0

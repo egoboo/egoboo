@@ -41,8 +41,7 @@ IfUsed
 
 // Let it be cast
 Else
-  GetContent
-  tmpx = tmpargument
+  tmpx = selfcontent
   tmpy = 0
   IfXIsMoreThanY
     tmpy = 255
@@ -60,6 +59,7 @@ Else
         SetTargetToTargetLeftHand
       tmpargument = [XWEP]
       IfTargetHasAnyID
+        
         // Do the spell
         EnchantTarget
           MakeUsageKnown
@@ -75,14 +75,31 @@ Else
 
         // Do flashy things
         tmpargument = 0
-        tmpdistance = 11025
         PlaySound
         tmpargument = 60
         SetReloadTime
-      // No valid target...
+     
+      
+      //It isn't a weapon!
       Else
-        tmpargument = 0
-        SendMessageNear
+      
+        //Allow potions to be enchanted
+        tmpargument = [POTI]
+        IfTargetHasAnyID
+          tmpargument = [ENCH]
+          OrderTarget
+          tmpargument = 0
+          PlaySound
+          tmpargument = 60
+          SetReloadTime
+          tmpargument = 4
+          SendMessageNear
+        
+        // No valid target...
+        Else
+          tmpargument = 0
+          SendMessageNear
+          
     // Nothing happens...
     Else
       tmpargument = 0

@@ -31,6 +31,7 @@ SLOT  OBJECT
 76    Bull Wolf
 77    Hatchet
 78    Kite Shield
+79    Rune of Ressurection
 82    Book of Lifedrain
 84    Armor Chest (random type, tris0 to tris2)
 85    Rune of Clairvoyance

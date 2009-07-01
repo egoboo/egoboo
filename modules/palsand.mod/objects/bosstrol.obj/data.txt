@@ -182,8 +182,8 @@ Strength dampen for weapons ( 0.0 to 1.0 )	: 0.20
 
 // Another memory lapse
 Rider cannot attack ( TRUE or FALSE )		: FALSE
-Can be dazed ( TRUE or FALSE )			: FALSE
-Can be grogged ( TRUE or FALSE )		: FALSE
+Can be dazed ( TRUE or FALSE )			: TRUE
+Can be grogged ( TRUE or FALSE )		: TRUE
 Permanent life add when used ( -256 to 256 )	: 0
 Permanent mana add when used ( -256 to 256 )	: 0
 Can see invisible ( TRUE or FALSE )		: FALSE

@@ -80,7 +80,6 @@ IfKilled
   ChangeArmor
 
   tmpargument = 1
-  tmpdistance = 11025
   PlaySound
   tmpargument = MESSAGEDEATH
   IfTargetIsOnSameTeam
@@ -90,7 +89,7 @@ IfKilled
   SendMessageNear
 
   // Drop goodies
-  tmpargument = 65535
+  tmpargument = selfmoney
   DropMoney
   DropKeys
 
@@ -116,6 +115,10 @@ IfAttacked
       HealTarget
       BlackTarget
       SetTargetToOldTarget
+
+      //Tell the players what to do
+      tmpargument = 7
+      SendMessageNear
 
       tmpargument = 1
       SetState

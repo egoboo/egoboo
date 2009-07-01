@@ -2189,6 +2189,9 @@ void give_experience( Uint16 character, int amount, Uint8 xptype, bool_t overrid
             newamount *= 1.00f + intadd + wisadd;
         }
 
+		//Apply XP bonus/penality depending on game difficulty
+		if( cfg.difficulty >= GAME_HARD ) newamount *= 1.10f;			//10% extra on hard
+
         ChrList[character].experience += newamount;
     }
 }
@@ -3203,10 +3206,10 @@ void damage_character( Uint16 character, Uint16 direction,
                 model = ChrList[character].model;
 
 				//Hard mode deals 50% extra to players damage!
-				if( cfg.difficulty == GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
+				if( cfg.difficulty >= GAME_HARD && !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 1.5f;
 
 				//East mode deals 25% extra damage by players and 25% less to players
-				if( cfg.difficulty == GAME_EASY )
+				if( cfg.difficulty <= GAME_EASY )
 				{
 					if( ChrList[attacker].isplayer && !ChrList[character].isplayer ) damage *= 1.25f;
 					if( !ChrList[attacker].isplayer && ChrList[character].isplayer ) damage *= 0.75f;
@@ -3602,7 +3605,7 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     // ZZ> This function spawns a character and returns the character's index number
     //     if it worked, MAX_CHR otherwise
 
-    Uint16 ichr;
+    Uint16 ichr, kursechance;
     int cnt, tnc;
     chr_t * pchr;
     cap_t * pcap;
@@ -3729,7 +3732,10 @@ int spawn_one_character( float x, float y, float z, Uint16 profile, Uint8 team,
     pchr->canseekurse = pcap->canseekurse;
 
     // Kurse state
-    pchr->iskursed = ( ( rand() % 100 ) < pcap->kursechance );
+	kursechance = pcap->kursechance;
+	if( cfg.difficulty >= GAME_HARD )						 kursechance *= 2.0f;	//Hard mode doubles chance for Kurses
+	if( cfg.difficulty < GAME_NORMAL && kursechance != 100 ) kursechance *= 0.5f;	//Easy mode halves chance for Kurses
+    pchr->iskursed = ( ( rand() % 100 ) < kursechance );
     if ( !pcap->isitem )  pchr->iskursed = bfalse;
 
     // Ammo

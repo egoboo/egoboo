@@ -71,14 +71,34 @@ IfUsed
 
   //This proceeds if the player drank the potion
   IfStateIs1
-    tmpargument = 1
-    PlaySound
-    tmpargument = 0 - 32		      // Decrease max life a little
-    GiveLifeToTarget
+  
+    //Normal potion
+    tmpargument = 0
+    IfArmorIs
+      // Decrease max life a little
+      tmpargument = 0 - 32		      
+      GiveLifeToTarget
+
+      // Increase current life
+      tmpargument = rand % 2047 + 2048	//Amount of life healed
+      HealTarget
+      
+      //Do flashy effects      
+      tmpargument = 1
+      PlaySound      
     
-    // Increase current life
-    tmpargument = rand & 2047 + 2048	//Amount of life healed
-    HealTarget
+    //Super potion
+    tmpargument = 1
+    IfArmorIs
+
+      // Heal all damage
+      tmpargument = targetmaxlife	//Amount of life healed
+      HealTarget
+
+      //Do flashy effects      
+      tmpargument = 2
+      PlaySound
+      
     tmpargument = ACTIONMC		//Drink animation
     TargetDoAction
     tmpdistance = SPAWNORIGIN
@@ -103,5 +123,28 @@ IfUsed
   tmpargument = 0
   SetState				//Reset for next use
 
+//Allow to become a super potion
+tmpargument = 0
+IfArmorIs
+  IfOrdered
+    tmpx = selforder
+    tmpy = [ENCH]
+    IfXIsEqualToY
+      tmpargument = 1
+      ChangeArmor
+      tmpargument = RED
+      SparkleIcon
+      
+//This make super potions sparkle
+Else
+  tmpx = rand & 2
+  tmpy = 0
+  IfXIsEqualToY
+    tmpargument = 2
+    tmpx = rand % 50 - 25
+    tmpy = rand % 50 - 25
+    tmpdistance = rand & 31
+    SpawnParticle
+  
 // Finish up
 End

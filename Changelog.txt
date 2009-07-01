@@ -2,6 +2,7 @@ Version 2.7.4 (??.??.2009)
 - New Feautre: 4 new divine spell runes.
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage!
+- Update: Life and Mana potions can now be Enchanted into super potions.
 - Update: Poison bottles can now be thrown with the Poison Use skill.
 - Update: New sound effect for speed potions.
 - Update: Truesight now allows characters to read scriptures and even use scrolls.
