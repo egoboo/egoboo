@@ -72,23 +72,23 @@ ItemChest: NONE     43    45   19   0    S   0   0   0   1   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
   WandL:   NONE     37    0    0    0    I   0   0   0   0   0   F   F   Null
   Tranch:  NONE     72    0    0    0    I   0   0   0   0   0   F   F   Evil
-  LPotion: NONE     59    0    0    0    I   0   0   0   0   0   F   F   Null
-  KeyA:    NONE     45    0    0    0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE     86    0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 ItemChest: NONE     43    55.5 5.5  0    E   0   0   0   1   0   F   F   Null
-  LPotion: NONE     59    0    0    0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE     86    0    0    0    I   0   0   0   0   0   F   F   Null
   XBow:    NONE     46    0    0    0    I   0   0   0   0   0   F   F   Null
-  KeyA:    NONE     45    0    0    0    I   0   0   0   0   0   F   F   Null
-  Shock:   NONE     38    0    0    0    I   0   0   0   0   0   F   F   Null
-  KeyC:    NONE     39    0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
+  Shock:   NONE     109   0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyC:    NONE     94    0    0    0    I   0   0   0   0   0   F   F   Null
 GnomChest: NONE     41    55.5 8.5  0    E   0   0   0   1   0   F   F   Null
 ElfChest:  NONE     40    58.5 5.5  0    W   0   0   0   1   0   F   F   Null
 HealChest: NONE     42    58.5 8.5  0    W   0   0   0   1   0   F   F   Null
 
 
 Mimic:     NONE     48    11.0 37.0 0    E   19  0   0   0   0   F   F   Evil
-  KeyA:    NONE     45    0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
 
 
 Shutter:   NONE     55    9    17   0    S   0   0   3   0   0   F   F   Null

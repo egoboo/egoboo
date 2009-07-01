@@ -106,7 +106,7 @@ Warlock:   NONE      41   51.5 19.5 0.0  N   0   0   0 32975 0   F   F   Evil
 Warlock:   NONE      41   54.5 19.5 0.0  N   0   0   0 39400 0   F   F   Evil
   Firball: NONE      60   0    0    0    R   0   0   0   0   0   F   F   Null
 Warlock:   NONE      41   51.5 21.5 0.0  N   0   0   0 32768 0   F   F   Evil
-  Shock:   NONE      54   0    0    0    R   0   0   0   0   0   F   F   Null
+  Shock:   NONE      109  0    0    0    R   0   0   0   0   0   F   F   Null
 
 
 
@@ -172,17 +172,17 @@ ItemChest: NONE      43   39   41   0    N   0   0   0   1   0   F   F   Null
 ItemChest: NONE      43   54.5 54.5 0    W 199   0   0   3   0   F   F   Null
   Rebirth: NONE      72    0    0   0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE      43   51.5 54.5 0    N   0   0   0   1   0   F   F   Null
-  LPotion: NONE      71    0    0   0    I   0   0   0   0   0   F   F   Null
-  LPotion: NONE      71    0    0   0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE      86    0    0   0    I   0   0   0   0   0   F   F   Null
+  LPotion: NONE      86    0    0   0    I   0   0   0   0   0   F   F   Null
 ExpChest:  NONE      46   41.5 19.5 0    W   0   0   0   1   0   F   F   Null
   SBrace:  NONE      49    0    0   0    I   0   0   0   0   0   F   F   Null
 InviChest: NONE      47   41.5 14.5 0    S   0   0   0   1   0   F   F   Null
   SordWal: NONE      91    0    0   0    I   0   0   0   0   0   F   F   Null
-  MPotion: NONE      70    0    0   0    I   0   0   0   0   0   F   F   Null
-  MPotion: NONE      70    0    0   0    I   0   0   0   0   0   F   F   Null
-  MPotion: NONE      70    0    0   0    I   0   0   0   0   0   F   F   Null
+  MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
+  MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
+  MPotion: NONE      87    0    0   0    I   0   0   0   0   0   F   F   Null
 ItemChest: NONE      43   53.5 21.5 0    S   0   0   0   1   0   F   F   Null
-  KeyA:    NONE      73    0    0   0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE      93    0    0   0    I   0   0   0   0   0   F   F   Null
   Torch:   NONE      80    0    0   0    I   0   0   0   0   0   F   F   Null
 ElffChest: NONE      45   13.5 7.5  0    E   0   0   0   2   0   F   F   Null
 ItemChest: NONE      43   16.5 10.5 0    W   0   0   0   1   0   F   F   Null

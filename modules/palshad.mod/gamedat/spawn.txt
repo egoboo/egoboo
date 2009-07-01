@@ -46,7 +46,7 @@ Lumpkin:   NONE     76    46.5 53.5 0    W   0   0   0   0   0   F   F   Evil
   Claw:    NONE     77    0    0    0    R   0   0   0   0   0   F   F   Null
 Lumpkin:   NONE     76    45   55   1.5  E   0   3   0   0   0   F   F   Evil
   Claw:    NONE     77    0    0    0    R   0   0   0   0   0   F   F   Null
-  KeyA:    NONE     45    0    0    0    I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93    0    0    0    I   0   0   0   0   0   F   F   Null
 Mouse:     Pinky    92    45   55   0    E   0   1   0   0   0   F   F   Vermin
 Lumpkin:   NONE     76    43.5 56.5 0    S   0   1   0   0   0   F   F   Evil
   Spear:   NONE     78    0    0    0    L   0   0   0   0   0   F   F   Null
@@ -78,7 +78,7 @@ LockDoor:  NONE     56    29   39   0.0  S   0   0   13  0   0   F   F   Null
 ShutDoor:  NONE     55    21    9   0.0  E   0   0   15  1   0   F   F   Null
 
 
-KeyA:      NONE     45    52   12   0.0  N   0   0   0   0   0   F   F   Null
+KeyA:      NONE     93    52   12   0.0  N   0   0   0   0   0   F   F   Null
 Blob:      NONE     91    52   12   0.0  N   0   0   0   0   0   F   F   Evil
 Blob:      NONE     91    52   12   0.0  S   0   0   0   0   0   F   F   Evil
 Blob:      NONE     91    52   12   0.0  E   0   0   0   0   0   F   F   Evil
@@ -88,27 +88,27 @@ Blob:      NONE     91    52   12   0.0  W   0   0   0   0   0   F   F   Evil
 
 MapChest:  NONE     44    53   45   0.0  W   0   0   0   0   0   F   F   Null
 ItemChest: NONE     43    19   35   0.0  S   0   0   0   1   0   F   F   Null
-  KeyA:    NONE     45     0    0     0  I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
   Rune:    NONE     47     0    0     0  I   0   0   0   0   0   F   F   Null
 RoguChest: NONE     40    45   35   0.0  S   0   0   0   2   0   F   F   Null
 GasChest:  NONE     42    35   47   0.0  N   0   0   0   1   0   F   F   Null
   Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
 GasChest:  NONE     42    37   47   0.0  N   199 0   0   0   0   F   F   Null
 GasChest:  NONE     42    39   47   0.0  N   0   0   0   1   0   F   F   Null
-  KeyA:    NONE     45     0    0     0  I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
 
 
 
 SoldChest: NONE     39  14.5 23.5   0.0  E   0   0   0   1   0   F   F   Null
 ItemChest: NONE     43  14.5 20.5   0.0  E   0   0   0   1   0   F   F   Null
   SPotion: NONE     58     0    0     0  I   0   0   0   0   0   F   F   Null
-  MPotion: NONE     54     0    0     0  I   0   0   0   0   0   F   F   Null
-  LPotion: NONE     59     0    0     0  I   0   0   0   0   0   F   F   Null
+  MPotion: NONE     87     0    0     0  I   0   0   0   0   0   F   F   Null
+  LPotion: NONE     86     0    0     0  I   0   0   0   0   0   F   F   Null
   Poison:  NONE     57     0    0     0  I   0   0   0   0   0   F   F   Null
 
 
 InviChest: NONE     41    21.5 57.5 0.0  N   0   0   0   1   0   F   F   Null
-  KeyA:    NONE     45     0    0     0  I   0   0   0   0   0   F   F   Null
+  KeyA:    NONE     93     0    0     0  I   0   0   0   0   0   F   F   Null
   
 
 
