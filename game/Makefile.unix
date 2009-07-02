@@ -8,7 +8,7 @@ EGO_SRC  := camera.c char.c client.c clock.c configfile.c egoboo_endian.c \
 	script_compile.c server.c sound.c sys_linux.c ui.c \
 	egoboo_console.c script_functions.c mad.c mpd.c egoboo_typedef.c \
 	ogl_texture.c ogl_extensions.c ogl_include.c ogl_debug.c \
-	SDL_extensions.c SDL_GL_extensions.c
+	SDL_extensions.c SDL_GL_extensions.c mesh.c
 
 EGO_OBJ  := ${EGO_SRC:.c=.o}
 ENET_SRC := ../enet/host.c ../enet/list.c ../enet/memory.c \
