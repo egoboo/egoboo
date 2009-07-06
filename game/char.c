@@ -379,7 +379,7 @@ void attach_particle_to_character( Uint16 particle, Uint16 character, int vertex
     // Check validity of attachment
     if ( !ChrList[character].on || ChrList[character].pack_ispacked )
     {
-        PrtList[particle]._time  = frame_all + 1;
+        PrtList[particle].time  = frame_all + 1;
         PrtList[particle].poofme = btrue;
         return;
     }

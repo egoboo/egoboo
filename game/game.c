@@ -2102,7 +2102,7 @@ void update_pits()
                 {
                     if ( PrtList[cnt].pos.z < PITDEPTH && PipList[PrtList[cnt].pip].endwater )
                     {
-                        PrtList[cnt]._time  = frame_all + 1;
+                        PrtList[cnt].time  = frame_all + 1;
                         PrtList[cnt].poofme = btrue;
                     }
                 }
@@ -2666,52 +2666,66 @@ void show_stat( Uint16 statindex )
 void show_armor( Uint16 statindex )
 {
     // ZF> This function shows detailed armor information for the character
-    char text[64], tmps[64];
-    short character, skinlevel;
-    if ( statdelay == 0 )
+    STRING text, tmps;
+
+    if( statdelay == 0 ) return;
+
+    if ( statindex < numstat )
     {
-        if ( statindex < numstat )
+        Uint16 ichr = statlist[statindex];
+
+        if( VALID_CHR(ichr) )
         {
-            character = ChrList[statlist[statindex]].model;
-            skinlevel = ChrList[character].skin;
+            Uint16 icap;
+            Uint8  skinlevel;
+
+            icap      = ChrList[ichr].model;
+            skinlevel = ChrList[ichr].skin;
 
             // Armor Name
-            sprintf( text, "=%s=", CapList[character].skinname[skinlevel] );
+            sprintf( text, "=%s=", CapList[icap].skinname[skinlevel] );
             debug_message( text );
 
             // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[character].defense[skinlevel],
-                     CapList[character].damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[2][skinlevel]&DAMAGESHIFT );
+            sprintf( text, "~DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[icap].defense[skinlevel],
+                CapList[icap].damagemodifier[0][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[1][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[2][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
-            sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     CapList[character].damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                     CapList[character].damagemodifier[7][skinlevel]&DAMAGESHIFT );
+            sprintf( text, "~HOLY:~%i~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP:~%i",
+                CapList[icap].damagemodifier[3][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[4][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[5][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[6][skinlevel]&DAMAGESHIFT,
+                CapList[icap].damagemodifier[7][skinlevel]&DAMAGESHIFT );
             debug_message( text );
-            if ( CapList[character].skindressy ) sprintf( tmps, "Light Armor" );
-            else								 sprintf( tmps, "Heavy Armor" );
 
-            sprintf( text, " Type: %s", tmps );
+            strcpy( text, "~Type: " );
+            if ( CapList[icap].skindressy & (1<<skinlevel) ) strcat( text, CapList[icap].skindressy ? "Light Armor" : "Heavy Armor" );
+            debug_message( text );
 
-            // Base speed and jumps
-            if ( CapList[character].jumpnumber == 0 )  sprintf( text, "None    (%i)", CapList[character].jumpnumber );
-            if ( CapList[character].jumpnumber == 1 )  sprintf( text, "Novice  (%i)", CapList[character].jumpnumber );
-            if ( CapList[character].jumpnumber == 2 )  sprintf( text, "Skilled (%i)", CapList[character].jumpnumber );
-            if ( CapList[character].jumpnumber == 3 )  sprintf( text, "Adept   (%i)", CapList[character].jumpnumber );
-            if ( CapList[character].jumpnumber >  3 )  sprintf( text, "Master  (%i)", CapList[character].jumpnumber );
-			
-            sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", CapList[character].maxaccel[skinlevel]*80, tmps );
+            // Base speed
+            sprintf( text, "~Speed:~%3.0f~", CapList[icap].maxaccel[skinlevel]*80 );
+
+            // jumps
+            strcat( text, "Jump Skill:~" );
+            switch( CapList[icap].jumpnumber )
+            {
+                case 0:  sprintf( tmps, "None    (%i)", CapList[icap].jumpnumber ); break;
+                case 1:  sprintf( tmps, "Novice  (%i)", CapList[icap].jumpnumber ); break;
+                case 2:  sprintf( tmps, "Skilled (%i)", CapList[icap].jumpnumber ); break;
+                case 3:  sprintf( tmps, "Adept   (%i)", CapList[icap].jumpnumber ); break;
+                default: sprintf( tmps, "Master  (%i)", CapList[icap].jumpnumber ); break;
+            };
+            strcat( text, tmps );
+
             debug_message( text );
 
             statdelay = 10;
         }
     }
+
 }
 
 //--------------------------------------------------------------------------------------------
@@ -3949,6 +3963,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         if ( ( TeamList[pprt_b->team].hatesteam[pchr_a->team] || ( ppip_b->friendlyfire && ( ( ichr_a != pprt_b->chr && ichr_a != ChrList[pprt_b->chr].attachedto ) || ppip_b->onlydamagefriendly ) ) ) && !pchr_a->invictus )
         {
             spawn_bump_particles( ichr_a, iprt_b ); // Catch on fire
+
             if ( ( pprt_b->damagebase | pprt_b->damagerand ) > 1 )
             {
                 prtidparent = CapList[pprt_b->model].idsz[IDSZ_PARENT];
@@ -4064,7 +4079,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             {
                 if ( ppip_b->bumpmoney )
                 {
-                    if ( pchr_a->cangrabmoney && pchr_a->alive && pchr_a->damagetime == 0 && pchr_a->money != MAXMONEY )
+                    if ( pchr_a->cangrabmoney && pchr_a->alive && 0 == pchr_a->damagetime && MAXMONEY != pchr_a->money )
                     {
                         if ( pchr_a->ismount )
                         {
@@ -4075,7 +4090,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                                 if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money > MAXMONEY ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = MAXMONEY;
                                 if ( ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money < 0 ) ChrList[pchr_a->holdingwhich[SLOT_LEFT]].money = 0;
 
-                                pprt_b->_time = frame_all + 1;
+                                pprt_b->time = frame_all + 1;
                                 pprt_b->poofme = btrue;
                             }
                         }
@@ -4086,14 +4101,14 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                             if ( pchr_a->money > MAXMONEY ) pchr_a->money = MAXMONEY;
                             if ( pchr_a->money < 0 ) pchr_a->money = 0;
 
-                            pprt_b->_time = frame_all + 1;
+                            pprt_b->time = frame_all + 1;
                             pprt_b->poofme = btrue;
                         }
                     }
                 }
                 else
                 {
-                    pprt_b->_time  = frame_all + 1;
+                    pprt_b->time  = frame_all + 1;
                     pprt_b->poofme = btrue;
 
                     // Only hit one character, not several
@@ -4347,16 +4362,14 @@ void stat_return()
     int cnt, owner, target, eve;
 
     // Do reload time
-    cnt = 0;
-
-    while ( cnt < MAX_CHR )
+    for ( cnt = 0; cnt < MAX_CHR; cnt++ )
     {
-        if ( ChrList[cnt].reloadtime > 0 )
+        if ( !ChrList[cnt].on ) continue;
+        
+        if( ChrList[cnt].reloadtime > 0 )
         {
             ChrList[cnt].reloadtime--;
         }
-
-        cnt++;
     }
 
     // Do stats
@@ -4388,6 +4401,7 @@ void stat_return()
             {
                 ChrList[cnt].grogtime--;
             }
+
             if ( ChrList[cnt].dazetime > 0 )
             {
                 ChrList[cnt].dazetime--;
@@ -4399,7 +4413,11 @@ void stat_return()
         {
             if ( !EncList[cnt].on ) continue;
 
-            if ( EncList[cnt].time > 0 )
+            if ( 0 == EncList[cnt].time )
+            {
+                remove_enchant( cnt );
+            }
+            else
             {
 				//Do enchant timer
                 if ( EncList[cnt].time > 0 )
@@ -4407,14 +4425,16 @@ void stat_return()
                     EncList[cnt].time--;
                 }
 
-				//To make life easier
-                owner = EncList[cnt].owner;
+				// To make life easier
+                owner  = EncList[cnt].owner;
                 target = EncList[cnt].target;
-                eve = EncList[cnt].eve;
+                eve    = EncList[cnt].eve;
 
                 // Do drains
                 if ( ChrList[owner].alive )
                 {
+                    bool_t mana_paid;
+
                     // Change life
                     ChrList[owner].life += EncList[cnt].ownerlife;
                     if ( ChrList[owner].life < 1 )
@@ -4422,13 +4442,15 @@ void stat_return()
                         ChrList[owner].life = 1;
                         kill_character( owner, target );
                     }
+
                     if ( ChrList[owner].life > ChrList[owner].lifemax )
                     {
                         ChrList[owner].life = ChrList[owner].lifemax;
                     }
 
                     // Change mana
-					if ( EveList[eve].endifcantpay && ( ChrList[target].mana < LOWSTAT || !cost_mana(owner, -EncList[cnt].ownermana, target) )  )
+                    mana_paid = cost_mana(owner, -EncList[cnt].ownermana, target);
+					if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[owner].mana)  )
                     {
                         remove_enchant( cnt );
                     }
@@ -4442,6 +4464,8 @@ void stat_return()
                 {
                     if ( ChrList[target].alive )
                     {
+                        bool_t mana_paid;
+
                         // Change life
                         ChrList[target].life += EncList[cnt].targetlife;
                         if ( ChrList[target].life < 1 )
@@ -4455,7 +4479,8 @@ void stat_return()
                         }
 
                         // Change mana
-                        if ( !cost_mana( target, -EncList[cnt].targetmana, owner ) && EveList[eve].endifcantpay )
+                        mana_paid = cost_mana( target, -EncList[cnt].targetmana, owner );
+                        if ( EveList[eve].endifcantpay && (!mana_paid || 0 == ChrList[target].mana) )
                         {
                             remove_enchant( cnt );
                         }
@@ -4465,10 +4490,6 @@ void stat_return()
                         remove_enchant( cnt );
                     }
                 }
-            }
-            else
-            {
-                remove_enchant( cnt );
             }
         }
     }

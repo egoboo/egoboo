@@ -227,7 +227,7 @@ struct s_prt
     Uint16  imagemax;                        // End of image loop
     Uint16  imagestt;                        // Start of image loop
 
-    Uint32  _time;                           // Duration of particle
+    Uint32  time;                           // Duration of particle
     bool_t  poofme;                          // end this particle for being out of time
     Uint16  spawntime;                       // Time until spawn
 

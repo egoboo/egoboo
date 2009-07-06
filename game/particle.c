@@ -404,14 +404,14 @@ Uint16 spawn_one_particle( float x, float y, float z,
 
     // "no lifetime" = "eternal"
     pprt->is_eternal = bfalse;
-    pprt->_time      = ~0;
+    pprt->time      = ~0;
     if ( 0 == prt_lifetime )
     {
         pprt->is_eternal = btrue;
     }
     else
     {
-        pprt->_time = frame_all + prt_lifetime;
+        pprt->time = frame_all + prt_lifetime;
     }
 
 
@@ -517,7 +517,7 @@ void move_particles( void )
             pprt->vel.y = pprt->vel.y * noslipfriction;
             if ( ppip->endground )
             {
-                pprt->_time  = frame_all + 1;
+                pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
             }
             if ( pprt->vel.z < 0 )
@@ -547,7 +547,7 @@ void move_particles( void )
                 pprt->vel.x = ( -pprt->vel.x * ppip->dampen );
                 if ( ppip->endwall )
                 {
-                    pprt->_time  = frame_all + 1;
+                    pprt->time  = frame_all + 1;
                     pprt->poofme = btrue;
                 }
                 else
@@ -578,7 +578,7 @@ void move_particles( void )
                 pprt->vel.y = ( -pprt->vel.y * ppip->dampen );
                 if ( ppip->endwall )
                 {
-                    pprt->_time  = frame_all + 1;
+                    pprt->time  = frame_all + 1;
                     pprt->poofme = btrue;
                 }
                 else
@@ -610,7 +610,7 @@ void move_particles( void )
         {
             if ( !ChrList[pprt->target].alive )
             {
-                pprt->_time  = frame_all + 1;
+                pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
             }
             else
@@ -680,18 +680,17 @@ void move_particles( void )
             {
                 // Just destroy the particle
                 //                    free_one_particle_in_game(cnt);
-                pprt->_time  = frame_all + 1;
+                pprt->time  = frame_all + 1;
                 pprt->poofme = btrue;
             }
         }
 
         // Spawn new particles if time for old one is up
-        if ( !pprt->is_eternal && ( pprt->poofme || frame_all >= pprt->_time ) )
+        if ( pprt->poofme || ( !pprt->is_eternal && frame_all >= pprt->time ) )
         {
             facing = pprt->facing;
-            tnc = 0;
-
-            while ( tnc < ppip->endspawnamount )
+            
+            for ( tnc = 0; tnc < ppip->endspawnamount; tnc++ )
             {
                 spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,
                                     facing, pprt->model, ppip->endspawnpip,
