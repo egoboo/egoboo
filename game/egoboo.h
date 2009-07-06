@@ -285,7 +285,7 @@ EXTERN bool_t                    local_seekurse       EQ( bfalse );
 EXTERN Uint16                    local_senseenemies   EQ( MAX_CHR );
 EXTERN IDSZ                      local_senseenemiesID EQ( bfalse );
 EXTERN bool_t                    local_listening      EQ( bfalse );  // Players with listen skill?
-EXTERN bool_t                    local_noplayers;             // Are there any local players?
+EXTERN bool_t                    local_noplayers;					 // Are there any local players?
 
 //------------------------------------
 // Model stuff
@@ -317,11 +317,5 @@ enum e_order
     ORDER_TERRAIN,
     ORDER_COUNT
 };
-
-//Quest system
-#define QUEST_BEATEN         -1
-#define QUEST_NONE             -2
-
-// Objects
 
 #define  _EGOBOO_H_

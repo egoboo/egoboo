@@ -183,7 +183,7 @@ int get_free_particle( int force )
     {
         if ( force )
         {
-            // Gotta find one, so go through the list
+            // Gotta find one, so go through the list and replace a unimportant one
             particle = 0;
 
             while ( particle < maxparticles )
@@ -685,31 +685,24 @@ void move_particles( void )
             }
         }
 
-        //            else
-        //            {
         // Spawn new particles if time for old one is up
-        if ( pprt->poofme || !pprt->is_eternal )
+        if ( !pprt->is_eternal && ( pprt->poofme || frame_all >= pprt->_time ) )
         {
-            // determine if the time if up
-            if ( pprt->poofme || frame_all >= pprt->_time )
+            facing = pprt->facing;
+            tnc = 0;
+
+            while ( tnc < ppip->endspawnamount )
             {
-                facing = pprt->facing;
-                tnc = 0;
-
-                while ( tnc < ppip->endspawnamount )
-                {
-                    spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,
-                                        facing, pprt->model, ppip->endspawnpip,
-                                        MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
-                    facing += ppip->endspawnfacingadd;
-                    tnc++;
-                }
-
-                free_one_particle_in_game( cnt );
+                spawn_one_particle( pprt->pos.x - pprt->vel.x, pprt->pos.y - pprt->vel.y, pprt->pos.z,
+                                    facing, pprt->model, ppip->endspawnpip,
+                                    MAX_CHR, GRIP_LAST, pprt->team, pprt->chr, tnc, pprt->target );
+                facing += ppip->endspawnfacingadd;
+                tnc++;
             }
+
+            free_one_particle_in_game( cnt );
         }
 
-        //            }
         pprt->facing += ppip->facingadd;
     }
 }

@@ -1930,7 +1930,7 @@ void character_swipe( Uint16 cnt, Uint8 slot )
                 ChrList[weapon].ammo--;  // Ammo usage
             }
 
-            // HERE
+            // Spawn an attack particle
             if ( CapList[ChrList[weapon].model].attackprttype != -1 )
             {
                 particle = spawn_one_particle( ChrList[weapon].pos.x, ChrList[weapon].pos.y, ChrList[weapon].pos.z, ChrList[cnt].turn_z, ChrList[weapon].model, CapList[ChrList[weapon].model].attackprttype, weapon, spawngrip, ChrList[cnt].team, cnt, 0, MAX_CHR );
@@ -1971,10 +1971,12 @@ void character_swipe( Uint16 cnt, Uint8 slot )
 
                     // Initial particles get a strength bonus, which may be 0.00f
                     PrtList[particle].damagebase += ( ChrList[cnt].strength * CapList[ChrList[weapon].model].strengthdampen );
-                    // Initial particles get an enchantment bonus
+                    
+					// Initial particles get an enchantment bonus
                     PrtList[particle].damagebase += ChrList[weapon].damageboost;
-                    // Initial particles inherit damage type of weapon
-                    PrtList[particle].damagetype = ChrList[weapon].damagetargettype;
+                    
+					// Initial particles inherit damage type of weapon
+                    //PrtList[particle].damagetype = ChrList[weapon].damagetargettype;  //Zefz: not sure if we want this. we can have weapons with different damage types
                 }
             }
         }
@@ -4859,7 +4861,7 @@ Sint16 modify_quest_idsz( const char *whichplayer, IDSZ idsz, Sint16 adjustment 
                 // modify it
                 if ( newidsz == idsz )
                 {
-                    QuestLevel += adjustment;
+                    QuestLevel = adjustment;
                     if (QuestLevel < 0) QuestLevel = 0;   //Don't get negative
 
                     NewQuestLevel = QuestLevel;

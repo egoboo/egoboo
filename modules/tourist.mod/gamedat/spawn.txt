@@ -1,7 +1,7 @@
 //         Name      Slot Xpos Ypos Zpos Dir Mon Skn Pas Con Lvl Stt Gho Team
 HERO:   NONE    0  57.5   58.5   7.0   N    1000   0  0   0   0   T   F   G
   camera.obj:   NONE    48  0.0   0.0   0.0   R    0   0  0   0   0   F   F   N
-  touristguide.obj:   NONE    49  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
+  touristguide.obj:   NONE    160  0.0   0.0   0.0   L    0   0  0   0   0   F   F   N
   fortunecookie.obj:   NONE    50  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
   fakecreditcard.obj:   NONE    57  0.0   0.0   0.0   I    0   0  0   0   0   F   F   N
 

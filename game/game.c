@@ -2524,13 +2524,21 @@ void check_stats()
     if ( stat_check_delay > 0 )
         return;
 
+    // Show map cheat
+    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) && mapvalid )
+    {
+        mapon = !mapon;
+        youarehereon = btrue;
+        stat_check_delay = 1500;
+    }
+
     // !!!BAD!!!  XP CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_x ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience+=25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience+=25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience+=25; stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience+=25; stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].experience+=25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].experience+=25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].experience+=25; stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].experience+=25; stat_check_delay = 250; }
 
         statdelay = 0;
     }
@@ -2538,23 +2546,23 @@ void check_stats()
     // !!!BAD!!!  LIFE CHEAT
     if ( cfg.dev_mode && SDLKEYDOWN( SDLK_z ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, PERFECTBIG); stat_check_delay = 500; }
-        if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, PERFECTBIG); stat_check_delay = 500; }
+        if ( SDLKEYDOWN( SDLK_1 ) && VALID_CHR(PlaList[0].index) )  { ChrList[PlaList[0].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[0].index].life, ChrList[PlaList[0].index].lifemax); stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_2 ) && VALID_CHR(PlaList[1].index) )  { ChrList[PlaList[1].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[1].index].life, ChrList[PlaList[1].index].lifemax); stat_check_delay = 250; }
+        if ( SDLKEYDOWN( SDLK_3 ) && VALID_CHR(PlaList[2].index) )  { ChrList[PlaList[2].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[2].index].life, ChrList[PlaList[2].index].lifemax); stat_check_delay = 250; }
+		if ( SDLKEYDOWN( SDLK_4 ) && VALID_CHR(PlaList[3].index) )  { ChrList[PlaList[3].index].life += 32; ChrList[PlaList[0].index].life = MIN(ChrList[PlaList[3].index].life, ChrList[PlaList[3].index].lifemax); stat_check_delay = 250; }
     }
 
     // Display armor stats?
     if ( SDLKEYDOWN( SDLK_LSHIFT ) )
     {
-        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
-        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 8 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_1 ) )  { show_armor( 0 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_2 ) )  { show_armor( 1 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_3 ) )  { show_armor( 2 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_4 ) )  { show_armor( 3 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_5 ) )  { show_armor( 4 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_6 ) )  { show_armor( 5 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_7 ) )  { show_armor( 6 ); stat_check_delay = 1000; }
+        if ( SDLKEYDOWN( SDLK_8 ) )  { show_armor( 7 ); stat_check_delay = 1000; }
     }
 
     // Display enchantment stats?
@@ -2570,7 +2578,7 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_8 ) )  { show_full_status( 7 ); stat_check_delay = 1000; }
     }
 
-    // Display character stats?
+    // Display character special powers?
     else if ( SDLKEYDOWN( SDLK_LALT ) )
     {
         if ( SDLKEYDOWN( SDLK_1 ) )  { show_magic_status( 0 ); stat_check_delay = 1000; }
@@ -2596,13 +2604,6 @@ void check_stats()
         if ( SDLKEYDOWN( SDLK_8 ) )  { show_stat( 7 ); stat_check_delay = 1000; }
     }
 
-    // Show map cheat
-    if ( cfg.dev_mode && SDLKEYDOWN( SDLK_m ) && SDLKEYDOWN( SDLK_LSHIFT ) )
-    {
-        mapon = mapvalid;
-        youarehereon = btrue;
-        stat_check_delay = 1000;
-    }
 }
 
 //--------------------------------------------------------------------------------------------
@@ -2671,41 +2672,41 @@ void show_armor( Uint16 statindex )
     {
         if ( statindex < numstat )
         {
-            character = statlist[statindex];
+            character = ChrList[statlist[statindex]].model;
             skinlevel = ChrList[character].skin;
 
             // Armor Name
-            sprintf( text, "=%s=", CapList[ChrList[character].model].skinname[skinlevel] );
+            sprintf( text, "=%s=", CapList[character].skinname[skinlevel] );
             debug_message( text );
 
             // Armor Stats
-            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[ChrList[character].model].defense[skinlevel],
-                     CapList[ChrList[character].model].damagemodifier[0][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[1][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[2][skinlevel]&DAMAGESHIFT );
+            sprintf( text, " DEF: %d  SLASH:%3d~CRUSH:%3d POKE:%3d", 255 - CapList[character].defense[skinlevel],
+                     CapList[character].damagemodifier[0][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[1][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[2][skinlevel]&DAMAGESHIFT );
             debug_message( text );
 
             sprintf( text, " HOLY: %i~~EVIL:~%i~FIRE:~%i~ICE:~%i~ZAP: ~%i",
-                     CapList[ChrList[character].model].damagemodifier[3][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[4][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[5][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[6][skinlevel]&DAMAGESHIFT,
-                     CapList[ChrList[character].model].damagemodifier[7][skinlevel]&DAMAGESHIFT );
+                     CapList[character].damagemodifier[3][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[4][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[5][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[6][skinlevel]&DAMAGESHIFT,
+                     CapList[character].damagemodifier[7][skinlevel]&DAMAGESHIFT );
             debug_message( text );
-            if ( CapList[ChrList[character].model].skindressy ) sprintf( tmps, "Light Armor" );
-            else                   sprintf( tmps, "Heavy Armor" );
+            if ( CapList[character].skindressy ) sprintf( tmps, "Light Armor" );
+            else								 sprintf( tmps, "Heavy Armor" );
 
             sprintf( text, " Type: %s", tmps );
 
-            // Speed and jumps
-            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (%i)", ChrList[character].jumpnumberreset );
-
+            // Base speed and jumps
+            if ( CapList[character].jumpnumber == 0 )  sprintf( text, "None    (%i)", CapList[character].jumpnumber );
+            if ( CapList[character].jumpnumber == 1 )  sprintf( text, "Novice  (%i)", CapList[character].jumpnumber );
+            if ( CapList[character].jumpnumber == 2 )  sprintf( text, "Skilled (%i)", CapList[character].jumpnumber );
+            if ( CapList[character].jumpnumber == 3 )  sprintf( text, "Adept   (%i)", CapList[character].jumpnumber );
+            if ( CapList[character].jumpnumber >  3 )  sprintf( text, "Master  (%i)", CapList[character].jumpnumber );
+			
             sprintf( tmps, "Jump Skill: %s", text );
-            sprintf( text, " Speed:~%3.0f~~%s", CapList[ChrList[character].model].maxaccel[skinlevel]*80, tmps );
+            sprintf( text, " Speed:~%3.0f~~%s", CapList[character].maxaccel[skinlevel]*80, tmps );
             debug_message( text );
 
             statdelay = 10;
@@ -2755,11 +2756,11 @@ void show_full_status( Uint16 statindex )
             debug_message( text );
 
             // Speed and jumps
-            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None (0)" );
-            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice (1)" );
-            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (2)" );
-            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Master (3)" );
-            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Inhuman (4+)" );
+            if ( ChrList[character].jumpnumberreset == 0 )  sprintf( text, "None    (%i)", ChrList[character].jumpnumberreset );
+            if ( ChrList[character].jumpnumberreset == 1 )  sprintf( text, "Novice  (%i)", ChrList[character].jumpnumberreset );
+            if ( ChrList[character].jumpnumberreset == 2 )  sprintf( text, "Skilled (%i)", ChrList[character].jumpnumberreset );
+            if ( ChrList[character].jumpnumberreset == 3 )  sprintf( text, "Adept   (%i)", ChrList[character].jumpnumberreset );
+            if ( ChrList[character].jumpnumberreset > 3 )   sprintf( text, "Master  (%i)", ChrList[character].jumpnumberreset );
 
             sprintf( tmps, "Jump Skill: %s", text );
             sprintf( text, " Speed:~%3.0f~~%s", ChrList[character].maxaccel*80, tmps );
@@ -2792,7 +2793,6 @@ void show_magic_status( Uint16 statindex )
             }
             if ( i != MAX_ENC ) sprintf( text, "=%s is enchanted!=", ChrList[character].name );
             else sprintf( text, "=%s is unenchanted=", ChrList[character].name );
-
             debug_message( text );
 
             // Enchantment status
@@ -2800,22 +2800,21 @@ void show_magic_status( Uint16 statindex )
             else                 sprintf( tmpa, "No" );
             if ( ChrList[character].canseekurse )      sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
-
             sprintf( text, " See Invisible: %s~~See Kurses: %s", tmpa, tmpb );
             debug_message( text );
+
             if ( ChrList[character].canchannel )     sprintf( tmpa, "Yes" );
             else                 sprintf( tmpa, "No" );
             if ( ChrList[character].waterwalk )        sprintf( tmpb, "Yes" );
             else                 sprintf( tmpb, "No" );
-
             sprintf( text, " Channel Life: %s~~Waterwalking: %s", tmpa, tmpb );
             debug_message( text );
-            if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
-            else                 sprintf( tmpa, "No" );
-            if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
+            
+			if ( ChrList[character].flyheight > 0 )    sprintf( tmpa, "Yes" );
+            else                 sprintf( tmpa, "No" );       
+			if ( ChrList[character].missiletreatment == MISREFLECT )       sprintf( tmpb, "Reflect" );
             else if ( ChrList[character].missiletreatment == MISREFLECT )  sprintf( tmpb, "Deflect" );
             else                           sprintf( tmpb, "None" );
-
             sprintf( text, " Flying: %s~~Missile Protection: %s", tmpa, tmpb );
             debug_message( text );
 
@@ -3994,6 +3993,21 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
 
                         enchant = temp;
                     }
+           
+					// Do confuse effects
+					if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
+                    {
+                        if ( ppip_b->grogtime >= pchr_a->grogtime && pcap_a->canbegrogged )
+                        {
+                            pchr_a->grogtime = MAX(0, pchr_a->grogtime + ppip_b->grogtime);
+                            pchr_a->ai.alert |= ALERTIF_GROGGED;
+                        }
+                        if ( ppip_b->dazetime >= pchr_a->dazetime && pcap_a->canbedazed )
+                        {
+                            pchr_a->dazetime = MAX(0, pchr_a->dazetime + ppip_b->dazetime);
+                            pchr_a->ai.alert |= ALERTIF_DAZED;
+                        }
+                    }
 
                     // Apply intelligence/wisdom bonus damage for particles with the [IDAM] and [WDAM] expansions (Low ability gives penality)
                     //+2% bonus for every point of intelligence and/or wisdom above 14. Below 14 gives -2% instead!
@@ -4022,25 +4036,6 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                     else
                     {
                         damage_character( ichr_a, direction, pprt_b->damagebase, pprt_b->damagerand, pprt_b->damagetype, pprt_b->team, pprt_b->chr, ppip_b->damfx, bfalse );
-                    }
-
-                    // Do confuse effects
-                    if ( 0 == ( Md2FrameList[pchr_a->inst.frame_nxt].framefx&MADFX_INVICTUS ) || ppip_b->damfx&DAMFX_NBLOC )
-                    {
-                        if ( ppip_b->grogtime != 0 && pcap_a->canbegrogged )
-                        {
-                            pchr_a->grogtime += ppip_b->grogtime;
-                            if ( pchr_a->grogtime < 0 )  pchr_a->grogtime = 32767;
-
-                            pchr_a->ai.alert |= ALERTIF_GROGGED;
-                        }
-                        if ( ppip_b->dazetime != 0 && pcap_a->canbedazed )
-                        {
-                            pchr_a->dazetime += ppip_b->dazetime;
-                            if ( pchr_a->dazetime < 0 )  pchr_a->dazetime = 32767;
-
-                            pchr_a->ai.alert |= ALERTIF_DAZED;
-                        }
                     }
 
                     // Notify the attacker of a scored hit
@@ -4120,6 +4115,7 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
             ay = pprt_b->pos.y - pprt_b->vel.y;
             ax = pchr_a->pos.x - ax;
             ay = pchr_a->pos.y - ay;
+
             // Find size of normal
             scale = ax * ax + ay * ay;
             if ( scale > 0 )
@@ -4128,7 +4124,8 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
                 scale = SQRT( scale );
                 nx = ax / scale;
                 ny = ay / scale;
-                // Deflect the incoming ray off the normal
+            
+				// Deflect the incoming ray off the normal
                 scale = ( pprt_b->vel.x * nx + pprt_b->vel.y * ny ) * 2;
                 ax = scale * nx;
                 ay = scale * ny;
@@ -4144,11 +4141,9 @@ bool_t do_chr_prt_collision( Uint16 ichr_a, Uint16 iprt_b )
         }
 
         // Change the owner of the missile
-        if ( !ppip_b->homing )
-        {
-            pprt_b->team = pchr_a->team;
-            pprt_b->chr = ichr_a;
-        }
+        pprt_b->team = pchr_a->team;
+        pprt_b->chr = ichr_a;
+		ppip_b->homing = bfalse;
 
         // Change the direction of the particle
         if ( ppip_b->rotatetoface )
@@ -4385,9 +4380,11 @@ void stat_return()
                 ChrList[cnt].mana = MAX(0, MIN(ChrList[cnt].mana, ChrList[cnt].manamax));
 
                 ChrList[cnt].life += ChrList[cnt].lifereturn;
-                ChrList[cnt].life = MAX(1, MIN(ChrList[cnt].life, ChrList[cnt].life));
+                ChrList[cnt].life = MAX(1, MIN(ChrList[cnt].life, ChrList[cnt].lifemax));
             }
-            if ( ChrList[cnt].grogtime > 0 )
+            
+			//countdown cofuse effects
+			if ( ChrList[cnt].grogtime > 0 )
             {
                 ChrList[cnt].grogtime--;
             }
@@ -4402,13 +4399,15 @@ void stat_return()
         {
             if ( !EncList[cnt].on ) continue;
 
-            if ( EncList[cnt].time != 0 )
+            if ( EncList[cnt].time > 0 )
             {
+				//Do enchant timer
                 if ( EncList[cnt].time > 0 )
                 {
                     EncList[cnt].time--;
                 }
 
+				//To make life easier
                 owner = EncList[cnt].owner;
                 target = EncList[cnt].target;
                 eve = EncList[cnt].eve;
@@ -4429,7 +4428,7 @@ void stat_return()
                     }
 
                     // Change mana
-                    if ( !cost_mana( owner, -EncList[cnt].ownermana, target ) && EveList[eve].endifcantpay )
+					if ( EveList[eve].endifcantpay && ( ChrList[target].mana < LOWSTAT || !cost_mana(owner, -EncList[cnt].ownermana, target) )  )
                     {
                         remove_enchant( cnt );
                     }
@@ -4604,7 +4603,7 @@ bool_t chr_setup_read( FILE * fileread, chr_setup_info_t *pinfo )
     pinfo->facing = NORTH;
     pinfo->attach = ATTACH_NONE;
     cTmp = fget_first_letter( fileread );
-    if ( 'S' == toupper(cTmp) )  pinfo->facing = SOUTH;
+    if ( 'S' == toupper(cTmp) )		  pinfo->facing = SOUTH;
     else if ( 'E' == toupper(cTmp) )  pinfo->facing = EAST;
     else if ( 'W' == toupper(cTmp) )  pinfo->facing = WEST;
     else if ( '?' == toupper(cTmp) )  pinfo->facing = RANDOM;

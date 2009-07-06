@@ -426,13 +426,6 @@ Uint8 scr_FindPath( script_state_t * pstate, ai_state_t * pself )
             reset_character_accel( pself->index ); // Force 100% speed
         }
 
-        // Secondly we run the Compass function (If we are not in follow mode)
-        if ( pstate->distance != MOVE_FOLLOW )
-        {
-            pstate->x = pstate->x - turntocos[ (pstate->turn>>2) & TRIG_TABLE_MASK ] * pstate->distance;
-            pstate->y = pstate->y - turntosin[ (pstate->turn>>2) & TRIG_TABLE_MASK ] * pstate->distance;
-        }
-
         // Then we add the waypoint(s), without clearing existing ones...
         pself->wp_pos_x[pself->wp_head] = pstate->x;
         pself->wp_pos_y[pself->wp_head] = pstate->y;
@@ -6679,7 +6672,11 @@ Uint8 scr_set_Money( script_state_t * pstate, ai_state_t * pself )
 
     SCRIPT_FUNCTION_BEGIN();
 
-	ChrList[pself->index].money = MIN( MAX( pstate->argument, 0), MAXMONEY);
+	if( pstate->argument >= 0 )
+	{
+		if( pstate->argument > MAXMONEY ) ChrList[pself->index].money = MAXMONEY;
+		else ChrList[pself->index].money = pstate->argument;
+	}
 
 	SCRIPT_FUNCTION_END();
 }

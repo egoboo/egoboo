@@ -3540,6 +3540,7 @@ void draw_map()
         draw_blip(0.75f, blipc[cnt], blipx[cnt], blipy[cnt] + sdl_scr.y - MAPSIZE );
     }
 
+	//Show camera position
     if ( youarehereon && ( update_wld&8 ) )
     {
         for ( cnt = 0; cnt < MAXPLAYER; cnt++ )
@@ -3653,16 +3654,21 @@ int draw_debug( int y )
     if ( SDLKEYDOWN( SDLK_F6 ) )
     {
         // More debug information
+		STRING text;
+
         y = _draw_string_raw( 0, y, "!!!DEBUG MODE-6!!!" );
         y = _draw_string_raw( 0, y, "~~FREEPRT %d", prt_count_free() );
         y = _draw_string_raw( 0, y, "~~FREECHR %d", chr_count_free() );
         y = _draw_string_raw( 0, y, "~~MACHINE %d", local_machine );
-        y = _draw_string_raw( 0, y, "~~EXPORT %d", PMod->exportvalid );
-        y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
-        y = _draw_string_raw( 0, y, "~~PASS %d/%d", numshoppassage, numpassage );
+		if( PMod->exportvalid ) sprintf( text, "~~EXPORT: TRUE" );
+		else					sprintf( text, "~~EXPORT: FALSE" );
+		y = _draw_string_raw( 0, y, text, PMod->exportvalid );
+		y = _draw_string_raw( 0, y, "~~PASS %d/%d", numshoppassage, numpassage );
         y = _draw_string_raw( 0, y, "~~NETPLAYERS %d", numplayer );
         y = _draw_string_raw( 0, y, "~~DAMAGEPART %d", damagetile_data.parttype );
-    }
+		
+		//y = _draw_string_raw( 0, y, "~~FOGAFF %d", fog_data.affects_water );
+     }
 
     if ( SDLKEYDOWN( SDLK_F7 ) )
     {

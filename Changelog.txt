@@ -2,6 +2,8 @@ Version 2.7.4 (??.??.2009)
 - New Feautre: 4 new divine spell runes.
 - New Feature: Added a new secret class into the game - The Tourist Starter!
 - New Feature: The first Hero class has been added - The Archmage!
+- Update: Two new NPC's added to Bishopia.
+- Update: Confusion effects no longer stack, now only the longer effect is applied.
 - Update: Life and Mana potions can now be Enchanted into super potions.
 - Update: Poison bottles can now be thrown with the Poison Use skill.
 - Update: New sound effect for speed potions.
@@ -12,15 +14,16 @@ Version 2.7.4 (??.??.2009)
 - Update: Major updates to the lightning engine.
 - Update: Rings now sparkle so that they are more visible.
 - Update: Improved Linux and Macintosh compatability.
-- Update: Some minor rebalancing.
+- Update: Some various rebalancing.
 - Update: Improved the Hell Rover AI and added some new animations.
+- Bugfix: Fixed bug that halved the mana cost for deflecting projectiles.
 - Bugfix: Switches can no longer be killed.
 - Bugfix: Egoboo should no longer crash in 24-bit color mode.
 - Bugfix: Fixed some minor particle rendering bugs.
 - Bugfix: Significant tweaks to improve the physics engine.
 - Bugfix: Land Mines should work properly again.
 - Bugfix: Fixed numerous bugs in the final boss fight.
-- Bugfix: Ghouls should not return from the dead when already alive anymore.
+- Bugfix: Ghouls should no longer return from the dead when already alive.
 - Bugfix: Fixed impassable passage in Catacombs 1.
 - Bugfix: Fixed a serious bug that caused the quest system to fail.
 - Bugfix: Fixed bug that made the Global Object Repository to fail on Windows.

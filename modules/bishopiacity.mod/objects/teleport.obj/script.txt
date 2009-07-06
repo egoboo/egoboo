@@ -89,7 +89,7 @@ Else			//Player released the charge
         tmpdistance = 1
     tmpargument = [ARCH]    //Archmages have always 100% success
     IfTargetHasID
-     tmpdistance = 1
+      tmpdistance = 1
 
 
     //If tmpdistance = 1 then it's at least a level 5 wizard

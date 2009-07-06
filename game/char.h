@@ -113,10 +113,13 @@ slot_t        grip_offset_to_slot( grip_offset_t grip );
 #define MOUNTTOLERANCE      (2 * PLATTOLERANCE)
 #define STOPBOUNCING         0.1f //1.0f                // To make objects stop bouncing
 
+//Quest system
+#define QUEST_BEATEN         -1
+#define QUEST_NONE           -2
+
 //------------------------------------
 // Team variables
 //------------------------------------
-
 #define MAXTEAM             27                      // Teams A-Z, +1 more for damage tiles
 #define DAMAGETEAM          26                      // For damage tiles
 #define EVILTEAM            4                       // E

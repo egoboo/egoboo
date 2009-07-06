@@ -60,3 +60,4 @@ SLOT  OBJECT
 120   Orb of Wonder
 127   *RESERVED FOR BOOK.OBJ*
 158   Ring of Protection
+160   The Tourist's Guide to Bishopia
